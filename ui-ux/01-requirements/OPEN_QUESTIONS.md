@@ -34,12 +34,14 @@ Fourteen questions were answered by the confirmed decisions. **All four Review-0
 
 | Priority | Count |
 |---|---|
-| **High** | 10 |
-| Medium | 15 |
+| **High** | 6 |
+| Medium | 19 |
 | Low | 13 |
 | **Total open** | **38** |
 
-**No question blocks build start.** Ten are High because they would change product behaviour, carry compliance risk, or represent an accessibility barrier. Counts include Q-49 (from D-19) and Q-50 – Q-52 (from the Stage 8 accessibility review).
+**Review 005 closed 4** (Q-10, Q-46, Q-47, Q-54) **and added 1** (Q-56); Q-53 dropped High → Medium. Net 41 → 38.
+
+**No question blocks build start or Figma transfer.** The six remaining High items would change product behaviour, carry compliance risk, or represent an accessibility barrier: Q-13 brand · Q-18 identity linking · Q-32 localization · Q-35 currency/tax · Q-11 profile ownership · Q-42 simulation completion recovery.
 
 **Four carry engineering dependencies as much as product ones:** Q-40 video coverage tracking · Q-42 unrecorded simulation completion · Q-43 server-authoritative timer · Q-49 device-completion latency.
 
@@ -77,18 +79,6 @@ Fourteen questions were answered by the confirmed decisions. **All four Review-0
 **Affects** AUTH-07 profile setup, STU-14 profile, sync-conflict messaging.
 **Continue?** Yes — A-11 makes ERP-sourced fields read-only with a provenance note.
 
-### Q-46 — Are **courses** purchasable, or only modules and bundles?
-
-**Why it matters** FRD 6.1.1 and 6.1.2 name only *individual modules* and *bundles*. But the content hierarchy has Courses (3.2.1) between modules and programs, and D-07 gates progression **within a course**. If a B2C learner can only buy loose modules, they may never experience a coherent course sequence — and the gating model has nothing to gate. If bundles *are* courses in commercial clothing, that should be said, because it changes what Explore lists and how a product detail page is structured.
-**Affects** B2C-01 Explore taxonomy, B2C-02 Product Detail, My Learning grouping, the whole gating model for B2C.
-**Continue?** Yes — Explore is designed to list **modules and bundles** per the FRD, with bundles able to *contain* a full course. Flagged as a genuine product question.
-
-### Q-47 — Does sequential gating (D-07) apply to individually purchased modules?
-
-**Why it matters** D-07 gates modules within a course sequence. A B2C learner who buys a single module from the middle of a course has no predecessor to complete. Gating them would make their purchase unusable; not gating them creates two different progression models in one product.
-**Affects** STU-04 module detail, module state model, B2C entitlement presentation.
-**Continue?** Yes — assumed: gating applies **within a course context only**; a standalone purchased module is always Available. Recorded in the flows and screen inventory as an explicit branch.
-
 ### Q-42 — What recovery exists when a simulation completion is never *recorded*? *(rescoped by D-19)*
 
 **Why it matters** D-19 removed the structural dead end: completion is account-level, so a headset-only module no longer strands a desktop Student by design. What survives is narrower but still real — if the platform **fails to record** a completion (telemetry loss, crash at session end, device offline), the Student has done the work and the account does not reflect it. D-07 still gates on recorded state, and A-40 still declines a manual override because an override would defeat the gate for everyone.
@@ -104,9 +94,6 @@ Fourteen questions were answered by the confirmed decisions. **All four Review-0
 ---
 
 # Medium priority
-
-### Q-10 — Can Students review submitted assessment answers?
-No FRD requirement grants review; disclosure would leak the reused question bank (FRD 5.1.1, 5.3.1). **Unlimited attempts (D-06) sharpen this** — full review plus unlimited retries makes the 50% pass mark trivially gameable. A middle option is worth considering: reveal *which* questions were wrong without revealing correct answers. → A-10
 
 ### Q-12 — Is certification UI required in Phase 1?
 FRD 3.3.2 promises students "shall receive certification" in Phase 1, but student-facing tracking is Phase 3 (3.5.1), and nothing describes issuing, storing, or viewing a certificate artefact. → A-12
@@ -197,6 +184,36 @@ Three barriers that **design cannot resolve alone**. Each needs a product decisi
 
 ---
 
+# Review 005 — questions closed
+
+| Closed | Question | Answered by |
+|---|---|---|
+| **Q-10** | May Students review submitted answers? | **D-25** — per-question **correctness** yes; the correct answer, key, or answer text **never** |
+| **Q-46** | Are courses purchasable? | **D-21** — **no.** B2C purchases Modules and Bundles only. No course CTA, price, checkout, or SKU |
+| **Q-47** | Does gating apply to standalone purchased modules? | **D-22** — standalone modules are **immediately Available** (no D-07 prerequisite) but **retain D-20 internal gating** |
+| **Q-54** | Is a negative score displayed or floored? | **D-23** — `reportedScore = max(rawScore, 0)`. Negative marking still applies per answer; the reported total is floored |
+
+**Rescoped, not closed:** **Q-53** — see below.
+
+### Q-53 — Licence / access duration *(rescoped by D-24)*
+
+**Resolved:** there is **no universal duration rule.** "Lifetime", "permanent", and "perpetual" are prohibited as product promises. Access duration is **entitlement-dependent configuration data**, and the UI displays a duration or expiry **only when authoritative data supplies one** — never inventing either "expires" or "no expiry".
+
+**Still open:** what durations the business actually intends to sell, and therefore what a real learner will see. Sample designs use neutral "One-time purchase" wording. Related: Q-37 refunds · Q-44 expiry mid-course.
+**Priority:** Medium *(reduced from High — the UI contract is now defined; only the commercial values are outstanding)*
+
+### Q-56 — How does a completed standalone module interact with a later course entitlement? *(new — from D-22)*
+
+**Why it matters** D-22 confirms a standalone purchased module is immediately available with no prerequisite. If that learner later acquires the course containing it, does the completed standalone count toward the course sequence, or must it be repeated inside the course? Both readings are defensible and the difference is visible: one unlocks Module 3 immediately, the other appears to discard completed work.
+
+D-22 explicitly says this must **not** be invented.
+
+**Affects** STU-02 (does the module appear twice?), STU-03 sequence state, progress roll-up.
+**Continue?** Yes — **nothing is designed for this case.** No merge, no de-duplication, and no "already completed" affordance is depicted anywhere. If it occurs before the question is answered, the two entitlements are simply independent.
+**Priority:** Medium
+
+---
+
 # Part G — Questions raised by the Review-004 correction pass
 
 ### Q-53 — What is the licence duration for a B2C purchase? · **High**
@@ -239,12 +256,9 @@ Every High and Medium question, classified by **who can answer it**. None is sil
 |---|---|
 | Q-13 | Approved brand system + **vector logo** and reversed variant |
 | Q-35 | Currency, tax treatment, price presentation *(compliance-adjacent)* |
-| Q-46 | Are **courses** purchasable, or only modules and bundles? |
-| Q-47 | Does sequential gating apply to standalone purchased modules? |
-| Q-53 | **B2C licence duration** — replaces the withdrawn "lifetime access" |
-| Q-54 | **Is a negative assessment score displayed, or floored at 0?** |
+| Q-53 | B2C licence **duration values** — the UI contract is set by D-24; the commercial values are not |
+| Q-56 | Standalone module vs later course entitlement — **deliberately undesigned** (D-22) |
 | Q-12 | Is any certification presentation required in Phase 1? |
-| Q-10 | May Students review submitted answers? |
 | Q-34 · Q-36 · Q-37 · Q-44 · Q-45 | Gateway · receipt · refunds · expiry · bundle overlap |
 | Q-55 | Social login provider selection |
 | Q-19 | Is BITS academic validation shown to buyers? |
@@ -284,7 +298,6 @@ Each has a labelled reversible assumption and a low reversal cost. None blocks b
 | ID | Question | Priority | Assumption |
 |---|---|---|---|
 | Q-06 | Pre-launch simulation information | Low | A-06R |
-| Q-10 | Assessment answer review | Medium | A-10 |
 | Q-11 | Profile field editability | **High** | A-11 |
 | Q-12 | Certification UI in Phase 1 | Medium | A-12 |
 | Q-13 | Approved brand guide | **High** | — |
@@ -314,12 +327,13 @@ Each has a labelled reversible assumption and a low reversal cost. None blocks b
 | Q-43 | Timer authority and autosave | Medium | A-41 |
 | Q-44 | B2C licence expiry mid-course | Low | A-37 |
 | Q-45 | Bundle containing an already-owned module | Low | A-37 |
-| Q-46 | Are courses purchasable? | **High** | — |
-| Q-47 | Does gating apply to standalone purchased modules? | **High** | — |
 | Q-48 | Student help destination | Low | — |
 | Q-49 | Device-completion latency and surfacing mechanism | Medium | A-42, A-43 |
 | Q-50 | **Extended-time accommodation for assessments** | **High** | per-attempt allowance hook |
 | Q-51 | **Ownership of captions, transcripts, audio description** | **High** | caption/AD slots specified |
 | Q-52 | Responsive/mobile commitment — Reflow 1.4.10 unmet until then | Medium | A-32 tolerance |
+| Q-53 | B2C licence duration values *(UI contract resolved by D-24)* | Medium | A-48 |
+| Q-55 | Social login provider selection | Medium | A-45 |
+| Q-56 | Standalone module vs later course entitlement | Medium | none — deliberately undesigned |
 
 **Three questions have engineering dependencies as much as product ones:** Q-40 (video coverage tracking), Q-42 (simulation completion events), Q-43 (server-authoritative timer). These should reach engineering during wireframe review, not at handoff.

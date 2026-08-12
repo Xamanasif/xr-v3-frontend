@@ -21,6 +21,21 @@ All work preserved; nothing reverted or deleted.
 >
 > **33 assumptions** (was 29) · **41 open questions** (was 38) · **20 decisions** (was 19).
 
+> ### Review 005 — product decisions D-21 – D-25
+>
+> | Decision | Change |
+> |---|---|
+> | **D-21** | B2C sells **Modules and Bundles only**. Courses are not products — no CTA, price, checkout, or SKU |
+> | **D-22** | Standalone purchased modules **immediately Available**; **D-20 internal gating retained** |
+> | **D-23** | `reportedScore = max(rawScore, 0)`. Negative marking unchanged per answer; pass mark unchanged |
+> | **D-24** | No universal duration promise. Access duration is **entitlement data**, shown only when authoritative |
+> | **D-25** | Per-question **correctness** shown; **correct answer / key never shown** |
+>
+> **Closed:** Q-10, Q-46, Q-47, Q-54. **Rescoped:** Q-53 (High → Medium). **Opened:** Q-56.
+> **30 assumptions** · **38 open questions** · **25 decisions**. All 11 validation checks pass.
+>
+> **Git:** `ui-ux/` was committed by the user at `5cf6485` (Review 004). Review-005 changes are **uncommitted working-tree modifications** — nothing has been committed by Claude.
+
 ---
 
 ## 1. Stage status

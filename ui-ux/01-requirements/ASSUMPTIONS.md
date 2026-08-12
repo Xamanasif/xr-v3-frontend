@@ -32,6 +32,14 @@ Twelve Review-001 assumptions were superseded by confirmed decisions and have be
 | A-31 | Complete = simulation + assessment submitted | **D-08** — reversed, assessment must be **passed** |
 | A-33 | WCAG 2.1 AA baseline | **D-11** — upgraded to **WCAG 2.2 AA** |
 
+### Retired at Review 005
+
+| Retired | Was | Superseded by |
+|---|---|---|
+| A-10 | Score summary only; no per-question review | **D-25** — per-question **correctness** is now shown; the answer key remains prohibited |
+| A-46 | Score display sign-neutral | **D-23** — `reportedScore = max(rawScore, 0)` |
+| A-47 | Licence duration not stated at all | **D-24** — duration is entitlement data, displayed **only when authoritative data supplies it** (see A-48) |
+
 A-27 was **partially** retired: the obligation to design distinct restricted states is now confirmed (D-18); the per-case content remains design work and stays below as A-27R.
 
 ---
@@ -62,19 +70,6 @@ Where the FRD and the confirmed decisions are silent, the option adopted is chos
 | **Question** | Q-06 |
 | **Reversal cost** | Low — content of one screen region |
 | **Harm if wrong** | A Student enters a simulation under-informed |
-
----
-
-### A-10 — Assessment answer review
-
-| | |
-|---|---|
-| **Assumption** | Students see a **score summary only**. No per-question review and no correct-answer disclosure. |
-| **Because** | No FRD requirement grants review, and disclosure would leak the Faculty-uploaded question bank (FRD 5.1.1) that randomization (5.3.1) implies is reused. Unlimited attempts (D-06) sharpen this: full answer review plus unlimited retries makes the pass mark trivially gameable. |
-| **Question** | Q-10 |
-| **Reversal cost** | Low — review is an additive screen |
-| **Harm if wrong** | Reduced pedagogical value; no incorrect information conveyed |
-| **Note** | A middle option worth raising with the manager: reveal *which* questions were wrong without revealing the correct answers. It preserves most learning value without exposing the bank. |
 
 ---
 
@@ -408,27 +403,28 @@ Where the FRD and the confirmed decisions are silent, the option adopted is chos
 
 ---
 
-### A-46 — Assessment score display stays sign-neutral
+
+### A-48 — Access-duration display is data-driven
 
 | | |
 |---|---|
-| **Assumption** | The result screen renders the score as a **plain value with no assumption about sign** — no minimum is enforced, no negative is special-cased, and no "0" floor is applied in the UI. The layout accommodates a leading minus without reflowing. |
-| **Because** | D-06's −1 penalty makes a negative total arithmetically reachable (10 wrong = −10), but whether it is *displayed* or floored is undecided (Q-54) and is a pedagogical decision, not a UI one. Choosing either would silently set product policy. |
-| **Question** | Q-54 |
-| **Reversal cost** | **Nil** — the component already handles both |
-| **Harm if wrong** | None at design stage; the decision changes copy and the stored score model, not the layout |
+| **Assumption** | The product-detail price panel, the payment result, and My Learning each carry a **conditional access-duration slot**. It renders **only** when authoritative entitlement data supplies a value — as `Access until <date>` or `No expiry`. **When no data is present the slot renders nothing at all** — no placeholder, no "unlimited", no em-dash. Sample designs therefore show only **"One-time purchase"**. |
+| **Because** | D-24 forbids a universal duration promise *and* forbids inventing either state. A slot that collapses when empty is the only treatment satisfying both: it can display truth when truth exists, and stays silent when it does not. |
+| **Question** | Q-53 *(commercial values still open)* |
+| **Reversal cost** | **Nil** — the slot already exists; supplying data fills it |
+| **Harm if wrong** | None. The failure mode of a collapsing slot is silence, which is exactly what D-24 requires in the absence of data. |
 
 ---
 
-### A-47 — B2C licence duration is not stated
+### A-49 — Per-question review presentation
 
 | | |
 |---|---|
-| **Assumption** | Purchase copy reads **"One-time purchase"** and nothing more. **No duration, expiry date, renewal policy, refund policy, or "lifetime access" claim appears anywhere.** |
-| **Because** | The Stage-6 screen said "lifetime access", which was never confirmed and has been withdrawn. Nothing in the FRD defines a B2C licence term — 9.2.1 activates a licence without describing its life, and 6.5.2 grace periods are Phase 3 and institution-only. "Lifetime access" is close to unretractable once published. |
-| **Questions** | Q-53 · Q-37 · Q-44 |
-| **Reversal cost** | **Low** — one line of copy in the price panel and on the confirmation |
-| **Harm if wrong** | A buyer is under-informed about the term. That is materially safer than being over-promised a term the business has not agreed to. |
+| **Assumption** | The result screen lists every question as **number · outcome (Correct / Incorrect / Unanswered) · hint-used marker**, and nothing more. Rows are **not expandable**, carry **no link back to the question**, and show **no stem, no option text, and no answer**. Outcome is icon + word, never colour alone. |
+| **Because** | D-25 permits correctness and prohibits the key. A non-expandable row makes the prohibition **structural rather than a matter of restraint** — there is no disclosure affordance to leak through, and no later "just show the stem" pressure point. Linking back to the question would re-expose option text, which under unlimited attempts is the key by elimination. |
+| **Question** | — (D-25 confirmed; this is presentation detail) |
+| **Reversal cost** | **Low** — if review is later widened, rows gain disclosure |
+| **Harm if wrong** | A Student may want more detail than they get. That is the intended trade under unlimited attempts. |
 
 ---
 
@@ -437,8 +433,8 @@ Where the FRD and the confirmed decisions are silent, the option adopted is chos
 | Cost | Assumptions | Implication |
 |---|---|---|
 | **Medium–High** | A-18R | Confirm before shell design |
-| **Medium** | A-36, A-37, A-41 | Involve **engineering**, not only the manager — these are tracking and state-ownership models |
-| **Low** | A-06R, A-10, A-11, A-12, A-14, A-15R, A-19, A-20, A-23, A-24, A-26, A-27R, A-28R, A-29R, A-32, A-34, A-35, A-38, A-39, A-40 | Safe to carry into wireframing |
+| **Medium** | A-36, A-37, A-41 | Involve **engineering**, not only the manager — tracking and state-ownership models |
+| **Low** | A-06R, A-11, A-12, A-14, A-15R, A-19, A-20, A-23, A-24, A-26, A-27R, A-28R, A-29R, A-32, A-34, A-35, A-38, A-39, A-40, A-42, A-43, A-44, A-45, A-48, A-49 | Safe to carry into build |
 | **Conditional** | A-21 | Low likelihood, high consequence, trivial to verify |
 
 **A-32 remains cheap only if adopted now** — text-expansion tolerance is a design-time property.
@@ -450,4 +446,7 @@ Where the FRD and the confirmed decisions are silent, the option adopted is chos
 | Date | Review | Change |
 |---|---|---|
 | 2026-08-10 | 001 | Register created with A-01, A-04 – A-33. |
-| 2026-08-10 | 002 | 12 assumptions retired as confirmed decisions; A-27 partially retired. A-06, A-15, A-18, A-27, A-28, A-29 revised (suffix R). 8 new assumptions added: A-34 – A-41. **31 → 27 assumptions.** None confirmed. |
+| 2026-08-10 | 002 | 12 assumptions retired as confirmed decisions; A-27 partially retired. A-06/15/18/27/28/29 revised (suffix R). A-34 – A-41 added. **31 → 27.** |
+| 2026-08-10 | 003 | A-42, A-43 added following D-19 (account-level simulation completion). **27 → 29.** |
+| 2026-08-10 | 004 | A-44 – A-47 added (sample data, sample providers, sign-neutral score, licence duration). **29 → 33.** |
+| 2026-08-10 | **005** | **A-10, A-46, A-47 retired** as confirmed decisions (D-25, D-23, D-24). **A-48, A-49 added.** **33 → 30.** None confirmed. |

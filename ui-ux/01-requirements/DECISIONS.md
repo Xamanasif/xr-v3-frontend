@@ -279,6 +279,124 @@ Downloading remains **optional** and **does not contribute toward module complet
 
 ---
 
+### D-21 · B2C purchasable product types — **Modules and Bundles only**
+
+For Phase 1, a B2C learner may directly purchase exactly two product types:
+
+| Purchasable | Not purchasable |
+|---|---|
+| **Individual Module** | **Course** |
+| **Bundle** | Certification Program |
+
+**Courses are not products in the Phase-1 design.** The following must not exist anywhere:
+
+- Course purchase CTA · Course price · Course checkout · Course SKU
+
+**A Bundle may contain multiple modules, including the modules that make up a course — but a Bundle must never be silently redefined as a Course product.** Bundle copy describes what it contains (module count, topic), never "buy this course".
+
+Courses remain a **structural** concept (FRD 3.2.1) that organises learning and drives D-07 sequencing. That is unchanged; only their commercial status is decided here.
+
+**Source:** confirmed instruction, Review-005. **Closes:** Q-46.
+
+---
+
+### D-22 · Standalone purchased-module gating
+
+Sequential prerequisite gating (D-07) applies when modules are consumed **in a course context**:
+
+```
+Module 1 → Module 2 → Module 3        (course context — D-07 applies)
+```
+
+When a B2C learner purchases an **individual module as a standalone product**:
+
+| Property | Rule |
+|---|---|
+| Availability | **Immediately Available** on purchase |
+| Previous-module prerequisite | **None** — D-07 does not apply |
+| Internal progression | **Unchanged — D-20 still applies in full** |
+
+Standalone internal progression remains:
+
+```
+Required resources → Simulation → Assessment → Pass → Module completed
+```
+
+**Internal gating is not removed.** A standalone module is unlocked at its front door, not throughout.
+
+How a completed standalone module later interacts with a separately acquired course entitlement is **not defined** and must not be invented (see Q-56).
+
+**Source:** confirmed instruction, Review-005. **Closes:** Q-47.
+
+---
+
+### D-23 · Assessment score floor
+
+The confirmed scoring model is unchanged: **+2** correct · **+1** correct after hint · **−1** incorrect · **0** unanswered · max **20** · pass **10/20** · unlimited attempts · **20 minutes** total.
+
+**New rule:**
+
+```
+reportedScore = max(rawScore, 0)
+```
+
+**The final reported score can never be lower than 0.** Negative marking still applies to individual incorrect answers — it is the *reported total* that is floored, not the per-answer arithmetic.
+
+| Raw | Reported |
+|---|---|
+| +14 | **14 / 20** |
+| +3 | **3 / 20** |
+| −4 | **0 / 20** |
+
+**Mandatory pre-attempt disclosure** (extends D-06):
+
+> "Negative marking applies. Your final reported score cannot be lower than 0."
+
+The **50% pass mark is unchanged**.
+
+**Source:** confirmed instruction, Review-005. **Closes:** Q-54. **Supersedes:** assumption A-46 (sign-neutral display), removed.
+
+---
+
+### D-24 · Licence / access duration
+
+**Never use as a universal product promise:** ~~lifetime access~~ · ~~permanent access~~ · ~~perpetual access~~.
+
+Access duration is **entitlement-dependent** and must be configurable by platform/business rules. It is **data, not copy**.
+
+| Situation | UI behaviour |
+|---|---|
+| Authoritative entitlement data supplies a duration | Display it — e.g. **"Access until 31 Aug 2027"** |
+| Authoritative data says there is no expiry | Display **"No expiry"** |
+| **No authoritative data** | **Display nothing.** Neither state may be invented |
+
+For current sample B2C product designs, use neutral commercial wording — **"One-time purchase"** — without promising how long access lasts. Sample prices remain explicitly labelled **SAMPLE DESIGN DATA**.
+
+**Source:** confirmed instruction, Review-005. **Updates:** Q-53 — there is **no universal duration rule**; actual duration is product/configuration data. **Supersedes:** A-47, replaced by A-48.
+
+---
+
+### D-25 · Assessment answer review — correctness without the key
+
+Because Phase 1 permits **unlimited attempts** (D-06), the platform must **not** reveal the correct answer after an attempt. Otherwise unlimited retry degenerates into answer-key memorisation.
+
+| After submission the Student **may** see | The Student must **never** see |
+|---|---|
+| Question number | The correct option |
+| **Correct / Incorrect / Unanswered** per question | An answer key |
+| Whether a hint was used | The correct answer text |
+| Total score · score breakdown · pass/fail | — |
+
+This applies **especially to failed attempts**.
+
+Available actions where appropriate: **Review learning resources** · **Retry assessment**.
+
+> The Student may see **which** questions were wrong without being told what was right.
+
+**Source:** confirmed instruction, Review-005. **Closes:** Q-10. **Supersedes:** assumption A-10 (no per-question review at all), removed — per-question *correctness* is now confirmed, per-question *answers* remain prohibited.
+
+---
+
 ## Part B — Scope decisions carried forward from Review 001
 
 Still in force; renumbered to avoid collision with Part A.

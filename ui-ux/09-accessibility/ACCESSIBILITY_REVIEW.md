@@ -45,7 +45,7 @@ Three of the seven findings — **Q-50** assessment time accommodation, **Q-51**
 | 3.3.7 Redundant Entry | A | ✅ Sign-up data pre-fills profile setup and checkout |
 | 3.3.8 Accessible Authentication (Minimum) | AA | ✅ No cognitive-function test; paste and password managers permitted |
 
-### Review-004 changes and their accessibility effect
+### Review-004 / 005 changes and their accessibility effect
 
 | Change | Effect |
 |---|---|
@@ -53,7 +53,9 @@ Three of the seven findings — **Q-50** assessment time accommodation, **Q-51**
 | **Download unconditional** (D-05) | Removes a conditional affordance — one fewer state to explain |
 | **Light as presentation theme** | Dark remains token-complete but **provisional** pending an approved reversed logo (Q-13). Contrast validated in both. |
 | **Text token lift** | `--color-text-secondary` moved `--n-500` → **`--n-600` (6.7:1)** and `--color-text-tertiary` `--n-400` → **`--n-500` (4.6:1)**. `--n-400` (2.9:1) is now **disabled text only**. **No informational text sits below AA in either theme.** |
-| **Sign-neutral score** (A-46) | A negative total renders without special-casing — no layout or announcement change whichever way Q-54 resolves |
+| **Score floor** (D-23) | Reported score is `max(raw, 0)`. The raw arithmetic stays visible with a floor note, so the disclosed rules remain verifiable by the Student — a plain-language transparency point, not only a layout one |
+| **Per-question review** (D-25, A-49) | Outcome is **icon + word** per row (✓ Correct / ✕ Incorrect / ○ Unanswered), never colour alone (1.4.1). Rows are static text, not controls — so they add **no** tab stops and no disclosure semantics to manage (4.1.2). The hint marker is a labelled badge, not a bare dot |
+| **Access-duration slot** (D-24, A-48) | Collapses entirely when empty — no placeholder or em-dash for a screen reader to announce as meaningless content |
 
 ---
 

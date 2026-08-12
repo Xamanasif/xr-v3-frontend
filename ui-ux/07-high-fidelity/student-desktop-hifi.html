@@ -78,7 +78,8 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
 @media(max-width:1100px){.cv{zoom:.58}} @media(max-width:900px){.cv{zoom:.46}} @media(max-width:700px){.cv{zoom:.36}}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-@media(max-width:900px){.pair,.trio{grid-template-columns:1fr}}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.pair,.trio,.quad{grid-template-columns:1fr}}
 .lbl{font:650 11px/1.4 var(--font-sans);letter-spacing:.09em;text-transform:uppercase;color:var(--color-text-3);margin:0 0 8px}
 
 /* ===== PRODUCT UI ===== */
@@ -215,6 +216,9 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
   box-shadow:var(--e3);padding:28px;max-width:520px;margin:0 auto}
 .scrim{background:rgba(22,27,34,.45);padding:56px 0;display:flex;align-items:center;justify-content:center}
 :root[data-theme="dark"] .scrim{background:rgba(0,0,0,.6)}
+.qr{display:flex;align-items:center;gap:14px;padding:9px 14px;border:1px solid var(--color-border-subtle);
+  border-radius:var(--r-md);background:var(--color-raised);font-size:13.5px}
+.qi{width:26px;flex:none;font-weight:650;color:var(--color-text-2)}
 .lockbar{display:flex;align-items:center;gap:12px;padding:14px 18px;border:1px dashed var(--color-border-strong);
   border-radius:var(--r-md);background:var(--color-raised);color:var(--color-text-2);font-size:13.5px}
 </style>
@@ -226,7 +230,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
 
 <div class="warn"><b>Provisional visual system (D-12).</b> The logo is the only approved brand asset. Every colour and type value is a placeholder routed through a semantic token — resolving <b>Q-13</b> changes <code>tokens.css</code> and nothing else. No palette was derived mechanically from the logo, and the supplied raster asset is referenced read-only and never edited.</div>
 
-<div class="warn"><b>Sample data.</b> All prices <span class="samp">SAMPLE</span> (₹999 / ₹1,499 / ₹2,499) are <b>fictional placeholders for layout only</b> — no pricing, currency, or tax treatment is approved (A-44, Q-35). Social providers <span class="samp">SAMPLE</span> (Google, Microsoft) are <b>illustrative placeholders</b> — no provider is confirmed (A-45, Q-55). Licence duration is <b>not stated anywhere</b>; "lifetime access" was withdrawn as unconfirmed (A-47, Q-53). Learner names, courses, and scores are fictional.</div>
+<div class="warn"><b>Sample data.</b> All prices <span class="samp">SAMPLE</span> (₹999 / ₹1,499 / ₹2,499) are <b>fictional placeholders for layout only</b> — no pricing, currency, or tax treatment is approved (A-44, Q-35). Social providers <span class="samp">SAMPLE</span> (Google, Microsoft) are <b>illustrative placeholders</b> — no provider is confirmed (A-45, Q-55). Licence duration is <b>entitlement data, not copy</b> (D-24) — "lifetime", "permanent", and "perpetual" are prohibited as product promises, and a duration is shown only when authoritative data supplies one (A-48, Q-53). Learner names, courses, and scores are fictional.</div>
 
 <ul class="toc">
 <li><a href="#a01">AUTH-01 Login</a></li><li><a href="#a02">AUTH-02 SSO interstitial</a></li>
@@ -503,7 +507,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
 
 <!-- STU-02 -->
 <p class="dh2" id="s02">STU-02 · My Learning</p>
-<p class="dcap"><b>Denser than the previous pass, with the oversized empty media regions removed</b> (Review-004 §12). Courses, modules and resources are now three visually distinct object types: a <b>course card</b> has a left accent bar and a numbered tile; a <b>module row</b> is numbered with a state on the right; a <b>resource row</b> is tinted and inset. Hierarchy is legible without reading a label.</p>
+<p class="dcap"><b>Standalone purchased modules are immediately Available</b> (D-22) — no previous-module prerequisite — while <b>D-20 internal gating still applies inside them</b>. <b>Denser than the previous pass, with the oversized empty media regions removed</b> (Review-004 §12). Courses, modules and resources are now three visually distinct object types: a <b>course card</b> has a left accent bar and a numbered tile; a <b>module row</b> is numbered with a state on the right; a <b>resource row</b> is tinted and inset. Hierarchy is legible without reading a label.</p>
 <div class="shot"><div class="vp"><div class="cv"><div class="app">
   <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
     <nav class="gnav"><a href="#">Home</a><a href="#" class="on">My Learning</a><a href="#">Progress</a></nav>
@@ -552,7 +556,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
     <div class="ov" style="margin-top:10px">Standalone modules</div>
     <div>
       <div class="mrow"><span class="mn">—</span><span class="badge b-vr">◆ VR</span><div style="flex:1"><div class="h4">Robotic Arm Kinematics</div><div class="xs">Purchased · 3 resources · assessment · Meta Quest</div></div><span class="st wait">◷ Awaiting device completion</span></div>
-      <div class="mrow"><span class="mn">—</span><span class="badge b-ar">◇ AR</span><div style="flex:1"><div class="h4">Gear Train Assembly</div><div class="xs">Purchased · 2 resources · Android / iOS</div></div><span class="st idle">○ Not started</span></div>
+      <div class="mrow"><span class="mn">—</span><span class="badge b-ar">◇ AR</span><div style="flex:1"><div class="h4">Gear Train Assembly</div><div class="xs">Purchased standalone · available immediately · no previous-module prerequisite</div></div><span class="st prog">● Available</span></div>
     </div>
   </div>
 </div></div></div></div>
@@ -877,7 +881,9 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
           <div class="kv"><span>Maximum score</span><b class="tab">20</b></div>
           <div class="kv"><span>Pass mark</span><b class="tab">10 / 20 &nbsp;· 50%</b></div>
           <div class="kv"><span>Attempts</span><b>Unlimited</b></div>
+          <div class="kv"><span>Lowest reported score</span><b class="tab">0 — your score is never below 0</b></div>
         </div>
+        <div class="alert al-w" style="margin-top:16px"><span>⚠</span><div><b>Negative marking applies. Your final reported score cannot be lower than 0.</b> Each incorrect answer still costs −1, but the total we report to you is floored at 0.</div></div>
         <div class="alert al-i" style="margin-top:16px"><span>💡</span><div>A hint gives guidance toward the answer — never the answer itself. Using one lowers that question's maximum from <b>+2</b> to <b>+1</b>, and cannot be undone within an attempt.</div></div>
         <div class="row" style="margin-top:18px;gap:12px"><span class="btn pri lg">Begin attempt 2</span><span class="btn sec">Review learning resources</span></div>
       </div>
@@ -956,8 +962,8 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
 
 <!-- STU-12 -->
 <p class="dh2" id="s12">STU-12 · Assessment result</p>
-<p class="dcap">The breakdown makes hint impact concrete. On failure, <b>Review learning resources sits before Retry</b> — retrying without restudying is the failure mode unlimited attempts invites. No per-question review (A-10). ⚠ <b>Q-54 open</b>: whether a negative total is displayed or floored at 0 is undecided, so the score component is <b>sign-neutral</b> and needs no redesign either way (A-46).</p>
-<div class="trio">
+<p class="dcap">The breakdown makes hint impact concrete. On failure, <b>Review learning resources sits before Retry</b> — retrying without restudying is the failure mode unlimited attempts invites. <b>D-25 per-question review</b> shows correctness only: which questions were wrong, never what was right — rows are not expandable and do not link back to the question (A-49), because under unlimited attempts option text is the key by elimination. <b>D-23</b>: <code>reportedScore = max(rawScore, 0)</code> — the fourth frame shows a raw −4 reported as 0/20 with the true arithmetic still visible.</p>
+<div class="quad">
 <div><p class="lbl">Passed</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="main"><div class="card pad">
   <div style="text-align:center;padding:10px 0 16px">
     <div class="big" style="color:var(--color-success)">15 / 20</div>
@@ -969,6 +975,16 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
   <div class="kv"><span>2 incorrect</span><b class="tab" style="color:var(--color-danger)">−2</b></div>
   <div class="kv"><span>0 unanswered</span><b class="tab">0</b></div>
   <div class="kv" style="border-top:1.5px solid var(--color-border-strong);font-size:16px"><b>Total</b><b class="tab">15</b></div>
+  <div class="sep"></div>
+  <div class="ov">Your answers</div>
+  <div class="stk8" style="margin-top:10px">
+    <div class="qr"><span class="qi tab">1</span><span class="st done">✓ Correct</span></div>
+    <div class="qr"><span class="qi tab">2</span><span class="st fail">✕ Incorrect</span></div>
+    <div class="qr"><span class="qi tab">3</span><span class="st done">✓ Correct</span></div>
+    <div class="qr"><span class="qi tab">7</span><span class="st done">✓ Correct</span><span class="badge b-n" style="margin-left:auto">💡 HINT USED</span></div>
+    <div class="qr"><span class="qi tab">9</span><span class="st idle">○ Unanswered</span></div>
+  </div>
+  <div class="xs" style="margin-top:10px">Correct answers are not shown — attempts are unlimited (D-25).</div>
   <div class="alert al-s" style="margin-top:16px"><span>✓</span><div><b>Module 2 complete.</b> Module 3 is now available.</div></div>
   <div class="btn pri blk" style="margin-top:14px">Continue to Module 3 →</div>
 </div></div></div></div></div></div></div>
@@ -983,7 +999,29 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
   <div class="kv"><span>2 incorrect</span><b class="tab" style="color:var(--color-danger)">−2</b></div>
   <div class="kv"><span>3 unanswered</span><b class="tab">0</b></div>
   <div class="kv" style="border-top:1.5px solid var(--color-border-strong);font-size:16px"><b>Total</b><b class="tab">8</b></div>
-  <div class="alert al-w" style="margin-top:16px"><span>⚠</span><div>Module 2 is not yet complete. <b>Module 3 stays locked</b> until you pass. Attempts are unlimited.</div></div>
+  <div class="sep"></div>
+  <div class="ov">Your answers</div>
+  <div class="stk8" style="margin-top:10px">
+    <div class="qr"><span class="qi tab">1</span><span class="st done">✓ Correct</span></div>
+    <div class="qr"><span class="qi tab">2</span><span class="st fail">✕ Incorrect</span></div>
+    <div class="qr"><span class="qi tab">4</span><span class="st fail">✕ Incorrect</span></div>
+    <div class="qr"><span class="qi tab">8</span><span class="st idle">○ Unanswered</span></div>
+  </div>
+  <div class="alert al-n" style="margin-top:12px"><span>🔒</span><div><b>Correct answers are not shown.</b> Attempts are unlimited, so revealing the key would turn retries into memorisation. Review the learning resources instead.</div></div>
+  <div class="alert al-w" style="margin-top:12px"><span>⚠</span><div>Module 2 is not yet complete. <b>Module 3 stays locked</b> until you pass. Attempts are unlimited.</div></div>
+  <div class="row" style="margin-top:14px;gap:10px"><span class="btn pri">Review resources</span><span class="btn sec">Retry</span></div>
+</div></div></div></div></div></div></div>
+<div><p class="lbl">Score floored at 0 — D-23</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="main"><div class="card pad">
+  <div style="text-align:center;padding:10px 0 16px">
+    <div class="big" style="color:var(--color-danger)">0 / 20</div>
+    <div class="h3" style="margin-top:8px;color:var(--color-danger)">Not passed</div>
+    <p class="sm">Pass mark 10 / 20 · attempt 1</p></div>
+  <div class="sep"></div>
+  <div class="kv"><span>2 correct</span><b class="tab">+4</b></div>
+  <div class="kv"><span>8 incorrect</span><b class="tab" style="color:var(--color-danger)">−8</b></div>
+  <div class="kv"><span>Raw total</span><b class="tab" style="color:var(--color-danger)">−4</b></div>
+  <div class="kv" style="border-top:1.5px solid var(--color-border-strong);font-size:16px"><b>Reported score</b><b class="tab">0</b></div>
+  <div class="alert al-n" style="margin-top:14px"><span>ⓘ</span><div>Your raw total was <b>−4</b>. <b>Reported scores are never lower than 0</b>, so this attempt is recorded as 0/20.</div></div>
   <div class="row" style="margin-top:14px;gap:10px"><span class="btn pri">Review resources</span><span class="btn sec">Retry</span></div>
 </div></div></div></div></div></div></div>
 <div><p class="lbl">Awaiting evaluation — descriptive</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="main"><div class="card pad">
@@ -1071,7 +1109,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
 
 <!-- B2C-01 -->
 <p class="dh2" id="b01">B2C-01 · Explore</p>
-<p class="dcap">The <b>device requirement appears on the card</b>, not only the detail page — a buyer must never reach checkout unaware they need hardware. Owned items show "In your learning" instead of a price. <span class="samp">SAMPLE</span> All prices are fictional placeholders (A-44, Q-35).</p>
+<p class="dcap"><b>Two product types only — Modules and Bundles (D-21).</b> Courses are not purchasable: there is no course CTA, price, checkout, or SKU anywhere. A Bundle may contain the modules that make up a course, but is never sold <i>as</i> a course. The <b>device requirement appears on the card</b>, not only the detail page — a buyer must never reach checkout unaware they need hardware. Owned items show "In your learning" instead of a price. <span class="samp">SAMPLE</span> All prices are fictional placeholders (A-44, Q-35).</p>
 <div class="shot"><div class="vp"><div class="cv"><div class="app">
   <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
     <nav class="gnav"><a href="#">Home</a><a href="#">My Learning</a><a href="#" class="on">Explore</a><a href="#">Progress</a></nav>
@@ -1090,7 +1128,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
         <div class="xs" style="color:var(--color-warning)">⚠ Requires a Meta Quest</div>
         <div class="price" style="font-size:20px;margin-top:12px">₹2,499 <span class="samp">SAMPLE</span></div></div>
       <div class="card pad20"><div class="mediabar"><span class="badge b-n">BUNDLE</span><span class="xs">8 modules</span></div>
-        <div class="h4" style="margin-top:12px">Fluid Mechanics Complete</div><div class="xs">Full course · 8 modules</div>
+        <div class="h4" style="margin-top:12px">Fluid Mechanics Essentials</div><div class="xs">Bundle of 8 modules · fluid mechanics topic</div>
         <div style="margin-top:12px"><span class="st done">✓ In your learning</span></div></div>
       <div class="card pad20"><div class="mediabar"><span class="badge b-ar">◇ AR</span><span class="xs">Module</span></div>
         <div class="h4" style="margin-top:12px">Gear Train Assembly</div>
@@ -1102,7 +1140,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
 
 <!-- B2C-02 -->
 <p class="dh2" id="b02">B2C-02 · Product detail</p>
-<p class="dcap">The device requirement sits <b>above the buy action</b> — buying a VR module without owning a headset is the costliest mistake available here, and layout order prevents it. <b>"Lifetime access" has been removed</b>: licence duration is unconfirmed, so the copy says only "One-time purchase" (A-47, Q-53). No expiry, renewal, or refund policy is stated or implied.</p>
+<p class="dcap">The device requirement sits <b>above the buy action</b> — buying a VR module without owning a headset is the costliest mistake available here, and layout order prevents it. <b>No universal duration promise</b> (D-24): "lifetime", "permanent", and "perpetual" are prohibited. The copy says only "One-time purchase", and the access-duration slot below it renders <b>only</b> when authoritative entitlement data supplies a value (A-48). This is a <b>Module</b> product — <b>Courses are not purchasable</b> (D-21).</p>
 <div class="shot"><div class="vp"><div class="cv"><div class="app">
   <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
     <nav class="gnav"><a href="#">Home</a><a href="#">My Learning</a><a href="#" class="on">Explore</a><a href="#">Progress</a></nav>
@@ -1125,6 +1163,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var
       <div class="card pad stk" style="align-self:start">
         <div><div class="price">₹2,499</div><div class="xs"><span class="samp">SAMPLE</span> price — not approved</div></div>
         <div class="xs">One-time purchase</div>
+        <div class="alert al-n" style="padding:10px 12px;font-size:12.5px"><span>ⓘ</span><div><b>Access-duration slot.</b> Renders <b>only</b> when entitlement data supplies a value — "Access until 31 Aug 2027" or "No expiry". Empty here because no authoritative data exists, and D-24 forbids inventing either state.</div></div>
         <div class="btn pri blk lg">Buy now</div>
         <div class="sep"></div>
         <div class="kv"><span class="sm">Format</span><b>VR simulation</b></div>

@@ -50,7 +50,7 @@ Every inventory screen now has a dedicated high-fidelity representation in `07-h
 | STU-09 | Assessment overview | `#s09` | Full disclosure |
 | STU-10 | Assessment attempt | `#s10` | Full |
 | STU-11 | Submit confirmation | `#s11` | Confirm w/ unanswered · **submission failed** |
-| STU-12 | Assessment result | `#s12` | Passed · not passed · **awaiting evaluation** |
+| STU-12 | Assessment result | `#s12` | Passed + review · not passed + review · **floored at 0** · awaiting evaluation |
 | STU-13 | Progress | `#s13` | Full |
 | STU-14 | Profile & account | `#s14` | Full |
 | B2C-01 | Explore | `#b01` | Full |
@@ -85,6 +85,20 @@ Affected screens:
 | **STU-01** | Continue Learning targets the next component **in gate order** |
 
 Other Review-004 corrections applied throughout: **Download is unconditional** on PDF and video (D-05 amendment) · **"lifetime access" removed** — copy reads "One-time purchase" only (A-47) · prices and social providers labelled **sample** (A-44, A-45) · score display is **sign-neutral** pending Q-54 (A-46).
+
+---
+
+## ⚠️ Review-005 update — D-21 to D-25
+
+| Decision | Screens affected | Change |
+|---|---|---|
+| **D-21** product types | **B2C-01, B2C-02, B2C-03** | Explore sells **Modules and Bundles only**. No course CTA, price, checkout, or SKU anywhere. Bundle copy describes contents ("Bundle of 8 modules"), never "course". |
+| **D-22** standalone gating | **STU-02, STU-03, STU-04** | A standalone purchased module is **immediately Available** — no previous-module prerequisite — but **retains D-20 internal gating** |
+| **D-23** score floor | **STU-09, STU-12** | Pre-attempt disclosure adds *"Negative marking applies. Your final reported score cannot be lower than 0."* Result renders `max(rawScore, 0)`; a **fourth result frame** shows raw −4 → reported 0/20 with the true arithmetic still visible |
+| **D-24** access duration | **B2C-02, B2C-05, STU-02** | Conditional **access-duration slot** that renders only on authoritative data (A-48); collapses entirely when absent. "Lifetime/permanent/perpetual" prohibited |
+| **D-25** answer review | **STU-12** | **New per-question review list** — number · Correct/Incorrect/Unanswered · hint marker. Rows **not expandable**, **no link back**, **no answer key** (A-49). Present on passed *and* failed frames |
+
+**STU-12 now renders four frames:** passed (with review) · not passed (with review + explicit no-key notice) · **score floored at 0** · awaiting evaluation.
 
 ---
 

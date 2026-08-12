@@ -180,6 +180,20 @@ Every confirmed decision must be visible somewhere. All 19 verified:
 
 Requirements still blocked remain **3**: Q-11 (4.3.1), Q-12 (3.3.1/3.3.2), Q-24 (5.2.3).
 
+## Review-005 re-audit — D-21 to D-25
+
+| FRD | Change |
+|---|---|
+| **6.1.1 / 6.1.2** | **D-21 fixes the product taxonomy**: individual Modules and Bundles are the only purchasable types. FRD 6.1.1/6.1.2 name exactly these two, so the design now matches the requirement literally — **Q-46 closed with no invented product.** Courses (3.2.1) stay structural. |
+| **3.2.2 / 3.1.2** | **D-22** — D-07's sequence applies in a course context only; a standalone purchased module is immediately Available while **D-20 internal gating persists**. Realised on STU-02/03/04. **Q-47 closed.** |
+| **11.2.1** | **D-23** — stored score is raw; **reported score is `max(raw, 0)`**. STU-12 shows the true arithmetic plus the floor. **Q-54 closed.** |
+| **11.2.1 / 5.1.1** | **D-25** — per-question **correctness** is now Student-visible; the correct answer, key, and answer text remain prohibited. This protects the Faculty question bank (5.1.1) that randomization (5.3.1) implies is reused. **Q-10 closed.** |
+| **9.2.1 / 9.2.2** | **D-24** — licence activation is confirmed on B2C-05, but **no duration is asserted**. An access-duration slot renders only on authoritative entitlement data. |
+
+**Coverage counts unchanged** — D-21–D-25 change *how* these requirements are realised, not which reach a Student. Student-facing reach remains **44 of 78 (56%)**; all 29 screens individually rendered.
+
+**Requirements still blocked: 3** — Q-11 (4.3.1), Q-12 (3.3.1/3.3.2), Q-24 (5.2.3). Unchanged by this review, as instructed.
+
 ## Audit result
 
 | Check | Result |

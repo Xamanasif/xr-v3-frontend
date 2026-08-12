@@ -600,6 +600,115 @@ Found by per-section depth analysis rather than a total count — the totals wer
 
 ---
 
+---
+
+# Review 005 — Product Decision Update (D-21 – D-25)
+
+| | |
+|---|---|
+| **Review ID** | 005 |
+| **Date** | 2026-08-10 |
+| **Type** | Targeted product-decision update on the approved Review-004 baseline |
+| **Status** | ✅ Complete — **4 questions closed, 1 opened** |
+
+---
+
+## 1. Decisions applied
+
+| # | Decision | Design consequence |
+|---|---|---|
+| **D-21** | B2C sells **Modules and Bundles only** | Courses removed as a commercial concept. No course CTA, price, checkout, or SKU anywhere. Bundle copy rewritten from "Full course · 8 modules" to "Bundle of 8 modules" |
+| **D-22** | Standalone modules **immediately Available**, internal gating retained | D-07 applies in a course context only; **D-20 still applies in full** inside a standalone module |
+| **D-23** | `reportedScore = max(rawScore, 0)` | New pre-attempt disclosure line; new fourth result frame showing raw −4 → reported 0/20 |
+| **D-24** | No universal duration promise | Conditional **access-duration slot** that renders only on authoritative data and collapses when absent |
+| **D-25** | Correctness without the key | **New per-question review list** on STU-12, on both passed and failed frames |
+
+---
+
+## 2. Findings
+
+### Finding 1 — D-25 required adding a surface, not removing one
+
+The previous position (A-10) was "score summary only, no per-question review", justified by unlimited attempts making full review gameable. **D-25 shows that reasoning was one step too coarse.** The gameable element is the *answer*, not the *outcome*. A Student can be told **which** questions they got wrong without being told **what was right** — and that is strictly more useful for directing them back to the right learning resource.
+
+The design now shows outcome per question and prohibits the key. Two deliberate choices make the prohibition structural rather than a matter of restraint (**A-49**):
+
+- **Rows are not expandable.** There is no disclosure affordance to leak through, and no later "just show the stem" pressure point.
+- **Rows do not link back to the question.** Under unlimited attempts, re-exposing option text *is* the key by elimination.
+
+The prohibition is also carried into the API contract — `questions[]` must never contain the answer, "not in the payload, not in a debug field, not in a comment", because a response body is one DevTools tab away from being a public answer key.
+
+### Finding 2 — D-23 needed the raw arithmetic kept visible
+
+Flooring the total at 0 is straightforward. The judgement call was what to show when raw is negative.
+
+Showing only "0 / 20" would be simplest, but it would make D-06's disclosed scoring rules **unverifiable by the Student**: they were told each wrong answer costs −1, then shown a number that doesn't follow from their answers. The result frame therefore shows the true line items (+4, −8, raw −4) **and** the floored reported score, with one explanatory line.
+
+Transparency here costs three table rows and preserves the credibility of every rule disclosed on STU-09.
+
+### Finding 3 — "Bundle" was one word away from becoming a Course product
+
+D-21 warns against silently redefining a Bundle as a Course. The existing Explore card read **"Fluid Mechanics Complete — Full course · 8 modules"**. That is precisely the drift the decision guards against: a bundle described as a course, with a price attached, is a course SKU by another name.
+
+Renamed to **"Fluid Mechanics Essentials — Bundle of 8 modules · fluid mechanics topic"**. The bundle still contains a course's modules, which D-21 permits; it is simply no longer *sold as* one.
+
+### Finding 4 — D-24 is a data contract, not copy
+
+The earlier fix (Review 004) removed "lifetime access" and stopped there — correct but incomplete. D-24 goes further: duration is **entitlement data**, and the UI must be able to display it truthfully when it exists.
+
+A-48 therefore specifies a **collapsing slot**: it renders `Access until <date>` or `No expiry` on authoritative data, and **renders nothing at all** otherwise — no placeholder, no em-dash. A collapsing slot is the only treatment that satisfies both halves of D-24, since its failure mode is silence, which is exactly what the decision requires in the absence of data.
+
+### Finding 5 — A tooling bug destroyed a file tail mid-pass
+
+While retiring A-47 (the last assumption in `ASSUMPTIONS.md`), a helper that located the *next* `### A-` heading found none and truncated everything after it — losing the reversal-cost summary and change log.
+
+Caught by a post-edit marker check rather than by the edit succeeding. Restored with the new content. Worth recording because the failure was silent: the edit reported success, the assumption count looked plausible, and only an explicit check on expected trailing sections surfaced it.
+
+---
+
+## 3. Validation (§ VALIDATION 1–11)
+
+| # | Check | Result |
+|---|---|---|
+| 1 | All 29 screen IDs present | ✅ 29/29 anchors resolve |
+| 2 | No Course-purchase CTA | ✅ Zero course price, CTA, checkout, or SKU |
+| 3 | Standalone modules immediately Available, internal gating retained | ✅ STU-02 shows "Available · no previous-module prerequisite"; D-20 intact |
+| 4 | Course sequential gating still works | ✅ STU-03 locked rows unchanged |
+| 5 | Assessment total never displays below 0 | ✅ Floored frame shows raw −4 → **0 / 20** |
+| 6 | Negative marking remains visible | ✅ STU-09 discloses −1; STU-12 shows −2 / −8 line items |
+| 7 | No correct-answer key exposed | ✅ Outcome only; explicit no-key notice on the failed frame |
+| 8 | No "lifetime access" product copy | ✅ Two occurrences remain, both **documentation explaining the prohibition** |
+| 9 | Sample prices marked as sample | ✅ 11 `SAMPLE` markers + notice + handoff section |
+| 10 | D-01 – D-25 mutually consistent | ✅ See §4 |
+| 11 | `source/` and `branding/` unchanged | ✅ Checksums verified |
+
+---
+
+## 4. Decision-consistency check (validation item 10)
+
+Four pairs were checked specifically because they touch the same surfaces:
+
+| Pair | Potential conflict | Resolution |
+|---|---|---|
+| **D-07 vs D-22** | Does "gating is mandatory" contradict "standalone is immediately available"? | **No.** D-07 gates a *sequence*; a standalone module has no predecessor. D-22 states the scope explicitly rather than leaving it inferred. |
+| **D-20 vs D-22** | Does immediate availability bypass internal gating? | **No.** D-22 unlocks the module's front door only. D-20 governs inside it and is explicitly retained. |
+| **D-06 vs D-23** | Does flooring change the pass mark or negative marking? | **No.** Per-answer −1 is unchanged; only the reported total is floored; 10/20 unchanged and evaluated against the reported score. |
+| **A-10 vs D-25** | Did the old "no review" assumption survive anywhere? | **No.** A-10 retired; flows, wireframe spec, screen inventory, interaction spec, and hi-fi all updated. |
+
+Also verified: **D-21 vs FRD 6.1.1/6.1.2** — the FRD names exactly *individual modules* and *bundles*, so D-21 makes the design match the requirement literally. Q-46 closes **without inventing a product type**.
+
+---
+
+## 5. Questions
+
+**Closed (4):** Q-10 answer review · Q-46 courses purchasable · Q-47 standalone gating · Q-54 negative score.
+**Rescoped (1):** Q-53 — the UI contract is now set by D-24; only the commercial duration values remain open. Dropped High → Medium.
+**Opened (1):** **Q-56** — how a completed standalone module interacts with a later course entitlement. D-22 explicitly forbids inventing this, so **nothing is designed for it**.
+
+**Preserved as instructed, not silently resolved:** Q-11 · Q-12 · Q-13 · Q-16 · Q-18 · Q-34–Q-37 · Q-40 · Q-42 · Q-43 · Q-49 · Q-50 · Q-51 · Q-52. **Certification remains unresolved — no certificate dashboard or downloadable certificate was invented.**
+
+---
+
 ## Review history
 
 | Review | Date | Type | Status |
@@ -608,3 +717,4 @@ Found by per-section depth analysis rather than a total count — the totals wer
 | 002 | 2026-08-10 | Product decision update and FRD-to-foundation audit | ✅ Complete |
 | 003 | 2026-08-10 | Stages 6–10 execution · D-19 applied | ✅ Complete |
 | 004 | 2026-08-10 | Correction and completeness pass · D-20 applied *(requested as 003)* | ✅ Complete |
+| 005 | 2026-08-10 | Product decision update · **D-21 – D-25** applied | ✅ Complete |

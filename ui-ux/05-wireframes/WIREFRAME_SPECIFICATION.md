@@ -481,7 +481,9 @@ TIME EXPIRED variant ───────────────────�
 │  questions scored 0.                                                 │
 ```
 
-**No per-question review, no correct answers** (A-10) — unlimited attempts plus full review makes the 50% pass mark trivially gameable.
+**Per-question review — correctness only (D-25).** The result lists every question as *number · Correct / Incorrect / Unanswered · hint marker*. It never shows the correct option, an answer key, or answer text — **especially on failed attempts**. Rows are **not expandable** and do **not** link back to the question (A-49): under unlimited attempts, exposing option text is the key by elimination.
+
+**Score floor (D-23).** `reportedScore = max(rawScore, 0)`. A raw −4 renders as **0 / 20** with the true arithmetic still shown plus an explicit floor note — hiding the arithmetic would make the disclosed scoring rules unverifiable.
 
 ---
 
@@ -516,6 +518,8 @@ Filtering is **catalog navigation**, not the global search the IA rejected.
 ┌──────────────────────────────────────────┐ ┌──────────────────────────┐
 │ [VR simulation]                          │ │ ₹2,499                   │
 │ Robotic Arm Kinematics                H1 │ │ One-time purchase        │
+│  MODULE product (D-21 — courses are      │ │ [access-duration slot —  │
+│  not purchasable)                        │ │  renders only on data]   │
 │                                          │ │ access                   │
 │ ┌──────────────────────────────────────┐ │ │                          │
 │ │ ⚠ REQUIRES A META QUEST HEADSET      │ │ │ [ Buy now ]              │

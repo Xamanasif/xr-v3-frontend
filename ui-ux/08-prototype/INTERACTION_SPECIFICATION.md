@@ -105,6 +105,21 @@ Confirmed because the cost is **silent and permanent**. On confirm: hint text ap
 
 **A hint never contains the answer** (D-06). This is a content rule that must reach whoever authors the bank — recorded in the handoff.
 
+### Scoring and result disclosure — D-23 / D-25
+
+**Score floor.** `reportedScore = max(rawScore, 0)`. Negative marking applies per answer; only the **reported total** is floored.
+
+| Raw | Reported | Breakdown shows |
+|---|---|---|
+| +14 | 14 / 20 | line items summing to +14 |
+| −4 | **0 / 20** | line items summing to **−4**, plus an explicit floor note |
+
+When the raw total is negative the breakdown still shows the true arithmetic and adds one line — *"Reported score floored at 0"*. Hiding the raw arithmetic would make the disclosed scoring rules unverifiable by the Student.
+
+**Pre-attempt disclosure adds one line** (D-23): *"Negative marking applies. Your final reported score cannot be lower than 0."*
+
+**Answer review.** After submission the Student sees, per question: number · **Correct / Incorrect / Unanswered** · hint-used marker. They **never** see the correct option, an answer key, or answer text — **especially on failed attempts**. Rows are **not expandable** and do **not** link back to the question (A-49): under unlimited attempts, exposing option text is the key by elimination.
+
 ### Submission
 
 `Submit` opens the confirmation modal (STU-11) showing the **unanswered count** (brief §8). *Review unanswered* returns to the **first** unanswered question, not question 1.
@@ -229,6 +244,9 @@ A modal rather than a route is what makes "continue where you left off" literall
 
 | Step | Behaviour |
 |---|---|
+| Product types | **Modules and Bundles only (D-21).** No course product exists — no course CTA, price, checkout, or SKU anywhere in the flow |
+| Standalone purchase | Purchased module is **immediately Available** (D-22) — no previous-module prerequisite. **D-20 internal gating still applies.** |
+| Access duration | Rendered **only** when authoritative entitlement data supplies it — `Access until <date>` or `No expiry`. **The slot collapses entirely when absent** (A-48, D-24). Never "lifetime", "permanent", or "perpetual" |
 | Explore filter | Applies without a page reload; result count announces politely; filters stay interactive during load |
 | Owned product | Shows "In your learning" + *Start learning*, never a price or buy action (A-37) |
 | Buy → Checkout | Direct. **No cart** (IA §4.3). Signed-out buyers route to AUTH-03 and return to the same product |

@@ -94,6 +94,9 @@ Recorded as A-38. If Home ever fails this test, the correct remedy is to shrink 
 | Downloads / Offline library | ❌ contradicts FRD 1.1.4, 10.1.1 | — | — | — | **Excluded** — download stays a per-resource action (D-05) |
 | Cart | ⚠️ implied by D-04 | ⚠️ | ✅ | ✅ | **Deferred** — see §4.3 |
 
+### 4.0 What Explore may sell — D-21
+**Explore lists exactly two product types (D-21): Modules and Bundles.** Courses are **not** purchasable and appear nowhere in Explore as products — no course CTA, price, checkout, or SKU. A Bundle may *contain* the modules that make up a course, but is never presented as a course purchase. Courses remain a structural concept (FRD 3.2.1) that organises learning and drives D-07 sequencing; only their commercial status is decided.
+
 ### 4.1 Why "Assessments" remains rejected
 
 FRD 3.1.2 places assessments **inside** modules as an optional component. D-08 reinforces this: an assessment is a completion gate *for its module*, not an independent object. A global Assessments list would duplicate module state, be empty for modules without assessments, and — under D-07 — mostly list items the Student cannot reach because their module is locked.
@@ -195,6 +198,8 @@ Components unlock **in sequence**, extending D-07's between-module gating inward
 | Assessment passed | — | ✅ Complete → next module unlocks |
 
 **Optional resources never gate anything.**
+
+**Standalone purchased modules — D-22.** A module bought as an individual product is **immediately Available**: D-07's previous-module prerequisite does not apply, because there is no previous module. **D-20 internal gating still applies in full** — resources → simulation → assessment. Standalone modules are unlocked at the front door, not throughout.
 
 **A locked component never renders an active action.** It renders as a locked state naming its prerequisite. The numbered ①②③ ordering in the module body and in the rail checklist is what makes the sequence legible before a Student hits it — the same principle as D-07's "reason readable without interaction".
 

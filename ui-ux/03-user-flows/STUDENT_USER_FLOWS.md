@@ -199,7 +199,7 @@ Authenticated ⇢ [STU-01] Home
        Sections generated from actual content (FRD 3.1.2 "may include")
 ```
 
-**B2C standalone modules** — ⚠ Q-47: gating applies **within a course context only**. A standalone purchased module is always Available. Shown as an explicit branch rather than silently unified.
+**B2C standalone modules — D-22.** Sequential gating applies **within a course context only**. A standalone purchased module is **immediately Available** with no previous-module prerequisite, but **retains D-20 internal gating** (resources → simulation → assessment). ⚠ Q-56: how a completed standalone later interacts with a separately acquired course entitlement is **deliberately undesigned**.
 
 ---
 
@@ -394,6 +394,9 @@ Licensed XR modules are **never hidden** (D-09). The desktop never pretends it c
 ```
 ⇢ [STU-12] Assessment result
     Score 15 / 20 · PASSED · Attempt 2 · Time used 12:41
+    ◆ Raw score negative? (D-23)
+      └─ reportedScore = max(rawScore, 0) — e.g. raw −4 shows as 0 / 20
+         Negative marking still applied per answer; the TOTAL is floored
     Breakdown: 8 correct (+16) · 1 correct with hint (+1) · 2 incorrect (−2)
                ↑ the breakdown is where hint impact becomes concrete
     Attempt history (FRD 11.2.2)
@@ -417,9 +420,13 @@ Licensed XR modules are **never hidden** (D-09). The desktop never pretends it c
            the Student out indefinitely through no fault of their own.
            ⚠ Q-24 — no Phase-1 grading workflow exists
 
-    NO per-question review, no correct answers  ※ A-10  ⚠ Q-10
-      Unlimited attempts + full review would make the 50% pass mark
-      trivially gameable
+    PER-QUESTION REVIEW — correctness only (D-25)
+      Shown:      Q1 ✓ Correct · Q2 ✕ Incorrect · Q3 ○ Unanswered
+                  Q7 ✓ Correct (hint used)
+      NEVER shown: the correct option · an answer key · answer text
+      Rows are NOT expandable and do NOT link back to the question ※ A-49 —
+      under unlimited attempts, option text is the key by elimination.
+      Applies ESPECIALLY to failed attempts.
 ```
 
 ---
@@ -529,7 +536,9 @@ Account ▾ → Sign out
 
 ```
 Nav → Explore ⇢ [B2C-01] Catalog
-    Lists MODULES and BUNDLES (FRD 6.1.1, 6.1.2)  ⚠ Q-46 — are courses purchasable?
+    Lists MODULES and BUNDLES only (FRD 6.1.1, 6.1.2 · D-21)
+      Courses are NOT purchasable — no course CTA, price, checkout, or SKU.
+      A Bundle may contain a course's modules but is never sold AS a course.
     Filter: topic · format (Web/VR/MR/AR) · price      Sort: relevance · price · newest
     Each card: title · format badge · price · owned indicator
     ◆ Already owned? → "In your learning" instead of a price (A-37, ⚠ Q-45)

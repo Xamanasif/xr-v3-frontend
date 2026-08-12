@@ -11,18 +11,18 @@
 
 | # | File | Why |
 |---|---|---|
-| 1 | `01-requirements/DECISIONS.md` | **D-01 – D-19.** Every behaviour traces here. Nothing overrides these except a newer manager decision. |
+| 1 | `01-requirements/DECISIONS.md` | **D-01 – D-25.** Every behaviour traces here. Nothing overrides these except a newer manager decision. |
 | 2 | `06-design-system/tokens.css` | Drop in as-is. **Never hard-code a colour.** |
 | 3 | `08-prototype/INTERACTION_SPECIFICATION.md` | All behaviour a static frame can't show |
 | 4 | `07-high-fidelity/student-desktop-hifi.html` | Visual target — open in a browser |
 | 5 | `09-accessibility/ACCESSIBILITY_REVIEW.md` | §7 is your build-time test checklist |
-| 6 | `01-requirements/ASSUMPTIONS.md` | **29 unconfirmed positions.** If one is wrong, the fix is scoped there. |
+| 6 | `01-requirements/ASSUMPTIONS.md` | **30 unconfirmed positions.** If one is wrong, the fix is scoped there. |
 
 ---
 
 ## 2. Backend contract — read before estimating
 
-Six behaviours are **server responsibilities**. Building them client-side will pass review and fail in production.
+Nine behaviours are **server responsibilities**. Building them client-side will pass review and fail in production.
 
 ### 2.1 Assessment timer must be server-authoritative — A-41, ⚠ Q-43
 
@@ -105,6 +105,40 @@ GET /modules/{id}/simulation → {
 The desktop reads this **on navigation** plus on demand via *Check for updates*. **Do not build a polling loop, a push channel, or device pairing** — D-19 forbids inventing cross-device mechanisms, and none is needed.
 
 ⚠ **Q-42:** there is deliberately **no manual completion override** (A-40) — it would defeat the gate for everyone. Engineering must define reconciliation for a completion that is never recorded.
+
+### 2.5b Product catalogue — D-21
+
+Exactly **two** purchasable product types exist:
+
+```
+GET /products → [{ id, type: "module" | "bundle", ... }]
+```
+
+**There is no `course` product type.** Do not build a course SKU, course price, course checkout route, or course purchase CTA. A `bundle` may reference the modules that make up a course; it is still a bundle. Bundle copy describes contents ("Bundle of 8 modules"), never "buy this course".
+
+### 2.5c Score floor and answer review — D-23, D-25
+
+**Store the raw score. Report the floored score.**
+
+```
+POST /attempts/{id}/submit → {
+  rawScore,                      // may be negative — e.g. -4
+  reportedScore,                 // = max(rawScore, 0)
+  passed,                        // reportedScore >= 10
+  breakdown: [{ label, points }],
+  questions: [{ number, outcome: "correct"|"incorrect"|"unanswered", hintUsed }]
+}
+```
+
+- The UI shows `reportedScore` as the headline **and** the raw arithmetic with a floor note. Hiding the arithmetic makes the disclosed rules unverifiable.
+- `passed` is evaluated against the **reported** score. The 50% pass mark is unchanged.
+- **`questions[]` must never carry the correct option, an answer key, or answer text** — not in the payload, not in a debug field, not in a comment. If it is in the response it is in DevTools, and unlimited attempts turn that into memorisation (D-25).
+
+### 2.5d Standalone module availability — D-22
+
+A module entitlement acquired as a standalone product returns `state: "available"` with `lockedBy: null` **regardless of any course position**. Its internal `simulation.unlocked` / `assessment.unlocked` gates (D-20) are evaluated normally.
+
+⚠ **Q-56:** how a completed standalone module interacts with a later course entitlement is **undefined and must not be invented.** Treat the two entitlements as independent until answered.
 
 ### 2.6 Payment is a redirect; the indeterminate state is real — C-05
 
@@ -248,13 +282,13 @@ Ten divergences, listed in `02-information-architecture/STUDENT_INFORMATION_ARCH
 |---|---|
 | Prices ₹999 / ₹1,499 / ₹2,499 | **Fictional layout placeholders** (A-44). No pricing, currency, or tax treatment is approved — Q-35 |
 | Google / Microsoft social buttons | **Illustrative placeholders** (A-45). No provider is confirmed — Q-55. Real providers impose their own button specs |
-| Licence duration | **Not stated.** Copy says "One-time purchase" only. "Lifetime access" was withdrawn as unconfirmed (A-47) — Q-53. **Do not reinstate any duration, expiry, renewal, or refund claim** |
-| Score sign | **Sign-neutral** (A-46). Do not floor at 0 and do not special-case a negative until Q-54 is answered — the component handles both |
+| Licence duration | **Entitlement data, not copy (D-24).** "Lifetime", "permanent", "perpetual" are **prohibited** as product promises. Render the access-duration slot **only** when authoritative data supplies a value — `Access until <date>` or `No expiry` — and **collapse it entirely otherwise** (A-48). Never invent either state |
+| Score reporting | **`reportedScore = max(rawScore, 0)` (D-23).** Store raw, report floored, show both. Pass mark unchanged at 10/20 |
 | Learner names, courses, scores | Fictional |
 
 ## 9. What is NOT in scope
 
-Do not build, even if it seems natural: charts or analytics graphs · badges, streaks, points, leaderboards · notification centre · **persistent cart** (single-object purchase) · **coupon field** (FRD 6.4 is Phase 2) · global search (Explore filtering is not search) · certification tracking (FRD 3.5.1 is Phase 3) · recommendations (FRD 4.5 is Phase 2) · AI assistant (FRD 5.5 is Phase 3) · offline download library · per-question answer review (A-10) · manual simulation completion override (A-40).
+Do not build, even if it seems natural: **course purchase CTA, course price, course checkout, or course SKU (D-21)** · **any answer key or correct-answer disclosure after an attempt (D-25)** · **any "lifetime/permanent/perpetual access" claim (D-24)** · charts or analytics graphs · badges, streaks, points, leaderboards · notification centre · **persistent cart** (single-object purchase) · **coupon field** (FRD 6.4 is Phase 2) · global search (Explore filtering is not search) · certification tracking (FRD 3.5.1 is Phase 3) · recommendations (FRD 4.5 is Phase 2) · AI assistant (FRD 5.5 is Phase 3) · offline download library · per-question answer review (A-10) · manual simulation completion override (A-40).
 
 Each is absent on purpose. Adding one silently re-opens a closed decision.
 
@@ -275,7 +309,7 @@ Each is absent on purpose. Adding one silently re-opens a closed decision.
 | **Q-35** | Currency and tax presentation | Compliance-adjacent; affects checkout copy |
 | **Q-46 / Q-47** | Courses purchasable? Gating for standalone modules? | Two progression models vs one |
 
-Full register: `01-requirements/OPEN_QUESTIONS.md` — **38 open, none blocking build start.**
+Full register: `01-requirements/OPEN_QUESTIONS.md` — **38 open, none blocking build start.** Review 005 closed Q-10, Q-46, Q-47, Q-54 and added Q-56.
 
 ---
 
