@@ -1,0 +1,1304 @@
+<title>High-Fidelity — XR Simulation Learning Platform · Student Desktop · Phase 1</title>
+<style>
+/* ============================================================================
+   TOKENS — from 06-design-system/tokens.css   PROVISIONAL (D-12)
+   LIGHT IS THE PRESENTATION DEFAULT (Review-004 §12).
+   Dark is supported via [data-theme="dark"] but remains PROVISIONAL until an
+   approved reversed/dark logo exists (Q-13).
+   ========================================================================= */
+:root{
+  --indigo-50:#F2F4FC;--indigo-100:#E2E7F8;--indigo-200:#C6D0F0;--indigo-300:#9DAEE4;
+  --indigo-400:#6E85D3;--indigo-500:#4A62BF;--indigo-600:#3648A3;--indigo-700:#2B3982;
+  --indigo-800:#232E66;--indigo-900:#1B2450;
+  --teal-50:#EAF6F5;--teal-200:#A8DBD8;--teal-400:#35A9A3;--teal-600:#0F7A75;--teal-700:#0C625E;
+  --success-50:#E8F5EE;--success-200:#A9D9BF;--success-400:#3FA46F;--success-700:#146C43;
+  --warning-50:#FCF3E4;--warning-200:#EBCF98;--warning-400:#C98A2E;--warning-700:#8A5200;
+  --danger-50:#FCEDEC;--danger-200:#EFB3AF;--danger-400:#E0655C;--danger-700:#B3261E;
+  --info-50:#EAF0FC;--info-200:#B4C8F0;--info-400:#5B8BE0;--info-700:#1A56C4;
+  --fmt-web:var(--info-700);--fmt-vr:#6B3FA0;--fmt-mr:var(--teal-600);--fmt-ar:var(--warning-700);
+  --fmt-web-s:var(--info-50);--fmt-vr-s:#F3EEFA;--fmt-mr-s:var(--teal-50);--fmt-ar-s:var(--warning-50);
+  --n-0:#FFF;--n-25:#FAFBFC;--n-50:#F4F6F9;--n-100:#E9EDF2;--n-200:#D8DEE7;
+  --n-300:#B6C0CD;--n-400:#8C98A8;--n-500:#6A7686;--n-600:#515D6C;--n-700:#3B4552;--n-800:#272E38;--n-900:#161B22;
+
+  --color-bg:var(--n-25);--color-surface:var(--n-0);--color-raised:var(--n-50);--color-sunken:var(--n-100);
+  --color-border:var(--n-200);--color-border-strong:var(--n-300);--color-border-subtle:var(--n-100);
+  --color-text:var(--n-900);--color-text-2:var(--n-600);--color-text-3:var(--n-500);--color-on-action:var(--n-0);
+  --color-action:var(--indigo-700);--color-action-hover:var(--indigo-800);
+  --color-action-subtle:var(--indigo-50);--color-action-border:var(--indigo-200);--color-focus:var(--indigo-700);
+  --color-sim:var(--teal-600);--color-sim-surface:var(--teal-50);--color-sim-border:var(--teal-200);
+  --color-success:var(--success-700);--color-success-surface:var(--success-50);--color-success-border:var(--success-200);
+  --color-warning:var(--warning-700);--color-warning-surface:var(--warning-50);--color-warning-border:var(--warning-200);
+  --color-danger:var(--danger-700);--color-danger-surface:var(--danger-50);--color-danger-border:var(--danger-200);
+  --color-info:var(--info-700);--color-info-surface:var(--info-50);--color-info-border:var(--info-200);
+  --font-sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --r-xs:2px;--r-sm:4px;--r-md:6px;--r-lg:10px;--r-xl:16px;--r-pill:999px;
+  --e1:0 1px 2px rgba(22,27,34,.06),0 1px 1px rgba(22,27,34,.04);
+  --e2:0 4px 12px rgba(22,27,34,.08),0 1px 3px rgba(22,27,34,.05);
+  --e3:0 12px 32px rgba(22,27,34,.12),0 2px 8px rgba(22,27,34,.06);
+}
+:root[data-theme="dark"]{
+  --color-bg:#0F1319;--color-surface:#161B22;--color-raised:#1D242E;--color-sunken:#0B0E13;
+  --color-border:#2C3540;--color-border-strong:#3D4854;--color-border-subtle:#222A34;
+  --color-text:#E8EBEF;--color-text-2:#A9B4C1;--color-text-3:#8A96A4;--color-on-action:#0F1319;
+  --color-action:var(--indigo-400);--color-action-hover:var(--indigo-300);
+  --color-action-subtle:#1C2340;--color-action-border:#33407A;--color-focus:var(--indigo-300);
+  --color-sim:var(--teal-400);--color-sim-surface:#0E2523;--color-sim-border:#1D4C49;
+  --color-success:var(--success-400);--color-success-surface:#10241A;--color-success-border:#235A3C;
+  --color-warning:var(--warning-400);--color-warning-surface:#2A1E0B;--color-warning-border:#5E4415;
+  --color-danger:var(--danger-400);--color-danger-surface:#2A1414;--color-danger-border:#6B2C28;
+  --color-info:var(--info-400);--color-info-surface:#101B33;--color-info-border:#2A417A;
+  --fmt-web:var(--info-400);--fmt-vr:#A98AD8;--fmt-mr:var(--teal-400);--fmt-ar:var(--warning-400);
+  --fmt-web-s:#101B33;--fmt-vr-s:#221A33;--fmt-mr-s:#0E2523;--fmt-ar-s:#2A1E0B;
+  --e1:0 1px 2px rgba(0,0,0,.5);--e2:0 4px 12px rgba(0,0,0,.55);--e3:0 12px 32px rgba(0,0,0,.6);
+}
+
+/* ===== documentation chrome (NOT product UI) ===== */
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-sans);font-size:15px;line-height:1.6}
+.doc{max-width:1120px;margin:0 auto;padding:44px 24px 120px}
+.dh1{font:650 30px/1.2 var(--font-sans);letter-spacing:-.02em;margin:0 0 8px}
+.dsub{color:var(--color-text-2);margin:0 0 6px}
+.dmeta{color:var(--color-text-3);font-size:13px;margin:0 0 28px}
+.warn{background:var(--color-warning-surface);border:1px solid var(--color-warning-border);
+  border-left:3px solid var(--color-warning);border-radius:var(--r-md);padding:14px 18px;font-size:13.5px;margin:0 0 18px}
+.warn b{color:var(--color-text)}
+.grp{font:650 12px/1 var(--font-sans);letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-3);
+  margin:64px 0 0;padding-top:26px;border-top:2px solid var(--color-border)}
+.dh2{font:640 20px/1.3 var(--font-sans);letter-spacing:-.01em;margin:26px 0 6px;padding-top:20px;border-top:1px solid var(--color-border)}
+.grp + .dh2{border-top:none;padding-top:8px;margin-top:12px}
+.dcap{color:var(--color-text-2);font-size:13.5px;margin:0 0 18px;max-width:80ch}
+.dcap b{color:var(--color-text)}
+.toc{columns:3;column-gap:32px;font-size:13px;list-style:none;margin:0 0 12px;padding:0}
+.toc li{margin:0 0 5px;break-inside:avoid}
+.toc a{color:var(--color-text);text-decoration:none;border-bottom:1px solid var(--color-border-strong)}
+.shot{border:1px solid var(--color-border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--e2);background:var(--color-surface)}
+.vp{width:100%;overflow-x:auto}
+.cv{width:1440px;zoom:.72;background:var(--color-bg)}
+@media(max-width:1100px){.cv{zoom:.58}} @media(max-width:900px){.cv{zoom:.46}} @media(max-width:700px){.cv{zoom:.36}}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:900px){.pair,.trio{grid-template-columns:1fr}}
+.lbl{font:650 11px/1.4 var(--font-sans);letter-spacing:.09em;text-transform:uppercase;color:var(--color-text-3);margin:0 0 8px}
+
+/* ===== PRODUCT UI ===== */
+.app{background:var(--color-bg);font-size:15px}
+.topbar{height:72px;background:var(--color-surface);border-bottom:1px solid var(--color-border);
+  display:flex;align-items:center;gap:36px;padding:0 80px}
+.brand img{height:42px;width:auto;display:block}          /* enlarged — Review-004 §12 */
+.gnav{display:flex;gap:30px;align-items:center;height:72px}
+.gnav a{color:var(--color-text-2);text-decoration:none;font-size:15px;font-weight:500;height:72px;
+  display:flex;align-items:center;border-bottom:2px solid transparent}
+.gnav a.on{color:var(--color-text);font-weight:650;border-bottom-color:var(--color-action)}
+.tright{margin-left:auto;display:flex;align-items:center;gap:16px}
+.inst{font-size:13px;color:var(--color-text-2);padding:6px 13px;background:var(--color-raised);
+  border:1px solid var(--color-border);border-radius:var(--r-pill)}
+.acct{display:flex;align-items:center;gap:9px;font-size:14.5px;color:var(--color-text-2)}
+.av{width:32px;height:32px;border-radius:var(--r-pill);background:var(--color-action);color:var(--color-on-action);
+  display:flex;align-items:center;justify-content:center;font:650 13px/1 var(--font-sans)}
+.main{padding:30px 80px 60px}
+.crumb{font-size:13.5px;color:var(--color-text-2);margin-bottom:16px}
+.crumb span{color:var(--color-text-3);margin:0 7px}
+.h1{font:650 28px/36px var(--font-sans);letter-spacing:-.015em;margin:0 0 6px}
+.h2{font:640 22px/30px var(--font-sans);letter-spacing:-.01em;margin:0 0 4px}
+.h3{font:640 18px/26px var(--font-sans);margin:0 0 4px}
+.h4{font:640 15.5px/23px var(--font-sans);margin:0}
+.ov{font:650 11px/16px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-2)}
+.p{font:400 15px/24px var(--font-sans);color:var(--color-text-2);margin:0}
+.sm{font-size:13.5px;color:var(--color-text-2)}
+.xs{font-size:12.5px;color:var(--color-text-2)}      /* readability lift — Review-004 §12 */
+.mute{color:var(--color-text-3)}
+.tab{font-variant-numeric:tabular-nums}
+.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.pad{padding:24px}.pad20{padding:20px}.pad16{padding:16px}
+.g87{display:grid;grid-template-columns:845px 411px;gap:24px}
+.g66{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.stk>*+*{margin-top:16px}
+.stk8>*+*{margin-top:9px}
+.row{display:flex;align-items:center;gap:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;
+  border-radius:var(--r-sm);font:640 14.5px/1 var(--font-sans);border:1px solid transparent;white-space:nowrap}
+.btn.pri{background:var(--color-action);color:var(--color-on-action)}
+.btn.sec{background:var(--color-surface);color:var(--color-text);border-color:var(--color-border-strong)}
+.btn.gho{background:transparent;color:var(--color-action)}
+.btn.sim{background:var(--color-sim);color:#fff}
+.btn.lg{height:46px;padding:0 22px;font-size:15px}
+.btn.blk{display:flex;width:100%}
+.inp{height:44px;border:1px solid var(--color-border-strong);border-radius:var(--r-sm);background:var(--color-surface);
+  display:flex;align-items:center;padding:0 14px;color:var(--color-text-3);font-size:14.5px}
+.inp.ro{background:var(--color-raised);color:var(--color-text-2);border-style:dashed}
+.fl{font:600 13px/1.4 var(--font-sans);color:var(--color-text);margin:0 0 6px;display:block}
+.badge{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:var(--r-xs);
+  font:650 11px/1 var(--font-sans);letter-spacing:.04em;border:1px solid}
+.b-web{color:var(--fmt-web);background:var(--fmt-web-s);border-color:var(--fmt-web)}
+.b-vr{color:var(--fmt-vr);background:var(--fmt-vr-s);border-color:var(--fmt-vr)}
+.b-mr{color:var(--fmt-mr);background:var(--fmt-mr-s);border-color:var(--fmt-mr)}
+.b-ar{color:var(--fmt-ar);background:var(--fmt-ar-s);border-color:var(--fmt-ar)}
+.b-n{color:var(--color-text-2);background:var(--color-raised);border-color:var(--color-border-strong)}
+.st{display:inline-flex;align-items:center;gap:6px;font:640 13px/1 var(--font-sans);white-space:nowrap}
+.st.done{color:var(--color-success)}.st.prog{color:var(--color-action)}
+.st.lock{color:var(--color-text-3)}.st.fail{color:var(--color-danger)}
+.st.wait{color:var(--color-warning)}.st.idle{color:var(--color-text-2)}
+.prog{height:8px;border-radius:var(--r-pill);background:var(--color-sunken);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--color-action);border-radius:var(--r-pill)}
+
+/* --- hierarchy: COURSE card | MODULE row | RESOURCE row are distinct objects --- */
+.ccard{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);
+  box-shadow:var(--e1);border-left:4px solid var(--color-action);padding:20px}
+.ctile{width:44px;height:44px;border-radius:var(--r-md);background:var(--color-action-subtle);
+  border:1px solid var(--color-action-border);display:flex;align-items:center;justify-content:center;
+  font:650 15px/1 var(--font-sans);color:var(--color-action);flex:none}
+.mrow{display:flex;align-items:center;gap:16px;padding:15px 18px;border:1px solid var(--color-border);
+  background:var(--color-surface);border-radius:var(--r-md)}
+.mrow+.mrow{margin-top:8px}
+.mrow.cur{border-color:var(--color-action);background:var(--color-action-subtle);border-width:1.5px}
+.mrow.lk{background:var(--color-raised);border-style:dashed}
+.mrow.lk .h4{color:var(--color-text-2)}
+.mn{width:24px;font:650 14px/1 var(--font-sans);color:var(--color-text-3);flex:none;text-align:center}
+.rrow{display:flex;align-items:center;gap:14px;padding:12px 16px;border:1px solid var(--color-border-subtle);
+  background:var(--color-raised);border-radius:var(--r-md)}
+.rrow+.rrow{margin-top:6px}
+.rrow.cur{background:var(--color-action-subtle);border-color:var(--color-action-border)}
+.rtile{width:34px;height:34px;border-radius:var(--r-sm);background:var(--color-surface);
+  border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+.alert{border-radius:var(--r-md);padding:14px 16px;border:1px solid;font-size:13.5px;display:flex;gap:10px;align-items:flex-start}
+.al-i{background:var(--color-info-surface);border-color:var(--color-info-border);color:var(--color-text)}
+.al-w{background:var(--color-warning-surface);border-color:var(--color-warning-border);color:var(--color-text)}
+.al-s{background:var(--color-success-surface);border-color:var(--color-success-border);color:var(--color-text)}
+.al-d{background:var(--color-danger-surface);border-color:var(--color-danger-border);color:var(--color-text)}
+.al-n{background:var(--color-raised);border-color:var(--color-border);color:var(--color-text)}
+.ck{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:14px}
+.ck i{flex:none;width:18px;height:18px;border-radius:var(--r-pill);border:1.5px solid var(--n-500);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-style:normal;margin-top:2px}
+.ck.on i{background:var(--color-success);border-color:var(--color-success);color:#fff}
+.ck.on span{color:var(--color-text-2)}
+.ck.lk i{border-style:dashed;border-color:var(--color-border-strong)}
+.ck.lk span{color:var(--color-text-3)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:14px}
+.kv+.kv{border-top:1px solid var(--color-border-subtle)}
+.kv b{font-weight:640}
+.sep{height:1px;background:var(--color-border-subtle);margin:16px 0}
+.opt{border:1px solid var(--n-500);border-radius:var(--r-md);padding:14px 18px;display:flex;gap:12px;
+  align-items:center;background:var(--color-surface);font-size:15px}
+.opt+.opt{margin-top:10px}
+.opt.sel{border-color:var(--color-action);background:var(--color-action-subtle);border-width:1.5px}
+.rd{width:18px;height:18px;border-radius:var(--r-pill);border:1.5px solid var(--n-500);flex:none}
+.opt.sel .rd{border:5px solid var(--color-action)}
+.qn{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.qn div{height:38px;border-radius:var(--r-sm);border:1px solid var(--n-500);display:flex;
+  align-items:center;justify-content:center;font:640 13.5px/1 var(--font-sans);color:var(--color-text-2);position:relative}
+.qn .an{background:var(--color-action-subtle);border-color:var(--color-action);color:var(--color-action)}
+.qn .cu{background:var(--color-action);border-color:var(--color-action);color:var(--color-on-action)}
+.qn .hi::after{content:"";position:absolute;top:4px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--color-warning)}
+.sticky{background:var(--color-surface);border-bottom:1px solid var(--color-border);
+  padding:14px 80px;display:flex;align-items:center;gap:20px;box-shadow:var(--e1)}
+.timer{font:650 17px/1 var(--font-mono);font-variant-numeric:tabular-nums;padding:9px 14px;border-radius:var(--r-sm);
+  background:var(--color-raised);border:1px solid var(--color-border);display:inline-flex;gap:8px;align-items:center}
+.big{font:650 46px/1.05 var(--font-sans);letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:var(--r-pill);
+  border:1px solid var(--color-border-strong);font-size:13.5px;color:var(--color-text-2);background:var(--color-surface)}
+.chip.on{background:var(--color-action-subtle);border-color:var(--color-action);color:var(--color-action);font-weight:600}
+.form{width:440px;margin:0 auto}
+.mid{display:flex;align-items:center;justify-content:center;padding:52px 0;min-height:560px}
+.divider{display:flex;align-items:center;gap:12px;color:var(--color-text-3);font-size:12.5px}
+.divider::before,.divider::after{content:"";height:1px;background:var(--color-border);flex:1}
+.price{font:650 30px/1.1 var(--font-sans);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sk{background:var(--color-sunken);border-radius:var(--r-sm)}
+.strip{height:5px;border-radius:var(--r-pill);background:var(--color-action)}
+.mediabar{height:56px;border-radius:var(--r-md);background:linear-gradient(100deg,var(--color-action-subtle),var(--color-sunken));
+  border:1px solid var(--color-border);display:flex;align-items:center;padding:0 16px;gap:12px}
+.samp{display:inline-block;font:650 10px/1 var(--font-sans);letter-spacing:.06em;padding:3px 6px;border-radius:var(--r-xs);
+  background:var(--color-warning-surface);border:1px solid var(--color-warning-border);color:var(--color-warning);vertical-align:middle}
+.modal{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-xl);
+  box-shadow:var(--e3);padding:28px;max-width:520px;margin:0 auto}
+.scrim{background:rgba(22,27,34,.45);padding:56px 0;display:flex;align-items:center;justify-content:center}
+:root[data-theme="dark"] .scrim{background:rgba(0,0,0,.6)}
+.lockbar{display:flex;align-items:center;gap:12px;padding:14px 18px;border:1px dashed var(--color-border-strong);
+  border-radius:var(--r-md);background:var(--color-raised);color:var(--color-text-2);font-size:13.5px}
+</style>
+
+<div class="doc">
+<p class="dh1">High-Fidelity — Student Desktop</p>
+<p class="dsub">XR Simulation Learning Platform · Phase 1 · 1440px canvas · <b>all 29 inventory screens</b></p>
+<p class="dmeta">Review 004 correction pass · Built on <code>06-design-system/tokens.css</code> · <b>Light is the presentation theme</b>; dark is supported but provisional pending an approved reversed logo (Q-13)</p>
+
+<div class="warn"><b>Provisional visual system (D-12).</b> The logo is the only approved brand asset. Every colour and type value is a placeholder routed through a semantic token — resolving <b>Q-13</b> changes <code>tokens.css</code> and nothing else. No palette was derived mechanically from the logo, and the supplied raster asset is referenced read-only and never edited.</div>
+
+<div class="warn"><b>Sample data.</b> All prices <span class="samp">SAMPLE</span> (₹999 / ₹1,499 / ₹2,499) are <b>fictional placeholders for layout only</b> — no pricing, currency, or tax treatment is approved (A-44, Q-35). Social providers <span class="samp">SAMPLE</span> (Google, Microsoft) are <b>illustrative placeholders</b> — no provider is confirmed (A-45, Q-55). Licence duration is <b>not stated anywhere</b>; "lifetime access" was withdrawn as unconfirmed (A-47, Q-53). Learner names, courses, and scores are fictional.</div>
+
+<ul class="toc">
+<li><a href="#a01">AUTH-01 Login</a></li><li><a href="#a02">AUTH-02 SSO interstitial</a></li>
+<li><a href="#a03">AUTH-03 Sign up</a></li><li><a href="#a04">AUTH-04 Email verification</a></li>
+<li><a href="#a05">AUTH-05 Password reset</a></li><li><a href="#a06">AUTH-06 Session expired</a></li>
+<li><a href="#a07">AUTH-07 Profile setup</a></li>
+<li><a href="#s01">STU-01 Home</a></li><li><a href="#s02">STU-02 My Learning</a></li>
+<li><a href="#s03">STU-03 Course detail</a></li><li><a href="#s04">STU-04 Module detail</a></li>
+<li><a href="#s05">STU-05 PDF viewer</a></li><li><a href="#s06">STU-06 Video viewer</a></li>
+<li><a href="#s07">STU-07 Simulation access</a></li><li><a href="#s08">STU-08 Simulation runtime</a></li>
+<li><a href="#s09">STU-09 Assessment overview</a></li><li><a href="#s10">STU-10 Assessment attempt</a></li>
+<li><a href="#s11">STU-11 Submit confirmation</a></li><li><a href="#s12">STU-12 Result</a></li>
+<li><a href="#s13">STU-13 Progress</a></li><li><a href="#s14">STU-14 Profile</a></li>
+<li><a href="#b01">B2C-01 Explore</a></li><li><a href="#b02">B2C-02 Product detail</a></li>
+<li><a href="#b03">B2C-03 Checkout</a></li><li><a href="#b04">B2C-04 Payment processing</a></li>
+<li><a href="#b05">B2C-05 Payment result</a></li>
+<li><a href="#e01">STATE-01 Access restricted</a></li><li><a href="#e02">STATE-02 Content unavailable</a></li>
+<li><a href="#e03">STATE-03 System error</a></li>
+</ul>
+
+<p class="grp">Authentication &amp; onboarding · 7 screens</p>
+
+<!-- AUTH-01 -->
+<p class="dh2" id="a01">AUTH-01 · Login</p>
+<p class="dcap">Both audiences, one structure (D-03). <b>B2B places institutional SSO above the credential form</b> — preference is expressed by order, not merely presence. B2C shows social sign-in <span class="samp">SAMPLE PROVIDERS</span> and account creation; B2B shows neither (D-01). No CAPTCHA or cognitive-function test — WCAG 2.2 · 3.3.8.</p>
+<div class="pair">
+<div><p class="lbl">B2B · institutional</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid">
+  <div class="form stk">
+    <div style="text-align:center"><img style="height:52px;margin:0 auto 22px" src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani Work Integrated Learning Programmes"></div>
+    <div class="card pad stk">
+      <div><div class="h2">Sign in</div><p class="p">Continue to your learning</p></div>
+      <div class="btn pri blk lg">🏛 &nbsp;Continue with BITS Pilani</div>
+      <div class="divider">or sign in with a password</div>
+      <div><span class="fl">Email address</span><div class="inp">priya.n@pilani.bits-pilani.ac.in</div></div>
+      <div><span class="fl">Password</span><div class="inp" style="justify-content:space-between">••••••••••<span class="xs">Show</span></div></div>
+      <div style="text-align:right"><span class="sm" style="color:var(--color-action);font-weight:600">Forgot password?</span></div>
+      <div class="btn sec blk">Sign in</div>
+    </div>
+    <p class="xs mute" style="text-align:center">No account creation in the institutional context — accounts are provisioned by your institution</p>
+  </div>
+</div></div></div></div></div></div>
+<div><p class="lbl">B2C · individual</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid">
+  <div class="form stk">
+    <div style="text-align:center"><img style="height:52px;margin:0 auto 22px" src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP"></div>
+    <div class="card pad stk">
+      <div><div class="h2">Sign in</div><p class="p">Continue to your learning</p></div>
+      <div><span class="fl">Email address</span><div class="inp">you@example.com</div></div>
+      <div><span class="fl">Password</span><div class="inp" style="justify-content:space-between">••••••••••<span class="xs">Show</span></div></div>
+      <div style="text-align:right"><span class="sm" style="color:var(--color-action);font-weight:600">Forgot password?</span></div>
+      <div class="btn pri blk">Sign in</div>
+      <div class="divider">or continue with <span class="samp">SAMPLE</span></div>
+      <div class="g66" style="gap:12px"><div class="btn sec">Google</div><div class="btn sec">Microsoft</div></div>
+    </div>
+    <p class="sm" style="text-align:center">New here? <b style="color:var(--color-action)">Create an account</b></p>
+  </div>
+</div></div></div></div></div></div>
+</div>
+
+<!-- AUTH-02 -->
+<p class="dh2" id="a02">AUTH-02 · SSO interstitial <span class="mute" style="font-weight:400">— B2B</span></p>
+<p class="dcap">Departure is explicit — the Student is told which identity provider they are being sent to. A return that authenticates successfully but finds no provisioned account routes to <b>STATE-01</b>, not to a login error: the credentials were correct.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid">
+  <div class="form">
+    <div class="card pad stk" style="text-align:center">
+      <img style="height:46px;margin:4px auto 8px" src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP">
+      <div><div class="h3">Redirecting to BITS Pilani</div>
+        <p class="p" style="margin-top:6px">You're being taken to your institution's sign-in page to authenticate.</p></div>
+      <div class="prog" style="width:180px;margin:6px auto"><i style="width:60%"></i></div>
+      <div class="alert al-n" style="text-align:left"><span>ⓘ</span><div>You are leaving this site. Your institution handles the sign-in, and we never see your password.</div></div>
+      <div class="btn sec">Cancel and go back</div>
+    </div>
+  </div>
+</div></div></div></div></div>
+
+<!-- AUTH-03 -->
+<p class="dh2" id="a03">AUTH-03 · Sign up <span class="mute" style="font-weight:400">— B2C only</span></p>
+<p class="dcap">The <b>email-collision state</b> is the important part. D-03 forbids creating duplicate-account behaviour without documenting identity-linking implications — so a colliding address produces an explicit state, never a silent second identity. If the existing account is institutional, entitlements do <b>not</b> merge across environments (FRD 1.3.1/1.3.2) — ⚠ Q-18.</p>
+<div class="pair">
+<div><p class="lbl">Default</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid">
+  <div class="form"><div class="card pad stk">
+    <div><div class="h2">Create your account</div><p class="p">Start learning with XR simulations</p></div>
+    <div><span class="fl">Full name</span><div class="inp">Arjun Rao</div></div>
+    <div><span class="fl">Email address</span><div class="inp">arjun@example.com</div></div>
+    <div><span class="fl">Password</span><div class="inp" style="justify-content:space-between">••••••••••<span class="xs">Show</span></div>
+      <div class="row" style="gap:5px;margin-top:8px"><div class="strip" style="flex:1"></div><div class="strip" style="flex:1"></div><div class="strip" style="flex:1;background:var(--color-sunken)"></div>
+      <span class="xs" style="margin-left:4px">Good</span></div></div>
+    <div class="btn pri blk">Create account</div>
+    <div class="divider">or sign up with <span class="samp">SAMPLE</span></div>
+    <div class="g66" style="gap:12px"><div class="btn sec">Google</div><div class="btn sec">Microsoft</div></div>
+  </div></div>
+</div></div></div></div></div></div>
+<div><p class="lbl">Email already registered</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid">
+  <div class="form"><div class="card pad stk">
+    <div><div class="h2">Create your account</div><p class="p">Start learning with XR simulations</p></div>
+    <div><span class="fl">Full name</span><div class="inp">Priya N</div></div>
+    <div><span class="fl">Email address</span>
+      <div class="inp" style="border-color:var(--color-danger);border-width:1.5px">priya.n@pilani.bits-pilani.ac.in</div></div>
+    <div class="alert al-d"><span>⚠</span><div><b>This email is already registered.</b> Sign in instead — we won't create a second account for the same address.</div></div>
+    <div class="btn pri blk">Go to sign in</div>
+    <div class="alert al-n"><span>ⓘ</span><div>If your institution provided this account, your institutional learning stays in that account. Purchases made personally are held separately.</div></div>
+  </div></div>
+</div></div></div></div></div>
+</div></div>
+
+<!-- AUTH-04 -->
+<p class="dh2" id="a04">AUTH-04 · Email verification <span class="mute" style="font-weight:400">— B2C</span></p>
+<p class="dcap">Deliberately minimal. Shows the exact address used, offers a rate-limited resend, and lets the Student correct a mistyped address without starting over.</p>
+<div class="pair">
+<div><p class="lbl">Awaiting verification</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid">
+  <div class="form"><div class="card pad stk" style="text-align:center">
+    <div style="width:56px;height:56px;border-radius:var(--r-pill);background:var(--color-info-surface);border:1px solid var(--color-info-border);
+      display:flex;align-items:center;justify-content:center;font-size:24px;margin:4px auto 6px">✉</div>
+    <div><div class="h3">Check your email</div>
+      <p class="p" style="margin-top:6px">We've sent a verification link to<br><b style="color:var(--color-text)">arjun@example.com</b></p></div>
+    <div class="sep"></div>
+    <div class="stk8"><div class="btn sec blk">Resend email</div>
+      <div class="xs">You can resend in 47 seconds</div>
+      <div class="sm" style="color:var(--color-action);font-weight:600">Use a different email address</div></div>
+  </div></div>
+</div></div></div></div></div></div>
+<div><p class="lbl">Link expired</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid">
+  <div class="form"><div class="card pad stk" style="text-align:center">
+    <div style="width:56px;height:56px;border-radius:var(--r-pill);background:var(--color-warning-surface);border:1px solid var(--color-warning-border);
+      display:flex;align-items:center;justify-content:center;font-size:24px;margin:4px auto 6px">⏱</div>
+    <div><div class="h3">This link has expired</div>
+      <p class="p" style="margin-top:6px">Verification links are valid for 24 hours. We can send you a fresh one.</p></div>
+    <div class="btn pri blk">Send a new link</div>
+    <div class="sm" style="color:var(--color-action);font-weight:600">Back to sign in</div>
+  </div></div>
+</div></div></div></div></div>
+</div></div>
+
+<!-- AUTH-05 -->
+<p class="dh2" id="a05">AUTH-05 · Password reset</p>
+<p class="dcap"><b>Design-supplied, not FRD-derived</b> (A-29R). The FRD mandates password authentication but never provides recovery — without this screen a Student who forgets a password is permanently locked out. The response is deliberately <b>non-enumerating</b>: it never reveals whether an address is registered. Unavailable for SSO-only accounts, where recovery belongs to the identity provider.</p>
+<div class="trio">
+<div><p class="lbl">Request</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid" style="min-height:520px">
+  <div class="form"><div class="card pad stk">
+    <div><div class="h3">Reset your password</div><p class="p" style="margin-top:6px">Enter your email and we'll send a reset link.</p></div>
+    <div><span class="fl">Email address</span><div class="inp">you@example.com</div></div>
+    <div class="btn pri blk">Send reset link</div>
+    <div class="sm" style="text-align:center;color:var(--color-action);font-weight:600">Back to sign in</div>
+  </div></div>
+</div></div></div></div></div></div>
+<div><p class="lbl">Sent — non-enumerating</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid" style="min-height:520px">
+  <div class="form"><div class="card pad stk" style="text-align:center">
+    <div class="h3">Check your email</div>
+    <p class="p">If an account exists for <b style="color:var(--color-text)">you@example.com</b>, we've sent a reset link.</p>
+    <div class="alert al-n" style="text-align:left"><span>ⓘ</span><div>We don't confirm whether an address is registered — that protects account privacy.</div></div>
+    <div class="btn sec blk">Back to sign in</div>
+  </div></div>
+</div></div></div></div></div></div>
+<div><p class="lbl">Set new password</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid" style="min-height:520px">
+  <div class="form"><div class="card pad stk">
+    <div class="h3">Choose a new password</div>
+    <div><span class="fl">New password</span><div class="inp">••••••••••</div></div>
+    <div><span class="fl">Confirm new password</span><div class="inp">••••••••••</div></div>
+    <div class="btn pri blk">Save and sign in</div>
+    <div class="xs">⚠ Password policy is undefined in the FRD — Q-29</div>
+  </div></div>
+</div></div></div></div></div>
+</div></div>
+
+<!-- AUTH-06 -->
+<p class="dh2" id="a06">AUTH-06 · Session expired / re-authentication</p>
+<p class="dcap">A <b>modal over the current screen, not a route</b> — preserving what's underneath is what makes "continue where you left off" literally true rather than a claim. The reassurance leads, because that is the entire point of the screen. Under D-17 the assessment attempt is <b>not</b> consumed and the remaining time is preserved.</p>
+<div class="pair">
+<div><p class="lbl">2-minute warning (toast)</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#" class="on">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main" style="position:relative;min-height:420px">
+    <div class="card pad" style="max-width:460px;margin-left:auto;box-shadow:var(--e3);border-color:var(--color-warning-border);background:var(--color-warning-surface)">
+      <div class="row"><span style="font-size:18px">⏱</span><div style="flex:1"><div class="h4">Your session expires in 2 minutes</div>
+        <div class="xs">Your work is saved automatically.</div></div><span class="btn sec" style="height:34px">Stay signed in</span></div>
+    </div>
+    <div class="sk" style="height:14px;width:40%;margin-top:32px"></div>
+    <div class="sk" style="height:14px;width:60%;margin-top:10px"></div>
+    <div class="sk" style="height:14px;width:52%;margin-top:10px"></div>
+  </div>
+</div></div></div></div></div>
+<div><p class="lbl">Expired — during an assessment</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="scrim" style="min-height:492px">
+    <div class="modal stk" style="max-width:440px">
+      <div class="h3">Your session has expired</div>
+      <div class="alert al-s"><span>✓</span><div><b>Your answers have been saved.</b> Sign in to continue exactly where you left off.</div></div>
+      <div><span class="fl">Password</span><div class="inp">••••••••••</div></div>
+      <div class="row" style="justify-content:flex-end;gap:12px"><span class="btn sec">Sign out</span><span class="btn pri">Continue</span></div>
+      <div class="sep"></div>
+      <div class="kv"><span class="sm">Time remaining on your attempt</span><b class="tab">08:14</b></div>
+      <div class="xs">This does not count as a new attempt.</div>
+    </div>
+  </div>
+</div></div></div></div></div>
+</div>
+
+<!-- AUTH-07 -->
+<p class="dh2" id="a07">AUTH-07 · Profile setup <span class="mute" style="font-weight:400">— first run</span></p>
+<p class="dcap">B2B fields sourced from ERP are <b>visibly read-only with a provenance note</b> (A-11) — scheduled sync (FRD 7.2.1) would silently overwrite local edits, and stream determines entitlements (7.2.3). ⚠ <b>Q-11 remains open</b>; this treatment is provisional, not a confirmed ownership model. Learning preferences are deliberately <b>not</b> collected here — their only consumer is Phase 2 (A-15R).</p>
+<div class="pair">
+<div><p class="lbl">B2B · ERP-provisioned</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid">
+  <div class="form"><div class="card pad stk">
+    <div><div class="ov">Step 1 of 1</div><div class="h2" style="margin-top:6px">Confirm your details</div>
+      <p class="p">This is what your institution has on record.</p></div>
+    <div><span class="fl">Display name</span><div class="inp" style="color:var(--color-text)">Priya N</div></div>
+    <div><span class="fl">Academic institution</span><div class="inp ro">BITS Pilani WILP &nbsp; 🔒</div></div>
+    <div><span class="fl">Stream / specialization</span><div class="inp ro">Mechanical Engineering &nbsp; 🔒</div></div>
+    <div class="alert al-n"><span>🔒</span><div>Locked fields are managed by your institution. Contact your administrator to change them.</div></div>
+    <div class="btn pri blk">Continue to my learning</div>
+  </div></div>
+</div></div></div></div></div></div>
+<div><p class="lbl">B2C · self-registered</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid">
+  <div class="form"><div class="card pad stk">
+    <div><div class="ov">Step 1 of 1</div><div class="h2" style="margin-top:6px">Tell us a little about you</div>
+      <p class="p">All optional — you can change these any time.</p></div>
+    <div><span class="fl">Display name</span><div class="inp" style="color:var(--color-text)">Arjun Rao</div></div>
+    <div><span class="fl">Academic institution <span class="xs mute">(optional)</span></span><div class="inp">e.g. IIT Bombay</div></div>
+    <div><span class="fl">Specialization <span class="xs mute">(optional)</span></span><div class="inp">e.g. Mechanical Engineering</div></div>
+    <div class="row" style="gap:12px"><span class="btn pri" style="flex:1">Continue</span><span class="btn gho">Skip for now</span></div>
+  </div></div>
+</div></div></div></div></div></div>
+</div>
+
+<p class="grp">Student core · 14 screens</p>
+
+<!-- STU-01 -->
+<p class="dh2" id="s01">STU-01 · Home</p>
+<p class="dcap"><b>Continue Learning is the whole argument for this screen</b> — one deterministic target, one click to content, naming the next <i>component</i> rather than just the module. It is deterministic only because D-07 and D-20 gating make "the next thing" unambiguous. <b>Needs Attention renders only when non-empty.</b> No charts, streaks, badges, or ranking (A-38 / C-04).</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#" class="on">Home</a><a href="#">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main stk">
+    <div class="h1">Good afternoon, Priya</div>
+    <div class="card" style="padding:24px;border-color:var(--color-action-border);background:var(--color-action-subtle)">
+      <div class="ov" style="color:var(--color-action)">Continue learning</div>
+      <div class="row" style="margin-top:12px;gap:18px">
+        <div class="ctile" style="width:52px;height:52px;font-size:17px;background:var(--color-surface)">2</div>
+        <div style="flex:1">
+          <div class="sm" style="margin-bottom:2px">Fluid Mechanics &nbsp;·&nbsp; Module 2 of 8</div>
+          <div class="h2">Flow Measurement Using a Venturi Meter</div>
+          <div class="row" style="margin-top:8px;gap:10px">
+            <span class="badge b-web">◈ WEB</span>
+            <span class="sm">Next up: <b style="color:var(--color-text)">Venturi Meter Setup</b> · PDF · required</span></div>
+        </div>
+        <div class="btn pri lg" style="flex:none">▶&nbsp; Continue</div>
+      </div>
+    </div>
+    <div class="g87">
+      <div class="card pad">
+        <div class="ov">Recent learning</div>
+        <div style="margin-top:12px">
+          <div class="mrow"><span class="badge b-web">◈ WEB</span><div style="flex:1"><div class="h4">Bernoulli's Principle — Fundamentals</div><div class="xs">Fluid Mechanics · Module 1</div></div><span class="st done">✓ Completed</span></div>
+          <div class="mrow"><span class="badge b-vr">◆ VR</span><div style="flex:1"><div class="h4">Robotic Arm Kinematics</div><div class="xs">Standalone module</div></div><span class="st wait">◷ Awaiting device</span></div>
+          <div class="mrow"><span class="badge b-web">◈ WEB</span><div style="flex:1"><div class="h4">Heat Exchanger Basics</div><div class="xs">Thermodynamics · Module 3</div></div><span class="st fail">↻ Retry required</span></div>
+        </div>
+      </div>
+      <div class="card pad stk">
+        <div class="ov">Your progress</div>
+        <div><div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="sm">Fluid Mechanics</span><b class="sm tab">2 / 8</b></div><div class="prog"><i style="width:25%"></i></div></div>
+        <div><div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="sm">Thermodynamics</span><b class="sm tab">1 / 10</b></div><div class="prog"><i style="width:10%"></i></div></div>
+        <div class="sep"></div>
+        <div class="sm" style="color:var(--color-action);font-weight:600">View all progress →</div>
+      </div>
+    </div>
+    <div class="card pad" style="border-color:var(--color-warning-border);background:var(--color-warning-surface)">
+      <div class="row"><div style="flex:1"><div class="ov" style="color:var(--color-warning)">⚠ Needs attention</div>
+        <div class="h4" style="margin-top:6px">Thermodynamics · Module 3 — assessment not yet passed</div>
+        <div class="sm">Score 8/20 · pass mark 10/20. Module 4 stays locked until you pass.</div></div>
+        <div class="btn sec">Retry assessment</div></div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- STU-02 -->
+<p class="dh2" id="s02">STU-02 · My Learning</p>
+<p class="dcap"><b>Denser than the previous pass, with the oversized empty media regions removed</b> (Review-004 §12). Courses, modules and resources are now three visually distinct object types: a <b>course card</b> has a left accent bar and a numbered tile; a <b>module row</b> is numbered with a state on the right; a <b>resource row</b> is tinted and inset. Hierarchy is legible without reading a label.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#" class="on">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main stk">
+    <div class="h1">My Learning</div>
+    <div class="row" style="gap:10px"><span class="chip on">All</span><span class="chip">In progress</span><span class="chip">Not started</span><span class="chip">Completed</span></div>
+    <div class="ov" style="margin-top:6px">Courses · in progress</div>
+    <div class="g66">
+      <div class="ccard">
+        <div class="row" style="align-items:flex-start;gap:14px">
+          <div class="ctile">FM</div>
+          <div style="flex:1">
+            <div class="row" style="gap:8px;margin-bottom:3px"><span class="badge b-n">COURSE</span><span class="xs">Mechanical Engineering</span></div>
+            <div class="h3">Fluid Mechanics</div>
+            <div class="sm">8 modules · 3 web · 4 VR · 1 MR</div>
+          </div>
+          <span class="st prog">● In progress</span>
+        </div>
+        <div class="prog" style="margin:14px 0 8px"><i style="width:25%"></i></div>
+        <div class="row" style="justify-content:space-between"><span class="xs tab">2 of 8 modules · 25%</span>
+          <span class="xs">Next: <b style="color:var(--color-text)">Module 2 · Flow Measurement</b></span></div>
+      </div>
+      <div class="ccard">
+        <div class="row" style="align-items:flex-start;gap:14px">
+          <div class="ctile">TD</div>
+          <div style="flex:1">
+            <div class="row" style="gap:8px;margin-bottom:3px"><span class="badge b-n">COURSE</span><span class="xs">Mechanical Engineering</span></div>
+            <div class="h3">Thermodynamics</div>
+            <div class="sm">10 modules · 7 web · 3 VR</div>
+          </div>
+          <span class="st fail">↻ Retry required</span>
+        </div>
+        <div class="prog" style="margin:14px 0 8px"><i style="width:10%"></i></div>
+        <div class="row" style="justify-content:space-between"><span class="xs tab">1 of 10 modules · 10%</span>
+          <span class="xs">Next: <b style="color:var(--color-text)">Module 3 · Retry assessment</b></span></div>
+      </div>
+    </div>
+    <div class="ov" style="margin-top:10px">Courses · not started</div>
+    <div class="ccard" style="border-left-color:var(--color-border-strong)">
+      <div class="row" style="gap:14px"><div class="ctile" style="background:var(--color-raised);border-color:var(--color-border);color:var(--color-text-2)">HM</div>
+        <div style="flex:1"><div class="row" style="gap:8px;margin-bottom:3px"><span class="badge b-n">COURSE</span><span class="xs">Mechanical Engineering</span></div>
+          <div class="h3">Heat &amp; Mass Transfer</div><div class="sm">6 modules · begins with Module 1 · Conduction Fundamentals</div></div>
+        <span class="btn sec">Start course</span></div>
+    </div>
+    <div class="ov" style="margin-top:10px">Standalone modules</div>
+    <div>
+      <div class="mrow"><span class="mn">—</span><span class="badge b-vr">◆ VR</span><div style="flex:1"><div class="h4">Robotic Arm Kinematics</div><div class="xs">Purchased · 3 resources · assessment · Meta Quest</div></div><span class="st wait">◷ Awaiting device completion</span></div>
+      <div class="mrow"><span class="mn">—</span><span class="badge b-ar">◇ AR</span><div style="flex:1"><div class="h4">Gear Train Assembly</div><div class="xs">Purchased · 2 resources · Android / iOS</div></div><span class="st idle">○ Not started</span></div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- STU-03 -->
+<p class="dh2" id="s03">STU-03 · Course detail</p>
+<p class="dcap">D-07 gating made visible. <b>The reason a module is locked is readable without interacting with it</b> — a Student should never have to click a locked thing to find out why. Module 3 is VR and reads "complete on Meta Quest" rather than a dead end: under <b>D-19</b> completion is account-level.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#" class="on">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main">
+    <div class="crumb">Home<span>›</span>My Learning<span>›</span>Fluid Mechanics</div>
+    <div class="row" style="gap:16px;margin-bottom:22px"><div class="ctile" style="width:52px;height:52px;font-size:17px">FM</div>
+      <div><div class="h1" style="margin:0">Fluid Mechanics</div><p class="sm">Mechanical Engineering · 8 modules · 2 completed</p></div></div>
+    <div class="g87">
+      <div>
+        <div class="row" style="gap:10px;margin-bottom:14px"><span class="chip on">Modules (8)</span><span class="chip">Overview</span></div>
+        <div class="mrow"><span class="mn tab">1</span><span class="badge b-web">◈ WEB</span><div style="flex:1"><div class="h4">Bernoulli's Principle — Fundamentals</div><div class="xs">3 resources · assessment passed 15/20</div></div><span class="st done">✓ Completed</span></div>
+        <div class="mrow cur"><span class="mn tab">2</span><span class="badge b-web">◈ WEB</span><div style="flex:1"><div class="h4">Flow Measurement Using a Venturi Meter</div><div class="xs">2 of 3 required resources done · simulation locked</div></div><span class="st prog">● In progress</span></div>
+        <div class="mrow lk"><span class="mn tab">3</span><span class="badge b-vr">◆ VR</span><div style="flex:1"><div class="h4">Pipe Friction and Head Loss</div><div class="xs">🔒 Complete Module 2 first · then complete on a Meta Quest</div></div><span class="st lock">🔒 Locked</span></div>
+        <div class="mrow lk"><span class="mn tab">4</span><span class="badge b-web">◈ WEB</span><div style="flex:1"><div class="h4">Pump Performance Characteristics</div><div class="xs">🔒 Complete Module 3 first</div></div><span class="st lock">🔒 Locked</span></div>
+        <div class="mrow lk"><span class="mn tab">5</span><span class="badge b-mr">◈ MR</span><div style="flex:1"><div class="h4">Turbine Blade Inspection</div><div class="xs">🔒 Complete Module 4 first · Ajna Lens lab device</div></div><span class="st lock">🔒 Locked</span></div>
+      </div>
+      <div class="card pad stk" style="align-self:start">
+        <div class="ov">Course progress</div>
+        <div class="big tab" style="font-size:34px">25%</div>
+        <div class="prog"><i style="width:25%"></i></div>
+        <div class="kv"><span class="sm">Modules completed</span><b class="tab">2 of 8</b></div>
+        <div class="kv"><span class="sm">Time spent</span><b class="tab">4h 12m</b></div>
+        <div class="xs">Time is recorded at course level only (A-28R)</div>
+        <div class="btn pri blk">Continue Module 2</div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- STU-04 -->
+<p class="dh2" id="s04">STU-04 · Module detail <span class="mute" style="font-weight:400">— D-20 module-internal gating</span></p>
+<p class="dcap"><b>This is the screen the correction pass changed most.</b> Under <b>D-20</b> the components unlock in sequence: required resources → simulation → assessment. In state A two required resources are done, so <b>the simulation is locked and the assessment is locked</b> — and neither renders an active action. Each locked component names its prerequisite. State B shows the simulation unlocked once all required resources are complete, with the assessment still locked. <b>Optional resources never gate anything.</b></p>
+<p class="lbl">State A — required learning incomplete · simulation locked · assessment locked</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#" class="on">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main">
+    <div class="crumb">Home<span>›</span>My Learning<span>›</span>Fluid Mechanics<span>›</span>Module 2</div>
+    <div class="ov">Module 2 of 8</div>
+    <div class="h1" style="margin-top:6px">Flow Measurement Using a Venturi Meter</div>
+    <div class="row" style="gap:12px;margin-bottom:22px"><span class="badge b-web">◈ WEB SIMULATION</span><span class="sm">Estimated 45 min</span></div>
+    <div class="g87">
+      <div class="stk">
+        <div class="card pad"><div class="ov">Overview</div>
+          <p class="p" style="margin-top:10px;max-width:68ch">This module examines how a venturi meter determines volumetric flow rate from a measured pressure differential. You will work through the governing relationships, then operate a simulated meter across a range of flow conditions.</p></div>
+
+        <div class="card pad">
+          <div class="row" style="justify-content:space-between;margin-bottom:12px">
+            <span class="ov">① Required learning resources</span><span class="st prog">2 of 3 complete</span></div>
+          <div class="rrow"><span class="rtile">📄</span><div style="flex:1"><div class="h4">Introduction to Venturi Meters</div><div class="xs">PDF · 1.2 MB · Required</div></div><span class="st done">✓ Complete</span></div>
+          <div class="rrow"><span class="rtile">▶</span><div style="flex:1"><div class="h4">Bernoulli Principle Explained</div><div class="xs">Video · 12:40 · Required · 100% watched</div></div><span class="st done">✓ Complete</span></div>
+          <div class="rrow cur"><span class="rtile">📄</span><div style="flex:1"><div class="h4">Venturi Meter Setup</div><div class="xs">PDF · 0.8 MB · Required</div></div><span class="btn pri" style="height:34px">Open</span></div>
+          <div class="sep" style="margin:14px 0 10px"></div>
+          <div class="ov" style="margin-bottom:8px">Optional</div>
+          <div class="rrow" style="border-style:dashed"><span class="rtile" style="opacity:.65">📄</span><div style="flex:1"><div class="h4" style="color:var(--color-text-2)">Further Reading — Discharge Coefficients</div><div class="xs">PDF · Optional — does not affect completion</div></div><span class="st idle">Optional</span></div>
+        </div>
+
+        <div class="card pad" style="background:var(--color-raised)">
+          <div class="row" style="justify-content:space-between;margin-bottom:10px">
+            <span class="ov">② Simulation</span><span class="st lock">🔒 Locked</span></div>
+          <div class="h4" style="color:var(--color-text-2)">Venturi Meter Flow Measurement</div>
+          <div class="lockbar" style="margin-top:12px"><span>🔒</span><div>Complete all required learning resources to unlock the simulation. <b style="color:var(--color-text)">1 remaining — Venturi Meter Setup.</b></div></div>
+        </div>
+
+        <div class="card pad" style="background:var(--color-raised)">
+          <div class="row" style="justify-content:space-between;margin-bottom:10px">
+            <span class="ov">③ Assessment</span><span class="st lock">🔒 Locked</span></div>
+          <div class="h4" style="color:var(--color-text-2)">Module 2 Assessment · 10 questions · 20 minutes</div>
+          <div class="lockbar" style="margin-top:12px"><span>🔒</span><div>Complete the simulation to unlock the assessment.</div></div>
+        </div>
+      </div>
+
+      <div class="card pad stk" style="align-self:start">
+        <div class="ov">To complete this module</div>
+        <div>
+          <div class="xs" style="margin-bottom:2px">① REQUIRED LEARNING</div>
+          <div class="ck on"><i>✓</i><span>Introduction to Venturi Meters</span></div>
+          <div class="ck on"><i>✓</i><span>Bernoulli Principle Explained</span></div>
+          <div class="ck"><i></i><span>Venturi Meter Setup</span></div>
+        </div>
+        <div><div class="xs" style="margin-bottom:2px">② SIMULATION</div>
+          <div class="ck lk"><i>🔒</i><span>Locked until required learning is complete</span></div></div>
+        <div><div class="xs" style="margin-bottom:2px">③ ASSESSMENT</div>
+          <div class="ck lk"><i>🔒</i><span>Locked until the simulation is complete</span></div></div>
+        <div class="sep"></div>
+        <div class="row" style="justify-content:space-between"><span class="sm">Progress</span><b class="sm tab">2 of 4 requirements</b></div>
+        <div class="prog"><i style="width:50%"></i></div>
+        <div class="btn pri blk">Continue: Venturi Meter Setup</div>
+        <div class="xs">Module 3 unlocks when this module is complete.</div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<p class="lbl" style="margin-top:22px">State B — required learning complete · simulation available · assessment still locked</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="main"><div class="g87">
+  <div class="stk">
+    <div class="card pad">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <span class="ov">① Required learning resources</span><span class="st done">✓ 3 of 3 complete</span></div>
+      <div class="rrow"><span class="rtile">📄</span><div style="flex:1"><div class="h4">Introduction to Venturi Meters</div><div class="xs">PDF · Required</div></div><span class="st done">✓ Complete</span></div>
+      <div class="rrow"><span class="rtile">▶</span><div style="flex:1"><div class="h4">Bernoulli Principle Explained</div><div class="xs">Video · Required</div></div><span class="st done">✓ Complete</span></div>
+      <div class="rrow"><span class="rtile">📄</span><div style="flex:1"><div class="h4">Venturi Meter Setup</div><div class="xs">PDF · Required</div></div><span class="st done">✓ Complete</span></div>
+    </div>
+    <div class="card pad" style="border-color:var(--color-sim-border);background:var(--color-sim-surface)">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <span class="ov" style="color:var(--color-sim)">② Simulation</span><span class="st" style="color:var(--color-sim)">● Available</span></div>
+      <div class="row"><div style="flex:1"><div class="h4">Venturi Meter Flow Measurement</div>
+        <div class="sm">Web simulation · runs in your browser · not yet started</div></div>
+        <span class="btn sim">Go to simulation →</span></div>
+    </div>
+    <div class="card pad" style="background:var(--color-raised)">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <span class="ov">③ Assessment</span><span class="st lock">🔒 Locked</span></div>
+      <div class="h4" style="color:var(--color-text-2)">Module 2 Assessment · 10 questions · 20 minutes</div>
+      <div class="lockbar" style="margin-top:12px"><span>🔒</span><div>Complete the simulation to unlock the assessment.</div></div>
+    </div>
+  </div>
+  <div class="card pad stk" style="align-self:start">
+    <div class="ov">To complete this module</div>
+    <div><div class="xs" style="margin-bottom:2px">① REQUIRED LEARNING</div>
+      <div class="ck on"><i>✓</i><span>All 3 resources complete</span></div></div>
+    <div><div class="xs" style="margin-bottom:2px">② SIMULATION</div>
+      <div class="ck"><i></i><span>Venturi Meter Flow Measurement</span></div></div>
+    <div><div class="xs" style="margin-bottom:2px">③ ASSESSMENT</div>
+      <div class="ck lk"><i>🔒</i><span>Locked until the simulation is complete</span></div></div>
+    <div class="sep"></div>
+    <div class="row" style="justify-content:space-between"><span class="sm">Progress</span><b class="sm tab">3 of 5 requirements</b></div>
+    <div class="prog"><i style="width:60%"></i></div>
+    <div class="btn sim blk">Start simulation</div>
+  </div>
+</div></div></div></div></div></div>
+
+<!-- STU-05 -->
+<p class="dh2" id="s05">STU-05 · PDF viewer</p>
+<p class="dcap"><b>Mark as complete is disabled until the document has been opened</b> (A-34), with the reason on the disabled control — a mis-click must not satisfy a gate that unlocks the simulation and eventually the next module. <b>Download is always available</b> (D-05 amendment) and never contributes to completion.</p>
+<div class="pair">
+<div><p class="lbl">Not yet opened — control disabled</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="sticky"><span class="sm">←&nbsp; Back to module</span><b>Venturi Meter Setup</b><span class="badge b-n">REQUIRED</span></div>
+  <div class="main"><div class="g87">
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="background:var(--color-sunken);height:330px;display:flex;align-items:center;justify-content:center;color:var(--color-text-3);font-size:13px">Document viewport — page 1 of 8</div>
+      <div class="row" style="justify-content:center;gap:26px;padding:12px 16px;border-top:1px solid var(--color-border)">
+        <span class="sm">◂ &nbsp;Page 1 of 8&nbsp; ▸</span><span class="sm">−&nbsp; 100% &nbsp;+</span></div></div>
+    <div class="card pad stk" style="align-self:start">
+      <div class="ov">Resource</div>
+      <div class="kv"><span class="sm">Type</span><b>PDF</b></div><div class="kv"><span class="sm">Size</span><b class="tab">0.8 MB</b></div>
+      <div class="kv"><span class="sm">Pages</span><b class="tab">8</b></div><div class="kv"><span class="sm">Status</span><b>Required</b></div>
+      <div class="btn sec blk">⭳&nbsp; Download</div>
+      <div class="xs">Downloading is optional and does not complete this resource.</div>
+      <div class="sep"></div>
+      <div class="lockbar" style="justify-content:center">✓&nbsp; Mark as complete</div>
+      <div class="xs">Open the document to enable this.</div>
+    </div>
+  </div></div>
+</div></div></div></div></div>
+<div><p class="lbl">Opened — control enabled</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="sticky"><span class="sm">←&nbsp; Back to module</span><b>Venturi Meter Setup</b><span class="badge b-n">REQUIRED</span></div>
+  <div class="main"><div class="g87">
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="background:var(--color-sunken);height:330px;display:flex;align-items:center;justify-content:center;color:var(--color-text-3);font-size:13px">Document viewport — page 6 of 8</div>
+      <div class="row" style="justify-content:center;gap:26px;padding:12px 16px;border-top:1px solid var(--color-border)">
+        <span class="sm">◂ &nbsp;Page 6 of 8&nbsp; ▸</span><span class="sm">−&nbsp; 100% &nbsp;+</span></div></div>
+    <div class="card pad stk" style="align-self:start">
+      <div class="ov">Resource</div>
+      <div class="kv"><span class="sm">Type</span><b>PDF</b></div><div class="kv"><span class="sm">Size</span><b class="tab">0.8 MB</b></div>
+      <div class="kv"><span class="sm">Pages</span><b class="tab">8</b></div><div class="kv"><span class="sm">Status</span><b>Required</b></div>
+      <div class="btn sec blk">⭳&nbsp; Download</div>
+      <div class="sep"></div>
+      <div class="btn pri blk">✓&nbsp; Mark as complete</div>
+      <div class="xs">Completing this unlocks the module simulation.</div>
+    </div>
+  </div></div>
+</div></div></div></div></div>
+</div>
+
+<!-- STU-06 -->
+<p class="dh2" id="s06">STU-06 · Video viewer</p>
+<p class="dcap">The scrubber renders <b>two distinct tracks — watched coverage and current position</b>. Scrubbing to the end moves position but not coverage, so it cannot satisfy the 90% threshold (A-36). <b>Download is always offered</b> (D-05 amendment). Seek has keyboard equivalents — WCAG 2.2 · 2.5.7. ⚠ Captions and audio description are specified as slots; content ownership is unresolved (Q-51).</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="sticky"><span class="sm">←&nbsp; Back to module</span><b>Bernoulli Principle Explained</b><span class="badge b-n">REQUIRED</span></div>
+  <div class="main"><div class="g87">
+    <div>
+      <div style="background:#0B0E13;border-radius:var(--r-lg);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#5A6674;font-size:13px">Video surface</div>
+      <div class="card pad20" style="margin-top:12px">
+        <div style="position:relative;height:10px;border-radius:var(--r-pill);background:var(--color-sunken)">
+          <div style="position:absolute;left:0;top:0;bottom:0;width:52%;background:var(--color-action);border-radius:var(--r-pill) 0 0 var(--r-pill)"></div>
+          <div style="position:absolute;left:58%;top:0;bottom:0;width:10%;background:var(--color-action)"></div>
+          <div style="position:absolute;left:68%;top:-5px;bottom:-5px;width:3px;background:var(--color-text);border-radius:2px"></div>
+        </div>
+        <div class="row" style="justify-content:space-between;margin-top:14px">
+          <div class="row" style="gap:16px"><span style="font-size:18px">⏸</span><span class="sm tab">08:31 / 12:40</span></div>
+          <div class="row" style="gap:16px"><span class="sm">CC</span><span class="sm">1.0×</span><span class="sm">⛶</span></div></div>
+        <div class="row" style="gap:22px;margin-top:12px">
+          <span class="xs"><b style="color:var(--color-action)">▬</b> watched coverage 62%</span>
+          <span class="xs"><b style="color:var(--color-text)">▮</b> current position 08:31</span></div>
+      </div>
+      <div class="card pad20" style="margin-top:12px"><div class="row"><span class="sm" style="flex:1">Continue from where you left off?</span>
+        <span class="btn pri" style="height:36px">Continue from 8:31</span><span class="btn sec" style="height:36px">Start over</span></div></div>
+    </div>
+    <div class="card pad stk" style="align-self:start">
+      <div class="ov">Resource</div>
+      <div class="kv"><span class="sm">Type</span><b>Video</b></div>
+      <div class="kv"><span class="sm">Duration</span><b class="tab">12:40</b></div>
+      <div class="kv"><span class="sm">Watched</span><b class="tab">62%</b></div>
+      <div class="prog"><i style="width:62%"></i></div>
+      <div class="alert al-i"><span>ⓘ</span><div><b>90% required</b> to complete this resource. Downloading does not count toward completion.</div></div>
+      <div class="btn sec blk">⭳&nbsp; Download</div>
+      <div class="sep"></div>
+      <div class="ov">Transcript</div>
+      <div class="stk8"><div class="sk" style="height:11px;width:96%"></div><div class="sk" style="height:11px;width:88%"></div>
+        <div class="sk" style="height:11px;width:92%"></div><div class="sk" style="height:11px;width:70%"></div></div>
+      <div class="xs">Captions · transcript · described-audio track slots are specified (Q-51).</div>
+    </div>
+  </div></div>
+</div></div></div></div>
+
+<!-- STU-07 -->
+<p class="dh2" id="s07">STU-07 · Simulation access <span class="mute" style="font-weight:400">— four formats, one component</span></p>
+<p class="dcap">Always shows <b>format · device · access · status</b>. Web is the only format the desktop executes, so it is the only one with a real Launch action — <b>no disabled-looking launch button ever appears</b> (C-08). Under <b>D-19</b> the VR panel is an instruction, not a warning: complete on the headset and the desktop reflects the account state. <b>Check for updates</b> is an ordinary re-read (A-42), not an invented cross-device mechanism.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="main stk">
+  <div class="card pad" style="border-color:var(--color-sim-border)">
+    <div class="g4" style="gap:0">
+      <div><div class="ov">Format</div><div class="h4" style="margin-top:5px">Web simulation</div></div>
+      <div><div class="ov">Device</div><div class="h4" style="margin-top:5px">Any modern browser</div></div>
+      <div><div class="ov">Access</div><div class="h4" style="margin-top:5px;color:var(--color-success)">✓ Licensed</div></div>
+      <div><div class="ov">Status</div><div class="h4" style="margin-top:5px;color:var(--color-sim)">Ready</div></div></div>
+    <div class="sep"></div>
+    <div class="ov">Before you start</div>
+    <p class="p" style="margin:8px 0 0;max-width:66ch">You will operate a simulated venturi meter and record pressure differentials across five flow rates. Setup instructions are in the module's required resources.</p>
+    <div class="row" style="margin-top:18px;gap:12px"><span class="btn sim lg">▶&nbsp; Launch simulation</span><span class="btn sec">Read setup instructions</span></div>
+  </div>
+  <div class="card pad">
+    <div class="g4" style="gap:0">
+      <div><div class="ov">Format</div><div class="row" style="margin-top:5px"><span class="badge b-vr">◆ VR</span></div></div>
+      <div><div class="ov">Device</div><div class="h4" style="margin-top:5px">Meta Quest</div></div>
+      <div><div class="ov">Access</div><div class="h4" style="margin-top:5px;color:var(--color-success)">✓ Licensed</div></div>
+      <div><div class="ov">Status</div><div class="h4" style="margin-top:5px;color:var(--color-warning)">◷ Awaiting device completion</div></div></div>
+    <div class="sep"></div>
+    <div class="alert al-w"><span>◷</span><div><b>Complete this simulation on your Meta Quest.</b> Open the XR Simulation app on your headset and sign in with your LMS credentials. Your completion is recorded to your account — once recorded, this module continues here.</div></div>
+    <div class="row" style="margin-top:16px;gap:12px"><span class="btn pri lg">Continue on Meta Quest</span>
+      <span class="btn sec">View VR setup guide</span><span class="btn gho">↻&nbsp; Check for updates</span></div>
+    <div class="xs" style="margin-top:10px">Last checked 2 minutes ago</div>
+  </div>
+  <div class="card pad20" style="border-style:dashed">
+    <div class="row"><div style="flex:1"><div class="h4">A web version of this simulation is available</div>
+      <div class="sm">Reduced fidelity, runs in your browser, and counts toward module completion.</div></div>
+      <span class="btn sec">Use web version</span></div></div>
+  <div class="g66">
+    <div class="card pad20"><div class="ov">MR variant</div>
+      <div class="row" style="margin-top:8px;gap:10px"><span class="badge b-mr">◈ MR</span><span class="sm">Ajna Lens · shared lab device</span></div>
+      <p class="sm" style="margin:10px 0 14px">Ask your lab supervisor to load this module on a lab headset.</p>
+      <div class="row" style="gap:10px"><span class="btn sec" style="height:36px">Continue on Ajna Lens</span><span class="btn gho" style="height:36px">Device instructions</span></div></div>
+    <div class="card pad20"><div class="ov">AR variant</div>
+      <div class="row" style="margin-top:10px;gap:14px">
+        <div style="width:74px;height:74px;flex:none;border:1px solid var(--color-border-strong);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-3)">QR</div>
+        <div><div class="row" style="gap:10px"><span class="badge b-ar">◇ AR</span><span class="sm">Android / iOS</span></div>
+          <div class="row" style="gap:10px;margin-top:12px"><span class="btn sec" style="height:36px">Continue on mobile</span></div></div></div></div>
+  </div>
+</div></div></div></div></div>
+
+<!-- STU-08 -->
+<p class="dh2" id="s08">STU-08 · Web simulation runtime</p>
+<p class="dcap">Presentation is deliberately <b>not assumed</b> (A-39, Correction H) — the design specifies the <i>contract</i>: full-width learning context, a designed loading state, an explicit exit, and preserved session. Whether it is realised embedded, full-page, or as a separate route is engineering's call. CDN asset delivery (FRD 12.2.1) gets a <b>determinate</b> loading state, not a bare spinner.</p>
+<div class="pair">
+<div><p class="lbl">Loading assets</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="sticky"><b>Venturi Meter Flow Measurement</b><span class="badge b-web">◈ WEB</span>
+    <span class="btn sec" style="margin-left:auto;height:34px">Exit simulation</span></div>
+  <div style="background:#0B0E13;min-height:452px;display:flex;align-items:center;justify-content:center">
+    <div style="text-align:center;width:340px">
+      <div style="color:#E8EBEF;font:640 17px/1.4 var(--font-sans);margin-bottom:8px">Preparing simulation</div>
+      <div style="color:#9AA6B4;font-size:13px;margin-bottom:18px">Downloading assets — 68%</div>
+      <div style="height:8px;border-radius:999px;background:#2C3540;overflow:hidden"><div style="height:100%;width:68%;background:#6E85D3;border-radius:999px"></div></div>
+      <div style="color:#6E7B8A;font-size:12px;margin-top:14px">This runs entirely in your browser. Keep this tab open.</div>
+    </div>
+  </div>
+</div></div></div></div></div>
+<div><p class="lbl">Running · exit confirmation</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="sticky"><b>Venturi Meter Flow Measurement</b><span class="badge b-web">◈ WEB</span>
+    <span class="sm" style="margin-left:auto">Attempt 1 · 12:04 elapsed</span><span class="btn sec" style="height:34px">Exit simulation</span></div>
+  <div style="background:#0B0E13;min-height:452px;position:relative;display:flex;align-items:center;justify-content:center">
+    <div style="color:#5A6674;font-size:13px">Simulation canvas</div>
+    <div class="scrim" style="position:absolute;inset:0;padding:0">
+      <div class="modal stk" style="max-width:400px">
+        <div class="h3">Exit the simulation?</div>
+        <p class="p">Your progress in this simulation is recorded by the platform. If you haven't finished, you'll need to run it again.</p>
+        <div class="row" style="justify-content:flex-end;gap:12px"><span class="btn sec">Keep going</span><span class="btn pri">Exit to module</span></div>
+      </div></div>
+  </div>
+</div></div></div></div></div>
+</div>
+
+<!-- STU-09 -->
+<p class="dh2" id="s09">STU-09 · Assessment overview</p>
+<p class="dcap">All five D-06 disclosures appear before <b>Begin</b> is reachable. "20 minutes <b>total</b> — distribute as you like" is spelled out because the natural misreading, two minutes per question, is exactly what D-06 exists to prevent. Reachable only once the simulation is complete (D-20).</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#" class="on">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main">
+    <div class="crumb">Home<span>›</span>My Learning<span>›</span>Fluid Mechanics<span>›</span>Module 2<span>›</span>Assessment</div>
+    <div class="h1">Module 2 Assessment</div>
+    <div class="g87" style="margin-top:20px">
+      <div class="card pad">
+        <div class="ov">Before you begin</div>
+        <div style="margin-top:12px">
+          <div class="kv"><span>Questions</span><b>10 · multiple choice</b></div>
+          <div class="kv"><span>Time limit</span><b>20 minutes total — distribute as you like</b></div>
+          <div class="kv"><span>Correct answer</span><b class="tab">+2</b></div>
+          <div class="kv"><span>Incorrect answer</span><b class="tab" style="color:var(--color-danger)">−1 &nbsp;negative marking</b></div>
+          <div class="kv"><span>Unanswered</span><b class="tab">0</b></div>
+          <div class="kv"><span>Correct after a hint</span><b class="tab">+1</b></div>
+          <div class="kv"><span>Maximum score</span><b class="tab">20</b></div>
+          <div class="kv"><span>Pass mark</span><b class="tab">10 / 20 &nbsp;· 50%</b></div>
+          <div class="kv"><span>Attempts</span><b>Unlimited</b></div>
+        </div>
+        <div class="alert al-i" style="margin-top:16px"><span>💡</span><div>A hint gives guidance toward the answer — never the answer itself. Using one lowers that question's maximum from <b>+2</b> to <b>+1</b>, and cannot be undone within an attempt.</div></div>
+        <div class="row" style="margin-top:18px;gap:12px"><span class="btn pri lg">Begin attempt 2</span><span class="btn sec">Review learning resources</span></div>
+      </div>
+      <div class="card pad stk" style="align-self:start">
+        <div class="ov">Your attempts</div>
+        <div class="kv"><span class="sm">Attempt 1</span><b class="tab" style="color:var(--color-danger)">8 / 20 · Failed</b></div>
+        <div class="kv"><span class="sm">Best score</span><b class="tab">8 / 20</b></div>
+        <div class="kv"><span class="sm">Attempts remaining</span><b>Unlimited</b></div>
+        <div class="sep"></div>
+        <div class="alert al-w"><span>⚠</span><div>Module 3 stays locked until you pass this assessment.</div></div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- STU-10 -->
+<p class="dh2" id="s10">STU-10 · Assessment attempt</p>
+<p class="dcap">Sticky timer with <code>scroll-padding-top</code> so a focused option is never hidden beneath it — WCAG 2.2 · <b>2.4.11</b>. The navigator distinguishes four states by <b>fill, border and a dot glyph plus a full <code>aria-label</code></b>, not colour alone (1.4.1), at 38px — above the 24px floor (2.5.8). Timer announcements are threshold-based at 5 and 1 minutes (4.1.3).</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="sticky"><b>Module 2 Assessment</b><span class="sm">Fluid Mechanics</span>
+    <span class="timer" style="margin-left:auto">⏱ 14:22</span><span class="btn pri">Submit assessment</span></div>
+  <div class="main"><div class="g87">
+    <div class="card pad">
+      <div class="row" style="justify-content:space-between"><span class="ov">Question 4 of 10</span><span class="xs">Saved ✓</span></div>
+      <p style="font:400 18px/1.5 var(--font-sans);margin:16px 0 22px;max-width:64ch">A venturi meter determines volumetric flow rate primarily by relating the measured pressure differential to which of the following?</p>
+      <div>
+        <div class="opt"><span class="rd"></span>Fluid density alone, independent of geometry</div>
+        <div class="opt sel"><span class="rd"></span>The change in cross-sectional area between throat and inlet</div>
+        <div class="opt"><span class="rd"></span>Pipe wall roughness over the measured length</div>
+        <div class="opt"><span class="rd"></span>Ambient temperature at the measurement point</div>
+      </div>
+      <div class="card pad20" style="margin-top:20px;border-style:dashed;background:var(--color-warning-surface);border-color:var(--color-warning-border)">
+        <div class="row"><span style="font-size:18px">💡</span><div style="flex:1"><div class="h4">Use a hint</div>
+          <div class="xs">This question's maximum becomes +1. Cannot be undone for this attempt.</div></div>
+          <span class="btn sec" style="height:36px">Use hint</span></div></div>
+      <div class="row" style="justify-content:space-between;margin-top:22px"><span class="btn sec">◂&nbsp; Previous</span><span class="btn pri">Next&nbsp; ▸</span></div>
+    </div>
+    <div class="card pad stk" style="align-self:start">
+      <div class="ov">Questions</div>
+      <div class="qn"><div class="an">1</div><div class="an">2</div><div>3</div><div class="cu">4</div><div>5</div>
+        <div>6</div><div class="an hi">7</div><div>8</div><div>9</div><div>10</div></div>
+      <div class="xs">▣ answered &nbsp; ▢ unanswered &nbsp; • hint used &nbsp; ▮ current</div>
+      <div class="sep"></div>
+      <div class="kv"><span class="sm">Answered</span><b class="tab">3 of 10</b></div>
+      <div class="kv"><span class="sm">Hints used</span><b class="tab">1</b></div>
+      <div class="alert al-i"><span>ⓘ</span><div>Answers save automatically. If your session expires, you resume this attempt with the time remaining — it is not counted as a new attempt.</div></div>
+    </div>
+  </div></div>
+</div></div></div></div>
+
+<!-- STU-11 -->
+<p class="dh2" id="s11">STU-11 · Submit confirmation</p>
+<p class="dcap">A modal over the attempt, not a route — cancelling must not lose context. Shows the <b>unanswered count</b> before final submission, and <b>Review unanswered</b> returns to the <i>first</i> unanswered question, not question 1. The submission-failure state keeps every answer and does <b>not</b> consume the attempt.</p>
+<div class="pair">
+<div><p class="lbl">Confirm — with unanswered questions</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="scrim" style="min-height:520px"><div class="modal stk">
+    <div class="h3">Submit your assessment?</div>
+    <div class="alert al-w"><span>⚠</span><div><b>3 questions are unanswered.</b> Unanswered questions score 0.</div></div>
+    <div><div class="kv"><span>Answered</span><b class="tab">7 of 10</b></div>
+      <div class="kv"><span>Hints used</span><b class="tab">1</b></div>
+      <div class="kv"><span>Time used</span><b class="tab">05:38 of 20:00</b></div></div>
+    <div class="row" style="justify-content:flex-end;gap:12px"><span class="btn sec">Review unanswered</span><span class="btn pri">Submit</span></div>
+    <div class="xs">Submission is final for this attempt. Attempts are unlimited.</div>
+  </div></div>
+</div></div></div></div></div>
+<div><p class="lbl">Submission failed — retrying</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="scrim" style="min-height:520px"><div class="modal stk">
+    <div class="h3">We couldn't submit your answers</div>
+    <div class="alert al-s"><span>✓</span><div><b>Your answers are saved.</b> We're trying again automatically — attempt 2 of 3.</div></div>
+    <div class="prog"><i style="width:55%"></i></div>
+    <div class="alert al-n"><span>ⓘ</span><div>This does <b>not</b> count as a submitted attempt. Nothing has been lost.</div></div>
+    <div class="row" style="justify-content:flex-end;gap:12px"><span class="btn sec">Back to questions</span><span class="btn pri">Try now</span></div>
+  </div></div>
+</div></div></div></div></div>
+</div>
+
+<!-- STU-12 -->
+<p class="dh2" id="s12">STU-12 · Assessment result</p>
+<p class="dcap">The breakdown makes hint impact concrete. On failure, <b>Review learning resources sits before Retry</b> — retrying without restudying is the failure mode unlimited attempts invites. No per-question review (A-10). ⚠ <b>Q-54 open</b>: whether a negative total is displayed or floored at 0 is undecided, so the score component is <b>sign-neutral</b> and needs no redesign either way (A-46).</p>
+<div class="trio">
+<div><p class="lbl">Passed</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="main"><div class="card pad">
+  <div style="text-align:center;padding:10px 0 16px">
+    <div class="big" style="color:var(--color-success)">15 / 20</div>
+    <div class="h3" style="margin-top:8px;color:var(--color-success)">✓ &nbsp;Passed</div>
+    <p class="sm">Attempt 2 · time used 12:41</p></div>
+  <div class="sep"></div>
+  <div class="kv"><span>8 correct</span><b class="tab">+16</b></div>
+  <div class="kv"><span>1 correct with hint</span><b class="tab">+1</b></div>
+  <div class="kv"><span>2 incorrect</span><b class="tab" style="color:var(--color-danger)">−2</b></div>
+  <div class="kv"><span>0 unanswered</span><b class="tab">0</b></div>
+  <div class="kv" style="border-top:1.5px solid var(--color-border-strong);font-size:16px"><b>Total</b><b class="tab">15</b></div>
+  <div class="alert al-s" style="margin-top:16px"><span>✓</span><div><b>Module 2 complete.</b> Module 3 is now available.</div></div>
+  <div class="btn pri blk" style="margin-top:14px">Continue to Module 3 →</div>
+</div></div></div></div></div></div></div>
+<div><p class="lbl">Not passed</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="main"><div class="card pad">
+  <div style="text-align:center;padding:10px 0 16px">
+    <div class="big" style="color:var(--color-danger)">8 / 20</div>
+    <div class="h3" style="margin-top:8px;color:var(--color-danger)">Not passed</div>
+    <p class="sm">Pass mark 10 / 20 · attempt 1</p></div>
+  <div class="sep"></div>
+  <div class="kv"><span>5 correct</span><b class="tab">+10</b></div>
+  <div class="kv"><span>0 correct with hint</span><b class="tab">0</b></div>
+  <div class="kv"><span>2 incorrect</span><b class="tab" style="color:var(--color-danger)">−2</b></div>
+  <div class="kv"><span>3 unanswered</span><b class="tab">0</b></div>
+  <div class="kv" style="border-top:1.5px solid var(--color-border-strong);font-size:16px"><b>Total</b><b class="tab">8</b></div>
+  <div class="alert al-w" style="margin-top:16px"><span>⚠</span><div>Module 2 is not yet complete. <b>Module 3 stays locked</b> until you pass. Attempts are unlimited.</div></div>
+  <div class="row" style="margin-top:14px;gap:10px"><span class="btn pri">Review resources</span><span class="btn sec">Retry</span></div>
+</div></div></div></div></div></div></div>
+<div><p class="lbl">Awaiting evaluation — descriptive</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="main"><div class="card pad">
+  <div style="text-align:center;padding:10px 0 16px">
+    <div style="font-size:40px">◷</div>
+    <div class="h3" style="margin-top:10px;color:var(--color-warning)">Submitted — awaiting evaluation</div>
+    <p class="sm">Attempt 1 · submitted just now</p></div>
+  <div class="sep"></div>
+  <div class="alert al-n"><span>ⓘ</span><div>This assessment contains written answers that need to be evaluated. <b>No score is shown yet.</b></div></div>
+  <div class="alert al-w" style="margin-top:10px"><span>◷</span><div>Module 2 is <b>pending evaluation</b> — not failed. It will complete automatically if you pass.</div></div>
+  <div class="xs" style="margin-top:12px">⚠ Q-24 — grading ownership and turnaround are undefined, so no timeframe is promised.</div>
+  <div class="btn sec blk" style="margin-top:14px">Back to module</div>
+</div></div></div></div></div></div></div>
+</div>
+
+<!-- STU-13 -->
+<p class="dh2" id="s13">STU-13 · Progress</p>
+<p class="dcap">Only the four Phase-1 data points the FRD defines — completion (11.1.1), scores (11.2.1), attempts (11.2.2), course-level time (11.1.2). XR modules a desktop cannot run show their device with a neutral explanation, never as failure. No charts, streaks, badges, ranking, or peer comparison (C-04).</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#">My Learning</a><a href="#" class="on">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main stk">
+    <div class="h1">Progress</div>
+    <div class="card pad">
+      <div class="row" style="justify-content:space-between">
+        <div class="row" style="gap:14px"><div class="ctile">FM</div>
+          <div><div class="h3">Fluid Mechanics</div><div class="sm tab">2 of 8 modules · 25% · 4h 12m</div></div></div>
+        <span class="btn gho">Open course →</span></div>
+      <div class="prog" style="margin:14px 0 16px"><i style="width:25%"></i></div>
+      <div class="mrow"><span class="mn tab">1</span><div style="flex:1"><div class="h4">Bernoulli's Principle</div></div><span class="sm tab" style="margin-right:22px">15/20 · 2 attempts</span><span class="st done">✓ Completed</span></div>
+      <div class="mrow"><span class="mn tab">2</span><div style="flex:1"><div class="h4">Flow Measurement</div><div class="xs">2 of 3 required resources · simulation locked</div></div><span class="sm" style="margin-right:22px">Not attempted</span><span class="st prog">● In progress</span></div>
+      <div class="mrow lk"><span class="mn tab">3</span><div style="flex:1"><div class="h4">Pipe Friction and Head Loss</div><div class="xs">Requires a Meta Quest — completes on your headset</div></div><span class="badge b-vr" style="margin-right:22px">◆ VR</span><span class="st lock">🔒 Locked</span></div>
+    </div>
+    <div class="card pad">
+      <div class="row" style="justify-content:space-between"><div class="row" style="gap:14px"><div class="ctile">TD</div>
+        <div><div class="h3">Thermodynamics</div><div class="sm tab">1 of 10 modules · 10% · 1h 48m</div></div></div>
+        <span class="btn gho">Open course →</span></div>
+      <div class="prog" style="margin:14px 0 16px"><i style="width:10%"></i></div>
+      <div class="mrow"><span class="mn tab">3</span><div style="flex:1"><div class="h4">Heat Exchanger Basics</div></div><span class="sm tab" style="margin-right:22px">8/20 · 1 attempt</span><span class="st fail">↻ Retry required</span></div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- STU-14 -->
+<p class="dh2" id="s14">STU-14 · Profile &amp; account</p>
+<p class="dcap">ERP-sourced fields are <b>read-only with a provenance note</b> (A-11) — sync would overwrite edits, and stream drives entitlements. ⚠ <b>Q-11 stays open</b>; this is a provisional treatment, not a confirmed ownership model. <b>Help lives here as the consistent location</b> — WCAG 2.2 · 3.2.6 (Q-48). Learning preferences are collected here rather than at first run (A-15R), presented as optional with no personalization promise.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main">
+    <div class="h1">Profile &amp; account</div>
+    <div class="g87" style="margin-top:20px">
+      <div class="stk">
+        <div class="card pad stk">
+          <div class="ov">Your details</div>
+          <div><span class="fl">Display name</span><div class="inp" style="color:var(--color-text)">Priya N</div></div>
+          <div><span class="fl">Email address</span><div class="inp ro">priya.n@pilani.bits-pilani.ac.in &nbsp; 🔒</div></div>
+          <div class="g66" style="gap:16px">
+            <div><span class="fl">Academic institution</span><div class="inp ro">BITS Pilani WILP &nbsp; 🔒</div></div>
+            <div><span class="fl">Stream / specialization</span><div class="inp ro">Mechanical Engineering &nbsp; 🔒</div></div></div>
+          <div class="alert al-n"><span>🔒</span><div>Locked fields are managed by your institution and update automatically. Contact your administrator to change them.</div></div>
+          <div class="row" style="gap:12px"><span class="btn pri">Save changes</span><span class="btn gho">Cancel</span></div>
+        </div>
+        <div class="card pad stk">
+          <div><div class="ov">Learning preferences</div><div class="xs" style="margin-top:4px">Optional — these don't change what you can access.</div></div>
+          <div class="row" style="gap:10px"><span class="chip on">Simulation-first</span><span class="chip">Reading-first</span><span class="chip">Video-first</span></div>
+        </div>
+      </div>
+      <div class="card pad stk" style="align-self:start">
+        <div class="ov">Account</div>
+        <div class="kv"><span class="sm">Account type</span><b>Institutional</b></div>
+        <div class="kv"><span class="sm">Institution</span><b>BITS Pilani WILP</b></div>
+        <div class="sep"></div>
+        <div class="btn sec blk">Help &amp; support</div>
+        <div class="btn gho blk">Sign out</div>
+        <div class="xs">Help is in the same place on every screen (WCAG 2.2 · 3.2.6).</div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<p class="grp">B2C commerce · 5 screens <span style="font-weight:400;text-transform:none;letter-spacing:0">— absent entirely from B2B navigation (D-04)</span></p>
+
+<!-- B2C-01 -->
+<p class="dh2" id="b01">B2C-01 · Explore</p>
+<p class="dcap">The <b>device requirement appears on the card</b>, not only the detail page — a buyer must never reach checkout unaware they need hardware. Owned items show "In your learning" instead of a price. <span class="samp">SAMPLE</span> All prices are fictional placeholders (A-44, Q-35).</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#">My Learning</a><a href="#" class="on">Explore</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="acct"><span class="av">AR</span>Arjun R ▾</span></div></div>
+  <div class="main stk">
+    <div class="h1">Explore</div>
+    <div class="row" style="justify-content:space-between">
+      <div class="row" style="gap:10px"><span class="chip">Topic ▾</span><span class="chip">Format ▾</span><span class="chip">Price ▾</span></div>
+      <div class="row" style="gap:16px"><span class="sm tab">24 results</span><span class="chip">Sort: Relevance ▾</span></div></div>
+    <div class="g4">
+      <div class="card pad20"><div class="mediabar"><span class="badge b-web">◈ WEB</span><span class="xs">Module</span></div>
+        <div class="h4" style="margin-top:12px">Venturi Meter Flow Measurement</div><div class="xs">Fluid Mechanics · ~45 min</div>
+        <div class="price" style="font-size:20px;margin-top:12px">₹1,499 <span class="samp">SAMPLE</span></div></div>
+      <div class="card pad20"><div class="mediabar"><span class="badge b-vr">◆ VR</span><span class="xs">Module</span></div>
+        <div class="h4" style="margin-top:12px">Robotic Arm Kinematics</div>
+        <div class="xs" style="color:var(--color-warning)">⚠ Requires a Meta Quest</div>
+        <div class="price" style="font-size:20px;margin-top:12px">₹2,499 <span class="samp">SAMPLE</span></div></div>
+      <div class="card pad20"><div class="mediabar"><span class="badge b-n">BUNDLE</span><span class="xs">8 modules</span></div>
+        <div class="h4" style="margin-top:12px">Fluid Mechanics Complete</div><div class="xs">Full course · 8 modules</div>
+        <div style="margin-top:12px"><span class="st done">✓ In your learning</span></div></div>
+      <div class="card pad20"><div class="mediabar"><span class="badge b-ar">◇ AR</span><span class="xs">Module</span></div>
+        <div class="h4" style="margin-top:12px">Gear Train Assembly</div>
+        <div class="xs" style="color:var(--color-warning)">⚠ Requires Android or iOS</div>
+        <div class="price" style="font-size:20px;margin-top:12px">₹999 <span class="samp">SAMPLE</span></div></div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- B2C-02 -->
+<p class="dh2" id="b02">B2C-02 · Product detail</p>
+<p class="dcap">The device requirement sits <b>above the buy action</b> — buying a VR module without owning a headset is the costliest mistake available here, and layout order prevents it. <b>"Lifetime access" has been removed</b>: licence duration is unconfirmed, so the copy says only "One-time purchase" (A-47, Q-53). No expiry, renewal, or refund policy is stated or implied.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#">My Learning</a><a href="#" class="on">Explore</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="acct"><span class="av">AR</span>Arjun R ▾</span></div></div>
+  <div class="main">
+    <div class="crumb">Explore<span>›</span>Robotics<span>›</span>Robotic Arm Kinematics</div>
+    <div class="g87">
+      <div class="stk">
+        <div><span class="badge b-vr">◆ VR SIMULATION</span><div class="h1" style="margin-top:10px">Robotic Arm Kinematics</div>
+          <p class="p" style="max-width:66ch">Forward and inverse kinematics of a six-axis industrial manipulator, practised in a full-scale virtual work cell.</p></div>
+        <div class="alert al-w" style="padding:18px"><span style="font-size:18px">⚠</span>
+          <div><div class="h4">Requires a Meta Quest headset</div>
+          <div class="sm">This module is not playable in a browser. You will need access to a Meta Quest device to complete it. Your progress is recorded to your account and appears here automatically.</div></div></div>
+        <div class="card pad"><div class="ov">What's included</div>
+          <div style="margin-top:8px">
+            <div class="ck on"><i>✓</i><span>1 VR simulation · approx. 60 minutes</span></div>
+            <div class="ck on"><i>✓</i><span>3 learning resources — 2 PDF notes, 1 instructional video (all downloadable)</span></div>
+            <div class="ck on"><i>✓</i><span>1 assessment · 10 questions · unlimited attempts</span></div></div></div>
+      </div>
+      <div class="card pad stk" style="align-self:start">
+        <div><div class="price">₹2,499</div><div class="xs"><span class="samp">SAMPLE</span> price — not approved</div></div>
+        <div class="xs">One-time purchase</div>
+        <div class="btn pri blk lg">Buy now</div>
+        <div class="sep"></div>
+        <div class="kv"><span class="sm">Format</span><b>VR simulation</b></div>
+        <div class="kv"><span class="sm">Device</span><b>Meta Quest</b></div>
+        <div class="kv"><span class="sm">Estimated time</span><b class="tab">60 min</b></div>
+        <div class="kv"><span class="sm">Assessment</span><b>Included</b></div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- B2C-03 -->
+<p class="dh2" id="b03">B2C-03 · Checkout</p>
+<p class="dcap"><b>No card fields are rendered in our UI</b> — a generic secure gateway redirect (C-05), which also avoids implying a PCI-scope decision nobody has made. No cart (single-object purchase), no coupon field (FRD 6.4 is Phase 2). Tax presentation is deliberately neutral pending ⚠ Q-35.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#">My Learning</a><a href="#" class="on">Explore</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="acct"><span class="av">AR</span>Arjun R ▾</span></div></div>
+  <div class="main">
+    <div class="crumb">Explore<span>›</span>Robotic Arm Kinematics<span>›</span>Checkout</div>
+    <div class="h1">Confirm your order</div>
+    <div class="g87" style="margin-top:20px">
+      <div class="card pad">
+        <div class="ov">Order summary</div>
+        <div class="row" style="gap:14px;margin:14px 0 6px"><div class="rtile" style="width:44px;height:44px">◆</div>
+          <div style="flex:1"><div class="h4">Robotic Arm Kinematics</div><div class="xs">VR module · Meta Quest required</div></div>
+          <b class="tab">₹2,499</b></div>
+        <div class="sep"></div>
+        <div class="kv"><span>Subtotal</span><b class="tab">₹2,499</b></div>
+        <div class="kv"><span>Taxes</span><b class="sm">Calculated at checkout</b></div>
+        <div class="kv" style="border-top:1.5px solid var(--color-border-strong);font-size:17px"><b>Total</b><b class="tab">₹2,499</b></div>
+        <div class="xs" style="margin-top:8px"><span class="samp">SAMPLE</span> Prices and tax treatment are placeholders — not approved (Q-35)</div>
+        <div class="alert al-i" style="margin-top:16px"><span>🔒</span><div>You'll be redirected to our secure payment provider. <b>No card details are entered on this site.</b></div></div>
+        <div class="btn pri blk lg" style="margin-top:14px">Proceed to payment</div>
+      </div>
+      <div class="card pad stk" style="align-self:start">
+        <div class="ov">Billing</div>
+        <div class="kv"><span class="sm">Account</span><b>Arjun Rao</b></div>
+        <div class="kv"><span class="sm">Email</span><b class="sm">arjun@example.com</b></div>
+        <div class="xs">Taken from your account — WCAG 2.2 · 3.3.7 Redundant Entry.</div>
+        <div class="sep"></div>
+        <div class="ov">After purchase</div>
+        <div class="ck on"><i>✓</i><span>Access activates immediately</span></div>
+        <div class="ck on"><i>✓</i><span>Appears in My Learning</span></div>
+        <div class="xs">One-time purchase.</div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- B2C-04 -->
+<p class="dh2" id="b04">B2C-04 · Payment processing</p>
+<p class="dcap"><b>Deliberately no cancel, no retry, and no back</b> — every one risks a double charge. This is the one genuinely opaque wait in the product, and the only place a full-page status treatment is justified.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid" style="min-height:520px">
+  <div class="card pad" style="width:520px;text-align:center;padding:48px 40px">
+    <div style="font-size:38px;margin-bottom:16px">◐</div>
+    <div class="h2">Completing your payment</div>
+    <p class="p" style="max-width:40ch;margin:8px auto 0">Please don't close this window or press back. This usually takes a few seconds.</p>
+    <div class="prog" style="width:200px;margin:24px auto 0"><i style="width:45%"></i></div>
+    <div class="xs" style="margin-top:26px;padding-top:18px;border-top:1px solid var(--color-border-subtle)">
+      No cancel and no retry are offered here — either could result in a double charge.</div>
+  </div>
+</div></div></div></div></div>
+
+<!-- B2C-05 -->
+<p class="dh2" id="b05">B2C-05 · Payment result</p>
+<p class="dcap">Three variants. The <b>indeterminate</b> one is the important case: it claims neither success nor failure, polls for resolution, and <b>never offers immediate retry</b> — retry on an unresolved payment risks a double charge. Failure shows only the gateway-reported reason, never an internal code (C-07).</p>
+<div class="trio">
+<div><p class="lbl">Success</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid" style="min-height:440px">
+  <div class="card pad" style="width:460px;text-align:center;padding:36px 30px">
+    <div style="width:56px;height:56px;border-radius:var(--r-pill);background:var(--color-success-surface);border:1px solid var(--color-success-border);
+      display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px;color:var(--color-success)">✓</div>
+    <div class="h3">Payment successful</div>
+    <p class="p" style="margin-top:6px"><b style="color:var(--color-text)">Robotic Arm Kinematics</b> has been added to your learning. Access is now active.</p>
+    <div class="stk8" style="margin-top:20px"><div class="btn pri blk">Start learning</div><div class="btn gho blk">View in My Learning</div></div>
+    <div class="xs" style="margin-top:14px">One-time purchase · a receipt is sent to your email</div>
+  </div>
+</div></div></div></div></div></div>
+<div><p class="lbl">Declined</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid" style="min-height:440px">
+  <div class="card pad" style="width:460px;text-align:center;padding:36px 30px">
+    <div style="width:56px;height:56px;border-radius:var(--r-pill);background:var(--color-danger-surface);border:1px solid var(--color-danger-border);
+      display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px;color:var(--color-danger)">✕</div>
+    <div class="h3">Payment declined</div>
+    <p class="p" style="margin-top:6px">Your payment was declined by your bank. <b style="color:var(--color-text)">Nothing has been charged.</b></p>
+    <div class="stk8" style="margin-top:20px"><div class="btn pri blk">Try again</div><div class="btn sec blk">Use a different method</div></div>
+    <div class="xs" style="margin-top:14px">Gateway-reported reason only — never an internal code</div>
+  </div>
+</div></div></div></div></div></div>
+<div><p class="lbl">Indeterminate</p><div class="shot"><div class="vp"><div class="cv"><div class="app"><div class="mid" style="min-height:440px">
+  <div class="card pad" style="width:460px;text-align:center;padding:36px 30px;border-style:dashed">
+    <div style="width:56px;height:56px;border-radius:var(--r-pill);background:var(--color-warning-surface);border:1px solid var(--color-warning-border);
+      display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px;color:var(--color-warning)">◐</div>
+    <div class="h3">We're confirming your payment</div>
+    <p class="p" style="margin-top:6px">This usually takes under a minute. We'll email you either way — you don't need to stay on this page.</p>
+    <div class="btn sec blk" style="margin-top:20px">Go to My Learning</div>
+    <div class="xs" style="margin-top:14px">Claims neither success nor failure. <b>No retry offered</b> — it could double-charge you.</div>
+  </div>
+</div></div></div></div></div></div>
+</div>
+
+<p class="grp">Full-page states · 3 screens</p>
+
+<!-- STATE-01 -->
+<p class="dh2" id="e01">STATE-01 · Access restricted</p>
+<p class="dcap">Four variants, each naming who can resolve it — because the Student cannot. <b>No purchase prompt in the licence-cap variant</b>: a B2B Student cannot buy past their institution's cap. Internal authorization codes are never exposed (C-07). Note that <b>a module locked by sequence is deliberately not here</b> — that is a normal state handled in place on STU-03/STU-04, not a failure page.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#" class="on">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main">
+    <div class="card pad" style="max-width:620px;margin:44px auto;text-align:center;padding:44px 40px">
+      <div style="width:56px;height:56px;border-radius:var(--r-pill);background:var(--color-warning-surface);
+        border:1px solid var(--color-warning-border);display:flex;align-items:center;justify-content:center;
+        font-size:24px;margin:0 auto 18px">🔒</div>
+      <div class="h2">Your institution's licence limit has been reached</div>
+      <p class="p" style="max-width:46ch;margin:10px auto 0">BITS Pilani WILP has used all available seats for this module. Your administrator can request additional licences.</p>
+      <div class="row" style="justify-content:center;margin-top:24px;gap:12px">
+        <span class="btn pri">Contact your administrator</span><span class="btn sec">Back to My Learning</span></div>
+      <div class="sep" style="margin-top:26px"></div>
+      <p class="xs">Other variants — <b>no entitlements assigned</b> · <b>licence validation failed at launch</b> · <b>account authenticated but not yet provisioned</b></p>
+    </div>
+  </div>
+</div></div></div></div>
+
+<!-- STATE-02 -->
+<p class="dh2" id="e02">STATE-02 · Content unavailable</p>
+<p class="dcap">Distinct from STATE-01 by cause: this is content that cannot be <i>delivered</i>, not access that is <i>denied</i>. The copy says so explicitly so a Student doesn't assume their entitlement is broken. Withdrawn content is shown <b>in place</b> with a neutral explanation rather than silently removed — silent disappearance reads as data loss (A-20).</p>
+<div class="pair">
+<div><p class="lbl">Delivery failure — retryable</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#" class="on">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main"><div class="card pad" style="max-width:560px;margin:36px auto;text-align:center;padding:40px 34px">
+    <div style="width:52px;height:52px;border-radius:var(--r-pill);background:var(--color-raised);border:1px solid var(--color-border);
+      display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px">⟳</div>
+    <div class="h3">We couldn't load this content</div>
+    <p class="p" style="margin-top:8px;max-width:44ch;margin-left:auto;margin-right:auto">The simulation files didn't download. <b style="color:var(--color-text)">Your access is fine</b> — this is a delivery problem on our side.</p>
+    <div class="row" style="justify-content:center;gap:12px;margin-top:22px"><span class="btn pri">Try again</span><span class="btn sec">Back to module</span></div>
+  </div></div>
+</div></div></div></div></div>
+<div><p class="lbl">Withdrawn by institution</p><div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#">Home</a><a href="#" class="on">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main"><div class="card pad" style="max-width:560px;margin:36px auto;text-align:center;padding:40px 34px">
+    <div style="width:52px;height:52px;border-radius:var(--r-pill);background:var(--color-warning-surface);border:1px solid var(--color-warning-border);
+      display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px">ⓘ</div>
+    <div class="h3">This module is no longer available</div>
+    <p class="p" style="margin-top:8px;max-width:46ch;margin-left:auto;margin-right:auto">Your institution updated its course assignments. Any progress you made is kept on your record.</p>
+    <div class="row" style="justify-content:center;gap:12px;margin-top:22px"><span class="btn pri">Back to My Learning</span><span class="btn sec">Contact your administrator</span></div>
+    <div class="xs" style="margin-top:18px">Shown in place, never silently removed (A-20)</div>
+  </div></div>
+</div></div></div></div></div>
+</div>
+
+<!-- STATE-03 -->
+<p class="dh2" id="e03">STATE-03 · System error</p>
+<p class="dcap">The third distinct failure class: the platform failed, not the Student's access and not the content. Kept separate because the cause, the wording, and the recovery path all differ. <b>Design-supplied</b> — no FRD requirement defines error handling; it exists because D-18 obliges every failure to say what happened and what to do next.</p>
+<div class="shot"><div class="vp"><div class="cv"><div class="app">
+  <div class="topbar"><img src="../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" style="height:42px">
+    <nav class="gnav"><a href="#" class="on">Home</a><a href="#">My Learning</a><a href="#">Progress</a></nav>
+    <div class="tright"><span class="inst">BITS Pilani WILP</span><span class="acct"><span class="av">PN</span>Priya N ▾</span></div></div>
+  <div class="main"><div class="card pad" style="max-width:580px;margin:44px auto;text-align:center;padding:44px 38px">
+    <div style="width:56px;height:56px;border-radius:var(--r-pill);background:var(--color-danger-surface);border:1px solid var(--color-danger-border);
+      display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 18px;color:var(--color-danger)">!</div>
+    <div class="h2">Something went wrong on our side</div>
+    <p class="p" style="max-width:46ch;margin:10px auto 0">This isn't a problem with your account or your access. Your learning progress is safe.</p>
+    <div class="row" style="justify-content:center;gap:12px;margin-top:24px"><span class="btn pri">Back to Home</span><span class="btn sec">Try again</span></div>
+    <div class="sep" style="margin-top:26px"></div>
+    <p class="xs">If this keeps happening, contact support. No internal error codes are shown to Students (C-07).</p>
+  </div></div>
+</div></div></div></div>
+
+<p class="grp">Coverage</p>
+<p class="dcap" style="margin-top:14px"><b>All 29 inventory screens are now rendered.</b> AUTH-01…07 (7) · STU-01…14 (14) · B2C-01…05 (5) · STATE-01…03 (3). Several are shown in more than one state where the state is the design point — AUTH-03 collision, AUTH-04 expiry, AUTH-05 three steps, AUTH-06 warning and expiry, STU-04 gating states A and B, STU-05 disabled and enabled completion, STU-08 loading and exit, STU-11 confirm and failure, STU-12 passed / failed / awaiting evaluation, B2C-05 three payment outcomes, STATE-02 two causes.</p>
+
+</div>
