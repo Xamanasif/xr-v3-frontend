@@ -80,19 +80,28 @@ A `?` is a finding, not a blank. Each one is carried into `11_OPEN_QUESTIONS_REF
 | # | Capability | FRD | L | F | IA | CM | SA | V | AR | Tenant scope |
 |---|---|---|---|---|---|---|---|---|---|---|
 | B1 | Operate within own tenant | 1.3.1 | ✔ᵗ | ✔ᵗ | ✔ᵗ | n/a | ✔ˣ | n/a | n/a | Tenant |
-| B2 | Cross-tenant governance access | **1.3.5** | — | — | — | **`?`** | **`V M`ˣ** | — | **`?`** | Platform |
+| B2 | Cross-tenant governance access | **1.3.5** | — | — | — | **n/a** | **`V M`ˣ** | — | **n/a** | Platform |
+| B5 | **Operate on the central content plane** | **PM-13** | — | — | — | **✔** | **✔** | **✔** | **✔** | Central |
 | B3 | B2C data environment | 1.3.2 | ✔⁰ | — | — | — | `V M`ˣ | — | — | Separate |
 | B4 | Tenant-scoped analytics boundary | **1.3.4** | ✔⁰ | ✔ᵗ | ✔ᵗ | — | ✔ˣ | — | — | Enforced everywhere |
 
-### B2 is the most important unresolved item in this matrix
+### B2 / B5 — ✅ RESOLVED by PM-13 (19 August 2026)
 
-FRD **1.3.5 names only the Super Admin** as holding controlled cross-tenant access. FRD 1.3.1 and 1.3.2 isolate institutional and B2C data. **Content Manager, Vendor, and Academic Reviewer are given no position in that model at all** — yet PM-07 requires all three to have working logins, and their work (module submission, academic validation, readiness approval) is inherently **not tenant-scoped**.
+FRD **1.3.5 names only the Super Admin** as holding controlled cross-tenant access. FRD 1.3.1 and 1.3.2 isolate institutional and B2C data. **Content Manager, Vendor, and Academic Reviewer were given no position in that model at all** — yet PM-07 requires all three to have working logins, and their work (module submission, academic validation, readiness approval) is inherently **not tenant-scoped**.
 
-**Working position — requires confirmation, not adopted as fact:**
+Review 006 recorded a two-plane reading as a hypothesis requiring confirmation. **PM-13 confirmed it.**
 
-> The platform has **two planes**. A **central content plane** where modules are submitted, validated, approved, and published (FRD 1.4.x, 1.1.4 — all modules owned centrally by the platform owner), and **tenant planes** holding institutional user, licensing, and analytics data (FRD 1.3.1). Vendor, Academic Reviewer, and Content Manager operate **only on the central content plane** and therefore never need tenant access at all. Super Admin spans both.
+> **PM-13 — confirmed architecture.** The platform has **two planes**. A **central content plane** where modules are submitted, validated, approved, and published (FRD 1.4.x, 1.1.4 — all modules owned centrally by the platform owner), and **tenant planes** holding institutional user, licensing, and analytics data (FRD 1.3.1).
+>
+> **Central / platform content & governance side:** Vendor · Academic Reviewer · Content Manager · Super Admin
+> **Institution / tenant side:** Institute Admin · Faculty · Student / Learner
+> **B2C individual learners** use shared platform and learning capabilities **without becoming an institutional tenant role**.
 
-This reading is consistent with every FRD sentence and invents nothing — but the FRD never states it. **It is recorded as a design hypothesis and escalated as a question.** Until confirmed, B2 stays `?` for CM, V, and AR.
+**Consequence for this matrix.** Cross-tenant governance access (B2) is **not applicable** to CM, V, and AR — they never operate on tenant data, so they need no tenant access and hold none. Their plane is recorded positively as **B5**. Super Admin alone spans both planes, exactly as FRD 1.3.5 states.
+
+> **PM-13: do not invent additional cross-tenant permissions for the other roles.** No role other than Super Admin gains any cross-tenant capability from this resolution.
+
+**Closes `QP-03`.**
 
 ---
 
@@ -124,13 +133,32 @@ This is the FRD's most explicit permission sequence and the platform's most rigi
 | D4 | Publish to production | **1.4.4** | — | — | — | — | **`Pb`** | **⛔** | — | ④ |
 | D5 | Direct vendor publishing | **1.4.5** | — | — | — | — | — | **⛔ explicitly prohibited** | — | — |
 | D6 | Version release control to production | **2.3.2** | — | — | — | `?` | **`Cf Pb`** | — | — | — |
-| D7 | Reject / return a submission with feedback | *not in FRD* | — | — | — | **`?`** | `?` | — | **`?`** | — |
+| D7 | **Reject / request changes on a submission** | **PM-14** | — | — | — | **`Ap`** | **`?`** | — | **`Ap`** | ②, ③ |
+| D8 | **Add reviewer comments / reason for return** | **PM-14** | — | — | — | **`C E⁰`** | `V` | `V⁰` | **`C E⁰`** | ②, ③ |
+| D9 | **Correct and resubmit a returned submission** | **PM-14** | — | — | — | `V` | `V` | **`E⁰ C`** | `V` | ① |
+| D10 | **Review history / status traceability** | **PM-14** | — | — | — | **`V`** | **`V`** | **`V⁰`** | **`V`** | all |
 
-### D7 — a real gap
+### D7 – D10 — ✅ RESOLVED by PM-14 (19 August 2026)
 
-The FRD describes a **forward-only** chain: submit → validate → approve → publish. **It never describes rejection, revision, or resubmission.** Yet a review gate with no reject path is not a gate. Vendor, Academic Reviewer, and Content Manager all plausibly need to return work — but no FRD text authorises it and no PM statement covers it.
+Review 006 recorded a real gap: the FRD describes a **forward-only** chain — submit (1.4.1) → validate (1.4.2) → approve (1.4.3) → publish (1.4.4) — and **never describes rejection, revision, or resubmission**. A review gate that can only approve is not a gate.
 
-**This must not be invented.** `07`/`05` show the chain forward; the return path is drawn as a **known-missing edge**, not a designed one.
+**PM-14 confirmed that submitted content may be rejected / returned for correction.**
+
+| Role | Gains |
+|---|---|
+| **Vendor** | Submit · **edit own returned submission** · **resubmit** · view own review history |
+| **Academic Reviewer** | Review · **approve or request changes** · **comment / give reason** · view history |
+| **Content Manager** | Review · **approve or request changes** · **comment / give reason** · view history |
+| **Super Admin** | **Publish after required approvals.** PM-14 names Academic Reviewer and Content Manager as the returning roles; whether SA may also return at gate ④ is **not stated and not invented** — hence `?` on D7 for SA |
+
+**Two constraints carried from PM-14:**
+
+1. > **Do not invent an automatic publication path after rejection.** A corrected resubmission **re-enters review**. It never skips a gate and never routes directly to publication.
+2. **Return authority does not imply publish authority.** `Ap` on D7 means *"can decide this submission goes back"* — it remains entirely separate from `Pb`, which only Super Admin holds (1.4.4).
+
+**Closes `QP-01`. Closes `QP-06` for the content governance chain** — PM-14's *"review history / status traceability"* requirement is the audit trail that question asked for. **It does not extend to licensing, entitlement, configuration, or device-replacement decisions**, which remain undefined (see `M4`).
+
+🟠 **Recorded as an FRD extension.** FRD 1.4.1–1.4.4 contain no rejection, revision, resubmission, or history requirement. PM-14 adds them. **The FRD is not edited.**
 
 ### The chain as a permission ladder
 
@@ -140,12 +168,24 @@ V submits ──▶ AR validates ──▶ CM approves ──▶ SA publishes �
    │              │                 │              │
    C            R Ap              R Ap             Pb
    │              │                 │              │
-   └── can never publish (1.4.5) ───┴──────────────┘
+   │              ▼ changes         ▼ changes      │
+   │                required          required     │
+   │              │                 │              │
+   ◀──────────────┘                 │              │
+   │  return with comments (D7, D8) │              │
+   ◀────────────────────────────────┘              │
+   │                                               │
+   E⁰ correct ──▶ C resubmit ──▶ re-enters review  │
+        (D9 — never routes directly to publish)    │
+   │                                               │
+   └── can never publish (1.4.5) ──────────────────┘
                   AR cannot publish · CM cannot publish
                   Only SA holds Pb (1.4.4)
 ```
 
 **Three distinct approvals, three distinct roles, one publisher.** No role holds two adjacent gates. This is the single strongest permission statement in the FRD and the design must not soften it.
+
+**PM-14 adds return loops without weakening it.** Academic Reviewer and Content Manager gain the power to send work **back**, never forward past their own gate. A resubmission re-enters review; it never reaches gate ④ except through gates ② and ③.
 
 ---
 
@@ -178,6 +218,23 @@ V submits ──▶ AR validates ──▶ CM approves ──▶ SA publishes �
 | F9 | View learner results | 8.1.4, 11.2.1 | — | **`V`ᵗ** | `V`ᵗ | — | `V`ˣ | — | — | Tenant |
 | F10 | Grade descriptive answers | **5.2.3** | — | **`?`** | — | — | `?` | — | — | **Owner undefined** |
 | F11 | See the correct-answer key | **D-25** | **⛔ never** | `V`ᵗ | `?` | — | `?` | — | — | Prohibition |
+| **F12** | **Author or configure an assessment as a learner** | **PM-15** | **⛔ never** | — | — | — | — | — | — | **Prohibition** |
+
+### F1 – F6, F12 — assessment ownership ✅ RESOLVED by PM-15 (19 August 2026)
+
+> **PM-15: for BOTH B2B and B2C, assessment setup/configuration is the responsibility of Faculty or the institution side. The learner does NOT author or configure assessments.**
+
+**F12 records the prohibition explicitly.** A learner authoring or configuring an assessment was already absent from this matrix; PM-15 makes it a **stated rule**, not an omission — the difference matters, because an absent permission can drift back in and a prohibition cannot.
+
+**The interpretation rule PM-15 attached is binding here:**
+
+> **Do NOT automatically grant every Institute Admin assessment-authoring permission unless supported by the FRD or another PM decision.**
+
+**Institute Admin therefore stays `?` on F1, F3, and F6.** PM-15 explicitly declines to grant it. The FRD gives assessment responsibility to **Faculty** (8.1.4) and assigns question-bank upload (5.1.1), AI generation (5.1.2), and negative marking (5.3.2) to Faculty by name — so **Faculty remains the clearest direct assessment-authoring role**, and this matrix grants it to Faculty alone.
+
+**For a pure B2C individual learner**, the exact operational mapping of *which* Faculty, institution, or content owner supplies the assessment is **deferred by PM-15 as a content/implementation detail**. It changes no permission cell above: whoever supplies it, they act on the **Faculty / institution-authorized side**, never as the learner.
+
+**Closes `QP-05`.** Narrows but does not close `QP-08` (whether Institute Admin holds any assessment authority at all).
 
 **F10 — grading ownership must not be invented.** FRD 5.2.3 permits short descriptive answers. **No Phase-1 requirement anywhere defines who grades them, on what turnaround, or against what rubric.** Faculty is the *plausible* owner (8.1.4 names assessments) but the FRD does not say so. This is compounded because sequencing (3.2.2, PM-09) gates the next module on completion — an ungraded assessment can strand a learner.
 
@@ -312,17 +369,19 @@ V submits ──▶ AR validates ──▶ CM approves ──▶ SA publishes �
 
 ## Permission coverage by role
 
-**96 capability rows** across 13 domains (A–M). Counts are per-cell within those rows.
+**101 capability rows** across 13 domains (A–M) — 96 at Review 006, plus 5 added by PM-13/14/15 (`B5`, `D8`, `D9`, `D10`, `F12`). Counts are per-cell within those rows.
 
 | Role | Cells with a defined Phase-1 permission | Cells `?` PENDING | Cells ⛔ prohibited or out-of-phase |
 |---|---|---|---|
-| **Super Admin** | 65 | 8 | 14 |
+| **Super Admin** | 69 | 8 | 14 |
 | **Institute Admin** | 33 | 13 | 12 |
-| **Learner** | 32 | 2 | 4 |
+| **Learner** | 32 | 2 | **5** |
 | **Faculty** | 30 | 5 | 3 |
-| **Content Manager** | 12 | 5 | 1 |
-| **Academic Reviewer** | 11 | 4 | 1 |
-| **Vendor** | 10 | 2 | 3 — including the FRD's **only explicit role prohibition** (1.4.5) |
+| **Content Manager** | **17** | **3** | 1 |
+| **Academic Reviewer** | **16** | **2** | 1 |
+| **Vendor** | **14** | 2 | 3 — including the FRD's **only explicit role prohibition** (1.4.5) |
+
+**Movement from PM-13/14/15:** Vendor +4 defined · Academic Reviewer +5 defined, −2 pending · Content Manager +5 defined, −2 pending · Super Admin +4 defined · Learner +1 prohibition (`F12`). **The three governance roles gained the most, which is expected — PM-14 gave two of them a decision they did not previously have, and PM-13 gave all three a defined plane.**
 
 **Reading the ⛔ column.** Most prohibitions are **phase boundaries**, not permission denials — G9/G10 device management (Phase 2), L5–L9 analytics (Phase 2/3), M5/M6 role configuration (Phase 3), C5/C6 course and certification authoring (Phase 2). They are counted because a Phase-1 screen must not offer them. Only two are true authority prohibitions: **1.4.5** (Vendor may never publish) and **1.1.4** (institutions may not modify content).
 
@@ -339,17 +398,27 @@ These are stated by the FRD in unambiguous terms and must survive into every scr
 
 ## PENDING items raised by this matrix
 
-**19 capability rows contain at least one `?` cell**, plus **2 further questions raised in prose** where the blocking factor is a phase boundary rather than an undefined permission (C4/C5, I6/I7).
+### ✅ Closed by PM-13 / PM-14 (19 August 2026)
+
+| Ref | Question | Closed by |
+|---|---|---|
+| ~~B2~~ | ~~Where do Vendor, Academic Reviewer, and Content Manager sit in the tenancy model?~~ | **PM-13** — central content plane; `B5` records it positively |
+| ~~D7 *(V, AR, CM)*~~ | ~~Is there a reject / revise / resubmit path in the governance chain?~~ | **PM-14** — approve / request changes / comment / resubmit, with review history |
+| ~~M4 *(governance chain)*~~ | ~~Is there an audit trail for governance decisions?~~ | **PM-14** — *"review history / status traceability"*. **Content chain only** — see below |
+| ~~F1 · F3 · F6 *(ownership)*~~ | ~~Who owns assessment configuration for B2C?~~ | **PM-15** — Faculty / institution-authorized side, for both B2B and B2C |
+
+### Still open
+
+**18 capability rows contain at least one `?` cell**, plus **2 further questions raised in prose** where the blocking factor is a phase boundary rather than an undefined permission (C4/C5, I6/I7).
 
 | Ref | Question |
 |---|---|
 | A6 | Who creates and manages Faculty accounts? |
 | A8 | Password policy, MFA, lockout, session-expiry configurability |
-| **B2** | **Where do Vendor, Academic Reviewer, and Content Manager sit in the tenancy model?** |
 | D6 | Does Content Manager hold any version-release authority, or Super Admin only? |
-| **D7** | **Is there a reject / revise / resubmit path in the governance chain?** |
+| D7 *(SA only)* | May **Super Admin** also return a submission at gate ④? PM-14 names only Academic Reviewer and Content Manager |
 | E5 | Is the learning sequence per-course configurable or a platform constant? |
-| F1 · F3 · F6 | Does Institute Admin hold any assessment authority, or Faculty only? |
+| F1 · F3 · F6 *(narrowed)* | Does Institute Admin hold **any** assessment authority? **PM-15 explicitly declines to grant it**; Faculty holds it |
 | **F10** | **Who grades descriptive answers?** |
 | F11 | May Institute Admin or Super Admin see answer keys? |
 | G3 | Institute Admin's role in entitlement-aware device delivery |
@@ -359,8 +428,8 @@ These are stated by the FRD in unambiguous terms and must survive into every scr
 | J3 | Does Faculty see ERP sync status? |
 | **J6** | **Which profile fields are user-editable vs ERP-owned?** |
 | L10 | Detailed reporting metrics and KPIs — pending by PM instruction |
-| **M4** | **Is there an audit trail for governance decisions?** |
+| M4 *(narrowed)* | Audit trail **outside** content governance — licensing, entitlements, platform configuration, device replacement. **Not** covered by PM-14 |
 | *C4 / C5* | *(prose)* Phase-1 Institute Admin course-structure authority vs Phase-2 course creation — tension **T-1** |
 | *I6 / I7* | *(prose)* Who creates bundles and sets prices in Phase 1, given Phase-2 configuration? |
 
-**Six are bolded as the ones most likely to change platform structure rather than screen detail.** All are carried into `11_OPEN_QUESTIONS_REFRAMED.md` with priorities. **None blocks the platform sitemap.**
+**Three remain bolded as the ones most likely to change platform structure rather than screen detail — down from six.** All are carried into `11_OPEN_QUESTIONS_REFRAMED.md` with priorities. **None blocks the platform sitemap.**

@@ -140,19 +140,20 @@ Tenant-scoped. Operational only (PM-11).
 
 ---
 
-# CM — Content Manager Workspace · 7 screens · **all NEW**
+# CM — Content Manager Workspace · 8 screens · **all NEW**
 
 Central content plane. Gate ③ of the governance chain.
 
 | ID | Name | Purpose | FRD | PM | Primary actions | States | Status | Fig |
 |---|---|---|---|---|---|---|---|---|
-| **`CM-01`** | **Review queue** | Submissions awaiting readiness approval | **1.4.3, 8.1.2** | PM-01 | Open submission | Queue · empty · overdue | **NEW** | **P1** |
-| **`CM-02`** | **Submission review** | Metadata, docs, compatibility | **1.4.3** | PM-01 | **Approve** · ⚠ reject | Under review · approved · ⚠ **reject path PENDING (D7)** | **NEW** | **P1** |
+| **`CM-01`** | **Review queue** | Submissions awaiting readiness approval | **1.4.3, 8.1.2** | PM-01 | Open submission | Queue · empty · overdue · **returned by me** | **NEW** | **P1** |
+| **`CM-02`** | **Submission review** | Metadata, docs, compatibility | **1.4.3** | **PM-14** | **Approve** · **request changes** · **comment** | Under review · approved · **changes requested** · **resubmitted** | **NEW** | **P1** |
 | `CM-03` | Metadata editor | Edit module metadata | **8.1.2, 1.4.3** | PM-01 | Edit · save | Draft · saved · validation error | **NEW** | P2 |
 | `CM-04` | Compatibility check | Formats, devices, versions | **1.4.3** | PM-05 | Record findings | Pass · fail · ⚠ criteria pending | **NEW** | P2 |
 | `CM-05` | Content library | All modules by gate position | 8.1.2 | PM-01 | Search · open | List · filtered · empty | **NEW** | P2 |
 | `CM-06` | Readiness | Approved, awaiting SA publication | **8.1.2** | PM-01 | View | Awaiting publication · published | **NEW** | P2 |
 | `CM-07` | Module viewer *(uses `SHR-01`)* | Inspect module content | 3.1.1, 3.1.2 | PM-01 | View | Read-only | **NEW** *(shared)* | P2 |
+| `CM-08` | Review history *(uses `SHR-05`)* | Decision trail for a submission | 1.4.3 | **PM-14** | View | Full · empty | **NEW** *(shared)* | P2 |
 
 ---
 
@@ -185,11 +186,11 @@ Central content plane, own submissions only. Gate ① — and a hard prohibition
 
 | ID | Name | Purpose | FRD | PM | Primary actions | States | Status | Fig |
 |---|---|---|---|---|---|---|---|---|
-| **`VND-01`** | **My submissions** | Everything I have submitted | **1.4.1** | **PM-07** | Open | Queue · empty · **gate position per item** | **NEW** | **P1** |
+| **`VND-01`** | **My submissions** | Everything I have submitted | **1.4.1** | **PM-07** · **PM-14** | Open · **correct & resubmit** | Queue · empty · **gate position per item** · **changes requested** | **NEW** | **P1** |
 | **`VND-02`** | **New submission** | Submit a module | **1.4.1** | **PM-07** | Create · submit | Draft · submitting · submitted | **NEW** | **P1** |
-| `VND-03` | Build & asset upload | Upload the XR package | **1.4.1, 2.2.1** | PM-05 | Upload · replace | Empty · uploading · uploaded · failed · ⚠ **format PENDING** | **NEW** | **P1** |
-| `VND-04` | Submission metadata | Supply module metadata | 1.4.1, 1.4.3 | PM-07 | Edit · save | Draft · complete · validation error | **NEW** | P2 |
-| **`VND-05`** | **Submission status** | Where my submission is | **1.4.1–1.4.5** | **PM-07** | View | With reviewer · with CM · awaiting publication · published · ⚠ **revision path PENDING** | **NEW** | **P1** |
+| `VND-03` | Build & asset upload | Upload the XR package | **1.4.1, 2.2.1** | PM-05 · **PM-14** | Upload · replace | Empty · uploading · uploaded · failed · **replacing after return** · ⚠ **format PENDING** | **NEW** | **P1** |
+| `VND-04` | Submission metadata | Supply module metadata | 1.4.1, 1.4.3 | PM-07 · **PM-14** | Edit · save | Draft · complete · validation error · **editable after return** | **NEW** | P2 |
+| **`VND-05`** | **Submission status** | Where my submission is, and why | **1.4.1–1.4.5** | **PM-07** · **PM-14** | View · **read comments** · **resubmit** | With reviewer · with CM · awaiting publication · published · **changes requested (with reason)** · **resubmitted** | **NEW** | **P1** |
 | `VND-06` | My modules | My published modules | 1.4.4 | PM-07 | View | List · empty | **NEW** | P2 |
 | `VND-07` | Vendor organisation profile | Organisation details | 4.3.1 | PM-07 | Edit | Full | **NEW** | P3 |
 
@@ -203,16 +204,16 @@ Central content plane. Gate ②. Lowest volume, highest authority.
 
 | ID | Name | Purpose | FRD | PM | Primary actions | States | Status | Fig |
 |---|---|---|---|---|---|---|---|---|
-| **`ARV-01`** | **Validation queue** | Modules awaiting academic validation | **1.4.2** | **PM-07** | Open | Queue · empty · overdue | **NEW** | **P1** |
-| **`ARV-02`** | **Module validation** | Assess curriculum alignment | **1.4.2** | **PM-07** | **Validate** · ⚠ reject | Under review · validated · ⚠ **reject path PENDING (D7)** | **NEW** | **P1** |
+| **`ARV-01`** | **Validation queue** | Modules awaiting academic validation | **1.4.2** | **PM-07** | Open | Queue · empty · overdue · **returned by me** | **NEW** | **P1** |
+| **`ARV-02`** | **Module validation** | Assess curriculum alignment | **1.4.2** | **PM-07** · **PM-14** | **Validate** · **request changes** · **comment** | Under review · validated · **changes requested** · **resubmitted** | **NEW** | **P1** |
 | `ARV-03` | Module content review *(uses `SHR-01`)* | Inspect the full module | 3.1.1, 3.1.2 | PM-07 | View | Read-only · simulation · resources · assessments | **NEW** *(shared)* | **P1** |
 | `ARV-04` | Curriculum criteria | Standards being validated against | **1.4.2** | PM-07 | View | ⚠ **criteria NOT defined in the FRD** | **PENDING** | P3 |
-| `ARV-05` | Validated history | My past decisions | 1.4.2 | PM-07 | View | List · empty | **NEW** | P2 |
+| `ARV-05` | Validated history | My past decisions | 1.4.2 | PM-07 · **PM-14** | View | List · empty · **includes returns** | **NEW** | P2 |
 | `ARV-06` | Reviewer profile | Account details | 4.3.1 | PM-07 | Edit | Full | **NEW** | P3 |
 
 ---
 
-# SHR — Shared Surfaces · 4 screens
+# SHR — Shared Surfaces · 5 screens
 
 Defined once, consumed by several workspaces.
 
@@ -220,6 +221,7 @@ Defined once, consumed by several workspaces.
 |---|---|---|---|---|---|---|
 | **`SHR-01`** | **Module viewer** | F, IA, CM, SA, ARV | Read-only module content — **one component, five permission-filtered contexts** | 3.1.1, 3.1.2, 1.1.4 | **NEW** | **P1** |
 | `SHR-02` | Global shell | All 7 | Header, account menu, skip link, breadcrumbs | — | **KEEP+REFRAME** | P1 |
+| **`SHR-05`** | **Review history & comments** | **V, AR, CM, SA** | **Decision trail for one submission — every approval, return, comment, and resubmission, in order.** One component, four permission-filtered contexts | **PM-14** | **NEW** | **P1** |
 | `SHR-03` | Search / filter | F, IA, CM, SA, VND, ARV | List filtering in admin workspaces | — | **NEW** | P2 |
 | `SHR-04` | Help | All 7 | Consistent location — WCAG 2.2 SC 3.2.6 | *design-supplied* | KEEP+REFRAME | P3 |
 
@@ -249,28 +251,28 @@ Defined once, consumed by several workspaces.
 | `B2C` Commerce | 6 | 5 | 0 | 0 | **1** | 0 |
 | `FAC` Faculty | 11 | 0 | 0 | 0 | **9** | **2** |
 | `IAD` Institute Admin | 14 | 0 | 0 | 0 | **13** | **1** |
-| `CM` Content Manager | 7 | 0 | 0 | 0 | **7** | 0 |
+| `CM` Content Manager | 8 | 0 | 0 | 0 | **8** | 0 |
 | `SA` Super Admin | 14 | 0 | 0 | 0 | **14** | 0 |
 | `VND` Vendor | 7 | 0 | 0 | 0 | **7** | 0 |
 | `ARV` Academic Reviewer | 6 | 0 | 0 | 0 | **5** | **1** |
-| `SHR` Shared | 4 | 0 | 2 | 0 | **2** | 0 |
+| `SHR` Shared | 5 | 0 | 2 | 0 | **3** | 0 |
 | `STATE` System states | 6 | 1 | 2 | 1 | **2** | 0 |
-| **TOTAL** | **102** | **17** | **7** | **8** | **66** | **4** |
+| **TOTAL** | **104** | **17** | **7** | **8** | **68** | **4** |
 
 ## By plane
 
 | Plane | Screens |
 |---|---|
-| Public / shared | 20 (`AUTH` 10 · `SHR` 4 · `STATE` 6) |
+| Public / shared | 21 (`AUTH` 10 · `SHR` 5 · `STATE` 6) |
 | Tenant plane | 48 (`LRN` 17 · `FAC` 11 · `IAD` 14 · part of `B2C`) |
 | Personal / B2C plane | 6 |
-| Central content plane | 20 (`CM` 7 · `VND` 7 · `ARV` 6) |
+| Central content plane | 21 (`CM` 8 · `VND` 7 · `ARV` 6) |
 | Platform-wide | 14 (`SA`) |
 
 ## What the numbers say
 
-- **102 screens** across nine workspaces, up from 29 in one.
-- **66 are new (65%)** — and **55 of those 66 belong to the six workspaces that did not exist before PM-01/PM-07** (`FAC` 9 · `IAD` 13 · `CM` 7 · `SA` 14 · `VND` 7 · `ARV` 5). The remaining 11 are additions to existing areas (`AUTH` 3 · `LRN` 3 · `B2C` 1 · `SHR` 2 · `STATE` 2).
+- **104 screens** across nine workspaces, up from 29 in one. *(102 at Review 006; **PM-14 added `SHR-05` review history and `CM-08`**.)*
+- **68 are new (65%)** — and **56 of those 68 belong to the six workspaces that did not exist before PM-01/PM-07** (`FAC` 9 · `IAD` 13 · `CM` 8 · `SA` 14 · `VND` 7 · `ARV` 5). The remaining 12 are additions to existing areas (`AUTH` 3 · `LRN` 3 · `B2C` 1 · `SHR` 3 · `STATE` 2).
 - **21 of the 29 Review-005 screens carry forward unchanged or with a scope reframe only.** Of the 8 modified, **3 are data-source changes** (`LRN-09`, `LRN-10`, `LRN-12`).
 - **4 screens are `PENDING`** — deliberately drawn as known gaps, not designed: descriptive grading (`FAC-11`), AI question generation (`FAC-09`), faculty provisioning (`IAD-04`), curriculum criteria (`ARV-04`).
 - **Analytics screens: zero.** Per PM-11, every reporting element is an operational panel inside an existing Overview, never a dedicated dashboard.
@@ -283,17 +285,19 @@ Ranked by **cross-role coverage × design risk × requirement clarity**. Recomme
 
 ## Rank 1 — FLOW 1 · Content to Production
 
-**`VND-01, 02, 03, 05` → `ARV-01, 02, 03` → `CM-01, 02` → `SA-02, 03`** + `SHR-01`
+**`VND-01, 02, 03, 05` → `ARV-01, 02, 03` → `CM-01, 02` → `SA-02, 03`** + `SHR-01` + **`SHR-05`**
 
 | | |
 |---|---|
 | Screens | **13** |
 | Roles | **4** — Vendor, Academic Reviewer, Content Manager, Super Admin |
 | Existing coverage | **Zero** |
-| FRD clarity | **Highest in the document** — 1.4.1–1.4.5 is an explicit authority ladder |
-| Pending blockers | Only the reject path (D7) and package format — both drawable as marked gaps |
+| FRD clarity | **Highest in the document** — 1.4.1–1.4.5 is an explicit authority ladder, now completed by **PM-14**'s return loops |
+| Pending blockers | **None structural.** ✅ The reject path is now **defined by PM-14**; only the package format and validation rubric remain, both drawable as marked gaps |
 
 **Why first.** Four roles, four gates, nothing built, and the least ambiguous requirements in the FRD. It also unblocks everything else: no content reaches a learner, an institution, or a device until it is published.
+
+**PM-14 strengthened this ranking.** At Review 006 the reject path was an open question sitting inside the Rank-1 flow — a reason to answer it *before* starting. It is now answered, so the flow can be designed complete: approve, request changes with comments, correct, resubmit, and a traceable history.
 
 ## Rank 2 — FLOW 5 · XR Entitlement & Device Delivery
 

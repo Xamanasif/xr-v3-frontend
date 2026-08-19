@@ -48,7 +48,17 @@ Derived in `02_ROLE_PERMISSION_MATRIX.md` §B2 and `03_SHARED_CAPABILITY_MAP.md`
 | **Personal plane** (B2C) | 1.3.2 (separate B2C environment) | **L** | Individual accounts, purchases, personal entitlements |
 | **Spans all planes** | 1.3.5 (cross-tenant governance) | **SA** | Publishing, licensing, platform configuration, oversight |
 
-> ⚠️ **The FRD never states this two-plane split.** It is the only reading consistent with every FRD sentence, it is used here to keep the IA coherent, and it is **recorded as a hypothesis requiring confirmation** — not adopted as fact. See `11_OPEN_QUESTIONS_REFRAMED.md` Q-P03.
+> ✅ **CONFIRMED by PM-13 (19 August 2026).** Review 006 recorded this split as a hypothesis, because the FRD never states it. **The Project Manager confirmed the Review-006 model**, so it is now the agreed architecture.
+>
+> **Central / platform content & governance side:** Vendor · Academic Reviewer · Content Manager · Super Admin
+> **Institution / tenant side:** Institute Admin · Faculty · Student / Learner
+> **B2C individual learners** use the shared platform and learning capabilities **without becoming an institutional tenant role**.
+>
+> Shared platform services connect the two areas: identity/access · content · learning · assessment · entitlements · XR delivery · commerce · progress.
+>
+> **Super Admin retains the FRD-defined cross-tenant governance capability (1.3.5). No additional cross-tenant permissions are granted to any other role.**
+>
+> See `13_PM_CLOSURE_DECISIONS.md` PM-13. Closes `QP-03`.
 
 ---
 
@@ -328,8 +338,14 @@ CONTENT MANAGER WORKSPACE                            central content plane
 │       ├── Documentation review ......... 1.4.3
 │       ├── Platform compatibility ....... 1.4.3 · formats, devices, versions
 │       ├── Academic validation record ... 1.4.2 · READ-ONLY (AR's decision)
-│       └── Decision ..................... APPROVE for publication
-│           └── ⚠ Reject / request revision — PENDING (D7)
+│       ├── Review history ............... PM-14 · all decisions + comments
+│       └── Decision ..................... PM-14
+│           ├── APPROVE for publication .. 1.4.3
+│           └── REQUEST CHANGES .......... PM-14 · comments/reason required
+│               └── returns to Vendor · never routes to publication
+│
+├── Returned ............................. PM-14
+│   └── Submissions sent back, awaiting Vendor resubmission
 │
 ├── Content Library ...................... 8.1.2
 │   ├── All modules ...................... by gate position
@@ -345,6 +361,8 @@ CONTENT MANAGER WORKSPACE                            central content plane
 ```
 
 **Content Manager approves but never publishes** (1.4.4). *Readiness* is the handoff surface to Super Admin — the queue of things CM has cleared and SA has not yet released.
+
+**PM-14 adds a second outcome at this gate.** The Content Manager may **request changes** with comments/reason, returning the submission to the Vendor. A corrected resubmission **re-enters review**; there is no automatic path to publication after a return.
 
 ---
 
@@ -421,6 +439,7 @@ SUPER ADMIN WORKSPACE                                platform-wide (1.3.5)
 
 ```
 [logo]  My Submissions   New Submission   My Modules                  [Account ▾]
+         └── includes CHANGES REQUESTED (PM-14)
 ```
 
 ### Structure
@@ -434,7 +453,9 @@ VENDOR WORKSPACE                                     central plane · own scope 
 │       │                                  approved → published
 │       ├── Build & assets ............... 1.4.1
 │       ├── Metadata ..................... 1.4.3 · vendor-supplied
-│       └── ⚠ Feedback / revision requests — PENDING (D7)
+│       ├── Reviewer comments ............. PM-14 · reason for return
+│       ├── Review history ............... PM-14 · every decision, in order
+│       └── Correct & resubmit ........... PM-14 · re-enters review
 │
 ├── New Submission ....................... 1.4.1 · staging environment
 │   ├── Module details
@@ -454,6 +475,10 @@ VENDOR WORKSPACE                                     central plane · own scope 
 The design expresses this **positively** — the submission's status reads *"With Academic Reviewer"*, *"With Content Manager"*, *"Awaiting publication"* — so the vendor always knows where their work is and who holds it. **There is no disabled Publish button anywhere**, because a greyed-out control implies the permission might one day appear. It never will.
 
 **Vendors see only their own submissions and modules.** No cross-vendor visibility is granted anywhere in the FRD.
+
+### PM-14 adds a correction loop, not a shortcut
+
+A returned submission arrives with **comments and a reason**. The vendor **edits their own returned submission and resubmits**, and it **re-enters review** at the gate that returned it. There is **no automatic publication path after rejection** — the prohibition at gate ④ is untouched by PM-14.
 
 ---
 
@@ -481,20 +506,26 @@ ACADEMIC REVIEWER WORKSPACE                          central content plane
 │       ├── Metadata & documentation ..... vendor-supplied
 │       ├── Curriculum alignment ......... 1.4.2 · "engineering curriculum standards"
 │       │                                  ⚠ criteria not defined in the FRD
-│       └── Decision ..................... VALIDATE academically
-│           └── ⚠ Reject / request revision — PENDING (D7)
+│       ├── Review history ............... PM-14
+│       └── Decision ..................... PM-14
+│           ├── VALIDATE academically .... 1.4.2
+│           └── REQUEST CHANGES .......... PM-14 · comments/reason required
+│               └── returns to Vendor · re-enters review on resubmission
+│
+├── Returned ............................. PM-14
+│   └── Submissions I sent back, awaiting resubmission
 │
 ├── Validated ............................ own decision history
 │
 └── Account ▾
 ```
 
-### Two honest gaps
+### One remaining gap, one resolved
 
 | Gap | Detail |
 |---|---|
 | **Validation criteria are undefined** | FRD 1.4.2 requires alignment with *"engineering curriculum standards"* but never states them. The workspace provides the **decision surface**; the **rubric is content someone must own** |
-| **No reject path** | D7 again. A validation gate with no rejection is not a gate |
+| ~~No reject path~~ | ✅ **RESOLVED by PM-14** — the reviewer may **request changes** with comments, returning the submission to the Vendor |
 
 **Academic validation precedes Content Manager review** (1.4.2 → 1.4.3). The Reviewer's decision is therefore **read-only input** to the CM workspace, never editable there.
 
@@ -534,17 +565,28 @@ SHARED
 
 ## The content governance chain — four workspaces, one object
 
+**Updated by PM-14 — the chain now has return loops at gates ② and ③.**
+
 ```
   VND                ARV                  CM                    SA
    │                  │                    │                     │
    ├─ submit ────────▶│                    │                     │
-   │   1.4.1          ├─ validate ────────▶│                     │
-   │                  │   1.4.2            ├─ approve ──────────▶│
+   │   1.4.1          │                    │                     │
+   │                  ├─ APPROVE ─────────▶│                     │
+   │                  │   validate 1.4.2   ├─ APPROVE ──────────▶│
    │                  │                    │   1.4.3             ├─ publish
    │                  │                    │                     │   1.4.4
    │                  │                    │                     │
-   │◀── status ───────┴────────────────────┴─────────────────────┤
-   │        (vendor always sees who holds their submission)      │
+   │◀─ CHANGES ───────┤                    │                     │
+   │   REQUIRED       │  PM-14 · comments  │                     │
+   │◀─ CHANGES ────────────────────────────┤                     │
+   │   REQUIRED          PM-14 · comments  │                     │
+   │                                                             │
+   ├─ correct & resubmit ──▶ RE-ENTERS REVIEW                    │
+   │   PM-14 · never routes directly to publication              │
+   │                                                             │
+   │◀── status + review history ─────────────────────────────────┤
+   │        (vendor always sees who holds it and why)   PM-14    │
    │                                                              ▼
    └─ 1.4.5: can NEVER publish                          published content
                                                                   │
@@ -553,6 +595,8 @@ SHARED
                               B2C catalogue              Institutional entitlement
                               (Learner · Explore)        (IA → stream → Learner)
 ```
+
+**Two return edges, no shortcuts.** Academic Reviewer and Content Manager may each send a submission **back**; neither can send it **forward past their own gate**, and neither gains publish authority. A resubmission re-enters review. **Only Super Admin publishes** (1.4.4), and **the Vendor never does** (1.4.5).
 
 ## Entitlement flows into learning — two origins, one destination
 
@@ -610,4 +654,4 @@ FAC: configure (PM-08, 5.1.x, 5.3.x) ──▶ platform API ──▶ Web/XR app
 4. **Prohibitions are expressed positively.** Vendors see *where their submission is*, not a disabled Publish button.
 5. **Shared surfaces are shared components**, not per-role rebuilds. One module viewer, one state grammar, one shell.
 6. **Tenant boundaries are structural.** No tenant switcher exists for tenant-plane roles (1.3.1). Only Super Admin crosses, via Institutions (1.3.5).
-7. **Pending items are drawn as pending**, never resolved by drawing. Descriptive grading, reject paths, and the XR delivery mechanism appear as **named gaps** in the IA, not as invented features.
+7. **Pending items are drawn as pending**, never resolved by drawing. Descriptive grading and the XR delivery mechanism appear as **named gaps** in the IA, not as invented features. *(Reject paths were such a gap at Review 006; **PM-14 resolved them** and they are now designed surfaces.)*

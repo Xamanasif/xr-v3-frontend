@@ -146,7 +146,7 @@
 
 # Part 4 · Divergence register
 
-**Every point where B2B and B2C differ. Anything not listed here is shared.** This extends the Review-005 ten-item list to eighteen; items 1–10 are carried forward unchanged.
+**Every point where B2B and B2C differ. Anything not listed here is shared.** This extended the Review-005 ten-item list to eighteen at Review 006; **PM-15 then removed one, leaving seventeen.** Items 1–10 are carried forward unchanged.
 
 | # | Divergence | B2B institutional | B2C individual | Status |
 |---|---|---|---|---|
@@ -166,22 +166,27 @@
 | **14** | **Licence model** | Stream packages, capped seats (6.2.1, 6.2.2) | Per-module / per-bundle (6.1.1, 6.1.2) | **NEW** |
 | **15** | **Sequencing scope** | Course context — D-07 applies | Standalone purchase — D-07 does not; D-20 does (D-22) | **NEW** |
 | **16** | **Device replacement** | Institutional device fleet, no personal request | Learner requests → Super Admin approves (2.4.2) | **NEW** |
-| **17** | **Assessment configuration owner** | Faculty configures (5.1.x, 5.3.x, PM-08) | ⚠ **PENDING — who configures for a B2C learner?** | **NEW gap** |
-| **18** | **Reporting visibility** | Tenant-bounded operational status (1.3.4, PM-11) | Personal progress only | **NEW** |
+| ~~17~~ | ~~Assessment configuration owner~~ | — | — | ✅ **REMOVED — resolved by PM-15.** Ownership is the **same** on both sides: the Faculty / institution-authorized side. No longer a divergence |
+| **17** | **Reporting visibility** | Tenant-bounded operational status (1.3.4, PM-11) | Personal progress only | **NEW** |
 
-### Divergence 17 is a genuine, newly surfaced gap
+### Divergence 17 — ✅ RESOLVED and REMOVED by PM-15 (19 August 2026)
 
-FRD 5.1.1, 5.1.2, 5.3.2 all assign assessment authoring and configuration to **Faculty** — an institutional role. **A B2C individual learner has no Faculty.**
+Review 006 surfaced a genuine gap here. FRD 5.1.1, 5.1.2, and 5.3.2 all assign assessment authoring and configuration to **Faculty** — an institutional role. **A B2C individual learner has no Faculty.** Three readings were defensible and none was stated anywhere.
 
-So who configures the assessment attached to a module a B2C learner buys?
+**PM-15 resolved it at product level:**
 
-| Reading | Implication |
-|---|---|
-| Assessments are configured **centrally** with the module | Content Manager or Super Admin would need assessment authority — **the FRD gives neither** |
-| B2C modules ship with a **default** configuration | No FRD requirement defines a default |
-| B2C modules have **no** assessments | Contradicts 3.1.2 and the shared learning core |
+> **For BOTH B2B and B2C, assessment setup/configuration is the responsibility of Faculty or the institution side. The learner does NOT author or configure assessments.**
 
-**None of these is stated in the FRD, and PM-08 does not resolve it.** It is recorded as a product question, not answered here. This gap was invisible under a Student-only scope because assessment configuration was treated as a global constant.
+**This does not merely answer the divergence — it removes it.** Assessment ownership is no longer a point where the two journeys differ. Both converge on the **Faculty / institution-authorized side**, and in neither journey does the learner author or configure anything.
+
+| | B2B | B2C |
+|---|---|---|
+| Who owns assessment configuration | Faculty / institution-authorized side | **Faculty / institution-authorized side** |
+| Does the learner configure? | ⛔ Never | ⛔ **Never** |
+
+**One interpretation rule carried from PM-15:** do **not** automatically grant every Institute Admin assessment-authoring permission. The FRD names **Faculty** explicitly (8.1.4, 5.1.1, 5.1.2, 5.3.2), so Faculty remains the clearest direct authoring role. Institute Admin authority stays open.
+
+**One non-blocking detail remains.** For a *pure* B2C individual learner, the exact operational mapping — **which** Faculty, institution, or content owner supplies the assessment — is deferred by PM-15 as a **content / implementation detail**. It is explicitly **not a blocker for platform IA**, and it changes no screen, permission, or flow above.
 
 ---
 
@@ -252,4 +257,4 @@ Where prioritisation appears — the detailed-Figma recommendation in `12_REVIEW
 
 **The reframe's real asymmetry is not B2B vs B2C. It is learner vs everyone else.** Both learner journeys are in good shape. What was missing is the institutional machinery behind the B2B journey — and that machinery is missing because the roles that operate it were out of scope, not because B2B was deprioritised.
 
-**Divergence 17 — who configures assessments for B2C — is the one genuinely new product gap this analysis surfaced.**
+**Divergence 17 — who configures assessments for B2C — was the one genuinely new product gap this analysis surfaced. ✅ PM-15 closed it on 19 August 2026**, and in doing so removed it from the register entirely rather than merely answering it: ownership is identical on both sides, so it is no longer a point of divergence at all. **The register stands at 17 divergences, down from 18.**

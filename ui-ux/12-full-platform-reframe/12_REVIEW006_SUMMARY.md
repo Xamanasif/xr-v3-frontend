@@ -1,7 +1,7 @@
 # 12 — Review 006 Summary
 
 **Review:** 006 — Full Platform Reframe
-**Date:** 18 August 2026
+**Date:** 18 August 2026 · **updated 19 August 2026** (PM closure — PM-13, PM-14, PM-15)
 **Branch:** `uiux/full-platform-review006`
 **Status:** ✅ Complete — architecture and planning stage. **No Figma work performed.**
 
@@ -38,6 +38,16 @@ Twelve statements, captured in full in `ui-ux/00-project-context/PM_CONFIRMED_BA
 | **PM-11** | Core operations first; analytics incrementally | **Zero analytics dashboards designed** |
 | **PM-12** | Certification is **not** Phase 1 — it is Phase 2 | Recorded FRD deviation |
 
+## Closure update — 19 August 2026
+
+Three further confirmations, captured in `13_PM_CLOSURE_DECISIONS.md`. They close the three most structurally significant questions Review 006 surfaced.
+
+| # | Confirmation | Effect |
+|---|---|---|
+| **PM-13** | **Continue with the Review-006 model** — central-content-plane / tenant-plane architecture | Two-plane model moves from **hypothesis** to **confirmed**. Closes `QP-03` |
+| **PM-14** | **Submitted content may be rejected / returned for correction**, with comments, resubmission, and review history | Governance chain gains **return loops**. Closes `QP-01` and `QP-06` |
+| **PM-15** | **Assessment configuration is owned by Faculty / the institution side — for both B2B and B2C.** The learner never authors or configures | Closes `QP-05` and **removes** B2B/B2C divergence 17 |
+
 ---
 
 # 3 · The new full-platform model
@@ -61,7 +71,7 @@ Twelve statements, captured in full in `ui-ux/00-project-context/PM_CONFIRMED_BA
   PERSONAL PLANE (B2C) — individual accounts, purchases, entitlements
 ```
 
-**The two-plane split is a working hypothesis, not an FRD statement.** It is the only reading consistent with every FRD sentence and is flagged for confirmation as `QP-03`.
+**✅ The two-plane split is CONFIRMED by PM-13 (19 August 2026).** It was recorded as a hypothesis at Review 006 because the FRD never states it; the PM confirmed the model. **Super Admin alone retains the FRD-defined cross-tenant governance capability (1.3.5) — no additional cross-tenant permissions are granted to any other role.**
 
 ---
 
@@ -87,10 +97,10 @@ Twelve statements, captured in full in `ui-ux/00-project-context/PM_CONFIRMED_BA
 
 | | |
 |---|---|
-| Settled (`FRD-CONFIRMED` + `CONFIRMED`) | **52 of 78 (67%)** |
+| Settled (`FRD-CONFIRMED` + `CONFIRMED`) | **51 of 78** · plus 3 `PM-CLARIFIED` = **54 of 78 (69%)** |
 | Technical pending | 13 |
 | Product pending | 9 |
-| PM-clarified | 2 |
+| PM-clarified | 3 |
 | **PM-deferred** (certification 3.3.1, 3.3.2) | **2** |
 | **Design working set** | **76 + 2 PM-deferred** |
 | Requirements with **no** designed surface before this review | **18** |
@@ -114,7 +124,7 @@ Twelve statements, captured in full in `ui-ux/00-project-context/PM_CONFIRMED_BA
 | **Already designed** | 7 | 15 |
 | **New** | **11** | **2** |
 
-**18 documented divergences** — the Review-005 list of 10, plus 8 surfaced by the reframe. **Everything not listed is shared.**
+**17 documented divergences** — the Review-005 list of 10, plus 8 surfaced by the reframe, **less divergence 17 which PM-15 removed** by making assessment ownership identical on both sides. **Everything not listed is shared.**
 
 **No document in Review 006 asserts a release sequence.** The Figma recommendation in §11 is ordered by cross-role coverage and design risk, not by market.
 
@@ -126,19 +136,35 @@ Twelve statements, captured in full in `ui-ux/00-project-context/PM_CONFIRMED_BA
 
 The FRD's most precisely specified sequence — and the least designed.
 
+**Updated by PM-14 — the chain now has return loops.**
+
 ```
   VENDOR ──▶ ACADEMIC REVIEWER ──▶ CONTENT MANAGER ──▶ SUPER ADMIN ──▶ PUBLISHED
    1.4.1          1.4.2                 1.4.3             1.4.4
-  submit        validate              approve            publish
-     │             │                     │                  │
-     └── 1.4.5: vendors can NEVER publish ──────────────────┘
+  submit     validate / CHANGES     approve / CHANGES     publish
+     │        REQUIRED  │            REQUIRED  │             │
+     │◀─────────────────┘                      │             │
+     │◀────────────────────────────────────────┘             │
+     │   returned with comments + reason         PM-14        │
+     │                                                        │
+     ├─ correct & resubmit ──▶ RE-ENTERS REVIEW               │
+     │   never routes directly to publication      PM-14      │
+     │                                                        │
+     └── 1.4.5: vendors can NEVER publish ────────────────────┘
+
+  Review history / status traceability throughout            PM-14
 ```
 
 **Three approvals, three roles, one publisher. No role holds two adjacent gates.**
 
-The vendor sees gate position throughout. **There is no disabled Publish control anywhere** — a greyed-out button implies a permission that will never exist.
+**PM-14 adds return authority without weakening that.** Academic Reviewer and Content Manager may send work **back**; neither can send it **forward past their own gate**, and neither gains publish authority. A resubmission re-enters review — **there is no automatic publication path after a rejection.**
 
-**Known gaps, drawn as gaps:** no reject/revise path anywhere in the FRD (`QP-01`) · no validation rubric (`QD-08`) · no audit trail (`QP-06`) · no package format (`QT-05`).
+The vendor sees gate position and the reason for any return, throughout. **There is no disabled Publish control anywhere** — a greyed-out button implies a permission that will never exist.
+
+**Resolved by PM-14:** ~~no reject/revise path~~ (`QP-01`) · ~~no audit trail~~ (`QP-06`, content chain only).
+**Known gaps still drawn as gaps:** no validation rubric (`QD-08`) · no package format (`QT-05`) · whether Super Admin may also return at gate ④ (`QP-26`).
+
+🟠 **PM-14 is recorded as an FRD extension** — FRD 1.4.1–1.4.4 contain no rejection, revision, resubmission, or history requirement. **The FRD is not edited.**
 
 ---
 
@@ -181,6 +207,8 @@ FRD 2.1.1, 2.2.1, and 2.3.3 lean toward Concept B **for VR** — that is a fact 
 
 **One prohibition recorded for the eventual API:** the correct answer must never appear in a learner-facing payload — not in the body, not in a debug field, not in a comment.
 
+**PM-15 (19 August) settled ownership.** For **both B2B and B2C**, assessment setup/configuration is the responsibility of **Faculty or the institution side**; **the learner never authors or configures**. This closed `QP-05` and **removed** B2B/B2C divergence 17 — ownership is now identical on both sides rather than different. Institute Admin is **not** automatically granted authoring permission; Faculty is the FRD-named role. The operational question of *which* Faculty/institution supplies a pure-B2C assessment is explicitly deferred as a **non-blocking** content detail (`QP-25`).
+
 **FRD 5.1.2 (AI question generation) reclassified.** It is a **Phase-1 Faculty** requirement. Constraint `C-04` excluded it citing FRD **5.5** — a **Phase-3, learner-facing** requirement. Different requirement, different phase, different user. It is now `PRODUCT-PENDING`, not excluded by inheritance.
 
 ---
@@ -221,17 +249,18 @@ The Learner workspace (21 of 29 screens unchanged or reframed), the design syste
 | # | Document | Content |
 |---|---|---|
 | 01 | Phase-1 feature inventory | **78** requirements re-audited, 11 attributes each |
-| 02 | Role / permission matrix | **7** roles × **96** capabilities, 11 permission verbs |
+| 02 | Role / permission matrix | **7** roles × **101** capabilities, 11 permission verbs |
 | 03 | Shared capability map | **15** domains separated from roles |
 | 04 | Platform IA / sitemap | **9** workspaces, one shell, three planes |
 | 05 | End-to-end workflows | **10** cross-role workflows |
-| 06 | B2B / B2C journeys | **18** divergences; shared core defined |
+| 06 | B2B / B2C journeys | **17** divergences; shared core defined |
 | 07 | XR delivery model | 8-stage lifecycle, **21** states, mechanism-neutral |
-| 08 | Assessment configuration model | 10-stage model, **19** fields classified |
+| 08 | Assessment configuration model | 10-stage model, **19** fields classified, **ownership confirmed** |
 | 09 | Review-005 reuse map | **77** items classified |
-| 10 | Full platform screen inventory | **102** screens across 9 workspaces |
-| 11 | Reframed open questions | **58** open (**0 blockers**), 19 future-phase, **15** PM-closed |
+| 10 | Full platform screen inventory | **104** screens across 9 workspaces |
+| 11 | Reframed open questions | **56** open (**0 blockers**), 19 future-phase, **19** PM-closed |
 | 12 | This summary | |
+| **13** | **PM closure decisions** | **PM-13 · PM-14 · PM-15**, 19 August 2026 |
 
 ---
 
@@ -239,30 +268,42 @@ The Learner workspace (21 of 29 screens unchanged or reframed), the design syste
 
 **Zero blockers.** The sitemap, permission model, capability map, workflows, and screen inventory are all complete with no blocking question outstanding.
 
+**Recalculated after the 19 August closure update.**
+
 | Class | HIGH | MEDIUM | LOW | Total |
 |---|---|---|---|---|
-| Product | 6 | 12 | 6 | **24** |
+| Product | **2** | 12 | **8** | **22** |
 | Technical | 4 | 9 | 2 | **15** |
 | Data / Integration | 2 | 6 | 2 | **10** |
 | Design | 3 | 5 | 1 | **9** |
-| **Total open** | **15** | **32** | **11** | **58** |
+| **Total open** | **11** | **32** | **13** | **56** |
 | Future phase | | | | 19 |
-| **Closed by the PM** | | | | **15** |
+| **Closed by the PM** | | | | **19** |
 
-### Six questions newly surfaced by this reframe
+| | 18 Aug | **19 Aug** |
+|---|---|---|
+| Open | 58 | **56** |
+| **HIGH** | **15** | **11** |
+| Closed by PM | 15 | **19** |
 
-| # | Question |
-|---|---|
-| `QP-01` | Is there a reject / revise / resubmit path in the governance chain? |
-| `QP-03` | Where do Vendor, Academic Reviewer, and Content Manager sit in the tenancy model? |
-| `QP-04` | How is an institutional licence transacted before Phase-2 billing exists? |
-| `QP-05` | Who configures assessments for a B2C individual learner? |
-| `QP-06` | Is there an audit trail for governance decisions? |
-| `QD-02` | What is the Phase-1 origin of role assignment, given 7.4.2 and 8.3 are Phase 3? |
+**Four HIGH questions closed; two LOW residuals opened** — `QP-25` (which Faculty/institution supplies a B2C assessment, explicitly non-blocking) and `QP-26` (whether Super Admin may also return at gate ④).
+
+### Six questions newly surfaced by this reframe — four now closed
+
+| # | Question | Status |
+|---|---|---|
+| ~~`QP-01`~~ | Is there a reject / revise / resubmit path in the governance chain? | ✅ **Closed — PM-14** |
+| ~~`QP-03`~~ | Where do Vendor, Academic Reviewer, and Content Manager sit in the tenancy model? | ✅ **Closed — PM-13** |
+| ~~`QP-05`~~ | Who configures assessments for a B2C individual learner? | ✅ **Closed — PM-15** |
+| ~~`QP-06`~~ | Is there an audit trail for governance decisions? | ✅ **Closed — PM-14** *(content chain only)* |
+| `QP-04` | How is an institutional licence transacted before Phase-2 billing exists? | **Open — HIGH** |
+| `QD-02` | What is the Phase-1 origin of role assignment, given 7.4.2 and 8.3 are Phase 3? | **Open — HIGH** |
+
+**`QP-02` — who grades descriptive answers — is now the single highest-value product question outstanding**, because it is the only remaining open item that can strand a learner mid-progression.
 
 ### Pending by PM instruction — not deficiencies
 
-XR delivery mechanism (**PM-05**) · SSO provider, protocol, attribute mapping (**PM-10**) · detailed reporting metrics and KPIs (**PM-11**).
+XR delivery mechanism (**PM-05**) · SSO provider, protocol, attribute mapping (**PM-10**) · which Faculty/institution supplies a B2C assessment (**PM-15**) · detailed reporting metrics and KPIs (**PM-11**).
 
 ---
 
@@ -274,7 +315,7 @@ Ranked by **cross-role coverage × design risk × requirement clarity** — deli
 
 | Rank | Flow | Screens | Roles | Why |
 |---|---|---|---|---|
-| **1** | **Content to Production** | **13** | V · AR · CM · SA | Four roles, four gates, **zero existing coverage**, and the clearest requirements in the FRD (1.4.1–1.4.5). Nothing reaches a learner until content is published |
+| **1** | **Content to Production** | **13** | V · AR · CM · SA | Four roles, four gates, **zero existing coverage**, and the clearest requirements in the FRD (1.4.1–1.4.5), now completed by **PM-14**'s return loops. Nothing reaches a learner until content is published |
 | **2** | **XR Entitlement & Device Delivery** | **6** | L · SA | The PM's own worked example. Largest requirement-to-design gap. Getting the state vocabulary right now prevents a rebuild when the mechanism is chosen |
 | **3** | **Assessment Authoring to Result** | **6** | F · L | PM-08 is unambiguous; the authoring half is entirely missing and determines what three existing learner screens can render |
 | **4** | **Institutional Identity / SSO** | **4** | IA · L · F | PM-10 makes SSO required; workspace resolution gates every workspace |
@@ -290,11 +331,20 @@ Ranked by **cross-role coverage × design risk × requirement clarity** — deli
 
 Adding **Rank 3** brings Faculty in: **25 screens, all seven roles, four of the six highest-priority flows.**
 
-### One recommendation before that Figma pass
+### ✅ The recommended de-risking has happened
 
-**`QP-01` (reject path) and `QP-03` (tenancy placement of the central-content roles) both sit inside Rank 1.** If a reject path exists, three governance screens gain a decision branch and a state, and FLOW 1 stops being linear. If the central-content roles turn out to be tenant-scoped, the plane model restructures.
+Review 006 flagged **`QP-01`** (reject path) and **`QP-03`** (tenancy placement of the central-content roles) as the two questions sitting **inside Rank 1** that would most damage that Figma pass if left unanswered.
 
-**Answering those two before Rank 1 begins would materially de-risk it.** Neither blocks the architecture; both would change the screens.
+**Both were closed on 19 August** — `QP-03` by PM-13 and `QP-01` by PM-14.
+
+| | Then | Now |
+|---|---|---|
+| Plane model | Hypothesis; could restructure | ✅ Confirmed |
+| Governance chain | Forward-only; a reject path would add a branch, a state, and a return loop | ✅ Branch specified and designed |
+
+**FLOW 1 can now be taken into detailed Figma complete** — approve, request changes with comments, correct, resubmit, and a traceable history — rather than designed forward-only and reworked later.
+
+**Two smaller residuals remain inside Rank 1, both LOW and both drawable as marked gaps:** whether Super Admin may also return at gate ④ (`QP-26`), and the submission package format (`QT-05`).
 
 ---
 
@@ -311,9 +361,10 @@ Adding **Rank 3** brings Faculty in: **25 screens, all seven roles, four of the 
 | **G-1** | **No AR application architecture** anywhere in FRD Section 2 | 🟡 FRD gap |
 | **G-2** | FRD 5.1.2 (AI question generation) is Phase 1; `C-04` excluded it citing Phase-3 FRD 5.5 | 🟡 Scope catch |
 | **G-3** | 2.4.1 / 2.4.2 device binding and replacement had no surface in any workspace | 🟡 FRD gap |
-| **G-4** | Vendor, Academic Reviewer, and Content Manager are unplaced in the tenancy model | 🟡 FRD gap |
-| **G-5** | No reject / revise / resubmit path in the governance chain | 🟡 FRD gap |
-| **G-6** | No audit trail for governance decisions | 🟡 FRD gap |
+| ~~G-5~~ | ~~No reject / revise / resubmit path in the governance chain~~ | ✅ **Closed by PM-14** — now a 🟠 **PM extension of the FRD** |
+| ~~G-6~~ | ~~No audit trail for governance decisions~~ | ✅ **Closed by PM-14** for the content chain — 🟠 **PM extension**. Audit outside content governance remains undefined |
+| ~~G-4~~ | ~~Vendor, Academic Reviewer, and Content Manager unplaced in the tenancy model~~ | ✅ **Closed by PM-13** — central content plane. Fills an FRD silence; **no FRD text contradicted** |
+| **D-3** | **Rejection, resubmission, and review history added to a chain the FRD describes as forward-only** | 🟠 **PM extension of the FRD** (PM-14) |
 | **R-1** | SSO phase contradiction (4.2.2 Phase 1 vs 7.4.1 Phase 3) | ✅ Resolved by PM-10 |
 
 ---
@@ -327,11 +378,15 @@ Adding **Rank 3** brings Faculty in: **25 screens, all seven roles, four of the 
 | Roles mapped | **7 of 7** |
 | Capability domains | **15** |
 | End-to-end workflows | **10** |
-| Screens inventoried | **102** across 9 workspaces |
+| Screens inventoried | **104** across 9 workspaces |
 | Blocking questions | **0** |
+| Open questions | **56** (11 HIGH) — down from 58 (15 HIGH) |
+| PM decisions recorded | **15** — PM-01 – PM-15 |
 | Figma | ❌ **Untouched — by instruction** |
 | `source/` · `branding/` | ❌ **Untouched** |
 | Review-005 artefacts | ❌ **Untouched** |
 | Git commit | ❌ **None** |
 
 **Next stage is detailed Figma work on PM-approved priority flows — and it does not begin until the PM approves a selection.**
+
+**The 19 August closure update removed the two questions that would have made the Rank-1 pass risky.** Content-to-Production can now be designed end to end, including its return loops, without waiting on a further decision.

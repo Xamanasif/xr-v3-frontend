@@ -119,7 +119,7 @@ A capability is defined once, consumed by many roles. `02_ROLE_PERMISSION_MATRIX
 | Descriptive question type | 5.2.3 | L, F | Grading workflow **(undefined)** | `P1` | 🟡 Partial — awaiting-evaluation state only |
 | Question randomization | 5.3.1 | F | — | `P1` | 🟡 Partial — assumed on, must become a setting |
 | Negative marking toggle | **5.3.2** | F | — | `P1` | 🟡 Partial — hard-coded, must become a setting |
-| **Assessment configuration** | **PM-08** | F | `ASM` schema | `P1` | 🔴 **None** |
+| **Assessment configuration** | **PM-08** · **PM-15** | **F** *(Faculty / institution-authorized side — B2B **and** B2C)* | `ASM` schema | `P1` | 🔴 **None** |
 | **Configuration → application API contract** | **PM-08** | F, L, system | Web/XR apps | `PEND-T` | 🔴 **None** |
 | Assessment attempt delivery | 5.2.x | L | Timer authority | `P1` | ✅ Reusable |
 | Pre-attempt disclosure | D-06, D-23 | L | Configuration | `P1` | ✅ Reusable — must read from config |
@@ -217,11 +217,16 @@ A capability is defined once, consumed by many roles. `02_ROLE_PERMISSION_MATRIX
 | Production publishing | **1.4.4** | SA | `CAT`, CDN | `P1` | 🔴 **None** |
 | Vendor publishing prohibition | **1.4.5** | V, SA | — | `P1` | 🔴 **None** |
 | Version release control | 2.3.2 | SA | `XRD` | `P1` | 🔴 **None** |
-| Reject / revise / resubmit | *absent from FRD* | V, AR, CM | — | `PEND-P` | 🔴 None |
-| Governance audit trail | *absent from FRD* | All governance roles | — | `PEND-P` | 🔴 None |
+| **Reject / request changes with comments** | **PM-14** | **AR, CM** | Comment store | **`P1`** | 🔴 **None** |
+| **Vendor correction & resubmission** | **PM-14** | **V** | Staging environment | **`P1`** | 🔴 **None** |
+| **Review history / status traceability** | **PM-14** | V, AR, CM, SA | Decision store | **`P1`** | 🔴 **None** |
 | Content lifecycle states | 1.5.1 | CM, SA | — | `P2` | — |
 
 **`GOV` is 100% new.** Not one capability in this domain has any existing UX, because three of its four roles did not exist in scope and the fourth (Super Admin) did not either. It is simultaneously the **least designed** and the **most precisely specified** domain in the FRD — 1.4.1 through 1.4.5 define an unusually explicit authority ladder.
+
+**PM-14 (19 August 2026) completed the domain.** Three capabilities that Review 006 recorded as `PEND-P` gaps — reject/request-changes, correction and resubmission, and review history — are now **confirmed Phase-1 requirements**. The chain is no longer forward-only: Academic Reviewer and Content Manager may return work with comments, the Vendor corrects and resubmits, and every decision is traceable. **A resubmission re-enters review; it never routes directly to publication.**
+
+🟠 **Recorded as an FRD extension** — FRD 1.4.1–1.4.4 contain no rejection, revision, resubmission, or history requirement.
 
 **That combination makes `GOV` the highest-value target for detailed Figma.** See `12_REVIEW006_SUMMARY.md`.
 
@@ -240,9 +245,16 @@ A capability is defined once, consumed by many roles. `02_ROLE_PERMISSION_MATRIX
 | Institutional identity & context | 1.1.2 | L, F, IA | — | `P1` | 🟡 Learner header label only |
 | Institutional configuration | 8.1.3 | IA | — | `P1` | 🔴 **None** |
 | Shared institutional subscription | 1.1.2 | L, F, IA | `ENT` | `P1` | 🟡 Learner side only |
-| **Plane placement of V / AR / CM** | *absent* | V, AR, CM | — | `PEND-P` | 🔴 None |
+| **Plane placement of V / AR / CM** | **PM-13** | V, AR, CM | — | **`P1` ✅ CONFIRMED** | 🔴 None |
 
-**The unresolved structural question of the whole reframe.** See `02_ROLE_PERMISSION_MATRIX.md` §B2. The **two-plane working hypothesis** — a central content plane plus tenant planes — is the only reading consistent with every FRD sentence, but the FRD never states it. It is recorded as a hypothesis, used to keep the IA coherent, and flagged for confirmation.
+**✅ RESOLVED by PM-13 (19 August 2026).** This was the largest structural unknown of the reframe. Review 006 recorded a two-plane reading as a hypothesis; **the PM confirmed it.**
+
+> **Central / platform content & governance side:** Vendor · Academic Reviewer · Content Manager · Super Admin
+> **Institution / tenant side:** Institute Admin · Faculty · Student / Learner
+> **B2C individual learners** use shared platform and learning capabilities **without becoming an institutional tenant role**.
+> **Super Admin retains the FRD-defined cross-tenant governance capability** (1.3.5). **No additional cross-tenant permissions are granted to any other role.**
+
+Vendor, Academic Reviewer, and Content Manager operate **only on the central content plane** and therefore need no tenant access at all. See `02_ROLE_PERMISSION_MATRIX.md` §B2/B5.
 
 ---
 
@@ -397,7 +409,7 @@ The distinction is deliberate: *seeing the state of your own work when you look 
 
 **Super Admin touches 14 of 15 domains** — it is the platform-wide role by definition, and its workspace must be structured by domain rather than by task or it becomes unnavigable.
 
-**Content governance is cleanly separated.** `GOV` is consumed by exactly four roles and by **none** of the three tenant-plane roles (L, F, IA). This is the strongest evidence for the two-plane hypothesis in §9.
+**Content governance is cleanly separated.** `GOV` is consumed by exactly four roles and by **none** of the three tenant-plane roles (L, F, IA). This was the strongest evidence for the two-plane reading in §9 — **now confirmed by PM-13**.
 
 ## Reuse position across all fifteen domains
 
@@ -416,7 +428,7 @@ The distinction is deliberate: *seeing the state of your own work when you look 
 | `ERP` Integration | 1 | 3 | 4 |
 | `RPT` Reporting | 1 | 0 | 4 |
 | **`CFG` Configuration** | **0** | **0** | **6** |
-| **`GOV` Governance** | **0** | **0** | **9** |
+| **`GOV` Governance** | **0** | **0** | **11** |
 | `NOT` Notifications | 0 | 0 | 2 |
 
-**Two domains are entirely unbuilt: `GOV` and `CFG`.** Together they account for 15 of the platform's undesigned Phase-1 capabilities. They are also the two domains where the FRD is most explicit — which means they can be designed now, without waiting for a pending answer.
+**Two domains are entirely unbuilt: `GOV` and `CFG`.** Together they account for 17 of the platform's undesigned Phase-1 capabilities. They are also the two domains where the FRD is most explicit — which means they can be designed now, without waiting for a pending answer.

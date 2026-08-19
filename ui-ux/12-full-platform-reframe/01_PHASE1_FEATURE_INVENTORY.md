@@ -69,9 +69,9 @@ Counts verified by direct enumeration of the FRD text. All **78** Phase-1 requir
 | **1.3.3** | Additional regional B2C database instances for performance | TEN | — | B2C | SYS | — | none | N/A | FRD-CONFIRMED | Infrastructure only |
 | **1.3.4** | Analytics and reporting per institution limited to that tenant's dataset | RPT, TEN | IA, F, SA | B2B | SYS | **PM-11** | Personal-only Learner progress | KEEP+REFRAME | FRD-CONFIRMED | **Hard bound on every reporting surface in every admin workspace** |
 | **1.3.5** | Super Admin has controlled cross-tenant access for governance and operational oversight | TEN, SEC, RPT | SA | Shared | UI | PM-01, PM-07 | none | **NEW** | FRD-CONFIRMED | The only FRD-granted cross-tenant access. Frames where V and AR can sit |
-| **1.4.1** | Authorized vendors submit XR module builds and assets through a staging environment | GOV | **V**, CM | Shared | UI | **PM-07** | none | **NEW** | PM-CLARIFIED | Vendor promoted from actor to workspace |
-| **1.4.2** | All submitted modules undergo academic validation by the BITS Pilani academic team | GOV | **AR** | Shared | UI | **PM-07** | none | **NEW** | PM-CLARIFIED | Academic Reviewer promoted from actor to workspace |
-| **1.4.3** | Content Manager reviews metadata, documentation, and platform compatibility before approving for publication | GOV, CAT | CM | Shared | UI | PM-01 | none | **NEW** | FRD-CONFIRMED | Defines the CM workspace's core job |
+| **1.4.1** | Authorized vendors submit XR module builds and assets through a staging environment | GOV | **V**, CM | Shared | UI | **PM-07 · PM-13 · PM-14** | none | **NEW** | PM-CLARIFIED | Vendor promoted from actor to workspace; **central content plane** (PM-13); **may correct and resubmit after a return** (PM-14) |
+| **1.4.2** | All submitted modules undergo academic validation by the BITS Pilani academic team | GOV | **AR** | Shared | UI | **PM-07 · PM-13 · PM-14** | none | **NEW** | PM-CLARIFIED | Academic Reviewer promoted from actor to workspace; **central content plane** (PM-13); **may approve or request changes with comments** (PM-14) |
+| **1.4.3** | Content Manager reviews metadata, documentation, and platform compatibility before approving for publication | GOV, CAT | CM | Shared | UI | PM-01 · **PM-13 · PM-14** | none | **NEW** | **PM-CLARIFIED** | Defines the CM workspace's core job; **central content plane** (PM-13); **may approve or request changes with comments** (PM-14) |
 | **1.4.4** | Only Super Admin may publish approved modules to production | GOV | SA | Shared | UI | PM-01 | none | **NEW** | FRD-CONFIRMED | Publishing authority is exclusive |
 | **1.4.5** | Third-party vendors have no direct publishing rights | GOV, SEC | V, SA | Shared | SYS | PM-07 | none | **NEW** | FRD-CONFIRMED | A permission **prohibition** the Vendor workspace must visibly respect |
 
@@ -142,7 +142,7 @@ Counts verified by direct enumeration of the FRD text. All **78** Phase-1 requir
 | **5.2.2** | System supports True/False questions | ASM | L, F | Shared | UI | PM-08 | STU-10 variant | **KEEP** | CONFIRMED | |
 | **5.2.3** | System supports short descriptive answer questions | ASM | L, F | Shared | UI | PM-08 | STU-12 awaiting-evaluation | KEEP+REFRAME | **PRODUCT-PENDING** | No Phase-1 grading workflow exists. **Grading ownership must not be invented** |
 | **5.3.1** | Quiz questions **may** be randomized for each attempt | ASM | F | Shared | FLOW | **PM-08** | Assumed on | **MODIFY** | FRD-CONFIRMED | "May" = a **configurable** flag, not a constant |
-| **5.3.2** | Faculty shall be able to **enable** negative marking for incorrect responses | ASM | **F**, L | Shared | UI | **PM-08** | Fixed −1 in STU-09/10/12 | **SUPERSEDE as global rule** | FRD-CONFIRMED | The FRD makes this **Faculty-configurable**. Fixed −1 is sample configuration only |
+| **5.3.2** | Faculty shall be able to **enable** negative marking for incorrect responses | ASM | **F**, L | Shared | UI | **PM-08 · PM-15** | Fixed −1 in STU-09/10/12 | **SUPERSEDE as global rule** | FRD-CONFIRMED | The FRD makes this **Faculty-configurable**. Fixed −1 is sample configuration only. **PM-15 confirms Faculty/institution ownership for B2B *and* B2C** |
 
 ### Assessment values — reclassified
 
@@ -284,15 +284,15 @@ The ten with no role-facing surface: 1.3.3 · 2.2.1 · 2.3.3 · 10.1.1 · 10.3.1
 
 | Status | Count |
 |---|---|
-| `FRD-CONFIRMED` | 33 |
+| `FRD-CONFIRMED` | 32 |
 | `CONFIRMED` (settled by a surviving Review-005 decision) | 19 |
 | `TECHNICAL-PENDING` | 13 |
 | `PRODUCT-PENDING` | 9 |
-| `PM-CLARIFIED` | 2 |
+| `PM-CLARIFIED` | 3 |
 | `PM-DEFERRED` | 2 |
 | **Total** | **78** |
 
-**52 of 78 (67%) are settled** — `FRD-CONFIRMED` or `CONFIRMED`. **22 carry a pending answer**, split 13 technical / 9 product. None of the 22 blocks platform IA; see `11_OPEN_QUESTIONS_REFRAMED.md`.
+**51 of 78 (65%) are settled** — `FRD-CONFIRMED` or `CONFIRMED`; a further **3 are `PM-CLARIFIED`**, giving **54 of 78 (69%) with a definitive position**. **22 carry a pending answer**, split 13 technical / 9 product. None of the 22 blocks platform IA; see `11_OPEN_QUESTIONS_REFRAMED.md`.
 
 ## Review-005 reuse disposition across the 78
 
@@ -351,7 +351,9 @@ Eighteen Phase-1 requirements are marked `NEW`. Nothing in Reviews 001–005 add
 | **G-1** | No AR application architecture in FRD Section 2 | 🟡 FRD gap | §Section 1 (1.2.4) · `07_XR_DELIVERY_MODEL.md` |
 | **G-2** | FRD 5.1.2 AI question generation is Phase 1; `C-04` excluded it citing Phase-3 FRD 5.5 | 🟡 Scope catch | §Section 5 |
 | **G-3** | 2.4.1 / 2.4.2 device binding and replacement have no surface in any workspace | 🟡 FRD gap | §Section 2 |
-| **G-4** | Vendor and Academic Reviewer are unplaced in the tenancy model (1.3.1, 1.3.2, 1.3.5) | 🟡 FRD gap | §Section 1 · `02_ROLE_PERMISSION_MATRIX.md` |
+| ~~G-4~~ | ~~Vendor and Academic Reviewer are unplaced in the tenancy model (1.3.1, 1.3.2, 1.3.5)~~ | ✅ **CLOSED by PM-13** — central content plane. Fills an FRD silence; contradicts no FRD text | `13_PM_CLOSURE_DECISIONS.md` PM-13 |
+| **D-3** | **Rejection, resubmission, and review history added to a chain FRD 1.4.1–1.4.4 describes as forward-only** | 🟠 **PM extension of the FRD** (PM-14) | `13_PM_CLOSURE_DECISIONS.md` PM-14 |
+| **R-2** | Who owns assessment configuration for a B2C learner | ✅ **Resolved by PM-15** — Faculty / institution-authorized side, both markets | `13_PM_CLOSURE_DECISIONS.md` PM-15 |
 | **R-1** | SSO phase contradiction (4.2.2 Phase 1 vs 7.4.1 Phase 3) | ✅ Resolved by PM-10 | §Section 4 |
 
 **The FRD is not edited by any of the above.**

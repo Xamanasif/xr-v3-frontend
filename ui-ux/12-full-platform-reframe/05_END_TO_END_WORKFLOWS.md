@@ -25,9 +25,11 @@
 # FLOW 1 — Content to Production
 
 **Roles:** Vendor → Academic Reviewer → Content Manager → Super Admin
-**FRD:** 1.4.1 → 1.4.2 → 1.4.3 → 1.4.4, constrained by 1.4.5
+**FRD:** 1.4.1 → 1.4.2 → 1.4.3 → 1.4.4, constrained by 1.4.5 · **extended by PM-14**
 **Status:** **100% NEW.** No step in this flow has ever been designed.
 **Priority:** **Highest** — four roles, four gates, zero existing coverage, and the most precisely specified sequence in the FRD.
+
+> **Updated 19 August 2026 by PM-14.** The chain is no longer forward-only. Academic Reviewer and Content Manager may **return** a submission with comments; the Vendor **corrects and resubmits**; the submission **re-enters review**. Every decision is traceable. **There is no automatic publication path after a rejection.**
 
 ```
 ① SUBMISSION                                                    [VND]
@@ -43,9 +45,11 @@
    ▶ Reviews module content, metadata, documentation
    ▶ Assesses alignment with engineering curriculum standards  FRD 1.4.2
         ⚠ criteria are NOT defined anywhere in the FRD
-   ◆ Decision
-     ├── VALIDATED  ⟶ Status: WITH CONTENT MANAGER
-     └── ⚠ REJECT / REQUEST REVISION — no FRD path exists (gap D7)
+   ◆ Decision                                                     PM-14
+     ├── VALIDATE          ⟶ Status: WITH CONTENT MANAGER
+     └── CHANGES REQUIRED  ⟶ Status: RETURNED TO VENDOR
+           ▶ reviewer records comments / reason        (required)
+           ⟶ goes to ⑥
         │
         ▼
 ③ CONTENT READINESS APPROVAL                                    [CM]
@@ -54,15 +58,19 @@
    ▶ Reviews documentation
    ▶ Checks platform compatibility                             FRD 1.4.3
    ▶ Reads the academic validation record          (read-only — AR owns it)
-   ◆ Decision
-     ├── APPROVED  ⟶ Status: READY TO PUBLISH
-     └── ⚠ REJECT / REQUEST REVISION — gap D7
+   ◆ Decision                                                     PM-14
+     ├── APPROVE           ⟶ Status: READY TO PUBLISH
+     └── CHANGES REQUIRED  ⟶ Status: RETURNED TO VENDOR
+           ▶ CM records comments / reason              (required)
+           ⟶ goes to ⑥
         │
         ▼
 ④ PRODUCTION PUBLISHING                                         [SA]
    ⟶ Appears in the Super Admin's Ready-to-publish queue
    ▶ Publishes to production                                   FRD 1.4.4
    ⛔ No other role may perform this step
+   ⛔ Reachable ONLY via ② VALIDATE and ③ APPROVE — PM-14 forbids
+      any automatic publication path after a rejection
    ⟶ Status: PUBLISHED
         │
         ▼
@@ -72,8 +80,26 @@
    ⟶ Becomes assignable to learners              [FAC · IAD]
    ⟶ Becomes deliverable to devices              → FLOW 5
 
+
+⑥ RETURN AND RESUBMISSION LOOP                          [VND]   PM-14
+   ⟶ Submission appears in the Vendor's CHANGES REQUESTED list
+   ▶ Vendor reads the reviewer comments / reason
+   ▶ Vendor corrects the build, assets, or metadata
+   ▶ Vendor RESUBMITS
+   ⟶ Submission RE-ENTERS REVIEW at the gate that returned it
+        ├── returned by ARV ⟶ back to ②
+        └── returned by CM  ⟶ back to ③
+   ⛔ Never routes directly to ④
+   ⚠ Whether a resubmission re-enters at the returning gate or restarts
+     at ② is a working position, not a PM statement — see 13 §details
+
+REVIEW HISTORY — THROUGHOUT                                     PM-14
+   Every decision, comment, return, and resubmission is recorded
+   and traceable. Visible to V (own), AR, CM, SA.
+
 VENDOR VISIBILITY THROUGHOUT
-   The vendor sees gate position at every stage.
+   The vendor sees gate position at every stage, plus the reason
+   for any return.
    ⛔ FRD 1.4.5 — the vendor can never publish, at any point.
       Expressed positively as "Awaiting publication", never as a disabled control.
 ```
@@ -83,10 +109,13 @@ VENDOR VISIBILITY THROUGHOUT
 | Finding | Detail |
 |---|---|
 | **Three approvals, three roles, one publisher** | No role holds two adjacent gates. The strongest authority statement in the FRD |
-| **⚠ No reject path anywhere** | The FRD describes a forward-only chain. Three review gates, zero defined rejection or resubmission. **Not invented here** |
+| ~~No reject path anywhere~~ | ✅ **RESOLVED by PM-14** — approve / changes-required at gates ② and ③, with comments, correction, and resubmission |
+| ~~No audit trail~~ | ✅ **RESOLVED by PM-14** for this chain — *"review history / status traceability"* is required. **Does not extend beyond content governance** |
 | **⚠ No validation rubric** | 1.4.2 requires curriculum alignment but never defines the standard |
-| **⚠ No audit trail** | Four authority decisions per module, no requirement to record who decided what, when |
 | **⚠ No package format** | 2.2.1 says "encrypted asset bundles"; the submission format is undefined |
+| **⚠ Return authority at gate ④** | PM-14 names Academic Reviewer and Content Manager as the returning roles. **Whether Super Admin may also return is not stated and not invented** |
+
+🟠 **PM-14 is recorded as an FRD extension.** FRD 1.4.1–1.4.4 contain no rejection, revision, resubmission, or review-history requirement. **The FRD is not edited.**
 
 ---
 
@@ -211,8 +240,10 @@ RESTRICTED PATHS
 # FLOW 4 — Assessment Authoring to Result
 
 **Roles:** Faculty → platform/API → Web or XR application → Learner
-**FRD:** 5.1.1, 5.1.2, 5.2.1–5.2.3, 5.3.1, 5.3.2, 11.2.1, 11.2.2 · **PM-08**
+**FRD:** 5.1.1, 5.1.2, 5.2.1–5.2.3, 5.3.1, 5.3.2, 11.2.1, 11.2.2 · **PM-08** · **PM-15**
 **Status:** **Authoring half is new; delivery half is reusable but must become configuration-driven.**
+
+> **PM-15 (19 August 2026) — ownership confirmed.** For **both B2B and B2C**, assessment setup/configuration is the responsibility of **Faculty or the institution side**. **The learner does NOT author or configure assessments.** For a pure B2C learner, *which* Faculty/institution/content owner supplies the assessment is a **content/implementation detail deferred by PM-15** — it is explicitly **not a blocker** and does not change any step below.
 
 ```
 ① QUESTION SOURCING                                             [FAC]
@@ -481,10 +512,10 @@ Identified during the re-audit. Each is required by Phase-1 FRD text and has **n
 
 | # | Workflow | Roles | New / Reused | FRD basis | Priority |
 |---|---|---|---|---|---|
-| **1** | Content to Production | V · AR · CM · SA | **100% NEW** | 1.4.1–1.4.5 | **Highest** |
+| **1** | Content to Production | V · AR · CM · SA | **100% NEW** | 1.4.1–1.4.5 · **PM-14** | **Highest** |
 | **2** | B2B Institutional Learning | SA · IA · F · L | Learner reused; institutional NEW | 6.2.x, 7.2.x, 8.1.x | **Highest** |
 | **3** | B2C Purchase to Learning | L | **Reused** | 1.1.3, 6.1.x, 9.x | Medium |
-| **4** | Assessment Authoring to Result | F · system · L | Authoring NEW; delivery reframed | 5.1.x–5.3.x, PM-08 | **High** |
+| **4** | Assessment Authoring to Result | F · system · L | Authoring NEW; delivery reframed | 5.1.x–5.3.x, PM-08, **PM-15** | **High** |
 | **5** | XR Entitlement & Device Delivery | L · SA | **NEW, abstract by instruction** | 1.2.x, 2.x, PM-05 | **High** |
 | **6** | Institutional Identity / SSO | IA · L · F | Config NEW; login reused | 4.2.x, PM-10 | **High** |
 | 7 | Version Release to Live Content | SA · L | NEW | 2.3.x | Medium |
@@ -498,7 +529,10 @@ Identified during the re-audit. Each is required by Phase-1 FRD text and has **n
 
 | Gap | Flows | Type |
 |---|---|---|
-| No reject / revise / resubmit path in governance | 1 | Product |
+| ~~No reject / revise / resubmit path in governance~~ | 1 | ✅ **Closed by PM-14** |
+| ~~No governance review history~~ | 1 | ✅ **Closed by PM-14** *(content chain only)* |
+| May Super Admin return a submission at gate ④? | 1 | Product — **new, from PM-14** |
+| Resubmission re-entry point: returning gate vs restart | 1 | Product — working position recorded |
 | No academic validation rubric | 1 | Content ownership |
 | No governance audit trail | 1 | Product |
 | No XR package/submission format | 1, 5 | Technical |

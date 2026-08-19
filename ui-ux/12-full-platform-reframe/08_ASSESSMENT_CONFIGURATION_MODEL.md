@@ -2,7 +2,7 @@
 
 **Review:** 006 — Full Platform Reframe
 **Created:** 2026-08-18
-**Authority:** **PM-08** · FRD 5.1.1, 5.1.2, 5.2.1–5.2.3, 5.3.1, 5.3.2, 8.1.4, 11.2.1, 11.2.2
+**Authority:** **PM-08** · **PM-15** · FRD 5.1.1, 5.1.2, 5.2.1–5.2.3, 5.3.1, 5.3.2, 8.1.4, 11.2.1, 11.2.2
 
 ---
 
@@ -49,6 +49,36 @@ The **capabilities** those values exercised remain valid — they are what the c
 - Attempt history recorded and shown
 - Per-question **correctness** after submission, **never** the answer key (`D-25`)
 - A reported score that cannot fall below zero (`D-23`) — now itself a setting
+
+---
+
+## Ownership — confirmed by PM-15 (19 August 2026)
+
+PM-08 said assessment behaviour is **configurable**. It did not say **by whom**, and Review 006 surfaced a real gap: FRD 5.1.1, 5.1.2, and 5.3.2 assign authoring to **Faculty** — an institutional role — while **a B2C individual learner has no Faculty**.
+
+> **PM-15: for BOTH B2B and B2C, assessment setup/configuration is the responsibility of Faculty or the institution side.**
+> **The learner does NOT author or configure assessments.**
+
+| | Owner |
+|---|---|
+| **B2B institutional learner** | Faculty / institution-authorized side |
+| **B2C individual learner** | **Faculty / institution-authorized side** — the same |
+| **Learner, either context** | ⛔ **Never authors or configures** |
+
+**Assessment ownership is therefore not a B2B/B2C divergence at all.** It converges on the same authorized side, and `06_B2B_B2C_JOURNEYS.md` divergence 17 has been **removed** rather than merely answered.
+
+### Two rules carried from PM-15
+
+1. **Do NOT automatically grant every Institute Admin assessment-authoring permission** unless supported by the FRD or another PM decision. The FRD names **Faculty** explicitly (8.1.4, 5.1.1, 5.1.2, 5.3.2), so **Faculty remains the clearest direct assessment-authoring role**. Institute Admin authority stays open (`QP-08`).
+2. **The learner-side prohibition is now a stated rule, not an absence.** It is recorded in `02_ROLE_PERMISSION_MATRIX.md` as **`F12`** so it cannot drift back in.
+
+### The one detail deliberately left open
+
+For a **pure B2C individual learner**, *which* Faculty, institution, or content owner supplies the assessment is **deferred by PM-15 as a content / implementation detail**. It is explicitly **not a blocker for platform IA**.
+
+**It changes nothing in the model below.** Whoever supplies the configuration acts on the Faculty / institution-authorized side, through the same portal surface, producing the same configuration consumed by the same API. Only the operational assignment of *who that person is* remains to be settled — see `11_OPEN_QUESTIONS_REFRAMED.md` `QP-25`.
+
+**Closes `QP-05`.**
 
 ---
 
@@ -196,7 +226,6 @@ Genuinely undecided. **Not designed as fields until answered.**
 | **Who grades descriptive answers?** | Blocks progression under PM-09 · D-08 |
 | **Are MCQs single or multi-select?** | Multi-select requires a partial-credit rule that no scoring model defines |
 | **Is there an extended-time accommodation, and who grants it?** | A per-attempt allowance hook exists in the Review-005 timer; the policy owner does not |
-| **Who configures assessments for a B2C learner?** | 5.1.x assigns authoring to **Faculty** — a B2C learner has none. See `06_B2B_B2C_JOURNEYS.md` divergence 17 |
 | **Does Institute Admin hold any assessment authority?** | FRD names only Faculty |
 | **Are configurations reusable across courses or cohorts?** | Not addressed anywhere |
 | **Is there a platform-level default configuration?** | Not addressed. Do not invent one |
@@ -289,7 +318,7 @@ Two consequences that must be carried into any spec or handoff:
 | **FRD-supported question types** | 3 — MCQ (5.2.1) · True/False (5.2.2) · Descriptive (5.2.3) |
 | **Fields clearly implied by the FRD** | 7 |
 | **Fields required by the model, values pending** | 12 — **all Review-005 values reclassified as SAMPLE** |
-| **Questions requiring product clarification** | 8 |
+| **Questions requiring product clarification** | **7** — down from 8; **PM-15 closed the B2C ownership question** |
 | **Items explicitly out of scope** | 4 — all Phase 2/3 or PM-deferred |
 | **Screens structurally changed** | **0** |
 | **Screens requiring a data-source change** | 3 |

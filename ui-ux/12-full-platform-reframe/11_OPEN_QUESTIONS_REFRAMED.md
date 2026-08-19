@@ -56,8 +56,12 @@ These were open, ambiguous, or assumed before 18 August 2026. **They are now set
 | 13 | *(Review-005)* Q-01 audience · Q-02 auth path · Q-04 commerce scope | Absorbed by PM-01, PM-04, PM-10 | PM |
 | 14 | *(Review-005)* Q-12 certification UI in Phase 1 | **Closed — no.** Superseded by PM-12 | **PM-12** |
 | 15 | *(Review-005)* Q-07/08/09/54 assessment values | **Closed as global constants.** Now configuration fields | **PM-08** |
+| **16** | **Where do Vendor, Academic Reviewer, and Content Manager sit in the tenancy model?** | **Central content plane.** Two-plane model confirmed; Super Admin alone retains cross-tenant governance (1.3.5); **no additional cross-tenant permissions for any other role** | **PM-13** |
+| **17** | **Is there a reject / revise / resubmit path in the governance chain?** | **Yes.** Approve · changes-required · comments/reason · Vendor correction · resubmission. **No automatic publication path after rejection** | **PM-14** |
+| **18** | **Is there an audit trail for governance decisions?** | **Yes — "review history / status traceability" is required.** **Content governance chain only** | **PM-14** |
+| **19** | **Who configures assessments for a B2C individual learner?** | **Faculty / institution-authorized side — for both B2B and B2C. The learner never authors or configures** | **PM-15** |
 
-**Fifteen closures. The `Q-`-numbered ones remain listed in the Review-005 register for history; they must not be reopened here.**
+**Nineteen closures — 15 from the 18 August baseline, 4 added by the 19 August closure update.** The `Q-`-numbered ones remain listed in the Review-005 register for history; they must not be reopened here.
 
 ---
 
@@ -69,37 +73,49 @@ These were open, ambiguous, or assumed before 18 August 2026. **They are now set
 
 ## HIGH
 
-### `QP-01` — Is there a reject / revise / resubmit path in the content governance chain?
-The FRD describes a **forward-only** chain: submit (1.4.1) → validate (1.4.2) → approve (1.4.3) → publish (1.4.4). **No requirement describes rejection, revision, or resubmission.** A review gate with no reject path is not a gate.
-**Affects** `VND-01/05`, `ARV-02`, `CM-02`, FLOW 1 · **Working position** the return path is drawn as a **known-missing edge**, never as a designed feature · **Ref** matrix D7
+### ~~`QP-01`~~ — ✅ **CLOSED by PM-14 (19 August 2026)**
+*Was: is there a reject / revise / resubmit path in the content governance chain?*
+**Answer: yes.** Academic Reviewer and Content Manager may each **approve** or **request changes** with comments/reason; the Vendor **corrects and resubmits**; the submission **re-enters review**. **No automatic publication path after rejection.**
+**Now designed in** `05` FLOW 1 ⑥ · `02` D7–D10 · `10` `VND-01/03/04/05`, `ARV-01/02`, `CM-01/02`, `SHR-05` · 🟠 recorded as an **FRD extension**
+**Residual — new, LOW:** whether **Super Admin** may also return at gate ④. PM-14 names only Academic Reviewer and Content Manager. **Not invented** — see matrix D7 (SA)
 
 ### `QP-02` — Who grades descriptive answers, on what turnaround, against what rubric?
 FRD 5.2.3 permits short descriptive answers. **No Phase-1 requirement assigns grading to anyone.** Compounded by PM-09 · `D-08` · `D-07`: progression gates on passing, so an ungraded answer strands the learner indefinitely.
 **Affects** `FAC-11`, `LRN-12`, FLOW 4 · **Working position** the queue is named and positioned but **explicitly unowned and undesigned** · **Ref** matrix F10 · Review-005 Q-24
 
-### `QP-03` — Where do Vendor, Academic Reviewer, and Content Manager sit in the tenancy model?
-FRD 1.3.1 and 1.3.2 isolate institutional and B2C data. FRD 1.3.5 grants cross-tenant access to **Super Admin only**. **The three central-content roles are given no position at all**, yet PM-07 requires them to work.
-**Affects** the whole IA · **Working position** the **two-plane hypothesis** (central content plane + tenant planes) — the only reading consistent with every FRD sentence, **recorded as a hypothesis, not adopted as fact** · **Ref** matrix B2
+### ~~`QP-03`~~ — ✅ **CLOSED by PM-13 (19 August 2026)**
+*Was: where do Vendor, Academic Reviewer, and Content Manager sit in the tenancy model?*
+**Answer: the central content plane.** The PM confirmed the Review-006 two-plane model.
+**Central / platform content & governance side:** Vendor · Academic Reviewer · Content Manager · Super Admin
+**Institution / tenant side:** Institute Admin · Faculty · Student / Learner
+**B2C individual learners** use shared platform capabilities **without becoming an institutional tenant role**.
+**Super Admin retains the FRD-defined cross-tenant governance capability (1.3.5); no additional cross-tenant permissions are granted to any other role.**
+**Now confirmed in** `04` §two-plane model · `02` B2/B5 · `03` §9 — **this was the largest structural unknown of the reframe**
 
 ### `QP-04` — How is an institutional licence transacted in Phase 1?
 FRD 6.2.1 says institutions *"shall purchase"* stream packages — **Phase 1**. But **all** institutional billing (9.3.1 GST invoicing, 9.3.2 subscription billing) is **Phase 2**. Phase 1 needs licences to exist with no defined transaction.
 **Affects** `IAD-09`, `SA-11`, FLOW 2 ①, FLOW 9 · **Working position** licences are shown as **existing**; no in-platform purchase flow is invented · **Ref** matrix H2
 
-### `QP-05` — Who configures assessments for a B2C individual learner?
-FRD 5.1.1, 5.1.2, 5.3.2 assign assessment authoring and configuration to **Faculty** — an institutional role. **A B2C learner has no Faculty.** Central configuration would need CM or SA assessment authority the FRD does not grant; a platform default is nowhere defined; no assessments at all contradicts 3.1.2.
-**Affects** `FAC-07`, `LRN-09/10/12`, FLOW 3, FLOW 4 · **Working position** none — **an unresolved structural gap** · **Ref** journeys divergence 17
-**Newly surfaced by this reframe.** Invisible while assessment rules were global constants.
+### ~~`QP-05`~~ — ✅ **CLOSED by PM-15 (19 August 2026)**
+*Was: who configures assessments for a B2C individual learner?*
+**Answer: the Faculty / institution-authorized side — for both B2B and B2C. The learner does NOT author or configure assessments.**
+**This removed a divergence rather than merely answering a question** — ownership is now identical on both sides, so `06` divergence 17 is **deleted from the register** (18 → 17).
+**Two rules carried:** do **not** automatically grant Institute Admin authoring permission (Faculty is the FRD-named role); and the learner-side prohibition is now **stated** as matrix `F12`, not merely absent.
+**Now recorded in** `08` §Ownership · `02` F12 · `06` §divergence 17 · `05` FLOW 4
+**Residual — new, non-blocking:** see **`QP-25`**
 
-### `QP-06` — Is there an audit trail for governance decisions?
-The chain makes **four** authority decisions per module across four roles. **No requirement records who decided what, when.** For an academically validated engineering curriculum this is a conspicuous absence.
-**Affects** all governance workspaces · **Working position** not invented; decision history is shown only where a role sees **its own** past decisions (`ARV-05`) · **Ref** matrix M4
+### ~~`QP-06`~~ — ✅ **CLOSED by PM-14 (19 August 2026)** *— for the content governance chain*
+*Was: is there an audit trail for governance decisions?*
+**Answer: yes, for content governance.** PM-14 explicitly requires **"review history / status traceability"** — decisions, comments, returns, and resubmissions must be traceable.
+**Now designed as** `SHR-05` Review history & comments — one component, four permission-filtered contexts (V own · AR · CM · SA)
+**⚠ Scope limit, deliberately not extended:** PM-14 covers the **content chain only**. Audit trails for licensing changes, entitlement grants, platform configuration, and device-replacement approvals **remain undefined and are not invented** — see matrix `M4` (narrowed)
 
 ## MEDIUM
 
 | # | Question | Working position |
 |---|---|---|
 | `QP-07` | Who creates and manages **Faculty** accounts? 8.1.3 names only *student access*; ERP provisioning (7.2.2) names only students | `IAD-04` drawn as **PENDING** |
-| `QP-08` | Does **Institute Admin** hold any assessment authority, or Faculty only? | Faculty only; IA cells left `?` |
+| `QP-08` *(narrowed by PM-15)* | Does **Institute Admin** hold any assessment authority at all? | **PM-15 explicitly declines to grant it** — *"do NOT automatically grant every Institute Admin assessment-authoring permission"*. Faculty is the FRD-named role and holds it; IA cells stay `?` |
 | `QP-09` | Who creates **bundles** and sets **prices**? 6.1.2 sells them in Phase 1; 6.3.1/6.3.2 configure them in Phase 2 | No Phase-1 authoring screen invented |
 | `QP-10` | Is the learning **sequence** per-course configurable, or a platform constant? PM-09 approves the model, not its mutability | Treated as a platform model; no configuration surface drawn |
 | `QP-11` | Do **multi-role identities** exist in Phase 1? | `AUTH-09` chooser renders only if they do; costs nothing if not |
@@ -121,6 +137,8 @@ The chain makes **four** authority decisions per module across four roles. **No 
 | `QP-22` | May a configuration **change between attempts**? | Not addressed |
 | `QP-23` | Is there a real **help destination** behind the consistent Help entry? | Location is consistent (WCAG 3.2.6); destination unconfirmed |
 | `QP-24` | Is the **structural** certification node (3.3.1) modelled even though the experience is deferred? | **Not assumed either way** — PM-12 defers the experience, not necessarily the data model |
+| **`QP-25`** | **For a pure B2C individual learner, *which* Faculty / institution / content owner supplies the assessment?** *(new — from PM-15)* | **Explicitly deferred by PM-15 as a content / implementation detail. NOT a blocker for platform IA.** Whoever supplies it acts on the Faculty / institution-authorized side, through the same portal surface, producing the same configuration — so no screen, permission, or flow changes |
+| **`QP-26`** | **May Super Admin also return a submission at gate ④?** *(new — from PM-14)* | PM-14 names only Academic Reviewer and Content Manager. **Not invented** |
 
 ---
 
@@ -247,45 +265,76 @@ Recorded so their absence in Phase 1 is understood as scope, not oversight.
 
 # Summary
 
+**Recalculated after the PM closure update of 19 August 2026 (PM-13, PM-14, PM-15).**
+
 ## By class and priority
 
-| Class | BLOCKER | HIGH | MEDIUM | LOW | Total |
+| Class | BLOCKER | HIGH | MEDIUM | LOW | Total open |
 |---|---|---|---|---|---|
-| `QP` **Product** | 0 | **6** | 12 | 6 | **24** |
+| `QP` **Product** | 0 | **2** | 12 | 8 | **22** |
 | `QT` **Technical** | 0 | **4** | 9 | 2 | **15** |
 | `QD` **Data / Integration** | 0 | **2** | 6 | 2 | **10** |
 | `QX` **Design** | 0 | **3** | 5 | 1 | **9** |
 | `QF` **Future phase** | — | — | — | — | **19** |
-| **Total open** | **0** | **15** | **32** | **11** | **58** *(+19 future)* |
-| **Closed by PM** | | | | | **15** |
+| **Total open** | **0** | **11** | **32** | **13** | **56** *(+19 future)* |
+| **Closed by PM** | | | | | **19** |
 
-## No blockers — and that is a finding, not an oversight
+### Movement from the closure update
 
-**The platform sitemap, role/permission model, capability map, workflows, and screen inventory are all complete in Review 006 with zero blocking questions outstanding.**
+| | Review 006 (18 Aug) | **After PM-13/14/15 (19 Aug)** |
+|---|---|---|
+| Open (QP/QT/QD/QX) | 58 | **56** |
+| **HIGH** | **15** | **11** |
+| Product questions | 24 | 22 |
+| Closed by PM | 15 | **19** |
 
-Every HIGH item either has a safe working position, or is drawn into the architecture as a **named, marked gap** — a pending screen, an undesigned edge, a `?` cell. None prevents the next stage of work.
+**Four HIGH questions closed; two LOW ones opened** (`QP-25` B2C assessment supplier, `QP-26` Super Admin return authority). Both new ones are residuals of the decisions that closed the larger questions, and both are explicitly non-blocking.
 
-**The two items closest to blocking**, if left unanswered when detailed design of those areas begins:
+## Still no blockers
 
-| # | Why it would bite |
-|---|---|
-| **`QP-03`** | If Vendor / Academic Reviewer / Content Manager turn out to be **tenant-scoped**, the entire central-content plane restructures and the governance workspaces change shape |
-| **`QP-01`** | If a reject path exists, **three governance screens gain a decision branch, a state, and a notification need** — and FLOW 1 stops being linear |
+**The platform sitemap, role/permission model, capability map, workflows, and screen inventory remain complete with zero blocking questions.**
 
-Both sit in **FLOW 1**, the Rank-1 Figma recommendation. **Answering them before that Figma pass would materially de-risk it.**
+### The two items closest to blocking are now closed
 
-## The six questions newly surfaced by this reframe
+Review 006 flagged `QP-03` and `QP-01` as the two that would most damage the Rank-1 Figma pass if left unanswered — both sat **inside** FLOW 1, the recommended first flow.
 
-Invisible under a Student-only scope, and none is a restatement of a Review-005 question:
+| # | Was | Now |
+|---|---|---|
+| **`QP-03`** | If the central-content roles were tenant-scoped, the whole plane model restructured | ✅ **CLOSED by PM-13** — central content plane confirmed |
+| **`QP-01`** | If a reject path existed, three governance screens gained a decision branch and FLOW 1 stopped being linear | ✅ **CLOSED by PM-14** — the branch is now specified, so it can be designed rather than discovered |
 
-| # | Question |
-|---|---|
-| `QP-05` | Who configures assessments for a B2C learner? |
-| `QP-01` | Is there a reject path in the governance chain? |
-| `QP-03` | Where do the central-content roles sit in the tenancy model? |
-| `QP-06` | Is there a governance audit trail? |
-| `QD-02` | What is the Phase-1 origin of role assignment? |
-| `QP-04` | How is an institutional licence transacted before Phase-2 billing? |
+**FLOW 1 can now be taken into detailed Figma complete**, rather than designed forward-only and reworked later. That was the specific de-risking Review 006 recommended, and it has happened.
+
+## The six questions newly surfaced by the reframe — status
+
+| # | Question | Status |
+|---|---|---|
+| ~~`QP-05`~~ | Who configures assessments for a B2C learner? | ✅ **Closed — PM-15** |
+| ~~`QP-01`~~ | Is there a reject path in the governance chain? | ✅ **Closed — PM-14** |
+| ~~`QP-03`~~ | Where do the central-content roles sit in the tenancy model? | ✅ **Closed — PM-13** |
+| ~~`QP-06`~~ | Is there a governance audit trail? | ✅ **Closed — PM-14** *(content chain only)* |
+| `QD-02` | What is the Phase-1 origin of role assignment? | **Open — HIGH** |
+| `QP-04` | How is an institutional licence transacted before Phase-2 billing? | **Open — HIGH** |
+
+**Four of six closed in one meeting.** The two that remain are the ones the PM was not asked about.
+
+## The remaining HIGH items
+
+| # | Question | Class |
+|---|---|---|
+| `QP-02` | Who grades descriptive answers? | Product |
+| `QP-04` | How is an institutional licence transacted in Phase 1? | Product |
+| `QT-01` | Which XR delivery mechanism? — **pending by PM-05 instruction** | Technical |
+| `QT-02` | No AR application architecture exists in the FRD | Technical |
+| `QT-03` | Assessment configuration API contract | Technical |
+| `QT-04` | XR sign-in under SSO (2.4.4 vs 4.2.2) | Technical |
+| `QD-01` | Which profile fields are user-editable vs ERP-owned? | Data |
+| `QD-02` | Phase-1 origin of role assignment | Data |
+| `QX-01` | Does desktop-first ~1440px extend to all six new workspaces? | Design |
+| `QX-02` | WCAG 1.4.10 Reflow remains NOT MET across nine workspaces | Design |
+| `QX-03` | Who owns captions, transcripts, audio description? | Design |
+
+**`QP-02` — descriptive-answer grading — is now the single highest-value product question outstanding**, because it is the only remaining open item that can strand a learner mid-progression.
 
 ## Deliberately still pending, by PM instruction
 
@@ -293,4 +342,5 @@ Not deficiencies — the PM's stated position:
 
 - **`QT-01`** — the XR delivery mechanism (**PM-05**)
 - **`QD-04`** — SSO provider, protocol, attribute mapping (**PM-10**)
+- **`QP-25`** — which Faculty/institution supplies a B2C assessment (**PM-15**)
 - Detailed reporting metrics and KPI definitions (**PM-11**)
