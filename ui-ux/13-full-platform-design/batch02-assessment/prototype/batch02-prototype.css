@@ -1,0 +1,198 @@
+/* ============================================================
+   XR Simulation Learning Platform — Batch 02 prototype styles
+   EXTENSIONS ONLY. All tokens, shell, buttons, forms, tables,
+   badges, alerts, dialogs and states come from
+   batch01-design-system.css — a verbatim, byte-identical snapshot
+   of ../../prototype/batch01-prototype.css (Batch 01, unmodified,
+   remains the source of truth; a local copy is required for
+   reliable file:// loading in Safari). Everything below is new
+   assessment-specific componentry on the same tokens.
+   ============================================================ */
+
+/* ---------- link-tab navigation (builder sections) ---------- */
+.tabnav{display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:20px; flex-wrap:wrap}
+.tabnav a{display:inline-flex; align-items:center; gap:7px; padding:11px 14px; margin-bottom:-1px;
+  border-bottom:2px solid transparent; font-size:13.5px; font-weight:600; color:var(--text-2); text-decoration:none; border-radius:2px 2px 0 0}
+.tabnav a:hover{color:var(--text); background:var(--n-25)}
+.tabnav a[aria-current="page"]{color:var(--action); border-bottom-color:var(--action)}
+.tabnav .tn-flag{width:7px; height:7px; border-radius:50%; background:var(--warning-700); flex:0 0 auto}
+
+/* ---------- question type + status badges ---------- */
+.qtype{display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:var(--r-xs);
+  font-size:11px; font-weight:650; letter-spacing:.03em; white-space:nowrap;
+  color:var(--text-2); background:var(--raised); border:1px solid var(--border)}
+.ai-badge{display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:var(--r-xs);
+  font-size:11px; font-weight:650; letter-spacing:.04em; white-space:nowrap;
+  color:var(--fmt-vr); background:var(--fmt-vr-s); border:1px dashed var(--fmt-vr)}
+
+/* ---------- builder: included-question rows ---------- */
+.qrow{display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-top:1px solid var(--border-subtle)}
+.qrow:first-child{border-top:0; padding-top:2px}
+.qrow .qnum{width:26px; height:26px; border-radius:var(--r-sm); background:var(--raised); border:1px solid var(--border-subtle);
+  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:650; color:var(--text-2); flex:0 0 auto}
+.qrow .qbody{flex:1; min-width:0}
+.qrow .qtext{font-size:14px; color:var(--text); line-height:1.55}
+.qrow .qmeta{display:flex; gap:8px; align-items:center; margin-top:5px; flex-wrap:wrap}
+.qrow .qactions{display:flex; gap:6px; flex:0 0 auto}
+
+/* ---------- builder: completeness checklist (status rail) ---------- */
+.donelist{display:flex; flex-direction:column}
+.donelist li{display:flex; gap:10px; padding:8px 0; border-top:1px solid var(--border-subtle); font-size:13.5px; align-items:flex-start}
+.donelist li:first-child{border-top:0; padding-top:2px}
+.donelist .dl-ic{width:20px; height:20px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center; margin-top:1px}
+.donelist .dl-ic svg.ic{width:12px; height:12px; stroke-width:2.2}
+.donelist li.ok .dl-ic{background:var(--success-50); border:1px solid var(--success-200); color:var(--success-700)}
+.donelist li.todo .dl-ic{background:var(--warning-50); border:1px solid var(--warning-200); color:var(--warning-700)}
+.donelist .dl-t{color:var(--text); font-weight:600}
+.donelist li.todo .dl-t{color:var(--warning-700)}
+.donelist .dl-d{font-size:12.5px; color:var(--text-3); margin-top:1px; line-height:1.5}
+
+/* ---------- configuration form groups ---------- */
+.cfggroup{border:1px solid var(--border); border-radius:var(--r-lg); background:var(--surface); padding:0; margin:0 0 16px}
+.cfggroup legend{font-size:13px; font-weight:650; color:var(--text); padding:0 8px; margin-left:12px}
+.cfggroup .cfgbody{padding:6px 20px 16px}
+.cfg-radio{display:flex; gap:10px; align-items:flex-start; padding:9px 0}
+.cfg-radio input{width:18px; height:18px; margin-top:2px; accent-color:var(--action); flex:0 0 auto}
+.cfg-radio .cr-t{font-size:14px; font-weight:600; color:var(--text)}
+.cfg-radio .cr-d{font-size:12.5px; color:var(--text-3); line-height:1.5}
+.cfg-inline{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.cfg-inline input[type=number]{width:96px; border:1px solid var(--border-strong); border-radius:var(--r-sm);
+  background:var(--surface); color:var(--text); font:inherit; font-size:14px; padding:9px 10px; min-height:42px}
+.cfg-inline .unit{font-size:13px; color:var(--text-2)}
+/* number inputs — the Batch-01 field selector covers text/textarea/select only */
+.field input[type=number]{width:100%; max-width:200px; border:1px solid var(--border-strong); border-radius:var(--r-sm);
+  background:var(--surface); color:var(--text); font:inherit; font-size:14px; padding:10px 12px; min-height:44px}
+.field input[type=number]:focus-visible{outline:2px solid var(--focus); outline-offset:1px}
+.field.invalid input[type=number]{border:1.5px solid var(--danger-700)}
+.field.off input, .cfg-inline input:disabled, .field input[type=number]:disabled{background:var(--sunken); color:var(--text-dis); border-color:var(--border)}
+.cfg-note{font-size:12.5px; color:var(--text-3); line-height:1.55; margin-top:4px}
+
+/* ---------- learner: disclosure list (intro, generated from config) ---------- */
+.disc{display:flex; flex-direction:column}
+.disc-row{display:flex; gap:12px; padding:11px 0; border-top:1px solid var(--border-subtle)}
+.disc-row:first-child{border-top:0; padding-top:2px}
+.disc-row .d-ic{width:30px; height:30px; border-radius:var(--r-md); background:var(--raised); border:1px solid var(--border-subtle);
+  display:flex; align-items:center; justify-content:center; color:var(--text-2); flex:0 0 auto}
+.disc-row .d-ic svg.ic{width:16px; height:16px}
+.disc-row .d-body{min-width:0}
+.disc-row .d-t{font-size:14px; font-weight:640; color:var(--text)}
+.disc-row .d-d{font-size:13px; color:var(--text-2); line-height:1.55; margin-top:1px}
+
+/* ---------- learner: attempt layout ---------- */
+.attempt-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,280px); gap:24px; align-items:start}
+@media (max-width:1120px){ .attempt-grid{grid-template-columns:1fr} }
+.attempt-top{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:14px}
+.attempt-top .at-pos{font-size:14px; font-weight:650; color:var(--text)}
+.attempt-top .at-sub{font-size:12.5px; color:var(--text-3)}
+.timerchip{display:inline-flex; align-items:center; gap:7px; margin-left:auto; height:32px; padding:0 12px;
+  border-radius:var(--r-pill); border:1px solid var(--border); background:var(--surface);
+  font-size:13px; font-weight:650; color:var(--text-2); font-variant-numeric:tabular-nums}
+.timerchip svg.ic{width:15px; height:15px}
+.timerchip.low{border-color:var(--warning-200); background:var(--warning-50); color:var(--warning-700)}
+
+.qcard .qprompt{font-size:16px; line-height:1.65; color:var(--text); font-weight:500}
+.qcard .qkind{font-size:11.5px; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:var(--text-3); margin-bottom:8px}
+
+/* answer options (single-select) */
+.opts{display:flex; flex-direction:column; gap:8px; margin-top:16px}
+.opt{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border:1px solid var(--border-strong);
+  border-radius:var(--r-md); background:var(--surface); cursor:pointer; transition:border-color var(--m-fast) var(--ease), background var(--m-fast) var(--ease)}
+.opt:hover{background:var(--n-25)}
+.opt input{width:18px; height:18px; margin-top:2px; accent-color:var(--action); flex:0 0 auto}
+.opt .o-k{font-size:13px; font-weight:650; color:var(--text-3); width:18px; flex:0 0 auto; padding-top:1px}
+.opt .o-t{font-size:14.5px; color:var(--text); line-height:1.6}
+.opt.sel{border-color:var(--action); background:var(--action-subtle)}
+.opt.sel .o-k{color:var(--action)}
+.opt:focus-within{outline:2px solid var(--focus); outline-offset:2px}
+.opt.static{cursor:default}
+.opt.static:hover{background:var(--surface)}
+
+.desc-input textarea{width:100%; min-height:150px; border:1px solid var(--border-strong); border-radius:var(--r-md);
+  background:var(--surface); color:var(--text); font:inherit; font-size:14.5px; line-height:1.65; padding:12px 14px; resize:vertical}
+.desc-input textarea:focus-visible{outline:2px solid var(--focus); outline-offset:1px}
+.savenote{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-3); margin-top:6px}
+.savenote svg.ic{width:13px; height:13px; color:var(--success-700)}
+
+.attempt-nav{display:flex; gap:10px; margin-top:20px; flex-wrap:wrap}
+.attempt-nav .spacer{flex:1}
+
+/* question navigator (rail) */
+.qgrid{display:flex; flex-wrap:wrap; gap:6px}
+.qgrid button{width:36px; height:36px; border-radius:var(--r-sm); border:1px solid var(--border-strong); background:var(--surface);
+  font-size:13px; font-weight:650; color:var(--text-2); position:relative}
+.qgrid button:hover{background:var(--raised)}
+.qgrid button.ans{background:var(--action-subtle); border-color:var(--action-border); color:var(--action)}
+.qgrid button.ans::after{content:""; position:absolute; right:3px; top:3px; width:6px; height:6px; border-radius:50%; background:var(--action)}
+.qgrid button[aria-current="true"]{background:var(--action); border-color:var(--action); color:var(--on-action)}
+.qlegend{display:flex; flex-direction:column; gap:5px; margin-top:12px; font-size:12px; color:var(--text-3)}
+.qlegend .lg{display:flex; align-items:center; gap:8px}
+.qlegend .sw{width:14px; height:14px; border-radius:3px; border:1px solid var(--border-strong); background:var(--surface); flex:0 0 auto}
+.qlegend .sw.ans{background:var(--action-subtle); border-color:var(--action-border)}
+.qlegend .sw.cur{background:var(--action); border-color:var(--action)}
+
+/* ---------- learner: review answers ---------- */
+.revrow{display:flex; align-items:flex-start; gap:12px; padding:13px 0; border-top:1px solid var(--border-subtle)}
+.revrow:first-child{border-top:0; padding-top:2px}
+.revrow .qnum{width:26px; height:26px; border-radius:var(--r-sm); background:var(--raised); border:1px solid var(--border-subtle);
+  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:650; color:var(--text-2); flex:0 0 auto}
+.revrow.unans .qnum{background:var(--warning-50); border-color:var(--warning-200); color:var(--warning-700)}
+.revrow .rv-body{flex:1; min-width:0}
+.revrow .rv-q{font-size:14px; color:var(--text); line-height:1.55}
+.revrow .rv-a{font-size:13px; color:var(--text-2); margin-top:4px; line-height:1.55}
+.revrow .rv-a .ans-chip{display:inline-block; background:var(--n-25); border:1px solid var(--border-subtle); border-radius:var(--r-sm); padding:3px 10px}
+.revrow.unans .rv-a{color:var(--warning-700); font-weight:600}
+
+/* ---------- learner: result ---------- */
+.result-hero{border-radius:var(--r-lg); border:1px solid; padding:22px 24px; display:flex; gap:16px; align-items:flex-start}
+.result-hero .rh-ic{width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:0 0 auto}
+.result-hero .rh-ic svg.ic{width:22px; height:22px; stroke-width:2}
+.result-hero h2{font-size:19px; font-weight:650; letter-spacing:-.01em}
+.result-hero p{font-size:14px; line-height:1.6; color:var(--text-2); margin-top:4px; max-width:64ch}
+.result-hero.pass{background:var(--success-50); border-color:var(--success-200)}
+.result-hero.pass .rh-ic{background:var(--success-700); color:#fff}
+.result-hero.fail{background:var(--n-25); border-color:var(--border)}
+.result-hero.fail .rh-ic{background:var(--n-700); color:#fff}
+.result-hero.pend{background:var(--warning-50); border-color:var(--warning-200)}
+.result-hero.pend .rh-ic{background:var(--warning-700); color:#fff}
+
+.scoreline{display:flex; gap:26px; flex-wrap:wrap; padding:4px 0 2px}
+.scoreline .sc{min-width:120px}
+.scoreline .sc .k{font-size:11.5px; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:var(--text-3)}
+.scoreline .sc .v{font-size:22px; font-weight:650; color:var(--text); font-variant-numeric:tabular-nums; margin-top:2px}
+.scoreline .sc .d{font-size:12.5px; color:var(--text-3); margin-top:1px}
+
+/* ---------- AI drafts ---------- */
+.aicard{border:1px solid var(--border); border-radius:var(--r-lg); background:var(--surface); box-shadow:var(--e1); padding:18px 20px}
+.aicard .ai-head{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px}
+.aicard .qtext{font-size:14.5px; color:var(--text); line-height:1.6; font-weight:500}
+.aicard .optlist{margin:10px 0 0; display:flex; flex-direction:column; gap:6px}
+.aicard .optlist li{display:flex; gap:10px; font-size:13.5px; color:var(--text-2); line-height:1.55}
+.aicard .optlist .ok{font-weight:650; color:var(--text-3); width:16px; flex:0 0 auto}
+.aicard .optlist li.correct .ok{color:var(--success-700)}
+.aicard .optlist li.correct{color:var(--text)}
+.aicard .ai-foot{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; align-items:center}
+.aicard.discarded{opacity:.55}
+.genwrap{display:flex; align-items:center; gap:14px; padding:26px 0; justify-content:center; color:var(--text-2); font-size:14px}
+
+/* ---------- upload report ---------- */
+.uprep li{display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border-subtle); font-size:13.5px; color:var(--text-2)}
+.uprep li:first-child{border-top:0}
+.uprep li svg.ic{width:15px; height:15px; margin-top:3px; flex:0 0 auto}
+.uprep li.ok svg.ic{color:var(--success-700)}
+.uprep li.bad svg.ic{color:var(--warning-700)}
+.uprep li.bad{color:var(--warning-700)}
+
+/* ---------- preview banner ---------- */
+.previewbar{display:flex; gap:12px; align-items:flex-start; border:1px solid var(--info-200); border-left:4px solid var(--info-700);
+  background:var(--info-50); border-radius:var(--r-md); padding:13px 16px; font-size:13.5px; color:var(--n-800); margin-bottom:20px}
+.previewbar svg.ic{color:var(--info-700); margin-top:2px}
+.previewbar .pb-t{font-weight:650}
+
+/* ---------- learning sequence (module detail) ---------- */
+.seq .lrow .lact{margin-left:auto; flex:0 0 auto; display:flex; align-items:center; gap:8px}
+@media (max-width:900px){ .seq .lrow{flex-wrap:wrap} .seq .lrow .lact{margin-left:38px} }
+
+/* ---------- misc ---------- */
+.sample-tag{white-space:nowrap} /* keeps the tag intact in narrow rails */
+.pillrow{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.subtle-note{font-size:12.5px; color:var(--text-3); line-height:1.6}

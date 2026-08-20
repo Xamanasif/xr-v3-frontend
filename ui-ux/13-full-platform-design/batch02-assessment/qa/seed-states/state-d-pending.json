@@ -1,0 +1,9 @@
+{
+  "attempts": {
+    "shearq": { "used": 1, "current": null,
+      "history": [ { "n": 1, "when": "20 Aug 2026 · 11:32", "state": "passed", "score": 10, "rawScore": 10, "max": 10, "pct": 100, "answered": 5, "total": 5 } ] },
+    "bernq": { "used": 1, "current": null,
+      "history": [ { "n": 1, "when": "20 Aug 2026 · 12:05", "state": "pending", "answered": 3, "total": 3, "objScore": 4, "max": 6,
+        "answers": { "q_be1": "A", "q_be2": "A", "q_be3": "The duct narrows, so continuity forces the velocity to rise; by Bernoulli the pressure head falls at the throat, matching my recorded piezometer readings." } } ] }
+  }
+}

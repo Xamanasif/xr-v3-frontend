@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Batch 02 QA state seeder — not product UI</title>
+</head>
+<body>
+<p style="font-family:system-ui;color:#515D6C">QA utility — stores a partial prototype-state patch (deep-merged over the demo state on next load), then opens the Batch 02 prototype at the requested route. Usage: <code>qa-seed.html?f=seed-states/&lt;file&gt;.json&amp;reset=1#/route</code>. Requires an http server (fetch does not run from file://).</p>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var f = params.get('f');
+  var target = '../prototype/batch02-prototype.html' + (location.hash || '#/index');
+  var KEY = 'xrslp-batch02-proto-v1';
+  if (params.get('reset')) sessionStorage.removeItem(KEY);
+  if (!f) { location.replace(target); return; }
+  fetch(f, { cache: 'no-store' })
+    .then(function (r) { return r.text(); })
+    .then(function (txt) {
+      JSON.parse(txt); // validate
+      sessionStorage.setItem(KEY + '-qa-patch', txt);
+      location.replace(target);
+    })
+    .catch(function (e) {
+      document.body.insertAdjacentHTML('beforeend', '<pre>Seed failed: ' + e + '</pre>');
+    });
+})();
+</script>
+</body>
+</html>

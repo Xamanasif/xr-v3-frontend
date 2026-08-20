@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batch 02 Wireframes — Assessment (Faculty → Learner)</title>
+<style>
+  /* Deliberately low-fidelity. Structure only — visual design lives in the prototype. */
+  :root{ --ink:#2b3138; --mut:#6a7480; --line:#c9cfd7; --fill:#f2f4f7; --accent:#4a5568; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:13px;color:var(--ink);background:#e7eaee;line-height:1.5}
+  header.page{padding:28px 32px 8px;max-width:1180px;margin:0 auto}
+  header.page h1{font-size:20px;margin:0 0 6px}
+  header.page p{color:var(--mut);max-width:860px;margin:0 0 4px}
+  .lane{max-width:1180px;margin:18px auto;padding:0 32px}
+  .lane>h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:6px}
+  .flowrow{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+  .wf{background:#fff;border:1px solid var(--line);border-radius:4px;width:530px;max-width:100%;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .wf.narrow{width:400px}
+  .wf .cap{padding:7px 12px;border-bottom:1px dashed var(--line);font-size:11px;color:var(--mut);display:flex;gap:8px;align-items:baseline}
+  .wf .cap b{color:var(--ink);font-size:12px}
+  .wf .cap .id{margin-left:auto;font-family:ui-monospace,Menlo,monospace;font-size:10px;background:var(--fill);padding:1px 6px;border-radius:2px}
+  .scr{padding:10px}
+  /* shell miniature */
+  .bar{height:22px;background:var(--fill);border:1px solid var(--line);border-radius:2px;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:10px;color:var(--mut);margin-bottom:6px}
+  .bar .sp{flex:1}
+  .cols{display:flex;gap:8px}
+  .nav{width:92px;flex:0 0 auto;border:1px solid var(--line);border-radius:2px;background:#fff;padding:6px;font-size:10px;color:var(--mut)}
+  .nav .on{background:var(--fill);border-left:2px solid var(--accent);padding:3px 4px;color:var(--ink);font-weight:600}
+  .nav div{padding:3px 4px}
+  .body{flex:1;min-width:0}
+  .h{font-weight:700;font-size:13px;margin:4px 0 2px}
+  .m{color:var(--mut);font-size:11px;margin-bottom:6px}
+  .box{border:1px solid var(--line);border-radius:2px;background:#fff;padding:8px;margin-bottom:6px}
+  .box .bt{font-weight:600;font-size:11px;margin-bottom:4px}
+  .row{border:1px solid var(--line);border-radius:2px;padding:5px 8px;margin-bottom:4px;display:flex;gap:8px;align-items:center;font-size:11px;background:#fff}
+  .row .sp{flex:1}
+  .pill{border:1px solid var(--line);border-radius:999px;font-size:9.5px;padding:0 6px;color:var(--mut);white-space:nowrap}
+  .pill.hot{border-color:var(--accent);color:var(--accent);font-weight:600}
+  .btn{display:inline-block;border:1px solid var(--accent);border-radius:2px;padding:3px 10px;font-size:10.5px;font-weight:600;color:#fff;background:var(--accent)}
+  .btn.o{background:#fff;color:var(--accent)}
+  .fld{border:1px solid var(--line);border-radius:2px;background:var(--fill);height:20px;margin:2px 0 6px}
+  .fld.tall{height:44px}
+  .lbl{font-size:10px;color:var(--mut)}
+  .two{display:flex;gap:8px}
+  .two>*{flex:1;min-width:0}
+  .rail{width:150px;flex:0 0 auto}
+  .note{font-size:10px;color:var(--mut);border-top:1px dashed var(--line);padding:6px 12px 8px;line-height:1.55}
+  .arrow{align-self:center;color:var(--mut);font-size:18px;padding:0 2px}
+  .tag{font-size:9px;letter-spacing:.06em;border:1px dashed var(--mut);color:var(--mut);border-radius:2px;padding:0 4px;font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+  .check{font-size:11px;color:var(--mut)}
+  .check b{color:var(--ink)}
+  .qnav{display:flex;gap:3px;flex-wrap:wrap}
+  .qnav span{width:18px;height:18px;border:1px solid var(--line);border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:9.5px;color:var(--mut)}
+  .qnav .a{background:var(--fill);border-color:var(--accent);color:var(--ink);font-weight:700}
+  .qnav .c{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .radio{display:flex;gap:6px;align-items:center;font-size:11px;border:1px solid var(--line);border-radius:2px;padding:5px 8px;margin-bottom:4px}
+  .radio i{width:10px;height:10px;border:1.5px solid var(--mut);border-radius:50%;display:inline-block;flex:0 0 auto}
+  .radio.sel i{border-color:var(--accent);background:var(--accent)}
+  footer{max-width:1180px;margin:10px auto 50px;padding:0 32px;color:var(--mut);font-size:11px}
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>Batch 02 — Assessment wireframes (low fidelity)</h1>
+  <p><b>Purpose:</b> validate structure before high-fidelity design. Faculty configures an assessment in the portal; the configuration drives what the learner sees. Sequence honoured: Resources → Simulation → <b>Assessment</b> → Completion / Progress.</p>
+  <p>All numbers shown anywhere below are <span class="tag">SAMPLE DESIGN DATA</span>. Hints, answer keys and per-question correctness do not appear — those policies are pending. The high-fidelity prototype is the primary deliverable.</p>
+</header>
+
+<!-- ================= FACULTY LANE ================= -->
+<section class="lane">
+  <h2>Faculty workspace — same platform shell as Batch 01 (header · side nav: Assessments / Question Bank)</h2>
+  <div class="flowrow">
+
+    <div class="wf">
+      <div class="cap"><b>W1 · Assessments</b> list <span class="id">FAC-06</span></div>
+      <div class="scr">
+        <div class="bar">logo · XR Simulation Learning Platform <span class="sp"></span> Help · Dr. A. Mehta (Faculty)</div>
+        <div class="cols">
+          <div class="nav"><div class="on">Assessments</div><div>Question Bank</div></div>
+          <div class="body">
+            <div class="h">Assessments</div>
+            <div class="m">search ▭ · status filter ▾ <span style="float:right">4 assessments</span></div>
+            <div class="row"><b>Direct Shear Test — Module Assessment</b><span class="sp"></span><span class="pill">5 questions</span><span class="pill hot">Assigned</span></div>
+            <div class="row"><b>Bernoulli's Theorem — Lab Assessment</b><span class="sp"></span><span class="pill">3 questions</span><span class="pill hot">Assigned</span></div>
+            <div class="row"><b>Torsion Test — Module Assessment</b><span class="sp"></span><span class="pill">4 questions</span><span class="pill hot">Assigned</span></div>
+            <div class="row"><b>Consolidation Test — Module Assessment</b><span class="sp"></span><span class="pill">⚠ setup incomplete</span><span class="pill">Draft</span></div>
+            <div class="box" style="border-style:dashed"><div class="bt"><span class="tag">PROTOTYPE NOTE — NOT PRODUCT UI</span> Awaiting evaluation</div>
+              <span class="check">Submitted descriptive answers need evaluation before a final result. <b>The evaluation owner and workflow are a pending product decision</b> — no Faculty evaluation area is designed; this is an annotation, not product UI.</span></div>
+            <span class="btn">+ Create assessment</span>
+          </div>
+        </div>
+      </div>
+      <div class="note">States: populated · empty (“No assessments yet — create your first assessment”) · draft rows show what's incomplete. No KPI dashboard (operational only).</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="wf">
+      <div class="cap"><b>W2 · Assessment Builder</b> — Questions tab <span class="id">FAC-07</span></div>
+      <div class="scr">
+        <div class="bar">‹ Assessments / Direct Shear Test — Module Assessment</div>
+        <div class="cols">
+          <div class="body">
+            <div class="h">Direct Shear Test — Module Assessment <span class="pill hot">Assigned</span></div>
+            <div class="m">tabs: <b>[Questions]</b> · Settings · Assign — “Preview learner view” button in header</div>
+            <div class="box"><div class="bt">Included questions (5)</div>
+              <div class="row">1. Purpose of the direct shear test… <span class="sp"></span><span class="pill">Multiple choice</span><span class="pill">remove</span></div>
+              <div class="row">2. Normal stress is applied… <span class="sp"></span><span class="pill">True / False</span><span class="pill">remove</span></div>
+              <div class="row">3 … 5 <span class="sp"></span><span class="pill">…</span></div>
+              <span class="btn o">Add from Question Bank</span>
+            </div>
+          </div>
+          <div class="rail">
+            <div class="box"><div class="bt">Status</div>
+              <div class="check">✓ Questions (5)<br>✓ Settings complete<br>✓ Assigned to module<br><b>Next:</b> preview or edit</div></div>
+            <div class="box"><div class="bt">Learning context</div><span class="check">Soil Mechanics — Direct Shear Test</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">The rail always answers: what am I editing · what's incomplete · what's the next safe action. Draft assessment shows the same rail with ⚠ items instead.</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="wf">
+      <div class="cap"><b>W3 · Builder — Settings tab</b> (configuration) <span class="id">FAC-07</span></div>
+      <div class="scr">
+        <div class="cols">
+          <div class="body">
+            <div class="m">tabs: Questions · <b>[Settings]</b> · Assign</div>
+            <div class="two">
+              <div class="box"><div class="bt">Rules (FRD-confirmed toggles)</div>
+                <span class="lbl">Question order</span><div class="row">◉ Fixed order &nbsp; ○ Randomized each attempt</div>
+                <span class="lbl">Negative marking</span><div class="row">◉ On — deducts marks &nbsp; ○ Off</div>
+              </div>
+              <div class="box"><div class="bt">Parameters <span class="tag">SAMPLE VALUES</span></div>
+                <span class="lbl">Time limit (total)</span><div class="fld"></div>
+                <span class="lbl">Marks: correct / incorrect / unanswered</span><div class="fld"></div>
+                <span class="lbl">Pass mark (%) · Attempts allowed</span><div class="fld"></div>
+                <span class="lbl">Reported score floor</span><div class="fld"></div>
+              </div>
+            </div>
+            <div class="box"><span class="check">These settings apply to <b>this assessment only</b>.</span></div>
+            <span class="btn">Save settings</span> <span class="btn o">Cancel</span>
+          </div>
+        </div>
+      </div>
+      <div class="note">Validation: error summary + inline messages (e.g. pass mark missing). Recording of scores & attempts is always on — shown as informational, not editable. No hint settings (pending).</div>
+    </div>
+
+  </div>
+
+  <div class="flowrow" style="margin-top:22px">
+    <div class="wf">
+      <div class="cap"><b>W4 · Builder — Assign tab</b> (learning context) <span class="id">FAC-07</span></div>
+      <div class="scr">
+        <div class="body">
+          <div class="m">tabs: Questions · Settings · <b>[Assign]</b></div>
+          <div class="box"><div class="bt">Learning context</div>
+            <div class="row sel">◉ Module: Soil Mechanics — Direct Shear Test <span class="sp"></span><span class="pill">course: Geotechnical Engg Lab</span></div>
+            <span class="check">The assessment becomes available to learners in this module <b>after the module's simulation completion</b>, following the configured learning sequence.</span>
+          </div>
+          <div class="box"><span class="check">⚠ Not yet assigned → “This assessment is not available to any learner yet.”</span></div>
+          <span class="btn">Assign to module</span>
+        </div>
+      </div>
+      <div class="note">Confirmation dialog explains the consequence in plain language before assigning. Unassign returns the assessment to Configured.</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="wf">
+      <div class="cap"><b>W5 · Preview — learner view</b> <span class="id">extends FAC-07</span></div>
+      <div class="scr">
+        <div class="body">
+          <div class="box" style="border-style:dashed"><span class="check"><b>Faculty preview</b> — this is what the learner will see. Answers you give here are not recorded.</span></div>
+          <div class="box"><div class="bt">Assessment introduction (as generated from configuration)</div>
+            <span class="check">5 questions · 25 minutes · 2 attempts · pass 50% · negative marking on · fixed order</span></div>
+          <div class="box"><div class="bt">Question rendering preview</div><span class="check">Q1 multiple choice with options …</span></div>
+          <span class="btn o">Back to builder</span>
+        </div>
+      </div>
+      <div class="note">Preview renders the same components as the learner screens — proof the configuration, not copy, drives the experience.</div>
+    </div>
+  </div>
+
+  <div class="flowrow" style="margin-top:22px">
+    <div class="wf">
+      <div class="cap"><b>W6 · Question Bank</b> <span class="id">FAC-08</span></div>
+      <div class="scr">
+        <div class="cols">
+          <div class="nav"><div>Assessments</div><div class="on">Question Bank</div></div>
+          <div class="body">
+            <div class="h">Question Bank</div>
+            <div class="m">search ▭ · type ▾ · status ▾ &nbsp; actions: <span class="btn o">Upload questions</span> <span class="btn o">Generate with AI</span> <span class="btn">+ Add question</span></div>
+            <div class="row">Purpose of the direct shear test… <span class="sp"></span><span class="pill">Multiple choice</span><span class="pill">Ready</span><span class="pill">used in 1</span></div>
+            <div class="row">Bernoulli's equation assumes… <span class="sp"></span><span class="pill">Descriptive</span><span class="pill">Ready</span></div>
+            <div class="row">Shear box halves are displaced… <span class="sp"></span><span class="pill">True / False</span><span class="pill hot">AI draft — review required</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">Upload (5.1.1) simulated: result panel reports <b>invalid rows individually</b> (“18 added · 2 rows need attention”). Template format pending — no format promise. States: populated · empty · no matches.</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="wf">
+      <div class="cap"><b>W7 · Question Editor</b> <span class="id">extends FAC-08</span></div>
+      <div class="scr">
+        <div class="body">
+          <span class="lbl">Question type</span>
+          <div class="row">◉ Multiple choice · ○ True / False · ○ Descriptive</div>
+          <span class="lbl">Question text *</span><div class="fld tall"></div>
+          <span class="lbl">Options (mark the correct answer — visible to Faculty only, never to learners)</span>
+          <div class="radio sel"><i></i> Option A (correct)</div>
+          <div class="radio"><i></i> Option B</div>
+          <div class="radio"><i></i> Option C &nbsp; <span class="pill">remove</span></div>
+          <span class="btn o">+ Add option</span>
+          <div style="margin-top:8px"><span class="btn">Save question</span> <span class="btn o">Cancel</span></div>
+        </div>
+      </div>
+      <div class="note">Descriptive type: question text only — no expected answer, no rubric (grading policy pending). Validation: missing text / no correct option → error summary + inline. Single-select shown (single vs multi pending).</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="wf">
+      <div class="cap"><b>W8 · AI Question Drafts</b> <span class="id">FAC-09</span></div>
+      <div class="scr">
+        <div class="body">
+          <div class="box"><div class="bt">Generate question drafts</div>
+            <span class="lbl">Topic / module context ▾ · question type ▾ · number of drafts ▾</span>
+            <div class="fld"></div><span class="btn">Generate drafts</span>
+            <span class="check"> → generating… (loading state)</span></div>
+          <div class="box"><div class="bt">Draft <span class="pill hot">AI-generated draft</span> <span class="pill hot">Review required</span></div>
+            <span class="check">“Which parameter is obtained from the direct shear test?” + options<br>
+            actions: <b>Review &amp; edit</b> · <b>Accept into bank</b> · <b>Discard</b></span></div>
+        </div>
+      </div>
+      <div class="note">Drafts are never learner-visible. Accept moves a draft to Ready only after Faculty action; Edit opens W7 pre-filled. Failure state: “Draft generation didn't complete — try again.” Prototype only — no real AI service.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LEARNER LANE ================= -->
+<section class="lane">
+  <h2>Learner workspace — continuation of the Batch-01 learner experience (nav: My Learning / Progress)</h2>
+  <div class="flowrow">
+
+    <div class="wf">
+      <div class="cap"><b>W9 · Module detail</b> — assessment step <span class="id">LRN-04</span></div>
+      <div class="scr">
+        <div class="bar">logo · platform <span class="sp"></span> Rahul Verma (Learner)</div>
+        <div class="cols">
+          <div class="nav"><div class="on">My Learning</div><div>Progress</div></div>
+          <div class="body">
+            <div class="h">Soil Mechanics — Direct Shear Test <span class="pill">VR</span></div>
+            <div class="box"><div class="bt">Learning sequence</div>
+              <div class="row">① Learning resources <span class="sp"></span><span class="pill">Viewed</span></div>
+              <div class="row">② Simulation <span class="sp"></span><span class="pill hot">Completion received</span></div>
+              <div class="row">③ Assessment <span class="sp"></span><span class="pill hot">Available</span> <span class="btn">View assessment</span></div>
+              <div class="row">④ Module completion <span class="sp"></span><span class="pill">After assessment result</span></div>
+            </div>
+          </div>
+          <div class="rail"><div class="box"><div class="bt">Why available?</div><span class="check">“The assessment opened because your simulation completion was received on 20 Aug.”</span></div></div>
+        </div>
+      </div>
+      <div class="note">Variant: simulation not yet complete → assessment row shows “Available after the simulation is completed” with no dead button.</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="wf">
+      <div class="cap"><b>W10 · Assessment introduction</b> — disclosure from configuration <span class="id">LRN-09</span></div>
+      <div class="scr">
+        <div class="body">
+          <div class="h">Direct Shear Test — Module Assessment</div>
+          <div class="m">Module: Soil Mechanics — Direct Shear Test</div>
+          <div class="box"><div class="bt">How this assessment works — settings set by your institution's faculty <span class="tag">SAMPLE</span></div>
+            <span class="check">• 5 questions (multiple choice, true/false)<br>• Time limit: 25 minutes total<br>• Attempts: 2 for this assessment · attempts used: 0<br>• Pass mark: 50%<br>• Marking: +2 correct · −0.5 incorrect · 0 unanswered<br>• Question order: fixed for every attempt<br>• Your score and attempts are recorded to your account</span></div>
+          <span class="btn">Start attempt</span>
+          <div class="box" style="margin-top:6px"><span class="check">Contrast (assessment B): “No time limit · 1 attempt · pass 60% · no negative marking · randomized order · includes a descriptive answer that needs evaluation after submission.”</span></div>
+        </div>
+      </div>
+      <div class="note">Every line is generated from this assessment's configuration — negative marking is not mentioned when it is off. States: available · not yet available (why) · already submitted (→ result) · no attempts remaining · couldn't load (retry).</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="wf">
+      <div class="cap"><b>W11 · Attempt</b> <span class="id">LRN-10</span></div>
+      <div class="scr">
+        <div class="cols">
+          <div class="body">
+            <div class="m"><b>Question 2 of 5</b> · answered 1 <span style="float:right">⏱ 24:12 remaining</span></div>
+            <div class="box"><div class="bt">Q2 · True or False</div>
+              <span class="check">During the test, normal stress is held constant while shear displacement increases.</span>
+              <div class="radio sel"><i></i> True</div>
+              <div class="radio"><i></i> False</div>
+            </div>
+            <span class="btn o">‹ Previous</span> <span class="btn">Next ›</span> <span class="btn o">Review answers</span>
+          </div>
+          <div class="rail">
+            <div class="box"><div class="bt">Questions</div>
+              <div class="qnav"><span class="a">1</span><span class="c">2</span><span>3</span><span>4</span><span>5</span></div>
+              <span class="check">answered · current · not answered — with text labels, not colour alone</span></div>
+            <div class="box"><span class="check">Answers are saved as you go.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">Descriptive question = labelled textarea (“evaluated after submission”). No hints, no correctness during attempt. Timer only when the assessment has a time limit; time also stated in text.</div>
+    </div>
+  </div>
+
+  <div class="flowrow" style="margin-top:22px">
+    <div class="wf">
+      <div class="cap"><b>W12 · Review answers</b> + submit confirmation <span class="id">LRN-10 review · LRN-11 dialog</span></div>
+      <div class="scr">
+        <div class="body">
+          <div class="h">Review your answers</div>
+          <div class="row">Q1 · Multiple choice <span class="sp"></span><span class="pill hot">Answered</span> <span class="pill">edit</span></div>
+          <div class="row">Q2 · True/False <span class="sp"></span><span class="pill hot">Answered</span> <span class="pill">edit</span></div>
+          <div class="row">Q3 · Multiple choice <span class="sp"></span><span class="pill">⚠ Not answered</span> <span class="pill">answer now</span></div>
+          <div class="box"><span class="check">⚠ 1 question not answered. Unanswered questions score 0 marks in this assessment. <span class="tag">SAMPLE CONFIG</span></span></div>
+          <span class="btn">Submit assessment</span>
+          <div class="box" style="border-style:dashed;margin-top:6px"><div class="bt">Submit dialog</div>
+            <span class="check">“Submit 4 of 5 answered? After submitting you can't change answers for this attempt. You will have <b>1 attempt remaining</b> for this assessment.” [Cancel] [Submit]</span></div>
+        </div>
+      </div>
+      <div class="note">Consequence language is configuration-aware — “no attempts remaining” only when the configured limit makes it true. No correctness shown.</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="wf">
+      <div class="cap"><b>W13 · Result</b> — immediate / pending <span class="id">LRN-12</span></div>
+      <div class="scr">
+        <div class="two">
+          <div class="box"><div class="bt">A — Immediate result (all auto-scored)</div>
+            <span class="check"><b>Passed</b> · Score 7.5 / 10 (75%) <span class="tag">SAMPLE</span><br>Pass mark for this assessment: 50%<br>Attempt 1 of 2 · recorded to your account<br><i>“Detailed answer feedback depends on the assessment's approved feedback policy.”</i><br>→ Progress updated</span></div>
+          <div class="box"><div class="bt">B — Result pending evaluation</div>
+            <span class="check"><b>Submitted</b> — final result not available yet<br>“Your assessment has been submitted. A final result will be available after the required evaluation is completed.”<br>No score shown yet · no evaluator named · no turnaround promised<br>→ Progress shows pending state</span></div>
+        </div>
+      </div>
+      <div class="note">Not-passed variant offers the remaining attempt (when configured) + revisit resources. Pending → final: progress updates only when the final result exists.</div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="wf narrow">
+      <div class="cap"><b>W14 · Progress</b> <span class="id">LRN-13</span></div>
+      <div class="scr">
+        <div class="body">
+          <div class="h">Progress</div>
+          <div class="row">Soil Mechanics <span class="sp"></span><span class="pill hot">Assessment passed</span><span class="pill hot">Module complete</span></div>
+          <div class="row">Bernoulli's Theorem <span class="sp"></span><span class="pill">Result pending evaluation</span><span class="pill">In progress</span></div>
+          <div class="row">Torsion Test <span class="sp"></span><span class="pill">Assessment locked — simulation first</span></div>
+        </div>
+      </div>
+      <div class="note">A module is never marked complete while its required assessment result is pending. Scores & attempts recorded (11.2.1 / 11.2.2).</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Batch 02 wireframes · XR Simulation Learning Platform · Roles: Faculty, Learner only · Figma deferred · All values SAMPLE DESIGN DATA ·
+  Pending items preserved: descriptive-grading owner, feedback/answer-key policy, hints, single-vs-multi-select, API contract.
+</footer>
+
+</body>
+</html>

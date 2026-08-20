@@ -1,0 +1,8 @@
+{
+  "attempts": {
+    "shearq": { "used": 0,
+      "current": { "n": 1, "order": ["q_sh1", "q_sh2", "q_sh3", "q_sh4", "q_sh5"], "cur": 1,
+        "answers": { "q_sh1": "A" }, "endsAt": -1, "minLeft": 18 },
+      "history": [] }
+  }
+}

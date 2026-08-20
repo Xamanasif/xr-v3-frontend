@@ -1,0 +1,8 @@
+{
+  "assessments": {
+    "shearq": {
+      "cfg": { "randomize": false, "negativeMarking": false, "timeLimitMin": 40, "marksCorrect": 2, "marksIncorrect": 0, "marksUnanswered": 0, "passPercent": 50, "attemptLimit": 3, "floorZero": true },
+      "updated": "20 Aug 2026 · 12:20"
+    }
+  }
+}

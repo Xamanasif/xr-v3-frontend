@@ -1,0 +1,16 @@
+{
+  "bank": {
+    "q_ai90": { "id": "q_ai90", "type": "mcq", "topic": "shear", "status": "ai", "origin": "ai", "inBank": true,
+      "text": "Which plot from the direct shear test is used to obtain the angle of internal friction?",
+      "options": [ { "k": "A", "t": "Shear stress at failure versus normal stress" }, { "k": "B", "t": "Shear stress versus horizontal displacement" }, { "k": "C", "t": "Vertical displacement versus time" }, { "k": "D", "t": "Load versus specimen height" } ],
+      "correct": "A" },
+    "q_ai91": { "id": "q_ai91", "type": "tf", "topic": "shear", "status": "ai", "origin": "ai", "inBank": true,
+      "text": "The direct shear test provides the complete stress state of the specimen during shearing.",
+      "correct": "False" },
+    "q_ai92": { "id": "q_ai92", "type": "mcq", "topic": "shear", "status": "ai", "origin": "ai", "inBank": true,
+      "text": "A commonly cited limitation of the direct shear test is that:",
+      "options": [ { "k": "A", "t": "Failure is forced along a predetermined plane" }, { "k": "B", "t": "It requires a triaxial cell" }, { "k": "C", "t": "It cannot apply a normal load" }, { "k": "D", "t": "It only works on rock specimens" } ],
+      "correct": "A" }
+  },
+  "bankOrder": ["q_sh1", "q_sh2", "q_sh3", "q_sh4", "q_sh5", "q_sh6", "q_be1", "q_be2", "q_be3", "q_be4", "q_to1", "q_to2", "q_to3", "q_to4", "q_co1", "q_co2", "q_co3", "q_ai90", "q_ai91", "q_ai92"]
+}

@@ -1,0 +1,6 @@
+{
+  "attempts": {
+    "shearq": { "used": 1, "current": null,
+      "history": [ { "n": 1, "when": "20 Aug 2026 · 11:32", "state": "not_passed", "score": 3.5, "rawScore": 3.5, "max": 10, "pct": 35, "answered": 4, "total": 5 } ] }
+  }
+}
