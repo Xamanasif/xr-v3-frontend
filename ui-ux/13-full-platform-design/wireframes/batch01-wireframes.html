@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batch 01 — Low-Fidelity Wireframes · XR Simulation Learning Platform</title>
+<style>
+  :root{
+    --ink:#1d2126; --ink2:#4b545e; --ink3:#79828c; --line:#c8ced5; --line2:#e2e6ea;
+    --bg:#f4f5f7; --paper:#ffffff; --fill:#eef0f2; --fill2:#e4e7ea; --dash:#9aa3ac;
+    --warnfill:#e9e9e9;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink); background:var(--bg); padding:0 0 120px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+  header.doc{background:var(--ink); color:#fff; padding:34px 48px}
+  header.doc h1{font-size:22px; font-weight:650; letter-spacing:-.01em}
+  header.doc p{color:#b9c0c7; font-size:13.5px; max-width:880px; margin-top:8px}
+  header.doc .tag{display:inline-block; border:1px solid #5a636d; border-radius:3px; padding:2px 8px; font-size:11px; letter-spacing:.08em; margin-bottom:14px; color:#d7dce1}
+
+  nav.toc{background:var(--paper); border-bottom:1px solid var(--line); padding:14px 48px; position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; gap:6px 18px}
+  nav.toc a{font-size:12.5px; color:var(--ink2); text-decoration:none; border-bottom:1px dotted var(--line)}
+  nav.toc a:hover,nav.toc a:focus{color:var(--ink)}
+
+  section.flow{padding:40px 48px 8px}
+  section.flow>h2{font-size:17px; font-weight:650; letter-spacing:.02em; text-transform:uppercase; color:var(--ink2); border-bottom:2px solid var(--ink); padding-bottom:8px; margin-bottom:6px}
+  section.flow>p.intro{font-size:13.5px; color:var(--ink2); max-width:920px; margin-bottom:10px}
+  .fstrip{font-size:12px; color:var(--ink3); background:var(--paper); border:1px dashed var(--dash); padding:10px 14px; margin:10px 0 26px; border-radius:4px}
+  .fstrip b{color:var(--ink)}
+
+  article.screen{margin:0 0 46px}
+  .shead{display:flex; align-items:baseline; gap:12px; margin-bottom:10px; flex-wrap:wrap}
+  .shead .sid{font-family:ui-monospace,Menlo,monospace; font-size:11.5px; background:var(--ink); color:#fff; padding:3px 8px; border-radius:3px}
+  .shead h3{font-size:16px; font-weight:650}
+  .shead .role{font-size:12px; color:var(--ink3); border:1px solid var(--line); border-radius:999px; padding:2px 10px}
+  .shead .stt{font-size:12px; color:var(--ink3)}
+
+  .wrap{display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:22px; align-items:start}
+  @media (max-width:1100px){ .wrap{grid-template-columns:1fr} }
+
+  /* ---- wireframe frame ---- */
+  .wf{background:var(--paper); border:1px solid var(--line); border-radius:6px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.05); font-size:11.5px; color:var(--ink2)}
+  .wf .bar{height:34px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px; padding:0 14px; background:var(--paper)}
+  .wf .logo{width:64px; height:18px; background:var(--fill2); border:1px solid var(--line); border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:8.5px; color:var(--ink3)}
+  .wf .pname{font-size:10.5px; color:var(--ink3)}
+  .wf .bar .sp{flex:1}
+  .wf .avatar{width:18px; height:18px; border-radius:50%; background:var(--fill2); border:1px solid var(--line)}
+  .wf .body{display:flex; min-height:300px}
+  .wf .snav{width:132px; border-right:1px solid var(--line); padding:10px; background:#fbfbfc; flex:0 0 auto}
+  .wf .ws{font-size:8.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; border:1px dashed var(--line); padding:4px 6px; border-radius:2px}
+  .wf .ni{padding:6px 8px; border-radius:3px; margin-bottom:2px; color:var(--ink2)}
+  .wf .ni.on{background:var(--fill2); color:var(--ink); font-weight:600; border-left:3px solid var(--ink); padding-left:5px}
+  .wf .cnt{flex:1; padding:14px 16px; min-width:0; background:#f7f8f9}
+  .wf .crumb{font-size:9.5px; color:var(--ink3); margin-bottom:8px}
+  .wf .ph{display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap}
+  .wf .ph .h1{font-size:14px; font-weight:650; color:var(--ink)}
+  .wf .ph .sp{flex:1}
+
+  .chip{display:inline-block; border:1px solid var(--line); background:var(--fill); border-radius:2px; padding:1px 7px; font-size:9px; letter-spacing:.03em; color:var(--ink2); white-space:nowrap}
+  .chip.dark{background:var(--ink); color:#fff; border-color:var(--ink)}
+  .chip.out{background:transparent}
+  .chip.warn{border-style:dashed; border-color:var(--dash); background:#f1f1f1}
+  .btn{display:inline-block; border:1px solid var(--ink); background:var(--ink); color:#fff; border-radius:3px; padding:4px 12px; font-size:10px; white-space:nowrap}
+  .btn.sec{background:var(--paper); color:var(--ink)}
+  .btn.gho{background:transparent; border-color:transparent; color:var(--ink2); text-decoration:underline}
+
+  .box{background:var(--paper); border:1px solid var(--line); border-radius:4px; padding:10px 12px; margin-bottom:10px}
+  .box .bt{font-size:10px; font-weight:650; color:var(--ink); margin-bottom:6px; letter-spacing:.02em}
+  .row2{display:flex; gap:10px}
+  .row2>*{flex:1; min-width:0}
+  .grid2{display:grid; grid-template-columns:minmax(0,1fr) 118px; gap:10px; align-items:start}
+  .grid2 .railwf .box{padding:8px 10px}
+
+  table.wt{width:100%; border-collapse:collapse; background:var(--paper); border:1px solid var(--line); border-radius:4px; overflow:hidden}
+  table.wt th{font-size:8.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink3); text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); background:var(--fill)}
+  table.wt td{padding:7px 10px; border-bottom:1px solid var(--line2); font-size:10px; color:var(--ink2)}
+  table.wt td b{color:var(--ink); font-weight:600}
+  table.wt tr.hl td{background:#f0f0f0; border-left:3px solid var(--dash)}
+  .inp{border:1px solid var(--line); background:var(--paper); border-radius:3px; padding:5px 8px; font-size:9.5px; color:var(--ink3); margin:3px 0 8px}
+  .lbl{font-size:9px; font-weight:600; color:var(--ink2)}
+  .drop{border:1.5px dashed var(--dash); border-radius:4px; padding:14px; text-align:center; color:var(--ink3); font-size:9.5px; background:#fbfbfc; margin:4px 0 8px}
+  .note{font-size:8.5px; color:var(--ink3); font-style:italic}
+  .steps{display:flex; align-items:center; gap:4px; margin:6px 0}
+  .steps .st{flex:1; text-align:center; font-size:8px; padding:5px 2px; border:1px solid var(--line); border-radius:3px; background:var(--paper); color:var(--ink3)}
+  .steps .st.done{background:var(--fill2); color:var(--ink); text-decoration:none}
+  .steps .st.cur{background:var(--ink); color:#fff; border-color:var(--ink); font-weight:600}
+  .steps .st.ret{border:1.5px dashed var(--ink2); color:var(--ink); font-weight:600}
+  .steps .arr{color:var(--ink3); font-size:9px}
+  .tl{list-style:none}
+  .tl li{border-left:2px solid var(--line); padding:0 0 8px 10px; margin-left:4px; font-size:9px; color:var(--ink2)}
+  .tl li b{color:var(--ink)}
+  .tl li .when{color:var(--ink3); font-size:8px}
+  .feedback{border:1.5px solid var(--ink2); background:#f1f1f1; border-radius:4px; padding:10px 12px; margin-bottom:10px}
+  .feedback .bt{font-size:10px; font-weight:700}
+  .dialog{border:2px solid var(--ink); border-radius:6px; background:var(--paper); padding:12px 14px; max-width:340px; margin:12px auto; box-shadow:0 6px 18px rgba(0,0,0,.18)}
+  .dialog .bt{font-weight:650; font-size:11px; color:var(--ink); margin-bottom:6px}
+  .scrim{background:repeating-linear-gradient(45deg,#eceef0,#eceef0 6px,#f5f6f7 6px,#f5f6f7 12px); border:1px solid var(--line); border-radius:6px; padding:6px}
+  .statebar{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+  .statebar .sb{flex:1 1 180px; border:1px dashed var(--dash); border-radius:4px; background:var(--paper); padding:8px 10px; font-size:9.5px; color:var(--ink2)}
+  .statebar .sb b{display:block; color:var(--ink); font-size:10px; margin-bottom:3px}
+
+  /* annotations */
+  .ann{background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:14px 16px}
+  .ann h4{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px}
+  .ann ol{margin-left:18px}
+  .ann li{font-size:12.5px; color:var(--ink2); margin-bottom:7px}
+  .ann li b{color:var(--ink)}
+  .m{display:inline-flex; width:15px; height:15px; border-radius:50%; background:var(--ink); color:#fff; font-size:9px; align-items:center; justify-content:center; vertical-align:1px; margin-right:2px}
+  .mm{display:inline-flex; width:14px; height:14px; border-radius:50%; background:var(--ink); color:#fff; font-size:8.5px; align-items:center; justify-content:center}
+</style>
+</head>
+<body>
+
+<header class="doc">
+  <span class="tag">LOW-FIDELITY WIREFRAMES · GRAYSCALE BY INTENT · SAMPLE DESIGN DATA THROUGHOUT</span>
+  <h1>XR Simulation Learning Platform — Batch 01 Wireframes</h1>
+  <p>Structural validation of Flow A (Content to Production: Vendor → Academic Reviewer → Content Manager → Super Admin) and Flow B (Entitled XR content to learner device). One shared shell, role-based workspaces. Statuses use the approved vocabulary; the XR delivery mechanism is deliberately unselected, so all device copy is mechanism-neutral. High-fidelity behaviour lives in <span class="mono">../prototype/batch01-prototype.html</span>.</p>
+</header>
+
+<nav class="toc" aria-label="Wireframe contents">
+  <a href="#shell">Shell anatomy</a>
+  <a href="#s01">S01 Vendor Submissions</a>
+  <a href="#s02">S02 New Submission</a>
+  <a href="#s03">S03 Submission Detail</a>
+  <a href="#s04">S04 ARV Queue</a>
+  <a href="#s05">S05 Academic Review</a>
+  <a href="#s06">S06 CM Queue</a>
+  <a href="#s07">S07 Readiness Review</a>
+  <a href="#s08">S08 Publish Queue</a>
+  <a href="#s09">S09 Publish</a>
+  <a href="#s10">S10 Published</a>
+  <a href="#s11">S11 My Learning</a>
+  <a href="#s12">S12 Experiment Detail</a>
+  <a href="#s13">S13 XR Device Access</a>
+  <a href="#s14">S14 Progress</a>
+</nav>
+
+<!-- ============================ SHELL ============================ -->
+<section class="flow" id="shell">
+  <h2>Shared platform shell — anatomy</h2>
+  <p class="intro">Every screen below uses this one shell. Role differences are navigation content, permissions, actions and data — never different chrome.</p>
+  <article class="screen">
+    <div class="wrap">
+      <div class="wf" role="img" aria-label="Shell anatomy wireframe">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="chip out">Help</span><span class="avatar"></span><span>Name · Role ▾</span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">WORKSPACE · ORG CONTEXT</div>
+            <div class="ni on">Primary queue / list</div>
+            <div class="ni">Second item</div>
+          </div>
+          <div class="cnt">
+            <div class="crumb">Breadcrumb / Current page</div>
+            <div class="ph"><span class="h1">Page heading</span><span class="chip">Status badge</span><span class="sp"></span><span class="btn">Primary action</span></div>
+            <div class="grid2">
+              <div>
+                <div class="box"><div class="bt">Main content — list · table · detail sections · form</div><div class="note">Search/filter row sits above tables. Full-width on list pages.</div></div>
+              </div>
+              <div class="railwf">
+                <div class="box"><div class="bt">Rail</div><div class="note">Workflow position · decision/action panel · review history</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Validates</h4>
+        <ol>
+          <li><b>One shell, seven roles later.</b> Header (64px) with logo + product name; account control right; Help in a consistent location.</li>
+          <li><b>Workspace context</b> is an explicit label atop the side nav (e.g. “VENDOR · Sample XR Content Vendor”). No workspace switcher is invented.</li>
+          <li><b>Side navigation</b> is minimal and role-specific; governance roles land on their queue.</li>
+          <li><b>Detail pages</b> use content + rail; the rail always carries workflow position, the current role's action, and history — same slots for all four governance roles.</li>
+          <li>In the prototype only, a clearly-labelled dark strip above this shell provides role jumping: “Prototype Navigation — Not Product UI”.</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+</section>
+
+<!-- ============================ FLOW A ============================ -->
+<section class="flow" id="flowa">
+  <h2>Flow A — Content to Production</h2>
+  <p class="intro">Vendor creates and submits → Academic Reviewer validates or requests changes → Content Manager approves readiness or requests changes → Super Admin publishes. Returns go to the vendor with a reason; resubmission re-enters review at the returning gate. Review history is traceable throughout. No one but Super Admin can publish; the vendor never can.</p>
+  <div class="fstrip"><b>Screen sequence:</b> S01 Submissions → S02 New Submission → S03 Detail (submit) → S04 ARV Queue → S05 Academic Review [approve | changes required ↩ S03 → correct → resubmit → S04] → S06 CM Queue → S07 Readiness Review [approve | changes required ↩ S03] → S08 Publish Queue → S09 Publish → S10 Published</div>
+
+  <!-- S01 -->
+  <article class="screen" id="s01">
+    <div class="shead"><span class="sid">S01 · VND-01</span><h3>My Submissions</h3><span class="role">Vendor</span><span class="stt">States: populated · empty · changes-required emphasis</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="chip out">Help</span><span class="avatar"></span><span>Ananya Rao ▾</span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">VENDOR · SAMPLE XR CONTENT VENDOR</div>
+            <div class="ni on">Submissions</div>
+            <div class="ni">New Submission</div>
+          </div>
+          <div class="cnt">
+            <div class="ph"><span class="h1">My Submissions</span><span class="sp"></span><span class="btn">New Submission</span></div>
+            <div class="row2" style="margin-bottom:8px"><span class="inp" style="flex:0 0 40%">🔍 Search submissions…</span><span class="inp" style="flex:0 0 26%">Status: All ▾</span></div>
+            <table class="wt">
+              <tr><th>Submission</th><th>Version</th><th>Status</th><th>Current step</th><th>Updated</th></tr>
+              <tr class="hl"><td><b>Hydraulics — Open Channel Flow</b> <span class="mm">1</span></td><td>v1</td><td><span class="chip warn">Changes Required</span></td><td>You (correct &amp; resubmit)</td><td>18 Aug</td></tr>
+              <tr><td><b>Soil Mechanics XR Experiment</b></td><td>v1</td><td><span class="chip out">Draft</span></td><td>You</td><td>Today</td></tr>
+              <tr><td><b>Fluid Dynamics — Venturi Meter</b></td><td>v1</td><td><span class="chip">Academic Review</span></td><td>Academic Reviewer <span class="mm">2</span></td><td>19 Aug</td></tr>
+              <tr><td><b>Thermodynamics — Heat Exchanger VR Lab</b></td><td>v2</td><td><span class="chip dark">Published</span></td><td>—</td><td>11 Aug</td></tr>
+            </table>
+            <div class="note" style="margin-top:6px">Empty state: “You haven't created a submission yet.” + New Submission action <span class="mm">3</span></div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>Changes Required rows are the loudest thing on the page</b> — emphasised row + “With: You”. The vendor's next action is always obvious.</li>
+          <li><b>“Current step” column expresses FRD 1.4.5 positively:</b> the vendor always sees who holds the work. There is no Publish control anywhere in this workspace, disabled or otherwise.</li>
+          <li>Empty state gives cause + next action (no dead end).</li>
+          <li>Row click opens S03 Submission Detail; status vocabulary: Draft · Academic Review · Changes Required · Content Readiness Review · Ready to Publish · Published. “Rejected” never appears.</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S02 -->
+  <article class="screen" id="s02">
+    <div class="shead"><span class="sid">S02 · VND-02 (+03/04)</span><h3>New Submission</h3><span class="role">Vendor</span><span class="stt">States: blank · validation error · correction mode</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="avatar"></span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">VENDOR · SAMPLE XR CONTENT VENDOR</div>
+            <div class="ni">Submissions</div>
+            <div class="ni on">New Submission</div>
+          </div>
+          <div class="cnt">
+            <div class="crumb">Submissions / New Submission</div>
+            <div class="ph"><span class="h1">New Submission</span></div>
+            <div class="grid2">
+              <div>
+                <div class="box">
+                  <div class="bt">1 · Experiment details</div>
+                  <div class="lbl">Submission title *</div><div class="inp">Soil Mechanics XR Experiment</div>
+                  <div class="row2"><div><div class="lbl">Discipline (SAMPLE list) *</div><div class="inp">Civil Engineering ▾</div></div><div><div class="lbl">XR format *</div><div class="inp">VR ▾</div></div></div>
+                  <div class="lbl">Description *</div><div class="inp" style="height:34px">What the experiment covers…</div>
+                </div>
+                <div class="box">
+                  <div class="bt">2 · Build &amp; assets <span class="mm">1</span></div>
+                  <div class="drop">Add your XR build package<br><span class="note">Package requirements will be confirmed by the platform team.</span></div>
+                  <div class="drop" style="padding:8px">Supporting assets (previews, data sheets)</div>
+                </div>
+                <div class="box">
+                  <div class="bt">3 · Metadata &amp; documentation (fields are SAMPLE) <span class="mm">2</span></div>
+                  <div class="row2"><div><div class="lbl">Example supported device</div><div class="inp">Meta Quest ▾</div></div><div><div class="lbl">Version label</div><div class="inp">v1</div></div></div>
+                  <div class="lbl">Instructor / lab documentation</div><div class="drop" style="padding:8px">Add documentation (PDF)</div>
+                </div>
+                <div class="row2"><span class="btn sec">Save draft</span><span class="btn">Submit for review</span> <span class="note" style="align-self:center">→ confirm dialog <span class="mm">3</span></span></div>
+              </div>
+              <div class="railwf">
+                <div class="box"><div class="bt">What happens next</div><div class="note">Submitting sends this to Academic Review. You can follow its status and read reviewer feedback at every stage.</div></div>
+                <div class="box"><div class="bt">Correction mode <span class="mm">4</span></div><div class="note">When editing a returned submission, the reviewer's feedback panel is pinned here and the primary action becomes “Resubmit for review”.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>Upload makes no format promise</b> — the package/submission format is genuinely undecided; helper copy is honest without technical detail.</li>
+          <li><b>Metadata fields are SAMPLE</b> — the metadata schema is not enumerated in the FRD; the form proves the pattern, not the schema.</li>
+          <li>Submit uses a confirmation dialog stating the consequence (“goes to Academic Review”). Validation errors: summary alert + inline field errors.</li>
+          <li><b>Correction mode is the same form</b>, pre-filled, with feedback visible while correcting — vendors fix in context, then Resubmit. Resubmission re-enters review; it never skips a gate.</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S03 -->
+  <article class="screen" id="s03">
+    <div class="shead"><span class="sid">S03 · VND-05 (+SHR-05)</span><h3>Submission Detail &amp; Status — shown in “Changes Required” state</h3><span class="role">Vendor</span><span class="stt">8 status states — see strip below</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="avatar"></span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">VENDOR · SAMPLE XR CONTENT VENDOR</div>
+            <div class="ni on">Submissions</div>
+            <div class="ni">New Submission</div>
+          </div>
+          <div class="cnt">
+            <div class="crumb">Submissions / Soil Mechanics XR Experiment</div>
+            <div class="ph"><span class="h1">Soil Mechanics XR Experiment</span><span class="chip warn">Changes Required</span><span class="chip out">v1</span></div>
+            <div class="grid2">
+              <div>
+                <div class="feedback"><div class="bt">⟲ Changes requested by the Academic Reviewer <span class="mm">1</span></div>
+                  <div class="note" style="font-style:normal">Dr. R. Iyer · Academic Reviewer · 20 Aug, 11:02</div>
+                  <div style="font-size:9.5px; margin-top:4px">“The lab procedure omits the shear-stage data capture required by the curriculum standard, and the assessment mapping is incomplete for objectives 2–3. Please revise the procedure section and update the metadata.”</div>
+                  <div style="margin-top:8px"><span class="btn">Correct submission</span> <span class="note">→ opens the form in correction mode</span></div>
+                </div>
+                <div class="box"><div class="bt">Submission summary</div>
+                  <div class="note" style="font-style:normal">Vendor: Sample XR Content Vendor · Format: VR · Example device: Meta Quest · Submitted 20 Aug</div>
+                </div>
+                <div class="box"><div class="bt">Build, assets &amp; documentation</div><div class="note">Read-only list of what was submitted (editable only in Draft / Changes Required via “Correct submission”).</div></div>
+              </div>
+              <div class="railwf">
+                <div class="box"><div class="bt">Where it is <span class="mm">2</span></div>
+                  <div class="steps"><span class="st done">Submit</span><span class="arr">→</span><span class="st ret">Academic ↩</span><span class="arr">→</span><span class="st">Readiness</span><span class="arr">→</span><span class="st">Publish</span></div>
+                  <div class="note">Returned from Academic Review. After you resubmit, academic review resumes.</div>
+                </div>
+                <div class="box"><div class="bt">Review history <span class="mm">3</span></div>
+                  <ul class="tl">
+                    <li><b>Changes requested</b> — Dr. R. Iyer (Academic Reviewer) <span class="when">· 20 Aug 11:02</span></li>
+                    <li><b>Submitted (v1)</b> — Ananya Rao (Vendor) <span class="when">· 20 Aug 09:14</span></li>
+                    <li><b>Draft created</b> — Ananya Rao <span class="when">· 19 Aug 16:40</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>The reason for changes is the hero</b> when a submission is returned: who, when, exact comments, and the single obvious action.</li>
+          <li><b>Workflow position component:</b> four stages; a returned gate shows ↩. After resubmission the marker returns to “Academic Review · v2 · Resubmitted”. Prior decisions stay visible.</li>
+          <li><b>Review history (shared SHR-05):</b> every decision/comment/resubmission, newest first — the vendor sees their own submission's full trail.</li>
+        </ol>
+        <div class="statebar">
+          <div class="sb"><b>⑦ Draft</b>Edit + Submit for review</div>
+          <div class="sb"><b>⑧ Academic Review</b>“With Academic Reviewer since…” — no vendor actions</div>
+          <div class="sb"><b>⑨ Changes Required (academic)</b>this frame</div>
+          <div class="sb"><b>⑩ Resubmitted v2</b>back with reviewer; history keeps v1 trail</div>
+          <div class="sb"><b>⑪ Content Readiness Review</b>academic validation complete → with Content Manager</div>
+          <div class="sb"><b>⑫ Changes Required (content)</b>same pattern, CM feedback, resumes at readiness gate</div>
+          <div class="sb"><b>⑬ Ready to Publish</b>“Awaiting publication” — no vendor control</div>
+          <div class="sb"><b>⑭ Published</b>confirmation + published date</div>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S04 -->
+  <article class="screen" id="s04">
+    <div class="shead"><span class="sid">S04 · ARV-01</span><h3>Review Queue</h3><span class="role">Academic Reviewer</span><span class="stt">States: queue with resubmitted marker · empty · history list</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="avatar"></span><span>Dr. R. Iyer ▾</span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">ACADEMIC REVIEW</div>
+            <div class="ni on">Review Queue</div>
+            <div class="ni">Review History</div>
+          </div>
+          <div class="cnt">
+            <div class="ph"><span class="h1">Review Queue</span><span class="chip out">2 awaiting review</span></div>
+            <table class="wt">
+              <tr><th>Submission</th><th>Vendor</th><th>Format</th><th>Waiting since</th><th>Queue status</th></tr>
+              <tr><td><b>Soil Mechanics XR Experiment</b> <span class="mm">1</span></td><td>Sample XR Content Vendor</td><td>VR</td><td>Today</td><td><span class="chip out">Resubmitted · v2</span> <span class="mm">2</span></td></tr>
+              <tr><td><b>Fluid Dynamics — Venturi Meter</b></td><td>Sample XR Content Vendor</td><td>VR</td><td>19 Aug</td><td>—</td></tr>
+            </table>
+            <div class="note" style="margin-top:6px">Empty: “Nothing is waiting for academic review.” · History nav item lists own past decisions incl. returns <span class="mm">3</span></div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>Queue-first workspace:</b> the reviewer lands on exactly the work waiting for them; row opens S05.</li>
+          <li><b>Resubmitted marker</b> tells the reviewer returning work apart from new work before opening it.</li>
+          <li><b>Review History</b> (own decisions, incl. “Changes requested” entries) reuses the same list pattern — no bespoke screen.</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S05 -->
+  <article class="screen" id="s05">
+    <div class="shead"><span class="sid">S05 · ARV-02 (+SHR-01/05)</span><h3>Academic Review — with Request Changes dialog</h3><span class="role">Academic Reviewer</span><span class="stt">States: under review · resubmitted · approve confirm · request-changes dialog</span></div>
+    <div class="wrap">
+      <div>
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="avatar"></span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">ACADEMIC REVIEW</div>
+            <div class="ni on">Review Queue</div>
+            <div class="ni">Review History</div>
+          </div>
+          <div class="cnt">
+            <div class="crumb">Review Queue / Soil Mechanics XR Experiment</div>
+            <div class="ph"><span class="h1">Soil Mechanics XR Experiment</span><span class="chip">Academic Review</span><span class="chip out">v2 · Resubmitted</span></div>
+            <div class="grid2">
+              <div>
+                <div class="box" style="padding-bottom:4px">
+                  <div class="bt">Tabs: Overview · Build &amp; assets · Documentation <span class="mm">1</span></div>
+                  <div class="note">Read-only submission content (shared module viewer): description, learning objectives, metadata, files, documentation. The reviewer examines evidence here.</div>
+                  <div class="box" style="margin-top:8px; background:#fbfbfc"><div class="bt">Curriculum alignment</div><div class="note">Reviewer's judgement surface — ownership of the validation criteria remains pending (drawn as a review surface, not a rubric).</div></div>
+                </div>
+              </div>
+              <div class="railwf">
+                <div class="box"><div class="bt">Decision <span class="mm">2</span></div>
+                  <div style="display:flex; flex-direction:column; gap:4px">
+                    <span class="btn">Validate — approve</span>
+                    <span class="btn sec">Request changes</span>
+                  </div>
+                  <div class="note" style="margin-top:6px">Approving sends it to Content Readiness Review. No publish control exists at this gate. <span class="mm">3</span></div>
+                </div>
+                <div class="box"><div class="bt">Previous decision <span class="mm">4</span></div>
+                  <ul class="tl">
+                    <li><b>Resubmitted (v2)</b> — Vendor <span class="when">· today</span></li>
+                    <li><b>Changes requested</b> — you <span class="when">· 20 Aug</span> <div class="note">“…omits shear-stage data capture…”</div></li>
+                    <li><b>Submitted (v1)</b> <span class="when">· 20 Aug</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="scrim" style="margin-top:10px">
+        <div class="dialog">
+          <div class="bt">Request changes — Soil Mechanics XR Experiment</div>
+          <div class="lbl">Reason &amp; comments for the vendor *</div>
+          <div class="inp" style="height:40px">Explain what must change and why…</div>
+          <div class="note">The vendor sees this as the reason for changes. The submission returns to the vendor; when they resubmit, it comes back to your queue.</div>
+          <div style="margin-top:8px; text-align:right"><span class="btn gho">Cancel</span> <span class="btn">Send back to vendor</span></div>
+        </div>
+      </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>Evidence left, decision right.</b> Content/metadata/documentation is the review substrate; the decision panel never scrolls away.</li>
+          <li><b>Two decisions only:</b> Validate (approve) or Request changes. Reason is mandatory on return; optional note on approval.</li>
+          <li><b>Cannot publish, cannot skip:</b> approval moves it one gate forward, nothing more.</li>
+          <li><b>Resubmitted view keeps the previous decision visible</b> — the reviewer resumes with full context; history never resets.</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S06 -->
+  <article class="screen" id="s06">
+    <div class="shead"><span class="sid">S06 · CM-01</span><h3>Content Review Queue</h3><span class="role">Content Manager</span><span class="stt">Same queue pattern as S04 — one component, different data</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="avatar"></span><span>M. Kulkarni ▾</span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">CONTENT MANAGEMENT</div>
+            <div class="ni on">Review Queue</div>
+            <div class="ni">Reviewed Content</div>
+          </div>
+          <div class="cnt">
+            <div class="ph"><span class="h1">Content Review Queue</span><span class="chip out">1 awaiting readiness review</span></div>
+            <table class="wt">
+              <tr><th>Submission</th><th>Vendor</th><th>Academic validation</th><th>Waiting since</th><th>Queue status</th></tr>
+              <tr><td><b>Soil Mechanics XR Experiment</b></td><td>Sample XR Content Vendor</td><td>Complete · 20 Aug <span class="mm">1</span></td><td>Today</td><td>—</td></tr>
+            </table>
+            <div class="note" style="margin-top:6px">Reviewed Content nav = readiness decisions made (incl. returned-by-me), same list pattern.</div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>Everything here has already passed academic review</b> — the queue displays the academic validation date as read-only provenance. The correct sequence is structural, not procedural memory.</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S07 -->
+  <article class="screen" id="s07">
+    <div class="shead"><span class="sid">S07 · CM-02 (+SHR-01/05)</span><h3>Content Readiness Review</h3><span class="role">Content Manager</span><span class="stt">States: under review · approve confirm · request-changes dialog · resubmitted</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="avatar"></span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">CONTENT MANAGEMENT</div>
+            <div class="ni on">Review Queue</div>
+            <div class="ni">Reviewed Content</div>
+          </div>
+          <div class="cnt">
+            <div class="crumb">Review Queue / Soil Mechanics XR Experiment</div>
+            <div class="ph"><span class="h1">Soil Mechanics XR Experiment</span><span class="chip">Content Readiness Review</span><span class="chip out">v2</span></div>
+            <div class="grid2">
+              <div>
+                <div class="box"><div class="bt">Academic validation record — read-only <span class="mm">1</span></div>
+                  <div class="note" style="font-style:normal">Validated by Dr. R. Iyer (Academic Reviewer) · 20 Aug · “Curriculum alignment confirmed for objectives 1–4.”</div>
+                </div>
+                <div class="box"><div class="bt">Readiness review <span class="mm">2</span></div>
+                  <div class="note">Metadata completeness ☑ · Documentation present ☑ · Platform compatibility recorded ☑ (criteria fields are SAMPLE — readiness checklist pattern)</div>
+                </div>
+                <div class="box"><div class="bt">Tabs: Metadata · Build &amp; assets · Documentation</div><div class="note">Same shared read-only viewer as S05.</div></div>
+              </div>
+              <div class="railwf">
+                <div class="box"><div class="bt">Decision</div>
+                  <div style="display:flex; flex-direction:column; gap:4px">
+                    <span class="btn">Approve readiness</span>
+                    <span class="btn sec">Request changes</span>
+                  </div>
+                  <div class="note" style="margin-top:6px">Approving marks it Ready to Publish for the Super Admin. Publishing itself happens at the next gate. <span class="mm">3</span></div>
+                </div>
+                <div class="box"><div class="bt">Review history</div>
+                  <ul class="tl"><li><b>Academic validation complete</b> <span class="when">· 20 Aug</span></li><li><b>Resubmitted v2</b></li><li><b>Changes requested (academic)</b></li><li><b>Submitted v1</b></li></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>The academic decision is read-only input</b> to this gate — the Content Manager can see it, never edit it.</li>
+          <li><b>Readiness = metadata · documentation · compatibility.</b> Checklist pattern with SAMPLE criteria; the CM's return dialog is identical in behaviour to the reviewer's (reason required, returns to vendor, resumption at this gate).</li>
+          <li><b>No publish control here either</b> — approval hands off to the Super Admin queue.</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S08 + S09 + S10 -->
+  <article class="screen" id="s08">
+    <div class="shead"><span class="sid">S08 · SA-02</span><h3>Publish Queue</h3><span class="role">Super Admin</span> <span class="sid" style="background:#4b545e">S09 · SA-03</span><h3>Publish Experiment</h3> <span class="sid" style="background:#79828c">S10 · SA-04</span><h3>Published Content</h3></div>
+    <div class="wrap">
+      <div>
+        <div class="wf">
+          <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="avatar"></span><span>S. Nair ▾</span></div>
+          <div class="body">
+            <div class="snav">
+              <div class="ws">PLATFORM ADMINISTRATION</div>
+              <div class="ni on">Publish Queue</div>
+              <div class="ni">Published Content</div>
+            </div>
+            <div class="cnt">
+              <div class="crumb">Publish Queue / Soil Mechanics XR Experiment</div>
+              <div class="ph"><span class="h1">Soil Mechanics XR Experiment</span><span class="chip out" style="border-style:solid">Ready to Publish</span><span class="chip out">v2</span></div>
+              <div class="grid2">
+                <div>
+                  <div class="box"><div class="bt">Required approvals — complete <span class="mm">1</span></div>
+                    <div class="note" style="font-style:normal">✓ Academic validation — Dr. R. Iyer · 20 Aug<br>✓ Content readiness — M. Kulkarni · 20 Aug</div>
+                  </div>
+                  <div class="box"><div class="bt">Submission summary</div><div class="note">Vendor, format, device, version, description — read-only.</div></div>
+                  <div class="box"><div class="bt">What publishing does</div><div class="note">Releases this experiment to production: it becomes available for institutional licensing and entitled learners. <span class="mm">2</span></div></div>
+                </div>
+                <div class="railwf">
+                  <div class="box"><div class="bt">Publish</div>
+                    <span class="btn">Publish to production</span>
+                    <div class="note" style="margin-top:6px">→ confirm dialog → publishing (progress) → Published result. <b>No return/request-changes action exists at this gate</b> — that decision is pending and is not invented. <span class="mm">3</span></div>
+                  </div>
+                  <div class="box"><div class="bt">Review history</div><div class="note">Full trail incl. both approvals and the earlier return.</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fstrip" style="margin-top:10px"><b>S08 Publish Queue</b> lists CM-approved items (columns: submission · vendor · approvals complete date). <b>S10 Published Content</b> lists live experiments (name · vendor · version · published date). Both reuse the S01/S04 table pattern; empty states included.</div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>Evidence of prior gates before the action:</b> the Super Admin sees both approvals (who, when) above the publish control — publication is only reachable through those approvals.</li>
+          <li><b>Consequence is stated in plain language</b>, no internal codes.</li>
+          <li><b>Deliberate absence:</b> no “Return to Vendor” for Super Admin — pending product decision; designing it would invent authority.</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+</section>
+
+<!-- ============================ FLOW B ============================ -->
+<section class="flow" id="flowb">
+  <h2>Flow B — Entitled XR content to learner device</h2>
+  <p class="intro">Published experiment → learner entitlement → device compatibility → “Get on device” → availability states → run on supported device → completion pending → completion received → progress updated. The delivery mechanism is not selected; every state below is mechanism-neutral and none implies the browser is watching the headset.</p>
+  <div class="fstrip"><b>Screen sequence:</b> S11 My Learning → S12 Experiment Detail (entitlement ✓ · device ✓) → S13 XR Device Access (Get on device → Availability pending → Ready on device → run on device → Completion pending → Completion received) → S14 Progress updated. Failure branches on S12 (not entitled · access denied · unsupported device) and S13 (availability failed · availability unknown).</div>
+
+  <!-- S11 -->
+  <article class="screen" id="s11">
+    <div class="shead"><span class="sid">S11 · LRN-02</span><h3>My Learning</h3><span class="role">Learner (B2B · Sample Engineering Institute)</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="chip out">Sample Engineering Institute</span><span class="avatar"></span><span>Rahul Verma ▾</span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">LEARNER · SAMPLE ENGINEERING INSTITUTE</div>
+            <div class="ni on">My Learning</div>
+            <div class="ni">Progress</div>
+          </div>
+          <div class="cnt">
+            <div class="ph"><span class="h1">My Learning</span></div>
+            <table class="wt">
+              <tr><th>Experiment</th><th>Format</th><th>Status</th><th></th></tr>
+              <tr><td><b>Soil Mechanics — Direct Shear Test</b></td><td><span class="chip">VR</span></td><td><span class="chip out">Not started</span></td><td>Open →</td></tr>
+              <tr><td><b>Fluid Mechanics — Bernoulli Flow Visualisation</b></td><td><span class="chip">Web</span> <span class="mm">1</span></td><td><span class="chip out">In progress</span></td><td>Open →</td></tr>
+              <tr><td><b>Strength of Materials — Torsion Test</b></td><td><span class="chip">MR</span></td><td><span class="chip out">Not started</span></td><td>Open →</td></tr>
+              <tr><td><b>Geotechnical — Consolidation Test</b></td><td><span class="chip">VR</span></td><td><span class="chip warn">Access issue</span> <span class="mm">2</span></td><td>Open →</td></tr>
+              <tr><td><b>Surveying — Total Station Basics</b></td><td><span class="chip">Web</span></td><td><span class="chip dark">Completed</span></td><td>Open →</td></tr>
+            </table>
+            <div class="note" style="margin-top:6px">Thermodynamics — Heat Exchanger Analysis appears under “More from your institution” as Not included in your current access <span class="mm">3</span></div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>Format badges (Web/VR/MR/AR)</b> set expectations before opening: Web runs in the browser; VR/MR/AR run on supported devices.</li>
+          <li>Status chips carry XR access states into the list (completion pending appears here too once a session ends).</li>
+          <li>B2B context: no purchase prompts anywhere — access questions route to the institution.</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S12 -->
+  <article class="screen" id="s12">
+    <div class="shead"><span class="sid">S12 · LRN-04 + LRN-07</span><h3>Experiment Detail — entitled + compatible</h3><span class="role">Learner</span><span class="stt">Variants: not entitled · access denied · unsupported device · web format</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="chip out">Sample Engineering Institute</span><span class="avatar"></span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">LEARNER · SAMPLE ENGINEERING INSTITUTE</div>
+            <div class="ni on">My Learning</div>
+            <div class="ni">Progress</div>
+          </div>
+          <div class="cnt">
+            <div class="crumb">My Learning / Soil Mechanics — Direct Shear Test</div>
+            <div class="ph"><span class="h1">Soil Mechanics — Direct Shear Test</span><span class="chip">VR</span></div>
+            <div class="grid2">
+              <div>
+                <div class="box"><div class="bt">About this experiment</div><div class="note">Determine shear strength parameters of a soil sample under direct shear. (SAMPLE description) · Learning components list: resources → simulation → assessment (sequence per approved learner model).</div></div>
+                <div class="box"><div class="bt">Simulation — VR</div><div class="note">This simulation runs on a supported VR headset — it does not run in this browser. <span class="mm">1</span></div></div>
+              </div>
+              <div class="railwf">
+                <div class="box"><div class="bt">XR access <span class="mm">2</span></div>
+                  <ul class="tl">
+                    <li><b>✓ Access</b> — Included in your institution's access</li>
+                    <li><b>✓ Device</b> — VR headset · e.g. Meta Quest</li>
+                    <li><b>Availability</b> — Not yet on your device</li>
+                  </ul>
+                  <span class="btn">Get on device</span>
+                  <div class="note" style="margin-top:4px">→ opens S13 Device access <span class="mm">3</span></div>
+                </div>
+                <div class="box"><div class="bt">Completion</div><div class="note">Completion is recorded to your account after the platform receives it from your session. <span class="mm">4</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>Honest runtime statement:</b> VR never pretends to run in the desktop browser.</li>
+          <li><b>The XR access panel</b> stacks the two gates in order — entitlement, then device compatibility — before any device action is offered.</li>
+          <li>“Get on device” is deliberately mechanism-neutral (copy may change once the delivery implementation is selected).</li>
+          <li>Completion language: the portal reflects account state; it does not observe the session.</li>
+        </ol>
+        <div class="statebar">
+          <div class="sb"><b>㉛ Not entitled</b>“Not included in your current access. Contact your institution administrator.” No device actions shown. No purchase prompt (B2B).</div>
+          <div class="sb"><b>㉜ Access denied</b>Entitlement check failed at access time: what happened + contact administrator + try again.</div>
+          <div class="sb"><b>㉝ Unsupported device</b>Names the required runtime honestly; no dead launch button.</div>
+          <div class="sb"><b>Web variant</b>“Runs in your browser” + Launch simulation (web runtime is out of Batch 01 — placeholder clearly marked SAMPLE).</div>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S13 -->
+  <article class="screen" id="s13">
+    <div class="shead"><span class="sid">S13 · LRN-15</span><h3>XR Device Access — availability pending</h3><span class="role">Learner</span><span class="stt">States: pending · ready · failed · unknown · completion pending · completion received</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="chip out">Sample Engineering Institute</span><span class="avatar"></span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">LEARNER · SAMPLE ENGINEERING INSTITUTE</div>
+            <div class="ni on">My Learning</div>
+            <div class="ni">Progress</div>
+          </div>
+          <div class="cnt">
+            <div class="crumb">My Learning / Soil Mechanics — Direct Shear Test / Device access</div>
+            <div class="ph"><span class="h1">Device access — Soil Mechanics — Direct Shear Test</span><span class="chip">VR</span></div>
+            <div class="grid2">
+              <div>
+                <div class="box">
+                  <div class="bt">Status <span class="mm">1</span></div>
+                  <ul class="tl">
+                    <li><b>✓ Access confirmed</b> — Sample Engineering Institute</li>
+                    <li><b>✓ Device supported</b> — VR headset · e.g. Meta Quest</li>
+                    <li><b>◌ Availability pending</b> — “We're making this experiment available for your device. This can take a little while.” <span class="mm">2</span></li>
+                    <li style="color:#a6adb4"><b style="color:#a6adb4">Run on your device</b> — once it's ready, put on your supported headset and open the experiment there</li>
+                    <li style="color:#a6adb4"><b style="color:#a6adb4">Completion</b> — recorded to your account after the platform receives it</li>
+                  </ul>
+                </div>
+                <div class="box"><div class="bt">While you wait</div><div class="note">Review the learning resources for this experiment. (Link back to detail.)</div></div>
+              </div>
+              <div class="railwf">
+                <div class="box"><div class="bt">Actions</div><span class="btn sec">Refresh status</span><div class="note" style="margin-top:4px">Status updates when you refresh — the browser doesn't continuously monitor your device. <span class="mm">3</span></div></div>
+                <div class="box"><div class="bt">Help</div><div class="note">If this stays pending unusually long: retry, then contact support via Help. <span class="mm">4</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>One vertical status ladder</b> — entitlement → device → availability → run → completion — mirrors the platform's actual gates; upcoming steps are visibly upcoming.</li>
+          <li><b>Waiting is designed:</b> honest indeterminate copy, no fake percentages, no transport detail (nothing about stores, APKs, pairing, sync).</li>
+          <li><b>Refresh, not surveillance:</b> the page states plainly that status is read when refreshed.</li>
+          <li>Every failure state says what happened, whether the learner can recover, the available action, and when support is appropriate.</li>
+        </ol>
+        <div class="statebar">
+          <div class="sb"><b>㉟ Ready on device</b>“Ready on your supported device. Put on your headset and open the experiment there.” + what happens to completion.</div>
+          <div class="sb"><b>㊱ Availability failed</b>“We couldn't make it available this time.” Retry + if-it-repeats support guidance.</div>
+          <div class="sb"><b>㊲ Availability unknown</b>Network problem: “We can't confirm the current status.” Check connection + Refresh.</div>
+          <div class="sb"><b>㊳ Completion pending</b>Normal (not error): session ended, record not yet received; Refresh + reassurance + when to seek help.</div>
+          <div class="sb"><b>㊴ Completion received</b>Success + “Progress updated” + link to Progress.</div>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <!-- S14 -->
+  <article class="screen" id="s14">
+    <div class="shead"><span class="sid">S14 · LRN-13</span><h3>Progress — after completion received</h3><span class="role">Learner</span></div>
+    <div class="wrap">
+      <div class="wf">
+        <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="chip out">Sample Engineering Institute</span><span class="avatar"></span></div>
+        <div class="body">
+          <div class="snav">
+            <div class="ws">LEARNER · SAMPLE ENGINEERING INSTITUTE</div>
+            <div class="ni">My Learning</div>
+            <div class="ni on">Progress</div>
+          </div>
+          <div class="cnt">
+            <div class="ph"><span class="h1">Progress</span></div>
+            <div class="box"><div class="bt">Experiments</div>
+              <table class="wt">
+                <tr><th>Experiment</th><th>Simulation</th><th>Status</th><th>Updated</th></tr>
+                <tr><td><b>Soil Mechanics — Direct Shear Test</b></td><td>Completion received <span class="mm">1</span></td><td><span class="chip dark">Progress updated</span></td><td>Today</td></tr>
+                <tr><td><b>Surveying — Total Station Basics</b></td><td>Completed</td><td><span class="chip dark">Completed</span></td><td>12 Aug</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="ann">
+        <h4>Annotations</h4>
+        <ol>
+          <li><b>The loop closes here:</b> completion received on the device flow is visible as updated account-level progress — the same record Faculty/Institute Admin would later see operationally (out of batch).</li>
+        </ol>
+      </aside>
+    </div>
+  </article>
+</section>
+
+<footer style="padding:26px 48px; color:#79828c; font-size:12px; border-top:1px solid #c8ced5; margin-top:20px">
+  Batch 01 wireframes · grayscale low-fidelity for structural validation only · all people, dates, experiments are SAMPLE DESIGN DATA · high-fidelity interactive prototype: <span class="mono">../prototype/batch01-prototype.html</span>
+</footer>
+</body>
+</html>

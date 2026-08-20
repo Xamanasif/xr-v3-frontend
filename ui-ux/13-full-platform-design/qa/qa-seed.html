@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>QA state seeder — not product UI</title>
+</head>
+<body>
+<p style="font-family:system-ui;color:#515D6C">QA utility — seeds a saved prototype state into sessionStorage, then opens the prototype at the requested route. Usage: <code>qa-seed.html?f=seed-states/&lt;file&gt;.json#/route</code></p>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var f = params.get('f');
+  var target = '../prototype/batch01-prototype.html' + (location.hash || '#/index');
+  if (!f) { location.replace(target); return; }
+  fetch(f, { cache: 'no-store' })
+    .then(function (r) { return r.text(); })
+    .then(function (txt) {
+      JSON.parse(txt); // validate
+      sessionStorage.setItem('xrslp-batch01-proto-v1', txt);
+      location.replace(target);
+    })
+    .catch(function (e) {
+      document.body.insertAdjacentHTML('beforeend', '<pre>Seed failed: ' + e + '</pre>');
+    });
+})();
+</script>
+</body>
+</html>
