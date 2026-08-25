@@ -16,7 +16,7 @@
     .then(function (r) { return r.text(); })
     .then(function (txt) {
       JSON.parse(txt); // validate
-      sessionStorage.setItem('xrslp-batch01-proto-v1', txt);
+      sessionStorage.setItem('xrslp-batch01-proto-v2', txt);
       location.replace(target);
     })
     .catch(function (e) {

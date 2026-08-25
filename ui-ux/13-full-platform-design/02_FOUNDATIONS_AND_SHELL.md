@@ -76,11 +76,14 @@ One shell serves all seven roles. **Role differences come from navigation conten
 |---|---|
 | Vendor | Submissions · New Submission |
 | Academic Reviewer | Review Queue · Review History |
-| Content Manager | Review Queue · Reviewed Content |
-| Super Admin | Publish Queue · Published Content |
+| Content Manager | Review Queue · Reviewed Content · Published Content |
 | Learner | My Learning · Progress |
 
-No fake dashboards or fillers; governance roles land on their queue (queue-first rule). Later batches extend these lists (e.g. Vendor “My Modules”, SA domains) without shell changes.
+No fake dashboards or fillers; governance roles land on their queue (queue-first rule). Later batches extend these lists (e.g. Vendor “My Modules”) without shell changes.
+
+> **PM publication correction (2026-08-25).** Publication is owned by the Content Manager, so the Super Admin workspace is removed from the **active Batch-01 content-publication workflow**. **Super Admin remains one of the approved platform roles** — its detailed workspace and responsibilities are **deferred** until supported by confirmed requirements or PM decisions in a later batch. No replacement Super Admin responsibility is invented here.
+>
+> The Content Manager's third nav item, **Published Content**, is a **DESIGN ASSUMPTION — REVERSIBLE** (`DA-06` in `01_BATCH01_SCOPE.md`): because the Content Manager is the confirmed publisher, the prototype gives that role a view of published records for workflow continuity. **PM has not separately confirmed the detailed post-publication management responsibility**, so this is not presented as a confirmed requirement.
 
 ### Prototype-only navigation
 

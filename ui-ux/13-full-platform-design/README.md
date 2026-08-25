@@ -7,10 +7,14 @@ Branch `uiux/full-platform-design` · 2026-08-20 · **Figma deferred — this pa
 
 Two end-to-end experiences of the one shared platform, designed on the rebuilt multi-role shell:
 
-- **Flow A — Content to Production:** Vendor submission → Academic Review (approve / changes required) → Content Readiness Review (approve / changes required) → Super Admin publication, with correction, resubmission at the returning gate, and traceable review history (FRD 1.4.1–1.4.5 · PM-14).
+- **Flow A — Content to Production:** Vendor submission → Academic Review (approve / changes required) → Content Readiness Review (request changes / **publish to production**) → Published, with correction, resubmission at the returning gate, and traceable review history (FRD 1.4.1–1.4.5 · PM-14 · **PM publication correction 2026-08-25**).
 - **Flow B — Entitled XR content to a learner device:** entitlement → device compatibility → get on device → availability states → completion pending → completion received → progress updated (PM-05, mechanism-neutral).
 
-14 base screens + 31 curated state variants across Vendor, Academic Reviewer, Content Manager, Super Admin and Learner. Details: [01_BATCH01_SCOPE.md](01_BATCH01_SCOPE.md).
+12 base screens + 29 curated state variants across Vendor, Academic Reviewer, Content Manager and Learner. Details: [01_BATCH01_SCOPE.md](01_BATCH01_SCOPE.md).
+
+> **PM publication correction (2026-08-25)** — `ui-ux/00-project-context/PM_CONFIRMED_UPDATE_2026-08-25.md`. The **Content Manager** is the publication owner and performs the final Publish action. **Super Admin remains one of the approved platform roles**; it is removed from the **active Batch-01 content-publication workflow** only — its two publish screens are withdrawn, no replacement governance responsibility is invented, and its detailed workspace and responsibilities are **deferred** until supported by confirmed requirements or PM decisions. Superseded documents (FRD 1.4.4, the Review-006 role/permission matrix, the 18 Aug PM baseline) are historical records and are intentionally left unchanged.
+>
+> The Content Manager's **Published Content** list is a **DESIGN ASSUMPTION — REVERSIBLE** (`DA-06`), not a PM-confirmed requirement: post-publication management responsibility has not been separately confirmed.
 
 ## What it does not cover
 

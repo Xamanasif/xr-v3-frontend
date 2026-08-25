@@ -108,6 +108,15 @@
   .ann li b{color:var(--ink)}
   .m{display:inline-flex; width:15px; height:15px; border-radius:50%; background:var(--ink); color:#fff; font-size:9px; align-items:center; justify-content:center; vertical-align:1px; margin-right:2px}
   .mm{display:inline-flex; width:14px; height:14px; border-radius:50%; background:var(--ink); color:#fff; font-size:8.5px; align-items:center; justify-content:center}
+  /* PM publication correction 2026-08-25 — superseded blocks are kept as a record, not deleted. */
+  .correction{border:2px solid var(--ink); border-radius:8px; padding:14px 16px; margin:18px 0; background:#fff}
+  .correction h2{font-size:14px; margin:0 0 8px; letter-spacing:.02em; text-transform:uppercase}
+  .correction p{margin:0 0 8px; font-size:13px; line-height:1.65}
+  .correction p:last-child{margin-bottom:0}
+  .superseded{opacity:.55; filter:grayscale(1)}
+  .supbadge{display:block; border:2px dashed var(--ink); border-radius:8px; padding:10px 14px; margin-bottom:10px;
+    font-size:12.5px; line-height:1.6; opacity:1; filter:none}
+  .supbadge b{letter-spacing:.03em; text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -115,8 +124,15 @@
 <header class="doc">
   <span class="tag">LOW-FIDELITY WIREFRAMES · GRAYSCALE BY INTENT · SAMPLE DESIGN DATA THROUGHOUT</span>
   <h1>XR Simulation Learning Platform — Batch 01 Wireframes</h1>
-  <p>Structural validation of Flow A (Content to Production: Vendor → Academic Reviewer → Content Manager → Super Admin) and Flow B (Entitled XR content to learner device). One shared shell, role-based workspaces. Statuses use the approved vocabulary; the XR delivery mechanism is deliberately unselected, so all device copy is mechanism-neutral. High-fidelity behaviour lives in <span class="mono">../prototype/batch01-prototype.html</span>.</p>
+  <p>Structural validation of Flow A (Content to Production: Vendor → Academic Reviewer → Content Manager → Published) and Flow B (Entitled XR content to learner device). One shared shell, role-based workspaces. Statuses use the approved vocabulary; the XR delivery mechanism is deliberately unselected, so all device copy is mechanism-neutral. High-fidelity behaviour lives in <span class="mono">../prototype/batch01-prototype.html</span>.</p>
 </header>
+
+<div class="correction">
+  <h2>⚠ PM publication correction — 2026-08-25</h2>
+  <p><b>Publication is owned by the Content Manager.</b> The Content Manager requests changes or publishes once the required review state is reached. The confirmed Batch-01 governance flow is <b>Vendor → Academic Reviewer → Content Manager → Published</b>.</p>
+  <p><b>Super Admin remains one of the approved platform roles.</b> What changes is its participation in one workflow: it is removed from the <b>active Batch-01 content-publication workflow</b> — no publish gate, no publish queue, no read-only oversight surface, no unpublish action and no replacement content-governance responsibility invented in its place. <b>Its detailed workspace and responsibilities are deferred</b> until supported by confirmed requirements or PM decisions in a later platform batch. This is a deferral, not the removal of the role from the platform. Source: <span class="mono">ui-ux/00-project-context/PM_CONFIRMED_UPDATE_2026-08-25.md</span>.</p>
+  <p><b>S08 and S09 below are superseded and kept only as a record</b> of what the correction removed — they are not current design. S10 Published Content is retained and reassigned to the Content Manager as a <b>DESIGN ASSUMPTION — REVERSIBLE</b> (<span class="mono">DA-06</span>): the publisher is PM-confirmed, but the detailed post-publication management responsibility is <b>not</b>. Current behaviour is in <span class="mono">../prototype/batch01-prototype.html</span>; the scope table is in <span class="mono">../01_BATCH01_SCOPE.md</span>.</p>
+</div>
 
 <nav class="toc" aria-label="Wireframe contents">
   <a href="#shell">Shell anatomy</a>
@@ -127,9 +143,7 @@
   <a href="#s05">S05 Academic Review</a>
   <a href="#s06">S06 CM Queue</a>
   <a href="#s07">S07 Readiness Review</a>
-  <a href="#s08">S08 Publish Queue</a>
-  <a href="#s09">S09 Publish</a>
-  <a href="#s10">S10 Published</a>
+  <a href="#s08">S08–S09 Publish (superseded) · S10 Published</a>
   <a href="#s11">S11 My Learning</a>
   <a href="#s12">S12 Experiment Detail</a>
   <a href="#s13">S13 XR Device Access</a>
@@ -181,8 +195,8 @@
 <!-- ============================ FLOW A ============================ -->
 <section class="flow" id="flowa">
   <h2>Flow A — Content to Production</h2>
-  <p class="intro">Vendor creates and submits → Academic Reviewer validates or requests changes → Content Manager approves readiness or requests changes → Super Admin publishes. Returns go to the vendor with a reason; resubmission re-enters review at the returning gate. Review history is traceable throughout. No one but Super Admin can publish; the vendor never can.</p>
-  <div class="fstrip"><b>Screen sequence:</b> S01 Submissions → S02 New Submission → S03 Detail (submit) → S04 ARV Queue → S05 Academic Review [approve | changes required ↩ S03 → correct → resubmit → S04] → S06 CM Queue → S07 Readiness Review [approve | changes required ↩ S03] → S08 Publish Queue → S09 Publish → S10 Published</div>
+  <p class="intro">Vendor creates and submits → Academic Reviewer validates or requests changes → Content Manager requests changes or publishes to production. Returns go to the vendor with a reason; resubmission re-enters review at the returning gate. Review history is traceable throughout. Publication is reachable only after academic validation, and the vendor can never publish.</p>
+  <div class="fstrip"><b>Screen sequence:</b> S01 Submissions → S02 New Submission → S03 Detail (submit) → S04 ARV Queue → S05 Academic Review [approve | changes required ↩ S03 → correct → resubmit → S04] → S06 CM Queue → S07 Readiness Review [publish | changes required ↩ S03] → S10 Published Content</div>
 
   <!-- S01 -->
   <article class="screen" id="s01">
@@ -216,7 +230,7 @@
           <li><b>Changes Required rows are the loudest thing on the page</b> — emphasised row + “With: You”. The vendor's next action is always obvious.</li>
           <li><b>“Current step” column expresses FRD 1.4.5 positively:</b> the vendor always sees who holds the work. There is no Publish control anywhere in this workspace, disabled or otherwise.</li>
           <li>Empty state gives cause + next action (no dead end).</li>
-          <li>Row click opens S03 Submission Detail; status vocabulary: Draft · Academic Review · Changes Required · Content Readiness Review · Ready to Publish · Published. “Rejected” never appears.</li>
+          <li>Row click opens S03 Submission Detail; status vocabulary: Draft · Academic Review · Changes Required · Content Readiness Review · Publishing… · Published. “Rejected” never appears. <i>(“Ready to Publish” retired by the PM publication correction — it only described a hand-off to the Super Admin.)</i></li>
         </ol>
       </aside>
     </div>
@@ -335,7 +349,7 @@
           <div class="sb"><b>⑩ Resubmitted v2</b>back with reviewer; history keeps v1 trail</div>
           <div class="sb"><b>⑪ Content Readiness Review</b>academic validation complete → with Content Manager</div>
           <div class="sb"><b>⑫ Changes Required (content)</b>same pattern, CM feedback, resumes at readiness gate</div>
-          <div class="sb"><b>⑬ Ready to Publish</b>“Awaiting publication” — no vendor control</div>
+          <div class="sb"><b>⑬ Publishing…</b>Content Manager has released it — no vendor control</div>
           <div class="sb"><b>⑭ Published</b>confirmation + published date</div>
         </div>
       </aside>
@@ -504,7 +518,7 @@
                     <span class="btn">Approve readiness</span>
                     <span class="btn sec">Request changes</span>
                   </div>
-                  <div class="note" style="margin-top:6px">Approving marks it Ready to Publish for the Super Admin. Publishing itself happens at the next gate. <span class="mm">3</span></div>
+                  <div class="note" style="margin-top:6px">This gate publishes: the primary action is <b>Publish to production</b>, reachable only once academic validation is recorded. <span class="mm">3</span></div>
                 </div>
                 <div class="box"><div class="bt">Review history</div>
                   <ul class="tl"><li><b>Academic validation complete</b> <span class="when">· 20 Aug</span></li><li><b>Resubmitted v2</b></li><li><b>Changes requested (academic)</b></li><li><b>Submitted v1</b></li></ul>
@@ -519,16 +533,22 @@
         <ol>
           <li><b>The academic decision is read-only input</b> to this gate — the Content Manager can see it, never edit it.</li>
           <li><b>Readiness = metadata · documentation · compatibility.</b> Checklist pattern with SAMPLE criteria; the CM's return dialog is identical in behaviour to the reviewer's (reason required, returns to vendor, resumption at this gate).</li>
-          <li><b>No publish control here either</b> — approval hands off to the Super Admin queue.</li>
+          <li><b>This is the publish gate</b> (PM publication correction 2026-08-25) — the Content Manager publishes here; the confirmation, publishing progress and published result live on this screen.</li>
         </ol>
       </aside>
     </div>
   </article>
 
-  <!-- S08 + S09 + S10 -->
+  <!-- S08 + S09 (superseded) + S10 (retained, reassigned to the Content Manager) -->
   <article class="screen" id="s08">
-    <div class="shead"><span class="sid">S08 · SA-02</span><h3>Publish Queue</h3><span class="role">Super Admin</span> <span class="sid" style="background:#4b545e">S09 · SA-03</span><h3>Publish Experiment</h3> <span class="sid" style="background:#79828c">S10 · SA-04</span><h3>Published Content</h3></div>
-    <div class="wrap">
+    <div class="shead"><span class="sid">S08 · SA-02</span><h3>Publish Queue</h3><span class="role">superseded</span> <span class="sid" style="background:#4b545e">S09 · SA-03</span><h3>Publish Experiment</h3> <span class="sid" style="background:#79828c">S10 · SA-04 → CM-03</span><h3>Published Content</h3></div>
+    <div class="supbadge">
+      <b>Superseded — PM publication correction, 2026-08-25.</b><br>
+      <b>S08 Publish Queue</b> and <b>S09 Publish Experiment</b> are <b>withdrawn</b>: there is no separate publish gate, so nothing queues between readiness review and production, and the publish action, its confirmation and its progress/result states now belong to <b>S07</b>, owned by the Content Manager.
+      <b>S10 Published Content</b> is <b>retained and reassigned to the Content Manager</b> — a <b>DESIGN ASSUMPTION — REVERSIBLE</b> (<span class="mono">DA-06</span>), not a PM-confirmed requirement.
+      The drawing below is kept as a record of what was removed — it is not current design.
+    </div>
+    <div class="wrap superseded">
       <div>
         <div class="wf">
           <div class="bar"><div class="logo">LOGO</div><span class="pname">XR Simulation Learning Platform</span><span class="sp"></span><span class="avatar"></span><span>S. Nair ▾</span></div>
@@ -560,14 +580,14 @@
             </div>
           </div>
         </div>
-        <div class="fstrip" style="margin-top:10px"><b>S08 Publish Queue</b> lists CM-approved items (columns: submission · vendor · approvals complete date). <b>S10 Published Content</b> lists live experiments (name · vendor · version · published date). Both reuse the S01/S04 table pattern; empty states included.</div>
+        <div class="fstrip" style="margin-top:10px"><s><b>S08 Publish Queue</b> lists CM-approved items (columns: submission · vendor · approvals complete date).</s> <b>S10 Published Content</b> lists live experiments (name · vendor · version · published date), now in the Content Manager workspace. It reuses the S01/S04 table pattern; empty states included.</div>
       </div>
       <aside class="ann">
         <h4>Annotations</h4>
         <ol>
-          <li><b>Evidence of prior gates before the action:</b> the Super Admin sees both approvals (who, when) above the publish control — publication is only reachable through those approvals.</li>
-          <li><b>Consequence is stated in plain language</b>, no internal codes.</li>
-          <li><b>Deliberate absence:</b> no “Return to Vendor” for Super Admin — pending product decision; designing it would invent authority.</li>
+          <li><b>Evidence of the prior gate before the action</b> — carried forward to S07: the academic validation record (who, when) sits above the publish control, so publication is only reachable through it.</li>
+          <li><b>Consequence is stated in plain language</b>, no internal codes — carried forward to S07.</li>
+          <li><b>Deliberate absence, still pending:</b> no “Return to Vendor” for Super Admin. <b><span class="mono">QP-26</span> remains OPEN / PENDING</b> — the 2026-08-25 PM update settled <i>who publishes</i>, not Super Admin's return authority, so no resolution is inferred. Batch 01 simply does not exercise the question, since there is no Super Admin gate in the Batch-01 flow. The Content Manager keeps <b>Request changes</b> at S07.</li>
         </ol>
       </aside>
     </div>

@@ -48,10 +48,12 @@
   }
 
   /* ---------------- sample data & state ---------------- */
-  var STORAGE_KEY = 'xrslp-batch01-proto-v1';
+  /* Bumped to v2 when the Content Manager became the publisher and vendor-created
+     submissions became real records — a v1 blob left in a tab would describe the old model. */
+  var STORAGE_KEY = 'xrslp-batch01-proto-v2';
 
   function initialState() {
-    return {
+    var st = {
       subs: {
         soil: {
           id: 'soil', title: 'Soil Mechanics XR Experiment',
@@ -121,8 +123,7 @@
           build: { name: 'Heat exchanger — XR build package (v2)', size: '1.1 GB' },
           docs: [{ name: 'Instructor guide — Heat Exchanger.pdf', size: '3.0 MB' }],
           history: [
-            { t: 'published', label: 'Published to production', actor: 'S. Nair', role: 'Super Admin', when: '11 Aug 2026 · 15:02' },
-            { t: 'readiness', label: 'Content readiness approved', actor: 'M. Kulkarni', role: 'Content Manager', when: '11 Aug 2026 · 11:40' },
+            { t: 'published', label: 'Published to production', actor: 'M. Kulkarni', role: 'Content Manager', when: '11 Aug 2026 · 15:02' },
             { t: 'validated', label: 'Academic validation complete', actor: 'Dr. R. Iyer', role: 'Academic Reviewer', when: '10 Aug 2026 · 16:20' },
             { t: 'resubmitted', label: 'Corrected & resubmitted (v2)', actor: 'Ananya Rao', role: 'Vendor', when: '10 Aug 2026 · 09:55' },
             { t: 'changes', label: 'Changes requested — academic review', actor: 'Dr. R. Iyer', role: 'Academic Reviewer', when: '08 Aug 2026 · 13:15', note: 'Energy-balance worksheet does not match the simulated instrument readings; please correct the sample data set.' },
@@ -186,7 +187,14 @@
         }
       },
 
+      /* Counter behind the id of each submission the vendor creates during the demo —
+         gives every new record a stable, unique key with no backend and no random source. */
+      seq: 0
     };
+    /* Everything above is the seeded sample data set. Submissions created during the demo
+       are added alongside it, carry seeded:false, and are the only records a reset removes. */
+    Object.keys(st.subs).forEach(function (k) { st.subs[k].seeded = true; });
+    return st;
   }
 
   /* Static history for submissions that predate the sample data set — reference
@@ -195,7 +203,7 @@
     { sub: 'Concrete Technology — Slump Test', action: 'Academic validation complete', when: '12 Aug 2026', note: '' }
   ];
   var CM_SEED_HISTORY = [
-    { sub: 'Concrete Technology — Slump Test', action: 'Content readiness approved', when: '13 Aug 2026', note: '' }
+    { sub: 'Concrete Technology — Slump Test', action: 'Published to production', when: '13 Aug 2026', note: '' }
   ];
 
   var S = load() || initialState();
@@ -223,10 +231,12 @@
     return '<span class="fmt ' + (m[f] || 'fmt-web') + '">' + ic(f === 'Web' ? 'monitor' : 'headset', 'sm') + esc(f) + '</span>';
   }
 
+  /* PM publication correction: the Content Manager publishes at gate 3, so there is no
+     'Ready to Publish' hand-off state between content readiness review and production. */
   var STATUS_LABEL = {
     draft: 'Draft', academic: 'Academic Review', changes_academic: 'Changes Required',
     content: 'Content Readiness Review', changes_content: 'Changes Required',
-    ready: 'Ready to Publish', publishing: 'Publishing…', published: 'Published'
+    publishing: 'Publishing…', published: 'Published'
   };
   function statusBadge(sub) {
     var s = sub.status;
@@ -234,7 +244,6 @@
     if (s === 'academic') return '<span class="badge b-info">' + ic('eye', 'sm') + 'Academic Review</span>';
     if (s === 'content') return '<span class="badge b-info">' + ic('listCheck', 'sm') + 'Content Readiness Review</span>';
     if (s === 'changes_academic' || s === 'changes_content') return '<span class="badge b-warning">' + ic('ret', 'sm') + 'Changes Required</span>';
-    if (s === 'ready') return '<span class="badge b-success-o">' + ic('check', 'sm') + 'Ready to Publish</span>';
     if (s === 'publishing') return '<span class="badge b-info">' + ic('clock', 'sm') + 'Publishing…</span>';
     if (s === 'published') return '<span class="badge b-published">' + ic('check', 'sm') + 'Published</span>';
     return '';
@@ -244,7 +253,7 @@
     if (s === 'draft') return audience === 'vendor' ? 'With you — not yet submitted' : 'With vendor (draft)';
     if (s === 'academic') return 'With Academic Reviewer';
     if (s === 'content') return 'With Content Manager';
-    if (s === 'ready' || s === 'publishing') return 'With platform administration — awaiting publication';
+    if (s === 'publishing') return 'Publishing to production…';
     if (s === 'changes_academic' || s === 'changes_content') return audience === 'vendor' ? 'With you — correct & resubmit' : 'With vendor for correction';
     if (s === 'published') return 'Published' + (sub.publishedOn ? ' · ' + sub.publishedOn : '');
     return '';
@@ -253,6 +262,47 @@
     return sub.resubmitted ? ' <span class="badge b-outline">' + ic('refresh', 'sm') + 'Resubmitted</span>' : '';
   }
   function vchip(sub) { return '<span class="vchip">v' + sub.version + '</span>'; }
+
+  /* ---------------- submission records ---------------- */
+  var VENDOR_ORG = 'Sample XR Content Vendor';
+
+  /* A submission the vendor creates during the demo becomes a real record in S.subs,
+     exactly like a seeded one, so it travels the governance chain under its own id and
+     with the title and details the vendor entered. Seeded records are never reused. */
+  function createSub(v) {
+    S.seq = (S.seq || 0) + 1;
+    var id = 'sub-' + S.seq;
+    S.subs[id] = {
+      id: id, seeded: false, seq: S.seq,
+      title: v.title, experiment: v.title, vendor: VENDOR_ORG,
+      fmt: v.fmt, device: v.device, discipline: v.discipline, desc: v.desc,
+      version: 1, status: 'draft', resubmitted: false, returnedGate: null, feedback: null,
+      build: v.build || null, docs: v.docs ? v.docs.slice() : [],
+      history: [{ t: 'created', label: 'Draft created', actor: 'Ananya Rao', role: 'Vendor', when: nowStamp() }]
+    };
+    save();
+    return id;
+  }
+
+  /* The vendor's own submissions — created ones first (newest at the top), then the
+     seeded sample set. Derived from state, never a hard-coded list of ids. */
+  function vendorSubs() {
+    var all = Object.keys(S.subs).map(function (k) { return S.subs[k]; })
+      .filter(function (s) { return s.vendor === VENDOR_ORG; });
+    var created = all.filter(function (s) { return !s.seeded; })
+      .sort(function (a, b) { return (b.seq || 0) - (a.seq || 0); });
+    return created.concat(all.filter(function (s) { return s.seeded; }));
+  }
+
+  /* How long a submission has been waiting in a review queue — read from its own
+     history so seeded and created records are treated identically. */
+  function queuedSince(sub) {
+    for (var i = 0; i < sub.history.length; i++) {
+      var t = sub.history[i].t;
+      if (t === 'submitted' || t === 'resubmitted') return String(sub.history[i].when).split(' · ')[0];
+    }
+    return '—';
+  }
 
   /* ---------------- state transitions (governance) ---------------- */
   function pushHist(sub, entry) { sub.history.unshift(entry); }
@@ -282,13 +332,26 @@
     toast('Changes requested — returned to the vendor with your reason.', 'ok');
     announce('Changes requested. The submission is returned to the vendor.');
   }
-  function cmApprove(id, note) {
+  /* PM publication correction: publication is owned by the Content Manager and happens
+     at gate 3, directly after content readiness review. There is no separate publish gate. */
+  function cmPublish(id, note) {
     var sub = S.subs[id];
-    sub.status = 'ready'; sub.resubmitted = false; sub.returnedGate = null; sub.feedback = null;
-    pushHist(sub, { t: 'readiness', label: 'Content readiness approved', actor: 'M. Kulkarni', role: 'Content Manager', when: nowStamp(), note: note || '' });
-    save();
-    toast('Readiness approved — now in the Super Admin publish queue.', 'ok');
-    announce('Content readiness approved. Status: Ready to Publish.');
+    sub.status = 'publishing'; sub.resubmitted = false; sub.returnedGate = null; sub.feedback = null;
+    save(); render();
+    var pct = 0, bar = null, tid = setInterval(function () {
+      pct = Math.min(100, pct + 20);
+      bar = document.getElementById('pubbar');
+      if (bar) bar.style.width = pct + '%';
+      if (pct >= 100) {
+        clearInterval(tid);
+        sub.status = 'published'; sub.publishedOn = 'Today';
+        pushHist(sub, { t: 'published', label: 'Published to production', actor: 'M. Kulkarni', role: 'Content Manager', when: nowStamp(), note: note || '' });
+        save();
+        toast('Published to production — the experiment is now live for entitled learners and institutions.', 'ok');
+        announce('Published. The experiment is live.');
+        render();
+      }
+    }, 260);
   }
   function cmChanges(id, reason) {
     var sub = S.subs[id];
@@ -312,25 +375,6 @@
     toast('Resubmitted (v' + sub.version + ') — review resumes at ' + where + '.', 'ok');
     announce('Resubmitted. Review resumes at ' + where + '.');
   }
-  function saPublish(id) {
-    var sub = S.subs[id];
-    sub.status = 'publishing'; save(); render();
-    var pct = 0, bar = null, tid = setInterval(function () {
-      pct = Math.min(100, pct + 20);
-      bar = document.getElementById('pubbar');
-      if (bar) bar.style.width = pct + '%';
-      if (pct >= 100) {
-        clearInterval(tid);
-        sub.status = 'published'; sub.publishedOn = 'Today';
-        pushHist(sub, { t: 'published', label: 'Published to production', actor: 'S. Nair', role: 'Super Admin', when: nowStamp() });
-        save();
-        toast('Published to production — the experiment is now live for entitled learners and institutions.', 'ok');
-        announce('Published. The experiment is live.');
-        render();
-      }
-    }, 260);
-  }
-
   /* ---------------- state transitions (learner XR) ---------------- */
   function xrGetOnDevice() {
     var e = S.exps.shear; e.xr = 'pending'; e.lastKnown = 'pending'; save();
@@ -439,7 +483,7 @@
       user: 'Ananya Rao', initials: 'AR', role: 'Vendor',
       nav: function () {
         return [
-          { href: '#/vendor/submissions', label: 'Submissions', icon: 'inbox', count: Object.keys(S.subs).filter(function (k) { return S.subs[k].vendor === 'Sample XR Content Vendor'; }).length },
+          { href: '#/vendor/submissions', label: 'Submissions', icon: 'inbox', count: vendorSubs().length },
           { href: '#/vendor/new', label: 'New Submission', icon: 'plus' }
         ];
       }
@@ -462,18 +506,8 @@
         var n = Object.keys(S.subs).filter(function (k) { return S.subs[k].status === 'content'; }).length;
         return [
           { href: '#/cm/queue', label: 'Review Queue', icon: 'listCheck', count: n },
-          { href: '#/cm/history', label: 'Reviewed Content', icon: 'clock' }
-        ];
-      }
-    },
-    sa: {
-      key: 'sa', wsLabel: 'Super Admin', wsCtx: 'Platform administration',
-      user: 'S. Nair', initials: 'SN', role: 'Super Admin',
-      nav: function () {
-        var n = Object.keys(S.subs).filter(function (k) { return S.subs[k].status === 'ready' || S.subs[k].status === 'publishing'; }).length;
-        return [
-          { href: '#/sa/queue', label: 'Publish Queue', icon: 'send', count: n },
-          { href: '#/sa/published', label: 'Published Content', icon: 'box' }
+          { href: '#/cm/history', label: 'Reviewed Content', icon: 'clock' },
+          { href: '#/cm/published', label: 'Published Content', icon: 'box' }
         ];
       }
     },
@@ -495,7 +529,6 @@
       { href: '#/vendor/submissions', label: 'Vendor', role: 'vendor' },
       { href: '#/arv/queue', label: 'Academic Reviewer', role: 'arv' },
       { href: '#/cm/queue', label: 'Content Manager', role: 'cm' },
-      { href: '#/sa/queue', label: 'Super Admin', role: 'sa' },
       { href: '#/learner/my-learning', label: 'Learner', role: 'learner' }
     ];
     return '<div class="protobar" role="navigation" aria-label="Prototype navigation — not product UI">' +
@@ -519,10 +552,14 @@
       '<div class="app">' +
       '<a class="skip-link" href="#main-content" id="skip-link">Skip to main content</a>' +
       '<header class="topbar">' +
-      /* Logo referenced in place from branding/ (asset never copied or modified). If the
-         browsing context can't load it (e.g. Safari local-file restrictions when the file
-         is opened directly), the graphic is omitted cleanly — never a broken-image icon. */
-      '<div class="brand"><img src="../../../branding/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" ' +
+      /* Logo loaded from assets/ — a byte-identical local prototype copy of
+         branding/bits-pilani-wilp-logo.png (branding/ remains the source of truth; the source
+         asset is never modified and the copy is never independently edited — verify with cmp).
+         A local copy is used because Safari blocks parent-directory subresources when the HTML
+         is opened directly from file://, which left the real logo missing. If the image still
+         can't load, the graphic is omitted cleanly and the text lockup stands alone — never a
+         broken-image icon. */
+      '<div class="brand"><img src="assets/bits-pilani-wilp-logo.png" alt="BITS Pilani WILP" ' +
       'onerror="this.closest(\'.brand\').classList.add(\'no-logo\'); this.remove()">' +
       '<span class="bdiv" aria-hidden="true"></span><span class="pname">XR Simulation Learning Platform</span></div>' +
       '<div class="tspace"></div>' +
@@ -556,7 +593,7 @@
       { key: 'submit', label: 'Submit' },
       { key: 'academic', label: 'Academic Review' },
       { key: 'content', label: 'Content Readiness Review' },
-      { key: 'publish', label: 'Publish' }
+      { key: 'publish', label: 'Published' }
     ];
     var st = sub.status;
     function cls(key) {
@@ -564,17 +601,17 @@
       if (key === 'academic') {
         if (st === 'academic') return 'cur';
         if (st === 'changes_academic') return 'ret';
-        if (st === 'content' || st === 'changes_content' || st === 'ready' || st === 'publishing' || st === 'published') return 'done';
+        if (st === 'content' || st === 'changes_content' || st === 'publishing' || st === 'published') return 'done';
         return '';
       }
       if (key === 'content') {
         if (st === 'content') return 'cur';
         if (st === 'changes_content') return 'ret';
-        if (st === 'ready' || st === 'publishing' || st === 'published') return 'done';
+        if (st === 'publishing' || st === 'published') return 'done';
         return '';
       }
       if (key === 'publish') {
-        if (st === 'ready' || st === 'publishing') return 'cur';
+        if (st === 'publishing') return 'cur';
         if (st === 'published') return 'done';
         return '';
       }
@@ -585,8 +622,8 @@
       if (key === 'academic' && c === 'ret') return 'Returned for changes — resumes here after resubmission';
       if (key === 'academic' && c === 'cur') return sub.resubmitted ? 'Resubmitted (v' + sub.version + ') — review resumed' : 'With Academic Reviewer';
       if (key === 'content' && c === 'ret') return 'Returned for changes — resumes here after resubmission';
-      if (key === 'content' && c === 'cur') return sub.resubmitted ? 'Resubmitted (v' + sub.version + ') — review resumed' : 'With Content Manager';
-      if (key === 'publish' && c === 'cur') return st === 'publishing' ? 'Publishing…' : 'Awaiting publication by the Super Admin';
+      if (key === 'content' && c === 'cur') return sub.resubmitted ? 'Resubmitted (v' + sub.version + ') — review resumed' : 'With Content Manager — reviews and publishes';
+      if (key === 'publish' && c === 'cur') return 'Publishing to production…';
       if (key === 'publish' && c === 'done') return 'Published' + (sub.publishedOn ? ' · ' + sub.publishedOn : '');
       return '';
     }
@@ -670,14 +707,13 @@
       '<div class="index-head">' +
       '<span class="itag">PROTOTYPE NAVIGATION — NOT PRODUCT UI</span>' +
       '<h1>XR Simulation Learning Platform — Batch 01 prototype</h1>' +
-      '<p>High-fidelity interactive prototype of two end-to-end experiences: <strong>content governance to production</strong> (Vendor → Academic Reviewer → Content Manager → Super Admin) and <strong>entitled XR access to a learner device</strong>. Everything is simulated in this browser — no backend, no real upload, no real XR delivery. All people, dates and content are sample design data.</p>' +
+      '<p>High-fidelity interactive prototype of two end-to-end experiences: <strong>content governance to production</strong> (Vendor → Academic Reviewer → Content Manager → Published) and <strong>entitled XR access to a learner device</strong>. Everything is simulated in this browser — no backend, no real upload, no real XR delivery. All people, dates and content are sample design data.</p>' +
       '</div>' +
 
       '<div class="index-section"><h2>Jump into a workspace</h2><div class="rolegrid">' +
       [['#/vendor/submissions', 'AR', 'Ananya Rao', 'Vendor — Sample XR Content Vendor'],
        ['#/arv/queue', 'RI', 'Dr. R. Iyer', 'Academic Reviewer'],
        ['#/cm/queue', 'MK', 'M. Kulkarni', 'Content Manager'],
-       ['#/sa/queue', 'SN', 'S. Nair', 'Super Admin'],
        ['#/learner/my-learning', 'RV', 'Rahul Verma', 'Learner — Sample Engineering Institute']].map(function (r) {
         return '<a class="rolecard" href="' + r[0] + '"><span class="rc-av">' + r[1] + '</span><span><span class="rc-name">' + r[2] + '</span><br><span class="rc-sub">' + r[3] + '</span></span></a>';
       }).join('') +
@@ -688,9 +724,10 @@
       '<div class="pathcard"><span class="pk">A</span><h2>Content happy path</h2><ol>' +
       '<li>Vendor → open “Soil Mechanics XR Experiment” (Draft) → Edit &amp; submit</li>' +
       '<li>Academic Reviewer → Review Queue → open it → Validate — approve</li>' +
-      '<li>Content Manager → Review Queue → open it → Approve readiness</li>' +
-      '<li>Super Admin → Publish Queue → open it → Publish to production</li></ol>' +
-      '<div class="pgo"><a class="btn sm sec" href="#/vendor/submission/soil">Start at the vendor</a></div></div>' +
+      '<li>Content Manager → Review Queue → open it → Publish to production</li></ol>' +
+      '<p style="font-size:12.5px;color:var(--text-3);margin:8px 0 0">Or run the same path on a submission of your own: Vendor → <strong>New Submission</strong>. It becomes its own record under the title you enter and travels the chain alongside the sample data.</p>' +
+      '<div class="pgo"><a class="btn sm sec" href="#/vendor/submission/soil">Start at the vendor</a>' +
+      '<a class="btn sm gho" href="#/vendor/new">New Submission</a></div></div>' +
 
       '<div class="pathcard"><span class="pk">B</span><h2>Academic changes required</h2><ol>' +
       '<li>Submit as vendor (as in A)</li>' +
@@ -702,7 +739,7 @@
       '<div class="pathcard"><span class="pk">C</span><h2>Content manager changes required</h2><ol>' +
       '<li>After academic approval, Content Manager → Request changes</li>' +
       '<li>Vendor corrects and resubmits</li>' +
-      '<li>Review resumes at Content Readiness Review — not at the start, never straight to publish</li></ol>' +
+      '<li>Review resumes at Content Readiness Review — not at the start, and never skipping the academic gate</li></ol>' +
       '<div class="pgo"><a class="btn sm sec" href="#/cm/queue">CM queue</a></div></div>' +
 
       '<div class="pathcard"><span class="pk">D</span><h2>Learner XR access</h2><ol>' +
@@ -732,8 +769,9 @@
       '<div class="card"><div class="cbody" style="font-size:13.5px;color:var(--text-2);line-height:1.7">' +
       '<p>· The XR delivery mechanism is deliberately <strong>not selected</strong> — all device copy is mechanism-neutral (“Get on device”, “Ready on device”) and may change once the implementation is chosen.</p>' +
       '<p>· VR/MR/AR simulations never run in this browser; only Web-format simulations do (see the Bernoulli experiment).</p>' +
-      '<p>· The vendor has no publish control anywhere — publication belongs to the Super Admin only, after both prior approvals.</p>' +
-      '<p>· The Super Admin deliberately has <strong>no</strong> “return / request changes” action: that decision is pending and has not been invented.</p>' +
+      '<p>· The vendor has no publish control anywhere — publication belongs to the Content Manager, and is only reachable after academic validation.</p>' +
+      '<p>· Publication is owned by the <strong>Content Manager</strong> (PM publication correction, 25 Aug 2026). <strong>Super Admin remains an approved platform role</strong>, but takes no part in the active Batch-01 content-publication workflow, so it has no workspace here; its detailed responsibilities are deferred to a later batch.</p>' +
+      '<p>· The Content Manager’s <strong>Published Content</strong> list is a <strong>design assumption (reversible)</strong>, not a PM-confirmed requirement — post-publication management responsibility has not been separately confirmed.</p>' +
       '<p>· Wireframes: <span style="font-family:var(--mono);font-size:12px">../wireframes/batch01-wireframes.html</span> · Docs: <span style="font-family:var(--mono);font-size:12px">01_BATCH01_SCOPE.md · 02_FOUNDATIONS_AND_SHELL.md · 03_COMPONENT_SYSTEM.md</span></p>' +
       '</div></div></div>' +
 
@@ -743,7 +781,7 @@
 
   /* ---------- S01 vendor submissions ---------- */
   function viewVendorSubs() {
-    var mine = ['soil', 'openchannel', 'venturi', 'heatx', 'gear'].map(function (k) { return S.subs[k]; });
+    var mine = vendorSubs();
     var returned = mine.filter(function (s) { return s.status === 'changes_academic' || s.status === 'changes_content'; });
     var rows = mine.map(function (s) {
       var isRet = s.status === 'changes_academic' || s.status === 'changes_content';
@@ -768,7 +806,7 @@
       '<div class="tablecard">' +
       '<div class="listbar"><div class="searchbox">' + ic('search') + '<input type="search" id="q" placeholder="Search submissions" aria-label="Search submissions"></div>' +
       '<label class="sr-only" for="fstatus">Filter by status</label>' +
-      '<select id="fstatus"><option value="">Status: All</option><option>Draft</option><option>Academic Review</option><option>Changes Required</option><option>Content Readiness Review</option><option>Ready to Publish</option><option>Published</option></select>' +
+      '<select id="fstatus"><option value="">Status: All</option><option>Draft</option><option>Academic Review</option><option>Changes Required</option><option>Content Readiness Review</option><option>Published</option></select>' +
       '<span class="lcount" id="lcount">' + mine.length + ' submissions</span></div>' +
       '<table class="dt" id="subtable"><caption class="sr-only">My submissions with status and holder</caption>' +
       '<thead><tr><th scope="col">Submission</th><th scope="col">Format</th><th scope="col">Version</th><th scope="col">Status</th><th scope="col">Current step</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>' +
@@ -864,7 +902,7 @@
       '<section class="card"><div class="chead"><h3>What happens next</h3></div><div class="cbody" style="font-size:13.5px;color:var(--text-2);line-height:1.7">' +
       (correcting ?
         'Resubmitting sends this back to the gate that returned it — <strong>' + (sub.returnedGate === 'content' ? 'Content Readiness Review' : 'Academic Review') + '</strong>. Earlier decisions stay in the review history.' :
-        'Submitting sends this to <strong>Academic Review</strong>. You can follow its status at every stage and you’ll see the reason if changes are requested. Publication itself is handled by platform administration after both reviews approve.') +
+        'Submitting sends this to <strong>Academic Review</strong>. You can follow its status at every stage and you’ll see the reason if changes are requested. Publication itself is handled by the Content Manager once academic validation is complete.') +
       '</div></section>' +
       (editing ? historyCard(sub) : '') +
       '</div></div>';
@@ -874,6 +912,9 @@
   function bindVendorForm(editId) {
     var editing = !!editId, sub = editing ? S.subs[editId] : null;
     var correcting = editing && (sub.status === 'changes_academic' || sub.status === 'changes_content');
+    /* Sample files added on this form instance only — scoped to the form so nothing
+       carries over into the next submission the vendor starts. */
+    var pendingBuild = null, pendingDocs = [];
 
     function collect() {
       return {
@@ -881,52 +922,71 @@
         discipline: document.getElementById('in-disc').value,
         fmt: document.getElementById('in-fmt').value,
         device: document.getElementById('in-dev').value,
-        desc: document.getElementById('in-desc').value.trim()
+        desc: document.getElementById('in-desc').value.trim(),
+        build: pendingBuild,
+        docs: pendingDocs
       };
+    }
+    function showErrors(errs, heading) {
+      document.querySelectorAll('.field.invalid').forEach(function (el) { el.classList.remove('invalid'); });
+      document.querySelectorAll('.ferr').forEach(function (el) { el.remove(); });
+      var box = document.getElementById('form-errors'); box.innerHTML = '';
+      if (!errs.length) return true;
+      box.innerHTML = '<div class="alert danger" role="alert" tabindex="-1" id="errsum">' + ic('alertCirc') +
+        '<div><div class="at">' + esc(heading) + '</div><ul style="margin:4px 0 0 16px;padding:0">' +
+        errs.map(function (e) { return '<li>' + esc(e.m) + '</li>'; }).join('') + '</ul></div></div>';
+      errs.forEach(function (e) {
+        var fld = document.getElementById(e.f);
+        if (fld) { fld.classList.add('invalid'); fld.insertAdjacentHTML('beforeend', '<div class="ferr">' + ic('alertCirc', 'sm') + esc(e.m) + '</div>'); }
+      });
+      document.getElementById('errsum').focus();
+      return false;
     }
     function validate(v) {
       var errs = [];
       if (!v.title) errs.push({ f: 'f-title', m: 'Enter a submission title.' });
       if (!v.desc) errs.push({ f: 'f-desc', m: 'Enter a description.' });
-      var hasBuild = editing ? !!sub.build || !!window.__protoBuild : !!window.__protoBuild;
+      var hasBuild = editing ? (!!sub.build || !!pendingBuild) : !!pendingBuild;
       if (!hasBuild) errs.push({ f: 'f-build', m: 'Add the XR build package.' });
-      document.querySelectorAll('.field.invalid').forEach(function (el) { el.classList.remove('invalid'); });
-      document.querySelectorAll('.ferr').forEach(function (el) { el.remove(); });
-      var box = document.getElementById('form-errors'); box.innerHTML = '';
-      if (errs.length) {
-        box.innerHTML = '<div class="alert danger" role="alert" tabindex="-1" id="errsum">' + ic('alertCirc') +
-          '<div><div class="at">The submission can’t be sent yet</div><ul style="margin:4px 0 0 16px;padding:0">' +
-          errs.map(function (e) { return '<li>' + esc(e.m) + '</li>'; }).join('') + '</ul></div></div>';
-        errs.forEach(function (e) {
-          var fld = document.getElementById(e.f);
-          if (fld) { fld.classList.add('invalid'); fld.insertAdjacentHTML('beforeend', '<div class="ferr">' + ic('alertCirc', 'sm') + esc(e.m) + '</div>'); }
-        });
-        document.getElementById('errsum').focus();
-        return false;
-      }
-      return true;
+      return showErrors(errs, 'The submission can’t be sent yet');
     }
+    /* A draft only needs a name — it is not going anywhere yet. */
+    function validateDraft(v) {
+      return showErrors(v.title ? [] : [{ f: 'f-title', m: 'Enter a submission title.' }], 'The draft needs a title');
+    }
+    /* Apply the entered values and return the id they belong to. Editing updates that
+       record in place; a new submission creates its own — a seeded record is never reused
+       as a container for someone else's submission. */
     function persist(v) {
-      if (editing) {
-        sub.title = v.title || sub.title; sub.discipline = v.discipline || sub.discipline;
-        sub.fmt = v.fmt; sub.device = v.device; sub.desc = v.desc || sub.desc;
-        if (window.__protoBuild && !sub.build) sub.build = window.__protoBuild;
-      }
+      if (!editing) return createSub(v);
+      sub.title = v.title || sub.title; sub.discipline = v.discipline || sub.discipline;
+      sub.fmt = v.fmt; sub.device = v.device; sub.desc = v.desc || sub.desc;
+      if (v.build && !sub.build) sub.build = v.build;
+      v.docs.forEach(function (d) { sub.docs.push(d); });
+      pendingDocs = [];
       save();
+      return editId;
     }
 
+    /* Sample file names follow the title the vendor typed, so a new submission never
+       inherits another experiment's file names. */
+    function titledName(subject) {
+      var el = document.getElementById('in-title'), t = el ? el.value.trim() : '';
+      return (t ? t + ' — ' : '') + subject;
+    }
     var upB = document.getElementById('up-build');
     if (upB) upB.addEventListener('click', function () {
-      window.__protoBuild = { name: 'Direct shear test — XR build package (v1)', size: '1.2 GB' };
-      upB.outerHTML = '<div class="upfile">' + ic('box') + '<span>Direct shear test — XR build package (v1)</span><span class="fsize">1.2 GB · sample file added</span></div>';
+      pendingBuild = { name: titledName('XR build package (v1)'), size: '1.2 GB' };
+      upB.outerHTML = '<div class="upfile">' + ic('box') + '<span>' + esc(pendingBuild.name) + '</span><span class="fsize">1.2 GB · sample file added</span></div>';
       toast('Sample build package added (no real upload happens in this prototype).', 'info');
     });
     var upD = document.getElementById('up-docs');
     if (upD) upD.addEventListener('click', function () {
       if (editing) { sub.docs.push({ name: 'Additional lab documentation.pdf', size: '1.0 MB' }); save(); render(); }
       else {
-        upD.outerHTML = '<div class="upfile">' + ic('file') + '<span>Instructor guide — Direct Shear Test.pdf</span><span class="fsize">2.4 MB · sample file added</span></div>';
-        window.__protoDocs = true;
+        var doc = { name: titledName('Instructor guide.pdf'), size: '2.4 MB' };
+        pendingDocs.push(doc);
+        upD.outerHTML = '<div class="upfile">' + ic('file') + '<span>' + esc(doc.name) + '</span><span class="fsize">2.4 MB · sample file added</span></div>';
         toast('Sample document added.', 'info');
       }
     });
@@ -936,13 +996,11 @@
     var bSave = document.getElementById('btn-savedraft');
     if (bSave) bSave.addEventListener('click', function () {
       var v = collect();
-      if (editing) { persist(v); toast('Draft saved.', 'ok'); }
-      else {
-        var soil = S.subs.soil;
-        if (soil.status === 'draft') { soil.title = v.title || soil.title; soil.desc = v.desc || soil.desc; save(); }
-        toast('Draft saved — see “Soil Mechanics XR Experiment” in My Submissions (prototype keeps one interactive draft).', 'info');
-        location.hash = '#/vendor/submissions';
-      }
+      if (editing) { persist(v); toast('Draft saved.', 'ok'); return; }
+      if (!validateDraft(v)) return;
+      var id = persist(v);
+      toast('Draft saved — “' + v.title + '” is now in My Submissions.', 'ok');
+      location.hash = '#/vendor/submission/' + id;
     });
     var bSubmit = document.getElementById('btn-submit');
     if (bSubmit) bSubmit.addEventListener('click', function () {
@@ -953,8 +1011,8 @@
           '<div class="consequence">' + ic('info') + '<span>You can follow its status and read reviewer feedback at every stage. If changes are requested, you’ll be able to correct and resubmit.</span></div>',
         confirmLabel: 'Submit for review',
         onConfirm: function () {
-          var id = editing ? editId : 'soil';
-          persist(v); submitSub(id);
+          var id = persist(v);
+          submitSub(id);
           location.hash = '#/vendor/submission/' + id;
         }
       });
@@ -990,8 +1048,8 @@
     var statusInfo = '';
     if (st === 'draft') statusInfo = '<div class="alert info">' + ic('info') + '<div><div class="at">Draft — not yet submitted</div>Finish the details and submit when ready. It will go to Academic Review first.</div></div>';
     if (st === 'academic') statusInfo = '<div class="alert info">' + ic('eye') + '<div><div class="at">' + (sub.resubmitted ? 'Resubmitted — academic review resumed' : 'In Academic Review') + '</div>Your submission is with the Academic Reviewer. You’ll see the outcome and any comments here.</div></div>';
-    if (st === 'content') statusInfo = '<div class="alert info">' + ic('listCheck') + '<div><div class="at">Academic validation complete — now in Content Readiness Review</div>The Content Manager is checking metadata, documentation and platform compatibility.</div></div>';
-    if (st === 'ready' || st === 'publishing') statusInfo = '<div class="alert success">' + ic('check') + '<div><div class="at">Approved — awaiting publication</div>Both reviews are complete. Publication to production is handled by platform administration.</div></div>';
+    if (st === 'content') statusInfo = '<div class="alert info">' + ic('listCheck') + '<div><div class="at">Academic validation complete — now in Content Readiness Review</div>The Content Manager is checking metadata, documentation and platform compatibility, and publishes once satisfied.</div></div>';
+    if (st === 'publishing') statusInfo = '<div class="alert success">' + ic('check') + '<div><div class="at">Publishing to production</div>The Content Manager has released this experiment. It will be live shortly.</div></div>';
     if (st === 'published') statusInfo = '<div class="alert success">' + ic('check') + '<div><div class="at">Published' + (sub.publishedOn ? ' · ' + esc(sub.publishedOn) : '') + '</div>This experiment is live. Entitled learners and institutions can now access it.</div></div>';
 
     var actions = '';
@@ -1021,7 +1079,7 @@
         '<div class="tsub">' + esc(s.vendor) + '</div></td>' +
         '<td>' + fmtBadge(s.fmt) + '</td><td class="num">v' + s.version + '</td>' +
         '<td>' + (s.resubmitted ? '<span class="badge b-outline">' + ic('refresh', 'sm') + 'Resubmitted</span>' : '<span class="badge b-neutral">New</span>') + '</td>' +
-        '<td>' + (s.id === 'soil' ? 'Today' : '19 Aug 2026') + '</td>' +
+        '<td>' + esc(queuedSince(s)) + '</td>' +
         '<td><a class="btn sm sec" href="#/arv/review/' + s.id + '">Review</a></td></tr>';
     }).join('');
     var table = q.length ?
@@ -1170,7 +1228,7 @@
       '<button class="btn pri blk" type="button" id="btn-validate">' + ic('check') + 'Validate — approve</button>' +
       '<button class="btn sec blk" type="button" id="btn-changes">' + ic('ret') + 'Request changes</button>' +
       '</div>' +
-      '<p style="font-size:12.5px;color:var(--text-3);margin-top:12px">Approving sends this to Content Readiness Review. Requesting changes returns it to the vendor with your reason. Publication happens later, at the platform administration gate.</p>' +
+      '<p style="font-size:12.5px;color:var(--text-3);margin-top:12px">Approving sends this to Content Readiness Review. Requesting changes returns it to the vendor with your reason. Publication happens later, at the Content Manager gate.</p>' +
       '</div></section>' : '';
     var content =
       '<div class="phead"><div class="ptitles"><h1>' + esc(sub.title) + ' ' + statusBadge(sub) + resubChip(sub) + '</h1>' +
@@ -1221,10 +1279,10 @@
     var table = q.length ?
       '<table class="dt"><caption class="sr-only">Submissions awaiting content readiness review</caption>' +
       '<thead><tr><th scope="col">Submission</th><th scope="col">Format</th><th scope="col">Version</th><th scope="col">Academic validation</th><th scope="col">Queue status</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' + rows + '</tbody></table>' :
-      emptyState('listCheck', 'Nothing is waiting for readiness review', 'Submissions arrive here after academic validation is complete.');
+      emptyState('listCheck', 'Nothing is waiting for readiness review', 'Submissions arrive here after academic validation is complete, ready for review and publication.');
     var content =
       '<div class="phead"><div class="ptitles"><h1>Content Review Queue</h1>' +
-      '<div class="pmeta">Academically validated submissions awaiting metadata, documentation and compatibility readiness review.</div></div></div>' +
+      '<div class="pmeta">Academically validated submissions awaiting readiness review — metadata, documentation and compatibility — and publication.</div></div></div>' +
       '<div class="tablecard"><div class="listbar"><div class="searchbox">' + ic('search') + '<input type="search" placeholder="Search queue" aria-label="Search content review queue"></div>' +
       '<span class="lcount">' + q.length + ' awaiting readiness review</span></div>' + table + '</div>';
     return shell('cm', '#/cm/queue', '', content);
@@ -1239,14 +1297,17 @@
     });
     var all = derived.concat(CM_SEED_HISTORY.map(function (h) { return { sub: h.sub, action: h.action, when: h.when, note: h.note, id: null }; }));
     var rows = all.map(function (h) {
-      var isRet = /Changes requested/.test(h.action);
+      var isRet = /Changes requested/.test(h.action), isPub = /Published/.test(h.action);
+      var badge = isRet ? '<span class="badge b-warning">' + ic('ret', 'sm') + 'Changes requested</span>' :
+        isPub ? '<span class="badge b-published">' + ic('check', 'sm') + 'Published</span>' :
+          '<span class="badge b-success-o">' + ic('check', 'sm') + 'Readiness approved</span>';
       return '<tr><td>' + (h.id ? '<a class="rowlink" href="#/cm/review/' + h.id + '"><span class="tmain">' + esc(h.sub) + '</span></a>' : '<span class="tmain">' + esc(h.sub) + '</span>') + '</td>' +
-        '<td>' + (isRet ? '<span class="badge b-warning">' + ic('ret', 'sm') + 'Changes requested</span>' : '<span class="badge b-success-o">' + ic('check', 'sm') + 'Readiness approved</span>') + '</td>' +
+        '<td>' + badge + '</td>' +
         '<td>' + esc(h.when) + '</td><td style="max-width:340px">' + (h.note ? '<span class="tsub" style="font-style:italic">“' + esc(h.note) + '”</span>' : '—') + '</td></tr>';
     }).join('');
     var content =
       '<div class="phead"><div class="ptitles"><h1>Reviewed Content</h1>' +
-      '<div class="pmeta">Your past readiness decisions, including returns. <span class="sample-tag">SAMPLE DESIGN DATA</span></div></div></div>' +
+      '<div class="pmeta">Your past readiness and publication decisions, including returns. <span class="sample-tag">SAMPLE DESIGN DATA</span></div></div></div>' +
       '<div class="tablecard"><table class="dt"><caption class="sr-only">Past content readiness decisions</caption>' +
       '<thead><tr><th scope="col">Submission</th><th scope="col">Decision</th><th scope="col">When</th><th scope="col">Reason / note</th></tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div>';
@@ -1260,7 +1321,8 @@
     var actionable = sub.status === 'content';
     var acad = null;
     for (var i = 0; i < sub.history.length; i++) if (sub.history[i].t === 'validated') { acad = sub.history[i]; break; }
-    var notice = actionable ? '' :
+    var releasing = sub.status === 'publishing', live = sub.status === 'published';
+    var notice = (actionable || releasing || live) ? '' :
       '<div class="alert info" style="margin-bottom:16px">' + ic('info') + '<div><div class="at">No readiness action available</div>This submission is currently in “' + esc(STATUS_LABEL[sub.status] || sub.status) + '”. It appears here read-only for reference.</div></div>';
     var acadCard = '<section class="card"><div class="chead"><h3>Academic validation record</h3><span class="cnote">read-only — owned by the Academic Reviewer</span></div><div class="cbody">' +
       (acad ?
@@ -1274,15 +1336,27 @@
       '<div class="checkrow"><input type="checkbox" id="ck2" checked><label for="ck2">Documentation present and final (instructor guide, lab procedure)</label></div>' +
       '<div class="checkrow"><input type="checkbox" id="ck3" checked><label for="ck3">Platform compatibility recorded (format, device, version)</label></div>' +
       '</div></section>' : '';
-    var decision = actionable ?
-      '<section class="card"><div class="chead"><h3>Decision</h3></div><div class="cbody">' +
-      '<p style="font-size:13px;color:var(--text-2);margin-bottom:12px">Readiness review of <strong>v' + sub.version + '</strong>' + (sub.resubmitted ? ' (resubmitted)' : '') + '</p>' +
-      '<div class="stack-sm">' +
-      '<button class="btn pri blk" type="button" id="btn-ready">' + ic('check') + 'Approve readiness</button>' +
-      '<button class="btn sec blk" type="button" id="btn-changes">' + ic('ret') + 'Request changes</button>' +
-      '</div>' +
-      '<p style="font-size:12.5px;color:var(--text-3);margin-top:12px">Approving marks it Ready to Publish for the Super Admin. This gate cannot publish.</p>' +
-      '</div></section>' : '';
+    /* PM publication correction: this gate publishes. There is no onward hand-off. */
+    var decision = '';
+    if (actionable) {
+      decision = '<section class="card"><div class="chead"><h3>Decision</h3></div><div class="cbody">' +
+        '<p style="font-size:13px;color:var(--text-2);margin-bottom:12px">Readiness review of <strong>v' + sub.version + '</strong>' + (sub.resubmitted ? ' (resubmitted)' : '') + '</p>' +
+        '<div class="stack-sm">' +
+        '<button class="btn pri blk" type="button" id="btn-publish">' + ic('send') + 'Publish to production</button>' +
+        '<button class="btn sec blk" type="button" id="btn-changes">' + ic('ret') + 'Request changes</button>' +
+        '</div>' +
+        '<p style="font-size:12.5px;color:var(--text-3);margin-top:12px">Publishing releases the experiment to production. It is only reachable once academic validation is recorded.</p>' +
+        '</div></section>';
+    } else if (releasing) {
+      decision = '<section class="card"><div class="chead"><h3>Publishing…</h3></div><div class="cbody">' +
+        '<div class="progressbar" role="progressbar" aria-label="Publishing to production"><span id="pubbar" style="width:10%"></span></div>' +
+        '<p style="font-size:12.5px;color:var(--text-3);margin-top:10px">Releasing to production. This experiment will become available to entitled learners and institutions.</p></div></section>';
+    } else if (live) {
+      decision = '<section class="card"><div class="chead"><h3>Published</h3></div><div class="cbody">' +
+        '<div class="alert success">' + ic('check') + '<div><div class="at">Live in production' + (sub.publishedOn ? ' · ' + esc(sub.publishedOn) : '') + '</div>Entitled learners and institutions can now access this experiment.</div></div>' +
+        '<div style="margin-top:12px" class="stack-sm"><a class="btn sec blk" href="#/cm/published">View Published Content</a></div>' +
+        '</div></section>';
+    }
     var content =
       '<div class="phead"><div class="ptitles"><h1>' + esc(sub.title) + ' ' + statusBadge(sub) + resubChip(sub) + '</h1>' +
       '<div class="pmeta">' + vchip(sub) + '<span>·</span><span>' + esc(sub.vendor) + '</span><span>·</span><span>Content readiness — metadata · documentation · compatibility</span></div></div></div>' +
@@ -1298,108 +1372,30 @@
   }
   function bindCmReview(id) {
     var sub = S.subs[id];
-    var br = document.getElementById('btn-ready');
+    var br = document.getElementById('btn-publish');
     if (br) br.addEventListener('click', function () {
       openDialog({
-        title: 'Approve readiness?',
-        body: '<p><strong>' + esc(sub.title) + '</strong> (v' + sub.version + ') will be marked <strong>Ready to Publish</strong> and appear in the Super Admin publish queue.</p>' +
+        title: 'Publish to production?',
+        body: '<p><strong>' + esc(sub.title) + '</strong> (v' + sub.version + ') will be released to production. It becomes available for institutional licensing and to entitled learners.</p>' +
           '<div class="field" style="margin-top:12px"><label for="in-note">Note (optional)</label><textarea id="in-note" style="min-height:70px" placeholder="e.g. Metadata and documentation verified."></textarea></div>' +
-          '<div class="consequence">' + ic('info') + '<span>Publication itself is performed only by the Super Admin.</span></div>',
-        confirmLabel: 'Approve readiness',
-        onConfirm: function (root) { cmApprove(id, root.querySelector('#in-note').value.trim()); location.hash = '#/cm/queue'; }
+          '<div class="consequence">' + ic('info') + '<span>Academic validation is recorded, and your readiness decision is recorded with it. Publication cannot be reached before academic validation.</span></div>',
+        confirmLabel: 'Publish to production',
+        onConfirm: function (root) { cmPublish(id, root.querySelector('#in-note').value.trim()); }
       });
     });
     var bc = document.getElementById('btn-changes');
     if (bc) bc.addEventListener('click', function () { requestChangesDialog(sub, 'content'); });
   }
 
-  /* ---------- S08 SA queue, S09 publish, S10 published ---------- */
-  function viewSaQueue() {
-    var q = Object.keys(S.subs).map(function (k) { return S.subs[k]; }).filter(function (s) { return s.status === 'ready' || s.status === 'publishing'; });
-    var rows = q.map(function (s) {
-      return '<tr><td><a class="rowlink" href="#/sa/publish/' + s.id + '"><span class="tmain">' + esc(s.title) + '</span></a>' +
-        '<div class="tsub">' + esc(s.vendor) + '</div></td>' +
-        '<td>' + fmtBadge(s.fmt) + '</td><td class="num">v' + s.version + '</td>' +
-        '<td><span class="badge b-success-o">' + ic('check', 'sm') + 'Both approvals complete</span></td>' +
-        '<td><a class="btn sm pri" href="#/sa/publish/' + s.id + '">Open</a></td></tr>';
-    }).join('');
-    var table = q.length ?
-      '<table class="dt"><caption class="sr-only">Submissions ready to publish</caption>' +
-      '<thead><tr><th scope="col">Submission</th><th scope="col">Format</th><th scope="col">Version</th><th scope="col">Approvals</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' + rows + '</tbody></table>' :
-      emptyState('send', 'Nothing is ready to publish', 'Submissions appear here once academic validation and content readiness are both approved.');
-    var content =
-      '<div class="phead"><div class="ptitles"><h1>Publish Queue</h1>' +
-      '<div class="pmeta">Submissions that have passed both review gates and await production publication.</div></div></div>' +
-      '<div class="tablecard">' + table + '</div>';
-    return shell('sa', '#/sa/queue', '', content);
-  }
-
-  function viewSaPublish(id) {
-    var sub = S.subs[id];
-    if (!sub) return shell('sa', '#/sa/queue', '', '<p>Not found.</p>');
-    var acad = null, ready = null, pub = null;
-    sub.history.forEach(function (h) {
-      if (h.t === 'validated' && !acad) acad = h;
-      if (h.t === 'readiness' && !ready) ready = h;
-      if (h.t === 'published' && !pub) pub = h;
-    });
-    var main = '', rail = '';
-    if (sub.status === 'ready') {
-      rail = '<section class="card"><div class="chead"><h3>Publish</h3></div><div class="cbody">' +
-        '<button class="btn pri lg blk" type="button" id="btn-publish">' + ic('send') + 'Publish to production</button>' +
-        '<p style="font-size:12.5px;color:var(--text-3);margin-top:12px">Publication is exclusive to the Super Admin and is only reachable after both prior approvals.</p>' +
-        '</div></section>';
-    } else if (sub.status === 'publishing') {
-      rail = '<section class="card"><div class="chead"><h3>Publishing…</h3></div><div class="cbody">' +
-        '<div class="progressbar" role="progressbar" aria-label="Publishing to production"><span id="pubbar" style="width:10%"></span></div>' +
-        '<p style="font-size:12.5px;color:var(--text-3);margin-top:10px">Releasing to production. This experiment will become available to entitled learners and institutions.</p></div></section>';
-    } else if (sub.status === 'published') {
-      rail = '<section class="card"><div class="chead"><h3>Published</h3></div><div class="cbody">' +
-        '<div class="alert success">' + ic('check') + '<div><div class="at">Live in production' + (sub.publishedOn ? ' · ' + esc(sub.publishedOn) : '') + '</div>Entitled learners and institutions can now access this experiment.</div></div>' +
-        '<div style="margin-top:12px" class="stack-sm"><a class="btn sec blk" href="#/sa/published">View Published Content</a></div>' +
-        '</div></section>';
-    } else {
-      main = '<div class="alert info" style="margin-bottom:16px">' + ic('info') + '<div><div class="at">Not ready to publish</div>This submission is currently in “' + esc(STATUS_LABEL[sub.status] || sub.status) + '”. It reaches this queue only after both review gates approve.</div></div>';
-    }
-    var content =
-      '<div class="phead"><div class="ptitles"><h1>' + esc(sub.title) + ' ' + statusBadge(sub) + '</h1>' +
-      '<div class="pmeta">' + vchip(sub) + '<span>·</span><span>' + esc(sub.vendor) + '</span></div></div></div>' +
-      main +
-      '<div class="grid-rail"><div class="stack">' +
-      '<section class="card"><div class="chead"><h3>Required approvals</h3></div><div class="cbody"><div class="stack-sm">' +
-      (acad ? '<div class="alert success">' + ic('check') + '<div><div class="at">Academic validation</div>' + esc(acad.actor) + ' · ' + esc(acad.role) + ' · ' + esc(acad.when) + (acad.note ? '<div style="margin-top:4px;font-style:italic">“' + esc(acad.note) + '”</div>' : '') + '</div></div>' : '<div class="alert warning">' + ic('alertTri') + '<div>Academic validation not recorded.</div></div>') +
-      (ready ? '<div class="alert success">' + ic('check') + '<div><div class="at">Content readiness</div>' + esc(ready.actor) + ' · ' + esc(ready.role) + ' · ' + esc(ready.when) + (ready.note ? '<div style="margin-top:4px;font-style:italic">“' + esc(ready.note) + '”</div>' : '') + '</div></div>' : '<div class="alert warning">' + ic('alertTri') + '<div>Content readiness not recorded.</div></div>') +
-      '</div></div></section>' +
-      submissionSummaryCard(sub) +
-      '</div><div class="stack">' +
-      rail +
-      '<section class="card"><div class="chead"><h3>Where it is</h3></div><div class="cbody">' + stepper(sub) + '</div></section>' +
-      historyCard(sub) +
-      '</div></div>';
-    return shell('sa', '#/sa/queue', crumbs([{ label: 'Publish Queue', href: '#/sa/queue' }, { label: sub.title }]), content);
-  }
-  function bindSaPublish(id) {
-    var sub = S.subs[id];
-    var bp = document.getElementById('btn-publish');
-    if (bp) bp.addEventListener('click', function () {
-      openDialog({
-        title: 'Publish to production?',
-        body: '<p><strong>' + esc(sub.title) + '</strong> (v' + sub.version + ') will be released to production. It becomes available for institutional licensing and to entitled learners.</p>' +
-          '<div class="consequence">' + ic('info') + '<span>Both required approvals are recorded: academic validation and content readiness.</span></div>',
-        confirmLabel: 'Publish to production',
-        onConfirm: function () { saPublish(id); }
-      });
-    });
-  }
-
-  function viewSaPublished() {
+  /* ---------- S09 published content (Content Manager — publisher of record) ---------- */
+  function viewCmPublished() {
     var pubs = Object.keys(S.subs).map(function (k) { return S.subs[k]; }).filter(function (s) { return s.status === 'published'; });
     var staticRows = [
       { title: 'Surveying — Total Station Basics', vendor: 'Sample Labs Collective', fmt: 'Web', version: 'v1', when: '05 Aug 2026' },
       { title: 'Fluid Mechanics — Bernoulli Flow Visualisation', vendor: 'Sample Labs Collective', fmt: 'Web', version: 'v3', when: '03 Aug 2026' }
     ];
     var rows = pubs.map(function (s) {
-      return '<tr><td><a class="rowlink" href="#/sa/publish/' + s.id + '"><span class="tmain">' + esc(s.title) + '</span></a><div class="tsub">' + esc(s.vendor) + '</div></td>' +
+      return '<tr><td><a class="rowlink" href="#/cm/review/' + s.id + '"><span class="tmain">' + esc(s.title) + '</span></a><div class="tsub">' + esc(s.vendor) + '</div></td>' +
         '<td>' + fmtBadge(s.fmt) + '</td><td class="num">v' + s.version + '</td><td>' + esc(s.publishedOn || '—') + '</td>' +
         '<td><span class="badge b-published">' + ic('check', 'sm') + 'Published</span></td></tr>';
     }).join('') + staticRows.map(function (s) {
@@ -1409,13 +1405,13 @@
     }).join('');
     var content =
       '<div class="phead"><div class="ptitles"><h1>Published Content</h1>' +
-      '<div class="pmeta">Experiments live in production. <span class="sample-tag">SAMPLE DESIGN DATA</span></div></div></div>' +
+      '<div class="pmeta">Experiments you have released to production. <span class="sample-tag">SAMPLE DESIGN DATA</span></div></div></div>' +
       '<div class="tablecard"><div class="listbar"><div class="searchbox">' + ic('search') + '<input type="search" placeholder="Search published content" aria-label="Search published content"></div>' +
       '<span class="lcount">' + (pubs.length + staticRows.length) + ' published</span></div>' +
       '<table class="dt"><caption class="sr-only">Published experiments</caption>' +
       '<thead><tr><th scope="col">Experiment</th><th scope="col">Format</th><th scope="col">Version</th><th scope="col">Published</th><th scope="col">Status</th></tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div>';
-    return shell('sa', '#/sa/published', '', content);
+    return shell('cm', '#/cm/published', '', content);
   }
 
   /* ---------- S11 learner my learning ---------- */
@@ -1774,12 +1770,8 @@
     else if (p[0] === 'cm') {
       if (p[1] === 'queue') html = viewCmQueue();
       else if (p[1] === 'history') html = viewCmHistory();
+      else if (p[1] === 'published') html = viewCmPublished();
       else if (p[1] === 'review' && p[2]) { html = viewCmReview(p[2]); after = function () { bindTabs(); bindCmReview(p[2]); }; }
-    }
-    else if (p[0] === 'sa') {
-      if (p[1] === 'queue') html = viewSaQueue();
-      else if (p[1] === 'published') html = viewSaPublished();
-      else if (p[1] === 'publish' && p[2]) { html = viewSaPublish(p[2]); after = function () { bindSaPublish(p[2]); }; }
     }
     else if (p[0] === 'learner') {
       if (p[1] === 'my-learning') html = viewLearnerHome();

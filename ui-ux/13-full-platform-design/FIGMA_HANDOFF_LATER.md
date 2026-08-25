@@ -12,8 +12,8 @@
 04 - Learner
 05 - Vendor
 06 - Academic Reviewer
-07 - Content Manager
-08 - Super Admin
+07 - Content Manager         (incl. publication — PM publication correction 2026-08-25)
+08 - Super Admin             (approved platform role; workspace deferred to a later batch)
 09 - Faculty                 (later batch)
 10 - Institute Admin         (later batch)
 11 - Prototype & Review      (flows wired for Paths A–E)
