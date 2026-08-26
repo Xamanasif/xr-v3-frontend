@@ -1,0 +1,17 @@
+{
+  "_note": "SAMPLE DESIGN DATA — a healthy institution data connection: the last run applied every record.",
+  "erp": {
+    "sourceCorrected": true,
+    "lastRun": { "when": "25 Aug 2026 · 06:10", "duration": "1 min 52 s", "outcome": "ok", "people": 10, "streams": 2, "groups": 4 },
+    "runs": [
+      { "when": "25 Aug 2026 · 06:10", "outcome": "ok", "note": "All records applied" },
+      { "when": "24 Aug 2026 · 06:10", "outcome": "ok", "note": "All records applied" },
+      { "when": "23 Aug 2026 · 06:10", "outcome": "ok", "note": "All records applied" }
+    ],
+    "issues": []
+  },
+  "people": {
+    "p_sb": { "stream": "s_civil", "account": "active" },
+    "p_tv": { "groups": ["g_thermA"] }
+  }
+}

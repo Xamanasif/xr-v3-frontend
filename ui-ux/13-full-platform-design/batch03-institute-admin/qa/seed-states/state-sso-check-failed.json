@@ -1,0 +1,11 @@
+{
+  "_note": "SAMPLE DESIGN DATA — connection details saved, last connection check did not succeed.",
+  "sso": {
+    "providerLabel": "Sample Institute identity provider",
+    "details": "Sample connection details supplied by the institution's identity provider.",
+    "saved": true,
+    "checkAttempts": 1,
+    "checkState": "failed",
+    "enabled": false
+  }
+}

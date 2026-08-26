@@ -1,0 +1,21 @@
+{
+  "_note": "SAMPLE DESIGN DATA — the institution with nothing needing attention: institutional sign-in on, every content access record reaching learners, and an institution data run that applied every record.",
+  "sso": {
+    "providerLabel": "Sample Institute identity provider",
+    "details": "Sample connection details supplied by the institution's identity provider.",
+    "saved": true, "checkAttempts": 2, "checkState": "passed", "enabled": true, "signIns": 7, "unmatched": 0
+  },
+  "access": {
+    "a_survey": { "eligibility": [{ "id": "e11", "type": "stream", "ref": "s_civil", "added": "25 Aug 2026" }] }
+  },
+  "erp": {
+    "sourceCorrected": true,
+    "lastRun": { "when": "25 Aug 2026 · 06:10", "duration": "1 min 52 s", "outcome": "ok", "people": 10, "streams": 2, "groups": 4 },
+    "runs": [
+      { "when": "25 Aug 2026 · 06:10", "outcome": "ok", "note": "All records applied" },
+      { "when": "24 Aug 2026 · 06:10", "outcome": "ok", "note": "All records applied" }
+    ],
+    "issues": []
+  },
+  "people": { "p_sb": { "stream": "s_civil", "account": "active" }, "p_tv": { "groups": ["g_thermA"] } }
+}

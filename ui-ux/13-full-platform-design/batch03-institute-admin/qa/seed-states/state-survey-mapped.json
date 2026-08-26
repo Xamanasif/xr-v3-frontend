@@ -1,0 +1,8 @@
+{
+  "_note": "SAMPLE DESIGN DATA — the Surveying XR content access record now reaches the B.E. Civil Engineering academic stream. This is the state after the eligibility is added in demo path B; it is what makes the experiment appear for the eligible learner.",
+  "access": {
+    "a_survey": {
+      "eligibility": [{ "id": "e11", "type": "stream", "ref": "s_civil", "added": "25 Aug 2026" }]
+    }
+  }
+}

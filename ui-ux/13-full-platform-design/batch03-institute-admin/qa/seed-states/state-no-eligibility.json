@@ -1,0 +1,10 @@
+{
+  "_note": "SAMPLE DESIGN DATA — the institution holds content access but no record reaches any academic stream, group or learner. Used for the learner not-currently-eligible state and the population-with-no-access state.",
+  "access": {
+    "a_geo": { "eligibility": [] },
+    "a_fluid": { "eligibility": [] },
+    "a_som": { "eligibility": [] },
+    "a_thermo": { "eligibility": [] },
+    "a_survey": { "eligibility": [] }
+  }
+}

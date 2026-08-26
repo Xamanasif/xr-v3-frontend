@@ -1,0 +1,13 @@
+{
+  "_note": "SAMPLE DESIGN DATA — institutional sign-in configured, checked and on, with sample identity-matching counts. No provider, protocol or attribute mapping is represented; the label and details are the institution's own free text.",
+  "sso": {
+    "providerLabel": "Sample Institute identity provider",
+    "details": "Sample connection details supplied by the institution's identity provider.",
+    "saved": true,
+    "checkAttempts": 2,
+    "checkState": "passed",
+    "enabled": true,
+    "signIns": 7,
+    "unmatched": 1
+  }
+}

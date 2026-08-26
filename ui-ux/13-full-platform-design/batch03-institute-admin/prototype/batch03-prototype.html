@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XR Simulation Learning Platform — Batch 03 Prototype (Institute Admin)</title>
+<meta name="description" content="High-fidelity interactive UI/UX prototype — Institute Admin workspace: people, academic structure, institution content access and eligibility, single sign-on, institution data. Sample design data only. No backend, no real single sign-on, no real institution-data integration, no real entitlement service.">
+<!-- One shared design system: batch01-design-system.css is a VERBATIM, byte-identical snapshot of
+     ../../prototype/batch01-prototype.css (Batch 01, unmodified, remains the source of truth —
+     verify drift with: cmp). A local copy is used because Safari blocks parent-directory
+     subresources when an HTML file is opened directly from file://, which left the page unstyled;
+     same-directory references load everywhere. batch03-prototype.css adds institutional
+     administration components only — no Batch-01 token or component is redefined. -->
+<link rel="stylesheet" href="batch01-design-system.css">
+<link rel="stylesheet" href="batch03-prototype.css">
+</head>
+<body>
+  <noscript>
+    <div style="max-width:640px;margin:60px auto;padding:24px;border:1px solid #D8DEE7;border-radius:10px;font-family:system-ui">
+      <h1 style="font-size:18px">This prototype needs JavaScript</h1>
+      <p>The Batch 03 prototype is an interactive state-machine demo. Please enable JavaScript, or review the static wireframes at <code>../wireframes/batch03-wireframes.html</code>.</p>
+    </div>
+  </noscript>
+
+  <div id="app-root"></div>
+
+  <div id="dialog-root"></div>
+  <div class="toasts" id="toasts"></div>
+  <div id="announcer" class="sr-only" role="status" aria-live="polite"></div>
+
+  <script src="batch03-prototype.js"></script>
+</body>
+</html>

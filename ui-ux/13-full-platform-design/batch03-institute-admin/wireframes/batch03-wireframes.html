@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batch 03 Wireframes — Institute Admin &amp; institutional access</title>
+<style>
+  /* Deliberately low-fidelity. Structure only — visual design lives in the prototype. */
+  :root{ --ink:#2b3138; --mut:#6a7480; --line:#c9cfd7; --fill:#f2f4f7; --accent:#4a5568; --warn:#8a5200; --warnf:#fcf3e4; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:13px;color:var(--ink);background:#e7eaee;line-height:1.5}
+  header.page{padding:28px 32px 8px;max-width:1180px;margin:0 auto}
+  header.page h1{font-size:20px;margin:0 0 6px}
+  header.page p{color:var(--mut);max-width:880px;margin:0 0 4px}
+  .lane{max-width:1180px;margin:18px auto;padding:0 32px}
+  .lane>h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:6px}
+  .lane>p.ln{color:var(--mut);margin:8px 0 0;max-width:880px}
+  .flowrow{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;margin-top:14px}
+  .wf{background:#fff;border:1px solid var(--line);border-radius:4px;width:530px;max-width:100%;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .wf.narrow{width:400px}
+  .wf.wide{width:100%}
+  .wf .cap{padding:7px 12px;border-bottom:1px dashed var(--line);font-size:11px;color:var(--mut);display:flex;gap:8px;align-items:baseline}
+  .wf .cap b{color:var(--ink);font-size:12px}
+  .wf .cap .id{margin-left:auto;font-family:ui-monospace,Menlo,monospace;font-size:10px;background:var(--fill);padding:1px 6px;border-radius:2px}
+  .scr{padding:10px}
+  .bar{height:22px;background:var(--fill);border:1px solid var(--line);border-radius:2px;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:10px;color:var(--mut);margin-bottom:6px}
+  .bar .sp{flex:1}
+  .cols{display:flex;gap:8px}
+  .nav{width:104px;flex:0 0 auto;border:1px solid var(--line);border-radius:2px;background:#fff;padding:6px;font-size:10px;color:var(--mut)}
+  .nav .on{background:var(--fill);border-left:2px solid var(--accent);padding:3px 4px;color:var(--ink);font-weight:600}
+  .nav div{padding:3px 4px}
+  .body{flex:1;min-width:0}
+  .h{font-weight:700;font-size:13px;margin:4px 0 2px}
+  .m{color:var(--mut);font-size:11px;margin-bottom:6px}
+  .box{border:1px solid var(--line);border-radius:2px;background:#fff;padding:8px;margin-bottom:6px}
+  .box.warn{background:var(--warnf);border-color:#ebcf98}
+  .box .bt{font-weight:600;font-size:11px;margin-bottom:4px}
+  .row{border:1px solid var(--line);border-radius:2px;padding:5px 8px;margin-bottom:4px;display:flex;gap:8px;align-items:center;font-size:11px;background:#fff}
+  .row.warn{background:var(--warnf);border-color:#ebcf98}
+  .row .sp{flex:1}
+  .pill{border:1px solid var(--line);border-radius:999px;font-size:9.5px;padding:0 6px;color:var(--mut);white-space:nowrap}
+  .pill.hot{border-color:var(--warn);color:var(--warn);font-weight:600}
+  .pill.ok{border-color:#146c43;color:#146c43;font-weight:600}
+  .btn{display:inline-block;border:1px solid var(--accent);border-radius:2px;padding:3px 10px;font-size:10.5px;font-weight:600;color:#fff;background:var(--accent)}
+  .btn.o{background:#fff;color:var(--accent)}
+  .fld{border:1px solid var(--line);border-radius:2px;background:var(--fill);height:20px;margin:2px 0 6px}
+  .fld.tall{height:44px}
+  .lbl{font-size:10px;color:var(--mut)}
+  .two{display:flex;gap:8px}
+  .two>*{flex:1;min-width:0}
+  .rail{width:160px;flex:0 0 auto}
+  .note{font-size:10px;color:var(--mut);border-top:1px dashed var(--line);padding:6px 12px 8px;line-height:1.55}
+  .arrow{align-self:center;color:var(--mut);font-size:18px;padding:0 2px}
+  .tag{font-size:9px;letter-spacing:.06em;border:1px dashed var(--mut);color:var(--mut);border-radius:2px;padding:0 4px;font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+  .quad{display:flex;gap:6px}
+  .quad>div{flex:1;border:1px solid var(--line);border-radius:2px;padding:6px;font-size:10px;color:var(--mut)}
+  .quad>div b{display:block;color:var(--ink);font-size:12px}
+  .flowstrip{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;margin-bottom:6px}
+  .flowstrip div{flex:1;padding:6px 8px;border-left:1px solid var(--line);font-size:10px;color:var(--mut)}
+  .flowstrip div:first-child{border-left:0}
+  .flowstrip div b{display:block;color:var(--ink);font-size:11px}
+  .tabs{display:flex;gap:10px;border-bottom:1px solid var(--line);margin-bottom:6px;font-size:11px;color:var(--mut)}
+  .tabs .on{color:var(--ink);font-weight:700;border-bottom:2px solid var(--accent);padding-bottom:3px}
+  footer{max-width:1180px;margin:10px auto 50px;padding:0 32px;color:var(--mut);font-size:11px}
+  footer b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>Batch 03 — low-fidelity wireframes</h1>
+  <p><b>Institute Admin workspace + the handoff that makes content appear for an eligible learner.</b> Structure and hierarchy only — no visual design. The high-fidelity version is <code>../prototype/batch03-prototype.html</code>.</p>
+  <p>All content is <b>SAMPLE DESIGN DATA</b>. How an institution comes to hold content access, and who assigns learner entitlement, are open product questions — nothing here answers them.</p>
+</header>
+
+<!-- ============================ LANE 1 ============================ -->
+<div class="lane">
+  <h2>1 · Overview — what needs me, then four operational facts</h2>
+  <p class="ln">Operational status only. No charts, no trends, no percentages, no seat or licence-capacity figures.</p>
+  <div class="flowrow">
+    <div class="wf wide">
+      <div class="cap"><b>Institution overview</b><span>Institute Admin</span><span class="id">INA-01 · IAD-01</span></div>
+      <div class="scr">
+        <div class="bar"><span>logo</span><span>XR Simulation Learning Platform</span><span class="sp"></span><span>Sample Engineering Institute</span><span>Help</span><span>Account</span></div>
+        <div class="cols">
+          <div class="nav">
+            <div class="lbl">INSTITUTE ADMIN</div>
+            <div class="on">Overview <span class="pill hot">3</span></div>
+            <div>People <span class="pill">10</span></div>
+            <div>Academic Structure</div>
+            <div>Content Access <span class="pill">5</span></div>
+            <div>Institution Setup</div>
+          </div>
+          <div class="body">
+            <div class="m">Overview</div>
+            <div class="h">Institution overview</div>
+            <div class="m">Sample Engineering Institute <span class="tag">SAMPLE</span></div>
+            <div class="box">
+              <div class="bt">What needs attention</div>
+              <div class="row warn"><span class="sp"><b>1 content access record not yet reaching learners</b><br><span class="lbl">Surveying XR — no one in your institution can see this content yet.</span></span><span class="btn o">Review content access</span></div>
+              <div class="row warn"><span class="sp"><b>3 records from the last institution data run need attention</b><br><span class="lbl">Academic stream not recognised · Group not recognised · Record could not be matched.</span></span><span class="btn o">Review records</span></div>
+              <div class="row warn"><span class="sp"><b>Institutional sign-in is not turned on yet</b><br><span class="lbl">People cannot sign in with their institutional account until this is set up.</span></span><span class="btn o">Set up sign-in</span></div>
+            </div>
+            <div class="quad">
+              <div>PEOPLE<b>8 learners</b>2 faculty · 1 record needs attention<br><span class="lbl">View people →</span></div>
+              <div>CONTENT ACCESS<b>5 records</b>1 not yet reaching learners<br><span class="lbl">View content access →</span></div>
+              <div>INSTITUTIONAL SIGN-IN<b>Not set up</b>People cannot sign in yet<br><span class="lbl">Open sign-in setup →</span></div>
+              <div>INSTITUTION DATA<b>Completed with issues</b>Last run 25 Aug 2026<br><span class="lbl">Open institution data →</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note">The attention list is the work list; the four cards are status. Nothing on this page is analytical — every element answers “is my institution working right now?”. Deliberately absent: usage dashboards and adoption reports (Phase 2), and any seat or licence-capacity figure (the seat model is an open question).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ LANE 2 ============================ -->
+<div class="lane">
+  <h2>2 · People — who is in the institution</h2>
+  <div class="flowrow">
+    <div class="wf">
+      <div class="cap"><b>People</b><span>directory</span><span class="id">INA-02 · IAD-02 + IAD-04</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="cols"><div class="nav"><div>Overview</div><div class="on">People</div><div>Academic Structure</div><div>Content Access</div><div>Institution Setup</div></div>
+        <div class="body">
+          <div class="m">Overview / People</div>
+          <div class="h">People</div>
+          <div class="m">10 people in Sample Engineering Institute <span class="tag">SAMPLE</span></div>
+          <div class="box">
+            <div class="row"><span class="lbl">search name or institutional ID</span><span class="sp"></span><span class="pill">Everyone 10</span><span class="pill">Learners 8</span><span class="pill">Faculty 2</span></div>
+            <div class="row"><span class="lbl" style="width:130px">NAME / ID</span><span class="lbl" style="width:52px">ROLE</span><span class="lbl sp">ACADEMIC CONTEXT</span><span class="lbl" style="width:70px">ACCOUNT</span><span class="lbl" style="width:72px">SOURCE</span></div>
+            <div class="row"><span style="width:130px">Rahul Verma<br><span class="lbl">SEI/CE/2023/0142</span></span><span style="width:52px">Learner</span><span class="sp">B.E. Civil Engineering<br><span class="lbl">Geotechnical Lab — Group A</span></span><span class="pill ok" style="width:70px">Active</span><span class="pill" style="width:72px">Institution data</span></div>
+            <div class="row"><span style="width:130px">Meera Sundaram</span><span style="width:52px">Learner</span><span class="sp">B.E. Civil Engineering</span><span class="pill" style="width:70px">Awaiting first sign-in</span><span class="pill" style="width:72px">Institution data</span></div>
+            <div class="row warn"><span style="width:130px">Sana Basheer</span><span style="width:52px">Learner</span><span class="sp" style="color:#8a5200"><b>Not placed in an academic stream</b></span><span class="pill hot" style="width:70px">Needs attention</span><span class="pill" style="width:72px">Institution data</span></div>
+            <div class="row"><span style="width:130px">Dr. Arjun Mehta</span><span style="width:52px">Faculty</span><span class="sp">B.E. Civil Engineering</span><span class="pill ok" style="width:70px">Active</span><span style="width:72px" class="lbl">—</span></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="note">One directory with a role filter, not two lists. <b>No add / invite / create / remove control</b> — accounts arrive through the institution data connection, and who creates a <i>Faculty</i> account is undefined, so no provisioning authority is asserted for either. Faculty rows show “—” for Source rather than inventing an origin.</div>
+    </div>
+
+    <div class="wf narrow">
+      <div class="cap"><b>Person detail</b><span>what can this person reach</span><span class="id">INA-03 · IAD-03</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="m">Overview / People / Rahul Verma</div>
+          <div class="h">Rahul Verma <span class="pill ok">Active</span></div>
+          <div class="two">
+            <div>
+              <div class="box"><div class="bt">Institutional record</div>
+                <div class="lbl">Name · Institutional ID · Role · Academic stream · Groups</div>
+                <div class="lbl" style="margin-top:6px">“These details come from your institution’s data connection and are shown as they arrived. They are not edited here.”</div>
+              </div>
+              <div class="box"><div class="bt">Content access <span class="pill">5 experiments</span></div>
+                <div class="row"><span class="sp">Soil Mechanics — Direct Shear Test<br><span class="lbl">Through Geotechnical &amp; Soil Mechanics XR, which reaches academic stream <b>B.E. Civil Engineering</b></span></span></div>
+                <div class="row"><span class="sp">Fluid Mechanics — Bernoulli Flow<br><span class="lbl">Through Fluid Mechanics XR, which reaches group <b>Fluid Mechanics Lab — Group A</b></span></span></div>
+              </div>
+            </div>
+            <div class="rail">
+              <div class="box"><div class="bt">Account</div><div class="lbl">Status · Source · Last signed in</div></div>
+              <div class="box"><div class="bt">Where this person sits</div><div class="lbl">Institution · stream · groups</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note">Every access line says <b>why</b> — which record, and which relationship produced it. No performance, score, attempt or time data: that is Faculty territory and Phase-1 admin reporting is operational only.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ LANE 3 ============================ -->
+<div class="lane">
+  <h2>3 · Academic structure — the shape content access maps to</h2>
+  <div class="flowrow">
+    <div class="wf">
+      <div class="cap"><b>Academic structure</b><span>streams · groups · courses</span><span class="id">INA-04 · IAD-07 + IAD-06</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="h">Academic structure</div>
+          <div class="m">2 academic streams · 4 groups · 4 courses <span class="tag">SAMPLE</span></div>
+          <div class="box warn"><div class="bt">Some incoming values do not match this structure</div><span class="lbl">One value seen in your institution’s data — “CIVIL-ENGG-2023” — does not match an academic stream here. <u>Review the records needing attention</u>.</span></div>
+          <div class="box"><div class="bt">Academic streams</div>
+            <div class="row"><span class="sp">B.E. Civil Engineering<br><span class="lbl">Academic stream</span></span><span class="pill">4 learners</span><span class="pill">3 access records</span><span class="pill">Institution data</span></div>
+            <div class="row"><span class="sp">B.E. Mechanical Engineering</span><span class="pill">3 learners</span><span class="pill">2 access records</span><span class="pill">Institution data</span></div>
+          </div>
+          <div class="box"><div class="bt">Groups</div><div class="row"><span class="sp">Geotechnical Lab — Group A (2026)<br><span class="lbl">Group · B.E. Civil Engineering</span></span><span class="pill">2 learners</span><span class="pill">Through its academic stream</span></div></div>
+          <div class="box"><div class="bt">Courses <span class="lbl">shown as they arrive from your institution’s data</span></div><div class="row"><span class="sp">Geotechnical Engineering Laboratory</span><span class="pill">Institution data</span></div></div>
+        </div>
+      </div>
+      <div class="note"><b>View only.</b> Creating a course in the platform is a later-phase capability and is absent — not greyed out. The three entity types keep their source names (academic stream, group, course); “Academic Structure” is a navigation label only, and that grouping is recorded as a design normalisation.</div>
+    </div>
+
+    <div class="wf narrow">
+      <div class="cap"><b>Stream / group detail</b><span>members · faculty · access</span><span class="id">INA-05 · IAD-07</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="h">B.E. Civil Engineering</div>
+          <div class="m">Academic stream <span class="tag">SAMPLE</span></div>
+          <div class="two">
+            <div>
+              <div class="box"><div class="bt">Content access reaching this academic stream</div>
+                <div class="row"><span class="sp">Geotechnical &amp; Soil Mechanics XR<br><span class="lbl">Covers 2 experiments · reaches this academic stream</span></span></div>
+                <div class="row"><span class="sp">Strength of Materials XR</span></div>
+              </div>
+              <div class="box"><div class="bt">Members <span class="lbl">4 learners</span></div><div class="row"><span class="sp">Rahul Verma</span><span class="pill">Learner</span><span class="pill ok">Active</span></div></div>
+            </div>
+            <div class="rail">
+              <div class="box"><div class="bt">About</div><div class="lbl">Type · learners · source</div></div>
+              <div class="box"><div class="bt">Faculty</div><div class="lbl">Dr. Arjun Mehta<br>— or “No faculty recorded for this group”</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note">Empty variant: <b>“No content access reaches this academic stream”</b> — the population-with-no-access state.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ LANE 4 ============================ -->
+<div class="lane">
+  <h2>4 · Content access — what the institution may use, and who receives it</h2>
+  <p class="ln">The centre of the batch. No price, no seats, no term behaviour, no purchase route: how the institution came to hold a record is upstream and unresolved.</p>
+  <div class="flowrow">
+    <div class="wf">
+      <div class="cap"><b>Content access</b><span>the institution’s records</span><span class="id">INA-06 · IAD-09</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="h">Content access</div>
+          <div class="m">What Sample Engineering Institute may use <span class="tag">SAMPLE</span> <span class="sp"></span><span class="btn o">Access mapping</span></div>
+          <div class="box warn"><div class="bt">1 content access record is not yet reaching learners</div><span class="lbl">Your institution has access to this content, but no one can see it until the record reaches an academic stream, a group or a learner.</span></div>
+          <div class="box">
+            <div class="row"><span class="lbl sp">CONTENT ACCESS</span><span class="lbl" style="width:52px">EXPTS</span><span class="lbl" style="width:96px">STATUS</span><span class="lbl" style="width:110px">REACHES</span><span class="lbl" style="width:70px">FROM</span></div>
+            <div class="row"><span class="sp">Geotechnical &amp; Soil Mechanics XR<br><span class="lbl">Direct Shear Test · Consolidation Test</span></span><span style="width:52px">2</span><span class="pill ok" style="width:96px">Active</span><span style="width:110px" class="lbl">B.E. Civil Engineering<br>4 learners</span><span style="width:70px" class="lbl">1 Jul 2026</span></div>
+            <div class="row warn"><span class="sp">Surveying XR<br><span class="lbl">Total Station Basics</span></span><span style="width:52px">1</span><span class="pill hot" style="width:96px">Not yet reaching learners</span><span style="width:110px;color:#8a5200"><b>No one yet</b></span><span style="width:70px" class="lbl">18 Aug 2026</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">Empty variant: <b>“No content access has been recorded for this institution yet”</b> — with <b>no purchase call to action</b>, because the acquisition route is an open product question.</div>
+    </div>
+
+    <div class="wf">
+      <div class="cap"><b>Content access detail</b><span>covers · reaches</span><span class="id">INA-07 · IAD-09 + IAD-05</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="h">Surveying XR <span class="pill hot">Not yet reaching learners</span></div>
+          <div class="two">
+            <div>
+              <div class="box warn"><div class="bt">No one in your institution can see this content yet</div><span class="lbl">This content access is active, but it does not yet reach any academic stream, group or learner.</span></div>
+              <div class="box"><div class="bt">How this reaches learners</div>
+                <div class="flowstrip"><div>CONTENT ACCESS<b>Surveying XR</b></div><div>REACHES<b style="color:#8a5200">No one yet</b></div><div>ELIGIBLE LEARNERS<b style="color:#8a5200">None</b></div><div>IN THEIR LEARNING<b style="color:#8a5200">Not visible</b></div></div>
+              </div>
+              <div class="box"><div class="bt">What this covers <span class="pill">1 experiment</span></div>
+                <div class="row"><span class="sp">Surveying — Total Station Basics</span><span class="pill">Web</span><span class="lbl">Runs in a web browser</span></div>
+                <div class="lbl">“Content is published and maintained by the platform. Your institution uses it as published.”</div>
+              </div>
+              <div class="box"><div class="bt">Who this reaches</div>
+                <div class="lbl">Choose who this content access reaches. Everyone it reaches will see the experiments it covers in their learning.</div>
+                <div style="margin-top:6px"><span class="btn">+ Add eligibility</span></div>
+              </div>
+            </div>
+            <div class="rail">
+              <div class="box"><div class="bt">Access record</div><div class="lbl">Status<br>Effective from<br>Effective to<br>Reference<br>Recorded (date only — no owner is named)</div></div>
+              <div class="box"><div class="bt">Eligible learners</div><div class="lbl">“No learners are eligible for this content yet.”</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note">The <b>Add eligibility</b> control is a <b>DESIGN ASSUMPTION — REVERSIBLE</b>: it demonstrates the relationship without claiming who owns it. Effective dates are record data only — no expiry state, countdown or renewal action, because post-expiry behaviour is undefined.</div>
+    </div>
+  </div>
+
+  <div class="flowrow">
+    <div class="wf narrow">
+      <div class="cap"><b>Add eligibility</b><span>dialog</span><span class="id">INA-07 · dialog</span></div>
+      <div class="scr">
+        <div class="box"><div class="bt">Add eligibility</div>
+          <div class="lbl">Choose who receives the content covered by <b>Surveying XR</b>.</div>
+          <div class="row"><span>◉ An academic stream<br><span class="lbl">Everyone in that academic stream becomes eligible.</span></span></div>
+          <div class="row"><span>○ A group<br><span class="lbl">Everyone in that group becomes eligible.</span></span></div>
+          <div class="row"><span>○ An individual learner<br><span class="lbl">One named learner becomes eligible.</span></span></div>
+          <div class="lbl">Select</div><div class="fld"></div>
+          <div class="row"><span class="lbl sp">Everyone this reaches will see the 1 experiment covered by this content access in their learning.</span></div>
+          <div style="text-align:right"><span class="btn o">Cancel</span> <span class="btn">Add eligibility</span></div>
+        </div>
+      </div>
+      <div class="note">Three population types are offered because three are supported by the source model. It is <b>not</b> claimed that all three are required, nor that any one is the primary mechanism.</div>
+    </div>
+
+    <div class="wf">
+      <div class="cap"><b>Access mapping</b><span>both directions</span><span class="id">INA-08 · IAD-08</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="h">Access mapping</div>
+          <div class="m">Which content access reaches which part of your institution</div>
+          <div class="box warn"><div class="bt">1 content access record does not reach anyone yet</div><span class="lbl">Surveying XR.</span></div>
+          <div class="box"><div class="bt">By content access</div>
+            <div class="row"><span style="width:180px">Geotechnical &amp; Soil Mechanics XR<br><span class="lbl">2 experiments · 4 learners</span></span><span class="sp"><span class="pill">B.E. Civil Engineering</span></span></div>
+            <div class="row"><span style="width:180px">Surveying XR<br><span class="lbl">1 experiment</span></span><span class="sp" style="color:#8a5200"><b>Not yet reaching learners</b></span></div>
+          </div>
+          <div class="box"><div class="bt">By part of your institution</div>
+            <div class="row"><span style="width:180px">B.E. Civil Engineering<br><span class="lbl">Academic stream · 4 learners</span></span><span class="sp"><span class="pill">Geotechnical &amp; Soil Mechanics XR</span> <span class="pill">Strength of Materials XR</span></span></div>
+            <div class="row"><span style="width:180px">Thermal Lab — Group A<br><span class="lbl">Group · 2 learners</span></span><span class="sp"><span class="pill">Thermodynamics XR (through its academic stream)</span></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">The reverse view is what makes gaps findable: a record reaching nobody, and a population nothing reaches.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ LANE 5 ============================ -->
+<div class="lane">
+  <h2>5 · Institution setup — sign-in and institution data</h2>
+  <div class="flowrow">
+    <div class="wf narrow">
+      <div class="cap"><b>Institution setup</b><span>landing</span><span class="id">INA-09 · IAD-14</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="h">Institution setup</div>
+          <div class="tabs"><span class="on">Institution</span><span>Single sign-on ●</span><span>Institution data ●</span></div>
+          <div class="box"><div class="bt">Institution</div><div class="lbl">Institution name · Institution code · Primary administrator · Status</div><div style="margin-top:6px"><span class="btn o">Edit institution details</span></div></div>
+          <div class="two">
+            <div class="box"><div class="bt">Single sign-on</div><span class="pill hot">Needs setup</span><div class="lbl">Not set up</div><div style="margin-top:6px"><span class="btn">Set up sign-in</span></div></div>
+            <div class="box"><div class="bt">Institution data</div><span class="pill hot">Needs attention</span><div class="lbl">Last run completed with issues</div><div style="margin-top:6px"><span class="btn">Open institution data</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">Five profile fields, not a configuration form. Creating or deleting an institution is platform-side work and is absent.</div>
+    </div>
+
+    <div class="wf">
+      <div class="cap"><b>Single sign-on</b><span>configure → check → turn on</span><span class="id">INA-10 · IAD-13</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="h">Single sign-on</div>
+          <div class="tabs"><span>Institution</span><span class="on">Single sign-on</span><span>Institution data ●</span></div>
+          <div class="two">
+            <div>
+              <div class="box warn"><div class="bt">Connection check did not succeed</div><span class="lbl">The platform could not complete a check with the details saved here. Check the details with your identity provider, save them again, and check the connection once more.</span> <span class="btn">Check connection</span></div>
+              <div class="box"><div class="bt">Connection details</div>
+                <div class="lbl">Identity provider name *</div><div class="fld"></div>
+                <div class="lbl">Details from your identity provider *</div><div class="fld tall"></div>
+                <div class="lbl">“The exact details required will be confirmed by the platform team.”</div>
+                <div style="margin-top:6px"><span class="btn o">Save details</span></div>
+              </div>
+              <div class="box"><div class="bt">People signing in</div><div class="lbl">Signed in · Not matched — shown once institutional sign-in is on</div></div>
+            </div>
+            <div class="rail"><div class="box"><div class="bt">Setup steps</div><div class="lbl">1 Add the connection details — DONE<br>2 Check the connection — DID NOT SUCCEED<br>3 Turn institutional sign-in on — NOT STARTED</div></div>
+              <div class="box"><div class="bt">What this changes</div><div class="lbl">Accounts and academic context still come from the institution data connection.</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="note"><b>No provider, no protocol, no attribute or claim field, and no role mapping.</b> States: not set up → details saved → connection check failed / checked → institutional sign-in on. Sign-in cannot be turned on before a check has passed.</div>
+    </div>
+  </div>
+
+  <div class="flowrow">
+    <div class="wf">
+      <div class="cap"><b>Institution data</b><span>connection · schedule · last run</span><span class="id">INA-11 · IAD-11 + IAD-12</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="h">Institution data</div>
+          <div class="tabs"><span>Institution</span><span>Single sign-on</span><span class="on">Institution data</span></div>
+          <div class="two">
+            <div>
+              <div class="box warn"><div class="bt">Last run completed with issues</div><span class="lbl">3 records could not be applied. Everything else was updated as normal.</span> <span class="btn o">Run now</span> <span class="tag">DA-15 REVERSIBLE</span></div>
+              <div class="box"><div class="bt">Last run</div><div class="lbl">When · How long · Outcome</div>
+                <div class="quad" style="margin-top:6px"><div>PEOPLE<b>10</b></div><div>ACADEMIC STREAMS<b>2</b></div><div>GROUPS<b>4</b></div><div>NEED ATTENTION<b style="color:#8a5200">3</b></div></div></div>
+              <div class="box"><div class="bt">Recent runs</div><div class="row"><span class="sp">25 Aug 2026 · 06:10 — Completed with issues</span><span class="lbl">3 records need attention</span></div><div class="row"><span class="sp">24 Aug 2026 · 06:10 — Completed</span><span class="lbl">All records applied</span></div></div>
+            </div>
+            <div class="rail"><div class="box"><div class="bt">Connection</div><div class="lbl">Status · Name<br>“The technical details of this connection are not edited here.”</div></div>
+              <div class="box"><div class="bt">Schedule</div><div class="lbl">How often your institution’s records are brought in</div><div class="fld"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="note"><b>No endpoint, credential, payload, schema, field name or provider.</b> Only what an administrator experiences: is it connected, how often does it run, did the last run work, what needs me.<br><b>Confirmed:</b> the administrator sets the synchronisation interval and sees the last run, its outcome, its counts and its errors. <b>Not confirmed:</b> <b>“Run now”</b> — no source establishes a manual or on-demand run, so it is carried as <b>DESIGN ASSUMPTION DA-15 — REVERSIBLE</b> and can be removed without affecting any other screen.<br>The access record names <b>no owner</b> for how the institution came to hold it — “Recorded” carries a date only.</div>
+    </div>
+
+    <div class="wf">
+      <div class="cap"><b>Records needing attention</b><span>the exception state</span><span class="id">INA-12 · IAD-12</span></div>
+      <div class="scr">
+        <div class="bar"><span class="sp">shell</span></div>
+        <div class="body">
+          <div class="h">Records needing attention</div>
+          <div class="m">From the run on 25 Aug 2026 · 06:10</div>
+          <div class="box warn"><div class="bt">3 records from the last run need attention</div><span class="lbl">Everything else was applied as normal. Each record is kept with the reason it could not be applied, so it can be retried.</span></div>
+          <div class="box warn"><div class="bt">Academic stream not recognised <span class="lbl">1 record</span></div>
+            <span class="lbl">One record names “CIVIL-ENGG-2023” as its academic stream. That value does not match an academic stream in this institution, so the person has not been placed in one — and no content access reaches them.</span>
+            <div class="row" style="margin-top:6px"><span class="sp"><span class="lbl">WHAT TO DO NEXT</span><br>Once the institution’s records name an academic stream that exists here, retry these records.</span></div>
+            <div style="margin-top:6px"><span class="lbl">Affects:</span> <span class="pill">Sana Basheer</span></div>
+            <div style="margin-top:6px"><span class="btn">Retry these records</span> <span class="btn o">View academic structure</span></div>
+          </div>
+          <div class="box warn"><div class="bt">Group not recognised <span class="lbl">1 record</span></div><span class="lbl">…what happened, then what to do next…</span></div>
+          <div class="box warn"><div class="bt">Record could not be matched to a person <span class="lbl">1 record</span></div><span class="lbl">…what happened, then what to do next…</span></div>
+          <div class="box"><span class="tag">PROTOTYPE CONTROL — NOT PRODUCT UI</span> <span class="lbl">The platform cannot change your institution’s own records. Simulate the records being corrected at source so the retry path can be demonstrated.</span></div>
+        </div>
+      </div>
+      <div class="note"><b>Retry is the only action, and it is confirmed</b> — the Institute Admin acceptance criterion states that on a failed synchronisation run, failed records are retained with a reason and a retry is available. Edit-the-incoming-record, force-apply, ignore and map-this-value all specify an integration contract that does not exist yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ LANE 6 ============================ -->
+<div class="lane">
+  <h2>6 · The handoff — content appears for an eligible learner</h2>
+  <p class="ln">The point of the batch: institution content access → eligibility → learner. Everything after this point is Batch 01 and Batch 02 and is not repeated.</p>
+  <div class="flowrow">
+    <div class="wf wide">
+      <div class="cap"><b>Learner access check</b><span>Learner · verification view</span><span class="id">INA-13 · over LRN-02</span></div>
+      <div class="scr">
+        <div class="bar"><span>logo</span><span class="sp"></span><span>Sample Engineering Institute</span><span>Rahul Verma · Learner</span></div>
+        <div class="cols">
+          <div class="nav"><div class="lbl">LEARNER</div><div class="on">My Learning</div></div>
+          <div class="body">
+            <div class="h">My learning</div>
+            <div class="m">Sample Engineering Institute <span class="tag">SAMPLE</span></div>
+            <div class="two">
+              <div class="box"><div class="bt">Soil Mechanics — Direct Shear Test</div><span class="pill">VR</span><div class="lbl">VR headset — e.g. Meta Quest</div><div class="lbl" style="color:#146c43;border-top:1px solid #eee;margin-top:6px;padding-top:6px">✓ Included in your institution’s access</div></div>
+              <div class="box"><div class="bt">Surveying — Total Station Basics</div><span class="pill">Web</span><div class="lbl">Runs in a web browser</div><div class="lbl" style="color:#146c43;border-top:1px solid #eee;margin-top:6px;padding-top:6px">✓ Included in your institution’s access</div></div>
+              <div class="box"><div class="bt">Fluid Mechanics — Bernoulli Flow</div><span class="pill">Web</span><div class="lbl">Runs in a web browser</div><div class="lbl" style="color:#146c43;border-top:1px solid #eee;margin-top:6px;padding-top:6px">✓ Included in your institution’s access</div></div>
+            </div>
+            <div class="box"><span class="tag">PROTOTYPE SCOPE — NOT PRODUCT UI</span> <span class="lbl">This page exists to show that institutional content access reaches the right learner. Opening an experiment, getting it onto a supported device, the learning sequence and assessments are designed in Batch 01 and Batch 02 and are not repeated here.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">Not-eligible variant: <b>“Nothing is available to you yet — your institution decides which experiments are available to you. Contact your institution administrator if you expect to see something here.”</b> <b>No purchase prompt</b>, and no catalogue of content the learner is not entitled to (whether non-entitled content may be browsed is an open question, and drawing a browse surface would answer it).</div>
+    </div>
+  </div>
+
+  <div class="flowrow">
+    <div class="wf wide">
+      <div class="cap"><b>The relationship, end to end</b><span>what changes when eligibility changes</span><span class="id">flow</span></div>
+      <div class="scr">
+        <div class="flowstrip">
+          <div>1 · UPSTREAM<b>Open</b>How the institution comes to hold access is not designed</div>
+          <div>2 · CONTENT ACCESS<b>Surveying XR</b>Active · covers 1 experiment</div>
+          <div>3 · ELIGIBILITY<b>B.E. Civil Engineering</b>Relationship to a population</div>
+          <div>4 · LEARNER<b>Rahul Verma</b>Eligible</div>
+          <div>5 · MY LEARNING<b>Total Station Basics</b>“Included in your institution’s access”</div>
+        </div>
+        <div class="lbl">Remove the relationship at step 3 and steps 4 and 5 reverse. Who creates the relationship at step 3 is an open product question — the relationship itself survives every candidate answer, which is why the design is built on it.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p><b>13 base screens</b> — INA-01 … INA-13. Screen IDs in the captions map to the stable Review-006 inventory. Detail: <code>../07_SCREEN_INVENTORY.md</code>.</p>
+  <p><b>Everything here is sample design data.</b> No commercial, seat, term, provider or protocol fact is asserted anywhere in this batch.</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "_note": "SAMPLE DESIGN DATA — the three records that needed attention have been retried and applied, after the institution's own records were corrected at source.",
+  "erp": {
+    "sourceCorrected": true,
+    "lastRun": { "when": "25 Aug 2026 · 11:28", "duration": "1 min 52 s", "outcome": "ok", "people": 10, "streams": 2, "groups": 4 },
+    "issues": [
+      { "id": "i_stream", "kind": "stream", "title": "Academic stream not recognised", "count": 1, "resolved": true, "retried": true, "what": "", "next": "", "people": ["p_sb"], "link": "#/admin/structure", "linkLabel": "View academic structure" },
+      { "id": "i_group", "kind": "group", "title": "Group not recognised", "count": 1, "resolved": true, "retried": true, "what": "", "next": "", "people": ["p_tv"], "link": "#/admin/structure", "linkLabel": "View academic structure" },
+      { "id": "i_id", "kind": "identifier", "title": "Record could not be matched to a person", "count": 1, "resolved": true, "retried": true, "what": "", "next": "", "people": [], "link": "#/admin/people", "linkLabel": "View people" }
+    ]
+  },
+  "people": {
+    "p_sb": { "stream": "s_civil", "account": "active" },
+    "p_tv": { "groups": ["g_thermA"] }
+  }
+}

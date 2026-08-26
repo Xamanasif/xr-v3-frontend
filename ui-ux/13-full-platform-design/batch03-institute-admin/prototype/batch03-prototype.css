@@ -1,0 +1,238 @@
+/* ============================================================
+   XR Simulation Learning Platform — Batch 03 prototype styles
+   EXTENSIONS ONLY. All tokens, shell, buttons, forms, tables,
+   badges, alerts, dialogs, timeline and states come from
+   batch01-design-system.css — a verbatim, byte-identical snapshot
+   of ../../prototype/batch01-prototype.css (Batch 01, unmodified,
+   remains the source of truth; a local copy is required for
+   reliable file:// loading in Safari, which blocks
+   parent-directory subresources for directly-opened files).
+   Everything below is new institutional-administration
+   componentry on the same tokens. No token is redefined.
+   ============================================================ */
+
+/* ---------- small shared text utility ---------- */
+.subtle-note{font-size:12.5px; color:var(--text-3); line-height:1.55}
+.inline-ic{display:inline-flex; align-items:center; gap:6px}
+.minilabel{font-size:11.5px; font-weight:650; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3)}
+/* The Batch-01 sheet gives .ferr an author `display:flex`, which outranks the
+   UA rule behind the `hidden` attribute — inline field errors would otherwise
+   render permanently. Restoring `hidden` here keeps the Batch-01 sheet untouched. */
+[hidden]{display:none !important}
+
+/* ---------- link-tab navigation (Institution Setup sections) ----------
+   Same pattern Batch 02 uses for its builder sections; defined here so
+   Batch 03 stays self-contained and never loads another batch's sheet. */
+.tabnav{display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:20px; flex-wrap:wrap}
+.tabnav a{display:inline-flex; align-items:center; gap:7px; padding:11px 14px; margin-bottom:-1px;
+  border-bottom:2px solid transparent; font-size:13.5px; font-weight:600; color:var(--text-2); text-decoration:none; border-radius:2px 2px 0 0}
+.tabnav a:hover{color:var(--text); background:var(--n-25)}
+.tabnav a[aria-current="page"]{color:var(--action); border-bottom-color:var(--action)}
+.tabnav .tn-flag{width:7px; height:7px; border-radius:50%; background:var(--warning-700); flex:0 0 auto}
+
+/* ---------- operational status cards (Overview — four facts, no charts) ---------- */
+.opsgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(236px,1fr)); gap:16px}
+.opscard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1);
+  padding:16px 18px; display:flex; flex-direction:column; gap:6px; min-width:0}
+.opscard .ok-h{display:flex; align-items:center; gap:8px; font-size:11.5px; font-weight:650; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--text-3)}
+.opscard .ok-h svg.ic{width:15px; height:15px; color:var(--text-3)}
+.opscard .ok-v{font-size:22px; font-weight:650; letter-spacing:-.015em; color:var(--text); font-variant-numeric:tabular-nums; line-height:1.25}
+.opscard .ok-v.sm{font-size:16px; letter-spacing:-.005em}
+.opscard .ok-d{font-size:13px; color:var(--text-2); line-height:1.5}
+.opscard .ok-l{margin-top:auto; padding-top:8px; font-size:13px}
+.opscard .ok-l a{text-decoration:none; font-weight:600}
+.opscard .ok-l a:hover{text-decoration:underline}
+.opscard.attn{border-color:var(--warning-200); background:var(--warning-50)}
+.opscard.attn .ok-h svg.ic{color:var(--warning-700)}
+
+/* ---------- needs-attention list ---------- */
+.attnlist{display:flex; flex-direction:column}
+.attn-item{display:flex; gap:12px; align-items:flex-start; padding:14px 0; border-top:1px solid var(--border-subtle)}
+.attn-item:first-child{border-top:0; padding-top:2px}
+.attn-item .ai-chip{width:28px; height:28px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  background:var(--warning-50); border:1px solid var(--warning-200); color:var(--warning-700)}
+.attn-item .ai-chip svg.ic{width:15px; height:15px; stroke-width:2}
+.attn-item.info .ai-chip{background:var(--info-50); border-color:var(--info-200); color:var(--info-700)}
+.attn-item .ai-body{flex:1; min-width:0}
+.attn-item .ai-t{font-size:14px; font-weight:640; color:var(--text)}
+.attn-item .ai-d{font-size:13px; color:var(--text-2); margin-top:2px; line-height:1.55}
+.attn-item .ai-go{flex:0 0 auto; align-self:center}
+
+/* ---------- connection status block (single sign-on · institution data) ---------- */
+.constat{display:flex; gap:14px; align-items:flex-start; padding:16px 18px; border:1px solid var(--border);
+  border-radius:var(--r-lg); background:var(--surface)}
+.constat .cs-node{width:34px; height:34px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  background:var(--raised); border:1.5px solid var(--border-strong); color:var(--text-3)}
+.constat .cs-node svg.ic{width:17px; height:17px; stroke-width:2}
+.constat.ok .cs-node{background:var(--success-50); border-color:var(--success-700); color:var(--success-700)}
+.constat.warn .cs-node{background:var(--warning-50); border-color:var(--warning-700); color:var(--warning-700)}
+.constat.bad .cs-node{background:var(--danger-50); border-color:var(--danger-700); color:var(--danger-700)}
+.constat.busy .cs-node{background:var(--info-50); border-color:var(--info-700); color:var(--info-700)}
+.constat .cs-body{flex:1; min-width:0}
+.constat .cs-t{font-size:15px; font-weight:650; color:var(--text); display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.constat .cs-d{font-size:13.5px; color:var(--text-2); margin-top:3px; line-height:1.6}
+.constat .cs-act{flex:0 0 auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+
+/* ---------- setup cards (Institution Setup landing) ---------- */
+.setupgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px}
+.setupcard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1);
+  padding:18px 20px; display:flex; flex-direction:column; gap:10px}
+.setupcard h3{font-size:15.5px; font-weight:650; display:flex; align-items:center; gap:9px}
+.setupcard h3 svg.ic{color:var(--text-3)}
+.setupcard .sc-d{font-size:13.5px; color:var(--text-2); line-height:1.6}
+.setupcard .sc-foot{margin-top:auto; padding-top:6px; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+/* ---------- provenance / source chip ---------- */
+.srcchip{display:inline-flex; align-items:center; gap:5px; height:20px; padding:0 8px; border-radius:var(--r-pill);
+  font-size:11.5px; font-weight:600; color:var(--text-2); background:var(--raised); border:1px solid var(--border-subtle); white-space:nowrap}
+.srcchip svg.ic{width:12px; height:12px; stroke-width:2}
+.srcnone{color:var(--text-3); font-size:13px}
+
+/* ---------- covered-content list (what an access record covers) ---------- */
+.covers{display:flex; flex-direction:column}
+.covers li{display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-top:1px solid var(--border-subtle)}
+.covers li:first-child{border-top:0; padding-top:2px}
+.covers .cv-ic{width:30px; height:30px; border-radius:var(--r-md); flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  background:var(--sim-surface); border:1px solid var(--sim-border); color:var(--sim)}
+.covers .cv-ic svg.ic{width:16px; height:16px}
+.covers .cv-b{flex:1; min-width:0}
+.covers .cv-t{font-size:14px; font-weight:600; color:var(--text)}
+.covers .cv-m{display:flex; gap:8px; align-items:center; margin-top:4px; flex-wrap:wrap; font-size:12.5px; color:var(--text-3)}
+
+/* ---------- eligibility list (who an access record reaches) ---------- */
+.elig{display:flex; flex-direction:column}
+.elig li{display:flex; gap:12px; align-items:center; padding:12px 0; border-top:1px solid var(--border-subtle)}
+.elig li:first-child{border-top:0; padding-top:2px}
+.elig .el-ic{width:30px; height:30px; border-radius:var(--r-md); flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  background:var(--action-subtle); border:1px solid var(--action-border); color:var(--action)}
+.elig .el-ic svg.ic{width:16px; height:16px}
+.elig .el-b{flex:1; min-width:0}
+.elig .el-t{font-size:14px; font-weight:600; color:var(--text)}
+.elig .el-t a{color:var(--text); text-decoration:none}
+.elig .el-t a:hover{color:var(--action); text-decoration:underline}
+.elig .el-m{font-size:12.5px; color:var(--text-3); margin-top:2px}
+.elig .el-r{font-size:13px; color:var(--text-2); font-variant-numeric:tabular-nums; white-space:nowrap}
+.elig .el-x{flex:0 0 auto}
+
+/* ---------- reach flow (how an access record reaches a learner) ---------- */
+.reachflow{display:flex; align-items:stretch; gap:0; flex-wrap:wrap; border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); background:var(--n-25); overflow:hidden}
+.reachflow .rf-step{flex:1 1 150px; min-width:0; padding:12px 14px; border-left:1px solid var(--border-subtle); position:relative}
+.reachflow .rf-step:first-child{border-left:0}
+.reachflow .rf-k{font-size:10.5px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; color:var(--text-3)}
+.reachflow .rf-v{font-size:13px; color:var(--text); margin-top:3px; line-height:1.45; font-weight:600}
+.reachflow .rf-step.pending .rf-v{color:var(--warning-700); font-weight:640}
+.reachflow .rf-step.done .rf-k{color:var(--success-700)}
+
+/* ---------- access-mapping rows (both directions) ---------- */
+.maplist{display:flex; flex-direction:column}
+.maprow{display:flex; gap:14px; align-items:flex-start; padding:14px 0; border-top:1px solid var(--border-subtle)}
+.maprow:first-child{border-top:0; padding-top:2px}
+.maprow .mp-l{flex:0 0 260px; min-width:0}
+.maprow .mp-t{font-size:14px; font-weight:640; color:var(--text)}
+.maprow .mp-t a{color:var(--text); text-decoration:none}
+.maprow .mp-t a:hover{color:var(--action); text-decoration:underline}
+.maprow .mp-s{font-size:12.5px; color:var(--text-3); margin-top:2px}
+.maprow .mp-r{flex:1; min-width:0; display:flex; gap:6px; flex-wrap:wrap; align-items:flex-start}
+.maprow .mp-none{font-size:13px; color:var(--warning-700); font-weight:600; display:inline-flex; align-items:center; gap:6px}
+@media (max-width:1000px){ .maprow{flex-direction:column; gap:8px} .maprow .mp-l{flex:none} }
+.reachpill{display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:var(--r-pill);
+  font-size:12.5px; font-weight:600; color:var(--text-2); background:var(--raised); border:1px solid var(--border); text-decoration:none; white-space:nowrap}
+a.reachpill:hover{border-color:var(--action-border); background:var(--action-subtle); color:var(--action)}
+.reachpill svg.ic{width:13px; height:13px}
+
+/* ---------- issue rows (records needing attention) ---------- */
+.issuelist{display:flex; flex-direction:column; gap:12px}
+.issue{border:1px solid var(--warning-200); border-left:4px solid var(--warning-700); background:var(--warning-50);
+  border-radius:var(--r-lg); padding:16px 18px}
+.issue .is-h{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.issue .is-h svg.ic{color:var(--warning-700)}
+.issue .is-t{font-size:15px; font-weight:650; color:var(--n-800)}
+.issue .is-n{margin-left:auto; font-size:12.5px; color:var(--text-2); font-variant-numeric:tabular-nums; white-space:nowrap}
+.issue .is-what{font-size:13.5px; color:var(--n-800); margin-top:8px; line-height:1.6}
+.issue .is-next{margin-top:10px; background:var(--surface); border:1px solid var(--warning-200); border-radius:var(--r-md);
+  padding:10px 12px; font-size:13.5px; color:var(--text); line-height:1.6}
+.issue .is-next .nx-k{font-size:11px; font-weight:650; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3); display:block; margin-bottom:2px}
+.issue .is-acts{margin-top:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.issue.resolved{border-color:var(--success-200); border-left-color:var(--success-700); background:var(--success-50)}
+.issue.resolved .is-h svg.ic{color:var(--success-700)}
+
+/* ---------- run history ---------- */
+.runlist{display:flex; flex-direction:column}
+.runlist li{display:flex; gap:12px; align-items:center; padding:11px 0; border-top:1px solid var(--border-subtle); font-size:13.5px}
+.runlist li:first-child{border-top:0; padding-top:2px}
+.runlist .rl-dot{width:9px; height:9px; border-radius:50%; flex:0 0 auto; background:var(--success-700)}
+.runlist li.issues .rl-dot{background:var(--warning-700)}
+.runlist .rl-when{color:var(--text); font-variant-numeric:tabular-nums; min-width:150px}
+.runlist .rl-out{color:var(--text-2); flex:1; min-width:0}
+.runlist .rl-n{color:var(--text-3); font-size:12.5px; font-variant-numeric:tabular-nums; white-space:nowrap}
+
+/* ---------- update summary (what the last run changed) ---------- */
+.updrow{display:flex; gap:22px; flex-wrap:wrap; margin-top:4px}
+.updrow div{min-width:96px}
+.updrow .u-v{font-size:19px; font-weight:650; color:var(--text); font-variant-numeric:tabular-nums; line-height:1.3}
+.updrow .u-k{font-size:12.5px; color:var(--text-3)}
+
+/* ---------- learner access cards (INA-13 verification view) ---------- */
+.entgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px}
+.entcard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1);
+  padding:18px 20px; display:flex; flex-direction:column; gap:10px}
+.entcard .ec-t{font-size:15.5px; font-weight:650; letter-spacing:-.005em; color:var(--text); line-height:1.4}
+.entcard .ec-m{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.entcard .ec-dev{font-size:13px; color:var(--text-2); display:flex; align-items:center; gap:7px}
+.entcard .ec-dev svg.ic{width:15px; height:15px; color:var(--text-3)}
+.entcard .ec-acc{margin-top:auto; padding-top:10px; border-top:1px solid var(--border-subtle);
+  display:flex; align-items:center; gap:8px; font-size:13px; color:var(--success-700); font-weight:600}
+.entcard .ec-acc svg.ic{width:15px; height:15px}
+
+/* ---------- filter chips (role filter on People) ---------- */
+.chipfilter{display:flex; gap:6px; flex-wrap:wrap}
+.chipfilter a{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 12px; border-radius:var(--r-pill);
+  border:1px solid var(--border-strong); background:var(--surface); color:var(--text-2); text-decoration:none;
+  font-size:13px; font-weight:600; white-space:nowrap}
+.chipfilter a:hover{background:var(--raised); color:var(--text)}
+.chipfilter a[aria-current="true"]{background:var(--action-subtle); border-color:var(--action-border); color:var(--action)}
+.chipfilter .cf-n{font-variant-numeric:tabular-nums; color:var(--text-3); font-weight:600}
+.chipfilter a[aria-current="true"] .cf-n{color:var(--action)}
+
+/* ---------- definition rows used inside rail cards ---------- */
+.railkv{display:flex; flex-direction:column; font-size:13.5px}
+.railkv>div{display:flex; gap:12px; padding:9px 0; border-top:1px solid var(--border-subtle)}
+.railkv>div:first-child{border-top:0; padding-top:2px}
+.railkv .rk{color:var(--text-3); font-size:13px; flex:0 0 132px}
+.railkv .rv{color:var(--text); flex:1; min-width:0}
+
+/* ---------- radio option rows in dialogs (eligibility picker) ---------- */
+.pickgroup{display:flex; flex-direction:column; margin:2px 0 4px}
+.pickgroup label{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--border);
+  border-radius:var(--r-md); margin-bottom:8px; cursor:pointer; background:var(--surface)}
+.pickgroup label:hover{background:var(--n-25); border-color:var(--border-strong)}
+.pickgroup label:focus-within{outline:2px solid var(--focus); outline-offset:1px}
+.pickgroup label.sel{border-color:var(--action); background:var(--action-subtle)}
+.pickgroup input{width:18px; height:18px; margin-top:2px; accent-color:var(--action); flex:0 0 auto}
+.pickgroup .pk-t{display:block; font-size:14px; font-weight:600; color:var(--text)}
+.pickgroup .pk-d{display:block; font-size:12.5px; color:var(--text-3); margin-top:2px; line-height:1.5}
+
+/* ---------- target size (WCAG 2.5.8) ----------
+   Text links that are the only content of their row get a 24px-tall hit area.
+   Padding is cancelled by an equal negative margin, so nothing moves visually and
+   the Batch-01 sheet stays untouched. */
+.crumb a,
+.elig .el-t a,
+.maprow .mp-t a,
+.covers .cv-t a,
+.opscard .ok-l a,
+table.dt a.rowlink,
+.kv .v a,
+.proto-note a{display:inline-block; padding:4px 0; margin:-4px 0}
+
+/* Remaining sub-24px links are inline inside a sentence ("Through <record>, which
+   reaches academic stream <name>"), where WCAG 2.5.8 exempts the target because its
+   size is constrained by the line-height of the surrounding non-target text. */
+
+/* ---------- responsive resilience (desktop-first: 1440 primary, 1280 verified) ---------- */
+@media (max-width:1360px){
+  .maprow .mp-l{flex:0 0 220px}
+  .railkv .rk{flex:0 0 118px}
+}
