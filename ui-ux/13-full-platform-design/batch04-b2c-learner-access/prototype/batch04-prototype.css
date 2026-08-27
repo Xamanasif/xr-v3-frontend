@@ -1,0 +1,374 @@
+/* ============================================================
+   XR Simulation Learning Platform — Batch 04 prototype styles
+   INDIVIDUAL (B2C) LEARNER ACCESS · CATALOGUE · PRODUCT DETAIL
+   · ACCESS SUMMARY · PAYMENT OUTCOMES · MY LEARNING HANDOFF
+
+   EXTENSIONS ONLY. All tokens, shell, buttons, forms, tables,
+   badges, alerts, dialogs and states come from
+   batch01-design-system.css — a verbatim, byte-identical snapshot
+   of ../../prototype/batch01-prototype.css (Batch 01, unmodified,
+   remains the source of truth; a local copy is required for
+   reliable file:// loading in Safari, which blocks
+   parent-directory subresources for directly-opened files).
+   Everything below is new learner-facing catalogue and access
+   componentry on the same tokens. No token is redefined.
+
+   A learner-facing catalogue may read a little richer than an
+   admin table — more air, card surfaces, a product hero — but it
+   stays inside the same system: same tokens, same type ramp, same
+   focus treatment, same status grammar. No new palette, no
+   gaming-store treatment, no gradient, no marketing device.
+   ============================================================ */
+
+/* ---------- one inherited-token correction ----------
+   ACCESSIBILITY FIX, and the only place Batch 04 changes a Batch-01 value.
+
+   `--text-3` is defined in the Batch-01 sheet as `--n-500` (#6A7686). Measured
+   against the surfaces it actually sits on, it lands between 4.12:1 and 4.46:1 —
+   just under the 4.5:1 WCAG AA minimum for normal-size text, on all fifteen
+   selectors that use it (secondary captions, table headers, the sample-data tag,
+   breadcrumb links, the prototype-note text, account e-mail, and so on).
+
+   Darkening it one step to #5F6B7A clears 4.5:1 on every surface in this batch
+   (worst case 4.90:1 on the success tint) while staying clearly lighter than
+   `--text-2` (#515D6C), so the three-tier text hierarchy is preserved.
+
+   This is scoped to the Batch-04 sheet. THE BATCH-01 SHEET IS NOT EDITED — the
+   finding belongs to the shared design system and is referred upward in
+   qa/ACCESSIBILITY_AND_UX_QA.md §4 for a platform-wide decision. */
+:root{ --text-3:#5F6B7A; }
+
+/* ---------- small shared text utilities (same definitions Batch 03 uses) ---------- */
+.subtle-note{font-size:12.5px; color:var(--text-3); line-height:1.55}
+.inline-ic{display:inline-flex; align-items:center; gap:6px}
+.minilabel{font-size:11.5px; font-weight:650; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3)}
+/* The Batch-01 sheet gives .ferr an author `display:flex`, which outranks the
+   UA rule behind the `hidden` attribute — inline field errors would otherwise
+   render permanently. Restoring `hidden` here keeps the Batch-01 sheet untouched. */
+[hidden]{display:none !important}
+
+/* The empty state's title is an h2 here rather than the Batch-01 h3, so it does not
+   skip a heading level under the page h1. It must therefore carry the h3's appearance. */
+.empty h2{font-size:15.5px; font-weight:640; color:var(--text); margin-bottom:4px; line-height:1.4}
+
+/* prototype-control body and its action row. These are classes rather than the
+   inline styles the earlier batches used, because an inline declaration outranks
+   the stylesheet and would block the narrow-width rules further down. */
+.proto-note .pn-body{flex:1; min-width:0}
+.pn-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+
+/* ---------- account menu ----------
+   The confirmed individual-learner IA puts Access history under Account.
+   Batch 01 and Batch 03 render the account control as a visual-only button;
+   here it has to open, because two real destinations live inside it. */
+.acctwrap{position:relative}
+.acctmenu{position:absolute; right:0; top:calc(100% + 6px); z-index:70; min-width:216px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  box-shadow:var(--e3); padding:6px; display:flex; flex-direction:column}
+.acctmenu a,.acctmenu button{display:flex; align-items:center; gap:10px; width:100%;
+  padding:9px 12px; border:0; border-radius:var(--r-md); background:transparent;
+  font:inherit; font-size:13.5px; color:var(--text); text-decoration:none; text-align:left}
+.acctmenu a:hover,.acctmenu button:hover{background:var(--raised)}
+.acctmenu svg.ic{color:var(--text-3); flex:0 0 auto}
+.acctmenu [aria-disabled="true"]{color:var(--text-dis); cursor:default}
+.acctmenu [aria-disabled="true"]:hover{background:transparent}
+.acctmenu [aria-disabled="true"] svg.ic{color:var(--text-dis)}
+.acctmenu button{border-top:1px solid var(--border-subtle); border-radius:0 0 var(--r-md) var(--r-md); margin-top:4px; padding-top:11px}
+
+/* a row that has just arrived — marked with a badge as well as a tint, so the
+   change is never carried by colour alone */
+tr.row-new td{background:var(--success-50)!important; border-bottom-color:var(--success-200)}
+tr.row-new td:first-child{box-shadow:inset 3px 0 0 var(--success-700)}
+
+/* ---------- catalogue filter bar ----------
+   Four controls only: search, discipline, delivery format, item type.
+   Every control is a real form element with a visible label, so the whole
+   bar is reachable and operable from the keyboard. */
+.filterbar{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  box-shadow:var(--e1); padding:16px 20px; margin-bottom:20px}
+.filterbar .fb-row{display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap}
+.filterbar .fb-search{flex:1 1 300px; min-width:220px}
+.filterbar .fb-sel{flex:0 1 190px; min-width:150px}
+.filterbar label{display:block; font-size:12px; font-weight:650; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--text-3); margin-bottom:6px}
+.filterbar .searchbox{width:100%}
+.filterbar .searchbox input{height:40px; min-height:40px}
+.filterbar select{width:100%; height:40px; border:1px solid var(--border-strong); border-radius:var(--r-sm);
+  font:inherit; font-size:14px; color:var(--text); background:var(--surface); padding:0 10px}
+.filterbar .fb-foot{display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin-top:14px; padding-top:13px; border-top:1px solid var(--border-subtle)}
+.filterbar .fb-count{font-size:13.5px; color:var(--text-2); flex:0 0 auto}
+.filterbar .fb-count strong{color:var(--text); font-weight:650}
+/* pills and Clear filters travel together at the right end of the footer row */
+.filterbar .fb-active{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-left:auto}
+.filterbar .fb-pills{display:flex; gap:6px; flex-wrap:wrap}
+.fpill{display:inline-flex; align-items:center; gap:4px; height:30px; padding:0 3px 0 10px;
+  border-radius:var(--r-pill); font-size:12.5px; font-weight:600;
+  color:var(--action); background:var(--action-subtle); border:1px solid var(--action-border)}
+/* 24x24 minimum target (WCAG 2.5.8). Removing a single filter has no other
+   control, so this one cannot lean on an equivalent elsewhere. */
+.fpill button{display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px;
+  border:0; border-radius:50%; background:transparent; color:var(--action); padding:0}
+.fpill button:hover{background:var(--indigo-100)}
+.fpill button svg.ic{width:11px; height:11px; stroke-width:2.4}
+
+/* ---------- catalogue card grid ----------
+   Deliberately restrained: title, discipline, kind, delivery, one summary
+   line, access state, one action. Nothing else. A card is a decision aid,
+   not a dashboard. */
+.catgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(316px,1fr)); gap:16px}
+.catcard{display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); box-shadow:var(--e1); padding:18px 20px 16px; min-width:0;
+  transition:border-color var(--m-fast) var(--ease), box-shadow var(--m-fast) var(--ease)}
+.catcard:hover{border-color:var(--action-border); box-shadow:var(--e2)}
+.catcard:focus-within{border-color:var(--action-border); box-shadow:var(--e2)}
+.catcard .cc-top{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; min-height:22px}
+.catcard .cc-kind{display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px;
+  border-radius:var(--r-xs); font-size:11px; font-weight:650; letter-spacing:.05em;
+  color:var(--text-2); background:var(--raised); border:1px solid var(--border); white-space:nowrap}
+.catcard .cc-kind.bundle{color:var(--indigo-700); background:var(--indigo-50); border-color:var(--indigo-200)}
+.catcard .cc-kind svg.ic{width:12px; height:12px; stroke-width:2.1; vertical-align:0}
+/* Two lines' worth of title-plus-discipline on every card, whether the title
+   needs one line or two. Without this floor the summary, facts and footer start
+   at a different height in each card and nothing lines up across a row — the main
+   reason the mixed Modules + Bundles view read as crowded. The floor is on the
+   pair, not the title alone, so a one-line title keeps its discipline tucked
+   underneath and the spare height falls below both. */
+.catcard .cc-head{min-height:70px}
+.catcard h3{font-size:16px; font-weight:650; line-height:1.35; letter-spacing:-.008em; margin-bottom:6px}
+.catcard h3 a{color:var(--text); text-decoration:none}
+.catcard h3 a:hover{color:var(--action); text-decoration:underline}
+.catcard .cc-disc{font-size:12.5px; color:var(--text-3)}
+.catcard .cc-sum{font-size:13.5px; color:var(--text-2); line-height:1.55; margin:8px 0 12px}
+.catcard .cc-meta{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; min-height:22px}
+/* the module count, shown as a fact beside the delivery badges rather than inside
+   the kind chip — it also gives a bundle a second, quieter marker in the row */
+.catcard .cc-count{display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px;
+  border-radius:var(--r-xs); font-size:11px; font-weight:650; letter-spacing:.05em;
+  color:var(--indigo-700); background:var(--indigo-50); border:1px solid var(--indigo-200); white-space:nowrap}
+.catcard .cc-count svg.ic{width:12px; height:12px; stroke-width:2.1; vertical-align:0}
+.catcard .cc-foot{margin-top:auto; padding-top:13px; border-top:1px solid var(--border-subtle);
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap; min-height:58px}
+.catcard .cc-amt{font-size:15px; font-weight:650; color:var(--text); font-variant-numeric:tabular-nums}
+.catcard .cc-amt .cc-amt-note{display:block; font-size:10px; font-weight:650; letter-spacing:.08em;
+  color:var(--text-3); font-family:var(--mono); margin-top:1px}
+/* where an amount would sit, when there is nothing to buy */
+.catcard .cc-state{font-size:13.5px; font-weight:600; color:var(--text-2)}
+.catcard .cc-state.ok{color:var(--success-700)}
+.catcard .cc-act{margin-left:auto}
+/* an item the learner already has reads as settled, not as a thing to buy */
+.catcard.owned{background:var(--success-50); border-color:var(--success-200)}
+.catcard.owned:hover{border-color:var(--success-200)}
+.catcard.owned .cc-foot{border-top-color:var(--success-200)}
+
+/* ---------- product detail hero ----------
+   Two columns at 1440/1280: the learning story on the left, the access
+   decision on the right. Single column below 1080. */
+.phero{display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:24px; align-items:start; margin-bottom:24px}
+.phero .ph-main{min-width:0}
+.phero .ph-kicker{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+.phero h1{font-size:28px; line-height:1.25; font-weight:650; letter-spacing:-.018em; margin-bottom:10px}
+.phero .ph-lede{font-size:15.5px; color:var(--text-2); line-height:1.65; max-width:62ch}
+.phero .ph-facts{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+.phero .ph-fact{display:flex; align-items:center; gap:8px; padding:9px 13px; border:1px solid var(--border);
+  border-radius:var(--r-md); background:var(--surface); font-size:13px; color:var(--text-2); box-shadow:var(--e1)}
+.phero .ph-fact svg.ic{width:15px; height:15px; color:var(--text-3)}
+.phero .ph-fact strong{color:var(--text); font-weight:640}
+
+/* the access decision panel — the only place a monetary value and the
+   primary action appear on a detail screen */
+.accesspanel{position:sticky; top:calc(var(--protobar-h) + var(--topbar-h) + 20px);
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  box-shadow:var(--e2); padding:20px; min-width:0}
+.accesspanel.have{background:var(--success-50); border-color:var(--success-200)}
+/* partly-held bundle: informational, not an offer — it carries no amount and
+   no primary purchase action, because bundle-overlap pricing is undecided */
+.accesspanel.partial{background:var(--info-50); border-color:var(--info-200)}
+.accesspanel.partial .ap-state{border-bottom-color:var(--info-200)}
+.accesspanel.partial .ap-state .ap-node{background:var(--surface); border-color:var(--info-700); color:var(--info-700)}
+.accesspanel.partial .ap-sub{border-top-color:var(--info-200)}
+.accesspanel .ap-state{display:flex; align-items:center; gap:9px; padding-bottom:14px;
+  margin-bottom:14px; border-bottom:1px solid var(--border-subtle); font-size:14px; font-weight:640; color:var(--text)}
+.accesspanel.have .ap-state{border-bottom-color:var(--success-200)}
+.accesspanel .ap-state .ap-node{width:28px; height:28px; border-radius:50%; flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center; border:1px solid var(--border);
+  background:var(--raised); color:var(--text-2)}
+.accesspanel.have .ap-state .ap-node{background:var(--success-50); border-color:var(--success-700); color:var(--success-700)}
+.accesspanel .ap-state .ap-node svg.ic{width:15px; height:15px; stroke-width:2.1}
+.accesspanel .ap-amt{font-size:26px; font-weight:650; letter-spacing:-.02em; color:var(--text);
+  font-variant-numeric:tabular-nums; line-height:1.2}
+.accesspanel .ap-amt-row{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:4px}
+.accesspanel .ap-note{font-size:12.5px; color:var(--text-3); line-height:1.55; margin-bottom:16px}
+.accesspanel .ap-act{display:flex; flex-direction:column; gap:9px}
+.accesspanel .ap-sub{font-size:12.5px; color:var(--text-2); line-height:1.55; margin-top:12px;
+  padding-top:12px; border-top:1px solid var(--border-subtle)}
+.accesspanel.have .ap-sub{border-top-color:var(--success-200)}
+
+/* ---------- what is included ----------
+   One list component serves module components, bundle contents and the
+   access summary, so "what you are getting" reads the same in all three. */
+.incl{border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; background:var(--surface)}
+.incl-row{display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border-top:1px solid var(--border-subtle)}
+.incl-row:first-child{border-top:0}
+.incl-row .ir-node{width:28px; height:28px; border-radius:var(--r-sm); flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center; background:var(--raised);
+  border:1px solid var(--border); color:var(--text-2)}
+.incl-row .ir-node svg.ic{width:15px; height:15px}
+.incl-row.have .ir-node{background:var(--success-50); border-color:var(--success-200); color:var(--success-700)}
+.incl-row .ir-body{flex:1; min-width:0}
+.incl-row .ir-t{font-size:14.5px; font-weight:640; color:var(--text); line-height:1.4}
+.incl-row .ir-t a{color:var(--text); text-decoration:none}
+.incl-row .ir-t a:hover{color:var(--action); text-decoration:underline}
+.incl-row .ir-d{font-size:12.5px; color:var(--text-3); margin-top:3px; line-height:1.5;
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.incl-row .ir-side{flex:0 0 auto; align-self:center; display:flex; align-items:center; gap:8px}
+.incl-foot{padding:11px 16px; border-top:1px solid var(--border-subtle); background:var(--n-25);
+  font-size:12.5px; color:var(--text-3); line-height:1.55}
+
+/* ---------- access summary (checkout) ---------- */
+.checkout{display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:24px; align-items:start}
+.checkout .co-main{min-width:0}
+.sumcard{position:sticky; top:calc(var(--protobar-h) + var(--topbar-h) + 20px);
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e2); overflow:hidden}
+.sumcard .sc-head{padding:16px 20px 0}
+.sumcard .sc-head h2{font-size:15.5px; font-weight:650}
+.sumcard .sc-body{padding:14px 20px 18px}
+.sumline{display:flex; align-items:flex-start; gap:14px; padding:10px 0; font-size:13.5px; color:var(--text-2)}
+.sumline+.sumline{border-top:1px solid var(--border-subtle)}
+.sumline .sl-k{flex:0 0 auto; color:var(--text-3)}
+.sumline .sl-v{margin-left:auto; text-align:right; color:var(--text); font-weight:600; min-width:0; word-break:break-word}
+.sumtotal{display:flex; align-items:baseline; gap:14px; margin-top:6px; padding-top:14px; border-top:1px solid var(--border)}
+.sumtotal .st-k{font-size:14px; font-weight:650; color:var(--text)}
+.sumtotal .st-v{margin-left:auto; font-size:24px; font-weight:650; letter-spacing:-.018em;
+  color:var(--text); font-variant-numeric:tabular-nums}
+.sumcard .sc-foot{padding:0 20px 20px}
+.sumcard .sc-foot .btn{width:100%}
+.sumcard .sc-legal{padding:13px 20px; background:var(--n-25); border-top:1px solid var(--border-subtle);
+  font-size:12px; color:var(--text-3); line-height:1.55}
+
+/* the account the access is created against */
+.acctbox{display:flex; gap:12px; align-items:center; padding:14px 16px; border:1px solid var(--border);
+  border-radius:var(--r-md); background:var(--n-25)}
+.acctbox .ab-av{width:38px; height:38px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center;
+  justify-content:center; background:var(--action); color:var(--on-action); font-size:13.5px; font-weight:650}
+.acctbox .ab-n{font-size:14.5px; font-weight:640; color:var(--text)}
+.acctbox .ab-e{font-size:12.5px; color:var(--text-3); margin-top:1px; word-break:break-all}
+
+/* the payment step — a statement, not a choice.
+   No method, instrument, network or provider is named, because none is
+   source-supported: FRD 9.1.1 asks only for "a provider-neutral payment step",
+   C-05 forbids inventing the gateway, and Q-34 is open. Nothing is collected. */
+.paystep{display:flex; gap:14px; align-items:center; padding:16px 18px;
+  border:1px solid var(--border); border-radius:var(--r-md); background:var(--n-25)}
+.paystep .ps-ic{width:38px; height:38px; border-radius:50%; flex:0 0 auto; display:flex;
+  align-items:center; justify-content:center; background:var(--surface);
+  border:1px solid var(--border-strong); color:var(--text-2)}
+.paystep .ps-ic svg.ic{width:18px; height:18px}
+.paystep .ps-body{min-width:0}
+.paystep .ps-t{font-size:15px; font-weight:640; color:var(--text)}
+.paystep .ps-d{font-size:13px; color:var(--text-2); margin-top:2px; line-height:1.5}
+
+/* ---------- payment / access outcome ----------
+   One panel, four outcomes, each colour-independent: every state carries an
+   icon and an explicit words-first heading, never colour alone. */
+.outcome{max-width:660px; margin:0 auto; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-xl); box-shadow:var(--e2); padding:36px 32px 30px; text-align:center}
+.outcome .oc-node{width:64px; height:64px; border-radius:50%; margin:0 auto 20px; display:flex;
+  align-items:center; justify-content:center; border:2px solid var(--border); background:var(--raised); color:var(--text-2)}
+.outcome .oc-node svg.ic{width:30px; height:30px; stroke-width:2}
+.outcome.ok .oc-node{background:var(--success-50); border-color:var(--success-700); color:var(--success-700)}
+.outcome.bad .oc-node{background:var(--danger-50); border-color:var(--danger-700); color:var(--danger-700)}
+.outcome.wait .oc-node{background:var(--warning-50); border-color:var(--warning-700); color:var(--warning-700)}
+.outcome.busy .oc-node{background:var(--info-50); border-color:var(--info-700); color:var(--info-700)}
+.outcome h1{font-size:23px; font-weight:650; letter-spacing:-.015em; line-height:1.3; margin-bottom:10px}
+.outcome .oc-lede{font-size:15px; color:var(--text-2); line-height:1.65; max-width:50ch; margin:0 auto 22px}
+.outcome .oc-detail{text-align:left; margin-bottom:22px}
+.outcome .oc-act{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+.outcome .oc-ref{margin-top:20px; padding-top:16px; border-top:1px solid var(--border-subtle);
+  font-size:12.5px; color:var(--text-3); display:flex; gap:8px; justify-content:center; flex-wrap:wrap}
+.outcome .oc-ref code{font-family:var(--mono); font-size:12px; color:var(--text-2)}
+
+/* processing — determinate, so waiting never reads as a hang */
+.procbar{max-width:340px; margin:0 auto 20px}
+.procbar .pb-steps{display:flex; justify-content:space-between; font-size:12px; color:var(--text-3); margin-top:9px}
+
+/* ---------- convergence figure (prototype index only — reviewer artefact) ---------- */
+.converge{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px}
+.converge .cv-col{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:18px 20px}
+.converge .cv-col h3{font-size:14px; font-weight:650; margin-bottom:4px}
+.converge .cv-col .cv-sub{font-size:12.5px; color:var(--text-3); margin-bottom:12px}
+.converge .cv-step{display:flex; gap:10px; align-items:flex-start; font-size:13px; color:var(--text-2);
+  line-height:1.5; padding:7px 0}
+.converge .cv-step .cv-n{width:20px; height:20px; border-radius:50%; flex:0 0 auto; display:flex;
+  align-items:center; justify-content:center; background:var(--raised); border:1px solid var(--border);
+  font-size:11px; font-weight:650; color:var(--text-3)}
+.converge-foot{margin-top:14px; padding:16px 20px; border:1px solid var(--success-200);
+  background:var(--success-50); border-radius:var(--r-lg); text-align:center}
+.converge-foot .cf-t{font-size:14.5px; font-weight:650; color:var(--text)}
+.converge-foot .cf-d{font-size:13px; color:var(--text-2); margin-top:4px; line-height:1.55}
+
+/* ---------- sign-in handoff ---------- */
+.handoff{max-width:560px; margin:0 auto; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-xl); box-shadow:var(--e2); padding:32px 30px 26px}
+.handoff .ho-node{width:52px; height:52px; border-radius:50%; margin-bottom:18px; display:flex;
+  align-items:center; justify-content:center; background:var(--action-subtle);
+  border:1px solid var(--action-border); color:var(--action)}
+.handoff .ho-node svg.ic{width:24px; height:24px}
+.handoff h1{font-size:21px; font-weight:650; letter-spacing:-.012em; margin-bottom:8px}
+.handoff .ho-lede{font-size:14.5px; color:var(--text-2); line-height:1.65; margin-bottom:20px}
+.handoff .ho-act{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px}
+
+/* ---------- responsive resilience ----------
+   Phase-1 mobile requirements are NOT confirmed, so these rules are
+   resilience, not a mobile design: they keep the catalogue readable and the
+   access controls reachable at narrow widths without claiming a breakpoint
+   system. Nothing may overflow horizontally at any width. */
+@media (max-width:1180px){
+  .phero{grid-template-columns:minmax(0,1fr) 300px; gap:20px}
+  .checkout{grid-template-columns:minmax(0,1fr) 320px; gap:20px}
+}
+@media (max-width:1040px){
+  .phero,.checkout{grid-template-columns:minmax(0,1fr)}
+  .accesspanel,.sumcard{position:static; top:auto}
+  .accesspanel{order:-1}
+  .converge{grid-template-columns:1fr}
+}
+@media (max-width:900px){
+  /* The prototype navigation strip is fixed-height and single-row in the Batch-01
+     sheet, which overflows once its label and the Reset control no longer fit.
+     It is allowed to wrap here — and its long right-hand caption is dropped, since
+     "SAMPLE DESIGN DATA" is already stated on every screen it labels. The Batch-01
+     sheet itself is not edited. */
+  .protobar{height:auto; min-height:var(--protobar-h); flex-wrap:wrap; padding:6px 14px; row-gap:6px}
+  .protobar .pright{margin-left:auto}
+  .protobar .pright .plabel{display:none}
+}
+@media (max-width:860px){
+  .catgrid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+  .filterbar .fb-row{gap:12px}
+  .filterbar .fb-sel{flex:1 1 150px}
+  .filterbar .fb-active{margin-left:0; width:100%}
+  .phero h1{font-size:24px}
+  .outcome{padding:28px 20px 24px}
+  .outcome h1{font-size:20px}
+}
+@media (max-width:740px){
+  /* A flex child defaults to min-width:auto and so refuses to shrink below its
+     content — which is what pushes the prototype control's button row past the
+     viewport at narrow widths. Fixed here rather than in the Batch-01 sheet. */
+  .proto-note{flex-wrap:wrap}
+  .proto-note .pn-body{flex:1 0 100%}
+  .pn-actions{flex-direction:column; align-items:stretch}
+  /* Wide content scrolls inside its own card instead of being clipped by the
+     card's overflow:hidden, so no column becomes unreachable. The table keeps
+     its natural minimum width — no min-width is forced, which would push the
+     document itself sideways once the viewport fell below that figure. */
+  .tablecard{overflow-x:auto}
+}
+@media (max-width:640px){
+  .catgrid{grid-template-columns:1fr}
+  .catcard .cc-act{margin-left:0; width:100%}
+  .catcard .cc-act .btn{width:100%}
+  .sumline{flex-wrap:wrap; gap:4px}
+  .sumline .sl-v{margin-left:0; text-align:left; width:100%}
+}

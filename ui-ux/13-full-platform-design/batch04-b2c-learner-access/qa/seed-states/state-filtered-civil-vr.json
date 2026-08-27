@@ -1,0 +1,9 @@
+{
+  "filters": {
+    "q": "",
+    "disc": "Civil Engineering",
+    "fmt": "VR",
+    "kind": "all"
+  },
+  "_note": "Catalogue filtered to Civil Engineering + VR. The Geotechnical bundle is included because it contains a VR module."
+}

@@ -1,0 +1,27 @@
+{
+  "access": {
+    "c_shear": {
+      "via": "o_shear",
+      "on": "12 Aug 2026",
+      "ref": "ACC-2026-0114"
+    }
+  },
+  "history": [
+    {
+      "ref": "ACC-2026-0114",
+      "offering": "o_shear",
+      "on": "12 Aug 2026",
+      "amount": 2400,
+      "granted": [
+        "c_shear"
+      ]
+    }
+  ],
+  "seq": 115,
+  "tx": {
+    "offering": "o_survey",
+    "simulate": "failed",
+    "stage": "failed"
+  },
+  "_note": "A declined payment. No access record and no history record was created — the failure branch never writes to the access spine."
+}

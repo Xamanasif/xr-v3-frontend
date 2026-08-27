@@ -1,0 +1,45 @@
+{
+  "access": {
+    "c_shear": {
+      "via": "o_shear",
+      "on": "12 Aug 2026",
+      "ref": "ACC-2026-0114"
+    },
+    "c_survey": {
+      "via": "o_survey",
+      "on": "27 Aug 2026",
+      "ref": "ACC-2026-0115"
+    }
+  },
+  "history": [
+    {
+      "ref": "ACC-2026-0115",
+      "offering": "o_survey",
+      "on": "27 Aug 2026",
+      "amount": 1800,
+      "granted": [
+        "c_survey"
+      ]
+    },
+    {
+      "ref": "ACC-2026-0114",
+      "offering": "o_shear",
+      "on": "12 Aug 2026",
+      "amount": 2400,
+      "granted": [
+        "c_shear"
+      ]
+    }
+  ],
+  "seq": 116,
+  "tx": {
+    "offering": "o_survey",
+    "simulate": "success",
+    "stage": "success",
+    "ref": "ACC-2026-0115",
+    "granted": [
+      "c_survey"
+    ]
+  },
+  "_note": "Immediately after a successful single-module access. Drives the success outcome screen and the 'just added' emphasis on My Learning."
+}

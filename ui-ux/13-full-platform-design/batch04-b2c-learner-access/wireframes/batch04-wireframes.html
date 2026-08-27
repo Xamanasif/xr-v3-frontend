@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XR Simulation Learning Platform — Batch 04 Wireframes (Individual learner access)</title>
+<style>
+  :root{
+    --ink:#161B22; --ink2:#3B4552; --ink3:#5F6B7A; --line:#B6C0CD; --line2:#D8DEE7;
+    --bg:#FAFBFC; --paper:#FFFFFF; --tint:#F4F6F9; --have:#E8F5EE; --haveL:#146C43;
+    --note:#EAF0FC; --noteL:#1A56C4; --warn:#FCF3E4; --warnL:#8A5200; --bad:#FCEDEC; --badL:#B3261E;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--bg);font-size:15px;line-height:1.6}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 28px 90px}
+  header.doc{border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:32px}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+    border:1px dashed var(--line);padding:3px 10px;border-radius:3px;display:inline-block;margin-bottom:12px}
+  h1{font-size:27px;font-weight:650;letter-spacing:-.015em;margin:0 0 8px}
+  header.doc p{margin:0;color:var(--ink2);max-width:76ch}
+  h2{font-size:19px;font-weight:650;margin:44px 0 6px;padding-top:22px;border-top:1px solid var(--line2)}
+  h2 .sid{font-family:var(--mono);font-size:12px;color:var(--ink3);margin-right:10px}
+  .purpose{color:var(--ink2);font-size:14px;margin:0 0 18px;max-width:80ch}
+  .wf{background:var(--paper);border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;margin-bottom:14px}
+  .wf .chrome{background:var(--tint);border-bottom:1px solid var(--line);padding:9px 14px;
+    font-family:var(--mono);font-size:11px;color:var(--ink3);display:flex;gap:14px;flex-wrap:wrap}
+  .wf .chrome b{color:var(--ink2);font-weight:650}
+  .wf pre{margin:0;padding:18px 20px;font-family:var(--mono);font-size:12.5px;line-height:1.65;
+    color:var(--ink);white-space:pre;overflow-x:auto}
+  .states{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:14px 0 8px}
+  .st{border:1px solid var(--line2);border-radius:5px;padding:11px 13px;background:var(--paper);font-size:13px}
+  .st .sh{font-weight:650;font-size:12.5px;margin-bottom:3px}
+  .st.have{background:var(--have);border-color:#A9D9BF} .st.have .sh{color:var(--haveL)}
+  .st.note{background:var(--note);border-color:#B4C8F0} .st.note .sh{color:var(--noteL)}
+  .st.warn{background:var(--warn);border-color:#EBCF98} .st.warn .sh{color:var(--warnL)}
+  .st.bad{background:var(--bad);border-color:#EFB3AF} .st.bad .sh{color:var(--badL)}
+  .meta{font-size:13px;color:var(--ink3);margin:6px 0 0}
+  .meta code{font-family:var(--mono);font-size:12px;color:var(--ink2);background:var(--tint);padding:1px 5px;border-radius:3px}
+  .callout{border-left:3px solid var(--noteL);background:var(--note);padding:12px 16px;border-radius:0 5px 5px 0;
+    font-size:13.5px;margin:16px 0;color:var(--ink2)}
+  .callout b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0 4px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);vertical-align:top}
+  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:650}
+  .toc{background:var(--paper);border:1px solid var(--line2);border-radius:6px;padding:16px 20px;margin-bottom:8px}
+  .toc h3{margin:0 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+  .toc ol{margin:0;padding-left:20px;columns:2;column-gap:32px;font-size:13.5px}
+  .toc a{color:var(--ink);text-decoration:none} .toc a:hover{text-decoration:underline}
+  @media (max-width:760px){ .toc ol{columns:1} .wrap{padding:24px 16px 60px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <span class="tag">WIREFRAMES — STRUCTURE ONLY · BATCH 04</span>
+  <h1>Individual learner access — structural wireframes</h1>
+  <p>Layout and content structure for the ten Batch-04 screens. These describe <b>what goes where and what each state says</b> — the interactive prototype in <code>../prototype/</code> is the reviewable artefact. Every name, amount, date and reference shown is <b>sample design data</b>.</p>
+</header>
+
+<div class="toc">
+  <h3>Screens</h3>
+  <ol>
+    <li><a href="#s1">Explore — catalogue</a></li>
+    <li><a href="#s2">Module detail</a></li>
+    <li><a href="#s3">Bundle detail</a></li>
+    <li><a href="#s4">Get access</a></li>
+    <li><a href="#s5">Confirming payment</a></li>
+    <li><a href="#s6">Access outcome</a></li>
+    <li><a href="#s7">My Learning</a></li>
+    <li><a href="#s8">Experiment handoff</a></li>
+    <li><a href="#s9">Access history</a></li>
+    <li><a href="#s10">Sign in to continue</a></li>
+  </ol>
+</div>
+
+<div class="callout">
+  <b>The shell is Batch 01's, unchanged.</b> Prototype strip → top bar (logo · platform name · account) → left navigation → main. The individual learner's navigation is <b>Home · My Learning · Explore · Progress</b>, which is the arrangement confirmed in <code>04_PLATFORM_INFORMATION_ARCHITECTURE.md</code>. There is <b>no institution label</b> in this context and <b>no cart control anywhere</b>.
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s1"><span class="sid">B2C-01</span>Explore — catalogue</h2>
+<p class="purpose">What can I learn, what does it run on, what do I already have, and what can I get access to.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/explore <b>·</b> FRD 1.1.3 · 6.1.1 · 6.1.2 · D-21</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Explore                                             [SAMPLE DESIGN DATA]     │
+│ Published XR experiments you can add to your learning.                       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ ✓ You already have 1 experiment                                              │
+│   Anything already included is marked below and opens from My Learning       │
+│   rather than being offered again.                                           │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ SEARCH THE CATALOGUE     DISCIPLINE      DELIVERY TYPE     TYPE              │
+│ [🔍 Try "soil"…      ]   [All        ▾]  [All          ▾]  [Modules and…▾]   │
+│                                                          [ Clear filters ]   │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ 11 items                                    (active filters appear as pills) │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────┐ ┌────────────────────────┐ ┌────────────────────────┐
+│ [Bundle] [Available to…]│ │ [Module] [✓ You have  │ │ [Module] [Available to │
+│                        │ │           access]      │ │          get access]   │
+│ Geotechnical           │ │ Soil Mechanics —       │ │ Geotechnical —         │
+│ Engineering Bundle     │ │ Direct Shear Test      │ │ Consolidation Test     │
+│ Civil Engineering      │ │ Civil Engineering      │ │ Civil Engineering      │
+│                        │ │                        │ │                        │
+│ Three civil-engineer…  │ │ Run a direct shear…    │ │ Load a soil sample…    │
+│                        │ │                        │ │                        │
+│ [⬡ 3 modules][VR][Web] │ │ [VR]                   │ │ [VR]                   │
+│ ────────────────────── │ │ ────────────────────── │ │ ────────────────────── │
+│ ₹6,000   [View details]│ │ In your    [Go to My…] │ │ ₹2,400  [View details] │
+│ SAMPLE AMOUNT          │ │ learning               │ │ SAMPLE AMOUNT          │
+└────────────────────────┘ └────────────────────────┘ └────────────────────────┘
+        not held                  ALREADY HELD                 not held
+                          amount replaced · no purchase action
+
+EVERY CARD USES THE SAME SKELETON, so a mixed Modules + Bundles result lines up
+row by row: one-word kind chip · fixed-height title+discipline block · summary ·
+facts row (module count, then delivery types) · footer on a common baseline.
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Full catalogue</div>11 offerings — 9 modules, 2 bundles, across 3 disciplines and all 4 delivery types.</div>
+  <div class="st"><div class="sh">Search applied</div>Matches title, discipline, summary, and a bundle's module names. One removable pill.</div>
+  <div class="st"><div class="sh">Filters applied</div>Count reads <i>N items of 11</i>. A bundle matches a delivery filter if any module it contains does.</div>
+  <div class="st note"><div class="sh">No results</div>Explains what happened, offers <i>Clear filters</i>. Pills stay visible so the learner can see what excluded everything.</div>
+  <div class="st have"><div class="sh">Already held</div>Success tint, <i>You have access</i>, amount replaced by <i>In your learning</i>, action becomes <i>Go to My Learning</i>.</div>
+  <div class="st"><div class="sh">Signed out</div>Fully browsable. The header offers <i>Sign in</i>. <code>DA-13</code>.</div>
+</div>
+<p class="meta">Four controls only — <code>DA-11</code>. No price range, popularity, duration or difficulty filter: each would need data or a policy that does not exist. The card is a decision aid, not a dashboard.</p>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s2"><span class="sid">B2C-02</span>Module detail</h2>
+<p class="purpose">What this is, what is in it, what it runs on, and whether the learner already has it.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/module/&lt;id&gt; <b>·</b> FRD 6.1.1 · 3.1.1 · 3.1.2 · 1.2.x · D-24</div>
+<pre>
+Explore / Surveying — Total Station Basics
+
+┌──────────────────────────────────────────────┐  ┌──────────────────────────┐
+│ [Module] [Available to get access] [Web]     │  │ ⬡ Available to get       │
+│                                              │  │   access                 │
+│ Surveying — Total Station Basics             │  │ ──────────────────────── │
+│                                              │  │ ₹1,800  [SAMPLE AMOUNT]  │
+│ Set up and level a total station, take angle │  │ Adds this experiment to  │
+│ and distance observations, and close a        │  │ your learning.           │
+│ simple traverse.                             │  │                          │
+│                                              │  │ [    Get access        ] │
+│ [⬡ Civil Engineering] [🖵 Runs in a web      │  │ [  Back to Explore     ] │
+│  browser — no XR hardware needed]            │  │ ──────────────────────── │
+│                                              │  │ ⛉ Access is added to your│
+│                                              │  │   own account and appears│
+│                                              │  │   in My Learning as soon │
+│                                              │  │   as the payment succeeds│
+└──────────────────────────────────────────────┘  └──────────────────────────┘
+                                                     THE ONLY PLACE AN AMOUNT
+                                                     AND A PRIMARY ACTION SIT
+
+┌── What you get ────────────────────────── One module is one XR simulation ──┐
+│ ▷  One XR simulation      Total Station Basics                              │
+│                           [Web] Runs in a web browser — no XR hardware      │
+│ 📄 1 reading              Reference material to work through…               │
+│ ▶  2 videos               Walkthrough of the apparatus and the procedure.   │
+│ 📋 An assessment          A set of questions to check what you took from it.│
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌── What you need to run it ──────────────────────────────────────────────────┐
+│ ℹ Web browser — Runs in a web browser. You can start it from My Learning    │
+│   on the device you are reading this on.                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌── Also available in a bundle ───────────────────────────────────────────────┐
+│ ⬡ Geotechnical Engineering Bundle — 3 modules, including this one   ₹5,400  │
+│ Amounts are sample design data. Nothing here is described as a saving.      │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Available</div>Amount, <i>Get access</i>, and the reassurance line about the account.</div>
+  <div class="st have"><div class="sh">Already held</div>Panel switches to the <i>have</i> variant: <b>no amount, no Get access</b>. One action — <i>Go to My Learning</i>.</div>
+  <div class="st"><div class="sh">Web delivery</div><i>"Runs in a web browser — no XR hardware needed."</i></div>
+  <div class="st"><div class="sh">Device delivery</div>VR / MR / AR device line, plus <i>"the platform makes it available on your supported device"</i> — mechanism-neutral.</div>
+</div>
+<p class="meta"><b>Not on this screen:</b> assessment settings (Batch 02 · PM-15 leaves pure-B2C ownership open) · any certificate (Phase 2 · PM-12) · any statement about how long access lasts (<code>D-24</code>).</p>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s3"><span class="sid">B2C-03</span>Bundle detail</h2>
+<p class="purpose">Exactly what a bundle contains, and exactly what the learner would gain.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/bundle/&lt;id&gt; <b>·</b> FRD 6.1.2</div>
+<pre>
+Explore / Geotechnical Engineering Bundle
+
+┌──────────────────────────────────────────────┐  ┌──────────────────────────┐
+│ [Bundle]  [ⓘ 1 of 3 already yours]           │  │ ⓘ Partly yours already   │
+│                                              │  │ ──────────────────────── │
+│ Geotechnical Engineering Bundle              │  │ Some content in this     │
+│ Three civil-engineering experiments taken    │  │ bundle is already in     │
+│ together — consolidation, surveying and      │  │ your learning — 1 of the │
+│ beam deflection.                             │  │ 3 modules. You can add   │
+│ [⬡ Civil Engineering] [⬡ 3 modules]          │  │ the remaining 2          │
+│ [🖵 VR headset · Web browser]                │  │ individually below.      │
+│                                              │  │ [ Open the first you     │
+│                                              │  │   don't have           ] │
+│                                              │  │ [ Go to My Learning    ] │
+│                                              │  │ ──────────────────────── │
+│                                              │  │ ⓘ No amount is shown for │
+│                                              │  │   this bundle. How a     │
+│                                              │  │   bundle is priced when  │
+│                                              │  │   you already have part  │
+│                                              │  │   of it is not yet       │
+│                                              │  │   decided, so it isn't   │
+│                                              │  │   offered as a single    │
+│                                              │  │   purchase here.         │
+└──────────────────────────────────────────────┘  └──────────────────────────┘
+                                            NO AMOUNT · NO "GET ACCESS" · Q-45
+
+┌── What is in this bundle ──────────────────────────────────── 3 modules ────┐
+│ 🎧 Geotechnical — Consolidation Test                 [Get this one · ₹2,400] │
+│    [VR] VR headset required — e.g. Meta Quest                               │
+│ 🖵 Surveying — Total Station Basics                        [✓ Already yours]│
+│    [Web] Runs in a web browser — no XR hardware needed                      │
+│ 🖵 Structural Analysis — Beam Deflection            [Get this one · ₹1,800] │
+│    [Web] Runs in a web browser — no XR hardware needed                      │
+│ ─────────────────────────────────────────────────────────────────────────── │
+│ Each module stays a separate experiment with its own resources, simulation  │
+│ and assessment. You open them one at a time from My Learning.               │
+└─────────────────────────────────────────────────────────────────────────────┘
+        ↑ GENERATED FROM THE BUNDLE RECORD — never a separate list
+
+┌── ℹ Some content in this bundle is already in your learning ────────────────┐
+│ You have 1 of these 3 already, and what you have stays exactly as it is.    │
+│ How a bundle is priced when you already hold part of it has not been        │
+│ decided, so this bundle is not offered as a single purchase for you — the   │
+│ 2 modules you do not have are available individually below.   Q-45 / OQ-B4-01│
+└─────────────────────────────────────────────────────────────────────────────┘
+
+FORCING #/get-access/<bundle> IS BLOCKED AT THE ROUTE:
+┌─────────────────────────────────────────────────────────────┐
+│                          ( ⓘ )                              │
+│           Some of this bundle is already yours              │
+│  You already have 1 of the 3 modules. You can add the 2 you │
+│  do not have individually.                                  │
+│  [ list of the 2, each linking to its own module page ]     │
+│  [ Open the first of these ][ Back to the bundle ]          │
+│              [BUNDLE OVERLAP PRICING PENDING]               │
+└─────────────────────────────────────────────────────────────┘
+
+┌── What you need to run these ───────────────────────────────────────────────┐
+│ 🎧 VR headset   [VR]  e.g. Meta Quest — 1 module                            │
+│ 🖵 Web browser  [Web] no XR hardware needed — 2 modules                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Available</div>All contents listed, none marked held.</div>
+  <div class="st note"><div class="sh">Partly held — shown, not sold</div><b>No amount, no Get access, checkout blocked at the route.</b> The remaining modules are offered individually at their own amounts (FRD 6.1.1, confirmed). <b>Derived, not designed as a case.</b></div>
+  <div class="st have"><div class="sh">Fully held</div><i>You have all of this</i> — no amount, no <i>Get access</i>.</div>
+</div>
+<p class="meta"><b>No bundle economics — including by arithmetic.</b> Each sample bundle amount is <b>exactly the sum of its component module amounts</b> (₹6,000 = 2,400 + 1,800 + 1,800). Pricing below the sum would let a reader infer a discount rule from the arithmetic alone, even with no copy claiming one. Bundle creation (6.3.1) and pricing (6.3.2) are <b>Phase 2</b>; who sets Phase-1 bundle prices is a PENDING DECISION. <b>Bundle pricing logic = PRODUCT-PENDING.</b></p>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s4"><span class="sid">B2C-04</span>Get access</h2>
+<p class="purpose">What you are getting · which account receives it · how much · one action.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/get-access/&lt;id&gt; <b>·</b> FRD 6.1.x · 9.1.1 TECHNICAL-PENDING · 9.1.2 PRODUCT-PENDING</div>
+<pre>
+Explore / Surveying — Total Station Basics / Get access
+
+Get access
+Check what you are getting, then confirm.
+
+┌── What you are getting ─────────────────┐   ┌── Access summary ─────────────┐
+│ ⬡ Surveying — Total Station Basics      │   │ Item      Surveying — Total   │
+│   Civil Engineering                     │   │           Station Basics      │
+│ [Web] Runs in a web browser. This adds  │   │ Type      Single module       │
+│ one experiment to your learning.        │   │ Experiments added          1  │
+└─────────────────────────────────────────┘   │ Account   aditya.rao@…        │
+                                              │ ───────────────────────────── │
+┌── The account this is added to ─────────┐   │ Amount             ₹1,800     │
+│ (AR) Aditya Rao                         │   │              [SAMPLE AMOUNT]  │
+│      aditya.rao@sample-learner.example  │   │                               │
+│ Access is added to this account. It     │   │ [ Pay ₹1,800 and get access ] │
+│ appears in My Learning as soon as the   │   │ [     Back to details       ] │
+│ payment succeeds — you do not have to   │   │ ───────────────────────────── │
+│ activate anything.        ← FRD 9.2.1   │   │ The amount shown is sample    │
+└─────────────────────────────────────────┘   │ design data. No payment is    │
+                                              │ taken and no card, bank or    │
+┌── Payment ──────────────────────────────┐   │ personal detail is collected  │
+│ 🔒  Online payment                      │   │ anywhere in it.               │
+│     This is completed through a secure  │   └───────────────────────────────┘
+│     payment step.                       │
+│                                         │
+│ ℹ No payment provider, gateway, card    │
+│   network or payment method has been    │
+│   selected for the platform, so this    │
+│   step is deliberately neutral. Nothing │
+│   is collected here.                    │
+└─────────────────────────────────────────┘
+     A STATEMENT, NOT A CHOICE — no method is source-supported
+
+┌ PROTOTYPE CONTROL — NOT PRODUCT UI ─────────────────────────────────────────┐
+│ Choose the outcome to simulate.                                             │
+│ [Successful] [Not completed] [Still confirming]                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="callout">
+  <b>No cart</b> — <code>DA-01</code>, <b>DESIGN ASSUMPTION, REVERSIBLE</b>. The source is explicit: <i>"Whether checkout is single-item or basket-based is DESIGN-PENDING — no requirement specifies a cart model."</i> Nowhere is a cart described as unnecessary or resolved.
+</div>
+<div class="callout">
+  <b>No payment method is offered, because none is source-supported.</b> A search across all three v5 FRD editions and every project register returns <b>zero</b> occurrences of <i>payment method, mode, option, instrument, card, netbanking, UPI, wallet</i> or <i>bank transfer</i>. FRD 9.1.1's acceptance criterion asks for exactly one thing — <i>"a provider-neutral payment step"</i> — and <code>C-05</code> forbids inventing the gateway (<code>Q-34</code>, OPEN). An earlier draft offered three sample instrument labels; they were removed.
+</div>
+<p class="meta"><b>Absent by design:</b> payment-method chooser · coupon · promo code · loyalty points · financing · instalments · tax line · invoice workflow · saved cards · billing address · gift · recurring toggle · term selector · renewal · cancellation. <b>Nothing is ever collected</b> — no card field, no CVV, no address, no phone.</p>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s5"><span class="sid">B2C-05</span>Confirming payment</h2>
+<p class="purpose">A determinate wait that states plainly that nothing has been added yet.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/processing <b>·</b> FRD 9.1.1 · 9.1.2</div>
+<pre>
+                     ┌─────────────────────────────────────┐
+                     │              ( 🕐 )                 │
+                     │                                     │
+                     │     Confirming your payment         │
+                     │                                     │
+                     │  Hold on while the payment for      │
+                     │  Surveying — Total Station Basics   │
+                     │  is confirmed. NOTHING HAS BEEN     │
+                     │  ADDED TO YOUR LEARNING YET —       │
+                     │  please do not close this page.     │
+                     │                                     │
+                     │  ████████░░░░░░░░░░░░░░░░░░░░░░     │
+                     │  Sent      Confirming     Access    │
+                     └─────────────────────────────────────┘
+</pre>
+</div>
+<p class="meta">Determinate, with three named steps, so waiting never reads as a hang.</p>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s6"><span class="sid">B2C-06</span>Access outcome</h2>
+<p class="purpose">Three outcomes. <b>FRD 9.1.x requires all three</b> to be designed states.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/result <b>·</b> FRD 9.1.x · 9.2.1 · 9.2.2</div>
+<pre>
+SUCCEEDED                              NOT COMPLETED
+┌─────────────────────────────────┐    ┌─────────────────────────────────┐
+│            ( ✓ )                │    │            ( ! )                │
+│  It's yours — access added      │    │  Payment not completed          │
+│                                 │    │                                 │
+│  Surveying — Total Station      │    │  The payment for Surveying did  │
+│  Basics has been added to your  │    │  not go through, so NOTHING HAS │
+│  learning. You can open it now. │    │  BEEN ADDED TO YOUR LEARNING    │
+│                                 │    │  and no amount has been taken.  │
+│ ┌─────────────────────────────┐ │    │ ┌─────────────────────────────┐ │
+│ │🖵 Surveying — Total Station │ │    │ │ℹ You can safely try again   │ │
+│ │  [Web] Runs in a browser    │ │    │ │ Trying again starts a fresh │ │
+│ └─────────────────────────────┘ │    │ │ payment. Your learning is   │ │
+│                                 │    │ │ exactly as it was — check   │ │
+│ [Go to My Learning][Keep expl…] │    │ │ that in My Learning.        │ │
+│ ─────────────────────────────── │    │ └─────────────────────────────┘ │
+│ Reference ACC-2026-0115 ·       │    │  [ Try again ][Back to details] │
+│ 27 Aug 2026  [SAMPLE DESIGN…]   │    │                                 │
+└─────────────────────────────────┘    └─────────────────────────────────┘
+   ✅ ACCESS CREATED                      ❌ NOTHING WRITTEN TO THE ACCESS MAP
+
+STILL CONFIRMING (indeterminate)
+┌───────────────────────────────────────────────────────────────┐
+│                          ( 🕐 )                               │
+│              Still confirming your payment                    │
+│  This payment has not been confirmed yet.                     │
+│  NOTHING HAS BEEN ADDED TO YOUR LEARNING SO FAR.              │
+│ ┌───────────────────────────────────────────────────────────┐ │
+│ │ ℹ If it completes, access appears on its own              │ │
+│ │ You do not need to activate anything. Check My Learning — │ │
+│ │ if the experiment is there, the payment went through.     │ │
+│ └───────────────────────────────────────────────────────────┘ │
+│  [ Check My Learning ][ Back to details ]                     │
+│  ───────────────────────────────────────                      │
+│              [OUTCOME HANDLING PENDING]                       │
+└───────────────────────────────────────────────────────────────┘
+   ❌ NOTHING WRITTEN · operational handling is unspecified in the source
+</pre>
+</div>
+
+<div class="states">
+  <div class="st have"><div class="sh">Succeeded</div>Access created. Exactly what arrived is listed, with a reference and date.</div>
+  <div class="st bad"><div class="sh">Not completed</div>Access <b>not</b> created, no amount taken, retry offered. No decline reason, bank rule or retry limit invented.</div>
+  <div class="st warn"><div class="sh">Still confirming</div>Access <b>not</b> created. States the position and stops — no timing, no automatic retry.</div>
+</div>
+<p class="meta">Every outcome carries an icon <b>and</b> a words-first heading. Nothing is signalled by colour alone. Each one says explicitly whether access now exists.</p>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s7"><span class="sid">LRN-02</span>My Learning — individual context</h2>
+<p class="purpose">Everything the learner has access to. Every row is an access record; there is no second list.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/my-learning <b>·</b> FRD 8.1.5 · 9.2.2 · D-22</div>
+<pre>
+My Learning                                        [SAMPLE DESIGN DATA]
+Everything you have access to.
+
+┌── ✓ 1 experiment just added ────────────────────────────────────────────────┐
+│ Surveying — Total Station Basics is now part of your learning.              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌── Your experiments ──────────────────────────────────── 2 experiments ──────┐
+│ EXPERIMENT                        RUNS ON   HOW YOU GOT IT                  │
+│ ─────────────────────────────────────────────────────────────────────────── │
+│ ▌Surveying — Total Station Basics  [Web]   Added on 27 Aug   [✓ Just added] │
+│ ▌ Runs in a web browser                                          [ Open ]   │
+│  Soil Mechanics — Direct Shear     [VR]    Added on 12 Aug 2026  [ Open ]   │
+│  VR headset required — e.g. Meta Quest                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+       ↑ after a BUNDLE, "HOW YOU GOT IT" reads "From <bundle name> · <date>"
+
+┌── ℹ Where the rest of the learning experience is ───────────────────────────┐
+│ From an experiment, the learner works through resources, then the           │
+│ simulation, then the assessment, and progress is recorded. Those screens    │
+│ are designed in BATCH 01 and BATCH 02. BATCH 04 DOES NOT DUPLICATE THEM.    │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Populated</div>Origin per row — direct, or named bundle.</div>
+  <div class="st have"><div class="sh">Just added</div>Banner + per-row badge + left rule. Shown <b>once</b>: it is a moment, not a state.</div>
+  <div class="st note"><div class="sh">Empty (individual)</div><i>"Explore the catalogue."</i> The institutional learner's empty state says <i>"contact your institution"</i> — <b>Divergence 6</b>.</div>
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s8"><span class="sid">LRN-04b</span>Experiment handoff</h2>
+<p class="purpose">A real destination for <i>Open</i>, and an honest statement of where the rest is designed.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/learn/&lt;id&gt; <b>·</b> FRD 3.1.1 · 3.1.2 · PM-09</div>
+<pre>
+My Learning / Soil Mechanics — Direct Shear Test
+
+┌──────────────────────────────────────────────┐  ┌──────────────────────────┐
+│ [✓ You have access] [VR]                     │  │ ✓ Included in your       │
+│ Soil Mechanics — Direct Shear Test           │  │   learning               │
+│ Run a direct shear test on a soil specimen…  │  │ You have everything you  │
+│ [⬡ Civil Engineering] [🎧 VR headset —       │  │ need to start.           │
+│  e.g. Meta Quest] [✓ Added on 12 Aug 2026]   │  │ [   Start learning     ] │
+└──────────────────────────────────────────────┘  │  ↑ inactive in Batch 04  │
+                                                  └──────────────────────────┘
+┌── What is in this experiment ───────────────────────────────────────────────┐
+│ ▷ One XR simulation · 📄 2 readings · ▶ 1 video · 📋 An assessment          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌── ℹ This is where Batch 04 hands over ──────────────────────────────────────┐
+│ Batch 04 covers how an individual learner discovers content, gets access,   │
+│ and finds it here. What happens from this point — learning resources →      │
+│ simulation → XR device access → assessment → results → progress — is        │
+│ already designed in BATCH 01 and BATCH 02, and is IDENTICAL whether the     │
+│ access came from an institution or from an individual purchase.             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s9"><span class="sid">B2C-07</span>Access history</h2>
+<p class="purpose">What access was added to this account, and when. <b>Not a receipt or invoice surface.</b></p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/history <b>·</b> FRD 9.2.1 · reframe <code>B2C-06</code></div>
+<pre>
+Access history                                     [SAMPLE DESIGN DATA]
+Access added to your account.
+
+┌── Your access ──────────────────────────────────────────── 2 records ───────┐
+│ WHAT YOU GOT                     DATE          REFERENCE        AMOUNT      │
+│ ─────────────────────────────────────────────────────────────────────────── │
+│ Surveying — Total Station Basics 27 Aug 2026   ACC-2026-0115    ₹1,800      │
+│ 1 experiment · Single module                                                │
+│ Soil Mechanics — Direct Shear    12 Aug 2026   ACC-2026-0114    ₹2,400      │
+│ 1 experiment · Single module                                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Amounts are sample design data. What a buyer receives as a document — a
+receipt, an invoice or neither — is not yet decided, so nothing is offered
+for download here.
+</pre>
+</div>
+<p class="meta">No document, no download, no invoice number, no refund or cancellation control. What a B2C buyer receives is PRODUCT-PENDING; GST invoicing (9.3.1) is Phase 2 and institution-facing.</p>
+
+<!-- ─────────────────────────────────────────── -->
+<h2 id="s10"><span class="sid">AUTH-B2C</span>Sign in to continue</h2>
+<p class="purpose">A transaction belongs to an account (FRD 9.2.1). This shows that, and nothing more.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Route</b> #/sign-in[/&lt;id&gt;] <b>·</b> FRD 4.1.1 · <code>QX-10</code> DESIGN-PENDING</div>
+<pre>
+              ┌──────────────────────────────────────────────┐
+              │ ( 👤 )                                       │
+              │ Sign in to continue                          │
+              │                                              │
+              │ Access to Fluid Mechanics — Bernoulli Flow   │
+              │ Visualisation is added to a personal account,│
+              │ so you need to be signed in before you       │
+              │ continue.                                    │
+              │                                              │
+              │ [   Sign in   ] [ Create an account ]        │
+              │                                              │
+              │ ┌──────────────────────────────────────────┐ │
+              │ │ ℹ Authentication is not designed in      │ │
+              │ │   Batch 04                               │ │
+              │ │ Signing in, creating an account and the  │ │
+              │ │ sign-in methods available are shared     │ │
+              │ │ platform work, designed elsewhere.       │ │
+              │ └──────────────────────────────────────────┘ │
+              │ ⛉ Nothing is collected on this screen. There │
+              │   is no password field, no one-time code and │
+              │   no named sign-in provider anywhere.        │
+              └──────────────────────────────────────────────┘
+                     A PANEL, NOT A FORM — no input of any kind
+</pre>
+</div>
+<p class="meta"><b>Not invented:</b> social-login requirement · Google sign-in · phone OTP · password policy · e-mail verification · session rules · any institutional/B2C account-merge rule.</p>
+
+<!-- ─────────────────────────────────────────── -->
+<h2>The access spine</h2>
+<p class="purpose">Why one transaction updates six screens without any of them being told to.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Model</b> · FRD 6.1.2 · 9.2.1 · 9.2.2</div>
+<pre>
+                        ┌──────────────────────┐
+                        │   S.access map       │   moduleId → { via, on, ref }
+                        │  ONE RECORD TYPE     │
+                        └──────────┬───────────┘
+                                   │  every surface is a FUNCTION of it
+      ┌───────────┬────────────┬───┴────┬───────────┬────────────┐
+      ▼           ▼            ▼        ▼           ▼            ▼
+  Catalogue    Module      Bundle    Access     Outcome     My Learning
+  card state   detail      detail    summary    screen         list
+
+  A BUNDLE IS NOT A SPECIAL CASE — it grants each module it contains,
+  so what the bundle promised and what arrives cannot drift apart.
+
+  ONLY SUCCESS WRITES — a declined or unconfirmed payment never touches the
+  map, so no downstream screen has to remember to hide anything.
+</pre>
+</div>
+
+<h2>Two routes, one platform</h2>
+<div class="wf">
+  <div class="chrome"><b>Batch 03 ↔ Batch 04</b></div>
+<pre>
+   INSTITUTIONAL LEARNER                    INDIVIDUAL LEARNER
+   (Batch 03)                               (Batch 04)
+   ① institution holds content access       ① finds a module or bundle
+   ② learner is eligible via stream/group   ② gets access, payment succeeds
+   ③ experiment appears in My Learning      ③ experiment appears in My Learning
+              │                                          │
+              └──────────────────┬───────────────────────┘
+                                 ▼
+                    ╔════════════════════════╗
+                    ║  SAME PLATFORM FROM    ║
+                    ║  HERE ON               ║
+                    ╚════════════════════════╝
+     resources → simulation → assessment → progress   (Batch 01 · Batch 02)
+                     identical on both routes
+</pre>
+</div>
+
+<h2>Requirement map</h2>
+<table>
+  <thead><tr><th>Screen</th><th>Requirement</th><th>Standing</th></tr></thead>
+  <tbody>
+    <tr><td>Explore</td><td>FRD 1.1.3 · 6.1.1 · 6.1.2 · Core FRD Table 14 ②</td><td>Confirmed</td></tr>
+    <tr><td>Module detail</td><td>FRD 6.1.1 · 3.1.1 · 3.1.2 · 1.2.1–1.2.4 · Table 14 ③</td><td>Confirmed</td></tr>
+    <tr><td>Bundle detail</td><td>FRD 6.1.2 — <i>"entitles the learner to every module the bundle contains, each reachable individually"</i></td><td>Confirmed</td></tr>
+    <tr><td>Get access</td><td>FRD 6.1.x · Table 14 ③</td><td>Confirmed; <b>cart model DESIGN-PENDING</b></td></tr>
+    <tr><td>Payment step</td><td>FRD 9.1.1 · 9.1.2 · <code>C-05</code> · <code>Q-34</code></td><td><b>TECHNICAL / PRODUCT-PENDING</b> — no provider, no method, no currency or tax rule. Zero payment methods are source-supported</td></tr>
+    <tr><td>Outcomes</td><td>FRD 9.1.x — success, decline and indeterminate</td><td>Confirmed (all three required)</td></tr>
+    <tr><td>Access created</td><td>FRD 9.2.1 — automatic on payment, linked to the account</td><td>Confirmed</td></tr>
+    <tr><td>My Learning</td><td>FRD 9.2.2 — <i>"appears in My Learning immediately after activation and is reachable from there"</i></td><td>Confirmed</td></tr>
+    <tr><td>Access history</td><td>reframe <code>B2C-06</code> (inventoried, NEW, P3)</td><td><b>Inventoried, not requirement-mandated</b> — <code>DA-07</code>, reversible. Document format PRODUCT-PENDING</td></tr>
+    <tr><td>Sign in</td><td>FRD 4.1.1</td><td>Origin confirmed; <b>sign-in model DESIGN-PENDING (QX-10)</b></td></tr>
+  </tbody>
+</table>
+
+</div>
+</body>
+</html>

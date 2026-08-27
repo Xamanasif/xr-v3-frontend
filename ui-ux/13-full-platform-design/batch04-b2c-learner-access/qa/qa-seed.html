@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Batch 04 QA state seeder — not product UI</title>
+</head>
+<body>
+<p style="font-family:system-ui;color:#515D6C">QA utility — stores a partial prototype-state patch (deep-merged over the demo state on next load; <code>access</code> and <code>history</code> are replaced wholesale so an "owns nothing" seed is expressible), then opens the Batch 04 prototype at the requested route. Usage: <code>qa-seed.html?f=seed-states/&lt;file&gt;.json&amp;reset=1#/route</code>. Requires an http server (fetch does not run from file://).</p>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var f = params.get('f');
+  var target = '../prototype/batch04-prototype.html' + (location.hash || '#/index');
+  var KEY = 'xrslp-batch04-proto-v1';
+  // store=local writes the patch to localStorage so it survives into a separate browser
+  // run; hold=1 writes the patch and stays here instead of opening the prototype. Both
+  // exist for headless screenshot capture, which cannot follow this page's redirect.
+  var store = params.get('store') === 'local' ? localStorage : sessionStorage;
+  var hold = !!params.get('hold');
+  if (params.get('reset')) { try { sessionStorage.removeItem(KEY); localStorage.removeItem(KEY); } catch (e) {} }
+  if (!f) { if (!hold) location.replace(target); return; }
+  fetch(f, { cache: 'no-store' })
+    .then(function (r) { return r.text(); })
+    .then(function (txt) {
+      JSON.parse(txt); // validate
+      store.setItem(KEY + '-qa-patch', txt);
+      document.body.insertAdjacentHTML('beforeend', '<pre>Seeded: ' + f + '</pre>');
+      if (!hold) location.replace(target);
+    })
+    .catch(function (e) {
+      document.body.insertAdjacentHTML('beforeend', '<pre>Seed failed: ' + e + '</pre>');
+    });
+})();
+</script>
+</body>
+</html>

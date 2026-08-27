@@ -1,0 +1,59 @@
+{
+  "access": {
+    "c_shear": {
+      "via": "o_shear",
+      "on": "12 Aug 2026",
+      "ref": "ACC-2026-0114"
+    },
+    "c_torsion": {
+      "via": "o_bmech",
+      "on": "27 Aug 2026",
+      "ref": "ACC-2026-0116"
+    },
+    "c_heat": {
+      "via": "o_bmech",
+      "on": "27 Aug 2026",
+      "ref": "ACC-2026-0116"
+    },
+    "c_gear": {
+      "via": "o_bmech",
+      "on": "27 Aug 2026",
+      "ref": "ACC-2026-0116"
+    }
+  },
+  "history": [
+    {
+      "ref": "ACC-2026-0116",
+      "offering": "o_bmech",
+      "on": "27 Aug 2026",
+      "amount": 7200,
+      "granted": [
+        "c_torsion",
+        "c_heat",
+        "c_gear"
+      ]
+    },
+    {
+      "ref": "ACC-2026-0114",
+      "offering": "o_shear",
+      "on": "12 Aug 2026",
+      "amount": 2400,
+      "granted": [
+        "c_shear"
+      ]
+    }
+  ],
+  "seq": 117,
+  "tx": {
+    "offering": "o_bmech",
+    "simulate": "success",
+    "stage": "success",
+    "ref": "ACC-2026-0116",
+    "granted": [
+      "c_torsion",
+      "c_heat",
+      "c_gear"
+    ]
+  },
+  "_note": "Immediately after a successful bundle access. All three of the bundle's modules are granted individually and appear separately in My Learning."
+}

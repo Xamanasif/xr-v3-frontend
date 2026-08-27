@@ -1,0 +1,27 @@
+{
+  "access": {
+    "c_shear": {
+      "via": "o_shear",
+      "on": "12 Aug 2026",
+      "ref": "ACC-2026-0114"
+    }
+  },
+  "history": [
+    {
+      "ref": "ACC-2026-0114",
+      "offering": "o_shear",
+      "on": "12 Aug 2026",
+      "amount": 2400,
+      "granted": [
+        "c_shear"
+      ]
+    }
+  ],
+  "seq": 115,
+  "tx": {
+    "offering": "o_survey",
+    "simulate": "pending",
+    "stage": "pending"
+  },
+  "_note": "An indeterminate payment outcome (FRD 9.1.x names this outcome explicitly). No access has been created; the screen says so and invents no banking or timing rule."
+}

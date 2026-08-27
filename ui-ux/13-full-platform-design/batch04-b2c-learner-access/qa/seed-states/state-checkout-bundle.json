@@ -1,0 +1,27 @@
+{
+  "access": {
+    "c_shear": {
+      "via": "o_shear",
+      "on": "12 Aug 2026",
+      "ref": "ACC-2026-0114"
+    }
+  },
+  "history": [
+    {
+      "ref": "ACC-2026-0114",
+      "offering": "o_shear",
+      "on": "12 Aug 2026",
+      "amount": 2400,
+      "granted": [
+        "c_shear"
+      ]
+    }
+  ],
+  "seq": 115,
+  "tx": {
+    "offering": "o_bmech",
+    "simulate": "success",
+    "stage": "checkout"
+  },
+  "_note": "The access summary for a bundle the learner holds NONE of: the three modules it would add are enumerated from the bundle record, not from a separate list. A partly-held bundle cannot reach this screen — see state-survey-settled.json."
+}

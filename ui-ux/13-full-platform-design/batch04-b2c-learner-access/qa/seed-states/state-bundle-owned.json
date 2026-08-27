@@ -1,0 +1,49 @@
+{
+  "access": {
+    "c_shear": {
+      "via": "o_shear",
+      "on": "12 Aug 2026",
+      "ref": "ACC-2026-0114"
+    },
+    "c_consol": {
+      "via": "o_bgeo",
+      "on": "27 Aug 2026",
+      "ref": "ACC-2026-0117"
+    },
+    "c_survey": {
+      "via": "o_bgeo",
+      "on": "27 Aug 2026",
+      "ref": "ACC-2026-0117"
+    },
+    "c_beam": {
+      "via": "o_bgeo",
+      "on": "27 Aug 2026",
+      "ref": "ACC-2026-0117"
+    }
+  },
+  "history": [
+    {
+      "ref": "ACC-2026-0117",
+      "offering": "o_bgeo",
+      "on": "27 Aug 2026",
+      "amount": 6000,
+      "granted": [
+        "c_consol",
+        "c_survey",
+        "c_beam"
+      ]
+    },
+    {
+      "ref": "ACC-2026-0114",
+      "offering": "o_shear",
+      "on": "12 Aug 2026",
+      "amount": 2400,
+      "granted": [
+        "c_shear"
+      ]
+    }
+  ],
+  "seq": 118,
+  "tx": null,
+  "_note": "The Geotechnical bundle fully held. Its detail screen shows 'You have all of this' with no amount and no Get access action."
+}

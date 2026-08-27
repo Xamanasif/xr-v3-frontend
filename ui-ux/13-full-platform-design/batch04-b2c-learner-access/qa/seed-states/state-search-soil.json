@@ -1,0 +1,9 @@
+{
+  "filters": {
+    "q": "soil",
+    "disc": "all",
+    "fmt": "all",
+    "kind": "all"
+  },
+  "_note": "Catalogue with the search term 'soil' applied — a normal, non-empty result set with one removable filter pill."
+}

@@ -1,0 +1,9 @@
+{
+  "filters": {
+    "q": "quantum",
+    "disc": "Civil Engineering",
+    "fmt": "VR",
+    "kind": "all"
+  },
+  "_note": "Catalogue search and filters that match nothing — produces the no-results state with three removable pills."
+}
