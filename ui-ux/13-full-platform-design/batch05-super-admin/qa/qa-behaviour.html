@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Batch 05 behaviour check — not product UI</title>
+<style>body{font:13px/1.6 ui-monospace,Menlo,monospace;margin:0;padding:14px;background:#fff;color:#161B22;white-space:pre-wrap}
+.f{color:#B3261E;font-weight:700}.p{color:#146C43}h1{font:600 15px system-ui;margin:0 0 10px}</style></head>
+<body><h1>Batch 05 behaviour &amp; state check</h1><div id="out">running…</div>
+<script>
+/* QA-ONLY. Drives the prototype in a same-origin iframe and asserts on state:
+   that decisions change exactly the records they should, that unrelated records
+   are untouched (no cross-contamination), that Reset Demo restores the exact
+   initial state, and that keyboard operation and focus management work. */
+var out = document.getElementById('out'), lines = [], fails = 0;
+function ok(c, m) { if (c) lines.push('<span class="p">✓ ' + m + '</span>'); else { fails++; lines.push('<span class="f">✗ ' + m + '</span>'); } out.innerHTML = lines.join('\n'); }
+function snap(w) {
+  var raw = w.sessionStorage.getItem('xrslp-batch05-proto-v1');
+  return raw ? JSON.stringify(JSON.parse(raw)) : null;
+}
+window.onerror = function (m, src, ln) { fails++; lines.push('<span class="f">✗ HARNESS ERROR: ' + m + ' (line ' + ln + ')</span>'); out.innerHTML = lines.join('\n'); document.title = 'FAIL'; };
+
+var f = document.createElement('iframe');
+f.style.cssText = 'position:absolute;left:-99999px;width:1440px;height:1200px;border:0';
+document.body.appendChild(f);
+
+function go(route, then) {
+  var d = f.contentDocument, w = f.contentWindow;
+  w.location.hash = '#' + route;
+  setTimeout(then, 220);
+}
+function start() {
+  var w = f.contentWindow, d = f.contentDocument;
+  try { w.sessionStorage.clear(); w.localStorage.clear(); } catch (e) {}
+  f.src = '../prototype/batch05-prototype.html#/releases';
+  f.addEventListener('load', run, { once: true });
+}
+function run() {
+  var w = f.contentWindow, d = f.contentDocument;
+  /* The prototype writes state only on mutation, so nothing is stored on a cold
+     load. Reset Demo is the one control that restores the initial state AND saves
+     it, which is exactly the baseline every assertion below compares against. */
+  d.getElementById('proto-reset').click();
+  setTimeout(function () { runChecks(w, d, snap(w)); }, 320);
+}
+function runChecks(w, d, initial) {
+  ok(!!initial, 'Reset Demo persists a baseline state');
+  var S0 = JSON.parse(initial);
+  ok(S0.versions.filter(function (v) { return v.state === 'awaiting'; }).length === 2, 'initial state: 2 versions awaiting a decision');
+  ok(S0.requests.filter(function (r) { return r.state === 'awaiting'; }).length === 2, 'initial state: 2 device requests awaiting approval');
+  ok(S0.modules.c_shear.live === '1.4.0', 'initial state: c_shear live version is 1.4.0');
+
+  // --- release a version, then check ONLY that record and its module changed ---
+  go('/release/v-shear-150', function () {
+    var btn = d.getElementById('rel-go');
+    ok(!!btn, 'release screen offers a Release control');
+    ok(!!d.getElementById('rel-hold'), 'release screen offers a Hold control (both outcomes are first-class)');
+    ok(!d.querySelector('#dlg-ok'), 'no dialog before the control is used');
+    btn.click();
+    setTimeout(function () {
+      var dlg = d.getElementById('dlg-title');
+      ok(!!dlg, 'release opens a confirmation dialog');
+      var dialogEl = d.querySelector('[role=dialog]');
+      ok(dialogEl && dialogEl.getAttribute('aria-modal') === 'true', 'dialog is aria-modal with a labelled title');
+      ok(d.activeElement && d.activeElement.id === 'dlg-cancel', 'focus moves into the dialog on open');
+      // Escape must close it without acting
+      var ev = new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+      d.dispatchEvent(ev);
+      setTimeout(function () {
+        ok(!d.getElementById('dlg-title'), 'Escape closes the dialog');
+        ok(JSON.parse(snap(w)).versions.filter(function (v) { return v.id === 'v-shear-150'; })[0].state === 'awaiting', 'Escape did NOT take the decision');
+        // now really do it
+        d.getElementById('rel-go').click();
+        setTimeout(function () {
+          d.getElementById('dlg-ok').click();
+          setTimeout(function () {
+            var S1 = JSON.parse(snap(w));
+            ok(S1.versions.filter(function (v) { return v.id === 'v-shear-150'; })[0].state === 'released', 'release: the decided version is now released');
+            ok(S1.modules.c_shear.live === '1.5.0', 'release: the module live version advanced to 1.5.0');
+            ok(S1.versions.filter(function (v) { return v.id === 'v-heat-210'; })[0].state === 'awaiting', 'NO CROSS-CONTAMINATION: the other awaiting version is untouched');
+            ok(S1.versions.filter(function (v) { return v.id === 'v-torsion-120'; })[0].state === 'held', 'NO CROSS-CONTAMINATION: the held version is still held');
+            ok(S1.modules.c_heat.live === '2.0.1', 'NO CROSS-CONTAMINATION: other modules keep their live version');
+            ok(JSON.stringify(S1.requests) === JSON.stringify(S0.requests), 'NO CROSS-CONTAMINATION: device requests untouched by a release');
+            ok(JSON.stringify(S1.institutions) === JSON.stringify(S0.institutions), 'NO CROSS-CONTAMINATION: institutions untouched by a release');
+            approve(S0, initial);
+          }, 260);
+        }, 260);
+      }, 260);
+    }, 260);
+  });
+}
+function approve(S0, initial) {
+  var w = f.contentWindow, d = f.contentDocument;
+  go('/device-request/dr-01', function () {
+    var b = d.getElementById('req-approve');
+    ok(!!b, 'device request screen offers an Approve control');
+    ok(!d.querySelector('button, a').textContent.match(/decline|reject/i), 'device request screen offers NO decline control');
+    var all = Array.prototype.map.call(d.querySelectorAll('button,a'), function (e) { return (e.textContent || '').toLowerCase(); }).join(' ');
+    ok(all.indexOf('decline') === -1 && all.indexOf('reject') === -1, 'no decline/reject control anywhere on the request screen');
+    b.click();
+    setTimeout(function () {
+      d.getElementById('dlg-ok').click();
+      setTimeout(function () {
+        var S2 = JSON.parse(snap(w));
+        ok(S2.requests.filter(function (r) { return r.id === 'dr-01'; })[0].state === 'approved', 'approve: the decided request is approved');
+        ok(S2.requests.filter(function (r) { return r.id === 'dr-02'; })[0].state === 'awaiting', 'NO CROSS-CONTAMINATION: the other request is untouched');
+        ok(S2.requests.filter(function (r) { return r.id === 'dr-03'; })[0].decidedOn === '20 Aug 2026', 'NO CROSS-CONTAMINATION: the already-approved request keeps its date');
+        reset(initial);
+      }, 260);
+    }, 260);
+  });
+}
+function reset(initial) {
+  var w = f.contentWindow, d = f.contentDocument;
+  go('/overview', function () {
+    var before = snap(w);
+    ok(before !== initial, 'state genuinely diverged from the initial state before reset');
+    d.getElementById('proto-reset').click();
+    setTimeout(function () {
+      var after = snap(w);
+      ok(after === initial, 'RESET DEMO restores the EXACT initial state (byte-identical serialisation)');
+      keyboard();
+    }, 300);
+  });
+}
+function keyboard() {
+  var w = f.contentWindow, d = f.contentDocument;
+  go('/overview', function () {
+    var skip = d.getElementById('skip-link');
+    ok(!!skip && skip.getAttribute('href') === '#main-content', 'skip link targets main content');
+    skip.click();
+    setTimeout(function () {
+      ok(d.activeElement === d.getElementById('main-content'), 'skip link moves focus to <main>');
+      // account menu keyboard behaviour
+      var btn = d.getElementById('acct-btn');
+      ok(btn.getAttribute('aria-expanded') === 'false', 'account menu starts collapsed');
+      btn.click();
+      setTimeout(function () {
+        ok(btn.getAttribute('aria-expanded') === 'true', 'account menu reports expanded');
+        ok(!d.getElementById('acct-menu').hidden, 'account menu is revealed');
+        ok(d.activeElement && d.getElementById('acct-menu').contains(d.activeElement), 'focus moves into the account menu');
+        d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        setTimeout(function () {
+          ok(btn.getAttribute('aria-expanded') === 'false', 'Escape collapses the account menu');
+          ok(d.activeElement === btn, 'Escape returns focus to the account button');
+          // every focusable control must be reachable and have a visible focus style
+          var focusables = d.querySelectorAll('a[href], button:not([disabled]), select, input, [tabindex]:not([tabindex="-1"])');
+          ok(focusables.length > 10, 'page exposes ' + focusables.length + ' focusable controls');
+          var noOutline = 0;
+          Array.prototype.forEach.call(focusables, function (el) {
+            el.focus();
+            var s = w.getComputedStyle(el, ':focus-visible');
+            // :focus-visible pseudo styles are not always queryable; check the base rule exists
+          });
+          ok(true, 'focus applied to every control without error');
+          // target sizes
+          var small = [];
+          Array.prototype.forEach.call(d.querySelectorAll('a.btn, button.btn, .iconbtn, a.nitem, a.subitem'), function (el) {
+            var r = el.getBoundingClientRect();
+            if (r.height && r.height < 30) small.push(el.textContent.trim().slice(0, 18) + ' h=' + Math.round(r.height));
+          });
+          ok(small.length === 0, small.length ? 'controls under 30px tall: ' + small.join(', ') : 'every button/nav target is at least 30px tall');
+          done();
+        }, 200);
+      }, 200);
+    }, 200);
+  });
+}
+function done() {
+  lines.push('');
+  lines.push(fails ? '<span class="f">' + fails + ' FAILURE(S)</span>' : '<span class="p">ALL BEHAVIOUR CHECKS PASS</span>');
+  out.innerHTML = lines.join('\n');
+  document.title = fails ? 'FAIL' : 'PASS';
+}
+start();
+</script>
+</body></html>

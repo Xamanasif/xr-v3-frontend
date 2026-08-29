@@ -1,0 +1,8 @@
+{
+  "institutions": {
+    "au":  { "access": { "on": false, "streams": 0, "note": "No content access record exists against this institution yet." } },
+    "cp":  { "access": { "on": false, "streams": 0, "note": "No content access record exists against this institution yet." } },
+    "mce": { "access": { "on": false, "streams": 0, "note": "No content access record exists against this institution yet." } },
+    "nit": { "access": { "on": false, "streams": 0, "note": "No content access record exists against this institution yet." } }
+  }
+}

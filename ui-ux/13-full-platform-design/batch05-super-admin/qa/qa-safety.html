@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Batch 05 requirement-safety audit — not product UI</title>
+<style>body{font:13px/1.6 ui-monospace,Menlo,monospace;margin:0;padding:14px;background:#fff;color:#161B22;white-space:pre-wrap}
+.f{color:#B3261E;font-weight:700}.p{color:#146C43}.n{color:#515D6C}h1{font:600 15px system-ui;margin:0 0 10px}</style></head>
+<body><h1>Batch 05 requirement-safety audit — every actionable control on every route</h1><div id="out">running…</div>
+<script>
+/* QA-ONLY. The decisive regression check for this batch.
+   Walks every route and collects the accessible name of every ACTIONABLE control —
+   buttons, links that navigate, selects — then asserts that none of them offers a
+   responsibility the sources do not support for the Super Admin.
+   Prose is deliberately NOT scanned: a boundary note that says "the Content Manager
+   publishes" is exactly what this batch is for. Only CONTROLS are the risk. */
+var ROUTES = ['/index','/overview','/institutions','/institution/nit','/institution/mce','/institution/cp','/institution/lst',
+  '/releases','/releases?state=all','/release/v-shear-150','/release/v-torsion-120','/release/v-circuit-301',
+  '/device-requests','/device-requests?state=all','/device-request/dr-01','/device-request/dr-02','/device-request/dr-03',
+  '/licensing','/platform/roles','/platform/configuration'];
+/* Verbs that would represent a responsibility the audit did not confirm. Matched
+   against control labels only. */
+var FORBIDDEN = [
+  ['publish','publication authority — PM-16/17/18 give it to the Content Manager'],
+  ['unpublish','no source'],
+  ['withdraw','no source'],
+  ['approve content','no source; content approval is the Academic Reviewer / Content Manager'],
+  ['request changes','QP-26 OPEN'],
+  ['return to vendor','QP-26 OPEN'],
+  ['reject','no source — FRD 2.4.2 defines no rejection path'],
+  ['decline','no source — FRD 2.4.2 defines no rejection path'],
+  ['suspend','no source'],
+  ['deactivate','no source'],
+  ['delete','no source'],
+  ['remove','no source'],
+  ['refund','QP-18 — no rule stated or implied'],
+  ['cancel subscription','no source'],
+  ['subscription','Phase 2'],
+  ['billing','Phase 2 — FRD 9.3.x'],
+  ['invoice','Phase 2'],
+  ['buy','no source'],
+  ['purchase','no in-platform purchase flow is defined'],
+  ['checkout','no source'],
+  ['price','FRD 6.3.2 is Phase 2'],
+  ['seat','OQ-03 OPEN'],
+  ['add institution','FRD 4.2.1 — institutions register themselves; no administrator is named'],
+  ['create institution','same'],
+  ['new institution','same'],
+  ['onboard','same'],
+  ['assign role','QD-02 OPEN'],
+  ['assign admin','no source'],
+  ['add user','QD-02 OPEN'],
+  ['create user','QD-02 OPEN'],
+  ['invite','QD-02 OPEN'],
+  ['revoke','no source'],
+  ['grant','no source'],
+  ['impersonate','no source'],
+  ['sign in as','no source'],
+  ['custom role','FRD 8.3.x is Phase 3'],
+  ['edit sso','FRD 4.2.2 assigns it to the Institute Admin'],
+  ['configure sso','same'],
+  ['edit erp','FRD 7.1.x assigns it to the Institute Admin'],
+  ['configure erp','same'],
+  ['edit institution','FRD 1.3.5 names no cross-tenant management action'],
+  ['assessment','no Super Admin assessment surface exists in any source'],
+  ['answer key','FRD §6.7.5 OPEN'],
+  ['grade','no source'],
+  ['certificate','no source'],
+  ['rollback','no source'],
+  ['unrelease','no source']
+];
+var out = document.getElementById('out'), lines = [], findings = 0, controlCount = 0, seen = {};
+var f = document.createElement('iframe');
+f.style.cssText = 'position:absolute;left:-99999px;width:1440px;height:1400px;border:0';
+document.body.appendChild(f);
+
+function labelOf(el) {
+  var n = (el.getAttribute('aria-label') || '').trim();
+  if (!n) n = (el.textContent || '').replace(/\s+/g, ' ').trim();
+  return n;
+}
+function scan(doc, route) {
+  var controls = doc.querySelectorAll('button, a[href], select, [role="menuitem"]');
+  var n = 0;
+  Array.prototype.forEach.call(controls, function (el) {
+    var lab = labelOf(el);
+    if (!lab) return;
+    controlCount++; n++;
+    var key = route + '|' + lab;
+    if (seen[key]) return; seen[key] = 1;
+    var low = lab.toLowerCase();
+    FORBIDDEN.forEach(function (pair) {
+      if (low.indexOf(pair[0]) !== -1) {
+        findings++;
+        lines.push('<span class="f">✗ ' + route + '  control "' + lab.slice(0, 70) + '"  contains "' + pair[0] + '" — ' + pair[1] + '</span>');
+      }
+    });
+  });
+  return n;
+}
+function step(i) {
+  if (i >= ROUTES.length) {
+    lines.push('');
+    lines.push('<span class="n">' + controlCount + ' control labels examined across ' + ROUTES.length + ' routes.</span>');
+    lines.push('<span class="n">Prose was deliberately excluded: a boundary note naming another role’s responsibility is the point of this batch. Only CONTROLS were scanned.</span>');
+    lines.push('');
+    lines.push(findings ? '<span class="f">' + findings + ' UNSUPPORTED CONTROL(S)</span>'
+                        : '<span class="p">PASS — no control anywhere offers an unsupported Super Admin responsibility</span>');
+    out.innerHTML = lines.join('\n');
+    document.title = findings ? 'FAIL' : 'PASS';
+    return;
+  }
+  var route = ROUTES[i];
+  var handler = function () {
+    f.removeEventListener('load', handler);
+    setTimeout(function () {
+      var n = 0;
+      try {
+        n = scan(f.contentDocument, route);
+        if (!n) { findings++; lines.push('<span class="f">✗ ' + route + ' — NO CONTROLS FOUND (the route did not render)</span>'); }
+        else lines.push('<span class="p">✓ ' + route + '  (' + n + ' controls)</span>');
+      } catch (e) { findings++; lines.push('<span class="f">✗ ' + route + ' SCAN ERROR ' + e + '</span>'); }
+      out.innerHTML = lines.join('\n');
+      step(i + 1);
+    }, 260);
+  };
+  f.addEventListener('load', handler);
+  /* A same-document hash change fires no load event, so each route gets its own
+     cache-busting query. That guarantees a real navigation and a real load event. */
+  f.src = '../prototype/batch05-prototype.html?r=' + i + '#' + route;
+}
+step(0);
+</script>
+</body></html>

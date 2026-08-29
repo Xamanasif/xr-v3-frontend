@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Batch 05 QA shot harness — not product UI</title>
+<style>html,body{margin:0;padding:0;background:#fff}iframe{display:block;border:0;width:100vw;height:100vh}</style>
+</head>
+<body>
+<script>
+/* QA-ONLY. Loads the prototype in a same-origin iframe and, optionally, clicks one
+   control inside it before the screenshot is taken. This exists so that transient
+   states — confirmation dialogs, open menus — can be captured headlessly WITHOUT
+   adding any capture hook to the prototype itself. Nothing here ships.
+   Usage: qa-shot.html?route=/release/v-shear-150&click=%23rel-go
+          qa-shot.html?route=/overview&click=%23acct-btn                          */
+(function () {
+  var p = new URLSearchParams(location.search);
+  var route = p.get('route') || '/index';
+  var sel = p.get('click');
+  var f = document.createElement('iframe');
+  f.src = '../prototype/batch05-prototype.html#' + route;
+  document.body.appendChild(f);
+  f.addEventListener('load', function () {
+    if (!sel) return;
+    setTimeout(function () {
+      try {
+        var el = f.contentDocument.querySelector(sel);
+        if (el) el.click();
+      } catch (e) { /* same-origin only; nothing to do if it fails */ }
+    }, 350);
+  });
+})();
+</script>
+</body>
+</html>

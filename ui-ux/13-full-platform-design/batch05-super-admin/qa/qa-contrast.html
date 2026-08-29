@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Batch 05 contrast check — not product UI</title>
+<link rel="stylesheet" href="../prototype/batch01-design-system.css">
+<link rel="stylesheet" href="../prototype/batch05-prototype.css">
+<style id="qa-style">body{font:13px/1.55 ui-monospace,Menlo,monospace;margin:0;padding:14px;background:#fff;color:#161B22;white-space:pre-wrap}
+.f{color:#B3261E;font-weight:700}.p{color:#146C43}.w{color:#8A5200}h1{font:600 15px system-ui;margin:0 0 10px}</style></head>
+<body><h1>Batch 05 colour-contrast check (WCAG 2.1)</h1><div id="out"></div>
+<script>
+/* QA-ONLY. Every foreground/background pair Batch 05 actually renders, checked
+   against WCAG 2.1 AA: 4.5:1 for normal text, 3:1 for large text (>=18.66px bold
+   or >=24px) and for non-text boundaries. Values are read from the live stylesheets
+   rather than transcribed, so the check cannot drift from the CSS. */
+function lum(hex) {
+  var c = hex.replace('#', '');
+  if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+  var v = [0,2,4].map(function (i) {
+    var x = parseInt(c.substr(i,2),16)/255;
+    return x <= 0.03928 ? x/12.92 : Math.pow((x+0.055)/1.055, 2.4);
+  });
+  return 0.2126*v[0] + 0.7152*v[1] + 0.0722*v[2];
+}
+function ratio(a,b){var l1=lum(a),l2=lum(b);if(l1<l2){var t=l1;l1=l2;l2=t;}return (l1+0.05)/(l2+0.05);}
+var cs = getComputedStyle(document.documentElement);
+function T(n){ // resolve a token, following one level of var() indirection
+  var v = cs.getPropertyValue(n).trim();
+  var m = v.match(/^var\((--[a-z0-9-]+)\)$/);
+  return m ? cs.getPropertyValue(m[1]).trim() : v;
+}
+// [label, fgToken, bgToken, minRatio, note]
+var PAIRS = [
+  ['body text on page background',        '--text',        '--bg',            4.5],
+  ['body text on surface',                '--text',        '--surface',       4.5],
+  ['secondary text on surface',           '--text-2',      '--surface',       4.5],
+  ['tertiary text on surface (CORRECTED)','--text-3',      '--surface',       4.5],
+  ['tertiary text on raised',             '--text-3',      '--raised',        4.5],
+  ['tertiary text on sunken',             '--text-3',      '--sunken',        4.5],
+  ['tertiary text on n-25 (gap/boundary)','--text-3',      '--n-25',          4.5],
+  ['tertiary text on warning tint',       '--text-3',      '--warning-50',    4.5],
+  ['tertiary text on success tint',       '--text-3',      '--success-50',    4.5],
+  ['tertiary text on info tint',          '--text-3',      '--info-50',       4.5],
+  ['tertiary text on sim/teal tint',      '--text-3',      '--sim-surface',   4.5],
+  ['link / action text on surface',       '--action',      '--surface',       4.5],
+  ['action text on action-subtle',        '--action',      '--action-subtle', 4.5],
+  ['button label on action fill',         '--on-action',   '--action',        4.5],
+  ['success badge text on tint',          '--success-700', '--success-50',    4.5],
+  ['warning badge text on tint',          '--warning-700', '--warning-50',    4.5],
+  ['danger text on tint',                 '--danger-700',  '--danger-50',     4.5],
+  ['info badge text on tint',             '--info-700',    '--info-50',       4.5],
+  ['teal/sim text on tint',               '--sim',         '--sim-surface',   4.5],
+  ['teal-700 on sim tint (scope note)',   '--teal-700',    '--sim-surface',   4.5],
+  ['alert body text on info tint',        '--n-800',       '--info-50',       4.5],
+  ['alert body text on warning tint',     '--n-800',       '--warning-50',    4.5],
+  ['alert body text on success tint',     '--n-800',       '--success-50',    4.5],
+  ['focus ring against surface',          '--focus',       '--surface',       3.0, 'non-text'],
+  ['focus ring against raised',           '--focus',       '--raised',        3.0, 'non-text'],
+  ['CONTROL border against surface',      '--control-border','--surface',     3.0, 'non-text — inputs, selects, secondary buttons'],
+  ['CONTROL border against n-25',         '--control-border','--n-25',        3.0, 'non-text'],
+  ['CONTROL border against raised',       '--control-border','--raised',      3.0, 'non-text'],
+  ['decorative border against surface',   '--border-strong','--surface',      1.0, 'decorative only — cards, dividers, dashed notes; NOT a control boundary'],
+  ['success pill border on tint',         '--success-200', '--success-50',    1.0, 'decorative — icon+text carry meaning'],
+  ['VR format chip text on tint',         '--fmt-vr',      '--fmt-vr-s',      4.5],
+  ['MR format chip text on tint',         '--fmt-mr',      '--fmt-mr-s',      4.5],
+  ['AR format chip text on tint',         '--fmt-ar',      '--fmt-ar-s',      4.5],
+  ['Web format chip text on tint',        '--fmt-web',     '--fmt-web-s',     4.5]
+];
+var lines = [], fails = 0, warns = 0;
+PAIRS.forEach(function (p) {
+  var fg = T(p[1]), bg = T(p[2]);
+  if (!/^#/.test(fg) || !/^#/.test(bg)) { lines.push('<span class="w">? ' + p[0] + ' — token did not resolve (' + fg + ' / ' + bg + ')</span>'); warns++; return; }
+  var r = ratio(fg, bg), need = p[3];
+  var ok = r >= need - 0.005;
+  if (!ok) fails++;
+  lines.push((ok ? '<span class="p">✓ ' : '<span class="f">✗ ') +
+    r.toFixed(2).padStart(5) + ':1  (needs ' + need.toFixed(1) + ')  ' + p[0] +
+    '  [' + fg + ' on ' + bg + ']' + (p[4] ? '  — ' + p[4] : '') + '</span>');
+});
+lines.push('');
+lines.push(fails ? '<span class="f">' + fails + ' CONTRAST FAILURE(S)</span>'
+                 : '<span class="p">ALL ' + PAIRS.length + ' PAIRS PASS</span>' + (warns ? ' (' + warns + ' unresolved)' : ''));
+document.getElementById('out').innerHTML = lines.join('\n');
+</script>
+</body></html>

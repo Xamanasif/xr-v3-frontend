@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Batch 05 QA audit — not product UI</title>
+<style>body{font:13px/1.5 ui-monospace,Menlo,monospace;margin:0;padding:14px;background:#fff;color:#161B22;white-space:pre-wrap}
+.f{color:#B3261E;font-weight:700}.p{color:#146C43}h1{font:600 15px system-ui;margin:0 0 10px}</style></head>
+<body><h1>Batch 05 automated QA audit</h1><div id="out">running…</div>
+<script>
+/* QA-ONLY. Loads every route in a same-origin iframe at each target width and
+   checks for horizontal overflow, heading order, landmark presence, accessible
+   names, form labels, table structure and duplicate ids. Nothing here ships. */
+var ROUTES = ['/index','/overview','/institutions','/institution/nit','/institution/mce','/institution/cp',
+  '/institution/lst','/releases','/release/v-shear-150','/release/v-torsion-120','/release/v-circuit-301',
+  '/device-requests','/device-request/dr-01','/device-request/dr-03','/licensing','/platform/roles',
+  '/platform/configuration','/nonexistent-route','/institution/zzz','/release/zzz','/device-request/zzz'];
+var WIDTHS = [1440, 1280];
+var out = document.getElementById('out');
+var lines = [], fails = 0;
+
+function audit(doc, win, route, w) {
+  var msgs = [];
+  var de = doc.documentElement, body = doc.body;
+  var sw = Math.max(de.scrollWidth, body.scrollWidth);
+  if (sw > w + 1) msgs.push('HORIZONTAL OVERFLOW: scrollWidth ' + sw + ' > ' + w);
+  // any element wider than the viewport that is not inside an overflow-x:auto ancestor
+  var wide = [];
+  Array.prototype.forEach.call(doc.querySelectorAll('*'), function (el) {
+    var r = el.getBoundingClientRect();
+    if (r.width > w + 1) {
+      var a = el.parentElement, scrollable = false;
+      while (a && a !== de) {
+        var ov = win.getComputedStyle(a).overflowX;
+        if (ov === 'auto' || ov === 'scroll') { scrollable = true; break; }
+        a = a.parentElement;
+      }
+      if (!scrollable) wide.push(el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.split(' ')[0] : '') + ' w=' + Math.round(r.width));
+    }
+  });
+  if (wide.length) msgs.push('WIDE ELEMENTS (not scroll-contained): ' + wide.slice(0, 6).join(', '));
+
+  if (!doc.querySelector('main')) msgs.push('NO <main> LANDMARK');
+  /* A landmark may be a <nav> or an element with role="navigation"; both count,
+     and both must carry a label when more than one navigation exists on the page. */
+  if (!doc.querySelector('nav[aria-label], [role="navigation"][aria-label]')) msgs.push('NO LABELLED nav');
+  Array.prototype.forEach.call(doc.querySelectorAll('nav, [role="navigation"]'), function (nv) {
+    if (!nv.getAttribute('aria-label') && !nv.getAttribute('aria-labelledby')) msgs.push('UNLABELLED NAVIGATION LANDMARK');
+  });
+  if (!doc.getElementById('skip-link')) msgs.push('NO SKIP LINK');
+  var h1s = doc.querySelectorAll('h1');
+  if (h1s.length !== 1) msgs.push('H1 COUNT = ' + h1s.length);
+  // heading order
+  var lvl = 0, bad = [];
+  Array.prototype.forEach.call(doc.querySelectorAll('h1,h2,h3,h4,h5,h6'), function (h) {
+    var n = +h.tagName[1];
+    if (lvl && n > lvl + 1) bad.push(h.tagName + ' after H' + lvl + ': "' + h.textContent.trim().slice(0, 30) + '"');
+    lvl = n;
+  });
+  if (bad.length) msgs.push('HEADING ORDER SKIP: ' + bad.join(' | '));
+
+  // accessible names on interactive elements
+  var unnamed = [];
+  Array.prototype.forEach.call(doc.querySelectorAll('a[href],button,select,input,textarea'), function (el) {
+    var n = (el.getAttribute('aria-label') || '').trim() || (el.textContent || '').trim() ||
+            (el.getAttribute('title') || '').trim();
+    if (!n && el.labels && el.labels.length) n = el.labels[0].textContent.trim();
+    if (!n && el.id) { var l = doc.querySelector('label[for="' + el.id + '"]'); if (l) n = l.textContent.trim(); }
+    if (!n) unnamed.push(el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.className ? '.' + String(el.className).split(' ')[0] : ''));
+  });
+  if (unnamed.length) msgs.push('NO ACCESSIBLE NAME: ' + unnamed.join(', '));
+
+  // form controls need labels
+  var unlab = [];
+  Array.prototype.forEach.call(doc.querySelectorAll('input,select,textarea'), function (el) {
+    var has = (el.labels && el.labels.length) || el.getAttribute('aria-label') || el.getAttribute('aria-labelledby');
+    if (!has) unlab.push(el.tagName.toLowerCase() + (el.id ? '#' + el.id : ''));
+  });
+  if (unlab.length) msgs.push('UNLABELLED CONTROL: ' + unlab.join(', '));
+
+  // tables need a caption or aria-label, and th scope
+  Array.prototype.forEach.call(doc.querySelectorAll('table'), function (t) {
+    if (!t.querySelector('caption') && !t.getAttribute('aria-label')) msgs.push('TABLE WITHOUT CAPTION');
+    Array.prototype.forEach.call(t.querySelectorAll('thead th'), function (th) {
+      if (!th.getAttribute('scope')) msgs.push('TH WITHOUT scope: "' + th.textContent.trim().slice(0, 20) + '"');
+    });
+  });
+
+  // duplicate ids
+  var ids = {}, dup = [];
+  Array.prototype.forEach.call(doc.querySelectorAll('[id]'), function (el) {
+    if (ids[el.id]) { if (dup.indexOf(el.id) < 0) dup.push(el.id); } else ids[el.id] = 1;
+  });
+  if (dup.length) msgs.push('DUPLICATE ID: ' + dup.join(', '));
+
+  // aria-current must be unique per nav
+  Array.prototype.forEach.call(doc.querySelectorAll('nav'), function (nv) {
+    var c = nv.querySelectorAll('[aria-current]');
+    if (c.length > 1) msgs.push('MULTIPLE aria-current IN ONE nav (' + (nv.getAttribute('aria-label') || '?') + '): ' + c.length);
+  });
+
+  // img alt
+  Array.prototype.forEach.call(doc.querySelectorAll('img'), function (im) {
+    if (im.getAttribute('alt') === null) msgs.push('IMG WITHOUT alt');
+  });
+
+  // live region present
+  if (!doc.querySelector('[aria-live]')) msgs.push('NO LIVE REGION');
+
+  return msgs;
+}
+
+function step(i, wi) {
+  if (wi >= WIDTHS.length) { wi = 0; i++; }
+  if (i >= ROUTES.length) {
+    lines.push('');
+    lines.push(fails ? '<span class="f">' + fails + ' FINDING(S)</span>' : '<span class="p">ALL CHECKS PASS — ' + (ROUTES.length * WIDTHS.length) + ' route/width combinations</span>');
+    out.innerHTML = lines.join('\n');
+    document.title = fails ? 'FAIL ' + fails : 'PASS';
+    return;
+  }
+  var route = ROUTES[i], w = WIDTHS[wi];
+  var f = document.createElement('iframe');
+  f.style.cssText = 'position:absolute;left:-99999px;width:' + w + 'px;height:1400px;border:0';
+  f.src = '../prototype/batch05-prototype.html#' + route;
+  document.body.appendChild(f);
+  f.addEventListener('load', function () {
+    setTimeout(function () {
+      var msgs;
+      try { msgs = audit(f.contentDocument, f.contentWindow, route, w); }
+      catch (e) { msgs = ['AUDIT ERROR: ' + e]; }
+      if (msgs.length) { fails += msgs.length; lines.push('<span class="f">✗ ' + w + ' ' + route + '</span>\n    ' + msgs.join('\n    ')); }
+      else lines.push('<span class="p">✓ ' + w + ' ' + route + '</span>');
+      out.innerHTML = lines.join('\n');
+      f.remove();
+      step(i, wi + 1);
+    }, 260);
+  });
+}
+step(0, 0);
+</script>
+</body></html>

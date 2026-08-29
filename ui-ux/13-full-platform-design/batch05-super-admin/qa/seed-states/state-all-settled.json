@@ -1,0 +1,25 @@
+{
+  "versions": [
+    { "id": "v-circuit-301", "mid": "c_circuit", "version": "3.0.1", "submitted": "14 Aug 2026",
+      "summary": "Corrects the blocked-rotor reading tolerance and the equivalent-circuit worksheet labels.",
+      "state": "released", "decidedOn": "15 Aug 2026" },
+    { "id": "v-survey-121", "mid": "c_survey", "version": "1.2.1", "submitted": "8 Aug 2026",
+      "summary": "Fixes the traverse-closure rounding in the observation sheet.",
+      "state": "released", "decidedOn": "9 Aug 2026" }
+  ],
+  "requests": [
+    { "id": "dr-03", "learner": "Rohan Mehta", "initials": "RM", "account": "rohan.mehta@sample-learner.example",
+      "module": "Machine Design — Gear Train Assembly", "fmt": "AR",
+      "from": "XRD-5B18-••••-C204", "fromLabel": "Mobile device, registered 8 Feb 2026",
+      "to": "XRD-9E42-••••-1D6B", "toLabel": "Mobile device, presented 19 Aug 2026",
+      "raised": "19 Aug 2026 · 14:05", "state": "approved", "decidedOn": "20 Aug 2026" }
+  ],
+  "institutions": {
+    "cp": { "signIn": { "on": true, "note": "Institutional sign-in is configured and in use." },
+            "data": { "on": true, "lastRun": "27 Aug 2026 · 04:00", "outcome": "ok", "received": 880, "failed": 0,
+                      "note": "Scheduled synchronisation completed with no failed records." } },
+    "lst": { "access": { "on": true, "streams": 2, "note": "Content access recorded against 2 academic streams." } },
+    "mce": { "data": { "on": true, "lastRun": "27 Aug 2026 · 04:00", "outcome": "ok", "received": 1740, "failed": 0,
+                       "note": "Scheduled synchronisation completed with no failed records." } }
+  }
+}

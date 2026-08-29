@@ -1,0 +1,14 @@
+{
+  "modules": { "c_shear": { "live": "1.5.0" } },
+  "versions": [
+    { "id": "v-shear-150", "mid": "c_shear", "version": "1.5.0", "submitted": "26 Aug 2026",
+      "summary": "Adds a second soil specimen and corrects the shear-box friction constant used in the strength-envelope calculation.",
+      "state": "released", "decidedOn": "27 Aug 2026" },
+    { "id": "v-heat-210", "mid": "c_heat", "version": "2.1.0", "submitted": "25 Aug 2026",
+      "summary": "Rebuilds the counter-flow exchanger geometry and adds a third flow-rate preset to the parallel-flow run.",
+      "state": "awaiting", "decidedOn": null },
+    { "id": "v-torsion-120", "mid": "c_torsion", "version": "1.2.0", "submitted": "21 Aug 2026",
+      "summary": "Adjusts the torque–angle sampling rate and replaces two specimen materials in the selection panel.",
+      "state": "held", "decidedOn": "22 Aug 2026" }
+  ]
+}

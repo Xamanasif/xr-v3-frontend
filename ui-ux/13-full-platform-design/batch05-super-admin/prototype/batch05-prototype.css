@@ -1,0 +1,364 @@
+/* ============================================================
+   XR Simulation Learning Platform — Batch 05 prototype styles
+   SUPER ADMIN · PLATFORM-WIDE ADMINISTRATION
+
+   Loads AFTER batch01-design-system.css and only ADDS. No Batch-01
+   token, component or selector is redefined, with the three
+   deliberate, commented exceptions in §0 below.
+
+   Everything here serves one idea that is specific to this batch:
+   Super Admin sees ACROSS institutions but acts INSIDE at most one,
+   and most of what it sees it may not touch. The components below
+   are therefore weighted towards making a boundary legible —
+   scope, provenance, and the difference between "this is status"
+   and "this is a decision you own".
+   ============================================================ */
+
+/* ============================================================
+   §0 · INHERITED CORRECTIONS
+   Carried forward from Batch 04. Applied LOCALLY here; the Batch-01
+   sheet is NOT edited. Recorded for later consolidation in
+   ../qa/ACCESSIBILITY_AND_UX_QA.md.
+   ============================================================ */
+
+/* (a) ACCESSIBILITY FIX — the only place Batch 05 changes a Batch-01 value.
+   --text-3 (#6A7686 = --n-500) measures 4.30:1 on --surface and 4.06:1 on the
+   warning tint: below WCAG 2.1 AA 4.5:1 for the small text it is used on.
+   #5F6B7A clears 4.5:1 on every surface used in this batch (worst case
+   4.90:1 on the success tint) and stays clearly lighter than --text-2
+   (#515D6C), so the three-tier text hierarchy is preserved.
+   Referred upward: --text-3 is used across Batches 01, 02, 03 and 04 and is
+   marginally sub-AA in all of them. A shared design-system finding, not a
+   Batch-05 one. */
+:root{ --text-3:#5F6B7A; }
+
+/* (b) ACCESSIBILITY FIX — new finding, first surfaced by Batch 05's contrast check.
+   --border-strong (#B6C0CD = --n-300) measures 1.84:1 against --surface. Where it
+   draws the boundary of an INTERACTIVE CONTROL — a text input, a select, a
+   secondary button — WCAG 2.1 SC 1.4.11 (non-text contrast) requires 3:1, because
+   that boundary is the only thing identifying the control.
+
+   The token is NOT redefined wholesale: on cards, tables, dividers and the dashed
+   note borders it is decorative, and darkening those would visibly repaint chrome
+   that Batches 01-04 share. A separate control-boundary token is introduced and
+   applied only where a control must be identifiable.
+
+   #7E8A99 gives 3.51:1 on --surface, 3.39:1 on --n-25 and 3.24:1 on --raised —
+   above 3:1 on every surface a control sits on in this batch.
+
+   Referred upward: --border-strong bounds controls in Batches 01, 02, 03 and 04
+   too, and is sub-3:1 in all of them. A shared design-system finding, recorded
+   here for consolidation, not fixed there by this task. */
+:root{ --control-border:#7E8A99; }
+.field input[type=text],.field textarea,.field select,
+.searchbox input,
+.listbar select,
+.btn.sec{ border-color:var(--control-border); }
+
+/* (c) [hidden] must win over the display rules components set on themselves. */
+[hidden]{display:none !important}
+
+/* (d) Batch-01's .empty defines h3 but Batch 04 established that an empty
+   state directly beneath the page h1 must be an h2 (skipping a level is a
+   heading-order failure). Same rule, same visual weight. */
+.empty h2{font-size:15.5px; font-weight:640; color:var(--text); margin-bottom:4px}
+
+/* ============================================================
+   §1 · PLATFORM SCOPE INDICATOR
+
+   FRD 1.3.5 grants cross-tenant access "strictly for governance and
+   operational oversight", and the §6.7.4 acceptance criterion requires
+   that "tenant-scoped data remains presented within its institutional
+   context rather than aggregated across institutions".
+
+   That criterion is enforced STRUCTURALLY, not by convention: every
+   Super Admin surface declares its scope in the same place, in the same
+   shape, so a reviewer can tell at a glance whether they are looking at
+   the platform or at one institution. It is also the only chrome in the
+   platform that changes between planes.
+   ============================================================ */
+.scopebar{display:flex; align-items:center; gap:12px; padding:9px 16px; border-radius:var(--r-md);
+  border:1px solid var(--border); background:var(--n-25); margin-bottom:18px; flex-wrap:wrap}
+.scopebar .sc-ic{width:26px; height:26px; border-radius:var(--r-sm); flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center; color:var(--text-2); background:var(--sunken)}
+.scopebar .sc-k{font-family:var(--mono); font-size:10px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-3)}
+.scopebar .sc-v{font-size:13.5px; font-weight:640; color:var(--text); line-height:1.35}
+.scopebar .sc-note{font-size:12.5px; color:var(--text-3); margin-left:auto; text-align:right; max-width:44ch; line-height:1.45}
+/* Institution scope: the one moment Super Admin is inside a tenant. Tinted so
+   that "I am inside an institution" is never mistaken for "I am on the platform". */
+.scopebar.inst{background:var(--sim-surface); border-color:var(--sim-border)}
+.scopebar.inst .sc-ic{background:#fff; color:var(--sim); border:1px solid var(--sim-border)}
+.scopebar.inst .sc-note{color:var(--teal-700)}
+@media (max-width:1000px){ .scopebar .sc-note{margin-left:0; text-align:left; max-width:none; flex-basis:100%} }
+
+/* The prototype strip's link row. Batch 01 wraps these in a nested <nav>; here the
+   wrapper alone carries the navigation role, so the row is a plain flex div with
+   the same layout rules the Batch-01 sheet applies to `.protobar nav`. */
+.protobar .plinks{display:flex; gap:2px; flex-wrap:wrap}
+
+/* ------------------------------------------------------------
+   Sidebar sub-navigation. Batch 05 is the first workspace with a
+   two-level primary nav (Platform → Platform roles · Configuration),
+   so the pattern is added here rather than assumed. Depth stops at two,
+   matching Batch 03's rule. Children are revealed only while their
+   parent section is open, so the resting nav stays six items long.
+   ------------------------------------------------------------ */
+.snav .subnav{display:flex; flex-direction:column; gap:1px; margin:2px 0 4px 0; padding-left:22px; position:relative}
+.snav .subnav::before{content:""; position:absolute; left:13px; top:2px; bottom:2px; width:1px; background:var(--border)}
+.snav a.subitem{display:block; padding:6px 12px; border-radius:var(--r-md); text-decoration:none;
+  color:var(--text-2); font-size:13.5px; font-weight:500}
+.snav a.subitem:hover{background:var(--raised); color:var(--text)}
+.snav a.subitem[aria-current="page"]{color:var(--action); font-weight:640; background:var(--action-subtle)}
+/* A parent whose child is open is highlighted, but WITHOUT aria-current — only
+   one element in the nav may claim to be the current page, and that is the child. */
+.snav a.nitem[data-parent-current="true"]{color:var(--text); font-weight:600}
+.snav a.nitem[data-parent-current="true"] svg.ic{color:var(--action)}
+
+/* ============================================================
+   §2 · BOUNDARY NOTE
+
+   Batch 05's most-used component and its signature idea. Every Super
+   Admin surface that shows something another role owns says so, in
+   product language, next to the thing itself — rather than leaving a
+   reviewer to wonder why a control is missing.
+
+   A deliberate absence that is explained reads as a decision.
+   The same absence unexplained reads as an unfinished screen.
+   ============================================================ */
+.boundary{display:flex; gap:11px; align-items:flex-start; border:1px solid var(--border);
+  border-left:3px solid var(--border-strong); border-radius:var(--r-md);
+  background:var(--n-25); padding:12px 14px; font-size:13px; color:var(--text-2); line-height:1.55}
+.boundary svg.ic{color:var(--text-3); margin-top:2px; flex:0 0 auto}
+.boundary .bt{font-weight:640; color:var(--text); display:block; margin-bottom:2px; font-size:13.5px}
+.boundary.owner{border-left-color:var(--sim); background:var(--sim-surface); border-color:var(--sim-border)}
+.boundary.owner svg.ic{color:var(--sim)}
+
+/* ============================================================
+   §3 · SOURCE GAP
+
+   Where a Phase-1 requirement exists but its mechanism does not, the
+   screen says so instead of inventing one. Dashed, deliberately
+   unfinished-looking, and never styled as an error: a gap is a state of
+   the requirement set, not a fault in the platform.
+   ============================================================ */
+.gap{border:1.5px dashed var(--border-strong); border-radius:var(--r-md); background:var(--surface);
+  padding:14px 16px; font-size:13px; color:var(--text-2); line-height:1.6}
+.gap .gh{display:flex; align-items:baseline; gap:8px; margin-bottom:6px; flex-wrap:wrap}
+.gap .gt{font-size:13.5px; font-weight:640; color:var(--text); flex:1 1 auto; min-width:0}
+.gap .gh svg.ic{flex:0 0 auto; align-self:flex-start; margin-top:2px}
+.gap .gtag{font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:var(--text-3);
+  border:1px solid var(--border-strong); border-radius:var(--r-xs); padding:1px 6px; white-space:nowrap; margin-left:auto}
+.gap p{margin:0}
+.gap p + p{margin-top:7px}
+.gap svg.ic{color:var(--text-3)}
+
+/* ============================================================
+   §4 · ATTENTION LIST — what awaits a platform decision
+
+   The Super Admin overview answers "what needs me?" and nothing else.
+   PM-11 defers detailed metrics and FRD §6.7.3 prohibits cross-tenant
+   analytics dashboards, so this is a WORK LIST, not a KPI row: every
+   item is a thing to open, never a number to admire.
+   ============================================================ */
+.attn{display:flex; flex-direction:column}
+.attn-row{display:flex; align-items:center; gap:14px; padding:14px 20px; border-top:1px solid var(--border-subtle);
+  text-decoration:none; color:inherit}
+.attn-row:first-child{border-top:0}
+.attn-row:hover{background:var(--n-25)}
+.attn-row .a-ic{width:34px; height:34px; border-radius:var(--r-md); flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center; background:var(--raised); color:var(--text-2); border:1px solid var(--border-subtle)}
+.attn-row.warn .a-ic{background:var(--warning-50); border-color:var(--warning-200); color:var(--warning-700)}
+.attn-row.act .a-ic{background:var(--action-subtle); border-color:var(--action-border); color:var(--action)}
+.attn-row .a-body{min-width:0; flex:1}
+.attn-row .a-t{display:block; font-size:14.5px; font-weight:640; color:var(--text)}
+.attn-row .a-d{display:block; font-size:12.5px; color:var(--text-3); margin-top:2px; line-height:1.5}
+.attn-row .a-n{display:block; font-size:19px; font-weight:650; color:var(--text); font-variant-numeric:tabular-nums; line-height:1}
+.attn-row .a-nl{display:block; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3); margin-top:3px}
+.attn-row .a-count{text-align:right; flex:0 0 auto; min-width:66px}
+.attn-row .a-go{color:var(--text-3); flex:0 0 auto}
+.attn-row:hover .a-go{color:var(--action)}
+/* Settled state: nothing is waiting. Not an empty state — an outcome. */
+.attn-clear{display:flex; align-items:center; gap:12px; padding:18px 20px; font-size:13.5px; color:var(--text-2)}
+.attn-clear .ac-ic{width:34px; height:34px; border-radius:50%; background:var(--success-50); border:1px solid var(--success-200);
+  color:var(--success-700); display:flex; align-items:center; justify-content:center; flex:0 0 auto}
+
+/* ============================================================
+   §5 · READINESS LEDGER
+
+   An institution's operational state is not a lifecycle label the
+   platform stores — it is DERIVED, live, from three facts each of which
+   has its own requirement:
+     institutional sign-in configured   FRD 4.2.2  (Institute Admin owns it)
+     institution data integration       FRD 7.1.1 / 7.1.2 / 7.2.1
+     content access record exists       FRD 6.2.1 / 6.2.2
+   The ledger shows the facts and their provenance so the derived state
+   is never the only thing on screen. See DA-01 in ../03_SUPER_ADMIN_UX_MODEL.md.
+   ============================================================ */
+.ledger{display:flex; flex-direction:column}
+.led{display:flex; gap:12px; padding:13px 0; border-top:1px solid var(--border-subtle)}
+.led:first-child{border-top:0; padding-top:2px}
+.led .l-ic{width:26px; height:26px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  background:var(--raised); border:1.5px solid var(--border-strong); color:var(--text-3)}
+.led .l-ic svg.ic{width:14px; height:14px; stroke-width:2}
+.led.ok .l-ic{background:var(--success-50); border-color:var(--success-700); color:var(--success-700)}
+.led.warn .l-ic{background:var(--warning-50); border-color:var(--warning-700); color:var(--warning-700)}
+.led.todo .l-ic{background:var(--surface); border-color:var(--border-strong); color:var(--text-3); border-style:dashed}
+.led .l-body{min-width:0; flex:1}
+.led .l-t{font-size:14px; font-weight:640; color:var(--text); display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+.led .l-s{font-size:11px; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:var(--text-3)}
+.led.ok .l-s{color:var(--success-700)} .led.warn .l-s{color:var(--warning-700)}
+.led .l-d{font-size:13px; color:var(--text-2); margin-top:2px; line-height:1.55}
+/* Provenance line — which role owns this fact, and which requirement says so.
+   Present on every ledger row without exception: it is the reason the Super
+   Admin has no control here. */
+.led .l-p{font-size:12px; color:var(--text-3); margin-top:5px; display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.led .l-p .owner{font-weight:640; color:var(--text-2)}
+
+/* ============================================================
+   §6 · INSTITUTION STATE PILL
+   Three derived states. Colour is never the only carrier — each pill
+   holds its own icon and its own words (WCAG 1.4.1).
+   ============================================================ */
+.istate{display:inline-flex; align-items:center; gap:6px; height:24px; padding:0 9px; border-radius:var(--r-pill);
+  font-size:12px; font-weight:650; border:1px solid; white-space:nowrap}
+.istate svg.ic{width:13px; height:13px; stroke-width:2.1; vertical-align:0}
+.istate.operating{color:var(--success-700); background:var(--success-50); border-color:var(--success-200)}
+.istate.attention{color:var(--warning-700); background:var(--warning-50); border-color:var(--warning-200)}
+.istate.setup{color:var(--text-2); background:var(--raised); border-color:var(--border-strong)}
+
+/* ============================================================
+   §7 · RELEASE DECISION
+
+   FRD 2.3.2 and the FLOW 10 step table give this surface exactly two
+   outcomes, and the acceptance criterion makes the second mandatory:
+   "holding a release is an available and visible outcome". Hold is
+   therefore a first-class control with its own state — never a disabled
+   button, never the absence of pressing Release.
+   ============================================================ */
+.decide{display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:16px 20px;
+  border-top:1px solid var(--border-subtle); background:var(--n-25)}
+.decide .d-lead{font-size:13.5px; color:var(--text-2); flex:1; min-width:220px; line-height:1.55}
+.decide .d-lead strong{color:var(--text); font-weight:640}
+.verpair{display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:stretch}
+@media (max-width:840px){ .verpair{grid-template-columns:1fr; gap:10px} }
+.verbox{border:1px solid var(--border); border-radius:var(--r-md); background:var(--surface); padding:14px 16px}
+.verbox.next{border-color:var(--action-border); background:var(--action-subtle)}
+.verbox .v-k{font-family:var(--mono); font-size:10px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-3)}
+.verbox .v-v{font-size:17px; font-weight:650; color:var(--text); margin-top:4px; font-variant-numeric:tabular-nums}
+.verbox .v-d{font-size:12.5px; color:var(--text-2); margin-top:5px; line-height:1.5}
+.verarrow{display:flex; align-items:center; justify-content:center; color:var(--text-3)}
+@media (max-width:840px){ .verarrow{transform:rotate(90deg); height:22px} }
+
+/* ============================================================
+   §8 · CONFIGURATION REGISTER  (SA-10)
+
+   FRD 8.1.1 confirms the authority — "full administrative control over
+   platform configuration" — and NO source names a single Phase-1
+   platform-wide setting. A settings page with invented controls is
+   prohibited by the batch brief and would be dishonest besides.
+
+   So the screen renders the register itself: every candidate
+   configuration area, and the actual reason it has no control yet.
+   The screen's content IS the finding.
+   ============================================================ */
+.reg{display:flex; flex-direction:column}
+.reg-row{display:grid; grid-template-columns:minmax(0,1fr) minmax(150px,200px) 132px; gap:18px; align-items:start;
+  padding:14px 20px; border-top:1px solid var(--border-subtle)}
+.reg-row:first-child{border-top:0}
+.reg-row .r-t{font-size:14px; font-weight:640; color:var(--text)}
+.reg-row .r-d{font-size:12.5px; color:var(--text-2); margin-top:3px; line-height:1.55}
+.reg-row .r-src{font-size:12px; color:var(--text-3); font-family:var(--mono); line-height:1.5}
+.reg-row .r-why{font-size:12.5px; color:var(--text-2); line-height:1.5}
+@media (max-width:980px){
+  .reg-row{grid-template-columns:1fr; gap:8px}
+  .reg-row .r-src::before{content:"Source · "; font-family:var(--font)}
+}
+
+/* ============================================================
+   §9 · SMALL SHARED PIECES
+   ============================================================ */
+/* Two-column definition strip used on detail headers. */
+.factrow{display:flex; gap:28px; flex-wrap:wrap; padding:14px 20px; border-top:1px solid var(--border-subtle)}
+.factrow .f-k{font-family:var(--mono); font-size:10px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-3)}
+.factrow .f-v{font-size:14px; font-weight:600; color:var(--text); margin-top:3px}
+.factrow .f-v.norm{font-weight:500; color:var(--text-2)}
+
+/* Inline requirement citation. Present throughout the prototype because this
+   batch's whole claim is traceability — but muted, so it never competes with
+   the product content it justifies. */
+.cite{font-family:var(--mono); font-size:11px; color:var(--text-3); white-space:nowrap}
+
+/* A list of things this role explicitly does not see, kept visible rather than
+   omitted, so a reviewer can check the boundary instead of trusting it. */
+.notlist{margin:8px 0 0; padding:0; list-style:none; font-size:12.5px; color:var(--text-3); line-height:1.7}
+.notlist li{display:flex; gap:8px; align-items:baseline}
+/* In the narrow right rail a nowrap citation forces the sentence before it to
+   break mid-word. Inside a not-list the citation is allowed to wrap instead. */
+.notlist .cite{white-space:normal}
+.notlist li::before{content:"—"; color:var(--n-300); flex:0 0 auto}
+
+/* Sample-data marker, used wherever a figure would otherwise read as real. */
+.samplenote{font-size:12px; color:var(--text-3); margin-top:10px; display:flex; align-items:center; gap:7px; line-height:1.5}
+
+/* Stacked device transfer inside one table cell — from, arrow, to. Replaces the
+   two side-by-side device columns that overflowed 1280. */
+.devmove{display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px}
+/* The Batch-01 .vchip is a fixed-height pill; a device identifier is long enough to
+   wrap inside it at 1280, which spills the text out of its own background. In this
+   cell the identifier is kept on one line at a slightly smaller size instead. */
+.devmove .vchip{white-space:nowrap; font-size:11px; letter-spacing:-.01em}
+.devmove .dm-arr{color:var(--text-3); line-height:0; padding-left:6px}
+.devmove .dm-arr svg.ic{width:13px; height:13px}
+
+/* Institution name cell in cross-institution tables. */
+.instcell{display:flex; align-items:center; gap:11px; min-width:0}
+/* .tmain / .tsub come from Batch 01, where they sit on block-level elements inside a
+   table cell. Inside .instcell they are spans (a span may not contain a div), so they
+   need the block display the Batch-01 rule takes for granted. */
+.instcell .tmain,.instcell .tsub{display:block}
+/* SA-04's module cell puts .tmain / .tsub inside a.rowlink WITHOUT the .instcell
+   wrapper every other table cell uses. An <a> here wraps spans (not divs), so they
+   inherit the same inline default the rule above exists to correct, and the module
+   name runs together with its discipline on one line.
+
+   DESCENDANT, NOT DIRECT-CHILD, DELIBERATELY. The two DOM shapes in this batch
+   differ in depth — releases puts them one level under the anchor, every other
+   table puts them three levels under it, inside .instcell — so a `>` combinator
+   fixes today's markup and silently stops applying the moment a wrapper is added
+   or removed. The descendant form covers both shapes and any future nesting; it
+   is a no-op wherever .instcell has already set block, because the value is the
+   same. It stays scoped to table.dt a.rowlink, so no cell outside a linked table
+   row is reached. */
+table.dt a.rowlink .tmain,
+table.dt a.rowlink .tsub{display:block}
+.instcell .ia{width:32px; height:32px; border-radius:var(--r-md); flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  font-size:11.5px; font-weight:650; color:var(--text-2); background:var(--raised); border:1px solid var(--border-subtle); letter-spacing:.02em}
+
+/* Timeline reused from Batch 01 for the device-request thread; one addition:
+   a state that is waiting on this Super Admin rather than recording history. */
+.tl-dot.wait{background:var(--info-50); border-color:var(--info-700); color:var(--info-700)}
+
+/* Responsive resilience below the two target widths. Not a new requirement —
+   Super Admin is desktop administration — but nothing should CLIP. */
+/* The strip must not wrap at 1440 or 1280 — a wrapped strip grows past
+   --protobar-h, which the sticky top bar uses as a fixed offset. Below the
+   target widths it is allowed to wrap rather than clip; the small sticky
+   imperfection there is preferable to losing controls off the edge. */
+@media (max-width:1180px){
+  .protobar .plabel:first-child{display:none}
+}
+@media (max-width:900px){
+  .protobar{height:auto; min-height:var(--protobar-h); flex-wrap:wrap; padding-top:6px; padding-bottom:6px}
+  .protobar .pright .plabel{display:none}
+}
+@media (max-width:740px){
+  /* Batch-01's .tablecard is overflow:hidden, which clips wide columns instead of
+     scrolling them. No min-width is forced on the table itself — an earlier
+     attempt at that pushed the whole document sideways. */
+  .tablecard{overflow-x:auto}
+  .frame{flex-direction:column}
+  .snav{width:auto; height:auto; position:static; border-right:0; border-bottom:1px solid var(--border-subtle);
+    flex-direction:row; flex-wrap:wrap; gap:4px; padding:12px}
+  .snav .ws-ctx{flex-basis:100%; padding-bottom:8px}
+  .main{padding:20px 16px 60px}
+}

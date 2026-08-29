@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XR Simulation Learning Platform — Batch 05 Wireframes (Super Admin &amp; platform-wide administration)</title>
+<style>
+  :root{
+    --ink:#161B22; --ink2:#3B4552; --ink3:#5F6B7A; --line:#B6C0CD; --line2:#D8DEE7;
+    --bg:#FAFBFC; --paper:#FFFFFF; --tint:#F4F6F9; --have:#E8F5EE; --haveL:#146C43;
+    --note:#EAF0FC; --noteL:#1A56C4; --warn:#FCF3E4; --warnL:#8A5200; --bad:#FCEDEC; --badL:#B3261E;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--bg);font-size:15px;line-height:1.6}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 28px 90px}
+  header.doc{border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:32px}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+    border:1px dashed var(--line);padding:3px 10px;border-radius:3px;display:inline-block;margin-bottom:12px}
+  h1{font-size:27px;font-weight:650;letter-spacing:-.015em;margin:0 0 8px}
+  header.doc p{margin:0;color:var(--ink2);max-width:76ch}
+  h2{font-size:19px;font-weight:650;margin:44px 0 6px;padding-top:22px;border-top:1px solid var(--line2)}
+  h2 .sid{font-family:var(--mono);font-size:12px;color:var(--ink3);margin-right:10px}
+  .purpose{color:var(--ink2);font-size:14px;margin:0 0 18px;max-width:80ch}
+  .wf{background:var(--paper);border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;margin-bottom:14px}
+  .wf .chrome{background:var(--tint);border-bottom:1px solid var(--line);padding:9px 14px;
+    font-family:var(--mono);font-size:11px;color:var(--ink3);display:flex;gap:14px;flex-wrap:wrap}
+  .wf .chrome b{color:var(--ink2);font-weight:650}
+  .wf pre{margin:0;padding:18px 20px;font-family:var(--mono);font-size:12.5px;line-height:1.65;
+    color:var(--ink);white-space:pre;overflow-x:auto}
+  .states{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:14px 0 8px}
+  .st{border:1px solid var(--line2);border-radius:5px;padding:11px 13px;background:var(--paper);font-size:13px}
+  .st .sh{font-weight:650;font-size:12.5px;margin-bottom:3px}
+  .st.have{background:var(--have);border-color:#A9D9BF} .st.have .sh{color:var(--haveL)}
+  .st.note{background:var(--note);border-color:#B4C8F0} .st.note .sh{color:var(--noteL)}
+  .st.warn{background:var(--warn);border-color:#EBCF98} .st.warn .sh{color:var(--warnL)}
+  .st.bad{background:var(--bad);border-color:#EFB3AF} .st.bad .sh{color:var(--badL)}
+  .meta{font-size:13px;color:var(--ink3);margin:6px 0 0}
+  .meta code{font-family:var(--mono);font-size:12px;color:var(--ink2);background:var(--tint);padding:1px 5px;border-radius:3px}
+  .callout{border-left:3px solid var(--noteL);background:var(--note);padding:12px 16px;border-radius:0 5px 5px 0;
+    font-size:13.5px;margin:16px 0;color:var(--ink2)}
+  .callout b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0 4px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);vertical-align:top}
+  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:650}
+  .toc{background:var(--paper);border:1px solid var(--line2);border-radius:6px;padding:16px 20px;margin-bottom:8px}
+  .toc h3{margin:0 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+  .toc ol{margin:0;padding-left:20px;columns:2;column-gap:32px;font-size:13.5px}
+  .toc a{color:var(--ink);text-decoration:none} .toc a:hover{text-decoration:underline}
+  @media (max-width:760px){ .toc ol{columns:1} .wrap{padding:24px 16px 60px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <span class="tag">WIREFRAMES — STRUCTURE ONLY · BATCH 05</span>
+  <h1>Super Admin and platform-wide administration — structural wireframes</h1>
+  <p>Layout and content structure for the ten Batch-05 screens. These describe <b>what goes where and what each state says</b> — the interactive prototype in <code>../prototype/</code> is the reviewable artefact. Every institution, person, identifier, module, version and date shown is <b>sample design data</b>, and all five institutions are fictional.</p>
+</header>
+
+<div class="toc">
+  <h3>Screens</h3>
+  <ol>
+    <li><a href="#s1">Platform overview</a></li>
+    <li><a href="#s2">Institutions</a></li>
+    <li><a href="#s3">Institution detail</a></li>
+    <li><a href="#s4">Module releases</a></li>
+    <li><a href="#s5">Release decision</a></li>
+    <li><a href="#s6">Device replacement requests</a></li>
+    <li><a href="#s7">Device request detail</a></li>
+    <li><a href="#s8">Licensing</a></li>
+    <li><a href="#s9">Platform roles</a></li>
+    <li><a href="#s10">Platform configuration</a></li>
+  </ol>
+</div>
+
+<div class="callout">
+  <b>There is no publication anywhere in this batch — deliberately.</b> The <b>Content Manager</b> publishes content (<code>PM-16</code> · <code>PM-17</code> · <code>PM-18</code>, 25 August 2026). The Super Admin holds no publish control, no publication queue, no approve-content, no return-to-vendor and no request-changes action, and none is invented in its place. <code>FRD 1.4.4</code> still assigns publication to the Super Admin; that is a <b>recorded deviation</b>, left unreconciled in the sources. Whether the Super Admin may <i>return</i> a submission at the publication gate is <code>QP-26</code>, <b>OPEN</b>, and stays open. Every mention of publication in these wireframes is historical explanation or an explicit boundary note — never a product action.
+</div>
+
+<div class="callout">
+  <b>The shell is Batch 01’s, adapted only where a capability changed.</b> Prototype strip → top bar (logo · platform name · account) → left navigation → <b>scope bar</b> → breadcrumb → page head → content. The navigation is <b>Overview · Institutions · Releases · Device requests · Licensing · Platform</b> (with <i>Platform roles</i> and <i>Configuration</i> beneath it) — six primary items, depth two at most, the same shape as the Institute Admin workspace in Batch 03 so the two read as one platform. Table 41’s pre-override navigation read <i>“Overview · Publishing · Content · Institutions · Licensing · Platform · Account”</i>: <b>Publishing is struck</b> (<code>PM-16</code>/<code>17</code>/<code>18</code>, nothing replaces it), <b>Content is struck</b> (a second content catalogue would duplicate the Content Manager’s <code>CM-03</code>), and <b>Releases is added</b> (<code>FRD 2.3.2</code> has a Phase-1 surface and had no navigation entry of its own).
+</div>
+
+<div class="callout">
+  <b>There is no institution chip in the global chrome, on any screen.</b> <code>FRD 1.3.5</code> and <code>PM-13</code> place this role above every tenant; an institution name in the top bar would imply a current tenant this role does not have. An institution appears only in the <b>scope bar</b>, inside the page, and only while one is open — which is <b>SA-03 and nowhere else</b>. The scope bar has exactly two forms: <i>Viewing · The platform</i>, and the tinted <i>Viewing institution · &lt;name&gt;</i>. That is the structural half of <code>AC-04</code>: the moment of crossing into a tenant is never invisible.
+</div>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s1"><span class="sid">SA-01</span>Platform overview</h2>
+<p class="purpose">What needs a decision from me, and is every institution working. It answers nothing else — Table 41 sets the Phase-1 reporting need as <i>"cross-tenant operational oversight and content pipeline status. No detailed analytics in Phase 1."</i></p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-01</b> Platform overview <b>·</b> Super Admin <b>·</b> <b>Route</b> #/overview <b>·</b> FRD 8.1.1 bounded by PM-11 · 1.3.4 · §6.7.3 · AC-04</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing · The platform                                          │
+│ SUPER ADMIN        │         Platform-wide view. Institutional figures are shown             │
+│ Platform-wide      │         on an institution’s own page, never combined here.              │
+│ administration     │                                            §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│>Overview           │ (root — no breadcrumb)                                                  │
+│ Institutions       │                                                                         │
+│ Releases        [2]│ Platform overview                                                       │
+│ Device requests [2]│ Signed in as Devika Raman · 27 Aug 2026                                 │
+│ Licensing          │                                                                         │
+│ Platform           │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── What needs a decision ─────────────────────────────────────────────── Platform work only ──┐
+│ [rel]  Module versions awaiting a release decision              2            ›               │
+│        The module is already published. A newer version          versions                    │
+│        is ready. It replaces the live one on your release.                                   │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ [dev]  Device replacement requests awaiting approval            2            ›               │
+│        An individual learner is waiting to move their access     requests                    │
+│        to a different device.                                                                │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ [ins]  Institutions not yet fully operating                     2            ›               │
+│        Setup or an integration needs the institution’s           institutions                │
+│        attention. You can see the state; the institution                                     │
+│        makes the change.                                                                     │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   ALL-CLEAR VARIANT — when all three counts are zero the list is replaced by a
+   single line: “Nothing is waiting on you. Every module version has had a release
+   decision, no device replacement is pending, and every institution is operating.”
+
+┌── Institutions ──────────────────────────────────────────────────────────── 5 institutions ──┐
+│ Every institution on the platform, each with its own state. Open one to see                  │
+│ it in its own context.                                                                       │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ INSTITUTION                   STATE           SIGN-IN      INSTITUTION DATA                  │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ (AU) Ashcroft University      ✓ Operating     Configured   Last run clean                    │
+│ (CP) Calder Polytechnic       - Setup         Not config.  Not configured                    │
+│ (LST) Lakeside Sch. of Tech.  - Setup         Configured   Last run clean                    │
+│ (MCE) Meridian Coll. of Eng.  ! Attention     Configured   26 not applied                    │
+│ (NIT) Northfield Inst. Tech.  ✓ Operating     Configured   Last run clean                    │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ [BOUNDARY] These figures belong to each institution, not to the platform.                    │
+│ Each row shows one institution’s own state. Nothing on this page combines                    │
+│ institutions, and there is no platform total — an institution’s data stays                   │
+│ inside that institution.                          FRD 1.3.4 · 1.3.5 · AC-04                  │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+        A ROLL CALL, NOT A ROLL-UP — no column combines institutions, and
+        no cell holds a number that spans more than one of them.
+
+┌── What this overview deliberately does not show ─────────────────────────────────────────────┐
+│ Phase 1 sets this role’s reporting need as operational oversight and nothing                 │
+│ more. These are absences by decision, not gaps in the build:                                 │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ ·  No cross-institution totals, comparisons or rankings   FRD 1.3.4 · AC-04                  │
+│ ·  No analytics dashboard, metric or trend       PM-11 · §6.7.3 (8.2.x and                   │
+│                                                         11.3.x are Phase 2)                  │
+│ ·  No learner, faculty or institutional-staff record               PM-13                     │
+│ ·  No seat or licence-utilisation figure  FRD 6.2.2 · 8.2.2 is Phase 2                       │
+│ ·  No content publication queue. The Content Manager publishes.                              │
+│                                                  PM-16 · PM-17 · PM-18                       │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Work waiting</div>Up to three rows — versions awaiting release, device requests awaiting approval, institutions not yet operating. Each is a count of <b>platform work items awaiting this role</b>, never tenant data.</div>
+  <div class="st have"><div class="sh">Nothing waiting</div>The three rows collapse to one all-clear line. Reached in the prototype by deciding both versions and approving both requests.</div>
+  <div class="st"><div class="sh">Institution — operating</div>Access, sign-in and data are all in place and nothing is failing. <code>AU</code>, <code>NIT</code>.</div>
+  <div class="st warn"><div class="sh">Institution — attention needed</div>A configured integration reported failures on its last run. <code>MCE</code> — 26 not applied. Visible as status, <b>not as a task for this role</b>.</div>
+  <div class="st note"><div class="sh">Institution — setup incomplete</div>One of the three readiness facts is not yet in place. <code>CP</code>, <code>LST</code>.</div>
+  <div class="st"><div class="sh">Column variants</div>Sign-in: <i>Configured</i> / <i>Not configured</i>. Data: <i>Last run clean</i> / <i>N not applied</i> / <i>Not configured</i>.</div>
+</div>
+<div class="callout"><b>The three states are derived, never stored.</b> The platform holds no lifecycle label for an institution, because no requirement defines one. State is recomputed on every render from three observable readiness facts — content access (<code>FRD 6.2.1</code>), institutional sign-in (<code>FRD 4.2.2</code>), institution data (<code>FRD 7.1.1</code> · <code>7.2.1</code>). There is deliberately no <i>inactive</i>, <i>suspended</i>, <i>expired</i> or <i>cancelled</i> state: each would be the result of an administrative action this role has no source authority to take.</div>
+<p class="meta"><b>Absent by design:</b> KPI tiles · charts · trends · percentages · learner counts · student caps · seat or capacity figures (<code>OQ-03</code> is <b>OPEN</b>) · league tables · any figure that spans two institutions. The two numbers that <i>do</i> appear are the same two the navigation shows, and both count work awaiting this role.</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s2"><span class="sid">SA-02</span>Institutions</h2>
+<p class="purpose">The cross-tenant list — the one screen <code>FRD 1.3.5</code> most directly supports, and the entry point to the institutional context AC-04 requires before any institutional figure may be shown.</p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-02</b> Institutions <b>·</b> Super Admin <b>·</b> <b>Route</b> #/institutions <b>·</b> FRD 1.3.5 · PM-13 · 4.2.1 · AC-04</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing · The platform                                          │
+│ SUPER ADMIN        │         Platform-wide view. Institutional figures are shown             │
+│ Platform-wide      │         on an institution’s own page, never combined here.              │
+│ administration     │                                            §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│ Overview           │ Overview / Institutions                                                 │
+│>Institutions       │                                                                         │
+│ Releases        [2]│ Institutions                                                            │
+│ Device requests [2]│ Every institution on the platform. Open one to see it in its own        │
+│ Licensing          │ context.                                                                │
+│ Platform           │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── Institutions ──────────────────────────────────────────────────────────────────── 5 of 5 ──┐
+│ [ Search institutions…            ]   [ All states                     v ]                   │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ INSTITUTION                 STATE          ACCESS    SIGN-IN      DATA                       │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ (AU) Ashcroft University    ✓ Operating    Recorded  Configured   Clean run                  │
+│      INS-2026-0031 · Hyderabad · registered 8 Jan 2026              [ Open ]                 │
+│ (CP) Calder Polytechnic     - Setup        Recorded  Not config.  Not config.                │
+│      INS-2026-0388 · Nashik · registered 19 Aug 2026                [ Open ]                 │
+│ (LST) Lakeside Sch. Tech.   - Setup        None yet  Configured   Clean run                  │
+│      INS-2026-0402 · Kochi · registered 22 Aug 2026                 [ Open ]                 │
+│ (MCE) Meridian Coll. Eng.   ! Attention    Recorded  Configured   26 not app.                │
+│      INS-2026-0207 · Coimbatore · registered 2 Apr 2026             [ Open ]                 │
+│ (NIT) Northfield Inst.      ✓ Operating    Recorded  Configured   Clean run                  │
+│      INS-2026-0114 · Pune · registered 14 Mar 2026                  [ Open ]                 │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   THE COLUMNS ARE READINESS FACTS, NEVER INSTITUTIONAL VOLUMES. A learner count
+   here would put five institutions’ figures side by side, which is the exact
+   comparison AC-04 exists to prevent.
+
+   FILTER: All states · Not yet operating · Operating · Attention needed · Setup
+   incomplete.   #/institutions?state=needing arrives pre-filtered from SA-01.
+
+┌── EMPTY — no match ─────────────────────────┐  ┌── [BOUNDARY] Read-only, and visibly so ─────┐
+│             ( search )                      │  │ You can see every institution.              │
+│                                             │  │ You change none of them.                    │
+│       No institution matches                │  │                                             │
+│                                             │  │ This role exists to watch the platform      │
+│ No institution matches what you have        │  │ across institutions — not to run them.      │
+│ typed or the state you have chosen.         │  │ Each institution is configured by its       │
+│ Clear the search and the filter to          │  │ own Institute Admin, and every setting      │
+│ see all 5.                                  │  │ shown here is theirs to change.             │
+│                                             │  │                                             │
+│   [ Clear search and filter ]               │  │               FRD 1.3.5 · PM-13             │
+└─────────────────────────────────────────────┘  └─────────────────────────────────────────────┘
+
+┌── [?] Who registers an institution, and who activates it, is not settled ────────────────────┐
+│ The requirement reads “Institutions shall register their organization through                │
+│ the platform’s institutional onboarding interface” — the institution is the one              │
+│ registering, and no administrator is named as doing it for them. There is no                 │
+│ “add institution” action here because no source puts one in this role’s hands.               │
+│                                                                                              │
+│ How the first Institute Admin comes to exist is likewise stated nowhere. Both                │
+│ are open questions carried into this batch rather than answered by it.                       │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ FRD 4.2.1 · QD-02 · OPEN                                                                     │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   NO CREATE-INSTITUTION · NO ASSIGN-ADMIN · NO SUSPEND · NO ACTIVATE · NO STATUS
+   CHANGE · NO DELETE. Not disabled — absent.
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Full list</div>Five fictional institutions, count reads <i>5 of 5</i>.</div>
+  <div class="st"><div class="sh">Search applied</div>Matches name, city and reference. Count reads <i>N of 5</i>.</div>
+  <div class="st"><div class="sh">State filter applied</div>Five options. <i>Not yet operating</i> is the union of <i>attention</i> and <i>setup</i>.</div>
+  <div class="st"><div class="sh">Arrived pre-filtered</div><code>?state=needing</code> from SA-01 sets the filter on arrival, so the row that was clicked is the row that is shown.</div>
+  <div class="st note"><div class="sh">No match</div>Explains what happened and offers <i>Clear search and filter</i>, naming the total it would return to.</div>
+  <div class="st warn"><div class="sh">Read-only — every state</div>There is no write control on this screen in any state. <code>FRD 1.3.5</code> says <i>"view and manage"</i>; no source names a single cross-tenant management action, so <b>D-02</b> resolves it read-only.</div>
+</div>
+<div class="callout"><b>Institutions are read-only, deliberately.</b> <code>FRD 1.3.5</code>'s words are <i>"controlled access to view and manage data across tenants strictly for governance and operational oversight"</i> — but no requirement anywhere names a single cross-institution management <i>action</i>, and the Review-006 matrix's own note concedes its <code>M</code> is <i>"derived from 1.3.5"</i> rather than from a requirement of its own. Batch 05 designs the sight and not the hand. <b>Reversibility: high</b> — a governance write, once defined, drops into SA-03's existing layout without restructuring.</div>
+<p class="meta"><b>Not on this screen:</b> add institution (<code>FRD 4.2.1</code> makes the institution the grammatical subject — this is self-registration) · assign the first Institute Admin (<code>QD-02</code>, stated nowhere) · suspend · activate · edit · delete · any institutional volume figure.</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s3"><span class="sid">SA-03</span>Institution detail</h2>
+<p class="purpose">The one place in the whole prototype where this role is inside a tenant. The scope bar turns and tints here, and everything on the page belongs to this institution alone.</p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-03</b> Institution detail <b>·</b> Super Admin <b>·</b> <b>Route</b> #/institution/&lt;id&gt; <b>·</b> FRD 1.3.5 · §6.7.4 · AC-04 · PM-13</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing institution · Meridian College of Engineering           │
+│ SUPER ADMIN        │         Everything on this page belongs to this institution             │
+│ Platform-wide      │         alone. Nothing here is combined with any other.                 │
+│ administration     │         [ TINTED BAR ]                     §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│ Overview           │ Overview / Institutions / Meridian College of Engineering               │
+│>Institutions       │                                                                         │
+│ Releases        [2]│ Meridian College of Engineering   [ ! Attention needed ]                │
+│ Device requests [2]│ INS-2026-0207 · Coimbatore · registered 2 Apr 2026                      │
+│ Licensing          │                                                                         │
+│ Platform           │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── [!] This institution’s last data run left 26 records unapplied ────────────────────────────┐
+│ The institution keeps every failed record with its reason and can retry it from              │
+│ its own workspace. There is nothing for you to do here — this is visible to you              │
+│ as operational status, not as a task.                        FRD 7.2.1 · PM-11               │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   SETUP VARIANT (CP · LST): an INFO alert instead — “This institution is not
+   finished setting up.”   OPERATING VARIANT (AU · NIT): no alert at all.
+
+┌── Readiness ────────────────────────────────────────────────────────── Derived, not stored ──┐
+│ This institution is attention needed. A configured integration reported failures             │
+│ on its last run. The institution can see and retry them.                                     │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ ✓  Content access                                                   Recorded                 │
+│    Content access recorded against 3 academic streams.                                       │
+│    OWNER  Streams mapped by the Institute Admin · how the record itself comes                │
+│           to exist is open              FRD 6.2.1 · QP-04 · OQ-03 — OPEN                     │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ ✓  Institutional sign-in                                          Configured                 │
+│    Institutional sign-in is configured and in use.                                           │
+│    OWNER  Configured by this institution’s Institute Admin  FRD 4.2.2 · PM-10                │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ !  Institution data                                           26 not applied                 │
+│    Last run 27 Aug 2026 · 04:00. 26 records were not applied in the last run.                │
+│    The institution retains each failed record with its reason and can retry it.              │
+│    OWNER  Configured by this institution’s Institute Admin        FRD 7.2.1                  │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+        ALWAYS ALL THREE ROWS, ALWAYS IN THIS ORDER. A fact that is missing is
+        shown as missing rather than omitted — “not configured” is the state a
+        reviewer most needs to see.
+
+┌── What this institution is running ─────────┐  ┌── This institution runs its own workspace ──┐
+│ Academic streams with access   3 streams    │  │ The Institute Admin here manages            │
+│                                             │  │ everything inside the institution. None     │
+│ Records in the last data run                │  │ of it is reachable from this role, and      │
+│             1,740 · 26 not applied          │  │ none of it is duplicated here:              │
+│ Last data run   27 Aug 2026 · 04:00         │  │                                             │
+│ ─────────────────────────────────────────── │  │ ·  Its people, and who they are             │
+│ [BOUNDARY] Why there is no edit             │  │ ·  Its academic structure and groups        │
+│ control on this page                        │  │ ·  Which content each stream reaches        │
+│ Everything above is configured inside       │  │ ·  Its institutional sign-in settings       │
+│ the institution by its own Institute        │  │ ·  Its institution-data connection          │
+│ Admin, in their workspace. This role        │  │ ·  Whatever reporting it has on its own     │
+│ can see that the institution is set up      │  │    use of that content                      │
+│ and working; it does not set it up.         │  │ ─────────────────────────────────────────── │
+│                                             │  │     FRD 1.3.4 · 8.1.3 · OQ-03 — OPEN        │
+│                  FRD 1.3.5 · PM-13          │  └─────────────────────────────────────────────┘
+└─────────────────────────────────────────────┘                                                 
+
+┌── [?] What “manage across tenants” lets ────┐  ┌── No record is kept of what you looked at ──┐
+│ you do is not yet defined                   │  │ Phase 1 requires review history for the     │
+│                                             │  │ content governance chain and nothing        │
+│ The requirement grants this role            │  │ else. No requirement defines an audit       │
+│ “controlled access to view and manage       │  │ trail for governance access, licensing,     │
+│ data across tenants strictly for            │  │ configuration or device approvals — so      │
+│ governance and operational oversight” —     │  │ this prototype does not show one, and       │
+│ but no requirement anywhere names a         │  │ does not pretend one exists.                │
+│ single cross-institution management         │  │                                             │
+│ action.                                     │  │                                             │
+│                                             │  │                                             │
+│ Rather than invent one, this page is        │  │                                             │
+│ read-only. If a governance action is        │  │                                             │
+│ later defined it belongs on this page,      │  │                                             │
+│ and the layout leaves room for it.          │  │                                             │
+│ ─────────────────────────────────────────── │  │ ─────────────────────────────────────────── │
+│ FRD 1.3.5 · OPEN                            │  │ PM-14 · GP-4 · FRD §6.7.5 — OPEN            │
+└─────────────────────────────────────────────┘  └─────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st warn"><div class="sh">Attention needed</div>Warning alert naming the failed-record count. <code>MCE</code>.</div>
+  <div class="st note"><div class="sh">Setup incomplete</div>Info alert — <i>"This institution is not finished setting up."</i> <code>CP</code>, <code>LST</code>.</div>
+  <div class="st have"><div class="sh">Operating</div>No alert. All three ledger rows read <code>ok</code>. <code>AU</code>, <code>NIT</code>.</div>
+  <div class="st"><div class="sh">Ledger row — ok</div>Tick, a state word, the detail, and the provenance line naming the owning role and its requirement.</div>
+  <div class="st warn"><div class="sh">Ledger row — warn</div>Institution data with failures. The only warn variant in the ledger.</div>
+  <div class="st"><div class="sh">Ledger row — todo</div>Dash, <i>Not configured</i> / <i>None yet</i>, and what that means for learners there.</div>
+  <div class="st"><div class="sh">No access record</div>The row states that no access record exists and that no learner there can reach content. <code>LST</code>.</div>
+  <div class="st bad"><div class="sh">Institution not found</div>An unmatched id renders an empty state and <i>Back to institutions</i>, not a blank shell.</div>
+</div>
+<div class="callout"><b>The provenance line is what removes the edit control.</b> Every fact carries the role that owns it and the requirement that says so — institutional sign-in <code>FRD 4.2.2</code> (<code>INA-10</code>), institution data <code>FRD 7.1.x</code> (<code>INA-11</code>), content access <code>FRD 6.2.x</code> (<code>INA-06/07/08</code>). Stating the owner beside the fact is what keeps this screen from becoming a second, worse copy of the Institute Admin workspace built in Batch 03. <b>What the Institute Admin operates, the Super Admin observes.</b></div>
+<div class="callout"><b>The two content-access owners are written out separately, not templated.</b> Sign-in and institution data are <i>configured by</i> a person in a known role. A content access record is not: <code>FRD 6.2.1</code>'s transaction mechanism is open, so only the stream mapping has a named owner. Saying <i>"configured by"</i> for all three would assert an origin the requirements have not settled.</div>
+<p class="meta"><b>Not on this screen:</b> any person in the institution · any academic stream, group or course · any assessment or result · any student cap, seat or capacity figure · any edit, suspend or configuration control · any audit record of this visit.</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s4"><span class="sid">SA-04</span>Module releases</h2>
+<p class="purpose">Which new versions of <b>already-published</b> modules are waiting on a release decision, which are held, and which have reached production. Publication has already occurred for every module here; this is <b>version release control only</b>.</p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-04</b> Module releases <b>·</b> Super Admin <b>·</b> <b>Route</b> #/releases <b>·</b> FRD 2.3.2 · FLOW 10 step 1 · D-01 — OPEN PM CLARIFICATION</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing · The platform                                          │
+│ SUPER ADMIN        │         Platform-wide view. Institutional figures are shown             │
+│ Platform-wide      │         on an institution’s own page, never combined here.              │
+│ administration     │                                            §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│ Overview           │ Overview / Releases                                                     │
+│ Institutions       │                                                                         │
+│>Releases        [2]│ Module releases                                                         │
+│ Device requests [2]│ Version release control only — publication has already happened.        │
+│ Licensing          │                                                                         │
+│ Platform           │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── [i] These modules are already published and already in use ────────────────────────────────┐
+│ Publishing a module is the Content Manager’s decision and has already happened               │
+│ for everything listed here. What you decide is whether a NEWER VERSION replaces              │
+│ the one learners are currently running.                                                      │
+│                                   FRD 2.3.2 · publication: PM-16 · PM-17                     │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── Module versions ───────────────────────────────────────────────────────────── 2 versions ──┐
+│ [ Awaiting decision (2)                                                  v ]                 │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ MODULE                        FMT  IN PROD  NEW VER  RELEASE STATE  READY SINCE              │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Soil Mechanics — Direct       VR   1.4.0    1.5.0    · Awaiting     26 Aug 2026              │
+│ Shear Test                                             decision       [ Decide ]             │
+│ Civil Engineering                                                                            │
+│ Thermodynamics — Heat         VR   2.0.1    2.1.0    · Awaiting     25 Aug 2026              │
+│ Exchanger Analysis                                     decision       [ Decide ]             │
+│ Mechanical Engineering                                                                       │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ FILTER = Held (1)                                                      [ Open ]              │
+│ Strength of Materials —       MR   1.1.0    1.2.0    = Held         21 Aug 2026              │
+│ Torsion Test                                           22 Aug 2026                           │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ FILTER = Released (2)                                                  [ Open ]              │
+│ Electrical Machines —         Web  3.0.1    3.0.1    ✓ Released     14 Aug 2026              │
+│ Induction Motor Test                                   15 Aug 2026                           │
+│ Surveying — Total Station     Web  1.2.0    1.2.1    ✓ Released      8 Aug 2026              │
+│ Basics                                                 9 Aug 2026                            │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   FOUR FILTER VALUES ONLY — Awaiting decision (2) · Held (1) · Released (2) ·
+   All versions (5). The three states are the three the requirement and its
+   acceptance criterion define, and no more.
+
+┌── EMPTY — nothing awaiting ─────────────────┐  ┌── [?] Learners are not told when a version ─┐
+│             ( ✓ )                           │  │ changes underneath them                     │
+│                                             │  │                                             │
+│    Nothing is awaiting a release            │  │ A device downloads an updated version       │
+│    decision                                 │  │ automatically once it is released, and a    │
+│                                             │  │ learner may see an “update available”       │
+│ Every new module version has had a          │  │ state if they happen to be looking.         │
+│ decision. Learners are running the          │  │ Phase 1 has no notification requirement     │
+│ versions currently in production.           │  │ anywhere, so the platform cannot tell a     │
+│                                             │  │ learner who is not looking.                 │
+│    [ Show every version ]                   │  │ ─────────────────────────────────────────── │
+└─────────────────────────────────────────────┘  │ FRD 2.3.1 · 1.5.1 is Phase 2 · OPEN         │
+                                                 └─────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Awaiting decision</div>The default filter. Two versions, each with a primary <i>Decide</i> action.</div>
+  <div class="st warn"><div class="sh">Held</div>A decision was taken <b>not</b> to release, for now. A first-class state with its own badge, never the absence of a decision.</div>
+  <div class="st have"><div class="sh">Released</div>This version reached production and became the module's live version.</div>
+  <div class="st"><div class="sh">All versions</div>All five rows, mixed states.</div>
+  <div class="st have"><div class="sh">Empty — nothing awaiting</div><i>"Every new module version has had a decision. Learners are running the versions currently in production."</i> Offers <i>Show every version</i>.</div>
+  <div class="st note"><div class="sh">Empty — nothing in this state</div>The neutral variant for the Held and Released filters when they are empty.</div>
+</div>
+<div class="callout"><b>THIS IS NOT PUBLICATION.</b> Publication (<code>FRD 1.4.4</code>, FLOW 1) is a module reaching learners for the first time and is owned by the <b>Content Manager</b> (<code>PM-16</code> · <code>PM-17</code>). Version release (<code>FRD 2.3.2</code>, FLOW 10) is a new version of an <i>already-published</i> module reaching production environments. Every module on this screen was published before it got here; the release decision is <b>downstream of publication, never a gate in front of it</b>, and the screen says so in product language at the top.</div>
+<div class="callout"><b>The vocabulary is firewalled.</b> The two controls are <b>Release version</b> and <b>Hold version</b> — named for what they act on, never for a destination. These screens say <i>release · hold · held · released · version</i>; <i>production</i> appears only where it explains the consequence, in <code>FRD 2.3.2</code>’s own words. For this role they never say <i>publish, publishing, published, ready to publish, publication queue, approve, return</i> or <i>request changes</i>. That is not decoration — <code>O-01</code> (Super Admin publishing) is restated in at least twenty distinct places across the source set, and firewalled wording is what stops any one of them being reintroduced by phrasing.</div>
+<p class="meta"><b>Kept open, not resolved — <code>D-01</code>, OPEN PM CLARIFICATION:</b> “After Content Manager publishes content, does Super Admin still retain the separate Phase-1 version release/hold authority from <code>FRD 2.3.2</code>?” <code>§6.6.5</code> records it as open. Batch 05 chose Reading A (2.3.2 survives) as the least-assumptive reading and flags it. <b>Reversibility: high</b> — SA-04 and SA-05 withdraw exactly as Batch 01's two publish screens did, and nothing else in the batch depends on them.</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s5"><span class="sid">SA-05</span>Release decision</h2>
+<p class="purpose">One version, the version it would replace, what releasing actually causes, and two outcomes.</p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-05</b> Release decision <b>·</b> Super Admin <b>·</b> <b>Route</b> #/release/&lt;id&gt; <b>·</b> FRD 2.3.2 · FLOW 10 · 2.3.1 · 2.3.3 · GP-4</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing · The platform                                          │
+│ SUPER ADMIN        │         Platform-wide view. Institutional figures are shown             │
+│ Platform-wide      │         on an institution’s own page, never combined here.              │
+│ administration     │                                            §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│ Overview           │ Overview / Releases / Soil Mechanics — Direct Shear Test · 1.5.0        │
+│ Institutions       │                                                                         │
+│>Releases        [2]│ Soil Mechanics — Direct Shear Test   [ · Awaiting decision ]            │
+│ Device requests [2]│ Civil Engineering · VR                                                  │
+│ Licensing          │                                                                         │
+│ Platform           │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── Version 1.5.0 ─────────────────────────────────────────────────────────────────────────────┐
+│ ┌── In production now ─────────────┐        ┌── Waiting on you ────────────┐                 │
+│ │ 1.4.0                            │   →    │ 1.5.0                        │                 │
+│ │ Published 11 Aug 2026. This is   │        │ Ready since 26 Aug 2026.     │                 │
+│ │ what every entitled learner is   │        │                              │                 │
+│ │ running.                         │        │                              │                 │
+│ └──────────────────────────────────┘        └──────────────────────────────┘                 │
+│                                                                                              │
+│ Adds a second soil specimen and corrects the shear-box friction constant used                │
+│ in the strength-envelope calculation.                                                        │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Releasing this version puts 1.5.0 in place of 1.4.0 for the learners already                 │
+│ entitled to this module. Holding leaves 1.4.0 in place and keeps this version                │
+│ available to release later. Neither outcome publishes anything.                              │
+│                                                                                              │
+│                               [ Hold version ]   [ Release version ]                         │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   TWO OUTCOMES, BOTH FIRST-CLASS. FLOW 10 step 1: “...and may hold a release.”
+   Hold is a real control with its own state — never a disabled button, and never
+   merely the absence of pressing Release.
+
+   HELD VARIANT     one control only — [ Release version ] — plus a warning
+                    alert: “Holding is a decision, not a delay. It stays until you
+                    release the version. No reason is recorded against it.”
+   RELEASED VARIANT no control at all — “This version was released on 15 Aug 2026
+                    and is what learners are running now.”
+
+┌── [BOUNDARY] This is a version decision, not a publication decision ─────────────────────────┐
+│ Soil Mechanics — Direct Shear Test was published on 11 Aug 2026 by the Content               │
+│ Manager, and has been reaching learners ever since. CONTENT PUBLICATION HAS                  │
+│ ALREADY OCCURRED. Nothing on this screen publishes, re-publishes or withdraws                │
+│ anything, or changes who can see this module — it is not a second publication                │
+│ gate standing in front of the Content Manager’s.                                             │
+│                                     publication: FRD 1.4.3 · PM-16 · PM-17                   │
+│                                                                                              │
+│ Whether this role keeps the separate version release authority at all is D-01,               │
+│ an open PM clarification. The capability is isolated to SA-04 and SA-05 so it                │
+│ can be withdrawn whole, without disturbing anything else in the workspace.                   │
+│                        FRD 2.3.2 · §6.6.5 · D-01 — OPEN PM CLARIFICATION                     │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── What releasing does ──────────────────────┐  ┌── Not available here ───────────────────────┐
+│ >  You decide      Awaiting decision        │  │ ·  No publish, unpublish or withdraw —      │
+│    The version reaches production only      │  │    publication is the Content Manager’s     │
+│    on your release.        FRD 2.3.2        │  │                      PM-16 · PM-17          │
+│                                             │  │                                             │
+│ -  The device application picks it up       │  │ ·  No return to the vendor or request       │
+│    An updated module version is             │  │    for changes        QP-26 — OPEN          │
+│    downloaded automatically once it is      │  │                                             │
+│    available.              FRD 2.3.1        │  │ ·  No rollback to an earlier version —      │
+│                                             │  │    no source defines one                    │
+│ -  No reinstall is needed                   │  │                                             │
+│    A module updates independently of        │  │ ·  No module lifecycle state                │
+│    the application it runs in.              │  │             FRD 1.5.1 is Phase 2            │
+│                            FRD 2.3.3        │  │                                             │
+│                                             │  │ ·  No record of who decided, or when,       │
+│ -  The learner may see an update is         │  │    beyond the state you see    GP-4         │
+│    available — and is never blocked         │  │                                             │
+│    from carrying on. FRD 2.3.1 · PM-05      │  │                                             │
+│ ─────────────────────────────────────────── │  │                                             │
+│ How a module actually reaches a device      │  │ ─────────────────────────────────────────── │
+│ is deliberately not stated anywhere in      │  │ NO REASON OR COMMENT FIELD ON A HOLD.       │
+│ this design.  PM-05 · QT-01 — OPEN          │  │ Phase 1 defines no audit trail outside      │
+└─────────────────────────────────────────────┘  │ content governance.                         │
+                                                 └─────────────────────────────────────────────┘
+
+┌── DIALOG — release ─────────────────────────┐  ┌── DIALOG — hold ────────────────────────────┐
+│ Release version 1.5.0?                      │  │ Hold version 1.5.0?                         │
+│                                             │  │                                             │
+│ Soil Mechanics — Direct Shear Test          │  │ Learners carry on with 1.4.0. Version       │
+│ version 1.5.0 replaces 1.4.0 as the         │  │ 1.5.0 stays ready and you can release       │
+│ version learners run.                       │  │ it at any time.                             │
+│                                             │  │                                             │
+│ (i) Devices download the new version        │  │ (i) No reason is recorded against a         │
+│     automatically. Learners are not         │  │     hold. Phase 1 defines no audit          │
+│     notified — Phase 1 has no               │  │     trail for release decisions, so         │
+│     notification requirement — and          │  │     the state you set is the whole          │
+│     anyone part-way through keeps           │  │     record.                                 │
+│     going uninterrupted.                    │  │                                             │
+│                                             │  │                                             │
+│    [ Cancel ] [ Release version ]           │  │         [ Cancel ] [ Hold version ]         │
+└─────────────────────────────────────────────┘  └─────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Awaiting decision</div>Both controls — <i>Hold version</i> and <i>Release version</i>. The new-version box is highlighted as <i>Waiting on you</i>.</div>
+  <div class="st warn"><div class="sh">Held</div>Warning alert plus one control: <i>Release version</i>. Holding does not expire and does not withdraw the version.</div>
+  <div class="st have"><div class="sh">Released</div>No control. A statement of the date and that this is what learners are running. The module's live version has become this one.</div>
+  <div class="st note"><div class="sh">Release confirmation dialog</div>Names the replacement, then the consequence: automatic download, no notification, nobody interrupted.</div>
+  <div class="st note"><div class="sh">Hold confirmation dialog</div>Names what learners carry on with, then states plainly that <b>no reason is recorded</b>.</div>
+  <div class="st bad"><div class="sh">Version not found</div>An unmatched id renders an empty state and <i>Back to releases</i>.</div>
+  <div class="st"><div class="sh">Ladder — dim / current / done</div>The four consequence steps render dim before a release and complete after it, so the page shows the effect of the decision, not just the decision.</div>
+</div>
+<div class="callout"><b>No reason field on a hold — and that is the finding, not an omission.</b> Phase 1 defines no audit trail outside content governance (<code>GP-4</code> · <code>§6.7.5</code>), so a recorded justification would be a record the requirement set has not got. The screen states that in the dialog and in the held alert rather than inventing the field.</div>
+<p class="meta"><b>Absent by design:</b> diff · changelog format · version-history tree · rollback · unrelease · withdraw · scheduling · staged or percentage rollout · environment picker · transport, endpoint or package format (<code>PM-05</code> declined to select one — <code>QT-01</code>) · learner notification (<code>FRD 2.3.1</code>'s recorded gap).</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s6"><span class="sid">SA-06</span>Device replacement requests</h2>
+<p class="purpose">Who is waiting on this role to move their access to a different device — the platform's only Phase-1 two-role, cross-plane approval workflow outside content governance.</p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-06</b> Device replacement requests <b>·</b> Super Admin <b>·</b> <b>Route</b> #/device-requests <b>·</b> FRD 2.4.2 · 2.4.3 · FLOW 8</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing · The platform                                          │
+│ SUPER ADMIN        │         Platform-wide view. Institutional figures are shown             │
+│ Platform-wide      │         on an institution’s own page, never combined here.              │
+│ administration     │                                            §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│ Overview           │ Overview / Device requests                                              │
+│ Institutions       │                                                                         │
+│ Releases        [2]│ Device replacement requests                                             │
+│>Device requests [2]│ An individual learner cannot move their access to a new device          │
+│ Licensing          │ until you approve it.                                                   │
+│ Platform           │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── [i] 2 learners are waiting ────────────────────────────────────────────────────────────────┐
+│ Until a request is approved, that learner’s access stays bound to their old                  │
+│ device. Nobody else on the platform can grant this.       FRD 2.4.2 · FLOW 8                 │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── Device replacement requests ───────────────────────────────────────────────── 2 requests ──┐
+│ [ Awaiting approval (2)                                                  v ]                 │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ LEARNER            ACCESS                  DEVICE TRANSFER      STATE                        │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ (AR) Aditya Rao    Soil Mechanics —        XRD-8F2A-••••-41C7   · Awaiting                   │
+│      Individual    Direct Shear Test              ↓               your approval              │
+│      account       VR                     XRD-D3B9-••••-77E0   26 Aug · 18:12                │
+│                                                                     [ Review ]               │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ (PN) Priya Nair    Thermodynamics —        XRD-2C64-••••-9A15   · Awaiting                   │
+│      Individual    Heat Exchanger Analysis        ↓               your approval              │
+│      account       VR                     XRD-A701-••••-5E38   27 Aug · 09:40                │
+│                                                                     [ Review ]               │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ FILTER = Approved (1)                                                                        │
+│ (RM) Rohan Mehta   Machine Design —        XRD-5B18-••••-C204   ✓ Approved                   │
+│      Individual    Gear Train Assembly            ↓               20 Aug 2026                │
+│      account       AR                     XRD-9E42-••••-1D6B   19 Aug · 14:05                │
+│                                                                       [ Open ]               │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   ONE TRANSFER COLUMN, NOT TWO DEVICE COLUMNS. Two side-by-side device columns
+   pushed the table past 1280 and forced a page-level horizontal scroll; stacked,
+   the transfer also reads better — it is one movement, not two facts.
+
+┌── [BOUNDARY] Only individual learners ──────┐  ┌── [?] There is no way to decline a request ─┐
+│ appear here                                 │  │ The requirement gives this role one         │
+│                                             │  │ outcome — approval — and describes no       │
+│ Institutional deployments run on shared     │  │ rejection path, no evidence a learner       │
+│ devices, so an institutional learner has    │  │ must supply, and no limit on how often a    │
+│ no personal device binding to move. No      │  │ device may be replaced. All three are       │
+│ request from an institution can exist —     │  │ pending decisions.                          │
+│ this is not a filter, it is the shape of    │  │                                             │
+│ the requirement.                            │  │ A learner whose request should not be       │
+│ ─────────────────────────────────────────── │  │ granted has no defined outcome at all.      │
+│ FRD 2.4.1 is B2C · 2.4.3                    │  │ ─────────────────────────────────────────── │
+└─────────────────────────────────────────────┘  │ FRD 2.4.2 · PENDING DECISION                │
+                                                 └─────────────────────────────────────────────┘
+
+   NOT A GREYED-OUT DECLINE BUTTON. A disabled control would imply the route
+   exists and is merely unavailable, which is the opposite of true.
+</pre>
+</div>
+
+<div class="states">
+  <div class="st note"><div class="sh">Learners waiting</div>Info alert with the count, and the consequence for the learner: access stays bound to the old device until approval.</div>
+  <div class="st"><div class="sh">Awaiting approval</div>The default filter. Two requests, each with a primary <i>Review</i> action.</div>
+  <div class="st have"><div class="sh">Approved</div>The licence has rebound. Decision date shown beneath the badge.</div>
+  <div class="st"><div class="sh">All requests</div>Both states in one list.</div>
+  <div class="st have"><div class="sh">Empty — no one is waiting on you</div><i>"Nobody is currently locked out of their access waiting for a decision."</i></div>
+  <div class="st note"><div class="sh">Empty — nothing in this state</div>The neutral variant for the Approved filter when it is empty.</div>
+  <div class="st bad"><div class="sh">No decline outcome exists</div>Shown as a <b>marked gap</b> in the page. There is no decline control, disabled or otherwise.</div>
+</div>
+<div class="callout"><b>One outcome, because the requirement defines one.</b> <code>FRD 2.4.2</code>'s row records, verbatim: <i>"The FRD describes no rejection path, no evidence requirement and no limit on replacement frequency — all PENDING DECISION."</i> So there is Approve, and there is nothing else. The absent decline route appears as a marked gap, <b>not as a greyed-out Decline button</b> — a disabled control would imply the route exists and is merely unavailable.</div>
+<div class="callout"><b>B2C only, and for a stated reason.</b> <code>FRD 2.4.3</code> makes institutional deployments use shared devices, so no institutional learner has a personal device binding to transfer. No institutional request can ever appear here, and the screen says so rather than leaving a reviewer to wonder where they are.</div>
+<p class="meta">Device identifiers are shown <b>partly masked</b>. <code>FRD 2.4.1</code> requires the licence to bind to <i>"a specific encrypted XR device ID"</i>; nothing in the source asks an administrator to read one in full.</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s7"><span class="sid">SA-07</span>Device request detail</h2>
+<p class="purpose">One learner, one transfer, both ends of the flow, and the single outcome the requirement supports.</p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-07</b> Device request detail <b>·</b> Super Admin <b>·</b> <b>Route</b> #/device-request/&lt;id&gt; <b>·</b> FRD 2.4.2 · FLOW 8 steps 3–4 · AC-28 · FRD 1.3.2</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing · The platform                                          │
+│ SUPER ADMIN        │         Platform-wide view. Institutional figures are shown             │
+│ Platform-wide      │         on an institution’s own page, never combined here.              │
+│ administration     │                                            §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│ Overview           │ Overview / Device requests / Aditya Rao                                 │
+│ Institutions       │                                                                         │
+│ Releases        [2]│ Device replacement · Aditya Rao   [ · Awaiting your approval ]          │
+│>Device requests [2]│ aditya.rao@sample-learner.example · requested 26 Aug 2026 · 18:12       │
+│ Licensing          │                                                                         │
+│ Platform           │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── The transfer ──────────────────────────────────────────────────────────────────────────────┐
+│ ┌── Bound now ─────────────────────┐        ┌── Requested ─────────────────┐                 │
+│ │ XRD-8F2A-••••-41C7               │   →    │ XRD-D3B9-••••-77E0           │                 │
+│ │ VR headset, registered           │        │ VR headset, presented        │                 │
+│ │ 3 Mar 2026                       │        │ 26 Aug 2026                  │                 │
+│ └──────────────────────────────────┘        └──────────────────────────────┘                 │
+│                                                                                              │
+│ Access affected     Soil Mechanics — Direct Shear Test · VR                                  │
+│ Account             aditya.rao@sample-learner.example                                        │
+│ Market context      Individual (B2C) — no institution is involved   FRD 1.3.2                │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Approving moves this learner’s access from XRD-8F2A-••••-41C7 to                             │
+│ XRD-D3B9-••••-77E0. The old device stops being able to open it.                              │
+│                                                                                              │
+│                                              [ ✓ Approve the transfer ]                      │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── Where this request has got to ─────────────────────────────────────────────────────────────┐
+│ *  Aditya Rao asked to move their access                                                     │
+│ │  26 Aug 2026 · 18:12 · from the individual learner’s own account   FRD 2.4.2               │
+│ │                                                                                            │
+│ *  Waiting for your approval                                                                 │
+│ │  The learner can see that their request is with the platform.                              │
+│ │                                            FRD 2.4.2 acceptance criterion                  │
+│ │                                                                                            │
+│ *  Access stays on the current device                                                        │
+│    Until you approve, Aditya can only open this on the device they already have.             │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ APPROVED VARIANT — the same three steps resolve:                                             │
+│ *  You approved the transfer   20 Aug 2026 · Devika Raman        FLOW 8 step 3               │
+│ *  Access moved to the new device                                                            │
+│    The licence rebound, and the learner can see that it has.  FLOW 8 step 4 · AC-28          │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   BOTH ENDS OF FLOW 8 IN ONE THREAD. The learner-side states are not decoration:
+   FRD 2.4.2’s acceptance criterion requires the request’s state to be visible to
+   the learner throughout, and FLOW 8 step 4 requires the rebinding to be visible
+   to them too. Showing them here is how the person deciding sees what the
+   decision does to the person waiting.
+
+┌── [?] If this should not be granted, there ─┐  ┌── Not available here ───────────────────────┐
+│ is nothing to press                         │  │ ·  No decline or rejection                  │
+│                                             │  │                 FRD 2.4.2 — PENDING         │
+│ The requirement describes approval and      │  │ ·  No evidence or supporting-document       │
+│ nothing else — no rejection, no evidence    │  │    step           FRD 2.4.2 — PENDING       │
+│ requirement, no limit on how often a        │  │ ·  No replacement-frequency limit or        │
+│ learner may do this. A decline control      │  │    counter        FRD 2.4.2 — PENDING       │
+│ is not offered here because no decline      │  │ ·  No device registration or remote         │
+│ outcome exists to design.                   │  │    device management                        │
+│                                             │  │         FRD 2.5.x · 2.6.x are Phase 2       │
+│ This is a real gap in the requirement       │  │ ·  No record of this approval beyond        │
+│ set, not an omission in this screen.        │  │    the state you see    GP-4 — OPEN         │
+│ ─────────────────────────────────────────── │  │ ·  No payment, refund or entitlement        │
+│ FRD 2.4.2 · PENDING DECISION                │  │    change — the access itself is            │
+│                                             │  │    unchanged, only the device it opens      │
+│ APPROVED VARIANT replaces this panel        │  │    on                          QP-18        │
+│ with a success alert: “The licence has      │  │                                             │
+│ rebound.”                                   │  │                                             │
+└─────────────────────────────────────────────┘  └─────────────────────────────────────────────┘
+
+┌── DIALOG — approve ──────────────────────────────────────────────────────────────────────────┐
+│ Approve this device transfer?                                                                │
+│                                                                                              │
+│ Aditya Rao’s access to Soil Mechanics — Direct Shear Test will move from                     │
+│ XRD-8F2A-••••-41C7 to XRD-D3B9-••••-77E0.                                                    │
+│                                                                                              │
+│ (i) The old device stops being able to open it. The learner sees straight away               │
+│     that the move went through. No record of this approval is kept beyond the                │
+│     request’s own state.                                                                     │
+│                                                                                              │
+│                                      [ Cancel ]  [ Approve the transfer ]                    │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Awaiting your approval</div>One control — <i>Approve the transfer</i>. The timeline stops at step 2 and step 3 reads <i>"Access stays on the current device."</i></div>
+  <div class="st have"><div class="sh">Approved</div>No control. Success alert — <i>"The licence has rebound"</i> — and the timeline resolves through step 3 with <code>FLOW 8 step 4 · AC-28</code>.</div>
+  <div class="st note"><div class="sh">Approval confirmation dialog</div>Names both devices, then the three consequences: the old device stops working, the learner sees it immediately, and no record is kept.</div>
+  <div class="st bad"><div class="sh">No decline path</div>The gap panel occupies the position a decline control would occupy, and says why nothing is there.</div>
+  <div class="st bad"><div class="sh">Request not found</div>An unmatched id renders an empty state and <i>Back to device requests</i>.</div>
+</div>
+<div class="callout"><b>The learner side is part of the requirement, not a courtesy.</b> <code>FRD 2.4.2</code>'s acceptance criterion — <i>"the request's state is visible to the learner throughout"</i> — and FLOW 8 step 4 — <i>"the learner can see that it has"</i> — are both requirements about the <i>other</i> end. Drawing them into this screen is what makes the effect of the approval visible to the person taking it.</div>
+<p class="meta"><b>Nothing here changes the access itself</b> — only the device it opens on. No payment, refund, entitlement grant or revocation appears on this screen in any state (<code>QP-18</code> records that no rule for any of them is stated or implied).</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s8"><span class="sid">SA-08</span>Licensing</h2>
+<p class="purpose">Which institutions hold content access, what each record covers, and the fact that nothing on this platform transacts one.</p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-08</b> Licensing <b>·</b> Super Admin <b>·</b> <b>Route</b> #/licensing <b>·</b> FRD 8.1.1 · 6.2.1 · 6.2.2 · 9.2.1 · FLOW 2 step 1</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing · The platform                                          │
+│ SUPER ADMIN        │         Platform-wide view. Institutional figures are shown             │
+│ Platform-wide      │         on an institution’s own page, never combined here.              │
+│ administration     │                                            §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│ Overview           │ Overview / Licensing                                                    │
+│ Institutions       │                                                                         │
+│ Releases        [2]│ Licensing                                                               │
+│ Device requests [2]│ Which institutions hold content access, and what that access covers.    │
+│>Licensing          │                                                                         │
+│ Platform           │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── [i] Access records are shown as they stand ────────────────────────────────────────────────┐
+│ How an institution comes to hold content access has not been decided. Nothing                │
+│ here creates, changes, prices, renews or ends an access record — this screen                 │
+│ shows what exists.                        FRD 6.2.1 · QP-04 · OQ-01 — OPEN                   │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── Institutional content access ─────────────────────────────────────── 4 of 5 institutions ──┐
+│ INSTITUTION                       STREAMS COVERED           STATE                            │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ (AU) Ashcroft University          6 streams          ✓ Recorded                              │
+│                                                            [ Open institution ]              │
+│ (CP) Calder Polytechnic           2 streams          ✓ Recorded                              │
+│                                                            [ Open institution ]              │
+│ (MCE) Meridian College of Eng.    3 streams          ✓ Recorded                              │
+│                                                            [ Open institution ]              │
+│ (NIT) Northfield Inst. of Tech.   4 streams          ✓ Recorded                              │
+│                                                            [ Open institution ]              │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ [BOUNDARY] 1 institution has no access record yet                                            │
+│ Lakeside School of Technology. Until an access record exists, no learner there               │
+│ can reach content. There is no action here that creates one.                                 │
+│                                         FRD 6.2.1 — the transaction is OPEN                  │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   THERE IS NO NUMBER ON THIS SCREEN THAT IS NOT A COUNT OF RECORDS. No student
+   cap, no seat figure, no capacity — OQ-03 leaves the whole model open, so none
+   is presented as a fact of the record. Nothing is summed across the four.
+
+┌── Individual access ─────────────────────────────────────────────────────────────────────────┐
+│ An individual learner’s access activates by itself when their payment succeeds,              │
+│ and attaches to their account without anyone doing anything. There is no                     │
+│ administrative step, and so no administrative screen.                                        │
+│                              FRD 9.2.1 · 9.2.2 — activation is automatic                     │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ [BOUNDARY] Individual learners are not listed here                                           │
+│ Individual-learner data is held apart from institutional data, and nothing on                │
+│ this platform combines the two. Where an individual learner does need something              │
+│ from this role, it reaches you as a request — see device replacements.                       │
+│                                               FRD 1.3.1 · 1.3.2 · PM-13                      │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── [?] The commercial model behind all of this is not settled ────────────────────────────────┐
+│ What an institution subscribes to, WHETHER ACCESS IS BOUNDED BY A LEARNER OR                 │
+│ SEAT CAP AT ALL, how a learner comes to be entitled, and how any of it is paid               │
+│ for are all open. Institutional billing is a later phase.                                    │
+│                                                                                              │
+│ Nothing on this screen implies an answer to any of them. There is no price, no               │
+│ term, no renewal, no invoice, no plan, no seat count and no student cap — a                  │
+│ draft line about seat utilisation is not a settled rule, and this screen does                │
+│ not present one as though it were.                                                           │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ OQ-01 · OQ-02 · OQ-03 · OQ-04 · QP-04 · FRD 9.3.x is Phase 2                                 │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Institutions with a record</div>Four rows. The academic streams the record covers, and its state — both facts of that one institution. <b>No student cap and no seat figure:</b> <code>OQ-03</code> is <b>OPEN</b>.
+  <div class="st note"><div class="sh">Institutions without a record</div>Named in a boundary note beneath the table, with the consequence: no learner there can reach content.</div>
+  <div class="st"><div class="sh">Individual access</div>A statement, not a table. Activation is automatic on payment, so there is no administrative step and no administrative surface.</div>
+  <div class="st warn"><div class="sh">The transaction is open</div>The whole commercial model is a marked gap. <code>FLOW 2 step 1</code> is a <b>post-condition, not an action</b> — a licence exists; nothing here makes one exist.</div>
+</div>
+<div class="callout"><b>Licences are shown as existing. Nothing transacts them.</b> FLOW 2's recorded gap, verbatim: <i>"How an institutional licence is transacted in Phase 1 is undefined, because institutional billing (FRD 9.3.1, 9.3.2) is Phase 2. Licences are shown as existing; no in-platform purchase flow is invented."</i> <code>§6.7.5</code> lists the same thing as an unresolved detail of the role itself.</div>
+<div class="callout"><b>The B2C side has no administrative action at all.</b> <code>FRD 9.2.1</code>: <i>"Upon successful payment, licenses shall be automatically activated and linked to the user account"</i> — with no human step for anyone. <code>R-12b</code> in the authority audit refutes B2C licence activation as an administrative action outright: there is no Super Admin action to design.</div>
+<p class="meta"><b>Absent everywhere on this screen:</b> price · currency · amount · student cap · seat purchase · seat utilisation · capacity limit · invoice · GST · subscription · plan · term · renewal · expiry · refund · cancellation · promo · contract · payment provider. Every one is open or Phase 2 in the source.</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s9"><span class="sid">SA-09</span>Platform roles</h2>
+<p class="purpose">Who holds each central-plane role, and the honest statement that the authority to assign one is confirmed while the mechanism is not.</p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-09</b> Platform roles <b>·</b> Super Admin <b>·</b> <b>Route</b> #/platform/roles <b>·</b> FRD 8.1.1 · §6.7.2 line 5 · QD-02 (OPEN, HIGH)</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing · The platform                                          │
+│ SUPER ADMIN        │         Platform-wide view. Institutional figures are shown             │
+│ Platform-wide      │         on an institution’s own page, never combined here.              │
+│ administration     │                                            §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│ Overview           │ Overview / Platform / Platform roles                                    │
+│ Institutions       │                                                                         │
+│ Releases        [2]│ Platform roles                                                          │
+│ Device requests [2]│ Who holds each of the roles that work across the platform rather        │
+│ Licensing          │ than inside an institution.                                             │
+│>Platform           │                                                                         │
+│   >Platform roles  │                                                                         │
+│    Configuration   │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── Central platform roles ─────────────────────────────────────────────────────── Read-only ──┐
+│ ROLE                       HELD BY                    PEOPLE   BASIS                         │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Super Admin                (DR) Devika Raman               1   FRD 8.1.1                     │
+│ Platform-wide                                                                                │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Content Manager            (MK) M. Kulkarni                1   FRD 8.1.2 ·                   │
+│ Central content plane                                          PM-16 · PM-17                 │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Academic Reviewer          (RI) Dr. R. Iyer                1   FRD 1.4.2 · PM-07             │
+│ Central content plane                                                                        │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Vendor                     (AR) Ananya Rao                 2   FRD 1.4.1 ·                   │
+│ Central content plane      (KM) K. Menon                       1.4.5 · PM-07                 │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   NO ASSIGN · NO REVOKE · NO INVITE · NO CREATE · NO DEACTIVATE. Absent, not
+   disabled — the provisioning route they would use has not been decided.
+
+┌── [?] There is no way to assign a role here yet ─────────────────────────────────────────────┐
+│ This role does hold platform role assignment as an authority. How anyone is                  │
+│ actually assigned a role in Phase 1 — invited, created, imported, or something               │
+│ else — has not been decided, and it is an open question of the highest priority              │
+│ in the requirement set.                                                                      │
+│                                                                                              │
+│ Designing an assignment control would mean choosing that mechanism. This screen              │
+│ shows who holds what and waits for the decision instead.                                     │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ FRD 8.1.1 · QD-02 — OPEN, HIGH                                                               │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── The roles inside an institution are not ──┐  ┌── The seven roles are fixed ────────────────┐
+│ shown                                       │  │                                             │
+│                                             │  │                                             │
+│ Institute Admin, Faculty and Learner        │  │ Learner, Faculty, Institute Admin,          │
+│ belong to an institution, not to the        │  │ Content Manager, Super Admin, Vendor and    │
+│ platform. How a person becomes one of       │  │ Academic Reviewer are the platform’s        │
+│ them is undefined in Phase 1, and           │  │ roles. Creating a new one, or changing      │
+│ neither the people nor the assignment       │  │ what an existing one may do, is a later     │
+│ reach this role.                            │  │ phase — nothing here can alter the set      │
+│                                             │  │ or its meanings.                            │
+│ ·  No institutional person appears on       │  │                                             │
+│    this screen                              │  │                                             │
+│ ·  No institutional role can be             │  │                                             │
+│    assigned from here                       │  │                                             │
+│ ·  No institution’s staff list is           │  │                                             │
+│    reachable from here                      │  │ ─────────────────────────────────────────── │
+│ ─────────────────────────────────────────── │  │ FRD 8.1.1–8.1.5 · PM-07 ·                   │
+│ PM-13 · QD-02 · FRD 7.4.2 is Phase 3        │  │ 8.3.x is Phase 3                            │
+└─────────────────────────────────────────────┘  └─────────────────────────────────────────────┘
+
+┌── [?] Who sets up a vendor or a reviewer is assigned to nobody ──────────────────────────────┐
+│ The requirements speak of “authorised vendors” without ever saying who                       │
+│ authorises them, and academic validation is described without any account                    │
+│ administration around it. Both roles exist and both are confirmed; the route by              │
+│ which a person becomes one is written down nowhere.                                          │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ FRD 1.4.1 · 1.4.2 · PM-07 — OPEN                                                             │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st"><div class="sh">Four role rows</div>Super Admin, Content Manager, Academic Reviewer, Vendor. Each carries its plane and its requirement basis.</div>
+  <div class="st"><div class="sh">Multi-holder row</div>Vendor holds two people. The <i>People</i> column is a count of holders, never a platform statistic.</div>
+  <div class="st warn"><div class="sh">No assignment control</div>The authority is confirmed by <code>§6.7.2</code> line 5; <code>QD-02</code> leaves the Phase-1 mechanism open. Shown as a gap, not a disabled button.</div>
+  <div class="st note"><div class="sh">Tenant roles deliberately absent</div>Institute Admin, Faculty and Learner do not appear, and their absence is stated so it reads as a boundary rather than an oversight.</div>
+  <div class="st note"><div class="sh">Vendor / reviewer provisioning</div>A second gap: <i>"authorised vendors"</i> names no authoriser. <code>P-08</code>, new from the authority audit.</div>
+</div>
+<div class="callout"><b>Read-only because the mechanism, not the authority, is missing.</b> <code>§6.7.2</code> line 5 confirms <i>"Manage platform configuration and platform role assignment (8.1.1)"</i>. The Detailed FRD then states the position plainly: <i>"Super Admin assigns platform roles under 8.1.1; how a person becomes Faculty or Institute Admin within a tenant in Phase 1 is recorded as an open question."</i> Designing an assignment control would mean choosing that mechanism. <b>Custom roles are separately prohibited</b> — <code>FRD 8.3.1</code> · <code>8.3.2</code> are Phase 3 and <code>§6.7.3</code> forbids them outright.</div>
+<p class="meta"><b>Refuted, not merely absent:</b> a Vendor registry (<code>R-03</code>) and an Academic Reviewer registry (<code>R-04</code>) were both in the pre-override screen inventory. Neither survived verification — <code>FRD 1.4.1</code>'s adjective <i>"Authorized"</i> names no authoriser, and <code>1.4.2</code> is about module validation, not account administration.</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2 id="s10"><span class="sid">SA-10</span>Platform configuration</h2>
+<p class="purpose">A <b>register</b> of what is and is not defined — fifteen areas, each with the actual reason it has no control here. The screen's content <i>is</i> the finding.</p>
+
+<div class="wf">
+  <div class="chrome"><b>SA-10</b> Platform configuration <b>·</b> Super Admin <b>·</b> <b>Route</b> #/platform/configuration <b>·</b> FRD 8.1.1 · §6.7.3 · P-06</div>
+<pre>
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PROTOTYPE NAVIGATION — NOT PRODUCT UI · BATCH 05                          SAMPLE DESIGN DATA │
+│ Index · Overview · Institutions · Releases · Device requests · Configuration  [ Reset demo ] │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [ BITS Pilani WILP ]  ·  XR Simulation Learning Platform  (DR) Devika Raman · Super Admin  v │
+│                                 no institution chip in the global chrome — FRD 1.3.5 · PM-13 │
+├────────────────────┬─────────────────────────────────────────────────────────────────────────┤
+│                    │ SCOPE   Viewing · The platform                                          │
+│ SUPER ADMIN        │         Platform-wide view. Institutional figures are shown             │
+│ Platform-wide      │         on an institution’s own page, never combined here.              │
+│ administration     │                                            §6.7.4 · AC-04               │
+│                    ├─────────────────────────────────────────────────────────────────────────┤
+│ Overview           │ Overview / Platform / Configuration                                     │
+│ Institutions       │                                                                         │
+│ Releases        [2]│ Platform configuration                                                  │
+│ Device requests [2]│ What this role can configure across the platform, and what it cannot.   │
+│ Licensing          │                                                                         │
+│>Platform           │                                                                         │
+│    Platform roles  │                                                                         │
+│   >Configuration   │                                                                         │
+│                    │                                                                         │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+┌── [i] There is nothing to set here yet ──────────────────────────────────────────────────────┐
+│ This role holds platform configuration as an authority, but no Phase-1                       │
+│ requirement names a platform-wide setting for it to control. Rather than show                │
+│ controls that would be invented, this page lists every area a reader might                   │
+│ expect and says exactly where each one actually stands.              FRD 8.1.1               │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── Configuration register ──────── 2 built · 4 another role · 4 later phase · 5 not defined ──┐
+│ AREA                          WHERE IT ACTUALLY STANDS           KIND / SOURCE               │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Module version release        Confirmed, and built. It has its   ✓ Built here                │
+│ [ Open ]                      own screen — Releases.             FRD 2.3.2                   │
+│ Device replacement approval   Confirmed, and built. It has its   ✓ Built here                │
+│ [ Open ]                      own screen — Device requests.      FRD 2.4.2                   │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Platform role assignment      The authority is confirmed; the    ? Not defined               │
+│ [ Open ]                      Phase-1 mechanism is an open       FRD 8.1.1 ·                 │
+│                               question. Shown read-only.         QD-02                       │
+│ XR delivery mechanism         Left open by explicit instruction. ? Not defined               │
+│                               No mechanism is selected, and none  PM-05 · QT-01              │
+│                               is implied anywhere in this design.                            │
+│ Session, password and         No requirement defines any of it.  ? Not defined               │
+│ sign-in policy                Nothing is drawn, because there    —                           │
+│                               is nothing to draw from.                                       │
+│ Audit and activity records    Phase 1 requires review history    ? Not defined               │
+│                               for the content governance chain    GP-4 ·                     │
+│                               only. Everything else is a gap.     FRD §6.7.5                 │
+│ Notifications                 No Phase-1 notification            ? Not defined               │
+│                               requirement exists anywhere.        —                          │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Institutional sign-in         Each institution configures its    + Another role              │
+│                               own. The Institute Admin owns it.   FRD 4.2.2 ·                │
+│                                                                   PM-10                      │
+│ Institution data integration  Configured inside the institution  + Another role              │
+│                               by the Institute Admin, including   FRD 7.1.1 ·                │
+│                               the schedule.                       7.2.1                      │
+│ Content access and stream     The Institute Admin maps its own   + Another role              │
+│ mapping                       streams. How the access record      FRD 6.2.1 ·                │
+│                               itself comes to exist is open.      7.2.3                      │
+│ Assessment rules and grading  Faculty configures assessments,    + Another role              │
+│                               in both market contexts. This role  FRD 5.1.x ·                │
+│                               has no assessment surface at all.   PM-15                      │
+│ ──────────────────────────────────────────────────────────────────────────────────────────── │
+│ Bundles and pricing           Phase 2, and explicitly prohibited o Later phase               │
+│                               to this role in Phase 1.            FRD 6.3.1 ·                │
+│                                                                   6.3.2                      │
+│ Custom roles and permissions  Phase 3, and explicitly prohibited o Later phase               │
+│                               in Phase 1. The seven roles are      FRD 8.3.1 ·               │
+│                               fixed.                              8.3.2                      │
+│ Cross-institution analytics   Phase 2, deferred, and explicitly  o Later phase               │
+│                               prohibited. Phase 1 gives this role  FRD 8.2.2 ·               │
+│                               operational status only.            11.3.x · PM-11             │
+│ Device registration and       Phase 2. Must not appear in a      o Later phase               │
+│ management                    Phase-1 administrative workspace.   FRD 2.5.x ·                │
+│                                                                   2.6.x                      │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── [BOUNDARY] Why this page has no form on it ────────────────────────────────────────────────┐
+│ Every field a settings page would need — a value, a default, a permitted range,              │
+│ an effect — comes from a requirement. Where the requirement does not exist, the              │
+│ field would be invention dressed as specification. The register is the honest                │
+│ version of this screen, and it stays until a requirement gives it something to               │
+│ hold.                                                    FRD 8.1.1 · §6.7.3                  │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="states">
+  <div class="st have"><div class="sh">Built here (2)</div>Module version release and device replacement approval. Both confirmed, both with their own screen, both linked.</div>
+  <div class="st note"><div class="sh">Another role (4)</div>Institutional sign-in, institution data integration, content access and stream mapping, assessment rules — each owned by the Institute Admin or Faculty.</div>
+  <div class="st"><div class="sh">Later phase (4)</div>Bundles and pricing, custom roles and permissions, cross-institution analytics, device registration and management. All Phase 2 or 3 and all explicitly prohibited by <code>§6.7.3</code>.</div>
+  <div class="st warn"><div class="sh">Not defined (5)</div>Platform role assignment, XR delivery mechanism, session/password/sign-in policy, audit and activity records, notifications. No requirement defines any of them.</div>
+  <div class="st bad"><div class="sh">No form, in any state</div>There is no input, toggle, select or save control anywhere on this screen — not one, in any of the four kinds.</div>
+</div>
+<div class="callout"><b>This screen is deliberately not a settings page.</b> <code>FRD 8.1.1</code> confirms the authority in as many words — <i>"full administrative control over platform configuration"</i> — and then no source, anywhere in the v5 set, names a single Phase-1 platform-wide setting for this role to control. A settings page invented to fill that space would be the single most misleading artefact this batch could produce: it would look like a specification, and every control on it would be fiction.</div>
+<p class="meta">Each row is exactly one of four kinds and the register says which: <b>ELSEWHERE</b> (real, and it already has its own screen here) · <b>ANOTHER ROLE</b> (the setting exists, and someone else owns it) · <b>LATER PHASE</b> (the requirement exists and is Phase 2 or 3) · <b>NOT DEFINED</b> (no requirement defines it at all).</p>
+
+<!-- ────────────────────────────────────────── -->
+<h2>The authority spine</h2>
+<p class="purpose">Why this workspace is small, and why every screen in it is either a decision or a look.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Model</b> <b>·</b> FRD 1.3.5 · 2.3.2 · 2.4.2 · PM-13 · PM-16 · PM-17 · PM-18</div>
+<pre>
+                    ╔═══════════════════════════════════════════════╗
+  CENTRAL CONTENT   ║  Vendor → Academic Reviewer → Content Manager ║
+  & GOVERNANCE      ║                              └── PUBLISHES    ║  PM-16/17/18
+  PLANE             ╚═══════════════════════════════════════════════╝
+                                       │
+                                       │  2.3.2 — version release / hold
+                                       ▼          (downstream of publication)
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  SUPER ADMIN — the only role that spans planes    FRD 1.3.5 · PM-13      │
+  │                                                                          │
+  │   releases versions      approves device        sees institutions        │
+  │   and holds them         replacements           one at a time            │
+  │   SA-04 · SA-05          SA-06 · SA-07          SA-01 · SA-02 · SA-03    │
+  │   FRD 2.3.2  WRITE       FRD 2.4.2  WRITE       FRD 1.3.5  READ          │
+  └──────────────────────────────────────────────────────────────────────────┘
+       │                          │                          │
+       ▼                          ▼                          ▼
+  production                personal / B2C            TENANT PLANES
+  environments              context                   Institute Admin · Faculty
+                                                      · Learner
+                                                      (Super Admin does NOT act here)
+
+  TWO WRITE ACTIONS. ONE BOUNDED READ. Everything else the role is said to own is
+  either PM-overridden, Phase 2/3, assigned to another role, or an open question.
+</pre>
+</div>
+
+<h2>The vocabulary firewall</h2>
+<p class="purpose">The single mechanism that keeps <code>FRD 2.3.2</code> version release from drifting back into <code>FRD 1.4.4</code> publication.</p>
+
+<div class="wf">
+  <div class="chrome"><b>Constraint</b> <b>·</b> O-01 · D-01 · PM-16 · PM-17 · PM-18 · QP-26</div>
+<pre>
+  BATCH 05 SAYS                        BATCH 05 NEVER SAYS, FOR SUPER ADMIN
+  ──────────────────────────────────   ──────────────────────────────────────
+  Release version   ← the control      Publish
+  Hold version      ← the control      Publishing · Published
+  Held · Released                      Ready to publish
+  Awaiting release decision            Publication queue · Publication gate
+  Version                              Approve · Return · Request changes
+
+  THE TWO CONTROLS ARE NAMED FOR WHAT THEY ACT ON — the VERSION. Not
+  "release to production", not "hold release". An action named for a
+  destination reads as a second shipping gate, and the shipping gate is
+  PUBLICATION — which already happened, and is the Content Manager's.
+  "Production" survives only where it explains the CONSEQUENCE, in
+  FRD 2.3.2's own words: "released to production environments".
+
+  WHY IT MATTERS: O-01 (Super Admin publishing) is restated in AT LEAST TWENTY
+  distinct places across the source set — FRD 1.4.4, §6.7 Purpose, §6.7.1 line 1,
+  §6.7.2 line 1, §6.7.4 criterion 1, FRD 8.1.1, 8.1.2, Core §2.1 and Tables 10–12,
+  Detailed §5.6, Tables 30 and 77, FLOW 1 step 4, AC-09, AC-12, §15.3, Appendix A
+  rows 1.4.4 / 1.4.5 / 8.1.1 / 8.1.2, and Review-006 matrix cell D4.
+
+  Any deliverable that inherits ANY ONE of them silently reintroduces Super Admin
+  publishing. Firewalled vocabulary is what stops that happening by wording.
+</pre>
+</div>
+
+<h2>Observe, never operate</h2>
+<p class="purpose">How platform-wide responsibility is exercised across institutions without duplicating the Institute Admin, Content Manager or Faculty workspaces.</p>
+<table>
+  <thead><tr><th>Institute Admin (Batch 03) <b>operates</b></th><th>Super Admin (Batch 05) <b>observes</b></th></tr></thead>
+  <tbody>
+    <tr><td>Configures institutional sign-in (<code>INA-10</code>)</td><td>Sees <b>that</b> it is configured — not how, and cannot change it (SA-03)</td></tr>
+    <tr><td>Configures institution data (<code>INA-11</code>)</td><td>Sees <b>that</b> the last run succeeded or failed — cannot configure or run it (SA-03)</td></tr>
+    <tr><td>Maps streams to licensed packages (<code>INA-08</code>)</td><td>Sees <b>that</b> a record exists and which streams it covers — cannot map, price or transact it, and is shown no cap (SA-08)</td></tr>
+    <tr><td>Manages people (<code>INA-02</code>, <code>INA-03</code>)</td><td>Sees <b>no</b> institutional person at all</td></tr>
+    <tr><td>Whatever reporting it has on its own use of that content</td><td>Sees <b>nothing</b> — <code>FRD 8.2.2</code> is Phase 2, and whether a seat or learner cap exists at all is <code>OQ-03</code>, <b>OPEN</b></td></tr>
+  </tbody>
+</table>
+<table>
+  <thead><tr><th>Content Manager (Batch 01) <b>owns</b></th><th>Super Admin (Batch 05) <b>does not touch</b></th></tr></thead>
+  <tbody>
+    <tr><td>Content readiness review · <b>Publish</b> (<code>CM-02</code>)</td><td>No queue, no publish, no return, no approve, no metadata</td></tr>
+    <tr><td>Published content (<code>CM-03</code>)</td><td>No second copy of it — SA-04 shows <b>versions awaiting a decision</b>, not a content catalogue</td></tr>
+  </tbody>
+</table>
+<p class="meta"><b>The duplication test applied throughout:</b> if a screen would answer a question the tenant role already answers better inside its own institution, Super Admin does not get that screen.</p>
+
+<h2>Requirement map</h2>
+<table>
+  <thead><tr><th>Screen</th><th>Requirement</th><th>Standing</th></tr></thead>
+  <tbody>
+    <tr><td>SA-01 Platform overview</td><td>FRD 8.1.1 bounded by <code>PM-11</code> · 1.3.4 · §6.7.3 · AC-04</td><td>Confirmed (bounded) — operational status only, <b>no analytics</b></td></tr>
+    <tr><td>SA-02 Institutions</td><td>FRD 1.3.5 · <code>PM-13</code> · AC-04</td><td>Confirmed for <b>view</b>; <i>manage</i> is <code>D-02</code>, <b>OPEN</b> — designed read-only</td></tr>
+    <tr><td>SA-03 Institution detail</td><td>FRD 1.3.5 · §6.7.4 — <i>"tenant-scoped data remains presented within its institutional context rather than aggregated across institutions"</i></td><td>Confirmed; hard constraint, enforced structurally</td></tr>
+    <tr><td>SA-04 Module releases</td><td>FRD 2.3.2 · FLOW 10 step 1</td><td>Confirmed <b>⚠ subject to <code>D-01</code></b> — whether <code>PM-18</code> also removes 2.3.2 is decision-critical and open at <code>§6.6.5</code></td></tr>
+    <tr><td>SA-05 Release decision</td><td>FRD 2.3.2 — <i>"and may hold a release"</i> · 2.3.1 · 2.3.3</td><td>Confirmed; <b>both outcomes required</b>. No decision record — <code>GP-4</code></td></tr>
+    <tr><td>SA-06 Device replacement requests</td><td>FRD 2.4.2 · 2.4.3 · FLOW 8</td><td>Confirmed; <code>PRODUCT-PENDING</code> in v5. <b>B2C only</b></td></tr>
+    <tr><td>SA-07 Device request detail</td><td>FRD 2.4.2 · FLOW 8 steps 3–4 · AC-28</td><td>Confirmed. <b>Approve is the only outcome</b> — no rejection path exists to design (<code>E-02</code>)</td></tr>
+    <tr><td>SA-08 Licensing</td><td>FRD 8.1.1 · 6.2.1 · 6.2.2 · 9.2.1 · FLOW 2 step 1</td><td><b>Visibility SOURCE-SUPPORTED · transaction OPEN</b> (<code>QP-04</code>, <code>OQ-01</code>–<code>OQ-03</code>, <code>§6.7.5</code>)</td></tr>
+    <tr><td>SA-09 Platform roles</td><td>FRD 8.1.1 · §6.7.2 line 5</td><td><b>Authority confirmed · mechanism OPEN</b> (<code>QD-02</code>, HIGH) — read-only</td></tr>
+    <tr><td>SA-10 Platform configuration</td><td>FRD 8.1.1 · §6.7.3</td><td><b>Authority confirmed · content OPEN</b> (<code>P-06</code>) — no source names a single Phase-1 platform-wide setting. A <b>register</b>, not a form</td></tr>
+    <tr><td colspan="3" style="color:#B3261E"><b>Withdrawn, and not revived under any name:</b> <code>SA-02</code> <i>Ready to publish</i> and <code>SA-03</code> <i>Publish module</i> from the pre-25-August screen inventory. <code>SA-04</code> <i>Published modules</i> was reassigned to the Content Manager as <code>CM-03</code> in Batch 01 and is <b>not</b> rebuilt here. <code>SA-07</code> <i>Vendors</i> and <code>SA-08</code> <i>Academic reviewers</i> are <b>refuted</b> (<code>R-03</code>, <code>R-04</code>). The Batch-05 ids above are a fresh sequence.</td></tr>
+  </tbody>
+</table>
+
+<h2>What is absent, and why that is the point</h2>
+<table>
+  <thead><tr><th>Not built</th><th>Reason</th><th>Register</th></tr></thead>
+  <tbody>
+    <tr><td>Publication queue · publish · approve content · return to vendor · request changes</td><td>The Content Manager publishes. Super Admin is not part of the confirmed publication flow</td><td><code>PM-16</code> · <code>PM-17</code> · <code>PM-18</code> · <code>QP-26</code> OPEN</td></tr>
+    <tr><td>Decline a device replacement</td><td>The requirement describes approval and nothing else. Shown as a <b>marked gap</b>, never a disabled control</td><td><code>FRD 2.4.2</code> · <code>E-02</code> PENDING</td></tr>
+    <tr><td>Create institution · assign first Institute Admin · suspend · activate</td><td><code>FRD 4.2.1</code>’s grammatical subject is the institution — this is self-registration. The first admin’s origin is stated nowhere</td><td><code>R-01</code> · <code>R-02</code> · <code>QD-02</code> OPEN</td></tr>
+    <tr><td>Assign · revoke · invite · create · deactivate a role</td><td>The authority is confirmed; the Phase-1 provisioning mechanism is not</td><td><code>QD-02</code> OPEN, HIGH</td></tr>
+    <tr><td>Any settings form on SA-10</td><td>No source names a single Phase-1 platform-wide setting. A form would be invention dressed as specification</td><td><code>P-06</code> · <code>§6.7.3</code></td></tr>
+    <tr><td>Cross-institution totals · roll-ups · comparisons · league tables · analytics</td><td>Prohibited outright, and deferred by PM decision. Phase 1 gives this role operational status only</td><td><code>FRD 1.3.4</code> · <code>AC-04</code> · <code>PM-11</code> · <code>§6.7.3</code></td></tr>
+    <tr><td>Price · seat purchase · invoice · subscription · renewal · refund</td><td>Institutional billing is Phase 2 and the transaction model is open in every direction</td><td><code>FRD 9.3.1</code> · <code>9.3.2</code> · <code>QP-04</code> · <code>QP-18</code></td></tr>
+    <tr><td>Audit log · activity trail · who-decided record</td><td>Phase 1 requires review history for the content governance chain only. Everything else is an acknowledged gap, stated on the surfaces where a reviewer would look for it</td><td><code>GP-4</code> · <code>§6.7.5</code> OPEN</td></tr>
+    <tr><td>Any assessment surface, including read-only</td><td>Zero Super Admin occurrences across all eleven assessment requirements. <code>PM-15</code> omits the role entirely</td><td><code>R-07</code> · <code>§6.7.5</code></td></tr>
+    <tr><td>Bundle creation · pricing configuration · custom roles · device registration or remote management</td><td>Phase 2 or Phase 3, and each explicitly prohibited to this role in Phase 1</td><td><code>X-01</code>–<code>X-03</code> · <code>X-07</code> · <code>§6.7.3</code></td></tr>
+    <tr><td>Vendor registry · Academic Reviewer registry · impersonation · tenant or user deletion</td><td>Refuted against the requirement statement <b>and</b> the Roles column. The last four have no source of any kind</td><td><code>R-03</code> · <code>R-04</code> · <code>R-12</code></td></tr>
+    <tr><td>Any named XR delivery mechanism, transport, endpoint or package format</td><td>Left open by explicit PM instruction — <code>PM-05</code> declined to select one</td><td><code>QT-01</code> OPEN, HIGH</td></tr>
+  </tbody>
+</table>
+<p class="meta"><b>Everything on these ten screens is sample design data.</b> No commercial model, licence transaction, seat rule, price, payment provider, identity provider, XR delivery mechanism or package format is asserted anywhere in this batch — every one of those is open or pending in the requirement set.</p>
+
+</div>
+</body>
+</html>
