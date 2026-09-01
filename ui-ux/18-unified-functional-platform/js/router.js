@@ -29,7 +29,22 @@ XRSLP.router = (function () {
     { pattern: ['platform', 'requests', ':id'],     area: 'platform', screen: 'platformRequestDetail' },
     { pattern: ['platform', 'institutions'],        area: 'platform', screen: 'platformInstitutions' },
     { pattern: ['tenant'],                          area: 'tenant',   screen: 'tenantHome' },
-    { pattern: ['tenant', ':tenantId', 'content-access'], area: 'tenant', screen: 'tenantContentAccess' }
+    /* Tenant Admin workspace. Every destination below is implemented;
+       the side navigation contains no link that leads nowhere. */
+    { pattern: ['tenant', ':tenantId', 'overview'],           area: 'tenant', screen: 'tenantOverview' },
+    { pattern: ['tenant', ':tenantId', 'content-access'],     area: 'tenant', screen: 'tenantContentAccess' },
+    { pattern: ['tenant', ':tenantId', 'people'],             area: 'tenant', screen: 'tenantPeople' },
+    { pattern: ['tenant', ':tenantId', 'people', 'add-faculty'], area: 'tenant', screen: 'tenantAddFaculty' },
+    { pattern: ['tenant', ':tenantId', 'people', 'add-student'], area: 'tenant', screen: 'tenantAddStudent' },
+    { pattern: ['tenant', ':tenantId', 'people', 'import'],   area: 'tenant', screen: 'tenantImport' },
+    { pattern: ['tenant', ':tenantId', 'person', ':personId'], area: 'tenant', screen: 'tenantPerson' },
+    { pattern: ['tenant', ':tenantId', 'groups'],             area: 'tenant', screen: 'tenantGroups' },
+    { pattern: ['tenant', ':tenantId', 'groups', 'new'],      area: 'tenant', screen: 'tenantNewGroup' },
+    { pattern: ['tenant', ':tenantId', 'group', ':groupId'],  area: 'tenant', screen: 'tenantGroup' },
+    { pattern: ['tenant', ':tenantId', 'mappings'],           area: 'tenant', screen: 'tenantMappings' },
+    { pattern: ['tenant', ':tenantId', 'assignments'],        area: 'tenant', screen: 'tenantAssignments' },
+    { pattern: ['tenant', ':tenantId', 'assignments', 'new'], area: 'tenant', screen: 'tenantNewAssignment' },
+    { pattern: ['tenant', ':tenantId', 'faculty-mapping'],    area: 'tenant', screen: 'tenantFacultyMapping' }
   ];
 
   function parseHash() {

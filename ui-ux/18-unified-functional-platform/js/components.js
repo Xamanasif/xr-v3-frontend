@@ -162,11 +162,15 @@ XRSLP.ui = (function () {
     var scrim = document.getElementById('dlg-scrim');
 
     function close(confirmed) {
+      /* The dialog body is detached before onConfirm runs, so a dialog
+         that contains inputs can still be read from: the detached nodes
+         keep their current values. onConfirm receives that element. */
+      var body = scrim.querySelector('.dbody');
       root.innerHTML = '';
       document.removeEventListener('keydown', onKey, true);
       if (lastFocus && document.contains(lastFocus)) { lastFocus.focus(); }
       else { focusMain(true); }
-      if (confirmed && opts.onConfirm) { opts.onConfirm(); }
+      if (confirmed && opts.onConfirm) { opts.onConfirm(body); }
     }
 
     function focusables() {

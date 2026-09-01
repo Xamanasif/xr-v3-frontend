@@ -1,0 +1,11 @@
+Programme,Course Name,Course ID/Code,Student ID,Student Name,Email,Semester,Organisation,Plan Terms
+Civil Engineering,Soil Mechanics,CE-305,QA/2026/001,Deepa Menon,deepa.menon@qa.example,5,,BITS Community
+Civil Engineering,Soil Mechanics,CE-305,QA/2026/002,,blank.name@qa.example,,,
+Civil Engineering,Surveying,CE-212,QA/2026/003,Imran Qureshi,not-an-email,,,
+Civil Engineering,Soil Mechanics,CE-305,QA/2026/001,Duplicate Id,dup.id@qa.example,,,
+Mechanical Engineering,Fluid Mechanics,ME-233,QA/2026/005,"Nair, Priya",priya.nair@qa.example,,,
+Civil Engineering,Soil Mechanics,CE-305,SEI/CE/2023/0142,Existing Student Id,new.address@qa.example,,,
+Civil Engineering,Soil Mechanics,CE-305,QA/2026/007,Existing Email,rahul.verma@sample-institute.example,,,
+Astro Engineering,Soil Mechanics,CE-305,QA/2026/008,"Says ""hello""",unknown.programme@qa.example,,,
+Civil Engineering,Rocket Science,CE-999,QA/2026/009,Unknown Course,unknown.course@qa.example,,,
+Mechanical Engineering,Strength of Materials,ME-208,QA/2026/010,Blank Optionals,blank.optionals@qa.example,,,

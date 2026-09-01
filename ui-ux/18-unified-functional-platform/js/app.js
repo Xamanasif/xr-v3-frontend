@@ -53,7 +53,10 @@
         ui.openDialog({
           title: 'Reset prototype data?',
           bodyHTML: '<p>This restores the deterministic seed data: the selection, all requests, ' +
-            'created tenants and tenant access records are cleared, and the requester scenario returns to A.</p>' +
+            'created tenants and tenant access records are cleared, tenant people, groups, mappings and ' +
+            'assignments return to the seed set, and the requester scenario returns to A.</p>' +
+            '<p style="margin-top:8px">Reset is the <strong>only</strong> action that discards existing data. ' +
+            'Loading a state saved by an earlier build upgrades it in place instead.</p>' +
             '<div class="consequence">' + ui.ic('info') +
             '<span>Prototype-only action. Storage key: <code>' + esc(state.STORAGE_KEY) + '</code></span></div>',
           okLabel: 'Reset data',
@@ -145,18 +148,38 @@
   }
 
   function tenantShell(contentHTML, tenant, activeKey) {
+    var nav = [];
+    if (tenant) {
+      var h = XRSLP.tenantUI.href;
+      var people = state.peopleForTenant(tenant.id);
+      var students = people.filter(function (p) { return p.role === 'student'; }).length;
+      var accessCount = state.accessForTenant(tenant.id).length;
+      var groupCount = state.groupsForTenant(tenant.id).length;
+      var asgCount = state.activeAssignments(tenant.id).length;
+      /* Every entry below routes to a screen that is fully implemented.
+         Faculty mapping lives inside Assignments rather than adding a
+         seventh destination. */
+      nav = [
+        { href: h.overview(tenant.id), icon: 'home', label: 'Overview', active: activeKey === 'overview', count: 0 },
+        { href: h.access(tenant.id), icon: 'layers', label: 'Content access', active: activeKey === 'content-access',
+          count: accessCount, countLabel: 'access ' + XRSLP.util.plural(accessCount, 'record') },
+        { href: h.people(tenant.id), icon: 'users', label: 'People', active: activeKey === 'people',
+          count: people.length, countLabel: XRSLP.util.plural(people.length, 'person', 'people') +
+            ' (' + students + ' ' + XRSLP.util.plural(students, 'student') + ')' },
+        { href: h.groups(tenant.id), icon: 'building', label: 'Groups', active: activeKey === 'groups',
+          count: groupCount, countLabel: XRSLP.util.plural(groupCount, 'student group') },
+        { href: h.mappings(tenant.id), icon: 'doc', label: 'Academic mappings', active: activeKey === 'mappings', count: 0 },
+        { href: h.assignments(tenant.id), icon: 'flask', label: 'Assignments', active: activeKey === 'assignments',
+          count: asgCount, countLabel: 'active ' + XRSLP.util.plural(asgCount, 'assignment') }
+      ];
+    }
     return workspaceShell({
       homeHref: '#/tenant',
       chip: tenant ? tenant.name : null,
       navLabel: 'Tenant workspace navigation',
       wsKind: 'Institute Admin / Tenant Admin',
       wsName: tenant ? tenant.name : 'Institution workspace',
-      nav: tenant ? [
-        { href: '#/tenant/' + encodeURIComponent(tenant.id) + '/content-access', icon: 'layers',
-          label: 'Content access', active: activeKey === 'content-access',
-          count: state.accessForTenant(tenant.id).length,
-          countLabel: 'active access ' + XRSLP.util.plural(state.accessForTenant(tenant.id).length, 'record') }
-      ] : [],
+      nav: nav,
       contentHTML: contentHTML
     });
   }

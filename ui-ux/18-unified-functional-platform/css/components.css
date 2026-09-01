@@ -56,10 +56,15 @@
 
 /* ---------- tables ---------- */
 .tablecard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1)}
-/* position:relative keeps absolutely-positioned sr-only content (table
+/* .tscroll is the ONE horizontal-scroll container for any wide table,
+   wherever it sits — a .tablecard, a .card, or a rail column. Scoping it
+   to .tablecard (as this rule originally was) left card-hosted tables
+   with no overflow rule, which pushed their grid track past the viewport.
+   position:relative keeps absolutely-positioned sr-only content (table
    captions, header spans) inside the scroll container instead of
    leaking page-level horizontal overflow. */
-.tablecard .tscroll{overflow-x:auto; position:relative; border-radius:0 0 var(--r-lg) var(--r-lg)}
+.tscroll{overflow-x:auto; position:relative; max-width:100%}
+.tablecard .tscroll{border-radius:0 0 var(--r-lg) var(--r-lg)}
 .listbar{display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--border-subtle); flex-wrap:wrap}
 .listbar label{font-size:12.5px; font-weight:600; color:var(--text-2); display:inline-flex; align-items:center; gap:8px}
 .listbar select{height:36px; border:1px solid var(--control-border); border-radius:var(--r-sm); font:inherit; font-size:13.5px; color:var(--text); background:var(--surface); padding:0 10px; max-width:100%}

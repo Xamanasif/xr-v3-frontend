@@ -193,3 +193,151 @@
 .covers .cv-ctx{font-size:12px; color:var(--text-3)}
 .covers .cv-t{font-size:14px; font-weight:640; color:var(--text)}
 .covers .cv-tech{display:flex; gap:6px; flex-wrap:wrap; flex:0 0 auto; padding-top:4px}
+
+/* ============================================================
+   IMPLEMENTATION 02 — Tenant Admin operations
+   People · Groups · Academic mappings · Assignments · CSV import
+   Shared additions only; nothing here is a one-off visual system.
+   ============================================================ */
+
+/* ---------- generic helpers used across the tenant screens ---------- */
+.muted{color:var(--text-3)}
+.mono{font-family:var(--mono); font-size:12.5px; color:var(--text-2)}
+.subh{font-size:13.5px; font-weight:640; margin:0 0 6px}
+.cardlede{font-size:13px; color:var(--text-2); line-height:1.6; margin-bottom:12px}
+.cardfoot{font-size:12.5px; color:var(--text-3); line-height:1.6; margin-top:12px; padding-top:11px; border-top:1px solid var(--border-subtle)}
+.formnote{font-size:12.5px; color:var(--text-3); line-height:1.5; max-width:56ch}
+.formact{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:16px}
+.prov{display:inline-block; font-size:12px; color:var(--text-3); white-space:nowrap}
+
+/* Form pages: main column + a supporting note column. */
+.formwrap{display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,340px); gap:24px; align-items:start}
+.formwrap .formaside{display:flex; flex-direction:column; gap:14px}
+.formwrap form{display:flex; flex-direction:column; gap:16px}
+.formwrap form .card .cbody .field:last-child{margin-bottom:0}
+
+/* ---------- segmented view switch (People roles · Assignment tabs) ---------- */
+.seg{display:flex; gap:4px; padding:12px 20px 0; flex-wrap:wrap}
+.tablecard>.seg{padding-bottom:12px; border-bottom:1px solid var(--border-subtle)}
+.seg .segi{display:inline-flex; align-items:center; gap:7px; padding:7px 13px; border-radius:var(--r-pill);
+  border:1px solid var(--border); background:var(--surface); color:var(--text-2);
+  font-size:13.5px; font-weight:600; text-decoration:none}
+.seg .segi:hover{background:var(--raised); color:var(--text)}
+.seg .segi[aria-current]{background:var(--action-subtle); border-color:var(--action); color:var(--action)}
+.seg .segn{font-size:11.5px; font-weight:650; background:var(--sunken); color:var(--text-2);
+  border-radius:var(--r-pill); padding:0 7px; min-width:20px; text-align:center}
+.seg .segi[aria-current] .segn{background:var(--indigo-100); color:var(--action)}
+nav.seg{padding:0; margin-bottom:18px}
+
+/* ---------- overview statistics ---------- */
+.statgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px}
+.stat{border:1px solid var(--border); border-radius:var(--r-md); background:var(--n-25); padding:13px 15px; min-width:0}
+.stat .s-k{font-size:11.5px; font-weight:650; letter-spacing:.05em; text-transform:uppercase; color:var(--text-3)}
+.stat .s-v{font-size:26px; font-weight:650; letter-spacing:-.02em; color:var(--text); line-height:1.25; margin-top:4px}
+.stat .s-n{font-size:12px; color:var(--text-3); line-height:1.45}
+.stat.warn{background:var(--warning-50); border-color:var(--warning-200)}
+.stat.warn .s-v{color:var(--warning-700)}
+
+/* ---------- attention list ---------- */
+.attn{display:flex; flex-direction:column}
+.attn .at-row{display:flex; gap:12px; align-items:flex-start; padding:14px 0; border-top:1px solid var(--border-subtle); flex-wrap:wrap}
+.attn .at-row:first-child{border-top:0; padding-top:0}
+.attn .at-ic{width:32px; height:32px; border-radius:var(--r-sm); flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  background:var(--info-50); border:1px solid var(--info-200); color:var(--info-700)}
+.attn .at-row.warn .at-ic{background:var(--warning-50); border-color:var(--warning-200); color:var(--warning-700)}
+.attn .at-body{flex:1 1 260px; min-width:0}
+.attn .at-t{font-size:14px; font-weight:640; color:var(--text)}
+.attn .at-body p{font-size:12.5px; color:var(--text-2); line-height:1.55; margin-top:2px}
+.attn .btn{flex:0 0 auto}
+
+/* ---------- licence allocation meter ----------
+   Approved · Assigned · Remaining are all text; the bar is decoration
+   only, so no state is carried by colour alone. */
+.alloc{border:1px solid var(--border); border-radius:var(--r-md); background:var(--n-25); padding:13px 15px}
+.alloc .al-nums{display:flex; gap:8px 28px; flex-wrap:wrap; margin-bottom:10px}
+.alloc .al-i{display:flex; flex-direction:column; gap:1px; min-width:78px}
+.alloc .al-k{font-size:11px; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:var(--text-3)}
+.alloc .al-v{font-size:20px; font-weight:650; color:var(--text); line-height:1.2}
+.alloc .al-bar{height:7px; border-radius:var(--r-pill); background:var(--sunken); overflow:hidden}
+.alloc .al-bar>span{display:block; height:100%; background:var(--action); border-radius:var(--r-pill)}
+.alloc.full .al-bar>span{background:var(--warning-700)}
+.alloc.over .al-bar>span{background:var(--danger-700)}
+.alloc.full{border-color:var(--warning-200); background:var(--warning-50)}
+.alloc.over{border-color:var(--danger-200); background:var(--danger-50)}
+.alloc .al-note{font-size:12px; color:var(--text-2); line-height:1.55; margin-top:9px}
+.allocrow{display:flex; gap:16px; align-items:center; flex-wrap:wrap;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1); padding:14px 18px}
+.allocrow .ar-id{flex:0 0 auto; min-width:150px}
+.allocrow .ar-id .ar-sub{display:block; font-size:12px; color:var(--text-3); margin-top:2px}
+.allocrow .alloc{flex:1 1 320px; border:0; background:transparent; padding:0}
+
+/* ---------- content access: entitled-student count per experiment ---------- */
+.covers .cv-ent{font-size:12px; color:var(--text-3); margin-top:2px}
+.accessrec .ar-act{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; padding-top:14px; border-top:1px solid var(--border-subtle)}
+
+/* ---------- pick lists (group members · assignment targets) ---------- */
+.picklist{border:1px solid var(--border); border-radius:var(--r-md); padding:0; margin:0; max-height:340px; overflow:auto}
+.picklist .pick{display:flex; gap:11px; align-items:flex-start; padding:11px 14px; border-top:1px solid var(--border-subtle); cursor:pointer}
+.picklist .pick:first-child{border-top:0}
+.picklist .pick:hover{background:var(--n-25)}
+.picklist input{width:18px; height:18px; margin-top:2px; accent-color:var(--action); flex:0 0 auto}
+.picklist .pk-b{min-width:0}
+.picklist .pk-t{display:block; font-size:14px; font-weight:600; color:var(--text)}
+.picklist .pk-s{display:block; font-size:12.5px; color:var(--text-3); line-height:1.45; margin-top:1px}
+
+/* ---------- assignment builder ---------- */
+.techinherit{border:1px solid var(--sim-border); background:var(--sim-surface); border-radius:var(--r-md); padding:12px 14px; margin-top:-4px}
+.techinherit .ti-k{font-size:11px; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:var(--text-3); margin-bottom:6px}
+.techinherit .ti-v{display:flex; gap:6px; flex-wrap:wrap}
+.techinherit .ti-n{font-size:12px; color:var(--text-2); line-height:1.55; margin-top:8px}
+.radiorow .rr-t{display:block; font-weight:600; color:var(--text)}
+.radiorow .rr-n{display:block; font-size:12.5px; color:var(--text-3); line-height:1.45; margin-top:1px}
+.srcchip{display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--text-2);
+  background:var(--raised); border:1px solid var(--border); border-radius:var(--r-pill); padding:2px 9px; white-space:nowrap; margin:1px 0}
+.chiplist{display:flex; gap:8px; flex-wrap:wrap}
+.chiplist .chip{display:inline-flex; align-items:center; height:26px; padding:0 12px; border-radius:var(--r-pill);
+  background:var(--action-subtle); border:1px solid var(--action-border); color:var(--action);
+  font-size:13px; font-weight:600; text-decoration:none}
+.chiplist .chip:hover{background:var(--indigo-100)}
+
+/* ---------- CSV import ---------- */
+.field input[type=file]{width:100%; border:1px dashed var(--control-border); border-radius:var(--r-sm);
+  background:var(--n-25); font:inherit; font-size:13.5px; color:var(--text); padding:12px; min-height:48px}
+.field input[type=file]:focus-visible{outline:2px solid var(--focus); outline-offset:1px}
+.field input[type=file]::file-selector-button{font:inherit; font-size:13px; font-weight:640; margin-right:12px;
+  border:1px solid var(--control-border); background:var(--surface); color:var(--text);
+  border-radius:var(--r-sm); padding:7px 13px; cursor:pointer}
+.field input[type=file]::file-selector-button:hover{background:var(--raised)}
+.filepick{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--text-2); margin-top:9px}
+table.dt tr.row-bad td{background:var(--danger-50)}
+table.dt tr.row-off td{color:var(--text-3)}
+table.dt.sm td{padding:10px 20px; font-size:13.5px}
+
+/* ---------- academic mappings ---------- */
+.maptable td{vertical-align:top}
+.cellinput{width:100%; max-width:220px; border:1px solid var(--control-border); border-radius:var(--r-sm);
+  background:var(--surface); color:var(--text); font:inherit; font-size:13.5px; padding:8px 10px; min-height:40px}
+.cellinput.sm{max-width:130px}
+.cellinput:focus-visible{outline:2px solid var(--focus); outline-offset:1px}
+.listbar label.chk{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:500; color:var(--text-2)}
+.listbar label.chk input{width:17px; height:17px; accent-color:var(--action)}
+.field textarea{resize:vertical}
+
+/* Records the institution holds that cannot be assigned from — always
+   named with a reason, so no screen contradicts another in silence. */
+.blocklist{margin:0 auto 8px; padding:0; max-width:520px; list-style:none;
+  font-size:13px; color:var(--text-2); line-height:1.6; text-align:left}
+.blocklist li{padding:8px 12px; border:1px solid var(--warning-200); background:var(--warning-50);
+  border-radius:var(--r-sm); margin-bottom:6px}
+.blocklist .mono{color:var(--text)}
+
+/* Present-tense capacity facts shown on a BLOCKED assignment attempt.
+   A blocked transaction changes nothing, so these are current values,
+   never a projection. */
+.caplist{list-style:none; margin:0 0 10px; padding:0; display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:4px 18px}
+.caplist li{display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+  padding:5px 0; border-bottom:1px solid var(--danger-200); font-size:13px}
+.caplist span{color:var(--n-800)}
+.caplist strong{font-weight:650; color:var(--n-900); white-space:nowrap}
+.alert .capsafe{margin-top:6px; font-weight:640}

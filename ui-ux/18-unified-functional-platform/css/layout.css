@@ -98,8 +98,14 @@ a.brandlink{text-decoration:none; color:inherit; border-radius:var(--r-sm)}
 .plede{font-size:14.5px; color:var(--text-2); line-height:1.65; max-width:72ch; margin:-12px 0 22px}
 
 .grid-rail{display:grid; grid-template-columns:minmax(0,1fr) minmax(300px,360px); gap:24px; align-items:start}
-.stack{display:flex; flex-direction:column; gap:16px}
-.stack-sm{display:flex; flex-direction:column; gap:10px}
+/* A grid/flex item's automatic minimum size is its CONTENT, so a wide
+   table inside a rail column stretches the column past the viewport even
+   though the table itself scrolls. min-width:0 lets the column shrink and
+   hands the overflow back to the table's own .tscroll container. */
+.grid-rail>*{min-width:0}
+.stack{display:flex; flex-direction:column; gap:16px; min-width:0}
+.stack>*{min-width:0}
+.stack-sm{display:flex; flex-direction:column; gap:10px; min-width:0}
 
 /* Anchored scrolling below the sticky header (WCAG 2.4.11 upstream rule). */
 html{scroll-padding-top:calc(var(--topbar-h) + 12px)}

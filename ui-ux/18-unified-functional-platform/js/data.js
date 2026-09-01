@@ -207,6 +207,70 @@ XRSLP.data = (function () {
     { id: 'yearly', label: 'Yearly', months: 12 }
   ];
 
+  /* ------------------------------------------------------------
+     PLAN TERMS / ACCESS CONTEXT — sample values only (STK31-26).
+
+     `Plan Terms` was requested "if possible" and its mandatory status
+     is an unresolved implementation detail (ND-03), so this list is a
+     convenience for data entry, never a validation gate: any value is
+     accepted, a blank value is valid, and an unrecognised value is an
+     attention row rather than an import failure. It NEVER overrides the
+     tenant's actual approved access record (which is authoritative).
+     ------------------------------------------------------------ */
+  var PLAN_TERMS = ['Subscription', 'BITS Community'];
+
+  /* ------------------------------------------------------------
+     SEEDED TENANT PEOPLE — PROTOTYPE SAMPLE DATA ONLY.
+
+     Sample people for the seeded internal tenant so the People,
+     Groups and Assignment surfaces are explorable from a fresh reset.
+     Names and identifiers reuse the coherent sample world established
+     by the historical batches; no real person is represented.
+
+     ⚠ Seeding people deliberately does NOT seed any content access
+     record and NOT a single assignment: a fresh reset still has zero
+     tenant access and zero student entitlement, which is what keeps
+     PUBLISHED ≠ TENANT ACCESS ≠ STUDENT ENTITLEMENT visible.
+
+     `source` is the provenance line required by ND-04 — one of
+     `seed` (prototype), `manual`, `csv`. There is no ERP route in this
+     slice; the enum is left open for it.
+     ------------------------------------------------------------ */
+  var SEED_TENANT_ID = 'tenant-sample-engineering';
+
+  var SEED_PEOPLE = [
+    { role: 'faculty', name: 'Dr. Arjun Mehta',  email: 'arjun.mehta@sample-institute.example',   facultyId: 'SEI/FAC/0031' },
+    { role: 'faculty', name: 'Dr. Sneha Iyer',   email: 'sneha.iyer@sample-institute.example',    facultyId: 'SEI/FAC/0044' },
+
+    { role: 'student', name: 'Rahul Verma',      email: 'rahul.verma@sample-institute.example',   studentId: 'SEI/CE/2023/0142',
+      groupingId: 'civil-engineering',      courseId: 'soil-mechanics',        localCourseCode: 'CE-305', semester: '5',  organisation: '', planTerms: 'BITS Community' },
+    { role: 'student', name: 'Ananya Krishnan',  email: 'ananya.k@sample-institute.example',      studentId: 'SEI/CE/2023/0158',
+      groupingId: 'civil-engineering',      courseId: 'soil-mechanics',        localCourseCode: 'CE-305', semester: '5',  organisation: '', planTerms: 'BITS Community' },
+    { role: 'student', name: 'Meera Sundaram',   email: 'meera.sundaram@sample-institute.example', studentId: 'SEI/CE/2023/0163',
+      groupingId: 'civil-engineering',      courseId: 'surveying',             localCourseCode: 'CE-212', semester: '',   organisation: '', planTerms: '' },
+    { role: 'student', name: 'Rohit Pillai',     email: 'rohit.pillai@sample-institute.example',  studentId: 'SEI/CE/2023/0177',
+      groupingId: 'civil-engineering',      courseId: 'structural-analysis',   localCourseCode: 'CE-341', semester: '6',  organisation: '', planTerms: 'BITS Community' },
+    { role: 'student', name: 'Karthik Desai',    email: 'karthik.desai@sample-institute.example', studentId: 'SEI/ME/2023/0091',
+      groupingId: 'mechanical-engineering', courseId: 'strength-of-materials', localCourseCode: 'ME-208', semester: '',   organisation: '', planTerms: '' },
+    { role: 'student', name: 'Tanya Varghese',   email: 'tanya.varghese@sample-institute.example', studentId: 'SEI/ME/2023/0112',
+      groupingId: 'mechanical-engineering', courseId: 'fluid-mechanics',       localCourseCode: 'ME-233', semester: '4',  organisation: '', planTerms: '' }
+  ];
+
+  /* Groups are an operational assignment convenience — no academic
+     semantics are invented for them (STK31-25). Membership alone
+     grants nothing. */
+  var SEED_GROUPS = [
+    { key: 'geo-a',   name: 'Geotechnics Lab Batch A', description: 'Soil mechanics laboratory batch A.', members: ['SEI/CE/2023/0142', 'SEI/CE/2023/0158'] },
+    { key: 'survey-a', name: 'Survey Field Batch A',   description: 'Surveying field exercise batch.',    members: ['SEI/CE/2023/0163', 'SEI/CE/2023/0177'] }
+  ];
+
+  /* Tenant-local mappings over CANONICAL courses (STK31-11).
+     Semester is optional everywhere and is blank on purpose here. */
+  var SEED_COURSE_MAPPINGS = [
+    { courseId: 'soil-mechanics',        localCode: 'CE-305', semester: '5' },
+    { courseId: 'surveying',             localCode: 'CE-212', semester: '' }
+  ];
+
   /* ---- lookup helpers over the static pool ---- */
   function grouping(id) { return GROUPINGS.filter(function (g) { return g.id === id; })[0] || null; }
   function course(id) { return COURSES.filter(function (c) { return c.id === id; })[0] || null; }
@@ -223,6 +287,20 @@ XRSLP.data = (function () {
     return { experiment: e, course: c, grouping: g };
   }
   function term(id) { return TERMS.filter(function (t) { return t.id === id; })[0] || null; }
+  /* Name-based resolution for CSV / manual entry. Canonical only: the
+     tenant may map a LOCAL code onto a canonical Course, never invent a
+     replacement Course or Experiment (STK31-10). */
+  function norm(text) { return String(text == null ? '' : text).trim().toLowerCase().replace(/\s+/g, ' '); }
+  function groupingByName(name) {
+    var n = norm(name);
+    return GROUPINGS.filter(function (g) { return norm(g.name) === n; })[0] || null;
+  }
+  function courseByName(name, groupingId) {
+    var n = norm(name);
+    return COURSES.filter(function (c) {
+      return norm(c.name) === n && (!groupingId || c.groupingId === groupingId);
+    })[0] || null;
+  }
   /* Technologies actually present in the sample pool — filters derive
      from this so no filter exists whose data does not exist. */
   function technologiesInUse() {
@@ -238,9 +316,12 @@ XRSLP.data = (function () {
     TECHNOLOGIES: TECHNOLOGIES, TECH_ORDER: TECH_ORDER,
     GROUPINGS: GROUPINGS, COURSES: COURSES, EXPERIMENTS: EXPERIMENTS,
     SCENARIOS: SCENARIOS, SEED_TENANTS: SEED_TENANTS, TERMS: TERMS,
+    PLAN_TERMS: PLAN_TERMS, SEED_TENANT_ID: SEED_TENANT_ID,
+    SEED_PEOPLE: SEED_PEOPLE, SEED_GROUPS: SEED_GROUPS, SEED_COURSE_MAPPINGS: SEED_COURSE_MAPPINGS,
     grouping: grouping, course: course, experiment: experiment,
     coursesInGrouping: coursesInGrouping, experimentsInCourse: experimentsInCourse,
     experimentsInGrouping: experimentsInGrouping, contextOf: contextOf,
-    term: term, technologiesInUse: technologiesInUse, sortTech: sortTech
+    term: term, technologiesInUse: technologiesInUse, sortTech: sortTech,
+    norm: norm, groupingByName: groupingByName, courseByName: courseByName
   };
 })();

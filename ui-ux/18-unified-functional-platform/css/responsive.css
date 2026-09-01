@@ -68,3 +68,32 @@
   .protobar{padding:8px 12px}
   .dialog .dfoot .btn{flex:1 1 auto}
 }
+
+/* ---------- Implementation 02 — tenant operations ---------- */
+@media (max-width:1040px){
+  .formwrap{grid-template-columns:1fr}
+  .formwrap .formaside{order:-1}
+}
+@media (max-width:900px){
+  .statgrid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+  .stat .s-v{font-size:22px}
+  .allocrow{align-items:flex-start}
+  .allocrow .ar-id{min-width:0; width:100%}
+}
+@media (max-width:740px){
+  /* Tables become labelled cards; the inputs inside the mappings table
+     must still fill their card row rather than staying column-width. */
+  .cellinput,.cellinput.sm{max-width:none}
+  .maptable td{padding-top:6px}
+  .picklist{max-height:none}
+  .attn .at-row .btn{width:100%; justify-content:center}
+  .alloc .al-nums{gap:6px 20px}
+  .alloc .al-i{min-width:64px}
+  .alloc .al-v{font-size:18px}
+}
+@media (max-width:640px){
+  .formact .btn{flex:1 1 auto}
+  .formact .formnote{width:100%}
+  .seg{padding-left:16px; padding-right:16px}
+  .statgrid{grid-template-columns:1fr 1fr}
+}

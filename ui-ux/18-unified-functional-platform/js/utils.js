@@ -59,10 +59,26 @@ XRSLP.util = (function () {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
   }
 
+  /* Hand the browser a generated file. Used only by the CSV template
+     action, which is a real download and not a placeholder control. */
+  function download(blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    window.setTimeout(function () {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 0);
+  }
+
   return {
     esc: esc, escAttr: escAttr,
     fmtDate: fmtDate, fmtDateTime: fmtDateTime,
     addMonths: addMonths, daysUntil: daysUntil,
-    slug: slug, pad3: pad3, plural: plural, isEmail: isEmail
+    slug: slug, pad3: pad3, plural: plural, isEmail: isEmail, download: download
   };
 })();
