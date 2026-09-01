@@ -1,0 +1,172 @@
+/* ============================================================
+   Unified Functional Platform — shared components.
+   Ported once from the Batch 01–05 component system; accessibility
+   corrections applied at the root:
+     · form-control borders use --control-border (SC 1.4.11)
+     · .tablecard no longer clips wide tables (overflow-x:auto)
+     · error text is tied to inputs via aria-describedby in markup
+   ============================================================ */
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; height:40px; padding:0 18px;
+  border-radius:var(--r-sm); border:1px solid transparent; font-size:14.5px; font-weight:640; letter-spacing:.002em;
+  text-decoration:none; transition:background var(--m-fast) var(--ease), border-color var(--m-fast) var(--ease), color var(--m-fast) var(--ease); white-space:nowrap}
+.btn.pri{background:var(--action); color:var(--on-action)}
+.btn.pri:hover{background:var(--action-hover)}
+.btn.sec{background:var(--surface); color:var(--text); border-color:var(--control-border)}
+.btn.sec:hover{background:var(--raised)}
+.btn.gho{background:transparent; color:var(--action); border-color:transparent}
+.btn.gho:hover{background:var(--action-subtle)}
+.btn.lg{height:44px; padding:0 22px; font-size:15px}
+.btn.sm{height:32px; padding:0 12px; font-size:13px; gap:6px}
+.btn.blk{width:100%}
+.btn:disabled,.btn[aria-disabled="true"]{background:var(--sunken); color:var(--text-dis); border-color:transparent; cursor:not-allowed}
+.iconbtn{display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:var(--r-sm);
+  border:0; background:transparent; color:var(--text-3)}
+.iconbtn:hover{background:var(--raised); color:var(--text)}
+
+/* ---------- badges & chips ---------- */
+.badge{display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:var(--r-xs);
+  font-size:11.5px; font-weight:650; letter-spacing:.035em; border:1px solid; white-space:nowrap}
+.badge svg.ic{width:12px; height:12px; stroke-width:2.1; vertical-align:0}
+.b-neutral{color:var(--text-2); background:var(--raised); border-color:var(--border)}
+.b-info{color:var(--info-700); background:var(--info-50); border-color:var(--info-200)}
+.b-success{color:var(--success-700); background:var(--success-50); border-color:var(--success-200)}
+.b-warning{color:var(--warning-700); background:var(--warning-50); border-color:var(--warning-200)}
+.b-danger{color:var(--danger-700); background:var(--danger-50); border-color:var(--danger-200)}
+.b-outline{color:var(--text-2); background:var(--surface); border-color:var(--border-strong)}
+.fmt{display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:var(--r-xs);
+  font-size:11px; font-weight:650; letter-spacing:.05em; border:1px solid; white-space:nowrap}
+.fmt-web{color:var(--fmt-web); background:var(--fmt-web-s); border-color:var(--fmt-web-b)}
+.fmt-vr{color:var(--fmt-vr); background:var(--fmt-vr-s); border-color:var(--fmt-vr-b)}
+.fmt-mr{color:var(--fmt-mr); background:var(--fmt-mr-s); border-color:var(--fmt-mr-b)}
+.fmt-ar{color:var(--fmt-ar); background:var(--fmt-ar-s); border-color:var(--fmt-ar-b)}
+
+/* ---------- cards & panels ---------- */
+.card{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1)}
+.card .chead{padding:14px 20px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.card .chead h2,.card .chead h3{font-size:15.5px; font-weight:640; letter-spacing:-.005em}
+.card .chead .cnote{margin-left:auto; font-size:12.5px; color:var(--text-3)}
+.card .cbody{padding:16px 20px 18px}
+.kv{display:grid; grid-template-columns:190px minmax(0,1fr); row-gap:0; font-size:14px}
+.kv>div{padding:9px 0; border-top:1px solid var(--border-subtle)}
+.kv>div:nth-child(-n+2){border-top:0}
+.kv .k{color:var(--text-3); font-size:13px; padding-right:14px}
+.kv .v{color:var(--text); overflow-wrap:anywhere}
+
+/* ---------- tables ---------- */
+.tablecard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1)}
+/* position:relative keeps absolutely-positioned sr-only content (table
+   captions, header spans) inside the scroll container instead of
+   leaking page-level horizontal overflow. */
+.tablecard .tscroll{overflow-x:auto; position:relative; border-radius:0 0 var(--r-lg) var(--r-lg)}
+.listbar{display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--border-subtle); flex-wrap:wrap}
+.listbar label{font-size:12.5px; font-weight:600; color:var(--text-2); display:inline-flex; align-items:center; gap:8px}
+.listbar select{height:36px; border:1px solid var(--control-border); border-radius:var(--r-sm); font:inherit; font-size:13.5px; color:var(--text); background:var(--surface); padding:0 10px; max-width:100%}
+.listbar .lcount{margin-left:auto; font-size:12.5px; color:var(--text-3)}
+table.dt{width:100%; border-collapse:collapse}
+table.dt th{font-size:11px; font-weight:650; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3);
+  text-align:left; padding:10px 20px; border-bottom:1px solid var(--border-subtle); background:var(--n-25); white-space:nowrap}
+table.dt td{padding:14px 20px; border-bottom:1px solid var(--border-subtle); font-size:14px; color:var(--text-2); vertical-align:middle}
+table.dt tbody tr:last-child td{border-bottom:0}
+table.dt tbody tr:hover td{background:var(--n-25)}
+table.dt td .tmain{font-weight:600; color:var(--text); font-size:14.5px; display:block}
+table.dt td .tsub{font-size:12.5px; color:var(--text-3); margin-top:1px; display:block}
+table.dt a.rowlink{color:var(--text); text-decoration:none}
+table.dt a.rowlink:hover{color:var(--action); text-decoration:underline}
+table.dt a.rowlink .tmain,table.dt a.rowlink .tsub{display:block}
+table.dt td.num{font-variant-numeric:tabular-nums}
+
+/* ---------- empty states ---------- */
+.empty{padding:48px 24px; text-align:center; color:var(--text-2)}
+.empty .echip{width:48px; height:48px; margin:0 auto 14px; border-radius:50%; background:var(--raised);
+  display:flex; align-items:center; justify-content:center; color:var(--text-3)}
+.empty .etitle{font-size:15.5px; font-weight:640; color:var(--text); margin-bottom:4px}
+.empty p{font-size:13.5px; max-width:440px; margin:0 auto 14px}
+.empty .eact{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+
+/* ---------- alerts ---------- */
+.alert{display:flex; gap:12px; padding:14px 16px; border-radius:var(--r-md); border:1px solid; font-size:13.5px; line-height:1.55}
+.alert svg.ic{margin-top:2px}
+.alert .at{font-weight:650; margin-bottom:2px; font-size:14px}
+.alert.info{background:var(--info-50); border-color:var(--info-200); color:var(--n-800)}
+.alert.info svg.ic{color:var(--info-700)}
+.alert.success{background:var(--success-50); border-color:var(--success-200); color:var(--n-800)}
+.alert.success svg.ic{color:var(--success-700)}
+.alert.warning{background:var(--warning-50); border-color:var(--warning-200); color:var(--n-800)}
+.alert.warning svg.ic{color:var(--warning-700)}
+.alert.danger{background:var(--danger-50); border-color:var(--danger-200); color:var(--n-800)}
+.alert.danger svg.ic{color:var(--danger-700)}
+.alert a{color:inherit; font-weight:640}
+
+/* ---------- forms ---------- */
+.field{margin-bottom:16px}
+.field label{display:block; font-size:13.5px; font-weight:600; color:var(--text); margin-bottom:6px}
+.field .hint{font-size:12.5px; color:var(--text-3); margin-top:5px}
+.field .req{color:var(--danger-700)}
+.field input[type=text],.field input[type=email],.field input[type=number],.field textarea,.field select{
+  width:100%; border:1px solid var(--control-border); border-radius:var(--r-sm);
+  background:var(--surface); color:var(--text); font:inherit; font-size:14px; padding:10px 12px; min-height:44px}
+.field input:focus-visible,.field textarea:focus-visible,.field select:focus-visible{outline:2px solid var(--focus); outline-offset:1px}
+.field.invalid input,.field.invalid textarea,.field.invalid select{border:1.5px solid var(--danger-700)}
+.ferr{display:flex; gap:6px; align-items:flex-start; color:var(--danger-700); font-size:12.5px; margin-top:5px}
+.ferr svg.ic{margin-top:1px}
+.frow{display:grid; grid-template-columns:1fr 1fr; gap:0 16px}
+fieldset.fgroup{border:0; padding:0; margin:0 0 16px}
+fieldset.fgroup legend{font-size:13.5px; font-weight:600; color:var(--text); margin-bottom:6px; padding:0}
+.radiorow{display:flex; gap:10px; align-items:flex-start; padding:8px 0; font-size:14px}
+.radiorow input{width:18px; height:18px; margin-top:3px; accent-color:var(--action); flex:0 0 auto}
+
+/* ---------- timeline (request history) ---------- */
+.timeline{display:flex; flex-direction:column}
+.tl-item{display:flex; gap:12px; position:relative; padding-bottom:16px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:""; position:absolute; left:10px; top:24px; bottom:-2px; width:2px; background:var(--border-subtle)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:22px; height:22px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center; z-index:1;
+  background:var(--raised); border:1px solid var(--border); color:var(--text-3)}
+.tl-dot svg.ic{width:12px; height:12px; stroke-width:2}
+.tl-dot.good{background:var(--success-50); border-color:var(--success-200); color:var(--success-700)}
+.tl-dot.warn{background:var(--warning-50); border-color:var(--warning-200); color:var(--warning-700)}
+.tl-dot.info{background:var(--info-50); border-color:var(--info-200); color:var(--info-700)}
+.tl-body{min-width:0; font-size:13px; color:var(--text-2); line-height:1.5}
+.tl-action{font-weight:640; color:var(--text); font-size:13.5px}
+.tl-who{color:var(--text-3); font-size:12.5px; margin-top:1px}
+
+/* ---------- dialog ---------- */
+.scrim{position:fixed; inset:0; background:rgba(22,27,34,.45); z-index:100; display:flex; align-items:flex-start; justify-content:center; padding:8vh 20px 20px}
+.dialog{background:var(--surface); border-radius:var(--r-xl); box-shadow:var(--e3); width:100%; max-width:520px;
+  animation:dlgin var(--m-enter) var(--ease); max-height:84vh; overflow:auto}
+@keyframes dlgin{from{transform:translateY(10px); opacity:0} to{transform:none; opacity:1}}
+.dialog .dhead{display:flex; align-items:flex-start; gap:10px; padding:20px 22px 0}
+.dialog .dhead h2{font-size:17px; font-weight:650; letter-spacing:-.008em; flex:1}
+.dialog .dbody{padding:12px 22px 4px; font-size:14px; color:var(--text-2); line-height:1.6}
+.dialog .dbody .consequence{display:flex; gap:8px; background:var(--n-25); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  padding:10px 12px; font-size:13px; margin-top:12px}
+.dialog .dfoot{display:flex; justify-content:flex-end; gap:10px; padding:16px 22px 20px; flex-wrap:wrap}
+
+/* ---------- toasts ---------- */
+.toasts{position:fixed; left:20px; bottom:20px; z-index:120; display:flex; flex-direction:column; gap:10px; max-width:min(420px, calc(100vw - 40px))}
+.toast{display:flex; align-items:flex-start; gap:10px; background:var(--n-800); color:#EDF0F3; border-radius:var(--r-md);
+  padding:12px 14px; font-size:13.5px; box-shadow:var(--e3); animation:toastin var(--m-enter) var(--ease); line-height:1.5}
+@keyframes toastin{from{transform:translateY(8px); opacity:0} to{transform:none; opacity:1}}
+.toast svg.ic{color:#7FD3A5; margin-top:1px}
+.toast.info svg.ic{color:#9DB9F0}
+.toast .tx{flex:1}
+.toast button{background:none; border:0; color:#AEB7C0; padding:2px}
+.toast button:hover{color:#fff}
+
+/* ---------- prototype-only note ---------- */
+.proto-note{display:flex; gap:10px; align-items:flex-start; border:1px dashed var(--border-strong); border-radius:var(--r-md);
+  background:var(--n-25); padding:12px 14px; font-size:12.5px; color:var(--text-3); line-height:1.55}
+.proto-note .pn-label{font-family:var(--mono); font-size:10px; letter-spacing:.09em; color:var(--text-3);
+  border:1px solid var(--border-strong); border-radius:var(--r-xs); padding:1px 6px; white-space:nowrap; margin-top:1px; flex:0 0 auto}
+.proto-note .btn{height:30px; font-size:12.5px; padding:0 10px}
+.proto-note .pn-body{min-width:0}
+.proto-note .pn-act{margin-top:8px; display:flex; gap:8px; flex-wrap:wrap}
+
+/* ---------- "gap shown as a gap" note (Batch 05 rule) ---------- */
+.gapnote{display:flex; gap:10px; align-items:flex-start; border:1.5px dashed var(--border-strong); border-radius:var(--r-md);
+  background:var(--surface); padding:12px 14px; font-size:12.5px; color:var(--text-2); line-height:1.55}
+.gapnote .gtag{font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:var(--text-3);
+  border:1px solid var(--border-strong); border-radius:var(--r-xs); padding:1px 6px; white-space:nowrap; flex:0 0 auto; margin-top:1px}

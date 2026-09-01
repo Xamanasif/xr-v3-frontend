@@ -1,0 +1,70 @@
+/* ============================================================
+   Unified Functional Platform — responsive behaviour.
+   Desktop-first system; the public plane is explicitly not a
+   desktop-only surface (QX-01), so every breakpoint below keeps
+   the page free of horizontal overflow.
+   ============================================================ */
+
+@media (max-width:1320px){
+  .main{padding:24px 28px 70px}
+}
+
+/* Rails and two-column layouts collapse; decision panels move above the body. */
+@media (max-width:1040px){
+  .grid-rail{grid-template-columns:1fr}
+  .phero{grid-template-columns:1fr}
+  .accesspanel{position:static; order:-1}
+  .selgrid{grid-template-columns:1fr}
+  .sumcard{position:static}
+  .reqlayout{grid-template-columns:1fr}
+  .reqlayout .req-side{order:-1}
+}
+
+/* Workspace sidebar becomes a horizontal strip under the topbar. */
+@media (max-width:900px){
+  .frame{flex-direction:column}
+  .snav{position:static; width:100%; height:auto; flex-direction:row; align-items:center; gap:4px;
+    padding:8px 16px; border-right:0; border-bottom:1px solid var(--border-subtle); overflow-x:auto}
+  .ws-ctx{padding:2px 8px 2px 0; flex:0 0 auto; border-right:1px solid var(--border-subtle); margin-right:6px}
+  .ws-ctx .wsv{display:none}
+  .snav a.nitem{flex:0 0 auto; padding:7px 11px}
+  .snav a.nitem[aria-current="page"]::before{display:none}
+  .main{padding:20px 16px 60px}
+  .pubmain{padding:22px 16px 60px}
+  .pubbar-inner{padding:8px 16px}
+  .frow{grid-template-columns:1fr}
+  .kv{grid-template-columns:1fr}
+  .kv>div{padding:3px 0 9px}
+  .kv>div:nth-child(odd){border-top:1px solid var(--border-subtle); padding-top:9px; padding-bottom:0}
+  .kv>div:nth-child(-n+2){border-top:0}
+  .kv>div:nth-child(2){border-top:0; padding-top:3px}
+  .hero h1{font-size:27px}
+  .phero h1{font-size:23px}
+}
+
+/* Tables degrade to stacked cards — no reliance on wide desktop tables. */
+@media (max-width:740px){
+  table.dt thead{position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); border:0}
+  table.dt,table.dt tbody,table.dt tr,table.dt td{display:block; width:100%}
+  table.dt tr{border-bottom:1px solid var(--border-subtle); padding:10px 20px 12px}
+  table.dt tbody tr:last-child{border-bottom:0}
+  table.dt td{padding:3px 0; border-bottom:0; font-size:13.5px}
+  table.dt tbody tr:hover td{background:transparent}
+  table.dt td[data-label]::before{content:attr(data-label); display:block; font-size:10.5px; font-weight:650;
+    letter-spacing:.07em; text-transform:uppercase; color:var(--text-3); margin-bottom:1px}
+  table.dt td.cell-actions{padding-top:8px}
+  .listbar{gap:10px}
+  .listbar .lcount{margin-left:0; width:100%}
+}
+
+@media (max-width:640px){
+  .catgrid,.groupcards,.coursecards{grid-template-columns:1fr}
+  .phead .pactions{margin-left:0; width:100%}
+  .phead .pactions .btn{flex:1 1 auto}
+  .hero .hact .btn{flex:1 1 auto}
+  .exprow .xr-side{align-items:flex-start; width:100%}
+  .exprow .xr-tech{justify-content:flex-start}
+  .decidebar .db-note{max-width:none}
+  .protobar{padding:8px 12px}
+  .dialog .dfoot .btn{flex:1 1 auto}
+}

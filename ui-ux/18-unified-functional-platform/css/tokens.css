@@ -1,0 +1,62 @@
+/* ============================================================
+   XR Simulation Learning Platform — Unified Functional Platform
+   Design tokens.
+
+   Ported once from the shared Batch 01–05 design system
+   (batch01-design-system.css under each batch's prototype folder in
+   ui-ux/13-full-platform-design — byte-identical across batches),
+   with the Stage-0 corrections from
+   ui-ux/16-unified-product-planning/12_POST_PM_IMPLEMENTATION_HANDOFF.md
+   applied exactly once:
+
+     · --text-3  #6A7686 → #5F6B7A   (contrast 4.30:1 → 5.43:1)
+     · --control-border #7E8A99      (WCAG 2.1 SC 1.4.11, 3.51:1)
+
+   Light theme only (logo constraint, QX-07 — unchanged).
+   ============================================================ */
+
+:root{
+  /* --- raw palette (Review-005, unchanged) --- */
+  --indigo-50:#F2F4FC; --indigo-100:#E2E7F8; --indigo-200:#C6D0F0; --indigo-300:#9DAEE4;
+  --indigo-400:#6E85D3; --indigo-500:#4A62BF; --indigo-600:#3648A3; --indigo-700:#2B3982;
+  --indigo-800:#232E66; --indigo-900:#1B2450;
+  --teal-50:#EAF6F5; --teal-200:#A8DBD8; --teal-400:#35A9A3; --teal-600:#0F7A75; --teal-700:#0C625E;
+  --success-50:#E8F5EE; --success-200:#A9D9BF; --success-700:#146C43;
+  --warning-50:#FCF3E4; --warning-200:#EBCF98; --warning-700:#8A5200;
+  --danger-50:#FCEDEC; --danger-200:#EFB3AF; --danger-700:#B3261E;
+  --info-50:#EAF0FC; --info-200:#B4C8F0; --info-700:#1A56C4;
+  --n-0:#FFFFFF; --n-25:#FAFBFC; --n-50:#F4F6F9; --n-100:#E9EDF2; --n-200:#D8DEE7;
+  --n-300:#B6C0CD; --n-400:#8C98A8; --n-500:#6A7686; --n-600:#515D6C; --n-700:#3B4552;
+  --n-800:#272E38; --n-900:#161B22;
+
+  /* --- technology colours (one enum, one label set — Web · VR · MR · AR) --- */
+  --fmt-web:#1A56C4; --fmt-web-s:#EAF0FC; --fmt-web-b:#B4C8F0;
+  --fmt-vr:#6B3FA0;  --fmt-vr-s:#F4EEFB;  --fmt-vr-b:#D9C6EF;
+  --fmt-mr:#0F7A75;  --fmt-mr-s:#EAF6F5;  --fmt-mr-b:#A8DBD8;
+  --fmt-ar:#8A5200;  --fmt-ar-s:#FCF3E4;  --fmt-ar-b:#EBCF98;
+
+  /* --- semantic aliases (components use only these) --- */
+  --bg:var(--n-25); --surface:var(--n-0); --raised:var(--n-50); --sunken:var(--n-100);
+  --border:var(--n-200); --border-strong:var(--n-300); --border-subtle:var(--n-100);
+  --control-border:#7E8A99;             /* Stage-0 fix: 3.51:1 against --surface */
+  --text:var(--n-900); --text-2:var(--n-600);
+  --text-3:#5F6B7A;                     /* Stage-0 fix: 5.43:1 against --surface */
+  --text-dis:var(--n-400);
+  --on-action:var(--n-0);
+  --action:var(--indigo-700); --action-hover:var(--indigo-800);
+  --action-subtle:var(--indigo-50); --action-border:var(--indigo-200); --focus:var(--indigo-700);
+  --sim:var(--teal-600); --sim-surface:var(--teal-50); --sim-border:var(--teal-200);
+
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+
+  --r-xs:2px; --r-sm:4px; --r-md:6px; --r-lg:10px; --r-xl:16px; --r-pill:999px;
+  --e1:0 1px 2px rgba(22,27,34,.06),0 1px 1px rgba(22,27,34,.04);
+  --e2:0 4px 12px rgba(22,27,34,.08),0 1px 3px rgba(22,27,34,.05);
+  --e3:0 12px 32px rgba(22,27,34,.12),0 2px 8px rgba(22,27,34,.06);
+  --m-fast:120ms; --m-base:180ms; --m-enter:240ms; --ease:cubic-bezier(.2,.8,.3,1);
+
+  /* --- layout --- */
+  --topbar-h:64px; --snav-w:232px;
+  --content-max:1220px; --public-max:1120px;
+}
