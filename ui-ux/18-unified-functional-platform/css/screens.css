@@ -341,3 +341,354 @@ table.dt.sm td{padding:10px 20px; font-size:13.5px}
 .caplist span{color:var(--n-800)}
 .caplist strong{font-weight:650; color:var(--n-900); white-space:nowrap}
 .alert .capsafe{margin-top:6px; font-weight:640}
+
+/* ============================================================
+   IMPLEMENTATION 03 — STUDENT WORKSPACE
+
+   No new visual system: every value below resolves to an existing
+   token, and every component reuses the shared card, badge, table and
+   empty-state grammar. The Student shell is lighter than the admin
+   workspaces, not different from them.
+   ============================================================ */
+
+/* ---------- prototype student chooser (#/learn) ---------- */
+.picklistr{display:flex; flex-direction:column}
+.picklistr .pickrow{display:flex; gap:12px; align-items:center; padding:12px 0;
+  border-top:1px solid var(--border-subtle); flex-wrap:wrap}
+.picklistr .pickrow:first-child{border-top:0; padding-top:0}
+.picklistr .pk-body{flex:1 1 240px; min-width:0}
+.picklistr .pk-n{font-size:14.5px; font-weight:640; color:var(--text); display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.picklistr .pk-m{font-size:12.5px; color:var(--text-3); margin-top:1px}
+.picklistr .pk-e{font-size:12.5px; color:var(--text-2); margin-top:3px}
+.picklistr .btn{flex:0 0 auto}
+
+/* ---------- learning progress bar ----------
+   Decoration only: the figure it represents is always present as text
+   beside it, and it carries an accessible name of its own. */
+.lprog{height:8px; border-radius:var(--r-pill); background:var(--sunken); overflow:hidden}
+.lprog>span{display:block; height:100%; background:var(--action); border-radius:var(--r-pill);
+  transition:width var(--m-base) var(--ease)}
+
+/* ---------- My Learning ---------- */
+.lsec{margin-bottom:28px}
+.lsec:last-child{margin-bottom:0}
+.lsec-h{font-size:16px; font-weight:650; letter-spacing:-.005em; margin-bottom:6px;
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap}
+.lsec-n{font-size:11.5px; font-weight:650; background:var(--sunken); color:var(--text-2);
+  border-radius:var(--r-pill); padding:1px 9px; min-width:22px; text-align:center}
+.lsec-d{font-size:13px; color:var(--text-2); line-height:1.6; margin-bottom:14px; max-width:76ch}
+.lsec-h+.lgrid,.lsec-h+.stack{margin-top:14px}
+
+.lgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px}
+.lcard{display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); box-shadow:var(--e1); padding:18px 20px 16px; min-width:0}
+.lcard:hover,.lcard:focus-within{border-color:var(--action-border); box-shadow:var(--e2)}
+.lcard.blocked{background:var(--n-25)}
+.lcard.blocked:hover,.lcard.past:hover{border-color:var(--border); box-shadow:var(--e1)}
+.lcard.past{background:var(--n-25); border-style:dashed}
+.lcard .lc-head{min-width:0}
+.lcard .lc-ctx{font-size:12px; color:var(--text-3); margin-bottom:5px}
+.lcard h3{font-size:16.5px; font-weight:650; line-height:1.35; letter-spacing:-.008em}
+.lcard h3 a{color:var(--text); text-decoration:none}
+.lcard h3 a:hover{color:var(--action); text-decoration:underline}
+.lcard .lc-sum{font-size:13px; color:var(--text-2); line-height:1.55; margin:8px 0 0}
+.lcard .lc-tech{margin-top:14px}
+.lcard .lc-lab{font-size:10.5px; font-weight:650; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--text-3); margin-bottom:7px}
+.lcard .lc-chips{display:flex; gap:6px; flex-wrap:wrap}
+.lcard .lc-prog{margin-top:14px}
+.lcard .lc-roll{font-size:12px; color:var(--text-3); line-height:1.5; margin-top:7px}
+.lcard .lc-foot{margin-top:auto; padding-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.lcard .lc-when{font-size:12px; color:var(--text-3)}
+.lcard .lc-foot .btn{margin-left:auto}
+.lcard .alert{margin-top:14px}
+
+.lc-pl{display:flex; align-items:baseline; gap:10px; font-size:13px; color:var(--text-2); margin-bottom:6px}
+.lc-pl>span:first-child{font-weight:640; color:var(--text)}
+.lc-pl>span:last-child{margin-left:auto; color:var(--text-3); flex:0 0 auto}
+
+/* Per-technology state chips — a technology's own state is never
+   collapsed into the experiment's. */
+.techstates{display:flex; flex-direction:column; gap:6px}
+.techstates .ts{display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--text-2)}
+.techstates .ts-s{display:inline-flex; align-items:center; gap:5px}
+.techstates .ts-completed .ts-s{color:var(--success-700); font-weight:600}
+.techstates .ts-awaiting-evaluation .ts-s{color:var(--warning-700); font-weight:600}
+.techstates .ts-in-progress .ts-s{color:var(--info-700)}
+.techstates .ts-not-started .ts-s{color:var(--text-3)}
+
+/* ---------- Student Home ---------- */
+.resume{display:flex; gap:16px; align-items:center; flex-wrap:wrap}
+.resume .rz-body{flex:1 1 260px; min-width:0}
+.resume .rz-ctx{font-size:12px; color:var(--text-3)}
+.resume .rz-t{font-size:17px; font-weight:650; letter-spacing:-.008em; color:var(--text); margin-top:2px}
+.resume .rz-s{font-size:13px; color:var(--text-2); margin-top:5px; line-height:1.5}
+.resume .rz-m{font-size:12px; color:var(--text-3); margin-top:4px}
+.resume .btn{flex:0 0 auto}
+
+/* ---------- the confirmed learning sequence ---------- */
+.seqstrip{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin:0 0 24px}
+.seqstrip .sq{display:flex; gap:11px; align-items:flex-start; background:var(--surface);
+  border:1px solid var(--border); border-radius:var(--r-md); padding:12px 14px; min-width:0}
+.seqstrip .sq-n{display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px;
+  border-radius:50%; background:var(--sunken); color:var(--text-2); font-weight:650; font-size:12.5px;
+  flex:0 0 auto; border:1px solid var(--border)}
+.seqstrip .sq-b{min-width:0}
+.seqstrip .sq-t{display:block; font-size:13.5px; font-weight:640; color:var(--text)}
+.seqstrip .sq-d{display:block; font-size:12px; color:var(--text-3); margin-top:2px; line-height:1.5}
+.seqstrip .sq.live{border-color:var(--info-200); background:var(--info-50)}
+.seqstrip .sq.live .sq-n{background:var(--info-200); color:var(--info-700); border-color:var(--info-200)}
+.seqstrip .sq.done{border-color:var(--success-200); background:var(--success-50)}
+.seqstrip .sq.done .sq-n{background:var(--success-200); color:var(--success-700); border-color:var(--success-200)}
+
+/* ---------- learning resources ---------- */
+.reslist{display:flex; flex-direction:column; gap:8px}
+.reslist .rd{border:1px solid var(--border); border-radius:var(--r-md); background:var(--surface)}
+.reslist .ritem.done .rd{border-color:var(--success-200); background:var(--success-50)}
+.reslist summary{display:flex; gap:11px; align-items:center; padding:12px 14px; cursor:pointer;
+  list-style:none; border-radius:var(--r-md); min-width:0}
+.reslist summary::-webkit-details-marker{display:none}
+.reslist summary:hover{background:var(--raised)}
+.reslist .ritem.done summary:hover{background:var(--success-50)}
+.reslist summary:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
+.reslist .rd-ic{width:30px; height:30px; border-radius:var(--r-sm); flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--action-subtle); color:var(--action); border:1px solid var(--action-border)}
+.reslist .ritem.done .rd-ic{background:var(--success-200); color:var(--success-700); border-color:var(--success-200)}
+.reslist .rd-b{min-width:0; flex:1}
+.reslist .rd-k{display:block; font-size:10.5px; font-weight:650; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--text-3)}
+.reslist .rd-t{display:block; font-size:14px; font-weight:640; color:var(--text); margin-top:1px}
+.reslist .rd-s{flex:0 0 auto}
+.reslist .rd-body{padding:2px 16px 14px 55px; font-size:13.5px; color:var(--text-2); line-height:1.65}
+.reslist .rd-act{margin-top:12px; padding-top:11px; border-top:1px solid var(--border-subtle)}
+.reslist .rd-check{display:inline-flex; align-items:center; gap:9px; font-size:13.5px;
+  font-weight:600; color:var(--text); cursor:pointer; padding:4px 0}
+.reslist .rd-check input{width:18px; height:18px; accent-color:var(--action); flex:0 0 auto}
+
+/* ---------- technology cards (simulation entry) ---------- */
+.techgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px}
+.techcard{border:1px solid var(--border); border-radius:var(--r-md); background:var(--n-25);
+  padding:14px 16px; display:flex; flex-direction:column; min-width:0}
+.techcard .tc-head{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:11px}
+.techcard .tc-n{font-size:13.5px; font-weight:640; color:var(--text)}
+.techcard .tc-s{margin-left:auto; flex:0 0 auto}
+.techcard .tc-meta{display:grid; grid-template-columns:auto; gap:0; margin:0 0 14px; font-size:12.5px}
+.techcard .tc-meta dt{font-size:10.5px; font-weight:650; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--text-3); margin-top:9px}
+.techcard .tc-meta dt:first-child{margin-top:0}
+.techcard .tc-meta dd{margin:2px 0 0; color:var(--text-2); line-height:1.5}
+.techcard .tc-act{margin-top:auto}
+
+/* ---------- assessment entry rows ---------- */
+.aslist{display:flex; flex-direction:column}
+.aslist .asrow{display:flex; align-items:center; gap:12px; padding:12px 0;
+  border-top:1px solid var(--border-subtle); flex-wrap:wrap}
+.aslist .asrow:first-child{border-top:0}
+.aslist .as-t{flex:0 0 auto}
+.aslist .as-s{flex:0 0 auto}
+.aslist .as-n{flex:1 1 auto; font-size:12.5px; color:var(--text-3); min-width:0}
+.aslist .btn{flex:0 0 auto; margin-left:auto}
+
+.polnote{display:flex; gap:9px; align-items:flex-start; background:var(--n-25);
+  border:1px solid var(--border-subtle); border-radius:var(--r-md); padding:11px 13px;
+  font-size:12.5px; color:var(--text-2); line-height:1.6; margin:12px 0}
+.polnote svg.ic{color:var(--text-3); margin-top:2px}
+
+/* ---------- side panels in the Student rail ---------- */
+.lpanel{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1)}
+.lpanel .lp-h{font-size:14px; font-weight:650; padding:14px 18px 0}
+.lpanel .lp-b{padding:12px 18px 16px}
+.lpanel .lp-roll{font-size:12px; color:var(--text-3); line-height:1.5; margin-top:7px}
+.lpanel .lp-note{font-size:12px; color:var(--text-3); line-height:1.55; margin-top:12px;
+  padding-top:11px; border-top:1px solid var(--border-subtle)}
+.lpanel .lp-steps{display:grid; grid-template-columns:auto auto; gap:0; margin:14px 0 14px; font-size:13px}
+.lpanel .lp-steps dt{color:var(--text-3); padding:6px 12px 6px 0; border-top:1px solid var(--border-subtle)}
+.lpanel .lp-steps dd{margin:0; color:var(--text); text-align:right; padding:6px 0;
+  border-top:1px solid var(--border-subtle)}
+.lpanel .lp-steps dt:first-of-type,.lpanel .lp-steps dd:first-of-type{border-top:0}
+.lpanel .techstates{margin-bottom:2px}
+
+/* ---------- simulation screen ---------- */
+.ladder{display:flex; flex-direction:column; margin-bottom:16px}
+.ladder .ld{display:flex; gap:12px; align-items:flex-start; padding:11px 0;
+  border-top:1px solid var(--border-subtle)}
+.ladder .ld:first-child{border-top:0; padding-top:0}
+.ladder .ld-d{width:24px; height:24px; border-radius:50%; flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--raised); border:1px solid var(--border); color:var(--text-3)}
+.ladder .ld.done .ld-d{background:var(--success-50); border-color:var(--success-200); color:var(--success-700)}
+.ladder .ld-b{min-width:0}
+.ladder .ld-t{display:block; font-size:14px; font-weight:640; color:var(--text-3)}
+.ladder .ld.done .ld-t{color:var(--text)}
+.ladder .ld-s{display:block; font-size:12.5px; color:var(--text-3); margin-top:2px; line-height:1.5}
+
+.instr{border:1px solid var(--border); border-radius:var(--r-md); background:var(--n-25); margin:14px 0}
+.instr summary{display:flex; gap:8px; align-items:center; padding:11px 14px; cursor:pointer;
+  font-size:13.5px; font-weight:640; color:var(--text); list-style:none; border-radius:var(--r-md)}
+.instr summary::-webkit-details-marker{display:none}
+.instr summary:hover{background:var(--raised)}
+.instr summary:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
+.instr .instr-b{padding:0 16px 14px 16px; font-size:13.5px; color:var(--text-2); line-height:1.65}
+.instr .instr-b ol{margin:0 0 0 18px; padding:0; list-style:decimal}
+.instr .instr-b li{padding:4px 0}
+.instr .instr-n{margin-top:10px; padding-top:10px; border-top:1px solid var(--border-subtle);
+  font-size:12.5px; color:var(--text-3); line-height:1.55}
+
+.othertech{display:flex; flex-direction:column}
+.othertech li{display:flex; align-items:center; gap:10px; padding:10px 0;
+  border-top:1px solid var(--border-subtle); flex-wrap:wrap}
+.othertech li:first-child{border-top:0; padding-top:0}
+.othertech .ot-s{flex:1 1 auto; min-width:0}
+.othertech .btn{flex:0 0 auto; margin-left:auto}
+
+/* ---------- assessment: disclosure, attempt, review ---------- */
+.disclose{display:grid; grid-template-columns:200px minmax(0,1fr); font-size:14px; margin-top:14px}
+.disclose dt{color:var(--text-3); font-size:13px; padding:9px 14px 9px 0; border-top:1px solid var(--border-subtle)}
+.disclose dd{margin:0; color:var(--text); padding:9px 0; border-top:1px solid var(--border-subtle); line-height:1.55}
+.disclose dt:first-of-type,.disclose dd:first-of-type{border-top:0}
+
+.attemptbar{position:sticky; top:var(--topbar-h); z-index:20; display:flex; align-items:center; gap:12px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md);
+  padding:11px 16px; margin-bottom:18px; box-shadow:var(--e1); flex-wrap:wrap}
+.attemptbar .ab-k{font-size:11px; font-weight:650; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3)}
+.attemptbar .ab-v{font-size:15px; font-weight:650; color:var(--text)}
+.attemptbar .ab-n{margin-left:auto; font-size:12.5px; color:var(--text-3)}
+
+.qwrap{display:flex; flex-direction:column; gap:16px}
+.qcard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  box-shadow:var(--e1); padding:20px 22px}
+.qcard fieldset.fgroup{margin:0}
+.qcard legend{width:100%; margin-bottom:14px; padding:0}
+.qcard .q-n{display:block; font-size:11px; font-weight:650; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--action)}
+.qcard .q-k{display:block; font-size:12px; color:var(--text-3); margin-top:3px}
+.qcard .q-t{display:block; font-size:16px; font-weight:600; color:var(--text); line-height:1.55; margin-top:10px}
+.qcard .q-b{display:flex; flex-direction:column; gap:0}
+.qcard .radiorow{padding:11px 13px; border:1px solid var(--border); border-radius:var(--r-sm);
+  background:var(--surface); margin-bottom:8px; align-items:center; min-height:46px;
+  transition:border-color var(--m-fast) var(--ease), background var(--m-fast) var(--ease)}
+.qcard .radiorow:last-child{margin-bottom:0}
+.qcard .radiorow:hover{background:var(--raised)}
+/* SELECTED, NOT JUDGED. Before submission the platform has not told the
+   student anything about correctness, so the chosen option is marked
+   with weight and a neutral tint only — never a success or error
+   colour, which would imply a verdict that does not exist yet. */
+.qcard .radiorow.is-selected{border-color:var(--control-border); background:var(--n-25)}
+.qcard .radiorow.is-selected label{font-weight:600; color:var(--text)}
+.qcard .radiorow input{margin-top:0}
+.qcard .radiorow label{cursor:pointer; flex:1; line-height:1.5}
+.qcard textarea{width:100%; border:1px solid var(--control-border); border-radius:var(--r-sm);
+  background:var(--surface); color:var(--text); font:inherit; font-size:14px; padding:11px 12px;
+  line-height:1.6; resize:vertical; min-height:110px}
+.qcard textarea:focus-visible{outline:2px solid var(--focus); outline-offset:1px}
+.qcard .hint{font-size:12.5px; color:var(--text-3); margin-top:6px}
+
+.reviewcard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  box-shadow:var(--e1); padding:22px; margin-top:18px}
+.reviewcard h2{font-size:16px; font-weight:650; letter-spacing:-.005em}
+.reviewcard .rv-lede{font-size:13.5px; color:var(--text-2); line-height:1.6; margin-top:5px; max-width:70ch}
+
+/* Answer-count summary — the one place the remaining work is stated. */
+.reviewcard .rv-sum{display:flex; align-items:baseline; gap:6px 12px; flex-wrap:wrap;
+  margin:16px 0 4px}
+.reviewcard .rv-count{font-size:18px; font-weight:650; color:var(--text); letter-spacing:-.01em}
+.reviewcard .rv-note{font-size:13.5px; color:var(--text-2); line-height:1.55}
+
+/* Question navigator: compact chips, never five repeated status cards.
+   PRE-SUBMISSION, so the answered mark uses the neutral action accent —
+   a success colour here would imply a correctness verdict that does not
+   exist yet. */
+.reviewcard .rv-nav{margin:18px 0 0}
+.reviewcard .rv-navh{font-size:11px; font-weight:650; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--text-3); margin-bottom:9px}
+.qnav{display:flex; gap:8px; flex-wrap:wrap; margin:0 0 10px}
+.qnav .qn{display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  min-width:56px; height:40px; padding:0 12px; border-radius:var(--r-sm);
+  border:1px solid var(--control-border); background:var(--surface); color:var(--text-2);
+  font-size:14px; font-weight:640;
+  transition:border-color var(--m-fast) var(--ease), background var(--m-fast) var(--ease)}
+.qnav .qn:hover{background:var(--raised); color:var(--text)}
+.qnav .qn .qn-n{line-height:1}
+.qnav .qn .qn-s{display:inline-flex; color:var(--text-3)}
+.qnav .qn.is-answered{border-color:var(--action-border); background:var(--action-subtle); color:var(--action)}
+.qnav .qn.is-answered:hover{border-color:var(--action)}
+.qnav .qn.is-answered .qn-s{color:var(--action)}
+.qnav-key{display:flex; gap:6px 16px; flex-wrap:wrap; font-size:12px; color:var(--text-3); margin-bottom:8px}
+.qnav-key span{display:inline-flex; align-items:center; gap:5px}
+.reviewcard .rv-open{font-size:13px; color:var(--text-2); line-height:1.55}
+.reviewcard .rv-open span{font-weight:640; color:var(--text)}
+
+.reviewcard .rv-act{display:flex; align-items:center; gap:12px 14px; flex-wrap:wrap;
+  margin-top:18px; padding-top:16px; border-top:1px solid var(--border-subtle)}
+.reviewcard .rv-act .formnote:empty{display:none}
+
+/* ---------- result ---------- */
+.scorebox{display:flex; gap:16px; align-items:center; padding:16px 18px; border-radius:var(--r-md);
+  background:var(--n-25); border:1px solid var(--border); flex-wrap:wrap}
+.scorebox .sb-v{font-size:34px; font-weight:650; letter-spacing:-.02em; color:var(--text); line-height:1}
+.scorebox .sb-d{font-size:13px; color:var(--text-2); line-height:1.55; flex:1 1 180px; min-width:0}
+
+/* Result feedback: CONTENT FIRST, STATUS SECOND.
+   The card stays on the normal surface. Correctness is carried by a
+   compact badge (icon + word), a thin left accent, and a coloured
+   ANSWER LABEL — never by flooding the card, which read as a QA diff
+   rather than as feedback a student wants to read. */
+.anslist{display:flex; flex-direction:column; gap:14px}
+.anslist .ansrow{border:1px solid var(--border); border-left-width:3px;
+  border-left-color:var(--border-strong); border-radius:var(--r-md);
+  padding:16px 18px; background:var(--surface)}
+.anslist .ansrow.right{border-left-color:var(--success-700)}
+.anslist .ansrow.wrong{border-left-color:var(--danger-700)}
+.anslist .ansrow.pending{border-left-color:var(--warning-700)}
+.anslist .an-h{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px}
+.anslist .an-n{font-size:11px; font-weight:650; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3)}
+.anslist .an-h .badge{margin-left:auto}
+.anslist .an-q{font-size:15px; font-weight:600; color:var(--text); line-height:1.55}
+
+/* An answer block: a muted label, a thin rule, and the answer itself in
+   normal body colour so the words stay the loudest thing on the card. */
+.anslist .an-a{margin-top:14px; padding-left:12px; border-left:2px solid var(--border)}
+.anslist .an-k{display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:650;
+  letter-spacing:.07em; text-transform:uppercase; color:var(--text-3); margin-bottom:3px}
+.anslist .an-k svg.ic{width:13px; height:13px; stroke-width:2.4}
+.anslist .an-a p{font-size:14px; color:var(--text); line-height:1.6; overflow-wrap:anywhere}
+.anslist .an-a.is-right{border-left-color:var(--success-200)}
+.anslist .an-a.is-right .an-k{color:var(--success-700)}
+.anslist .an-a.is-wrong{border-left-color:var(--danger-200)}
+.anslist .an-a.is-wrong .an-k{color:var(--danger-700)}
+
+/* The explanation is a neutral secondary section, never a status area. */
+.anslist .an-e{margin-top:14px; padding:11px 13px; border-radius:var(--r-sm);
+  background:var(--n-25); border:1px solid var(--border-subtle)}
+.anslist .an-e .an-k{color:var(--text-3); margin-bottom:3px}
+.anslist .an-e p{font-size:13.5px; color:var(--text-2); line-height:1.65; overflow-wrap:anywhere}
+
+/* ---------- Progress screen ---------- */
+.pgblock{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1)}
+.pgblock.past{background:var(--n-25); border-style:dashed}
+.pgblock .pg-head{display:flex; align-items:flex-start; gap:12px; padding:16px 20px;
+  border-bottom:1px solid var(--border-subtle); flex-wrap:wrap}
+.pgblock .pg-t{flex:1 1 240px; min-width:0}
+.pgblock .pg-ctx{font-size:12px; color:var(--text-3)}
+.pgblock .pg-head h3{font-size:16px; font-weight:650; letter-spacing:-.006em; margin-top:2px}
+.pgblock .pg-head h3 a{color:var(--text); text-decoration:none}
+.pgblock .pg-head h3 a:hover{color:var(--action); text-decoration:underline}
+.pgblock .pg-badge{flex:0 0 auto}
+.pgblock .pg-body{padding:16px 20px 18px}
+.pgblock .pg-overall{margin-bottom:14px}
+.pgblock .pg-res{display:flex; gap:9px; align-items:center; font-size:13px; color:var(--text-2);
+  padding:10px 12px; background:var(--n-25); border:1px solid var(--border-subtle);
+  border-radius:var(--r-sm); margin-bottom:14px}
+.pgblock .pg-res svg.ic{color:var(--text-3); flex:0 0 auto}
+.pgblock .pg-note{display:flex; gap:8px; align-items:flex-start; font-size:12.5px;
+  color:var(--text-3); line-height:1.55; margin-bottom:12px}
+.pgblock .pg-note svg.ic{margin-top:2px; flex:0 0 auto}
+.pgblock table.dt td .tsub{font-size:12px; color:var(--text-3); margin-top:2px; display:block}
+
+.rulelist{display:flex; flex-direction:column; gap:8px; margin-top:12px}
+.rulelist li{display:flex; gap:9px; align-items:flex-start; font-size:13px; color:var(--text-2); line-height:1.6}
+.rulelist li svg.ic{margin-top:3px; flex:0 0 auto; color:var(--text-3)}
+.pgblock table.dt tr.retired td{background:var(--n-25); color:var(--text-3)}
+.pgblock table.dt tbody tr.retired:hover td{background:var(--n-25)}
+.pgblock .pg-overall .pg-roll{font-size:12.5px; color:var(--text-3); line-height:1.5; margin-top:7px}

@@ -36,7 +36,10 @@ XRSLP.ui = (function () {
     plus: '<path d="M12 5v14M5 12h14"/>',
     minus: '<path d="M6 12h12"/>',
     home: '<path d="M4 11l8-7 8 7"/><path d="M6 9.8V20h12V9.8"/><path d="M10 20v-5.5h4V20"/>',
-    shield: '<path d="M12 3l7.5 3v6c0 4.4-3 7.6-7.5 9-4.5-1.4-7.5-4.6-7.5-9V6L12 3z"/><path d="M9 11.8l2.2 2.2 4-4.5"/>'
+    shield: '<path d="M12 3l7.5 3v6c0 4.4-3 7.6-7.5 9-4.5-1.4-7.5-4.6-7.5-9V6L12 3z"/><path d="M9 11.8l2.2 2.2 4-4.5"/>',
+    book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v14H6.5A2.5 2.5 0 0 0 4 19.5V5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H19v-5"/><path d="M8 7h7M8 10.5h7"/>',
+    bars: '<path d="M5 20.5V13M12 20.5V4.5M19 20.5v-5.5"/><path d="M3 20.5h18"/>',
+    circle: '<circle cx="12" cy="12" r="7"/>'
   };
 
   function ic(name, cls) {

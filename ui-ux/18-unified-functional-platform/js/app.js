@@ -1,7 +1,8 @@
 /* ============================================================
    Unified Functional Platform — application bootstrap.
    Renders the prototype-controls strip, the active shell
-   (public / Super Admin / Tenant Admin) and the routed screen.
+   (public / Super Admin / Tenant Admin / Student) and the routed
+   screen.
    ============================================================ */
 
 (function () {
@@ -16,7 +17,35 @@
   var firstRender = true;
 
   /* ---------- prototype controls strip (NOT product UI) ---------- */
-  function protobar(area) {
+
+  /* The Student entry is a PROTOTYPE VIEW SWITCH, not authentication.
+     When the Student workspace is open it also offers a chooser over
+     the REAL student records that exist in the prototype data — never
+     a fabricated identity, and never a grant of access: what the
+     chosen student can see still comes only from what has been
+     assigned to them. */
+  /* `shown` is the student the page actually rendered. Driving the control
+     from the stored pointer alone let the two diverge — open
+     `#/learn/<someone-else>/…` directly and the strip claimed you were
+     viewing as a different person than the page in front of you. */
+  function studentSelector(shown) {
+    var chosen = shown || state.protoStudent();
+    var groups = state.tenants().map(function (t) {
+      var students = state.studentsForTenant(t.id);
+      if (!students.length) { return ''; }
+      return '<optgroup label="' + esc(t.name) + '">' + students.map(function (p) {
+        return '<option value="' + esc(p.id) + '"' + (chosen && chosen.id === p.id ? ' selected' : '') + '>' +
+          esc(p.name + (p.status === 'active' ? '' : ' (inactive)')) + '</option>';
+      }).join('') + '</optgroup>';
+    }).join('');
+    if (!groups) { return ''; }
+    return '<label for="proto-student">Viewing as student' +
+      '<select id="proto-student">' +
+      '<option value="">&mdash; choose a student &mdash;</option>' + groups +
+      '</select></label>';
+  }
+
+  function protobar(area, shownStudent) {
     var sc = state.scenario();
     var options = Object.keys(data.SCENARIOS).map(function (key) {
       var s = data.SCENARIOS[key];
@@ -29,15 +58,32 @@
       '<a href="#/catalogue"' + (area === 'public' ? ' aria-current="true"' : '') + '>Public</a>' +
       '<a href="#/platform/requests"' + (area === 'platform' ? ' aria-current="true"' : '') + '>Super Admin</a>' +
       '<a href="#/tenant"' + (area === 'tenant' ? ' aria-current="true"' : '') + '>Tenant Admin</a>' +
+      '<a href="#/learn"' + (area === 'learn' ? ' aria-current="true"' : '') + '>Student</a>' +
       '</nav>' +
       '<div class="pright">' +
-      '<label for="proto-scenario">Requester scenario' +
-      '<select id="proto-scenario">' + options + '</select></label>' +
+      (area === 'learn'
+        ? studentSelector(shownStudent)
+        : '<label for="proto-scenario">Requester scenario' +
+          '<select id="proto-scenario">' + options + '</select></label>') +
       '<button type="button" id="proto-reset">Reset prototype data</button>' +
       '</div></div>';
   }
 
   function bindProtobar() {
+    var stu = document.getElementById('proto-student');
+    if (stu) {
+      stu.addEventListener('change', function () {
+        if (!stu.value) {
+          state.setProtoStudent(null);
+          XRSLP.router.go('#/learn');
+          return;
+        }
+        state.setProtoStudent(stu.value);
+        var p = state.personById(stu.value);
+        XRSLP.router.go('#/learn/' + encodeURIComponent(stu.value) + '/my-learning');
+        ui.toast('Now viewing as ' + (p ? p.name : 'the selected student') + ' (prototype only).', 'info');
+      });
+    }
     var sel = document.getElementById('proto-scenario');
     if (sel) {
       sel.addEventListener('change', function () {
@@ -54,7 +100,8 @@
           title: 'Reset prototype data?',
           bodyHTML: '<p>This restores the deterministic seed data: the selection, all requests, ' +
             'created tenants and tenant access records are cleared, tenant people, groups, mappings and ' +
-            'assignments return to the seed set, and the requester scenario returns to A.</p>' +
+            'assignments return to the seed set, every student learning record — resources opened, ' +
+            'simulations run and assessment attempts — is discarded, and the requester scenario returns to A.</p>' +
             '<p style="margin-top:8px">Reset is the <strong>only</strong> action that discards existing data. ' +
             'Loading a state saved by an earlier build upgrades it in place instead.</p>' +
             '<div class="consequence">' + ui.ic('info') +
@@ -147,6 +194,37 @@
     });
   }
 
+  /* ---------- Student workspace shell ----------
+     The same unified design system and the same workspace chrome as
+     the admin workspaces — a lighter navigation over it, because a
+     Student has three destinations and every one is implemented.
+     There is no Assessments, Certificates, Messages, Profile or
+     Support entry here: none of them is built in this slice, and a
+     link that leads nowhere is worse than an absent one. */
+  function learnShell(contentHTML, student, tenant, activeKey) {
+    var nav = [];
+    if (student) {
+      var h = XRSLP.studentUI.href;
+      var summary = state.studentProgressSummary(student.id);
+      nav = [
+        { href: h.home(student.id), icon: 'home', label: 'Home', active: activeKey === 'home', count: 0 },
+        { href: h.myLearning(student.id), icon: 'flask', label: 'My Learning',
+          active: activeKey === 'my-learning', count: summary.entitled,
+          countLabel: XRSLP.util.plural(summary.entitled, 'experiment') + ' available to you' },
+        { href: h.progress(student.id), icon: 'bars', label: 'Progress', active: activeKey === 'progress', count: 0 }
+      ];
+    }
+    return workspaceShell({
+      homeHref: student ? XRSLP.studentUI.href.home(student.id) : '#/learn',
+      chip: tenant ? tenant.name : null,
+      navLabel: 'Student navigation',
+      wsKind: 'Student',
+      wsName: student ? student.name : 'Student workspace',
+      nav: nav,
+      contentHTML: contentHTML
+    });
+  }
+
   function tenantShell(contentHTML, tenant, activeKey) {
     var nav = [];
     if (tenant) {
@@ -199,6 +277,13 @@
       shellHTML = platformShell(result.html, result.navKey);
     } else if (area === 'tenant') {
       shellHTML = tenantShell(result.html, result.tenant, result.navKey);
+    } else if (area === 'learn') {
+      /* Keep the prototype pointer on the student actually being viewed, so
+         `#/learn` and the strip never disagree with the page. */
+      if (result.student && state.protoStudentId() !== result.student.id) {
+        state.setProtoStudent(result.student.id);
+      }
+      shellHTML = learnShell(result.html, result.student, result.tenant, result.navKey);
     } else {
       shellHTML = publicShell(result.html, result.navKey);
     }
@@ -207,7 +292,7 @@
     /* The skip link is the very first focusable element on the page,
        ahead of even the prototype-controls strip. */
     root.innerHTML = '<a class="skip-link" href="#main-content" id="skip-link">Skip to main content</a>' +
-      protobar(area) + shellHTML;
+      protobar(area, result.student) + shellHTML;
 
     document.title = (result.title ? result.title + ' — ' : '') + 'XR Simulation Learning Platform (Prototype)';
 

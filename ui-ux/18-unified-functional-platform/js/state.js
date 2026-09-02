@@ -62,7 +62,7 @@ XRSLP.state = (function () {
   var util = XRSLP.util;
 
   var STORAGE_KEY = 'xrslp-unified-v1';
-  var SCHEMA_VERSION = 2;
+  var SCHEMA_VERSION = 4;
 
   var STATUS = {
     DRAFT: 'DRAFT',
@@ -96,7 +96,11 @@ XRSLP.state = (function () {
       memberships: [],
       courseMappings: [],
       facultyMappings: [],
-      assignments: []
+      assignments: [],
+      /* Implementation 03 — the learning records. */
+      resourceActivity: [],
+      simulationActivity: [],
+      attempts: []
     };
   }
 
@@ -117,10 +121,23 @@ XRSLP.state = (function () {
       courseMappings: [],
       facultyMappings: [],
       assignments: [],
+      resourceActivity: [],
+      simulationActivity: [],
+      attempts: [],
+      /* Which REAL student record the prototype is currently viewing
+         as. Prototype-only; it is not authentication and grants
+         nothing (Implementation 03). */
+      protoStudentId: null,
+      /* When this seed was created. Assessment answer-visibility
+         policies are authored as day offsets and resolve against it,
+         so a fresh reset always behaves the same way relative to
+         "now". */
+      seededAt: new Date().toISOString(),
       /* `event` is a monotonic ordering counter. Wall-clock timestamps
          are display-only: several records can share a millisecond, so
          allocation ordering must never depend on them. */
-      seq: { request: 0, access: 0, person: 0, group: 0, membership: 0, mapping: 0, facultyMap: 0, assignment: 0, event: 0 }
+      seq: { request: 0, access: 0, person: 0, group: 0, membership: 0, mapping: 0, facultyMap: 0, assignment: 0, event: 0,
+             resourceAct: 0, simAct: 0, attempt: 0 }
     };
     seedTenantOperations(S0);
     return S0;
@@ -201,9 +218,13 @@ XRSLP.state = (function () {
 
   /* ---------------- load + migrate ---------------- */
 
-  /* Migration is additive only. An Implementation-01 state (`version: 1`)
-     keeps every request, tenant and access record it already holds and
-     simply gains the empty Implementation-02 collections. */
+  /* Migration is additive only, at every version. An Implementation-01
+     state (`version: 1`) or an Implementation-02 state
+     (`schemaVersion: 2`) keeps every request, tenant, access, person,
+     group, mapping and assignment record it already holds, and simply
+     gains the collections the newer build adds. Nothing is ever
+     discarded here — only an explicit "Reset prototype data" does
+     that. */
   function migrate(parsed) {
     var stored = parsed.schemaVersion || parsed.version || 1;
     if (stored > SCHEMA_VERSION) { return null; }   /* newer than this build — fall back to seed */
@@ -213,7 +234,8 @@ XRSLP.state = (function () {
       if (!Array.isArray(parsed[key])) { parsed[key] = blank[key]; }
     });
     if (!parsed.seq || typeof parsed.seq !== 'object') { parsed.seq = {}; }
-    ['request', 'access', 'person', 'group', 'membership', 'mapping', 'facultyMap', 'assignment', 'event']
+    ['request', 'access', 'person', 'group', 'membership', 'mapping', 'facultyMap', 'assignment', 'event',
+     'resourceAct', 'simAct', 'attempt']
       .forEach(function (k) {
         if (typeof parsed.seq[k] !== 'number') { parsed.seq[k] = 0; }
       });
@@ -231,6 +253,34 @@ XRSLP.state = (function () {
     parsed.assignments.forEach(function (a) {
       if (typeof a.eventSeq !== 'number') { parsed.seq.event += 1; a.eventSeq = parsed.seq.event; }
     });
+    /* SCHEMA 3 → 4: the assessment attempt stopped being keyed by
+       technology. An attempt written by the schema-3 build carries
+       `technology`; that value is a real observation of the route the
+       Student came in from, so it is MOVED to `sourceTechnology` rather
+       than discarded. Nothing else about the attempt changes, and a
+       Student who took the same assessment twice under the old model
+       keeps both attempts as history. */
+    parsed.attempts.forEach(function (a) {
+      if (a.sourceTechnology === undefined) {
+        a.sourceTechnology = a.technology || null;
+      }
+      delete a.technology;
+      /* The stored outcome string was renamed when STK31-31's owner was
+         put into the label. */
+      if (a.outcome === 'PENDING_EVALUATION') { a.outcome = 'PENDING_FACULTY_REVIEW'; }
+    });
+
+    /* An Implementation-02 state has no seed timestamp. Stamping it at
+       migration time is the honest choice: the assessment visibility
+       offsets then run from the moment this build first opened the
+       existing data, and nothing already recorded is touched. */
+    if (typeof parsed.seededAt !== 'string') { parsed.seededAt = new Date().toISOString(); }
+    /* A stale prototype-student pointer must never resolve to a
+       fabricated person. */
+    if (typeof parsed.protoStudentId !== 'string') { parsed.protoStudentId = null; }
+    else if (!parsed.people.some(function (p) { return p.id === parsed.protoStudentId && p.role === 'student'; })) {
+      parsed.protoStudentId = null;
+    }
     parsed.schemaVersion = SCHEMA_VERSION;
     delete parsed.version;
     parsed.migratedFrom = stored < SCHEMA_VERSION ? stored : (parsed.migratedFrom || null);
@@ -449,10 +499,16 @@ XRSLP.state = (function () {
      in-product state is recommended supporting UX, not the reminder. */
   function accessTermState(rec) {
     if (!rec.endsOn) { return { key: 'active', label: 'Active' }; }
+    var end = new Date(rec.endsOn).getTime();
+    if (isNaN(end)) { return { key: 'active', label: 'Active' }; }
+    /* Compare the instant, never the day count. `daysUntil` rounds up, so a
+       record that expired an hour ago yields Math.ceil(-0.04) === -0 — and
+       `-0 < 0` is FALSE in JavaScript, which kept an expired record readable
+       as Active for up to a day and let entitlement derived from it stay
+       effective. The expiry boundary is the timestamp itself. */
+    if (end <= Date.now()) { return { key: 'expired', label: 'Expired' }; }
     var days = util.daysUntil(rec.endsOn);
-    if (days == null) { return { key: 'active', label: 'Active' }; }
-    if (days < 0) { return { key: 'expired', label: 'Expired' }; }
-    if (days <= 15) { return { key: 'expiring', label: 'Expiring soon' }; }
+    if (days != null && days <= 15) { return { key: 'expiring', label: 'Expiring soon' }; }
     return { key: 'active', label: 'Active' };
   }
   /* An expired access record grants nothing downstream (§42 of the
@@ -1195,6 +1251,796 @@ XRSLP.state = (function () {
     return Object.keys(set);
   }
 
+
+  /* ============================================================
+     IMPLEMENTATION 03 — THE LEARNING RECORDS
+
+     Three new conceptual records, all browser state only. None of
+     them is an entitlement, and none of them can create one:
+
+       resourceActivity[]    ResourceActivity   — EXPERIMENT-level
+       simulationActivity[]  SimulationActivity — TECHNOLOGY-level
+       attempts[]            AssessmentAttempt  — EXPERIMENT-level
+
+     ── WHY THE ASSESSMENT IS EXPERIMENT-LEVEL ────────────────────
+     `STK31-36` adds a technology axis to PROGRESS. It says nothing
+     about assessment identity, and no source establishes a separately
+     configured or separately attempted assessment per technology
+     variant. The sources point the other way:
+
+       · `13_BATCH_01_05_EXACT_CORRECTION_MAP.md` Part B —
+         "Faculty assigns assessments to **Experiments**"; `B08`
+         Assessment Introduction and `B09` Assessment Attempt are
+         both **KEEP**, and only `B12` Progress and `S13` XR Device
+         Access gain the technology axis.
+       · `14_UNIFIED_SCREEN_REQUIREMENTS.md` area G — `U-LRN-05/06/07`
+         are **KEEP**; `U-LRN-08` Result is MODIFY "+ Faculty-owned
+         evaluation, + visibility policy" with NO technology
+         dimension; only `U-LRN-09` Progress gains "+ technology axis".
+       · `17_CONCEPTUAL_DATA_AND_STATE_MODEL.md` record 24 —
+         Assessment "Gains the answer/explanation visibility policy"
+         and nothing else; record 26 — "**Progress** gains a
+         per-technology axis", naming Progress out of
+         Attempt · Result · Progress.
+
+     `09_…` §3 rule 4 ("simulation and assessment **state** are
+     technology-level unless a source says otherwise") is about how a
+     progress surface REPORTS assessment, and carries its own hedge —
+     and the two sources above are the source that says otherwise
+     about identity.
+
+     So a Student sits ONE assessment for an Experiment, however many
+     technologies their institution licensed. The attempt records
+     `sourceTechnology` — which simulation route led into it — as an
+     observation, never as a second identity.
+
+     ⛔ No API, endpoint, payload or schema is proposed by any of this
+     (STK31-35). These are prototype browser records.
+     ============================================================ */
+
+  var SIM_STATUS = { NOT_STARTED: 'NOT_STARTED', IN_PROGRESS: 'IN_PROGRESS', COMPLETED: 'COMPLETED' };
+  var RES_STATUS = { NOT_STARTED: 'NOT_STARTED', IN_PROGRESS: 'IN_PROGRESS', COMPLETED: 'COMPLETED' };
+
+  /* Batch 01's XR access vocabulary, kept mechanism-neutral (PM-05 /
+     QT-01 stay open BY INSTRUCTION). Only the states a real prototype
+     action can actually produce are modelled — `delivery failed` and
+     `availability unknown` exist in the model but nothing here can
+     honestly produce them, so no control claims to. */
+  var DELIVERY_STATE = {
+    NOT_REQUESTED: 'not-requested',
+    PENDING: 'pending',
+    READY: 'ready'
+  };
+
+  /* ---------- PROTOTYPE-ONLY student selection ----------
+     Real authentication is not implemented in this slice (U-AUTH-01/06
+     are a later build item). This records WHICH REAL TenantUser record
+     the prototype is currently viewing as. It is not an account
+     switcher and grants nothing. */
+  function protoStudentId() { return S.protoStudentId || null; }
+  function setProtoStudent(personId) {
+    S.protoStudentId = personId || null;
+    save();
+    return S.protoStudentId;
+  }
+  /* Resolves to a REAL student record or null — never a fabricated one. */
+  function protoStudent() {
+    var p = S.protoStudentId ? personById(S.protoStudentId) : null;
+    return (p && p.role === 'student') ? p : null;
+  }
+
+  /* When the prototype data was seeded. Assessment visibility policies
+     are authored as day offsets in data.js; they resolve against this,
+     so a fresh reset always produces the same relative behaviour. */
+  function seededAt() { return S.seededAt || null; }
+
+  /* ============================================================
+     THE ONE SHARED ENTITLEMENT SELECTOR.
+
+     The Student workspace CONSUMES the Implementation-02 derivation
+     and never re-derives it. There is exactly one entitlement engine
+     (`entitlementsForStudent`); everything below is a read model over
+     its output.
+     ============================================================ */
+  function getEffectiveStudentEntitlements(studentId) {
+    return entitlementsForStudent(studentId).filter(function (e) { return e.effective; });
+  }
+
+  /* Reason order matters: the Student is told the MOST explanatory cause
+     first. An inactive account explains everything else. Below that, a hold
+     on a record whose term is still running is the accurate, actionable
+     story — telling the Student their institution's access "has ended"
+     because some OTHER record expired would be plainly wrong. */
+  var BLOCK_PRIORITY = ['student-inactive', 'allocation-held', 'access-expired'];
+
+  /* The Student-facing read model. Entitlements are grouped by
+     EXPERIMENT — a Student thinks in experiments, not access records,
+     and §32 of the brief keeps ACC-nnn, licence quantities and the
+     administrative assignment source out of the Student surface
+     entirely. Technologies are the UNION across the entitlements that
+     are effective, so a second access record can only ever ADD a
+     technology, never silently remove one. */
+  function studentExperiments(personId) {
+    var ents = entitlementsForStudent(personId);
+    var byExp = {}, order = [];
+    ents.forEach(function (e) {
+      if (!byExp[e.experimentId]) {
+        byExp[e.experimentId] = {
+          experimentId: e.experimentId,
+          technologies: [],          /* entitled AND effective */
+          blockedTechnologies: [],   /* present only through a non-effective entitlement */
+          effective: false,
+          blockedBy: null,
+          entitlements: []
+        };
+        order.push(byExp[e.experimentId]);
+      }
+      var row = byExp[e.experimentId];
+      row.entitlements.push(e);
+      var target = e.effective ? row.technologies : row.blockedTechnologies;
+      e.technologies.forEach(function (t) {
+        if (target.indexOf(t) === -1) { target.push(t); }
+      });
+      if (e.effective) { row.effective = true; }
+    });
+    order.forEach(function (row) {
+      row.technologies = data.sortTech(row.technologies);
+      /* A technology that is reachable effectively is not "blocked". */
+      row.blockedTechnologies = data.sortTech(row.blockedTechnologies.filter(function (t) {
+        return row.technologies.indexOf(t) === -1;
+      }));
+      if (!row.effective) {
+        var reasons = row.entitlements.map(function (e) { return e.blockedBy; });
+        for (var i = 0; i < BLOCK_PRIORITY.length; i++) {
+          if (reasons.indexOf(BLOCK_PRIORITY[i]) !== -1) { row.blockedBy = BLOCK_PRIORITY[i]; break; }
+        }
+        if (!row.blockedBy) { row.blockedBy = reasons[0] || null; }
+      }
+    });
+    order.sort(function (x, y) {
+      var cx = data.contextOf(x.experimentId), cy = data.contextOf(y.experimentId);
+      var nx = cx ? cx.course.name + ' ' + cx.experiment.name : x.experimentId;
+      var ny = cy ? cy.course.name + ' ' + cy.experiment.name : y.experimentId;
+      return nx < ny ? -1 : nx > ny ? 1 : 0;
+    });
+    return order;
+  }
+
+  function studentExperiment(personId, experimentId) {
+    return studentExperiments(personId).filter(function (r) {
+      return r.experimentId === experimentId;
+    })[0] || null;
+  }
+
+  /* THE authorisation gate for technology-specific access (brief §17 /
+     §46). Everything that could open a simulation asks this — the UI
+     and the state writers both — so hand-editing the route to a
+     technology the Student was never granted cannot produce an
+     authorised launch state. */
+  function studentEntitledTechnologies(personId, experimentId) {
+    var row = studentExperiment(personId, experimentId);
+    return (row && row.effective) ? row.technologies.slice() : [];
+  }
+  function studentCanRun(personId, experimentId, technology) {
+    return studentEntitledTechnologies(personId, experimentId).indexOf(technology) !== -1;
+  }
+
+  /* ============================================================
+     RESOURCE ACTIVITY — Experiment-level
+     ============================================================ */
+
+  function resourceActivity(personId, experimentId, resourceId) {
+    return S.resourceActivity.filter(function (r) {
+      return r.personId === personId && r.experimentId === experimentId && r.resourceId === resourceId;
+    })[0] || null;
+  }
+  function resourceStatus(personId, experimentId, resourceId) {
+    var rec = resourceActivity(personId, experimentId, resourceId);
+    return rec ? rec.status : RES_STATUS.NOT_STARTED;
+  }
+  function ensureResourceActivity(personId, experimentId, resourceId) {
+    var rec = resourceActivity(personId, experimentId, resourceId);
+    if (rec) { return rec; }
+    var p = personById(personId);
+    if (!p) { return null; }
+    S.seq.resourceAct += 1;
+    rec = {
+      id: 'RES-' + util.pad3(S.seq.resourceAct),
+      tenantId: p.tenantId, personId: personId,
+      experimentId: experimentId, resourceId: resourceId,
+      status: RES_STATUS.NOT_STARTED,
+      openedAt: null, completedAt: null
+    };
+    S.resourceActivity.push(rec);
+    return rec;
+  }
+  /* Opening a resource is itself progress: it is a real action and it
+     is the only thing that distinguishes "not started" from
+     "in progress" at the resource level. */
+  function openResource(personId, experimentId, resourceId) {
+    if (!studentEntitledTechnologies(personId, experimentId).length) { return null; }
+    var rec = ensureResourceActivity(personId, experimentId, resourceId);
+    if (!rec) { return null; }
+    if (rec.status === RES_STATUS.NOT_STARTED) {
+      rec.status = RES_STATUS.IN_PROGRESS;
+      rec.openedAt = new Date().toISOString();
+    }
+    save();
+    return rec;
+  }
+  function setResourceComplete(personId, experimentId, resourceId, done) {
+    if (!studentEntitledTechnologies(personId, experimentId).length) { return null; }
+    var rec = ensureResourceActivity(personId, experimentId, resourceId);
+    if (!rec) { return null; }
+    var now = new Date().toISOString();
+    if (done) {
+      rec.status = RES_STATUS.COMPLETED;
+      if (!rec.openedAt) { rec.openedAt = now; }
+      rec.completedAt = now;
+    } else {
+      /* Reversible — un-marking returns the item to "opened", never to
+         "never seen", because it was in fact seen. */
+      rec.status = RES_STATUS.IN_PROGRESS;
+      rec.completedAt = null;
+      if (!rec.openedAt) { rec.openedAt = now; }
+    }
+    save();
+    return rec;
+  }
+  function resourceProgress(personId, experimentId) {
+    var list = data.resourcesFor(experimentId);
+    var completed = 0, started = 0;
+    list.forEach(function (r) {
+      var st = resourceStatus(personId, experimentId, r.id);
+      if (st === RES_STATUS.COMPLETED) { completed += 1; started += 1; }
+      else if (st === RES_STATUS.IN_PROGRESS) { started += 1; }
+    });
+    return { total: list.length, completed: completed, started: started };
+  }
+
+  /* ============================================================
+     SIMULATION ACTIVITY — technology-level
+
+     ⚠ Nothing here downloads, installs, hosts or launches anything.
+     There is no package, no binary, no external URL and no runtime.
+     These records represent the STATES a real delivery would move
+     through, driven only by explicit prototype actions.
+     ============================================================ */
+
+  function simulationActivity(personId, experimentId, technology) {
+    return S.simulationActivity.filter(function (s) {
+      return s.personId === personId && s.experimentId === experimentId && s.technology === technology;
+    })[0] || null;
+  }
+  function simulationStatus(personId, experimentId, technology) {
+    var rec = simulationActivity(personId, experimentId, technology);
+    return rec ? rec.status : SIM_STATUS.NOT_STARTED;
+  }
+  function ensureSimulation(personId, experimentId, technology) {
+    if (!studentCanRun(personId, experimentId, technology)) { return null; }
+    var rec = simulationActivity(personId, experimentId, technology);
+    if (rec) { return rec; }
+    var p = personById(personId);
+    if (!p) { return null; }
+    var tech = data.TECHNOLOGIES[technology];
+    S.seq.simAct += 1;
+    rec = {
+      id: 'SIM-' + util.pad3(S.seq.simAct),
+      tenantId: p.tenantId, personId: personId,
+      experimentId: experimentId, technology: technology,
+      status: SIM_STATUS.NOT_STARTED,
+      /* Hosted experiences need no device authorisation; package
+         technologies do (STK31-37). */
+      deliveryState: (tech && tech.delivery === 'hosted')
+        ? DELIVERY_STATE.READY : DELIVERY_STATE.NOT_REQUESTED,
+      startedAt: null, completedAt: null,
+      timeSpentSeconds: 0, launches: 0
+    };
+    S.simulationActivity.push(rec);
+    return rec;
+  }
+  /* AR / VR / MR only — asks for the authorised package on a device. */
+  function requestSimulationAccess(personId, experimentId, technology) {
+    var rec = ensureSimulation(personId, experimentId, technology);
+    if (!rec || rec.deliveryState !== DELIVERY_STATE.NOT_REQUESTED) { return null; }
+    rec.deliveryState = DELIVERY_STATE.PENDING;
+    rec.requestedAt = new Date().toISOString();
+    save();
+    return rec;
+  }
+  /* PROTOTYPE ONLY: stands in for the delivery event a real
+     entitlement-aware mechanism would produce. It is labelled as a
+     simulation everywhere it is offered. */
+  function simulatePackageReady(personId, experimentId, technology) {
+    var rec = ensureSimulation(personId, experimentId, technology);
+    if (!rec || rec.deliveryState !== DELIVERY_STATE.PENDING) { return null; }
+    rec.deliveryState = DELIVERY_STATE.READY;
+    rec.readyAt = new Date().toISOString();
+    save();
+    return rec;
+  }
+  function startSimulation(personId, experimentId, technology) {
+    var rec = ensureSimulation(personId, experimentId, technology);
+    if (!rec || rec.deliveryState !== DELIVERY_STATE.READY) { return null; }
+    if (rec.status === SIM_STATUS.COMPLETED) { return rec; }
+    var now = new Date().toISOString();
+    if (rec.status === SIM_STATUS.NOT_STARTED) {
+      rec.status = SIM_STATUS.IN_PROGRESS;
+      rec.startedAt = now;
+    }
+    rec.launches += 1;
+    save();
+    return rec;
+  }
+  /* Completion is what a real integration would RETURN, carrying a
+     technology identifier (STK31-35 / STK31-36). Here the Student
+     records it, and time spent is derived from the real interval
+     between starting and completing — never a decorative number. */
+  function completeSimulation(personId, experimentId, technology) {
+    var rec = ensureSimulation(personId, experimentId, technology);
+    if (!rec || rec.status !== SIM_STATUS.IN_PROGRESS) { return null; }
+    var now = new Date().toISOString();
+    rec.status = SIM_STATUS.COMPLETED;
+    rec.completedAt = now;
+    var ms = new Date(now).getTime() - new Date(rec.startedAt || now).getTime();
+    rec.timeSpentSeconds = Math.max(0, Math.round(ms / 1000));
+    save();
+    return rec;
+  }
+
+  /* ============================================================
+     ASSESSMENT ATTEMPTS — technology-level
+
+     Recording is UNCONDITIONAL (Batch 02's FRD 11.2.1/11.2.2 rule,
+     preserved): every started attempt is counted, and `attemptLimit`
+     gates only STARTING a new one.
+     ============================================================ */
+
+  var ATTEMPT_STATUS = { IN_PROGRESS: 'in-progress', SUBMITTED: 'submitted' };
+  /* `PENDING_REVIEW` is the stored outcome of an attempt containing a
+     written answer. STK31-31 settles who resolves it: FACULTY is the only
+     human role responsible for descriptive-answer evaluation, so the
+     Student-facing label for this state names Faculty review rather than
+     an anonymous evaluator. The Faculty review workspace itself is a later
+     slice — nothing here grades, scores or times that review. */
+  var OUTCOME = { PASSED: 'PASSED', NOT_PASSED: 'NOT_PASSED', PENDING_REVIEW: 'PENDING_FACULTY_REVIEW' };
+
+  function attemptById(id) {
+    return S.attempts.filter(function (a) { return a.id === id; })[0] || null;
+  }
+  /* Keyed by Student + Experiment. `sourceTechnology` is carried on the
+     record but is NOT part of its identity. */
+  function attemptsFor(personId, experimentId) {
+    return S.attempts.filter(function (a) {
+      return a.personId === personId && a.experimentId === experimentId;
+    });
+  }
+  function currentAttempt(personId, experimentId) {
+    return attemptsFor(personId, experimentId).filter(function (a) {
+      return a.status === ATTEMPT_STATUS.IN_PROGRESS;
+    })[0] || null;
+  }
+  function latestSubmittedAttempt(personId, experimentId) {
+    var subs = attemptsFor(personId, experimentId).filter(function (a) {
+      return a.status === ATTEMPT_STATUS.SUBMITTED;
+    });
+    return subs.length ? subs[subs.length - 1] : null;
+  }
+
+  /* The assessment belongs to the Experiment, so its gate is the
+     Experiment's effective entitlement — not one technology's. */
+  function studentCanOpenExperiment(personId, experimentId) {
+    return studentEntitledTechnologies(personId, experimentId).length > 0;
+  }
+
+  /* Why a new attempt cannot be started — always a reason, never a
+     silently disabled control. */
+  function attemptBlock(personId, experimentId) {
+    if (!studentCanOpenExperiment(personId, experimentId)) { return 'not-entitled'; }
+    var asm = data.assessmentFor(experimentId);
+    if (!asm) { return 'no-assessment'; }
+    var used = attemptsFor(personId, experimentId).length;
+    if (asm.attemptLimit && used >= asm.attemptLimit) { return 'attempt-limit'; }
+    var last = latestSubmittedAttempt(personId, experimentId);
+    if (last && last.outcome === OUTCOME.PENDING_REVIEW) { return 'pending-faculty-review'; }
+    if (last && last.outcome === OUTCOME.PASSED) { return 'already-passed'; }
+    return null;
+  }
+
+  /* Which simulation route the Student came in from — an observation,
+     recorded because it is a real fact, never an identity. Null when
+     they have not run a simulation yet. */
+  function latestSimulationTechnology(personId, experimentId) {
+    var best = null, bestAt = '';
+    S.simulationActivity.forEach(function (sim) {
+      if (sim.personId !== personId || sim.experimentId !== experimentId) { return; }
+      var at = sim.completedAt || sim.startedAt || sim.readyAt || sim.requestedAt || '';
+      if (at >= bestAt) { bestAt = at; best = sim.technology; }
+    });
+    return best;
+  }
+
+  function startAttempt(personId, experimentId) {
+    /* The entitlement gate is hoisted ABOVE the resume shortcut on purpose.
+       Resuming an attempt that is already open is legitimate when the block
+       is `attempt-limit` (the open attempt counts toward `used`, so testing
+       the whole block first would refuse to resume), but it is never
+       legitimate once the entitlement is gone — a Tenant Admin can remove
+       the assignment, or the access term end, while an attempt is open.
+       Only the entitlement clause runs before the resume. */
+    if (!studentCanOpenExperiment(personId, experimentId)) { return null; }
+    var open = currentAttempt(personId, experimentId);
+    if (open) { return open; }
+    if (attemptBlock(personId, experimentId)) { return null; }
+    var p = personById(personId);
+    var asm = data.assessmentFor(experimentId);
+    S.seq.attempt += 1;
+    var rec = {
+      id: 'ATT-' + util.pad3(S.seq.attempt),
+      tenantId: p.tenantId, personId: personId,
+      experimentId: experimentId,
+      sourceTechnology: latestSimulationTechnology(personId, experimentId),
+      assessmentId: asm.id,
+      attemptNo: attemptsFor(personId, experimentId).length + 1,
+      status: ATTEMPT_STATUS.IN_PROGRESS,
+      answers: {},
+      startedAt: new Date().toISOString(),
+      submittedAt: null,
+      score: null,
+      outcome: null
+    };
+    S.attempts.push(rec);
+    save();
+    return rec;
+  }
+
+  /* Every answer change is persisted immediately, which is what makes
+     an attempt survive a refresh. */
+  function saveAnswer(attemptId, questionId, value) {
+    var a = attemptById(attemptId);
+    if (!a || a.status !== ATTEMPT_STATUS.IN_PROGRESS) { return null; }
+    /* An attempt can only be STARTED while entitled, but entitlement can
+       be withdrawn while one is open — a Tenant Admin removing the
+       assignment, or the access term ending, mid-attempt. The writer
+       applies the same gate as the screen, so a page already on screen
+       cannot keep writing after access is gone. */
+    if (!studentCanOpenExperiment(a.personId, a.experimentId)) { return null; }
+    if (value === null || value === undefined || value === '') { delete a.answers[questionId]; }
+    else { a.answers[questionId] = value; }
+    save();
+    return a;
+  }
+  function answeredCount(attempt) {
+    var asm = data.assessmentById(attempt.assessmentId);
+    if (!asm) { return 0; }
+    return asm.questions.filter(function (q) {
+      var v = attempt.answers[q.id];
+      return v !== undefined && v !== null && v !== '';
+    }).length;
+  }
+  function unansweredQuestions(attempt) {
+    var asm = data.assessmentById(attempt.assessmentId);
+    if (!asm) { return []; }
+    return asm.questions.filter(function (q) {
+      var v = attempt.answers[q.id];
+      return v === undefined || v === null || v === '';
+    });
+  }
+
+  /* Submission is idempotent by construction: only an `in-progress`
+     attempt can be submitted, so a double click, a resubmitted form
+     and a refreshed page all produce exactly one result. */
+  function submitAttempt(attemptId) {
+    var a = attemptById(attemptId);
+    if (!a || a.status !== ATTEMPT_STATUS.IN_PROGRESS) { return null; }
+    if (!studentCanOpenExperiment(a.personId, a.experimentId)) { return null; }
+    var asm = data.assessmentById(a.assessmentId);
+    if (!asm) { return null; }
+
+    var earned = 0, total = 0;
+    asm.questions.forEach(function (q) {
+      if (q.type === 'descriptive') { return; }
+      var pts = q.points || 1;
+      total += pts;
+      var given = a.answers[q.id];
+      if (q.type === 'mcq' && given === q.answer) { earned += pts; }
+      if (q.type === 'tf' && given === q.answer) { earned += pts; }
+    });
+
+    a.status = ATTEMPT_STATUS.SUBMITTED;
+    a.submittedAt = new Date().toISOString();
+    a.score = {
+      earned: earned, total: total,
+      percent: total > 0 ? Math.round((earned / total) * 100) : null
+    };
+    /* A descriptive answer has no machine outcome. STK31-31 gives the
+       pending state its owner — Faculty — and the Faculty evaluation
+       queue is a later slice, so the attempt stays pending here rather
+       than being auto-graded. Auto-review is never auto-final. */
+    if (data.hasDescriptive(asm)) {
+      a.outcome = OUTCOME.PENDING_REVIEW;
+    } else {
+      a.outcome = (a.score.percent !== null && a.score.percent >= (asm.passMark || 0))
+        ? OUTCOME.PASSED : OUTCOME.NOT_PASSED;
+    }
+    save();
+    return a;
+  }
+
+  /* ---------- answer / explanation visibility policy (STK31-32) ----------
+     Three CONFIRMED general options and no invented fourth. The BITS /
+     Taxila rule is NOT modelled (ND-10) and nothing here claims it.
+     D-25 is untouched: the key is never exposed during an attempt,
+     whatever this returns. */
+  function assessmentRelease(assessment) {
+    var out = { mode: null, label: '', releaseAt: null, released: false, sentence: '' };
+    if (!assessment || !assessment.policy) { return out; }
+    var pol = assessment.policy;
+    out.mode = pol.mode;
+    out.label = data.policyLabel(pol.mode);
+    if (pol.mode === 'SHOW_IMMEDIATELY') {
+      out.released = true;
+      out.sentence = 'Your score and the explanations are shown as soon as you submit.';
+      return out;
+    }
+    var base = seededAt() || new Date().toISOString();
+    out.releaseAt = util.addDays(base, pol.offsetDays || 0);
+    out.released = new Date(out.releaseAt).getTime() <= Date.now();
+    out.sentence = pol.mode === 'AFTER_DEADLINE'
+      ? 'Your answers and the explanations become available after the assessment deadline on ' +
+        util.fmtDate(out.releaseAt) + '.'
+      : 'Your answers and the explanations become available on ' + util.fmtDate(out.releaseAt) + '.';
+    return out;
+  }
+
+  /* ============================================================
+     PROGRESS — DERIVED, never stored, and now per technology.
+
+     PM-09 confirmed Batch 02's derivation. STK31-36 adds the
+     technology axis: three assigned technology experiences must not
+     collapse into one ambiguous completion state.
+     ============================================================ */
+
+  /* Both derived, never stored — so renaming them carries no migration. */
+  var ASSESS_STATE = {
+    NONE: 'NONE', NOT_STARTED: 'NOT_STARTED', IN_PROGRESS: 'IN_PROGRESS',
+    PENDING_REVIEW: 'PENDING_FACULTY_REVIEW', PASSED: 'PASSED', NOT_PASSED: 'NOT_PASSED'
+  };
+  var TECH_PROGRESS = {
+    NOT_STARTED: 'NOT_STARTED', IN_PROGRESS: 'IN_PROGRESS',
+    PENDING_REVIEW: 'PENDING_FACULTY_REVIEW', COMPLETED: 'COMPLETED'
+  };
+
+  /* ONE assessment state per Experiment, whatever the Student was
+     licensed in. */
+  function assessmentState(personId, experimentId) {
+    var asm = data.assessmentFor(experimentId);
+    if (!asm) { return ASSESS_STATE.NONE; }
+    if (currentAttempt(personId, experimentId)) { return ASSESS_STATE.IN_PROGRESS; }
+    var last = latestSubmittedAttempt(personId, experimentId);
+    if (!last) { return ASSESS_STATE.NOT_STARTED; }
+    if (last.outcome === OUTCOME.PENDING_REVIEW) { return ASSESS_STATE.PENDING_REVIEW; }
+    if (last.outcome === OUTCOME.PASSED) { return ASSESS_STATE.PASSED; }
+    return ASSESS_STATE.NOT_PASSED;
+  }
+
+  /* One technology's state. Resources are Experiment-level, so the
+     same resource progress appears on every technology row — exactly
+     the shape the learning-progress model draws.
+
+     PM-09 confirmed Batch 02's derivation, which is a FOUR-part rule:
+     resources + simulation + assessment pass, and never complete while
+     a result is pending. STK31-36 adds the technology axis to it; it
+     does not remove a part. So learning resources do not GATE the
+     simulation — nothing in any source makes them a blocker — but they
+     ARE required for completion.
+
+     ⚠ An Experiment that carries NO resources must never be held short
+     of completion by a requirement that cannot be met. Batch 02's rule
+     ANDs `resourcesDone` unconditionally and only works because its one
+     resource-free module is seeded complete; that fragility is not
+     copied. */
+  function technologyProgress(personId, experimentId, technology) {
+    var sim = simulationActivity(personId, experimentId, technology);
+    var simStatus = sim ? sim.status : SIM_STATUS.NOT_STARTED;
+    /* Experiment-level, exactly like the resources: the same assessment
+       state appears against every technology row, because there is one
+       assessment. Only the SIMULATION differs by technology. */
+    var assess = assessmentState(personId, experimentId);
+    var res = resourceProgress(personId, experimentId);
+    var resourcesComplete = res.total === 0 || res.completed === res.total;
+    var learningDone = simStatus === SIM_STATUS.COMPLETED &&
+      (assess === ASSESS_STATE.NONE || assess === ASSESS_STATE.PASSED);
+    var status;
+    if (learningDone && resourcesComplete) {
+      status = TECH_PROGRESS.COMPLETED;
+    } else if (assess === ASSESS_STATE.PENDING_REVIEW &&
+               simStatus === SIM_STATUS.COMPLETED && resourcesComplete) {
+      /* Pending Faculty review only describes a technology that has
+         nothing else outstanding. The assessment is shared across the
+         Experiment, so claiming it for a technology whose simulation has
+         not been run would hide real outstanding work behind someone
+         else's pending result — and an Experiment NEVER completes while
+         a result is pending either way. */
+      status = TECH_PROGRESS.PENDING_REVIEW;
+    } else if (simStatus === SIM_STATUS.NOT_STARTED && res.started === 0 &&
+               (assess === ASSESS_STATE.NONE || assess === ASSESS_STATE.NOT_STARTED)) {
+      status = TECH_PROGRESS.NOT_STARTED;
+    } else {
+      status = TECH_PROGRESS.IN_PROGRESS;
+    }
+    return {
+      technology: technology,
+      simulation: sim,
+      simulationStatus: simStatus,
+      deliveryState: sim ? sim.deliveryState : null,
+      assessment: assess,
+      attempt: latestSubmittedAttempt(personId, experimentId) ||
+               currentAttempt(personId, experimentId),
+      status: status,
+      /* True when the simulation and assessment are done and the ONLY
+         thing left is the resource list — so the Student is never left
+         wondering why a finished-looking technology is not complete. */
+      waitingOnResources: learningDone && !resourcesComplete
+    };
+  }
+
+  /* Latest real activity timestamp for one Experiment — used for
+     "last activity", which is never shown unless something happened. */
+  function lastActivityAt(personId, experimentId) {
+    var stamps = [];
+    S.resourceActivity.forEach(function (r) {
+      if (r.personId === personId && r.experimentId === experimentId) {
+        if (r.completedAt) { stamps.push(r.completedAt); }
+        if (r.openedAt) { stamps.push(r.openedAt); }
+      }
+    });
+    S.simulationActivity.forEach(function (s) {
+      if (s.personId === personId && s.experimentId === experimentId) {
+        [s.completedAt, s.startedAt, s.readyAt, s.requestedAt].forEach(function (t) {
+          if (t) { stamps.push(t); }
+        });
+      }
+    });
+    S.attempts.forEach(function (a) {
+      if (a.personId === personId && a.experimentId === experimentId) {
+        if (a.submittedAt) { stamps.push(a.submittedAt); }
+        if (a.startedAt) { stamps.push(a.startedAt); }
+      }
+    });
+    if (!stamps.length) { return null; }
+    stamps.sort();
+    return stamps[stamps.length - 1];
+  }
+
+  /* One Experiment's progress across the technologies passed in.
+     The caller supplies the technology list, which is ALWAYS the
+     entitled set — progress is never reported for a technology the
+     Student was not assigned. */
+  /* `opts.historical` reports work whose ASSIGNMENT NO LONGER EXISTS. The
+     assigned technology set is gone with it, so the only technologies left
+     to report on are the ones the Student actually touched — and a roll-up
+     over those would overstate: a Student who finished VR of an assigned
+     VR + AR would read as "Completed 100%" once the assignment was removed,
+     because AR is no longer in the list to hold it back. Historical work is
+     therefore reported WITHOUT a completion verdict and WITHOUT a
+     percentage: what is shown is what actually happened. */
+  function experimentProgress(personId, experimentId, technologies, opts) {
+    opts = opts || {};
+    var techs = (technologies || []).slice();
+    var asm = data.assessmentFor(experimentId);
+    var res = resourceProgress(personId, experimentId);
+    var rows = techs.map(function (t) { return technologyProgress(personId, experimentId, t); });
+
+    var status;
+    if (opts.historical) {
+      status = null;
+    } else if (!rows.length) {
+      /* No technology to report on — the state can only come from the
+         Experiment-level resources. Reporting NOT_STARTED here while the
+         resources were finished would contradict the figures beside it. */
+      status = (res.total && res.completed === res.total) ? TECH_PROGRESS.COMPLETED
+             : res.started ? TECH_PROGRESS.IN_PROGRESS
+             : TECH_PROGRESS.NOT_STARTED;
+    } else if (rows.every(function (r) { return r.status === TECH_PROGRESS.COMPLETED; })) {
+      status = TECH_PROGRESS.COMPLETED;
+    } else if (rows.some(function (r) { return r.status === TECH_PROGRESS.PENDING_REVIEW; }) &&
+               rows.every(function (r) {
+                 return r.status === TECH_PROGRESS.PENDING_REVIEW || r.status === TECH_PROGRESS.COMPLETED;
+               })) {
+      status = TECH_PROGRESS.PENDING_REVIEW;
+    } else if (rows.every(function (r) { return r.status === TECH_PROGRESS.NOT_STARTED; })) {
+      status = TECH_PROGRESS.NOT_STARTED;
+    } else {
+      status = TECH_PROGRESS.IN_PROGRESS;
+    }
+
+    /* Percentage from EXPLICIT completed learning steps only — never a
+       decorative figure. The steps are: each Experiment-level resource
+       once, one SIMULATION step per entitled technology, and — where an
+       assessment is configured — ONE assessment step for the Experiment,
+       counted once however many technologies were licensed. A result
+       pending Faculty review contributes nothing, which is what keeps
+       "never complete while a result is pending" true of the number as
+       well as of the label. */
+    var assessState = assessmentState(personId, experimentId);
+    var stepsTotal = res.total + rows.length + (asm ? 1 : 0);
+    var stepsDone = res.completed + (asm && assessState === ASSESS_STATE.PASSED ? 1 : 0);
+    rows.forEach(function (r) {
+      if (r.simulationStatus === SIM_STATUS.COMPLETED) { stepsDone += 1; }
+    });
+
+    return {
+      experimentId: experimentId,
+      technologies: rows,
+      resources: res,
+      assessment: asm,
+      status: status,
+      historical: !!opts.historical,
+      steps: opts.historical ? null : { total: stepsTotal, done: stepsDone },
+      percent: opts.historical ? null : (stepsTotal > 0 ? Math.round((stepsDone / stepsTotal) * 100) : 0),
+      lastActivityAt: lastActivityAt(personId, experimentId)
+    };
+  }
+
+  /* Has this Student done ANYTHING against this Experiment? Used to
+     tell "no longer available" apart from "never touched" after an
+     assignment source is removed. */
+  function hasActivity(personId, experimentId) {
+    return !!lastActivityAt(personId, experimentId);
+  }
+  /* Experiments the Student has activity against but holds NO
+     entitlement record for at all — the assignment source was removed.
+     Nothing is deleted; the work is shown as past activity, clearly
+     separated from current access (brief §50). */
+  function studentPastExperiments(personId) {
+    var current = {};
+    entitlementsForStudent(personId).forEach(function (e) { current[e.experimentId] = true; });
+    var seen = {}, out = [];
+    function note(experimentId) {
+      if (current[experimentId] || seen[experimentId]) { return; }
+      seen[experimentId] = true;
+      out.push(experimentId);
+    }
+    S.resourceActivity.forEach(function (r) { if (r.personId === personId) { note(r.experimentId); } });
+    S.simulationActivity.forEach(function (s) { if (s.personId === personId) { note(s.experimentId); } });
+    S.attempts.forEach(function (a) { if (a.personId === personId) { note(a.experimentId); } });
+    return out;
+  }
+  /* Technologies this Student has recorded activity against for one
+     Experiment, whatever the current entitlement says. Past activity is
+     reported from what actually happened. */
+  /* Simulation activity only: it is the one genuinely technology-scoped
+     learning record. An attempt belongs to the Experiment, so it does not
+     make a technology "worked on". */
+  function technologiesWithActivity(personId, experimentId) {
+    var set = {};
+    S.simulationActivity.forEach(function (s) {
+      if (s.personId === personId && s.experimentId === experimentId) { set[s.technology] = true; }
+    });
+    return data.sortTech(Object.keys(set));
+  }
+
+  /* Whole-workspace roll-up for Student Home and Progress. */
+  function studentProgressSummary(personId) {
+    var rows = studentExperiments(personId);
+    var out = {
+      entitled: 0, notStarted: 0, inProgress: 0, awaiting: 0, completed: 0,
+      unavailable: 0, items: []
+    };
+    rows.forEach(function (row) {
+      if (!row.effective) { out.unavailable += 1; return; }
+      out.entitled += 1;
+      var prog = experimentProgress(personId, row.experimentId, row.technologies);
+      out.items.push({ row: row, progress: prog });
+      if (prog.status === TECH_PROGRESS.COMPLETED) { out.completed += 1; }
+      else if (prog.status === TECH_PROGRESS.PENDING_REVIEW) { out.awaiting += 1; }
+      else if (prog.status === TECH_PROGRESS.IN_PROGRESS) { out.inProgress += 1; }
+      else { out.notStarted += 1; }
+    });
+    return out;
+  }
+
   /* ---------- operational attention (all real states) ---------- */
   function unassignedStudents(tenantId) {
     var entitled = entitledStudentIds(tenantId);
@@ -1266,6 +2112,41 @@ XRSLP.state = (function () {
     effectiveEntitlementCount: effectiveEntitlementCount,
     entitledStudentsFor: entitledStudentsFor, entitledStudentIds: entitledStudentIds,
     unassignedStudents: unassignedStudents, accessWithoutAssignments: accessWithoutAssignments,
-    coursesWithoutMapping: coursesWithoutMapping
+    coursesWithoutMapping: coursesWithoutMapping,
+
+    /* ---- Implementation 03 — Student / learning ---- */
+    SIM_STATUS: SIM_STATUS, RES_STATUS: RES_STATUS, DELIVERY_STATE: DELIVERY_STATE,
+    ATTEMPT_STATUS: ATTEMPT_STATUS, OUTCOME: OUTCOME,
+    ASSESS_STATE: ASSESS_STATE, TECH_PROGRESS: TECH_PROGRESS,
+
+    protoStudentId: protoStudentId, setProtoStudent: setProtoStudent, protoStudent: protoStudent,
+    seededAt: seededAt,
+
+    getEffectiveStudentEntitlements: getEffectiveStudentEntitlements,
+    studentExperiments: studentExperiments, studentExperiment: studentExperiment,
+    studentEntitledTechnologies: studentEntitledTechnologies, studentCanRun: studentCanRun,
+
+    resourceActivity: resourceActivity, resourceStatus: resourceStatus,
+    openResource: openResource, setResourceComplete: setResourceComplete,
+    resourceProgress: resourceProgress,
+
+    simulationActivity: simulationActivity, simulationStatus: simulationStatus,
+    requestSimulationAccess: requestSimulationAccess, simulatePackageReady: simulatePackageReady,
+    startSimulation: startSimulation, completeSimulation: completeSimulation,
+
+    attemptById: attemptById, attemptsFor: attemptsFor,
+    currentAttempt: currentAttempt, latestSubmittedAttempt: latestSubmittedAttempt,
+    attemptBlock: attemptBlock, startAttempt: startAttempt,
+    studentCanOpenExperiment: studentCanOpenExperiment,
+    latestSimulationTechnology: latestSimulationTechnology,
+    saveAnswer: saveAnswer, submitAttempt: submitAttempt,
+    answeredCount: answeredCount, unansweredQuestions: unansweredQuestions,
+    assessmentRelease: assessmentRelease, assessmentState: assessmentState,
+
+    technologyProgress: technologyProgress, experimentProgress: experimentProgress,
+    lastActivityAt: lastActivityAt, hasActivity: hasActivity,
+    studentPastExperiments: studentPastExperiments,
+    technologiesWithActivity: technologiesWithActivity,
+    studentProgressSummary: studentProgressSummary
   };
 })();

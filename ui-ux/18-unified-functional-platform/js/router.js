@@ -12,7 +12,8 @@ XRSLP.router = (function () {
   /* area: which navigation shell hosts the screen.
      public   → public shell (no side nav)
      platform → Super Admin workspace shell
-     tenant   → Tenant workspace shell */
+     tenant   → Tenant workspace shell
+     learn    → Student workspace shell */
   var ROUTES = [
     { pattern: [],                                  area: 'public',   screen: 'landing' },
     { pattern: ['catalogue'],                       area: 'public',   screen: 'catalogue' },
@@ -44,7 +45,28 @@ XRSLP.router = (function () {
     { pattern: ['tenant', ':tenantId', 'mappings'],           area: 'tenant', screen: 'tenantMappings' },
     { pattern: ['tenant', ':tenantId', 'assignments'],        area: 'tenant', screen: 'tenantAssignments' },
     { pattern: ['tenant', ':tenantId', 'assignments', 'new'], area: 'tenant', screen: 'tenantNewAssignment' },
-    { pattern: ['tenant', ':tenantId', 'faculty-mapping'],    area: 'tenant', screen: 'tenantFacultyMapping' }
+    { pattern: ['tenant', ':tenantId', 'faculty-mapping'],    area: 'tenant', screen: 'tenantFacultyMapping' },
+    /* Student workspace (Implementation 03). Student and Learner are
+       ONE formal role (STK31-01); `learn` is that role's workspace.
+       `#/learn` resolves the prototype's currently-selected REAL
+       student record, or offers the prototype-only chooser. */
+    { pattern: ['learn'],                                     area: 'learn', screen: 'learnHome' },
+    { pattern: ['learn', ':studentId', 'home'],               area: 'learn', screen: 'studentHome' },
+    { pattern: ['learn', ':studentId', 'my-learning'],        area: 'learn', screen: 'studentMyLearning' },
+    { pattern: ['learn', ':studentId', 'progress'],           area: 'learn', screen: 'studentProgress' },
+    { pattern: ['learn', ':studentId', 'experiment', ':experimentId'],
+      area: 'learn', screen: 'studentExperiment' },
+    { pattern: ['learn', ':studentId', 'experiment', ':experimentId', 'simulation', ':tech'],
+      area: 'learn', screen: 'studentSimulation' },
+    /* The assessment belongs to the EXPERIMENT, so its routes carry no
+       technology segment. Only the simulation is technology-specific.
+       See the note at the head of state.js for the source evidence. */
+    { pattern: ['learn', ':studentId', 'experiment', ':experimentId', 'assessment'],
+      area: 'learn', screen: 'studentAssessment' },
+    { pattern: ['learn', ':studentId', 'experiment', ':experimentId', 'assessment', 'attempt'],
+      area: 'learn', screen: 'studentAttempt' },
+    { pattern: ['learn', ':studentId', 'experiment', ':experimentId', 'assessment', 'result'],
+      area: 'learn', screen: 'studentResult' }
   ];
 
   function parseHash() {

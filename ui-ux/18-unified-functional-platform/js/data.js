@@ -36,13 +36,29 @@ XRSLP.data = (function () {
      Display order follows the FRD format order (Web · VR · MR · AR). */
   var TECHNOLOGIES = {
     web: { id: 'web', label: 'Web', name: 'Web',
-           device: 'Runs in a standard web browser. No XR hardware required.' },
+           device: 'Runs in a standard web browser. No XR hardware required.',
+           /* STK31-37: Web is a HOSTED experience represented by a link;
+              AR / VR / MR are authorised, downloadable packages. The
+              MECHANISM stays unselected (PM-05 / QT-01) — these two
+              values describe the packaging only. */
+           delivery: 'hosted',
+           deliveryLabel: 'Hosted experience — opened from the platform',
+           requirement: 'A modern, supported web browser on a laptop, desktop or tablet.' },
     vr:  { id: 'vr', label: 'VR', name: 'Virtual Reality',
-           device: 'Runs on supported VR headsets provisioned for the institution.' },
+           device: 'Runs on supported VR headsets provisioned for the institution.',
+           delivery: 'package',
+           deliveryLabel: 'Authorised package — installed on a supported device',
+           requirement: 'A compatible VR headset provisioned by your institution.' },
     mr:  { id: 'mr', label: 'MR', name: 'Mixed Reality',
-           device: 'Runs on supported MR hardware provisioned by the institution.' },
+           device: 'Runs on supported MR hardware provisioned by the institution.',
+           delivery: 'package',
+           deliveryLabel: 'Authorised package — installed on a supported device',
+           requirement: 'Compatible MR hardware provisioned by your institution.' },
     ar:  { id: 'ar', label: 'AR', name: 'Augmented Reality',
-           device: 'Runs on Android and iOS mobile devices with AR support.' }
+           device: 'Runs on Android and iOS mobile devices with AR support.',
+           delivery: 'package',
+           deliveryLabel: 'Authorised package — installed on a supported device',
+           requirement: 'A supported AR-capable Android or iOS mobile device.' }
   };
   var TECH_ORDER = ['web', 'vr', 'mr', 'ar'];
 
@@ -143,6 +159,263 @@ XRSLP.data = (function () {
       technologies: ['web']
     }
   ];
+
+
+  /* ------------------------------------------------------------
+     LEARNING RESOURCES — PROTOTYPE SAMPLE CONTENT (FRD 3.1.2).
+
+     Read-only study material attached to an Experiment. Resources are
+     EXPERIMENT-LEVEL, not technology-level (09_STUDENT_LEARNING_
+     PROGRESS_MODEL.md §3, rule 4): the same preparation applies
+     whichever technology the student runs.
+
+     ⚠ Deliberately no external URLs and no uploaded files. The real
+     product carries PDF notes and instructional video; inventing a
+     link or a binary here would be a dead control. Each resource is
+     local, readable prototype text, which is enough to prove the
+     confirmed sequence resources → simulation → assessment.
+     ------------------------------------------------------------ */
+  var RESOURCE_KIND = {
+    intro:     { label: 'Introduction',   icon: 'doc' },
+    objective: { label: 'Lab objective',  icon: 'flask' },
+    procedure: { label: 'Procedure',      icon: 'layers' },
+    safety:    { label: 'Prerequisites',  icon: 'shield' },
+    reference: { label: 'Reference notes', icon: 'doc' }
+  };
+  var RESOURCE_KIND_ORDER = ['intro', 'objective', 'procedure', 'safety', 'reference'];
+
+  var LEARNING_RESOURCES = {
+    'direct-shear': [
+      { id: 'dsh-r1', kind: 'intro', title: 'Introduction — shear strength of soil',
+        body: 'Soil fails along a plane when the shear stress on that plane exceeds the soil’s shear strength. The direct shear test measures that strength directly by forcing failure along a known horizontal plane, which makes it the simplest of the standard shear tests to interpret. Read this before opening the simulation so the readings you take have a purpose.' },
+      { id: 'dsh-r2', kind: 'objective', title: 'Lab objective',
+        body: 'Determine the two Mohr–Coulomb shear strength parameters of the supplied soil: the cohesion intercept c and the angle of internal friction φ. You will run the specimen at three different normal stresses, record the peak shear stress for each, and fit a failure envelope through the three points.' },
+      { id: 'dsh-r3', kind: 'procedure', title: 'Procedure and preparation',
+        body: 'Trim the specimen to fit the shear box and record its dimensions and mass. Assemble the two halves of the box with the alignment screws in place, seat the loading pad, and apply the first normal load. Remove the alignment screws before shearing — leaving them in is the single most common cause of an unusable result. Shear at a constant rate and record shear force against horizontal displacement until the reading peaks and falls away. Repeat at the second and third normal stresses.' },
+      { id: 'dsh-r4', kind: 'safety', title: 'Prerequisites and safe practice',
+        body: 'You should already be able to read a proving ring or load cell and a displacement dial gauge, and to plot a straight-line fit by hand. In a physical laboratory the loading frame carries stored energy: keep hands clear of the shear box while a load is applied, and never adjust the alignment screws under load.' },
+      { id: 'dsh-r5', kind: 'reference', title: 'Reference notes — reading your results',
+        body: 'Plot peak shear stress (y) against the corresponding normal stress (x) for the three runs. The slope of the best-fit line is tan φ and its intercept on the shear-stress axis is c. A clean granular soil normally gives a near-zero intercept; a measurable intercept on a clean sand usually means a bedding or alignment error rather than real cohesion.' }
+    ],
+    'consolidation': [
+      { id: 'con-r1', kind: 'intro', title: 'Introduction — why saturated soil settles slowly',
+        body: 'When load is applied to a saturated fine-grained soil the water carries it first. Settlement can only occur as that water drains out, so the soil consolidates over time rather than instantly. The consolidation test reproduces this in one dimension so the rate and magnitude of settlement can be measured.' },
+      { id: 'con-r2', kind: 'objective', title: 'Lab objective',
+        body: 'Apply a sequence of load increments to a saturated specimen in an oedometer, record settlement against time within each increment, and use the resulting curves to estimate the coefficient of consolidation cᵥ and the compression behaviour of the soil.' },
+      { id: 'con-r3', kind: 'procedure', title: 'Procedure and preparation',
+        body: 'Seat the specimen between saturated porous stones in the confining ring and flood the cell. Apply the first load increment and start the clock at the instant of loading. Take dial-gauge readings at increasing intervals — the early readings define the shape of the curve and cannot be recovered later. Leave each increment in place until primary consolidation is complete, then double the load and repeat.' },
+      { id: 'con-r4', kind: 'safety', title: 'Prerequisites and safe practice',
+        body: 'You should be comfortable with logarithmic plotting and with the idea of effective stress. Keep the cell topped up: allowing the specimen to dry part-way through an increment invalidates every reading that follows it.' },
+      { id: 'con-r5', kind: 'reference', title: 'Reference notes — fitting the curve',
+        body: 'Both standard constructions work from the settlement–time curve of a single increment: the log-time method locates the point of 50% primary consolidation, the square-root-time method locates 90%. Each gives cᵥ through the corresponding time factor and the drainage path length. Report which construction you used — the two do not give identical values.' }
+    ],
+    'total-station': [
+      { id: 'tst-r1', kind: 'intro', title: 'Introduction — what a total station measures',
+        body: 'A total station combines an electronic theodolite with an electronic distance meter. Every observation it records is three numbers: a horizontal angle, a vertical angle and a slope distance to the sighted target. Everything else — coordinates, horizontal distances, height differences — is computed from those three.' },
+      { id: 'tst-r2', kind: 'objective', title: 'Lab objective',
+        body: 'Set up and level the instrument correctly over a survey station, observe a set of targets, and book horizontal angles, vertical angles and slope distances well enough to reduce them to horizontal distances and height differences.' },
+      { id: 'tst-r3', kind: 'procedure', title: 'Procedure and preparation',
+        body: 'Set the tripod roughly over the station with the head level. Centre using the optical or laser plummet, level with the footscrews, and re-check centring — the two interact and usually need two or three passes. Enter the instrument height. Sight each target on both faces and book the readings; the mean of face-left and face-right removes most instrument collimation error.' },
+      { id: 'tst-r4', kind: 'safety', title: 'Prerequisites and safe practice',
+        body: 'You should be able to read angles in degrees, minutes and seconds and to convert between bearings. On a real site, never sight towards the sun through the telescope, and keep the tripod legs clear of walkways.' },
+      { id: 'tst-r5', kind: 'reference', title: 'Reference notes — reducing your observations',
+        body: 'Horizontal distance is the slope distance multiplied by the sine of the zenith angle; height difference uses the cosine, corrected for instrument and target heights. A misclosure that repeats consistently across a round of angles points to a booking convention error rather than an instrument fault.' }
+    ],
+    'beam-deflection': [
+      { id: 'bdf-r1', kind: 'intro', title: 'Introduction — the elastic curve',
+        body: 'A loaded beam bends into a shape that classical elastic theory can predict exactly for simple support and loading arrangements. Comparing a measured deflection profile with the predicted curve is the clearest way to see where the assumptions of that theory hold and where they do not.' },
+      { id: 'bdf-r2', kind: 'objective', title: 'Lab objective',
+        body: 'Measure the deflection of a simply supported beam under increasing point load at chosen positions along the span, and compare each measured value with the theoretical elastic deflection for the same arrangement.' },
+      { id: 'bdf-r3', kind: 'procedure', title: 'Procedure and preparation',
+        body: 'Record the span, the section dimensions and the material. Set the dial gauges at the chosen measurement positions and zero them under self-weight only. Add load in equal increments, allowing the reading to settle before each observation, and unload in the same increments to check for residual deflection.' },
+      { id: 'bdf-r4', kind: 'safety', title: 'Prerequisites and safe practice',
+        body: 'You should be able to compute second moment of area for a rectangular section and to use the standard deflection formulae. Do not exceed the stated maximum load for the test frame: the exercise is an elastic one and permanent set makes the remaining readings meaningless.' },
+      { id: 'bdf-r5', kind: 'reference', title: 'Reference notes — comparing with theory',
+        body: 'Plot measured deflection against load for each gauge position. A straight line through the origin confirms elastic behaviour; a consistent offset between measured and theoretical values usually indicates support settlement rather than an error in the theory.' }
+    ],
+    'torsion-test': [
+      { id: 'tor-r1', kind: 'intro', title: 'Introduction — torsion of a circular shaft',
+        body: 'When torque is applied to a circular shaft, each cross-section rotates relative to the next and shear stress builds up in proportion to the distance from the axis. The torsion test measures the relationship between applied torque and the resulting angle of twist.' },
+      { id: 'tor-r2', kind: 'objective', title: 'Lab objective',
+        body: 'Apply torque to a cylindrical specimen in increments, record the angle of twist at each stage, and determine the modulus of rigidity of the material from the elastic portion of the torque–twist relationship.' },
+      { id: 'tor-r3', kind: 'procedure', title: 'Procedure and preparation',
+        body: 'Measure and record the specimen diameter and gauge length. Mount the specimen so it is concentric in both chucks, zero the torque and twist readings, and apply torque in equal increments. Take readings at each increment through the elastic range, then continue to failure and examine the fracture surface.' },
+      { id: 'tor-r4', kind: 'safety', title: 'Prerequisites and safe practice',
+        body: 'You should be familiar with the torsion formula and with the polar second moment of area. Failure in torsion can be sudden: keep the guard in place and stand clear of the specimen once the elastic range has been passed.' },
+      { id: 'tor-r5', kind: 'reference', title: 'Reference notes — finding G',
+        body: 'The modulus of rigidity follows from the slope of the initial straight portion of the torque–twist plot, together with the polar second moment of area and the gauge length. A ductile specimen fails on a plane normal to its axis; a brittle one fails on a helical surface at roughly 45°, which is the direction of maximum tensile stress.' }
+    ],
+    'bernoulli-flow': [
+      { id: 'ber-r1', kind: 'intro', title: 'Introduction — pressure and velocity in a venturi',
+        body: 'Bernoulli’s principle states that along a streamline in steady, incompressible, frictionless flow the total head is constant. Where a passage narrows the flow speeds up, so velocity head rises and pressure head falls. A venturi makes that exchange directly visible.' },
+      { id: 'ber-r2', kind: 'objective', title: 'Lab objective',
+        body: 'Establish steady flow through a venturi, read the piezometer levels along the converging and diverging sections at several flow rates, and verify that measured total head is consistent with the value predicted by Bernoulli’s equation.' },
+      { id: 'ber-r3', kind: 'procedure', title: 'Procedure and preparation',
+        body: 'Prime the apparatus and clear every piezometer tube of air — a trapped bubble produces a plausible but wrong reading. Set a flow rate, wait for the levels to become steady, then read all tappings before changing anything. Record the volumetric flow rate for each set of readings.' },
+      { id: 'ber-r4', kind: 'safety', title: 'Prerequisites and safe practice',
+        body: 'You should be able to work in heads rather than pressures and to apply continuity between sections of different area. Keep the bench surface dry and do not exceed the rated supply pressure of the apparatus.' },
+      { id: 'ber-r5', kind: 'reference', title: 'Reference notes — where the difference goes',
+        body: 'Compute velocity at each tapping from continuity, add the velocity head to the measured pressure head, and compare the totals. Real total head falls slightly along the passage: the loss is friction and, in the diverging section, separation — both excluded from the ideal equation.' }
+    ]
+  };
+
+  /* ------------------------------------------------------------
+     ASSESSMENT — SAMPLE CONFIGURATION (Faculty-owned, STK31-30).
+
+     ⚠ EVERY VALUE BELOW IS SAMPLE ASSESSMENT CONFIGURATION, not a
+     platform rule. In the product Faculty author these; the Faculty
+     Assessment Builder is a later slice, so a small seeded set exists
+     here purely so the Student progression can be demonstrated
+     end to end.
+
+     `policy` is the answer/explanation visibility policy Faculty
+     control (STK31-32). The three CONFIRMED general options are the
+     only ones modelled:
+
+         SHOW_IMMEDIATELY   · AFTER_DEADLINE   · CUSTOM_DATE
+
+     The BITS/Taxila timing rule is NOT invented (ND-10): no fourth
+     mode exists here, and no seeded assessment claims one.
+
+     Two deliberately different policies are seeded, following the
+     Batch-02 precedent, so that no single value can be mistaken for a
+     platform default. Offsets are in days from the moment the
+     prototype data was seeded; state.js resolves them to real dates.
+
+     D-25 is NOT overridden: the correct-answer key is never rendered
+     during an attempt, whatever the policy says.
+     ------------------------------------------------------------ */
+  var POLICY_MODES = {
+    SHOW_IMMEDIATELY: 'Show immediately',
+    AFTER_DEADLINE:   'Show after the assessment deadline',
+    CUSTOM_DATE:      'Show on a set date'
+  };
+
+  var ASSESSMENTS = [
+    {
+      id: 'ASM-001',
+      experimentId: 'direct-shear',
+      title: 'Direct Shear Test — laboratory assessment',
+      intro: 'Five questions on specimen preparation, the shear plane and the interpretation of a direct shear series. Answer every question, review your answers, then submit.',
+      passMark: 60,
+      attemptLimit: 3,
+      policy: { mode: 'SHOW_IMMEDIATELY' },
+      questions: [
+        { id: 'q1', type: 'mcq', points: 1,
+          text: 'In a direct shear test, where does failure take place?',
+          options: [
+            'On a plane chosen by the operator at any angle to the horizontal.',
+            'On the horizontal plane forced by the split between the two halves of the shear box.',
+            'On whichever plane inside the specimen happens to be weakest.',
+            'On a vertical plane through the centre of the specimen.'
+          ],
+          answer: 1,
+          explanation: 'The split between the upper and lower halves of the box forces failure onto a known horizontal plane. That is the defining feature of the test — and also its main limitation, because the forced plane is not necessarily the weakest one.' },
+        { id: 'q2', type: 'mcq', points: 1,
+          text: 'Which pair of parameters is obtained from a series of direct shear tests?',
+          options: [
+            'The coefficient of consolidation and the compression index.',
+            'The cohesion intercept and the angle of internal friction.',
+            'Young’s modulus and Poisson’s ratio.',
+            'The permeability and the void ratio.'
+          ],
+          answer: 1,
+          explanation: 'Plotting peak shear stress against normal stress gives the Mohr–Coulomb failure envelope. Its intercept is the cohesion c and its slope is tan φ.' },
+        { id: 'q3', type: 'tf', points: 1,
+          text: 'A single direct shear test at one normal stress is enough to determine both the cohesion and the angle of internal friction.',
+          answer: false,
+          explanation: 'One test gives one point. At least three points at different normal stresses are needed before a failure envelope can be fitted, and only the fitted envelope yields c and φ.' },
+        { id: 'q4', type: 'mcq', points: 1,
+          text: 'The failure envelope for the series is constructed by plotting:',
+          options: [
+            'Peak shear stress against the corresponding normal stress.',
+            'Horizontal displacement against elapsed time.',
+            'Normal stress against void ratio.',
+            'Shear stress against the logarithm of time.'
+          ],
+          answer: 0,
+          explanation: 'Each test contributes one (normal stress, peak shear stress) pair. The straight line through those pairs is the failure envelope.' },
+        { id: 'q5', type: 'tf', points: 1,
+          text: 'The direct shear apparatus allows pore water pressure to be measured during shearing.',
+          answer: false,
+          explanation: 'It does not. Drainage conditions cannot be controlled and pore pressure cannot be measured in a direct shear box — that is why a triaxial test is used when effective-stress parameters are required.' }
+      ]
+    },
+    {
+      id: 'ASM-002',
+      experimentId: 'consolidation',
+      title: 'Consolidation Test — laboratory assessment',
+      intro: 'Three objective questions and one written answer on one-dimensional consolidation. The written answer needs evaluation before your result is complete.',
+      passMark: 60,
+      attemptLimit: 2,
+      /* A deliberately DIFFERENT policy from ASM-001, so that neither
+         value reads as a platform rule. The deadline sits 14 days after
+         the prototype data was seeded, so this assessment genuinely
+         withholds answers on a fresh reset. */
+      policy: { mode: 'AFTER_DEADLINE', offsetDays: 14 },
+      questions: [
+        { id: 'q1', type: 'mcq', points: 1,
+          text: 'Which apparatus is used for a standard one-dimensional consolidation test?',
+          options: ['A direct shear box.', 'An oedometer (consolidometer).', 'A triaxial cell.', 'A vane shear device.'],
+          answer: 1,
+          explanation: 'The oedometer confines the specimen laterally in a rigid ring so that all strain is vertical, which is exactly the one-dimensional condition the theory assumes.' },
+        { id: 'q2', type: 'tf', points: 1,
+          text: 'Primary consolidation is complete when the excess pore water pressure has fully dissipated.',
+          answer: true,
+          explanation: 'Primary consolidation is the settlement caused by the drainage of excess pore water. Once that excess has dissipated, any further settlement is secondary compression of the soil skeleton.' },
+        { id: 'q3', type: 'mcq', points: 1,
+          text: 'The coefficient of consolidation is most commonly determined from:',
+          options: [
+            'The settlement–time curve for a single load increment.',
+            'The final settlement of the whole test.',
+            'The mass of the specimen before and after the test.',
+            'The applied normal stress alone.'
+          ],
+          answer: 0,
+          explanation: 'Both the log-time and square-root-time constructions work from the shape of one increment’s settlement–time curve. The final settlement gives compressibility, not rate.' },
+        { id: 'q4', type: 'descriptive', points: 3,
+          text: 'Explain why settlement readings within a single load increment are taken at increasing time intervals rather than at a constant interval.',
+          guidance: 'Two or three sentences. Refer to the shape of the settlement–time curve.',
+          explanation: null }
+      ]
+    },
+    {
+      id: 'ASM-003',
+      experimentId: 'total-station',
+      title: 'Total Station Experiment — field assessment',
+      intro: 'Three questions on instrument set-up and the reduction of observations. Answer every question, review your answers, then submit.',
+      passMark: 60,
+      attemptLimit: 3,
+      /* A third distinct policy value. The release date sits 21 days
+         after seeding. */
+      policy: { mode: 'CUSTOM_DATE', offsetDays: 21 },
+      questions: [
+        { id: 'q1', type: 'mcq', points: 1,
+          text: 'Centring the instrument over the station point ensures that:',
+          options: [
+            'The telescope is focused at infinity.',
+            'The vertical axis of the instrument passes through the station point.',
+            'The horizontal circle reads zero on the first target.',
+            'The battery is correctly seated.'
+          ],
+          answer: 1,
+          explanation: 'Centring places the instrument’s vertical axis over the mark. Levelling makes that axis vertical. Both are needed, and adjusting one usually disturbs the other.' },
+        { id: 'q2', type: 'tf', points: 1,
+          text: 'A total station observes horizontal angles, vertical angles and slope distances.',
+          answer: true,
+          explanation: 'Those three are the measured quantities. Horizontal distance, height difference and coordinates are all computed from them.' },
+        { id: 'q3', type: 'mcq', points: 1,
+          text: 'Reducing an observed slope distance to a horizontal distance requires:',
+          options: ['The instrument height only.', 'The vertical (zenith) angle.', 'The temperature only.', 'The horizontal angle.'],
+          answer: 1,
+          explanation: 'Horizontal distance is the slope distance resolved through the vertical angle. Instrument and target heights are needed for the height difference, not for the horizontal component.' }
+      ]
+    }
+  ];
+  /* Experiments with NO seeded assessment (beam-deflection,
+     torsion-test, bernoulli-flow) are deliberate: assessment is
+     OPTIONAL per FRD 3.1.2, and a Student must be able to complete an
+     Experiment that carries none. */
 
   /* ------------------------------------------------------------
      PROTOTYPE SCENARIOS — seed requester identities.
@@ -312,10 +585,47 @@ XRSLP.data = (function () {
     return TECH_ORDER.filter(function (t) { return list.indexOf(t) !== -1; });
   }
 
+  /* ---- learning-side lookups ---- */
+  function resourcesFor(experimentId) {
+    return LEARNING_RESOURCES[experimentId] || [];
+  }
+  function resource(experimentId, resourceId) {
+    return resourcesFor(experimentId).filter(function (r) { return r.id === resourceId; })[0] || null;
+  }
+  function resourceKind(kind) {
+    return RESOURCE_KIND[kind] || { label: 'Resource', icon: 'doc' };
+  }
+  /* One seeded assessment per Experiment at most. An Experiment with
+     none is a valid, deliberate state — assessment is optional. */
+  function assessmentFor(experimentId) {
+    return ASSESSMENTS.filter(function (a) { return a.experimentId === experimentId; })[0] || null;
+  }
+  function assessmentById(id) {
+    return ASSESSMENTS.filter(function (a) { return a.id === id; })[0] || null;
+  }
+  function policyLabel(mode) { return POLICY_MODES[mode] || mode; }
+  /* Objective points only — a descriptive question is never machine
+     scored (STK31-31: Faculty is the only human evaluator). */
+  function objectivePoints(assessment) {
+    if (!assessment) { return 0; }
+    return assessment.questions.reduce(function (sum, q) {
+      return sum + (q.type === 'descriptive' ? 0 : (q.points || 1));
+    }, 0);
+  }
+  function hasDescriptive(assessment) {
+    return !!assessment && assessment.questions.some(function (q) { return q.type === 'descriptive'; });
+  }
+
   return {
     TECHNOLOGIES: TECHNOLOGIES, TECH_ORDER: TECH_ORDER,
     GROUPINGS: GROUPINGS, COURSES: COURSES, EXPERIMENTS: EXPERIMENTS,
     SCENARIOS: SCENARIOS, SEED_TENANTS: SEED_TENANTS, TERMS: TERMS,
+    LEARNING_RESOURCES: LEARNING_RESOURCES, RESOURCE_KIND: RESOURCE_KIND,
+    RESOURCE_KIND_ORDER: RESOURCE_KIND_ORDER,
+    ASSESSMENTS: ASSESSMENTS, POLICY_MODES: POLICY_MODES,
+    resourcesFor: resourcesFor, resource: resource, resourceKind: resourceKind,
+    assessmentFor: assessmentFor, assessmentById: assessmentById,
+    policyLabel: policyLabel, objectivePoints: objectivePoints, hasDescriptive: hasDescriptive,
     PLAN_TERMS: PLAN_TERMS, SEED_TENANT_ID: SEED_TENANT_ID,
     SEED_PEOPLE: SEED_PEOPLE, SEED_GROUPS: SEED_GROUPS, SEED_COURSE_MAPPINGS: SEED_COURSE_MAPPINGS,
     grouping: grouping, course: course, experiment: experiment,

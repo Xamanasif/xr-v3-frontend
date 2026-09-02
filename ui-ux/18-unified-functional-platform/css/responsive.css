@@ -97,3 +97,38 @@
   .seg{padding-left:16px; padding-right:16px}
   .statgrid{grid-template-columns:1fr 1fr}
 }
+
+/* ---------- Implementation 03 — Student workspace ---------- */
+@media (max-width:1040px){
+  .lgrid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+}
+@media (max-width:900px){
+  /* The side nav is a horizontal strip below 900px, so a bar sticking
+     to the topbar alone would sit under it. */
+  .attemptbar{position:static}
+  .disclose{grid-template-columns:1fr}
+  .disclose dt{padding:9px 0 0; border-top:1px solid var(--border-subtle)}
+  .disclose dd{padding:2px 0 9px; border-top:0}
+  .disclose dt:first-of-type{border-top:0}
+  .lpanel .lp-steps{grid-template-columns:1fr auto}
+}
+@media (max-width:740px){
+  .lgrid{grid-template-columns:1fr}
+  .techgrid{grid-template-columns:1fr}
+  .seqstrip{grid-template-columns:1fr 1fr}
+  .reslist .rd-body{padding-left:16px}
+  .lcard .lc-foot .btn{margin-left:0; width:100%; justify-content:center}
+  .aslist .asrow .btn{margin-left:0; width:100%; justify-content:center}
+  .aslist .as-n:empty{display:none}
+  .picklistr .pickrow .btn{width:100%; justify-content:center}
+  .pgblock table.dt tr{padding-left:0; padding-right:0}
+}
+@media (max-width:640px){
+  .seqstrip{grid-template-columns:1fr}
+  .scorebox .sb-v{font-size:28px}
+  /* The chips already wrap; the actions become full width so the primary
+     Submit is never a narrow target on a phone. */
+  .reviewcard .rv-act .btn{flex:1 1 auto}
+  .reviewcard .rv-act .formnote{width:100%}
+  .resume .btn{width:100%; justify-content:center}
+}

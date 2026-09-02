@@ -39,6 +39,11 @@ XRSLP.util = (function () {
     if (d.getDate() !== day) { d.setDate(0); }
     return d.toISOString();
   }
+  function addDays(iso, days) {
+    var d = new Date(iso);
+    d.setDate(d.getDate() + days);
+    return d.toISOString();
+  }
   function daysUntil(iso) {
     if (!iso) { return null; }
     var ms = new Date(iso).getTime() - Date.now();
@@ -78,7 +83,7 @@ XRSLP.util = (function () {
   return {
     esc: esc, escAttr: escAttr,
     fmtDate: fmtDate, fmtDateTime: fmtDateTime,
-    addMonths: addMonths, daysUntil: daysUntil,
+    addMonths: addMonths, addDays: addDays, daysUntil: daysUntil,
     slug: slug, pad3: pad3, plural: plural, isEmail: isEmail, download: download
   };
 })();
