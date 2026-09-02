@@ -1,12 +1,12 @@
-# QA Checklist — Unified Functional Platform · Implementations 01 + 02 + 03
+# QA Checklist — Unified Functional Platform · Implementations 01 + 02 + 03 + 04
 
 Run from `ui-ux/18-unified-functional-platform/` (see README for local run).
 Every step below was executed against the final build in a Chromium-based browser
 (runtime-verified; see the implementation report). Re-run on Safari for the review pass.
 
 Sections **A**, **B** and **Cross-cutting** are the Implementation-01 suite; **C**–**H** are
-Implementation 02. Both were re-run in full against the Implementation-03 build. Sections
-**J**–**P** are new.
+Implementation 02; **J**–**P** are Implementation 03. All three were re-run against the
+Implementation-04 build. Sections **Q**–**X** are new.
 
 ## Scenario A — internal / BITS Community (no payment step)
 
@@ -525,3 +525,770 @@ is untouched; this is entirely UI behaviour.
 - **Answer visibility follows the seeded policy**, not a hardcoded assumption of immediate feedback.
 - **One assessment per Experiment** — a Student is never asked to repeat it because two technologies were licensed.
 - **No certificates**, no gamification, no leaderboards, no B2C commerce; no Faculty review workspace, grading or turnaround is implemented.
+
+---
+
+# IMPLEMENTATION 04
+
+**Faculty workspace · assessment management · Question Bank · descriptive review ·
+student progress and analytics.**
+
+Every step below was executed against the final build in a Chromium-based browser, from a
+`Reset prototype data` seed forward. No console error or warning was produced at any point.
+
+The fixture used throughout: Scenario A approved → `ACC-001` (Direct Shear Test **VR + AR**,
+Consolidation Test **VR**, quantity **3**, Yearly) → three Students assigned both Experiments →
+**Dr. Arjun Mehta** mapped to *Direct Shear Test*, **Dr. Sneha Iyer** mapped to
+*Consolidation Test*.
+
+## Q — Faculty resolution and the mapping boundary
+
+| # | Step | Expected | Result |
+|---:|---|---|:--:|
+| Q1 | Prototype controls strip | A **Faculty** entry sits between Tenant Admin and Student | ✅ |
+| Q2 | `#/faculty` with nothing selected | Chooser over the **real** Faculty records, each with its institution, its faculty id and how much is mapped to it. No fabricated identity | ✅ |
+| Q3 | Select a Faculty member | Strip shows **Viewing as Faculty**, the workspace opens on Overview, and the pointer and the page agree | ✅ |
+| Q4 | Faculty with **no** mapping (fresh seed) | Overview and My Content both give a useful empty state explaining that the institution maps content to faculty. Not a blank page, not an error | ✅ |
+| Q5 | Arjun's Overview after mapping only Direct Shear Test | Mapped courses **1**, mapped experiments **1**, students reached **3**, responses to review **0** | ✅ |
+| Q6 | Consolidation Test is in the Tenant's access **and** assigned to students | It does **not** appear anywhere in Arjun's workspace — he is not mapped to it | ✅ |
+| Q7 | Hand-edit to `#/faculty/USR-001/assessment/consolidation` | Explicit refusal: *"This experiment is not mapped to you"*, with a route back to My Content | ✅ |
+| Q8 | Hand-edit to another faculty member's review, `#/faculty/USR-001/review/REV-002` | Explicit refusal: *"This response is not in your queue"* | ✅ |
+| Q9 | Sneha's Question Bank | Shows only the 4 Consolidation Test questions — not Arjun's, not the whole tenant's | ✅ |
+
+## R — Student reach is entitlement, not enrolment
+
+| # | Step | Expected | Result |
+|---:|---|---|:--:|
+| R1 | 6 Students exist in the tenant; 3 hold effective entitlement to Direct Shear Test | Faculty student reach for that Experiment is **3**, not 6 | ✅ |
+| R2 | My Content student column | Counts effective entitlement, and says so above the table | ✅ |
+| R3 | Student Progress rows | One row per Student × mapped Experiment — 3 rows, all entitled | ✅ |
+| R4 | Attempt to assign 5 Students against 3 licences (Implementation-02 regression) | Blocked whole: *"requires 2 more licences on ACC-001. No part of the selection is applied"* — reach never counts a held student | ✅ |
+
+## S — Question Bank: Add · Edit · Delete
+
+| # | Step | Expected | Result |
+|---:|---|---|:--:|
+| S1 | Fresh seed | 12 seeded Question Bank items and 3 assessment definitions exist as **mutable state**, not static data | ✅ |
+| S2 | Add a question, submit empty | Error summary + inline errors: question text, at least two options, choose the correct answer | ✅ |
+| S3 | Add MCQ, mark a **blank** option as correct | *"The option you marked as correct is empty. Fill it in, or mark a different option."* — the answer index can never silently shift onto another option when blanks are dropped | ✅ |
+| S4 | Add a valid **MCQ** | Stored with the trimmed options and the remapped answer index; `origin: manual` | ✅ |
+| S5 | Add a **True / False** question | Stored with a boolean answer, no options | ✅ |
+| S6 | Add a **Descriptive** question with 4 marks and evaluation guidance | Stored with `answer: null` — **no machine answer key is required** | ✅ |
+| S7 | Switch question type in the editor | Only the fields for that type are present, and the hidden fieldsets are disabled — they leave the tab order rather than becoming invisible traps | ✅ |
+| S8 | Edit a question already used in an assessment | Saves to the **bank**. The assessment keeps its own copy and shows *"This question has been changed in the Question Bank"* with an explicit **Use the updated version** action | ✅ |
+| S9 | Take that update | The assessment's copy is updated **on the decision**, never as a side effect | ✅ |
+| S10 | Search, type filter, experiment filter | All work; the count line reads `n of m shown`; a filtered-to-nothing state offers **Clear filters** | ✅ |
+| S11 | Refresh the page | Everything persists (`localStorage`, `xrslp-unified-v1`, `schemaVersion: 5`) | ✅ |
+
+## T — Question Bank **Delete** safety
+
+The §41 sequence, executed end to end.
+
+| # | Step | Expected | Result |
+|---:|---|---|:--:|
+| T1 | Create a question → add it to an assessment → a Student attempts and submits it | Attempt exists, containing that question | ✅ |
+| T2 | The control's label | Reads **Delete**. Not Archive, not Retire, not Deactivate | ✅ |
+| T3 | Click Delete | Confirmation naming the assessment it is used in **and** the number of submitted attempts that contain it, then *"the question is removed from your active Question Bank"* | ✅ |
+| T4 | After confirming — the bank | The question is gone from the active bank. No archive, bin or restore surfaces it again | ✅ |
+| T5 | After confirming — the assessment | Still contains its copy and still works; the builder notes the bank item is gone and that nothing is affected | ✅ |
+| T6 | After confirming — the submitted attempt | Snapshot, answers, score and outcome **byte-identical** to before | ✅ |
+| T7 | After confirming — the **pending review** for that deleted question | Still opens, still shows the question text and the evaluation guidance, and can still be completed | ✅ |
+
+## U — Assisted question drafting
+
+| # | Step | Expected | Result |
+|---:|---|---|:--:|
+| U1 | Open **Draft with assistance** | Prompt, **source material** (paste or open a local text file), question type, number of drafts. A `PROTOTYPE ONLY` note stating no provider and no network request | ✅ |
+| U2 | Enter *"Create 3 beginner questions about Direct Shear Test specimen preparation and the failure plane"* and generate | 3 drafts, built from the Experiment's own learning resources, each a coherent subject question with a real answer key | ✅ |
+| U3 | Network activity during generation | **Zero** new resource entries — measured with `performance.getEntriesByType('resource')` | ✅ |
+| U4 | Question Bank during generation | **Unchanged.** A draft has no id in any collection | ✅ |
+| U5 | Draft labelling | Every draft carries **AI-assisted draft** *and* **Review required**, as words plus badges — never styling alone | ✅ |
+| U6 | Edit a draft, then add it | The **edited** values are what is stored; the question appears in the bank with `origin: ai` so its provenance stays visible | ✅ |
+| U7 | Discard a draft | Removed, with *"It was never in your Question Bank."* | ✅ |
+| U8 | Generate twice with the same prompt | **Identical** drafts — deterministic | ✅ |
+| U9 | Generate with a different prompt | Different drafts — the prompt genuinely steers which source material is used | ✅ |
+| U10 | Paste source material and generate | Drafts are built from the supplied material, and say so (*"According to the material you supplied…"*) | ✅ |
+| U11 | Add a draft that fails validation | Refused with the reason shown on the draft card; nothing is added | ✅ |
+
+## V — Assessment management
+
+| # | Step | Expected | Result |
+|---:|---|---|:--:|
+| V1 | Assessments list | One row per mapped Experiment — questions, marks, derived status, students, submitted attempts, updated | ✅ |
+| V2 | Assessment overview | Configuration, **Who this assessment reaches** (local Course code + optional Semester + entitled students), the three-item completeness rail and a next-action sentence | ✅ |
+| V3 | Builder — add from the Question Bank | Multi-select of bank items **for that Experiment** not already included; the count updates as items are selected | ✅ |
+| V4 | Builder — reorder | **Move up / Move down** are real buttons, keyboard-operable, disabled at the ends | ✅ |
+| V5 | Builder — **Remove from this assessment** | Confirmation says the question stays in the Question Bank; it does | ✅ |
+| V6 | Settings — create form | **Nothing is pre-filled.** No pass mark, attempt limit or policy is suggested, and the form says why | ✅ |
+| V7 | Settings — choose *Show on a set date* and save with no date | Refused: *"Set the date answers and explanations become visible."* | ✅ |
+| V8 | Settings — the `PENDING — ND-10` note | States that the BITS / Taxila rule is not established and that no BITS default is preselected here | ✅ |
+| V9 | Structural edit with **0** submitted attempts | Saved; revision stays **1** | ✅ |
+| V10 | Structural edit with **1** submitted attempt | A warning **before** the edit says it creates revision 2 and that submitted attempts are unchanged. Revision advances; the attempt's snapshot does not move | ✅ |
+| V11 | Settings-only edit | Does **not** advance the revision — it changes no question | ✅ |
+
+## W — Preview
+
+| # | Step | Expected | Result |
+|---:|---|---|:--:|
+| W1 | Preview → *What the student sees* | The generated disclosure and the questions, rendered through the **Student's own renderer**. **Zero** answer keys on screen | ✅ |
+| W2 | Preview → *Authoring view* | 6 answer keys shown for 6 objective questions, each explicitly labelled **Correct answer**, behind a banner saying this is not a student view | ✅ |
+| W3 | Every input in the preview | Disabled — nothing can be answered | ✅ |
+| W4 | Attempts after previewing | **0.** Preview creates no attempt and consumes no attempt allowance | ✅ |
+
+## X — Descriptive review and the Student result
+
+| # | Step | Expected | Result |
+|---:|---|---|:--:|
+| X1 | Student submits an assessment containing a written answer | Outcome **Pending Faculty review**; the score reports the **objective** questions only; a `reviews[]` record is created | ✅ |
+| X2 | The Student result screen | *"Pending Faculty review"*, and the written answer shows *"This answer is with your faculty for review"* | ✅ |
+| X3 | Faculty **Reviews** queue | The response appears with student, experiment, question, max marks, submitted time and attempt number | ✅ |
+| X4 | Review assistance preference — **Manual** | No suggestion is offered; the marking form works exactly the same | ✅ |
+| X5 | Review assistance — **With a suggestion** → Generate | Suggested marks, suggested feedback, and **what was compared** (length; which of *your* guidance points appear). No confidence score, no percentage, no scoring band | ✅ |
+| X6 | The `PENDING — ND-09` note beside it | States plainly that this is **not** the Taxila auto-review, that the mechanism is not in the sources, and that none has been invented | ✅ |
+| X7 | After generating a suggestion | The review is still **pending**, the attempt outcome is still pending, and the Student sees no change | ✅ |
+| X8 | **Use this suggestion** | Fills the form. Nothing is saved | ✅ |
+| X9 | Enter marks above the maximum | Refused: *"Marks cannot be more than the maximum of 4."* Not silently clamped | ✅ |
+| X10 | Change the marks away from the suggestion and **Confirm** | A dialog states the consequence; on confirm the review completes, attributed to that Faculty member | ✅ |
+| X11 | The attempt after confirmation | Re-scored: objective + descriptive (8.5 of 10 → 85%), outcome decided against the **snapshot** pass mark | ✅ |
+| X12 | The Student result screen, policy **Show immediately** | Outcome shown, the written answer shows **3.5 of 4 marks** and the **Faculty feedback**, and the headline says the percentage now includes the faculty marks | ✅ |
+| X13 | A second attempt under policy **Show after the assessment deadline**, reviewed **before** the deadline | *"Your written answer has been reviewed"* — the final result is **withheld**, the answers stay hidden, and the objective sub-score is still shown. No pass/fail leak, and no **Try again** button that would reveal the outcome | ✅ |
+| X14 | Faculty change the policy on an assessment whose result was already visible | The Student result follows immediately — answers re-withheld, the score reverts to the objective figure. The Faculty control drives the **same** result engine | ✅ |
+| X15 | The pass mark shown on that result | Still the value the attempt was **taken under**, not the value Faculty later set. History is not re-decided | ✅ |
+| X16 | A completed review | Read-only, with a named prototype limitation explaining why no re-grading workflow was invented | ✅ |
+
+## Y — Faculty student progress and analytics
+
+| # | Step | Expected | Result |
+|---:|---|---|:--:|
+| Y1 | Every figure on the page | Reproducible by counting the rows below it; each states what it counts | ✅ |
+| Y2 | Filters — search, experiment, progress state | All work; the aggregates recompute over the **filtered** set, so the numbers and the table always agree | ✅ |
+| Y3 | Filter to a state with no rows | Honest empty state, not a blank table | ✅ |
+| Y4 | Switch to a different Faculty member | Filters reset. A search term set by one faculty member never silently narrows another's list | ✅ |
+| Y5 | **Simulation activity by technology**, after a Student completes **VR** only and submits the assessment | VR: 3 entitled · 1 started · 1 completed. **AR: 3 entitled · 0 started · 0 completed.** The assessment submission does **not** make AR look started | ✅ |
+| Y6 | Student detail | Assessment state and score, written answers with the marks and feedback, resources, **per-technology** simulation rows with launches and recorded time, and the overall roll-up | ✅ |
+| Y7 | Anywhere on either screen | No index, score, rank, prediction, engagement metric, attendance or GPA | ✅ |
+| Y8 | The completion caveat | Present on every surface that shows *Completed*, stating that it is a prototype-derived rule and not an academic policy | ✅ |
+
+## Implementation-01 → 03 regression, re-run on the Implementation-04 build
+
+| # | Check | Result |
+|---:|---|:--:|
+| Z1 | **Scenario A** — internal request → approve → **no payment step** → Active, tenant access created with the approved items, technologies, quantity and term | ✅ |
+| Z2 | **Scenario B** — external request → approve → `APPROVED_PAYMENT_REQUIRED` with **no access record created** → payment → Active, tenant and access created | ✅ |
+| Z3 | People · Groups · academic mappings · Faculty mapping · student assignments | ✅ |
+| Z4 | **5 Students against 3 licences → blocked whole**, nothing assigned, remaining allocation unchanged | ✅ |
+| Z5 | Derived entitlement — one Student counted once across two Experiments on the same access record | ✅ |
+| Z6 | Student My Learning shows only entitled Experiments and only entitled technologies | ✅ |
+| Z7 | Resources → simulation → assessment → result → progress | ✅ |
+| Z8 | Assessment attempt screen — 7 question cards, the compact review navigator, live answered count, **no** correct/incorrect indication before submission | ✅ |
+| Z9 | Incomplete submission — allowed, but only after an explicit warning naming the unanswered questions | ✅ |
+| Z10 | **VR completed · AR not started** stays exactly that on the Student's own progress, after an assessment submission | ✅ |
+| Z11 | The Student attempt renders through the **shared** renderer the Faculty preview uses — no behaviour changed | ✅ |
+
+## Responsive
+
+Swept every Faculty route at **375**, **768** and **1280**, measuring
+`document.body.scrollWidth − document.documentElement.clientWidth` after render.
+
+| Width | Result |
+|---|:--:|
+| 375 | **No page-level horizontal overflow on any Faculty route** | ✅ |
+| 768 | **No page-level horizontal overflow on any Faculty route** | ✅ |
+| 1280 | **No page-level horizontal overflow on any Faculty route** | ✅ |
+
+Wide tables scroll inside their own `.tscroll` container and degrade to stacked cards below
+740px; the workspace navigation becomes a horizontal scrolling strip below 900px; the
+completeness rail and the form aside move **above** the body when the two-column layout
+collapses, so the next safe action is read first.
+
+## Accessibility
+
+Audited programmatically across all 17 Faculty routes, plus the empty-state variants.
+
+| Check | Result |
+|---|:--:|
+| Every route has an `h1`, and no heading level is skipped | ✅ *(one skip found on Reviews' empty state and fixed)* |
+| Every form control has a label, `aria-label` or wrapping label | ✅ |
+| Every button and link has an accessible name | ✅ |
+| Every table has a `<caption>` | ✅ |
+| Every `<fieldset>` has a `<legend>` | ✅ |
+| Hidden question-type fieldsets are also `disabled` — they leave the tab order | ✅ |
+| Builder reorder / remove / refresh are real buttons, keyboard-operable | ✅ |
+| Status is never colour-only — every badge carries an icon and a word | ✅ |
+| Dialogs trap focus, close on Escape and restore focus (shared component) | ✅ |
+| Form errors render as a focused summary **and** inline, tied by `aria-describedby` | ✅ |
+
+No formal WCAG conformance is claimed.
+
+## Invariants spot-checked — Implementation 04
+
+| Invariant | Verified by |
+|---|---|
+| A Faculty member sees only mapped content | Q5–Q9 |
+| Faculty mapping ≠ student entitlement | R1–R4 |
+| Assessment is per **Experiment**; simulation is per **technology** | Y5, Z10 |
+| An assessment submission never makes a technology look started | Y5 |
+| A submitted attempt is never mutated by a later Faculty edit or delete | T6, V10, X15 |
+| `Delete` is the label, and history survives it | T2–T7 |
+| Nothing generated by assistance reaches the bank, an assessment or a Student without an explicit Faculty action | U4, U6, X7, X8 |
+| Faculty is the only writer of an evaluated descriptive result | X7–X11 |
+| The Student consumes the **same** definition Faculty manage | V3 → Z8, X14 |
+| No answer key on any student-facing surface | W1, Z8 |
+| No BITS/Taxila default is asserted anywhere | V8 |
+| No KPI, index, score, rank or prediction | Y7 |
+| Every enabled control does something | whole suite — no dead control found |
+
+---
+
+## Defects found by the Implementation-04 review pass, and fixed
+
+A multi-dimension adversarial review was run over the changed files (state correctness, student
+regression, faculty screens, invariants, migration, the local assistance module, accessibility
+and responsive, and source compliance), with every finding independently verified through three
+lenses before being accepted. Fourteen real defects survived. All are fixed and re-verified in
+the browser.
+
+### 1 · The Progress screen printed a score the result screen was withholding
+
+`recomputeAttempt` makes `score.percent` the **whole-assessment** figure once every written
+answer is reviewed. The Progress screen still printed it as *"n% on the marked questions"* — a
+wrong label, and worse, it printed the combined figure while the result screen was withholding it
+under a delayed policy. It now asks the same question the result screen asks: when the final
+result is withheld it shows the **objective sub-score** (the figure that was never withheld), and
+otherwise it says whether the faculty marks are included.
+
+### 2 · The reviewed-but-unreleased **outcome** leaked through the assessment badge
+
+The same class of leak, one level up: `assessmentState()` returns `PASSED` as soon as the review
+completes, so the Progress screen and the Experiment card announced *"Passed"* while the result
+screen was withholding it. A single Student-facing mapping,
+`XRSLP.studentUI.studentAssessState()`, now renders that case as **Reviewed — result not
+released yet**. The state layer, the progress derivation and the Faculty workspace are untouched
+and keep the true outcome — the withholding is a display decision on Student surfaces only, and
+it is scoped to results that actually contain a Faculty review.
+
+### 3 · The result screen read the attempt limit from the frozen snapshot
+
+`attemptBlock` gates a new attempt on the **live** definition — as documented — but the result
+screen read `attemptLimit` from the attempt's snapshot. Faculty raising or lowering the limit
+therefore produced a **Try again** button the gate refused, or hid one the gate would have
+allowed. The retry control now asks `attemptBlock` directly, and every attempt count on the
+screen reads the live definition. Verified both ways: dropping the limit to 1 hides the control
+and says *"You have used all 1 attempt"*; raising it to 3 restores it and says *"You have 2
+attempts left"*.
+
+### 4 · Two technology labels still read the Experiment roll-up
+
+*"Your other technologies"* on the simulation screen and *"What you can open"* on the refusal
+screen rendered `technologyProgress().status`, which folds in the Experiment-level resources and
+assessment — the exact defect Implementation 03 fixed everywhere else. An untouched AR simulation
+read *"In progress"* because the shared assessment had moved. Both now read that technology's own
+`simulationStatus`, which is the rule stated at the head of `student.js`.
+
+### 5 · A blank pass mark validated as 0%
+
+`Number('')` is `0`, and `0` is a legal pass mark — so an empty field passed validation and every
+attempt then passed. Blank numeric fields are now refused explicitly rather than coerced, in the
+assessment settings and in the question editor.
+
+### 6 · A True/False validation error was aimed at a hidden fieldset
+
+`validateQuestion` emitted the field id `q-answer` for a missing True/False choice, but that id is
+the **MCQ** option container; the True/False controls live in `q-tf`. The error summary appeared
+and the inline message attached to a hidden element, so it was never seen. The error now names
+its own field.
+
+### 7 · An assessment with no questions could be started
+
+`attemptBlock` only checked that a definition existed. A Faculty member who creates an assessment
+before choosing its questions therefore left a Student able to start it, snapshot an empty
+question list, score `null%` and land on **Not passed**. `attemptBlock` now returns
+`no-questions`, and both Student surfaces say plainly that the faculty have not set the questions
+yet.
+
+### 8 · Edits to one assisted draft were discarded when another was added or removed
+
+Draft edits were read out of the DOM only for the draft being added. Adding or discarding one
+re-rendered the whole list, silently reverting every other card. Edits are now read back into the
+held drafts before any re-render.
+
+### 9 · A source-material file was dropped on the next render
+
+`FileReader.onload` wrote the text into the textarea but not into the held state, so any
+re-render lost the material while the label still claimed the file was loaded.
+
+### 10 · Two supplied material extracts could be compared with themselves
+
+Every chunk of Faculty-supplied source material carried the identical topic phrase, so the
+false-True/False template could emit *"the material you supplied and the material you supplied
+describe the same thing"* keyed **False** — a statement that is in fact true. Extracts now carry
+distinct labels, and the template falls back to the true form rather than emitting a mis-keyed
+question if there is nothing distinct to contrast with.
+
+### 11 · A drafted MCQ could contain identical options
+
+Distractors were taken from other sources with no dedupe. Two sources opening with the same
+sentence produced a question with two identical options, only one of which the answer key pointed
+at. Options are now deduplicated against the key and against each other.
+
+### 12 · The suggestion emitted *"Missing or unclear: ."*
+
+With no evaluation guidance there are no terms to compare, so there was nothing to name as
+missing. That case now says so instead.
+
+### 13 · The record always claimed the suggestion had been used
+
+The review screen passed *"a suggestion exists"* where *"a suggestion was applied"* was meant, so
+`assistance.accepted` was never `false`. It now records whether **Use this suggestion** was
+actually clicked for that response.
+
+### 14 · Smaller fixes
+
+- The preview's **authoring view** — the one place an answer key is rendered — was a module
+  global and carried over into a different assessment. It is now scoped, and defaults back to the
+  student view.
+- **Add a question** read the Question Bank's experiment filter without re-owning it, so the
+  preselected experiment could be one another faculty member had filtered to.
+- `state.releaseFor(att)` on the review screen lacked the null guard every neighbouring line has.
+- *"Attempts submitted"* on the reach card is tenant-wide beside a faculty-scoped student count;
+  the label now says so.
+- The question-editor subtitle interpolated the experiment name into an HTML sink without
+  escaping.
+- Three empty states inside a table card used `h3` directly under the page `h1`, skipping a
+  heading level.
+
+### Re-verification after the fixes
+
+| Check | Result |
+|---|:--:|
+| 59 routes swept across all five workspaces — runtime errors | **0** |
+| 59 routes swept — blank pages | **0** |
+| Horizontal overflow at 375 / 768 / 1280 | **none** |
+| Accessibility audit (headings, labels, names, captions, legends) | **clean** |
+| Sections Q–Y and the Z regression suite | **re-run, all passing** |
+
+### 15 · Faculty student reach was intersected with the mapping's access record
+
+A tenant can hold the same Experiment on more than one access record. Reach counted only the
+students entitled through the record the Faculty mapping runs through — so a student entitled via
+another record was invisible on Student Progress while their written answer still appeared in the
+**Reviews** queue, because reviews are keyed by Experiment. The two surfaces disagreed. Reach is
+now every student effectively entitled to that Experiment anywhere in the tenant, which is the
+same population the assessment definition and the review queue already serve.
+
+### 16 · The assistance module claimed to have no arithmetic it plainly had
+
+The file and the UI promised *"no rubric weighting, threshold or scoring band"* while
+`reviewSuggestion` contains exactly a weighted blend and length bands. A suggested figure has to
+come from somewhere, so the fix was to make the claim true rather than to hide the mechanism: the
+suggestion now **states its own derivation on screen** — the two observations it is built from and
+nothing else — and the promise is the accurate one, that nothing here is presented or asserted as
+how a production auto-review scores. That is the question `ND-09` leaves open, and it stays open.
+
+---
+
+## Result-withholding / progress-leak audit
+
+A targeted audit of one question: **can a Student infer a withheld assessment result from any
+other Student-facing status?**
+
+### The progress roll-up dependency
+
+It depends on **PASS/FAIL**, not on submission. Two places:
+
+- `technologyProgress()` — `learningDone` requires `assess === ASSESS_STATE.PASSED`;
+- `experimentProgress()` — the assessment step counts toward `steps.done` (and therefore the
+  percentage) only when `assessState === ASSESS_STATE.PASSED`.
+
+### Verdict — **LEAK FOUND**, reproduced before any change
+
+Two Students, identical visible activity (all resources done, VR simulation complete, assessment
+submitted), the same Consolidation Test assessment under **AFTER_DEADLINE** with a future
+deadline. Faculty awarded full marks to one and zero to the other. Neither result was released.
+
+| Student-facing signal | Passing Student | Failing Student |
+|---|---|---|
+| Experiment roll-up | **Completed** | **In progress** |
+| Percentage | **100%** | **86%** |
+| Steps | 7 of 7 | 6 of 7 |
+| Technology row | `vr: COMPLETED` | `vr: IN_PROGRESS` |
+| Home / Progress counts | completed **1** | in progress **1** |
+
+Five independent channels, each of which differed **only** because of the hidden result.
+
+### The correction
+
+The smallest coherent one: the derivation gains an explicit **Student view**.
+
+- `state.resultWithheld(personId, experimentId)` — true while a result that carries Faculty-awarded
+  marks has been evaluated and the visibility policy has not released it.
+- `technologyProgress(..., opts)` and `experimentProgress(..., opts)` take `opts.studentView`.
+  Under it the assessment step is **undecided**: it never counts toward `steps.done`, and the
+  status becomes the new `TECH_PROGRESS.RESULT_WITHHELD` — for a passing and a failing Student
+  alike.
+- `studentProgressSummary()` takes the Student view and counts that case in its own
+  `awaitingRelease` bucket, so it is not silently folded into *Pending Faculty review* (which
+  would be untrue — the review is done) or into *Not started*.
+- Student screens pass `{ studentView: true }`. **The Faculty workspace does not**, and neither
+  does `facultyExperimentStats`, so Faculty keep the evaluated truth (audit §9).
+
+Files changed: `js/state.js`, `js/screens/student.js`, `js/screens/student-learn.js`.
+`js/screens/faculty.js` and `js/screens/faculty-assess.js` are untouched by this audit.
+
+The Student label is **Result pending release** — an activity/workflow state, exactly as audit §4
+permits. It says the work is done and the result is waiting on a date, and nothing about the
+result.
+
+### After the correction — the two Students are indistinguishable
+
+| Signal | Passing | Failing |
+|---|---|---|
+| Roll-up | `RESULT_WITHHELD` | `RESULT_WITHHELD` |
+| Percentage | 86% | 86% |
+| Steps | 6 of 7 | 6 of 7 |
+| Technology row | `vr: RESULT_WITHHELD` | `vr: RESULT_WITHHELD` |
+| Assessment badge | Reviewed — result not released yet | Reviewed — result not released yet |
+| Summary counts | awaitingRelease 1 | awaitingRelease 1 |
+| **Truth underneath** | PASSED | NOT_PASSED |
+
+All six Student surfaces (Home · My Learning · Experiment · Assessment intro · Result · Progress)
+were rendered for both Students and scanned for `Passed`, `Not passed`, `Correct`, `Incorrect`,
+`Correct answer`, `Faculty feedback` and `Try again`: **clean on every surface for both**.
+
+### Test matrix
+
+| # | Case | Student sees | Faculty sees |
+|---|---|---|:--:|
+| A | `SHOW_IMMEDIATELY`, reviewed | Released — outcome, combined score, marks, feedback, explanations. Roll-up **Completed**, 100% | PASSED |
+| B | `AFTER_DEADLINE`, reviewed before the deadline | Withheld — no outcome, no combined score, no marks, no feedback, no explanations. Roll-up **Result pending release**, 86% | PASSED |
+| C | `CUSTOM_DATE`, reviewed before the date | identical to B | PASSED |
+| D | Descriptive still unevaluated | **Pending Faculty review** — a distinct state, never conflated with C | PENDING |
+| E | Evaluated, release withheld | Told the evaluation is finished and when the result becomes available; marks, feedback and outcome all withheld | PASSED / NOT PASSED |
+
+Release was then exercised for real: moving case C's custom date into the past flipped the Student
+view to **Passed / Completed / 100%** — so the policy still governs, in both directions.
+
+### Residual channel, reported not closed
+
+The **objective sub-score** ("n% on the marked questions") is still shown while the final result is
+withheld. It has been shown at submission under every policy since Implementation 03, and
+withholding it only after a Faculty review would retract a figure the Student had already seen. A
+Student whose objective score is low enough that the remaining descriptive marks cannot reach the
+pass mark can therefore deduce the outcome early. Closing this means withholding the objective
+sub-score throughout under delayed policies — a change to Implementation 03's approved result
+model, and a stakeholder decision rather than an audit fix. Recorded as README judgement call 24.
+
+### Regression after the correction
+
+| Check | Result |
+|---|:--:|
+| VR completed · AR not started, after an assessment submission | ✅ unchanged |
+| Faculty per-technology analytics (`ar: 0 started`) | ✅ unchanged |
+| Faculty review still updates the evaluated attempt | ✅ marks 3, reviewer recorded, outcome recomputed |
+| Faculty still see the evaluated result and the true roll-up | ✅ passed 1 · roll-up Completed · 100% |
+| Student receives the result exactly when the policy permits | ✅ verified in both directions |
+| 43 routes across five workspaces — runtime errors | **0** |
+| 43 routes — blank pages | **0** |
+
+---
+
+## Withheld-result score leak — final closure
+
+The previous audit closed the indirect PASS/FAIL channel through the progress roll-up but left one
+Student-facing channel open by design, and reported it: **the objective sub-score stayed on screen
+while the result it determines was withheld.** This closes it.
+
+### Root cause
+
+`state.resultWithheld()` required `score.includesReview`. Three consequences followed:
+
+- an **objective-only** assessment was never treated as withheld at all — machine marking was
+  being treated as self-releasing, so `AFTER_DEADLINE` and `CUSTOM_DATE` governed nothing for it;
+- a **mixed** assessment showed its objective sub-score both before Faculty review and after it,
+  while the final result was withheld;
+- the roll-up neutralisation therefore never applied to objective-only assessments either, so
+  *Completed / 100%* versus *In progress / 86%* still published the outcome for them.
+
+A Student whose objective marks already put the pass mark out of reach could read the hidden
+outcome straight off any of these.
+
+### The correction — one shared release decision
+
+`state.scoreWithheld(personId, experimentId)` — *a submitted attempt exists and the
+Faculty-configured policy has not released it*, with no reference to how the marking was done.
+`resultWithheld()` becomes the subset of it where the outcome is actually decided, which is what
+the roll-up neutralises; a still-pending review keeps its own honest state. Every Student-facing
+score surface asks this one function, so no screen can disagree with another.
+
+Files changed: `js/state.js`, `js/screens/student.js`, `js/screens/student-learn.js`.
+`js/screens/faculty.js`, `js/screens/faculty-assess.js` and `js/ai-assist.js` untouched.
+
+### Test matrix
+
+| # | Case | Student sees | Faculty |
+|---|---|---|:--:|
+| A | `SHOW_IMMEDIATELY`, objective | score, outcome, per-question correctness, explanations | ✅ |
+| B | `AFTER_DEADLINE` in future, objective | **no score, no outcome, no correctness** — “Result pending release”, and the date | ✅ |
+| C | `CUSTOM_DATE` in future, objective | identical to B | ✅ |
+| D | Mixed, before Faculty review | **Pending Faculty review**, and **no objective sub-score** | ✅ |
+| E | Mixed, reviewed, release future | **Result pending release** — no objective sub-score, no descriptive marks, no outcome, no feedback | ✅ |
+| F | Release moved into the past | full policy-permitted result, breakdown, answer feedback and Faculty feedback | ✅ |
+| G | Faculty, throughout | evaluated marks and outcome visible before Student release | ✅ |
+| H | Retry / Try again | hidden for **both** a passing and a failing Student while withheld | ✅ |
+
+### Proof — a passing and a failing Student are indistinguishable
+
+Two Students on the same withheld assessment, one scoring full marks and one scoring zero:
+
+| Surface | Rendered output |
+|---|---|
+| Experiment detail | **byte-identical** |
+| Assessment result | **byte-identical** — no figure, no outcome, no retry button |
+| Progress — the withheld experiment's block | **byte-identical**: *“Result pending release · available 16 Sep 2026”* |
+| Roll-up · percentage · steps · summary counts | identical (`RESULT_WITHHELD`, 86%, 6 of 7, awaitingRelease 1) |
+| Truth underneath | PASSED vs NOT_PASSED |
+
+Scanned on every Student surface for `Passed`, `Not passed`, `Incorrect`, `Correct answer`,
+`Faculty feedback`, `Try again` and `marks awarded`: **clean on every withheld experiment for both
+Students**. The only surfaces carrying those tokens are experiments whose policy has **released**
+them, which is correct.
+
+### Retry channel — verdict
+
+**LEAK FOUND and closed.** `canRetry` required `att.outcome === NOT_PASSED`, so the presence of
+*Try again* announced failure and its absence announced a pass. It now also requires
+`!scoreWithheld`, and the attempts-left sentence is not printed while withheld. Verified: the
+button is absent for both students under a withheld policy, and returns for the failing student
+alone once the release date passes. **No change to the attempt-limit configuration** — `attemptBlock`
+and `attemptLimit` are untouched.
+
+### Regression
+
+| Check | Result |
+|---|:--:|
+| `SHOW_IMMEDIATELY` — outcome, combined score, correctness, explanations, Faculty feedback | ✅ unchanged |
+| Pending Faculty review state | ✅ distinct from *Result pending release* |
+| Post-review withheld result | ✅ nothing disclosed |
+| Release transition, in both directions | ✅ |
+| Progress pass/fail withholding from the previous audit | ✅ preserved |
+| VR completed · AR not started, after submission | ✅ preserved |
+| Faculty analytics per technology (`ar: 0 started`) | ✅ unchanged |
+| Faculty review still recomputes the attempt and is visible to Faculty | ✅ passed 1 recorded |
+| Question Bank · AI drafting · AI-assisted review · review navigator | ✅ untouched |
+| 45 routes across five workspaces — runtime errors | **0** |
+| 45 routes — blank pages | **0** |
+
+---
+
+## Safari UX / copy correction pass — Implementation 04
+
+A manual Safari pass over the Faculty workspace. Everything below is presentation, copy or
+transient state. **No** business rule, assessment granularity, entitlement rule, review
+architecture or result-visibility policy was changed.
+
+### Reaching these screens at all
+
+The seed ships **zero** tenant access, faculty mappings, assignments, attempts and reviews, so
+`#/faculty/:id/questions/draft` redirects to the Question Bank and the review queue is empty
+until a fixture exists. Any spot check that skips this step is testing a redirect. The fixture
+used here drives only the real state API, in the order the UI does:
+
+```
+reset → scenario A → selectionAdd(direct-shear, [vr, ar]) → submitRequest → approveRequest
+  → mapFaculty(USR-001, soil-mechanics, direct-shear)
+  → assignExperiment(student: USR-003, USR-004, USR-005)
+  → requestSimulationAccess/simulatePackageReady/startSimulation/completeSimulation(USR-003, vr)
+  → addQuestion(descriptive, 3 marks, with evaluation guidance) → addQuestionsToAssessment
+  → startAttempt(USR-003) → saveAnswer(descriptive: "Shear") → submitAttempt
+  → setFacultyReviewMode(USR-001, ASSISTED)
+```
+
+That reproduces the reviewed state exactly: Rahul Verma, one-word written answer, 3 max marks,
+VR completed / AR not started.
+
+### 17 · A hidden file input put a horizontal scrollbar on the whole page
+
+**Reproduced**, *Draft questions with assistance* at 1440: `documentElement.scrollWidth` 1849 vs
+`clientWidth` 1440 — **409px**. A DOM walk returned exactly one offender: `input#ai-file.sr-only`,
+1440 × 48 at `left: 409.77`.
+
+`css/screens.css` `.field input[type=file]{width:100%; … min-height:48px}` has specificity
+(0,2,1); `.sr-only` has (0,1,0) and carried `!important` only on `position`. So the hidden control
+kept a full-size box, absolutely positioned with no positioned ancestor — containing block the
+viewport — and an absolutely-positioned box still contributes to the document's scrollable
+overflow. `clip` suppresses paint, not layout.
+
+**Corrected** by making the `.sr-only` geometry authoritative in `css/base.css`, the way its
+`position` already was — `width`/`height` plus `min-`/`max-` (`height:1px` alone loses to
+`min-height:48px`) and `padding`/`border`/`overflow`. **No `overflow-x:hidden` anywhere.**
+Verified: the input computes 1 × 1 and `scrollWidth === clientWidth`.
+
+Two latent traps closed while verifying: `fieldset.fgroup` keeps the UA
+`min-inline-size:min-content` unless reset, and `.draftcard .dc-src` had no `overflow-wrap`.
+
+### 18 · A hard refresh recreated the generated-suggestion panel
+
+**Reproduced**: generate a suggestion, then reload — the panel returned, the `Generate` control
+was gone, and the Suggestion section was owned by a tinted block nobody had asked for.
+
+Root cause: `generateReviewAssistance` calls `save()`, so `rv.assistance` is in `localStorage`;
+the screen rendered the panel on `if (rv.assistance)`. **The data revived the presentation.**
+
+**Corrected** by separating the two. The record still persists — `finaliseReview` stamps
+`accepted`, which is the completed review's audit trail — but the panel is gated on module-local
+`suggestionView`, which starts empty on every page load.
+
+| After a hard refresh, with a suggestion in storage | Result |
+|---|:--:|
+| Review Detail loads normally | ✅ |
+| Suggestion panel auto-opened | ❌ none |
+| `Generate suggestion` present and usable | ✅ |
+| Any overlay / scrim | ❌ none |
+| Focus stolen | ❌ no |
+| Assistance record still persisted | ✅ |
+
+### 19 · The suggestion panel read as diagnostic output
+
+Raw tokeniser labels (`Not found`) and a 60-word implementation-facing paragraph were rendered as
+product copy; read as text the badges and values ran together (*"AI-assisted suggestionFaculty
+confirmation required"*, *"Suggested marks0 of 3"*).
+
+**Corrected**: an in-page card — never an overlay — with the panel name as a heading rather than a
+badge abutting a badge, `SUGGESTED MARKS 0.5 / 3`, the suggested feedback, and a short
+`WHY THIS WAS SUGGESTED` list (label above value, so nothing runs together):
+
+```
+Why this was suggested
+ · Answer length            1 word
+ · Guidance points found    shear
+ · Guidance points not found  strength, cohesion, friction, angle, normal, stress, failure
+
+This is a starting point only. Review and change it before confirming.
+[Use suggestion] [Dismiss]
+```
+
+The `ND-09` argument — that how a production auto-review scores is unspecified and has not been
+invented — moved to `README.md` and this file. The **observations** stay on screen, so the reader
+can still see what the figure came from. `js/ai-assist.js` carries a note that removing it from
+the documentation would make its own accuracy claim false.
+
+### 20 · Generated drafts rendered as a wall of simultaneous editors
+
+Three drafts meant three complete forms open at once — every textarea, every option row, every
+radio, two filled warning badges per card. Correct workflow, unreadable page.
+
+**Corrected**: compact summaries with **exactly one open editor**.
+
+| Behaviour | Result |
+|---|:--:|
+| 3 drafts render as 3 summaries, 0 editors | ✅ |
+| Summary carries order · type · `AI-assisted draft · Review required` · question · marks · source | ✅ |
+| MCQ summary adds option count and whether a key is set | ✅ `4 options · 1 mark · answer key selected` |
+| Which option the key points at is **not** shown before review | ✅ never |
+| `Review & edit` opens one and closes any other | ✅ 1 editor at all times |
+| Edits survive switching drafts (text, marks, guidance, options, key) | ✅ |
+| Discarding draft 0 while editing draft 1 keeps the same draft open | ✅ index follows |
+| `Add to Question Bank` from a **collapsed** summary | ✅ bank 6 → 7, `origin: 'ai'` kept |
+| The added question does **not** enter any assessment | ✅ still 6 questions |
+| Invalid draft: editor opens, error summary + field error, focus on the control | ✅ |
+| Discard removes only that draft | ✅ |
+| Refresh: drafts gone by design, Question Bank persists | ✅ |
+| External network requests | **0** |
+
+Because only one editor exists, it reuses the manual question form's field ids, so
+`state.validateQuestion` errors land on the right control through `ui.showErrors` unchanged.
+
+### 21 · Copy corrections
+
+| Screen | Was | Now |
+|---|---|---|
+| Tenant Admin · Faculty mapping, empty state | `institution&rsquo;s` printed literally (`ui.emptyState` **escapes** `body`) | real Unicode `’` |
+| Tenant Admin · Faculty mapping | `NOT IN THIS SLICE — Faculty assessment and analytics … are a later slice` | removed; the card now says what mapping unlocks |
+| Tenant Admin · person (Faculty) | `NEXT SLICE — Faculty workspace … arrive in a later slice` | states the Tenant Admin / Faculty boundary instead |
+| Faculty · My Content | *"Student numbers are entitlement, not enrolment"* | *"Student counts reflect entitlement, not enrolment"* |
+| Faculty · My Content + Assessment overview | `Technologies held` | `Available technologies` |
+| Faculty · Reviews | *"evaluated by the faculty member who teaches the experiment"* | *"evaluated by the Faculty member mapped to the Experiment"* |
+| Review Detail | `Your evaluation guidance` icon jammed against its label | proper micro-label treatment; the Student answer is set off with its own rule |
+| `state.js` | comment claiming the Faculty review workspace was a later slice | corrected |
+
+An audit of all 32 raw HTML entities in `js/` found exactly one in an escaped position. The other
+31 are in raw-HTML arguments and are correct as written; the `&amp;` uses inside `data-label`
+attributes would be actively wrong to change.
+
+### Responsive — document-level horizontal overflow
+
+`documentElement.scrollWidth − clientWidth`, measured on 11 surfaces at each width.
+
+| Surface | 375 | 768 | 1280 | 1440 | 1728 |
+|---|:--:|:--:|:--:|:--:|:--:|
+| Draft — before generation | 0 | 0 | 0 | 0 | 0 |
+| Draft — 3 generated drafts | 0 | 0 | 0 | 0 | 0 |
+| Draft — editor open (MCQ) | 0 | 0 | 0 | 0 | 0 |
+| Review Detail — assistance off | 0 | 0 | 0 | 0 | 0 |
+| Review Detail — suggestion inline | 0 | 0 | 0 | 0 | 0 |
+| Review Detail — completed | 0 | 0 | 0 | 0 | 0 |
+| Tenant Faculty mapping | 0 | 0 | 0 | 0 | 0 |
+| Faculty My Content | 0 | 0 | 0 | 0 | 0 |
+| Faculty Question Bank | 0 | 0 | 0 | 0 | 0 |
+| Faculty Student Progress | 0 | 0 | 0 | 0 | 0 |
+| Faculty Student detail | 0 | 0 | 0 | 0 | 0 |
+
+⚠ Measure with a real viewport. With the browser pane hidden, `clientWidth` reads 0 and every
+screen appears to overflow.
+
+### Accessibility — the redesigned surfaces
+
+| Check | Result |
+|---|:--:|
+| Every draft action is a real `<button>` | ✅ 9 controls across 3 cards |
+| No positive `tabindex` | ✅ |
+| `aria-expanded` on every `Review & edit`, `aria-controls` when open | ✅ |
+| Open state marked by accent **and** the word `EDITING` **and** the button label | ✅ not colour alone |
+| `Review & edit` moves focus into the editor; closing returns it to the button | ✅ |
+| Add-validation failure focuses the offending control, `aria-invalid` set | ✅ |
+| Draft generation announced via the existing `aria-live="polite"` region, focus not stolen | ✅ |
+| `Generate suggestion` / `Use suggestion` / `Dismiss` are real controls | ✅ |
+| Generated suggestion announced; focus left where it was | ✅ |
+| `Use suggestion` moves focus to the marks field it just filled | ✅ intended |
+| Heading order on the draft screen | ✅ H1 → H2, no skips |
+
+Not a WCAG conformance claim.
+
+### Review workflow — end to end
+
+| Step | Result |
+|---|:--:|
+| `Generate suggestion` → review still `pending`, attempt still `PENDING_FACULTY_REVIEW` | ✅ |
+| `Use suggestion` → marks `0.5` and feedback filled | ✅ |
+| …and nothing saved: `rv.marks === null` | ✅ |
+| Faculty overwrites both values (`2`, own feedback) | ✅ |
+| `Confirm review` → `completed`, marks **2** (not 0.5), Faculty feedback stored | ✅ |
+| `Reviewed by: Dr. Arjun Mehta`, `Assistance: A suggestion was used as a starting point` | ✅ |
+| Attempt re-scored and decided | ✅ `NOT_PASSED` |
+| Completed review is read-only — no form, no suggestion editor, 0 inputs | ✅ |
+| AI auto-finalisation | ❌ none possible |
+
+### Regression
+
+| Check | Result |
+|---|:--:|
+| Question Bank Add / Edit / Delete | ✅ 7 → 8 → edited → 7 |
+| Assessment builder adds a bank question | ✅ 6 → 7, revision 1 → 2 |
+| Student consumes the same Faculty-managed definition | ✅ 7 questions served, incl. the Faculty-added descriptive |
+| Student descriptive submission → Pending Faculty review | ✅ `REV-003` pending |
+| Faculty finalisation → Student result update | ✅ 38% with review |
+| Result withheld (`CUSTOM_DATE`): score, %, pass/fail, correctness, Faculty feedback, *Try again* | ❌ none disclosed |
+| Pass mark (60%) and attempt number still shown while withheld | ✅ rules, not results |
+| VR completed / AR not started, unaffected by assessment activity | ✅ |
+| Faculty analytics per technology | ✅ unchanged |
+| Impl-02 Faculty mapping: map, unmap, empty state | ✅ 1 → 2 → 1 |
+| Mapping boundary: unmapped Faculty sees no scope and no reviews | ✅ scope 0, queue 0 |
+| Impl-02 Student assignment list and form | ✅ |
+| Console errors across the pass | **0** |
+| External network requests | **0** |
+
+### Not changed, reported instead
+
+While the result is withheld, the Student's *"your score above is final for the marked questions"*
+sentence points at a score that is correctly not shown. It is pre-existing copy on a screen this
+pass was scoped not to touch, and it discloses nothing. Flagged, not changed.

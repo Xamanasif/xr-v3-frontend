@@ -13,6 +13,7 @@ XRSLP.router = (function () {
      public   → public shell (no side nav)
      platform → Super Admin workspace shell
      tenant   → Tenant workspace shell
+     faculty  → Faculty workspace shell
      learn    → Student workspace shell */
   var ROUTES = [
     { pattern: [],                                  area: 'public',   screen: 'landing' },
@@ -46,6 +47,38 @@ XRSLP.router = (function () {
     { pattern: ['tenant', ':tenantId', 'assignments'],        area: 'tenant', screen: 'tenantAssignments' },
     { pattern: ['tenant', ':tenantId', 'assignments', 'new'], area: 'tenant', screen: 'tenantNewAssignment' },
     { pattern: ['tenant', ':tenantId', 'faculty-mapping'],    area: 'tenant', screen: 'tenantFacultyMapping' },
+    /* Faculty workspace (Implementation 04). Faculty is a formal role
+       inside a Tenant (STK31-01 / 04); everything it reaches is bounded
+       by that Faculty member's Implementation-02 mappings. `#/faculty`
+       resolves the prototype's currently-selected REAL faculty record,
+       or offers the prototype-only chooser.
+
+       Every destination below is implemented. There is no Messages,
+       Attendance, Certificates, Calendar, Profile or Support entry:
+       none of them is built, and a link that leads nowhere is worse
+       than an absent one. */
+    { pattern: ['faculty'],                                     area: 'faculty', screen: 'facultyHome' },
+    { pattern: ['faculty', ':facultyId', 'overview'],           area: 'faculty', screen: 'facultyOverview' },
+    { pattern: ['faculty', ':facultyId', 'content'],            area: 'faculty', screen: 'facultyContent' },
+    { pattern: ['faculty', ':facultyId', 'assessments'],        area: 'faculty', screen: 'facultyAssessments' },
+    { pattern: ['faculty', ':facultyId', 'assessment', ':experimentId'],
+      area: 'faculty', screen: 'facultyAssessment' },
+    { pattern: ['faculty', ':facultyId', 'assessment', ':experimentId', 'settings'],
+      area: 'faculty', screen: 'facultyAssessmentSettings' },
+    { pattern: ['faculty', ':facultyId', 'assessment', ':experimentId', 'questions'],
+      area: 'faculty', screen: 'facultyAssessmentQuestions' },
+    { pattern: ['faculty', ':facultyId', 'assessment', ':experimentId', 'preview'],
+      area: 'faculty', screen: 'facultyAssessmentPreview' },
+    { pattern: ['faculty', ':facultyId', 'questions'],          area: 'faculty', screen: 'facultyQuestionBank' },
+    { pattern: ['faculty', ':facultyId', 'questions', 'new'],   area: 'faculty', screen: 'facultyQuestionNew' },
+    { pattern: ['faculty', ':facultyId', 'questions', 'draft'], area: 'faculty', screen: 'facultyQuestionDraft' },
+    { pattern: ['faculty', ':facultyId', 'question', ':questionId'],
+      area: 'faculty', screen: 'facultyQuestionEdit' },
+    { pattern: ['faculty', ':facultyId', 'reviews'],            area: 'faculty', screen: 'facultyReviews' },
+    { pattern: ['faculty', ':facultyId', 'review', ':reviewId'], area: 'faculty', screen: 'facultyReview' },
+    { pattern: ['faculty', ':facultyId', 'students'],           area: 'faculty', screen: 'facultyStudents' },
+    { pattern: ['faculty', ':facultyId', 'student', ':studentId', ':experimentId'],
+      area: 'faculty', screen: 'facultyStudentDetail' },
     /* Student workspace (Implementation 03). Student and Learner are
        ONE formal role (STK31-01); `learn` is that role's workspace.
        `#/learn` resolves the prototype's currently-selected REAL

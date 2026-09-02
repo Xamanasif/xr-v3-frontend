@@ -132,3 +132,40 @@
   .reviewcard .rv-act .formnote{width:100%}
   .resume .btn{width:100%; justify-content:center}
 }
+
+/* ---------- Implementation 04 — Faculty workspace ---------- */
+@media (max-width:1040px){
+  /* The completeness rail and the form aside sit ABOVE the body once
+     the two-column layout collapses, so the next safe action is the
+     first thing read rather than the last. */
+  .grid-rail>.stack:last-child .card,
+  .formwrap>.formaside .card{order:-1}
+}
+@media (max-width:900px){
+  .seg.fac-tabs{overflow-x:auto; padding-bottom:14px; flex-wrap:nowrap}
+  .seg.fac-tabs .segi{white-space:nowrap}
+}
+@media (max-width:740px){
+  .previewswitch{align-items:flex-start; flex-direction:column; gap:8px}
+  .qb-m{margin-left:0}
+  .rv-h .btn{margin-left:0}
+  .techmetrics li{gap:10px}
+  .clamp2{max-width:none}
+  .reslist li{align-items:flex-start; flex-direction:column; gap:6px}
+  .techrows .tr-m{text-align:left; flex-basis:100%}
+  /* The stacked-card table form needs the numeric columns left-aligned
+     again: right alignment only means anything against a shared edge. */
+  .dt td.num{text-align:left}
+}
+@media (max-width:640px){
+  .draftcard{padding:14px 12px}
+  /* "Editing" is pushed to the end of the header on a wide card; on a
+     narrow one it wraps onto its own line instead of squeezing the type. */
+  .draftcard .dc-editing{margin-left:0; flex-basis:100%}
+  /* Three actions on one row do not fit a phone. Full-width buttons in
+     source order keep the primary action reachable without a hunt. */
+  .draftcard .dc-a{flex-direction:column; align-items:stretch}
+  .draftcard .dc-a .btn{justify-content:center}
+  .opt-line{gap:8px}
+  .railitems .ri-d{overflow-wrap:anywhere}
+}

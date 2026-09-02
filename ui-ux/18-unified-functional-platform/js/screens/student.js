@@ -90,6 +90,10 @@ XRSLP.studentUI = (function () {
        descriptive-answer evaluation, so the Student is told exactly
        who the answer is with. */
     PENDING_FACULTY_REVIEW: { label: 'Pending Faculty review',  badge: 'b-warning', icon: 'clock' },
+    /* Evaluation finished, release not due yet. It says what the Student
+       may safely be told — that the work is done and the result is
+       waiting on a date — and nothing about the result itself. */
+    RESULT_WITHHELD:        { label: 'Result pending release',  badge: 'b-info',    icon: 'clock' },
     COMPLETED:              { label: 'Completed',              badge: 'b-success', icon: 'check' }
   };
   function progressBadge(status) {
@@ -117,7 +121,12 @@ XRSLP.studentUI = (function () {
     IN_PROGRESS:            { label: 'In progress',            badge: 'b-info',    icon: 'clock' },
     PENDING_FACULTY_REVIEW: { label: 'Pending Faculty review',  badge: 'b-warning', icon: 'clock' },
     PASSED:                 { label: 'Passed',                 badge: 'b-success', icon: 'check' },
-    NOT_PASSED:             { label: 'Not passed',             badge: 'b-danger',  icon: 'alertCirc' }
+    NOT_PASSED:             { label: 'Not passed',             badge: 'b-danger',  icon: 'alertCirc' },
+    /* Faculty have finished, but the visibility policy has not released
+       the result yet. Only a STUDENT surface ever shows this: the state
+       layer, the Faculty workspace and the progress derivation all keep
+       the true outcome. */
+    REVIEWED_WITHHELD:      { label: 'Result pending release',   badge: 'b-info',    icon: 'clock' }
   };
   function assessBadge(stateKey) {
     var m = ASSESS_META[stateKey] || ASSESS_META.NOT_STARTED;
@@ -125,6 +134,26 @@ XRSLP.studentUI = (function () {
   }
   function assessLabel(stateKey) {
     return (ASSESS_META[stateKey] || ASSESS_META.NOT_STARTED).label;
+  }
+
+  /* ⚠ THE ONE PLACE A STUDENT-FACING ASSESSMENT STATE IS DECIDED.
+
+     `state.assessmentState()` is the truth — Faculty and every derivation
+     read it unchanged. But a result that exists and has NOT been released
+     must not be announced to the Student by a badge on another screen
+     while the result screen is withholding it (brief §30). This maps the
+     outcome to the withheld state for Student surfaces only, and only
+     while a Faculty review is actually part of that result.
+
+     It deliberately does NOT touch the Experiment progress roll-up:
+     "Completed" is a statement about the work the Student did, not a
+     statement of the assessment result, and the Student did do it. */
+  function studentAssessState(personId, experimentId) {
+    var key = state.assessmentState(personId, experimentId);
+    if (key !== state.ASSESS_STATE.PASSED && key !== state.ASSESS_STATE.NOT_PASSED) { return key; }
+    /* Decided, but not released — whether the marks came from the machine
+       or from a Faculty member. */
+    return state.resultWithheld(personId, experimentId) ? 'REVIEWED_WITHHELD' : key;
   }
 
   /* Why an entitlement the Student can see is not currently usable.
@@ -216,6 +245,107 @@ XRSLP.studentUI = (function () {
     return '';
   }
 
+  /* ============================================================
+     THE SHARED QUESTION RENDERER.
+
+     Faculty preview and the Student attempt render questions through
+     THIS function and no other. That shared code path is what makes
+     "preview shows what the student receives" a structural fact rather
+     than a claim two implementations have to keep agreeing on.
+
+     opts.given      the answer already recorded (attempt only)
+     opts.readOnly   render inert controls — a preview never collects
+                     an answer and never creates an attempt
+     opts.showKey    AUTHORING CONTEXT ONLY. Marks the correct option
+                     as authoring metadata. D-25 is absolute: this is
+                     never passed on any Student-facing surface, and
+                     the preview's student view never passes it either.
+     ============================================================ */
+  function questionBody(q, i, total, opts) {
+    opts = opts || {};
+    var given = opts.given;
+    var ro = !!opts.readOnly;
+    var dis = ro ? ' disabled' : '';
+    var body;
+    if (q.type === 'mcq') {
+      body = (q.options || []).map(function (opt, oi) {
+        var id = 'q-' + q.id + '-' + oi;
+        var selected = given === oi;
+        var isKey = opts.showKey && oi === q.answer;
+        return '<div class="radiorow' + (selected ? ' is-selected' : '') + (isKey ? ' is-key' : '') + '">' +
+          '<input type="radio" id="' + id + '" name="q-' + esc(q.id) + '"' +
+          ' value="' + oi + '" data-q="' + esc(q.id) + '" data-kind="mcq"' +
+          (selected ? ' checked' : '') + dis + '>' +
+          '<label for="' + id + '">' + esc(opt) +
+          (isKey ? ' <span class="keytag">' + ui.ic('check', 'sm') + 'Correct answer</span>' : '') +
+          '</label></div>';
+      }).join('');
+    } else if (q.type === 'tf') {
+      body = [['true', 'True', true], ['false', 'False', false]].map(function (pair) {
+        var id = 'q-' + q.id + '-' + pair[0];
+        var checked = given === pair[2];
+        var isKey = opts.showKey && q.answer === pair[2];
+        return '<div class="radiorow' + (checked ? ' is-selected' : '') + (isKey ? ' is-key' : '') + '">' +
+          '<input type="radio" id="' + id + '" name="q-' + esc(q.id) + '"' +
+          ' value="' + pair[0] + '" data-q="' + esc(q.id) + '" data-kind="tf"' +
+          (checked ? ' checked' : '') + dis + '>' +
+          '<label for="' + id + '">' + pair[1] +
+          (isKey ? ' <span class="keytag">' + ui.ic('check', 'sm') + 'Correct answer</span>' : '') +
+          '</label></div>';
+      }).join('');
+    } else {
+      body = '<label class="sr-only" for="q-' + esc(q.id) + '">Your answer to question ' + (i + 1) + '</label>' +
+        '<textarea id="q-' + esc(q.id) + '" data-q="' + esc(q.id) + '" data-kind="text" rows="5" ' +
+        'placeholder="Write your answer here"' + dis + '>' + esc(given || '') + '</textarea>' +
+        (q.guidance ? '<p class="hint">' + esc(q.guidance) + '</p>' : '');
+    }
+    /* A written answer carries no automatic mark — it is evaluated
+       separately — so quoting a mark figure beside it would promise a
+       score that the total on the result screen never includes. */
+    var pts = q.points || 1;
+    var kindLabel = q.type === 'mcq' ? 'Multiple choice · ' + pts + ' ' + util.plural(pts, 'mark')
+      : q.type === 'tf' ? 'True or false · ' + pts + ' ' + util.plural(pts, 'mark')
+      : 'Written answer · reviewed by your faculty, not marked automatically';
+    return '<section class="qcard" id="qn-' + esc(q.id) + '" aria-labelledby="ql-' + esc(q.id) + '">' +
+      '<fieldset class="fgroup"' + dis + '>' +
+      '<legend id="ql-' + esc(q.id) + '">' +
+      '<span class="q-n">Question ' + (i + 1) + ' of ' + total + '</span>' +
+      '<span class="q-k">' + kindLabel + '</span>' +
+      '<span class="q-t">' + esc(q.text) + '</span>' +
+      '</legend>' +
+      '<div class="q-b">' + body + '</div>' +
+      '</fieldset></section>';
+  }
+
+  /* The generated pre-attempt disclosure. Every figure comes from the
+     assessment configuration; none is invented by a screen. Faculty
+     preview renders the same rows a Student is shown. */
+  function disclosureRows(asm, opts) {
+    opts = opts || {};
+    var counts = {};
+    asm.questions.forEach(function (q) { counts[q.type] = (counts[q.type] || 0) + 1; });
+    var descCount = counts.descriptive || 0;
+    var typeLine = [];
+    if (counts.mcq) { typeLine.push(counts.mcq + ' multiple choice'); }
+    if (counts.tf) { typeLine.push(counts.tf + ' true or false'); }
+    if (descCount) { typeLine.push(descCount + ' written ' + util.plural(descCount, 'answer')); }
+    var covers = opts.coversHTML || esc(opts.experimentName || '');
+    return '<dl class="disclose">' +
+      '<dt>Covers</dt><dd>' + covers + '</dd>' +
+      '<dt>Questions</dt><dd>' + asm.questions.length +
+        (typeLine.length ? ' — ' + esc(typeLine.join(', ')) : '') + '</dd>' +
+      '<dt>To pass</dt><dd>' + asm.passMark + '% of the marked questions</dd>' +
+      '<dt>Attempts</dt><dd>' + esc(opts.attemptsText ||
+        ((asm.attemptLimit || 0) + ' ' + util.plural(asm.attemptLimit || 0, 'attempt') + ' allowed')) + '</dd>' +
+      '<dt>Answers and explanations</dt><dd>' + esc(opts.releaseSentence || '') + '</dd>' +
+      (descCount
+        ? '<dt>Written ' + util.plural(descCount, 'answer') + '</dt><dd>' + esc(opts.descriptiveText ||
+          ('The written ' + util.plural(descCount, 'answer') + ' ' + (descCount === 1 ? 'goes' : 'go') +
+           ' to the faculty member for review before the result is complete. The marked questions are scored ' +
+           'straight away.')) + '</dd>' : '') +
+      '</dl>';
+  }
+
   /* Time spent, only ever shown when a real interval was recorded. */
   function fmtDuration(seconds) {
     if (!seconds && seconds !== 0) { return '—'; }
@@ -231,11 +361,13 @@ XRSLP.studentUI = (function () {
     PROGRESS_META: PROGRESS_META,
     progressBadge: progressBadge, progressLabel: progressLabel,
     simBadge: simBadge, assessBadge: assessBadge, assessLabel: assessLabel,
+    studentAssessState: studentAssessState,
     unavailableText: unavailableText, progressBar: progressBar,
     simulationSentence: simulationSentence, simLabel: simLabel,
     techStateChips: techStateChips,
     courseLine: courseLine, sequenceStrip: sequenceStrip,
-    accountNotice: accountNotice, fmtDuration: fmtDuration
+    accountNotice: accountNotice, fmtDuration: fmtDuration,
+    questionBody: questionBody, disclosureRows: disclosureRows
   };
 })();
 
@@ -377,6 +509,9 @@ XRSLP.studentUI = (function () {
     if (summary.awaiting > 0) {
       statItems.push({ label: 'Pending Faculty review', value: summary.awaiting, tone: 'warn' });
     }
+    if (summary.awaitingRelease > 0) {
+      statItems.push({ label: 'Result pending release', value: summary.awaitingRelease, tone: '' });
+    }
     if (summary.unavailable > 0) {
       statItems.push({ label: 'Not currently available', value: summary.unavailable, tone: 'warn' });
     }
@@ -473,7 +608,7 @@ XRSLP.studentUI = (function () {
 
     function card(row) {
       var ctx = data.contextOf(row.experimentId);
-      var prog = state.experimentProgress(p.id, row.experimentId, row.technologies);
+      var prog = state.experimentProgress(p.id, row.experimentId, row.technologies, { studentView: true });
       var name = ctx ? ctx.experiment.name : row.experimentId;
       var actionLabel =
         prog.status === state.TECH_PROGRESS.COMPLETED ? 'Review experiment' :
@@ -509,7 +644,7 @@ XRSLP.studentUI = (function () {
     function blockedCard(row) {
       var ctx = data.contextOf(row.experimentId);
       var techs = row.technologies.concat(row.blockedTechnologies);
-      var prog = state.experimentProgress(p.id, row.experimentId, techs);
+      var prog = state.experimentProgress(p.id, row.experimentId, techs, { studentView: true });
       var touched = state.hasActivity(p.id, row.experimentId);
       return '<article class="lcard blocked">' +
         '<div class="lc-head">' +
@@ -538,7 +673,8 @@ XRSLP.studentUI = (function () {
       var techs = state.technologiesWithActivity(p.id, experimentId);
       /* Historical: the assignment is gone, so the technology set it
          covered is unknown and no completion verdict can be claimed. */
-      var prog = state.experimentProgress(p.id, experimentId, techs, { historical: true });
+      var prog = state.experimentProgress(p.id, experimentId, techs,
+        { historical: true, studentView: true });
       return '<article class="lcard past">' +
         '<div class="lc-head">' +
         '<div class="lc-ctx">' + L.courseLine(experimentId) + '</div>' +
@@ -637,8 +773,8 @@ XRSLP.studentUI = (function () {
       opts = opts || {};
       var ctx = data.contextOf(experimentId);
       var prog = state.experimentProgress(p.id, experimentId, technologies,
-        { historical: !!opts.past });
-      var asm = data.assessmentFor(experimentId);
+        { historical: !!opts.past, studentView: true });
+      var asm = state.assessmentForStudent(p.id, experimentId);
       var name = ctx ? ctx.experiment.name : experimentId;
 
       /* A technology the Student worked on but no longer holds must not
@@ -648,7 +784,7 @@ XRSLP.studentUI = (function () {
       var retired = opts.past ? [] : state.technologiesWithActivity(p.id, experimentId)
         .filter(function (t) { return technologies.indexOf(t) === -1; });
       var retiredRows = retired.map(function (t) {
-        var tp = state.technologyProgress(p.id, experimentId, t);
+        var tp = state.technologyProgress(p.id, experimentId, t, { studentView: true });
         var sim = tp.simulation;
         return '<tr class="retired">' +
           '<td data-label="Technology">' + ui.fmtBadge(t) +
@@ -680,14 +816,34 @@ XRSLP.studentUI = (function () {
           '</tr>';
       }).join('');
 
-      /* The two Experiment-level lines: resources and the assessment. */
-      var assessState = state.assessmentState(p.id, experimentId);
+      /* The two Experiment-level lines: resources and the assessment.
+
+         ⚠ THE SCORE SHOWN HERE MUST AGREE WITH THE RESULT SCREEN.
+         Once Faculty have marked every written answer, `score.percent`
+         becomes the WHOLE-assessment figure — so the old wording
+         ("on the marked questions") stopped being true, and printing it
+         at all would leak a combined result the visibility policy is
+         still withholding on the result screen. Both are fixed here by
+         asking the same question the result screen asks. */
+      var assessState = L.studentAssessState(p.id, experimentId);
       var lastAtt = state.latestSubmittedAttempt(p.id, experimentId);
+      /* NO FIGURE OF ANY KIND while the result is withheld — not the
+         combined score and not the objective sub-score either. The one
+         release decision decides it, so this screen cannot disagree with
+         the result screen. */
+      var scoreBit = '';
+      if (state.scoreWithheld(p.id, experimentId)) {
+        var relAt = state.releaseFor(state.latestSubmittedAttempt(p.id, experimentId));
+        scoreBit = relAt.releaseAt
+          ? ' · <span class="muted">available ' + esc(util.fmtDate(relAt.releaseAt)) + '</span>' : '';
+      } else if (lastAtt && lastAtt.score && lastAtt.score.percent !== null) {
+        scoreBit = ' · <span class="tabular">' + lastAtt.score.percent + '% ' +
+          (lastAtt.score.includesReview ? 'overall, including your faculty’s marks'
+                                        : 'on the marked questions') + '</span>';
+      }
       var assessLine = asm
         ? '<div class="pg-res">' + ui.ic('doc', 'sm') +
-          '<span>Assessment — <strong>' + esc(L.assessLabel(assessState)) + '</strong>' +
-          (lastAtt && lastAtt.score && lastAtt.score.percent !== null
-            ? ' · <span class="tabular">' + lastAtt.score.percent + '% on the marked questions</span>' : '') +
+          '<span>Assessment — <strong>' + esc(L.assessLabel(assessState)) + '</strong>' + scoreBit +
           ' <span class="muted">· one assessment for this experiment</span></span></div>'
         : '';
 
@@ -754,6 +910,7 @@ XRSLP.studentUI = (function () {
         { label: 'Not started', value: summary.notStarted },
         { label: 'In progress', value: summary.inProgress },
         { label: 'Pending Faculty review', value: summary.awaiting, tone: summary.awaiting ? 'warn' : '' },
+        { label: 'Result pending release', value: summary.awaitingRelease, tone: '' },
         { label: 'Completed', value: summary.completed }
       ].map(function (it) {
         return '<div class="stat' + (it.tone ? ' ' + it.tone : '') + '">' +

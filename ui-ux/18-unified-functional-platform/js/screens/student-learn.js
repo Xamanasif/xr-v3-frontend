@@ -108,13 +108,16 @@ XRSLP.screens = XRSLP.screens || {};
     var p = r.student, tenant = r.tenant, ctx = r.ctx, row = r.row;
     var e = ctx.experiment;
     var techs = row.technologies;
-    var asm = data.assessmentFor(e.id);
-    var prog = state.experimentProgress(p.id, e.id, techs);
+    var asm = state.assessmentForStudent(p.id, e.id);
+    var prog = state.experimentProgress(p.id, e.id, techs, { studentView: true });
     var resources = data.resourcesFor(e.id);
     var resProg = prog.resources;
     /* ONE assessment for the Experiment — see the source note at the head
        of state.js. Only the simulation below is technology-specific. */
-    var assessState = state.assessmentState(p.id, e.id);
+    /* Student surface: a reviewed result the policy has not released is
+       shown as reviewed-but-not-released, never as passed or not passed.
+       The derivation underneath is untouched. */
+    var assessState = L.studentAssessState(p.id, e.id);
 
     /* ---- the sequence, with its live state ---- */
     var seq = L.sequenceStrip([
@@ -256,6 +259,8 @@ XRSLP.screens = XRSLP.screens || {};
           util.plural(asm.attemptLimit, 'attempt') + '.';
       } else if (!open && block === 'pending-faculty-review') {
         note = 'You cannot retake this while your written answer is with your faculty.';
+      } else if (!open && block === 'no-questions') {
+        note = 'Your faculty have not set the questions yet.';
       }
       asmCard = ui.card('Assessment',
         '<p class="cardlede">' + esc(asm.intro) + '</p>' +
@@ -465,7 +470,7 @@ XRSLP.screens = XRSLP.screens || {};
         'Here you record it, and the time between opening and completing is what is stored.';
     } else {
       actions = '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
-      var asmExists = data.assessmentFor(e.id);
+      var asmExists = state.assessmentForStudent(p.id, e.id);
       if (asmExists) {
         var lastAtt = state.latestSubmittedAttempt(p.id, e.id);
         var openAtt = state.currentAttempt(p.id, e.id);
@@ -535,10 +540,14 @@ XRSLP.screens = XRSLP.screens || {};
     var otherTechs = row.technologies.filter(function (t) { return t !== tech; });
     var otherCard = otherTechs.length
       ? ui.card('Your other technologies',
+          /* A technology-facing label reads THAT TECHNOLOGY'S OWN
+             SIMULATION and nothing else — the rule stated at the head of
+             student.js. Reading the Experiment roll-up here made an
+             untouched AR simulation read "In progress" because the shared
+             assessment had moved. */
           '<ul class="othertech">' + otherTechs.map(function (t) {
-            var tp = state.technologyProgress(p.id, e.id, t);
             return '<li>' + ui.fmtBadge(t) +
-              '<span class="ot-s">' + L.progressBadge(tp.status) + '</span>' +
+              '<span class="ot-s">' + L.simBadge(state.simulationStatus(p.id, e.id, t)) + '</span>' +
               '<a class="btn sm sec" href="' + L.href.simulation(p.id, e.id, t) + '">Open</a></li>';
           }).join('') + '</ul>' +
           '<p class="cardfoot">Each technology is tracked on its own. Completing one does not complete another.</p>',
@@ -614,9 +623,8 @@ XRSLP.screens = XRSLP.screens || {};
         ui.card('What you can open',
           row.technologies.length
             ? '<ul class="othertech">' + row.technologies.map(function (t) {
-                var tp = state.technologyProgress(p.id, e.id, t);
                 return '<li>' + ui.fmtBadge(t) +
-                  '<span class="ot-s">' + L.progressBadge(tp.status) + '</span>' +
+                  '<span class="ot-s">' + L.simBadge(state.simulationStatus(p.id, e.id, t)) + '</span>' +
                   '<a class="btn sm pri" href="' + L.href.simulation(p.id, e.id, t) + '">Open</a></li>';
               }).join('') + '</ul>'
             : '<p class="cardlede">Nothing for this experiment is available to you at the moment.</p>',
@@ -638,7 +646,7 @@ XRSLP.screens = XRSLP.screens || {};
     /* No technology gate here: the assessment belongs to the Experiment,
        and `resolve()` has already refused an Experiment the Student does
        not effectively hold. */
-    var asm = data.assessmentFor(e.id);
+    var asm = state.assessmentForStudent(p.id, e.id);
     if (!asm) {
       return {
         area: 'learn', title: 'No assessment', student: p, tenant: tenant, navKey: 'my-learning',
@@ -667,34 +675,25 @@ XRSLP.screens = XRSLP.screens || {};
       return state.simulationStatus(p.id, e.id, t) === state.SIM_STATUS.COMPLETED;
     });
 
-    var counts = {};
-    asm.questions.forEach(function (q) { counts[q.type] = (counts[q.type] || 0) + 1; });
-    var descCount = counts.descriptive || 0;
-    var typeLine = [];
-    if (counts.mcq) { typeLine.push(counts.mcq + ' multiple choice'); }
-    if (counts.tf) { typeLine.push(counts.tf + ' true or false'); }
-    if (counts.descriptive) { typeLine.push(counts.descriptive + ' written ' + util.plural(counts.descriptive, 'answer')); }
+    var descCount = asm.questions.filter(function (q) { return q.type === 'descriptive'; }).length;
 
     /* The generated disclosure — what the Student is told BEFORE
        starting. Every figure comes from the assessment configuration;
-       none is invented by this screen. */
-    var disclosure =
-      '<dl class="disclose">' +
-      '<dt>Covers</dt><dd>' + esc(e.name) + ' — one assessment for this experiment' +
-      (row.technologies.length > 1
-        ? ', whichever of ' + esc(row.technologies.map(function (t) {
-            return data.TECHNOLOGIES[t].label; }).join(' and ')) + ' you work in' : '') + '</dd>' +
-      '<dt>Questions</dt><dd>' + asm.questions.length + ' — ' + esc(typeLine.join(', ')) + '</dd>' +
-      '<dt>To pass</dt><dd>' + asm.passMark + '% of the marked questions</dd>' +
-      '<dt>Attempts</dt><dd>' + used +
-        (asm.attemptLimit ? ' of ' + asm.attemptLimit : '') + ' used</dd>' +
-      '<dt>Answers and explanations</dt><dd>' + esc(release.sentence) + '</dd>' +
-      (descCount
-        ? '<dt>Written ' + util.plural(descCount, 'answer') + '</dt><dd>Your written ' +
-          util.plural(descCount, 'answer') + ' ' + (descCount === 1 ? 'goes' : 'go') +
+       none is invented by this screen. Faculty preview renders the same
+       rows through the same function. */
+    var disclosure = L.disclosureRows(asm, {
+      coversHTML: esc(e.name) + ' — one assessment for this experiment' +
+        (row.technologies.length > 1
+          ? ', whichever of ' + esc(row.technologies.map(function (t) {
+              return data.TECHNOLOGIES[t].label; }).join(' and ')) + ' you work in' : ''),
+      attemptsText: used + (asm.attemptLimit ? ' of ' + asm.attemptLimit : '') + ' used',
+      releaseSentence: release.sentence,
+      descriptiveText: descCount
+        ? 'Your written ' + util.plural(descCount, 'answer') + ' ' + (descCount === 1 ? 'goes' : 'go') +
           ' to your faculty for review before your result is complete. Your marked questions are scored ' +
-          'straight away.</dd>' : '') +
-      '</dl>';
+          'straight away.'
+        : ''
+    });
 
     var actionHTML, noteHTML = '';
     if (open) {
@@ -708,6 +707,10 @@ XRSLP.screens = XRSLP.screens || {};
       actionHTML = '<a class="btn sec" href="' + L.href.result(p.id, e.id) + '">See your result</a>';
       noteHTML = 'Your written answer is with your faculty for review. You cannot retake the assessment ' +
         'until that review is done.';
+    } else if (block === 'no-questions') {
+      actionHTML = '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
+      noteHTML = 'Your faculty have not finished setting the questions for this assessment yet. ' +
+        'Nothing is wrong with your access — there is simply nothing to answer.';
     } else if (block) {
       actionHTML = '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
       noteHTML = 'This assessment cannot be started right now.';
@@ -734,8 +737,9 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="formact"><a class="btn sec sm" href="' +
         L.href.simulation(p.id, e.id, row.technologies[0]) + '">Go to the simulation</a></div>',
         null, 'h2') : '') +
-      ui.protoNote('<p>This assessment is sample configuration. In the product your faculty write the ' +
-        'questions, set the pass mark and attempts, and choose when answers become visible.</p>') +
+      ui.protoNote('<p>Everything above comes from the assessment your faculty configured for this ' +
+        'experiment — the questions, the pass mark, how many attempts you have and when answers become ' +
+        'visible. Change nothing here: a learner never configures an assessment.</p>') +
       '</div></div>';
 
     return {
@@ -768,56 +772,18 @@ XRSLP.screens = XRSLP.screens || {};
     var e = ctx.experiment;
     var att = state.currentAttempt(p.id, e.id);
     if (!att) { return { redirect: L.href.assessment(p.id, e.id) }; }
-    var asm = data.assessmentById(att.assessmentId);
+    var asm = state.attemptAssessment(att);
     if (!asm) { return { redirect: L.href.experiment(p.id, e.id) }; }
 
     var answered = state.answeredCount(att);
     var unanswered = state.unansweredQuestions(att);
     var descN = asm.questions.filter(function (q) { return q.type === 'descriptive'; }).length;
 
+    /* THE SHARED RENDERER. Faculty preview draws its questions through
+       the same function, so what a Faculty member previews and what a
+       Student answers cannot drift apart. D-25: no key is passed here. */
     var qHTML = asm.questions.map(function (q, i) {
-      var given = att.answers[q.id];
-      var body;
-      if (q.type === 'mcq') {
-        body = q.options.map(function (opt, oi) {
-          var id = 'q-' + q.id + '-' + oi;
-          return '<div class="radiorow' + (given === oi ? ' is-selected' : '') + '">' +
-            '<input type="radio" id="' + id + '" name="q-' + esc(q.id) + '"' +
-            ' value="' + oi + '" data-q="' + esc(q.id) + '" data-kind="mcq"' +
-            (given === oi ? ' checked' : '') + '>' +
-            '<label for="' + id + '">' + esc(opt) + '</label></div>';
-        }).join('');
-      } else if (q.type === 'tf') {
-        body = [['true', 'True'], ['false', 'False']].map(function (pair) {
-          var id = 'q-' + q.id + '-' + pair[0];
-          var checked = (pair[0] === 'true' && given === true) || (pair[0] === 'false' && given === false);
-          return '<div class="radiorow' + (checked ? ' is-selected' : '') + '">' +
-            '<input type="radio" id="' + id + '" name="q-' + esc(q.id) + '"' +
-            ' value="' + pair[0] + '" data-q="' + esc(q.id) + '" data-kind="tf"' +
-            (checked ? ' checked' : '') + '>' +
-            '<label for="' + id + '">' + pair[1] + '</label></div>';
-        }).join('');
-      } else {
-        body = '<label class="sr-only" for="q-' + esc(q.id) + '">Your answer to question ' + (i + 1) + '</label>' +
-          '<textarea id="q-' + esc(q.id) + '" data-q="' + esc(q.id) + '" data-kind="text" rows="5" ' +
-          'placeholder="Write your answer here">' + esc(given || '') + '</textarea>' +
-          (q.guidance ? '<p class="hint">' + esc(q.guidance) + '</p>' : '');
-      }
-      /* A written answer carries no automatic mark — it is evaluated
-         separately — so quoting a mark figure beside it would promise a
-         score that the total on the result screen never includes. */
-      var kindLabel = q.type === 'mcq' ? 'Multiple choice · ' + (q.points || 1) + ' ' + util.plural(q.points || 1, 'mark')
-        : q.type === 'tf' ? 'True or false · ' + (q.points || 1) + ' ' + util.plural(q.points || 1, 'mark')
-        : 'Written answer · reviewed by your faculty, not marked automatically';
-      return '<section class="qcard" id="qn-' + esc(q.id) + '" aria-labelledby="ql-' + esc(q.id) + '">' +
-        '<fieldset class="fgroup">' +
-        '<legend id="ql-' + esc(q.id) + '">' +
-        '<span class="q-n">Question ' + (i + 1) + ' of ' + asm.questions.length + '</span>' +
-        '<span class="q-k">' + kindLabel + '</span>' +
-        '<span class="q-t">' + esc(q.text) + '</span>' +
-        '</legend>' +
-        '<div class="q-b">' + body + '</div>' +
-        '</fieldset></section>';
+      return L.questionBody(q, i, asm.questions.length, { given: att.answers[q.id] });
     }).join('');
 
     /* A compact review NAVIGATOR, not five repeated status cards. Each
@@ -1080,59 +1046,156 @@ XRSLP.screens = XRSLP.screens || {};
     if (openAtt) { return { redirect: L.href.attempt(p.id, e.id) }; }
     var att = state.latestSubmittedAttempt(p.id, e.id);
     if (!att) { return { redirect: L.href.assessment(p.id, e.id) }; }
-    var asm = data.assessmentById(att.assessmentId);
+    /* THE SNAPSHOT IS WHAT WAS ANSWERED. Questions, options, answer key,
+       marks and pass mark come from the attempt's own copy, so a later
+       Faculty edit can never rewrite a result that has already been
+       given. */
+    var asm = state.attemptAssessment(att);
     if (!asm) { return { redirect: L.href.experiment(p.id, e.id) }; }
 
-    var release = state.assessmentRelease(asm);
+    /* THE POLICY IS LIVE. When answers and explanations become visible
+       is a Faculty decision about what happens next (STK31-32), so it
+       is read from the current configuration — a Faculty member who
+       changes it must reach this screen, or the control would not be
+       the control the source describes. */
+    var release = state.releaseFor(att);
     var descCount = asm.questions.filter(function (q) { return q.type === 'descriptive'; }).length;
     var pending = att.outcome === state.OUTCOME.PENDING_REVIEW;
     var used = state.attemptsFor(p.id, e.id).length;
-    var canRetry = !pending && att.outcome === state.OUTCOME.NOT_PASSED && used < asm.attemptLimit;
+    /* THE ATTEMPT LIMIT IS LIVE. `asm` is the attempt's frozen snapshot,
+       which is right for the questions and the pass mark and wrong for
+       this: `attemptBlock` gates a new attempt on the CURRENT definition,
+       so reading the snapshot here would offer "Try again" the gate then
+       refuses, or hide it when the gate would allow it. */
+    var liveAsm = state.assessmentForStudent(p.id, e.id);
+    var attemptLimit = liveAsm ? liveAsm.attemptLimit : asm.attemptLimit;
+    var revState = state.attemptReviewState(att.id);
+    /* A FINAL result only exists once Faculty have reviewed the written
+       answers. When the visibility policy delays release, that final
+       result is withheld with the answers it belongs to — the same
+       policy engine, no special path (brief §30). The objective
+       sub-score is NOT withheld: it existed at submission and
+       Implementation 03 already showed it under every policy. */
+    var reviewed = revState.total > 0 && revState.pending === 0;
+    /* ONE release decision, shared with Progress and with the badges.
+       While it holds, NO figure is shown — not the combined score and
+       not the objective sub-score — and no outcome. */
+    var scoreHidden = state.scoreWithheld(p.id, e.id);
+    var finalWithheld = scoreHidden && !pending;
+    /* ⚠ RETRY IS AN OUTCOME CHANNEL. "Try again" appears only for a
+       NOT_PASSED attempt, so offering it — or withdrawing it — while the
+       result is withheld would announce the result the rest of this
+       screen is holding back. Nothing about the attempt limit changes;
+       the control simply waits for release, like everything else. */
+    var canRetry = !pending && !scoreHidden &&
+      att.outcome === state.OUTCOME.NOT_PASSED && !state.attemptBlock(p.id, e.id);
+
+    /* Once Faculty have marked the written answers, the percentage is no
+       longer "the marked questions" — it is the whole assessment. The
+       sentence has to say which, or the number and the words disagree. */
+    var scoredOn = att.score.includesReview
+      ? 'across the whole assessment, including the marks your faculty awarded'
+      : 'on the marked questions';
 
     /* ---- headline ---- */
     var headline;
-    if (pending) {
+    if (finalWithheld) {
+      headline = ui.alertBox('info', 'Result pending release',
+        '<p>' + (reviewed
+          ? 'Your faculty have finished reviewing your written ' + util.plural(descCount, 'answer') + '. '
+          : 'Your assessment has been recorded. ') + esc(release.sentence) + '</p>' +
+        '<p style="margin-top:8px">Your marks and your result become available then. Nothing further is ' +
+        'needed from you.</p>', 'status');
+    } else if (pending && scoreHidden) {
       headline = ui.alertBox('warning', 'Pending Faculty review',
         '<p>Your written ' + util.plural(descCount, 'answer') + ' ' +
         (descCount === 1 ? 'is' : 'are') + ' with your faculty for review. Until that review is done, ' +
         'this experiment is not counted as finished.</p>' +
-        '<p style="margin-top:8px">Your marked questions have been scored' +
-        (release.released ? ', and your answers are shown below.' :
-          '. Your answers become visible later — the date is beside them.') + '</p>', 'status');
+        '<p style="margin-top:8px">' + esc(release.sentence) + '</p>', 'status');
+    } else if (pending) {
+      headline = ui.alertBox('warning', 'Pending Faculty review',
+        '<p>Your written ' + util.plural(descCount, 'answer') + ' ' +
+        (descCount === 1 ? 'is' : 'are') + ' with your faculty for review. Until that review is done, ' +
+        'this experiment is not counted as finished.</p>' +
+        '<p style="margin-top:8px">Your marked questions have been scored, and your answers are shown ' +
+        'below.</p>', 'status');
     } else if (att.outcome === state.OUTCOME.PASSED) {
       headline = ui.alertBox('success', 'You passed',
-        '<p>You scored ' + att.score.percent + '% on the marked questions, and the pass mark is ' +
+        '<p>You scored ' + att.score.percent + '% ' + scoredOn + ', and the pass mark is ' +
         asm.passMark + '%.</p>', 'status');
     } else {
       headline = ui.alertBox('danger', 'Not passed this time',
-        '<p>You scored ' + att.score.percent + '% on the marked questions, and the pass mark is ' +
+        '<p>You scored ' + att.score.percent + '% ' + scoredOn + ', and the pass mark is ' +
         asm.passMark + '%.</p>' +
         (canRetry
-          ? '<p style="margin-top:8px">You have ' + (asm.attemptLimit - used) + ' ' +
-            util.plural(asm.attemptLimit - used, 'attempt') + ' left.</p>'
-          : '<p style="margin-top:8px">You have used all ' + asm.attemptLimit + ' attempts.</p>'), 'status');
+          ? '<p style="margin-top:8px">You have ' + Math.max(0, attemptLimit - used) + ' ' +
+            util.plural(Math.max(0, attemptLimit - used), 'attempt') + ' left.</p>'
+          : '<p style="margin-top:8px">You have used all ' + attemptLimit + ' ' +
+            util.plural(attemptLimit, 'attempt') + '.</p>'), 'status');
     }
 
-    /* ---- score ---- */
-    var scoreCard = ui.card('Your score',
-      '<div class="scorebox">' +
-      '<div class="sb-v tabular">' + (att.score.percent === null ? '—' : att.score.percent + '%') + '</div>' +
-      '<div class="sb-d">' + att.score.earned + ' of ' + att.score.total + ' ' +
-      util.plural(att.score.total, 'mark') + ' on the questions that are marked automatically</div>' +
-      '</div>' +
+    /* ---- score ----
+       ⚠ WHILE THE RESULT IS WITHHELD THIS CARD CARRIES NO FIGURE.
+       Not the combined score, and not the objective sub-score either:
+       "marked automatically" is not the same as "released", and an
+       objective figure high or low enough to settle the pass mark is the
+       result, disclosed early by another name. What stays is what is
+       safe — what the assessment covers, which attempt this was, when it
+       was submitted, the pass mark, and how the written answers are
+       progressing. */
+    var sc = att.score;
+    var scoreBody;
+    if (scoreHidden) {
+      scoreBody = ui.emptyState({
+        icon: 'clock', heading: 'h3',
+        title: 'Your marks are not available yet',
+        body: release.sentence
+      });
+    } else {
+      var showObjectiveOnly = pending || !sc.includesReview;
+      var boxPercent = showObjectiveOnly
+        ? (sc.objectiveTotal > 0
+            ? Math.round(((sc.objectiveEarned || 0) / sc.objectiveTotal) * 100)
+            : (sc.percent === null ? null : sc.percent))
+        : sc.percent;
+      var boxEarned = showObjectiveOnly ? (sc.objectiveEarned !== undefined ? sc.objectiveEarned : sc.earned) : sc.earned;
+      var boxTotal = showObjectiveOnly ? (sc.objectiveTotal !== undefined ? sc.objectiveTotal : sc.total) : sc.total;
+      scoreBody =
+        '<div class="scorebox">' +
+        '<div class="sb-v tabular">' + (boxPercent === null ? '—' : boxPercent + '%') + '</div>' +
+        '<div class="sb-d">' + boxEarned + ' of ' + boxTotal + ' ' +
+        util.plural(boxTotal, 'mark') + ' ' + (showObjectiveOnly
+          ? 'on the questions that are marked automatically'
+          : 'including the marks your faculty awarded') + '</div>' +
+        '</div>';
+    }
+    var scoreCard = ui.card(scoreHidden ? 'Your result' : 'Your score',
+      scoreBody +
       '<div class="kv" style="margin-top:12px">' +
       '<div class="k">Covers</div><div class="v">' + esc(e.name) + '</div>' +
       (att.sourceTechnology && data.TECHNOLOGIES[att.sourceTechnology]
         ? '<div class="k">Taken after</div><div class="v">' + ui.fmtBadge(att.sourceTechnology) + ' ' +
           esc(data.TECHNOLOGIES[att.sourceTechnology].name) + ' simulation</div>' : '') +
       '<div class="k">Attempt</div><div class="v">' + att.attemptNo +
-      (asm.attemptLimit ? ' of ' + asm.attemptLimit : '') + '</div>' +
+      (attemptLimit ? ' of ' + attemptLimit : '') + '</div>' +
       '<div class="k">Submitted</div><div class="v">' + esc(util.fmtDateTime(att.submittedAt)) + '</div>' +
       '<div class="k">Pass mark</div><div class="v">' + asm.passMark + '%</div>' +
+      (revState.total
+        ? '<div class="k">Written ' + util.plural(revState.total, 'answer') + '</div><div class="v">' +
+          (reviewed ? revState.total + ' of ' + revState.total + ' reviewed by your faculty'
+                    : revState.completed + ' of ' + revState.total + ' reviewed so far') + '</div>'
+        : '') +
       '</div>' +
       (data.hasDescriptive(asm)
-        ? '<p class="cardfoot">Written answers are not scored automatically. Your faculty review them, and ' +
-          'your result is complete once that review is done.</p>' : ''),
+        ? '<p class="cardfoot">' + (reviewed
+            ? (finalWithheld
+                ? 'Your faculty have reviewed your written ' + util.plural(descCount, 'answer') +
+                  '. Your final result is released with your answers.'
+                : 'Your faculty have reviewed your written ' + util.plural(descCount, 'answer') +
+                  ', and those marks are included above.')
+            : 'Written answers are not scored automatically. Your faculty review them, and your result is ' +
+              'complete once that review is done.') + '</p>'
+        : ''),
       null, 'h2');
 
     /* ---- answers, governed by the policy ---- */
@@ -1154,15 +1217,32 @@ XRSLP.screens = XRSLP.screens || {};
         var given = att.answers[q.id];
         var has = given !== undefined && given !== null && given !== '';
         if (q.type === 'descriptive') {
-          return '<li class="ansrow pending">' +
+          /* Once Faculty have reviewed, THIS is where the evaluated
+             result appears — the same record, not a Faculty-only copy. */
+          var rv = state.reviewsForAttempt(att.id).filter(function (x) {
+            return x.questionId === q.id;
+          })[0] || null;
+          var done = rv && rv.status === 'completed';
+          return '<li class="ansrow ' + (done ? 'reviewed' : 'pending') + '">' +
             '<div class="an-h"><span class="an-n">Question ' + (i + 1) + '</span>' +
-            ui.badge('b-warning', 'clock', 'Pending Faculty review') + '</div>' +
+            (done
+              ? ui.badge('b-success', 'check', rv.marks + ' of ' + rv.maxMarks + ' ' +
+                  util.plural(rv.maxMarks, 'mark'))
+              : ui.badge('b-warning', 'clock', 'Pending Faculty review')) + '</div>' +
             '<p class="an-q">' + esc(q.text) + '</p>' +
             '<div class="an-a"><span class="an-k">Your answer</span>' +
             '<p>' + (has ? esc(given) : '<span class="muted">You did not answer this question.</span>') + '</p></div>' +
-            '<div class="an-e"><span class="an-k">' + ui.ic('info', 'sm') + 'What happens next</span>' +
-            '<p>This answer is with your faculty for review, and carries no result until that is done.</p>' +
-            '</div></li>';
+            (done
+              ? (rv.feedback
+                  ? '<div class="an-e"><span class="an-k">' + ui.ic('edit', 'sm') + 'Faculty feedback</span>' +
+                    '<p>' + esc(rv.feedback) + '</p></div>'
+                  : '<div class="an-e"><span class="an-k">' + ui.ic('check', 'sm') + 'Reviewed</span>' +
+                    '<p>Your faculty awarded ' + rv.marks + ' of ' + rv.maxMarks + ' ' +
+                    util.plural(rv.maxMarks, 'mark') + ' and left no written feedback.</p></div>')
+              : '<div class="an-e"><span class="an-k">' + ui.ic('info', 'sm') + 'What happens next</span>' +
+                '<p>This answer is with your faculty for review, and carries no result until that is done.</p>' +
+                '</div>') +
+            '</li>';
         }
         var correct = given === q.answer;
         var yourText = q.type === 'mcq'

@@ -527,7 +527,8 @@ XRSLP.screens = XRSLP.screens || {};
      FACULTY MAPPING
      Faculty are mapped to a Course context and/or a specific
      Experiment inside the approved access. This is the Tenant Admin
-     side only — the Faculty workspace itself is a later slice.
+     side of that boundary; the Faculty workspace it authorises is
+     js/screens/faculty.js and js/screens/faculty-assess.js.
      ============================================================ */
   XRSLP.screens.tenantFacultyMapping = function (params) {
     var r = T.requireTenant(params, 'assignments');
@@ -572,7 +573,10 @@ XRSLP.screens = XRSLP.screens || {};
           icon: 'users',
           title: 'No Faculty mapped yet',
           body: faculty.length
-            ? 'Map a Faculty member to a course or a specific experiment inside the institution&rsquo;s approved access.'
+            /* ui.emptyState ESCAPES `body`, so an HTML entity here would render
+               as the literal text "institution&rsquo;s". A string that is
+               escaped rather than parsed must carry real punctuation. */
+            ? 'Map a Faculty member to a course or a specific experiment inside the institution’s approved access.'
             : 'Add Faculty to this institution first.',
           actionsHTML: faculty.length ? '' : '<a class="btn pri" href="' + T.href.addFaculty(tenant.id) + '">Add Faculty</a>'
         });
@@ -632,11 +636,15 @@ XRSLP.screens = XRSLP.screens || {};
         '<p>The approved quantity on an access record is a student/user allocation. Mapping a Faculty member does not ' +
         'take one of those licences, and does not entitle any student.</p>') +
       formCard +
-      ui.card('Current mappings', listBody, maps.length + ' ' + util.plural(maps.length, 'mapping'), 'h2') +
-      ui.gapNote('NOT IN THIS SLICE',
-        '<strong>Faculty assessment and analytics.</strong> Assessment authoring, the descriptive evaluation queue ' +
-        'and Faculty-facing student reporting are a later slice. This screen is only the Tenant Admin&rsquo;s ' +
-        'assignment side.') +
+      ui.card('Current mappings',
+        listBody +
+        /* Implementation 04 BUILT the Faculty workspace, so the note that
+           used to stand here — "assessment authoring … are a later slice" —
+           was describing a gap that no longer exists. What is useful to a
+           Tenant Admin now is what mapping actually unlocks. */
+        '<p class="cardfoot">Faculty members manage assessments, reviews and Student progress from the ' +
+        'Faculty workspace once they are mapped here.</p>',
+        maps.length + ' ' + util.plural(maps.length, 'mapping'), 'h2') +
       '</div>';
 
     return {

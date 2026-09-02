@@ -263,10 +263,12 @@ XRSLP.data = (function () {
      ASSESSMENT — SAMPLE CONFIGURATION (Faculty-owned, STK31-30).
 
      ⚠ EVERY VALUE BELOW IS SAMPLE ASSESSMENT CONFIGURATION, not a
-     platform rule. In the product Faculty author these; the Faculty
-     Assessment Builder is a later slice, so a small seeded set exists
-     here purely so the Student progression can be demonstrated
-     end to end.
+     platform rule. In the product Faculty author these — and since
+     Implementation 04 they do so in this prototype too. This array is
+     now the SEED SOURCE that `state.js` evolves into editable
+     `assessmentDefs[]` and the first `questions[]` of the Question Bank;
+     the seeded Direct Shear Test assessment a Student sits is the same
+     record a Faculty member edits.
 
      `policy` is the answer/explanation visibility policy Faculty
      control (STK31-32). The three CONFIRMED general options are the
@@ -595,7 +597,17 @@ XRSLP.data = (function () {
   function resourceKind(kind) {
     return RESOURCE_KIND[kind] || { label: 'Resource', icon: 'doc' };
   }
-  /* One seeded assessment per Experiment at most. An Experiment with
+  /* ⚠ SEED SOURCE ONLY — since Implementation 04.
+     Faculty own assessment configuration (STK31-30), so it lives in
+     mutable state, not in this file. `state.js` copies the array below
+     into `assessmentDefs[]` and `questions[]` at seed and at migration,
+     and NOTHING reads these two lookups at runtime: the Student engine
+     and the Faculty workspace both go through
+     `state.assessmentForTenant()`. They are kept because the seed and
+     the migration use them, and because a reader arriving at this file
+     should be able to resolve what the sample data describes.
+
+     One seeded assessment per Experiment at most. An Experiment with
      none is a valid, deliberate state — assessment is optional. */
   function assessmentFor(experimentId) {
     return ASSESSMENTS.filter(function (a) { return a.experimentId === experimentId; })[0] || null;

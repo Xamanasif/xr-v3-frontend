@@ -692,3 +692,225 @@ table.dt.sm td{padding:10px 20px; font-size:13.5px}
 .pgblock table.dt tr.retired td{background:var(--n-25); color:var(--text-3)}
 .pgblock table.dt tbody tr.retired:hover td{background:var(--n-25)}
 .pgblock .pg-overall .pg-roll{font-size:12.5px; color:var(--text-3); line-height:1.5; margin-top:7px}
+
+/* ============================================================
+   IMPLEMENTATION 04 — FACULTY WORKSPACE
+
+   No new visual language. Every rule below composes the existing
+   tokens, the existing card/table/badge grammar and the existing
+   segmented switch. The Faculty workspace is the same product as the
+   Tenant Admin workspace, with its own navigation.
+   ============================================================ */
+
+/* Builder tabs reuse the segmented switch; a <button> variant is added
+   because the preview switch toggles a view rather than navigating. */
+.seg.fac-tabs{padding:0 0 18px}
+.seg button.segi{font:inherit; font-size:13.5px; font-weight:600; cursor:pointer; height:auto}
+
+/* ---------- completeness rail (Batch 02's three-item model) ---------- */
+.railitems{list-style:none; margin:0; padding:0; display:flex; flex-direction:column}
+.railitems li{display:flex; gap:11px; align-items:flex-start; padding:11px 0; border-top:1px solid var(--border-subtle)}
+.railitems li:first-child{border-top:0; padding-top:0}
+.railitems li svg.ic{flex:0 0 auto; margin-top:2px; width:18px; height:18px}
+.railitems li.ok svg.ic{color:var(--success-700)}
+.railitems li.todo svg.ic{color:var(--text-3)}
+.railitems .ri-b{min-width:0}
+.railitems .ri-t{display:block; font-size:13.5px; font-weight:640; color:var(--text)}
+.railitems li.todo .ri-t{color:var(--text-2)}
+.railitems .ri-d{display:block; font-size:12.5px; color:var(--text-3); line-height:1.5; margin-top:1px;
+  overflow-wrap:anywhere}
+.railnext{margin-top:12px; padding-top:12px; border-top:1px solid var(--border-subtle);
+  font-size:13px; color:var(--text-2); line-height:1.55}
+
+/* ---------- compact question list (assessment overview) ---------- */
+.qmini{list-style:none; margin:0; padding:0; counter-reset:qm}
+.qmini li{display:flex; gap:9px; align-items:flex-start; flex-wrap:wrap; padding:10px 0;
+  border-top:1px solid var(--border-subtle)}
+.qmini li:first-child{border-top:0; padding-top:0}
+.qmini .qm-t{flex:1 1 180px; min-width:0; font-size:13.5px; color:var(--text); line-height:1.5;
+  overflow-wrap:anywhere}
+.qmini .qm-m{font-size:12.5px; color:var(--text-3); white-space:nowrap}
+
+/* ---------- the assessment question builder ---------- */
+.qbuild{list-style:none; margin:0; padding:0}
+.qb-row{padding:14px 0; border-top:1px solid var(--border-subtle)}
+.qb-row:first-child{border-top:0; padding-top:0}
+.qb-h{display:flex; gap:9px; align-items:center; flex-wrap:wrap}
+.qb-n{font-size:12px; font-weight:700; color:var(--text-3); background:var(--sunken);
+  border-radius:var(--r-pill); padding:1px 9px}
+.qb-m{margin-left:auto; font-size:12.5px; color:var(--text-3); white-space:nowrap}
+.qb-t{font-size:14px; color:var(--text); line-height:1.55; margin:8px 0 0; overflow-wrap:anywhere}
+.qb-link{display:flex; gap:7px; align-items:flex-start; font-size:12.5px; line-height:1.5; margin-top:8px;
+  padding:8px 10px; border-radius:var(--r-sm)}
+.qb-link svg.ic{flex:0 0 auto; margin-top:2px}
+.qb-link.upd{background:var(--info-50); border:1px solid var(--info-200); color:var(--n-800)}
+.qb-link.del{background:var(--raised); border:1px solid var(--border); color:var(--text-2)}
+.qb-a{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+.linkbtn{background:none; border:0; padding:0; font:inherit; font-weight:640; color:var(--action);
+  text-decoration:underline; cursor:pointer}
+.linkbtn:hover{color:var(--action-hover)}
+
+/* ---------- option editor (question editor + drafts) ---------- */
+.fgroup.boxed{border:1px solid var(--border); border-radius:var(--r-md); padding:14px 16px; margin-bottom:16px}
+.fgroup.boxed>legend{font-size:13.5px; font-weight:640; color:var(--text); padding:0 6px}
+.optlist{display:flex; flex-direction:column; gap:8px}
+.optrow{margin-bottom:0}
+.opt-line{display:flex; gap:10px; align-items:center}
+.opt-line input[type=radio]{width:18px; height:18px; flex:0 0 auto; accent-color:var(--action)}
+.opt-line input[type=text]{flex:1 1 auto; min-width:0}
+.optdesc{display:block; font-weight:400; font-size:12.5px; color:var(--text-3); line-height:1.5; margin-top:1px}
+.tfline{display:flex; gap:18px; flex-wrap:wrap}
+.fileline{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px}
+.fileline span{font-size:12.5px; color:var(--text-3)}
+
+/* The authoring-view answer key. It appears in exactly one place — the
+   Faculty preview's authoring view — and never on a student screen. */
+.radiorow.is-key{background:var(--success-50); border-radius:var(--r-sm); padding-left:8px; margin-left:-8px}
+.keytag{display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:650;
+  color:var(--success-700); background:var(--surface); border:1px solid var(--success-200);
+  border-radius:var(--r-xs); padding:0 6px; margin-left:8px; white-space:nowrap}
+
+/* ---------- preview ---------- */
+.previewswitch{display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:12px 16px; box-shadow:var(--e1)}
+.previewswitch .pv-k{font-size:12.5px; font-weight:650; color:var(--text-2)}
+.previewswitch .pv-n{flex:1 1 240px; font-size:12.5px; color:var(--text-3); line-height:1.5}
+.qwrap.preview .qcard{opacity:1}
+.qwrap.preview input,.qwrap.preview textarea{cursor:not-allowed}
+
+/* ---------- assisted drafts ----------
+
+   A draft is a SUMMARY until the faculty member opens it. Only the open
+   one carries an editor, so the list reads as a list of questions rather
+   than a stack of forms, and the content — the question itself — is the
+   loudest thing on each card. */
+.draftwork{margin-top:16px}
+.draftlist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
+.draftcard{border:1px solid var(--border); border-left:3px solid var(--border); border-radius:var(--r-md);
+  padding:14px 16px; background:var(--surface)}
+.draftcard.has-error{border-color:var(--danger-700); border-left-color:var(--danger-700)}
+/* The open card is marked three ways — accent, background and the word
+   "Editing" — so the state never rests on colour alone. */
+.draftcard.is-open{border-left-color:var(--action); background:var(--n-25); box-shadow:var(--e1)}
+.draftcard .dc-h{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:9px}
+.draftcard .dc-n{font-size:12px; font-weight:680; color:var(--text-3); font-variant-numeric:tabular-nums;
+  letter-spacing:.04em}
+/* The provenance marker. It was two filled badges on every card; at three
+   cards that is six blocks of warning colour and no hierarchy left. */
+.draftcard .dc-flag{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--text-3)}
+.draftcard .dc-flag svg.ic{color:var(--info-700)}
+.draftcard .dc-editing{margin-left:auto; font-size:11px; font-weight:680; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--action)}
+.draftcard .dc-q{font-size:14.5px; color:var(--text); line-height:1.55; overflow-wrap:anywhere}
+.draftcard .dc-meta{margin-top:7px; font-size:12.5px; color:var(--text-2)}
+.draftcard .dc-src{margin-top:3px; font-size:12px; color:var(--text-3); overflow-wrap:anywhere}
+.draftcard .dc-ed{margin-top:4px; padding-top:12px; border-top:1px solid var(--border-subtle)}
+.draftcard .dc-ed .field{margin-bottom:14px}
+.draftcard .dc-ed .fgroup{margin-bottom:14px}
+.draftcard .dc-ed .optrow{margin-bottom:0}
+.draftcard .dc-a{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:12px;
+  border-top:1px solid var(--border-subtle)}
+.draft-err{display:flex; gap:6px; align-items:flex-start; margin-top:10px; font-size:12.5px;
+  color:var(--danger-700)}
+.draft-err svg.ic{margin-top:2px}
+.steplist{margin:0 0 0 18px; padding:0; font-size:13px; color:var(--text-2); line-height:1.6}
+.steplist li{margin-bottom:6px}
+
+/* ---------- descriptive review ---------- */
+.revq,.revg,.revans{padding:12px 0; border-top:1px solid var(--border-subtle)}
+.revq:first-child{border-top:0; padding-top:0}
+.revq p,.revg p,.revans p{font-size:14px; color:var(--text); line-height:1.6; margin-top:5px;
+  overflow-wrap:anywhere}
+/* The micro-label above each block. It had no rule of its own here, so the
+   icon sat hard against the text on an inline baseline; this is the same
+   label treatment the student answer list already uses. */
+.revq .an-k,.revg .an-k,.revans .an-k{display:flex; align-items:center; gap:6px; font-size:10.5px;
+  font-weight:650; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3); line-height:1.4}
+.revq .an-k svg.ic,.revg .an-k svg.ic,.revans .an-k svg.ic{width:13px; height:13px; stroke-width:2.4;
+  vertical-align:0; margin:0}
+/* Guidance is context the faculty member reads ALONGSIDE the answer, so it
+   stays a quiet tinted block — not a second card competing with it. */
+.revg{background:var(--info-50); border:1px solid var(--info-200); border-radius:var(--r-md);
+  padding:12px 14px; margin:12px 0}
+.revg .an-k{color:var(--info-700)}
+.revg p{font-size:13.5px; line-height:1.65; margin-top:6px}
+/* The student's answer is the thing being judged: give it the most room and
+   the strongest left edge so the eye lands on it first. */
+.revans{padding-top:14px}
+.revans .an-k{margin-bottom:2px}
+.revans p{white-space:pre-wrap; padding-left:12px; border-left:2px solid var(--border); margin-top:7px}
+.revlist{list-style:none; margin:0; padding:0}
+.rv-item{padding:14px 0; border-top:1px solid var(--border-subtle)}
+.rv-item:first-child{border-top:0; padding-top:0}
+.rv-h{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.rv-h .btn{margin-left:auto}
+.rv-q{font-size:13.5px; color:var(--text); line-height:1.55; margin-top:8px; overflow-wrap:anywhere}
+.rv-f{font-size:13px; color:var(--text-2); line-height:1.55; margin-top:8px}
+
+/* The suggestion panel — an IN-PAGE card, never an overlay. It is
+   deliberately quieter than a result: information a faculty member acts
+   on, not an outcome. The tint is a thin left edge rather than a filled
+   warning block, so the suggested marks and feedback stay the loudest
+   things in it and the surrounding review stays readable. */
+.assistbox{border:1px solid var(--border); border-left:3px solid var(--info-200);
+  background:var(--n-25); border-radius:var(--r-md); padding:14px 16px}
+.assistbox .ab-h{display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  padding-bottom:11px; margin-bottom:13px; border-bottom:1px solid var(--border-subtle)}
+/* The panel's own name. It was a badge sitting against a second badge,
+   which ran together as "AI-assisted suggestionFaculty confirmation
+   required" the moment the text was read rather than looked at. */
+.assistbox .ab-t{font-size:13px; font-weight:650; color:var(--text); letter-spacing:-.005em}
+.assistbox .ab-k{display:block; font-size:10.5px; font-weight:650; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--text-3); margin-bottom:4px}
+.assistbox .ab-v{margin-bottom:14px}
+.assistbox .ab-n{font-size:22px; font-weight:660; color:var(--text); line-height:1.2}
+.assistbox .ab-f p{font-size:13.5px; color:var(--text); line-height:1.6; overflow-wrap:anywhere}
+.assistbox .ab-s{margin-top:14px}
+.assistbox .ab-s ul{list-style:none; margin:0; padding:0}
+/* Label above value, not a two-column table: the values are word lists of
+   unpredictable length, and side-by-side they read as a data dump. */
+.assistbox .ab-s li{padding:5px 0 5px 12px; position:relative; line-height:1.5}
+.assistbox .ab-s li::before{content:""; position:absolute; left:0; top:12px; width:4px; height:4px;
+  border-radius:50%; background:var(--text-3)}
+.assistbox .sg-k{display:block; font-size:12.5px; color:var(--text-3)}
+.assistbox .sg-v{display:block; font-size:12.5px; font-weight:600; color:var(--text);
+  min-width:0; overflow-wrap:anywhere}
+.assistbox .ab-r{margin-top:14px; padding-top:11px; border-top:1px solid var(--border-subtle);
+  font-size:12.5px; color:var(--text-2); line-height:1.55}
+.assistbox .formact{margin-top:14px}
+
+/* ---------- faculty tables and small display pieces ---------- */
+.dt th.num,.dt td.num{text-align:right}
+.tsub2{display:block; font-size:12px; color:var(--text-3); margin-top:2px}
+.minisum{font-size:12.5px; color:var(--text-2); line-height:1.5}
+.clamp2{display:block; max-width:38ch; overflow-wrap:anywhere}
+.reasonlist{margin:0 0 0 18px; padding:0; font-size:13px; color:var(--text-2); line-height:1.6}
+.reasonlist li{margin-bottom:5px}
+.techstates.compact{gap:4px}
+.techstates.compact li{padding:2px 0; background:none; border:0}
+
+/* Per-technology metrics. Technology figures are SIMULATION figures —
+   the layout keeps each technology on its own row so the three numbers
+   can never be read as one experiment-level total. */
+.techmetrics{list-style:none; margin:0; padding:0}
+.techmetrics li{display:flex; gap:14px; align-items:center; flex-wrap:wrap; padding:9px 0;
+  border-top:1px solid var(--border-subtle)}
+.techmetrics li:first-child{border-top:0; padding-top:0}
+.techmetrics .tm-n{font-size:12.5px; color:var(--text-3)}
+.techmetrics .tm-v{font-size:14px; font-weight:660; color:var(--text); margin-right:4px}
+
+.reslist{list-style:none; margin:0; padding:0}
+.reslist li{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  padding:9px 0; border-top:1px solid var(--border-subtle)}
+.reslist li:first-child{border-top:0; padding-top:0}
+.reslist .rl-t{flex:1 1 200px; min-width:0; font-size:13.5px; color:var(--text)}
+
+.techrows{list-style:none; margin:0; padding:0}
+.techrows li{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:10px 0;
+  border-top:1px solid var(--border-subtle)}
+.techrows li:first-child{border-top:0; padding-top:0}
+.techrows .tr-m{flex:1 1 160px; font-size:12.5px; color:var(--text-3); text-align:right}
+
+/* A reviewed written answer on the Student result screen. */
+.ansrow.reviewed{border-left:3px solid var(--success-200)}

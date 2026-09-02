@@ -1,8 +1,8 @@
 /* ============================================================
    Unified Functional Platform — application bootstrap.
    Renders the prototype-controls strip, the active shell
-   (public / Super Admin / Tenant Admin / Student) and the routed
-   screen.
+   (public / Super Admin / Tenant Admin / Faculty / Student) and the
+   routed screen.
    ============================================================ */
 
 (function () {
@@ -45,7 +45,29 @@
       '</select></label>';
   }
 
-  function protobar(area, shownStudent) {
+  /* The Faculty entry is the same PROTOTYPE VIEW SWITCH. The chooser
+     lists the REAL Faculty records that exist in the prototype data —
+     the ones a Tenant Admin created in Implementation 02 — and never a
+     fabricated identity. Choosing one grants nothing: what that Faculty
+     member can reach still comes only from their mappings. */
+  function facultySelector(shown) {
+    var chosen = shown || state.protoFaculty();
+    var groups = state.tenants().map(function (t) {
+      var fac = state.facultyForTenant(t.id);
+      if (!fac.length) { return ''; }
+      return '<optgroup label="' + esc(t.name) + '">' + fac.map(function (p) {
+        return '<option value="' + esc(p.id) + '"' + (chosen && chosen.id === p.id ? ' selected' : '') + '>' +
+          esc(p.name) + '</option>';
+      }).join('') + '</optgroup>';
+    }).join('');
+    if (!groups) { return ''; }
+    return '<label for="proto-faculty">Viewing as Faculty' +
+      '<select id="proto-faculty">' +
+      '<option value="">&mdash; choose a faculty member &mdash;</option>' + groups +
+      '</select></label>';
+  }
+
+  function protobar(area, shownStudent, shownFaculty) {
     var sc = state.scenario();
     var options = Object.keys(data.SCENARIOS).map(function (key) {
       var s = data.SCENARIOS[key];
@@ -58,11 +80,14 @@
       '<a href="#/catalogue"' + (area === 'public' ? ' aria-current="true"' : '') + '>Public</a>' +
       '<a href="#/platform/requests"' + (area === 'platform' ? ' aria-current="true"' : '') + '>Super Admin</a>' +
       '<a href="#/tenant"' + (area === 'tenant' ? ' aria-current="true"' : '') + '>Tenant Admin</a>' +
+      '<a href="#/faculty"' + (area === 'faculty' ? ' aria-current="true"' : '') + '>Faculty</a>' +
       '<a href="#/learn"' + (area === 'learn' ? ' aria-current="true"' : '') + '>Student</a>' +
       '</nav>' +
       '<div class="pright">' +
       (area === 'learn'
         ? studentSelector(shownStudent)
+        : area === 'faculty'
+        ? facultySelector(shownFaculty)
         : '<label for="proto-scenario">Requester scenario' +
           '<select id="proto-scenario">' + options + '</select></label>') +
       '<button type="button" id="proto-reset">Reset prototype data</button>' +
@@ -84,6 +109,20 @@
         ui.toast('Now viewing as ' + (p ? p.name : 'the selected student') + ' (prototype only).', 'info');
       });
     }
+    var fac = document.getElementById('proto-faculty');
+    if (fac) {
+      fac.addEventListener('change', function () {
+        if (!fac.value) {
+          state.setProtoFaculty(null);
+          XRSLP.router.go('#/faculty');
+          return;
+        }
+        state.setProtoFaculty(fac.value);
+        var p = state.personById(fac.value);
+        XRSLP.router.go('#/faculty/' + encodeURIComponent(fac.value) + '/overview');
+        ui.toast('Now viewing as ' + (p ? p.name : 'the selected faculty member') + ' (prototype only).', 'info');
+      });
+    }
     var sel = document.getElementById('proto-scenario');
     if (sel) {
       sel.addEventListener('change', function () {
@@ -100,8 +139,9 @@
           title: 'Reset prototype data?',
           bodyHTML: '<p>This restores the deterministic seed data: the selection, all requests, ' +
             'created tenants and tenant access records are cleared, tenant people, groups, mappings and ' +
-            'assignments return to the seed set, every student learning record — resources opened, ' +
-            'simulations run and assessment attempts — is discarded, and the requester scenario returns to A.</p>' +
+            'assignments return to the seed set, the Question Bank and the assessment configuration return ' +
+            'to the seeded sample set, every student learning record — resources opened, simulations run, ' +
+            'assessment attempts and faculty reviews — is discarded, and the requester scenario returns to A.</p>' +
             '<p style="margin-top:8px">Reset is the <strong>only</strong> action that discards existing data. ' +
             'Loading a state saved by an earlier build upgrades it in place instead.</p>' +
             '<div class="consequence">' + ui.ic('info') +
@@ -225,6 +265,47 @@
     });
   }
 
+  /* ---------- Faculty workspace shell ----------
+     The same unified design system and the same workspace chrome as the
+     other admin workspaces. Six destinations, and every one of them is
+     implemented. */
+  function facultyShell(contentHTML, faculty, tenant, activeKey) {
+    var nav = [];
+    if (faculty) {
+      var h = XRSLP.facultyUI.href;
+      var scope = state.facultyScope(faculty.id);
+      var pending = state.reviewsForFaculty(faculty.id, { status: 'pending' }).length;
+      var bank = state.questionsForFaculty(faculty.id).length;
+      var asmCount = scope.experiments.filter(function (row) {
+        return !!state.assessmentForTenant(faculty.tenantId, row.experimentId);
+      }).length;
+      var reach = state.facultyStudentIds(faculty.id).length;
+      nav = [
+        { href: h.overview(faculty.id), icon: 'home', label: 'Overview', active: activeKey === 'overview', count: 0 },
+        { href: h.content(faculty.id), icon: 'layers', label: 'My Content', active: activeKey === 'content',
+          count: scope.experiments.length,
+          countLabel: 'mapped ' + XRSLP.util.plural(scope.experiments.length, 'experiment') },
+        { href: h.assessments(faculty.id), icon: 'doc', label: 'Assessments', active: activeKey === 'assessments',
+          count: asmCount, countLabel: XRSLP.util.plural(asmCount, 'assessment') + ' configured' },
+        { href: h.bank(faculty.id), icon: 'book', label: 'Question Bank', active: activeKey === 'questions',
+          count: bank, countLabel: XRSLP.util.plural(bank, 'question') + ' in the bank' },
+        { href: h.reviews(faculty.id), icon: 'edit', label: 'Reviews', active: activeKey === 'reviews',
+          count: pending, countLabel: XRSLP.util.plural(pending, 'response') + ' waiting for your review' },
+        { href: h.students(faculty.id), icon: 'users', label: 'Student Progress', active: activeKey === 'students',
+          count: reach, countLabel: XRSLP.util.plural(reach, 'student') + ' reached by your content' }
+      ];
+    }
+    return workspaceShell({
+      homeHref: faculty ? XRSLP.facultyUI.href.overview(faculty.id) : '#/faculty',
+      chip: tenant ? tenant.name : null,
+      navLabel: 'Faculty workspace navigation',
+      wsKind: 'Faculty',
+      wsName: faculty ? faculty.name : 'Faculty workspace',
+      nav: nav,
+      contentHTML: contentHTML
+    });
+  }
+
   function tenantShell(contentHTML, tenant, activeKey) {
     var nav = [];
     if (tenant) {
@@ -277,6 +358,14 @@
       shellHTML = platformShell(result.html, result.navKey);
     } else if (area === 'tenant') {
       shellHTML = tenantShell(result.html, result.tenant, result.navKey);
+    } else if (area === 'faculty') {
+      /* Keep the prototype pointer on the faculty member actually being
+         viewed, so `#/faculty` and the strip never disagree with the
+         page in front of you. */
+      if (result.faculty && state.protoFacultyId() !== result.faculty.id) {
+        state.setProtoFaculty(result.faculty.id);
+      }
+      shellHTML = facultyShell(result.html, result.faculty, result.tenant, result.navKey);
     } else if (area === 'learn') {
       /* Keep the prototype pointer on the student actually being viewed, so
          `#/learn` and the strip never disagree with the page. */
@@ -292,7 +381,7 @@
     /* The skip link is the very first focusable element on the page,
        ahead of even the prototype-controls strip. */
     root.innerHTML = '<a class="skip-link" href="#main-content" id="skip-link">Skip to main content</a>' +
-      protobar(area, result.student) + shellHTML;
+      protobar(area, result.student, result.faculty) + shellHTML;
 
     document.title = (result.title ? result.title + ' — ' : '') + 'XR Simulation Learning Platform (Prototype)';
 

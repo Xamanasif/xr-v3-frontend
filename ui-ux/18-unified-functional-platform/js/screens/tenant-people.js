@@ -832,10 +832,11 @@ XRSLP.screens = XRSLP.screens || {};
       ui.alertBox('info', 'Faculty mapping does not consume a student licence',
         '<p>The approved quantity on an access record is a student/user allocation. Mapping a Faculty member to a ' +
         'course or experiment does not take one of those licences.</p>') +
-      ui.gapNote('NEXT SLICE',
-        '<strong>Faculty workspace.</strong> Assessment authoring, the descriptive evaluation queue and student ' +
-        'progress reporting belong to the Faculty role and arrive in a later slice. This page is the Tenant Admin&rsquo;s ' +
-        'view of what the Faculty member has been mapped to.') +
+      /* The Faculty workspace this used to defer to now exists, so the
+         note states the boundary rather than an absence. */
+      ui.alertBox('info', 'This page is the Tenant Admin’s view',
+        '<p>Assessment authoring, the descriptive review queue and Student progress belong to the Faculty ' +
+        'member, who reaches them in the Faculty workspace for whatever is mapped above.</p>') +
       '</div></div>';
 
     return { title: p.name, html: html, tenant: tenant, navKey: 'people' };

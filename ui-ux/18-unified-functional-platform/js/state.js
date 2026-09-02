@@ -29,6 +29,12 @@
      · facultyMappings[]— FacultyAssignment (Faculty → Course / Experiment)
      · assignments[]    — ExperimentAssignment (Student or Group)
 
+     Implementation 04
+     · questions[]      — QuestionBankItem  (tenant-scoped, Faculty-owned)
+     · assessmentDefs[] — AssessmentDefinition (tenant + Experiment)
+     · reviews[]        — DescriptiveReview (one per attempt + descriptive question)
+     · facultyPrefs     — Faculty workflow preference (review assistance)
+
    StudentEntitlement is DERIVED, never stored — the model
    `17_CONCEPTUAL_DATA_AND_STATE_MODEL.md` §4 requires
    (“DERIVED LEARNER ELIGIBILITY ← never stored”). Deriving it is
@@ -62,7 +68,7 @@ XRSLP.state = (function () {
   var util = XRSLP.util;
 
   var STORAGE_KEY = 'xrslp-unified-v1';
-  var SCHEMA_VERSION = 4;
+  var SCHEMA_VERSION = 5;
 
   var STATUS = {
     DRAFT: 'DRAFT',
@@ -100,7 +106,11 @@ XRSLP.state = (function () {
       /* Implementation 03 — the learning records. */
       resourceActivity: [],
       simulationActivity: [],
-      attempts: []
+      attempts: [],
+      /* Implementation 04 — the Faculty records. */
+      questions: [],
+      assessmentDefs: [],
+      reviews: []
     };
   }
 
@@ -124,6 +134,17 @@ XRSLP.state = (function () {
       resourceActivity: [],
       simulationActivity: [],
       attempts: [],
+      questions: [],
+      assessmentDefs: [],
+      reviews: [],
+      /* Faculty workflow preference, keyed by Faculty person id. NOT a
+         role, NOT an evaluator: it only chooses whether the Faculty
+         review screen offers the assistance affordance (STK31-31). */
+      facultyPrefs: {},
+      /* Which REAL faculty record the prototype is currently viewing
+         as. Prototype-only; it is not authentication and grants
+         nothing (Implementation 04). */
+      protoFacultyId: null,
       /* Which REAL student record the prototype is currently viewing
          as. Prototype-only; it is not authentication and grants
          nothing (Implementation 03). */
@@ -137,9 +158,11 @@ XRSLP.state = (function () {
          are display-only: several records can share a millisecond, so
          allocation ordering must never depend on them. */
       seq: { request: 0, access: 0, person: 0, group: 0, membership: 0, mapping: 0, facultyMap: 0, assignment: 0, event: 0,
-             resourceAct: 0, simAct: 0, attempt: 0 }
+             resourceAct: 0, simAct: 0, attempt: 0,
+             question: 0, assessmentDef: 0, review: 0 }
     };
     seedTenantOperations(S0);
+    seedFacultyAuthoring(S0);
     return S0;
   }
 
@@ -216,6 +239,119 @@ XRSLP.state = (function () {
     });
   }
 
+  /* ============================================================
+     IMPLEMENTATION 04 — FACULTY AUTHORING SEED.
+
+     `data.ASSESSMENTS` was the STATIC sample assessment configuration
+     Implementation 03 read directly. Faculty now own that configuration
+     (STK31-30), so it can no longer live in a read-only file: it is
+     evolved here into MUTABLE UNIFIED STATE.
+
+       data.ASSESSMENTS  ──seed/migrate──▶  assessmentDefs[]  (mutable)
+                         ──seed/migrate──▶  questions[]       (Question Bank)
+
+     After this, `data.ASSESSMENTS` is a SEED SOURCE only. Nothing reads
+     it at runtime: the Student engine and the Faculty workspace both
+     read `assessmentDefs`, so there is exactly ONE assessment
+     definition and the two roles cannot diverge.
+
+     Every seeded value stays what Batch 02 and PM-08 called it —
+     PROTOTYPE SAMPLE CONFIGURATION, never a platform constant.
+     ============================================================ */
+
+  /* One sample assessment → one Question Bank item per question + one
+     assessment definition whose questions are COPIES carrying a link
+     back to the bank item they came from. The copy is what makes
+     "Delete from the Question Bank" and "Remove from this assessment"
+     genuinely different actions (brief §17), and what stops a bank
+     edit silently rewriting a live assessment (ND-15). */
+  function seedAssessmentForTenant(S0, tenantId, sample) {
+    var now = new Date().toISOString();
+    var ctx = data.contextOf(sample.experimentId);
+    var courseId = ctx && ctx.course ? ctx.course.id : '';
+    var questions = sample.questions.map(function (q) {
+      S0.seq.question += 1;
+      var bank = {
+        id: 'QB-' + util.pad3(S0.seq.question),
+        tenantId: tenantId,
+        courseId: courseId,
+        experimentId: sample.experimentId,
+        type: q.type,
+        text: q.text,
+        options: q.type === 'mcq' ? q.options.slice() : [],
+        answer: q.type === 'descriptive' ? null : q.answer,
+        points: q.points || 1,
+        explanation: q.explanation || '',
+        guidance: q.guidance || '',
+        status: 'active',
+        origin: 'seed',
+        revision: 1,
+        createdBy: null, createdAt: now, updatedAt: now, deletedAt: null
+      };
+      S0.questions.push(bank);
+      return copyBankQuestion(bank);
+    });
+
+    S0.seq.assessmentDef += 1;
+    var pol = sample.policy || { mode: 'SHOW_IMMEDIATELY' };
+    var base = S0.seededAt || now;
+    /* The sample policies were authored as day offsets from the seed
+       instant so a fresh reset always behaves the same way. A Faculty
+       control cannot edit an offset, so the offsets resolve HERE into
+       the real dates Faculty now edit: an assessment deadline, and a
+       custom release date. Nothing about the resulting behaviour
+       changes. */
+    var def = {
+      id: 'ADEF-' + util.pad3(S0.seq.assessmentDef),
+      tenantId: tenantId,
+      experimentId: sample.experimentId,
+      title: sample.title,
+      intro: sample.intro,
+      passMark: sample.passMark,
+      attemptLimit: sample.attemptLimit,
+      deadline: pol.mode === 'AFTER_DEADLINE' ? util.addDays(base, pol.offsetDays || 0) : null,
+      policy: pol.mode === 'CUSTOM_DATE'
+        ? { mode: 'CUSTOM_DATE', date: util.addDays(base, pol.offsetDays || 0) }
+        : { mode: pol.mode },
+      questions: questions,
+      status: 'active',
+      revision: 1,
+      origin: 'seed',
+      derivedFrom: sample.id,
+      createdBy: null, updatedBy: null,
+      createdAt: now, updatedAt: now, revisedAt: null
+    };
+    S0.assessmentDefs.push(def);
+    return def;
+  }
+
+  /* A Question Bank item copied INTO an assessment. `bankRevision`
+     records which revision of the bank item the copy was taken from,
+     so the builder can say "this has been updated in the Question
+     Bank" instead of silently drifting. */
+  function copyBankQuestion(bank) {
+    return {
+      id: bank.id,                  /* stable within one assessment */
+      bankQuestionId: bank.id,
+      bankRevision: bank.revision,
+      type: bank.type,
+      text: bank.text,
+      options: (bank.options || []).slice(),
+      answer: bank.answer,
+      points: bank.points || 1,
+      explanation: bank.explanation || '',
+      guidance: bank.guidance || ''
+    };
+  }
+
+  function seedFacultyAuthoring(S0) {
+    var tenantId = data.SEED_TENANT_ID;
+    if (!S0.tenants.filter(function (t) { return t.id === tenantId; }).length) { return; }
+    data.ASSESSMENTS.forEach(function (sample) {
+      seedAssessmentForTenant(S0, tenantId, sample);
+    });
+  }
+
   /* ---------------- load + migrate ---------------- */
 
   /* Migration is additive only, at every version. An Implementation-01
@@ -235,7 +371,7 @@ XRSLP.state = (function () {
     });
     if (!parsed.seq || typeof parsed.seq !== 'object') { parsed.seq = {}; }
     ['request', 'access', 'person', 'group', 'membership', 'mapping', 'facultyMap', 'assignment', 'event',
-     'resourceAct', 'simAct', 'attempt']
+     'resourceAct', 'simAct', 'attempt', 'question', 'assessmentDef', 'review']
       .forEach(function (k) {
         if (typeof parsed.seq[k] !== 'number') { parsed.seq[k] = 0; }
       });
@@ -281,10 +417,121 @@ XRSLP.state = (function () {
     else if (!parsed.people.some(function (p) { return p.id === parsed.protoStudentId && p.role === 'student'; })) {
       parsed.protoStudentId = null;
     }
+    if (typeof parsed.protoFacultyId !== 'string') { parsed.protoFacultyId = null; }
+    else if (!parsed.people.some(function (p) { return p.id === parsed.protoFacultyId && p.role === 'faculty'; })) {
+      parsed.protoFacultyId = null;
+    }
+    if (!parsed.facultyPrefs || typeof parsed.facultyPrefs !== 'object') { parsed.facultyPrefs = {}; }
+
+    migrateFacultyAuthoring(parsed, stored);
+
     parsed.schemaVersion = SCHEMA_VERSION;
     delete parsed.version;
     parsed.migratedFrom = stored < SCHEMA_VERSION ? stored : (parsed.migratedFrom || null);
     return parsed;
+  }
+
+  /* SCHEMA 4 → 5: assessment configuration becomes Faculty-owned
+     mutable state, and every submitted attempt gains the snapshot that
+     keeps it historically interpretable.
+
+     Nothing is discarded. Every request, tenant, access record, person,
+     group, mapping, assignment, resource record, simulation record and
+     assessment attempt written by an earlier build survives untouched;
+     this only ADDS the Implementation-04 records around them. */
+  function migrateFacultyAuthoring(parsed, storedVersion) {
+    if (storedVersion >= 5) { return; }
+    var seededAt = parsed.seededAt || new Date().toISOString();
+    var shim = { seq: parsed.seq, questions: parsed.questions,
+                 assessmentDefs: parsed.assessmentDefs, tenants: parsed.tenants,
+                 seededAt: seededAt };
+
+    function defFor(tenantId, experimentId) {
+      return parsed.assessmentDefs.filter(function (d) {
+        return d.tenantId === tenantId && d.experimentId === experimentId && d.status === 'active';
+      })[0] || null;
+    }
+    function materialise(tenantId, sample) {
+      var existing = defFor(tenantId, sample.experimentId);
+      if (existing) { return existing; }
+      return seedAssessmentForTenant(shim, tenantId, sample);
+    }
+
+    /* 1 · The seeded tenant receives the sample configuration it always
+           had — now as editable state rather than a read-only file. */
+    if (parsed.tenants.some(function (t) { return t.id === data.SEED_TENANT_ID; })) {
+      data.ASSESSMENTS.forEach(function (sample) { materialise(data.SEED_TENANT_ID, sample); });
+    }
+    /* 2 · Any OTHER tenant whose students already attempted a sample
+           assessment keeps a live definition for it, so an existing
+           attempt never lands on "no assessment is set". */
+    parsed.attempts.forEach(function (a) {
+      var sample = data.ASSESSMENTS.filter(function (x) { return x.id === a.assessmentId; })[0];
+      if (sample && a.tenantId) { materialise(a.tenantId, sample); }
+    });
+
+    /* 3 · Attempt snapshots. An attempt written before Faculty could
+           edit anything was taken against the sample configuration, so
+           snapshotting it from that sample is the honest record of what
+           the Student actually answered. */
+    parsed.attempts.forEach(function (a) {
+      if (a.snapshot) { return; }
+      var src = data.ASSESSMENTS.filter(function (x) { return x.id === a.assessmentId; })[0];
+      if (!src) {
+        var d = defFor(a.tenantId, a.experimentId);
+        if (d) { a.snapshot = snapshotOfDefinition(d); }
+        return;
+      }
+      a.snapshot = {
+        assessmentId: a.assessmentId,
+        revision: 1,
+        title: src.title,
+        intro: src.intro,
+        passMark: src.passMark,
+        attemptLimit: src.attemptLimit,
+        questions: src.questions.map(function (q) {
+          return {
+            id: q.id, bankQuestionId: null, type: q.type, text: q.text,
+            options: q.type === 'mcq' ? q.options.slice() : [],
+            answer: q.type === 'descriptive' ? null : q.answer,
+            points: q.points || 1,
+            explanation: q.explanation || '', guidance: q.guidance || ''
+          };
+        })
+      };
+      /* Re-point the attempt at the tenant's live definition where one
+         now exists, so attempt history and current configuration share
+         an identity. The SNAPSHOT above, not the definition, is what
+         the result screen renders. */
+      var live = defFor(a.tenantId, a.experimentId);
+      if (live) { a.assessmentId = live.id; a.snapshot.assessmentId = live.id; }
+    });
+
+    /* 4 · A submitted attempt containing a written answer already told
+           the Student "Pending Faculty review". That promise now has a
+           queue behind it: the review obligation is created here for
+           every such attempt, exactly as submission would create it. */
+    parsed.attempts.forEach(function (a) {
+      if (a.status !== 'submitted' || !a.snapshot) { return; }
+      a.snapshot.questions.forEach(function (q) {
+        if (q.type !== 'descriptive') { return; }
+        var exists = parsed.reviews.some(function (r) {
+          return r.attemptId === a.id && r.questionId === q.id;
+        });
+        if (exists) { return; }
+        parsed.seq.review += 1;
+        parsed.reviews.push({
+          id: 'REV-' + util.pad3(parsed.seq.review),
+          tenantId: a.tenantId, attemptId: a.id, questionId: q.id,
+          personId: a.personId, experimentId: a.experimentId,
+          maxMarks: q.points || 1,
+          status: 'pending', marks: null, feedback: '',
+          reviewedBy: null, reviewedAt: null,
+          assistance: null,
+          createdAt: a.submittedAt || new Date().toISOString()
+        });
+      });
+    });
   }
 
   function load() {
@@ -1601,8 +1848,8 @@ XRSLP.state = (function () {
      written answer. STK31-31 settles who resolves it: FACULTY is the only
      human role responsible for descriptive-answer evaluation, so the
      Student-facing label for this state names Faculty review rather than
-     an anonymous evaluator. The Faculty review workspace itself is a later
-     slice — nothing here grades, scores or times that review. */
+     an anonymous evaluator. `finaliseReview` is what resolves it, and it
+     is the only writer that does. */
   var OUTCOME = { PASSED: 'PASSED', NOT_PASSED: 'NOT_PASSED', PENDING_REVIEW: 'PENDING_FACULTY_REVIEW' };
 
   function attemptById(id) {
@@ -1637,8 +1884,14 @@ XRSLP.state = (function () {
      silently disabled control. */
   function attemptBlock(personId, experimentId) {
     if (!studentCanOpenExperiment(personId, experimentId)) { return 'not-entitled'; }
-    var asm = data.assessmentFor(experimentId);
+    var asm = assessmentForStudent(personId, experimentId);
     if (!asm) { return 'no-assessment'; }
+    /* A configured assessment carrying no questions is a real state —
+       Faculty create the assessment before choosing its questions — and
+       it must not be startable. Without this an attempt is created over
+       an empty question list, scores `null%`, and resolves to NOT PASSED
+       against a paper the Student was never shown. */
+    if (!asm.questions.length) { return 'no-questions'; }
     var used = attemptsFor(personId, experimentId).length;
     if (asm.attemptLimit && used >= asm.attemptLimit) { return 'attempt-limit'; }
     var last = latestSubmittedAttempt(personId, experimentId);
@@ -1673,7 +1926,7 @@ XRSLP.state = (function () {
     if (open) { return open; }
     if (attemptBlock(personId, experimentId)) { return null; }
     var p = personById(personId);
-    var asm = data.assessmentFor(experimentId);
+    var asm = assessmentForStudent(personId, experimentId);
     S.seq.attempt += 1;
     var rec = {
       id: 'ATT-' + util.pad3(S.seq.attempt),
@@ -1681,6 +1934,12 @@ XRSLP.state = (function () {
       experimentId: experimentId,
       sourceTechnology: latestSimulationTechnology(personId, experimentId),
       assessmentId: asm.id,
+      /* THE HISTORICAL INTEGRITY GUARANTEE (brief §40). The attempt
+         carries its own copy of the questions, marks, answer key and
+         rubric it is being taken against. Every later Faculty edit —
+         a reworded question, a changed key, a deleted Question Bank
+         item — leaves this attempt exactly as it was answered. */
+      snapshot: snapshotOfDefinition(asm),
       attemptNo: attemptsFor(personId, experimentId).length + 1,
       status: ATTEMPT_STATUS.IN_PROGRESS,
       answers: {},
@@ -1711,7 +1970,7 @@ XRSLP.state = (function () {
     return a;
   }
   function answeredCount(attempt) {
-    var asm = data.assessmentById(attempt.assessmentId);
+    var asm = attemptAssessment(attempt);
     if (!asm) { return 0; }
     return asm.questions.filter(function (q) {
       var v = attempt.answers[q.id];
@@ -1719,7 +1978,7 @@ XRSLP.state = (function () {
     }).length;
   }
   function unansweredQuestions(attempt) {
-    var asm = data.assessmentById(attempt.assessmentId);
+    var asm = attemptAssessment(attempt);
     if (!asm) { return []; }
     return asm.questions.filter(function (q) {
       var v = attempt.answers[q.id];
@@ -1734,36 +1993,84 @@ XRSLP.state = (function () {
     var a = attemptById(attemptId);
     if (!a || a.status !== ATTEMPT_STATUS.IN_PROGRESS) { return null; }
     if (!studentCanOpenExperiment(a.personId, a.experimentId)) { return null; }
-    var asm = data.assessmentById(a.assessmentId);
+    var asm = attemptAssessment(a);
     if (!asm) { return null; }
-
-    var earned = 0, total = 0;
-    asm.questions.forEach(function (q) {
-      if (q.type === 'descriptive') { return; }
-      var pts = q.points || 1;
-      total += pts;
-      var given = a.answers[q.id];
-      if (q.type === 'mcq' && given === q.answer) { earned += pts; }
-      if (q.type === 'tf' && given === q.answer) { earned += pts; }
-    });
 
     a.status = ATTEMPT_STATUS.SUBMITTED;
     a.submittedAt = new Date().toISOString();
+    /* Submission creates the REVIEW OBLIGATION for every written
+       answer. The Student is told "Pending Faculty review"; this is the
+       record that puts the response in a real Faculty queue. */
+    asm.questions.forEach(function (q) {
+      if (q.type !== 'descriptive') { return; }
+      S.seq.review += 1;
+      S.reviews.push({
+        id: 'REV-' + util.pad3(S.seq.review),
+        tenantId: a.tenantId, attemptId: a.id, questionId: q.id,
+        personId: a.personId, experimentId: a.experimentId,
+        maxMarks: q.points || 1,
+        status: 'pending', marks: null, feedback: '',
+        reviewedBy: null, reviewedAt: null,
+        assistance: null,
+        createdAt: a.submittedAt
+      });
+    });
+    recomputeAttempt(a);
+    save();
+    return a;
+  }
+
+  /* ---------- ONE scoring function ----------
+     Called at submission and again after each Faculty review, so the
+     score a Student sees can never drift from the marks that exist.
+
+     Before every written answer has been reviewed, the score reports
+     the OBJECTIVE questions only — the figure Implementation 03 already
+     showed — and the outcome stays PENDING_FACULTY_REVIEW. Once Faculty
+     have finished, the descriptive marks join the total and the outcome
+     is decided against the pass mark the attempt was taken under
+     (brief §29). */
+  function recomputeAttempt(a) {
+    var asm = attemptAssessment(a);
+    if (!asm) { return a; }
+    var objEarned = 0, objTotal = 0;
+    asm.questions.forEach(function (q) {
+      if (q.type === 'descriptive') { return; }
+      var pts = q.points || 1;
+      objTotal += pts;
+      var given = a.answers[q.id];
+      if ((q.type === 'mcq' || q.type === 'tf') && given === q.answer) { objEarned += pts; }
+    });
+    var revs = reviewsForAttempt(a.id);
+    var descTotal = 0, descEarned = 0, pending = 0;
+    revs.forEach(function (r) {
+      descTotal += r.maxMarks || 0;
+      if (r.status === 'completed') { descEarned += (typeof r.marks === 'number' ? r.marks : 0); }
+      else { pending += 1; }
+    });
+    var complete = revs.length === 0 || pending === 0;
+    var earned = complete ? objEarned + descEarned : objEarned;
+    var total = complete ? objTotal + descTotal : objTotal;
     a.score = {
       earned: earned, total: total,
-      percent: total > 0 ? Math.round((earned / total) * 100) : null
+      percent: total > 0 ? Math.round((earned / total) * 100) : null,
+      objectiveEarned: objEarned, objectiveTotal: objTotal,
+      descriptiveEarned: complete ? descEarned : null,
+      descriptiveTotal: descTotal,
+      pendingReviews: pending,
+      includesReview: complete && revs.length > 0
     };
-    /* A descriptive answer has no machine outcome. STK31-31 gives the
-       pending state its owner — Faculty — and the Faculty evaluation
-       queue is a later slice, so the attempt stays pending here rather
-       than being auto-graded. Auto-review is never auto-final. */
-    if (data.hasDescriptive(asm)) {
+    if (!complete) {
       a.outcome = OUTCOME.PENDING_REVIEW;
+      a.reviewCompletedAt = null;
     } else {
       a.outcome = (a.score.percent !== null && a.score.percent >= (asm.passMark || 0))
         ? OUTCOME.PASSED : OUTCOME.NOT_PASSED;
+      if (revs.length) {
+        var stamps = revs.map(function (r) { return r.reviewedAt || ''; }).sort();
+        a.reviewCompletedAt = stamps[stamps.length - 1] || null;
+      }
     }
-    save();
     return a;
   }
 
@@ -1773,7 +2080,7 @@ XRSLP.state = (function () {
      D-25 is untouched: the key is never exposed during an attempt,
      whatever this returns. */
   function assessmentRelease(assessment) {
-    var out = { mode: null, label: '', releaseAt: null, released: false, sentence: '' };
+    var out = { mode: null, label: '', releaseAt: null, released: false, sentence: '', unresolved: false };
     if (!assessment || !assessment.policy) { return out; }
     var pol = assessment.policy;
     out.mode = pol.mode;
@@ -1783,13 +2090,36 @@ XRSLP.state = (function () {
       out.sentence = 'Your score and the explanations are shown as soon as you submit.';
       return out;
     }
-    var base = seededAt() || new Date().toISOString();
-    out.releaseAt = util.addDays(base, pol.offsetDays || 0);
-    out.released = new Date(out.releaseAt).getTime() <= Date.now();
+    /* Three shapes resolve here, and no fourth mode exists (ND-10 is not
+       invented):
+         · AFTER_DEADLINE  → the assessment's own deadline date
+         · CUSTOM_DATE     → the date Faculty set on the policy
+         · offsetDays      → the seeded sample form, days from the seed
+                             instant, kept so an older stored state and
+                             the read-only sample data still resolve. */
+    var at = null;
+    if (pol.mode === 'AFTER_DEADLINE') { at = assessment.deadline || null; }
+    else if (pol.mode === 'CUSTOM_DATE') { at = pol.date || null; }
+    if (!at && typeof pol.offsetDays === 'number') {
+      at = util.addDays(seededAt() || new Date().toISOString(), pol.offsetDays);
+    }
+    if (!at) {
+      /* A delayed policy with no date cannot honestly claim a release
+         moment. Nothing is released, and the sentence says why rather
+         than inventing a date. */
+      out.unresolved = true;
+      out.released = false;
+      out.sentence = pol.mode === 'AFTER_DEADLINE'
+        ? 'Your answers and the explanations become available after the assessment deadline. No deadline has been set yet.'
+        : 'Your answers and the explanations become available on a date your faculty set. That date has not been set yet.';
+      return out;
+    }
+    out.releaseAt = at;
+    out.released = new Date(at).getTime() <= Date.now();
     out.sentence = pol.mode === 'AFTER_DEADLINE'
       ? 'Your answers and the explanations become available after the assessment deadline on ' +
-        util.fmtDate(out.releaseAt) + '.'
-      : 'Your answers and the explanations become available on ' + util.fmtDate(out.releaseAt) + '.';
+        util.fmtDate(at) + '.'
+      : 'Your answers and the explanations become available on ' + util.fmtDate(at) + '.';
     return out;
   }
 
@@ -1808,13 +2138,71 @@ XRSLP.state = (function () {
   };
   var TECH_PROGRESS = {
     NOT_STARTED: 'NOT_STARTED', IN_PROGRESS: 'IN_PROGRESS',
-    PENDING_REVIEW: 'PENDING_FACULTY_REVIEW', COMPLETED: 'COMPLETED'
+    PENDING_REVIEW: 'PENDING_FACULTY_REVIEW',
+    /* The evaluation is FINISHED but the Faculty-configured visibility
+       policy has not released the result yet. A STUDENT-VIEW state only —
+       see `resultWithheld` below. */
+    RESULT_WITHHELD: 'RESULT_WITHHELD',
+    COMPLETED: 'COMPLETED'
   };
+
+  /* ⚠ THE INDIRECT-DISCLOSURE GUARD.
+
+     A result that has been evaluated but not yet released must not be
+     inferable from any other Student-facing status. It is: the roll-up
+     counts the assessment step only when the outcome is PASSED, so with
+     every other activity finished, "Completed / 100%" means passed and
+     "In progress / 86%" means not passed — the withheld outcome, read
+     straight off the progress screen.
+
+     `resultWithheld` marks that window. Under `opts.studentView` the
+     derivations below then treat the assessment as UNDECIDED, so a
+     passing and a failing Student produce byte-identical progress until
+     the policy releases.
+
+     It is deliberately NOT applied without `studentView`: Faculty
+     performed the evaluation and must keep seeing it (audit §9), and the
+     Faculty analytics read the same derivation. */
+  /* ── THE ONE RELEASE DECISION ──────────────────────────────────
+     `scoreWithheld` answers the only question every Student-facing
+     score surface needs to ask: are marks and outcome hidden from this
+     Student right now? It is simply "a submitted attempt exists and the
+     Faculty-configured policy has not released it", and it deliberately
+     does NOT care whether the marking was automatic or human.
+
+     ⚠ "Automatically marked" is not the same as "released". An
+     objective-only assessment is scored the instant it is submitted, but
+     under AFTER_DEADLINE or CUSTOM_DATE that score is a withheld result
+     like any other. Treating machine marking as self-releasing was the
+     residual channel: the objective sub-score stayed on screen while the
+     outcome it determines was being withheld, and a Student whose
+     objective marks already put the pass mark out of reach could read
+     the hidden outcome straight off it.
+
+     SHOW_IMMEDIATELY always resolves to released, so this is false for
+     every assessment that does not delay. */
+  function scoreWithheld(personId, experimentId) {
+    var last = latestSubmittedAttempt(personId, experimentId);
+    if (!last) { return false; }
+    return !releaseFor(last).released;
+  }
+
+  /* The subset of `scoreWithheld` where the result has actually been
+     DECIDED — the case the progress roll-up must neutralise, because a
+     decided outcome is what "Completed vs In progress" would otherwise
+     publish. A still-pending review is excluded: it has its own honest
+     Student state, `Pending Faculty review`. */
+  function resultWithheld(personId, experimentId) {
+    var last = latestSubmittedAttempt(personId, experimentId);
+    if (!last) { return false; }
+    if (last.outcome !== OUTCOME.PASSED && last.outcome !== OUTCOME.NOT_PASSED) { return false; }
+    return scoreWithheld(personId, experimentId);
+  }
 
   /* ONE assessment state per Experiment, whatever the Student was
      licensed in. */
   function assessmentState(personId, experimentId) {
-    var asm = data.assessmentFor(experimentId);
+    var asm = assessmentForStudent(personId, experimentId);
     if (!asm) { return ASSESS_STATE.NONE; }
     if (currentAttempt(personId, experimentId)) { return ASSESS_STATE.IN_PROGRESS; }
     var last = latestSubmittedAttempt(personId, experimentId);
@@ -1840,20 +2228,25 @@ XRSLP.state = (function () {
      ANDs `resourcesDone` unconditionally and only works because its one
      resource-free module is seeded complete; that fragility is not
      copied. */
-  function technologyProgress(personId, experimentId, technology) {
+  function technologyProgress(personId, experimentId, technology, opts) {
     var sim = simulationActivity(personId, experimentId, technology);
     var simStatus = sim ? sim.status : SIM_STATUS.NOT_STARTED;
     /* Experiment-level, exactly like the resources: the same assessment
        state appears against every technology row, because there is one
        assessment. Only the SIMULATION differs by technology. */
     var assess = assessmentState(personId, experimentId);
+    /* Student view: an evaluated-but-unreleased result is UNDECIDED here,
+       so passing and failing cannot be told apart. */
+    var withheld = !!(opts && opts.studentView) && resultWithheld(personId, experimentId);
     var res = resourceProgress(personId, experimentId);
     var resourcesComplete = res.total === 0 || res.completed === res.total;
-    var learningDone = simStatus === SIM_STATUS.COMPLETED &&
+    var learningDone = simStatus === SIM_STATUS.COMPLETED && !withheld &&
       (assess === ASSESS_STATE.NONE || assess === ASSESS_STATE.PASSED);
     var status;
     if (learningDone && resourcesComplete) {
       status = TECH_PROGRESS.COMPLETED;
+    } else if (withheld && simStatus === SIM_STATUS.COMPLETED && resourcesComplete) {
+      status = TECH_PROGRESS.RESULT_WITHHELD;
     } else if (assess === ASSESS_STATE.PENDING_REVIEW &&
                simStatus === SIM_STATUS.COMPLETED && resourcesComplete) {
       /* Pending Faculty review only describes a technology that has
@@ -1874,7 +2267,8 @@ XRSLP.state = (function () {
       simulation: sim,
       simulationStatus: simStatus,
       deliveryState: sim ? sim.deliveryState : null,
-      assessment: assess,
+      /* Masked in the Student view for the same reason as the status. */
+      assessment: withheld ? TECH_PROGRESS.RESULT_WITHHELD : assess,
       attempt: latestSubmittedAttempt(personId, experimentId) ||
                currentAttempt(personId, experimentId),
       status: status,
@@ -1928,9 +2322,12 @@ XRSLP.state = (function () {
   function experimentProgress(personId, experimentId, technologies, opts) {
     opts = opts || {};
     var techs = (technologies || []).slice();
-    var asm = data.assessmentFor(experimentId);
+    var asm = assessmentForStudent(personId, experimentId);
     var res = resourceProgress(personId, experimentId);
-    var rows = techs.map(function (t) { return technologyProgress(personId, experimentId, t); });
+    var withheld = !!opts.studentView && resultWithheld(personId, experimentId);
+    var rows = techs.map(function (t) {
+      return technologyProgress(personId, experimentId, t, opts);
+    });
 
     var status;
     if (opts.historical) {
@@ -1944,6 +2341,11 @@ XRSLP.state = (function () {
              : TECH_PROGRESS.NOT_STARTED;
     } else if (rows.every(function (r) { return r.status === TECH_PROGRESS.COMPLETED; })) {
       status = TECH_PROGRESS.COMPLETED;
+    } else if (rows.some(function (r) { return r.status === TECH_PROGRESS.RESULT_WITHHELD; }) &&
+               rows.every(function (r) {
+                 return r.status === TECH_PROGRESS.RESULT_WITHHELD || r.status === TECH_PROGRESS.COMPLETED;
+               })) {
+      status = TECH_PROGRESS.RESULT_WITHHELD;
     } else if (rows.some(function (r) { return r.status === TECH_PROGRESS.PENDING_REVIEW; }) &&
                rows.every(function (r) {
                  return r.status === TECH_PROGRESS.PENDING_REVIEW || r.status === TECH_PROGRESS.COMPLETED;
@@ -1965,7 +2367,11 @@ XRSLP.state = (function () {
        well as of the label. */
     var assessState = assessmentState(personId, experimentId);
     var stepsTotal = res.total + rows.length + (asm ? 1 : 0);
-    var stepsDone = res.completed + (asm && assessState === ASSESS_STATE.PASSED ? 1 : 0);
+    /* The withheld window counts the assessment step as NOT DONE for
+       both a passing and a failing Student — otherwise the percentage
+       alone would publish the outcome the result screen is holding. */
+    var stepsDone = res.completed +
+      (asm && !withheld && assessState === ASSESS_STATE.PASSED ? 1 : 0);
     rows.forEach(function (r) {
       if (r.simulationStatus === SIM_STATUS.COMPLETED) { stepsDone += 1; }
     });
@@ -2025,18 +2431,952 @@ XRSLP.state = (function () {
   function studentProgressSummary(personId) {
     var rows = studentExperiments(personId);
     var out = {
-      entitled: 0, notStarted: 0, inProgress: 0, awaiting: 0, completed: 0,
+      entitled: 0, notStarted: 0, inProgress: 0, awaiting: 0, awaitingRelease: 0, completed: 0,
       unavailable: 0, items: []
     };
     rows.forEach(function (row) {
       if (!row.effective) { out.unavailable += 1; return; }
       out.entitled += 1;
-      var prog = experimentProgress(personId, row.experimentId, row.technologies);
+      /* This is a STUDENT roll-up, so it takes the Student view. */
+      var prog = experimentProgress(personId, row.experimentId, row.technologies, { studentView: true });
       out.items.push({ row: row, progress: prog });
       if (prog.status === TECH_PROGRESS.COMPLETED) { out.completed += 1; }
+      else if (prog.status === TECH_PROGRESS.RESULT_WITHHELD) { out.awaitingRelease += 1; }
       else if (prog.status === TECH_PROGRESS.PENDING_REVIEW) { out.awaiting += 1; }
       else if (prog.status === TECH_PROGRESS.IN_PROGRESS) { out.inProgress += 1; }
       else { out.notStarted += 1; }
+    });
+    return out;
+  }
+
+  /* ============================================================
+     IMPLEMENTATION 04 — FACULTY
+
+     Four conceptual records join the model, and not one of them is an
+     entitlement or can create one:
+
+       questions[]       QuestionBankItem      — tenant-scoped, Faculty-owned
+       assessmentDefs[]  AssessmentDefinition  — tenant + EXPERIMENT
+       reviews[]         DescriptiveReview     — attempt + descriptive question
+       facultyPrefs      a Faculty workflow preference, not a role
+
+     ── THE TWO ALTITUDES THIS SLICE MUST NOT COLLAPSE ────────────
+        FACULTY MAPPING        which content a Faculty member manages
+              ≠
+        STUDENT ENTITLEMENT    which content a Student may open
+
+     A Faculty member manages an Experiment's assessment because of a
+     FacultyAssignment. A Student appears in that Experiment's reach
+     only through EFFECTIVE ENTITLEMENT — never through course
+     membership, group membership or tenant access (brief §9 / §36).
+
+     ── ASSESSMENT IS PER EXPERIMENT · SIMULATION IS PER TECHNOLOGY ─
+     Unchanged from Implementation 03, and the reasoning is recorded at
+     the head of the Implementation-03 section above. Faculty configure
+     ONE assessment for an Experiment however many technology variants
+     the Tenant holds.
+     ============================================================ */
+
+  /* ---------- PROTOTYPE-ONLY faculty selection ----------
+     The same shape as the Student pointer: a record of WHICH REAL
+     TenantUser the prototype is viewing as. Not authentication, and it
+     grants nothing — what a Faculty member can reach still comes only
+     from their mappings. */
+  function protoFacultyId() { return S.protoFacultyId || null; }
+  function setProtoFaculty(personId) {
+    S.protoFacultyId = personId || null;
+    save();
+    return S.protoFacultyId;
+  }
+  function protoFaculty() {
+    var p = S.protoFacultyId ? personById(S.protoFacultyId) : null;
+    return (p && p.role === 'faculty') ? p : null;
+  }
+
+  /* ---------- Faculty workflow preference (brief §28) ----------
+     `manual` or `assisted`. It changes ONE thing: whether the review
+     screen offers the assistance affordance. Faculty remain the only
+     evaluator either way (STK31-31). */
+  var REVIEW_MODE = { MANUAL: 'manual', ASSISTED: 'assisted' };
+  function facultyPref(personId) {
+    var pref = S.facultyPrefs[personId] || {};
+    return { reviewMode: pref.reviewMode === REVIEW_MODE.ASSISTED ? REVIEW_MODE.ASSISTED : REVIEW_MODE.MANUAL };
+  }
+  function setFacultyReviewMode(personId, mode) {
+    if (!S.facultyPrefs[personId]) { S.facultyPrefs[personId] = {}; }
+    S.facultyPrefs[personId].reviewMode =
+      mode === REVIEW_MODE.ASSISTED ? REVIEW_MODE.ASSISTED : REVIEW_MODE.MANUAL;
+    save();
+    return facultyPref(personId);
+  }
+
+  /* ============================================================
+     THE FACULTY CONTENT BOUNDARY.
+
+     Derived from the Implementation-02 FacultyAssignment records and
+     nothing else. There is no second Faculty mapping store.
+
+     A mapping is honoured only while its access record is still
+     assignable — an expired or emptied record stops carrying content
+     for Faculty exactly as it stops carrying it for Students, and the
+     reason is reported rather than the row silently vanishing.
+     ============================================================ */
+  function facultyScope(personId) {
+    var p = personById(personId);
+    var out = { person: p, mappings: [], experiments: [], courseIds: [], blocked: [] };
+    if (!p || p.role !== 'faculty') { return out; }
+    var byExp = {};
+    var seenCourse = {};
+    facultyMappingsFor(personId).forEach(function (m) {
+      if (m.tenantId !== p.tenantId) { return; }
+      var rec = accessById(m.accessId);
+      var reason = accessAssignability(rec, p.tenantId);
+      if (reason) { out.blocked.push({ mapping: m, reason: reason }); return; }
+      out.mappings.push(m);
+      if (!seenCourse[m.courseId]) { seenCourse[m.courseId] = true; out.courseIds.push(m.courseId); }
+      /* An Experiment-level mapping carries exactly that Experiment. A
+         course-level mapping carries every Experiment the tenant
+         actually holds under that record for that Course — never the
+         whole canonical course, and never the whole tenant. */
+      var ids = m.experimentId
+        ? (accessHasExperiment(rec, m.experimentId) ? [m.experimentId] : [])
+        : rec.items.map(function (i) { return i.experimentId; }).filter(function (id) {
+            var ctx = data.contextOf(id);
+            return ctx && ctx.course && ctx.course.id === m.courseId;
+          });
+      ids.forEach(function (id) {
+        if (!byExp[id]) {
+          byExp[id] = { experimentId: id, courseId: m.courseId, accessIds: [], mappingIds: [], viaCourse: false };
+          out.experiments.push(byExp[id]);
+        }
+        if (byExp[id].accessIds.indexOf(m.accessId) === -1) { byExp[id].accessIds.push(m.accessId); }
+        byExp[id].mappingIds.push(m.id);
+        if (!m.experimentId) { byExp[id].viaCourse = true; }
+      });
+    });
+    out.experiments.sort(function (x, y) {
+      var cx = data.contextOf(x.experimentId), cy = data.contextOf(y.experimentId);
+      var nx = cx ? cx.course.name + ' ' + cx.experiment.name : x.experimentId;
+      var ny = cy ? cy.course.name + ' ' + cy.experiment.name : y.experimentId;
+      return nx < ny ? -1 : nx > ny ? 1 : 0;
+    });
+    return out;
+  }
+  function facultyExperimentIds(personId) {
+    return facultyScope(personId).experiments.map(function (r) { return r.experimentId; });
+  }
+  function facultyCanManage(personId, experimentId) {
+    return facultyExperimentIds(personId).indexOf(experimentId) !== -1;
+  }
+  function facultyScopeRow(personId, experimentId) {
+    return facultyScope(personId).experiments.filter(function (r) {
+      return r.experimentId === experimentId;
+    })[0] || null;
+  }
+
+  /* STUDENT REACH — brief §9.
+     EFFECTIVE ENTITLEMENT ONLY. Not course membership, not group
+     membership, not "students at this institution". A student appears
+     here only when `entitledStudentsFor` — the Implementation-02
+     derivation, allocation gate and all — puts them there.
+
+     ⚠ ACROSS EVERY LIVE ACCESS RECORD THE TENANT HOLDS, not only the one
+     the Faculty mapping runs through. The mapping decides WHICH CONTENT
+     a Faculty member manages; it does not decide which students count.
+     A tenant can hold the same Experiment on two access records, and a
+     student entitled through the other one sits the SAME assessment
+     (definitions are tenant × Experiment) and appears in the SAME review
+     queue (reviews are keyed by Experiment). Intersecting reach with the
+     mapping's record made those two disagree: a written answer could
+     arrive from a student the progress list said did not exist. */
+  function facultyStudentReach(personId, experimentId) {
+    var row = facultyScopeRow(personId, experimentId);
+    if (!row) { return []; }
+    var p = personById(personId);
+    if (!p) { return []; }
+    var set = {};
+    liveAccessForTenant(p.tenantId).forEach(function (rec) {
+      entitledStudentsFor(rec.id, experimentId).forEach(function (pid) { set[pid] = true; });
+    });
+    return Object.keys(set).sort(function (a, b) {
+      var pa = personById(a), pb = personById(b);
+      var na = pa ? pa.name : a, nb = pb ? pb.name : b;
+      return na < nb ? -1 : na > nb ? 1 : 0;
+    });
+  }
+  /* Every student reached by ANY of this Faculty member's experiments. */
+  function facultyStudentIds(personId) {
+    var set = {};
+    facultyExperimentIds(personId).forEach(function (eid) {
+      facultyStudentReach(personId, eid).forEach(function (pid) { set[pid] = true; });
+    });
+    return Object.keys(set);
+  }
+
+  /* ============================================================
+     QUESTION BANK — Add · Edit · DELETE (STK31-34).
+
+     `Delete` is the user-facing requirement and it is not renamed.
+     The MECHANISM underneath is reversible (STK31-22 / ND-15): the item
+     leaves the active Question Bank completely and nothing that already
+     references it is touched — assessment copies survive, submitted
+     attempts survive, completed results survive. The deleted row is
+     never surfaced as an archive, a bin or a restore control: to the
+     Faculty member it is deleted.
+     ============================================================ */
+
+  var QUESTION_TYPES = { mcq: 'Multiple choice', tf: 'True or false', descriptive: 'Descriptive' };
+
+  function questionById(id) {
+    return S.questions.filter(function (q) { return q.id === id; })[0] || null;
+  }
+  function activeQuestion(id) {
+    var q = questionById(id);
+    return (q && q.status === 'active') ? q : null;
+  }
+  function questionsForTenant(tenantId) {
+    return S.questions.filter(function (q) { return q.tenantId === tenantId && q.status === 'active'; });
+  }
+  /* The bank a Faculty member may work in: their mapped Experiments,
+     and nothing else in the tenant. */
+  function questionsForFaculty(personId) {
+    var p = personById(personId);
+    if (!p) { return []; }
+    var allowed = facultyExperimentIds(personId);
+    return questionsForTenant(p.tenantId).filter(function (q) {
+      return allowed.indexOf(q.experimentId) !== -1;
+    });
+  }
+
+  function validateQuestion(fields) {
+    var errs = [];
+    var type = fields.type;
+    if (!QUESTION_TYPES[type]) { errs.push({ field: 'q-type', message: 'Choose a question type.' }); }
+    if (!String(fields.text || '').trim()) {
+      errs.push({ field: 'q-text', message: 'Enter the question text.' });
+    }
+    if (!fields.experimentId) {
+      errs.push({ field: 'q-exp', message: 'Choose the experiment this question belongs to.' });
+    }
+    var pts = Number(fields.points);
+    if (blank(fields.points) || isNaN(pts) || !(pts >= 1) || Math.round(pts) !== pts || pts > 100) {
+      errs.push({ field: 'q-points', message: 'Marks must be a whole number between 1 and 100.' });
+    }
+    if (type === 'mcq') {
+      var shape = mcqShape(fields);
+      if (shape.options.length < 2) {
+        errs.push({ field: 'q-opt-0', message: 'A multiple-choice question needs at least two options.' });
+      }
+      if (shape.answer === -1) {
+        errs.push({ field: 'q-answer', message: shape.options.length && shape.rawAns >= 0
+          ? 'The option you marked as correct is empty. Fill it in, or mark a different option.'
+          : 'Choose which option is the correct answer.' });
+      }
+    }
+    /* The error field id must be the fieldset the control actually lives
+       in. `q-answer` is the MCQ option list; the True/False choice lives
+       in `q-tf`, and an error aimed at a hidden fieldset is an error
+       nobody ever sees. */
+    if (type === 'tf' && fields.answer !== true && fields.answer !== false) {
+      errs.push({ field: 'q-tf', message: 'Choose whether the statement is true or false.' });
+    }
+    return errs;
+  }
+
+  /* An MCQ form always renders a fixed number of option rows, so blank
+     rows are normal. Dropping them AFTER reading the chosen index would
+     silently move the answer key onto a different option, which is the
+     one bug in a question editor a Student would eventually feel. The
+     index is therefore re-mapped onto the kept options here, once, and
+     both validation and the writer use the same mapping. */
+  function mcqShape(fields) {
+    var raw = (fields.options || []).map(function (o) { return String(o || '').trim(); });
+    var keep = [];
+    raw.forEach(function (o, i) { if (o !== '') { keep.push(i); } });
+    var rawAns = Number(fields.answer);
+    return {
+      options: keep.map(function (i) { return raw[i]; }),
+      answer: keep.indexOf(rawAns),
+      rawAns: isNaN(rawAns) ? -1 : rawAns
+    };
+  }
+
+  function normaliseQuestionFields(fields) {
+    var type = fields.type;
+    var shape = type === 'mcq' ? mcqShape(fields) : null;
+    var opts = shape ? shape.options : [];
+    var answer = null;
+    if (type === 'mcq') { answer = shape.answer; }
+    else if (type === 'tf') { answer = fields.answer === true; }
+    return {
+      type: type,
+      text: String(fields.text || '').trim(),
+      options: opts,
+      answer: answer,
+      points: Number(fields.points) || 1,
+      explanation: String(fields.explanation || '').trim(),
+      guidance: String(fields.guidance || '').trim(),
+      experimentId: fields.experimentId
+    };
+  }
+
+  function addQuestion(tenantId, fields, facultyPersonId) {
+    var errs = validateQuestion(fields);
+    if (errs.length) { return { ok: false, errors: errs, question: null }; }
+    var f = normaliseQuestionFields(fields);
+    var ctx = data.contextOf(f.experimentId);
+    var now = new Date().toISOString();
+    S.seq.question += 1;
+    var rec = {
+      id: 'QB-' + util.pad3(S.seq.question),
+      tenantId: tenantId,
+      courseId: ctx && ctx.course ? ctx.course.id : '',
+      experimentId: f.experimentId,
+      type: f.type, text: f.text, options: f.options, answer: f.answer,
+      points: f.points, explanation: f.explanation, guidance: f.guidance,
+      status: 'active',
+      origin: fields.origin === 'ai' ? 'ai' : 'manual',
+      revision: 1,
+      createdBy: facultyPersonId || null,
+      createdAt: now, updatedAt: now, deletedAt: null
+    };
+    S.questions.push(rec);
+    save();
+    return { ok: true, errors: [], question: rec };
+  }
+
+  /* EDIT changes the BANK ITEM only.
+     It deliberately does NOT reach into an assessment that already
+     contains a copy of this question, and it can never reach a
+     submitted attempt: the attempt carries its own snapshot. The
+     assessment builder is told the bank item moved on and offers an
+     explicit "update from the Question Bank" action per question, so
+     the change is applied by a decision rather than by a side effect
+     (ND-15: never change what sits under a live assessment silently). */
+  function updateQuestion(id, fields) {
+    var q = activeQuestion(id);
+    if (!q) { return { ok: false, errors: [{ field: 'q-text', message: 'This question no longer exists.' }], question: null }; }
+    var merged = {
+      type: fields.type || q.type,
+      text: fields.text, options: fields.options, answer: fields.answer,
+      points: fields.points, explanation: fields.explanation, guidance: fields.guidance,
+      experimentId: fields.experimentId || q.experimentId
+    };
+    var errs = validateQuestion(merged);
+    if (errs.length) { return { ok: false, errors: errs, question: null }; }
+    var f = normaliseQuestionFields(merged);
+    var ctx = data.contextOf(f.experimentId);
+    q.type = f.type; q.text = f.text; q.options = f.options; q.answer = f.answer;
+    q.points = f.points; q.explanation = f.explanation; q.guidance = f.guidance;
+    q.experimentId = f.experimentId;
+    q.courseId = ctx && ctx.course ? ctx.course.id : '';
+    q.revision += 1;
+    q.updatedAt = new Date().toISOString();
+    save();
+    return { ok: true, errors: [], question: q };
+  }
+
+  /* Where a Question Bank item is currently used — shown BEFORE
+     deleting, so the consequence is stated rather than discovered. */
+  function questionUsage(id) {
+    var out = { assessments: [], attempts: 0 };
+    S.assessmentDefs.forEach(function (d) {
+      if (d.status !== 'active') { return; }
+      if (d.questions.some(function (q) { return q.bankQuestionId === id; })) { out.assessments.push(d); }
+    });
+    S.attempts.forEach(function (a) {
+      if (!a.snapshot) { return; }
+      if (a.snapshot.questions.some(function (q) { return q.bankQuestionId === id; })) { out.attempts += 1; }
+    });
+    return out;
+  }
+
+  function deleteQuestion(id) {
+    var q = activeQuestion(id);
+    if (!q) { return false; }
+    q.status = 'deleted';
+    q.deletedAt = new Date().toISOString();
+    save();
+    return true;
+  }
+
+  /* ============================================================
+     ASSESSMENT DEFINITIONS — Faculty-owned, one per Experiment.
+
+     `data.ASSESSMENTS` is a SEED SOURCE, not a runtime source. Both the
+     Faculty workspace and the Student workspace read the definition
+     below, so there is exactly one assessment and the two roles cannot
+     drift apart.
+     ============================================================ */
+
+  function assessmentDefById(id) {
+    return S.assessmentDefs.filter(function (d) { return d.id === id; })[0] || null;
+  }
+  function assessmentForTenant(tenantId, experimentId) {
+    return S.assessmentDefs.filter(function (d) {
+      return d.tenantId === tenantId && d.experimentId === experimentId && d.status === 'active';
+    })[0] || null;
+  }
+  function assessmentForStudent(personId, experimentId) {
+    var p = personById(personId);
+    if (!p) { return null; }
+    return assessmentForTenant(p.tenantId, experimentId);
+  }
+  function assessmentDefsForTenant(tenantId) {
+    return S.assessmentDefs.filter(function (d) { return d.tenantId === tenantId && d.status === 'active'; });
+  }
+
+  /* The attempt's own copy always wins. A definition is consulted only
+     for an attempt written before snapshots existed AND whose migration
+     could not find a source — which the migration above makes
+     unreachable in practice, and which is handled rather than crashing
+     if it ever is. */
+  function attemptAssessment(attempt) {
+    if (!attempt) { return null; }
+    if (attempt.snapshot) { return attempt.snapshot; }
+    var d = assessmentDefById(attempt.assessmentId);
+    if (d) { return snapshotOfDefinition(d); }
+    return assessmentForStudent(attempt.personId, attempt.experimentId);
+  }
+  function snapshotOfDefinition(def) {
+    return {
+      assessmentId: def.id,
+      revision: def.revision || 1,
+      title: def.title,
+      intro: def.intro,
+      passMark: def.passMark,
+      attemptLimit: def.attemptLimit,
+      /* The visibility policy is deliberately NOT frozen here — see
+         `releaseFor` below. */
+      questions: (def.questions || []).map(function (q) {
+        return {
+          id: q.id, bankQuestionId: q.bankQuestionId || null,
+          type: q.type, text: q.text,
+          options: (q.options || []).slice(),
+          answer: q.answer,
+          points: q.points || 1,
+          explanation: q.explanation || '',
+          guidance: q.guidance || ''
+        };
+      })
+    };
+  }
+
+  /* ---------- WHICH VALUES ARE HISTORICAL AND WHICH ARE LIVE ----------
+     A JUDGEMENT CALL, recorded in the README.
+
+     HISTORICAL (from the attempt snapshot): the questions, the options,
+     the answer key, the marks and the pass mark. These decided a result
+     that has already been given. Re-scoring a submitted attempt because
+     Faculty later reworded a question or moved the pass mark would
+     rewrite a Student's history, and no source asks for a regrade.
+
+     LIVE (from the current definition): the answer / explanation
+     VISIBILITY POLICY, and the attempt limit. Both are Faculty
+     decisions about what happens NEXT, and §19 requires the Faculty
+     control to drive the same Student result engine — a policy change
+     that could not reach an existing result would not be that control
+     at all. */
+  function releaseFor(attempt) {
+    var live = assessmentForStudent(attempt.personId, attempt.experimentId);
+    if (live) { return assessmentRelease(live); }
+    return assessmentRelease(attemptAssessment(attempt));
+  }
+
+  /* ---------- READINESS IS DERIVED, NEVER STORED ----------
+     Batch 02 derived an assessment's status from its content and its
+     configuration rather than storing a lifecycle column, and the
+     31 Aug review changed nothing about that. The same three-part
+     completeness model is kept here, and it is the ONLY thing the
+     builder rail and the list badge read.
+
+     ⚠ No publish, approve, release or activate step exists or may be
+     added: an assessment is usable exactly when it has questions and a
+     complete configuration. */
+  function assessmentReadiness(def) {
+    var out = {
+      hasQuestions: false, settingsComplete: false, contextBound: false,
+      ready: false, label: 'Draft', missing: []
+    };
+    if (!def) { return out; }
+    out.hasQuestions = (def.questions || []).length > 0;
+    if (!out.hasQuestions) { out.missing.push('no questions have been selected'); }
+
+    var pol = def.policy || {};
+    var policyOk = pol.mode === 'SHOW_IMMEDIATELY' ||
+      (pol.mode === 'AFTER_DEADLINE' && !!def.deadline) ||
+      (pol.mode === 'CUSTOM_DATE' && !!pol.date);
+    var settingsOk = !!String(def.title || '').replace(/^\s+|\s+$/g, '') &&
+      typeof def.passMark === 'number' && def.passMark >= 0 && def.passMark <= 100 &&
+      typeof def.attemptLimit === 'number' && def.attemptLimit >= 1 &&
+      policyOk;
+    out.settingsComplete = settingsOk;
+    if (!settingsOk) {
+      out.missing.push(policyOk
+        ? 'the settings are incomplete'
+        : 'the answer visibility policy has no date to release on');
+    }
+    out.contextBound = !!data.contextOf(def.experimentId);
+    if (!out.contextBound) { out.missing.push('it is not bound to an experiment'); }
+
+    out.ready = out.hasQuestions && out.settingsComplete && out.contextBound;
+    out.label = out.ready ? 'Ready for students'
+      : (out.hasQuestions || out.settingsComplete) ? 'Incomplete' : 'Draft';
+    return out;
+  }
+
+  function assessmentTotals(asm) {
+    var out = { objective: 0, descriptive: 0, total: 0, count: 0, mcq: 0, tf: 0, desc: 0 };
+    if (!asm) { return out; }
+    (asm.questions || []).forEach(function (q) {
+      var pts = q.points || 1;
+      out.count += 1;
+      out.total += pts;
+      if (q.type === 'descriptive') { out.descriptive += pts; out.desc += 1; }
+      else { out.objective += pts; if (q.type === 'mcq') { out.mcq += 1; } else { out.tf += 1; } }
+    });
+    return out;
+  }
+
+  /* Submitted attempts against an Experiment's assessment. This is the
+     number that makes an edit a REVISION rather than a plain save. */
+  function assessmentAttemptStats(tenantId, experimentId) {
+    var subs = 0, open = 0;
+    S.attempts.forEach(function (a) {
+      if (a.tenantId !== tenantId || a.experimentId !== experimentId) { return; }
+      if (a.status === ATTEMPT_STATUS.SUBMITTED) { subs += 1; }
+      else { open += 1; }
+    });
+    return { submitted: subs, inProgress: open };
+  }
+
+  /* `Number('')` is 0, and 0 is a legal pass mark — so an EMPTY field would
+     have validated as "pass at 0%", which every attempt passes. A blank
+     numeric field is refused explicitly rather than coerced. */
+  function blank(value) {
+    return value === '' || value === null || value === undefined;
+  }
+
+  function validateAssessmentSettings(fields) {
+    var errs = [];
+    if (!String(fields.title || '').trim()) {
+      errs.push({ field: 'as-title', message: 'Enter a name for the assessment.' });
+    }
+    var pass = Number(fields.passMark);
+    if (blank(fields.passMark) || isNaN(pass) || !(pass >= 0) || !(pass <= 100) || Math.round(pass) !== pass) {
+      errs.push({ field: 'as-pass', message: 'Enter a pass mark — a whole number between 0 and 100.' });
+    }
+    var lim = Number(fields.attemptLimit);
+    if (blank(fields.attemptLimit) || isNaN(lim) || !(lim >= 1) || !(lim <= 20) || Math.round(lim) !== lim) {
+      errs.push({ field: 'as-limit', message: 'Enter how many attempts are allowed — a whole number between 1 and 20.' });
+    }
+    if (!data.POLICY_MODES[fields.policyMode]) {
+      errs.push({ field: 'as-policy', message: 'Choose when answers and explanations become visible.' });
+    }
+    if (fields.policyMode === 'AFTER_DEADLINE' && !fields.deadline) {
+      errs.push({ field: 'as-deadline', message: 'Set the assessment deadline that answers are released after.' });
+    }
+    if (fields.policyMode === 'CUSTOM_DATE' && !fields.customDate) {
+      errs.push({ field: 'as-date', message: 'Set the date answers and explanations become visible.' });
+    }
+    if (fields.deadline && isNaN(new Date(fields.deadline).getTime())) {
+      errs.push({ field: 'as-deadline', message: 'Enter a valid deadline date.' });
+    }
+    if (fields.customDate && isNaN(new Date(fields.customDate).getTime())) {
+      errs.push({ field: 'as-date', message: 'Enter a valid release date.' });
+    }
+    return errs;
+  }
+
+  /* End-of-day, so a deadline of "today" has not already passed. */
+  function endOfDay(dateStr) {
+    if (!dateStr) { return null; }
+    var d = new Date(dateStr + 'T23:59:59');
+    if (isNaN(d.getTime())) {
+      d = new Date(dateStr);
+      if (isNaN(d.getTime())) { return null; }
+    }
+    return d.toISOString();
+  }
+
+  function applySettings(def, fields) {
+    def.title = String(fields.title || '').trim();
+    def.intro = String(fields.intro || '').trim();
+    def.passMark = Number(fields.passMark);
+    def.attemptLimit = Number(fields.attemptLimit);
+    def.deadline = fields.deadline ? endOfDay(fields.deadline) : null;
+    def.policy = fields.policyMode === 'CUSTOM_DATE'
+      ? { mode: 'CUSTOM_DATE', date: endOfDay(fields.customDate) }
+      : { mode: fields.policyMode };
+  }
+
+  function createAssessment(tenantId, experimentId, facultyPersonId, fields) {
+    if (assessmentForTenant(tenantId, experimentId)) {
+      return { ok: false, errors: [{ field: 'as-title', message: 'This experiment already has an assessment.' }], def: null };
+    }
+    var errs = validateAssessmentSettings(fields);
+    if (errs.length) { return { ok: false, errors: errs, def: null }; }
+    var now = new Date().toISOString();
+    S.seq.assessmentDef += 1;
+    var def = {
+      id: 'ADEF-' + util.pad3(S.seq.assessmentDef),
+      tenantId: tenantId, experimentId: experimentId,
+      title: '', intro: '', passMark: 60, attemptLimit: 3,
+      deadline: null, policy: { mode: 'SHOW_IMMEDIATELY' },
+      questions: [],
+      status: 'active', revision: 1, origin: 'faculty', derivedFrom: null,
+      createdBy: facultyPersonId || null, updatedBy: facultyPersonId || null,
+      createdAt: now, updatedAt: now, revisedAt: null
+    };
+    applySettings(def, fields);
+    S.assessmentDefs.push(def);
+    save();
+    return { ok: true, errors: [], def: def };
+  }
+
+  function updateAssessmentSettings(defId, fields, facultyPersonId) {
+    var def = assessmentDefById(defId);
+    if (!def || def.status !== 'active') {
+      return { ok: false, errors: [{ field: 'as-title', message: 'This assessment no longer exists.' }], def: null };
+    }
+    var errs = validateAssessmentSettings(fields);
+    if (errs.length) { return { ok: false, errors: errs, def: null }; }
+    applySettings(def, fields);
+    def.updatedBy = facultyPersonId || null;
+    def.updatedAt = new Date().toISOString();
+    save();
+    return { ok: true, errors: [], def: def };
+  }
+
+  /* ---------- STRUCTURAL CHANGE = A NEW REVISION (brief §39) ----------
+     Adding, removing, reordering or refreshing a question changes what
+     a future attempt will be answering. Once submitted attempts exist,
+     that is a NEW REVISION of the assessment: the revision number
+     advances and the change applies to attempts started from now on.
+     Every submitted attempt keeps the snapshot it was taken against, so
+     no history is invalidated and no version-management UI is needed. */
+  function bumpRevision(def, facultyPersonId) {
+    var stats = assessmentAttemptStats(def.tenantId, def.experimentId);
+    def.updatedBy = facultyPersonId || null;
+    def.updatedAt = new Date().toISOString();
+    if (stats.submitted > 0) {
+      def.revision = (def.revision || 1) + 1;
+      def.revisedAt = def.updatedAt;
+      return true;
+    }
+    return false;
+  }
+
+  function addQuestionsToAssessment(defId, bankIds, facultyPersonId) {
+    var def = assessmentDefById(defId);
+    if (!def || def.status !== 'active') { return { ok: false, added: 0, revised: false }; }
+    var present = {};
+    def.questions.forEach(function (q) { if (q.bankQuestionId) { present[q.bankQuestionId] = true; } });
+    var added = 0;
+    (bankIds || []).forEach(function (id) {
+      if (present[id]) { return; }
+      var bank = activeQuestion(id);
+      if (!bank || bank.tenantId !== def.tenantId) { return; }
+      def.questions.push(copyBankQuestion(bank));
+      present[id] = true;
+      added += 1;
+    });
+    if (!added) { return { ok: false, added: 0, revised: false }; }
+    var revised = bumpRevision(def, facultyPersonId);
+    save();
+    return { ok: true, added: added, revised: revised };
+  }
+
+  /* REMOVE FROM THIS ASSESSMENT — a different action from Delete from
+     the Question Bank (brief §17). The bank item is untouched. */
+  function removeQuestionFromAssessment(defId, questionId, facultyPersonId) {
+    var def = assessmentDefById(defId);
+    if (!def || def.status !== 'active') { return { ok: false, revised: false }; }
+    var before = def.questions.length;
+    def.questions = def.questions.filter(function (q) { return q.id !== questionId; });
+    if (def.questions.length === before) { return { ok: false, revised: false }; }
+    var revised = bumpRevision(def, facultyPersonId);
+    save();
+    return { ok: true, revised: revised };
+  }
+
+  function moveAssessmentQuestion(defId, questionId, direction, facultyPersonId) {
+    var def = assessmentDefById(defId);
+    if (!def || def.status !== 'active') { return { ok: false, revised: false }; }
+    var idx = -1;
+    def.questions.forEach(function (q, i) { if (q.id === questionId) { idx = i; } });
+    var to = idx + (direction === 'up' ? -1 : 1);
+    if (idx === -1 || to < 0 || to >= def.questions.length) { return { ok: false, revised: false }; }
+    var moved = def.questions.splice(idx, 1)[0];
+    def.questions.splice(to, 0, moved);
+    var revised = bumpRevision(def, facultyPersonId);
+    save();
+    return { ok: true, revised: revised };
+  }
+
+  /* Whether an assessment's copy of a question has fallen behind the
+     Question Bank item it came from, or whether that item has been
+     deleted. Reported, never applied automatically. */
+  function assessmentQuestionLink(q) {
+    if (!q.bankQuestionId) { return { linked: false, state: 'unlinked' }; }
+    var bank = questionById(q.bankQuestionId);
+    if (!bank) { return { linked: false, state: 'unlinked' }; }
+    if (bank.status !== 'active') { return { linked: true, bank: bank, state: 'deleted' }; }
+    if ((bank.revision || 1) !== (q.bankRevision || 1)) { return { linked: true, bank: bank, state: 'updated' }; }
+    return { linked: true, bank: bank, state: 'current' };
+  }
+  function refreshAssessmentQuestion(defId, questionId, facultyPersonId) {
+    var def = assessmentDefById(defId);
+    if (!def || def.status !== 'active') { return { ok: false, revised: false }; }
+    var target = def.questions.filter(function (q) { return q.id === questionId; })[0];
+    if (!target) { return { ok: false, revised: false }; }
+    var link = assessmentQuestionLink(target);
+    if (link.state !== 'updated') { return { ok: false, revised: false }; }
+    var bank = link.bank;
+    target.type = bank.type;
+    target.text = bank.text;
+    target.options = (bank.options || []).slice();
+    target.answer = bank.answer;
+    target.points = bank.points || 1;
+    target.explanation = bank.explanation || '';
+    target.guidance = bank.guidance || '';
+    target.bankRevision = bank.revision;
+    var revised = bumpRevision(def, facultyPersonId);
+    save();
+    return { ok: true, revised: revised };
+  }
+
+  /* ============================================================
+     DESCRIPTIVE REVIEW — FACULTY IS THE ONLY HUMAN EVALUATOR
+     (STK31-31).
+
+     No other role can reach these functions, and nothing here
+     finalises a review on its own. An assistance suggestion is a
+     suggestion: `finaliseReview` is the ONLY writer of an evaluated
+     result, and only a Faculty member calls it.
+     ============================================================ */
+
+  function reviewById(id) {
+    return S.reviews.filter(function (r) { return r.id === id; })[0] || null;
+  }
+  function reviewsForAttempt(attemptId) {
+    return S.reviews.filter(function (r) { return r.attemptId === attemptId; });
+  }
+  function attemptReviewState(attemptId) {
+    var revs = reviewsForAttempt(attemptId);
+    var done = revs.filter(function (r) { return r.status === 'completed'; }).length;
+    return { total: revs.length, completed: done, pending: revs.length - done };
+  }
+  /* The queue, bounded by the Faculty content boundary. A review for an
+     Experiment this Faculty member is not mapped to is not in their
+     queue and cannot be opened by them (brief §24). */
+  function reviewsForFaculty(personId, opts) {
+    opts = opts || {};
+    var p = personById(personId);
+    if (!p || p.role !== 'faculty') { return []; }
+    var allowed = facultyExperimentIds(personId);
+    return S.reviews.filter(function (r) {
+      if (r.tenantId !== p.tenantId) { return false; }
+      if (allowed.indexOf(r.experimentId) === -1) { return false; }
+      /* A review only exists for a real submitted attempt. */
+      var att = attemptById(r.attemptId);
+      if (!att || att.status !== ATTEMPT_STATUS.SUBMITTED) { return false; }
+      if (opts.experimentId && r.experimentId !== opts.experimentId) { return false; }
+      if (opts.status && r.status !== opts.status) { return false; }
+      return true;
+    }).sort(function (a, b) {
+      /* Oldest waiting first — the only ordering the data supports. */
+      if (a.status !== b.status) { return a.status === 'pending' ? -1 : 1; }
+      return (a.createdAt || '') < (b.createdAt || '') ? -1 : 1;
+    });
+  }
+  function facultyCanReview(personId, review) {
+    var p = personById(personId);
+    if (!p || p.role !== 'faculty' || !review) { return false; }
+    if (review.tenantId !== p.tenantId) { return false; }
+    return facultyCanManage(personId, review.experimentId);
+  }
+  function reviewQuestion(review) {
+    var att = attemptById(review.attemptId);
+    var asm = attemptAssessment(att);
+    if (!asm) { return null; }
+    return asm.questions.filter(function (q) { return q.id === review.questionId; })[0] || null;
+  }
+  function reviewAnswer(review) {
+    var att = attemptById(review.attemptId);
+    if (!att) { return ''; }
+    var v = att.answers[review.questionId];
+    return (v === undefined || v === null) ? '' : String(v);
+  }
+
+  /* AI-ASSISTED SUGGESTION — prototype, local, deterministic.
+     It writes a SUGGESTION onto the review record and nothing else. The
+     review stays `pending`, the attempt keeps its pending outcome, and
+     the Student sees no change. Only `finaliseReview` produces a
+     result. */
+  function generateReviewAssistance(reviewId) {
+    var r = reviewById(reviewId);
+    if (!r || r.status !== 'pending') { return null; }
+    var q = reviewQuestion(r);
+    var suggestion = XRSLP.assist.reviewSuggestion({
+      answer: reviewAnswer(r),
+      maxMarks: r.maxMarks,
+      question: q
+    });
+    r.assistance = {
+      suggestedMarks: suggestion.marks,
+      suggestedFeedback: suggestion.feedback,
+      /* The short, Faculty-facing observations the figure came from.
+         Earlier builds also stored a long `rationale` paragraph; that
+         account of what ND-09 leaves unspecified is documentation, not
+         product copy, and is no longer written or read. A record saved
+         by such a build keeps its extra field harmlessly — the screen
+         reads `reasons` and falls back to the old `signals`. */
+      reasons: suggestion.reasons,
+      generatedAt: new Date().toISOString(),
+      accepted: false
+    };
+    /* PERSISTED ON PURPOSE, and only as DATA. `accepted` is stamped by
+       `finaliseReview`, so a completed review can always say whether a
+       suggestion was used — that audit trail has to outlive the tab.
+       Whether the suggestion PANEL is on screen is a separate, purely
+       transient thing the review screen owns; it is deliberately not
+       stored here, so a reload cannot reopen a panel nobody asked for. */
+    save();
+    return r.assistance;
+  }
+
+  /* THE ONE WRITER OF AN EVALUATED DESCRIPTIVE RESULT. */
+  function finaliseReview(reviewId, marks, feedback, facultyPersonId, usedAssistance) {
+    var r = reviewById(reviewId);
+    if (!r) { return { ok: false, errors: [{ field: 'rv-marks', message: 'This response no longer exists.' }] }; }
+    if (r.status === 'completed') {
+      return { ok: false, errors: [{ field: 'rv-marks', message: 'This response has already been reviewed.' }] };
+    }
+    if (!facultyCanReview(facultyPersonId, r)) {
+      return { ok: false, errors: [{ field: 'rv-marks', message: 'This response is outside your mapped content.' }] };
+    }
+    var errs = [];
+    var m = Number(marks);
+    if (marks === '' || marks === null || marks === undefined || isNaN(m)) {
+      errs.push({ field: 'rv-marks', message: 'Enter the marks awarded.' });
+    } else if (m < 0) {
+      errs.push({ field: 'rv-marks', message: 'Marks cannot be negative.' });
+    } else if (m > r.maxMarks) {
+      errs.push({ field: 'rv-marks', message: 'Marks cannot be more than the maximum of ' + r.maxMarks + '.' });
+    } else if (Math.round(m * 2) !== m * 2) {
+      errs.push({ field: 'rv-marks', message: 'Enter whole or half marks.' });
+    }
+    if (errs.length) { return { ok: false, errors: errs }; }
+    r.status = 'completed';
+    r.marks = m;
+    r.feedback = String(feedback || '').trim();
+    r.reviewedBy = facultyPersonId;
+    r.reviewedAt = new Date().toISOString();
+    if (r.assistance) { r.assistance.accepted = !!usedAssistance; }
+    /* The Student result engine recomputes from the marks that now
+       exist. Nothing is duplicated into a Faculty-only result. */
+    var att = attemptById(r.attemptId);
+    if (att) { recomputeAttempt(att); }
+    save();
+    return { ok: true, errors: [], review: r };
+  }
+
+  /* ============================================================
+     FACULTY ANALYTICS — every figure derived from real records.
+
+     Each number below states its own numerator and denominator, and no
+     composite index, score, rank or prediction exists anywhere
+     (PM-11 / STK31-29).
+
+     ⚠ `completed` inherits the PROTOTYPE-DERIVED COMPLETION RULE from
+     `experimentProgress`. It is not a stakeholder-confirmed academic
+     completion policy, and every surface that shows it says so.
+     ============================================================ */
+  function facultyExperimentStats(personId, experimentId) {
+    var reach = facultyStudentReach(personId, experimentId);
+    var p = personById(personId);
+    var tenantId = p ? p.tenantId : null;
+    var out = {
+      experimentId: experimentId,
+      reach: reach.length,
+      notStarted: 0, inProgress: 0, awaitingReview: 0, completed: 0,
+      technologies: {},
+      assessment: assessmentForTenant(tenantId, experimentId),
+      submitted: 0, passed: 0, notPassed: 0, pendingReview: 0,
+      pendingReviewResponses: 0,
+      resourceTotal: data.resourcesFor(experimentId).length,
+      resourcesComplete: 0,
+      rows: []
+    };
+    reach.forEach(function (pid) {
+      var techs = studentEntitledTechnologies(pid, experimentId);
+      var prog = experimentProgress(pid, experimentId, techs);
+      out.rows.push({ personId: pid, technologies: techs, progress: prog });
+      if (prog.status === TECH_PROGRESS.COMPLETED) { out.completed += 1; }
+      else if (prog.status === TECH_PROGRESS.PENDING_REVIEW) { out.awaitingReview += 1; }
+      else if (prog.status === TECH_PROGRESS.IN_PROGRESS) { out.inProgress += 1; }
+      else { out.notStarted += 1; }
+
+      var res = resourceProgress(pid, experimentId);
+      if (res.total > 0 && res.completed === res.total) { out.resourcesComplete += 1; }
+
+      /* TECHNOLOGY FIGURES STAY TECHNOLOGY-SPECIFIC (brief §35). Only
+         SimulationActivity contributes: an Experiment-level assessment
+         submission must never make a technology look started. */
+      techs.forEach(function (t) {
+        if (!out.technologies[t]) { out.technologies[t] = { entitled: 0, started: 0, completed: 0 }; }
+        out.technologies[t].entitled += 1;
+        var st = simulationStatus(pid, experimentId, t);
+        if (st === SIM_STATUS.IN_PROGRESS || st === SIM_STATUS.COMPLETED) { out.technologies[t].started += 1; }
+        if (st === SIM_STATUS.COMPLETED) { out.technologies[t].completed += 1; }
+      });
+
+      var last = latestSubmittedAttempt(pid, experimentId);
+      if (last) {
+        out.submitted += 1;
+        if (last.outcome === OUTCOME.PASSED) { out.passed += 1; }
+        else if (last.outcome === OUTCOME.NOT_PASSED) { out.notPassed += 1; }
+        else { out.pendingReview += 1; }
+      }
+    });
+    out.pendingReviewResponses = reviewsForFaculty(personId, {
+      experimentId: experimentId, status: 'pending'
+    }).length;
+    return out;
+  }
+
+  function facultyOverview(personId) {
+    var scope = facultyScope(personId);
+    var out = {
+      scope: scope,
+      courses: scope.courseIds.length,
+      experiments: scope.experiments.length,
+      assessments: 0,
+      experimentsWithoutAssessment: [],
+      assessmentsWithoutQuestions: [],
+      students: facultyStudentIds(personId).length,
+      pendingReviews: reviewsForFaculty(personId, { status: 'pending' }).length,
+      notStarted: 0, inProgress: 0, awaitingReview: 0, completed: 0,
+      submitted: 0,
+      stats: []
+    };
+    var p = personById(personId);
+    scope.experiments.forEach(function (row) {
+      var st = facultyExperimentStats(personId, row.experimentId);
+      out.stats.push(st);
+      var def = p ? assessmentForTenant(p.tenantId, row.experimentId) : null;
+      if (def) {
+        out.assessments += 1;
+        if (!def.questions.length) { out.assessmentsWithoutQuestions.push(def); }
+      } else {
+        out.experimentsWithoutAssessment.push(row.experimentId);
+      }
+      out.notStarted += st.notStarted;
+      out.inProgress += st.inProgress;
+      out.awaitingReview += st.awaitingReview;
+      out.completed += st.completed;
+      out.submitted += st.submitted;
     });
     return out;
   }
@@ -2144,9 +3484,47 @@ XRSLP.state = (function () {
     assessmentRelease: assessmentRelease, assessmentState: assessmentState,
 
     technologyProgress: technologyProgress, experimentProgress: experimentProgress,
+    resultWithheld: resultWithheld, scoreWithheld: scoreWithheld,
     lastActivityAt: lastActivityAt, hasActivity: hasActivity,
     studentPastExperiments: studentPastExperiments,
     technologiesWithActivity: technologiesWithActivity,
-    studentProgressSummary: studentProgressSummary
+    studentProgressSummary: studentProgressSummary,
+
+    /* ---- Implementation 04 — Faculty ---- */
+    QUESTION_TYPES: QUESTION_TYPES, REVIEW_MODE: REVIEW_MODE,
+
+    protoFacultyId: protoFacultyId, setProtoFaculty: setProtoFaculty, protoFaculty: protoFaculty,
+    facultyPref: facultyPref, setFacultyReviewMode: setFacultyReviewMode,
+
+    facultyScope: facultyScope, facultyExperimentIds: facultyExperimentIds,
+    facultyCanManage: facultyCanManage, facultyScopeRow: facultyScopeRow,
+    facultyStudentReach: facultyStudentReach, facultyStudentIds: facultyStudentIds,
+
+    questionById: questionById, activeQuestion: activeQuestion,
+    questionsForTenant: questionsForTenant, questionsForFaculty: questionsForFaculty,
+    validateQuestion: validateQuestion, addQuestion: addQuestion,
+    updateQuestion: updateQuestion, deleteQuestion: deleteQuestion,
+    questionUsage: questionUsage,
+
+    assessmentDefById: assessmentDefById, assessmentForTenant: assessmentForTenant,
+    assessmentForStudent: assessmentForStudent, assessmentDefsForTenant: assessmentDefsForTenant,
+    attemptAssessment: attemptAssessment, snapshotOfDefinition: snapshotOfDefinition,
+    releaseFor: releaseFor, assessmentTotals: assessmentTotals,
+    assessmentReadiness: assessmentReadiness,
+    assessmentAttemptStats: assessmentAttemptStats,
+    validateAssessmentSettings: validateAssessmentSettings,
+    createAssessment: createAssessment, updateAssessmentSettings: updateAssessmentSettings,
+    addQuestionsToAssessment: addQuestionsToAssessment,
+    removeQuestionFromAssessment: removeQuestionFromAssessment,
+    moveAssessmentQuestion: moveAssessmentQuestion,
+    assessmentQuestionLink: assessmentQuestionLink,
+    refreshAssessmentQuestion: refreshAssessmentQuestion,
+
+    reviewById: reviewById, reviewsForAttempt: reviewsForAttempt,
+    attemptReviewState: attemptReviewState, reviewsForFaculty: reviewsForFaculty,
+    facultyCanReview: facultyCanReview, reviewQuestion: reviewQuestion, reviewAnswer: reviewAnswer,
+    generateReviewAssistance: generateReviewAssistance, finaliseReview: finaliseReview,
+
+    facultyExperimentStats: facultyExperimentStats, facultyOverview: facultyOverview
   };
 })();

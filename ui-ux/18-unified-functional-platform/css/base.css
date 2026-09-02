@@ -15,7 +15,21 @@ button{font:inherit; cursor:pointer}
 a{color:var(--action)}
 [hidden]{display:none !important}   /* Stage-0 restoration — must win over component display rules */
 .tabular{font-variant-numeric:tabular-nums}
-.sr-only{position:absolute!important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0}
+/* Visually hidden, still in the accessibility tree.
+
+   The GEOMETRY carries !important for the same reason `position` already
+   did. A hidden control is still a real element, and a later, more
+   specific rule — `.field input[type=file]{width:100%; min-height:48px}`
+   in screens.css is exactly one — otherwise gives it a full-size layout
+   box. Absolutely positioned, that box still contributes to the
+   DOCUMENT'S scrollable area, which is how a hidden file input put a
+   horizontal scrollbar on the whole page. `clip` hides the paint; only
+   the geometry keeps it out of the scroll area, so min/max are pinned
+   too — `height:1px` alone loses to `min-height:48px`. */
+.sr-only{position:absolute!important; width:1px!important; height:1px!important;
+  min-width:0!important; min-height:0!important; max-width:1px!important; max-height:1px!important;
+  margin:-1px!important; padding:0!important; overflow:hidden!important; clip:rect(0 0 0 0);
+  white-space:nowrap; border:0!important}
 
 :focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:2px}
 ::selection{background:var(--indigo-100)}
