@@ -35,6 +35,23 @@
      · reviews[]        — DescriptiveReview (one per attempt + descriptive question)
      · facultyPrefs     — Faculty workflow preference (review assistance)
 
+     Implementation 05 — content production
+     · contentRecords[]        — THE CANONICAL EXPERIMENT POOL. One
+                                 truth: seeded from data.EXPERIMENTS as
+                                 EXISTING PUBLISHED CONTENT and then
+                                 owned by the production workflow. Every
+                                 catalogue lookup in data.js resolves
+                                 against the PUBLISHED subset of this.
+     · academicReviews[]       — every academic decision (approve /
+                                 changes requested), with the Learning
+                                 Outcomes as they stood at the decision
+     · publicationRecords[]    — FIRST PUBLICATION records
+     · contentActors[]         — prototype Vendor / Academic Reviewer /
+                                 Content Manager identities
+     · contentRoleAssignments[]— per-Course / per-Experiment role scope
+                                 (STK31-41), standing in for the Super
+                                 Admin governance UI of a later slice
+
    StudentEntitlement is DERIVED, never stored — the model
    `17_CONCEPTUAL_DATA_AND_STATE_MODEL.md` §4 requires
    (“DERIVED LEARNER ELIGIBILITY ← never stored”). Deriving it is
@@ -44,7 +61,10 @@
    still supports.
 
    ── THE THREE ALTITUDES (must never collapse) ────────────────
-        PUBLISHED            catalogue content (data.js)
+        PUBLISHED            contentRecords[] — Content Manager
+                             publishes (STK31-06). Publishing writes
+                             ONLY the content record: no access[] row,
+                             no licence change, no assignment.
              ≠
         TENANT ACCESS        access[]      — Super Admin allocates (STK31-24)
              ≠
@@ -68,7 +88,7 @@ XRSLP.state = (function () {
   var util = XRSLP.util;
 
   var STORAGE_KEY = 'xrslp-unified-v1';
-  var SCHEMA_VERSION = 5;
+  var SCHEMA_VERSION = 6;
 
   var STATUS = {
     DRAFT: 'DRAFT',
@@ -110,7 +130,13 @@ XRSLP.state = (function () {
       /* Implementation 04 — the Faculty records. */
       questions: [],
       assessmentDefs: [],
-      reviews: []
+      reviews: [],
+      /* Implementation 05 — the content production records. */
+      contentRecords: [],
+      academicReviews: [],
+      publicationRecords: [],
+      contentActors: [],
+      contentRoleAssignments: []
     };
   }
 
@@ -137,6 +163,20 @@ XRSLP.state = (function () {
       questions: [],
       assessmentDefs: [],
       reviews: [],
+      /* Implementation 05 — the canonical content pool and the
+         production chain that owns it. */
+      contentRecords: [],
+      academicReviews: [],
+      publicationRecords: [],
+      contentActors: [],
+      contentRoleAssignments: [],
+      /* Which REAL prototype content actor each of the three central
+         workspaces is currently being viewed as. Prototype-only; not
+         authentication, and choosing one grants nothing — scope still
+         comes from contentRoleAssignments[]. */
+      protoVendorId: null,
+      protoReviewerId: null,
+      protoManagerId: null,
       /* Faculty workflow preference, keyed by Faculty person id. NOT a
          role, NOT an evaluator: it only chooses whether the Faculty
          review screen offers the assistance affordance (STK31-31). */
@@ -159,10 +199,21 @@ XRSLP.state = (function () {
          allocation ordering must never depend on them. */
       seq: { request: 0, access: 0, person: 0, group: 0, membership: 0, mapping: 0, facultyMap: 0, assignment: 0, event: 0,
              resourceAct: 0, simAct: 0, attempt: 0,
-             question: 0, assessmentDef: 0, review: 0 }
+             question: 0, assessmentDef: 0, review: 0,
+             contentRec: 0, contentEvent: 0, actor: 0, roleAssign: 0, publication: 0 }
     };
-    seedTenantOperations(S0);
-    seedFacultyAuthoring(S0);
+    /* `contentSeeding` keeps the data.js published-pool resolver on the
+       SEED array while this function builds a NEW state object: the
+       resolver would otherwise read the OUTGOING state during a reset. */
+    contentSeeding = true;
+    try {
+      seedContent(S0);
+      seedTenantOperations(S0);
+      seedFacultyAuthoring(S0);
+    } finally {
+      contentSeeding = false;
+      pubCache = null;
+    }
     return S0;
   }
 
@@ -371,7 +422,8 @@ XRSLP.state = (function () {
     });
     if (!parsed.seq || typeof parsed.seq !== 'object') { parsed.seq = {}; }
     ['request', 'access', 'person', 'group', 'membership', 'mapping', 'facultyMap', 'assignment', 'event',
-     'resourceAct', 'simAct', 'attempt', 'question', 'assessmentDef', 'review']
+     'resourceAct', 'simAct', 'attempt', 'question', 'assessmentDef', 'review',
+     'contentRec', 'contentEvent', 'actor', 'roleAssign', 'publication']
       .forEach(function (k) {
         if (typeof parsed.seq[k] !== 'number') { parsed.seq[k] = 0; }
       });
@@ -424,6 +476,7 @@ XRSLP.state = (function () {
     if (!parsed.facultyPrefs || typeof parsed.facultyPrefs !== 'object') { parsed.facultyPrefs = {}; }
 
     migrateFacultyAuthoring(parsed, stored);
+    migrateContentProduction(parsed, stored);
 
     parsed.schemaVersion = SCHEMA_VERSION;
     delete parsed.version;
@@ -534,6 +587,1241 @@ XRSLP.state = (function () {
     });
   }
 
+
+  /* ============================================================
+     IMPLEMENTATION 05 — CONTENT PRODUCTION AND FIRST PUBLICATION
+
+     Vendor  →  Academic Reviewer  →  Content Manager  →  Published
+
+     ── THE TERMINOLOGY FIREWALL (STK31-06 / STK31-07) ───────────
+     FIRST PUBLICATION of a NEW Experiment  → Content Manager → the
+       word is PUBLISH. That is what this slice builds.
+     LATER VERSION of an ALREADY-PUBLISHED Experiment → Super Admin →
+       the words are RELEASE / HOLD. That is a DIFFERENT action on a
+       DIFFERENT object and is NOT built here. Neither word appears on
+       any first-publication surface.
+
+     ── AUTHORITY (STK31-08) ─────────────────────────────────────
+     Vendor            technical submission. CAN NEVER PUBLISH
+                       (FRD 1.4.5 — the only explicit role
+                       prohibition, and it covers internal BITS
+                       submitters too, STK31-03). Does NOT own
+                       Learning Outcomes.
+     Academic Reviewer academic validation + LEARNING OUTCOMES.
+                       Cannot publish.
+     Content Manager   Content Library + FIRST PUBLICATION + canonical
+                       content metadata. Cannot publish an item that
+                       carries no academic approval.
+
+     ── PUBLISHED ≠ TENANT ACCESS ≠ STUDENT ENTITLEMENT ──────────
+     Publishing writes ONE thing: the content record's status. It
+     creates no access[] row, touches no licence, creates no
+     assignment. The Implementation-01 request → approval → activation
+     lifecycle and the Implementation-02 assignment remain the only
+     ways content reaches a tenant and then a student.
+     ============================================================ */
+
+  /* The status set is Batch 01's shipped model (`U-VND-04` — KEEP +
+     REWORD), re-worded to the unified build's sentence case and to
+     PM-14's own verb ("request changes"). Batch 01's transient
+     `publishing` state is NOT carried: it animated a deployment this
+     prototype does not perform, and claiming one would be false.
+     Batch 01's own note records why there is no "ready to publish"
+     hand-off state — the Content Manager publishes AT the readiness
+     gate, so `CONTENT_REVIEW` is both "academically approved" and
+     "awaiting first publication". */
+  var CONTENT_STATUS = {
+    DRAFT:            'DRAFT',
+    ACADEMIC_REVIEW:  'ACADEMIC_REVIEW',
+    CHANGES_ACADEMIC: 'CHANGES_ACADEMIC',
+    CONTENT_REVIEW:   'CONTENT_REVIEW',
+    CHANGES_CONTENT:  'CHANGES_CONTENT',
+    PUBLISHED:        'PUBLISHED'
+  };
+
+  /* `holder` is who the item is WITH — the question every one of the
+     three workspaces asks first. Status is never carried by colour
+     alone: every badge has a text label and an icon. */
+  var CONTENT_STATUS_META = {
+    DRAFT:            { label: 'Draft',                     badge: 'b-neutral', icon: 'edit',   holder: 'vendor' },
+    ACADEMIC_REVIEW:  { label: 'Academic review',           badge: 'b-info',    icon: 'clock',  holder: 'reviewer' },
+    CHANGES_ACADEMIC: { label: 'Changes requested',         badge: 'b-warning', icon: 'alert',  holder: 'vendor' },
+    CONTENT_REVIEW:   { label: 'Content readiness review',  badge: 'b-info',    icon: 'layers', holder: 'manager' },
+    CHANGES_CONTENT:  { label: 'Changes requested',         badge: 'b-warning', icon: 'alert',  holder: 'vendor' },
+    PUBLISHED:        { label: 'Published',                 badge: 'b-success', icon: 'check',  holder: null }
+  };
+
+  var CONTENT_ROLE = { VENDOR: 'vendor', REVIEWER: 'reviewer', MANAGER: 'manager' };
+  var CONTENT_ROLE_LABEL = {
+    vendor: 'Vendor', reviewer: 'Academic Reviewer', manager: 'Content Manager'
+  };
+
+  /* A record the Vendor may still edit is one the workflow has handed
+     back to them. While an Academic Reviewer or the Content Manager
+     holds the submitted revision it is read-only for the Vendor, so
+     the revision under review cannot change underneath the reviewer.
+     A PUBLISHED record is read-only for the whole first-publication
+     workflow (a later version is Super Admin Release/Hold — not here). */
+  var VENDOR_EDITABLE = [CONTENT_STATUS.DRAFT, CONTENT_STATUS.CHANGES_ACADEMIC, CONTENT_STATUS.CHANGES_CONTENT];
+
+  /* ---------- prototype content actors and their scope ----------
+     STK31-41: Super Admin governs Vendor · Academic Reviewer · Content
+     Manager, and assignment may be Course- or Experiment-specific,
+     with several people permitted on one Experiment. That governance
+     UI is Implementation 06 (`U-SA-15`), so the assignments below are
+     PROTOTYPE SEED DATA standing in for it — read by the scope checks,
+     writable by nothing in this slice. Identities are the neutral
+     sample names the Batch 01 governance prototype already used; none
+     is a real person. */
+  var SEED_CONTENT_ACTORS = [
+    { key: 'v-rao',    role: 'vendor',   name: 'Ananya Rao',        organisation: 'Sample XR Content Vendor',
+      email: 'ananya.rao@sample-vendor.example' },
+    { key: 'v-menon',  role: 'vendor',   name: 'K. Menon',          organisation: 'Sample Labs Collective',
+      email: 'k.menon@sample-labs.example' },
+    { key: 'r-iyer',   role: 'reviewer', name: 'Dr. R. Iyer',       organisation: 'Academic review panel (sample)',
+      email: 'r.iyer@sample-academic.example' },
+    { key: 'r-nanda',  role: 'reviewer', name: 'Dr. S. Nandakumar', organisation: 'Academic review panel (sample)',
+      email: 's.nandakumar@sample-academic.example' },
+    { key: 'cm-kulk',  role: 'manager',  name: 'M. Kulkarni',       organisation: 'Platform content team (sample)',
+      email: 'm.kulkarni@sample-platform.example' }
+  ];
+
+  /* scope 'course' → the actor works on that canonical Course.
+     scope 'all'    → platform-wide. The Content Library is a
+                      platform-level surface (STK31-06), so the sample
+                      Content Manager holds the platform scope. */
+  var SEED_CONTENT_ASSIGNMENTS = [
+    { actorKey: 'v-rao',   role: 'vendor',   scope: 'course', courseId: 'soil-mechanics' },
+    { actorKey: 'v-rao',   role: 'vendor',   scope: 'course', courseId: 'surveying' },
+    { actorKey: 'v-rao',   role: 'vendor',   scope: 'course', courseId: 'structural-analysis' },
+    { actorKey: 'v-menon', role: 'vendor',   scope: 'course', courseId: 'strength-of-materials' },
+    { actorKey: 'v-menon', role: 'vendor',   scope: 'course', courseId: 'fluid-mechanics' },
+    { actorKey: 'r-iyer',  role: 'reviewer', scope: 'course', courseId: 'soil-mechanics' },
+    { actorKey: 'r-iyer',  role: 'reviewer', scope: 'course', courseId: 'surveying' },
+    { actorKey: 'r-iyer',  role: 'reviewer', scope: 'course', courseId: 'structural-analysis' },
+    { actorKey: 'r-nanda', role: 'reviewer', scope: 'course', courseId: 'strength-of-materials' },
+    { actorKey: 'r-nanda', role: 'reviewer', scope: 'course', courseId: 'fluid-mechanics' },
+    { actorKey: 'cm-kulk', role: 'manager',  scope: 'all',    courseId: null }
+  ];
+
+  /* ---------- content seed ---------- */
+
+  function blankDelivery() { return {}; }
+
+  function newContentRecord(fields) {
+    return {
+      id: fields.id,
+      courseId: fields.courseId || '',
+      name: fields.name || '',
+      summary: fields.summary || '',
+      description: fields.description || '',
+      /* Academically owned (STK31-08). A Vendor never writes this. */
+      outcomes: fields.outcomes ? fields.outcomes.slice() : [],
+      technologies: fields.technologies ? fields.technologies.slice() : [],
+      /* Per-technology delivery detail. AR/VR/MR carry package or
+         reference metadata; Web/WebGL carries a hosted link
+         (STK31-37). Nothing here is a real upload — see `packageFile`. */
+      delivery: fields.delivery || blankDelivery(),
+      documents: fields.documents ? fields.documents.slice() : [],
+      vendorNotes: fields.vendorNotes || '',
+      versionLabel: fields.versionLabel || '',
+      /* Batch 01's integer version: it counts CORRECTION ROUNDS on this
+         submission. It is NOT the Super-Admin ContentVersion of
+         STK31-07 — those are two different objects and this slice
+         builds only the first. */
+      revision: fields.revision || 1,
+      status: fields.status || CONTENT_STATUS.DRAFT,
+      origin: fields.origin || 'vendor',
+      createdBy: fields.createdBy || null,
+      createdAt: fields.createdAt || new Date().toISOString(),
+      updatedAt: fields.updatedAt || fields.createdAt || new Date().toISOString(),
+      submittedBy: fields.submittedBy || null,
+      submittedAt: fields.submittedAt || null,
+      returnedGate: fields.returnedGate || null,
+      resubmitted: !!fields.resubmitted,
+      academicReview: fields.academicReview || null,
+      publication: fields.publication || null,
+      history: fields.history || [],
+      eventSeq: fields.eventSeq || 0
+    };
+  }
+
+  /* Existing published catalogue content migrates as PUBLISHED content
+     with a publication record whose origin is `seed`. It is deliberately
+     NOT pushed through a fabricated Vendor → Reviewer → Manager history:
+     inventing one would put words in people's mouths. The origin is
+     implementation metadata; the user-facing line simply says the
+     content existed in the published catalogue before this workflow. */
+  function seedContentPool(S0) {
+    var stamp = S0.seededAt || new Date().toISOString();
+    data.EXPERIMENTS.forEach(function (e) {
+      S0.seq.contentRec += 1;
+      S0.seq.contentEvent += 1;
+      S0.seq.publication += 1;
+      var pubId = 'PUB-' + util.pad3(S0.seq.publication);
+      var rec = newContentRecord({
+        id: e.id,
+        courseId: e.courseId,
+        name: e.name,
+        summary: e.summary,
+        description: e.description,
+        outcomes: e.outcomes,
+        technologies: e.technologies,
+        delivery: seedDeliveryFor(e.technologies),
+        documents: [],
+        versionLabel: '1.0',
+        revision: 1,
+        status: CONTENT_STATUS.PUBLISHED,
+        origin: 'seed',
+        createdAt: stamp,
+        updatedAt: stamp
+      });
+      rec.eventSeq = S0.seq.contentEvent;
+      rec.publication = {
+        id: pubId,
+        recordId: rec.id,
+        publishedBy: null,
+        publishedByName: 'Existing published content (prototype seed)',
+        publishedAt: stamp,
+        versionLabel: '1.0',
+        revision: 1,
+        technologies: e.technologies.slice(),
+        outcomes: e.outcomes.slice(),
+        origin: 'seed'
+      };
+      rec.history = [{
+        seq: S0.seq.contentEvent, kind: 'seeded',
+        label: 'Existing published catalogue content',
+        actorName: null, actorRole: null, at: stamp,
+        note: 'Present in the published catalogue before the content production workflow was integrated.'
+      }];
+      S0.contentRecords.push(rec);
+      S0.publicationRecords.push(JSON.parse(JSON.stringify(rec.publication)));
+    });
+  }
+
+  /* Delivery detail for seeded published content: enough to describe
+     what each published technology is, without asserting a package that
+     was never produced. */
+  function seedDeliveryFor(techs) {
+    var out = {};
+    techs.forEach(function (t) {
+      var def = data.TECHNOLOGIES[t];
+      if (!def) { return; }
+      if (def.delivery === 'hosted') {
+        out[t] = { url: 'https://xr.example.edu/hosted/' + t, runtime: def.requirement, notes: '',
+                   packageLabel: '', packageRef: '', packageFile: null, install: '' };
+      } else {
+        out[t] = { url: '', runtime: def.requirement, notes: '',
+                   packageLabel: 'Existing published ' + def.label + ' package',
+                   packageRef: 'SEED-' + t.toUpperCase() + '-1.0', packageFile: null, install: '' };
+      }
+    });
+    return out;
+  }
+
+  /* A small in-flight pipeline so the three workspaces open on real
+     records rather than on nothing, and so the correction loop is
+     visible without first having to drive it. Every one of these is
+     UNPUBLISHED and must therefore be unreachable from the public
+     catalogue, tenant access, Faculty and Student. */
+  function seedContentPipeline(S0) {
+    var base = S0.seededAt || new Date().toISOString();
+    function ago(days) { return util.addDays(base, -days); }
+    function actorId(key) {
+      var a = S0.contentActors.filter(function (x) { return x.key === key; })[0];
+      return a ? a.id : null;
+    }
+    function actorName(key) {
+      var a = S0.contentActors.filter(function (x) { return x.key === key; })[0];
+      return a ? a.name : '';
+    }
+    function ev(rec, kind, label, key, role, at, note) {
+      S0.seq.contentEvent += 1;
+      rec.history.unshift({ seq: S0.seq.contentEvent, kind: kind, label: label,
+        actorName: key ? actorName(key) : null,
+        /* The same display label the runtime writer uses, so one timeline
+           never renders "vendor" beside "Vendor". */
+        actorRole: role ? (CONTENT_ROLE_LABEL[role] || role) : null,
+        at: at, note: note || '' });
+      rec.eventSeq = S0.seq.contentEvent;
+    }
+
+    var PIPELINE = [
+      {
+        courseId: 'soil-mechanics', vendor: 'v-rao', status: CONTENT_STATUS.DRAFT,
+        name: 'Permeability Test (sample draft)',
+        summary: 'Determine the coefficient of permeability of a soil sample using constant-head and falling-head arrangements.',
+        description: 'The learner sets up a permeameter, establishes steady flow and records head and discharge readings for both the constant-head and the falling-head arrangement, then computes the coefficient of permeability.',
+        technologies: ['vr', 'web'], versionLabel: '1.0',
+        vendorNotes: 'Sample draft submission. Falling-head arrangement is still being tuned.'
+      },
+      {
+        courseId: 'surveying', vendor: 'v-rao', status: CONTENT_STATUS.ACADEMIC_REVIEW,
+        name: 'Differential Levelling Exercise (sample)',
+        summary: 'Run a closed levelling circuit with an automatic level and reduce the readings by the rise-and-fall method.',
+        description: 'The learner sets up an automatic level, takes backsight, intermediate and foresight readings around a closed circuit, books them in a level field book and reduces the readings, closing the circuit within an acceptable misclosure.',
+        technologies: ['ar', 'web'], versionLabel: '1.0', submitDaysAgo: 3,
+        vendorNotes: 'AR target sheets are supplied with the package.'
+      },
+      {
+        courseId: 'structural-analysis', vendor: 'v-rao', status: CONTENT_STATUS.CONTENT_REVIEW,
+        name: 'Column Buckling Test (sample)',
+        summary: 'Observe the critical buckling load of slender columns under different end conditions.',
+        description: 'The learner mounts slender columns with pinned and fixed end conditions in a simulated loading frame, increases axial load until buckling is observed and compares the critical load with the Euler prediction for each end condition.',
+        technologies: ['vr', 'web'], versionLabel: '1.0', submitDaysAgo: 6, approveDaysAgo: 2,
+        reviewer: 'r-iyer',
+        outcomes: [
+          'Set up slender columns with pinned and fixed end conditions in a loading frame.',
+          'Identify the critical buckling load observed for each end condition.',
+          'Compare observed critical loads with Euler predictions and account for the difference.'
+        ],
+        reviewComment: 'Course alignment confirmed for the structural stability unit. Outcomes recorded.',
+        vendorNotes: 'Both end-condition rigs are included in the same package.'
+      },
+      {
+        courseId: 'fluid-mechanics', vendor: 'v-menon', status: CONTENT_STATUS.CHANGES_ACADEMIC,
+        name: 'Venturi Meter Experiment (sample)',
+        summary: 'Measure discharge through a venturi meter and determine its coefficient of discharge.',
+        description: 'The learner establishes flow through a venturi meter, reads the differential manometer at several flow rates and determines the coefficient of discharge from the measured and theoretical discharges.',
+        technologies: ['vr'], versionLabel: '1.0', submitDaysAgo: 8, changesDaysAgo: 5,
+        reviewer: 'r-nanda',
+        reviewComment: 'The sample manometer readings do not reconcile with the stated throat diameter, so the coefficient of discharge cannot be derived from them. Please correct the sample data set and resubmit.'
+      }
+    ];
+
+    PIPELINE.forEach(function (p) {
+      S0.seq.contentRec += 1;
+      var rec = newContentRecord({
+        id: 'EXP-' + util.pad3(S0.seq.contentRec),
+        courseId: p.courseId, name: p.name, summary: p.summary, description: p.description,
+        outcomes: p.outcomes || [], technologies: p.technologies,
+        delivery: seedDeliveryFor(p.technologies),
+        documents: [{ name: 'Instructor guide — ' + p.name + '.pdf', size: '1.8 MB', note: '' }],
+        vendorNotes: p.vendorNotes || '', versionLabel: p.versionLabel,
+        status: p.status, origin: 'vendor',
+        createdBy: actorId(p.vendor),
+        createdAt: ago((p.submitDaysAgo || 1) + 2),
+        updatedAt: ago(p.changesDaysAgo || p.approveDaysAgo || p.submitDaysAgo || 1)
+      });
+      ev(rec, 'created', 'Draft created', p.vendor, 'vendor', rec.createdAt, '');
+      if (p.status !== CONTENT_STATUS.DRAFT) {
+        rec.submittedBy = actorId(p.vendor);
+        rec.submittedAt = ago(p.submitDaysAgo);
+        ev(rec, 'submitted', 'Submitted for academic review (v' + rec.revision + ')',
+           p.vendor, 'vendor', rec.submittedAt, '');
+      }
+      if (p.status === CONTENT_STATUS.CONTENT_REVIEW) {
+        S0.seq.review += 1;
+        var review = {
+          id: 'ACR-' + util.pad3(S0.seq.review), recordId: rec.id,
+          reviewerId: actorId(p.reviewer), reviewerName: actorName(p.reviewer),
+          decision: 'approved', comment: p.reviewComment || '',
+          revision: rec.revision, outcomes: (p.outcomes || []).slice(),
+          at: ago(p.approveDaysAgo),
+          /* Same fingerprint the runtime approval records, so a seeded
+             approval is held to exactly the same rule. */
+          fingerprint: academicFingerprint(rec)
+        };
+        S0.academicReviews.push(review);
+        rec.academicReview = JSON.parse(JSON.stringify(review));
+        ev(rec, 'approved', 'Academic validation complete', p.reviewer, 'reviewer', review.at, p.reviewComment || '');
+      }
+      if (p.status === CONTENT_STATUS.CHANGES_ACADEMIC) {
+        S0.seq.review += 1;
+        var ret = {
+          id: 'ACR-' + util.pad3(S0.seq.review), recordId: rec.id,
+          reviewerId: actorId(p.reviewer), reviewerName: actorName(p.reviewer),
+          decision: 'changes_requested', comment: p.reviewComment || '',
+          revision: rec.revision, outcomes: (p.outcomes || []).slice(),
+          at: ago(p.changesDaysAgo)
+        };
+        S0.academicReviews.push(ret);
+        rec.returnedGate = 'academic';
+        ev(rec, 'changes', 'Changes requested — academic review', p.reviewer, 'reviewer', ret.at, p.reviewComment || '');
+      }
+      S0.contentRecords.push(rec);
+    });
+  }
+
+  function seedContentActors(S0) {
+    SEED_CONTENT_ACTORS.forEach(function (a) {
+      S0.seq.actor += 1;
+      S0.contentActors.push({
+        id: 'ACT-' + util.pad3(S0.seq.actor), key: a.key, role: a.role,
+        name: a.name, organisation: a.organisation, email: a.email, source: 'seed'
+      });
+    });
+    SEED_CONTENT_ASSIGNMENTS.forEach(function (m) {
+      var actor = S0.contentActors.filter(function (x) { return x.key === m.actorKey; })[0];
+      if (!actor) { return; }
+      S0.seq.roleAssign += 1;
+      S0.contentRoleAssignments.push({
+        id: 'CRA-' + util.pad3(S0.seq.roleAssign), actorId: actor.id, role: m.role,
+        scope: m.scope, courseId: m.courseId || null, experimentId: m.experimentId || null,
+        source: 'seed'
+      });
+    });
+  }
+
+  function seedContent(S0) {
+    seedContentActors(S0);
+    seedContentPool(S0);
+    seedContentPipeline(S0);
+  }
+
+  /* ---------- the published pool that the catalogue reads ----------
+     `data.js` calls this through the resolver installed at the foot of
+     this module, so every existing catalogue lookup — public,
+     tenant, Faculty, Student — resolves against it. Two consequences,
+     both deliberate:
+       · newly PUBLISHED content appears everywhere with no call-site
+         change and no second catalogue;
+       · content that is not published is not reachable through any of
+         them, including by hand-typed hash route.
+     It returns null while the state layer is seeding or migrating, so
+     those paths fall back to the seed array they are describing. */
+  var contentSeeding = false;
+  var pubCache = null, pubCacheSeq = -1;
+
+  function publicShape(rec) {
+    return {
+      id: rec.id, courseId: rec.courseId, name: rec.name,
+      summary: rec.summary, description: rec.description,
+      outcomes: rec.outcomes.slice(), technologies: rec.technologies.slice()
+    };
+  }
+
+  function publishedPool() {
+    if (contentSeeding) { return null; }
+    if (typeof S === 'undefined' || !S || !Array.isArray(S.contentRecords)) { return null; }
+    if (pubCache && pubCacheSeq === S.seq.contentEvent) { return pubCache; }
+    pubCache = S.contentRecords
+      .filter(function (r) { return r.status === CONTENT_STATUS.PUBLISHED; })
+      .map(publicShape);
+    pubCacheSeq = S.seq.contentEvent;
+    return pubCache;
+  }
+
+  function contentTouched() {
+    S.seq.contentEvent += 1;
+    pubCache = null;
+    return S.seq.contentEvent;
+  }
+
+  /* ---------- actors, scope and the prototype role pointers ---------- */
+
+  function contentActors(role) {
+    return S.contentActors.filter(function (a) { return !role || a.role === role; });
+  }
+  function contentActor(id) {
+    return S.contentActors.filter(function (a) { return a.id === id; })[0] || null;
+  }
+  function contentRoleLabel(role) { return CONTENT_ROLE_LABEL[role] || role; }
+
+  function assignmentsFor(actorId) {
+    return S.contentRoleAssignments.filter(function (m) { return m.actorId === actorId; });
+  }
+  /* Which canonical Courses an actor is authorised on. A platform-scope
+     assignment ('all') covers every canonical Course. */
+  function actorCourseIds(actorId) {
+    var rows = assignmentsFor(actorId);
+    if (rows.some(function (m) { return m.scope === 'all'; })) {
+      return data.COURSES.map(function (c) { return c.id; });
+    }
+    var out = [];
+    rows.forEach(function (m) {
+      if (m.scope === 'course' && m.courseId && out.indexOf(m.courseId) === -1) { out.push(m.courseId); }
+      if (m.scope === 'experiment' && m.experimentId) {
+        var rec = contentRecord(m.experimentId);
+        if (rec && rec.courseId && out.indexOf(rec.courseId) === -1) { out.push(rec.courseId); }
+      }
+    });
+    return out;
+  }
+  function actorHasPlatformScope(actorId) {
+    return assignmentsFor(actorId).some(function (m) { return m.scope === 'all'; });
+  }
+  /* Is this actor authorised on this specific record? Experiment-scope
+     assignments are honoured directly so several people can be
+     associated with one Experiment (STK31-41). */
+  function actorCoversRecord(actorId, rec) {
+    if (!rec) { return false; }
+    var rows = assignmentsFor(actorId);
+    return rows.some(function (m) {
+      if (m.scope === 'all') { return true; }
+      if (m.scope === 'course') { return m.courseId === rec.courseId; }
+      if (m.scope === 'experiment') { return m.experimentId === rec.id; }
+      return false;
+    });
+  }
+
+  function protoVendorId() { return S.protoVendorId || null; }
+  function protoReviewerId() { return S.protoReviewerId || null; }
+  function protoManagerId() { return S.protoManagerId || null; }
+  function setProtoVendor(id) {
+    var a = id ? contentActor(id) : null;
+    S.protoVendorId = (a && a.role === CONTENT_ROLE.VENDOR) ? a.id : null;
+    save();
+  }
+  function setProtoReviewer(id) {
+    var a = id ? contentActor(id) : null;
+    S.protoReviewerId = (a && a.role === CONTENT_ROLE.REVIEWER) ? a.id : null;
+    save();
+  }
+  function setProtoManager(id) {
+    var a = id ? contentActor(id) : null;
+    S.protoManagerId = (a && a.role === CONTENT_ROLE.MANAGER) ? a.id : null;
+    save();
+  }
+  function protoVendor() { return contentActor(S.protoVendorId); }
+  function protoReviewer() { return contentActor(S.protoReviewerId); }
+  function protoManager() { return contentActor(S.protoManagerId); }
+
+  /* ---------- content queries ---------- */
+
+  function contentRecords() { return S.contentRecords; }
+  function contentRecord(id) {
+    return S.contentRecords.filter(function (r) { return r.id === id; })[0] || null;
+  }
+  function contentStatusMeta(status) {
+    return CONTENT_STATUS_META[status] || { label: status, badge: 'b-neutral', icon: 'circle', holder: null };
+  }
+  function contentContext(rec) {
+    if (!rec) { return null; }
+    var c = data.course(rec.courseId);
+    var g = c ? data.grouping(c.groupingId) : null;
+    return { course: c, grouping: g };
+  }
+
+  /* What a Vendor sees: the records they created. Ownership, not the
+     course assignment, is the visibility rule — a Vendor must not read
+     another Vendor's draft even inside a course they both work on. */
+  function contentForVendor(actorId, opts) {
+    var o = opts || {};
+    return S.contentRecords.filter(function (r) {
+      if (r.createdBy !== actorId) { return false; }
+      if (o.status && r.status !== o.status) { return false; }
+      return true;
+    }).sort(byContentRecency);
+  }
+
+  /* What an Academic Reviewer sees: submitted work inside their
+     assignment. Seeded published content carries no submission and is
+     not review work, so it is not in the queue. */
+  function contentForReviewer(actorId, opts) {
+    var o = opts || {};
+    return S.contentRecords.filter(function (r) {
+      if (r.origin === 'seed') { return false; }
+      if (!actorCoversRecord(actorId, r)) { return false; }
+      if (o.status && r.status !== o.status) { return false; }
+      if (o.queue && r.status !== CONTENT_STATUS.ACADEMIC_REVIEW) { return false; }
+      return true;
+    }).sort(byContentRecency);
+  }
+
+  /* What a Content Manager sees: the Content Library — the whole
+     canonical pool inside their assignment, published and pipeline
+     alike (STK31-06 / STK31-09). */
+  function contentForManager(actorId, opts) {
+    var o = opts || {};
+    return S.contentRecords.filter(function (r) {
+      if (!actorCoversRecord(actorId, r)) { return false; }
+      if (o.status && r.status !== o.status) { return false; }
+      if (o.queue && r.status !== CONTENT_STATUS.CONTENT_REVIEW) { return false; }
+      return true;
+    }).sort(byContentRecency);
+  }
+
+  function byContentRecency(a, b) {
+    return (b.eventSeq || 0) - (a.eventSeq || 0);
+  }
+
+  function academicReviewsFor(recordId) {
+    return S.academicReviews.filter(function (r) { return r.recordId === recordId; })
+      .sort(function (a, b) { return new Date(b.at) - new Date(a.at); });
+  }
+  function academicReviewsBy(reviewerId) {
+    return S.academicReviews.filter(function (r) { return r.reviewerId === reviewerId; })
+      .sort(function (a, b) { return new Date(b.at) - new Date(a.at); });
+  }
+  function publicationRecords() { return S.publicationRecords; }
+  function publicationFor(recordId) {
+    return S.publicationRecords.filter(function (p) { return p.recordId === recordId; })[0] || null;
+  }
+
+  /* ---------- validation ----------
+     Technology-specific: a field is required only for a technology the
+     Vendor actually selected. Package metadata is never asked of Web,
+     and a hosted URL is never asked of VR / AR / MR (STK31-37). */
+
+  function isHttpUrl(value) {
+    var v = String(value || '').trim();
+    if (!/^https?:\/\/[^\s/$.?#].[^\s]*$/i.test(v)) { return false; }
+    return true;
+  }
+
+  function deliveryOf(rec, tech) {
+    return (rec.delivery && rec.delivery[tech]) || {};
+  }
+
+  /* `stage` is 'draft' (save — almost nothing is required) or 'submit'
+     (the readiness rule before an Academic Reviewer is asked to look). */
+  function validateContent(fields, stage, opts) {
+    var o = opts || {};
+    var errs = [];
+    var name = String(fields.name || '').trim();
+    if (!name) { errs.push({ field: 'f-name', message: 'Enter an experiment name.' }); }
+    else if (nameTaken(name, o.exceptId)) {
+      errs.push({ field: 'f-name', message: 'Another experiment already uses this name. Choose a different one.' });
+    }
+    if (!fields.courseId) { errs.push({ field: 'f-course', message: 'Select the Course this experiment belongs to.' }); }
+    if (stage !== 'submit') { return errs; }
+
+    if (!String(fields.summary || '').trim()) {
+      errs.push({ field: 'f-summary', message: 'Enter a short summary — it appears in the catalogue listing.' });
+    }
+    if (!String(fields.description || '').trim()) {
+      errs.push({ field: 'f-description', message: 'Enter a description of the experiment.' });
+    }
+    if (!String(fields.versionLabel || '').trim()) {
+      errs.push({ field: 'f-version', message: 'Enter a version label for this submission.' });
+    }
+    var techs = fields.technologies || [];
+    if (!techs.length) {
+      errs.push({ field: 'f-tech', message: 'Select at least one technology this experiment is available in.' });
+    }
+    techs.forEach(function (t) {
+      var def = data.TECHNOLOGIES[t];
+      if (!def) { return; }
+      var d = (fields.delivery && fields.delivery[t]) || {};
+      if (def.delivery === 'hosted') {
+        var url = String(d.url || '').trim();
+        if (!url) {
+          errs.push({ field: 'f-' + t + '-url', message: def.label + ': enter the hosted experience URL.' });
+        } else if (!isHttpUrl(url)) {
+          errs.push({ field: 'f-' + t + '-url',
+            message: def.label + ': enter a full URL beginning with https:// (for example https://xr.example.edu/experiment).' });
+        }
+      } else {
+        var ref = String(d.packageRef || '').trim();
+        var lab = String(d.packageLabel || '').trim();
+        if (!ref && !lab && !d.packageFile) {
+          errs.push({ field: 'f-' + t + '-pkg',
+            message: def.label + ': add package reference information so the submission can be reviewed.' });
+        }
+      }
+      if (!String(d.runtime || '').trim()) {
+        errs.push({ field: 'f-' + t + '-runtime',
+          message: def.label + ': state the device / runtime requirement.' });
+      }
+    });
+    return errs;
+  }
+
+  function nameTaken(name, exceptId) {
+    var n = data.norm(name);
+    return S.contentRecords.some(function (r) {
+      return r.id !== exceptId && data.norm(r.name) === n;
+    });
+  }
+
+  /* Readiness the Academic Reviewer's approval depends on. Learning
+     Outcomes are the Reviewer's own object (STK31-08); approving with
+     none would publish an Experiment whose public Learning outcomes
+     card is empty, so at least one is required to approve. */
+  /* What the Academic Reviewer actually validated. A content-gate return
+     hands the whole submission back to the Vendor, so the work that comes
+     back may not be the work that was approved: a different Course,
+     different technologies or a rewritten description would otherwise
+     reach publication carrying an approval nobody gave it. This
+     fingerprint is what `submitContent()` compares. Delivery detail and
+     documentation are deliberately NOT in it — they are the technical
+     submission the CONTENT gate reviews, and correcting them is the whole
+     point of a content-gate return. */
+  function academicFingerprint(rec) {
+    return JSON.stringify({
+      courseId: rec.courseId,
+      name: String(rec.name || '').trim(),
+      summary: String(rec.summary || '').trim(),
+      description: String(rec.description || '').trim(),
+      technologies: data.sortTech(rec.technologies || []),
+      outcomes: (rec.outcomes || []).slice()
+    });
+  }
+
+  function academicReadiness(rec) {
+    var blockers = [];
+    if (!rec) { return { ok: false, blockers: ['This submission no longer exists.'] }; }
+    if (rec.status !== CONTENT_STATUS.ACADEMIC_REVIEW) {
+      blockers.push('This submission is not currently awaiting academic review.');
+    }
+    if (!rec.outcomes.length) {
+      blockers.push('Record at least one Learning Outcome before approving.');
+    }
+    return { ok: !blockers.length, blockers: blockers };
+  }
+
+  /* Readiness the FIRST PUBLICATION depends on. Every one of these is
+     re-checked inside `publishContent()`, so a hand-driven action
+     cannot bypass the list by avoiding the screen. */
+  function publishReadiness(rec) {
+    var blockers = [];
+    if (!rec) { return { ok: false, blockers: ['This content record no longer exists.'] }; }
+    if (rec.status === CONTENT_STATUS.PUBLISHED) {
+      return { ok: false, blockers: ['This experiment is already published.'] };
+    }
+    if (rec.status !== CONTENT_STATUS.CONTENT_REVIEW) {
+      blockers.push('Publication is available only for an item in content readiness review.');
+    }
+    if (!rec.academicReview || rec.academicReview.decision !== 'approved') {
+      blockers.push('No academic approval is recorded for this submission.');
+    } else if (typeof rec.academicReview.fingerprint === 'string' &&
+               rec.academicReview.fingerprint !== academicFingerprint(rec)) {
+      /* The last line of defence. If the academic content has moved since
+         the approval was given, the approval is not an approval of THIS
+         object, and it must not carry it into the catalogue. */
+      blockers.push('The academic content has changed since it was approved — it must be reviewed again.');
+    }
+    if (!data.course(rec.courseId)) {
+      blockers.push('The canonical Course for this experiment is missing.');
+    }
+    if (!String(rec.name || '').trim()) { blockers.push('The experiment name is missing.'); }
+    if (!String(rec.summary || '').trim()) { blockers.push('The catalogue summary is missing.'); }
+    if (!String(rec.description || '').trim()) { blockers.push('The description is missing.'); }
+    if (!String(rec.versionLabel || '').trim()) { blockers.push('The version label is missing.'); }
+    if (!rec.outcomes.length) { blockers.push('No Learning Outcomes are recorded.'); }
+    if (!rec.technologies.length) { blockers.push('No technology variant is available.'); }
+    rec.technologies.forEach(function (t) {
+      var def = data.TECHNOLOGIES[t];
+      if (!def) { blockers.push('Unknown technology "' + t + '".'); return; }
+      var d = deliveryOf(rec, t);
+      if (def.delivery === 'hosted') {
+        if (!isHttpUrl(d.url)) { blockers.push(def.label + ': the hosted experience URL is missing or not a valid URL.'); }
+      } else if (!String(d.packageRef || '').trim() && !String(d.packageLabel || '').trim() && !d.packageFile) {
+        blockers.push(def.label + ': package reference information is missing.');
+      }
+      if (!String(d.runtime || '').trim()) { blockers.push(def.label + ': the device / runtime requirement is missing.'); }
+    });
+    return { ok: !blockers.length, blockers: blockers };
+  }
+
+  /* ---------- history ---------- */
+
+  function pushContentEvent(rec, kind, label, actor, at, note) {
+    var seq = contentTouched();
+    rec.history.unshift({
+      seq: seq, kind: kind, label: label,
+      actorName: actor ? actor.name : null,
+      actorRole: actor ? CONTENT_ROLE_LABEL[actor.role] : null,
+      at: at || new Date().toISOString(),
+      note: note || ''
+    });
+    rec.eventSeq = seq;
+    return seq;
+  }
+
+  /* ---------- Vendor actions ----------
+     Every one refuses on authority before it writes. A hand-typed route
+     reaches the same function, so the refusal is the state layer's, not
+     the screen's. */
+
+  function vendorCanEdit(rec, actorId) {
+    if (!rec) { return false; }
+    if (rec.createdBy !== actorId) { return false; }
+    return VENDOR_EDITABLE.indexOf(rec.status) !== -1;
+  }
+  function vendorCanSubmit(rec, actorId) { return vendorCanEdit(rec, actorId); }
+
+  function vendorCanCreateIn(actorId, courseId) {
+    return actorCourseIds(actorId).indexOf(courseId) !== -1;
+  }
+
+  function createContentDraft(actorId, fields) {
+    var actor = contentActor(actorId);
+    if (!actor || actor.role !== CONTENT_ROLE.VENDOR) { return null; }
+    if (!vendorCanCreateIn(actorId, fields.courseId)) { return null; }
+    if (validateContent(fields, 'draft').length) { return null; }
+    S.seq.contentRec += 1;
+    var now = new Date().toISOString();
+    var rec = newContentRecord({
+      id: 'EXP-' + util.pad3(S.seq.contentRec),
+      courseId: fields.courseId, name: String(fields.name).trim(),
+      summary: fields.summary || '', description: fields.description || '',
+      technologies: fields.technologies || [], delivery: fields.delivery || {},
+      documents: fields.documents || [], vendorNotes: fields.vendorNotes || '',
+      versionLabel: fields.versionLabel || '', status: CONTENT_STATUS.DRAFT,
+      origin: 'vendor', createdBy: actorId, createdAt: now, updatedAt: now
+    });
+    S.contentRecords.push(rec);
+    pushContentEvent(rec, 'created', 'Draft created', actor, now, '');
+    save();
+    return rec;
+  }
+
+  function updateContentDraft(actorId, recordId, fields) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    if (!rec || !actor || actor.role !== CONTENT_ROLE.VENDOR) { return null; }
+    if (!vendorCanEdit(rec, actorId)) { return null; }
+    if (!vendorCanCreateIn(actorId, fields.courseId)) { return null; }
+    if (validateContent(fields, 'draft', { exceptId: rec.id }).length) { return null; }
+    rec.courseId = fields.courseId;
+    rec.name = String(fields.name).trim();
+    rec.summary = fields.summary || '';
+    rec.description = fields.description || '';
+    rec.technologies = data.sortTech(fields.technologies || []);
+    rec.delivery = fields.delivery || {};
+    rec.documents = fields.documents || [];
+    rec.vendorNotes = fields.vendorNotes || '';
+    rec.versionLabel = fields.versionLabel || '';
+    rec.updatedAt = new Date().toISOString();
+    contentTouched();
+    save();
+    return rec;
+  }
+
+  /* Submit, or correct-and-resubmit. A resubmission increments the
+     correction-round counter and returns to the gate that asked for the
+     change — the Content Manager's metadata question does not send the
+     work back through academic validation it has already passed. */
+  function submitContent(actorId, recordId) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    if (!rec || !actor || actor.role !== CONTENT_ROLE.VENDOR) { return null; }
+    if (!vendorCanSubmit(rec, actorId)) { return null; }
+    if (validateContent(rec, 'submit', { exceptId: rec.id }).length) { return null; }
+
+    var now = new Date().toISOString();
+    var wasReturned = rec.status === CONTENT_STATUS.CHANGES_ACADEMIC || rec.status === CONTENT_STATUS.CHANGES_CONTENT;
+    var target = CONTENT_STATUS.ACADEMIC_REVIEW;
+    var academicStale = false;
+    if (wasReturned) {
+      rec.revision += 1;
+      rec.resubmitted = true;
+      target = rec.returnedGate === 'content' ? CONTENT_STATUS.CONTENT_REVIEW : CONTENT_STATUS.ACADEMIC_REVIEW;
+      /* A content-gate return goes straight back to the Content Manager —
+         but ONLY while what the Academic Reviewer validated is still what
+         is being submitted. If the Vendor changed the Course, the name,
+         the description or the technology availability while correcting,
+         the existing approval no longer describes this work, so it is
+         withdrawn and the submission goes back through academic review.
+         Otherwise an item could publish on an approval granted for
+         different content. */
+      if (target === CONTENT_STATUS.CONTENT_REVIEW) {
+        /* FAIL CLOSED. Going straight back to the publication gate is
+           only safe while the approval can be SHOWN to describe the work
+           being resubmitted. A missing approval, or one written by a
+           build that recorded no fingerprint, cannot be shown to — so it
+           does not get the benefit of the doubt. */
+        var fp = rec.academicReview && rec.academicReview.fingerprint;
+        if (typeof fp !== 'string' || fp !== academicFingerprint(rec)) {
+          academicStale = true;
+          target = CONTENT_STATUS.ACADEMIC_REVIEW;
+          rec.academicReview = null;
+        }
+      }
+    } else {
+      rec.resubmitted = false;
+    }
+    rec.status = target;
+    rec.returnedGate = null;
+    rec.submittedBy = actorId;
+    rec.submittedAt = now;
+    rec.updatedAt = now;
+    pushContentEvent(rec, wasReturned ? 'resubmitted' : 'submitted',
+      wasReturned
+        ? 'Corrected and resubmitted (v' + rec.revision + ') — ' +
+          (target === CONTENT_STATUS.CONTENT_REVIEW ? 'content readiness review' : 'academic review')
+        : 'Submitted for academic review (v' + rec.revision + ')',
+      actor, now,
+      academicStale
+        ? 'The academic content changed while this was being corrected, so the earlier academic approval ' +
+          'no longer applies and the submission returns to academic review.'
+        : '');
+    save();
+    return rec;
+  }
+
+  /* ---------- Academic Reviewer actions ---------- */
+
+  function reviewerCanAct(rec, actorId) {
+    var actor = contentActor(actorId);
+    if (!rec || !actor || actor.role !== CONTENT_ROLE.REVIEWER) { return false; }
+    if (!actorCoversRecord(actorId, rec)) { return false; }
+    return rec.status === CONTENT_STATUS.ACADEMIC_REVIEW;
+  }
+
+  /* Learning Outcomes are the Academic Reviewer's object. They are
+     editable while the Reviewer holds the submission and never after
+     publication — the published outcomes are what the public catalogue
+     and every entitled Student are reading. */
+  function outcomesEditable(rec, actorId) { return reviewerCanAct(rec, actorId); }
+
+  function addOutcome(actorId, recordId, text) {
+    var rec = contentRecord(recordId);
+    if (!outcomesEditable(rec, actorId)) { return null; }
+    var t = String(text || '').trim();
+    if (!t) { return null; }
+    rec.outcomes.push(t);
+    rec.updatedAt = new Date().toISOString();
+    contentTouched();
+    save();
+    return rec;
+  }
+  function updateOutcome(actorId, recordId, index, text) {
+    var rec = contentRecord(recordId);
+    if (!outcomesEditable(rec, actorId)) { return null; }
+    var t = String(text || '').trim();
+    if (!t || index < 0 || index >= rec.outcomes.length) { return null; }
+    rec.outcomes[index] = t;
+    rec.updatedAt = new Date().toISOString();
+    contentTouched();
+    save();
+    return rec;
+  }
+  function deleteOutcome(actorId, recordId, index) {
+    var rec = contentRecord(recordId);
+    if (!outcomesEditable(rec, actorId)) { return null; }
+    if (index < 0 || index >= rec.outcomes.length) { return null; }
+    rec.outcomes.splice(index, 1);
+    rec.updatedAt = new Date().toISOString();
+    contentTouched();
+    save();
+    return rec;
+  }
+  function moveOutcome(actorId, recordId, index, delta) {
+    var rec = contentRecord(recordId);
+    if (!outcomesEditable(rec, actorId)) { return null; }
+    var to = index + delta;
+    if (index < 0 || index >= rec.outcomes.length || to < 0 || to >= rec.outcomes.length) { return null; }
+    var moved = rec.outcomes.splice(index, 1)[0];
+    rec.outcomes.splice(to, 0, moved);
+    rec.updatedAt = new Date().toISOString();
+    contentTouched();
+    save();
+    return rec;
+  }
+
+  function approveAcademic(actorId, recordId, comment) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    if (!reviewerCanAct(rec, actorId)) { return null; }
+    if (!academicReadiness(rec).ok) { return null; }
+    var now = new Date().toISOString();
+    S.seq.review += 1;
+    var review = {
+      id: 'ACR-' + util.pad3(S.seq.review), recordId: rec.id,
+      reviewerId: actorId, reviewerName: actor.name,
+      decision: 'approved', comment: String(comment || '').trim(),
+      revision: rec.revision, outcomes: rec.outcomes.slice(), at: now,
+      /* What was academically validated — see `academicFingerprint()`. */
+      fingerprint: academicFingerprint(rec)
+    };
+    S.academicReviews.push(review);
+    rec.academicReview = JSON.parse(JSON.stringify(review));
+    rec.status = CONTENT_STATUS.CONTENT_REVIEW;
+    rec.returnedGate = null;
+    rec.updatedAt = now;
+    pushContentEvent(rec, 'approved', 'Academic validation complete', actor, now, review.comment);
+    save();
+    return rec;
+  }
+
+  /* PM-14's return path, at the academic gate. A comment is required:
+     a submission returned without a reason is not a review. */
+  function requestChangesAcademic(actorId, recordId, comment) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    if (!reviewerCanAct(rec, actorId)) { return null; }
+    var text = String(comment || '').trim();
+    if (!text) { return null; }
+    var now = new Date().toISOString();
+    S.seq.review += 1;
+    var review = {
+      id: 'ACR-' + util.pad3(S.seq.review), recordId: rec.id,
+      reviewerId: actorId, reviewerName: actor.name,
+      decision: 'changes_requested', comment: text,
+      revision: rec.revision, outcomes: rec.outcomes.slice(), at: now
+    };
+    S.academicReviews.push(review);
+    rec.status = CONTENT_STATUS.CHANGES_ACADEMIC;
+    rec.returnedGate = 'academic';
+    rec.resubmitted = false;
+    rec.updatedAt = now;
+    pushContentEvent(rec, 'changes', 'Changes requested — academic review', actor, now, text);
+    save();
+    return rec;
+  }
+
+  /* ---------- Content Manager actions ---------- */
+
+  function managerCanAct(rec, actorId) {
+    var actor = contentActor(actorId);
+    if (!rec || !actor || actor.role !== CONTENT_ROLE.MANAGER) { return false; }
+    return actorCoversRecord(actorId, rec);
+  }
+  function managerCanPublish(rec, actorId) {
+    return managerCanAct(rec, actorId) && publishReadiness(rec).ok;
+  }
+
+  /* Canonical content metadata (STK31-09). The Content Manager may
+     correct the canonical catalogue fields of an item in the library —
+     and NOT its Learning Outcomes, which stay academically owned
+     (STK31-08), and NOT its technology delivery, which is the Vendor's
+     technical submission (STK31-08). */
+  /* Canonical metadata is a CONTENT LIBRARY action. It applies to content
+     the Content Manager actually holds — an item at their own readiness
+     gate, or one already published — and never to a draft the Vendor is
+     still writing or a submission the Academic Reviewer is holding.
+     Rewriting either would change the work under the person doing it, and
+     could move a submission out of its assigned reviewer's scope. */
+  function canonicalEditable(rec) {
+    return !!rec && (rec.status === CONTENT_STATUS.CONTENT_REVIEW || rec.status === CONTENT_STATUS.PUBLISHED);
+  }
+
+  function updateCanonicalMetadata(actorId, recordId, fields) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    if (!managerCanAct(rec, actorId)) { return null; }
+    if (!canonicalEditable(rec)) { return null; }
+    var name = String(fields.name || '').trim();
+    if (!name || nameTaken(name, rec.id)) { return null; }
+    if (!data.course(fields.courseId)) { return null; }
+    rec.name = name;
+    rec.courseId = fields.courseId;
+    rec.summary = String(fields.summary || '').trim();
+    rec.description = String(fields.description || '').trim();
+    rec.updatedAt = new Date().toISOString();
+    pushContentEvent(rec, 'metadata', 'Canonical metadata updated', actor, rec.updatedAt, '');
+    save();
+    return rec;
+  }
+
+  /* PM-14's return path, at the content readiness gate. */
+  function requestChangesContent(actorId, recordId, comment) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    if (!managerCanAct(rec, actorId)) { return null; }
+    if (rec.status !== CONTENT_STATUS.CONTENT_REVIEW) { return null; }
+    var text = String(comment || '').trim();
+    if (!text) { return null; }
+    var now = new Date().toISOString();
+    rec.status = CONTENT_STATUS.CHANGES_CONTENT;
+    rec.returnedGate = 'content';
+    rec.resubmitted = false;
+    rec.updatedAt = now;
+    pushContentEvent(rec, 'changes', 'Changes requested — content readiness', actor, now, text);
+    save();
+    return rec;
+  }
+
+  /* FIRST PUBLICATION (STK31-06). The word is PUBLISH.
+     Release / Hold is the Super Admin's action on a LATER VERSION of an
+     already-published Experiment (STK31-07) and is not implemented in
+     this slice.
+
+     This writes exactly one thing beyond the publication record: the
+     content record's status. It creates no tenant access, changes no
+     licence and assigns nothing to a student — PUBLISHED, TENANT ACCESS
+     and STUDENT ENTITLEMENT stay three different altitudes. */
+  function publishContent(actorId, recordId) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    if (!managerCanAct(rec, actorId)) { return null; }
+    if (!publishReadiness(rec).ok) { return null; }
+    var now = new Date().toISOString();
+    S.seq.publication += 1;
+    var pub = {
+      id: 'PUB-' + util.pad3(S.seq.publication),
+      recordId: rec.id,
+      publishedBy: actorId,
+      publishedByName: actor.name,
+      publishedAt: now,
+      versionLabel: rec.versionLabel,
+      revision: rec.revision,
+      technologies: rec.technologies.slice(),
+      outcomes: rec.outcomes.slice(),
+      academicReviewId: rec.academicReview ? rec.academicReview.id : null,
+      academicReviewerName: rec.academicReview ? rec.academicReview.reviewerName : null,
+      origin: 'workflow'
+    };
+    S.publicationRecords.push(pub);
+    rec.publication = JSON.parse(JSON.stringify(pub));
+    rec.status = CONTENT_STATUS.PUBLISHED;
+    rec.updatedAt = now;
+    pushContentEvent(rec, 'published', 'Published to the catalogue (v' + rec.revision + ')', actor, now, '');
+    save();
+    return rec;
+  }
+
+  /* ---------- workspace summaries (real state only) ---------- */
+
+  function vendorOverview(actorId) {
+    var mine = contentForVendor(actorId);
+    function n(status) { return mine.filter(function (r) { return r.status === status; }).length; }
+    return {
+      total: mine.length,
+      draft: n(CONTENT_STATUS.DRAFT),
+      inAcademicReview: n(CONTENT_STATUS.ACADEMIC_REVIEW),
+      changesRequested: n(CONTENT_STATUS.CHANGES_ACADEMIC) + n(CONTENT_STATUS.CHANGES_CONTENT),
+      awaitingPublication: n(CONTENT_STATUS.CONTENT_REVIEW),
+      published: n(CONTENT_STATUS.PUBLISHED),
+      returned: mine.filter(function (r) {
+        return r.status === CONTENT_STATUS.CHANGES_ACADEMIC || r.status === CONTENT_STATUS.CHANGES_CONTENT;
+      }),
+      incompleteDrafts: mine.filter(function (r) {
+        return r.status === CONTENT_STATUS.DRAFT && validateContent(r, 'submit', { exceptId: r.id }).length > 0;
+      }),
+      readyDrafts: mine.filter(function (r) {
+        return r.status === CONTENT_STATUS.DRAFT && validateContent(r, 'submit', { exceptId: r.id }).length === 0;
+      }),
+      recentlyPublished: mine.filter(function (r) { return r.status === CONTENT_STATUS.PUBLISHED; })
+    };
+  }
+
+  function reviewerOverview(actorId) {
+    var scope = contentForReviewer(actorId);
+    function n(status) { return scope.filter(function (r) { return r.status === status; }).length; }
+    var decisions = academicReviewsBy(actorId);
+    return {
+      waiting: n(CONTENT_STATUS.ACADEMIC_REVIEW),
+      queue: scope.filter(function (r) { return r.status === CONTENT_STATUS.ACADEMIC_REVIEW; }),
+      changesRequested: n(CONTENT_STATUS.CHANGES_ACADEMIC),
+      approvedAwaitingPublication: n(CONTENT_STATUS.CONTENT_REVIEW),
+      published: n(CONTENT_STATUS.PUBLISHED),
+      decisions: decisions,
+      recent: decisions.slice(0, 5),
+      courses: actorCourseIds(actorId)
+    };
+  }
+
+  function managerOverview(actorId) {
+    var scope = contentForManager(actorId);
+    function n(status) { return scope.filter(function (r) { return r.status === status; }).length; }
+    var queue = scope.filter(function (r) { return r.status === CONTENT_STATUS.CONTENT_REVIEW; });
+    var techCover = {};
+    scope.filter(function (r) { return r.status === CONTENT_STATUS.PUBLISHED; })
+      .forEach(function (r) {
+        r.technologies.forEach(function (t) { techCover[t] = (techCover[t] || 0) + 1; });
+      });
+    return {
+      published: n(CONTENT_STATUS.PUBLISHED),
+      awaitingPublication: queue.length,
+      queue: queue,
+      inPipeline: scope.length - n(CONTENT_STATUS.PUBLISHED),
+      inAcademicReview: n(CONTENT_STATUS.ACADEMIC_REVIEW),
+      withVendor: n(CONTENT_STATUS.DRAFT) + n(CONTENT_STATUS.CHANGES_ACADEMIC) + n(CONTENT_STATUS.CHANGES_CONTENT),
+      technologyCoverage: data.TECH_ORDER.filter(function (t) { return techCover[t]; })
+        .map(function (t) { return { tech: t, count: techCover[t] }; }),
+      blockedInQueue: queue.filter(function (r) { return !publishReadiness(r).ok; })
+    };
+  }
+
+  /* SCHEMA 5 → 6: content production.
+
+     Additive and non-destructive. An Implementation-01…04 browser state
+     gains the canonical content pool, the prototype content actors and
+     their scope, and the sample in-flight pipeline. NOTHING already
+     stored is touched: requests, tenants, access, people, groups,
+     memberships, academic and Faculty mappings, student assignments,
+     resource and simulation activity, attempts, the Question Bank,
+     assessment definitions and their revisions, and descriptive reviews
+     all survive exactly as they were. Reset remains the only
+     destructive operation.
+
+     The existing published catalogue migrates as PUBLISHED content
+     carrying a publication record whose origin is `seed` — it is NOT
+     replayed through a fabricated Vendor → Reviewer → Manager history,
+     because inventing decisions nobody made would be a lie in the audit
+     trail. Experiment ids are unchanged, so every stored reference to
+     them — selection items, access rows, assignments, faculty mappings,
+     attempts, questions, reviews — still resolves. */
+  function migrateContentProduction(parsed, storedVersion) {
+    if (!Array.isArray(parsed.contentRecords)) { parsed.contentRecords = []; }
+    if (!Array.isArray(parsed.academicReviews)) { parsed.academicReviews = []; }
+    if (!Array.isArray(parsed.publicationRecords)) { parsed.publicationRecords = []; }
+    if (!Array.isArray(parsed.contentActors)) { parsed.contentActors = []; }
+    if (!Array.isArray(parsed.contentRoleAssignments)) { parsed.contentRoleAssignments = []; }
+
+    contentSeeding = true;
+    try {
+      if (!parsed.contentActors.length) { seedContentActors(parsed); }
+      /* Back-fill the canonical pool from the seed catalogue. Any seed
+         Experiment that has no content record yet becomes one; an
+         Experiment the workflow already produced is left alone. */
+      var known = {};
+      parsed.contentRecords.forEach(function (r) { known[r.id] = true; });
+      var missing = data.EXPERIMENTS.filter(function (e) { return !known[e.id]; });
+      if (missing.length) {
+        var stamp = parsed.seededAt || new Date().toISOString();
+        missing.forEach(function (e) {
+          parsed.seq.contentRec += 1;
+          parsed.seq.contentEvent += 1;
+          parsed.seq.publication += 1;
+          var rec = newContentRecord({
+            id: e.id, courseId: e.courseId, name: e.name, summary: e.summary,
+            description: e.description, outcomes: e.outcomes, technologies: e.technologies,
+            delivery: seedDeliveryFor(e.technologies), versionLabel: '1.0', revision: 1,
+            status: CONTENT_STATUS.PUBLISHED, origin: 'seed',
+            createdAt: stamp, updatedAt: stamp
+          });
+          rec.eventSeq = parsed.seq.contentEvent;
+          rec.publication = {
+            id: 'PUB-' + util.pad3(parsed.seq.publication), recordId: rec.id,
+            publishedBy: null, publishedByName: 'Existing published content (prototype seed)',
+            publishedAt: stamp, versionLabel: '1.0', revision: 1,
+            technologies: e.technologies.slice(), outcomes: e.outcomes.slice(), origin: 'seed'
+          };
+          rec.history = [{
+            seq: parsed.seq.contentEvent, kind: 'seeded',
+            label: 'Existing published catalogue content',
+            actorName: null, actorRole: null, at: stamp,
+            note: 'Present in the published catalogue before the content production workflow was integrated.'
+          }];
+          parsed.contentRecords.push(rec);
+          parsed.publicationRecords.push(JSON.parse(JSON.stringify(rec.publication)));
+        });
+      }
+      /* The sample in-flight pipeline is seeded once, and only into a
+         state that has never held any workflow-produced content — so a
+         browser that already drove content through the chain is never
+         given records it did not create. */
+      if (storedVersion < 6 && !parsed.contentRecords.some(function (r) { return r.origin === 'vendor'; })) {
+        seedContentPipeline(parsed);
+      }
+    } finally {
+      contentSeeding = false;
+      pubCache = null;
+      pubCacheSeq = -1;
+    }
+
+    /* Back-fill the academic fingerprint onto approvals written before it
+       existed. It is computed from the record AS IT STANDS, which is the
+       only honest reading: nothing has been resubmitted since, so the
+       approval and the content are still the pair the reviewer saw. */
+    parsed.contentRecords.forEach(function (rec) {
+      if (rec.academicReview && typeof rec.academicReview.fingerprint !== 'string') {
+        rec.academicReview.fingerprint = academicFingerprint(rec);
+      }
+    });
+    parsed.academicReviews.forEach(function (r) {
+      if (r.decision === 'approved' && typeof r.fingerprint !== 'string') {
+        var rec = parsed.contentRecords.filter(function (c) { return c.id === r.recordId; })[0];
+        if (rec) { r.fingerprint = academicFingerprint(rec); }
+      }
+    });
+
+    /* A stale prototype pointer must never resolve to a fabricated
+       identity, and must never resolve to an actor of the wrong role. */
+    ['protoVendorId', 'protoReviewerId', 'protoManagerId'].forEach(function (key, i) {
+      var role = ['vendor', 'reviewer', 'manager'][i];
+      if (typeof parsed[key] !== 'string') { parsed[key] = null; return; }
+      var ok = parsed.contentActors.some(function (a) { return a.id === parsed[key] && a.role === role; });
+      if (!ok) { parsed[key] = null; }
+    });
+  }
+
   function load() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
@@ -545,6 +1833,8 @@ XRSLP.state = (function () {
   }
 
   var S = load() || initialState();
+  pubCache = null;
+  pubCacheSeq = -1;
 
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); }
@@ -553,6 +1843,8 @@ XRSLP.state = (function () {
 
   function reset() {
     S = initialState();
+    pubCache = null;
+    pubCacheSeq = -1;
     save();
   }
 
@@ -3525,6 +4817,60 @@ XRSLP.state = (function () {
     facultyCanReview: facultyCanReview, reviewQuestion: reviewQuestion, reviewAnswer: reviewAnswer,
     generateReviewAssistance: generateReviewAssistance, finaliseReview: finaliseReview,
 
-    facultyExperimentStats: facultyExperimentStats, facultyOverview: facultyOverview
+    facultyExperimentStats: facultyExperimentStats, facultyOverview: facultyOverview,
+
+    /* ---- Implementation 05 — content production ---- */
+    CONTENT_STATUS: CONTENT_STATUS, CONTENT_STATUS_META: CONTENT_STATUS_META,
+    CONTENT_ROLE: CONTENT_ROLE, CONTENT_ROLE_LABEL: CONTENT_ROLE_LABEL,
+    contentStatusMeta: contentStatusMeta,
+
+    publishedPool: publishedPool,
+
+    contentActors: contentActors, contentActor: contentActor, contentRoleLabel: contentRoleLabel,
+    assignmentsFor: assignmentsFor, actorCourseIds: actorCourseIds,
+    actorHasPlatformScope: actorHasPlatformScope, actorCoversRecord: actorCoversRecord,
+
+    protoVendorId: protoVendorId, setProtoVendor: setProtoVendor, protoVendor: protoVendor,
+    protoReviewerId: protoReviewerId, setProtoReviewer: setProtoReviewer, protoReviewer: protoReviewer,
+    protoManagerId: protoManagerId, setProtoManager: setProtoManager, protoManager: protoManager,
+
+    contentRecords: contentRecords, contentRecord: contentRecord, contentContext: contentContext,
+    contentForVendor: contentForVendor, contentForReviewer: contentForReviewer,
+    contentForManager: contentForManager,
+    academicReviewsFor: academicReviewsFor, academicReviewsBy: academicReviewsBy,
+    publicationRecords: publicationRecords, publicationFor: publicationFor,
+
+    validateContent: validateContent, isHttpUrl: isHttpUrl, deliveryOf: deliveryOf,
+    academicFingerprint: academicFingerprint, canonicalEditable: canonicalEditable,
+    academicReadiness: academicReadiness, publishReadiness: publishReadiness,
+
+    vendorCanEdit: vendorCanEdit, vendorCanSubmit: vendorCanSubmit, vendorCanCreateIn: vendorCanCreateIn,
+    createContentDraft: createContentDraft, updateContentDraft: updateContentDraft,
+    submitContent: submitContent,
+
+    reviewerCanAct: reviewerCanAct, outcomesEditable: outcomesEditable,
+    addOutcome: addOutcome, updateOutcome: updateOutcome,
+    deleteOutcome: deleteOutcome, moveOutcome: moveOutcome,
+    approveAcademic: approveAcademic, requestChangesAcademic: requestChangesAcademic,
+
+    managerCanAct: managerCanAct, managerCanPublish: managerCanPublish,
+    updateCanonicalMetadata: updateCanonicalMetadata,
+    requestChangesContent: requestChangesContent, publishContent: publishContent,
+
+    vendorOverview: vendorOverview, reviewerOverview: reviewerOverview, managerOverview: managerOverview
   };
 })();
+
+/* ------------------------------------------------------------------
+   Install the canonical published pool into the catalogue lookups.
+
+   From here on, `data.experiment()`, `data.experimentsInCourse()`,
+   `data.experimentsInGrouping()`, `data.contextOf()`,
+   `data.technologiesInUse()` and `data.experiments()` all resolve
+   against `contentRecords[]` filtered to PUBLISHED. That is what makes
+   ONE content source real: the public catalogue, tenant content
+   access, Faculty My Content and Student My Learning read the same
+   pool the Content Manager publishes into, and nothing unpublished is
+   reachable through any of them.
+   ------------------------------------------------------------------ */
+XRSLP.data.setPublishedResolver(XRSLP.state.publishedPool);

@@ -29,6 +29,9 @@
 <script src="js/state.js"></script>
 <script src="js/csv.js"></script>
 <script src="js/components.js"></script>
+<!-- Shared content-production UI. Loads after components.js (it builds on
+     XRSLP.ui) and before the three content workspaces that consume it. -->
+<script src="js/content-ui.js"></script>
 <script src="js/router.js"></script>
 <script src="js/screens/public-catalogue.js"></script>
 <script src="js/screens/public-request.js"></script>
@@ -43,6 +46,11 @@
      through XRSLP.studentUI, so that module must exist first. -->
 <script src="js/screens/faculty.js"></script>
 <script src="js/screens/faculty-assess.js"></script>
+<!-- Implementation 05 — the content production chain:
+     Vendor → Academic Reviewer → Content Manager → Published. -->
+<script src="js/screens/vendor.js"></script>
+<script src="js/screens/reviewer.js"></script>
+<script src="js/screens/content-manager.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

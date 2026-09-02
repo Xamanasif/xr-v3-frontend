@@ -1,8 +1,13 @@
 /* ============================================================
    Unified Functional Platform — application bootstrap.
    Renders the prototype-controls strip, the active shell
-   (public / Super Admin / Tenant Admin / Faculty / Student) and the
-   routed screen.
+   (public / Super Admin / Tenant Admin / Faculty / Student /
+   Vendor / Academic Reviewer / Content Manager) and the routed screen.
+
+   All eight surfaces use the SAME workspace shell, the same navigation
+   pattern and the same design system. A role is distinguished by its
+   navigation, its content, its actions and its authority — never by a
+   separate styling system.
    ============================================================ */
 
 (function () {
@@ -67,27 +72,58 @@
       '</select></label>';
   }
 
-  function protobar(area, shownStudent, shownFaculty) {
+  /* The three central content roles use the same PROTOTYPE VIEW SWITCH.
+     The chooser lists the REAL sample content actors that exist in
+     prototype state; picking one grants nothing, because scope still
+     comes from the seeded per-Course role assignments. */
+  function contentSelector(area, shownActor) {
+    if (area === 'vendor') {
+      return XRSLP.contentUI.actorSelector('vendor', shownActor || state.protoVendor(),
+        'proto-vendor', 'Viewing as Vendor');
+    }
+    if (area === 'review') {
+      return XRSLP.contentUI.actorSelector('reviewer', shownActor || state.protoReviewer(),
+        'proto-reviewer', 'Viewing as Academic Reviewer');
+    }
+    return XRSLP.contentUI.actorSelector('manager', shownActor || state.protoManager(),
+      'proto-manager', 'Viewing as Content Manager');
+  }
+
+  function protobar(area, shownStudent, shownFaculty, shownActor) {
     var sc = state.scenario();
     var options = Object.keys(data.SCENARIOS).map(function (key) {
       var s = data.SCENARIOS[key];
       return '<option value="' + key + '"' + (sc.id === key ? ' selected' : '') + '>' +
         esc(s.id + ' — ' + s.title + ' (' + s.institution.accessContext + ')') + '</option>';
     }).join('');
+    /* Eight roles now sit on this strip. It is a wrapping flex row with
+       every item allowed to wrap, so nothing here can create
+       document-level horizontal overflow at any width — the roles are
+       split into two labelled groups rather than one long line. */
+    var isContent = area === 'vendor' || area === 'review' || area === 'content';
     return '<div class="protobar">' +
       '<span class="plabel">PROTOTYPE CONTROLS — NOT PRODUCT UI</span>' +
-      '<nav aria-label="Prototype view switch — not product navigation">' +
+      '<nav class="pnav" aria-label="Prototype view switch — not product navigation">' +
+      '<span class="pgrp"><span class="pgl" aria-hidden="true">Access</span>' +
       '<a href="#/catalogue"' + (area === 'public' ? ' aria-current="true"' : '') + '>Public</a>' +
       '<a href="#/platform/requests"' + (area === 'platform' ? ' aria-current="true"' : '') + '>Super Admin</a>' +
       '<a href="#/tenant"' + (area === 'tenant' ? ' aria-current="true"' : '') + '>Tenant Admin</a>' +
       '<a href="#/faculty"' + (area === 'faculty' ? ' aria-current="true"' : '') + '>Faculty</a>' +
       '<a href="#/learn"' + (area === 'learn' ? ' aria-current="true"' : '') + '>Student</a>' +
+      '</span>' +
+      '<span class="pgrp"><span class="pgl" aria-hidden="true">Content</span>' +
+      '<a href="#/vendor"' + (area === 'vendor' ? ' aria-current="true"' : '') + '>Vendor</a>' +
+      '<a href="#/review"' + (area === 'review' ? ' aria-current="true"' : '') + '>Academic Reviewer</a>' +
+      '<a href="#/content"' + (area === 'content' ? ' aria-current="true"' : '') + '>Content Manager</a>' +
+      '</span>' +
       '</nav>' +
       '<div class="pright">' +
       (area === 'learn'
         ? studentSelector(shownStudent)
         : area === 'faculty'
         ? facultySelector(shownFaculty)
+        : isContent
+        ? contentSelector(area, shownActor)
         : '<label for="proto-scenario">Requester scenario' +
           '<select id="proto-scenario">' + options + '</select></label>') +
       '<button type="button" id="proto-reset">Reset prototype data</button>' +
@@ -123,6 +159,19 @@
         ui.toast('Now viewing as ' + (p ? p.name : 'the selected faculty member') + ' (prototype only).', 'info');
       });
     }
+    [['proto-vendor', state.setProtoVendor, '#/vendor', 'Vendor'],
+     ['proto-reviewer', state.setProtoReviewer, '#/review', 'Academic Reviewer'],
+     ['proto-manager', state.setProtoManager, '#/content', 'Content Manager']].forEach(function (row) {
+      var el = document.getElementById(row[0]);
+      if (!el) { return; }
+      el.addEventListener('change', function () {
+        row[1](el.value || null);
+        if (!el.value) { XRSLP.router.go(row[2]); return; }
+        var a = state.contentActor(el.value);
+        XRSLP.router.go(row[2] + '/' + encodeURIComponent(el.value) + '/overview');
+        ui.toast('Now viewing as ' + (a ? a.name : 'the selected ' + row[3]) + ' (prototype only).', 'info');
+      });
+    });
     var sel = document.getElementById('proto-scenario');
     if (sel) {
       sel.addEventListener('change', function () {
@@ -141,7 +190,10 @@
             'created tenants and tenant access records are cleared, tenant people, groups, mappings and ' +
             'assignments return to the seed set, the Question Bank and the assessment configuration return ' +
             'to the seeded sample set, every student learning record — resources opened, simulations run, ' +
-            'assessment attempts and faculty reviews — is discarded, and the requester scenario returns to A.</p>' +
+            'assessment attempts and faculty reviews — is discarded, the content pool returns to the seeded ' +
+            'published catalogue plus the sample in-flight submissions (any experiment produced through the ' +
+            'Vendor → Academic Reviewer → Content Manager workflow is discarded with it), and the requester ' +
+            'scenario returns to A.</p>' +
             '<p style="margin-top:8px">Reset is the <strong>only</strong> action that discards existing data. ' +
             'Loading a state saved by an earlier build upgrades it in place instead.</p>' +
             '<div class="consequence">' + ui.ic('info') +
@@ -306,6 +358,32 @@
     });
   }
 
+  /* ---------- content-production workspace shells (Implementation 05)
+     The SAME workspace chrome as every other role. What differs is the
+     navigation, the content and the authority — not the styling. Every
+     navigation entry below routes to a screen that is fully
+     implemented. */
+  function contentShell(kind, contentHTML, actor, activeKey) {
+    var meta = {
+      vendor:  { home: '#/vendor',  label: 'Vendor',            navLabel: 'Vendor workspace navigation',
+                 ui: XRSLP.vendorUI,   fallback: 'Vendor workspace' },
+      review:  { home: '#/review',  label: 'Academic Reviewer',  navLabel: 'Academic Reviewer workspace navigation',
+                 ui: XRSLP.reviewerUI, fallback: 'Academic Reviewer workspace' },
+      content: { home: '#/content', label: 'Content Manager',    navLabel: 'Content Manager workspace navigation',
+                 ui: XRSLP.managerUI,  fallback: 'Content Manager workspace' }
+    }[kind];
+    var nav = actor ? meta.ui.nav(actor, activeKey) : [];
+    return workspaceShell({
+      homeHref: actor ? nav[0].href : meta.home,
+      chip: actor ? actor.organisation : null,
+      navLabel: meta.navLabel,
+      wsKind: meta.label,
+      wsName: actor ? actor.name : meta.fallback,
+      nav: nav,
+      contentHTML: contentHTML
+    });
+  }
+
   function tenantShell(contentHTML, tenant, activeKey) {
     var nav = [];
     if (tenant) {
@@ -373,6 +451,16 @@
         state.setProtoStudent(result.student.id);
       }
       shellHTML = learnShell(result.html, result.student, result.tenant, result.navKey);
+    } else if (area === 'vendor' || area === 'review' || area === 'content') {
+      /* Same rule as the Student and Faculty planes: the strip follows
+         the identity the page actually rendered, so a direct route and
+         the control can never disagree. */
+      if (result.contentActor) {
+        var setters = { vendor: state.setProtoVendor, review: state.setProtoReviewer, content: state.setProtoManager };
+        var getters = { vendor: state.protoVendorId, review: state.protoReviewerId, content: state.protoManagerId };
+        if (getters[area]() !== result.contentActor.id) { setters[area](result.contentActor.id); }
+      }
+      shellHTML = contentShell(area, result.html, result.contentActor, result.navKey);
     } else {
       shellHTML = publicShell(result.html, result.navKey);
     }
@@ -381,7 +469,7 @@
     /* The skip link is the very first focusable element on the page,
        ahead of even the prototype-controls strip. */
     root.innerHTML = '<a class="skip-link" href="#main-content" id="skip-link">Skip to main content</a>' +
-      protobar(area, result.student, result.faculty) + shellHTML;
+      protobar(area, result.student, result.faculty, result.contentActor) + shellHTML;
 
     document.title = (result.title ? result.title + ' — ' : '') + 'XR Simulation Learning Platform (Prototype)';
 

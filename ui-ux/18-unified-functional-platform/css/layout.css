@@ -113,3 +113,13 @@ html{scroll-padding-top:calc(var(--topbar-h) + 12px)}
 /* Minimum target size (WCAG 2.5.8) — global rule the batches patched piecemeal. */
 button, a, [role="button"], input, select, textarea{min-block-size:24px; min-inline-size:24px}
 .crumb a, .kv .v a, table.dt a.rowlink, .pubfoot a{display:inline-block; padding:4px 0; margin:-4px 0}
+
+/* ---------- prototype strip with eight roles (Implementation 05) ----------
+   Eight role entries no longer fit one line on a narrow viewport, so the
+   roles are carried in two labelled groups inside a wrapping nav. Every
+   element wraps; nothing here can create document-level horizontal
+   overflow, and no width is masked with overflow-x:hidden. */
+.protobar .pnav{display:flex; gap:6px 14px; flex-wrap:wrap; align-items:center; min-width:0}
+.protobar .pgrp{display:flex; gap:2px; align-items:center; flex-wrap:wrap; min-width:0}
+.protobar .pgl{font-family:var(--mono); font-size:9.5px; letter-spacing:.09em; color:#8C98A8;
+  text-transform:uppercase; padding-right:4px; white-space:nowrap}

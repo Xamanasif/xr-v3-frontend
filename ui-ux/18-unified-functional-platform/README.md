@@ -1,16 +1,28 @@
-# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04
+# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05
 
-**End-to-end B2B access, tenant operations, student entitlement, the student learning
-experience and the Faculty workspace that authors and evaluates it** for the XR Simulation
-Learning Platform, built against the 31 Aug stakeholder decisions.
+**The content that reaches a learner, from the people who produce it to the learner who runs
+it** — content production, B2B access, tenant operations, student entitlement, the student
+learning experience and the Faculty workspace that authors and evaluates it — for the XR
+Simulation Learning Platform, built against the 31 Aug stakeholder decisions.
 
 One connected, functional prototype. Implementation 01 proved the *granting* half of the
 chain; Implementation 02 completed the *receiving* half inside the institution; Implementation
 03 carried that same derived entitlement into the Student's own workspace; Implementation 04
-puts the Faculty member behind the assessment the Student sits and the written answer the
-Student submits:
+put the Faculty member behind the assessment the Student sits and the written answer the
+Student submits. **Implementation 05 closes the chain at the top**: the content those four
+slices distribute is no longer seeded — it is produced, academically validated and published
+through the confirmed chain, into the same catalogue:
 
 ```
+IMPLEMENTATION 05
+VENDOR CREATES AN EXPERIMENT (technical submission — never publishes)
+→ SUBMIT FOR ACADEMIC REVIEW
+→ ACADEMIC REVIEWER validates academically and AUTHORS THE LEARNING OUTCOMES
+   (approve · or request changes → correct → resubmit)
+→ CONTENT MANAGER content-readiness review
+→ **PUBLISH** — the FIRST publication of a NEW Experiment
+→ IT IS IN THE PUBLIC CATALOGUE, and in nobody's hands yet
+
 IMPLEMENTATION 01
 PUBLIC CATALOGUE → PROGRAMME/DEPARTMENT BUNDLE → COURSE → EXPERIMENT
 → TECHNOLOGY SELECTION → SELECTION/CART → INSTITUTIONAL REQUEST
@@ -44,13 +56,35 @@ IMPLEMENTATION 04
 → FACULTY STUDENT PROGRESS + OPERATIONAL ANALYTICS
 ```
 
+**Implementation 05 sits at the top of that chain and hands off to Implementation 01 without a
+special case.** A newly published Experiment is discovered, requested, approved, allocated,
+assigned and run by exactly the code the seeded catalogue already used.
+
 ### The invariant the slices exist to prove
 
 ```
 PUBLISHED   ≠   TENANT ACCESS   ≠   STUDENT ENTITLEMENT
-                Super Admin          Tenant Admin
-                allocates            assigns
+Content Manager Super Admin          Tenant Admin
+publishes       allocates            assigns
 ```
+
+Implementation 05 makes the first altitude real, and proves it stays separate. **Publishing
+writes exactly one thing** — the content record's status, plus a publication record. It creates
+no access row, changes no licence, creates no assignment. The QA path publishes an Experiment
+and then shows the existing tenant's access, allocation, entitlements and Faculty scope
+byte-identical to what they were a moment before.
+
+### The terminology firewall — `STK31-06` / `STK31-07`
+
+| Event | Object | Owner | The word |
+|---|---|---|---|
+| A **new** Experiment reaches the catalogue for the first time | the Experiment | **Content Manager** | **Publish** |
+| A **newer version** replaces an already-published Experiment | the Version | **Super Admin** | **Release** / **Hold** |
+
+**This slice builds the first row only.** The words *Release* and *Hold* do not appear as an
+action anywhere in it, no later-version workflow exists, and no dead control hints at one. Where
+a Vendor or a Content Manager looks at a published Experiment, the screen says plainly that a
+later version is a different decision owned by another role and is not built here.
 
 Implementation 04 adds a second altitude that must not collapse into the first:
 
@@ -112,6 +146,41 @@ then open <http://localhost:8123/>. Opening `index.html` directly via `file://` 
 | `#/requests` | Requests of the active requester scenario |
 | `#/request-status/:id` | Applicant-visible status + history timeline |
 | `#/payment/:id` | **External route only** — provider-neutral payment-required step; renders only in `APPROVED_PAYMENT_REQUIRED`, otherwise redirects to status. The internal route never contains this step (STK31-19) |
+
+**Vendor workspace** (Implementation 05 — the content producer / submitter, `STK31-03`)
+
+Three destinations, all implemented. There is no Invoices, Contracts, Payments, Messages,
+Analytics or Support entry: none is built.
+
+| Route | Screen |
+|---|---|
+| `#/vendor` | Resolves the prototype's current Vendor, or the PROTOTYPE-ONLY chooser |
+| `#/vendor/:actorId/overview` | Counts that exist (draft · in academic review · changes requested · awaiting publication · published), attention rows, the Courses this Vendor may submit into |
+| `#/vendor/:actorId/experiments` | **My Experiments** — every record this Vendor created, with search + status filter |
+| `#/vendor/:actorId/experiments/new` | **Create experiment** — Course selection, metadata, technology availability, per-technology delivery, documentation, version, notes, with a live submission checklist |
+| `#/vendor/:actorId/experiment/:recordId` | Submission detail and status — where it is, who holds it, what came back, full history |
+| `#/vendor/:actorId/experiment/:recordId/edit` | Edit draft / **correct submission**. Refuses, with the reason, while a reviewer holds the revision or after publication |
+| `#/vendor/:actorId/submissions` | Everything that has entered the governance chain, with the returned ones surfaced first |
+
+**Academic Reviewer workspace** (Implementation 05 — academic validation + Learning Outcomes, `STK31-08`)
+
+| Route | Screen |
+|---|---|
+| `#/review` | Resolves the prototype's current Academic Reviewer, or the PROTOTYPE-ONLY chooser |
+| `#/review/:actorId/overview` | Waiting for review · changes requested · academically approved · published, the reviewer's own decision history, and the Courses assigned to them |
+| `#/review/:actorId/queue` | **Review queue** — submissions inside their assignment, with search, status and Course filters |
+| `#/review/:actorId/submission/:recordId` | **Academic review** — the experiment, its Course context, the technical delivery *as context*, and the **Learning Outcomes editor** (add · edit · delete · reorder). Approve academically, or request changes with a required reason |
+
+**Content Manager workspace** (Implementation 05 — Content Library + FIRST PUBLICATION, `STK31-06`)
+
+| Route | Screen |
+|---|---|
+| `#/content` | Resolves the prototype's current Content Manager, or the PROTOTYPE-ONLY chooser |
+| `#/content/:actorId/overview` | Published · awaiting publication · in academic review · with a Vendor, technology coverage derived from published content, and what publishing does **not** do |
+| `#/content/:actorId/library` | **Content Library** — the canonical pool, published and pipeline alike, with search + status + Course + technology filters. The same content source the public catalogue reads |
+| `#/content/:actorId/queue` | **Publication queue** — academically approved items awaiting a first-publication decision, each with its readiness |
+| `#/content/:actorId/item/:recordId` | Final review — canonical metadata, Learning Outcomes (read-only), the academic decision, technology delivery, documentation, readiness. **Publish**, or request changes with a required reason |
+| `#/content/:actorId/item/:recordId/metadata` | **Canonical content metadata** (`STK31-09`) — name, Course, summary, description. Not the Learning Outcomes, not the delivery, not the master records |
 
 **Super Admin workspace**
 
@@ -203,7 +272,7 @@ four separate records — and tenant access is still not student entitlement.
 ## State model
 
 `localStorage` key **`xrslp-unified-v1`** (unchanged since Implementation 01), with
-**`schemaVersion: 5`** inside the stored object carrying the evolution. No second namespace
+**`schemaVersion: 6`** inside the stored object carrying the evolution. No second namespace
 exists.
 
 | Collection | Record | Written by |
@@ -223,6 +292,41 @@ exists.
 | `assessmentDefs[]` | **AssessmentDefinition** — one per Tenant × Experiment: title, introduction, pass mark, attempt limit, deadline, visibility policy, its own **copies** of the questions, `revision` | **Faculty** (STK31-30) |
 | `reviews[]` | **DescriptiveReview** — one per attempt × written question: max marks, marks, feedback, who reviewed it, and any suggestion that was generated | **Faculty** (STK31-31) |
 | `facultyPrefs` | A Faculty workflow preference (`manual` / `assisted` review). **Not a role** | Faculty |
+| `contentRecords[]` | **THE CANONICAL EXPERIMENT POOL** — id, Course, name, summary, description, `outcomes[]`, `technologies[]`, per-technology `delivery`, `documents[]`, version label, correction `revision`, workflow `status`, `origin`, the current `academicReview`, the `publication`, and an embedded `history[]` | **Vendor** creates and submits · **Academic Reviewer** writes the outcomes · **Content Manager** publishes and owns the canonical metadata |
+| `academicReviews[]` | **AcademicReview** — every academic decision (`approved` / `changes_requested`), with the reviewer, the timestamp, the comment, the revision reviewed, and the Learning Outcomes as they stood | **Academic Reviewer** (STK31-08) |
+| `publicationRecords[]` | **PublishedContent** — one per first publication: who published, when, the version label, the revision, the technologies and outcomes published, and the academic approval it rests on | **Content Manager** (STK31-06) |
+| `contentActors[]` | Prototype Vendor · Academic Reviewer · Content Manager identities | prototype seed |
+| `contentRoleAssignments[]` | Per-Course / per-Experiment role scope (`STK31-41`) | prototype seed, standing in for the Super Admin governance UI of a later slice |
+
+### One content source — the single most important structural decision in this slice
+
+Before Implementation 05, the catalogue was the static `EXPERIMENTS` array in `data.js`. Making
+publication real without creating a second catalogue meant choosing where the one truth lives.
+
+**It lives in `contentRecords[]`.** `data.js` keeps its array as the *seed* and installs a
+resolver:
+
+```js
+XRSLP.data.setPublishedResolver(XRSLP.state.publishedPool);
+```
+
+From that line on, every catalogue lookup already written — `data.experiment()`,
+`data.contextOf()`, `data.experimentsInCourse()`, `data.experimentsInGrouping()`,
+`data.technologiesInUse()`, `data.experiments()` — resolves against `contentRecords[]` filtered
+to `PUBLISHED`. Roughly ninety existing call-sites across the public catalogue, the tenant
+screens, Faculty and Student were not touched, and two things became true **structurally**
+rather than by discipline:
+
+- a newly published Experiment appears everywhere, with no second catalogue and no call-site
+  change;
+- **content that is not published cannot be reached through any of them** — a hand-typed
+  `#/experiment/EXP-011` before publication returns `null` from `contextOf()` and the screen
+  resolves to *not found*. The leak is not guarded against; it is unrepresentable.
+
+The three content workspaces go through `XRSLP.state.contentForVendor()` /
+`contentForReviewer()` / `contentForManager()` instead, which see the full pool inside the
+actor's authority. The projection is memoised against a content-event counter and dropped on
+every mutation, on reset and on load.
 
 **`FacultyContent` is derived, never stored** — `state.facultyScope()` reads the
 Implementation-02 `facultyMappings[]` and nothing else. There is no second Faculty mapping
@@ -336,11 +440,37 @@ base.
    *"Pending Faculty review"* status always implied — so the promise Implementation 03 made now
    has a real queue behind it.
 
+**Schema 5 → 6** adds the content production chain, additively:
+
+1. the five new collections are created if absent;
+2. the five prototype content actors and their eleven per-Course role assignments are seeded;
+3. **every existing seed Experiment becomes a `PUBLISHED` content record** carrying a publication
+   record whose `origin` is `seed` — with its **id unchanged**, so every stored reference to it
+   (selection items, access rows, assignments, Faculty mappings, attempts, questions, reviews)
+   still resolves;
+4. the four sample in-flight submissions are seeded **once**, and only into a state that has never
+   held any Vendor-produced content — a browser that has already driven the chain is never handed
+   records it did not create;
+5. a stale prototype Vendor / Reviewer / Manager pointer is cleared, and re-checked against the
+   actor's role.
+
+Nothing from Implementations 01–04 is touched. Verified on a real schema-5 browser state: two
+requests, two access records, eight people, two groups, four memberships, two course mappings, a
+Faculty mapping, an assignment, an attempt, twelve questions, three assessment definitions and a
+descriptive review all survived, and `migratedFrom` reported `5`.
+
+**Existing published content is NOT replayed through a fabricated Vendor workflow.** It carries no
+invented submission, no invented reviewer and no invented decision — inventing an audit trail
+nobody wrote would be a lie in the one record whose whole purpose is to be trustworthy. Its
+publication origin is `seed`, shown to a Content Manager as *"Existing published content"* with a
+line explaining that it predates the workflow.
+
 **Reset prototype data is the only action that discards anything**; it restores the deterministic
 seed (2 Faculty, 6 Students, 2 Groups, 2 local mappings, **12 Question Bank items and 3 assessment
-definitions** for the seeded internal tenant — and deliberately **no** access record, **no**
-assignment and **no** learning activity, so a fresh reset still shows zero tenant access and zero
-entitlement).
+definitions** for the seeded internal tenant, **6 published Experiments and 4 sample in-flight
+submissions**, **5 content actors and their role assignments** — and deliberately **no** access
+record, **no** assignment and **no** learning activity, so a fresh reset still shows zero tenant
+access and zero entitlement).
 
 ## Licence / user allocation
 
@@ -403,6 +533,229 @@ Required: `Programme` · `Course Name` · `Course ID/Code` · `Student ID` · `S
 | 23 | **The withholding in (22) reaches the progress roll-up too, via an explicit STUDENT VIEW of the derivation** | The roll-up counts the assessment step only when the outcome is `PASSED`, so with every other activity finished, *"Completed / 100%"* meant passed and *"In progress / 86%"* meant not passed — the withheld outcome, readable straight off the Progress screen. `experimentProgress()` and `technologyProgress()` therefore take an `opts.studentView` flag: under it, `resultWithheld()` makes the assessment step **undecided**, so a passing and a failing Student produce identical status, percentage, steps and Home counts until the policy releases. Student screens pass the flag; **the Faculty workspace and the analytics do not**, and keep the true outcome | `state.resultWithheld()` · `opts.studentView` |
 | 24 | **“Automatically marked” is not “released” — the objective sub-score is withheld too** | An objective assessment is scored the instant it is submitted, but under `AFTER_DEADLINE` or `CUSTOM_DATE` that score is a withheld result like any other: a figure that already puts the pass mark out of reach *is* the outcome, disclosed early by another name. So while `state.scoreWithheld()` holds, no figure of any kind reaches a Student surface — not the combined score, not the objective sub-score. Implementation 03's behaviour is unchanged under `SHOW_IMMEDIATELY`, which is every assessment that does not delay | `state.scoreWithheld()` |
 | 25 | **Retry availability is an outcome channel, so it waits for release** | “Try again” appears only for a `NOT_PASSED` attempt. Offering it — or withdrawing it — while the result is withheld would announce the result the rest of the screen is holding back. While `scoreWithheld` holds, no retry control is offered to anyone, and no attempts-left sentence is printed. **The attempt-limit configuration is untouched**; the control simply waits for release like everything else | `studentResult` — `canRetry` |
+| 26 | **Status names: `Draft` · `Academic review` · `Changes requested` · `Content readiness review` · `Published`** | `U-VND-04` marks Batch 01's shipped status model **KEEP + REWORD**, so the set is inherited rather than invented. The rewording is (a) this build's sentence case, and (b) *Changes required* → **Changes requested**, which is PM-14's own verb and the brief's word. Batch 01's transient `publishing` state is dropped: it animated a deployment this prototype does not perform. `CHANGES_ACADEMIC` and `CHANGES_CONTENT` share the label but not the return gate | `CONTENT_STATUS` · `CONTENT_STATUS_META` |
+| 27 | **`CONTENT_REVIEW` is both "academically approved" and "awaiting publication"** | Batch 01's own comment records the reason: the Content Manager publishes **at** the readiness gate, so a hand-off state between the two would describe nothing and would be a gate nobody passes through. The brief's two conceptual states map onto this one | `CONTENT_STATUS.CONTENT_REVIEW` |
+| 28 | **A resubmission returns to the gate that requested the change, not to the start** | Batch 01's `resubmit(sub, target)` does exactly this, and it is the only reading in which the Content Manager's metadata question does not invalidate academic validation that has already passed. The recorded academic approval survives, so the publish guard still finds it | `submitContent()` · `returnedGate` |
+| 29 | **A Vendor may edit only in `DRAFT` / `CHANGES_ACADEMIC` / `CHANGES_CONTENT`** | Brief §28 asks for a simple safe policy so the Vendor cannot mutate the exact revision a reviewer is reading. Editability follows the handoff: if the workflow has given the work back, it is editable; if someone else holds it, it is not. Enforced in `vendorCanEdit()`, so the route resolving is not the same as the action being allowed | `vendorCanEdit()` · `VENDOR_EDITABLE` |
+| 30 | **A published record is read-only for the first-publication workflow, and NO "create new version" control is rendered** | Brief §45 asks for a safe policy and forbids building Super Admin Release/Hold here, and forbids a dead control. So the published revision is fixed, and both the Vendor and the Content Manager get a plain statement of whose decision a later version is — instead of a button that would either lie or do nothing | `vendorCanEdit()` · `publishedNextVersionNote()` |
+| 31 | **Existing published content migrates with `publication.origin = 'seed'` and NO invented workflow history** | Brief §15 permits a migration-generated origin and forbids a fake historical Vendor workflow. Fabricating a submission, a reviewer and a decision would put words in people's mouths in the one record whose purpose is to be trustworthy. Ids are unchanged, so every stored reference still resolves | `seedContentPool()` · `migrateContentProduction()` |
+| 32 | **A Vendor SELECTS a canonical Course; it cannot propose a new Programme or Course** | `STK31-10` makes the academic structure platform-controlled and `STK31-46` leaves *who maps an Experiment to a Course* 🟠 **detail pending** — while `U-VND-02` explicitly adds *course mapping* to the Vendor submission screen. Selecting from the canonical set satisfies the screen requirement without taking an authority no source grants. **If the pending detail resolves the other way, a "proposed / pending" state is an addition to a field that already exists, not a restructure** | `vendorCanCreateIn()` · the Course select |
+| 33 | **Approving academically requires at least one Learning Outcome** | No source states a minimum. But `STK31-08` makes outcomes the reviewer's own object, `STK31-17` puts them on the public Experiment page, and the public page renders a *Learning outcomes* card unconditionally — so approving with none would publish a visibly empty section. Required at the gate that owns them, not at the Vendor's | `academicReadiness()` |
+| 34 | **Publish readiness re-checks everything the earlier gates checked** | Brief §43 asks the Content Manager to catch missing canonical metadata, missing academic approval and incomplete technical information before Publish, and §58 requires the state layer — not the UI — to reject an invalid publish. The list is therefore evaluated inside `publishContent()` as well as rendered, so a hand-driven action fails identically | `publishReadiness()` · `publishContent()` |
+| 35 | **Package delivery is metadata only, and says so** | Brief §10 forbids real storage and §68 forbids claiming an upload. A browser file picker is still the honest control for *"which package is this"*, so the name and size are recorded, the limitation is stated where the file is chosen and where the metadata is shown, and no message anywhere says a binary was uploaded or deployed | `packageFile` · `.dnote` |
+| 36 | **A hosted URL is validated by format only, and is never opened during authoring** | Brief §69 asks for format validation and forbids auto-navigation. `isHttpUrl()` accepts `http(s)://host/...`; `https://` is what the hint asks for and every sample uses. No reachability check is possible or claimed in a browser prototype, and the value is not fetched, previewed or opened anywhere in the authoring flow | `isHttpUrl()` |
+| 37 | **Content role assignments are prototype seed data, per Course** | `STK31-41` confirms Course- and Experiment-specific assignment with several holders per Experiment, and `U-SA-15` puts the surface that manages it in a later slice. Seeding the assignments makes scope real and testable now; the model already carries `scope: 'experiment'`, so the deferred UI writes into a structure that exists rather than replacing one | `contentRoleAssignments[]` |
+| 38 | **A Vendor's visibility rule is ownership, not the Course assignment** | Brief §19 says a Vendor sees content they are authorised to work on. Two Vendors assigned to the same Course must still not read each other's drafts, so the Course assignment governs **where a Vendor may submit** and ownership governs **what they may read**. Verified: a hand-typed route to another Vendor's record is not found | `contentForVendor()` |
+
+## The content production model
+
+### Who owns what — `STK31-08`, and nothing outside it
+
+| Role | Owns | Can never |
+|---|---|---|
+| **Vendor** | The technical submission: Course placement, experiment metadata, technology availability, per-technology delivery, documentation, version, correction and resubmission | **Publish** (FRD 1.4.5 — the only explicit role prohibition, and `STK31-03` extends it to internal BITS teams). Own Learning Outcomes. Approve anything |
+| **Academic Reviewer** | Academic validation, Course/Experiment alignment, **the Learning Outcomes**, and the academic decision | Publish. Grant tenant access. Grade a Student's descriptive answer — that is Faculty (`STK31-31`) |
+| **Content Manager** | The Content Library, content-readiness review, **the FIRST publication**, and canonical content metadata (`STK31-09`) | Publish an item with no academic approval. Re-mark Learning Outcomes. Release or hold a later version (`STK31-07` — Super Admin) |
+
+**`Vendor` means content producer / submitter.** An internal BITS / WILP content team uses the
+same role and the same workflow (`STK31-03`); no `Internal Developer`, `Content Developer`,
+`Technical Reviewer`, `Publisher` or `Release Manager` role was invented. There are seven formal
+roles and no eighth.
+
+### The status machine
+
+Batch 01's shipped model, which `14_UNIFIED_SCREEN_REQUIREMENTS.md` marks **KEEP + REWORD** for
+`U-VND-04`, re-worded into this build's sentence case and PM-14's own verb:
+
+```
+                                    ┌──── request changes (reason required) ────┐
+                                    ▼                                           │
+DRAFT ──submit──▶ ACADEMIC_REVIEW ──┴──approve──▶ CONTENT_REVIEW ──publish──▶ PUBLISHED
+  ▲                    ▲                              │  ▲
+  │              CHANGES_ACADEMIC ◀───────────────────┘  │
+  │                    │        request changes          │
+  └── (Vendor edits) ──┤                                 │
+                       │        CHANGES_CONTENT ─resubmit┘
+                       └──resubmit──▶ (back to the gate that asked)
+```
+
+| Status | Label shown | With |
+|---|---|---|
+| `DRAFT` | Draft | the Vendor — not yet submitted |
+| `ACADEMIC_REVIEW` | Academic review | the Academic Reviewer |
+| `CHANGES_ACADEMIC` | Changes requested | the Vendor — correct and resubmit |
+| `CONTENT_REVIEW` | Content readiness review | the Content Manager |
+| `CHANGES_CONTENT` | Changes requested | the Vendor — correct and resubmit |
+| `PUBLISHED` | Published | nobody — it is in the catalogue |
+
+`CONTENT_REVIEW` is **both** *academically approved* and *awaiting first publication*. Batch 01's
+own note records why there is no hand-off state between them: the Content Manager publishes **at**
+the readiness gate, so a "ready to publish" state would describe nothing.
+
+Batch 01's transient `publishing` state is **not** carried. It animated a deployment to production
+that this prototype does not perform, and claiming one would be false.
+
+### Changes requested — source-backed, at both gates
+
+`04_FINAL_ROLE_AND_AUTHORITY_MODEL.md` gives the Academic Reviewer *"approve or request changes
+(PM-14)"* and the Content Manager *"request changes (PM-14)"*; `13_BATCH_01_05_EXACT_CORRECTION_MAP.md`
+lists *"Changes-required · comments · correction · resubmission at the returning gate"* as
+**PM-14 — untouched**; and `ND-13` states that *"the Content Manager's request-changes path is
+unchanged"*. It is implemented at both gates, exactly once each, with **a reason required** — a
+submission returned without one is not a review.
+
+A resubmission increments the correction-round counter and returns to **the gate that asked**. The
+Content Manager's metadata question does not send work back through academic validation it has
+already passed, and the recorded academic approval survives it.
+
+#### …but only while the approval still describes the work
+
+A content-gate return hands the **whole** submission back to the Vendor, so the work that comes
+back need not be the work that was approved. Without a check, a Vendor could change the Course, the
+name, the description and the technologies while "correcting", resubmit past academic review
+entirely, and publish — with the publication record naming a reviewer who had never seen the
+object. That was a real, reproducible hole, found by an audit of this slice and fixed.
+
+An academic approval therefore records a **fingerprint** of what was validated: Course, name,
+summary, description, technologies and Learning Outcomes. Delivery detail and documentation are
+deliberately **not** in it, because correcting exactly those is what a content-gate return is for.
+On resubmission the fingerprint is compared:
+
+- **unchanged** → straight back to content readiness review, approval intact (the intended path);
+- **changed** → the approval is **withdrawn** and the submission returns to academic review, with
+  the reason written into its history.
+
+The comparison **fails closed**: an approval that cannot be shown to describe the resubmitted work
+does not get the benefit of the doubt. `publishReadiness()` checks it again as a last line of
+defence, migration back-fills it onto approvals written before it existed, and the Vendor's
+correction screen states in advance which changes will withdraw the approval.
+
+### Vendor editing while a review is in progress
+
+A Vendor may edit only in `DRAFT`, `CHANGES_ACADEMIC` and `CHANGES_CONTENT` — the states in which
+the workflow has handed the work back to them. While an Academic Reviewer or the Content Manager
+holds the submitted revision it is read-only, so the revision under review cannot change underneath
+the reviewer. The route still resolves; the editor refuses and says which of those two things is
+true.
+
+### After publication
+
+The published revision is **fixed** for this slice. The Vendor's editor refuses, and both the
+Vendor and the Content Manager see a plain statement that replacing a published Experiment with a
+newer version is a **Super Admin Release / Hold** decision on a different object, not part of
+first publication, and not built here. **No "Create new version" control is rendered** — a dead
+button that explains a deferred feature is worse than an absent one.
+
+The Content Manager can still correct **canonical metadata** on a published item (`STK31-09`).
+That takes effect in the public catalogue immediately, and the screen says so; it creates no new
+version and does not touch the published revision, the recorded academic approval or the
+publication record.
+
+Canonical metadata is a **Content Library** action, so it applies only to content the Content
+Manager actually holds — an item at their own readiness gate, or one already published. It is
+refused on a draft the Vendor is still writing and on a submission the Academic Reviewer is
+holding: rewriting either would change the work under the person doing it, and could move a
+submission out of its assigned reviewer's scope. Enforced in `canonicalEditable()`, in the screen,
+and on the action that links to it.
+
+### Learning Outcomes — one copy, academically owned
+
+`STK31-08` resolves the `N-1` ambiguity in favour of the Academic Reviewer, and
+`14_UNIFIED_SCREEN_REQUIREMENTS.md` marks `U-VND-02` **"Learning Outcomes do NOT go here"**. So:
+
+- the Vendor's form has **no** outcomes field — it says who owns them, and shows them read-only
+  once they exist;
+- the Academic Review screen carries the **only** editor: add, edit, delete, reorder, on the
+  submission that reviewer currently holds;
+- approving requires **at least one** outcome, because approving with none would publish an
+  Experiment whose public *Learning outcomes* card is empty;
+- the approval snapshots the outcomes as they stood, and so does the publication record;
+- **there is no second copy.** The outcomes the reviewer wrote are the `outcomes[]` the public
+  catalogue renders and the entitled Student reads on the experiment page. Verified end to end.
+
+### Technology delivery — `STK31-37`
+
+| Technology | Model | What the Vendor supplies |
+|---|---|---|
+| **AR · VR · MR** | Authorised / downloadable **package** | Package label and/or reference identifier, optionally a selected file (**metadata only**), device / runtime requirement, installation notes, technical notes |
+| **Web / WebGL** | **Hosted** experience represented by a link | Hosted URL (`https://` format-validated), browser / runtime requirement, technical notes |
+
+The editor renders **only** the selected technologies, and **only** the fields that technology's
+delivery model uses. A package technology is never asked for a URL; Web is never asked for a
+package. Delivery detail for a de-selected technology is discarded, so a submission never carries
+a hosted URL for a technology it does not offer. **MR is structurally supported throughout**
+(`STK31-45`) and is not silently dropped, even though the sample data concentrates on AR / VR /
+Web.
+
+**Source code is never required** (`STK31-37`). There is no repository field, no Git integration,
+no container image, no registry and no binary deployment step anywhere in this slice, and the
+Vendor form says so explicitly.
+
+### The prototype file limitation, stated once
+
+Choosing a package file or a document records **the file name and size only**. Nothing is
+uploaded, nothing is stored, no deployment happens. The limitation is stated where a file is
+actually chosen and once more where the recorded metadata is displayed — not repeated as a banner
+on every screen, and never contradicted by a message claiming a successful upload.
+
+### Readiness rules
+
+**Before submitting for academic review** — a Course, a name unique in the pool, a summary, a
+description, a version label, at least one technology, and for each selected technology enough
+delivery information to be reviewable (package reference *or* label *or* a selected file for a
+package technology; a valid `https://` URL for Web) plus its device / runtime requirement.
+
+**Before approving academically** — the item is in academic review, the reviewer is authorised on
+it, and at least one Learning Outcome is recorded.
+
+**Before publishing** — the item is in content readiness review; an academic approval exists; the
+canonical Course resolves; name, summary, description and version label are present; at least one
+Learning Outcome exists; at least one technology exists and each carries valid delivery
+information and a runtime requirement.
+
+Each list is re-checked inside the state action, not only in the screen. A hand-driven
+`state.publishContent()` on a draft, an item still in academic review, or an item returned for
+correction returns `null` and changes nothing.
+
+### Role scope — `STK31-41`, pending the Super Admin governance UI
+
+Assignment may be Course- or Experiment-specific, and several people may be associated with one
+Experiment. The Super Admin surface that manages this (`U-SA-15`) belongs to a later slice, so the
+assignments are **prototype seed data** standing in for it — read by every scope check, written by
+nothing in this build, and labelled as such on each chooser screen.
+
+| Actor | Role | Scope |
+|---|---|---|
+| Ananya Rao — *Sample XR Content Vendor* | Vendor | Soil Mechanics · Surveying · Structural Analysis |
+| K. Menon — *Sample Labs Collective* | Vendor | Strength of Materials · Fluid Mechanics |
+| Dr. R. Iyer | Academic Reviewer | Soil Mechanics · Surveying · Structural Analysis |
+| Dr. S. Nandakumar | Academic Reviewer | Strength of Materials · Fluid Mechanics |
+| M. Kulkarni | Content Manager | Platform-wide (the Content Library is a platform surface) |
+
+These are the neutral sample identities the Batch 01 governance prototype already used. **None is
+a real BITS employee**, and none is a real person.
+
+A Vendor sees **the records they created** — ownership, not the Course assignment, is the
+visibility rule, so one Vendor can never read another's draft even inside a Course they both work
+on. A reviewer sees submitted work inside their assignment. Seeded published content carries no
+submission and is not review work, so it is not in any review queue.
+
+### What publication does, and does not do
+
+Publishing writes the content record's status and a publication record. That is all. The QA path
+proves the rest by measurement: after publishing, the seeded tenant's access rows, active
+assignments, every student's derived entitlements and every Faculty member's content scope are
+**identical** to what they were before, and the tenant holds no entitlement to the new Experiment.
+It becomes theirs only through the ordinary request → Super Admin approval → activation lifecycle,
+and reaches a Student only through a Tenant Admin assignment.
+
+### Public information boundary
+
+The public Experiment page renders the name, Course, Programme / Department, description,
+technology availability, device requirements and the **published Learning Outcomes**. It renders
+**none** of: Vendor notes, Academic Reviewer comments, Content Manager comments, package labels or
+references, selected file names, hosted URLs, the correction revision, or the history timeline.
+Verified by asserting the exact stored strings do not appear in the rendered public page.
 
 ## The Student learning model
 
@@ -733,8 +1086,11 @@ surface that shows it says so in words, in the same note.
 
 The dark **“PROTOTYPE CONTROLS — NOT PRODUCT UI”** strip at the top is not product UX:
 
-- **View switch** — Public · Super Admin · Tenant Admin · **Faculty** · **Student** (no real
-  authentication in this slice)
+- **View switch**, in two labelled groups so eight roles wrap instead of overflowing:
+  - *Access* — Public · Super Admin · Tenant Admin · Faculty · Student
+  - *Content* — **Vendor** · **Academic Reviewer** · **Content Manager**
+
+  (no real authentication in this slice)
 - **Viewing as student** — shown only inside the Student workspace. It selects one **real**
   `TenantUser` record created through Implementation 02; it is not a sign-in, not an account
   switcher, and it grants nothing. What the chosen Student can see still comes only from what
@@ -745,6 +1101,12 @@ The dark **“PROTOTYPE CONTROLS — NOT PRODUCT UI”** strip at the top is not
   identity is fabricated even when no Faculty is mapped to anything. What the chosen Faculty
   member can reach still comes only from their mappings. `#/faculty` offers the same choice as a
   full screen, labelled **PROTOTYPE ONLY**
+- **Viewing as Vendor / Academic Reviewer / Content Manager** — shown only inside the matching
+  workspace, and the same shape as the Student and Faculty switches. Each lists the **real**
+  sample content actors that exist in prototype state, never a fabricated identity, and choosing
+  one grants nothing: scope still comes only from the seeded per-Course role assignments.
+  `#/vendor`, `#/review` and `#/content` offer the same choice as a full screen, labelled
+  **PROTOTYPE ONLY**, with each identity's assigned scope shown beside it
 - **Requester scenario** — seeds the requester identity and access context:
   - **A — Internal (WILP-type)** · *Sample Engineering Institute* · context **BITS Community** · `paymentRequired: false`
   - **B — External** · *Northfield Institute of Technology* · context **Subscription** · `paymentRequired: true`
@@ -762,9 +1124,21 @@ payment-required state and a clearly-labelled payment simulation.
 ## Intentionally NOT implemented in this slice
 
 - Authentication / SSO / registration (scenario switcher stands in; architecture unchanged)
-- Content production chain (Vendor → Academic Reviewer → Content Manager → Published) —
-  **required for the complete current B2B delivery**, integrated in a later slice; this slice
-  runs on seeded published content only to exercise the access journey
+- **Later-version Release / Hold** (`STK31-07` · `U-SA-09` / `U-SA-10`) — the Super Admin's
+  decision on a *newer version of an already-published Experiment*. A different object, a
+  different owner and a different word from first publication, which this slice does build. No
+  part of it exists here, and no control hints at one
+- **The Super Admin role-governance and per-content assignment surface** (`U-SA-14` / `U-SA-15`) —
+  the screen that would write `contentRoleAssignments[]`. The records it writes exist and are
+  seeded; the screen is a later slice
+- **Global canonical master-data administration** (`U-SA-16`) — creating, renaming or retiring
+  **Programme / Department and Course master records**. `STK31-09` gives canonical *content*
+  metadata to the Content Manager and this slice implements exactly that, on the Experiment. The
+  broader master-data surface is shared with the Super Admin and is deferred; the metadata schema
+  itself is `ND-05`, still open
+- **Vendor review history and Content Manager reviewed-content archives** (`U-ARV-02` / `U-CM-02`,
+  both **P2**) — every decision is recorded and readable on the item itself and in the reviewer's
+  own recent-decisions list; the separate archive screens are not built
 - **Spreadsheet import of questions** (FRD 5.1.1) — Batch 02 built an upload with per-row error
   reporting and `13_…` keeps it. It is **not** implemented here and no control claims otherwise;
   the Question Bank names it as a gap. Faculty-supplied **source material** for drafting *is*
@@ -848,7 +1222,11 @@ js/   utils · data (sample pool + scenarios + seeded tenant people + the
       · ai-assist (local deterministic drafting + review suggestion — no network)
       · state (records, state machine, allocation, derived entitlement,
         question bank, assessment definitions, reviews, faculty scope + analytics)
-      · csv (parser + validation + template) · components · router · app
+      · csv (parser + validation + template) · components
+      · content-ui (ONE implementation of the routes, status badge, holder line,
+        technology delivery panel, outcomes list, readiness card and history
+        timeline that all three content workspaces render)
+      · router · app
 js/screens/  public-catalogue · public-request · platform
              · tenant (helpers · overview · content access)
              · tenant-people (directory · manual add · CSV import · person detail)
@@ -860,7 +1238,18 @@ js/screens/  public-catalogue · public-request · platform
              · faculty (helpers · chooser · overview · my content · student progress)
              · faculty-assess (assessments · builder · settings · preview
                · question bank · editor · assisted drafts · review queue · review)
+             · vendor (chooser · overview · my experiments · submissions
+               · submission detail · create / edit / correct)
+             · reviewer (chooser · overview · review queue · academic review
+               + the Learning Outcomes editor)
+             · content-manager (chooser · overview · Content Library
+               · publication queue · final review + Publish · canonical metadata)
 ```
+
+`js/content-ui.js` loads **after** `components.js` (it builds on `XRSLP.ui`) and **before** the
+three content workspaces that consume it. `js/state.js` installs the published-content resolver
+into `js/data.js` at the foot of its own module, which is what makes the catalogue read one
+source.
 
 `js/screens/faculty*.js` load **after** the Student screens: the Faculty preview renders through
 `XRSLP.studentUI`, so that module must exist first. That shared code path is what makes *"preview

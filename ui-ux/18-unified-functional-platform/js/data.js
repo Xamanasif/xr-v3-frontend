@@ -18,13 +18,16 @@
    · Technology enum per STK31-15 / STK31-45: Web · VR · MR · AR.
      MR is retained in the enum (structurally supported) even though
      this sample dataset concentrates on AR / VR / Web.
-   · This slice runs on SEEDED PUBLISHED content. The content
-     production chain (Vendor → Academic Reviewer → Content Manager →
-     Published) is required for the complete B2B delivery and is
-     integrated in a later slice — it is not modelled here.
+   · ⚠ SEED SOURCE — since Implementation 05. `EXPERIMENTS` below is
+     the seed for the canonical content pool, not the runtime pool.
+     `state.contentRecords[]` is the single source of truth; it is
+     seeded from this array as EXISTING PUBLISHED CONTENT and is then
+     owned by the content production chain (Vendor → Academic Reviewer
+     → Content Manager → Published). See the pool note further down.
    · Learning Outcomes are academically owned by the Academic Reviewer
-     in the real workflow (STK31-08); here they are sample published
-     catalogue data.
+     (STK31-08). The outcomes seeded below are the published outcomes of
+     existing catalogue content; from Implementation 05 they are edited
+     only through the Academic Review workflow.
    ============================================================ */
 
 window.XRSLP = window.XRSLP || {};
@@ -546,15 +549,44 @@ XRSLP.data = (function () {
     { courseId: 'surveying',             localCode: 'CE-212', semester: '' }
   ];
 
-  /* ---- lookup helpers over the static pool ---- */
+  /* ---- CANONICAL CONTENT POOL — one truth (Implementation 05) ----
+
+     `EXPERIMENTS` above is the SEED, and since Implementation 05 it is
+     no longer the runtime pool. The single authoritative content source
+     is `state.contentRecords[]`, which is seeded FROM that array at
+     first run / migration and is then owned by the content workflow
+     (Vendor -> Academic Reviewer -> Content Manager -> Published).
+
+     `XRSLP.content` installs a resolver here at boot. Every lookup
+     below therefore reads the live PUBLISHED pool, which means:
+
+       · a newly PUBLISHED Experiment reaches the public catalogue, the
+         tenant surfaces, Faculty and Student with no call-site change
+         and no second catalogue (STK31-06 / the unified content model);
+       · content that is NOT published cannot be reached through these
+         functions at all — including by a hand-typed hash route, since
+         `contextOf()` returns null and the screen resolves to notFound.
+
+     The resolver returns null while the state layer is seeding or
+     migrating (and before `content.js` loads), so those paths fall back
+     to the seed array they are describing. */
+  var publishedResolver = null;
+  function setPublishedResolver(fn) { publishedResolver = fn; }
+  function pool() {
+    var live = publishedResolver ? publishedResolver() : null;
+    return live || EXPERIMENTS;
+  }
+  function experiments() { return pool(); }
+
+  /* ---- lookup helpers over the canonical pool ---- */
   function grouping(id) { return GROUPINGS.filter(function (g) { return g.id === id; })[0] || null; }
   function course(id) { return COURSES.filter(function (c) { return c.id === id; })[0] || null; }
-  function experiment(id) { return EXPERIMENTS.filter(function (e) { return e.id === id; })[0] || null; }
+  function experiment(id) { return pool().filter(function (e) { return e.id === id; })[0] || null; }
   function coursesInGrouping(gid) { return COURSES.filter(function (c) { return c.groupingId === gid; }); }
-  function experimentsInCourse(cid) { return EXPERIMENTS.filter(function (e) { return e.courseId === cid; }); }
+  function experimentsInCourse(cid) { return pool().filter(function (e) { return e.courseId === cid; }); }
   function experimentsInGrouping(gid) {
     var cids = coursesInGrouping(gid).map(function (c) { return c.id; });
-    return EXPERIMENTS.filter(function (e) { return cids.indexOf(e.courseId) !== -1; });
+    return pool().filter(function (e) { return cids.indexOf(e.courseId) !== -1; });
   }
   function contextOf(expId) {
     var e = experiment(expId); if (!e) { return null; }
@@ -580,7 +612,7 @@ XRSLP.data = (function () {
      from this so no filter exists whose data does not exist. */
   function technologiesInUse() {
     var used = {};
-    EXPERIMENTS.forEach(function (e) { e.technologies.forEach(function (t) { used[t] = true; }); });
+    pool().forEach(function (e) { e.technologies.forEach(function (t) { used[t] = true; }); });
     return TECH_ORDER.filter(function (t) { return used[t]; });
   }
   function sortTech(list) {
@@ -640,6 +672,7 @@ XRSLP.data = (function () {
     policyLabel: policyLabel, objectivePoints: objectivePoints, hasDescriptive: hasDescriptive,
     PLAN_TERMS: PLAN_TERMS, SEED_TENANT_ID: SEED_TENANT_ID,
     SEED_PEOPLE: SEED_PEOPLE, SEED_GROUPS: SEED_GROUPS, SEED_COURSE_MAPPINGS: SEED_COURSE_MAPPINGS,
+    experiments: experiments, setPublishedResolver: setPublishedResolver,
     grouping: grouping, course: course, experiment: experiment,
     coursesInGrouping: coursesInGrouping, experimentsInCourse: experimentsInCourse,
     experimentsInGrouping: experimentsInGrouping, contextOf: contextOf,

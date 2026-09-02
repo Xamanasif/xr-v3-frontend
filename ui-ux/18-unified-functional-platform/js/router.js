@@ -14,7 +14,10 @@ XRSLP.router = (function () {
      platform → Super Admin workspace shell
      tenant   → Tenant workspace shell
      faculty  → Faculty workspace shell
-     learn    → Student workspace shell */
+     learn    → Student workspace shell
+     vendor   → Vendor workspace shell            (Implementation 05)
+     review   → Academic Reviewer workspace shell (Implementation 05)
+     content  → Content Manager workspace shell   (Implementation 05) */
   var ROUTES = [
     { pattern: [],                                  area: 'public',   screen: 'landing' },
     { pattern: ['catalogue'],                       area: 'public',   screen: 'catalogue' },
@@ -99,7 +102,44 @@ XRSLP.router = (function () {
     { pattern: ['learn', ':studentId', 'experiment', ':experimentId', 'assessment', 'attempt'],
       area: 'learn', screen: 'studentAttempt' },
     { pattern: ['learn', ':studentId', 'experiment', ':experimentId', 'assessment', 'result'],
-      area: 'learn', screen: 'studentResult' }
+      area: 'learn', screen: 'studentResult' },
+
+    /* ---- Implementation 05 — content production ----
+       Three central workspaces, one content source. Every destination
+       below is implemented, and every one resolves its actor: a route
+       carrying an id that is not a REAL actor of that role, or a record
+       outside that actor's authority, resolves to notFound rather than
+       rendering something the role may not have. */
+
+    /* VENDOR — technical submission. Never publishes (FRD 1.4.5). */
+    { pattern: ['vendor'],                                     area: 'vendor', screen: 'vendorHome' },
+    { pattern: ['vendor', ':actorId', 'overview'],             area: 'vendor', screen: 'vendorOverview' },
+    { pattern: ['vendor', ':actorId', 'experiments'],          area: 'vendor', screen: 'vendorExperiments' },
+    { pattern: ['vendor', ':actorId', 'experiments', 'new'],   area: 'vendor', screen: 'vendorNew' },
+    { pattern: ['vendor', ':actorId', 'submissions'],          area: 'vendor', screen: 'vendorSubmissions' },
+    { pattern: ['vendor', ':actorId', 'experiment', ':recordId'],
+      area: 'vendor', screen: 'vendorRecord' },
+    { pattern: ['vendor', ':actorId', 'experiment', ':recordId', 'edit'],
+      area: 'vendor', screen: 'vendorEdit' },
+
+    /* ACADEMIC REVIEWER — academic validation + Learning Outcomes.
+       There is no publish route on this plane. */
+    { pattern: ['review'],                                     area: 'review', screen: 'reviewerHome' },
+    { pattern: ['review', ':actorId', 'overview'],             area: 'review', screen: 'reviewerOverview' },
+    { pattern: ['review', ':actorId', 'queue'],                area: 'review', screen: 'reviewerQueue' },
+    { pattern: ['review', ':actorId', 'submission', ':recordId'],
+      area: 'review', screen: 'reviewerRecord' },
+
+    /* CONTENT MANAGER — Content Library + FIRST PUBLICATION. The word
+       here is Publish; Release / Hold is the Super Admin's action on a
+       later version and has no route anywhere in this build. */
+    { pattern: ['content'],                                    area: 'content', screen: 'managerHome' },
+    { pattern: ['content', ':actorId', 'overview'],            area: 'content', screen: 'managerOverview' },
+    { pattern: ['content', ':actorId', 'library'],             area: 'content', screen: 'managerLibrary' },
+    { pattern: ['content', ':actorId', 'queue'],               area: 'content', screen: 'managerQueue' },
+    { pattern: ['content', ':actorId', 'item', ':recordId'],   area: 'content', screen: 'managerRecord' },
+    { pattern: ['content', ':actorId', 'item', ':recordId', 'metadata'],
+      area: 'content', screen: 'managerMetadata' }
   ];
 
   function parseHash() {

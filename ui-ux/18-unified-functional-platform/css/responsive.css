@@ -169,3 +169,50 @@
   .opt-line{gap:8px}
   .railitems .ri-d{overflow-wrap:anywhere}
 }
+
+/* ---------- Implementation 05 — content production ---------- */
+@media (max-width:1040px){
+  /* The Implementation-04 rule lifts a rail's CARDS above the body when
+     the two-column layout collapses. A rail that also carries a bare
+     `.alert` — the Publish / Release firewall note sits in one — would
+     otherwise have its cards jump over that note and reverse the reading
+     order. Ordering the alert with them keeps the rail in source order. */
+  .grid-rail>.stack:last-child>.alert{order:-1}
+  /* The readiness rail and the submission checklist sit ABOVE the body
+     once the two-column layout collapses, so the next safe action is
+     read first rather than last. */
+  .techrows.deliv .kv{grid-template-columns:1fr}
+  .techrows.deliv .kv>div{padding:3px 0 9px}
+  .techrows.deliv .kv>div:nth-child(odd){border-top:1px solid var(--border-subtle); padding-top:9px; padding-bottom:0}
+  .techrows.deliv .kv>div:nth-child(-n+2){border-top:0}
+  .techrows.deliv .kv>div:nth-child(2){border-top:0; padding-top:3px}
+}
+@media (max-width:900px){
+  /* The strip's group labels cost more than they earn once the roles
+     themselves start wrapping. */
+  .protobar .pgl{display:none}
+  .protobar .pnav{gap:4px 10px}
+}
+@media (max-width:740px){
+  /* SHARED FIX, surfaced by this slice. A <select> sizes itself to its
+     widest option, and the Content Library's Course filter carries the
+     longest option string in the product ("Civil Engineering › Soil
+     Mechanics"). Without a shrink constraint that width propagated out
+     through the label and pushed the filter bar — and the document —
+     wider than a 375px viewport. The fix belongs to `.listbar` itself,
+     so every filter bar in the product gets it, not only the new ones. */
+  .listbar label{min-width:0; max-width:100%; flex:1 1 100%}
+  .listbar select,.listbar input{min-width:0; max-width:100%; flex:1 1 auto}
+  .lolist{padding-left:18px}
+  .lolist li{flex-direction:column; gap:8px}
+  .lolist .lo-a{margin-left:0}
+  .lolist .lo-a .btn{flex:0 0 auto}
+  fieldset.techcard{padding:12px 13px}
+  .reslist.plain li{flex-direction:row; align-items:flex-start}
+}
+@media (max-width:640px){
+  /* Three actions on one row do not fit a phone; full-width buttons in
+     source order keep the primary action reachable without a hunt. */
+  .phead .pactions .btn{width:100%; justify-content:center}
+  .lcard .lc-badges{gap:5px}
+}

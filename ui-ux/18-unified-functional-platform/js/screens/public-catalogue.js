@@ -102,7 +102,7 @@ XRSLP.screens = XRSLP.screens || {};
   function filteredExperiments() {
     var q = catFilters.q.trim().toLowerCase();
     var activeTech = Object.keys(catFilters.tech).filter(function (k) { return catFilters.tech[k]; });
-    return data.EXPERIMENTS.filter(function (e) {
+    return data.experiments().filter(function (e) {
       var ctx = data.contextOf(e.id);
       if (catFilters.grouping !== 'all' && ctx.grouping.id !== catFilters.grouping) { return false; }
       if (activeTech.length) {

@@ -914,3 +914,114 @@ table.dt.sm td{padding:10px 20px; font-size:13.5px}
 
 /* A reviewed written answer on the Student result screen. */
 .ansrow.reviewed{border-left:3px solid var(--success-200)}
+
+/* ============================================================
+   IMPLEMENTATION 05 — content production
+   Vendor · Academic Reviewer · Content Manager.
+
+   Deliberately small. The three workspaces reuse the existing shell,
+   cards, tables, badges, filter bar, forms, dialogs and empty states;
+   what follows adds only the pieces that did not already exist.
+   No role gets a colour theme of its own.
+   ============================================================ */
+
+/* An attention row can also be a good-news row (published, approved). */
+.attn .at-row.good .at-ic{background:var(--success-50); border-color:var(--success-200); color:var(--success-700)}
+
+/* Status + version chips under a submission card title. */
+.lcard .lc-badges{display:flex; gap:6px; flex-wrap:wrap; margin-top:9px}
+.lcard.sub-card .lc-sum{margin-top:9px}
+
+/* The reason a submission came back, shown where the vendor reads it. */
+.retbox{display:flex; gap:9px; align-items:flex-start; margin-top:12px; padding:10px 12px;
+  border:1px solid var(--warning-200); background:var(--warning-50); border-radius:var(--r-md)}
+.retbox svg.ic{color:var(--warning-700); margin-top:2px; flex:0 0 auto}
+.retbox strong{font-size:12px; color:var(--text); display:block}
+.retbox p{font-size:12.5px; color:var(--text-2); line-height:1.55; margin-top:3px}
+
+/* Per-technology delivery detail. AR/VR/MR and Web show different
+   fields, so each block carries its own delivery-model line. */
+.techrows.deliv{display:flex; flex-direction:column; gap:14px}
+.techrows.deliv .tr-block{border:1px solid var(--border); border-radius:var(--r-md);
+  background:var(--n-25); padding:13px 15px; min-width:0}
+.techrows.deliv .tr-h{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:9px}
+.techrows.deliv .tr-n{font-size:13.5px; font-weight:640; color:var(--text)}
+.techrows.deliv .tr-d{font-size:12px; color:var(--text-3); flex:1 1 100%}
+.techrows.deliv .kv{grid-template-columns:200px minmax(0,1fr); font-size:13.5px}
+.techrows.deliv .kv>div{padding:7px 0}
+
+/* A fieldset used as a technology delivery card in the vendor editor. */
+fieldset.techcard{margin:0 0 14px; padding:14px 16px}
+fieldset.techcard legend{display:flex; align-items:center; gap:8px; padding:0 6px; margin-left:-6px;
+  font-size:13.5px; font-weight:640; color:var(--text)}
+fieldset.techcard .tc-d{font-size:12px; color:var(--text-3); margin:0 0 12px}
+fieldset.techcard .field:last-child{margin-bottom:0}
+
+/* The honest prototype limitation line. Quiet by design: stated once
+   where a file is actually chosen, never repeated across the screen. */
+.dnote{display:flex; gap:6px; align-items:flex-start; font-size:12px; color:var(--text-3);
+  line-height:1.5; margin-top:7px}
+.dnote svg.ic{flex:0 0 auto; margin-top:2px}
+.kv .dnote{margin-top:4px}
+
+/* A label that is not a <label> — it heads a group of controls rather
+   than naming one input. */
+.flabel{display:block; font-size:13.5px; font-weight:600; color:var(--text); margin-bottom:6px}
+
+/* Long identifiers and URLs wrap rather than widening the page. */
+.brk{overflow-wrap:anywhere; word-break:break-word}
+
+/* An ordered outcome list keeps its numbering — outcomes are read in
+   order, so the order is part of the content. */
+.outcomelist.ordered{list-style:decimal; margin:0; padding-left:20px}
+.outcomelist.ordered li{display:list-item; padding-left:4px}
+.outcomelist.ordered li svg.ic{display:none}
+.outcomelist.ordered li span{display:inline}
+
+/* A flat list used for scope, documentation and "not here" notes. */
+.reslist.plain li{justify-content:flex-start; gap:10px}
+.reslist.plain li svg.ic{flex:0 0 auto; color:var(--text-3)}
+.reslist.plain li span{flex:1 1 auto; font-size:13.5px; color:var(--text-2); line-height:1.55}
+
+/* The Learning Outcomes editor — the Academic Reviewer's own object. */
+.lolist{list-style:decimal; margin:0 0 4px; padding-left:22px}
+.lolist li{padding:10px 0; border-top:1px solid var(--border-subtle);
+  display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap}
+.lolist li:first-child{border-top:0; padding-top:2px}
+.lolist .lo-t{flex:1 1 240px; min-width:0; font-size:14px; color:var(--text); line-height:1.55;
+  overflow-wrap:anywhere}
+.lolist .lo-a{display:flex; gap:2px; flex-wrap:wrap; flex:0 0 auto; margin-left:auto}
+.lolist .lo-a .btn{height:28px; padding:0 8px; font-size:12.5px}
+.lolist li.lo-editing{display:block}
+.lolist li.lo-editing .lo-a{margin-left:0; margin-top:8px}
+.lolist .btn svg.ic.up{transform:rotate(-90deg)}
+.lolist .btn svg.ic.down{transform:rotate(90deg)}
+.lo-add{border-top:1px solid var(--border-subtle); padding-top:14px; margin-top:6px}
+.lo-add .field{margin-bottom:8px}
+
+/* The reason quoted back inside a confirmation dialog. */
+.qquote{margin:10px 0 0; padding:9px 12px; border-left:3px solid var(--border-strong);
+  background:var(--n-25); font-size:13px; color:var(--text-2); line-height:1.55;
+  overflow-wrap:anywhere}
+
+/* A single positive readiness line. */
+.ok-line{display:flex; gap:8px; align-items:flex-start; font-size:13.5px; color:var(--success-700);
+  line-height:1.55}
+.ok-line svg.ic{flex:0 0 auto; margin-top:2px}
+
+/* A blocklist is a warning list in the readiness cards, and a plain
+   consequence list in the "what publishing does not do" card. */
+.card .blocklist{max-width:none; margin-left:0; margin-right:0}
+
+/* Provenance stated as a line, not a status pill: a badge cannot wrap,
+   and this phrase is longer than the value column of a narrow rail card. */
+.provline{display:inline-flex; align-items:flex-start; gap:6px; font-size:13.5px; color:var(--text-2);
+  line-height:1.5; max-width:100%}
+.provline svg.ic{flex:0 0 auto; margin-top:3px; color:var(--text-3)}
+
+/* A submission card's title is an h2 (it is a top-level section of the
+   Submissions page), so it needs the same type treatment the h3 card
+   titles get elsewhere rather than the browser default h2 size. */
+.lcard.sub-card h2{font-size:16.5px; font-weight:650; line-height:1.35; letter-spacing:-.008em}
+.lcard.sub-card h2 a{color:var(--text); text-decoration:none}
+.lcard.sub-card h2 a:hover{color:var(--action); text-decoration:underline}

@@ -1,12 +1,17 @@
-# QA Checklist — Unified Functional Platform · Implementations 01 + 02 + 03 + 04
+# QA Checklist — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05
 
 Run from `ui-ux/18-unified-functional-platform/` (see README for local run).
 Every step below was executed against the final build in a Chromium-based browser
 (runtime-verified; see the implementation report). Re-run on Safari for the review pass.
 
 Sections **A**, **B** and **Cross-cutting** are the Implementation-01 suite; **C**–**H** are
-Implementation 02; **J**–**P** are Implementation 03. All three were re-run against the
-Implementation-04 build. Sections **Q**–**X** are new.
+Implementation 02; **J**–**P** are Implementation 03; **Q**–**X** are Implementation 04. All four
+were re-run against the Implementation-05 build. Sections **Y1**–**Y11** are new.
+
+> **Implementation 05 runs first in the chain but is verified last**, because the proof it exists
+> to give is that a *newly produced* Experiment travels the whole platform on the code the seeded
+> catalogue already used. Section **Y8** is that end-to-end test, and **Y6** is its most important
+> negative: publishing grants nobody anything.
 
 ## Scenario A — internal / BITS Community (no payment step)
 
@@ -739,6 +744,234 @@ No formal WCAG conformance is claimed.
 | Every enabled control does something | whole suite — no dead control found |
 
 ---
+
+## Y1 · Content production — Vendor: create, save draft, and stay private
+
+Prototype controls → **Vendor** → *Ananya Rao — Sample XR Content Vendor* → **Open workspace**.
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| Y1-1 | Reset prototype data, then open `#/vendor` | Chooser lists **2 sample Vendors** with their assigned Courses; labelled PROTOTYPE ONLY; no fabricated identity | ✅ |
+| Y1-2 | Open Ananya Rao's workspace | Overview counts real records: Draft 1 · In academic review 1 · Changes requested 0 · Awaiting publication 1 · Published 0. No score, rating, SLA or revenue anywhere | ✅ |
+| Y1-3 | Check the Courses panel | Soil Mechanics · Surveying · Structural Analysis — the seeded assignment, no others | ✅ |
+| Y1-4 | **Create experiment** | Form opens with a live **submission checklist** listing what is still missing | ✅ |
+| Y1-5 | Open the Course select | Only the 3 assigned canonical Courses. There is no control to create a Programme or a Course | ✅ |
+| Y1-6 | Look for a Learning Outcomes field | **None.** The card says they are authored by the Academic Reviewer | ✅ |
+| Y1-7 | Look for a source-code / repository / container field | **None anywhere.** The aside states explicitly that none is required | ✅ |
+| Y1-8 | Tick **VR** and **Web** | Two delivery fieldsets appear — **Web**: hosted URL, browser/runtime, notes. **VR**: package label, reference, file picker, device/runtime, installation notes, notes. Web is never asked for a package; VR is never asked for a URL | ✅ |
+| Y1-9 | Enter `xr.example.edu/triaxial` as the Web URL and **Save and submit** | Refused. Error summary + inline field error: *"enter a full URL beginning with https://"*, `aria-invalid="true"`, `aria-describedby` points at the error. **No record was created** | ✅ |
+| Y1-10 | Correct to `https://xr.example.edu/triaxial-compression`, fill the rest, **Save draft** | Checklist flips to *"Everything required for academic review is present"*; `EXP-011` created as **Draft**; toast says it is private until submitted | ✅ |
+| Y1-11 | Choose a package file for VR | Records the **file name and size only**; the line says *"Prototype records package metadata only; no binary is uploaded or stored"*. Nothing claims an upload succeeded | ✅ |
+| Y1-12 | **Public** → catalogue; search *triaxial* | **0 experiments matching.** The draft is not in the catalogue, the counts or the search index | ✅ |
+| Y1-13 | Hand-type `#/experiment/EXP-011` | **Page not found** — `data.contextOf()` cannot resolve unpublished content | ✅ |
+| Y1-14 | Tenant Admin → Content access · Faculty → My Content · Student → My Learning | The draft appears on none of them | ✅ |
+
+## Y2 · Vendor — submit for academic review
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| Y2-1 | Open `EXP-011` → **Submit for academic review** | Confirm dialog names the Academic Reviewer, warns the submission becomes read-only, and states that submitting publishes nothing | ✅ |
+| Y2-2 | Confirm | Status → **Academic review**; `submittedAt` and `submittedBy` recorded; history gains *"Submitted for academic review (v1)"* | ✅ |
+| Y2-3 | Try to edit it: `#/vendor/ACT-001/experiment/EXP-011/edit` | Route resolves; the **editor refuses** and says the Academic Reviewer holds the revision. `state.vendorCanEdit()` returns false | ✅ |
+| Y2-4 | Public catalogue and direct route again | Still not found. Still 6 published | ✅ |
+
+## Y3 · Academic Reviewer — the queue, the outcomes editor, the return path
+
+Prototype controls → **Academic Reviewer** → *Dr. R. Iyer*.
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| Y3-1 | Open the **Review queue** | `EXP-011` present with Vendor, Course, technologies, submitted date, version, status. No academic quality score anywhere | ✅ |
+| Y3-2 | Look for a Publish control | **None on any Reviewer screen** | ✅ |
+| Y3-3 | Open the submission | Metadata, Course context, technology delivery **as read-only context**, documentation, Vendor notes, version. No install, download or deploy control | ✅ |
+| Y3-4 | Check **Approve academically** before any outcome exists | Disabled, with the reason named: *"Record at least one Learning Outcome before approving."* | ✅ |
+| Y3-5 | **Request changes** with an empty comment | Refused; the field is marked invalid with the reason. Status unchanged | ✅ |
+| Y3-6 | Enter a reason and **Request changes** → confirm | Status → **Changes requested**; `returnedGate = academic`; the decision is stored in `academicReviews[]`; the Vendor may edit again | ✅ |
+| Y3-7 | Vendor opens the submission | Sees the reviewer's comment, their name, their role and the timestamp; the action reads **Correct submission** | ✅ |
+| Y3-8 | Vendor corrects and resubmits | Revision → **2**, *Resubmitted* chip, back to **Academic review**. History keeps *created · submitted · changes · resubmitted* — the earlier decision is not erased | ✅ |
+| Y3-9 | Reviewer reopens it | Header says *"Resubmitted for academic review (revision 2)"*; the previous decision is listed under **Academic decision history** | ✅ |
+| Y3-10 | **Add** three Learning Outcomes | Ordered list; the approve control enables as soon as the first is added | ✅ |
+| Y3-11 | **Edit** outcome 2 | Inline editor; save updates it in place | ✅ |
+| Y3-12 | **Move** outcome 3 up, then back down | Order changes and restores | ✅ |
+| Y3-13 | Add a temporary outcome, then **Delete** it | Confirm dialog; count returns to 3 | ✅ |
+| Y3-14 | **Approve academically** → confirm | Dialog states it does **not** publish and grants nothing. Status → **Content readiness review**; reviewer, timestamp, decision, comment, revision **2** and the 3 outcomes are all recorded | ✅ |
+| Y3-15 | Public catalogue and direct route | **Still not published, still not found.** Approval is not publication | ✅ |
+
+## Y4 · Content Manager — Content Library, readiness, and the terminology firewall
+
+Prototype controls → **Content Manager** → *M. Kulkarni*.
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| Y4-1 | **Content Library** | Published and pipeline content in one list, over the same source the public catalogue reads. Search, status, Course and technology filters, all working | ✅ |
+| Y4-2 | Filter to something that matches nothing | Honest empty state with a *Clear search & filters* action that works | ✅ |
+| Y4-3 | **Publication queue** | Only academically approved items. Each row shows its Vendor, the academic approval, and its readiness | ✅ |
+| Y4-4 | Read the queue's header note | Says first publication only, and that a later version is a separate Super Admin decision on a different object | ✅ |
+| Y4-5 | Open `EXP-011` | Canonical metadata, Learning Outcomes **read-only** (marked *Academic Reviewer owned*), the academic decision, technology delivery, documentation, history | ✅ |
+| Y4-6 | Check readiness | *"Ready for first publication"* — academic approval present and every canonical and technical requirement met | ✅ |
+| Y4-7 | **Search the whole workspace for the words *release* and *hold* as an action** | **Zero occurrences.** The action is **Publish** throughout | ✅ |
+| Y4-8 | Open a **published** item (Direct Shear Test) | Publication record shown; origin *Existing published content*, with a line explaining it predates the workflow. No invented Vendor, reviewer or decision | ✅ |
+| Y4-9 | Check for a *Create new version* control | **Not rendered** on any screen. Instead: a plain statement that a later version is a Super Admin Release / Hold decision, not part of first publication, and not built here | ✅ |
+
+## Y5 · The Publish action
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| Y5-1 | **Publish** on `EXP-011` | Confirm dialog names the Programme › Course, the version, the technologies, the outcome count and the academic approver — and states plainly: **"Publishing grants access to nobody."** | ✅ |
+| Y5-2 | Confirm | Status → **Published**. `publishedBy` = M. Kulkarni, `publishedAt` recorded, version `1.0`, revision `2`, technologies and outcomes snapshotted, the academic review id linked | ✅ |
+| Y5-3 | Content Library | The item moves to Published; the published count rises | ✅ |
+| Y5-4 | History | *created · submitted · changes · resubmitted · approved · published*, each with actor, role and timestamp | ✅ |
+
+## Y6 · **Publishing grants nobody anything** — the critical negative
+
+Measured immediately before and immediately after the Publish in Y5.
+
+| # | Check | Before | After | Result |
+|---|---|---|---|---|
+| Y6-1 | Seeded tenant's access rows | `ACC-001`, `ACC-002` | **byte-identical** | ✅ |
+| Y6-2 | Tenant holds `EXP-011`? | no | **no** | ✅ |
+| Y6-3 | Active assignments | 1 | **1** | ✅ |
+| Y6-4 | Every student's derived entitlements | recorded | **identical** | ✅ |
+| Y6-5 | Every Faculty member's content scope | recorded | **identical** | ✅ |
+| Y6-6 | Tenant Admin → Content access | no entitlement to the new Experiment appears | ✅ |
+
+## Y7 · Public catalogue integration, and the information boundary
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| Y7-1 | Public → **Catalogue** | Count rises from *6 experiments published* to **7**; the new Experiment is listed | ✅ |
+| Y7-2 | Search *triaxial* | **1 experiment matching** — the same search index, not a second one | ✅ |
+| Y7-3 | Search *permeability* (a seeded **draft**) | **0 experiments matching** + *No experiments match*. Unpublished content is absent from search, suggestions and counts | ✅ |
+| Y7-4 | Open the new Experiment | Under **Civil Engineering › Soil Mechanics**, with its description, both technologies, device requirements and the **3 Learning Outcomes the Academic Reviewer wrote** | ✅ |
+| Y7-5 | Assert the internal strings are absent from the rendered page | Vendor notes ❌ · reviewer comments ❌ · package label ❌ · package reference ❌ · hosted URL ❌ · Vendor name ❌ · reviewer name ❌ · Content Manager name ❌ · history ❌ · revision ❌ | ✅ |
+
+## Y8 · End-to-end — new content reaches a Student with no special-case code
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| Y8-1 | Public → the new Experiment → tick both technologies → **Add to selection** | Uses the existing selection basket | ✅ |
+| Y8-2 | **Prepare institutional request** → submit | `REQ-003` created by the **existing** Implementation-01 workflow. No new request path was built | ✅ |
+| Y8-3 | Super Admin → open `REQ-003` → **Approve** | Internal route → **Active** immediately, no payment step. `ACC-003` created for the new Experiment with the selected technologies | ✅ |
+| Y8-4 | Switch to scenario **B** and repeat with the new Experiment | External route → **Approved — payment required** → payment simulation → **Active**; a second tenant is created. Implementation-01 states are unchanged | ✅ |
+| Y8-5 | Tenant Admin → **Assignments → New assignment** | `ACC-003` offered; selecting it lists the new Experiment; assign two students | ✅ |
+| Y8-6 | Check entitlement | Both students derive `EXP-011` with exactly the granted technologies | ✅ |
+| Y8-7 | Tenant Admin → **Faculty mapping** | `ACC-003` → Soil Mechanics → the new Experiment; map Dr. Sneha Iyer | ✅ |
+| Y8-8 | Faculty → **My Content** | The new Experiment appears. **No `data.js` change was needed** | ✅ |
+| Y8-9 | Faculty → **Assessments** → open the new Experiment | The assessment builder opens for it, in scope | ✅ |
+| Y8-10 | Student → **My Learning** | The new Experiment appears | ✅ |
+| Y8-11 | Open the Student's experiment page | Shows the **Academic Reviewer's Learning Outcomes** — one copy, not a Faculty-only duplicate — and both entitled technologies | ✅ |
+| Y8-12 | Check the empty states | No resources and no assessment are configured yet, and the page says so honestly. Nothing is faked to make the page look full, and nothing crashes | ✅ |
+
+## Y9 · Role and action guards — refused at the state layer, not just the UI
+
+Every call below was made **directly against `XRSLP.state`**, bypassing the screens entirely.
+
+| # | Attempt | Expected | Result |
+|---|---|---|---|
+| Y9-1 | Vendor → `approveAcademic()` | refused (`null`) | ✅ |
+| Y9-2 | Vendor → `publishContent()` | refused | ✅ |
+| Y9-3 | Vendor → `requestChangesAcademic()` | refused | ✅ |
+| Y9-4 | Vendor → `addOutcome()` | refused — outcomes are not the Vendor's | ✅ |
+| Y9-5 | Vendor → `updateCanonicalMetadata()` | refused | ✅ |
+| Y9-6 | Academic Reviewer → `publishContent()` | refused | ✅ |
+| Y9-7 | Academic Reviewer → `requestChangesContent()` | refused | ✅ |
+| Y9-8 | Academic Reviewer → `updateCanonicalMetadata()` | refused | ✅ |
+| Y9-9 | Academic Reviewer → approve a submission **outside their Course assignment** | refused | ✅ |
+| Y9-10 | Content Manager → publish a **DRAFT** | refused | ✅ |
+| Y9-11 | Content Manager → publish an item still **in academic review** | refused — this is the "cannot fake academic approval" case | ✅ |
+| Y9-12 | Content Manager → publish an item **returned for correction** | refused | ✅ |
+| Y9-13 | Vendor → edit **another Vendor's** record | refused | ✅ |
+| Y9-14 | Vendor → create in a Course they are **not assigned** to | refused | ✅ |
+| Y9-15 | Vendor → edit a record **under review** | refused | ✅ |
+| Y9-16 | **State after all sixteen attempts** | record count, every status, the canonical name, the outcome count and the published pool **all unchanged** | ✅ |
+
+### Route guards
+
+| # | Route | Expected | Result |
+|---|---|---|---|
+| Y9-17 | `#/vendor/<Content-Manager-id>/overview` | Page not found | ✅ |
+| Y9-18 | `#/review/<Vendor-id>/queue` | Page not found | ✅ |
+| Y9-19 | `#/content/<Reviewer-id>/library` | Page not found | ✅ |
+| Y9-20 | `#/vendor/ACT-001/experiment/<other Vendor's record>` | Page not found | ✅ |
+| Y9-21 | `#/review/<Civil reviewer>/submission/<Mechanical record>` | Page not found | ✅ |
+| Y9-22 | `#/experiment/<unpublished id>` (Public) | Page not found | ✅ |
+| Y9-23 | `#/learn/<student>/experiment/<unpublished id>` | Experiment not found | ✅ |
+| Y9-24 | Tenant Admin → Content access | No *Edit experiment*, no *Publish*, no *Edit Learning Outcomes* control exists | ✅ |
+
+## Y10 · Migration, reset and schema
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| Y10-1 | Open the build on an existing **schema-5** browser state | Upgrades in place. `schemaVersion` **6**, `migratedFrom` **5**, namespace still `xrslp-unified-v1` — no second key | ✅ |
+| Y10-2 | Count every Implementation 01–04 collection after migration | 2 requests (both still ACTIVE) · 2 access · 1 tenant · 8 people · 2 groups · 4 memberships · 2 course mappings · 1 Faculty mapping · 1 assignment · 1 attempt · 12 questions · 3 assessment definitions · 1 review — **all preserved** | ✅ |
+| Y10-3 | Check the new collections | `contentRecords` 10 · `academicReviews` 4 · `publicationRecords` 6 · `contentActors` 5 · `contentRoleAssignments` 11 | ✅ |
+| Y10-4 | Check the migrated catalogue | 6 seeded Experiments are now `PUBLISHED` content records with **unchanged ids**; Direct Shear Test still resolves everywhere | ✅ |
+| Y10-5 | **Reset prototype data** | Restores the deterministic seed: 6 published + 4 sample in-flight submissions, 5 content actors, 0 requests, 0 access, 0 assignments. The dialog names the content pool among what it discards | ✅ |
+| Y10-6 | Publish something, then reset | The published pool returns to 6; the projection cache does not serve the stale pool | ✅ |
+
+## Y11 · Responsive, accessibility and console
+
+| # | Check | Expected | Result |
+|---|---|---|---|
+| Y11-1 | **375 · 768 · 1280 · 1440** across 24 routes (all 8 workspaces) | **No document-level horizontal overflow on any of them** | ✅ |
+| Y11-2 | `overflow-x` on `body` and `html` | **`visible`** — no overflow is masked | ✅ |
+| Y11-3 | The eight-role prototype strip at 375 | Wraps into two labelled groups; the group labels drop below 900px; never overflows | ✅ |
+| Y11-4 | Landmarks and headings across 25 route/state combinations | `<main id="main-content">`, one `h1` per screen, **no skipped heading level**, labelled `<nav>` | ✅ |
+| Y11-5 | Every form control | Has a `<label for>`, a wrapping label, or an `aria-label` — **zero unlabelled controls** | ✅ |
+| Y11-6 | Every button and link | Has an accessible name — **zero unnamed controls** | ✅ |
+| Y11-7 | Every table | Has a `<caption>` and `scope` on every header cell | ✅ |
+| Y11-8 | Grouped technology controls | `<fieldset>` + `<legend>`; every fieldset has a legend | ✅ |
+| Y11-9 | Status | Text label **and** icon on every badge (10/10) — never colour alone | ✅ |
+| Y11-10 | Errors | Error summary + per-field `aria-invalid` and `aria-describedby`; first invalid field focused | ✅ |
+| Y11-11 | Publish dialog | `role="dialog"`, `aria-modal="true"`, `aria-labelledby` the title, focus moves in, **Escape closes**, focus **restored to the trigger**, and nothing was published | ✅ |
+| Y11-12 | First focusable element on every page | The **Skip to main content** link, ahead of the prototype strip | ✅ |
+| Y11-13 | Live region | `role="status"`, `aria-live="polite"`; outcome edits announce | ✅ |
+| Y11-14 | Console | **No errors and no warnings** across every route in every workspace | ✅ |
+
+### Defects found and fixed during the Implementation-05 pass
+
+| # | Defect | Fix |
+|---|---|---|
+| Y-D1 | **A `<select>` sized to its longest option pushed the whole document wider than a 375px viewport.** The Content Library's Course filter carries the longest option string in the product (*"Civil Engineering › Soil Mechanics"*); its width propagated out through the label and past the viewport | Shared `.listbar` fix, so **every** filter bar in the product gets it: `label{min-width:0; max-width:100%}` and `select,input{min-width:0; max-width:100%}` below 740px. Re-verified: 24/24 routes clean at all four widths |
+| Y-D2 | **A status pill could not wrap, and overflowed at 1280px.** *"Existing published content"* was rendered as a `.badge`, which is `white-space:nowrap`, inside the narrow value column of a rail card | It is **provenance, not status**, so a badge was the wrong component. Replaced with an icon + text line that wraps (`.provline`) |
+| Y-D3 | **The Vendor Submissions page skipped a heading level** (`h1` → `h3`), because the submission cards reused the Student workspace's `h3` card pattern without its `h2` section heading | The cards are top-level sections of that page, so their heading is `h2`, with the type treatment carried over. Two in-table empty states that were pinned to `h3` inside a heading-less `.tablecard` were returned to the default `h2` |
+| Y-D4 | **The two decision cards had no error-summary container**, so a missing required reason produced only an inline field error and no summary | Added a `.form-errors` region to the Academic Review and Publication decision cards, matching every other form in the build |
+
+### Defects found by an adversarial audit of this slice, and fixed
+
+An independent audit pass was run over the Implementation-05 code against its own stated
+invariants, and every reported finding was then adversarially verified against the running build.
+Nine survived verification. All nine are fixed and re-verified below.
+
+| # | Severity | Defect | Fix |
+|---|:--:|---|---|
+| Y-D5 | 🔴 **HIGH** | **An item could publish carrying an academic approval for different content.** A content-gate return hands the whole submission back to the Vendor, and `submitContent()` routed it straight back to `CONTENT_REVIEW`. Nothing checked that what came back was what had been approved — so a Vendor could change the Course, the name, the description and the technologies, resubmit past academic review entirely, and publish into the public catalogue with `publication.academicReviewerName` naming a reviewer who had never seen the object. **Reproduced live, end to end.** | An academic approval now records a **fingerprint** of what was validated — Course, name, summary, description, technologies and outcomes; delivery detail and documentation are deliberately excluded, because correcting *those* is exactly what a content-gate return is for. On resubmission the fingerprint is compared, and it **fails closed**: an approval that cannot be shown to describe the resubmitted work is withdrawn and the item returns to academic review. `publishReadiness()` re-checks it as a last line of defence, migration back-fills it onto older approvals, and the Vendor's correction screen says in advance which changes will withdraw the approval |
+| Y-D6 | 🔴 **HIGH** | **An abandoned edit was restored and written back over the stored record.** The Vendor editor's working copy was module-scoped and cleared only on a successful save, so leaving via Cancel, the breadcrumb or the side nav kept it alive; re-entering restored it, and the next save wrote the abandoned values into state | The copy is stamped with the record, that record's event sequence and the actor, and is **discarded whenever the editor is left** — every non-editor Vendor screen calls `discardWork()`. Verified through all four exit paths, with a genuine in-session edit still saving correctly |
+| Y-D7 | 🟠 MEDIUM | **The Content Manager could rewrite a Vendor's draft or a submission the Academic Reviewer was holding** — `updateCanonicalMetadata()` had no status guard, and the route rendered a live editor at any status. It could also move a submission out of its assigned reviewer's scope | Canonical metadata is a **Content Library** action: `canonicalEditable()` allows it only at the readiness gate and after publication. Enforced in the state action, in the screen, and on the action that links to it |
+| Y-D8 | 🟠 MEDIUM | **The create form carried an abandoned draft across a change of Vendor identity** | The working copy carries the actor it was opened by, and is rebuilt when that changes |
+| Y-D9 | 🟠 MEDIUM | **One history timeline rendered two role vocabularies** — seeded events stored raw keys (`vendor`), runtime events stored display labels (`Vendor`) | The seed writer maps through `CONTENT_ROLE_LABEL`, the same table the runtime writer uses |
+| Y-D10 | 🟠 MEDIUM | **The academic readiness statement contradicted the Approve button.** It was rendered once; adding or deleting an outcome updated the button but not the alert above it | `refreshDecision()` repaints both, and now also runs after an edit |
+| Y-D11 | 🟠 MEDIUM | **A persisted filter could select a value the rebuilt dropdown no longer offered** — publish the last draft and *"Status: draft"* stops existing, leaving every row filtered out while the control read *"Status: all"* with no way to clear it | `normaliseFilters()` resets any filter value the current rows cannot offer, called before the options are built, so the control and the filter always agree |
+| Y-D12 | 🟠 MEDIUM | **Every action in the Learning Outcomes editor dropped keyboard focus to `<body>`**, because the repaint destroyed the button that had just been pressed | `repaint()` takes an explicit refocus target. Add returns focus to the input; edit, move and cancel return it to the row acted on; delete moves to the row that took its place, or the input if it was the last |
+| Y-D13 | 🟢 LOW | **The Publish/Release firewall note jumped out of DOM order below 1040px**, because the shared rule lifts a rail's `.card` children above the body and the note is a bare `.alert` | The rule now orders a rail's direct `.alert` children with its cards |
+
+### Re-verification after the fixes
+
+| # | Check | Result |
+|---|---|---|
+| Y-R1 | The Y-D5 exploit, replayed exactly: return at the content gate → change Course, name, description and technologies → resubmit | Returns to **academic review**, approval withdrawn, publish **refused**, never reaches the catalogue, and the history records why | ✅ |
+| Y-R2 | The legitimate case: return at the content gate → correct **only** the delivery details → resubmit | Goes to **content readiness review**, approval kept, publishes correctly | ✅ |
+| Y-R3 | Abandoned edit, via all four exit paths | Stored values restored every time; a genuine edit still saves | ✅ |
+| Y-R4 | Canonical metadata on a draft / on a submission in review / at the gate / published | refused · refused · allowed · allowed; the editor is not rendered for the first two, and the action link is absent | ✅ |
+| Y-R5 | Readiness alert and Approve button after add / delete | Move together in both directions | ✅ |
+| Y-R6 | Keyboard focus after add / delete in the outcomes editor | Lands on a real control, never `<body>` | ✅ |
+| Y-R7 | Stale filter values | Reset to *all*; valid values kept | ✅ |
+| Y-R8 | One role vocabulary across a mixed seeded/runtime timeline | `Content Manager · Academic Reviewer · Vendor · Vendor` | ✅ |
+| Y-R9 | **Full guard suite re-run** — 19 state-layer actions and 8 route guards | **All 19 refused, all 8 not found, state byte-intact** | ✅ |
+| Y-R10 | **Full lifecycle re-run** — create → submit → changes → correct → resubmit → outcomes → approve → publish → public | Passes, and publishing still granted nothing | ✅ |
+| Y-R11 | **Responsive re-run** — 28 routes × 375 / 768 / 1280 / 1440 | **112/112 clean**, `overflow-x: visible` | ✅ |
+| Y-R12 | **Accessibility re-run** — 28 routes | **0 issues** | ✅ |
+| Y-R13 | Console | No errors, no warnings | ✅ |
 
 ## Defects found by the Implementation-04 review pass, and fixed
 
