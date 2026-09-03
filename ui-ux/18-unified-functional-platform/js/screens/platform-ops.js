@@ -464,6 +464,42 @@ XRSLP.screens = XRSLP.screens || {};
           body: 'No institutional access term ends within the next 15 days, and none has expired.'
         });
 
+    /* ⚠ PROTOTYPE-ONLY. The 15-day reminder is a confirmed requirement
+       (STK31-28), but no product action can reach the state: the
+       shortest access term a request can carry is Monthly, so every
+       activated record starts about thirty days out. Without this, the
+       confirmed rule could be asserted in the test suite and never seen
+       in a walkthrough. It moves one record's end date and nothing else
+       — no quantity, no item, no assignment, no entitlement — and there
+       is no product control that does this. */
+    var liveRecords = state.accessAll().filter(state.accessIsLive);
+    var expiryDemo = liveRecords.length
+      ? ui.protoNote(
+          '<p><strong>The reminder state cannot be reached by using the product.</strong> The shortest access ' +
+          'term is Monthly, so a freshly activated record is about thirty days from its end date. To see the ' +
+          'confirmed 15-day rule on a real record, move one record&rsquo;s end date below — the equivalent of ' +
+          'winding the demo clock forward. It grants nothing, renews nothing, and changes no quantity, ' +
+          'assignment or licence allocation.</p>' +
+          '<p><strong>It is a date change, so it has a date change&rsquo;s consequences.</strong> Moving a record ' +
+          'past its end date expires it, and entitlement derived from an expired record stops being effective — ' +
+          'exactly as it would on the day the term really ended. Nothing is deleted, and moving the date back ' +
+          'restores it.</p>',
+          '<label for="xp-rec" style="font-weight:600;margin-right:6px">Access record</label> ' +
+          '<select id="xp-rec">' + liveRecords.map(function (rec) {
+            var t = state.tenantById(rec.tenantId);
+            return '<option value="' + esc(rec.id) + '">' + esc(rec.id + ' — ' + (t ? t.name : rec.tenantId)) +
+              '</option>';
+          }).join('') + '</select> ' +
+          '<label for="xp-days" style="font-weight:600;margin:0 6px 0 14px">Ends in</label> ' +
+          '<select id="xp-days">' +
+          '<option value="16">16 days (not due)</option>' +
+          '<option value="15" selected>15 days (reminder due)</option>' +
+          '<option value="10">10 days (reminder due)</option>' +
+          '<option value="-1">already ended (expired)</option>' +
+          '</select> ' +
+          '<button class="btn sec sm" type="button" id="xp-go">Move the end date</button>')
+      : '';
+
     var html =
       ui.phead('Operations',
         (function () {
@@ -481,11 +517,31 @@ XRSLP.screens = XRSLP.screens || {};
         '<p class="cardfoot">No response time is promised, no priority is assigned, no external ticketing ' +
         'provider is integrated, and no notification is sent to anybody. The reporter sees the state in ' +
         'their own workspace.</p>', null, 'h2') +
-      ui.card('Access terms and the 15-day reminder', expiryBody, null, 'h2') +
+      ui.card('Access terms and the 15-day reminder', expiryBody + expiryDemo, null, 'h2') +
       P.reminderNote() +
       '</div>';
 
-    return { title: 'Operations', html: html, navKey: 'operations' };
+    return {
+      title: 'Operations', html: html, navKey: 'operations',
+      after: function () {
+        var go = document.getElementById('xp-go');
+        if (!go) { return; }
+        go.addEventListener('click', function () {
+          var recSel = document.getElementById('xp-rec');
+          var daySel = document.getElementById('xp-days');
+          if (!recSel || !daySel) { return; }
+          var out = state.protoSetAccessEnd(recSel.value, Number(daySel.value));
+          if (out) {
+            ui.toast('Prototype only — ' + out.id + ' now ends ' + util.fmtDate(out.endsOn) +
+              (state.accessIsLive(out)
+                ? '. No entitlement, licence or assignment changed.'
+                : '. The record is now expired, so entitlement derived from it is no longer effective — ' +
+                  'nothing was deleted.'));
+          }
+          XRSLP.render(false);
+        });
+      }
+    };
   };
 
   /* ---------------- device transfer detail ---------------- */

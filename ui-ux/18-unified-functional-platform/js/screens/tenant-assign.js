@@ -95,11 +95,19 @@ XRSLP.screens = XRSLP.screens || {};
         '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
         list.map(function (a) {
           var rec = state.accessById(a.accessId);
-          var alloc = rec ? state.accessAllocation(rec.id) : null;
+          /* EFFECTIVE ENTITLEMENT, not licence holding. `accessAllocation`
+             is deliberately tenant-status- and expiry-blind — it answers
+             "who holds a licence", which must survive a deactivation
+             untouched. Reading it here made this column claim students
+             were reached while the institution was deactivated or the
+             term had ended, contradicting every other surface in the
+             build. `entitledStudentsFor` is the one derivation every
+             learner-facing screen already answers this with. */
+          var entitledHere = a.status === 'active'
+            ? state.entitledStudentsFor(a.accessId, a.experimentId) : [];
           var reach = a.status === 'active'
             ? state.assignmentReach(a).filter(function (pid) {
-                var p = state.personById(pid);
-                return p && p.status === 'active' && alloc && alloc.entitledIds.indexOf(pid) !== -1;
+                return entitledHere.indexOf(pid) !== -1;
               }).length
             : 0;
           var target = a.targetType === 'group'
@@ -417,6 +425,8 @@ XRSLP.screens = XRSLP.screens || {};
               state.assignabilityText(pre.blockedBy) + '.'
           : pre.reason === 'not-approved'
             ? 'Assignment blocked — that experiment is not part of this access record.'
+          : pre.reason === 'other-tenant-target'
+            ? 'Assignment blocked — a selected student or group does not belong to this institution.'
             : 'Assignment blocked — this assignment cannot be made.';
       }
 
@@ -705,11 +715,42 @@ XRSLP.screens = XRSLP.screens || {};
             XRSLP.render(false);
           });
         }
+        /* Removing a mapping has a consequence that used to be silent:
+           a descriptive review is reachable ONLY through a Faculty ↔
+           Experiment mapping, so removing the last mapping covering an
+           Experiment leaves a submitted written answer with no evaluator
+           while the Student is still told it is with their faculty
+           (STK31-31). Nothing is destroyed and re-mapping restores the
+           queue — but the consequence is stated before it is taken, the
+           way every other consequential control on this screen does.
+
+           Only the MAPPING FACT is shown. No answer, mark or student
+           name from the review is exposed here: the review queue belongs
+           to Faculty, not to the Tenant Admin. */
         Array.prototype.slice.call(document.querySelectorAll('[data-unmap]')).forEach(function (btn) {
           btn.addEventListener('click', function () {
-            state.removeFacultyMapping(btn.getAttribute('data-unmap'));
-            ui.toast('Faculty mapping removed.');
-            XRSLP.render(false);
+            var mid = btn.getAttribute('data-unmap');
+            var losing = state.pendingReviewsLosingEvaluator(mid);
+            function commit() {
+              state.removeFacultyMapping(mid);
+              ui.toast('Faculty mapping removed.');
+              XRSLP.render(false);
+            }
+            if (!losing.length) { commit(); return; }
+            ui.openDialog({
+              title: 'Remove this Faculty mapping?',
+              bodyHTML:
+                '<p>Removing this mapping leaves <strong>' + losing.length + '</strong> submitted written ' +
+                XRSLP.util.plural(losing.length, 'response') + ' with <strong>no mapped Faculty evaluator</strong>.</p>' +
+                '<div class="consequence">' + ui.ic('alertCirc') + '<span>Those students stay at ' +
+                '<em>Pending Faculty review</em>, cannot retake, and cannot complete the experiment until a ' +
+                'Faculty member is mapped to it again.</span></div>' +
+                '<div class="consequence">' + ui.ic('check') + '<span><strong>Nothing is deleted.</strong> The ' +
+                'responses, marks and history are all kept, and mapping a Faculty member to this content again ' +
+                'puts them straight back in that person&rsquo;s review queue.</span></div>',
+              okLabel: 'Remove mapping',
+              onConfirm: commit
+            });
           });
         });
       }

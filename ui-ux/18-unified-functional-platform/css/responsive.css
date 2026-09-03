@@ -66,6 +66,16 @@
   .exprow .xr-tech{justify-content:flex-start}
   .decidebar .db-note{max-width:none}
   .protobar{padding:8px 12px}
+  /* The strip claims (layout.css, app.js) that nothing in it can create
+     document-level horizontal overflow at any width. It could: the
+     right-hand `<label>` wraps a `<select>` and neither could shrink,
+     so the scenario picker held `.pright` at ~364px and scrolled the
+     whole DOCUMENT sideways below ~375px. Same fix, and the same
+     reason, as the `.listbar` one further down: give the label its own
+     row and let the select shrink inside it. */
+  .protobar .pright{min-width:0; max-width:100%}
+  .protobar label{min-width:0; max-width:100%; flex:1 1 100%}
+  .protobar select{min-width:0; max-width:100%}
   .dialog .dfoot .btn{flex:1 1 auto}
 }
 

@@ -14,8 +14,11 @@
    PUBLISH, and it is the FIRST publication of a NEW Experiment.
    RELEASE and HOLD are the SUPER ADMIN's actions on a LATER VERSION of
    an already-published Experiment — a different object, a different
-   owner, a different decision, and not built in this slice. Neither
-   word appears anywhere in this workspace.
+   owner and a different decision. That workflow IS built (a Vendor
+   proposes it, an Academic Reviewer approves it, and the SUPER ADMIN
+   releases or holds it), and it is built somewhere else. Neither word
+   appears as an action anywhere in this workspace: later versions are
+   listed here read-only, and no control over them exists on this plane.
 
    What this role CANNOT do:
      · publish an item that carries no academic approval. The guard is
@@ -55,6 +58,36 @@ XRSLP.screens = XRSLP.screens || {};
 
   function shell(actor, navKey, title, html, after) {
     return { title: title, html: html, area: 'content', navKey: navKey, contentActor: actor, after: after };
+  }
+
+  /* WHERE A RETURNED ITEM COMES BACK TO is not a fixed fact, so the
+     screens that state it must read the live answer. `submitContent()`
+     fails closed on exactly this test: an approval that cannot be shown
+     to describe the work being resubmitted is withdrawn, and the
+     submission goes back through academic review instead of returning to
+     this gate. A canonical-metadata correction here — the Content
+     Manager's own authority, STK31-09 — is enough to make that true, and
+     while the copy promised the return unconditionally it described a
+     path the state layer would not take. */
+  function approvalStillDescribes(rec) {
+    var fp = rec && rec.academicReview && rec.academicReview.fingerprint;
+    return typeof fp === 'string' && fp === state.academicFingerprint(rec);
+  }
+
+  /* A Content Manager whose role scope has been withdrawn — or who was
+     never given one — reaches an entirely empty workspace, and an empty
+     workspace with no explanation reads as a broken prototype rather
+     than as governance working. The Vendor and the Academic Reviewer
+     both name the reason on their own planes; this says the same thing
+     here, on every screen the emptiness reaches. Withdrawing a scope
+     never destroys anything: what it removes is reach. */
+  function scopeGapNote(actor) {
+    if (state.assignmentsFor(actor.id).length) { return ''; }
+    return ui.alertBox('warning', 'No role scope is assigned to you',
+      '<p>A Content Manager works inside an assigned scope, and no assignment is in force for this identity. ' +
+      'The Content Library, the publication queue and the counts on this page are therefore empty — nothing ' +
+      'has been deleted, and nothing has been published or unpublished.</p>' +
+      '<p>Content role scope is assigned and withdrawn by the Super Admin, on the Role governance screen.</p>');
   }
 
   XRSLP.screens.managerHome = function () {
@@ -124,6 +157,7 @@ XRSLP.screens = XRSLP.screens || {};
 
     var html =
       ui.phead('Overview', esc(actor.name) + ' · Content Manager') +
+      scopeGapNote(actor) +
       tiles +
       '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' + ui.card('Awaiting a publication decision', attnHTML) + '</div>' +
@@ -145,6 +179,51 @@ XRSLP.screens = XRSLP.screens || {};
     return shell(actor, 'overview', 'Content Manager overview', html);
   };
 
+  /* ---- WHAT THIS CONTENT MANAGER HAS ALREADY DECIDED, OUTSIDE THEIR
+     CURRENT SCOPE ----
+     The Content Library is scope-filtered, so an Experiment published
+     under a scope the Super Admin has since withdrawn simply vanished
+     from this workspace. The build's own rule is that WITHDRAWING
+     AUTHORITY NEVER DESTROYS HISTORY (`STK31-41`) — the same rule the
+     Vendor and the Academic Reviewer already follow: future authority
+     goes, the record of what you did stays readable.
+
+     STRICTLY READ-ONLY, and it grants nothing. `contentForManager` is
+     unchanged, every mutation still asks `managerCanAct`, and there is
+     no link to an editor here — only the fact that the work exists and
+     what became of it. */
+  function historyOutsideScope(actor, inScope) {
+    var seen = {};
+    inScope.forEach(function (r) { seen[r.id] = true; });
+    var rows = state.actorHistoricalRecordIds(actor.id)
+      .filter(function (id) { return !seen[id]; })
+      .map(function (id) { return state.contentRecord(id); })
+      .filter(function (r) { return !!r; });
+    if (!rows.length) { return ''; }
+    return ui.card('Outside your current scope \u2014 what you have already decided',
+      '<p class="muted" style="margin:0 0 10px">These Experiments are no longer inside your assigned scope, so ' +
+      'they are not in the library above and you cannot act on them. <strong>Nothing has been deleted</strong> ' +
+      'and a published Experiment stays published \u2014 this is the record of your own decisions, kept readable. ' +
+      'If a scope is restored, the Experiments under it return to the library.</p>' +
+      '<div class="tscroll"><table class="dt">' +
+      '<caption class="sr-only">Experiments this Content Manager has acted on that are outside their current scope</caption>' +
+      '<thead><tr><th scope="col">Experiment</th><th scope="col">Programme / Course</th>' +
+      '<th scope="col">Status</th><th scope="col">Your decision</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        var pub = state.publicationFor(r.id);
+        var mine = pub && pub.publishedBy === actor.id;
+        return '<tr>' +
+          '<td data-label="Experiment"><span class="tmain">' + esc(r.name) + '</span>' +
+          '<span class="tsub">' + esc(r.id) + '</span></td>' +
+          '<td data-label="Programme / Course">' + cui.contextLine(r) + '</td>' +
+          '<td data-label="Status">' + cui.statusBadge(r) + '</td>' +
+          '<td data-label="Your decision">' + (mine
+            ? 'Published by you ' + esc(util.fmtDate(pub.publishedAt))
+            : '<span class="muted">Recorded on the Experiment&rsquo;s own history</span>') + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody></table></div>', null, 'h2');
+  }
+
   /* ---------------- Content Library ----------------
      The platform-level canonical library, over the SAME content source
      the public catalogue consumes. There is no second CMS catalogue. */
@@ -156,10 +235,21 @@ XRSLP.screens = XRSLP.screens || {};
     if (!all.length) {
       return shell(actor, 'library', 'Content Library',
         ui.phead('Content Library', esc(actor.name)) +
+        scopeGapNote(actor) +
         '<div class="tablecard">' + ui.emptyState({
           icon: 'layers',
           title: 'The Content Library is empty',
-          body: 'No content exists inside your assigned scope.'
+          /* HONEST ABOUT WHAT IS MISSING, not silent about it. This
+             library is scope-filtered, so an Experiment this Content
+             Manager published under a scope since withdrawn is absent
+             from it. Withdrawing authority never destroys history — the
+             record still exists and stays published — but this workspace
+             has no read model that would show it here, so the screen
+             says so rather than implying the work is gone. */
+          body: 'No content exists inside your assigned scope. Assigned scope: ' +
+            state.actorScopeText(actor.id) + '. An experiment you published under a scope you no longer ' +
+            'hold still exists and stays published; it is simply not in reach from here while the scope ' +
+            'is withdrawn.'
         }) + '</div>');
     }
 
@@ -188,7 +278,8 @@ XRSLP.screens = XRSLP.screens || {};
       '<th scope="col">Status</th><th scope="col">Currently with</th>' +
       '<th scope="col"><span class="sr-only">Actions</span></th>' +
       '</tr></thead><tbody id="m-rows"></tbody></table></div>' +
-      '<div id="m-empty"></div></div>';
+      '<div id="m-empty"></div></div>' +
+      historyOutsideScope(actor, all);
 
     return shell(actor, 'library', 'Content Library', html, function () {
       var rowsEl = document.getElementById('m-rows');
@@ -252,6 +343,7 @@ XRSLP.screens = XRSLP.screens || {};
     if (!queue.length) {
       return shell(actor, 'queue', 'Publication queue',
         ui.phead('Publication queue', esc(actor.name)) +
+        scopeGapNote(actor) +
         '<div class="tablecard">' + ui.emptyState({
           icon: 'layers',
           title: 'Nothing is awaiting publication',
@@ -312,6 +404,10 @@ XRSLP.screens = XRSLP.screens || {};
     var atGate = rec.status === CS.CONTENT_REVIEW;
     var ready = state.publishReadiness(rec);
     var vendor = rec.createdBy ? state.contentActor(rec.createdBy) : null;
+    /* Only candidates that have been handed over — see the card below. */
+    var chainVersions = state.versionsForRecord(rec.id).filter(function (v) {
+      return v.status !== state.VERSION_STATUS.DRAFT;
+    });
 
     var stateNote;
     if (published) {
@@ -355,8 +451,11 @@ XRSLP.screens = XRSLP.screens || {};
           '<p class="hint" id="h-cm-comment">Required when returning the submission to the Vendor. Internal to ' +
           'the content workflow; never shown in the public catalogue.</p></div>' +
           '<p class="dnote">' + ui.ic('info', 'sm') +
-          'Returning an item at this gate sends it back to you when the Vendor resubmits — the academic ' +
-          'validation it has already passed is not repeated.</p>')
+          (approvalStillDescribes(rec)
+            ? 'Returning an item at this gate sends it back to you when the Vendor resubmits — the academic ' +
+              'validation it has already passed is not repeated.'
+            : 'The recorded academic approval no longer describes this item, so returning it now sends it ' +
+              'back through academic review when the Vendor resubmits, not back to you.') + '</p>')
       : '';
 
     var html =
@@ -383,26 +482,32 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="stack">' +
       (published ? ui.card('Publication record', cui.publicationCard(rec)) : '') +
       (published ? cui.publishedNextVersionNote() : '') +
-      /* Implementation 06 — later versions are VISIBLE in the Content
-         Library, and read-only here. The Content Manager's confirmed
-         authority is first approval and first publication; the decision
-         on a later version is the Super Admin's Release / Hold, and no
-         control for it exists on this plane. */
-      (published && state.versionsForRecord(rec.id).length
+      /* Later versions are VISIBLE here, and read-only. The Content
+         Manager's confirmed authority is content readiness review and
+         the FIRST publication; the decision on a later version is the
+         Super Admin's Release / Hold, and no control for it exists on
+         this plane.
+
+         A candidate the Vendor has NOT submitted is excluded. A draft is
+         still with its Vendor and has not entered the governance chain,
+         so listing it here would report work nobody has handed over as
+         though it were part of the record's version history. */
+      (published && chainVersions.length
         ? ui.card('Later versions',
             '<div class="tscroll"><table class="dt">' +
             '<caption class="sr-only">Later versions of ' + esc(rec.name) + '</caption>' +
             '<thead><tr><th scope="col">Version</th><th scope="col">Vendor</th>' +
             '<th scope="col">State</th></tr></thead><tbody>' +
-            state.versionsForRecord(rec.id).map(function (v) {
+            chainVersions.map(function (v) {
               return '<tr>' +
                 '<td data-label="Version">' + esc(v.versionLabel) + '</td>' +
                 '<td data-label="Vendor">' + esc(v.createdByName) + '</td>' +
                 '<td data-label="State">' + XRSLP.versionUI.badge(v) + '</td>' +
                 '</tr>';
             }).join('') + '</tbody></table></div>' +
-            '<p class="cardfoot">Shown for visibility. The decision to release a later version or hold it is ' +
-            'the <strong>Super Admin&rsquo;s</strong>, and there is no control for it here.</p>',
+            '<p class="cardfoot">Versions that have entered the governance chain — a candidate a Vendor has ' +
+            'not submitted yet is not listed. Shown for visibility: the decision to release a later version ' +
+            'or hold it is the <strong>Super Admin&rsquo;s</strong>, and there is no control for it here.</p>',
             'Read-only — Super Admin decides')
         : '') +
       ui.card('Submission',
@@ -411,7 +516,11 @@ XRSLP.screens = XRSLP.screens || {};
           ? esc(vendor.name) + '<div class="muted">' + esc(vendor.organisation) + '</div>'
           : '<span class="muted">Existing published content — no Vendor submission</span>') +
         cui.kvLine('Submitted', rec.submittedAt ? esc(util.fmtDateTime(rec.submittedAt)) : '—') +
-        cui.kvLine('Version', esc(rec.versionLabel || '—')) +
+        /* NOT "Version": `rec.versionLabel` is the version the public
+           sees, and a Super Admin Release overwrites it. Under a card
+           headed Submission it read as the label the Vendor submitted,
+           which after a release it is not. */
+        cui.kvLine('Current public version', esc(rec.versionLabel || '—')) +
         cui.kvLine('Revision', esc(String(rec.revision))) +
         '</div>') +
       ui.card('History', cui.historyTimeline(rec)) +
@@ -483,8 +592,12 @@ XRSLP.screens = XRSLP.screens || {};
           bodyHTML: '<p>This returns <strong>' + esc(rec.name) + '</strong> to the Vendor for correction, with ' +
             'your reason.</p><blockquote class="qquote">' + esc(text) + '</blockquote>' +
             '<div class="consequence">' + ui.ic('info') +
-            '<span>The academic approval already recorded is kept. When the Vendor resubmits, the item ' +
-            'returns to this queue rather than to academic review.</span></div>' +
+            '<span>' + (approvalStillDescribes(rec)
+              ? 'The academic approval already recorded is kept. When the Vendor resubmits, the item ' +
+                'returns to this queue rather than to academic review.'
+              : 'The academic approval already recorded no longer describes this item, so it is not ' +
+                'carried forward. When the Vendor resubmits, the item goes back through academic review ' +
+                'rather than returning to this queue.') + '</span></div>' +
             /* Same honesty as the academic gate: a Vendor whose scope
                was withdrawn cannot resubmit, so the sentence above would
                describe a return that never comes. */
@@ -513,8 +626,8 @@ XRSLP.screens = XRSLP.screens || {};
      It deliberately does NOT edit: Learning Outcomes (academically
      owned), the technology delivery detail (the Vendor's technical
      submission), or the Programme / Course master records themselves —
-     platform master-data administration is a Super Admin surface a
-     later slice builds. */
+     platform master-data administration is a Super Admin surface this
+     prototype does not build. */
   XRSLP.screens.managerMetadata = function (params) {
     var actor = resolveActor(params);
     if (!actor) { return XRSLP.screens.notFound(); }
@@ -543,7 +656,14 @@ XRSLP.screens = XRSLP.screens || {};
       return shell(actor, 'library', rec.name, lockedHTML);
     }
 
-    var courseOptions = data.COURSES.map(function (c) {
+    /* ONLY THE COURSES THE SAVE WILL ACCEPT — plus the record's own
+       Course, which is always offered and always selected, so a record
+       can never lose its placement by being edited. Offering every
+       canonical Course meant the picker held destinations
+       `updateCanonicalMetadata` would refuse. */
+    var courseOptions = data.COURSES.filter(function (c) {
+      return state.managerCanFileInto(actor.id, rec.id, c.id);
+    }).map(function (c) {
       var g = data.grouping(c.groupingId);
       return '<option value="' + esc(c.id) + '"' + (rec.courseId === c.id ? ' selected' : '') + '>' +
         esc((g ? g.name + ' › ' : '') + c.name) + '</option>';
@@ -559,6 +679,24 @@ XRSLP.screens = XRSLP.screens || {};
             '<p>Corrections here take effect in the public catalogue immediately. They do not create a new ' +
             'version and they do not change the published revision, the recorded academic approval or the ' +
             'publication record — a newer version is a separate Super Admin decision.</p>')
+        : '') +
+      /* SAY THE CONSEQUENCE BEFORE THE ACTION, not after it. The name,
+         the Course, the summary and the description are part of what the
+         Academic Reviewer approved, so changing one of them at the
+         readiness gate means the recorded approval no longer describes
+         this item and `publishReadiness()` blocks publication. That
+         guard is correct and stays; what was missing was any statement
+         of it before Save. */
+      (rec.status === CS.CONTENT_REVIEW && rec.academicReview
+        ? ui.alertBox('warning', 'This item is at the publication gate',
+            '<p>The name, the Course, the summary and the description are part of what ' +
+            esc(rec.academicReview.reviewerName) + ' approved. Saving a change to any of them means the ' +
+            'recorded approval no longer describes this item, and <strong>publication is blocked</strong> ' +
+            'until either the earlier wording is restored or the item goes back through academic review.</p>' +
+            (approvalStillDescribes(rec)
+              ? ''
+              : '<p>That has already happened: the approval on record no longer describes this item as it ' +
+                'now stands.</p>'))
         : '') +
       '<form class="formwrap" id="cm-form" novalidate><div class="stack">' +
       '<div class="form-errors"></div>' +
@@ -589,7 +727,15 @@ XRSLP.screens = XRSLP.screens || {};
         '<ul class="reslist plain">' +
         '<li>' + ui.ic('x') + '<span><strong>Learning Outcomes</strong> — academically owned by the Academic Reviewer.</span></li>' +
         '<li>' + ui.ic('x') + '<span><strong>Technology delivery</strong> — the Vendor’s technical submission.</span></li>' +
-        '<li>' + ui.ic('x') + '<span><strong>Programme / Course master records</strong> — platform master data administered on a Super Admin surface that a later slice builds.</span></li>' +
+        /* This used to say the master records are administered "on a
+           Super Admin surface this prototype does not build", which
+           contradicts the Super Admin's own content-governance screen:
+           that surface EXISTS and inspects the structure — what is not
+           built anywhere is CREATE and DELETE for the grouping and
+           Course records, because no source describes either operation
+           and those ids are load-bearing for every access record,
+           academic mapping and student assignment. */
+        '<li>' + ui.ic('x') + '<span><strong>Programme / Course master records</strong> — platform-controlled structure. The Super Admin inspects it on Content governance; creating or deleting a grouping or a Course is not built anywhere, because no source describes either operation.</span></li>' +
         '<li>' + ui.ic('x') + '<span><strong>The published revision and its publication record</strong> — fixed once published.</span></li>' +
         '</ul>') +
       '</div></div></form>';
@@ -610,8 +756,15 @@ XRSLP.screens = XRSLP.screens || {};
         if (!ui.showErrors(form, errs, 'The metadata cannot be saved yet')) { return; }
         var saved = state.updateCanonicalMetadata(actor.id, rec.id, fields);
         if (!saved) {
-          ui.showErrors(form, [{ field: 'f-name',
-            message: 'Another experiment already uses this name. Choose a different one.' }],
+          /* Report the reason that actually applies. Every refusal used
+             to be announced as a name clash, which sent the Content
+             Manager renaming an Experiment over an authority problem. */
+          ui.showErrors(form, [!state.managerCanFileInto(actor.id, rec.id, fields.courseId)
+            ? { field: 'f-course',
+                message: 'You hold no assignment covering that Course, so this experiment cannot be filed ' +
+                  'into it. Course scope is assigned by the Super Admin.' }
+            : { field: 'f-name',
+                message: 'Another experiment already uses this name. Choose a different one.' }],
             'The metadata cannot be saved yet');
           return;
         }

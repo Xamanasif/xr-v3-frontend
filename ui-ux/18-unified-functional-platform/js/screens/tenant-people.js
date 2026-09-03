@@ -26,6 +26,18 @@ XRSLP.screens = XRSLP.screens || {};
   var state = XRSLP.state;
   var T = XRSLP.tenantUI;
 
+  /* The badge that says WHY an entitlement is not effective reads its
+     wording from the shared T.BLOCK_TEXT map, which labels three of the
+     four values the engine puts on blockedBy (BLOCK_PRIORITY, js/state.js).
+     Person detail is that badge's only caller, and the missing fourth —
+     'tenant-inactive', a deactivated institution, which blocks every row on
+     the page at once — is the one reason it must not drop, so the label is
+     registered here rather than the badge falling back to a bare
+     "Not effective". */
+  if (T.BLOCK_TEXT && !T.BLOCK_TEXT['tenant-inactive']) {
+    T.BLOCK_TEXT['tenant-inactive'] = 'Institution deactivated';
+  }
+
   /* Filter state lives in the module so a re-render keeps it, exactly
      like the Super Admin queue filter. */
   var f = { role: 'all', status: 'all', q: '' };
@@ -206,7 +218,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<button class="btn pri" type="submit" id="fac-save">Create Faculty record</button>' +
       '<a class="btn sec" href="' + T.href.people(tenant.id) + '">Cancel</a>' +
       '</div></form>' +
-      '<div class="formaside">' + ui.gapNote('NOT IN THIS SLICE',
+      '<div class="formaside">' + ui.gapNote('NOT IN THIS BUILD',
         '<strong>How an identity first exists</strong> — invitation, activation or identity-provider mapping — is not ' +
         'decided by any source, so nothing is invented here. This creates the record the institution assigns work to; ' +
         'its origin is shown as provenance on the person&rsquo;s detail page.') + '</div>' +
@@ -640,9 +652,13 @@ XRSLP.screens = XRSLP.screens || {};
     if (!p || p.tenantId !== tenant.id) {
       return {
         title: 'Person not found', tenant: tenant, navKey: 'people',
+        /* The page needs its own h1, like every other not-found screen
+           in the build — an empty state's heading is an h2 inside the
+           card, not the page title. */
         html: ui.crumbs([{ label: 'People', href: T.href.people(tenant.id) }, { label: 'Not found' }]) +
+          ui.phead('Person not found') +
           '<div class="tablecard">' + ui.emptyState({
-            icon: 'alertCirc', title: 'Person not found',
+            icon: 'alertCirc', heading: 'h2', title: 'Person not found',
             body: 'No person with this identifier exists in ' + tenant.name + '.',
             actionsHTML: '<a class="btn pri" href="' + T.href.people(tenant.id) + '">Back to People</a>'
           }) + '</div>'
@@ -838,11 +854,17 @@ XRSLP.screens = XRSLP.screens || {};
       ui.alertBox('info', 'Faculty mapping does not consume a student licence',
         '<p>The approved quantity on an access record is a student/user allocation. Mapping a Faculty member to a ' +
         'course or experiment does not take one of those licences.</p>') +
-      /* The Faculty workspace this used to defer to now exists, so the
-         note states the boundary rather than an absence. */
+      /* The Faculty workspace this used to defer to now exists, so the note
+         says where the work is done rather than recording an absence. It
+         stops short of saying Student progress BELONGS to the Faculty
+         member: the role model gives the Tenant Admin reporting and
+         visibility over assigned students and content (STK31-25 / STK31-43).
+         What is missing is a tenant-level report, and that is stated as the
+         gap it is. */
       ui.alertBox('info', 'This page is the Tenant Admin’s view',
-        '<p>Assessment authoring, the descriptive review queue and Student progress belong to the Faculty ' +
-        'member, who reaches them in the Faculty workspace for whatever is mapped above.</p>') +
+        '<p>Assessment authoring and the descriptive review queue are the Faculty member’s, and they reach ' +
+        'them in the Faculty workspace for whatever is mapped above. Student progress against that content ' +
+        'is read there too: this build carries no tenant-level report over it.</p>') +
       '</div></div>';
 
     return { title: p.name, html: html, tenant: tenant, navKey: 'people' };

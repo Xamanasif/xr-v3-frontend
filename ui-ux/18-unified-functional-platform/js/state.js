@@ -93,6 +93,10 @@ XRSLP.state = (function () {
   var STATUS = {
     DRAFT: 'DRAFT',
     SUBMITTED: 'SUBMITTED',
+    /* STK31-20's second decision outcome. The request is NOT refused and
+       NOT approved: it is returned to the applicant with a reason they
+       can read, and it comes back to the queue when they resubmit. */
+    INFO_REQUESTED: 'INFO_REQUESTED',
     APPROVED_PAYMENT_REQUIRED: 'APPROVED_PAYMENT_REQUIRED',
     ACTIVE: 'ACTIVE'
   };
@@ -100,6 +104,7 @@ XRSLP.state = (function () {
   var STATUS_META = {
     DRAFT:                     { label: 'Draft',                       badge: 'b-neutral', icon: 'edit' },
     SUBMITTED:                 { label: 'Submitted',                   badge: 'b-info',    icon: 'clock' },
+    INFO_REQUESTED:            { label: 'More information requested',  badge: 'b-warning', icon: 'clock' },
     APPROVED_PAYMENT_REQUIRED: { label: 'Approved — payment required', badge: 'b-warning', icon: 'card' },
     ACTIVE:                    { label: 'Active',                      badge: 'b-success', icon: 'check' }
   };
@@ -1124,6 +1129,45 @@ XRSLP.state = (function () {
     });
     return out;
   }
+  /* Which canonical Courses an actor may create a NEW record inside.
+     This is a DIFFERENT question from `actorCourseIds`, and conflating
+     the two was a real authority defect: an Experiment-scope assignment
+     names one existing Experiment (STK31-41), so it widens to that
+     Experiment's Course for READING, but it cannot authorise a brand-new
+     Experiment — the new record gets a new id that no Experiment-scope
+     row can ever name. `actorCoversRecord` would then refuse every edit,
+     and the Vendor was handed a frozen draft with a false explanation.
+     Creation therefore asks for Course-level or platform-level scope. */
+  function actorCreateCourseIds(actorId) {
+    var rows = assignmentsFor(actorId);
+    if (rows.some(function (m) { return m.scope === 'all'; })) {
+      return data.COURSES.map(function (c) { return c.id; });
+    }
+    var out = [];
+    rows.forEach(function (m) {
+      if (m.scope === 'course' && m.courseId && out.indexOf(m.courseId) === -1) { out.push(m.courseId); }
+    });
+    return out;
+  }
+  /* The assignment an actor actually holds, said in the actor's own
+     terms. A Course list alone reported an Experiment-scope assignment
+     as authority over the whole Course, which is not what was granted. */
+  function actorScopeText(actorId) {
+    var rows = assignmentsFor(actorId);
+    if (!rows.length) { return 'No assignment'; }
+    if (rows.some(function (m) { return m.scope === 'all'; })) { return 'Platform-wide (all Courses)'; }
+    var parts = [];
+    rows.forEach(function (m) {
+      if (m.scope === 'course' && m.courseId) {
+        var c = data.course(m.courseId);
+        parts.push(c ? c.name : m.courseId);
+      } else if (m.scope === 'experiment' && m.experimentId) {
+        var rec = contentRecord(m.experimentId);
+        parts.push((rec ? rec.name : m.experimentId) + ' (this Experiment only)');
+      }
+    });
+    return parts.join(', ') || 'No assignment';
+  }
   function actorHasPlatformScope(actorId) {
     return assignmentsFor(actorId).some(function (m) { return m.scope === 'all'; });
   }
@@ -1468,7 +1512,7 @@ XRSLP.state = (function () {
   function vendorCanSubmit(rec, actorId) { return canMutateVendorRecord(rec, actorId); }
 
   function vendorCanCreateIn(actorId, courseId) {
-    return actorCourseIds(actorId).indexOf(courseId) !== -1;
+    return actorCreateCourseIds(actorId).indexOf(courseId) !== -1;
   }
 
   function createContentDraft(actorId, fields) {
@@ -1503,9 +1547,18 @@ XRSLP.state = (function () {
        answer cannot be changed by changing the field. */
     if (!canMutateVendorRecord(rec, actorId)) { return null; }
     /* And, separately, authority to file into the Course being chosen —
-       so an in-scope Vendor still cannot move an Experiment into a
-       Course they do not hold. */
-    if (!vendorCanCreateIn(actorId, fields.courseId)) { return null; }
+       so an in-scope Vendor still cannot MOVE an Experiment into a
+       Course they do not hold.
+
+       ⚠ ONLY WHEN THE COURSE IS ACTUALLY CHANGING. This gate asks the
+       creation question (`actorCreateCourseIds`: platform or Course
+       scope, because a new record gets an id no Experiment-scope
+       assignment can name). Asking it on every save refused an
+       Experiment-scoped Vendor editing their OWN, in-scope record with
+       its Course untouched — an edit `canMutateVendorRecord` above has
+       already authorised. Saving a record where it already sits is not
+       a move, and does not need move authority. */
+    if (fields.courseId !== rec.courseId && !vendorCanCreateIn(actorId, fields.courseId)) { return null; }
     if (validateContent(fields, 'draft', { exceptId: rec.id }).length) { return null; }
     rec.courseId = fields.courseId;
     rec.name = String(fields.name).trim();
@@ -1721,6 +1774,19 @@ XRSLP.state = (function () {
     return !!rec && (rec.status === CONTENT_STATUS.CONTENT_REVIEW || rec.status === CONTENT_STATUS.PUBLISHED);
   }
 
+  /* May this Content Manager file THIS record into THAT Course? The
+     same question `updateCanonicalMetadata` asks, exposed so the form
+     can offer only Courses the save will accept, and can report a
+     refusal for the reason it actually happened rather than guessing. */
+  function managerCanFileInto(actorId, recordId, courseId) {
+    var rec = contentRecord(recordId);
+    if (!rec) { return false; }
+    if (courseId === rec.courseId) { return true; }
+    return assignmentsFor(actorId).some(function (m) {
+      return m.scope === 'all' || (m.scope === 'course' && m.courseId === courseId);
+    });
+  }
+
   function updateCanonicalMetadata(actorId, recordId, fields) {
     var rec = contentRecord(recordId);
     var actor = contentActor(actorId);
@@ -1729,6 +1795,25 @@ XRSLP.state = (function () {
     var name = String(fields.name || '').trim();
     if (!name || nameTaken(name, rec.id)) { return null; }
     if (!data.course(fields.courseId)) { return null; }
+    /* AUTHORITY ON THE DESTINATION, NOT ONLY ON THE ORIGIN.
+       `managerCanAct` asked whether this manager covers the record AS IT
+       STANDS. Re-filing it into another Course is a second authority
+       question, and without this gate a Course-scoped Content Manager
+       could move an Experiment into a Course they hold no assignment for
+       — placing it under another person's authority without that person
+       acting, and (because `actorCoversRecord` reads the CURRENT course)
+       removing it from their own reach in the same keystroke. Scope is
+       Super-Admin-governed (STK31-41); it is not something a metadata
+       edit may hand away. A platform-scope manager is unaffected.
+
+       An EXPERIMENT-scope assignment does not satisfy this either. It
+       names one Experiment and carries authority over that Experiment's
+       content — not over WHERE IT SITS in a structure that is
+       platform-controlled (`STK31-10`). Letting it re-file the record
+       anywhere would move the Experiment out from under whichever
+       Course-scoped people currently reach it, on the authority of
+       somebody who holds no Course at all. */
+    if (!managerCanFileInto(actorId, rec.id, fields.courseId)) { return null; }
     rec.name = name;
     rec.courseId = fields.courseId;
     rec.summary = String(fields.summary || '').trim();
@@ -2082,29 +2167,257 @@ XRSLP.state = (function () {
     return req;
   }
 
+  /* ============================================================
+     THE SUPER ADMIN DECISION SURFACE — `STK31-20` / `U-SA-05`
+
+       "SUPER ADMIN review / approval — approve · request more
+        information · REASON REQUIRED · HISTORY TRAIL"
+
+     and the granting end of `STK31-24` / `STK31-21` / `U-SA-08`:
+
+       "Super Admin controls which Courses, Experiments and technology
+        variants are available to a Tenant."
+
+     Both halves live here, because they are one decision. Approving a
+     request is the ONLY thing that creates a `TenantContentAccess`
+     record, so the moment of approval is the only moment at which the
+     Super Admin can decide what the tenant actually receives.
+
+     THE GRANT MAY ONLY NARROW WHAT WAS ASKED FOR. The Super Admin
+     removes Experiments, removes technology variants, and lowers the
+     quantity or the term. It cannot ADD any of them: nothing in the
+     sources lets the platform hand an institution content it never
+     requested, and a wider grant would have to come from a new request.
+     Omitting the grant approves the request exactly as submitted, which
+     is what every earlier build did.
+
+     ⚠ Approval still creates NO student entitlement (STK31-25).
+     ============================================================ */
+
+  /* Why a decision cannot be taken on this request right now, or null. */
+  function requestDecisionBlock(req) {
+    if (!req) { return 'missing'; }
+    if (req.status !== STATUS.SUBMITTED) { return 'not-open'; }
+    /* A deactivated institution cannot be activated INTO. Approval would
+       write an access record the tenant cannot use, under a dialog that
+       promises activation — a contradictory business state (STK31-21 /
+       STK31-22). Reactivate first, then decide. */
+    var target = resolveRequestTenant(req);
+    if (target && !tenantIsActive(target.id)) { return 'tenant-inactive'; }
+    return null;
+  }
+  function requestCanBeDecided(req) { return requestDecisionBlock(req) === null; }
+
+  /* Which existing tenant this request belongs to, if any.
+     Extracted so the decision can ask the question BEFORE it commits.
+
+     `req.tenantId` wins once the institution has been provisioned: from
+     that moment the request is bound to a specific institution, and the
+     name it was submitted under stops being the identity. Without that,
+     a later rename would have made payment resolve somewhere else. */
+  function resolveRequestTenant(req) {
+    if (req.tenantId) {
+      var bound = tenantById(req.tenantId);
+      if (bound) { return bound; }
+    }
+    var sc = XRSLP.data.SCENARIOS[req.scenarioId];
+    var t = null;
+    if (sc && sc.seedTenantId) { t = tenantById(sc.seedTenantId); }
+    if (!t) { t = tenantByName(req.institution.name); }
+    return t || null;
+  }
+
+  var TERM_ORDER = ['monthly', 'quarterly', 'yearly'];
+
+  /* Validates a proposed grant against the request. Returns
+     { ok, errors[], grant } — `grant` is null when the decision is to
+     approve the request exactly as submitted. */
+  function validateGrant(req, grant) {
+    var errs = [];
+    if (!grant) { return { ok: true, errors: [], grant: null }; }
+    var items = [], seenExp = {};
+    (grant.items || []).forEach(function (g) {
+      var asked = req.items.filter(function (i) { return i.experimentId === g.experimentId; })[0];
+      if (!asked) { errs.push({ field: 'grant-items', message: 'That experiment is not part of this request.' }); return; }
+      /* One entry per experiment. Two entries for the same experiment
+         would let the second silently overwrite the first's
+         technologies while `grantNarrowsRequest` compared only the
+         count and reported nothing unusual. */
+      if (seenExp[g.experimentId]) {
+        errs.push({ field: 'grant-items', message: 'The same experiment appears twice in this allocation.' });
+        return;
+      }
+      seenExp[g.experimentId] = true;
+      var techs = [], dup = false;
+      (g.technologies || []).forEach(function (t) {
+        if (asked.technologies.indexOf(t) === -1) { return; }
+        if (techs.indexOf(t) !== -1) { dup = true; return; }
+        techs.push(t);
+      });
+      if (dup) {
+        errs.push({ field: 'grant-items', message: 'A technology appears twice for the same experiment.' });
+        return;
+      }
+      if ((g.technologies || []).length !== techs.length) {
+        errs.push({ field: 'grant-items', message: 'A technology was granted that the institution did not request.' });
+        return;
+      }
+      if (techs.length) { items.push({ experimentId: g.experimentId, technologies: techs }); }
+    });
+    if (!items.length) {
+      errs.push({ field: 'grant-items', message: 'Grant at least one experiment with at least one technology.' });
+    }
+    var qty = grant.quantity === undefined || grant.quantity === null || grant.quantity === ''
+      ? req.quantity : Number(grant.quantity);
+    if (!(qty > 0) || Math.round(qty) !== qty) {
+      errs.push({ field: 'grant-quantity', message: 'Enter a whole number of users greater than zero.' });
+    } else if (qty > req.quantity) {
+      errs.push({ field: 'grant-quantity', message: 'The approved quantity cannot exceed the ' + req.quantity + ' requested.' });
+    }
+    var term = grant.term || req.term;
+    if (!XRSLP.data.term(term)) {
+      errs.push({ field: 'grant-term', message: 'Choose an access term.' });
+    } else if (TERM_ORDER.indexOf(term) > TERM_ORDER.indexOf(req.term)) {
+      errs.push({ field: 'grant-term', message: 'The approved term cannot be longer than the term requested.' });
+    }
+    if (errs.length) { return { ok: false, errors: errs, grant: null }; }
+    return { ok: true, errors: [], grant: { items: items, quantity: qty, term: term } };
+  }
+
+  /* True when the grant differs from what was asked for — the screens
+     use this to say so plainly on both sides. */
+  function grantNarrowsRequest(req) {
+    var g = req && req.grant;
+    if (!g) { return false; }
+    if (g.quantity !== req.quantity || g.term !== req.term) { return true; }
+    if (g.items.length !== req.items.length) { return true; }
+    return req.items.some(function (i) {
+      var got = g.items.filter(function (x) { return x.experimentId === i.experimentId; })[0];
+      return !got || got.technologies.length !== i.technologies.length;
+    });
+  }
+
   /* ---------- approval + activation consequences ---------- */
 
-  function approveRequest(id) {
+  function approveRequest(id, decision) {
     var req = request(id);
-    if (!req || req.status !== STATUS.SUBMITTED) { return null; }
+    if (!req) { return null; }
+    if (!requestCanBeDecided(req)) { return null; }
+    decision = decision || {};
+    /* REASON REQUIRED — STK31-20. The applicant reads it on their own
+       status screen, so it is a product value, not an audit nicety. */
+    var reason = String(decision.reason || '').trim();
+    if (!reason) { return null; }
+    var g = validateGrant(req, decision.grant || null);
+    if (!g.ok) { return null; }
     var now = new Date().toISOString();
+    req.grant = g.grant;
+    req.decisionReason = reason;
     req.approvedAt = now;
+    var narrowed = grantNarrowsRequest(req);
     if (req.paymentRequired) {
       req.status = STATUS.APPROVED_PAYMENT_REQUIRED;
-      req.history.push({ at: now, event: 'Approved — payment required before activation', who: 'Super Admin' });
+      req.history.push({ at: now, who: 'Super Admin', note: reason,
+        event: 'Approved — payment required before activation' + (narrowed ? ' (allocation adjusted)' : '') });
+      /* APPROVAL AUTHORISES THE INSTITUTION; PAYMENT ACTIVATES ITS
+         ACCESS. `STK31-21` makes creating the tenant and assigning its
+         Tenant Admin Super Admin acts distinct from — and listed before
+         — deciding what content it receives, and `17/06 §3.3` puts only
+         the allocation, quantity and term inside step ⑨. So the
+         institution exists from here on BOTH routes; what the external
+         route still lacks is its access record, which is exactly what
+         "payment required" means. It receives no content, no licence and
+         no entitlement until payment succeeds. */
+      provisionTenantFor(req, now);
     } else {
       req.status = STATUS.ACTIVE;
-      req.history.push({ at: now, event: 'Approved', who: 'Super Admin' });
+      req.history.push({ at: now, who: 'Super Admin', note: reason,
+        event: 'Approved' + (narrowed ? ' (allocation adjusted)' : '') });
+      /* Internal / BITS Community: no payment step exists on this route
+         at all (`STK31-19`), so approval provisions AND activates in one
+         moment, exactly as it always has. */
       activateRequest(req, now);
     }
     save();
     return req;
   }
 
-  function completePayment(id) {
+  /* STK31-20's second outcome. It refuses nothing and grants nothing:
+     the request goes back to the applicant with a reason, and returns to
+     the queue unchanged when they resubmit. */
+  function requestMoreInformation(id, reason) {
+    var req = request(id);
+    if (!req || !requestCanBeDecided(req)) { return null; }
+    var note = String(reason || '').trim();
+    if (!note) { return null; }
+    var now = new Date().toISOString();
+    req.status = STATUS.INFO_REQUESTED;
+    req.decisionReason = note;
+    req.history.push({ at: now, event: 'More information requested', who: 'Super Admin', note: note });
+    save();
+    return req;
+  }
+
+  /* The applicant's side of that outcome. */
+  function resubmitRequest(id, note) {
+    var req = request(id);
+    if (!req || req.status !== STATUS.INFO_REQUESTED) { return null; }
+    var text = String(note || '').trim();
+    if (!text) { return null; }
+    var now = new Date().toISOString();
+    req.status = STATUS.SUBMITTED;
+    req.decisionReason = null;
+    req.history.push({ at: now, event: 'Resubmitted with more information', who: req.institution.name, note: text });
+    save();
+    return req;
+  }
+
+  /* ---------- the payment step, provider-neutral — `ND-12` / `U-COM-03`
+     "keep the payment step PROVIDER-NEUTRAL with ALL THREE FRD 9.1.x
+      OUTCOMES — SUCCESS · DECLINED · INDETERMINATE — and ONLY SUCCESS
+      WRITES."
+
+     There is no gateway, no provider and no money (STK31-19). What the
+     three outcomes model is the STATE THE INSTITUTION IS LEFT IN, which
+     is a real product question: a declined attempt leaves the request
+     exactly where it was and says so; an indeterminate one leaves it
+     where it was and says the platform does not yet know. Only SUCCESS
+     activates. Nothing else in the build changes in any of the three. */
+  var PAYMENT_OUTCOME = { SUCCESS: 'success', DECLINED: 'declined', INDETERMINATE: 'indeterminate' };
+
+  function completePayment(id, outcome) {
     var req = request(id);
     if (!req || req.status !== STATUS.APPROVED_PAYMENT_REQUIRED) { return null; }
+    outcome = outcome || PAYMENT_OUTCOME.SUCCESS;
+    /* THE SAME TENANT GATE THE DECISION MEETS. Approval refuses to
+       activate onto a deactivated institution — but on the external
+       route approval and activation are two separate moments, and an
+       institution can be deactivated in between. Without this, payment
+       walked straight past the guard and activated access the tenant
+       could not use, under a screen promising it could. Only the
+       WRITING outcome is gated: recording that a payment was declined
+       or unconfirmed changes nothing and stays available. */
+    if (outcome === PAYMENT_OUTCOME.SUCCESS) {
+      var target = resolveRequestTenant(req);
+      if (target && !tenantIsActive(target.id)) { return null; }
+    }
     var now = new Date().toISOString();
+    if (outcome === PAYMENT_OUTCOME.DECLINED) {
+      req.paymentOutcome = outcome;
+      req.history.push({ at: now, who: req.institution.name,
+        event: 'Payment declined (prototype simulation) — nothing was activated' });
+      save();
+      return req;
+    }
+    if (outcome === PAYMENT_OUTCOME.INDETERMINATE) {
+      req.paymentOutcome = outcome;
+      req.history.push({ at: now, who: req.institution.name,
+        event: 'Payment outcome not confirmed (prototype simulation) — nothing was activated' });
+      save();
+      return req;
+    }
+    if (outcome !== PAYMENT_OUTCOME.SUCCESS) { return null; }
+    req.paymentOutcome = outcome;
     req.history.push({ at: now, event: 'Payment completion simulated (prototype only)', who: req.institution.name });
     req.status = STATUS.ACTIVE;
     activateRequest(req, now);
@@ -2112,16 +2425,59 @@ XRSLP.state = (function () {
     return req;
   }
 
-  function activateRequest(req, nowIso) {
-    /* Tenant: reuse the seeded tenant for the internal scenario; create
-       a tenant for a new external institution if one does not exist. */
-    var sc = XRSLP.data.SCENARIOS[req.scenarioId];
-    var tenant = null;
-    if (sc && sc.seedTenantId) { tenant = tenantById(sc.seedTenantId); }
-    if (!tenant) { tenant = tenantByName(req.institution.name); }
+  /* ============================================================
+     PROVISIONING THE INSTITUTION — a DIFFERENT transition from
+     activating its access, and the two must not be one function.
+
+       `STK31-21` lists the Super Admin's acts in order and as separate
+       capabilities: *reviews the application · approves / authorises the
+       tenant · **creates and governs the tenant** · **assigns the Tenant
+       / Institute Admin** · … · **decides which content and technologies
+       the tenant receives**.*
+
+       `17/07 §2`'s actor table carries the same three as separate
+       confirmed stages, in that order — Create the tenant, Assign the
+       Tenant Admin, Allocate content and technologies — and `17/06 §3.3`
+       shows what payment actually gates: step ⑨ **TENANT ACCESS
+       ACTIVATION**, whose contents are the allocated Courses,
+       Experiments and technologies, the licence quantity and the access
+       term. The institution itself is not in that step.
+
+       The confirmed constraint is stated precisely: *"🔴 **ACCESS** is
+       NEVER granted before approval"* — a rule about access, not about
+       whether the institution exists.
+
+     So APPROVAL provisions the institution, on both routes. PAYMENT
+     gates only the access record. Merging the two meant an approved
+     external institution did not exist anywhere until it paid — the
+     Super Admin could not assign its Tenant Admin (`STK31-21`), the
+     Institutions list contradicted the decision screen, and tenant
+     EXISTENCE was silently conflated with tenant CONTENT ACCESS.
+
+     ⚠ PROVISIONING GRANTS NOTHING. A provisioned institution holds no
+     access record, so it has no assignable content, no licence
+     allocation, no Faculty reach and no student entitlement — every one
+     of those derives from `access[]`, which only activation writes.
+     `status: 'active'` is the DEACTIVATION axis (`STK31-22`) and means
+     only "not deactivated by the Super Admin"; it has never meant, and
+     does not mean here, that the tenant holds anything. Marking a
+     brand-new institution `inactive` would have been the actual lie —
+     it would claim the Super Admin had deactivated it. */
+  function provisionTenantFor(req, nowIso) {
+    var tenant = resolveRequestTenant(req);
     if (!tenant) {
+      /* THE IDENTIFIER MUST BE UNIQUE, NOT MERELY DERIVED.
+         `util.slug` lowercases, collapses every non-alphanumeric run to
+         a hyphen and truncates at 48 characters, so two institutions
+         with different names can produce the same id — while
+         `tenantByName` (exact, trimmed, lower-cased) does not treat them
+         as the same institution and so does not reuse the row. Tenant
+         isolation is a hard boundary (FRD 1.3.1 / 17/04 §4), so the id
+         is made unique before the row is created. */
+      var base = 'tenant-' + util.slug(req.institution.name), id = base, n = 1;
+      while (tenantById(id)) { n += 1; id = base + '-' + n; }
       tenant = {
-        id: 'tenant-' + util.slug(req.institution.name),
+        id: id,
         name: req.institution.name,
         kind: req.institution.kind,
         accessContext: req.institution.accessContext,
@@ -2130,8 +2486,40 @@ XRSLP.state = (function () {
         createdOn: nowIso
       };
       S.tenants.push(tenant);
+      req.history.push({ at: nowIso, who: 'Super Admin',
+        event: 'Institution created — ' + tenant.name,
+        note: 'The institution now exists on the platform. It holds no content until access is activated.' });
+    } else if (!req.tenantId) {
+      req.history.push({ at: nowIso, who: 'Super Admin',
+        event: 'Matched to the existing institution ' + tenant.name,
+        note: 'No second institution was created.' });
     }
+    /* Binds the request to this institution for good, so the payment
+       step can never resolve — or create — a different one. */
     req.tenantId = tenant.id;
+    return tenant;
+  }
+
+  /* Does this institution exist only because a request was approved,
+     with nothing activated onto it yet? A real and honest state on the
+     external route between approval and payment, and the reason the
+     Institutions surfaces must not read it as an ordinary tenant. */
+  function tenantAwaitingActivation(tenantId) {
+    if (accessForTenant(tenantId).length) { return null; }
+    return S.requests.filter(function (r) {
+      return r.tenantId === tenantId && r.status === STATUS.APPROVED_PAYMENT_REQUIRED;
+    })[0] || null;
+  }
+
+  function activateRequest(req, nowIso) {
+    /* Provisioning is idempotent and, on both routes, has already run at
+       approval. Calling it here RESOLVES the bound institution and
+       creates nothing — which is what makes payment unable to produce a
+       second tenant for a request that already has one. */
+    var tenant = provisionTenantFor(req, nowIso);
+    /* Activating twice would write a second access record for the same
+       request, doubling the licence quantity the institution holds. */
+    if (S.access.some(function (a) { return a.requestId === req.id; })) { return; }
     req.activatedAt = nowIso;
     req.history.push({ at: nowIso, event: 'Tenant access activated for ' + tenant.name, who: 'Platform' });
 
@@ -2142,16 +2530,21 @@ XRSLP.state = (function () {
        ⚠ Activation creates NO student entitlement. Holding content is
        not the same as any student having it (STK31-25). */
     S.seq.access += 1;
-    var termDef = XRSLP.data.term(req.term);
+    /* WHAT THE SUPER ADMIN GRANTED, not what the applicant asked for
+       (STK31-24 / U-SA-08). `req.grant` is null when the request was
+       approved exactly as submitted, which is the ordinary case and the
+       behaviour of every earlier build. */
+    var granted = req.grant || { items: req.items, quantity: req.quantity, term: req.term };
+    var termDef = XRSLP.data.term(granted.term);
     S.access.push({
       id: 'ACC-' + util.pad3(S.seq.access),
       tenantId: tenant.id,
       requestId: req.id,
-      items: req.items.map(function (i) {
+      items: granted.items.map(function (i) {
         return { experimentId: i.experimentId, technologies: i.technologies.slice() };
       }),
-      quantity: req.quantity,
-      term: req.term,
+      quantity: granted.quantity,
+      term: granted.term,
       accessContext: req.institution.accessContext,
       recordedBy: 'Super Admin — request approval',
       startsOn: nowIso,
@@ -2396,6 +2789,13 @@ XRSLP.state = (function () {
   function setStudentStatus(personId, status) {
     var p = personById(personId);
     if (!p || p.role !== 'student') { return null; }
+    /* A REDUNDANT CALL MUST NOT MOVE THE ALLOCATION QUEUE. Reactivating
+       an already-active student re-stamped `activationSeq`, sending them
+       to the BACK of the queue — so a no-op handed their own licence to
+       whoever was waiting behind them. The re-stamp is correct for a
+       real reactivation (README judgement call 4) and wrong for a
+       status that is not changing. */
+    if (p.status === status) { return p; }
     /* Implementation-06 tenant-plane write guard — a deactivated tenant
        takes no operational action (STK31-21 / 22). Nothing is deleted;
        the guard simply refuses the write. */
@@ -2417,6 +2817,50 @@ XRSLP.state = (function () {
     }
     save();
     return p;
+  }
+
+  /* STK31-25 — "Student removal / deactivation: Tenant Admin may perform
+     it; SUPER ADMIN MAY ALSO PERFORM IT AS A PLATFORM OVERRIDE."
+
+     The same one writer, reached from the platform plane and recorded as
+     such. It is deliberately NOT a second status field and NOT a second
+     store: an override that produced a different kind of inactive would
+     be two truths about one student. It changes only the person's own
+     status, exactly as the tenant-plane action does — and therefore
+     releases or re-queues that student's licence by the same rule
+     (README judgement calls 3 and 4), and mutates no assignment, no
+     access record and no learning record.
+
+     The deactivated-tenant guard is kept: a deactivated institution
+     takes no operational write from either plane (STK31-21 / 22), and
+     an override there would change nothing a student could observe. */
+  function setStudentStatusAsPlatform(personId, status, reason) {
+    var p = personById(personId);
+    if (!p || p.role !== 'student') { return null; }
+    var note = String(reason || '').trim();
+    if (!note) { return null; }
+    var before = p.status;
+    var out = setStudentStatus(personId, status);
+    if (!out) { return null; }
+    if (!Array.isArray(p.overrides)) { p.overrides = []; }
+    p.overrides.push({
+      at: new Date().toISOString(),
+      from: before, to: out.status,
+      by: 'Super Admin — platform override',
+      reason: note
+    });
+    /* Recorded on the tenant's governance history too, so the
+       institution's own audit trail shows a platform action taken on
+       one of its people rather than an unexplained change. */
+    var t = tenantById(p.tenantId);
+    if (t) {
+      pushTenantEvent(t, 'student-override',
+        (out.status === 'inactive' ? 'Student deactivated' : 'Student reactivated') +
+        ' by platform override — ' + p.name,
+        'Super Admin', note);
+    }
+    save();
+    return out;
   }
 
   /* ---------- StudentCourseMembership ----------
@@ -2604,6 +3048,15 @@ XRSLP.state = (function () {
   }
   function mapFaculty(tenantId, personId, accessId, courseId, experimentId) {
     if (!tenantCanWrite(tenantId)) { return null; }
+    /* THE TENANT BOUNDARY, ENFORCED HERE AND NOT ONLY IN THE PICKER.
+       FRD 1.3.1 tenant isolation is a hard authority boundary
+       (17/04 §4): a Faculty member of one institution can never be
+       given authority inside another. The screen only ever lists this
+       tenant's own Faculty, so this guard is not reachable through the
+       UI — which is exactly why it belongs at the state layer, where a
+       hand-typed call has to meet it too. */
+    var subject = personById(personId);
+    if (!subject || subject.role !== 'faculty' || subject.tenantId !== tenantId) { return null; }
     var rec = accessById(accessId);
     if (!accessIsAssignable(rec, tenantId)) { return null; }
     if (accessCourseIds(rec).indexOf(courseId) === -1) { return null; }
@@ -2805,12 +3258,32 @@ XRSLP.state = (function () {
     if (blocked) { out.reason = blocked === 'expired' ? 'access-expired' : 'not-assignable'; out.blockedBy = blocked; return out; }
     if (!accessHasExperiment(rec, experimentId)) { out.reason = 'not-approved'; return out; }
     if (!targetIds || !targetIds.length) { out.reason = 'no-target'; return out; }
+    /* An unrecognised targetType fell through every branch below — the
+       reach was empty, so nothing was counted, and the commit then wrote
+       an assignment row nothing could ever derive an entitlement from.
+       There are exactly two kinds of target (STK31-25). */
+    if (targetType !== 'student' && targetType !== 'group') { out.reason = 'bad-target-type'; return out; }
 
     out.technologies = accessTechnologies(rec, experimentId);
     var alloc = accessAllocation(accessId);
     out.alloc = alloc;
     var counted = {};
     alloc.entitledIds.concat(alloc.heldIds).forEach(function (id) { counted[id] = true; });
+
+    /* THE TENANT BOUNDARY ON THE TARGET, ENFORCED HERE.
+       `rec.tenantId !== tenantId` above protects the ACCESS side; this
+       protects the RECEIVING side. Assignment is the only writer of
+       student entitlement (STK31-25), so a target belonging to another
+       institution would be an entitlement written across the tenant
+       isolation boundary (FRD 1.3.1 / 17/04 §4). The screens only ever
+       offer this tenant's own students and groups, so this is
+       unreachable through the UI — which is why it is asserted at the
+       state layer rather than assumed from the picker. */
+    var foreignTargets = (targetIds || []).filter(function (tid) {
+      var g = targetType === 'group' ? groupById(tid) : personById(tid);
+      return !g || g.tenantId !== tenantId;
+    });
+    if (foreignTargets.length) { out.reason = 'other-tenant-target'; out.foreignTargets = foreignTargets; return out; }
 
     var newIds = {}, seenTarget = {};
     targetIds.forEach(function (tid) {
@@ -4096,6 +4569,122 @@ XRSLP.state = (function () {
   }
   function facultyExperimentIds(personId) {
     return facultyScope(personId).experiments.map(function (r) { return r.experimentId; });
+  }
+
+  /* ---- STK31-29 / U-FAC-01 — "Experiments available to their Tenant" ----
+     A SECOND, STRICTLY READ-ONLY read model beside `facultyScope`, and
+     the distinction between the two is the point: this is what the
+     INSTITUTION holds, `facultyScope` is what THIS FACULTY MEMBER
+     manages. Nothing here grants anything — a Faculty member cannot
+     author an assessment, see a student or open a review for a row that
+     is not in their own scope, and every row says which of the two it
+     is. Making the tenant's holdings visible answers the question a
+     Faculty member could not otherwise answer ("does my institution
+     have the AR variant?") without widening any authority by a single
+     record; only the Tenant Admin can change a mapping. */
+  function facultyTenantHoldings(personId) {
+    var p = personById(personId);
+    var out = [];
+    if (!p || p.role !== 'faculty') { return out; }
+    var mine = {};
+    facultyScope(personId).experiments.forEach(function (r) { mine[r.experimentId] = true; });
+    var seen = {};
+    liveAccessForTenant(p.tenantId).forEach(function (rec) {
+      if (accessAssignability(rec, p.tenantId)) { return; }
+      (rec.items || []).forEach(function (i) {
+        var ctx = data.contextOf(i.experimentId);
+        if (!ctx) { return; }
+        if (!seen[i.experimentId]) {
+          seen[i.experimentId] = {
+            experimentId: i.experimentId, courseId: ctx.course.id,
+            technologies: [], accessIds: [], mapped: !!mine[i.experimentId]
+          };
+          out.push(seen[i.experimentId]);
+        }
+        var row = seen[i.experimentId];
+        if (row.accessIds.indexOf(rec.id) === -1) { row.accessIds.push(rec.id); }
+        (i.technologies || []).forEach(function (t) {
+          if (row.technologies.indexOf(t) === -1) { row.technologies.push(t); }
+        });
+      });
+    });
+    out.sort(function (x, y) {
+      var cx = data.contextOf(x.experimentId), cy = data.contextOf(y.experimentId);
+      var nx = cx ? cx.course.name + ' ' + cx.experiment.name : x.experimentId;
+      var ny = cy ? cy.course.name + ' ' + cy.experiment.name : y.experimentId;
+      return nx < ny ? -1 : nx > ny ? 1 : 0;
+    });
+    return out;
+  }
+
+  /* ---- SUBMITTED WRITTEN ANSWERS WITH NO MAPPED EVALUATOR ----
+     A descriptive review is reachable only through a Faculty↔Experiment
+     mapping (`reviewsForFaculty` / `facultyCanReview`). Removing the last
+     mapping that covers an Experiment therefore made a pending review
+     invisible to EVERY Faculty member, while the Student was still being
+     told their answer was "with your faculty for review" and could not
+     retake. Nothing was destroyed and re-mapping restores the queue in
+     one click — but nothing told anybody to. STK31-31 makes Faculty the
+     only human evaluator, so a review with no evaluator is a state the
+     product has to be able to name. This derivation is what lets it. */
+  function pendingReviewsWithoutEvaluator(tenantId) {
+    var covered = {};
+    facultyForTenant(tenantId).forEach(function (f) {
+      facultyExperimentIds(f.id).forEach(function (id) { covered[id] = true; });
+      /* A DORMANT MAPPING IS NOT A MISSING ONE. `facultyScope` drops a
+         mapping whose access record is expired, empty or out of
+         quantity — correctly, because it carries no content while it is
+         blocked. But the mapping still exists and names a Faculty
+         member, so reporting it as "no mapped evaluator" would send the
+         Tenant Admin to make a mapping that is already there. The real
+         cause is the access record, which the workspace reports in its
+         own right. */
+      facultyMappingsFor(f.id).forEach(function (m) {
+        if (m.tenantId !== tenantId) { return; }
+        if (m.experimentId) { covered[m.experimentId] = true; return; }
+        var rec = accessById(m.accessId);
+        if (!rec) { return; }
+        (rec.items || []).forEach(function (i) {
+          var ctx = data.contextOf(i.experimentId);
+          if (ctx && ctx.course && ctx.course.id === m.courseId) { covered[i.experimentId] = true; }
+        });
+      });
+    });
+    return S.reviews.filter(function (r) {
+      return r.tenantId === tenantId && r.status === 'pending' && !covered[r.experimentId];
+    });
+  }
+  /* The same question for one Experiment, asked before a mapping is
+     removed so the consequence can be stated rather than discovered. */
+  function pendingReviewsLosingEvaluator(mappingId) {
+    var m = S.facultyMappings.filter(function (x) { return x.id === mappingId; })[0];
+    if (!m || m.status !== 'active') { return []; }
+    var stillCovered = {};
+    facultyForTenant(m.tenantId).forEach(function (f) {
+      facultyMappingsFor(f.id).forEach(function (other) {
+        if (other.id === mappingId) { return; }
+        var rec = accessById(other.accessId);
+        if (accessAssignability(rec, m.tenantId)) { return; }
+        var ids = other.experimentId
+          ? (accessHasExperiment(rec, other.experimentId) ? [other.experimentId] : [])
+          : rec.items.map(function (i) { return i.experimentId; }).filter(function (id) {
+              var ctx = data.contextOf(id);
+              return ctx && ctx.course && ctx.course.id === other.courseId;
+            });
+        ids.forEach(function (id) { stillCovered[id] = true; });
+      });
+    });
+    var losing = {};
+    var rec = accessById(m.accessId);
+    var ids = m.experimentId ? [m.experimentId]
+      : (rec ? rec.items.map(function (i) { return i.experimentId; }).filter(function (id) {
+          var ctx = data.contextOf(id);
+          return ctx && ctx.course && ctx.course.id === m.courseId;
+        }) : []);
+    ids.forEach(function (id) { if (!stillCovered[id]) { losing[id] = true; } });
+    return S.reviews.filter(function (r) {
+      return r.tenantId === m.tenantId && r.status === 'pending' && losing[r.experimentId];
+    });
   }
   function facultyCanManage(personId, experimentId) {
     return facultyExperimentIds(personId).indexOf(experimentId) !== -1;
@@ -5512,6 +6101,45 @@ XRSLP.state = (function () {
     if (!String(fields.changeNote || '').trim()) {
       errs.push({ field: 'vv-change', message: 'Say what changed in this version.' });
     }
+    /* A later version reuses the SAME LABEL RULE as the first
+       publication, against the released history too. Two releases under
+       one label would make "which version is the public seeing?"
+       unanswerable from the record. */
+    if (rec && label) {
+      /* Every label this Experiment has ever been public under: the one
+         it carries now, every version released since, AND THE ONE IT
+         WAS FIRST PUBLISHED UNDER — which stops being `rec.versionLabel`
+         the moment a release overwrites it, and was therefore invisible
+         to the check. */
+      var used = releasedVersionsForRecord(rec.id).map(function (v) {
+        return String(v.versionLabel || '').trim().toLowerCase();
+      });
+      publicationRecords().forEach(function (p) {
+        if (p.recordId === rec.id && p.versionLabel) {
+          used.push(String(p.versionLabel).trim().toLowerCase());
+        }
+      });
+      var clash = used.indexOf(label.toLowerCase()) !== -1;
+      if (clash) {
+        errs.push({ field: 'vv-label', message: 'This experiment has already released a version with that label. Use a different one.' });
+      }
+    }
+    /* A release writes this delivery onto the published Experiment, so
+       it must meet the SAME format rule the first publication enforces.
+       Without this a later version could release a hosted "link" that is
+       not a link at all — a first submission cannot. The fields are
+       optional on a version (an unchanged technology simply carries the
+       published values forward); only a value that IS supplied is
+       checked. */
+    (rec ? rec.technologies : []).forEach(function (t) {
+      var def = data.TECHNOLOGIES[t];
+      if (!def || def.delivery !== 'hosted') { return; }
+      var url = String((((fields.delivery || {})[t]) || {}).url || '').trim();
+      if (url && !isHttpUrl(url)) {
+        errs.push({ field: 'f-' + t + '-url',
+          message: def.label + ': enter a valid http(s) URL, or leave it blank to keep the published link.' });
+      }
+    });
     return errs;
   }
 
@@ -5634,6 +6262,19 @@ XRSLP.state = (function () {
     var actor = contentActor(actorId);
     if (!v || !actor || actor.role !== CONTENT_ROLE.REVIEWER) { return false; }
     if (v.status !== VERSION_STATUS.ACADEMIC_REVIEW) { return false; }
+    return actorCoversRecord(actorId, contentRecord(v.recordId));
+  }
+  /* Which versions a reviewer may READ. `versionsForReviewer` already
+     excludes DRAFT from the queue, but the queue is not the boundary —
+     a hand-typed address is. A DRAFT candidate has not been submitted:
+     the Vendor is told plainly that saving "keeps it with you", so it
+     must not be readable by the next role in the chain until they send
+     it. Everything from submission onward stays readable for good, so a
+     completed academic decision never becomes unviewable. */
+  function reviewerCanViewVersion(v, actorId) {
+    var actor = contentActor(actorId);
+    if (!v || !actor || actor.role !== CONTENT_ROLE.REVIEWER) { return false; }
+    if (v.status === VERSION_STATUS.DRAFT) { return false; }
     return actorCoversRecord(actorId, contentRecord(v.recordId));
   }
   function approveVersionAcademic(actorId, versionId, comment) {
@@ -6157,6 +6798,31 @@ XRSLP.state = (function () {
     var days = accessDaysUntilExpiry(rec);
     return days != null && days <= EXPIRY_REMINDER_DAYS;
   }
+  /* ⚠ PROTOTYPE-ONLY, AND NOT A PRODUCT CAPABILITY.
+
+     The 15-day reminder rule is stakeholder-confirmed (STK31-28) and is
+     asserted at its boundary in `qa/checks.js`, but no ACTION in the
+     product can produce the state: the shortest access term a request
+     can carry is Monthly, so a freshly activated record is ~30 days out
+     and a reviewer cannot reach T-15 by using the product. That made a
+     confirmed requirement invisible in a functional walkthrough.
+
+     This moves ONE access record's end date and nothing else. It grants
+     nothing, changes no quantity, no item, no assignment and no
+     entitlement, and it does not renew or extend anything in the product
+     sense — it is the equivalent of winding the demo clock forward, and
+     every surface that offers it says exactly that. There is no
+     corresponding product control anywhere, and no source implies one. */
+  function protoSetAccessEnd(accessId, daysFromNow) {
+    var rec = accessById(accessId);
+    if (!rec) { return null; }
+    var n = Number(daysFromNow);
+    if (isNaN(n)) { return null; }
+    rec.endsOn = util.addDays(new Date().toISOString(), n);
+    save();
+    return rec;
+  }
+
   function accessNeedingExpiryReminder() {
     return S.access.filter(expiryReminderDue)
       .sort(function (a, b) {
@@ -6223,7 +6889,64 @@ XRSLP.state = (function () {
       var c = data.course(cid);
       if (c) { groupingIds[c.groupingId] = true; }
     });
+
+    /* ---- STK31-42, the two lines the report was missing ----
+       "students/users by stream where available" and "usage / completion
+       indicators". Both are DERIVED from records that already exist; no
+       figure below is stored, estimated or scored, and each states its
+       own numerator and denominator on the screen (PM-11 / STK31-29
+       forbid a composite index, rank or prediction). */
+    var byStream = {};
+    students.forEach(function (p) {
+      var m = studentCourseMembership(p.id);
+      var key = m && m.grouping ? m.grouping.id : '__none';
+      if (!byStream[key]) {
+        byStream[key] = { id: key, name: m && m.grouping ? m.grouping.name : null, students: 0, active: 0 };
+      }
+      byStream[key].students += 1;
+      if (p.status === 'active') { byStream[key].active += 1; }
+    });
+
+    /* Usage is counted over EFFECTIVE ENTITLEMENTS, because an
+       entitlement is the only thing a student can actually use. A
+       student entitled to three experiments counts three times here,
+       and the denominator says so. */
+    var usage = { entitlements: 0, started: 0, completed: 0, awaitingReview: 0, studentsStarted: 0, students: 0 };
+    var startedStudents = {};
+    students.forEach(function (p) {
+      if (p.status !== 'active') { return; }
+      var ents = getEffectiveStudentEntitlements(p.id);
+      if (!ents.length) { return; }
+      usage.students += 1;
+      /* ONE ROW PER STUDENT x EXPERIMENT, not per entitlement.
+         `getEffectiveStudentEntitlements` returns one row per Student x
+         Experiment x ACCESS RECORD, so a tenant holding the same
+         Experiment on two records counted that student's single piece of
+         work twice — and `experimentProgress` is Experiment-level, so
+         the second count was a copy of the first, not a second fact.
+         The technologies are unioned across the records, because that is
+         what the student can actually run. */
+      var byExp = {};
+      ents.forEach(function (e) {
+        if (!byExp[e.experimentId]) { byExp[e.experimentId] = []; }
+        (e.technologies || []).forEach(function (t) {
+          if (byExp[e.experimentId].indexOf(t) === -1) { byExp[e.experimentId].push(t); }
+        });
+      });
+      Object.keys(byExp).forEach(function (experimentId) {
+        usage.entitlements += 1;
+        var pr = experimentProgress(p.id, experimentId, byExp[experimentId]);
+        if (pr.status !== TECH_PROGRESS.NOT_STARTED) { usage.started += 1; startedStudents[p.id] = true; }
+        if (pr.status === TECH_PROGRESS.COMPLETED) { usage.completed += 1; }
+        if (pr.status === TECH_PROGRESS.PENDING_REVIEW) { usage.awaitingReview += 1; }
+      });
+    });
+    usage.studentsStarted = Object.keys(startedStudents).length;
+
     return {
+      byStream: Object.keys(byStream).map(function (k) { return byStream[k]; })
+        .sort(function (a, b) { return b.students - a.students; }),
+      usage: usage,
       tenant: t,
       status: tenantStatusMeta(t),
       admins: tenantAdminsFor(tenantId),
@@ -6398,6 +7121,11 @@ XRSLP.state = (function () {
     draft: draft, draftSave: draftSave, draftClear: draftClear,
     requests: requests, request: request, requestsForScenario: requestsForScenario,
     submitRequest: submitRequest, approveRequest: approveRequest, completePayment: completePayment,
+    requestMoreInformation: requestMoreInformation, resubmitRequest: resubmitRequest,
+    requestDecisionBlock: requestDecisionBlock, requestCanBeDecided: requestCanBeDecided,
+    resolveRequestTenant: resolveRequestTenant, validateGrant: validateGrant,
+    tenantAwaitingActivation: tenantAwaitingActivation,
+    grantNarrowsRequest: grantNarrowsRequest, PAYMENT_OUTCOME: PAYMENT_OUTCOME,
     tenants: tenants, tenantById: tenantById,
     accessForTenant: accessForTenant, accessAll: accessAll, accessById: accessById,
     accessTermState: accessTermState, accessIsLive: accessIsLive, liveAccessForTenant: liveAccessForTenant,
@@ -6412,6 +7140,7 @@ XRSLP.state = (function () {
     activeStudentsForTenant: activeStudentsForTenant,
     personByEmail: personByEmail, studentByStudentId: studentByStudentId,
     addFaculty: addFaculty, addStudent: addStudent, setStudentStatus: setStudentStatus,
+    setStudentStatusAsPlatform: setStudentStatusAsPlatform,
     studentCourseMembership: studentCourseMembership,
 
     groupsForTenant: groupsForTenant, groupById: groupById, groupByName: groupByName,
@@ -6484,6 +7213,9 @@ XRSLP.state = (function () {
     facultyPref: facultyPref, setFacultyReviewMode: setFacultyReviewMode,
 
     facultyScope: facultyScope, facultyExperimentIds: facultyExperimentIds,
+    facultyTenantHoldings: facultyTenantHoldings,
+    pendingReviewsWithoutEvaluator: pendingReviewsWithoutEvaluator,
+    pendingReviewsLosingEvaluator: pendingReviewsLosingEvaluator,
     facultyCanManage: facultyCanManage, facultyScopeRow: facultyScopeRow,
     facultyStudentReach: facultyStudentReach, facultyStudentIds: facultyStudentIds,
 
@@ -6523,7 +7255,8 @@ XRSLP.state = (function () {
 
     contentActors: contentActors, contentActor: contentActor, contentRoleLabel: contentRoleLabel,
     assignmentsFor: assignmentsFor, allAssignmentsFor: allAssignmentsFor,
-    actorCourseIds: actorCourseIds,
+    actorCourseIds: actorCourseIds, actorCreateCourseIds: actorCreateCourseIds,
+    actorScopeText: actorScopeText,
     actorHasPlatformScope: actorHasPlatformScope, actorCoversRecord: actorCoversRecord,
 
     protoVendorId: protoVendorId, setProtoVendor: setProtoVendor, protoVendor: protoVendor,
@@ -6538,6 +7271,7 @@ XRSLP.state = (function () {
 
     validateContent: validateContent, isHttpUrl: isHttpUrl, deliveryOf: deliveryOf,
     academicFingerprint: academicFingerprint, canonicalEditable: canonicalEditable,
+    managerCanFileInto: managerCanFileInto,
     academicReadiness: academicReadiness, publishReadiness: publishReadiness,
 
     vendorCanEdit: vendorCanEdit, vendorCanSubmit: vendorCanSubmit, vendorCanCreateIn: vendorCanCreateIn,
@@ -6609,6 +7343,7 @@ XRSLP.state = (function () {
     versionSubmittableByVendor: versionSubmittableByVendor,
     submitContentVersion: submitContentVersion,
     reviewerCanActOnVersion: reviewerCanActOnVersion,
+    reviewerCanViewVersion: reviewerCanViewVersion,
     approveVersionAcademic: approveVersionAcademic,
     requestChangesVersionAcademic: requestChangesVersionAcademic,
     versionAwaitingDecision: versionAwaitingDecision,
@@ -6640,7 +7375,8 @@ XRSLP.state = (function () {
 
     /* access term + the 15-day reminder */
     EXPIRY_REMINDER_DAYS: EXPIRY_REMINDER_DAYS,
-    accessDaysUntilExpiry: accessDaysUntilExpiry, expiryReminderDue: expiryReminderDue,
+    accessDaysUntilExpiry: accessDaysUntilExpiry,
+    protoSetAccessEnd: protoSetAccessEnd, expiryReminderDue: expiryReminderDue,
     accessNeedingExpiryReminder: accessNeedingExpiryReminder,
     tenantAccessNeedingExpiryReminder: tenantAccessNeedingExpiryReminder,
     expiredAccessForTenant: expiredAccessForTenant,

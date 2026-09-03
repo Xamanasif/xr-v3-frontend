@@ -329,6 +329,26 @@ XRSLP.studentUI = (function () {
       '</fieldset></section>';
   }
 
+  /* ⚠ WHICH MARKS THE PASS MARK IS MEASURED ON.
+     `recomputeAttempt()` applies the pass mark to the WHOLE assessment
+     once the Faculty review is complete — the automatically marked
+     questions plus the marks the Faculty awarded for the written
+     answers. So "n% of the marked questions" told a Student with a
+     written answer something the engine does not do: they could answer
+     every marked question correctly and still not pass. The disclosure
+     has to state the basis actually used, which depends on what the
+     assessment is made of. */
+  function passBasisText(descCount, objectivePoints) {
+    if (!descCount) { return 'of the marked questions'; }
+    if (!objectivePoints) {
+      /* Nothing here is machine scored, so there is no "marked
+         questions" half to add. */
+      return 'of the marks your faculty award for the written ' + util.plural(descCount, 'answer');
+    }
+    return 'of the whole assessment — the marked questions plus the marks your faculty award for the ' +
+      'written ' + util.plural(descCount, 'answer');
+  }
+
   /* The generated pre-attempt disclosure. Every figure comes from the
      assessment configuration; none is invented by a screen. Faculty
      preview renders the same rows a Student is shown. */
@@ -337,6 +357,7 @@ XRSLP.studentUI = (function () {
     var counts = {};
     asm.questions.forEach(function (q) { counts[q.type] = (counts[q.type] || 0) + 1; });
     var descCount = counts.descriptive || 0;
+    var objPoints = data.objectivePoints(asm);
     var typeLine = [];
     if (counts.mcq) { typeLine.push(counts.mcq + ' multiple choice'); }
     if (counts.tf) { typeLine.push(counts.tf + ' true or false'); }
@@ -346,15 +367,17 @@ XRSLP.studentUI = (function () {
       '<dt>Covers</dt><dd>' + covers + '</dd>' +
       '<dt>Questions</dt><dd>' + asm.questions.length +
         (typeLine.length ? ' — ' + esc(typeLine.join(', ')) : '') + '</dd>' +
-      '<dt>To pass</dt><dd>' + asm.passMark + '% of the marked questions</dd>' +
+      '<dt>To pass</dt><dd>' + asm.passMark + '% ' + passBasisText(descCount, objPoints) + '</dd>' +
       '<dt>Attempts</dt><dd>' + esc(opts.attemptsText ||
         ((asm.attemptLimit || 0) + ' ' + util.plural(asm.attemptLimit || 0, 'attempt') + ' allowed')) + '</dd>' +
       '<dt>Answers and explanations</dt><dd>' + esc(opts.releaseSentence || '') + '</dd>' +
       (descCount
         ? '<dt>Written ' + util.plural(descCount, 'answer') + '</dt><dd>' + esc(opts.descriptiveText ||
           ('The written ' + util.plural(descCount, 'answer') + ' ' + (descCount === 1 ? 'goes' : 'go') +
-           ' to the faculty member for review before the result is complete. The marked questions are scored ' +
-           'straight away.')) + '</dd>' : '') +
+           ' to the faculty member for review before the result is complete. ' + (objPoints
+             ? 'The marked questions are scored straight away.'
+             : 'Nothing in this assessment is marked automatically, so the whole result comes from that ' +
+               'review.'))) + '</dd>' : '') +
       '</dl>';
   }
 
@@ -464,7 +487,7 @@ XRSLP.studentUI = (function () {
 
     var html =
       ui.phead('Choose a student to view as',
-        'Prototype-only. Sign-in is not built in this slice.') +
+        'Prototype-only. Sign-in is not built in this prototype.') +
       '<div class="stack">' +
       ui.protoNote(
         '<p><strong>This screen is not part of the product.</strong> The real platform resolves the ' +

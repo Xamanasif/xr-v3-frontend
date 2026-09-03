@@ -270,6 +270,7 @@ XRSLP.platformUI = (function () {
     var options = [
       { v: 'all', label: 'All states (' + all.length + ')' },
       { v: state.STATUS.SUBMITTED, label: 'Submitted (' + all.filter(function (r) { return r.status === state.STATUS.SUBMITTED; }).length + ')' },
+      { v: state.STATUS.INFO_REQUESTED, label: 'More information requested (' + all.filter(function (r) { return r.status === state.STATUS.INFO_REQUESTED; }).length + ')' },
       { v: state.STATUS.APPROVED_PAYMENT_REQUIRED, label: 'Approved — payment required (' + all.filter(function (r) { return r.status === state.STATUS.APPROVED_PAYMENT_REQUIRED; }).length + ')' },
       { v: state.STATUS.ACTIVE, label: 'Active (' + all.filter(function (r) { return r.status === state.STATUS.ACTIVE; }).length + ')' }
     ].map(function (o) {
@@ -383,26 +384,127 @@ XRSLP.platformUI = (function () {
         '<div class="ri-tech">' + ui.techBadges(item.technologies) + '</div></div>';
     }).join('');
 
+    /* THE NOTE IS RENDERED, not merely stored. STK31-20 requires a
+       REASON and a HISTORY TRAIL, and a reason nobody can read is
+       neither. This is also the ONLY place the applicant's reply to a
+       request for more information reaches the reviewer — it lives on
+       the history entry and nowhere else — so omitting it made the
+       round trip one-way. The tenant governance timeline already did
+       this; the request timelines did not. */
     var timeline = '<div class="timeline">' + r.history.map(function (h, i) {
       var dotCls = i === r.history.length - 1 ?
         (r.status === state.STATUS.ACTIVE ? 'good' : r.status === state.STATUS.APPROVED_PAYMENT_REQUIRED ? 'warn' : 'info') : 'good';
       return '<div class="tl-item"><span class="tl-dot ' + dotCls + '">' + ui.ic(i === 0 ? 'doc' : 'check') + '</span>' +
         '<div class="tl-body"><div class="tl-action">' + esc(h.event) + '</div>' +
-        '<div class="tl-who">' + esc(h.who) + ' · ' + esc(util.fmtDateTime(h.at)) + '</div></div></div>';
+        '<div class="tl-who">' + esc(h.who) + ' · ' + esc(util.fmtDateTime(h.at)) + '</div>' +
+        (h.note ? '<p class="tl-note">' + esc(h.note) + '</p>' : '') +
+        '</div></div>';
     }).join('') + '</div>';
 
+    /* ---- THE DECISION SURFACE — `STK31-20` / `U-SA-05` + `U-SA-08` ----
+       Approve · request more information · REASON REQUIRED · history
+       trail, and the allocation the tenant actually receives
+       (`STK31-24`: the Super Admin controls which Courses, Experiments
+       and technology variants an institution gets). The allocation
+       controls can only ever narrow the request — the platform never
+       hands an institution content it did not ask for. */
+    var decideBlock = state.requestDecisionBlock(r);
+    var termOptions = ['monthly', 'quarterly', 'yearly'];
+    var termIdx = termOptions.indexOf(r.term);
+
     var decisionHTML = '';
-    if (r.status === state.STATUS.SUBMITTED) {
+    if (r.status === state.STATUS.SUBMITTED && decideBlock === 'tenant-inactive') {
+      var blockedTenant = state.resolveRequestTenant(r);
+      decisionHTML =
+        '<div class="decidebar"><span class="db-note">' +
+        'No decision can be taken: this request would activate onto <strong>' +
+        esc(blockedTenant ? blockedTenant.name : 'an institution') + '</strong>, which is currently ' +
+        '<strong>deactivated</strong>. Reactivate the institution on its ' +
+        '<a href="' + (blockedTenant ? P.href.institution(blockedTenant.id) : P.href.institutions()) +
+        '">institution report</a> first. Nothing about this request has changed.' +
+        '</span></div>';
+    } else if (r.status === state.STATUS.SUBMITTED) {
       var consequence = r.paymentRequired ?
         'External institution (access context “' + r.institution.accessContext + '”): approval moves the request to ' +
         '“Approved — payment required”. Tenant access is activated only after payment completes.' :
         'Internal institution (access context “' + r.institution.accessContext + '”): approval activates tenant access ' +
         'immediately. No payment step exists on this route.';
+
+      var allocRows = r.items.map(function (item, ix) {
+        var ctx = data.contextOf(item.experimentId);
+        return '<div class="grantrow" data-exp="' + esc(item.experimentId) + '">' +
+          '<div class="ri-ctx">' + (ctx ? esc(ctx.grouping.name) + ' › ' + esc(ctx.course.name) : '') + '</div>' +
+          '<div class="ri-t">' + esc(ctx ? ctx.experiment.name : item.experimentId) + '</div>' +
+          '<div class="granttechs">' + item.technologies.map(function (t, tx) {
+            var tid = 'gt-' + ix + '-' + tx;
+            return '<label class="chk" for="' + tid + '"><input type="checkbox" id="' + tid +
+              '" class="grant-tech" data-exp="' + esc(item.experimentId) + '" value="' + esc(t) + '" checked> ' +
+              esc((data.TECHNOLOGIES[t] || {}).label || t) + '</label>';
+          }).join('') + '</div></div>';
+      }).join('');
+
+      /* WHICH INSTITUTION THIS WILL ACTIVATE ONTO. The institution name
+         on a request is free text, so a request either joins an
+         institution the platform already knows or creates a new one —
+         and that identity decision was previously invisible until after
+         it had been taken. The Super Admin can now see it before
+         deciding. The lookup itself is unchanged: matching by name is
+         what lets a returning institution add a second access record
+         rather than becoming a duplicate tenant. */
+      var targetTenant = state.resolveRequestTenant(r);
+      var identityLine = targetTenant
+        ? 'This attaches to the <strong>existing</strong> institution ' + esc(targetTenant.name) +
+          ' — no second institution is created' +
+          (r.paymentRequired
+            ? ', and an access record is added beside what it already holds once payment completes.'
+            : ', and an access record is added beside what it already holds.')
+        : 'No institution on the platform matches this name, so approving creates a <strong>new</strong> ' +
+          'institution called ' + esc(r.institution.name) + ' straight away' +
+          (r.paymentRequired
+            ? ' — you can assign its Tenant Admin immediately, and it receives the approved content when ' +
+              'payment completes.'
+            : ', and activates its access at the same moment.');
+
       decisionHTML =
-        '<div class="decidebar">' +
-        '<span class="db-note">' + esc(consequence) + '</span>' +
+        '<form class="decideform" id="req-decide" novalidate>' +
+        '<h3 style="font-size:13.5px;font-weight:640;margin:18px 0 2px">Decision</h3>' +
+        '<p class="muted" style="margin:0 0 10px">' + esc(consequence) + '</p>' +
+        '<p class="muted" style="margin:0 0 10px">' + identityLine + '</p>' +
+        '<div class="form-errors"></div>' +
+        '<details class="grantbox"><summary>What this institution will receive ' +
+        '<span class="muted">— adjust only if it should get less than it asked for</span></summary>' +
+        '<div class="grantbody">' +
+        '<p class="muted">Everything requested is granted by default. Clearing a technology or lowering a ' +
+        'figure narrows what the institution receives; nothing here can grant more than was requested.</p>' +
+        '<div id="grant-items" class="field">' + allocRows + '</div>' +
+        '<div class="frow">' +
+        '<div class="field" id="grant-quantity"><label for="gq">Approved users / licences</label>' +
+        '<input type="number" id="gq" min="1" step="1" max="' + r.quantity + '" value="' + r.quantity + '">' +
+        '<div class="fhint">' + r.quantity + ' requested. Cannot be increased here.</div></div>' +
+        '<div class="field" id="grant-term"><label for="gt">Approved access term</label>' +
+        '<select id="gt">' + termOptions.slice(0, termIdx + 1).map(function (t) {
+          return '<option value="' + esc(t) + '"' + (t === r.term ? ' selected' : '') + '>' +
+            esc((data.term(t) || {}).label || t) + '</option>';
+        }).join('') + '</select>' +
+        '<div class="fhint">' + esc(termLabel) + ' requested. Cannot be extended here.</div></div>' +
+        '</div></div></details>' +
+        '<div class="field" id="decision-reason">' +
+        '<label for="dr">Reason for this decision <span class="req">(required)</span></label>' +
+        '<textarea id="dr" rows="3" placeholder="The institution reads this on their own request status screen."></textarea>' +
+        '<div class="fhint">Recorded on the request history and shown to the applicant, for either outcome.</div>' +
+        '</div>' +
+        '<div class="formact">' +
         '<button class="btn pri" type="button" id="req-approve">' + ui.ic('check') + 'Approve request</button>' +
-        '</div>';
+        '<button class="btn sec" type="button" id="req-moreinfo">' + ui.ic('clock') + 'Request more information</button>' +
+        '</div>' +
+        '</form>';
+    } else if (r.status === state.STATUS.INFO_REQUESTED) {
+      decisionHTML =
+        '<div class="decidebar"><span class="db-note">More information has been requested from the institution. ' +
+        'The request is not approved and not refused — it returns to this queue when they resubmit. ' +
+        'Nothing has been activated and no entitlement exists.' +
+        (r.decisionReason ? '<br><strong>Reason sent:</strong> ' + esc(r.decisionReason) : '') +
+        '</span></div>';
     } else if (r.status === state.STATUS.APPROVED_PAYMENT_REQUIRED) {
       decisionHTML =
         '<div class="decidebar"><span class="db-note">Approved. Awaiting payment from the institution — ' +
@@ -447,8 +549,9 @@ XRSLP.platformUI = (function () {
       '<div class="stack">' +
       ui.card('History', timeline) +
       ui.gapNote('NOT IN THIS BUILD',
-        'Request-more-information and other decision outcomes are not implemented; only approval is. ' +
-        'Absent capabilities are shown as gaps, never as disabled controls.') +
+        'A request cannot be refused outright. The two outcomes the sources confirm — approve, and ' +
+        'request more information — are both built; a rejection state is not, because no source ' +
+        'defines one. Absent capabilities are shown as gaps, never as disabled controls.') +
       '</div>' +
       '</div>';
 
@@ -457,31 +560,124 @@ XRSLP.platformUI = (function () {
       html: html,
       navKey: 'requests',
       after: function () {
-        var btn = document.getElementById('req-approve');
-        if (btn) {
-          btn.addEventListener('click', function () {
-            var consequenceHTML = r.paymentRequired ?
-              '<p>Approve institutional request <strong>' + esc(r.id) + '</strong> from <strong>' + esc(r.institution.name) + '</strong>?</p>' +
-              '<div class="consequence">' + ui.ic('card') + '<span>External route: the request moves to ' +
-              '<strong>Approved — payment required</strong>. Tenant access activates only after payment completes.</span></div>' :
-              '<p>Approve institutional request <strong>' + esc(r.id) + '</strong> from <strong>' + esc(r.institution.name) + '</strong>?</p>' +
-              '<div class="consequence">' + ui.ic('check') + '<span>Internal route (' + esc(r.institution.accessContext) + '): ' +
-              'tenant access activates <strong>immediately</strong> — there is no payment step.</span></div>';
-            ui.openDialog({
-              title: 'Approve request ' + r.id + '?',
-              bodyHTML: consequenceHTML,
-              okLabel: 'Approve',
-              onConfirm: function () {
-                var updated = state.approveRequest(r.id);
-                if (updated) {
-                  ui.toast('Request ' + updated.id + ' approved' +
-                    (updated.status === state.STATUS.ACTIVE ? ' — tenant access activated.' : ' — awaiting payment.'));
-                }
-                XRSLP.render(false);
-              }
+        var form = document.getElementById('req-decide');
+        if (!form) { return; }
+
+        /* Reads the allocation controls back into the shape
+           `state.validateGrant` checks. Returns null when nothing was
+           narrowed, so an untouched decision approves the request
+           exactly as submitted. */
+        function readGrant() {
+          var items = r.items.map(function (item) {
+            var boxes = Array.prototype.slice.call(
+              form.querySelectorAll('.grant-tech[data-exp="' + item.experimentId + '"]'));
+            return {
+              experimentId: item.experimentId,
+              technologies: boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; })
+            };
+          }).filter(function (g) { return g.technologies.length; });
+          var qty = Number(form.querySelector('#gq').value);
+          var term = form.querySelector('#gt').value;
+          var untouched = qty === r.quantity && term === r.term &&
+            items.length === r.items.length &&
+            r.items.every(function (i) {
+              var got = items.filter(function (x) { return x.experimentId === i.experimentId; })[0];
+              return got && got.technologies.length === i.technologies.length;
             });
-          });
+          return untouched ? null : { items: items, quantity: qty, term: term };
         }
+
+        function reason() { return String(form.querySelector('#dr').value || '').trim(); }
+
+        function reasonErrors() {
+          return reason() ? [] : [{ field: 'decision-reason', message: 'Enter the reason for this decision.' }];
+        }
+
+        document.getElementById('req-approve').addEventListener('click', function () {
+          var grant = readGrant();
+          var errs = reasonErrors().concat(state.validateGrant(r, grant).errors);
+          if (!ui.showErrors(form, errs, 'This decision cannot be recorded yet')) { return; }
+          var checked = state.validateGrant(r, grant).grant;
+          function techTotal(items) {
+            return items.reduce(function (n, i) { return n + i.technologies.length; }, 0);
+          }
+          var askedTech = techTotal(r.items);
+          var expCount = checked ? checked.items.length : r.items.length;
+          var techCount = checked ? techTotal(checked.items) : askedTech;
+          var qty = checked ? checked.quantity : r.quantity;
+          var trm = (data.term(checked ? checked.term : r.term) || {}).label || r.term;
+          /* NAME ONLY THE DIMENSIONS THAT ACTUALLY CHANGED. The sentence
+             used to list experiments, licences and term — so a grant that
+             dropped only a TECHNOLOGY announced "less" beside three
+             figures that were all identical, and read like a bug. */
+          var deltas = [];
+          if (expCount !== r.items.length) {
+            deltas.push(expCount + ' of ' + r.items.length + ' ' + util.plural(r.items.length, 'experiment'));
+          }
+          if (techCount !== askedTech) {
+            deltas.push(techCount + ' of ' + askedTech + ' technology ' + util.plural(askedTech, 'variant'));
+          }
+          if (qty !== r.quantity) {
+            deltas.push(qty + ' of ' + r.quantity + ' ' + util.plural(r.quantity, 'licence'));
+          }
+          if (checked && checked.term !== r.term) {
+            deltas.push(esc(trm) + ' instead of ' +
+              esc((data.term(r.term) || {}).label || r.term));
+          }
+          var narrowLine = deltas.length
+            ? '<div class="consequence">' + ui.ic('alertCirc') + '<span>The institution receives <strong>less</strong> ' +
+              'than it requested — ' + deltas.join(', ') + '. The reason is shown to them.</span></div>'
+            : '<div class="consequence">' + ui.ic('check') + '<span>The institution receives exactly what it ' +
+              'requested: ' + r.items.length + ' ' + util.plural(r.items.length, 'experiment') + ', ' +
+              askedTech + ' technology ' + util.plural(askedTech, 'variant') + ', ' +
+              r.quantity + ' ' + util.plural(r.quantity, 'licence') + ', ' + esc(trm) + '.</span></div>';
+          var routeLine = r.paymentRequired
+            ? '<div class="consequence">' + ui.ic('card') + '<span>External route: the request moves to ' +
+              '<strong>Approved — payment required</strong>. Tenant access activates only after payment completes.</span></div>'
+            : '<div class="consequence">' + ui.ic('check') + '<span>Internal route (' + esc(r.institution.accessContext) + '): ' +
+              'tenant access activates <strong>immediately</strong> — there is no payment step.</span></div>';
+          ui.openDialog({
+            title: 'Approve request ' + r.id + '?',
+            bodyHTML:
+              '<p>Approve institutional request <strong>' + esc(r.id) + '</strong> from <strong>' +
+              esc(r.institution.name) + '</strong>?</p>' +
+              '<div class="consequence">' + ui.ic('building') + '<span>' + identityLine + '</span></div>' +
+              narrowLine + routeLine +
+              '<div class="consequence">' + ui.ic('alertCirc') + '<span>Activation entitles ' +
+              '<strong>no student</strong>. The Tenant Admin still has to assign the content.</span></div>',
+            okLabel: 'Approve',
+            onConfirm: function () {
+              var updated = state.approveRequest(r.id, { reason: reason(), grant: grant });
+              if (updated) {
+                ui.toast('Request ' + updated.id + ' approved' +
+                  (updated.status === state.STATUS.ACTIVE ? ' — tenant access activated.' : ' — awaiting payment.'));
+              }
+              XRSLP.render(false);
+            }
+          });
+        });
+
+        document.getElementById('req-moreinfo').addEventListener('click', function () {
+          if (!ui.showErrors(form, reasonErrors(), 'This decision cannot be recorded yet')) { return; }
+          ui.openDialog({
+            title: 'Request more information on ' + r.id + '?',
+            bodyHTML:
+              '<p>Return request <strong>' + esc(r.id) + '</strong> to <strong>' + esc(r.institution.name) +
+              '</strong> for more information?</p>' +
+              '<div class="consequence">' + ui.ic('clock') + '<span>The request is <strong>not</strong> approved and ' +
+              '<strong>not</strong> refused. Nothing is activated, no access record is created and no student is ' +
+              'entitled. It returns to this queue when the institution resubmits.</span></div>' +
+              '<div class="consequence">' + ui.ic('doc') + '<span>Your reason is recorded on the history and is ' +
+              'shown to the applicant on their request status screen. <strong>Nothing is sent</strong> — there is no ' +
+              'email, SMS or notification provider in this build.</span></div>',
+            okLabel: 'Request more information',
+            onConfirm: function () {
+              var updated = state.requestMoreInformation(r.id, reason());
+              if (updated) { ui.toast('More information requested on ' + updated.id + '.'); }
+              XRSLP.render(false);
+            }
+          });
+        });
       }
     };
   };
@@ -491,11 +687,20 @@ XRSLP.platformUI = (function () {
     var tenants = state.tenants();
     var inactive = tenants.filter(function (t) { return t.status === 'inactive'; }).length;
 
+    /* An institution provisioned by an approved EXTERNAL request holds
+       nothing until payment activates its access. It genuinely exists —
+       `STK31-21` makes creating the tenant and assigning its Tenant
+       Admin acts of approval, distinct from allocating content — so it
+       belongs in this list; but the list must not read it as an
+       ordinary tenant with an empty allocation. */
+    var awaiting = tenants.filter(function (t) { return !!state.tenantAwaitingActivation(t.id); }).length;
+
     var rows = tenants.map(function (t) {
       var access = state.accessForTenant(t.id);
       var live = access.filter(state.accessIsLive).length;
       var admins = state.tenantAdminsFor(t.id);
       var due = state.tenantAccessNeedingExpiryReminder(t.id).length;
+      var pending = state.tenantAwaitingActivation(t.id);
       return '<tr>' +
         '<td data-label="Institution"><a class="rowlink" href="' + P.href.institution(t.id) + '">' +
         '<span class="tmain">' + esc(t.name) + '</span>' +
@@ -504,9 +709,12 @@ XRSLP.platformUI = (function () {
         '<td data-label="Tenant Admin">' + (admins.length
           ? esc(admins[0].name) + (admins.length > 1 ? ' <span class="muted">+' + (admins.length - 1) + '</span>' : '')
           : '<span class="muted">Not assigned</span>') + '</td>' +
-        '<td data-label="Access records" class="num">' + live + ' <span class="muted">of ' + access.length + ' live</span></td>' +
+        '<td data-label="Access records" class="num">' + (pending
+          ? '<span class="muted">None yet</span>'
+          : live + ' <span class="muted">of ' + access.length + ' live</span>') + '</td>' +
         '<td data-label="Expiry attention" class="num">' + (due ? due : '<span class="muted">—</span>') + '</td>' +
-        '<td data-label="Status">' + P.tenantBadge(t) + '</td>' +
+        '<td data-label="Status">' + P.tenantBadge(t) +
+        (pending ? ' ' + ui.badge('b-warning', 'card', 'Awaiting payment') : '') + '</td>' +
         '<td class="cell-actions"><a class="btn sm sec" href="' + P.href.institution(t.id) + '">Open</a></td>' +
         '</tr>';
     }).join('');
@@ -514,7 +722,16 @@ XRSLP.platformUI = (function () {
     var html =
       ui.phead('Institutions',
         tenants.length + ' ' + util.plural(tenants.length, 'tenant') + ' on the platform' +
+        (awaiting ? ' · ' + awaiting + ' awaiting payment' : '') +
         (inactive ? ' · ' + inactive + ' deactivated' : '')) +
+      (awaiting
+        ? ui.alertBox('info', awaiting + ' ' + util.plural(awaiting, 'institution') + ' ' +
+            (awaiting === 1 ? 'exists' : 'exist') + ' but hold' + (awaiting === 1 ? 's' : '') + ' no content yet',
+            '<p>Approving an external request <strong>creates the institution</strong> — so its Tenant Admin can be ' +
+            'assigned and its identity exists — but the approved content, technologies, licences and term are ' +
+            'written only when payment completes. Until then the institution holds <strong>no access record</strong>, ' +
+            'nothing can be assigned inside it, and no student is entitled.</p>')
+        : '') +
       '<div class="tablecard"><div class="tscroll">' +
       '<table class="dt"><caption class="sr-only">Platform tenants</caption>' +
       '<thead><tr><th scope="col">Institution</th><th scope="col">Classification</th><th scope="col">Tenant Admin</th>' +
@@ -523,9 +740,10 @@ XRSLP.platformUI = (function () {
       '<tbody>' + rows + '</tbody></table></div></div>' +
       '<div style="margin-top:16px">' +
       ui.gapNote('NOT IN THIS BUILD',
-        'A tenant is created here only by approving an institutional access request. Creating one outside that ' +
-        'route, and the on-campus / off-campus categorisation attribute, are not built — the topology permits a ' +
-        'campus to be its own tenant, but no source describes the creation form.') +
+        'An institution is created here only by approving an institutional access request — on either route, at ' +
+        'the moment of approval. Creating one outside that route, and the on-campus / off-campus categorisation ' +
+        'attribute, are not built: the topology permits a campus to be its own tenant, but no source describes ' +
+        'the creation form.') +
       '</div>';
 
     return { title: 'Institutions', html: html, navKey: 'institutions' };
@@ -555,6 +773,9 @@ XRSLP.platformUI = (function () {
     }
     var t = rep.tenant;
     var inactive = t.status === 'inactive';
+    /* The approved-but-unpaid external request that created this
+       institution, if that is why it exists and holds nothing yet. */
+    var awaitingReq = state.tenantAwaitingActivation(t.id);
 
     /* ---- identity ---- */
     var identity = ui.card('Institution',
@@ -627,12 +848,19 @@ XRSLP.platformUI = (function () {
             (due ? ' ' + ui.badge('b-warning', 'clock', 'Reminder due') : '') + '</td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>'
-      : ui.emptyState({
-          icon: 'layers', heading: 'h3',
-          title: 'No content access',
-          body: 'This institution holds no approved content. Content reaches a tenant only through an approved ' +
-            'institutional access request.'
-        });
+      : ui.emptyState(awaitingReq
+          ? { icon: 'card', heading: 'h3',
+              title: 'Awaiting payment — no access record yet',
+              body: 'Request ' + awaitingReq.id + ' has been approved, which is what created this institution. ' +
+                'The approved content, technologies, licence quantity and access term are written only when ' +
+                'payment completes. Until then this institution holds nothing: nothing can be assigned inside ' +
+                'it, no student is entitled, and no Faculty member reaches any content.',
+              actionsHTML: '<a class="btn sec" href="' + P.href.request(awaitingReq.id) + '">Open request ' +
+                esc(awaitingReq.id) + '</a>' }
+          : { icon: 'layers', heading: 'h3',
+              title: 'No content access',
+              body: 'This institution holds no approved content. Content reaches a tenant only through an ' +
+                'approved institutional access request.' });
 
     /* ---- what the access actually reaches ---- */
     var groupingNames = rep.groupingIds.map(function (id) {
@@ -661,9 +889,101 @@ XRSLP.platformUI = (function () {
       '<div class="k">Courses reached</div><div class="v">' +
       (courseNames.length ? esc(courseNames.join(', ')) : '<span class="muted">None</span>') + '</div>' +
       '<div class="k">Student groups</div><div class="v">' + rep.groups + '</div>' +
+      /* STK31-42 — "students / users by stream where available". The
+         stream is the student's own Programme / Department placement,
+         and a student without one is shown as such rather than dropped. */
+      '<div class="k">Students by stream</div><div class="v">' +
+      (rep.byStream.length
+        ? rep.byStream.map(function (s) {
+            return esc(s.name || 'No stream recorded') + ' — <strong>' + s.students + '</strong>' +
+              (s.active !== s.students ? ' <span class="muted">(' + s.active + ' active)</span>' : '');
+          }).join('<br>')
+        : '<span class="muted">No students</span>') + '</div>' +
       '</div>' +
       '<p class="cardfoot">Licence figures come from the approved request and nothing else. ' +
       'No universal cap, no seat figure without an approved origin, and no revenue metric.</p>', null, 'h2');
+
+    /* ---- STK31-42 — "usage / completion indicators" ----
+       Every figure is derived from real learning records and states its
+       own denominator. There is no score, index, rank or prediction
+       (PM-11 / STK31-29), and the completion rule is the prototype-derived
+       one, named as such wherever it appears. */
+    var u = rep.usage;
+    var usageCard = ui.card('Usage and completion',
+      (u.entitlements
+        ? P.statGrid([
+            { label: 'Started', value: u.started,
+              note: 'of ' + u.entitlements + ' student–experiment ' + util.plural(u.entitlements, 'pairing') },
+            { label: 'Students who have started', value: u.studentsStarted,
+              note: 'of ' + u.students + ' entitled ' + util.plural(u.students, 'student') },
+            { label: 'Completed', value: u.completed,
+              note: 'of ' + u.entitlements + ' — prototype completion rule' },
+            { label: 'Waiting on Faculty', value: u.awaitingReview,
+              note: 'pairings held up by an unevaluated written answer' }
+          ]) +
+          '<p class="cardfoot">The unit is <strong>one student on one experiment</strong>. A student entitled to ' +
+          'three experiments counts three times; a student who holds the same experiment through two access ' +
+          'records counts <strong>once</strong>, because it is one piece of work. ' +
+          '<strong>Completed</strong> uses the prototype-derived completion rule (every learning resource, every ' +
+          'entitled simulation, and the assessment where one is configured); it is not a stakeholder-confirmed ' +
+          'academic completion policy. <strong>Waiting on Faculty</strong> counts pairings, not individual written ' +
+          'answers — one experiment may hold several. No score, index or ranking is produced anywhere.</p>'
+        : ui.emptyState({
+            icon: 'bars', heading: 'h3',
+            title: 'Nothing to report yet',
+            body: 'No student at this institution currently holds an effective entitlement, so there is no usage ' +
+              'to indicate. Content reaching the tenant entitles nobody; the Tenant Admin still has to assign it.'
+          })), null, 'h2');
+
+    /* ---- STK31-25 — student deactivation AS A PLATFORM OVERRIDE ----
+       The Tenant Admin owns this day to day; the Super Admin may also
+       perform it. It is the same one writer of a student's status, so
+       the licence consequence is identical on both planes and there is
+       no second kind of "inactive". Nothing else about the student
+       changes: no assignment, no access record, no attempt, no review. */
+    var studentPeople = state.studentsForTenant(t.id);
+    var overrideCard = ui.card('Student access — platform override',
+      (studentPeople.length
+        ? '<p class="muted" style="margin:0 0 10px">Deactivating a student here does exactly what the Tenant Admin ' +
+          'action does: the student holds no effective entitlement while inactive, and their licence returns to the ' +
+          'record. Nothing is deleted, and reactivation re-enters the allocation queue at the back so no ' +
+          'currently-entitled student is displaced.</p>' +
+          '<div class="tscroll"><table class="dt">' +
+          '<caption class="sr-only">Students at ' + esc(t.name) + ', with the platform override</caption>' +
+          '<thead><tr><th scope="col">Student</th><th scope="col">Stream / Course</th>' +
+          '<th scope="col">Entitlements</th><th scope="col">Status</th>' +
+          '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
+          studentPeople.map(function (p) {
+            var m = state.studentCourseMembership(p.id);
+            var ents = p.status === 'active' ? state.effectiveEntitlementCount(p.id) : 0;
+            var last = (p.overrides || [])[(p.overrides || []).length - 1];
+            return '<tr>' +
+              '<td data-label="Student"><span class="tmain">' + esc(p.name) + '</span>' +
+              '<span class="tsub">' + esc(p.studentId || p.email) + '</span></td>' +
+              '<td data-label="Stream / Course">' +
+              esc((m && m.grouping ? m.grouping.name : '—') + ' · ' + (m && m.course ? m.course.name : '—')) + '</td>' +
+              '<td data-label="Entitlements" class="num">' + ents + '</td>' +
+              '<td data-label="Status">' +
+              (p.status === 'active' ? ui.badge('b-success', 'check', 'Active') : ui.badge('b-neutral', 'minus', 'Inactive')) +
+              (last ? '<span class="tsub">Last platform override ' + esc(util.fmtDate(last.at)) + '</span>' : '') +
+              '</td>' +
+              '<td class="cell-actions">' +
+              (inactive
+                ? '<span class="muted">Institution deactivated</span>'
+                : '<button class="btn sm sec" type="button" data-ovr="' + esc(p.id) + '" data-to="' +
+                  (p.status === 'active' ? 'inactive' : 'active') + '">' +
+                  (p.status === 'active' ? 'Deactivate' : 'Reactivate') + '</button>') +
+              '</td></tr>';
+          }).join('') + '</tbody></table></div>' +
+          '<p class="cardfoot">Every override is recorded on the student&rsquo;s own record and on this ' +
+          'institution&rsquo;s governance history, with the reason given. Nothing is sent to anybody — there is no ' +
+          'notification provider in this build.</p>'
+        : ui.emptyState({
+            icon: 'users', heading: 'h3',
+            title: 'No students recorded',
+            body: 'This institution has no student records yet. The Tenant Admin creates them manually or by CSV ' +
+              'import; the platform does not create people.'
+          })), null, 'h2');
 
     /* ---- operational signals ---- */
     var signals = [];
@@ -744,21 +1064,44 @@ XRSLP.platformUI = (function () {
     var html =
       ui.crumbs([{ label: 'Institutions', href: P.href.institutions() }, { label: t.name }]) +
       ui.phead(t.name, esc(t.accessContext) + ' · ' + esc(t.kind === 'internal' ? 'Internal' : 'External'),
-        '<a class="btn sec" href="#/tenant/' + encodeURIComponent(t.id) + '/overview">Open tenant workspace</a>',
+        /* ⚠ PROTOTYPE VIEW SWITCH, not a Super Admin capability. This
+           crosses an authority altitude: the Super Admin decides what a
+           tenant may use, the Tenant Admin decides which student gets
+           what (STK31-24 / STK31-25). In the product these are different
+           people signing in separately; there is no authentication here,
+           so the link is labelled for what it is rather than presented
+           as platform chrome. */
+        '<a class="btn sec" href="#/tenant/' + encodeURIComponent(t.id) + '/overview" ' +
+        'title="Prototype view switch — the Tenant Admin workspace is a different role">' +
+        'Prototype: open the Tenant Admin workspace</a>',
         ' ' + P.tenantBadge(t)) +
       (inactive
         ? ui.alertBox('warning', 'This institution is deactivated',
             '<p>' + esc(state.TENANT_INACTIVE_TEXT) + '</p>')
         : '') +
+      /* TENANT EXISTENCE IS NOT TENANT CONTENT ACCESS. Approving an
+         external request creates the institution so its Tenant Admin can
+         be assigned (STK31-21); the access record waits for payment. The
+         report says which of the two states this is, so the two are
+         never read as one. */
+      (awaitingReq
+        ? ui.alertBox('info', 'This institution exists, but holds no content yet',
+            '<p>It was created by approving request <strong>' + esc(awaitingReq.id) + '</strong>, which is ' +
+            '<strong>awaiting payment</strong>. You can assign its Tenant Admin now; the approved content, ' +
+            'technologies, licences and term are written when payment completes.</p>' +
+            '<p style="margin-top:8px">Until then <strong>nothing is assignable inside it</strong>, no student ' +
+            'holds an entitlement, and no Faculty member reaches any content.</p>')
+        : '') +
       '<div class="grid-rail">' +
-      '<div class="stack">' + identity + reach +
+      '<div class="stack">' + identity + reach + usageCard +
       ui.card('Content access, licences and term', accessRows, null, 'h2') +
-      signalCard + governance + '</div>' +
+      overrideCard + signalCard + governance + '</div>' +
       '<div class="stack">' + adminCard + historyCard +
       (rep.expiryReminders.length ? P.reminderNote() : '') +
       ui.gapNote('NOT IN THIS BUILD',
-        'Usage and completion indicators per institution, and institution-level reporting beyond the ' +
-        'operational facts above, are not built. No revenue or financial metric appears here by instruction.') +
+        'Institution-level reporting beyond the operational and usage facts above — per-student result ' +
+        'breakdowns, exportable reports and time-series trends — is not built. ' +
+        'No revenue or financial metric appears here by instruction.') +
       '</div></div>';
 
     return {
@@ -813,6 +1156,47 @@ XRSLP.platformUI = (function () {
             });
           });
         }
+
+        /* STK31-25 — the platform override, with its consequence stated
+           before it is taken and a reason required to take it. */
+        Array.prototype.slice.call(document.querySelectorAll('[data-ovr]')).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var pid = btn.getAttribute('data-ovr');
+            var to = btn.getAttribute('data-to');
+            var p = state.personById(pid);
+            if (!p) { return; }
+            var held = state.effectiveEntitlementCount(pid);
+            ui.openDialog({
+              title: (to === 'inactive' ? 'Deactivate ' : 'Reactivate ') + p.name + '?',
+              bodyHTML:
+                '<p>This is a <strong>platform override</strong> of a Tenant Admin action, taken on a student of ' +
+                '<strong>' + esc(t.name) + '</strong>.</p>' +
+                (to === 'inactive'
+                  ? '<div class="consequence">' + ui.ic('info') + '<span>' + esc(p.name) + ' currently holds <strong>' +
+                    held + '</strong> effective ' + util.plural(held, 'entitlement') + '. While inactive they hold ' +
+                    'none and cannot launch anything, and their licence returns to the access record for another ' +
+                    'student. <strong>Nothing is deleted</strong> — assignments, groups, progress, attempts and ' +
+                    'reviews are all kept.</span></div>'
+                  : '<div class="consequence">' + ui.ic('check') + '<span>' + esc(p.name) + ' re-enters the allocation ' +
+                    'queue <strong>at the back</strong>, so no student who is currently entitled is displaced. If ' +
+                    'the record is full they are shown as held, never silently entitled.</span></div>') +
+                '<div class="field" id="ovr-reason" style="margin-top:12px">' +
+                '<label for="ovr-reason-i">Reason <span class="req">(required)</span></label>' +
+                '<input type="text" id="ovr-reason-i" autocomplete="off"></div>' +
+                '<p class="muted" style="margin-top:8px">Recorded on the student&rsquo;s record and on this ' +
+                'institution&rsquo;s governance history. Nothing is sent to anybody.</p>',
+              okLabel: to === 'inactive' ? 'Deactivate student' : 'Reactivate student',
+              onConfirm: function (body) {
+                var input = body ? body.querySelector('#ovr-reason-i') : null;
+                var out = state.setStudentStatusAsPlatform(pid, to, input ? input.value : '');
+                ui.toast(out
+                  ? p.name + (to === 'inactive' ? ' deactivated by platform override.' : ' reactivated by platform override.')
+                  : 'No change — a reason is required for a platform override.');
+                XRSLP.render(false);
+              }
+            });
+          });
+        });
 
         var form = document.getElementById('ta-form');
         if (form) {

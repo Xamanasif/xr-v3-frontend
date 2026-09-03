@@ -68,16 +68,30 @@ XRSLP.screens = XRSLP.screens || {};
       : '';
 
     var body;
-    /* The INSTITUTION is tested first. A suspended institution leaves a
+    /* ACCESS STATE IS TESTED BEFORE THE TECHNOLOGY LIST — both halves of
+       it. A suspended institution AND a deactivated Student each leave a
        Student with no *effective* entitlement, so testing the technology
-       list first would tell them the plain untruth that nothing they hold
-       runs on a device. */
+       list first tells them the plain untruth that nothing they hold runs
+       on a device — next to the card on this very page that lists their
+       VR and AR holdings. `personCanWrite()` covers only the institution,
+       so the Student's own status needs its own test. */
     if (!canWrite) {
       body = ui.alertBox('warning', 'Your institution’s access is suspended',
         '<p>' + esc(L.unavailableText('tenant-inactive')) + ' A device request cannot be raised at the moment, ' +
         'and nothing about your device has changed. Any request you already made is still here, with the ' +
         'state it is in.</p>');
-    } else if (!techs.length) {
+    } else if (p.status !== 'active') {
+      body = ui.alertBox('warning', 'Your account is not active at the moment',
+        '<p>' + esc(L.unavailableText('student-inactive')) + ' A device request cannot be raised while it ' +
+        'is, and nothing about your device has changed. Any request you already made is still here, with ' +
+        'the state it is in.</p>');
+    /* Whether the Student holds ANY device-delivered technology, including
+       through an entitlement that is currently held back — the question
+       `studentHasPackageTechnology` was written for, and the one the nav
+       item already asks. `techs` is the narrower "can act right now" list,
+       and reading it here made a held or expired entitlement produce the
+       same untruth. */
+    } else if (!state.studentHasPackageTechnology(p.id)) {
       body = ui.emptyState({
         icon: 'monitor', heading: 'h2',
         title: 'Nothing you hold runs on a device',
@@ -85,6 +99,18 @@ XRSLP.screens = XRSLP.screens || {};
           'becomes useful if your institution gives you an experiment in AR, VR or MR.',
         actionsHTML: '<a class="btn pri" href="' + L.href.myLearning(p.id) + '">Back to My Learning</a>'
       });
+    } else if (!techs.length) {
+      /* They DO hold a device-delivered technology, but every entitlement
+         carrying one is currently held back or has reached its end date,
+         so there is no live authorised device to move and the form below
+         would have nothing to offer. The reason belongs to the experiment,
+         which is where it is already stated. */
+      body = ui.alertBox('warning', 'No device request can be raised at the moment',
+        '<p>None of the technologies you hold on a device can be opened right now, so there is no ' +
+        'authorised device to move. Each one is shown on its experiment in My Learning, with the ' +
+        'reason.</p>' +
+        '<p style="margin-top:8px">Nothing has been removed, and any request you already made is still ' +
+        'here, with the state it is in.</p>');
     } else if (open) {
       body = ui.alertBox('info', 'You already have a request waiting',
         '<p>Request <strong>' + esc(open.id) + '</strong> is with the platform team. Its state appears below. ' +
@@ -177,6 +203,12 @@ XRSLP.screens = XRSLP.screens || {};
               return (data.TECHNOLOGIES[t] || {}).label || t;
             }).join(' · '))
           : 'Device access') +
+      /* The account state is stated once at the top, exactly as Home, My
+         Learning and Progress do. This destination stays reachable while
+         the account is inactive — the Student still has a device — so it
+         has to say so rather than leave the page silent about it. */
+      L.accountNotice(p) +
+      (p.status !== 'active' ? '<div style="height:16px"></div>' : '') +
       '<div class="grid-rail">' +
       '<div class="stack">' +
       ui.card('Request a device replacement or transfer', body, null, 'h2') +

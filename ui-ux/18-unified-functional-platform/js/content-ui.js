@@ -328,12 +328,10 @@ XRSLP.contentUI = (function () {
   function chooserScreen(role, opts) {
     var actors = state.contentActors(role);
     var rows = actors.map(function (a) {
-      var courses = state.actorCourseIds(a.id);
-      var scopeText = state.actorHasPlatformScope(a.id)
-        ? 'Platform-wide (all Courses)'
-        : courses.map(function (cid) {
-            var c = data.course(cid); return c ? c.name : cid;
-          }).join(', ') || 'No assignment';
+      /* `actorScopeText` rather than a Course list: an Experiment-scope
+         assignment names ONE Experiment (STK31-41), and rendering it as
+         its Course told the reader the person held the whole Course. */
+      var scopeText = state.actorScopeText(a.id);
       return '<tr>' +
         '<td data-label="Name"><strong>' + esc(a.name) + '</strong><div class="muted">' + esc(a.email) + '</div></td>' +
         '<td data-label="Organisation">' + esc(a.organisation) + '</td>' +
@@ -346,8 +344,8 @@ XRSLP.contentUI = (function () {
     return ui.phead(opts.title, opts.metaHTML || '') +
       ui.protoNote('<strong>Prototype view switch — not authentication.</strong> ' +
         'Choosing an identity below grants nothing. What each person can reach comes only from the ' +
-        'per-Course role assignments seeded in prototype state, standing in for the Super Admin role-governance ' +
-        'screen that a later slice builds.') +
+        'per-Course and per-Experiment role assignments the Super Admin holds on the platform ' +
+        'Role governance screen.') +
       '<div class="tablecard" style="margin-top:16px">' +
       '<div class="tscroll"><table class="dt">' +
       '<caption class="sr-only">' + esc(opts.title) + ' — sample identities</caption>' +

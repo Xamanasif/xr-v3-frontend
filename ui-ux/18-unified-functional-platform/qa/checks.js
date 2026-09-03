@@ -40,7 +40,7 @@ function grantAccess(experimentIds, technologies, quantity, term) {
     contactEmail: 'kavita.sharma@sample-institute.example',
     quantity: quantity, term: term || 'yearly'
   });
-  S.approveRequest(req.id);
+  S.approveRequest(req.id, { reason: 'QA — approved as submitted.' });
   return { request: S.request(req.id), access: S.accessForTenant(TENANT).slice(-1)[0] };
 }
 
@@ -886,7 +886,7 @@ function guardChecks() {
   var req = S.submitRequest({ institutionName: 'Northfield Institute of Technology',
     contactName: 'Prof. Daniel Mensah', contactEmail: 'd.mensah@northfield.example',
     quantity: 2, term: 'yearly' });
-  S.approveRequest(req.id); S.completePayment(req.id);
+  S.approveRequest(req.id, { reason: 'QA — approved as submitted.' }); S.completePayment(req.id);
   var other = S.tenants().filter(function (t) { return t.id !== TENANT; })[0];
   ok(!!other, 'a second tenant now exists');
   eq(S.tenantAdminsFor(other.id).length, 0, 'it has no Tenant Admin — surfaced as attention, never invented');
@@ -1443,6 +1443,805 @@ function adversarialFixes() {
   eq(S.accessAllocation(g3.access.id).entitledIds.join(','), high, 'and removing them changes nothing');
 }
 
+
+/* ============================================================
+   SCENARIO O — THE FACULTY DESCRIPTIVE-REVIEW BOUNDARY.
+
+   `STK31-31` makes Faculty the ONLY human evaluator of a written
+   answer. AI may suggest, draft and assist; it may never decide. That
+   boundary was correct in the code and had NO automated assertion —
+   the one coverage gap named at the Implementation-06 closeout. It is
+   asserted here rather than trusted.
+
+   The behaviour is NOT changed to make this test writable.
+   ============================================================ */
+function scenarioAIReviewBoundary() {
+  group('SCENARIO O — AI assistance never finalises a descriptive review');
+  boot();
+
+  var g = grantAccess(['direct-shear'], ['web'], 3, 'yearly');
+  S.mapFaculty(TENANT, ARJUN, g.access.id, 'soil-mechanics', null);
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  ok(S.studentCanRun(RAHUL, 'direct-shear', 'web'), 'the Student is entitled and can run it');
+
+  /* An assessment whose ONLY question is descriptive, so the outcome
+     depends entirely on the human decision. */
+  var q = S.addQuestion(TENANT, {
+    type: 'descriptive', text: 'Explain what the direct shear test measures.',
+    experimentId: 'direct-shear', points: 4,
+    guidance: 'Award marks for shear strength and the failure envelope.'
+  }, ARJUN);
+  ok(q.ok, 'Faculty added a descriptive question to the bank');
+
+  var def = S.assessmentForTenant(TENANT, 'direct-shear');
+  ok(!!def, 'the seeded assessment definition exists');
+  var added = S.addQuestionsToAssessment(def.id, [q.question.id], ARJUN);
+  ok(added.ok !== false, 'and the descriptive question is on the assessment');
+
+  var att = S.startAttempt(RAHUL, 'direct-shear');
+  ok(!!att, 'the Student started the attempt');
+  S.saveAnswer(att.id, q.question.id, 'It measures shear strength along a forced failure plane.');
+  S.submitAttempt(att.id);
+
+  var pending = S.reviewsForFaculty(ARJUN, { status: 'pending' })
+    .filter(function (r) { return r.attemptId === att.id; });
+  eq(pending.length, 1, 'submission created exactly one pending review for the written answer');
+  var rv = pending[0];
+  eq(S.attemptById(att.id).outcome, 'PENDING_FACULTY_REVIEW', 'and the outcome is pending Faculty review');
+
+  /* ---- THE BOUNDARY ---- */
+  var before = JSON.stringify({ status: rv.status, marks: rv.marks, by: rv.reviewedBy, at: rv.reviewedAt });
+  var sug = S.generateReviewAssistance(rv.id);
+  ok(!!sug, 'a suggestion was generated');
+  ok(typeof sug.suggestedMarks === 'number', 'and it carries a suggested figure');
+
+  var after = S.reviewById(rv.id);
+  eq(after.status, 'pending', 'AI ASSISTANCE DID NOT COMPLETE THE REVIEW');
+  eq(after.marks, null, 'AI ASSISTANCE WROTE NO MARKS');
+  eq(after.reviewedBy, null, 'AI ASSISTANCE CLAIMED NO EVALUATOR');
+  eq(after.reviewedAt, null, 'AI ASSISTANCE STAMPED NO DECISION TIME');
+  eq(after.assistance.accepted, false, 'the suggestion is recorded as NOT accepted');
+  eq(JSON.stringify({ status: after.status, marks: after.marks, by: after.reviewedBy, at: after.reviewedAt }),
+    before, 'the review record is byte-identical on the fields that decide a result');
+  eq(S.attemptById(att.id).outcome, 'PENDING_FACULTY_REVIEW',
+    'THE STUDENT RESULT IS UNCHANGED — a suggestion decides nothing');
+
+  /* Generating it again is still not a decision. */
+  S.generateReviewAssistance(rv.id);
+  eq(S.reviewById(rv.id).status, 'pending', 'generating a second suggestion is still not a decision');
+
+  /* Only the Faculty member's explicit call produces a result — and it
+     needs a real person, real marks, and their own mapped content. */
+  eq(S.finaliseReview(rv.id, '', '', ARJUN, false).ok, false, 'marks are required — a blank does not finalise');
+  eq(S.finaliseReview(rv.id, 99, '', ARJUN, false).ok, false, 'marks above the maximum are refused');
+  eq(S.finaliseReview(rv.id, 3, '', 'USR-999', false).ok, false, 'a person who is not the mapped Faculty is refused');
+  eq(S.reviewById(rv.id).status, 'pending', 'and none of those attempts moved the review');
+
+  var done = S.finaliseReview(rv.id, sug.suggestedMarks, 'Agreed.', ARJUN, true);
+  ok(done.ok, 'THE FACULTY MEMBER finalised it explicitly');
+  eq(S.reviewById(rv.id).status, 'completed', 'only then is the review complete');
+  eq(S.reviewById(rv.id).reviewedBy, ARJUN, 'and the evaluator recorded is the human being');
+  eq(S.reviewById(rv.id).assistance.accepted, true,
+    'whether the suggestion was used is recorded — an audit trail, not an author');
+  ok(S.attemptById(att.id).outcome !== 'PENDING_FACULTY_REVIEW', 'the Student result exists only now');
+
+  eq(S.finaliseReview(rv.id, 1, '', ARJUN, false).ok, false, 'a completed review cannot be re-decided');
+}
+
+/* ============================================================
+   SCENARIO P — THE SUPER ADMIN DECISION SURFACE (STK31-20 / U-SA-05)
+   and the tenant allocation the decision grants (STK31-24 / U-SA-08).
+   ============================================================ */
+function scenarioRequestDecision() {
+  group('SCENARIO P — approve · request more information · required reason · allocation');
+  boot();
+
+  S.setScenario('A');
+  S.selectionAdd('direct-shear', ['web', 'vr']);
+  S.selectionAdd('consolidation', ['web']);
+  var req = S.submitRequest({
+    institutionName: 'Sample Engineering Institute',
+    contactName: 'Dr. Kavita Sharma', contactEmail: 'kavita.sharma@sample-institute.example',
+    quantity: 10, term: 'yearly'
+  });
+  eq(req.status, S.STATUS.SUBMITTED, 'the request is submitted');
+
+  /* REASON REQUIRED — on both outcomes. */
+  var accBefore = S.accessAll().length;
+  eq(S.approveRequest(req.id, {}), null, 'APPROVAL WITHOUT A REASON IS REFUSED');
+  eq(S.approveRequest(req.id, { reason: '   ' }), null, 'and whitespace is not a reason');
+  eq(S.requestMoreInformation(req.id, ''), null, 'REQUESTING MORE INFORMATION WITHOUT A REASON IS REFUSED');
+  eq(S.request(req.id).status, S.STATUS.SUBMITTED, 'none of that moved the request');
+  eq(S.accessAll().length, accBefore, 'and none of it created an access record');
+
+  /* OUTCOME 2 — request more information. */
+  var mi = S.requestMoreInformation(req.id, 'Confirm the department and the intended cohort size.');
+  ok(!!mi, 'more information was requested');
+  eq(S.request(req.id).status, S.STATUS.INFO_REQUESTED, 'the applicant-visible state exists');
+  eq(S.request(req.id).decisionReason, 'Confirm the department and the intended cohort size.',
+    'and the reason is the one the applicant reads');
+  eq(S.accessAll().length, accBefore, 'REQUESTING MORE INFORMATION GRANTED NOTHING');
+  eq(S.entitledStudentIds(TENANT).length, 0, 'and entitled nobody');
+  eq(S.approveRequest(req.id, { reason: 'x' }), null, 'a request awaiting information cannot be approved behind the applicant');
+
+  /* The applicant's side of the same outcome. */
+  eq(S.resubmitRequest(req.id, ''), null, 'resubmitting needs the reply the platform asked for');
+  var back = S.resubmitRequest(req.id, 'Civil Engineering, 8 students.');
+  ok(!!back, 'the applicant resubmitted');
+  eq(S.request(req.id).status, S.STATUS.SUBMITTED, 'and it is back in the platform queue');
+  eq(S.request(req.id).items.length, 2, 'with its selected content unchanged');
+
+  /* ALLOCATION — the grant may only NARROW the request. */
+  eq(S.validateGrant(S.request(req.id), { items: [{ experimentId: 'direct-shear', technologies: ['ar'] }] }).ok, false,
+    'a technology the institution did not request cannot be granted');
+  eq(S.validateGrant(S.request(req.id), { items: [{ experimentId: 'torsion-test', technologies: ['web'] }] }).ok, false,
+    'an experiment that is not on the request cannot be granted');
+  eq(S.validateGrant(S.request(req.id), {
+    items: [{ experimentId: 'direct-shear', technologies: ['web'] }], quantity: 11 }).ok, false,
+    'more users than were requested cannot be granted');
+  eq(S.validateGrant(S.request(req.id), {
+    items: [{ experimentId: 'direct-shear', technologies: ['web'] }], term: 'yearly', quantity: 0 }).ok, false,
+    'a quantity of zero is refused');
+  eq(S.validateGrant(S.request(req.id), { items: [] }).ok, false, 'granting nothing at all is refused');
+
+  var ok1 = S.validateGrant(S.request(req.id), {
+    items: [{ experimentId: 'direct-shear', technologies: ['web'] }], quantity: 4, term: 'quarterly' });
+  ok(ok1.ok, 'a narrower grant is accepted');
+
+  var approved = S.approveRequest(req.id, {
+    reason: 'Approved for the Civil Engineering pilot only.',
+    grant: { items: [{ experimentId: 'direct-shear', technologies: ['web'] }], quantity: 4, term: 'quarterly' }
+  });
+  ok(!!approved, 'the Super Admin approved it with an adjusted allocation');
+  ok(S.grantNarrowsRequest(S.request(req.id)), 'and the product knows the institution got less than it asked for');
+
+  var rec = S.accessForTenant(TENANT).slice(-1)[0];
+  eq(rec.items.length, 1, 'THE ACCESS RECORD CARRIES WHAT WAS GRANTED, not what was requested');
+  eq(rec.items[0].experimentId, 'direct-shear', 'the granted experiment');
+  eq(rec.items[0].technologies.join(','), 'web', 'and only the granted technology');
+  eq(rec.quantity, 4, 'the granted quantity');
+  eq(rec.term, 'quarterly', 'and the granted term');
+  eq(S.accessHasExperiment(rec, 'consolidation'), false, 'the ungranted experiment is not in the record at all');
+  eq(S.entitledStudentIds(TENANT).length, 0, 'AND APPROVAL STILL ENTITLED NOBODY');
+
+  /* The reason is on the history trail, for both sides. */
+  ok(S.request(req.id).history.some(function (h) {
+    return h.note === 'Approved for the Civil Engineering pilot only.';
+  }), 'the decision reason is on the request history');
+}
+
+/* ============================================================
+   SCENARIO Q — the payment step carries all three FRD 9.1.x
+   outcomes, and ONLY SUCCESS WRITES (`ND-12` / `U-COM-03`).
+   ============================================================ */
+function scenarioPaymentOutcomes() {
+  group('SCENARIO Q — declined and unconfirmed payments activate nothing');
+  boot();
+
+  S.setScenario('B');
+  S.selectionAdd('direct-shear', ['web']);
+  var req = S.submitRequest({ institutionName: 'Northfield Institute of Technology',
+    contactName: 'Prof. Daniel Mensah', contactEmail: 'd.mensah@northfield.example',
+    quantity: 3, term: 'yearly' });
+  S.approveRequest(req.id, { reason: 'External pilot approved.' });
+  eq(S.request(req.id).status, S.STATUS.APPROVED_PAYMENT_REQUIRED, 'the external route requires payment');
+
+  var tenantsBefore = S.tenants().length, accBefore = S.accessAll().length;
+
+  var dec = S.completePayment(req.id, S.PAYMENT_OUTCOME.DECLINED);
+  ok(!!dec, 'a declined outcome is recorded');
+  eq(S.request(req.id).status, S.STATUS.APPROVED_PAYMENT_REQUIRED, 'A DECLINED PAYMENT DID NOT ACTIVATE');
+  eq(S.tenants().length, tenantsBefore, 'and created no tenant');
+  eq(S.accessAll().length, accBefore, 'and created no access record');
+
+  var ind = S.completePayment(req.id, S.PAYMENT_OUTCOME.INDETERMINATE);
+  ok(!!ind, 'an unconfirmed outcome is recorded');
+  eq(S.request(req.id).status, S.STATUS.APPROVED_PAYMENT_REQUIRED, 'AN UNCONFIRMED PAYMENT DID NOT ACTIVATE');
+  eq(S.tenants().length, tenantsBefore, 'and still created no tenant');
+  eq(S.accessAll().length, accBefore, 'and still created no access record');
+
+  ok(!!S.completePayment(req.id, S.PAYMENT_OUTCOME.SUCCESS), 'a successful payment completes');
+  eq(S.request(req.id).status, S.STATUS.ACTIVE, 'ONLY SUCCESS ACTIVATES');
+  eq(S.accessAll().length, accBefore + 1, 'and only success writes the access record');
+  eq(S.completePayment(req.id, S.PAYMENT_OUTCOME.SUCCESS), null, 'paying twice is refused');
+  eq(S.accessAll().length, accBefore + 1, 'so a double submit creates no second record');
+}
+
+/* ============================================================
+   SCENARIO R — TENANT ISOLATION, at the state layer.
+   FRD 1.3.1, carried as a hard authority boundary in 17/04 §4.
+   ============================================================ */
+function scenarioTenantIsolation() {
+  group('SCENARIO R — one institution never writes into another');
+  boot();
+
+  var g = grantAccess(['direct-shear'], ['web'], 5, 'yearly');
+
+  /* Build a second, genuinely separate institution through the product. */
+  S.setScenario('B');
+  S.selectionAdd('direct-shear', ['web']);
+  var req2 = S.submitRequest({ institutionName: 'Northfield Institute of Technology',
+    contactName: 'Prof. Daniel Mensah', contactEmail: 'd.mensah@northfield.example',
+    quantity: 3, term: 'yearly' });
+  S.approveRequest(req2.id, { reason: 'External pilot.' });
+  S.completePayment(req2.id, S.PAYMENT_OUTCOME.SUCCESS);
+  var other = S.tenants().filter(function (t) { return t.id !== TENANT; })[0];
+  ok(!!other, 'a second institution exists');
+
+  var foreign = S.addStudent(other.id, {
+    name: 'QA Foreign Student', email: 'foreign.student@northfield.example',
+    studentId: 'NIT/2024/0001', groupingId: 'civil-engineering', courseId: 'soil-mechanics'
+  });
+  ok(!!foreign, 'and it has a student of its own');
+  var foreignId = foreign.id;
+
+  /* THE BOUNDARY — assignment is the only writer of entitlement. */
+  var pre = S.previewAssignment(TENANT, g.access.id, 'direct-shear', 'student', [foreignId]);
+  eq(pre.ok, false, 'ASSIGNING ANOTHER INSTITUTION’S STUDENT IS REFUSED');
+  eq(pre.reason, 'other-tenant-target', 'and refused for the right reason');
+  var res = S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [foreignId]);
+  eq(res.ok, false, 'the commit is refused too, not only the preview');
+  eq(res.created.length, 0, 'no assignment record was written');
+  eq(S.effectiveEntitlementCount(foreignId), 0, 'and the foreign student holds nothing');
+
+  var foreignGroup = S.createGroup(other.id, { name: 'QA Foreign Group' });
+  ok(!!foreignGroup, 'the other institution has a group');
+  eq(S.previewAssignment(TENANT, g.access.id, 'direct-shear', 'group', [foreignGroup.id]).reason,
+    'other-tenant-target', 'another institution’s GROUP is refused as a target too');
+
+  /* Faculty mapping is the other cross-tenant surface. */
+  var foreignFac = S.addFaculty(other.id, { name: 'QA Foreign Faculty', email: 'ff@northfield.example' });
+  ok(!!foreignFac, 'the other institution has a faculty member');
+  eq(S.mapFaculty(TENANT, foreignFac.id, g.access.id, 'soil-mechanics', null), null,
+    'MAPPING ANOTHER INSTITUTION’S FACULTY IS REFUSED');
+  eq(S.mapFaculty(TENANT, RAHUL, g.access.id, 'soil-mechanics', null), null,
+    'and a Student can never be mapped as Faculty');
+  eq(S.facultyScope(foreignFac.id).experiments.length, 0, 'the foreign faculty member reaches nothing');
+
+  /* A COLLIDING NAME MUST NOT MERGE TWO INSTITUTIONS. */
+  var ids = {};
+  var dup = 0;
+  S.tenants().forEach(function (t) { if (ids[t.id]) { dup += 1; } ids[t.id] = true; });
+  eq(dup, 0, 'every tenant id is unique');
+  S.setScenario('B');
+  S.selectionAdd('direct-shear', ['web']);
+  var req3 = S.submitRequest({ institutionName: 'Northfield  Institute, of Technology!',
+    contactName: 'Prof. Daniel Mensah', contactEmail: 'd.mensah@northfield.example',
+    quantity: 1, term: 'yearly' });
+  S.approveRequest(req3.id, { reason: 'Second external institution.' });
+  S.completePayment(req3.id, S.PAYMENT_OUTCOME.SUCCESS);
+  var seen = {}, collisions = 0;
+  S.tenants().forEach(function (t) { if (seen[t.id]) { collisions += 1; } seen[t.id] = true; });
+  eq(collisions, 0, 'A DIFFERENT INSTITUTION WHOSE NAME SLUGS THE SAME GETS ITS OWN TENANT ID');
+  ok(S.tenants().length >= 3, 'and it is a separate institution, not a merge');
+}
+
+/* ============================================================
+   SCENARIO S — role scope: creating is a different question from
+   covering, and a scope withdrawal is honest about which is which.
+   ============================================================ */
+function scenarioCreateScope() {
+  group('SCENARIO S — an Experiment-scope assignment cannot author a NEW Experiment');
+  boot();
+
+  /* Strip the Vendor back to a single Experiment-level scope. */
+  S.roleAssignments({ actorId: RAO }).forEach(function (m) {
+    S.removePlatformRoleAssignment(m.id, 'QA — narrowing to one experiment');
+  });
+  eq(S.actorCreateCourseIds(RAO).length, 0, 'with no scope at all, nothing can be created');
+  var a = S.assignPlatformRole({ actorId: RAO, role: 'vendor', scope: 'experiment', experimentId: 'direct-shear' });
+  ok(a.ok, 'the Vendor now holds ONE Experiment-level scope');
+
+  ok(S.actorCoversRecord(RAO, S.contentRecord('direct-shear')), 'they cover that Experiment');
+  eq(S.actorCourseIds(RAO).indexOf('soil-mechanics') !== -1, true,
+    'and can READ within its Course');
+  eq(S.actorCreateCourseIds(RAO).indexOf('soil-mechanics'), -1,
+    'BUT CANNOT CREATE A NEW EXPERIMENT IN THAT COURSE');
+  eq(S.vendorCanCreateIn(RAO, 'soil-mechanics'), false, 'and the creation gate agrees');
+  eq(S.createContentDraft(RAO, {
+    name: 'QA Frozen Draft', courseId: 'soil-mechanics', summary: '', description: 'd',
+    technologies: ['web'], delivery: { web: { url: 'https://example.org/x', runtime: 'browser' } },
+    versionLabel: '1.0'
+  }), null, 'SO NO INSTANTLY-FROZEN DRAFT CAN BE CREATED');
+
+  /* Course scope restores it, and the record it creates is mutable. */
+  ok(S.assignPlatformRole({ actorId: RAO, role: 'vendor', scope: 'course', courseId: 'soil-mechanics' }).ok,
+    'a Course-level scope is granted');
+  var made = S.createContentDraft(RAO, {
+    name: 'QA Course Scope Draft', courseId: 'soil-mechanics', summary: '', description: 'd',
+    technologies: ['web'], delivery: { web: { url: 'https://example.org/y', runtime: 'browser' } },
+    versionLabel: '1.0'
+  });
+  ok(!!made, 'now the draft is created');
+  eq(S.vendorCanEdit(made, RAO), true, 'AND IT IS EDITABLE — creation and mutation now agree');
+
+  /* ADVERSARIAL REGRESSION — the creation gate must not leak into the
+     ordinary save. Narrowing `vendorCanCreateIn` to Course scope broke
+     an Experiment-scoped Vendor editing their OWN in-scope record with
+     its Course untouched: saving where it already sits is not a move,
+     and does not need move authority. */
+  boot();
+  var own = S.createContentDraft(RAO, {
+    name: 'QA Own Draft', courseId: 'surveying', summary: '', description: 'd',
+    technologies: ['web'], delivery: { web: { url: 'https://example.org/own', runtime: 'browser' } },
+    versionLabel: '1.0'
+  });
+  ok(!!own, 'a Course-scoped Vendor created a draft');
+  S.roleAssignments({ actorId: RAO }).forEach(function (m) {
+    S.removePlatformRoleAssignment(m.id, 'QA — narrowing to that one experiment');
+  });
+  ok(S.assignPlatformRole({ actorId: RAO, role: 'vendor', scope: 'experiment', experimentId: own.id }).ok,
+    'and is then narrowed to that one Experiment');
+  eq(S.vendorCanEdit(S.contentRecord(own.id), RAO), true, 'the editor is still offered');
+  var savedFields = {
+    name: 'QA Own Draft', courseId: 'surveying', summary: 'edited', description: 'd2',
+    technologies: ['web'], delivery: { web: { url: 'https://example.org/own', runtime: 'browser' } },
+    documents: [], vendorNotes: '', versionLabel: '1.0'
+  };
+  ok(!!S.updateContentDraft(RAO, own.id, savedFields),
+    'AND THE SAVE IS ACCEPTED — no live editor whose every save is refused');
+  eq(S.contentRecord(own.id).description, 'd2', 'the edit landed');
+  savedFields.courseId = 'soil-mechanics';
+  eq(S.updateContentDraft(RAO, own.id, savedFields), null,
+    'but MOVING it to a Course they do not hold is still refused');
+  eq(S.contentRecord(own.id).courseId, 'surveying', 'and it did not move');
+}
+
+/* ============================================================
+   SCENARIO T — canonical metadata cannot hand an Experiment to a
+   Course the acting manager holds no assignment for (`STK31-41`).
+   ============================================================ */
+function scenarioCanonicalDestination() {
+  group('SCENARIO T — a metadata edit cannot re-file content out of its own scope');
+  boot();
+
+  /* Narrow the Content Manager to one Course. */
+  S.roleAssignments({ actorId: KULK }).forEach(function (m) {
+    S.removePlatformRoleAssignment(m.id, 'QA — narrowing to one course');
+  });
+  ok(S.assignPlatformRole({ actorId: KULK, role: 'manager', scope: 'course', courseId: 'soil-mechanics' }).ok,
+    'the Content Manager holds soil-mechanics only');
+
+  var rec = S.contentRecord('direct-shear');
+  eq(rec.courseId, 'soil-mechanics', 'the record sits in that Course');
+  ok(S.managerCanAct(rec, KULK), 'and the manager covers it');
+
+  eq(S.updateCanonicalMetadata(KULK, 'direct-shear', {
+    name: 'Direct Shear Test', courseId: 'surveying', summary: '', description: 'd'
+  }), null, 'MOVING IT INTO A COURSE THEY DO NOT HOLD IS REFUSED');
+  eq(S.contentRecord('direct-shear').courseId, 'soil-mechanics', 'and the record did not move');
+
+  ok(!!S.updateCanonicalMetadata(KULK, 'direct-shear', {
+    name: 'Direct Shear Test', courseId: 'soil-mechanics', summary: 'QA corrected.', description: 'd'
+  }), 'a correction inside their own Course still works');
+  eq(S.contentRecord('direct-shear').summary, 'QA corrected.', 'and it took effect');
+
+  /* A platform-scope manager is unaffected. */
+  ok(S.assignPlatformRole({ actorId: KULK, role: 'manager', scope: 'all' }).ok, 'platform scope is restored');
+  ok(!!S.updateCanonicalMetadata(KULK, 'direct-shear', {
+    name: 'Direct Shear Test', courseId: 'surveying', summary: 'QA corrected.', description: 'd'
+  }), 'a platform-scope manager may re-file it');
+  eq(S.contentRecord('direct-shear').courseId, 'surveying', 'and it moved');
+  eq(S.contentRecord('direct-shear').id, 'direct-shear', 'THE IDENTIFIER NEVER CHANGES');
+}
+
+/* ============================================================
+   SCENARIO U — a written answer must never lose every evaluator
+   silently (`STK31-31`), and the Faculty tenant-holdings read model
+   (`STK31-29` / `U-FAC-01`) grants nothing.
+   ============================================================ */
+function scenarioOrphanReview() {
+  group('SCENARIO U — a review with no mapped evaluator is visible, not silent');
+  boot();
+
+  var g = grantAccess(['direct-shear', 'consolidation'], ['web'], 5, 'yearly');
+  var m = S.mapFaculty(TENANT, ARJUN, g.access.id, 'soil-mechanics', null);
+  ok(!!m, 'the Faculty member is mapped at Course level');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+
+  var q = S.addQuestion(TENANT, {
+    type: 'descriptive', text: 'Explain the failure envelope.',
+    experimentId: 'direct-shear', points: 3, guidance: 'QA.'
+  }, ARJUN);
+  var def = S.assessmentForTenant(TENANT, 'direct-shear');
+  S.addQuestionsToAssessment(def.id, [q.question.id], ARJUN);
+  var att = S.startAttempt(RAHUL, 'direct-shear');
+  S.saveAnswer(att.id, q.question.id, 'A written answer.');
+  S.submitAttempt(att.id);
+
+  eq(S.reviewsForFaculty(ARJUN, { status: 'pending' }).length, 1, 'the Faculty member holds one pending review');
+  eq(S.pendingReviewsWithoutEvaluator(TENANT).length, 0, 'and nothing is orphaned');
+  eq(S.pendingReviewsLosingEvaluator(m.id).length, 1,
+    'THE CONSEQUENCE IS KNOWABLE BEFORE THE MAPPING IS REMOVED');
+
+  ok(S.removeFacultyMapping(m.id), 'the Tenant Admin removes the mapping');
+  eq(S.reviewsForFaculty(ARJUN, { status: 'pending' }).length, 0, 'it leaves that Faculty queue');
+  eq(S.pendingReviewsWithoutEvaluator(TENANT).length, 1,
+    'AND IT IS REPORTED AS HAVING NO EVALUATOR — never silently lost');
+  eq(S.attemptById(att.id).outcome, 'PENDING_FACULTY_REVIEW', 'the Student is still honestly pending');
+  eq(S.reviewById(S.pendingReviewsWithoutEvaluator(TENANT)[0].id).status, 'pending', 'nothing was destroyed');
+
+  /* Re-mapping restores it exactly. */
+  ok(!!S.mapFaculty(TENANT, ARJUN, g.access.id, 'soil-mechanics', null), 'a Faculty member is mapped again');
+  eq(S.pendingReviewsWithoutEvaluator(TENANT).length, 0, 'and the orphan is resolved');
+  eq(S.reviewsForFaculty(ARJUN, { status: 'pending' }).length, 1, 'the review is back in a real queue');
+
+  /* U-FAC-01 — visible, and still not authority. */
+  var holdings = S.facultyTenantHoldings(ARJUN);
+  ok(holdings.length >= 2, 'the Faculty member can SEE what the institution holds');
+  ok(holdings.every(function (h) { return h.mapped === true; }),
+    'both are mapped through the Course-level mapping');
+  var scopeIds = S.facultyExperimentIds(ARJUN);
+  eq(S.mapFaculty(TENANT, ARJUN, g.access.id, 'soil-mechanics', null), null,
+    'seeing the holdings creates no new mapping');
+  eq(S.facultyExperimentIds(ARJUN).join(','), scopeIds.join(','), 'AND CHANGES NO SCOPE');
+  eq(S.facultyCanManage(ARJUN, 'torsion-test'), false, 'content the institution does not hold is still out of reach');
+}
+
+/* ============================================================
+   SCENARIO V — later-version integrity, and the Super Admin's
+   student-deactivation platform override (`STK31-25`).
+   ============================================================ */
+function scenarioVersionIntegrityAndOverride() {
+  group('SCENARIO V — version labels, draft privacy, and the platform override');
+  boot();
+
+  var rec = S.contentRecord('direct-shear');
+  eq(rec.status, S.CONTENT_STATUS.PUBLISHED, 'the seeded experiment is published');
+
+  /* A version a REVIEWER must not be able to read before it is sent. */
+  var made = S.createContentVersion(RAO, 'direct-shear', {
+    versionLabel: '2.0', changeNote: 'QA', description: 'QA description', summary: '', delivery: {} });
+  ok(made.ok, 'the Vendor drafted a later version');
+  eq(S.reviewerCanViewVersion(made.version, IYER), false,
+    'AN UNSUBMITTED DRAFT IS NOT READABLE BY THE ACADEMIC REVIEWER');
+  eq(S.versionsForReviewer(IYER, {}).some(function (v) { return v.id === made.version.id; }), false,
+    'and it is not in their queue either');
+  S.submitContentVersion(RAO, made.version.id);
+  eq(S.reviewerCanViewVersion(S.contentVersion(made.version.id), IYER), true,
+    'once submitted, it is readable');
+
+  /* Hosted delivery on a version meets the same format rule as a first
+     publication — a release writes it onto the published record. */
+  eq(S.updateContentVersion(RAO, made.version.id, {
+    versionLabel: '2.0', changeNote: 'QA', description: 'd', summary: '',
+    delivery: { web: { url: 'not-a-url', runtime: 'browser' } } }).ok, false,
+    'a version cannot carry a hosted "link" that is not a link');
+
+  /* Release it, then prove a later candidate cannot reuse the label. */
+  S.approveVersionAcademic(IYER, made.version.id, 'Approved.');
+  ok(!!S.releaseVersion(made.version.id, 'QA release'), 'the Super Admin released it');
+  eq(S.contentRecord('direct-shear').versionLabel, '2.0', 'the public version is now 2.0');
+  eq(S.createContentVersion(RAO, 'direct-shear', {
+    versionLabel: '2.0', changeNote: 'QA', description: 'd', summary: '', delivery: {} }).ok, false,
+    'A RELEASED VERSION LABEL CANNOT BE REUSED');
+  ok(S.createContentVersion(RAO, 'direct-shear', {
+    versionLabel: '2.1', changeNote: 'QA', description: 'd', summary: '', delivery: {} }).ok,
+    'a new label is accepted');
+
+  /* STK31-25 — the platform override is the SAME writer, with a reason. */
+  boot();
+  var g = grantAccess(['direct-shear'], ['web'], 1, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  eq(S.effectiveEntitlementCount(RAHUL), 1, 'the Student holds one entitlement');
+  var assignBefore = S.activeAssignments(TENANT).length;
+  var accessBefore = JSON.stringify(S.accessForTenant(TENANT));
+
+  eq(S.setStudentStatusAsPlatform(RAHUL, 'inactive', ''), null, 'THE OVERRIDE REQUIRES A REASON');
+  eq(S.personById(RAHUL).status, 'active', 'and without one nothing changed');
+
+  ok(!!S.setStudentStatusAsPlatform(RAHUL, 'inactive', 'QA — platform override.'),
+    'the Super Admin deactivated the student');
+  eq(S.personById(RAHUL).status, 'inactive', 'the student is inactive');
+  eq(S.effectiveEntitlementCount(RAHUL), 0, 'and holds no effective entitlement');
+  eq(S.activeAssignments(TENANT).length, assignBefore, 'THE OVERRIDE DELETED NO ASSIGNMENT');
+  eq(JSON.stringify(S.accessForTenant(TENANT)), accessBefore, 'AND CHANGED NO ACCESS RECORD');
+  eq(S.accessAllocation(g.access.id).remaining, 1, 'the licence returned to the record');
+  ok((S.personById(RAHUL).overrides || []).length === 1, 'the override is recorded on the student');
+  ok(S.tenantById(TENANT).history.some(function (h) { return h.kind === 'student-override'; }),
+    'and on the institution’s governance history');
+
+  ok(!!S.setStudentStatusAsPlatform(RAHUL, 'active', 'QA — reinstated.'), 'and it is reversible');
+  eq(S.effectiveEntitlementCount(RAHUL), 1, 'the entitlement returns from the SAME assignment');
+  eq(S.activeAssignments(TENANT).length, assignBefore, 'with nothing recreated');
+}
+
+/* ============================================================
+   SCENARIO W — `STK31-42`'s two missing institution-report lines,
+   derived and honest.
+   ============================================================ */
+function scenarioInstitutionReport() {
+  group('SCENARIO W — students by stream and usage indicators are derived, not invented');
+  boot();
+
+  var rep0 = S.tenantReport(TENANT);
+  ok(rep0.byStream.length > 0, 'students are broken down by their own stream');
+  eq(rep0.byStream.reduce(function (n, s) { return n + s.students; }, 0), rep0.students,
+    'and the breakdown adds up to the student count exactly');
+  eq(rep0.usage.entitlements, 0, 'with no entitlement, usage reports nothing rather than a guess');
+  eq(rep0.usage.started, 0, 'and nothing started');
+
+  var g = grantAccess(['direct-shear'], ['web'], 5, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  var rep1 = S.tenantReport(TENANT);
+  eq(rep1.usage.entitlements, 1, 'usage counts effective entitlements');
+  eq(rep1.usage.started, 0, 'nothing has been started yet');
+  eq(rep1.usage.students, 1, 'one entitled student');
+
+  S.startSimulation(RAHUL, 'direct-shear', 'web');
+  var rep2 = S.tenantReport(TENANT);
+  eq(rep2.usage.started, 1, 'real activity moves the figure');
+  eq(rep2.usage.studentsStarted, 1, 'and the distinct-student figure with it');
+  eq(rep2.usage.completed, 0, 'completion is not claimed before it happens');
+
+  /* Deactivation must not leave a usage figure standing. */
+  S.deactivateTenant(TENANT, 'QA');
+  eq(S.tenantReport(TENANT).usage.entitlements, 0,
+    'a deactivated institution reports no entitlements in use');
+  S.reactivateTenant(TENANT, 'QA');
+  eq(S.tenantReport(TENANT).usage.entitlements, 1, 'and reactivation restores the figure');
+}
+
+/* ============================================================
+   SCENARIO X — the defects the Implementation-07 adversarial review
+   found in Implementation 07's own changes. One assertion each, so
+   none of them can come back.
+   ============================================================ */
+function scenarioAdversarial07() {
+  group('SCENARIO X — Implementation-07 adversarial findings, closed');
+  boot();
+
+  /* 1 · completePayment must meet the SAME tenant gate the decision
+     meets. Approve while the institution is active, deactivate it, then
+     pay: nothing may activate. */
+  S.setScenario('B');
+  S.selectionAdd('direct-shear', ['web']);
+  var req = S.submitRequest({ institutionName: 'Northfield Institute of Technology',
+    contactName: 'Prof. Daniel Mensah', contactEmail: 'd.mensah@northfield.example',
+    quantity: 2, term: 'yearly' });
+  S.approveRequest(req.id, { reason: 'QA — external pilot.' });
+  S.completePayment(req.id, S.PAYMENT_OUTCOME.SUCCESS);
+  var other = S.tenants().filter(function (t) { return t.id !== TENANT; })[0];
+  ok(!!other, 'an external institution exists');
+
+  S.selectionAdd('consolidation', ['web']);
+  var req2 = S.submitRequest({ institutionName: 'Northfield Institute of Technology',
+    contactName: 'Prof. Daniel Mensah', contactEmail: 'd.mensah@northfield.example',
+    quantity: 1, term: 'yearly' });
+  S.approveRequest(req2.id, { reason: 'QA — expansion.' });
+  eq(S.request(req2.id).status, S.STATUS.APPROVED_PAYMENT_REQUIRED, 'a second request awaits payment');
+  S.deactivateTenant(other.id, 'QA — deactivated between approval and payment');
+  var accBefore = S.accessAll().length;
+  eq(S.completePayment(req2.id, S.PAYMENT_OUTCOME.SUCCESS), null,
+    'PAYMENT CANNOT ACTIVATE ONTO A DEACTIVATED INSTITUTION');
+  eq(S.accessAll().length, accBefore, 'and it wrote no access record');
+  eq(S.request(req2.id).status, S.STATUS.APPROVED_PAYMENT_REQUIRED, 'the request is left exactly where it was');
+  ok(!!S.completePayment(req2.id, S.PAYMENT_OUTCOME.DECLINED),
+    'recording a DECLINED attempt is still allowed — it writes nothing either way');
+  S.reactivateTenant(other.id, 'QA');
+  ok(!!S.completePayment(req2.id, S.PAYMENT_OUTCOME.SUCCESS), 'and it pays once the institution is back');
+  eq(S.accessAll().length, accBefore + 1, 'writing exactly one record');
+
+  /* 2 · A redundant reactivation must not move the allocation queue. */
+  boot();
+  var g = grantAccess(['direct-shear'], ['web'], 1, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  var others = S.studentsForTenant(TENANT).filter(function (p) { return p.id !== RAHUL; });
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [others[0].id]);
+  eq(S.accessAllocation(g.access.id).entitledIds.join(','), RAHUL, 'the first student holds the single licence');
+  var seqBefore = S.personById(RAHUL).activationSeq;
+  ok(!!S.setStudentStatus(RAHUL, 'active'), 'reactivating an already-active student returns the record');
+  eq(S.personById(RAHUL).activationSeq, seqBefore, 'AND DOES NOT RE-STAMP THE ACTIVATION ORDER');
+  eq(S.accessAllocation(g.access.id).entitledIds.join(','), RAHUL,
+    'so a redundant call never hands their licence to the student behind them');
+  ok(!!S.setStudentStatusAsPlatform(RAHUL, 'active', 'QA — redundant override'),
+    'the same is true through the platform override');
+  eq(S.accessAllocation(g.access.id).entitledIds.join(','), RAHUL, 'still holding it');
+
+  /* 3 · previewAssignment must refuse an unrecognised target type. */
+  var pre = S.previewAssignment(TENANT, g.access.id, 'direct-shear', 'cohort', [RAHUL]);
+  eq(pre.ok, false, 'an unrecognised target type is refused');
+  eq(pre.reason, 'bad-target-type', 'for the right reason');
+  var asgBefore = S.activeAssignments(TENANT).length;
+  eq(S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'cohort', [RAHUL]).created.length, 0,
+    'and the commit writes no assignment nothing could ever derive from');
+  eq(S.activeAssignments(TENANT).length, asgBefore, 'the assignment count is unchanged');
+
+  /* 4 · validateGrant must reject duplicate entries. */
+  boot();
+  S.setScenario('A');
+  S.selectionAdd('direct-shear', ['web', 'vr']);
+  var r4 = S.submitRequest({ institutionName: 'Sample Engineering Institute',
+    contactName: 'Dr. Kavita Sharma', contactEmail: 'kavita.sharma@sample-institute.example',
+    quantity: 5, term: 'yearly' });
+  eq(S.validateGrant(S.request(r4.id), { items: [
+    { experimentId: 'direct-shear', technologies: ['web'] },
+    { experimentId: 'direct-shear', technologies: ['vr'] }] }).ok, false,
+    'the same experiment twice in one allocation is refused');
+  eq(S.validateGrant(S.request(r4.id), { items: [
+    { experimentId: 'direct-shear', technologies: ['web', 'web'] }] }).ok, false,
+    'and a technology repeated within one experiment is refused');
+
+  /* 5 · A later version cannot reuse the label the Experiment was FIRST
+     published under, even after a release has overwritten it. */
+  boot();
+  var v1 = S.createContentVersion(RAO, 'direct-shear', {
+    versionLabel: '2.0', changeNote: 'QA', description: 'd', summary: '', delivery: {} });
+  ok(v1.ok, 'a later version is drafted');
+  var firstLabel = S.contentRecord('direct-shear').versionLabel;
+  S.submitContentVersion(RAO, v1.version.id);
+  S.approveVersionAcademic(IYER, v1.version.id, 'Approved.');
+  ok(!!S.releaseVersion(v1.version.id, 'QA'), 'and released');
+  eq(S.contentRecord('direct-shear').versionLabel, '2.0', 'the public version moved on');
+  eq(S.createContentVersion(RAO, 'direct-shear', {
+    versionLabel: firstLabel, changeNote: 'QA', description: 'd', summary: '', delivery: {} }).ok, false,
+    'THE FIRST PUBLICATION\u2019S LABEL IS STILL TAKEN, though it is no longer the current one');
+
+  /* 6 · A dormant mapping is not a missing evaluator. */
+  boot();
+  var g6 = grantAccess(['direct-shear'], ['web'], 3, 'monthly');
+  S.mapFaculty(TENANT, ARJUN, g6.access.id, 'soil-mechanics', null);
+  S.assignExperiment(TENANT, g6.access.id, 'direct-shear', 'student', [RAHUL]);
+  var q6 = S.addQuestion(TENANT, { type: 'descriptive', text: 'QA?', experimentId: 'direct-shear',
+    points: 2, guidance: 'QA.' }, ARJUN);
+  var def6 = S.assessmentForTenant(TENANT, 'direct-shear');
+  S.addQuestionsToAssessment(def6.id, [q6.question.id], ARJUN);
+  var att6 = S.startAttempt(RAHUL, 'direct-shear');
+  S.saveAnswer(att6.id, q6.question.id, 'An answer.');
+  S.submitAttempt(att6.id);
+  eq(S.pendingReviewsWithoutEvaluator(TENANT).length, 0, 'nothing is orphaned while everything is live');
+  S.protoSetAccessEnd(g6.access.id, -1);
+  eq(S.accessIsLive(S.accessById(g6.access.id)), false, 'the access record is now expired');
+  eq(S.facultyExperimentIds(ARJUN).length, 0, 'so the mapping carries no content');
+  eq(S.pendingReviewsWithoutEvaluator(TENANT).length, 0,
+    'BUT THE MAPPING STILL EXISTS, so this is not reported as a missing evaluator');
+  S.protoSetAccessEnd(g6.access.id, 30);
+  eq(S.facultyExperimentIds(ARJUN).length > 0, true, 'and the mapping carries content again');
+}
+
+/* ============================================================
+   SCENARIO Y — THE EXTERNAL TENANT-CREATION BOUNDARY.
+
+   The defect: approval and activation were ONE function, so an approved
+   external institution did not exist anywhere until it paid — while the
+   decision screen said approval created it.
+
+   The contract, from the sources: `STK31-21` lists creating the tenant
+   and assigning its Tenant Admin as Super Admin acts distinct from, and
+   listed before, deciding what content it receives; `17/07 §2` carries
+   the same three as separate confirmed stages; `17/06 §3.3` puts only
+   the allocated content, technologies, quantity and term inside step ⑨
+   TENANT ACCESS ACTIVATION. The confirmed constraint is that ACCESS is
+   never granted before approval — not that the institution cannot exist.
+
+   So: APPROVAL provisions the institution. PAYMENT activates its access.
+   ============================================================ */
+function scenarioExternalTenantBoundary() {
+  group('SCENARIO Y — approval creates the institution, payment activates its access');
+  boot();
+
+  function byName(n) {
+    return S.tenants().filter(function (t) { return t.name === n; })[0] || null;
+  }
+  var NAME = 'Northfield Institute of Technology';
+
+  /* ---- the institution must not pre-exist ---- */
+  eq(byName(NAME), null, 'the institution does not pre-exist');
+  var tenantsBefore = S.tenants().length;
+
+  S.setScenario('B');
+  S.selectionAdd('consolidation', ['vr']);
+  var req = S.submitRequest({ institutionName: NAME,
+    contactName: 'Prof. Daniel Mensah', contactEmail: 'd.mensah@northfield.example',
+    quantity: 5, term: 'quarterly' });
+  eq(S.request(req.id).status, S.STATUS.SUBMITTED, 'the request is submitted');
+  eq(S.tenants().length, tenantsBefore, 'SUBMITTING CREATES NO INSTITUTION');
+  eq(byName(NAME), null, 'still nothing');
+
+  /* ---- APPROVAL: the institution exists, the access does not ---- */
+  ok(!!S.approveRequest(req.id, { reason: 'QA — external pilot approved.' }),
+    'the Super Admin approves it');
+  eq(S.request(req.id).status, S.STATUS.APPROVED_PAYMENT_REQUIRED, 'the request is PAYMENT REQUIRED');
+
+  var t = byName(NAME);
+  ok(!!t, 'THE INSTITUTION NOW EXISTS — approval provisioned it (STK31-21)');
+  eq(S.tenants().length, tenantsBefore + 1, 'exactly one institution was created');
+  eq(S.request(req.id).tenantId, t.id, 'and the request is bound to it');
+  eq(t.kind, 'external', 'its classification is correct');
+  eq(t.accessContext, 'Subscription', 'its access context is correct');
+  ok(t.origin.indexOf(req.id) !== -1, 'its origin names the request that created it');
+  eq(t.status, 'active', 'its status is active — the DEACTIVATION axis, never a claim about access');
+  ok(!!S.tenantAwaitingActivation(t.id), 'and it reports as awaiting activation');
+
+  /* ---- and it holds NOTHING ---- */
+  eq(S.accessForTenant(t.id).length, 0, 'IT HOLDS NO ACCESS RECORD');
+  eq(S.accessAll().filter(function (a) { return a.requestId === req.id; }).length, 0,
+    'no access record exists for this request');
+  eq(S.assignableAccessForTenant(t.id).length, 0, 'nothing is assignable');
+  eq(S.tenantAllocation(t.id).approved, 0, 'NO APPROVED LICENCES ARE USABLE YET');
+  eq(S.tenantAllocation(t.id).remaining, 0, 'and none remaining');
+  eq(S.entitledStudentIds(t.id).length, 0, 'NO STUDENT ENTITLEMENT');
+  eq(S.tenantReport(t.id).usage.entitlements, 0, 'usage reports nothing');
+
+  /* ---- nothing inside it can be assigned ---- */
+  var stu = S.addStudent(t.id, { name: 'QA Northfield Student', email: 'qa.student@northfield.example',
+    studentId: 'NIT/2024/0001', groupingId: 'civil-engineering', courseId: 'soil-mechanics' });
+  ok(!!stu, 'the Tenant Admin can still create people — provisioning is real');
+  var fac = S.addFaculty(t.id, { name: 'QA Northfield Faculty', email: 'qa.faculty@northfield.example' });
+  ok(!!fac, 'and Faculty records');
+  eq(S.previewAssignment(t.id, 'ACC-999', 'consolidation', 'student', [stu.id]).ok, false,
+    'ASSIGNMENT IS IMPOSSIBLE — there is no access record to assign from');
+  eq(S.facultyScope(fac.id).experiments.length, 0, 'NO FACULTY REACH');
+  eq(S.studentExperiments(stu.id).length, 0, 'NO STUDENT EXPERIMENTS');
+  eq(S.studentCanRun(stu.id, 'consolidation', 'vr'), false, 'AND THE STUDENT CANNOT LAUNCH IT');
+
+  /* The Super Admin's own confirmed governance IS available — which is
+     the reason the institution has to exist at approval (STK31-21). */
+  var ta = S.assignTenantAdmin(t.id, { name: 'QA Northfield Admin', email: 'admin@northfield.example' });
+  ok(ta.ok, 'THE TENANT ADMIN CAN BE ASSIGNED BEFORE PAYMENT — STK31-21');
+
+  /* The public catalogue is untouched by any of it. */
+  eq(S.publishedPool().some(function (r) { return r.id === 'consolidation'; }), true,
+    'the public catalogue is unaffected');
+
+  /* ---- a failed payment still activates nothing ---- */
+  S.completePayment(req.id, S.PAYMENT_OUTCOME.DECLINED);
+  eq(S.accessForTenant(t.id).length, 0, 'a declined payment activates nothing');
+  eq(S.tenants().length, tenantsBefore + 1, 'and creates no institution');
+
+  /* ---- PAYMENT: the access activates onto the SAME institution ---- */
+  ok(!!S.completePayment(req.id, S.PAYMENT_OUTCOME.SUCCESS), 'payment succeeds');
+  eq(S.request(req.id).status, S.STATUS.ACTIVE, 'the request is ACTIVE');
+  eq(S.tenants().length, tenantsBefore + 1, 'PAYMENT CREATED NO SECOND INSTITUTION');
+  eq(S.request(req.id).tenantId, t.id, 'the same institution as at approval');
+  eq(S.tenantAwaitingActivation(t.id), null, 'it no longer awaits activation');
+
+  var acc = S.accessForTenant(t.id);
+  eq(acc.length, 1, 'EXACTLY ONE ACCESS RECORD');
+  eq(acc[0].items.length, 1, 'one experiment');
+  eq(acc[0].items[0].experimentId, 'consolidation', 'the approved experiment');
+  eq(acc[0].items[0].technologies.join(','), 'vr', 'the approved technology, and only that one');
+  eq(acc[0].quantity, 5, 'the approved quantity');
+  eq(acc[0].term, 'quarterly', 'the approved term');
+  eq(S.tenantAllocation(t.id).approved, 5, 'the licences are usable now');
+  ok(S.previewAssignment(t.id, acc[0].id, 'consolidation', 'student', [stu.id]).ok,
+    'AND ASSIGNMENT BECOMES POSSIBLE ONLY NOW');
+  eq(S.entitledStudentIds(t.id).length, 0, 'though activation still entitles nobody by itself');
+
+  /* Paying again must not double the allocation. */
+  eq(S.completePayment(req.id, S.PAYMENT_OUTCOME.SUCCESS), null, 'paying twice is refused');
+  eq(S.accessForTenant(t.id).length, 1, 'and no second access record was written');
+
+  /* ---- AN EXISTING INSTITUTION IS NEVER DUPLICATED ---- */
+  var countNow = S.tenants().length;
+  S.selectionAdd('direct-shear', ['web']);
+  var req2 = S.submitRequest({ institutionName: NAME,
+    contactName: 'Prof. Daniel Mensah', contactEmail: 'd.mensah@northfield.example',
+    quantity: 2, term: 'monthly' });
+  S.approveRequest(req2.id, { reason: 'QA — expansion.' });
+  eq(S.tenants().length, countNow, 'APPROVING A SECOND REQUEST CREATES NO DUPLICATE INSTITUTION');
+  eq(S.request(req2.id).tenantId, t.id, 'it attaches to the existing one');
+  eq(S.accessForTenant(t.id).length, 1, 'and adds no access record before payment');
+  S.completePayment(req2.id, S.PAYMENT_OUTCOME.SUCCESS);
+  eq(S.tenants().length, countNow, 'PAYMENT CREATES NO DUPLICATE EITHER');
+  eq(S.accessForTenant(t.id).length, 2, 'the institution now holds two access records');
+
+  /* ---- THE INTERNAL ROUTE IS UNCHANGED: activation at approval ---- */
+  boot();
+  var before = S.accessForTenant(TENANT).length;
+  S.setScenario('A');
+  S.selectionAdd('direct-shear', ['web']);
+  var iReq = S.submitRequest({ institutionName: 'Sample Engineering Institute',
+    contactName: 'Dr. Kavita Sharma', contactEmail: 'kavita.sharma@sample-institute.example',
+    quantity: 3, term: 'yearly' });
+  eq(S.request(iReq.id).paymentRequired, false, 'the internal route requires no payment');
+  S.approveRequest(iReq.id, { reason: 'QA — internal approval.' });
+  eq(S.request(iReq.id).status, S.STATUS.ACTIVE, 'INTERNAL APPROVAL ACTIVATES IMMEDIATELY');
+  eq(S.accessForTenant(TENANT).length, before + 1, 'and writes the access record at once');
+  eq(S.tenantAwaitingActivation(TENANT), null, 'it never enters an awaiting-payment state');
+  ok(S.assignableAccessForTenant(TENANT).length > 0, 'and content is assignable straight away');
+}
+
 /* ---------------- run ---------------- */
 scenarioA();
 scenarioB();
@@ -1461,4 +2260,16 @@ migrationChecks();
 guardChecks();
 altitudeChecks();
 adversarialFixes();
+/* Implementation 07 — gap closure and the coverage the 06 closeout named. */
+scenarioAIReviewBoundary();
+scenarioRequestDecision();
+scenarioPaymentOutcomes();
+scenarioTenantIsolation();
+scenarioCreateScope();
+scenarioCanonicalDestination();
+scenarioOrphanReview();
+scenarioVersionIntegrityAndOverride();
+scenarioInstitutionReport();
+scenarioAdversarial07();
+scenarioExternalTenantBoundary();
 summary();

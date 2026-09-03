@@ -199,11 +199,20 @@ XRSLP.tenantUI = (function () {
   function noAssignableAccessHTML(tenant, headingLevel) {
     var blocked = state.unassignableAccessForTenant(tenant.id);
     if (!blocked.length) {
+      /* The institution can exist with an APPROVED request and still
+         hold nothing, because approval creates the institution and
+         payment activates its access. Saying "until a request is
+         approved" would then be untrue — one already has been. */
+      var pendingPay = state.tenantAwaitingActivation(tenant.id);
       return ui.emptyState({
-        icon: 'layers', heading: headingLevel,
-        title: 'No content access yet',
-        body: 'The Super Admin decides what this institution may use. Nothing can be assigned until an ' +
-          'institutional access request for ' + tenant.name + ' is approved and activated.',
+        icon: pendingPay ? 'card' : 'layers', heading: headingLevel,
+        title: pendingPay ? 'No content access yet — awaiting payment' : 'No content access yet',
+        body: pendingPay
+          ? 'The Super Admin has approved an institutional access request for ' + tenant.name +
+            ', which is why this institution exists. The approved content is activated when payment ' +
+            'completes; nothing can be assigned until then.'
+          : 'The Super Admin decides what this institution may use. Nothing can be assigned until an ' +
+            'institutional access request for ' + tenant.name + ' is approved and activated.',
         actionsHTML: '<a class="btn sec" href="' + href.access(tenant.id) + '">View content access</a>'
       });
     }
@@ -314,7 +323,16 @@ XRSLP.tenantUI = (function () {
       { label: 'Active access records', value: live.length },
       { label: 'Approved licences', value: alloc.approved,
         note: live.length ? 'across ' + live.length + ' ' + util.plural(live.length, 'record') : 'no active access yet' },
-      { label: 'Assigned students', value: alloc.assigned },
+      /* A LICENCE SUM, NOT A STUDENT COUNT. `tenantAllocation` adds the
+         per-record `assigned` figures together, so a student entitled
+         under two access records is counted twice — correctly, because
+         they hold two licences. Labelling it "Assigned students" made it
+         a student count, and it then contradicted both the student
+         figures beside it and the Super Admin's institution report.
+         `alloc.uniqueLicenceHolders` is the distinct-people answer. */
+      { label: 'Licences assigned', value: alloc.assigned,
+        note: alloc.uniqueLicenceHolders + ' distinct ' +
+          util.plural(alloc.uniqueLicenceHolders, 'student') + ' holding one' },
       { label: 'Remaining allocation', value: alloc.remaining,
         tone: alloc.approved > 0 && alloc.remaining === 0 ? 'warn' : '' },
       /* EFFECTIVE ENTITLEMENT, from the one function the whole platform
@@ -355,7 +373,14 @@ XRSLP.tenantUI = (function () {
       items.push({
         tone: 'info', icon: 'users',
         title: unassigned.length + ' active ' + util.plural(unassigned.length, 'student') + ' with no entitlement',
-        body: 'These students exist in the institution but have not been assigned any experiment yet.',
+        /* "No effective entitlement" is not the same as "never
+           assigned". A student can hold an assignment and still have no
+           entitlement — held beyond the approved quantity, or on an
+           expired record. Saying they were never assigned sent the
+           Tenant Admin to make an assignment that already existed. */
+        body: 'These active students hold no effective entitlement. Most have not been assigned an experiment ' +
+          'yet; a student who has been assigned one can also appear here if the record is out of licences or ' +
+          'its term has ended.',
         href: T.href.people(tenant.id), label: 'Open People'
       });
     }
@@ -430,11 +455,33 @@ XRSLP.tenantUI = (function () {
         href: XRSLP.supportUI.href.tenant(tenant.id), label: 'Open Help'
       });
     }
+    /* A submitted written answer whose Experiment has no mapped Faculty
+       member has no evaluator, and STK31-31 makes Faculty the only human
+       evaluator there is. The Student is still being told their answer
+       is with their faculty, so this has to be visible to the one role
+       that can fix it — by mapping a Faculty member again. Only the
+       mapping fact appears; the responses themselves stay inside the
+       Faculty review queue where they belong. */
+    var orphanReviews = state.pendingReviewsWithoutEvaluator(tenant.id);
+    if (orphanReviews.length) {
+      items.push({
+        tone: 'warn', icon: 'alert',
+        title: orphanReviews.length + ' submitted written ' + util.plural(orphanReviews.length, 'response') +
+          ' with no mapped Faculty evaluator',
+        body: 'Those students are waiting at <em>Pending Faculty review</em> and cannot complete the experiment. ' +
+          'Nothing has been lost — mapping a Faculty member to that content puts the responses straight back ' +
+          'into their review queue.',
+        href: T.href.facultyMap(tenant.id), label: 'Open Faculty mapping'
+      });
+    }
     if (alloc.over > 0) {
       items.push({
         tone: 'warn', icon: 'alert',
         title: alloc.over + ' ' + util.plural(alloc.over, 'student') + ' held beyond the approved allocation',
-        body: 'They hold an assignment but no effective entitlement. This is reachable by reactivating a student after their licence was taken by someone else.',
+        body: 'They hold an assignment but no effective entitlement, because the record has no licence left for ' +
+          'them. It happens when more students are assigned than the approved quantity covers, when a member joins ' +
+          'a group that is already assigned, or when a deactivated student is reactivated after their licence was ' +
+          'taken. Nobody who is currently entitled is ever displaced &mdash; a held student waits behind them.',
         href: T.href.access(tenant.id), label: 'Review allocation'
       });
     }
@@ -446,22 +493,37 @@ XRSLP.tenantUI = (function () {
             '<p>' + it.body + '</p></div>' +
             '<a class="btn sm sec" href="' + it.href + '">' + esc(it.label) + '</a></li>';
         }).join('') + '</ul>'
+      /* The body must only claim what was actually checked. The
+         "students with no entitlement" row is deliberately suppressed
+         while the institution holds no live access record — there is
+         nothing to assign, so listing every student as unassigned would
+         be noise — but the empty state then asserted that no student
+         lacks an entitlement, which was untrue of exactly that state. */
       : ui.emptyState({
           icon: 'check', heading: 'h3',
           title: 'Nothing needs attention',
-          body: 'No unmapped courses, no unreached content and no students left without an entitlement.'
+          body: live.length
+            ? 'No unmapped courses, no unreached content and no active student left without an entitlement.'
+            : 'This institution holds no active content access yet, so there is nothing to map or assign. ' +
+              'Content reaches an institution only through an approved institutional access request.'
         });
 
     var noAccessYet = !state.accessForTenant(tenant.id).length;
+    var awaitingPayment = state.tenantAwaitingActivation(tenant.id);
     var admins = state.tenantAdminsFor(tenant.id);
 
     var html =
       ui.phead('Overview', esc(tenant.name) + ' · ' + esc(tenant.accessContext)) +
       '<div class="stack">' +
-      (noAccessYet ? ui.alertBox('info', 'No content access activated yet',
-        '<p>' + esc(tenant.name) + ' holds no approved content. People, groups and academic mappings can be prepared now, ' +
-        'but no experiment can be assigned until the Super Admin approves an institutional access request' +
-        (tenant.kind === 'external' ? ' and payment completes' : '') + '.</p>') : '') +
+      (noAccessYet ? ui.alertBox('info',
+        awaitingPayment ? 'No content access yet — awaiting payment' : 'No content access activated yet',
+        '<p>' + esc(tenant.name) + ' holds no approved content. People, groups and academic mappings can be ' +
+        'prepared now, but no experiment can be assigned until ' +
+        (awaitingPayment
+          ? 'payment completes on approved request <strong>' + esc(awaitingPayment.id) + '</strong>.'
+          : 'the Super Admin approves an institutional access request' +
+            (tenant.kind === 'external' ? ' and payment completes' : '') + '.') +
+        '</p>') : '') +
       ui.card('Institution at a glance', stats, null, 'h2') +
       ui.card('Needs attention', attention, null, 'h2') +
       /* Implementation 06 — the honest in-product representation of the
@@ -475,6 +537,19 @@ XRSLP.tenantUI = (function () {
             'list. <strong>No email, SMS, push or notification of any kind has been sent</strong>, and no ' +
             'provider is integrated. Access does not renew automatically, and nothing is charged.')
         : '') +
+      /* An institution-level reporting surface — completion, assessment
+         outcomes, experiment usage, time spent — is not built on this
+         plane, and the absence is declared rather than left to be
+         discovered. What each Faculty member can see for their OWN
+         mapped content IS built (Faculty → Student Progress), so the
+         note points there rather than implying nothing exists. */
+      ui.gapNote('NOT IN THIS BUILD',
+        '<strong>Institution-wide reporting</strong> — completion rates, assessment outcomes, experiment usage ' +
+        'and time spent across the whole institution — is not built on this plane. The figures above are ' +
+        'provisioning and licence facts, not learning outcomes. Each Faculty member sees progress and results ' +
+        'for the content mapped to them under <strong>Student Progress</strong> in their own workspace, and the ' +
+        'platform sees institution-level usage indicators on its institution report. Who else should see what, ' +
+        'and in what form, is not settled by any source, so nothing is invented here.') +
       /* Who the platform recorded as responsible for this institution.
          Super Admin assigns it (STK31-21); the Tenant Admin cannot. */
       ui.card('Institution administration',

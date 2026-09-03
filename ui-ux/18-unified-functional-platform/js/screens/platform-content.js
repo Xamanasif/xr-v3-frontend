@@ -178,16 +178,29 @@ XRSLP.screens = XRSLP.screens || {};
     var heldOne = versions.filter(function (v) { return v.status === state.VERSION_STATUS.HELD; })[0] || null;
     var inFlight = state.openVersionForRecord(rec.id);
 
-    /* ---- the current published state ---- */
-    var current = ui.card('Currently published',
+    /* ---- the current published state ----
+       The canonical structure lists every Experiment the platform holds,
+       including ones still in the production chain, so this card is
+       reached for unpublished records too. Titling it "Currently
+       published" and labelling a draft's working label as the "current
+       public version" said the catalogue was showing something it was
+       not. The card now names the record's real state. */
+    var isPublished = rec.status === state.CONTENT_STATUS.PUBLISHED;
+    var current = ui.card(isPublished ? 'Currently published' : 'This Experiment is not published',
+      (isPublished ? '' :
+        '<p class="muted" style="margin:0 0 10px">Nothing below is public. This Experiment is still in the ' +
+        'content production chain, so the catalogue does not show it and no institution can request it. ' +
+        'First publication is the Content Manager&rsquo;s decision; a later version&rsquo;s Release / ' +
+        'Hold — which is yours — exists only for an Experiment that is already published.</p>') +
       '<div class="kv">' +
       '<div class="k">Experiment</div><div class="v">' + esc(rec.name) + ' <span class="muted">' + esc(rec.id) + '</span></div>' +
       '<div class="k">Course</div><div class="v">' +
       (ctx.course ? esc((ctx.grouping ? ctx.grouping.name + ' › ' : '') + ctx.course.name)
                   : '<span class="muted">Not resolved</span>') + '</div>' +
       '<div class="k">State</div><div class="v">' + recordStateBadge(rec) + '</div>' +
-      '<div class="k">Current public version</div><div class="v">' +
+      '<div class="k">' + (isPublished ? 'Current public version' : 'Working version label') + '</div><div class="v">' +
       (rec.versionLabel ? '<strong>' + esc(rec.versionLabel) + '</strong>' : '<span class="muted">No version label</span>') +
+      (isPublished ? '' : ' <span class="muted">— not public</span>') +
       '</div>' +
       '<div class="k">Technology availability</div><div class="v">' +
       (rec.technologies.length ? ui.techBadges(rec.technologies) : '<span class="muted">None</span>') + '</div>' +
@@ -310,6 +323,12 @@ XRSLP.screens = XRSLP.screens || {};
            skipped anywhere in the outline. */
         '<h3 class="vd-sh">Description this version would make current</h3>' +
         '<p class="vd-d">' + esc(pending.description) + '</p>' +
+        /* A release writes this version's per-technology delivery onto
+           the published Experiment, so the person taking that decision
+           has to be able to see it first. Read-only: the Vendor owns
+           these technical references (STK31-08). */
+        '<h3 class="vd-sh">Technology delivery a release would write</h3>' +
+        XRSLP.versionUI.delivery(rec, pending) +
         '<div class="decidebar">' +
         '<span class="db-note">Releasing makes version ' + esc(pending.versionLabel) +
         ' the version the public catalogue shows, under the same Experiment. Holding leaves version ' +

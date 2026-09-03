@@ -42,6 +42,46 @@ XRSLP.screens = XRSLP.screens || {};
      which resource panels were expanded, and where the keyboard was. */
   var restoreResources = null;
 
+  /* ---------------- a technology that WAS granted but is held back ----------------
+     `state.studentExperiments()` puts into `row.blockedTechnologies` a
+     technology that reaches this Student only through an entitlement
+     that is not currently effective. On an experiment that is otherwise
+     open, `row.effective` stays true and `row.blockedBy` stays null — so
+     the technology simply disappeared from this page, while the panel
+     note went on saying that any technology not listed "has not been
+     made available to you", which is untrue of exactly these.
+
+     Everywhere else in this build a gap is shown WITH its reason, so it
+     is named here the same way. This grants nothing: the run gate is
+     `state.studentCanRun()` and it is untouched.
+
+     `L.unavailableText()` is not reusable here — those sentences end
+     "on this experiment", and this experiment is open. Only the two
+     per-record reasons can occur, because a block on the account or the
+     institution leaves no effective entitlement at all. */
+  var TECH_HELD_TEXT = {
+    'allocation-held': 'your institution has not yet made a place available for you in it',
+    'access-expired':  'your institution’s access covering it has reached its end date'
+  };
+  function heldTechReason(row, tech) {
+    var reason = null;
+    row.entitlements.forEach(function (en) {
+      if (reason || en.effective) { return; }
+      if (en.technologies.indexOf(tech) !== -1) { reason = en.blockedBy; }
+    });
+    return TECH_HELD_TEXT[reason] || 'it cannot be opened at the moment';
+  }
+  function heldTechNote(row) {
+    if (!row.blockedTechnologies.length) { return ''; }
+    return '<p class="lp-note">' + ui.ic('alert', 'sm') + ' ' +
+      row.blockedTechnologies.map(function (t) {
+        var def = data.TECHNOLOGIES[t];
+        return esc((def ? def.label : t) + ' was made available to you for this experiment, but ' +
+          heldTechReason(row, t) + '.');
+      }).join(' ') +
+      ' Your institution administers this. Nothing has been removed.</p>';
+  }
+
   /* ---------------- shared resolution ----------------
      Resolves Student + Experiment + the Student's effective view of
      it, and returns a rendered refusal when the experiment is not
@@ -322,9 +362,15 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="lp-b">' +
       L.techStateChips(prog) +
       '<p class="lp-note">These are the technologies your institution made available to you for this ' +
-      'experiment, and how far you have got with each one. Other technologies may exist for it; they ' +
-      'have not been made available to you. The assessment is separate and covers the experiment as a ' +
-      'whole.</p>' +
+      'experiment, and how far you have got with each one. ' +
+      /* Only say "no other technology was made available" when that is
+         true. When one WAS made available and is currently held back,
+         the note below names it and says why. */
+      (row.blockedTechnologies.length
+        ? 'Any technology not named on this page has not been made available to you. '
+        : 'Other technologies may exist for it; they have not been made available to you. ') +
+      'The assessment is separate and covers the experiment as a whole.</p>' +
+      heldTechNote(row) +
       '</div></section>';
 
     var html =
@@ -702,10 +748,17 @@ XRSLP.screens = XRSLP.screens || {};
               return data.TECHNOLOGIES[t].label; }).join(' and ')) + ' you work in' : ''),
       attemptsText: used + (asm.attemptLimit ? ' of ' + asm.attemptLimit : '') + ' used',
       releaseSentence: release.sentence,
+      /* An assessment made ONLY of written answers has no marked
+         questions to score straight away, so the second sentence has to
+         say what actually happens instead of asserting a step that does
+         not exist. */
       descriptiveText: descCount
         ? 'Your written ' + util.plural(descCount, 'answer') + ' ' + (descCount === 1 ? 'goes' : 'go') +
-          ' to your faculty for review before your result is complete. Your marked questions are scored ' +
-          'straight away.'
+          ' to your faculty for review before your result is complete. ' +
+          (data.objectivePoints(asm)
+            ? 'Your marked questions are scored straight away.'
+            : 'Nothing in this assessment is marked automatically, so your whole result comes from that ' +
+              'review.')
         : ''
     });
 
@@ -1074,6 +1127,13 @@ XRSLP.screens = XRSLP.screens || {};
        the control the source describes. */
     var release = state.releaseFor(att);
     var descCount = asm.questions.filter(function (q) { return q.type === 'descriptive'; }).length;
+    /* Does this assessment contain anything the machine marks at all?
+       Read from the attempt's own snapshot, so it describes the paper
+       that was actually answered. A paper made only of written answers
+       has no objective denominator — "0 of 0 marks" is not a low score,
+       it is a figure the assessment never had — and nothing about it
+       "has been scored" before the Faculty review. */
+    var autoMarked = data.objectivePoints(asm) > 0;
     var pending = att.outcome === state.OUTCOME.PENDING_REVIEW;
     var used = state.attemptsFor(p.id, e.id).length;
     /* THE ATTEMPT LIMIT IS LIVE. `asm` is the attempt's frozen snapshot,
@@ -1131,8 +1191,10 @@ XRSLP.screens = XRSLP.screens || {};
         '<p>Your written ' + util.plural(descCount, 'answer') + ' ' +
         (descCount === 1 ? 'is' : 'are') + ' with your faculty for review. Until that review is done, ' +
         'this experiment is not counted as finished.</p>' +
-        '<p style="margin-top:8px">Your marked questions have been scored, and your answers are shown ' +
-        'below.</p>', 'status');
+        '<p style="margin-top:8px">' + (autoMarked
+          ? 'Your marked questions have been scored, and your answers are shown below.'
+          : 'Nothing in this assessment is marked automatically, so your whole result comes from that ' +
+            'review. Your answers are shown below.') + '</p>', 'status');
     } else if (att.outcome === state.OUTCOME.PASSED) {
       headline = ui.alertBox('success', 'You passed',
         '<p>You scored ' + att.score.percent + '% ' + scoredOn + ', and the pass mark is ' +
@@ -1158,6 +1220,7 @@ XRSLP.screens = XRSLP.screens || {};
        was submitted, the pass mark, and how the written answers are
        progressing. */
     var sc = att.score;
+    var showObjectiveOnly = pending || !sc.includesReview;
     var scoreBody;
     if (scoreHidden) {
       scoreBody = ui.emptyState({
@@ -1165,8 +1228,18 @@ XRSLP.screens = XRSLP.screens || {};
         title: 'Your marks are not available yet',
         body: release.sentence
       });
+    } else if (showObjectiveOnly && !autoMarked) {
+      /* Nothing is marked automatically, so the box would read "—" over
+         "0 of 0 marks on the questions that are marked automatically" —
+         a denominator this assessment never had, presented as a score.
+         There is no figure to show until the Faculty review lands. */
+      scoreBody = ui.emptyState({
+        icon: 'clock', heading: 'h3',
+        title: 'No marks yet',
+        body: 'Nothing in this assessment is marked automatically. Your marks come from your faculty ' +
+          'once they have reviewed your written ' + util.plural(descCount, 'answer') + '.'
+      });
     } else {
-      var showObjectiveOnly = pending || !sc.includesReview;
       var boxPercent = showObjectiveOnly
         ? (sc.objectiveTotal > 0
             ? Math.round(((sc.objectiveEarned || 0) / sc.objectiveTotal) * 100)
@@ -1183,7 +1256,8 @@ XRSLP.screens = XRSLP.screens || {};
           : 'including the marks your faculty awarded') + '</div>' +
         '</div>';
     }
-    var scoreCard = ui.card(scoreHidden ? 'Your result' : 'Your score',
+    /* The card is only titled "Your score" when it actually carries one. */
+    var scoreCard = ui.card((scoreHidden || (showObjectiveOnly && !autoMarked)) ? 'Your result' : 'Your score',
       scoreBody +
       '<div class="kv" style="margin-top:12px">' +
       '<div class="k">Covers</div><div class="v">' + esc(e.name) + '</div>' +
@@ -1221,10 +1295,19 @@ XRSLP.screens = XRSLP.screens || {};
           title: 'Your answers are not available yet',
           body: release.sentence
         }) +
+        /* ⚠ NO REFERENCE TO A SCORE HERE, AND NO "above".
+           This branch runs under exactly the condition that empties the
+           score card (`scoreWithheld` is `!releaseFor(att).released` for
+           the same attempt), so pointing at "your score above" pointed
+           at an empty state — the leftover of the earlier behaviour that
+           did show the objective sub-score, which the withheld-result
+           closure removed. "Above" was wrong on its own terms too: the
+           score card is a side rail on desktop and stacks BELOW this
+           card on narrow widths. */
         '<div class="polnote">' + ui.ic('info', 'sm') +
         '<span><strong>' + esc(data.policyLabel(release.mode)) + '.</strong> ' +
         'Your faculty decide when answers and explanations become visible. Your submission has been ' +
-        'recorded and your score above is final for the marked questions.</span></div>',
+        'recorded, and your marks and your answers are released together.</span></div>',
         null, 'h2');
     } else {
       var items = asm.questions.map(function (q, i) {

@@ -230,7 +230,18 @@ XRSLP.ui = (function () {
       else { el.removeAttribute('aria-describedby'); }
     });
     var box = formEl.querySelector('.form-errors');
-    if (box) { box.innerHTML = ''; }
+    if (box) {
+      box.innerHTML = '';
+      /* This module owns the one announcement path for form errors: the
+         summary it writes is a role="alert" — a live region in its own
+         right — and it is focused as well. One container in the product
+         (the shared Help report form) also declares aria-live on the
+         wrapper, so the same summary was announced again on insertion.
+         Normalising the container here keeps every form on one path,
+         rather than fixing the single form and leaving the next one to
+         re-introduce it. */
+      box.removeAttribute('aria-live');
+    }
   }
 
   function showErrors(formEl, errs, heading) {

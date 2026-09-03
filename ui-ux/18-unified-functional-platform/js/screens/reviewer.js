@@ -19,9 +19,10 @@
      · grade a descriptive answer — that is Faculty, the only human
        evaluator (STK31-31). This is not the Faculty review queue.
 
-   Scope: a reviewer sees the submissions inside their per-Course
-   assignment (STK31-41). A hand-typed route to a submission outside it
-   resolves to not found, and the state layer refuses the action too.
+   Scope: a reviewer sees the submissions inside their assignment, which
+   may be per-Course or per-Experiment (STK31-41). A hand-typed route to
+   a submission outside it resolves to not found, and the state layer
+   refuses the action too.
 
    Every navigation destination is implemented. There is no Question
    Bank, student grading, tenant operations, publishing or licence
@@ -37,13 +38,64 @@ XRSLP.screens = XRSLP.screens || {};
   var esc = XRSLP.util.esc;
   var util = XRSLP.util;
   var ui = XRSLP.ui;
-  var data = XRSLP.data;
   var state = XRSLP.state;
   var cui = XRSLP.contentUI;
   var href = cui.href;
   var CS = state.CONTENT_STATUS;
 
   var queueFilter = { status: 'all', q: '', course: 'all' };
+
+  /* Implementation 07 — the reviewer's own decision history links to the
+     object the decision was taken on, and BOTH destinations read the LIVE
+     role assignments: `reviewerRecord` below, and `reviewerVersion` in
+     content-version.js. So a record that has left this reviewer's scope —
+     a withdrawn assignment, or a Content Manager moving the Experiment to
+     another Course — makes that route resolve to Not found. The decision
+     itself is kept, so the row stays; only the link goes, and the row
+     says why. Never render a link that is known to 404. */
+  function decisionTargetHTML(actor, d) {
+    var rec = state.contentRecord(d.recordId);
+    if (!rec) { return esc(d.recordId); }
+    if (!state.actorCoversRecord(actor.id, rec)) {
+      return esc(rec.name) +
+        ' <span class="muted">· outside your assigned scope now — the decision is kept</span>';
+    }
+    if (d.versionId) {
+      return '<a href="' + href.rVersion(actor.id, d.versionId) + '">' + esc(rec.name) + '</a>';
+    }
+    /* Seeded catalogue content carries no submission, and `reviewerRecord`
+       refuses it for that reason. */
+    if (rec.origin === 'seed') { return esc(rec.name); }
+    return '<a href="' + href.rRecord(actor.id, rec.id) + '">' + esc(rec.name) + '</a>';
+  }
+
+  /* The academic decisions this reviewer took on LATER VERSIONS. The state
+     layer records them on the version itself (`academicDecision*` and the
+     version's own history) rather than in `academicReviews[]`, whose
+     revision / outcomes / fingerprint shape belongs to a submission — so
+     reading only `academicReviews[]` left half of a reviewer's own
+     decisions missing from the one card that claims to list them. */
+  function versionDecisionsBy(actorId) {
+    var out = [];
+    state.contentVersions().forEach(function (v) {
+      /* One row per decision TAKEN, not one per version: a version that
+         was returned and later approved carries two decisions, and only
+         the second survives in `academicDecision*`. The version's own
+         history keeps both, and on a version 'approved' and 'changes' are
+         the academic decision and nothing else — Release, Hold and the
+         lifting of a hold are 'released' / 'held' / 'reopened'. */
+      (v.history || []).forEach(function (h) {
+        if (h.actorId !== actorId) { return; }
+        if (h.kind !== 'approved' && h.kind !== 'changes') { return; }
+        out.push({
+          recordId: v.recordId, versionId: v.id, versionLabel: v.versionLabel,
+          decision: h.kind === 'approved' ? 'approved' : 'changes_requested',
+          at: h.at, comment: h.note
+        });
+      });
+    });
+    return out;
+  }
 
   function resolveActor(params) {
     var a = state.contentActor(params.actorId);
@@ -91,12 +143,18 @@ XRSLP.screens = XRSLP.screens || {};
        waiting while the navigation badge beside it said one item was. */
     var waitingVersions = state.versionsForReviewer(actor.id,
       { status: state.VERSION_STATUS.ACADEMIC_REVIEW });
+    /* Implementation 07 — the same reasoning for the returned figure: a
+       later version sent back at the academic gate is with its Vendor
+       exactly as a returned submission is, and counting only submissions
+       here read as nothing returned while the queue below listed one. */
+    var returnedVersions = state.versionsForReviewer(actor.id,
+      { status: state.VERSION_STATUS.CHANGES_ACADEMIC });
 
     var tiles = '<div class="statgrid">' +
       cui.statTile(o.waiting + waitingVersions.length, 'Waiting for review', 'awaiting your decision') +
-      cui.statTile(o.changesRequested, 'Changes requested', 'returned to the Vendor') +
+      cui.statTile(o.changesRequested + returnedVersions.length, 'Changes requested', 'returned to the Vendor') +
       cui.statTile(o.approvedAwaitingPublication, 'Academically approved', 'awaiting publication') +
-      cui.statTile(o.published, 'Published', 'from your assigned courses') +
+      cui.statTile(o.published, 'Published', 'from your assigned scope') +
       '</div>';
 
     var versionRows = waitingVersions.map(function (v) {
@@ -125,33 +183,56 @@ XRSLP.screens = XRSLP.screens || {};
       : ui.emptyState({
           icon: 'check', heading: 'h3',
           title: 'Nothing is waiting for academic review',
-          body: 'No submission in your assigned courses is currently awaiting an academic decision.'
+          body: 'No submission in your assigned scope is currently awaiting an academic decision.'
         });
 
-    var recentHTML = o.recent.length
-      ? '<div class="timeline">' + o.recent.map(function (d) {
-          var rec = state.contentRecord(d.recordId);
+    /* Both kinds of academic decision, newest first: first submissions and
+       later versions. A later version is Released or Held by the Super
+       Admin, never published by anyone here, so the row says which object
+       the decision was taken on and claims nothing further. */
+    var decisions = o.decisions.concat(versionDecisionsBy(actor.id))
+      .sort(function (a, b) { return new Date(b.at) - new Date(a.at); });
+    var shown = decisions.slice(0, 5);
+    /* The list was cut to five silently, which read as "these are all the
+       decisions I have taken". Say what is being withheld. */
+    var recentFoot = '';
+    if (shown.some(function (d) { return !!d.versionId; })) {
+      recentFoot += 'A later-version decision is recorded on the version itself. Approving one hands it to ' +
+        'the Super Admin for the Release / Hold decision; it releases nothing here. ';
+    }
+    if (decisions.length > shown.length) {
+      recentFoot += 'Showing the ' + shown.length + ' most recent of ' + decisions.length +
+        ' decisions you have recorded.';
+    }
+
+    var recentHTML = shown.length
+      ? '<div class="timeline">' + shown.map(function (d) {
           return '<div class="tl-item"><span class="tl-dot ' +
             (d.decision === 'approved' ? 'good' : 'warn') + '">' +
             ui.ic(d.decision === 'approved' ? 'check' : 'alert') + '</span>' +
             '<div class="tl-body"><div class="tl-action">' +
             esc(d.decision === 'approved' ? 'Approved' : 'Changes requested') + ' — ' +
-            (rec ? '<a href="' + href.rRecord(actor.id, rec.id) + '">' + esc(rec.name) + '</a>' : esc(d.recordId)) +
-            '</div><div class="tl-who">' + esc(util.fmtDateTime(d.at)) +
-            ' · revision ' + esc(String(d.revision)) + '</div>' +
+            decisionTargetHTML(actor, d) +
+            '</div><div class="tl-who">' + esc(util.fmtDateTime(d.at)) + ' · ' +
+            (d.versionId
+              ? 'later version ' + esc(d.versionLabel || '—')
+              : 'revision ' + esc(String(d.revision))) + '</div>' +
             (d.comment ? '<p class="tl-note">' + esc(d.comment) + '</p>' : '') +
             '</div></div>';
-        }).join('') + '</div>'
+        }).join('') + '</div>' +
+        (recentFoot ? '<p class="cardfoot">' + recentFoot + '</p>' : '')
       : '<p class="muted">You have not recorded an academic decision yet.</p>';
 
+    /* Implementation 07 — this card listed `actorCourseIds()`, which
+       widens an Experiment-scope assignment to its parent Course: a
+       reviewer granted one Experiment was shown the whole Course as
+       theirs, while the Super Admin's governance screen described the very
+       same row as "Experiment — <name>". `actorScopeText()` reports the
+       rows as they were granted. */
     var scopeHTML = o.courses.length
-      ? '<ul class="reslist plain">' + o.courses.map(function (cid) {
-          var c = data.course(cid);
-          var g = c ? data.grouping(c.groupingId) : null;
-          return '<li>' + ui.ic('book') + '<span>' + esc(g ? g.name + ' › ' : '') +
-            '<strong>' + esc(c ? c.name : cid) + '</strong></span></li>';
-        }).join('') + '</ul>'
-      : '<p class="muted">No Course has been assigned to you.</p>';
+      ? '<ul class="reslist plain"><li>' + ui.ic('book') + '<span><strong>' +
+        esc(state.actorScopeText(actor.id)) + '</strong></span></li></ul>'
+      : '<p class="muted">No Course or Experiment has been assigned to you.</p>';
 
     var html =
       ui.phead('Overview', esc(actor.name) + ' · Academic Reviewer') +
@@ -159,7 +240,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' + ui.card('Awaiting your academic decision', attnHTML) + '</div>' +
       '<div class="stack">' +
-      ui.card('Courses assigned to you', scopeHTML, 'Assigned course scope') +
+      ui.card('Your assigned scope', scopeHTML, 'Granted by the Super Admin') +
       ui.card('Your recent decisions', recentHTML) +
       ui.card('What academic approval does',
         '<p>Approval records the academic decision and the Learning Outcomes, and moves the submission to the ' +
@@ -216,14 +297,25 @@ XRSLP.screens = XRSLP.screens || {};
     var vcard = versionCard(actor);
 
     if (!all.length) {
+      /* Implementation 07 — an empty queue has two different causes, and
+         promising future arrivals is false for one of them: with no Course
+         and no Experiment assigned, nothing can ever reach this queue.
+         Same distinction the versions screen already draws. */
+      var hasScope = state.actorCourseIds(actor.id).length > 0;
       return shell(actor, 'queue', 'Review queue',
         ui.phead('Review queue', esc(actor.name)) +
         '<div class="stack">' +
-        '<div class="tablecard">' + ui.emptyState({
+        '<div class="tablecard">' + ui.emptyState(hasScope ? {
           icon: 'doc',
           title: 'Nothing is in your review queue',
-          body: 'No submission has reached academic review in the courses assigned to you. Submissions appear ' +
+          body: 'No submission has reached academic review in the scope assigned to you. Submissions appear ' +
             'here once a Vendor submits them.'
+        } : {
+          icon: 'doc',
+          title: 'No review scope is assigned to you',
+          body: 'No Course or Experiment is currently assigned to you, so no submission can reach this queue. ' +
+            'The Super Admin assigns review scope. Any decision you have already recorded is kept exactly ' +
+            'as it is.'
         }) + '</div>' + vcard + '</div>');
     }
 
@@ -241,7 +333,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<span class="lcount" id="r-count"></span>' +
       '</div>' +
       '<div class="tscroll"><table class="dt" id="r-table">' +
-      '<caption class="sr-only">Submissions in the courses assigned to you</caption>' +
+      '<caption class="sr-only">Submissions in the scope assigned to you</caption>' +
       '<thead><tr>' +
       '<th scope="col">Experiment</th><th scope="col">Vendor</th><th scope="col">Course</th>' +
       '<th scope="col">Technologies</th><th scope="col">Submitted</th><th scope="col">Version</th>' +
@@ -282,7 +374,7 @@ XRSLP.screens = XRSLP.screens || {};
           emptyEl.innerHTML = ui.emptyState({
             icon: 'search',
             title: 'No submission matches',
-            body: 'No submission in your assigned courses matches the current search and filters.'
+            body: 'No submission in your assigned scope matches the current search and filters.'
           });
         } else {
           tableEl.removeAttribute('hidden');
@@ -398,7 +490,13 @@ XRSLP.screens = XRSLP.screens || {};
           ? esc(vendor.name) + '<div class="muted">' + esc(vendor.organisation) + '</div>'
           : '<span class="muted">—</span>') +
         cui.kvLine('Submitted', rec.submittedAt ? esc(util.fmtDateTime(rec.submittedAt)) : '—') +
-        cui.kvLine('Version', esc(rec.versionLabel || '—')) +
+        /* NOT "Version": `rec.versionLabel` is the version the PUBLIC
+           sees, and a Super Admin Release overwrites it. Under a card
+           headed Submission it read as the label the Vendor submitted,
+           which after a release it is not. The same correction is on
+           the Content Manager's item detail. */
+        cui.kvLine(rec.status === state.CONTENT_STATUS.PUBLISHED ? 'Current public version' : 'Version label',
+          esc(rec.versionLabel || '—')) +
         cui.kvLine('Revision', esc(String(rec.revision))) +
         '</div>') +
       ui.card('Academic decision history', priorHTML) +
@@ -549,9 +647,16 @@ XRSLP.screens = XRSLP.screens || {};
         b.addEventListener('click', function () {
           var iu = parseInt(b.getAttribute('data-i'), 10);
           state.moveOutcome(actor.id, fresh.id, iu, -1);
+          /* The moved row is now at iu - 1. At the top of the list its own
+             Move up button is rendered `disabled`, and focusing a disabled
+             button is a no-op — focus would fall to <body>, which is the
+             exact case this refocus exists to prevent. So the target has
+             to be checked for being focusable, not merely for existing;
+             the row's Move down button is always enabled here, because a
+             move needs two outcomes. */
           repaint('Learning outcome moved up.', function () {
-            var ups = document.querySelectorAll('.lo-up');
-            return ups[iu - 1] || document.querySelectorAll('.lo-down')[iu - 1];
+            var up = document.querySelectorAll('.lo-up')[iu - 1];
+            return (up && !up.disabled) ? up : document.querySelectorAll('.lo-down')[iu - 1];
           });
         });
       });
@@ -559,9 +664,12 @@ XRSLP.screens = XRSLP.screens || {};
         b.addEventListener('click', function () {
           var id2 = parseInt(b.getAttribute('data-i'), 10);
           state.moveOutcome(actor.id, fresh.id, id2, 1);
+          /* Mirror of the up case: at the bottom of the list the moved
+             row's own Move down button is disabled and cannot take focus,
+             so fall through to its Move up button. */
           repaint('Learning outcome moved down.', function () {
-            var downs = document.querySelectorAll('.lo-down');
-            return downs[id2 + 1] || document.querySelectorAll('.lo-up')[id2 + 1];
+            var down = document.querySelectorAll('.lo-down')[id2 + 1];
+            return (down && !down.disabled) ? down : document.querySelectorAll('.lo-up')[id2 + 1];
           });
         });
       });

@@ -171,6 +171,53 @@ XRSLP.facultyUI = (function () {
       'Manager, the Super Admin and your Tenant Admin.</p>');
   }
 
+  /* STK31-29 / U-FAC-01 — "Experiments available to their Tenant".
+     STRICTLY INFORMATIONAL, and the card says so in its own words: it
+     is what the INSTITUTION holds, not what this Faculty member
+     manages. No control here changes a mapping, an assessment or a
+     student — only the Tenant Admin can map content — so making the
+     institution's holdings legible widens no authority at all. It
+     simply stops a Faculty member having to guess whether their
+     institution licensed the variant they were asked about. */
+  function tenantHoldingsCard(f, tenant) {
+    var holdings = state.facultyTenantHoldings(f.id);
+    var unmapped = holdings.filter(function (h) { return !h.mapped; });
+    if (!holdings.length) {
+      return ui.card('Experiments available to ' + esc(tenant.name),
+        ui.emptyState({
+          icon: 'layers', heading: 'h3',
+          title: 'Your institution holds no usable content right now',
+          body: 'Content reaches an institution only through an approved institutional access request, and an ' +
+            'expired or empty record carries none. This is what the institution holds — not what is mapped to you.'
+        }), null, 'h2');
+    }
+    return ui.card('Experiments available to ' + esc(tenant.name),
+      '<p class="muted" style="margin:0 0 10px">Everything your institution currently holds. ' +
+      '<strong>This is not your mapping.</strong> You can configure an assessment, see students and evaluate ' +
+      'answers only for the rows marked <em>Mapped to you</em> — your Tenant Admin decides the rest.</p>' +
+      '<div class="tscroll"><table class="dt">' +
+      '<caption class="sr-only">Experiments available to ' + esc(tenant.name) +
+      ', and whether each one is mapped to you</caption>' +
+      '<thead><tr><th scope="col">Course</th><th scope="col">Experiment</th>' +
+      '<th scope="col">Technologies held</th><th scope="col">Your access</th></tr></thead><tbody>' +
+      holdings.map(function (h) {
+        var ctx = data.contextOf(h.experimentId);
+        return '<tr>' +
+          '<td data-label="Course">' + esc(ctx ? ctx.course.name : h.courseId) + '</td>' +
+          '<td data-label="Experiment"><span class="tmain">' +
+          esc(ctx ? ctx.experiment.name : h.experimentId) + '</span></td>' +
+          '<td data-label="Technologies held">' + ui.techBadges(h.technologies) + '</td>' +
+          '<td data-label="Your access">' + (h.mapped
+            ? ui.badge('b-success', 'check', 'Mapped to you')
+            : ui.badge('b-neutral', 'minus', 'Not mapped to you')) + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<p class="cardfoot">' + holdings.length + ' ' + util.plural(holdings.length, 'experiment') +
+      ' held by the institution, ' + (holdings.length - unmapped.length) + ' mapped to you. ' +
+      'Ask your Tenant Admin to map anything you need to deliver; nothing on this card can be changed here.</p>',
+      null, 'h2');
+  }
+
   function assessmentBadge(def) {
     if (!def) { return ui.badge('b-neutral', 'minus', 'No assessment'); }
     if (!def.questions.length) { return ui.badge('b-warning', 'alert', 'No questions'); }
@@ -221,6 +268,7 @@ XRSLP.facultyUI = (function () {
     href: href, requireFaculty: requireFaculty, requireMapped: requireMapped,
     courseLine: courseLine, expLink: expLink, statGrid: statGrid,
     completionNote: completionNote, authorityNote: authorityNote,
+    tenantHoldingsCard: tenantHoldingsCard,
     assessmentBadge: assessmentBadge, typeLabel: typeLabel, typeBadge: typeBadge,
     mappedTechnologies: mappedTechnologies, techMetrics: techMetrics
   };
@@ -490,6 +538,7 @@ XRSLP.facultyUI = (function () {
                   body: 'Your institution decides which courses and experiments each faculty member delivers. ' +
                     'Until something is mapped to you, there is nothing here — this is not an error.' }
           ) + '</div>' +
+          XRSLP.facultyUI.tenantHoldingsCard(f, tenant) +
           (scope.blocked.length ? '' :
             ui.protoNote('<p>In this prototype you can create the mapping yourself from the Tenant Admin ' +
               'workspace.</p>',
@@ -551,6 +600,7 @@ XRSLP.facultyUI = (function () {
             'institution’s access does.</p>',
             null, 'h2')
         : '') +
+      F.tenantHoldingsCard(f, tenant) +
       F.authorityNote() +
       '</div>';
 

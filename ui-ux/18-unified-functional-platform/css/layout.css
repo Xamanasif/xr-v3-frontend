@@ -92,8 +92,15 @@ a.brandlink{text-decoration:none; color:inherit; border-radius:var(--r-sm)}
 
 .phead{display:flex; align-items:flex-start; gap:14px; margin-bottom:22px; flex-wrap:wrap}
 .phead .ptitles{min-width:0}
-.phead h1{font-size:24px; line-height:32px; font-weight:650; letter-spacing:-.012em; display:flex; align-items:center; gap:12px; flex-wrap:wrap}
-.phead .pmeta{font-size:13.5px; color:var(--text-2); margin-top:5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+/* The page title and its meta line carry text the user typed: a support
+   report's subject is often a package URL, and an applicant's institution
+   and contact names have no length cap. `min-width:0` above lets the
+   CONTAINER shrink but does nothing about one unbreakable token inside,
+   which pushed the DOCUMENT wider than a 375px viewport. Same guard, and
+   the same reason, as `.kv .v` and `.gapnote .gtag` in components.css —
+   it belongs to the shared page head, so every screen gets it. */
+.phead h1{font-size:24px; line-height:32px; font-weight:650; letter-spacing:-.012em; display:flex; align-items:center; gap:12px; flex-wrap:wrap; overflow-wrap:anywhere}
+.phead .pmeta{font-size:13.5px; color:var(--text-2); margin-top:5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; overflow-wrap:anywhere}
 .phead .pactions{margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
 .plede{font-size:14.5px; color:var(--text-2); line-height:1.65; max-width:72ch; margin:-12px 0 22px}
 

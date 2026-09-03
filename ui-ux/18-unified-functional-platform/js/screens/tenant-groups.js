@@ -152,9 +152,13 @@ XRSLP.screens = XRSLP.screens || {};
     if (!g || g.tenantId !== tenant.id) {
       return {
         title: 'Group not found', tenant: tenant, navKey: 'groups',
+        /* The page needs its own h1, like every other not-found screen
+           in the build — an empty state's heading is an h2 inside the
+           card, not the page title. */
         html: ui.crumbs([{ label: 'Groups', href: T.href.groups(tenant.id) }, { label: 'Not found' }]) +
+          ui.phead('Group not found') +
           '<div class="tablecard">' + ui.emptyState({
-            icon: 'alertCirc', title: 'Group not found',
+            icon: 'alertCirc', heading: 'h2', title: 'Group not found',
             body: 'No group with this identifier exists in ' + tenant.name + '.',
             actionsHTML: '<a class="btn pri" href="' + T.href.groups(tenant.id) + '">Back to Groups</a>'
           }) + '</div>'
@@ -275,10 +279,26 @@ XRSLP.screens = XRSLP.screens || {};
             var picked = Array.prototype.slice.call(document.querySelectorAll('input[name="gm"]:checked'))
               .map(function (el) { return el.value; });
             if (!picked.length) { ui.toast('Select at least one student to add.', 'info'); return; }
-            var n = 0;
-            picked.forEach(function (id) { if (state.addToGroup(g.id, id)) { n += 1; } });
+            /* A member joining an already-assigned group inherits that group's
+               assignments. Where the access record is already at its approved
+               quantity the newcomer is HELD, not entitled — deliberately, so
+               that nobody who already holds a licence is displaced. It is the
+               one membership edit with a consequence, so the consequence is
+               named here instead of being discovered later on the person page. */
+            var n = 0, held = 0;
+            picked.forEach(function (id) {
+              if (!state.addToGroup(g.id, id)) { return; }
+              n += 1;
+              var blocked = state.entitlementsForStudent(id).filter(function (e) {
+                return e.blockedBy === 'allocation-held';
+              });
+              if (blocked.length) { held += 1; }
+            });
             memberQ = '';
-            ui.toast(n + ' ' + util.plural(n, 'student') + ' added to ' + g.name + '.');
+            ui.toast(n + ' ' + util.plural(n, 'student') + ' added to ' + g.name + (held
+              ? ' — ' + held + ' held: the allocation is full, so they hold the assignment but no ' +
+                'effective entitlement. Nobody already entitled is displaced.'
+              : '.'));
             XRSLP.render(false);
           });
         }

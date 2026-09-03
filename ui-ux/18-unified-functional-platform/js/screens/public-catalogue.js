@@ -33,10 +33,18 @@ XRSLP.screens = XRSLP.screens || {};
         '</article>';
     }).join('');
 
+    /* Read from the technology table rather than hand-written, so this
+       public line cannot drift from the formats the platform actually
+       carries. It previously read "AR · VR · Web" and silently dropped
+       MR, which STK31-45 retains and the Vendor form offers. */
+    var techLabels = data.TECH_ORDER.map(function (t) {
+      return data.TECHNOLOGIES[t].label;
+    }).join(' · ');
+
     var html =
       '<div class="hero">' +
       '<span class="htag">Institutional XR learning</span>' +
-      '<h1>Laboratory experiments, delivered as AR, VR and Web simulations</h1>' +
+      '<h1>Laboratory experiments, delivered as Web, VR, MR and AR simulations</h1>' +
       '<p class="hlede">The XR Simulation Learning Platform hosts simulated laboratory experiments for ' +
       'academic programmes. Institutions browse the published catalogue before any sign-in, choose the ' +
       'experiments and technology formats they need, and request institutional access for their learners.</p>' +
@@ -45,7 +53,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<button class="btn sec lg" type="button" id="how-access">How institutional access works</button>' +
       '</div>' +
       '<div class="herofacts">' +
-      '<span class="hf">' + ui.ic('monitor') + 'AR · VR · Web experiment formats</span>' +
+      '<span class="hf">' + ui.ic('monitor') + esc(techLabels) + ' experiment formats</span>' +
       '<span class="hf">' + ui.ic('search') + 'Browse before login</span>' +
       '<span class="hf">' + ui.ic('building') + 'Institutional access model</span>' +
       '</div>' +
@@ -57,7 +65,7 @@ XRSLP.screens = XRSLP.screens || {};
       'through an approved request — adding items to a selection never grants access by itself.</p>' +
       '<div class="jgrid">' +
       '<div class="jstep"><span class="jn">1</span><h3>Browse the catalogue</h3><p>Explore programmes, courses and experiments, with the technology formats each experiment supports.</p></div>' +
-      '<div class="jstep"><span class="jn">2</span><h3>Select experiments &amp; technologies</h3><p>Choose the experiments your institution needs and the AR, VR or Web formats for each.</p></div>' +
+      '<div class="jstep"><span class="jn">2</span><h3>Select experiments &amp; technologies</h3><p>Choose the experiments your institution needs and the technology formats for each.</p></div>' +
       '<div class="jstep"><span class="jn">3</span><h3>Submit an institutional request</h3><p>Provide your organisation and contact details, the number of users, and the access term.</p></div>' +
       '<div class="jstep"><span class="jn">4</span><h3>Approval &amp; activation</h3><p>The platform team reviews the request. After approval — and payment where applicable — access is activated for your institution.</p></div>' +
       '</div>' +
@@ -268,7 +276,7 @@ XRSLP.screens = XRSLP.screens || {};
       var techUnion = {};
       exps.forEach(function (e) { e.technologies.forEach(function (t) { techUnion[t] = true; }); });
       return '<article class="groupcard">' +
-        '<div class="gc-kind">Course sub-bundle</div>' +
+        '<div class="gc-kind">Course</div>' +
         '<h3><a href="' + courseHref(c.id) + '">' + esc(c.name) + '</a></h3>' +
         '<p>' + esc(c.summary) + '</p>' +
         '<div class="gc-foot"><span>' + exps.length + ' ' + XRSLP.util.plural(exps.length, 'experiment') + '</span>' +
@@ -448,7 +456,7 @@ XRSLP.screens = XRSLP.screens || {};
       ui.emptyState({
         icon: 'alertCirc',
         title: 'This page does not exist',
-        body: 'The address may be incomplete, or it may point at a part of the platform that is not part of this prototype slice.',
+        body: 'The address may be incomplete, or it may point at a part of the platform that is not part of this prototype.',
         actionsHTML: '<a class="btn pri" href="#/">Go to the landing page</a>' +
           '<a class="btn sec" href="#/catalogue">Browse the catalogue</a>'
       }) + '</div>';

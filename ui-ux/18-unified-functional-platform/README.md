@@ -1,4 +1,4 @@
-# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06
+# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06 + 07
 
 **The content that reaches a learner, from the people who produce it to the learner who runs
 it** — content production, B2B access, tenant operations, student entitlement, the student
@@ -92,6 +92,33 @@ approving a device transfer and resolving a support report all leave `access[]`,
 count and every student assignment exactly as they were. That is asserted, not assumed — see
 *Governance changes nothing downstream* below.
 
+**Implementation 07 is not a seventh slice. It is the closure pass over the six.** The whole B2B
+product was audited against the authoritative sources, every candidate finding was put to an
+independent adversarial verifier, and the genuine gaps were closed. **No new capability was
+invented, no unresolved policy was decided, and the schema did not change.** What it added is the
+functionality the sources already required and the build did not yet have:
+
+```
+IMPLEMENTATION 07 — B2B GAP CLOSURE
+→ THE SUPER ADMIN DECISION SURFACE — approve · REQUEST MORE INFORMATION ·
+   a REQUIRED REASON on either, visible to the applicant, on the history trail
+→ THE GRANTING END — the Super Admin decides what the tenant actually receives,
+   and may grant LESS than was asked for (never more)
+→ THE PAYMENT STEP — all three FRD 9.1.x outcomes; only SUCCESS writes
+→ TENANT ISOLATION enforced on assignment targets and mapping subjects,
+   at the STATE layer, where a hand-typed call has to meet it too
+→ A WRITTEN ANSWER CAN NO LONGER LOSE ITS EVALUATOR SILENTLY
+→ FACULTY CAN SEE WHAT THEIR INSTITUTION HOLDS — read-only, granting nothing
+→ THE SUPER ADMIN STUDENT-DEACTIVATION OVERRIDE, and the two confirmed
+   institution-report lines that were missing
+→ AND ONE ASSERTION THE BUILD HAD BEEN MISSING:
+   AI ASSISTANCE CAN NEVER FINALISE A DESCRIPTIVE REVIEW
+```
+
+The full audit — what was searched, what was found, what was fixed, what was deliberately left
+alone, and the eight questions to take to the stakeholder — is in
+**[`B2B_FUNCTIONAL_CLOSURE_AUDIT.md`](B2B_FUNCTIONAL_CLOSURE_AUDIT.md)**.
+
 ### The invariant the slices exist to prove
 
 ```
@@ -113,10 +140,18 @@ byte-identical to what they were a moment before.
 | A **new** Experiment reaches the catalogue for the first time | the Experiment | **Content Manager** | **Publish** |
 | A **newer version** replaces an already-published Experiment | the Version | **Super Admin** | **Release** / **Hold** |
 
-**This slice builds the first row only.** The words *Release* and *Hold* do not appear as an
-action anywhere in it, no later-version workflow exists, and no dead control hints at one. Where
-a Vendor or a Content Manager looks at a published Experiment, the screen says plainly that a
-later version is a different decision owned by another role and is not built here.
+**Both rows are built, and they never touch each other.** *Publish* exists only on the Content
+Manager's plane and acts on the content record; *Release* and *Hold* exist only on the Super
+Admin's and act on a version candidate. Neither word appears as an action on the other plane, and
+neither role has a control for the other's decision. Where a Vendor or a Content Manager looks at a
+later version, the screen says plainly that the decision is the Super Admin's and shows it
+read-only.
+
+> **The later-version path itself is an implementation judgement**, recorded as one at the head of
+> `js/screens/content-version.js`: the sources confirm the Super Admin owns Release/Hold, but do not
+> say whether the Content Manager is also a gate on a later version, or whether academic re-review
+> is required for one at all. It has not been promoted to policy — see
+> `B2B_FUNCTIONAL_CLOSURE_AUDIT.md` question **Q1**.
 
 Implementation 04 adds a second altitude that must not collapse into the first:
 
@@ -146,7 +181,7 @@ the Student workspace can open.
 | **Source of truth** | `ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md` (STK31-01…48) · `ui-ux/17-stakeholder-correction-blueprint/` |
 | **Reuse sources** | Batches 01–05 (`ui-ux/13-full-platform-design/`) as read-only reference implementations — design tokens, shell, component grammar ported once; nothing is runtime-imported from historical folders |
 | **Technology** | Dependency-free HTML + CSS + vanilla JS (ES5-style), single-page hash routing. No framework, no build step, no backend, no real payment or authentication |
-| **State** | `localStorage`, isolated namespace **`xrslp-unified-v1`** (no historical batch key is reused), **`schemaVersion: 4`**; Implementation-01, -02 and -03 state upgrade in place |
+| **State** | `localStorage`, isolated namespace **`xrslp-unified-v1`** (no historical batch key is reused), **`schemaVersion: 8`**; every earlier state upgrades in place, and Implementation 07 required no schema change |
 | **Theme** | Light only (logo constraint QX-07, carried forward) — with the Stage-0 a11y token fixes applied once (`--text-3:#5F6B7A`, `--control-border:#7E8A99`, `[hidden]` restored) |
 
 ## Run locally
@@ -181,8 +216,8 @@ then open <http://localhost:8123/>. Opening `index.html` directly via `file://` 
 
 **Vendor workspace** (Implementation 05 — the content producer / submitter, `STK31-03`)
 
-Three destinations, all implemented. There is no Invoices, Contracts, Payments, Messages,
-Analytics or Support entry: none is built.
+Four destinations, all implemented. There is no Invoices, Contracts, Payments, Messages or
+Analytics entry: none is built. **Help** is implemented, as it is in every workspace.
 
 | Route | Screen |
 |---|---|
@@ -267,15 +302,17 @@ Six navigation destinations, all implemented. There is no nav link that leads no
 
 **Student workspace** (Student / Learner — ONE formal role, STK31-01)
 
-Three navigation destinations, all implemented. There is no `Assessments`, `Certificates`,
-`Messages`, `Profile` or `Support` entry, because none of them is built in this slice.
+Five navigation destinations, all implemented. There is no `Assessments`, `Certificates`,
+`Messages` or `Profile` entry, because none of them is built. **My device** appears only for a
+Student who holds an experiment delivered as a package on a device, or who has a device request
+open; **Help** is always present.
 
 | Route | Screen |
 |---|---|
 | `#/learn` | Resolves the prototype's selected Student, or offers the **prototype-only** chooser over the real student records that exist |
 | `#/learn/:s/home` | Name · institution · Programme · Course · counts that derive from real state · **Continue where you left off** when there is real work in progress |
 | `#/learn/:s/my-learning` | **Available to you** (effective entitlement only) · **Not available at the moment** (assigned but blocked, with the reason) · **Earlier work** (assignment removed, record kept) |
-| `#/learn/:s/progress` | Per experiment: resource count, one row **per assigned technology** (simulation · assessment · time spent · that technology's state), the roll-up, and the completion rule stated in plain words |
+| `#/learn/:s/progress` | Per experiment: resource count, one row **per assigned technology** (technology · simulation · time spent — the three columns that are true *of a technology*), the Experiment roll-up on its own line, and the completion rule stated in plain words. The assessment is Experiment-level, so it is deliberately **not** a per-technology column |
 | `#/learn/:s/experiment/:e` | Student-facing Experiment: description, Learning Outcomes, the four-step sequence, Learning Resources, one simulation card per **entitled** technology, assessment entry, progress rail |
 | `#/learn/:s/experiment/:e/simulation/:tech` | Device/runtime requirement, delivery model, the mechanism-neutral state ladder, clearly-labelled prototype actions, derived time spent |
 | `#/learn/:s/experiment/:e/assessment` | Assessment introduction — the generated disclosure, including the answer-visibility policy. **No technology segment:** one assessment per Experiment |
@@ -286,8 +323,9 @@ Three navigation destinations, all implemented. There is no `Assessments`, `Cert
 
 **Faculty workspace** (Faculty — a formal role inside a Tenant, STK31-01 / STK31-04)
 
-Six navigation destinations, all implemented. There is no `Messages`, `Attendance`,
-`Certificates`, `Calendar`, `Profile` or `Support` entry, because none of them is built.
+Seven navigation destinations, all implemented. There is no `Messages`, `Attendance`,
+`Certificates`, `Calendar` or `Profile` entry, because none of them is built. **Help** is
+implemented, as it is in every workspace.
 
 | Route | Screen |
 |---|---|
@@ -318,20 +356,35 @@ gets the same treatment.
 ```
 DRAFT (selection + form, persisted)
   → SUBMITTED
+      → request more information → INFO_REQUESTED → resubmit → SUBMITTED
       → approve, internal / BITS Community ────────────────→ ACTIVE
       → approve, external / Subscription → APPROVED_PAYMENT_REQUIRED
                                               → simulate payment → ACTIVE
-ACTIVE ⇒ tenant record (created for a new external institution,
-         reused for the seeded internal one) + TenantContentAccess record
+
+APPROVE  ⇒ the INSTITUTION is provisioned          (both routes)
+ACTIVE   ⇒ the TenantContentAccess record is written (what payment gates)
 ```
 
+**Approval creates the institution; activation creates its access.** They are two transitions and
+two functions — `provisionTenantFor()` and `activateRequest()` — because `STK31-21` makes creating
+the tenant and assigning its Tenant Admin Super Admin acts distinct from, and listed before,
+deciding what content it receives, and `17/06 §3.3` puts only the allocated content, technologies,
+quantity and term inside step ⑨ *Tenant access activation*. The confirmed constraint is that
+**access** is never granted before approval — not that the institution cannot exist.
+
+So an approved external institution **exists and holds nothing** until payment: it appears in
+Institutions marked *Awaiting payment*, its Tenant Admin can be assigned, and it has no access
+record, no assignable content, no licence allocation, no Faculty reach and no student entitlement.
+The internal route provisions and activates in the same moment, exactly as it always has.
+
 `PUBLISHED ≠ ENTITLED`: catalogue content, the selection, the request, and tenant access are
-four separate records — and tenant access is still not student entitlement.
+four separate records — and **tenant existence is not tenant content access**, which in turn is
+still not student entitlement.
 
 ## State model
 
 `localStorage` key **`xrslp-unified-v1`** (unchanged since Implementation 01), with
-**`schemaVersion: 7`** inside the stored object carrying the evolution. No second namespace
+**`schemaVersion: 8`** inside the stored object carrying the evolution. No second namespace
 exists.
 
 | Collection | Record | Written by |
@@ -1472,7 +1525,7 @@ history is kept.
 
 The dark **“PROTOTYPE CONTROLS — NOT PRODUCT UI”** strip at the top is not product UX:
 
-- **View switch**, in two labelled groups so eight roles wrap instead of overflowing:
+- **View switch**, in two labelled groups so the seven roles' eight entry points wrap instead of overflowing:
   - *Access* — Public · Super Admin · Tenant Admin · Faculty · Student
   - *Content* — **Vendor** · **Academic Reviewer** · **Content Manager**
 
@@ -1563,15 +1616,19 @@ payment-required state and a clearly-labelled payment simulation.
 
 ## Verifying it
 
-Two independent passes, both re-run for Implementation 06.
+Two independent passes, both re-run for Implementation 07.
 
 **The state layer, headless.** `qa/checks.js` runs the rules outside a browser — where an
 entitlement, a licence or a published version can actually go wrong — and asserts them rather
-than eyeballing them: **305 assertions, 0 failures.** It covers the eleven Implementation-06
-scenarios plus the Implementation 01–05 regressions, the schema-7 migration, the route and role
-guards, the three altitudes, and one assertion for every defect the adversarial review found, so
-none of them can come back. Run it from this folder with the JavaScriptCore that ships with
-macOS:
+than eyeballing them: **685 assertions, 0 failures.** It covers every scenario from
+Implementations 01–06, the schema migration, the route and role guards, the three altitudes, one
+assertion for every defect an adversarial review has ever found, and the nine Implementation-07
+scenarios (**O**–**W**) — the Faculty descriptive-review boundary, the Super Admin decision
+surface and allocation, the three payment outcomes, tenant isolation, creation scope, canonical
+destination authority, evaluator-less reviews, version integrity with the platform override, and
+the institution report, and the defects the Implementation-07 adversarial review found in
+Implementation 07's own work (**X**), and the external tenant-creation boundary (**Y**). Run it
+from this folder with the JavaScriptCore that ships with macOS:
 
 ```
 /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc \
@@ -1580,11 +1637,20 @@ macOS:
 
 `index.html` references neither file and no product code knows they exist.
 
-**The screens, in a browser.** Every workflow driven through the real controls, plus a
-programmatic sweep of all 59 routes at 375 / 768 / 1280 for horizontal overflow, a heading /
-label / accessible-name / table-caption / status-badge audit, and a *dead control* sweep that
-deactivates a tenant and asserts that no mutating control survives on any of its 31 screens
-while every piece of history stays readable.
+**The assertions are load-bearing, and that is proved rather than assumed.** Two mutation tests are
+run against a scratch copy at each closeout: making AI assistance auto-finalise a descriptive review
+fails **10** assertions, removing the cross-tenant assignment guard fails **5**, and removing the
+payment step's tenant gate together with the redundant-status no-op fails **6**. No mutant reaches
+the suite green.
+
+**The screens, in a browser.** Every workflow driven through the real controls, plus a programmatic
+sweep of the route table at 375 / 768 / 1280 for horizontal overflow, a heading / label /
+accessible-name / table-caption / status-badge audit, and a *dead control* sweep that deactivates a
+tenant and asserts that no mutating control survives on any of its screens while every piece of
+history stays readable. At Implementation 07: **41 routes × 3 widths — including every
+not-found and deep-link-guard path — zero horizontal overflow, zero blank pages, exactly one `h1`
+per route, zero unlabelled form controls, zero runtime errors and zero console messages of any
+level.**
 
 ## Known limitations
 
@@ -1605,16 +1671,29 @@ while every piece of history stays readable.
   re-confirmation once a server exists, so it is not rebuilt here.
 - **Time spent is the interval between opening and completing in this browser.** In the product
   the experiment itself reports it, carrying a technology identifier (`STK31-35`).
-- Tenant SSO / ERP configuration, Records-needing-attention as a screen, tenant reporting
-- ERP as a person-provisioning route (the `source` provenance field is left open for it)
-- Super Admin tenant governance beyond request approval (creation outside a request,
-  Tenant Admin assignment, deactivation, institution report, Super Admin student override —
-  the data model supports it, the surface is later), version Release/Hold, support
-- Rejection / request-more-information decision outcomes (not source-supported for this slice)
+- **Institution-wide reporting is not built on the tenant plane.** A Faculty member sees progress
+  and results for their own mapped content, and the platform sees usage indicators on the
+  institution report — but there is no institution-level completion or outcomes surface, and the
+  Tenant Admin overview declares the absence rather than leaving it to be discovered. Who should
+  see what, and in what form, is not settled by any source.
+- **Tenant SSO / ERP configuration is not built**, and ERP is not a person-provisioning route.
+  The `source` provenance field on a person is left open for one. Authentication of any kind is
+  out of scope for this prototype.
+- **A request cannot be refused outright.** The two outcomes the sources confirm — approve, and
+  request more information — are both built (Implementation 07). A rejection state is not, because
+  no source defines one.
+- **Question spreadsheet import (FRD 5.1.1) is not built**, because no source defines the column
+  schema or how a multiple-choice question's options and answer key are expressed in one. The
+  Question Bank names the gap in its own words and no control claims otherwise.
 - Prices, payment provider, renewal mechanics, notification channels (the required 15-day
   expiry reminder's **channel** is `ND-16`; the derived `Active / Expiring soon / Expired`
   display state is implemented as recommended supporting UX)
 - B2C purchasing journey (deferred, preserved in Batch 04)
+
+> Five items that stood in this list until Implementation 07 have since been **built**, and the
+> list above no longer claims otherwise: Tenant Admin assignment, tenant deactivation, the
+> institution report, the Super Admin student-deactivation override, and later-version
+> Release / Hold. So are the request-more-information outcome and the required decision reason.
 
 ## Safari review corrections
 

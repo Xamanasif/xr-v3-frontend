@@ -137,7 +137,12 @@ fieldset.fgroup legend{font-size:13.5px; font-weight:600; color:var(--text); mar
 .tl-dot.good{background:var(--success-50); border-color:var(--success-200); color:var(--success-700)}
 .tl-dot.warn{background:var(--warning-50); border-color:var(--warning-200); color:var(--warning-700)}
 .tl-dot.info{background:var(--info-50); border-color:var(--info-200); color:var(--info-700)}
-.tl-body{min-width:0; font-size:13px; color:var(--text-2); line-height:1.5}
+/* A history line names the actor who acted and quotes the reason they
+   typed, neither of which is length-capped, so one unbreakable token
+   (a pasted URL, a long institution name) pushed the DOCUMENT wider
+   than a 375px viewport. `overflow-wrap` inherits, so the guard on the
+   body covers .tl-action, .tl-who and the note line in one place. */
+.tl-body{min-width:0; font-size:13px; color:var(--text-2); line-height:1.5; overflow-wrap:anywhere}
 .tl-action{font-weight:640; color:var(--text); font-size:13.5px}
 .tl-who{color:var(--text-3); font-size:12.5px; margin-top:1px}
 

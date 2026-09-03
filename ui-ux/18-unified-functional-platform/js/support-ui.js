@@ -111,7 +111,11 @@ XRSLP.supportUI = (function () {
     }
 
     return '<form id="sp-form" novalidate>' +
-      '<div class="form-errors" aria-live="polite"></div>' +
+      /* No aria-live here. `ui.showErrors` writes a role="alert" into
+         this container and focuses it; a live region around an alert
+         that is also focused announces the same message up to three
+         times. The alert carries the announcement on its own. */
+      '<div class="form-errors"></div>' +
       '<div class="field" id="sp-category"><label for="sp-category-i">What kind of issue is it? ' +
       '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
       '<select id="sp-category-i"><option value="">— choose —</option>' + cats + '</select>' +

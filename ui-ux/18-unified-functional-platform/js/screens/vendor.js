@@ -99,7 +99,18 @@ XRSLP.screens = XRSLP.screens || {};
     var actor = resolveActor(params);
     if (!actor) { return XRSLP.screens.notFound(); }
     var o = state.vendorOverview(actor.id);
-    var courses = state.actorCourseIds(actor.id);
+    /* WHICH COURSES A NEW EXPERIMENT MAY BE CREATED IN is a different
+       question from which Courses this Vendor can read, and only the
+       first one may draw a "Create experiment" control. An
+       Experiment-scope assignment names one EXISTING Experiment, so it
+       can never authorise a new one — the new record gets a new id no
+       such row can name, and `createContentDraft` refuses it. Offering
+       the control on the wider list sent the Vendor to a form whose save
+       the state layer would reject, with no explanation on the way. */
+    var createCourses = state.actorCreateCourseIds(actor.id);
+    var canCreate = createCourses.length > 0;
+    var scopeText = state.actorScopeText(actor.id);
+    var noScope = !state.assignmentsFor(actor.id).length;
 
     var tiles = '<div class="statgrid">' +
       cui.statTile(o.draft, 'Draft', 'not yet submitted') +
@@ -176,19 +187,32 @@ XRSLP.screens = XRSLP.screens || {};
           body: 'No submission has been returned to you and no draft is waiting to be completed.'
         });
 
-    var scopeHTML = courses.length
-      ? '<ul class="reslist plain">' + courses.map(function (cid) {
+    var scopeHTML = (canCreate
+      ? '<ul class="reslist plain">' + createCourses.map(function (cid) {
           var c = data.course(cid);
           var g = c ? data.grouping(c.groupingId) : null;
           return '<li>' + ui.ic('book') + '<span>' + esc(g ? g.name + ' › ' : '') +
             '<strong>' + esc(c ? c.name : cid) + '</strong></span></li>';
         }).join('') + '</ul>'
-      : '<p class="muted">No Course has been assigned to you.</p>';
+      : '<p class="muted">' + esc(noScope
+          ? 'No Course has been assigned to you, so there is no Course to submit into.'
+          : 'No Course-level assignment covers you, so there is no Course to submit a new experiment into.') +
+        '</p>') +
+      '<p class="dnote">' + ui.ic('info', 'sm') + 'Assigned scope: ' + esc(scopeText) + '.' +
+      (canCreate ? ''
+        : noScope
+          ? ' Content role scope is assigned and withdrawn by the Super Admin, on the Role governance screen.'
+          : ' An Experiment-scope assignment names one existing Experiment, so it cannot authorise a new one: ' +
+            'a new Experiment gets a new identifier that assignment does not name. Course-level scope is ' +
+            'assigned by the Super Admin, on the Role governance screen.') +
+      '</p>';
 
     var html =
       ui.phead('Overview',
         esc(actor.organisation) + ' · ' + esc(actor.name),
-        '<a class="btn pri" href="' + href.vNew(actor.id) + '">' + ui.ic('plus') + 'Create experiment</a>') +
+        canCreate
+          ? '<a class="btn pri" href="' + href.vNew(actor.id) + '">' + ui.ic('plus') + 'Create experiment</a>'
+          : '') +
       tiles +
       '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' +
@@ -196,7 +220,7 @@ XRSLP.screens = XRSLP.screens || {};
       '</div>' +
       '<div class="stack">' +
       ui.card('Courses you may submit into', scopeHTML,
-        'Assigned course scope') +
+        'Assigned scope') +
       ui.card('What happens after you submit',
         '<ol class="steplist">' +
         '<li><strong>Academic review.</strong> An Academic Reviewer validates the academic content and authors the Learning Outcomes.</li>' +
@@ -217,25 +241,39 @@ XRSLP.screens = XRSLP.screens || {};
     var actor = resolveActor(params);
     if (!actor) { return XRSLP.screens.notFound(); }
     var all = state.contentForVendor(actor.id);
+    /* Same rule as the Overview: the control is drawn only where a new
+       record can actually be created, and where it cannot the screen
+       says which assignment is missing rather than handing over a button
+       that ends on a refusal. */
+    var canCreate = state.actorCreateCourseIds(actor.id).length > 0;
+    var createBtn = canCreate
+      ? '<a class="btn pri" href="' + href.vNew(actor.id) + '">' + ui.ic('plus') + 'Create experiment</a>'
+      : '';
 
     if (!all.length) {
       var emptyHTML =
-        ui.phead('My Experiments', esc(actor.organisation),
-          '<a class="btn pri" href="' + href.vNew(actor.id) + '">' + ui.ic('plus') + 'Create experiment</a>') +
+        ui.phead('My Experiments', esc(actor.organisation), createBtn) +
         '<div class="tablecard">' + ui.emptyState({
           icon: 'flask',
-          title: 'You have not created an experiment yet',
-          body: 'Create an experiment draft, add its technical delivery details, and submit it for academic review ' +
-            'when it is complete.',
-          actionsHTML: '<a class="btn pri" href="' + href.vNew(actor.id) + '">Create experiment</a>'
+          title: canCreate
+            ? 'You have not created an experiment yet'
+            : 'No experiment, and no Course to create one in',
+          body: canCreate
+            ? 'Create an experiment draft, add its technical delivery details, and submit it for academic review ' +
+              'when it is complete.'
+            : 'You have not created an experiment, and no Course-level assignment covers you at the moment, so ' +
+              'a new one cannot be created here. Assigned scope: ' + state.actorScopeText(actor.id) + '. ' +
+              'Course-level scope is assigned by the Super Admin, on the Role governance screen.',
+          actionsHTML: canCreate
+            ? '<a class="btn pri" href="' + href.vNew(actor.id) + '">Create experiment</a>'
+            : ''
         }) + '</div>';
       return shell(actor, 'experiments', 'My Experiments', emptyHTML);
     }
 
     cui.normaliseFilters(all, listFilter);
     var html =
-      ui.phead('My Experiments', esc(actor.organisation),
-        '<a class="btn pri" href="' + href.vNew(actor.id) + '">' + ui.ic('plus') + 'Create experiment</a>') +
+      ui.phead('My Experiments', esc(actor.organisation), createBtn) +
       '<div class="tablecard">' +
       '<div class="listbar">' +
       '<label for="v-q">Search' +
@@ -281,8 +319,14 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="tablecard">' + ui.emptyState({
           icon: 'doc',
           title: 'You have not submitted anything yet',
+          /* NOT "visible to nobody else" — the Content Manager's Content
+             Library and the Super Admin's canonical catalogue both list
+             a draft, by design. What a draft is genuinely absent from is
+             everything downstream of publication. */
           body: 'A draft appears here once you submit it for academic review. Until then it stays in ' +
-            'My Experiments and is visible to nobody else.',
+            'My Experiments: it is not in the public catalogue and reaches no institution, no Faculty ' +
+            'member and no Student, though the Content Manager and the Super Admin can see it in the ' +
+            'canonical library.',
           actionsHTML: '<a class="btn sec" href="' + href.vExperiments(actor.id) + '">Go to My Experiments</a>'
         }) + '</div>';
       return shell(actor, 'submissions', 'Submissions', emptyHTML);
@@ -689,17 +733,32 @@ XRSLP.screens = XRSLP.screens || {};
         '<a class="btn sec" href="' + href.vExperiments(actor.id) + '">Back to My Experiments</a></div>');
     }
 
-    var allowedCourses = state.actorCourseIds(actor.id);
-    if (!allowedCourses.length) {
-      /* Creating, with no assignment at all. (An EDIT can no longer
+    /* THE COURSES THE STATE LAYER WILL ACTUALLY ACCEPT. Both writers
+       behind this form — `createContentDraft` for a new record and
+       `updateContentDraft` for the Course being chosen — ask
+       `vendorCanCreateIn`, which reads `actorCreateCourseIds`. Offering
+       the wider read list here meant the select could hold a Course the
+       save would refuse, so the list and the writer now ask the same
+       question. */
+    var allowedCourses = state.actorCreateCourseIds(actor.id);
+    if (!editing && !allowedCourses.length) {
+      /* Creating, with no Course-level assignment. (An EDIT does not
          reach this branch — the mutate gate above has already answered
          it, and answered it on the record rather than on the Course
          list.) */
+      var createNoScope = !state.assignmentsFor(actor.id).length;
       return shell(actor, 'experiments', 'Create experiment',
         ui.phead('Create experiment') +
-        ui.alertBox('warning', 'No Course is assigned to you',
-          '<p>A Vendor submits into a canonical Course they are assigned to. No assignment exists for this ' +
-          'identity, so there is nothing to submit into.</p>'));
+        ui.alertBox('warning',
+          createNoScope ? 'No Course is assigned to you' : 'No Course-level assignment covers you',
+          '<p>A Vendor submits into a canonical Course they are assigned to. ' +
+          (createNoScope
+            ? 'No assignment exists for this identity, so there is nothing to submit into.'
+            : 'Your assignment is <strong>' + esc(state.actorScopeText(actor.id)) + '</strong>. An ' +
+              'Experiment-scope assignment names one existing Experiment, so it cannot authorise a new ' +
+              'one: a new Experiment gets a new identifier that assignment does not name.') + '</p>' +
+          '<p>Content role scope is assigned and withdrawn by the Super Admin, on the Role governance ' +
+          'screen. Nothing you have already created is affected.</p>'));
     }
 
     var lastReview = editing ? state.academicReviewsFor(rec.id)[0] : null;
@@ -724,14 +783,15 @@ XRSLP.screens = XRSLP.screens || {};
        placed in by not noticing.
 
        KEPT, and now the innermost of several defences rather than the
-       only one. Since editing requires a live assignment covering the
-       record AS IT STANDS, a Vendor who reaches this form necessarily
-       holds the record's own Course, so `recCourseOutOfScope` is no
-       longer expected to be true — and `updateContentDraft` re-asks both
-       halves of the question anyway. It stays because the guarantee it
-       makes is one the build should not depend on a single gate for:
-       whatever else changes, this select cannot silently re-file an
-       existing Experiment. */
+       only one. `updateContentDraft` re-asks both halves of the question
+       anyway, and it stays because the guarantee it makes is one the
+       build should not depend on a single gate for: whatever else
+       changes, this select cannot silently re-file an existing
+       Experiment. It is still reachable — a Vendor who holds only
+       Experiment-level scope on this record covers it for editing but
+       may not file an Experiment into its Course — so the wording below
+       says exactly that rather than claiming the record is out of
+       scope. */
     var courseChoices = allowedCourses.slice();
     var recCourseOutOfScope = editing && rec.courseId && courseChoices.indexOf(rec.courseId) === -1;
     if (recCourseOutOfScope) { courseChoices.unshift(rec.courseId); }
@@ -742,7 +802,8 @@ XRSLP.screens = XRSLP.screens || {};
         var g = data.grouping(c.groupingId);
         return '<option value="' + esc(c.id) + '"' + (work.courseId === c.id ? ' selected' : '') + '>' +
           esc((g ? g.name + ' › ' : '') + c.name) +
-          (cid === rec_courseIdOf(rec) && recCourseOutOfScope ? ' — outside your assigned scope' : '') +
+          (cid === rec_courseIdOf(rec) && recCourseOutOfScope
+            ? ' — a Course you may no longer file an Experiment into' : '') +
           '</option>';
       }).join('');
 
@@ -772,7 +833,7 @@ XRSLP.screens = XRSLP.screens || {};
         '<span class="sr-only">(required)</span></label>' +
         '<select id="i-course" aria-describedby="h-course">' + courseOptions + '</select>' +
         (recCourseOutOfScope
-          ? '<p class="hint">This Experiment sits in a Course that is no longer in your assigned scope. It ' +
+          ? '<p class="hint">This Experiment sits in a Course you may no longer file an Experiment into. It ' +
             'stays selected so saving cannot move it; choosing a different Course would re-file the ' +
             'Experiment, and every institution that holds it maps Faculty to it through its Course.</p>'
           : '') +
@@ -865,7 +926,7 @@ XRSLP.screens = XRSLP.screens || {};
         : 'Save and submit for academic review') + '</button>' +
       '<a class="btn gho" href="' + (editing ? href.vRecord(actor.id, rec.id) : href.vExperiments(actor.id)) +
       '">Cancel</a>' +
-      '<span class="formnote">A draft is private to you. It does not appear in the public catalogue, ' +
+      '<span class="formnote">A draft is not catalogue content. It does not appear in the public catalogue, ' +
       'to any institution, to Faculty or to any Student.</span>' +
       '</div>' +
       '</div>' +
@@ -1121,7 +1182,10 @@ XRSLP.screens = XRSLP.screens || {};
       }
       if (!thenSubmit) {
         work = null;
-        ui.toast('Draft saved. It is private to you until you submit it.');
+        /* Not "private to you": the Content Library and the canonical
+           catalogue both list a draft. The toast says the same thing the
+           form's own note says, and nothing more. */
+        ui.toast('Draft saved. It is not in the public catalogue and reaches no institution, Faculty or Student.');
         XRSLP.router.go(href.vRecord(actor.id, saved.id));
         return;
       }

@@ -239,7 +239,7 @@
             'published catalogue plus the sample in-flight submissions (any experiment produced through the ' +
             'Vendor → Academic Reviewer → Content Manager workflow is discarded with it), and the requester ' +
             'scenario returns to A.</p>' +
-            '<p style="margin-top:8px">It also clears every Implementation-06 governance record: tenant ' +
+            '<p style="margin-top:8px">It also clears every governance record: tenant ' +
             'activation state and governance history, Tenant Admin assignments, platform role assignments ' +
             '(back to the seeded scope), later-version candidates with their Release / Hold decisions, ' +
             'device transfer requests and support reports.</p>' +
@@ -397,8 +397,15 @@
            Device entry appears only where the Student actually holds an
            experiment delivered as a package on a device — a Web-only
            Student has no device binding to move (STK31-37 / 38). */
+        /* ...OR while they still have a request open. An entitlement can
+           change under a student while their request is being decided
+           (a licence taken, a term ended, a group unassigned), and
+           hiding the destination then took away the only route to their
+           own pending request — a record the platform is still going to
+           answer. The request outlives the entitlement that raised it. */
         { href: h.device(student.id), icon: 'monitor', label: 'My device', active: activeKey === 'device',
-          count: 0, hidden: !state.studentHasPackageTechnology(student.id) },
+          count: 0, hidden: !state.studentHasPackageTechnology(student.id) &&
+            !state.transfersForStudent(student.id).length },
         { href: XRSLP.supportUI.href.learn(student.id), icon: 'alertCirc', label: 'Help',
           active: activeKey === 'help', count: 0 }
       ].filter(function (n) { return !n.hidden; });

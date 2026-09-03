@@ -143,10 +143,33 @@ XRSLP.screens = XRSLP.screens || {};
      else is holding it, or because the Vendor's scope was withdrawn —
      must still show everything it holds. Withdrawing authority to change
      a record is not permission to show its owner less of it. */
+  /* WHAT A RELEASE WOULD ACTUALLY WRITE — the same merge `releaseVersion`
+     performs, not the candidate object on its own. A candidate carries
+     only the fields the version form offers, and a BLANK field means
+     "leave the published value alone" (the release skips empty strings
+     deliberately, so an untouched field cannot blank a working link).
+     Rendering the raw candidate therefore showed an em-dash where the
+     published value would in fact survive — and this card is read by the
+     two people deciding whether to approve and release it. */
+  function mergedDelivery(rec, v, tech) {
+    var current = state.deliveryOf(rec, tech) || {};
+    var incoming = (v && v.delivery && v.delivery[tech]) || null;
+    if (!incoming) { return current; }
+    var merged = {};
+    Object.keys(current).forEach(function (k) { merged[k] = current[k]; });
+    Object.keys(incoming).forEach(function (k) {
+      var val = incoming[k];
+      if (typeof val === 'string' && !val.trim()) { return; }
+      if (val === null || val === undefined) { return; }
+      merged[k] = val;
+    });
+    return merged;
+  }
+
   function deliveryReadOnly(rec, v) {
     return '<div class="techrows deliv">' + data.sortTech(rec.technologies).map(function (t) {
       var def = data.TECHNOLOGIES[t];
-      var cur = (v && v.delivery && v.delivery[t]) ? v.delivery[t] : state.deliveryOf(rec, t);
+      var cur = mergedDelivery(rec, v, t);
       var rows = def.delivery === 'hosted'
         ? '<div class="k">Hosted link</div><div class="v">' + esc(cur.url || '—') + '</div>'
         : '<div class="k">Package label</div><div class="v">' + esc(cur.packageLabel || '—') + '</div>' +
@@ -310,7 +333,7 @@ XRSLP.screens = XRSLP.screens || {};
               : '<a class="btn sm pri" href="' + href.vNewVersion(actor.id, rec.id) + '">Propose a version</a>') +
             '</li>';
         }).join('') + '</ul>'
-      : '<p class="muted">' + (state.actorCourseIds(actor.id).length
+      : '<p class="muted">' + (state.actorCreateCourseIds(actor.id).length || state.actorCourseIds(actor.id).length
           ? 'None of the experiments in your assigned scope is published yet. A later version only exists ' +
             'for content that has already been published.'
           : 'No Course is assigned to you at the moment, so there is no published experiment you can propose ' +
@@ -379,9 +402,24 @@ XRSLP.screens = XRSLP.screens || {};
         '</div>' +
         '<h3 class="vh">Technology delivery</h3>' +
         deliveryReadOnly(rec, v) +
+        /* The reason has to be the TRUE one. A decided version — released
+           or held — is not "with a reviewer", and saying so sent the
+           Vendor looking for a reviewer who had already finished. */
         '<p class="cardfoot">' + (scopeGone
           ? 'Read-only because this experiment is no longer in your assigned scope. Everything you wrote is ' +
             'kept exactly as it is.'
+          : v.status === VS.RELEASED
+          ? 'Read-only because this version has been <strong>released</strong>. It is the version the public ' +
+            'catalogue now shows, and a released version is never edited — a further change is a new later ' +
+            'version, which you can propose from Versions.'
+          : v.status === VS.HELD
+          ? 'Read-only because the Super Admin has placed this version on <strong>hold</strong>. The published ' +
+            'version stays live and nothing you wrote has been lost. While it is held it remains this ' +
+            'experiment&rsquo;s one open candidate, so a further version cannot be proposed until the Super ' +
+            'Admin lifts the hold and releases it.'
+          : v.status === VS.APPROVED
+          ? 'Read-only because it has been academically approved and is now with the <strong>Super Admin</strong> ' +
+            'for the Release / Hold decision. Nothing you wrote has changed.'
           : 'Read-only while someone else holds it. The revision under review cannot change underneath the ' +
             'person reviewing it.') + '</p>';
 
@@ -493,8 +531,11 @@ XRSLP.screens = XRSLP.screens || {};
     if (!v) { return XRSLP.screens.notFound(); }
     var rec = state.contentRecord(v.recordId);
     /* Scope is read from the LIVE role assignments, so a reviewer whose
-       scope has been withdrawn cannot reach new work here either. */
-    if (!rec || !state.actorCoversRecord(actor.id, rec)) { return XRSLP.screens.notFound(); }
+       scope has been withdrawn cannot reach new work here either — and
+       the status is checked as well, so a Vendor's UNSUBMITTED draft
+       candidate is not readable through a hand-typed address. The queue
+       already excludes drafts; the queue is not the boundary. */
+    if (!rec || !state.reviewerCanViewVersion(v, actor.id)) { return XRSLP.screens.notFound(); }
     var canAct = state.reviewerCanActOnVersion(v, actor.id);
 
     var decision = canAct
@@ -529,12 +570,26 @@ XRSLP.screens = XRSLP.screens || {};
       '</div>' +
       '<h3 class="vh">Description</h3><p class="vd-d">' + esc(v.description) + '</p>' +
       (v.vendorNotes ? '<h3 class="vh">Technical notes</h3><p class="vd-d">' + esc(v.vendorNotes) + '</p>' : '') +
+      /* THE DELIVERY THE VERSION CARRIES, shown to the person deciding on
+         it. A release writes these references onto the published record,
+         so approving a version without seeing them was approving
+         something unseen. The Vendor owns them (STK31-08) and the
+         Reviewer cannot change them — this is context for the academic
+         decision, exactly as the technical delivery is on a first
+         submission. */
+      '<h3 class="vh">Technology delivery this version would publish</h3>' +
+      deliveryReadOnly(rec, v) +
+      '<p class="cardfoot">The Vendor owns these technical references; they are shown here as ' +
+      'context and cannot be edited from this screen. Releasing this version writes them onto the ' +
+      'published Experiment.</p>' +
       decision +
       '</div></section>' +
       ui.card('Learning Outcomes — unchanged by a later version',
         XRSLP.contentUI.outcomesList(rec.outcomes) +
         '<p class="cardfoot">Learning Outcomes are academically owned and belong to the Experiment, not to a ' +
-        'version. Edit them on the submission itself if they need to change.</p>', null, 'h2') +
+        'version, so a later version never changes them and there is nothing to edit here. They were authored ' +
+        'and approved on the original submission; a published Experiment&rsquo;s outcomes are not reopened by ' +
+        'this decision.</p>', null, 'h2') +
       '</div>' +
       '<div class="stack">' +
       ui.card('Currently published',
@@ -609,5 +664,10 @@ XRSLP.screens = XRSLP.screens || {};
 
   /* Exposed so the reviewer queue and the Content Library can render the
      same badge and holder line without re-deriving them. */
-  XRSLP.versionUI = { badge: versionBadge, holderLine: holderLine, history: versionHistory };
+  XRSLP.versionUI = {
+    badge: versionBadge, holderLine: holderLine, history: versionHistory,
+    /* Also used by the Super Admin's Release / Hold screen, so the two
+       approvers see exactly the same delivery the release would write. */
+    delivery: deliveryReadOnly
+  };
 })();

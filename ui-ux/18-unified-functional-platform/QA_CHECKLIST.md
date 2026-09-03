@@ -1540,7 +1540,8 @@ pass was scoped not to touch, and it discloses nothing. Flagged, not changed.
 Two independent passes, and both had to agree before anything below was marked ✅.
 
 **Pass 1 — the state layer, headless.** `qa/harness.js` + `qa/checks.js` load `utils · data ·
-ai-assist · state` outside a browser and assert the rules directly. **305 assertions, 0 failures.**
+ai-assist · state` outside a browser and assert the rules directly. **685 assertions, 0 failures**
+(429 before Implementation 07; 256 added, none removed or weakened).
 That is where an entitlement, a licence or a published version can actually go wrong, so it is
 asserted rather than eyeballed. Run it from this folder:
 
@@ -1932,7 +1933,7 @@ leaving **editing** on ownership. That split was wrong, and is withdrawn.
 
 **Regression proof.** The 38 new and rewritten assertions in `qa/checks.js` were run against a copy
 of the state layer with the two mutate predicates reverted to their pre-correction form: **38 fail**.
-Against the corrected build: **374 assertions, 0 failures.** The assertions are load-bearing, not
+Against the build as it stood at that pass: **374 assertions, 0 failures** (685 today). The assertions are load-bearing, not
 decorative — and note that an assertion testing only a *same-Course* edit would have passed both
 ways, because row 32's incidental check already refused that one.
 
@@ -1968,3 +1969,111 @@ ways, because row 32's incidental check already refused that one.
 | Nothing claims an SLA, a provider, a priority or a device certification | ✅ |
 | No revenue or financial metric on any Super Admin surface | ✅ |
 | Every Super Admin figure is derived from a real record and opens it | ✅ |
+
+---
+
+# Implementation 07 — B2B gap closure
+
+Implementation 07 is the **closure pass over Implementations 01–06**, not a seventh feature slice.
+The full audit — sources, method, what was found, what was fixed, what was deliberately left alone —
+is in [`B2B_FUNCTIONAL_CLOSURE_AUDIT.md`](B2B_FUNCTIONAL_CLOSURE_AUDIT.md). This section records how
+it was verified.
+
+## The suite
+
+**685 assertions, 0 failures**, up from 429. **256 added; none removed and none weakened.** Run it
+from this folder:
+
+```
+/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc \
+    qa/harness.js qa/checks.js
+```
+
+| Scenario | What it asserts | Result |
+|---|---|:--:|
+| **O** | **AI assistance never finalises a descriptive review** — the coverage gap named at the Implementation-06 closeout | ✅ |
+| **P** | The Super Admin decision surface: approve · request more information · a **required reason** on either · the allocation, which may only narrow | ✅ |
+| **Q** | The payment step's three FRD 9.1.x outcomes — **only success writes** | ✅ |
+| **R** | **Tenant isolation** at the state layer: assignment targets, group targets and mapping subjects; and that two institutions can never share a tenant id | ✅ |
+| **S** | Creation scope ≠ coverage scope — an Experiment-scope assignment cannot author a **new** Experiment | ✅ |
+| **T** | A canonical metadata edit cannot re-file content into a Course the editor has no authority over | ✅ |
+| **U** | A pending review with no mapped evaluator is **reported, not lost**; and the Faculty tenant-holdings read model grants nothing | ✅ |
+| **V** | Later-version label integrity, draft privacy from the reviewer, and the Super Admin **student-deactivation override** | ✅ |
+| **W** | `STK31-42`'s students-by-stream and usage indicators — derived, honest, and zero on a deactivated institution | ✅ |
+| **X** | The six defects the Implementation-07 **adversarial review** found in Implementation 07's own work — one assertion each, so none can come back | ✅ |
+| **Y** | **The external tenant-creation boundary** — approval provisions the institution, payment activates its access, and neither step duplicates a tenant | ✅ |
+
+## The assertions are load-bearing — proved, not assumed
+
+A passing suite proves nothing unless a broken build fails it. Two mutations were introduced into a
+**scratch copy** (never into the product) and the suite re-run:
+
+| Mutation | Result |
+|---|---|
+| `generateReviewAssistance` writes the marks and completes the review — i.e. AI decides | **10 assertions FAIL**, including *AI ASSISTANCE DID NOT COMPLETE THE REVIEW*, *AI ASSISTANCE WROTE NO MARKS* and *THE STUDENT RESULT IS UNCHANGED* |
+| The cross-tenant assignment-target guard is removed | **5 assertions FAIL**, including *ASSIGNING ANOTHER INSTITUTION'S STUDENT IS REFUSED* |
+| The payment step's tenant gate and the redundant-status no-op are removed | **6 assertions FAIL**, including *PAYMENT CANNOT ACTIVATE ONTO A DEACTIVATED INSTITUTION* and *AND DOES NOT RE-STAMP THE ACTIVATION ORDER* |
+| Provisioning is removed from external approval (the original reported defect) | **2 assertions FAIL**: *THE INSTITUTION NOW EXISTS — approval provisioned it* |
+| Approval activates the access record instead of only provisioning | **12 assertions FAIL**, including *IT HOLDS NO ACCESS RECORD*, *NO APPROVED LICENCES ARE USABLE YET* and *EXACTLY ONE ACCESS RECORD* |
+
+Neither mutant reaches the suite green. The scratch copy was deleted afterwards.
+
+## The screens, in a browser
+
+Driven through the **real controls** on a static server, not simulated.
+
+| Check | Result |
+|---|---|
+| **Journey A** — catalogue → selection → request → decision → **ACTIVE** → tenant sees it | ✅ Internal route, no payment step at any point |
+| **Required reason** — approve with an empty reason | ✅ Refused inline: *"This decision cannot be recorded yet — Enter the reason for this decision."* |
+| **Request more information** — with its consequence dialog | ✅ Status becomes *More information requested*; the reason is on the history and on the applicant's own screen; **nothing activated** |
+| **Applicant resubmit** | ✅ Returns to the platform queue with content, quantity and term unchanged |
+| **Allocation narrowing** — clear VR, drop 10 licences to 4 | ✅ Dialog states *"receives **less** than it requested: 1 of 1 experiment, 4 of 10 licences, Yearly"*; the access record carries **Web only** and **4** |
+| **Approval still entitles nobody** | ✅ *0 students entitled* on the record immediately after activation |
+| **Institution report** | ✅ Students by stream · usage (honestly empty, with the reason) · the student-deactivation override with its consequence |
+| **Faculty tenant holdings** | ✅ *"This is not your mapping"*, every row marked mapped / not mapped, nothing changeable there |
+| **Journey J at the boundary** | ✅ 15 days → **Reminder due**; 16 days → *"No access term needs attention"* |
+| Console messages across the whole pass | **0** of any level |
+| Network requests | All **200**; **no external request of any kind** |
+
+## Responsive and structural accessibility
+
+A programmatic sweep of **41 routes** covering all seven roles, the public plane, and the not-found
+and deep-link-guard paths, at **375 / 768 / 1280**:
+
+| Check | Result |
+|---|---|
+| Document-level horizontal overflow | **0 routes at every width**, and none masked by `overflow:hidden` |
+| Exactly one `h1` per route | **41 / 41** — the two Tenant Admin not-found screens that had none were fixed |
+| Form controls without an accessible name | **0** |
+| Blank pages, and uncaught runtime errors during the sweep | **0** |
+| Dialog focus trap · Escape · focus restore | Intact |
+| Long unbroken user text in page headings, meta lines and timelines | Now wraps — it previously scrolled the document sideways at 375px |
+
+No WCAG certification is claimed, here or anywhere in the build.
+
+## State and migration
+
+| Check | Result |
+|---|---|
+| `schemaVersion` | **Unchanged at 8.** No gap required a state-model correction, so **no migration was written** |
+| Namespace | `xrslp-unified-v1`, unchanged |
+| Implementation 01–06 data | Untouched. The existing migration assertions still pass |
+| `req.grant`, `req.decisionReason`, `req.paymentOutcome`, `person.overrides` | All **additive and optional** — a stored state that has never seen them reads as *absent*, never as *missing*, and every reader defaults correctly |
+
+## Invariants re-checked after the changes
+
+| Invariant | Result |
+|---|:--:|
+| PUBLISHED ≠ TENANT ACCESS ≠ STUDENT ENTITLEMENT | ✅ |
+| Only an assignment writes entitlement — a grant, a role, a transfer, a ticket and a mapping write none | ✅ |
+| A grant may **narrow** a request and can never widen it | ✅ |
+| A declined or unconfirmed payment writes **nothing** | ✅ |
+| One institution can never write into another — targets, groups, mapping subjects, tenant ids | ✅ |
+| The platform override is the **same** writer of student status as the Tenant Admin action | ✅ |
+| Withdrawing a role scope preserves history — now including the Content Manager's own published work | ✅ |
+| First **Publish** and later **Release / Hold** still cannot reach each other's object | ✅ |
+| AI may suggest; only a Faculty member decides | ✅ **now asserted** |
+| No internal requirement identifier reaches a user-visible surface | ✅ **0** across `js/` and `index.html` |
+| Nothing claims an email, SMS, push or notification was sent | ✅ |
+| No revenue or financial metric anywhere | ✅ |
