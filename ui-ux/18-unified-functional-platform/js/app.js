@@ -89,7 +89,35 @@
       'proto-manager', 'Viewing as Content Manager');
   }
 
-  function protobar(area, shownStudent, shownFaculty, shownActor) {
+  /* The Tenant Admin entry is the same PROTOTYPE VIEW SWITCH. The
+     chooser lists the REAL Tenant Admins the Super Admin has assigned —
+     never a fabricated identity — and choosing one navigates to THAT
+     PERSON'S OWN TENANT. An admin of one institution can never be
+     resolved as the administrator of another: `actingTenantAdmin()`
+     honours the pointer only when it names an admin of the tenant the
+     route actually names. */
+  function tenantAdminSelector(shownTenant) {
+    var chosen = state.protoTenantAdmin();
+    if (shownTenant) {
+      var acting = state.actingTenantAdmin(shownTenant.id);
+      if (acting) { chosen = acting; }
+    }
+    var groups = state.tenants().map(function (t) {
+      var admins = state.tenantAdminsFor(t.id);
+      if (!admins.length) { return ''; }
+      return '<optgroup label="' + esc(t.name) + '">' + admins.map(function (a) {
+        return '<option value="' + esc(a.id) + '"' + (chosen && chosen.id === a.id ? ' selected' : '') + '>' +
+          esc(a.name) + '</option>';
+      }).join('') + '</optgroup>';
+    }).join('');
+    if (!groups) { return ''; }
+    return '<label for="proto-tadmin">Viewing as Tenant Admin' +
+      '<select id="proto-tadmin">' +
+      '<option value="">&mdash; choose a Tenant Admin &mdash;</option>' + groups +
+      '</select></label>';
+  }
+
+  function protobar(area, shownStudent, shownFaculty, shownActor, shownTenant) {
     var sc = state.scenario();
     var options = Object.keys(data.SCENARIOS).map(function (key) {
       var s = data.SCENARIOS[key];
@@ -106,7 +134,7 @@
       '<nav class="pnav" aria-label="Prototype view switch — not product navigation">' +
       '<span class="pgrp"><span class="pgl" aria-hidden="true">Access</span>' +
       '<a href="#/catalogue"' + (area === 'public' ? ' aria-current="true"' : '') + '>Public</a>' +
-      '<a href="#/platform/requests"' + (area === 'platform' ? ' aria-current="true"' : '') + '>Super Admin</a>' +
+      '<a href="#/platform/overview"' + (area === 'platform' ? ' aria-current="true"' : '') + '>Super Admin</a>' +
       '<a href="#/tenant"' + (area === 'tenant' ? ' aria-current="true"' : '') + '>Tenant Admin</a>' +
       '<a href="#/faculty"' + (area === 'faculty' ? ' aria-current="true"' : '') + '>Faculty</a>' +
       '<a href="#/learn"' + (area === 'learn' ? ' aria-current="true"' : '') + '>Student</a>' +
@@ -122,6 +150,8 @@
         ? studentSelector(shownStudent)
         : area === 'faculty'
         ? facultySelector(shownFaculty)
+        : area === 'tenant'
+        ? tenantAdminSelector(shownTenant)
         : isContent
         ? contentSelector(area, shownActor)
         : '<label for="proto-scenario">Requester scenario' +
@@ -143,6 +173,21 @@
         var p = state.personById(stu.value);
         XRSLP.router.go('#/learn/' + encodeURIComponent(stu.value) + '/my-learning');
         ui.toast('Now viewing as ' + (p ? p.name : 'the selected student') + ' (prototype only).', 'info');
+      });
+    }
+    var tad = document.getElementById('proto-tadmin');
+    if (tad) {
+      tad.addEventListener('change', function () {
+        if (!tad.value) {
+          state.setProtoTenantAdmin(null);
+          XRSLP.router.go('#/tenant');
+          return;
+        }
+        state.setProtoTenantAdmin(tad.value);
+        var a = state.tenantAdminById(tad.value);
+        XRSLP.router.go('#/tenant/' + encodeURIComponent(a.tenantId) + '/overview');
+        ui.toast('Now viewing as ' + a.name + ', Tenant Admin for ' +
+          ((state.tenantById(a.tenantId) || {}).name || 'that institution') + ' (prototype only).', 'info');
       });
     }
     var fac = document.getElementById('proto-faculty');
@@ -194,6 +239,10 @@
             'published catalogue plus the sample in-flight submissions (any experiment produced through the ' +
             'Vendor → Academic Reviewer → Content Manager workflow is discarded with it), and the requester ' +
             'scenario returns to A.</p>' +
+            '<p style="margin-top:8px">It also clears every Implementation-06 governance record: tenant ' +
+            'activation state and governance history, Tenant Admin assignments, platform role assignments ' +
+            '(back to the seeded scope), later-version candidates with their Release / Hold decisions, ' +
+            'device transfer requests and support reports.</p>' +
             '<p style="margin-top:8px">Reset is the <strong>only</strong> action that discards existing data. ' +
             'Loading a state saved by an earlier build upgrades it in place instead.</p>' +
             '<div class="consequence">' + ui.ic('info') +
@@ -246,6 +295,26 @@
       '</div></footer>';
   }
 
+  /* ---------- tenant deactivation banner ----------
+     Rendered by the SHELL, above every screen of the Tenant Admin,
+     Faculty and Student workspaces, so no individual screen can forget
+     it and no route can slip past it. It states the fact and the two
+     things people most need to know: nothing was deleted, and it is
+     reversible. */
+  function inactiveBanner(tenant, audience) {
+    if (!tenant || state.tenantIsActive(tenant.id)) { return ''; }
+    var body = audience === 'student'
+      ? '<p>Your institution&rsquo;s access to the platform has been suspended, so experiments cannot be ' +
+        'opened at the moment. <strong>Everything you have already done is kept</strong> — your progress, ' +
+        'your simulations and your assessment results are all still here.</p>'
+      : audience === 'faculty'
+      ? '<p>' + esc(tenant.name) + ' has been deactivated by the platform, so mapped content cannot be used ' +
+        'and nothing can be changed at the moment. <strong>Nothing has been deleted</strong>: your question ' +
+        'bank, assessments, reviews and every student record are all preserved.</p>'
+      : '<p>' + esc(state.TENANT_INACTIVE_TEXT) + '</p>';
+    return ui.alertBox('warning', 'This institution is deactivated', body, 'status');
+  }
+
   /* ---------- workspace shell (platform + tenant) ---------- */
   function workspaceShell(opts) {
     var navHTML = opts.nav.map(function (n) {
@@ -262,25 +331,44 @@
       '</header>' +
       '<div class="frame">' +
       '<nav class="snav" aria-label="' + esc(opts.navLabel) + '">' +
-      '<div class="ws-ctx"><div class="wsk">' + esc(opts.wsKind) + '</div><div class="wsv">' + esc(opts.wsName) + '</div></div>' +
+      '<div class="ws-ctx"><div class="wsk">' + esc(opts.wsKind) + '</div><div class="wsv">' + esc(opts.wsName) + '</div>' +
+      (opts.wsSub ? '<div class="wss">' + esc(opts.wsSub) + '</div>' : '') + '</div>' +
       navHTML +
       '</nav>' +
       '<main class="main" id="main-content"><div class="main-inner">' + opts.contentHTML + '</div></main>' +
       '</div></div>';
   }
 
+  /* Six Super Admin destinations, every one implemented, and every
+     count derived from real records. There is no publish entry here:
+     first publication is the Content Manager's (STK31-06). */
   function platformShell(contentHTML, activeKey) {
-    var submitted = state.requests().filter(function (r) { return r.status === state.STATUS.SUBMITTED; }).length;
+    var o = state.platformOverview();
+    var submitted = o.requestsAwaiting.length;
+    var waiting = submitted + o.versionsAwaiting.length + o.transfersAwaiting.length +
+      o.ticketsOpen.length + o.expiryReminders.length + o.tenantsWithoutAdmin.length;
+    var ops = o.transfersAwaiting.length + o.ticketsOpen.length + o.expiryReminders.length;
     return workspaceShell({
-      homeHref: '#/platform/requests',
+      homeHref: '#/platform/overview',
       chip: null,
       navLabel: 'Super Admin navigation',
       wsKind: 'Super Admin',
       wsName: 'Platform administration',
       nav: [
+        { href: '#/platform/overview', icon: 'home', label: 'Overview', active: activeKey === 'overview',
+          count: waiting, countLabel: XRSLP.util.plural(waiting, 'item') + ' waiting on the platform' },
         { href: '#/platform/requests', icon: 'doc', label: 'Access requests', active: activeKey === 'requests',
           count: submitted, countLabel: XRSLP.util.plural(submitted, 'request') + ' awaiting a decision' },
-        { href: '#/platform/institutions', icon: 'building', label: 'Institutions', active: activeKey === 'institutions', count: 0 }
+        { href: '#/platform/institutions', icon: 'building', label: 'Institutions',
+          active: activeKey === 'institutions', count: o.tenants.length,
+          countLabel: XRSLP.util.plural(o.tenants.length, 'tenant') + ' on the platform' },
+        { href: '#/platform/content', icon: 'layers', label: 'Content governance', active: activeKey === 'content',
+          count: o.versionsAwaiting.length,
+          countLabel: XRSLP.util.plural(o.versionsAwaiting.length, 'version') + ' awaiting Release or Hold' },
+        { href: '#/platform/roles', icon: 'shield', label: 'Role governance', active: activeKey === 'roles',
+          count: o.roleAssignments, countLabel: XRSLP.util.plural(o.roleAssignments, 'role assignment') },
+        { href: '#/platform/operations', icon: 'monitor', label: 'Operations', active: activeKey === 'operations',
+          count: ops, countLabel: XRSLP.util.plural(ops, 'operational item') + ' needing attention' }
       ],
       contentHTML: contentHTML
     });
@@ -290,9 +378,10 @@
      The same unified design system and the same workspace chrome as
      the admin workspaces — a lighter navigation over it, because a
      Student has three destinations and every one is implemented.
-     There is no Assessments, Certificates, Messages, Profile or
-     Support entry here: none of them is built in this slice, and a
-     link that leads nowhere is worse than an absent one. */
+     There is no Assessments, Certificates, Messages or Profile entry
+     here: none of them is built, and a link that leads nowhere is worse
+     than an absent one. Help IS present from Implementation 06, because
+     it now has a real destination behind it (STK31-39). */
   function learnShell(contentHTML, student, tenant, activeKey) {
     var nav = [];
     if (student) {
@@ -303,8 +392,16 @@
         { href: h.myLearning(student.id), icon: 'flask', label: 'My Learning',
           active: activeKey === 'my-learning', count: summary.entitled,
           countLabel: XRSLP.util.plural(summary.entitled, 'experiment') + ' available to you' },
-        { href: h.progress(student.id), icon: 'bars', label: 'Progress', active: activeKey === 'progress', count: 0 }
-      ];
+        { href: h.progress(student.id), icon: 'bars', label: 'Progress', active: activeKey === 'progress', count: 0 },
+        /* Implementation 06. Both destinations are implemented, and the
+           Device entry appears only where the Student actually holds an
+           experiment delivered as a package on a device — a Web-only
+           Student has no device binding to move (STK31-37 / 38). */
+        { href: h.device(student.id), icon: 'monitor', label: 'My device', active: activeKey === 'device',
+          count: 0, hidden: !state.studentHasPackageTechnology(student.id) },
+        { href: XRSLP.supportUI.href.learn(student.id), icon: 'alertCirc', label: 'Help',
+          active: activeKey === 'help', count: 0 }
+      ].filter(function (n) { return !n.hidden; });
     }
     return workspaceShell({
       homeHref: student ? XRSLP.studentUI.href.home(student.id) : '#/learn',
@@ -313,13 +410,13 @@
       wsKind: 'Student',
       wsName: student ? student.name : 'Student workspace',
       nav: nav,
-      contentHTML: contentHTML
+      contentHTML: inactiveBanner(tenant, 'student') + contentHTML
     });
   }
 
   /* ---------- Faculty workspace shell ----------
      The same unified design system and the same workspace chrome as the
-     other admin workspaces. Six destinations, and every one of them is
+     other admin workspaces. Seven destinations, and every one of them is
      implemented. */
   function facultyShell(contentHTML, faculty, tenant, activeKey) {
     var nav = [];
@@ -344,7 +441,9 @@
         { href: h.reviews(faculty.id), icon: 'edit', label: 'Reviews', active: activeKey === 'reviews',
           count: pending, countLabel: XRSLP.util.plural(pending, 'response') + ' waiting for your review' },
         { href: h.students(faculty.id), icon: 'users', label: 'Student Progress', active: activeKey === 'students',
-          count: reach, countLabel: XRSLP.util.plural(reach, 'student') + ' reached by your content' }
+          count: reach, countLabel: XRSLP.util.plural(reach, 'student') + ' reached by your content' },
+        { href: XRSLP.supportUI.href.faculty(faculty.id), icon: 'alertCirc', label: 'Help',
+          active: activeKey === 'help', count: 0 }
       ];
     }
     return workspaceShell({
@@ -354,7 +453,7 @@
       wsKind: 'Faculty',
       wsName: faculty ? faculty.name : 'Faculty workspace',
       nav: nav,
-      contentHTML: contentHTML
+      contentHTML: inactiveBanner(tenant, 'faculty') + contentHTML
     });
   }
 
@@ -407,17 +506,25 @@
           count: groupCount, countLabel: XRSLP.util.plural(groupCount, 'student group') },
         { href: h.mappings(tenant.id), icon: 'doc', label: 'Academic mappings', active: activeKey === 'mappings', count: 0 },
         { href: h.assignments(tenant.id), icon: 'flask', label: 'Assignments', active: activeKey === 'assignments',
-          count: asgCount, countLabel: 'active ' + XRSLP.util.plural(asgCount, 'assignment') }
+          count: asgCount, countLabel: 'active ' + XRSLP.util.plural(asgCount, 'assignment') },
+        { href: XRSLP.supportUI.href.tenant(tenant.id), icon: 'alertCirc', label: 'Help',
+          active: activeKey === 'help', count: 0 }
       ];
     }
+    /* The workspace names the person actually administering this
+       tenant — the Super Admin's assignment (STK31-21), never a
+       fabricated identity, and never an admin belonging to a different
+       institution. */
+    var admin = tenant ? state.actingTenantAdmin(tenant.id) : null;
     return workspaceShell({
       homeHref: '#/tenant',
       chip: tenant ? tenant.name : null,
       navLabel: 'Tenant workspace navigation',
       wsKind: 'Institute Admin / Tenant Admin',
-      wsName: tenant ? tenant.name : 'Institution workspace',
+      wsName: tenant ? (admin ? admin.name : tenant.name) : 'Institution workspace',
+      wsSub: tenant && admin ? tenant.name : (tenant ? 'No Tenant Admin assigned' : null),
       nav: nav,
-      contentHTML: contentHTML
+      contentHTML: inactiveBanner(tenant, 'tenant') + contentHTML
     });
   }
 
@@ -435,6 +542,16 @@
     if (area === 'platform') {
       shellHTML = platformShell(result.html, result.navKey);
     } else if (area === 'tenant') {
+      /* Same rule as every other plane: the strip follows the identity
+         the page actually rendered. Opening another tenant's workspace
+         re-points it at THAT tenant's assigned admin rather than
+         claiming the previous one administers it. */
+      if (result.tenant) {
+        var acting = state.actingTenantAdmin(result.tenant.id);
+        if (state.protoTenantAdminId() !== (acting ? acting.id : null)) {
+          state.setProtoTenantAdmin(acting ? acting.id : null);
+        }
+      }
       shellHTML = tenantShell(result.html, result.tenant, result.navKey);
     } else if (area === 'faculty') {
       /* Keep the prototype pointer on the faculty member actually being
@@ -469,7 +586,7 @@
     /* The skip link is the very first focusable element on the page,
        ahead of even the prototype-controls strip. */
     root.innerHTML = '<a class="skip-link" href="#main-content" id="skip-link">Skip to main content</a>' +
-      protobar(area, result.student, result.faculty, result.contentActor) + shellHTML;
+      protobar(area, result.student, result.faculty, result.contentActor, result.tenant) + shellHTML;
 
     document.title = (result.title ? result.title + ' — ' : '') + 'XR Simulation Learning Platform (Prototype)';
 

@@ -174,7 +174,18 @@ fieldset.fgroup legend{font-size:13.5px; font-weight:600; color:var(--text); mar
 .proto-note .pn-act{margin-top:8px; display:flex; gap:8px; flex-wrap:wrap}
 
 /* ---------- "gap shown as a gap" note (Batch 05 rule) ---------- */
-.gapnote{display:flex; gap:10px; align-items:flex-start; border:1.5px dashed var(--border-strong); border-radius:var(--r-md);
+.gapnote{display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;
+  border:1.5px dashed var(--border-strong); border-radius:var(--r-md);
   background:var(--surface); padding:12px 14px; font-size:12.5px; color:var(--text-2); line-height:1.55}
+/* SHARED FIX, surfaced by Implementation 06. The tag used `white-space:
+   nowrap` with `flex:0 0 auto`, so a tag longer than the note itself
+   could neither wrap nor shrink and pushed the DOCUMENT wider than a
+   375px viewport. It now shrinks and wraps only when it genuinely does
+   not fit, and the body drops to its own line rather than being crushed
+   into a column a few characters wide. Same class of fix as the
+   `.listbar` one in responsive.css, and for the same reason: it belongs
+   to the shared component, so every gap note in the product gets it. */
+.gapnote>div{min-width:0; flex:1 1 220px}
 .gapnote .gtag{font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:var(--text-3);
-  border:1px solid var(--border-strong); border-radius:var(--r-xs); padding:1px 6px; white-space:nowrap; flex:0 0 auto; margin-top:1px}
+  border:1px solid var(--border-strong); border-radius:var(--r-xs); padding:1px 6px; flex:0 1 auto;
+  min-width:0; max-width:100%; overflow-wrap:anywhere; margin-top:1px}

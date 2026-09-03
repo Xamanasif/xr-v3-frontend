@@ -77,7 +77,8 @@ XRSLP.screens = XRSLP.screens || {};
         title: 'No assignments yet',
         body: 'This institution holds approved content but no student has been given any of it. ' +
           'Holding access and entitling a student are two different things.',
-        actionsHTML: '<a class="btn pri" href="' + T.href.newAssignment(tenant.id) + '">New assignment</a>'
+        actionsHTML: T.actionsIfWritable(tenant,
+          '<a class="btn pri" href="' + T.href.newAssignment(tenant.id) + '">New assignment</a>', false)
       });
     } else if (!list.length) {
       body = ui.emptyState({
@@ -120,8 +121,10 @@ XRSLP.screens = XRSLP.screens || {};
               ? ui.badge('b-success', 'check', 'Active')
               : ui.badge('b-neutral', 'minus', 'Removed ' + util.fmtDate(a.removedAt))) + '</td>' +
             '<td class="cell-actions">' + (a.status === 'active'
-              ? '<button class="btn sm sec" type="button" data-unassign="' + esc(a.id) + '">Remove' +
-                '<span class="sr-only"> assignment of this experiment from ' + esc(state.assignmentTargetLabel(a)) + '</span></button>'
+              ? T.actionsIfWritable(tenant,
+                  '<button class="btn sm sec" type="button" data-unassign="' + esc(a.id) + '">Remove' +
+                  '<span class="sr-only"> assignment of this experiment from ' +
+                  esc(state.assignmentTargetLabel(a)) + '</span></button>', false)
               : '') + '</td></tr>';
         }).join('') + '</tbody></table></div>';
     }
@@ -129,7 +132,9 @@ XRSLP.screens = XRSLP.screens || {};
     var html =
       ui.phead('Assignments',
         'Turning the institution&rsquo;s approved content into student entitlement.',
-        assignable.length ? '<a class="btn pri" href="' + T.href.newAssignment(tenant.id) + '">' + ui.ic('plus') + 'New assignment</a>' : null) +
+        (assignable.length && T.canWrite(tenant)
+          ? '<a class="btn pri" href="' + T.href.newAssignment(tenant.id) + '">' + ui.ic('plus') + 'New assignment</a>'
+          : null)) +
       tabs(tenant, 'students') +
       /* Records exist but none is assignable, and assignments are already
          on file: explain rather than leave the missing button unexplained. */
@@ -208,7 +213,7 @@ XRSLP.screens = XRSLP.screens || {};
      NEW ASSIGNMENT
      ============================================================ */
   XRSLP.screens.tenantNewAssignment = function (params) {
-    var r = T.requireTenant(params, 'assignments');
+    var r = T.requireTenant(params, 'assignments', { write: true, what: 'Assigning an experiment' });
     if (!r.tenant) { return r.fail; }
     var tenant = r.tenant;
 
@@ -312,7 +317,8 @@ XRSLP.screens = XRSLP.screens || {};
       targetList = !groups.length
         ? ui.emptyState({ icon: 'users', heading: 'h3', title: 'No student groups',
             body: 'Create a group first, or assign to individual students instead.',
-            actionsHTML: '<a class="btn sec sm" href="' + T.href.newGroup(tenant.id) + '">Create group</a>' })
+            actionsHTML: T.actionsIfWritable(tenant,
+              '<a class="btn sec sm" href="' + T.href.newGroup(tenant.id) + '">Create group</a>', false) })
         : '<fieldset class="picklist"><legend class="sr-only">Groups to assign this experiment to</legend>' +
           groups.map(function (g) {
             var mem = state.membersOfGroup(g.id);
@@ -531,6 +537,8 @@ XRSLP.screens = XRSLP.screens || {};
      js/screens/faculty.js and js/screens/faculty-assess.js.
      ============================================================ */
   XRSLP.screens.tenantFacultyMapping = function (params) {
+    /* Readable while deactivated — the existing mappings are history and
+       stay visible; only the form and the Remove controls are withdrawn. */
     var r = T.requireTenant(params, 'assignments');
     if (!r.tenant) { return r.fail; }
     var tenant = r.tenant;
@@ -566,8 +574,10 @@ XRSLP.screens = XRSLP.screens || {};
             '<td data-label="Experiment">' + (m.experimentId ? T.expLine(m.experimentId) :
               '<span class="muted">Whole course context</span>') + '</td>' +
             '<td data-label="Access record"><span class="mono">' + esc(m.accessId) + '</span></td>' +
-            '<td class="cell-actions"><button class="btn sm sec" type="button" data-unmap="' + esc(m.id) + '">Remove' +
-            '<span class="sr-only"> mapping for ' + esc(p ? p.name : '') + '</span></button></td></tr>';
+            '<td class="cell-actions">' + T.actionsIfWritable(tenant,
+              '<button class="btn sm sec" type="button" data-unmap="' + esc(m.id) + '">Remove' +
+              '<span class="sr-only"> mapping for ' + esc(p ? p.name : '') + '</span></button>', false) +
+            '</td></tr>';
         }).join('') + '</tbody></table></div>'
       : ui.emptyState({
           icon: 'users',
@@ -578,7 +588,8 @@ XRSLP.screens = XRSLP.screens || {};
                escaped rather than parsed must carry real punctuation. */
             ? 'Map a Faculty member to a course or a specific experiment inside the institution’s approved access.'
             : 'Add Faculty to this institution first.',
-          actionsHTML: faculty.length ? '' : '<a class="btn pri" href="' + T.href.addFaculty(tenant.id) + '">Add Faculty</a>'
+          actionsHTML: faculty.length ? '' : T.actionsIfWritable(tenant,
+            '<a class="btn pri" href="' + T.href.addFaculty(tenant.id) + '">Add Faculty</a>', false)
         });
 
     var formCard = (!faculty.length || !live.length)
@@ -625,7 +636,10 @@ XRSLP.screens = XRSLP.screens || {};
           }).join('') + '</select>' +
           '<p class="hint">Optional. Leave as “Whole course context” to map the course rather than one experiment.</p></div>' +
           '</div>' +
-          '<div class="formact"><button class="btn pri" type="submit" id="fm-save">Map Faculty</button></div>' +
+          '<div class="formact">' + T.actionsIfWritable(tenant,
+            '<button class="btn pri" type="submit" id="fm-save">Map Faculty</button>',
+            'New Faculty mappings cannot be made while the institution is deactivated. Existing mappings ' +
+            'are preserved and reappear as soon as it is reactivated.') + '</div>' +
           '</form>', null, 'h2');
 
     var html =

@@ -1,16 +1,129 @@
 /* ============================================================
-   Unified Functional Platform — Super Admin workspace.
-   Access request queue · request decision · institutions list.
+   Unified Functional Platform — SUPER ADMIN workspace (part 1 of 3).
 
-   The approve action follows the confirmed branches (STK31-19/20):
-     internal → ACTIVE immediately (no payment step anywhere)
-     external → APPROVED_PAYMENT_REQUIRED (no access yet)
-   Rejection / return flows are not source-supported for this slice
-   and are deliberately absent — the gap is shown as a gap.
+   Shared platform helpers · Overview · Access requests · Institutions
+   (list + governance detail).
+
+   Content governance and later-version Release / Hold live in
+   platform-content.js; role governance and operations (device
+   transfers, support, expiry) live in platform-ops.js. Three files,
+   ONE workspace: same shell, same navigation, same design system.
+
+   ── WHAT THIS ROLE OWNS (STK31-40) ───────────────────────────
+   Tenant requests and approval · tenant creation, governance and
+   deactivation · Tenant Admin assignment · what a tenant receives ·
+   platform role governance · canonical/master metadata · later-version
+   Release / Hold · device-transfer decisions · platform support ·
+   licensing/term visibility including the 15-day expiry reminder.
+
+   ── WHAT IT EXPLICITLY DOES NOT DO ───────────────────────────
+   First publication of a new Experiment (STK31-06 — the Content
+   Manager publishes) · grant or revoke an individual learner
+   entitlement (R-05, still refuted) · assign content to learners or
+   cohorts (R-06, still refuted) · unpublish or withdraw content
+   (R-14, still refuted) · any assessment surface (R-07) · any revenue
+   or financial metric (STK31-40 / 42 — explicitly prohibited).
+
+   > The altitude rule: SUPER ADMIN DECIDES WHAT A TENANT MAY USE.
+   > THE TENANT ADMIN DECIDES WHICH LEARNER GETS WHAT.
    ============================================================ */
 
 window.XRSLP = window.XRSLP || {};
 XRSLP.screens = XRSLP.screens || {};
+
+/* ---------- shared Super Admin helpers ---------- */
+XRSLP.platformUI = (function () {
+  'use strict';
+
+  var esc = XRSLP.util.esc;
+  var util = XRSLP.util;
+  var ui = XRSLP.ui;
+  var state = XRSLP.state;
+
+  var href = {
+    overview:     function () { return '#/platform/overview'; },
+    requests:     function () { return '#/platform/requests'; },
+    request:      function (id) { return '#/platform/requests/' + encodeURIComponent(id); },
+    institutions: function () { return '#/platform/institutions'; },
+    institution:  function (id) { return '#/platform/institutions/' + encodeURIComponent(id); },
+    content:      function () { return '#/platform/content'; },
+    record:       function (id) { return '#/platform/content/' + encodeURIComponent(id); },
+    roles:        function () { return '#/platform/roles'; },
+    actor:        function (id) { return '#/platform/roles/' + encodeURIComponent(id); },
+    operations:   function () { return '#/platform/operations'; },
+    transfer:     function (id) { return '#/platform/transfer/' + encodeURIComponent(id); },
+    ticket:       function (id) { return '#/platform/support/' + encodeURIComponent(id); }
+  };
+
+  /* One stat grid, shared with the Tenant Admin and Faculty overviews —
+     the same component, because a number is a number. Every value that
+     reaches it is derived from a real record. */
+  function statGrid(items) {
+    return '<div class="statgrid">' + items.map(function (it) {
+      var inner =
+        '<div class="s-k">' + esc(it.label) + '</div>' +
+        '<div class="s-v tabular">' + esc(String(it.value)) + '</div>' +
+        (it.note ? '<div class="s-n">' + esc(it.note) + '</div>' : '');
+      if (it.href) {
+        return '<a class="stat statlink' + (it.tone ? ' ' + it.tone : '') + '" href="' + it.href + '">' +
+          inner + '</a>';
+      }
+      return '<div class="stat' + (it.tone ? ' ' + it.tone : '') + '">' + inner + '</div>';
+    }).join('') + '</div>';
+  }
+
+  /* The one attention grammar the operations model asks for — many
+     sources, one row shape (`12_SUPPORT_AND_OPERATIONS_MODEL.md` §5).
+     Every row carries its own accessible name, and every row leads
+     somewhere that can act on it. */
+  function attentionList(items, emptyOpts) {
+    if (!items.length) {
+      return ui.emptyState(emptyOpts || {
+        icon: 'check', heading: 'h3',
+        title: 'Nothing needs a decision',
+        body: 'No request, version, transfer, support report or expiring term is waiting on the platform.'
+      });
+    }
+    return '<ul class="attn">' + items.map(function (it) {
+      return '<li class="at-row ' + (it.tone || 'info') + '">' +
+        '<span class="at-ic">' + ui.ic(it.icon || 'info') + '</span>' +
+        '<div class="at-body"><div class="at-t">' + esc(it.title) + '</div>' +
+        '<p>' + it.body + '</p></div>' +
+        '<a class="btn sm sec" href="' + it.href + '" aria-label="' + esc(it.aria || it.label) + '">' +
+        esc(it.label) + '</a></li>';
+    }).join('') + '</ul>';
+  }
+
+  function tenantBadge(t) {
+    var m = state.tenantStatusMeta(t);
+    return ui.badge(m.badge, m.icon, m.label);
+  }
+
+  /* The expiry line, written once. It states the rule and refuses to
+     claim a delivery that has not been designed (STK31-28 / ND-16). */
+  function expiryLine(rec) {
+    var days = state.accessDaysUntilExpiry(rec);
+    if (days == null) { return 'No end date recorded'; }
+    if (!state.accessIsLive(rec)) { return 'Term ended ' + util.fmtDate(rec.endsOn); }
+    return days + ' ' + util.plural(days, 'day') + ' remaining — ends ' + util.fmtDate(rec.endsOn);
+  }
+
+  /* The honest statement about the 15-day reminder. It appears wherever
+     the reminder state does, and it is the same sentence every time. */
+  function reminderNote() {
+    return ui.gapNote('DELIVERY CHANNEL PENDING',
+      'A tenant must receive an expiry reminder <strong>15 days before</strong> the access term ends. ' +
+      'That requirement is confirmed; the <strong>delivery channel is not</strong>, so this build represents ' +
+      'the reminder as an operational due-state here and on the tenant’s own workspace. ' +
+      '<strong>No email, SMS, push or notification of any kind has been sent</strong>, and no provider is integrated. ' +
+      'There is no automatic renewal, payment or extension.');
+  }
+
+  return {
+    href: href, statGrid: statGrid, attentionList: attentionList,
+    tenantBadge: tenantBadge, expiryLine: expiryLine, reminderNote: reminderNote
+  };
+})();
 
 (function () {
   'use strict';
@@ -20,10 +133,129 @@ XRSLP.screens = XRSLP.screens || {};
   var ui = XRSLP.ui;
   var data = XRSLP.data;
   var state = XRSLP.state;
+  var P = XRSLP.platformUI;
 
   var queueFilter = 'all';
 
-  function detailHref(id) { return '#/platform/requests/' + encodeURIComponent(id); }
+  function detailHref(id) { return P.href.request(id); }
+
+  /* ============================================================
+     OVERVIEW — the operational picture.
+
+     Every number below opens something. There is no decorative KPI,
+     no sample figure, no derived business metric and no revenue
+     anywhere: `STK31-40` / `STK31-42` prohibit the last one outright,
+     and `PM-11` is scoped to operational facts the platform holds.
+     ============================================================ */
+  XRSLP.screens.platformOverview = function () {
+    var o = state.platformOverview();
+
+    var tiles = P.statGrid([
+      { label: 'Requests awaiting a decision', value: o.requestsAwaiting.length,
+        tone: o.requestsAwaiting.length ? 'warn' : '', href: P.href.requests(),
+        note: o.requestsAwaitingPayment.length
+          ? o.requestsAwaitingPayment.length + ' approved, awaiting payment' : 'Institutional access requests' },
+      { label: 'Active institutions', value: o.activeTenants.length, href: P.href.institutions(),
+        note: o.inactiveTenants.length
+          ? o.inactiveTenants.length + ' deactivated' : 'All institutions active' },
+      { label: 'Versions awaiting Release / Hold', value: o.versionsAwaiting.length,
+        tone: o.versionsAwaiting.length ? 'warn' : '', href: P.href.content(),
+        note: o.versionsHeld.length ? o.versionsHeld.length + ' currently on hold' : 'Later versions of published content' },
+      { label: 'Device transfers awaiting a decision', value: o.transfersAwaiting.length,
+        tone: o.transfersAwaiting.length ? 'warn' : '', href: P.href.operations(),
+        note: 'Student device replacement requests' },
+      { label: 'Support reports open', value: o.ticketsOpen.length,
+        tone: o.ticketsOpen.length ? 'warn' : '', href: P.href.operations(),
+        note: 'Reported technical issues' },
+      { label: 'Access terms within 15 days', value: o.expiryReminders.length,
+        tone: o.expiryReminders.length ? 'warn' : '', href: P.href.operations(),
+        note: o.expiredAccess.length ? o.expiredAccess.length + ' already expired' : 'Expiry reminder due' }
+    ]);
+
+    /* ---- the attention list: one grammar, many sources ---- */
+    var items = [];
+    o.requestsAwaiting.forEach(function (r) {
+      items.push({
+        tone: 'warn', icon: 'doc',
+        title: r.institution.name + ' — access request ' + r.id,
+        body: r.items.length + ' ' + util.plural(r.items.length, 'experiment') + ' · ' + r.quantity + ' ' +
+          util.plural(r.quantity, 'user') + ' · ' + esc((data.term(r.term) || {}).label || r.term) +
+          ' · submitted ' + esc(util.fmtDate(r.submittedAt)),
+        href: P.href.request(r.id), label: 'Review',
+        aria: 'Review access request ' + r.id + ' from ' + r.institution.name
+      });
+    });
+    o.versionsAwaiting.forEach(function (v) {
+      var rec = state.contentRecord(v.recordId);
+      items.push({
+        tone: 'warn', icon: 'layers',
+        title: (rec ? rec.name : v.recordId) + ' — version ' + v.versionLabel + ' awaiting Release / Hold',
+        body: 'Academically approved' + (v.academicDecisionByName ? ' by ' + esc(v.academicDecisionByName) : '') +
+          '. The published version ' + esc(v.replacesVersionLabel || '—') + ' stays live until you release this one.',
+        href: P.href.record(v.recordId), label: 'Decide',
+        aria: 'Decide Release or Hold for version ' + v.versionLabel + ' of ' + (rec ? rec.name : v.recordId)
+      });
+    });
+    o.transfersAwaiting.forEach(function (r) {
+      var t = state.tenantById(r.tenantId);
+      items.push({
+        tone: 'warn', icon: 'monitor',
+        title: r.personName + ' — device replacement request',
+        body: (t ? esc(t.name) + ' · ' : '') + 'requested ' + esc(util.fmtDate(r.createdAt)) +
+          '. Approving moves the authorised device binding; it grants no content and consumes no licence.',
+        href: P.href.transfer(r.id), label: 'Review',
+        aria: 'Review device transfer request ' + r.id + ' from ' + r.personName
+      });
+    });
+    o.ticketsOpen.forEach(function (t) {
+      var ten = t.tenantId ? state.tenantById(t.tenantId) : null;
+      items.push({
+        tone: 'warn', icon: 'alertCirc',
+        title: t.subject,
+        body: esc(state.supportCategoryLabel(t.category)) + ' · reported by ' + esc(t.requesterName) +
+          (ten ? ' · ' + esc(ten.name) : '') + ' · ' + esc(util.fmtDate(t.createdAt)),
+        href: P.href.ticket(t.id), label: 'Open',
+        aria: 'Open support report ' + t.id + ': ' + t.subject
+      });
+    });
+    o.expiryReminders.forEach(function (rec) {
+      var t = state.tenantById(rec.tenantId);
+      items.push({
+        tone: 'warn', icon: 'clock',
+        title: (t ? t.name : rec.tenantId) + ' — access term expiring',
+        body: esc(rec.id) + ' · ' + esc(P.expiryLine(rec)) +
+          '. The tenant must be reminded 15 days ahead; the delivery channel is not selected, ' +
+          'so nothing has been sent.',
+        href: P.href.institution(rec.tenantId), label: 'Institution',
+        aria: 'Open the institution report for ' + (t ? t.name : rec.tenantId)
+      });
+    });
+    o.tenantsWithoutAdmin.forEach(function (t) {
+      items.push({
+        tone: 'warn', icon: 'users',
+        title: t.name + ' — no Tenant Admin assigned',
+        body: 'The Super Admin assigns the Tenant / Institute Admin. Until one is assigned, nobody at this ' +
+          'institution is recorded as responsible for its people and assignments.',
+        href: P.href.institution(t.id), label: 'Assign',
+        aria: 'Assign a Tenant Admin for ' + t.name
+      });
+    });
+
+    var html =
+      ui.phead('Overview',
+        items.length
+          ? items.length + ' ' + util.plural(items.length, 'item') + ' waiting on the platform'
+          : 'Nothing is waiting on the platform') +
+      '<div class="stack">' +
+      ui.card('Platform at a glance', tiles +
+        '<p class="cardfoot">Every figure here is counted from real records and opens the thing it counts. ' +
+        'No revenue or financial metric appears on any Super Admin surface.</p>', null, 'h2') +
+      ui.card('Needs a decision', P.attentionList(items), null, 'h2') +
+      (o.expiryReminders.length ? P.reminderNote() : '') +
+      '</div>';
+
+    return { title: 'Overview', html: html, navKey: 'overview' };
+  };
 
   /* ---------------- request queue ---------------- */
   XRSLP.screens.platformRequests = function () {
@@ -130,12 +362,13 @@ XRSLP.screens = XRSLP.screens || {};
       return {
         title: 'Request not found',
         navKey: 'requests',
-        html: ui.crumbs([{ label: 'Access requests', href: '#/platform/requests' }, { label: 'Not found' }]) +
+        html: ui.crumbs([{ label: 'Access requests', href: P.href.requests() }, { label: 'Not found' }]) +
+          ui.phead('Request not found') +
           '<div class="tablecard">' + ui.emptyState({
             icon: 'alertCirc',
             title: 'Request not found',
             body: 'No institutional request exists with this identifier in the prototype data.',
-            actionsHTML: '<a class="btn pri" href="#/platform/requests">Back to access requests</a>'
+            actionsHTML: '<a class="btn pri" href="' + P.href.requests() + '">Back to access requests</a>'
           }) + '</div>'
       };
     }
@@ -178,12 +411,13 @@ XRSLP.screens = XRSLP.screens || {};
       var tenant = r.tenantId ? state.tenantById(r.tenantId) : null;
       decisionHTML =
         '<div class="decidebar"><span class="db-note">Access is active' +
-        (tenant ? ' for ' + esc(tenant.name) : '') + '. The tenant&rsquo;s approved content is recorded under ' +
-        '<a href="#/platform/institutions">Institutions</a>.</span></div>';
+        (tenant ? ' for ' + esc(tenant.name) : '') + '. The tenant&rsquo;s approved content, licences and term are ' +
+        'on its <a href="' + (tenant ? P.href.institution(tenant.id) : P.href.institutions()) +
+        '">institution report</a>.</span></div>';
     }
 
     var html =
-      ui.crumbs([{ label: 'Access requests', href: '#/platform/requests' }, { label: r.id }]) +
+      ui.crumbs([{ label: 'Access requests', href: P.href.requests() }, { label: r.id }]) +
       ui.phead('Request ' + r.id, esc(r.institution.name) + ' · submitted ' + esc(util.fmtDate(r.submittedAt)),
         null, ui.statusBadge(r.status)) +
       '<div class="grid-rail">' +
@@ -212,9 +446,9 @@ XRSLP.screens = XRSLP.screens || {};
       '</div>' +
       '<div class="stack">' +
       ui.card('History', timeline) +
-      ui.gapNote('NOT IN THIS SLICE',
-        'Request-more-information and other decision outcomes are not implemented in this vertical slice; ' +
-        'only approval is. Absent capabilities are shown as gaps, never as disabled controls.') +
+      ui.gapNote('NOT IN THIS BUILD',
+        'Request-more-information and other decision outcomes are not implemented; only approval is. ' +
+        'Absent capabilities are shown as gaps, never as disabled controls.') +
       '</div>' +
       '</div>';
 
@@ -255,35 +489,371 @@ XRSLP.screens = XRSLP.screens || {};
   /* ---------------- institutions (tenants) ---------------- */
   XRSLP.screens.platformInstitutions = function () {
     var tenants = state.tenants();
+    var inactive = tenants.filter(function (t) { return t.status === 'inactive'; }).length;
 
     var rows = tenants.map(function (t) {
       var access = state.accessForTenant(t.id);
+      var live = access.filter(state.accessIsLive).length;
+      var admins = state.tenantAdminsFor(t.id);
+      var due = state.tenantAccessNeedingExpiryReminder(t.id).length;
       return '<tr>' +
-        '<td data-label="Institution"><span class="tmain">' + esc(t.name) + '</span>' +
-        '<span class="tsub">' + esc(t.origin) + '</span></td>' +
+        '<td data-label="Institution"><a class="rowlink" href="' + P.href.institution(t.id) + '">' +
+        '<span class="tmain">' + esc(t.name) + '</span>' +
+        '<span class="tsub">' + esc(t.origin) + '</span></a></td>' +
         '<td data-label="Classification">' + esc(t.kind === 'internal' ? 'Internal' : 'External') + '</td>' +
-        '<td data-label="Access context">' + esc(t.accessContext) + '</td>' +
-        '<td data-label="Active access records" class="num">' + access.length + '</td>' +
-        '<td data-label="Status">' + ui.badge('b-success', 'check', 'Active') + '</td>' +
-        '<td class="cell-actions"><a class="btn sm sec" href="#/tenant/' + encodeURIComponent(t.id) + '/content-access">View content access</a></td>' +
+        '<td data-label="Tenant Admin">' + (admins.length
+          ? esc(admins[0].name) + (admins.length > 1 ? ' <span class="muted">+' + (admins.length - 1) + '</span>' : '')
+          : '<span class="muted">Not assigned</span>') + '</td>' +
+        '<td data-label="Access records" class="num">' + live + ' <span class="muted">of ' + access.length + ' live</span></td>' +
+        '<td data-label="Expiry attention" class="num">' + (due ? due : '<span class="muted">—</span>') + '</td>' +
+        '<td data-label="Status">' + P.tenantBadge(t) + '</td>' +
+        '<td class="cell-actions"><a class="btn sm sec" href="' + P.href.institution(t.id) + '">Open</a></td>' +
         '</tr>';
     }).join('');
 
     var html =
-      ui.phead('Institutions', tenants.length + ' ' + util.plural(tenants.length, 'tenant') + ' on the platform') +
+      ui.phead('Institutions',
+        tenants.length + ' ' + util.plural(tenants.length, 'tenant') + ' on the platform' +
+        (inactive ? ' · ' + inactive + ' deactivated' : '')) +
       '<div class="tablecard"><div class="tscroll">' +
       '<table class="dt"><caption class="sr-only">Platform tenants</caption>' +
-      '<thead><tr><th scope="col">Institution</th><th scope="col">Classification</th><th scope="col">Access context</th>' +
-      '<th scope="col">Active access records</th><th scope="col">Status</th>' +
+      '<thead><tr><th scope="col">Institution</th><th scope="col">Classification</th><th scope="col">Tenant Admin</th>' +
+      '<th scope="col">Access records</th><th scope="col">Expiring within 15 days</th><th scope="col">Status</th>' +
       '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div></div>' +
       '<div style="margin-top:16px">' +
-      ui.gapNote('NOT IN THIS SLICE',
-        'Tenant governance — creation outside a request, Tenant Admin assignment, deactivation, institution ' +
-        'profile/report — arrives in later implementation slices. This list is read-only visibility. ' +
-        '“View content access” opens the tenant&rsquo;s workspace view of its activated content.') +
+      ui.gapNote('NOT IN THIS BUILD',
+        'A tenant is created here only by approving an institutional access request. Creating one outside that ' +
+        'route, and the on-campus / off-campus categorisation attribute, are not built — the topology permits a ' +
+        'campus to be its own tenant, but no source describes the creation form.') +
       '</div>';
 
     return { title: 'Institutions', html: html, navKey: 'institutions' };
+  };
+
+  /* ============================================================
+     INSTITUTION DETAIL — the tenant report and its governance.
+
+     Operational facts only (STK31-42): identity, Tenant Admin, active
+     access, licence quantities, term, people counts, the courses and
+     experiments actually reached, expiry attention and support signals.
+     No revenue metric exists here and none may be invented.
+     ============================================================ */
+  XRSLP.screens.platformInstitution = function (params) {
+    var rep = state.tenantReport(params.id);
+    if (!rep) {
+      return {
+        title: 'Institution not found', navKey: 'institutions',
+        html: ui.crumbs([{ label: 'Institutions', href: P.href.institutions() }, { label: 'Not found' }]) +
+          ui.phead('Institution not found') +
+          '<div class="tablecard">' + ui.emptyState({
+            icon: 'alertCirc', title: 'Institution not found',
+            body: 'No tenant exists with this identifier in the prototype data.',
+            actionsHTML: '<a class="btn pri" href="' + P.href.institutions() + '">Back to institutions</a>'
+          }) + '</div>'
+      };
+    }
+    var t = rep.tenant;
+    var inactive = t.status === 'inactive';
+
+    /* ---- identity ---- */
+    var identity = ui.card('Institution',
+      '<div class="kv">' +
+      '<div class="k">Name</div><div class="v">' + esc(t.name) + '</div>' +
+      '<div class="k">Classification</div><div class="v">' + esc(t.kind === 'internal' ? 'Internal' : 'External') + '</div>' +
+      '<div class="k">Access context</div><div class="v">' + esc(t.accessContext) + '</div>' +
+      '<div class="k">Origin</div><div class="v">' + esc(t.origin) + '</div>' +
+      '<div class="k">Status</div><div class="v">' + P.tenantBadge(t) +
+      (inactive && t.deactivatedAt ? ' <span class="muted">since ' + esc(util.fmtDate(t.deactivatedAt)) + '</span>' : '') +
+      '</div>' +
+      (inactive && t.deactivatedReason
+        ? '<div class="k">Reason recorded</div><div class="v">' + esc(t.deactivatedReason) + '</div>' : '') +
+      '</div>', null, 'h2');
+
+    /* ---- Tenant Admin ---- */
+    var adminRows = rep.admins.length
+      ? '<ul class="reslist plain">' + rep.admins.map(function (a) {
+          return '<li>' + ui.ic('users') +
+            '<span><strong>' + esc(a.name) + '</strong> <span class="muted">· ' + esc(a.email) + '</span>' +
+            '<span class="tsub">Assigned by ' + esc(a.assignedBy) +
+            (a.assignedAt ? ' · ' + esc(util.fmtDate(a.assignedAt)) : '') + '</span></span>' +
+            '<button class="btn sm sec" type="button" data-rm-admin="' + esc(a.id) + '">Remove</button></li>';
+        }).join('') + '</ul>'
+      : ui.alertBox('warning', 'No Tenant Admin assigned',
+          '<p>The Super Admin assigns the Tenant / Institute Admin. Until one is assigned, no person is recorded ' +
+          'as responsible for this institution&rsquo;s people, groups and assignments.</p>');
+
+    var removedAdmins = rep.allAdmins.filter(function (a) { return a.status === 'removed'; });
+    var adminCard = ui.card('Tenant Admin',
+      adminRows +
+      '<form id="ta-form" novalidate style="margin-top:14px">' +
+      '<div class="form-errors"></div>' +
+      '<div class="field" id="ta-name"><label for="ta-name-i">Assign a Tenant Admin — name ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<input type="text" id="ta-name-i" autocomplete="off"></div>' +
+      '<div class="field" id="ta-email"><label for="ta-email-i">Email ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<input type="email" id="ta-email-i" autocomplete="off"></div>' +
+      '<div class="formact"><button class="btn pri" type="submit">Assign Tenant Admin</button>' +
+      '<span class="formnote">This records the assignment against a named person. It creates no account, ' +
+      'sends no invitation and issues no credential — how an identity first exists is not decided by any ' +
+      'source, so nothing is invented here.</span></div>' +
+      '</form>' +
+      (removedAdmins.length
+        ? '<p class="cardfoot">Previously assigned: ' + removedAdmins.map(function (a) {
+            return esc(a.name) + ' (removed ' + esc(util.fmtDate(a.removedAt)) + ')';
+          }).join(', ') + '</p>'
+        : ''), null, 'h2');
+
+    /* ---- content access + licences + term ---- */
+    var accessRows = rep.access.length
+      ? '<div class="tscroll"><table class="dt">' +
+        '<caption class="sr-only">Content access records held by ' + esc(t.name) + '</caption>' +
+        '<thead><tr><th scope="col">Record</th><th scope="col">Experiments</th><th scope="col">Approved users</th>' +
+        '<th scope="col">Assigned</th><th scope="col">Term</th><th scope="col">State</th></tr></thead><tbody>' +
+        rep.access.map(function (rec) {
+          var al = state.accessAllocation(rec.id);
+          var term = state.accessTermState(rec);
+          var due = state.expiryReminderDue(rec);
+          return '<tr>' +
+            '<td data-label="Record"><span class="tmain">' + esc(rec.id) + '</span>' +
+            '<span class="tsub">' + esc(rec.accessContext) + '</span></td>' +
+            '<td data-label="Experiments" class="num">' + rec.items.length + '</td>' +
+            '<td data-label="Approved users" class="num">' + al.approved + '</td>' +
+            '<td data-label="Assigned" class="num">' + al.assigned +
+            (al.over ? ' <span class="muted">(' + al.over + ' held)</span>' : '') + '</td>' +
+            '<td data-label="Term">' + esc(P.expiryLine(rec)) + '</td>' +
+            '<td data-label="State">' + ui.termBadge(term) +
+            (due ? ' ' + ui.badge('b-warning', 'clock', 'Reminder due') : '') + '</td>' +
+            '</tr>';
+        }).join('') + '</tbody></table></div>'
+      : ui.emptyState({
+          icon: 'layers', heading: 'h3',
+          title: 'No content access',
+          body: 'This institution holds no approved content. Content reaches a tenant only through an approved ' +
+            'institutional access request.'
+        });
+
+    /* ---- what the access actually reaches ---- */
+    var groupingNames = rep.groupingIds.map(function (id) {
+      var g = data.grouping(id);
+      return g ? g.name : id;
+    });
+    var courseNames = rep.courseIds.map(function (id) {
+      var c = data.course(id);
+      return c ? c.name : id;
+    });
+
+    var reach = ui.card('What this institution holds',
+      P.statGrid([
+        { label: 'People', value: rep.people, note: rep.students + ' ' + util.plural(rep.students, 'student') +
+          ' · ' + rep.faculty + ' ' + util.plural(rep.faculty, 'faculty member', 'faculty members') },
+        { label: 'Students with entitlement', value: rep.entitledStudents,
+          note: 'Effective entitlement, not enrolment' },
+        { label: 'Approved licences', value: rep.allocation.approved,
+          note: rep.allocation.assigned + ' assigned · ' + rep.allocation.remaining + ' remaining' },
+        { label: 'Experiments held', value: rep.experimentIds.length,
+          note: rep.courseIds.length + ' ' + util.plural(rep.courseIds.length, 'course') }
+      ]) +
+      '<div class="kv" style="margin-top:14px">' +
+      '<div class="k">Programmes / departments</div><div class="v">' +
+      (groupingNames.length ? esc(groupingNames.join(', ')) : '<span class="muted">None</span>') + '</div>' +
+      '<div class="k">Courses reached</div><div class="v">' +
+      (courseNames.length ? esc(courseNames.join(', ')) : '<span class="muted">None</span>') + '</div>' +
+      '<div class="k">Student groups</div><div class="v">' + rep.groups + '</div>' +
+      '</div>' +
+      '<p class="cardfoot">Licence figures come from the approved request and nothing else. ' +
+      'No universal cap, no seat figure without an approved origin, and no revenue metric.</p>', null, 'h2');
+
+    /* ---- operational signals ---- */
+    var signals = [];
+    rep.expiryReminders.forEach(function (rec) {
+      signals.push({ tone: 'warn', icon: 'clock',
+        title: rec.id + ' — expiry reminder due',
+        body: esc(P.expiryLine(rec)) + '. The tenant must be reminded 15 days ahead. ' +
+          'The delivery channel is not selected, so nothing has been sent.',
+        href: P.href.operations(), label: 'Operations',
+        aria: 'Open operations for the expiring access record ' + rec.id });
+    });
+    rep.expiredAccess.forEach(function (rec) {
+      signals.push({ tone: 'warn', icon: 'alertCirc',
+        title: rec.id + ' — access term ended',
+        body: 'Ended ' + esc(util.fmtDate(rec.endsOn)) + '. Entitlement derived from it has stopped being ' +
+          'effective; nothing has been deleted. There is no automatic renewal.',
+        href: P.href.operations(), label: 'Operations',
+        aria: 'Open operations for the expired access record ' + rec.id });
+    });
+    rep.openTickets.forEach(function (tk) {
+      signals.push({ tone: 'warn', icon: 'alertCirc',
+        title: tk.subject,
+        body: esc(state.supportCategoryLabel(tk.category)) + ' · reported by ' + esc(tk.requesterName),
+        href: P.href.ticket(tk.id), label: 'Open',
+        aria: 'Open support report ' + tk.id });
+    });
+    var openTransfers = rep.transfers.filter(function (x) { return x.status === state.TRANSFER_STATUS.SUBMITTED; });
+    openTransfers.forEach(function (tr) {
+      signals.push({ tone: 'warn', icon: 'monitor',
+        title: tr.personName + ' — device replacement request',
+        body: 'Awaiting a decision. Approving it grants no content and consumes no licence.',
+        href: P.href.transfer(tr.id), label: 'Review',
+        aria: 'Review device transfer ' + tr.id });
+    });
+
+    var signalCard = ui.card('Issues requiring attention',
+      P.attentionList(signals, {
+        icon: 'check', heading: 'h3',
+        title: 'Nothing needs attention',
+        body: 'No expiring term, no expired access, no open support report and no device request for this institution.'
+      }), null, 'h2');
+
+    /* ---- governance ---- */
+    var governance = ui.card(inactive ? 'Reactivate this institution' : 'Deactivate this institution',
+      (inactive
+        ? '<p>Reactivating restores access <strong>only where the underlying entitlement, allocation and term are ' +
+          'still valid</strong>. Nothing was deleted while the institution was deactivated, and nothing is ' +
+          'recreated now: the same assignments and the same allocation ordering come back, so no student is ' +
+          'displaced.</p>'
+        : '<p>Deactivation is <strong>reversible</strong> and destroys nothing. People, groups, academic ' +
+          'mappings, assignments, licence allocation, assessment attempts, reviews and progress are all kept ' +
+          'exactly as they are.</p>' +
+          '<p style="margin-top:6px">While the institution is deactivated: the Tenant Admin cannot take ' +
+          'operational actions, Faculty cannot use mapped content, and Students cannot launch learning. ' +
+          'Nothing about their history changes.</p>') +
+      '<div class="formact">' +
+      (inactive
+        ? '<button class="btn pri" type="button" id="ten-reactivate">' + ui.ic('check') + 'Reactivate institution</button>'
+        : '<button class="btn dgr" type="button" id="ten-deactivate">' + ui.ic('alertCirc') + 'Deactivate institution</button>') +
+      '<span class="formnote">There is no delete. A tenant is never physically removed.</span>' +
+      '</div>', null, 'h2');
+
+    /* ---- governance history ---- */
+    var hist = (t.history || []).slice().reverse();
+    var historyCard = ui.card('Governance history',
+      hist.length
+        ? '<div class="timeline">' + hist.map(function (h) {
+            var cls = h.kind === 'deactivated' ? 'warn' : h.kind === 'reactivated' ? 'good' : 'info';
+            return '<div class="tl-item"><span class="tl-dot ' + cls + '">' +
+              ui.ic(h.kind === 'deactivated' ? 'alertCirc' : h.kind === 'reactivated' ? 'check' : 'users') + '</span>' +
+              '<div class="tl-body"><div class="tl-action">' + esc(h.label) + '</div>' +
+              '<div class="tl-who">' + esc(h.who) + ' · ' + esc(util.fmtDateTime(h.at)) + '</div>' +
+              (h.note ? '<p class="tl-note">' + esc(h.note) + '</p>' : '') +
+              '</div></div>';
+          }).join('') + '</div>'
+        : '<p class="muted">No governance action has been taken on this institution.</p>', null, 'h2');
+
+    var html =
+      ui.crumbs([{ label: 'Institutions', href: P.href.institutions() }, { label: t.name }]) +
+      ui.phead(t.name, esc(t.accessContext) + ' · ' + esc(t.kind === 'internal' ? 'Internal' : 'External'),
+        '<a class="btn sec" href="#/tenant/' + encodeURIComponent(t.id) + '/overview">Open tenant workspace</a>',
+        ' ' + P.tenantBadge(t)) +
+      (inactive
+        ? ui.alertBox('warning', 'This institution is deactivated',
+            '<p>' + esc(state.TENANT_INACTIVE_TEXT) + '</p>')
+        : '') +
+      '<div class="grid-rail">' +
+      '<div class="stack">' + identity + reach +
+      ui.card('Content access, licences and term', accessRows, null, 'h2') +
+      signalCard + governance + '</div>' +
+      '<div class="stack">' + adminCard + historyCard +
+      (rep.expiryReminders.length ? P.reminderNote() : '') +
+      ui.gapNote('NOT IN THIS BUILD',
+        'Usage and completion indicators per institution, and institution-level reporting beyond the ' +
+        'operational facts above, are not built. No revenue or financial metric appears here by instruction.') +
+      '</div></div>';
+
+    return {
+      title: t.name, html: html, navKey: 'institutions',
+      after: function () {
+        var deact = document.getElementById('ten-deactivate');
+        if (deact) {
+          deact.addEventListener('click', function () {
+            ui.openDialog({
+              title: 'Deactivate ' + t.name + '?',
+              bodyHTML:
+                '<p>The institution stops being able to operate. <strong>Nothing is deleted.</strong></p>' +
+                '<div class="consequence">' + ui.ic('info') + '<span>' +
+                rep.entitledStudents + ' ' + util.plural(rep.entitledStudents, 'student') +
+                ' currently holding an entitlement will not be able to launch learning, and Faculty will not be ' +
+                'able to use mapped content. All progress, attempts and reviews are kept, and reactivation ' +
+                'restores exactly what is still valid.</span></div>' +
+                '<div class="field" id="ten-reason" style="margin-top:12px">' +
+                '<label for="ten-reason-i">Reason (recorded in the governance history)</label>' +
+                '<input type="text" id="ten-reason-i" autocomplete="off"></div>',
+              okLabel: 'Deactivate institution',
+              onConfirm: function (body) {
+                var input = body ? body.querySelector('#ten-reason-i') : null;
+                state.deactivateTenant(t.id, input ? input.value : '');
+                ui.toast(t.name + ' deactivated. Nothing was deleted.');
+                XRSLP.render(false);
+              }
+            });
+          });
+        }
+        var react = document.getElementById('ten-reactivate');
+        if (react) {
+          react.addEventListener('click', function () {
+            ui.openDialog({
+              title: 'Reactivate ' + t.name + '?',
+              bodyHTML:
+                '<p>Access returns <strong>only where the underlying entitlement, allocation and term are still ' +
+                'valid</strong>. An access record whose term ended while the institution was deactivated stays ' +
+                'expired.</p>' +
+                '<div class="consequence">' + ui.ic('check') + '<span>The existing allocation ordering is ' +
+                'untouched, so no student is displaced by reactivation.</span></div>' +
+                '<div class="field" id="ten-rreason" style="margin-top:12px">' +
+                '<label for="ten-rreason-i">Note (recorded in the governance history)</label>' +
+                '<input type="text" id="ten-rreason-i" autocomplete="off"></div>',
+              okLabel: 'Reactivate institution',
+              onConfirm: function (body) {
+                var input = body ? body.querySelector('#ten-rreason-i') : null;
+                state.reactivateTenant(t.id, input ? input.value : '');
+                ui.toast(t.name + ' reactivated.');
+                XRSLP.render(false);
+              }
+            });
+          });
+        }
+
+        var form = document.getElementById('ta-form');
+        if (form) {
+          var busy = false;
+          form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (busy) { return; }
+            var fields = {
+              name: (document.getElementById('ta-name-i') || {}).value || '',
+              email: (document.getElementById('ta-email-i') || {}).value || ''
+            };
+            var errs = state.validateTenantAdmin(t.id, fields);
+            if (!ui.showErrors(form, errs, 'Please correct the assignment')) { return; }
+            busy = true;
+            var res = state.assignTenantAdmin(t.id, fields);
+            if (!res.ok) { busy = false; ui.showErrors(form, res.errors, 'Please correct the assignment'); return; }
+            ui.toast(res.admin.name + ' assigned as Tenant Admin for ' + t.name + '.');
+            XRSLP.render(false);
+          });
+        }
+        Array.prototype.slice.call(document.querySelectorAll('[data-rm-admin]')).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-rm-admin');
+            var admin = state.tenantAdminById(id);
+            if (!admin) { return; }
+            ui.openDialog({
+              title: 'Remove ' + admin.name + ' as Tenant Admin?',
+              bodyHTML: '<p>The assignment is recorded as removed, not deleted, and appears in the ' +
+                'institution&rsquo;s governance history.</p>' +
+                '<div class="consequence">' + ui.ic('info') + '<span>Removing the only Tenant Admin leaves this ' +
+                'institution with nobody recorded as responsible for its people and assignments.</span></div>',
+              okLabel: 'Remove assignment',
+              onConfirm: function () {
+                state.removeTenantAdmin(id);
+                ui.toast('Tenant Admin assignment removed.');
+                XRSLP.render(false);
+              }
+            });
+          });
+        });
+      }
+    };
   };
 })();

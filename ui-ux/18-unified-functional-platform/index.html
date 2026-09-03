@@ -32,16 +32,26 @@
 <!-- Shared content-production UI. Loads after components.js (it builds on
      XRSLP.ui) and before the three content workspaces that consume it. -->
 <script src="js/content-ui.js"></script>
+<!-- Shared Help / support surface (Implementation 06). One
+     implementation, used by every workspace that has a Help
+     destination. Loads after components.js. -->
+<script src="js/support-ui.js"></script>
 <script src="js/router.js"></script>
 <script src="js/screens/public-catalogue.js"></script>
 <script src="js/screens/public-request.js"></script>
+<!-- Super Admin workspace — three files, ONE workspace.
+     platform.js declares XRSLP.platformUI, so it loads first. -->
 <script src="js/screens/platform.js"></script>
+<script src="js/screens/platform-content.js"></script>
+<script src="js/screens/platform-ops.js"></script>
 <script src="js/screens/tenant.js"></script>
 <script src="js/screens/tenant-people.js"></script>
 <script src="js/screens/tenant-groups.js"></script>
 <script src="js/screens/tenant-assign.js"></script>
 <script src="js/screens/student.js"></script>
 <script src="js/screens/student-learn.js"></script>
+<!-- Student operational screens (Implementation 06): My device and Help. -->
+<script src="js/screens/student-ops.js"></script>
 <!-- Faculty loads after the Student screens: the Faculty preview renders
      through XRSLP.studentUI, so that module must exist first. -->
 <script src="js/screens/faculty.js"></script>
@@ -51,6 +61,12 @@
 <script src="js/screens/vendor.js"></script>
 <script src="js/screens/reviewer.js"></script>
 <script src="js/screens/content-manager.js"></script>
+<!-- Implementation 06 — later-version screens for the Vendor and the
+     Academic Reviewer, and the shared Help destination for the five
+     workspaces that are not the Student. Both load after the
+     workspaces whose UI helpers they use. -->
+<script src="js/screens/content-version.js"></script>
+<script src="js/screens/workspace-help.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

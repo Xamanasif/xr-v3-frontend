@@ -88,7 +88,7 @@ XRSLP.state = (function () {
   var util = XRSLP.util;
 
   var STORAGE_KEY = 'xrslp-unified-v1';
-  var SCHEMA_VERSION = 6;
+  var SCHEMA_VERSION = 8;
 
   var STATUS = {
     DRAFT: 'DRAFT',
@@ -136,7 +136,12 @@ XRSLP.state = (function () {
       academicReviews: [],
       publicationRecords: [],
       contentActors: [],
-      contentRoleAssignments: []
+      contentRoleAssignments: [],
+      /* Implementation 06 — governance and operations. */
+      contentVersions: [],
+      tenantAdmins: [],
+      deviceTransferRequests: [],
+      supportTickets: []
     };
   }
 
@@ -170,6 +175,26 @@ XRSLP.state = (function () {
       publicationRecords: [],
       contentActors: [],
       contentRoleAssignments: [],
+      /* Implementation 06 — Super Admin governance and B2B operations.
+         · contentVersions[]        — LATER versions of already-published
+                                      Experiments. A separate object from
+                                      the first-publication record, and
+                                      the only thing Release / Hold acts
+                                      on (STK31-07).
+         · tenantAdmins[]           — who Super Admin assigned as the
+                                      Tenant / Institute Admin (STK31-21)
+         · deviceTransferRequests[] — Student → Super Admin device
+                                      replacement / transfer (STK31-38)
+         · supportTickets[]         — reported technical issues and their
+                                      platform-side resolution (STK31-39) */
+      contentVersions: [],
+      tenantAdmins: [],
+      deviceTransferRequests: [],
+      supportTickets: [],
+      /* Which REAL assigned Tenant Admin the prototype is currently
+         viewing as. Prototype-only; not authentication, and an admin of
+         one tenant can never act for another. */
+      protoTenantAdminId: null,
       /* Which REAL prototype content actor each of the three central
          workspaces is currently being viewed as. Prototype-only; not
          authentication, and choosing one grants nothing — scope still
@@ -200,7 +225,8 @@ XRSLP.state = (function () {
       seq: { request: 0, access: 0, person: 0, group: 0, membership: 0, mapping: 0, facultyMap: 0, assignment: 0, event: 0,
              resourceAct: 0, simAct: 0, attempt: 0,
              question: 0, assessmentDef: 0, review: 0,
-             contentRec: 0, contentEvent: 0, actor: 0, roleAssign: 0, publication: 0 }
+             contentRec: 0, contentEvent: 0, actor: 0, roleAssign: 0, publication: 0,
+             contentVersion: 0, tenantAdmin: 0, transfer: 0, ticket: 0 }
     };
     /* `contentSeeding` keeps the data.js published-pool resolver on the
        SEED array while this function builds a NEW state object: the
@@ -209,6 +235,7 @@ XRSLP.state = (function () {
     try {
       seedContent(S0);
       seedTenantOperations(S0);
+      seedTenantGovernance(S0);
       seedFacultyAuthoring(S0);
     } finally {
       contentSeeding = false;
@@ -423,7 +450,8 @@ XRSLP.state = (function () {
     if (!parsed.seq || typeof parsed.seq !== 'object') { parsed.seq = {}; }
     ['request', 'access', 'person', 'group', 'membership', 'mapping', 'facultyMap', 'assignment', 'event',
      'resourceAct', 'simAct', 'attempt', 'question', 'assessmentDef', 'review',
-     'contentRec', 'contentEvent', 'actor', 'roleAssign', 'publication']
+     'contentRec', 'contentEvent', 'actor', 'roleAssign', 'publication',
+     'contentVersion', 'tenantAdmin', 'transfer', 'ticket']
       .forEach(function (k) {
         if (typeof parsed.seq[k] !== 'number') { parsed.seq[k] = 0; }
       });
@@ -440,6 +468,13 @@ XRSLP.state = (function () {
     });
     parsed.assignments.forEach(function (a) {
       if (typeof a.eventSeq !== 'number') { parsed.seq.event += 1; a.eventSeq = parsed.seq.event; }
+    });
+    /* Memberships gained an ordering stamp when the allocation queue
+       stopped falling back to comparing ids. Array order IS the creation
+       order, so backfilling in place preserves exactly the sequence in
+       which students actually joined their groups. */
+    parsed.memberships.forEach(function (m) {
+      if (typeof m.eventSeq !== 'number') { parsed.seq.event += 1; m.eventSeq = parsed.seq.event; }
     });
     /* SCHEMA 3 → 4: the assessment attempt stopped being keyed by
        technology. An attempt written by the schema-3 build carries
@@ -477,6 +512,8 @@ XRSLP.state = (function () {
 
     migrateFacultyAuthoring(parsed, stored);
     migrateContentProduction(parsed, stored);
+    migrateGovernance(parsed, stored);
+    migrateTransferScope(parsed);
 
     parsed.schemaVersion = SCHEMA_VERSION;
     delete parsed.version;
@@ -959,8 +996,39 @@ XRSLP.state = (function () {
       S0.contentRoleAssignments.push({
         id: 'CRA-' + util.pad3(S0.seq.roleAssign), actorId: actor.id, role: m.role,
         scope: m.scope, courseId: m.courseId || null, experimentId: m.experimentId || null,
-        source: 'seed'
+        source: 'seed',
+        /* Implementation 06 — the row became governed state. `status`
+           makes removal REVERSIBLE (STK31-22): a withdrawn scope is
+           recorded, never deleted, so the decisions taken under it stay
+           explicable. */
+        status: 'active',
+        assignedBy: 'Prototype seed',
+        assignedAt: null,
+        removedBy: null, removedAt: null, removedReason: ''
       });
+    });
+  }
+
+  /* Implementation 06 — the assigned Tenant / Institute Admin.
+     STK31-21 gives the Super Admin the assignment; QD-02 still does not
+     say how an identity first comes to exist, so nothing here invents an
+     invitation or an account-creation mechanism. The seeded tenant gets
+     one sample Tenant Admin so the Implementation-02 workspace is
+     reachable exactly as before. */
+  function seedTenantGovernance(S0) {
+    var t = S0.tenants.filter(function (x) { return x.id === data.SEED_TENANT_ID; })[0];
+    if (!t) { return; }
+    S0.seq.tenantAdmin += 1;
+    S0.tenantAdmins.push({
+      id: 'TAD-' + util.pad3(S0.seq.tenantAdmin),
+      tenantId: t.id,
+      name: 'Priya Raghavan',
+      email: 'priya.raghavan@sample-institute.example',
+      status: 'active',
+      source: 'seed',
+      assignedBy: 'Prototype seed',
+      assignedAt: S0.seededAt || null,
+      removedBy: null, removedAt: null
     });
   }
 
@@ -988,7 +1056,12 @@ XRSLP.state = (function () {
     return {
       id: rec.id, courseId: rec.courseId, name: rec.name,
       summary: rec.summary, description: rec.description,
-      outcomes: rec.outcomes.slice(), technologies: rec.technologies.slice()
+      outcomes: rec.outcomes.slice(), technologies: rec.technologies.slice(),
+      /* Implementation 06 — the version the public actually sees. It is
+         written by the FIRST publication and then only by a Super Admin
+         RELEASE. A version candidate sitting in the workflow, however
+         far it has got, never appears here. */
+      versionLabel: rec.versionLabel || ''
     };
   }
 
@@ -1019,7 +1092,19 @@ XRSLP.state = (function () {
   }
   function contentRoleLabel(role) { return CONTENT_ROLE_LABEL[role] || role; }
 
+  /* ACTIVE assignments only. Implementation 06 made this collection
+     governed state: a removed scope is kept for the audit trail but must
+     stop carrying authority the moment it is withdrawn, and every scope
+     check in the build goes through this one function — so withdrawing a
+     scope in the Super Admin surface takes effect everywhere at once,
+     with no second scope store to keep in step. */
   function assignmentsFor(actorId) {
+    return S.contentRoleAssignments.filter(function (m) {
+      return m.actorId === actorId && m.status !== 'removed';
+    });
+  }
+  /* Every row, withdrawn ones included — the governance and audit view. */
+  function allAssignmentsFor(actorId) {
     return S.contentRoleAssignments.filter(function (m) { return m.actorId === actorId; });
   }
   /* Which canonical Courses an actor is authorised on. A platform-scope
@@ -1312,8 +1397,14 @@ XRSLP.state = (function () {
     var seq = contentTouched();
     rec.history.unshift({
       seq: seq, kind: kind, label: label,
+      /* The actor's ID as well as their name. A name is what the entry
+         DISPLAYS; the id is what the governance surface can still match
+         on after a role scope has been withdrawn, so "what did this
+         person decide?" survives losing the authority to decide it.
+         Null for a platform action, which has no actor record. */
+      actorId: (actor && actor.id) ? actor.id : null,
       actorName: actor ? actor.name : null,
-      actorRole: actor ? CONTENT_ROLE_LABEL[actor.role] : null,
+      actorRole: actor ? (CONTENT_ROLE_LABEL[actor.role] || actor.role) : null,
       at: at || new Date().toISOString(),
       note: note || ''
     });
@@ -1326,12 +1417,55 @@ XRSLP.state = (function () {
      reaches the same function, so the refusal is the state layer's, not
      the screen's. */
 
-  function vendorCanEdit(rec, actorId) {
-    if (!rec) { return false; }
-    if (rec.createdBy !== actorId) { return false; }
-    return VENDOR_EDITABLE.indexOf(rec.status) !== -1;
+  /* ---------- VIEWING AND MUTATING ARE DIFFERENT QUESTIONS ----------
+     Implementation 06 correction. These predicates are deliberately
+     separate, and only one of them consults the live role assignment.
+
+     `canViewHistoricalRecord` — OWNERSHIP ALONE. A Vendor never loses
+     sight of work they created. Withdrawing a role scope is a governance
+     act about FUTURE authority; it must never delete, hide or orphan a
+     record, a submission, a decision or a history entry. Every Vendor
+     READ path uses this, and it must never acquire a scope term.
+
+     `canMutateVendorRecord` — OWNERSHIP *and* the LIFECYCLE *and* the
+     LIVE role assignment. Changing a record is an act of authority over
+     content in a Course, so it requires an assignment in force RIGHT
+     NOW. The moment the relevant scope is withdrawn the record becomes
+     READ-ONLY: no edit, no submit, no resubmit, no Course change, no
+     technology, package or metadata change. Restoring the scope returns
+     the authority wherever the lifecycle already allows it — nothing
+     else has to be repaired, because nothing was destroyed.
+
+     ⚠ THIS REPLACES the earlier split, which ran editing on ownership
+     alone and gated only submission. That left an out-of-scope Vendor
+     holding mutation authority over content in a Course they no longer
+     held; and because `updateContentDraft` also asks whether the Vendor
+     may file into the Course the FORM is offering, re-filing the record
+     into a Course they DID still hold became the only way to save it —
+     the build actively steered a withdrawn Vendor into moving the
+     Experiment out from under its Course. Withdrawn authority is
+     withdrawn authority. */
+  function canViewHistoricalRecord(rec, actorId) {
+    return !!rec && !!actorId && rec.createdBy === actorId;
   }
-  function vendorCanSubmit(rec, actorId) { return vendorCanEdit(rec, actorId); }
+  function canMutateVendorRecord(rec, actorId) {
+    if (!canViewHistoricalRecord(rec, actorId)) { return false; }
+    if (VENDOR_EDITABLE.indexOf(rec.status) === -1) { return false; }
+    return actorCoversRecord(actorId, rec);
+  }
+  /* The record is the Vendor's own and the workflow has handed it back,
+     but no live assignment covers it any more. Read-only for a reason
+     the screens must name differently from "somebody else is holding
+     it", so they can say which of the two is true. */
+  function vendorScopeWithdrawn(rec, actorId) {
+    return canViewHistoricalRecord(rec, actorId) && !actorCoversRecord(actorId, rec);
+  }
+
+  /* Editing and submitting now ask the SAME authority question and
+     differ only in what the workflow does next. Both names are kept
+     because the screens read more honestly for it. */
+  function vendorCanEdit(rec, actorId) { return canMutateVendorRecord(rec, actorId); }
+  function vendorCanSubmit(rec, actorId) { return canMutateVendorRecord(rec, actorId); }
 
   function vendorCanCreateIn(actorId, courseId) {
     return actorCourseIds(actorId).indexOf(courseId) !== -1;
@@ -1363,7 +1497,14 @@ XRSLP.state = (function () {
     var rec = contentRecord(recordId);
     var actor = contentActor(actorId);
     if (!rec || !actor || actor.role !== CONTENT_ROLE.VENDOR) { return null; }
-    if (!vendorCanEdit(rec, actorId)) { return null; }
+    /* Authority over the record AS IT STANDS — judged on the Course it
+       is filed under NOW, never on the one the form happens to be
+       offering. This is what makes a withdrawn scope unlaunderable: the
+       answer cannot be changed by changing the field. */
+    if (!canMutateVendorRecord(rec, actorId)) { return null; }
+    /* And, separately, authority to file into the Course being chosen —
+       so an in-scope Vendor still cannot move an Experiment into a
+       Course they do not hold. */
     if (!vendorCanCreateIn(actorId, fields.courseId)) { return null; }
     if (validateContent(fields, 'draft', { exceptId: rec.id }).length) { return null; }
     rec.courseId = fields.courseId;
@@ -1389,7 +1530,7 @@ XRSLP.state = (function () {
     var rec = contentRecord(recordId);
     var actor = contentActor(actorId);
     if (!rec || !actor || actor.role !== CONTENT_ROLE.VENDOR) { return null; }
-    if (!vendorCanSubmit(rec, actorId)) { return null; }
+    if (!canMutateVendorRecord(rec, actorId)) { return null; }
     if (validateContent(rec, 'submit', { exceptId: rec.id }).length) { return null; }
 
     var now = new Date().toISOString();
@@ -1835,6 +1976,9 @@ XRSLP.state = (function () {
   var S = load() || initialState();
   pubCache = null;
   pubCacheSeq = -1;
+  /* Runs against live state, so it can use the real entitlement engine.
+     A no-op for a state that has nothing to repair. */
+  resolveTransferScopes();
 
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); }
@@ -2085,6 +2229,7 @@ XRSLP.state = (function () {
   var ASSIGNABILITY_REASON = {
     'missing':         'the access record no longer exists',
     'other-tenant':    'the record belongs to another institution',
+    'tenant-inactive': 'the institution has been deactivated by the Super Admin',
     'expired':         'its access term has expired',
     'no-experiments':  'it carries no approved experiments',
     'no-technologies': 'it carries no approved technology variants',
@@ -2094,6 +2239,13 @@ XRSLP.state = (function () {
   function accessAssignability(rec, tenantId) {
     if (!rec) { return 'missing'; }
     if (tenantId && rec.tenantId !== tenantId) { return 'other-tenant'; }
+    /* Implementation 06 — tenant deactivation (STK31-21 / STK31-22).
+       Deactivation is a REVERSIBLE state on the tenant, never a deletion:
+       the access record, its licence quantity, its term, every assignment
+       and every learning record stay exactly as they were, and this one
+       derived reason is what stops them carrying authority. Reactivating
+       the tenant restores precisely what was still valid. */
+    if (!tenantIsActive(rec.tenantId)) { return 'tenant-inactive'; }
     if (!accessIsLive(rec)) { return 'expired'; }
     var items = Array.isArray(rec.items) ? rec.items : [];
     if (!items.length) { return 'no-experiments'; }
@@ -2184,6 +2336,10 @@ XRSLP.state = (function () {
   }
 
   function addFaculty(tenantId, fields) {
+    /* Implementation-06 tenant-plane write guard — a deactivated tenant
+       takes no operational action (STK31-21 / 22). Nothing is deleted;
+       the guard simply refuses the write. */
+    if (!tenantCanWrite(tenantId)) { return null; }
     S.seq.person += 1;
     var now = new Date().toISOString();
     var rec = {
@@ -2202,6 +2358,10 @@ XRSLP.state = (function () {
   }
 
   function addStudent(tenantId, fields) {
+    /* Implementation-06 tenant-plane write guard — a deactivated tenant
+       takes no operational action (STK31-21 / 22). Nothing is deleted;
+       the guard simply refuses the write. */
+    if (!tenantCanWrite(tenantId)) { return null; }
     S.seq.person += 1;
     var now = new Date().toISOString();
     var rec = {
@@ -2236,6 +2396,10 @@ XRSLP.state = (function () {
   function setStudentStatus(personId, status) {
     var p = personById(personId);
     if (!p || p.role !== 'student') { return null; }
+    /* Implementation-06 tenant-plane write guard — a deactivated tenant
+       takes no operational action (STK31-21 / 22). Nothing is deleted;
+       the guard simply refuses the write. */
+    if (!tenantCanWrite(p.tenantId)) { return null; }
     var now = new Date().toISOString();
     if (status === 'inactive') {
       p.status = 'inactive';
@@ -2294,6 +2458,10 @@ XRSLP.state = (function () {
     return groupsForTenant(tenantId).filter(function (g) { return data.norm(g.name) === n; })[0] || null;
   }
   function createGroup(tenantId, fields) {
+    /* Implementation-06 tenant-plane write guard — a deactivated tenant
+       takes no operational action (STK31-21 / 22). Nothing is deleted;
+       the guard simply refuses the write. */
+    if (!tenantCanWrite(tenantId)) { return null; }
     S.seq.group += 1;
     var rec = {
       id: 'GRP-' + util.pad3(S.seq.group),
@@ -2309,6 +2477,7 @@ XRSLP.state = (function () {
   function renameGroup(groupId, name, description) {
     var g = groupById(groupId);
     if (!g) { return null; }
+    if (!tenantCanWrite(g.tenantId)) { return null; }
     g.name = String(name || '').trim();
     g.description = String(description || '').trim();
     save();
@@ -2334,17 +2503,27 @@ XRSLP.state = (function () {
   function addToGroup(groupId, personId) {
     var g = groupById(groupId), p = personById(personId);
     if (!g || !p || p.role !== 'student' || p.tenantId !== g.tenantId) { return false; }
+    if (!tenantCanWrite(g.tenantId)) { return false; }
     if (isMember(groupId, personId)) { return false; }
     S.seq.membership += 1;
+    S.seq.event += 1;
     S.memberships.push({
       id: 'GM-' + util.pad3(S.seq.membership),
       tenantId: g.tenantId, groupId: groupId, personId: personId,
+      /* A monotonic ordering stamp, like the one every assignment and
+         every person activation carries. The allocation queue needs to
+         know WHEN a student first came within reach of an access record,
+         and for a group member that is when they joined the group — not
+         when the group was assigned. See `accessAllocation`. */
+      eventSeq: S.seq.event,
       addedAt: new Date().toISOString()
     });
     save();
     return true;
   }
   function removeFromGroup(groupId, personId) {
+    var grp = groupById(groupId);
+    if (grp && !tenantCanWrite(grp.tenantId)) { return false; }
     var before = S.memberships.length;
     S.memberships = S.memberships.filter(function (m) {
       return !(m.groupId === groupId && m.personId === personId);
@@ -2368,6 +2547,7 @@ XRSLP.state = (function () {
     })[0] || null;
   }
   function setCourseMapping(tenantId, courseId, localCode, semester) {
+    if (!tenantCanWrite(tenantId)) { return null; }
     var existing = courseMapping(tenantId, courseId);
     var now = new Date().toISOString();
     if (existing) {
@@ -2390,6 +2570,7 @@ XRSLP.state = (function () {
     return rec;
   }
   function clearCourseMapping(tenantId, courseId) {
+    if (!tenantCanWrite(tenantId)) { return false; }
     var before = S.courseMappings.length;
     S.courseMappings = S.courseMappings.filter(function (m) {
       return !(m.tenantId === tenantId && m.courseId === courseId);
@@ -2422,6 +2603,7 @@ XRSLP.state = (function () {
     });
   }
   function mapFaculty(tenantId, personId, accessId, courseId, experimentId) {
+    if (!tenantCanWrite(tenantId)) { return null; }
     var rec = accessById(accessId);
     if (!accessIsAssignable(rec, tenantId)) { return null; }
     if (accessCourseIds(rec).indexOf(courseId) === -1) { return null; }
@@ -2442,6 +2624,7 @@ XRSLP.state = (function () {
   function removeFacultyMapping(id) {
     var f = S.facultyMappings.filter(function (x) { return x.id === id; })[0];
     if (!f || f.status !== 'active') { return false; }
+    if (!tenantCanWrite(f.tenantId)) { return false; }
     f.status = 'removed';
     f.removedAt = new Date().toISOString();
     save();
@@ -2471,6 +2654,27 @@ XRSLP.state = (function () {
     if (a.targetType === 'student') { return [a.targetId]; }
     if (a.targetType === 'group') { return memberIdsOfGroup(a.targetId); }
     return [];
+  }
+  /* THE SAME reach, but paired with the ordering stamp at which each
+     person actually came within reach of this assignment.
+
+     For a direct assignment that is the assignment's own stamp. For a
+     GROUP assignment it is the LATER of the assignment and the person's
+     membership — because a member added to an already-assigned group was
+     reached at the moment they joined, not when the group was assigned.
+
+     Without this every member of a group shared one stamp, the queue fell
+     back to comparing ids, and adding a member whose id happened to sort
+     earlier took a licence off somebody who already held one. */
+  function assignmentReachStamped(a) {
+    var base = typeof a.eventSeq === 'number' ? a.eventSeq : 0;
+    if (a.targetType === 'student') { return [{ personId: a.targetId, seq: base }]; }
+    if (a.targetType !== 'group') { return []; }
+    return S.memberships.filter(function (m) { return m.groupId === a.targetId; })
+      .map(function (m) {
+        var joined = typeof m.eventSeq === 'number' ? m.eventSeq : 0;
+        return { personId: m.personId, seq: Math.max(base, joined) };
+      });
   }
   function assignmentTargetLabel(a) {
     if (a.targetType === 'student') {
@@ -2514,13 +2718,14 @@ XRSLP.state = (function () {
     out.approved = rec.quantity || 0;
     out.live = accessIsLive(rec);
 
-    var first = {};   /* personId → earliest active assignment ordering stamp under this record */
+    var first = {};   /* personId → earliest stamp at which they came within reach of this record */
     assignmentsForAccess(rec.tenantId, accessId).forEach(function (a) {
-      var stamp = typeof a.eventSeq === 'number' ? a.eventSeq : 0;
-      assignmentReach(a).forEach(function (pid) {
-        var p = personById(pid);
+      assignmentReachStamped(a).forEach(function (row) {
+        var p = personById(row.personId);
         if (!p || p.role !== 'student' || p.status !== 'active') { return; }
-        if (first[pid] == null || stamp < first[pid]) { first[pid] = stamp; }
+        if (first[row.personId] == null || row.seq < first[row.personId]) {
+          first[row.personId] = row.seq;
+        }
       });
     });
 
@@ -2559,7 +2764,28 @@ XRSLP.state = (function () {
       totals.over += al.over;
       al.entitledIds.forEach(function (id) { uniq[id] = true; });
     });
-    totals.uniqueEntitledStudents = Object.keys(uniq).length;
+    /* ⚠ THIS IS AN ALLOCATION FIGURE, NOT AN ENTITLEMENT FIGURE — how
+       many distinct students HOLD A LICENCE under this institution's live
+       access records. It deliberately carries no tenant-status term,
+       because deactivating an institution must not silently rewrite its
+       licence allocation: approved, assigned and remaining all stay
+       exactly as they were, and so does this.
+
+       It is therefore NOT the answer to "how many students are entitled".
+       A deactivated institution has licence holders and NO effective
+       entitlement at the same time, and both statements are true. For
+       effective entitlement — the question every learner-facing surface
+       is actually asking — use `entitledStudentIds(tenantId)`, which is
+       tenant-status aware, or `entitledStudentsFor()` per experiment.
+
+       `uniqueEntitledStudents` is kept as-is so nothing reading it
+       breaks, but it is a MISLEADING NAME that already caused exactly one
+       defect: the Tenant Admin Overview rendered it under the label
+       "Entitled students" and contradicted both the Super Admin
+       institution page and its own "N active students with no
+       entitlement" row. Prefer `uniqueLicenceHolders`. */
+    totals.uniqueLicenceHolders = Object.keys(uniq).length;
+    totals.uniqueEntitledStudents = totals.uniqueLicenceHolders;
     return totals;
   }
 
@@ -2676,6 +2902,7 @@ XRSLP.state = (function () {
   function removeAssignment(id) {
     var a = assignmentById(id);
     if (!a || a.status !== 'active') { return false; }
+    if (!tenantCanWrite(a.tenantId)) { return false; }
     a.status = 'removed';
     a.removedAt = new Date().toISOString();
     save();
@@ -2726,7 +2953,14 @@ XRSLP.state = (function () {
       if (!byKey[key]) {
         var alloc = accessAllocation(a.accessId);
         var withinAllocation = alloc.entitledIds.indexOf(personId) !== -1;
+        /* `tenant-inactive` sits ABOVE the student's own status: when the
+           whole institution is deactivated, that is the true and most
+           explanatory cause, and telling the Student their own account is
+           the problem would be wrong. Nothing below is recomputed or
+           discarded — the allocation ordering, the assignments and every
+           attempt survive, so reactivation restores this exact state. */
         var blocked =
+          !tenantIsActive(p.tenantId) ? 'tenant-inactive' :
           p.status !== 'active' ? 'student-inactive' :
           !accessIsLive(rec) ? 'access-expired' :
           !withinAllocation ? 'allocation-held' : null;
@@ -2766,6 +3000,11 @@ XRSLP.state = (function () {
     if (!rec) { return []; }
     var alloc = accessAllocation(accessId);
     if (!accessIsLive(rec)) { return []; }
+    /* Implementation 06 — the same answer the entitlement engine gives.
+       Without this, a deactivated institution's report would still claim
+       students hold effective entitlement while every one of them is
+       refused at launch. */
+    if (!tenantIsActive(rec.tenantId)) { return []; }
     var set = {};
     assignmentsForAccess(rec.tenantId, accessId).forEach(function (a) {
       if (a.experimentId !== experimentId) { return; }
@@ -2779,6 +3018,7 @@ XRSLP.state = (function () {
   /* Students with at least one effective entitlement anywhere. */
   function entitledStudentIds(tenantId) {
     var set = {};
+    if (!tenantIsActive(tenantId)) { return []; }
     liveAccessForTenant(tenantId).forEach(function (rec) {
       var alloc = accessAllocation(rec.id);
       assignmentsForAccess(tenantId, rec.id).forEach(function (a) {
@@ -2890,7 +3130,7 @@ XRSLP.state = (function () {
      on a record whose term is still running is the accurate, actionable
      story — telling the Student their institution's access "has ended"
      because some OTHER record expired would be plainly wrong. */
-  var BLOCK_PRIORITY = ['student-inactive', 'allocation-held', 'access-expired'];
+  var BLOCK_PRIORITY = ['tenant-inactive', 'student-inactive', 'allocation-held', 'access-expired'];
 
   /* The Student-facing read model. Entitlements are grouped by
      EXPERIMENT — a Student thinks in experiments, not access records,
@@ -4013,6 +4253,10 @@ XRSLP.state = (function () {
   }
 
   function addQuestion(tenantId, fields, facultyPersonId) {
+    /* Implementation-06 tenant-plane write guard (STK31-21 / 22). */
+    if (!tenantCanWrite(tenantId)) {
+      return { ok: false, errors: [{ field: 'q-text', message: 'This institution has been deactivated. No operational action can be taken until it is reactivated.' }], question: null };
+    }
     var errs = validateQuestion(fields);
     if (errs.length) { return { ok: false, errors: errs, question: null }; }
     var f = normaliseQuestionFields(fields);
@@ -4048,6 +4292,9 @@ XRSLP.state = (function () {
   function updateQuestion(id, fields) {
     var q = activeQuestion(id);
     if (!q) { return { ok: false, errors: [{ field: 'q-text', message: 'This question no longer exists.' }], question: null }; }
+    if (!tenantCanWrite(q.tenantId)) {
+      return { ok: false, errors: [{ field: 'q-text', message: 'This institution has been deactivated. No operational action can be taken until it is reactivated.' }], question: null };
+    }
     var merged = {
       type: fields.type || q.type,
       text: fields.text, options: fields.options, answer: fields.answer,
@@ -4086,6 +4333,7 @@ XRSLP.state = (function () {
   function deleteQuestion(id) {
     var q = activeQuestion(id);
     if (!q) { return false; }
+    if (!tenantCanWrite(q.tenantId)) { return false; }
     q.status = 'deleted';
     q.deletedAt = new Date().toISOString();
     save();
@@ -4303,6 +4551,10 @@ XRSLP.state = (function () {
   }
 
   function createAssessment(tenantId, experimentId, facultyPersonId, fields) {
+    /* Implementation-06 tenant-plane write guard (STK31-21 / 22). */
+    if (!tenantCanWrite(tenantId)) {
+      return { ok: false, errors: [{ field: 'as-title', message: 'This institution has been deactivated. No operational action can be taken until it is reactivated.' }], def: null };
+    }
     if (assessmentForTenant(tenantId, experimentId)) {
       return { ok: false, errors: [{ field: 'as-title', message: 'This experiment already has an assessment.' }], def: null };
     }
@@ -4330,6 +4582,9 @@ XRSLP.state = (function () {
     var def = assessmentDefById(defId);
     if (!def || def.status !== 'active') {
       return { ok: false, errors: [{ field: 'as-title', message: 'This assessment no longer exists.' }], def: null };
+    }
+    if (!tenantCanWrite(def.tenantId)) {
+      return { ok: false, errors: [{ field: 'as-title', message: 'This institution has been deactivated. No operational action can be taken until it is reactivated.' }], def: null };
     }
     var errs = validateAssessmentSettings(fields);
     if (errs.length) { return { ok: false, errors: errs, def: null }; }
@@ -4362,6 +4617,7 @@ XRSLP.state = (function () {
   function addQuestionsToAssessment(defId, bankIds, facultyPersonId) {
     var def = assessmentDefById(defId);
     if (!def || def.status !== 'active') { return { ok: false, added: 0, revised: false }; }
+    if (!tenantCanWrite(def.tenantId)) { return { ok: false, added: 0, revised: false }; }
     var present = {};
     def.questions.forEach(function (q) { if (q.bankQuestionId) { present[q.bankQuestionId] = true; } });
     var added = 0;
@@ -4384,6 +4640,7 @@ XRSLP.state = (function () {
   function removeQuestionFromAssessment(defId, questionId, facultyPersonId) {
     var def = assessmentDefById(defId);
     if (!def || def.status !== 'active') { return { ok: false, revised: false }; }
+    if (!tenantCanWrite(def.tenantId)) { return { ok: false, revised: false }; }
     var before = def.questions.length;
     def.questions = def.questions.filter(function (q) { return q.id !== questionId; });
     if (def.questions.length === before) { return { ok: false, revised: false }; }
@@ -4395,6 +4652,7 @@ XRSLP.state = (function () {
   function moveAssessmentQuestion(defId, questionId, direction, facultyPersonId) {
     var def = assessmentDefById(defId);
     if (!def || def.status !== 'active') { return { ok: false, revised: false }; }
+    if (!tenantCanWrite(def.tenantId)) { return { ok: false, revised: false }; }
     var idx = -1;
     def.questions.forEach(function (q, i) { if (q.id === questionId) { idx = i; } });
     var to = idx + (direction === 'up' ? -1 : 1);
@@ -4420,6 +4678,7 @@ XRSLP.state = (function () {
   function refreshAssessmentQuestion(defId, questionId, facultyPersonId) {
     var def = assessmentDefById(defId);
     if (!def || def.status !== 'active') { return { ok: false, revised: false }; }
+    if (!tenantCanWrite(def.tenantId)) { return { ok: false, revised: false }; }
     var target = def.questions.filter(function (q) { return q.id === questionId; })[0];
     if (!target) { return { ok: false, revised: false }; }
     var link = assessmentQuestionLink(target);
@@ -4509,6 +4768,7 @@ XRSLP.state = (function () {
   function generateReviewAssistance(reviewId) {
     var r = reviewById(reviewId);
     if (!r || r.status !== 'pending') { return null; }
+    if (!tenantCanWrite(r.tenantId)) { return null; }
     var q = reviewQuestion(r);
     var suggestion = XRSLP.assist.reviewSuggestion({
       answer: reviewAnswer(r),
@@ -4542,6 +4802,9 @@ XRSLP.state = (function () {
   function finaliseReview(reviewId, marks, feedback, facultyPersonId, usedAssistance) {
     var r = reviewById(reviewId);
     if (!r) { return { ok: false, errors: [{ field: 'rv-marks', message: 'This response no longer exists.' }] }; }
+    if (!tenantCanWrite(r.tenantId)) {
+      return { ok: false, errors: [{ field: 'rv-marks', message: 'This institution has been deactivated. No operational action can be taken until it is reactivated.' }] };
+    }
     if (r.status === 'completed') {
       return { ok: false, errors: [{ field: 'rv-marks', message: 'This response has already been reviewed.' }] };
     }
@@ -4671,6 +4934,1438 @@ XRSLP.state = (function () {
       out.submitted += st.submitted;
     });
     return out;
+  }
+
+  /* ============================================================
+     IMPLEMENTATION 06 — SUPER ADMIN GOVERNANCE AND B2B OPERATIONS
+
+     Six capability areas, all of them extensions of the records that
+     already exist. Nothing here introduces a second copy of a concept
+     the earlier slices already own.
+
+       1 · tenant governance          deactivate / reactivate  STK31-21 · 22
+       2 · Tenant Admin assignment                             STK31-21
+       3 · platform role governance   Vendor · Reviewer · CM    STK31-41
+       4 · canonical/master metadata  (shared with the CM)      STK31-09
+       5 · later-version Release / Hold                        STK31-07
+       6 · device transfer · support · the 15-day reminder     STK31-38 · 39 · 28
+
+     ── THE ALTITUDE RULE, RESTATED ──────────────────────────────
+     Super Admin decides WHAT A TENANT MAY USE. The Tenant Admin
+     decides WHICH LEARNER GETS WHAT. Nothing in this section grants a
+     learner entitlement, consumes a licence, or creates an assignment.
+     Releasing a version, assigning a role, approving a device transfer
+     and resolving a support ticket all leave `access[]`, `assignments[]`
+     and the derived entitlement engine completely untouched.
+     ============================================================ */
+
+  /* ---------- tenant governance ---------- */
+
+  /* A tenant with no explicit status is ACTIVE. Every tenant written by
+     an Implementation 01–05 build is therefore active without being
+     rewritten. */
+  function tenantIsActive(tenantId) {
+    var t = tenantById(tenantId);
+    return !!t && t.status !== 'inactive';
+  }
+  function tenantStatusMeta(t) {
+    return (t && t.status === 'inactive')
+      ? { key: 'inactive', label: 'Deactivated', badge: 'b-danger', icon: 'alertCirc' }
+      : { key: 'active', label: 'Active', badge: 'b-success', icon: 'check' };
+  }
+
+  function pushTenantEvent(t, kind, label, actor, note) {
+    if (!Array.isArray(t.history)) { t.history = []; }
+    S.seq.event += 1;
+    t.history.push({
+      seq: S.seq.event, kind: kind, label: label,
+      who: actor || 'Super Admin', at: new Date().toISOString(),
+      note: String(note || '').trim()
+    });
+    return t.history[t.history.length - 1];
+  }
+
+  /* Reversible by construction (STK31-22): a status flip and a history
+     entry, and NOT ONE record removed. Assignments, allocations,
+     attempts, reviews, questions and access records are all left exactly
+     as they stand — which is the only reason reactivation can restore
+     the previous state rather than approximate it. */
+  function deactivateTenant(tenantId, reason) {
+    var t = tenantById(tenantId);
+    if (!t || t.status === 'inactive') { return null; }
+    t.status = 'inactive';
+    t.deactivatedAt = new Date().toISOString();
+    t.deactivatedReason = String(reason || '').trim();
+    pushTenantEvent(t, 'deactivated', 'Tenant deactivated', 'Super Admin', t.deactivatedReason);
+    save();
+    return t;
+  }
+  function reactivateTenant(tenantId, reason) {
+    var t = tenantById(tenantId);
+    if (!t || t.status !== 'inactive') { return null; }
+    t.status = 'active';
+    t.reactivatedAt = new Date().toISOString();
+    t.deactivatedReason = '';
+    pushTenantEvent(t, 'reactivated', 'Tenant reactivated', 'Super Admin', String(reason || '').trim());
+    save();
+    return t;
+  }
+
+  /* THE ONE TENANT-PLANE WRITE GUARD.
+
+     Every mutating tenant-plane action — Tenant Admin provisioning,
+     Faculty authoring, Student learning — asks this and nothing else, so
+     a deactivated tenant cannot be operated on through a screen, a
+     hand-typed route, or a second call path that forgot to check.
+
+     Reporting a technical issue is deliberately NOT gated by it: "our
+     access stopped working" is exactly the report a user needs to be
+     able to file, and a support ticket changes no entitlement. */
+  function tenantWriteBlock(tenantId) {
+    if (!tenantId) { return null; }
+    return tenantIsActive(tenantId) ? null : 'tenant-inactive';
+  }
+  function tenantCanWrite(tenantId) { return tenantWriteBlock(tenantId) === null; }
+  function personCanWrite(personId) {
+    var p = personById(personId);
+    return !!p && tenantCanWrite(p.tenantId);
+  }
+  var TENANT_INACTIVE_TEXT =
+    'This institution has been deactivated by the Super Admin. Existing people, groups, mappings, ' +
+    'assignments and learning records are all preserved, and nothing has been deleted — but no ' +
+    'operational action can be taken until the institution is reactivated.';
+
+  /* ---------- Tenant Admin assignment (STK31-21) ---------- */
+
+  function tenantAdmins() { return S.tenantAdmins; }
+  function tenantAdminById(id) {
+    return S.tenantAdmins.filter(function (a) { return a.id === id; })[0] || null;
+  }
+  function tenantAdminsFor(tenantId) {
+    return S.tenantAdmins.filter(function (a) {
+      return a.tenantId === tenantId && a.status === 'active';
+    });
+  }
+  function allTenantAdminsFor(tenantId) {
+    return S.tenantAdmins.filter(function (a) { return a.tenantId === tenantId; });
+  }
+  function tenantsWithoutAdmin() {
+    return S.tenants.filter(function (t) { return !tenantAdminsFor(t.id).length; });
+  }
+  function validateTenantAdmin(tenantId, fields) {
+    var errs = [];
+    var name = String(fields.name || '').trim();
+    var email = String(fields.email || '').trim();
+    if (!name) { errs.push({ field: 'ta-name', message: 'Enter the name of the person to assign.' }); }
+    if (!email) { errs.push({ field: 'ta-email', message: 'Enter a contact email address.' }); }
+    else if (!util.isEmail(email)) { errs.push({ field: 'ta-email', message: 'Enter a valid email address.' }); }
+    else if (tenantAdminsFor(tenantId).some(function (a) {
+      return a.email.toLowerCase() === email.toLowerCase();
+    })) {
+      errs.push({ field: 'ta-email', message: 'This person is already the Tenant Admin for this institution.' });
+    }
+    return errs;
+  }
+  /* No account, no invitation, no credential. QD-02 answers WHO assigns,
+     not how an identity first exists (FRD 7.4.2 / 8.3 are Phase 3), so
+     this records the assignment against a named person and invents no
+     mechanism behind it. */
+  function assignTenantAdmin(tenantId, fields) {
+    var t = tenantById(tenantId);
+    if (!t) { return { ok: false, errors: [{ field: 'ta-name', message: 'This institution no longer exists.' }], admin: null }; }
+    var errs = validateTenantAdmin(tenantId, fields);
+    if (errs.length) { return { ok: false, errors: errs, admin: null }; }
+    var now = new Date().toISOString();
+    S.seq.tenantAdmin += 1;
+    var rec = {
+      id: 'TAD-' + util.pad3(S.seq.tenantAdmin),
+      tenantId: tenantId,
+      name: String(fields.name || '').trim(),
+      email: String(fields.email || '').trim(),
+      status: 'active',
+      source: 'manual',
+      assignedBy: 'Super Admin',
+      assignedAt: now,
+      removedBy: null, removedAt: null
+    };
+    S.tenantAdmins.push(rec);
+    pushTenantEvent(t, 'admin-assigned', 'Tenant Admin assigned — ' + rec.name, 'Super Admin', '');
+    save();
+    return { ok: true, errors: [], admin: rec };
+  }
+  /* Reversible, like every other governance removal here. */
+  function removeTenantAdmin(id) {
+    var rec = tenantAdminById(id);
+    if (!rec || rec.status !== 'active') { return null; }
+    rec.status = 'removed';
+    rec.removedBy = 'Super Admin';
+    rec.removedAt = new Date().toISOString();
+    var t = tenantById(rec.tenantId);
+    if (t) { pushTenantEvent(t, 'admin-removed', 'Tenant Admin removed — ' + rec.name, 'Super Admin', ''); }
+    if (S.protoTenantAdminId === id) { S.protoTenantAdminId = null; }
+    save();
+    return rec;
+  }
+
+  /* PROTOTYPE-ONLY Tenant Admin selection — the same pattern as the
+     Student, Faculty and content-actor pointers. It is not
+     authentication and grants nothing. Its ONE real job is the scope
+     rule: an admin assigned to one tenant is never resolved as the
+     administrator of another. */
+  function protoTenantAdminId() { return S.protoTenantAdminId || null; }
+  function setProtoTenantAdmin(id) {
+    S.protoTenantAdminId = id || null;
+    save();
+    return S.protoTenantAdminId;
+  }
+  function protoTenantAdmin() {
+    var a = S.protoTenantAdminId ? tenantAdminById(S.protoTenantAdminId) : null;
+    return (a && a.status === 'active') ? a : null;
+  }
+  /* Who is administering THIS tenant. The pointer is honoured only when
+     it names an active admin OF THIS TENANT; otherwise the tenant's own
+     first assigned admin answers, and a tenant with none answers null. */
+  function actingTenantAdmin(tenantId) {
+    var chosen = protoTenantAdmin();
+    if (chosen && chosen.tenantId === tenantId) { return chosen; }
+    return tenantAdminsFor(tenantId)[0] || null;
+  }
+
+  /* ---------- platform role governance (STK31-41) ---------- */
+
+  var ROLE_SCOPE = { ALL: 'all', COURSE: 'course', EXPERIMENT: 'experiment' };
+  var ROLE_SCOPE_LABEL = { all: 'Platform-wide', course: 'Course', experiment: 'Experiment' };
+
+  /* Which scope levels each role may legitimately hold.
+
+     ⚠ IMPLEMENTATION JUDGEMENT, documented and reversible. STK31-41
+     confirms Course- and Experiment-specific assignment for all three
+     roles and forbids assuming assignment is global-only. It does not
+     enumerate which roles may ALSO hold a platform-wide scope. The
+     Content Library is a platform-level surface (STK31-06), so the
+     Content Manager keeps platform scope; Vendor and Academic Reviewer
+     are restricted to the two granularities the source names, because
+     granting a platform-wide reviewer or vendor scope would widen
+     authority no source describes. */
+  var ROLE_SCOPES_ALLOWED = {
+    vendor:   [ROLE_SCOPE.COURSE, ROLE_SCOPE.EXPERIMENT],
+    reviewer: [ROLE_SCOPE.COURSE, ROLE_SCOPE.EXPERIMENT],
+    manager:  [ROLE_SCOPE.ALL, ROLE_SCOPE.COURSE, ROLE_SCOPE.EXPERIMENT]
+  };
+  function roleScopesAllowed(role) { return (ROLE_SCOPES_ALLOWED[role] || []).slice(); }
+  function roleScopeLabel(scope) { return ROLE_SCOPE_LABEL[scope] || scope; }
+
+  function roleAssignments(opts) {
+    opts = opts || {};
+    return S.contentRoleAssignments.filter(function (m) {
+      if (!opts.includeRemoved && m.status === 'removed') { return false; }
+      if (opts.role && m.role !== opts.role) { return false; }
+      if (opts.actorId && m.actorId !== opts.actorId) { return false; }
+      return true;
+    });
+  }
+  function roleAssignmentById(id) {
+    return S.contentRoleAssignments.filter(function (m) { return m.id === id; })[0] || null;
+  }
+  /* Everyone currently holding authority over one canonical Course, by
+     role — the "who is responsible for this?" question the governance
+     and canonical surfaces both ask. Several people on one Course or one
+     Experiment is explicitly permitted (STK31-41). */
+  function actorsForCourse(courseId, role) {
+    var out = [];
+    roleAssignments({ role: role }).forEach(function (m) {
+      var covers = m.scope === ROLE_SCOPE.ALL ||
+        (m.scope === ROLE_SCOPE.COURSE && m.courseId === courseId) ||
+        (m.scope === ROLE_SCOPE.EXPERIMENT && (function () {
+          var rec = contentRecord(m.experimentId);
+          return !!rec && rec.courseId === courseId;
+        })());
+      if (!covers) { return; }
+      var a = contentActor(m.actorId);
+      if (a && out.indexOf(a) === -1) { out.push(a); }
+    });
+    return out;
+  }
+  function actorsForRecord(rec, role) {
+    if (!rec) { return []; }
+    return contentActors(role).filter(function (a) { return actorCoversRecord(a.id, rec); });
+  }
+
+  function validateRoleAssignment(fields) {
+    var errs = [];
+    var actor = contentActor(fields.actorId);
+    if (!actor) { errs.push({ field: 'ra-actor', message: 'Choose the person to assign.' }); }
+    var role = actor ? actor.role : fields.role;
+    var scope = fields.scope;
+    if (roleScopesAllowed(role).indexOf(scope) === -1) {
+      errs.push({ field: 'ra-scope', message: 'This scope level is not available for the ' +
+        (contentRoleLabel(role) || 'selected') + ' role.' });
+    }
+    if (scope === ROLE_SCOPE.COURSE && !data.course(fields.courseId)) {
+      errs.push({ field: 'ra-course', message: 'Choose the Course this assignment covers.' });
+    }
+    if (scope === ROLE_SCOPE.EXPERIMENT) {
+      var rec = contentRecord(fields.experimentId);
+      if (!rec) { errs.push({ field: 'ra-experiment', message: 'Choose the Experiment this assignment covers.' }); }
+    }
+    if (!errs.length && actor) {
+      var dup = roleAssignments({ actorId: actor.id }).some(function (m) {
+        return m.scope === scope &&
+          (scope !== ROLE_SCOPE.COURSE || m.courseId === fields.courseId) &&
+          (scope !== ROLE_SCOPE.EXPERIMENT || m.experimentId === fields.experimentId);
+      });
+      if (dup) { errs.push({ field: 'ra-scope', message: 'This person already holds that scope.' }); }
+    }
+    return errs;
+  }
+
+  function assignPlatformRole(fields) {
+    var errs = validateRoleAssignment(fields);
+    if (errs.length) { return { ok: false, errors: errs, assignment: null }; }
+    var actor = contentActor(fields.actorId);
+    S.seq.roleAssign += 1;
+    var rec = {
+      id: 'CRA-' + util.pad3(S.seq.roleAssign),
+      actorId: actor.id,
+      role: actor.role,
+      scope: fields.scope,
+      courseId: fields.scope === ROLE_SCOPE.COURSE ? fields.courseId : null,
+      experimentId: fields.scope === ROLE_SCOPE.EXPERIMENT ? fields.experimentId : null,
+      source: 'manual',
+      status: 'active',
+      assignedBy: 'Super Admin',
+      assignedAt: new Date().toISOString(),
+      removedBy: null, removedAt: null, removedReason: ''
+    };
+    S.contentRoleAssignments.push(rec);
+    contentTouched();
+    save();
+    return { ok: true, errors: [], assignment: rec };
+  }
+
+  /* Withdrawing a scope removes FUTURE authority and nothing else.
+
+     The row is marked removed, never deleted, and no decision, review,
+     publication, outcome or history entry is touched — a completed
+     academic decision stays in the record's history and in
+     `academicReviews[]` with the reviewer's name on it, exactly as it
+     was made. Re-assigning the same scope restores the actionable work.
+     This is STK31-22's reversibility rule applied to authority. */
+  function removePlatformRoleAssignment(id, reason) {
+    var rec = roleAssignmentById(id);
+    if (!rec || rec.status === 'removed') { return null; }
+    rec.status = 'removed';
+    rec.removedBy = 'Super Admin';
+    rec.removedAt = new Date().toISOString();
+    rec.removedReason = String(reason || '').trim();
+    contentTouched();
+    save();
+    return rec;
+  }
+  /* Re-instating a withdrawn row rather than creating a duplicate. */
+  function restorePlatformRoleAssignment(id) {
+    var rec = roleAssignmentById(id);
+    if (!rec || rec.status !== 'removed') { return null; }
+    var dup = roleAssignments({ actorId: rec.actorId }).some(function (m) {
+      return m.scope === rec.scope && m.courseId === rec.courseId && m.experimentId === rec.experimentId;
+    });
+    if (dup) { return null; }
+    rec.status = 'active';
+    rec.removedBy = null; rec.removedAt = null; rec.removedReason = '';
+    rec.assignedBy = 'Super Admin';
+    rec.assignedAt = new Date().toISOString();
+    contentTouched();
+    save();
+    return rec;
+  }
+  /* Records an actor has already ACTED on, whatever their scope is now.
+     Used so a workspace can keep showing a person their own completed
+     history after the scope behind it was withdrawn. */
+  function actorHistoricalRecordIds(actorId) {
+    var actor = contentActor(actorId);
+    if (!actor) { return []; }
+    var ids = {};
+    /* The AUTHORITATIVE records first — an academic decision, a
+       publication and a submission each carry the actor's id in their
+       own row, so this answer does not depend on the history entries at
+       all. The history is then read as well, which picks up actions
+       (metadata corrections, change requests) that have no record of
+       their own. */
+    academicReviewsBy(actorId).forEach(function (r) { ids[r.recordId] = true; });
+    S.contentVersions.forEach(function (v) {
+      if (v.academicDecisionBy === actorId || v.createdBy === actorId) { ids[v.recordId] = true; }
+    });
+    S.publicationRecords.forEach(function (p) {
+      if (p.publishedBy === actorId) { ids[p.recordId] = true; }
+    });
+    S.contentRecords.forEach(function (rec) {
+      if (rec.createdBy === actorId) { ids[rec.id] = true; }
+      (rec.history || []).forEach(function (h) { if (h.actorId === actorId) { ids[rec.id] = true; } });
+    });
+    return Object.keys(ids);
+  }
+
+  /* ---------- canonical / master metadata, Super Admin side (STK31-09) ----------
+     The SAME canonical fields the Content Manager may correct, from the
+     platform master surface. Learning Outcomes stay academically owned
+     (STK31-08) and technology delivery stays the Vendor's technical
+     submission — neither is editable here, from either surface.
+
+     ⚠ NOT IMPLEMENTED, and shown as a gap rather than invented: creating
+     or deleting a Programme / Academic Grouping or a Course. STK31-09
+     confirms canonical metadata MANAGEMENT and STK31-10 confirms the
+     structure is platform-controlled; neither describes a create or
+     delete operation, and the ids in question are load-bearing for every
+     existing access record, mapping and assignment. */
+  function updateCanonicalAsPlatform(recordId, fields) {
+    var rec = contentRecord(recordId);
+    if (!rec) { return { ok: false, errors: [{ field: 'cm-name', message: 'This content record no longer exists.' }], record: null }; }
+    if (!canonicalEditable(rec)) {
+      return { ok: false, errors: [{ field: 'cm-name',
+        message: 'Canonical metadata can be corrected for published content and for content at the readiness gate. ' +
+          'A record still with the Vendor or the Academic Reviewer is not edited from here.' }], record: null };
+    }
+    var errs = [];
+    var name = String(fields.name || '').trim();
+    if (!name) { errs.push({ field: 'cm-name', message: 'Enter the canonical Experiment name.' }); }
+    else if (nameTaken(name, rec.id)) { errs.push({ field: 'cm-name', message: 'Another experiment already uses this name.' }); }
+    if (!data.course(fields.courseId)) { errs.push({ field: 'cm-course', message: 'Choose the Course this Experiment belongs to.' }); }
+    if (errs.length) { return { ok: false, errors: errs, record: null }; }
+    var now = new Date().toISOString();
+    rec.name = name;
+    rec.courseId = fields.courseId;
+    rec.summary = String(fields.summary || '').trim();
+    rec.description = String(fields.description || '').trim();
+    rec.updatedAt = now;
+    pushContentEvent(rec, 'metadata', 'Canonical metadata updated (platform master)',
+      PLATFORM_ACTOR, now, '');
+    save();
+    return { ok: true, errors: [], record: rec };
+  }
+
+  /* The canonical structure, read-only: Programme / Department → Course →
+     Experiment, with the live publication state and technology
+     availability of each Experiment and who holds authority over it. */
+  function canonicalTree() {
+    return data.GROUPINGS.map(function (g) {
+      return {
+        grouping: g,
+        courses: data.COURSES.filter(function (c) { return c.groupingId === g.id; }).map(function (c) {
+          return {
+            course: c,
+            records: S.contentRecords.filter(function (r) { return r.courseId === c.id; })
+              .sort(function (a, b) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; })
+          };
+        })
+      };
+    });
+  }
+
+  /* ============================================================
+     LATER VERSION — RELEASE / HOLD  (STK31-07 · FRD 2.3.2)
+
+     ── THE FIREWALL, IN CODE ────────────────────────────────────
+     FIRST PUBLICATION of a NEW Experiment  → Content Manager → PUBLISH.
+       That is `publishContent()` above, and it acts on a
+       `contentRecords[]` row that has never been published.
+     LATER VERSION of an ALREADY-PUBLISHED Experiment → Super Admin →
+       RELEASE / HOLD. That is `releaseVersion()` / `holdVersion()`
+       below, and it acts on a `contentVersions[]` row — A DIFFERENT
+       OBJECT. Neither function can reach the other's object, and
+       neither word appears on the other's surface.
+
+     ── THE TWO VERSION SCHEMES, RECONCILED BY STATEMENT ─────────
+     `10_SUPER_ADMIN_PLATFORM_MODEL.md` §4 records that Batch 01's
+     integer `version` (correction rounds on a submission) and Batch 05's
+     version on a published module are unconnected, and asks for "either
+     one scheme or an explicit statement that these are two different
+     objects". This build makes the explicit statement:
+       · `contentRecord.revision`      counts CORRECTION ROUNDS. Unchanged.
+       · `contentVersion.versionLabel` is the PUBLISHED VERSION of the
+                                       Experiment, and only a RELEASE
+                                       changes the one the public sees.
+
+     ── THE PATH, AND THE JUDGEMENT CALL IN IT ───────────────────
+     The confirmed path is "current released version → newer APPROVED
+     version → SUPER ADMIN Release / Hold". STK31-08 gives the Vendor
+     "version submissions" and the Academic Reviewer "the academic review
+     decision", which supplies the approval. It scopes the Content
+     Manager to "first approval/publication" — first instance — and
+     STK31-06 says the same, so the Content Manager is NOT modelled as a
+     gate on a later version. "No additional approval gates may be
+     invented" (STK31-08) is the reason to leave them out rather than in.
+     The Content Manager still SEES every version in the Content Library,
+     read-only. ⚠ This is an implementation judgement, not a
+     stakeholder-confirmed sequence, and is recorded as one.
+
+     ── WHAT A LATER VERSION MAY CARRY, AND WHY NOT MORE ─────────
+     Description, version label, vendor notes, and per-technology
+     delivery references. It may NOT change technology availability:
+     no source states what happens to a tenant that already holds a
+     technology a newer version drops, and the prototype will not offer
+     an action whose consequence it cannot state honestly. Recorded as
+     an open policy gap.
+     ============================================================ */
+
+  /* The Super Admin as an actor for the shared history renderers. Its
+     `role` is the LABEL, not an internal token: the timeline prints
+     `actorName · actorRole`, so a raw `'platform'` would reach the screen
+     and "Super Admin · Super Admin" would read as a bug. A null role
+     makes the renderer print the name alone. */
+  var PLATFORM_ACTOR = { id: null, name: 'Super Admin', role: null };
+
+  var VERSION_STATUS = {
+    DRAFT:            'DRAFT',
+    ACADEMIC_REVIEW:  'ACADEMIC_REVIEW',
+    CHANGES_ACADEMIC: 'CHANGES_ACADEMIC',
+    APPROVED:         'APPROVED',
+    RELEASED:         'RELEASED',
+    HELD:             'HELD'
+  };
+  var VERSION_STATUS_META = {
+    DRAFT:            { label: 'Draft version',        badge: 'b-neutral', icon: 'edit',   holder: 'vendor' },
+    ACADEMIC_REVIEW:  { label: 'Academic review',      badge: 'b-info',    icon: 'clock',  holder: 'reviewer' },
+    CHANGES_ACADEMIC: { label: 'Changes requested',    badge: 'b-warning', icon: 'alert',  holder: 'vendor' },
+    APPROVED:         { label: 'Awaiting Release / Hold', badge: 'b-info', icon: 'shield', holder: 'platform' },
+    RELEASED:         { label: 'Released',             badge: 'b-success', icon: 'check',  holder: null },
+    HELD:             { label: 'On hold',              badge: 'b-warning', icon: 'minus',  holder: 'platform' }
+  };
+  function versionStatusMeta(status) {
+    return VERSION_STATUS_META[status] || { label: status, badge: 'b-neutral', icon: 'circle', holder: null };
+  }
+  /* A version the workflow is still carrying — not yet released, not
+     abandoned. Exactly one may exist per Experiment at a time, which is
+     what prevents two candidates racing for one public version. */
+  var VERSION_OPEN = [VERSION_STATUS.DRAFT, VERSION_STATUS.ACADEMIC_REVIEW,
+                      VERSION_STATUS.CHANGES_ACADEMIC, VERSION_STATUS.APPROVED, VERSION_STATUS.HELD];
+
+  function contentVersions() { return S.contentVersions; }
+  function contentVersion(id) {
+    return S.contentVersions.filter(function (v) { return v.id === id; })[0] || null;
+  }
+  function versionsForRecord(recordId) {
+    return S.contentVersions.filter(function (v) { return v.recordId === recordId; })
+      .sort(function (a, b) { return (b.seq || 0) - (a.seq || 0); });
+  }
+  function openVersionForRecord(recordId) {
+    return S.contentVersions.filter(function (v) {
+      return v.recordId === recordId && VERSION_OPEN.indexOf(v.status) !== -1;
+    })[0] || null;
+  }
+  function releasedVersionsForRecord(recordId) {
+    return versionsForRecord(recordId).filter(function (v) { return v.status === VERSION_STATUS.RELEASED; });
+  }
+  /* The version label the public currently sees. It comes from the
+     record itself, which only a RELEASE (or the first publication) ever
+     writes — never from a candidate. */
+  function currentVersionLabel(rec) {
+    return rec ? (rec.versionLabel || '') : '';
+  }
+  function versionsAwaitingDecision() {
+    return S.contentVersions.filter(function (v) { return v.status === VERSION_STATUS.APPROVED; })
+      .sort(function (a, b) { return (a.seq || 0) - (b.seq || 0); });
+  }
+  function versionsOnHold() {
+    return S.contentVersions.filter(function (v) { return v.status === VERSION_STATUS.HELD; });
+  }
+  /* A DRAFT candidate is still with its Vendor. The version form promises
+     "it reaches the Academic Reviewer only when you submit it", so a draft
+     is excluded here — showing it would break that promise and put a
+     reviewer's eyes on work nobody has handed over. */
+  function versionsForReviewer(actorId, opts) {
+    opts = opts || {};
+    return S.contentVersions.filter(function (v) {
+      if (v.status === VERSION_STATUS.DRAFT) { return false; }
+      if (opts.status && v.status !== opts.status) { return false; }
+      var rec = contentRecord(v.recordId);
+      return !!rec && actorCoversRecord(actorId, rec);
+    }).sort(function (a, b) { return (a.seq || 0) - (b.seq || 0); });
+  }
+  function versionsForVendor(actorId) {
+    return S.contentVersions.filter(function (v) { return v.createdBy === actorId; })
+      .sort(function (a, b) { return (b.seq || 0) - (a.seq || 0); });
+  }
+
+  function pushVersionEvent(v, kind, label, actor, note) {
+    if (!Array.isArray(v.history)) { v.history = []; }
+    S.seq.event += 1;
+    v.history.push({
+      seq: S.seq.event, kind: kind, label: label,
+      actorId: actor && actor.id ? actor.id : null,
+      actorName: actor ? actor.name : PLATFORM_ACTOR.name,
+      actorRole: actor && actor.role ? contentRoleLabel(actor.role) : null,
+      at: new Date().toISOString(),
+      note: String(note || '').trim()
+    });
+  }
+
+  function validateVersion(fields, rec) {
+    var errs = [];
+    var label = String(fields.versionLabel || '').trim();
+    if (!label) { errs.push({ field: 'vv-label', message: 'Enter a version label for this submission.' }); }
+    else if (rec && label.toLowerCase() === String(rec.versionLabel || '').trim().toLowerCase()) {
+      errs.push({ field: 'vv-label', message: 'This is the version label already published. Use a different one.' });
+    }
+    if (!String(fields.description || '').trim()) {
+      errs.push({ field: 'vv-description', message: 'Describe the experiment as this version presents it.' });
+    }
+    if (!String(fields.changeNote || '').trim()) {
+      errs.push({ field: 'vv-change', message: 'Say what changed in this version.' });
+    }
+    return errs;
+  }
+
+  /* A later version exists only for an ALREADY-PUBLISHED Experiment, and
+     only from a Vendor whose live role assignment covers it. */
+  function vendorCanVersion(rec, actorId) {
+    var actor = contentActor(actorId);
+    if (!rec || !actor || actor.role !== CONTENT_ROLE.VENDOR) { return false; }
+    if (rec.status !== CONTENT_STATUS.PUBLISHED) { return false; }
+    return actorCoversRecord(actorId, rec);
+  }
+  function createContentVersion(actorId, recordId, fields) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    if (!vendorCanVersion(rec, actorId)) {
+      return { ok: false, errors: [{ field: 'vv-label', message: 'This experiment is not in your assigned scope.' }], version: null };
+    }
+    if (openVersionForRecord(recordId)) {
+      return { ok: false, errors: [{ field: 'vv-label',
+        message: 'A later version of this experiment is already in the workflow. Only one at a time.' }], version: null };
+    }
+    var errs = validateVersion(fields, rec);
+    if (errs.length) { return { ok: false, errors: errs, version: null }; }
+    var now = new Date().toISOString();
+    S.seq.contentVersion += 1;
+    S.seq.event += 1;
+    var v = {
+      id: 'CV-' + util.pad3(S.seq.contentVersion),
+      seq: S.seq.event,
+      recordId: rec.id,
+      /* what the public version WOULD become */
+      versionLabel: String(fields.versionLabel || '').trim(),
+      description: String(fields.description || '').trim(),
+      summary: String(fields.summary || '').trim(),
+      vendorNotes: String(fields.vendorNotes || '').trim(),
+      changeNote: String(fields.changeNote || '').trim(),
+      delivery: fields.delivery ? JSON.parse(JSON.stringify(fields.delivery)) : {},
+      /* the version this candidate would replace, frozen at creation */
+      replacesVersionLabel: rec.versionLabel || '',
+      status: VERSION_STATUS.DRAFT,
+      revision: 1,
+      createdBy: actorId,
+      createdByName: actor.name,
+      createdAt: now,
+      submittedAt: null,
+      academicDecision: null,
+      academicDecisionBy: null,
+      academicDecisionAt: null,
+      releaseDecision: null,
+      history: []
+    };
+    S.contentVersions.push(v);
+    pushVersionEvent(v, 'created', 'Later version drafted (' + v.versionLabel + ')', actor, '');
+    save();
+    return { ok: true, errors: [], version: v };
+  }
+  /* A later-version candidate follows the SAME rule as a first
+     submission, from the same two questions — see
+     `canViewHistoricalRecord` / `canMutateVendorRecord`.
+
+     Viewing a candidate you created is OWNERSHIP: withdrawing a scope
+     never hides a Vendor's own version, its change note or its history.
+     Changing one needs a LIVE assignment covering the Experiment it is a
+     version of, because a candidate carries the catalogue metadata and
+     the per-technology package and hosted-link references that a release
+     would write onto published content. */
+  function canViewHistoricalVersion(v, actorId) {
+    return !!v && !!actorId && v.createdBy === actorId;
+  }
+  function canMutateVendorVersion(v, actorId) {
+    if (!canViewHistoricalVersion(v, actorId)) { return false; }
+    if (v.status !== VERSION_STATUS.DRAFT && v.status !== VERSION_STATUS.CHANGES_ACADEMIC) { return false; }
+    return actorCoversRecord(actorId, contentRecord(v.recordId));
+  }
+  /* Owned, lifecycle-open, but no longer covered — read-only because the
+     scope went, not because someone else is holding it. */
+  function versionScopeWithdrawn(v, actorId) {
+    return canViewHistoricalVersion(v, actorId) &&
+      !actorCoversRecord(actorId, contentRecord(v.recordId));
+  }
+  function versionEditableByVendor(v, actorId) { return canMutateVendorVersion(v, actorId); }
+  function versionSubmittableByVendor(v, actorId) { return canMutateVendorVersion(v, actorId); }
+  function updateContentVersion(actorId, versionId, fields) {
+    var v = contentVersion(versionId);
+    var actor = contentActor(actorId);
+    if (!canMutateVendorVersion(v, actorId)) {
+      return { ok: false, errors: [{ field: 'vv-label',
+        message: versionScopeWithdrawn(v, actorId)
+          ? 'This experiment is no longer in your assigned scope, so this version is read-only.'
+          : 'This version is not open for editing.' }], version: null };
+    }
+    var errs = validateVersion(fields, contentRecord(v.recordId));
+    if (errs.length) { return { ok: false, errors: errs, version: null }; }
+    v.versionLabel = String(fields.versionLabel || '').trim();
+    v.description = String(fields.description || '').trim();
+    v.summary = String(fields.summary || '').trim();
+    v.vendorNotes = String(fields.vendorNotes || '').trim();
+    v.changeNote = String(fields.changeNote || '').trim();
+    if (fields.delivery) { v.delivery = JSON.parse(JSON.stringify(fields.delivery)); }
+    pushVersionEvent(v, 'metadata', 'Version updated', actor, '');
+    save();
+    return { ok: true, errors: [], version: v };
+  }
+  function submitContentVersion(actorId, versionId) {
+    var v = contentVersion(versionId);
+    var actor = contentActor(actorId);
+    if (!canMutateVendorVersion(v, actorId)) { return null; }
+    var resubmit = v.status === VERSION_STATUS.CHANGES_ACADEMIC;
+    if (resubmit) { v.revision += 1; }
+    v.status = VERSION_STATUS.ACADEMIC_REVIEW;
+    v.submittedAt = new Date().toISOString();
+    pushVersionEvent(v, resubmit ? 'resubmitted' : 'submitted',
+      resubmit ? 'Resubmitted for academic review' : 'Submitted for academic review', actor, '');
+    save();
+    return v;
+  }
+  /* The academic decision on a later version. It APPROVES the version —
+     it does not release it, and the public catalogue does not move. */
+  function reviewerCanActOnVersion(v, actorId) {
+    var actor = contentActor(actorId);
+    if (!v || !actor || actor.role !== CONTENT_ROLE.REVIEWER) { return false; }
+    if (v.status !== VERSION_STATUS.ACADEMIC_REVIEW) { return false; }
+    return actorCoversRecord(actorId, contentRecord(v.recordId));
+  }
+  function approveVersionAcademic(actorId, versionId, comment) {
+    var v = contentVersion(versionId);
+    var actor = contentActor(actorId);
+    if (!reviewerCanActOnVersion(v, actorId)) { return null; }
+    var now = new Date().toISOString();
+    v.status = VERSION_STATUS.APPROVED;
+    v.academicDecision = 'approved';
+    v.academicDecisionBy = actorId;
+    v.academicDecisionByName = actor.name;
+    v.academicDecisionAt = now;
+    pushVersionEvent(v, 'approved', 'Academically approved — awaiting the Super Admin Release / Hold decision',
+      actor, String(comment || '').trim());
+    save();
+    return v;
+  }
+  function requestChangesVersionAcademic(actorId, versionId, comment) {
+    var v = contentVersion(versionId);
+    var actor = contentActor(actorId);
+    if (!reviewerCanActOnVersion(v, actorId)) { return null; }
+    var text = String(comment || '').trim();
+    if (!text) { return null; }
+    v.status = VERSION_STATUS.CHANGES_ACADEMIC;
+    v.academicDecision = 'changes';
+    v.academicDecisionBy = actorId;
+    v.academicDecisionByName = actor.name;
+    v.academicDecisionAt = new Date().toISOString();
+    pushVersionEvent(v, 'changes', 'Changes requested — academic review', actor, text);
+    save();
+    return v;
+  }
+
+  /* THE SUPER ADMIN DECISION. Only an APPROVED candidate can reach it. */
+  function versionAwaitingDecision(v) { return !!v && v.status === VERSION_STATUS.APPROVED; }
+
+  /* RELEASE — the ONLY thing in the whole build that changes the public
+     version of an already-published Experiment.
+
+     It writes the record's own catalogue fields and its version label,
+     under the SAME experiment id. It creates no access record, changes
+     no licence quantity, creates no assignment, and — deliberately —
+     does not touch `rec.technologies`, so an existing tenant's granted
+     technology variants cannot be widened or narrowed by a release. */
+  function releaseVersion(versionId, note) {
+    var v = contentVersion(versionId);
+    if (!versionAwaitingDecision(v)) { return null; }
+    var rec = contentRecord(v.recordId);
+    if (!rec || rec.status !== CONTENT_STATUS.PUBLISHED) { return null; }
+    var now = new Date().toISOString();
+    var previousLabel = rec.versionLabel || '';
+
+    rec.description = v.description;
+    if (v.summary) { rec.summary = v.summary; }
+    if (v.vendorNotes) { rec.vendorNotes = v.vendorNotes; }
+    rec.versionLabel = v.versionLabel;
+    /* Per-technology delivery references, for technologies the record
+       already carries. A version can correct a package reference or a
+       hosted link; it can never introduce a technology. */
+    /* MERGE, never replace. A candidate carries the fields the version
+       form offers; the published record may hold more (a recorded package
+       file, installation notes, technical notes) that the form never
+       asks about. Replacing the object wholesale would silently discard
+       them, and an empty field in the candidate would blank a working
+       hosted link. So only values the candidate actually supplies are
+       written. */
+    Object.keys(v.delivery || {}).forEach(function (tech) {
+      if (rec.technologies.indexOf(tech) === -1) { return; }
+      var incoming = v.delivery[tech] || {};
+      var current = rec.delivery[tech] || {};
+      var merged = JSON.parse(JSON.stringify(current));
+      Object.keys(incoming).forEach(function (field) {
+        var val = incoming[field];
+        if (typeof val === 'string' && !val.trim()) { return; }
+        if (val === null || val === undefined) { return; }
+        merged[field] = val;
+      });
+      rec.delivery[tech] = merged;
+    });
+    rec.updatedAt = now;
+    rec.currentVersionId = v.id;
+
+    v.status = VERSION_STATUS.RELEASED;
+    v.releaseDecision = {
+      decision: 'released', by: 'Super Admin', at: now,
+      note: String(note || '').trim(), replacedVersionLabel: previousLabel
+    };
+    pushVersionEvent(v, 'released', 'Released as the current version (' + v.versionLabel + ')',
+      null, String(note || '').trim());
+    pushContentEvent(rec, 'released',
+      'Version ' + v.versionLabel + ' released' + (previousLabel ? ' — replaces ' + previousLabel : ''),
+      PLATFORM_ACTOR, now, String(note || '').trim());
+    save();
+    return v;
+  }
+
+  /* HOLD — the currently published version stays live, unchanged.
+
+     The candidate is parked, not discarded: STK31-22 prefers a
+     reversible state, and no source says a held version is abandoned.
+     The Super Admin can release it later, or the Vendor can supersede it
+     by having it returned academically. */
+  function holdVersion(versionId, note) {
+    var v = contentVersion(versionId);
+    if (!versionAwaitingDecision(v)) { return null; }
+    var rec = contentRecord(v.recordId);
+    var now = new Date().toISOString();
+    v.status = VERSION_STATUS.HELD;
+    v.releaseDecision = { decision: 'held', by: 'Super Admin', at: now, note: String(note || '').trim() };
+    pushVersionEvent(v, 'held', 'Held — the current published version stays live', null, String(note || '').trim());
+    if (rec) {
+      pushContentEvent(rec, 'held',
+        'Version ' + v.versionLabel + ' held — published version ' + (rec.versionLabel || '—') + ' remains current',
+        PLATFORM_ACTOR, now, String(note || '').trim());
+    }
+    save();
+    return v;
+  }
+  /* A held candidate returns to the decision queue. Reversible, and the
+     release itself still goes through releaseVersion(). */
+  function returnHeldVersionToDecision(versionId, note) {
+    var v = contentVersion(versionId);
+    if (!v || v.status !== VERSION_STATUS.HELD) { return null; }
+    v.status = VERSION_STATUS.APPROVED;
+    v.releaseDecision = null;
+    pushVersionEvent(v, 'reopened', 'Hold lifted — returned to the Release / Hold decision', null,
+      String(note || '').trim());
+    save();
+    return v;
+  }
+
+  /* ============================================================
+     DEVICE REPLACEMENT / TRANSFER  (STK31-38 · FRD 2.4.1 / 2.4.2)
+
+     Student requests → Super Admin approves → the authorised device
+     binding changes.
+
+     ⚠ TWO GAPS, SHOWN AS GAPS AND NOT INVENTED — both recorded in
+     `11_XR_DELIVERY_AND_DEVICE_MODEL.md` §6:
+       1 · There is NO device registry anywhere in the sources. The
+           binding exists as a relationship, not an administrable record,
+           so the request carries plain device labels the Student types
+           and the prototype certifies no hardware, model or
+           compatibility.
+       2 · The requirement contains NO rejection behaviour. A decline
+           path is implemented here because this implementation was asked
+           for one; it is an IMPLEMENTATION JUDGEMENT, recorded as one,
+           and is not stakeholder-confirmed.
+
+     WHAT APPROVAL DOES NOT DO: it consumes no licence, grants no
+     Experiment, adds no technology, and touches no assessment state.
+     It writes the request record and nothing else — which is why
+     `accessAllocation()` and `entitlementsForStudent()` cannot see it.
+     ============================================================ */
+
+  var TRANSFER_STATUS = { SUBMITTED: 'submitted', APPROVED: 'approved', DECLINED: 'declined' };
+  var TRANSFER_STATUS_META = {
+    submitted: { label: 'Awaiting Super Admin decision', badge: 'b-info',    icon: 'clock' },
+    approved:  { label: 'Approved',                      badge: 'b-success', icon: 'check' },
+    declined:  { label: 'Declined',                      badge: 'b-danger',  icon: 'x' }
+  };
+  function transferStatusMeta(status) {
+    return TRANSFER_STATUS_META[status] || { label: status, badge: 'b-neutral', icon: 'circle' };
+  }
+
+  function deviceTransferRequests() { return S.deviceTransferRequests; }
+  function deviceTransferById(id) {
+    return S.deviceTransferRequests.filter(function (r) { return r.id === id; })[0] || null;
+  }
+  function transfersForStudent(personId) {
+    return S.deviceTransferRequests.filter(function (r) { return r.personId === personId; })
+      .sort(function (a, b) { return (b.seq || 0) - (a.seq || 0); });
+  }
+  function openTransferForStudent(personId) {
+    return S.deviceTransferRequests.filter(function (r) {
+      return r.personId === personId && r.status === TRANSFER_STATUS.SUBMITTED;
+    })[0] || null;
+  }
+  function transfersAwaitingDecision() {
+    return S.deviceTransferRequests.filter(function (r) { return r.status === TRANSFER_STATUS.SUBMITTED; })
+      .sort(function (a, b) { return (a.seq || 0) - (b.seq || 0); });
+  }
+  /* Device transfer is meaningful only where the technology is delivered
+     as an authorised PACKAGE on a device (AR / VR / MR). A hosted Web
+     experience has no device binding to move (STK31-37). */
+  function isPackageTechnology(tech) {
+    var def = data.TECHNOLOGIES[tech];
+    return !!def && def.delivery === 'package';
+  }
+  function packageTechnologiesForStudent(personId) {
+    var set = {};
+    studentExperiments(personId).forEach(function (row) {
+      if (!row.effective) { return; }
+      row.technologies.forEach(function (t) { if (isPackageTechnology(t)) { set[t] = true; } });
+    });
+    return data.sortTech(Object.keys(set));
+  }
+  /* Whether this Student has a device binding AT ALL — including through an
+     entitlement that is currently blocked. A Student whose institution has
+     just been deactivated still has a device; they simply cannot act on it
+     this minute. The destination and the empty state read this, so they say
+     "your institution is suspended" rather than the plainly wrong "nothing
+     you hold runs on a device". Raising a request still requires an
+     EFFECTIVE entitlement, which is the function above. */
+  function studentHasPackageTechnology(personId) {
+    return studentExperiments(personId).some(function (row) {
+      return row.technologies.concat(row.blockedTechnologies).some(isPackageTechnology);
+    });
+  }
+  function studentCanRequestTransfer(personId) {
+    return personCanWrite(personId) && packageTechnologiesForStudent(personId).length > 0;
+  }
+
+  function validateTransfer(personId, fields) {
+    var errs = [];
+    if (!String(fields.currentDevice || '').trim()) {
+      errs.push({ field: 'dt-current', message: 'Describe the device you are using now.' });
+    }
+    if (!String(fields.newDevice || '').trim()) {
+      errs.push({ field: 'dt-new', message: 'Describe the replacement device.' });
+    }
+    if (!String(fields.reason || '').trim()) {
+      errs.push({ field: 'dt-reason', message: 'Say why the device needs to be replaced.' });
+    }
+    var techs = packageTechnologiesForStudent(personId);
+    if (fields.technology && techs.indexOf(fields.technology) === -1) {
+      errs.push({ field: 'dt-tech', message: 'Choose a technology your institution has made available to you on a device.' });
+    }
+    return errs;
+  }
+
+  function createDeviceTransfer(personId, fields) {
+    var p = personById(personId);
+    if (!p || p.role !== 'student') {
+      return { ok: false, errors: [{ field: 'dt-current', message: 'This student record no longer exists.' }], request: null };
+    }
+    if (!tenantCanWrite(p.tenantId)) {
+      return { ok: false, errors: [{ field: 'dt-current', message: TENANT_INACTIVE_TEXT }], request: null };
+    }
+    if (!packageTechnologiesForStudent(personId).length) {
+      return { ok: false, errors: [{ field: 'dt-current',
+        message: 'You hold no experiment that runs from an authorised package on a device, so there is no device binding to transfer.' }], request: null };
+    }
+    /* One open request at a time — a second submission while one is
+       still awaiting a decision would create two competing bindings. */
+    if (openTransferForStudent(personId)) {
+      return { ok: false, errors: [{ field: 'dt-current',
+        message: 'You already have a device transfer request awaiting a decision.' }], request: null };
+    }
+    var errs = validateTransfer(personId, fields);
+    if (errs.length) { return { ok: false, errors: errs, request: null }; }
+    var now = new Date().toISOString();
+    S.seq.transfer += 1;
+    S.seq.event += 1;
+    var rec = {
+      id: 'DTR-' + util.pad3(S.seq.transfer),
+      seq: S.seq.event,
+      personId: personId,
+      personName: p.name,
+      tenantId: p.tenantId,
+      /* WHAT THE REQUEST IS ABOUT — RESOLVED AT SUBMISSION TIME.
+
+         The form offers "— all of them —", which means "every technology
+         I hold that is bound to a device". That is a real, answerable
+         question, and the answer belongs in the record: storing it as a
+         bare null made the request indistinguishable from "the Student
+         did not say", so a request that unambiguously concerned the
+         Student's one VR headset reached the Super Admin deciding it as
+         `Technology: Not specified`.
+
+         `scope` keeps WHAT THE STUDENT CHOSE, so the meaning of "all of
+         them" is preserved rather than rewritten into a specific pick.
+         `technologies` is the resolved set — never invented, always the
+         Student's own effective package technologies, snapshotted now so
+         a later entitlement change cannot silently re-scope a request
+         that has already been decided.
+         `technology` is the single-value convenience, set ONLY when the
+         set has exactly one member. Where several device-based
+         technologies genuinely apply it stays null and the surfaces list
+         the set, rather than silently choosing one of them. */
+      scope: fields.technology ? 'specific' : 'all',
+      technologies: fields.technology
+        ? [fields.technology]
+        : packageTechnologiesForStudent(personId),
+      technology: null,
+      currentDevice: String(fields.currentDevice || '').trim(),
+      newDevice: String(fields.newDevice || '').trim(),
+      reason: String(fields.reason || '').trim(),
+      status: TRANSFER_STATUS.SUBMITTED,
+      decidedBy: null, decidedAt: null, decisionNote: '',
+      createdAt: now,
+      history: [{ seq: S.seq.event, kind: 'submitted', label: 'Transfer requested',
+                  who: p.name, at: now, note: '' }]
+    };
+    rec.technology = rec.technologies.length === 1 ? rec.technologies[0] : null;
+    S.deviceTransferRequests.push(rec);
+    save();
+    return { ok: true, errors: [], request: rec };
+  }
+
+  /* The technologies a request covers, for ANY record — including one
+     written before the scope was resolved at submission. One reader, so
+     the Student's page, the Operations queue and the request detail
+     cannot drift apart on the answer. */
+  function transferTechnologies(rec) {
+    if (!rec) { return []; }
+    if (Array.isArray(rec.technologies) && rec.technologies.length) { return rec.technologies.slice(); }
+    return rec.technology ? [rec.technology] : [];
+  }
+  /* True when the Student asked about every device-bound technology they
+     hold rather than naming one. Legacy records carry no `scope`; a null
+     technology on one of those meant exactly this. */
+  function transferCoversAll(rec) {
+    if (!rec) { return false; }
+    return rec.scope ? rec.scope === 'all' : !rec.technology;
+  }
+
+  /* The decision. It writes THIS RECORD ONLY. */
+  function decideDeviceTransfer(id, decision, note) {
+    var rec = deviceTransferById(id);
+    if (!rec || rec.status !== TRANSFER_STATUS.SUBMITTED) { return null; }
+    if (decision !== TRANSFER_STATUS.APPROVED && decision !== TRANSFER_STATUS.DECLINED) { return null; }
+    var text = String(note || '').trim();
+    if (decision === TRANSFER_STATUS.DECLINED && !text) { return null; }
+    var now = new Date().toISOString();
+    rec.status = decision;
+    rec.decidedBy = 'Super Admin';
+    rec.decidedAt = now;
+    rec.decisionNote = text;
+    S.seq.event += 1;
+    rec.history.push({
+      seq: S.seq.event,
+      kind: decision === TRANSFER_STATUS.APPROVED ? 'approved' : 'declined',
+      label: decision === TRANSFER_STATUS.APPROVED
+        ? 'Approved — the authorised device binding moves to the replacement device'
+        : 'Declined',
+      who: 'Super Admin', at: now, note: text
+    });
+    save();
+    return rec;
+  }
+
+  /* ============================================================
+     SUPPORT / HELP  (STK31-39)
+
+     Report a technical issue → it appears in the platform queue →
+     Super Admin resolves it → the reporter sees the state.
+
+     ⛔ Deliberately absent, all four explicitly prohibited by STK31-39:
+     an SLA, a priority formula, an external ticket provider, a chatbot.
+     There is also no notification of any kind: no source describes one
+     for support, so status is surfaced in the product and nothing claims
+     a message was sent.
+
+     A support ticket changes NO entitlement, NO licence, NO assignment
+     and NO content state. It only ever writes its own record.
+     ============================================================ */
+
+  var SUPPORT_STATUS = { OPEN: 'open', RESOLVED: 'resolved' };
+  var SUPPORT_STATUS_META = {
+    open:     { label: 'Open',     badge: 'b-info',    icon: 'clock' },
+    resolved: { label: 'Resolved', badge: 'b-success', icon: 'check' }
+  };
+  function supportStatusMeta(status) {
+    return SUPPORT_STATUS_META[status] || { label: status, badge: 'b-neutral', icon: 'circle' };
+  }
+  /* The confirmed issue kinds, verbatim from STK31-39. Nothing is added
+     to this list and nothing is scored or prioritised by it. */
+  var SUPPORT_CATEGORIES = [
+    { id: 'experiment', label: 'Experiment not opening' },
+    { id: 'package',    label: 'Package / link issue' },
+    { id: 'login',      label: 'Login issue' },
+    { id: 'access',     label: 'Access issue' },
+    { id: 'device',     label: 'Device issue' },
+    { id: 'other',      label: 'Other technical issue' }
+  ];
+  function supportCategoryLabel(id) {
+    var c = SUPPORT_CATEGORIES.filter(function (x) { return x.id === id; })[0];
+    return c ? c.label : 'Other technical issue';
+  }
+
+  function supportTickets() { return S.supportTickets; }
+  function supportTicketById(id) {
+    return S.supportTickets.filter(function (t) { return t.id === id; })[0] || null;
+  }
+  function ticketsForRequester(kind, requesterId) {
+    return S.supportTickets.filter(function (t) {
+      return t.requesterKind === kind && t.requesterId === requesterId;
+    }).sort(function (a, b) { return (b.seq || 0) - (a.seq || 0); });
+  }
+  function openSupportTickets() {
+    return S.supportTickets.filter(function (t) { return t.status === SUPPORT_STATUS.OPEN; })
+      .sort(function (a, b) { return (a.seq || 0) - (b.seq || 0); });
+  }
+  function ticketsForTenant(tenantId) {
+    return S.supportTickets.filter(function (t) { return t.tenantId === tenantId; });
+  }
+
+  function validateSupportTicket(fields) {
+    var errs = [];
+    if (!String(fields.subject || '').trim()) {
+      errs.push({ field: 'sp-subject', message: 'Give the issue a short title.' });
+    }
+    if (!SUPPORT_CATEGORIES.some(function (c) { return c.id === fields.category; })) {
+      errs.push({ field: 'sp-category', message: 'Choose the kind of issue you are reporting.' });
+    }
+    if (!String(fields.description || '').trim()) {
+      errs.push({ field: 'sp-description', message: 'Describe what you were doing and what happened.' });
+    }
+    return errs;
+  }
+
+  /* `context` carries only what the platform ALREADY knows about the
+     reporter — identity, role, tenant, and the experiment/technology
+     they were on where that applies (STK31-39 §1.2). Nothing is
+     fabricated and nothing is collected that the product does not hold. */
+  function createSupportTicket(context, fields) {
+    var errs = validateSupportTicket(fields);
+    if (errs.length) { return { ok: false, errors: errs, ticket: null }; }
+    var now = new Date().toISOString();
+    S.seq.ticket += 1;
+    S.seq.event += 1;
+    var rec = {
+      id: 'SUP-' + util.pad3(S.seq.ticket),
+      seq: S.seq.event,
+      requesterKind: context.kind,          /* student · faculty · tenant-admin · vendor · reviewer · manager */
+      requesterId: context.id || null,
+      requesterName: context.name || 'Unknown',
+      requesterRoleLabel: context.roleLabel || '',
+      tenantId: context.tenantId || null,
+      experimentId: fields.experimentId || null,
+      technology: fields.technology || null,
+      category: fields.category,
+      subject: String(fields.subject || '').trim(),
+      description: String(fields.description || '').trim(),
+      status: SUPPORT_STATUS.OPEN,
+      resolutionNote: '', resolvedBy: null, resolvedAt: null,
+      createdAt: now,
+      history: [{ seq: S.seq.event, kind: 'submitted', label: 'Issue reported',
+                  who: context.name || 'Unknown', at: now, note: '' }]
+    };
+    S.supportTickets.push(rec);
+    save();
+    return { ok: true, errors: [], ticket: rec };
+  }
+
+  function resolveSupportTicket(id, note) {
+    var rec = supportTicketById(id);
+    if (!rec || rec.status !== SUPPORT_STATUS.OPEN) { return null; }
+    var text = String(note || '').trim();
+    if (!text) { return null; }
+    var now = new Date().toISOString();
+    rec.status = SUPPORT_STATUS.RESOLVED;
+    rec.resolutionNote = text;
+    rec.resolvedBy = 'Super Admin';
+    rec.resolvedAt = now;
+    S.seq.event += 1;
+    rec.history.push({ seq: S.seq.event, kind: 'resolved', label: 'Resolved',
+                       who: 'Super Admin', at: now, note: text });
+    save();
+    return rec;
+  }
+  /* A resolved ticket can be reopened — the reporter's problem may not
+     have gone away, and STK31-22 prefers reversible over final. */
+  function reopenSupportTicket(id, note) {
+    var rec = supportTicketById(id);
+    if (!rec || rec.status !== SUPPORT_STATUS.RESOLVED) { return null; }
+    var now = new Date().toISOString();
+    rec.status = SUPPORT_STATUS.OPEN;
+    /* The previous resolution stays in the HISTORY, where it belongs, and
+       stops being the report's current resolution — otherwise an open
+       report would still render a Resolution block claiming it was
+       dealt with. */
+    rec.previousResolution = rec.resolutionNote;
+    rec.resolutionNote = '';
+    rec.resolvedBy = null; rec.resolvedAt = null;
+    S.seq.event += 1;
+    rec.history.push({ seq: S.seq.event, kind: 'reopened', label: 'Reopened',
+                       who: 'Super Admin', at: now, note: String(note || '').trim() });
+    save();
+    return rec;
+  }
+
+  /* ============================================================
+     THE 15-DAY EXPIRY REMINDER  (STK31-28)
+
+     The stakeholder stated it verbatim: "We will send reminders to
+     Tenants 15 days ahead." The REQUIREMENT is the reminder. The
+     DELIVERY CHANNEL is pending (ND-16) and is explicitly not to be
+     invented — not e-mail, not SMS, not push, not a provider.
+
+     So this build implements the RULE and an honest in-product
+     representation of it, and claims nothing was sent:
+
+       reminder is DUE  ⇔  the access term is still running
+                           AND daysUntilExpiry <= 15
+
+     `util.daysUntil` rounds up, so the boundary is INCLUSIVE at exactly
+     15 days (16 days out → not due; 15 days out → due; 10 days out →
+     due; past the end instant → expired, not "due"). The same
+     derivation feeds the Tenant Admin's "Expiring soon" state and the
+     Super Admin's operational list — one rule, two audiences, no stored
+     duplicate that could drift.
+
+     No auto-renewal, no automatic payment, no automatic extension
+     (STK31-28), and no Student-facing renewal control anywhere.
+     ============================================================ */
+
+  var EXPIRY_REMINDER_DAYS = 15;
+
+  function accessDaysUntilExpiry(rec) {
+    if (!rec || !rec.endsOn) { return null; }
+    var end = new Date(rec.endsOn).getTime();
+    if (isNaN(end)) { return null; }
+    return util.daysUntil(rec.endsOn);
+  }
+  /* The rule itself, in one place. */
+  function expiryReminderDue(rec) {
+    if (!rec || !rec.endsOn) { return false; }
+    if (!accessIsLive(rec)) { return false; }          /* already expired — not a reminder */
+    var days = accessDaysUntilExpiry(rec);
+    return days != null && days <= EXPIRY_REMINDER_DAYS;
+  }
+  function accessNeedingExpiryReminder() {
+    return S.access.filter(expiryReminderDue)
+      .sort(function (a, b) {
+        return (accessDaysUntilExpiry(a) || 0) - (accessDaysUntilExpiry(b) || 0);
+      });
+  }
+  function tenantAccessNeedingExpiryReminder(tenantId) {
+    return accessForTenant(tenantId).filter(expiryReminderDue);
+  }
+  function expiredAccessForTenant(tenantId) {
+    return accessForTenant(tenantId).filter(function (rec) { return !accessIsLive(rec); });
+  }
+
+  /* ---------- the Super Admin operational read model ----------
+     Every number below is derived from real records. There is no stored
+     KPI, no sample figure, and nothing that cannot be opened. */
+  function platformOverview() {
+    var submitted = S.requests.filter(function (r) { return r.status === STATUS.SUBMITTED; });
+    var awaitingPayment = S.requests.filter(function (r) { return r.status === STATUS.APPROVED_PAYMENT_REQUIRED; });
+    var activeTenants = S.tenants.filter(function (t) { return t.status !== 'inactive'; });
+    var inactiveTenants = S.tenants.filter(function (t) { return t.status === 'inactive'; });
+    var reminders = accessNeedingExpiryReminder();
+    var expired = S.access.filter(function (rec) { return !accessIsLive(rec); });
+    return {
+      requestsAwaiting: submitted,
+      requestsAwaitingPayment: awaitingPayment,
+      tenants: S.tenants.slice(),
+      activeTenants: activeTenants,
+      inactiveTenants: inactiveTenants,
+      tenantsWithoutAdmin: tenantsWithoutAdmin(),
+      versionsAwaiting: versionsAwaitingDecision(),
+      versionsHeld: versionsOnHold(),
+      transfersAwaiting: transfersAwaitingDecision(),
+      ticketsOpen: openSupportTickets(),
+      expiryReminders: reminders,
+      expiredAccess: expired,
+      accessRecords: S.access.length,
+      publishedCount: S.contentRecords.filter(function (r) { return r.status === CONTENT_STATUS.PUBLISHED; }).length,
+      roleAssignments: roleAssignments({}).length
+    };
+  }
+
+  /* One tenant's operational picture, for the institution report
+     (STK31-42). Operational facts only — no revenue metric exists here
+     and none may be invented. */
+  function tenantReport(tenantId) {
+    var t = tenantById(tenantId);
+    if (!t) { return null; }
+    var access = accessForTenant(tenantId);
+    var people = peopleForTenant(tenantId);
+    var students = people.filter(function (p) { return p.role === 'student'; });
+    var faculty = people.filter(function (p) { return p.role === 'faculty'; });
+    var courseIds = {};
+    var experimentIds = {};
+    access.forEach(function (rec) {
+      (rec.items || []).forEach(function (i) {
+        experimentIds[i.experimentId] = true;
+        var ctx = data.contextOf(i.experimentId);
+        if (ctx && ctx.course) { courseIds[ctx.course.id] = true; }
+      });
+    });
+    var groupingIds = {};
+    Object.keys(courseIds).forEach(function (cid) {
+      var c = data.course(cid);
+      if (c) { groupingIds[c.groupingId] = true; }
+    });
+    return {
+      tenant: t,
+      status: tenantStatusMeta(t),
+      admins: tenantAdminsFor(tenantId),
+      allAdmins: allTenantAdminsFor(tenantId),
+      access: access,
+      liveAccess: access.filter(accessIsLive),
+      allocation: tenantAllocation(tenantId),
+      people: people.length,
+      students: students.length,
+      activeStudents: students.filter(function (p) { return p.status === 'active'; }).length,
+      faculty: faculty.length,
+      groups: groupsForTenant(tenantId).length,
+      courseIds: Object.keys(courseIds),
+      experimentIds: Object.keys(experimentIds),
+      groupingIds: Object.keys(groupingIds),
+      entitledStudents: entitledStudentIds(tenantId).length,
+      expiryReminders: tenantAccessNeedingExpiryReminder(tenantId),
+      expiredAccess: expiredAccessForTenant(tenantId),
+      openTickets: ticketsForTenant(tenantId).filter(function (x) { return x.status === SUPPORT_STATUS.OPEN; }),
+      transfers: S.deviceTransferRequests.filter(function (r) { return r.tenantId === tenantId; })
+    };
+  }
+
+  /* ---------- migration into schema 7 ----------
+     Additive at every point. Every request, tenant, access record,
+     person, group, mapping, assignment, learning record, question,
+     assessment, review and content record written by an Implementation
+     01–05 build survives untouched; this only adds the governance fields
+     and collections around them. */
+  /* SCHEMA 7 → 8: a device transfer request records WHICH technologies
+     it covers, instead of leaving "all of them" as an unreadable null.
+
+     Deliberately NOT guarded on the stored version. The defect this
+     repairs produced records inside schema 7 itself, so a version guard
+     would leave exactly the requests that need fixing unfixed. It is
+     presence-guarded and idempotent instead, so it runs once on any
+     state that needs it and never touches one that does not.
+
+     NOTHING IS INVENTED. A record that named a technology keeps it. A
+     record that meant "all of them" is resolved against THAT STUDENT'S
+     OWN device-based technologies — the same set the form offered them —
+     and if that cannot be resolved (the person is gone, or holds none)
+     the record is left with an empty set and still reads honestly as
+     "Not specified" rather than being guessed at. No decision, note,
+     device description or history entry is altered. */
+  function migrateTransferScope(parsed) {
+    var byId = {};
+    (parsed.people || []).forEach(function (p) { byId[p.id] = p; });
+    (parsed.deviceTransferRequests || []).forEach(function (r) {
+      if (Array.isArray(r.technologies)) { return; }
+      if (r.technology) {
+        r.scope = 'specific';
+        r.technologies = [r.technology];
+        return;
+      }
+      /* An "all of them" record. The SET cannot be resolved here: this
+         runs before `S` exists, and re-deriving entitlement from raw
+         parsed rows would be a second, divergent copy of the entitlement
+         engine — exactly the kind of duplicate rule this build avoids.
+         It is marked and left empty, and `resolveTransferScopes()`
+         fills it in immediately after load using the real engine. */
+      r.scope = 'all';
+      r.technologies = [];
+    });
+  }
+
+  /* The second half of the 7 → 8 migration, run once state is live so it
+     can ask the ONE entitlement engine rather than reimplementing it.
+     Idempotent: it only touches an "all" record whose set is still
+     empty, and it writes nothing if the answer is empty too — a Student
+     who holds no device-based technology keeps an honest blank rather
+     than a fabricated one. */
+  function resolveTransferScopes() {
+    var changed = false;
+    S.deviceTransferRequests.forEach(function (r) {
+      if (r.scope !== 'all') { return; }
+      if (Array.isArray(r.technologies) && r.technologies.length) { return; }
+      var techs = packageTechnologiesForStudent(r.personId);
+      if (!techs.length) { return; }
+      r.technologies = techs;
+      r.technology = techs.length === 1 ? techs[0] : null;
+      changed = true;
+    });
+    if (changed) { save(); }
+  }
+
+  function migrateGovernance(parsed, storedVersion) {
+    if (storedVersion >= 7) { return; }
+    if (typeof parsed.protoTenantAdminId !== 'string') { parsed.protoTenantAdminId = null; }
+
+    /* History entries written by an earlier build carry the actor's
+       NAME but not their id, because nothing needed the id until role
+       scope became withdrawable. Backfill it by matching the recorded
+       name against the actor registry — names are unique there — so the
+       governance surface can answer "what did this person decide?" for
+       existing data too. An entry whose name matches nothing keeps a
+       null id rather than being guessed at. */
+    var byName = {};
+    (parsed.contentActors || []).forEach(function (a) { byName[a.name] = a.id; });
+    parsed.contentRecords.forEach(function (rec) {
+      (rec.history || []).forEach(function (h) {
+        if (h.actorId === undefined) { h.actorId = h.actorName ? (byName[h.actorName] || null) : null; }
+      });
+    });
+
+    /* Tenants written before Implementation 06 are ACTIVE. */
+    parsed.tenants.forEach(function (t) {
+      if (t.status !== 'inactive') { t.status = 'active'; }
+      if (!Array.isArray(t.history)) { t.history = []; }
+    });
+
+    /* Role assignments become governed rows. An existing row keeps its
+       scope and simply gains the provenance and the reversible status. */
+    parsed.contentRoleAssignments.forEach(function (m) {
+      if (m.status !== 'removed') { m.status = 'active'; }
+      if (typeof m.assignedBy !== 'string') { m.assignedBy = m.source === 'seed' ? 'Prototype seed' : 'Super Admin'; }
+      if (m.assignedAt === undefined) { m.assignedAt = null; }
+      if (m.removedBy === undefined) { m.removedBy = null; }
+      if (m.removedAt === undefined) { m.removedAt = null; }
+      if (typeof m.removedReason !== 'string') { m.removedReason = ''; }
+    });
+
+    /* A tenant carried over from an earlier build has no assigned Tenant
+       Admin, because the concept did not exist. The seeded tenant gets
+       the sample assignment so its workspace behaves exactly as before;
+       a tenant created from an approved request is left WITHOUT one and
+       surfaces as an attention row, which is the honest state rather
+       than an invented person. */
+    if (!parsed.tenantAdmins.length &&
+        parsed.tenants.some(function (t) { return t.id === data.SEED_TENANT_ID; })) {
+      parsed.seq.tenantAdmin += 1;
+      parsed.tenantAdmins.push({
+        id: 'TAD-' + util.pad3(parsed.seq.tenantAdmin),
+        tenantId: data.SEED_TENANT_ID,
+        name: 'Priya Raghavan',
+        email: 'priya.raghavan@sample-institute.example',
+        status: 'active', source: 'seed',
+        assignedBy: 'Prototype seed',
+        assignedAt: parsed.seededAt || null,
+        removedBy: null, removedAt: null
+      });
+    }
   }
 
   /* ---------- operational attention (all real states) ---------- */
@@ -4827,7 +6522,8 @@ XRSLP.state = (function () {
     publishedPool: publishedPool,
 
     contentActors: contentActors, contentActor: contentActor, contentRoleLabel: contentRoleLabel,
-    assignmentsFor: assignmentsFor, actorCourseIds: actorCourseIds,
+    assignmentsFor: assignmentsFor, allAssignmentsFor: allAssignmentsFor,
+    actorCourseIds: actorCourseIds,
     actorHasPlatformScope: actorHasPlatformScope, actorCoversRecord: actorCoversRecord,
 
     protoVendorId: protoVendorId, setProtoVendor: setProtoVendor, protoVendor: protoVendor,
@@ -4845,6 +6541,11 @@ XRSLP.state = (function () {
     academicReadiness: academicReadiness, publishReadiness: publishReadiness,
 
     vendorCanEdit: vendorCanEdit, vendorCanSubmit: vendorCanSubmit, vendorCanCreateIn: vendorCanCreateIn,
+    /* The view / mutate split, exported so a screen can render the
+       right refusal instead of guessing which rule stopped it. */
+    canViewHistoricalRecord: canViewHistoricalRecord,
+    canMutateVendorRecord: canMutateVendorRecord,
+    vendorScopeWithdrawn: vendorScopeWithdrawn,
     createContentDraft: createContentDraft, updateContentDraft: updateContentDraft,
     submitContent: submitContent,
 
@@ -4857,7 +6558,95 @@ XRSLP.state = (function () {
     updateCanonicalMetadata: updateCanonicalMetadata,
     requestChangesContent: requestChangesContent, publishContent: publishContent,
 
-    vendorOverview: vendorOverview, reviewerOverview: reviewerOverview, managerOverview: managerOverview
+    vendorOverview: vendorOverview, reviewerOverview: reviewerOverview, managerOverview: managerOverview,
+
+    /* ---- Implementation 06 — Super Admin governance + B2B operations ---- */
+
+    /* tenant governance */
+    tenantIsActive: tenantIsActive, tenantStatusMeta: tenantStatusMeta,
+    deactivateTenant: deactivateTenant, reactivateTenant: reactivateTenant,
+    tenantWriteBlock: tenantWriteBlock, tenantCanWrite: tenantCanWrite,
+    personCanWrite: personCanWrite, TENANT_INACTIVE_TEXT: TENANT_INACTIVE_TEXT,
+
+    /* Tenant Admin assignment */
+    tenantAdmins: tenantAdmins, tenantAdminById: tenantAdminById,
+    tenantAdminsFor: tenantAdminsFor, allTenantAdminsFor: allTenantAdminsFor,
+    tenantsWithoutAdmin: tenantsWithoutAdmin,
+    validateTenantAdmin: validateTenantAdmin,
+    assignTenantAdmin: assignTenantAdmin, removeTenantAdmin: removeTenantAdmin,
+    protoTenantAdminId: protoTenantAdminId, setProtoTenantAdmin: setProtoTenantAdmin,
+    protoTenantAdmin: protoTenantAdmin, actingTenantAdmin: actingTenantAdmin,
+
+    /* platform role governance */
+    ROLE_SCOPE: ROLE_SCOPE, ROLE_SCOPE_LABEL: ROLE_SCOPE_LABEL,
+    roleScopesAllowed: roleScopesAllowed, roleScopeLabel: roleScopeLabel,
+    roleAssignments: roleAssignments, roleAssignmentById: roleAssignmentById,
+    actorsForCourse: actorsForCourse, actorsForRecord: actorsForRecord,
+    validateRoleAssignment: validateRoleAssignment,
+    assignPlatformRole: assignPlatformRole,
+    removePlatformRoleAssignment: removePlatformRoleAssignment,
+    restorePlatformRoleAssignment: restorePlatformRoleAssignment,
+    actorHistoricalRecordIds: actorHistoricalRecordIds,
+
+    /* canonical / master metadata, platform side */
+    updateCanonicalAsPlatform: updateCanonicalAsPlatform, canonicalTree: canonicalTree,
+
+    /* later version — Release / Hold */
+    VERSION_STATUS: VERSION_STATUS, VERSION_STATUS_META: VERSION_STATUS_META,
+    versionStatusMeta: versionStatusMeta,
+    contentVersions: contentVersions, contentVersion: contentVersion,
+    versionsForRecord: versionsForRecord, openVersionForRecord: openVersionForRecord,
+    releasedVersionsForRecord: releasedVersionsForRecord,
+    currentVersionLabel: currentVersionLabel,
+    versionsAwaitingDecision: versionsAwaitingDecision, versionsOnHold: versionsOnHold,
+    versionsForReviewer: versionsForReviewer, versionsForVendor: versionsForVendor,
+    validateVersion: validateVersion, vendorCanVersion: vendorCanVersion,
+    canViewHistoricalVersion: canViewHistoricalVersion,
+    canMutateVendorVersion: canMutateVendorVersion,
+    versionScopeWithdrawn: versionScopeWithdrawn,
+    createContentVersion: createContentVersion, updateContentVersion: updateContentVersion,
+    versionEditableByVendor: versionEditableByVendor,
+    versionSubmittableByVendor: versionSubmittableByVendor,
+    submitContentVersion: submitContentVersion,
+    reviewerCanActOnVersion: reviewerCanActOnVersion,
+    approveVersionAcademic: approveVersionAcademic,
+    requestChangesVersionAcademic: requestChangesVersionAcademic,
+    versionAwaitingDecision: versionAwaitingDecision,
+    releaseVersion: releaseVersion, holdVersion: holdVersion,
+    returnHeldVersionToDecision: returnHeldVersionToDecision,
+
+    /* device replacement / transfer */
+    TRANSFER_STATUS: TRANSFER_STATUS, transferStatusMeta: transferStatusMeta,
+    deviceTransferRequests: deviceTransferRequests, deviceTransferById: deviceTransferById,
+    transfersForStudent: transfersForStudent, openTransferForStudent: openTransferForStudent,
+    transfersAwaitingDecision: transfersAwaitingDecision,
+    isPackageTechnology: isPackageTechnology,
+    packageTechnologiesForStudent: packageTechnologiesForStudent,
+    studentHasPackageTechnology: studentHasPackageTechnology,
+    studentCanRequestTransfer: studentCanRequestTransfer,
+    validateTransfer: validateTransfer,
+    createDeviceTransfer: createDeviceTransfer, decideDeviceTransfer: decideDeviceTransfer,
+    transferTechnologies: transferTechnologies, transferCoversAll: transferCoversAll,
+
+    /* support / help */
+    SUPPORT_STATUS: SUPPORT_STATUS, SUPPORT_CATEGORIES: SUPPORT_CATEGORIES,
+    supportStatusMeta: supportStatusMeta, supportCategoryLabel: supportCategoryLabel,
+    supportTickets: supportTickets, supportTicketById: supportTicketById,
+    ticketsForRequester: ticketsForRequester, openSupportTickets: openSupportTickets,
+    ticketsForTenant: ticketsForTenant,
+    validateSupportTicket: validateSupportTicket,
+    createSupportTicket: createSupportTicket,
+    resolveSupportTicket: resolveSupportTicket, reopenSupportTicket: reopenSupportTicket,
+
+    /* access term + the 15-day reminder */
+    EXPIRY_REMINDER_DAYS: EXPIRY_REMINDER_DAYS,
+    accessDaysUntilExpiry: accessDaysUntilExpiry, expiryReminderDue: expiryReminderDue,
+    accessNeedingExpiryReminder: accessNeedingExpiryReminder,
+    tenantAccessNeedingExpiryReminder: tenantAccessNeedingExpiryReminder,
+    expiredAccessForTenant: expiredAccessForTenant,
+
+    /* platform read models */
+    platformOverview: platformOverview, tenantReport: tenantReport
   };
 })();
 

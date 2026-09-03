@@ -47,6 +47,10 @@ XRSLP.studentUI = (function () {
     home:       function (s) { return base(s) + '/home'; },
     myLearning: function (s) { return base(s) + '/my-learning'; },
     progress:   function (s) { return base(s) + '/progress'; },
+    /* Implementation 06 — device replacement / transfer (STK31-38) and
+       Help (STK31-39). */
+    device:     function (s) { return base(s) + '/device'; },
+    help:       function (s) { return base(s) + '/help'; },
     experiment: function (s, e) { return expBase(s, e); },
     simulation: function (s, e, t) { return expBase(s, e) + '/simulation/' + encodeURIComponent(t); },
     /* No technology segment: one assessment per Experiment. */
@@ -160,6 +164,14 @@ XRSLP.studentUI = (function () {
      Written for a Student: no ACC-nnn, no licence arithmetic, no
      administrative vocabulary (brief §32). */
   var UNAVAILABLE_TEXT = {
+    /* Implementation 06 — the institution itself has been deactivated by
+       the platform. It is listed first because it explains everything
+       below it, and it is written as a fact about the institution rather
+       than about the Student, which is what it actually is. */
+    /* No trailing "everything is kept" sentence here: every caller that
+       shows this text already appends one, and saying it twice in a row
+       reads as a glitch. */
+    'tenant-inactive':  'Your institution’s access to the platform has been suspended.',
     'student-inactive': 'Your account is not active at your institution at the moment.',
     'access-expired':   'Your institution’s access to this experiment has reached its end date.',
     'allocation-held':  'Your institution has not yet made a place available for you on this experiment.'
@@ -537,14 +549,26 @@ XRSLP.studentUI = (function () {
     if (p.status !== 'active') {
       actionCard = '';
     } else if (summary.entitled === 0) {
+      /* Implementation 06 — an experiment that is assigned but currently
+         unavailable is not the same as one that was never assigned. The
+         roll-up already counts the blocked ones, so the copy must not
+         contradict the number beside it. */
+      var blockedNow = state.studentExperiments(p.id).filter(function (row) { return !row.effective; });
       actionCard = ui.card('Your learning',
-        ui.emptyState({
-          icon: 'flask', heading: 'h3',
-          title: 'No experiments have been assigned to you yet',
-          body: 'Experiments appear here once your institution assigns them to you. Being enrolled on a ' +
-            'course, or belonging to a study group, does not by itself make an experiment available.',
-          actionsHTML: '<a class="btn sec sm" href="' + L.href.myLearning(p.id) + '">Open My Learning</a>'
-        }), null, 'h2');
+        ui.emptyState(blockedNow.length
+          ? { icon: 'alertCirc', heading: 'h3',
+              title: 'Nothing is available to you right now',
+              body: blockedNow.length + ' ' + util.plural(blockedNow.length, 'experiment') + ' ' +
+                (blockedNow.length === 1 ? 'has' : 'have') + ' been assigned to you but cannot be opened ' +
+                'at the moment. ' + L.unavailableText(blockedNow[0].blockedBy) +
+                ' Everything you have already done is kept.',
+              actionsHTML: '<a class="btn sec sm" href="' + L.href.myLearning(p.id) + '">Open My Learning</a>' }
+          : { icon: 'flask', heading: 'h3',
+              title: 'No experiments have been assigned to you yet',
+              body: 'Experiments appear here once your institution assigns them to you. Being enrolled on a ' +
+                'course, or belonging to a study group, does not by itself make an experiment available.',
+              actionsHTML: '<a class="btn sec sm" href="' + L.href.myLearning(p.id) + '">Open My Learning</a>' }
+        ), null, 'h2');
     } else if (resume) {
       var ctx = data.contextOf(resume.row.experimentId);
       actionCard = ui.card('Continue where you left off',

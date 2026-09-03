@@ -438,7 +438,10 @@ XRSLP.screens = XRSLP.screens || {};
         'visible, and whether a written answer will come to you.</p>' +
         '<p class="cardlede">Nothing on that screen is written by hand. If you change a setting here, the ' +
         'student’s summary changes with it.</p>', null, 'h2') +
-      ui.gapNote('PENDING — ND-10',
+      /* The tag names the STATE, not the internal question id: a
+          requirement identifier is a project artefact and must not reach
+          a Faculty member's screen. */
+      ui.gapNote('PENDING — NOT ESTABLISHED',
         '<strong>The BITS / Taxila feedback-timing rule is not implemented, because it is not established.</strong> ' +
         'The 31 August review said to refer to the Taxila behaviour for BITS cases. That behaviour is not in the ' +
         'project sources, so no BITS default is preselected here and none is invented. The three options above ' +
@@ -952,10 +955,10 @@ XRSLP.screens = XRSLP.screens || {};
         '<p>Delete removes a question from your active Question Bank. An assessment that already contains it ' +
         'keeps its copy, and every attempt a student has already submitted keeps the question, the answer key ' +
         'and the marks it was taken against.</p>') +
-      '<div class="gapnote"><span class="gtag">NOT IN THIS SLICE</span><div>' +
-      '<strong>Spreadsheet import of questions.</strong> Batch 02 built an upload with per-row error reporting ' +
-      'and the correction map keeps it. It is not implemented here, and no control claims otherwise. Supplying ' +
-      'source material for drafting <em>is</em> implemented — see Draft with assistance.</div></div>' +
+      '<div class="gapnote"><span class="gtag">NOT IN THIS BUILD</span><div>' +
+      '<strong>Spreadsheet import of questions.</strong> It is not implemented here, and no control claims ' +
+      'otherwise. Supplying source material for drafting <em>is</em> implemented — see Draft with ' +
+      'assistance.</div></div>' +
       '</div>';
 
     return {

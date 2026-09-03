@@ -46,10 +46,27 @@ XRSLP.tenantUI = (function () {
   };
 
   /* Every tenant screen resolves its tenant the same way, and fails the
-     same way when the address is stale. */
-  function requireTenant(params, navKey) {
+     same way when the address is stale.
+
+     Implementation 06 adds one option: `write: true`. A screen whose
+     whole purpose is a MUTATION — creating a person, importing a CSV,
+     making an assignment — passes it, and a deactivated tenant then gets
+     a rendered refusal instead of a form whose Save button would be
+     silently refused by the state layer. A dead control is worse than an
+     honest refusal, so there is no third behaviour. Read-only screens
+     pass nothing and stay fully readable: deactivation hides no history. */
+  function requireTenant(params, navKey, opts) {
     var tenant = state.tenantById(params.tenantId);
-    if (tenant) { return { tenant: tenant }; }
+    if (tenant) {
+      /* `tenant: null` on purpose: every screen tests `if (!r.tenant)
+         { return r.fail; }`, and the refusal object carries the tenant
+         itself, so the workspace shell still renders with the right
+         navigation and the right institution name. */
+      if (opts && opts.write && !state.tenantCanWrite(tenant.id)) {
+        return { tenant: null, fail: inactiveRefusal(tenant, navKey, opts.what) };
+      }
+      return { tenant: tenant };
+    }
     return {
       tenant: null,
       fail: {
@@ -66,6 +83,43 @@ XRSLP.tenantUI = (function () {
       }
     };
   }
+
+  /* The refusal a mutating screen shows while the institution is
+     deactivated. It names the action that is unavailable, says plainly
+     that nothing was deleted, and offers the one place that can still
+     be reached. */
+  function inactiveRefusal(tenant, navKey, what) {
+    return {
+      title: 'Not available — institution deactivated',
+      tenant: tenant,
+      navKey: navKey || null,
+      html: ui.phead(what || 'Not available',
+        esc(tenant.name) + ' has been deactivated by the Super Admin') +
+        '<div class="tablecard">' + ui.emptyState({
+          icon: 'alertCirc',
+          title: 'This institution is deactivated',
+          body: (what ? what + ' is not available while the institution is deactivated. ' : '') +
+            'Everything already recorded — people, groups, academic mappings, assignments, licence ' +
+            'allocation, assessments and every student’s progress — is preserved exactly as it stands. ' +
+            'Nothing has been deleted, and reactivating the institution restores what is still valid.',
+          actionsHTML: '<a class="btn pri" href="' + href.overview(tenant.id) + '">Back to the overview</a>' +
+            '<a class="btn sec" href="' + XRSLP.supportUI.href.tenant(tenant.id) + '">Report an issue</a>'
+        }) + '</div>'
+    };
+  }
+
+  /* Action markup, but only while the institution can be operated on.
+     A deactivated tenant keeps every screen READABLE — history is never
+     hidden — and simply does not render controls the state layer would
+     refuse. A dead control is worse than an absent one. */
+  function actionsIfWritable(tenant, html, note) {
+    if (!tenant || state.tenantCanWrite(tenant.id)) { return html; }
+    return note === false ? '' :
+      '<p class="muted" style="font-size:12.5px;line-height:1.55;margin:0">' +
+      esc(note || 'Not available while the institution is deactivated. Nothing here has been deleted.') +
+      '</p>';
+  }
+  function canWrite(tenant) { return !!tenant && state.tenantCanWrite(tenant.id); }
 
   /* ---------- small display pieces ---------- */
 
@@ -179,7 +233,8 @@ XRSLP.tenantUI = (function () {
   }
 
   return {
-    href: href, requireTenant: requireTenant,
+    href: href, requireTenant: requireTenant, inactiveRefusal: inactiveRefusal,
+    actionsIfWritable: actionsIfWritable, canWrite: canWrite,
     personStatusBadge: personStatusBadge, sourceBadge: sourceBadge, sourceLabel: sourceLabel,
     personLink: personLink, statGrid: statGrid, allocMeter: allocMeter,
     noAssignableAccessHTML: noAssignableAccessHTML,
@@ -248,6 +303,8 @@ XRSLP.tenantUI = (function () {
     var groups = state.groupsForTenant(tenant.id);
     var live = state.liveAccessForTenant(tenant.id);
     var alloc = state.tenantAllocation(tenant.id);
+    var tenantActive = state.tenantIsActive(tenant.id);
+    var entitled = state.entitledStudentIds(tenant.id);
 
     var stats = T.statGrid([
       { label: 'Faculty', value: faculty.length },
@@ -260,8 +317,23 @@ XRSLP.tenantUI = (function () {
       { label: 'Assigned students', value: alloc.assigned },
       { label: 'Remaining allocation', value: alloc.remaining,
         tone: alloc.approved > 0 && alloc.remaining === 0 ? 'warn' : '' },
-      { label: 'Entitled students', value: alloc.uniqueEntitledStudents,
-        note: 'hold at least one experiment' }
+      /* EFFECTIVE ENTITLEMENT, from the one function the whole platform
+         answers this question with. It is NOT the allocation roll-up:
+         `tenantAllocation()` counts who HOLDS A LICENCE, which is a fact
+         about allocation and must survive a deactivation untouched —
+         which is exactly why reading it here made the Overview contradict
+         itself, showing "Entitled students 1" beside "N active students
+         with no entitlement" (that second figure already came from
+         `entitledStudentIds()`), while the Super Admin and Content access
+         screens both correctly showed nobody entitled.
+
+         ASSIGNED ≠ EFFECTIVELY ENTITLED. The tile above reports the
+         stored allocation and is deliberately left alone; this one
+         reports what is true for a learner right now. */
+      { label: 'Entitled students', value: entitled.length,
+        note: tenantActive
+          ? 'hold at least one experiment'
+          : 'none while the institution is deactivated — assignments are kept' }
     ]);
 
     /* Attention — every row is a real state of this institution.
@@ -313,16 +385,49 @@ XRSLP.tenantUI = (function () {
         href: T.href.access(tenant.id), label: 'Open content access'
       });
     }
-    var expiring = state.accessForTenant(tenant.id).filter(function (a) {
-      return state.accessTermState(a).key === 'expiring';
-    });
+    /* Implementation 06 — the SAME derivation the Super Admin's
+       operational list uses (`expiryReminderDue`), so the two surfaces
+       can never disagree about which records are due. Inclusive at
+       exactly 15 days; a record already past its end instant is expired,
+       not "due". */
+    var expiring = state.tenantAccessNeedingExpiryReminder(tenant.id);
     if (expiring.length) {
       items.push({
         tone: 'warn', icon: 'clock',
-        title: expiring.length + ' access ' + util.plural(expiring.length, 'record') + ' expiring within 15 days',
-        body: 'Entitlement derived from an expired record stops being effective. ' +
-          'The confirmed 15-day reminder to the Tenant is a required platform capability; its delivery channel is not yet decided, so no notification is sent from this prototype.',
+        title: expiring.length + ' access ' + util.plural(expiring.length, 'record') +
+          ' expiring within 15 days — renewal attention',
+        body: expiring.map(function (a) {
+          var d = state.accessDaysUntilExpiry(a);
+          return esc(a.id) + ' — ' + d + ' ' + util.plural(d, 'day') + ' remaining, ends ' +
+            esc(util.fmtDate(a.endsOn));
+        }).join('; ') + '. Entitlement derived from an expired record stops being effective. ' +
+          'There is no automatic renewal, payment or extension.',
         href: T.href.access(tenant.id), label: 'Open content access'
+      });
+    }
+    var expiredRecs = state.expiredAccessForTenant(tenant.id);
+    if (expiredRecs.length) {
+      items.push({
+        tone: 'warn', icon: 'alertCirc',
+        title: expiredRecs.length + ' access ' + util.plural(expiredRecs.length, 'record') + ' has expired',
+        body: expiredRecs.map(function (a) {
+          return esc(a.id) + ' — ended ' + esc(util.fmtDate(a.endsOn));
+        }).join('; ') + '. Nothing has been deleted: the record, its assignments and every student&rsquo;s ' +
+          'progress are kept, but entitlement derived from it is no longer effective.',
+        href: T.href.access(tenant.id), label: 'Open content access'
+      });
+    }
+    var openTickets = state.ticketsForTenant(tenant.id).filter(function (x) {
+      return x.status === state.SUPPORT_STATUS.OPEN;
+    });
+    if (openTickets.length) {
+      items.push({
+        tone: 'info', icon: 'alertCirc',
+        title: openTickets.length + ' technical ' + util.plural(openTickets.length, 'issue') +
+          ' reported from this institution',
+        body: openTickets.map(function (t) { return esc(t.subject); }).join('; ') +
+          '. The platform team resolves reported issues; the outcome appears on the reporter&rsquo;s own Help page.',
+        href: XRSLP.supportUI.href.tenant(tenant.id), label: 'Open Help'
       });
     }
     if (alloc.over > 0) {
@@ -348,6 +453,7 @@ XRSLP.tenantUI = (function () {
         });
 
     var noAccessYet = !state.accessForTenant(tenant.id).length;
+    var admins = state.tenantAdminsFor(tenant.id);
 
     var html =
       ui.phead('Overview', esc(tenant.name) + ' · ' + esc(tenant.accessContext)) +
@@ -358,6 +464,29 @@ XRSLP.tenantUI = (function () {
         (tenant.kind === 'external' ? ' and payment completes' : '') + '.</p>') : '') +
       ui.card('Institution at a glance', stats, null, 'h2') +
       ui.card('Needs attention', attention, null, 'h2') +
+      /* Implementation 06 — the honest in-product representation of the
+         confirmed 15-day reminder. It appears only when a reminder is
+         actually due, and it never claims a message was sent. */
+      (expiring.length
+        ? ui.gapNote('DELIVERY CHANNEL PENDING',
+            'Your institution must receive an expiry reminder <strong>15 days before</strong> the access term ' +
+            'ends. That requirement is confirmed; the <strong>delivery channel is not</strong>, so this build ' +
+            'represents the reminder as the attention state above and on the platform&rsquo;s own operations ' +
+            'list. <strong>No email, SMS, push or notification of any kind has been sent</strong>, and no ' +
+            'provider is integrated. Access does not renew automatically, and nothing is charged.')
+        : '') +
+      /* Who the platform recorded as responsible for this institution.
+         Super Admin assigns it (STK31-21); the Tenant Admin cannot. */
+      ui.card('Institution administration',
+        (admins.length
+          ? '<ul class="reslist plain">' + admins.map(function (a) {
+              return '<li>' + ui.ic('users') + '<span><strong>' + esc(a.name) + '</strong> ' +
+                '<span class="muted">· ' + esc(a.email) + '</span></span></li>';
+            }).join('') + '</ul>'
+          : '<p class="muted">No Tenant Admin has been assigned to this institution yet.</p>') +
+        '<p class="cardfoot">The Super Admin assigns the Institute / Tenant Admin. It cannot be changed from ' +
+        'inside the institution, and this institution&rsquo;s administrators can never act for another one.</p>',
+        null, 'h2') +
       '</div>';
 
     return { title: 'Overview — ' + tenant.name, html: html, tenant: tenant, navKey: 'overview' };

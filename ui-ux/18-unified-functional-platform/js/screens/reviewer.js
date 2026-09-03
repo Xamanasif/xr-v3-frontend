@@ -85,16 +85,33 @@ XRSLP.screens = XRSLP.screens || {};
     var actor = resolveActor(params);
     if (!actor) { return XRSLP.screens.notFound(); }
     var o = state.reviewerOverview(actor.id);
+    /* Implementation 06 — a later version waits on the SAME academic
+       decision as a first submission, so it belongs in the same figure.
+       Counting only submissions here made the Overview say nothing was
+       waiting while the navigation badge beside it said one item was. */
+    var waitingVersions = state.versionsForReviewer(actor.id,
+      { status: state.VERSION_STATUS.ACADEMIC_REVIEW });
 
     var tiles = '<div class="statgrid">' +
-      cui.statTile(o.waiting, 'Waiting for review', 'awaiting your decision') +
+      cui.statTile(o.waiting + waitingVersions.length, 'Waiting for review', 'awaiting your decision') +
       cui.statTile(o.changesRequested, 'Changes requested', 'returned to the Vendor') +
       cui.statTile(o.approvedAwaitingPublication, 'Academically approved', 'awaiting publication') +
       cui.statTile(o.published, 'Published', 'from your assigned courses') +
       '</div>';
 
-    var attnHTML = o.queue.length
-      ? '<div class="attn">' + o.queue.map(function (r) {
+    var versionRows = waitingVersions.map(function (v) {
+      var rec = state.contentRecord(v.recordId);
+      return '<div class="at-row"><span class="at-ic">' + ui.ic('layers') + '</span>' +
+        '<div class="at-body"><div class="at-t">' + esc(rec ? rec.name : v.recordId) +
+        ' — version ' + esc(v.versionLabel) + '</div>' +
+        '<p>Later version of published content · replaces ' + esc(v.replacesVersionLabel || '—') +
+        ' · submitted ' + esc(util.fmtDate(v.submittedAt)) +
+        '. Approving it hands it to the Super Admin for the Release / Hold decision.</p></div>' +
+        '<a class="btn sec sm" href="' + href.rVersion(actor.id, v.id) + '">Review</a></div>';
+    }).join('');
+
+    var attnHTML = (o.queue.length || waitingVersions.length)
+      ? '<div class="attn">' + versionRows + o.queue.map(function (r) {
           var ready = state.academicReadiness(r);
           return '<div class="at-row ' + (ready.ok ? '' : 'warn') + '"><span class="at-ic">' +
             ui.ic('clock') + '</span>' +
@@ -155,20 +172,59 @@ XRSLP.screens = XRSLP.screens || {};
   };
 
   /* ---------------- Review queue ---------------- */
+  /* Implementation 06 — LATER VERSIONS of already-published experiments
+     wait on the same academic decision as a first submission, so they
+     belong in the same queue. They are a different object with a
+     different lifecycle, so they get their own card rather than being
+     mixed into the submissions table: approving one hands it to the
+     SUPER ADMIN for Release / Hold, and the card says so. */
+  function versionCard(actor) {
+    var vers = state.versionsForReviewer(actor.id, {});
+    var waiting = vers.filter(function (v) { return v.status === state.VERSION_STATUS.ACADEMIC_REVIEW; });
+    if (!vers.length) { return ''; }
+    return ui.card('Later versions',
+      '<div class="tscroll"><table class="dt">' +
+      '<caption class="sr-only">Later versions of published experiments in your assigned scope</caption>' +
+      '<thead><tr><th scope="col">Experiment</th><th scope="col">Version</th><th scope="col">Replaces</th>' +
+      '<th scope="col">Vendor</th><th scope="col">State</th>' +
+      '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
+      vers.map(function (v) {
+        var rec = state.contentRecord(v.recordId);
+        var actionable = v.status === state.VERSION_STATUS.ACADEMIC_REVIEW;
+        return '<tr>' +
+          '<td data-label="Experiment">' + esc(rec ? rec.name : v.recordId) + '</td>' +
+          '<td data-label="Version">' + esc(v.versionLabel) + '</td>' +
+          '<td data-label="Replaces">' + esc(v.replacesVersionLabel || '—') + '</td>' +
+          '<td data-label="Vendor">' + esc(v.createdByName) + '</td>' +
+          '<td data-label="State">' + XRSLP.versionUI.badge(v) + '</td>' +
+          '<td class="cell-actions"><a class="btn ' + (actionable ? 'sec' : 'gho') + ' sm" href="' +
+          href.rVersion(actor.id, v.id) + '">' + (actionable ? 'Review' : 'View') + '</a></td>' +
+          '</tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<p class="cardfoot">' +
+      (waiting.length
+        ? waiting.length + ' ' + util.plural(waiting.length, 'version') + ' awaiting your academic decision. '
+        : '') +
+      'Approving a version hands it to the <strong>Super Admin</strong> for the Release / Hold decision. ' +
+      'It does not publish anything, and the published version does not change here.</p>', null, 'h2');
+  }
+
   XRSLP.screens.reviewerQueue = function (params) {
     var actor = resolveActor(params);
     if (!actor) { return XRSLP.screens.notFound(); }
     var all = state.contentForReviewer(actor.id);
+    var vcard = versionCard(actor);
 
     if (!all.length) {
       return shell(actor, 'queue', 'Review queue',
         ui.phead('Review queue', esc(actor.name)) +
+        '<div class="stack">' +
         '<div class="tablecard">' + ui.emptyState({
           icon: 'doc',
           title: 'Nothing is in your review queue',
           body: 'No submission has reached academic review in the courses assigned to you. Submissions appear ' +
             'here once a Vendor submits them.'
-        }) + '</div>');
+        }) + '</div>' + vcard + '</div>');
     }
 
     cui.normaliseFilters(all, queueFilter);
@@ -191,7 +247,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<th scope="col">Technologies</th><th scope="col">Submitted</th><th scope="col">Version</th>' +
       '<th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span></th>' +
       '</tr></thead><tbody id="r-rows"></tbody></table></div>' +
-      '<div id="r-empty"></div></div>';
+      '<div id="r-empty"></div></div>' + (vcard ? '<div style="margin-top:16px">' + vcard + '</div>' : '');
 
     return shell(actor, 'queue', 'Review queue', html, function () {
       var rowsEl = document.getElementById('r-rows');
@@ -615,7 +671,18 @@ XRSLP.screens = XRSLP.screens || {};
             'your comment.</p><blockquote class="qquote">' + esc(text) + '</blockquote>' +
             '<div class="consequence">' + ui.ic('info') +
             '<span>The Vendor can correct and resubmit. The decision you record here is kept in the ' +
-            'history.</span></div>',
+            'history.</span></div>' +
+            /* ⚠ Returning work to a Vendor whose role scope has been
+               withdrawn leaves it with nobody able to move it: read-only
+               for them, and out of this queue. The decision is still the
+               Reviewer's to take — this states the consequence rather
+               than blocking it, because the alternative is a surprise. */
+            (state.vendorScopeWithdrawn(rec, rec.createdBy)
+              ? '<div class="consequence">' + ui.ic('alert') +
+                '<span>The Vendor who submitted this no longer holds a role scope covering it, so they ' +
+                'cannot correct or resubmit it. It will stay returned until the Super Admin restores their ' +
+                'scope.</span></div>'
+              : ''),
           okLabel: 'Request changes',
           onConfirm: function () {
             var updated = state.requestChangesAcademic(actor.id, rec.id, text);
@@ -632,12 +699,18 @@ XRSLP.screens = XRSLP.screens || {};
     href: href,
     nav: function (actor, activeKey) {
       var o = state.reviewerOverview(actor.id);
+      /* First submissions AND later versions both wait on the same
+         academic decision, so the queue counts both. */
+      var waiting = o.waiting + state.versionsForReviewer(actor.id,
+        { status: state.VERSION_STATUS.ACADEMIC_REVIEW }).length;
       return [
         { href: href.rOverview(actor.id), icon: 'home', label: 'Overview',
           active: activeKey === 'overview', count: 0 },
         { href: href.rQueue(actor.id), icon: 'doc', label: 'Review queue',
-          active: activeKey === 'queue', count: o.waiting,
-          countLabel: util.plural(o.waiting, 'submission') + ' awaiting your academic decision' }
+          active: activeKey === 'queue', count: waiting,
+          countLabel: util.plural(waiting, 'item') + ' awaiting your academic decision' },
+        { href: href.rHelp(actor.id), icon: 'alertCirc', label: 'Help',
+          active: activeKey === 'help', count: 0 }
       ];
     }
   };

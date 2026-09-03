@@ -1,12 +1,19 @@
-# QA Checklist — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05
+# QA Checklist — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06
 
 Run from `ui-ux/18-unified-functional-platform/` (see README for local run).
 Every step below was executed against the final build in a Chromium-based browser
 (runtime-verified; see the implementation report). Re-run on Safari for the review pass.
 
 Sections **A**, **B** and **Cross-cutting** are the Implementation-01 suite; **C**–**H** are
-Implementation 02; **J**–**P** are Implementation 03; **Q**–**X** are Implementation 04. All four
-were re-run against the Implementation-05 build. Sections **Y1**–**Y11** are new.
+Implementation 02; **J**–**P** are Implementation 03; **Q**–**X** are Implementation 04;
+**Y1**–**Y11** are Implementation 05. The **Implementation 06** suite is at the foot of this
+file, and re-runs the load-bearing checks from all five earlier slices as its scenarios
+**A′**, **I**, **J** and **K**.
+
+From Implementation 06 the state-layer half of this suite is also **executable**: `qa/checks.js`
+asserts 305 invariants outside a browser, so the rules underneath these screens are proved rather
+than observed. The browser pass then verifies what only a browser can — that the screens, the
+dialogs, the layout and the copy match those rules.
 
 > **Implementation 05 runs first in the chain but is verified last**, because the proof it exists
 > to give is that a *newly produced* Experiment travels the whole platform on the code the seeded
@@ -1525,3 +1532,439 @@ Not a WCAG conformance claim.
 While the result is withheld, the Student's *"your score above is final for the marked questions"*
 sentence points at a score that is correctly not shown. It is pre-existing copy on a screen this
 pass was scoped not to touch, and it discloses nothing. Flagged, not changed.
+
+---
+
+# IMPLEMENTATION 06 — SUPER ADMIN GOVERNANCE + B2B OPERATIONS
+
+Two independent passes, and both had to agree before anything below was marked ✅.
+
+**Pass 1 — the state layer, headless.** `qa/harness.js` + `qa/checks.js` load `utils · data ·
+ai-assist · state` outside a browser and assert the rules directly. **305 assertions, 0 failures.**
+That is where an entitlement, a licence or a published version can actually go wrong, so it is
+asserted rather than eyeballed. Run it from this folder:
+
+```
+/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc \
+    qa/harness.js qa/checks.js
+```
+
+Neither file ships: `index.html` references them nowhere and no product code knows they exist.
+
+**Pass 2 — the screens, in a browser.** Every workflow driven through the real controls, plus
+three programmatic sweeps: horizontal overflow on **59 routes × 3 widths**, an accessibility
+audit of all 59 (valid routes *and* the not-found paths behind every deep-link guard), and a
+**dead-control sweep** that deactivates a tenant and checks all **31** of its screens.
+
+> **Scenario B is run against this dataset's soil-mechanics submission.** The brief names
+> *"Triaxial Compression Test"*; this prototype's soil-mechanics submission is the Permeability
+> Test sample, and the scenario creates a second soil-mechanics record named *Triaxial
+> Compression Test (QA)* so the rule is exercised exactly as written. The rule under test — a
+> withdrawn Course scope removes future actionable work and keeps completed history — is
+> identical.
+
+## Scenario A — the Implementation-01 B2B path, re-run
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| A′1 | Reset → Public catalogue → an already-published Experiment | It is in the public pool | ✅ `direct-shear`, version 1.0 |
+| A′2 | Fresh seed, before anything is requested | **0** access records, **0** entitled students | ✅ |
+| A′3 | Select technologies → submit an institutional request → Super Admin **Approve** | Internal route activates immediately; exactly **one** access record | ✅ `ACC-001`, status `ACTIVE` |
+| A′4 | The approved quantity | Comes from the request, not from anywhere else | ✅ 3 |
+| A′5 | Immediately after activation | Tenant access creates **no** student entitlement | ✅ assigned 0, entitled 0 |
+
+## Scenario B — platform role scope is real, and history survives
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| B1 | Vendor submits the soil-mechanics record; Academic Reviewer → Dr. R. Iyer | It is in his actionable review scope | ✅ |
+| B2 | He authors a Learning Outcome and **approves it academically** | The decision is recorded | ✅ `academicReviews` +1 |
+| B3 | A second soil-mechanics submission enters his queue | Actionable | ✅ |
+| B4 | Super Admin → **Role governance → Dr. R. Iyer → Withdraw** the Soil Mechanics scope | Confirmation dialog states that nothing already decided is deleted | ✅ |
+| B5 | Immediately afterwards | **No** soil-mechanics record is actionable for him | ✅ 0 |
+| B6 | …and nothing soil-mechanics is *reachable* by him at all | Not just filtered out of a queue | ✅ |
+| B7 | The later-version gate asks the same question | One scope check, not two | ✅ refused |
+| B8 | **His completed decision** | Still in `academicReviews[]` | ✅ unchanged |
+| B9 | **His name on the record's history** | Still there | ✅ |
+| B10 | The governance screen's *Decisions already taken* | Still lists the record, marked as now outside his scope | ✅ |
+| B11 | **Restore** the scope | Actionable work returns | ✅ |
+| B12 | The restored row | Re-instated, **not** duplicated | ✅ 1 row |
+| B13 | The same withdrawal on a **Vendor** | Blocks creating in that Course, and blocks proposing a later version there | ✅ both |
+| B14 | Restore | Both return | ✅ |
+
+## Scenario C — tenant deactivation
+
+Set up first: real access, a Faculty mapping, a Student assignment, and a **completed VR
+simulation** so there is history worth protecting.
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| C1 | Super Admin → Institution → **Deactivate**, with a reason | Dialog states the consequence and that nothing is deleted | ✅ |
+| C2 | **Student** launch | Refused | ✅ `studentCanRun` false |
+| C3 | Student assessment | Cannot be opened | ✅ |
+| C4 | Student writers called directly (simulation · resource · attempt) | Refused at the **state layer**, not only in the UI | ✅ all null |
+| C5 | The reason the Student is given | *the institution*, not *your account* | ✅ `tenant-inactive` |
+| C6 | **Faculty** mapped content | Nothing usable, **and the reason is stated** | ✅ 0 experiments, 1 blocked with reason |
+| C7 | Faculty authoring write | Refused | ✅ |
+| C8 | **Tenant Admin** — create a person · create a group · map Faculty · assign · set a mapping | All refused | ✅ all |
+| C9 | The access record's own report | Says exactly why | ✅ `tenant-inactive` |
+| C10 | **Every person, assignment and access record** | Survives | ✅ counts unchanged |
+| C11 | **The completed simulation and its time spent** | Survives | ✅ unchanged |
+| C12 | The allocation | **Not** recalculated by deactivation | ✅ approved and assigned unchanged |
+| C13 | **Reactivate** | Student launch works again | ✅ |
+| C14 | Faculty | The same mapped content returns | ✅ same count |
+| C15 | **The allocation ordering** | The same students hold the same places, in the same order | ✅ identical id list |
+| C16 | Progress | Still there | ✅ |
+| C17 | Governance history | Both actions recorded, with actor, timestamp and reason | ✅ |
+
+### C — the browser half
+
+| Check | Result |
+|---|---|
+| A banner on **every** screen of the Tenant, Faculty and Student workspaces | ✅ rendered by the shell, so no route can slip past it |
+| Each audience told the truth in its own terms | ✅ three different bodies, all saying nothing was deleted |
+| A hand-typed launch route | ✅ explicit refusal, reason given |
+| **Dead-control sweep — 31 routes** | ✅ **0** live mutating controls anywhere |
+| **Over-blocking sweep** — is history still readable? | ✅ people, assignments, group members, academic mappings, faculty mappings, content access, student progress and Help all readable |
+| Reporting a technical issue while deactivated | ✅ deliberately still available |
+| After reactivation | ✅ every control returns |
+
+## Scenario D — a later version, and HOLD
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| D1 | Vendor → published experiment → **Propose a later version** (1.1) | Created as a draft, with the Vendor | ✅ `CV-001` |
+| D2 | Public catalogue **while it is a draft** | Still 1.0, original description | ✅ |
+| D3 | A **second** concurrent candidate for the same experiment | Refused | ✅ |
+| D4 | Submit for academic review → public catalogue | Still 1.0 | ✅ |
+| D5 | Academic Reviewer **approves** → public catalogue | **Still 1.0** — approval is not release | ✅ |
+| D6 | The content record itself | Untouched | ✅ description unchanged |
+| D7 | Can the Content Manager publish over it? | No — a published record cannot be published again | ✅ readiness false, writer returns null |
+| D8 | Super Admin → **Hold**, with a reason | Recorded | ✅ |
+| D9 | **Public catalogue after HOLD** | **Version 1.0 still live, unchanged** | ✅ |
+| D10 | Tenant access · student entitlement after HOLD | Neither created nor changed | ✅ 0 / 0 |
+| D11 | The Super Admin screen after HOLD | *"Live version 1.0 — unchanged"*, the hold reason, and **Lift the hold** | ✅ |
+
+## Scenario E — RELEASE
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| E1 | Release a **held** candidate directly | Refused — the hold must be lifted first | ✅ |
+| E2 | **Lift the hold** | Returns to the decision — **and does not release it** | ✅ public still 1.0 |
+| E3 | Grant a tenant access and assign a student **before** releasing | Baseline captured | ✅ |
+| E4 | Super Admin → **Release version** | Released | ✅ |
+| E5 | **The experiment identity** | Unchanged | ✅ same `direct-shear` |
+| E6 | The public version | Now **1.1**, with the new description | ✅ verified in the browser |
+| E7 | **Technology availability** | **Unchanged** | ✅ `Web VR AR` before and after |
+| E8 | Licence quantity · assigned count | Unchanged | ✅ |
+| E9 | Student assignments | None created, none recreated | ✅ count identical |
+| E10 | Access records | None created | ✅ |
+| E11 | **The tenant's granted technologies** | **Not widened** | ✅ identical list |
+| E12 | A technology the tenant never bought | Still refused after the release | ✅ |
+| E13 | The record's history | Carries both the hold and the release, with the actor and the reason | ✅ |
+| E14 | Delivery references | **Merged**, never replaced: a blank candidate field does not blank a working link, and a field the form never asks about is not discarded | ✅ |
+
+## Scenario F — device replacement / transfer
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| F1 | Rahul holds a valid **VR** entitlement | Yes | ✅ |
+| F2 | The technologies offered | **Only package technologies** — VR, never Web | ✅ |
+| F3 | Student → Simulation → *Replace or transfer my device* → the form | Submitted | ✅ `DTR-001` |
+| F4 | A **second** open request | Refused, with the reason on screen | ✅ |
+| F5 | Super Admin → Operations | It is in the queue | ✅ |
+| F6 | **Approve**, with the consequence dialog | Approved | ✅ |
+| F7 | The Student's own page | **Approved**, with what did and did not change | ✅ |
+| F8 | **Licences consumed** | **None** | ✅ assigned and remaining identical |
+| F9 | **Experiments granted** | **None** | ✅ entitlement count identical |
+| F10 | **Technologies granted** | **None** | ✅ identical list; Web still refused |
+| F11 | Assessment state | Untouched | ✅ 0 attempts |
+| F12 | A **Web-only** Student | Has no package technology, and cannot raise a request at all | ✅ both |
+| F13 | Decline with **no reason** | Nothing is written, and the screen says so | ✅ |
+
+## Scenario G — support
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| G1 | The issue kinds offered | Exactly the **six** confirmed kinds, no invented seventh | ✅ |
+| G2 | The experiment / technology options | Only what this Student actually holds | ✅ `direct-shear`; Web + VR |
+| G3 | Submit with an empty form | Per-field errors **and** a focused summary | ✅ |
+| G4 | Student → Help → report an issue | Submitted | ✅ `SUP-001` |
+| G5 | Super Admin → Operations | It is in the queue with the full context | ✅ |
+| G6 | Resolve with **no note** | Refused | ✅ |
+| G7 | **Resolve** with a note | Resolved | ✅ |
+| G8 | The Student's own Help page | **Resolved**, with the note | ✅ |
+| G9 | Licences · entitlement · access records · tenant state | **All unchanged** | ✅ |
+| G10 | A **Tenant Admin** report | Also possible; both attributed to the institution | ✅ 2 |
+| G11 | **Reopen** a resolved report | Returns to open; the previous resolution becomes history and stops being the current one | ✅ |
+| G12 | Any claim of an SLA, a provider, a priority or a notification | **None anywhere** | ✅ the page says so explicitly |
+
+## Scenario H — the 15-day expiry rule
+
+Deterministic, and **without damaging the demonstration data**: the derivation is pure, so it is
+probed at each boundary with a hypothetical record, then confirmed end to end on a real one.
+
+| # | Days until expiry | Expected | Result |
+|---|---|---|---|
+| H1 | 30 | Not due | ✅ |
+| H2 | **16** | **NOT due** | ✅ |
+| H3 | **15** | **DUE — inclusive at exactly 15** | ✅ |
+| H4 | **10** | **DUE** | ✅ |
+| H5 | 1 | Due | ✅ |
+| H6 | **past expiry** | **Expired, not "due"** | ✅ |
+| H7 | no end date at all | Never due | ✅ |
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| H8 | A real record at 16 days | Absent from **both** lists | ✅ platform 0, tenant 0 |
+| H9 | The same record at 15 days | On **both** — one derivation, two audiences | ✅ 1 and 1 |
+| H10 | The Tenant Admin's state | *Expiring soon* | ✅ |
+| H11 | Access while expiring | Still works | ✅ |
+| H12 | After expiry | Launch **blocked**, with the reason | ✅ `access-expired` |
+| H13 | The expired record | Surfaced, not hidden | ✅ |
+| H14 | **Auto-renewal** | **None** — nothing extended, nothing charged, the record unchanged | ✅ |
+| H15 | Any claim that an email / SMS / push was sent | **None** | ✅ every surface states the channel is undecided and nothing was sent |
+| H16 | A Student-facing renewal control | **None anywhere** | ✅ |
+
+## Scenario I — the Implementation-02 licence limit, re-run
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| I1 | **3** approved licences, a **5-member** group | Baseline | ✅ approved 3, remaining 3 |
+| I2 | Preview the assignment | Refuses | ✅ |
+| I3 | **Assign** | **Blocked** | ✅ |
+| I4 | Records created | **None — nothing partially assigned** | ✅ 0 created, 0 assignments |
+| I5 | Remaining afterwards | **Still 3** | ✅ |
+| I6 | One Student across **two experiments on one record** | **One** licence | ✅ assigned 1 |
+| I7 | A **Faculty mapping** | **Zero** licences | ✅ unchanged |
+| I8 | A **platform role assignment** | **Zero** licences, and no tenant access | ✅ unchanged |
+| I9 | Adding a third member to an already-assigned group | Displaces nobody; the new member is **held** | ✅ |
+
+## Scenario J — content production, re-run
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| J1 | Vendor creates a draft | Not in the public pool | ✅ |
+| J2 | Submit → academic review | Status moves | ✅ |
+| J3 | Reviewer authors an outcome and approves | → content readiness | ✅ |
+| J4 | Before publication | **Still not public** | ✅ |
+| J5 | Content Manager → **Publish** | Published, and in the public pool | ✅ |
+| J6 | **Publish creates tenant access** | **NO** | ✅ access count identical |
+| J7 | **Publish creates student entitlement** | **NO** | ✅ 0 |
+| J8 | **Publish creates an assignment** | **NO** | ✅ 0 |
+| J9 | Publishing the same record twice | Refused | ✅ |
+| J10 | Publication creates a version candidate | **No** — different objects | ✅ 0 |
+
+## Scenario K — Student and Faculty still derive real published content
+
+| # | Step | Expected | Result |
+|---|---|---|---|
+| K1 | Produce a **brand-new** Experiment through the whole chain and publish it | Published | ✅ |
+| K2 | Grant it to the tenant through a real request and approval | Granted | ✅ |
+| K3 | Map a Faculty member → **My Content** | Shows the dynamically produced experiment | ✅ |
+| K4 | Assign a Student → **My Learning** | Shows it, and it is effective | ✅ |
+| K5 | Launch the **granted** technology | Works | ✅ |
+| K6 | Launch a technology that was **not** granted | Refused | ✅ |
+| K7 | Published content the Student was **not assigned** | Does not appear | ✅ |
+
+## Migration and schema
+
+| # | Check | Result |
+|---|---|---|
+| M1 | Build a realistic **schema-6** state, strip every Implementation-06 field, reload the build over it | Migrates in place | ✅ reports `migratedFrom: 6` |
+| M2 | Requests · access · people · assignments · content records · learning records | **All survive** | ✅ counts identical |
+| M3 | Entitlement after migration | Still derives correctly | ✅ launch works |
+| M4 | A migrated tenant | **Active**, with a governance history array | ✅ |
+| M5 | Every existing role assignment | Survives, and is **active** — no scope added, removed or narrowed | ✅ |
+| M6 | The seeded tenant | Gains the sample Tenant Admin | ✅ |
+| M7 | The four new collections | Exist and are **empty**, never missing | ✅ |
+| M8 | A state **newer** than the build | Falls back to the seed rather than corrupting it | ✅ |
+| M9 | Content-history entries written by an earlier build | Gain the actor id, matched by name; an entry that matches nothing keeps `null` rather than being guessed | ✅ |
+
+## Guards — refused at the state layer, not only in the UI
+
+| # | Check | Result |
+|---|---|---|
+| GD1 | A Vendor takes an academic decision | Refused | ✅ |
+| GD2 | An Academic Reviewer publishes | Refused | ✅ |
+| GD3 | A reviewer acts on a record not awaiting review | Refused | ✅ |
+| GD4 | A Vendor approves a version | Refused | ✅ |
+| GD5 | A reviewer sees a Course outside their assignment | Never | ✅ |
+| GD6 | A Vendor creates a version outside their scope | Refused | ✅ |
+| GD7 | A Vendor edits **another** Vendor's version | Refused | ✅ |
+| GD8 | A Vendor edits their own version **while a reviewer holds it** | Refused | ✅ |
+| GD9 | An unapproved version is released, or held | Both refused | ✅ |
+| GD10 | A later version of an **unpublished** experiment | Refused | ✅ |
+| GD11 | A version label identical to the published one | Refused | ✅ |
+| GD12 | The same Tenant Admin email assigned twice to one tenant | Refused | ✅ |
+| GD13 | **An admin of one tenant resolved as the administrator of another** | **Never** | ✅ |
+| GD14 | A tenant with no admin | Surfaced as attention, never invented | ✅ |
+| GD15 | Platform-wide scope for a Vendor or an Academic Reviewer | Refused | ✅ |
+| GD16 | A duplicate scope, or a Course that does not exist | Both refused | ✅ |
+| GD17 | An **Experiment-level** scope | Accepted, effective immediately, and two reviewers may hold one Experiment | ✅ |
+| GD18 | Canonical metadata on a record still with the Vendor | Refused from the platform surface | ✅ |
+| GD19 | A duplicate canonical Experiment name | Refused | ✅ |
+| GD20 | The canonical **identifier** | Never changes | ✅ |
+| GD21 | An invented support issue kind | Refused | ✅ |
+| GD22 | Deciding a device request that does not exist | Refused | ✅ |
+
+### Deep-link route guards, in the browser
+
+Every new route was opened with a non-existent id, an id belonging to a different actor, and an
+id of the wrong type. **No route rendered anything the actor should not have, and none threw.**
+`#/platform/roles/:actorId` with a tenant person id, `#/vendor/:a/version/:v` with another
+Vendor's version, `#/review/:a/version/:v` outside the reviewer's scope and every Help route with
+an actor of the wrong role all resolve to a not-found or a refusal.
+
+## The three altitudes never collapse
+
+| # | Check | Result |
+|---|---|---|
+| AL1 | Content is published, yet **no tenant holds anything** | ✅ |
+| AL2 | A tenant holds content, yet **no student is entitled** | ✅ |
+| AL3 | Only the Tenant Admin's assignment creates entitlement | ✅ |
+| AL4 | **Every** Implementation-06 governance action — role assignment, Tenant Admin assignment, support report, device transfer and its approval | Creates **no** access, **no** entitlement and publishes **nothing** | ✅ |
+
+## Responsive
+
+Programmatic sweep: for each route, `documentElement.scrollWidth - clientWidth`, with any element
+whose right edge exceeds the viewport reported unless it sits inside a legitimate scroll
+container.
+
+| Width | Routes | Horizontal overflow |
+|---|:--:|:--:|
+| **375** | 59 | **0** |
+| **768** | 59 | **0** |
+| **1280** | 59 | **0** |
+
+The 59 cover the public shell, all six workspaces and every deep-link guard, with real content in
+each Implementation-06 screen — a version awaiting a decision, an open device request, an open
+support report and an access term inside the reminder window.
+
+## Accessibility
+
+Audited across the new routes: exactly one `h1`, no skipped heading level, every form control
+labelled, every link and button with an accessible name, every table with a caption and `scope`
+on its headers, and every status badge carrying text — status is never colour alone.
+
+| Check | Result |
+|---|---|
+| One `h1` per screen | ✅ *(six Super Admin not-found screens had none, and were fixed)* |
+| No skipped heading level | ✅ *(one `h4`-after-`h2` found in the version panel and fixed)* |
+| Every input, select and textarea labelled | ✅ |
+| Every link and button has an accessible name | ✅ icon-only controls carry `.sr-only` text |
+| Tables: caption + `th scope` | ✅ |
+| Status never by colour alone | ✅ every badge has an icon **and** a word |
+| Dialogs: focus trap, Escape, focus restore | ✅ inherited from the one shared dialog |
+| The canonical-catalogue disclosures | ✅ native `<details>` — keyboard operable and announced with no script |
+| Required fields | ✅ marked visually **and** for a screen reader |
+| Errors | ✅ tied to their input via `aria-invalid` + `aria-describedby`, with a focused summary |
+| Attention rows | ✅ each action carries its own `aria-label` naming what it acts on |
+
+**No WCAG conformance is claimed.** These are the checks this build makes; a conformance
+assessment is a separate exercise.
+
+## Console and network
+
+| Check | Result |
+|---|---|
+| Console errors across the whole Implementation-06 pass | **0** — across 59 routes, including every deep-link guard |
+| Uncaught exceptions and unhandled rejections | **0** |
+| External network requests | **0** |
+| Stale state after a refresh | **none** — every mutation persists through `save()`, and the sweep re-read each screen after reload |
+
+## Defects found by the adversarial review, and fixed
+
+A second, adversarial pass hunted deliberately for scope leaks, firewall violations,
+deactivation bypasses, hidden licence consumption, false claims and dead controls. Everything
+below was confirmed against the code and fixed; each now has an assertion in `qa/checks.js` so it
+cannot come back.
+
+| # | Defect | Why it was wrong | Fix |
+|---|---|---|---|
+| 1 | **A Vendor whose Course scope was withdrawn could still submit a draft into academic review** | Submitting puts work in front of the Academic Reviewer assigned to that Course. Editing your own draft is ownership; **moving** it is authority, and the two had been the same check since Implementation 05 — harmless only while scope could not be withdrawn | `vendorCanSubmit()` now asks the live role assignment as well. Editing is untouched, so nobody is locked out of their own draft |
+| 2 | **The same leak on a later-version candidate** | Identical reasoning | new `versionSubmittableByVendor()`; `submitContentVersion()` uses it, and the screen replaces the submit control with the reason |
+| 3 | **A Vendor's unsubmitted DRAFT version was visible to the Academic Reviewer** | The version form promises *"it reaches the Academic Reviewer only when you submit it"*. It was breaking its own promise | `versionsForReviewer()` excludes drafts |
+| 4 | **The Super Admin release panel used the word *publish*** | A terminology-firewall violation on the one surface that must never use it | *"Description this version would **make current**"* |
+| 5 | **`entitledStudentsFor` / `entitledStudentIds` ignored tenant deactivation** | Two reports claimed students held effective entitlement while every one of them was refused at launch | both now ask `tenantIsActive`, so every surface gives the entitlement engine's answer |
+| 6 | **A release replaced a technology's delivery object wholesale** | A blank field in the candidate blanked a working hosted link, and fields the version form never asks about (a recorded package file, installation notes) were silently discarded | the release **merges**: only values the candidate actually supplies are written |
+| 7 | **A deactivated institution told a Student *"nothing you hold runs on a device"*** | The device page tested the technology list before the institution, and a suspended institution leaves no *effective* entitlement — so the page stated something plainly untrue, and the *My device* entry vanished from the navigation | new `studentHasPackageTechnology()` reads the entitlement including blocked rows; the institution is tested first |
+| 8 | **Faculty *My Content* said *"no content is mapped to you yet"* under deactivation** | A suspended mapping is not an absent one, and the banner directly above it said otherwise | the empty state distinguishes *never mapped* from *mapped but unavailable*, and names the reason |
+| 9 | **Student Home said *"no experiments have been assigned to you yet"*** | Same contradiction, on the same page that counts what is unavailable | same fix |
+| 10 | **A reopened support report still rendered a *Resolution*** | An open report claiming it had been resolved | the earlier resolution moves to `previousResolution` and is labelled as history |
+| 11 | **The reviewer Overview ignored later versions** | It said nothing was waiting while the navigation badge beside it said one item was | versions are counted and listed in the same attention list |
+| 12 | **Release and Hold wrote a raw internal role token into the record history** | `platform` was rendered verbatim, and version history read *"Super Admin · Super Admin"* | one `PLATFORM_ACTOR` constant, and a null role prints the name alone |
+| 13 | **Moving an Experiment between Courses changed Faculty reach silently** | Faculty reach is derived from Course-level mappings. The action is confirmed and no source says what should happen, so it is not blocked — but it must not be silent | the form now states how many institutions hold the Experiment and what a move changes |
+| 14 | **`csv.commit()` counted refused writes as created students** | With the new tenant guard `addStudent` returns null, so a blocked import reported a created count for people who were never created | the commit refuses up front for a deactivated tenant and never counts a refused row |
+| 15 | **Tenant screens kept live controls the state layer would refuse** | A dead control is worse than an absent one | mutation-only screens render a refusal; screens that also show history keep the history and withdraw only the controls |
+| 16 | **`.gapnote` could push the document wider than 375px** | The tag used `white-space:nowrap` with `flex:0 0 auto`, so a long tag could neither wrap nor shrink. A **shared-component** defect surfaced by the new screens | fixed in `components.css` so every gap note in the product benefits. Verified with an 87-character tag: **0** overflow |
+| 17 | **An internal requirement identifier was rendered as a visible tag** | `PENDING — ND-10` on the Faculty assessment settings screen, and internal project artefact names in the Question Bank gap note. Pre-existing Implementation-04 copy, and exactly the defect class this pass hunts for | the tags name the **state**, not the internal id. A re-scan of every rendered string across `js/` finds **0** remaining |
+| 18 | **The version panel skipped a heading level** | `h4` directly after `h2` | `h3` |
+| 19 | **Two Student refusal sentences printed back to back** | The `tenant-inactive` text ended with the same sentence every caller appends | the reason text no longer carries it |
+| 20 | **The Operations header printed *"1 items need attention"*** | Unpluralised | pluralised, with subject-verb agreement |
+| 21 | **Declining a device transfer with no reason did nothing visible** | The dialog closed and the request stayed open | it now says nothing was changed, and announces it |
+| 22 | **The Help panel labelled a content role's organisation as an *Institution*** | No tenant is recorded on those reports, so the label was a small untruth | labelled *Organisation*, and stated as context rather than attribution |
+| 23 | **A history line printed a stray `· ·`** | Consequence of fix 12: a platform action has an actor **name** but no content role, and the shared timeline printed the separator either way | the role and its separator are printed together, or not at all |
+| 24 | 🔴 **A student silently LOST their licence when someone joined their group** | Every member of a group assignment shared **one** ordering stamp, so the allocation queue fell through to comparing ids — and a newcomer whose id happened to sort earlier took the place of a student who already held an effective entitlement, with no warning anywhere. **A pre-existing Implementation-02 defect**, surfaced by the adversarial pass and confirmed by executing the state layer: with one licence, `USR-008` held it, and adding `USR-003` to the same group took it away. It violates the invariant this build states everywhere — *nobody is ever silently displaced* | group memberships now carry their own monotonic ordering stamp, and a member's queue position is `max(assignment stamp, membership stamp)`. A member present when the assignment was made keeps the assignment's stamp; a member added later is stamped when they **joined**, so they queue behind. Backfilled at migration in array (join) order, so no existing state changes hands. Both the ordinary and the id-inverted case are asserted |
+| 25 | **A Vendor editing an existing record after their scope was withdrawn saw a screen headed *Create experiment*** | The no-scope refusal ignored the record entirely, so a Vendor correcting a real submission was told to create a new one. Only reachable because Implementation 06 made scope withdrawable | the refusal now names the record, states that nothing has been deleted, and offers the way back to it |
+| 26 | **The *Version in progress* link pointed at another Vendor's candidate** | A candidate belongs to the Vendor who created it, so the link landed on a not-found | the row now says whose the open version is, and only its owner gets a link |
+| 27 | 🔴 **The Vendor's Submit control became a DEAD CONTROL after a scope withdrawal** | Introduced by fix 1: the state layer began refusing the submit, but the record page still drew the button from `vendorCanEdit` (ownership). Pressing it did nothing | the page draws the button from `vendorCanSubmit`, and where editing is allowed but submitting is not it says so instead |
+| 28 | **The edit form could silently re-file an Experiment into a different Course** | The Course select was built only from the Vendor's *assigned* Courses. After a withdrawal the record's own Course was absent, nothing was selected, and saving moved the Experiment — which changes which Faculty reach it in every institution that holds it | the record's own Course is always an option and always the selected one, marked as outside the scope, with the consequence stated |
+| 29 | **An institution's support reports vanished when its Tenant Admin changed** | The reports were keyed to the *admin's* id — an id the Super Admin can remove and replace. Before any admin was assigned they were keyed to the tenant and vanished as soon as one was | keyed to the **tenant**, the one identifier that cannot move. The list is titled *Reports from this institution* and names the person who filed each one |
+| 30 | **Six Super Admin not-found screens had no `h1`** | A page whose only heading is an `h2` has no document title for a screen reader to land on. Found by extending the accessibility sweep to the not-found paths behind every deep-link guard — the earlier sweep only covered valid routes | each not-found screen now leads with a `ui.phead()` naming what was not found |
+
+### ⚠ Correction — role-withdrawal authority (supersedes rows 1, 2, 27, 28)
+
+Rows 1, 2 and 27 resolved the scope leak by gating **submission** on the live role assignment while
+leaving **editing** on ownership. That split was wrong, and is withdrawn.
+
+| # | Defect | Why it was wrong | Fix |
+|---|---|---|---|
+| 31 | 🔴 **A Vendor kept EDIT authority over a record after the covering scope was withdrawn** | Only submission was gated. An out-of-scope Vendor could still rewrite the name, description, technology availability, package references and hosted links of content in a Course they no longer held. Withdrawing authority has to withdraw authority | `canMutateVendorRecord()` = ownership **and** lifecycle **and** live assignment. `vendorCanEdit()` and `vendorCanSubmit()` both resolve to it |
+| 32 | 🔴 **A withdrawn Vendor could LAUNDER the withdrawal by re-filing the record into a Course they still held** | The worst form of row 31. `updateContentDraft()` gated on ownership + lifecycle, then asked whether the Vendor could file into the Course *the form was offering*. Saving unchanged failed; saving with the Course switched to a still-held one **succeeded**, moved the Experiment, and made it submittable again — so the build steered the Vendor into moving the Experiment out from under its Course | the mutate gate is asked about the record **as it stands**, before any field is read, so the answer cannot be changed by changing the field. The separate "may I file into the chosen Course" check is kept |
+| 33 | 🔴 **`updateContentVersion()` had no scope term at all** | A later-version candidate has no `courseId`, so it did not even have row 32's incidental second gate. A Vendor with every relevant scope withdrawn could rewrite a candidate's label, catalogue metadata and **every per-technology package and hosted-link reference** — the values a Super Admin release writes onto published content — and the write pushed a history entry in their name | `canMutateVendorVersion()`, on the writer and on the screen |
+| 34 | **The withdrawn-scope version screen showed LESS than it had** | The read-only branch dropped the summary, the technical notes and the whole delivery block. Freezing a record must not mean showing its owner less of it | the read-only rendering now carries every field the form does, delivery references included, via `deliveryReadOnly()` |
+| 35 | **Dead controls created by the correction** | Overview *Correct submission* / *Continue draft*, the record page *Edit draft*, and the version *Save changes* were all drawn from ownership-based lists and led to a route the state layer now refuses | every one is drawn from the mutate predicate; the rows stay visible and degrade to a view link that states the record is read-only |
+| 36 | **Copy that stated the superseded rule** | The record page said *"you can still edit it"*; the withdrawal dialog said the person only *"stops receiving new work"*; `holderLine()` told a withdrawn Vendor to *"correct and resubmit"* | all three state the read-only fact, that nothing is deleted, and that authority returns on restore |
+| 37 | **The Vendor's Help page lost its Experiment picker after a withdrawal** | The picker was built from live scope, so a withdrawn Vendor could not name the record they were still looking at. Reporting a problem is a read path — it mutates nothing and grants nothing | for the Vendor role the picker is live scope **plus** records they created |
+| 38 | **The governance record screen said *"Nobody is assigned"* about a record with a living owner** | `actorsForRecord()` is live-scope only. This is the screen a Super Admin reads before deciding whether to restore a scope, so it was the one untruth that mattered most | the author is named and marked as read-only-for-them |
+| 39 | **The academic and readiness gates promised a resubmission that could not come** | Returning work to a Vendor whose scope is withdrawn strands it: read-only for them, out of both queues. Both dialogs asserted the Vendor "can correct and resubmit" | each dialog states the consequence when the owning Vendor has no covering scope. The decision is still the reviewer's to take |
+
+**Regression proof.** The 38 new and rewritten assertions in `qa/checks.js` were run against a copy
+of the state layer with the two mutate predicates reverted to their pre-correction form: **38 fail**.
+Against the corrected build: **374 assertions, 0 failures.** The assertions are load-bearing, not
+decorative — and note that an assertion testing only a *same-Course* edit would have passed both
+ways, because row 32's incidental check already refused that one.
+
+### Investigated and refuted
+
+- **"Adding a student to an already-assigned group displaces a currently entitled student."**
+  Tested directly: the new member is **held**, the two existing students keep their places, and
+  nothing is displaced. The allocation ranks by `max(first assignment stamp, activation stamp)`,
+  which is exactly what prevents it.
+- **"The *Version in progress* link is dead when another Vendor owns the open version."** That
+  branch renders a plain statement with no link; only the owner is offered the link.
+
+## Invariants spot-checked — Implementation 06
+
+| Invariant | Result |
+|---|:--:|
+| PUBLISHED ≠ TENANT ACCESS ≠ STUDENT ENTITLEMENT, through every governance action | ✅ |
+| Approved quantity = maximum **unique active students** per access record | ✅ |
+| One student across several experiments on one record = **one** licence | ✅ |
+| Faculty mapping = **zero** student licences | ✅ |
+| **Device transfer** = zero licences, zero experiments, zero technologies | ✅ |
+| **Role assignment** = zero licences, zero tenant access | ✅ |
+| **Support request** = zero entitlement, zero licences, zero state elsewhere | ✅ |
+| Tenant deactivation does not destroy or recalculate allocation records | ✅ |
+| Reactivation displaces **no** student | ✅ |
+| A later version is **never** publicly current without an explicit Super Admin **Release** | ✅ |
+| **HOLD** leaves the published version live | ✅ |
+| A release **cannot** widen or narrow a tenant's granted technologies | ✅ by construction |
+| Withdrawing a role scope deletes **no** completed decision | ✅ |
+| First **Publish** and later **Release** cannot reach each other's object | ✅ |
+| No internal requirement identifier reaches a user-visible surface | ✅ **0** across `js/` |
+| Nothing claims an email, SMS, push or notification was sent | ✅ |
+| Nothing claims an SLA, a provider, a priority or a device certification | ✅ |
+| No revenue or financial metric on any Super Admin surface | ✅ |
+| Every Super Admin figure is derived from a real record and opens it | ✅ |

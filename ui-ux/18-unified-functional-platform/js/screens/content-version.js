@@ -1,0 +1,613 @@
+/* ============================================================
+   Unified Functional Platform — LATER VERSIONS of already-published
+   content.
+
+     current released version
+        →  Vendor proposes a later version
+        →  Academic Reviewer approves it
+        →  SUPER ADMIN releases or holds it        ← the only step that
+                                                     changes what the
+                                                     public sees
+
+   ── THE TERMINOLOGY FIREWALL, ON THESE SCREENS ───────────────
+   The word PUBLISH appears nowhere in this file as an action. First
+   publication of a NEW Experiment is the Content Manager's, and it acts
+   on the content record. RELEASE / HOLD is the Super Admin's, and it
+   acts on a version candidate. Two actions, two objects, two words.
+
+   ── WHY THE CONTENT MANAGER IS NOT A GATE HERE ───────────────
+   ⚠ IMPLEMENTATION JUDGEMENT, recorded as one. The confirmed path is
+   "current released version → newer APPROVED version → SUPER ADMIN
+   Release / Hold". The Vendor owns "version submissions" and the
+   Academic Reviewer owns "the academic review decision", which supplies
+   the approval. The Content Manager's confirmed authority is first
+   approval and first publication — the FIRST instance — and no source
+   places them on the later-version path. Since "no additional approval
+   gates may be invented", the conservative reading is to leave them
+   out rather than in. The Content Manager still sees every version in
+   the Content Library, read-only.
+
+   ── WHAT A LATER VERSION MAY CARRY ───────────────────────────
+   Version label, catalogue summary and description, vendor notes and
+   per-technology delivery references. It CANNOT change which
+   technologies the Experiment offers: no source states what should
+   happen to a tenant that already holds a technology a newer version
+   drops, and the prototype does not offer an action whose consequence
+   it cannot state honestly. Recorded as an open policy question.
+   ============================================================ */
+
+window.XRSLP = window.XRSLP || {};
+XRSLP.screens = XRSLP.screens || {};
+
+(function () {
+  'use strict';
+
+  var esc = XRSLP.util.esc;
+  var util = XRSLP.util;
+  var ui = XRSLP.ui;
+  var data = XRSLP.data;
+  var state = XRSLP.state;
+  var cui = XRSLP.contentUI;
+  var href = cui.href;
+  var VS = state.VERSION_STATUS;
+
+  function versionBadge(v) {
+    var m = state.versionStatusMeta(v.status);
+    return ui.badge(m.badge, m.icon, m.label);
+  }
+
+  /* Who the version is WITH — the first question every workspace asks. */
+  function holderLine(v, audience) {
+    switch (v.status) {
+      case VS.DRAFT:
+        return audience === 'vendor' ? 'With you — not yet submitted' : 'With the Vendor (draft)';
+      case VS.ACADEMIC_REVIEW:
+        return audience === 'reviewer' ? 'With you — awaiting your academic decision' : 'With the Academic Reviewer';
+      case VS.CHANGES_ACADEMIC:
+        return audience === 'vendor' ? 'With you — correct and resubmit' : 'Returned to the Vendor for correction';
+      case VS.APPROVED:
+        return 'With the Super Admin — awaiting the Release / Hold decision';
+      case VS.RELEASED:
+        return 'Released' + (v.releaseDecision ? ' ' + util.fmtDate(v.releaseDecision.at) : '');
+      case VS.HELD:
+        return 'Held by the Super Admin — the published version stays live';
+      default:
+        return '';
+    }
+  }
+
+  /* The holder line answers "where is this?" — but for the VENDOR
+     audience it also tells them what to do next, and after a scope
+     withdrawal that instruction is false: the candidate is still with
+     them, and they can no longer correct or resubmit it. The shared
+     `holderLine()` keeps its exact wording for every other audience —
+     the reviewer queue and the Content Library read it too — so only
+     the Vendor's own view learns the extra fact. */
+  function vendorHolderLine(v, actorId) {
+    if (state.versionScopeWithdrawn(v, actorId)) {
+      if (v.status === VS.DRAFT) { return 'With you — read-only, outside your assigned scope'; }
+      if (v.status === VS.CHANGES_ACADEMIC) {
+        return 'Returned to you — read-only, outside your assigned scope';
+      }
+    }
+    return holderLine(v, 'vendor');
+  }
+
+  /* ---------- the per-technology delivery editor ----------
+     Exactly the fields each technology actually uses: a hosted link for
+     Web, a package reference for AR / VR / MR (STK31-37). A field is
+     never asked of a technology that does not use it, and the
+     technology SET itself is fixed — this edits references, not
+     availability. */
+  function deliveryFields(rec, v) {
+    return '<div class="techrows deliv">' + data.sortTech(rec.technologies).map(function (t) {
+      var def = data.TECHNOLOGIES[t];
+      var cur = (v && v.delivery && v.delivery[t]) ? v.delivery[t] : state.deliveryOf(rec, t);
+      var idp = 'vd-' + t;
+      var body = def.delivery === 'hosted'
+        ? '<div class="field" id="' + idp + '-url"><label for="' + idp + '-url-i">Hosted link</label>' +
+          '<input type="text" id="' + idp + '-url-i" value="' + esc(cur.url || '') + '" autocomplete="off"></div>'
+        : '<div class="field" id="' + idp + '-lab"><label for="' + idp + '-lab-i">Package label</label>' +
+          '<input type="text" id="' + idp + '-lab-i" value="' + esc(cur.packageLabel || '') + '" autocomplete="off"></div>' +
+          '<div class="field" id="' + idp + '-ref"><label for="' + idp + '-ref-i">Package reference</label>' +
+          '<input type="text" id="' + idp + '-ref-i" value="' + esc(cur.packageRef || '') + '" autocomplete="off"></div>';
+      return '<div class="tr-block">' +
+        '<div class="tr-h">' + ui.fmtBadge(t) + '<span class="tr-n">' + esc(def.name) + '</span>' +
+        '<span class="tr-d">' + esc(def.deliveryLabel) + '</span></div>' +
+        body +
+        '<div class="field" id="' + idp + '-run"><label for="' + idp + '-run-i">Device / runtime requirement</label>' +
+        '<input type="text" id="' + idp + '-run-i" value="' + esc(cur.runtime || '') + '" autocomplete="off"></div>' +
+        '</div>';
+    }).join('') + '</div>' +
+      '<p class="cardfoot">These are references only. Nothing is uploaded or stored, and this form cannot add ' +
+      'or remove a technology — a released version never changes which technologies an Experiment offers, ' +
+      'because no source says what that should do to a tenant that already holds one.</p>';
+  }
+
+  function readDelivery(rec) {
+    var out = {};
+    rec.technologies.forEach(function (t) {
+      var def = data.TECHNOLOGIES[t];
+      var idp = 'vd-' + t;
+      function val(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+      var row = { runtime: val(idp + '-run-i') };
+      if (def.delivery === 'hosted') { row.url = val(idp + '-url-i'); }
+      else { row.packageLabel = val(idp + '-lab-i'); row.packageRef = val(idp + '-ref-i'); }
+      out[t] = row;
+    });
+    return out;
+  }
+
+  /* The SAME per-technology references, rendered as facts rather than
+     as inputs. A candidate that has become read-only — because someone
+     else is holding it, or because the Vendor's scope was withdrawn —
+     must still show everything it holds. Withdrawing authority to change
+     a record is not permission to show its owner less of it. */
+  function deliveryReadOnly(rec, v) {
+    return '<div class="techrows deliv">' + data.sortTech(rec.technologies).map(function (t) {
+      var def = data.TECHNOLOGIES[t];
+      var cur = (v && v.delivery && v.delivery[t]) ? v.delivery[t] : state.deliveryOf(rec, t);
+      var rows = def.delivery === 'hosted'
+        ? '<div class="k">Hosted link</div><div class="v">' + esc(cur.url || '—') + '</div>'
+        : '<div class="k">Package label</div><div class="v">' + esc(cur.packageLabel || '—') + '</div>' +
+          '<div class="k">Package reference</div><div class="v">' + esc(cur.packageRef || '—') + '</div>';
+      return '<div class="tr-block">' +
+        '<div class="tr-h">' + ui.fmtBadge(t) + '<span class="tr-n">' + esc(def.name) + '</span>' +
+        '<span class="tr-d">' + esc(def.deliveryLabel) + '</span></div>' +
+        '<div class="kv">' + rows +
+        '<div class="k">Device / runtime</div><div class="v">' + esc(cur.runtime || '—') + '</div>' +
+        '</div></div>';
+    }).join('') + '</div>';
+  }
+
+  function versionFormFields(rec, v) {
+    return '<div class="field" id="vv-label"><label for="vv-label-i">Version label ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<input type="text" id="vv-label-i" maxlength="40" autocomplete="off" value="' +
+      esc(v ? v.versionLabel : '') + '">' +
+      '<p class="hint">The published version is currently <strong>' + esc(rec.versionLabel || '—') +
+      '</strong>. This label is what the catalogue would show if the Super Admin releases this version. ' +
+      'It is a different thing from the correction-round number on a submission.</p></div>' +
+      '<div class="field" id="vv-change"><label for="vv-change-i">What changed in this version ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<textarea id="vv-change-i" rows="3">' + esc(v ? v.changeNote : '') + '</textarea>' +
+      '<p class="hint">Read by the Academic Reviewer and by the Super Admin making the Release / Hold decision.</p></div>' +
+      '<div class="field" id="vv-summary"><label for="vv-summary-i">Catalogue summary</label>' +
+      '<textarea id="vv-summary-i" rows="2">' + esc(v ? v.summary : rec.summary) + '</textarea></div>' +
+      '<div class="field" id="vv-description"><label for="vv-description-i">Catalogue description ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<textarea id="vv-description-i" rows="6">' + esc(v ? v.description : rec.description) + '</textarea></div>' +
+      '<div class="field" id="vv-notes"><label for="vv-notes-i">Technical notes</label>' +
+      '<textarea id="vv-notes-i" rows="3">' + esc(v ? v.vendorNotes : '') + '</textarea></div>';
+  }
+
+  function readVersionFields(rec) {
+    function val(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+    return {
+      versionLabel: val('vv-label-i'),
+      changeNote: val('vv-change-i'),
+      summary: val('vv-summary-i'),
+      description: val('vv-description-i'),
+      vendorNotes: val('vv-notes-i'),
+      delivery: readDelivery(rec)
+    };
+  }
+
+  /* ============================================================
+     VENDOR — propose, edit and submit a later version.
+     ============================================================ */
+  function vendorActor(params) {
+    var a = state.contentActor(params.actorId);
+    return (a && a.role === state.CONTENT_ROLE.VENDOR) ? a : null;
+  }
+
+  XRSLP.screens.vendorNewVersion = function (params) {
+    var actor = vendorActor(params);
+    var rec = state.contentRecord(params.recordId);
+    if (!actor || !state.vendorCanVersion(rec, actor.id)) { return XRSLP.screens.notFound(); }
+    var existing = state.openVersionForRecord(rec.id);
+    if (existing) { return { redirect: href.vVersion(actor.id, existing.id) }; }
+
+    var html =
+      ui.crumbs([{ label: 'Versions', href: href.vVersions(actor.id) }, { label: 'New version' }]) +
+      ui.phead('New version of ' + rec.name,
+        'Current published version ' + esc(rec.versionLabel || '—')) +
+      '<div class="formwrap">' +
+      '<form id="vv-form" novalidate>' +
+      '<div class="form-errors"></div>' +
+      ui.card('The version', versionFormFields(rec, null), null, 'h2') +
+      ui.card('Technology delivery', deliveryFields(rec, null), null, 'h2') +
+      '<div class="formact">' +
+      '<button class="btn pri" type="submit">Save the version</button>' +
+      '<a class="btn sec" href="' + href.vVersions(actor.id) + '">Cancel</a>' +
+      '<span class="formnote">Saving keeps it with you. It reaches the Academic Reviewer only when you ' +
+      'submit it, and the public catalogue does not change until the Super Admin releases it.</span>' +
+      '</div></form>' +
+      '<div class="formaside">' +
+      ui.alertBox('info', 'What happens to this version',
+        '<p>You submit it → the Academic Reviewer approves it or asks for changes → the <strong>Super Admin ' +
+        'releases or holds</strong> it.</p>' +
+        '<p style="margin-top:6px">Until that release, <strong>version ' + esc(rec.versionLabel || '—') +
+        ' stays the version everybody sees</strong> — in the public catalogue, in every institution that ' +
+        'holds this experiment, and for every student using it.</p>') +
+      ui.gapNote('THIS IS NOT PUBLICATION',
+        'The first publication of a new Experiment is the Content Manager&rsquo;s decision and uses the word ' +
+        '<strong>publish</strong>. This is a later version of content that is already published, and its ' +
+        'decision is the Super Admin&rsquo;s <strong>Release / Hold</strong>. The two are different actions on ' +
+        'different objects.') +
+      '</div></div>';
+
+    return {
+      title: 'New version', html: html, area: 'vendor', navKey: 'versions', contentActor: actor,
+      after: function () {
+        var form = document.getElementById('vv-form');
+        if (!form) { return; }
+        var busy = false;
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          if (busy) { return; }
+          busy = true;
+          var res = state.createContentVersion(actor.id, rec.id, readVersionFields(rec));
+          if (!res.ok) { busy = false; ui.showErrors(form, res.errors, 'Please correct the version'); return; }
+          ui.toast('Version ' + res.version.versionLabel + ' saved. It is with you until you submit it.');
+          XRSLP.router.go(href.vVersion(actor.id, res.version.id));
+        });
+      }
+    };
+  };
+
+  XRSLP.screens.vendorVersions = function (params) {
+    var actor = vendorActor(params);
+    if (!actor) { return XRSLP.screens.notFound(); }
+    var mine = state.versionsForVendor(actor.id);
+
+    /* Published experiments this Vendor is assigned to — the only ones a
+       later version can exist for. */
+    var candidates = state.contentRecords().filter(function (rec) {
+      return state.vendorCanVersion(rec, actor.id);
+    });
+
+    var list = mine.length
+      ? '<div class="tscroll"><table class="dt">' +
+        '<caption class="sr-only">Later versions you have submitted</caption>' +
+        '<thead><tr><th scope="col">Version</th><th scope="col">Experiment</th>' +
+        '<th scope="col">Replaces</th><th scope="col">With</th><th scope="col">State</th>' +
+        '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
+        mine.map(function (v) {
+          var rec = state.contentRecord(v.recordId);
+          return '<tr>' +
+            '<td data-label="Version"><a class="rowlink" href="' + href.vVersion(actor.id, v.id) + '">' +
+            '<span class="tmain">' + esc(v.versionLabel) + '</span>' +
+            '<span class="tsub">' + esc(util.fmtDate(v.createdAt)) + '</span></a></td>' +
+            '<td data-label="Experiment">' + esc(rec ? rec.name : v.recordId) + '</td>' +
+            '<td data-label="Replaces">' + esc(v.replacesVersionLabel || '—') + '</td>' +
+            '<td data-label="With">' + esc(vendorHolderLine(v, actor.id)) + '</td>' +
+            '<td data-label="State">' + versionBadge(v) + '</td>' +
+            '<td class="cell-actions"><a class="btn sm sec" href="' + href.vVersion(actor.id, v.id) + '">Open</a></td>' +
+            '</tr>';
+        }).join('') + '</tbody></table></div>'
+      : ui.emptyState({
+          icon: 'layers', heading: 'h3',
+          title: 'You have not submitted a later version',
+          body: 'A later version applies to content that is already published. Choose one of your published ' +
+            'experiments below to propose one.'
+        });
+
+    var startList = candidates.length
+      ? '<ul class="reslist plain">' + candidates.map(function (rec) {
+          var open = state.openVersionForRecord(rec.id);
+          return '<li>' + ui.ic('flask') +
+            '<span><strong>' + esc(rec.name) + '</strong> <span class="muted">· published version ' +
+            esc(rec.versionLabel || '—') + '</span></span>' +
+            /* A candidate belongs to the Vendor who created it. Linking to
+               someone else's would land on a not-found; saying whose it is
+               is both true and more useful. */
+            (open && open.createdBy === actor.id
+              ? '<a class="btn sm sec" href="' + href.vVersion(actor.id, open.id) + '">Version in progress</a>'
+              : open
+              ? '<span class="muted">Version ' + esc(open.versionLabel) + ' is in the workflow, submitted by ' +
+                esc(open.createdByName) + '</span>'
+              : '<a class="btn sm pri" href="' + href.vNewVersion(actor.id, rec.id) + '">Propose a version</a>') +
+            '</li>';
+        }).join('') + '</ul>'
+      : '<p class="muted">' + (state.actorCourseIds(actor.id).length
+          ? 'None of the experiments in your assigned scope is published yet. A later version only exists ' +
+            'for content that has already been published.'
+          : 'No Course is assigned to you at the moment, so there is no published experiment you can propose ' +
+            'a later version for. Any version you have already created is still listed above, and is kept ' +
+            'exactly as it is.') + '</p>';
+
+    var submitted = mine.filter(function (v) { return v.status !== VS.DRAFT; }).length;
+    var html =
+      ui.phead('Versions',
+        mine.length + ' later ' + util.plural(mine.length, 'version') +
+        (submitted === mine.length ? '' : ' · ' + (mine.length - submitted) + ' not yet submitted')) +
+      '<div class="stack">' +
+      ui.card('Your later versions', list, null, 'h2') +
+      ui.card('Published experiments you can propose a version for', startList +
+        '<p class="cardfoot">Only one later version of an experiment can be in the workflow at a time, so two ' +
+        'candidates can never race for the same public version.</p>', null, 'h2') +
+      ui.gapNote('RELEASE IS NOT PUBLICATION',
+        'You propose; the Academic Reviewer approves; the <strong>Super Admin</strong> decides whether to ' +
+        'release the version or hold it. The published version does not change until that decision is taken.') +
+      '</div>';
+
+    return { title: 'Versions', html: html, area: 'vendor', navKey: 'versions', contentActor: actor };
+  };
+
+  XRSLP.screens.vendorVersion = function (params) {
+    var actor = vendorActor(params);
+    var v = state.contentVersion(params.versionId);
+    if (!actor || !v || v.createdBy !== actor.id) { return XRSLP.screens.notFound(); }
+    var rec = state.contentRecord(v.recordId);
+    if (!rec) { return XRSLP.screens.notFound(); }
+    /* A candidate follows exactly the rule a first submission does.
+       VIEWING it is ownership — the gate above — so it stays reachable,
+       listed and fully legible whatever the Vendor's scope is now.
+       CHANGING it needs a live assignment covering the Experiment, so a
+       withdrawn scope makes it read-only: no Save, no Submit, no
+       rewriting of the catalogue metadata or the per-technology package
+       and hosted-link references a release would carry into published
+       content. Restoring the scope brings both back. */
+    var editable = state.versionEditableByVendor(v, actor.id);
+    var canSubmit = state.versionSubmittableByVendor(v, actor.id);
+    var scopeGone = state.versionScopeWithdrawn(v, actor.id);
+
+    var editor = editable
+      ? '<form id="vv-form" novalidate>' +
+        '<div class="form-errors"></div>' +
+        versionFormFields(rec, v) +
+        '<h3 class="vh">Technology delivery</h3>' +
+        deliveryFields(rec, v) +
+        '<div class="formact">' +
+        '<button class="btn sec" type="submit">Save changes</button>' +
+        (canSubmit
+          ? '<button class="btn pri" type="button" id="vv-submit">' +
+            (v.status === VS.CHANGES_ACADEMIC ? 'Resubmit for academic review' : 'Submit for academic review') +
+            '</button>' +
+            '<span class="formnote">Submitting hands it to the Academic Reviewer. It does not publish anything ' +
+            'and does not change the version anyone sees.</span>'
+          : '') +
+        '</div></form>'
+      : '<div class="kv">' +
+        '<div class="k">Version label</div><div class="v">' + esc(v.versionLabel) + '</div>' +
+        '<div class="k">Replaces</div><div class="v">' + esc(v.replacesVersionLabel || '—') + '</div>' +
+        '<div class="k">What changed</div><div class="v">' + esc(v.changeNote) + '</div>' +
+        '<div class="k">Catalogue summary</div><div class="v">' + esc(v.summary || '—') + '</div>' +
+        '<div class="k">Description</div><div class="v">' + esc(v.description) + '</div>' +
+        '<div class="k">Technical notes</div><div class="v">' + esc(v.vendorNotes || '—') + '</div>' +
+        '</div>' +
+        '<h3 class="vh">Technology delivery</h3>' +
+        deliveryReadOnly(rec, v) +
+        '<p class="cardfoot">' + (scopeGone
+          ? 'Read-only because this experiment is no longer in your assigned scope. Everything you wrote is ' +
+            'kept exactly as it is.'
+          : 'Read-only while someone else holds it. The revision under review cannot change underneath the ' +
+            'person reviewing it.') + '</p>';
+
+    var scopeNote = scopeGone
+      ? ui.alertBox('warning', 'This experiment is no longer in your assigned scope',
+          '<p>No Course assignment covers <strong>' + esc(rec.name) + '</strong> for you any more, so this ' +
+          'version is <strong>read-only</strong>. It cannot be edited, submitted or resubmitted.</p>' +
+          '<p><strong>Nothing has been deleted.</strong> The version, its change note, its delivery ' +
+          'references and its history are preserved exactly as they were. Editing and submission return if ' +
+          'the scope is restored.</p>')
+      : '';
+
+    var html =
+      ui.crumbs([{ label: 'Versions', href: href.vVersions(actor.id) }, { label: v.versionLabel }]) +
+      ui.phead(rec.name + ' — version ' + v.versionLabel, esc(vendorHolderLine(v, actor.id)), null,
+        ' ' + versionBadge(v)) +
+      scopeNote +
+      '<div class="grid-rail">' +
+      '<div class="stack">' + ui.card('This version', editor, null, 'h2') + '</div>' +
+      '<div class="stack">' +
+      ui.card('Currently published',
+        '<div class="kv">' +
+        '<div class="k">Experiment</div><div class="v">' + esc(rec.name) + '</div>' +
+        '<div class="k">Live version</div><div class="v"><strong>' + esc(rec.versionLabel || '—') + '</strong></div>' +
+        '<div class="k">Technologies</div><div class="v">' + ui.techBadges(rec.technologies) + '</div>' +
+        '</div>' +
+        '<p class="cardfoot">Unchanged, and it stays unchanged until the Super Admin releases a later version.</p>',
+        null, 'h2') +
+      ui.card('History', versionHistory(v), null, 'h2') +
+      '</div></div>';
+
+    return {
+      title: rec.name + ' — version ' + v.versionLabel, html: html,
+      area: 'vendor', navKey: 'versions', contentActor: actor,
+      after: function () {
+        var form = document.getElementById('vv-form');
+        if (!form) { return; }
+        var busy = false;
+        function save() {
+          var res = state.updateContentVersion(actor.id, v.id, readVersionFields(rec));
+          if (!res.ok) { ui.showErrors(form, res.errors, 'Please correct the version'); return null; }
+          return res.version;
+        }
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          if (busy) { return; }
+          busy = true;
+          var out = save();
+          busy = false;
+          if (!out) { return; }
+          ui.toast('Version ' + out.versionLabel + ' saved.');
+          XRSLP.render(false);
+        });
+        var sub = document.getElementById('vv-submit');
+        if (sub) {
+          sub.addEventListener('click', function () {
+            if (busy) { return; }
+            busy = true;
+            var out = save();
+            if (!out) { busy = false; return; }
+            ui.openDialog({
+              title: 'Submit version ' + out.versionLabel + ' for academic review?',
+              bodyHTML: '<p>It goes to the Academic Reviewer assigned to <strong>' + esc(rec.name) +
+                '</strong>, and becomes read-only for you while they hold it.</p>' +
+                '<div class="consequence">' + ui.ic('info') + '<span>This does not publish anything. The ' +
+                'public catalogue stays on version <strong>' + esc(rec.versionLabel || '—') +
+                '</strong> until the Super Admin releases a later one.</span></div>',
+              okLabel: 'Submit for review',
+              onConfirm: function () {
+                state.submitContentVersion(actor.id, v.id);
+                ui.toast('Version submitted for academic review.');
+                XRSLP.render(false);
+              }
+            });
+            busy = false;
+          });
+        }
+      }
+    };
+  };
+
+  /* ---------- shared history renderer ---------- */
+  function versionHistory(v) {
+    if (!v.history || !v.history.length) { return '<p class="muted">No history has been recorded.</p>'; }
+    var DOT = { created: 'edit', submitted: 'arrowR', resubmitted: 'arrowR', metadata: 'edit',
+                changes: 'alert', approved: 'check', released: 'check', held: 'minus', reopened: 'clock' };
+    return '<div class="timeline">' + v.history.map(function (h) {
+      var cls = h.kind === 'changes' || h.kind === 'held' ? 'warn'
+        : h.kind === 'approved' || h.kind === 'released' ? 'good' : 'info';
+      return '<div class="tl-item"><span class="tl-dot ' + cls + '">' + ui.ic(DOT[h.kind] || 'circle') + '</span>' +
+        '<div class="tl-body"><div class="tl-action">' + esc(h.label) + '</div>' +
+        '<div class="tl-who">' + esc(h.actorName || 'Super Admin') +
+        (h.actorRole ? ' · ' + esc(h.actorRole) : '') + ' · ' + esc(util.fmtDateTime(h.at)) + '</div>' +
+        (h.note ? '<p class="tl-note">' + esc(h.note) + '</p>' : '') +
+        '</div></div>';
+    }).join('') + '</div>';
+  }
+
+  /* ============================================================
+     ACADEMIC REVIEWER — the academic decision on a later version.
+
+     The reviewer approves or asks for changes. Approving does NOT
+     release: it hands the version to the Super Admin, and says so.
+     ============================================================ */
+  XRSLP.screens.reviewerVersion = function (params) {
+    var actor = state.contentActor(params.actorId);
+    if (!actor || actor.role !== state.CONTENT_ROLE.REVIEWER) { return XRSLP.screens.notFound(); }
+    var v = state.contentVersion(params.versionId);
+    if (!v) { return XRSLP.screens.notFound(); }
+    var rec = state.contentRecord(v.recordId);
+    /* Scope is read from the LIVE role assignments, so a reviewer whose
+       scope has been withdrawn cannot reach new work here either. */
+    if (!rec || !state.actorCoversRecord(actor.id, rec)) { return XRSLP.screens.notFound(); }
+    var canAct = state.reviewerCanActOnVersion(v, actor.id);
+
+    var decision = canAct
+      ? '<form id="rv-form" novalidate>' +
+        '<div class="form-errors"></div>' +
+        '<div class="field" id="rv-comment"><label for="rv-comment-i">Comment</label>' +
+        '<textarea id="rv-comment-i" rows="4"></textarea>' +
+        '<p class="hint">Required when you ask for changes; optional when you approve.</p></div>' +
+        '<div class="decidebar">' +
+        '<span class="db-note">Approving hands the version to the <strong>Super Admin</strong>, who decides ' +
+        'whether to release it or hold it. Approving does not release it, and the published version does not ' +
+        'change here.</span>' +
+        '<button class="btn sec" type="button" id="rv-changes">Request changes</button>' +
+        '<button class="btn pri" type="button" id="rv-approve">' + ui.ic('check') + 'Approve version</button>' +
+        '</div></form>'
+      : '<div class="decidebar"><span class="db-note">' + esc(holderLine(v, 'reviewer')) + '</span></div>';
+
+    var html =
+      ui.crumbs([{ label: 'Review queue', href: href.rQueue(actor.id) },
+                 { label: rec.name + ' — version ' + v.versionLabel }]) +
+      ui.phead(rec.name + ' — version ' + v.versionLabel,
+        esc(holderLine(v, 'reviewer')), null, ' ' + versionBadge(v)) +
+      '<div class="grid-rail">' +
+      '<div class="stack">' +
+      '<section class="card"><div class="chead"><h2>What this version proposes</h2></div>' +
+      '<div class="cbody">' +
+      '<div class="kv">' +
+      '<div class="k">Version label</div><div class="v">' + esc(v.versionLabel) + '</div>' +
+      '<div class="k">Replaces</div><div class="v">' + esc(v.replacesVersionLabel || '—') + '</div>' +
+      '<div class="k">Submitted by</div><div class="v">' + esc(v.createdByName) + ' <span class="muted">· Vendor</span></div>' +
+      '<div class="k">What changed</div><div class="v">' + esc(v.changeNote) + '</div>' +
+      '</div>' +
+      '<h3 class="vh">Description</h3><p class="vd-d">' + esc(v.description) + '</p>' +
+      (v.vendorNotes ? '<h3 class="vh">Technical notes</h3><p class="vd-d">' + esc(v.vendorNotes) + '</p>' : '') +
+      decision +
+      '</div></section>' +
+      ui.card('Learning Outcomes — unchanged by a later version',
+        XRSLP.contentUI.outcomesList(rec.outcomes) +
+        '<p class="cardfoot">Learning Outcomes are academically owned and belong to the Experiment, not to a ' +
+        'version. Edit them on the submission itself if they need to change.</p>', null, 'h2') +
+      '</div>' +
+      '<div class="stack">' +
+      ui.card('Currently published',
+        '<div class="kv">' +
+        '<div class="k">Live version</div><div class="v"><strong>' + esc(rec.versionLabel || '—') + '</strong></div>' +
+        '<div class="k">Description</div><div class="v">' + esc(rec.description) + '</div>' +
+        '</div>' +
+        '<p class="cardfoot">This is what everyone sees today, and what they keep seeing until the Super ' +
+        'Admin releases a later version.</p>', null, 'h2') +
+      ui.card('History', versionHistory(v), null, 'h2') +
+      '</div></div>';
+
+    return {
+      title: rec.name + ' — version ' + v.versionLabel, html: html,
+      area: 'review', navKey: 'queue', contentActor: actor,
+      after: function () {
+        var form = document.getElementById('rv-form');
+        if (!form) { return; }
+        var ap = document.getElementById('rv-approve');
+        if (ap) {
+          ap.addEventListener('click', function () {
+            var note = (document.getElementById('rv-comment-i') || {}).value || '';
+            ui.openDialog({
+              title: 'Approve version ' + v.versionLabel + ' academically?',
+              bodyHTML: '<p>The version goes to the <strong>Super Admin</strong> for the Release / Hold decision.</p>' +
+                '<div class="consequence">' + ui.ic('info') + '<span>This does not release it. Version ' +
+                '<strong>' + esc(rec.versionLabel || '—') + '</strong> stays the published version until the ' +
+                'Super Admin decides otherwise.</span></div>',
+              okLabel: 'Approve version',
+              onConfirm: function () {
+                state.approveVersionAcademic(actor.id, v.id, note);
+                ui.toast('Version approved. It is now with the Super Admin for Release or Hold.');
+                XRSLP.render(false);
+              }
+            });
+          });
+        }
+        var ch = document.getElementById('rv-changes');
+        if (ch) {
+          ch.addEventListener('click', function () {
+            var note = (document.getElementById('rv-comment-i') || {}).value || '';
+            if (!String(note).trim()) {
+              ui.showErrors(form, [{ field: 'rv-comment', message: 'Say what needs to change before returning it.' }],
+                'A comment is required');
+              return;
+            }
+            ui.openDialog({
+              title: 'Request changes to version ' + v.versionLabel + '?',
+              bodyHTML: '<p>The version returns to <strong>' + esc(v.createdByName) + '</strong> to correct ' +
+                'and resubmit. The published version is unaffected.</p>' +
+                /* The later-version twin of the two first-submission
+                   gates: do not promise a correction the Vendor has no
+                   authority to make. */
+                (state.versionScopeWithdrawn(v, v.createdBy)
+                  ? '<div class="consequence">' + ui.ic('alert') +
+                    '<span>' + esc(v.createdByName) + ' no longer holds a role scope covering this ' +
+                    'experiment, so they cannot correct or resubmit the version. It will stay returned ' +
+                    'until the Super Admin restores their scope.</span></div>'
+                  : ''),
+              okLabel: 'Request changes',
+              onConfirm: function () {
+                state.requestChangesVersionAcademic(actor.id, v.id, note);
+                ui.toast('Changes requested. The version is back with the Vendor.');
+                XRSLP.render(false);
+              }
+            });
+          });
+        }
+      }
+    };
+  };
+
+  /* Exposed so the reviewer queue and the Content Library can render the
+     same badge and holder line without re-deriving them. */
+  XRSLP.versionUI = { badge: versionBadge, holderLine: holderLine, history: versionHistory };
+})();

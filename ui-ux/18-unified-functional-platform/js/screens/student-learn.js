@@ -535,7 +535,21 @@ XRSLP.screens = XRSLP.screens || {};
         : '') +
       '</div>' +
       '<p class="cardfoot">Device compatibility is described, not certified. No specific headset, handset or ' +
-      'browser build is claimed as supported here.</p>', null, 'h2');
+      'browser build is claimed as supported here.</p>' +
+      /* Implementation 06 — the device-transfer entry point sits where
+         the device itself is being discussed, and only for a technology
+         that actually runs from an authorised package on one (STK31-38).
+         A hosted Web experience has no device binding to move. */
+      (isPackage
+        ? '<div class="formact"><a class="btn sec sm" href="' + L.href.device(p.id) + '">' +
+          'Replace or transfer my device</a>' +
+          '<span class="formnote">' +
+          (state.openTransferForStudent(p.id)
+            ? 'You already have a request with the platform team.'
+            : 'The platform team decides. It moves your authorised device and changes nothing about which ' +
+              'experiments or technologies you hold.') +
+          '</span></div>'
+        : ''), null, 'h2');
 
     var otherTechs = row.technologies.filter(function (t) { return t !== tech; });
     var otherCard = otherTechs.length

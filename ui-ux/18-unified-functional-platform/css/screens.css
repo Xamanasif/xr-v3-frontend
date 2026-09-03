@@ -1025,3 +1025,109 @@ fieldset.techcard .field:last-child{margin-bottom:0}
 .lcard.sub-card h2{font-size:16.5px; font-weight:650; line-height:1.35; letter-spacing:-.008em}
 .lcard.sub-card h2 a{color:var(--text); text-decoration:none}
 .lcard.sub-card h2 a:hover{color:var(--action); text-decoration:underline}
+
+
+/* ============================================================
+   IMPLEMENTATION 06 — Super Admin governance and B2B operations.
+
+   No new visual language: every rule below composes tokens and
+   patterns the design system already ships. The only genuinely new
+   primitive is `.btn.dgr`, because deactivating an institution is a
+   consequential action and the system already carries danger tokens
+   for exactly that.
+   ============================================================ */
+
+/* A consequential action. Used for tenant deactivation and nothing
+   else — it is never the default, and never the only signal: the
+   dialog behind it states the consequence in words. */
+.btn.dgr{background:var(--surface); color:var(--danger-700); border-color:var(--danger-200)}
+.btn.dgr:hover{background:var(--danger-50); border-color:var(--danger-700)}
+.btn.dgr svg.ic{color:var(--danger-700)}
+
+/* A stat tile that opens what it counts. Same box as `.stat`; a link
+   affordance on top of it, so no number on the Super Admin overview is
+   a dead end. */
+a.stat.statlink{display:block; text-decoration:none; color:inherit; transition:border-color var(--m-fast) var(--ease),
+  box-shadow var(--m-fast) var(--ease)}
+a.stat.statlink:hover{border-color:var(--action-border); box-shadow:var(--e1)}
+a.stat.statlink:hover .s-v{color:var(--action)}
+a.stat.statlink:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+
+/* An explanatory line at the head of a card body, above the thing it
+   explains. Smaller than body copy, never a wall of text. */
+.chelp{font-size:13px; color:var(--text-2); line-height:1.6; max-width:74ch; margin-bottom:14px}
+
+/* A sub-heading inside a card, between two stacked panels. */
+h3.vh,.vh{font-size:13px; font-weight:650; letter-spacing:.04em; text-transform:uppercase; color:var(--text-3);
+  margin:18px 0 8px; padding-top:14px; border-top:1px solid var(--border-subtle)}
+
+/* The workspace context block gains an optional third line — the
+   institution a Tenant Admin is administering, under their name. */
+.ws-ctx .wss{font-size:11.5px; color:var(--text-3); line-height:1.35; margin-top:2px; overflow-wrap:anywhere}
+
+/* ---- canonical catalogue tree (Super Admin content governance) ----
+   A disclosure per Course. Native <details>, so it is keyboard
+   operable and announced without any script. */
+.canongroup{margin-top:18px}
+.canongroup:first-child{margin-top:0}
+.canongroup h3{font-size:15.5px; font-weight:650; letter-spacing:-.005em}
+.canongroup .cg-s{font-size:13px; color:var(--text-2); line-height:1.55; margin:4px 0 10px; max-width:74ch}
+details.canon{border:1px solid var(--border); border-radius:var(--r-md); background:var(--surface); margin-bottom:8px}
+details.canon>summary{display:flex; align-items:center; gap:9px; padding:11px 14px; cursor:pointer;
+  font-size:14px; font-weight:600; color:var(--text); list-style:none}
+details.canon>summary::-webkit-details-marker{display:none}
+details.canon>summary:focus-visible{outline:2px solid var(--focus); outline-offset:-2px; border-radius:var(--r-md)}
+details.canon>summary svg.ic{color:var(--text-3); flex:0 0 auto}
+details.canon>summary .cn-n{min-width:0; overflow-wrap:anywhere}
+details.canon>summary .cn-c{margin-left:auto; font-size:12px; font-weight:500; color:var(--text-3); flex:0 0 auto}
+details.canon[open]>summary{border-bottom:1px solid var(--border-subtle)}
+details.canon .cn-b{min-width:0}
+
+/* ---- the version decision panel ---- */
+.verdec{border:1px solid var(--action-border); border-radius:var(--r-md); background:var(--action-subtle);
+  padding:14px 16px; margin-bottom:14px}
+.verdec.held{border-color:var(--warning-200); background:var(--warning-50)}
+.verdec .vd-h{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px}
+.verdec .vd-l{font-size:15px; font-weight:650; color:var(--text)}
+.verdec .kv{background:transparent}
+.verdec h3.vd-sh,.verdec .vd-sh{font-size:12.5px; font-weight:650; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--text-3); margin:12px 0 4px; padding-top:0; border-top:0}
+.verdec .vd-d{font-size:13.5px; color:var(--text-2); line-height:1.6; max-width:70ch}
+.verdec .decidebar{margin:12px -16px -14px; border-radius:0 0 var(--r-md) var(--r-md)}
+.vd-d{font-size:13.5px; color:var(--text-2); line-height:1.6; max-width:74ch; overflow-wrap:anywhere}
+
+/* The version chip on the public experiment page. Text, never colour
+   alone: it reads "Version 1.2". */
+.verchip{display:inline-flex; align-items:center; height:24px; padding:0 10px; border-radius:var(--r-pill);
+  border:1px solid var(--border-strong); background:var(--surface); font-size:12px; font-weight:600;
+  color:var(--text-2); vertical-align:middle}
+
+/* ---- role governance: the scope list ---- */
+.scopelist{display:flex; flex-direction:column; gap:8px; list-style:none}
+.scopelist .sc{display:flex; align-items:flex-start; gap:11px; padding:11px 13px; border:1px solid var(--border);
+  border-radius:var(--r-md); background:var(--surface); flex-wrap:wrap}
+.scopelist .sc.off{background:var(--n-25); border-style:dashed}
+.scopelist .sc-b{width:30px; height:30px; border-radius:var(--r-sm); flex:0 0 auto; display:flex;
+  align-items:center; justify-content:center; background:var(--action-subtle); border:1px solid var(--action-border);
+  color:var(--action)}
+.scopelist .sc.off .sc-b{background:var(--sunken); border-color:var(--border); color:var(--text-3)}
+.scopelist .sc-body{flex:1 1 200px; min-width:0}
+.scopelist .sc-t{font-size:14px; font-weight:600; color:var(--text); overflow-wrap:anywhere}
+.scopelist .sc.off .sc-t{color:var(--text-2)}
+.scopelist .sc-m{font-size:12.5px; color:var(--text-3); line-height:1.5; margin-top:2px; overflow-wrap:anywhere}
+.scopelist .btn{flex:0 0 auto}
+
+/* ---- support reports and device requests, as the requester sees them ---- */
+.tickets{display:flex; flex-direction:column; gap:12px; list-style:none}
+.tickets .tk{border:1px solid var(--border); border-radius:var(--r-md); background:var(--surface); padding:14px 16px}
+.tickets .tk-h{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px}
+.tickets .tk-id{font-family:var(--mono); font-size:12.5px; color:var(--text-3)}
+.tickets .tk-t{font-size:14.5px; font-weight:640; color:var(--text); overflow-wrap:anywhere}
+.tickets .tk-m{font-size:12.5px; color:var(--text-3); margin-top:2px}
+.tk-d{font-size:13.5px; color:var(--text-2); line-height:1.6; margin-top:8px; white-space:pre-wrap;
+  overflow-wrap:anywhere; max-width:74ch}
+.tickets .tk-r,.tickets .tk-w{display:flex; gap:9px; align-items:flex-start; margin-top:11px; padding-top:11px;
+  border-top:1px solid var(--border-subtle); font-size:13px; color:var(--text-2); line-height:1.55}
+.tickets .tk-r svg.ic{color:var(--success-700); flex:0 0 auto; margin-top:2px}
+.tickets .tk-w svg.ic{color:var(--text-3); flex:0 0 auto; margin-top:2px}
+.tickets .tk-r p,.tickets .tk-w p{margin-top:3px}

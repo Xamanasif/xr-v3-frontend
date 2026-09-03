@@ -216,3 +216,25 @@
   .phead .pactions .btn{width:100%; justify-content:center}
   .lcard .lc-badges{gap:5px}
 }
+
+/* ---- Implementation 06 ----
+   The governance and operations screens use the shared `.grid-rail`,
+   `.tablecard`, `.dt`, `.kv` and `.statgrid` patterns, so they inherit
+   every responsive rule above. These are the few new pieces. */
+@media (max-width:740px){
+  /* The decision bar inside the version panel is full-bleed on the
+     panel; on a phone its buttons stack rather than shrink. */
+  .verdec .decidebar .btn{flex:1 1 auto; justify-content:center}
+  /* A withdrawn/assigned scope row: the action drops under the text
+     rather than squeezing the label into two characters. */
+  .scopelist .sc{gap:9px}
+  .scopelist .sc .btn{width:100%; justify-content:center; margin-left:41px}
+  /* A Course disclosure holds a table; the table scrolls inside it,
+     the page never does. */
+  details.canon .cn-b .tscroll{border-radius:0}
+}
+@media (max-width:520px){
+  .verdec{padding:12px 13px}
+  .verdec .decidebar{margin:12px -13px -12px}
+  .tickets .tk{padding:12px 13px}
+}

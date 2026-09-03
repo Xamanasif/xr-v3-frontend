@@ -469,16 +469,32 @@ XRSLP.facultyUI = (function () {
         area: 'faculty', faculty: f, tenant: tenant, navKey: 'content',
         title: 'My Content — ' + f.name,
         html: ui.phead('My Content', 'Courses and experiments mapped to you inside ' + esc(tenant.name) + '.') +
-          '<div class="stack"><div class="tablecard">' + ui.emptyState({
-            icon: 'layers', heading: 'h2',
-            title: 'No content is mapped to you yet',
-            body: 'Your institution decides which courses and experiments each faculty member delivers. Until ' +
-              'something is mapped to you, there is nothing here — this is not an error.'
-          }) + '</div>' +
-          ui.protoNote('<p>In this prototype you can create the mapping yourself from the Tenant Admin ' +
-            'workspace.</p>',
-            '<a class="btn sec sm" href="' + XRSLP.tenantUI.href.facultyMap(tenant.id) +
-            '">Open Faculty mapping (Tenant Admin)</a>') +
+          '<div class="stack"><div class="tablecard">' + ui.emptyState(
+            /* Implementation 06 — a mapping that exists but is SUSPENDED is
+               not the same thing as a mapping that was never made, and
+               saying "nothing is mapped to you yet" while the institution
+               is deactivated would be plainly untrue. */
+            scope.blocked.length
+              ? { icon: 'alertCirc', heading: 'h2',
+                  title: 'Your mapped content is not available at the moment',
+                  body: 'You have ' + scope.blocked.length + ' ' +
+                    XRSLP.util.plural(scope.blocked.length, 'mapping') + ' in this institution. ' +
+                    (scope.blocked.some(function (b) { return b.reason === 'tenant-inactive'; })
+                      ? 'The institution has been deactivated by the platform, so mapped content cannot be ' +
+                        'used right now. Nothing has been deleted — everything returns when it is reactivated.'
+                      : 'The access records behind them cannot currently carry content: ' +
+                        scope.blocked.map(function (b) { return state.assignabilityText(b.reason); })
+                          .filter(function (t, i, a) { return a.indexOf(t) === i; }).join('; ') + '.') }
+              : { icon: 'layers', heading: 'h2',
+                  title: 'No content is mapped to you yet',
+                  body: 'Your institution decides which courses and experiments each faculty member delivers. ' +
+                    'Until something is mapped to you, there is nothing here — this is not an error.' }
+          ) + '</div>' +
+          (scope.blocked.length ? '' :
+            ui.protoNote('<p>In this prototype you can create the mapping yourself from the Tenant Admin ' +
+              'workspace.</p>',
+              '<a class="btn sec sm" href="' + XRSLP.tenantUI.href.facultyMap(tenant.id) +
+              '">Open Faculty mapping (Tenant Admin)</a>')) +
           '</div>'
       };
     }

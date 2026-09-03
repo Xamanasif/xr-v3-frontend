@@ -109,29 +109,49 @@ XRSLP.screens = XRSLP.screens || {};
       cui.statTile(o.published, 'Published', 'live in the catalogue') +
       '</div>';
 
+    /* A row whose record the Vendor may no longer change STAYS — losing
+       a scope must not make your own returned submission vanish off the
+       one screen that tells you it came back. What changes is the
+       action and the sentence: no control that leads to an editor the
+       state layer would refuse, and no instruction to finish work that
+       cannot now be finished. */
     var attention = [];
+    function mutable(r) { return state.vendorCanEdit(r, actor.id); }
+    var outOfScopeLine = ' This experiment is no longer in your assigned scope, so the record is read-only ' +
+      'until the scope is restored. Nothing has been deleted.';
     o.returned.forEach(function (r) {
       var last = state.academicReviewsFor(r.id)[0];
+      var open = mutable(r);
       attention.push({
         kind: 'warn', icon: 'alert',
         title: r.name,
-        body: r.status === CS.CHANGES_ACADEMIC
+        body: (r.status === CS.CHANGES_ACADEMIC
           ? 'Returned at academic review' + (last && last.comment ? ' — ' + last.comment : '.')
-          : 'Returned at content readiness review — see the submission for the reason.',
-        actionHTML: '<a class="btn sec sm" href="' + href.vEdit(actor.id, r.id) + '">Correct submission</a>'
+          : 'Returned at content readiness review — see the submission for the reason.') +
+          (open ? '' : outOfScopeLine),
+        actionHTML: open
+          ? '<a class="btn sec sm" href="' + href.vEdit(actor.id, r.id) + '">Correct submission</a>'
+          : '<a class="btn sec sm" href="' + href.vRecord(actor.id, r.id) + '">Open submission</a>'
       });
     });
     o.incompleteDrafts.forEach(function (r) {
+      var open = mutable(r);
       attention.push({
-        kind: '', icon: 'edit', title: r.name,
-        body: 'Draft is missing information required before it can be submitted for academic review.',
-        actionHTML: '<a class="btn sec sm" href="' + href.vEdit(actor.id, r.id) + '">Continue draft</a>'
+        kind: '', icon: open ? 'edit' : 'alert', title: r.name,
+        body: 'Draft is missing information required before it can be submitted for academic review.' +
+          (open ? '' : outOfScopeLine),
+        actionHTML: open
+          ? '<a class="btn sec sm" href="' + href.vEdit(actor.id, r.id) + '">Continue draft</a>'
+          : '<a class="btn sec sm" href="' + href.vRecord(actor.id, r.id) + '">Open draft</a>'
       });
     });
     o.readyDrafts.forEach(function (r) {
+      var open = mutable(r);
       attention.push({
-        kind: '', icon: 'check', title: r.name,
-        body: 'Draft is complete and can be submitted for academic review.',
+        kind: '', icon: open ? 'check' : 'alert', title: r.name,
+        body: open
+          ? 'Draft is complete and can be submitted for academic review.'
+          : 'Draft is complete, but it cannot be submitted.' + outOfScopeLine,
         actionHTML: '<a class="btn sec sm" href="' + href.vRecord(actor.id, r.id) + '">Open submission</a>'
       });
     });
@@ -292,12 +312,27 @@ XRSLP.screens = XRSLP.screens || {};
         '</div></article>';
     }).join('');
 
+    /* The same split as the record page: how many came back is a fact
+       about the WORK; "correct it and resubmit" is an instruction to the
+       READER. If none of the returned submissions is one this Vendor may
+       still act on, the instruction is simply wrong. */
+    var actionable = returned.filter(function (r) { return state.vendorCanEdit(r, actor.id); }).length;
+    var returnedBanner = !returned.length ? ''
+      : ui.alertBox('warning', util.plural(returned.length, 'submission') + ' returned for correction',
+          (actionable === returned.length
+            ? '<p>Open the submission to read the reason, correct it and resubmit.</p>'
+            : actionable === 0
+              ? '<p>Open a submission to read the reason it came back. None of them can be corrected or ' +
+                'resubmitted at the moment: the Courses they belong to are outside your active Vendor scope. ' +
+                'Nothing has been deleted, and the work returns to you if the scope is restored.</p>'
+              : '<p>Open the submission to read the reason, correct it and resubmit. ' +
+                util.plural(returned.length - actionable, 'submission') + ' cannot be corrected at the ' +
+                'moment, because the Course it belongs to is outside your active Vendor scope.</p>'),
+          'status');
+
     var html =
       ui.phead('Submissions', esc(actor.organisation)) +
-      (returned.length
-        ? ui.alertBox('warning', util.plural(returned.length, 'submission') + ' returned for correction',
-            '<p>Open the submission to read the reason, correct it and resubmit.</p>', 'status')
-        : '') +
+      returnedBanner +
       '<div class="lgrid" style="margin-top:16px">' + cards + '</div>';
 
     return shell(actor, 'submissions', 'Submissions', html);
@@ -318,17 +353,41 @@ XRSLP.screens = XRSLP.screens || {};
     var errs = state.validateContent(rec, 'submit', { exceptId: rec.id });
     var lastReview = state.academicReviewsFor(rec.id)[0];
 
+    /* LIFECYCLE READINESS AND ACTOR AUTHORITY ARE DIFFERENT FACTS, and
+       the status banner has to keep them apart. "Everything required is
+       present" is a statement about the RECORD; "you can submit it" is a
+       statement about the READER. While the two were fused, a Vendor
+       whose scope had been withdrawn met a green "Draft — ready to
+       submit" directly beneath the amber banner telling them the record
+       was read-only — the page contradicting itself in two adjacent
+       boxes.
+
+       So when the scope is gone the banner still reports the lifecycle
+       fact, and reports it accurately, but stops phrasing it as an
+       invitation and drops the success styling that reads as "go". It
+       does NOT repeat the amber banner's governance paragraph — nothing
+       is deleted, authority returns on restore — because that is stated
+       once, immediately above. */
+    var scopeGone = state.vendorScopeWithdrawn(rec, actor.id);
+    var frozenTitle = ' — read-only while outside your assigned scope';
+    var cannotHere = 'It cannot be edited or submitted while this Course is outside your active Vendor scope.';
+
     var statusNote;
     switch (rec.status) {
       case CS.DRAFT:
         statusNote = errs.length
-          ? ui.alertBox('info', 'Draft — not yet submitted',
-              '<p>Finish the details below and submit when ready. It goes to academic review first.</p>' +
+          ? ui.alertBox('info', 'Draft' + (scopeGone ? frozenTitle : ' — not yet submitted'),
+              (scopeGone
+                ? '<p>This draft is still missing information required for academic review. ' + cannotHere + '</p>'
+                : '<p>Finish the details below and submit when ready. It goes to academic review first.</p>') +
               '<ul class="blocklist">' + errs.map(function (e) {
                 return '<li>' + esc(e.message) + '</li>'; }).join('') + '</ul>')
-          : ui.alertBox('success', 'Draft — ready to submit',
-              '<p>Everything required for academic review is present. Submitting sends this to the Academic ' +
-              'Reviewer; you can follow its status here at every stage.</p>');
+          : scopeGone
+            ? ui.alertBox('info', 'Draft' + frozenTitle,
+                '<p>The draft contains the information required for academic review. ' + cannotHere + '</p>')
+            : ui.alertBox('success', 'Draft — ready to submit',
+                '<p>Everything required for academic review is present. Submitting sends this to the Academic ' +
+                'Reviewer; you can follow its status here at every stage.</p>');
         break;
       case CS.ACADEMIC_REVIEW:
         statusNote = ui.alertBox('info',
@@ -338,12 +397,17 @@ XRSLP.screens = XRSLP.screens || {};
           'cannot change underneath them.</p>');
         break;
       case CS.CHANGES_ACADEMIC:
-        statusNote = ui.alertBox('warning', 'Changes requested — academic review',
+        /* The reviewer's comment is a historical fact and stays. Only the
+           instruction that follows it is authority-dependent. */
+        statusNote = ui.alertBox('warning',
+          'Changes requested — academic review' + (scopeGone ? frozenTitle : ''),
           (lastReview && lastReview.comment
             ? '<p><strong>' + esc(lastReview.reviewerName) + ' · Academic Reviewer · ' +
               esc(util.fmtDateTime(lastReview.at)) + '</strong></p><p>' + esc(lastReview.comment) + '</p>'
             : '<p>This submission was returned for correction.</p>') +
-          '<p>Correct the submission and resubmit. It returns to academic review.</p>');
+          (scopeGone
+            ? '<p>' + cannotHere + '</p>'
+            : '<p>Correct the submission and resubmit. It returns to academic review.</p>'));
         break;
       case CS.CONTENT_REVIEW:
         statusNote = ui.alertBox('info', 'Academic validation complete — now in content readiness review',
@@ -351,10 +415,13 @@ XRSLP.screens = XRSLP.screens || {};
           'performs the first publication once satisfied. It is read-only for you while they hold it.</p>');
         break;
       case CS.CHANGES_CONTENT:
-        statusNote = ui.alertBox('warning', 'Changes requested — content readiness',
+        statusNote = ui.alertBox('warning',
+          'Changes requested — content readiness' + (scopeGone ? frozenTitle : ''),
           '<p>' + esc(changesContentNote(rec)) + '</p>' +
-          '<p>Correct the submission and resubmit. It returns to content readiness review — the academic ' +
-          'validation it has already passed is not repeated.</p>');
+          (scopeGone
+            ? '<p>' + cannotHere + ' The academic validation it has already passed is unaffected.</p>'
+            : '<p>Correct the submission and resubmit. It returns to content readiness review — the academic ' +
+              'validation it has already passed is not repeated.</p>'));
         break;
       case CS.PUBLISHED:
         statusNote = ui.alertBox('success',
@@ -367,14 +434,34 @@ XRSLP.screens = XRSLP.screens || {};
         statusNote = '';
     }
 
+    /* READING is ownership; MUTATING is ownership AND the lifecycle AND
+       the live role assignment (`canMutateVendorRecord`). The ownership
+       gate above already let this Vendor in, so the record, its history
+       and every decision on it stay on screen whatever their scope is
+       now. What a withdrawn scope removes is the authority to change it
+       — so no editing or submitting control is drawn at all, because a
+       control the state layer would refuse is worse than an absent one,
+       and the page says plainly which of the two rules stopped it. */
+    var canSubmit = state.vendorCanSubmit(rec, actor.id);
     var actions = '';
     if (canEdit) {
       actions += '<a class="btn sec" href="' + href.vEdit(actor.id, rec.id) + '">' + ui.ic('edit') +
         (rec.status === CS.DRAFT ? 'Edit draft' : 'Correct submission') + '</a>';
-      actions += '<button class="btn pri" type="button" id="v-submit"' +
-        (errs.length ? ' aria-disabled="true"' : '') + '>' +
-        (rec.status === CS.DRAFT ? 'Submit for academic review' : 'Resubmit for review') + '</button>';
+      if (canSubmit) {
+        actions += '<button class="btn pri" type="button" id="v-submit"' +
+          (errs.length ? ' aria-disabled="true"' : '') + '>' +
+          (rec.status === CS.DRAFT ? 'Submit for academic review' : 'Resubmit for review') + '</button>';
+      }
     }
+    var scopeNote = scopeGone
+      ? ui.alertBox('warning', 'This experiment is no longer in your assigned scope',
+          '<p>No Course assignment covers <strong>' + esc(rec.name) + '</strong> for you any more, so this ' +
+          'record is <strong>read-only</strong>. It cannot be edited, submitted or resubmitted, its Course ' +
+          'cannot be changed, and no later version can be proposed for it.</p>' +
+          '<p><strong>Nothing has been deleted.</strong> The record, its technical delivery details, its ' +
+          'history and every decision already taken on it are preserved exactly as they were made. Editing ' +
+          'and submission return, wherever the workflow already allowed them, if the scope is restored.</p>')
+      : '';
 
     var html =
       ui.crumbs([{ label: 'My Experiments', href: href.vExperiments(actor.id) }, { label: rec.name }]) +
@@ -382,6 +469,7 @@ XRSLP.screens = XRSLP.screens || {};
         cui.contextLine(rec) + ' · ' + esc(cui.holderLine(rec, 'vendor')),
         actions,
         ' ' + cui.statusBadge(rec) + cui.revisionChip(rec) + cui.resubmittedChip(rec)) +
+      scopeNote +
       statusNote +
       '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' +
@@ -397,7 +485,24 @@ XRSLP.screens = XRSLP.screens || {};
       (rec.status === CS.PUBLISHED ? ui.card('Publication', cui.publicationCard(rec)) : '') +
       '</div>' +
       '<div class="stack">' +
-      (rec.status === CS.PUBLISHED ? cui.publishedNextVersionNote() : '') +
+      (rec.status === CS.PUBLISHED
+        ? (function () {
+            /* Only the Vendor whose LIVE role assignment covers this
+               experiment may propose a later version — the same scope
+               check every other action on this plane uses. */
+            var open = state.openVersionForRecord(rec.id);
+            if (open && open.createdBy === actor.id) {
+              return cui.publishedNextVersionNote({
+                proposeHref: href.vVersion(actor.id, open.id),
+                proposeLabel: 'Open version ' + open.versionLabel + ' (in the workflow)'
+              });
+            }
+            if (open) { return cui.publishedNextVersionNote(); }
+            return state.vendorCanVersion(rec, actor.id)
+              ? cui.publishedNextVersionNote({ proposeHref: href.vNewVersion(actor.id, rec.id) })
+              : cui.publishedNextVersionNote();
+          })()
+        : '') +
       ui.card('History', cui.historyTimeline(rec)) +
       '</div></div>';
 
@@ -463,22 +568,37 @@ XRSLP.screens = XRSLP.screens || {};
     if (!actor) { return XRSLP.screens.notFound(); }
     var rec = state.contentRecord(params.recordId);
     if (!rec || rec.createdBy !== actor.id) { return XRSLP.screens.notFound(); }
-    /* A record under review, or published, is not editable by the
-       Vendor. The route resolves; the editor refuses and says why. */
+    /* A record under review, published, or no longer inside this
+       Vendor's assigned scope is not editable by them. THE ROUTE STILL
+       RESOLVES — a hand-typed or bookmarked edit URL must not answer
+       "not found" for a record its owner may legitimately read — but the
+       editor refuses and says which rule refused it. The state layer
+       refuses the same write independently, so this screen is the
+       explanation, never the enforcement. */
     if (!state.vendorCanEdit(rec, actor.id)) {
-      var lockHTML =
-        ui.crumbs([{ label: 'My Experiments', href: href.vExperiments(actor.id) },
-                   { label: rec.name, href: href.vRecord(actor.id, rec.id) },
-                   { label: 'Edit' }]) +
-        ui.phead(rec.name, cui.contextLine(rec), '', ' ' + cui.statusBadge(rec)) +
-        ui.alertBox('warning', 'This submission cannot be edited right now',
-          '<p>' + esc(rec.status === CS.PUBLISHED
+      var scopeGone = state.vendorScopeWithdrawn(rec, actor.id);
+      var lockBody = scopeGone
+        ? '<p>No Course assignment covers <strong>' + esc(rec.name) + '</strong> for you any more, so this ' +
+          'record is <strong>read-only</strong>. It cannot be edited or resubmitted and its Course cannot be ' +
+          'changed — including from this address.</p>' +
+          '<p><strong>Nothing has been deleted.</strong> The record, its history and every decision already ' +
+          'taken on it are preserved, and editing returns if the scope is restored.</p>'
+        : '<p>' + esc(rec.status === CS.PUBLISHED
             ? 'This experiment is published. The published revision is fixed: replacing it with a newer version ' +
               'is a Super Admin Release / Hold decision on a different object, and it is not part of first ' +
               'publication.'
             : 'It is currently with ' + (rec.status === CS.ACADEMIC_REVIEW ? 'the Academic Reviewer' : 'the Content Manager') +
               '. Editing it now would change the revision they are reading. It becomes editable again if it is ' +
-              'returned to you for correction.') + '</p>') +
+              'returned to you for correction.') + '</p>';
+      var lockHTML =
+        ui.crumbs([{ label: 'My Experiments', href: href.vExperiments(actor.id) },
+                   { label: rec.name, href: href.vRecord(actor.id, rec.id) },
+                   { label: 'Edit' }]) +
+        ui.phead(rec.name, cui.contextLine(rec), '', ' ' + cui.statusBadge(rec)) +
+        ui.alertBox('warning',
+          scopeGone ? 'This experiment is no longer in your assigned scope'
+                    : 'This submission cannot be edited right now',
+          lockBody) +
         '<p style="margin-top:16px"><a class="btn sec" href="' + href.vRecord(actor.id, rec.id) +
         '">Back to the submission</a></p>';
       return shell(actor, 'experiments', rec.name, lockHTML);
@@ -532,13 +652,49 @@ XRSLP.screens = XRSLP.screens || {};
     return false;
   }
 
+  function rec_courseIdOf(rec) { return rec ? rec.courseId : null; }
+
   function editorScreen(actor, rec) {
     var editing = !!rec;
     var correcting = editing && (rec.status === CS.CHANGES_ACADEMIC || rec.status === CS.CHANGES_CONTENT);
     if (workIsStale(rec, actor.id)) { work = freshWork(rec, actor.id); }
 
+    /* ⚠ THE EDITOR IS NEVER RENDERED FOR A RECORD THE VENDOR MAY NOT
+       MUTATE. `vendorEdit` already refuses before it gets here, and the
+       state layer refuses the write regardless; this is the third and
+       innermost of those three, so that no future caller can reach the
+       form by a path that forgot to ask. It answers the ONE question
+       that matters — may this actor change this record, as it stands —
+       rather than the weaker "do they hold any Course at all", which was
+       the defect: a Vendor who kept a second Course still got a fully
+       live form for a record whose own Course had been withdrawn. */
+    if (editing && !state.vendorCanEdit(rec, actor.id)) {
+      return shell(actor, 'experiments', rec.name,
+        ui.crumbs([{ label: 'My Experiments', href: href.vExperiments(actor.id) }, { label: rec.name }]) +
+        ui.phead(rec.name, cui.contextLine(rec), null, ' ' + cui.statusBadge(rec)) +
+        ui.alertBox('warning',
+          state.vendorScopeWithdrawn(rec, actor.id)
+            ? 'This experiment is no longer in your assigned scope'
+            : 'This submission cannot be edited right now',
+          '<p>' + (state.vendorScopeWithdrawn(rec, actor.id)
+            ? 'No Course assignment covers <strong>' + esc(rec.name) + '</strong> for you any more, so this ' +
+              'record is <strong>read-only</strong>: it cannot be edited or resubmitted, and its Course ' +
+              'cannot be changed.'
+            : 'Someone else in the workflow is holding this revision, so it cannot be changed underneath ' +
+              'them.') + '</p>' +
+          '<p><strong>Nothing has been deleted.</strong> The record, its history and any decision already ' +
+          'taken on it are all preserved, and editing returns if the scope is restored.</p>') +
+        '<div class="formact"><a class="btn sec" href="' + href.vRecord(actor.id, rec.id) +
+        '">Open the submission</a>' +
+        '<a class="btn sec" href="' + href.vExperiments(actor.id) + '">Back to My Experiments</a></div>');
+    }
+
     var allowedCourses = state.actorCourseIds(actor.id);
     if (!allowedCourses.length) {
+      /* Creating, with no assignment at all. (An EDIT can no longer
+         reach this branch — the mutate gate above has already answered
+         it, and answered it on the record rather than on the Course
+         list.) */
       return shell(actor, 'experiments', 'Create experiment',
         ui.phead('Create experiment') +
         ui.alertBox('warning', 'No Course is assigned to you',
@@ -559,13 +715,35 @@ XRSLP.screens = XRSLP.screens || {};
           : '<p>This submission was returned for correction.</p>');
     }
 
+    /* THE RECORD'S OWN COURSE IS ALWAYS AN OPTION, and always the
+       selected one. Offering only the assigned Courses meant a record
+       whose Course was not among them lost its selection, and saving
+       silently re-filed the Experiment under whichever Course the Vendor
+       picked next. A Vendor may choose where to submit; they may never
+       move an existing Experiment out from under the Course it was
+       placed in by not noticing.
+
+       KEPT, and now the innermost of several defences rather than the
+       only one. Since editing requires a live assignment covering the
+       record AS IT STANDS, a Vendor who reaches this form necessarily
+       holds the record's own Course, so `recCourseOutOfScope` is no
+       longer expected to be true — and `updateContentDraft` re-asks both
+       halves of the question anyway. It stays because the guarantee it
+       makes is one the build should not depend on a single gate for:
+       whatever else changes, this select cannot silently re-file an
+       existing Experiment. */
+    var courseChoices = allowedCourses.slice();
+    var recCourseOutOfScope = editing && rec.courseId && courseChoices.indexOf(rec.courseId) === -1;
+    if (recCourseOutOfScope) { courseChoices.unshift(rec.courseId); }
     var courseOptions = '<option value="">— select a Course —</option>' +
-      allowedCourses.map(function (cid) {
+      courseChoices.map(function (cid) {
         var c = data.course(cid);
         if (!c) { return ''; }
         var g = data.grouping(c.groupingId);
         return '<option value="' + esc(c.id) + '"' + (work.courseId === c.id ? ' selected' : '') + '>' +
-          esc((g ? g.name + ' › ' : '') + c.name) + '</option>';
+          esc((g ? g.name + ' › ' : '') + c.name) +
+          (cid === rec_courseIdOf(rec) && recCourseOutOfScope ? ' — outside your assigned scope' : '') +
+          '</option>';
       }).join('');
 
     var techChecks = data.TECH_ORDER.map(function (t) {
@@ -593,6 +771,11 @@ XRSLP.screens = XRSLP.screens || {};
         '<label for="i-course">Course <span class="req" aria-hidden="true">*</span>' +
         '<span class="sr-only">(required)</span></label>' +
         '<select id="i-course" aria-describedby="h-course">' + courseOptions + '</select>' +
+        (recCourseOutOfScope
+          ? '<p class="hint">This Experiment sits in a Course that is no longer in your assigned scope. It ' +
+            'stays selected so saving cannot move it; choosing a different Course would re-file the ' +
+            'Experiment, and every institution that holds it maps Faculty to it through its Course.</p>'
+          : '') +
         '<p class="hint" id="h-course">The canonical Programme / Department and Course structure is ' +
         'platform-controlled. Select the Course this experiment belongs to; it cannot be created here.</p>' +
         '</div>') +
@@ -1021,6 +1204,9 @@ XRSLP.screens = XRSLP.screens || {};
       var subs = state.contentForVendor(actor.id).filter(function (r) {
         return r.status !== CS.DRAFT || r.submittedAt;
       }).length;
+      /* Later versions this Vendor is carrying — drafts included, because
+          the count is "versions you have", not "versions you submitted". */
+      var vers = state.versionsForVendor(actor.id).length;
       return [
         { href: href.vOverview(actor.id), icon: 'home', label: 'Overview',
           active: activeKey === 'overview', count: 0 },
@@ -1029,7 +1215,16 @@ XRSLP.screens = XRSLP.screens || {};
           countLabel: util.plural(o.total, 'experiment') + ' you have created' },
         { href: href.vSubmissions(actor.id), icon: 'doc', label: 'Submissions',
           active: activeKey === 'submissions', count: subs,
-          countLabel: util.plural(subs, 'submission') + ' in the content workflow' }
+          countLabel: util.plural(subs, 'submission') + ' in the content workflow' },
+        /* Implementation 06 — later versions of ALREADY-PUBLISHED
+           experiments. A separate destination from Submissions because
+           it is a separate object with a separate lifecycle, ending in
+           the Super Admin's Release / Hold decision, not publication. */
+        { href: href.vVersions(actor.id), icon: 'layers', label: 'Versions',
+          active: activeKey === 'versions', count: vers,
+          countLabel: util.plural(vers, 'later version') + ' you are carrying' },
+        { href: href.vHelp(actor.id), icon: 'alertCirc', label: 'Help',
+          active: activeKey === 'help', count: 0 }
       ];
     }
   };

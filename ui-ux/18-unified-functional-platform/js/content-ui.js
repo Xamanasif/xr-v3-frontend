@@ -38,18 +38,30 @@ XRSLP.contentUI = (function () {
     vSubmissions: function (a) { return '#/vendor/' + encodeURIComponent(a) + '/submissions'; },
     vRecord: function (a, r) { return '#/vendor/' + encodeURIComponent(a) + '/experiment/' + encodeURIComponent(r); },
     vEdit: function (a, r) { return '#/vendor/' + encodeURIComponent(a) + '/experiment/' + encodeURIComponent(r) + '/edit'; },
+    /* Implementation 06 — LATER versions of already-published content.
+       The Vendor proposes one; the Academic Reviewer approves it; the
+       SUPER ADMIN releases or holds it. `publish` appears on none of
+       these routes, because publication is a different action on a
+       different object (STK31-06 / STK31-07). */
+    vNewVersion: function (a, r) { return '#/vendor/' + encodeURIComponent(a) + '/experiment/' + encodeURIComponent(r) + '/version'; },
+    vVersions: function (a) { return '#/vendor/' + encodeURIComponent(a) + '/versions'; },
+    vVersion: function (a, v) { return '#/vendor/' + encodeURIComponent(a) + '/version/' + encodeURIComponent(v); },
+    vHelp: function (a) { return '#/vendor/' + encodeURIComponent(a) + '/help'; },
 
     reviewerHome: function () { return '#/review'; },
     rOverview: function (a) { return '#/review/' + encodeURIComponent(a) + '/overview'; },
     rQueue: function (a) { return '#/review/' + encodeURIComponent(a) + '/queue'; },
     rRecord: function (a, r) { return '#/review/' + encodeURIComponent(a) + '/submission/' + encodeURIComponent(r); },
+    rVersion: function (a, v) { return '#/review/' + encodeURIComponent(a) + '/version/' + encodeURIComponent(v); },
+    rHelp: function (a) { return '#/review/' + encodeURIComponent(a) + '/help'; },
 
     managerHome: function () { return '#/content'; },
     mOverview: function (a) { return '#/content/' + encodeURIComponent(a) + '/overview'; },
     mLibrary: function (a) { return '#/content/' + encodeURIComponent(a) + '/library'; },
     mQueue: function (a) { return '#/content/' + encodeURIComponent(a) + '/queue'; },
     mRecord: function (a, r) { return '#/content/' + encodeURIComponent(a) + '/item/' + encodeURIComponent(r); },
-    mMetadata: function (a, r) { return '#/content/' + encodeURIComponent(a) + '/item/' + encodeURIComponent(r) + '/metadata'; }
+    mMetadata: function (a, r) { return '#/content/' + encodeURIComponent(a) + '/item/' + encodeURIComponent(r) + '/metadata'; },
+    mHelp: function (a) { return '#/content/' + encodeURIComponent(a) + '/help'; }
   };
 
   /* ---------------- status ----------------
@@ -75,6 +87,19 @@ XRSLP.contentUI = (function () {
   /* Who the item is WITH — the first question each workspace asks.
      `audience` shifts the wording without changing the fact. */
   function holderLine(rec, audience) {
+    /* For the VENDOR audience the line does double duty: it says where
+       the item is AND what to do about it. After a role scope has been
+       withdrawn the second half would be an instruction the build
+       refuses, so it is replaced by the true one. Every other audience —
+       the reviewer queue, the Content Library, the Super Admin surfaces
+       — reads the wording below unchanged. */
+    if (audience === 'vendor' && rec.createdBy && state.vendorScopeWithdrawn(rec, rec.createdBy)) {
+      var SW = state.CONTENT_STATUS;
+      if (rec.status === SW.DRAFT) { return 'With you — read-only, outside your assigned scope'; }
+      if (rec.status === SW.CHANGES_ACADEMIC || rec.status === SW.CHANGES_CONTENT) {
+        return 'Returned to you — read-only, outside your assigned scope';
+      }
+    }
     var S = state.CONTENT_STATUS;
     switch (rec.status) {
       case S.DRAFT:
@@ -189,7 +214,10 @@ XRSLP.contentUI = (function () {
         ui.ic(HISTORY_DOT[h.kind] || 'circle') + '</span>' +
         '<div class="tl-body"><div class="tl-action">' + esc(h.label) + '</div>' +
         '<div class="tl-who">' +
-        (h.actorName ? esc(h.actorName) + ' · ' + esc(h.actorRole) + ' · ' : '') +
+        /* The role is optional: a platform action has an actor NAME but no
+           content role, and printing an empty one left a stray "· ·". */
+        (h.actorName ? esc(h.actorName) + ' · ' : '') +
+        (h.actorName && h.actorRole ? esc(h.actorRole) + ' · ' : '') +
         esc(util.fmtDateTime(h.at)) + '</div>' +
         (h.note ? '<p class="tl-note">' + esc(h.note) + '</p>' : '') +
         '</div></div>';
@@ -258,12 +286,23 @@ XRSLP.contentUI = (function () {
 
   /* The one place the Publish / Release firewall is explained, so the
      wording is identical wherever it is shown (STK31-06 / STK31-07). */
-  function publishedNextVersionNote() {
+  /* Implementation 06 built the later-version lifecycle, so this note
+     now points AT it instead of recording it as absent. The firewall is
+     unchanged and is the whole point of the note: publication and
+     release are different decisions, on different objects, owned by
+     different roles. */
+  function publishedNextVersionNote(opts) {
+    opts = opts || {};
     return ui.alertBox('info', 'A later version is a different decision',
       '<p>This experiment is published. Replacing it with a newer version is a separate ' +
-      '<strong>Release / Hold</strong> decision owned by the Super Admin, on a different object — ' +
-      'it is not part of first publication, and it is not built in this slice. ' +
-      'Nothing here can change the published revision.</p>');
+      '<strong>Release / Hold</strong> decision owned by the <strong>Super Admin</strong>, on a different ' +
+      'object. Nothing on a first-publication surface can change the published version.</p>' +
+      (opts.proposeHref
+        ? '<p style="margin-top:8px">You can propose a later version. It goes to academic review, and then to ' +
+          'the Super Admin — the catalogue keeps showing the current version until that decision is taken.</p>' +
+          '<p style="margin-top:8px"><a class="btn sec sm" href="' + opts.proposeHref + '">' +
+          esc(opts.proposeLabel || 'Propose a later version') + '</a></p>'
+        : ''));
   }
 
   /* ---------------- prototype role selector ----------------

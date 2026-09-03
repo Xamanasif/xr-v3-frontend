@@ -49,8 +49,9 @@ XRSLP.screens = XRSLP.screens || {};
         body: students.length
           ? 'Groups let one assignment reach a whole cohort at once. A student may belong to several groups, and being in a group grants nothing by itself.'
           : 'Add students first, then group them. A group is only an assignment convenience — it grants nothing by itself.',
-        actionsHTML: '<a class="btn pri" href="' + T.href.newGroup(tenant.id) + '">Create group</a>' +
-          (students.length ? '' : '<a class="btn sec" href="' + T.href.addStudent(tenant.id) + '">Add Student</a>')
+        actionsHTML: T.actionsIfWritable(tenant,
+          '<a class="btn pri" href="' + T.href.newGroup(tenant.id) + '">Create group</a>' +
+          (students.length ? '' : '<a class="btn sec" href="' + T.href.addStudent(tenant.id) + '">Add Student</a>'), false)
       });
     } else {
       body = '<div class="tscroll"><table class="dt">' +
@@ -79,7 +80,8 @@ XRSLP.screens = XRSLP.screens || {};
     var html =
       ui.phead('Student groups',
         groups.length + ' ' + util.plural(groups.length, 'group') + ' in ' + esc(tenant.name),
-        '<a class="btn pri" href="' + T.href.newGroup(tenant.id) + '">' + ui.ic('plus') + 'Create group</a>') +
+        T.actionsIfWritable(tenant,
+          '<a class="btn pri" href="' + T.href.newGroup(tenant.id) + '">' + ui.ic('plus') + 'Create group</a>', false)) +
       '<div class="tablecard">' + body + '</div>' +
       '<div style="margin-top:16px">' + ui.alertBox('info', 'A group is not access',
         '<p>Putting a student in a group gives them nothing. It only decides which students an assignment reaches ' +
@@ -92,7 +94,7 @@ XRSLP.screens = XRSLP.screens || {};
      CREATE GROUP
      ============================================================ */
   XRSLP.screens.tenantNewGroup = function (params) {
-    var r = T.requireTenant(params, 'groups');
+    var r = T.requireTenant(params, 'groups', { write: true, what: 'Creating a student group' });
     if (!r.tenant) { return r.fail; }
     var tenant = r.tenant;
 
@@ -184,20 +186,29 @@ XRSLP.screens = XRSLP.screens || {};
           return '<tr><td data-label="Student">' + T.personLink(tenant.id, p) + '</td>' +
             '<td data-label="Course">' + esc(mem && mem.course ? mem.course.name : '—') + '</td>' +
             '<td data-label="Status">' + T.personStatusBadge(p) + '</td>' +
-            '<td class="cell-actions"><button class="btn sm sec" type="button" data-remove="' + esc(p.id) + '">' +
-            'Remove<span class="sr-only"> ' + esc(p.name) + ' from ' + esc(g.name) + '</span></button></td></tr>';
+            '<td class="cell-actions">' + T.actionsIfWritable(tenant,
+              '<button class="btn sm sec" type="button" data-remove="' + esc(p.id) + '">' +
+              'Remove<span class="sr-only"> ' + esc(p.name) + ' from ' + esc(g.name) + '</span></button>', false) +
+            '</td></tr>';
         }).join('') + '</tbody></table></div>'
       : ui.emptyState({
           icon: 'users', heading: 'h3', title: 'No members yet',
           body: 'Add students below. An empty group can still be assigned content — the assignment simply reaches nobody until members join.'
         });
 
-    var addBody = !state.studentsForTenant(tenant.id).length
+    var addBody = !T.canWrite(tenant)
+      ? ui.emptyState({
+          icon: 'alertCirc', heading: 'h3', title: 'Membership cannot be changed',
+          body: 'This institution has been deactivated by the Super Admin. The group and every member are ' +
+            'preserved exactly as they are; membership can be changed again once it is reactivated.'
+        })
+      : !state.studentsForTenant(tenant.id).length
       ? ui.emptyState({
           icon: 'users', heading: 'h3', title: 'No students in this institution',
           body: 'Add or import students before building groups.',
-          actionsHTML: '<a class="btn pri sm" href="' + T.href.addStudent(tenant.id) + '">Add Student</a>' +
-            '<a class="btn sec sm" href="' + T.href.importCsv(tenant.id) + '">Import CSV</a>'
+          actionsHTML: T.actionsIfWritable(tenant,
+            '<a class="btn pri sm" href="' + T.href.addStudent(tenant.id) + '">Add Student</a>' +
+            '<a class="btn sec sm" href="' + T.href.importCsv(tenant.id) + '">Import CSV</a>', false)
         })
       : !candidates.length
         ? ui.emptyState({ icon: 'check', heading: 'h3', title: 'Every student is already a member', body: '' })
@@ -231,7 +242,7 @@ XRSLP.screens = XRSLP.screens || {};
         : ui.emptyState({
             icon: 'flask', heading: 'h3', title: 'No content assigned to this group',
             body: 'The group exists but reaches no experiment.',
-            actionsHTML: state.assignableAccessForTenant(tenant.id).length
+            actionsHTML: (T.canWrite(tenant) && state.assignableAccessForTenant(tenant.id).length)
               ? '<a class="btn pri sm" href="' + T.href.newAssignment(tenant.id) + '">Assign an experiment</a>' : ''
           }),
       null, 'h2');
@@ -239,7 +250,7 @@ XRSLP.screens = XRSLP.screens || {};
     var html =
       ui.crumbs([{ label: 'Groups', href: T.href.groups(tenant.id) }, { label: g.name }]) +
       ui.phead(g.name, g.description ? esc(g.description) : members.length + ' ' + util.plural(members.length, 'member'),
-        '<button class="btn sec" type="button" id="g-rename">Rename group</button>') +
+        T.actionsIfWritable(tenant, '<button class="btn sec" type="button" id="g-rename">Rename group</button>', false)) +
       '<div class="stack">' +
       ui.card('Members', memberBody, members.length + ' ' + util.plural(members.length, 'member'), 'h2') +
       ui.card('Add students', addBody, null, 'h2') +
@@ -317,6 +328,7 @@ XRSLP.screens = XRSLP.screens || {};
      ACADEMIC MAPPINGS — local Course Code + OPTIONAL Semester
      ============================================================ */
   XRSLP.screens.tenantMappings = function (params) {
+    /* Readable while deactivated — only the Save control is withdrawn. */
     var r = T.requireTenant(params, 'mappings');
     if (!r.tenant) { return r.fail; }
     var tenant = r.tenant;
@@ -368,7 +380,8 @@ XRSLP.screens = XRSLP.screens || {};
             'value="' + esc(m ? m.semester : '') + '" placeholder="Optional"></td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>' +
-        '<div class="formact"><button class="btn pri" type="submit" id="map-save">Save mappings</button>' +
+        '<div class="formact">' + T.actionsIfWritable(tenant,
+          '<button class="btn pri" type="submit" id="map-save">Save mappings</button>', false) +
         '<span class="formnote">Semester is optional and never required. Leaving a field blank clears that mapping.</span>' +
         '</div></form>';
     }

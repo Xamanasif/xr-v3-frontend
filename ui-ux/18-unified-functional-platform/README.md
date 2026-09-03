@@ -1,4 +1,4 @@
-# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05
+# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06
 
 **The content that reaches a learner, from the people who produce it to the learner who runs
 it** — content production, B2B access, tenant operations, student entitlement, the student
@@ -59,6 +59,38 @@ IMPLEMENTATION 04
 **Implementation 05 sits at the top of that chain and hands off to Implementation 01 without a
 special case.** A newly published Experiment is discovered, requested, approved, allocated,
 assigned and run by exactly the code the seeded catalogue already used.
+
+**Implementation 06 puts the platform's own governance and operations around all five.** The
+Super Admin surfaces that were placeholders — or seed data standing in for a screen — became
+real, and three operational workflows that had only one end built now have both:
+
+```
+IMPLEMENTATION 06 — SUPER ADMIN GOVERNANCE
+→ OVERVIEW — every request, version, transfer, report and expiring term
+   waiting on the platform, each one derived from a real record
+→ INSTITUTIONS — the tenant report, the assigned TENANT ADMIN,
+   and reversible DEACTIVATE / REACTIVATE
+→ CONTENT GOVERNANCE — the canonical catalogue, canonical metadata,
+   and LATER-VERSION **RELEASE / HOLD**
+→ ROLE GOVERNANCE — Vendor · Academic Reviewer · Content Manager,
+   assigned and withdrawn at platform / Course / Experiment scope
+→ OPERATIONS — device transfers · support reports · the 15-day expiry rule
+
+IMPLEMENTATION 06 — THE OPERATIONAL WORKFLOWS, END TO END
+VENDOR proposes a LATER VERSION of published content
+→ ACADEMIC REVIEWER approves it   (this is NOT a release)
+→ SUPER ADMIN **RELEASES** it or **HOLDS** it
+→ only a RELEASE changes the version the public sees
+
+STUDENT requests a device replacement  → SUPER ADMIN approves / declines
+ANY USER reports a technical issue     → SUPER ADMIN resolves it
+A TENANT ACCESS TERM reaches T-15 days → both sides see it is due
+```
+
+**Nothing in Implementation 06 grants anybody anything.** Releasing a version, assigning a role,
+approving a device transfer and resolving a support report all leave `access[]`, the licence
+count and every student assignment exactly as they were. That is asserted, not assumed — see
+*Governance changes nothing downstream* below.
 
 ### The invariant the slices exist to prove
 
@@ -161,6 +193,10 @@ Analytics or Support entry: none is built.
 | `#/vendor/:actorId/experiment/:recordId` | Submission detail and status — where it is, who holds it, what came back, full history |
 | `#/vendor/:actorId/experiment/:recordId/edit` | Edit draft / **correct submission**. Refuses, with the reason, while a reviewer holds the revision or after publication |
 | `#/vendor/:actorId/submissions` | Everything that has entered the governance chain, with the returned ones surfaced first |
+| `#/vendor/:actorId/versions` | **Versions** *(06)* — later versions this Vendor has proposed, and the published experiments in their scope they may propose one for |
+| `#/vendor/:actorId/experiment/:recordId/version` | **Propose a later version** *(06)* — of an **already-published** Experiment in their scope. One candidate at a time |
+| `#/vendor/:actorId/version/:versionId` | The candidate — edit and submit for academic review while it is theirs; read-only while a reviewer holds it. Nothing here publishes or releases anything |
+| `#/vendor/:actorId/help` | **Help** *(06)* |
 
 **Academic Reviewer workspace** (Implementation 05 — academic validation + Learning Outcomes, `STK31-08`)
 
@@ -170,6 +206,8 @@ Analytics or Support entry: none is built.
 | `#/review/:actorId/overview` | Waiting for review · changes requested · academically approved · published, the reviewer's own decision history, and the Courses assigned to them |
 | `#/review/:actorId/queue` | **Review queue** — submissions inside their assignment, with search, status and Course filters |
 | `#/review/:actorId/submission/:recordId` | **Academic review** — the experiment, its Course context, the technical delivery *as context*, and the **Learning Outcomes editor** (add · edit · delete · reorder). Approve academically, or request changes with a required reason |
+| `#/review/:actorId/version/:versionId` | **Academic decision on a LATER VERSION** *(06)* — what it proposes, beside what is published today. Approving hands it to the **Super Admin**; it does not release it, and the screen says so |
+| `#/review/:actorId/help` | **Help** *(06)* |
 
 **Content Manager workspace** (Implementation 05 — Content Library + FIRST PUBLICATION, `STK31-06`)
 
@@ -181,14 +219,31 @@ Analytics or Support entry: none is built.
 | `#/content/:actorId/queue` | **Publication queue** — academically approved items awaiting a first-publication decision, each with its readiness |
 | `#/content/:actorId/item/:recordId` | Final review — canonical metadata, Learning Outcomes (read-only), the academic decision, technology delivery, documentation, readiness. **Publish**, or request changes with a required reason |
 | `#/content/:actorId/item/:recordId/metadata` | **Canonical content metadata** (`STK31-09`) — name, Course, summary, description. Not the Learning Outcomes, not the delivery, not the master records |
+| `#/content/:actorId/help` | **Help** *(06)* |
+
+*(From Implementation 06 a published item's detail also lists its later versions and their state
+— **read-only**. The decision on a later version is the Super Admin's, and no control for it
+exists on this plane.)*
 
 **Super Admin workspace**
 
-| Route | Screen |
-|---|---|
-| `#/platform/requests` | Access request queue (state filter, live counts) |
-| `#/platform/requests/:id` | Request detail — inspect everything, **Approve** with a consequence-explicit confirm dialog |
-| `#/platform/institutions` | Tenants on the platform (read-only visibility) |
+Six navigation destinations, all implemented. Every count in the navigation and on the overview
+is derived from a real record, and every figure opens the thing it counts.
+
+| Route | Screen | Slice |
+|---|---|:--:|
+| `#/platform/overview` | **Overview** — requests, versions awaiting Release/Hold, device transfers, support reports, expiring terms and tenants with no admin, as one attention list under one grammar | 06 |
+| `#/platform/requests` | Access request queue (state filter, live counts) | 01 |
+| `#/platform/requests/:id` | Request detail — inspect everything, **Approve** with a consequence-explicit confirm dialog | 01 |
+| `#/platform/institutions` | Institutions — Tenant Admin, live access records, expiry attention, active/deactivated | 01 · 06 |
+| `#/platform/institutions/:id` | **Institution report + governance** — identity, what the institution holds, licences and term, issues needing attention, **assign / remove the Tenant Admin**, reversible **Deactivate / Reactivate**, governance history | 06 |
+| `#/platform/content` | **Content governance** — versions awaiting a Release / Hold decision, and the canonical Programme → Course → Experiment structure | 06 |
+| `#/platform/content/:recordId` | One Experiment — current published version and technology availability, **Release / Hold** the later version, canonical metadata, who is assigned, content history | 06 |
+| `#/platform/roles` | **Role governance** — Vendor · Academic Reviewer · Content Manager and the scope each holds | 06 |
+| `#/platform/roles/:actorId` | One role holder — assign a scope, withdraw one (reversibly), restore one, what they reach now, and **what they have already decided** | 06 |
+| `#/platform/operations` | **Operations** — device transfers, support reports, and access terms inside the 15-day window | 06 |
+| `#/platform/transfer/:id` | Device request — approve or decline, with the student's unchanged entitlement shown beside it | 06 |
+| `#/platform/support/:id` | Support report — the full context, and resolve with a note the reporter sees | 06 |
 
 **Tenant workspace** (Institute Admin / Tenant Admin — one role, STK31-02)
 
@@ -208,6 +263,7 @@ Six navigation destinations, all implemented. There is no nav link that leads no
 | `#/tenant/:t/mappings` | Academic mappings — local Course Code + **optional** Semester beside the canonical Course | 02 |
 | `#/tenant/:t/assignments` · `/assignments/new` | Experiment assignment to Students or Groups, with live allocation consequence and removal | 02 |
 | `#/tenant/:t/faculty-mapping` | Faculty → Course / Experiment inside approved access | 02 |
+| `#/tenant/:t/help` | **Help** — report a technical issue and see the state of every report from this institution | 06 |
 
 **Student workspace** (Student / Learner — ONE formal role, STK31-01)
 
@@ -224,6 +280,8 @@ Three navigation destinations, all implemented. There is no `Assessments`, `Cert
 | `#/learn/:s/experiment/:e/simulation/:tech` | Device/runtime requirement, delivery model, the mechanism-neutral state ladder, clearly-labelled prototype actions, derived time spent |
 | `#/learn/:s/experiment/:e/assessment` | Assessment introduction — the generated disclosure, including the answer-visibility policy. **No technology segment:** one assessment per Experiment |
 | `#/learn/:s/experiment/:e/assessment/attempt` | The attempt — MCQ · True/False · written answer, live answered count, review panel, submit with a consequence dialog |
+| `#/learn/:s/device` | **My device** — request a device replacement / transfer, and see the outcome. Appears **only** for a Student who holds an experiment delivered as a package on a device |
+| `#/learn/:s/help` | **Help** — report a technical issue, scoped to the experiments and technologies this Student actually holds |
 | `#/learn/:s/experiment/:e/assessment/result` | Score, outcome, and answers **only when the visibility policy releases them** |
 
 **Faculty workspace** (Faculty — a formal role inside a Tenant, STK31-01 / STK31-04)
@@ -248,6 +306,7 @@ Six navigation destinations, all implemented. There is no `Messages`, `Attendanc
 | `#/faculty/:f/review/:r` | One written answer — the question, the evaluation guidance, the answer, the optional suggestion, and the marking decision |
 | `#/faculty/:f/students` | Student Progress — one row per Student × Experiment, with search and filters, plus operational analytics and per-technology simulation figures |
 | `#/faculty/:f/student/:s/:e` | One Student on one Experiment — assessment, written answers, resources, per-technology simulations, overall |
+| `#/faculty/:f/help` | **Help** — report a technical issue, scoped to this Faculty member's mapped content |
 
 Anything else → a useful not-found state. A technology, an experiment or a student the address
 names but the entitlement does not support renders an explicit refusal with the reason. A
@@ -272,7 +331,7 @@ four separate records — and tenant access is still not student entitlement.
 ## State model
 
 `localStorage` key **`xrslp-unified-v1`** (unchanged since Implementation 01), with
-**`schemaVersion: 6`** inside the stored object carrying the evolution. No second namespace
+**`schemaVersion: 7`** inside the stored object carrying the evolution. No second namespace
 exists.
 
 | Collection | Record | Written by |
@@ -296,7 +355,12 @@ exists.
 | `academicReviews[]` | **AcademicReview** — every academic decision (`approved` / `changes_requested`), with the reviewer, the timestamp, the comment, the revision reviewed, and the Learning Outcomes as they stood | **Academic Reviewer** (STK31-08) |
 | `publicationRecords[]` | **PublishedContent** — one per first publication: who published, when, the version label, the revision, the technologies and outcomes published, and the academic approval it rests on | **Content Manager** (STK31-06) |
 | `contentActors[]` | Prototype Vendor · Academic Reviewer · Content Manager identities | prototype seed |
-| `contentRoleAssignments[]` | Per-Course / per-Experiment role scope (`STK31-41`) | prototype seed, standing in for the Super Admin governance UI of a later slice |
+| `contentRoleAssignments[]` | **Platform role scope** — actor, role, `scope` (`all` / `course` / `experiment`), the Course or Experiment it covers, who assigned it and when, and a reversible `status` with who withdrew it and why | **Super Admin** (`STK31-41`) — seeded, then governed |
+| `contentVersions[]` | **A LATER VERSION of an already-published Experiment** — version label, the version it replaces, what changed, the catalogue text and per-technology delivery it would publish, the academic decision, the **Release / Hold decision**, and its own `history[]`. A *different object* from the content record, which is what keeps first publication and later release from ever touching each other | **Vendor** proposes · **Academic Reviewer** approves · **Super Admin** releases or holds (`STK31-07`) |
+| `tenantAdmins[]` | **The assigned Tenant / Institute Admin** — name, contact, which tenant, who assigned it and when, reversible `status`. No account, no credential, no invitation | **Super Admin** (`STK31-21`) |
+| `deviceTransferRequests[]` | **DeviceTransferRequest** — the student, the tenant, the technology, the current and replacement device as the student described them, the reason, the decision and its note, and a `history[]` | the **Student** raises it · the **Super Admin** decides (`STK31-38`) |
+| `supportTickets[]` | **SupportRequest** — issue kind (one of the six confirmed kinds), subject, description, who reported it in which role and from which institution, the experiment and technology where they apply, status, resolution note, `history[]` | any operational user reports · the **Super Admin** resolves (`STK31-39`) |
+| `tenants[]` *(extended)* | gains `status` (`active` / `inactive`), the deactivation timestamp and reason, and a governance `history[]` | **Super Admin** (`STK31-21` / `STK31-22`) |
 
 ### One content source — the single most important structural decision in this slice
 
@@ -427,6 +491,23 @@ the monotonic ordering stamps the allocation queue needs; a migrated state is st
 `seededAt` at the moment this build first opens it, so the assessment visibility offsets have a
 base.
 
+**Schema 6 → 7** (Implementation 06) is additive and touches nothing that already exists:
+
+- the four new collections are created empty, so a stored state that has never seen them reads
+  as *empty*, never as *missing*;
+- every tenant written by an earlier build is stamped **active** and gains a governance history
+  array;
+- every existing role assignment keeps its scope and simply gains its provenance and a
+  reversible status — **no scope is added, removed or narrowed by the migration**;
+- content-history entries gain the actor id described in judgement call 51;
+- the seeded tenant gains the sample Tenant Admin so its workspace behaves exactly as before. A
+  tenant created from an approved request is deliberately left **without** one and surfaces as an
+  attention row, which is the honest state rather than an invented person.
+
+`qa/checks.js` builds a realistic schema-6 state, strips every Implementation-06 field from it,
+reloads the build over it and asserts that every request, access record, person, assignment,
+content record and learning record survives and that entitlement still derives correctly.
+
 **Schema 4 → 5** is additive in four steps, in this order:
 
 1. the seeded internal tenant receives the sample assessment configuration it always had — now as
@@ -536,8 +617,8 @@ Required: `Programme` · `Course Name` · `Course ID/Code` · `Student ID` · `S
 | 26 | **Status names: `Draft` · `Academic review` · `Changes requested` · `Content readiness review` · `Published`** | `U-VND-04` marks Batch 01's shipped status model **KEEP + REWORD**, so the set is inherited rather than invented. The rewording is (a) this build's sentence case, and (b) *Changes required* → **Changes requested**, which is PM-14's own verb and the brief's word. Batch 01's transient `publishing` state is dropped: it animated a deployment this prototype does not perform. `CHANGES_ACADEMIC` and `CHANGES_CONTENT` share the label but not the return gate | `CONTENT_STATUS` · `CONTENT_STATUS_META` |
 | 27 | **`CONTENT_REVIEW` is both "academically approved" and "awaiting publication"** | Batch 01's own comment records the reason: the Content Manager publishes **at** the readiness gate, so a hand-off state between the two would describe nothing and would be a gate nobody passes through. The brief's two conceptual states map onto this one | `CONTENT_STATUS.CONTENT_REVIEW` |
 | 28 | **A resubmission returns to the gate that requested the change, not to the start** | Batch 01's `resubmit(sub, target)` does exactly this, and it is the only reading in which the Content Manager's metadata question does not invalidate academic validation that has already passed. The recorded academic approval survives, so the publish guard still finds it | `submitContent()` · `returnedGate` |
-| 29 | **A Vendor may edit only in `DRAFT` / `CHANGES_ACADEMIC` / `CHANGES_CONTENT`** | Brief §28 asks for a simple safe policy so the Vendor cannot mutate the exact revision a reviewer is reading. Editability follows the handoff: if the workflow has given the work back, it is editable; if someone else holds it, it is not. Enforced in `vendorCanEdit()`, so the route resolving is not the same as the action being allowed | `vendorCanEdit()` · `VENDOR_EDITABLE` |
-| 30 | **A published record is read-only for the first-publication workflow, and NO "create new version" control is rendered** | Brief §45 asks for a safe policy and forbids building Super Admin Release/Hold here, and forbids a dead control. So the published revision is fixed, and both the Vendor and the Content Manager get a plain statement of whose decision a later version is — instead of a button that would either lie or do nothing | `vendorCanEdit()` · `publishedNextVersionNote()` |
+| 29 | **A Vendor may edit only in `DRAFT` / `CHANGES_ACADEMIC` / `CHANGES_CONTENT`, *and* only while a live role assignment covers the record** | Brief §28 asks for a simple safe policy so the Vendor cannot mutate the exact revision a reviewer is reading. Editability follows the handoff: if the workflow has given the work back, it is editable; if someone else holds it, it is not. Implementation 06 adds the second condition: changing a record is an act of authority over content in a Course, so it also requires an assignment in force *now*. Viewing is kept separate and stays ownership-only, so a withdrawn scope freezes the record instead of hiding it | `canMutateVendorRecord()` · `canViewHistoricalRecord()` · `VENDOR_EDITABLE` |
+| 30 | **A published record is read-only for the first-publication workflow, and NO "create new version" control is rendered** | Brief §45 asks for a safe policy and forbids building Super Admin Release/Hold here, and forbids a dead control. So the published revision is fixed, and both the Vendor and the Content Manager get a plain statement of whose decision a later version is — instead of a button that would either lie or do nothing | `canMutateVendorRecord()` · `publishedNextVersionNote()` |
 | 31 | **Existing published content migrates with `publication.origin = 'seed'` and NO invented workflow history** | Brief §15 permits a migration-generated origin and forbids a fake historical Vendor workflow. Fabricating a submission, a reviewer and a decision would put words in people's mouths in the one record whose purpose is to be trustworthy. Ids are unchanged, so every stored reference still resolves | `seedContentPool()` · `migrateContentProduction()` |
 | 32 | **A Vendor SELECTS a canonical Course; it cannot propose a new Programme or Course** | `STK31-10` makes the academic structure platform-controlled and `STK31-46` leaves *who maps an Experiment to a Course* 🟠 **detail pending** — while `U-VND-02` explicitly adds *course mapping* to the Vendor submission screen. Selecting from the canonical set satisfies the screen requirement without taking an authority no source grants. **If the pending detail resolves the other way, a "proposed / pending" state is an addition to a field that already exists, not a restructure** | `vendorCanCreateIn()` · the Course select |
 | 33 | **Approving academically requires at least one Learning Outcome** | No source states a minimum. But `STK31-08` makes outcomes the reviewer's own object, `STK31-17` puts them on the public Experiment page, and the public page renders a *Learning outcomes* card unconditionally — so approving with none would publish a visibly empty section. Required at the gate that owns them, not at the Vendor's | `academicReadiness()` |
@@ -546,6 +627,24 @@ Required: `Programme` · `Course Name` · `Course ID/Code` · `Student ID` · `S
 | 36 | **A hosted URL is validated by format only, and is never opened during authoring** | Brief §69 asks for format validation and forbids auto-navigation. `isHttpUrl()` accepts `http(s)://host/...`; `https://` is what the hint asks for and every sample uses. No reachability check is possible or claimed in a browser prototype, and the value is not fetched, previewed or opened anywhere in the authoring flow | `isHttpUrl()` |
 | 37 | **Content role assignments are prototype seed data, per Course** | `STK31-41` confirms Course- and Experiment-specific assignment with several holders per Experiment, and `U-SA-15` puts the surface that manages it in a later slice. Seeding the assignments makes scope real and testable now; the model already carries `scope: 'experiment'`, so the deferred UI writes into a structure that exists rather than replacing one | `contentRoleAssignments[]` |
 | 38 | **A Vendor's visibility rule is ownership, not the Course assignment** | Brief §19 says a Vendor sees content they are authorised to work on. Two Vendors assigned to the same Course must still not read each other's drafts, so the Course assignment governs **where a Vendor may submit** and ownership governs **what they may read**. Verified: a hand-typed route to another Vendor's record is not found | `contentForVendor()` |
+
+### Implementation 06 — governance and operations
+
+| # | Call | Why | If wrong |
+|---|---|---|---|
+| 39 | ⚠ **The later-version path is Vendor → Academic Reviewer → SUPER ADMIN. The Content Manager is NOT a gate on it** | 🔴 **The single largest judgement in this slice, and it is NOT stakeholder-confirmed.** The confirmed path names three nodes — *"current released version → newer **approved** version → SUPER ADMIN Release / Hold"* — and says nothing about what produces the approval. `STK31-08` gives the Vendor *"version submissions"* and the Academic Reviewer *"the academic review decision"* with no version qualifier, which supplies it; it scopes the Content Manager to *"first approval/publication"* — the **first instance** — and no source places them on the later-version path. Since *"no additional approval gates may be invented"*, leaving them out is the conservative reading and putting them in would be the invention. **Whether academic re-review is required at all for a later version is equally undefined** | the reviewer step in `submitContentVersion()` → `approveVersionAcademic()`. Adding or removing an intermediate gate is a state transition, not a restructure — the record, the decision and the Super Admin action are unchanged |
+| 40 | ⚠ **A later version cannot change technology availability** | 🔴 **The downstream policy is entirely undefined.** No source anywhere states what happens to a tenant that already holds a technology a newer version drops, or whether a tenant should receive one a newer version adds. Rather than decide it silently, the version form carries no technology control at all, and `releaseVersion()` never writes `rec.technologies`. Existing tenant entitlement is therefore left exactly as it stands, by construction rather than by a rule that could be forgotten. **Stated on the screen as an open policy question** | `releaseVersion()` — the technology set would become part of the candidate |
+| 41 | **HOLD parks a candidate; it does not discard it, and it is reversible** | The only stated semantic is *"the current version stays live"*. No source says whether a hold is terminal, timed or re-decidable. `STK31-22` prefers a reversible state, so a held version is kept and the Super Admin can lift the hold — which returns it to the decision and, explicitly, **does not release it** | `holdVersion()` · `returnHeldVersionToDecision()` |
+| 42 | **A version carries a defined state set, and only one candidate at a time** | No source enumerates version states, and the sources only imply an *awaiting-decision* state by describing a queue. The smallest set that models the confirmed path is used, and one open candidate per Experiment is enforced so two can never race for one public version | `VERSION_STATUS` · `openVersionForRecord()` |
+| 43 | **A reason is offered but not required on Release / Hold; a Decline and a support resolution do require one** | A reason and a history trail are explicitly required for the tenant-request decision and for a content return, and are **not** imposed on Release / Hold by any source. So the note is optional there and mandatory where the source pattern requires it or where the person on the other end would otherwise be told nothing | `releaseVersion()` · `decideDeviceTransfer()` · `resolveSupportTicket()` |
+| 44 | **No rollback to a previously released version** | Rollback, revert and deprecate appear in no source, and *unpublish / withdraw* is still refuted. Inventing a rollback would reintroduce withdrawal through a side door | absent by design |
+| 45 | ⚠ **A Decline path exists on a device transfer** | 🔴 **Not stakeholder-confirmed.** The requirement contains **no rejection behaviour** — the confirmed flow is request → approve, and the earlier audit recorded the two-state record as *a gap shown as a gap*. This implementation was asked for a decline path, so one is built, requires a reason the student sees, and is **labelled on the screen as an implementation judgement** rather than presented as confirmed | `decideDeviceTransfer()` |
+| 46 | **A deactivated tenant blocks Faculty AUTHORING as well as content use** | The explicit requirement is that Faculty cannot *use mapped content*. Blocking authoring goes one step further, on the grounds that a suspended institution should not accumulate new operational state. It is fully reversible and costs nothing on reactivation. In practice it is nearly moot: the Question Bank, assessments and the review queue are all scoped by the Faculty mapping, so they empty out anyway | `tenantCanWrite()` on the Faculty writers |
+| 47 | **A deactivated tenant does NOT block reporting a technical issue** | *"Our access stopped working"* is exactly the report a user needs to be able to file, and a support ticket changes no entitlement, no licence and no assignment. The one deliberate exception to the write guard | `createSupportTicket()` |
+| 48 | **A tenant with no assigned Tenant Admin is surfaced, not blocked** | The Super Admin assigns the Tenant Admin; no source says an unassigned tenant is unusable. Blocking it would invent a rule, so it appears as an attention row and the workspace says plainly that nobody is recorded as responsible | `tenantsWithoutAdmin()` |
+| 49 | **A Vendor and an Academic Reviewer cannot hold PLATFORM-WIDE scope; a Content Manager can** | Course- and Experiment-specific assignment is confirmed for all three, and assuming global-only is forbidden — but no source says which roles may *also* hold a platform scope. The Content Library is a platform-level surface, so the Content Manager keeps it; granting a platform-wide Vendor or reviewer would widen authority nothing describes | `ROLE_SCOPES_ALLOWED` |
+| 50 | **The in-product expiry state is a REPRESENTATION of the reminder, not the reminder** | The reminder is a confirmed requirement; an in-product attention state is explicitly *recommended supporting UX that does not discharge it*. Every surface that shows the state says exactly that, and none claims anything was sent | `expiryReminderDue()` · the reminder note |
+| 51 | **A content history entry now records the actor's ID as well as their name** | Nothing needed the id until role scope became withdrawable. Matching on a name would be fragile, so the id is recorded going forward and backfilled at migration by matching the recorded name against the actor registry — an entry that matches nothing keeps a null id rather than being guessed at | `pushContentEvent()` · `migrateGovernance()` |
 
 ## The content production model
 
@@ -1082,6 +1181,293 @@ analytics inherit the correction rather than reintroducing it.
 **“Completed” inherits the prototype-derived completion rule** (judgement call 8) and every Faculty
 surface that shows it says so in words, in the same note.
 
+## The Super Admin governance model — Implementation 06
+
+### What this role owns, and what it still does not
+
+| Owns (`STK31-40`) | Explicitly does NOT do |
+|---|---|
+| Tenant requests and approval · tenant creation and governance · **tenant deactivation** · **Tenant Admin assignment** · what content and technologies a tenant receives | **First publication of a new Experiment** — that is the Content Manager's, and there is no publish control anywhere in this workspace |
+| **Platform role governance** — Vendor · Academic Reviewer · Content Manager, at platform / Course / Experiment scope, several people per Experiment | **Grant or revoke an individual learner entitlement** — still refuted; it is the Tenant Admin's |
+| **Canonical / master metadata**, shared with the Content Manager | **Assign content to learners or cohorts** — still refuted; tenant-plane |
+| **Later-version Release / Hold** | **Unpublish or withdraw content** — still refuted |
+| **Device-transfer decisions** · **platform support** | **Any assessment surface** — zero Super Admin occurrences across the assessment requirements |
+| Licensing / access-term visibility, including the **15-day expiry reminder** | **Any revenue, price or financial metric** — explicitly prohibited, and none exists |
+
+> ### The altitude rule, restated
+> **Super Admin decides WHAT A TENANT MAY USE. The Tenant Admin decides WHICH LEARNER GETS WHAT.**
+> Six destinations, and every one of them is implemented — there is no navigation entry in this
+> workspace that leads nowhere.
+
+### Governance changes nothing downstream
+
+This is the invariant the whole slice is built around, and it is asserted rather than asserted
+*about*. Every Implementation-06 writer touches its own record and stops:
+
+| Action | Access record | Licence count | Student assignment | Published content |
+|---|---|---|---|---|
+| Assign or withdraw a **platform role** | — | — | — | — |
+| Assign or remove a **Tenant Admin** | — | — | — | — |
+| **Deactivate** / **reactivate** a tenant | untouched | untouched | untouched | — |
+| **Release** a later version | — | — | — | the version label and catalogue text of **one existing Experiment** |
+| **Hold** a later version | — | — | — | — |
+| Approve or decline a **device transfer** | — | — | — | — |
+| Resolve a **support report** | — | — | — | — |
+| Correct **canonical metadata** | — | — | — | the catalogue text of one Experiment |
+
+`qa/checks.js` asserts each row: the allocation, the entitled-student set and the access records
+are captured before and compared after every one of these actions.
+
+---
+
+### 1 · Tenant deactivation — reversible, and it deletes nothing
+
+Deactivation is a **status flip on the tenant plus a history entry**. Not one record is removed:
+people, groups, memberships, academic mappings, faculty mappings, assignments, licence
+allocation, question banks, assessment definitions, attempts, reviews, resource activity and
+simulation activity all stay exactly as they stand.
+
+What changes is **derived**, in two places and nowhere else:
+
+```
+accessAssignability(rec, tenantId)   →  'tenant-inactive'
+    · the Tenant Admin cannot assign from the record
+    · facultyScope() drops the mapping and REPORTS WHY, rather than
+      silently showing an empty page
+
+entitlementsForStudent(personId)     →  blockedBy: 'tenant-inactive'
+    · above the student's own status, because the institution is the
+      true and more explanatory cause
+    · every launch, resource, attempt and simulation writer already
+      gates on entitlement, so all of them refuse with no new code
+```
+
+Because both are derived, **reactivation restores precisely what was still valid** — it does not
+recompute anything. In particular the allocation ordering is untouched throughout, so
+reactivating a tenant can never displace a student who held a licence before it was deactivated.
+
+**Writes are refused in three independent places**, because one of them is never enough:
+
+1. **the state layer** — `tenantCanWrite()` guards every tenant-plane writer, so a hand-typed
+   route, a stale page or a console call is refused identically;
+2. **the mutating screens** — a screen whose whole purpose is a mutation renders a plain refusal
+   instead of a form whose Save button would be silently rejected;
+3. **the individual controls** — on a screen that also shows history, the history stays fully
+   readable and only the controls are withdrawn. **A dead control is worse than an absent one.**
+
+Reporting a technical issue is deliberately *not* blocked: *"our access stopped working"* is
+exactly the report a user needs to be able to file, and a support ticket changes no entitlement.
+
+Every workspace of a deactivated tenant carries a banner rendered by the **shell**, above every
+screen, so no route can slip past it. Each audience is told the truth in its own terms, and each
+is told that nothing has been deleted.
+
+### 2 · Tenant Admin assignment
+
+The Super Admin assigns the Tenant / Institute Admin. **How an identity first comes to exist is
+not decided by any source** — identity-provider role mapping and custom roles are both
+later-phase — so this records the assignment against a named person and invents nothing behind
+it: no account, no invitation, no credential.
+
+The assignment is a real scope boundary, not a label. The prototype's *"viewing as Tenant Admin"*
+control is the same view switch the Student, Faculty and content roles use, and
+`actingTenantAdmin(tenantId)` honours the pointer **only when it names an active admin of that
+tenant**. An administrator of one institution can never be resolved as the administrator of
+another; opening another tenant's workspace re-points the strip at *that* tenant's own admin.
+
+A tenant with no assigned admin is **not blocked** — no source says an unassigned tenant is
+unusable — but it appears as an attention row on the Super Admin overview and its workspace says
+so plainly. That is a judgement call, recorded as one.
+
+### 3 · Platform role governance — and why it is not a display
+
+Implementation 05 seeded `contentRoleAssignments[]` and nothing could write it. Implementation 06
+makes the Super Admin the writer, and — the part that matters — **the Vendor, Academic Reviewer
+and Content Manager workspaces read the same rows they always did.** There is no second scope
+store anywhere in the build, and no workspace holds a hard-coded scope check. Withdrawing a scope
+therefore takes effect in that person's own workspace immediately.
+
+| Scope | Vendor | Academic Reviewer | Content Manager |
+|---|---|---|---|
+| Platform-wide | — | — | ✅ |
+| Course | ✅ | ✅ | ✅ |
+| Experiment | ✅ | ✅ | ✅ |
+
+Several people may hold one Experiment, which is what the source explicitly permits.
+
+**Withdrawing a scope FREEZES; it never deletes.** The row is marked withdrawn, never deleted, and
+no decision, review, publication, outcome or history entry is touched: a completed academic
+decision keeps the reviewer's name on it, in the record's history and in `academicReviews[]`, and
+the governance screen can still list every record that person acted on — marking the ones now
+outside their scope rather than hiding them. Re-assigning the same scope restores the actionable
+work; the withdrawn row is re-instated rather than duplicated.
+
+What withdrawal takes away is **authority over content, present and future** — not visibility:
+
+| | Vendor's own record |
+|---|---|
+| **Active** relevant scope | view · edit where the lifecycle allows · submit / resubmit where the lifecycle allows |
+| **Withdrawn** | **still visible**, and **read-only**: no edit, no submit, no resubmit, no Course change, no technology / package / metadata change. The record, its delivery details, its history and every decision on it are preserved exactly as they were |
+| **Restored** | editing and submission return, wherever the lifecycle already allowed them |
+
+⚠ The earlier reading — that editing ran on ownership alone and only *submission* asked the live
+assignment — was **withdrawn as unsafe**. It left an out-of-scope Vendor holding mutation authority
+over content in a Course they no longer held; and because `updateContentDraft()` also asks whether
+the Vendor may file into the Course the *form* is offering, re-filing the Experiment into a Course
+they *did* still hold became the one way to save it. The build was steering a withdrawn Vendor into
+moving the Experiment out from under its Course. The conservative rule is that withdrawn authority
+is withdrawn authority; `canViewHistoricalRecord()` and `canMutateVendorRecord()` keep the two
+questions apart so that freezing never becomes hiding.
+
+The same three-arm rule governs a **later-version candidate**
+(`canViewHistoricalVersion()` / `canMutateVendorVersion()`), which matters more than it looks: a
+candidate carries the catalogue metadata *and* the per-technology package and hosted-link
+references that a Super Admin release would write onto published content.
+
+⚠ **A consequence, recorded rather than designed around.** Returning a submission to a Vendor whose
+scope is later withdrawn leaves it with nobody able to move it — read-only for them, and out of the
+Reviewer's and Content Manager's queues until the scope is restored. The academic and readiness
+gates both say so before the decision is confirmed, rather than promising a resubmission that
+cannot come. No source describes a reassignment-of-authorship action, so none is invented.
+
+### 4 · Canonical / master metadata
+
+Both the Content Manager and the Super Admin may manage canonical content metadata, so the Super
+Admin surface offers the **same fields on the same rules** the Content Manager already had:
+Experiment name, Course placement, catalogue summary and description, editable for published
+content and for content at the readiness gate — never for a record a Vendor or a reviewer is
+currently holding, because rewriting it would change the work under the person doing it.
+
+**Learning Outcomes are not canonical metadata.** They are academically owned and are not
+editable from either surface. Technology delivery is the Vendor's technical submission and is not
+editable from either surface either.
+
+The canonical identifier never changes, so every access record, academic mapping and student
+assignment keeps pointing at the same Experiment.
+
+### 5 · The publish / release firewall, in code
+
+```
+   NEW EXPERIMENT                          ALREADY-PUBLISHED EXPERIMENT
+   Vendor → Academic Reviewer              Vendor proposes a later version
+   → CONTENT MANAGER                       → Academic Reviewer approves it
+   → the word is **PUBLISH**               → SUPER ADMIN
+   → acts on contentRecords[]              → the words are **RELEASE / HOLD**
+                                           → acts on contentVersions[]
+```
+
+**Two different actions, on two different objects, owned by two different roles.** Neither
+function can reach the other's object: `publishContent()` refuses a record that is already
+published, and `releaseVersion()` refuses anything that is not an approved candidate. The word
+*publish* appears on no Super Admin surface as an action, and *release* / *hold* appear on no
+first-publication surface.
+
+#### The two version schemes, reconciled by statement
+
+The correction-round counter on a submission and the published version of an Experiment were
+never connected, and the blueprint asks for *"either one scheme or an explicit statement that
+these are two different objects"*. This build makes the explicit statement:
+
+| Field | Means | Changed by |
+|---|---|---|
+| `contentRecord.revision` | how many **correction rounds** this submission has been through | a resubmission — unchanged from Implementation 05 |
+| `contentRecord.versionLabel` | **the version the public sees** | the first publication, and thereafter *only* a Super Admin **Release** |
+| `contentVersion.versionLabel` | what the public version **would become** | the Vendor, while the candidate is theirs |
+
+#### What a later version may carry, and why not more
+
+Version label · catalogue summary and description · vendor notes · per-technology delivery
+references. It **cannot change which technologies an Experiment offers.** No source states what
+should happen to a tenant that already holds a technology a newer version drops, and the
+prototype does not offer an action whose consequence it cannot state honestly. This is recorded
+as an open policy question on the screen itself, and it is why a release can never widen or
+narrow a tenant's granted technology variants — not as a rule that is checked, but as a shape
+the data cannot take.
+
+#### What a release does, exactly
+
+It writes the catalogue text and the version label **of the same Experiment id**. It creates no
+access record, changes no licence quantity, creates no assignment, and re-creates nothing. A
+student's existing entitlement, their granted technologies and every attempt they have taken are
+untouched — a released version is the same Experiment, described differently.
+
+#### What HOLD means
+
+The currently published version **stays live, unchanged**. The candidate is *parked, not
+discarded*: the reversible-over-destructive rule applies, and no source says a held version is
+abandoned. The Super Admin can lift the hold later, which returns it to the decision — **lifting
+a hold is not a release**, and the screen says so.
+
+### 6 · Device replacement / transfer
+
+The confirmed flow is the whole capability: the Student requests a transfer, the Super Admin
+reviews and approves, and the authorised device binding changes.
+
+It is offered only where a technology is delivered as an **authorised package on a device** — a
+hosted Web experience opens in a browser and has no binding to move — so a Web-only Student never
+sees the destination at all, and the state layer refuses the request if one is constructed by
+hand. One open request at a time, because two would describe two different devices at once.
+
+**Approval consumes no licence, grants no Experiment, adds no technology and changes no
+assessment state.** The decision writes the request record and nothing else, which is why the
+allocation engine cannot see it.
+
+Two gaps are shown as gaps rather than invented:
+
+- **there is no device registry**, so the request carries the plain labels the Student typed and
+  nothing is registered, checked or certified;
+- **the requirement contains no rejection behaviour.** A Decline path is implemented here because
+  this implementation was asked for one, and it is labelled on the screen as an implementation
+  judgement rather than a confirmed capability.
+
+### 7 · Support
+
+Report an issue → it appears in the platform queue → the Super Admin resolves it → the reporter
+sees the state, in their own workspace. The six issue kinds are exactly the confirmed list and
+nothing is added to it.
+
+**Help now has one consistent location in every workspace** — Student, Faculty, Tenant Admin,
+Vendor, Academic Reviewer and Content Manager all reach the same screen from the same place in
+their navigation, which is what the Level-A *Consistent Help* criterion asks for and what the
+support model made possible for the first time.
+
+Deliberately absent, all explicitly prohibited: an SLA or response-time promise, a priority or
+severity formula, an external ticketing provider, a chatbot. There is also **no notification of
+any kind** — no source describes one for support, so the state is surfaced in the product and
+nothing claims a message was sent.
+
+Context is captured only from what the platform already knows: who is reporting, in which role,
+for which institution, and — where the role has one — which experiment and technology. The
+experiment list a Student sees is their own entitlement; a Faculty member's is their mapped
+scope; a content role's is their live role assignment.
+
+### 8 · The 15-day expiry reminder
+
+The requirement is stated verbatim in the sources and is **confirmed**: a tenant must receive an
+expiry reminder 15 days before the access term ends. **The delivery channel is not confirmed**,
+and must not be invented.
+
+So this build implements the **rule** and an honest in-product representation of it:
+
+```
+reminder is DUE  ⇔  the access term is still running
+                    AND daysUntilExpiry <= 15
+```
+
+`daysUntil` rounds up, so the boundary is **inclusive at exactly 15 days**: 16 days out is not
+due, 15 days out is due, 10 days out is due, and past the end instant the record is *expired* —
+not *"reminder due"*. One derivation feeds both audiences, so the Tenant Admin's *Expiring soon*
+attention state and the Super Admin's operational list can never disagree.
+
+Wherever that state appears, the same sentence appears with it: the requirement is confirmed, the
+channel is not, **no email, SMS, push or notification of any kind has been sent**, and no provider
+is integrated. There is no automatic renewal, payment or extension anywhere, and no Student-facing
+renewal control of any kind.
+
+Expiry itself behaves exactly as it already did: entitlement derived from an expired record stops
+being effective, launch is blocked with the reason given, nothing is deleted, and the assignment
+history is kept.
+
 ## Prototype-only controls
 
 The dark **“PROTOTYPE CONTROLS — NOT PRODUCT UI”** strip at the top is not product UX:
@@ -1104,16 +1490,25 @@ The dark **“PROTOTYPE CONTROLS — NOT PRODUCT UI”** strip at the top is not
 - **Viewing as Vendor / Academic Reviewer / Content Manager** — shown only inside the matching
   workspace, and the same shape as the Student and Faculty switches. Each lists the **real**
   sample content actors that exist in prototype state, never a fabricated identity, and choosing
-  one grants nothing: scope still comes only from the seeded per-Course role assignments.
-  `#/vendor`, `#/review` and `#/content` offer the same choice as a full screen, labelled
-  **PROTOTYPE ONLY**, with each identity's assigned scope shown beside it
+  one grants nothing: scope still comes only from the role assignments the **Super Admin**
+  governs. `#/vendor`, `#/review` and `#/content` offer the same choice as a full screen,
+  labelled **PROTOTYPE ONLY**, with each identity's assigned scope shown beside it
+- **Viewing as Tenant Admin** *(Implementation 06)* — shown only inside the Tenant workspace, and
+  the same shape again. It lists the **real** Tenant Admins the Super Admin has assigned, and
+  choosing one navigates to **that person's own institution**. It is not a sign-in and grants
+  nothing — and it enforces one real rule: an administrator of one institution is **never**
+  resolved as the administrator of another. Opening a different tenant's workspace re-points the
+  control at that tenant's own admin
 - **Requester scenario** — seeds the requester identity and access context:
   - **A — Internal (WILP-type)** · *Sample Engineering Institute* · context **BITS Community** · `paymentRequired: false`
   - **B — External** · *Northfield Institute of Technology* · context **Subscription** · `paymentRequired: true`
   - The internal/external classification exists **only in prototype seed data** (the production
     eligibility rule is `ND-07`, not confirmed and not invented; an anonymous visitor cannot
     self-select a free route)
-- **Reset prototype data** — restores the deterministic seed state
+- **Reset prototype data** — restores the deterministic seed state, including every
+  Implementation-06 governance record: tenant activation state and history, Tenant Admin
+  assignments, role assignments (back to the seeded scope), version candidates with their
+  Release / Hold decisions, device transfer requests and support reports
 
 ## Two primary QA scenarios
 
@@ -1124,18 +1519,17 @@ payment-required state and a clearly-labelled payment simulation.
 ## Intentionally NOT implemented in this slice
 
 - Authentication / SSO / registration (scenario switcher stands in; architecture unchanged)
-- **Later-version Release / Hold** (`STK31-07` · `U-SA-09` / `U-SA-10`) — the Super Admin's
-  decision on a *newer version of an already-published Experiment*. A different object, a
-  different owner and a different word from first publication, which this slice does build. No
-  part of it exists here, and no control hints at one
-- **The Super Admin role-governance and per-content assignment surface** (`U-SA-14` / `U-SA-15`) —
-  the screen that would write `contentRoleAssignments[]`. The records it writes exist and are
-  seeded; the screen is a later slice
-- **Global canonical master-data administration** (`U-SA-16`) — creating, renaming or retiring
-  **Programme / Department and Course master records**. `STK31-09` gives canonical *content*
-  metadata to the Content Manager and this slice implements exactly that, on the Experiment. The
-  broader master-data surface is shared with the Super Admin and is deferred; the metadata schema
-  itself is `ND-05`, still open
+- **Creating, renaming or retiring Programme / Department and Course MASTER RECORDS.**
+  Implementation 06 builds the confirmed half of canonical governance — inspecting the structure
+  and correcting an Experiment's canonical metadata, from the Super Admin surface as well as the
+  Content Manager's. It does **not** build create or delete for the grouping and Course records
+  themselves: the sources confirm that the structure is platform-controlled and that canonical
+  metadata may be managed, but describe **no create or delete operation**, and those identifiers
+  are load-bearing for every existing access record, academic mapping and student assignment.
+  The metadata schema itself is still an open question
+- **Unpublishing or withdrawing published content** — still refuted by the authority audit, and
+  not reintroduced through the version lifecycle: a *hold* parks a candidate, it never retracts
+  what is already live
 - **Vendor review history and Content Manager reviewed-content archives** (`U-ARV-02` / `U-CM-02`,
   both **P2**) — every decision is recorded and readable on the item itself and in the reviewer's
   own recent-decisions list; the separate archive screens are not built
@@ -1150,15 +1544,47 @@ payment-required state and a clearly-labelled payment simulation.
   negative-marking model does not port onto it, so it is not carried forward. The timer (which
   prompts and never auto-submits) is likewise not rebuilt — `Q-43` flags it for re-confirmation
   once a server exists
-- **Help in one consistent location** (`U-X-04`, WCAG 2.2 SC 3.2.6) — a cross-cutting shell item
-  that no slice has built yet. Named here rather than half-added to one workspace
 - **Assessment timer** — Batch 02's timer (which prompts and never auto-submits) is not rebuilt;
   `Q-43` flags it for re-confirmation once a server exists, and exam security is out of scope here
-- **Device binding and device-replacement requests** (`U-LRN-10` / `U-LRN-11`) — no device
-  registry exists anywhere in the platform, and the Student end of that half-built workflow is a
-  later device-operations slice. Nothing about it is faked in the Student UI
+- **A device REGISTRY.** Implementation 06 builds the confirmed device *transfer* workflow at
+  both ends, but the platform still holds no device records: the binding is a relationship, not
+  an administrable object. Nothing registers hardware, records a serial number, names a headset
+  or handset model, or certifies that any device is supported. Device registration and remote
+  device management remain later-phase
+- **Any notification, message or reminder DELIVERY.** The 15-day expiry reminder is a confirmed
+  requirement whose channel is not decided, so this build represents it as an operational
+  due-state on both sides and states plainly that nothing was sent. There is no email, SMS, push
+  or provider anywhere in the build — not for expiry, not for support, not for a released version
+- **An SLA, priority formula, external ticketing provider, chatbot or escalation path** for
+  support — all four are explicitly prohibited, and the fifth has no source
+- **Auto-renewal, automatic payment or automatic extension** of an access term
 - **Certificates and certification** — Phase 2 (PM-12). No certificate surface, artefact or
   language exists anywhere in this build
+
+## Verifying it
+
+Two independent passes, both re-run for Implementation 06.
+
+**The state layer, headless.** `qa/checks.js` runs the rules outside a browser — where an
+entitlement, a licence or a published version can actually go wrong — and asserts them rather
+than eyeballing them: **305 assertions, 0 failures.** It covers the eleven Implementation-06
+scenarios plus the Implementation 01–05 regressions, the schema-7 migration, the route and role
+guards, the three altitudes, and one assertion for every defect the adversarial review found, so
+none of them can come back. Run it from this folder with the JavaScriptCore that ships with
+macOS:
+
+```
+/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc \
+    qa/harness.js qa/checks.js
+```
+
+`index.html` references neither file and no product code knows they exist.
+
+**The screens, in a browser.** Every workflow driven through the real controls, plus a
+programmatic sweep of all 59 routes at 375 / 768 / 1280 for horizontal overflow, a heading /
+label / accessible-name / table-caption / status-badge audit, and a *dead control* sweep that
+deactivates a tenant and asserts that no mutating control survives on any of its 31 screens
+while every piece of history stays readable.
 
 ## Known limitations
 
@@ -1215,7 +1641,10 @@ keeps the UA `min-inline-size:min-content` unless reset, and `.draftcard .dc-src
 ```
 index.html                 entry point (classic scripts — works from file://)
 assets/                    byte-identical logo copy (protected asset, never edited)
-qa/                        sample CSV fixtures for the bulk-import checks
+qa/                        sample CSV fixtures for the bulk-import checks, plus
+                           harness.js + checks.js — a PROTOTYPE-ONLY headless
+                           assertion suite over the state layer. index.html
+                           references none of it and no product code knows it exists
 css/  tokens → base → layout → components → screens → responsive
 js/   utils · data (sample pool + scenarios + seeded tenant people + the
         assessment SEED SOURCE that state.js evolves into mutable state)
@@ -1226,8 +1655,16 @@ js/   utils · data (sample pool + scenarios + seeded tenant people + the
       · content-ui (ONE implementation of the routes, status badge, holder line,
         technology delivery panel, outcomes list, readiness card and history
         timeline that all three content workspaces render)
+      · support-ui (ONE implementation of "report a technical issue and see the
+        state of it", used by all six workspaces that have a Help destination)
       · router · app
-js/screens/  public-catalogue · public-request · platform
+js/screens/  public-catalogue · public-request
+             · platform (shared Super Admin helpers · overview · access requests
+               · institutions list + governance detail)
+             · platform-content (canonical catalogue · canonical metadata
+               · LATER-VERSION Release / Hold)
+             · platform-ops (role governance · operations: device transfers,
+               support, access-term expiry)
              · tenant (helpers · overview · content access)
              · tenant-people (directory · manual add · CSV import · person detail)
              · tenant-groups (groups · membership · academic mappings)
@@ -1244,6 +1681,11 @@ js/screens/  public-catalogue · public-request · platform
                + the Learning Outcomes editor)
              · content-manager (chooser · overview · Content Library
                · publication queue · final review + Publish · canonical metadata)
+             · content-version (LATER versions: the Vendor's proposal and edit,
+               and the Academic Reviewer's decision — the two steps before the
+               Super Admin's Release / Hold)
+             · student-ops (My device — device replacement · Student Help)
+             · workspace-help (the Help destination for the other five workspaces)
 ```
 
 `js/content-ui.js` loads **after** `components.js` (it builds on `XRSLP.ui`) and **before** the

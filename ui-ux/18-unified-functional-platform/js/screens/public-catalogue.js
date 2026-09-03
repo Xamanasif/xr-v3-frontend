@@ -383,7 +383,13 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="pmeta" style="margin-bottom:8px">' + esc(ctx.grouping.name) + ' › ' + esc(ctx.course.name) + '</div>' +
       '<h1>' + esc(e.name) + '</h1>' +
       '<p class="ph-lede">' + esc(e.description) + '</p>' +
-      '<div class="pmeta" style="margin-top:12px">' + ui.techBadges(e.technologies) + '</div>' +
+      '<div class="pmeta" style="margin-top:12px">' + ui.techBadges(e.technologies) +
+      /* Implementation 06 — the version the catalogue is actually
+         showing. It changes only when the Content Manager first
+         publishes, or the Super Admin RELEASES a later version. A
+         candidate anywhere in the version workflow never appears. */
+      (e.versionLabel
+        ? ' <span class="verchip">Version ' + esc(e.versionLabel) + '</span>' : '') + '</div>' +
       '<div class="stack" style="margin-top:22px">' +
       ui.card('Learning outcomes', outcomes) +
       ui.card('Available technologies &amp; device requirements', reqRows) +

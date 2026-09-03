@@ -267,10 +267,18 @@ XRSLP.csv = (function () {
      Only called when validate() reported zero blocking errors. */
   function commit(result, tenantId) {
     var state = XRSLP.state;
-    if (!result || !result.ok) { return { created: 0, students: [], mappings: 0 }; }
+    if (!result || !result.ok) { return { created: 0, students: [], mappings: 0, blocked: false }; }
+    /* Implementation 06 — a deactivated institution takes no operational
+       action, and `addStudent` refuses. Committing row by row would then
+       report a created count for people who were never created, so the
+       whole commit stops here instead. The Import screen refuses before
+       reaching this point; this is the writer saying the same thing. */
+    if (!state.tenantCanWrite(tenantId)) {
+      return { created: 0, students: [], mappings: 0, blocked: true };
+    }
     var students = [], mappings = 0;
     result.rows.forEach(function (r) {
-      students.push(state.addStudent(tenantId, {
+      var made = state.addStudent(tenantId, {
         studentId: r.studentId,
         name: r.studentName,
         email: r.email,
@@ -281,7 +289,9 @@ XRSLP.csv = (function () {
         organisation: r.organisation,
         planTerms: r.planTerms,
         source: 'csv'
-      }));
+      });
+      /* A refused write is never counted as a created student. */
+      if (made) { students.push(made); }
       /* Create the tenant course mapping only where none exists yet —
          an existing mapping is never silently overwritten (ND-04). */
       if (r.courseId && r.courseCode) {
@@ -292,7 +302,7 @@ XRSLP.csv = (function () {
         }
       }
     });
-    return { created: students.length, students: students, mappings: mappings };
+    return { created: students.length, students: students, mappings: mappings, blocked: false };
   }
 
   /* ---------- template ----------

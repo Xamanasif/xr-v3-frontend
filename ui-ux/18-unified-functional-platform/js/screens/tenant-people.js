@@ -70,10 +70,10 @@ XRSLP.screens = XRSLP.screens || {};
         title: 'No people in this institution yet',
         body: 'Add Faculty and Students individually, or import a cohort of Students from a CSV file. ' +
           'Provisioning people does not give anyone content — assignment does that.',
-        actionsHTML:
+        actionsHTML: T.actionsIfWritable(tenant,
           '<a class="btn pri" href="' + T.href.addStudent(tenant.id) + '">Add Student</a>' +
           '<a class="btn sec" href="' + T.href.addFaculty(tenant.id) + '">Add Faculty</a>' +
-          '<a class="btn sec" href="' + T.href.importCsv(tenant.id) + '">Import Students (CSV)</a>'
+          '<a class="btn sec" href="' + T.href.importCsv(tenant.id) + '">Import Students (CSV)</a>', false)
       });
     } else if (!list.length) {
       body = ui.emptyState({
@@ -111,9 +111,11 @@ XRSLP.screens = XRSLP.screens || {};
       ui.phead('People',
         faculty.length + ' ' + util.plural(faculty.length, 'Faculty', 'Faculty') + ' · ' +
         students.length + ' ' + util.plural(students.length, 'Student'),
-        '<a class="btn sec" href="' + T.href.addFaculty(tenant.id) + '">' + ui.ic('plus') + 'Add Faculty</a>' +
-        '<a class="btn sec" href="' + T.href.addStudent(tenant.id) + '">' + ui.ic('plus') + 'Add Student</a>' +
-        '<a class="btn pri" href="' + T.href.importCsv(tenant.id) + '">' + ui.ic('doc') + 'Import Students (CSV)</a>') +
+        T.actionsIfWritable(tenant,
+          '<a class="btn sec" href="' + T.href.addFaculty(tenant.id) + '">' + ui.ic('plus') + 'Add Faculty</a>' +
+          '<a class="btn sec" href="' + T.href.addStudent(tenant.id) + '">' + ui.ic('plus') + 'Add Student</a>' +
+          '<a class="btn pri" href="' + T.href.importCsv(tenant.id) + '">' + ui.ic('doc') + 'Import Students (CSV)</a>',
+          false)) +
       '<div class="tablecard">' +
       '<div class="seg" role="group" aria-label="Filter people by role">' +
       tab('all', 'All', all.length) + tab('faculty', 'Faculty', faculty.length) + tab('student', 'Students', students.length) +
@@ -178,7 +180,7 @@ XRSLP.screens = XRSLP.screens || {};
      status, employment type, phone or address is invented.
      ============================================================ */
   XRSLP.screens.tenantAddFaculty = function (params) {
-    var r = T.requireTenant(params, 'people');
+    var r = T.requireTenant(params, 'people', { write: true, what: 'Adding a Faculty record' });
     if (!r.tenant) { return r.fail; }
     var tenant = r.tenant;
 
@@ -245,7 +247,7 @@ XRSLP.screens = XRSLP.screens || {};
      none of the three may ever block creation (STK31-11 / ND-03).
      ============================================================ */
   XRSLP.screens.tenantAddStudent = function (params) {
-    var r = T.requireTenant(params, 'people');
+    var r = T.requireTenant(params, 'people', { write: true, what: 'Adding a Student record' });
     if (!r.tenant) { return r.fail; }
     var tenant = r.tenant;
 
@@ -398,7 +400,7 @@ XRSLP.screens = XRSLP.screens || {};
      CSV BULK STUDENT IMPORT — upload → preview/validate → commit.
      ============================================================ */
   XRSLP.screens.tenantImport = function (params) {
-    var r = T.requireTenant(params, 'people');
+    var r = T.requireTenant(params, 'people', { write: true, what: 'Bulk student import' });
     if (!r.tenant) { return r.fail; }
     var tenant = r.tenant;
     var csv = XRSLP.csv;
@@ -727,7 +729,11 @@ XRSLP.screens = XRSLP.screens || {};
     var entCard = ui.card('Experiment entitlements', entBody,
       effective + ' effective of ' + ents.length, 'h2');
 
-    var actions =
+    var actions = !T.canWrite(tenant)
+      ? '<div class="formact"><span class="formnote">Student activation cannot be changed while the ' +
+        'institution is deactivated. This record, its assignments and its entitlement history are all ' +
+        'preserved exactly as they stand.</span></div>'
+      :
       '<div class="formact">' +
       (p.status === 'active'
         ? '<button class="btn sec" type="button" id="p-deact">Deactivate student</button>'

@@ -29,10 +29,28 @@ XRSLP.router = (function () {
     { pattern: ['requests'],                        area: 'public',   screen: 'requestList' },
     { pattern: ['request-status', ':id'],           area: 'public',   screen: 'requestStatus' },
     { pattern: ['payment', ':id'],                  area: 'public',   screen: 'payment' },
-    { pattern: ['platform'],                        redirect: '#/platform/requests' },
+    /* SUPER ADMIN workspace. Six destinations, every one implemented.
+       Implementation 06 added Overview, the institution governance
+       detail, content governance (canonical catalogue + later-version
+       Release / Hold), role governance and operations (device
+       transfers · support · access-term expiry).
+
+       There is no publish route anywhere on this plane: the FIRST
+       publication of a new Experiment is the Content Manager's
+       (STK31-06). Release / Hold acts on a later version only. */
+    { pattern: ['platform'],                        redirect: '#/platform/overview' },
+    { pattern: ['platform', 'overview'],            area: 'platform', screen: 'platformOverview' },
     { pattern: ['platform', 'requests'],            area: 'platform', screen: 'platformRequests' },
     { pattern: ['platform', 'requests', ':id'],     area: 'platform', screen: 'platformRequestDetail' },
     { pattern: ['platform', 'institutions'],        area: 'platform', screen: 'platformInstitutions' },
+    { pattern: ['platform', 'institutions', ':id'], area: 'platform', screen: 'platformInstitution' },
+    { pattern: ['platform', 'content'],             area: 'platform', screen: 'platformContent' },
+    { pattern: ['platform', 'content', ':recordId'], area: 'platform', screen: 'platformRecord' },
+    { pattern: ['platform', 'roles'],               area: 'platform', screen: 'platformRoles' },
+    { pattern: ['platform', 'roles', ':actorId'],   area: 'platform', screen: 'platformActor' },
+    { pattern: ['platform', 'operations'],          area: 'platform', screen: 'platformOperations' },
+    { pattern: ['platform', 'transfer', ':id'],     area: 'platform', screen: 'platformTransfer' },
+    { pattern: ['platform', 'support', ':id'],      area: 'platform', screen: 'platformTicket' },
     { pattern: ['tenant'],                          area: 'tenant',   screen: 'tenantHome' },
     /* Tenant Admin workspace. Every destination below is implemented;
        the side navigation contains no link that leads nowhere. */
@@ -50,6 +68,10 @@ XRSLP.router = (function () {
     { pattern: ['tenant', ':tenantId', 'assignments'],        area: 'tenant', screen: 'tenantAssignments' },
     { pattern: ['tenant', ':tenantId', 'assignments', 'new'], area: 'tenant', screen: 'tenantNewAssignment' },
     { pattern: ['tenant', ':tenantId', 'faculty-mapping'],    area: 'tenant', screen: 'tenantFacultyMapping' },
+    /* Help — one consistent destination in every workspace
+       (WCAG 2.2 SC 3.2.6 is Level A, and STK31-39 gives Help a real
+       destination to point at for the first time). */
+    { pattern: ['tenant', ':tenantId', 'help'],               area: 'tenant', screen: 'tenantHelp' },
     /* Faculty workspace (Implementation 04). Faculty is a formal role
        inside a Tenant (STK31-01 / 04); everything it reaches is bounded
        by that Faculty member's Implementation-02 mappings. `#/faculty`
@@ -57,9 +79,10 @@ XRSLP.router = (function () {
        or offers the prototype-only chooser.
 
        Every destination below is implemented. There is no Messages,
-       Attendance, Certificates, Calendar, Profile or Support entry:
-       none of them is built, and a link that leads nowhere is worse
-       than an absent one. */
+       Attendance, Certificates, Calendar or Profile entry: none of them
+       is built, and a link that leads nowhere is worse than an absent
+       one. Help IS present from Implementation 06 — it now has a real
+       destination behind it (STK31-39). */
     { pattern: ['faculty'],                                     area: 'faculty', screen: 'facultyHome' },
     { pattern: ['faculty', ':facultyId', 'overview'],           area: 'faculty', screen: 'facultyOverview' },
     { pattern: ['faculty', ':facultyId', 'content'],            area: 'faculty', screen: 'facultyContent' },
@@ -82,6 +105,7 @@ XRSLP.router = (function () {
     { pattern: ['faculty', ':facultyId', 'students'],           area: 'faculty', screen: 'facultyStudents' },
     { pattern: ['faculty', ':facultyId', 'student', ':studentId', ':experimentId'],
       area: 'faculty', screen: 'facultyStudentDetail' },
+    { pattern: ['faculty', ':facultyId', 'help'],               area: 'faculty', screen: 'facultyHelp' },
     /* Student workspace (Implementation 03). Student and Learner are
        ONE formal role (STK31-01); `learn` is that role's workspace.
        `#/learn` resolves the prototype's currently-selected REAL
@@ -90,6 +114,9 @@ XRSLP.router = (function () {
     { pattern: ['learn', ':studentId', 'home'],               area: 'learn', screen: 'studentHome' },
     { pattern: ['learn', ':studentId', 'my-learning'],        area: 'learn', screen: 'studentMyLearning' },
     { pattern: ['learn', ':studentId', 'progress'],           area: 'learn', screen: 'studentProgress' },
+    /* Device replacement / transfer (STK31-38) and Help (STK31-39). */
+    { pattern: ['learn', ':studentId', 'device'],             area: 'learn', screen: 'studentDevice' },
+    { pattern: ['learn', ':studentId', 'help'],               area: 'learn', screen: 'studentHelp' },
     { pattern: ['learn', ':studentId', 'experiment', ':experimentId'],
       area: 'learn', screen: 'studentExperiment' },
     { pattern: ['learn', ':studentId', 'experiment', ':experimentId', 'simulation', ':tech'],
@@ -121,6 +148,14 @@ XRSLP.router = (function () {
       area: 'vendor', screen: 'vendorRecord' },
     { pattern: ['vendor', ':actorId', 'experiment', ':recordId', 'edit'],
       area: 'vendor', screen: 'vendorEdit' },
+    /* LATER VERSIONS of already-published content (STK31-07). The
+       Vendor proposes; the Academic Reviewer approves; the SUPER ADMIN
+       releases or holds. The word `publish` appears on none of them. */
+    { pattern: ['vendor', ':actorId', 'experiment', ':recordId', 'version'],
+      area: 'vendor', screen: 'vendorNewVersion' },
+    { pattern: ['vendor', ':actorId', 'versions'],             area: 'vendor', screen: 'vendorVersions' },
+    { pattern: ['vendor', ':actorId', 'version', ':versionId'], area: 'vendor', screen: 'vendorVersion' },
+    { pattern: ['vendor', ':actorId', 'help'],                 area: 'vendor', screen: 'vendorHelp' },
 
     /* ACADEMIC REVIEWER — academic validation + Learning Outcomes.
        There is no publish route on this plane. */
@@ -129,6 +164,9 @@ XRSLP.router = (function () {
     { pattern: ['review', ':actorId', 'queue'],                area: 'review', screen: 'reviewerQueue' },
     { pattern: ['review', ':actorId', 'submission', ':recordId'],
       area: 'review', screen: 'reviewerRecord' },
+    { pattern: ['review', ':actorId', 'version', ':versionId'],
+      area: 'review', screen: 'reviewerVersion' },
+    { pattern: ['review', ':actorId', 'help'],                  area: 'review', screen: 'reviewerHelp' },
 
     /* CONTENT MANAGER — Content Library + FIRST PUBLICATION. The word
        here is Publish; Release / Hold is the Super Admin's action on a
@@ -139,7 +177,8 @@ XRSLP.router = (function () {
     { pattern: ['content', ':actorId', 'queue'],               area: 'content', screen: 'managerQueue' },
     { pattern: ['content', ':actorId', 'item', ':recordId'],   area: 'content', screen: 'managerRecord' },
     { pattern: ['content', ':actorId', 'item', ':recordId', 'metadata'],
-      area: 'content', screen: 'managerMetadata' }
+      area: 'content', screen: 'managerMetadata' },
+    { pattern: ['content', ':actorId', 'help'],                area: 'content', screen: 'managerHelp' }
   ];
 
   function parseHash() {

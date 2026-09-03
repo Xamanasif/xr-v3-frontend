@@ -383,6 +383,28 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="stack">' +
       (published ? ui.card('Publication record', cui.publicationCard(rec)) : '') +
       (published ? cui.publishedNextVersionNote() : '') +
+      /* Implementation 06 — later versions are VISIBLE in the Content
+         Library, and read-only here. The Content Manager's confirmed
+         authority is first approval and first publication; the decision
+         on a later version is the Super Admin's Release / Hold, and no
+         control for it exists on this plane. */
+      (published && state.versionsForRecord(rec.id).length
+        ? ui.card('Later versions',
+            '<div class="tscroll"><table class="dt">' +
+            '<caption class="sr-only">Later versions of ' + esc(rec.name) + '</caption>' +
+            '<thead><tr><th scope="col">Version</th><th scope="col">Vendor</th>' +
+            '<th scope="col">State</th></tr></thead><tbody>' +
+            state.versionsForRecord(rec.id).map(function (v) {
+              return '<tr>' +
+                '<td data-label="Version">' + esc(v.versionLabel) + '</td>' +
+                '<td data-label="Vendor">' + esc(v.createdByName) + '</td>' +
+                '<td data-label="State">' + XRSLP.versionUI.badge(v) + '</td>' +
+                '</tr>';
+            }).join('') + '</tbody></table></div>' +
+            '<p class="cardfoot">Shown for visibility. The decision to release a later version or hold it is ' +
+            'the <strong>Super Admin&rsquo;s</strong>, and there is no control for it here.</p>',
+            'Read-only — Super Admin decides')
+        : '') +
       ui.card('Submission',
         '<div class="kv">' +
         cui.kvLine('Vendor', vendor
@@ -462,7 +484,16 @@ XRSLP.screens = XRSLP.screens || {};
             'your reason.</p><blockquote class="qquote">' + esc(text) + '</blockquote>' +
             '<div class="consequence">' + ui.ic('info') +
             '<span>The academic approval already recorded is kept. When the Vendor resubmits, the item ' +
-            'returns to this queue rather than to academic review.</span></div>',
+            'returns to this queue rather than to academic review.</span></div>' +
+            /* Same honesty as the academic gate: a Vendor whose scope
+               was withdrawn cannot resubmit, so the sentence above would
+               describe a return that never comes. */
+            (state.vendorScopeWithdrawn(rec, rec.createdBy)
+              ? '<div class="consequence">' + ui.ic('alert') +
+                '<span>The Vendor who submitted this no longer holds a role scope covering it, so they ' +
+                'cannot correct or resubmit it. It will stay returned until the Super Admin restores their ' +
+                'scope.</span></div>'
+              : ''),
           okLabel: 'Request changes',
           onConfirm: function () {
             var updated = state.requestChangesContent(actor.id, rec.id, text);
@@ -603,7 +634,9 @@ XRSLP.screens = XRSLP.screens || {};
           countLabel: util.plural(lib, 'item') + ' in your scope' },
         { href: href.mQueue(actor.id), icon: 'doc', label: 'Publication queue',
           active: activeKey === 'queue', count: o.awaitingPublication,
-          countLabel: util.plural(o.awaitingPublication, 'item') + ' awaiting a publication decision' }
+          countLabel: util.plural(o.awaitingPublication, 'item') + ' awaiting a publication decision' },
+        { href: href.mHelp(actor.id), icon: 'alertCirc', label: 'Help',
+          active: activeKey === 'help', count: 0 }
       ];
     }
   };
