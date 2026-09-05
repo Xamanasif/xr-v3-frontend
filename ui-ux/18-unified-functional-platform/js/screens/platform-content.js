@@ -142,16 +142,380 @@ XRSLP.screens = XRSLP.screens || {};
         'a Tenant Admin can never redefine it. Canonical metadata is managed here and by the Content Manager; ' +
         'Learning Outcomes stay with the Academic Reviewer and technology delivery stays with the Vendor.</p>' +
         treeHTML, null, 'h2') +
-      ui.gapNote('NOT IN THIS BUILD',
-        'Creating or deleting a Programme / department or a Course is not implemented. The sources confirm that ' +
-        'the structure is platform-controlled and that canonical metadata may be managed, but describe no create ' +
-        'or delete operation — and these identifiers are load-bearing for every existing access record, academic ' +
-        'mapping and assignment. Also absent by instruction: unpublishing or withdrawing content, and any ' +
-        'bundle, pricing or revenue surface.') +
+      ui.gapNote('RETIRING STRUCTURE IS NOT IN THIS BUILD',
+        'A Programme / department or a Course can be <strong>created and renamed</strong> in ' +
+        '<a href="' + P.href.structure() + '">Academic structure</a> &mdash; built on the recommendation in open ' +
+        'decision <strong>D3</strong>, since <strong>no source describes a create operation</strong> either. ' +
+        '<strong>Retiring or deleting one is deliberately absent</strong>: these identifiers are load-bearing for ' +
+        'every existing access record, academic mapping, Faculty mapping and assignment, so retirement needs a ' +
+        'stated rule for what happens to those live references — and no source describes one. Nothing is deleted ' +
+        'anywhere in this build. Also absent by instruction: unpublishing or withdrawing content, and any bundle, ' +
+        'pricing or revenue surface.') +
       '</div>';
 
     return { title: 'Content governance', html: html, navKey: 'content' };
   };
+
+  /* ============================================================
+     ACADEMIC STRUCTURE — Programme / Department and Course master
+     records (Implementation 07.1, open decision D3).
+
+     Platform-controlled (`STK31-10`). This is the Super Admin plane, so
+     nothing here is reachable by a Tenant Admin, and a Vendor, Academic
+     Reviewer or Content Manager has no route to it either: a Vendor
+     SELECTS a canonical Course, it never defines one.
+
+     CREATE and RENAME only — D3's own recommendation is to scope create
+     first, because retiring a structure record is the expensive half and
+     needs a rule for live references that no source states.
+     ============================================================ */
+  XRSLP.screens.platformStructure = function () {
+    var groupings = state.groupingRecords();
+
+    var rows = groupings.map(function (g) {
+      var courses = state.coursesInGroupingRecord(g.id);
+      var courseRows = courses.length
+        ? '<div class="tscroll"><table class="dt">' +
+          '<caption class="sr-only">Courses in ' + esc(g.name) + '</caption>' +
+          '<thead><tr><th scope="col">Course</th><th scope="col">In use</th>' +
+          '<th scope="col">Origin</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
+          courses.map(function (c) {
+            var use = state.courseUsage(c.id);
+            return '<tr>' +
+              '<td data-label="Course"><a class="rowlink" href="' + P.href.course(c.id) + '">' +
+              '<span class="tmain">' + esc(c.name) + '</span>' +
+              '<span class="tsub">' + esc(c.id) + '</span></a></td>' +
+              '<td data-label="In use">' + esc(usageText(use)) + '</td>' +
+              '<td data-label="Origin">' + originBadge(c) + '</td>' +
+              '<td class="cell-actions"><a class="btn sm sec" href="' + P.href.course(c.id) + '">Manage</a></td>' +
+              '</tr>';
+          }).join('') + '</tbody></table></div>'
+        : '<p class="muted" style="padding:14px 20px">No Course sits in this Programme / department yet.</p>';
+      return '<section class="canongroup">' +
+        '<h3>' + esc(g.name) + ' ' + originBadge(g) + '</h3>' +
+        '<p class="cg-s">' + esc(g.summary) + '</p>' +
+        '<p class="cg-s"><a class="btn sm sec" href="' + P.href.grouping(g.id) + '">Manage this Programme / department</a></p>' +
+        courseRows + '</section>';
+    }).join('');
+
+    var html =
+      ui.phead('Academic structure',
+        'Programme / department and Course master records — the canonical structure every Experiment is filed under') +
+      '<div class="stack">' +
+      ui.card('Canonical structure',
+        '<p class="chelp">This structure is <strong>platform-controlled</strong> (<code>STK31-10</code>): a Tenant ' +
+        'Admin can never redefine it, and a Vendor selects a canonical Course rather than inventing one. ' +
+        'Adding a Course here makes it immediately available to role governance, to Vendor submissions and to the ' +
+        'public catalogue &mdash; there is no second catalogue to keep in step.</p>' + rows, null, 'h2') +
+      '<div class="grid-rail"><div class="stack">' + newGroupingCard() + '</div>' +
+      '<div class="stack">' + newCourseCard() + '</div></div>' +
+      ui.gapNote('CREATE AND RENAME ONLY — AND CREATE IS AN IMPLEMENTATION DECISION',
+        '<strong>No source describes a create, retire or delete operation for these records.</strong> The sources ' +
+        'confirm only that the structure is platform-controlled (<code>STK31-10</code>) and that canonical ' +
+        'metadata may be managed (<code>STK31-09</code>). Create and rename are built here on the recommendation ' +
+        'recorded in open decision <strong>D3</strong> — &ldquo;scope create first and treat retire separately&rdquo; ' +
+        '&mdash; and remain open to the stakeholder. <strong>Nothing can be retired or deleted.</strong> Every id ' +
+        'here is referenced by live access records, tenant course mappings, Faculty mappings and student records, ' +
+        'and no source states what should happen to those references when a structure record retires. ' +
+        'An id never changes on a rename, so every <em>stored</em> reference stays valid &mdash; but a CSV import ' +
+        'that names the OLD Programme or Course <em>text</em> will no longer resolve, because that path matches ' +
+        'by name.') +
+      '</div>';
+
+    return {
+      title: 'Academic structure', html: html, navKey: 'structure',
+      after: function () { wireStructureForms(); }
+    };
+  };
+
+  function usageText(use) {
+    var parts = [];
+    if (use.records) {
+      parts.push(use.records + ' ' + util.plural(use.records, 'experiment') + ' (all records)');
+    }
+    if (use.mappings) { parts.push(use.mappings + ' ' + util.plural(use.mappings, 'tenant mapping')); }
+    if (use.assignments) { parts.push(use.assignments + ' ' + util.plural(use.assignments, 'role assignment')); }
+    if (use.facultyMappings) {
+      parts.push(use.facultyMappings + ' ' + util.plural(use.facultyMappings, 'Faculty mapping'));
+    }
+    if (use.people) { parts.push(use.people + ' ' + util.plural(use.people, 'person', 'people')); }
+    return parts.length ? parts.join(' · ') : 'Not yet referenced';
+  }
+
+  /* Provenance, not status. `STK31-41`'s sibling instruction for
+     identities applies to structure too: say where a record came from
+     rather than inventing a lifecycle for it. */
+  function originBadge(rec) {
+    return rec.source === 'seed'
+      ? ui.badge('b-neutral', null, 'Prototype seed')
+      : ui.badge('b-info', null, 'Added on the platform');
+  }
+
+  function groupingSelectOptions(selectedId) {
+    return state.groupingRecords().map(function (g) {
+      return '<option value="' + esc(g.id) + '"' + (g.id === selectedId ? ' selected' : '') + '>' +
+        esc(g.name) + '</option>';
+    }).join('');
+  }
+
+  function newGroupingCard() {
+    return ui.card('Add a Programme / department',
+      '<form id="pg-form" novalidate>' +
+      '<div class="form-errors"></div>' +
+      '<div class="field" id="pg-name"><label for="pg-name-i">Name ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<input type="text" id="pg-name-i" autocomplete="off">' +
+      '<p class="hint">One terminology-neutral grouping level. The final wording — Programme, Department or ' +
+      'Academic Stream — is still open (<code>ND-02</code>).</p></div>' +
+      '<div class="field" id="pg-summary"><label for="pg-summary-i">Description ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<textarea id="pg-summary-i" rows="3"></textarea>' +
+      '<p class="hint">Shown on the public catalogue.</p></div>' +
+      '<div class="formact"><button class="btn pri" type="submit">Add Programme / department</button>' +
+      '<span class="formnote">Creates no content and grants no institution anything &mdash; but it is ' +
+      '<strong>immediately visible on the public catalogue</strong>, and it cannot be retired.</span></div>' +
+      '</form>', null, 'h2');
+  }
+
+  function newCourseCard() {
+    return ui.card('Add a Course',
+      '<form id="pc-form" novalidate>' +
+      '<div class="form-errors"></div>' +
+      '<div class="field" id="pc-grouping"><label for="pc-grouping-i">Programme / department ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<select id="pc-grouping-i">' + groupingSelectOptions(null) + '</select></div>' +
+      '<div class="field" id="pc-name"><label for="pc-name-i">Course name ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<input type="text" id="pc-name-i" autocomplete="off"></div>' +
+      '<div class="field" id="pc-summary"><label for="pc-summary-i">Description ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<textarea id="pc-summary-i" rows="3"></textarea>' +
+      '<p class="hint">Shown on the public catalogue.</p></div>' +
+      '<div class="formact"><button class="btn pri" type="submit">Add Course</button>' +
+      '<span class="formnote">A Vendor still needs a scope on this Course before they can submit into it. ' +
+      'It is <strong>immediately visible on the public catalogue</strong>, and it cannot be retired.</span></div>' +
+      '</form>', null, 'h2');
+  }
+
+  function wireStructureForms() {
+    var gForm = document.getElementById('pg-form');
+    if (gForm) {
+      var gBusy = false;
+      gForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (gBusy) { return; }
+        var fields = {
+          name: (document.getElementById('pg-name-i') || {}).value || '',
+          summary: (document.getElementById('pg-summary-i') || {}).value || ''
+        };
+        var errs = state.validateGroupingFields(fields, null);
+        if (!ui.showErrors(gForm, errs, 'Please correct the Programme / department')) { return; }
+        gBusy = true;
+        var res = state.createGrouping(fields);
+        if (!res.ok) { gBusy = false; ui.showErrors(gForm, res.errors, 'Please correct the Programme / department'); return; }
+        ui.toast(res.grouping.name + ' added. Add a Course to it to make it usable.');
+        XRSLP.render(false);
+      });
+    }
+    var cForm = document.getElementById('pc-form');
+    if (cForm) {
+      var cBusy = false;
+      cForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (cBusy) { return; }
+        var fields = {
+          groupingId: (document.getElementById('pc-grouping-i') || {}).value || '',
+          name: (document.getElementById('pc-name-i') || {}).value || '',
+          summary: (document.getElementById('pc-summary-i') || {}).value || ''
+        };
+        var errs = state.validateCourseFields(fields, null);
+        if (!ui.showErrors(cForm, errs, 'Please correct the Course')) { return; }
+        cBusy = true;
+        var res = state.createCourse(fields);
+        if (!res.ok) { cBusy = false; ui.showErrors(cForm, res.errors, 'Please correct the Course'); return; }
+        ui.toast(res.course.name + ' added to the canonical catalogue.');
+        XRSLP.render(false);
+      });
+    }
+  }
+
+  /* ---------------- one Programme / department ---------------- */
+  XRSLP.screens.platformGrouping = function (params) {
+    var g = state.groupingRecord(params.groupingId);
+    if (!g) { return structureNotFound('Programme / department'); }
+    var courses = state.coursesInGroupingRecord(g.id);
+    /* TWO DIFFERENT POPULATIONS, NAMED AS SUCH. `experimentsInGrouping`
+       resolves through the PUBLISHED pool; `courseUsage().records` counts
+       every content record, in-flight ones included. Reporting one as
+       "Experiments" next to Course rows showing the other made the same
+       screen contradict itself — 4 against a Course-row total of 7 on the
+       seeded data alone. Both are shown, each labelled for what it is. */
+    var publishedCount = data.experimentsInGrouping(g.id).length;
+    var allRecords = courses.reduce(function (n, c) { return n + state.courseUsage(c.id).records; }, 0);
+
+    var html =
+      ui.crumbs([{ label: 'Academic structure', href: P.href.structure() }, { label: g.name }]) +
+      ui.phead(g.name, 'Programme / department master record', null, ' ' + originBadge(g)) +
+      '<div class="grid-rail"><div class="stack">' +
+      ui.card('Rename or re-describe',
+        '<form id="pg-edit" novalidate>' +
+        '<div class="form-errors"></div>' +
+        '<div class="field" id="pg-name"><label for="pg-name-i">Name ' +
+        '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+        '<input type="text" id="pg-name-i" autocomplete="off" value="' + esc(g.name) + '"></div>' +
+        '<div class="field" id="pg-summary"><label for="pg-summary-i">Description ' +
+        '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+        '<textarea id="pg-summary-i" rows="3">' + esc(g.summary) + '</textarea></div>' +
+        '<div class="formact"><button class="btn pri" type="submit">Save changes</button>' +
+        '<span class="formnote">The identifier never changes, so every <em>stored</em> reference stays valid. ' +
+        'A tenant CSV whose Programme column still names the old text will no longer match, because that ' +
+        'import resolves by name.</span></div>' +
+        '</form>', null, 'h2') +
+      '</div><div class="stack">' +
+      ui.card('Identity',
+        '<div class="kv">' +
+        '<div class="k">Identifier</div><div class="v">' + esc(g.id) + '</div>' +
+        '<div class="k">Courses</div><div class="v">' + courses.length + '</div>' +
+        '<div class="k">Experiments — published</div><div class="v">' + publishedCount + '</div>' +
+        '<div class="k">Experiments — all records</div><div class="v">' + allRecords +
+        '<span class="tsub2">in-flight submissions included</span></div>' +
+        '<div class="k">Origin</div><div class="v">' +
+        esc(g.source === 'seed' ? 'Prototype seed structure' : 'Added on the platform') + '</div>' +
+        '</div>' +
+        '<p class="cardfoot">Retiring a Programme / department is not implemented. Nothing is deleted in this ' +
+        'build, and no source states what should happen to the live references a retirement would orphan.</p>',
+        null, 'h2') +
+      '</div></div>';
+
+    return {
+      title: g.name, html: html, navKey: 'structure',
+      after: function () {
+        var form = document.getElementById('pg-edit');
+        if (!form) { return; }
+        var busy = false;
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          if (busy) { return; }
+          var fields = {
+            name: (document.getElementById('pg-name-i') || {}).value || '',
+            summary: (document.getElementById('pg-summary-i') || {}).value || ''
+          };
+          var errs = state.validateGroupingFields(fields, g.id);
+          if (!ui.showErrors(form, errs, 'Please correct the Programme / department')) { return; }
+          busy = true;
+          var res = state.updateGrouping(g.id, fields);
+          if (!res.ok) { busy = false; ui.showErrors(form, res.errors, 'Please correct the Programme / department'); return; }
+          ui.toast('Saved. The identifier is unchanged, so every stored reference still resolves — but a CSV import naming the old text will not.');
+          XRSLP.render(false);
+        });
+      }
+    };
+  };
+
+  /* ---------------- one Course ---------------- */
+  XRSLP.screens.platformCourse = function (params) {
+    var c = state.courseRecord(params.courseId);
+    if (!c) { return structureNotFound('Course'); }
+    var use = state.courseUsage(c.id);
+    var records = state.contentRecords().filter(function (r) { return r.courseId === c.id; });
+
+    var recordsHTML = records.length
+      ? '<ul class="reslist plain">' + records.map(function (r) {
+          return '<li>' + ui.ic('flask') + '<span><a href="' + P.href.record(r.id) + '">' + esc(r.name) + '</a> ' +
+            '<span class="muted">· ' + esc(state.contentStatusMeta(r.status).label) + '</span></span></li>';
+        }).join('') + '</ul>'
+      : '<p class="muted">No Experiment is filed under this Course yet.</p>';
+
+    var html =
+      ui.crumbs([{ label: 'Academic structure', href: P.href.structure() }, { label: c.name }]) +
+      ui.phead(c.name, 'Course master record', null, ' ' + originBadge(c)) +
+      '<div class="grid-rail"><div class="stack">' +
+      ui.card('Rename, re-describe or move',
+        '<form id="pc-edit" novalidate>' +
+        '<div class="form-errors"></div>' +
+        '<div class="field" id="pc-grouping"><label for="pc-grouping-i">Programme / department ' +
+        '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+        '<select id="pc-grouping-i">' + groupingSelectOptions(c.groupingId) + '</select>' +
+        '<p class="hint">' +
+        (state.courseMoveBlock(c.id)
+          ? '<strong>This Course can no longer change Programme / department.</strong> ' +
+            esc(String(state.courseMoveBlock(c.id))) + ' ' +
+            esc(util.plural(state.courseMoveBlock(c.id), 'person is', 'people are')) + ' filed against it, and ' +
+            'each of those records stores its own Programme — moving the Course would leave them disagreeing, ' +
+            'in tenant-owned records this plane does not own. Renaming and re-describing still work.'
+          : 'Moving a Course re-files it in the tree. The Experiments under it, the tenant mappings that name it ' +
+            'and the role assignments that cover it are all untouched, because none of them stores a Programme. ' +
+            'It is only offered while <strong>nobody is enrolled</strong> against the Course.') +
+        '</p></div>' +
+        '<div class="field" id="pc-name"><label for="pc-name-i">Course name ' +
+        '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+        '<input type="text" id="pc-name-i" autocomplete="off" value="' + esc(c.name) + '"></div>' +
+        '<div class="field" id="pc-summary"><label for="pc-summary-i">Description ' +
+        '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+        '<textarea id="pc-summary-i" rows="3">' + esc(c.summary) + '</textarea></div>' +
+        '<div class="formact"><button class="btn pri" type="submit">Save changes</button>' +
+        '<span class="formnote">The identifier never changes, so every <em>stored</em> reference stays valid. ' +
+        'A tenant CSV whose Course column still names the old text will no longer match, because that import ' +
+        'resolves by name.</span></div>' +
+        '</form>', null, 'h2') +
+      ui.card('Experiments filed under this Course', recordsHTML, null, 'h2') +
+      '</div><div class="stack">' +
+      ui.card('Identity',
+        '<div class="kv">' +
+        '<div class="k">Identifier</div><div class="v">' + esc(c.id) + '</div>' +
+        '<div class="k">Experiments — all records</div><div class="v">' + use.records +
+        '<span class="tsub2">in-flight submissions included</span></div>' +
+        '<div class="k">Experiments — published</div><div class="v">' +
+        data.experimentsInCourse(c.id).length + '</div>' +
+        '<div class="k">Tenant mappings</div><div class="v">' + use.mappings + '</div>' +
+        '<div class="k">Faculty mappings</div><div class="v">' + use.facultyMappings + '</div>' +
+        '<div class="k">People filed against it</div><div class="v">' + use.people + '</div>' +
+        '<div class="k">Role assignments</div><div class="v">' + use.assignments + '</div>' +
+        '<div class="k">Origin</div><div class="v">' +
+        esc(c.source === 'seed' ? 'Prototype seed structure' : 'Added on the platform') + '</div>' +
+        '</div>' +
+        '<p class="cardfoot">Retiring a Course is not implemented — those references are exactly why. Nothing is ' +
+        'deleted in this build.</p>', null, 'h2') +
+      '</div></div>';
+
+    return {
+      title: c.name, html: html, navKey: 'structure',
+      after: function () {
+        var form = document.getElementById('pc-edit');
+        if (!form) { return; }
+        var busy = false;
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          if (busy) { return; }
+          var fields = {
+            groupingId: (document.getElementById('pc-grouping-i') || {}).value || '',
+            name: (document.getElementById('pc-name-i') || {}).value || '',
+            summary: (document.getElementById('pc-summary-i') || {}).value || ''
+          };
+          var errs = state.validateCourseFields(fields, c.id);
+          if (!ui.showErrors(form, errs, 'Please correct the Course')) { return; }
+          busy = true;
+          var res = state.updateCourse(c.id, fields);
+          if (!res.ok) { busy = false; ui.showErrors(form, res.errors, 'Please correct the Course'); return; }
+          ui.toast('Saved. The identifier is unchanged, so every stored reference still resolves — but a CSV import naming the old text will not.');
+          XRSLP.render(false);
+        });
+      }
+    };
+  };
+
+  function structureNotFound(what) {
+    return {
+      title: what + ' not found', navKey: 'structure',
+      html: ui.crumbs([{ label: 'Academic structure', href: P.href.structure() }, { label: 'Not found' }]) +
+        ui.phead(what + ' not found') +
+        '<div class="tablecard">' + ui.emptyState({
+          icon: 'alertCirc', title: what + ' not found',
+          body: 'No ' + what + ' exists with this identifier in the canonical structure.',
+          actionsHTML: '<a class="btn pri" href="' + P.href.structure() + '">Back to Academic structure</a>'
+        }) + '</div>'
+    };
+  }
 
   /* ============================================================
      ONE EXPERIMENT — canonical metadata, ownership, and the version
@@ -256,7 +620,7 @@ XRSLP.screens = XRSLP.screens || {};
       return (a.items || []).some(function (i) { return i.experimentId === rec.id; });
     }).map(function (a) { return a.tenantId; }).filter(function (t, i, arr) { return arr.indexOf(t) === i; });
 
-    var courseOptions = data.COURSES.map(function (c) {
+    var courseOptions = data.courses().map(function (c) {
       var g = data.grouping(c.groupingId);
       return '<option value="' + esc(c.id) + '"' + (c.id === rec.courseId ? ' selected' : '') + '>' +
         esc((g ? g.name + ' — ' : '') + c.name) + '</option>';

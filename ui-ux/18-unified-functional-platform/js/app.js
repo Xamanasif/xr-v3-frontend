@@ -243,6 +243,11 @@
             'activation state and governance history, Tenant Admin assignments, platform role assignments ' +
             '(back to the seeded scope), later-version candidates with their Release / Hold decisions, ' +
             'device transfer requests and support reports.</p>' +
+            '<p style="margin-top:8px"><strong>And it returns the platform&rsquo;s own configuration to ' +
+            'seed:</strong> every Programme / department and Course added in Academic structure is discarded ' +
+            '(and any rename undone), and every Vendor, Academic Reviewer or Content Manager registered in Role ' +
+            'governance is discarded — back to the two seeded Programmes, the five seeded Courses and the five ' +
+            'seeded role holders.</p>' +
             '<p style="margin-top:8px">Reset is the <strong>only</strong> action that discards existing data. ' +
             'Loading a state saved by an earlier build upgrades it in place instead.</p>' +
             '<div class="consequence">' + ui.ic('info') +
@@ -365,6 +370,9 @@
         { href: '#/platform/content', icon: 'layers', label: 'Content governance', active: activeKey === 'content',
           count: o.versionsAwaiting.length,
           countLabel: XRSLP.util.plural(o.versionsAwaiting.length, 'version') + ' awaiting Release or Hold' },
+        { href: '#/platform/structure', icon: 'book', label: 'Academic structure',
+          active: activeKey === 'structure', count: o.courses,
+          countLabel: XRSLP.util.plural(o.courses, 'canonical Course') },
         { href: '#/platform/roles', icon: 'shield', label: 'Role governance', active: activeKey === 'roles',
           count: o.roleAssignments, countLabel: XRSLP.util.plural(o.roleAssignments, 'role assignment') },
         { href: '#/platform/operations', icon: 'monitor', label: 'Operations', active: activeKey === 'operations',

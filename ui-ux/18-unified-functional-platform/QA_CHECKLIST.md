@@ -1540,8 +1540,9 @@ pass was scoped not to touch, and it discloses nothing. Flagged, not changed.
 Two independent passes, and both had to agree before anything below was marked ✅.
 
 **Pass 1 — the state layer, headless.** `qa/harness.js` + `qa/checks.js` load `utils · data ·
-ai-assist · state` outside a browser and assert the rules directly. **685 assertions, 0 failures**
-(429 before Implementation 07; 256 added, none removed or weakened).
+ai-assist · state` outside a browser and assert the rules directly. **855 assertions, 0 failures**
+(429 before Implementation 07; 685 after it; **170 added by Implementation 07.1** — none removed or
+weakened, and the only two changed are the schema-version assertions, 8 → 9).
 That is where an entitlement, a licence or a published version can actually go wrong, so it is
 asserted rather than eyeballed. Run it from this folder:
 
@@ -1981,8 +1982,8 @@ it was verified.
 
 ## The suite
 
-**685 assertions, 0 failures**, up from 429. **256 added; none removed and none weakened.** Run it
-from this folder:
+**855 assertions, 0 failures**, up from 429. **426 added; none removed and none weakened** (the only
+two *changed* are the schema-version assertions, 8 → 9). Run it from this folder:
 
 ```
 /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc \
@@ -2002,6 +2003,11 @@ from this folder:
 | **W** | `STK31-42`'s students-by-stream and usage indicators — derived, honest, and zero on a deactivated institution | ✅ |
 | **X** | The six defects the Implementation-07 **adversarial review** found in Implementation 07's own work — one assertion each, so none can come back | ✅ |
 | **Y** | **The external tenant-creation boundary** — approval provisions the institution, payment activates its access, and neither step duplicates a tenant | ✅ |
+| **Z1** | **Registering a platform role holder** (07.1) — validation and duplicate-email refusal; registration grants **nothing** until a scope is assigned; role scoping unchanged (no platform-wide Vendor); several people on one Course; Vendor **organisation ≠ Vendor person**; no institutional plane is touched | ✅ |
+| **Z2** | **Creating and managing canonical structure** (07.1) — validation; the seeded Civil / Mechanical structure untouched; a new Course reaches the Vendor chooser, role governance, the CSV name mapping and the public catalogue with no second catalogue; the full Vendor → Reviewer → Content Manager chain runs inside brand-new structure; rename keeps the identifier; and no content actor can mint structure under any name | ✅ |
+| **Z3** | **Persistence and reset** (07.1) — created structure and registered people survive a reload; a **schema-8 state gains the seeded structure losing nothing**; reset returns to seed and leaks no custom structure | ✅ |
+| **Z4** | **Structure integrity** (07.1) — the `data.js` seed arrays are never written through (so reset restores the real seed); identifiers are permanent across a rename; **one id namespace** across Programmes, Courses and Experiments; the lookups hand out a copy, so no caller can inject structure; a Course may be moved only while **nobody is enrolled**; `courseUsage` counts every reference class; and a lagging `seq.actor` still mints a unique id | ✅ |
+| **Z5** | **The 8 → 9 migration** (07.1) — a missing seed row is back-filled, a platform-created row is never relabelled as seed, provenance is back-filled by origin, an orphaned Course is re-parented rather than discarded, and migrating twice duplicates nothing | ✅ |
 
 ## The assertions are load-bearing — proved, not assumed
 
@@ -2056,7 +2062,7 @@ No WCAG certification is claimed, here or anywhere in the build.
 
 | Check | Result |
 |---|---|
-| `schemaVersion` | **Unchanged at 8.** No gap required a state-model correction, so **no migration was written** |
+| `schemaVersion` | **8 → 9 in Implementation 07.1.** Implementation 07 itself required no state-model correction; 07.1 made the canonical academic structure state (`groupings[]`, `courses[]`), so **a migration was written**. It is purely additive: a schema-8 state is given the seeded structure it was already reading out of `data.js`, provenance is back-filled, and nothing is deleted, renamed or reordered — verified by scenarios **Z3** and **Z5** |
 | Namespace | `xrslp-unified-v1`, unchanged |
 | Implementation 01–06 data | Untouched. The existing migration assertions still pass |
 | `req.grant`, `req.decisionReason`, `req.paymentOutcome`, `person.overrides` | All **additive and optional** — a stored state that has never seen them reads as *absent*, never as *missing*, and every reader defaults correctly |

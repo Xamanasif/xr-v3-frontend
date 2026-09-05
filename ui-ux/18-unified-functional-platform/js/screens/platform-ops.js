@@ -126,19 +126,85 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="stack">' +
       (withoutScope.length
         ? ui.card('Needs attention', P.attentionList(withoutScope), null, 'h2') : '') +
-      sections +
-      ui.gapNote('IDENTITY ORIGIN NOT DECIDED',
-        'The sources confirm <strong>who assigns</strong> a platform role, not how a person&rsquo;s identity comes ' +
-        'into being: identity-provider role mapping and custom roles are both later-phase. Assignment is therefore ' +
-        'made against an identity that already exists, and no invitation, account creation or credential is ' +
-        'invented here. Creating a new platform role is also absent — the three roles are the confirmed set.') +
+      sections + registerCard() +
+      ui.gapNote('IDENTITY ORIGIN STILL NOT DECIDED',
+        '<strong><code>QD-02</code> is unchanged and unanswered.</strong> The sources confirm <strong>who ' +
+        'assigns</strong> a platform role, not how a person&rsquo;s identity first comes into being; ' +
+        'identity-provider role mapping and custom roles are both later-phase, and the standing instruction is to ' +
+        '&ldquo;invent no invitation, activation or account-creation mechanism&rdquo;. This surface obeys that ' +
+        'literally: registering someone <strong>records a named person</strong> in the platform&rsquo;s own ' +
+        'directory and nothing more &mdash; no account, password, credential, invitation, activation or single ' +
+        'sign-on is created, and none is implied &mdash; and origin is rendered as a provenance line, exactly as ' +
+        'the instruction asks. It is the same treatment the assigned Tenant Admin already receives. Creating a new ' +
+        'platform <em>role</em> remains absent: Vendor, Academic Reviewer and Content Manager are the confirmed set.') +
       ui.gapNote('NOT INSTITUTIONAL ROLES',
         'No institutional person appears on this screen and no institutional role can be assigned from it. ' +
         'Faculty and Student records belong to the Tenant Admin, inside a tenant.') +
       '</div>';
 
-    return { title: 'Role governance', html: html, navKey: 'roles' };
+    return {
+      title: 'Role governance', html: html, navKey: 'roles',
+      after: function () { wireRegisterForm(); }
+    };
   };
+
+  /* ---------------- registering a platform role holder ----------------
+
+     A person, not an account. The form captures who they are and who
+     they act FOR — the Vendor PERSON and the Vendor ORGANISATION are two
+     separate fields here because they are two separate things, and
+     several people may legitimately share one organisation. Registering
+     grants nothing: the new person holds no scope and reaches no content
+     until a scope is assigned on their own page. */
+  function registerCard() {
+    var roleOptions = state.CONTENT_ROLE_ORDER.map(function (r) {
+      return '<option value="' + esc(r) + '">' + esc(state.contentRoleLabel(r)) + '</option>';
+    }).join('');
+    return ui.card('Register a platform role holder',
+      '<form id="ac-form" novalidate>' +
+      '<div class="form-errors"></div>' +
+      '<p class="chelp">Adds a Vendor, Academic Reviewer or Content Manager to the platform directory. ' +
+      'They reach <strong>nothing</strong> until you assign them a scope.</p>' +
+      '<div class="field" id="ac-role"><label for="ac-role-i">Platform role ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<select id="ac-role-i">' + roleOptions + '</select></div>' +
+      '<div class="field" id="ac-name"><label for="ac-name-i">Name ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<input type="text" id="ac-name-i" autocomplete="off"></div>' +
+      '<div class="field" id="ac-org"><label for="ac-org-i">Organisation ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<input type="text" id="ac-org-i" autocomplete="off">' +
+      '<p class="hint">Who this person acts for. Several people may belong to the same organisation.</p></div>' +
+      '<div class="field" id="ac-email"><label for="ac-email-i">Contact email ' +
+      '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+      '<input type="email" id="ac-email-i" autocomplete="off"></div>' +
+      '<div class="formact"><button class="btn pri" type="submit">Register role holder</button>' +
+      '<span class="formnote">Records a person. No account, credential or invitation is created.</span></div>' +
+      '</form>', null, 'h2');
+  }
+
+  function wireRegisterForm() {
+    var form = document.getElementById('ac-form');
+    if (!form) { return; }
+    var busy = false;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (busy) { return; }
+      var fields = {
+        role: (document.getElementById('ac-role-i') || {}).value || '',
+        name: (document.getElementById('ac-name-i') || {}).value || '',
+        organisation: (document.getElementById('ac-org-i') || {}).value || '',
+        email: (document.getElementById('ac-email-i') || {}).value || ''
+      };
+      var errs = state.validateContentActor(fields, null);
+      if (!ui.showErrors(form, errs, 'Please correct the registration')) { return; }
+      busy = true;
+      var res = state.registerContentActor(fields);
+      if (!res.ok) { busy = false; ui.showErrors(form, res.errors, 'Please correct the registration'); return; }
+      ui.toast(res.actor.name + ' is registered. Assign a scope to make work reachable.');
+      window.location.hash = P.href.actor(res.actor.id);
+    });
+  }
 
   /* ---------------- one role holder ---------------- */
   XRSLP.screens.platformActor = function (params) {
@@ -189,7 +255,7 @@ XRSLP.screens = XRSLP.screens || {};
     var scopeOptions = allowed.map(function (s) {
       return '<option value="' + esc(s) + '">' + esc(state.roleScopeLabel(s)) + '</option>';
     }).join('');
-    var courseOptions = data.COURSES.map(function (c) {
+    var courseOptions = data.courses().map(function (c) {
       var g = data.grouping(c.groupingId);
       return '<option value="' + esc(c.id) + '">' + esc((g ? g.name + ' — ' : '') + c.name) + '</option>';
     }).join('');
@@ -273,8 +339,13 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="k">Origin</div><div class="v">' +
         esc(actor.source === 'seed' ? 'Prototype sample identity' : 'Recorded on the platform') + '</div>' +
         '</div>' +
-        '<p class="cardfoot">A sample identity, not a real person. No account, credential or invitation exists ' +
-        'behind it.</p>', null, 'h2') +
+        '<p class="cardfoot">' +
+        (actor.source === 'seed'
+          ? 'A sample identity, not a real person. No account, credential or invitation exists behind it.'
+          : 'Recorded on this platform by the Super Admin. It names a person and nothing more &mdash; there is ' +
+            'no account, password, credential, invitation, activation or single sign-on behind it, and none is ' +
+            'implied. How an identity first comes into being is still undecided (<code>QD-02</code>).') +
+        '</p>', null, 'h2') +
       reachCard + historyCard +
       '</div></div>';
 

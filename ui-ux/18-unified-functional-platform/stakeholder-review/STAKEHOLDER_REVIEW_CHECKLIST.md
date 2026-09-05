@@ -6,7 +6,7 @@
 | **Date** | ____________________ |
 | **Present** | ____________________ |
 | **Captured by** | ____________________ |
-| **Build reviewed** | `ui-ux/18-unified-functional-platform/` · Implementation 07 closeout · `schemaVersion 8` |
+| **Build reviewed** | `ui-ux/18-unified-functional-platform/` · Implementation 07.1 · `schemaVersion 9` |
 
 **How to use this.** One row per topic. Mark the status, write the words the stakeholder actually
 used, and move on — do not debate in the meeting. `CHANGE REQUESTED` and `OPEN QUESTION` rows are
@@ -167,9 +167,13 @@ the input to Implementation 08 scoping; `NOT DISCUSSED` is a legitimate and usef
 | 8.8 | **Publishing writes the record's status and a publication record — and nothing else.** No access, no licence, no assignment | | |
 | 8.9 | Content Manager may manage **canonical metadata**; Learning Outcomes stay with the Reviewer; technology delivery stays with the Vendor | | |
 | 8.10 | **Unpublishing / withdrawing content is NOT built** | | |
-| 8.11 | **Creating or deleting a Programme / Department or Course is NOT built** — is that capability needed? | | |
+| 8.11 | **Creating and renaming a Programme / Department or Course IS built** (`#/platform/structure`); **retiring / deleting one is NOT** — is retirement needed, and what happens to live references? | | |
+| 8.11a | A Course added on the platform appears at once in the Vendor's Course chooser, role governance, the tenant CSV mapping and the public catalogue — **no second catalogue** | | |
 | 8.12 | May the Super Admin **return** a submission at the first-publication gate? (built: neither granted nor refused) | | |
 | 8.13 | Content role assignment is **Course- or Experiment-specific**; several holders per Experiment | | |
+| 8.14 | **A new Vendor / Academic Reviewer / Content Manager can be registered** at `#/platform/roles` — a named person with an organisation and a contact. Registering grants **nothing**: they reach no content until a scope is assigned | | |
+| 8.15 | **No account, credential, invitation, activation or SSO exists behind a role holder** — identity origin (`QD-02`) is still undecided and the build invents no answer. Origin shows as a provenance line | | |
+| 8.16 | Vendor **organisation** and Vendor **person** stay distinct — two people may share one organisation, and the second inherits no authority from it | | |
 
 ---
 

@@ -88,7 +88,7 @@ XRSLP.state = (function () {
   var util = XRSLP.util;
 
   var STORAGE_KEY = 'xrslp-unified-v1';
-  var SCHEMA_VERSION = 8;
+  var SCHEMA_VERSION = 9;
 
   var STATUS = {
     DRAFT: 'DRAFT',
@@ -146,7 +146,11 @@ XRSLP.state = (function () {
       contentVersions: [],
       tenantAdmins: [],
       deviceTransferRequests: [],
-      supportTickets: []
+      supportTickets: [],
+      /* Implementation 07.1 — the canonical ACADEMIC STRUCTURE, which
+         stopped being a hardcoded array and became governed state. */
+      groupings: [],
+      courses: []
     };
   }
 
@@ -196,6 +200,13 @@ XRSLP.state = (function () {
       tenantAdmins: [],
       deviceTransferRequests: [],
       supportTickets: [],
+      /* Implementation 07.1 — the canonical academic structure.
+         Seeded from data.GROUPINGS / data.COURSES so a fresh state is
+         byte-for-byte the structure the prototype has always had, and
+         then owned here: the Super Admin may add to it (D3 — create),
+         and every catalogue lookup resolves against THIS, not the seed. */
+      groupings: seedStructureRows(data.GROUPINGS),
+      courses: seedStructureRows(data.COURSES),
       /* Which REAL assigned Tenant Admin the prototype is currently
          viewing as. Prototype-only; not authentication, and an admin of
          one tenant can never act for another. */
@@ -237,6 +248,7 @@ XRSLP.state = (function () {
        SEED array while this function builds a NEW state object: the
        resolver would otherwise read the OUTGOING state during a reset. */
     contentSeeding = true;
+    structureSeeding = true;
     try {
       seedContent(S0);
       seedTenantOperations(S0);
@@ -244,6 +256,7 @@ XRSLP.state = (function () {
       seedFacultyAuthoring(S0);
     } finally {
       contentSeeding = false;
+      structureSeeding = false;
       pubCache = null;
     }
     return S0;
@@ -516,6 +529,16 @@ XRSLP.state = (function () {
     if (!parsed.facultyPrefs || typeof parsed.facultyPrefs !== 'object') { parsed.facultyPrefs = {}; }
 
     migrateFacultyAuthoring(parsed, stored);
+    /* Structure first, so `parsed.groupings` / `parsed.courses` are whole
+       before anything else reads them.
+
+       ⚠ NOT because the lookups resolve here — THEY DO NOT. `S` is not
+       assigned until after `migrate()` returns, so `structureSource()`
+       answers null throughout migration and `data.course()` falls back to
+       the SEED array. A migration step that needs the migrating state's
+       structure must read `parsed.courses` directly; `data.course()`
+       would silently miss every platform-created Course. */
+    migrateCatalogueStructure(parsed);
     migrateContentProduction(parsed, stored);
     migrateGovernance(parsed, stored);
     migrateTransferScope(parsed);
@@ -524,6 +547,58 @@ XRSLP.state = (function () {
     delete parsed.version;
     parsed.migratedFrom = stored < SCHEMA_VERSION ? stored : (parsed.migratedFrom || null);
     return parsed;
+  }
+
+  /* SCHEMA 8 → 9: the canonical academic structure becomes state.
+
+     PURELY ADDITIVE. A state written by any earlier build has no
+     `groupings[]` / `courses[]` at all; it is given the seeded structure,
+     which is exactly the structure that build was reading out of
+     data.js — so every stored courseId, course mapping, faculty mapping,
+     access record and assignment resolves to the same row it always did.
+
+     The back-fill is by ID and runs on EVERY load, not only the first:
+     a Programme or Course added to the seed by a later build joins an
+     existing state instead of being invisible in it, and a row created
+     on the platform is never touched, re-seeded or reordered. Nothing
+     here deletes or renames anything. */
+  function migrateCatalogueStructure(parsed) {
+    if (!Array.isArray(parsed.groupings)) { parsed.groupings = []; }
+    if (!Array.isArray(parsed.courses)) { parsed.courses = []; }
+
+    function backfill(target, seedRows) {
+      var have = {};
+      target.forEach(function (r) { if (r && r.id) { have[r.id] = true; } });
+      seedStructureRows(seedRows).forEach(function (r) {
+        if (!have[r.id]) { target.push(r); }
+      });
+    }
+    backfill(parsed.groupings, data.GROUPINGS);
+    backfill(parsed.courses, data.COURSES);
+
+    /* Provenance back-fill for a row written before the field existed.
+       Anything already in the collection that the seed does not name was
+       created on the platform, so it is recorded as such rather than
+       being silently relabelled a seed row. */
+    var seededG = {}; data.GROUPINGS.forEach(function (g) { seededG[g.id] = true; });
+    var seededC = {}; data.COURSES.forEach(function (c) { seededC[c.id] = true; });
+    parsed.groupings.forEach(function (g) {
+      if (typeof g.source !== 'string') { g.source = seededG[g.id] ? 'seed' : 'manual'; }
+    });
+    parsed.courses.forEach(function (c) {
+      if (typeof c.source !== 'string') { c.source = seededC[c.id] ? 'seed' : 'manual'; }
+    });
+    /* THE ONE PLACE THIS FUNCTION MUTATES RATHER THAN ADDS, and it is a
+       repair, not an edit: a Course whose Programme is absent would
+       vanish from the tree and from the public catalogue while still
+       holding published content. It is re-parented to the first grouping
+       so it stays reachable. No row is ever discarded. This is not
+       reachable from the product today — nothing deletes a Programme —
+       and it exists for a hand-edited or branch-written state. */
+    var gids = {}; parsed.groupings.forEach(function (g) { gids[g.id] = true; });
+    parsed.courses.forEach(function (c) {
+      if (!gids[c.groupingId] && parsed.groupings.length) { c.groupingId = parsed.groupings[0].id; }
+    });
   }
 
   /* SCHEMA 4 → 5: assessment configuration becomes Faculty-owned
@@ -1057,6 +1132,59 @@ XRSLP.state = (function () {
   var contentSeeding = false;
   var pubCache = null, pubCacheSeq = -1;
 
+  /* ============================================================
+     CANONICAL ACADEMIC STRUCTURE — Programme / Department → Course
+     (Implementation 07.1, open decision D3)
+
+     The structure used to be two frozen arrays in data.js, which meant
+     new academic structure needed a developer. It is now governed state
+     with the SAME shape, seeded from those arrays so every existing id
+     — `civil-engineering`, `soil-mechanics`, … — is unchanged and every
+     stored reference to them still resolves.
+
+     WHAT IS BUILT: create, and rename / re-describe / re-parent.
+     WHAT IS NOT: retire or delete. That is deliberate and unchanged —
+     these identifiers are load-bearing for every access record,
+     academic mapping, Faculty mapping and assignment, and D3's own
+     recommendation is to "scope create first and treat retire
+     separately". Nothing is deleted anywhere in this build.
+     ============================================================ */
+
+  /* Seed rows carry the same provenance line every other record has, so
+     a seeded Course and a platform-created one are told apart honestly
+     without a second collection. */
+  function seedStructureRows(rows) {
+    return rows.map(function (r) {
+      var copy = JSON.parse(JSON.stringify(r));
+      copy.source = 'seed';
+      copy.createdBy = null;
+      copy.createdAt = null;
+      copy.updatedAt = null;
+      return copy;
+    });
+  }
+
+  /* `structureSeeding` does for the structure resolver what
+     `contentSeeding` does for the published-pool resolver: while a NEW
+     state object is being built, the resolver must not answer out of the
+     OUTGOING state — a reset would otherwise be able to inherit the very
+     Courses it is resetting away.
+
+     ⚠ HONEST STATUS: this is DEFENCE IN DEPTH, not a load-bearing fix
+     today. No function `initialState()` calls currently performs a
+     structure lookup, so removing the flag changes no observable
+     behaviour and no assertion can distinguish it. It is kept because
+     the seeding path is exactly where such a lookup would one day be
+     added, and because the resolver it guards is the same shape as the
+     published-pool resolver that DOES need its equivalent. */
+  var structureSeeding = false;
+  function structureSource(kind) {
+    if (structureSeeding) { return null; }
+    if (typeof S === 'undefined' || !S) { return null; }
+    var rows = kind === 'groupings' ? S.groupings : S.courses;
+    return (Array.isArray(rows) && rows.length) ? rows : null;
+  }
+
   function publicShape(rec) {
     return {
       id: rec.id, courseId: rec.courseId, name: rec.name,
@@ -1117,7 +1245,7 @@ XRSLP.state = (function () {
   function actorCourseIds(actorId) {
     var rows = assignmentsFor(actorId);
     if (rows.some(function (m) { return m.scope === 'all'; })) {
-      return data.COURSES.map(function (c) { return c.id; });
+      return data.courses().map(function (c) { return c.id; });
     }
     var out = [];
     rows.forEach(function (m) {
@@ -1141,7 +1269,7 @@ XRSLP.state = (function () {
   function actorCreateCourseIds(actorId) {
     var rows = assignmentsFor(actorId);
     if (rows.some(function (m) { return m.scope === 'all'; })) {
-      return data.COURSES.map(function (c) { return c.id; });
+      return data.courses().map(function (c) { return c.id; });
     }
     var out = [];
     rows.forEach(function (m) {
@@ -5720,6 +5848,306 @@ XRSLP.state = (function () {
     return tenantAdminsFor(tenantId)[0] || null;
   }
 
+  /* ---------- platform actor registration (Implementation 07.1) ----------
+
+     WHAT THIS IS, AND WHAT IT DELIBERATELY IS NOT.
+
+     `QD-02` is answered only for WHO assigns a platform role, not for
+     how an identity first exists — FRD 7.4.2 (IdP role mapping) and 8.3
+     (custom roles) are both Phase 3 — and the standing instruction is to
+     "invent no invitation, activation or account-creation mechanism".
+
+     This obeys that instruction literally, in exactly the way
+     `assignTenantAdmin()` already does one plane over: it RECORDS A
+     NAMED PERSON in the platform's own directory and invents nothing
+     behind them. There is no account, no credential, no password, no
+     invitation, no activation and no identity provider — and origin is
+     rendered as a provenance line ('seed' vs 'manual'), which is what
+     the instruction asks for. What changes is only that the directory
+     is no longer closed at five seeded people.
+
+     Registering someone grants NOTHING on its own. Authority still
+     comes from `contentRoleAssignments[]`, so a newly registered person
+     reaches no content at all until the Super Admin assigns a scope. */
+
+  var CONTENT_ROLE_ORDER = ['vendor', 'reviewer', 'manager'];
+
+  function validateContentActor(fields, existingId) {
+    var errs = [];
+    var role = String(fields.role || '').trim();
+    var name = String(fields.name || '').trim();
+    var org = String(fields.organisation || '').trim();
+    var email = String(fields.email || '').trim();
+    if (CONTENT_ROLE_ORDER.indexOf(role) === -1) {
+      errs.push({ field: 'ac-role', message: 'Choose the platform role this person holds.' });
+    }
+    if (!name) { errs.push({ field: 'ac-name', message: 'Enter the name of the person.' }); }
+    /* The Vendor ORGANISATION and the Vendor PERSON are two different
+       things in this model and are not collapsed into one field: the
+       person acts, the organisation is who they act for. Several people
+       may share one organisation — that is a normal Vendor team, not a
+       duplicate — so the organisation is never used for uniqueness. */
+    if (!org) { errs.push({ field: 'ac-org', message: 'Enter the organisation this person belongs to.' }); }
+    if (!email) { errs.push({ field: 'ac-email', message: 'Enter a contact email address.' }); }
+    else if (!util.isEmail(email)) {
+      errs.push({ field: 'ac-email', message: 'Enter a valid email address.' });
+    } else if (S.contentActors.some(function (a) {
+      return a.id !== existingId && String(a.email || '').toLowerCase() === email.toLowerCase();
+    })) {
+      errs.push({ field: 'ac-email', message: 'A platform role holder with this email address already exists.' });
+    }
+    return errs;
+  }
+
+  /* Ids stay in the one `ACT-nnn` namespace the seeded five already use.
+     The loop is belt-and-braces against a counter that a much older
+     stored state could have left behind its collection. */
+  function nextActorId() {
+    var taken = {};
+    S.contentActors.forEach(function (a) { taken[a.id] = true; });
+    var id;
+    do { S.seq.actor += 1; id = 'ACT-' + util.pad3(S.seq.actor); } while (taken[id]);
+    return id;
+  }
+
+  function registerContentActor(fields) {
+    var errs = validateContentActor(fields, null);
+    if (errs.length) { return { ok: false, errors: errs, actor: null }; }
+    var rec = {
+      id: nextActorId(),
+      /* `key` exists only so the seed can wire its own assignments up.
+         A person recorded on the platform has no seed key and needs none. */
+      key: null,
+      role: String(fields.role).trim(),
+      name: String(fields.name).trim(),
+      organisation: String(fields.organisation).trim(),
+      email: String(fields.email).trim(),
+      source: 'manual',
+      registeredBy: 'Super Admin',
+      registeredAt: new Date().toISOString()
+    };
+    S.contentActors.push(rec);
+    save();
+    return { ok: true, errors: [], actor: rec };
+  }
+
+  /* ---------- canonical academic structure: create and manage (D3) ----------
+
+     Programme / Department → Course. Platform-controlled (`STK31-10`):
+     a Tenant Admin can never reach these functions, and a Vendor,
+     Academic Reviewer or Content Manager cannot either — there is no
+     actor parameter here because, exactly like `assignPlatformRole()`
+     and `assignTenantAdmin()`, this is the Super Admin plane. A Vendor
+     SELECTS a canonical Course; it never defines one.
+
+     CREATE and RENAME only. Retire / delete stays absent and stays
+     named as absent on screen: every one of these ids is load-bearing
+     for live access records, course mappings, faculty mappings and
+     assignments, and D3 recommends scoping create first for exactly
+     that reason. */
+
+  function groupingRecords() { return S.groupings; }
+  function courseRecords() { return S.courses; }
+  function groupingRecord(id) {
+    return S.groupings.filter(function (g) { return g.id === id; })[0] || null;
+  }
+  function courseRecord(id) {
+    return S.courses.filter(function (c) { return c.id === id; })[0] || null;
+  }
+  function coursesInGroupingRecord(gid) {
+    return S.courses.filter(function (c) { return c.groupingId === gid; });
+  }
+
+  /* A readable slug in the SAME namespace the seeded ids use
+     ('civil-engineering', 'soil-mechanics'), so nothing about the id
+     style changes and a name-based CSV mapping keeps working. */
+  function structureSlug(name, takenIds, fallback) {
+    /* Trailing hyphens are stripped AFTER the length cap as well as
+       before it: truncating at 48 characters can land on a separator,
+       and 'marine-engineering-' would be an ugly permanent identifier. */
+    var base = String(name || '').toLowerCase().trim()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+      .slice(0, 48).replace(/-+$/, '') || fallback;
+    var id = base, n = 2;
+    while (takenIds.indexOf(id) !== -1) { id = base + '-' + n; n += 1; }
+    return id;
+  }
+
+  /* Name uniqueness is not cosmetic. `data.groupingByName()` and
+     `data.courseByName()` are how a tenant's CSV import maps a LOCAL
+     course code onto canonical structure (`STK31-10`), so two Programmes
+     sharing a name would make that resolution ambiguous. Courses are
+     unique WITHIN a Programme, which is exactly the scope the lookup
+     resolves at. */
+  function validateGroupingFields(fields, existingId) {
+    var errs = [];
+    var name = String(fields.name || '').trim();
+    var summary = String(fields.summary || '').trim();
+    if (!name) { errs.push({ field: 'pg-name', message: 'Enter a Programme / Department name.' }); }
+    else if (S.groupings.some(function (g) {
+      return g.id !== existingId && data.norm(g.name) === data.norm(name);
+    })) {
+      errs.push({ field: 'pg-name', message: 'A Programme / Department with this name already exists.' });
+    }
+    if (!summary) {
+      errs.push({ field: 'pg-summary', message: 'Enter a short description — the public catalogue shows it.' });
+    }
+    return errs;
+  }
+
+  function validateCourseFields(fields, existingId) {
+    var errs = [];
+    var name = String(fields.name || '').trim();
+    var summary = String(fields.summary || '').trim();
+    var gid = String(fields.groupingId || '').trim();
+    if (!groupingRecord(gid)) {
+      errs.push({ field: 'pc-grouping', message: 'Choose the Programme / Department this Course sits in.' });
+    }
+    if (!name) { errs.push({ field: 'pc-name', message: 'Enter a Course name.' }); }
+    else if (S.courses.some(function (c) {
+      return c.id !== existingId && c.groupingId === gid && data.norm(c.name) === data.norm(name);
+    })) {
+      errs.push({ field: 'pc-name', message: 'A Course with this name already exists in that Programme / Department.' });
+    }
+    if (!summary) {
+      errs.push({ field: 'pc-summary', message: 'Enter a short description — the public catalogue shows it.' });
+    }
+    return errs;
+  }
+
+  /* ONE id namespace for the whole structure.
+
+     Minting only against the target collection let a Programme named
+     "Soil Mechanics" take the id an existing Course already held, so
+     `data.grouping('soil-mechanics')` and `data.course('soil-mechanics')`
+     both resolved — to two different records. Nothing conflated them
+     today, because the routes are separate, but two records sharing one
+     readable id in a structure whose whole job is unambiguous reference
+     is a trap, not a feature. Experiment ids are included too, for the
+     same reason. */
+  function structureNamespace() {
+    var taken = S.groupings.map(function (g) { return g.id; })
+      .concat(S.courses.map(function (c) { return c.id; }));
+    S.contentRecords.forEach(function (r) { taken.push(r.id); });
+    return taken;
+  }
+
+  function createGrouping(fields) {
+    var errs = validateGroupingFields(fields, null);
+    if (errs.length) { return { ok: false, errors: errs, grouping: null }; }
+    var rec = {
+      id: structureSlug(fields.name, structureNamespace(), 'programme'),
+      name: String(fields.name).trim(),
+      summary: String(fields.summary).trim(),
+      source: 'manual',
+      createdBy: 'Super Admin',
+      createdAt: new Date().toISOString(),
+      updatedAt: null
+    };
+    S.groupings.push(rec);
+    save();
+    return { ok: true, errors: [], grouping: rec };
+  }
+
+  /* Rename / re-describe. The ID NEVER CHANGES, which is what keeps
+     every stored reference to this Programme valid across a rename. */
+  function updateGrouping(id, fields) {
+    var rec = groupingRecord(id);
+    if (!rec) {
+      return { ok: false, errors: [{ field: 'pg-name', message: 'This Programme / Department no longer exists.' }], grouping: null };
+    }
+    var errs = validateGroupingFields(fields, id);
+    if (errs.length) { return { ok: false, errors: errs, grouping: null }; }
+    rec.name = String(fields.name).trim();
+    rec.summary = String(fields.summary).trim();
+    rec.updatedAt = new Date().toISOString();
+    save();
+    return { ok: true, errors: [], grouping: rec };
+  }
+
+  function createCourse(fields) {
+    var errs = validateCourseFields(fields, null);
+    if (errs.length) { return { ok: false, errors: errs, course: null }; }
+    var rec = {
+      id: structureSlug(fields.name, structureNamespace(), 'course'),
+      groupingId: String(fields.groupingId).trim(),
+      name: String(fields.name).trim(),
+      summary: String(fields.summary).trim(),
+      source: 'manual',
+      createdBy: 'Super Admin',
+      createdAt: new Date().toISOString(),
+      updatedAt: null
+    };
+    S.courses.push(rec);
+    save();
+    return { ok: true, errors: [], course: rec };
+  }
+
+  /* Rename, re-describe, and re-parent into a different Programme.
+     Re-parenting is safe and deliberate: nothing stores a
+     grouping→course edge except the Course row itself, so the Experiments
+     filed under this Course, the tenant mappings that name it and the
+     role assignments that cover it are all untouched — only where it
+     appears in the tree changes. The id never changes. */
+  function updateCourse(id, fields) {
+    var rec = courseRecord(id);
+    if (!rec) {
+      return { ok: false, errors: [{ field: 'pc-name', message: 'This Course no longer exists.' }], course: null };
+    }
+    var errs = validateCourseFields(fields, id);
+    var moving = String(fields.groupingId).trim() !== rec.groupingId;
+    if (moving) {
+      var enrolled = courseMoveBlock(id);
+      if (enrolled) {
+        errs.push({ field: 'pc-grouping', message: 'This Course cannot change Programme / Department: ' +
+          enrolled + ' ' + util.plural(enrolled, 'person is', 'people are') + ' filed against it, and each of ' +
+          'those records stores its own Programme. Renaming and re-describing are still available.' });
+      }
+    }
+    if (errs.length) { return { ok: false, errors: errs, course: null }; }
+    rec.name = String(fields.name).trim();
+    rec.summary = String(fields.summary).trim();
+    rec.groupingId = String(fields.groupingId).trim();
+    rec.updatedAt = new Date().toISOString();
+    save();
+    return { ok: true, errors: [], course: rec };
+  }
+
+  /* How much of the platform a structure row is already carrying — the
+     honest answer to "can I still change this?", and what the screen
+     shows instead of a delete control. */
+  function courseUsage(courseId) {
+    return {
+      records: S.contentRecords.filter(function (r) { return r.courseId === courseId; }).length,
+      mappings: S.courseMappings.filter(function (m) { return m.courseId === courseId; }).length,
+      assignments: roleAssignments({}).filter(function (m) { return m.courseId === courseId; }).length,
+      /* Faculty mappings and enrolled people are references too. Counting
+         only the first three let a Course that Faculty teach and students
+         are enrolled against report "Not yet referenced", which is the
+         opposite of what the screen is for. */
+      facultyMappings: S.facultyMappings.filter(function (f) {
+        return f.courseId === courseId && f.status === 'active';
+      }).length,
+      people: S.people.filter(function (pp) { return pp.courseId === courseId; }).length
+    };
+  }
+  /* A Course may only change Programme while NO PERSON is filed against
+     it.
+
+     This is a real consequence, not a formality. A student record carries
+     its OWN `groupingId` alongside its `courseId`, and the CSV import
+     validates at entry that the Course sits inside that Programme
+     (`data.courseByName(name, groupingId)`). Moving the Course afterwards
+     would leave those two fields disagreeing — silently, from a different
+     plane, in tenant-owned records the Super Admin does not own and must
+     not rewrite. So the move is refused while anyone is enrolled, which
+     still leaves the case the capability is actually for: a Course filed
+     under the wrong Programme, corrected before anybody is enrolled. */
+  function courseMoveBlock(courseId) {
+    var enrolled = S.people.filter(function (pp) { return pp.courseId === courseId; }).length;
+    return enrolled ? enrolled : 0;
+  }
+
   /* ---------- platform role governance (STK31-41) ---------- */
 
   var ROLE_SCOPE = { ALL: 'all', COURSE: 'course', EXPERIMENT: 'experiment' };
@@ -5936,10 +6364,10 @@ XRSLP.state = (function () {
      Experiment, with the live publication state and technology
      availability of each Experiment and who holds authority over it. */
   function canonicalTree() {
-    return data.GROUPINGS.map(function (g) {
+    return data.groupings().map(function (g) {
       return {
         grouping: g,
-        courses: data.COURSES.filter(function (c) { return c.groupingId === g.id; }).map(function (c) {
+        courses: data.courses().filter(function (c) { return c.groupingId === g.id; }).map(function (c) {
           return {
             course: c,
             records: S.contentRecords.filter(function (r) { return r.courseId === c.id; })
@@ -6861,7 +7289,10 @@ XRSLP.state = (function () {
       expiredAccess: expired,
       accessRecords: S.access.length,
       publishedCount: S.contentRecords.filter(function (r) { return r.status === CONTENT_STATUS.PUBLISHED; }).length,
-      roleAssignments: roleAssignments({}).length
+      roleAssignments: roleAssignments({}).length,
+      /* Implementation 07.1 — the canonical structure the platform now owns. */
+      groupings: S.groupings.length,
+      courses: S.courses.length
     };
   }
 
@@ -7314,6 +7745,17 @@ XRSLP.state = (function () {
     /* platform role governance */
     ROLE_SCOPE: ROLE_SCOPE, ROLE_SCOPE_LABEL: ROLE_SCOPE_LABEL,
     roleScopesAllowed: roleScopesAllowed, roleScopeLabel: roleScopeLabel,
+    /* Implementation 07.1 — platform actor registration. */
+    registerContentActor: registerContentActor, validateContentActor: validateContentActor,
+    CONTENT_ROLE_ORDER: CONTENT_ROLE_ORDER,
+    /* Implementation 07.1 — canonical academic structure (D3: create + rename). */
+    groupingRecords: groupingRecords, courseRecords: courseRecords,
+    groupingRecord: groupingRecord, courseRecord: courseRecord,
+    coursesInGroupingRecord: coursesInGroupingRecord,
+    createGrouping: createGrouping, updateGrouping: updateGrouping,
+    createCourse: createCourse, updateCourse: updateCourse,
+    validateGroupingFields: validateGroupingFields, validateCourseFields: validateCourseFields,
+    courseUsage: courseUsage, courseMoveBlock: courseMoveBlock, structureSource: structureSource,
     roleAssignments: roleAssignments, roleAssignmentById: roleAssignmentById,
     actorsForCourse: actorsForCourse, actorsForRecord: actorsForRecord,
     validateRoleAssignment: validateRoleAssignment,
@@ -7399,3 +7841,20 @@ XRSLP.state = (function () {
    reachable through any of them.
    ------------------------------------------------------------------ */
 XRSLP.data.setPublishedResolver(XRSLP.state.publishedPool);
+
+/* ------------------------------------------------------------------
+   Install the canonical ACADEMIC STRUCTURE into the catalogue lookups
+   (Implementation 07.1).
+
+   From here on `data.grouping()`, `data.course()`,
+   `data.coursesInGrouping()`, `data.experimentsInGrouping()`,
+   `data.contextOf()`, `data.groupingByName()`, `data.courseByName()`,
+   `data.groupings()` and `data.courses()` all resolve against
+   `groupings[]` / `courses[]` in state. That is what makes a Programme
+   or Course created by the Super Admin reach the public catalogue, the
+   Vendor's Course chooser, role governance, the Content Manager's
+   canonical-metadata form and the tenant's CSV course mapping without a
+   single call-site change — the same mechanism that already makes ONE
+   content pool real one level below.
+   ------------------------------------------------------------------ */
+XRSLP.data.setStructureResolver(XRSLP.state.structureSource);

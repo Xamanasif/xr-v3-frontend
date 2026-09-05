@@ -11,7 +11,8 @@ review with the PM and the key stakeholder** — before the final visual-design 
 | **Not** | A redesign · a new feature slice · B2C · the final visual pass (that is Implementation 08) |
 | **Baseline** | Implementation 06 — 429 deterministic assertions, 0 failures |
 | **After 07** | **685 deterministic assertions, 0 failures**. No assertion was weakened or removed |
-| **Schema** | `xrslp-unified-v1`, `schemaVersion: 8` — **unchanged**. No migration was written and none was needed |
+| **After 07.1** | **855 deterministic assertions, 0 failures** (170 added). No assertion was weakened or removed; the only two *changed* are the schema-version assertions, 8 → 9 |
+| **Schema** | `xrslp-unified-v1`, `schemaVersion: 9`. **Unchanged at 8 through Implementation 07** — no migration was written for 07 and none was needed. **Implementation 07.1 raised it to 9** to make the canonical academic structure state (`groupings[]`, `courses[]`); that migration is purely additive and is asserted by scenarios Z3 and Z5 |
 
 ---
 
@@ -394,9 +395,27 @@ Each is prohibited, out of phase, or has no source: authentication / SSO / regis
 backend, database or API · a real payment gateway · a real AI provider · a real XR runtime or
 package delivery · a device **registry** · any notification, message or reminder **delivery** ·
 auto-renewal, automatic payment or extension · certificates (`PM-12`, Phase 2) · gamification · an
-SLA, priority formula, external ticketing provider, chatbot or escalation path · creating or
-deleting Programme / Course **master records** · question **spreadsheet import** (FRD 5.1.1 — see
+SLA, priority formula, external ticketing provider, chatbot or escalation path · **retiring or
+deleting** Programme / Course **master records** · question **spreadsheet import** (FRD 5.1.1 — see
 below) · unpublishing or withdrawing published content.
+
+> **Creating and renaming Programme / Course master records moved OUT of this list in
+> Implementation 07.1.** At the 07 closeout neither create nor retire was built, because no source
+> describes either operation. 07.1 builds **create, rename and (while nobody is enrolled) re-parent**
+> at `#/platform/structure`, on the recommendation recorded in open decision **D3** — *"scope create
+> first and treat retire separately"*. That remains an **implementation judgement, not a confirmed
+> requirement**, and the screen says so in its own words. **Retirement stays unbuilt** and stays a
+> genuine open decision: every one of these identifiers is referenced by live access records, tenant
+> course mappings, Faculty mappings and student records, and no source states what should happen to
+> those references when a structure record retires.
+
+> **Registering a platform role holder** likewise moved out of this list in 07.1. `QD-02` — how an
+> identity first comes into being — is **unchanged and still unanswered**, and nothing here answers
+> it: registration records a **named person** with an organisation and a contact, and no account,
+> password, credential, invitation, activation or identity provider is created or implied. It is
+> exactly the treatment `assignTenantAdmin` already gives the Tenant Admin, and it obeys the standing
+> instruction to *"invent no invitation, activation or account-creation mechanism"* literally.
+> **Authentication / SSO / registration in the identity sense remain unbuilt.**
 
 > **Question spreadsheet import** is the one item in this list that a source *does* ask for
 > (FRD 5.1.1 · `STK31-34`) and that this implementation deliberately did **not** build. The reason is
@@ -521,13 +540,13 @@ fails 2 assertions, and activating at approval instead of provisioning fails 12.
 
 | | |
 |---|---|
-| **Deterministic suite** | **685 assertions, 0 failures** (from 429). 256 added; **none removed or weakened** |
+| **Deterministic suite** | **855 assertions, 0 failures** (from 429; 685 at the 07 closeout). 426 added; **none removed or weakened** |
 | **Load-bearing proof** | Five mutation tests: AI auto-finalising a review fails **10** assertions; removing the cross-tenant guard fails **5**; removing the payment tenant gate and the redundant-status no-op fails **6**; restoring the tenant-creation defect fails **2**; activating at approval instead of provisioning fails **12**. No mutant reaches the suite green |
 | **Browser** | Journeys A, B, C and J driven through the real controls. The new decision surface, allocation narrowing, more-information outcome, applicant resubmit, three payment outcomes, institution report, override and Faculty holdings card all verified live |
 | **Responsive** | **41 routes × 375 / 768 / 1280** — including every not-found and deep-link-guard path. Zero horizontal overflow at every width, and none masked |
 | **Structural a11y** | Same sweep: exactly one `h1` per route, zero unlabelled form controls, zero blank pages, zero uncaught runtime errors. Dialog focus trap, Escape and focus restore intact. No WCAG certification claimed |
 | **Runtime** | Zero console messages of any level across the full sweep. All network requests 200; no external request of any kind |
-| **State** | `schemaVersion` **unchanged at 8**. No migration was required, so none was written. Implementation 01–06 data is untouched |
+| **State** | `schemaVersion` **unchanged at 8 for Implementation 07** — no migration was required, so none was written; Implementation 01–06 data is untouched. **Implementation 07.1 raised it to 9**, adding `groupings[]` and `courses[]`. That migration is additive only: an existing state is given the seeded structure it was already reading from `data.js`, so every stored `courseId`, course mapping, faculty mapping, access record and assignment resolves to exactly the row it always did |
 
 ---
 
@@ -541,7 +560,12 @@ Tenant Admin be assigned in that window; see the confirmed 15-day expiry state o
 watch a Faculty member discover what their institution holds without gaining authority over it; and
 see a written answer that has lost its evaluator reported rather than silently lost.
 
-**Closeout status.** The tree was re-verified after the §12c correction: **685 assertions, 0
+**Implementation 07.1 status.** The configuration audit that followed this closeout found two real
+gaps — no way to register a platform role holder, and no way to create canonical Programme / Course
+master records — and closed both. Suite now **855 assertions, 0 failures** (170 added; none removed
+or weakened). `schemaVersion` 8 → 9, migration additive. See §11 for what that did and did not change.
+
+**Closeout status (Implementation 07).** The tree was re-verified after the §12c correction: **685 assertions, 0
 failures**; the nineteen current-state B2B invariants (publication ≠ tenant entitlement · institution
 existence ≠ tenant content access · tenant content access ≠ student entitlement · external approval
 ≠ active paid access · narrow-only grants · no duplicate institutions · Faculty as sole human

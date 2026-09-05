@@ -5,7 +5,7 @@
 | **Audience** | PM + key stakeholder ("Mam") |
 | **Purpose** | Confirm the **functional B2B operating model** — workflow, terminology, ownership and business rules — **before** the final visual design |
 | **Length** | **17 minutes** core · up to 22 with the two optional segments |
-| **Build** | `ui-ux/18-unified-functional-platform/` · Implementation 07 closeout · `schemaVersion 8` |
+| **Build** | `ui-ux/18-unified-functional-platform/` · Implementation 07.1 · `schemaVersion 9` |
 | **Runs at** | <http://localhost:8731/> |
 | **Prepared from** | A full live rehearsal of every segment below. Every route, every button label and every seeded name in this document was driven in the running build and verified |
 | **This is NOT** | A design review. The visual design is deliberately unfinished — that is Implementation 08 |

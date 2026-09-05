@@ -65,7 +65,18 @@ XRSLP.data = (function () {
   };
   var TECH_ORDER = ['web', 'vr', 'mr', 'ar'];
 
-  /* Programme / Department — one terminology-neutral grouping level (ND-02). */
+  /* Programme / Department — one terminology-neutral grouping level (ND-02).
+
+     ⚠ SEED SOURCE — since Implementation 07.1. `GROUPINGS` and `COURSES`
+     below are the SEED for the canonical academic structure, not the
+     runtime structure. `state.groupings[]` / `state.courses[]` are the
+     single source of truth; they are seeded from these two arrays and
+     are then owned by the Super Admin's Academic-structure surface
+     (open decision D3 — CREATE first, retire deliberately separate).
+     The lookups further down resolve through `structureResolver`, so a
+     Programme or Course added on the platform reaches the public
+     catalogue, the Vendor's Course chooser, role governance and the
+     tenant CSV mapping with no call-site change. */
   var GROUPINGS = [
     {
       id: 'civil-engineering',
@@ -572,6 +583,31 @@ XRSLP.data = (function () {
      to the seed array they are describing. */
   var publishedResolver = null;
   function setPublishedResolver(fn) { publishedResolver = fn; }
+
+  /* ---- the canonical ACADEMIC STRUCTURE resolver (Implementation 07.1) ----
+
+     Exactly the same contract as `publishedResolver` above, applied one
+     level up the hierarchy. `XRSLP.state` installs it at boot; until it
+     does — and while the state layer is seeding or migrating — these
+     fall back to the seed arrays, which is the honest answer because a
+     state under construction holds precisely the seeded structure. */
+  var structureResolver = null;
+  function setStructureResolver(fn) { structureResolver = fn; }
+  /* `.slice()` is not decoration. These resolve to the LIVE collections in
+     state, and a caller that did `data.courses().sort(...)` to tidy a
+     dropdown would otherwise reorder the canonical catalogue in place and
+     have it persisted on the next save — a structural change with no
+     mutator, no validation and no history behind it. Handing back a fresh
+     array makes the only supported way to change the structure the one
+     that goes through `state.createCourse` / `state.updateCourse`. */
+  function groupings() {
+    var live = structureResolver ? structureResolver('groupings') : null;
+    return (live || GROUPINGS).slice();
+  }
+  function courses() {
+    var live = structureResolver ? structureResolver('courses') : null;
+    return (live || COURSES).slice();
+  }
   function pool() {
     var live = publishedResolver ? publishedResolver() : null;
     return live || EXPERIMENTS;
@@ -579,10 +615,10 @@ XRSLP.data = (function () {
   function experiments() { return pool(); }
 
   /* ---- lookup helpers over the canonical pool ---- */
-  function grouping(id) { return GROUPINGS.filter(function (g) { return g.id === id; })[0] || null; }
-  function course(id) { return COURSES.filter(function (c) { return c.id === id; })[0] || null; }
+  function grouping(id) { return groupings().filter(function (g) { return g.id === id; })[0] || null; }
+  function course(id) { return courses().filter(function (c) { return c.id === id; })[0] || null; }
   function experiment(id) { return pool().filter(function (e) { return e.id === id; })[0] || null; }
-  function coursesInGrouping(gid) { return COURSES.filter(function (c) { return c.groupingId === gid; }); }
+  function coursesInGrouping(gid) { return courses().filter(function (c) { return c.groupingId === gid; }); }
   function experimentsInCourse(cid) { return pool().filter(function (e) { return e.courseId === cid; }); }
   function experimentsInGrouping(gid) {
     var cids = coursesInGrouping(gid).map(function (c) { return c.id; });
@@ -600,11 +636,11 @@ XRSLP.data = (function () {
   function norm(text) { return String(text == null ? '' : text).trim().toLowerCase().replace(/\s+/g, ' '); }
   function groupingByName(name) {
     var n = norm(name);
-    return GROUPINGS.filter(function (g) { return norm(g.name) === n; })[0] || null;
+    return groupings().filter(function (g) { return norm(g.name) === n; })[0] || null;
   }
   function courseByName(name, groupingId) {
     var n = norm(name);
-    return COURSES.filter(function (c) {
+    return courses().filter(function (c) {
       return norm(c.name) === n && (!groupingId || c.groupingId === groupingId);
     })[0] || null;
   }
@@ -673,6 +709,7 @@ XRSLP.data = (function () {
     PLAN_TERMS: PLAN_TERMS, SEED_TENANT_ID: SEED_TENANT_ID,
     SEED_PEOPLE: SEED_PEOPLE, SEED_GROUPS: SEED_GROUPS, SEED_COURSE_MAPPINGS: SEED_COURSE_MAPPINGS,
     experiments: experiments, setPublishedResolver: setPublishedResolver,
+    groupings: groupings, courses: courses, setStructureResolver: setStructureResolver,
     grouping: grouping, course: course, experiment: experiment,
     coursesInGrouping: coursesInGrouping, experimentsInCourse: experimentsInCourse,
     experimentsInGrouping: experimentsInGrouping, contextOf: contextOf,

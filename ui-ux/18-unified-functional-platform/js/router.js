@@ -46,6 +46,11 @@ XRSLP.router = (function () {
     { pattern: ['platform', 'institutions', ':id'], area: 'platform', screen: 'platformInstitution' },
     { pattern: ['platform', 'content'],             area: 'platform', screen: 'platformContent' },
     { pattern: ['platform', 'content', ':recordId'], area: 'platform', screen: 'platformRecord' },
+    /* Implementation 07.1 — Programme / department and Course master
+       records. Platform-controlled structure; create and rename only. */
+    { pattern: ['platform', 'structure'],           area: 'platform', screen: 'platformStructure' },
+    { pattern: ['platform', 'structure', 'programme', ':groupingId'], area: 'platform', screen: 'platformGrouping' },
+    { pattern: ['platform', 'structure', 'course', ':courseId'],      area: 'platform', screen: 'platformCourse' },
     { pattern: ['platform', 'roles'],               area: 'platform', screen: 'platformRoles' },
     { pattern: ['platform', 'roles', ':actorId'],   area: 'platform', screen: 'platformActor' },
     { pattern: ['platform', 'operations'],          area: 'platform', screen: 'platformOperations' },

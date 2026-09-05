@@ -21,7 +21,7 @@ XRSLP.screens = XRSLP.screens || {};
 
   /* ---------------- landing ---------------- */
   XRSLP.screens.landing = function () {
-    var groupCards = data.GROUPINGS.map(function (g) {
+    var groupCards = data.groupings().map(function (g) {
       var courses = data.coursesInGrouping(g.id);
       var exps = data.experimentsInGrouping(g.id);
       return '<article class="groupcard">' +
@@ -159,7 +159,7 @@ XRSLP.screens = XRSLP.screens || {};
   XRSLP.screens.catalogue = function () {
     var techInUse = data.technologiesInUse();
     var groupingOptions = '<option value="all"' + (catFilters.grouping === 'all' ? ' selected' : '') + '>All programmes</option>' +
-      data.GROUPINGS.map(function (g) {
+      data.groupings().map(function (g) {
         return '<option value="' + esc(g.id) + '"' + (catFilters.grouping === g.id ? ' selected' : '') + '>' + esc(g.name) + '</option>';
       }).join('');
 
@@ -172,7 +172,7 @@ XRSLP.screens = XRSLP.screens || {};
 
     var groupSection = '<section class="cat-section" id="cat-groupings" aria-labelledby="cg-h"' + (filtersActive() ? ' hidden' : '') + '>' +
       '<h2 id="cg-h">Browse by Programme / Department</h2>' +
-      '<div class="groupcards">' + data.GROUPINGS.map(function (g) {
+      '<div class="groupcards">' + data.groupings().map(function (g) {
         var courses = data.coursesInGrouping(g.id);
         var exps = data.experimentsInGrouping(g.id);
         return '<article class="groupcard">' +
@@ -280,7 +280,7 @@ XRSLP.screens = XRSLP.screens || {};
         '<h3><a href="' + courseHref(c.id) + '">' + esc(c.name) + '</a></h3>' +
         '<p>' + esc(c.summary) + '</p>' +
         '<div class="gc-foot"><span>' + exps.length + ' ' + XRSLP.util.plural(exps.length, 'experiment') + '</span>' +
-        '<span aria-hidden="true">·</span>' + ui.techBadges(Object.keys(techUnion)) + '</div>' +
+        (exps.length ? '<span aria-hidden="true">·</span>' + ui.techBadges(Object.keys(techUnion)) : '') + '</div>' +
         '</article>';
     }).join('');
 
@@ -290,7 +290,18 @@ XRSLP.screens = XRSLP.screens || {};
         expCount + ' ' + XRSLP.util.plural(expCount, 'experiment')) +
       '<p class="plede">' + esc(g.summary) + '</p>' +
       '<section aria-labelledby="pc-h"><h2 id="pc-h" class="sr-only">Courses in ' + esc(g.name) + '</h2>' +
-      '<div class="coursecards">' + cards + '</div></section>';
+      /* A Programme with no Courses is a real, reachable state — the
+         platform can add one before any Course sits in it — so the page
+         says so rather than rendering an empty container. */
+      (courses.length
+        ? '<div class="coursecards">' + cards + '</div>'
+        : '<div class="tablecard">' + ui.emptyState({
+            icon: 'book', title: 'No course is listed here yet',
+            body: 'This programme / department has been added to the catalogue, but no course has been ' +
+              'published under it so far. Published experiments appear here as they reach the catalogue.',
+            actionsHTML: '<a class="btn pri" href="#/catalogue">Browse the whole catalogue</a>'
+          }) + '</div>') +
+      '</section>';
 
     return { title: g.name, html: html, navKey: 'catalogue' };
   };
@@ -322,7 +333,15 @@ XRSLP.screens = XRSLP.screens || {};
       ui.phead(c.name, esc(g.name) + ' · ' + exps.length + ' ' + XRSLP.util.plural(exps.length, 'experiment')) +
       '<p class="plede">' + esc(c.summary) + '</p>' +
       '<section aria-labelledby="cx-h"><h2 id="cx-h" class="sr-only">Experiments in ' + esc(c.name) + '</h2>' +
-      '<div class="expliste">' + rows + '</div></section>';
+      (exps.length
+        ? '<div class="expliste">' + rows + '</div>'
+        : '<div class="tablecard">' + ui.emptyState({
+            icon: 'flask', title: 'No experiment is published in this course yet',
+            body: 'This course exists in the catalogue, but nothing has been published under it so far. ' +
+              'Experiments appear here once they are published.',
+            actionsHTML: '<a class="btn pri" href="' + groupHref(g.id) + '">Back to ' + esc(g.name) + '</a>'
+          }) + '</div>') +
+      '</section>';
 
     return { title: c.name, html: html, navKey: 'catalogue' };
   };

@@ -469,7 +469,7 @@ function scenarioTransferTechnology() {
   eq(S.transferTechnologies(revived).join(','), 'vr',
     'MIGRATION REPAIRS THE DEFECT: the existing pending request now resolves to VR');
   eq(revived.technology, 'vr', 'MIGRATION: and the single-value field is filled in');
-  eq(S.SCHEMA_VERSION, 8, 'the build is at schema 8');
+  eq(S.SCHEMA_VERSION, 9, 'the build is at schema 9');
 }
 
 function scenarioF() {
@@ -795,7 +795,7 @@ function migrationChecks() {
   loadState();
   S = XRSLP.state;
 
-  eq(S.SCHEMA_VERSION, 8, 'the build is at schema 8');
+  eq(S.SCHEMA_VERSION, 9, 'the build is at schema 9');
   eq(S.migratedFrom(), 6, 'and reports that it migrated from 6');
   eq(S.requests().length, requests, 'NOTHING LOST: requests');
   eq(S.accessAll().length, access, 'NOTHING LOST: access records');
@@ -2243,6 +2243,540 @@ function scenarioExternalTenantBoundary() {
 }
 
 /* ---------------- run ---------------- */
+
+/* ============================================================
+   SCENARIO Z1 — PLATFORM ACTOR REGISTRATION (Implementation 07.1)
+
+   The directory stopped being closed at five seeded people. What must
+   stay true: registering someone RECORDS A PERSON and grants nothing,
+   role scoping is unchanged, and the Vendor ORGANISATION is never
+   conflated with the Vendor PERSON.
+   ============================================================ */
+function scenarioActorRegistration() {
+  group('SCENARIO Z1 — registering platform actors');
+  boot();
+
+  eq(S.contentActors().length, 5, 'the prototype starts with the five seeded actors');
+
+  /* ---- validation refuses an incomplete or colliding person ---- */
+  eq(S.registerContentActor({ role: '', name: '', organisation: '', email: '' }).ok, false,
+    'an empty registration is refused');
+  eq(S.contentActors().length, 5, 'AND NOTHING WAS WRITTEN');
+  eq(S.validateContentActor({ role: 'vendor', name: 'A', organisation: 'B', email: 'not-an-email' }, null)
+    .some(function (e) { return e.field === 'ac-email'; }), true, 'a malformed email is caught');
+  eq(S.validateContentActor({ role: 'archivist', name: 'A', organisation: 'B', email: 'a@b.co' }, null)
+    .some(function (e) { return e.field === 'ac-role'; }), true,
+    'AN UNKNOWN ROLE IS REFUSED — the three roles are the confirmed set');
+  eq(S.registerContentActor({ role: 'vendor', name: 'Clash', organisation: 'Org',
+    email: 'ananya.rao@sample-vendor.example' }).ok, false, 'a duplicate email is refused');
+  eq(S.contentActors().length, 5, 'and still nothing was written');
+
+  /* ---- a real registration ---- */
+  var v = S.registerContentActor({ role: 'vendor', name: 'P. Sundaram',
+    organisation: 'Sample XR Content Vendor', email: 'p.sundaram@sample-vendor.example' });
+  ok(v.ok, 'a Vendor is registered');
+  eq(v.actor.id, 'ACT-006', 'in the SAME id namespace as the seeded five');
+  eq(v.actor.source, 'manual', 'and carries a provenance line — not a seed identity');
+  eq(v.actor.key, null, 'a platform-recorded person has no seed key');
+
+  /* THE POINT OF THE WHOLE FEATURE: no code change was needed. */
+  ok(S.contentActors('vendor').length === 3, 'THREE VENDORS NOW EXIST — no source edit required');
+
+  /* ---- registering grants NOTHING ---- */
+  eq(S.roleAssignments({ actorId: v.actor.id }).length, 0, 'the new person holds no scope');
+  eq(S.actorScopeText(v.actor.id), 'No assignment', 'and is described as holding none');
+  eq(S.actorCourseIds(v.actor.id).length, 0, 'they reach no Course');
+  eq(S.actorCreateCourseIds(v.actor.id).length, 0, 'and may author nothing');
+  eq(S.createContentDraft(v.actor.id, {
+    name: 'QA Unscoped Draft', courseId: 'soil-mechanics', summary: '', description: 'd',
+    technologies: ['web'], delivery: { web: { url: 'https://example.org/u', runtime: 'browser' } },
+    versionLabel: '1.0'
+  }), null, 'SO A REGISTERED-BUT-UNSCOPED VENDOR STILL CREATES NOTHING');
+
+  /* ---- authority still comes only from an assignment ---- */
+  ok(S.assignPlatformRole({ actorId: v.actor.id, scope: 'course', courseId: 'soil-mechanics' }).ok,
+    'the Super Admin assigns them a Course scope');
+  eq(S.vendorCanCreateIn(v.actor.id, 'soil-mechanics'), true, 'now they may author in it');
+  eq(S.vendorCanCreateIn(v.actor.id, 'surveying'), false, 'and still nowhere else');
+
+  /* ---- role scoping is unchanged for a registered person ---- */
+  eq(S.roleScopesAllowed('vendor').indexOf('all'), -1,
+    'a registered Vendor still cannot hold platform-wide scope');
+  eq(S.assignPlatformRole({ actorId: v.actor.id, scope: 'all' }).ok, false,
+    'AND THE STATE LAYER REFUSES IT, not just the form');
+  var m = S.registerContentActor({ role: 'manager', name: 'QA Manager',
+    organisation: 'Platform content team (sample)', email: 'qa.manager@sample-platform.example' });
+  ok(m.ok, 'a Content Manager is registered');
+  ok(S.assignPlatformRole({ actorId: m.actor.id, scope: 'all' }).ok,
+    'and MAY hold platform-wide scope — the Content Library is a platform surface');
+
+  /* ---- Vendor ORGANISATION is not the Vendor PERSON ---- */
+  var v2 = S.registerContentActor({ role: 'vendor', name: 'R. Chandra',
+    organisation: 'Sample XR Content Vendor', email: 'r.chandra@sample-vendor.example' });
+  ok(v2.ok, 'A SECOND PERSON AT THE SAME ORGANISATION IS ACCEPTED');
+  eq(v2.actor.organisation, v.actor.organisation, 'they share one organisation');
+  ok(v2.actor.id !== v.actor.id, 'but are two distinct people, separately scoped');
+  eq(S.actorCreateCourseIds(v2.actor.id).length, 0,
+    'AND THE SECOND PERSON INHERITS NO AUTHORITY FROM THE ORGANISATION');
+
+  /* ---- a reviewer, and several people on one Course ---- */
+  var r = S.registerContentActor({ role: 'reviewer', name: 'Dr. QA Reviewer',
+    organisation: 'Academic review panel (sample)', email: 'qa.reviewer@sample-academic.example' });
+  ok(r.ok, 'an Academic Reviewer is registered');
+  ok(S.assignPlatformRole({ actorId: r.actor.id, scope: 'course', courseId: 'soil-mechanics' }).ok,
+    'and is assigned the SAME Course as the seeded reviewer');
+  eq(S.actorsForCourse('soil-mechanics', 'reviewer').length, 2,
+    'SEVERAL PEOPLE MAY HOLD ONE COURSE — STK31-41 is preserved');
+
+  /* ---- the prototype pointer accepts a registered person, and only of the right role ---- */
+  S.setProtoVendor(v.actor.id);
+  eq(S.protoVendorId(), v.actor.id, 'the Vendor view switch resolves a registered person');
+  S.setProtoReviewer(v.actor.id);
+  eq(S.protoReviewerId(), null, 'BUT A VENDOR CAN NEVER BE RESOLVED AS THE REVIEWER');
+
+  /* ---- registering touches no institutional plane ---- */
+  eq(S.accessAll().length, 0, 'registering created no tenant access');
+  eq(S.people().filter(function (p) { return p.email === v.actor.email; }).length, 0,
+    'and no institutional person — platform roles are not tenant roles');
+}
+
+/* ============================================================
+   SCENARIO Z2 — CANONICAL ACADEMIC STRUCTURE (Implementation 07.1, D3)
+
+   The catalogue stopped being limited to the seeded Civil / Mechanical
+   structure. What must stay true: the structure is PLATFORM-controlled,
+   ids are stable, the seeded structure is untouched, and anything added
+   works everywhere with no second catalogue.
+   ============================================================ */
+function scenarioCatalogueStructure() {
+  group('SCENARIO Z2 — creating and managing canonical structure');
+  boot();
+
+  eq(S.groupingRecords().length, 2, 'the prototype starts with the two seeded Programmes');
+  eq(S.courseRecords().length, 5, 'and the five seeded Courses');
+  ok(S.groupingRecords().every(function (g) { return g.source === 'seed'; }),
+    'every seeded row is labelled as seed');
+
+  /* ---- validation ---- */
+  eq(S.createGrouping({ name: '', summary: '' }).ok, false, 'an empty Programme is refused');
+  eq(S.createGrouping({ name: 'Civil Engineering', summary: 'x' }).ok, false,
+    'A DUPLICATE PROGRAMME NAME IS REFUSED — name resolution stays unambiguous for CSV import');
+  eq(S.createGrouping({ name: 'Nameless', summary: '' })
+    .errors.some(function (e) { return e.field === 'pg-summary'; }), true,
+    'a description is required — the public catalogue shows it');
+  eq(S.groupingRecords().length, 2, 'AND NOTHING WAS WRITTEN BY ANY REFUSAL');
+
+  /* ---- create ---- */
+  var g = S.createGrouping({ name: 'Electrical Engineering',
+    summary: 'Simulated laboratory work for electrical engineering fundamentals.' });
+  ok(g.ok, 'a new Programme / department is created');
+  eq(g.grouping.id, 'electrical-engineering', 'with a readable id in the seeded id style');
+  eq(g.grouping.source, 'manual', 'and a provenance line saying it was added on the platform');
+
+  eq(S.createCourse({ groupingId: 'no-such-programme', name: 'X', summary: 'y' }).ok, false,
+    'a Course cannot be filed under a Programme that does not exist');
+  var c = S.createCourse({ groupingId: g.grouping.id, name: 'Electrical Machines',
+    summary: 'Construction and characteristics of rotating electrical machines.' });
+  ok(c.ok, 'a Course is created inside it');
+  eq(c.course.id, 'electrical-machines', 'with its own readable id');
+  eq(S.createCourse({ groupingId: g.grouping.id, name: 'Electrical Machines', summary: 'z' }).ok, false,
+    'a duplicate Course name inside one Programme is refused');
+  ok(S.createCourse({ groupingId: 'civil-engineering', name: 'Electrical Machines',
+    summary: 'A different Course that happens to share a name.' }).ok,
+    'BUT THE SAME NAME IN A DIFFERENT PROGRAMME IS ALLOWED — that is the resolution scope');
+  eq(S.courseRecords().filter(function (x) { return x.id === 'electrical-machines-2'; }).length, 1,
+    'and the id collision is resolved rather than overwriting');
+
+  /* ---- the seeded structure is untouched ---- */
+  eq(D.course('soil-mechanics').name, 'Soil Mechanics', 'EXISTING CIVIL DATA IS UNCHANGED');
+  eq(D.grouping('mechanical-engineering').name, 'Mechanical Engineering', 'and Mechanical too');
+  eq(D.coursesInGrouping('civil-engineering').filter(function (x) { return x.source === 'seed'; }).length, 3,
+    'Civil still has its three SEEDED Courses');
+
+  /* ---- one catalogue: the new structure resolves through data.js everywhere ---- */
+  eq(D.courses().length, 7, 'data.courses() reports the live structure — five seeded plus the two added');
+  eq(D.groupings().length, 3, 'and data.groupings() too');
+  eq(D.course('electrical-machines').name, 'Electrical Machines', 'data.course() resolves the new Course');
+  eq(D.coursesInGrouping('electrical-engineering').length, 1, 'it sits in its Programme');
+  /* The tenant CSV import maps a LOCAL code onto canonical structure by
+     NAME, so the new structure must be reachable that way too. */
+  ok(!!D.groupingByName('Electrical Engineering'), 'CSV name resolution finds the new Programme');
+  ok(!!D.courseByName('Electrical Machines', 'electrical-engineering'),
+    'AND THE NEW COURSE — the tenant mapping path works with no change');
+
+  /* ---- a platform-scoped actor gains the new Course automatically ---- */
+  ok(S.actorCreateCourseIds(KULK).indexOf('electrical-machines') !== -1,
+    'a platform-wide Content Manager covers the new Course at once');
+  /* ONE scope store, proved by consequence rather than by asserting a
+     name that never existed: withdrawing the platform scope must remove
+     the new Course from the manager's reach in the same instant. */
+  S.roleAssignments({ actorId: KULK }).forEach(function (m) {
+    S.removePlatformRoleAssignment(m.id, 'QA — proving there is one scope store');
+  });
+  eq(S.actorCreateCourseIds(KULK).indexOf('electrical-machines'), -1,
+    'AND WITHDRAWING IT REMOVES THE NEW COURSE AT ONCE — one scope store, not two');
+  ok(S.assignPlatformRole({ actorId: KULK, scope: 'all' }).ok, 'the platform scope is restored');
+
+  /* ---- but a Vendor still needs a scope on it ---- */
+  eq(S.vendorCanCreateIn(RAO, 'electrical-machines'), false,
+    'A NEW COURSE GRANTS NO VENDOR ANYTHING — authority is still assigned');
+  ok(S.assignPlatformRole({ actorId: RAO, scope: 'course', courseId: 'electrical-machines' }).ok,
+    'the Super Admin assigns the Vendor onto it');
+  eq(S.vendorCanCreateIn(RAO, 'electrical-machines'), true, 'and only now may they author in it');
+
+  /* ---- downstream: the full production chain works in brand-new structure ---- */
+  var rec = S.createContentDraft(RAO, {
+    name: 'QA Induction Motor Test', courseId: 'electrical-machines',
+    summary: 'Sample experiment authored into newly created structure.',
+    description: 'Prototype QA content.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/motor', runtime: 'browser' } },
+    versionLabel: '1.0'
+  });
+  ok(!!rec, 'the Vendor creates a draft in the new Course');
+  eq(S.publishedPool().some(function (r) { return r.id === rec.id; }), false,
+    'and it is NOT public merely because its Course is new');
+
+  /* Re-run the whole chain on a clean state, with the reviewer given real
+     cover over the new Course — the honest gate, not a shortcut. */
+  boot();
+  S.createGrouping({ name: 'Electrical Engineering', summary: 'Sample electrical structure.' });
+  S.createCourse({ groupingId: 'electrical-engineering', name: 'Electrical Machines',
+    summary: 'Sample Course.' });
+  S.assignPlatformRole({ actorId: RAO, scope: 'course', courseId: 'electrical-machines' });
+  S.assignPlatformRole({ actorId: IYER, scope: 'course', courseId: 'electrical-machines' });
+  var rec2 = S.createContentDraft(RAO, {
+    name: 'QA Induction Motor Test', courseId: 'electrical-machines',
+    summary: 'Sample experiment authored into newly created structure.',
+    description: 'Prototype QA content.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/motor', runtime: 'browser' } },
+    versionLabel: '1.0'
+  });
+  ok(!!rec2, 'a draft exists in the new Course');
+  S.submitContent(RAO, rec2.id);
+  eq(S.contentRecord(rec2.id).status, S.CONTENT_STATUS.ACADEMIC_REVIEW,
+    'submitted for academic review from brand-new structure');
+  S.addOutcome(IYER, rec2.id, 'Observe the characteristics of a rotating electrical machine.');
+  ok(!!S.approveAcademic(IYER, rec2.id, 'QA — academically valid.'), 'academically approved');
+  ok(!!S.publishContent(KULK, rec2.id), 'AND THE CONTENT MANAGER PUBLISHES IT');
+
+  /* ---- and it is genuinely in the ONE catalogue ---- */
+  eq(D.experimentsInCourse('electrical-machines').length, 1,
+    'the published Experiment reaches the canonical pool');
+  eq(D.experimentsInGrouping('electrical-engineering').length, 1,
+    'and the Programme it was filed under');
+  var ctx = D.contextOf(rec2.id);
+  ok(!!ctx && ctx.course.id === 'electrical-machines' && ctx.grouping.id === 'electrical-engineering',
+    'CONTEXT RESOLUTION WORKS END TO END — no second catalogue exists');
+  eq(D.experiments().length, 7, 'the public pool is the seeded six plus this one');
+
+  /* ---- rename keeps every reference valid ---- */
+  var up = S.updateCourse('electrical-machines', {
+    groupingId: 'electrical-engineering', name: 'Electrical Machines Laboratory',
+    summary: 'Renamed in QA.' });
+  ok(up.ok, 'the Course is renamed');
+  eq(up.course.id, 'electrical-machines', 'THE IDENTIFIER NEVER CHANGES');
+  eq(S.contentRecord(rec2.id).courseId, 'electrical-machines', 'so the Experiment still resolves to it');
+  eq(D.experimentsInCourse('electrical-machines').length, 1, 'and is still reachable through it');
+  eq(S.vendorCanCreateIn(RAO, 'electrical-machines'), true, 'the role assignment still covers it');
+
+  /* ---- re-parenting moves the tree, not the references ---- */
+  ok(S.updateCourse('electrical-machines', { groupingId: 'civil-engineering',
+    name: 'Electrical Machines Laboratory', summary: 'Moved in QA.' }).ok, 'the Course is moved');
+  eq(D.experimentsInGrouping('civil-engineering').length, 5,
+    'it now shows under its new Programme');
+  eq(D.experimentsInGrouping('electrical-engineering').length, 0, 'and no longer under the old one');
+  eq(S.contentRecord(rec2.id).courseId, 'electrical-machines',
+    'BUT THE EXPERIMENT, THE MAPPING AND THE ASSIGNMENT ARE ALL UNTOUCHED');
+  eq(S.vendorCanCreateIn(RAO, 'electrical-machines'), true, 'the Vendor still holds it');
+
+  /* ---- renaming to your OWN name is not a false duplicate ---- */
+  ok(S.updateGrouping('civil-engineering',
+    { name: 'Civil Engineering', summary: 'Re-described in QA.' }).ok,
+    'a Programme may be re-described without its own name reading as a duplicate');
+  ok(S.updateCourse('soil-mechanics',
+    { groupingId: 'civil-engineering', name: 'Soil Mechanics', summary: 'Re-described in QA.' }).ok,
+    'and a Course too');
+
+  /* ---- a move that would collide in the DESTINATION is refused ---- */
+  var dup = S.createCourse({ groupingId: 'electrical-engineering', name: 'Surveying',
+    summary: 'Shares a name with a Civil Course, in a different Programme.' });
+  ok(dup.ok, 'a Course may share a name with one in another Programme');
+  var clash = S.updateCourse(dup.course.id,
+    { groupingId: 'civil-engineering', name: 'Surveying', summary: 'x' });
+  eq(clash.ok, false, 'BUT MOVING IT INTO THE PROGRAMME THAT ALREADY HAS THAT NAME IS REFUSED');
+  eq(S.courseRecord(dup.course.id).groupingId, 'electrical-engineering',
+    'and the refused move wrote nothing — the Course did not budge');
+
+  /* ---- the structure is PLATFORM-controlled ---- */
+  eq(S.createContentDraft(RAO, {
+    name: 'QA Invented Course', courseId: 'a-course-the-vendor-made-up', summary: '',
+    description: 'd', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/x', runtime: 'browser' } }, versionLabel: '1.0'
+  }), null, 'A VENDOR CANNOT AUTHOR INTO A COURSE THAT DOES NOT EXIST');
+  eq(S.updateCanonicalMetadata(KULK, rec2.id, {
+    name: 'QA Induction Motor Test', courseId: 'still-not-a-real-course',
+    summary: 's', description: 'd' }), null,
+    'and a Content Manager cannot file an Experiment under an invented Course either');
+  eq(S.contentRecord(rec2.id).courseId, 'electrical-machines', 'the record did not move');
+  /* THE BOUNDARY THAT MATTERS, asserted over the REAL exported surface
+     rather than over two names nobody would use. Every structure mutator
+     is a Super-Admin-plane function: none of them takes an actor, so
+     none of them can be handed a Vendor or a Content Manager identity —
+     the same convention `assignPlatformRole` and `assignTenantAdmin`
+     already follow. If a future edit added an actor-scoped creation
+     entry point, this assertion is what would notice. */
+  var structureMutators = ['createGrouping', 'updateGrouping', 'createCourse', 'updateCourse'];
+  eq(structureMutators.filter(function (n) { return typeof S[n] === 'function'; }).length, 4,
+    'the four structure mutators exist on the Super Admin plane');
+  eq(structureMutators.filter(function (n) { return S[n].length > 2; }).length, 0,
+    'AND NONE OF THEM ACCEPTS AN ACTOR — there is no actor-scoped way to mint canonical structure');
+  /* And the whole exported surface holds nothing else that mints one. */
+  eq(Object.keys(S).filter(function (k) {
+    return /^(create|add|new|register|mint)(Course|Grouping|Programme|Department)/.test(k) &&
+      structureMutators.indexOf(k) === -1;
+  }).length, 0, 'and no other structure-creating export exists under any name');
+}
+
+/* ============================================================
+   SCENARIO Z4 — the structure mutators do not corrupt what they read
+
+   Everything here was written because a mutation test showed the suite
+   passing green while the product was broken. Each assertion below kills
+   a specific mutant.
+   ============================================================ */
+function scenarioStructureIntegrity() {
+  group('SCENARIO Z4 — structure integrity, ids and isolation');
+  boot();
+
+  /* ---- THE SEED ARRAYS ARE NEVER WRITTEN THROUGH ----
+     `seedStructureRows` deep-copies. Without that, renaming a seeded
+     Programme edits data.GROUPINGS in place, the "seed" becomes whatever
+     was last typed, and reset() restores the corruption instead of the
+     seed — permanently, for the life of the page. */
+  var seedNameBefore = D.GROUPINGS[0].name;
+  var seedCourseBefore = D.COURSES[0].name;
+  ok(S.updateGrouping('civil-engineering',
+    { name: 'CONTAMINATION PROBE', summary: 'QA' }).ok, 'a seeded Programme is renamed');
+  ok(S.updateCourse('soil-mechanics',
+    { groupingId: 'civil-engineering', name: 'CONTAMINATION PROBE 2', summary: 'QA' }).ok,
+    'and a seeded Course');
+  eq(D.GROUPINGS[0].name, seedNameBefore, 'THE SEED ARRAY IN data.js IS UNTOUCHED');
+  eq(D.COURSES[0].name, seedCourseBefore, 'and so is the seed Course array');
+  S.reset();
+  eq(D.grouping('civil-engineering').name, seedNameBefore,
+    'SO RESET RESTORES THE REAL SEED, not the last thing that was typed');
+  eq(D.course('soil-mechanics').name, seedCourseBefore, 'for Courses too');
+
+  /* ---- an id is permanent ---- */
+  boot();
+  ok(S.updateGrouping('civil-engineering',
+    { name: 'Civil & Environmental Engineering', summary: 'QA rename' }).ok, 'a Programme is renamed');
+  ok(!!D.grouping('civil-engineering'), 'ITS IDENTIFIER STILL RESOLVES AFTER THE RENAME');
+  eq(D.grouping('civil-engineering').name, 'Civil & Environmental Engineering', 'under the new name');
+  eq(S.groupingRecords().filter(function (g) { return g.id === 'civil-engineering'; }).length, 1,
+    'and no second row was created');
+  eq(D.coursesInGrouping('civil-engineering').length, 3, 'its Courses are still attached to it');
+
+  /* ---- ONE id namespace across Programmes, Courses and Experiments ---- */
+  boot();
+  var clash = S.createGrouping({ name: 'Surveying', summary: 'A Programme named after a Course.' });
+  ok(clash.ok, 'a Programme may be named after an existing Course');
+  ok(clash.grouping.id !== 'surveying', 'BUT IT NEVER TAKES THAT COURSE’S IDENTIFIER');
+  eq(D.course('surveying').name, 'Surveying', 'the Course keeps its own id');
+  eq(D.grouping('surveying'), null, 'and the id resolves to exactly one kind of record');
+  var clash2 = S.createCourse({ groupingId: 'civil-engineering', name: 'Civil Engineering',
+    summary: 'A Course named after its Programme.' });
+  ok(clash2.ok && clash2.course.id !== 'civil-engineering',
+    'and a Course never takes a Programme’s identifier either');
+  var clash3 = S.createCourse({ groupingId: 'civil-engineering', name: 'Direct Shear',
+    summary: 'A Course named after an Experiment.' });
+  ok(clash3.ok && !S.contentRecord(clash3.course.id),
+    'nor an Experiment’s');
+
+  /* ---- the lookups hand out a COPY of the collection ---- */
+  boot();
+  var handed = D.courses();
+  handed.push({ id: 'ghost-course', groupingId: 'civil-engineering', name: 'Ghost', summary: 'x' });
+  eq(D.course('ghost-course'), null, 'A CALLER CANNOT INJECT STRUCTURE THROUGH THE LOOKUP');
+  eq(S.courseRecords().length, 5, 'and the collection is untouched');
+  handed = D.groupings();
+  handed.length = 0;
+  eq(D.groupings().length, 2, 'emptying the handed-out array changes nothing');
+
+  /* ---- MOVING a Course is refused once anyone is filed against it ---- */
+  boot();
+  var free = S.createCourse({ groupingId: 'civil-engineering', name: 'Hydraulics',
+    summary: 'Nobody is enrolled on this yet.' });
+  ok(free.ok, 'a brand-new Course exists');
+  eq(S.courseMoveBlock(free.course.id), 0, 'nobody is filed against it');
+  ok(S.updateCourse(free.course.id, { groupingId: 'mechanical-engineering', name: 'Hydraulics',
+    summary: 'Filed under the wrong Programme at first.' }).ok,
+    'SO IT MAY BE MOVED — the wrong-Programme correction the capability is for');
+  eq(S.courseRecord(free.course.id).groupingId, 'mechanical-engineering', 'and it moved');
+
+  /* The seeded Course DOES carry students, and each student record
+     stores its own Programme. Moving it would leave those two fields
+     disagreeing, silently, in tenant-owned records. */
+  ok(S.courseMoveBlock('soil-mechanics') > 0, 'the seeded Course has people filed against it');
+  var blocked = S.updateCourse('soil-mechanics',
+    { groupingId: 'mechanical-engineering', name: 'Soil Mechanics', summary: 'x' });
+  eq(blocked.ok, false, 'SO MOVING IT IS REFUSED — a student’s stored Programme is never desynced');
+  eq(blocked.errors[0].field, 'pc-grouping', 'and the refusal points at the Programme field');
+  eq(S.courseRecord('soil-mechanics').groupingId, 'civil-engineering', 'the Course did not move');
+  /* Renaming it is still fine — only the move is refused. */
+  ok(S.updateCourse('soil-mechanics',
+    { groupingId: 'civil-engineering', name: 'Soil Mechanics I', summary: 'renamed' }).ok,
+    'but renaming and re-describing still work');
+
+  /* ---- courseUsage answers with every reference class ---- */
+  boot();
+  var use = S.courseUsage('soil-mechanics');
+  ok(use.records > 0, 'usage counts content records');
+  ok(use.people > 0, 'AND PEOPLE FILED AGAINST THE COURSE — a referenced Course never reads "unused"');
+  ok(use.assignments > 0, 'and role assignments');
+  eq(typeof use.facultyMappings, 'number', 'and Faculty mappings');
+  eq(S.courseUsage('a-course-that-does-not-exist').records, 0, 'an unknown Course reports nothing');
+  eq(S.coursesInGroupingRecord('civil-engineering').length, 3,
+    'and the structure screen reads its Courses from the live collection');
+  eq(S.coursesInGroupingRecord('electrical-engineering').length, 0, 'an empty Programme reports none');
+
+  /* ---- the Super Admin nav counts are real ---- */
+  var o = S.platformOverview();
+  eq(o.groupings, S.groupingRecords().length, 'the overview reports the real Programme count');
+  eq(o.courses, S.courseRecords().length, 'and the real Course count');
+
+  /* ---- a lagging seq counter never mints a duplicate actor id ---- */
+  boot();
+  S.setScenario('A');                      /* forces the seeded state to persist */
+  var raw = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+  raw.seq.actor = 0;                       /* the counter fell behind its collection */
+  localStorage.setItem(S.STORAGE_KEY, JSON.stringify(raw));
+  loadState(); S = XRSLP.state; D = XRSLP.data;
+  var made = S.registerContentActor({ role: 'vendor', name: 'QA Late Vendor',
+    organisation: 'QA Org', email: 'qa.late@sample-vendor.example' });
+  ok(made.ok, 'a person is registered against a state whose counter lagged');
+  eq(S.contentActors().filter(function (a) { return a.id === made.actor.id; }).length, 1,
+    'AND THE ID IS STILL UNIQUE — no new person is aliased onto an existing one');
+  eq(S.contentActors().length, 6, 'six distinct people exist');
+}
+
+/* ============================================================
+   SCENARIO Z5 — what the 8 → 9 migration repairs, and what it leaves
+   ============================================================ */
+function scenarioStructureMigration() {
+  group('SCENARIO Z5 — migration back-fill, provenance and orphan repair');
+  boot();
+
+  /* A stored state that already holds a platform-created Course, plus a
+     seed row deliberately removed, plus rows with no provenance, plus a
+     Course whose Programme is gone. */
+  S.createGrouping({ name: 'Electrical Engineering', summary: 'Sample electrical structure.' });
+  S.createCourse({ groupingId: 'electrical-engineering', name: 'Electrical Machines', summary: 'Sample.' });
+  var raw = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+
+  raw.courses = raw.courses.filter(function (c) { return c.id !== 'surveying'; });   /* a seed row is missing */
+  raw.groupings.forEach(function (g) { delete g.source; });                          /* written before provenance */
+  raw.courses.forEach(function (c) { delete c.source; });
+  raw.courses.push({ id: 'orphan-course', groupingId: 'a-programme-that-vanished',
+    name: 'Orphan Course', summary: 'Its Programme is gone.' });
+  raw.schemaVersion = 8;
+  localStorage.setItem(S.STORAGE_KEY, JSON.stringify(raw));
+
+  loadState(); S = XRSLP.state; D = XRSLP.data;
+
+  ok(!!D.course('surveying'), 'A MISSING SEED COURSE IS BACK-FILLED, not left absent');
+  eq(D.course('surveying').source, 'seed', 'and is labelled as seed structure');
+  ok(!!D.course('electrical-machines'), 'the platform-created Course survived the migration');
+  eq(S.courseRecord('electrical-machines').source, 'manual',
+    'AND IS CORRECTLY LABELLED MANUAL — a platform row is never relabelled as seed');
+  eq(S.groupingRecord('civil-engineering').source, 'seed',
+    'a provenance-less seeded row is back-filled as seed');
+  eq(S.groupingRecord('electrical-engineering').source, 'manual',
+    'and a provenance-less row the seed does not name is back-filled as manual');
+
+  var orphan = S.courseRecord('orphan-course');
+  ok(!!orphan, 'AN ORPHANED COURSE IS NEVER DISCARDED');
+  ok(!!S.groupingRecord(orphan.groupingId),
+    'it is re-parented to a Programme that exists, so it stays reachable');
+  ok(D.coursesInGrouping(orphan.groupingId).some(function (c) { return c.id === 'orphan-course'; }),
+    'and the tree can actually see it again');
+
+  /* Running the migration twice must be a no-op, not a duplicator. */
+  var before = S.courseRecords().length;
+  loadState(); S = XRSLP.state; D = XRSLP.data;
+  eq(S.courseRecords().length, before, 'MIGRATING AGAIN DUPLICATES NOTHING');
+  eq(S.groupingRecords().filter(function (g) { return g.id === 'civil-engineering'; }).length, 1,
+    'and creates no second copy of a seeded Programme');
+}
+
+/* ============================================================
+   SCENARIO Z3 — the 07.1 collections survive persistence and a reset
+   ============================================================ */
+function scenarioStructurePersistence() {
+  group('SCENARIO Z3 — structure and registered actors persist');
+  boot();
+
+  S.createGrouping({ name: 'Electrical Engineering', summary: 'Sample electrical structure.' });
+  S.createCourse({ groupingId: 'electrical-engineering', name: 'Electrical Machines',
+    summary: 'Sample Course.' });
+  var v = S.registerContentActor({ role: 'vendor', name: 'P. Sundaram',
+    organisation: 'Sample XR Content Vendor', email: 'p.sundaram@sample-vendor.example' });
+  S.assignPlatformRole({ actorId: v.actor.id, scope: 'course', courseId: 'electrical-machines' });
+
+  /* Reload the build over the stored state — the real browser reload. */
+  loadState();
+  S = XRSLP.state; D = XRSLP.data;
+
+  eq(S.groupingRecords().length, 3, 'the created Programme survived the reload');
+  eq(S.courseRecords().length, 6, 'and the created Course');
+  eq(S.contentActors().length, 6, 'and the registered person');
+  eq(S.actorScopeText('ACT-006'), 'Electrical Machines', 'with their scope intact');
+  eq(D.course('electrical-machines').name, 'Electrical Machines',
+    'AND THE LOOKUPS STILL RESOLVE IT AFTER A RELOAD');
+  ok(S.courseRecords().filter(function (c) { return c.id === 'electrical-machines'; })[0].source === 'manual',
+    'provenance survives too');
+
+  /* ---- a state written BEFORE 07.1 gains the structure, losing nothing ---- */
+  boot();
+  var g2 = grantAccess(['direct-shear'], ['vr', 'web'], 3, 'yearly');
+  S.assignExperiment(TENANT, g2.access.id, 'direct-shear', 'student', [RAHUL]);
+  var raw = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+  var access = raw.access.length, records = raw.contentRecords.length;
+  var assignments = raw.assignments.length;
+  raw.schemaVersion = 8;
+  delete raw.groupings; delete raw.courses;   /* exactly what a schema-8 state looks like */
+  localStorage.setItem(S.STORAGE_KEY, JSON.stringify(raw));
+
+  loadState();
+  S = XRSLP.state; D = XRSLP.data;
+
+  eq(S.SCHEMA_VERSION, 9, 'the build is at schema 9');
+  eq(S.migratedFrom(), 8, 'and reports that it migrated from 8');
+  eq(S.groupingRecords().length, 2, 'A SCHEMA-8 STATE GAINS THE SEEDED PROGRAMMES');
+  eq(S.courseRecords().length, 5, 'and the seeded Courses');
+  ok(S.courseRecords().every(function (c) { return c.source === 'seed'; }),
+    'all correctly labelled as seed structure');
+  eq(D.course('soil-mechanics').name, 'Soil Mechanics',
+    'the structure the old state was reading is exactly what it now holds');
+  eq(S.accessAll().length, access, 'NOTHING LOST: access records');
+  eq(S.contentRecords().length, records, 'NOTHING LOST: content records');
+  eq(S.activeAssignments(TENANT).length, assignments, 'NOTHING LOST: assignments');
+  eq(S.studentCanRun(RAHUL, 'direct-shear', 'vr'), true, 'and entitlement still derives');
+
+  /* ---- reset returns to the seeded structure, taking nothing with it ---- */
+  boot();
+  S.createGrouping({ name: 'Electrical Engineering', summary: 'Sample electrical structure.' });
+  S.registerContentActor({ role: 'vendor', name: 'Temp Person', organisation: 'Temp Org',
+    email: 'temp@sample-vendor.example' });
+  eq(S.groupingRecords().length, 3, 'a custom Programme exists');
+  S.reset();
+  eq(S.groupingRecords().length, 2, 'RESET RETURNS TO THE SEEDED STRUCTURE');
+  eq(S.courseRecords().length, 5, 'exactly the seeded Courses');
+  eq(S.contentActors().length, 5, 'and the seeded five actors');
+  eq(D.courses().length, 5, 'AND NO CUSTOM STRUCTURE LEAKS ACROSS THE RESET');
+}
+
+
 scenarioA();
 scenarioB();
 scenarioC();
@@ -2272,4 +2806,11 @@ scenarioVersionIntegrityAndOverride();
 scenarioInstitutionReport();
 scenarioAdversarial07();
 scenarioExternalTenantBoundary();
+/* Implementation 07.1 — platform actor registration and canonical
+   academic structure management. */
+scenarioActorRegistration();
+scenarioCatalogueStructure();
+scenarioStructurePersistence();
+scenarioStructureIntegrity();
+scenarioStructureMigration();
 summary();

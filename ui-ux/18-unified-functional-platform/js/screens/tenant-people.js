@@ -269,7 +269,7 @@ XRSLP.screens = XRSLP.screens || {};
 
     function groupingOptions() {
       return '<option value="">Select a Programme / Department…</option>' +
-        data.GROUPINGS.map(function (g) {
+        data.groupings().map(function (g) {
           return '<option value="' + esc(g.id) + '"' + (chosenGrouping === g.id ? ' selected' : '') + '>' +
             esc(g.name) + '</option>';
         }).join('');

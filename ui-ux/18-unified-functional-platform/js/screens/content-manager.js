@@ -661,7 +661,7 @@ XRSLP.screens = XRSLP.screens || {};
        can never lose its placement by being edited. Offering every
        canonical Course meant the picker held destinations
        `updateCanonicalMetadata` would refuse. */
-    var courseOptions = data.COURSES.filter(function (c) {
+    var courseOptions = data.courses().filter(function (c) {
       return state.managerCanFileInto(actor.id, rec.id, c.id);
     }).map(function (c) {
       var g = data.grouping(c.groupingId);

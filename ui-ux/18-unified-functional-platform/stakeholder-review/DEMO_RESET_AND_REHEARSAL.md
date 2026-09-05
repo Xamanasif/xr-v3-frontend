@@ -5,7 +5,7 @@
 | **Browser** | **Safari** on macOS |
 | **URL** | <http://localhost:8731/> |
 | **Build** | `ui-ux/18-unified-functional-platform/` |
-| **State** | `localStorage`, key **`xrslp-unified-v1`**, `schemaVersion 8` |
+| **State** | `localStorage`, key **`xrslp-unified-v1`**, `schemaVersion 9` |
 | **Companion** | Run this alongside **`STAKEHOLDER_DEMO_SCRIPT.md`** — the segment numbers match |
 | **Verified** | Every step below was executed in the running build |
 
@@ -281,7 +281,7 @@ request*.
 cd /Users/mymac/Desktop/AR-VR/ui-ux/18-unified-functional-platform && /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc qa/harness.js qa/checks.js | tail -4
 ```
 
-- [ ] Prints **`ALL CHECKS PASSED — 685 assertions`**
+- [ ] Prints **`ALL CHECKS PASSED — 855 assertions`**
 
 **Clean state**
 

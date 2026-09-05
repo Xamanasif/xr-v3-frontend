@@ -181,7 +181,7 @@ the Student workspace can open.
 | **Source of truth** | `ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md` (STK31-01…48) · `ui-ux/17-stakeholder-correction-blueprint/` |
 | **Reuse sources** | Batches 01–05 (`ui-ux/13-full-platform-design/`) as read-only reference implementations — design tokens, shell, component grammar ported once; nothing is runtime-imported from historical folders |
 | **Technology** | Dependency-free HTML + CSS + vanilla JS (ES5-style), single-page hash routing. No framework, no build step, no backend, no real payment or authentication |
-| **State** | `localStorage`, isolated namespace **`xrslp-unified-v1`** (no historical batch key is reused), **`schemaVersion: 8`**; every earlier state upgrades in place, and Implementation 07 required no schema change |
+| **State** | `localStorage`, isolated namespace **`xrslp-unified-v1`** (no historical batch key is reused), **`schemaVersion: 9`**; every earlier state upgrades in place. Implementation 07 required no schema change; **07.1 raised 8 → 9** to make the canonical academic structure state, and its migration is purely additive |
 | **Theme** | Light only (logo constraint QX-07, carried forward) — with the Stage-0 a11y token fixes applied once (`--text-3:#5F6B7A`, `--control-border:#7E8A99`, `[hidden]` restored) |
 
 ## Run locally
@@ -274,7 +274,10 @@ is derived from a real record, and every figure opens the thing it counts.
 | `#/platform/institutions/:id` | **Institution report + governance** — identity, what the institution holds, licences and term, issues needing attention, **assign / remove the Tenant Admin**, reversible **Deactivate / Reactivate**, governance history | 06 |
 | `#/platform/content` | **Content governance** — versions awaiting a Release / Hold decision, and the canonical Programme → Course → Experiment structure | 06 |
 | `#/platform/content/:recordId` | One Experiment — current published version and technology availability, **Release / Hold** the later version, canonical metadata, who is assigned, content history | 06 |
-| `#/platform/roles` | **Role governance** — Vendor · Academic Reviewer · Content Manager and the scope each holds | 06 |
+| `#/platform/structure` | **Academic structure** — the Programme / department and Course master records: add, rename, and re-parent a Course while nobody is enrolled | 07.1 |
+| `#/platform/structure/programme/:groupingId` | One Programme / department — rename, re-describe, and what it carries | 07.1 |
+| `#/platform/structure/course/:courseId` | One Course — rename, re-describe, move, and every reference class that names it | 07.1 |
+| `#/platform/roles` | **Role governance** — Vendor · Academic Reviewer · Content Manager, the scope each holds, and registering a new role holder | 06 · registration 07.1 |
 | `#/platform/roles/:actorId` | One role holder — assign a scope, withdraw one (reversibly), restore one, what they reach now, and **what they have already decided** | 06 |
 | `#/platform/operations` | **Operations** — device transfers, support reports, and access terms inside the 15-day window | 06 |
 | `#/platform/transfer/:id` | Device request — approve or decline, with the student's unchanged entitlement shown beside it | 06 |
@@ -384,7 +387,7 @@ still not student entitlement.
 ## State model
 
 `localStorage` key **`xrslp-unified-v1`** (unchanged since Implementation 01), with
-**`schemaVersion: 8`** inside the stored object carrying the evolution. No second namespace
+**`schemaVersion: 9`** inside the stored object carrying the evolution. No second namespace
 exists.
 
 | Collection | Record | Written by |
@@ -407,8 +410,10 @@ exists.
 | `contentRecords[]` | **THE CANONICAL EXPERIMENT POOL** — id, Course, name, summary, description, `outcomes[]`, `technologies[]`, per-technology `delivery`, `documents[]`, version label, correction `revision`, workflow `status`, `origin`, the current `academicReview`, the `publication`, and an embedded `history[]` | **Vendor** creates and submits · **Academic Reviewer** writes the outcomes · **Content Manager** publishes and owns the canonical metadata |
 | `academicReviews[]` | **AcademicReview** — every academic decision (`approved` / `changes_requested`), with the reviewer, the timestamp, the comment, the revision reviewed, and the Learning Outcomes as they stood | **Academic Reviewer** (STK31-08) |
 | `publicationRecords[]` | **PublishedContent** — one per first publication: who published, when, the version label, the revision, the technologies and outcomes published, and the academic approval it rests on | **Content Manager** (STK31-06) |
-| `contentActors[]` | Prototype Vendor · Academic Reviewer · Content Manager identities | prototype seed |
+| `contentActors[]` | Prototype Vendor · Academic Reviewer · Content Manager identities — name, **organisation**, contact and a `source` provenance line (`seed` / `manual`). No account, credential or invitation exists behind one | seeded, then **registered by the Super Admin** (Implementation 07.1) |
 | `contentRoleAssignments[]` | **Platform role scope** — actor, role, `scope` (`all` / `course` / `experiment`), the Course or Experiment it covers, who assigned it and when, and a reversible `status` with who withdrew it and why | **Super Admin** (`STK31-41`) — seeded, then governed |
+| `groupings[]` | **AcademicGrouping (Programme / Department)** — id, name, summary and a `source` provenance line. One terminology-neutral grouping level (`ND-02`). Seeded from `data.GROUPINGS`, then platform-owned; every catalogue lookup resolves against this, not the seed | **Super Admin** (`STK31-10` — create and rename; retire is not built) |
+| `courses[]` | **Course** — id, the grouping it sits in, name, summary and a `source` provenance line. Seeded from `data.COURSES`, then platform-owned. A Vendor **selects** one; it never defines one | **Super Admin** (`STK31-10` — create, rename and re-parent; retire is not built) |
 | `contentVersions[]` | **A LATER VERSION of an already-published Experiment** — version label, the version it replaces, what changed, the catalogue text and per-technology delivery it would publish, the academic decision, the **Release / Hold decision**, and its own `history[]`. A *different object* from the content record, which is what keeps first publication and later release from ever touching each other | **Vendor** proposes · **Academic Reviewer** approves · **Super Admin** releases or holds (`STK31-07`) |
 | `tenantAdmins[]` | **The assigned Tenant / Institute Admin** — name, contact, which tenant, who assigned it and when, reversible `status`. No account, no credential, no invitation | **Super Admin** (`STK31-21`) |
 | `deviceTransferRequests[]` | **DeviceTransferRequest** — the student, the tenant, the technology, the current and replacement device as the student described them, the reason, the decision and its note, and a `history[]` | the **Student** raises it · the **Super Admin** decides (`STK31-38`) |
@@ -678,7 +683,9 @@ Required: `Programme` · `Course Name` · `Course ID/Code` · `Student ID` · `S
 | 34 | **Publish readiness re-checks everything the earlier gates checked** | Brief §43 asks the Content Manager to catch missing canonical metadata, missing academic approval and incomplete technical information before Publish, and §58 requires the state layer — not the UI — to reject an invalid publish. The list is therefore evaluated inside `publishContent()` as well as rendered, so a hand-driven action fails identically | `publishReadiness()` · `publishContent()` |
 | 35 | **Package delivery is metadata only, and says so** | Brief §10 forbids real storage and §68 forbids claiming an upload. A browser file picker is still the honest control for *"which package is this"*, so the name and size are recorded, the limitation is stated where the file is chosen and where the metadata is shown, and no message anywhere says a binary was uploaded or deployed | `packageFile` · `.dnote` |
 | 36 | **A hosted URL is validated by format only, and is never opened during authoring** | Brief §69 asks for format validation and forbids auto-navigation. `isHttpUrl()` accepts `http(s)://host/...`; `https://` is what the hint asks for and every sample uses. No reachability check is possible or claimed in a browser prototype, and the value is not fetched, previewed or opened anywhere in the authoring flow | `isHttpUrl()` |
-| 37 | **Content role assignments are prototype seed data, per Course** | `STK31-41` confirms Course- and Experiment-specific assignment with several holders per Experiment, and `U-SA-15` puts the surface that manages it in a later slice. Seeding the assignments makes scope real and testable now; the model already carries `scope: 'experiment'`, so the deferred UI writes into a structure that exists rather than replacing one | `contentRoleAssignments[]` |
+| 37 | **Content role assignments are SEEDED, then governed** | `STK31-41` confirms Course- and Experiment-specific assignment with several holders per Experiment. Implementation 06 built `U-SA-15` at `#/platform/roles` — assign, withdraw, restore — and Implementation 07.1 added **registering the role holder** itself. The seed remains as the starting position, not as the only way rows can exist | `contentRoleAssignments[]` · `contentActors[]` |
+| 37a | **Registering a platform role holder records a PERSON, never an account** | `QD-02` (identity origin) is unanswered and the standing instruction is to *invent no invitation, activation or account-creation mechanism*. Recording a named person with an organisation and a contact — and rendering origin as a provenance line — obeys that literally, and is the same treatment `assignTenantAdmin` already gives the Tenant Admin. No account, password, credential, invitation, activation or IdP is created or implied | `contentActors[].source` |
+| 37b | **Canonical structure: create and rename built, retire deliberately not** | No source describes a create, retire or delete operation for Programme / Course master records. Open decision **D3** recommends scoping create first because retire needs a rule for live references that no source states. Create and rename are therefore an **implementation judgement**, said as such on screen; retire stays absent. A Course may change Programme only while nobody is enrolled, because a person record stores its own Programme alongside its Course | `groupings[]` · `courses[]` |
 | 38 | **A Vendor's visibility rule is ownership, not the Course assignment** | Brief §19 says a Vendor sees content they are authorised to work on. Two Vendors assigned to the same Course must still not read each other's drafts, so the Course assignment governs **where a Vendor may submit** and ownership governs **what they may read**. Verified: a hand-typed route to another Vendor's record is not found | `contentForVendor()` |
 
 ### Implementation 06 — governance and operations
@@ -869,12 +876,18 @@ Each list is re-checked inside the state action, not only in the screen. A hand-
 `state.publishContent()` on a draft, an item still in academic review, or an item returned for
 correction returns `null` and changes nothing.
 
-### Role scope — `STK31-41`, pending the Super Admin governance UI
+### Role scope — `STK31-41`, governed from the Super Admin surface
 
 Assignment may be Course- or Experiment-specific, and several people may be associated with one
-Experiment. The Super Admin surface that manages this (`U-SA-15`) belongs to a later slice, so the
-assignments are **prototype seed data** standing in for it — read by every scope check, written by
-nothing in this build, and labelled as such on each chooser screen.
+Experiment. The Super Admin surface that manages this (`U-SA-15`) is built at `#/platform/roles`:
+scopes are **assigned, withdrawn and restored** there, and every scope check in the build reads the
+same rows, so a withdrawal takes effect everywhere at once. Since Implementation 07.1 the same
+surface also **registers a new role holder** — a named person with an organisation and a contact,
+and nothing behind them: no account, credential, invitation, activation or identity provider
+(`QD-02` remains unanswered on identity origin, and this invents no answer to it).
+
+The five people below are the *seeded* sample identities the build starts from; they are no longer
+the only ones possible.
 
 | Actor | Role | Scope |
 |---|---|---|
@@ -1572,14 +1585,13 @@ payment-required state and a clearly-labelled payment simulation.
 ## Intentionally NOT implemented in this slice
 
 - Authentication / SSO / registration (scenario switcher stands in; architecture unchanged)
-- **Creating, renaming or retiring Programme / Department and Course MASTER RECORDS.**
-  Implementation 06 builds the confirmed half of canonical governance — inspecting the structure
-  and correcting an Experiment's canonical metadata, from the Super Admin surface as well as the
-  Content Manager's. It does **not** build create or delete for the grouping and Course records
-  themselves: the sources confirm that the structure is platform-controlled and that canonical
-  metadata may be managed, but describe **no create or delete operation**, and those identifiers
-  are load-bearing for every existing access record, academic mapping and student assignment.
-  The metadata schema itself is still an open question
+- **RETIRING or deleting a Programme / Department or Course MASTER RECORD.**
+  Implementation 07.1 builds **create, rename and re-parent** for the grouping and Course records
+  (`#/platform/structure`), which is what open decision **D3** recommends scoping first. Retirement
+  is deliberately still absent: those identifiers are load-bearing for every existing access record,
+  academic mapping, Faculty mapping and student assignment, and **no source states what should
+  happen to those live references** when a structure record retires. Nothing is deleted anywhere in
+  this build. The canonical metadata schema itself is still an open question
 - **Unpublishing or withdrawing published content** — still refuted by the authority audit, and
   not reintroduced through the version lifecycle: a *hold* parks a candidate, it never retracts
   what is already live
@@ -1620,7 +1632,7 @@ Two independent passes, both re-run for Implementation 07.
 
 **The state layer, headless.** `qa/checks.js` runs the rules outside a browser — where an
 entitlement, a licence or a published version can actually go wrong — and asserts them rather
-than eyeballing them: **685 assertions, 0 failures.** It covers every scenario from
+than eyeballing them: **855 assertions, 0 failures.** It covers every scenario from
 Implementations 01–06, the schema migration, the route and role guards, the three altitudes, one
 assertion for every defect an adversarial review has ever found, and the nine Implementation-07
 scenarios (**O**–**W**) — the Faculty descriptive-review boundary, the Super Admin decision

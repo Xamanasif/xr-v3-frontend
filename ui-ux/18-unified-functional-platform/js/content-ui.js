@@ -388,7 +388,7 @@ XRSLP.contentUI = (function () {
     var seen = {};
     rows.forEach(function (r) { seen[r.courseId] = true; });
     var opts = '<option value="all"' + (current === 'all' ? ' selected' : '') + '>Course: all</option>';
-    data.COURSES.forEach(function (c) {
+    data.courses().forEach(function (c) {
       if (!seen[c.id]) { return; }
       var g = data.grouping(c.groupingId);
       opts += '<option value="' + esc(c.id) + '"' + (current === c.id ? ' selected' : '') + '>' +

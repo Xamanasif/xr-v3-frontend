@@ -309,13 +309,27 @@ XRSLP.csv = (function () {
      A real file, generated in the browser, using the confirmed fields
      and nothing else. Sample rows show a blank Semester, a blank
      Organisation and a blank Plan Terms so the optional columns are
-     demonstrably optional. */
+     demonstrably optional.
+
+     ⚠ THE PROGRAMME AND COURSE CELLS ARE READ FROM THE LIVE CATALOGUE,
+     never hardcoded. This import resolves both BY NAME, and since the
+     Super Admin can rename canonical structure (Implementation 07.1) a
+     frozen sample row would eventually hand the user a template that
+     this same file's validator rejects. Taking the first two Courses of
+     the catalogue as it stands means the template a tenant downloads
+     always validates against the catalogue they are importing into. */
   function templateText() {
     var header = COLUMNS.map(function (c) { return c.label; });
+    var live = data.courses().filter(function (c) { return !!data.grouping(c.groupingId); });
+    function cell(i, which) {
+      var c = live[i] || live[0] || null;
+      if (!c) { return which === 'course' ? 'Course Name' : 'Programme / Department'; }
+      return which === 'course' ? c.name : data.grouping(c.groupingId).name;
+    }
     var rows = [
-      ['Civil Engineering', 'Soil Mechanics', 'CE-305', 'SEI/CE/2026/0001', 'Sample Student One', 'sample.one@institution.example', '5', 'Sample Engineering Institute', 'BITS Community'],
-      ['Civil Engineering', 'Surveying', 'CE-212', 'SEI/CE/2026/0002', 'Sample Student Two', 'sample.two@institution.example', '', '', ''],
-      ['Mechanical Engineering', 'Strength of Materials', 'ME-208', 'SEI/ME/2026/0003', 'Sample Student Three', 'sample.three@institution.example', '', '', 'Subscription']
+      [cell(0, 'grouping'), cell(0, 'course'), 'CE-305', 'SEI/CE/2026/0001', 'Sample Student One', 'sample.one@institution.example', '5', 'Sample Engineering Institute', 'BITS Community'],
+      [cell(1, 'grouping'), cell(1, 'course'), 'CE-212', 'SEI/CE/2026/0002', 'Sample Student Two', 'sample.two@institution.example', '', '', ''],
+      [cell(2, 'grouping'), cell(2, 'course'), 'ME-208', 'SEI/ME/2026/0003', 'Sample Student Three', 'sample.three@institution.example', '', '', 'Subscription']
     ];
     return toCsv([header].concat(rows));
   }
