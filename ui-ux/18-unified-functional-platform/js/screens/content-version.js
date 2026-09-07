@@ -294,7 +294,9 @@ XRSLP.screens = XRSLP.screens || {};
       ? '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">Later versions you have submitted</caption>' +
         '<thead><tr><th scope="col">Version</th><th scope="col">Experiment</th>' +
-        '<th scope="col">Replaces</th><th scope="col">With</th><th scope="col">State</th>' +
+        /* 07.3 — "With" was `holderLine()`, derived from the same status
+           the State badge shows. Duplicate column removed. */
+        '<th scope="col">Replaces</th><th scope="col">State</th>' +
         '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
         mine.map(function (v) {
           var rec = state.contentRecord(v.recordId);
@@ -304,7 +306,6 @@ XRSLP.screens = XRSLP.screens || {};
             '<span class="tsub">' + esc(util.fmtDate(v.createdAt)) + '</span></a></td>' +
             '<td data-label="Experiment">' + esc(rec ? rec.name : v.recordId) + '</td>' +
             '<td data-label="Replaces">' + esc(v.replacesVersionLabel || '—') + '</td>' +
-            '<td data-label="With">' + esc(vendorHolderLine(v, actor.id)) + '</td>' +
             '<td data-label="State">' + versionBadge(v) + '</td>' +
             '<td class="cell-actions"><a class="btn sm sec" href="' + href.vVersion(actor.id, v.id) + '">Open</a></td>' +
             '</tr>';

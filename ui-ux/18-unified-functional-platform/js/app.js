@@ -233,7 +233,7 @@
           title: 'Reset prototype data?',
           bodyHTML: '<p>This restores the deterministic seed data: the selection, all requests, ' +
             'created tenants and tenant access records are cleared, tenant people, groups, mappings and ' +
-            'assignments return to the seed set, the Question Bank and the assessment configuration return ' +
+            'student access grants return to the seed set, the Question Bank and the assessment configuration return ' +
             'to the seeded sample set, every student learning record — resources opened, simulations run, ' +
             'assessment attempts and faculty reviews — is discarded, the content pool returns to the seeded ' +
             'published catalogue plus the sample in-flight submissions (any experiment produced through the ' +
@@ -507,9 +507,31 @@
       var accessCount = state.accessForTenant(tenant.id).length;
       var groupCount = state.groupsForTenant(tenant.id).length;
       var asgCount = state.activeAssignments(tenant.id).length;
+      var deviceCount = state.transfersAwaitingTenant(tenant.id).length;
       /* Every entry below routes to a screen that is fully implemented.
-         Faculty mapping lives inside Assignments rather than adding a
-         seventh destination. */
+         Faculty mapping lives inside Student access rather than adding a
+         further destination.
+
+         ⚠ TERMINOLOGY (Implementation 07.3, stakeholder correction R04).
+         This destination was labelled "Assignments", and the stakeholder
+         rejected the word outright: "that is not assignment … it will
+         change the complete context". An assignment is homework a teacher
+         sets. What happens here is GIVING A STUDENT ACCESS TO CONTENT the
+         institution has already been approved for, which is a
+         provisioning act, not an academic one. The label is therefore
+         "Student access", and one such record is an "access grant"
+         throughout the tenant workspace.
+
+         The ROUTE (#/…/assignments), the state records and every helper
+         name are deliberately unchanged: renaming them would be pure
+         regression risk for no user-visible gain, and the route is shared
+         with screens this file does not own.
+
+         Device requests is Implementation 07.2: the Institute / Tenant
+         Admin is the institution's point of contact, so a Student's
+         device request arrives here BEFORE it reaches the Super Admin
+         (stakeholder rule C). The count is what is waiting on this
+         admin — not everything the institution has ever raised. */
       nav = [
         { href: h.overview(tenant.id), icon: 'home', label: 'Overview', active: activeKey === 'overview', count: 0 },
         { href: h.access(tenant.id), icon: 'layers', label: 'Content access', active: activeKey === 'content-access',
@@ -520,8 +542,11 @@
         { href: h.groups(tenant.id), icon: 'building', label: 'Groups', active: activeKey === 'groups',
           count: groupCount, countLabel: XRSLP.util.plural(groupCount, 'student group') },
         { href: h.mappings(tenant.id), icon: 'doc', label: 'Academic mappings', active: activeKey === 'mappings', count: 0 },
-        { href: h.assignments(tenant.id), icon: 'flask', label: 'Assignments', active: activeKey === 'assignments',
-          count: asgCount, countLabel: 'active ' + XRSLP.util.plural(asgCount, 'assignment') },
+        { href: h.assignments(tenant.id), icon: 'flask', label: 'Student access', active: activeKey === 'assignments',
+          count: asgCount, countLabel: 'active ' + XRSLP.util.plural(asgCount, 'access grant') },
+        { href: h.deviceRequests(tenant.id), icon: 'monitor', label: 'Device requests',
+          active: activeKey === 'device-requests', count: deviceCount,
+          countLabel: XRSLP.util.plural(deviceCount, 'request') + ' awaiting your review' },
         { href: XRSLP.supportUI.href.tenant(tenant.id), icon: 'alertCirc', label: 'Help',
           active: activeKey === 'help', count: 0 }
       ];
@@ -549,7 +574,36 @@
     if (route.redirect) { window.location.replace(route.redirect); return; }
 
     var screenFn = screens[route.screen] || screens.notFound;
-    var result = screenFn(route.params);
+    /* ⚠ ONE BAD ROW MUST NOT BLANK THE WHOLE SHELL — 07.3 adversarial fix.
+
+       A screen that throws used to leave `app-root` unwritten: no page, no
+       navigation, no way back, and — where the cause was a stored row —
+       no way to recover from inside the product at all. The failure that
+       exposed this was a Course whose id collided with an
+       `Object.prototype` key; that specific cause is fixed at source, but
+       the shell should not depend on every screen being perfect.
+
+       The error is surfaced rather than swallowed: it is re-thrown to the
+       console so it is still debuggable, and the reader gets a page with
+       working navigation instead of a white screen. */
+    var result;
+    try {
+      result = screenFn(route.params);
+    } catch (err) {
+      if (window.console && console.error) {
+        console.error('Screen "' + route.screen + '" failed to render:', err);
+      }
+      result = screens.screenError
+        ? screens.screenError(route, err)
+        : { area: route.area, title: 'Something went wrong',
+            html: '<div class="tablecard"><h1 class="ph-t">This page could not be displayed</h1>' +
+              '<p class="muted">Something in the stored prototype data stopped this screen from ' +
+              'rendering. The rest of the platform still works &mdash; use the navigation to go ' +
+              'elsewhere, or use <strong>Reset prototype data</strong> in the prototype controls to ' +
+              'return to the seeded state.</p>' +
+              '<p class="muted mono">' + XRSLP.util.esc(String(err && err.message ? err.message : err)) +
+              '</p></div>' };
+    }
     if (result.redirect) { window.location.replace(result.redirect); return; }
 
     var area = result.area || route.area;

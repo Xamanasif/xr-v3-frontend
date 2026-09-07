@@ -6,8 +6,15 @@
    academic semantics are invented for them: a group has a name, an
    optional description and members. A student may belong to several.
 
-   ⚠ GROUP MEMBERSHIP ≠ CONTENT ACCESS. Membership decides which
-   assignments reach a student; only an assignment creates entitlement.
+   ⚠ GROUP MEMBERSHIP ≠ CONTENT ACCESS. Membership decides which access
+   grants reach a student; only an access grant creates entitlement.
+
+   ⚠ TERMINOLOGY (Implementation 07.3, R04). "Assignment" is gone from
+   every user-facing string in this workspace — the stakeholder rejected
+   it because it describes homework a teacher sets, not the provisioning
+   act this workspace performs. One record giving a student or a group
+   the ability to open an Experiment is an ACCESS GRANT. The full
+   reasoning is at the head of js/screens/tenant-assign.js.
 
    Academic mappings (STK31-11) sit BESIDE the canonical Course, never
    over it: the tenant records a local Course Code and an OPTIONAL
@@ -29,6 +36,12 @@ XRSLP.screens = XRSLP.screens || {};
   var T = XRSLP.tenantUI;
 
   var memberQ = '';
+  /* R05 — the academic-mappings filter. An institution holding ~50
+     experiments across three Programmes maps a long list of Courses
+     here, and the table had no way to reach one of them except
+     scrolling. Module-level so it survives the re-render that applies
+     it, like every other filter in this workspace. */
+  var mapF = { q: '', grouping: 'all' };
 
   /* ============================================================
      GROUPS LIST
@@ -47,8 +60,8 @@ XRSLP.screens = XRSLP.screens || {};
         icon: 'users',
         title: 'No student groups yet',
         body: students.length
-          ? 'Groups let one assignment reach a whole cohort at once. A student may belong to several groups, and being in a group grants nothing by itself.'
-          : 'Add students first, then group them. A group is only an assignment convenience — it grants nothing by itself.',
+          ? 'Groups let one access grant reach a whole cohort at once. A student may belong to several groups, and being in a group grants nothing by itself.'
+          : 'Add students first, then group them. A group is only a convenience for giving access — it grants nothing by itself.',
         actionsHTML: T.actionsIfWritable(tenant,
           '<a class="btn pri" href="' + T.href.newGroup(tenant.id) + '">Create group</a>' +
           (students.length ? '' : '<a class="btn sec" href="' + T.href.addStudent(tenant.id) + '">Add Student</a>'), false)
@@ -57,7 +70,7 @@ XRSLP.screens = XRSLP.screens || {};
       body = '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">Student groups in ' + esc(tenant.name) + '</caption>' +
         '<thead><tr><th scope="col">Group</th><th scope="col">Members</th>' +
-        '<th scope="col">Active members</th><th scope="col">Assignments</th>' +
+        '<th scope="col">Active members</th><th scope="col">Experiments this group can open</th>' +
         '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
         groups.map(function (g) {
           var members = state.membersOfGroup(g.id);
@@ -71,7 +84,7 @@ XRSLP.screens = XRSLP.screens || {};
             (g.description ? '<span class="tsub">' + esc(g.description) + '</span>' : '') + '</a></td>' +
             '<td data-label="Members" class="num">' + members.length + '</td>' +
             '<td data-label="Active members" class="num">' + active + '</td>' +
-            '<td data-label="Assignments" class="num">' + asg + '</td>' +
+            '<td data-label="Experiments this group can open" class="num">' + asg + '</td>' +
             '<td class="cell-actions"><a class="btn sm sec" href="' + T.href.group(tenant.id, g.id) + '">Open</a></td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>';
@@ -84,8 +97,8 @@ XRSLP.screens = XRSLP.screens || {};
           '<a class="btn pri" href="' + T.href.newGroup(tenant.id) + '">' + ui.ic('plus') + 'Create group</a>', false)) +
       '<div class="tablecard">' + body + '</div>' +
       '<div style="margin-top:16px">' + ui.alertBox('info', 'A group is not access',
-        '<p>Putting a student in a group gives them nothing. It only decides which students an assignment reaches ' +
-        'when that assignment targets the group.</p>') + '</div>';
+        '<p>Putting a student in a group gives them nothing. It only decides which students an access grant ' +
+        'reaches when that grant is given to the group.</p>') + '</div>';
 
     return { title: 'Groups — ' + tenant.name, html: html, tenant: tenant, navKey: 'groups' };
   };
@@ -197,7 +210,7 @@ XRSLP.screens = XRSLP.screens || {};
         }).join('') + '</tbody></table></div>'
       : ui.emptyState({
           icon: 'users', heading: 'h3', title: 'No members yet',
-          body: 'Add students below. An empty group can still be assigned content — the assignment simply reaches nobody until members join.'
+          body: 'Add students below. An empty group can still be given content — the grant simply reaches nobody until members join.'
         });
 
     var addBody = !T.canWrite(tenant)
@@ -233,21 +246,35 @@ XRSLP.screens = XRSLP.screens || {};
               '<span class="formnote">' + shown.length + ' of ' + candidates.length + ' shown</span></div>'
             : ui.emptyState({ icon: 'search', heading: 'h3', title: 'No students match', body: 'Try a different search.' }));
 
-    var asgCard = ui.card('Assignments to this group',
+    /* R05 — grouped by Programme / department, like every other content
+       list in this workspace. A cohort group in a large institution can
+       hold access to dozens of experiments, and a flat list of them was
+       the same unreadable wall the stakeholder objected to. */
+    var asgCard = ui.card('Content this group can open',
       assignments.length
-        ? '<ul class="reqitems">' + assignments.map(function (a) {
+        ? T.groupContent(assignments.map(function (a) {
             var rec = state.accessById(a.accessId);
-            return '<li class="ri"><div class="ri-body">' + T.expLine(a.experimentId) + '</div>' +
-              '<div class="ri-tech">' + ui.techBadges(rec ? state.accessTechnologies(rec, a.experimentId) : a.technologies) +
-              '</div></li>';
-          }).join('') + '</ul>' +
-          '<p class="cardfoot">Each of these reaches every <strong>active</strong> member. Adding a member to this group ' +
-          'extends the assignment to them — subject to the access record&rsquo;s remaining allocation.</p>'
+            return {
+              experimentId: a.experimentId,
+              technologies: rec ? state.accessTechnologies(rec, a.experimentId) : a.technologies
+            };
+          })).map(function (g) {
+            return '<h3 class="subh">' + esc(g.name) + ' <span class="muted">· ' + g.count + ' ' +
+              util.plural(g.count, 'experiment') + '</span></h3>' +
+              '<ul class="reqitems">' + g.courseOrder.map(function (c) {
+                return c.rows.map(function (row) {
+                  return '<li class="ri"><div class="ri-body">' + T.expLine(row.experimentId) + '</div>' +
+                    '<div class="ri-tech">' + ui.techBadges(row.technologies) + '</div></li>';
+                }).join('');
+              }).join('') + '</ul>';
+          }).join('') +
+          '<p class="cardfoot">Each of these reaches every <strong>active</strong> member. Adding a member to this ' +
+          'group extends that access to them — subject to the access record&rsquo;s remaining allocation.</p>'
         : ui.emptyState({
-            icon: 'flask', heading: 'h3', title: 'No content assigned to this group',
-            body: 'The group exists but reaches no experiment.',
+            icon: 'flask', heading: 'h3', title: 'This group can open no content',
+            body: 'The group exists but has been given no experiment.',
             actionsHTML: (T.canWrite(tenant) && state.assignableAccessForTenant(tenant.id).length)
-              ? '<a class="btn pri sm" href="' + T.href.newAssignment(tenant.id) + '">Assign an experiment</a>' : ''
+              ? '<a class="btn pri sm" href="' + T.href.newAssignment(tenant.id) + '">Give this group access</a>' : ''
           }),
       null, 'h2');
 
@@ -279,12 +306,13 @@ XRSLP.screens = XRSLP.screens || {};
             var picked = Array.prototype.slice.call(document.querySelectorAll('input[name="gm"]:checked'))
               .map(function (el) { return el.value; });
             if (!picked.length) { ui.toast('Select at least one student to add.', 'info'); return; }
-            /* A member joining an already-assigned group inherits that group's
-               assignments. Where the access record is already at its approved
-               quantity the newcomer is HELD, not entitled — deliberately, so
-               that nobody who already holds a licence is displaced. It is the
-               one membership edit with a consequence, so the consequence is
-               named here instead of being discovered later on the person page. */
+            /* A member joining a group that already has access inherits that
+               group's access grants. Where the access record is already at its
+               approved quantity the newcomer is HELD, not entitled —
+               deliberately, so that nobody who already holds a licence is
+               displaced. It is the one membership edit with a consequence, so
+               the consequence is named here instead of being discovered later
+               on the person page. */
             var n = 0, held = 0;
             picked.forEach(function (id) {
               if (!state.addToGroup(g.id, id)) { return; }
@@ -296,7 +324,7 @@ XRSLP.screens = XRSLP.screens || {};
             });
             memberQ = '';
             ui.toast(n + ' ' + util.plural(n, 'student') + ' added to ' + g.name + (held
-              ? ' — ' + held + ' held: the allocation is full, so they hold the assignment but no ' +
+              ? ' — ' + held + ' held: the allocation is full, so they hold the access grant but no ' +
                 'effective entitlement. Nobody already entitled is displaced.'
               : '.'));
             XRSLP.render(false);
@@ -360,11 +388,70 @@ XRSLP.screens = XRSLP.screens || {};
     state.studentsForTenant(tenant.id).forEach(function (p) {
       if (p.courseId && !ids[p.courseId]) { ids[p.courseId] = true; order.push(p.courseId); }
     });
+    /* R05 — ordered by PROGRAMME first, then Course, so the table reads
+       in the same Programme → Course shape as every other content
+       surface in this workspace instead of one alphabetical run of
+       courses from unrelated departments. */
+    function progName(cid) {
+      var c = data.course(cid);
+      var g = c ? data.grouping(c.groupingId) : null;
+      return g ? g.name : '';
+    }
+    function courseName(cid) { var c = data.course(cid); return c ? c.name : cid; }
     order.sort(function (a, b) {
-      var ca = data.course(a), cb = data.course(b);
-      var na = ca ? ca.name : a, nb = cb ? cb.name : b;
-      return na < nb ? -1 : na > nb ? 1 : 0;
+      var ka = progName(a) + ' ' + courseName(a), kb = progName(b) + ' ' + courseName(b);
+      return ka < kb ? -1 : ka > kb ? 1 : 0;
     });
+
+    /* Programme options come from the Courses this institution actually
+       uses — never a department it has nothing in. */
+    var mapProgSeen = {}, mapProgOpts = [];
+    order.forEach(function (cid) {
+      var c = data.course(cid);
+      var g = c ? data.grouping(c.groupingId) : null;
+      var id = g ? g.id : '__none';
+      if (!mapProgSeen[id]) {
+        mapProgSeen[id] = true;
+        mapProgOpts.push({ id: id, name: g ? g.name : 'Unresolved programme' });
+      }
+    });
+    if (mapF.grouping !== 'all' && !mapProgSeen[mapF.grouping]) { mapF.grouping = 'all'; }
+
+    var shownIds = order.filter(function (cid) {
+      var c = data.course(cid);
+      var g = c ? data.grouping(c.groupingId) : null;
+      if (mapF.grouping !== 'all' && (g ? g.id : '__none') !== mapF.grouping) { return false; }
+      if (mapF.q) {
+        var m0 = state.courseMapping(tenant.id, cid);
+        var hay = (courseName(cid) + ' ' + progName(cid) + ' ' + (c && c.code ? c.code : '') + ' ' +
+          (m0 ? m0.localCode + ' ' + m0.semester : '')).toLowerCase();
+        if (hay.indexOf(mapF.q.toLowerCase()) === -1) { return false; }
+      }
+      return true;
+    });
+    var mapFiltered = !!mapF.q || mapF.grouping !== 'all';
+
+    /* Same low threshold as the other two content filters in this
+       workspace: visible on the seeded prototype, suppressed only where
+       there is genuinely nothing to filter between. */
+    var mapFilterBar = (order.length > 1 || mapFiltered)
+      ? '<div class="filterbar">' +
+        '<div class="fb-row">' +
+        '<div class="fb-search"><label class="fb-label" for="mf-q">Search courses</label>' +
+        '<div class="searchbox">' + ui.ic('search') +
+        '<input type="text" id="mf-q" placeholder="Course, programme or code" value="' + esc(mapF.q) + '"></div></div>' +
+        '<div class="fb-sel"><label class="fb-label" for="mf-prog">Programme / department</label>' +
+        '<select id="mf-prog"><option value="all"' + (mapF.grouping === 'all' ? ' selected' : '') + '>All programmes</option>' +
+        mapProgOpts.map(function (o) {
+          return '<option value="' + esc(o.id) + '"' + (mapF.grouping === o.id ? ' selected' : '') + '>' +
+            esc(o.name) + '</option>';
+        }).join('') + '</select></div>' +
+        '</div>' +
+        '<div class="fb-foot"><span class="fb-count">' + shownIds.length + ' of ' + order.length + ' ' +
+        util.plural(order.length, 'course') + ' shown</span>' +
+        (mapFiltered ? '<button class="btn sm sec fb-clear" type="button" id="mf-clear">Clear filters</button>' : '') +
+        '</div></div>'
+      : '';
 
     var body;
     if (!order.length) {
@@ -376,19 +463,44 @@ XRSLP.screens = XRSLP.screens || {};
         actionsHTML: '<a class="btn sec" href="' + T.href.access(tenant.id) + '">View content access</a>' +
           '<a class="btn sec" href="' + T.href.people(tenant.id) + '">Open People</a>'
       });
+    } else if (!shownIds.length) {
+      body = mapFilterBar + ui.emptyState({
+        icon: 'search', heading: 'h3',
+        title: 'No course matches these filters',
+        body: 'Nothing this institution uses matches the current search. No mapping has been changed.',
+        actionsHTML: '<button class="btn sec sm" type="button" id="mf-clear-empty">Clear filters</button>'
+      });
     } else {
-      body = '<form id="map-form" novalidate><div class="form-errors"></div>' +
+      body = mapFilterBar +
+        '<form id="map-form" novalidate><div class="form-errors"></div>' +
         '<div class="tscroll"><table class="dt maptable">' +
         '<caption class="sr-only">Institution-local mappings for platform courses</caption>' +
         '<thead><tr><th scope="col">Programme</th><th scope="col">Course (canonical)</th>' +
         '<th scope="col">Local course code</th><th scope="col">Semester</th></tr></thead><tbody>' +
-        order.map(function (cid, i) {
+        shownIds.map(function (cid, i) {
           var c = data.course(cid);
           var g = c ? data.grouping(c.groupingId) : null;
           var m = state.courseMapping(tenant.id, cid);
           return '<tr>' +
             '<td data-label="Programme">' + esc(g ? g.name : '—') + '</td>' +
+            /* THE TWO CODES, SIDE BY SIDE, SO THE DIFFERENCE IS VISIBLE
+               RATHER THAN EXPLAINED. The platform now carries a
+               canonical code of its own on the Course master record,
+               managed by the Content Manager and the Super Admin. Next
+               to a column headed "Local course code" that is exactly
+               the pair a Tenant Admin needs to see at once: the
+               platform's code for this Course, and their own. Strictly
+               READ-ONLY here — the canonical code is platform-owned in
+               the same way the Course name is (STK31-10), and nothing
+               on this screen writes it. The local code below is
+               untouched and stays entirely the institution's.
+
+               "None set" is a real answer, not a missing value: the
+               canonical code is optional and a Course may legitimately
+               never carry one. */
             '<td data-label="Course (canonical)"><span class="tmain">' + esc(c ? c.name : cid) + '</span>' +
+            '<span class="tsub">Canonical code: ' +
+            (c && c.code ? esc(c.code) : 'none set') + '</span>' +
             '<span class="tsub">Platform-controlled — not editable here</span></td>' +
             '<td data-label="Local course code">' +
             '<label class="sr-only" for="mc-' + i + '">Local course code for ' + esc(c ? c.name : cid) + '</label>' +
@@ -402,7 +514,17 @@ XRSLP.screens = XRSLP.screens || {};
         }).join('') + '</tbody></table></div>' +
         '<div class="formact">' + T.actionsIfWritable(tenant,
           '<button class="btn pri" type="submit" id="map-save">Save mappings</button>', false) +
-        '<span class="formnote">Semester is optional and never required. Leaving a field blank clears that mapping.</span>' +
+        '<span class="formnote">Semester is optional and never required. Leaving a field blank clears that mapping.' +
+        /* ⚠ SAID OUT LOUD BECAUSE IT IS SURPRISING. Save walks the inputs
+           that are actually on the page, so a filtered-out course is left
+           exactly as it is rather than being cleared — which is the safe
+           behaviour, but only if the reader is told. */
+        (mapFiltered ? ' Only the ' + shownIds.length + ' ' + util.plural(shownIds.length, 'course') +
+          ' shown ' + (shownIds.length === 1 ? 'is' : 'are') + ' saved; the ' +
+          (order.length - shownIds.length) + ' hidden by the filter ' +
+          (order.length - shownIds.length === 1 ? 'is' : 'are') + ' left exactly as ' +
+          (order.length - shownIds.length === 1 ? 'it is' : 'they are') + '.' : '') +
+        '</span>' +
         '</div></form>';
     }
 
@@ -419,6 +541,39 @@ XRSLP.screens = XRSLP.screens || {};
     return {
       title: 'Academic mappings — ' + tenant.name, html: html, tenant: tenant, navKey: 'mappings',
       after: function () {
+        /* R05 — the filter. Bound before the early return below, so it
+           keeps working on the "nothing matches" state where there is no
+           form at all. */
+        var mq = document.getElementById('mf-q');
+        if (mq) {
+          mq.addEventListener('input', function () {
+            mapF.q = mq.value;
+            XRSLP.render(true);
+            var again = document.getElementById('mf-q');
+            if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
+          });
+        }
+        var mp = document.getElementById('mf-prog');
+        if (mp) {
+          mp.addEventListener('change', function () {
+            mapF.grouping = mp.value;
+            XRSLP.render(true);
+            var again = document.getElementById('mf-prog');
+            if (again) { again.focus(); }
+          });
+        }
+        ['mf-clear', 'mf-clear-empty'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (!el) { return; }
+          el.addEventListener('click', function () {
+            mapF = { q: '', grouping: 'all' };
+            XRSLP.render(true);
+            ui.announce('Course filters cleared.');
+            var again = document.getElementById('mf-q');
+            if (again) { again.focus(); }
+          });
+        });
+
         var form = document.getElementById('map-form');
         if (!form) { return; }
         form.addEventListener('submit', function (e) {

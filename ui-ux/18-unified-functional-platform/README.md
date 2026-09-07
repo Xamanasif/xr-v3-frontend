@@ -82,7 +82,8 @@ VENDOR proposes a LATER VERSION of published content
 → SUPER ADMIN **RELEASES** it or **HOLDS** it
 → only a RELEASE changes the version the public sees
 
-STUDENT requests a device replacement  → SUPER ADMIN approves / declines
+STUDENT requests a device replacement  → TENANT ADMIN reviews and forwards
+                                       → SUPER ADMIN approves / declines
 ANY USER reports a technical issue     → SUPER ADMIN resolves it
 A TENANT ACCESS TERM reaches T-15 days → both sides see it is due
 ```
@@ -181,21 +182,37 @@ the Student workspace can open.
 | **Source of truth** | `ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md` (STK31-01…48) · `ui-ux/17-stakeholder-correction-blueprint/` |
 | **Reuse sources** | Batches 01–05 (`ui-ux/13-full-platform-design/`) as read-only reference implementations — design tokens, shell, component grammar ported once; nothing is runtime-imported from historical folders |
 | **Technology** | Dependency-free HTML + CSS + vanilla JS (ES5-style), single-page hash routing. No framework, no build step, no backend, no real payment or authentication |
-| **State** | `localStorage`, isolated namespace **`xrslp-unified-v1`** (no historical batch key is reused), **`schemaVersion: 9`**; every earlier state upgrades in place. Implementation 07 required no schema change; **07.1 raised 8 → 9** to make the canonical academic structure state, and its migration is purely additive |
+| **State** | `localStorage`, isolated namespace **`xrslp-unified-v1`** (no historical batch key is reused), **`schemaVersion: 11`**; every earlier state upgrades in place. Implementation 07 required no schema change; **07.1 raised 8 → 9** to make the canonical academic structure state; **07.2 raised 9 → 10** for three additive fields — the canonical Course code, the renewal audit line on an access record, and the forwarding fields on a device request; **07.3 raised 10 → 11** for four more — a content record's preview video, supporting references on a history entry and on an academic review, and the durable withdraw/restore audit line on a role assignment. Every migration is purely additive, presence-guarded and idempotent |
 | **Theme** | Light only (logo constraint QX-07, carried forward) — with the Stage-0 a11y token fixes applied once (`--text-3:#5F6B7A`, `--control-border:#7E8A99`, `[hidden]` restored) |
 
 ## Run locally
 
-Any static file server from this directory:
+**Use `serve.py`.** It is the canonical way to run this prototype:
 
 ```
 cd ui-ux/18-unified-functional-platform
-python3 -m http.server 8123
+python3 serve.py            # http://127.0.0.1:8791/
+python3 serve.py 8123       # a different port
 ```
 
-then open <http://localhost:8123/>. Opening `index.html` directly via `file://` also works
-(assets are local to this directory; the logo is a byte-identical copy of
-`branding/bits-pilani-wilp-logo.png`, following the per-batch precedent for Safari `file://`).
+> ### ⚠ Why not `python3 -m http.server`
+>
+> It sends `Last-Modified` but **no `Cache-Control` and no `ETag`**, so under RFC 9111 a browser may
+> reuse a cached copy without revalidating — and Safari does. This is not theoretical: a reviewer
+> opened the prototype on localhost and reported features **missing that were present in the source
+> the whole time**, because the browser was executing an older `index.html` and `js/*.js` while the
+> server served the new ones. It was reproduced directly during Implementation 07.3.
+>
+> `serve.py` sends `no-store`, which removes the failure mode — including for `index.html` itself,
+> which the `?v=` token on the script tags cannot fix, because `index.html` is the document that
+> *carries* those tags. If you do use a plain static server, **hard-reload** before believing anything
+> is missing, and bump the `?v=` token in `index.html` whenever you hand the build to someone.
+
+Opening `index.html` directly via `file://` also works (assets are local to this directory; the logo
+is a byte-identical copy of `branding/bits-pilani-wilp-logo.png`, following the per-batch precedent
+for Safari `file://`). Note that `file://` and each `http://localhost:PORT` are **different browser
+origins with different `localStorage`**, so prototype data does not carry between them — that is a
+data difference, never a code one.
 
 ## Implemented routes
 
@@ -254,6 +271,7 @@ Analytics entry: none is built. **Help** is implemented, as it is in every works
 | `#/content/:actorId/queue` | **Publication queue** — academically approved items awaiting a first-publication decision, each with its readiness |
 | `#/content/:actorId/item/:recordId` | Final review — canonical metadata, Learning Outcomes (read-only), the academic decision, technology delivery, documentation, readiness. **Publish**, or request changes with a required reason |
 | `#/content/:actorId/item/:recordId/metadata` | **Canonical content metadata** (`STK31-09`) — name, Course, summary, description. Not the Learning Outcomes, not the delivery, not the master records |
+| `#/content/:actorId/courses` | **Course codes** *(07.2)* — the canonical Course code for every Course in this Content Manager's scope. One field. It does **not** create, rename, re-parent or retire a Course, and it never touches an institution's local code |
 | `#/content/:actorId/help` | **Help** *(06)* |
 
 *(From Implementation 06 a published item's detail also lists its later versions and their state
@@ -280,12 +298,12 @@ is derived from a real record, and every figure opens the thing it counts.
 | `#/platform/roles` | **Role governance** — Vendor · Academic Reviewer · Content Manager, the scope each holds, and registering a new role holder | 06 · registration 07.1 |
 | `#/platform/roles/:actorId` | One role holder — assign a scope, withdraw one (reversibly), restore one, what they reach now, and **what they have already decided** | 06 |
 | `#/platform/operations` | **Operations** — device transfers, support reports, and access terms inside the 15-day window | 06 |
-| `#/platform/transfer/:id` | Device request — approve or decline, with the student's unchanged entitlement shown beside it | 06 |
+| `#/platform/transfer/:id` | Device request — approve or decline **once the institution has forwarded it**, with the student's unchanged entitlement shown beside it | 06 · routed in 07.2 |
 | `#/platform/support/:id` | Support report — the full context, and resolve with a note the reporter sees | 06 |
 
 **Tenant workspace** (Institute Admin / Tenant Admin — one role, STK31-02)
 
-Six navigation destinations, all implemented. There is no nav link that leads nowhere.
+Eight navigation destinations, all implemented. There is no nav link that leads nowhere.
 
 | Route | Screen | Slice |
 |---|---|:--:|
@@ -301,6 +319,8 @@ Six navigation destinations, all implemented. There is no nav link that leads no
 | `#/tenant/:t/mappings` | Academic mappings — local Course Code + **optional** Semester beside the canonical Course | 02 |
 | `#/tenant/:t/assignments` · `/assignments/new` | Experiment assignment to Students or Groups, with live allocation consequence and removal | 02 |
 | `#/tenant/:t/faculty-mapping` | Faculty → Course / Experiment inside approved access | 02 |
+| `#/tenant/:t/device-requests` | **Device requests** *(07.2)* — the device replacement requests this institution's students have raised. The Institute / Tenant Admin is the institution's point of contact: requests arrive here **before** they reach the Super Admin | 07.2 |
+| `#/tenant/:t/device-request/:id` | One device request — what the student asked for, its history, and **Forward to the platform team**. Forwarding changes no licence, experiment, technology or assessment result | 07.2 |
 | `#/tenant/:t/help` | **Help** — report a technical issue and see the state of every report from this institution | 06 |
 
 **Student workspace** (Student / Learner — ONE formal role, STK31-01)
@@ -387,7 +407,7 @@ still not student entitlement.
 ## State model
 
 `localStorage` key **`xrslp-unified-v1`** (unchanged since Implementation 01), with
-**`schemaVersion: 9`** inside the stored object carrying the evolution. No second namespace
+**`schemaVersion: 10`** inside the stored object carrying the evolution. No second namespace
 exists.
 
 | Collection | Record | Written by |
@@ -413,10 +433,10 @@ exists.
 | `contentActors[]` | Prototype Vendor · Academic Reviewer · Content Manager identities — name, **organisation**, contact and a `source` provenance line (`seed` / `manual`). No account, credential or invitation exists behind one | seeded, then **registered by the Super Admin** (Implementation 07.1) |
 | `contentRoleAssignments[]` | **Platform role scope** — actor, role, `scope` (`all` / `course` / `experiment`), the Course or Experiment it covers, who assigned it and when, and a reversible `status` with who withdrew it and why | **Super Admin** (`STK31-41`) — seeded, then governed |
 | `groupings[]` | **AcademicGrouping (Programme / Department)** — id, name, summary and a `source` provenance line. One terminology-neutral grouping level (`ND-02`). Seeded from `data.GROUPINGS`, then platform-owned; every catalogue lookup resolves against this, not the seed | **Super Admin** (`STK31-10` — create and rename; retire is not built) |
-| `courses[]` | **Course** — id, the grouping it sits in, name, summary and a `source` provenance line. Seeded from `data.COURSES`, then platform-owned. A Vendor **selects** one; it never defines one | **Super Admin** (`STK31-10` — create, rename and re-parent; retire is not built) |
+| `courses[]` | **Course** — id, the grouping it sits in, name, summary, a `source` provenance line, and (07.2) the optional **canonical Course code** with who set it and when. Seeded from `data.COURSES`, then platform-owned. A Vendor **selects** one; it never defines one | **Super Admin** for the record itself (`STK31-10` — create, rename and re-parent; retire is not built) · the **canonical code** is the **Content Manager's** primarily, with the **Super Admin** also holding access (07.2). A Tenant Admin can reach neither — their own code lives on `courseMappings[].localCode` |
 | `contentVersions[]` | **A LATER VERSION of an already-published Experiment** — version label, the version it replaces, what changed, the catalogue text and per-technology delivery it would publish, the academic decision, the **Release / Hold decision**, and its own `history[]`. A *different object* from the content record, which is what keeps first publication and later release from ever touching each other | **Vendor** proposes · **Academic Reviewer** approves · **Super Admin** releases or holds (`STK31-07`) |
 | `tenantAdmins[]` | **The assigned Tenant / Institute Admin** — name, contact, which tenant, who assigned it and when, reversible `status`. No account, no credential, no invitation | **Super Admin** (`STK31-21`) |
-| `deviceTransferRequests[]` | **DeviceTransferRequest** — the student, the tenant, the technology, the current and replacement device as the student described them, the reason, the decision and its note, and a `history[]` | the **Student** raises it · the **Super Admin** decides (`STK31-38`) |
+| `deviceTransferRequests[]` | **DeviceTransferRequest** — the student, the tenant, the technology, the current and replacement device as the student described them, the reason, the **forwarding** (who, when, note), the decision and its note, and a `history[]` | the **Student** raises it · the **Institute / Tenant Admin** reviews and forwards it as the institution's POC · the **Super Admin** takes the final decision (`STK31-38`, routed through the POC in 07.2) |
 | `supportTickets[]` | **SupportRequest** — issue kind (one of the six confirmed kinds), subject, description, who reported it in which role and from which institution, the experiment and technology where they apply, status, resolution note, `history[]` | any operational user reports · the **Super Admin** resolves (`STK31-39`) |
 | `tenants[]` *(extended)* | gains `status` (`active` / `inactive`), the deactivation timestamp and reason, and a governance `history[]` | **Super Admin** (`STK31-21` / `STK31-22`) |
 
@@ -705,6 +725,28 @@ Required: `Programme` · `Course Name` · `Course ID/Code` · `Student ID` · `S
 | 49 | **A Vendor and an Academic Reviewer cannot hold PLATFORM-WIDE scope; a Content Manager can** | Course- and Experiment-specific assignment is confirmed for all three, and assuming global-only is forbidden — but no source says which roles may *also* hold a platform scope. The Content Library is a platform-level surface, so the Content Manager keeps it; granting a platform-wide Vendor or reviewer would widen authority nothing describes | `ROLE_SCOPES_ALLOWED` |
 | 50 | **The in-product expiry state is a REPRESENTATION of the reminder, not the reminder** | The reminder is a confirmed requirement; an in-product attention state is explicitly *recommended supporting UX that does not discharge it*. Every surface that shows the state says exactly that, and none claims anything was sent | `expiryReminderDue()` · the reminder note |
 | 51 | **A content history entry now records the actor's ID as well as their name** | Nothing needed the id until role scope became withdrawable. Matching on a name would be fragile, so the id is recorded going forward and backfilled at migration by matching the recorded name against the actor registry — an entry that matches nothing keeps a null id rather than being guessed at | `pushContentEvent()` · `migrateGovernance()` |
+
+### Implementation 07.2 — the stakeholder-confirmed corrections
+
+Six decisions were **settled by the stakeholder on 6 September 2026** and are recorded in full in
+[`stakeholder-review/STAKEHOLDER_CORRECTIONS_07_2.md`](stakeholder-review/STAKEHOLDER_CORRECTIONS_07_2.md).
+They are **not** judgements — they are answers, and they supersede prototype assumptions where they
+conflict. What remains a judgement is only the small number of mechanics *underneath* them that the
+answers did not reach, and those are listed here.
+
+| # | Call | Why | If wrong |
+|---|---|---|---|
+| 52 | **The requester's identity on the public plane comes from the prototype scenario selector** | Rule A requires the existing plan to be shown *when they reselect*, which means the catalogue must know which institution is choosing. This build has **no authentication** and the catalogue is deliberately browse-before-login, so the only honest source is the prototype selector. It resolves to null whenever no institution has been provisioned, every surface renders nothing rather than claiming an identity, and the panel carries a **PROTOTYPE ONLY** note saying it identifies nobody and grants nothing | `scenarioTenant()` — it is read-only and grants nothing, so replacing it with a real session changes one function |
+| 53 | **An expansion adds a SECOND access record; a renewal EXTENDS the existing one** | Two different shapes for two different things, and the difference is load-bearing. An expansion adds licences, so a second record is right and the allocation sums. A renewal continues the same plan — a second record there would leave every assignment, faculty mapping and licence allocation stranded on the old record, and the institution would renew only to find no student entitled | `activateRequest()` branches on `req.renewsAccessId` → `activateRenewal()` |
+| 54 | ⚠ **A renewed term runs from whichever is later — the current end, or today** | 🟡 **Not stated by any source.** Renewing early therefore adds to what is left rather than discarding it, and renewing after expiry starts from today rather than back-dating a term nobody could use. Both readings are defensible; this one loses nothing the institution has paid for | `activateRenewal()` — one expression |
+| 55 | **A renewal mirrors the current plan exactly, and nothing is editable** | Whether a renewal may change licences, technologies or term is **open** (D27). Mirroring is the only choice that decides nothing, and it keeps `validateGrant`'s narrowing invariant trivially satisfied. Every renewal surface says this is because the question is open, not because mirroring was chosen as policy | `submitRenewalRequest()` copies from the access record |
+| 56 | **The canonical Course code is seeded BLANK, and blank is permanent and legitimate** | No official code has been supplied for the sample Courses, and inventing one would put fabricated institutional data on the public catalogue. Blank behaves exactly as a blank Semester does — a real state, not a missing one | `data.COURSES` · `validateCourseCode()` skips blanks |
+| 57 | **The canonical Course code is unique PLATFORM-WIDE, unlike the Course name** | A different scope from every other rule in that validator, and deliberately: a name is a label inside a tree and is unique within its Programme, while a code is platform identity. Nothing in this build resolves *by* code — CSV import and manual entry still resolve by name — so the code is display and governance metadata here, and the screens say an external system keying on it would have to be considered | `validateCourseCode()` |
+| 58 | **The platform override refuses PUBLISHED as both origin and destination** | Rule F confirms overall Super Admin control, but four documented contracts say there is no publish action on the Super Admin plane and that a later version is handled by Release / Hold on a different object. Excluding PUBLISHED is the only way to honour the new authority without contradicting them — and un-publishing would strand live access records, faculty mappings, assignments and in-progress attempts that still reference the Experiment id | `OVERRIDABLE_STATUS` · `overrideContentStatusAsPlatform()` |
+| 59 | **An override may move a record somewhere nobody currently covers — but it must say so first** | Refusing would make the override useless in the exact case it exists for (a record stuck because its only assigned reviewer lost scope). So the destination list reports `reachable` per destination and the screen warns before the decision, rather than the state layer deciding for the Super Admin | `overrideDestinations()` |
+| 60 | **Withdrawing a role scope now REQUIRES a reason, and so does correcting a PUBLISHED canonical record** | Rule F requires a reason *where consequential*. Withdrawing a scope freezes somebody's workspace; editing a published master record changes what the public catalogue shows immediately. Both qualify. Release / Hold and an unpublished metadata correction stay optional, unchanged | `removePlatformRoleAssignment()` · `updateCanonicalAsPlatform()` |
+| 61 | **An institution with no assigned Tenant Admin cannot forward a device request, and no actor is fabricated** | The POC step genuinely cannot be performed, and putting a name on the audit trail that belongs to nobody would be worse than the refusal. The Super Admin Overview already flags an institution with no admin, and both the Student's and the Tenant Admin's screens say what is blocking it | `escalateDeviceTransfer()` returns null when `actingTenantAdmin()` is null |
+| 62 | **A deactivated institution cannot forward a device request, and the request stays exactly where it is** | The same tenant write guard every other Tenant Admin writer meets. Nothing is lost: the request moves the moment the institution is reactivated. The Super Admin's own decision stays ungated, unchanged, so an in-flight request can still be decided | `tenantCanWrite()` in `escalateDeviceTransfer()` |
 
 ## The content production model
 
@@ -1467,7 +1509,8 @@ a hold is not a release**, and the screen says so.
 ### 6 · Device replacement / transfer
 
 The confirmed flow is the whole capability: the Student requests a transfer, the Super Admin
-reviews and approves, and the authorised device binding changes.
+reviews and forwards it as the institution's point of contact, the Super Admin approves, and the
+authorised device binding changes.
 
 It is offered only where a technology is delivered as an **authorised package on a device** — a
 hosted Web experience opens in a browser and has no binding to move — so a Web-only Student never
@@ -1632,7 +1675,7 @@ Two independent passes, both re-run for Implementation 07.
 
 **The state layer, headless.** `qa/checks.js` runs the rules outside a browser — where an
 entitlement, a licence or a published version can actually go wrong — and asserts them rather
-than eyeballing them: **855 assertions, 0 failures.** It covers every scenario from
+than eyeballing them: **1079 assertions, 0 failures.** It covers every scenario from
 Implementations 01–06, the schema migration, the route and role guards, the three altitudes, one
 assertion for every defect an adversarial review has ever found, and the nine Implementation-07
 scenarios (**O**–**W**) — the Faculty descriptive-review boundary, the Super Admin decision
@@ -1760,6 +1803,8 @@ js/screens/  public-catalogue · public-request
              · tenant-people (directory · manual add · CSV import · person detail)
              · tenant-groups (groups · membership · academic mappings)
              · tenant-assign (assignments · faculty mapping)
+             · tenant-ops (07.2 — the device-request queue this institution is
+               the point of contact for, and forwarding one to the Super Admin)
              · student (helpers · prototype chooser · home · my learning · progress
                · the SHARED question renderer the Faculty preview also uses)
              · student-learn (experiment · simulation · assessment · attempt · result)

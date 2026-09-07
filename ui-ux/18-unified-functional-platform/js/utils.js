@@ -80,7 +80,18 @@ XRSLP.util = (function () {
     }, 0);
   }
 
+  /* 07.3 — a file-reference size. Reports what the browser said the file
+     was; nothing was read or uploaded. */
+  function fmtBytes(n) {
+    var b = Number(n);
+    if (!isFinite(b) || b < 0) { return ''; }
+    if (b < 1024) { return b + ' B'; }
+    if (b < 1024 * 1024) { return (b / 1024).toFixed(1) + ' KB'; }
+    return (b / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
   return {
+    fmtBytes: fmtBytes,
     esc: esc, escAttr: escAttr,
     fmtDate: fmtDate, fmtDateTime: fmtDateTime,
     addMonths: addMonths, addDays: addDays, daysUntil: daysUntil,

@@ -221,7 +221,7 @@ the input to Implementation 08 scoping; `NOT DISCUSSED` is a legitimate and usef
 | # | Item as built | C / X / ? / – | Notes |
 |---|---|:---:|---|
 | 11.1 | Student raises a **device replacement / transfer** request from their own workspace | | |
-| 11.2 | Super Admin decides; **the decision moves the device binding and nothing else** | | |
+| 11.2 | The institution's **Institute / Tenant Admin** receives it first and forwards it; the **Super Admin** takes the final decision; **the decision moves the device binding and nothing else** | | |
 | 11.3 | **There is no device registry** — no hardware registered, named, certified or configured | | |
 | 11.4 | A **Decline** path exists — built as a judgement, not a confirmed capability. Is decline in scope, and what must the student be told? | | |
 | 11.5 | **Help / support** exists in every workspace; the reporter sees the state of their report | | |

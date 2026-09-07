@@ -194,3 +194,22 @@ fieldset.fgroup legend{font-size:13.5px; font-weight:600; color:var(--text); mar
 .gapnote .gtag{font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:var(--text-3);
   border:1px solid var(--border-strong); border-radius:var(--r-xs); padding:1px 6px; flex:0 1 auto;
   min-width:0; max-width:100%; overflow-wrap:anywhere; margin-top:1px}
+
+/* Technology ACTUALLY USED (07.3) — a set, rendered so a second
+   technology is impossible to miss beside the first. */
+.techused { display: inline-flex; align-items: baseline; gap: 4px; margin-right: 10px; }
+.techused .tsub { font-size: 12px; color: var(--text-3); }
+
+/* Supporting references on a change request, and the preview video (07.3). */
+.refs { margin-top: 10px; }
+.reflist { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+.reflist li { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.reflist .rf-n { font-weight: 600; overflow-wrap: anywhere; }
+.reflist .rf-m { font-size: 12px; color: var(--text-3); }
+.reflist .rf-note { flex-basis: 100%; font-size: 13px; color: var(--text-3); }
+.rf-warn { margin: 8px 0 0; font-size: 13px; color: var(--text-3); display: flex; gap: 6px; align-items: baseline; }
+.refed { margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.refed legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
+.pvid { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.pvid .pv-l { font-weight: 600; overflow-wrap: anywhere; }
+.pvid .pv-n, .pvid .pv-m { flex-basis: 100%; font-size: 13px; color: var(--text-3); }

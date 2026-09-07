@@ -12,7 +12,8 @@ review with the PM and the key stakeholder** — before the final visual-design 
 | **Baseline** | Implementation 06 — 429 deterministic assertions, 0 failures |
 | **After 07** | **685 deterministic assertions, 0 failures**. No assertion was weakened or removed |
 | **After 07.1** | **855 deterministic assertions, 0 failures** (170 added). No assertion was weakened or removed; the only two *changed* are the schema-version assertions, 8 → 9 |
-| **Schema** | `xrslp-unified-v1`, `schemaVersion: 9`. **Unchanged at 8 through Implementation 07** — no migration was written for 07 and none was needed. **Implementation 07.1 raised it to 9** to make the canonical academic structure state (`groupings[]`, `courses[]`); that migration is purely additive and is asserted by scenarios Z3 and Z5 |
+| **After 07.2** | **1079 deterministic assertions, 0 failures** (224 added). No assertion was weakened or removed. Seven were *changed*, each because the confirmed behaviour itself changed: the three schema-version assertions (9 → 10), the device-transfer routing assertions (a Student request now reaches the Tenant Admin first), and the canonical-metadata assertion (a published master record now requires a stated reason) |
+| **Schema** | `xrslp-unified-v1`, `schemaVersion: 10`. **Unchanged at 8 through Implementation 07** — no migration was written for 07 and none was needed. **Implementation 07.1 raised it to 9** to make the canonical academic structure state (`groupings[]`, `courses[]`), asserted by scenarios Z3 and Z5. **Implementation 07.2 raised it to 10** for three additive fields — `courses[].code`, `access[].renewals[]`, and the forwarding fields on `deviceTransferRequests[]` — asserted by scenario FF. Both migrations are presence-guarded, idempotent and purely additive; the namespace is unchanged |
 
 ---
 
@@ -255,7 +256,7 @@ and J were additionally driven through the real screens in a browser.
 | **E** | Entitlement → learning → assessment → descriptive review → result by policy | **Pass**, and the AI boundary is now asserted (§6) |
 | **F** | Deactivate → records preserved, entitlement zero → reactivate → restored | **Pass.** Nothing deleted; the same assignments restore access; allocation ordering untouched so nobody is displaced |
 | **G** | Role scope withdrawn → future authority gone, history preserved → restored | **Pass**, and the Content Manager's own published work is now visible after a withdrawal, matching the rule the other two roles already followed |
-| **H** | Device request → Super Admin decision → Student sees outcome | **Pass.** No entitlement, licence, technology, assessment or progress mutation on either side. The route now survives an entitlement change while a request is open |
+| **H** | Device request → **Institute / Tenant Admin forwards** → Super Admin decision → Student **and Tenant Admin** see the outcome | **Pass.** No entitlement, licence, technology, assessment or progress mutation at any of the three steps. The route survives an entitlement change while a request is open. *(Routed through the institution POC in 07.2 — a Student no longer reaches the Super Admin directly.)* |
 | **I** | Support report → Super Admin resolve → reporter sees resolution | **Pass.** Same record both ends; no unrelated mutation; no SLA, channel or response-time promise anywhere |
 | **J** | Normal → 15-day reminder → expired | **Pass**, and now **reachable in a walkthrough**. Verified live at the boundary: 16 days = not due, 15 = due, past = expired |
 
@@ -438,11 +439,11 @@ publishes                grants (and may narrow)   assigns
 |---|---|---|
 | **Student / Learner** | Their own learning, attempts, device requests and support reports | Reach anything without an **effective entitlement** — existing, group or Course membership, and publication, grant nothing |
 | **Faculty** | Assessment configuration · Question Bank (Add · Edit · **Delete**) · the **only** human evaluation of a written answer | Publish or release · add a technology the institution was not granted · change licences or assignments · act outside their mapping · finalise a review by AI |
-| **Institute Admin / Tenant Admin** | People · groups · **local** academic mapping (Course code, **optional** Semester) · Faculty mapping · assignment — the only writer of entitlement | Redefine the canonical catalogue · assign outside the approved set or beyond the approved quantity · touch another institution · act while deactivated |
+| **Institute Admin / Tenant Admin** | People · groups · **local** academic mapping (their own local Course code, **optional** Semester) · Faculty mapping · assignment — the only writer of entitlement · **the institution's point of contact for device requests: reviews and forwards them** *(07.2)* · **raises a renewal for an access record** *(07.2)* | Redefine the canonical catalogue — **including the canonical Course code, which is the Content Manager's and the Super Admin's** *(07.2)* · **decide** a device request · **extend an access term** · assign outside the approved set or beyond the approved quantity · touch another institution · act while deactivated |
 | **Vendor** | Technical submission · per-technology delivery · documentation · version proposals | Author Learning Outcomes · supply a price · upload source code · publish · release · act outside their scope |
 | **Academic Reviewer** | **Learning Outcomes** · academic validation · the academic decision | Publish · release · act outside their scope · read an unsubmitted Vendor draft |
-| **Content Manager** | Content Library · **first publication** · canonical content metadata | **Release / Hold** — no control exists on this plane · re-file content into a Course they do not hold |
-| **Super Admin** | Request decisions and the allocation · tenant governance · Tenant Admin assignment · platform role governance · canonical metadata · later-version **Release / Hold** · device decisions · support resolution · expiry visibility · student-deactivation override | **First publication** · grant or revoke an individual learner entitlement · assign content to learners · unpublish content · any assessment surface · any revenue metric |
+| **Content Manager** | Content Library · **first publication** · canonical content metadata · **the canonical Course code, for Courses in their assigned scope** *(07.2 — primary owner, shared with the Super Admin)* | **Release / Hold** — no control exists on this plane · re-file content into a Course they do not hold · **create, rename, re-parent or retire a Course** — the record itself stays platform-controlled, only its code moves *(07.2)* · **set a Course code on an Experiment-only scope** — writing a whole Course's value needs the Course *(07.2)* |
+| **Super Admin** | Request decisions and the allocation · tenant governance · Tenant Admin assignment · platform role governance · canonical metadata · **the canonical Course code** *(07.2, shared with the Content Manager)* · later-version **Release / Hold** · **the final** device decision *(07.2 — the institution's Tenant Admin forwards it first)* · support resolution · expiry visibility · student-deactivation override · **an explicit, reasoned, audited override on the content chain** *(07.2)* | **First publication** · grant or revoke an individual learner entitlement · assign content to learners · unpublish content — **including by override, which refuses PUBLISHED in both directions** *(07.2)* · **narrow a renewal** *(07.2 — a renewal mirrors the plan; anything else is an ordinary request)* · any assessment surface · any revenue metric |
 
 ---
 
@@ -540,7 +541,7 @@ fails 2 assertions, and activating at approval instead of provisioning fails 12.
 
 | | |
 |---|---|
-| **Deterministic suite** | **855 assertions, 0 failures** (from 429; 685 at the 07 closeout). 426 added; **none removed or weakened** |
+| **Deterministic suite** | **1079 assertions, 0 failures** (from 429; 685 at the 07 closeout, 855 after 07.1). 650 added; **none removed or weakened** |
 | **Load-bearing proof** | Five mutation tests: AI auto-finalising a review fails **10** assertions; removing the cross-tenant guard fails **5**; removing the payment tenant gate and the redundant-status no-op fails **6**; restoring the tenant-creation defect fails **2**; activating at approval instead of provisioning fails **12**. No mutant reaches the suite green |
 | **Browser** | Journeys A, B, C and J driven through the real controls. The new decision surface, allocation narrowing, more-information outcome, applicant resubmit, three payment outcomes, institution report, override and Faculty holdings card all verified live |
 | **Responsive** | **41 routes × 375 / 768 / 1280** — including every not-found and deep-link-guard path. Zero horizontal overflow at every width, and none masked |
@@ -562,7 +563,7 @@ see a written answer that has lost its evaluator reported rather than silently l
 
 **Implementation 07.1 status.** The configuration audit that followed this closeout found two real
 gaps — no way to register a platform role holder, and no way to create canonical Programme / Course
-master records — and closed both. Suite now **855 assertions, 0 failures** (170 added; none removed
+master records — and closed both. Suite now **1079 assertions, 0 failures** after 07.2 (170 added at 07.1, 224 at 07.2; none removed
 or weakened). `schemaVersion` 8 → 9, migration additive. See §11 for what that did and did not change.
 
 **Closeout status (Implementation 07).** The tree was re-verified after the §12c correction: **685 assertions, 0

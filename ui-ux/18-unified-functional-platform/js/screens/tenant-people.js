@@ -11,6 +11,20 @@
    Nothing here invents an identity mechanism: no invitation, no
    activation e-mail, no account creation (QD-02 stays open). A person
    record is created and its provenance is shown.
+
+   ⚠ TERMINOLOGY (Implementation 07.3, R04). "Assignment" is gone from
+   every user-facing string in this workspace. Giving a student the
+   ability to open an Experiment is an ACCESS GRANT, and the area that
+   does it is STUDENT ACCESS — the stakeholder rejected "assignment"
+   because it describes coursework a teacher sets, not the provisioning
+   act a Tenant Admin performs. Full reasoning at the head of
+   js/screens/tenant-assign.js.
+
+   ⚠ SEVEN ROLES, AND NO MORE. Inside an institution there are exactly
+   three: Tenant / Institute Admin, Faculty, and Student / Learner. This
+   screen creates the last two. No "Employee", "Staff" or "Trainee" role
+   exists in the model, and none is invented here to accommodate an
+   audience nobody has confirmed.
    ============================================================ */
 
 window.XRSLP = window.XRSLP || {};
@@ -81,7 +95,7 @@ XRSLP.screens = XRSLP.screens || {};
         icon: 'users',
         title: 'No people in this institution yet',
         body: 'Add Faculty and Students individually, or import a cohort of Students from a CSV file. ' +
-          'Provisioning people does not give anyone content — assignment does that.',
+          'Provisioning people does not give anyone content — an access grant does that.',
         actionsHTML: T.actionsIfWritable(tenant,
           '<a class="btn pri" href="' + T.href.addStudent(tenant.id) + '">Add Student</a>' +
           '<a class="btn sec" href="' + T.href.addFaculty(tenant.id) + '">Add Faculty</a>' +
@@ -220,7 +234,7 @@ XRSLP.screens = XRSLP.screens || {};
       '</div></form>' +
       '<div class="formaside">' + ui.gapNote('NOT IN THIS BUILD',
         '<strong>How an identity first exists</strong> — invitation, activation or identity-provider mapping — is not ' +
-        'decided by any source, so nothing is invented here. This creates the record the institution assigns work to; ' +
+        'decided by any source, so nothing is invented here. This creates the record the institution maps content to; ' +
         'its origin is shown as provenance on the person&rsquo;s detail page.') + '</div>' +
       '</div>';
 
@@ -332,7 +346,8 @@ XRSLP.screens = XRSLP.screens || {};
       '<a class="btn sec" href="' + T.href.people(tenant.id) + '">Cancel</a>' +
       '</div></form>' +
       '<div class="formaside">' + ui.alertBox('info', 'Creating a Student grants nothing',
-        '<p>A new Student has no experiments until a Tenant Admin assigns approved content to them or to a group they belong to.</p>') +
+        '<p>A new Student has no experiments until a Tenant Admin gives them access to approved content, directly or ' +
+        'through a group they belong to.</p>') +
       '</div></div>';
 
     return {
@@ -448,7 +463,7 @@ XRSLP.screens = XRSLP.screens || {};
           (c.mappings ? c.mappings + ' new local course ' + util.plural(c.mappings, 'code') + ' recorded. ' : '') +
           'The records persist across a page refresh.</p>' +
           '<p style="margin-top:8px">No student has received any content: an import provisions people, ' +
-          'and only an assignment creates entitlement.</p>', 'status') +
+          'and only an access grant creates entitlement.</p>', 'status') +
         ui.card('Imported students',
           '<div class="tscroll"><table class="dt"><caption class="sr-only">Students created by this import</caption>' +
           '<thead><tr><th scope="col">Student ID</th><th scope="col">Name</th><th scope="col">Email</th>' +
@@ -697,7 +712,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="k">Plan terms / access context</div><div class="v">' + optional(p.planTerms) + '</div>' +
       '</div>' +
       (p.planTerms ? '<p class="cardfoot">Plan terms are administrative context recorded against the student. ' +
-        'What this student may be assigned comes only from the institution&rsquo;s approved access records.</p>' : ''),
+        'What this student may be given comes only from the institution&rsquo;s approved access records.</p>' : ''),
       null, 'h2');
 
     var groupCard = ui.card('Groups',
@@ -705,10 +720,10 @@ XRSLP.screens = XRSLP.screens || {};
         ? '<ul class="chiplist">' + groups.map(function (g) {
             return '<li><a class="chip" href="' + T.href.group(tenant.id, g.id) + '">' + esc(g.name) + '</a></li>';
           }).join('') + '</ul>' +
-          '<p class="cardfoot">Group membership by itself grants no content. It only decides which assignments reach this student.</p>'
+          '<p class="cardfoot">Group membership by itself grants no content. It only decides which access grants reach this student.</p>'
         : ui.emptyState({
             icon: 'users', heading: 'h3', title: 'Not in any group',
-            body: 'Groups are an assignment convenience — a student can belong to several, or none.',
+            body: 'Groups are a convenience for giving access — a student can belong to several, or none.',
             actionsHTML: '<a class="btn sec sm" href="' + T.href.groups(tenant.id) + '">Open Groups</a>'
           }),
       groups.length ? groups.length + ' ' + util.plural(groups.length, 'group') : null, 'h2');
@@ -717,23 +732,23 @@ XRSLP.screens = XRSLP.screens || {};
     if (!ents.length) {
       entBody = ui.emptyState({
         icon: 'flask', heading: 'h3',
-        title: 'No experiments assigned',
+        title: 'No content access yet',
         body: 'This student has no entitlement. Holding institutional access does not entitle anyone — ' +
-          'an experiment must be assigned to this student or to a group they belong to.',
+          'an experiment must be given to this student, or to a group they belong to.',
         actionsHTML: state.assignableAccessForTenant(tenant.id).length
-          ? '<a class="btn pri sm" href="' + T.href.newAssignment(tenant.id) + '">Assign an experiment</a>'
+          ? '<a class="btn pri sm" href="' + T.href.newAssignment(tenant.id) + '">Give this student access</a>'
           : '<a class="btn sec sm" href="' + T.href.access(tenant.id) + '">View content access</a>'
       });
     } else {
       entBody = '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">Effective experiment entitlements for ' + esc(p.name) + '</caption>' +
         '<thead><tr><th scope="col">Course &amp; Experiment</th><th scope="col">Technologies</th>' +
-        '<th scope="col">Access record</th><th scope="col">Assignment source</th><th scope="col">Status</th></tr></thead><tbody>' +
+        '<th scope="col">Access record</th><th scope="col">Where the access comes from</th><th scope="col">Status</th></tr></thead><tbody>' +
         ents.map(function (e) {
           return '<tr><td data-label="Course &amp; Experiment">' + T.expLine(e.experimentId) + '</td>' +
             '<td data-label="Technologies">' + ui.techBadges(e.technologies) + '</td>' +
             '<td data-label="Access record"><span class="mono">' + esc(e.accessId) + '</span></td>' +
-            '<td data-label="Assignment source">' + e.sources.map(function (s) {
+            '<td data-label="Where the access comes from">' + e.sources.map(function (s) {
               return '<span class="srcchip">' + ui.ic(s.type === 'group' ? 'users' : 'shield', 'sm') +
                 (s.type === 'group' ? 'Group · ' + esc(s.label) : 'Direct') + '</span>';
             }).join(' ') + '</td>' +
@@ -747,7 +762,7 @@ XRSLP.screens = XRSLP.screens || {};
 
     var actions = !T.canWrite(tenant)
       ? '<div class="formact"><span class="formnote">Student activation cannot be changed while the ' +
-        'institution is deactivated. This record, its assignments and its entitlement history are all ' +
+        'institution is deactivated. This record, its access grants and its entitlement history are all ' +
         'preserved exactly as they stand.</span></div>'
       :
       '<div class="formact">' +
@@ -755,7 +770,7 @@ XRSLP.screens = XRSLP.screens || {};
         ? '<button class="btn sec" type="button" id="p-deact">Deactivate student</button>'
         : '<button class="btn pri" type="button" id="p-react">Reactivate student</button>') +
       '<span class="formnote">' + (p.status === 'active'
-        ? 'Deactivating is reversible. The student keeps every assignment record, holds no effective entitlement while inactive, and frees their licence.'
+        ? 'Deactivating is reversible. The student keeps every access grant, holds no effective entitlement while inactive, and frees their licence.'
         : 'Reactivating restores entitlement where the access record is still active and a licence is available.') +
       '</span></div>';
 
@@ -763,8 +778,8 @@ XRSLP.screens = XRSLP.screens || {};
       ui.crumbs([{ label: 'People', href: T.href.people(tenant.id) }, { label: p.name }]) +
       ui.phead(p.name, esc(p.studentId || '') + ' · ' + esc(p.email), null, ' ' + T.personStatusBadge(p)) +
       (p.status === 'inactive' ? ui.alertBox('warning', 'This student is inactive',
-        '<p>Inactive students hold no effective entitlement and cannot receive new assignments. ' +
-        'Their assignment history is preserved and nothing has been deleted.</p>') + '<div style="height:16px"></div>' : '') +
+        '<p>Inactive students hold no effective entitlement and cannot be given new access. ' +
+        'Every access grant they hold is preserved and nothing has been deleted.</p>') + '<div style="height:16px"></div>' : '') +
       '<div class="grid-rail"><div class="stack">' + entCard + academic + '</div>' +
       '<div class="stack">' + identity + groupCard + '</div></div>' +
       actions;
@@ -777,9 +792,9 @@ XRSLP.screens = XRSLP.screens || {};
           de.addEventListener('click', function () {
             ui.openDialog({
               title: 'Deactivate ' + p.name + '?',
-              bodyHTML: '<p>The student record stays in the institution and every assignment record is kept.</p>' +
+              bodyHTML: '<p>The student record stays in the institution and every access grant is kept.</p>' +
                 '<div class="consequence">' + ui.ic('info') + '<span>While inactive they hold <strong>no effective entitlement</strong>, ' +
-                'cannot receive new assignments, and their licence is released back to the allocation. ' +
+                'cannot be given new access, and their licence is released back to the allocation. ' +
                 'This is reversible.</span></div>',
               okLabel: 'Deactivate',
               onConfirm: function () {
@@ -854,17 +869,21 @@ XRSLP.screens = XRSLP.screens || {};
       ui.alertBox('info', 'Faculty mapping does not consume a student licence',
         '<p>The approved quantity on an access record is a student/user allocation. Mapping a Faculty member to a ' +
         'course or experiment does not take one of those licences.</p>') +
-      /* The Faculty workspace this used to defer to now exists, so the note
-         says where the work is done rather than recording an absence. It
-         stops short of saying Student progress BELONGS to the Faculty
-         member: the role model gives the Tenant Admin reporting and
-         visibility over assigned students and content (STK31-25 / STK31-43).
-         What is missing is a tenant-level report, and that is stated as the
-         gap it is. */
+      /* ⚠ CORRECTED IN 07.3. This note used to end "this build carries no
+         tenant-level report over it", and that sentence became FALSE the
+         moment the institution-level learning overview was built — a
+         stale honesty note is worse than none, because it is read as a
+         current statement of what the product does. The boundary it was
+         really describing survives and is now stated exactly: the Tenant
+         Admin sees PROGRESS at institution level, and never an OUTCOME.
+         Faculty remain the only evaluators (STK31-31). */
       ui.alertBox('info', 'This page is the Tenant Admin’s view',
         '<p>Assessment authoring and the descriptive review queue are the Faculty member’s, and they reach ' +
-        'them in the Faculty workspace for whatever is mapped above. Student progress against that content ' +
-        'is read there too: this build carries no tenant-level report over it.</p>') +
+        'them in the Faculty workspace for whatever is mapped above.</p>' +
+        '<p style="margin-top:8px">Institution-level <strong>progress</strong> across everything this ' +
+        'institution holds is on the <a href="' + T.href.overview(tenant.id) + '">Overview</a>. Marks, scores ' +
+        'and individual results are deliberately not reported there: they belong to this Faculty member and to ' +
+        'the student.</p>') +
       '</div></div>';
 
     return { title: p.name, html: html, tenant: tenant, navKey: 'people' };

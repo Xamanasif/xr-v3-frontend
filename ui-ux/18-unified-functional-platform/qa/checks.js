@@ -397,8 +397,15 @@ function scenarioTransferTechnology() {
   eq((r.technologies || []).indexOf('web'), -1,
     'NOTHING INVENTED: the hosted technology is not dragged into a device request');
 
-  /* The decision must not disturb the resolved scope. */
+  /* The decision must not disturb the resolved scope.
+
+     The request goes through the institution's own Tenant Admin first
+     (Implementation 07.2): `decideDeviceTransfer` refuses anything that
+     has not been forwarded, so the escalation is part of reaching the
+     Super Admin at all. */
   var before = S.transferTechnologies(r).join(',');
+  ok(S.escalateDeviceTransfer(r.id, 'Checked with the student.') !== null,
+    'the Institute / Tenant Admin forwarded it to the platform');
   S.decideDeviceTransfer(r.id, S.TRANSFER_STATUS.APPROVED, 'Approved.');
   var after = S.deviceTransferById(r.id);
   eq(after.status, S.TRANSFER_STATUS.APPROVED, 'the Super Admin approved it');
@@ -469,7 +476,7 @@ function scenarioTransferTechnology() {
   eq(S.transferTechnologies(revived).join(','), 'vr',
     'MIGRATION REPAIRS THE DEFECT: the existing pending request now resolves to VR');
   eq(revived.technology, 'vr', 'MIGRATION: and the single-value field is filled in');
-  eq(S.SCHEMA_VERSION, 9, 'the build is at schema 9');
+  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
 }
 
 function scenarioF() {
@@ -492,19 +499,37 @@ function scenarioF() {
     newDevice: 'The replacement headset', reason: 'The original stopped charging.'
   });
   ok(made.ok, 'the Student could raise the request');
-  eq(made.request.status, S.TRANSFER_STATUS.SUBMITTED, 'it is awaiting a Super Admin decision');
+  eq(made.request.status, S.TRANSFER_STATUS.SUBMITTED,
+    'it is with the institution’s Tenant Admin, not the platform');
 
   /* Duplicate guard. */
   eq(S.createDeviceTransfer(RAHUL, {
     currentDevice: 'a', newDevice: 'b', reason: 'c' }).ok, false,
     'a second open request is refused while one is pending');
 
+  /* THE CORRECTED ROUTING — Implementation 07.2, stakeholder rule C.
+     A Student no longer reaches the Super Admin directly. */
+  eq(S.transfersAwaitingDecision().length, 0,
+    'THE SUPER ADMIN QUEUE IS EMPTY: a Student request does not reach the platform directly');
+  ok(S.transfersAwaitingTenant(TENANT).some(function (r) { return r.id === made.request.id; }),
+    'the institution’s own Tenant Admin has it first');
+  eq(S.decideDeviceTransfer(made.request.id, S.TRANSFER_STATUS.APPROVED, 'Approved.'), null,
+    'and the platform cannot decide what the institution has not forwarded');
+
+  var fwd = S.escalateDeviceTransfer(made.request.id, 'Spoke to the student; the headset is dead.');
+  eq(fwd.status, S.TRANSFER_STATUS.ESCALATED, 'the Tenant Admin forwarded it');
+  ok(!!fwd.escalatedBy, 'and the forwarding is attributed to a real assigned Tenant Admin');
+  eq(S.transfersAwaitingTenant(TENANT).length, 0, 'it has left the institution’s queue');
   ok(S.transfersAwaitingDecision().some(function (r) { return r.id === made.request.id; }),
-    'the Super Admin queue shows it');
+    'and only now does the Super Admin queue show it');
+  eq(S.escalateDeviceTransfer(made.request.id, 'again'), null,
+    'forwarding twice is refused');
 
   var out = S.decideDeviceTransfer(made.request.id, S.TRANSFER_STATUS.APPROVED, 'Approved.');
-  eq(out.status, S.TRANSFER_STATUS.APPROVED, 'the Super Admin approved it');
+  eq(out.status, S.TRANSFER_STATUS.APPROVED, 'the Super Admin remains the FINAL decision maker');
   eq(S.transfersForStudent(RAHUL)[0].status, S.TRANSFER_STATUS.APPROVED, 'the Student sees Approved');
+  eq(S.transfersForTenant(TENANT)[0].status, S.TRANSFER_STATUS.APPROVED,
+    'and so does the Tenant Admin who forwarded it');
 
   var allocAfter = S.accessAllocation(g.access.id);
   eq(allocAfter.assigned, allocBefore.assigned, 'NO EXTRA LICENCE CONSUMED');
@@ -795,7 +820,7 @@ function migrationChecks() {
   loadState();
   S = XRSLP.state;
 
-  eq(S.SCHEMA_VERSION, 9, 'the build is at schema 9');
+  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
   eq(S.migratedFrom(), 6, 'and reports that it migrated from 6');
   eq(S.requests().length, requests, 'NOTHING LOST: requests');
   eq(S.accessAll().length, access, 'NOTHING LOST: access records');
@@ -913,11 +938,24 @@ function guardChecks() {
   ok(S.actorsForRecord(S.contentRecord('torsion-test'), 'reviewer').length >= 2,
     'so that Experiment now has two Academic Reviewers');
 
-  /* Canonical governance. */
+  /* Canonical governance.
+
+     A REASON IS REQUIRED ON PUBLISHED CONTENT — Implementation 07.2,
+     stakeholder rule F. This rewrites the master record of something the
+     public catalogue is already showing, so the override says why. */
+  eq(S.updateCanonicalAsPlatform('direct-shear', {
+    name: 'Direct Shear Test', courseId: 'soil-mechanics',
+    summary: 'Updated by the Super Admin (QA).', description: 'QA canonical edit.' }).ok, false,
+    'a published master record cannot be corrected without a stated reason');
+  eq(S.contentRecord('direct-shear').summary.indexOf('QA'), -1,
+    'AND THE REFUSAL WROTE NOTHING');
   var up = S.updateCanonicalAsPlatform('direct-shear', {
     name: 'Direct Shear Test', courseId: 'soil-mechanics',
-    summary: 'Updated by the Super Admin (QA).', description: 'QA canonical edit.' });
-  ok(up.ok, 'the Super Admin can correct canonical metadata');
+    summary: 'Updated by the Super Admin (QA).', description: 'QA canonical edit.' },
+    'Course code correction requested by the Content Manager.');
+  ok(up.ok, 'the Super Admin can correct canonical metadata WITH a reason');
+  eq(up.record.history[0].note, 'Course code correction requested by the Content Manager.',
+    'and the reason is on the record’s own history, not only in an audit table');
   eq(S.contentRecord('direct-shear').id, 'direct-shear', 'the canonical identifier never changes');
   eq(S.updateCanonicalAsPlatform('EXP-007', { name: 'x', courseId: 'soil-mechanics' }).ok, false,
     'a record still with the Vendor is not edited from the platform surface');
@@ -958,6 +996,10 @@ function altitudeChecks() {
   S.createSupportTicket({ kind: 'faculty', id: ARJUN, name: 'Dr. Arjun Mehta', roleLabel: 'Faculty', tenantId: TENANT },
     { category: 'login', subject: 'QA', description: 'QA' });
   S.createDeviceTransfer(RAHUL, { technology: 'vr', currentDevice: 'a', newDevice: 'b', reason: 'c' });
+  /* Three steps now, and none of them may cross an altitude:
+     the Student raises it, the Tenant Admin forwards it, the Super
+     Admin decides it. */
+  S.escalateDeviceTransfer(S.transfersForStudent(RAHUL)[0].id, 'Forwarded.');
   S.decideDeviceTransfer(S.transfersForStudent(RAHUL)[0].id, S.TRANSFER_STATUS.APPROVED, '');
 
   eq(S.accessAll().length, accCount, 'no governance action created tenant access');
@@ -2750,7 +2792,7 @@ function scenarioStructurePersistence() {
   loadState();
   S = XRSLP.state; D = XRSLP.data;
 
-  eq(S.SCHEMA_VERSION, 9, 'the build is at schema 9');
+  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
   eq(S.migratedFrom(), 8, 'and reports that it migrated from 8');
   eq(S.groupingRecords().length, 2, 'A SCHEMA-8 STATE GAINS THE SEEDED PROGRAMMES');
   eq(S.courseRecords().length, 5, 'and the seeded Courses');
@@ -2774,6 +2816,689 @@ function scenarioStructurePersistence() {
   eq(S.courseRecords().length, 5, 'exactly the seeded Courses');
   eq(S.contentActors().length, 5, 'and the seeded five actors');
   eq(D.courses().length, 5, 'AND NO CUSTOM STRUCTURE LEAKS ACROSS THE RESET');
+}
+
+
+/* ============================================================
+   IMPLEMENTATION 07.2 — THE STAKEHOLDER-CONFIRMED CORRECTIONS
+
+   Six scenarios, one per confirmed decision plus the schema step.
+   Every assertion below is NEW; nothing above was removed or
+   weakened to accommodate them.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   SCENARIO AA — an institution re-requests an Experiment it
+   already holds, and gets ADDITIONAL LICENCES.
+
+   "If the same institution requests the same experiment again, they
+    can request additional licenses. It should show the existing plan
+    when they reselect."
+   ------------------------------------------------------------ */
+function scenarioExperimentExpansion() {
+  group('SCENARIO AA — a held Experiment can be requested again for more licences');
+  boot();
+
+  var first = grantAccess(['direct-shear'], ['vr', 'web'], 3, 'yearly');
+  var acc1 = first.access;
+  var firstSnapshot = JSON.stringify({
+    items: acc1.items, quantity: acc1.quantity, term: acc1.term,
+    endsOn: acc1.endsOn, requestId: acc1.requestId
+  });
+  var firstHistory = S.request(first.request.id).history.length;
+
+  /* ---- the institution is identifiable on the public plane ---- */
+  var inst = S.scenarioTenant();
+  ok(!!inst && inst.id === TENANT, 'the public plane can say which institution is choosing');
+  ok(S.tenantHoldsExperiment(TENANT, 'direct-shear'),
+    'and that it already holds this Experiment');
+  eq(S.tenantHoldsExperiment(TENANT, 'consolidation'), false,
+    'and that it does not hold one it never bought');
+
+  /* ---- the existing plan is visible when they reselect ---- */
+  var held = S.tenantAccessForExperiment(TENANT, 'direct-shear');
+  eq(held.length, 1, 'THE EXISTING PLAN IS SURFACED: one access record carries it');
+  eq(held[0].record.id, acc1.id, 'and it is the real record, not a summary');
+  eq(held[0].technologies.join(','), 'web,vr', 'with the technologies actually granted');
+  eq(held[0].allocation.approved, 3, 'and the licences actually approved');
+  eq(held[0].termState.key, 'active', 'and its real term state');
+  eq(held[0].live, true, 'the record is live');
+
+  /* ---- NOT BLOCKED. Reselecting the same Experiment is allowed. ---- */
+  eq(S.selectionAdd('direct-shear', ['vr']), true,
+    'NOT BLOCKED: an already-held Experiment can be selected again');
+  eq(S.heldSelectionFor(TENANT, S.selectionItems()).length, 1,
+    'and the basket knows the institution already holds it');
+
+  var second = S.submitRequest({
+    institutionName: 'Sample Engineering Institute',
+    contactName: 'Dr. Kavita Sharma',
+    contactEmail: 'kavita.sharma@sample-institute.example',
+    quantity: 5, term: 'yearly'
+  });
+  ok(!!second, 'the expansion request is accepted');
+  eq(S.requestCanBeDecided(S.request(second.id)), true,
+    'and it is decidable — holding the Experiment already is not a refusal');
+  S.approveRequest(second.id, { reason: 'QA — additional licences.' });
+
+  /* ---- ADDITIONAL LICENCES, and nothing overwritten ---- */
+  eq(S.accessForTenant(TENANT).length, 2, 'a SECOND access record is added beside the first');
+  eq(S.tenantAllocation(TENANT).approved, 8,
+    'ADDITIONAL LICENCES: 3 + 5, summed across the two records');
+  eq(S.tenantAccessForExperiment(TENANT, 'direct-shear').length, 2,
+    'and both records are surfaced for the Experiment, per record');
+
+  var acc1After = S.accessById(acc1.id);
+  eq(JSON.stringify({
+    items: acc1After.items, quantity: acc1After.quantity, term: acc1After.term,
+    endsOn: acc1After.endsOn, requestId: acc1After.requestId
+  }), firstSnapshot,
+    'THE ORIGINAL ACCESS RECORD IS BYTE-IDENTICAL — nothing was silently overwritten');
+  eq(S.request(first.request.id).history.length, firstHistory,
+    'and the ORIGINAL REQUEST’S HISTORY IS UNTOUCHED');
+  ok(S.request(second.id).history.length > 0, 'while the later request keeps its own history');
+  eq(S.tenants().filter(function (t) { return t.id === TENANT; }).length, 1,
+    'NO SECOND INSTITUTION was created — still exactly one row for this institution');
+  eq(S.tenants().filter(function (t) { return t.name === 'Sample Engineering Institute'; }).length, 1,
+    'and no second institution under the same name');
+
+  /* ---- and the downstream reading of two records is unchanged ---- */
+  S.assignExperiment(TENANT, acc1.id, 'direct-shear', 'student', [RAHUL]);
+  eq(S.studentEntitledTechnologies(RAHUL, 'direct-shear').join(','), 'web,vr',
+    'the Student’s technologies are unchanged by the expansion');
+  eq(S.studentCanRun(RAHUL, 'consolidation', 'web'), false,
+    'and an Experiment the institution never bought is still refused');
+}
+
+/* ------------------------------------------------------------
+   SCENARIO BB — device replacement / transfer is routed through
+   the institution's own Tenant Admin.
+
+   "Any request from institution should come through Tenant Admin. He
+    will be our POC to facilitate and final approval comes to Super
+    Admin."
+
+   scenarioF already pins the happy path end to end. This one pins the
+   edges: the actor must be real, a deactivated institution cannot
+   forward, and forwarding writes nothing but the request.
+   ------------------------------------------------------------ */
+function scenarioDeviceRouting() {
+  group('SCENARIO BB — the device request routes through the institution POC');
+  boot();
+
+  var g = grantAccess(['direct-shear'], ['vr', 'web'], 3, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  var made = S.createDeviceTransfer(RAHUL, {
+    technology: 'vr', currentDevice: 'Issued headset', newDevice: 'Replacement headset',
+    reason: 'It stopped charging.'
+  });
+  ok(made.ok, 'the Student raised the request');
+
+  /* ---- the forwarding note is optional; the ACTOR is not ---- */
+  var snapshot = {
+    access: S.accessAll().length,
+    assigned: S.accessAllocation(g.access.id).assigned,
+    remaining: S.accessAllocation(g.access.id).remaining,
+    ents: S.getEffectiveStudentEntitlements(RAHUL).length,
+    techs: S.studentEntitledTechnologies(RAHUL, 'direct-shear').join(','),
+    attempts: S.attemptsFor(RAHUL, 'direct-shear').length,
+    published: S.publishedPool().length
+  };
+  var fwd = S.escalateDeviceTransfer(made.request.id, '');
+  eq(fwd.status, S.TRANSFER_STATUS.ESCALATED, 'a forwarding note is optional');
+  eq(fwd.escalatedBy, S.actingTenantAdmin(TENANT).name,
+    'THE FORWARDING IS ATTRIBUTED TO THE REAL ASSIGNED TENANT ADMIN — never a fabricated actor');
+  ok(!!fwd.escalatedAt, 'and stamped');
+  eq(fwd.history[fwd.history.length - 1].kind === 'escalated' ||
+     fwd.history[0].kind === 'escalated', true,
+    'and it is in the request’s own history');
+
+  /* ---- FORWARDING GRANTS NOTHING ---- */
+  eq(S.accessAll().length, snapshot.access, 'FORWARDING: no access record created');
+  eq(S.accessAllocation(g.access.id).assigned, snapshot.assigned, 'FORWARDING: no licence consumed');
+  eq(S.accessAllocation(g.access.id).remaining, snapshot.remaining, 'FORWARDING: remaining unchanged');
+  eq(S.getEffectiveStudentEntitlements(RAHUL).length, snapshot.ents, 'FORWARDING: no Experiment granted');
+  eq(S.studentEntitledTechnologies(RAHUL, 'direct-shear').join(','), snapshot.techs,
+    'FORWARDING: no technology granted');
+  eq(S.attemptsFor(RAHUL, 'direct-shear').length, snapshot.attempts, 'FORWARDING: no assessment state touched');
+  eq(S.publishedPool().length, snapshot.published, 'FORWARDING: nothing published');
+
+  /* ---- the outcome reaches BOTH the Student and the Tenant Admin ---- */
+  S.decideDeviceTransfer(made.request.id, S.TRANSFER_STATUS.DECLINED, 'A replacement is not available.');
+  eq(S.transfersForStudent(RAHUL)[0].status, S.TRANSFER_STATUS.DECLINED, 'the Student sees the outcome');
+  eq(S.transfersForTenant(TENANT)[0].status, S.TRANSFER_STATUS.DECLINED, 'and so does the Tenant Admin');
+  eq(S.transfersAwaitingTenant(TENANT).length, 0, 'and neither queue still holds it');
+  eq(S.transfersAwaitingDecision().length, 0, 'on either side');
+
+  /* ---- a deactivated institution cannot forward, and loses nothing ---- */
+  boot();
+  var g2 = grantAccess(['direct-shear'], ['vr'], 2, 'yearly');
+  S.assignExperiment(TENANT, g2.access.id, 'direct-shear', 'student', [RAHUL]);
+  var m2 = S.createDeviceTransfer(RAHUL, {
+    currentDevice: 'a', newDevice: 'b', reason: 'c' });
+  S.deactivateTenant(TENANT, 'QA — suspended.');
+  eq(S.escalateDeviceTransfer(m2.request.id, 'x'), null,
+    'a DEACTIVATED institution cannot forward a device request');
+  eq(S.deviceTransferById(m2.request.id).status, S.TRANSFER_STATUS.SUBMITTED,
+    'AND NOTHING IS LOST — the request stays exactly where it was');
+  S.reactivateTenant(TENANT, 'QA — restored.');
+  ok(S.escalateDeviceTransfer(m2.request.id, 'x') !== null,
+    'and it moves the moment the institution is reactivated');
+
+  /* ---- an institution with NO assigned Tenant Admin cannot forward ---- */
+  boot();
+  var g3 = grantAccess(['direct-shear'], ['vr'], 2, 'yearly');
+  S.assignExperiment(TENANT, g3.access.id, 'direct-shear', 'student', [RAHUL]);
+  var m3 = S.createDeviceTransfer(RAHUL, { currentDevice: 'a', newDevice: 'b', reason: 'c' });
+  S.tenantAdminsFor(TENANT).forEach(function (a) { S.removeTenantAdmin(a.id); });
+  eq(S.actingTenantAdmin(TENANT), null, 'this institution now has no Tenant Admin');
+  eq(S.escalateDeviceTransfer(m3.request.id, 'x'), null,
+    'so the POC step CANNOT be performed — and no actor is fabricated to get past it');
+  eq(S.transfersAwaitingDecision().length, 0,
+    'and the request still does not reach the Super Admin by default');
+}
+
+/* ------------------------------------------------------------
+   SCENARIO CC — renewal follows the institution's own onboarding
+   route, and nothing is extended by asking.
+
+   "Tenant should go through same payment method which he follows in
+    initial onboarding."
+   ------------------------------------------------------------ */
+function scenarioRenewal() {
+  group('SCENARIO CC — renewal follows the institution’s original access route');
+  boot();
+
+  /* ---------- the INTERNAL / BITS Community route ---------- */
+  var g = grantAccess(['direct-shear'], ['vr', 'web'], 3, 'yearly');
+  var acc = g.access;
+  S.assignExperiment(TENANT, acc.id, 'direct-shear', 'student', [RAHUL]);
+  var endsBefore = acc.endsOn;
+  var route = S.renewalRouteFor(TENANT);
+  eq(route.paymentRequired, false, 'the seeded institution came in with NO payment step');
+  eq(route.accessContext, 'BITS Community', 'and its access context says so');
+
+  /* THE ROUTE COMES FROM THE INSTITUTION, NOT THE PROTOTYPE SELECTOR.
+     With the external scenario selected, an internal institution must
+     STILL renew on its own internal route. */
+  S.setScenario('B');
+  eq(S.renewalRouteFor(TENANT).paymentRequired, false,
+    'THE ROUTE IS THE INSTITUTION’S: the external scenario does not put it on the payment route');
+  var rn = S.submitRenewalRequest(acc.id, {});
+  ok(rn.ok, 'the renewal is raised');
+  eq(rn.request.paymentRequired, false, 'and inherits the institution’s own route, not the selector’s');
+  eq(rn.request.renewsAccessId, acc.id, 'and names the record it renews');
+  S.setScenario('A');
+
+  /* NOTHING IS EXTENDED BY ASKING. */
+  eq(S.accessById(acc.id).endsOn, endsBefore,
+    'NO SILENT EXTENSION: requesting a renewal extends nothing');
+  eq(S.accessById(acc.id).renewals.length, 0, 'and records no renewal');
+  eq(S.accessAll().length, 1, 'and creates no second access record');
+  eq(S.submitRenewalRequest(acc.id, {}).reason, 'already-open',
+    'a second in-flight renewal for the same record is refused');
+
+  /* MIRRORS THE CURRENT PLAN — the unresolved question stays unresolved. */
+  eq(JSON.stringify(rn.request.items), JSON.stringify(acc.items),
+    'THE RENEWAL MIRRORS THE CURRENT PLAN: same experiments and technologies');
+  eq(rn.request.quantity, acc.quantity, 'same licence count');
+  eq(rn.request.term, acc.term, 'same term');
+
+  /* The Super Admin decision is the SAME surface, with the same gates. */
+  eq(S.approveRequest(rn.request.id, { reason: '' }), null,
+    'a renewal cannot be approved without a reason either');
+  S.approveRequest(rn.request.id, { reason: 'QA — renewal approved.' });
+  eq(S.request(rn.request.id).status, S.STATUS.ACTIVE,
+    'the internal route has no payment step, so approval activates it');
+  var renewed = S.accessById(acc.id);
+  ok(renewed.endsOn > endsBefore, 'THE TERM IS EXTENDED — on the existing record');
+  eq(S.accessAll().length, 1, 'AND NO SECOND ACCESS RECORD WAS CREATED');
+  eq(renewed.renewals.length, 1, 'the renewal is on the record’s own audit line');
+  eq(renewed.renewals[0].previousEndsOn, endsBefore, 'which keeps the previous end date');
+  eq(renewed.renewals[0].route, 'no-payment', 'and names the route it came through');
+  eq(renewed.quantity, 3, 'RENEWAL ADDED NO LICENCE');
+  eq(S.accessAllocation(acc.id).assigned, 1,
+    'AND THE STUDENT KEEPS THEIR ENTITLEMENT — the record they hold is the record that renewed');
+  eq(S.studentCanRun(RAHUL, 'direct-shear', 'vr'), true, 'so the Student can still run it');
+
+  /* ---------- the EXTERNAL / Subscription route ---------- */
+  boot();
+  S.setScenario('B');
+  S.selectionAdd('consolidation', ['vr']);
+  var ext = S.submitRequest({ institutionName: 'Northfield Institute of Technology',
+    contactName: 'Prof. Daniel Mensah', contactEmail: 'd.mensah@northfield.example',
+    quantity: 4, term: 'quarterly' });
+  S.approveRequest(ext.id, { reason: 'QA — approved.' });
+  S.completePayment(ext.id, S.PAYMENT_OUTCOME.SUCCESS);
+  var extTenant = S.request(ext.id).tenantId;
+  var extAcc = S.accessForTenant(extTenant)[0];
+  var extEnds = extAcc.endsOn;
+  eq(S.renewalRouteFor(extTenant).paymentRequired, true,
+    'the external institution came in through a payment step');
+
+  /* And it must STILL be on the payment route with the INTERNAL
+     scenario selected — the mirror of the leak tested above. */
+  S.setScenario('A');
+  eq(S.renewalRouteFor(extTenant).paymentRequired, true,
+    'THE ROUTE IS THE INSTITUTION’S: the internal scenario does not remove its payment step');
+  var extRn = S.submitRenewalRequest(extAcc.id, {});
+  ok(extRn.ok, 'the external renewal is raised');
+  eq(extRn.request.paymentRequired, true, 'on the institution’s own payment route');
+  S.approveRequest(extRn.request.id, { reason: 'QA — renewal approved.' });
+  eq(S.request(extRn.request.id).status, S.STATUS.APPROVED_PAYMENT_REQUIRED,
+    'APPROVAL ALONE DOES NOT ACTIVATE AN EXTERNAL RENEWAL');
+  eq(S.accessById(extAcc.id).endsOn, extEnds, 'and the term is NOT extended by approval');
+
+  S.completePayment(extRn.request.id, S.PAYMENT_OUTCOME.DECLINED);
+  eq(S.accessById(extAcc.id).endsOn, extEnds, 'A DECLINED PAYMENT EXTENDS NOTHING');
+  S.completePayment(extRn.request.id, S.PAYMENT_OUTCOME.INDETERMINATE);
+  eq(S.accessById(extAcc.id).endsOn, extEnds, 'AN UNCONFIRMED PAYMENT EXTENDS NOTHING');
+  eq(S.accessById(extAcc.id).renewals.length, 0, 'and neither is recorded as a renewal');
+
+  S.completePayment(extRn.request.id, S.PAYMENT_OUTCOME.SUCCESS);
+  ok(S.accessById(extAcc.id).endsOn > extEnds,
+    'ONLY THE COMPLETED PAYMENT ACTIVATES THE RENEWED TERM');
+  eq(S.accessById(extAcc.id).renewals[0].route, 'payment', 'recorded as the payment route');
+  eq(S.accessForTenant(extTenant).length, 1, 'and still one access record');
+
+  /* ---------- no auto-renewal, and expiry still removes access, not history ---------- */
+  boot();
+  var g4 = grantAccess(['direct-shear'], ['vr'], 2, 'yearly');
+  S.assignExperiment(TENANT, g4.access.id, 'direct-shear', 'student', [RAHUL]);
+  S.requestSimulationAccess(RAHUL, 'direct-shear', 'vr');
+  S.simulatePackageReady(RAHUL, 'direct-shear', 'vr');
+  S.startSimulation(RAHUL, 'direct-shear', 'vr');
+  S.completeSimulation(RAHUL, 'direct-shear', 'vr');
+  S.protoSetAccessEnd(g4.access.id, -1);
+  eq(S.accessIsLive(S.accessById(g4.access.id)), false, 'the term has run out');
+  eq(S.canRenewAccess(g4.access.id), true, 'an expired record can still be renewed');
+  eq(S.accessById(g4.access.id).endsOn === null, false, 'NO AUTO-RENEWAL happened');
+  eq(S.studentCanRun(RAHUL, 'direct-shear', 'vr'), false, 'expiry removed effective access');
+  var simAfterExpiry = S.simulationActivity(RAHUL, 'direct-shear', 'vr');
+  eq(simAfterExpiry.status, S.SIM_STATUS.COMPLETED,
+    'BUT THE HISTORY IS KEPT — expiry removes effective access, not the completed run');
+  ok(simAfterExpiry.timeSpentSeconds >= 0, 'and the time spent on it survives too');
+  eq(S.activeAssignments(TENANT).length, 1, 'and the assignment behind it is not deleted either');
+
+  var rn4 = S.submitRenewalRequest(g4.access.id, {});
+  S.approveRequest(rn4.request.id, { reason: 'QA — renewal after expiry.' });
+  eq(S.accessIsLive(S.accessById(g4.access.id)), true, 'the renewal brought the record back');
+  eq(S.studentCanRun(RAHUL, 'direct-shear', 'vr'), true, 'and the Student’s entitlement with it');
+  eq(S.accessAllocation(g4.access.id).assigned, 1, 'without re-assigning anybody');
+}
+
+/* ------------------------------------------------------------
+   SCENARIO DD — the canonical Course Code.
+
+   "Content Manager primarily. Super Admin will also get access to it."
+   ------------------------------------------------------------ */
+function scenarioCourseCode() {
+  group('SCENARIO DD — the canonical Course code: Content Manager, and Super Admin too');
+  boot();
+
+  /* ---- blank is a legitimate, permanent state ---- */
+  ok(D.courses().every(function (c) { return typeof c.code === 'string'; }),
+    'every canonical Course carries a code field');
+  eq(D.course('soil-mechanics').code, '', 'seeded blank — no official code is invented');
+  ok(S.createCourse({ groupingId: 'civil-engineering', name: 'QA Course A',
+    summary: 'QA.' }).ok, 'a Course can still be created with NO code');
+
+  /* ---- the CONTENT MANAGER owns it ---- */
+  eq(S.coursesForManager(KULK).length, D.courses().length,
+    'a platform-scope Content Manager covers every Course');
+  ok(S.managerCanSetCourseCode(KULK, 'soil-mechanics'), 'and may set its canonical code');
+  var set = S.updateCourseCode(KULK, 'soil-mechanics', 'CE G511');
+  ok(set.ok, 'THE CONTENT MANAGER SETS THE CANONICAL COURSE CODE');
+  eq(D.course('soil-mechanics').code, 'CE G511', 'and it reaches every catalogue lookup');
+  eq(set.course.codeSetBy, 'M. Kulkarni', 'attributed to the person who set it');
+
+  /* ---- SCOPE STILL GOVERNS. A Course-scoped manager reaches only theirs. ---- */
+  S.roleAssignments({ actorId: KULK }).forEach(function (m) {
+    S.removePlatformRoleAssignment(m.id, 'QA — narrowing scope.');
+  });
+  S.assignPlatformRole({ actorId: KULK, role: 'manager', scope: 'course', courseId: 'soil-mechanics' });
+  ok(S.managerCanSetCourseCode(KULK, 'soil-mechanics'), 'their own Course is still theirs');
+  eq(S.managerCanSetCourseCode(KULK, 'fluid-mechanics'), false, 'a Course outside their scope is not');
+  eq(S.updateCourseCode(KULK, 'fluid-mechanics', 'ME F311').ok, false,
+    'AND THE WRITER REFUSES IT — authority lives in state, not in the route');
+  eq(D.course('fluid-mechanics').code, '', 'and the refusal wrote nothing');
+
+  /* ---- a VENDOR or an ACADEMIC REVIEWER is not an owner of it ---- */
+  eq(S.updateCourseCode(RAO, 'soil-mechanics', 'X1').ok, false, 'a Vendor cannot set a Course code');
+  eq(S.updateCourseCode(IYER, 'soil-mechanics', 'X2').ok, false,
+    'nor can an Academic Reviewer');
+  eq(D.course('soil-mechanics').code, 'CE G511', 'and neither refusal changed it');
+
+  /* ---- the SUPER ADMIN also has access ---- */
+  var sa = S.updateCourse('surveying', { groupingId: 'civil-engineering', name: 'Surveying',
+    summary: 'Field surveying instruments and procedures practised in a simulated environment.',
+    code: 'CE G512' });
+  ok(sa.ok, 'THE SUPER ADMIN ALSO SETS A CANONICAL COURSE CODE');
+  eq(D.course('surveying').code, 'CE G512', 'and it takes effect');
+  eq(sa.course.codeSetBy, 'Super Admin', 'attributed to the platform');
+  var noCode = S.updateCourse('surveying', { groupingId: 'civil-engineering', name: 'Surveying',
+    summary: 'Field surveying instruments and procedures practised in a simulated environment.' });
+  eq(noCode.course.code, 'CE G512',
+    'and a save that does not carry the field cannot silently blank the code');
+
+  /* ---- platform-wide uniqueness, blanks excepted ---- */
+  eq(S.updateCourse('structural-analysis', { groupingId: 'civil-engineering',
+    name: 'Structural Analysis', summary: 'x', code: 'ce g512' }).ok, false,
+    'a duplicate canonical code is refused platform-wide, case-insensitively');
+  ok(S.updateCourse('structural-analysis', { groupingId: 'civil-engineering',
+    name: 'Structural Analysis', summary: 'x', code: '' }).ok,
+    'while blank never collides with blank');
+
+  /* ---- THE TENANT ADMIN CANNOT REDEFINE IT ---- */
+  ok(!!S.setCourseMapping(TENANT, 'soil-mechanics', 'SEI-SM-01', '5'),
+    'the Tenant Admin sets their own LOCAL course code');
+  eq(S.courseMapping(TENANT, 'soil-mechanics').localCode, 'SEI-SM-01', 'which is stored on the mapping');
+  eq(D.course('soil-mechanics').code, 'CE G511',
+    'AND THE CANONICAL CODE IS UNTOUCHED — a tenant-local mapping cannot redefine it');
+  eq(S.courseMapping(TENANT, 'soil-mechanics').code, undefined,
+    'the mapping carries no canonical code of its own to confuse it with');
+  /* A Tenant Admin is not a content actor at all, so the actor-scoped
+     writer cannot even resolve them. */
+  eq(S.updateCourseCode(TENANT, 'soil-mechanics', 'HACK').ok, false,
+    'and a tenant id is not a content actor — the canonical writer refuses it outright');
+  eq(D.course('soil-mechanics').code, 'CE G511', 'canonical code still intact');
+
+  /* ---- and the tenant’s own mapping still works exactly as before ---- */
+  ok(S.clearCourseMapping(TENANT, 'soil-mechanics'), 'the tenant can still clear its own mapping');
+  eq(D.course('soil-mechanics').code, 'CE G511', 'without touching the canonical code');
+}
+
+/* ------------------------------------------------------------
+   SCENARIO EE — Super Admin override authority: explicit,
+   reasoned, audited, and NOT a relaxation of normal ownership.
+   ------------------------------------------------------------ */
+function scenarioPlatformOverride() {
+  group('SCENARIO EE — platform override is explicit, reasoned and audited');
+  boot();
+
+  var rec = S.contentRecords().filter(function (r) {
+    return r.status === S.CONTENT_STATUS.ACADEMIC_REVIEW;
+  })[0];
+  ok(!!rec, 'a submission is sitting with the Academic Reviewer');
+  var historyBefore = rec.history.length;
+  var accBefore = S.accessAll().length;
+  var pubBefore = S.publishedPool().length;
+  var pubRecsBefore = S.publicationRecords().length;
+  var revsBefore = S.academicReviewsFor(rec.id).length;
+
+  /* ---- a reason is REQUIRED ---- */
+  eq(S.overrideContentStatusAsPlatform(rec.id, S.CONTENT_STATUS.DRAFT, ''), null,
+    'AN OVERRIDE WITH NO REASON IS REFUSED');
+  eq(S.overrideContentStatusAsPlatform(rec.id, S.CONTENT_STATUS.DRAFT, '   '), null,
+    'and whitespace is not a reason');
+  eq(S.contentRecord(rec.id).status, S.CONTENT_STATUS.ACADEMIC_REVIEW, 'and nothing moved');
+  eq(S.contentRecord(rec.id).history.length, historyBefore,
+    'AND NO HISTORY WAS MANUFACTURED BY THE REFUSAL');
+
+  /* ---- the destinations are declared, with whether anybody can act ---- */
+  var dests = S.overrideDestinations(rec.id);
+  ok(dests.length > 0, 'the override declares where the record may be moved');
+  ok(dests.every(function (d) { return d.status !== S.CONTENT_STATUS.PUBLISHED; }),
+    'and PUBLISHED is never one of them');
+  ok(dests.every(function (d) { return typeof d.reachable === 'boolean'; }),
+    'and each one says whether anybody live could act there');
+
+  /* ---- a real override ---- */
+  var out = S.overrideContentStatusAsPlatform(rec.id, S.CONTENT_STATUS.DRAFT,
+    'The only assigned Academic Reviewer is unavailable; returning it to the Vendor.');
+  eq(out.status, S.CONTENT_STATUS.DRAFT, 'the Super Admin moved it');
+  eq(out.overrides.length, 1, 'ONE override is recorded');
+  eq(out.overrides[0].from, S.CONTENT_STATUS.ACADEMIC_REVIEW, 'naming what it moved from');
+  eq(out.overrides[0].to, S.CONTENT_STATUS.DRAFT, 'and what it moved to');
+  ok(out.overrides[0].reason.length > 0, 'with the reason kept');
+  eq(out.history.length, historyBefore + 1, 'and EXACTLY ONE history entry was added');
+  var ev = out.history.filter(function (h) { return h.kind === 'override'; })[0];
+  ok(!!ev, 'which reads AS an override in the shared timeline');
+  eq(ev.actorName, 'Super Admin', 'attributed to the platform');
+  eq(ev.actorRole, null, 'which holds no content role');
+  ok(ev.note.length > 0, 'and carries the reason');
+
+  /* ---- IT GRANTS NOTHING ---- */
+  eq(S.accessAll().length, accBefore, 'the override created no tenant access');
+  eq(S.entitledStudentIds(TENANT).length, 0, 'and no student entitlement');
+  eq(S.publishedPool().length, pubBefore, 'and published nothing');
+  eq(S.publicationRecords().length, pubRecsBefore, 'and wrote no publication record');
+  eq(S.academicReviewsFor(rec.id).length, revsBefore, 'and no academic decision');
+
+  /* ---- THE PUBLISH FIREWALL IS NOT CROSSED ---- */
+  var published = S.contentRecords().filter(function (r) {
+    return r.status === S.CONTENT_STATUS.PUBLISHED;
+  })[0];
+  eq(S.overrideContentStatusAsPlatform(published.id, S.CONTENT_STATUS.DRAFT, 'QA.'), null,
+    'PUBLISHED CONTENT CANNOT BE MOVED BY OVERRIDE — nothing un-publishes');
+  eq(S.overrideContentStatusAsPlatform(rec.id, S.CONTENT_STATUS.PUBLISHED, 'QA.'), null,
+    'AND THE OVERRIDE CANNOT PUBLISH — first publication stays the Content Manager’s');
+  eq(S.publishedPool().length, pubBefore, 'the public pool is unchanged by both refusals');
+
+  /* ---- NORMAL OWNERSHIP IS UNCHANGED ---- */
+  eq(S.approveAcademic(RAO, rec.id, 'QA'), null, 'a Vendor still cannot take an academic decision');
+  eq(S.publishContent(IYER, rec.id), null, 'an Academic Reviewer still cannot publish');
+  eq(S.addOutcome(RAO, rec.id, 'QA outcome'), null, 'a Vendor still cannot author a Learning Outcome');
+  eq(S.overrideContentStatusAsPlatform(rec.id, S.CONTENT_STATUS.DRAFT, 'QA.'), null,
+    'and moving a record to where it already is is refused');
+
+  /* ---- withdrawing a scope now requires a reason, and suspension is one act ---- */
+  boot();
+  var live = S.roleAssignments({ actorId: RAO });
+  ok(live.length > 0, 'the Vendor holds live scope');
+  eq(S.removePlatformRoleAssignment(live[0].id, ''), null,
+    'A SCOPE CANNOT BE WITHDRAWN WITHOUT A REASON');
+  eq(S.roleAssignments({ actorId: RAO }).length, live.length, 'and nothing was withdrawn');
+  eq(S.withdrawAllScopesForActor(RAO, ''), null, 'nor can every scope be withdrawn without one');
+  var removed = S.withdrawAllScopesForActor(RAO, 'QA — suspended pending investigation.');
+  eq(removed.length, live.length, 'ONE DECISION, ONE REASON, every scope withdrawn');
+  eq(S.roleAssignments({ actorId: RAO }).length, 0, 'the Vendor now holds none');
+  ok(S.roleAssignments({ actorId: RAO, includeRemoved: true }).every(function (m) {
+    return m.removedReason.length > 0;
+  }), 'and every withdrawn row carries the reason');
+  ok(S.actorHistoricalRecordIds(RAO).length > 0,
+    'NOTHING IS DESTROYED — their name is still on the records they acted on');
+  var back = S.roleAssignments({ actorId: RAO, includeRemoved: true })[0];
+  ok(!!S.restorePlatformRoleAssignment(back.id), 'and every row is individually restorable');
+}
+
+/* ------------------------------------------------------------
+   SCENARIO GG — the defects the 07.2 adversarial review found in
+   07.2's own work. One assertion each, so none can come back.
+   ------------------------------------------------------------ */
+function scenarioAdversarial072() {
+  group('SCENARIO GG — Implementation-07.2 adversarial findings, closed');
+  boot();
+
+  /* ── 1 · A RENEWAL CANNOT BE NARROWED ──────────────────────────
+     The Super Admin decision surface may hand an institution LESS than
+     it asked for. `activateRenewal` extends the term of an EXISTING
+     record and cannot apply a narrowed licence count or technology set,
+     so a grant on a renewal was announced to the institution and then
+     silently ignored — the recorded decision and the real entitlement
+     diverged. It is refused outright, which also keeps the open
+     question "may a renewal change the plan?" genuinely open. */
+  var g = grantAccess(['direct-shear', 'consolidation'], ['vr', 'web'], 6, 'yearly');
+  var acc = g.access;
+  S.assignExperiment(TENANT, acc.id, 'direct-shear', 'student', [RAHUL]);
+  var before = {
+    quantity: acc.quantity, term: acc.term,
+    items: JSON.stringify(acc.items), endsOn: acc.endsOn
+  };
+  var rn = S.submitRenewalRequest(acc.id, {});
+  ok(rn.ok, 'a renewal is raised');
+  var narrowed = { items: [{ experimentId: 'direct-shear', technologies: ['web'] }],
+                   quantity: 1, term: 'monthly' };
+  eq(S.validateGrant(S.request(rn.request.id), narrowed).ok, true,
+    'the generic grant validator would accept that narrowing on an ordinary request');
+  eq(S.approveRequest(rn.request.id, { reason: 'QA — narrowing a renewal.', grant: narrowed }), null,
+    'A NARROWED GRANT ON A RENEWAL IS REFUSED');
+  eq(S.request(rn.request.id).status, S.STATUS.SUBMITTED, 'and the renewal is still undecided');
+  eq(S.request(rn.request.id).grant, undefined, 'no grant was stored');
+  var after = S.accessById(acc.id);
+  eq(after.quantity, before.quantity, 'THE REFUSAL CHANGED NOTHING: licences');
+  eq(JSON.stringify(after.items), before.items, 'THE REFUSAL CHANGED NOTHING: experiments and technologies');
+  eq(after.endsOn, before.endsOn, 'THE REFUSAL CHANGED NOTHING: the term');
+  /* And the mirrored renewal still goes through. */
+  S.approveRequest(rn.request.id, { reason: 'QA — renewal approved as it stands.' });
+  eq(S.request(rn.request.id).status, S.STATUS.ACTIVE, 'the same renewal, unnarrowed, is approved');
+  ok(S.accessById(acc.id).endsOn > before.endsOn, 'and the term moves');
+  eq(S.accessById(acc.id).quantity, before.quantity, 'with the licence count untouched');
+  eq(JSON.stringify(S.accessById(acc.id).items), before.items, 'and the plan untouched');
+
+  /* ── 2 · THE REQUESTER IS RESOLVED FROM THE NAME THEY TYPE ─────
+     Reading the prototype scenario instead showed one institution's
+     access records, licence counts and terms to somebody requesting
+     under a different name. */
+  boot();
+  grantAccess(['direct-shear'], ['vr', 'web'], 3, 'yearly');
+  S.setScenario('A');
+  eq(S.requesterTenant('Sample Engineering Institute').id, TENANT,
+    'the typed name resolves to the institution it names');
+  eq(S.requesterTenant('  sample engineering institute  ').id, TENANT,
+    'trimmed and case-insensitive, exactly as the approval match is');
+  eq(S.requesterTenant('Some Other Institute'), null,
+    'AN UNRECOGNISED NAME RESOLVES TO NOBODY — never to whichever institution the selector points at');
+  eq(S.heldSelectionFor(null, [{ experimentId: 'direct-shear' }]).length, 0,
+    'and no institution means no held access is reported');
+  eq(S.requesterTenant('').id, TENANT, 'an empty name falls back to the scenario, which is all the catalogue has');
+
+  /* ── 3 · AN OVERRIDE CARRIES THE DESTINATION GATE ──────────────
+     `submitContent` reads `returnedGate` to decide where a resubmission
+     goes. Nulling it made the two "Changes requested" destinations
+     behave identically, silently undoing the gate the Super Admin
+     chose. */
+  boot();
+  var rec = S.contentRecords().filter(function (x) {
+    return x.status === S.CONTENT_STATUS.ACADEMIC_REVIEW;
+  })[0];
+  var toContent = S.overrideContentStatusAsPlatform(rec.id, S.CONTENT_STATUS.CHANGES_CONTENT,
+    'QA — returning to the Vendor at the readiness gate.');
+  eq(toContent.status, S.CONTENT_STATUS.CHANGES_CONTENT, 'the record is returned at the CONTENT gate');
+  eq(toContent.returnedGate, 'content', 'AND THE GATE IS RECORDED, not nulled');
+  boot();
+  var rec2 = S.contentRecords().filter(function (x) {
+    return x.status === S.CONTENT_STATUS.ACADEMIC_REVIEW;
+  })[0];
+  var toAcademic = S.overrideContentStatusAsPlatform(rec2.id, S.CONTENT_STATUS.CHANGES_ACADEMIC,
+    'QA — returning to the Vendor at the academic gate.');
+  eq(toAcademic.returnedGate, 'academic', 'the academic gate is recorded too');
+  var toDraft = S.overrideContentStatusAsPlatform(rec2.id, S.CONTENT_STATUS.DRAFT, 'QA — back to draft.');
+  eq(toDraft.returnedGate, null, 'AND A DESTINATION THAT IS NOT A RETURN CARRIES NO GATE');
+
+  /* ── 4 · WRITING PLATFORM MASTER DATA NEEDS THE AUTHORING SCOPE ─
+     `actorCourseIds` widens an EXPERIMENT scope to that Experiment's
+     Course, which is right for READING and wrong for writing a value
+     that belongs to the whole Course. */
+  boot();
+  S.roleAssignments({ actorId: KULK }).forEach(function (m) {
+    S.removePlatformRoleAssignment(m.id, 'QA — narrowing to one Experiment.');
+  });
+  ok(S.assignPlatformRole({ actorId: KULK, role: 'manager', scope: 'experiment',
+    experimentId: 'direct-shear' }).ok, 'the Content Manager now holds ONE Experiment');
+  ok(S.actorCourseIds(KULK).indexOf('soil-mechanics') !== -1,
+    'they can still READ the Course that Experiment sits in');
+  eq(S.managerCanSetCourseCode(KULK, 'soil-mechanics'), false,
+    'BUT AN EXPERIMENT SCOPE CANNOT SET THE COURSE CODE — it is the whole Course’s value');
+  eq(S.updateCourseCode(KULK, 'soil-mechanics', 'HACK').ok, false, 'and the writer refuses it');
+  eq(D.course('soil-mechanics').code, '', 'and nothing was written');
+  eq(S.coursesForManager(KULK).length, 0, 'and the screen offers them no Course to edit');
+  ok(S.assignPlatformRole({ actorId: KULK, role: 'manager', scope: 'course',
+    courseId: 'soil-mechanics' }).ok, 'an explicit Course scope is a different matter');
+  ok(S.updateCourseCode(KULK, 'soil-mechanics', 'CE G511').ok, 'and that one may set it');
+
+  /* ── 5 · A CODE SET AT CREATION HAS PROVENANCE ─────────────────── */
+  boot();
+  var made = S.createCourse({ groupingId: 'civil-engineering', name: 'QA Coded Course',
+    summary: 'QA.', code: 'QA-001' });
+  ok(made.ok, 'a Course can be created with a code');
+  eq(made.course.codeSetBy, 'Super Admin', 'AND IT IS ATTRIBUTED — not reported as "never set"');
+  ok(!!made.course.codeSetAt, 'and stamped');
+  var plain = S.createCourse({ groupingId: 'civil-engineering', name: 'QA Uncoded Course', summary: 'QA.' });
+  eq(plain.course.codeSetBy, undefined, 'while a Course created without one claims no provenance');
+}
+
+/* ------------------------------------------------------------
+   SCENARIO FF — the schema 9 → 10 migration, in place.
+
+   Modelled on SCENARIO Z5: build real state through the product, age
+   it to 9 by deleting exactly what version 10 adds, reload, and prove
+   nothing was lost and nothing was invented.
+   ------------------------------------------------------------ */
+function scenarioSchema10Migration() {
+  group('SCENARIO FF — a schema-9 state gains the 07.2 fields and loses nothing');
+  boot();
+
+  /* Real state, through the real writers. */
+  var g = grantAccess(['direct-shear'], ['vr', 'web'], 3, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  S.createDeviceTransfer(RAHUL, { technology: 'vr', currentDevice: 'a', newDevice: 'b', reason: 'c' });
+  S.updateCourseCode(KULK, 'soil-mechanics', 'CE G511');
+  S.createCourse({ groupingId: 'civil-engineering', name: 'QA Migration Course', summary: 'QA.' });
+
+  var counts = {
+    requests: S.requests().length, access: S.accessAll().length,
+    people: S.people().length, assignments: S.activeAssignments(TENANT).length,
+    transfers: S.deviceTransferRequests().length,
+    courses: S.courseRecords().length, groupings: S.groupingRecords().length,
+    content: S.contentRecords().length
+  };
+  var transferId = S.deviceTransferRequests()[0].id;
+
+  /* AGE IT TO 9 — delete exactly the three things version 10 adds. */
+  var raw = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+  raw.schemaVersion = 9;
+  raw.courses.forEach(function (c) { delete c.code; });
+  raw.access.forEach(function (a) { delete a.renewals; });
+  raw.deviceTransferRequests.forEach(function (r) {
+    delete r.escalatedBy; delete r.escalatedAt; delete r.escalationNote;
+  });
+  localStorage.setItem(S.STORAGE_KEY, JSON.stringify(raw));
+
+  loadState();
+  S = XRSLP.state; D = XRSLP.data;
+
+  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
+  eq(S.migratedFrom(), 9, 'and reports that it migrated from 9');
+
+  /* NOTHING LOST. */
+  eq(S.requests().length, counts.requests, 'NOTHING LOST: requests');
+  eq(S.accessAll().length, counts.access, 'NOTHING LOST: access records');
+  eq(S.people().length, counts.people, 'NOTHING LOST: people');
+  eq(S.activeAssignments(TENANT).length, counts.assignments, 'NOTHING LOST: assignments');
+  eq(S.deviceTransferRequests().length, counts.transfers, 'NOTHING LOST: device requests');
+  eq(S.courseRecords().length, counts.courses, 'NOTHING LOST: canonical Courses');
+  eq(S.groupingRecords().length, counts.groupings, 'NOTHING LOST: Programmes');
+  eq(S.contentRecords().length, counts.content, 'NOTHING LOST: content records');
+  eq(S.studentCanRun(RAHUL, 'direct-shear', 'vr'), true, 'and entitlement still derives');
+
+  /* THE THREE FIELDS ARE BACK-FILLED, EMPTY RATHER THAN MISSING. */
+  ok(S.courseRecords().every(function (c) { return typeof c.code === 'string'; }),
+    'every Course has a canonical code field again');
+  eq(D.course('QA Migration Course') === null, true, 'the platform-created Course is looked up by id, not name');
+  ok(S.accessAll().every(function (a) { return Array.isArray(a.renewals); }),
+    'every access record has a renewal audit line — empty, not missing');
+  var tr = S.deviceTransferById(transferId);
+  eq(tr.escalatedBy, null, 'the device request has its escalation fields back');
+  eq(tr.escalationNote, '', 'blank rather than absent');
+  eq(tr.status, S.TRANSFER_STATUS.SUBMITTED,
+    'AND ITS STATUS IS NOT REWRITTEN — a request awaiting a decision is with the Tenant Admin, which is where it was');
+
+  /* AND THE MIGRATION INVENTS NOTHING. */
+  eq(D.course('soil-mechanics').code, '',
+    'a code that was deleted is back-filled from the SEED, which is blank — nothing is invented');
+
+  /* A CODE A REAL PERSON SET IS NEVER RE-STAMPED. */
+  S.updateCourseCode(KULK, 'soil-mechanics', 'CE G511');
+  loadState();
+  S = XRSLP.state; D = XRSLP.data;
+  eq(D.course('soil-mechanics').code, 'CE G511',
+    'MIGRATING AGAIN DOES NOT RE-STAMP A CODE SOMEBODY ENTERED');
+  var courseCount = S.courseRecords().length;
+  loadState();
+  S = XRSLP.state; D = XRSLP.data;
+  eq(S.courseRecords().length, courseCount, 'MIGRATING AGAIN DUPLICATES NOTHING');
+  eq(S.accessAll()[0].renewals.length, 0, 'and adds no phantom renewal');
 }
 
 
@@ -2813,4 +3538,921 @@ scenarioCatalogueStructure();
 scenarioStructurePersistence();
 scenarioStructureIntegrity();
 scenarioStructureMigration();
+/* Implementation 07.2 — the stakeholder-confirmed corrections. */
+scenarioExperimentExpansion();
+scenarioDeviceRouting();
+scenarioRenewal();
+scenarioCourseCode();
+scenarioPlatformOverride();
+scenarioAdversarial072();
+
+/* ============================================================
+   IMPLEMENTATION 07.3 — the full stakeholder meeting closure.
+   One scenario per confirmed rule, so none of them can regress.
+   ============================================================ */
+
+/* Puts a fresh Vendor draft through to the Content Manager's gate,
+   which is where every routing question in this slice is asked. */
+function atContentGate(name) {
+  var made = S.createContentDraft(RAO, {
+    name: name || 'QA 07.3 Fixture', courseId: 'surveying',
+    summary: 'QA.', description: 'A fixture for the 07.3 corrections.',
+    technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/qa-073', runtime: 'A modern browser' } },
+    versionLabel: '1.0'
+  });
+  S.submitContent(RAO, made.id);
+  S.addOutcome(IYER, made.id, 'Understand the 07.3 regression path.');
+  S.approveAcademic(IYER, made.id, 'Approved.');
+  return S.contentRecord(made.id);
+}
+
+/* ============================================================
+   SCENARIO GG — the Content Manager's TWO destinations.
+   Stakeholder: "there should be 2 options available. One is academic
+   reviewer and one is vendor."
+   ============================================================ */
+function scenarioManagerRouting() {
+  group('SCENARIO 07.3-A — Content Manager returns academic work to the Reviewer, technical work to the Vendor');
+  boot();
+
+  /* ---- the VENDOR route: unchanged default ---- */
+  var v = atContentGate('QA Routing — Vendor');
+  var okV = S.requestChangesContent(KULK, v.id, 'The hosted link 404s.');
+  ok(!!okV, 'the Vendor route still works');
+  eq(S.contentRecord(v.id).status, S.CONTENT_STATUS.CHANGES_CONTENT, 'it writes CHANGES_CONTENT');
+  eq(S.CONTENT_STATUS_META[S.contentRecord(v.id).status].holder, 'vendor', 'AND ITS HOLDER IS THE VENDOR');
+  eq(S.contentRecord(v.id).returnedGate, 'content', 'the vendor resubmission gate is set');
+  ok(S.contentForVendor(RAO).some(function (r) { return r.id === v.id; }),
+    'THE VENDOR ACTUALLY RECEIVES IT');
+  eq(S.contentForReviewer(IYER, { queue: true }).some(function (r) { return r.id === v.id; }), false,
+    'and it is NOT in the Academic Reviewer queue');
+
+  /* THE DEFAULT IS UNCHANGED. Every pre-07.3 caller passed three
+     arguments and must keep the behaviour it had. */
+  var v2 = atContentGate('QA Routing — Default');
+  S.requestChangesContent(KULK, v2.id, 'Three-argument call.');
+  eq(S.contentRecord(v2.id).status, S.CONTENT_STATUS.CHANGES_CONTENT,
+    'a three-argument call still means the Vendor — no caller changed behaviour');
+
+  /* ---- the ACADEMIC route: the thing that did not exist ---- */
+  var a = atContentGate('QA Routing — Academic');
+  var okA = S.requestChangesContent(KULK, a.id, 'The learning outcomes do not match the content.',
+    { destination: S.CHANGE_DESTINATION.REVIEWER });
+  ok(!!okA, 'the Academic Reviewer route works');
+  eq(S.contentRecord(a.id).status, S.CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK, 'it writes CHANGES_ACADEMIC_RECHECK');
+  eq(S.CONTENT_STATUS_META[S.contentRecord(a.id).status].holder, 'reviewer',
+    'AND ITS HOLDER IS THE ACADEMIC REVIEWER, not the Vendor');
+  ok(S.contentForReviewer(IYER, { queue: true }).some(function (r) { return r.id === a.id; }),
+    'THE ACADEMIC REVIEWER ACTUALLY RECEIVES IT — it is in their queue');
+  eq(S.reviewerOverview(IYER).returnedByManager, 1, 'and their overview counts it as returned by the manager');
+  eq(S.reviewerOverview(IYER).queue.some(function (r) { return r.id === a.id; }), true,
+    'and it is in the overview queue they actually read');
+
+  /* THE VENDOR MUST NOT BE ABLE TO TOUCH IT — it is not theirs. */
+  eq(S.vendorCanEdit(S.contentRecord(a.id), RAO), false,
+    'THE VENDOR CANNOT EDIT a record returned to the Academic Reviewer');
+  eq(S.submitContent(RAO, a.id), null, 'and cannot resubmit it');
+
+  /* The manager's own counts must not call it "with the Vendor". */
+  var mo = S.managerOverview(KULK);
+  eq(mo.returnedToReviewer, 1, 'the manager sees it as returned to the reviewer');
+  eq(mo.inAcademicRecheck, 1, 'and as being in academic re-check');
+
+  /* THE DEAD-END TEST. Receiving the record is not enough — the reviewer
+     must be able to MOVE it. `reviewerCanAct` and `academicReadiness`
+     have to agree, or the record reaches the queue and sticks there. */
+  ok(!!S.approveAcademic(IYER, a.id, 'Outcomes corrected.'),
+    'THE REVIEWER CAN ACTUALLY APPROVE IT FORWARD — not a dead end');
+  eq(S.contentRecord(a.id).status, S.CONTENT_STATUS.CONTENT_REVIEW,
+    'and it returns to the publication gate');
+
+  var a2 = atContentGate('QA Routing — Academic to Vendor');
+  S.requestChangesContent(KULK, a2.id, 'Academic issue.', { destination: S.CHANGE_DESTINATION.REVIEWER });
+  ok(!!S.requestChangesAcademic(IYER, a2.id, 'Vendor must fix the content itself.'),
+    'or the reviewer can pass it on to the Vendor');
+  eq(S.contentRecord(a2.id).status, S.CONTENT_STATUS.CHANGES_ACADEMIC, 'which lands as CHANGES_ACADEMIC');
+  eq(S.CONTENT_STATUS_META[S.contentRecord(a2.id).status].holder, 'vendor', 'and that one IS the Vendor’s');
+
+  /* REFUSALS. A reason is still required, and authority still holds. */
+  var r3 = atContentGate('QA Routing — Refusals');
+  eq(S.requestChangesContent(KULK, r3.id, '   ', { destination: S.CHANGE_DESTINATION.REVIEWER }), null,
+    'an empty reason is refused on the academic route too');
+  eq(S.requestChangesContent(RAO, r3.id, 'Not my decision.', { destination: S.CHANGE_DESTINATION.REVIEWER }), null,
+    'and a Vendor cannot make the Content Manager’s decision');
+  eq(S.contentRecord(r3.id).status, S.CONTENT_STATUS.CONTENT_REVIEW, 'a refused call wrote nothing');
+
+  /* EVERY STATUS MUST HAVE A HOLDER LINE. A status the shared renderer
+     has no case for returns '' and puts a hole in the middle of the
+     sentences the screens concatenate around it. */
+  Object.keys(S.CONTENT_STATUS).forEach(function (k) {
+    var meta = S.CONTENT_STATUS_META[S.CONTENT_STATUS[k]];
+    ok(!!meta && !!meta.label, 'status ' + k + ' has a badge label');
+    ok(meta.holder === null || typeof meta.holder === 'string',
+      'status ' + k + ' declares who holds it');
+  });
+
+  /* HISTORY IS PRESERVED AND NAMES THE DESTINATION. */
+  var hist = S.contentRecord(a.id).history;
+  ok(hist.some(function (h) { return h.kind === 'changes' && /Academic Reviewer/.test(h.label); }),
+    'the history says it went to the Academic Reviewer');
+  ok(S.contentRecord(v.id).history.some(function (h) {
+    return h.kind === 'changes' && /Vendor/.test(h.label); }),
+    'and the other says it went to the Vendor');
+
+  /* THE DELTA, measured last on a clean state so nothing above is
+     disturbed. `managerOverview` counts the WHOLE library and the seed
+     already holds Vendor work, so the absolute figure is meaningless —
+     what matters is that an ACADEMIC return does not move it at all. */
+  boot();
+  var vendorBefore = S.managerOverview(KULK).withVendor;
+  var solo = atContentGate('QA Routing — Counted Alone');
+  S.requestChangesContent(KULK, solo.id, 'Academic issue.', { destination: S.CHANGE_DESTINATION.REVIEWER });
+  eq(S.managerOverview(KULK).withVendor, vendorBefore,
+    'AN ACADEMIC RETURN DOES NOT MOVE THE "WITH THE VENDOR" COUNT AT ALL');
+  eq(S.managerOverview(KULK).returnedToReviewer, 1, 'it is counted as returned to the reviewer instead');
+
+  /* And a technical return DOES move it, so the counter is not inert. */
+  var solo2 = atContentGate('QA Routing — Counted Alone 2');
+  S.requestChangesContent(KULK, solo2.id, 'Broken link.');
+  eq(S.managerOverview(KULK).withVendor, vendorBefore + 1,
+    'while a technical return moves it by exactly one');
+}
+
+/* ============================================================
+   SCENARIO HH — supporting references on a change request.
+   Stakeholder: "wherever changes are there, we need some permission to
+   enable them to add some reference or resources."
+   ============================================================ */
+function scenarioChangeRefs() {
+  group('SCENARIO 07.3-B — a change request can carry supporting references, honestly');
+  boot();
+
+  var rec = atContentGate('QA Refs');
+  var refs = [
+    { kind: 'link', url: 'https://example.org/spec.pdf', label: 'Marked-up spec' },
+    { kind: 'file', fileName: 'screenshot.png', fileSize: 2048, label: 'Broken step' }
+  ];
+  S.requestChangesContent(KULK, rec.id, 'See the attached screenshot.', { refs: refs });
+  var ev = S.contentRecord(rec.id).history[0];
+  eq(ev.kind, 'changes', 'the newest event is the change request');
+  eq(ev.refs.length, 2, 'and it carries both references');
+  eq(ev.refs[0].kind, 'link', 'a link reference keeps its kind');
+  eq(ev.refs[0].url, 'https://example.org/spec.pdf', 'and its URL');
+  eq(ev.refs[1].kind, 'file', 'a file reference keeps its kind');
+  eq(ev.refs[1].fileName, 'screenshot.png', 'and the browser-reported name');
+  eq(ev.refs[1].fileSize, 2048, 'and the browser-reported size');
+  /* THE HONESTY FLAG IS ON THE RECORD, not only in the UI copy. */
+  eq(ev.refs[1].storedBytes, false, 'AND IT STATES THAT NO BYTES WERE STORED');
+  eq(ev.refs[1].url, undefined, 'a file reference invents no URL to download from');
+
+  /* Junk is dropped rather than stored as a half-reference. */
+  var rec2 = atContentGate('QA Refs 2');
+  S.requestChangesContent(KULK, rec2.id, 'Reason.', { refs: [
+    { kind: 'link', url: '   ' }, { kind: 'file', fileName: '' }, null, { kind: 'link', url: 'https://ok.example' }
+  ] });
+  eq(S.contentRecord(rec2.id).history[0].refs.length, 1, 'an empty reference is dropped, not stored blank');
+
+  /* The Academic Reviewer's change request takes them in the 4th slot. */
+  var rec3 = S.createContentDraft(RAO, {
+    name: 'QA Refs Reviewer', courseId: 'surveying', summary: 'QA.',
+    description: 'Reviewer references.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/qa-refs', runtime: 'Browser' } }, versionLabel: '1.0'
+  });
+  S.submitContent(RAO, rec3.id);
+  S.requestChangesAcademic(IYER, rec3.id, 'Rework the outcomes.',
+    [{ kind: 'link', url: 'https://example.org/rubric', label: 'Rubric' }]);
+  eq(S.contentRecord(rec3.id).history[0].refs.length, 1,
+    'the Academic Reviewer’s change request carries references too');
+  var acr = S.academicReviewsFor(rec3.id)[0];
+  eq(acr.refs.length, 1, 'and the academic review row records them as well');
+
+  /* Empty is ALWAYS an array, never absent — every reader assumes it. */
+  var rec4 = atContentGate('QA Refs 4');
+  S.requestChangesContent(KULK, rec4.id, 'No references at all.');
+  ok(Array.isArray(S.contentRecord(rec4.id).history[0].refs), 'no references still means an empty array');
+  eq(S.contentRecord(rec4.id).history[0].refs.length, 0, 'which is empty, not missing');
+}
+
+/* ============================================================
+   SCENARIO II — the Vendor's preview / demo video.
+   Stakeholder: "give them a provision to add the video also."
+   ============================================================ */
+function scenarioPreviewVideo() {
+  group('SCENARIO 07.3-C — the preview video travels the workflow and reaches the public only on publication');
+  boot();
+
+  var made = S.createContentDraft(RAO, {
+    name: 'QA Preview Video', courseId: 'surveying', summary: 'QA.',
+    description: 'Carries a preview video.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/qa-pv', runtime: 'Browser' } }, versionLabel: '1.0'
+  });
+  eq(S.contentRecord(made.id).previewVideo, null, 'a new draft has no preview video — never invented');
+
+  /* ── SUPPLIED ON CREATE, NOT ONLY ON EDIT — 07.3 fix ────────────
+     `createContentDraft` omitted the field, so a video typed on the
+     Vendor's create form was dropped on the way in and the screen had to
+     write it a second time. */
+  var created = S.createContentDraft(RAO, {
+    name: 'QA Preview On Create', courseId: 'surveying', summary: 'QA.',
+    description: 'Video supplied at creation.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/qa-poc', runtime: 'Browser' } }, versionLabel: '1.0',
+    previewVideo: { url: 'https://example.org/on-create.mp4', label: 'On create' }
+  });
+  ok(!!S.contentRecord(created.id).previewVideo, 'A VIDEO SUPPLIED ON CREATE SURVIVES');
+  eq(S.contentRecord(created.id).previewVideo.url, 'https://example.org/on-create.mp4', 'with its URL');
+  eq(S.contentRecord(created.id).previewVideo.addedBy, RAO, 'and it is stamped with the Vendor who supplied it');
+
+  /* And it is NORMALISED on the way in, not stored raw. */
+  var bad = S.createContentDraft(RAO, {
+    name: 'QA Preview Bad URL', courseId: 'surveying', summary: 'QA.',
+    description: 'Bad URL.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/qa-bad', runtime: 'Browser' } }, versionLabel: '1.0',
+    previewVideo: { url: 'javascript:alert(1)' }
+  });
+  eq(S.contentRecord(bad.id).previewVideo, null,
+    'A NON-HTTP URL IS REFUSED AT CREATE TOO — never stored as a live-looking link');
+
+  /* The Vendor supplies one. */
+  S.updateContentDraft(RAO, made.id, {
+    name: 'QA Preview Video', courseId: 'surveying', summary: 'QA.',
+    description: 'Carries a preview video.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/qa-pv', runtime: 'Browser' } }, versionLabel: '1.0',
+    previewVideo: { url: 'https://example.org/demo.mp4', label: 'Two-minute walkthrough' }
+  });
+  var pv = S.contentRecord(made.id).previewVideo;
+  ok(!!pv, 'the Vendor can supply a preview video');
+  eq(pv.url, 'https://example.org/demo.mp4', 'the URL is stored as given');
+  eq(pv.addedBy, RAO, 'and it records which Vendor supplied it');
+
+  /* A non-URL is refused rather than stored as a broken reference. */
+  S.updateContentDraft(RAO, made.id, {
+    name: 'QA Preview Video', courseId: 'surveying', summary: 'QA.',
+    description: 'Carries a preview video.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/qa-pv', runtime: 'Browser' } }, versionLabel: '1.0',
+    previewVideo: { url: 'not-a-url' }
+  });
+  eq(S.contentRecord(made.id).previewVideo, null, 'a value that is not an http(s) URL is refused, not stored');
+
+  /* Restore a real one and send it through the whole chain. */
+  S.updateContentDraft(RAO, made.id, {
+    name: 'QA Preview Video', courseId: 'surveying', summary: 'QA.',
+    description: 'Carries a preview video.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/qa-pv', runtime: 'Browser' } }, versionLabel: '1.0',
+    previewVideo: { url: 'https://example.org/demo.mp4', label: 'Two-minute walkthrough' }
+  });
+  S.submitContent(RAO, made.id);
+  ok(!!S.contentRecord(made.id).previewVideo, 'IT SURVIVES SUBMISSION — the Academic Reviewer can see it');
+  S.addOutcome(IYER, made.id, 'Outcome.');
+  S.approveAcademic(IYER, made.id, 'Approved.');
+  ok(!!S.contentRecord(made.id).previewVideo, 'and academic approval — the Content Manager can see it');
+
+  /* NOT PUBLIC BEFORE PUBLICATION. */
+  eq(S.publishedPool().some(function (r) { return r.id === made.id; }), false,
+    'the record is not in the public pool before publication');
+  S.publishContent(KULK, made.id);
+  var pubRec = S.publishedPool().filter(function (r) { return r.id === made.id; })[0];
+  ok(!!pubRec && !!pubRec.previewVideo, 'and after publication the public pool carries the preview video');
+
+  /* An unpublished record with a video is still not public. */
+  var hidden = S.createContentDraft(RAO, {
+    name: 'QA Unpublished Video', courseId: 'surveying', summary: 'QA.',
+    description: 'Must never be public.', technologies: ['web'],
+    delivery: { web: { url: 'https://example.org/qa-hidden', runtime: 'Browser' } }, versionLabel: '1.0',
+    previewVideo: { url: 'https://example.org/secret.mp4' }
+  });
+  eq(S.publishedPool().some(function (r) { return r.id === hidden.id; }), false,
+    'AN UNPUBLISHED EXPERIMENT’S PREVIEW VIDEO IS NEVER PUBLIC');
+}
+
+/* ============================================================
+   SCENARIO JJ — the Content Manager manages delivery links.
+   Stakeholder: "content manager should have the provision to edit the
+   link ... if he wants to delete and replace the link also."
+   ============================================================ */
+function scenarioDeliveryManagement() {
+  group('SCENARIO 07.3-D — delivery links are the Content Manager’s to edit, with a reason and a history');
+  boot();
+
+  var rec = atContentGate('QA Delivery');
+  S.publishContent(KULK, rec.id);
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), 'https://example.org/qa-073',
+    'the published record carries the Vendor’s link');
+
+  /* A REASON IS REQUIRED. */
+  eq(S.managerUpdateDelivery(KULK, rec.id, 'web', { url: 'https://example.org/new' }, '  '), null,
+    'an edit with no reason is refused');
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), 'https://example.org/qa-073',
+    'and the refused edit wrote nothing');
+
+  /* THE EDIT. */
+  var hBefore = S.contentRecord(rec.id).history.length;
+  ok(!!S.managerUpdateDelivery(KULK, rec.id, 'web', { url: 'https://example.org/new' },
+    'The vendor link started 404ing.'), 'a reasoned edit is accepted');
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), 'https://example.org/new', 'and the link is replaced');
+  eq(S.contentRecord(rec.id).history.length, hBefore + 1, 'AND IT IS RECORDED — history grew by exactly one');
+  var ev = S.contentRecord(rec.id).history[0];
+  eq(ev.kind, 'delivery', 'the entry is a delivery event');
+  ok(/qa-073/.test(ev.note) && /new/.test(ev.note), 'and it records BOTH the old and the new value');
+  ok(/404ing/.test(ev.note), 'and the reason that was given');
+
+  /* A BAD URL IS REFUSED — a student must never be handed a dead link. */
+  eq(S.managerUpdateDelivery(KULK, rec.id, 'web', { url: 'javascript:alert(1)' }, 'Reason.'), null,
+    'a hosted link that is not an http(s) URL is refused');
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), 'https://example.org/new', 'and nothing changed');
+
+  /* IT CANNOT WIDEN THE TECHNOLOGY SET. */
+  eq(S.managerUpdateDelivery(KULK, rec.id, 'vr', { packageRef: 'PKG-1' }, 'Reason.'), null,
+    'THE CONTENT MANAGER CANNOT ADD A TECHNOLOGY the record does not carry');
+  eq(S.contentRecord(rec.id).technologies.join(','), 'web', 'and the technology set is untouched');
+
+  /* REMOVAL. */
+  ok(!!S.managerUpdateDelivery(KULK, rec.id, 'web', null, 'Withdrawn pending a new build.', true),
+    'the reference can be removed');
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), '', 'and it is gone');
+  eq(S.contentRecord(rec.id).history[0].kind, 'delivery', 'the removal is recorded too');
+
+  /* AUTHORITY. Only the Content Manager. */
+  eq(S.managerUpdateDelivery(RAO, rec.id, 'web', { url: 'https://example.org/vendor' }, 'Reason.'), null,
+    'a Vendor cannot use the Content Manager’s delivery control');
+  eq(S.managerUpdateDelivery(IYER, rec.id, 'web', { url: 'https://example.org/reviewer' }, 'Reason.'), null,
+    'AND NEITHER CAN THE ACADEMIC REVIEWER — inspection is not edit authority');
+  eq(S.managerCanEditDelivery(S.contentRecord(rec.id), IYER), false,
+    'which the predicate says outright');
+
+  /* A no-op writes no history — the audit trail must not exaggerate. */
+  var h2 = S.contentRecord(rec.id).history.length;
+  S.managerUpdateDelivery(KULK, rec.id, 'web', { url: '' }, 'Reason.');
+  eq(S.contentRecord(rec.id).history.length, h2, 'an edit that changes nothing records nothing');
+
+  /* ── A NOTES-ONLY EDIT IS STILL AN EDIT — 07.3 adversarial fix ──
+     The no-op guard used to compare only the URL / package reference, so
+     changing runtime, notes or the package LABEL mutated the record,
+     wrote no history and never saved, while still returning truthy. The
+     screen announced a write that had not happened and the value was
+     lost on reload. */
+  var rec2 = atContentGate('QA Delivery — notes only');
+  S.publishContent(KULK, rec2.id);
+  var h3 = S.contentRecord(rec2.id).history.length;
+  ok(!!S.managerUpdateDelivery(KULK, rec2.id, 'web',
+    { notes: 'Mirror is slow in the afternoon.' }, 'Recording a known issue.'),
+    'a NOTES-ONLY edit is accepted');
+  eq(S.contentRecord(rec2.id).history.length, h3 + 1,
+    'AND IT IS RECORDED — a notes-only change is still a change');
+  eq(S.deliveryOf(S.contentRecord(rec2.id), 'web').notes, 'Mirror is slow in the afternoon.',
+    'and the value is actually stored');
+
+  var h4 = S.contentRecord(rec2.id).history.length;
+  ok(!!S.managerUpdateDelivery(KULK, rec2.id, 'web',
+    { runtime: 'Chrome 120 or later' }, 'Tightening the stated runtime.'),
+    'a RUNTIME-ONLY edit is accepted');
+  eq(S.contentRecord(rec2.id).history.length, h4 + 1, 'and recorded too');
+
+  /* AND IT IS PERSISTED, not left in memory. */
+  var stored = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+  var persisted = stored.contentRecords.filter(function (r) { return r.id === rec2.id; })[0];
+  eq(persisted.delivery.web.notes, 'Mirror is slow in the afternoon.',
+    'THE EDIT REACHED STORAGE — it was saved, not only mutated in memory');
+  eq(persisted.delivery.web.runtime, 'Chrome 120 or later', 'and so did the runtime');
+}
+
+/* ============================================================
+   SCENARIO KK — technology ACTUALLY USED, not merely licensed.
+   Stakeholder: "we need the tag, whether he has performed this
+   experiment in web or VR."
+   ============================================================ */
+function scenarioTechnologyUsed() {
+  group('SCENARIO 07.3-E — Faculty can tell which technology the student actually used');
+  boot();
+
+  var g = grantAccess(['direct-shear'], ['web', 'vr'], 5, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+
+  var s0 = S.technologyUseSummary(RAHUL, 'direct-shear');
+  eq(s0.none, true, 'BEFORE ANY RUN: nothing is claimed');
+  eq(s0.used.length, 0, 'no technology is reported as used');
+  /* The student is ENTITLED to two technologies but has USED none —
+     the exact distinction the stakeholder asked for. */
+  eq(S.accessTechnologies(S.accessById(g.access.id), 'direct-shear').length, 2,
+    'even though two technologies are licensed to them');
+
+  S.startSimulation(RAHUL, 'direct-shear', 'web');
+  var s1 = S.technologyUseSummary(RAHUL, 'direct-shear');
+  eq(s1.used.join(','), 'web', 'starting Web reports Web as used');
+  eq(s1.completed.length, 0, 'but not as completed');
+  eq(s1.multiple, false, 'and not as multiple');
+
+  S.completeSimulation(RAHUL, 'direct-shear', 'web');
+  /* VR runs from an authorised package, so it must be requested and
+     delivered before it can start — the same three steps the Student
+     screen drives. */
+  S.requestSimulationAccess(RAHUL, 'direct-shear', 'vr');
+  S.simulatePackageReady(RAHUL, 'direct-shear', 'vr');
+  ok(!!S.startSimulation(RAHUL, 'direct-shear', 'vr'), 'the VR run starts once the package is ready');
+  S.completeSimulation(RAHUL, 'direct-shear', 'vr');
+  var s2 = S.technologyUseSummary(RAHUL, 'direct-shear');
+  /* THE WHOLE POINT: a set, not a single value. */
+  eq(s2.used.join(','), 'web,vr', 'A STUDENT WHO USED BOTH IS REPORTED AS BOTH');
+  eq(s2.completed.join(','), 'web,vr', 'and both are completed');
+  eq(s2.multiple, true, 'and the summary says more than one was used');
+  /* The old single-value field would have claimed only the latest. */
+  eq(S.latestSimulationTechnology(RAHUL, 'direct-shear'), 'vr',
+    'the single-value field still answers only "the latest" — which is why it is not the answer');
+
+  /* Requested-but-never-run is reported separately, never as used. */
+  var g2 = grantAccess(['consolidation'], ['vr'], 2, 'yearly');
+  S.assignExperiment(TENANT, g2.access.id, 'consolidation', 'student', [RAHUL]);
+  S.requestSimulationAccess(RAHUL, 'consolidation', 'vr');
+  var s3 = S.technologyUseSummary(RAHUL, 'consolidation');
+  eq(s3.none, true, 'REQUESTING A PACKAGE IS NOT PERFORMING THE EXPERIMENT');
+  eq(s3.requestedOnly.join(','), 'vr', 'it is reported separately as requested only');
+}
+
+/* ============================================================
+   SCENARIO LL — a restored scope does not erase the suspension.
+   Clarification F: overall control, WITH auditability.
+   ============================================================ */
+function scenarioRoleAudit() {
+  group('SCENARIO 07.3-F — withdrawing and restoring a scope leaves a durable audit line');
+  boot();
+
+  var mine = S.roleAssignments({ actorId: RAO });
+  ok(mine.length > 0, 'the Vendor holds scopes');
+  var id = mine[0].id;
+
+  eq(S.actorWasEverSuspended(RAO), false, 'nothing suspended yet');
+  S.removePlatformRoleAssignment(id, 'Suspended pending a compliance review.');
+  var h1 = S.roleAssignmentHistory(id);
+  eq(h1.length, 1, 'the withdrawal is recorded');
+  eq(h1[0].kind, 'withdrawn', 'as a withdrawal');
+  ok(/compliance/.test(h1[0].note), 'with the reason that was given');
+  eq(S.actorWasEverSuspended(RAO), true, 'and the actor reads as suspended');
+
+  S.restorePlatformRoleAssignment(id, 'Review closed with no finding.');
+  var rec = S.roleAssignmentById(id);
+  eq(rec.status, 'active', 'the scope is active again');
+  eq(rec.removedReason, '', 'the CURRENT-state fields are cleared, as every screen expects');
+  /* THE DEFECT THIS PINS: the evidence used to vanish here. */
+  var h2 = S.roleAssignmentHistory(id);
+  eq(h2.length, 2, 'BUT THE AUDIT LINE SURVIVES — two events, not zero');
+  eq(h2[1].kind, 'restored', 'the restore is recorded');
+  ok(/no finding/.test(h2[1].note), 'with its own reason');
+  eq(h2[1].clearedRemovedReason, 'Suspended pending a compliance review.',
+    'AND IT KEEPS VERBATIM WHAT WAS CLEARED');
+  eq(S.actorWasEverSuspended(RAO), true,
+    'SO "WAS THIS ACTOR EVER SUSPENDED?" IS STILL ANSWERABLE AFTER THE RESTORE');
+}
+
+/* ============================================================
+   SCENARIO MM — a request never discloses a bystander institution.
+   ============================================================ */
+function scenarioRequesterIdentity() {
+  group('SCENARIO 07.3-G — the Super Admin request surface reads the SUBMITTED institution, not the scenario');
+  boot();
+
+  var g = grantAccess(['direct-shear'], ['vr'], 3, 'yearly');
+  ok(!!g.access, 'the seeded institution holds an access record');
+
+  /* A DIFFERENT institution submits, under the same prototype scenario. */
+  S.setScenario('A');
+  S.selectionAdd('direct-shear', ['vr']);
+  var stranger = S.submitRequest({
+    institutionName: 'Nowhere College of Engineering',
+    contactName: 'A. Stranger', contactEmail: 'a.stranger@nowhere.example',
+    quantity: 4, term: 'yearly'
+  });
+
+  var resolved = S.resolveRequestTenant(S.request(stranger.id));
+  eq(resolved, null,
+    'AN UNRECOGNISED INSTITUTION RESOLVES TO NULL — not to whichever tenant the scenario seeded');
+  /* Which is what the public form already did; the two now agree. */
+  eq(S.requesterTenant('Nowhere College of Engineering'), null,
+    'the public form’s resolver agrees');
+
+  /* The seeded institution still resolves normally — nothing regressed. */
+  S.selectionAdd('consolidation', ['web']);
+  var known = S.submitRequest({
+    institutionName: 'Sample Engineering Institute',
+    contactName: 'Dr. Kavita Sharma', contactEmail: 'kavita.sharma@sample-institute.example',
+    quantity: 2, term: 'yearly'
+  });
+  var t2 = S.resolveRequestTenant(S.request(known.id));
+  ok(!!t2 && t2.id === TENANT, 'a request under the real institution’s name still resolves to it');
+  eq(S.heldSelectionFor(t2.id, S.request(known.id).items).length >= 0, true,
+    'and its held-selection read model still answers');
+
+  /* Once bound, the id wins — a later rename must not re-route payment. */
+  S.approveRequest(known.id, { reason: 'QA — approved.' });
+  var bound = S.request(known.id);
+  ok(!!bound.tenantId, 'an approved request is bound to a tenant id');
+  eq(S.resolveRequestTenant(bound).id, TENANT, 'and the binding wins over the name from then on');
+}
+
+
+/* ============================================================
+   SCENARIO OO — the Faculty progress export, tested as a FILE.
+   Stakeholder: "if there are 100s of students ... they cannot count
+   each student."
+
+   This asserts the CONTENT of the generated CSV, not the presence of a
+   download button. `js/csv.js` is loaded here because the harness's
+   state bootstrap does not need it; only `download()` touches the DOM
+   and nothing below calls it.
+   ============================================================ */
+function scenarioProgressExport() {
+  group('SCENARIO 07.3-I — Faculty progress export: the FILE, not the button');
+  boot();
+  (new Function(readFile('js/csv.js'))).call(window);
+
+  var g = grantAccess(['direct-shear'], ['web', 'vr'], 5, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  S.mapFaculty(TENANT, ARJUN, g.access.id, 'soil-mechanics', null);
+  S.startSimulation(RAHUL, 'direct-shear', 'web');
+  S.completeSimulation(RAHUL, 'direct-shear', 'web');
+  S.requestSimulationAccess(RAHUL, 'direct-shear', 'vr');
+  S.simulatePackageReady(RAHUL, 'direct-shear', 'vr');
+  S.startSimulation(RAHUL, 'direct-shear', 'vr');
+
+  /* One row, built exactly as `XRSLP.screens.facultyStudents` builds it. */
+  var fs = S.facultyExperimentStats(ARJUN, 'direct-shear');
+  eq(fs.rows.length, 1, 'the Faculty member has one student row to export');
+  var row = {
+    person: S.personById(RAHUL), experimentId: 'direct-shear',
+    technologies: fs.rows[0].technologies, progress: fs.rows[0].progress,
+    attempt: S.latestSubmittedAttempt(RAHUL, 'direct-shear'),
+    assessState: S.assessmentState(RAHUL, 'direct-shear'), pendingReviews: 0
+  };
+  var L = {
+    simLabel: function (x) { return x; }, progressLabel: function (x) { return x; },
+    assessLabel: function (x) { return (x && x.key) || String(x); }
+  };
+  var table = XRSLP.csv.facultyProgressRows([row], {
+    state: S, data: D, labels: L,
+    courseMapping: function (eid) {
+      var c = D.contextOf(eid);
+      return c && c.course ? S.courseMapping(TENANT, c.course.id) : null;
+    }
+  });
+  function col(name) { return table[0].indexOf(name); }
+  function val(name) { return table[1][col(name)]; }
+
+  eq(table.length, 2, 'the export is a header plus one row');
+  eq(table[0].length, table[1].length, 'and every row has exactly as many cells as the header');
+  ok(col('Student name') !== -1 && col('Experiment') !== -1, 'it names the student and the experiment');
+
+  eq(val('Student name'), 'Rahul Verma', 'the student name is exported');
+  eq(val('Student ID'), 'SEI/CE/2023/0142', 'and their institutional ID');
+  eq(val('Course'), 'Soil Mechanics', 'and the Course');
+  eq(val('Experiment'), 'Direct Shear Test', 'and the Experiment');
+
+  /* THE TWO COURSE CODES STAY SEPARATE, and the canonical one is not invented. */
+  eq(val('Official course code'), '', 'the OFFICIAL course code is blank — no value has been set, and none is invented');
+  eq(val('Institution course code'), 'CE-305', 'while the institution’s OWN local code is exported beside it');
+
+  /* TECHNOLOGY USED, NOT MERELY LICENSED. */
+  eq(val('Technologies used'), 'web | vr', 'BOTH technologies the student actually used are exported');
+  eq(val('Simulation status by technology'), 'web=COMPLETED | vr=IN_PROGRESS',
+    'with the real per-technology status, not a single summary');
+
+  /* THE PRIVACY COLUMN. Nothing is submitted, so nothing is claimed. */
+  eq(val('Score %'), '', 'no score is exported when nothing was submitted');
+  eq(val('Outcome'), '', 'and no outcome is invented');
+  eq(val('Result released to student'), 'n/a — nothing submitted',
+    'and the release column says so rather than implying a released result');
+
+  /* ── A WITHHELD RESULT TRAVELS MARKED AS WITHHELD ──────────────
+     The master concern is that a detached file could leak a result the
+     Student is not yet allowed to see. It cannot: the marks are the
+     Faculty member's own — `scoreWithheld` is explicitly a STUDENT-view
+     gate — but the file must still SAY that the Student has not been
+     shown them, or a forwarded copy would read as released. */
+  var def = S.assessmentForTenant(TENANT, 'direct-shear');
+  ok(!!def, 'the seeded assessment definition exists');
+  var upd = S.updateAssessmentSettings(def.id, {
+    title: def.title || 'Direct Shear Test assessment', intro: '',
+    passMark: 40, attemptLimit: 3,
+    policyMode: 'CUSTOM_DATE', customDate: '2099-01-01'
+  }, ARJUN);
+  ok(upd.ok !== false, 'Faculty set the result policy to a future release date');
+
+  var att = S.startAttempt(RAHUL, 'direct-shear');
+  ok(!!att, 'the Student started an attempt');
+  S.submitAttempt(att.id);
+  eq(S.scoreWithheld(RAHUL, 'direct-shear'), true, 'and the result is withheld from the Student');
+
+  var row2 = {
+    person: S.personById(RAHUL), experimentId: 'direct-shear',
+    technologies: fs.rows[0].technologies, progress: S.facultyExperimentStats(ARJUN, 'direct-shear').rows[0].progress,
+    attempt: S.latestSubmittedAttempt(RAHUL, 'direct-shear'),
+    assessState: S.assessmentState(RAHUL, 'direct-shear'), pendingReviews: 0
+  };
+  var t2 = XRSLP.csv.facultyProgressRows([row2], {
+    state: S, data: D, labels: L, courseMapping: function () { return null; }
+  });
+  function val2(name) { return t2[1][t2[0].indexOf(name)]; }
+  ok(String(val2('Result released to student')).indexOf('yes') === -1,
+    'THE EXPORT NEVER CALLS A WITHHELD RESULT RELEASED');
+  ok(/withheld|n\/a/.test(String(val2('Result released to student'))),
+    'it marks it as withheld, or says no outcome has been decided');
+
+  /* THE FILE ITSELF: quoting and line endings. */
+  var text = XRSLP.csv.toCsv(table);
+  eq(text.split('\r\n')[0], table[0].join(','), 'the header line round-trips unquoted');
+  ok(text.indexOf('Rahul Verma') !== -1, 'and the row is in the file');
+  ok(text.charAt(text.length - 1) === '\n', 'the file ends with a newline');
+  /* A value containing the delimiter must be quoted, or the file is corrupt. */
+  var probe = XRSLP.csv.toCsv([['a,b', 'c"d'], ['1', '2']]);
+  ok(probe.indexOf('"a,b"') === 0, 'a value containing a comma is quoted');
+  ok(probe.indexOf('"c""d"') !== -1, 'and an embedded quote is doubled');
+}
+
+
+/* ============================================================
+   SCENARIO 07.3-J — the defects the 07.3 ADVERSARIAL review found.
+   One assertion each, so none of them can come back.
+   ============================================================ */
+function scenarioAdversarial073() {
+  group('SCENARIO 07.3-J — Implementation-07.3 adversarial findings, closed');
+  boot();
+
+  /* ---- P0 · THE RENEWAL ROUTE BELONGS TO THE RECORD ----
+     One institution, two records that arrived on different routes. The
+     paid record must NOT renew for free, and the free one must not be
+     held behind a payment step it never had. */
+  var internal = grantAccess(['direct-shear'], ['web'], 3, 'yearly');   /* Scenario A — no payment */
+  var recInternal = internal.access;
+  eq(recInternal.accessContext, 'BITS Community', 'the first record is an internal one');
+
+  /* Hand-build a SECOND record on the same institution with the other
+     commercial context, which is exactly what an expansion request on a
+     differently-onboarded route produces. */
+  S.accessAll().push(JSON.parse(JSON.stringify(recInternal)));
+  var recExternal = S.accessAll()[S.accessAll().length - 1];
+  recExternal.id = 'ACC-QA-EXT';
+  recExternal.accessContext = 'Subscription';
+  recExternal.requestId = null;
+  recExternal.renewals = [];
+
+  var rInt = S.renewalRouteForAccess(recInternal.id);
+  var rExt = S.renewalRouteForAccess(recExternal.id);
+  eq(rInt.paymentRequired, false, 'THE INTERNAL RECORD RENEWS WITH NO PAYMENT STEP');
+  eq(rExt.paymentRequired, true, 'AND THE SUBSCRIPTION RECORD RENEWS THROUGH PAYMENT');
+  eq(rInt.accessContext, 'BITS Community', 'each route names the RECORD’s own context');
+  eq(rExt.accessContext, 'Subscription', 'not the institution’s first one');
+  eq(rInt.scope, 'record', 'and it is a record-scoped answer');
+
+  /* The institution-wide helper is still available, and still answers
+     institution-wide — it must not be mistaken for the record's route. */
+  eq(S.renewalRouteFor(TENANT).scope, 'institution',
+    'the institution-wide helper says so about itself');
+
+  /* ---- P1 · AN EXISTING INSTITUTION KEEPS ITS OWN ROUTE ----
+     Typing a known institution's name while the OTHER scenario is
+     selected must not put it on the other route. */
+  boot();
+  var g0 = grantAccess(['direct-shear'], ['web'], 2, 'yearly');
+  ok(!!g0.access, 'the institution exists and was onboarded internally');
+  eq(S.tenantById(TENANT).kind, 'internal', 'and it is an internal institution');
+  S.setScenario('B');                      /* the EXTERNAL scenario */
+  S.selectionAdd('consolidation', ['web']);
+  var second = S.submitRequest({
+    institutionName: 'Sample Engineering Institute',
+    contactName: 'Dr. Kavita Sharma', contactEmail: 'kavita.sharma@sample-institute.example',
+    quantity: 2, term: 'yearly'
+  });
+  eq(second.paymentRequired, false,
+    'A KNOWN INSTITUTION KEEPS ITS OWN ROUTE — the scenario selector does not put it on payment');
+  eq(second.institution.accessContext, 'BITS Community',
+    'and its recorded context is the institution’s, not the scenario’s');
+  /* An UNKNOWN name still falls back to the scenario, which is the one
+     case where there is no institution to ask. */
+  S.selectionAdd('total-station', ['web']);
+  var stranger = S.submitRequest({
+    institutionName: 'Somewhere Else Institute of Technology',
+    contactName: 'A. Stranger', contactEmail: 'a@elsewhere.example', quantity: 1, term: 'yearly'
+  });
+  eq(stranger.paymentRequired, true, 'an unrecognised institution still follows the selected scenario');
+
+  /* ---- P1 · TECHNOLOGY "USED" MEANS A RUN, NOT A REQUEST ---- */
+  boot();
+  var g = grantAccess(['direct-shear'], ['web', 'vr'], 5, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  S.startSimulation(RAHUL, 'direct-shear', 'web');
+  S.completeSimulation(RAHUL, 'direct-shear', 'web');
+  /* Ask for the VR package and let it become ready — but never run it.
+     Its `readyAt` is now the newest timestamp on the experiment. */
+  S.requestSimulationAccess(RAHUL, 'direct-shear', 'vr');
+  S.simulatePackageReady(RAHUL, 'direct-shear', 'vr');
+  eq(S.latestSimulationTechnology(RAHUL, 'direct-shear'), 'web',
+    'A PACKAGE THAT WAS NEVER OPENED IS NOT "the technology they used" — the Web run still wins');
+  var att = S.startAttempt(RAHUL, 'direct-shear');
+  eq(att.sourceTechnology, 'web', 'and the attempt is stamped with the run, not the request');
+  eq(S.technologyUseSummary(RAHUL, 'direct-shear').requestedOnly.join(','), 'vr',
+    'the un-run technology is still reported, separately, as requested only');
+
+  /* With NO run at all the answer is null, so no screen claims one. */
+  boot();
+  var g2 = grantAccess(['direct-shear'], ['vr'], 2, 'yearly');
+  S.assignExperiment(TENANT, g2.access.id, 'direct-shear', 'student', [RAHUL]);
+  S.requestSimulationAccess(RAHUL, 'direct-shear', 'vr');
+  S.simulatePackageReady(RAHUL, 'direct-shear', 'vr');
+  eq(S.latestSimulationTechnology(RAHUL, 'direct-shear'), null,
+    'NO RUN MEANS NULL — never a technology the student did not open');
+
+  /* ---- P1 · DELIVERY REMOVAL CLEARS EVERYTHING IT PROMISES ---- */
+  boot();
+  var vrec = S.createContentDraft(RAO, {
+    name: 'QA Delivery Removal', courseId: 'surveying', summary: 'QA.',
+    description: 'Package delivery.', technologies: ['vr'],
+    delivery: { vr: { packageRef: 'PKG-1', packageLabel: 'Rig v1', runtime: 'Quest 2',
+                      notes: 'n', install: 'Sideload it.', packageFile: { name: 'rig.apk', size: 10 } } },
+    versionLabel: '1.0'
+  });
+  S.submitContent(RAO, vrec.id);
+  S.addOutcome(IYER, vrec.id, 'Outcome.');
+  S.approveAcademic(IYER, vrec.id, 'ok');
+  S.publishContent(KULK, vrec.id);
+  ok(!!S.deliveryOf(S.contentRecord(vrec.id), 'vr').packageFile, 'the record carries a recorded package file');
+  S.managerUpdateDelivery(KULK, vrec.id, 'vr', null, 'Withdrawn pending a rebuild.', true);
+  var dAfter = S.deliveryOf(S.contentRecord(vrec.id), 'vr');
+  eq(dAfter.packageRef, undefined, 'removal clears the package reference');
+  eq(dAfter.packageFile, undefined, 'AND THE RECORDED PACKAGE FILE — the dialog promised everything');
+  eq(dAfter.install, undefined, 'AND THE INSTALLATION NOTES');
+  eq(S.publishReadiness(S.contentRecord(vrec.id)).ok, false,
+    'so the readiness gate actually closes rather than being satisfied by a leftover');
+
+  /* ---- P1 · THE DELIVERY HISTORY NOTE NAMES WHAT MOVED ---- */
+  boot();
+  var drec = atContentGate('QA Delivery Note');
+  S.publishContent(KULK, drec.id);
+  S.managerUpdateDelivery(KULK, drec.id, 'web', { notes: 'Slow in the afternoon.' }, 'Recording a known issue.');
+  var note = S.contentRecord(drec.id).history[0].note;
+  ok(/notes/.test(note), 'A NOTES-ONLY EDIT NAMES THE FIELD IT CHANGED');
+  ok(/Slow in the afternoon/.test(note), 'and the new value');
+  ok(!/was: https:\/\/example\.org\/qa-073 · now: https:\/\/example\.org\/qa-073/.test(note),
+    'AND IT NO LONGER LOGS AN UNCHANGED SUMMARY AS THOUGH IT WERE THE CHANGE');
+
+  /* ---- P1 · A REFERENCE URL IS SCHEME-CHECKED ---- */
+  boot();
+  var rrec = atContentGate('QA Ref Scheme');
+  S.requestChangesContent(KULK, rrec.id, 'Reason.', { refs: [
+    { kind: 'link', url: 'javascript:alert(1)', label: 'Looks innocent' },
+    { kind: 'link', url: '//evil.example.com/pwn', label: 'Protocol relative' },
+    { kind: 'link', url: 'file:///etc/passwd', label: 'Local file' },
+    { kind: 'link', url: 'https://ok.example.org/spec.pdf', label: 'Real one' }
+  ] });
+  var keptRefs = S.contentRecord(rrec.id).history[0].refs;
+  eq(keptRefs.length, 1, 'ONLY THE http(s) REFERENCE IS STORED');
+  eq(keptRefs[0].url, 'https://ok.example.org/spec.pdf', 'and it is the real one');
+
+  /* ---- P1 · A WITHDRAWN SCOPE KEEPS ITS EVIDENCE THROUGH THE MIGRATION ---- */
+  boot();
+  var mine = S.roleAssignments({ actorId: RAO });
+  var raId = mine[0].id;
+  S.removePlatformRoleAssignment(raId, 'Suspended pending a compliance review.');
+  var raw = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+  raw.schemaVersion = 10;
+  /* Exactly what a 07.2 build would have stored: the removed* fields, no history. */
+  raw.contentRoleAssignments.forEach(function (m) { delete m.history; });
+  localStorage.setItem(S.STORAGE_KEY, JSON.stringify(raw));
+  loadState();
+  S = XRSLP.state;
+  eq(S.actorWasEverSuspended(RAO), true,
+    'A ROW THAT IS WITHDRAWN RIGHT NOW STILL READS AS SUSPENDED AFTER THE MIGRATION');
+  var h = S.roleAssignmentHistory(raId);
+  eq(h.length, 1, 'and the withdrawal is reconstructed from the fields already on the row');
+  eq(h[0].kind, 'withdrawn', 'as a withdrawal');
+  eq(h[0].backfilled, true, 'MARKED as reconstructed, so it is never mistaken for a live recording');
+  ok(/compliance/.test(h[0].note), 'carrying the reason the row already held');
+  S.restorePlatformRoleAssignment(raId, 'Review closed.');
+  eq(S.actorWasEverSuspended(RAO), true,
+    'AND THE EVIDENCE SURVIVES THE RESTORE — which is the whole point');
+
+  /* ---- P1 · THE EXPORT NEVER PRINTS A SCORE THE STUDENT CANNOT SEE ---- */
+  boot();
+  (new Function(readFile('js/csv.js'))).call(window);
+  var ge = grantAccess(['direct-shear'], ['web'], 5, 'yearly');
+  S.assignExperiment(TENANT, ge.access.id, 'direct-shear', 'student', [RAHUL]);
+  S.mapFaculty(TENANT, ARJUN, ge.access.id, 'soil-mechanics', null);
+  var qd = S.addQuestion(TENANT, { type: 'descriptive', text: 'Explain.', experimentId: 'direct-shear',
+    points: 4, guidance: 'g' }, ARJUN);
+  var defE = S.assessmentForTenant(TENANT, 'direct-shear');
+  S.addQuestionsToAssessment(defE.id, [qd.question.id], ARJUN);
+  S.updateAssessmentSettings(defE.id, { title: defE.title || 'A', intro: '', passMark: 40,
+    attemptLimit: 3, policyMode: 'CUSTOM_DATE', customDate: '2099-01-01' }, ARJUN);
+  var attE = S.startAttempt(RAHUL, 'direct-shear');
+  S.saveAnswer(attE.id, qd.question.id, 'An answer.');
+  S.submitAttempt(attE.id);
+  eq(S.scoreWithheld(RAHUL, 'direct-shear'), true, 'the score is withheld from the Student');
+  eq(S.resultWithheld(RAHUL, 'direct-shear'), false,
+    'while no OUTCOME is decided yet — the window the old column got wrong');
+  var fsE = S.facultyExperimentStats(ARJUN, 'direct-shear');
+  var rowE = { person: S.personById(RAHUL), experimentId: 'direct-shear',
+    technologies: fsE.rows[0].technologies, progress: fsE.rows[0].progress,
+    attempt: S.latestSubmittedAttempt(RAHUL, 'direct-shear'),
+    assessState: S.assessmentState(RAHUL, 'direct-shear'), pendingReviews: 1 };
+  var tE = XRSLP.csv.facultyProgressRows([rowE], { state: S, data: D,
+    labels: { simLabel: function (x) { return x; }, progressLabel: function (x) { return x; },
+              assessLabel: function (x) { return (x && x.key) || String(x); } },
+    courseMapping: function () { return null; } });
+  var relCell = String(tE[1][tE[0].indexOf('Result released to student')]);
+  ok(relCell.indexOf('NO') === 0,
+    'THE EXPORT MARKS IT WITHHELD DURING THE PENDING-REVIEW WINDOW, not "n/a"');
+  ok(relCell.indexOf('yes') === -1, 'and never says the student has been shown it');
+
+  /* Spreadsheet formula injection on an institution-supplied value. */
+  var inj = XRSLP.csv.toCsv([['name'], ['=cmd|calc']]);
+  ok(/'=cmd/.test(inj), 'a value beginning with = is neutralised for a spreadsheet');
+
+  /* ---- P1 · A COURSE ID MUST NOT BE ABLE TO BLANK THE CATALOGUE ----
+     The grouping maps were bare objects keyed by Course id, so a Course
+     whose slug collides with an Object.prototype key resolved to the
+     INHERITED value: `byCourse[id] || []` handed back a function and
+     `.map` threw before any HTML existed. `render()` had no try/catch, so
+     the whole page went blank — and it was unrecoverable from inside the
+     product, because a Course id never changes and nothing deletes a
+     Course. This renders the REAL screen module, not a copy of its logic. */
+  boot();
+  var priorDoc = typeof document === 'undefined' ? undefined : document;
+  document = {
+    getElementById: function () { return null; },
+    querySelectorAll: function () { return []; },
+    createElement: function () { return { style: {}, setAttribute: function () {}, appendChild: function () {} }; },
+    body: { appendChild: function () {}, removeChild: function () {} }
+  };
+  ['js/components.js', 'js/content-ui.js', 'js/screens/public-catalogue.js'].forEach(function (f) {
+    (new Function(readFile(f))).call(window);
+  });
+  var baseline = XRSLP.screens.catalogue({});
+  ok(baseline && baseline.html && baseline.html.length > 100, 'the catalogue renders normally');
+
+  ['Constructor', 'toString', 'valueOf', 'hasOwnProperty'].forEach(function (name) {
+    var made = S.createCourse({ name: name, groupingId: 'civil-engineering', summary: 'QA probe.' });
+    ok(made && made.ok, 'a Course named "' + name + '" can be created (id "' + made.course.id + '")');
+  });
+  var after = null, threw = null;
+  try { after = XRSLP.screens.catalogue({}); } catch (e) { threw = e; }
+  eq(threw, null, 'THE CATALOGUE DOES NOT THROW on a Course id that collides with Object.prototype');
+  ok(after && after.html && after.html.length > 100, 'AND IT STILL RENDERS THE WHOLE PAGE');
+  ok(after.html.indexOf('Civil Engineering') !== -1, 'with every published experiment still reachable');
+  if (priorDoc === undefined) { document = undefined; } else { document = priorDoc; }
+}
+
+/* ============================================================
+   SCENARIO NN — schema 10 → 11 back-fill.
+   ============================================================ */
+function scenarioSchema11Migration() {
+  group('SCENARIO 07.3-H — a schema-10 state gains the 07.3 fields and loses nothing');
+  boot();
+
+  var rec = atContentGate('QA Migration 07.3');
+  S.requestChangesContent(KULK, rec.id, 'A reason.');
+  var raw = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+  raw.schemaVersion = 10;
+  /* Strip the 07.3 fields exactly as a schema-10 build would not have them. */
+  raw.contentRecords.forEach(function (r) {
+    delete r.previewVideo;
+    (r.history || []).forEach(function (h) { delete h.refs; });
+  });
+  (raw.academicReviews || []).forEach(function (r) { delete r.refs; });
+  (raw.contentRoleAssignments || []).forEach(function (m) { delete m.history; });
+  var recCount = raw.contentRecords.length;
+  var underTest = raw.contentRecords.filter(function (r) { return r.id === rec.id; })[0];
+  var histCount = underTest.history.length;
+  ok(histCount > 0, 'the fixture record has history to preserve');
+  localStorage.setItem(S.STORAGE_KEY, JSON.stringify(raw));
+  loadState();
+  S = XRSLP.state;
+
+  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
+  eq(S.snapshot ? 0 : 0, 0, 'state reloaded');
+  eq(S.contentRecords().length, recCount, 'NOTHING LOST: content records');
+  eq(S.contentRecord(rec.id).history.length, histCount, 'NOTHING LOST: history entries');
+  eq(S.contentRecord(rec.id).previewVideo, null, 'previewVideo is back-filled as null — never invented');
+  ok(S.contentRecord(rec.id).history.every(function (h) { return Array.isArray(h.refs); }),
+    'every history entry has a refs array again');
+  ok(S.roleAssignments({ actorId: RAO }).every(function (m) { return Array.isArray(m.history); }),
+    'every role assignment has its audit line again');
+
+  /* IDEMPOTENT — re-running invents nothing and duplicates nothing. */
+  var again = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+  localStorage.setItem(S.STORAGE_KEY, JSON.stringify(again));
+  loadState();
+  S = XRSLP.state;
+  eq(S.contentRecord(rec.id).history.length, histCount, 'MIGRATING AGAIN DUPLICATES NOTHING');
+  eq(S.contentRecord(rec.id).previewVideo, null, 'and re-stamps nothing');
+}
+
+scenarioSchema10Migration();
+/* Implementation 07.3 — the full stakeholder meeting closure. */
+scenarioManagerRouting();
+scenarioChangeRefs();
+scenarioPreviewVideo();
+scenarioDeliveryManagement();
+scenarioTechnologyUsed();
+scenarioRoleAudit();
+scenarioRequesterIdentity();
+scenarioSchema11Migration();
+scenarioProgressExport();
+scenarioAdversarial073();
 summary();

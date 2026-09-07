@@ -338,14 +338,130 @@ XRSLP.csv = (function () {
     var v = String(value == null ? '' : value);
     return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
   }
+  /* A value a spreadsheet would execute. Student names, course names and
+     reasons are institution-supplied, so a leading =, +, -, @, TAB or CR
+     is neutralised with a leading apostrophe — the conventional fix, and
+     it keeps the value readable. */
+  function deFormula(v) {
+    var t = v === null || v === undefined ? '' : String(v);
+    return /^[=+\-@\t\r]/.test(t) ? "'" + t : t;
+  }
+
   function toCsv(rows) {
-    return rows.map(function (r) { return r.map(quote).join(','); }).join('\r\n') + '\r\n';
+    return rows.map(function (r) {
+      return r.map(function (v) { return quote(deFormula(v)); }).join(',');
+    }).join('\r\n') + '\r\n';
+  }
+
+  /* ============================================================
+     FACULTY STUDENT-PROGRESS EXPORT (07.3, stakeholder R7)
+
+     The stakeholder's problem was concrete: *"if there are 100s of
+     students, if they have to take a list of how many students have
+     completed, how the faculty will get to know ... they cannot count
+     each student."*
+
+     ── WHAT THIS EXPORTS ─────────────────────────────────────────
+     EXACTLY the rows the Faculty member is looking at — the FILTERED
+     set, in the order shown. Exporting the unfiltered set would answer a
+     different question from the one on screen.
+
+     ── THE PRIVACY RULE ──────────────────────────────────────────
+     Marks are included, and that is correct rather than a leak: the
+     Faculty member IS the evaluator, `scoreWithheld` is explicitly a
+     STUDENT-view gate (state.js — "deliberately NOT applied without
+     studentView: Faculty performed the evaluation and must keep seeing
+     it"), and every figure here is already on their screen.
+
+     What the file adds is the thing a detached file otherwise loses: a
+     `Result released to student` column. A withheld result travels in
+     the export MARKED as withheld, so a Faculty member who forwards or
+     prints the file cannot mistake an unreleased outcome for a released
+     one. Nothing is exported that the Faculty member cannot already see.
+     ============================================================ */
+  var PROGRESS_EXPORT_COLUMNS = [
+    'Student name', 'Student ID', 'Email', 'Programme / Department', 'Course',
+    'Official course code', 'Institution course code', 'Experiment',
+    'Technologies licensed', 'Technologies used', 'Simulation status by technology',
+    'Resources completed', 'Resources total',
+    'Assessment state', 'Attempt number', 'Score %', 'Score basis', 'Outcome',
+    'Result released to student', 'Responses awaiting review', 'Progress'
+  ];
+
+  /* `rows` are the screen's own row objects. `deps` supplies the label
+     helpers the screen already uses, so the file and the table can never
+     describe the same state with two different words. */
+  function facultyProgressRows(rows, deps) {
+    var state = deps.state, data = deps.data, L = deps.labels;
+    var out = [PROGRESS_EXPORT_COLUMNS.slice()];
+    rows.forEach(function (x) {
+      var ctx = data.contextOf(x.experimentId) || {};
+      var use = state.technologyUseSummary(x.person.id, x.experimentId);
+      var att = x.attempt;
+      var score = att && att.score && att.score.percent !== null ? att.score.percent : null;
+      /* ⚠ GATE ON THE SAME DECISION THE STUDENT SURFACES USE — 07.3
+         adversarial fix. `resultWithheld` is DECIDED-outcome-only, but
+         every student-facing score surface is gated on the broader
+         `scoreWithheld`. During the pending-review window under a delayed
+         release policy the export therefore printed the objective
+         sub-score and answered the privacy column "n/a — no decided
+         outcome yet", while the student was being shown nothing at all —
+         the exact residual channel the state layer warns about. */
+      var scoreHidden = state.scoreWithheld(x.person.id, x.experimentId);
+      var withheld = scoreHidden;
+      var decided = att && (att.outcome === state.OUTCOME.PASSED || att.outcome === state.OUTCOME.NOT_PASSED);
+      var mapping = deps.courseMapping ? deps.courseMapping(x.experimentId) : null;
+      out.push([
+        x.person.name || '',
+        x.person.studentId || '',
+        x.person.email || '',
+        ctx.grouping ? ctx.grouping.name : '',
+        ctx.course ? ctx.course.name : '',
+        /* CANONICAL code — blank is legal and stays blank. */
+        ctx.course ? (state.courseRecord(ctx.course.id) || {}).code || '' : '',
+        mapping ? mapping.localCode || '' : '',
+        ctx.experiment ? ctx.experiment.name : x.experimentId,
+        (x.technologies || []).join(' | '),
+        /* USE, not availability — the stakeholder's other correction. */
+        use.used.join(' | '),
+        (x.progress.technologies || []).map(function (tp) {
+          return tp.technology + '=' + L.simLabel(tp.simulationStatus);
+        }).join(' | '),
+        x.progress.resources.completed,
+        x.progress.resources.total,
+        L.assessLabel ? L.assessLabel(x.assessState) : String(x.assessState || ''),
+        att ? att.attemptNo : '',
+        score === null ? '' : score,
+        att && att.score ? (att.score.includesReview ? 'with review' : 'marked questions') : '',
+        decided ? (att.outcome === state.OUTCOME.PASSED ? 'Passed' : 'Not passed') : '',
+        !att ? 'n/a — nothing submitted'
+             : (scoreHidden
+                 ? (decided ? 'NO — withheld' : 'NO — score withheld, review pending')
+                 : (!decided ? 'n/a — no decided outcome yet' : 'yes')),
+        x.pendingReviews || 0,
+        L.progressLabel(x.progress.status)
+      ]);
+    });
+    return out;
+  }
+
+  /* Hands the browser a file. Delegates to the existing
+     `util.download(blob, filename)` rather than repeating its
+     object-URL lifecycle — one implementation, one place to fix.
+     A UTF-8 BOM is prepended so Excel opens the file in the right
+     encoding, which is the same convention `parse()` strips on import. */
+  function download(filename, text) {
+    var blob = new Blob(['\ufeff' + text], { type: 'text/csv;charset=utf-8;' });
+    util.download(blob, filename);
+    return filename;
   }
 
   return {
     COLUMNS: COLUMNS,
     requiredColumns: requiredColumns, optionalColumns: optionalColumns,
     parse: parse, validate: validate, commit: commit,
-    templateText: templateText, toCsv: toCsv
+    templateText: templateText, toCsv: toCsv,
+    PROGRESS_EXPORT_COLUMNS: PROGRESS_EXPORT_COLUMNS,
+    facultyProgressRows: facultyProgressRows, download: download
   };
 })();

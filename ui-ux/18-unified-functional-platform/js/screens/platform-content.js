@@ -49,6 +49,48 @@ XRSLP.screens = XRSLP.screens || {};
     return ui.badge(m.badge, m.icon, m.label);
   }
 
+  /* TWO STATUSES, ONE LABEL, AND ONE SURFACE WHERE THAT BREAKS.
+     `CHANGES_ACADEMIC` and `CHANGES_CONTENT` both read "Changes
+     requested", correctly: to the Vendor holding the record, a return
+     is a return, and which gate sent it back is answered by the comment
+     rather than by the badge. The platform override is the one place
+     that offers BOTH as destinations at once, and two rows reading
+     "Move to Changes requested" would leave the Super Admin picking
+     between options they cannot tell apart. The status filter in
+     `content-ui.js` already separates these two with a suffix, so the
+     same suffix is reused here rather than a second, competing wording.
+     Nothing about the stored status or its badge changes. */
+  function statusLabelFor(status) {
+    var m = state.contentStatusMeta(status);
+    if (!m) { return status; }
+    if (status === state.CONTENT_STATUS.CHANGES_ACADEMIC) { return m.label + ' — academic'; }
+    if (status === state.CONTENT_STATUS.CHANGES_CONTENT) { return m.label + ' — content readiness'; }
+    return m.label;
+  }
+
+  /* Which gate a returned record was sent back from. This is what the
+     status already means in the workflow, said in words — not a new
+     rule, and not a claim about who will pick it up next. */
+  function statusOriginNote(status) {
+    if (status === state.CONTENT_STATUS.CHANGES_ACADEMIC) {
+      return ' A record here has been returned from <strong>academic review</strong>.';
+    }
+    if (status === state.CONTENT_STATUS.CHANGES_CONTENT) {
+      return ' A record here has been returned from the <strong>content readiness gate</strong>.';
+    }
+    /* 07.3 — the Content Manager's return now has TWO destinations, and
+       this one is the half that does not go to the Vendor. Without this
+       sentence the override list offers a destination whose holder is
+       the Academic Reviewer while every other "returned" state on the
+       same list is held by the Vendor, and nothing on screen says why
+       the pattern breaks. */
+    if (status === state.CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK) {
+      return ' The Content Manager returned it at the readiness gate to the <strong>Academic Reviewer</strong> ' +
+        'rather than to the Vendor, because the problem was academic rather than technical.';
+    }
+    return '';
+  }
+
   /* ============================================================
      CONTENT — the canonical catalogue, with the version decisions
      that are waiting at the top of it.
@@ -121,12 +163,42 @@ XRSLP.screens = XRSLP.screens || {};
         courses + '</section>';
     }).join('');
 
+    /* ── R17 — THE PROBLEMS THIS PLANE CAN ACTUALLY MITIGATE ─────
+       The stakeholder's words were that a Content Manager, an Academic
+       Reviewer or a Vendor in trouble should be resolvable HERE. Both
+       resolution surfaces already existed — the per-record platform
+       override, and Role governance — but nothing on this screen ever
+       said a record was stuck, so finding one meant opening Experiments
+       until you hit it.
+
+       This card is the missing half. It counts nothing new: see
+       `P.blockedRecords` for the derivation and why PUBLISHED records
+       are never in it. Each row leads to the record's own override. */
+    var stuck = P.blockedItems();
+    var scopeless = P.scopelessItems();
+
+    var stuckCard = ui.card('Stalled in the production chain',
+      P.attentionList(stuck.concat(scopeless), {
+        icon: 'check', heading: 'h3',
+        title: 'Nothing is stalled',
+        body: 'Every Experiment still in the production chain has somebody with a live scope able to act on it, ' +
+          'and every registered Vendor, Academic Reviewer and Content Manager holds at least one scope.'
+      }) +
+      '<p class="cardfoot">A record is listed here when <strong>nobody holds a live scope</strong> covering it in ' +
+      'the role that owns its current stage &mdash; most often because a scope was withdrawn. Two things fix it, ' +
+      'and both are yours: assign a scope in <a href="' + P.href.roles() + '">Role governance</a>, which is the ' +
+      'proper repair, or move the record by <strong>platform override</strong> on its own page, which unsticks it ' +
+      'without widening anyone&rsquo;s ordinary authority. ' +
+      '<strong>A published Experiment can never appear here</strong> — it has left the chain, and no override ' +
+      'reaches it in either direction.</p>', null, 'h2');
+
     var html =
       ui.phead('Content governance',
         awaiting.length
           ? awaiting.length + ' ' + util.plural(awaiting.length, 'version') + ' awaiting a Release / Hold decision'
           : 'Canonical catalogue and later-version decisions') +
       '<div class="stack">' +
+      stuckCard +
       ui.card('Versions awaiting Release / Hold',
         P.attentionList(decisionItems, {
           icon: 'check', heading: 'h3',
@@ -177,8 +249,12 @@ XRSLP.screens = XRSLP.screens || {};
       var courseRows = courses.length
         ? '<div class="tscroll"><table class="dt">' +
           '<caption class="sr-only">Courses in ' + esc(g.name) + '</caption>' +
+          /* R20 — the "Origin" column is gone. It repeated one word of
+             prototype bookkeeping down every row and answered nothing an
+             operator manages a Course for; the fact now lives once, in a
+             sentence, on the Course's own identity card. */
           '<thead><tr><th scope="col">Course</th><th scope="col">In use</th>' +
-          '<th scope="col">Origin</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
+          '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
           courses.map(function (c) {
             var use = state.courseUsage(c.id);
             return '<tr>' +
@@ -186,13 +262,12 @@ XRSLP.screens = XRSLP.screens || {};
               '<span class="tmain">' + esc(c.name) + '</span>' +
               '<span class="tsub">' + esc(c.id) + '</span></a></td>' +
               '<td data-label="In use">' + esc(usageText(use)) + '</td>' +
-              '<td data-label="Origin">' + originBadge(c) + '</td>' +
               '<td class="cell-actions"><a class="btn sm sec" href="' + P.href.course(c.id) + '">Manage</a></td>' +
               '</tr>';
           }).join('') + '</tbody></table></div>'
         : '<p class="muted" style="padding:14px 20px">No Course sits in this Programme / department yet.</p>';
       return '<section class="canongroup">' +
-        '<h3>' + esc(g.name) + ' ' + originBadge(g) + '</h3>' +
+        '<h3>' + esc(g.name) + '</h3>' +
         '<p class="cg-s">' + esc(g.summary) + '</p>' +
         '<p class="cg-s"><a class="btn sm sec" href="' + P.href.grouping(g.id) + '">Manage this Programme / department</a></p>' +
         courseRows + '</section>';
@@ -242,13 +317,23 @@ XRSLP.screens = XRSLP.screens || {};
     return parts.length ? parts.join(' · ') : 'Not yet referenced';
   }
 
-  /* Provenance, not status. `STK31-41`'s sibling instruction for
-     identities applies to structure too: say where a record came from
-     rather than inventing a lifecycle for it. */
-  function originBadge(rec) {
+  /* ── R20 — "What is this origin? ... I have to remove it" ────
+     Provenance is still worth keeping — `STK31-41`'s sibling
+     instruction for identities applies to structure too: say where a
+     record came from rather than inventing a lifecycle for it — but it
+     was being shown as an "Origin" COLUMN repeated down a table and as
+     a badge beside every heading, in the prototype's own vocabulary
+     ("seed"). Read fifty times, it told the reader nothing they could
+     act on.
+
+     So the badge and the column are gone, and the fact survives as one
+     sentence on each record's own identity card, under a label that
+     asks a question a person would ask. Nothing about `source` is
+     deleted, and no audit truth is lost. */
+  function structureAddedLine(rec) {
     return rec.source === 'seed'
-      ? ui.badge('b-neutral', null, 'Prototype seed')
-      : ui.badge('b-info', null, 'Added on the platform');
+      ? 'Part of the sample catalogue this prototype starts with.'
+      : 'Created here on the platform by the Super Admin.';
   }
 
   function groupingSelectOptions(selectedId) {
@@ -287,6 +372,19 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="field" id="pc-name"><label for="pc-name-i">Course name ' +
       '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
       '<input type="text" id="pc-name-i" autocomplete="off"></div>' +
+      /* THE CANONICAL COURSE CODE — the Super Admin's half of it. The
+         field is owned PRIMARILY by the Content Manager, who has their
+         own screen for it; it is offered here as well because the Super
+         Admin is the only person who can create a Course at all, and
+         forcing them to create one and then wait for somebody else to
+         put a code on it would be an invented handover. Optional, and
+         staying blank is a permanent legitimate state — no official
+         code exists for the sample Courses and none is invented. */
+      '<div class="field" id="pc-code"><label for="pc-code-i">Course code</label>' +
+      '<input type="text" id="pc-code-i" autocomplete="off" maxlength="40" aria-describedby="pc-code-h">' +
+      '<p class="hint" id="pc-code-h">Optional. Unique across the whole platform when it is set — a canonical ' +
+      'code identifies one Course everywhere, unlike the Course <em>name</em>, which only has to be unique ' +
+      'inside its Programme. It is managed primarily by the Content Manager; you also have access to it.</p></div>' +
       '<div class="field" id="pc-summary"><label for="pc-summary-i">Description ' +
       '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
       '<textarea id="pc-summary-i" rows="3"></textarea>' +
@@ -326,6 +424,7 @@ XRSLP.screens = XRSLP.screens || {};
         var fields = {
           groupingId: (document.getElementById('pc-grouping-i') || {}).value || '',
           name: (document.getElementById('pc-name-i') || {}).value || '',
+          code: (document.getElementById('pc-code-i') || {}).value || '',
           summary: (document.getElementById('pc-summary-i') || {}).value || ''
         };
         var errs = state.validateCourseFields(fields, null);
@@ -355,7 +454,7 @@ XRSLP.screens = XRSLP.screens || {};
 
     var html =
       ui.crumbs([{ label: 'Academic structure', href: P.href.structure() }, { label: g.name }]) +
-      ui.phead(g.name, 'Programme / department master record', null, ' ' + originBadge(g)) +
+      ui.phead(g.name, 'Programme / department master record') +
       '<div class="grid-rail"><div class="stack">' +
       ui.card('Rename or re-describe',
         '<form id="pg-edit" novalidate>' +
@@ -379,8 +478,8 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="k">Experiments — published</div><div class="v">' + publishedCount + '</div>' +
         '<div class="k">Experiments — all records</div><div class="v">' + allRecords +
         '<span class="tsub2">in-flight submissions included</span></div>' +
-        '<div class="k">Origin</div><div class="v">' +
-        esc(g.source === 'seed' ? 'Prototype seed structure' : 'Added on the platform') + '</div>' +
+        '<div class="k">How this record was added</div><div class="v">' +
+        esc(structureAddedLine(g)) + '</div>' +
         '</div>' +
         '<p class="cardfoot">Retiring a Programme / department is not implemented. Nothing is deleted in this ' +
         'build, and no source states what should happen to the live references a retirement would orphan.</p>',
@@ -428,7 +527,7 @@ XRSLP.screens = XRSLP.screens || {};
 
     var html =
       ui.crumbs([{ label: 'Academic structure', href: P.href.structure() }, { label: c.name }]) +
-      ui.phead(c.name, 'Course master record', null, ' ' + originBadge(c)) +
+      ui.phead(c.name, 'Course master record') +
       '<div class="grid-rail"><div class="stack">' +
       ui.card('Rename, re-describe or move',
         '<form id="pc-edit" novalidate>' +
@@ -450,19 +549,52 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="field" id="pc-name"><label for="pc-name-i">Course name ' +
         '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
         '<input type="text" id="pc-name-i" autocomplete="off" value="' + esc(c.name) + '"></div>' +
+        /* See the create form: the canonical code is primarily the
+           Content Manager's field, and this is the Super Admin's access
+           to the same one value. Pre-filled from the stored code, and
+           an empty box means the Course genuinely has no code. */
+        '<div class="field" id="pc-code"><label for="pc-code-i">Course code</label>' +
+        '<input type="text" id="pc-code-i" autocomplete="off" maxlength="40" aria-describedby="pc-code-h" ' +
+        'value="' + esc(c.code || '') + '">' +
+        '<p class="hint" id="pc-code-h">Optional, and unique across the whole platform when it is set. Managed ' +
+        'primarily by the Content Manager; you also have access to it. Clearing the box removes the code and ' +
+        'leaves the Course with none, which is a legitimate state.</p></div>' +
         '<div class="field" id="pc-summary"><label for="pc-summary-i">Description ' +
         '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
         '<textarea id="pc-summary-i" rows="3">' + esc(c.summary) + '</textarea></div>' +
         '<div class="formact"><button class="btn pri" type="submit">Save changes</button>' +
         '<span class="formnote">The identifier never changes, so every <em>stored</em> reference stays valid. ' +
         'A tenant CSV whose Course column still names the old text will no longer match, because that import ' +
-        'resolves by name.</span></div>' +
+        'resolves by name. ' +
+        /* THE CODE IS NOT THE IDENTIFIER, AND THE ID-STABILITY SENTENCE
+           MUST NOT BE STRETCHED OVER IT. The id above is stable by
+           construction; the code is a value a human types and retypes,
+           and a code is precisely the thing an external student
+           information system would key on. Inside this prototype that
+           is harmless, because nothing here resolves by code — CSV
+           import and manual entry both match canonical structure BY
+           NAME. Outside it, it would not be, and saying so is the only
+           honest version of this note. */
+        '<strong>The Course code is separate.</strong> Changing it is safe inside this prototype because ' +
+        'nothing here resolves a Course by its code &mdash; every import and every manual entry matches on the ' +
+        'Course <em>name</em>. Outside the prototype an integration that keys on the code would have to be ' +
+        'considered before it is changed.</span></div>' +
         '</form>', null, 'h2') +
       ui.card('Experiments filed under this Course', recordsHTML, null, 'h2') +
       '</div><div class="stack">' +
       ui.card('Identity',
         '<div class="kv">' +
         '<div class="k">Identifier</div><div class="v">' + esc(c.id) + '</div>' +
+        /* TWO DIFFERENT THINGS, ONE ABOVE THE OTHER, NAMED APART. The
+           identifier is minted by the platform and never changes; the
+           canonical code is optional master data a person sets. Showing
+           only the id let the code look like an internal detail of it,
+           which is exactly the confusion rule E exists to remove. */
+        '<div class="k">Course code</div><div class="v">' +
+        (c.code ? '<strong>' + esc(c.code) + '</strong>' : '<span class="muted">Not set</span>') +
+        '<span class="tsub2">Canonical, and managed primarily by the Content Manager &mdash; the Super Admin ' +
+        'also has access to it, on the form beside this card. Not the institution&rsquo;s own local course ' +
+        'code, which each Tenant Admin records separately.</span></div>' +
         '<div class="k">Experiments — all records</div><div class="v">' + use.records +
         '<span class="tsub2">in-flight submissions included</span></div>' +
         '<div class="k">Experiments — published</div><div class="v">' +
@@ -471,8 +603,8 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="k">Faculty mappings</div><div class="v">' + use.facultyMappings + '</div>' +
         '<div class="k">People filed against it</div><div class="v">' + use.people + '</div>' +
         '<div class="k">Role assignments</div><div class="v">' + use.assignments + '</div>' +
-        '<div class="k">Origin</div><div class="v">' +
-        esc(c.source === 'seed' ? 'Prototype seed structure' : 'Added on the platform') + '</div>' +
+        '<div class="k">How this record was added</div><div class="v">' +
+        esc(structureAddedLine(c)) + '</div>' +
         '</div>' +
         '<p class="cardfoot">Retiring a Course is not implemented — those references are exactly why. Nothing is ' +
         'deleted in this build.</p>', null, 'h2') +
@@ -490,14 +622,26 @@ XRSLP.screens = XRSLP.screens || {};
           var fields = {
             groupingId: (document.getElementById('pc-grouping-i') || {}).value || '',
             name: (document.getElementById('pc-name-i') || {}).value || '',
+            code: (document.getElementById('pc-code-i') || {}).value || '',
             summary: (document.getElementById('pc-summary-i') || {}).value || ''
           };
           var errs = state.validateCourseFields(fields, c.id);
           if (!ui.showErrors(form, errs, 'Please correct the Course')) { return; }
+          /* Read BEFORE the save. `updateCourse` mutates the very record
+             `c` points at, so comparing afterwards would always report
+             "unchanged" and the code sentence would never appear. */
+          var priorCode = String(c.code || '');
           busy = true;
           var res = state.updateCourse(c.id, fields);
           if (!res.ok) { busy = false; ui.showErrors(form, res.errors, 'Please correct the Course'); return; }
-          ui.toast('Saved. The identifier is unchanged, so every stored reference still resolves — but a CSV import naming the old text will not.');
+          /* The id-stability promise is made about the id ONLY. Where the
+             code changed, the second sentence says what is true of a
+             code instead — a distinct claim, not the same one reused. */
+          var codeChanged = String(fields.code || '').trim() !== priorCode;
+          ui.toast('Saved. The identifier is unchanged, so every stored reference still resolves — but a CSV import naming the old text will not.' +
+            (codeChanged
+              ? ' The Course code also changed; nothing in this prototype resolves a Course by its code, so nothing here breaks.'
+              : ''));
           XRSLP.render(false);
         });
       }
@@ -655,6 +799,26 @@ XRSLP.screens = XRSLP.screens || {};
           '<textarea id="cm-summary-i" rows="2">' + esc(rec.summary) + '</textarea></div>' +
           '<div class="field" id="cm-description"><label for="cm-description-i">Catalogue description</label>' +
           '<textarea id="cm-description-i" rows="5">' + esc(rec.description) + '</textarea></div>' +
+          /* WHY, NOT ONLY WHO. Correcting the master record of something
+             the public catalogue is already showing is the heaviest
+             content act on this plane, so on a PUBLISHED record the
+             state layer refuses the save without a reason and returns
+             it against `cm-reason`. At the readiness gate the record is
+             not public and the Content Manager is about to publish it
+             anyway, so the box is offered and not demanded — it is
+             shown in both states rather than appearing out of nowhere
+             at the moment it becomes compulsory. */
+          '<div class="field" id="cm-reason"><label for="cm-reason-i">Reason for this correction' +
+          (rec.status === state.CONTENT_STATUS.PUBLISHED
+            ? ' <span class="req">(required)</span>'
+            : ' <span class="muted">(optional)</span>') + '</label>' +
+          '<input type="text" id="cm-reason-i" autocomplete="off" aria-describedby="cm-reason-h">' +
+          '<p class="hint" id="cm-reason-h">' +
+          (rec.status === state.CONTENT_STATUS.PUBLISHED
+            ? 'Required: this experiment is published, so the correction reaches the public catalogue at once.'
+            : 'Optional while this experiment is unpublished. It becomes required once it is published.') +
+          ' Recorded on the Experiment&rsquo;s own history, where the Vendor, the Academic Reviewer and the ' +
+          'Content Manager all read it. Nothing is sent to anybody.</p></div>' +
           '<div class="formact"><button class="btn pri" type="submit">Save canonical metadata</button>' +
           '<span class="formnote">' +
           (rec.status === state.CONTENT_STATUS.PUBLISHED
@@ -665,7 +829,127 @@ XRSLP.screens = XRSLP.screens || {};
         : ui.alertBox('info', 'Not editable in this state',
             '<p>Canonical metadata is corrected for published content and for content sitting at the Content ' +
             'Manager&rsquo;s readiness gate. This record is currently with the Vendor or the Academic Reviewer, ' +
-            'and rewriting it would change the work under the person doing it.</p>'), null, 'h2');
+            'and rewriting it would change the work under the person doing it.</p>' +
+            /* R17 — the refusal now says where the power actually is,
+               instead of reading as a dead end. It is deliberately NOT
+               softened into an edit control: role-specific ownership is
+               the thing the Super Admin's authority protects, not the
+               thing it overrides. The override moves the record to a
+               stage where this editor opens legitimately; it does not
+               let the Super Admin write over somebody mid-task. */
+            '<p style="margin-top:8px">If the record is stuck rather than simply in progress, the ' +
+            '<strong>platform override</strong> below moves it to a stage where this editor opens ' +
+            'legitimately. There is deliberately no way to overwrite the metadata while somebody else is ' +
+            'working on the revision.</p>'), null, 'h2');
+
+    /* ---- THE PLATFORM OVERRIDE ON THE CONTENT CHAIN ----
+       The stakeholder confirmed the Super Admin holds overall control,
+       content problems and role problems included. That is built as ONE
+       separately labelled surface rather than as quiet extra authority
+       spread through the ordinary workflow: no ordinary permission is
+       widened by it, and every move made here is explicit, reasoned and
+       written into the record's own history.
+
+       What it is actually FOR is unsticking the chain. A submission
+       whose only assigned Academic Reviewer has had their scope
+       withdrawn sits in academic review with nobody able to move it,
+       and without this card nothing in the build could free it. That is
+       also why each destination's REACHABILITY is shown before the
+       decision rather than after it: an override that lands a record
+       where nobody live can act has not resolved the deadlock, it has
+       moved it somewhere less obvious.
+
+       Rendered on every record, published ones included. A control that
+       silently disappears teaches a stakeholder nothing about why it is
+       absent, so the published case is shown as refused, with its
+       reason, in the same place the control would otherwise be. */
+    /* ── R17 — IS THIS RECORD STUCK RIGHT NOW? ───────────────────
+       The override card has always been able to FIX a deadlock; nothing
+       on the screen told the Super Admin one existed. Derived from the
+       same two facts `P.blockedRecords` uses, so the record page and the
+       Content governance list can never disagree about which records
+       are stalled.
+
+       A PUBLISHED record is excluded by construction: its status has no
+       holder role, it has left the production chain, and implying an
+       override might rescue it would be the publish firewall leaking. */
+    var holderMeta = state.contentStatusMeta(rec.status);
+    var holderRole = holderMeta ? holderMeta.holder : null;
+    var liveHolders = holderRole ? state.actorsForRecord(rec, holderRole) : [];
+    var isStuck = !isPublished && !!holderRole && !liveHolders.length;
+
+    var stuckAlert = isStuck
+      ? ui.alertBox('warning', 'Nobody can act on this Experiment',
+          '<p>It sits in <strong>' + esc(statusLabelFor(rec.status)) + '</strong>, which is held by the ' +
+          '<strong>' + esc(state.contentRoleLabel(holderRole)) + '</strong>, and <strong>no live scope covers ' +
+          'this Experiment in that role</strong>. It cannot move on its own, and whoever used to hold it no ' +
+          'longer sees it as work &mdash; though everything they already decided stays in the history below, ' +
+          'with their name on it.</p>' +
+          '<p style="margin-top:8px">Two things resolve it, and both are yours. <strong>Assign a scope</strong> ' +
+          'in <a href="' + P.href.roles() + '">Role governance</a> &mdash; the proper repair, because it returns ' +
+          'the work to a named person who can finish it. Or use the <strong>platform override</strong> further ' +
+          'down to move the record to a stage somebody live can reach; that unsticks the chain without widening ' +
+          'anybody&rsquo;s ordinary authority, and it changes no licence, entitlement, publication or academic ' +
+          'decision.</p>')
+      : '';
+
+    var overrideDests = state.overrideDestinations(rec.id);
+    var overrideBody;
+    if (isPublished) {
+      overrideBody = ui.alertBox('warning', 'A published Experiment is not moved from here',
+        '<p>This Experiment is published, and an override will not move it &mdash; <strong>in either ' +
+        'direction</strong>.</p>' +
+        '<p>First publication is the Content Manager&rsquo;s act, and there is no publish control anywhere in ' +
+        'this workspace; replacing what the catalogue shows is yours, through <strong>Release / Hold</strong> ' +
+        'above, which acts on a <em>later version</em> &mdash; a different object with its own decision. An ' +
+        'override that could reach across that line would be a publish control by another name, and it would ' +
+        'strand the access records, Faculty mappings, assignments and in-progress attempts that already point ' +
+        'at this Experiment.</p>');
+    } else if (!overrideDests.length) {
+      overrideBody = '<p class="muted">No destination is available for this record.</p>';
+    } else {
+      overrideBody =
+        '<p class="chelp">This record is in <strong>' + esc(statusLabelFor(rec.status)) +
+        '</strong>. An override moves it to another point in the production chain when the chain itself is ' +
+        'stuck &mdash; most often because the only person assigned to it no longer holds a scope covering it. ' +
+        'Each destination below says who normally holds a record there, and whether anybody live actually ' +
+        'does.</p>' +
+        '<div class="attn">' +
+        overrideDests.map(function (d) {
+          var names = d.actors.map(function (a) {
+            return '<a href="' + P.href.actor(a.id) + '">' + esc(a.name) + '</a>';
+          }).join(', ');
+          return '<div class="at-row' + (d.reachable ? '' : ' warn') + '">' +
+            '<span class="at-ic">' + ui.ic(d.reachable ? 'arrowR' : 'alert') + '</span>' +
+            '<div class="at-body"><div class="at-t">Move to ' + esc(statusLabelFor(d.status)) + '</div>' +
+            '<p>' +
+            (d.holderLabel
+              ? 'A record in this state is held by the <strong>' + esc(d.holderLabel) + '</strong>.' +
+                statusOriginNote(d.status) + ' '
+              : '') +
+            (d.reachable
+              ? d.actors.length + ' ' + util.plural(d.actors.length, 'person', 'people') +
+                ' currently ' + (d.actors.length === 1 ? 'holds' : 'hold') +
+                ' a live scope covering this Experiment: ' + names + '.'
+              : '<strong>Nobody holds a live scope covering this Experiment in that role.</strong> Moving it ' +
+                'there would leave the record with nobody able to act on it &mdash; the same deadlock in a ' +
+                'different place. Assign a scope in <a href="' + P.href.roles() + '">Role governance</a> first.') +
+            '</p></div>' +
+            '<button class="btn sm sec" type="button" data-ovr-to="' + esc(d.status) + '">' +
+            'Move here<span class="sr-only"> — ' + esc(rec.name) + ' to ' +
+            esc(statusLabelFor(d.status)) + '</span></button>' +
+            '</div>';
+        }).join('') +
+        '</div>';
+    }
+    var overrideCard = ui.card('Platform override — move this Experiment in the workflow',
+      overrideBody +
+      '<p class="cardfoot"><strong>This is an override, not extra authority.</strong> It changes no licence, no ' +
+      'entitlement, no publication and no academic decision, and it widens nobody&rsquo;s ordinary authority by ' +
+      'a single step: the Vendor still submits, the Academic Reviewer still owns the Learning Outcomes, and the ' +
+      'Content Manager still controls first publication. Every override is written into this Experiment&rsquo;s ' +
+      'own history, with the reason given, where all three of them read it. Nothing is sent to anybody.</p>',
+      null, 'h2');
 
     /* ---- the version panel ---- */
     var decisionHTML = '';
@@ -740,12 +1024,25 @@ XRSLP.screens = XRSLP.screens || {};
             '<div class="tl-body"><div class="tl-action">Version ' + esc(v.versionLabel) + ' — ' + esc(m.label) + '</div>' +
             '<div class="tl-who">' + esc(v.createdByName) + ' · Vendor · ' + esc(util.fmtDateTime(v.createdAt)) + '</div>' +
             (v.changeNote ? '<p class="tl-note">' + esc(v.changeNote) + '</p>' : '') +
-            (v.releaseDecision
-              ? '<p class="tl-note"><strong>' +
-                (v.releaseDecision.decision === 'released' ? 'Released' : 'Held') + '</strong> by ' +
-                esc(v.releaseDecision.by) + ' · ' + esc(util.fmtDateTime(v.releaseDecision.at)) +
-                (v.releaseDecision.note ? ' — ' + esc(v.releaseDecision.note) : '') + '</p>'
-              : '') +
+            /* ── R17 — THE VERSION'S DURABLE LINE, NOT ITS CURRENT FIELD ──
+               This read `v.releaseDecision`, which is the version's
+               CURRENT decision and is set to null the moment a hold is
+               lifted. So holding a version with a stated reason and then
+               lifting the hold erased the reason: the timeline showed a
+               version that had simply been approved, and the fact that
+               the Super Admin had once held it back — and why — was
+               gone from every surface in the build.
+
+               `v.history` is append-only and carries the same events
+               plus the lift itself, so it survives. Same defect and the
+               same fix as the withdraw/restore line on a role scope. */
+            (Array.isArray(v.history) ? v.history : []).map(function (e) {
+              return '<p class="tl-note"><strong>' + esc(e.label) + '</strong> · ' +
+                esc(e.actorName || 'Super Admin') +
+                (e.actorRole ? ' <span class="muted">(' + esc(e.actorRole) + ')</span>' : '') +
+                ' · ' + esc(util.fmtDateTime(e.at)) +
+                (e.note ? ' — &ldquo;' + esc(e.note) + '&rdquo;' : '') + '</p>';
+            }).join('') +
             '</div></div>';
         }).join('') + '</div>'
       : '<p class="muted">No later version has been submitted for this experiment.</p>';
@@ -765,8 +1062,9 @@ XRSLP.screens = XRSLP.screens || {};
         (ctx.course ? esc((ctx.grouping ? ctx.grouping.name + ' › ' : '') + ctx.course.name) : '') +
         (rec.versionLabel ? ' · version ' + esc(rec.versionLabel) : ''),
         null, ' ' + recordStateBadge(rec)) +
+      stuckAlert +
       '<div class="grid-rail">' +
-      '<div class="stack">' + current + versionCard + metaCard + '</div>' +
+      '<div class="stack">' + current + versionCard + metaCard + overrideCard + '</div>' +
       '<div class="stack">' + ownership + historyCard +
       ui.gapNote('OPEN POLICY QUESTION',
         'A later version in this build carries the description, the version label, the vendor notes and the ' +
@@ -791,12 +1089,62 @@ XRSLP.screens = XRSLP.screens || {};
               courseId: (document.getElementById('cm-course-i') || {}).value || '',
               summary: (document.getElementById('cm-summary-i') || {}).value || '',
               description: (document.getElementById('cm-description-i') || {}).value || ''
-            });
+            }, (document.getElementById('cm-reason-i') || {}).value || '');
             if (!res.ok) { busy = false; ui.showErrors(form, res.errors, 'Please correct the metadata'); return; }
             ui.toast('Canonical metadata updated.');
             XRSLP.render(false);
           });
         }
+
+        /* The override, with its consequence stated before it is taken
+           and a reason required to take it — the same treatment the
+           platform override on a student already carries. The state
+           layer returns null on a missing reason, so the refusal is
+           reported from the return value rather than pre-empted here:
+           one rule, in one place, and the screen cannot drift from it. */
+        Array.prototype.slice.call(document.querySelectorAll('[data-ovr-to]')).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var to = btn.getAttribute('data-ovr-to');
+            var dest = overrideDests.filter(function (d) { return d.status === to; })[0];
+            if (!dest) { return; }
+            var destLabel = statusLabelFor(dest.status);
+            ui.openDialog({
+              title: 'Move ' + rec.name + ' to ' + destLabel + '?',
+              bodyHTML:
+                '<p>This is a <strong>platform override</strong> of the content production chain. ' +
+                '<strong>' + esc(rec.name) + '</strong> moves from <strong>' +
+                esc(statusLabelFor(rec.status)) + '</strong> to <strong>' +
+                esc(destLabel) + '</strong>.</p>' +
+                (dest.reachable
+                  ? '<div class="consequence">' + ui.ic('check') + '<span>' + dest.actors.length + ' ' +
+                    util.plural(dest.actors.length, 'person', 'people') + ' ' +
+                    (dest.actors.length === 1 ? 'holds' : 'hold') + ' a live scope covering this Experiment as ' +
+                    esc(dest.holderLabel || 'its holder') + ', so the record can be acted on once it arrives.</span></div>'
+                  : '<div class="consequence">' + ui.ic('alert') + '<span><strong>Nobody can act on it there.</strong> ' +
+                    'No live scope covers this Experiment as ' + esc(dest.holderLabel || 'its holder') + ', so the ' +
+                    'record would sit in ' + esc(destLabel) + ' exactly as stuck as it is now. Assigning a scope ' +
+                    'in Role governance first is the fix; this move is not.</span></div>') +
+                '<div class="consequence">' + ui.ic('shield') + '<span>No licence, entitlement, assignment, ' +
+                'publication or academic decision changes, and nobody&rsquo;s ordinary authority widens. ' +
+                'Learning Outcomes, the recorded academic approval and the technology delivery are untouched.</span></div>' +
+                '<div class="field" id="ovr-reason" style="margin-top:12px">' +
+                '<label for="ovr-reason-i">Reason <span class="req">(required)</span></label>' +
+                '<input type="text" id="ovr-reason-i" autocomplete="off"></div>' +
+                '<p class="muted" style="margin-top:8px">Recorded in this Experiment&rsquo;s own history, which ' +
+                'the Vendor, the Academic Reviewer and the Content Manager all read. Nothing is sent to ' +
+                'anybody.</p>',
+              okLabel: 'Move by override',
+              onConfirm: function (body) {
+                var input = body ? body.querySelector('#ovr-reason-i') : null;
+                var out = state.overrideContentStatusAsPlatform(rec.id, to, input ? input.value : '');
+                ui.toast(out
+                  ? rec.name + ' moved to ' + destLabel + ' by platform override.'
+                  : 'No change — a reason is required for a platform override.');
+                XRSLP.render(false);
+              }
+            });
+          });
+        });
 
         var rel = document.getElementById('v-release');
         if (rel && pending) {
@@ -856,11 +1204,26 @@ XRSLP.screens = XRSLP.screens || {};
             ui.openDialog({
               title: 'Lift the hold on version ' + heldOne.versionLabel + '?',
               bodyHTML: '<p>The version returns to the Release / Hold decision. <strong>It is not released ' +
-                'by this action</strong> — the published version stays live until you release it explicitly.</p>',
+                'by this action</strong> — the published version stays live until you release it explicitly.</p>' +
+                '<div class="consequence">' + ui.ic('shield') + '<span>The hold itself is <strong>not ' +
+                'erased</strong>. It stays in this version&rsquo;s history with the reason recorded at the time, ' +
+                'and so does this lift — the version does not go back to looking as though it was never ' +
+                'held.</span></div>' +
+                (heldOne.releaseDecision && heldOne.releaseDecision.note
+                  ? '<div class="consequence">' + ui.ic('doc') + '<span>It was held for this reason: &ldquo;' +
+                    esc(heldOne.releaseDecision.note) + '&rdquo;</span></div>'
+                  : '') +
+                '<div class="field" id="v-unote" style="margin-top:12px">' +
+                '<label for="v-unote-i">Reason for lifting it <span class="muted">(optional)</span></label>' +
+                '<input type="text" id="v-unote-i" autocomplete="off">' +
+                '<p class="hint">Recorded in the version history. Optional: lifting a hold returns the version ' +
+                'to a decision rather than taking one, and nothing becomes public because of it.</p></div>',
               okLabel: 'Lift the hold',
-              onConfirm: function () {
-                state.returnHeldVersionToDecision(heldOne.id, '');
-                ui.toast('Hold lifted. The version is back on the Release / Hold decision.');
+              onConfirm: function (body) {
+                var input = body ? body.querySelector('#v-unote-i') : null;
+                state.returnHeldVersionToDecision(heldOne.id, input ? input.value : '');
+                ui.toast('Hold lifted. The version is back on the Release / Hold decision, and the hold stays ' +
+                  'on its history.');
                 XRSLP.render(false);
               }
             });

@@ -90,16 +90,27 @@ XRSLP.data = (function () {
     }
   ];
 
+  /* `code` is the CANONICAL / OFFICIAL Course Code (Implementation 07.2,
+     stakeholder-confirmed): platform master data owned primarily by the
+     Content Manager, with the Super Admin also holding access to it. It
+     is DELIBERATELY BLANK in the seed — no official code has been
+     supplied for these sample Courses, and inventing one would put
+     fabricated institutional data on the public catalogue. Blank is a
+     legitimate, permanent state; nothing in the build resolves by code.
+
+     It is NOT the tenant's local course code. That stays where it has
+     always been, on `courseMappings[].localCode`, scoped to one
+     institution, and a Tenant Admin cannot reach this field. */
   var COURSES = [
-    { id: 'soil-mechanics', groupingId: 'civil-engineering', name: 'Soil Mechanics',
+    { id: 'soil-mechanics', groupingId: 'civil-engineering', name: 'Soil Mechanics', code: '',
       summary: 'Shear strength and consolidation behaviour of soils, studied through simulated laboratory testing.' },
-    { id: 'surveying', groupingId: 'civil-engineering', name: 'Surveying',
+    { id: 'surveying', groupingId: 'civil-engineering', name: 'Surveying', code: '',
       summary: 'Field surveying instruments and procedures practised in a simulated environment.' },
-    { id: 'structural-analysis', groupingId: 'civil-engineering', name: 'Structural Analysis',
+    { id: 'structural-analysis', groupingId: 'civil-engineering', name: 'Structural Analysis', code: '',
       summary: 'Behaviour of loaded structural members observed through simulated experiments.' },
-    { id: 'strength-of-materials', groupingId: 'mechanical-engineering', name: 'Strength of Materials',
+    { id: 'strength-of-materials', groupingId: 'mechanical-engineering', name: 'Strength of Materials', code: '',
       summary: 'Mechanical behaviour of materials under torsion and other loading conditions.' },
-    { id: 'fluid-mechanics', groupingId: 'mechanical-engineering', name: 'Fluid Mechanics',
+    { id: 'fluid-mechanics', groupingId: 'mechanical-engineering', name: 'Fluid Mechanics', code: '',
       summary: 'Principles of fluid flow demonstrated through interactive simulated apparatus.' }
   ];
 

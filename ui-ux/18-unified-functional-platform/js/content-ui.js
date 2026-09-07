@@ -112,6 +112,17 @@ XRSLP.contentUI = (function () {
         return audience === 'manager' ? 'With you — awaiting the publication decision' : 'With the Content Manager';
       case S.CHANGES_CONTENT:
         return audience === 'vendor' ? 'With you — correct and resubmit' : 'Returned to the Vendor for correction';
+      /* 07.3 — the Content Manager's ACADEMIC return. Without this case
+         the switch fell through to `return ''`, and every screen that
+         concatenates this line around the new status rendered a hole
+         mid-sentence ("...not while it is “Returned for academic
+         re-check” and . Editing it now would..."). */
+      case S.CHANGES_ACADEMIC_RECHECK:
+        return audience === 'reviewer'
+          ? 'With you — the Content Manager returned it for an academic re-check'
+          : (audience === 'manager'
+            ? 'Returned by you to the Academic Reviewer'
+            : 'With the Academic Reviewer (returned by the Content Manager)');
       case S.PUBLISHED:
         return rec.publication ? 'Published ' + util.fmtDate(rec.publication.publishedAt) : 'Published';
       default:
@@ -201,7 +212,14 @@ XRSLP.contentUI = (function () {
   var HISTORY_DOT = {
     created: 'edit', submitted: 'arrowR', resubmitted: 'arrowR',
     changes: 'alert', approved: 'check', published: 'check',
-    metadata: 'edit', seeded: 'layers'
+    metadata: 'edit', seeded: 'layers',
+    /* Implementation 07.2 — a platform override reads AS an override in
+       every timeline, not as an ordinary step somebody took. */
+    override: 'shield',
+    /* 07.3 — a Content Manager delivery-link edit. It is a change to
+       what a Student will open, so it does not read as an ordinary
+       metadata tweak. */
+    delivery: 'monitor'
   };
 
   function historyTimeline(rec) {
@@ -209,7 +227,8 @@ XRSLP.contentUI = (function () {
       return '<p class="muted">No history has been recorded for this item.</p>';
     }
     return '<div class="timeline">' + rec.history.map(function (h) {
-      var cls = (h.kind === 'changes') ? 'warn' : (h.kind === 'published' || h.kind === 'approved') ? 'good' : 'info';
+      var cls = (h.kind === 'changes' || h.kind === 'override') ? 'warn'
+              : (h.kind === 'published' || h.kind === 'approved') ? 'good' : 'info';
       return '<div class="tl-item"><span class="tl-dot ' + cls + '">' +
         ui.ic(HISTORY_DOT[h.kind] || 'circle') + '</span>' +
         '<div class="tl-body"><div class="tl-action">' + esc(h.label) + '</div>' +
@@ -220,6 +239,12 @@ XRSLP.contentUI = (function () {
         (h.actorName && h.actorRole ? esc(h.actorRole) + ' · ' : '') +
         esc(util.fmtDateTime(h.at)) + '</div>' +
         (h.note ? '<p class="tl-note">' + esc(h.note) + '</p>' : '') +
+        /* 07.3 — supporting references travel WITH the entry that carries
+           them. Rendering them only in a dedicated card meant a reviewer
+           reading the history saw the reason and not the evidence that
+           came with it. `refsHTML` returns '' for an empty list, so an
+           entry without references is unchanged. */
+        refsHTML(h.refs, { title: 'Supporting references' }) +
         '</div></div>';
     }).join('') + '</div>';
   }
@@ -360,13 +385,19 @@ XRSLP.contentUI = (function () {
   function statusFilterOptions(rows, current) {
     var seen = {};
     rows.forEach(function (r) { seen[r.status] = true; });
-    var order = ['DRAFT', 'ACADEMIC_REVIEW', 'CHANGES_ACADEMIC', 'CONTENT_REVIEW', 'CHANGES_CONTENT', 'PUBLISHED'];
+    /* 07.3 — CHANGES_ACADEMIC_RECHECK joins the list. Without it a
+       screen could not filter to the status the Content Manager's
+       academic return produces, even though `matchesFilters()` and
+       `normaliseFilters()` already handled it. */
+    var order = ['DRAFT', 'ACADEMIC_REVIEW', 'CHANGES_ACADEMIC', 'CONTENT_REVIEW', 'CHANGES_CONTENT',
+                 'CHANGES_ACADEMIC_RECHECK', 'PUBLISHED'];
     var opts = '<option value="all"' + (current === 'all' ? ' selected' : '') + '>Status: all</option>';
     order.forEach(function (k) {
       if (!seen[k]) { return; }
       var m = state.contentStatusMeta(k);
       var label = m.label + (k === 'CHANGES_ACADEMIC' ? ' — academic'
-        : k === 'CHANGES_CONTENT' ? ' — content readiness' : '');
+        : k === 'CHANGES_CONTENT' ? ' — content readiness'
+        : k === 'CHANGES_ACADEMIC_RECHECK' ? ' — returned to the reviewer' : '');
       opts += '<option value="' + k + '"' + (current === k ? ' selected' : '') + '>' + esc(label) + '</option>';
     });
     return opts;
@@ -460,8 +491,133 @@ XRSLP.contentUI = (function () {
       '</div>';
   }
 
+  /* ============================================================
+     07.3 SHARED RENDERERS — supporting references and preview video.
+
+     One implementation each, used by the Vendor, the Academic Reviewer,
+     the Content Manager and the public catalogue, so the same object can
+     never be described two different ways on two screens.
+     ============================================================ */
+
+  /* ⚠ THE HONESTY LINE. A `file` reference holds the browser-reported
+     NAME and SIZE of a file somebody picked. The bytes were never read
+     and nothing was uploaded — this prototype has no server. Every
+     rendering says so; none of them offers a download that cannot work. */
+  /* Belt-and-braces at RENDER time. Every write path already refuses a
+     non-http(s) URL, but these two renderers put a stored value straight
+     into an href on surfaces that include the pre-sign-in public page, so
+     they re-check rather than trusting the gate upstream. */
+  function safeHttpUrl(u) {
+    return /^https?:\/\//i.test(String(u == null ? '' : u)) ? String(u) : null;
+  }
+
+  function refsHTML(refs, opts) {
+    var o = opts || {};
+    var list = Array.isArray(refs) ? refs : [];
+    if (!list.length) { return o.emptyHTML || ''; }
+    var anyFile = list.some(function (r) { return r.kind === 'file'; });
+    return '<div class="refs">' +
+      (o.title ? '<span class="an-k">' + esc(o.title) + '</span>' : '') +
+      '<ul class="reflist">' + list.map(function (r) {
+        if (r.kind === 'file') {
+          return '<li>' + ui.ic('doc', 'sm') +
+            '<span class="rf-n">' + esc(r.label || r.fileName) + '</span>' +
+            '<span class="rf-m">file reference' +
+            (r.fileSize != null ? ' · ' + util.fmtBytes(r.fileSize) : '') + '</span>' +
+            (r.note ? '<span class="rf-note">' + esc(r.note) + '</span>' : '') +
+            '</li>';
+        }
+        var href = safeHttpUrl(r.url);
+        return '<li>' + ui.ic('arrowR', 'sm') +
+          (href
+            ? '<a class="rf-n" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">' +
+              esc(r.label || r.url) + '</a>'
+            : '<span class="rf-n">' + esc(r.label || r.url) + '</span>') +
+          '<span class="rf-m">link</span>' +
+          (r.note ? '<span class="rf-note">' + esc(r.note) + '</span>' : '') +
+          '</li>';
+      }).join('') + '</ul>' +
+      (anyFile
+        ? '<p class="rf-warn">' + ui.ic('info', 'sm') +
+          'A file reference records the file&rsquo;s <strong>name and size only</strong>. ' +
+          'This prototype has no server, so nothing was uploaded and the file itself cannot be opened here.</p>'
+        : '') +
+      '</div>';
+  }
+
+  /* The editor. `prefix` namespaces the ids so two of these can coexist. */
+  function refsEditorHTML(prefix, opts) {
+    var o = opts || {};
+    return '<fieldset class="refed">' +
+      '<legend>' + esc(o.legend || 'Supporting references (optional)') + '</legend>' +
+      '<p class="fhint">' + esc(o.hint ||
+        'Point to a document, screenshot or reference that explains the change you are asking for.') + '</p>' +
+      '<label for="' + prefix + '-refurl">Reference link' +
+      '<input type="url" id="' + prefix + '-refurl" placeholder="https://…">' +
+      '</label>' +
+      '<label for="' + prefix + '-reflabel">What it is' +
+      '<input type="text" id="' + prefix + '-reflabel" placeholder="e.g. Annotated screenshot of the broken step">' +
+      '</label>' +
+      '<label for="' + prefix + '-reffile">Or point at a file on this machine' +
+      '<input type="file" id="' + prefix + '-reffile">' +
+      '</label>' +
+      '<p class="fhint">' + ui.ic('info', 'sm') +
+      '<strong>Nothing is uploaded.</strong> Choosing a file records its name and size so the recipient knows ' +
+      'what to ask you for. The file itself stays on your machine.</p>' +
+      '</fieldset>';
+  }
+
+  /* Reads whatever the editor above holds, in the shape the state layer
+     normalises. Returns [] when nothing was supplied — never null. */
+  function readRefs(prefix) {
+    var out = [];
+    var url = document.getElementById(prefix + '-refurl');
+    var lab = document.getElementById(prefix + '-reflabel');
+    var f = document.getElementById(prefix + '-reffile');
+    var label = lab && lab.value ? lab.value.trim() : '';
+    if (url && url.value && url.value.trim()) {
+      out.push({ kind: 'link', url: url.value.trim(), label: label });
+    }
+    if (f && f.files && f.files.length) {
+      out.push({ kind: 'file', fileName: f.files[0].name, fileSize: f.files[0].size, label: label });
+    }
+    return out;
+  }
+
+  /* The preview / demo video. `rec.previewVideo` is a URL reference the
+     Vendor supplied. `o.publicView` renders the visitor-facing block. */
+  function previewVideoHTML(rec, o) {
+    var opts = o || {};
+    var v = rec && rec.previewVideo;
+    if (!v || !v.url) {
+      return opts.emptyHTML === undefined
+        ? '<p class="muted">No preview video has been supplied for this experiment.</p>'
+        : opts.emptyHTML;
+    }
+    var pvHref = safeHttpUrl(v.url);
+    if (!pvHref) {
+      /* Stored value is not an http(s) URL, so it is not offered as a
+         link on a public page. The write path already refuses this. */
+      return opts.emptyHTML === undefined
+        ? '<p class="muted">No preview video has been supplied for this experiment.</p>'
+        : opts.emptyHTML;
+    }
+    return '<div class="pvid">' +
+      ui.ic('play', 'sm') +
+      '<a class="pv-l" href="' + esc(pvHref) + '" target="_blank" rel="noopener noreferrer">' +
+      esc(v.label || 'Preview / demo video') + '</a>' +
+      (v.note ? '<span class="pv-n">' + esc(v.note) + '</span>' : '') +
+      (opts.publicView ? '' :
+        '<span class="pv-m">Supplied by the Vendor' +
+        (v.addedAt ? ' · ' + esc(util.fmtDate(v.addedAt)) : '') +
+        ' · a link reference, not an upload</span>') +
+      '</div>';
+  }
+
   return {
     href: href,
+    refsHTML: refsHTML, refsEditorHTML: refsEditorHTML, readRefs: readRefs,
+    previewVideoHTML: previewVideoHTML,
     statusBadge: statusBadge, revisionChip: revisionChip, resubmittedChip: resubmittedChip,
     holderLine: holderLine, contextLine: contextLine,
     outcomesList: outcomesList, deliveryRows: deliveryRows, documentsList: documentsList,

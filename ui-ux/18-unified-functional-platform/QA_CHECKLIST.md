@@ -1540,7 +1540,7 @@ pass was scoped not to touch, and it discloses nothing. Flagged, not changed.
 Two independent passes, and both had to agree before anything below was marked ✅.
 
 **Pass 1 — the state layer, headless.** `qa/harness.js` + `qa/checks.js` load `utils · data ·
-ai-assist · state` outside a browser and assert the rules directly. **855 assertions, 0 failures**
+ai-assist · state` outside a browser and assert the rules directly. **1079 assertions, 0 failures**
 (429 before Implementation 07; 685 after it; **170 added by Implementation 07.1** — none removed or
 weakened, and the only two changed are the schema-version assertions, 8 → 9).
 That is where an entitlement, a licence or a published version can actually go wrong, so it is
@@ -1674,15 +1674,21 @@ simulation** so there is history worth protecting.
 | F2 | The technologies offered | **Only package technologies** — VR, never Web | ✅ |
 | F3 | Student → Simulation → *Replace or transfer my device* → the form | Submitted | ✅ `DTR-001` |
 | F4 | A **second** open request | Refused, with the reason on screen | ✅ |
-| F5 | Super Admin → Operations | It is in the queue | ✅ |
+| F5 | *(07.2)* Super Admin → Operations, **before the institution forwards it** | **Not** in the platform's queue — the table shows it as still with the institution's Tenant Admin | ✅ |
+| F5a | *(07.2)* Tenant Admin → **Device requests** | It is waiting on them | ✅ |
+| F5b | *(07.2)* Tenant Admin → the request → **Forward to the platform team** | Forwarded, attributed to the real assigned Tenant Admin, note optional | ✅ `escalated` |
+| F5c | *(07.2)* Super Admin → Operations, **after forwarding** | Now in the queue, with who forwarded it and their note | ✅ |
 | F6 | **Approve**, with the consequence dialog | Approved | ✅ |
-| F7 | The Student's own page | **Approved**, with what did and did not change | ✅ |
+| F7 | The Student's own page | **Approved**, with what did and did not change, and the forwarding step in its history | ✅ |
+| F7a | *(07.2)* The **Tenant Admin's** own list | Shows the same outcome | ✅ |
 | F8 | **Licences consumed** | **None** | ✅ assigned and remaining identical |
 | F9 | **Experiments granted** | **None** | ✅ entitlement count identical |
 | F10 | **Technologies granted** | **None** | ✅ identical list; Web still refused |
 | F11 | Assessment state | Untouched | ✅ 0 attempts |
 | F12 | A **Web-only** Student | Has no package technology, and cannot raise a request at all | ✅ both |
 | F13 | Decline with **no reason** | Nothing is written, and the screen says so | ✅ |
+| F14 | *(07.2)* **Deactivate** the institution, then try to forward | Refused, and the request stays exactly where it was | ✅ |
+| F15 | *(07.2)* An institution with **no assigned Tenant Admin** | The POC step cannot be performed, the screen says so, and **no actor is fabricated** | ✅ |
 
 ## Scenario G — support
 
@@ -1982,13 +1988,24 @@ it was verified.
 
 ## The suite
 
-**855 assertions, 0 failures**, up from 429. **426 added; none removed and none weakened** (the only
-two *changed* are the schema-version assertions, 8 → 9). Run it from this folder:
+**1079 assertions, 0 failures**, up from 429. **650 added; none removed and none weakened.** Seven
+were *changed*, each because the confirmed behaviour itself changed and never to make a build pass:
+the schema-version assertions (8 → 9 at 07.1, then 9 → 10 at 07.2), the device-transfer assertions
+in scenarios **N**, **F** and **ALTITUDES** (a Student's request now reaches the Institute / Tenant
+Admin first, so the escalation is part of reaching the Super Admin at all), and the
+canonical-metadata assertion in **GUARDS** (correcting a *published* master record now requires a
+stated reason — the refusal is asserted alongside it). Run it from this folder:
 
 ```
 /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc \
     qa/harness.js qa/checks.js
 ```
+
+> ⚠ **Both files are arguments, and there is no `--` between them.** With a `--`, `jsc` runs the
+> harness alone: it loads the state layer, prints **nothing** and exits **0** — a silent false green
+> that reads exactly like a passing run. Confirm the literal `ALL CHECKS PASSED — 1079 assertions`
+> line before believing the suite passed. *(The comment in `qa/harness.js` that documented the
+> wrong form has been corrected.)*
 
 | Scenario | What it asserts | Result |
 |---|---|:--:|
@@ -2008,6 +2025,22 @@ two *changed* are the schema-version assertions, 8 → 9). Run it from this fold
 | **Z3** | **Persistence and reset** (07.1) — created structure and registered people survive a reload; a **schema-8 state gains the seeded structure losing nothing**; reset returns to seed and leaks no custom structure | ✅ |
 | **Z4** | **Structure integrity** (07.1) — the `data.js` seed arrays are never written through (so reset restores the real seed); identifiers are permanent across a rename; **one id namespace** across Programmes, Courses and Experiments; the lookups hand out a copy, so no caller can inject structure; a Course may be moved only while **nobody is enrolled**; `courseUsage` counts every reference class; and a lagging `seq.actor` still mints a unique id | ✅ |
 | **Z5** | **The 8 → 9 migration** (07.1) — a missing seed row is back-filled, a platform-created row is never relabelled as seed, provenance is back-filled by origin, an orphaned Course is re-parented rather than discarded, and migrating twice duplicates nothing | ✅ |
+
+## Implementation 07.2 — the stakeholder-confirmed corrections
+
+Six scenarios, **190 assertions**, one per confirmed decision plus the schema step. Every one is new;
+nothing above was removed or weakened to accommodate them. The decisions themselves, and what changed
+for each, are in
+[`stakeholder-review/STAKEHOLDER_CORRECTIONS_07_2.md`](stakeholder-review/STAKEHOLDER_CORRECTIONS_07_2.md).
+
+| Scenario | What it asserts | Result |
+|---|---|:--:|
+| **AA** | **A held Experiment can be requested again for more licences** (rule A) — the institution is identifiable on the public plane and its existing plan is surfaced **per access record**; reselecting is **not blocked**; approval adds a **second** record and the tenant allocation sums to 3 + 5 = 8; the original access record is **byte-identical** afterwards and the original request's history is untouched; no second institution is created; and the Student's technologies are unchanged by the expansion | ✅ |
+| **BB** | **The device request routes through the institution POC** (rule C) — the forwarding note is optional but the **actor is not**, and it is attributed to the real assigned Tenant Admin; forwarding creates no access, consumes no licence, grants no Experiment or technology, touches no assessment state and publishes nothing; the outcome reaches **both** the Student and the Tenant Admin; a **deactivated** institution cannot forward and **loses nothing**; and an institution with **no assigned Tenant Admin** cannot perform the step, with no actor fabricated to get past it | ✅ |
+| **CC** | **Renewal follows the institution's own route** (rule D) — the route comes from the **institution**, proved in both directions against the prototype scenario selector; requesting a renewal extends nothing, records nothing and creates no second record; a duplicate in-flight renewal is refused; the plan is **mirrored** exactly; the internal route activates on approval, the external route activates **only** on a completed payment, with declined and unconfirmed outcomes extending nothing; the renewed term lands on the **existing** record so the Student keeps their entitlement without re-assignment; **no auto-renewal**; and expiry removes effective access while the completed run, its time spent and the assignment behind it all survive | ✅ |
+| **DD** | **The canonical Course code** (rule E) — blank is a legitimate permanent state; the **Content Manager** sets it and it reaches every catalogue lookup; **scope still governs**, so a Course-scoped manager is refused outside their scope; a Vendor and an Academic Reviewer are refused outright; the **Super Admin also** sets it, and a save that omits the field cannot silently blank it; uniqueness is platform-wide and case-insensitive while blanks never collide; and a **Tenant Admin's local mapping cannot redefine it** — a tenant id is not a content actor, and clearing a mapping leaves the canonical code intact | ✅ |
+| **EE** | **Platform override is explicit, reasoned and audited** (rule F) — an override with no reason (or only whitespace) is refused **and manufactures no history**; the destinations are declared with whether anybody live can act there; a real override records exactly **one** `overrides[]` entry and **exactly one** history event attributed to the platform; it creates no access, entitlement, publication or academic decision; **PUBLISHED is refused in both directions**; normal ownership is unchanged (Vendor still cannot decide academically, Reviewer still cannot publish, Vendor still cannot author an outcome) — asserted **after** an override has been used; and withdrawing a scope, singly or in bulk, now requires a reason while destroying nothing | ✅ |
+| **FF** | **The 9 → 10 migration** — a schema-9 state with the three new fields deleted loses **nothing** (requests, access, people, assignments, device requests, Courses, Programmes, content records, and entitlement still derives); the fields come back **empty rather than missing**; a stored device request's status is **not rewritten** (a request awaiting a decision is with the Tenant Admin, which is where it was); the back-fill **invents nothing**; a code a real person entered is **never re-stamped**; and migrating again duplicates nothing | ✅ |
 
 ## The assertions are load-bearing — proved, not assumed
 

@@ -32,6 +32,89 @@ XRSLP.screens = XRSLP.screens || {};
     return esc(ctx.grouping.name) + ' › ' + esc(ctx.course.name);
   }
 
+  /* ============================================================
+     EXPANSION OF EXISTING ACCESS — Implementation 07.2, rule A.
+
+     "If the same institution requests the same experiment again, they
+      can request additional licenses. It should show the existing plan
+      when they reselect."
+
+     A second request for an experiment an institution already holds has
+     always been allowed and still is: nothing below blocks, disables or
+     pre-fills anything. What these helpers add is the sentence the
+     build never said — that such a request is an EXPANSION of access
+     already in place rather than an accidental repeat of it.
+     ============================================================ */
+
+  /* One access record, named. Everything here is read from the record
+     itself, so an expired record reads as expired and a record that
+     narrows what was asked for reads as what was actually granted. */
+  function recordPhrase(rec) {
+    var termDef = data.term(rec.term);
+    var termState = state.accessTermState(rec);
+    return esc(rec.id) + ' (' + rec.quantity + ' ' + util.plural(rec.quantity, 'licence') + ', ' +
+      esc(termDef ? termDef.label : rec.term) +
+      (rec.endsOn ? ' until ' + esc(util.fmtDate(rec.endsOn)) : '') +
+      ', ' + esc(termState.label) + ')';
+  }
+
+  /* THE "UNAFFECTED" SENTENCE, NAMED.
+
+     Both decision surfaces told the institution that access it already
+     held was unaffected, and both said it in the abstract — which is
+     the least useful place to be vague, because a second request for an
+     experiment the institution already holds is exactly when the reader
+     wants to know WHICH records those are and that they are still
+     theirs, untouched, whatever happens to the request on screen.
+
+     When the request's institution does not resolve — the ordinary
+     state of a first request, before any tenant exists — the sentence
+     stays the generality it has always been. It does NOT claim there is
+     no other access: the lookup is a seeded-id-then-name match and
+     cannot support that inference.
+
+     "Earlier" became "other" deliberately. The records are selected by
+     which request wrote them, not by date, and an institution's second
+     request can be activated before a first one still sitting at the
+     payment step — so calling every other record "earlier" would state
+     an ordering the screen has not checked. */
+  function unaffectedHTML(r) {
+    var tenant = state.resolveRequestTenant(r);
+    if (!tenant) {
+      return '<p style="margin-top:8px">Any access the institution already holds under another request is ' +
+        'unaffected and continues exactly as it is.</p>';
+    }
+    /* Records written by THIS request are not other access — on the
+       payment step there are none yet, and after activation the record
+       this request created must not be listed as something it leaves
+       alone. */
+    var others = state.accessForTenant(tenant.id).filter(function (rec) {
+      /* THE RECORD A RENEWAL RENEWS IS NOT "OTHER ACCESS", and it is
+         emphatically not unaffected — it is the one thing this request
+         changes. It carries the ORIGINAL request's id, so the
+         `requestId` test above cannot exclude it, and without this a
+         renewal told the institution that the very record it is
+         renewing "continues exactly as it is". */
+      return rec.requestId !== r.id && rec.id !== r.renewsAccessId;
+    });
+    /* What this request does to the record it renews, stated plainly. */
+    var renewed = r.renewsAccessId ? state.accessById(r.renewsAccessId) : null;
+    var renewalLine = renewed
+      ? '<p style="margin-top:8px">This is a <strong>renewal</strong> of ' + recordPhrase(renewed) + '. ' +
+        'Nothing about it changes until this request completes: the same experiments, the same technologies ' +
+        'and the same licence quantity continue, and only then does its access term move forward. ' +
+        'No second access record is created, so every student already assigned under it stays assigned.</p>'
+      : '';
+    if (!others.length) {
+      return renewalLine + '<p style="margin-top:8px">' + esc(tenant.name) +
+        ' holds no access record from any other request, so there is nothing else for this one to affect.</p>';
+    }
+    return renewalLine + '<p style="margin-top:8px">Access ' + esc(tenant.name) +
+      ' already holds under its other requests is ' +
+      'unaffected and continues exactly as it is — ' + others.map(recordPhrase).join('; ') + '. ' +
+      'Each record keeps its own technologies, term and licence quantity.</p>';
+  }
+
   /* ---------------- selection basket ---------------- */
   XRSLP.screens.selection = function () {
     var items = state.selectionItems();
@@ -148,13 +231,120 @@ XRSLP.screens = XRSLP.screens || {};
     var draft = state.draft() || {};
     var techCount = items.reduce(function (n, i) { return n + i.technologies.length; }, 0);
 
+    /* Rule A. The institution is resolved from THE NAME IN THE FORM —
+       the same value `resolveRequestTenant` will match this request to
+       at approval — falling back to the prototype scenario only while
+       the field still holds its default.
+
+       Reading the scenario unconditionally was a real defect: a visitor
+       who cleared the prefilled name and typed a different institution
+       was shown the SEEDED institution's access records, licence counts
+       and terms, and told that "this request expands access <their own
+       institution> already holds". An unrecognised name now resolves to
+       null and the whole expansion framing simply does not render,
+       which is the honest answer for an institution the platform has
+       never heard of.
+
+       `state.requesterTenant` is prototype-only and grants nothing. */
+    var inst = state.requesterTenant(
+      draft.institutionName != null ? draft.institutionName : sc.institution.name);
+    var heldSel = inst ? state.heldSelectionFor(inst.id, items) : [];
+    var heldByExp = {};
+    heldSel.forEach(function (h) { heldByExp[h.experimentId] = h.rows; });
+
     var itemList = items.map(function (item) {
       var ctx = data.contextOf(item.experimentId);
+      var heldRows = heldByExp[item.experimentId];
       return '<div class="ri"><div class="ri-body">' +
         '<div class="ri-ctx">' + itemContextLine(item) + '</div>' +
-        '<div class="ri-t">' + esc(ctx.experiment.name) + '</div></div>' +
+        '<div class="ri-t">' + esc(ctx.experiment.name) + '</div>' +
+        (heldRows
+          ? '<div class="ri-ctx" style="margin-top:3px">Already held under ' +
+            heldRows.map(function (row) { return esc(row.record.id); }).join(', ') + '</div>'
+          : '') + '</div>' +
         '<div class="ri-tech">' + ui.techBadges(item.technologies) + '</div></div>';
     }).join('');
+
+    /* The expansion statement, above the form, so it is read before the
+       institution fills anything in. It names every held experiment and
+       every record separately: two records covering the same experiment
+       have independent technologies, terms and licence counts, and a
+       merged line would describe neither of them. */
+    var expansionHTML = '';
+    if (heldSel.length) {
+      /* An institution whose records have all expired still has an
+         access history for these experiments, and it still matters that
+         this request adds to it rather than repeating it — but it does
+         not "already hold" anything, so the heading does not say so. */
+      var anyLive = heldSel.some(function (h) {
+        return h.rows.some(function (row) { return row.live; });
+      });
+      var anyExpired = heldSel.some(function (h) {
+        return h.rows.some(function (row) { return !row.live; });
+      });
+
+      var heldRowsHTML = heldSel.map(function (h) {
+        var ctx = data.contextOf(h.experimentId);
+        return '<div class="ri"><div class="ri-body">' +
+          '<div class="ri-ctx">' + (ctx ? esc(ctx.grouping.name) + ' › ' + esc(ctx.course.name) : '') + '</div>' +
+          '<div class="ri-t">' + esc(ctx ? ctx.experiment.name : h.experimentId) + '</div>' +
+          h.rows.map(function (row) {
+            return '<div class="ri-ctx" style="margin-top:4px">Held under ' + recordPhrase(row.record) + ' — ' +
+              ui.techBadges(row.technologies) + '</div>';
+          }).join('') +
+          '</div></div>';
+      }).join('');
+
+      expansionHTML =
+        ui.alertBox('info',
+          anyLive
+            ? 'This request expands access ' + inst.name + ' already holds'
+            : 'This request adds to access ' + inst.name + ' has held before',
+          '<p>' + esc(inst.name) + ' already has access records covering ' + heldSel.length + ' ' +
+          util.plural(heldSel.length, 'experiment') + ' in this selection. Submitting this request asks for ' +
+          '<strong>additional licences</strong> alongside the records below — it is an expansion of existing ' +
+          'institutional access, not a repeat of it. Nothing already held is replaced, reduced or ended by ' +
+          'submitting it, and approval would add a further access record beside the existing ones rather than ' +
+          'rewriting them.</p>' +
+          '<div class="reqitems" style="margin-top:8px">' + heldRowsHTML + '</div>' +
+          (anyExpired
+            ? '<p style="margin-top:8px">A record shown as <strong>Expired</strong> is listed because it is part ' +
+              'of this institution&rsquo;s access history. While it is expired it grants nothing.</p>'
+            : '')) +
+        /* Labelled where the expansion claim is made, so the reader sees
+           the confirmed part and the open part in one place. */
+        ui.gapNote('EXPANSION SCOPE NOT SETTLED',
+          '<p>It is confirmed that an institution may request <strong>additional licences</strong> for an ' +
+          'experiment it already holds. What is <strong>not</strong> settled is whether that same expansion ' +
+          'request may also add technology variants the institution does not currently hold, or change the ' +
+          'access term of what it holds.</p>' +
+          '<p style="margin-top:6px">This build neither blocks nor assumes either answer: every technology ' +
+          'stays selectable on the selection page, every access term stays choosable below, and no rule is ' +
+          'encoded in either direction here.</p>');
+    }
+
+    /* The licence arithmetic the requester is actually doing, stated
+       once and derived rather than typed. `tenantAllocation().approved`
+       is a SUM OF APPROVED LICENCES across the institution's live access
+       records — an allocation figure, never a count of students, and it
+       is labelled that way because the same number read as "students"
+       has already caused one contradiction elsewhere in this build. */
+    var alloc = inst ? state.tenantAllocation(inst.id) : null;
+
+    function qtyExpansionHTML(rawQty) {
+      if (!alloc || !alloc.records) { return ''; }
+      var raw = String(rawQty == null ? '' : rawQty).trim();
+      var q = parseInt(raw, 10);
+      var asks = (raw !== '' && !isNaN(q) && q > 0 && String(q) === raw)
+        ? 'this request asks for a further <strong>' + q + '</strong> ' + util.plural(q, 'licence') + ' on top of that'
+        : 'the quantity entered above is a further licence figure on top of that';
+      return esc(inst.name) + ' currently holds <strong>' + alloc.approved + '</strong> approved ' +
+        util.plural(alloc.approved, 'licence') + ' across ' + alloc.records + ' live access ' +
+        util.plural(alloc.records, 'record') + ', and ' + asks +
+        '. These are licence figures, not student counts.';
+    }
+
+    var qtyExpansionLine = qtyExpansionHTML(draft.quantity);
 
     var termRadios = data.TERMS.map(function (t) {
       var checked = draft.term === t.id;
@@ -173,6 +363,7 @@ XRSLP.screens = XRSLP.screens || {};
         'Review the selection, provide your institution details, and submit for platform review.') +
       '<div class="reqlayout">' +
       '<div class="stack">' +
+      expansionHTML +
       '<form id="req-form" novalidate>' +
       '<section class="card"><div class="chead"><h2>Institution &amp; contact</h2></div><div class="cbody">' +
       '<div class="ctxpanel"><span class="cp-k">Access context:</span> ' + esc(sc.institution.accessContext) + '. ' +
@@ -198,8 +389,10 @@ XRSLP.screens = XRSLP.screens || {};
       '<section class="card"><div class="chead"><h2>Access requirements</h2></div><div class="cbody">' +
       '<div class="field" id="f-qty">' +
       '<label for="in-qty">Users / licences required <span class="req" aria-hidden="true">*</span></label>' +
-      '<input type="number" id="in-qty" min="1" step="1" inputmode="numeric" aria-describedby="qty-hint" value="' + esc(draft.quantity != null ? draft.quantity : '') + '">' +
+      '<input type="number" id="in-qty" min="1" step="1" inputmode="numeric" aria-describedby="qty-hint' +
+      (qtyExpansionLine ? ' qty-expansion' : '') + '" value="' + esc(draft.quantity != null ? draft.quantity : '') + '">' +
       '<div class="hint" id="qty-hint">How many learners and staff need access under this request. The quantity is specific to this request — there is no platform-wide cap.</div>' +
+      (qtyExpansionLine ? '<div class="hint" id="qty-expansion">' + qtyExpansionLine + '</div>' : '') +
       '</div>' +
       '<fieldset class="fgroup field" id="f-term"><legend>Access term <span class="req" aria-hidden="true">*</span></legend>' +
       termRadios +
@@ -245,6 +438,12 @@ XRSLP.screens = XRSLP.screens || {};
         /* Draft persistence — the DRAFT state of the request record. */
         form.addEventListener('input', function () {
           var f = currentFields();
+          /* The expansion line quotes the quantity being typed, so it is
+             recomputed here rather than left showing the figure the page
+             happened to render with. It is derived from the same state
+             either way — nothing is stored for it. */
+          var expLine = document.getElementById('qty-expansion');
+          if (expLine) { expLine.innerHTML = qtyExpansionHTML(f.quantityRaw); }
           state.draftSave({
             institutionName: f.institutionName,
             contactName: f.contactName,
@@ -401,6 +600,7 @@ XRSLP.screens = XRSLP.screens || {};
         ui.alertBox('warning', 'Approved — payment required',
           '<p>The platform has approved this request. Payment is required before the access under ' +
           '<strong>this request</strong> is activated.</p>' +
+          unaffectedHTML(r) +
           (r.decisionReason ? '<p style="margin-top:8px"><strong>Reviewer&rsquo;s note:</strong> ' +
             esc(r.decisionReason) + '</p>' : '') +
           '<p style="margin-top:8px"><a class="btn pri sm" href="#/payment/' + encodeURIComponent(r.id) + '">' +
@@ -420,6 +620,10 @@ XRSLP.screens = XRSLP.screens || {};
           '<p>Institutional access under this request is active' +
           (tenant ? ' for <strong>' + esc(tenant.name) + '</strong>' : '') +
           '. The institution&rsquo;s admin workspace now shows the approved content, technologies, licence quantity and access term.</p>' +
+          /* Named here too, because activation is the moment a second
+             record appears beside the first and the institution has to
+             be able to see that the first is still exactly as it was. */
+          unaffectedHTML(r) +
           (r.decisionReason
             ? '<p style="margin-top:8px"><strong>Reviewer&rsquo;s note:</strong> ' + esc(r.decisionReason) + '</p>'
             : '')) +
@@ -539,8 +743,8 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="payhead stack">' +
       ui.alertBox('warning', 'Approved — awaiting payment',
         '<p>The platform has approved this institutional request. Payment is required before the access ' +
-        'under <strong>this request</strong> is activated. Any access the institution already holds under an ' +
-        'earlier request is unaffected and continues exactly as it is.</p>') +
+        'under <strong>this request</strong> is activated.</p>' +
+        unaffectedHTML(r)) +
       outcomeBlock +
       ui.card('What will be activated',
         (narrowed
@@ -590,7 +794,15 @@ XRSLP.screens = XRSLP.screens || {};
           });
         }
         wire('pay-simulate', state.PAYMENT_OUTCOME.SUCCESS, function (updated) {
-          ui.toast('Payment simulated — access for ' + updated.institution.name + ' is now active.');
+          /* 07.3 — a RENEWAL activates nothing new. It extends the term
+             of an access record the institution already holds, so saying
+             "access is now active" would describe the wrong event and
+             imply a second grant. The screen body already says which
+             record was renewed; the toast now agrees with it. */
+          ui.toast(updated.renewsAccessId
+            ? 'Payment simulated — the renewal of ' + updated.renewsAccessId + ' is now activated ' +
+              'and its term extended. No new access was created.'
+            : 'Payment simulated — access for ' + updated.institution.name + ' is now active.');
           XRSLP.router.go('#/request-status/' + encodeURIComponent(r.id));
         });
         wire('pay-declined', state.PAYMENT_OUTCOME.DECLINED, function () {

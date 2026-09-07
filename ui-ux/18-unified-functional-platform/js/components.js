@@ -33,6 +33,8 @@ XRSLP.ui = (function () {
     monitor: '<rect x="3" y="4.5" width="18" height="12.5" rx="2"/><path d="M9 21h6M12 17.5V21"/>',
     play: '<circle cx="12" cy="12" r="8.5"/><path d="M10 8.8l5 3.2-5 3.2V8.8z"/>',
     doc: '<path d="M6.5 3h7L18.5 8v11a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M13.5 3v5h5"/><path d="M9 13h6M9 16.5h6"/>',
+    /* 07.3 — the Faculty progress export. */
+    download: '<path d="M12 3v12"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 18.5h15"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     minus: '<path d="M6 12h12"/>',
     home: '<path d="M4 11l8-7 8 7"/><path d="M6 9.8V20h12V9.8"/><path d="M10 20v-5.5h4V20"/>',

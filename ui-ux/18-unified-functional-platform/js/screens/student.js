@@ -381,6 +381,58 @@ XRSLP.studentUI = (function () {
       '</dl>';
   }
 
+  /* ============================================================
+     ⚠ THE COMPLETION-CONFIRMATION CAVEAT — OWNED IN ONE PLACE.
+
+     Implementation 07.3 (R10). This note already existed, but it lived on
+     the simulation screen alone. Every OTHER student surface asserted a
+     completion without it: a "Completion recorded" badge and a
+     "Completion" sequence step on the Experiment page, a completion
+     percentage, "Completed" on a card and in a roll-up. A reader who
+     never opened the simulation page was therefore shown a completion as
+     a settled fact — which is exactly the claim the platform cannot make
+     yet. The wording is owned here so every screen that asserts a
+     completion renders the SAME sentence, and so it can never drift.
+
+     ⚠ THE CLAIM DOES NOT VARY, AND NAMES NOTHING.
+     No verb, endpoint, payload, provider, event name or screenshot rule
+     appears below, because none has been chosen. Naming one would invent
+     the very decision this note exists to say is still open. Only the
+     closing sentence changes, and only to say where the completions on
+     THAT screen actually came from.
+
+     `control`  — the screen carries the prototype control itself.
+     `figures`  — the screen only reports completions recorded elsewhere.
+     ============================================================ */
+  var COMPLETION_GAP_CLAIM =
+    'How a finished run is confirmed back to the platform is <strong>not settled</strong>. An API or ' +
+    'event call between the experiment runtime and the platform has been discussed and is the expected ' +
+    'direction, but no contract, endpoint, payload or provider has been chosen, and none is built here. ';
+  var COMPLETION_GAP_CLOSING = {
+    control: 'The control on this page is a prototype stand-in so the learning journey can be shown end to end.',
+    figures: 'Every completion shown on this page was recorded through that prototype control on the ' +
+      'simulation page — none of it was reported by the experiment.'
+  };
+  function completionGapNote(kind) {
+    return ui.gapNote('COMPLETION CONFIRMATION NOT DECIDED',
+      COMPLETION_GAP_CLAIM + (COMPLETION_GAP_CLOSING[kind] || COMPLETION_GAP_CLOSING.figures));
+  }
+
+  /* Does a screen actually ASSERT a completion? A list of experiments
+     none of which has been finished claims nothing, and the stakeholder
+     asked for less on these screens, not more — so the caveat is rendered
+     where a completion is stated and nowhere else. `items` is the shape
+     `state.studentProgressSummary().items` returns. */
+  function assertsCompletion(items) {
+    return items.some(function (it) {
+      var prog = it.progress || it;
+      if (prog.status === state.TECH_PROGRESS.COMPLETED) { return true; }
+      return (prog.technologies || []).some(function (t) {
+        return t.simulationStatus === state.SIM_STATUS.COMPLETED;
+      });
+    });
+  }
+
   /* Time spent, only ever shown when a real interval was recorded. */
   function fmtDuration(seconds) {
     if (!seconds && seconds !== 0) { return '—'; }
@@ -402,6 +454,7 @@ XRSLP.studentUI = (function () {
     techStateChips: techStateChips,
     courseLine: courseLine, sequenceStrip: sequenceStrip,
     accountNotice: accountNotice, fmtDuration: fmtDuration,
+    completionGapNote: completionGapNote, assertsCompletion: assertsCompletion,
     questionBody: questionBody, disclosureRows: disclosureRows
   };
 })();
@@ -515,6 +568,35 @@ XRSLP.studentUI = (function () {
 
   /* ============================================================
      STUDENT HOME
+
+     ⚠ 07.3 (R09) — WHAT THIS SCREEN HAD TO STOP DOING.
+     Home never LISTED a single experiment. In the resume state the only
+     link in its main region was the one experiment already in progress;
+     everything else the Student was entitled to sat behind a number on a
+     stat tile that led nowhere, reachable only through the left nav rail.
+     Three cards of counts and explanation stood above no actual way in —
+     which is what the stakeholder read as "too much content".
+
+     So Home is now a LIST of what the Student may open, every row opening
+     its experiment directly, ordered so work that can be picked up or
+     started sits at the top and finished work falls to the bottom.
+
+     ⚠ THE STAT GRID IS GONE, NOT HIDDEN — AND NOTHING IT COUNTED IS.
+     Every state those tiles counted is now stated where it belongs: a
+     progress badge on each experiment's own row, a section of its own for
+     blocked entitlements and for earlier work, and one line of counts in
+     words under the list. A number that names a state you can now see on
+     the row itself is duplication, and duplication is what made this
+     screen long. What is NOT allowed to disappear is entitlement truth —
+     see the blocked section below.
+
+     ⚠ SIMPLIFICATION MUST NEVER TURN "NOT ENTITLED" INTO SILENCE.
+     An experiment that is assigned but not openable is not the same as
+     one that was never assigned, and dropping it would read to the
+     Student as the latter. It therefore gets its own section, with the
+     same reason sentence the rest of the workspace uses, and — because
+     there is genuinely nothing to open — no control at all rather than a
+     disabled one.
      ============================================================ */
   XRSLP.screens.studentHome = function (params) {
     var r = L.requireStudent(params, 'home');
@@ -524,6 +606,10 @@ XRSLP.studentUI = (function () {
     var mem = state.studentCourseMembership(p.id);
     var summary = state.studentProgressSummary(p.id);
     var past = state.studentPastExperiments(p.id);
+    /* Assigned, but not currently openable. `studentProgressSummary`
+       counts these and does not carry them, so the rows come from the
+       same read model My Learning uses — there is no second source. */
+    var blocked = state.studentExperiments(p.id).filter(function (row) { return !row.effective; });
 
     /* "Continue learning" points at real work in progress, and only
        exists when there is some. */
@@ -536,25 +622,72 @@ XRSLP.studentUI = (function () {
     });
     var resume = inProgress[0] || null;
 
-    var statItems = [
-      { label: 'Experiments available to you', value: summary.entitled },
-      { label: 'In progress', value: summary.inProgress },
-      { label: 'Completed', value: summary.completed }
-    ];
-    if (summary.awaiting > 0) {
-      statItems.push({ label: 'Pending Faculty review', value: summary.awaiting, tone: 'warn' });
+    function nameOf(experimentId) {
+      var c = data.contextOf(experimentId);
+      return c ? c.experiment.name : experimentId;
     }
-    if (summary.awaitingRelease > 0) {
-      statItems.push({ label: 'Result pending release', value: summary.awaitingRelease, tone: '' });
+
+    /* THE ORDER OF THE LIST IS THE POINT OF THE LIST. Work that can be
+       picked up comes first, then work not started yet; states that are
+       waiting on somebody else, and work already finished, sink. Within a
+       rank the most recently touched comes first, then alphabetically, so
+       the order is stable between renders. */
+    var RANK = {};
+    RANK[state.TECH_PROGRESS.IN_PROGRESS] = 0;
+    RANK[state.TECH_PROGRESS.NOT_STARTED] = 1;
+    RANK[state.TECH_PROGRESS.PENDING_REVIEW] = 2;
+    RANK[state.TECH_PROGRESS.RESULT_WITHHELD] = 3;
+    RANK[state.TECH_PROGRESS.COMPLETED] = 4;
+    function rankOf(it) {
+      var v = RANK[it.progress.status];
+      return v === undefined ? 5 : v;
     }
-    if (summary.unavailable > 0) {
-      statItems.push({ label: 'Not currently available', value: summary.unavailable, tone: 'warn' });
+    var ordered = summary.items.slice().sort(function (a, b) {
+      var d = rankOf(a) - rankOf(b);
+      if (d !== 0) { return d; }
+      var x = a.progress.lastActivityAt || '', y = b.progress.lastActivityAt || '';
+      if (x !== y) { return x < y ? 1 : -1; }
+      var na = nameOf(a.row.experimentId), nb = nameOf(b.row.experimentId);
+      return na < nb ? -1 : na > nb ? 1 : 0;
+    });
+
+    /* The verb matches what pressing it does. "Review" for finished work
+       is not a euphemism for "start again" — the experiment page is
+       readable in every state. */
+    function openLabel(status) {
+      if (status === state.TECH_PROGRESS.COMPLETED) { return 'Review'; }
+      if (status === state.TECH_PROGRESS.NOT_STARTED) { return 'Start learning'; }
+      return 'Continue';
     }
-    var stats = '<div class="statgrid">' + statItems.map(function (it) {
-      return '<div class="stat' + (it.tone ? ' ' + it.tone : '') + '">' +
-        '<div class="s-k">' + esc(it.label) + '</div>' +
-        '<div class="s-v tabular">' + esc(String(it.value)) + '</div></div>';
-    }).join('') + '</div>';
+    function expRow(it) {
+      var prog = it.progress;
+      var eid = it.row.experimentId;
+      var primary = prog.status === state.TECH_PROGRESS.IN_PROGRESS ||
+                    prog.status === state.TECH_PROGRESS.NOT_STARTED;
+      return '<li class="pickrow">' +
+        '<div class="pk-body">' +
+        '<div class="pk-n">' + esc(nameOf(eid)) + ' ' + L.progressBadge(prog.status) + '</div>' +
+        '<div class="pk-m">' + L.courseLine(eid) + '</div>' +
+        '<div class="pk-e">' + esc(L.simulationSentence(prog)) +
+        (prog.steps
+          ? ' <span class="tabular">' + prog.steps.done + ' of ' + prog.steps.total + ' steps</span>' : '') +
+        '</div>' +
+        '</div>' +
+        '<a class="btn sm ' + (primary ? 'pri' : 'sec') + '" href="' + L.href.experiment(p.id, eid) + '">' +
+        esc(openLabel(prog.status)) + '</a>' +
+        '</li>';
+    }
+
+    /* The counts the stat grid used to carry, in one line of words. Only
+       states that actually occur are named — a row of zeroes is noise. */
+    var countBits = [];
+    if (summary.inProgress) { countBits.push(summary.inProgress + ' in progress'); }
+    if (summary.notStarted) { countBits.push(summary.notStarted + ' not started'); }
+    if (summary.awaiting) { countBits.push(summary.awaiting + ' pending Faculty review'); }
+    if (summary.awaitingRelease) {
+      countBits.push(summary.awaitingRelease + ' with a result pending release');
+    }
+    if (summary.completed) { countBits.push(summary.completed + ' completed'); }
 
     var whereCard = ui.card('Where you are studying',
       '<div class="kv">' +
@@ -568,33 +701,14 @@ XRSLP.studentUI = (function () {
       '<div class="k">Student ID</div><div class="v">' + esc(p.studentId || '—') + '</div>' +
       '</div>', null, 'h2');
 
-    var actionCard;
-    if (p.status !== 'active') {
-      actionCard = '';
-    } else if (summary.entitled === 0) {
-      /* Implementation 06 — an experiment that is assigned but currently
-         unavailable is not the same as one that was never assigned. The
-         roll-up already counts the blocked ones, so the copy must not
-         contradict the number beside it. */
-      var blockedNow = state.studentExperiments(p.id).filter(function (row) { return !row.effective; });
-      actionCard = ui.card('Your learning',
-        ui.emptyState(blockedNow.length
-          ? { icon: 'alertCirc', heading: 'h3',
-              title: 'Nothing is available to you right now',
-              body: blockedNow.length + ' ' + util.plural(blockedNow.length, 'experiment') + ' ' +
-                (blockedNow.length === 1 ? 'has' : 'have') + ' been assigned to you but cannot be opened ' +
-                'at the moment. ' + L.unavailableText(blockedNow[0].blockedBy) +
-                ' Everything you have already done is kept.',
-              actionsHTML: '<a class="btn sec sm" href="' + L.href.myLearning(p.id) + '">Open My Learning</a>' }
-          : { icon: 'flask', heading: 'h3',
-              title: 'No experiments have been assigned to you yet',
-              body: 'Experiments appear here once your institution assigns them to you. Being enrolled on a ' +
-                'course, or belonging to a study group, does not by itself make an experiment available.',
-              actionsHTML: '<a class="btn sec sm" href="' + L.href.myLearning(p.id) + '">Open My Learning</a>' }
-        ), null, 'h2');
-    } else if (resume) {
+    /* CONTINUE LEARNING, and only when there is something to continue.
+       It repeats a row from the list below on purpose: the list is
+       complete and predictable, and this is the one thing the Student is
+       most likely to have come back for. */
+    var resumeCard = '';
+    if (resume && p.status === 'active') {
       var ctx = data.contextOf(resume.row.experimentId);
-      actionCard = ui.card('Continue where you left off',
+      resumeCard = ui.card('Continue where you left off',
         '<div class="resume">' +
         '<div class="rz-body">' +
         '<div class="rz-ctx">' + L.courseLine(resume.row.experimentId) + '</div>' +
@@ -605,33 +719,95 @@ XRSLP.studentUI = (function () {
         '</div>' +
         '<a class="btn pri" href="' + L.href.experiment(p.id, resume.row.experimentId) + '">Continue learning</a>' +
         '</div>', null, 'h2');
-    } else {
-      actionCard = ui.card('Your learning',
-        '<p class="cardlede">' + summary.entitled + ' ' + util.plural(summary.entitled, 'experiment') +
-        ' ' + (summary.entitled === 1 ? 'is' : 'are') + ' available to you' +
-        (summary.completed ? ', and ' + summary.completed + ' ' + util.plural(summary.completed, 'is', 'are') +
-          ' already complete' : '') + '.</p>' +
-        '<div class="formact"><a class="btn pri" href="' + L.href.myLearning(p.id) + '">Open My Learning</a></div>',
-        null, 'h2');
+    }
+
+    /* THE LIST. Every experiment the Student may open, each with its own
+       way in — this is the whole point of R09. */
+    var listCard = '';
+    if (ordered.length) {
+      listCard = ui.card('Your experiments',
+        '<ul class="picklistr">' + ordered.map(expRow).join('') + '</ul>' +
+        (countBits.length ? '<p class="cardfoot">' + esc(countBits.join(' · ')) + '.</p>' : '') +
+        '<div class="formact">' +
+        '<a class="btn sec sm" href="' + L.href.myLearning(p.id) + '">Open My Learning</a>' +
+        '<a class="btn sec sm" href="' + L.href.progress(p.id) + '">See your progress</a>' +
+        '<span class="formnote">My Learning shows each one in full detail.</span>' +
+        '</div>',
+        ordered.length + ' available to you', 'h2');
+    } else if (p.status === 'active') {
+      /* Nothing effective. An experiment that is assigned but held back is
+         not the same as one that was never assigned, and the section below
+         states the reason for each — so this empty state says which of the
+         two it is and stops there, instead of repeating the reason. */
+      listCard = ui.card('Your experiments',
+        ui.emptyState(blocked.length
+          ? { icon: 'alertCirc', heading: 'h3',
+              title: 'Nothing is available to you right now',
+              body: blocked.length + ' ' + util.plural(blocked.length, 'experiment') + ' ' +
+                (blocked.length === 1 ? 'has' : 'have') + ' been assigned to you but cannot be opened at ' +
+                'the moment. The reason is below, and everything you have already done is kept.' }
+          : { icon: 'flask', heading: 'h3',
+              title: 'No experiments have been assigned to you yet',
+              body: 'Being enrolled on a course, or belonging to a study group, does not by itself make ' +
+                'an experiment available. Your institution assigns them.' }
+        ), null, 'h2');
+    }
+
+    /* ⚠ ENTITLEMENT TRUTH SURVIVES THE SIMPLIFICATION.
+       Home used to reduce this to a stat tile reading "Not currently
+       available: 2". The Student could see the number and never the
+       reason, and could not tell it apart from never having been
+       assigned anything. Each row now names its experiment and says why
+       it cannot be opened, in the same words the rest of the workspace
+       uses. NO CONTROL IS RENDERED on these rows — there is genuinely
+       nothing to open, and a disabled button would only invite a click
+       that can never work. */
+    var blockedCard = '';
+    if (blocked.length) {
+      blockedCard = ui.card('Not available at the moment',
+        '<ul class="picklistr">' + blocked.map(function (row) {
+          return '<li class="pickrow"><div class="pk-body">' +
+            '<div class="pk-n">' + esc(nameOf(row.experimentId)) + ' ' +
+            ui.badge('b-warning', 'alert', 'Not available') + '</div>' +
+            '<div class="pk-m">' + L.courseLine(row.experimentId) + '</div>' +
+            '<div class="pk-e">' + esc(L.unavailableText(row.blockedBy)) + '</div>' +
+            '</div></li>';
+        }).join('') + '</ul>' +
+        '<p class="cardfoot">These experiments are still assigned to you. Nothing has been removed, and ' +
+        'everything you have already done is kept. Your institution administers this.</p>',
+        blocked.length + ' ' + util.plural(blocked.length, 'experiment'), 'h2');
     }
 
     var pastNote = past.length
       ? ui.card('Earlier work',
           '<p class="cardlede">' + past.length + ' ' + util.plural(past.length, 'experiment') +
-          ' you previously worked on ' + (past.length === 1 ? 'is' : 'are') +
-          ' no longer available to you. Your record of that work is kept.</p>' +
+          ' you worked on ' + (past.length === 1 ? 'is' : 'are') +
+          ' no longer assigned to you. Your record of that work is kept.</p>' +
           '<div class="formact"><a class="btn sec sm" href="' + L.href.progress(p.id) + '">See your progress</a></div>',
           null, 'h2')
       : '';
 
+    /* R10 — this screen states completions (a "Completed" badge on a row,
+       a roll-up sentence naming a completed simulation), so it carries the
+       caveat that says how a completion actually got here. It is rendered
+       only when a completion is actually asserted: on a Home with nothing
+       finished the note would qualify a claim nobody made. */
+    var completionNote = L.assertsCompletion(ordered) ? L.completionGapNote('figures') : '';
+
+    /* Reading order: what you can do, then what you cannot and why, then
+       your record, then the caveat over the completions above, and last
+       the reference facts about where you study — which are true but are
+       nobody's reason for opening this page. */
     var html =
       ui.phead('Hello, ' + p.name, esc(tenant.name)) +
       '<div class="stack">' +
       L.accountNotice(p) +
-      (actionCard || '') +
-      ui.card('Your learning at a glance', stats, null, 'h2') +
-      whereCard +
+      resumeCard +
+      listCard +
+      blockedCard +
       pastNote +
+      completionNote +
+      whereCard +
       '</div>';
 
     return {
@@ -653,9 +829,21 @@ XRSLP.studentUI = (function () {
     var blocked = rows.filter(function (x) { return !x.effective; });
     var past = state.studentPastExperiments(p.id);
 
+    /* R10 — every card below can print "Completed", a completion date and
+       a percentage derived from a recorded simulation completion. The
+       caveat that says where a completion actually came from is therefore
+       rendered on this screen too, and each card reports whether it
+       asserted one, so a My Learning holding nothing finished is not
+       given a note qualifying a claim it never made. */
+    var showsCompletion = false;
+    function noteCompletion(prog) {
+      if (L.assertsCompletion([prog])) { showsCompletion = true; }
+    }
+
     function card(row) {
       var ctx = data.contextOf(row.experimentId);
       var prog = state.experimentProgress(p.id, row.experimentId, row.technologies, { studentView: true });
+      noteCompletion(prog);
       var name = ctx ? ctx.experiment.name : row.experimentId;
       var actionLabel =
         prog.status === state.TECH_PROGRESS.COMPLETED ? 'Review experiment' :
@@ -693,6 +881,7 @@ XRSLP.studentUI = (function () {
       var techs = row.technologies.concat(row.blockedTechnologies);
       var prog = state.experimentProgress(p.id, row.experimentId, techs, { studentView: true });
       var touched = state.hasActivity(p.id, row.experimentId);
+      if (touched) { noteCompletion(prog); }
       return '<article class="lcard blocked">' +
         '<div class="lc-head">' +
         '<div class="lc-ctx">' + L.courseLine(row.experimentId) + '</div>' +
@@ -722,6 +911,7 @@ XRSLP.studentUI = (function () {
          covered is unknown and no completion verdict can be claimed. */
       var prog = state.experimentProgress(p.id, experimentId, techs,
         { historical: true, studentView: true });
+      noteCompletion(prog);
       return '<article class="lcard past">' +
         '<div class="lc-head">' +
         '<div class="lc-ctx">' + L.courseLine(experimentId) + '</div>' +
@@ -786,7 +976,8 @@ XRSLP.studentUI = (function () {
         'The experiments made available to you by ' + esc(tenant.name) + '.') +
       L.accountNotice(p) +
       (p.status !== 'active' ? '<div style="height:16px"></div>' : '') +
-      body;
+      body +
+      (showsCompletion ? '<div style="margin-top:24px">' + L.completionGapNote('figures') + '</div>' : '');
 
     return {
       area: 'learn', title: 'My Learning — ' + p.name, html: html,
@@ -1012,6 +1203,20 @@ XRSLP.studentUI = (function () {
           'not confirmed product policy.</em></span></li>' +
           '<li>' + ui.ic('clock', 'sm') + '<span>Nothing is ever counted as complete while a written answer ' +
           'is still pending Faculty review.</span></li>' +
+          /* A DIFFERENT CAVEAT FROM THE ROLL-UP ONE ABOVE, and it belongs
+             here because this is where a completion figure is read in bulk.
+             The rule above says the prototype's way of rolling technologies
+             up into one experiment is unconfirmed. This says something
+             narrower and earlier: the simulation completions those figures
+             are counted FROM are entered by hand on the simulation page,
+             because how a finished run confirms itself back to the platform
+             is not decided. Without it, a percentage read here looks like it
+             came from the experiment. */
+          '<li>' + ui.ic('info', 'sm') + '<span>A simulation counts as complete once it is recorded on the ' +
+          'simulation page. How a finished run in the experiment itself is confirmed back to the platform ' +
+          'is <strong>not settled</strong> — an API or event call has been discussed and nothing about it ' +
+          'is chosen or built — so every simulation figure here comes from that prototype control, not from ' +
+          'the experiment.</span></li>' +
           '</ul>', null, 'h2') +
         '</div>';
     }

@@ -241,8 +241,13 @@ XRSLP.screens = XRSLP.screens || {};
           ui.card('What this experiment carries today',
             '<div class="kv">' +
             '<div class="k">Course</div><div class="v">' + esc(ctx.course.name) + '</div>' +
-            '<div class="k">Available technologies</div><div class="v">' +
-              (F.mappedTechnologies(row).length ? ui.techBadges(F.mappedTechnologies(row)) : 'None') + '</div>' +
+            /* AVAILABILITY, not use. The distinction is the stakeholder's:
+               what the institution licensed is a different question from
+               what any student actually ran. */
+            '<div class="k">Technologies licensed to this institution</div><div class="v">' +
+              (F.mappedTechnologies(row).length ? ui.techBadges(F.mappedTechnologies(row)) : 'None') +
+              '<span class="tsub2">What the institution holds. What each student actually used is ' +
+              'shown on their own review.</span></div>' +
             '<div class="k">Students entitled</div><div class="v tabular">' + reach.length + '</div>' +
             '<div class="k">Learning resources</div><div class="v tabular">' +
               data.resourcesFor(e.id).length + '</div>' +
@@ -838,12 +843,32 @@ XRSLP.screens = XRSLP.screens || {};
   /* ============================================================
      QUESTION BANK — Add · Edit · DELETE (STK31-34)
      ============================================================ */
-  var bankFilter = { owner: null, type: '', experimentId: '', q: '' };
+  var bankFilter = { owner: null, type: '', courseId: '', experimentId: '', q: '' };
   function bankFilterFor(facultyId) {
     if (bankFilter.owner !== facultyId) {
-      bankFilter = { owner: facultyId, type: '', experimentId: '', q: '' };
+      bankFilter = { owner: facultyId, type: '', courseId: '', experimentId: '', q: '' };
     }
     return bankFilter;
+  }
+
+  /* ── THE COURSE HALF OF A QUESTION'S ASSOCIATION ──────────────────
+     `question.courseId` is written by the state layer on add and on
+     edit, from the canonical Course the chosen Experiment belongs to.
+     Until 07.3 nothing read it back, so the Course a question sits
+     under was STORED BUT INVISIBLE — the exact gap the stakeholder
+     asked about ("where will it go and sit — will it be tagged, or
+     listed under soil mechanics?").
+
+     Read the stored value FIRST, because that is the association the
+     platform actually holds. The fallback derives the same fact from
+     the Experiment and exists only for a record written before the
+     field was stored; it never invents a Course for a question that
+     genuinely has none — an unresolvable one returns '' and the row
+     says so rather than guessing. */
+  function questionCourseId(q) {
+    if (q.courseId) { return q.courseId; }
+    var c = data.contextOf(q.experimentId);
+    return c && c.course ? c.course.id : '';
   }
 
   XRSLP.screens.facultyQuestionBank = function (params) {
@@ -869,13 +894,50 @@ XRSLP.screens = XRSLP.screens || {};
     }
 
     var mappedIds = scope.experiments.map(function (x) { return x.experimentId; });
+
+    /* The Courses offered are DERIVED from the faculty member's own
+       mapped Experiments and nothing else — a filter must never offer a
+       Course this person has no content in, and must never reach past
+       the mapping boundary `facultyScope` draws. `scope.experiments` is
+       already sorted by Course then Experiment, so first-seen order is
+       Course-name order and no second sort is needed. */
+    var courseOptions = [];
+    var seenCourse = {};
+    scope.experiments.forEach(function (row) {
+      var c = data.contextOf(row.experimentId);
+      if (!c || !c.course || seenCourse[c.course.id]) { return; }
+      seenCourse[c.course.id] = true;
+      courseOptions.push(c.course);
+    });
+
+    if (bankFilter.courseId && !seenCourse[bankFilter.courseId]) { bankFilter.courseId = ''; }
     if (bankFilter.experimentId && mappedIds.indexOf(bankFilter.experimentId) === -1) {
       bankFilter.experimentId = '';
     }
+    /* A Course and an Experiment that contradict each other would show
+       an empty table and explain nothing — the opposite of making the
+       association understandable. Narrowing the Course therefore drops
+       an Experiment that is not inside it, rather than leaving the two
+       controls silently fighting. */
+    if (bankFilter.courseId && bankFilter.experimentId) {
+      var selCtx = data.contextOf(bankFilter.experimentId);
+      if (!selCtx || !selCtx.course || selCtx.course.id !== bankFilter.courseId) {
+        bankFilter.experimentId = '';
+      }
+    }
+    /* The Experiment options follow the chosen Course, so the two
+       filters read as one association rather than two unrelated lists. */
+    var expOptions = scope.experiments.filter(function (row) {
+      if (!bankFilter.courseId) { return true; }
+      var c = data.contextOf(row.experimentId);
+      return !!(c && c.course && c.course.id === bankFilter.courseId);
+    });
+
     var all = state.questionsForFaculty(f.id);
     var qq = data.norm(bankFilter.q);
     var rows = all.filter(function (q) {
       if (bankFilter.type && q.type !== bankFilter.type) { return false; }
+      if (bankFilter.courseId && questionCourseId(q) !== bankFilter.courseId) { return false; }
       if (bankFilter.experimentId && q.experimentId !== bankFilter.experimentId) { return false; }
       if (qq && data.norm(q.text).indexOf(qq) === -1) { return false; }
       return true;
@@ -883,14 +945,24 @@ XRSLP.screens = XRSLP.screens || {};
 
     var tableHTML = rows.length
       ? '<div class="tscroll"><table class="dt">' +
-        '<caption class="sr-only">Questions in your bank, for the experiments mapped to you.</caption>' +
+        '<caption class="sr-only">Questions in your bank, with the Course and Experiment each one is filed ' +
+        'under, for the experiments mapped to you.</caption>' +
         '<thead><tr><th scope="col">Question</th><th scope="col">Type</th>' +
-        '<th scope="col" class="num">Marks</th><th scope="col">Experiment</th>' +
+        '<th scope="col" class="num">Marks</th><th scope="col">Course</th>' +
+        '<th scope="col">Experiment</th>' +
         '<th scope="col">Used in</th><th scope="col">Updated</th>' +
         '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
         rows.map(function (q) {
           var usage = state.questionUsage(q.id);
           var ctx = data.contextOf(q.experimentId);
+          var qCourseId = questionCourseId(q);
+          var qCourse = qCourseId ? data.course(qCourseId) : null;
+          /* The institution's own code for this Course, shown BENEATH the
+             canonical name and labelled as local. It is an extra way to
+             recognise the Course, never a replacement for it — a
+             tenant-local code must not stand in for, or overwrite, the
+             canonical Course this question is actually filed under. */
+          var localMap = qCourseId ? state.courseMapping(tenant.id, qCourseId) : null;
           return '<tr>' +
             '<td data-label="Question"><a class="rowlink" href="' + F.href.question(f.id, q.id) + '">' +
               '<span class="tmain">' + esc(q.text) + '</span>' +
@@ -899,6 +971,11 @@ XRSLP.screens = XRSLP.screens || {};
               '</a></td>' +
             '<td data-label="Type">' + F.typeBadge(q.type) + '</td>' +
             '<td data-label="Marks" class="num tabular">' + (q.points || 1) + '</td>' +
+            '<td data-label="Course">' + (qCourse
+              ? '<span class="tmain">' + esc(qCourse.name) + '</span>' +
+                (localMap && localMap.localCode
+                  ? '<span class="tsub2">Local code ' + esc(localMap.localCode) + '</span>' : '')
+              : '<span class="muted">Not recorded</span>') + '</td>' +
             '<td data-label="Experiment">' + esc(ctx ? ctx.experiment.name : q.experimentId) + '</td>' +
             '<td data-label="Used in">' + (usage.assessments.length
               ? usage.assessments.length + ' ' + util.plural(usage.assessments.length, 'assessment')
@@ -917,7 +994,7 @@ XRSLP.screens = XRSLP.screens || {};
           icon: all.length ? 'search' : 'book', heading: 'h2',
           title: all.length ? 'No question matches these filters' : 'Your Question Bank is empty',
           body: all.length
-            ? 'Change the search, the type or the experiment filter.'
+            ? 'Change the search, or the course, type or experiment filter.'
             : 'Write a question yourself, or draft some with assistance and review them before adding.',
           actionsHTML: all.length
             ? '<button class="btn sec" type="button" id="qb-clear">Clear filters</button>'
@@ -941,16 +1018,38 @@ XRSLP.screens = XRSLP.screens || {};
         return '<option value="' + esc(t) + '"' + (bankFilter.type === t ? ' selected' : '') + '>' +
           esc(state.QUESTION_TYPES[t]) + '</option>';
       }).join('') + '</select></label>' +
+      '<label for="qb-c">Course<select id="qb-c">' +
+      '<option value="">All mapped courses</option>' +
+      courseOptions.map(function (c) {
+        return '<option value="' + esc(c.id) + '"' +
+          (bankFilter.courseId === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+      }).join('') + '</select></label>' +
       '<label for="qb-e">Experiment<select id="qb-e">' +
-      '<option value="">All mapped experiments</option>' +
-      scope.experiments.map(function (row) {
+      '<option value="">' + (bankFilter.courseId
+        ? 'All experiments in this course' : 'All mapped experiments') + '</option>' +
+      /* The label carries the Course as well as the Experiment, exactly
+         as the question form and the draft form do. Stripping it here
+         was what made the association look like an Experiment-only fact
+         on the one screen where the whole bank is listed. */
+      expOptions.map(function (row) {
         var c = data.contextOf(row.experimentId);
         return '<option value="' + esc(row.experimentId) + '"' +
           (bankFilter.experimentId === row.experimentId ? ' selected' : '') + '>' +
-          esc(c ? c.experiment.name : row.experimentId) + '</option>';
+          esc(c ? c.course.name + ' — ' + c.experiment.name : row.experimentId) + '</option>';
       }).join('') + '</select></label>' +
       '<span class="lcount">' + rows.length + ' of ' + all.length + ' shown</span>' +
       '</div>' + tableHTML + '</div>' +
+      ui.alertBox('info', 'Every question is filed under a Course and an Experiment',
+        /* Worded so it stays true when the list is filtered down to
+           nothing: it describes where a question is FILED, not what is
+           on screen at this moment. */
+        '<p>A question is stored against the Experiment you chose for it, and against the Course that ' +
+        'Experiment belongs to. Every row in this list names both, and the Course and Experiment filters ' +
+        'search exactly that — there is no free-text tag to keep up to date, and no question can sit outside ' +
+        'a Course.</p>' +
+        '<p style="margin-top:8px">A draft made with assistance is filed exactly the same way, under the ' +
+        'Experiment chosen in the draft form — but only once <strong>you</strong> add it. Until then it is not ' +
+        'in this bank at all, and any row that came from a draft says so under the question text.</p>') +
       ui.alertBox('info', 'Deleting a question never deletes a result',
         '<p>Delete removes a question from your active Question Bank. An assessment that already contains it ' +
         'keeps its copy, and every attempt a student has already submitted keeps the question, the answer key ' +
@@ -980,11 +1079,12 @@ XRSLP.screens = XRSLP.screens || {};
         }
         bindFilter('qb-q', 'q', true);
         bindFilter('qb-t', 'type', false);
+        bindFilter('qb-c', 'courseId', false);
         bindFilter('qb-e', 'experimentId', false);
         var clear = document.getElementById('qb-clear');
         if (clear) {
           clear.addEventListener('click', function () {
-            bankFilter = { owner: f.id, type: '', experimentId: '', q: '' };
+            bankFilter = { owner: f.id, type: '', courseId: '', experimentId: '', q: '' };
             XRSLP.render(true);
           });
         }
@@ -1175,6 +1275,29 @@ XRSLP.screens = XRSLP.screens || {};
     sync();
   }
 
+  /* Which Experiment the Add form opens on. Re-own the filter first —
+     read raw, the preselected Experiment could be one another faculty
+     member had filtered to.
+
+     A Course filter is honoured as well as an Experiment filter: coming
+     from a bank narrowed to one Course, landing on an Experiment in a
+     DIFFERENT Course would file the new question somewhere the faculty
+     member was not looking. This only chooses what the select opens on
+     — the Experiment, and so the Course, is still theirs to change, and
+     the state layer stores whatever they actually submit. */
+  function newQuestionExperimentId(f, scope) {
+    var filter = bankFilterFor(f.id);
+    if (filter.experimentId) { return filter.experimentId; }
+    if (filter.courseId) {
+      var inCourse = scope.experiments.filter(function (row) {
+        var c = data.contextOf(row.experimentId);
+        return !!(c && c.course && c.course.id === filter.courseId);
+      })[0];
+      if (inCourse) { return inCourse.experimentId; }
+    }
+    return scope.experiments[0].experimentId;
+  }
+
   XRSLP.screens.facultyQuestionNew = function (params) {
     var r = F.requireFaculty(params, 'questions');
     if (!r.faculty) { return r.fail; }
@@ -1187,15 +1310,15 @@ XRSLP.screens = XRSLP.screens || {};
       ui.phead('Add a question', 'It goes into your Question Bank. Adding it to an assessment is a separate step.') +
       '<div class="formwrap"><div class="stack">' +
       ui.card('Question', questionForm(f, {
-        /* Re-own the filter first: read raw, the preselected experiment
-           could be one another faculty member had filtered to. */
-        experimentId: bankFilterFor(f.id).experimentId || scope.experiments[0].experimentId,
+        experimentId: newQuestionExperimentId(f, scope),
         submitLabel: 'Add to Question Bank'
       }), null, 'h2') +
       '</div><div class="formaside">' +
       ui.card('Where this goes',
         '<p class="cardlede">A new question is added to your Question Bank only. No assessment changes, and no ' +
         'student sees it, until you add it to an assessment yourself.</p>' +
+        '<p class="cardlede">It is filed under the Experiment you choose above and the Course that Experiment ' +
+        'belongs to. Both are shown, and can be filtered on, in the Question Bank.</p>' +
         '<p class="cardlede">A written answer needs no machine answer key — you review and mark it.</p>',
         null, 'h2') +
       '</div></div>';
@@ -1487,12 +1610,28 @@ XRSLP.screens = XRSLP.screens || {};
         '</div></li>';
     }
 
+    /* WHERE AN ACCEPTED DRAFT LANDS, said on the screen that produces
+       the drafts. `readDraft` files every added draft under
+       `aiState.experimentId`, and the state layer derives the Course
+       from that Experiment — so this sentence is the same association
+       the Question Bank then shows and filters on, not a second claim.
+
+       It says nothing about drafts NOT added: the accept step is
+       unchanged, and a draft that is never added is filed nowhere. */
+    var draftCtx = data.contextOf(aiState.experimentId);
+    var draftFiling = draftCtx && draftCtx.course
+      ? esc(draftCtx.course.name) + ' › ' + esc(draftCtx.experiment.name)
+      : esc(aiState.experimentId);
+
     var draftsCard = aiState.generated
       ? ui.card('Draft questions',
           aiState.drafts.length
             ? '<p class="cardlede">Review each draft before adding it to the Question Bank. Nothing below is in ' +
               'your Question Bank yet, and only the draft you open is editable — change anything that is wrong, ' +
               'especially the answer key.</p>' +
+              '<p class="cardlede">A draft you add is filed under <strong>' + draftFiling + '</strong> — the ' +
+              'Experiment selected above, and the Course it belongs to. You can see and filter by both in the ' +
+              'Question Bank. A draft you discard is filed nowhere.</p>' +
               '<ul class="draftlist">' + aiState.drafts.map(draftCard).join('') + '</ul>'
             : ui.emptyState({
                 icon: 'check', heading: 'h3',
@@ -1957,9 +2096,11 @@ XRSLP.screens = XRSLP.screens || {};
         (att && att.snapshot && att.snapshot.attemptLimit ? ' of ' + att.snapshot.attemptLimit : '') + '</div>' +
       '<div class="k">Submitted</div><div class="v">' +
         esc(util.fmtDateTime(att ? att.submittedAt : rv.createdAt)) + '</div>' +
-      (att && att.sourceTechnology && data.TECHNOLOGIES[att.sourceTechnology]
-        ? '<div class="k">Taken after</div><div class="v">' + ui.fmtBadge(att.sourceTechnology) +
-          ' simulation</div>' : '') +
+      /* 07.3 — the stakeholder's question, answered where they asked it:
+         on the screen where Faculty evaluates the answer. This is
+         technology USED, as a set, not the single `sourceTechnology`
+         this line used to show. */
+      F.techUsedHTML(rv.personId, rv.experimentId, att) +
       '<div class="k">Maximum marks</div><div class="v tabular">' + rv.maxMarks + '</div>' +
       (siblings.length > 1
         ? '<div class="k">Written answers in this attempt</div><div class="v">' +

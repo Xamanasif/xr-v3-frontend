@@ -73,6 +73,12 @@ XRSLP.router = (function () {
     { pattern: ['tenant', ':tenantId', 'assignments'],        area: 'tenant', screen: 'tenantAssignments' },
     { pattern: ['tenant', ':tenantId', 'assignments', 'new'], area: 'tenant', screen: 'tenantNewAssignment' },
     { pattern: ['tenant', ':tenantId', 'faculty-mapping'],    area: 'tenant', screen: 'tenantFacultyMapping' },
+    /* Implementation 07.2 — the Institute / Tenant Admin is the
+       institution's POC for device replacement / transfer. A Student's
+       request arrives HERE first and is forwarded to the Super Admin
+       from here; the Super Admin remains the final decision maker. */
+    { pattern: ['tenant', ':tenantId', 'device-requests'],    area: 'tenant', screen: 'tenantDeviceRequests' },
+    { pattern: ['tenant', ':tenantId', 'device-request', ':id'], area: 'tenant', screen: 'tenantDeviceRequest' },
     /* Help — one consistent destination in every workspace
        (WCAG 2.2 SC 3.2.6 is Level A, and STK31-39 gives Help a real
        destination to point at for the first time). */
@@ -183,6 +189,12 @@ XRSLP.router = (function () {
     { pattern: ['content', ':actorId', 'item', ':recordId'],   area: 'content', screen: 'managerRecord' },
     { pattern: ['content', ':actorId', 'item', ':recordId', 'metadata'],
       area: 'content', screen: 'managerMetadata' },
+    /* Implementation 07.2 — the canonical Course code is primarily the
+       Content Manager's, and the Super Admin also has access to it
+       through the Academic structure screen. This route is the Content
+       Manager's half; it edits ONE field and cannot create, rename,
+       re-parent or delete a Course. */
+    { pattern: ['content', ':actorId', 'courses'],             area: 'content', screen: 'managerCourses' },
     { pattern: ['content', ':actorId', 'help'],                area: 'content', screen: 'managerHelp' }
   ];
 

@@ -287,7 +287,12 @@ XRSLP.screens = XRSLP.screens || {};
       '<caption class="sr-only">Experiments you have created, with their current status</caption>' +
       '<thead><tr>' +
       '<th scope="col">Experiment</th><th scope="col">Course</th><th scope="col">Technologies</th>' +
-      '<th scope="col">Version</th><th scope="col">Status</th><th scope="col">Currently with</th>' +
+      /* 07.3 — "Currently with" removed: the stakeholder pointed out it
+         restated Status. `cui.holderLine()` is derived purely from
+         `rec.status`, so the two columns were the same fact twice. The
+         workflow model is untouched — only the duplicate column is gone,
+         and the detail screen still says who holds the item. */
+      '<th scope="col">Version</th><th scope="col">Status</th>' +
       '<th scope="col"><span class="sr-only">Actions</span></th>' +
       '</tr></thead><tbody id="v-rows"></tbody></table></div>' +
       '<div id="v-empty"></div>' +
@@ -474,6 +479,17 @@ XRSLP.screens = XRSLP.screens || {};
           '<strong>not</strong> grant it to any institution: an institution still requests it and the Super Admin ' +
           'approves that request.</p>');
         break;
+      /* 07.3 — the Content Manager's ACADEMIC return. Without this case
+         the switch fell to `default: ''`, so at the one moment the Vendor
+         most needs telling "this is not yours, do not start correcting",
+         their record page rendered no explanation at all. */
+      case CS.CHANGES_ACADEMIC_RECHECK:
+        statusNote = ui.alertBox('info', 'Returned to the Academic Reviewer for a re-check',
+          '<p>The Content Manager judged the issue <strong>academic</strong> and sent this back to the ' +
+          'Academic Reviewer, not to you. <strong>You are not being asked for anything</strong>, and the ' +
+          'submission does not reopen for editing while it is with them. If the reviewer decides the ' +
+          'Vendor must change something, it comes back to you as an ordinary change request.</p>');
+        break;
       default:
         statusNote = '';
     }
@@ -520,6 +536,26 @@ XRSLP.screens = XRSLP.screens || {};
       ui.card('Experiment', cui.recordSummaryKV(rec, { showVendor: false, showVendorNotes: true })) +
       ui.card('Technology delivery', cui.deliveryRows(rec),
         'AR / VR / MR — package · Web — hosted link') +
+      /* PREVIEW / DEMO VIDEO (07.3 — R13). The Vendor supplies the
+         content, so the Vendor supplies the video that shows what the
+         content looks like. It is rendered here through the SAME shared
+         helper every other plane uses, so the Vendor sees exactly the
+         reference the Academic Reviewer and the Content Manager will
+         read — one video, one renderer, no plane-specific version of
+         the truth.
+
+         The empty state names the editor only when this actor may
+         actually reach it. A record under review, published, or outside
+         the Vendor's scope has no editor to send them to, and pointing
+         at one would be an instruction the workflow refuses. */
+      ui.card('Preview / demo video',
+        cui.previewVideoHTML(rec, {
+          emptyHTML: '<p class="muted">No preview video has been supplied for this experiment.' +
+            (canEdit
+              ? ' Adding one is optional — open the editor and paste the address of a video you already host.'
+              : '') + '</p>'
+        }),
+        'Optional · a link reference, not an upload') +
       ui.card('Supporting documentation', cui.documentsList(rec.documents)) +
       ui.card('Learning outcomes',
         cui.outcomesList(rec.outcomes,
@@ -669,13 +705,22 @@ XRSLP.screens = XRSLP.screens || {};
       return {
         id: null, courseId: '', name: '', summary: '', description: '',
         technologies: [], delivery: {}, documents: [], vendorNotes: '', versionLabel: '1.0',
+        /* Null, not `{}` — "this experiment has no preview video" is a
+           legal, complete state, and `updateContentDraft` reads a falsey
+           value as "clear it". */
+        previewVideo: null,
         __actorId: actorId, __eventSeq: null
       };
     }
     var w = JSON.parse(JSON.stringify({
       id: rec.id, courseId: rec.courseId, name: rec.name, summary: rec.summary,
       description: rec.description, technologies: rec.technologies, delivery: rec.delivery,
-      documents: rec.documents, vendorNotes: rec.vendorNotes, versionLabel: rec.versionLabel
+      documents: rec.documents, vendorNotes: rec.vendorNotes, versionLabel: rec.versionLabel,
+      /* Carried into the working copy so an edit that does not touch the
+         video cannot drop it. The form always sends a value — a real
+         reference or null — and `undefined` (leave unchanged) is
+         therefore never relied on here; the round trip is explicit. */
+      previewVideo: rec.previewVideo || null
     }));
     w.__actorId = actorId;
     w.__eventSeq = rec.eventSeq;
@@ -898,6 +943,63 @@ XRSLP.screens = XRSLP.screens || {};
         '<div id="v-tech-panels" style="margin-top:4px"></div>',
         'AR / VR / MR — package · Web — hosted link') +
 
+      /* PREVIEW / DEMO VIDEO (07.3 — R13). The stakeholder asked for the
+         Vendor to be given "a provision to add the video also", because
+         the party that produces the content is the party that has the
+         walkthrough footage — and because the public experiment page has
+         nowhere else to get it from.
+
+         IT SITS WITH THE DELIVERY FIELDS ON PURPOSE. It is technical
+         material the Vendor supplies about the build, not catalogue
+         copy: it belongs next to the packages and hosted links, not next
+         to the summary. It is deliberately OUTSIDE the per-technology
+         panels, because one experiment has one preview, whatever mix of
+         AR / VR / MR / Web it ships in — a video per technology would
+         invent a rule nobody asked for.
+
+         IT IS A LINK, NOT AN UPLOAD, and the form says so in as many
+         words. This prototype has no server, no storage and no
+         transcoder; the honest control is therefore an address field for
+         a video the Vendor already hosts. Offering a file picker here
+         would be a fake upload — exactly the kind of claim this build
+         does not make. (The package and document pickers below record
+         file NAME and SIZE as metadata and say so; a video that must be
+         watchable after publication cannot be faked the same way, so it
+         is not offered as a file at all.)
+
+         IT IS OPTIONAL. `validateContent` does not require it, and an
+         experiment without one is a complete submission — so nothing
+         here is marked required and the submission checklist never asks
+         for it. */
+      ui.card('Preview / demo video',
+        '<div class="field" id="f-preview-url">' +
+        '<label for="i-preview-url">Video address</label>' +
+        '<input type="text" id="i-preview-url" value="' + esc(previewOf().url) + '" ' +
+        'placeholder="https://" maxlength="500" aria-describedby="h-preview-url">' +
+        '<p class="hint" id="h-preview-url">A full http:// or https:// address for a video you already host. ' +
+        'Anything else is refused rather than stored. Clear this field to remove the video.</p></div>' +
+        '<div class="field" id="f-preview-label">' +
+        '<label for="i-preview-label">Link label</label>' +
+        '<input type="text" id="i-preview-label" value="' + esc(previewOf().label) + '" ' +
+        'maxlength="80" aria-describedby="h-preview-label">' +
+        '<p class="hint" id="h-preview-label">What the link is called on screen — “2-minute walkthrough”, for ' +
+        'example. Left empty it reads “Preview / demo video”.</p></div>' +
+        '<div class="field" id="f-preview-note" style="margin-bottom:0">' +
+        '<label for="i-preview-note">Note</label>' +
+        '<textarea id="i-preview-note" rows="2" maxlength="240" aria-describedby="h-preview-note">' +
+        esc(previewOf().note) + '</textarea>' +
+        '<p class="hint" id="h-preview-note">Optional. One line of context — what the video shows, how long ' +
+        'it runs, whether it is narrated.</p></div>' +
+        '<p class="dnote">' + ui.ic('info', 'sm') +
+        'A link reference, not an upload. The prototype stores the address you type and nothing else: no file ' +
+        'is read, no video is uploaded, transcoded or hosted here, and the video keeps playing wherever it ' +
+        'already lives.</p>' +
+        '<p class="dnote">' + ui.ic('info', 'sm') +
+        'The video travels with the submission, so the Academic Reviewer and the Content Manager both see it ' +
+        'while the work is with them. It reaches the public experiment page only when the Content Manager ' +
+        'publishes — and publication still grants the experiment to no institution.</p>',
+        'Optional · one per experiment, whatever technologies it ships in') +
+
       ui.card('Supporting documentation',
         '<div id="v-docs"></div>' +
         '<div class="fileline" style="margin-top:10px">' +
@@ -933,13 +1035,26 @@ XRSLP.screens = XRSLP.screens || {};
 
       '<div class="formaside"><div class="stack">' +
       ui.card('Submission checklist', '<div id="v-check"></div>') +
+      /* WHAT IS NOT ASKED FOR — and, since 07.3, what IS.
+         This card is read as the definitive list of what a Vendor hands
+         over, so while it named only exclusions it read as "media is not
+         wanted either": a Vendor with a walkthrough recording had no
+         reason to look for a field for it. The preview video is now
+         called out positively, with the `play` icon rather than the
+         `x`, so the two kinds of statement cannot be misread as one
+         list of refusals. */
       ui.card('What is not asked for here',
         '<ul class="reslist plain">' +
         '<li>' + ui.ic('x') + '<span>Source code, a repository or a container image — none is required of a Vendor.</span></li>' +
         '<li>' + ui.ic('x') + '<span>Learning Outcomes — academically owned by the Academic Reviewer.</span></li>' +
         '<li>' + ui.ic('x') + '<span>A price — no commercial value is represented anywhere in this prototype.</span></li>' +
         '<li>' + ui.ic('x') + '<span>A local course code or semester — those are tenant-side mappings.</span></li>' +
-        '</ul>') +
+        '<li>' + ui.ic('play') + '<span><strong>A preview / demo video is asked for.</strong> It is optional, ' +
+        'it is supplied as a link in the form, and it is the Vendor — not the platform — who provides it.</span></li>' +
+        '</ul>' +
+        '<p class="dnote">' + ui.ic('info', 'sm') +
+        'Nor does anything on this form upload a file. The package and document pickers record a file name and ' +
+        'size only, and the preview video is an address you type.</p>') +
       '</div></div>' +
       '</form>';
 
@@ -1035,6 +1150,60 @@ XRSLP.screens = XRSLP.screens || {};
     }).join('') + '</ul>';
   }
 
+  /* The working copy's preview video as three always-present strings, so
+     the editor's markup never has to guard a null on every read.
+     `work.previewVideo` itself stays null when there is no video —
+     that null is exactly what `updateContentDraft` reads as "clear it",
+     so it is not flattened into an empty object. */
+  function previewOf() {
+    var v = work && work.previewVideo;
+    return {
+      url: (v && v.url) || '',
+      label: (v && v.label) || '',
+      note: (v && v.note) || ''
+    };
+  }
+
+  /* PREVIEW-VIDEO VALIDATION, kept out of `validateContent` on purpose:
+     the video is optional, so its absence is never an error and it must
+     never appear in the submission checklist or block a submission.
+
+     What it does catch is the pair of cases where the state layer would
+     otherwise drop the Vendor's typing without a word.
+     `normalizePreviewVideo()` returns null for anything that is not an
+     http(s) address, and stores nothing at all when there is no address
+     — so a mistyped link, or a label and note with no link, would be
+     accepted by the Save button and then simply not be there. A silent
+     no-op on a field someone deliberately filled in is the worst
+     outcome available, so both cases are reported inline, against the
+     address field, through the same `ui.showErrors` path every other
+     field on this form uses.
+
+     The URL test is `state.isHttpUrl` — the SAME predicate the state
+     layer applies — so this screen can never accept something the write
+     refuses, or refuse something the write would accept. */
+  function previewVideoErrors() {
+    var v = work && work.previewVideo;
+    if (!v) { return []; }
+    var url = String(v.url || '').trim();
+    if (!url) {
+      if (!v.label && !v.note) { return []; }
+      return [{
+        field: 'f-preview-url',
+        message: 'Add the preview video address, or clear its label and note. The video is stored as a link, ' +
+          'so without an address there is nothing to keep.'
+      }];
+    }
+    if (!state.isHttpUrl(url)) {
+      return [{
+        field: 'f-preview-url',
+        message: 'The preview video address must be a full http:// or https:// link. The platform stores only ' +
+          'the address, so anything else could never be opened — it would be discarded rather than saved.'
+      }];
+    }
+    return [];
+  }
+
   function checklistHTML() {
     var errs = state.validateContent(work, 'submit', { exceptId: work.id });
     if (!errs.length) {
@@ -1054,6 +1223,24 @@ XRSLP.screens = XRSLP.screens || {};
     work.description = val('i-description');
     work.versionLabel = val('i-version');
     work.vendorNotes = val('i-notes');
+    /* PREVIEW / DEMO VIDEO. Held as `{url,label,note}` or null, which is
+       precisely the shape `updateContentDraft` expects in
+       `fields.previewVideo`; the state layer normalises it and stamps
+       who added it and when.
+
+       EMPTYING THE FIELDS IS HOW A VENDOR REMOVES THE VIDEO — the null
+       below clears it on save. That is why there is no separate "Remove
+       video" button: a second way to do the same thing would either
+       disagree with the field or sit there doing nothing. The label and
+       the note are kept in the object even when only they were typed,
+       so `previewVideoErrors()` can tell "no video" apart from "a video
+       whose address is missing" and say so. */
+    var pvUrl = String(val('i-preview-url')).trim();
+    var pvLabel = String(val('i-preview-label')).trim();
+    var pvNote = String(val('i-preview-note')).trim();
+    work.previewVideo = (pvUrl || pvLabel || pvNote)
+      ? { url: pvUrl, label: pvLabel, note: pvNote }
+      : null;
     Array.prototype.slice.call(document.querySelectorAll('.v-d')).forEach(function (el) {
       var t = el.getAttribute('data-t'), k = el.getAttribute('data-k');
       work.delivery[t] = work.delivery[t] || {};
@@ -1147,7 +1334,13 @@ XRSLP.screens = XRSLP.screens || {};
       });
     });
 
-    ['i-course', 'i-name', 'i-summary', 'i-description', 'i-version', 'i-notes'].forEach(function (id) {
+    ['i-course', 'i-name', 'i-summary', 'i-description', 'i-version', 'i-notes',
+     /* The preview-video fields join the same list so the working copy
+        tracks them as they are typed, like every other free-text field.
+        `persist()` re-reads the whole form regardless, so this is not
+        what makes the value save; it is what keeps `work` truthful in
+        between, which is what the checklist and any later read see. */
+     'i-preview-url', 'i-preview-label', 'i-preview-note'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) { el.addEventListener('input', function () { readForm(); repaintCheck(); }); }
       if (el && el.tagName === 'SELECT') { el.addEventListener('change', function () { readForm(); repaintCheck(); }); }
@@ -1169,13 +1362,41 @@ XRSLP.screens = XRSLP.screens || {};
 
     function persist(thenSubmit) {
       readForm();
-      var errs = state.validateContent(work, thenSubmit ? 'submit' : 'draft', { exceptId: work.id });
+      /* The lifecycle rules come from the state layer; the preview-video
+         rule is added on top of them rather than woven into them,
+         because it guards against a SILENT DROP rather than an
+         incomplete submission. Both sets go through one `showErrors`
+         call so the summary box lists everything wrong at once and the
+         first bad field takes focus — a second, separate error pass
+         would steal focus from the first. */
+      var errs = state.validateContent(work, thenSubmit ? 'submit' : 'draft', { exceptId: work.id })
+        .concat(previewVideoErrors());
       if (!ui.showErrors(form, errs, thenSubmit
             ? 'This submission is not ready for academic review'
             : 'The draft cannot be saved yet')) { return; }
       var saved;
       if (rec) { saved = state.updateContentDraft(actor.id, rec.id, work); }
-      else { saved = state.createContentDraft(actor.id, work); }
+      else {
+        saved = state.createContentDraft(actor.id, work);
+        /* ⚠ `createContentDraft` builds the new record from a fixed
+           field list that does not carry `previewVideo`, so a video
+           supplied on the CREATE form would be dropped on the way in —
+           the Vendor would type it, save, and find it gone. Writing it
+           immediately afterwards through `updateContentDraft` — the one
+           writer that normalises and stamps it — puts it on the record
+           by the only supported path, instead of this screen reaching
+           into the stored object and setting the field itself.
+
+           Nothing new is authorised by the second call: same actor, same
+           record they have just created, same Course, so every gate it
+           re-asks has already been answered yes a line earlier. If it
+           were ever to refuse, the draft still exists and the Vendor is
+           taken to it, where the empty video card says plainly that no
+           video has been supplied. */
+        if (saved && work.previewVideo && work.previewVideo.url) {
+          state.updateContentDraft(actor.id, saved.id, work);
+        }
+      }
       if (!saved) {
         ui.toast('This draft could not be saved.', 'info');
         return;
@@ -1224,7 +1445,6 @@ XRSLP.screens = XRSLP.screens || {};
       '<td data-label="Version">' + (r.versionLabel ? esc(r.versionLabel) : '<span class="muted">—</span>') +
       (r.revision > 1 ? ' <span class="muted">· rev ' + r.revision + '</span>' : '') + '</td>' +
       '<td data-label="Status">' + cui.statusBadge(r) + '</td>' +
-      '<td data-label="Currently with">' + esc(cui.holderLine(r, 'vendor')) + '</td>' +
       '<td class="cell-actions"><a class="btn sec sm" href="' + href.vRecord(actor.id, r.id) + '">Open</a></td>' +
       '</tr>';
   }

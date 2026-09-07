@@ -632,11 +632,16 @@ One screen. Do not click anything except the expiry control.
 
 > "Three operational capabilities, and I want to be honest about the edges of each.
 >
-> **Device replacement.** A student whose headset broke raises it from their own workspace; it
-> comes here for a decision. *'A decision here moves the authorised device binding and nothing
-> else. It consumes no licence, grants no experiment, adds no technology, and changes no assessment
-> state.'* And: *'**There is no device registry anywhere in the platform**'* — we approve a
-> transfer; we do not register, certify or configure hardware.
+> **Device replacement.** A student whose headset broke raises it from their own workspace. It
+> goes to **their own institution's Institute / Tenant Admin first** — they are the point of
+> contact, they review it and forward it — and only then does it arrive here for the final
+> decision. *'A decision here moves the authorised device binding and nothing else. It consumes no
+> licence, grants no experiment, adds no technology, and changes no assessment state.'* And:
+> *'**There is no device registry anywhere in the platform**'* — we approve a transfer; we do not
+> register, certify or configure hardware.
+>
+> *(If the queue is empty, that is correct: a request that has not been forwarded is sitting with
+> the institution, and the table says so in its* Currently with *column.)*
 >
 > **Support.** Anyone can report a technical issue from their own workspace and see the state of
 > it. *'No response time is promised, no priority is assigned, no external ticketing provider is
@@ -662,7 +667,7 @@ Set **Access record** to `ACC-001`, **Ends in** to **15 days (reminder due)**, c
 >
 > So: how should that reminder actually reach them, and who should receive it?"
 
-**Business rules** Device transfer changes device authorisation only. Support resolution changes no entitlement or content state. Deactivation preserves records and removes effective authority. The 15-day reminder is required; the channel is not decided.
+**Business rules** A device request is routed through the institution's Tenant Admin before it reaches the Super Admin, who remains the final decision maker. Device transfer changes device authorisation only. Support resolution changes no entitlement or content state. Deactivation preserves records and removes effective authority. The 15-day reminder is required; the channel is not decided. Renewal follows the institution's own onboarding route and extends nothing until that route completes.
 
 **Screenshot?** **Optional** — the Operations screen, mainly for the *DELIVERY CHANNEL PENDING* note.
 

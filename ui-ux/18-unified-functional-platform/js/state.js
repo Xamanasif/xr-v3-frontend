@@ -88,7 +88,17 @@ XRSLP.state = (function () {
   var util = XRSLP.util;
 
   var STORAGE_KEY = 'xrslp-unified-v1';
-  var SCHEMA_VERSION = 9;
+  /* SCHEMA 10 — Implementation 07.2, the stakeholder-confirmed
+     corrections. Three PURELY ADDITIVE fields, no collection added, no
+     row removed, no namespace change:
+       · courses[].code                — the canonical Course Code (E)
+       · access[].renewals[]           — the renewal audit line (D)
+       · deviceTransferRequests[]      — escalatedBy / escalatedAt /
+                                         escalationNote (C)
+     The back-fill is presence-guarded and idempotent, so it repairs a
+     state written by any earlier build and never re-stamps a value a
+     real person has since entered. */
+  var SCHEMA_VERSION = 11;
 
   var STATUS = {
     DRAFT: 'DRAFT',
@@ -192,8 +202,10 @@ XRSLP.state = (function () {
                                       on (STK31-07).
          · tenantAdmins[]           — who Super Admin assigned as the
                                       Tenant / Institute Admin (STK31-21)
-         · deviceTransferRequests[] — Student → Super Admin device
-                                      replacement / transfer (STK31-38)
+         · deviceTransferRequests[] — Student → Institute / Tenant Admin
+                                      → Super Admin device replacement /
+                                      transfer (STK31-38, routed through
+                                      the institution POC in 07.2)
          · supportTickets[]         — reported technical issues and their
                                       platform-side resolution (STK31-39) */
       contentVersions: [],
@@ -542,6 +554,10 @@ XRSLP.state = (function () {
     migrateContentProduction(parsed, stored);
     migrateGovernance(parsed, stored);
     migrateTransferScope(parsed);
+    /* Implementation 07.2. Runs AFTER the structure back-fill, so every
+       Course row — seeded or platform-created — is present and can be
+       given its canonical-code field. */
+    migrateStakeholderCorrections(parsed);
 
     parsed.schemaVersion = SCHEMA_VERSION;
     delete parsed.version;
@@ -599,6 +615,119 @@ XRSLP.state = (function () {
     parsed.courses.forEach(function (c) {
       if (!gids[c.groupingId] && parsed.groupings.length) { c.groupingId = parsed.groupings[0].id; }
     });
+  }
+
+  /* SCHEMA 9 → 10: the three fields Implementation 07.2 adds.
+
+     PRESENCE-GUARDED, ID-KEYED, IDEMPOTENT, and it runs on EVERY load
+     rather than once at a version boundary — the same shape as
+     `migrateCatalogueStructure` above and for the same reason: a state
+     that has already been stamped 10 must still be repairable, and a
+     value a real person has entered must never be re-stamped back to
+     the seed. Nothing here deletes, renames or reorders a row.
+
+     ⚠ It reads `parsed.courses` DIRECTLY, never `data.course()`: `S` is
+     unassigned during migration, so the structure resolver answers null
+     and the lookup would silently miss every platform-created Course. */
+  function migrateStakeholderCorrections(parsed) {
+    /* E — the canonical Course Code. Seeded rows take the seed's value
+       (blank today: no official code has been supplied, and blank is a
+       legitimate state); a platform-created row starts blank. A code
+       that already exists is never touched. */
+    var seededCode = {};
+    data.COURSES.forEach(function (c) { seededCode[c.id] = typeof c.code === 'string' ? c.code : ''; });
+    parsed.courses.forEach(function (c) {
+      if (typeof c.code !== 'string') { c.code = seededCode[c.id] || ''; }
+    });
+
+    /* ── SCHEMA 10 → 11, Implementation 07.3 ──────────────────────
+       Three additive fields, PRESENCE-GUARDED and IDEMPOTENT exactly as
+       the 07.2 back-fill above: a preview video reference on a content
+       record, a supporting-reference list on a history entry, and the
+       reviewer-recheck status is a NEW VALUE of an existing field, so no
+       stored record needs rewriting for it. Nothing is deleted, renamed
+       or reordered, and a value a real person entered is never
+       re-stamped. */
+    if (Array.isArray(parsed.contentRecords)) {
+      parsed.contentRecords.forEach(function (r) {
+        if (!r) { return; }
+        /* Absent means "no preview video was ever supplied", and null is
+           what every reader already treats as that. Never invented. */
+        if (typeof r.previewVideo === 'undefined') { r.previewVideo = null; }
+        if (Array.isArray(r.history)) {
+          r.history.forEach(function (h) {
+            /* Empty, not missing — a change request written before
+               references existed genuinely carried none. */
+            if (h && !Array.isArray(h.refs)) { h.refs = []; }
+          });
+        }
+      });
+    }
+    if (Array.isArray(parsed.academicReviews)) {
+      parsed.academicReviews.forEach(function (r) {
+        if (r && !Array.isArray(r.refs)) { r.refs = []; }
+      });
+    }
+    /* The durable withdraw/restore audit line on a role assignment.
+
+       ⚠ IT LIVES HERE, NOT IN `migrateGovernance`. That function opens
+       with `if (storedVersion >= 7) { return; }`, so a state at 7 or
+       later never reaches it — a schema-10 state would have been left
+       without the array every reader now assumes. Empty is the true
+       value: a row withdrawn by an earlier build genuinely has no
+       recorded event, and its `removed*` fields still carry the current
+       suspension, so nothing is lost and nothing is invented. */
+    if (Array.isArray(parsed.contentRoleAssignments)) {
+      parsed.contentRoleAssignments.forEach(function (m) {
+        if (!m) { return; }
+        if (!Array.isArray(m.history)) { m.history = []; }
+        /* ⚠ A ROW THAT IS WITHDRAWN RIGHT NOW ALREADY HOLDS ITS OWN
+           EVIDENCE — 07.3 adversarial fix. Back-filling an EMPTY array
+           onto it lost exactly the case the audit line exists for: the
+           row read `status:'removed'` with a reason on it, yet
+           `actorWasEverSuspended()` answered false, no badge or alert
+           rendered, and restoring it then cleared the `removed*` fields
+           and left nothing at all. Synthesising the entry INVENTS
+           NOTHING — every value below is already on the row. */
+        if (m.status === 'removed' && !m.history.length) {
+          m.history.push({
+            kind: 'withdrawn', label: 'Scope withdrawn',
+            note: m.removedReason || '',
+            by: m.removedBy || 'Super Admin',
+            at: m.removedAt || null,
+            /* Marked, so a reader can tell a reconstructed entry from one
+               that was recorded as it happened. */
+            backfilled: true
+          });
+        }
+      });
+    }
+
+    /* D — the renewal audit line on an access record. An access record
+       written by an earlier build has renewed nothing, so an empty array
+       is the true value, and "empty, not missing" is what every reader
+       expects. The access TERM itself is never touched here. */
+    if (Array.isArray(parsed.access)) {
+      parsed.access.forEach(function (a) {
+        if (!Array.isArray(a.renewals)) { a.renewals = []; }
+      });
+    }
+
+    /* C — the Tenant Admin hop on a device request.
+
+       A stored request sitting at `submitted` is NOT rewritten. Under
+       the corrected routing `submitted` MEANS "with the Institute /
+       Tenant Admin", which is exactly where an undecided request should
+       be, so the honest migration is to leave the status alone and add
+       the three fields the escalation writes. A request already
+       approved or declined keeps its decision untouched. */
+    if (Array.isArray(parsed.deviceTransferRequests)) {
+      parsed.deviceTransferRequests.forEach(function (r) {
+        if (r.escalatedBy === undefined) { r.escalatedBy = null; }
+        if (r.escalatedAt === undefined) { r.escalatedAt = null; }
+        if (typeof r.escalationNote !== 'string') { r.escalationNote = ''; }
+      });
+    }
   }
 
   /* SCHEMA 4 → 5: assessment configuration becomes Faculty-owned
@@ -753,6 +882,14 @@ XRSLP.state = (function () {
     CHANGES_ACADEMIC: 'CHANGES_ACADEMIC',
     CONTENT_REVIEW:   'CONTENT_REVIEW',
     CHANGES_CONTENT:  'CHANGES_CONTENT',
+    /* Implementation 07.3 — the Content Manager's ACADEMIC return.
+       The stakeholder split the Content Manager's single ambiguous
+       "request changes" into two destinations: an academic/content
+       issue goes back to the ACADEMIC REVIEWER, a technical/delivery
+       issue goes back to the VENDOR (which is `CHANGES_CONTENT`).
+       This status is the first of those, and its holder is therefore
+       the reviewer — not the vendor. */
+    CHANGES_ACADEMIC_RECHECK: 'CHANGES_ACADEMIC_RECHECK',
     PUBLISHED:        'PUBLISHED'
   };
 
@@ -765,6 +902,8 @@ XRSLP.state = (function () {
     CHANGES_ACADEMIC: { label: 'Changes requested',         badge: 'b-warning', icon: 'alert',  holder: 'vendor' },
     CONTENT_REVIEW:   { label: 'Content readiness review',  badge: 'b-info',    icon: 'layers', holder: 'manager' },
     CHANGES_CONTENT:  { label: 'Changes requested',         badge: 'b-warning', icon: 'alert',  holder: 'vendor' },
+    CHANGES_ACADEMIC_RECHECK:
+                      { label: 'Returned for academic re-check', badge: 'b-warning', icon: 'alert', holder: 'reviewer' },
     PUBLISHED:        { label: 'Published',                 badge: 'b-success', icon: 'check',  holder: null }
   };
 
@@ -825,6 +964,28 @@ XRSLP.state = (function () {
 
   function blankDelivery() { return {}; }
 
+  /* A preview video reference. URL ONLY — the prototype stores what the
+     Vendor typed and nothing else. No bytes are read or transmitted, and
+     every surface that renders one says so rather than implying a hosted
+     upload. Returns null for an empty value, which is a legal state:
+     an Experiment without a preview video simply has none. */
+  function normalizePreviewVideo(input, actorId, previous) {
+    if (input === undefined) { return previous || null; }
+    if (!input) { return null; }
+    var url = String(input.url || '').trim();
+    if (!url || !isHttpUrl(url)) { return null; }
+    var prevUrl = previous && previous.url;
+    return {
+      url: url,
+      label: String(input.label || '').trim(),
+      note: String(input.note || '').trim(),
+      addedBy: actorId || (previous && previous.addedBy) || null,
+      /* The moment it CHANGED, so a reviewer can see it is new. */
+      addedAt: (prevUrl === url && previous && previous.addedAt)
+        ? previous.addedAt : new Date().toISOString()
+    };
+  }
+
   function newContentRecord(fields) {
     return {
       id: fields.id,
@@ -840,6 +1001,19 @@ XRSLP.state = (function () {
          (STK31-37). Nothing here is a real upload — see `packageFile`. */
       delivery: fields.delivery || blankDelivery(),
       documents: fields.documents ? fields.documents.slice() : [],
+      /* PREVIEW / DEMO VIDEO (07.3). The stakeholder asked the Vendor to
+         supply the preview video that the public experiment page shows:
+         *"give them a provision to add the video also"*. It travels the
+         whole workflow — Vendor, Academic Reviewer, Content Manager — and
+         reaches the public catalogue ONLY once the record is PUBLISHED.
+         Null until the Vendor supplies one; a URL reference, never an
+         upload — this prototype has no server to upload to. */
+      /* NORMALISED, never raw. A caller handing this a bare object would
+         otherwise store an unvalidated URL with no `addedBy`/`addedAt`,
+         and `previewVideoHTML` would render a link the write path would
+         have refused. `normalizePreviewVideo` returns null for anything
+         that is not an http(s) URL. */
+      previewVideo: normalizePreviewVideo(fields.previewVideo, fields.createdBy || null, null),
       vendorNotes: fields.vendorNotes || '',
       versionLabel: fields.versionLabel || '',
       /* Batch 01's integer version: it counts CORRECTION ROUNDS on this
@@ -1084,7 +1258,9 @@ XRSLP.state = (function () {
         status: 'active',
         assignedBy: 'Prototype seed',
         assignedAt: null,
-        removedBy: null, removedAt: null, removedReason: ''
+        removedBy: null, removedAt: null, removedReason: '',
+        /* 07.3 — see `roleAssignmentHistory`. */
+        history: []
       });
     });
   }
@@ -1194,7 +1370,16 @@ XRSLP.state = (function () {
          written by the FIRST publication and then only by a Super Admin
          RELEASE. A version candidate sitting in the workflow, however
          far it has got, never appears here. */
-      versionLabel: rec.versionLabel || ''
+      versionLabel: rec.versionLabel || '',
+      /* 07.3 — the Vendor's preview / demo video.
+
+         ⚠ THIS PROJECTION IS THE PUBLICATION BOUNDARY. `publishedPool()`
+         maps ONLY records at `PUBLISHED` through this whitelist, so
+         adding the field here is precisely what makes the video public
+         on publication and never one moment earlier: an unpublished
+         draft carrying a video is not in the pool at all, and no other
+         field of the record leaks with it. */
+      previewVideo: rec.previewVideo || null
     };
   }
 
@@ -1372,7 +1557,8 @@ XRSLP.state = (function () {
       if (r.origin === 'seed') { return false; }
       if (!actorCoversRecord(actorId, r)) { return false; }
       if (o.status && r.status !== o.status) { return false; }
-      if (o.queue && r.status !== CONTENT_STATUS.ACADEMIC_REVIEW) { return false; }
+      if (o.queue && r.status !== CONTENT_STATUS.ACADEMIC_REVIEW &&
+                     r.status !== CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK) { return false; }
       return true;
     }).sort(byContentRecency);
   }
@@ -1510,7 +1696,13 @@ XRSLP.state = (function () {
   function academicReadiness(rec) {
     var blockers = [];
     if (!rec) { return { ok: false, blockers: ['This submission no longer exists.'] }; }
-    if (rec.status !== CONTENT_STATUS.ACADEMIC_REVIEW) {
+    /* 07.3 — a record the CONTENT MANAGER returned for an ACADEMIC
+       reason is awaiting this reviewer's decision exactly as a fresh
+       submission is. Without this clause `reviewerCanAct()` said yes and
+       `approveAcademic()` still refused, so the record reached the
+       reviewer's queue and could not be moved out of it — a dead end. */
+    if (rec.status !== CONTENT_STATUS.ACADEMIC_REVIEW &&
+        rec.status !== CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK) {
       blockers.push('This submission is not currently awaiting academic review.');
     }
     if (!rec.outcomes.length) {
@@ -1565,7 +1757,56 @@ XRSLP.state = (function () {
 
   /* ---------- history ---------- */
 
-  function pushContentEvent(rec, kind, label, actor, at, note) {
+  /* ---------- SUPPORTING REFERENCES ON A CHANGE REQUEST (07.3) ----------
+     The stakeholder asked that a reviewer requesting changes be able to
+     attach supporting material — a reference document, a screenshot, a
+     link. This is DIFFERENT from the supporting documentation the Vendor
+     uploaded with the Experiment, and the two are never mixed.
+
+     ⚠ HONESTY BOUNDARY. This prototype has no server and no upload. A
+     `link` reference stores the URL the reviewer typed. A `file`
+     reference stores ONLY the browser-reported NAME and SIZE of a file
+     the reviewer picked — the bytes are never read, never held and never
+     transmitted. Every surface that renders one says so. Nothing here
+     pretends a file was uploaded. */
+  var CONTENT_REF_KIND = { LINK: 'link', FILE: 'file' };
+
+  function normalizeContentRefs(list) {
+    if (!Array.isArray(list)) { return []; }
+    var out = [];
+    list.forEach(function (r) {
+      if (!r) { return; }
+      var kind = r.kind === CONTENT_REF_KIND.FILE ? CONTENT_REF_KIND.FILE : CONTENT_REF_KIND.LINK;
+      var label = String(r.label || '').trim();
+      if (kind === CONTENT_REF_KIND.LINK) {
+        var url = String(r.url || '').trim();
+        if (!url) { return; }
+        /* ⚠ SCHEME-CHECKED — 07.3 adversarial fix. This was the only URL
+           field in the build that skipped `isHttpUrl`, while the hosted
+           delivery link and the preview video both use it. `refsHTML`
+           interpolates the value into an href, so an unchecked string let
+           a reference labelled "Marked-up spec" point at `javascript:`,
+           `data:`, `file:` or a protocol-relative host. Rejecting it here
+           keeps a bad value out of state entirely. */
+        if (!isHttpUrl(url)) { return; }
+        out.push({ kind: kind, label: label || url, url: url, note: String(r.note || '').trim() });
+      } else {
+        var fileName = String(r.fileName || '').trim();
+        if (!fileName) { return; }
+        var size = Number(r.fileSize);
+        out.push({
+          kind: kind, label: label || fileName, fileName: fileName,
+          fileSize: isFinite(size) && size >= 0 ? size : null,
+          /* Stated on the record itself, not only in the UI copy. */
+          storedBytes: false,
+          note: String(r.note || '').trim()
+        });
+      }
+    });
+    return out.slice(0, 10);
+  }
+
+  function pushContentEvent(rec, kind, label, actor, at, note, refs) {
     var seq = contentTouched();
     rec.history.unshift({
       seq: seq, kind: kind, label: label,
@@ -1578,7 +1819,9 @@ XRSLP.state = (function () {
       actorName: actor ? actor.name : null,
       actorRole: actor ? (CONTENT_ROLE_LABEL[actor.role] || actor.role) : null,
       at: at || new Date().toISOString(),
-      note: note || ''
+      note: note || '',
+      /* Empty, never absent — every reader expects an array. */
+      refs: normalizeContentRefs(refs)
     });
     rec.eventSeq = seq;
     return seq;
@@ -1655,6 +1898,11 @@ XRSLP.state = (function () {
       courseId: fields.courseId, name: String(fields.name).trim(),
       summary: fields.summary || '', description: fields.description || '',
       technologies: fields.technologies || [], delivery: fields.delivery || {},
+      /* 07.3 — carried on CREATE, not only on edit. Without this a
+         preview video typed on the Vendor's "create experiment" form was
+         silently dropped on the way in, and the screen had to write it
+         again with a second call. */
+      previewVideo: fields.previewVideo || null,
       documents: fields.documents || [], vendorNotes: fields.vendorNotes || '',
       versionLabel: fields.versionLabel || '', status: CONTENT_STATUS.DRAFT,
       origin: 'vendor', createdBy: actorId, createdAt: now, updatedAt: now
@@ -1694,6 +1942,7 @@ XRSLP.state = (function () {
     rec.description = fields.description || '';
     rec.technologies = data.sortTech(fields.technologies || []);
     rec.delivery = fields.delivery || {};
+    rec.previewVideo = normalizePreviewVideo(fields.previewVideo, actorId, rec.previewVideo);
     rec.documents = fields.documents || [];
     rec.vendorNotes = fields.vendorNotes || '';
     rec.versionLabel = fields.versionLabel || '';
@@ -1771,7 +2020,10 @@ XRSLP.state = (function () {
     var actor = contentActor(actorId);
     if (!rec || !actor || actor.role !== CONTENT_ROLE.REVIEWER) { return false; }
     if (!actorCoversRecord(actorId, rec)) { return false; }
-    return rec.status === CONTENT_STATUS.ACADEMIC_REVIEW;
+    /* 07.3 — a record the Content Manager returned for an ACADEMIC
+       reason is with this reviewer exactly as a fresh submission is. */
+    return rec.status === CONTENT_STATUS.ACADEMIC_REVIEW ||
+           rec.status === CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK;
   }
 
   /* Learning Outcomes are the Academic Reviewer's object. They are
@@ -1852,26 +2104,28 @@ XRSLP.state = (function () {
 
   /* PM-14's return path, at the academic gate. A comment is required:
      a submission returned without a reason is not a review. */
-  function requestChangesAcademic(actorId, recordId, comment) {
+  function requestChangesAcademic(actorId, recordId, comment, refs) {
     var rec = contentRecord(recordId);
     var actor = contentActor(actorId);
     if (!reviewerCanAct(rec, actorId)) { return null; }
     var text = String(comment || '').trim();
     if (!text) { return null; }
+    var refList = normalizeContentRefs(refs);
     var now = new Date().toISOString();
     S.seq.review += 1;
     var review = {
       id: 'ACR-' + util.pad3(S.seq.review), recordId: rec.id,
       reviewerId: actorId, reviewerName: actor.name,
       decision: 'changes_requested', comment: text,
-      revision: rec.revision, outcomes: rec.outcomes.slice(), at: now
+      revision: rec.revision, outcomes: rec.outcomes.slice(), at: now,
+      refs: refList
     };
     S.academicReviews.push(review);
     rec.status = CONTENT_STATUS.CHANGES_ACADEMIC;
     rec.returnedGate = 'academic';
     rec.resubmitted = false;
     rec.updatedAt = now;
-    pushContentEvent(rec, 'changes', 'Changes requested — academic review', actor, now, text);
+    pushContentEvent(rec, 'changes', 'Changes requested — academic review', actor, now, text, refList);
     save();
     return rec;
   }
@@ -1952,20 +2206,203 @@ XRSLP.state = (function () {
     return rec;
   }
 
-  /* PM-14's return path, at the content readiness gate. */
-  function requestChangesContent(actorId, recordId, comment) {
+  /* ---------- CONTENT MANAGER: DELIVERY LINK MANAGEMENT (07.3) ----------
+     The stakeholder was explicit: *"content manager should have the
+     provision to edit the link ... if he wants to delete and replace the
+     link also he can replace it"*, because the Content Manager is the one
+     managing the content.
+
+     ── WHAT THIS DELIBERATELY DOES NOT DO ────────────────────────
+     It touches ONLY the delivery detail of a technology the record
+     already carries. It cannot add or remove a TECHNOLOGY — that is the
+     Vendor's technical submission and widening it here would hand an
+     institution a technology nobody reviewed. It cannot touch Learning
+     Outcomes (Academic Reviewer's) or the version/revision counters, so
+     version history semantics are untouched.
+
+     Every edit requires a REASON and writes a history entry naming the
+     technology, what it was and what it became. Nothing is silent.
+
+     The Academic Reviewer is deliberately NOT given this authority: they
+     must be able to OPEN and inspect a link during review, which is a
+     read, and no confirmed source grants them delivery-edit rights. */
+  var MANAGER_DELIVERY_FIELDS = ['url', 'packageRef', 'packageLabel', 'runtime', 'notes'];
+  /* ⚠ EVERYTHING A REMOVAL MUST CLEAR — 07.3 adversarial fix.
+     `remove` cleared only the writable set above, so the Vendor-authored
+     `packageFile` and `install` survived. `publishReadiness` then still
+     saw package information and never raised its blocker, and
+     `deliveryRows` still printed "Selected file: rig-12.apk" — while the
+     removal dialog promised that everything recorded for that technology
+     was cleared. The writable set stays narrower than this on purpose:
+     the Content Manager corrects references, and does not author the
+     Vendor's package. */
+  var DELIVERY_ALL_FIELDS = MANAGER_DELIVERY_FIELDS.concat(['packageFile', 'install']);
+
+  function managerCanEditDelivery(rec, actorId) {
+    /* Library-wide: the Content Manager manages the repository, which
+       includes a published record whose hosted link has gone stale —
+       the stakeholder's own example. Authority is scope, not status. */
+    return managerCanAct(rec, actorId);
+  }
+
+  /* Every field `managerUpdateDelivery` can write, in a stable order.
+     Used ONLY to decide whether anything actually moved. */
+  function deliveryFingerprint(rec, tech) {
+    var d = deliveryOf(rec, tech);
+    return DELIVERY_ALL_FIELDS.map(function (k) {
+      return k + '=' + String(d[k] === undefined || d[k] === null ? '' : d[k]);
+    }).join('\u0001');
+  }
+
+  function deliverySummaryFor(rec, tech) {
+    var d = deliveryOf(rec, tech);
+    var def = data.TECHNOLOGIES[tech];
+    if (def && def.delivery === 'hosted') { return String(d.url || ''); }
+    return String(d.packageRef || d.packageLabel || '');
+  }
+
+  /* patch: { url?, packageRef?, packageLabel?, runtime?, notes? }
+     `remove` clears the delivery reference for that technology instead.
+     Returns null when refused, so the screen never claims a write. */
+  function managerUpdateDelivery(actorId, recordId, tech, patch, reason, remove) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    if (!rec || !managerCanEditDelivery(rec, actorId)) { return null; }
+    if (rec.technologies.indexOf(tech) === -1) { return null; }
+    var why = String(reason || '').trim();
+    if (!why) { return null; }
+
+    var def = data.TECHNOLOGIES[tech] || {};
+    var before = deliverySummaryFor(rec, tech);
+    /* Field-by-field, captured BEFORE the mutation, so the audit entry can
+       name what actually moved instead of restating an unchanged summary. */
+    var beforeFields = {};
+    DELIVERY_ALL_FIELDS.forEach(function (k) {
+      var dv = deliveryOf(rec, tech)[k];
+      beforeFields[k] = dv === undefined || dv === null ? '' : String(dv);
+    });
+    /* ⚠ THE SUMMARY IS NOT THE RECORD — 07.3 adversarial fix.
+
+       The no-op guard below originally compared `deliverySummaryFor()`
+       alone, which reads only the URL (hosted) or the package reference
+       (package). An edit that touched ONLY `runtime`, `notes`, or
+       `packageLabel` beside a non-empty `packageRef` left that summary
+       identical, so the guard fired: the in-memory record had already
+       been mutated, no history was written, `save()` was never reached
+       — and the function still returned the record, which every caller
+       reads as success. The edit was announced, not recorded, and lost
+       on reload (or flushed later by an unrelated `save()`, landing in
+       storage with no audit entry at all).
+
+       The fingerprint therefore covers every field this writer can
+       actually change. */
+    var beforePrint = deliveryFingerprint(rec, tech);
+    if (!rec.delivery || typeof rec.delivery !== 'object') { rec.delivery = {}; }
+    var d = rec.delivery[tech] && typeof rec.delivery[tech] === 'object'
+      ? rec.delivery[tech] : {};
+
+    if (remove) {
+      DELIVERY_ALL_FIELDS.forEach(function (k) { delete d[k]; });
+    } else {
+      var p = patch || {};
+      if (def.delivery === 'hosted') {
+        var url = String(p.url === undefined ? (d.url || '') : p.url).trim();
+        /* A hosted link that is not a URL is refused rather than stored:
+           the Student would be handed something that cannot open. */
+        if (url && !isHttpUrl(url)) { return null; }
+        d.url = url;
+      } else {
+        if (p.packageRef !== undefined) { d.packageRef = String(p.packageRef || '').trim(); }
+        if (p.packageLabel !== undefined) { d.packageLabel = String(p.packageLabel || '').trim(); }
+      }
+      if (p.runtime !== undefined) { d.runtime = String(p.runtime || '').trim(); }
+      if (p.notes !== undefined) { d.notes = String(p.notes || '').trim(); }
+    }
+    rec.delivery[tech] = d;
+
+    var after = deliverySummaryFor(rec, tech);
+    if (deliveryFingerprint(rec, tech) === beforePrint && !remove) {
+      /* Nothing actually moved. Writing a history entry for a no-op
+         would make the audit trail lie about how often this changed.
+         Compared across EVERY editable field — see the note above. */
+      return rec;
+    }
+    /* ⚠ THE NOTE MUST NAME WHAT MOVED — 07.3 adversarial fix.
+       This recorded `deliverySummaryFor` before and after, which reads
+       ONLY the URL or the package reference. A notes-only, runtime-only or
+       label-only edit therefore logged "was: PKG-1 · now: PKG-1" and the
+       prior value was unrecoverable — while three places on the screen
+       promised the history would name what it was and what it became. */
+    var moved = [];
+    DELIVERY_ALL_FIELDS.forEach(function (k) {
+      var av = deliveryOf(rec, tech)[k];
+      var after1 = av === undefined || av === null ? '' : String(av);
+      if (after1 !== beforeFields[k]) {
+        moved.push(k + ': "' + (beforeFields[k] || '(none)') + '" → "' + (after1 || '(none)') + '"');
+      }
+    });
+    var now = new Date().toISOString();
+    rec.updatedAt = now;
+    pushContentEvent(rec, 'delivery',
+      (remove ? 'Delivery reference removed — ' : 'Delivery reference updated — ') +
+        (def.label || tech),
+      actor, now,
+      why + ' · ' + (moved.length ? moved.join(' · ')
+        : 'was: ' + (before || '(none)') + ' · now: ' + (after || '(none)')));
+    save();
+    return rec;
+  }
+
+  /* PM-14's return path at the content readiness gate — WITH AN EXPLICIT
+     DESTINATION (07.3).
+
+     The stakeholder was precise about this: *"if you click the request,
+     there should be 2 options available. One is academic reviewer and one
+     is vendor."* An academic/content problem is the Academic Reviewer's
+     to resolve; a technical one — the app not working, a bad package, a
+     broken hosted link, a delivery discrepancy — is the Vendor's. Sending
+     a broken link back through academic review was the specific thing the
+     stakeholder called pointless.
+
+     The destination is a REAL state fork, not a label: each one writes a
+     different status whose `holder` is a different role, so the record
+     genuinely lands in that recipient's queue.
+
+     `destination` defaults to the Vendor, which is what this function did
+     before the split — so every existing caller keeps its behaviour. */
+  var CHANGE_DESTINATION = { VENDOR: 'vendor', REVIEWER: 'reviewer' };
+
+  function requestChangesContent(actorId, recordId, comment, opts) {
     var rec = contentRecord(recordId);
     var actor = contentActor(actorId);
     if (!managerCanAct(rec, actorId)) { return null; }
     if (rec.status !== CONTENT_STATUS.CONTENT_REVIEW) { return null; }
     var text = String(comment || '').trim();
     if (!text) { return null; }
+    var o = opts || {};
+    var dest = o.destination === CHANGE_DESTINATION.REVIEWER
+      ? CHANGE_DESTINATION.REVIEWER : CHANGE_DESTINATION.VENDOR;
+    var refList = normalizeContentRefs(o.refs);
     var now = new Date().toISOString();
-    rec.status = CONTENT_STATUS.CHANGES_CONTENT;
-    rec.returnedGate = 'content';
-    rec.resubmitted = false;
-    rec.updatedAt = now;
-    pushContentEvent(rec, 'changes', 'Changes requested — content readiness', actor, now, text);
+
+    if (dest === CHANGE_DESTINATION.REVIEWER) {
+      /* ACADEMIC ROUTE. The record goes to the Academic Reviewer, whose
+         `holder` is `reviewer`, and `returnedGate` is deliberately NOT
+         touched: the Vendor has not been asked for anything, so the gate
+         that governs a Vendor resubmission still describes the last time
+         the Vendor was actually involved. */
+      rec.status = CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK;
+      rec.updatedAt = now;
+      pushContentEvent(rec, 'changes',
+        'Returned to the Academic Reviewer — academic / content issue', actor, now, text, refList);
+    } else {
+      rec.status = CONTENT_STATUS.CHANGES_CONTENT;
+      rec.returnedGate = 'content';
+      rec.resubmitted = false;
+      rec.updatedAt = now;
+      pushContentEvent(rec, 'changes',
+        'Returned to the Vendor — technical / delivery issue', actor, now, text, refList);
+    }
     save();
     return rec;
   }
@@ -2039,8 +2476,13 @@ XRSLP.state = (function () {
     function n(status) { return scope.filter(function (r) { return r.status === status; }).length; }
     var decisions = academicReviewsBy(actorId);
     return {
-      waiting: n(CONTENT_STATUS.ACADEMIC_REVIEW),
-      queue: scope.filter(function (r) { return r.status === CONTENT_STATUS.ACADEMIC_REVIEW; }),
+      waiting: n(CONTENT_STATUS.ACADEMIC_REVIEW) + n(CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK),
+      /* 07.3 — a Content-Manager academic return sits in the SAME queue
+         as a fresh submission: both are work this reviewer must decide. */
+      returnedByManager: n(CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK),
+      queue: scope.filter(function (r) {
+        return r.status === CONTENT_STATUS.ACADEMIC_REVIEW ||
+               r.status === CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK; }),
       changesRequested: n(CONTENT_STATUS.CHANGES_ACADEMIC),
       approvedAwaitingPublication: n(CONTENT_STATUS.CONTENT_REVIEW),
       published: n(CONTENT_STATUS.PUBLISHED),
@@ -2066,6 +2508,10 @@ XRSLP.state = (function () {
       inPipeline: scope.length - n(CONTENT_STATUS.PUBLISHED),
       inAcademicReview: n(CONTENT_STATUS.ACADEMIC_REVIEW),
       withVendor: n(CONTENT_STATUS.DRAFT) + n(CONTENT_STATUS.CHANGES_ACADEMIC) + n(CONTENT_STATUS.CHANGES_CONTENT),
+      /* 07.3 — returned by THIS role to the Academic Reviewer. Held by
+         the reviewer, so it is deliberately NOT counted in withVendor. */
+      returnedToReviewer: n(CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK),
+      inAcademicRecheck: n(CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK),
       technologyCoverage: data.TECH_ORDER.filter(function (t) { return techCover[t]; })
         .map(function (t) { return { tech: t, count: techCover[t] }; }),
       blockedInQueue: queue.filter(function (r) { return !publishReadiness(r).ok; })
@@ -2216,6 +2662,49 @@ XRSLP.state = (function () {
     if (data.SCENARIOS[id]) { S.scenarioId = id; save(); }
   }
 
+  /* WHICH INSTITUTION THE PUBLIC PLANE IS CURRENTLY SPEAKING FOR.
+
+     ⚠ PROTOTYPE-ONLY, AND NOT AUTHENTICATION. The public catalogue is
+     deliberately browse-before-login and there is no sign-in anywhere in
+     this build. This resolves the requester from the PROTOTYPE SCENARIO
+     SELECTOR and nothing else, which is the same two-step lookup
+     `resolveRequestTenant` already performs once a request exists —
+     seeded tenant first, then an exact name match. It returns null
+     whenever the scenario names no institution that has been
+     provisioned yet (Scenario B before its first approval), and every
+     surface that reads it must render nothing in that case rather than
+     claim an identity the build cannot establish.
+
+     It grants NOTHING. It is used only to SHOW an institution what it
+     already holds while it is choosing (Implementation 07.2, rule A). */
+  /* THE INSTITUTION THE REQUESTER IS ACTUALLY TYPING.
+
+     `scenarioTenant()` answers "who is browsing", which is the only
+     question the anonymous catalogue can ask. The REQUEST FORM can do
+     better: the applicant types an institution name, and that name —
+     not the scenario's default — is who the request will be matched to
+     at approval (`resolveRequestTenant` resolves `tenantByName` on
+     exactly this value).
+
+     Reading the scenario there instead showed one institution's access
+     records, licence counts and terms to somebody requesting under a
+     different name. The match is exact, trimmed and case-insensitive,
+     and an unrecognised name resolves to null rather than to whichever
+     institution the prototype selector happens to be pointing at. */
+  function requesterTenant(name) {
+    var n = String(name == null ? '' : name).trim();
+    if (n) { return tenantByName(n); }
+    return scenarioTenant();
+  }
+  function scenarioTenant() {
+    var sc = scenario();
+    if (sc.seedTenantId) {
+      var seeded = tenantById(sc.seedTenantId);
+      if (seeded) { return seeded; }
+    }
+    return tenantByName(sc.institution.name) || null;
+  }
+
   /* ---------- selection basket (CART ≠ ENTITLEMENT) ---------- */
   function selectionItems() { return S.selection; }
   function selectionCount() { return S.selection.length; }
@@ -2261,6 +2750,41 @@ XRSLP.state = (function () {
     /* One request record per submission; the selection snapshot is
        copied so later basket edits cannot mutate a submitted request. */
     var sc = scenario();
+
+    /* ⚠ AN EXISTING INSTITUTION KEEPS ITS OWN COMMERCIAL ROUTE — 07.3
+       adversarial fix.
+
+       Identity already comes from the typed name (`resolveRequestTenant`),
+       but `kind` / `accessContext` / `paymentRequired` were still taken
+       unconditionally from the prototype SCENARIO SELECTOR. The two halves
+       therefore disagreed: typing an existing institution's name while the
+       other scenario happened to be selected produced a request bound to
+       that institution but carrying the WRONG route — a BITS Community
+       institution sent through a payment step and given a record stamped
+       `Subscription`, or a paid institution handed a free record.
+
+       `submitRenewalRequest` already calls reading `scenario()` here "a
+       live defect" and derives its route from the institution. An
+       ordinary second request — which is exactly what clarification A
+       invites — never got the same treatment.
+
+       The scenario is now consulted ONLY for a name the platform does not
+       recognise, which is the one case where there is no institution to
+       ask. */
+    var known = requesterTenant(form.institutionName);
+    var knownOrigin = known ? originRequestFor(known.id) : null;
+    var route = known
+      ? {
+          kind: known.kind,
+          accessContext: known.accessContext,
+          paymentRequired: knownOrigin ? !!knownOrigin.paymentRequired : known.kind === 'external'
+        }
+      : {
+          kind: sc.institution.kind,
+          accessContext: sc.institution.accessContext,
+          paymentRequired: sc.institution.paymentRequired
+        };
+
     S.seq.request += 1;
     var now = new Date().toISOString();
     var req = {
@@ -2268,12 +2792,12 @@ XRSLP.state = (function () {
       scenarioId: sc.id,
       institution: {
         name: form.institutionName,
-        kind: sc.institution.kind,
-        accessContext: sc.institution.accessContext,
+        kind: route.kind,
+        accessContext: route.accessContext,
         contactName: form.contactName,
         contactEmail: form.contactEmail
       },
-      paymentRequired: sc.institution.paymentRequired,
+      paymentRequired: route.paymentRequired,
       items: S.selection.map(function (i) {
         return { experimentId: i.experimentId, technologies: i.technologies.slice() };
       }),
@@ -2348,11 +2872,38 @@ XRSLP.state = (function () {
       var bound = tenantById(req.tenantId);
       if (bound) { return bound; }
     }
+    /* ⚠ THE SUBMITTED NAME OUTRANKS THE PROTOTYPE SCENARIO — 07.3
+       adversarial fix.
+
+       This previously consulted `SCENARIOS[req.scenarioId].seedTenantId`
+       FIRST and fell back to the name. That made the prototype's own
+       selector, not the applicant, decide who a request belonged to: a
+       request typed under a name no institution on the platform matches
+       still resolved to whichever institution the scenario seeded.
+
+       On the Super Admin request screen that was a cross-institution
+       disclosure on the one card whose job is to answer "does THIS
+       requester already hold it": the "Already held by this institution"
+       card rendered a STRANGER's access-record ids, technologies, terms
+       and licence figures, and the identity sentence asserted the
+       request attached to an institution that had not submitted it.
+
+       `requesterTenant()` above already had exactly this fix for the
+       public request form and documents the same reasoning. The two read
+       models now agree: an unrecognised name resolves to NULL — which is
+       the truth, and which the screen already renders as "approving
+       creates a NEW institution" — rather than to a bystander.
+
+       The scenario seed is still consulted, but only where it cannot
+       misattribute anything: when the request carries no institution
+       name at all. */
+    var typed = req.institution && req.institution.name;
+    if (String(typed == null ? '' : typed).trim()) {
+      return tenantByName(typed) || null;
+    }
     var sc = XRSLP.data.SCENARIOS[req.scenarioId];
-    var t = null;
-    if (sc && sc.seedTenantId) { t = tenantById(sc.seedTenantId); }
-    if (!t) { t = tenantByName(req.institution.name); }
-    return t || null;
+    if (sc && sc.seedTenantId) { return tenantById(sc.seedTenantId) || null; }
+    return null;
   }
 
   var TERM_ORDER = ['monthly', 'quarterly', 'yearly'];
@@ -2432,6 +2983,28 @@ XRSLP.state = (function () {
     if (!req) { return null; }
     if (!requestCanBeDecided(req)) { return null; }
     decision = decision || {};
+    /* A RENEWAL CANNOT BE NARROWED — Implementation 07.2, adversarial fix.
+
+       The grant editor exists because the Super Admin may hand an
+       institution LESS than it asked for. A renewal is a different
+       object: it mirrors a plan that already exists, and whether a
+       renewal may change licences, technologies or term is an OPEN
+       question this build must not answer by accident.
+
+       Without this guard the two halves disagreed silently and
+       dangerously: `validateGrant` accepted a narrowing, the decision
+       dialog and the institution's own status screen both announced
+       "the institution receives less than it requested", and then
+       `activateRenewal` — which extends the term of an EXISTING record
+       rather than writing a new one — applied only the term and left
+       the licences, experiments and technologies exactly as they were.
+       The recorded decision and the real entitlement diverged with
+       nothing to reconcile them.
+
+       Refusing here is the fail-safe reading: to give an institution
+       something different from what it holds, raise an ordinary
+       institutional request. */
+    if (req.renewsAccessId && decision.grant) { return null; }
     /* REASON REQUIRED — STK31-20. The applicant reads it on their own
        status screen, so it is a product value, not an audit nicety. */
     var reason = String(decision.reason || '').trim();
@@ -2640,6 +3213,13 @@ XRSLP.state = (function () {
   }
 
   function activateRequest(req, nowIso) {
+    /* A RENEWAL activates a DIFFERENT WAY — it extends the term of the
+       record it renews instead of writing a new one. Branching here, at
+       the single activation entry point, is what makes the renewal
+       inherit every gate the ordinary route already passes through:
+       the required decision reason, the inactive-institution refusal,
+       and — on the external route — the payment step. */
+    if (req.renewsAccessId) { return activateRenewal(req, nowIso); }
     /* Provisioning is idempotent and, on both routes, has already run at
        approval. Calling it here RESOLVES the bound institution and
        creates nothing — which is what makes payment unable to produce a
@@ -2676,7 +3256,301 @@ XRSLP.state = (function () {
       accessContext: req.institution.accessContext,
       recordedBy: 'Super Admin — request approval',
       startsOn: nowIso,
-      endsOn: termDef ? util.addMonths(nowIso, termDef.months) : null
+      endsOn: termDef ? util.addMonths(nowIso, termDef.months) : null,
+      /* Implementation 07.2 — the renewal audit line. Empty is the true
+         value for a record that has renewed nothing. */
+      renewals: []
+    });
+  }
+
+  /* ============================================================
+     RENEWAL — Implementation 07.2, stakeholder rule D.
+
+     "Tenant should go through same payment method which he follows in
+      initial onboarding."
+
+     ── WHAT THIS IS NOT ─────────────────────────────────────────
+     It is NOT a Super Admin extension control. There is no writer
+     anywhere in this build that lengthens an access term on request:
+     `endsOn` is written by `activateRequest` (ordinary onboarding),
+     by `activateRenewal` below (only ever after the institution's own
+     route has completed), and by `protoSetAccessEnd`, which is the
+     explicitly labelled demo clock and is not a product control.
+     It is NOT automatic. Nothing renews because a term is ending, and
+     nothing renews because a renewal was merely REQUESTED.
+     It introduces NO payment provider, NO price and NO invoice.
+
+     ── THE ROUTE COMES FROM THE INSTITUTION ─────────────────────
+     `submitRequest` reads `scenario()` for `kind` / `accessContext` /
+     `paymentRequired`, because on the public plane the scenario IS the
+     requester. A renewal has a real institution behind it, so reading
+     the prototype selector there would be a live defect: with the
+     external scenario selected, renewing an internal BITS-Community
+     institution would put it on the payment route, and vice versa.
+     `renewalRouteFor` therefore derives the route from the institution
+     and its ORIGINAL onboarding request, and `submitRenewalRequest`
+     never calls `scenario()`.
+
+     ── WHY IT EXTENDS RATHER THAN ADDS A RECORD ─────────────────
+     A renewal continues the SAME plan. Writing a second access record
+     would leave every assignment, faculty mapping and licence
+     allocation behind on the old record — the institution would renew
+     and find that no student was entitled any more. Rule A's EXPANSION
+     is the case that legitimately adds a record, because it adds
+     licences; renewal is not that case, and the two are kept apart
+     deliberately.
+
+     ── WHAT IS STILL OPEN, AND IS NOT DECIDED HERE ──────────────
+     Whether licences, technologies or the term may CHANGE at renewal is
+     unresolved. This build fails safe: a renewal MIRRORS the current
+     plan exactly, no editing is offered anywhere, and the surfaces say
+     so. The 15-day reminder rule is unchanged, and its delivery channel
+     remains unresolved — nothing here claims a message was sent.
+     ============================================================ */
+
+  /* The institution's ORIGINAL onboarding request — the earliest one
+     bound to this tenant. It is what carries the commercial route the
+     institution actually came in on. */
+  function originRequestFor(tenantId) {
+    var bound = S.requests.filter(function (r) { return r.tenantId === tenantId && !r.renewsAccessId; });
+    return bound.length ? bound[0] : null;
+  }
+
+  /* The route a renewal for this institution must follow. Derived — no
+     stored field, so it cannot drift from the institution it describes.
+
+     The fallback when no bound request survives reads the INSTITUTION's
+     own `kind`, which is written at provisioning from the original
+     request (never from the live scenario). It is never a guess about
+     what the institution "probably" is. */
+  function renewalRouteFor(tenantId) {
+    var t = tenantById(tenantId);
+    if (!t) { return null; }
+    var origin = originRequestFor(tenantId);
+    return {
+      tenantId: t.id,
+      kind: t.kind,
+      accessContext: t.accessContext,
+      paymentRequired: origin ? !!origin.paymentRequired : t.kind === 'external',
+      originRequestId: origin ? origin.id : null,
+      /* This answer is INSTITUTION-wide. It is only safe to print above a
+         particular record when every live record agrees — see
+         `renewalRouteForAccess`, which is the authority for a renewal. */
+      scope: 'institution'
+    };
+  }
+
+  /* ⚠ THE ROUTE BELONGS TO THE RECORD, NOT THE INSTITUTION — 07.3
+     adversarial fix, and the most serious defect found in this pass.
+
+     `renewalRouteFor(tenantId)` answers from `originRequestFor()`, which
+     returns the institution's FIRST bound request. Clarification A lets
+     one institution hold records that arrived on DIFFERENT routes — a
+     BITS Community record and a paid Subscription record — and every one
+     of them then inherited the first record's route.
+
+     The consequence broke clarification D in both directions:
+       · a SUBSCRIPTION record — one that exists only because a payment
+         succeeded — renewed on Super Admin approval ALONE, with no
+         payment step ever offered;
+       · an INTERNAL record was held behind a payment step it never had.
+     And the renewals[] audit line stamped the INSTITUTION's context onto
+     the record, so a paid record acquired a permanent entry reading
+     "BITS Community · no payment step on this route".
+
+     The record knows its own route. `requestId` names the request that
+     created it, and `accessContext` was copied from that request at
+     activation. Both are read here, in that order, and the institution is
+     consulted only when neither survives. */
+  function renewalRouteForAccess(accessId) {
+    var rec = accessById(accessId);
+    if (!rec) { return null; }
+    var t = tenantById(rec.tenantId);
+    if (!t) { return null; }
+    var origin = rec.requestId ? request(rec.requestId) : null;
+    /* A renewal request is not an origin: it inherits, never defines. */
+    if (origin && origin.renewsAccessId) { origin = null; }
+
+    var paymentRequired;
+    if (origin) {
+      paymentRequired = !!origin.paymentRequired;
+    } else if (typeof rec.accessContext === 'string' && rec.accessContext) {
+      /* The record's own recorded context, which was copied from the
+         request that created it. `external` institutions pay. */
+      paymentRequired = rec.accessContext !== t.accessContext
+        ? rec.accessContext === 'Subscription'
+        : t.kind === 'external';
+    } else {
+      paymentRequired = t.kind === 'external';
+    }
+    return {
+      tenantId: t.id,
+      accessId: rec.id,
+      kind: t.kind,
+      /* THE RECORD'S context, never the institution's. */
+      accessContext: rec.accessContext || t.accessContext,
+      paymentRequired: paymentRequired,
+      originRequestId: origin ? origin.id : null,
+      scope: 'record'
+    };
+  }
+
+  /* Renewal requests raised against one access record, newest last. */
+  function renewalRequestsForAccess(accessId) {
+    return S.requests.filter(function (r) { return r.renewsAccessId === accessId; });
+  }
+  /* The one still in flight, if any — submitted, awaiting more
+     information, or approved and awaiting payment. */
+  function openRenewalForAccess(accessId) {
+    return renewalRequestsForAccess(accessId).filter(function (r) {
+      return r.status === STATUS.SUBMITTED ||
+             r.status === STATUS.INFO_REQUESTED ||
+             r.status === STATUS.APPROVED_PAYMENT_REQUIRED;
+    })[0] || null;
+  }
+  function renewalRequestsForTenant(tenantId) {
+    return S.requests.filter(function (r) { return r.tenantId === tenantId && !!r.renewsAccessId; });
+  }
+
+  /* Why a renewal cannot be raised for this record right now, or null. */
+  function renewalBlock(accessId) {
+    var rec = accessById(accessId);
+    if (!rec) { return 'missing'; }
+    if (!tenantIsActive(rec.tenantId)) { return 'tenant-inactive'; }
+    if (!renewalRouteForAccess(accessId)) { return 'no-institution'; }
+    if (openRenewalForAccess(accessId)) { return 'already-open'; }
+    var items = Array.isArray(rec.items) ? rec.items : [];
+    if (!items.length) { return 'nothing-to-renew'; }
+    return null;
+  }
+  var RENEWAL_BLOCK_REASON = {
+    'missing':          'the access record no longer exists',
+    'tenant-inactive':  'the institution has been deactivated by the Super Admin',
+    'no-institution':   'this record is not bound to an institution',
+    'already-open':     'a renewal for this record is already in progress',
+    'nothing-to-renew': 'the record carries no approved experiments'
+  };
+  function renewalBlockText(reason) {
+    return RENEWAL_BLOCK_REASON[reason] || 'a renewal cannot be raised for this record';
+  }
+  function canRenewAccess(accessId) { return renewalBlock(accessId) === null; }
+
+  /* Raise a renewal. It builds an ORDINARY `requests[]` row, so every
+     existing gate — the Super Admin decision, the required reason, the
+     inactive-institution refusal, the grant-may-only-narrow rule and
+     the three payment outcomes — applies to it unchanged and no second
+     decision surface exists.
+
+     The plan is COPIED from the record being renewed and is not
+     widened. That keeps `validateGrant`'s narrowing invariant trivially
+     satisfied and keeps the unresolved "may a renewal change the plan?"
+     question genuinely open rather than answered by accident. */
+  function submitRenewalRequest(accessId, form) {
+    var blocked = renewalBlock(accessId);
+    if (blocked) { return { ok: false, reason: blocked, request: null }; }
+    var rec = accessById(accessId);
+    /* PER RECORD. See `renewalRouteForAccess`. */
+    var route = renewalRouteForAccess(accessId);
+    var tenant = tenantById(rec.tenantId);
+    var origin = route.originRequestId ? request(route.originRequestId) : null;
+    var f = form || {};
+    var now = new Date().toISOString();
+    S.seq.request += 1;
+    var req = {
+      id: 'REQ-' + util.pad3(S.seq.request),
+      /* The scenario is recorded for traceability only. NOTHING about
+         this request's route is taken from it. */
+      scenarioId: S.scenarioId,
+      institution: {
+        name: tenant.name,
+        kind: route.kind,
+        accessContext: route.accessContext,
+        contactName: String(f.contactName || (origin ? origin.institution.contactName : '') || '').trim(),
+        contactEmail: String(f.contactEmail || (origin ? origin.institution.contactEmail : '') || '').trim()
+      },
+      paymentRequired: route.paymentRequired,
+      /* MIRRORS THE CURRENT PLAN. Copied, never widened. */
+      items: rec.items.map(function (i) {
+        return { experimentId: i.experimentId, technologies: i.technologies.slice() };
+      }),
+      quantity: rec.quantity,
+      term: rec.term,
+      /* THE ONE FIELD THAT MAKES THIS A RENEWAL. */
+      renewsAccessId: rec.id,
+      status: STATUS.SUBMITTED,
+      submittedAt: now,
+      approvedAt: null,
+      activatedAt: null,
+      /* Bound at submission, so the institution can never be re-resolved
+         by name and a renewal can never provision a second tenant. */
+      tenantId: rec.tenantId,
+      history: [
+        { at: now, event: 'Renewal requested for ' + rec.id, who: tenant.name,
+          note: String(f.note || '').trim() }
+      ]
+    };
+    S.requests.push(req);
+    save();
+    return { ok: true, reason: null, request: req };
+  }
+
+  /* Activation of a renewal. Reached ONLY through `activateRequest`,
+     which is reached only from `approveRequest` on the internal route
+     and from a SUCCESSFUL `completePayment` on the external one.
+
+     It writes the TERM and the audit line, and nothing else: no new
+     access record, no new licence, no new Experiment, no new technology,
+     no assignment and no entitlement. The renewed record keeps its id,
+     so every assignment, faculty mapping and learning record that
+     already points at it stays exactly where it is. */
+  function activateRenewal(req, nowIso) {
+    var rec = accessById(req.renewsAccessId);
+    if (!rec) { return; }
+    /* Activating twice would extend the same term twice. */
+    if (req.activatedAt) { return; }
+    /* `approveRequest` refuses a grant on a renewal, so this is always
+       the mirrored plan. Reading it through the same expression the
+       ordinary path uses keeps the two in step if that ever changes —
+       and the assertion below refuses to activate a renewal carrying a
+       plan this function would not fully apply, rather than applying
+       half of it. */
+    var granted = req.grant || { items: req.items, quantity: req.quantity, term: req.term };
+    if (req.grant) { return; }
+    var termDef = XRSLP.data.term(granted.term);
+    if (!termDef) { return; }
+    /* THE NEW TERM RUNS FROM WHICHEVER IS LATER: the current end, or
+       now. Renewing early therefore adds to what is left rather than
+       silently discarding it, and renewing after expiry starts from
+       today rather than back-dating a term nobody could use.
+       IMPLEMENTATION JUDGEMENT — recorded as one, not stakeholder
+       policy, and stated on the renewal surfaces. */
+    var currentEnd = rec.endsOn ? new Date(rec.endsOn).getTime() : NaN;
+    var base = (!isNaN(currentEnd) && currentEnd > new Date(nowIso).getTime()) ? rec.endsOn : nowIso;
+    var previousEndsOn = rec.endsOn;
+    req.activatedAt = nowIso;
+    rec.endsOn = util.addMonths(base, termDef.months);
+    if (!Array.isArray(rec.renewals)) { rec.renewals = []; }
+    rec.renewals.push({
+      at: nowIso,
+      requestId: req.id,
+      term: granted.term,
+      previousEndsOn: previousEndsOn,
+      endsOn: rec.endsOn,
+      /* THE RECORD'S OWN CONTEXT. Stamping the request's institution-level
+         value wrote a false provenance onto a record whose route differed
+         from the institution's first one. */
+      accessContext: rec.accessContext || req.institution.accessContext,
+      route: req.paymentRequired ? 'payment' : 'no-payment',
+      recordedBy: req.paymentRequired
+        ? 'Super Admin approval — activated on payment'
+        : 'Super Admin approval — no payment step on this route'
+    });
+    req.history.push({
+      at: nowIso, who: 'Platform',
+      event: 'Renewal activated — ' + rec.id + ' now runs to ' + rec.endsOn,
+      note: req.paymentRequired
+        ? 'Activated after the institution completed the same payment step it was onboarded through.'
+        : 'No payment step exists on this institution’s access route.'
     });
   }
 
@@ -2803,6 +3677,64 @@ XRSLP.state = (function () {
   function accessHasExperiment(rec, experimentId) {
     return !!rec && rec.items.some(function (i) { return i.experimentId === experimentId; });
   }
+
+  /* ============================================================
+     WHAT THIS INSTITUTION ALREADY HOLDS FOR ONE EXPERIMENT
+     — Implementation 07.2, stakeholder rule A.
+
+     "If the same institution requests the same experiment again, they
+      can request additional licenses. It should show the existing plan
+      when they reselect."
+
+     NOTHING HERE BLOCKS ANYTHING. This is a read model and only a read
+     model: it answers "what is already in place?" so the requester, the
+     Super Admin deciding, and the Tenant Admin can all see that a
+     second request is an EXPANSION of existing institutional access
+     rather than an accidental repeat purchase.
+
+     ONE ROW PER ACCESS RECORD, never a blended summary. Two records
+     carrying the same Experiment have independent technologies, terms
+     and licence quantities, and one can expire while the other runs —
+     collapsing them into a single "current plan" would state something
+     that is not true of either. `accessTermState` is read per record
+     for exactly that reason.
+     ============================================================ */
+  function tenantAccessForExperiment(tenantId, experimentId) {
+    if (!tenantId || !experimentId) { return []; }
+    return accessForTenant(tenantId)
+      .filter(function (rec) { return accessHasExperiment(rec, experimentId); })
+      .map(function (rec) {
+        return {
+          record: rec,
+          technologies: accessTechnologies(rec, experimentId),
+          termState: accessTermState(rec),
+          allocation: accessAllocation(rec.id),
+          live: accessIsLive(rec),
+          assignable: accessIsAssignable(rec, tenantId),
+          reason: accessAssignability(rec, tenantId)
+        };
+      });
+  }
+  /* The plain predicate, restricted to records whose term is still
+     running. A record that has expired is still shown by the read model
+     above — it is real history and the requester should see it — but it
+     is not what "already holds" means. */
+  function tenantHoldsExperiment(tenantId, experimentId) {
+    return tenantAccessForExperiment(tenantId, experimentId).some(function (row) { return row.live; });
+  }
+  /* The subset of a selection basket this institution already holds.
+     Returns [{ experimentId, rows }] and nothing for an anonymous
+     requester, so a surface can ask the question once. */
+  function heldSelectionFor(tenantId, items) {
+    if (!tenantId || !Array.isArray(items)) { return []; }
+    var out = [];
+    items.forEach(function (i) {
+      var rows = tenantAccessForExperiment(tenantId, i.experimentId);
+      if (rows.length) { out.push({ experimentId: i.experimentId, rows: rows }); }
+    });
+    return out;
+  }
+
   /* Canonical Courses reachable through one access record. */
   function accessCourseIds(rec) {
     var seen = {}, out = [];
@@ -4036,14 +4968,95 @@ XRSLP.state = (function () {
   /* Which simulation route the Student came in from — an observation,
      recorded because it is a real fact, never an identity. Null when
      they have not run a simulation yet. */
+  /* ⚠ RUN EVIDENCE ONLY — 07.3 adversarial fix.
+
+     This ranked on `completedAt || startedAt || readyAt || requestedAt`,
+     so merely REQUESTING a VR package — or the platform marking one ready
+     — outranked a Web run the student had actually completed. The value
+     is stamped onto `attempt.sourceTechnology` and rendered as a factual
+     claim on three screens ("Taken after VR simulation"), so the
+     stakeholder's exact question was being answered with a technology the
+     student never opened.
+
+     Only IN_PROGRESS and COMPLETED records count, ranked on
+     `completedAt || startedAt`. No run means null, and every reader
+     already renders nothing for null. */
   function latestSimulationTechnology(personId, experimentId) {
     var best = null, bestAt = '';
     S.simulationActivity.forEach(function (sim) {
       if (sim.personId !== personId || sim.experimentId !== experimentId) { return; }
-      var at = sim.completedAt || sim.startedAt || sim.readyAt || sim.requestedAt || '';
-      if (at >= bestAt) { bestAt = at; best = sim.technology; }
+      if (sim.status !== SIM_STATUS.IN_PROGRESS && sim.status !== SIM_STATUS.COMPLETED) { return; }
+      var at = sim.completedAt || sim.startedAt || '';
+      /* `>=`, not `>`: two runs finished inside the same millisecond
+         carry identical timestamps, and the later ENTRY is the later run.
+         Strict `>` would silently prefer whichever was recorded first. */
+      if (!best || at >= bestAt) { bestAt = at; best = sim.technology; }
     });
     return best;
+  }
+
+  /* ---------- TECHNOLOGY ACTUALLY USED (07.3, stakeholder R6) ----------
+     The stakeholder's question was specific: *"if the student is
+     performing the experiment in AR and VR ... we need the tag, whether
+     he has performed this experiment in web or VR"*, and *"if the faculty
+     is giving the assessment marks, how he will know it is a web
+     assignment or a VR thing"*.
+
+     ⚠ THIS IS NOT `mappedTechnologies()`. That answers "what did the
+     institution license for this student" — AVAILABILITY. This answers
+     "what did the student actually run" — USE. They are different
+     questions with different answers, and the Faculty review screen was
+     showing the first while the stakeholder asked for the second.
+
+     ⚠ IT IS A SET, NOT A VALUE. `latestSimulationTechnology()` returns
+     ONE technology — the most recent — which is exactly the "do not
+     falsely claim one technology if the student used multiple"
+     prohibition. A student who ran Web and then VR gets both here.
+
+     "Used" means the student genuinely engaged: a simulation record at
+     IN_PROGRESS or COMPLETED. A record that exists only because device
+     access was REQUESTED is reported separately as `requested`, because
+     asking for a package is not performing the experiment. */
+  function technologiesUsedFor(personId, experimentId) {
+    var byTech = {};
+    S.simulationActivity.forEach(function (sim) {
+      if (sim.personId !== personId || sim.experimentId !== experimentId) { return; }
+      byTech[sim.technology] = sim;
+    });
+    return data.TECH_ORDER.filter(function (t) { return byTech[t]; }).map(function (t) {
+      var sim = byTech[t];
+      return {
+        technology: t,
+        status: sim.status,
+        used: sim.status === SIM_STATUS.IN_PROGRESS || sim.status === SIM_STATUS.COMPLETED,
+        completed: sim.status === SIM_STATUS.COMPLETED,
+        startedAt: sim.startedAt || null,
+        completedAt: sim.completedAt || null,
+        deliveryState: sim.deliveryState || null
+      };
+    });
+  }
+
+  /* The whole answer in one object, so a screen never has to re-derive
+     it and two screens can never disagree about it. */
+  function technologyUseSummary(personId, experimentId) {
+    var rows = technologiesUsedFor(personId, experimentId);
+    var used = rows.filter(function (r) { return r.used; });
+    return {
+      rows: rows,
+      used: used.map(function (r) { return r.technology; }),
+      completed: rows.filter(function (r) { return r.completed; })
+        .map(function (r) { return r.technology; }),
+      inProgress: rows.filter(function (r) { return r.used && !r.completed; })
+        .map(function (r) { return r.technology; }),
+      /* Access requested, never run. Reported, never counted as used. */
+      requestedOnly: rows.filter(function (r) { return !r.used; })
+        .map(function (r) { return r.technology; }),
+      /* True when the platform has recorded NO run at all. The screen
+         must say that rather than implying a technology. */
+      none: used.length === 0,
+      multiple: used.length > 1
+    };
   }
 
   function startAttempt(personId, experimentId) {
@@ -6012,7 +7025,46 @@ XRSLP.state = (function () {
     if (!summary) {
       errs.push({ field: 'pc-summary', message: 'Enter a short description — the public catalogue shows it.' });
     }
+    errs = errs.concat(validateCourseCode(fields.code, existingId));
     return errs;
+  }
+
+  /* THE CANONICAL COURSE CODE — Implementation 07.2, stakeholder rule E.
+
+     "Content Manager primarily. Super Admin will also get access to it."
+
+     OPTIONAL, AND BLANK IS A PERMANENT LEGITIMATE STATE. No official
+     code has been supplied for the sample Courses and none is invented
+     here; a Course with no canonical code is a real state the product
+     must carry, exactly as a person with no Semester is.
+
+     UNIQUE PLATFORM-WIDE when present — a different scope from the
+     Course NAME rule, which is unique only within a Programme, because
+     a name is a label inside a tree and a code is platform identity.
+     Blanks are skipped, or the five blank seeded rows would collide
+     with one another on the first edit.
+
+     ⚠ NOTHING IN THIS BUILD RESOLVES BY CODE. CSV import and manual
+     entry resolve canonical structure BY NAME (`data.courseByName`), and
+     the tenant's own conflict warning compares LOCAL codes. The
+     canonical code is display and governance metadata; changing it here
+     is safe, and the surfaces say that outside this prototype an
+     external student-information system would key on it. */
+  function validateCourseCode(value, existingId) {
+    var code = String(value == null ? '' : value).trim();
+    if (!code) { return []; }
+    if (code.length > 40) {
+      return [{ field: 'pc-code', message: 'A Course code is at most 40 characters.' }];
+    }
+    var clash = S.courses.filter(function (c) {
+      return c.id !== existingId && data.norm(c.code || '') === data.norm(code);
+    })[0];
+    if (clash) {
+      return [{ field: 'pc-code',
+        message: 'Another Course already uses the code ' + clash.code + ' (' + clash.name + '). ' +
+                 'A canonical Course code identifies one Course across the whole platform.' }];
+    }
+    return [];
   }
 
   /* ONE id namespace for the whole structure.
@@ -6072,12 +7124,21 @@ XRSLP.state = (function () {
       id: structureSlug(fields.name, structureNamespace(), 'course'),
       groupingId: String(fields.groupingId).trim(),
       name: String(fields.name).trim(),
+      /* The canonical Course code. Optional here — the Content Manager
+         owns it primarily and may set it later from their own
+         workspace; the Super Admin can also set it, here and on the
+         edit form (Implementation 07.2, rule E). */
+      code: String(fields.code || '').trim(),
       summary: String(fields.summary).trim(),
       source: 'manual',
       createdBy: 'Super Admin',
       createdAt: new Date().toISOString(),
       updatedAt: null
     };
+    /* A code supplied at creation was still set BY somebody, and the
+       provenance column would otherwise read "Never set" beside a code
+       that is plainly there. */
+    if (rec.code) { rec.codeSetBy = 'Super Admin'; rec.codeSetAt = rec.createdAt; }
     S.courses.push(rec);
     save();
     return { ok: true, errors: [], course: rec };
@@ -6108,7 +7169,104 @@ XRSLP.state = (function () {
     rec.name = String(fields.name).trim();
     rec.summary = String(fields.summary).trim();
     rec.groupingId = String(fields.groupingId).trim();
+    /* THE SUPER ADMIN'S HALF OF RULE E. The canonical code is primarily
+       the Content Manager's, and the Super Admin also has access to it —
+       through this form, which is the structure editor they already own.
+       `fields.code` absent leaves the stored code exactly as it is, so a
+       caller that does not know about the field cannot blank one. */
+    if (fields.code !== undefined) {
+      var nextCode = String(fields.code || '').trim();
+      if (nextCode !== (rec.code || '')) {
+        rec.code = nextCode;
+        rec.codeSetBy = 'Super Admin';
+        rec.codeSetAt = new Date().toISOString();
+      }
+    }
     rec.updatedAt = new Date().toISOString();
+    save();
+    return { ok: true, errors: [], course: rec };
+  }
+
+  /* ============================================================
+     THE CONTENT MANAGER'S HALF OF RULE E.
+
+     "Content Manager primarily. Super Admin will also get access to it."
+
+     This is the ONLY actor-scoped structure writer in the build, and it
+     writes exactly one field. It deliberately does NOT let a Content
+     Manager create, rename, re-parent or delete a Course: the structure
+     itself stays platform-controlled (STK31-10), and only the canonical
+     CODE moves into Content Manager governance.
+
+     AUTHORISATION LIVES HERE, NOT IN THE ROUTE. The prototype has no
+     authentication and its routes carry only a shell label, so the
+     boundary that matters is this one — the same discipline
+     `updateCanonicalMetadata` already follows: the actor must be a
+     Content Manager, and the Course must be inside their assigned
+     scope. A platform-scope manager covers every Course; a
+     Course-scoped manager covers only theirs; an Experiment-scoped
+     manager reaches the Course their Experiment sits in.
+
+     ⚠ A TENANT ADMIN CANNOT REACH THIS. Tenant Admins are not content
+     actors at all — they live in `tenantAdmins[]`, have no
+     `contentRoleAssignments[]` row, and `contentActor()` cannot resolve
+     one. Their own course code stays exactly where it has always been,
+     on `courseMappings[].localCode`, scoped to their institution.
+     ============================================================ */
+  /* ⚠ THE SCOPE HERE IS THE AUTHORING SCOPE, NOT THE READING ONE.
+
+     `actorCourseIds` widens an EXPERIMENT-scope assignment to that
+     Experiment's Course, which is right for READING — you must be able
+     to see the Course your Experiment sits in. It is wrong for WRITING
+     PLATFORM MASTER DATA: an assignment naming one Experiment does not
+     carry authority over the Course that Experiment happens to be filed
+     in, and the canonical code belongs to the whole Course and every
+     other Experiment in it.
+
+     This is the same distinction `actorCreateCourseIds` already draws,
+     and the same test `managerCanFileInto` already applies to a
+     destination Course: platform scope, or an explicit Course scope. */
+  function managerCourseCodeIds(actorId) {
+    var rows = assignmentsFor(actorId);
+    if (rows.some(function (m) { return m.scope === 'all'; })) {
+      return data.courses().map(function (c) { return c.id; });
+    }
+    var out = [];
+    rows.forEach(function (m) {
+      if (m.scope === 'course' && m.courseId && out.indexOf(m.courseId) === -1) { out.push(m.courseId); }
+    });
+    return out;
+  }
+  function managerCanSetCourseCode(actorId, courseId) {
+    var actor = contentActor(actorId);
+    if (!actor || actor.role !== CONTENT_ROLE.MANAGER) { return false; }
+    if (!courseRecord(courseId)) { return false; }
+    return managerCourseCodeIds(actorId).indexOf(courseId) !== -1;
+  }
+  function coursesForManager(actorId) {
+    var ids = managerCourseCodeIds(actorId);
+    return S.courses.filter(function (c) { return ids.indexOf(c.id) !== -1; });
+  }
+  function updateCourseCode(actorId, courseId, code) {
+    var actor = contentActor(actorId);
+    if (!actor || actor.role !== CONTENT_ROLE.MANAGER) {
+      return { ok: false, errors: [{ field: 'pc-code',
+        message: 'The canonical Course code is managed by the Content Manager and the Super Admin.' }], course: null };
+    }
+    var rec = courseRecord(courseId);
+    if (!rec) {
+      return { ok: false, errors: [{ field: 'pc-code', message: 'This Course no longer exists.' }], course: null };
+    }
+    if (!managerCanSetCourseCode(actorId, courseId)) {
+      return { ok: false, errors: [{ field: 'pc-code',
+        message: 'This Course is outside your assigned scope. Scope is governed by the Super Admin.' }], course: null };
+    }
+    var errs = validateCourseCode(code, courseId);
+    if (errs.length) { return { ok: false, errors: errs, course: null }; }
+    rec.code = String(code || '').trim();
+    rec.updatedAt = new Date().toISOString();
+    rec.codeSetBy = actor.name;
+    rec.codeSetAt = rec.updatedAt;
     save();
     return { ok: true, errors: [], course: rec };
   }
@@ -6252,7 +7410,12 @@ XRSLP.state = (function () {
       status: 'active',
       assignedBy: 'Super Admin',
       assignedAt: new Date().toISOString(),
-      removedBy: null, removedAt: null, removedReason: ''
+      removedBy: null, removedAt: null, removedReason: '',
+      /* 07.3 — the DURABLE audit line. The three `removed*` fields above
+         describe the CURRENT state only and are cleared on restore; this
+         array is append-only and is never cleared, so "was this actor
+         ever suspended, by whom, and why?" survives the restore. */
+      history: []
     };
     S.contentRoleAssignments.push(rec);
     contentTouched();
@@ -6271,29 +7434,108 @@ XRSLP.state = (function () {
   function removePlatformRoleAssignment(id, reason) {
     var rec = roleAssignmentById(id);
     if (!rec || rec.status === 'removed') { return null; }
+    /* REASON REQUIRED — Implementation 07.2, stakeholder rule F.
+       Withdrawing a scope freezes somebody's workspace: their records
+       become read-only and, if nobody else covers them, unreachable.
+       That is consequential, and a consequential override must say why.
+       Everything that already calls this passes one. */
+    var note = String(reason || '').trim();
+    if (!note) { return null; }
     rec.status = 'removed';
     rec.removedBy = 'Super Admin';
     rec.removedAt = new Date().toISOString();
-    rec.removedReason = String(reason || '').trim();
+    rec.removedReason = note;
+    pushRoleAssignmentEvent(rec, 'withdrawn', 'Scope withdrawn', note, rec.removedAt);
     contentTouched();
     save();
     return rec;
   }
+  /* WITHDRAW EVERY SCOPE THIS ACTOR HOLDS, as ONE decision with ONE
+     reason — the whole of "suspend this Vendor / Reviewer / Content
+     Manager" with no new field and no new state. It is a loop over the
+     writer above, so each row keeps its own audit line and each one is
+     individually restorable; nothing is deleted and no record they have
+     already acted on loses their name. */
+  function withdrawAllScopesForActor(actorId, reason) {
+    var note = String(reason || '').trim();
+    if (!note) { return null; }
+    var actor = contentActor(actorId);
+    if (!actor) { return null; }
+    var live = roleAssignments({ actorId: actorId });
+    if (!live.length) { return null; }
+    var removed = [];
+    live.slice().forEach(function (m) {
+      if (removePlatformRoleAssignment(m.id, note)) { removed.push(m); }
+    });
+    return removed.length ? removed : null;
+  }
   /* Re-instating a withdrawn row rather than creating a duplicate. */
-  function restorePlatformRoleAssignment(id) {
+  /* ⚠ RESTORING MUST NOT ERASE THE SUSPENSION — 07.3 adversarial fix.
+
+     This cleared `removedBy` / `removedAt` / `removedReason` and the row
+     carried no history, so restoring a scope destroyed every trace that
+     a Vendor, Academic Reviewer or Content Manager had ever been
+     suspended and why. Clarification F grants the Super Admin genuine
+     operational authority *with auditability*; an override whose
+     evidence disappears one click later is not auditable.
+
+     The three `removed*` fields still describe the CURRENT state — every
+     screen reads them that way — but what they held is appended to the
+     append-only `history` first. `reason` is optional here: restoring
+     returns authority rather than taking it away, so it is the lower-
+     consequence half of the pair, and refusing a restore for want of a
+     sentence would leave a workspace frozen. */
+  function restorePlatformRoleAssignment(id, reason) {
     var rec = roleAssignmentById(id);
     if (!rec || rec.status !== 'removed') { return null; }
     var dup = roleAssignments({ actorId: rec.actorId }).some(function (m) {
       return m.scope === rec.scope && m.courseId === rec.courseId && m.experimentId === rec.experimentId;
     });
     if (dup) { return null; }
+    var now = new Date().toISOString();
+    pushRoleAssignmentEvent(rec, 'restored', 'Scope restored',
+      String(reason || '').trim(), now, {
+        /* What is about to be cleared, kept verbatim. */
+        clearedRemovedBy: rec.removedBy, clearedRemovedAt: rec.removedAt,
+        clearedRemovedReason: rec.removedReason
+      });
     rec.status = 'active';
     rec.removedBy = null; rec.removedAt = null; rec.removedReason = '';
     rec.assignedBy = 'Super Admin';
-    rec.assignedAt = new Date().toISOString();
+    rec.assignedAt = now;
     contentTouched();
     save();
     return rec;
+  }
+
+  /* Append-only. Never cleared, never reordered, never rewritten. */
+  function pushRoleAssignmentEvent(rec, kind, label, note, at, extra) {
+    if (!Array.isArray(rec.history)) { rec.history = []; }
+    var e = { kind: kind, label: label, note: note || '',
+              by: 'Super Admin', at: at || new Date().toISOString() };
+    if (extra) { Object.keys(extra).forEach(function (k) { e[k] = extra[k]; }); }
+    rec.history.push(e);
+    return e;
+  }
+
+  /* Every withdrawal/restore this scope has ever seen, oldest first. */
+  function roleAssignmentHistory(id) {
+    var rec = roleAssignmentById(id);
+    return rec && Array.isArray(rec.history) ? rec.history.slice() : [];
+  }
+  /* Has this actor EVER had a scope withdrawn? Reads the durable line,
+     so it stays true after every one of them was restored. */
+  function actorWasEverSuspended(actorId) {
+    return roleAssignments({ actorId: actorId, includeRemoved: true })
+      .some(function (m) {
+        /* A row that is withdrawn RIGHT NOW counts, whatever its history
+           holds — the state itself is the evidence. */
+        if (m.status === 'removed') { return true; }
+        return Array.isArray(m.history) &&
+          m.history.some(function (h) {
+            return h.kind === 'withdrawn' || h.clearedRemovedAt || h.clearedRemovedReason;
+          });
+      });
   }
   /* Records an actor has already ACTED on, whatever their scope is now.
      Used so a workspace can keep showing a person their own completed
@@ -6334,7 +7576,7 @@ XRSLP.state = (function () {
      structure is platform-controlled; neither describes a create or
      delete operation, and the ids in question are load-bearing for every
      existing access record, mapping and assignment. */
-  function updateCanonicalAsPlatform(recordId, fields) {
+  function updateCanonicalAsPlatform(recordId, fields, reason) {
     var rec = contentRecord(recordId);
     if (!rec) { return { ok: false, errors: [{ field: 'cm-name', message: 'This content record no longer exists.' }], record: null }; }
     if (!canonicalEditable(rec)) {
@@ -6347,6 +7589,15 @@ XRSLP.state = (function () {
     if (!name) { errs.push({ field: 'cm-name', message: 'Enter the canonical Experiment name.' }); }
     else if (nameTaken(name, rec.id)) { errs.push({ field: 'cm-name', message: 'Another experiment already uses this name.' }); }
     if (!data.course(fields.courseId)) { errs.push({ field: 'cm-course', message: 'Choose the Course this Experiment belongs to.' }); }
+    /* REASON REQUIRED ON PUBLISHED CONTENT — Implementation 07.2, rule F.
+       Editing the master record of something the public catalogue is
+       already showing is the most consequential content act the Super
+       Admin has. At the readiness gate the record is not public yet and
+       the reason stays optional. */
+    if (rec.status === CONTENT_STATUS.PUBLISHED && !String(reason || '').trim()) {
+      errs.push({ field: 'cm-reason',
+        message: 'Say why the published master record is being corrected. The catalogue shows this change immediately.' });
+    }
     if (errs.length) { return { ok: false, errors: errs, record: null }; }
     var now = new Date().toISOString();
     rec.name = name;
@@ -6354,10 +7605,129 @@ XRSLP.state = (function () {
     rec.summary = String(fields.summary || '').trim();
     rec.description = String(fields.description || '').trim();
     rec.updatedAt = now;
+    /* WHY, NOT ONLY WHO — Implementation 07.2, stakeholder rule F.
+       This rewrites a PUBLISHED Experiment's public name, Course,
+       summary and description, and the public catalogue shows the change
+       immediately. A reason is REQUIRED when the record is published;
+       at the readiness gate, where the Content Manager is about to
+       publish it anyway, it stays optional. */
     pushContentEvent(rec, 'metadata', 'Canonical metadata updated (platform master)',
-      PLATFORM_ACTOR, now, '');
+      PLATFORM_ACTOR, now, String(reason || '').trim());
     save();
     return { ok: true, errors: [], record: rec };
+  }
+
+  /* ============================================================
+     PLATFORM OVERRIDE ON THE CONTENT CHAIN
+     — Implementation 07.2, stakeholder rule F.
+
+     The stakeholder confirmed that the Super Admin has overall control
+     "as of now", including content changes and Vendor / Academic
+     Reviewer / Content Manager issues.
+
+     ── WHAT THAT DOES NOT MEAN ──────────────────────────────────
+     It does not mean an invisible mutation mechanism, and it does not
+     mean normal ownership disappears. The Vendor still submits, the
+     Academic Reviewer still validates and owns the Learning Outcomes,
+     and the Content Manager still controls first publication — none of
+     `vendorCanEdit`, `reviewerCanAct` or `managerCanAct` is widened by
+     a single character. This is a SEPARATE, SEPARATELY LABELLED
+     surface, and every use of it is explicit, reasoned and audited.
+
+     ── THE PUBLISH FIREWALL IS NOT CROSSED ──────────────────────
+     PUBLISHED is refused as a destination AND as an origin. First
+     publication is the Content Manager's act (STK31-06) and there is no
+     publish control anywhere on the Super Admin plane; a later version
+     of already-published content is the Super Admin's, through Release
+     / Hold, which acts on a DIFFERENT object. An override that could
+     publish — or un-publish — would contradict both, and would strand
+     live access records, faculty mappings, assignments and in-progress
+     attempts that already reference the Experiment id.
+
+     ── WHAT IT IS FOR ───────────────────────────────────────────
+     Unsticking the chain. A submission whose only assigned Academic
+     Reviewer has had their scope withdrawn sits in ACADEMIC_REVIEW with
+     nobody able to move it, and today nothing in the build can free it.
+     ============================================================ */
+  var OVERRIDABLE_STATUS = [
+    CONTENT_STATUS.DRAFT,
+    CONTENT_STATUS.ACADEMIC_REVIEW,
+    CONTENT_STATUS.CHANGES_ACADEMIC,
+    CONTENT_STATUS.CONTENT_REVIEW,
+    CONTENT_STATUS.CHANGES_CONTENT,
+    CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK
+  ];
+  /* Where this record may be moved to, and — for each destination —
+     whether anybody live can actually act once it is there. The screen
+     shows this BEFORE the decision, so an override cannot quietly
+     create a record nobody can reach. */
+  function overrideDestinations(recordId) {
+    var rec = contentRecord(recordId);
+    if (!rec || rec.status === CONTENT_STATUS.PUBLISHED) { return []; }
+    return OVERRIDABLE_STATUS.filter(function (st) { return st !== rec.status; })
+      .map(function (st) {
+        var meta = CONTENT_STATUS_META[st];
+        var covering = actorsForRecord(rec).filter(function (a) {
+          return a.role === meta.holder;
+        });
+        return {
+          status: st,
+          label: meta.label,
+          holder: meta.holder,
+          holderLabel: meta.holder ? contentRoleLabel(meta.holder) : null,
+          actors: covering,
+          reachable: covering.length > 0
+        };
+      });
+  }
+  function overrideContentStatusAsPlatform(recordId, toStatus, reason) {
+    var rec = contentRecord(recordId);
+    if (!rec) { return null; }
+    /* REASON REQUIRED. An override with no stated reason is exactly the
+       invisible mutation this must not become. */
+    var note = String(reason || '').trim();
+    if (!note) { return null; }
+    if (OVERRIDABLE_STATUS.indexOf(toStatus) === -1) { return null; }
+    /* THE FIREWALL, in both directions. */
+    if (rec.status === CONTENT_STATUS.PUBLISHED) { return null; }
+    if (rec.status === toStatus) { return null; }
+    var from = rec.status;
+    var now = new Date().toISOString();
+    rec.status = toStatus;
+    /* `returnedGate` IS THE DESTINATION, NOT A LEFTOVER.
+
+       It records which gate a record was returned at, and `submitContent`
+       reads it to decide where a resubmission goes back to: 'content'
+       sends it straight to the readiness gate, anything else sends it to
+       academic review. Nulling it made the two "Changes requested"
+       destinations behave identically — a Super Admin who deliberately
+       chose CHANGES_CONTENT would have watched the resubmission go to
+       the Academic Reviewer anyway, silently undoing the choice.
+
+       So it is SET to match the destination, and cleared only for a
+       destination that is not a return at all. */
+    rec.returnedGate = toStatus === CONTENT_STATUS.CHANGES_CONTENT ? 'content'
+                     : toStatus === CONTENT_STATUS.CHANGES_ACADEMIC ? 'academic'
+                     : null;
+    rec.updatedAt = now;
+    if (!Array.isArray(rec.overrides)) { rec.overrides = []; }
+    rec.overrides.push({
+      at: now, from: from, to: toStatus,
+      by: 'Super Admin — platform override',
+      reason: note
+    });
+    /* ONE event, through the ordinary writer, so the override appears in
+       the SAME timeline the Vendor, the Academic Reviewer and the
+       Content Manager already read — and so `contentTouched()` runs and
+       no surface reads a stale pool. Nothing already in `history[]`,
+       `academicReview`, `publication`, `academicReviews[]` or
+       `publicationRecords[]` is touched. */
+    pushContentEvent(rec, 'override',
+      'Moved by platform override — ' + CONTENT_STATUS_META[from].label +
+      ' → ' + CONTENT_STATUS_META[toStatus].label,
+      PLATFORM_ACTOR, now, note);
+    save();
+    return rec;
   }
 
   /* The canonical structure, read-only: Programme / Department → Course →
@@ -6837,8 +8207,15 @@ XRSLP.state = (function () {
   /* ============================================================
      DEVICE REPLACEMENT / TRANSFER  (STK31-38 · FRD 2.4.1 / 2.4.2)
 
-     Student requests → Super Admin approves → the authorised device
-     binding changes.
+     Student requests → the INSTITUTE / TENANT ADMIN reviews and
+     forwards → Super Admin approves → the authorised device binding
+     changes.
+
+     The middle step is stakeholder-confirmed (Implementation 07.2):
+     "Any request from institution should come through Tenant Admin. He
+      will be our POC to facilitate and final approval comes to Super
+      Admin." The Super Admin remains the FINAL decision maker; what
+     changed is that a Student no longer reaches them directly.
 
      ⚠ TWO GAPS, SHOWN AS GAPS AND NOT INVENTED — both recorded in
      `11_XR_DELIVERY_AND_DEVICE_MODEL.md` §6:
@@ -6858,11 +8235,25 @@ XRSLP.state = (function () {
      `accessAllocation()` and `entitlementsForStudent()` cannot see it.
      ============================================================ */
 
-  var TRANSFER_STATUS = { SUBMITTED: 'submitted', APPROVED: 'approved', DECLINED: 'declined' };
+  var TRANSFER_STATUS = {
+    SUBMITTED: 'submitted',
+    /* Implementation 07.2 — the Tenant Admin has reviewed the request
+       and forwarded it. Only from here is it the Super Admin's to
+       decide. */
+    ESCALATED: 'escalated',
+    APPROVED: 'approved',
+    DECLINED: 'declined'
+  };
+  /* The two states in which a request is still IN FLIGHT. Read by the
+     one-open-request guard, so adding the escalated state cannot let a
+     Student raise a second request describing a second device while the
+     first is still moving. */
+  var TRANSFER_OPEN = [TRANSFER_STATUS.SUBMITTED, TRANSFER_STATUS.ESCALATED];
   var TRANSFER_STATUS_META = {
-    submitted: { label: 'Awaiting Super Admin decision', badge: 'b-info',    icon: 'clock' },
-    approved:  { label: 'Approved',                      badge: 'b-success', icon: 'check' },
-    declined:  { label: 'Declined',                      badge: 'b-danger',  icon: 'x' }
+    submitted: { label: 'Awaiting Institute Admin review',  badge: 'b-info',    icon: 'clock' },
+    escalated: { label: 'Forwarded — awaiting Super Admin', badge: 'b-warning', icon: 'clock' },
+    approved:  { label: 'Approved',                         badge: 'b-success', icon: 'check' },
+    declined:  { label: 'Declined',                         badge: 'b-danger',  icon: 'x' }
   };
   function transferStatusMeta(status) {
     return TRANSFER_STATUS_META[status] || { label: status, badge: 'b-neutral', icon: 'circle' };
@@ -6876,14 +8267,43 @@ XRSLP.state = (function () {
     return S.deviceTransferRequests.filter(function (r) { return r.personId === personId; })
       .sort(function (a, b) { return (b.seq || 0) - (a.seq || 0); });
   }
+  function transferIsOpen(rec) {
+    return !!rec && TRANSFER_OPEN.indexOf(rec.status) !== -1;
+  }
   function openTransferForStudent(personId) {
     return S.deviceTransferRequests.filter(function (r) {
-      return r.personId === personId && r.status === TRANSFER_STATUS.SUBMITTED;
+      return r.personId === personId && transferIsOpen(r);
     })[0] || null;
   }
+  /* THE SUPER ADMIN'S QUEUE — Implementation 07.2, stakeholder rule C.
+
+     "Any request from institution should come through Tenant Admin. He
+      will be our POC to facilitate and final approval comes to Super
+      Admin."
+
+     This one filter is what stops a Student reaching the Super Admin
+     directly. A newly raised request is `submitted`, which now means
+     "with the Institute / Tenant Admin"; it becomes the platform's to
+     decide only once the Tenant Admin has forwarded it. Every Super
+     Admin count, badge and attention row derives from here, so they all
+     move together and none of them can disagree. */
   function transfersAwaitingDecision() {
-    return S.deviceTransferRequests.filter(function (r) { return r.status === TRANSFER_STATUS.SUBMITTED; })
+    return S.deviceTransferRequests.filter(function (r) { return r.status === TRANSFER_STATUS.ESCALATED; })
       .sort(function (a, b) { return (a.seq || 0) - (b.seq || 0); });
+  }
+  /* The INSTITUTION's queue — what its own Tenant Admin has to look at.
+     Oldest first, the same ordering the platform queue uses. */
+  function transfersAwaitingTenant(tenantId) {
+    return S.deviceTransferRequests.filter(function (r) {
+      return r.tenantId === tenantId && r.status === TRANSFER_STATUS.SUBMITTED;
+    }).sort(function (a, b) { return (a.seq || 0) - (b.seq || 0); });
+  }
+  /* Every device request raised inside one institution, newest first —
+     the Tenant Admin sees the outcome of the ones they forwarded, not
+     only the ones still waiting. */
+  function transfersForTenant(tenantId) {
+    return S.deviceTransferRequests.filter(function (r) { return r.tenantId === tenantId; })
+      .sort(function (a, b) { return (b.seq || 0) - (a.seq || 0); });
   }
   /* Device transfer is meaningful only where the technology is delivered
      as an authorised PACKAGE on a device (AR / VR / MR). A hosted Web
@@ -7020,10 +8440,72 @@ XRSLP.state = (function () {
     return rec.scope ? rec.scope === 'all' : !rec.technology;
   }
 
-  /* The decision. It writes THIS RECORD ONLY. */
-  function decideDeviceTransfer(id, decision, note) {
+  /* ============================================================
+     THE INSTITUTION POC HOP — Implementation 07.2, stakeholder rule C.
+
+     Student → INSTITUTE / TENANT ADMIN → Super Admin → decision.
+
+     The Tenant Admin is the institution's point of contact: they see
+     the request first, facilitate it, and forward it. Only a forwarded
+     request is the Super Admin's to decide.
+
+     ⚠ WHAT THIS FUNCTION WRITES: the status, the three escalation
+     fields and ONE history entry, on THIS RECORD. Nothing else. It
+     consumes no licence, grants no Experiment, adds no technology,
+     touches no assignment and touches no assessment state — the same
+     guarantee `decideDeviceTransfer` gives, and for the same reason: a
+     device is a delivery relationship, not an entitlement.
+
+     ⚠ NO DEVICE REGISTRY IS INTRODUCED. The escalation note is plain
+     free text, exactly like the decision note. There is no serial
+     number, no model validation, no MDM, no hardware certification and
+     no authentication step anywhere on this path.
+
+     ⚠ NOTHING IS SENT. This build has no notification channel of any
+     kind and does not pretend to: the state is surfaced in the product
+     to both the Student and the Tenant Admin, and no surface claims a
+     message was delivered.
+     ============================================================ */
+  function escalateDeviceTransfer(id, note) {
     var rec = deviceTransferById(id);
     if (!rec || rec.status !== TRANSFER_STATUS.SUBMITTED) { return null; }
+    /* The same tenant-plane write guard every other Tenant Admin writer
+       meets. A deactivated institution cannot forward — and, exactly as
+       everywhere else, nothing is lost: the request stays where it is
+       and moves the moment the institution is reactivated. */
+    if (!tenantCanWrite(rec.tenantId)) { return null; }
+    /* THE ACTOR MUST BE REAL. An institution with no assigned Tenant
+       Admin genuinely cannot perform the POC step — the Super Admin
+       Overview already flags that institution — and fabricating an
+       actor to get past it would put a name on the audit trail that
+       belongs to nobody. */
+    var admin = actingTenantAdmin(rec.tenantId);
+    if (!admin) { return null; }
+    var text = String(note || '').trim();
+    var now = new Date().toISOString();
+    rec.status = TRANSFER_STATUS.ESCALATED;
+    rec.escalatedBy = admin.name;
+    rec.escalatedAt = now;
+    rec.escalationNote = text;
+    S.seq.event += 1;
+    rec.history.push({
+      seq: S.seq.event,
+      kind: 'escalated',
+      label: 'Reviewed by the Institute / Tenant Admin and forwarded to the Super Admin',
+      who: admin.name, at: now, note: text
+    });
+    save();
+    return rec;
+  }
+
+  /* The FINAL decision, and it stays the Super Admin's. It writes THIS
+     RECORD ONLY.
+
+     The guard is `ESCALATED`, not `SUBMITTED`: a request the institution
+     has not forwarded is not the platform's to decide. */
+  function decideDeviceTransfer(id, decision, note) {
+    var rec = deviceTransferById(id);
+    if (!rec || rec.status !== TRANSFER_STATUS.ESCALATED) { return null; }
     if (decision !== TRANSFER_STATUS.APPROVED && decision !== TRANSFER_STATUS.DECLINED) { return null; }
     var text = String(note || '').trim();
     if (decision === TRANSFER_STATUS.DECLINED && !text) { return null; }
@@ -7543,9 +9025,21 @@ XRSLP.state = (function () {
 
   return {
     STORAGE_KEY: STORAGE_KEY, SCHEMA_VERSION: SCHEMA_VERSION,
+    /* Implementation 07.3 — content-production corrections. */
+    CHANGE_DESTINATION: CHANGE_DESTINATION,
+    CONTENT_REF_KIND: CONTENT_REF_KIND,
+    normalizeContentRefs: normalizeContentRefs,
+    normalizePreviewVideo: normalizePreviewVideo,
+    managerCanEditDelivery: managerCanEditDelivery,
+    managerUpdateDelivery: managerUpdateDelivery,
+    deliverySummaryFor: deliverySummaryFor,
+    MANAGER_DELIVERY_FIELDS: MANAGER_DELIVERY_FIELDS,
     STATUS: STATUS, STATUS_META: STATUS_META, SOURCE_META: SOURCE_META,
     save: save, reset: reset, migratedFrom: migratedFrom,
     scenario: scenario, setScenario: setScenario,
+    /* Implementation 07.2 — who the public plane is speaking for (A).
+       Prototype-only, and it grants nothing. */
+    scenarioTenant: scenarioTenant, requesterTenant: requesterTenant,
     selectionItems: selectionItems, selectionCount: selectionCount, selectionGet: selectionGet,
     selectionAdd: selectionAdd, selectionSetTech: selectionSetTech,
     selectionRemove: selectionRemove, selectionClear: selectionClear,
@@ -7555,6 +9049,10 @@ XRSLP.state = (function () {
     requestMoreInformation: requestMoreInformation, resubmitRequest: resubmitRequest,
     requestDecisionBlock: requestDecisionBlock, requestCanBeDecided: requestCanBeDecided,
     resolveRequestTenant: resolveRequestTenant, validateGrant: validateGrant,
+    technologiesUsedFor: technologiesUsedFor,
+    technologyUseSummary: technologyUseSummary,
+    roleAssignmentHistory: roleAssignmentHistory,
+    actorWasEverSuspended: actorWasEverSuspended,
     tenantAwaitingActivation: tenantAwaitingActivation,
     grantNarrowsRequest: grantNarrowsRequest, PAYMENT_OUTCOME: PAYMENT_OUTCOME,
     tenants: tenants, tenantById: tenantById,
@@ -7564,6 +9062,10 @@ XRSLP.state = (function () {
     assignableAccessForTenant: assignableAccessForTenant,
     unassignableAccessForTenant: unassignableAccessForTenant, assignabilityText: assignabilityText,
     accessTechnologies: accessTechnologies, accessHasExperiment: accessHasExperiment,
+    /* Implementation 07.2 — what an institution already holds (A) */
+    tenantAccessForExperiment: tenantAccessForExperiment,
+    tenantHoldsExperiment: tenantHoldsExperiment,
+    heldSelectionFor: heldSelectionFor,
     accessCourseIds: accessCourseIds, tenantCourseIds: tenantCourseIds,
 
     people: people, peopleForTenant: peopleForTenant, personById: personById,
@@ -7767,6 +9269,18 @@ XRSLP.state = (function () {
     /* canonical / master metadata, platform side */
     updateCanonicalAsPlatform: updateCanonicalAsPlatform, canonicalTree: canonicalTree,
 
+    /* Implementation 07.2 — platform override on the content chain (F) */
+    OVERRIDABLE_STATUS: OVERRIDABLE_STATUS,
+    overrideDestinations: overrideDestinations,
+    overrideContentStatusAsPlatform: overrideContentStatusAsPlatform,
+    withdrawAllScopesForActor: withdrawAllScopesForActor,
+
+    /* Implementation 07.2 — the canonical Course code (E) */
+    validateCourseCode: validateCourseCode,
+    managerCanSetCourseCode: managerCanSetCourseCode,
+    coursesForManager: coursesForManager,
+    updateCourseCode: updateCourseCode,
+
     /* later version — Release / Hold */
     VERSION_STATUS: VERSION_STATUS, VERSION_STATUS_META: VERSION_STATUS_META,
     versionStatusMeta: versionStatusMeta,
@@ -7793,7 +9307,12 @@ XRSLP.state = (function () {
     returnHeldVersionToDecision: returnHeldVersionToDecision,
 
     /* device replacement / transfer */
-    TRANSFER_STATUS: TRANSFER_STATUS, transferStatusMeta: transferStatusMeta,
+    TRANSFER_STATUS: TRANSFER_STATUS, TRANSFER_OPEN: TRANSFER_OPEN,
+    transferStatusMeta: transferStatusMeta, transferIsOpen: transferIsOpen,
+    /* Implementation 07.2 — the Institute / Tenant Admin hop (C) */
+    transfersAwaitingTenant: transfersAwaitingTenant,
+    transfersForTenant: transfersForTenant,
+    escalateDeviceTransfer: escalateDeviceTransfer,
     deviceTransferRequests: deviceTransferRequests, deviceTransferById: deviceTransferById,
     transfersForStudent: transfersForStudent, openTransferForStudent: openTransferForStudent,
     transfersAwaitingDecision: transfersAwaitingDecision,
@@ -7814,6 +9333,17 @@ XRSLP.state = (function () {
     validateSupportTicket: validateSupportTicket,
     createSupportTicket: createSupportTicket,
     resolveSupportTicket: resolveSupportTicket, reopenSupportTicket: reopenSupportTicket,
+
+    /* Implementation 07.2 — renewal follows the institution's own
+       onboarding route (D). There is no direct-extension writer. */
+    renewalRouteFor: renewalRouteFor, renewalRouteForAccess: renewalRouteForAccess,
+    originRequestFor: originRequestFor,
+    submitRenewalRequest: submitRenewalRequest,
+    renewalRequestsForAccess: renewalRequestsForAccess,
+    openRenewalForAccess: openRenewalForAccess,
+    renewalRequestsForTenant: renewalRequestsForTenant,
+    renewalBlock: renewalBlock, renewalBlockText: renewalBlockText,
+    canRenewAccess: canRenewAccess,
 
     /* access term + the 15-day reminder */
     EXPIRY_REMINDER_DAYS: EXPIRY_REMINDER_DAYS,

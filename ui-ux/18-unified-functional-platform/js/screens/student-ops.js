@@ -5,9 +5,21 @@
    Help      — report a technical issue        (STK31-39)
 
    ── WHAT THE DEVICE REQUEST IS, AND IS NOT ───────────────────
-   The confirmed flow is: the Student requests a transfer, the Super
-   Admin reviews and approves, and the authorised device binding
-   changes. That is the whole capability.
+   The confirmed flow has THREE steps, not two:
+
+       Student  →  INSTITUTE / TENANT ADMIN  →  Super Admin
+
+   The institution's own admin is its point of contact: they see the
+   request first, facilitate it, and forward it. Only a forwarded
+   request is the platform's to decide, and the final decision stays the
+   Super Admin's. Approval changes the authorised device binding. That
+   is the whole capability.
+
+   ⚠ NOTHING IS SENT TO ANYBODY. This build has no notification channel,
+   so no copy on this screen may say a request was sent, mailed or
+   raised WITH someone. The state is surfaced in the product — here for
+   the Student, and in the Tenant Admin and Super Admin workspaces for
+   the two people who act on it.
 
    It is relevant only where a technology is delivered as an
    AUTHORISED PACKAGE ON A DEVICE — AR, VR and MR. A hosted Web
@@ -112,8 +124,18 @@ XRSLP.screens = XRSLP.screens || {};
         '<p style="margin-top:8px">Nothing has been removed, and any request you already made is still ' +
         'here, with the state it is in.</p>');
     } else if (open) {
+      /* An open request is now at one of TWO desks, and saying which is
+         the only useful thing this box can tell the Student: "waiting"
+         alone leaves them unable to tell a request their own institution
+         has not looked at yet from one already forwarded for decision. */
       body = ui.alertBox('info', 'You already have a request waiting',
-        '<p>Request <strong>' + esc(open.id) + '</strong> is with the platform team. Its state appears below. ' +
+        '<p>Request <strong>' + esc(open.id) + '</strong> is ' +
+        (open.status === state.TRANSFER_STATUS.ESCALATED
+          ? 'with the platform team for the final decision, forwarded by your institution&rsquo;s ' +
+            'Institute / Tenant Admin'
+          : 'with your institution&rsquo;s Institute / Tenant Admin, who reviews it and forwards it to the ' +
+            'platform team') +
+        '. Its state appears below. ' +
         'You can raise another once this one has been decided — two open requests would describe two ' +
         'different devices at the same time.</p>');
     } else {
@@ -144,8 +166,9 @@ XRSLP.screens = XRSLP.screens || {};
         '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
         '<textarea id="dt-reason-i" rows="4"></textarea></div>' +
         '<div class="formact"><button class="btn pri" type="submit">Request the transfer</button>' +
-        '<span class="formnote">The platform team decides. Approval moves your authorised device and ' +
-        'changes nothing else about what you can open.</span></div>' +
+        '<span class="formnote">Your request goes to your institution&rsquo;s Institute / Tenant Admin, who ' +
+        'reviews it and forwards it to the platform team; the platform team takes the final decision. ' +
+        'Approval moves your authorised device and changes nothing else about what you can open.</span></div>' +
         '</form>';
     }
 
@@ -160,6 +183,34 @@ XRSLP.screens = XRSLP.screens || {};
         var d = data.TECHNOLOGIES[x];
         return d ? d.name : x;
       }).join(' · ');
+    }
+
+    /* THE STUDENT SEES THE WHOLE ROUTE, NOT ONLY ITS END.
+       The request travels Student → Institute / Tenant Admin → platform
+       team, and a tile that showed status, decision date and decision note
+       hid the middle step completely: who at the institution forwarded it,
+       when, and any note they added. The Student is the person waiting, and
+       the forwarding step is the part of the wait they could not otherwise
+       account for. This is the same record and the same markup the Super
+       Admin's request page draws, so the two cannot tell different stories.
+
+       `escalated` takes the neutral 'info' tone: forwarding is a step on
+       the way, not an outcome, and a warning colour here would read as
+       something having gone wrong. History is defensive-read because a
+       record restored from an older saved state may predate it. */
+    function eventsHTML(t) {
+      var rows = (t.history || []).map(function (h) {
+        var tone = h.kind === 'approved' ? 'good' : h.kind === 'declined' ? 'warn' : 'info';
+        var icon = h.kind === 'approved' ? 'check'
+          : h.kind === 'declined' ? 'x'
+          : h.kind === 'escalated' ? 'arrowR' : 'monitor';
+        return '<div class="tl-item"><span class="tl-dot ' + tone + '">' + ui.ic(icon) + '</span>' +
+          '<div class="tl-body"><div class="tl-action">' + esc(h.label) + '</div>' +
+          '<div class="tl-who">' + esc(h.who) + ' · ' + esc(util.fmtDateTime(h.at)) + '</div>' +
+          (h.note ? '<p class="tl-note">' + esc(h.note) + '</p>' : '') +
+          '</div></div>';
+      }).join('');
+      return rows ? '<div class="timeline" style="margin-top:10px">' + rows + '</div>' : '';
     }
 
     var history = mine.length
@@ -187,7 +238,13 @@ XRSLP.screens = XRSLP.screens || {};
                 '<div><strong>Declined</strong> ' + esc(util.fmtDateTime(t.decidedAt)) +
                 '<p>' + esc(t.decisionNote) + '</p></div></div>'
               : '<div class="tk-w">' + ui.ic('clock', 'sm') +
-                '<span>With the platform team. The outcome appears here.</span></div>') +
+                '<span>' + (t.status === state.TRANSFER_STATUS.ESCALATED
+                  ? 'Forwarded by your Institute / Tenant Admin, and with the platform team for the final ' +
+                    'decision.'
+                  : 'With your institution&rsquo;s Institute / Tenant Admin, who reviews it and forwards it ' +
+                    'to the platform team for the final decision.') +
+                ' The outcome appears here.</span></div>') +
+            eventsHTML(t) +
             '</li>';
         }).join('') + '</ul>'
       : ui.emptyState({
@@ -249,7 +306,10 @@ XRSLP.screens = XRSLP.screens || {};
           busy = true;
           var res = state.createDeviceTransfer(p.id, fields);
           if (!res.ok) { busy = false; ui.showErrors(form, res.errors, 'Please complete the request'); return; }
-          ui.toast('Request ' + res.request.id + ' sent to the platform team.');
+          /* NOT "sent": nothing is delivered to anybody in this build. The
+             request is now sitting with the institution's own admin, and
+             that is what the toast — and the tile below it — says. */
+          ui.toast('Request ' + res.request.id + ' raised. It is with your Institute / Tenant Admin.');
           XRSLP.render(false);
         });
       }

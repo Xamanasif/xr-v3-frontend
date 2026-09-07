@@ -281,7 +281,7 @@ request*.
 cd /Users/mymac/Desktop/AR-VR/ui-ux/18-unified-functional-platform && /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc qa/harness.js qa/checks.js | tail -4
 ```
 
-- [ ] Prints **`ALL CHECKS PASSED — 855 assertions`**
+- [ ] Prints **`ALL CHECKS PASSED — 1079 assertions`**
 
 **Clean state**
 

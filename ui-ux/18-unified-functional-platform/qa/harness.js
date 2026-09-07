@@ -9,7 +9,13 @@
    Run with macOS JavaScriptCore from the prototype folder:
 
      /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/\
-       Helpers/jsc qa/harness.js -- qa/checks.js
+       Helpers/jsc qa/harness.js qa/checks.js
+
+   ⚠ BOTH FILES ARE ARGUMENTS, and there is no `--` between them. With a
+   `--` this jsc runs the harness ALONE: it loads the state layer, prints
+   NOTHING and exits 0 — a silent false green that reads exactly like a
+   passing run. Confirm the literal `ALL CHECKS PASSED — N assertions`
+   line before believing the suite passed.
 
    `window`, `localStorage` and `console` are the only browser surfaces
    the state layer touches; they are shimmed here and nowhere else.

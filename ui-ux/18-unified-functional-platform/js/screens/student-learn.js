@@ -15,6 +15,15 @@
    refusal, not an authorised launch state, because the state writers
    apply the same gate as the UI.
 
+   ⚠ HOW A FINISHED RUN IS CONFIRMED IS ALSO UNDECIDED.
+   The simulation screen records a completion from a control the Student
+   presses. That control is a stand-in: an API/event call from the
+   experiment runtime back to the platform has been discussed and is the
+   expected direction, but nothing about it is settled, so no surface here
+   may describe the confirmation as a mechanism that exists. The gap note
+   in the run card says so unconditionally — see the comment there for why
+   it cannot live in the in-progress panel.
+
    ⚠ NOTHING IS DOWNLOADED, INSTALLED, HOSTED OR LAUNCHED.
    AR/VR/MR are an authorised-package model and Web is a hosted link
    (STK31-37), but the MECHANISM is deliberately unselected (PM-05,
@@ -271,12 +280,33 @@ XRSLP.screens = XRSLP.screens || {};
         '</article>';
     }).join('');
 
+    /* ⚠ R10 — THE COMPLETION CAVEAT BELONGS ON THIS SCREEN TOO, AND IT
+       IS UNCONDITIONAL HERE.
+
+       This page asserts a completion in four separate places: the
+       "Completion recorded" badge on a technology card above, the
+       "Completion" step of the sequence strip at the top, the completion
+       percentage in the progress rail, and the progress badge beside the
+       title. Until now not one of them carried a qualification — the note
+       lived on the simulation sub-screen only, so a Student (or a
+       stakeholder) who read this page and never opened a simulation was
+       shown a completion as a settled, platform-confirmed fact.
+
+       It renders in EVERY state, exactly as it does on the simulation
+       screen: the moment a completion HAS been claimed is the moment the
+       claim most needs qualifying, so a note that appeared only while
+       something was outstanding would vanish precisely when it matters.
+
+       The wording is `XRSLP.studentUI.completionGapNote()` and is not
+       restated here — one sentence, one owner, so the caveat on this page
+       can never drift from the caveat on the simulation page. */
     var simCard = ui.card('Simulation',
       '<p class="cardlede">' + (techs.length === 1
         ? 'Your institution has made this experiment available to you in one technology.'
         : 'Your institution has made this experiment available to you in ' + techs.length +
           ' technologies. Each one is tracked separately.') + '</p>' +
-      '<div class="techgrid">' + simCards + '</div>',
+      '<div class="techgrid">' + simCards + '</div>' +
+      L.completionGapNote('figures'),
       techs.length + ' ' + util.plural(techs.length, 'technology', 'technologies'), 'h2');
 
     /* ---- assessment entry ---- */
@@ -512,8 +542,15 @@ XRSLP.screens = XRSLP.screens || {};
          reads as a dead one. */
       actions = '<button class="btn pri" type="button" id="sim-complete">Record my completion</button>' +
         '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
-      actionNote = 'In the product the experiment itself reports your completion and the time you spent. ' +
-        'Here you record it, and the time between opening and completing is what is stored.';
+      /* HEDGED ON PURPOSE. The earlier wording — "in the product the
+         experiment itself reports your completion" — asserted a settled
+         contract between the experiment runtime and the platform. No such
+         contract exists: the direction has been discussed and nothing about
+         it is decided, so the sentence states the expectation and says so.
+         The button's behaviour is unchanged; only the claim around it is. */
+      actionNote = 'The experiment itself is expected to confirm your completion and the time you spent ' +
+        'back to the platform, and how that happens is not decided yet. Here you record it, and the time ' +
+        'between opening and completing is what is stored.';
     } else {
       actions = '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
       var asmExists = state.assessmentForStudent(p.id, e.id);
@@ -535,9 +572,11 @@ XRSLP.screens = XRSLP.screens || {};
       runtime = ui.protoNote(
         '<p><strong>This panel stands in for the ' + esc(def.name) + ' experience.</strong> ' +
         (isPackage
-          ? 'In the product the authorised ' + esc(def.label) + ' package runs on your device and reports back ' +
-            'what you completed and how long you spent. Which delivery mechanism carries it is a technical ' +
-            'decision that has deliberately not been made yet, so nothing is downloaded or installed here.'
+          ? 'In the product the authorised ' + esc(def.label) + ' package runs on your device, and it is ' +
+            'expected to confirm what you completed and how long you spent back to the platform — how that ' +
+            'confirmation is made has not been decided. Which delivery mechanism carries the package is a ' +
+            'separate technical decision that has deliberately not been made either, so nothing is ' +
+            'downloaded or installed here.'
           : 'In the product this opens the hosted Web experience. No hosted experience exists yet, so nothing ' +
             'is loaded here.') + '</p>' +
         '<p style="margin-top:8px">Opened ' + esc(util.fmtDateTime(sim.startedAt)) + '.</p>');
@@ -556,8 +595,8 @@ XRSLP.screens = XRSLP.screens || {};
         '<li>You will sign in on a supported device with the same institutional account.</li>' +
         '<li>The ' + esc(def.label) + ' experiment will appear among the experiences you are authorised to ' +
         'run. Experiments you are not entitled to will not appear.</li>' +
-        '<li>You will open it, work through the procedure, and your completion will return to this page ' +
-        'against ' + esc(def.label) + ' specifically.</li>' +
+        '<li>You will open it and work through the procedure. Your completion is expected to come back to ' +
+        'this page against ' + esc(def.label) + ' specifically, and how it does is not settled yet.</li>' +
         '</ol>' +
         '<p class="instr-n">The exact delivery mechanism — a package installed directly, or a single ' +
         'institutional application that carries the experiments you are entitled to — has not been selected. ' +
@@ -565,8 +604,28 @@ XRSLP.screens = XRSLP.screens || {};
         '</div></details>'
       : '';
 
+    /* ⚠ UNCONDITIONAL, AND THAT IS THE WHOLE POINT OF WHERE IT SITS.
+       The stand-in panel above (`runtime`) renders only while the
+       simulation is IN PROGRESS, so every label it carries disappears at
+       exactly the moment a completion has been claimed — the moment a
+       reader is most likely to take "Completion recorded" for a confirmed
+       fact reported by the experiment. This note renders in every state,
+       completed included, so the claim is never left standing unqualified.
+
+       It names no verb, path, payload or provider, because none has been
+       chosen; naming one here would invent the decision the note exists
+       to say is open.
+
+       07.3 (R10): the WORDING moved to `XRSLP.studentUI.completionGapNote()`
+       so that every screen asserting a completion renders the same
+       sentence and the claim cannot drift between them. Only the closing
+       sentence differs by screen, and `control` is the one that belongs
+       here — this is the page that carries the prototype control. What
+       renders is unchanged. */
+    var completionGap = L.completionGapNote('control');
+
     var runCard = ui.card('Opening the ' + def.label + ' experiment',
-      ladderHTML + runtime + instructions +
+      ladderHTML + runtime + instructions + completionGap +
       '<div class="formact">' + actions +
       '<span class="formnote">' + esc(actionNote) + '</span></div>', null, 'h2');
 
@@ -589,11 +648,18 @@ XRSLP.screens = XRSLP.screens || {};
       (isPackage
         ? '<div class="formact"><a class="btn sec sm" href="' + L.href.device(p.id) + '">' +
           'Replace or transfer my device</a>' +
+          /* Implementation 07.2 — the route is Student → Institute /
+             Tenant Admin → platform team, so this entry point cannot go on
+             describing a request that lands on the platform team's desk.
+             The open-request sentence deliberately points at My device
+             rather than naming a holder: that page reads the record and
+             says which of the two steps it is actually sitting at. */
           '<span class="formnote">' +
           (state.openTransferForStudent(p.id)
-            ? 'You already have a request with the platform team.'
-            : 'The platform team decides. It moves your authorised device and changes nothing about which ' +
-              'experiments or technologies you hold.') +
+            ? 'You already have a request in progress. My device shows where it has reached.'
+            : 'Your request goes to your institution’s Institute / Tenant Admin, who reviews it and ' +
+              'forwards it to the platform team; the platform team takes the final decision. It moves your ' +
+              'authorised device and changes nothing about which experiments or technologies you hold.') +
           '</span></div>'
         : ''), null, 'h2');
 

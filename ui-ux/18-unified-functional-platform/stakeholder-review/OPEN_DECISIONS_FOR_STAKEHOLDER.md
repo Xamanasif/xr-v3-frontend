@@ -23,6 +23,26 @@
 
 ---
 
+# ✅ Answered since this list was written — 6 September 2026
+
+Six decisions on this list, or adjacent to it, have since been **settled by the stakeholder** and
+are **built**. They are recorded in full, with what changed for each, in
+[`STAKEHOLDER_CORRECTIONS_07_2.md`](STAKEHOLDER_CORRECTIONS_07_2.md). In short:
+
+| | Now settled | What it closes here |
+|:--:|---|---|
+| **A** | An institution may request the **same Experiment again for additional licences**, and the existing plan is shown when it reselects | New — see the new **D26** for the part that is still open |
+| **B** | The **XR completion mechanism is undecided**; an API/event call has been discussed as the expected direction | New — recorded as **D25** below |
+| **C** | Device requests route **Student → Institute / Tenant Admin → Super Admin**. The Tenant Admin is the institution's POC; the Super Admin remains the final decision maker | Changes the routing described in **D20**; D20(a) and (b) themselves stay open |
+| **D** | A tenant **renews through the same payment route it was onboarded through** | Closes the `ND-11` sub-question inside **D19**; the channel in D19 stays open, and the new **D27** carries what is still undecided |
+| **E** | The **canonical Course Code** is the **Content Manager's** primarily, with the **Super Admin** also holding access | Extends **D3**'s canonical-metadata half and **D24** |
+| **F** | The **Super Admin has overall control**, content changes included | **Closes D4 in section A**, in the affirmative and wider than it was asked |
+
+> Nothing above is back-dated. The rows below still describe what was true when this list was
+> written, with an **Answered** line added where the answer has since arrived.
+
+---
+
 # The seven that most change what gets built next
 
 If the meeting runs short, these are the ones to get answers to.
@@ -80,6 +100,7 @@ If the meeting runs short, these are the ones to get answers to.
 | **Current prototype behaviour** | **Neither granted nor refused.** There is no Super Admin control at the publication gate, and none was removed. The Content Manager's request-changes path is unchanged |
 | **Source status** | **NOT SPECIFIED** — recorded as `ND-13` (`QP-26`) and explicitly left open by the 31 August review |
 | **Recommendation** | *Recommendation:* leave it out unless there is a real escalation need. It is an addition to an existing decision surface, not a restructure, so deferring costs nothing |
+| **✅ ANSWERED — 6 Sep 2026** | **CONFIRMED, and wider than asked.** The Super Admin has *"overall control over all of it as of now"*, including content changes and Vendor / Academic Reviewer / Content Manager issues. **Built (07.2)** as an explicit, separately labelled override that **requires a reason**, names what it moves and who normally holds it, warns when a destination has no live actor, and writes one audited event on the record's own history. **PUBLISHED is refused as both origin and destination**, so first publication stays the Content Manager's act and Release / Hold stays the Super Admin's separate act on a different object — nothing un-publishes. Normal ownership is untouched: not one role gate was widened. Withdrawing a role scope and correcting a **published** canonical master record now both require a reason too |
 
 ## D5 · Question spreadsheet import — what is the column schema?
 
@@ -241,7 +262,8 @@ If the meeting runs short, these are the ones to get answers to.
 | **Why it matters** | It is a confirmed requirement the build cannot honour, because sending anything means choosing a channel and a provider. It also decides whether a *person* or a *screen* is the delivery target, which is an integration question, not a UI one |
 | **Current prototype behaviour** | The **due state** is derived and shown on both the Super Admin's Operations screen and the tenant's own workspace, with the states *Active / Expiring soon / Expired*. Every surface says plainly that **nothing was sent**, and the screen carries an explicit **DELIVERY CHANNEL PENDING** note: *"No email, SMS, push or notification of any kind has been sent, and no provider is integrated. There is no automatic renewal, payment or extension."* Because the shortest term is Monthly, the 15-day state cannot be reached by using the product, so there is a clearly-labelled prototype-only control that moves one record's end date |
 | **Source status** | **CONFIRMED requirement, channel NOT SPECIFIED** — `ND-16`. `STK31-28` states it directly: *"We will send reminders to Tenants 15 days ahead."* The in-product attention row is recommended supporting UX and **explicitly does not discharge the requirement** |
-| **Recommendation** | *Recommendation:* confirm the recipient now even if the channel waits — the recipient is a product decision and the channel is an integration one. *(Also worth settling alongside it: `ND-11` — is renewal manual or automatic? Nothing automatic is built, deliberately.)* |
+| **Recommendation** | *Recommendation:* confirm the recipient now even if the channel waits — the recipient is a product decision and the channel is an integration one |
+| **✅ PARTLY ANSWERED — 6 Sep 2026** | The **renewal** half (`ND-11`) is settled: *"Tenant should go through same payment method which he follows in initial onboarding."* **Built (07.2)** — a renewal is an ordinary request that follows the **institution's own original route**, derived from the institution and never from the prototype scenario selector: a Subscription institution through the same payment step it was onboarded through, a BITS Community institution through its no-payment route. Requesting a renewal extends nothing; only activation does, and it extends the **existing** access record rather than creating a second one, so no assignment or entitlement is stranded. There is still **no auto-renewal and no direct extension writer anywhere**. **The channel and recipient remain OPEN** — nothing renewal-related claims a reminder, invoice or confirmation was sent |
 
 ## D20 · Device transfer — declining a request, and how deep device identity goes
 
@@ -252,6 +274,7 @@ If the meeting runs short, these are the ones to get answers to.
 | **Current prototype behaviour** | **(a)** A **Decline** path exists, requires a reason the student sees, and is **labelled on screen as an implementation judgement** rather than a confirmed capability. **(b)** No registry: *"The platform holds a device transfer approval with no device registry behind it — the binding is a relationship, not an administrable record. Nothing here registers hardware, names a model, or certifies compatibility."* Device compatibility is **described, not certified**, and no specific headset, handset or browser build is claimed as supported. A transfer decision moves the device authorisation and **nothing else** — no licence, experiment, technology or assessment state |
 | **Source status** | **(a) NOT SPECIFIED** — `STK31-38` confirms device licensing and transfer with no rejection behaviour. **(b) PARTIALLY CONFIRMED** — `STK31-37` refines XR **packaging**, not the delivery mechanism; `QT-01` (delivery mechanism) is open **by explicit instruction** and was not to be resolved during UI/UX |
 | **Recommendation** | *Recommendation:* confirm decline is in scope (it prevents an open request with no resolution) and keep the registry out of Phase 1 until the delivery mechanism itself is chosen. Building a registry against an unchosen mechanism is the definition of premature |
+| **⚠ THE ROUTING CHANGED — 6 Sep 2026** | Both questions above **stay open**, but the flow they sit inside has been corrected: *"Any request from institution should come through Tenant Admin. He will be our POC to facilitate and final approval comes to Super Admin."* **Built (07.2)** — a Student's request now reaches the institution's own **Institute / Tenant Admin** first, who reviews and forwards it; only a forwarded request is the Super Admin's to decide, and the Super Admin remains the **final** decision maker. The outcome is visible to the Student **and** the Tenant Admin. Forwarding writes the request and nothing else — no licence, Experiment, technology, assignment or assessment state — and **no device registry was introduced**: the forwarding note is plain free text, and there is still no serial number, model validation, MDM, certification or authentication step anywhere. Two honest edges are surfaced rather than papered over: a **deactivated** institution cannot forward (and loses nothing), and an institution with **no assigned Tenant Admin** genuinely cannot perform the step — no actor is fabricated to get past it. **Nothing is sent to anybody**; the state is surfaced in product only |
 
 ## D21 · Support — status only, or more?
 
@@ -296,6 +319,44 @@ If the meeting runs short, these are the ones to get answers to.
 | **Current prototype behaviour** | Metadata is a **field-set container**, not a fixed form: Programme/Department, Course, catalogue summary, description, technologies, version. Fields are labelled as samples, so adding or renaming one does not move the control |
 | **Source status** | **CONFIRMED ownership, schema NOT SPECIFIED** — `ND-05` / `QD-07`. `STK31-09` settles who manages it |
 | **Recommendation** | *Recommendation:* low priority for this meeting. Worth raising only if the stakeholder names a field they expect to see and cannot find |
+
+---
+
+# F · Opened by the 6 September 2026 answers
+
+Three questions that did not exist before the latest answers, because each one sits *underneath* a
+decision the stakeholder has now settled. **The build fails safe on all three** — it neither blocks
+nor assumes, and each is labelled on the screen where it matters.
+
+## D25 · The XR completion contract — what does the runtime actually send?
+
+| | |
+|---|---|
+| **Question** | A finished XR run has to be confirmed back to the platform. **What is the contract?** Which side initiates, what identifies the run (student, experiment, technology, attempt), what is sent about completion and time spent, and what happens when the call fails or arrives twice? |
+| **Why it matters** | This is the join between the platform and the XR runtime, and it decides what a completion figure on a Student's Progress screen actually *means*. It is also the last unbuilt piece of the learning journey — everything downstream of it (progress roll-up, institution reporting, Faculty's view of who has done what) is already built and already reads it |
+| **Current prototype behaviour** | The Student records their own completion, and **it is labelled as a stand-in in every state, including after a completion has been recorded** — the note says the mechanism is not settled, that an API/event call has been discussed and is the expected direction, and that no contract, endpoint, payload or provider is chosen or built. **No API client, stub or provider exists anywhere in the build.** The three sentences that previously read as though the contract were settled have been corrected. The same caveat appears beside the Progress roll-up |
+| **Source status** | **CONFIRMED as undecided** — 6 Sep 2026: *"This is yet to be decided. We have discussed an API-call method to communicate and confirm."* Distinct from `D20(b)`, which is the **delivery** mechanism, and from `D17`, which is the completion **roll-up** rule |
+| **Recommendation** | *Recommendation:* nothing needs deciding for the visual design pass — no screen changes shape either way. It becomes blocking at integration, and the cheapest thing to settle first is **what identifies a run**, because that is the only part with a bearing on what the platform must already be storing |
+
+## D26 · Expansion scope — may a re-request also widen the plan?
+
+| | |
+|---|---|
+| **Question** | An institution may now request an Experiment it already holds, for **additional licences** — that is settled. May the same expansion request also **add a technology variant it does not currently hold** (say it holds Web and wants VR), or **change the access term**? |
+| **Why it matters** | It is the difference between "an expansion is a licence top-up" and "an expansion is a way to renegotiate the plan". It also decides what the Super Admin is approving: today a grant may only ever *narrow* what was asked for, and a widening expansion is a different commercial conversation |
+| **Current prototype behaviour** | **Neither blocked nor assumed.** The technology picker behaves exactly as it always has — every published technology stays selectable, including ones the institution does not hold — and nothing forces or forbids it. The request form carries an **EXPANSION SCOPE NOT SETTLED** note saying so in plain words. Downstream, two records carrying the same Experiment already resolve correctly: technologies are unioned for the Student, and licences are summed as an allocation figure |
+| **Source status** | **NOT SPECIFIED.** 6 Sep 2026 confirms additional licences and confirms the existing plan must be visible on reselect; it says nothing about technologies or term |
+| **Recommendation** | *Recommendation:* cheap to settle and worth settling, because the answer decides whether an expansion needs its own request shape or is simply an ordinary request. If in doubt, allowing it costs nothing — the build already handles two records with different technology sets correctly |
+
+## D27 · Renewal — may the plan change on the way through?
+
+| | |
+|---|---|
+| **Question** | A renewal follows the institution's original payment route — that is settled. May a renewal **change the licence count, the technologies or the term length**, or must it mirror the expiring plan exactly? |
+| **Why it matters** | If a renewal can change the plan, it needs a form, a grant comparison and a rule for what happens to students already assigned under the old figures. If it must mirror, it needs none of that, and any change is an ordinary institutional request instead |
+| **Current prototype behaviour** | **Mirrors the current plan exactly** — the same experiments, technologies, licence quantity and term length, copied from the expiring record and **not editable anywhere**. The institution's own Content access screen carries a **RENEWAL PLAN CHANGES NOT SETTLED** note and the Super Admin's Operations screen a **RENEWAL PLAN CHANGES NOT DECIDED** one, each saying that this is because the question is open and not because mirroring was chosen as policy; the Super Admin's decision screen states it too, in place of the narrowing control an ordinary request carries. `approveRequest` **refuses** a narrowed grant on a renewal outright, so the position is enforced and not merely described. More licences or different content reach an institution through an ordinary institutional access request |
+| **Source status** | **NOT SPECIFIED.** 6 Sep 2026 settles the *route* — *"Tenant should go through same payment method which he follows in initial onboarding"* — and says nothing about the *contents* |
+| **Recommendation** | *Recommendation:* mirroring is the safe default and is what is built. Worth confirming only if institutions are expected to routinely resize at renewal, in which case it is better modelled as an expansion **plus** a renewal than as one editable form |
 
 ---
 

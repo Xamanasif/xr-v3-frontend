@@ -264,8 +264,56 @@ XRSLP.facultyUI = (function () {
     }).join('') + '</ul>';
   }
 
+  /* ---------- TECHNOLOGY ACTUALLY USED (07.3, stakeholder R6) ----------
+     The stakeholder asked how a Faculty member grading an assessment
+     knows whether the student performed the experiment in Web, VR or AR.
+
+     ⚠ `mappedTechnologies()` above CANNOT answer that — it reports what
+     the institution licensed, which is availability. This reads
+     `state.technologyUseSummary()`, which reports what the student
+     actually ran, and it renders a SET: a student who ran Web and VR is
+     never described as having used only one of them.
+
+     `sourceTechnology` is shown too, but only for what it truly is —
+     which simulation the student stepped into the assessment from — and
+     never as the answer to "what did they use". */
+  function techUsedHTML(personId, experimentId, att) {
+    var sum = state.technologyUseSummary(personId, experimentId);
+    var out = '';
+    if (sum.none) {
+      out += '<div class="k">Technologies used</div><div class="v">' +
+        '<span class="muted">No simulation run is recorded for this student on this experiment.</span>' +
+        (sum.requestedOnly.length
+          ? '<span class="tsub2">Access was requested for ' + ui.techBadges(sum.requestedOnly) +
+            ', but no run was started.</span>' : '') +
+        '</div>';
+    } else {
+      out += '<div class="k">Technologies used</div><div class="v">' +
+        sum.rows.filter(function (r) { return r.used; }).map(function (r) {
+          return '<span class="techused">' + ui.fmtBadge(r.technology) +
+            '<span class="tsub">' + (r.completed ? 'completed' : 'in progress') + '</span></span>';
+        }).join(' ') +
+        (sum.multiple
+          ? '<span class="tsub2">This student used <strong>more than one</strong> technology for this ' +
+            'experiment. The assessment is experiment-level, so it covers all of them.</span>'
+          : '') +
+        (sum.requestedOnly.length
+          ? '<span class="tsub2">Also requested but never run: ' + ui.techBadges(sum.requestedOnly) + '.</span>'
+          : '') +
+        '</div>';
+    }
+    if (att && att.sourceTechnology && data.TECHNOLOGIES[att.sourceTechnology]) {
+      out += '<div class="k">Entered the assessment from</div><div class="v">' +
+        ui.fmtBadge(att.sourceTechnology) + ' simulation' +
+        '<span class="tsub2">Which simulation this attempt was started from — not the full list above.</span>' +
+        '</div>';
+    }
+    return out;
+  }
+
   return {
     href: href, requireFaculty: requireFaculty, requireMapped: requireMapped,
+    techUsedHTML: techUsedHTML,
     courseLine: courseLine, expLink: expLink, statGrid: statGrid,
     completionNote: completionNote, authorityNote: authorityNote,
     tenantHoldingsCard: tenantHoldingsCard,
@@ -737,6 +785,11 @@ XRSLP.facultyUI = (function () {
           esc(L.progressLabel(k)) + '</option>';
       }).join('') + '</select></label>' +
       '<span class="lcount">' + rows.length + ' of ' + allRows.length + ' shown</span>' +
+      /* 07.3 — the stakeholder's "they cannot count each student".
+         Exports the FILTERED rows, so the file matches the screen. */
+      '<button class="btn sm sec" type="button" id="pf-export"' +
+        (rows.length ? '' : ' disabled aria-disabled="true"') + '>' +
+        ui.ic('download') + 'Export CSV</button>' +
       '</div>';
 
     var tableHTML = rows.length
@@ -835,6 +888,25 @@ XRSLP.facultyUI = (function () {
               again.focus();
               again.setSelectionRange(again.value.length, again.value.length);
             }
+          });
+        }
+        var xp = document.getElementById('pf-export');
+        if (xp) {
+          xp.addEventListener('click', function () {
+            if (!rows.length) { return; }
+            var table = XRSLP.csv.facultyProgressRows(rows, {
+              state: state, data: data, labels: L,
+              /* The institution's OWN local code, kept separate from the
+                 canonical one — both columns are in the file. */
+              courseMapping: function (experimentId) {
+                var c = data.contextOf(experimentId);
+                return c && c.course ? state.courseMapping(tenant.id, c.course.id) : null;
+              }
+            });
+            var name = 'student-progress-' + data.norm(f.name).replace(/\s+/g, '-') +
+              (progFilter.experimentId ? '-' + progFilter.experimentId : '') + '.csv';
+            XRSLP.csv.download(name, XRSLP.csv.toCsv(table));
+            ui.announce('Exported ' + rows.length + ' ' + util.plural(rows.length, 'row') + ' to ' + name + '.');
           });
         }
         var clear = document.getElementById('pf-clear');
