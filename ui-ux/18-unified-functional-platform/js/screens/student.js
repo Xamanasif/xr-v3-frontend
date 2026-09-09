@@ -53,6 +53,8 @@ XRSLP.studentUI = (function () {
     help:       function (s) { return base(s) + '/help'; },
     experiment: function (s, e) { return expBase(s, e); },
     simulation: function (s, e, t) { return expBase(s, e) + '/simulation/' + encodeURIComponent(t); },
+    /* Implementation 09 — the prototype Web runtime environment. */
+    runtime:    function (s, e, t) { return expBase(s, e) + '/simulation/' + encodeURIComponent(t) + '/run'; },
     /* No technology segment: one assessment per Experiment. */
     assessment: function (s, e) { return expBase(s, e) + '/assessment'; },
     attempt:    function (s, e) { return expBase(s, e) + '/assessment/attempt'; },
@@ -180,13 +182,6 @@ XRSLP.studentUI = (function () {
     return UNAVAILABLE_TEXT[reason] || 'This experiment is not available to you at the moment.';
   }
 
-  /* An accessible progress bar. The numbers are always present as
-     text, so the bar itself is decoration. */
-  function progressBar(percent, srLabel) {
-    var pct = Math.max(0, Math.min(100, percent || 0));
-    return '<div class="lprog" role="img" aria-label="' + esc(srLabel) + '">' +
-      '<span style="width:' + pct + '%"></span></div>';
-  }
 
   /* Rule 1 of the per-technology progress model: the roll-up must state
      WHICH technologies it covers. Rule 3: one assigned technology adds
@@ -410,8 +405,8 @@ XRSLP.studentUI = (function () {
     'direction, but no contract, endpoint, payload or provider has been chosen, and none is built here. ';
   var COMPLETION_GAP_CLOSING = {
     control: 'The control on this page is a prototype stand-in so the learning journey can be shown end to end.',
-    figures: 'Every completion shown on this page was recorded through that prototype control on the ' +
-      'simulation page — none of it was reported by the experiment.'
+    figures: 'Every completion shown on this page was recorded by a prototype runtime or a demo control ' +
+      'in this build — none of it was reported by a real experiment.'
   };
   function completionGapNote(kind) {
     return ui.gapNote('COMPLETION CONFIRMATION NOT DECIDED',
@@ -432,16 +427,47 @@ XRSLP.studentUI = (function () {
      claim an integration that does not exist, and it does not claim
      one is coming. `completionGapNote` remains for surfaces where the
      engineering framing is the point — the audit documents cite it. */
+  /* ⚠ REWRITTEN AT IMPLEMENTATION 09, BECAUSE IT HAD BECOME FALSE.
+     It said the completion control was "on the simulation page" and
+     that how a run reports back was undecided in every case. Both were
+     true when it was written and neither is now: a Web run reports its
+     own completion from the prototype runtime, and the shape a native
+     client would report in is written down in
+     RUNTIME_INTEGRATION_CONTRACT.md.
+
+     What is STILL undecided is named precisely rather than dropped —
+     no AR, VR or MR application is connected to this build, and the
+     completion rule each runtime would apply is not settled. The
+     wording is owned here, in one place, so the two Student screens
+     cannot drift apart. */
+  /* Where a figure on a Student's own screen came from. Only rendered
+     when it needs saying: a Web session from the prototype runtime is
+     the real thing as far as this build goes, and labelling every row
+     would make the label invisible on the rows that matter. */
+  function useSourceNote(u) {
+    if (!u) { return ''; }
+    var sources = u.sources || [];
+    var standIn = sources.length && !state.runtimeSourcesAllReal(sources);
+    var inherited = u.evidence === 'pre-telemetry' || u.evidence === 'mixed';
+    if (!standIn && !inherited) { return ''; }
+    return '<div class="tsub">' + esc(standIn
+      ? 'Recorded by a demo control — no device application is connected in this build.'
+      : 'Partly recorded before this build tracked sessions.') + '</div>';
+  }
+
   function completionNote(kind) {
     return ui.about('How completion is recorded',
-      '<p>A simulation runs outside this platform, and how it reports back that a student ' +
-      'finished has <strong>not been decided yet</strong> — so nothing on this page was reported by ' +
-      'the experiment itself.</p>' +
+      '<p>A completion is recorded when the <strong>simulation itself</strong> reports one, for the ' +
+      'technology it was run in. Nothing else records one — not reading a resource, not watching a ' +
+      'video, and not the assessment.</p>' +
       '<p>' + esc(kind === 'control'
-        ? 'The control on the simulation page is a stand-in, so the learning journey can be followed ' +
-          'from end to end while that decision is open.'
-        : 'Every completion shown here was recorded through that stand-in control on the simulation ' +
-          'page.') + '</p>');
+        ? 'For Web, this build opens a prototype runtime in your browser: it is not the real simulation, ' +
+          'and it says so, but the sessions and the time it records are real. For a headset or a mobile ' +
+          'device, no application is connected to this build, so anything shown for those was produced ' +
+          'by a demo control and is labelled as such.'
+        : 'For Web, this build records completions from a prototype runtime that stands in for the real ' +
+          'simulation. No headset or mobile application is connected to this build, so anything shown ' +
+          'for AR, VR or MR came from a demo control, not from a device.') + '</p>');
   }
 
   /* Does a screen actually ASSERT a completion? A list of experiments
@@ -475,11 +501,13 @@ XRSLP.studentUI = (function () {
     progressBadge: progressBadge, progressLabel: progressLabel,
     simBadge: simBadge, assessBadge: assessBadge, assessLabel: assessLabel,
     studentAssessState: studentAssessState,
-    unavailableText: unavailableText, progressBar: progressBar,
+    unavailableText: unavailableText,
     simulationSentence: simulationSentence, simLabel: simLabel,
     techStateChips: techStateChips,
     courseLine: courseLine, sequenceStrip: sequenceStrip,
     accountNotice: accountNotice, fmtDuration: fmtDuration,
+    /* Implementation 09 — where a student's own figure came from. */
+    useSourceNote: useSourceNote,
     completionGapNote: completionGapNote, completionNote: completionNote,
     assertsCompletion: assertsCompletion,
     questionBody: questionBody, disclosureRows: disclosureRows
@@ -742,13 +770,13 @@ XRSLP.studentUI = (function () {
         '<h2 class="fc-t" id="focus-t">' +
         '<a href="' + L.href.experiment(p.id, fid) + '">' + esc(nameOf(fid)) + '</a></h2>' +
         '<p class="fc-s">' + esc(L.simulationSentence(fp)) + '</p>' +
-        (fp.percent
-          ? '<div class="fc-p">' +
-            '<div class="lc-pl"><span>' + esc(L.progressLabel(fp.status)) + '</span>' +
-            '<span class="tabular">' + fp.percent + '%</span></div>' +
-            L.progressBar(fp.percent, fp.percent + ' per cent of the learning steps for ' +
-              nameOf(fid) + ' complete') + '</div>'
-          : '') +
+        /* ⚠ THE SAME UNSUPPORTED AGGREGATE, and the same removal. This
+           is the one place the correction reaches Student Home, and it
+           removes a figure rather than changing the card: the lead, the
+           title, the sentence and the action are untouched. A number
+           whose denominator asserts a rule no source states cannot be
+           left standing just because of where it happens to sit. */
+        '' +
         '<div class="fc-a">' +
         '<a class="btn ' + (act.primary ? 'pri lg' : 'sec') + '" href="' +
           L.href.experiment(p.id, fid) + '">' + esc(act.label) + '</a>' +
@@ -1016,10 +1044,15 @@ XRSLP.studentUI = (function () {
         '<div class="lc-lab">Your simulations</div>' +
         L.techStateChips(prog) +
         '</div>' +
+        /* ⚠ NO PERCENTAGE — Implementation 09 QA. It was counted out of
+            every learning resource PLUS one step per technology format
+            PLUS the assessment, so it quietly asserted that finishing
+            Web and VR and AR were three separate requirements. Nothing
+            in any source says that. The state and the sentence beside it
+            say what is actually true, and the chips above already report
+            each format on its own. */
         '<div class="lc-prog">' +
-        '<div class="lc-pl"><span>' + esc(L.progressLabel(prog.status)) + '</span>' +
-        '<span class="tabular">' + prog.percent + '%</span></div>' +
-        L.progressBar(prog.percent, prog.percent + ' per cent of the learning steps for ' + name + ' complete') +
+        '<div class="lc-pl"><span>' + esc(L.progressLabel(prog.status)) + '</span></div>' +
         '<p class="lc-roll">' + esc(L.simulationSentence(prog)) + '</p>' +
         '</div>' +
         '<div class="lc-foot">' +
@@ -1051,9 +1084,7 @@ XRSLP.studentUI = (function () {
         '</div>' +
         (touched
           ? '<div class="lc-prog">' +
-            '<div class="lc-pl"><span>' + esc(L.progressLabel(prog.status)) + ' so far</span>' +
-            '<span class="tabular">' + prog.percent + '%</span></div>' +
-            L.progressBar(prog.percent, prog.percent + ' per cent of the learning steps complete') +
+            '<div class="lc-pl"><span>' + esc(L.progressLabel(prog.status)) + ' so far</span></div>' +
             '</div>' : '') +
         ui.alertBox('warning', 'Not available at the moment',
           '<p>' + esc(L.unavailableText(row.blockedBy)) + ' ' +
@@ -1203,14 +1234,18 @@ XRSLP.studentUI = (function () {
         .filter(function (t) { return technologies.indexOf(t) === -1; });
       var retiredRows = retired.map(function (t) {
         var tp = state.technologyProgress(p.id, experimentId, t, { studentView: true });
-        var sim = tp.simulation;
+        /* Implementation 09 — past work is reported from the same fold
+           as current work. Withdrawing an assignment never rewrites
+           what a Student actually did. */
+        var u = tp.utilisation;
         return '<tr class="retired">' +
           '<td data-label="Technology">' + ui.fmtBadge(t) +
           '<div class="tsub">No longer available to you</div></td>' +
           '<td data-label="Simulation">' + L.simBadge(tp.simulationStatus) +
-          (sim && sim.completedAt ? '<div class="tsub">' + esc(util.fmtDate(sim.completedAt)) + '</div>' : '') + '</td>' +
-          '<td data-label="Time spent">' + (sim && sim.status === state.SIM_STATUS.COMPLETED
-            ? esc(L.fmtDuration(sim.timeSpentSeconds)) : '<span class="muted">—</span>') + '</td>' +
+          (u.completedAt ? '<div class="tsub">' + esc(util.fmtDate(u.completedAt)) + '</div>' : '') + '</td>' +
+          '<td data-label="Time spent">' + (u.totalSeconds
+            ? '<span class="tabular">' + esc(L.fmtDuration(u.totalSeconds)) + '</span>'
+            : '<span class="muted">—</span>') + '</td>' +
           '</tr>';
       }).join('');
 
@@ -1221,16 +1256,36 @@ XRSLP.studentUI = (function () {
          that contradicted themselves: "Simulation: Completed" beside
          "This technology: In progress", and an untouched AR simulation
          labelled in progress because the shared assessment had moved. */
+      /* ── Implementation 09 — TIME AND SESSIONS, FROM THE RUN ──────
+         `Time spent` used to render only for a COMPLETED simulation,
+         and only from the record's single `timeSpentSeconds` field. A
+         Student who had spent forty minutes and not finished was shown
+         a dash, which is the opposite of what PM-08 asked for: the
+         time is real whether or not the run was finished. It now comes
+         from the utilisation fold, and the row says how many sessions
+         it took. */
       var techRows = prog.technologies.map(function (t) {
-        var sim = t.simulation;
+        var u = t.utilisation;
         return '<tr>' +
           '<td data-label="Technology">' + ui.fmtBadge(t.technology) +
           '<span class="sr-only">' + esc(data.TECHNOLOGIES[t.technology].name) + '</span></td>' +
           '<td data-label="Simulation">' + L.simBadge(t.simulationStatus) +
-          (sim && sim.completedAt
-            ? '<div class="tsub">' + esc(util.fmtDate(sim.completedAt)) + '</div>' : '') + '</td>' +
-          '<td data-label="Time spent">' + (sim && sim.status === state.SIM_STATUS.COMPLETED
-            ? esc(L.fmtDuration(sim.timeSpentSeconds)) : '<span class="muted">—</span>') + '</td>' +
+          (u.completedAt
+            ? '<div class="tsub">' + esc(util.fmtDate(u.completedAt)) + '</div>'
+            : u.lastActivityAt
+            ? '<div class="tsub">Last opened ' + esc(util.fmtDate(u.lastActivityAt)) + '</div>' : '') + '</td>' +
+          '<td data-label="Time spent">' + (u.totalSeconds
+            ? '<span class="tabular">' + esc(L.fmtDuration(u.totalSeconds)) + '</span>' +
+              (u.sessionCount > 1
+                ? '<div class="tsub">over ' + u.sessionCount + ' sessions</div>' : '') +
+              /* ⚠ THE STUDENT IS TOLD WHERE THEIR OWN FIGURE CAME FROM.
+                 A number produced by a demo control, sitting unlabelled
+                 beside one produced by the prototype runtime, is the
+                 kind of quiet claim this build does not make — and the
+                 documents say the label appears wherever a figure is
+                 shown, so it has to appear here too. */
+              L.useSourceNote(u)
+            : '<span class="muted">—</span>') + '</td>' +
           '</tr>';
       }).join('');
 
@@ -1290,9 +1345,7 @@ XRSLP.studentUI = (function () {
             '<div class="lc-pl"><span>' + esc(L.simulationSentence(prog)) + '</span></div></div>'
           : '<div class="pg-overall">' +
             '<div class="lc-pl"><span>Overall experiment — ' + esc(L.progressLabel(prog.status)) + '</span>' +
-            '<span class="tabular">' + prog.steps.done + ' of ' + prog.steps.total + ' steps · ' +
-            prog.percent + '%</span></div>' +
-            L.progressBar(prog.percent, prog.percent + ' per cent of the learning steps for ' + name + ' complete') +
+            '</div>' +
             '<p class="pg-roll">' + esc(L.simulationSentence(prog)) + '</p>' +
             '</div>') +
         '<div class="pg-res">' + ui.ic('book', 'sm') +
@@ -1363,10 +1416,16 @@ XRSLP.studentUI = (function () {
               return block(eid, state.technologiesWithActivity(p.id, eid), { past: true });
             }).join('') + '</div></section>'
           : '') +
+        /* ⚠ THIS CARD EXPLAINED A FIGURE THAT NO LONGER EXISTS.
+           Its first paragraph defined the percentage — resources, plus
+           one step per technology, plus the assessment — which is
+           precisely the denominator Implementation 09 QA found
+           unsupported. The rules underneath it are real and are kept;
+           the arithmetic that is gone is not described any more. */
         ui.card('How progress is worked out',
-          '<p class="cardlede">Each experiment has a number of learning steps: every learning resource counts ' +
-          'once, and each technology you are assigned adds its simulation and, where one is set, its assessment. ' +
-          'The percentage is the steps you have completed out of that total.</p>' +
+          '<p class="cardlede">Each part of an experiment is reported on its own: your learning resources, ' +
+          'each technology you have been given, and the assessment. Nothing is added up into a single score, ' +
+          'because the formats are different ways of running the same experiment rather than a checklist.</p>' +
           '<ul class="rulelist">' +
           '<li>' + ui.ic('book', 'sm') + '<span>Learning resources do not stop you opening a simulation — you can ' +
           'start whenever you like — but an experiment is not counted as complete until they are all marked as ' +
@@ -1392,11 +1451,16 @@ XRSLP.studentUI = (function () {
              because how a finished run confirms itself back to the platform
              is not decided. Without it, a percentage read here looks like it
              came from the experiment. */
-          '<li>' + ui.ic('info', 'sm') + '<span>A simulation counts as complete once it is recorded on the ' +
-          'simulation page. How a finished run in the experiment itself is confirmed back to the platform ' +
-          'is <strong>not settled</strong> — an API or event call has been discussed and nothing about it ' +
-          'is chosen or built — so every simulation figure here comes from that prototype control, not from ' +
-          'the experiment.</span></li>' +
+          /* ⚠ REWRITTEN AT IMPLEMENTATION 09. This said the confirmation
+             mechanism was "not settled … nothing about it is chosen or
+             built", which stopped being true of Web when the prototype
+             runtime started reporting real sessions. What is still open
+             is named instead of the whole claim being kept. */
+          '<li>' + ui.ic('info', 'sm') + '<span>A simulation counts as complete only when the run itself ' +
+          'reports a completion, for the technology it was run in — never from time spent, from a ' +
+          'resource, or from the assessment. In this build a Web run reports that from a <strong>prototype ' +
+          'runtime</strong> in your browser; no headset or mobile application is connected, so anything ' +
+          'shown for AR, VR or MR came from a demo control.</span></li>' +
           '</ul>', null, 'h2') +
         '</div>';
     }

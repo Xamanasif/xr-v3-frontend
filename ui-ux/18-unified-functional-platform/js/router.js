@@ -109,6 +109,10 @@ XRSLP.router = (function () {
     { pattern: ['faculty', ':facultyId', 'questions'],          area: 'faculty', screen: 'facultyQuestionBank' },
     { pattern: ['faculty', ':facultyId', 'questions', 'new'],   area: 'faculty', screen: 'facultyQuestionNew' },
     { pattern: ['faculty', ':facultyId', 'questions', 'draft'], area: 'faculty', screen: 'facultyQuestionDraft' },
+    /* Implementation 09 — Question Bank import (CSV / XLSX). Same
+       arity as `new` and `draft`, and a literal segment, so it can
+       never shadow or be shadowed by `#/faculty/:id/question/:qid`. */
+    { pattern: ['faculty', ':facultyId', 'questions', 'import'], area: 'faculty', screen: 'facultyQuestionImport' },
     { pattern: ['faculty', ':facultyId', 'question', ':questionId'],
       area: 'faculty', screen: 'facultyQuestionEdit' },
     { pattern: ['faculty', ':facultyId', 'reviews'],            area: 'faculty', screen: 'facultyReviews' },
@@ -132,6 +136,12 @@ XRSLP.router = (function () {
       area: 'learn', screen: 'studentExperiment' },
     { pattern: ['learn', ':studentId', 'experiment', ':experimentId', 'simulation', ':tech'],
       area: 'learn', screen: 'studentSimulation' },
+    /* Implementation 09 — the bounded PROTOTYPE WEB RUNTIME. A
+       hosted-technology stand-in that reports real session telemetry;
+       a package technology redirects back to the simulation page,
+       because no in-browser AR or VR runtime exists to send it to. */
+    { pattern: ['learn', ':studentId', 'experiment', ':experimentId', 'simulation', ':tech', 'run'],
+      area: 'learn', screen: 'studentRuntime' },
     /* The assessment belongs to the EXPERIMENT, so its routes carry no
        technology segment. Only the simulation is technology-specific.
        See the note at the head of state.js for the source evidence. */

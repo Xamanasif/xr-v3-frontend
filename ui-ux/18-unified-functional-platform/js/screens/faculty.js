@@ -58,6 +58,7 @@ XRSLP.facultyUI = (function () {
     bank:         function (f) { return base(f) + '/questions'; },
     newQuestion:  function (f) { return base(f) + '/questions/new'; },
     draft:        function (f) { return base(f) + '/questions/draft'; },
+    importQuestions: function (f) { return base(f) + '/questions/import'; },
     question:     function (f, q) { return base(f) + '/question/' + encodeURIComponent(q); },
     reviews:      function (f) { return base(f) + '/reviews'; },
     review:       function (f, r) { return base(f) + '/review/' + encodeURIComponent(r); },
@@ -175,13 +176,24 @@ XRSLP.facultyUI = (function () {
      here") is project-traceability language that belongs in README /
      QA_CHECKLIST rather than on a faculty member's screen. The rule it
      described has not changed. */
+  /* ⚠ REWRITTEN AT THE IMPLEMENTATION-09 QA CORRECTION, and the reason
+     matters. The old wording described the rule as if finishing every
+     technology were a settled requirement. Web, AR and VR are DELIVERY
+     FORMATS of one experiment, and no source says a student must
+     complete all of the formats their institution happens to hold.
+
+     So the rule is stated as what it is — the conservative reading,
+     which never announces a completion that has not been evidenced —
+     and the open question is named rather than hidden behind it. */
   function completionNote() {
     return ui.about('How “Completed” is calculated',
-      '<p>A student is <strong>Completed</strong> on an experiment when every learning resource is marked done, ' +
-      'the simulation is completed for every technology they are entitled to, and the assessment is passed ' +
-      'where one is configured.</p>' +
-      '<p style="margin-top:8px">A result waiting for your review is never counted as complete. This is the ' +
-      'platform’s working definition, not an academic completion policy set by your institution.</p>');
+      '<p><strong>Completed</strong> is shown only when nothing is outstanding: every learning resource is ' +
+      'marked done, every technology this student can open has a recorded completion, and the assessment is ' +
+      'passed where one is configured. A result waiting for your review is never counted as complete.</p>' +
+      '<p style="margin-top:8px">That is deliberately the <strong>cautious</strong> reading. Whether a student ' +
+      'has to finish an experiment in <em>every</em> technology format their institution holds — Web and VR and ' +
+      'AR — is <strong>not settled</strong>, so this screen never claims a completion it cannot evidence, and ' +
+      'never scores one format against another. Each format is reported on its own.</p>');
   }
 
   /* The one place a Faculty member is told what they cannot do, and
@@ -239,6 +251,147 @@ XRSLP.facultyUI = (function () {
     }).join('') + '</ul>';
   }
 
+  /* ============================================================
+     UTILISATION — Implementation 09.
+
+     PM-08's direct question: how does a Faculty member know a Student
+     actually used an Experiment, for how long and how often, WITHOUT
+     opening hundreds of records. These two helpers are the answer, and
+     they are shared by the Student Progress row, the row's usage
+     drawer and the per-student detail page, so one fact never gets two
+     shapes on three screens.
+
+     ⚠ NOTHING HERE IS AN OUTCOME. No mark, no score, no pass rate.
+     Utilisation is how much an experiment was USED; the assessment
+     column is where a result lives, and it is still gated on
+     `withheldMark` exactly as before.
+     ============================================================ */
+
+  /* The compact line under a row's technology chips. Every figure
+     states what it is, because "3 · 2 · 41m" means nothing on its own,
+     and the whole line is omitted rather than printing a row of zeros
+     that reads as a claim about learning that did not happen. */
+  function useFigures(u) {
+    /* Local, exactly like `techStateList` above: this IIFE declares the
+       Faculty namespace and does not close over the Student one. */
+    var L = XRSLP.studentUI;
+    if (!u || !u.anyUse) {
+      return '<span class="usefigs"><span class="uf"><span class="uf-v none">Never opened</span></span></span>';
+    }
+    var parts = [
+      { k: util.plural(u.launches, 'launch', 'launches'), v: u.launches },
+      { k: util.plural(u.sessionCount, 'session'), v: u.sessionCount }
+    ];
+    var html = '<span class="usefigs">' + parts.map(function (x) {
+      return '<span class="uf"><span class="uf-v tabular">' + x.v + '</span>' +
+        '<span class="uf-k">' + esc(x.k) + '</span></span>';
+    }).join('') +
+      '<span class="uf"><span class="uf-v tabular">' +
+        (u.totalSeconds ? esc(L.fmtDuration(u.totalSeconds)) : '—') + '</span>' +
+        '<span class="uf-k">recorded</span></span>' +
+      (u.openSessions
+        ? '<span class="uf"><span class="uf-v tabular">' + u.openSessions + '</span>' +
+          '<span class="uf-k">' + esc(util.plural(u.openSessions, 'session') + ' left open') +
+          '</span></span>' : '') +
+      '</span>';
+    return html;
+  }
+
+  /* Where the figures came from. It renders ONLY when a stand-in
+     produced some of them, because a note on every row would become
+     invisible — and the one case a reader must not miss is a figure
+     that looks like device traffic and is not. */
+  function useSourceNote(u) {
+    if (!u) { return ''; }
+    /* ⚠ AN INHERITED FIGURE NEEDS A LABEL TOO, and used to get none.
+       This returned '' for an empty source list — which is exactly what
+       a PRE-TELEMETRY record has, because no runtime ever reported it.
+       So the one figure a reader most needs qualified was the one shown
+       bare. Inherited figures are now named, and a MIXED figure says
+       both things, because both are true of it. */
+    var sources = u.sources || [];
+    var inherited = u.evidence === 'pre-telemetry' || u.evidence === 'mixed' ||
+      u.inheritedLaunches > 0 || u.inheritedSeconds > 0 || u.inheritedCompletion;
+    var standIn = sources.length && !state.runtimeSourcesAllReal(sources);
+    if (!inherited && !standIn) { return ''; }
+    var bits = [];
+    if (standIn) {
+      bits.push(esc(state.runtimeSourceLabels(sources).join(' · ')) +
+        ' — no device application is connected in this build');
+    }
+    if (inherited) {
+      bits.push('part of this was recorded before session tracking existed, so it has no session detail');
+    }
+    return '<span class="usesrc"><span class="us-tag">' +
+      (standIn ? 'STAND-IN' : 'INHERITED') + '</span>' + bits.join('. ') + '.</span>';
+  }
+
+  /* The full per-technology breakdown for the student detail page.
+
+     ── Implementation 09 — RESPONSIVE PRESENTATION ─────────────
+     SEVEN COLUMNS NEEDED 848px AND HAD 318. This table sat in the
+     360px detail rail, so Launches, Sessions, Time spent and Last
+     activity — the four figures the section exists to report — were
+     reachable only by dragging the table sideways. `.tscroll` hid the
+     defect rather than causing it: the overflow was CONTAINED, so the
+     document-level audit could not see it and only manual QA did.
+
+     Three changes. No telemetry is dropped and no figure is recomputed:
+
+       · SIX COLUMNS, NOT SEVEN. `First used` is a bracket on
+         `Last activity`, not an independent figure, so it keeps its
+         own words and its own value as a labelled sub-line of that
+         cell instead of holding a column open across every width.
+       · `.simuse` SCOPES THE PRESENTATION. Below 900px each
+         technology becomes its own stacked block, so the desktop
+         table is never squeezed into a tablet or phone viewport.
+         Nothing is scoped to `table.dt` at large — no other screen's
+         table moves.
+       · The card is no longer IN the rail. The caller gives it the
+         full content width, which is what makes six columns fit at
+         1024 as well as at 1440.
+
+     ⚠ The row still reads `state.experimentUtilisation` and nothing
+     else. Launch, session, time and completion semantics are
+     untouched; this function only decides how they are laid out. */
+  function useDetailHTML(personId, experimentId, technologies) {
+    var L = XRSLP.studentUI;
+    var ex = state.experimentUtilisation(personId, experimentId, technologies || []);
+    if (!ex.technologies.length) {
+      return '<p class="cardlede">This student holds no technology for this experiment.</p>';
+    }
+    return '<div class="simuse"><div class="tscroll"><table class="dt">' +
+      '<caption class="sr-only">Recorded simulation use, one row per technology</caption>' +
+      '<thead><tr><th scope="col">Technology</th><th scope="col">Simulation status</th>' +
+      '<th scope="col" class="num">Launches</th><th scope="col" class="num">Sessions</th>' +
+      '<th scope="col" class="num">Time spent</th>' +
+      '<th scope="col">Last activity</th></tr></thead><tbody>' +
+      ex.technologies.map(function (u) {
+        return '<tr>' +
+          '<td data-label="Technology" class="c-tech">' + ui.fmtBadge(u.technology) +
+            (u.evidence === 'none' ? '' : useSourceNote(u)) + '</td>' +
+          '<td data-label="Simulation status" class="c-sim">' + L.simBadge(u.status) +
+            (u.errors ? '<span class="tsub2">' + u.errors + ' ' +
+              util.plural(u.errors, 'runtime error') + ' reported</span>' : '') +
+            (u.inheritedCompletion
+              ? '<span class="tsub2">Recorded before session tracking existed</span>' : '') + '</td>' +
+          '<td data-label="Launches" class="c-m num tabular">' + u.launches + '</td>' +
+          '<td data-label="Sessions" class="c-m num tabular">' + u.sessionCount +
+            (u.openSessions ? ' <span class="muted">(' + u.openSessions + ' open)</span>' : '') + '</td>' +
+          '<td data-label="Time spent" class="c-m num tabular">' +
+            (u.totalSeconds ? esc(L.fmtDuration(u.totalSeconds)) : '<span class="muted">—</span>') + '</td>' +
+          '<td data-label="Last activity" class="c-m">' + (u.lastActivityAt
+            ? esc(util.fmtDateTime(u.lastActivityAt)) : '<span class="muted">—</span>') +
+            (u.firstActivityAt
+              ? '<span class="tsub2">First used ' + esc(util.fmtDate(u.firstActivityAt)) + '</span>'
+              : '') + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody></table></div></div>' +
+      '<p class="cardfoot">Each technology is tracked separately. Resource viewing and assessment ' +
+      'activity do not complete a simulation. Time counts finished sessions only — a session left ' +
+      'open records none.</p>';
+  }
+
   /* THE FOUR PROGRESS STATES AS ONE WHOLE. Printed as four bare
      integers, the reader has to do the proportion arithmetic for every
      row. The counts stay next to the bar and in the table caption, so a
@@ -251,7 +404,7 @@ XRSLP.facultyUI = (function () {
       { k: 'notstarted', v: st.notStarted, label: 'not started' }
     ];
     var total = parts.reduce(function (n, p) { return n + p.v; }, 0);
-    if (!total) { return '<span class="muted">No students entitled</span>'; }
+    if (!total) { return '<span class="muted">No students with access</span>'; }
     return '<div class="pbcell">' +
       '<div class="pbar" aria-hidden="true">' + parts.map(function (p) {
         return p.v ? '<span class="pb-' + p.k + '" style="width:' + (p.v / total * 100) + '%"></span>' : '';
@@ -397,13 +550,13 @@ XRSLP.facultyUI = (function () {
   function techMetrics(stats) {
     var keys = data.sortTech(Object.keys(stats.technologies));
     if (!keys.length) {
-      return '<p class="cardlede">No student is currently entitled to a technology for this experiment, so ' +
+      return '<p class="cardlede">No student can currently open a technology for this experiment, so ' +
         'there is nothing to report.</p>';
     }
     return '<ul class="techmetrics">' + keys.map(function (t) {
       var m = stats.technologies[t];
       return '<li>' + ui.fmtBadge(t) +
-        '<span class="tm-n"><span class="tm-v tabular">' + m.entitled + '</span> entitled</span>' +
+        '<span class="tm-n"><span class="tm-v tabular">' + m.entitled + '</span> with access</span>' +
         '<span class="tm-n"><span class="tm-v tabular">' + m.started + '</span> started</span>' +
         '<span class="tm-n"><span class="tm-v tabular">' + m.completed + '</span> completed</span>' +
         '</li>';
@@ -467,6 +620,9 @@ XRSLP.facultyUI = (function () {
     institutionCourseCode: institutionCourseCode, bindSearch: bindSearch,
     tenantHoldingsCard: tenantHoldingsCard,
     assessmentBadge: assessmentBadge, typeLabel: typeLabel, typeBadge: typeBadge,
+    /* Implementation 09 — utilisation presentation, shared by the
+       Student Progress row, its usage drawer and the detail page. */
+    useFigures: useFigures, useSourceNote: useSourceNote, useDetailHTML: useDetailHTML,
     mappedTechnologies: mappedTechnologies, techMetrics: techMetrics
   };
 })();
@@ -863,7 +1019,7 @@ XRSLP.facultyUI = (function () {
         ui.metrics([
           { v: scope.experiments.length, k: util.plural(scope.experiments.length, 'experiment') },
           { v: scope.courseIds.length, k: util.plural(scope.courseIds.length, 'course') },
-          { v: totalStudents, k: 'students entitled' },
+          { v: totalStudents, k: 'students with access' },
           scope.blocked.length
             ? { v: scope.blocked.length, k: 'mappings not usable', tone: 'warn' } : null
         ]) +
@@ -872,12 +1028,12 @@ XRSLP.facultyUI = (function () {
            it is a single line under the figure it qualifies. The rule
            itself is unchanged and still absolute: reach is effective
            entitlement, never course enrolment. */
-        '<p class="facnote">Students are counted by <strong>effective entitlement</strong>, not course ' +
-        'enrolment. A student who has not been assigned the experiment, or who falls outside the approved ' +
-        'licence quantity, cannot open it and is not counted.</p>' +
+        '<p class="facnote">Students are counted by <strong>who can actually open the experiment</strong>, ' +
+        'not by course enrolment. A student who has not been given the experiment, or who falls outside the ' +
+        'approved licence quantity, cannot open it and is not counted.</p>' +
         '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">Experiments mapped to you, the technologies available for each, ' +
-        'and how many students are entitled.</caption>' +
+        'and how many students can open them.</caption>' +
         '<thead><tr><th scope="col">Course</th><th scope="col">Experiment</th>' +
         '<th scope="col">Available technologies</th><th scope="col" class="num">Students</th>' +
         '<th scope="col">Assessment</th><th scope="col">Student progress</th>' +
@@ -988,7 +1144,11 @@ XRSLP.facultyUI = (function () {
           technologies: sr.technologies, progress: sr.progress,
           attempt: state.latestSubmittedAttempt(sr.personId, row.experimentId),
           assessState: state.assessmentState(sr.personId, row.experimentId),
-          pendingReviews: pendingHere
+          pendingReviews: pendingHere,
+          /* Implementation 09 — folded from the runtime event log, ONCE
+             per row in the same pass as everything else, for the same
+             reason the stats tree above is computed once. */
+          use: state.experimentUtilisation(sr.personId, row.experimentId, sr.technologies)
         });
       });
     });
@@ -1032,8 +1192,16 @@ XRSLP.facultyUI = (function () {
        students they are looking at, how many are moving, how many are
        WAITING ON THEM, and how many are finished. Nothing is lost — the
        outcome breakdown is one filter away and is on every row. */
+    /* ⚠ ONE COUNTING ALTITUDE ACROSS THE WHOLE STRIP — Implementation
+       09 QA relabelled the first figure, and the trap in doing so is
+       that the other three count STUDENT × EXPERIMENT rows. Calling the
+       first one "students" would put a count of people beside three
+       counts of pairings, which is exactly how "12 in progress" starts
+       being read as twelve people. Every figure here is a pairing, and
+       the label says so in the vocabulary the institution's own
+       utilisation card already uses. */
     var statsHTML = ui.statStrip([
-      { v: agg.total, k: util.plural(agg.total, 'student entitlement') },
+      { v: agg.total, k: util.plural(agg.total, 'student–experiment pairing') },
       { v: agg.inProgress, k: 'in progress' },
       { v: agg.awaiting, k: 'awaiting your review', tone: agg.awaiting ? 'warn' : '' },
       { v: agg.completed, k: 'completed' }
@@ -1070,7 +1238,7 @@ XRSLP.facultyUI = (function () {
           esc(L.progressLabel(k)) + '</option>';
       }).join('') + '</select></label>' +
       '<span class="lcount">' + (rows.length === allRows.length
-        ? rows.length + ' ' + util.plural(rows.length, 'entitlement')
+        ? rows.length + ' ' + util.plural(rows.length, 'pairing')
         : rows.length + ' of ' + allRows.length + ' shown') + '</span>' +
       /* 07.3 — the stakeholder's "they cannot count each student".
          Exports the FILTERED rows — the whole set, not the page — so the
@@ -1100,8 +1268,8 @@ XRSLP.facultyUI = (function () {
           ? 'Showing rows ' + (from + 1) + ' to ' + (from + pageRows.length) + ' of ' + rows.length + '.'
           : '') + '</caption>' +
         '<thead><tr><th scope="col">Student</th><th scope="col">Experiment</th>' +
-        '<th scope="col">Resources</th><th scope="col">Simulations</th>' +
-        '<th scope="col">Assessment</th><th scope="col">Progress</th>' +
+        '<th scope="col">Resources</th><th scope="col">Simulation activity</th>' +
+        '<th scope="col">Assessment</th><th scope="col">Overall</th>' +
         '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
         pageRows.map(function (x) {
           var res = x.progress.resources;
@@ -1111,8 +1279,23 @@ XRSLP.facultyUI = (function () {
               '<span class="tsub">' + esc(x.person.studentId || '') + '</span></td>' +
             '<td data-label="Experiment">' + esc(ectx ? ectx.experiment.name : x.experimentId) + '</td>' +
             '<td data-label="Resources" class="tabular">' + res.completed + ' of ' + res.total + '</td>' +
-            /* Per-technology, on the shared chip contract. */
-            '<td data-label="Simulations">' + F.techStateList(x.progress.technologies, true) + '</td>' +
+            /* ── Implementation 09 — USE, NOT ONLY STATE ────────────
+               PM-08: a Faculty member could see WHETHER a simulation
+               was completed and nothing about whether it was used. The
+               per-technology chips are unchanged and still carry the
+               state; underneath them the row now carries the evidence —
+               launches, sessions, recorded time, and when it was last
+               touched. A row with no activity says "Never opened"
+               rather than printing three zeros. */
+            /* ⚠ A SUMMARY, NOT THE TELEMETRY. Per-technology state and
+               one line of figures. First use, last activity, open
+               sessions and error counts are real and are all on the
+               record — putting them here as well is what made this
+               column unreadable at 1280px. The stand-in note STAYS: it
+               is short, and a figure that came from a demo control may
+               never be shown as device traffic anywhere. */
+            '<td data-label="Simulation activity">' + F.techStateList(x.progress.technologies, true) +
+              F.useFigures(x.use) + F.useSourceNote(x.use) + '</td>' +
             '<td data-label="Assessment">' + L.assessBadge(x.assessState) +
               (x.attempt && x.attempt.score && x.attempt.score.percent !== null
                 ? '<span class="tsub2 tabular">' + x.attempt.score.percent + '%' +
@@ -1125,10 +1308,20 @@ XRSLP.facultyUI = (function () {
               F.withheldMark(x.person.id, x.experimentId) +
               (x.pendingReviews ? '<span class="tsub2">' + x.pendingReviews + ' ' +
                 util.plural(x.pendingReviews, 'response') + ' to review</span>' : '') + '</td>' +
-            '<td data-label="Progress">' + L.progressBadge(x.progress.status) + '</td>' +
-            '<td class="cell-actions"><a class="btn sm sec" href="' +
-              F.href.studentDetail(f.id, x.person.id, x.experimentId) + '">Open' +
-              '<span class="sr-only"> ' + esc(x.person.name) + '</span></a></td>' +
+            '<td data-label="Overall">' + L.progressBadge(x.progress.status) + '</td>' +
+            /* ⚠ ONE DETAIL DESTINATION, NOT TWO — Implementation 09 QA.
+               This row carried BOTH a "Usage" drawer and an "Open" link,
+               and a reader had to guess which held what. The full
+               Student–Experiment record already answers everything the
+               drawer did — and the resources, the assessment and the
+               written answers besides — so it is the single detail
+               destination and the drawer is gone. The per-technology
+               session breakdown was not lost with it: `useDetailHTML`
+               still renders it, on the record. */
+            '<td class="cell-actions">' +
+              '<a class="btn sm sec" href="' +
+              F.href.studentDetail(f.id, x.person.id, x.experimentId) + '">View details' +
+              '<span class="sr-only"> for ' + esc(x.person.name) + '</span></a></td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>' + pageBar
       /* h2, not h3: this empty state stands in for the table on a page
@@ -1137,11 +1330,11 @@ XRSLP.facultyUI = (function () {
          own — that is the case where h3 would be right. */
       : ui.emptyRow({
           icon: allRows.length ? 'search' : 'users', heading: 'h2',
-          title: allRows.length ? 'No student matches these filters' : 'No student is entitled to your experiments yet',
+          title: allRows.length ? 'No student matches these filters' : 'No student can open your experiments yet',
           body: allRows.length
             ? 'Change the search or the filters to see other students.'
-            : 'Students appear here once your institution assigns one of your experiments to them and they hold ' +
-              'an effective entitlement.',
+            : 'Students appear here once your institution gives one of your experiments to them and they can ' +
+              'open it.',
           actionsHTML: allRows.length
             ? '<button class="btn sec sm" type="button" id="pf-clear">Clear filters</button>' : ''
         });
@@ -1157,7 +1350,7 @@ XRSLP.facultyUI = (function () {
       var st = statsByExperiment[eid] || state.facultyExperimentStats(f.id, eid);
       var ctx = data.contextOf(eid);
       return ui.card(ctx ? ctx.experiment.name : eid, F.techMetrics(st),
-        st.reach + ' ' + util.plural(st.reach, 'student') + ' entitled', 'h3');
+        st.reach + ' ' + util.plural(st.reach, 'student') + ' with access', 'h3');
     }).join('');
 
     /* The technology analytics are a SECOND read of the same students,
@@ -1180,7 +1373,7 @@ XRSLP.facultyUI = (function () {
 
     var html =
       ui.phead('Student Progress',
-        'Students entitled to the experiments mapped to you, inside ' + esc(tenant.name) + '.') +
+        'Students who can open the experiments mapped to you, inside ' + esc(tenant.name) + '.') +
       '<div class="stack">' +
       statsHTML +
       '<div class="tablecard">' + filterBar + tableHTML + '</div>' +
@@ -1280,9 +1473,9 @@ XRSLP.facultyUI = (function () {
         title: 'Student not in scope',
         html: ui.phead(e.name, F.courseLine(e.id)) +
           '<div class="stack">' +
-          ui.alertBox('warning', 'That student is not entitled to this experiment',
-            '<p>Student progress is reported only for students who hold an effective entitlement to an ' +
-            'experiment mapped to you. This student does not.</p>') +
+          ui.alertBox('warning', 'That student cannot open this experiment',
+            '<p>Student progress is reported only for students who can open an experiment mapped to you. ' +
+            'This student cannot.</p>') +
           '<div class="formact"><a class="btn pri" href="' + F.href.students(f.id) +
           '">Back to Student Progress</a></div></div>'
       };
@@ -1311,17 +1504,16 @@ XRSLP.facultyUI = (function () {
         }).join('') + '</ul>'
       : '<p class="cardlede">This experiment has no learning resources.</p>';
 
-    var techHTML = prog.technologies.length
-      ? '<ul class="techrows">' + prog.technologies.map(function (tp) {
-          var sim = tp.simulation;
-          return '<li>' + ui.fmtBadge(tp.technology) +
-            '<span class="tr-s">' + L.simBadge(tp.simulationStatus) + '</span>' +
-            '<span class="tr-m">' +
-            (sim && sim.launches ? sim.launches + ' ' + util.plural(sim.launches, 'launch', 'launches') : 'Never opened') +
-            (sim && sim.timeSpentSeconds ? ' · ' + esc(L.fmtDuration(sim.timeSpentSeconds)) + ' recorded' : '') +
-            '</span></li>';
-        }).join('') + '</ul>'
-      : '<p class="cardlede">This student holds no technology for this experiment.</p>';
+    /* ── Implementation 09 — THE FULL PER-TECHNOLOGY RECORD ──────
+       This list used to read `sim.launches` and `sim.timeSpentSeconds`
+       off the Implementation-03 record: two numbers with nothing
+       behind them. Both are now projections of the runtime event log,
+       and the whole log is reportable — sessions, when it was first
+       used, when it was last touched, how many sessions were left
+       open, and which runtime reported each figure. The shared
+       renderer is the same one the Student Progress drawer uses, so
+       the two screens cannot describe one student differently. */
+    var techHTML = F.useDetailHTML(student.id, e.id, techs);
 
     var assessHTML;
     if (!def) {
@@ -1384,46 +1576,69 @@ XRSLP.facultyUI = (function () {
     var html =
       ui.crumbs([{ label: 'Student Progress', href: F.href.students(f.id) },
                  { label: student.name }]) +
-      ui.phead(student.name, esc(e.name) + ' · ' + F.courseLine(e.id),
+      /* WHO, answered before anything else: the student, their
+         institutional ID, the experiment and the course. The ID used to
+         sit at the bottom of the Overall card, four cards away from the
+         name it belongs to. */
+      ui.phead(student.name,
+        (student.studentId ? esc(student.studentId) + ' · ' : '') +
+        esc(e.name) + ' · ' + F.courseLine(e.id),
         null, ' ' + L.progressBadge(prog.status)) +
-      /* The four facts a faculty member opens this page for, before any
-         card: what is done, what is with them, what is left. */
+      /* ⚠ NO TECHNOLOGY DENOMINATOR — Implementation 09 QA.
+         This read "0 of 3 simulations completed", which asserts that
+         all three technology formats are required. Nothing in any
+         source says so: Web, AR and VR are delivery formats of one
+         experiment, not three mandatory steps. The count of formats
+         actually finished is a fact and stays; the denominator that
+         turned it into a target is gone. */
       ui.metrics([
         { v: prog.resources.completed + ' of ' + prog.resources.total, k: 'resources done' },
         { v: prog.technologies.filter(function (tp) {
             return tp.simulationStatus === state.SIM_STATUS.COMPLETED;
-          }).length + ' of ' + prog.technologies.length, k: 'simulations completed' },
+          }).length, k: 'simulation formats completed' },
         { v: myReviews.filter(function (rv) { return rv.status === 'pending'; }).length,
           k: 'answers waiting for you',
           tone: myReviews.some(function (rv) { return rv.status === 'pending'; }) ? 'warn' : '' },
         { v: state.attemptsFor(student.id, e.id).length, k: 'assessment attempts' }
       ]) +
+      '<div class="stack">' +
+      /* ⚠ OUT OF THE RAIL — Implementation 09 QA. The per-technology
+         record is the widest block on this page and was the narrowest
+         column's tenant: six figures inside 318px of usable rail, four
+         of them behind a sideways drag nothing on screen advertised.
+         It takes the FULL content width, directly under the figures it
+         explains — which is also what lets six columns fit at 1024.
+         `Overall` stays in the rail; it is a summary and reads as one. */
+      ui.card('Simulation activity by technology', techHTML, null, 'h2') +
       '<div class="grid-rail"><div class="stack">' +
       ui.card('Assessment', assessHTML, null, 'h2') +
       ui.card('Written answers', reviewHTML, null, 'h2') +
       ui.card('Learning resources', resHTML,
         prog.resources.completed + ' of ' + prog.resources.total + ' marked done', 'h2') +
       '</div><div class="stack">' +
-      ui.card('Simulations', techHTML, null, 'h2') +
       ui.card('Overall',
         '<div class="kv">' +
         /* The completion rule is defined once on this page, on the row
            it qualifies, instead of as a standing note under the rail. */
-        '<div class="k">Progress ' + ui.infoTip('Completed means every learning resource marked done, the ' +
-          'simulation completed for every technology this student is entitled to, and the assessment passed ' +
-          'where one is configured. A result waiting for your review is never counted as complete.',
-          'How “Completed” is calculated') + '</div>' +
+        '<div class="k">Overall ' + ui.infoTip('Completed is shown only when nothing is outstanding: every ' +
+          'learning resource marked done, a recorded completion for every technology this student can open, ' +
+          'and the assessment passed where one is configured. A result waiting for your review is never ' +
+          'counted as complete. Whether every technology format is required at all is not settled, so this ' +
+          'is the cautious reading.', 'How “Completed” is calculated') + '</div>' +
         '<div class="v">' + L.progressBadge(prog.status) + '</div>' +
-        '<div class="k">Steps done</div><div class="v tabular">' +
-          (prog.steps ? prog.steps.done + ' of ' + prog.steps.total : '—') + '</div>' +
+        /* ⚠ "Steps done 0 of 9" IS GONE — Implementation 09 QA.
+           Its denominator was resources + one per technology format +
+           the assessment, so it silently asserted that finishing Web,
+           VR and AR were three separate mandatory steps. The three
+           strands are reported separately on this page instead, each
+           against a denominator that is actually its own. */
         '<div class="k">Last activity</div><div class="v">' +
           (prog.lastActivityAt ? esc(util.fmtDateTime(prog.lastActivityAt)) : 'No activity recorded') + '</div>' +
-        '<div class="k">Student ID</div><div class="v">' + esc(student.studentId || '—') + '</div>' +
         '<div class="k">Account</div><div class="v">' +
           (student.status === 'active' ? ui.badge('b-success', 'check', 'Active')
             : ui.badge('b-neutral', 'minus', 'Inactive')) + '</div>' +
         '</div>', null, 'h2') +
-      '</div></div>';
+      '</div></div></div>';
 
     return {
       area: 'faculty', faculty: f, tenant: tenant, navKey: 'students',

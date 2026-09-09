@@ -662,7 +662,7 @@ XRSLP.screens = XRSLP.screens || {};
           'No Learning Outcomes yet. They are authored by the Academic Reviewer during academic review, ' +
           'not by the Vendor.'),
         'Academic Reviewer owned') +
-      (rec.status === CS.PUBLISHED ? ui.card('Publication', cui.publicationCard(rec)) : '') +
+      (rec.status === CS.PUBLISHED ? ui.card('First publication', cui.publicationCard(rec)) : '') +
       '</div>' +
       '<div class="stack">' +
       (rec.status === CS.PUBLISHED

@@ -36,8 +36,14 @@ var localStorage = {
   clear: function () { __store = {}; }
 };
 
+/* Implementation 09 adds three FIRST-PARTY, DOM-FREE modules that the
+   suite now exercises directly: the CSV parser, the spreadsheet
+   reader/writer, and the Question Bank importer. None of them touches
+   `document`; each one's only browser dependency is `Blob`, and only
+   inside its `download()` helper, which no check calls. */
 function loadState() {
-  ['js/utils.js', 'js/data.js', 'js/ai-assist.js', 'js/state.js'].forEach(function (f) {
+  ['js/utils.js', 'js/data.js', 'js/ai-assist.js', 'js/state.js',
+   'js/csv.js', 'js/xlsx.js', 'js/question-import.js'].forEach(function (f) {
     (new Function(readFile(f))).call(window);
   });
 }

@@ -49,6 +49,11 @@
 <script src="js/ai-assist.js?v=090"></script>
 <script src="js/state.js?v=090"></script>
 <script src="js/csv.js?v=090"></script>
+<!-- Implementation 09. First-party spreadsheet support (no third-party parser,
+     no CDN - see the header of js/xlsx.js). question-import.js reads BOTH
+     formats, so it loads after csv.js and xlsx.js. -->
+<script src="js/xlsx.js?v=090"></script>
+<script src="js/question-import.js?v=090"></script>
 <script src="js/components.js?v=090"></script>
 <!-- Shared content-production UI. Loads after components.js (it builds on
      XRSLP.ui) and before the three content workspaces that consume it. -->

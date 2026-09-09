@@ -1,4 +1,4 @@
-# QA Checklist — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06
+# QA Checklist — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06 + 09
 
 > **Superseded in large part by automation at Implementation 08 — see the notice below.**
 
@@ -165,7 +165,7 @@ Fixtures: `qa/students-invalid.csv`, `qa/students-valid.csv`.
 
 | # | Step | Expected | Result |
 |---|---|---|---|
-| D1 | **People → Import Students (CSV)** | Real `<input type="file" accept=".csv">` with a label and hint; `.xlsx` explicitly not claimed | ✅ |
+| D1 | **People → Import Students (CSV)** | Real `<input type="file" accept=".csv">` with a label and hint. This importer is `.csv` only and its hint still says so — the Faculty **Question Bank** importer added in Implementation 09 is the one that reads `.xlsx` (section **AB**) | ✅ |
 | D2 | **Download CSV template** | A real file is generated in the browser with the confirmed columns; sample rows demonstrate blank Semester / Organisation / Plan Terms | ✅ |
 | D3 | Upload `students-invalid.csv` | Preview + per-row report; **commit blocked**, button disabled with an explanation | ✅ |
 | D4 | Missing required field (row 3) | *Student Name is required and this row leaves it blank.* | ✅ |
@@ -2154,3 +2154,191 @@ No WCAG certification is claimed, here or anywhere in the build.
 | No internal requirement identifier reaches a user-visible surface | ✅ **0** across `js/` and `index.html` |
 | Nothing claims an email, SMS, push or notification was sent | ✅ |
 | No revenue or financial metric anywhere | ✅ |
+
+---
+
+# Implementation 09 — the PM functional delta
+
+**Automated.** Everything in this section is proved by `qa/checks.js` (the `IMPL 09` groups) and by
+`qa/ui-audit.js`, which now sweeps the new routes at all five widths. The table records **what is
+asserted**, so a reader can see the coverage without reading the suite; the *Manual* column names
+the few things automation genuinely cannot prove.
+
+Run both:
+
+```bash
+/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc qa/harness.js qa/checks.js
+```
+
+> **⚠ Run `XRSLPAudit.run()` and `XRSLPAudit.interactions()` from separate page loads.** The route
+> sweep emulates five viewport widths and does not restore the last one, so interaction checks run
+> straight after it fail on a page that is still laid out for the sweep. Reload, then run whichever
+> one you want. This is a harness characteristic, not a product defect — the failures it produces
+> include checks that pass on their own.
+
+| | Baseline (08) | Final (09) |
+|---|---|---|
+| Deterministic assertions | 1460 | **2202** (25 `IMPL 09` groups + 10 `IMPL 09c` clarity-correction groups) |
+| Failures | 0 | **0** |
+| Rendered routes swept | 167 | **167** — the same count, and it now includes the runtime and import routes (the seeded state that the sweep enumerates from carries fewer detail records than the demo state used for the earlier figure) |
+| Route × width checks | 835 | **835**, **0 issues** |
+| Driven interaction checks | 40 | **81** (3 new flows) |
+| `schemaVersion` | 11 | **12** |
+| `STORAGE_KEY` | `xrslp-unified-v1` | **unchanged** |
+
+## AA · Runtime utilisation
+
+| # | Asserted | Manual |
+|---|---|:--:|
+| AA1 | Zero activity reports no evidence, no launches, no sessions, no time, and *Not started* | |
+| AA2 | A first launch writes exactly two events — `SIMULATION_LAUNCHED` then `SESSION_STARTED` — attributed to student, tenant, experiment, technology, source, and both clocks | |
+| AA3 | Multiple launches and multiple sessions accumulate; durations sum | |
+| AA4 | A retried event under the same client key returns success, appends nothing, and moves no total | |
+| AA5 | A second `SESSION_ENDED` for a closed session adds nothing **under any key** | |
+| AA6 | A session that never ends is counted, reported as open, and contributes **zero** seconds | |
+| AA7 | A new launch **abandons** an open session; the abandoned one keeps no duration and is named as abandoned | |
+| AA8 | A negative duration never reduces recorded time; an end before its start is **zero**, never negative | |
+| AA9 | Web-only, VR-only and AR-only activity each complete **only** their own technology | |
+| AA10 | Mixed use reports which technologies were used and which were completed, separately | |
+| AA11 | An Experiment is not complete while an entitled technology is unfinished | |
+| AA12 | Reading every learning resource writes **no** runtime event and completes nothing | |
+| AA13 | There is no video or resource event in the vocabulary — exactly five lifecycle events | |
+| AA14 | Eight hours of recorded use is still *In progress* without a completion event | |
+| AA15 | Submitting the assessment completes no simulation | |
+| AA16 | Only `SIMULATION_COMPLETED` completes one; a second completion never moves the date; a later re-run never walks a completion back | |
+| AA17 | A completion **alone** leaves the session open — it is not an end event — and the runtime sends both | |
+| AA18 | The percentage states the steps it is counted from; 20 minutes of use moves no step; the completion event moves exactly one | |
+| AA19 | Resources, simulation and assessment are three separate strands, each naming its own evidence | |
+| AA20 | Ingestion refuses: an unentitled experiment, an unentitled technology, an unknown event type, an unknown technology, a missing session id, an unreadable timestamp, a non-student actor | |
+| AA21 | Deactivation stops new telemetry and preserves every recorded event, the time and the completion; reactivation displaces nothing | |
+| AA22 | Expiry stops new telemetry at the door and preserves everything recorded before it | |
+| AA23 | Every event's tenant matches its student's tenant; no event crosses an institution | |
+| AA24 | A package technology defaults to the **platform stand-in** source, never the web runtime; one stand-in among the sources makes the whole figure a stand-in figure | |
+| AA25 | A schema-11 state migrates with an **empty** log, invents no session, reports its history as pre-telemetry, and keeps its completion when new events arrive — flagged as inherited | |
+| AA26 | An error-only report is recorded as an error and is **not** use — no session, no launch, and the simulation stays Not started | |
+| AA27 | A completion for a session nobody opened is recorded and **completes nothing** | |
+| AA28 | A replayed launch under a fresh client key adds no launch and no session | |
+| AA29 | Completing an already-ended run invents no second session and no second launch | |
+| AA30 | A session id does not wrap at 1000, and the idempotency key is namespaced by student, experiment and technology, so two students cannot collide on one session id | |
+| AA31 | An end stamped **before** its own start closes that session and does **not** abandon the genuinely open one | |
+| AA32 | A parsable but non-ISO timestamp is refused; an offset stamp is normalised to UTC so string order is instant order | |
+| AA33 | Two different errors in one session are two errors; a client-supplied key still deduplicates its own retry | |
+| AA34 | A migrated pre-telemetry baseline is **frozen once** and added to, never overwritten — and a second load does not re-freeze it | |
+| AA35 | The live elapsed clock ticks, and the runtime page shows the session, the time and the completion it recorded | | **manual** |
+| AA36 | The demo runtime simulator's AR/VR figures are visibly labelled `STAND-IN` on screen | | **manual** |
+
+## AB · Question Bank import
+
+| # | Asserted | Manual |
+|---|---|:--:|
+| AB1 | A valid CSV of all three types validates, and **writes nothing** | |
+| AB2 | Confirming creates exactly the previewed rows, with the right type, options, answer key, marks, experiment, course, tenant and author | |
+| AB3 | The MCQ answer key resolves to **the option the file named** | |
+| AB4 | Provenance is `import-csv` / `import-xlsx`, never `ai`, and an edit does not rewrite it | |
+| AB5 | Add / Edit / Delete still work on an imported question | |
+| AB6 | Refused: empty file, header-only file, bad header, missing type, unsupported type, missing question, missing marks, non-numeric marks, fractional marks, zero marks, absurd marks, one-option MCQ, MCQ with no answer, an answer naming no option, an answer on an empty option, a malformed true/false, an over-long question | |
+| AB7 | Every error names the row **as the spreadsheet shows it**, the column, and how to correct it | |
+| AB8 | One bad row blocks the whole file; committing a blocked result writes nothing | |
+| AB9 | An oversized file is **refused**, never trimmed | |
+| AB10 | Duplicates — against the bank and within the file — are warnings, are never resolved for the user, and both copies are created when confirmed | |
+| AB11 | The same sentence as a different type is not a duplicate | |
+| AB12 | An out-of-scope experiment is refused **before a row is read**, and a forged result object is refused at the writer | |
+| AB13 | A deactivated institution imports nothing | |
+| AB14 | The downloadable template — CSV **and** XLSX — re-imports with zero errors | |
+| AB15 | A **DEFLATE-compressed** workbook is read correctly, including shared strings, inline strings, formula cached values, boolean cells, sparse cells and numeric cells | |
+| AB16 | A CSV renamed `.xlsx` is caught by its bytes; an old `.xls` binary is named, not reported as damaged | |
+| AB17 | CRC-32 matches the published check value, so the archives written here are valid | |
+| AB18 | A workbook shaped the way Excel writes one — self-closing `<c/>` cells between real ones, a self-closing `<t>` with an attribute, an omitted blank row, numeric and boolean cells, and a **paired** `<sheet>` element — reads correctly and loses no column | |
+| AB19 | The reader refuses an empty file, random bytes, an old `.xls`, a CSV renamed `.xlsx` and a truncated ZIP, and every malformed DEFLATE stream throws instead of looping | |
+| AB20 | XML-significant characters, Greek, symbols and multi-byte scripts round-trip exactly; a lone surrogate produces a readable file; a numeric entity is decoded once, not twice | |
+| AB21 | A blank row anywhere in the file does not shift the reported row numbers, and a leading blank line does not break the header | |
+| AB22 | An unrecognised header column is **named** in a warning rather than silently discarded | |
+| AB23 | The institution is taken from the faculty member, not from the caller — a commit into another tenant writes nothing, and a student cannot commit at all | |
+| AB24 | A commit that writes nothing is reported as a refusal, not rendered as a success | |
+| AB25 | The file chooser, the preview and the confirmation dialog behave in a real browser with a real `File` | | **manual** |
+
+## AD · The UX / clarity correction (`IMPL 09c`)
+
+Added after manual end-to-end QA of Implementation 09, which passed on behaviour and found six
+clarity defects. Every group also re-asserts that the behaviour underneath did **not** move.
+
+| # | Asserted | Manual |
+|---|---|:--:|
+| AD1 | Student Progress renders **one** detail action, *View details*, leading to the full record — no Usage drawer, no sheet, no second path | |
+| AD2 | The per-technology breakdown, the figures helper and the stand-in note all survive and are rendered on the record | |
+| AD3 | No learning-step percentage, no *"N of M steps"* and no *"of N simulations"* denominator is rendered on any Faculty or Student screen | |
+| AD4 | The state layer still derives `steps` and `percent`, and every per-technology record survives — nothing was deleted to achieve AD3 | |
+| AD5 | Overall state stays conservative: no activity → *Not started*; activity → *In progress*; and reading every resource, five hours of use, submitting **or passing** the assessment, and completing one format all fail to produce *Completed* | |
+| AD6 | The product names the open question — whether every format is required — rather than settling it by wording | |
+| AD7 | No user-visible *entitlement* / *entitled* / *access record* wording, and no literal `ACC-*`, in the Faculty or Tenant screens (the stakeholder-closed Tenant Overview is excluded **by name**, not by omission) | |
+| AD8 | The counts behind the relabelled figures are unchanged | |
+| AD9 | A correction offers only the actions its state allows: draft/returned are the manager's; with the reviewer, approved, held and released are not | |
+| AD10 | A released or withdrawn correction is drawn as **closed** and offers no action — it stops looking like an active draft | |
+| AD11 | The version stepper reads the author off the candidate: *Correction proposed · Submitted by the Content Manager*, never a hard-coded Vendor | |
+| AD12 | Both decision surfaces render a current → proposed comparison; unchanged fields produce no row; a withdrawal is distinguished from an empty new value | |
+| AD13 | Release, Hold, lift-the-hold and academic approval all behave exactly as before | |
+| AD14 | *First published version* and *Current public version* are labelled separately, on both publication branches, and the first publication is never rewritten | |
+| AD15 | The full manually-tested flow — publish 1.0 → correction 1.1 → send → approve → Release → public 1.1, new URL live, history kept, survives reload | |
+| AD16 | Telemetry is untouched: 2 launches · 2 sessions · 13 seconds · In progress, before and after a reload | |
+| AD17 | A passing and a failing student remain byte-identical in the student view while the result is withheld | |
+| AD18 | The correction panel's NEXT STEP block and its primary action are visible without hunting, at 1440 and at 375 | | **manual** |
+
+## AC · Version control
+
+| # | Asserted | Manual |
+|---|---|:--:|
+| AC1 | Before publication a material edit is a **direct** edit, is accepted, replaces the value, and writes exactly one history entry carrying the reason | |
+| AC2 | Before publication no version is created | |
+| AC3 | A pre-publication delivery correction does **not** invalidate the academic approval; the record still publishes | |
+| AC4 | On a published record a material edit is refused in place, the live link is unchanged, the version label is unchanged, and nothing is written to the audit trail | |
+| AC5 | A removal is **always** material | |
+| AC6 | Rewriting the published description is material | |
+| AC7 | Technical notes and catalogue metadata stay direct, audited, in-place edits on a published record | |
+| AC8 | Re-saving an unchanged value is not a material change | |
+| AC9 | The material and safe sets **partition** the writable field set | |
+| AC10 | A correction version is created as a **draft**, with `origin: content-manager`, naming the technology it corrects and the version it replaces | |
+| AC11 | A vendor and an academic reviewer cannot raise one; a correction cannot be raised for an unpublished record | |
+| AC12 | Reusing the published label, an empty label or an empty change note are all refused | |
+| AC13 | While a correction exists the public link, the version label and the published status are all unchanged, and the record's own timeline records that it was raised | |
+| AC14 | Tenant entitlement is unaffected: the institution can still be granted it and the student can still run it | |
+| AC15 | Only one open version per experiment; a further material edit is **blocked** with a stated reason | |
+| AC16 | It goes through academic review — no gate skipped — and reaches the Super Admin decision queue | |
+| AC17 | **Hold** leaves the live version, the label and every entitlement exactly where they are; lifting a hold does not erase it from the history | |
+| AC18 | **Release** is the only thing that moves the public version, and it never widens or narrows the technology set | |
+| AC19 | After the correction resolves, a later material edit starts another correction rather than an in-place write | |
+| AC20 | A correction that **withdraws** a reference actually withdraws it on release — a removal is recorded as an instruction, because the release merge cannot express an absence |
+| AC21 | A correction that **clears one field** clears exactly that field on release, and the field beside it survives |
+| AC22 | A Vendor's ordinary later version carries no clears and merges exactly as it always did |
+| AC23 | A correction the Academic Reviewer returned can be **revised** and re-sent, and the revised content is what goes live — not the version the reviewer rejected |
+| AC24 | A correction can be **withdrawn** by the manager who raised it while it is still theirs; nothing is deleted, both timeline entries survive, and the experiment can carry a version again |
+| AC25 | A correction with the reviewer, approved, or awaiting Release cannot be pulled from under them |
+| AC26 | A patch that **omits** the description is material — because that writer would erase it — and the writer refuses it |
+| AC27 | The Super Admin's platform-master correction is the **one named exception**: it still writes in place, refuses without a reason, and is audited (open question **D-09-11**) |
+| AC28 | The Content Manager screen offers the correction control, the version-label field, the send action and the withdraw action, and the card footer no longer claims *creates no new version* on published content | | **manual** |
+
+## State and migration — Implementation 09
+
+| | |
+|---|---|
+| `schemaVersion` | **11 → 12.** One additive collection, `runtimeEvents[]`, plus `seq.runtimeEvent` and `seq.runtimeSession`. Both the seed literal **and** the migration key list were updated — they are duplicated in `state.js`, and updating only one produces ids like `RTE-NaN` |
+| Namespace | `xrslp-unified-v1`, **unchanged** |
+| Implementation 01–08 data | Untouched. Every existing migration assertion still passes, from schema 6, 8, 9, 10 and 11 |
+| Fabrication | **None.** A schema-11 state migrates with an empty log; no session, timestamp or session count is invented for a run recorded before telemetry existed |
+| `js/data.js` | **Not modified.** Every new fixture is built by calling the product's own writers |
+| New optional fields | `contentVersions[].origin / .correction / .correctionOf`, and two new `question.origin` values. All additive; absence is the correct historical value |
+
+## Invariants re-checked after Implementation 09
+
+| Invariant | Result |
+|---|:--:|
+| A simulation completes **only** from an explicit runtime completion event, per technology | ✅ |
+| Watching a video, reading a resource, meeting a Learning Outcome, spending time, or submitting the assessment completes nothing | ✅ |
+| One technology never completes another | ✅ |
+| No score, mark, earned total or outcome reaches the utilisation model at any level | ✅ **structurally asserted** |
+| A withheld result is still marked withheld in the export, with the new columns present | ✅ |
+| One institution can never see another's telemetry | ✅ |
+| A published artefact is never silently rewritten under its own version label | ✅ |
+| Publish (first publication) and Release / Hold (later version) still cannot reach each other's object | ✅ |
+| Nothing claims a backend, an API, a connected native application, or a delivered package | ✅ |
+| No third-party dependency, no CDN, no build step | ✅ |
+| The accepted Tenant Overview is untouched | ✅ |

@@ -1173,7 +1173,11 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="kv">' +
         '<div class="k">Replaces</div><div class="v">' + esc(pending.replacesVersionLabel || '—') + '</div>' +
         '<div class="k">What changed</div><div class="v">' + esc(pending.changeNote) + '</div>' +
-        '<div class="k">Submitted by</div><div class="v">' + esc(pending.createdByName) + ' <span class="muted">· Vendor</span></div>' +
+        /* ⚠ THE ROLE COMES FROM THE VERSION, NOT FROM AN ASSUMPTION.
+           A Content Manager's correction is not a Vendor submission,
+           and this is the panel where the Super Admin decides on it. */
+        '<div class="k">Raised by</div><div class="v">' +
+          XRSLP.versionUI.raisedByLine(pending) + XRSLP.versionUI.correctionChip(pending) + '</div>' +
         '<div class="k">Academic approval</div><div class="v">' +
         esc(pending.academicDecisionByName || '—') +
         (pending.academicDecisionAt ? ' <span class="muted">· ' + esc(util.fmtDate(pending.academicDecisionAt)) + '</span>' : '') +
@@ -1181,6 +1185,15 @@ XRSLP.screens = XRSLP.screens || {};
         '</div>' +
         /* h3: the panel sits inside an h2 card, and no heading level is
            skipped anywhere in the outline. */
+        /* ── Implementation 09 QA — WHAT A RELEASE WOULD CHANGE ──
+           The same safety principle as the Academic Reviewer's screen,
+           on the surface where the decision is final: before Release or
+           Hold, the Super Admin sees the current live value beside the
+           proposed one, for every field that actually moves — and one
+           line saying everything else is carried forward. */
+        '<h3 class="vd-sh">What releasing version ' + esc(pending.versionLabel) +
+          ' would change</h3>' +
+        XRSLP.versionUI.diff(rec, pending, { hideReason: true }) +
         '<h3 class="vd-sh">Description this version would make current</h3>' +
         '<p class="vd-d">' + esc(pending.description) + '</p>' +
         /* A release writes this version's per-technology delivery onto
@@ -1234,7 +1247,8 @@ XRSLP.screens = XRSLP.screens || {};
           var m = state.versionStatusMeta(v.status);
           return '<div class="tl-item"><span class="tl-dot ' + cls + '">' + ui.ic(m.icon) + '</span>' +
             '<div class="tl-body"><div class="tl-action">Version ' + esc(v.versionLabel) + ' — ' + esc(m.label) + '</div>' +
-            '<div class="tl-who">' + esc(v.createdByName) + ' · Vendor · ' + esc(util.fmtDateTime(v.createdAt)) + '</div>' +
+            '<div class="tl-who">' + esc(v.createdByName) + ' · ' +
+              esc(XRSLP.versionUI.raisedByRole(v)) + ' · ' + esc(util.fmtDateTime(v.createdAt)) + '</div>' +
             (v.changeNote ? '<p class="tl-note">' + esc(v.changeNote) + '</p>' : '') +
             /* ── R17 — THE VERSION'S DURABLE LINE, NOT ITS CURRENT FIELD ──
                This read `v.releaseDecision`, which is the version's

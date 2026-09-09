@@ -364,13 +364,6 @@ table.dt.sm td{padding:10px 20px; font-size:13.5px}
 .picklistr .pk-e{font-size:12.5px; color:var(--text-2); margin-top:3px}
 .picklistr .btn{flex:0 0 auto}
 
-/* ---------- learning progress bar ----------
-   Decoration only: the figure it represents is always present as text
-   beside it, and it carries an accessible name of its own. */
-.lprog{height:8px; border-radius:var(--r-pill); background:var(--sunken); overflow:hidden}
-.lprog>span{display:block; height:100%; background:var(--action); border-radius:var(--r-pill);
-  transition:width var(--m-base) var(--ease)}
-
 /* ---------- My Learning ---------- */
 .lsec{margin-bottom:28px}
 .lsec:last-child{margin-bottom:0}
@@ -457,7 +450,6 @@ table.dt.sm td{padding:10px 20px; font-size:13.5px}
 .focus .fc-t a:hover{color:var(--action); text-decoration:underline}
 .focus .fc-s{font-size:14px; color:var(--text-2); line-height:var(--lh-snug); margin-top:var(--s-2);
   max-width:64ch}
-.focus .fc-p{margin-top:var(--s-5); max-width:520px}
 .focus .fc-a{display:flex; align-items:center; gap:var(--s-4); flex-wrap:wrap; margin-top:var(--s-6)}
 .focus .fc-when{font-size:var(--t-sm); color:var(--text-3)}
 
@@ -2033,3 +2025,269 @@ details.coursebk .cb-go svg.ic{width:14px; height:14px}
    the identifier above it. */
 .recrow .rr-m > .metrics{ margin-top: 2px }
 /* ==== END IMPLEMENTATION 08 — merged per-area screen CSS ==== */
+
+/* ============================================================
+   IMPLEMENTATION 09 — the PROTOTYPE WEB RUNTIME environment.
+
+   Visibly scaffolding, like `details.demopanel`, and for the same
+   reason: a learner must never be able to mistake this panel for the
+   simulation it stands in for. It uses the dashed strong border and
+   the mono tag the build already uses to mean "this is not product
+   chrome", at panel scale rather than at control scale.
+
+   No new colour, no new font, no new spacing value — every rule below
+   resolves to an existing token.
+   ============================================================ */
+.protoruntime{border:1px dashed var(--border-strong); border-radius:var(--r-md);
+  background:var(--n-25); padding:var(--s-5)}
+.protoruntime>*+*{margin-top:var(--s-4)}
+.protoruntime .pr-tag{font-family:var(--mono); font-size:10px; letter-spacing:.09em;
+  color:var(--text-3); border:1px solid var(--border-strong); border-radius:var(--r-xs);
+  padding:2px 7px; display:inline-block}
+.protoruntime .pr-lede{font-size:var(--t-sm); color:var(--text-2); line-height:var(--lh-snug)}
+/* The stand-in "stage". Deliberately inert and deliberately plain: a
+   convincing picture of a simulation would undo the sentence above it. */
+.protoruntime .pr-stage{display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:var(--s-3); min-height:132px; border:1px dashed var(--border); border-radius:var(--r-sm);
+  background:var(--surface); color:var(--text-3)}
+.protoruntime .pr-glyph{opacity:.5}
+.protoruntime .pr-cap{font-size:var(--t-sm)}
+
+/* The live elapsed clock. Tabular figures so the seconds digit does
+   not shift the layout once a second. */
+.rtclock{display:flex; align-items:baseline; gap:var(--s-3); flex-wrap:wrap}
+.rtclock .rt-k{font-size:var(--t-sm); color:var(--text-3)}
+.rtclock .rt-v{font-variant-numeric:tabular-nums; font-size:var(--t-xl);
+  font-weight:var(--w-semi); color:var(--text)}
+
+/* ---------- utilisation figures, wherever they are reported ----------
+   One presentation for "how much was this used", shared by the Faculty
+   student rows, the Faculty detail drawer and the institution's
+   Content access screen, so the same fact never gets two shapes. */
+.usefigs{display:flex; flex-wrap:wrap; gap:var(--s-2) var(--s-4)}
+.usefigs .uf{display:flex; align-items:baseline; gap:var(--s-2); min-width:0}
+.usefigs .uf-k{font-size:var(--t-xs); color:var(--text-3); text-transform:none}
+.usefigs .uf-v{font-variant-numeric:tabular-nums; font-size:var(--t-sm);
+  font-weight:var(--w-med); color:var(--text)}
+.usefigs .uf-v.none{font-weight:400; color:var(--text-3)}
+/* A source that is not a connected runtime in this build. Never
+   colour alone — the word "demo" or the runtime's own name is in the
+   text, and this only quietens it. */
+.usesrc{font-size:var(--t-xs); color:var(--text-3)}
+.usesrc .us-tag{font-family:var(--mono); font-size:10px; letter-spacing:.06em;
+  border:1px solid var(--border); border-radius:var(--r-xs); padding:0 5px; margin-right:var(--s-2)}
+
+@media (max-width: 640px){
+  .protoruntime{padding:var(--s-4)}
+  .protoruntime .pr-stage{min-height:104px}
+}
+
+/* ============================================================
+   IMPLEMENTATION 09 QA — the CORRECTION PANEL.
+
+   One panel per correction, replacing a three-column table whose last
+   cell held the only action that mattered. The rules below do one
+   thing: give the NEXT STEP block enough weight that a reader cannot
+   scan past it. No new colour, no new font, no new spacing value —
+   every declaration resolves to an existing token.
+   ============================================================ */
+.cxlist{display:flex; flex-direction:column; gap:var(--s-5)}
+.cxpanel{border:1px solid var(--border); border-radius:var(--r-md); background:var(--surface);
+  padding:var(--s-5)}
+.cxpanel>*+*{margin-top:var(--s-4)}
+/* A resolved correction is history: it keeps every fact and stops
+   competing for attention with one that still needs an action. */
+.cxpanel.done{background:var(--raised); border-style:dashed}
+
+.cxpanel .cx-h{display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap}
+.cxpanel .cx-t{font-size:var(--t-lg); font-weight:var(--w-semi); color:var(--text)}
+.cxpanel .cx-meta{font-size:var(--t-sm); color:var(--text-3)}
+
+.cxpanel .cx-what{list-style:none; margin:0; padding:0; display:flex; flex-direction:column;
+  gap:var(--s-2)}
+.cxpanel .cx-what li{display:flex; align-items:flex-start; gap:var(--s-3);
+  font-size:var(--t-sm); color:var(--text-2); line-height:var(--lh-snug)}
+.cxpanel .cx-what li>svg{flex:0 0 auto; margin-top:2px; color:var(--text-3)}
+
+.cxpanel .cx-why{display:flex; gap:var(--s-3); font-size:var(--t-sm); line-height:var(--lh-snug)}
+.cxpanel .cx-why .cx-k{flex:0 0 auto; color:var(--text-3)}
+.cxpanel .cx-why .cx-v{color:var(--text-2)}
+
+.cxpanel .cx-live{display:flex; align-items:flex-start; gap:var(--s-3);
+  font-size:var(--t-sm); color:var(--text-2); line-height:var(--lh-snug)}
+.cxpanel .cx-live>svg{flex:0 0 auto; margin-top:2px; color:var(--text-3)}
+
+/* THE POINT OF THE WHOLE PANEL. Its own block, its own label, and the
+   primary action inside it rather than in a table cell. */
+.cxpanel .cx-next{border-top:1px solid var(--border-subtle); padding-top:var(--s-4)}
+.cxpanel.done .cx-next{border-top-style:dashed}
+.cxpanel .cx-nk{font-family:var(--mono); font-size:10px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--text-3)}
+.cxpanel .cx-nt{font-size:var(--t-md); color:var(--text); line-height:var(--lh-snug);
+  margin-top:var(--s-2)}
+.cxpanel .cx-na{display:flex; gap:var(--s-3); flex-wrap:wrap; margin-top:var(--s-4)}
+
+@media (max-width: 640px){
+  .cxpanel{padding:var(--s-4)}
+  /* Full-width targets rather than three buttons wrapping into a
+     ragged block on a 375px screen. */
+  .cxpanel .cx-na{flex-direction:column; align-items:stretch}
+  .cxpanel .cx-na .btn{justify-content:center}
+}
+
+/* ---------- IMPLEMENTATION 09 QA — current → proposed ----------
+   Two labelled sides per changed field. Stacked on a narrow screen so
+   the pair stays readable rather than becoming two unreadable columns;
+   the LABELS carry which side is which, so nothing depends on
+   position or colour. */
+.vdiff{display:flex; flex-direction:column; gap:var(--s-4); margin-top:var(--s-3)}
+.vdiff .vd-row{border:1px solid var(--border); border-radius:var(--r-sm); padding:var(--s-4);
+  background:var(--surface); display:grid; grid-template-columns:1fr 1fr; gap:var(--s-2) var(--s-4)}
+.vdiff .vd-row.cleared{border-style:dashed}
+.vdiff .vd-f{grid-column:1 / -1; font-size:var(--t-sm); font-weight:var(--w-semi); color:var(--text)}
+.vdiff .vd-side{display:flex; flex-direction:column; gap:2px; min-width:0}
+.vdiff .vd-k{font-family:var(--mono); font-size:10px; letter-spacing:.06em; color:var(--text-3)}
+.vdiff .vd-v{font-size:var(--t-sm); color:var(--text-2); word-break:break-word}
+.vdiff .vd-new .vd-v{color:var(--text); font-weight:var(--w-med)}
+
+@media (max-width: 720px){
+  .vdiff .vd-row{grid-template-columns:1fr; gap:var(--s-3)}
+}
+
+/* ============================================================
+   SIMULATION ACTIVITY BY TECHNOLOGY — Implementation 09 QA.
+
+   Faculty → Student Progress → View details → the per-technology
+   telemetry block, and the ONE table in this build with a responsive
+   contract of its own.
+
+   ⚠ EVERY RULE BELOW IS SCOPED TO `.simuse`. The shared `table.dt`
+   degradation at 740px is untouched, so no other screen's table moves.
+   This section needs two things that shared rule cannot give it:
+   it must stack EARLIER (six telemetry columns have no readable form
+   at 768, where the workspace leaves 694px), and it must stack as
+   LABELLED PAIRS rather than as a bare run of blocks, because a
+   figure like "2" means nothing without the word next to it.
+
+   The selectors are written `.simuse table.dt …` on purpose: the
+   shared rule is `table.dt td[data-label]::before` at (0,2,2), so an
+   override needs three class-level components to outrank it whatever
+   order the stylesheets load in.
+   ============================================================ */
+
+/* ---------- desktop: 1440 / 1280 / 1024 ----------
+   `table-layout:fixed` is the whole guarantee. Under the default
+   `auto` layout a table is as wide as its CONTENT wants to be and the
+   container scrolls to cover the difference — which is precisely the
+   defect this section had. Fixed layout inverts that: the table is
+   exactly 100% of its container at every width, the columns take the
+   shares below, and content that does not fit WRAPS. Horizontal
+   overflow stops being something to measure and starts being
+   impossible to express.
+
+   The shares are sized against the tightest desktop case — 1024,
+   where the workspace sidebar and the card padding leave 694px — so
+   every header and every value has room there, and 1280 and 1440 only
+   add slack. Below 1024 no share is wide enough for these headers, so
+   that is exactly where the stacked treatment takes over. */
+/* The table's first and last cells already carry a 20px gutter — the
+   same inset `.card .cbody` applies. Paying for it twice cost 40px of
+   column width and bought nothing: bleeding the table to the card edge
+   moves no text at all (the gutters line the columns up exactly where
+   the card padding did) and hands those 40px back to the columns,
+   which at 1024 is the difference between a timestamp on one line and
+   a timestamp on two. */
+.simuse .tscroll{margin-left:-20px; margin-right:-20px; max-width:none}
+.simuse table.dt{table-layout:fixed}
+/* Technology and Last activity carry sentences and a timestamp; the
+   three counts carry one or two digits. The shares follow the CONTENT,
+   not the column count — an equal split spends 140px on "2" and then
+   wraps the runtime caveat to six lines beside it. Each number column
+   is still wide enough for its own header, which is the widest thing
+   that will ever sit in it. */
+.simuse table.dt th:nth-child(1){width:18%}   /* Technology        */
+.simuse table.dt th:nth-child(2){width:17%}   /* Simulation status */
+.simuse table.dt th:nth-child(3){width:13%}   /* Launches          */
+.simuse table.dt th:nth-child(4){width:14%}   /* Sessions          */
+.simuse table.dt th:nth-child(5){width:15%}   /* Time spent        */
+.simuse table.dt th:nth-child(6){width:23%}   /* Last activity     */
+/* ⚠ THE SHARED HEADER IS `white-space:nowrap`, WHICH FIXED LAYOUT
+   CANNOT HONOUR. A column narrower than its own header does not widen
+   to fit it — the text simply runs out of the cell and lands on the
+   next header, which is how "SIMULATION STATUS" and "LAUNCHES" came
+   to be printed as one word. Two-word headers wrap onto two lines
+   instead; the shares above are sized against the widest SINGLE word
+   in each, because that is the part that still cannot break.
+
+   The eyebrow size is the same reduction, for the same reason: at
+   1024 the workspace sidebar leaves 694px, and a header set that
+   will not shrink is what pushed "13 seconds" onto two lines under a
+   column wide enough for the word LAUNCHES and nothing else. */
+.simuse table.dt th{white-space:normal; font-size:var(--t-eyebrow); letter-spacing:.05em}
+.simuse table.dt th,
+.simuse table.dt td{padding-left:var(--s-4); padding-right:var(--s-4); overflow-wrap:anywhere}
+.simuse table.dt th:first-child,
+.simuse table.dt td:first-child{padding-left:var(--s-6)}
+.simuse table.dt th:last-child,
+.simuse table.dt td:last-child{padding-right:var(--s-6)}
+/* The runtime-source caveat is a sentence, not a suffix. On its own
+   line, and capped, it stops dictating how wide the Technology column
+   has to be — unwrapped it claimed 494px of a 1094px table and pushed
+   every figure to the far right of the reader's eye. */
+.simuse .usesrc{display:block; max-width:34ch; margin-top:var(--s-1); line-height:var(--lh-snug)}
+/* "(1 open)" qualifies the session count; it breaks after it, never
+   through it. */
+.simuse table.dt td.c-m .muted{white-space:nowrap}
+
+/* ---------- tablet and phone: 768 / 375, and the band above them ----
+   One stacked block per technology. The technology and its status are
+   the block's heading; the four figures below are label/value pairs.
+   Each technology stands alone — nothing here implies that Web, VR, AR
+   and MR are four required steps of one thing.
+
+   ⚠ THE BREAKPOINT IS 1023px, NOT 740 OR 900, AND THAT IS DELIBERATE.
+   This page keeps the workspace sidebar until 900px, so between 901
+   and 1023 the card is NARROWER than it is at 768 — 575px at 905
+   against 694px at 1024. Stacking at 900 would have left a band of
+   real desktop widths, directly below the narrowest one anybody
+   tested, where six columns still did not fit. The table is used at
+   exactly the widths it fits and nowhere else. */
+@media (max-width:1023px){
+  /* Not `hidden` — `visible`. If a block below ever did overflow, the
+     document-level audit must be able to see it. */
+  .simuse .tscroll{overflow-x:visible; margin-left:0; margin-right:0}
+  .simuse table.dt thead{position:absolute; width:1px; height:1px; margin:-1px; padding:0;
+    overflow:hidden; clip:rect(0 0 0 0); border:0}
+  .simuse table.dt,
+  .simuse table.dt tbody,
+  .simuse table.dt tr,
+  .simuse table.dt td{display:block; width:100%}
+  .simuse table.dt tr{border:1px solid var(--border-subtle); border-radius:var(--r-md);
+    padding:var(--s-4) var(--s-5); margin-bottom:var(--s-4); background:var(--surface)}
+  .simuse table.dt tbody tr:last-child{margin-bottom:0; border-bottom:1px solid var(--border-subtle)}
+  .simuse table.dt tbody tr:hover td{background:transparent}
+  .simuse table.dt td{padding:0; border-bottom:0; font-size:var(--t-md); text-align:left}
+  /* The heading pair carries its own meaning; a "TECHNOLOGY" eyebrow
+     over a Web badge would only repeat it. */
+  .simuse table.dt td.c-tech::before,
+  .simuse table.dt td.c-sim::before{display:none}
+  .simuse table.dt td.c-sim{margin-bottom:var(--s-3)}
+  /* Label left, figure right, on one baseline. The label is taken out
+     of flow so that everything else in the cell — an open-session
+     count, the "First used" sub-line — stays with its own value
+     instead of being pushed onto a row of its own. */
+  .simuse table.dt td.c-m{position:relative; border-top:1px solid var(--border-subtle);
+    padding:var(--s-3) 0 var(--s-3) 45%; text-align:right;
+    font-variant-numeric:tabular-nums; overflow-wrap:anywhere}
+  /* ⚠ `content` IS DECLARED HERE, not inherited. The shared label rule
+     lives inside the 740px block, so between 741 and 1023 there was no
+     generated label at all and the stack rendered as a column of bare
+     right-hand figures — "2", "1", "13 seconds" — with nothing saying
+     which was which. This block owns its own labels across its whole
+     range. */
+  .simuse table.dt td.c-m::before{content:attr(data-label); display:block;
+    position:absolute; left:0; top:var(--s-3); width:45%;
+    margin:0; text-align:left; font-size:var(--t-eyebrow); font-weight:650;
+    letter-spacing:.07em; text-transform:uppercase; color:var(--text-3)}
+  .simuse table.dt td.c-m .tsub2{margin-top:1px}
+}

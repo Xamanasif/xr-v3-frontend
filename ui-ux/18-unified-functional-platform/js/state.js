@@ -98,7 +98,25 @@ XRSLP.state = (function () {
      The back-fill is presence-guarded and idempotent, so it repairs a
      state written by any earlier build and never re-stamps a value a
      real person has since entered. */
-  var SCHEMA_VERSION = 11;
+  /* SCHEMA 11 → 12 — Implementation 09, the PM functional delta.
+     ONE ADDITIVE COLLECTION and two additive sequence counters:
+       · runtimeEvents[]      — the append-only runtime utilisation log
+                                (SIMULATION_LAUNCHED / SESSION_STARTED /
+                                SESSION_ENDED / SIMULATION_COMPLETED /
+                                SIMULATION_ERROR)
+       · seq.runtimeEvent     — event ids
+       · seq.runtimeSession   — session ids
+     Both are created by the presence guards `migrate()` already runs
+     over `emptyCollections()` and the `seq` key list, so the migration
+     is idempotent and touches no existing object, id or history. A
+     schema-11 state migrates with an EMPTY log and its existing
+     `simulationActivity` records untouched — they are reported as
+     pre-telemetry history rather than back-filled into invented
+     sessions. See `simulationUtilisation`.
+
+     Nothing is renamed, removed or re-keyed, and STORAGE_KEY is
+     unchanged. */
+  var SCHEMA_VERSION = 12;
 
   var STATUS = {
     DRAFT: 'DRAFT',
@@ -142,6 +160,10 @@ XRSLP.state = (function () {
       resourceActivity: [],
       simulationActivity: [],
       attempts: [],
+      /* Implementation 09 — the append-only runtime utilisation log
+         a Web / AR / VR / MR runtime reports into. Purely additive:
+         a state written by any earlier build simply has none. */
+      runtimeEvents: [],
       /* Implementation 04 — the Faculty records. */
       questions: [],
       assessmentDefs: [],
@@ -184,6 +206,8 @@ XRSLP.state = (function () {
       resourceActivity: [],
       simulationActivity: [],
       attempts: [],
+      /* Implementation 09 — runtime utilisation telemetry. */
+      runtimeEvents: [],
       questions: [],
       assessmentDefs: [],
       reviews: [],
@@ -252,6 +276,7 @@ XRSLP.state = (function () {
          allocation ordering must never depend on them. */
       seq: { request: 0, access: 0, person: 0, group: 0, membership: 0, mapping: 0, facultyMap: 0, assignment: 0, event: 0,
              resourceAct: 0, simAct: 0, attempt: 0,
+             runtimeEvent: 0, runtimeSession: 0,
              question: 0, assessmentDef: 0, review: 0,
              contentRec: 0, contentEvent: 0, actor: 0, roleAssign: 0, publication: 0,
              contentVersion: 0, tenantAdmin: 0, transfer: 0, ticket: 0 }
@@ -479,7 +504,8 @@ XRSLP.state = (function () {
     });
     if (!parsed.seq || typeof parsed.seq !== 'object') { parsed.seq = {}; }
     ['request', 'access', 'person', 'group', 'membership', 'mapping', 'facultyMap', 'assignment', 'event',
-     'resourceAct', 'simAct', 'attempt', 'question', 'assessmentDef', 'review',
+     'resourceAct', 'simAct', 'attempt', 'runtimeEvent', 'runtimeSession',
+     'question', 'assessmentDef', 'review',
      'contentRec', 'contentEvent', 'actor', 'roleAssign', 'publication',
      'contentVersion', 'tenantAdmin', 'transfer', 'ticket']
       .forEach(function (k) {
@@ -558,11 +584,45 @@ XRSLP.state = (function () {
        Course row — seeded or platform-created — is present and can be
        given its canonical-code field. */
     migrateStakeholderCorrections(parsed);
+    migrateRuntimeTelemetry(parsed, stored);
 
     parsed.schemaVersion = SCHEMA_VERSION;
     delete parsed.version;
     parsed.migratedFrom = stored < SCHEMA_VERSION ? stored : (parsed.migratedFrom || null);
     return parsed;
+  }
+
+  /* ── SCHEMA 11 → 12, Implementation 09 ────────────────────────
+     A state written by an earlier build carries simulation records
+     whose `launches` and `timeSpentSeconds` were written by hand, and
+     an empty event log — because no event was ever observed.
+
+     ⚠ THE DEFECT THIS EXISTS TO PREVENT. `projectSimulationActivity`
+     REBUILDS those two fields from the log. On a migrated state the log
+     is empty, so the moment the first new event arrived the projection
+     overwrote a real history — a student with 7 launches and 90 minutes
+     recorded became 1 launch and 0 minutes on their next click. That is
+     exactly the destruction of existing history this pass is forbidden
+     to cause.
+
+     So the pre-telemetry figures are FROZEN here, once, at the version
+     boundary. Every later derivation adds the observed events to this
+     baseline instead of replacing it, and reports the inherited part
+     as inherited.
+
+     ⚠ VERSION-GUARDED ON PURPOSE, and it is the one case where that is
+     right: running it again on a schema-12 state would re-freeze
+     already-projected figures as a second baseline and double every
+     student's history. It must run exactly once. */
+  function migrateRuntimeTelemetry(parsed, storedVersion) {
+    if (storedVersion >= 12) { return; }
+    (parsed.simulationActivity || []).forEach(function (rec) {
+      if (rec.preTelemetry !== undefined) { return; }
+      rec.preTelemetry = {
+        launches: typeof rec.launches === 'number' ? rec.launches : 0,
+        timeSpentSeconds: typeof rec.timeSpentSeconds === 'number' ? rec.timeSpentSeconds : 0
+      };
+    });
   }
 
   /* SCHEMA 8 → 9: the canonical academic structure becomes state.
@@ -2174,6 +2234,12 @@ XRSLP.state = (function () {
     var actor = contentActor(actorId);
     if (!managerCanAct(rec, actorId)) { return null; }
     if (!canonicalEditable(rec)) { return null; }
+    /* ⚠ IMPLEMENTATION 09 — same rule as the delivery writer. `name`,
+       `summary` and `courseId` are catalogue metadata STK31-09 gives
+       the Content Manager and are audited in place as before;
+       `description` is the Experiment's instructional content, so
+       changing it on a PUBLISHED record is a correction version. */
+    if (managerMetadataEditMode(rec, actorId, fields) !== 'direct') { return null; }
     var name = String(fields.name || '').trim();
     if (!name || nameTaken(name, rec.id)) { return null; }
     if (!data.course(fields.courseId)) { return null; }
@@ -2271,6 +2337,19 @@ XRSLP.state = (function () {
     if (rec.technologies.indexOf(tech) === -1) { return null; }
     var why = String(reason || '').trim();
     if (!why) { return null; }
+    /* ⚠ IMPLEMENTATION 09 — THE PUBLISHED ARTEFACT IS NOT EDITABLE IN
+       PLACE. A material change to a PUBLISHED record is refused here
+       and must be raised as a correction version instead
+       (`createCorrectionVersion`). The screen asks
+       `managerDeliveryEditMode` first and offers the correct control,
+       so this is the backstop rather than the message — but it is the
+       backstop that makes the rule real: a hand-called writer cannot
+       walk around it either.
+
+       Everything BEFORE first publication, and every non-material
+       change at any status, falls straight through and behaves exactly
+       as it did. */
+    if (managerDeliveryEditMode(rec, actorId, tech, patch, remove) !== 'direct') { return null; }
 
     var def = data.TECHNOLOGIES[tech] || {};
     var before = deliverySummaryFor(rec, tech);
@@ -4876,7 +4955,11 @@ XRSLP.state = (function () {
       deliveryState: (tech && tech.delivery === 'hosted')
         ? DELIVERY_STATE.READY : DELIVERY_STATE.NOT_REQUESTED,
       startedAt: null, completedAt: null,
-      timeSpentSeconds: 0, launches: 0
+      timeSpentSeconds: 0, launches: 0,
+      /* Implementation 09 — a record created in THIS build has no
+         history to inherit, and says so explicitly rather than relying
+         on an absent field being read as zero. */
+      preTelemetry: { launches: 0, timeSpentSeconds: 0 }
     };
     S.simulationActivity.push(rec);
     return rec;
@@ -4901,33 +4984,882 @@ XRSLP.state = (function () {
     save();
     return rec;
   }
-  function startSimulation(personId, experimentId, technology) {
+  /* ⚠ IMPLEMENTATION 09 — THIS IS NOW A RUNTIME REPORT, NOT A COUNTER.
+
+     It used to increment `launches` by hand. It now opens a real
+     runtime session through `runtimeLaunch`, and the record's
+     utilisation fields are rebuilt from the log by
+     `projectSimulationActivity`. The signature, the guards, the
+     return value and every existing caller are unchanged — what
+     changed is that the launch is now EVIDENCE, attributable to a
+     session, a source and a timestamp, instead of a number nobody
+     could account for.
+
+     `opts.source` lets a non-Web runtime name itself; it defaults to
+     the prototype Web runtime, which is what the Student's own
+     controls are. */
+  function startSimulation(personId, experimentId, technology, opts) {
     var rec = ensureSimulation(personId, experimentId, technology);
     if (!rec || rec.deliveryState !== DELIVERY_STATE.READY) { return null; }
     if (rec.status === SIM_STATUS.COMPLETED) { return rec; }
-    var now = new Date().toISOString();
-    if (rec.status === SIM_STATUS.NOT_STARTED) {
-      rec.status = SIM_STATUS.IN_PROGRESS;
-      rec.startedAt = now;
-    }
-    rec.launches += 1;
-    save();
-    return rec;
+    var launched = runtimeLaunch(personId, experimentId, technology, opts || {});
+    if (!launched.ok) { return null; }
+    /* `runtimeLaunch` already projected and saved. Re-read so the
+       caller gets the record as the log left it. */
+    return simulationActivity(personId, experimentId, technology);
   }
   /* Completion is what a real integration would RETURN, carrying a
      technology identifier (STK31-35 / STK31-36). Here the Student
      records it, and time spent is derived from the real interval
      between starting and completing — never a decorative number. */
-  function completeSimulation(personId, experimentId, technology) {
+  /* ⚠ IMPLEMENTATION 09 — COMPLETION IS NOW AN EVENT.
+
+     A completion may only be reported FROM A RUN, so this closes the
+     open session and records SIMULATION_COMPLETED against it. Time
+     spent is the sum of that Student's real sessions on this
+     technology — no longer a single start-to-finish subtraction that
+     counted the hours a browser tab sat open overnight.
+
+     WHAT STILL CANNOT COMPLETE A SIMULATION, here or anywhere else:
+     watching a video, opening a resource, reading the Learning
+     Outcomes, opening the Experiment page, spending any amount of
+     time, or submitting the assessment. Only this event does, and
+     only for the technology it names. */
+  function completeSimulation(personId, experimentId, technology, opts) {
+    opts = opts || {};
     var rec = ensureSimulation(personId, experimentId, technology);
     if (!rec || rec.status !== SIM_STATUS.IN_PROGRESS) { return null; }
-    var now = new Date().toISOString();
-    rec.status = SIM_STATUS.COMPLETED;
-    rec.completedAt = now;
-    var ms = new Date(now).getTime() - new Date(rec.startedAt || now).getTime();
-    rec.timeSpentSeconds = Math.max(0, Math.round(ms / 1000));
+    var open = openRuntimeSession(personId, experimentId, technology);
+    var sessionId = opts.sessionId || (open ? open.sessionId : null);
+    if (!sessionId) {
+      /* ⚠ THE MOST RECENT RUN, NOT A FABRICATED ONE.
+         This opened a brand-new session whenever there was no OPEN one
+         — which is also true of every properly finished run, so
+         completing a run that had already ended invented a second
+         launch and a second session out of nothing. A run that exists
+         is completed into ITS OWN session; only a pre-telemetry record,
+         which genuinely has none, gets a new one. */
+      var u0 = simulationUtilisation(personId, experimentId, technology);
+      var last = null;
+      (u0.sessions || []).forEach(function (sn) { if (sn.launched || sn.started) { last = sn; } });
+      if (last) {
+        sessionId = last.sessionId;
+      } else {
+        var launched = runtimeLaunch(personId, experimentId, technology, opts);
+        if (!launched.ok) { return null; }
+        sessionId = launched.sessionId;
+      }
+    }
+    runtimeEndSession(personId, experimentId, technology, sessionId, opts);
+    var done = runtimeComplete(personId, experimentId, technology, sessionId, opts);
+    if (!done.ok) { return null; }
+    return simulationActivity(personId, experimentId, technology);
+  }
+
+  /* ============================================================
+     RUNTIME UTILISATION TELEMETRY — Implementation 09
+
+     ── THE QUESTION THIS ANSWERS ────────────────────────────────
+     PM-08 asked four things the build could not answer from
+     evidence: did the Student actually USE the experiment, for how
+     long, how many times, and on what factual basis is a progress
+     label being printed. `simulationActivity` above carried a
+     `launches` counter and a `timeSpentSeconds` number, but both were
+     side effects of two writers — one increment on open, one
+     subtraction on completion. There was no record of WHAT HAPPENED,
+     so nothing could be re-derived, corrected, deduplicated, or
+     attributed to the runtime that reported it.
+
+     This section adds the missing layer: an APPEND-ONLY EVENT LOG,
+     and derivations over it. Every utilisation figure the product
+     shows from here on is folded from these events.
+
+     ── WHAT THIS IS NOT ─────────────────────────────────────────
+     ⚠ It is not an API. There is no endpoint, no transport, no
+     authentication and no backend in this build. `recordRuntimeEvent`
+     is the LOCAL, IN-PAGE stand-in for the ingestion a real platform
+     would expose, and the contract a future Web / AR / VR / MR client
+     would report against is written down — as a contract, not as a
+     claim of one — in RUNTIME_INTEGRATION_CONTRACT.md.
+
+     ⚠ No event is ever fabricated. A state migrated from schema 11
+     carries `simulationActivity` records and NO events, because none
+     were ever observed; the derivation reports those honestly as
+     pre-telemetry records rather than inventing sessions and
+     timestamps that nobody recorded (see `simulationUtilisation`).
+
+     ── WHY EVENTS AND NOT MORE BOOLEANS ─────────────────────────
+     A session has a beginning that may never get an end — a headset
+     goes flat, a browser tab closes, a phone drops off the network.
+     A boolean cannot represent that; an event log can, and can say
+     so out loud. Duplicate delivery is the other reason: a native
+     client that retries a report must not be able to double a
+     Student's recorded time, so every event carries a client-minted
+     idempotency key and the second copy is refused.
+     ============================================================ */
+
+  /* The five lifecycle events. The names are the CONTRACT — they are
+     what a native client would send and what the contract document
+     names — so they are stored verbatim, in the same casing, rather
+     than being lower-cased into a house style on the way in. */
+  var RUNTIME_EVENT = {
+    SIMULATION_LAUNCHED:  'SIMULATION_LAUNCHED',
+    SESSION_STARTED:      'SESSION_STARTED',
+    SESSION_ENDED:        'SESSION_ENDED',
+    SIMULATION_COMPLETED: 'SIMULATION_COMPLETED',
+    SIMULATION_ERROR:     'SIMULATION_ERROR'
+  };
+  var RUNTIME_EVENT_LIST = [
+    RUNTIME_EVENT.SIMULATION_LAUNCHED, RUNTIME_EVENT.SESSION_STARTED,
+    RUNTIME_EVENT.SESSION_ENDED, RUNTIME_EVENT.SIMULATION_COMPLETED,
+    RUNTIME_EVENT.SIMULATION_ERROR
+  ];
+
+  /* WHICH RUNTIME REPORTED IT. Only the first is real in this build;
+     the rest exist so a demo can show what an AR or VR client's
+     traffic would look like WITHOUT the build pretending one is
+     connected. Every surface that prints a source says which. */
+  var RUNTIME_SOURCE = {
+    WEB_PROTOTYPE:   'web-prototype-runtime',
+    PLATFORM_STANDIN:'platform-standin',
+    AR_CLIENT:       'ar-native-client',
+    VR_CLIENT:       'vr-native-client',
+    MR_CLIENT:       'mr-native-client',
+    DEMO:            'demo-runtime-simulator'
+  };
+  var RUNTIME_SOURCE_META = {
+    'web-prototype-runtime': { label: 'Prototype web runtime', real: true,
+      note: 'Recorded by the in-page prototype runtime in this build.' },
+    /* ⚠ THE STUDENT PRESSED "OPEN THE VR EXPERIMENT" IN THIS BUILD.
+       That is a real action by a real person, but it is NOT a report
+       from a device: no package was delivered and no native runtime
+       ran. Stamping it as the web prototype runtime would have been a
+       false attribution — the defect this source exists to close. */
+    'platform-standin':      { label: 'Opened from the platform', real: false,
+      note: 'Recorded when the student opened this from the platform. No device runtime reported it.' },
+    'ar-native-client':      { label: 'AR mobile application', real: false,
+      note: 'Reported by a future AR mobile runtime. Not connected in this build.' },
+    'vr-native-client':      { label: 'VR headset application', real: false,
+      note: 'Reported by a future VR/Meta runtime. Not connected in this build.' },
+    'mr-native-client':      { label: 'MR device application', real: false,
+      note: 'Reported by a future MR runtime. Not connected in this build.' },
+    'demo-runtime-simulator':{ label: 'Demo runtime simulator', real: false,
+      note: 'Generated by a demo control in this build. No native application is connected.' }
+  };
+  function runtimeSourceMeta(id) {
+    return RUNTIME_SOURCE_META[id] ||
+      { label: String(id || 'Unknown runtime'), real: false, note: 'Unrecognised runtime source.' };
+  }
+  /* Is this source a real, connected runtime in THIS BUILD? Used by
+     every screen that reports utilisation, so a figure produced by a
+     demo control can never be presented as native-application traffic. */
+  function runtimeSourceIsReal(id) { return !!runtimeSourceMeta(id).real; }
+  /* Are ALL the sources behind a set of figures connected runtimes in
+     this build? One stand-in among them makes the whole figure a
+     stand-in figure, so every reporting surface asks it this way
+     rather than checking the first source and hoping. */
+  function runtimeSourcesAllReal(sources) {
+    var list = sources || [];
+    if (!list.length) { return false; }
+    for (var i = 0; i < list.length; i++) {
+      if (!runtimeSourceIsReal(list[i])) { return false; }
+    }
+    return true;
+  }
+  /* The labels behind a set of figures, in order, for a screen that
+     needs to say WHERE they came from. */
+  function runtimeSourceLabels(sources) {
+    return (sources || []).map(function (id) { return runtimeSourceMeta(id).label; });
+  }
+
+  /* The refusal reasons ingestion can answer with. A rejected event is
+     NOT stored: it never happened as far as the platform is concerned,
+     and the caller is told which rule refused it rather than being left
+     to guess from a null. */
+  var RUNTIME_REJECT = {
+    UNKNOWN_TYPE:       'unknown-event-type',
+    UNKNOWN_TECHNOLOGY: 'unknown-technology',
+    UNKNOWN_STUDENT:    'unknown-student',
+    NOT_ENTITLED:       'not-entitled',
+    NO_SESSION:         'missing-session-id',
+    BAD_TIMESTAMP:      'invalid-timestamp'
+  };
+
+  function runtimeEvents() { return S.runtimeEvents; }
+
+  /* Every event for one Student × Experiment × technology, in the order
+     the RUNTIME says they happened. Ties break on the ingestion sequence,
+     so two events carrying one timestamp still fold deterministically. */
+  function runtimeEventsFor(personId, experimentId, technology) {
+    return S.runtimeEvents.filter(function (ev) {
+      return ev.personId === personId && ev.experimentId === experimentId &&
+             (!technology || ev.technology === technology);
+    }).sort(function (a, b) {
+      if (a.occurredAt === b.occurredAt) { return (a.seq || 0) - (b.seq || 0); }
+      return a.occurredAt < b.occurredAt ? -1 : 1;
+    });
+  }
+  function runtimeEventByClientId(clientEventId) {
+    if (!clientEventId) { return null; }
+    return S.runtimeEvents.filter(function (ev) {
+      return ev.clientEventId === clientEventId;
+    })[0] || null;
+  }
+
+  /* ⚠ ISO-8601, AND ACTUALLY CHECKED.
+     This used to accept anything `new Date()` could parse — including
+     `'Sep 1, 2026 10:00:00 GMT'` — and store it verbatim. The log is
+     ORDERED BY STRING COMPARISON on `occurredAt`, so one client using a
+     different serialisation would sort its events into an arbitrary
+     position relative to everyone else's and fold into the wrong
+     sessions. The contract says ISO-8601; this is where that becomes
+     true rather than assumed. */
+  var ISO_STAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/;
+  function isIsoStamp(v) {
+    if (typeof v !== 'string' || !v) { return false; }
+    if (!ISO_STAMP.test(v)) { return false; }
+    return !isNaN(new Date(v).getTime());
+  }
+  /* Stored in ONE canonical form, so `'2026-09-01T10:00:00+05:30'` and
+     the same instant written as UTC sort together instead of by their
+     leading digits. */
+  function normaliseStamp(v) {
+    return new Date(v).toISOString();
+  }
+
+  /* ------------------------------------------------------------
+     INGESTION — the one writer.
+
+     Returns { ok, event, duplicate, reason }. `ok:true, duplicate:true`
+     means the event was already recorded under the same client id and
+     the STORED one is returned: a retrying client gets a success, and
+     the Student's totals do not move. That is the whole point of the
+     idempotency key, and it is asserted in the QA suite.
+     ------------------------------------------------------------ */
+  function recordRuntimeEvent(evt) {
+    evt = evt || {};
+    var type = String(evt.type || '');
+    if (RUNTIME_EVENT_LIST.indexOf(type) === -1) {
+      return { ok: false, event: null, duplicate: false, reason: RUNTIME_REJECT.UNKNOWN_TYPE };
+    }
+    var tech = String(evt.technology || '');
+    if (!data.TECHNOLOGIES[tech]) {
+      return { ok: false, event: null, duplicate: false, reason: RUNTIME_REJECT.UNKNOWN_TECHNOLOGY };
+    }
+    var p = personById(evt.personId);
+    if (!p || p.role !== 'student') {
+      return { ok: false, event: null, duplicate: false, reason: RUNTIME_REJECT.UNKNOWN_STUDENT };
+    }
+    /* ⚠ THE SAME GATE THE PRODUCT USES, NOT A LOOSER ONE.
+       `studentCanRun` is what decides whether this Student may open
+       this technology of this Experiment AT THIS MOMENT — it carries
+       the entitlement, the tenant's active state, the access term and
+       the expiry. Ingestion asks exactly that question, so an expired
+       or withdrawn entitlement stops NEW telemetry at the door while
+       every event already recorded stays exactly where it is. */
+    if (!studentCanRun(evt.personId, evt.experimentId, tech)) {
+      return { ok: false, event: null, duplicate: false, reason: RUNTIME_REJECT.NOT_ENTITLED };
+    }
+    /* Every lifecycle event belongs to a session. A completion or an
+       error with no session cannot be attributed to a run, and an
+       unattributable event is worse than no event. */
+    var sessionId = String(evt.sessionId || '').trim();
+    if (!sessionId) {
+      return { ok: false, event: null, duplicate: false, reason: RUNTIME_REJECT.NO_SESSION };
+    }
+    if (evt.occurredAt !== undefined && evt.occurredAt !== null && !isIsoStamp(evt.occurredAt)) {
+      return { ok: false, event: null, duplicate: false, reason: RUNTIME_REJECT.BAD_TIMESTAMP };
+    }
+
+    /* ── IDEMPOTENCY ──────────────────────────────────────────
+       Checked BEFORE anything is written and BEFORE the sequence
+       counter moves, so a retried event leaves no trace at all — not
+       a gap in the ids, not a second history entry, and above all not
+       a second SESSION_ENDED adding its duration a second time. */
+    var dup = runtimeEventByClientId(evt.clientEventId);
+    if (dup) { return { ok: true, event: dup, duplicate: true, reason: null }; }
+
+    var recordedAt = new Date().toISOString();
+    var occurredAt = isIsoStamp(evt.occurredAt) ? normaliseStamp(evt.occurredAt) : recordedAt;
+    var source = String(evt.source || defaultRuntimeSource(tech));
+
+    S.seq.runtimeEvent += 1;
+    S.seq.event += 1;
+    var rec = {
+      id: 'RTE-' + padId(S.seq.runtimeEvent),
+      seq: S.seq.event,
+      /* The client's own key. Absent means "this caller does not
+         deduplicate", and the platform will not invent a key for it —
+         a fabricated key would silently make every event unique and
+         turn the guard above into decoration. */
+      clientEventId: evt.clientEventId ? String(evt.clientEventId) : null,
+      type: type,
+      sessionId: sessionId,
+      personId: p.id,
+      tenantId: p.tenantId,
+      experimentId: evt.experimentId,
+      technology: tech,
+      /* WHICH CONTENT the run was against. Recorded from the published
+         record so a later version cannot rewrite what an earlier run
+         actually ran. Blank when the catalogue cannot answer, which is
+         honest — it is never guessed. */
+      contentRecordId: evt.contentRecordId || (contentRecord(evt.experimentId) ? evt.experimentId : ''),
+      contentVersionLabel: evt.contentVersionLabel ||
+        (contentRecord(evt.experimentId) ? (contentRecord(evt.experimentId).versionLabel || '') : ''),
+      source: source,
+      /* TWO CLOCKS, ON PURPOSE. `occurredAt` is the runtime's; a
+         headset reporting a queued session hours later must not have
+         that session moved to the time the platform heard about it.
+         `recordedAt` is the platform's, and is what an audit reads. */
+      occurredAt: occurredAt,
+      recordedAt: recordedAt,
+      /* Only a SESSION_ENDED carries one, and only when the client
+         measured it. Anything not a finite non-negative number is
+         dropped rather than coerced — see `foldSessions`. */
+      durationSeconds: (type === RUNTIME_EVENT.SESSION_ENDED &&
+        typeof evt.durationSeconds === 'number' && isFinite(evt.durationSeconds) &&
+        evt.durationSeconds >= 0) ? Math.round(evt.durationSeconds) : null,
+      detail: evt.detail && typeof evt.detail === 'object'
+        ? JSON.parse(JSON.stringify(evt.detail)) : null
+    };
+    S.runtimeEvents.push(rec);
+
+    /* Keep the Implementation-03 record in step. It is now a
+       PROJECTION of the log, not an independent source — see
+       `projectSimulationActivity`. */
+    projectSimulationActivity(p.id, rec.experimentId, tech);
     save();
+    return { ok: true, event: rec, duplicate: false, reason: null };
+  }
+
+  /* ------------------------------------------------------------
+     DERIVATION — sessions folded out of the log.
+
+     Rules, each of which is a QA assertion:
+       · a SESSION_STARTED for a session id already open is IGNORED;
+         the run did not start twice.
+       · a SESSION_ENDED for a session already ended is IGNORED. A
+         duplicate end may not add its duration a second time.
+       · a SESSION_ENDED with no matching start opens and closes in
+         one step, contributing its reported duration if it has one
+         and nothing if it does not. It is still a session that
+         happened; it is not a negative one.
+       · duration prefers what the client MEASURED, falls back to the
+         interval between the recorded start and end, and is clamped
+         at zero. A clock that ran backwards produces 0, never -600.
+       · a session that never ended contributes 0 SECONDS and is
+         counted as an open session, named as such on every surface.
+       · a new SESSION_STARTED while another session is open ABANDONS
+         the open one. It stays in the list, with no duration, because
+         that is what the evidence supports.
+     ------------------------------------------------------------ */
+  function foldSessions(events) {
+    var order = [], byId = {};
+    var errors = 0;
+    var completed = false, completedAt = null, completedTechnology = null;
+
+    function session(id, ev) {
+      if (!byId[id]) {
+        byId[id] = {
+          sessionId: id, startedAt: null, endedAt: null,
+          seconds: 0, measured: false, open: false,
+          /* ⚠ WAS THERE ACTUALLY A RUN? A session row is created by
+             ANY event carrying a session id — including an error, and
+             including a bare completion. Without these two flags an
+             error-only report counted as a session and therefore as
+             USE, which is the exact opposite of the rule stated where
+             `used` is computed; and a lone completion could complete a
+             simulation that was never launched. */
+          launched: false, started: false,
+          abandoned: false, completed: false, errored: false,
+          source: ev.source, technology: ev.technology,
+          contentVersionLabel: ev.contentVersionLabel || ''
+        };
+        order.push(byId[id]);
+      }
+      return byId[id];
+    }
+
+    events.forEach(function (ev) {
+      var s;
+      if (ev.type === RUNTIME_EVENT.SIMULATION_LAUNCHED) {
+        /* ⚠ COUNTED PER SESSION, NOT PER EVENT. Every other figure here
+           is per session; counting launch EVENTS meant a client that
+           replayed a launch under a fresh key inflated "times opened"
+           while adding no session — a figure that disagreed with the
+           one beside it. A real launch mints a new session id, so for a
+           well-behaved client the two are identical, and a replay can
+           no longer move it. */
+        session(ev.sessionId, ev).launched = true;
+        return;
+      }
+      if (ev.type === RUNTIME_EVENT.SESSION_STARTED) {
+        s = session(ev.sessionId, ev);
+        if (s.startedAt) { return; }              /* already open — not a second run */
+        /* ⚠ A START THAT ARRIVES AFTER ITS OWN END.
+           Events fold in RUNTIME-CLOCK order, and the two-clock design
+           exists precisely because a device clock can disagree with the
+           platform's. A queued session whose end carries an earlier
+           stamp than its start therefore reaches this branch with the
+           session ALREADY CLOSED. Re-opening it would leave that
+           session permanently open, and — worse — the sweep below would
+           abandon whichever session was genuinely running. So a session
+           that has already ended is completed here, not reopened, and
+           nothing else is disturbed. */
+        s.startedAt = ev.occurredAt;
+        s.started = true;
+        if (s.endedAt) {
+          if (!s.measured) {
+            var ms0 = new Date(s.endedAt).getTime() - new Date(s.startedAt).getTime();
+            s.seconds = isNaN(ms0) ? 0 : Math.max(0, Math.round(ms0 / 1000));
+          }
+          return;
+        }
+        /* Anything still open belongs to a run that was never closed. */
+        order.forEach(function (o) {
+          if (o !== s && o.open) { o.open = false; o.abandoned = true; }
+        });
+        s.open = true;
+        return;
+      }
+      if (ev.type === RUNTIME_EVENT.SESSION_ENDED) {
+        s = session(ev.sessionId, ev);
+        if (s.endedAt) { return; }                /* duplicate end — already counted */
+        s.endedAt = ev.occurredAt;
+        s.open = false;
+        s.abandoned = false;
+        if (typeof ev.durationSeconds === 'number' && ev.durationSeconds >= 0) {
+          s.seconds = ev.durationSeconds;
+          s.measured = true;
+        } else if (s.startedAt) {
+          var ms = new Date(s.endedAt).getTime() - new Date(s.startedAt).getTime();
+          s.seconds = isNaN(ms) ? 0 : Math.max(0, Math.round(ms / 1000));
+        } else {
+          s.seconds = 0;
+        }
+        return;
+      }
+      if (ev.type === RUNTIME_EVENT.SIMULATION_COMPLETED) {
+        s = session(ev.sessionId, ev);
+        s.completed = true;
+        /* ⚠ A COMPLETION IS A REPORT FROM A RUN, so it must belong to
+           one. A completion whose session was never launched or started
+           is recorded — no evidence is ever discarded — but it does not
+           complete anything, because there is no run for it to be a
+           report of. Otherwise a single malformed event with any
+           non-empty session id could complete a simulation nobody
+           opened. */
+        if (!s.launched && !s.started) { return; }
+        /* FIRST completion is the one that counts. A client that
+           reports completion twice does not move the date the Student
+           finished. */
+        if (!completed) {
+          completed = true;
+          completedAt = ev.occurredAt;
+          completedTechnology = ev.technology;
+        }
+        return;
+      }
+      if (ev.type === RUNTIME_EVENT.SIMULATION_ERROR) {
+        s = session(ev.sessionId, ev);
+        s.errored = true;
+        errors += 1;
+      }
+    });
+
+    var totalSeconds = 0, openSessions = 0, runSessions = 0, launches = 0;
+    order.forEach(function (s) {
+      totalSeconds += s.seconds;
+      if (s.open) { openSessions += 1; }
+      /* A session is a RUN when something opened it. An error-only or
+         completion-only row is kept in the list, because it happened,
+         but it is not a run and is not counted as one. */
+      if (s.launched || s.started) { runSessions += 1; }
+      if (s.launched) { launches += 1; }
+    });
+
+    return {
+      sessions: order, sessionCount: runSessions, openSessions: openSessions,
+      launches: launches, errors: errors, totalSeconds: totalSeconds,
+      completed: completed, completedAt: completedAt,
+      completedTechnology: completedTechnology
+    };
+  }
+
+  /* ------------------------------------------------------------
+     Utilisation for one Student × Experiment × TECHNOLOGY.
+
+     `evidence` says where every number came from and is carried to
+     the screens, because the two are not the same claim:
+       'runtime-events'  — folded from the log above.
+       'pre-telemetry'   — a run recorded before this build existed.
+                           Launch count and time survive; there is no
+                           session detail, because none was recorded.
+       'none'            — nothing happened.
+     ------------------------------------------------------------ */
+  function simulationUtilisation(personId, experimentId, technology) {
+    var events = runtimeEventsFor(personId, experimentId, technology);
+    var sim = simulationActivity(personId, experimentId, technology);
+
+    if (!events.length) {
+      /* ⚠ NOT BACKFILLED. A schema-11 state has runs but no events.
+         Minting events for them would invent session ids, session
+         counts and per-session timestamps that were never observed —
+         the one thing this layer exists to stop. The legacy figures
+         are reported as legacy figures instead. */
+      var legacy = !!sim && (sim.launches > 0 || sim.timeSpentSeconds > 0 ||
+        sim.status !== SIM_STATUS.NOT_STARTED);
+      return {
+        technology: technology,
+        evidence: legacy ? 'pre-telemetry' : 'none',
+        launches: legacy ? (sim.launches || 0) : 0,
+        sessionCount: 0, openSessions: 0,
+        totalSeconds: legacy ? (sim.timeSpentSeconds || 0) : 0,
+        errors: 0,
+        firstActivityAt: legacy ? (sim.startedAt || null) : null,
+        lastActivityAt: legacy ? (sim.completedAt || sim.startedAt || null) : null,
+        completed: !!(legacy && sim.status === SIM_STATUS.COMPLETED),
+        completedAt: legacy ? (sim.completedAt || null) : null,
+        inheritedCompletion: !!(legacy && sim.status === SIM_STATUS.COMPLETED),
+        inheritedLaunches: legacy ? (sim.launches || 0) : 0,
+        inheritedSeconds: legacy ? (sim.timeSpentSeconds || 0) : 0,
+        used: !!legacy,
+        status: legacy ? sim.status : SIM_STATUS.NOT_STARTED,
+        sources: [], sessions: []
+      };
+    }
+
+    var fold = foldSessions(events);
+    /* THE INHERITED BASELINE. Frozen at the 11 → 12 migration, zero for
+       anything this build created. Added to the observed figures rather
+       than replacing them, so a student's real history survives the
+       arrival of telemetry — and reported separately, so no screen can
+       present an inherited figure as session-backed. */
+    var base = (sim && sim.preTelemetry) ? sim.preTelemetry : { launches: 0, timeSpentSeconds: 0 };
+    var baseLaunches = base.launches || 0;
+    var baseSeconds = base.timeSpentSeconds || 0;
+    var sources = [];
+    events.forEach(function (ev) {
+      if (sources.indexOf(ev.source) === -1) { sources.push(ev.source); }
+    });
+    var first = events[0].occurredAt;
+    var last = events[events.length - 1].occurredAt;
+    /* USED means a run actually began — a launch or a started session.
+       An error alone is not use, a bare completion is not use, and
+       neither is an entitlement. `fold.sessionCount` counts only rows
+       something actually opened, which is what makes that true. */
+    var used = fold.launches > 0 || fold.sessionCount > 0;
+
+    /* ⚠ A COMPLETION EARNED BEFORE TELEMETRY EXISTED IS STILL EARNED.
+       On a state migrated from schema 11 the record can say COMPLETED
+       with no completion event behind it, because none was ever
+       recorded. The moment that Student opens the experiment again,
+       events start arriving — and reading the log alone would report
+       the completion as gone. It is not gone; it simply predates the
+       evidence. The status is therefore honoured and the evidence is
+       labelled `mixed`, so a screen can say which part of the figure
+       is session-backed and which part is inherited history.
+
+       This can only ever be true of a pre-telemetry record: any
+       completion recorded by THIS build writes an event, so `fold`
+       would already have found it. */
+    var inherited = !fold.completed && !!sim && sim.status === SIM_STATUS.COMPLETED;
+    var hasBaseline = baseLaunches > 0 || baseSeconds > 0;
+
+    return {
+      technology: technology,
+      evidence: (inherited || hasBaseline) ? 'mixed' : 'runtime-events',
+      /* ⚠ THE TOTALS INCLUDE WHAT WAS ALREADY THERE. `sessionCount` and
+         `openSessions` deliberately do NOT: no session was ever
+         recorded for a pre-telemetry run, and inventing one is the
+         fabrication this whole layer exists to prevent. */
+      launches: fold.launches + baseLaunches,
+      sessionCount: fold.sessionCount,
+      openSessions: fold.openSessions,
+      totalSeconds: fold.totalSeconds + baseSeconds,
+      inheritedLaunches: baseLaunches,
+      inheritedSeconds: baseSeconds,
+      errors: fold.errors,
+      firstActivityAt: first,
+      lastActivityAt: last,
+      completed: fold.completed || inherited,
+      completedAt: fold.completedAt || (inherited ? (sim.completedAt || null) : null),
+      inheritedCompletion: inherited,
+      used: used || hasBaseline,
+      /* ⚠ THE ONLY THING THAT MAKES THIS 'completed' IS A COMPLETION
+         EVENT. Not elapsed time, not a session count, not a launch,
+         not an assessment, not a resource, not a video. */
+      status: (fold.completed || inherited) ? SIM_STATUS.COMPLETED
+            : used ? SIM_STATUS.IN_PROGRESS
+            : SIM_STATUS.NOT_STARTED,
+      sources: sources,
+      sessions: fold.sessions
+    };
+  }
+
+  /* Utilisation across EVERY technology the Student has touched or
+     been entitled to, for one Experiment. `technologies` is the
+     entitled set when the caller has one; anything the Student
+     actually used is added, so withdrawn technologies still report
+     the work that really happened. */
+  function experimentUtilisation(personId, experimentId, technologies) {
+    var techs = (technologies || []).slice();
+    runtimeEventsFor(personId, experimentId, null).forEach(function (ev) {
+      if (techs.indexOf(ev.technology) === -1) { techs.push(ev.technology); }
+    });
+    S.simulationActivity.forEach(function (s) {
+      if (s.personId === personId && s.experimentId === experimentId &&
+          techs.indexOf(s.technology) === -1) { techs.push(s.technology); }
+    });
+    var rows = data.sortTech(techs).map(function (t) {
+      return simulationUtilisation(personId, experimentId, t);
+    });
+    var out = {
+      experimentId: experimentId,
+      technologies: rows,
+      launches: 0, sessionCount: 0, openSessions: 0, totalSeconds: 0, errors: 0,
+      firstActivityAt: null, lastActivityAt: null,
+      used: [], completed: [], inProgress: [],
+      /* ⚠ THE SOURCES, ROLLED UP. Without this every caller holding the
+         experiment-level object had no way to ask "did any of these
+         figures come from a stand-in?", so the honesty note that
+         answers it silently never rendered. It is the same question the
+         per-technology rows answer, asked of the whole experiment. */
+      sources: [],
+      anyUse: false, anyCompletion: false
+    };
+    rows.forEach(function (r) {
+      out.launches += r.launches;
+      out.sessionCount += r.sessionCount;
+      out.openSessions += r.openSessions;
+      out.totalSeconds += r.totalSeconds;
+      out.errors += r.errors;
+      if (r.firstActivityAt && (!out.firstActivityAt || r.firstActivityAt < out.firstActivityAt)) {
+        out.firstActivityAt = r.firstActivityAt;
+      }
+      if (r.lastActivityAt && (!out.lastActivityAt || r.lastActivityAt > out.lastActivityAt)) {
+        out.lastActivityAt = r.lastActivityAt;
+      }
+      if (r.used) { out.used.push(r.technology); }
+      if (r.completed) { out.completed.push(r.technology); }
+      else if (r.used) { out.inProgress.push(r.technology); }
+      (r.sources || []).forEach(function (sid) {
+        if (out.sources.indexOf(sid) === -1) { out.sources.push(sid); }
+      });
+    });
+    out.anyUse = out.used.length > 0;
+    out.anyCompletion = out.completed.length > 0;
+    return out;
+  }
+
+  /* ------------------------------------------------------------
+     PROJECTION — the Implementation-03 record, rebuilt from the log.
+
+     `simulationActivity` records stay exactly where they are and keep
+     every field they had: they carry the DELIVERY state (which is not
+     telemetry — it is an authorisation), and every existing reader
+     still reads them. What changes is that their four utilisation
+     fields are no longer written by hand. They are recomputed from
+     the events after every ingestion, so the log and the record can
+     never disagree.
+
+     ⚠ ONLY RUNS WHEN THERE ARE EVENTS. A pre-telemetry record is left
+     untouched: rebuilding it from an empty log would zero a real
+     Student's real history, which is the exact opposite of the point.
+     ------------------------------------------------------------ */
+  function projectSimulationActivity(personId, experimentId, technology) {
+    /* ⚠ `ensureSimulation`, NOT a plain lookup. A native client can
+       report a run for a technology this Student has never opened
+       from the platform's own screens — that is the whole point of a
+       native runtime — so the record it projects onto may not exist
+       yet. Creating it here is what stops a real, evidenced run from
+       being invisible to every existing reader. `ensureSimulation`
+       carries the same `studentCanRun` gate ingestion already
+       passed, so this can only create a record the Student is
+       genuinely entitled to. */
+    var rec = ensureSimulation(personId, experimentId, technology);
+    if (!rec) { return null; }
+    var u = simulationUtilisation(personId, experimentId, technology);
+    if (u.evidence === 'pre-telemetry' || u.evidence === 'none') { return rec; }
+    /* ⚠ A REPORTED RUN IS EVIDENCE THE PACKAGE WAS THERE.
+       A package technology starts at `not-requested` and only the
+       delivery ladder moves it. But a client that reports a real
+       session has, by definition, run the package on a device — so
+       leaving the record saying "not requested yet" beside a
+       recorded completion would print two contradictory facts about
+       one run. It only ever moves FORWARD, and it is never what
+       authorises anything: `studentCanRun` is. */
+    if (u.used && rec.deliveryState !== DELIVERY_STATE.READY) {
+      rec.deliveryState = DELIVERY_STATE.READY;
+      if (!rec.readyAt) { rec.readyAt = u.firstActivityAt || new Date().toISOString(); }
+    }
+    rec.launches = u.launches;
+    rec.timeSpentSeconds = u.totalSeconds;
+    if (u.firstActivityAt && !rec.startedAt) { rec.startedAt = u.firstActivityAt; }
+    if (u.completed) {
+      rec.status = SIM_STATUS.COMPLETED;
+      rec.completedAt = u.completedAt;
+    } else if (u.used) {
+      /* ⚠ NEVER WALKS A COMPLETION BACK. A completion is a fact the
+         Student earned; a later launch is a re-run, not an undoing. */
+      if (rec.status !== SIM_STATUS.COMPLETED) { rec.status = SIM_STATUS.IN_PROGRESS; }
+    }
     return rec;
+  }
+
+  /* ------------------------------------------------------------
+     THE RUNTIME'S OWN WRITERS.
+
+     These are what the prototype Web runtime and the demo runtime
+     simulator call. They mint the session id and the idempotency key
+     and hand the rest to `recordRuntimeEvent`, so there is exactly
+     one door into the log.
+
+     `sessionId` and `clientEventId` are minted from the ingestion
+     counter rather than from a random source: the QA suite has to be
+     able to run the same scenario twice and get the same ids.
+     ------------------------------------------------------------ */
+  /* ⚠ `util.pad3` IS A FORMATTER, NOT AN ID SPACE.
+     `('000' + n).slice(-3)` is exactly 1000 wide and WRAPS: run 1001
+     re-minted `RSN-001`. Every other id in this build is minted the
+     same way, and for people, groups and access records that ceiling is
+     never approached — but a runtime session is minted once per run and
+     three events hang off each one, so this is the counter that
+     actually reaches it. Past 999 the number is printed in full, which
+     keeps every existing id byte-identical and simply stops the wrap. */
+  function padId(n) { return n < 1000 ? util.pad3(n) : String(n); }
+
+  function nextRuntimeSessionId(personId, experimentId, technology) {
+    S.seq.runtimeSession += 1;
+    return 'RSN-' + padId(S.seq.runtimeSession);
+  }
+  /* ⚠ NAMESPACED BY WHOSE RUN IT IS.
+     The idempotency guard matches `clientEventId` GLOBALLY, so a key
+     built from the session id alone made two different students' events
+     collide the moment a session id repeated — and the second one was
+     silently accepted as a duplicate and discarded. Belt and braces
+     with the wrap fix above: even a client that reuses a session id
+     cannot now overwrite somebody else's run. */
+  function runtimeKey(sessionId, type, personId, experimentId, technology) {
+    return [personId || '', experimentId || '', technology || '', sessionId, type].join(':');
+  }
+
+  /* Opens a run: one SIMULATION_LAUNCHED and one SESSION_STARTED,
+     which is what a real client reports when a Student presses play.
+     Returns { ok, sessionId, reason }. */
+  /* WHICH RUNTIME A CALLER IS, WHEN IT DOES NOT SAY.
+     A hosted technology runs in this browser, so the prototype web
+     runtime is the true answer. A package technology does NOT: the
+     platform is standing in for a device nobody delivered to, and
+     saying so is the difference between an honest figure and a
+     fabricated one. */
+  function defaultRuntimeSource(technology) {
+    var def = data.TECHNOLOGIES[technology];
+    return (def && def.delivery === 'hosted')
+      ? RUNTIME_SOURCE.WEB_PROTOTYPE : RUNTIME_SOURCE.PLATFORM_STANDIN;
+  }
+
+  function runtimeLaunch(personId, experimentId, technology, opts) {
+    opts = opts || {};
+    var sessionId = opts.sessionId || nextRuntimeSessionId(personId, experimentId, technology);
+    var source = opts.source || defaultRuntimeSource(technology);
+    var at = opts.occurredAt || null;
+    var a = recordRuntimeEvent({
+      type: RUNTIME_EVENT.SIMULATION_LAUNCHED, sessionId: sessionId,
+      personId: personId, experimentId: experimentId, technology: technology,
+      source: source, occurredAt: at,
+      clientEventId: runtimeKey(sessionId, 'launch', personId, experimentId, technology)
+    });
+    if (!a.ok) { return { ok: false, sessionId: null, reason: a.reason }; }
+    var b = recordRuntimeEvent({
+      type: RUNTIME_EVENT.SESSION_STARTED, sessionId: sessionId,
+      personId: personId, experimentId: experimentId, technology: technology,
+      source: source, occurredAt: at,
+      clientEventId: runtimeKey(sessionId, 'start', personId, experimentId, technology)
+    });
+    if (!b.ok) { return { ok: false, sessionId: null, reason: b.reason }; }
+    return { ok: true, sessionId: sessionId, reason: null };
+  }
+
+  /* Closes a run. `durationSeconds` is what the CLIENT measured; when
+     it is absent the fold derives the interval instead. */
+  function runtimeEndSession(personId, experimentId, technology, sessionId, opts) {
+    opts = opts || {};
+    var r = recordRuntimeEvent({
+      type: RUNTIME_EVENT.SESSION_ENDED, sessionId: sessionId,
+      personId: personId, experimentId: experimentId, technology: technology,
+      source: opts.source || defaultRuntimeSource(technology),
+      occurredAt: opts.occurredAt || null,
+      durationSeconds: typeof opts.durationSeconds === 'number' ? opts.durationSeconds : null,
+      clientEventId: runtimeKey(sessionId, 'end', personId, experimentId, technology)
+    });
+    return { ok: r.ok, duplicate: r.duplicate, reason: r.reason };
+  }
+
+  /* The completion the whole model turns on. It is a REPORT FROM A
+     RUN — it needs the session it happened in, and nothing else in
+     the product may write it. */
+  function runtimeComplete(personId, experimentId, technology, sessionId, opts) {
+    opts = opts || {};
+    var r = recordRuntimeEvent({
+      type: RUNTIME_EVENT.SIMULATION_COMPLETED, sessionId: sessionId,
+      personId: personId, experimentId: experimentId, technology: technology,
+      source: opts.source || defaultRuntimeSource(technology),
+      occurredAt: opts.occurredAt || null,
+      detail: opts.detail || null,
+      clientEventId: runtimeKey(sessionId, 'complete', personId, experimentId, technology)
+    });
+    return { ok: r.ok, duplicate: r.duplicate, reason: r.reason };
+  }
+
+  function runtimeError(personId, experimentId, technology, sessionId, detail, opts) {
+    opts = opts || {};
+    var r = recordRuntimeEvent({
+      type: RUNTIME_EVENT.SIMULATION_ERROR, sessionId: sessionId,
+      personId: personId, experimentId: experimentId, technology: technology,
+      source: opts.source || defaultRuntimeSource(technology),
+      occurredAt: opts.occurredAt || null,
+      detail: detail || { code: 'UNSPECIFIED', message: 'The runtime reported an error.' },
+      /* ⚠ AN ERROR KEY MUST NOT BE CONSTANT PER SESSION.
+         `runtimeKey(sessionId, 'error')` is the same string for every
+         error in one run, so the idempotency guard treated a second,
+         genuinely different failure as a retry of the first: it was
+         silently discarded, its detail was lost, and the error count
+         stayed at one. A client that deduplicates its own errors passes
+         its own key; one that does not gets a distinct key per error. */
+      clientEventId: opts.clientEventId ||
+        runtimeKey(sessionId, 'error:' + (S.seq.runtimeEvent + 1), personId, experimentId, technology)
+    });
+    return { ok: r.ok, duplicate: r.duplicate, reason: r.reason };
+  }
+
+  /* The session a Student currently has open on one technology, if
+     any. The prototype runtime resumes it rather than opening a
+     second one, so a page refresh does not inflate the count. */
+  function openRuntimeSession(personId, experimentId, technology) {
+    var u = simulationUtilisation(personId, experimentId, technology);
+    var open = null;
+    (u.sessions || []).forEach(function (s) { if (s.open) { open = s; } });
+    return open;
+  }
+
+  /* A COMPLETE run in one call, for the demo runtime simulator and
+     for QA fixtures. Every event goes through the same door. */
+  function runtimeSimulateRun(personId, experimentId, technology, opts) {
+    opts = opts || {};
+    var launched = runtimeLaunch(personId, experimentId, technology, opts);
+    if (!launched.ok) { return { ok: false, sessionId: null, reason: launched.reason }; }
+    var sid = launched.sessionId;
+    var secs = typeof opts.durationSeconds === 'number' ? Math.max(0, Math.round(opts.durationSeconds)) : 0;
+    var end = runtimeEndSession(personId, experimentId, technology, sid, {
+      source: opts.source, durationSeconds: secs, occurredAt: opts.endedAt || null
+    });
+    if (!end.ok) { return { ok: false, sessionId: sid, reason: end.reason }; }
+    if (opts.complete) {
+      var done = runtimeComplete(personId, experimentId, technology, sid, { source: opts.source });
+      if (!done.ok) { return { ok: false, sessionId: sid, reason: done.reason }; }
+    }
+    return { ok: true, sessionId: sid, reason: null };
   }
 
   /* ============================================================
@@ -5442,6 +6374,11 @@ XRSLP.state = (function () {
       technology: technology,
       simulation: sim,
       simulationStatus: simStatus,
+      /* Implementation 09 — the EVIDENCE behind `simulationStatus`,
+         carried on the same object so no screen has to fetch it
+         separately and risk showing a status from one source beside a
+         figure from another. */
+      utilisation: simulationUtilisation(personId, experimentId, technology),
       deliveryState: sim ? sim.deliveryState : null,
       /* Masked in the Student view for the same reason as the status. */
       assessment: withheld ? TECH_PROGRESS.RESULT_WITHHELD : assess,
@@ -5561,7 +6498,96 @@ XRSLP.state = (function () {
       historical: !!opts.historical,
       steps: opts.historical ? null : { total: stepsTotal, done: stepsDone },
       percent: opts.historical ? null : (stepsTotal > 0 ? Math.round((stepsDone / stepsTotal) * 100) : 0),
-      lastActivityAt: lastActivityAt(personId, experimentId)
+      lastActivityAt: lastActivityAt(personId, experimentId),
+      /* ── Implementation 09 — THE FACTUAL BASIS, STATED ──────────
+         PM-08 challenged what "In progress" and a percentage are
+         actually claiming. The percentage above was already counted
+         from EXPLICIT completed steps and not from a formula, so it
+         is kept — but the count it comes from is no longer left
+         implicit. Every surface that prints the number can now print
+         the steps beside it, and every surface that prints a status
+         can say which of the three strands produced it.
+
+         The three strands are kept APART on purpose. A resource is
+         not a simulation, and an assessment is not a simulation
+         either; collapsing them is exactly how "watched the video"
+         became "completed the experiment". */
+      factual: factualLearningState(personId, experimentId, rows, res, asm, assessState, withheld)
+    };
+  }
+
+  /* ── Implementation 09 — the three strands, reported separately ──
+     RESOURCES  — content. Viewed / completed counts, and nothing else.
+                  ⚠ Viewing a resource or a video can never complete a
+                  simulation; the simulation strand does not read this.
+     SIMULATION — per technology, from the runtime event log only.
+     ASSESSMENT — the existing assessment state, unchanged, and still
+                  masked in the Student view while a result is withheld.
+     ============================================================ */
+  function factualLearningState(personId, experimentId, rows, res, asm, assessState, withheld) {
+    var simRows = (rows || []).map(function (r) {
+      var u = r.utilisation || simulationUtilisation(personId, experimentId, r.technology);
+      return {
+        technology: r.technology,
+        status: r.simulationStatus,
+        used: u.used,
+        completed: u.completed,
+        completedAt: u.completedAt,
+        launches: u.launches,
+        sessions: u.sessionCount,
+        openSessions: u.openSessions,
+        totalSeconds: u.totalSeconds,
+        firstActivityAt: u.firstActivityAt,
+        lastActivityAt: u.lastActivityAt,
+        errors: u.errors,
+        evidence: u.evidence,
+        sources: u.sources
+      };
+    });
+    var used = simRows.filter(function (r) { return r.used; });
+    var done = simRows.filter(function (r) { return r.completed; });
+    var totalSeconds = 0, launches = 0, sessions = 0;
+    simRows.forEach(function (r) {
+      totalSeconds += r.totalSeconds; launches += r.launches; sessions += r.sessions;
+    });
+    return {
+      resources: {
+        total: res.total, started: res.started, completed: res.completed,
+        state: res.total === 0 ? 'none'
+             : res.completed === res.total ? 'completed'
+             : res.started ? 'in-progress' : 'not-started'
+      },
+      simulation: {
+        technologies: simRows,
+        technologiesUsed: used.map(function (r) { return r.technology; }),
+        technologiesCompleted: done.map(function (r) { return r.technology; }),
+        launches: launches, sessions: sessions, totalSeconds: totalSeconds,
+        /* THE EXPERIMENT-LEVEL SIMULATION STATE, and the only rule
+           that produces it: every entitled technology carries an
+           explicit completion event, or it is not complete. */
+        state: !simRows.length ? 'none'
+             : done.length === simRows.length ? 'completed'
+             : used.length ? 'in-progress' : 'not-started'
+      },
+      /* ⚠ THE WITHHELD OUTCOME MUST NOT TRAVEL IN HERE.
+         `experimentProgress` computes the RAW assessment state —
+         `PASSED` or `NOT_PASSED` — and every other student-facing
+         surface masks it while the visibility policy is withholding the
+         result. This block did not, which made it the ONE student-view
+         derivation whose value differed between a passing and a failing
+         student during the withheld window. Two students with identical
+         activity would have produced different output, and the outcome
+         the result screen is holding would have been readable straight
+         off it.
+
+         It is masked here exactly as `technologyProgress` masks its
+         own, so a passing and a failing Student are byte-identical
+         until the result is released. */
+      assessment: {
+        configured: !!asm,
+        state: withheld ? TECH_PROGRESS.RESULT_WITHHELD : assessState,
+        withheld: !!withheld
+      }
     };
   }
 
@@ -5918,6 +6944,25 @@ XRSLP.state = (function () {
      ============================================================ */
 
   var QUESTION_TYPES = { mcq: 'Multiple choice', tf: 'True or false', descriptive: 'Descriptive' };
+  /* ── Implementation 09 — WHERE A QUESTION CAME FROM ──────────────
+     `manual` and `ai` are Implementation-04's two values and are
+     unchanged. The two import values are new, and they are DISTINCT
+     from `ai` on purpose: a question a Faculty member imported from
+     their own spreadsheet was written by a person, and labelling it
+     "From an assisted draft" would be a false claim about authorship
+     in the one place a reader goes to check authorship. */
+  var QUESTION_ORIGINS = {
+    manual:         { label: 'Added by hand',          badge: null },
+    ai:             { label: 'From an assisted draft', badge: 'From an assisted draft' },
+    'import-csv':   { label: 'Imported from CSV',      badge: 'Imported from CSV' },
+    'import-xlsx':  { label: 'Imported from XLSX',     badge: 'Imported from XLSX' }
+  };
+  function questionOriginMeta(origin) {
+    return QUESTION_ORIGINS[origin] || QUESTION_ORIGINS.manual;
+  }
+  function questionWasImported(q) {
+    return !!q && (q.origin === 'import-csv' || q.origin === 'import-xlsx');
+  }
 
   function questionById(id) {
     return S.questions.filter(function (q) { return q.id === id; })[0] || null;
@@ -6031,7 +7076,13 @@ XRSLP.state = (function () {
       type: f.type, text: f.text, options: f.options, answer: f.answer,
       points: f.points, explanation: f.explanation, guidance: f.guidance,
       status: 'active',
-      origin: fields.origin === 'ai' ? 'ai' : 'manual',
+      /* PROVENANCE — Implementation 09 widens this to name a file
+         import honestly. An imported question is NOT an AI draft and
+         must never be presented as one, so the two are separate
+         values and every surface that prints provenance prints the
+         one that actually applies. Anything unrecognised still falls
+         back to 'manual': a caller cannot invent a provenance. */
+      origin: QUESTION_ORIGINS[fields.origin] ? fields.origin : 'manual',
       revision: 1,
       createdBy: facultyPersonId || null,
       createdAt: now, updatedAt: now, deletedAt: null
@@ -7655,6 +8706,35 @@ XRSLP.state = (function () {
      (STK31-08) and technology delivery stays the Vendor's technical
      submission — neither is editable here, from either surface.
 
+     ── ⚠ IMPLEMENTATION 09 — A DELIBERATE, NAMED EXCEPTION ───────
+     Implementation 09 made a MATERIAL change to a PUBLISHED record a
+     correction version rather than an in-place write, and `description`
+     is one of the fields it classifies as material. THIS WRITER IS NOT
+     GATED BY THAT RULE, and the choice is deliberate:
+
+       · The capability is stakeholder-confirmed. `07.2` rule F gives the
+         Super Admin correction of the published master record's "public
+         name, Course, summary and description" by name. Removing half of
+         it would reopen a confirmed decision, which this pass is not
+         permitted to do.
+       · It is not the failure PM-08 described. The concern was a
+         published artefact changing SILENTLY. This writer already
+         REFUSES without a reason on published content and writes an
+         audit entry naming who, when and why — see the rule-F block
+         below. The Content Manager's path had neither gate and could be
+         reached from an ordinary Save.
+       · There is no correction-version route for this role. Only a
+         Vendor or a Content Manager can raise one, so gating this
+         writer would leave the platform's own governance role with no
+         way to perform an authority it has been given.
+
+     So it stays, it is named as an exception rather than left to be
+     discovered, and it is recorded as OPEN (D-09-11) in PM_DELTA_09.md:
+     whether the Super Admin's master correction should itself become a
+     version once published is a stakeholder question, not one this
+     build should settle by wording. `qa/checks.js` pins the exception,
+     so it cannot change silently in either direction.
+
      ⚠ NOT IMPLEMENTED, and shown as a gap rather than invented: creating
      or deleting a Programme / Academic Grouping or a Course. STK31-09
      confirms canonical metadata MANAGEMENT and STK31-10 confirms the
@@ -7892,7 +8972,21 @@ XRSLP.state = (function () {
     CHANGES_ACADEMIC: 'CHANGES_ACADEMIC',
     APPROVED:         'APPROVED',
     RELEASED:         'RELEASED',
-    HELD:             'HELD'
+    HELD:             'HELD',
+    /* ── Implementation 09 ────────────────────────────────────
+       A candidate its own author has taken back. It exists because
+       exactly one later version may be open per Experiment, and
+       Implementation 09 gave a SECOND role — the Content Manager —
+       the ability to occupy that slot. A correction they raised and
+       never sent would otherwise block the Vendor's version route on
+       that Experiment for good, with nobody able to clear it.
+
+       ⚠ IT IS NOT A DELETION. The row, its change note, its delivery
+       references and its whole history stay exactly where they are,
+       and the record's own timeline keeps the entry saying it was
+       raised. What changes is that it is no longer OPEN, so the
+       Experiment can carry a later version again. */
+    WITHDRAWN:        'WITHDRAWN'
   };
   var VERSION_STATUS_META = {
     DRAFT:            { label: 'Draft version',        badge: 'b-neutral', icon: 'edit',   holder: 'vendor' },
@@ -7900,7 +8994,8 @@ XRSLP.state = (function () {
     CHANGES_ACADEMIC: { label: 'Changes requested',    badge: 'b-warning', icon: 'alert',  holder: 'vendor' },
     APPROVED:         { label: 'Awaiting Release / Hold', badge: 'b-info', icon: 'shield', holder: 'platform' },
     RELEASED:         { label: 'Released',             badge: 'b-success', icon: 'check',  holder: null },
-    HELD:             { label: 'On hold',              badge: 'b-warning', icon: 'minus',  holder: 'platform' }
+    HELD:             { label: 'On hold',              badge: 'b-warning', icon: 'minus',  holder: 'platform' },
+    WITHDRAWN:        { label: 'Withdrawn',            badge: 'b-neutral', icon: 'x',      holder: null }
   };
   function versionStatusMeta(status) {
     return VERSION_STATUS_META[status] || { label: status, badge: 'b-neutral', icon: 'circle', holder: null };
@@ -7908,6 +9003,8 @@ XRSLP.state = (function () {
   /* A version the workflow is still carrying — not yet released, not
      abandoned. Exactly one may exist per Experiment at a time, which is
      what prevents two candidates racing for one public version. */
+  /* ⚠ WITHDRAWN IS NOT HERE, AND THAT IS THE POINT — a withdrawn
+     candidate stops occupying the Experiment's one open slot. */
   var VERSION_OPEN = [VERSION_STATUS.DRAFT, VERSION_STATUS.ACADEMIC_REVIEW,
                       VERSION_STATUS.CHANGES_ACADEMIC, VERSION_STATUS.APPROVED, VERSION_STATUS.HELD];
 
@@ -8191,6 +9288,452 @@ XRSLP.state = (function () {
     return v;
   }
 
+
+  /* ============================================================
+     MATERIAL vs SAFE CHANGE — Implementation 09
+
+     ── THE QUESTION PM-08 ASKED ─────────────────────────────────
+     "If the Content Manager can edit and replace content, how is
+     version control preserved?" It is a fair challenge, and until
+     this section the honest answer was: it was not.
+     `managerUpdateDelivery` above was gated on SCOPE and not on
+     STATUS — deliberately, because the stakeholder's own example was
+     a PUBLISHED experiment whose hosted link had gone stale. The
+     consequence was that a published v1.0's hosted URL could be
+     swapped for a different one and the artefact was still called
+     v1.0. Two institutions could be running materially different
+     content under one version label, and nothing in the record said
+     so.
+
+     ── WHAT IS NOT DONE ABOUT IT ────────────────────────────────
+     The capability is NOT removed. The stakeholder asked for it
+     explicitly and that direction stands. What changes is WHERE a
+     material change lands once the artefact is public.
+
+     ── THE RULE ─────────────────────────────────────────────────
+     BEFORE FIRST PUBLICATION — unchanged. The record is a candidate;
+     correcting it is what the readiness gate is for, every edit still
+     writes history, and the existing stale-approval protections still
+     decide whether academic approval survives it.
+
+     AFTER PUBLICATION — a MATERIAL change may not be written onto the
+     released artefact. It becomes a CORRECTION VERSION under the
+     version model that already exists, goes through the same
+     validation chain, and ends where every later version ends: at the
+     Super Admin's Release or Hold. The live version stays live and
+     public until a Release moves it, and no tenant's entitlement is
+     touched by a candidate's existence.
+
+     ── WHICH FIELDS ARE MATERIAL, AND WHY THOSE ─────────────────
+     MATERIAL — it changes the experience delivered to a Student:
+       · url          the hosted Web experience itself
+       · packageRef   which AR / VR / MR package is authorised
+       · packageLabel how that package is identified
+       · runtime      the device / runtime requirement a Student is
+                      told to meet before they can run it
+       · removal      of any delivery reference, always
+       · description  the Experiment's instructional content
+     SAFE — audited in place, as before:
+       · notes        content-plane technical notes. They are rendered
+                      only inside the content workspace, never to a
+                      Student and never in the catalogue, so correcting
+                      them changes nothing that was delivered.
+       · name · summary · courseId   canonical catalogue metadata,
+                      which STK31-09 explicitly gives the Content
+                      Manager and which the existing model already
+                      audits.
+
+     ⚠ THIS SPLIT IS AN IMPLEMENTATION JUDGEMENT, not a confirmed
+     policy. No source enumerates material fields. Where a field was
+     ambiguous the version-preserving reading was taken, which is why
+     `runtime` is material and `notes` is not. It is recorded as an
+     OPEN item for PM / CIL confirmation in PM_DELTA_09.md §9 (D-09-6).
+     ============================================================ */
+
+  /* The delivery fields whose change is material once published. It is
+     `MANAGER_DELIVERY_FIELDS` minus `notes` — written as a subtraction
+     so a field added to the writable set is MATERIAL BY DEFAULT and has
+     to be argued out, rather than silently slipping through as safe. */
+  var MANAGER_SAFE_DELIVERY_FIELDS = ['notes'];
+  var MANAGER_MATERIAL_DELIVERY_FIELDS = MANAGER_DELIVERY_FIELDS.filter(function (f) {
+    return MANAGER_SAFE_DELIVERY_FIELDS.indexOf(f) === -1;
+  });
+  /* Canonical metadata, split the same way. */
+  var MANAGER_MATERIAL_METADATA_FIELDS = ['description'];
+
+  function isPublishedRecord(rec) {
+    return !!rec && rec.status === CONTENT_STATUS.PUBLISHED;
+  }
+
+  /* Would this patch move a MATERIAL delivery field? Compared against
+     the record as it stands, so re-saving an unchanged value is not a
+     material change and does not demand a version of anybody. */
+  function deliveryPatchIsMaterial(rec, tech, patch, remove) {
+    if (remove) { return true; }
+    var def = data.TECHNOLOGIES[tech] || {};
+    var d = deliveryOf(rec, tech);
+    var p = patch || {};
+    var moved = false;
+    MANAGER_MATERIAL_DELIVERY_FIELDS.forEach(function (k) {
+      if (p[k] === undefined) { return; }
+      /* A hosted technology has no package fields and a package
+         technology has no hosted URL; a form that posts a blank for the
+         other kind is not proposing a change to it. */
+      if (k === 'url' && def.delivery !== 'hosted') { return; }
+      if ((k === 'packageRef' || k === 'packageLabel') && def.delivery === 'hosted') { return; }
+      var now = d[k] === undefined || d[k] === null ? '' : String(d[k]).trim();
+      var next = String(p[k] === null || p[k] === undefined ? '' : p[k]).trim();
+      if (now !== next) { moved = true; }
+    });
+    return moved;
+  }
+  /* ⚠ AN OMITTED FIELD IS NOT AN UNTOUCHED FIELD HERE.
+     `updateCanonicalMetadata` writes the canonical fields
+     UNCONDITIONALLY — `rec.description = String(fields.description ||
+     '').trim()` — so a patch that leaves `description` out does not
+     preserve it, it BLANKS it. Skipping an absent field the way the
+     delivery check does would therefore classify "erase the published
+     instructional content" as a non-material change and let it through
+     the gate. The comparison is against what the writer WOULD write,
+     which for an absent field is the empty string.
+
+     The delivery writer is genuinely different: it touches only the
+     fields the patch supplies, so there an absent field really is an
+     untouched one, and `deliveryPatchIsMaterial` skips it correctly. */
+  function metadataPatchIsMaterial(rec, fields) {
+    var f = fields || {};
+    var moved = false;
+    MANAGER_MATERIAL_METADATA_FIELDS.forEach(function (k) {
+      var now = rec[k] === undefined || rec[k] === null ? '' : String(rec[k]).trim();
+      var next = String(f[k] === null || f[k] === undefined ? '' : f[k]).trim();
+      if (now !== next) { moved = true; }
+    });
+    return moved;
+  }
+
+  /* THE ONE QUESTION EVERY EDIT SURFACE ASKS BEFORE IT OFFERS A SAVE.
+     Returns:
+       'direct'   — write it in place, with history, as before
+       'version'  — material, and the record is published: it must
+                    become a correction version
+       'blocked'  — material, published, and a later version is already
+                    in the workflow; only one may be open at a time
+       'refused'  — this actor may not edit this record at all
+     The screen renders from THIS, so the control a Content Manager sees
+     can never promise a write the state layer will refuse. */
+  function managerDeliveryEditMode(rec, actorId, tech, patch, remove) {
+    if (!rec || !managerCanEditDelivery(rec, actorId)) { return 'refused'; }
+    if (rec.technologies.indexOf(tech) === -1) { return 'refused'; }
+    if (!isPublishedRecord(rec)) { return 'direct'; }
+    if (!deliveryPatchIsMaterial(rec, tech, patch, remove)) { return 'direct'; }
+    return openVersionForRecord(rec.id) ? 'blocked' : 'version';
+  }
+  function managerMetadataEditMode(rec, actorId, fields) {
+    if (!managerCanAct(rec, actorId) || !canonicalEditable(rec)) { return 'refused'; }
+    if (!isPublishedRecord(rec)) { return 'direct'; }
+    if (!metadataPatchIsMaterial(rec, fields)) { return 'direct'; }
+    return openVersionForRecord(rec.id) ? 'blocked' : 'version';
+  }
+
+  /* ------------------------------------------------------------
+     THE CORRECTION VERSION.
+
+     It is a `contentVersions[]` row — the SAME object a Vendor's later
+     version is, carried by the SAME statuses, reviewed by the SAME
+     Academic Reviewer, and decided by the SAME Super Admin Release /
+     Hold. No new gate is invented and no gate is skipped: the
+     stakeholder's "no additional approval gates may be invented"
+     (STK31-08) is the reason this reuses the chain rather than adding
+     a manager-only shortcut around it.
+
+     ⚠ IT IS NOT SUBMITTED FOR THE MANAGER. Creating it leaves it as a
+     DRAFT the Content Manager still has to send, exactly as a Vendor's
+     candidate is — so nothing reaches an Academic Reviewer's queue
+     because somebody pressed Save on a link.
+
+     `origin` and `correction` are recorded so a reviewer can see at a
+     glance that this candidate came from the content library rather
+     than from a Vendor's submission, and so the history never presents
+     a Content Manager's correction as a Vendor's work.
+     ------------------------------------------------------------ */
+  function managerCanCorrect(rec, actorId) {
+    return managerCanAct(rec, actorId) && isPublishedRecord(rec);
+  }
+  /* The delivery block a correction starts from: everything the
+     published record currently holds for every technology, with the
+     manager's patch applied to the one being corrected. Starting from
+     the CURRENT values matters — `releaseVersion` merges rather than
+     replaces, so a correction that carried only the changed field
+     would still be correct, but a reviewer would be shown a candidate
+     whose other technologies looked empty. */
+  function correctionDeliveryFrom(rec, tech, patch, remove) {
+    var out = {};
+    (rec.technologies || []).forEach(function (t) {
+      var d = deliveryOf(rec, t);
+      var copy = {};
+      MANAGER_DELIVERY_FIELDS.forEach(function (k) {
+        if (d[k] !== undefined && d[k] !== null && String(d[k]) !== '') { copy[k] = String(d[k]); }
+      });
+      out[t] = copy;
+    });
+    if (tech && out[tech]) {
+      if (remove) {
+        MANAGER_DELIVERY_FIELDS.forEach(function (k) { delete out[tech][k]; });
+      } else {
+        var p = patch || {};
+        MANAGER_DELIVERY_FIELDS.forEach(function (k) {
+          if (p[k] === undefined) { return; }
+          var v = String(p[k] === null ? '' : p[k]).trim();
+          if (v) { out[tech][k] = v; } else { delete out[tech][k]; }
+        });
+      }
+    }
+    return out;
+  }
+
+  /* Which delivery fields this correction intends to CLEAR on the
+     technology it corrects — a value the published record holds now
+     that the correction leaves blank. A whole-technology removal clears
+     everything the record holds, including the Vendor's recorded
+     package file and installation notes, which is exactly what an
+     in-place removal clears (`DELIVERY_ALL_FIELDS`, and the 07.3 fix
+     that established it). Nothing outside the corrected technology can
+     be cleared: `correctionDeliveryFrom` copies every other technology
+     forward untouched. */
+  function correctionClears(rec, tech, patch, remove) {
+    if (!tech || !rec) { return {}; }
+    var d = deliveryOf(rec, tech);
+    var out = [];
+    var fieldsToCheck = remove ? DELIVERY_ALL_FIELDS : MANAGER_DELIVERY_FIELDS;
+    fieldsToCheck.forEach(function (k) {
+      var now = d[k] === undefined || d[k] === null ? '' : String(d[k]);
+      if (!now) { return; }                       /* nothing there to clear */
+      if (remove) { out.push(k); return; }
+      var p = patch || {};
+      if (p[k] === undefined) { return; }         /* not being touched */
+      if (String(p[k] === null ? '' : p[k]).trim() === '') { out.push(k); }
+    });
+    if (!out.length) { return {}; }
+    var map = {};
+    map[tech] = out;
+    return map;
+  }
+
+  /* fields: { versionLabel, changeNote, description?, summary?,
+               technology?, delivery?, remove? }
+     Returns the same { ok, errors, version } shape the Vendor path
+     returns, so both screens report a refusal the same way. */
+  function createCorrectionVersion(actorId, recordId, fields) {
+    var rec = contentRecord(recordId);
+    var actor = contentActor(actorId);
+    fields = fields || {};
+    if (!managerCanCorrect(rec, actorId)) {
+      return { ok: false, errors: [{ field: 'vv-label',
+        message: 'A correction version can only be started for a published experiment in your scope.' }],
+        version: null };
+    }
+    if (openVersionForRecord(recordId)) {
+      return { ok: false, errors: [{ field: 'vv-label',
+        message: 'A later version of this experiment is already in the workflow. Only one at a time.' }],
+        version: null };
+    }
+    var payload = {
+      versionLabel: fields.versionLabel,
+      /* An unchanged description carries the published one forward, so
+         `validateVersion`'s "describe the experiment" rule is met by
+         the text already approved rather than by asking the Content
+         Manager to retype it. */
+      description: fields.description !== undefined && String(fields.description || '').trim()
+        ? fields.description : (rec.description || ''),
+      summary: fields.summary !== undefined ? fields.summary : (rec.summary || ''),
+      vendorNotes: rec.vendorNotes || '',
+      changeNote: fields.changeNote,
+      delivery: fields.delivery !== undefined
+        ? fields.delivery
+        : correctionDeliveryFrom(rec, fields.technology, fields.deliveryPatch, fields.remove)
+    };
+    var errs = validateVersion(payload, rec);
+    if (errs.length) { return { ok: false, errors: errs, version: null }; }
+
+    var now = new Date().toISOString();
+    S.seq.contentVersion += 1;
+    S.seq.event += 1;
+    var v = {
+      id: 'CV-' + util.pad3(S.seq.contentVersion),
+      seq: S.seq.event,
+      recordId: rec.id,
+      versionLabel: String(payload.versionLabel || '').trim(),
+      description: String(payload.description || '').trim(),
+      summary: String(payload.summary || '').trim(),
+      vendorNotes: String(payload.vendorNotes || '').trim(),
+      changeNote: String(payload.changeNote || '').trim(),
+      delivery: JSON.parse(JSON.stringify(payload.delivery || {})),
+      replacesVersionLabel: rec.versionLabel || '',
+      status: VERSION_STATUS.DRAFT,
+      revision: 1,
+      createdBy: actorId,
+      createdByName: actor.name,
+      /* ── Implementation 09 — HONEST PROVENANCE ON A VERSION ──
+         Who started it and why, so a reviewer is never shown a
+         Content Manager's link correction dressed as a Vendor's
+         technical submission. */
+      origin: 'content-manager',
+      correction: true,
+      correctionOf: fields.technology || null,
+      /* ⚠ CLEARING SOMETHING CANNOT BE EXPRESSED BY LEAVING IT OUT.
+         `releaseVersion` MERGES a candidate's delivery onto the
+         published record and deliberately skips absent and empty
+         values, so an untouched technology carries its published values
+         forward. That is correct — and it makes an ABSENCE unable to
+         mean anything. A correction that withdrew a whole reference, or
+         blanked one field of it, would pass academic review, be
+         released by the Super Admin, and change nothing at all: the
+         release would silently do nothing while three screens said it
+         had done it.
+
+         So a clear is recorded as an INSTRUCTION, not as an absence.
+         `clears` is what `releaseVersion` acts on; `removals` names the
+         technologies whose reference is withdrawn ENTIRELY, and exists
+         so the screens can say "withdrawn" rather than listing fields.
+
+         A Vendor's later version sets neither, so both are absent there
+         and the merge behaves exactly as it always did. */
+      clears: correctionClears(rec, fields.technology, fields.deliveryPatch, fields.remove),
+      removals: fields.remove && fields.technology ? [fields.technology] : [],
+      createdAt: now,
+      submittedAt: null,
+      academicDecision: null,
+      academicDecisionBy: null,
+      academicDecisionAt: null,
+      releaseDecision: null,
+      history: []
+    };
+    S.contentVersions.push(v);
+    pushVersionEvent(v, 'created',
+      'Correction version drafted by the Content Manager (' + v.versionLabel + ')',
+      actor, v.changeNote);
+    /* The published record's own timeline says a correction was raised
+       against it — the audit trail the stakeholder was promised is on
+       the artefact, not only on the candidate. */
+    pushContentEvent(rec, 'version',
+      'Correction version ' + v.versionLabel + ' drafted' +
+        (fields.technology && data.TECHNOLOGIES[fields.technology]
+          ? ' — ' + data.TECHNOLOGIES[fields.technology].label : ''),
+      actor, now,
+      v.changeNote + ' · The published version ' + (rec.versionLabel || '') +
+        ' is unchanged and stays live until a Release.');
+    save();
+    return { ok: true, errors: [], version: v };
+  }
+
+  /* ------------------------------------------------------------
+     REVISING A CORRECTION THAT CAME BACK.
+
+     An Academic Reviewer can return a correction with changes
+     requested. Without this the Content Manager could only re-send the
+     same candidate verbatim — the reviewer would return it again, and
+     because only one later version may be open per Experiment, that
+     correction would block every future version of it for good.
+
+     It reuses `canMutateVendorVersion`, which already answers exactly
+     the right question: the creator, while the candidate is DRAFT or
+     CHANGES_ACADEMIC, and only while their scope still covers the
+     record. No new authority is introduced, and a candidate that has
+     been submitted, approved, held or released is untouchable here.
+     ------------------------------------------------------------ */
+  function managerCanReviseVersion(v, actorId) {
+    return versionIsCorrection(v) && canMutateVendorVersion(v, actorId);
+  }
+  /* fields: { versionLabel?, changeNote?, description?, summary?,
+               technology?, deliveryPatch?, remove? } — every one
+     optional, and anything omitted keeps what the candidate holds. */
+  function reviseCorrectionVersion(actorId, versionId, fields) {
+    var v = contentVersion(versionId);
+    var actor = contentActor(actorId);
+    fields = fields || {};
+    if (!managerCanReviseVersion(v, actorId)) {
+      return { ok: false, errors: [{ field: 'vv-label',
+        message: 'This correction is not open for editing.' }], version: null };
+    }
+    var rec = contentRecord(v.recordId);
+    var payload = {
+      versionLabel: fields.versionLabel !== undefined ? fields.versionLabel : v.versionLabel,
+      description: fields.description !== undefined && String(fields.description || '').trim()
+        ? fields.description : v.description,
+      summary: fields.summary !== undefined ? fields.summary : v.summary,
+      vendorNotes: v.vendorNotes,
+      changeNote: fields.changeNote !== undefined ? fields.changeNote : v.changeNote,
+      delivery: fields.technology !== undefined && fields.technology !== null
+        ? correctionDeliveryFrom(rec, fields.technology, fields.deliveryPatch, fields.remove)
+        : v.delivery
+    };
+    var errs = validateVersion(payload, rec);
+    if (errs.length) { return { ok: false, errors: errs, version: null }; }
+
+    v.versionLabel = String(payload.versionLabel || '').trim();
+    v.description = String(payload.description || '').trim();
+    v.summary = String(payload.summary || '').trim();
+    v.changeNote = String(payload.changeNote || '').trim();
+    v.delivery = JSON.parse(JSON.stringify(payload.delivery || {}));
+    if (fields.technology !== undefined && fields.technology !== null) {
+      v.correctionOf = fields.technology;
+      v.clears = correctionClears(rec, fields.technology, fields.deliveryPatch, fields.remove);
+      v.removals = fields.remove ? [fields.technology] : [];
+    }
+    pushVersionEvent(v, 'metadata', 'Correction revised', actor, v.changeNote);
+    save();
+    return { ok: true, errors: [], version: v };
+  }
+
+  /* ------------------------------------------------------------
+     WITHDRAWING A CORRECTION.
+
+     Only the Content Manager who raised it, only a correction (never a
+     Vendor's later version), and only while it is still theirs to
+     change — a draft, or one an Academic Reviewer returned. A
+     candidate that is with a reviewer, approved, held or released is
+     somebody else's to decide on and cannot be pulled from under them.
+
+     Nothing is deleted: the row and its history stay, and the
+     published record's timeline records the withdrawal beside the
+     entry that recorded it being raised.
+     ------------------------------------------------------------ */
+  function managerCanWithdrawVersion(v, actorId) {
+    return managerCanReviseVersion(v, actorId);
+  }
+  function withdrawCorrectionVersion(actorId, versionId, reason) {
+    var v = contentVersion(versionId);
+    var actor = contentActor(actorId);
+    if (!managerCanWithdrawVersion(v, actorId)) { return null; }
+    var why = String(reason || '').trim();
+    if (!why) { return null; }
+    var rec = contentRecord(v.recordId);
+    var now = new Date().toISOString();
+    v.status = VERSION_STATUS.WITHDRAWN;
+    v.withdrawnAt = now;
+    v.withdrawnBy = actorId;
+    pushVersionEvent(v, 'withdrawn', 'Correction withdrawn by the Content Manager', actor, why);
+    if (rec) {
+      pushContentEvent(rec, 'version',
+        'Correction version ' + v.versionLabel + ' withdrawn', actor, now,
+        why + ' · Nothing was released, and ' + (rec.versionLabel || 'the published version') +
+        ' is unchanged.');
+    }
+    save();
+    return v;
+  }
+
+  /* Correction candidates this Content Manager raised. Separate from
+     `versionsForVendor` on purpose: the two are different people
+     looking at different work, and one list that silently mixed them
+     would misreport who authored a version. */
+  function versionsForManager(actorId) {
+    return S.contentVersions.filter(function (v) {
+      return v.createdBy === actorId && v.origin === 'content-manager';
+    }).sort(function (a, b) { return (b.seq || 0) - (a.seq || 0); });
+  }
+  function versionIsCorrection(v) { return !!v && v.origin === 'content-manager'; }
+
   /* THE SUPER ADMIN DECISION. Only an APPROVED candidate can reach it. */
   function versionAwaitingDecision(v) { return !!v && v.status === VERSION_STATUS.APPROVED; }
 
@@ -8236,6 +9779,19 @@ XRSLP.state = (function () {
         merged[field] = val;
       });
       rec.delivery[tech] = merged;
+    });
+    /* ── Implementation 09 — EXPLICIT CLEARS ──────────────────────
+       Applied AFTER the merge, because clearing something is not the
+       absence of an incoming value — it is an instruction, and the
+       merge above cannot express one. See `correctionClears`.
+
+       ⚠ IT NEVER REMOVES THE TECHNOLOGY. Only what the platform holds
+       for it, exactly as `managerUpdateDelivery(remove)` does. */
+    Object.keys(v.clears || {}).forEach(function (tech) {
+      if (rec.technologies.indexOf(tech) === -1) { return; }
+      var d = rec.delivery[tech];
+      if (!d || typeof d !== 'object') { return; }
+      (v.clears[tech] || []).forEach(function (k) { delete d[k]; });
     });
     rec.updatedAt = now;
     rec.currentVersionId = v.id;
@@ -9274,6 +10830,23 @@ XRSLP.state = (function () {
     managerUpdateDelivery: managerUpdateDelivery,
     deliverySummaryFor: deliverySummaryFor,
     MANAGER_DELIVERY_FIELDS: MANAGER_DELIVERY_FIELDS,
+    /* Implementation 09 — material change vs safe correction. */
+    MANAGER_MATERIAL_DELIVERY_FIELDS: MANAGER_MATERIAL_DELIVERY_FIELDS,
+    MANAGER_SAFE_DELIVERY_FIELDS: MANAGER_SAFE_DELIVERY_FIELDS,
+    MANAGER_MATERIAL_METADATA_FIELDS: MANAGER_MATERIAL_METADATA_FIELDS,
+    deliveryPatchIsMaterial: deliveryPatchIsMaterial,
+    metadataPatchIsMaterial: metadataPatchIsMaterial,
+    managerDeliveryEditMode: managerDeliveryEditMode,
+    managerMetadataEditMode: managerMetadataEditMode,
+    managerCanCorrect: managerCanCorrect,
+    createCorrectionVersion: createCorrectionVersion,
+    managerCanReviseVersion: managerCanReviseVersion,
+    reviseCorrectionVersion: reviseCorrectionVersion,
+    managerCanWithdrawVersion: managerCanWithdrawVersion,
+    withdrawCorrectionVersion: withdrawCorrectionVersion,
+    correctionDeliveryFrom: correctionDeliveryFrom,
+    versionsForManager: versionsForManager,
+    versionIsCorrection: versionIsCorrection,
     STATUS: STATUS, STATUS_META: STATUS_META, SOURCE_META: SOURCE_META,
     save: save, reset: reset, migratedFrom: migratedFrom,
     scenario: scenario, setScenario: setScenario,
@@ -9364,6 +10937,20 @@ XRSLP.state = (function () {
     requestSimulationAccess: requestSimulationAccess, simulatePackageReady: simulatePackageReady,
     startSimulation: startSimulation, completeSimulation: completeSimulation,
 
+    /* ---- Implementation 09 — runtime utilisation telemetry ---- */
+    RUNTIME_EVENT: RUNTIME_EVENT, RUNTIME_EVENT_LIST: RUNTIME_EVENT_LIST,
+    RUNTIME_SOURCE: RUNTIME_SOURCE, RUNTIME_REJECT: RUNTIME_REJECT,
+    runtimeSourceMeta: runtimeSourceMeta, runtimeSourceIsReal: runtimeSourceIsReal,
+    runtimeSourcesAllReal: runtimeSourcesAllReal, runtimeSourceLabels: runtimeSourceLabels,
+    defaultRuntimeSource: defaultRuntimeSource,
+    runtimeEvents: runtimeEvents, runtimeEventsFor: runtimeEventsFor,
+    recordRuntimeEvent: recordRuntimeEvent,
+    simulationUtilisation: simulationUtilisation,
+    experimentUtilisation: experimentUtilisation,
+    runtimeLaunch: runtimeLaunch, runtimeEndSession: runtimeEndSession,
+    runtimeComplete: runtimeComplete, runtimeError: runtimeError,
+    openRuntimeSession: openRuntimeSession, runtimeSimulateRun: runtimeSimulateRun,
+
     attemptById: attemptById, attemptsFor: attemptsFor,
     currentAttempt: currentAttempt, latestSubmittedAttempt: latestSubmittedAttempt,
     attemptBlock: attemptBlock, startAttempt: startAttempt,
@@ -9393,6 +10980,8 @@ XRSLP.state = (function () {
     facultyCanManage: facultyCanManage, facultyScopeRow: facultyScopeRow,
     facultyStudentReach: facultyStudentReach, facultyStudentIds: facultyStudentIds,
 
+    QUESTION_ORIGINS: QUESTION_ORIGINS,
+    questionOriginMeta: questionOriginMeta, questionWasImported: questionWasImported,
     questionById: questionById, activeQuestion: activeQuestion,
     questionsForTenant: questionsForTenant, questionsForFaculty: questionsForFaculty,
     validateQuestion: validateQuestion, addQuestion: addQuestion,

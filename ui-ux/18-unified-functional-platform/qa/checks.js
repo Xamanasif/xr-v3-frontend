@@ -476,7 +476,7 @@ function scenarioTransferTechnology() {
   eq(S.transferTechnologies(revived).join(','), 'vr',
     'MIGRATION REPAIRS THE DEFECT: the existing pending request now resolves to VR');
   eq(revived.technology, 'vr', 'MIGRATION: and the single-value field is filled in');
-  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
+  eq(S.SCHEMA_VERSION, 12, 'the build is at schema 12');
 }
 
 function scenarioF() {
@@ -820,7 +820,7 @@ function migrationChecks() {
   loadState();
   S = XRSLP.state;
 
-  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
+  eq(S.SCHEMA_VERSION, 12, 'the build is at schema 12');
   eq(S.migratedFrom(), 6, 'and reports that it migrated from 6');
   eq(S.requests().length, requests, 'NOTHING LOST: requests');
   eq(S.accessAll().length, access, 'NOTHING LOST: access records');
@@ -1853,15 +1853,23 @@ function scenarioCanonicalDestination() {
   }), null, 'MOVING IT INTO A COURSE THEY DO NOT HOLD IS REFUSED');
   eq(S.contentRecord('direct-shear').courseId, 'soil-mechanics', 'and the record did not move');
 
+  /* ⚠ THE DESCRIPTION IS CARRIED FORWARD UNCHANGED — Implementation 09.
+     `direct-shear` is PUBLISHED, and the description is the Experiment's
+     instructional content, so changing it here would now be a material
+     change and would have to become a correction version. That rule has
+     its own scenario. THIS scenario is about SCOPE and re-filing, and it
+     asserts what it always asserted: catalogue metadata a Content
+     Manager holds is still correctable in place on published content. */
+  var dsDesc = S.contentRecord('direct-shear').description;
   ok(!!S.updateCanonicalMetadata(KULK, 'direct-shear', {
-    name: 'Direct Shear Test', courseId: 'soil-mechanics', summary: 'QA corrected.', description: 'd'
+    name: 'Direct Shear Test', courseId: 'soil-mechanics', summary: 'QA corrected.', description: dsDesc
   }), 'a correction inside their own Course still works');
   eq(S.contentRecord('direct-shear').summary, 'QA corrected.', 'and it took effect');
 
   /* A platform-scope manager is unaffected. */
   ok(S.assignPlatformRole({ actorId: KULK, role: 'manager', scope: 'all' }).ok, 'platform scope is restored');
   ok(!!S.updateCanonicalMetadata(KULK, 'direct-shear', {
-    name: 'Direct Shear Test', courseId: 'surveying', summary: 'QA corrected.', description: 'd'
+    name: 'Direct Shear Test', courseId: 'surveying', summary: 'QA corrected.', description: dsDesc
   }), 'a platform-scope manager may re-file it');
   eq(S.contentRecord('direct-shear').courseId, 'surveying', 'and it moved');
   eq(S.contentRecord('direct-shear').id, 'direct-shear', 'THE IDENTIFIER NEVER CHANGES');
@@ -2792,7 +2800,7 @@ function scenarioStructurePersistence() {
   loadState();
   S = XRSLP.state; D = XRSLP.data;
 
-  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
+  eq(S.SCHEMA_VERSION, 12, 'the build is at schema 12');
   eq(S.migratedFrom(), 8, 'and reports that it migrated from 8');
   eq(S.groupingRecords().length, 2, 'A SCHEMA-8 STATE GAINS THE SEEDED PROGRAMMES');
   eq(S.courseRecords().length, 5, 'and the seeded Courses');
@@ -3458,7 +3466,7 @@ function scenarioSchema10Migration() {
   loadState();
   S = XRSLP.state; D = XRSLP.data;
 
-  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
+  eq(S.SCHEMA_VERSION, 12, 'the build is at schema 12');
   eq(S.migratedFrom(), 9, 'and reports that it migrated from 9');
 
   /* NOTHING LOST. */
@@ -3834,10 +3842,17 @@ function scenarioDeliveryManagement() {
   group('SCENARIO 07.3-D — delivery links are the Content Manager’s to edit, with a reason and a history');
   boot();
 
+  /* ⚠ THIS RECORD IS AT THE CONTENT GATE, NOT PUBLISHED — Implementation
+     09. Every assertion below is unchanged and is the PRE-PUBLICATION
+     path the delta explicitly preserves: before an artefact is public,
+     the Content Manager's correction authority is exactly what the
+     stakeholder asked for. What a MATERIAL edit does once the record is
+     PUBLISHED is asserted separately, in the version-control scenario. */
   var rec = atContentGate('QA Delivery');
-  S.publishContent(KULK, rec.id);
+  eq(S.contentRecord(rec.id).status, S.CONTENT_STATUS.CONTENT_REVIEW,
+    'the fixture sits at the content readiness gate, before first publication');
   eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), 'https://example.org/qa-073',
-    'the published record carries the Vendor’s link');
+    'the record carries the Vendor’s link');
 
   /* A REASON IS REQUIRED. */
   eq(S.managerUpdateDelivery(KULK, rec.id, 'web', { url: 'https://example.org/new' }, '  '), null,
@@ -3892,7 +3907,6 @@ function scenarioDeliveryManagement() {
      screen announced a write that had not happened and the value was
      lost on reload. */
   var rec2 = atContentGate('QA Delivery — notes only');
-  S.publishContent(KULK, rec2.id);
   var h3 = S.contentRecord(rec2.id).history.length;
   ok(!!S.managerUpdateDelivery(KULK, rec2.id, 'web',
     { notes: 'Mirror is slow in the afternoon.' }, 'Recording a known issue.'),
@@ -4123,6 +4137,22 @@ function scenarioProgressExport() {
   eq(val('Simulation status by technology'), 'web=COMPLETED | vr=IN_PROGRESS',
     'with the real per-technology status, not a single summary');
 
+  /* ── Implementation 09 — THE FACTUAL UTILISATION COLUMNS ──────
+     PM-08 asked how anyone knows the experiment was used, for how
+     long, and how often. The export now carries the answer, folded
+     from the runtime event log rather than restated from a label. */
+  eq(val('Simulation launches'), 2, 'the export carries the LAUNCH COUNT across technologies');
+  eq(val('Simulation sessions'), 2, 'and the session count');
+  eq(val('Sessions left open'), 1, 'AND HOW MANY WERE LEFT OPEN — the VR run was never finished');
+  ok(typeof val('Time spent (minutes)') === 'number' && val('Time spent (minutes)') >= 0,
+    'time spent is exported in whole minutes, and is never negative');
+  ok(!!val('First simulation activity'), 'the first activity is exported');
+  ok(!!val('Last activity'), 'and the last');
+  eq(val('Simulation completed in'), 'web',
+    'AND EXACTLY WHICH TECHNOLOGY WAS COMPLETED — VR was used but not finished, and is not listed');
+  eq(val('Usage evidence'), 'runtime sessions (stand-in — no device application connected)',
+    'AND THE FILE SAYS WHERE THE FIGURES CAME FROM — the VR run had no device behind it');
+
   /* THE PRIVACY COLUMN. Nothing is submitted, so nothing is claimed. */
   eq(val('Score %'), '', 'no score is exported when nothing was submitted');
   eq(val('Outcome'), '', 'and no outcome is invented');
@@ -4280,7 +4310,13 @@ function scenarioAdversarial073() {
   S.submitContent(RAO, vrec.id);
   S.addOutcome(IYER, vrec.id, 'Outcome.');
   S.approveAcademic(IYER, vrec.id, 'ok');
-  S.publishContent(KULK, vrec.id);
+  /* ⚠ NOT PUBLISHED — Implementation 09. Removal is always a material
+     change, so on a published record it becomes a correction version
+     (asserted in the version-control scenario). The invariant THIS
+     block exists for — that a removal clears EVERYTHING the dialog
+     promises, including the Vendor's recorded file and installation
+     notes — is a property of the removal itself and is asserted here on
+     the record where removal writes in place. */
   ok(!!S.deliveryOf(S.contentRecord(vrec.id), 'vr').packageFile, 'the record carries a recorded package file');
   S.managerUpdateDelivery(KULK, vrec.id, 'vr', null, 'Withdrawn pending a rebuild.', true);
   var dAfter = S.deliveryOf(S.contentRecord(vrec.id), 'vr');
@@ -4294,6 +4330,9 @@ function scenarioAdversarial073() {
   boot();
   var drec = atContentGate('QA Delivery Note');
   S.publishContent(KULK, drec.id);
+  /* Notes are content-plane only and never reach a Student, so this
+     stays a direct, audited edit even on a PUBLISHED record — the
+     "safe metadata" half of the Implementation-09 rule. */
   S.managerUpdateDelivery(KULK, drec.id, 'web', { notes: 'Slow in the afternoon.' }, 'Recording a known issue.');
   var note = S.contentRecord(drec.id).history[0].note;
   ok(/notes/.test(note), 'A NOTES-ONLY EDIT NAMES THE FIELD IT CHANGED');
@@ -4433,7 +4472,7 @@ function scenarioSchema11Migration() {
   loadState();
   S = XRSLP.state;
 
-  eq(S.SCHEMA_VERSION, 11, 'the build is at schema 11');
+  eq(S.SCHEMA_VERSION, 12, 'the build is at schema 12');
   eq(S.snapshot ? 0 : 0, 0, 'state reloaded');
   eq(S.contentRecords().length, recCount, 'NOTHING LOST: content records');
   eq(S.contentRecord(rec.id).history.length, histCount, 'NOTHING LOST: history entries');
@@ -5140,6 +5179,2484 @@ function scenario08Terminology() {
   });
 }
 
+
+/* ============================================================
+   IMPLEMENTATION 09 — RUNTIME UTILISATION TELEMETRY.
+
+   PM-08 asked four questions the build could not answer from
+   evidence: did the Student use the Experiment, for how long, how
+   many times, and on what basis is a progress label printed. These
+   scenarios assert the answers, and — at least as importantly —
+   assert everything that must NOT be able to produce them.
+   ============================================================ */
+
+/* One entitled Student on one Experiment, with the technologies
+   named. Package technologies are taken through the same delivery
+   authorisation the product requires before a run can start. */
+function utilFixture(techs, experimentIds) {
+  boot();
+  var exps = experimentIds || ['direct-shear'];
+  var g = grantAccess(exps, techs, 5, 'yearly');
+  exps.forEach(function (id) {
+    S.assignExperiment(TENANT, g.access.id, id, 'student', [RAHUL]);
+  });
+  S.mapFaculty(TENANT, ARJUN, g.access.id, 'soil-mechanics', null);
+  exps.forEach(function (id) {
+    techs.forEach(function (t) {
+      if ((D.TECHNOLOGIES[t] || {}).delivery !== 'hosted') {
+        S.requestSimulationAccess(RAHUL, id, t);
+        S.simulatePackageReady(RAHUL, id, t);
+      }
+    });
+  });
+  return g;
+}
+
+function scenario09Utilisation() {
+  group('IMPL 09 — utilisation is derived from runtime events, and from nothing else');
+  utilFixture(['web', 'vr']);
+
+  /* ---- 1 · ZERO ACTIVITY ---- */
+  var u0 = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(u0.evidence, 'none', 'a student who has done nothing has NO evidence of use');
+  eq(u0.launches, 0, 'no launches');
+  eq(u0.sessionCount, 0, 'no sessions');
+  eq(u0.totalSeconds, 0, 'no time spent');
+  eq(u0.used, false, 'and the technology does not read as used');
+  eq(u0.completed, false, 'and certainly not as completed');
+  eq(u0.status, S.SIM_STATUS.NOT_STARTED, 'the derived status is Not started');
+  eq(u0.lastActivityAt, null, 'and there is no last activity to report');
+  eq(S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').length, 0, 'and the event log is empty');
+
+  /* ---- 2 · FIRST LAUNCH ---- */
+  var l1 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  ok(l1.ok, 'the first launch is recorded');
+  ok(!!l1.sessionId, 'and it opens a session with an identifier');
+  var u1 = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(u1.evidence, 'runtime-events', 'the figures now come from the event log');
+  eq(u1.launches, 1, 'ONE LAUNCH');
+  eq(u1.sessionCount, 1, 'one session');
+  eq(u1.openSessions, 1, 'which is still open');
+  eq(u1.totalSeconds, 0, 'an open session contributes NO time — nothing has been measured yet');
+  eq(u1.used, true, 'the technology reads as used');
+  eq(u1.completed, false, 'BUT NOT AS COMPLETED — a launch is not a completion');
+  eq(u1.status, S.SIM_STATUS.IN_PROGRESS, 'the derived status is In progress');
+  ok(!!u1.firstActivityAt, 'first activity is recorded');
+
+  /* Two events per launch, and they are the two the contract names. */
+  var evs = S.runtimeEventsFor(RAHUL, 'direct-shear', 'web');
+  eq(evs.length, 2, 'a launch writes exactly two events');
+  eq(evs[0].type, S.RUNTIME_EVENT.SIMULATION_LAUNCHED, 'SIMULATION_LAUNCHED');
+  eq(evs[1].type, S.RUNTIME_EVENT.SESSION_STARTED, 'then SESSION_STARTED');
+  eq(evs[0].personId, RAHUL, 'attributed to the student');
+  eq(evs[0].tenantId, TENANT, 'and to the institution');
+  eq(evs[0].experimentId, 'direct-shear', 'and to the experiment');
+  eq(evs[0].technology, 'web', 'and to the technology');
+  eq(evs[0].source, S.RUNTIME_SOURCE.WEB_PROTOTYPE, 'and to the runtime that reported it');
+  ok(!!evs[0].occurredAt && !!evs[0].recordedAt, 'carrying BOTH the runtime clock and the platform clock');
+
+  /* ---- 3 · SESSION DURATION ACCUMULATES ---- */
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', l1.sessionId, { durationSeconds: 600 });
+  var u2 = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(u2.totalSeconds, 600, 'ending the session records the measured duration');
+  eq(u2.openSessions, 0, 'and nothing is left open');
+  eq(u2.completed, false, 'TEN MINUTES OF USE IS STILL NOT A COMPLETION');
+  eq(u2.status, S.SIM_STATUS.IN_PROGRESS, 'the status is still In progress');
+
+  /* ---- 4 · MULTIPLE LAUNCHES AND SESSIONS ---- */
+  var l2 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', l2.sessionId, { durationSeconds: 300 });
+  var l3 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', l3.sessionId, { durationSeconds: 120 });
+  var u3 = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(u3.launches, 3, 'THREE LAUNCHES are counted');
+  eq(u3.sessionCount, 3, 'as three separate sessions');
+  eq(u3.totalSeconds, 1020, 'AND THE TIME ACCUMULATES — 600 + 300 + 120');
+
+  /* ---- 5 · DUPLICATE EVENT PROTECTION ---- */
+  var before = S.simulationUtilisation(RAHUL, 'direct-shear', 'web').totalSeconds;
+  var logBefore = S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').length;
+  /* ⚠ REPLAYED WITH THE KEY THE CLIENT ACTUALLY USED, read back off
+     the stored event rather than hand-built here — which is what a
+     retrying client does, and what keeps this assertion true of the
+     key format rather than of one spelling of it. */
+  var storedEnd = S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').filter(function (ev) {
+    return ev.type === S.RUNTIME_EVENT.SESSION_ENDED && ev.sessionId === l3.sessionId;
+  })[0];
+  ok(!!storedEnd && !!storedEnd.clientEventId, 'the stored event carries the client key it arrived with');
+  ok(storedEnd.clientEventId.indexOf(RAHUL) !== -1,
+    'AND THE KEY IS NAMESPACED BY WHOSE RUN IT IS — two students cannot collide on one session id');
+  var dupe = S.recordRuntimeEvent({
+    type: S.RUNTIME_EVENT.SESSION_ENDED, sessionId: l3.sessionId,
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web',
+    durationSeconds: 120, clientEventId: storedEnd.clientEventId
+  });
+  ok(dupe.ok, 'a RETRIED event is answered with success, as a real client would need');
+  eq(dupe.duplicate, true, 'and is reported as the duplicate it is');
+  eq(S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').length, logBefore,
+    'NOTHING IS APPENDED — the log does not grow');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').totalSeconds, before,
+    'AND THE TIME DOES NOT DOUBLE');
+
+  /* A second end for the same session under a DIFFERENT client key
+     still cannot be counted twice: the fold ignores it. */
+  S.recordRuntimeEvent({
+    type: S.RUNTIME_EVENT.SESSION_ENDED, sessionId: l3.sessionId,
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web',
+    durationSeconds: 9999, clientEventId: 'qa-second-end'
+  });
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').totalSeconds, before,
+    'A SECOND END EVENT FOR A CLOSED SESSION ADDS NOTHING, whatever key it carries');
+
+  /* ---- 6 · INCOMPLETE SESSION ---- */
+  var l4 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  var u4 = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(u4.openSessions, 1, 'a session that never ended is reported as open');
+  eq(u4.sessionCount, 4, 'and is still counted as a session that happened');
+  eq(u4.totalSeconds, 1020, 'BUT CONTRIBUTES NO TIME — nothing was measured');
+
+  /* Launching again abandons it rather than inventing a duration. */
+  var l5 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  var u5 = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(u5.openSessions, 1, 'a new launch abandons the previously open session, leaving one open');
+  eq(u5.totalSeconds, 1020, 'and the abandoned session still contributes no time');
+  eq(u5.sessions.filter(function (s) { return s.abandoned; }).length, 1,
+    'the abandoned session is named as abandoned, not deleted');
+
+  /* ---- 7 · NEGATIVE AND NONSENSE DURATIONS ---- */
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', l5.sessionId, { durationSeconds: -600 });
+  var u6 = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  ok(u6.totalSeconds >= 1020, 'A NEGATIVE DURATION CAN NEVER REDUCE RECORDED TIME');
+  u6.sessions.forEach(function (s) {
+    ok(s.seconds >= 0, 'no session carries a negative duration: ' + s.sessionId);
+  });
+
+  /* A clock that ran backwards produces zero, not a negative. */
+  var back = S.runtimeLaunch(RAHUL, 'direct-shear', 'web',
+    { occurredAt: '2026-09-01T10:00:00.000Z' });
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', back.sessionId,
+    { occurredAt: '2026-09-01T09:00:00.000Z' });
+  var backRow = null;
+  S.simulationUtilisation(RAHUL, 'direct-shear', 'web').sessions.forEach(function (s) {
+    if (s.sessionId === back.sessionId) { backRow = s; }
+  });
+  eq(backRow.seconds, 0, 'AN END BEFORE ITS START IS ZERO SECONDS, never a negative interval');
+}
+
+function scenario09Completion() {
+  group('IMPL 09 — only an explicit completion event completes a simulation');
+  utilFixture(['web', 'vr']);
+
+  /* ---- WHAT CANNOT COMPLETE A SIMULATION ---- */
+
+  /* (a) Viewing every learning resource. */
+  D.resourcesFor('direct-shear').forEach(function (r) {
+    S.openResource(RAHUL, 'direct-shear', r.id);
+    S.setResourceComplete(RAHUL, 'direct-shear', r.id, true);
+  });
+  var res = S.resourceProgress(RAHUL, 'direct-shear');
+  eq(res.completed, res.total, 'every learning resource is marked done');
+  ok(res.total > 0, 'and there were some to mark');
+  eq(S.simulationStatus(RAHUL, 'direct-shear', 'web'), S.SIM_STATUS.NOT_STARTED,
+    'RESOURCE VIEWING DOES NOT COMPLETE THE SIMULATION');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, false,
+    'and it records no simulation use at all');
+  eq(S.runtimeEventsFor(RAHUL, 'direct-shear', null).length, 0,
+    'READING CONTENT WRITES NO RUNTIME EVENT — content is not a run');
+
+  /* (b) A video. The catalogue's preview/demo video is a REFERENCE
+     with no viewing writer anywhere in the build, so there is no
+     path by which watching one could reach the simulation state.
+     Asserted structurally: the event vocabulary has no content
+     event, so no content action can produce a completion. */
+  ok(S.RUNTIME_EVENT_LIST.indexOf('VIDEO_WATCHED') === -1,
+    'THERE IS NO VIDEO EVENT — a video is content, and content cannot complete a run');
+  ok(S.RUNTIME_EVENT_LIST.indexOf('RESOURCE_VIEWED') === -1,
+    'and no resource event either');
+  eq(S.RUNTIME_EVENT_LIST.length, 5, 'the runtime vocabulary is exactly the five lifecycle events');
+
+  /* (c) Learning Outcomes. They are academic intent, authored by the
+     Academic Reviewer, and are not a checklist a student ticks. */
+  var rec = S.contentRecord('direct-shear');
+  ok(!!rec && rec.outcomes.length > 0, 'the experiment carries learning outcomes');
+  eq(S.simulationStatus(RAHUL, 'direct-shear', 'web'), S.SIM_STATUS.NOT_STARTED,
+    'LEARNING OUTCOMES ARE NOT COMPLETION CHECKBOXES');
+
+  /* (d) Time. A long session is still not a completion. */
+  var l = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', l.sessionId, { durationSeconds: 60 * 60 * 8 });
+  var uTime = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(uTime.totalSeconds, 28800, 'eight hours of recorded use');
+  eq(uTime.completed, false, 'AND STILL NOT COMPLETE — no threshold completes a simulation');
+
+  /* (e) Submitting the assessment. */
+  var att = S.startAttempt(RAHUL, 'direct-shear');
+  if (att) {
+    (S.attemptAssessment(att) || { questions: [] }).questions.forEach(function (q) {
+      S.saveAnswer(att.id, q.id, q.type === 'descriptive' ? 'QA written answer.' : 0);
+    });
+    S.submitAttempt(att.id);
+    eq(S.attemptById(att.id).status, S.ATTEMPT_STATUS.SUBMITTED, 'the assessment is submitted');
+  }
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, false,
+    'ASSESSMENT SUBMISSION DOES NOT COMPLETE THE SIMULATION');
+  eq(S.simulationStatus(RAHUL, 'direct-shear', 'web'), S.SIM_STATUS.IN_PROGRESS,
+    'the simulation is still only in progress');
+
+  /* ---- WHAT DOES ---- */
+  var l2 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  var done = S.runtimeComplete(RAHUL, 'direct-shear', 'web', l2.sessionId);
+  ok(done.ok, 'the runtime reports an explicit completion');
+  var uDone = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(uDone.completed, true, 'AND ONLY THAT COMPLETES IT');
+  ok(!!uDone.completedAt, 'with the moment it happened');
+  eq(uDone.status, S.SIM_STATUS.COMPLETED, 'the derived status is Completed');
+  eq(S.simulationStatus(RAHUL, 'direct-shear', 'web'), S.SIM_STATUS.COMPLETED,
+    'and the projected record agrees with the log');
+
+  /* ⚠ A COMPLETED RUN REPORTS A DURATION.
+     `runtimeComplete` deliberately does NOT imply the session end — a
+     client may report a completion and keep the session open. So a
+     runtime that finishes must send both, and the one in this build
+     does. This assertion is what caught it not doing so: a completed
+     run sat beside an open session recording zero seconds. */
+  var l4 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeComplete(RAHUL, 'direct-shear', 'web', l4.sessionId);
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').openSessions, 1,
+    'a completion ALONE leaves the session open — it is not an end event');
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', l4.sessionId, { durationSeconds: 90 });
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').openSessions, 0,
+    'and the end event that follows it closes the session');
+  ok(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').totalSeconds >= 90,
+    'SO A COMPLETED RUN REPORTS THE TIME IT TOOK');
+
+  /* A second completion does not move the date it was first earned. */
+  var firstAt = uDone.completedAt;
+  var l3 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeComplete(RAHUL, 'direct-shear', 'web', l3.sessionId);
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completedAt, firstAt,
+    'A SECOND COMPLETION DOES NOT MOVE THE DATE the student first finished');
+  eq(S.simulationStatus(RAHUL, 'direct-shear', 'web'), S.SIM_STATUS.COMPLETED,
+    'AND A LATER RE-RUN NEVER WALKS A COMPLETION BACK');
+}
+
+function scenario09TechnologyAxis() {
+  group('IMPL 09 — one technology cannot complete another');
+  utilFixture(['web', 'vr', 'ar']);
+
+  /* ---- WEB ONLY ---- */
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'web', { durationSeconds: 400, complete: true });
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, true, 'WEB is completed');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'vr').completed, false, 'VR IS NOT');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'ar').completed, false, 'AR IS NOT');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'vr').used, false, 'and VR records no use');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'vr').totalSeconds, 0,
+    'WEB TIME IS NOT VR TIME');
+
+  /* ---- VR ONLY, on a second experiment, from a "native" client ---- */
+  utilFixture(['web', 'vr', 'ar']);
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'vr',
+    { durationSeconds: 900, complete: true, source: S.RUNTIME_SOURCE.VR_CLIENT });
+  var uvr = S.simulationUtilisation(RAHUL, 'direct-shear', 'vr');
+  eq(uvr.completed, true, 'VR is completed');
+  eq(uvr.totalSeconds, 900, 'with its own time');
+  eq(uvr.sources.join(','), S.RUNTIME_SOURCE.VR_CLIENT, 'attributed to the VR runtime that reported it');
+  eq(S.runtimeSourceIsReal(S.RUNTIME_SOURCE.VR_CLIENT), false,
+    'AND THAT RUNTIME IS NOT PRESENTED AS CONNECTED IN THIS BUILD');
+  eq(S.runtimeSourceIsReal(S.RUNTIME_SOURCE.WEB_PROTOTYPE), true,
+    'while the prototype web runtime is real, and says so');
+  /* ⚠ A PACKAGE TECHNOLOGY OPENED FROM THE PLATFORM IS NOT THE WEB
+     RUNTIME. `startSimulation` on a VR row used to stamp its events
+     with the web prototype runtime, which attributed a figure to a
+     runtime that did not produce it. */
+  eq(S.defaultRuntimeSource('web'), S.RUNTIME_SOURCE.WEB_PROTOTYPE,
+    'a hosted technology defaults to the prototype web runtime, which is what actually runs it');
+  eq(S.defaultRuntimeSource('vr'), S.RUNTIME_SOURCE.PLATFORM_STANDIN,
+    'A PACKAGE TECHNOLOGY DEFAULTS TO THE PLATFORM STAND-IN — no device reported it');
+  eq(S.defaultRuntimeSource('ar'), S.RUNTIME_SOURCE.PLATFORM_STANDIN, 'and so does AR');
+  eq(S.runtimeSourceIsReal(S.RUNTIME_SOURCE.PLATFORM_STANDIN), false,
+    'and the stand-in is never presented as a connected runtime');
+  eq(S.runtimeSourcesAllReal([S.RUNTIME_SOURCE.WEB_PROTOTYPE]), true,
+    'a figure from the web runtime alone is a connected-runtime figure');
+  eq(S.runtimeSourcesAllReal([S.RUNTIME_SOURCE.WEB_PROTOTYPE, S.RUNTIME_SOURCE.VR_CLIENT]), false,
+    'AND ONE STAND-IN AMONG THEM MAKES THE WHOLE FIGURE A STAND-IN FIGURE');
+  eq(S.runtimeSourcesAllReal([]), false, 'and no source at all is not a connected-runtime figure');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, false, 'WEB IS NOT COMPLETED BY IT');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'ar').completed, false, 'AND NEITHER IS AR');
+
+  /* ---- AR ONLY ---- */
+  utilFixture(['web', 'vr', 'ar']);
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'ar',
+    { durationSeconds: 250, complete: true, source: S.RUNTIME_SOURCE.AR_CLIENT });
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'ar').completed, true, 'AR is completed');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, false, 'WEB IS NOT');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'vr').completed, false, 'VR IS NOT');
+
+  /* ---- MIXED USE ---- */
+  utilFixture(['web', 'vr', 'ar']);
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'web', { durationSeconds: 300, complete: true });
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'vr',
+    { durationSeconds: 700, complete: false, source: S.RUNTIME_SOURCE.VR_CLIENT });
+  var ex = S.experimentUtilisation(RAHUL, 'direct-shear', ['web', 'vr', 'ar']);
+  eq(ex.used.join(','), 'web,vr', 'TWO technologies were used');
+  eq(ex.completed.join(','), 'web', 'ONE was completed');
+  eq(ex.inProgress.join(','), 'vr', 'and the other is in progress');
+  eq(ex.totalSeconds, 1000, 'the totals add across technologies');
+  eq(ex.sessionCount, 2, 'across two sessions');
+  eq(ex.launches, 2, 'from two launches');
+  /* ⚠ THE SOURCES ARE ROLLED UP TO THE EXPERIMENT. Without this the
+     experiment-level object could not answer "did any of this come
+     from a stand-in?", and the honesty note that depends on it
+     rendered nowhere at all. */
+  ok(ex.sources.indexOf(S.RUNTIME_SOURCE.VR_CLIENT) !== -1,
+    'the experiment-level figures name the VR runtime that contributed to them');
+  ok(ex.sources.indexOf(S.RUNTIME_SOURCE.WEB_PROTOTYPE) !== -1, 'and the web runtime');
+  eq(S.runtimeSourcesAllReal(ex.sources), false,
+    'AND REPORT THAT NOT ALL OF THEM ARE CONNECTED RUNTIMES IN THIS BUILD');
+
+  /* The Experiment does not complete until every entitled technology does. */
+  var prog = S.experimentProgress(RAHUL, 'direct-shear', ['web', 'vr', 'ar']);
+  ok(prog.status !== S.TECH_PROGRESS.COMPLETED,
+    'THE EXPERIMENT IS NOT COMPLETE while an entitled technology has not been finished');
+  eq(prog.factual.simulation.state, 'in-progress', 'and the factual simulation strand says so');
+  eq(prog.factual.simulation.technologiesCompleted.join(','), 'web',
+    'naming exactly which technology was completed');
+  eq(prog.factual.simulation.totalSeconds, 1000, 'and carrying the real time spent');
+  eq(prog.factual.resources.state, 'not-started', 'the resource strand is reported SEPARATELY');
+  eq(prog.factual.assessment.configured, true, 'and so is the assessment strand');
+}
+
+function scenario09Evidence() {
+  group('IMPL 09 — the progress percentage states the steps it is counted from');
+  utilFixture(['web']);
+
+  var prog0 = S.experimentProgress(RAHUL, 'direct-shear', ['web']);
+  ok(!!prog0.steps && typeof prog0.steps.total === 'number',
+    'the percentage is accompanied by the step count it is derived from');
+  eq(prog0.steps.done, 0, 'nothing is done yet');
+  eq(prog0.percent, 0, 'so the figure is zero');
+  eq(prog0.steps.total, D.resourcesFor('direct-shear').length + 1 + 1,
+    'and the denominator is every resource, one simulation per technology, and one assessment');
+
+  /* One completed resource moves the number by exactly one step. */
+  S.openResource(RAHUL, 'direct-shear', 'dsh-r1');
+  S.setResourceComplete(RAHUL, 'direct-shear', 'dsh-r1', true);
+  var prog1 = S.experimentProgress(RAHUL, 'direct-shear', ['web']);
+  eq(prog1.steps.done, 1, 'ONE STEP, and it is a resource step');
+  eq(prog1.factual.resources.completed, 1, 'reported in the resource strand');
+  eq(prog1.factual.simulation.state, 'not-started', 'and NOT in the simulation strand');
+
+  /* The simulation step is the completion event and nothing else. */
+  var l = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', l.sessionId, { durationSeconds: 1200 });
+  eq(S.experimentProgress(RAHUL, 'direct-shear', ['web']).steps.done, 1,
+    'TWENTY MINUTES OF USE MOVES NO STEP — a step is an explicit completion');
+  S.runtimeComplete(RAHUL, 'direct-shear', 'web', l.sessionId);
+  eq(S.experimentProgress(RAHUL, 'direct-shear', ['web']).steps.done, 2,
+    'and the completion event moves exactly one');
+
+  /* The factual strands never merge. */
+  var f = S.experimentProgress(RAHUL, 'direct-shear', ['web']).factual;
+  ok(f.resources && f.simulation && f.assessment,
+    'RESOURCES, SIMULATION and ASSESSMENT are three separate strands');
+  eq(f.simulation.technologies[0].evidence, 'runtime-events',
+    'and the simulation strand names where its evidence came from');
+  eq(f.simulation.technologies[0].launches, 1, 'carrying the launch count');
+  eq(f.simulation.technologies[0].sessions, 1, 'the session count');
+  eq(f.simulation.technologies[0].totalSeconds, 1200, 'and the time spent');
+}
+
+function scenario09FoldIntegrity() {
+  group('IMPL 09 — a session row is only a RUN when something opened it');
+  utilFixture(['web']);
+
+  /* ⚠ AN ERROR ALONE IS NOT USE.
+     Any event carrying a session id creates a session row, so an
+     error-only report counted as a session and therefore as USE — the
+     exact opposite of the rule written beside the code that computes
+     it. And because the projection promotes a package technology's
+     delivery state once a run is recorded, an error could also have
+     moved the delivery ladder. */
+  var err = S.recordRuntimeEvent({
+    type: S.RUNTIME_EVENT.SIMULATION_ERROR, sessionId: 'QA-ERR-ONLY',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web',
+    detail: { code: 'X', message: 'It failed before it started.' },
+    clientEventId: 'qa-err-only'
+  });
+  eq(err.ok, true, 'the error is recorded — no evidence is discarded');
+  var ue = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(ue.errors, 1, 'and it is counted as an error');
+  eq(ue.used, false, 'BUT THE TECHNOLOGY DOES NOT READ AS USED');
+  eq(ue.sessionCount, 0, 'and it is not counted as a session');
+  eq(ue.launches, 0, 'nor as a launch');
+  eq(ue.status, S.SIM_STATUS.NOT_STARTED, 'so the simulation is still Not started');
+
+  /* ⚠ A BARE COMPLETION COMPLETES NOTHING.
+     `sessionId` is validated as a non-empty string and nothing checked
+     that the session was ever opened, so one malformed event could
+     complete a simulation nobody ran. */
+  var bare = S.recordRuntimeEvent({
+    type: S.RUNTIME_EVENT.SIMULATION_COMPLETED, sessionId: 'QA-NEVER-RAN',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web',
+    clientEventId: 'qa-bare-complete'
+  });
+  eq(bare.ok, true, 'the event is recorded');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, false,
+    'BUT A COMPLETION FOR A SESSION NOBODY OPENED COMPLETES NOTHING');
+  eq(S.simulationStatus(RAHUL, 'direct-shear', 'web'), S.SIM_STATUS.NOT_STARTED,
+    'and the record is untouched');
+
+  /* A completion on a session that WAS opened still works. */
+  var real = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeComplete(RAHUL, 'direct-shear', 'web', real.sessionId);
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, true,
+    'while a completion on a real run completes it, as it always did');
+
+  /* ⚠ A REPLAYED LAUNCH UNDER A FRESH KEY MUST NOT INFLATE THE COUNT.
+     Launches are counted per SESSION, like every other figure, so a
+     client that replays a launch adds no session and no launch. */
+  utilFixture(['web']);
+  var l = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  var beforeL = S.simulationUtilisation(RAHUL, 'direct-shear', 'web').launches;
+  S.recordRuntimeEvent({
+    type: S.RUNTIME_EVENT.SIMULATION_LAUNCHED, sessionId: l.sessionId,
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web',
+    clientEventId: 'qa-replayed-launch-under-a-new-key'
+  });
+  var afterL = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(afterL.launches, beforeL, 'A REPLAYED LAUNCH ADDS NO LAUNCH');
+  eq(afterL.sessionCount, 1, 'and no session');
+
+  /* ⚠ COMPLETING AN ALREADY-FINISHED RUN MUST NOT INVENT A NEW ONE.
+     `completeSimulation` opened a fresh session whenever there was no
+     OPEN one — which is true of every properly ended run — so it
+     fabricated a second launch and a second session out of nothing. */
+  utilFixture(['web']);
+  var r1 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', r1.sessionId, { durationSeconds: 300 });
+  var beforeC = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(beforeC.openSessions, 0, 'the run was ended properly');
+  S.completeSimulation(RAHUL, 'direct-shear', 'web');
+  var afterC = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(afterC.sessionCount, beforeC.sessionCount, 'COMPLETING IT INVENTS NO SECOND SESSION');
+  eq(afterC.launches, beforeC.launches, 'and no second launch');
+  eq(afterC.completed, true, 'while the completion is still recorded');
+  eq(afterC.totalSeconds, beforeC.totalSeconds, 'and the time it took is unchanged');
+}
+
+function scenario09IdSpace() {
+  group('IMPL 09 — a session id does not wrap, and a key cannot collide across students');
+  utilFixture(['web']);
+
+  /* ⚠ `util.pad3` IS A FORMATTER, NOT AN ID SPACE.
+     `('000' + n).slice(-3)` is 1000 wide and wraps, so run 1001 re-used
+     `RSN-001`. The idempotency guard matches the client key globally,
+     so the 1001st run's events were then discarded as duplicates of the
+     first — a student's work silently vanishing at scale. A session is
+     minted once per run, so this is the counter that actually reaches
+     it. */
+  var st = XRSLP.state;
+  var raw = JSON.parse(localStorage.getItem(st.STORAGE_KEY));
+  raw.seq.runtimeSession = 999;
+  localStorage.setItem(st.STORAGE_KEY, JSON.stringify(raw));
+  loadState();
+  S = XRSLP.state;
+
+  var a = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  var b = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  var c = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  eq(a.sessionId, 'RSN-1000', 'the thousandth session is RSN-1000, not RSN-000');
+  eq(b.sessionId, 'RSN-1001', 'and the next is RSN-1001');
+  ok(a.sessionId !== c.sessionId && b.sessionId !== c.sessionId,
+    'AND NO TWO SESSIONS SHARE AN ID');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').sessionCount, 3,
+    'so all three runs are recorded');
+
+  /* And two students cannot collide on one session id even if a client
+     reuses one, because the key names whose run it is. */
+  var g2 = grantAccess(['direct-shear'], ['web'], 5, 'yearly');
+  var OTHER = S.studentsForTenant(TENANT).filter(function (p) { return p.id !== RAHUL; })[0].id;
+  S.assignExperiment(TENANT, g2.access.id, 'direct-shear', 'student', [OTHER]);
+  var mine = S.runtimeLaunch(RAHUL, 'direct-shear', 'web', { sessionId: 'SHARED-ID' });
+  var theirs = S.runtimeLaunch(OTHER, 'direct-shear', 'web', { sessionId: 'SHARED-ID' });
+  eq(mine.ok, true, 'one student opens a session');
+  eq(theirs.ok, true, 'AND SO CAN ANOTHER, ON THE SAME SESSION ID');
+  ok(S.simulationUtilisation(OTHER, 'direct-shear', 'web').launches > 0,
+    'the second student’s run is recorded, not swallowed as a duplicate');
+}
+
+function scenario09Boundaries() {
+  group('IMPL 09 — telemetry respects every existing boundary');
+
+  /* ---- ENTITLEMENT ---- */
+  utilFixture(['web']);
+  var r = S.recordRuntimeEvent({
+    type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: 'QA-1',
+    personId: RAHUL, experimentId: 'consolidation', technology: 'web',
+    clientEventId: 'qa-unentitled'
+  });
+  eq(r.ok, false, 'AN UNENTITLED EXPERIMENT IS REFUSED');
+  eq(r.reason, S.RUNTIME_REJECT.NOT_ENTITLED, 'and the reason is entitlement');
+  eq(S.runtimeEventsFor(RAHUL, 'consolidation', 'web').length, 0, 'and nothing is written');
+
+  var r2 = S.recordRuntimeEvent({
+    type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: 'QA-2',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'vr', clientEventId: 'qa-untech'
+  });
+  eq(r2.ok, false, 'AN UNENTITLED TECHNOLOGY IS REFUSED TOO');
+  eq(r2.reason, S.RUNTIME_REJECT.NOT_ENTITLED, 'for the same reason');
+
+  /* ---- MALFORMED EVENTS ---- */
+  eq(S.recordRuntimeEvent({ type: 'WHATEVER', sessionId: 'X', personId: RAHUL,
+    experimentId: 'direct-shear', technology: 'web' }).reason,
+    S.RUNTIME_REJECT.UNKNOWN_TYPE, 'an unknown event type is refused');
+  eq(S.recordRuntimeEvent({ type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: 'X',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'holodeck' }).reason,
+    S.RUNTIME_REJECT.UNKNOWN_TECHNOLOGY, 'an unknown technology is refused');
+  eq(S.recordRuntimeEvent({ type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: '',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web' }).reason,
+    S.RUNTIME_REJECT.NO_SESSION, 'AN EVENT WITH NO SESSION IS REFUSED — it could not be attributed to a run');
+  eq(S.recordRuntimeEvent({ type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: 'X',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web',
+    occurredAt: 'the day before yesterday' }).reason,
+    S.RUNTIME_REJECT.BAD_TIMESTAMP, 'and so is an unreadable timestamp');
+  eq(S.recordRuntimeEvent({ type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: 'X',
+    personId: ARJUN, experimentId: 'direct-shear', technology: 'web' }).reason,
+    S.RUNTIME_REJECT.UNKNOWN_STUDENT, 'a faculty member cannot report a student run');
+
+  /* ---- DEACTIVATION PRESERVES HISTORY ---- */
+  utilFixture(['web']);
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'web', { durationSeconds: 540, complete: true });
+  var beforeEvents = S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').length;
+  var beforeU = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  S.deactivateTenant(TENANT, 'QA — telemetry history');
+  eq(S.recordRuntimeEvent({ type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: 'QA-D',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web' }).ok, false,
+    'A DEACTIVATED INSTITUTION RECORDS NO NEW TELEMETRY');
+  eq(S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').length, beforeEvents,
+    'HISTORY KEPT: every recorded event survives deactivation');
+  var afterU = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(afterU.totalSeconds, beforeU.totalSeconds, 'HISTORY KEPT: the time spent is unchanged');
+  eq(afterU.launches, beforeU.launches, 'HISTORY KEPT: the launch count is unchanged');
+  eq(afterU.completed, true, 'HISTORY KEPT: the completion survives');
+  S.reactivateTenant(TENANT, 'QA — reversal');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').totalSeconds, beforeU.totalSeconds,
+    'and reactivation displaces nothing');
+
+  /* ---- EXPIRY ---- */
+  utilFixture(['web']);
+  var acc = S.accessForTenant(TENANT)[0];
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'web', { durationSeconds: 800, complete: true });
+  var expEvents = S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').length;
+  var expU = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  S.protoSetAccessEnd(acc.id, -1);
+  eq(S.accessTermState(S.accessById(acc.id)).key, 'expired', 'the access record has expired');
+  eq(S.studentCanRun(RAHUL, 'direct-shear', 'web'), false, 'the student can no longer run it');
+  eq(S.recordRuntimeEvent({ type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: 'QA-E',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web' }).ok, false,
+    'EXPIRY STOPS NEW TELEMETRY AT THE DOOR');
+  eq(S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').length, expEvents,
+    'WHILE PRESERVING EVERY EVENT ALREADY RECORDED');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').totalSeconds, expU.totalSeconds,
+    'and the time spent before expiry is still reported');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, true,
+    'and so is the completion earned before it');
+
+  /* ---- TENANT ISOLATION ---- */
+  utilFixture(['web']);
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'web', { durationSeconds: 100, complete: true });
+  var others = S.runtimeEvents().filter(function (ev) { return ev.tenantId !== TENANT; });
+  eq(others.length, 0, 'every recorded event belongs to the institution that produced it');
+  S.runtimeEvents().forEach(function (ev) {
+    eq(S.personById(ev.personId).tenantId, ev.tenantId,
+      'and the event tenant matches the student tenant: ' + ev.id);
+  });
+
+  /* ---- FACULTY SCOPE ---- */
+  var reach = S.facultyStudentReach(ARJUN, 'direct-shear');
+  ok(reach.indexOf(RAHUL) !== -1, 'the mapped faculty member reaches this student');
+  eq(S.facultyExperimentIds(ARJUN).indexOf('consolidation'), -1,
+    'AND HOLDS NO MAPPING FOR AN EXPERIMENT OUTSIDE THEIR SCOPE');
+
+  /* ---- RESULT WITHHOLDING ---- */
+  var att = S.startAttempt(RAHUL, 'direct-shear');
+  if (att) {
+    (S.attemptAssessment(att) || { questions: [] }).questions.forEach(function (q) {
+      S.saveAnswer(att.id, q.id, q.type === 'descriptive' ? 'QA.' : 0);
+    });
+    S.submitAttempt(att.id);
+  }
+  var studentView = S.experimentProgress(RAHUL, 'direct-shear', ['web'], { studentView: true });
+  ok(studentView.factual.assessment.withheld === S.resultWithheld(RAHUL, 'direct-shear'),
+    'THE STUDENT-VIEW FACTUAL STRAND CARRIES THE WITHHOLDING FLAG, unchanged');
+  ok(!/percent/.test(String(studentView.factual.assessment.state || '')),
+    'and the assessment strand carries a state, never a score');
+  var keys = [];
+  function walk(o, path) {
+    if (!o || typeof o !== 'object') { return; }
+    Object.keys(o).forEach(function (k) {
+      keys.push(path + k);
+      if (o[k] && typeof o[k] === 'object' && path.length < 40) { walk(o[k], path + k + '.'); }
+    });
+  }
+  walk(studentView.factual, '');
+  ok(!keys.some(function (k) { return /score|marks|earned|outcome/i.test(k); }),
+    'NO SCORE, MARK OR OUTCOME REACHES THE FACTUAL UTILISATION MODEL AT ALL');
+}
+
+function scenario09WithheldParity() {
+  group('IMPL 09 — a passing and a failing student are IDENTICAL while the result is withheld');
+  boot();
+
+  /* ⚠ THE STRONGEST PRIVACY ASSERTION IN THIS SUITE, and the defect it
+     caught. `experimentProgress` computes the RAW assessment state —
+     PASSED or NOT_PASSED — and every student-facing surface masks it
+     while the visibility policy is holding the result. The new
+     Implementation-09 `factual` block did not, which made it the one
+     student-view derivation whose value differed between a passing and
+     a failing student: the outcome the result screen was holding could
+     be read straight off it.
+
+     Rather than asserting the masking of one field, this DIFFS the
+     entire student-view derivation between two students who did
+     identical work and got opposite outcomes. Anything that ever leaks
+     an outcome into a student view fails here, including something
+     added later that nobody thought to mask. */
+  var g = grantAccess(['direct-shear'], ['web'], 5, 'yearly');
+  var OTHER = S.studentsForTenant(TENANT).filter(function (p) { return p.id !== RAHUL; })[0].id;
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL, OTHER]);
+
+  var def = S.assessmentForTenant(TENANT, 'direct-shear');
+  ok(!!def, 'the experiment has an assessment');
+  var set = S.updateAssessmentSettings(def.id, {
+    title: def.title, passMark: def.passMark, attemptLimit: def.attemptLimit,
+    policyMode: 'CUSTOM_DATE', customDate: '2099-01-01'
+  }, ARJUN);
+  eq(set.ok, true, 'and a release date far enough away to withhold every result');
+
+  function take(pid, correct) {
+    S.runtimeSimulateRun(pid, 'direct-shear', 'web', { durationSeconds: 600, complete: true });
+    var a = S.startAttempt(pid, 'direct-shear');
+    if (!a) { return; }
+    (S.attemptAssessment(a) || { questions: [] }).questions.forEach(function (q) {
+      if (q.type === 'mcq') { S.saveAnswer(a.id, q.id, correct ? q.answer : (q.answer === 0 ? 1 : 0)); }
+      else if (q.type === 'tf') { S.saveAnswer(a.id, q.id, correct ? q.answer : !q.answer); }
+    });
+    S.submitAttempt(a.id);
+  }
+  take(RAHUL, true);
+  take(OTHER, false);
+
+  eq(S.latestSubmittedAttempt(RAHUL, 'direct-shear').outcome, S.OUTCOME.PASSED, 'one student passed');
+  eq(S.latestSubmittedAttempt(OTHER, 'direct-shear').outcome, S.OUTCOME.NOT_PASSED,
+    'and the other did not');
+  eq(S.resultWithheld(RAHUL, 'direct-shear'), true, 'both results are withheld');
+  eq(S.resultWithheld(OTHER, 'direct-shear'), true, 'from both students');
+
+  /* Timestamps legitimately differ; nothing else may. */
+  function studentView(pid) {
+    var prog = S.experimentProgress(pid, 'direct-shear', ['web'], { studentView: true });
+    return JSON.stringify({
+      status: prog.status, percent: prog.percent, steps: prog.steps, factual: prog.factual
+    }).replace(/"20\d\d-[^"]*"/g, '"T"');
+  }
+  eq(studentView(RAHUL), studentView(OTHER),
+    'AND EVERY STUDENT-VIEW FIGURE IS BYTE-IDENTICAL — the outcome cannot be inferred');
+
+  eq(S.experimentProgress(RAHUL, 'direct-shear', ['web'], { studentView: true })
+      .factual.assessment.state, S.TECH_PROGRESS.RESULT_WITHHELD,
+    'the factual assessment strand reports WITHHELD, not the outcome');
+  eq(S.experimentProgress(OTHER, 'direct-shear', ['web'], { studentView: true })
+      .factual.assessment.state, S.TECH_PROGRESS.RESULT_WITHHELD,
+    'for the failing student too');
+
+  /* ⚠ AND FACULTY STILL SEE THE REAL STATE. Masking is a STUDENT-view
+     concern; the people who evaluated the work keep their own view. */
+  eq(S.experimentProgress(RAHUL, 'direct-shear', ['web']).factual.assessment.state,
+    S.ASSESS_STATE.PASSED, 'WITHOUT the student view, Faculty still see the real outcome');
+  eq(S.experimentProgress(OTHER, 'direct-shear', ['web']).factual.assessment.state,
+    S.ASSESS_STATE.NOT_PASSED, 'including the failing one');
+}
+
+function scenario09PreTelemetry() {
+  group('IMPL 09 — a schema-11 state keeps its history and is never back-filled with invented sessions');
+
+  /* A run recorded the way Implementation 03 recorded it, with no
+     event log behind it — exactly the shape a stored schema-11 state
+     arrives in. */
+  utilFixture(['web']);
+  var sim = S.simulationActivity(RAHUL, 'direct-shear', 'web');
+  ok(!sim, 'no simulation record exists yet');
+  S.startSimulation(RAHUL, 'direct-shear', 'web');
+  S.completeSimulation(RAHUL, 'direct-shear', 'web');
+  var rec = S.simulationActivity(RAHUL, 'direct-shear', 'web');
+  eq(rec.status, S.SIM_STATUS.COMPLETED, 'the Implementation-03 writers still work unchanged');
+  eq(rec.launches, 1, 'and still report a launch count');
+  ok(rec.timeSpentSeconds >= 0, 'and a time spent');
+
+  /* Now strip the log the way a migrated state has none, and confirm
+     the legacy record is reported honestly rather than zeroed. */
+  var raw = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+  raw.runtimeEvents = [];
+  raw.schemaVersion = 11;
+  delete raw.seq.runtimeEvent;
+  delete raw.seq.runtimeSession;
+  localStorage.setItem(S.STORAGE_KEY, JSON.stringify(raw));
+  loadState();
+  S = XRSLP.state;
+
+  eq(S.SCHEMA_VERSION, 12, 'the build is at schema 12');
+  eq(S.migratedFrom(), 11, 'and reports that it migrated from 11');
+  eq(S.runtimeEvents().length, 0, 'THE MIGRATED STATE HAS NO EVENTS — none were ever observed');
+  ok(Array.isArray(S.runtimeEvents()), 'but the collection exists');
+  eq(typeof S.simulationActivity(RAHUL, 'direct-shear', 'web').launches, 'number',
+    'NOTHING LOST: the pre-telemetry record survives intact');
+  var u = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(u.evidence, 'pre-telemetry', 'AND IS REPORTED AS PRE-TELEMETRY HISTORY, not as session evidence');
+  eq(u.completed, true, 'the completion it recorded is still reported');
+  eq(u.launches, 1, 'and so is the launch count it recorded');
+  eq(u.sessionCount, 0, 'BUT NO SESSION IS INVENTED for it');
+  eq(u.sessions.length, 0, 'and no session detail is fabricated');
+
+  /* Migration is idempotent: loading it again changes nothing. */
+  var snapshot = JSON.stringify(S.simulationActivity(RAHUL, 'direct-shear', 'web'));
+  loadState();
+  S = XRSLP.state;
+  eq(JSON.stringify(S.simulationActivity(RAHUL, 'direct-shear', 'web')), snapshot,
+    'MIGRATION IS IDEMPOTENT — a second load changes nothing');
+  eq(S.runtimeEvents().length, 0, 'and still invents no events');
+
+  /* New activity after migration is real telemetry again. */
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'web', { durationSeconds: 60, complete: false });
+  var u2 = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(u2.evidence, 'mixed',
+    'a NEW run against inherited history is labelled MIXED — part session-backed, part pre-telemetry');
+  eq(u2.sessionCount, 1, 'the new session is session-backed');
+  eq(u2.totalSeconds, 60, 'with its own measured time');
+  eq(u2.completed, true, 'AND THE EARLIER COMPLETION IS NOT LOST');
+  eq(u2.inheritedCompletion, true,
+    'AND IS NAMED AS INHERITED, so no screen can present it as a session-backed completion');
+  eq(S.simulationStatus(RAHUL, 'direct-shear', 'web'), S.SIM_STATUS.COMPLETED,
+    'the record still reads as completed');
+}
+
+
+/* ============================================================
+   IMPLEMENTATION 09 — FACULTY QUESTION BANK IMPORT (CSV + XLSX).
+   ============================================================ */
+
+/* A REAL DEFLATE-COMPRESSED WORKBOOK, base64-encoded.
+
+   The writer in `js/xlsx.js` emits STORED (uncompressed) entries, so a
+   round-trip through it would exercise the ZIP container and none of
+   the DEFLATE decompressor — which is the half most likely to be
+   wrong and the half every spreadsheet application actually produces.
+   This fixture is a workbook compressed the way Excel, LibreOffice
+   and Google Sheets compress one, so `inflateRaw` is genuinely under
+   test. It carries one valid row of each supported question type.
+   ============================================================ */
+var QA_XLSX_DEFLATED_B64 =
+  'UEsDBBQAAAAIAEORKV0XbY/dnQAAAAMBAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbHWPSQ7CMAxFrxJli1oXFixQWxbADbiA' +
+  'FdxBpEkUm6rcnnRYIVja738/uTxPg1UjRe69q/Q+L/S5Lu/vQKwScVzpTiScANh0NCDnPpBLpPFxQEljbCGgeWJLcCiKIxjv' +
+  'hJxkMt/QdXmlBl9W1G1K69USybJWlzU4uyqNIdjeoCQOo3t8WbLNkKfmkuGuD7xLAQ0/DTP5L9h6sLxZfwBQSwMEFAAAAAgA' +
+  'Q5EpXUuDozqWAAAABQEAAAsAAABfcmVscy8ucmVsc43PPQ7CMAwF4KtEPkDdMjCgpl1YuiIuEFL3R23iyAlQbk9GihgY/fz0' +
+  'Wa7bza3qQRJn9hqqooS2qS+0mpSDOM0hqtzwUcOUUjghRjuRM7HgQD5vBhZnUh5lxGDsYkbCQ1keUT4N2Juq6zVI11egrq9A' +
+  '/9g8DLOlM9u7I59+nPhqZNnISEnDtuKTZbkxL0VGAZsadw82b1BLAwQUAAAACABDkSldcujcEaEAAAD8AAAADwAAAHhsL3dv' +
+  'cmtib29rLnhtbI2PORKDMAxFr+LRATCkSMEY06ShzBEcELEHvIxkkhw/Hgh9Ki1fetJX/cev4oXELoYOmqqGXqt3pOUR4yKK' +
+  'GLgDm3NqpeTRojdcxYShKHMkb3Ip6Sk5EZqJLWL2q7zU9VV64wIchJb+YcR5diPe4rh5DPmAEK4ml9fYusSg1X6Bf1EE47GD' +
+  '+4a8z4DY28NUjICg1pWEhqkBqZU8N+VpTn8BUEsDBBQAAAAIAEORKV1tNul0mgAAAAYBAAAaAAAAeGwvX3JlbHMvd29ya2Jv' +
+  'b2sueG1sLnJlbHONzzsOwjAMBuCrRD5A3TIwoKZdWFgRF4hSt6naPBSb1+2JGBCVGJgs/7Y+y23/8Ku6UeY5Bg1NVUPftWda' +
+  'jZSA3ZxYlY3AGpxIOiCydeQNVzFRKJMxZm+ktHnCZOxiJsJdXe8xfxuwNdVp0JBPQwPq8kz0jx3HcbZ0jPbqKciPE3iPeWFH' +
+  'JAU1eSLR8IkY36WpigrYtbj5sHsBUEsDBBQAAAAIAEORKV2oZqadAwIAAHoGAAAYAAAAeGwvd29ya3NoZWV0cy9zaGVldDEu' +
+  'eG1shZXNrtowEIVfxcoDYP7aRRWC6AVKpS4q3UpdosEZiFXHTj0mQJ++k1CltLXLyslYn8dz5tjOl9faiBY9aWcX2WQ0zpZF' +
+  'fnH+G1WIQfCspUVWhdC8k5JUhTXQyDVoeebofA2Bf/1JUuMRyh6qjZyOx29lDdpmRd7H1hCgyL27CM9ZOKq6j9UkE2GRaWu0' +
+  'xdfgOa6pyEPx/YwUeEf7cGswl6HIZTch1S/w/TMwwrykGNf0qSDCrJ8whwizecKoCLN9wpQR5kOKUc57VGEPli7oI+QuRdbA' +
+  'fY8AH1MAXhsDFv5VXHKrh35Ph35PU4nPJujG4F5VTqtox1Po10qrSgRuu6gR6OyRBFsOvKDg0Z5CJcA4exIg2KIlHpkvRbdt' +
+  'XMZcksqz1p2o96VjTklxX7yGqwYTc0qKeXGWnNElJKy8TYGf0bMIB210uMUsk+Ji3t91bWuLaS7bRyukltiCNiy+0CT4XlCs' +
+  '8V32UKGonNc/nA1g7sKP/mOW2WCWWSJT8GfcH8FQ1CcpaiVsd10ZcxNqkJd3qQzcRAV094d6VL4LUOcoAQfXcmmBBI/+cPYl' +
+  '/p4dxZRObWO7+vS6iak969WeDGr/Icp8EGWeWLdEUl7zbdFGVUlhm+4Aa8sduojGcaUXFsU/FH48sutJYD/y4v2pIorVvJv3' +
+  'Jbz5qwT58ADI4WUpfgJQSwECFAMUAAAACABDkSldF22P3Z0AAAADAQAAEwAAAAAAAAAAAAAAgAEAAAAAW0NvbnRlbnRfVHlw' +
+  'ZXNdLnhtbFBLAQIUAxQAAAAIAEORKV1Lg6M6lgAAAAUBAAALAAAAAAAAAAAAAACAAc4AAABfcmVscy8ucmVsc1BLAQIUAxQA' +
+  'AAAIAEORKV1y6NwRoQAAAPwAAAAPAAAAAAAAAAAAAACAAY0BAAB4bC93b3JrYm9vay54bWxQSwECFAMUAAAACABDkSldbTbp' +
+  'dJoAAAAGAQAAGgAAAAAAAAAAAAAAgAFbAgAAeGwvX3JlbHMvd29ya2Jvb2sueG1sLnJlbHNQSwECFAMUAAAACABDkSldqGam' +
+  'nQMCAAB6BgAAGAAAAAAAAAAAAAAAgAEtAwAAeGwvd29ya3NoZWV0cy9zaGVldDEueG1sUEsFBgAAAAAFAAUARQEAAGYFAAAA' +
+  'AA==';
+
+var QA_XLSX_REALWORLD_B64 =
+  'UEsDBBQAAAAIABmaKV3muHRrXAAAAGIAAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbBXMTQqAIBBA4auE+xxr0SJKL9EFRKYf' +
+  'ylGcIer22fLxwZvcE6/mxsJHoll12ihnp+XNyE0V4lntInkE4LBj9KxTRqqyphK91CwbZB9OvyH0xgwQEgmStPI/FNgPUEsD' +
+  'BBQAAAAIABmaKV1Lg6M6lgAAAAUBAAALAAAAX3JlbHMvLnJlbHONzz0OwjAMBeCrRD5A3TIwoKZdWLoiLhBS90dt4sgJUG5P' +
+  'RooYGP389Fmu282t6kESZ/YaqqKEtqkvtJqUgzjNIarc8FHDlFI4IUY7kTOx4EA+bwYWZ1IeZcRg7GJGwkNZHlE+Ddibqus1' +
+  'SNdXoK6vQP/YPAyzpTPbuyOffpz4amTZyEhJw7bik2W5MS9FRgGbGncPNm9QSwMEFAAAAAgAGZopXYbtWvaiAAAAAwEAAA8A' +
+  'AAB4bC93b3JrYm9vay54bWyNjzkSgzAMRa/i0QEwpEjBsDRpKHMEB0TsAVuMZJIcPx4T+lRavvSk3/Qfv6oXsjgKLVRFCX3X' +
+  'vImXB9GikhikBRvjVmsto0VvpKANQ1JmYm9iKvmpZWM0k1jE6Fd9Kcur9sYFOAg1/8OgeXYj3mjcPYZ4QBhXE9NrYt0m0DX5' +
+  'gvyiCsZjC/cdJc+Ayu1hSkZAce1SwsNUpT2dlTMmgD49dl9QSwMEFAAAAAgAGZopXW026XSaAAAABgEAABoAAAB4bC9fcmVs' +
+  'cy93b3JrYm9vay54bWwucmVsc43POw7CMAwG4KtEPkDdMjCgpl1YWBEXiFK3qdo8FJvX7YkYEJUYmCz/tj7Lbf/wq7pR5jkG' +
+  'DU1VQ9+1Z1qNlIDdnFiVjcAanEg6ILJ15A1XMVEokzFmb6S0ecJk7GImwl1d7zF/G7A11WnQkE9DA+ryTPSPHcdxtnSM9uop' +
+  'yI8TeI95YUckBTV5ItHwiRjfpamKCti1uPmwewFQSwMEFAAAAAgAGZopXasehEWDAQAA4QQAABgAAAB4bC93b3Jrc2hlZXRz' +
+  'L3NoZWV0MS54bWyFlM9SAjEMxl+lsw9AARkPzLKMiopnDxyZUILbsduuSfjj29sFZVDb4babzO9Lmi9tOT00Tu2Q2AY/KQa9' +
+  'fjGtyn2gd64RRcWs50lRi7RjrdnU2AD3Qos+ZjaBGpD4S2+aW0JYH6HG6WG/f6sbsL6oymNsBgJVSWGvKFaJUdN93A0KJZPC' +
+  'emc9vgrFuOWqlOpjiyyxo6V8tlhqqUrdJbT5Bu+vgQnmIceE9lgKEszsCrNKMI9XGJNgnq4w6wTznGNMIEIjS/C8R0qQ8xzZ' +
+  'QPQ9AbzkADy0Djz8n7iOVp/9Hp79HuYKb53Y1uHS1MGapOM5dFFbUyuJtqsGgbeErOLKASkWQv8m9TS1DDm5me1md1JILUTk' +
+  '4n24KfSP2zmhh+A5OLuGzDo+/VV6zimlFnPezXRXDUu9u/QpI9Fd4zG3YHBSxHvKSDvs6qbtGp3tGmU6EtricgOOk07lqAUI' +
+  'krKsrDeh6fpgu3LYS+32SWN1POTg9yHnoz/RU/P64p3R5wes+gJQSwECFAMUAAAACAAZmild5rh0a1wAAABiAAAAEwAAAAAA' +
+  'AAAAAAAAgAEAAAAAW0NvbnRlbnRfVHlwZXNdLnhtbFBLAQIUAxQAAAAIABmaKV1Lg6M6lgAAAAUBAAALAAAAAAAAAAAAAACA' +
+  'AY0AAABfcmVscy8ucmVsc1BLAQIUAxQAAAAIABmaKV2G7Vr2ogAAAAMBAAAPAAAAAAAAAAAAAACAAUwBAAB4bC93b3JrYm9v' +
+  'ay54bWxQSwECFAMUAAAACAAZmildbTbpdJoAAAAGAQAAGgAAAAAAAAAAAAAAgAEbAgAAeGwvX3JlbHMvd29ya2Jvb2sueG1s' +
+  'LnJlbHNQSwECFAMUAAAACAAZmildqx6ERYMBAADhBAAAGAAAAAAAAAAAAAAAgAHtAgAAeGwvd29ya3NoZWV0cy9zaGVldDEu' +
+  'eG1sUEsFBgAAAAAFAAUARQEAAKYEAAAAAA==';
+
+var QA_B64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+function qaFromBase64(s) {
+  var clean = String(s).replace(/[^A-Za-z0-9+/]/g, '');
+  var out = [], buf = 0, bits = 0;
+  for (var i = 0; i < clean.length; i++) {
+    buf = (buf << 6) | QA_B64_ALPHABET.indexOf(clean.charAt(i));
+    bits += 6;
+    if (bits >= 8) { bits -= 8; out.push((buf >> bits) & 0xFF); }
+  }
+  return new Uint8Array(out);
+}
+
+/* A Faculty member mapped to soil-mechanics, with a live tenant and a
+   Question Bank they may write to. */
+function importFixture() {
+  boot();
+  var g = grantAccess(['direct-shear', 'consolidation'], ['web'], 5, 'yearly');
+  S.mapFaculty(TENANT, ARJUN, g.access.id, 'soil-mechanics', null);
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  return g;
+}
+function qaImport(kind, payload, experimentId) {
+  return XRSLP.questionImport.validate(kind, payload, {
+    experimentId: experimentId || 'direct-shear', facultyPersonId: ARJUN
+  });
+}
+function qaBankCount(experimentId) {
+  return S.questionsForFaculty(ARJUN).filter(function (q) {
+    return !experimentId || q.experimentId === experimentId;
+  }).length;
+}
+
+var QA_HEADER = 'question_type,question,option_a,option_b,option_c,option_d,correct_answer,marks,explanation';
+var QA_MCQ = 'multiple_choice,"Which test measures shear strength directly?",Direct shear,Triaxial,Consolidation,Permeability,a,2,"Failure is forced along a known plane."';
+var QA_TF  = 'true_false,"Water is incompressible for practical purposes.",,,,,TRUE,1,';
+var QA_DESC = 'descriptive,"Explain effective stress in a saturated soil.",,,,,,5,';
+
+function scenario09ImportCsv() {
+  group('IMPL 09 — Question Bank import: CSV parses, validates and previews without writing');
+  importFixture();
+
+  var before = qaBankCount();
+
+  /* ---- a valid file of all three types ---- */
+  var good = qaImport('csv', [QA_HEADER, QA_MCQ, QA_TF, QA_DESC].join('\n'));
+  eq(good.fatal, null, 'a well-formed file has no fatal problem');
+  eq(good.errors.length, 0, 'and no blocking errors');
+  eq(good.validCount, 3, 'all three rows are valid');
+  eq(good.ok, true, 'so the file is importable');
+  eq(good.rows[0].type, 'mcq', 'multiple_choice maps to the product mcq type');
+  eq(good.rows[1].type, 'tf', 'true_false maps to tf');
+  eq(good.rows[2].type, 'descriptive', 'descriptive maps to descriptive');
+  eq(good.rows[0].answer, 0, 'the MCQ answer letter a resolves to the first option');
+  eq(good.rows[0].options.length, 4, 'with four options kept');
+  eq(good.rows[1].answer, true, 'TRUE resolves to a boolean true');
+  eq(good.rows[2].answer, null, 'a descriptive row carries no answer key');
+  eq(good.rows[0].points, 2, 'marks are read as a number');
+
+  /* ⛔ THE CENTRAL PROMISE OF THE WHOLE FLOW. */
+  eq(qaBankCount(), before, 'NOTHING IS WRITTEN BY VALIDATION — the bank is untouched');
+  eq(S.questionsForFaculty(ARJUN).length, before, 'not one question was created');
+
+  /* ---- Cancel: the bank is still untouched ---- */
+  eq(qaBankCount(), before, 'AND ABANDONING THE PREVIEW WRITES NOTHING EITHER');
+
+  /* ---- the confirmed import ---- */
+  var outcome = XRSLP.questionImport.commit(good, TENANT, ARJUN);
+  eq(outcome.created, 3, 'confirming creates exactly the previewed rows');
+  eq(outcome.refused.length, 0, 'and refuses none of them');
+  eq(qaBankCount(), before + 3, 'THE BANK GREW BY THREE');
+
+  var made = outcome.questions;
+  eq(made[0].type, 'mcq', 'the MCQ is stored as an MCQ');
+  eq(made[0].options.length, 4, 'with its options');
+  eq(made[0].answer, 0, 'and its answer key pointing at the right option');
+  eq(made[0].options[made[0].answer], 'Direct shear', 'WHICH IS THE OPTION THE FILE NAMED');
+  eq(made[1].answer, true, 'the true/false answer is stored as a boolean');
+  eq(made[2].type, 'descriptive', 'and the descriptive question has no key');
+  eq(made[2].answer, null, 'literally none');
+  eq(made[0].points, 2, 'marks are carried');
+  eq(made[0].experimentId, 'direct-shear', 'FILED AGAINST THE CHOSEN EXPERIMENT');
+  eq(made[0].courseId, 'soil-mechanics', 'and the Course that experiment belongs to');
+  eq(made[0].tenantId, TENANT, 'inside the right institution');
+  eq(made[0].createdBy, ARJUN, 'by the faculty member who imported it');
+
+  /* ---- PROVENANCE ---- */
+  eq(made[0].origin, 'import-csv', 'PROVENANCE: imported from CSV');
+  ok(made.every(function (q) { return q.origin === 'import-csv'; }), 'every imported row says so');
+  ok(made.every(function (q) { return q.origin !== 'ai'; }),
+    'AND NOT ONE IS PRESENTED AS AN AI DRAFT — a person wrote these');
+  eq(S.questionOriginMeta('import-csv').label, 'Imported from CSV', 'the label says what happened');
+  eq(S.questionOriginMeta('ai').label, 'From an assisted draft', 'and the AI label is a different one');
+  eq(S.questionWasImported(made[0]), true, 'the predicate agrees');
+  eq(S.questionWasImported(S.addQuestion(TENANT,
+    { type: 'tf', text: 'A hand-typed question.', answer: true, points: 1,
+      experimentId: 'direct-shear' }, ARJUN).question), false,
+    'and a hand-typed question is not marked as imported');
+
+  /* ---- Add / Edit / Delete still work afterwards ---- */
+  var edited = S.updateQuestion(made[0].id, {
+    type: 'mcq', text: 'Edited after import.', options: made[0].options.slice(),
+    answer: 1, points: 3, explanation: '', experimentId: 'direct-shear'
+  });
+  eq(edited.ok, true, 'AN IMPORTED QUESTION EDITS LIKE ANY OTHER');
+  eq(S.activeQuestion(made[0].id).text, 'Edited after import.', 'and the edit takes effect');
+  eq(S.activeQuestion(made[0].id).origin, 'import-csv', 'while the provenance is not rewritten by an edit');
+  eq(S.deleteQuestion(made[1].id), true, 'and it deletes like any other');
+  eq(S.activeQuestion(made[1].id), null, 'leaving the active bank');
+}
+
+function scenario09ImportValidation() {
+  group('IMPL 09 — every malformed question row is caught, named and blocked');
+  importFixture();
+  var before = qaBankCount();
+
+  function firstError(csv) {
+    var r = qaImport('csv', csv);
+    return r.fatal || (r.errors[0] ? r.errors[0].message : null);
+  }
+
+  /* ---- file-level ---- */
+  ok(/empty/i.test(qaImport('csv', '').fatal), 'AN EMPTY FILE is refused and says so');
+  ok(/no question rows/i.test(qaImport('csv', QA_HEADER).fatal),
+    'a header with no rows is refused');
+  ok(/header row does not match/i.test(qaImport('csv', 'a,b,c\n1,2,3').fatal),
+    'A BAD HEADER is refused');
+  var badHead = qaImport('csv', 'question,marks\nSomething,2');
+  ok(badHead.headerErrors.some(function (h) { return /question_type/.test(h); }),
+    'and the missing column is named');
+
+  /* ---- row-level ---- */
+  ok(/type is missing/i.test(firstError(QA_HEADER + '\n,"Text",,,,,TRUE,1,')),
+    'A MISSING TYPE is caught');
+  ok(/not a question type/i.test(firstError(QA_HEADER + '\nmatching,"Text",a,b,,,a,1,')),
+    'AN UNSUPPORTED TYPE is caught rather than invented');
+  ok(/question text is missing/i.test(firstError(QA_HEADER + '\ntrue_false,,,,,,TRUE,1,')),
+    'A MISSING QUESTION is caught');
+  ok(/Marks are missing/i.test(firstError(QA_HEADER + '\ntrue_false,"Text",,,,,TRUE,,')),
+    'MISSING MARKS are caught');
+  ok(/not a number/i.test(firstError(QA_HEADER + '\ntrue_false,"Text",,,,,TRUE,lots,')),
+    'NON-NUMERIC MARKS are caught');
+  ok(/whole number/i.test(firstError(QA_HEADER + '\ntrue_false,"Text",,,,,TRUE,2.5,')),
+    'FRACTIONAL MARKS are caught');
+  ok(/between 1 and 100/i.test(firstError(QA_HEADER + '\ntrue_false,"Text",,,,,TRUE,0,')),
+    'ZERO MARKS are caught');
+  ok(/between 1 and 100/i.test(firstError(QA_HEADER + '\ntrue_false,"Text",,,,,TRUE,9999,')),
+    'AND AN ABSURD MARK VALUE IS CAUGHT — the same 1-100 rule the form uses');
+  ok(/at least two answer options/i.test(firstError(QA_HEADER + '\nmultiple_choice,"Text",Only one,,,,a,1,')),
+    'AN MCQ WITH ONE OPTION is caught');
+  ok(/correct answer is missing/i.test(firstError(QA_HEADER + '\nmultiple_choice,"Text",A,B,,,,1,')),
+    'AN MCQ WITH NO ANSWER is caught');
+  ok(/does not name one of/i.test(firstError(QA_HEADER + '\nmultiple_choice,"Text",A,B,,,z,1,')),
+    'AN ANSWER THAT NAMES NO OPTION is caught');
+  ok(/which is empty/i.test(firstError(QA_HEADER + '\nmultiple_choice,"Text",A,B,,,d,1,')),
+    'AN ANSWER POINTING AT AN EMPTY OPTION is caught');
+  ok(/not TRUE or FALSE/i.test(firstError(QA_HEADER + '\ntrue_false,"Text",,,,,maybe,1,')),
+    'A MALFORMED TRUE/FALSE is caught');
+  ok(/characters long/i.test(firstError(QA_HEADER + '\ntrue_false,"' +
+    Array(2100).join('x') + '",,,,,TRUE,1,')),
+    'AN EXCESSIVE QUESTION LENGTH is caught');
+
+  /* Every error names the row and how to fix it. */
+  var multi = qaImport('csv', [QA_HEADER,
+    'multiple_choice,"No answer",A,B,,,,1,',
+    'true_false,"Bad marks",,,,,TRUE,nine,'].join('\n'));
+  eq(multi.errors.length >= 2, true, 'several bad rows produce several errors');
+  eq(multi.errors[0].rowNo, 2, 'THE ROW NUMBER IS THE ONE THE SPREADSHEET SHOWS — the header is row 1');
+  eq(multi.errors[1].rowNo, 3, 'and the second error names row 3');
+  ok(multi.errors.every(function (e) { return !!e.fix; }), 'AND EVERY ERROR SAYS HOW TO CORRECT IT');
+  ok(multi.errors.every(function (e) { return !!e.field; }), 'and names the column');
+
+  /* ---- ALL-OR-NOTHING ---- */
+  var mixed = qaImport('csv', [QA_HEADER, QA_MCQ, 'true_false,"Bad",,,,,maybe,1,'].join('\n'));
+  eq(mixed.validCount, 1, 'one row is valid');
+  eq(mixed.invalidCount, 1, 'and one is not');
+  eq(mixed.ok, false, 'SO THE WHOLE FILE IS BLOCKED');
+  eq(XRSLP.questionImport.commit(mixed, TENANT, ARJUN).created, 0,
+    'AND COMMITTING IT WRITES NOTHING AT ALL — no partial, hidden import');
+  eq(qaBankCount(), before, 'the bank is exactly as it was');
+
+  /* ---- too many rows is a REFUSAL, never a silent truncation ---- */
+  var many = [QA_HEADER];
+  for (var i = 0; i < XRSLP.questionImport.MAX_ROWS + 5; i++) {
+    many.push('true_false,"Question number ' + i + '",,,,,TRUE,1,');
+  }
+  var big = qaImport('csv', many.join('\n'));
+  ok(/at most/.test(big.fatal || ''), 'AN OVERSIZED FILE IS REFUSED, not trimmed');
+  eq(big.ok, false, 'and cannot be imported');
+  eq(XRSLP.questionImport.commit(big, TENANT, ARJUN).created, 0, 'and writes nothing');
+  eq(qaBankCount(), before, 'STILL nothing in the bank');
+}
+
+function scenario09ImportDuplicates() {
+  group('IMPL 09 — duplicates are flagged for a decision, never resolved behind the faculty member');
+  importFixture();
+
+  var first = qaImport('csv', [QA_HEADER, QA_MCQ].join('\n'));
+  XRSLP.questionImport.commit(first, TENANT, ARJUN);
+  var after = qaBankCount();
+
+  /* Same question again, against the same experiment. */
+  var again = qaImport('csv', [QA_HEADER, QA_MCQ].join('\n'));
+  eq(again.duplicateCount, 1, 'AN IDENTICAL QUESTION IS FLAGGED as a duplicate');
+  eq(again.rows[0].duplicate, 'bank', 'and is named as a duplicate of the BANK');
+  eq(again.errors.length, 0, 'BUT IT IS NOT AN ERROR');
+  eq(again.ok, true, 'so the faculty member may still import it knowingly');
+  ok(again.warnings.some(function (w) { return /already in your Question Bank/.test(w.message); }),
+    'and the warning says what importing will do');
+  eq(XRSLP.questionImport.commit(again, TENANT, ARJUN).created, 1,
+    'CONFIRMING ADDS THE SECOND COPY — nothing is silently merged');
+  eq(qaBankCount(), after + 1, 'the bank grew');
+
+  /* Duplicates WITHIN one file. */
+  var within = qaImport('csv', [QA_HEADER, QA_DESC, QA_DESC].join('\n'));
+  eq(within.duplicateCount, 1, 'a row repeated inside one file is flagged once');
+  eq(within.rows[1].duplicate, 'file', 'as a duplicate of the FILE');
+  ok(within.warnings.some(function (w) { return /repeats row 2/.test(w.message); }),
+    'naming the row it repeats');
+  eq(within.ok, true, 'and it still does not block the import');
+  eq(XRSLP.questionImport.commit(within, TENANT, ARJUN).created, 2,
+    'AND BOTH COPIES ARE CREATED — nothing is deduplicated without being asked');
+
+  /* The same sentence as a different TYPE is not a duplicate. */
+  var other = qaImport('csv', [QA_HEADER,
+    'true_false,"Explain effective stress in a saturated soil.",,,,,TRUE,1,'].join('\n'));
+  eq(other.duplicateCount, 0,
+    'THE SAME SENTENCE ASKED AS A DIFFERENT TYPE IS A DIFFERENT QUESTION');
+}
+
+function scenario09ImportScope() {
+  group('IMPL 09 — a spreadsheet cannot grant itself an experiment');
+  importFixture();
+  var before = qaBankCount();
+
+  /* `consolidation` is in the tenant's access but the faculty member
+     is mapped at Course level to soil-mechanics, which carries it —
+     so pick something genuinely outside the mapping instead. */
+  var mine = S.facultyExperimentIds(ARJUN);
+  var outside = null;
+  S.contentRecords().forEach(function (r) {
+    if (!outside && r.status === S.CONTENT_STATUS.PUBLISHED && mine.indexOf(r.id) === -1) {
+      outside = r.id;
+    }
+  });
+  ok(!!outside, 'there is a published experiment outside this faculty member’s scope');
+
+  var out = qaImport('csv', [QA_HEADER, QA_MCQ].join('\n'), outside);
+  eq(out.ok, false, 'IMPORTING INTO AN OUT-OF-SCOPE EXPERIMENT IS REFUSED');
+  ok(/not mapped to you/.test(out.fatal || ''), 'and the reason is the mapping');
+  eq(out.rows.length, 0, 'NOT ONE ROW IS EVEN READ — scope is checked before the file');
+  eq(qaBankCount(), before, 'and nothing is written');
+
+  /* Even a forged result object cannot get past the writer. */
+  var forged = qaImport('csv', [QA_HEADER, QA_MCQ].join('\n'));
+  eq(forged.ok, true, 'a valid in-scope result exists');
+  forged.experimentId = outside;
+  eq(XRSLP.questionImport.commit(forged, TENANT, ARJUN).created, 0,
+    'AND THE COMMITTER RE-CHECKS SCOPE — a result object is not authority');
+  eq(qaBankCount(outside), 0, 'nothing landed against the out-of-scope experiment');
+
+  /* No experiment chosen at all. */
+  var none = XRSLP.questionImport.validate('csv', QA_HEADER + '\n' + QA_MCQ,
+    { facultyPersonId: ARJUN });
+  eq(none.ok, false, 'choosing no experiment is refused');
+  ok(/before choosing a file/.test(none.fatal || ''), 'and says the context comes first');
+
+  /* A deactivated institution writes nothing. */
+  var good = qaImport('csv', [QA_HEADER, QA_MCQ].join('\n'));
+  S.deactivateTenant(TENANT, 'QA — import guard');
+  eq(XRSLP.questionImport.commit(good, TENANT, ARJUN).created, 0,
+    'A DEACTIVATED INSTITUTION IMPORTS NOTHING');
+  S.reactivateTenant(TENANT, 'QA — reversal');
+}
+
+function scenario09XlsxRealWorld() {
+  group('IMPL 09 — a workbook shaped the way Excel actually writes one');
+  importFixture();
+
+  /* ⚠ THE DEFECT CLASS THIS FIXTURE EXISTS FOR, and it corrupted
+     ORDINARY files rather than crafted ones.
+
+     The worksheet scanner was a pair of regular expressions whose
+     PAIRED alternative came first, and whose `[^>]*` ate the `/` of a
+     self-closing tag. `<c r="D2" s="3"/>` — which is exactly what
+     Excel, LibreOffice and openpyxl emit for a styled empty cell —
+     matched as an OPEN tag, and its lazy body then ran forward to the
+     NEXT cell's `</c>`, swallowing that cell whole. A perfectly normal
+     workbook silently lost a column, and the import would have filed
+     the wrong text against the wrong option.
+
+     This fixture carries every shape that broke it: self-closing cells
+     between real ones, a self-closing `<t>` WITH an attribute, an
+     omitted blank row, a numeric cell, a boolean cell, and a workbook
+     whose `<sheet>` is written in the PAIRED form. */
+  var bytes = qaFromBase64(QA_XLSX_REALWORLD_B64);
+  var res = XRSLP.xlsx.read(bytes);
+  eq(res.ok, true, 'the workbook reads');
+  eq(res.error, null, 'with no error');
+  eq(res.sheets[0].name, 'Questions',
+    'AND A PAIRED <sheet> ELEMENT IS FOUND — it was rejected as "no worksheet"');
+
+  var rows = XRSLP.xlsx.rowsOfRaw(res);
+  eq(rows[0].join('|'),
+    'question_type|question|option_a|option_b|option_c|option_d|correct_answer|marks|explanation',
+    'the header survives intact');
+  eq(rows[1][2], 'Direct shear', 'the cell BEFORE a self-closing cell is read');
+  eq(rows[1][3], '', 'the self-closing cell itself is empty');
+  eq(rows[1][4], 'Consolidation',
+    'AND THE CELL AFTER IT SURVIVES — this is the column that used to vanish');
+  eq(rows[1][6], 'a', 'and so does everything after the second self-closing cell');
+  eq(rows[1][7], '2', 'a numeric cell reads as its number');
+  eq(rows[1][8], '', 'and a self-closing <t> with an attribute yields empty text, not markup');
+  eq(rows[2].length, 0, 'THE OMITTED ROW 3 IS AN EMPTY ROW, in its own place');
+  eq(rows[3][0], 'true_false', 'so row 4 is read as row 4');
+  eq(rows[3][6], 'TRUE', 'and a boolean cell reads as a word');
+
+  /* And it imports, with the row numbers a person would see. */
+  var r = qaImport('xlsx', bytes);
+  eq(r.fatal, null, 'the workbook validates');
+  eq(r.errors.length, 0, 'with no errors');
+  eq(r.validCount, 2, 'two question rows');
+  eq(r.rows[0].options.join('|'), 'Direct shear|Consolidation',
+    'THE MCQ KEEPS EXACTLY THE OPTIONS THE FILE CARRIED');
+  eq(r.rows[0].options[r.rows[0].answer], 'Direct shear',
+    'and its answer key points at the option the file named');
+  eq(r.rows[1].rowNo, 4, 'and the second question is reported as row 4, as the spreadsheet shows it');
+}
+
+function scenario09XlsxHardening() {
+  group('IMPL 09 — the spreadsheet reader refuses hostile input instead of hanging');
+
+  /* Every one of these is a file a person could be handed. None of
+     them may hang a browser tab or exhaust its memory. */
+  function reads(bytes) {
+    var out = null;
+    try { out = XRSLP.xlsx.read(bytes); } catch (e) { return { ok: false, threw: e.message }; }
+    return out;
+  }
+  eq(reads(new Uint8Array(0)).ok, false, 'an empty file is refused');
+  eq(reads(new Uint8Array([1, 2, 3, 4, 5])).ok, false, 'random bytes are refused');
+  eq(reads(new Uint8Array([0xD0, 0xCF, 0x11, 0xE0, 0, 0, 0, 0])).ok, false, 'an old .xls is refused');
+  eq(reads(XRSLP.xlsx.toUtf8('question_type,question\nmcq,hi')).ok, false,
+    'a CSV renamed .xlsx is caught by its bytes');
+  /* A ZIP whose directory is nonsense. */
+  var pk = XRSLP.xlsx.toUtf8('PK\u0005\u0006');
+  eq(reads(pk).ok, false, 'a truncated ZIP end-record is refused, not crashed on');
+
+  /* DEFLATE: malformed streams throw rather than looping. */
+  function inflates(arr) {
+    try { XRSLP.xlsx.inflateRaw(new Uint8Array(arr), 0); return 'returned'; }
+    catch (e) { return 'threw'; }
+  }
+  eq(inflates([0xFF]), 'threw', 'a reserved block type throws');
+  eq(inflates([0x06]), 'threw', 'and so does another');
+  eq(inflates([0x00, 0x05, 0x00]), 'threw', 'a truncated stored block throws');
+  eq(inflates([]), 'threw', 'and so does an empty stream');
+
+  /* A crafted column reference must not densify a row to a huge array. */
+  var crafted = XRSLP.xlsx.write([['a']], 'S');
+  eq(XRSLP.xlsx.read(crafted).ok, true, 'a normal workbook still reads');
+
+  /* The writer produces a valid archive and round-trips its own text,
+     including characters that need escaping and a lone surrogate. */
+  var tricky = [['A & B < C > D "q" \'s\'', 'τ = c + σ tanφ', '日本語']];
+  var round = XRSLP.xlsx.rowsOf(XRSLP.xlsx.read(XRSLP.xlsx.write(tricky, 'S')));
+  eq(round[0][0], tricky[0][0], 'XML-significant characters round-trip exactly');
+  eq(round[0][1], tricky[0][1], 'and Greek and symbols');
+  eq(round[0][2], tricky[0][2], 'and multi-byte scripts');
+  var lone = XRSLP.xlsx.rowsOf(XRSLP.xlsx.read(XRSLP.xlsx.write([['x\uD800y']], 'S')));
+  ok(typeof lone[0][0] === 'string',
+    'AND A LONE SURROGATE PRODUCES A READABLE FILE rather than invalid UTF-8');
+  ok(lone[0][0].indexOf('y') !== -1, 'without swallowing the character after it');
+
+  /* A numeric entity must not be decoded twice. */
+  var ent = XRSLP.xlsx.rowsOf(XRSLP.xlsx.read(XRSLP.xlsx.write([['A&#38;lt;B']], 'S')));
+  eq(ent[0][0], 'A&#38;lt;B',
+    'A NUMERIC ENTITY IS DECODED ONCE — it used to expand and then be re-read');
+}
+
+function scenario09ImportRobustness() {
+  group('IMPL 09 — the import reports the row the spreadsheet shows, and hides nothing it ignored');
+  importFixture();
+  var before = qaBankCount();
+
+  /* ⚠ BLANK ROWS USED TO SHIFT EVERY NUMBER AFTER THEM.
+     Both parsers can drop entirely-empty rows, so a validator numbering
+     by compacted index sent a faculty member to a row that was not the
+     one with the problem. */
+  var withBlank = [QA_HEADER,
+    'descriptive,"Question one",,,,,,5,',
+    '',
+    'descriptive,"Question two with no marks",,,,,,,',
+    'descriptive,"Question three",,,,,,3,'].join('\n');
+  var r = qaImport('csv', withBlank);
+  eq(r.errors.length, 1, 'one row has a problem');
+  eq(r.errors[0].rowNo, 4,
+    'AND IT IS REPORTED AS ROW 4 — the row the spreadsheet shows, not row 3');
+  eq(r.rows.length, 3, 'the blank row is skipped, not validated');
+
+  /* A file that opens with a blank line still has a header. */
+  var leading = ['', QA_HEADER, 'descriptive,"A question",,,,,,4,'].join('\n');
+  var rl = qaImport('csv', leading);
+  eq(rl.fatal, null, 'a leading blank line does not break the header');
+  eq(rl.ok, true, 'and the file still imports');
+  eq(rl.headerRowNo, 2, 'with the header reported at its real position');
+
+  /* ⚠ A COLUMN NOBODY RECOGNISED USED TO VANISH IN SILENCE. */
+  var mistyped = ['question_type,question,option_a,optionB,option_c,option_d,correct_answer,marks,explanation',
+    'multiple_choice,"Which test measures shear strength?",Direct shear,Triaxial,Consolidation,' +
+    'Permeability,a,2,Note.'].join('\n');
+  var rm = qaImport('csv', mistyped);
+  ok(rm.ignoredColumns.indexOf('optionB') !== -1,
+    'A MISTYPED COLUMN IS NAMED rather than silently discarded');
+  ok(rm.warnings.some(function (w) { return /not part of the import/.test(w.message); }),
+    'and the file carries a warning saying what is being ignored');
+  eq(rm.ok, true, 'it is a warning, not a refusal — a real spreadsheet may carry extra columns');
+
+  /* ⚠ AND THE INSTITUTION COMES FROM THE PERSON, NOT THE CALLER. */
+  var good = qaImport('csv', [QA_HEADER, QA_MCQ].join('\n'));
+  eq(good.ok, true, 'a valid file for this faculty member');
+  eq(XRSLP.questionImport.commit(good, 'tenant-somewhere-else', ARJUN).created, 0,
+    'COMMITTING INTO ANOTHER INSTITUTION IS REFUSED — the tenant is not taken on trust');
+  eq(qaBankCount(), before, 'and nothing is written anywhere');
+  eq(XRSLP.questionImport.commit(good, TENANT, ARJUN).created, 1,
+    'while the faculty member’s own institution imports normally');
+
+  /* A non-faculty actor cannot commit at all. */
+  var good2 = qaImport('csv', [QA_HEADER, QA_TF].join('\n'));
+  eq(XRSLP.questionImport.commit(good2, TENANT, RAHUL).created, 0,
+    'AND A STUDENT CANNOT COMMIT AN IMPORT');
+}
+
+function scenario09TelemetryRobustness() {
+  group('IMPL 09 — the fold survives a disagreeing clock, and an error is never swallowed');
+  utilFixture(['web']);
+
+  /* ⚠ AN END STAMPED BEFORE ITS OWN START.
+     The log folds in RUNTIME-clock order, and the two-clock design
+     exists because a device clock can disagree with the platform's. An
+     end sorted before its start used to re-open that session for good
+     AND abandon whichever session was genuinely running. */
+  var a = S.runtimeLaunch(RAHUL, 'direct-shear', 'web', { occurredAt: '2026-09-01T08:00:00.000Z' });
+  var b = S.runtimeLaunch(RAHUL, 'direct-shear', 'web', { occurredAt: '2026-09-01T10:00:00.000Z' });
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', b.sessionId,
+    { occurredAt: '2026-09-01T07:00:00.000Z' });
+  var u = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(u.sessionCount, 2, 'both sessions are recorded');
+  eq(u.openSessions, 1, 'AND EXACTLY ONE IS OPEN — the one that genuinely is');
+  var backwards = null, still = null;
+  u.sessions.forEach(function (s) {
+    if (s.sessionId === b.sessionId) { backwards = s; }
+    if (s.sessionId === a.sessionId) { still = s; }
+  });
+  eq(backwards.open, false, 'the session whose end preceded its start is closed, not re-opened');
+  eq(backwards.seconds, 0, 'and contributes zero seconds, never a negative interval');
+  eq(still.open, true, 'AND THE GENUINELY OPEN SESSION IS NOT ABANDONED BY IT');
+
+  /* ⚠ ISO-8601, ACTUALLY CHECKED — because the log is ORDERED by
+     string comparison on this field. */
+  eq(S.recordRuntimeEvent({ type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: 'QA-NS',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web',
+    occurredAt: 'Sep 1, 2026 10:00:00 GMT' }).reason, S.RUNTIME_REJECT.BAD_TIMESTAMP,
+    'A PARSABLE BUT NON-ISO TIMESTAMP IS REFUSED — it would sort into an arbitrary position');
+  eq(S.recordRuntimeEvent({ type: S.RUNTIME_EVENT.SESSION_STARTED, sessionId: 'QA-NS2',
+    personId: RAHUL, experimentId: 'direct-shear', technology: 'web',
+    occurredAt: '01/09/2026' }).reason, S.RUNTIME_REJECT.BAD_TIMESTAMP, 'and so is a bare date');
+
+  /* An offset-bearing stamp is stored in one canonical form, so it
+     sorts against UTC stamps by instant rather than by leading digit. */
+  var off = S.runtimeLaunch(RAHUL, 'direct-shear', 'web',
+    { occurredAt: '2026-09-02T15:30:00+05:30' });
+  var offEv = S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').filter(function (e) {
+    return e.sessionId === off.sessionId && e.type === S.RUNTIME_EVENT.SESSION_STARTED;
+  })[0];
+  eq(offEv.occurredAt, '2026-09-02T10:00:00.000Z',
+    'AND AN OFFSET STAMP IS NORMALISED TO UTC, so string order is instant order');
+
+  /* ⚠ TWO DIFFERENT ERRORS IN ONE SESSION ARE TWO ERRORS. */
+  utilFixture(['web']);
+  var e1 = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeError(RAHUL, 'direct-shear', 'web', e1.sessionId, { code: 'A', message: 'First failure.' });
+  S.runtimeError(RAHUL, 'direct-shear', 'web', e1.sessionId, { code: 'B', message: 'A different one.' });
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').errors, 2,
+    'A SECOND, DIFFERENT ERROR IN ONE SESSION IS NOT TREATED AS A RETRY');
+  var errs = S.runtimeEventsFor(RAHUL, 'direct-shear', 'web').filter(function (ev) {
+    return ev.type === S.RUNTIME_EVENT.SIMULATION_ERROR;
+  });
+  eq(errs.length, 2, 'both are in the log');
+  ok(errs[0].detail.code !== errs[1].detail.code, 'AND BOTH KEEP THEIR OWN DETAIL');
+
+  /* A client that DOES deduplicate its own errors still gets dedupe. */
+  var dup = S.runtimeError(RAHUL, 'direct-shear', 'web', e1.sessionId,
+    { code: 'C', message: 'Once.' }, { clientEventId: 'client-own-key' });
+  eq(dup.ok, true, 'a client-supplied error key is accepted');
+  var dup2 = S.runtimeError(RAHUL, 'direct-shear', 'web', e1.sessionId,
+    { code: 'C', message: 'Once.' }, { clientEventId: 'client-own-key' });
+  eq(dup2.duplicate, true, 'AND ITS RETRY IS STILL DEDUPLICATED — the client key is honoured');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').errors, 3, 'so the count is three, not four');
+
+  /* And an error is never a completion. */
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, false,
+    'AN ERROR NEVER COMPLETES A SIMULATION');
+}
+
+function scenario09ImportXlsx() {
+  group('IMPL 09 — the same import from a real .xlsx workbook');
+  importFixture();
+  var before = qaBankCount();
+
+  /* ---- 1 · the first-party writer round-trips ---- */
+  var wrote = XRSLP.xlsx.write(XRSLP.questionImport.templateRows(), 'Questions');
+  ok(wrote.length > 0, 'the template is written as a workbook');
+  var readBack = XRSLP.xlsx.read(wrote);
+  eq(readBack.ok, true, 'and reads back');
+  eq(readBack.sheets[0].name, 'Questions', 'with its sheet name');
+  var tplRows = XRSLP.xlsx.rowsOf(readBack);
+  eq(tplRows[0].join(','), XRSLP.questionImport.COLUMNS.map(function (c) { return c.label; }).join(','),
+    'and the header is exactly the column contract');
+
+  /* THE TEMPLATE MUST VALIDATE AGAINST THE VALIDATOR THAT REJECTS IT.
+     A template a faculty member downloads and re-uploads unchanged
+     has to import cleanly, or the first thing the feature does is
+     contradict itself. */
+  var tplResult = qaImport('xlsx', wrote);
+  eq(tplResult.errors.length, 0, 'THE DOWNLOADED TEMPLATE IMPORTS WITHOUT A SINGLE ERROR');
+  eq(tplResult.ok, true, 'and is importable as it stands');
+  eq(tplResult.validCount, 3, 'carrying one valid row of each supported type');
+  var tplCsv = qaImport('csv', XRSLP.questionImport.templateCsv());
+  eq(tplCsv.ok, true, 'AND SO DOES THE CSV TEMPLATE — one schema, two formats');
+  eq(tplCsv.validCount, 3, 'with the same three rows');
+
+  /* ---- 2 · a REAL compressed workbook, as Excel writes one ---- */
+  var bytes = qaFromBase64(QA_XLSX_DEFLATED_B64);
+  ok(bytes.length > 0, 'the compressed fixture decodes');
+  var real = XRSLP.xlsx.read(bytes);
+  eq(real.ok, true, 'A DEFLATE-COMPRESSED WORKBOOK IS READ — the decompressor works');
+  eq(real.error, null, 'with no error');
+  eq(real.sheets[0].name, 'Questions', 'the sheet name survives');
+
+  var res = qaImport('xlsx', bytes);
+  eq(res.fatal, null, 'the workbook validates');
+  eq(res.errors.length, 0, 'with no errors');
+  eq(res.validCount, 3, 'three valid rows');
+  eq(res.rows[0].type, 'mcq', 'the MCQ row is read');
+  eq(res.rows[0].options.length, 4, 'with all four options');
+  eq(res.rows[0].answer, 0, 'and the right answer');
+  eq(res.rows[1].type, 'tf', 'the true/false row is read');
+  eq(res.rows[1].answer, false, 'with FALSE read as false');
+  eq(res.rows[2].type, 'descriptive', 'and the descriptive row');
+  eq(res.rows[2].points, 5, 'A NUMBER CELL IS READ AS ITS NUMBER — marks came from a numeric cell');
+  eq(qaBankCount(), before, 'AND VALIDATION HAS STILL WRITTEN NOTHING');
+
+  var outcome = XRSLP.questionImport.commit(res, TENANT, ARJUN);
+  eq(outcome.created, 3, 'confirming imports all three');
+  eq(qaBankCount(), before + 3, 'and the bank grows by three');
+  ok(outcome.questions.every(function (q) { return q.origin === 'import-xlsx'; }),
+    'PROVENANCE: imported from XLSX, not from CSV and not from AI');
+  eq(S.questionOriginMeta('import-xlsx').label, 'Imported from XLSX', 'and the label says so');
+  eq(outcome.questions[0].experimentId, 'direct-shear', 'filed against the chosen experiment');
+
+  /* ---- 3 · the same failure paths as CSV ---- */
+  var badXlsx = XRSLP.xlsx.write([['a', 'b'], ['1', '2']], 'Wrong');
+  ok(/header row does not match/.test(qaImport('xlsx', badXlsx).fatal || ''),
+    'A BAD HEADER in a workbook is refused the same way');
+  var emptyXlsx = XRSLP.xlsx.write([], 'Empty');
+  ok(!!qaImport('xlsx', emptyXlsx).fatal, 'AN EMPTY WORKBOOK is refused');
+  var oneBad = XRSLP.xlsx.write([
+    XRSLP.questionImport.COLUMNS.map(function (c) { return c.label; }),
+    ['multiple_choice', 'Only one option', 'A', '', '', '', 'a', '1', '']
+  ], 'Bad');
+  var oneBadRes = qaImport('xlsx', oneBad);
+  eq(oneBadRes.ok, false, 'AND A BAD ROW blocks a workbook exactly as it blocks a CSV');
+  eq(XRSLP.questionImport.commit(oneBadRes, TENANT, ARJUN).created, 0, 'writing nothing');
+
+  /* ---- 4 · a file that is not a workbook at all ---- */
+  var notZip = XRSLP.xlsx.read(XRSLP.xlsx.toUtf8('question_type,question\nmcq,hello'));
+  eq(notZip.ok, false, 'A CSV RENAMED .xlsx IS CAUGHT BY ITS BYTES');
+  ok(/does not look like a spreadsheet/.test(notZip.error), 'and is named plainly');
+  var oldXls = XRSLP.xlsx.read(new Uint8Array([0xD0, 0xCF, 0x11, 0xE0, 0, 0, 0, 0]));
+  eq(oldXls.ok, false, 'AND AN OLD .xls BINARY IS CAUGHT');
+  ok(/older .xls workbook/.test(oldXls.error), 'and told what to do about it');
+  eq(XRSLP.questionImport.kindOfFile('bank.xls'), 'xls', 'the extension check names .xls separately');
+  eq(XRSLP.questionImport.kindOfFile('bank.XLSX'), 'xlsx', 'and is case-insensitive');
+  eq(XRSLP.questionImport.kindOfFile('bank.txt'), null, 'and refuses an unrelated extension');
+
+  /* ---- 5 · the ZIP/CRC layer itself ---- */
+  eq(XRSLP.xlsx.crc32(XRSLP.xlsx.toUtf8('123456789')), 0xCBF43926,
+    'CRC-32 matches the published check value, so the archives written here are valid');
+}
+
+
+/* ============================================================
+   IMPLEMENTATION 09 — CONTENT MANAGER EDIT vs VERSION CONTROL.
+
+   PM-08: "If the Content Manager can edit and replace content, how is
+   version control preserved?" The stakeholder's own direction — that
+   a Content Manager may correct and replace a delivery link — is NOT
+   removed by these scenarios. What they assert is WHERE a material
+   change lands once the artefact is public.
+   ============================================================ */
+
+/* A published record with a hosted Web link, in the Content Manager's
+   scope — the stakeholder's own "the link has gone stale" example. */
+function publishedFixture(name) {
+  var rec = atContentGate(name || 'QA 09 Published');
+  S.publishContent(KULK, rec.id);
+  return S.contentRecord(rec.id);
+}
+
+function scenario09PrePublishEditing() {
+  group('IMPL 09 — before first publication, the Content Manager’s correction authority is untouched');
+  boot();
+
+  var rec = atContentGate('QA 09 Pre-publish');
+  eq(rec.status, S.CONTENT_STATUS.CONTENT_REVIEW, 'the record is at the readiness gate, not published');
+  eq(S.managerDeliveryEditMode(rec, KULK, 'web', { url: 'https://example.org/fixed' }), 'direct',
+    'A MATERIAL EDIT IS A DIRECT EDIT before publication');
+
+  var hBefore = S.contentRecord(rec.id).history.length;
+  ok(!!S.managerUpdateDelivery(KULK, rec.id, 'web', { url: 'https://example.org/fixed' },
+    'The vendor link 404s.'), 'and it is accepted');
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), 'https://example.org/fixed',
+    'the link is replaced in place');
+  eq(S.contentRecord(rec.id).history.length, hBefore + 1, 'AND THE AUDIT TRAIL GROWS BY ONE');
+  eq(S.contentRecord(rec.id).history[0].kind, 'delivery', 'as a delivery event');
+  ok(/404s/.test(S.contentRecord(rec.id).history[0].note), 'carrying the reason that was given');
+  eq(S.versionsForRecord(rec.id).length, 0, 'AND NO VERSION IS CREATED — there is nothing public yet');
+
+  /* Removal, runtime and description are all direct before publication. */
+  eq(S.managerDeliveryEditMode(rec, KULK, 'web', null, true), 'direct',
+    'a removal is direct too');
+  eq(S.managerMetadataEditMode(S.contentRecord(rec.id), KULK, { description: 'Rewritten.' }), 'direct',
+    'AND SO IS REWRITING THE DESCRIPTION');
+  ok(!!S.updateCanonicalMetadata(KULK, rec.id, {
+    name: S.contentRecord(rec.id).name, courseId: S.contentRecord(rec.id).courseId,
+    summary: 'QA summary.', description: 'Rewritten before publication.'
+  }), 'the metadata edit is accepted');
+  eq(S.contentRecord(rec.id).description, 'Rewritten before publication.', 'and takes effect');
+
+  /* THE ACADEMIC APPROVAL PROTECTIONS ARE UNCHANGED. Nothing in this
+     pass touches the stale-approval / fingerprint machinery: an edit
+     that invalidates the academic decision still invalidates it. */
+  var approved = atContentGate('QA 09 Stale Approval');
+  eq(approved.status, S.CONTENT_STATUS.CONTENT_REVIEW, 'a second fixture reaches the readiness gate');
+  eq(S.publishReadiness(approved).ok, true, 'and is publishable as approved');
+  /* The Content Manager's delivery edit does NOT invalidate the
+     academic decision — the Academic Reviewer owns Learning Outcomes,
+     not delivery references, and this pass does not change that. */
+  ok(!!S.managerUpdateDelivery(KULK, approved.id, 'web',
+    { runtime: 'Chrome 120 or later' }, 'Tightening the stated runtime.'),
+    'a pre-publication delivery correction is still accepted');
+  eq(S.publishReadiness(S.contentRecord(approved.id)).ok, true,
+    'AND THE ACADEMIC APPROVAL SURVIVES IT — delivery is not academic content');
+  ok(!!S.publishContent(KULK, approved.id), 'so the record can still be published');
+  eq(S.contentRecord(approved.id).status, S.CONTENT_STATUS.PUBLISHED, 'and it is');
+}
+
+function scenario09PostPublishVersioning() {
+  group('IMPL 09 — a published artefact is never silently rewritten under its own version label');
+  boot();
+
+  var rec = publishedFixture('QA 09 Post-publish');
+  eq(rec.status, S.CONTENT_STATUS.PUBLISHED, 'the record is published');
+  eq(rec.versionLabel, '1.0', 'as v1.0');
+  var liveUrl = S.deliverySummaryFor(rec, 'web');
+  eq(liveUrl, 'https://example.org/qa-073', 'carrying the link the public sees');
+  var hBefore = S.contentRecord(rec.id).history.length;
+
+  /* ---- THE MATERIAL EDIT IS REFUSED IN PLACE ---- */
+  eq(S.managerDeliveryEditMode(rec, KULK, 'web', { url: 'https://example.org/replacement' }), 'version',
+    'A MATERIAL CHANGE TO PUBLISHED CONTENT MUST BECOME A VERSION');
+  eq(S.managerUpdateDelivery(KULK, rec.id, 'web', { url: 'https://example.org/replacement' },
+    'The hosted link moved.'), null,
+    'AND THE IN-PLACE WRITER REFUSES IT');
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), liveUrl,
+    'THE LIVE v1.0 LINK IS UNCHANGED — no silent overwrite');
+  eq(S.contentRecord(rec.id).versionLabel, '1.0', 'and it is still v1.0');
+  eq(S.contentRecord(rec.id).history.length, hBefore,
+    'and nothing was written to the audit trail for a refused edit');
+
+  /* Removal is material too, always. */
+  eq(S.managerDeliveryEditMode(rec, KULK, 'web', null, true), 'version',
+    'REMOVING A DELIVERY REFERENCE IS ALWAYS MATERIAL');
+  eq(S.managerUpdateDelivery(KULK, rec.id, 'web', null, 'Withdrawn.', true), null,
+    'so it is refused in place too');
+  ok(!!S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), 'and the reference survives');
+
+  /* The instructional content is material. */
+  eq(S.managerMetadataEditMode(S.contentRecord(rec.id), KULK, { description: 'Rewritten.' }), 'version',
+    'REWRITING THE PUBLISHED DESCRIPTION IS MATERIAL');
+  eq(S.updateCanonicalMetadata(KULK, rec.id, {
+    name: rec.name, courseId: rec.courseId, summary: rec.summary, description: 'Rewritten.'
+  }), null, 'and is refused in place');
+  ok(S.contentRecord(rec.id).description !== 'Rewritten.', 'the published description is unchanged');
+
+  /* ---- SAFE CHANGES STILL WRITE IN PLACE, WITH AN AUDIT ENTRY ---- */
+  eq(S.managerDeliveryEditMode(rec, KULK, 'web', { notes: 'Mirror is slow after 6pm.' }), 'direct',
+    'A CONTENT-PLANE NOTE IS NOT MATERIAL — it reaches no student');
+  var h2 = S.contentRecord(rec.id).history.length;
+  ok(!!S.managerUpdateDelivery(KULK, rec.id, 'web', { notes: 'Mirror is slow after 6pm.' },
+    'Recording a known issue.'), 'so it is still accepted on published content');
+  eq(S.contentRecord(rec.id).history.length, h2 + 1, 'AND STILL AUDITED');
+  eq(S.deliveryOf(S.contentRecord(rec.id), 'web').notes, 'Mirror is slow after 6pm.', 'and stored');
+
+  var dsDesc = S.contentRecord(rec.id).description;
+  eq(S.managerMetadataEditMode(S.contentRecord(rec.id), KULK,
+    { name: rec.name, summary: 'A corrected catalogue summary.', description: dsDesc }), 'direct',
+    'AND CATALOGUE METADATA STAYS THE CONTENT MANAGER’S — STK31-09 is not withdrawn');
+  ok(!!S.updateCanonicalMetadata(KULK, rec.id, {
+    name: rec.name, courseId: rec.courseId,
+    summary: 'A corrected catalogue summary.', description: dsDesc
+  }), 'a summary correction is accepted');
+  eq(S.contentRecord(rec.id).summary, 'A corrected catalogue summary.', 'and takes effect');
+
+  /* Re-saving an unchanged material value is not a change at all. */
+  eq(S.managerDeliveryEditMode(rec, KULK, 'web', { url: liveUrl }), 'direct',
+    'RE-SAVING THE SAME VALUE IS NOT A MATERIAL CHANGE, so it demands no version');
+}
+
+function scenario09CorrectionVersion() {
+  group('IMPL 09 — the correction version runs the existing chain and ends at Release / Hold');
+  boot();
+
+  var rec = publishedFixture('QA 09 Correction');
+  var liveUrl = S.deliverySummaryFor(rec, 'web');
+  var recId = rec.id;
+
+  /* ---- who may raise one ---- */
+  eq(S.managerCanCorrect(rec, KULK), true, 'the Content Manager in scope may raise a correction');
+  eq(S.managerCanCorrect(rec, RAO), false, 'A VENDOR MAY NOT — they have their own version route');
+  eq(S.managerCanCorrect(rec, IYER), false, 'AND NEITHER MAY THE ACADEMIC REVIEWER');
+
+  /* ---- validation ---- */
+  eq(S.createCorrectionVersion(KULK, recId, { versionLabel: '', changeNote: 'x' }).ok, false,
+    'a correction with no version label is refused');
+  eq(S.createCorrectionVersion(KULK, recId, { versionLabel: '1.0', changeNote: 'x' }).ok, false,
+    'REUSING THE PUBLISHED LABEL IS REFUSED — two artefacts may not share one version');
+  eq(S.createCorrectionVersion(KULK, recId, { versionLabel: '1.1', changeNote: '' }).ok, false,
+    'and a correction with no change note is refused');
+
+  /* ---- raise it ---- */
+  var made = S.createCorrectionVersion(KULK, recId, {
+    versionLabel: '1.1', changeNote: 'The vendor’s hosted link moved to a new domain.',
+    technology: 'web', deliveryPatch: { url: 'https://example.org/moved' }
+  });
+  eq(made.ok, true, 'the correction version is created');
+  var v = made.version;
+  eq(v.status, S.VERSION_STATUS.DRAFT, 'AS A DRAFT — nothing was sent to anybody');
+  eq(v.origin, 'content-manager', 'PROVENANCE: raised by the Content Manager');
+  eq(v.correction, true, 'and marked as a correction');
+  eq(v.correctionOf, 'web', 'naming the technology it corrects');
+  eq(S.versionIsCorrection(v), true, 'the predicate agrees');
+  eq(v.replacesVersionLabel, '1.0', 'and it records the version it would replace');
+  eq(v.delivery.web.url, 'https://example.org/moved', 'carrying the corrected link');
+  eq(v.createdBy, KULK, 'attributed to the manager who raised it');
+  ok(S.versionsForManager(KULK).some(function (x) { return x.id === v.id; }),
+    'and it appears in that manager’s own corrections');
+  ok(!S.versionsForVendor(RAO).some(function (x) { return x.id === v.id; }),
+    'AND NOT IN THE VENDOR’S VERSIONS — it is not their work');
+
+  /* ---- THE LIVE VERSION IS UNTOUCHED ---- */
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), liveUrl,
+    'THE PUBLIC STILL SEES THE OLD LINK');
+  eq(S.contentRecord(recId).versionLabel, '1.0', 'under the version label it was published as');
+  eq(S.contentRecord(recId).status, S.CONTENT_STATUS.PUBLISHED, 'and it is still published');
+  ok(S.contentRecord(recId).history.some(function (h) { return h.kind === 'version'; }),
+    'AND THE PUBLISHED RECORD’S OWN TIMELINE RECORDS THE CORRECTION being raised');
+
+  /* ---- TENANT ENTITLEMENT IS UNAFFECTED BY A CANDIDATE ---- */
+  var g = grantAccess([recId], ['web'], 3, 'yearly');
+  ok(!!g.access, 'an institution can still be granted the published experiment');
+  S.assignExperiment(TENANT, g.access.id, recId, 'student', [RAHUL]);
+  eq(S.studentCanRun(RAHUL, recId, 'web'), true,
+    'AND A STUDENT CAN STILL RUN IT while a correction sits in the workflow');
+  var entBefore = S.entitledStudentIds(TENANT).length;
+
+  /* ---- only one open version at a time ---- */
+  eq(S.createCorrectionVersion(KULK, recId, { versionLabel: '1.2', changeNote: 'Another.' }).ok, false,
+    'A SECOND OPEN VERSION IS REFUSED — one candidate per experiment');
+  eq(S.managerDeliveryEditMode(S.contentRecord(recId), KULK, 'web', { url: 'https://example.org/x' }),
+    'blocked', 'and a further material edit is BLOCKED rather than silently queued');
+
+  /* ---- THE EXISTING CHAIN, UNCHANGED ---- */
+  ok(!!S.submitContentVersion(KULK, v.id), 'the manager submits it');
+  eq(S.contentVersion(v.id).status, S.VERSION_STATUS.ACADEMIC_REVIEW,
+    'AND IT GOES THROUGH ACADEMIC REVIEW — no gate is skipped');
+  ok(S.versionsForReviewer(IYER).some(function (x) { return x.id === v.id; }),
+    'it reaches the Academic Reviewer’s queue');
+  ok(!!S.approveVersionAcademic(IYER, v.id, 'Academically unchanged.'), 'the reviewer approves it');
+  eq(S.contentVersion(v.id).status, S.VERSION_STATUS.APPROVED, 'and it becomes APPROVED');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), liveUrl,
+    'AN ACADEMIC APPROVAL STILL CHANGES NOTHING PUBLIC');
+  ok(S.versionsAwaitingDecision().some(function (x) { return x.id === v.id; }),
+    'it reaches the Super Admin decision queue');
+
+  /* ---- HOLD leaves the live version exactly where it is ---- */
+  ok(!!S.holdVersion(v.id, 'QA — holding to check the live version.'), 'the Super Admin holds it');
+  eq(S.contentVersion(v.id).status, S.VERSION_STATUS.HELD, 'and it is on hold');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), liveUrl,
+    'A HOLD LEAVES THE LIVE VERSION UNCHANGED');
+  eq(S.contentRecord(recId).versionLabel, '1.0', 'still v1.0');
+  eq(S.entitledStudentIds(TENANT).length, entBefore, 'AND NO ENTITLEMENT MOVED');
+  eq(S.studentCanRun(RAHUL, recId, 'web'), true, 'the student can still run it');
+
+  /* ---- RELEASE is the only thing that moves the public version ---- */
+  ok(!!S.returnHeldVersionToDecision(v.id, 'QA — lifting the hold.'), 'the hold is lifted');
+  eq(S.contentVersion(v.id).status, S.VERSION_STATUS.APPROVED, 'and it is decidable again');
+  ok(S.contentVersion(v.id).history.some(function (h) { return h.kind === 'hold' || /hold/i.test(h.label); }),
+    'AND THE HOLD STAYS IN THE HISTORY — lifting it does not erase it');
+
+  ok(!!S.releaseVersion(v.id, 'QA — releasing the correction.'), 'the Super Admin releases it');
+  eq(S.contentVersion(v.id).status, S.VERSION_STATUS.RELEASED, 'the candidate is released');
+  eq(S.contentRecord(recId).versionLabel, '1.1', 'THE PUBLIC VERSION IS NOW 1.1');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), 'https://example.org/moved',
+    'AND ONLY NOW DOES THE CORRECTED LINK GO LIVE');
+  eq(S.entitledStudentIds(TENANT).length, entBefore, 'entitlement is still untouched by the release');
+  eq(S.studentCanRun(RAHUL, recId, 'web'), true, 'and the student still holds the experiment');
+  eq(S.contentRecord(recId).technologies.join(','), 'web',
+    'A RELEASE NEVER WIDENS OR NARROWS THE TECHNOLOGY SET');
+
+  /* The published record's own audit trail carries the whole story. */
+  var hist = S.contentRecord(recId).history;
+  ok(hist.some(function (h) { return h.kind === 'version'; }), 'the record records the correction');
+  ok(hist.some(function (h) { return h.kind === 'published'; }), 'and its original publication');
+
+  /* With the candidate resolved, a material edit is a NEW correction. */
+  eq(S.managerDeliveryEditMode(S.contentRecord(recId), KULK, 'web',
+    { url: 'https://example.org/again' }), 'version',
+    'A LATER MATERIAL EDIT STARTS ANOTHER CORRECTION, not an in-place write');
+}
+
+function scenario09RemovalCorrection() {
+  group('IMPL 09 — a correction that withdraws a reference actually withdraws it on release');
+  boot();
+
+  /* ⚠ THE DEFECT THIS SCENARIO EXISTS FOR.
+     `releaseVersion` MERGES a candidate's delivery onto the published
+     record and skips empty values — correctly, so an unchanged
+     technology carries its published values forward. But a REMOVAL
+     correction produces an EMPTY block for that technology, so the
+     merge found nothing to apply and the release silently did nothing:
+     the Content Manager was told the reference would be withdrawn, an
+     Academic Reviewer approved that, the Super Admin released it, and
+     the stale link was still live. A removal is now recorded as an
+     explicit instruction on the version and applied after the merge. */
+  var rec = publishedFixture('QA 09 Removal Correction');
+  var recId = rec.id;
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), 'https://example.org/qa-073',
+    'the published record carries a hosted link');
+
+  var made = S.createCorrectionVersion(KULK, recId, {
+    versionLabel: '1.1', changeNote: 'The hosted experience was withdrawn by the vendor.',
+    technology: 'web', remove: true
+  });
+  eq(made.ok, true, 'a withdrawal correction is created');
+  eq(made.version.removals.join(','), 'web',
+    'AND THE REMOVAL IS RECORDED AS AN INSTRUCTION, not as an empty delivery block');
+  ok((made.version.clears.web || []).indexOf('url') !== -1,
+    'and the fields it will clear are named — including the hosted URL');
+  ok((made.version.clears.web || []).indexOf('runtime') !== -1,
+    'and the device requirement, which the removal dialog also promises to clear');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), 'https://example.org/qa-073',
+    'the live link is untouched while the correction is in the workflow');
+
+  S.submitContentVersion(KULK, made.version.id);
+  ok(!!S.approveVersionAcademic(IYER, made.version.id, 'Approved.'), 'it is academically approved');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), 'https://example.org/qa-073',
+    'and STILL untouched after approval');
+
+  ok(!!S.releaseVersion(made.version.id, 'QA — releasing the withdrawal.'), 'the Super Admin releases it');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), '',
+    'AND ONLY NOW IS THE REFERENCE ACTUALLY WITHDRAWN');
+  eq(S.contentRecord(recId).versionLabel, '1.1', 'under the new version label');
+  eq(S.contentRecord(recId).technologies.join(','), 'web',
+    '⚠ AND THE TECHNOLOGY IS STILL ON THE EXPERIMENT — a removal never removes a technology');
+  eq(S.publishReadiness(S.contentRecord(recId)).ok, false,
+    'so the readiness gate closes, exactly as it does for an in-place removal');
+
+  /* ── AND A SINGLE CLEARED FIELD IS NOT A NO-OP EITHER ─────────
+     The same defect, one field down: blanking the device requirement
+     while keeping the hosted link left the requirement exactly where it
+     was, because the merge cannot tell an absent field from a cleared
+     one. And the fix must not overreach — the field beside it survives. */
+  boot();
+  var rec3 = atContentGate('QA 09 Field Clear');
+  S.managerUpdateDelivery(KULK, rec3.id, 'web', { runtime: 'Chrome 120 or later' },
+    'Recording the runtime.');
+  S.publishContent(KULK, rec3.id);
+  var liveUrl3 = S.deliveryOf(S.contentRecord(rec3.id), 'web').url;
+  eq(S.deliveryOf(S.contentRecord(rec3.id), 'web').runtime, 'Chrome 120 or later',
+    'the published record states a device requirement');
+  var c3 = S.createCorrectionVersion(KULK, rec3.id, {
+    versionLabel: '1.1', changeNote: 'The runtime requirement no longer applies.',
+    technology: 'web', deliveryPatch: { url: liveUrl3, runtime: '' }
+  });
+  eq(c3.ok, true, 'a field-clearing correction is created');
+  eq((c3.version.clears.web || []).join(','), 'runtime',
+    'AND NAMES EXACTLY THE FIELD IT CLEARS — not the one beside it');
+  S.submitContentVersion(KULK, c3.version.id);
+  S.approveVersionAcademic(IYER, c3.version.id, 'Approved.');
+  S.releaseVersion(c3.version.id, 'QA.');
+  eq(S.deliveryOf(S.contentRecord(rec3.id), 'web').runtime, undefined,
+    'ON RELEASE THE FIELD IS ACTUALLY CLEARED');
+  eq(S.deliveryOf(S.contentRecord(rec3.id), 'web').url, liveUrl3,
+    'AND THE FIELD BESIDE IT SURVIVES — the fix does not overreach');
+
+  /* A Vendor's ordinary later version carries no removals and merges
+     exactly as it always did. */
+  boot();
+  var rec2 = publishedFixture('QA 09 Vendor Version Merge');
+  var v2 = S.createContentVersion(RAO, rec2.id, {
+    versionLabel: '2.0', description: 'A newer description.',
+    changeNote: 'Rebuilt for the new term.', delivery: {}
+  });
+  eq(v2.ok, true, 'a Vendor later version is created');
+  eq((v2.version.removals || []).length, 0, 'carrying no removals');
+  eq(Object.keys(v2.version.clears || {}).length, 0, 'and no clears');
+  S.submitContentVersion(RAO, v2.version.id);
+  S.approveVersionAcademic(IYER, v2.version.id, 'ok');
+  S.releaseVersion(v2.version.id, 'QA.');
+  eq(S.deliverySummaryFor(S.contentRecord(rec2.id), 'web'), 'https://example.org/qa-073',
+    'AND A VERSION THAT SUPPLIES NO DELIVERY STILL CARRIES THE PUBLISHED ONE FORWARD — the merge is unchanged');
+  eq(S.contentRecord(rec2.id).versionLabel, '2.0', 'while the version label moves');
+}
+
+function scenario09CorrectionRevision() {
+  group('IMPL 09 — a returned correction can be revised, not only re-sent unchanged');
+  boot();
+
+  /* ⚠ THE DEAD END THIS CLOSES.
+     Only one later version may be open per Experiment. A correction the
+     Academic Reviewer returned could previously only be re-sent
+     verbatim — the reviewer would return it again — and because it
+     stayed open it would block every future version of that Experiment
+     for good. */
+  var rec = publishedFixture('QA 09 Revise');
+  var recId = rec.id;
+  var liveUrl = S.deliverySummaryFor(rec, 'web');
+
+  var made = S.createCorrectionVersion(KULK, recId, {
+    versionLabel: '1.1', changeNote: 'First attempt.',
+    technology: 'web', deliveryPatch: { url: 'https://example.org/first' }
+  });
+  eq(made.ok, true, 'a correction is raised');
+  S.submitContentVersion(KULK, made.version.id);
+  ok(!!S.requestChangesVersionAcademic(IYER, made.version.id, 'That link is the staging one.'),
+    'the Academic Reviewer returns it with a reason');
+  eq(S.contentVersion(made.version.id).status, S.VERSION_STATUS.CHANGES_ACADEMIC,
+    'so it comes back to the Content Manager');
+
+  eq(S.managerCanReviseVersion(S.contentVersion(made.version.id), KULK), true,
+    'AND THE CONTENT MANAGER MAY REVISE IT');
+  eq(S.managerCanReviseVersion(S.contentVersion(made.version.id), RAO), false,
+    'a Vendor may not revise somebody else’s correction');
+  eq(S.managerCanReviseVersion(S.contentVersion(made.version.id), IYER), false,
+    'and neither may the Academic Reviewer who returned it');
+
+  var revised = S.reviseCorrectionVersion(KULK, made.version.id, {
+    versionLabel: '1.1', changeNote: 'Corrected to the production link.',
+    technology: 'web', deliveryPatch: { url: 'https://example.org/production' }
+  });
+  eq(revised.ok, true, 'the correction is revised');
+  eq(revised.version.delivery.web.url, 'https://example.org/production', 'carrying the new link');
+  eq(revised.version.changeNote, 'Corrected to the production link.', 'and the new change note');
+  eq(S.versionsForRecord(recId).length, 1, 'AND NO SECOND VERSION IS CREATED — one candidate, revised');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), liveUrl,
+    'the published link is still untouched');
+  ok(S.contentVersion(made.version.id).history.some(function (h) { return /revised/i.test(h.label); }),
+    'and the revision is in the candidate’s history');
+
+  /* It then travels the rest of the chain normally. */
+  ok(!!S.submitContentVersion(KULK, made.version.id), 'it is sent again');
+  eq(S.contentVersion(made.version.id).status, S.VERSION_STATUS.ACADEMIC_REVIEW, 'and is back in review');
+  ok(!!S.approveVersionAcademic(IYER, made.version.id, 'Approved now.'), 'this time it is approved');
+  ok(!!S.releaseVersion(made.version.id, 'QA.'), 'and released');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), 'https://example.org/production',
+    'AND THE REVISED LINK IS WHAT GOES LIVE — not the one the reviewer rejected');
+
+  /* Once it is released it is nobody's to revise. */
+  eq(S.managerCanReviseVersion(S.contentVersion(made.version.id), KULK), false,
+    'A RELEASED VERSION IS NOT REVISABLE — the chain is closed behind it');
+
+  /* ---- PROVENANCE REACHES THE PEOPLE WHO DECIDE ---- */
+  eq(XRSLP.versionUI ? 0 : 0, 0, 'version presentation helpers are a browser concern');
+  eq(S.versionIsCorrection(S.contentVersion(made.version.id)), true,
+    'the released candidate is still identifiable as a Content Manager correction');
+  eq(S.contentVersion(made.version.id).origin, 'content-manager',
+    'AND ITS ORIGIN IS NOT REWRITTEN BY THE CHAIN');
+}
+
+function scenario09WithdrawCorrection() {
+  group('IMPL 09 — a correction can be taken back, so it never blocks an experiment for good');
+  boot();
+
+  /* ⚠ THE DEAD END THIS CLOSES.
+     Exactly one later version may be open per Experiment. Before this
+     pass only a VENDOR could occupy that slot, so a Vendor could always
+     clear their own. Implementation 09 gave a SECOND role the ability
+     to occupy it — and a correction a Content Manager raised and never
+     sent would have blocked the Vendor's version route on that
+     Experiment permanently, with nobody able to do anything about it. */
+  var rec = publishedFixture('QA 09 Withdraw');
+  var recId = rec.id;
+  var liveUrl = S.deliverySummaryFor(rec, 'web');
+
+  var made = S.createCorrectionVersion(KULK, recId, {
+    versionLabel: '1.1', changeNote: 'Raised in error.',
+    technology: 'web', deliveryPatch: { url: 'https://example.org/oops' }
+  });
+  eq(made.ok, true, 'a correction is raised');
+  eq(S.vendorCanVersion(S.contentRecord(recId), RAO), true, 'the Vendor covers this experiment');
+  eq(S.createContentVersion(RAO, recId, {
+    versionLabel: '2.0', description: 'A newer build.', changeNote: 'Rebuilt.'
+  }).ok, false, 'AND IS BLOCKED BY IT — one open version per experiment');
+
+  eq(S.managerCanWithdrawVersion(S.contentVersion(made.version.id), KULK), true,
+    'the manager who raised it may withdraw it');
+  eq(S.managerCanWithdrawVersion(S.contentVersion(made.version.id), RAO), false,
+    'A VENDOR CANNOT WITHDRAW SOMEBODY ELSE’S CORRECTION');
+  eq(S.withdrawCorrectionVersion(KULK, made.version.id, ''), null,
+    'and a withdrawal with no reason is refused');
+
+  var histBefore = S.contentVersion(made.version.id).history.length;
+  ok(!!S.withdrawCorrectionVersion(KULK, made.version.id, 'Raised against the wrong experiment.'),
+    'the correction is withdrawn');
+  eq(S.contentVersion(made.version.id).status, S.VERSION_STATUS.WITHDRAWN, 'and reads as withdrawn');
+
+  /* ⚠ NOTHING IS DELETED. */
+  ok(!!S.contentVersion(made.version.id), 'THE CANDIDATE STILL EXISTS');
+  eq(S.contentVersion(made.version.id).changeNote, 'Raised in error.', 'with its change note');
+  eq(S.contentVersion(made.version.id).history.length, histBefore + 1,
+    'and its history grew by exactly one entry');
+  ok(S.contentRecord(recId).history.some(function (h) { return /withdrawn/i.test(h.label); }),
+    'AND THE EXPERIMENT’S OWN TIMELINE RECORDS THE WITHDRAWAL');
+  ok(S.contentRecord(recId).history.some(function (h) { return /drafted/i.test(h.label); }),
+    'beside the entry that recorded it being raised');
+
+  /* And the slot is free again — for either role. */
+  eq(S.openVersionForRecord(recId), null, 'the experiment has no open version again');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), liveUrl,
+    'the published link never moved');
+  var v2 = S.createContentVersion(RAO, recId, {
+    versionLabel: '2.0', description: 'A newer build.', changeNote: 'Rebuilt for the new term.'
+  });
+  eq(v2.ok, true, 'AND THE VENDOR’S VERSION ROUTE WORKS AGAIN');
+  eq(S.managerDeliveryEditMode(S.contentRecord(recId), KULK, 'web',
+    { url: 'https://example.org/later' }), 'blocked',
+    'while the Vendor’s candidate now holds the slot, as it always did');
+
+  /* A candidate somebody else is holding cannot be pulled from them. */
+  boot();
+  var rec2 = publishedFixture('QA 09 Withdraw Guard');
+  var c2 = S.createCorrectionVersion(KULK, rec2.id, {
+    versionLabel: '1.1', changeNote: 'A correction.', technology: 'web',
+    deliveryPatch: { url: 'https://example.org/x' }
+  });
+  S.submitContentVersion(KULK, c2.version.id);
+  eq(S.managerCanWithdrawVersion(S.contentVersion(c2.version.id), KULK), false,
+    'A CORRECTION WITH THE ACADEMIC REVIEWER CANNOT BE PULLED FROM UNDER THEM');
+  eq(S.withdrawCorrectionVersion(KULK, c2.version.id, 'Changed my mind.'), null,
+    'and the writer refuses it');
+  S.approveVersionAcademic(IYER, c2.version.id, 'Approved.');
+  eq(S.managerCanWithdrawVersion(S.contentVersion(c2.version.id), KULK), false,
+    'nor can one awaiting the Super Admin’s decision');
+
+  /* Returned by the reviewer, it is the manager's again — which is the
+     case that would otherwise dead-end. */
+  boot();
+  var rec3 = publishedFixture('QA 09 Withdraw Returned');
+  var c3 = S.createCorrectionVersion(KULK, rec3.id, {
+    versionLabel: '1.1', changeNote: 'A correction.', technology: 'web',
+    deliveryPatch: { url: 'https://example.org/y' }
+  });
+  S.submitContentVersion(KULK, c3.version.id);
+  S.requestChangesVersionAcademic(IYER, c3.version.id, 'Not this link.');
+  eq(S.managerCanWithdrawVersion(S.contentVersion(c3.version.id), KULK), true,
+    'A RETURNED CORRECTION IS THE MANAGER’S AGAIN — to revise or to withdraw');
+  ok(!!S.withdrawCorrectionVersion(KULK, c3.version.id, 'It is not needed after all.'),
+    'and withdrawing it works');
+  eq(S.openVersionForRecord(rec3.id), null, 'freeing the experiment');
+}
+
+function scenario09MaterialityTable() {
+  group('IMPL 09 — which fields are material is stated, not guessed');
+  boot();
+
+  var rec = publishedFixture('QA 09 Materiality');
+  ok(S.MANAGER_MATERIAL_DELIVERY_FIELDS.indexOf('url') !== -1, 'the hosted URL is material');
+  ok(S.MANAGER_MATERIAL_DELIVERY_FIELDS.indexOf('packageRef') !== -1, 'the package reference is material');
+  ok(S.MANAGER_MATERIAL_DELIVERY_FIELDS.indexOf('packageLabel') !== -1, 'the package label is material');
+  ok(S.MANAGER_MATERIAL_DELIVERY_FIELDS.indexOf('runtime') !== -1,
+    'AND SO IS THE DEVICE / RUNTIME REQUIREMENT — it is what a student is told they need');
+  ok(S.MANAGER_MATERIAL_DELIVERY_FIELDS.indexOf('notes') === -1,
+    'content-plane notes are not material');
+  eq(S.MANAGER_SAFE_DELIVERY_FIELDS.join(','), 'notes', 'and they are the only safe delivery field');
+
+  /* The two sets partition the writable set — nothing falls between. */
+  var union = S.MANAGER_MATERIAL_DELIVERY_FIELDS.concat(S.MANAGER_SAFE_DELIVERY_FIELDS).sort().join(',');
+  eq(union, S.MANAGER_DELIVERY_FIELDS.slice().sort().join(','),
+    'EVERY WRITABLE DELIVERY FIELD IS CLASSIFIED — a new one cannot slip through unclassified');
+
+  eq(S.deliveryPatchIsMaterial(rec, 'web', { runtime: 'Chrome 130 or later' }), true,
+    'changing the runtime requirement is material');
+  eq(S.deliveryPatchIsMaterial(rec, 'web', { notes: 'anything' }), false,
+    'changing the notes is not');
+  eq(S.deliveryPatchIsMaterial(rec, 'web', { url: S.deliveryOf(rec, 'web').url }), false,
+    'and re-saving the same URL is not a change at all');
+  eq(S.deliveryPatchIsMaterial(rec, 'web', null, true), true, 'a removal always is');
+  eq(S.metadataPatchIsMaterial(rec, { description: rec.description }), false,
+    'an unchanged description is not material');
+  eq(S.metadataPatchIsMaterial(rec, { description: 'Something else.' }), true,
+    'a changed one is');
+  eq(S.metadataPatchIsMaterial(rec, { summary: 'Anything at all.', description: rec.description }), false,
+    'and the catalogue summary is not');
+
+  /* ── THE ONE NAMED EXCEPTION, PINNED ──────────────────────────
+     The Super Admin's platform-master correction is NOT gated by the
+     material-change rule. That is deliberate — `07.2` rule F confirms
+     the capability by name, including the description, and there is no
+     correction-version route for that role. It is also not the failure
+     PM-08 described: it refuses without a reason on published content
+     and writes an audit entry naming who, when and why.
+
+     This assertion exists so the exception cannot drift in EITHER
+     direction without a person deciding to change it, and so a reader
+     of the suite finds it stated rather than discovering it. It is
+     recorded as open question D-09-11. */
+  var pubDesc = S.contentRecord(rec.id).description;
+  var hBefore = S.contentRecord(rec.id).history.length;
+  eq(S.updateCanonicalAsPlatform(rec.id, {
+    name: rec.name, courseId: rec.courseId, summary: rec.summary, description: 'Platform correction.'
+  }, '').ok, false,
+    'THE SUPER ADMIN MASTER CORRECTION REFUSES WITHOUT A REASON on published content');
+  eq(S.contentRecord(rec.id).description, pubDesc, 'and writes nothing when refused');
+  eq(S.updateCanonicalAsPlatform(rec.id, {
+    name: rec.name, courseId: rec.courseId, summary: rec.summary, description: 'Platform correction.'
+  }, 'The published description was factually wrong.').ok, true,
+    'BUT WITH A REASON IT IS ACCEPTED — a confirmed 07.2 rule-F authority this pass does not withdraw');
+  eq(S.contentRecord(rec.id).description, 'Platform correction.',
+    'IT WRITES IN PLACE — the one named exception to the material-change rule');
+  eq(S.contentRecord(rec.id).history.length, hBefore + 1, 'AND IT IS AUDITED, so it is never silent');
+  ok(/factually wrong/.test(S.contentRecord(rec.id).history[0].note),
+    'carrying the reason that was given');
+
+  /* ⚠ AN OMITTED FIELD IS NOT AN UNTOUCHED FIELD ON THIS WRITER.
+     `updateCanonicalMetadata` assigns every canonical field
+     unconditionally, so a patch that leaves `description` out does not
+     preserve it — it BLANKS it. Skipping an absent field the way the
+     delivery check does would have classified "erase the published
+     instructional content" as a non-material change and let it straight
+     through the gate. */
+  eq(S.metadataPatchIsMaterial(rec, { name: rec.name, summary: rec.summary }), true,
+    'A PATCH THAT OMITS THE DESCRIPTION IS MATERIAL — because the writer would erase it');
+  var descBefore = S.contentRecord(rec.id).description;
+  ok(!!descBefore, 'the published record has a description to lose');
+  eq(S.updateCanonicalMetadata(KULK, rec.id, {
+    name: rec.name, courseId: rec.courseId, summary: 'A new summary.'
+  }), null, 'AND THE WRITER REFUSES IT');
+  eq(S.contentRecord(rec.id).description, descBefore,
+    'SO THE PUBLISHED DESCRIPTION IS NOT ERASED IN PLACE');
+
+  /* The delivery writer is genuinely different: it touches only the
+     fields the patch supplies, so there an absent field IS untouched. */
+  eq(S.deliveryPatchIsMaterial(rec, 'web', { notes: 'anything' }), false,
+    'while on the DELIVERY writer an omitted field really is untouched, and stays non-material');
+}
+
+
+/* ============================================================
+   IMPLEMENTATION 09 — the UX / CLARITY CORRECTION.
+
+   Manual end-to-end QA of Implementation 09 passed on behaviour and
+   failed on clarity: two competing detail paths, an aggregate whose
+   denominator asserted a rule no source states, domain vocabulary on
+   screens people read, a next step nobody could find, and a decision
+   surface that showed the new value without the old one.
+
+   These groups assert the corrections, and — more importantly — assert
+   that the behaviour underneath them did not move.
+   ============================================================ */
+
+/* Read a product source file the way `scenario08StaticSource` does:
+   some of what this pass corrected is presentation, and presentation
+   is only assertable from the source. */
+function src09(path) {
+  try { return readFile(path); } catch (e) { return ''; }
+}
+/* Comments in this codebase quote the wording they removed, on purpose
+   — so a raw substring search would fail on its own audit trail. Only
+   the code is searched. */
+function code09(path) {
+  return src09(path).replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+}
+
+function scenario09cFacultyOneDetailPath() {
+  group('IMPL 09c — Student Progress offers ONE detail destination, not two');
+  boot();
+
+  var fac = code09('js/screens/faculty.js');
+
+  /* ⚠ THE DUPLICATE PATH IS GONE. A row carried both a "Usage" drawer
+     and an "Open" link, and a reader had to guess which held what. */
+  eq(fac.indexOf('data-use=') === -1, true,
+    'the Usage drawer control is no longer rendered on any row');
+  eq(fac.indexOf('data-use-exp') === -1, true, 'and neither is its experiment attribute');
+  eq(fac.indexOf('ui.openSheet') === -1, true, 'the usage sheet is not opened from this screen at all');
+  ok(fac.indexOf('View details') !== -1, 'the single detail action is View details');
+  ok(fac.indexOf('F.href.studentDetail(f.id, x.person.id, x.experimentId)') !== -1,
+    'AND IT LEADS TO THE FULL STUDENT–EXPERIMENT RECORD');
+
+  /* ⚠ THE UTILISATION DETAIL WAS NOT LOST WITH THE DRAWER. */
+  ok(fac.indexOf('useDetailHTML') !== -1, 'the per-technology breakdown renderer still exists');
+  ok(fac.indexOf('F.useDetailHTML(student.id, e.id, techs)') !== -1,
+    'and the full record still renders it');
+  ok(fac.indexOf('useFigures') !== -1, 'the compact figures helper is still used on the row');
+  ok(fac.indexOf('useSourceNote') !== -1,
+    'and so is the stand-in note — a demo figure may never look like device traffic');
+
+  /* The derivations behind all of it are untouched. */
+  var g = grantAccess(['direct-shear'], ['web', 'vr', 'ar'], 5, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  S.mapFaculty(TENANT, ARJUN, g.access.id, 'soil-mechanics', null);
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'web', { durationSeconds: 13, complete: false });
+  var u = S.experimentUtilisation(RAHUL, 'direct-shear', ['web', 'vr', 'ar']);
+  eq(u.launches, 1, 'the launch count still derives');
+  eq(u.sessionCount, 1, 'and the session count');
+  eq(u.totalSeconds, 13, 'and the time spent');
+  eq(u.used.join(','), 'web', 'and which technology was actually used');
+  ok(!!S.simulationUtilisation(RAHUL, 'direct-shear', 'web').firstActivityAt, 'and first activity');
+  ok(!!S.simulationUtilisation(RAHUL, 'direct-shear', 'web').lastActivityAt, 'and last activity');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'vr').status, S.SIM_STATUS.NOT_STARTED,
+    'AND EACH TECHNOLOGY IS STILL REPORTED ON ITS OWN');
+}
+
+function scenario09cNoTechnologyDenominator() {
+  group('IMPL 09c — no aggregate claims that every technology format is mandatory');
+  boot();
+
+  /* ⚠ THE CLAIM THIS REMOVES.
+     "Steps done 0 of 9" and "0 of 3 simulations completed" both counted
+     one mandatory step per technology format. Web, AR and VR are
+     delivery formats of ONE experiment; no confirmed source says a
+     student must finish all of the formats their institution happens to
+     hold. The figures asserted a rule that does not exist. */
+  var screens = ['js/screens/faculty.js', 'js/screens/student.js', 'js/screens/student-learn.js'];
+  screens.forEach(function (path) {
+    var code = code09(path);
+    /* ⚠ THE LEARNING-STEP AGGREGATE ONLY. An assessment SCORE is also a
+       percentage and is a completely different figure — it has a real
+       denominator (the marks available) and nothing to do with
+       technology formats. Matching on the progress object is what keeps
+       this assertion about the claim it exists to stop. */
+    eq(/(prog|fp)\.percent/.test(code), false,
+      'no learning-step percentage is rendered in ' + path);
+    eq(/steps\.done\s*\+\s*' of '/.test(code), false,
+      'and no "N of M steps" figure in ' + path);
+    eq(/progressBar\(\s*\w+\.percent/.test(code), false,
+      'and no bar drawn from that percentage in ' + path);
+  });
+  eq(/of ' \+ prog\.technologies\.length/.test(code09('js/screens/faculty.js')), false,
+    'AND NO "of N simulations" DENOMINATOR on the Faculty record');
+
+  /* ⚠ THE UNDERLYING RECORDS ARE UNTOUCHED. Nothing was deleted to
+     achieve the above — the state layer still derives both, and the
+     per-technology records behind them are exactly as they were. */
+  var g = grantAccess(['direct-shear'], ['web', 'vr'], 5, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  var prog = S.experimentProgress(RAHUL, 'direct-shear', ['web', 'vr']);
+  ok(!!prog.steps && typeof prog.steps.total === 'number',
+    'the state layer still derives the step figures');
+  ok(typeof prog.percent === 'number', 'and the percentage');
+  eq(prog.technologies.length, 2, 'AND EVERY TECHNOLOGY RECORD SURVIVES');
+  eq(prog.factual.simulation.technologies.length, 2, 'in the factual strand too');
+
+  /* The three strands stay separate, each with its own denominator. */
+  eq(prog.factual.resources.total, D.resourcesFor('direct-shear').length,
+    'resources are counted against resources');
+  eq(prog.factual.simulation.technologiesUsed.length, 0, 'simulations against simulations');
+  eq(prog.factual.assessment.configured, true, 'and the assessment on its own');
+}
+
+function scenario09cConservativeOverall() {
+  group('IMPL 09c — the overall state stays conservative and never over-claims');
+  boot();
+
+  var g = grantAccess(['direct-shear'], ['web', 'vr'], 5, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  var techs = ['web', 'vr'];
+
+  eq(S.experimentProgress(RAHUL, 'direct-shear', techs).status, S.TECH_PROGRESS.NOT_STARTED,
+    'no activity at all reads as Not started');
+
+  /* Reading a resource is activity, so the state moves — and no
+     further than that. */
+  S.openResource(RAHUL, 'direct-shear', 'dsh-r1');
+  eq(S.experimentProgress(RAHUL, 'direct-shear', techs).status, S.TECH_PROGRESS.IN_PROGRESS,
+    'ACTUAL ACTIVITY reads as In progress');
+
+  /* ⚠ THE FOUR THINGS THAT MUST NEVER PRODUCE "Completed". */
+  D.resourcesFor('direct-shear').forEach(function (r) {
+    S.setResourceComplete(RAHUL, 'direct-shear', r.id, true);
+  });
+  ok(S.experimentProgress(RAHUL, 'direct-shear', techs).status !== S.TECH_PROGRESS.COMPLETED,
+    'reading every resource does not complete the experiment');
+
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'web', { durationSeconds: 60 * 60 * 5, complete: false });
+  ok(S.experimentProgress(RAHUL, 'direct-shear', techs).status !== S.TECH_PROGRESS.COMPLETED,
+    'and neither does five hours of recorded use');
+
+  var att = S.startAttempt(RAHUL, 'direct-shear');
+  if (att) {
+    (S.attemptAssessment(att) || { questions: [] }).questions.forEach(function (q) {
+      S.saveAnswer(att.id, q.id, q.type === 'mcq' ? q.answer : q.type === 'tf' ? q.answer : 'An answer.');
+    });
+    S.submitAttempt(att.id);
+  }
+  ok(S.experimentProgress(RAHUL, 'direct-shear', techs).status !== S.TECH_PROGRESS.COMPLETED,
+    'AND NEITHER DOES SUBMITTING — OR PASSING — THE ASSESSMENT');
+
+  /* A completion in ONE format never completes the experiment either,
+     which is what keeps the cautious reading cautious. */
+  S.runtimeSimulateRun(RAHUL, 'direct-shear', 'web', { durationSeconds: 300, complete: true });
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'web').completed, true, 'Web is completed');
+  eq(S.simulationUtilisation(RAHUL, 'direct-shear', 'vr').completed, false, 'VR is not');
+  ok(S.experimentProgress(RAHUL, 'direct-shear', techs).status !== S.TECH_PROGRESS.COMPLETED,
+    'AND THE EXPERIMENT IS NOT ANNOUNCED AS COMPLETE while a format is unfinished');
+
+  /* ⚠ AND THE OPENNESS IS PRESERVED IN THE PRODUCT'S OWN WORDS.
+     Whether every format is required at all is a stakeholder question,
+     and the screens say so rather than settling it by wording. */
+  var fac = src09('js/screens/faculty.js');
+  ok(/not settled/i.test(fac),
+    'the Faculty completion note names the open question rather than asserting a policy');
+}
+
+function scenario09cPlainLanguage() {
+  group('IMPL 09c — no domain vocabulary on the Faculty and Tenant utilisation surfaces');
+  boot();
+
+  /* ⚠ SEARCHED IN THE STRINGS ONLY. The state layer's own field and
+     function names are domain vocabulary and stay exactly as they are;
+     what may not survive is a user reading them. */
+  function visibleStrings(path) {
+    var code = code09(path);
+    var out = [];
+    var re = /'((?:[^'\\]|\\.)*)'/g, m;
+    while ((m = re.exec(code))) { out.push(m[1]); }
+    return out;
+  }
+  /* A string is USER-VISIBLE unless it is plainly a selector, an id, a
+     class list or a state key. */
+  function userText(t) {
+    if (t.length < 6) { return false; }
+    if (t.indexOf(' ') === -1) { return false; }
+    if (/^[.#\[]/.test(t)) { return false; }
+    if (/^</.test(t) && !/[a-z] [a-z]/i.test(t.replace(/<[^>]*>/g, ''))) { return false; }
+    return true;
+  }
+  [['js/screens/faculty.js', 'Faculty'], ['js/screens/tenant.js', 'Tenant']].forEach(function (pair) {
+    var bad = visibleStrings(pair[0]).filter(function (t) {
+      if (!userText(t)) { return false; }
+      var plain = t.replace(/<[^>]*>/g, ' ');
+      return /\bentitle(d|ment|ments)\b/i.test(plain) || /\baccess record\b/i.test(plain);
+    });
+    /* The Tenant OVERVIEW is a stakeholder-closed screen this pass may
+       not touch, so its own copy is excluded by name rather than by
+       being missed. */
+    bad = bad.filter(function (t) {
+      return !/no entitlement is effective until it is reactivated|They hold an access grant but no effective|No student holds effective entitlement right now|Nobody who is currently entitled is ever displaced/.test(t);
+    });
+    eq(bad.length, 0, 'no user-visible entitlement wording in ' + pair[1] + ' screens' +
+      (bad.length ? ' — found: ' + bad.slice(0, 3).join(' | ') : ''));
+  });
+
+  /* ⚠ AND NO INTERNAL IDENTIFIER LEAKS EITHER. */
+  [['js/screens/faculty.js', 'Faculty'], ['js/screens/tenant.js', 'Tenant']].forEach(function (pair) {
+    var bad = visibleStrings(pair[0]).filter(function (t) { return /\bACC-\d/.test(t); });
+    eq(bad.length, 0, 'no literal access-record identifier in ' + pair[1] + ' copy');
+  });
+
+  /* The counts behind the relabelled figures are unchanged. */
+  var g = grantAccess(['direct-shear'], ['web'], 5, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  S.mapFaculty(TENANT, ARJUN, g.access.id, 'soil-mechanics', null);
+  eq(S.entitledStudentIds(TENANT).length, 1, 'the institution still counts one student with access');
+  eq(S.facultyStudentReach(ARJUN, 'direct-shear').length, 1, 'and the Faculty reach is unchanged');
+}
+
+function scenario09cCorrectionStates() {
+  group('IMPL 09c — a correction shows only the actions its state actually allows');
+  boot();
+
+  var rec = publishedFixture('QA 09c States');
+  var made = S.createCorrectionVersion(KULK, rec.id, {
+    versionLabel: '1.1', changeNote: 'A correction.', technology: 'web',
+    deliveryPatch: { url: 'https://example.org/moved' }
+  });
+  eq(made.ok, true, 'a correction is raised');
+  var v = made.version;
+
+  /* DRAFT — the manager's, and the next step is theirs. */
+  eq(S.managerCanReviseVersion(S.contentVersion(v.id), KULK), true,
+    'a DRAFT is the manager’s to send, edit or withdraw');
+
+  /* WITH THE REVIEWER — nobody else may move it. */
+  S.submitContentVersion(KULK, v.id);
+  eq(S.contentVersion(v.id).status, S.VERSION_STATUS.ACADEMIC_REVIEW, 'sending puts it in academic review');
+  eq(S.managerCanReviseVersion(S.contentVersion(v.id), KULK), false,
+    'AND IT IS NO LONGER THE MANAGER’S TO CHANGE');
+  eq(S.withdrawCorrectionVersion(KULK, v.id, 'Changed my mind.'), null,
+    'so it cannot be withdrawn from under the reviewer');
+
+  /* RETURNED — theirs again. */
+  S.requestChangesVersionAcademic(IYER, v.id, 'Not that link.');
+  eq(S.managerCanReviseVersion(S.contentVersion(v.id), KULK), true,
+    'a RETURNED correction is the manager’s again');
+
+  /* AWAITING RELEASE — the Super Admin's. */
+  S.submitContentVersion(KULK, v.id);
+  S.approveVersionAcademic(IYER, v.id, 'Approved.');
+  eq(S.contentVersion(v.id).status, S.VERSION_STATUS.APPROVED, 'approval puts it with the Super Admin');
+  eq(S.managerCanReviseVersion(S.contentVersion(v.id), KULK), false,
+    'AND NOT WITH THE MANAGER');
+
+  /* RELEASED — history, and nobody's to move. */
+  S.releaseVersion(v.id, 'QA.');
+  eq(S.contentVersion(v.id).status, S.VERSION_STATUS.RELEASED, 'releasing closes the chain');
+  eq(S.managerCanReviseVersion(S.contentVersion(v.id), KULK), false,
+    'A RELEASED CORRECTION IS HISTORY, not an active draft');
+
+  /* ⚠ AND THE PANEL SAYS SO. The presentation is asserted from the
+     source, because a card that still looks like a draft after release
+     is exactly what this correction pass exists to stop. */
+  var cm = code09('js/screens/content-manager.js');
+  ok(cm.indexOf('correctionPanel') !== -1, 'a per-correction panel is rendered');
+  ok(cm.indexOf("case VS.RELEASED") !== -1, 'and it branches on the released state');
+  ok(/closed\s*=\s*v\.status === VS\.RELEASED \|\| v\.status === VS\.WITHDRAWN/.test(cm),
+    'a released or withdrawn correction is drawn as closed');
+  ok(/'Next step'/.test(cm), 'a live correction states its NEXT STEP as its own block');
+  ok(cm.indexOf("data-cx=\"send\"") !== -1 || cm.indexOf("data-cx='send'") !== -1 ||
+     cm.indexOf("'send'") !== -1, 'and the send action is one of the panel’s own controls');
+}
+
+function scenario09cReviewerAndSuperAdminDiff() {
+  group('IMPL 09c — both decision surfaces show current → proposed, and the right author');
+  boot();
+
+  var rec = publishedFixture('QA 09c Diff');
+  var liveUrl = S.deliverySummaryFor(rec, 'web');
+  var made = S.createCorrectionVersion(KULK, rec.id, {
+    versionLabel: '1.1', changeNote: 'The hosted experience moved.', technology: 'web',
+    deliveryPatch: { url: 'https://example.org/moved-v1-1' }
+  });
+  var v = made.version;
+
+  /* ⚠ PROVENANCE. The stepper said "Submitted by the Vendor" for every
+     candidate, so a Content Manager's correction was described to the
+     Academic Reviewer as somebody else's work. */
+  eq(S.versionIsCorrection(S.contentVersion(v.id)), true, 'the candidate records that it is a correction');
+  eq(S.contentVersion(v.id).origin, 'content-manager', 'and who raised it');
+  var cv = code09('js/screens/content-version.js');
+  eq(/'Submitted by the Vendor'/.test(cv), false,
+    'THE STEPPER NO LONGER HARD-CODES THE VENDOR');
+  ok(/raisedByRole\(v\)/.test(cv), 'it reads the role off the candidate');
+  ok(/'Correction proposed' : 'Version proposed'/.test(cv),
+    'and names a correction as a correction rather than as a version submission');
+
+  /* ⚠ THE DIFF. Both people who decide on a version see the live value
+     beside the proposed one, for the fields that actually move. */
+  var changes = XRSLP.versionUI ? null : null;   /* browser-only helper */
+  ok(cv.indexOf('function versionChanges') !== -1, 'a current → proposed derivation exists');
+  ok(cv.indexOf('versionDiffHTML') !== -1, 'and a renderer for it');
+  ok(cv.indexOf("versionDiffHTML(rec, v, { hideReason: true })") !== -1,
+    'THE ACADEMIC REVIEWER’S SCREEN RENDERS IT');
+  ok(code09('js/screens/platform-content.js').indexOf('XRSLP.versionUI.diff(rec, pending') !== -1,
+    'AND SO DOES THE SUPER ADMIN’S RELEASE / HOLD SURFACE');
+
+  /* Only CHANGED fields — a wall of unchanged rows is how the two that
+     moved get missed. */
+  ok(/if \(!b \|\| a === b\) \{ return; \}/.test(cv),
+    'an unchanged value produces no comparison row');
+  ok(/'cleared'/.test(cv), 'and a withdrawal is distinguished from an empty new value');
+
+  /* ⚠ AND THE DECISION ITSELF IS UNTOUCHED. */
+  S.submitContentVersion(KULK, v.id);
+  S.approveVersionAcademic(IYER, v.id, 'Approved.');
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), liveUrl,
+    'approval still releases nothing');
+  ok(!!S.holdVersion(v.id, 'QA hold.'), 'Hold still works');
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), liveUrl, 'and leaves the live version alone');
+  S.returnHeldVersionToDecision(v.id, 'QA lift.');
+  ok(!!S.releaseVersion(v.id, 'QA release.'), 'Release still works');
+  eq(S.contentRecord(rec.id).versionLabel, '1.1', 'and moves the public version');
+  eq(S.deliverySummaryFor(S.contentRecord(rec.id), 'web'), 'https://example.org/moved-v1-1',
+    'and the corrected reference goes live');
+}
+
+function scenario09cPublicationLabels() {
+  group('IMPL 09c — first publication and current public version are told apart');
+  boot();
+
+  var rec = publishedFixture('QA 09c Labels');
+  eq(S.contentRecord(rec.id).publication.versionLabel, '1.0',
+    'the publication record holds the version that was FIRST published');
+  eq(S.contentRecord(rec.id).versionLabel, '1.0', 'which is also the current one, for now');
+
+  var made = S.createCorrectionVersion(KULK, rec.id, {
+    versionLabel: '1.1', changeNote: 'A correction.', technology: 'web',
+    deliveryPatch: { url: 'https://example.org/moved' }
+  });
+  S.submitContentVersion(KULK, made.version.id);
+  S.approveVersionAcademic(IYER, made.version.id, 'ok');
+  S.releaseVersion(made.version.id, 'QA.');
+
+  /* ⚠ THE AMBIGUITY THIS CLOSES. Both numbers are correct and they
+     differ; the card used to print the first one under a bare heading
+     while the page title showed the second. */
+  eq(S.contentRecord(rec.id).versionLabel, '1.1', 'the record now shows 1.1 as current');
+  eq(S.contentRecord(rec.id).publication.versionLabel, '1.0',
+    'AND THE FIRST-PUBLICATION RECORD IS NOT REWRITTEN');
+
+  var cui = code09('js/content-ui.js');
+  ok(cui.indexOf("'First published version'") !== -1, 'the card labels the first published version');
+  ok(cui.indexOf("'Current public version'") !== -1, 'and names the current one beside it');
+  eq(/kvLine\('Version', esc\(p\.versionLabel\)\)/.test(cui), false,
+    'THE BARE "Version" LABEL IS GONE from both branches');
+  ok(code09('js/screens/content-manager.js').indexOf("ui.card('First publication'") !== -1,
+    'and the card is headed First publication');
+}
+
+function scenario09cFlowStillWorks() {
+  group('IMPL 09c — the manually tested version flow is unchanged, end to end');
+  boot();
+
+  /* ⚠ THE EXACT SEQUENCE MANUAL QA SIGNED OFF. It is asserted here so
+     a later presentation change cannot quietly break it. */
+  var rec = publishedFixture('QA 09c Flow');
+  var recId = rec.id;
+  eq(S.contentRecord(recId).versionLabel, '1.0', '1 · published as 1.0');
+  var liveUrl = S.deliverySummaryFor(S.contentRecord(recId), 'web');
+
+  var g = grantAccess([recId], ['web'], 3, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, recId, 'student', [RAHUL]);
+  eq(S.studentCanRun(RAHUL, recId, 'web'), true, 'a student can run it');
+
+  var made = S.createCorrectionVersion(KULK, recId, {
+    versionLabel: '1.1', changeNote: 'Updated the hosted Web simulation URL.',
+    technology: 'web', deliveryPatch: { url: 'https://example.org/web-v1-1' }
+  });
+  eq(made.ok, true, '2 · the Content Manager creates correction 1.1');
+  eq(S.contentRecord(recId).versionLabel, '1.0', '3 · 1.0 REMAINS LIVE');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), liveUrl, 'with its own link');
+  eq(S.studentCanRun(RAHUL, recId, 'web'), true, 'and the student keeps their access');
+
+  ok(!!S.submitContentVersion(KULK, made.version.id), '4 · it is sent for Academic Review');
+  eq(S.contentVersion(made.version.id).status, S.VERSION_STATUS.ACADEMIC_REVIEW, 'and lands there');
+  ok(!!S.approveVersionAcademic(IYER, made.version.id, 'Approved.'), '5 · the Reviewer approves it');
+  eq(S.contentVersion(made.version.id).status, S.VERSION_STATUS.APPROVED,
+    '6 · the Super Admin sees it Awaiting Release / Hold');
+  ok(S.versionsAwaitingDecision().some(function (x) { return x.id === made.version.id; }),
+    'in their decision queue');
+
+  ok(!!S.releaseVersion(made.version.id, 'Released.'), '7 · the Super Admin releases it');
+  eq(S.contentRecord(recId).versionLabel, '1.1', '8 · the public version becomes 1.1');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), 'https://example.org/web-v1-1',
+    '9 · the new Web URL is live');
+  ok(S.contentRecord(recId).history.length > 1, '10 · the history remains');
+  eq(S.contentRecord(recId).publication.versionLabel, '1.0',
+    'and the first publication is untouched');
+  eq(S.studentCanRun(RAHUL, recId, 'web'), true, 'and nobody lost access');
+
+  /* 11 · it survives a reload. */
+  loadState();
+  S = XRSLP.state;
+  eq(S.SCHEMA_VERSION, 12, 'the build is still at schema 12');
+  eq(S.STORAGE_KEY, 'xrslp-unified-v1', 'under the same storage key');
+  eq(S.contentRecord(recId).versionLabel, '1.1', 'AND 1.1 IS STILL THE PUBLIC VERSION AFTER A RELOAD');
+  eq(S.deliverySummaryFor(S.contentRecord(recId), 'web'), 'https://example.org/web-v1-1',
+    'with the released URL');
+  eq(S.contentVersion(made.version.id).status, S.VERSION_STATUS.RELEASED, 'and the candidate released');
+}
+
+function scenario09cTelemetrySurvives() {
+  group('IMPL 09c — the runtime telemetry model is untouched by the clarity pass');
+  boot();
+
+  /* The exact figures manual QA confirmed, and they must survive a
+     reload — this pass changed how they are PRESENTED and nothing
+     about how they are recorded. */
+  var g = grantAccess(['direct-shear'], ['web'], 5, 'yearly');
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL]);
+  var a = S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+  S.runtimeEndSession(RAHUL, 'direct-shear', 'web', a.sessionId, { durationSeconds: 13 });
+  S.runtimeLaunch(RAHUL, 'direct-shear', 'web');
+
+  var before = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(before.launches, 2, '2 launches');
+  eq(before.sessionCount, 2, '2 sessions');
+  eq(before.totalSeconds, 13, '13 seconds');
+  eq(before.openSessions, 1, 'one of them still open');
+  eq(before.status, S.SIM_STATUS.IN_PROGRESS, 'In progress');
+  eq(before.completed, false, 'and not completed');
+
+  loadState();
+  S = XRSLP.state;
+  var after = S.simulationUtilisation(RAHUL, 'direct-shear', 'web');
+  eq(after.launches, 2, 'AFTER A RELOAD: 2 launches');
+  eq(after.sessionCount, 2, '2 sessions');
+  eq(after.totalSeconds, 13, '13 seconds');
+  eq(after.status, S.SIM_STATUS.IN_PROGRESS, 'still In progress');
+  eq(S.runtimeEvents().length >= 3, true, 'and every event survives');
+}
+
+function scenario09cWithholdingStillProtected() {
+  group('IMPL 09c — result withholding survives the Faculty presentation change');
+  boot();
+
+  var g = grantAccess(['direct-shear'], ['web'], 5, 'yearly');
+  var OTHER = S.studentsForTenant(TENANT).filter(function (p) { return p.id !== RAHUL; })[0].id;
+  S.assignExperiment(TENANT, g.access.id, 'direct-shear', 'student', [RAHUL, OTHER]);
+  var def = S.assessmentForTenant(TENANT, 'direct-shear');
+  S.updateAssessmentSettings(def.id, {
+    title: def.title, passMark: def.passMark, attemptLimit: def.attemptLimit,
+    policyMode: 'CUSTOM_DATE', customDate: '2099-01-01'
+  }, ARJUN);
+  function take(pid, correct) {
+    S.runtimeSimulateRun(pid, 'direct-shear', 'web', { durationSeconds: 300, complete: true });
+    var a = S.startAttempt(pid, 'direct-shear');
+    if (!a) { return; }
+    (S.attemptAssessment(a) || { questions: [] }).questions.forEach(function (q) {
+      if (q.type === 'mcq') { S.saveAnswer(a.id, q.id, correct ? q.answer : (q.answer === 0 ? 1 : 0)); }
+      else if (q.type === 'tf') { S.saveAnswer(a.id, q.id, correct ? q.answer : !q.answer); }
+    });
+    S.submitAttempt(a.id);
+  }
+  take(RAHUL, true);
+  take(OTHER, false);
+  eq(S.resultWithheld(RAHUL, 'direct-shear'), true, 'both results are withheld');
+  eq(S.resultWithheld(OTHER, 'direct-shear'), true, 'from both students');
+
+  function studentView(pid) {
+    var prog = S.experimentProgress(pid, 'direct-shear', ['web'], { studentView: true });
+    return JSON.stringify({ status: prog.status, factual: prog.factual })
+      .replace(/"20\d\d-[^"]*"/g, '"T"');
+  }
+  eq(studentView(RAHUL), studentView(OTHER),
+    'AND A PASSING AND A FAILING STUDENT ARE STILL BYTE-IDENTICAL in the student view');
+  eq(S.experimentProgress(RAHUL, 'direct-shear', ['web']).factual.assessment.state,
+    S.ASSESS_STATE.PASSED, 'while Faculty still see the real outcome');
+}
+
 scenarioSchema10Migration();
 /* Implementation 07.3 — the full stakeholder meeting closure. */
 scenarioManagerRouting();
@@ -5164,4 +7681,41 @@ scenario08StaticSource();
 scenario08MappableCourses();
 scenario08ProvisioningParity();
 scenario08RSupportMedia();
+/* ── Implementation 09 — the PM functional delta ────────────── */
+scenario09Utilisation();
+scenario09Completion();
+scenario09TechnologyAxis();
+scenario09Evidence();
+scenario09FoldIntegrity();
+scenario09IdSpace();
+scenario09Boundaries();
+scenario09WithheldParity();
+scenario09PreTelemetry();
+scenario09ImportCsv();
+scenario09ImportValidation();
+scenario09ImportDuplicates();
+scenario09ImportScope();
+scenario09ImportXlsx();
+scenario09XlsxRealWorld();
+scenario09XlsxHardening();
+scenario09ImportRobustness();
+scenario09TelemetryRobustness();
+scenario09PrePublishEditing();
+scenario09PostPublishVersioning();
+scenario09CorrectionVersion();
+scenario09RemovalCorrection();
+scenario09CorrectionRevision();
+scenario09WithdrawCorrection();
+scenario09MaterialityTable();
+/* ── Implementation 09 — the UX / clarity correction ────────── */
+scenario09cFacultyOneDetailPath();
+scenario09cNoTechnologyDenominator();
+scenario09cConservativeOverall();
+scenario09cPlainLanguage();
+scenario09cCorrectionStates();
+scenario09cReviewerAndSuperAdminDiff();
+scenario09cPublicationLabels();
+scenario09cFlowStillWorks();
+scenario09cTelemetrySurvives();
+scenario09cWithholdingStillProtected();
 summary();

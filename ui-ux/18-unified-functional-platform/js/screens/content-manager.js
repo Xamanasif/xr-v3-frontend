@@ -857,17 +857,72 @@ XRSLP.screens = XRSLP.screens || {};
   /* Is there anything recorded for this technology at all? Decides
      whether a Remove control is rendered — a control that would clear
      nothing is a dead control, so it is not drawn. */
+  /* A SUGGESTION FOR THE PLACEHOLDER ONLY, never a default value. A
+     version label is the Vendor's and the platform's vocabulary, and
+     guessing one INTO the field would put a number nobody chose onto a
+     released artefact. `1.0` → `1.1` is offered as a hint and the field
+     stays empty until a person types in it. */
+  function nextVersionSuggestion(rec) {
+    var cur = String((rec && rec.versionLabel) || '').trim();
+    var m = /^(\d+)\.(\d+)$/.exec(cur);
+    if (m) { return m[1] + '.' + (Number(m[2]) + 1); }
+    return cur ? cur + '.1' : '1.1';
+  }
+
   function deliveryHasContent(rec, tech) {
     var d = state.deliveryOf(rec, tech);
     return DELIVERY_FIELD_ORDER.some(function (k) { return String(d[k] || '') !== ''; });
   }
 
-  function deliveryEditorHTML(rec, tech, i) {
+  /* ── Implementation 09 — WHERE A PUBLISHED EDIT LANDS ──────────
+     Before first publication nothing changes: the Content Manager
+     corrects the reference in place, with a reason and an audit entry,
+     exactly as the stakeholder asked. Once the artefact is PUBLISHED a
+     material change may not be written onto it — it becomes a
+     correction version under the version model that already exists,
+     and ends at the Super Admin's Release or Hold like every other
+     later version.
+
+     The screen asks the state layer which of those applies rather than
+     deciding for itself, so the control a Content Manager sees can
+     never promise a write the writer would refuse. */
+  function deliveryModeFor(rec, actorId, tech, patch, remove) {
+    var mode = state.managerDeliveryEditMode(rec, actorId, tech, patch, remove);
+    /* The state layer says 'blocked' whenever a later version is open,
+       because it does not know whose it is or what the screen intends.
+       The screen does: a correction this manager may still revise is
+       revised, not refused. A non-material change is still 'direct'. */
+    if (mode !== 'blocked') { return mode; }
+    var open = state.openVersionForRecord(rec.id);
+    return state.managerCanReviseVersion(open, actorId) ? 'revise' : 'blocked';
+  }
+  /* The mode for the CURRENT form contents — used to label the control
+     before anything has been typed. A published record is asked about
+     its most material field so the label reflects the likely outcome;
+     the actual write re-asks with the real patch. */
+  function deliveryLikelyMode(rec, actorId, tech) {
+    if (rec.status !== CS.PUBLISHED) { return 'direct'; }
+    var open = state.openVersionForRecord(rec.id);
+    if (!open) { return 'version'; }
+    /* ⚠ NOT A DEAD END. If the open candidate is THIS manager's own
+       correction and is still theirs to change — a draft, or one an
+       Academic Reviewer returned — the editor revises it rather than
+       refusing. Without this a returned correction could only be
+       re-sent unchanged, the reviewer would return it again, and
+       because only one later version may be open per Experiment it
+       would block every future version of that Experiment for good. */
+    return state.managerCanReviseVersion(open, actorId) ? 'revise' : 'blocked';
+  }
+
+  function deliveryEditorHTML(rec, tech, i, actorId) {
     var def = data.TECHNOLOGIES[tech] || {};
     var d = state.deliveryOf(rec, tech);
     var hosted = def.delivery === 'hosted';
     var open = deliveryOpen.recordId === rec.id && deliveryOpen.tech === tech;
     var summary = state.deliverySummaryFor(rec, tech);
+    var mode = deliveryLikelyMode(rec, actorId, tech);
+    var openVer = (mode === 'blocked' || mode === 'revise')
+      ? state.openVersionForRecord(rec.id) : null;
 
     var fieldsHTML = hosted
       ? '<div class="field" id="f-dl-url-' + i + '">' +
@@ -915,25 +970,72 @@ XRSLP.screens = XRSLP.screens || {};
          of the history entry a later reader cannot reconstruct: what
          changed is recorded automatically, why it changed is not. */
       '<div class="field" id="f-dl-why-' + i + '">' +
-      '<label for="dl-why-' + i + '">Why this reference is changing ' +
+      '<label for="dl-why-' + i + '">' +
+      (mode === 'version' ? 'What is changing, and why' : 'Why this reference is changing') + ' ' +
       '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
       '<textarea id="dl-why-' + i + '" rows="2" maxlength="600" ' +
       'aria-describedby="h-dl-why-' + i + '"></textarea>' +
-      '<p class="hint" id="h-dl-why-' + i + '">Required. The change is written to this item’s history with ' +
-      'what it was and what it became; your reason is the part that cannot be reconstructed later. Without ' +
-      'one, nothing is saved.</p></div>' +
-      '<div class="formact">' +
-      '<button class="btn pri sm" type="button" id="dl-save-' + i + '" data-tech="' + esc(tech) + '">' +
-      'Save this reference</button>' +
-      (deliveryHasContent(rec, tech)
-        ? '<button class="btn sec sm" type="button" id="dl-remove-' + i + '" data-tech="' + esc(tech) + '">' +
-          'Remove the reference</button>'
+      '<p class="hint" id="h-dl-why-' + i + '">Required. ' +
+      (mode === 'version'
+        ? 'It becomes the change note on the correction version, and is what the Academic Reviewer and the ' +
+          'Super Admin read before deciding on it.'
+        : 'The change is written to this item’s history with what it was and what it became; your reason is ' +
+          'the part that cannot be reconstructed later. Without one, nothing is saved.') +
+      '</p></div>' +
+      /* ── Implementation 09 — the correction version's own label ──
+         A published artefact may not change under the label it was
+         published as, so a correction has to be given a new one. The
+         field appears only where it is needed. */
+      (mode === 'version' || mode === 'revise'
+        ? '<div class="field" id="f-dl-ver-' + i + '">' +
+          '<label for="dl-ver-' + i + '">' +
+          (mode === 'revise' ? 'Version label' : 'New version label') + ' ' +
+          '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+          '<input type="text" id="dl-ver-' + i + '" maxlength="40"' +
+          (mode === 'revise' && openVer ? ' value="' + esc(openVer.versionLabel) + '"' : '') +
+          ' placeholder="e.g. ' + esc(nextVersionSuggestion(rec)) + '" ' +
+          'aria-describedby="h-dl-ver-' + i + '">' +
+          '<p class="hint" id="h-dl-ver-' + i + '">The version this correction would become. It must differ ' +
+          'from <strong>' + esc(rec.versionLabel || '—') + '</strong>, which is the version the public sees ' +
+          'now and keeps seeing until the Super Admin releases this one.</p></div>'
         : '') +
-      '<span class="formnote">' + esc(def.label || tech) + ' stays on this Experiment either way — a ' +
-      'technology is never added or removed here.</span>' +
+      '<div class="formact">' +
+      (mode === 'blocked'
+        /* ⚠ "RELEASED OR HELD" WAS FALSE. `HELD` is one of the OPEN
+           statuses, so holding a version unblocks nothing — a held
+           candidate keeps the Experiment's one slot until the Super
+           Admin lifts the hold and releases it. Saying otherwise sent a
+           Content Manager away to wait for something that would not
+           happen. */
+        ? '<span class="formnote">A later version of this experiment is already in the workflow' +
+          (openVer ? ' (' + esc(openVer.versionLabel) + ' — ' +
+            esc(state.versionStatusMeta(openVer.status).label.toLowerCase()) + ')' : '') +
+          '. Only one may be open at a time, so this reference cannot be changed until that version is ' +
+          'released, or withdrawn by whoever raised it.</span>'
+        : '<button class="btn pri sm" type="button" id="dl-save-' + i + '" data-tech="' + esc(tech) + '">' +
+          (mode === 'revise' ? 'Update your correction'
+            : mode === 'version' ? 'Start a correction version' : 'Save this reference') + '</button>' +
+          (deliveryHasContent(rec, tech)
+            ? '<button class="btn sec sm" type="button" id="dl-remove-' + i + '" data-tech="' +
+              esc(tech) + '">' +
+              (mode === 'version' || mode === 'revise'
+                ? 'Withdraw it in a correction version' : 'Remove the reference') +
+              '</button>'
+            : '') +
+          '<span class="formnote">' + esc(def.label || tech) + ' stays on this Experiment either way — a ' +
+          'technology is never added or removed here.' +
+          (mode === 'revise' && openVer
+            ? ' This updates your open correction ' + esc(openVer.versionLabel) +
+              ', which you then send again from the experiment page.'
+            : mode === 'version'
+            ? ' The published version is not touched: this raises a correction for review.' : '') +
+          '</span>') +
       '</div></div></div>';
   }
 
+  /* `editable` is the ACTOR ID when the card is editable, and falsy
+     when it is not — the editor blocks need the actor to ask the state
+     layer which mode applies. */
   function deliveryCard(rec, editable) {
     if (!editable) {
       /* THE RULE, THEN THE CURRENT STATE — two sentences, not one
@@ -961,19 +1063,180 @@ XRSLP.screens = XRSLP.screens || {};
     var editors = rec.technologies.length
       ? '<div class="techrows deliv">' +
         data.sortTech(rec.technologies).map(function (t, i) {
-          return deliveryEditorHTML(rec, t, i);
+          return deliveryEditorHTML(rec, t, i, editable);
         }).join('') + '</div>'
       : cui.deliveryRows(rec);
 
+    /* ⚠ THE FOOTER MUST NOT KEEP SAYING "creates no new version".
+       It was true when this card only ever wrote in place. On a
+       PUBLISHED record a material change now raises a correction
+       version instead, and a footnote still promising otherwise would
+       be the most misleading sentence on the screen. */
+    var published09 = rec.status === CS.PUBLISHED;
     return ui.card('Technology delivery',
       '<div class="form-errors"></div>' +
+      (published09
+        ? ui.alertBox('info', 'This experiment is published, so a material change becomes a version',
+            '<p>You may still correct what the platform holds — that has not changed. But <strong>' +
+            esc(rec.versionLabel || 'the published version') + '</strong> is what institutions are running ' +
+            'now, so a change to the hosted link, the package reference or the device requirement is not ' +
+            'written onto it. It becomes a <strong>correction version</strong>, goes through academic ' +
+            'review, and reaches the Super Admin\u2019s Release or Hold decision like any other later ' +
+            'version. The published version stays live until then, and no institution loses access ' +
+            'because a correction exists.</p>' +
+            '<p>Technical notes are the exception: they are content-plane only, never reach a student, ' +
+            'and are still corrected in place with an audit entry.</p>')
+        : '') +
       editors +
       '<p class="cardfoot">The Vendor supplies and owns this technical submission. What you may correct is ' +
       'the <strong>reference the platform holds</strong> — a hosted link that has gone stale, a package ' +
       'reference that has changed — without waiting for a resubmission. You cannot add or remove a ' +
       '<strong>technology</strong>: that is the Vendor’s submission. Every change needs a reason and is ' +
-      'written to this item’s history; it creates no new version and grants nobody access.</p>',
-      'Vendor supplied — you may correct the reference');
+      'written to this item’s history' +
+      (published09
+        ? '. A material change to published content raises a correction version rather than rewriting the ' +
+          'released one, and grants nobody access.'
+        : '; it creates no new version and grants nobody access.') + '</p>',
+      published09 ? 'Vendor supplied — corrections become a version'
+                  : 'Vendor supplied — you may correct the reference');
+  }
+
+
+  /* ============================================================
+     THE CORRECTION PANEL — Implementation 09 QA correction.
+
+     ── WHAT WAS WRONG ───────────────────────────────────────────
+     A raised correction appeared as one row of a three-column table:
+     the label, the change note, a badge, and a small button. The
+     workflow was right and the button worked — but the single most
+     important thing on the page, *this is a draft and it reaches
+     nobody until you send it*, was a `btn sm` in the last column of a
+     table a reader scans past. Manual QA found the Send action by
+     hunting for it.
+
+     ── WHAT THIS IS ─────────────────────────────────────────────
+     One panel per correction, stating in reading order: what it is,
+     what it replaces, what it changes and why, what is still live,
+     and — as its own labelled block — WHAT HAPPENS NEXT. Only the
+     actions the state machine actually allows are drawn.
+
+     ⚠ NO STATE MACHINE CHANGED. Every action here calls the same
+     writer it called before, and `state.managerCanReviseVersion`
+     decides what is offered. This is presentation.
+     ============================================================ */
+
+  /* What the correction actually carries, in one line per changed
+     thing. Derived from the candidate, never restated by hand. */
+  function correctionSubjectHTML(rec, v) {
+    var bits = [];
+    if (v.correctionOf && data.TECHNOLOGIES[v.correctionOf]) {
+      var def = data.TECHNOLOGIES[v.correctionOf];
+      var withdrawn = (v.removals || []).indexOf(v.correctionOf) !== -1;
+      var cleared = (v.clears && v.clears[v.correctionOf]) || [];
+      bits.push('<strong>' + esc(def.label) + ' delivery</strong> — ' + esc(withdrawn
+        ? 'the reference is withdrawn'
+        : cleared.length ? cleared.join(', ') + ' cleared'
+        : 'reference updated'));
+    }
+    if (String(v.description || '').trim() !== String(rec.description || '').trim()) {
+      bits.push('<strong>Description</strong> — the instructional content is rewritten');
+    }
+    if (!bits.length) { bits.push('<strong>Catalogue metadata</strong>'); }
+    return '<ul class="cx-what">' + bits.map(function (b) {
+      return '<li>' + ui.ic('arrowR', 'sm') + '<span>' + b + '</span></li>';
+    }).join('') + '</ul>';
+  }
+
+  /* WHAT HAPPENS NEXT, per state — and who it is waiting on. One
+     sentence, and the actions that go with it. `actions` is empty
+     wherever the candidate is somebody else's to move. */
+  function correctionNextStep(rec, v, actorId) {
+    var VS = state.VERSION_STATUS;
+    var live = esc(rec.versionLabel || 'the published version');
+    var canMove = state.managerCanReviseVersion(v, actorId);
+    switch (v.status) {
+      case VS.DRAFT:
+        return {
+          label: 'Next step',
+          text: 'This correction is a draft. It reaches nobody until you send it for Academic Review.',
+          actions: canMove
+            ? [{ id: 'send', kind: 'pri', text: 'Send for Academic Review' },
+               { id: 'edit', kind: 'sec', text: 'Edit correction' },
+               { id: 'withdraw', kind: 'sec', text: 'Withdraw' }]
+            : []
+        };
+      case VS.CHANGES_ACADEMIC:
+        return {
+          label: 'Next step',
+          text: 'The Academic Reviewer asked for changes, so it is back with you. Update it and send it again.',
+          actions: canMove
+            ? [{ id: 'send', kind: 'pri', text: 'Send for Academic Review again' },
+               { id: 'edit', kind: 'sec', text: 'Edit correction' },
+               { id: 'withdraw', kind: 'sec', text: 'Withdraw' }]
+            : []
+        };
+      case VS.ACADEMIC_REVIEW:
+        return { label: 'Waiting on',
+          text: 'The Academic Reviewer. Nothing is needed from you, and it is read-only until they respond.',
+          actions: [] };
+      case VS.APPROVED:
+        return { label: 'Waiting on',
+          text: 'The Super Admin, for the Release or Hold decision. Version ' + live +
+            ' stays live until they release this one.',
+          actions: [] };
+      case VS.HELD:
+        return { label: 'Waiting on',
+          text: 'The Super Admin. This correction is on hold and version ' + live +
+            ' stays live. Lifting a hold is theirs, and it returns the correction to their decision ' +
+            'rather than releasing it.',
+          actions: [] };
+      case VS.RELEASED:
+        return { label: 'Outcome',
+          text: 'Released' + (v.releaseDecision ? ' on ' + esc(util.fmtDate(v.releaseDecision.at)) : '') +
+            '. Version ' + esc(v.versionLabel) + ' is what the public catalogue shows now.',
+          actions: [] };
+      case VS.WITHDRAWN:
+        return { label: 'Outcome',
+          text: 'Withdrawn' + (v.withdrawnAt ? ' on ' + esc(util.fmtDate(v.withdrawnAt)) : '') +
+            '. Nothing was released, version ' + live + ' never changed, and the record is kept.',
+          actions: [] };
+      default:
+        return { label: 'State', text: '', actions: [] };
+    }
+  }
+
+  function correctionPanel(rec, v, actorId) {
+    var VS = state.VERSION_STATUS;
+    var next = correctionNextStep(rec, v, actorId);
+    /* A resolved correction is history and must not keep looking like
+       something waiting to be pushed. */
+    var closed = v.status === VS.RELEASED || v.status === VS.WITHDRAWN;
+    return '<article class="cxpanel' + (closed ? ' done' : '') + '">' +
+      '<div class="cx-h">' +
+      '<span class="cx-t">Correction version ' + esc(v.versionLabel) + '</span>' +
+      XRSLP.versionUI.badge(v) +
+      '</div>' +
+      '<div class="cx-meta">Replaces version <strong>' + esc(v.replacesVersionLabel || '—') +
+        '</strong> · raised ' + esc(util.fmtDate(v.createdAt)) + '</div>' +
+      correctionSubjectHTML(rec, v) +
+      '<div class="cx-why"><span class="cx-k">Reason</span>' +
+        '<span class="cx-v">' + esc(v.changeNote) + '</span></div>' +
+      (closed ? ''
+        : '<p class="cx-live">' + ui.ic('shield', 'sm') +
+          '<span>Version <strong>' + esc(rec.versionLabel || '—') + '</strong> stays live, and every ' +
+          'institution keeps the access it has, until the Super Admin releases this one.</span></p>') +
+      '<div class="cx-next">' +
+      '<div class="cx-nk">' + esc(next.label) + '</div>' +
+      '<p class="cx-nt">' + next.text + '</p>' +
+      (next.actions.length
+        ? '<div class="cx-na">' + next.actions.map(function (a) {
+            return '<button class="btn ' + a.kind + '" type="button" data-cx="' + esc(a.id) +
+              '" data-cx-ver="' + esc(v.id) + '">' +
+              (a.id === 'send' ? ui.ic('arrowR') : a.id === 'edit' ? ui.ic('edit') : '') +
+              esc(a.text) + '</button>';
+          }).join('') + '</div>'
+        : '') +
+      '</div></article>';
   }
 
   /* ---------------- Content item / final review ---------------- */
@@ -989,10 +1252,22 @@ XRSLP.screens = XRSLP.screens || {};
     var vendor = rec.createdBy ? state.contentActor(rec.createdBy) : null;
     /* R16 — scope AND state. See the block comment above deliveryCard()
        for why this screen is narrower than `managerCanEditDelivery()`. */
-    var deliveryEditable = state.managerCanEditDelivery(rec, actor.id) && state.canonicalEditable(rec);
+    /* ⚠ THE ACTOR ID, NOT A BOOLEAN — Implementation 09. The editor
+       blocks ask the state layer which edit mode applies to a given
+       technology, and that question needs to know WHO is asking. Falsy
+       still means "not editable", so every existing branch reads the
+       same. */
+    var deliveryEditable = (state.managerCanEditDelivery(rec, actor.id) && state.canonicalEditable(rec))
+      ? actor.id : null;
     /* Only candidates that have been handed over — see the card below. */
     var chainVersions = state.versionsForRecord(rec.id).filter(function (v) {
       return v.status !== state.VERSION_STATUS.DRAFT;
+    });
+    /* Implementation 09 — corrections THIS manager raised on THIS
+       record, drafts included: a draft is theirs and they are the only
+       person who can send it. */
+    var myCorrections = state.versionsForManager(actor.id).filter(function (v) {
+      return v.recordId === rec.id;
     });
 
     var stateNote;
@@ -1069,7 +1344,11 @@ XRSLP.screens = XRSLP.screens || {};
         'Vendor supplied — a link reference') +
       '</div>' +
       '<div class="stack">' +
-      (published ? ui.card('Publication record', cui.publicationCard(rec)) : '') +
+      /* "First publication", not "Publication record": the card
+         records the FIRST publication, and calling it the publication
+         record made its 1.0 look like a contradiction of a header
+         reading v1.1. */
+      (published ? ui.card('First publication', cui.publicationCard(rec)) : '') +
       (published ? cui.publishedNextVersionNote() : '') +
       /* Later versions are VISIBLE here, and read-only. The Content
          Manager's confirmed authority is content readiness review and
@@ -1081,16 +1360,37 @@ XRSLP.screens = XRSLP.screens || {};
          still with its Vendor and has not entered the governance chain,
          so listing it here would report work nobody has handed over as
          though it were part of the record's version history. */
+      /* ── Implementation 09 — THE CORRECTIONS THIS MANAGER RAISED ──
+         A correction version is created as a DRAFT and reaches nobody
+         until it is sent. Without a surface carrying it, the person who
+         raised it would have no way to send it and no way to see where
+         it got to — so it lives here, on the record it corrects, rather
+         than on a new screen. It is deliberately the ONLY control:
+         academic review is the Academic Reviewer's and the release
+         decision is the Super Admin's, and neither appears here. */
+      (myCorrections.length
+        ? ui.card('Your correction versions',
+            '<div class="cxlist">' + myCorrections.map(function (v) {
+              return correctionPanel(rec, v, actor.id);
+            }).join('') + '</div>' +
+            '<p class="cardfoot">A correction is a draft until you send it. Sending it puts it in front of ' +
+            'an <strong>Academic Reviewer</strong>; after that the <strong>Super Admin</strong> decides ' +
+            'whether to release or hold it. <strong>' + esc(rec.versionLabel || 'The published version') +
+            '</strong> stays live throughout. <strong>Withdraw</strong> takes a correction back while it ' +
+            'is still yours — nothing is deleted, and the experiment can carry a version again.</p>',
+            myCorrections.length + ' ' + util.plural(myCorrections.length, 'correction'))
+        : '') +
       (published && chainVersions.length
         ? ui.card('Later versions',
             '<div class="tscroll"><table class="dt">' +
             '<caption class="sr-only">Later versions of ' + esc(rec.name) + '</caption>' +
-            '<thead><tr><th scope="col">Version</th><th scope="col">Vendor</th>' +
+            '<thead><tr><th scope="col">Version</th><th scope="col">Raised by</th>' +
             '<th scope="col">State</th></tr></thead><tbody>' +
             chainVersions.map(function (v) {
               return '<tr>' +
                 '<td data-label="Version">' + esc(v.versionLabel) + '</td>' +
-                '<td data-label="Vendor">' + esc(v.createdByName) + '</td>' +
+                '<td data-label="Raised by">' + esc(v.createdByName) +
+                  '<span class="tsub2">' + esc(XRSLP.versionUI.raisedByRole(v)) + '</span></td>' +
                 '<td data-label="State">' + XRSLP.versionUI.badge(v) + '</td>' +
                 '</tr>';
             }).join('') + '</tbody></table></div>' +
@@ -1125,6 +1425,105 @@ XRSLP.screens = XRSLP.screens || {};
          example is a published experiment whose hosted link has gone
          stale, and that record is past every gate. */
       if (deliveryEditable) { bindDelivery(actor, rec); }
+
+      /* ── Implementation 09 QA — EDIT CORRECTION ──────────────
+         "Edit" has to lead somewhere real. A delivery correction is
+         revised in the delivery editor further down THIS page, so the
+         button opens that technology's panel and moves the reader to
+         it; a description-only correction is revised on the canonical
+         metadata form, so it goes there. It never opens a form that
+         cannot write: `managerCanReviseVersion` already gated whether
+         the button was drawn at all. */
+      Array.prototype.slice.call(document.querySelectorAll('[data-cx="edit"]')).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var v = state.contentVersion(btn.getAttribute('data-cx-ver'));
+          if (!v) { return; }
+          if (!v.correctionOf) {
+            XRSLP.router.go(href.mMetadata(actor.id, rec.id));
+            return;
+          }
+          var order = data.sortTech(rec.technologies);
+          var idx = order.indexOf(v.correctionOf);
+          var panel = idx === -1 ? null : document.getElementById('dl-panel-' + idx);
+          var toggle = idx === -1 ? null : document.getElementById('dl-toggle-' + idx);
+          if (!panel || !toggle) {
+            ui.toast('The delivery editor for this correction is not available here.', 'info');
+            return;
+          }
+          if (panel.hidden) { toggle.click(); }
+          var block = document.getElementById('dl-block-' + idx);
+          if (block && block.scrollIntoView) { block.scrollIntoView({ block: 'center' }); }
+          var first = panel.querySelector('input, textarea');
+          if (first) { first.focus(); }
+          ui.announce('Editing correction ' + v.versionLabel + '.');
+        });
+      });
+
+      /* Implementation 09 — withdraw a correction the manager raised.
+         Confirmed, and it names what it does NOT do. */
+      Array.prototype.slice.call(document.querySelectorAll('[data-cx="withdraw"]')).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var v = state.contentVersion(btn.getAttribute('data-cx-ver'));
+          if (!v) { return; }
+          ui.openDialog({
+            title: 'Withdraw correction ' + v.versionLabel + '?',
+            bodyHTML:
+              '<p>Takes your correction of <strong>' + esc(rec.name) + '</strong> back. It stops being ' +
+              'this experiment’s open candidate, so a later version can be raised again.</p>' +
+              '<div class="consequence">' + ui.ic('shield') + '<span><strong>Nothing is deleted.</strong> ' +
+              'The correction, its change note and its whole history stay on the record, and this ' +
+              'experiment’s timeline keeps both the entry that raised it and the one that withdrew ' +
+              'it.</span></div>' +
+              '<div class="consequence">' + ui.ic('info') + '<span><strong>' +
+              esc(rec.versionLabel || 'The published version') + ' is unchanged.</strong> Nothing was ' +
+              'released, so nothing an institution or a student is using moves.</span></div>' +
+              '<div class="field" id="f-wd-why"><label for="wd-why">Why it is being withdrawn ' +
+              '<span class="req" aria-hidden="true">*</span></label>' +
+              '<textarea id="wd-why" rows="2" maxlength="600"></textarea></div>',
+            okLabel: 'Withdraw the correction',
+            onConfirm: function (body) {
+              var el = body ? body.querySelector('#wd-why') : document.getElementById('wd-why');
+              var why = el ? String(el.value || '').trim() : '';
+              if (!why) { ui.toast('A reason is needed to withdraw a correction.', 'warn'); return; }
+              if (!state.withdrawCorrectionVersion(actor.id, v.id, why)) {
+                ui.toast('This correction could not be withdrawn.', 'info');
+                return;
+              }
+              ui.toast('Correction ' + v.versionLabel + ' withdrawn. Nothing was released.');
+              XRSLP.render(true);
+            }
+          });
+        });
+      });
+
+      /* Implementation 09 — send a correction version for academic
+         review. Confirmed, like every other hand-off in this build. */
+      Array.prototype.slice.call(document.querySelectorAll('[data-cx="send"]')).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var v = state.contentVersion(btn.getAttribute('data-cx-ver'));
+          if (!v) { return; }
+          ui.openDialog({
+            title: 'Send version ' + v.versionLabel + ' for academic review?',
+            bodyHTML:
+              '<p>Hands correction version <strong>' + esc(v.versionLabel) + '</strong> of <strong>' +
+              esc(rec.name) + '</strong> to an Academic Reviewer.</p>' +
+              '<blockquote class="qquote">' + esc(v.changeNote) + '</blockquote>' +
+              '<div class="consequence">' + ui.ic('shield') + '<span><strong>' +
+              esc(rec.versionLabel || 'The published version') + ' stays live.</strong> Nothing an ' +
+              'institution or a student is using changes, now or when the review finishes — only a Super ' +
+              'Admin <strong>Release</strong> moves the public version.</span></div>' +
+              '<div class="consequence">' + ui.ic('info') + '<span>Once sent it is read-only for you ' +
+              'until the reviewer responds.</span></div>',
+            okLabel: 'Send for academic review',
+            onConfirm: function () {
+              var sent = state.submitContentVersion(actor.id, v.id);
+              if (!sent) { ui.toast('This version could not be sent.', 'info'); return; }
+              ui.toast('Version ' + v.versionLabel + ' sent for academic review.');
+              XRSLP.render(true);
+            }
+          });
+        });
+      });
     });
   };
 
@@ -1437,6 +1836,116 @@ XRSLP.screens = XRSLP.screens || {};
             return;
           }
 
+          /* ── Implementation 09 — WHICH WRITE THIS ACTUALLY IS ────
+             Asked of the state layer with the REAL patch, not with the
+             form's shape: a notes-only edit on a published record is a
+             direct write, and a URL change on the same record is not.
+             The dialog then describes what will genuinely happen. */
+          var mode = deliveryModeFor(fresh, actor.id, tech, patch, false);
+          if (mode === 'blocked') {
+            var openVer = state.openVersionForRecord(fresh.id);
+            ui.showErrors(card, [{ field: 'f-dl-why-' + i,
+              message: 'A later version of this experiment (' +
+                (openVer ? openVer.versionLabel : 'one already raised') + ') is in the workflow. Only one ' +
+                'may be open at a time, so this change cannot be raised until that version is released, ' +
+                'or withdrawn by whoever raised it.' }],
+              'This delivery reference was not changed');
+            return;
+          }
+
+          if (mode === 'revise') {
+            var openC = state.openVersionForRecord(fresh.id);
+            var rLabel = deliveryVal('dl-ver-' + i);
+            if (!ui.showErrors(card, rLabel ? [] : [{ field: 'f-dl-ver-' + i,
+              message: 'Enter the version label this correction would become.' }],
+              'This correction was not updated')) {
+              return;
+            }
+            ui.openDialog({
+              title: 'Update correction version ' + (openC ? openC.versionLabel : '') + '?',
+              bodyHTML:
+                '<p>Replaces what your open correction carries for the ' + esc(def.name || tech) +
+                ' delivery of <strong>' + esc(fresh.name) + '</strong>:</p>' +
+                deliveryChangeRowsHTML(changes) +
+                '<blockquote class="qquote">' + esc(why) + '</blockquote>' +
+                '<div class="consequence">' + ui.ic('shield') + '<span><strong>' +
+                esc(fresh.versionLabel || 'The published version') + ' is still untouched.</strong> ' +
+                'Updating a correction changes only the candidate.</span></div>' +
+                '<div class="consequence">' + ui.ic('clock') + '<span>It stays with <strong>you</strong> ' +
+                'until you send it again from the experiment page.</span></div>',
+              okLabel: 'Update the correction',
+              onConfirm: function () {
+                var done = state.reviseCorrectionVersion(actor.id, openC.id, {
+                  versionLabel: rLabel, changeNote: why,
+                  technology: tech, deliveryPatch: patch, remove: false
+                });
+                if (!done.ok) {
+                  ui.showErrors(card, (done.errors || []).map(function (e) {
+                    return { field: e.field === 'vv-label' ? 'f-dl-ver-' + i : 'f-dl-why-' + i,
+                             message: e.message };
+                  }), 'This correction was not updated');
+                  return;
+                }
+                deliveryOpen = { recordId: null, tech: null };
+                ui.toast('Correction ' + done.version.versionLabel + ' updated. Send it when you are ready.');
+                XRSLP.render(true);
+              }
+            });
+            return;
+          }
+
+          if (mode === 'version') {
+            var label = deliveryVal('dl-ver-' + i);
+            if (!ui.showErrors(card, label ? [] : [{ field: 'f-dl-ver-' + i,
+              message: 'Enter the version label this correction would become. It must differ from the ' +
+                'version the public is seeing now.' }],
+              'This correction version was not started')) {
+              return;
+            }
+            ui.openDialog({
+              title: 'Start a correction version?',
+              bodyHTML:
+                '<p>Raises version <strong>' + esc(label) + '</strong> of <strong>' + esc(fresh.name) +
+                '</strong>, carrying this change to the ' + esc(def.name || tech) + ' delivery:</p>' +
+                deliveryChangeRowsHTML(changes) +
+                '<blockquote class="qquote">' + esc(why) + '</blockquote>' +
+                '<div class="consequence">' + ui.ic('shield') +
+                '<span><strong>' + esc(fresh.versionLabel || 'The published version') + ' stays live.</strong> ' +
+                'Every institution keeps the content and the access it has now, and nothing a student is ' +
+                'running changes, until the Super Admin releases this correction.</span></div>' +
+                '<div class="consequence">' + ui.ic('clock') +
+                '<span>It is created as a <strong>draft</strong> and reaches nobody until you send it. ' +
+                'From there it goes to academic review and then to the Super Admin\u2019s Release or Hold ' +
+                'decision, like any other later version.</span></div>' +
+                '<div class="consequence">' + ui.ic('info') +
+                '<span>Only one later version may be open per experiment, so no further material change ' +
+                'can be made to this one until this correction is resolved.</span></div>',
+              okLabel: 'Start the correction version',
+              onConfirm: function () {
+                var made = state.createCorrectionVersion(actor.id, fresh.id, {
+                  versionLabel: label, changeNote: why,
+                  technology: tech, deliveryPatch: patch, remove: false
+                });
+                if (!made.ok) {
+                  ui.showErrors(card, (made.errors || []).map(function (e) {
+                    return { field: e.field === 'vv-label' ? 'f-dl-ver-' + i : 'f-dl-why-' + i,
+                             message: e.message };
+                  }), 'This correction version was not started');
+                  return;
+                }
+                deliveryOpen = { recordId: null, tech: null };
+                ui.toast('Correction version ' + made.version.versionLabel +
+                  ' drafted. The published version is unchanged.');
+                /* Stays on the record: the correction card below now
+                   holds it, with the control that sends it. There is no
+                   separate Content Manager version screen and inventing
+                   one would be a route with nothing behind it. */
+                XRSLP.render(true);
+              }
+            });
+            return;
+          }
+
           ui.openDialog({
             title: 'Save this delivery reference?',
             bodyHTML:
@@ -1472,6 +1981,102 @@ XRSLP.screens = XRSLP.screens || {};
             return;
           }
           var d = state.deliveryOf(fresh, tech);
+          /* Implementation 09 — a removal withdraws the delivered
+             experience, so it is material on a published record with no
+             exceptions. */
+          var rmMode = deliveryModeFor(fresh, actor.id, tech, null, true);
+          if (rmMode === 'blocked') {
+            var openVer2 = state.openVersionForRecord(fresh.id);
+            ui.showErrors(card, [{ field: 'f-dl-why-' + i,
+              message: 'A later version of this experiment (' +
+                (openVer2 ? openVer2.versionLabel : 'one already raised') + ') is in the workflow. Only one ' +
+                'may be open at a time, so this reference cannot be withdrawn until that version is ' +
+                'released, or withdrawn by whoever raised it.' }],
+              'This delivery reference was not removed');
+            return;
+          }
+          if (rmMode === 'revise') {
+            var openR = state.openVersionForRecord(fresh.id);
+            var rmRevLabel = deliveryVal('dl-ver-' + i);
+            if (!ui.showErrors(card, rmRevLabel ? [] : [{ field: 'f-dl-ver-' + i,
+              message: 'Enter the version label this correction would become.' }],
+              'This correction was not updated')) {
+              return;
+            }
+            ui.openDialog({
+              title: 'Make your correction a withdrawal?',
+              bodyHTML:
+                '<p>Your open correction <strong>' + (openR ? esc(openR.versionLabel) : '') +
+                '</strong> would instead <strong>withdraw</strong> the ' + esc(def.name || tech) +
+                ' delivery reference.</p>' +
+                '<blockquote class="qquote">' + esc(why) + '</blockquote>' +
+                '<div class="consequence">' + ui.ic('shield') + '<span><strong>Nothing is withdrawn ' +
+                'today.</strong> ' + esc(fresh.versionLabel || 'The published version') + ' keeps its ' +
+                'reference until the Super Admin releases this correction.</span></div>',
+              okLabel: 'Update the correction',
+              onConfirm: function () {
+                var done = state.reviseCorrectionVersion(actor.id, openR.id, {
+                  versionLabel: rmRevLabel, changeNote: why, technology: tech, remove: true
+                });
+                if (!done.ok) {
+                  ui.showErrors(card, (done.errors || []).map(function (e) {
+                    return { field: e.field === 'vv-label' ? 'f-dl-ver-' + i : 'f-dl-why-' + i,
+                             message: e.message };
+                  }), 'This correction was not updated');
+                  return;
+                }
+                deliveryOpen = { recordId: null, tech: null };
+                ui.toast('Correction ' + done.version.versionLabel + ' now withdraws the reference.');
+                XRSLP.render(true);
+              }
+            });
+            return;
+          }
+          if (rmMode === 'version') {
+            var rmLabel = deliveryVal('dl-ver-' + i);
+            if (!ui.showErrors(card, rmLabel ? [] : [{ field: 'f-dl-ver-' + i,
+              message: 'Enter the version label this correction would become.' }],
+              'This correction version was not started')) {
+              return;
+            }
+            ui.openDialog({
+              title: 'Withdraw this reference in a correction version?',
+              bodyHTML:
+                '<p>Raises version <strong>' + esc(rmLabel) + '</strong> of <strong>' + esc(fresh.name) +
+                '</strong>, in which the <strong>' + esc(def.name || tech) + '</strong> delivery reference ' +
+                'is withdrawn.</p>' +
+                '<blockquote class="qquote">' + esc(why) + '</blockquote>' +
+                '<div class="consequence">' + ui.ic('shield') +
+                '<span><strong>Nothing is withdrawn today.</strong> ' +
+                esc(fresh.versionLabel || 'The published version') + ' keeps its reference and stays live ' +
+                'until the Super Admin releases this correction.</span></div>' +
+                '<div class="consequence">' + ui.ic('info') +
+                '<span>' + esc(def.label || tech) + ' stays on this Experiment either way. A version never ' +
+                'adds or removes a technology.</span></div>',
+              okLabel: 'Start the correction version',
+              onConfirm: function () {
+                var made = state.createCorrectionVersion(actor.id, fresh.id, {
+                  versionLabel: rmLabel, changeNote: why, technology: tech, remove: true
+                });
+                if (!made.ok) {
+                  ui.showErrors(card, (made.errors || []).map(function (e) {
+                    return { field: e.field === 'vv-label' ? 'f-dl-ver-' + i : 'f-dl-why-' + i,
+                             message: e.message };
+                  }), 'This correction version was not started');
+                  return;
+                }
+                deliveryOpen = { recordId: null, tech: null };
+                ui.toast('Correction version ' + made.version.versionLabel +
+                  ' drafted. The published version is unchanged.');
+                /* Stays on the record: the correction card below now
+                   holds it, with the control that sends it. There is no
+                   separate Content Manager version screen and inventing
+                   one would be a route with nothing behind it. */
+                XRSLP.render(true);
+              }
+            });
+            return;
+          }
           ui.openDialog({
             title: 'Remove this delivery reference?',
             bodyHTML:
@@ -1602,9 +2207,38 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="field" id="f-summary">' +
         '<label for="i-summary">Catalogue summary</label>' +
         '<textarea id="i-summary" rows="2" maxlength="300">' + esc(rec.summary) + '</textarea></div>' +
-        '<div class="field" id="f-description" style="margin-bottom:0">' +
+        '<div class="field" id="f-description"' +
+          (rec.status === CS.PUBLISHED ? '' : ' style="margin-bottom:0"') + '>' +
         '<label for="i-description">Description</label>' +
-        '<textarea id="i-description" rows="5" maxlength="1600">' + esc(rec.description) + '</textarea></div>') +
+        '<textarea id="i-description" rows="5" maxlength="1600">' + esc(rec.description) + '</textarea>' +
+        (rec.status === CS.PUBLISHED
+          ? '<p class="hint">The description is the experiment\u2019s instructional content, so on a ' +
+            'published experiment changing it raises a <strong>correction version</strong> rather than ' +
+            'rewriting what institutions are running. The name, Course and catalogue summary are ' +
+            'corrected in place, as before.</p>'
+          : '') +
+        '</div>' +
+        /* ── Implementation 09 — the correction fields ────────────
+           Rendered only where they can be used. Leaving the
+           description editable on a published record and then refusing
+           the save would remove a capability the stakeholder asked
+           for; asking for a version label instead keeps it, and routes
+           it somewhere honest. */
+        (rec.status === CS.PUBLISHED
+          ? '<div class="field" id="f-cm-ver">' +
+            '<label for="i-cm-ver">New version label <span class="muted">(only if the description ' +
+            'changes)</span></label>' +
+            '<input type="text" id="i-cm-ver" maxlength="40" placeholder="e.g. ' +
+            esc(nextVersionSuggestion(rec)) + '" aria-describedby="h-cm-ver">' +
+            '<p class="hint" id="h-cm-ver">Must differ from <strong>' + esc(rec.versionLabel || '—') +
+            '</strong>, which stays live until the Super Admin releases the correction.</p></div>' +
+            '<div class="field" id="f-cm-why" style="margin-bottom:0">' +
+            '<label for="i-cm-why">What changed, and why <span class="muted">(only if the description ' +
+            'changes)</span></label>' +
+            '<textarea id="i-cm-why" rows="2" maxlength="600"></textarea>' +
+            '<p class="hint">Becomes the change note the Academic Reviewer and the Super Admin read.</p>' +
+            '</div>'
+          : '')) +
       '<div class="formact">' +
       '<button class="btn pri" type="button" id="cm-save">Save metadata</button>' +
       '<a class="btn gho" href="' + href.mRecord(actor.id, rec.id) + '">Cancel</a>' +
@@ -1653,6 +2287,92 @@ XRSLP.screens = XRSLP.screens || {};
         if (!fields.name.trim()) { errs.push({ field: 'f-name', message: 'Enter an experiment name.' }); }
         if (!fields.courseId) { errs.push({ field: 'f-course', message: 'Select a Course.' }); }
         if (!ui.showErrors(form, errs, 'The metadata cannot be saved yet')) { return; }
+        /* ── Implementation 09 — ASK WHICH WRITE THIS IS ─────────
+           Before this, the screen called the writer and interpreted a
+           null as one of two things: a Course-scope problem or a name
+           clash. Neither is true of a material change to published
+           content, so the Content Manager was told to rename an
+           experiment over a version-control rule. The mode is now asked
+           for first, and each answer gets the response that is
+           actually true of it. */
+        var fresh = state.contentRecord(rec.id) || rec;
+        var mode = state.managerMetadataEditMode(fresh, actor.id, fields);
+
+        if (mode === 'blocked') {
+          var openVer = state.openVersionForRecord(fresh.id);
+          ui.showErrors(form, [{ field: 'f-description',
+            message: 'A later version of this experiment (' +
+              (openVer ? openVer.versionLabel : 'one already raised') + ') is in the workflow, and only ' +
+              'one may be open at a time. The description cannot be changed until that version is ' +
+              'released, or withdrawn by whoever raised it. The name, Course and summary can still be ' +
+              'corrected.' }],
+            'The description cannot be changed yet');
+          return;
+        }
+
+        if (mode === 'version') {
+          var label = document.getElementById('i-cm-ver');
+          var why = document.getElementById('i-cm-why');
+          var labelVal = label ? String(label.value || '').trim() : '';
+          var whyVal = why ? String(why.value || '').trim() : '';
+          var vErrs = [];
+          if (!labelVal) {
+            vErrs.push({ field: 'f-cm-ver',
+              message: 'Changing the description of a published experiment raises a correction version. ' +
+                'Enter the version label it would become.' });
+          }
+          if (!whyVal) {
+            vErrs.push({ field: 'f-cm-why', message: 'Say what changed and why. It becomes the change note.' });
+          }
+          if (!ui.showErrors(form, vErrs, 'This correction version was not started')) { return; }
+
+          ui.openDialog({
+            title: 'Start a correction version?',
+            bodyHTML:
+              '<p>Raises version <strong>' + esc(labelVal) + '</strong> of <strong>' + esc(fresh.name) +
+              '</strong>, carrying the new description.</p>' +
+              '<blockquote class="qquote">' + esc(whyVal) + '</blockquote>' +
+              '<div class="consequence">' + ui.ic('shield') + '<span><strong>' +
+              esc(fresh.versionLabel || 'The published version') + ' stays live.</strong> Every ' +
+              'institution keeps the content and the access it has until the Super Admin releases ' +
+              'this correction.</span></div>' +
+              '<div class="consequence">' + ui.ic('clock') + '<span>It is created as a <strong>draft</strong> ' +
+              'and reaches nobody until you send it from the experiment page.</span></div>' +
+              '<div class="consequence">' + ui.ic('info') + '<span>The name, Course and catalogue summary ' +
+              'are catalogue metadata, not instructional content, so any change you made to those is ' +
+              'saved <strong>in place</strong> at the same time, with its own history entry.</span></div>',
+            okLabel: 'Start the correction version',
+            onConfirm: function () {
+              /* ⚠ BOTH HALVES OF WHAT WAS TYPED ARE SAVED.
+                 A form that raised the correction and silently dropped
+                 the name and summary the same person had just edited
+                 would be a partial save with no message — the failure
+                 this whole pass exists to stop. The in-place half is
+                 written FIRST, carrying the record's CURRENT
+                 description so it stays a non-material edit, and the
+                 correction then carries the new one. */
+              state.updateCanonicalMetadata(actor.id, fresh.id, {
+                name: fields.name, courseId: fields.courseId,
+                summary: fields.summary, description: fresh.description
+              });
+              var made = state.createCorrectionVersion(actor.id, fresh.id, {
+                versionLabel: labelVal, changeNote: whyVal,
+                description: fields.description, summary: fields.summary
+              });
+              if (!made.ok) {
+                ui.showErrors(form, (made.errors || []).map(function (e) {
+                  return { field: e.field === 'vv-label' ? 'f-cm-ver' : 'f-cm-why', message: e.message };
+                }), 'This correction version was not started');
+                return;
+              }
+              ui.toast('Correction version ' + made.version.versionLabel +
+                ' drafted. The published description is unchanged.');
+              XRSLP.router.go(href.mRecord(actor.id, fresh.id));
+            }
+          });
+          return;
+        }
+
         var saved = state.updateCanonicalMetadata(actor.id, rec.id, fields);
         if (!saved) {
           /* Report the reason that actually applies. Every refusal used

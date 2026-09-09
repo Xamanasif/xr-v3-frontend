@@ -145,7 +145,8 @@ window.XRSLPAudit = (function () {
       fac.forEach(function (f) {
         var b = '#/faculty/' + encodeURIComponent(f.id) + '/';
         ['overview', 'content', 'assessments', 'questions', 'questions/new',
-          'questions/draft', 'reviews', 'students', 'help']
+          /* Implementation 09 — the Question Bank import screen. */
+          'questions/draft', 'questions/import', 'reviews', 'students', 'help']
           .forEach(function (p) { add(b + p, 'faculty ' + f.id + ' ' + p); });
         var reach = safe(function () { return st.facultyExperimentIds(f.id) || []; }, []);
         reach.slice(0, 2).forEach(function (row) {
@@ -175,6 +176,12 @@ window.XRSLPAudit = (function () {
           (row.technologies || []).slice(0, 2).forEach(function (t) {
             add(b + 'experiment/' + encodeURIComponent(eid) + '/simulation/' + encodeURIComponent(t),
               'student simulation ' + eid + ' ' + t);
+            /* Implementation 09 — the prototype Web runtime. A package
+               technology redirects back to the simulation page, so the
+               route is swept for every technology and the redirect is
+               part of what is being checked. */
+            add(b + 'experiment/' + encodeURIComponent(eid) + '/simulation/' +
+              encodeURIComponent(t) + '/run', 'student runtime ' + eid + ' ' + t);
           });
         });
       });
@@ -1229,10 +1236,271 @@ window.XRSLPAudit = (function () {
     return out;
   }
 
+
+  /* ============================================================
+     IMPLEMENTATION 09 — the three new flows, driven for real.
+
+     Each of these asserts something the rendered DOM alone cannot:
+     that pressing a control produced (or, more often, did NOT produce)
+     a state change. The state-layer suite proves the rules; these prove
+     that the screens actually reach them.
+     ============================================================ */
+
+  /* ---- the prototype Web runtime writes a real session, and nothing else does ---- */
+  function checkPrototypeRuntime() {
+    var st = XRSLP.state;
+    var out = { name: 'prototype web runtime — a session is real, and opening a page is not',
+                checks: [], failures: [] };
+    function assert(cond, label, detail) {
+      out.checks.push({ label: label, pass: !!cond });
+      if (!cond) { out.failures.push(label + (detail ? ' — ' + detail : '')); }
+    }
+
+    /* Find a Student who can actually run a hosted technology. Nothing
+       is fabricated: if the current state has no such Student the check
+       reports that and asserts nothing it cannot see. */
+    var target = null;
+    st.people().filter(function (p) { return p.role === 'student'; }).forEach(function (s) {
+      if (target) { return; }
+      (st.studentExperiments(s.id) || []).forEach(function (row) {
+        if (target || !row.effective) { return; }
+        if ((row.technologies || []).indexOf('web') !== -1 &&
+            st.studentCanRun(s.id, row.experimentId, 'web')) {
+          target = { student: s, experimentId: row.experimentId };
+        }
+      });
+    });
+    if (!target) {
+      out.checks.push({ label: 'no student holds a runnable Web technology in this state — skipped',
+                        pass: true });
+      return out;
+    }
+
+    var sid = target.student.id, eid = target.experimentId;
+    var base = '#/learn/' + encodeURIComponent(sid) + '/experiment/' +
+               encodeURIComponent(eid) + '/simulation/web';
+
+    /* ── OPENING AND LEAVING THE PAGE MUST DO NOTHING ──────────── */
+    var before = st.simulationUtilisation(sid, eid, 'web');
+    var eventsBefore = st.runtimeEventsFor(sid, eid, 'web').length;
+    nav(base + '/run');
+    nav(base);
+    nav(base + '/run');
+    var afterOpen = st.simulationUtilisation(sid, eid, 'web');
+    assert(st.runtimeEventsFor(sid, eid, 'web').length === eventsBefore,
+      'OPENING THE RUNTIME PAGE WRITES NO EVENT — a page view is not a run');
+    assert(afterOpen.launches === before.launches, 'and no launch is recorded');
+    assert(afterOpen.completed === before.completed, 'and nothing is completed by arriving');
+
+    /* ── STARTING OPENS A REAL SESSION ─────────────────────────── */
+    nav(base + '/run');
+    var start = document.getElementById('rt-start');
+    assert(!!start, 'the runtime offers a start control');
+    if (!start) { return out; }
+    start.click();
+    nav(base + '/run');
+    var running = st.simulationUtilisation(sid, eid, 'web');
+    assert(running.launches === before.launches + 1, 'STARTING RECORDS EXACTLY ONE LAUNCH');
+    assert(running.sessionCount === before.sessionCount + 1, 'and exactly one session');
+    assert(running.openSessions === 1, 'which is open');
+    assert(running.completed === before.completed,
+      'AND STARTING COMPLETES NOTHING — a launch is not a completion');
+    assert(!!document.getElementById('rt-elapsed'), 'the elapsed clock is rendered while it runs');
+    assert(!!document.getElementById('rt-done') && !!document.getElementById('rt-end'),
+      'and both the finish and the end controls are offered');
+
+    /* ── LEAVING WITHOUT ENDING LEAVES IT OPEN, NOT COMPLETE ────── */
+    nav('#/learn/' + encodeURIComponent(sid) + '/home');
+    nav(base + '/run');
+    var left = st.simulationUtilisation(sid, eid, 'web');
+    assert(left.openSessions === 1, 'LEAVING THE PAGE LEAVES THE SESSION OPEN');
+    assert(left.completed === before.completed, 'and still completes nothing');
+    assert(left.totalSeconds === before.totalSeconds,
+      'AND AN OPEN SESSION RECORDS NO TIME — none was measured');
+
+    /* ── FINISHING IS CONFIRMED, AND ONLY THEN COMPLETES ────────── */
+    var done = document.getElementById('rt-done');
+    assert(!!done, 'the finish control is offered while a session is open');
+    if (done) {
+      done.click();
+      var scrim = document.querySelector('#dialog-root .scrim');
+      assert(!!scrim, 'FINISHING ASKS FOR CONFIRMATION rather than acting immediately');
+      var mid = st.simulationUtilisation(sid, eid, 'web');
+      assert(mid.completed === before.completed,
+        'AND WRITES NOTHING WHILE THE DIALOG IS OPEN');
+      if (scrim) {
+        var dlg = scrim.querySelector('[role="dialog"]') || scrim.firstElementChild;
+        assert(!!dlg && dlg.getAttribute('aria-modal') === 'true',
+          'the confirmation is a real modal dialog');
+        var ok = qa('button', scrim).filter(function (b) {
+          return /report it as completed/i.test(b.textContent);
+        })[0];
+        assert(!!ok, 'and offers the completion action');
+        if (ok) {
+          ok.click();
+          nav(base + '/run');
+          var finished = st.simulationUtilisation(sid, eid, 'web');
+          assert(finished.completed === true, 'CONFIRMING RECORDS THE COMPLETION');
+          assert(finished.openSessions === 0, 'and closes the session');
+          assert(finished.totalSeconds >= 0, 'and the session contributes a non-negative duration');
+          /* The other technologies of the same Experiment are untouched. */
+          (st.studentEntitledTechnologies(sid, eid) || []).forEach(function (t) {
+            if (t === 'web') { return; }
+            assert(st.simulationUtilisation(sid, eid, t).completed === false,
+              'AND COMPLETES NO OTHER TECHNOLOGY: ' + t + ' is untouched');
+          });
+        }
+      }
+    }
+    return out;
+  }
+
+  /* ---- question import writes nothing until it is confirmed ---- */
+  function checkQuestionImport() {
+    var st = XRSLP.state;
+    var out = { name: 'question import — nothing is written before the confirmation',
+                checks: [], failures: [] };
+    function assert(cond, label, detail) {
+      out.checks.push({ label: label, pass: !!cond });
+      if (!cond) { out.failures.push(label + (detail ? ' — ' + detail : '')); }
+    }
+
+    var fac = null;
+    st.people().filter(function (p) { return p.role === 'faculty'; }).forEach(function (f) {
+      if (!fac && (st.facultyExperimentIds(f.id) || []).length) { fac = f; }
+    });
+    if (!fac) {
+      out.checks.push({ label: 'no faculty member has mapped content in this state — skipped', pass: true });
+      return out;
+    }
+    var eid = st.facultyExperimentIds(fac.id)[0];
+    var before = st.questionsForFaculty(fac.id).length;
+
+    nav('#/faculty/' + encodeURIComponent(fac.id) + '/questions');
+    var importLink = qa('a.btn', document.getElementById('main-content') || document.body)
+      .filter(function (a) { return /import questions/i.test(a.textContent); })[0];
+    assert(!!importLink, 'the Question Bank offers Import questions beside Add and Draft');
+
+    nav('#/faculty/' + encodeURIComponent(fac.id) + '/questions/import');
+    var sel = document.getElementById('qi-exp');
+    var file = document.getElementById('qi-file');
+    assert(!!sel, 'the import screen asks for the course and experiment');
+    assert(!!file, 'and offers a file control');
+    assert(!!file && file.disabled,
+      'WHICH IS DISABLED UNTIL A CONTEXT IS CHOSEN — the file cannot choose the experiment');
+    assert(!!sel && qa('option', sel).length - 1 === (st.facultyExperimentIds(fac.id) || []).length,
+      'and offers exactly the experiments mapped to this faculty member');
+
+    /* Drive the validator through the SAME entry point the screen uses,
+       then assert the bank has not moved. */
+    var csv = XRSLP.csv.toCsv(XRSLP.questionImport.templateRows());
+    var res = XRSLP.questionImport.validate('csv', csv,
+      { experimentId: eid, facultyPersonId: fac.id });
+    assert(res.ok === true, 'the template validates');
+    assert(st.questionsForFaculty(fac.id).length === before,
+      'VALIDATION WRITES NOTHING — the bank is untouched');
+
+    /* An out-of-scope experiment is refused before a row is read. */
+    var outside = null;
+    var mine = st.facultyExperimentIds(fac.id);
+    (st.contentRecords ? st.contentRecords() : []).forEach(function (r) {
+      if (!outside && r.status === st.CONTENT_STATUS.PUBLISHED && mine.indexOf(r.id) === -1) {
+        outside = r.id;
+      }
+    });
+    if (outside) {
+      var bad = XRSLP.questionImport.validate('csv', csv,
+        { experimentId: outside, facultyPersonId: fac.id });
+      assert(bad.ok === false && bad.rows.length === 0,
+        'AN OUT-OF-SCOPE EXPERIMENT IS REFUSED BEFORE A ROW IS READ');
+      assert(XRSLP.questionImport.commit(bad, fac.tenantId, fac.id).created === 0,
+        'and committing it writes nothing');
+    }
+
+    /* A blocked file cannot be committed. */
+    var badCsv = csv + '\nmultiple_choice,"Broken row",OnlyOne,,,,z,0,';
+    var blocked = XRSLP.questionImport.validate('csv', badCsv,
+      { experimentId: eid, facultyPersonId: fac.id });
+    assert(blocked.ok === false, 'one bad row blocks the whole file');
+    assert(XRSLP.questionImport.commit(blocked, fac.tenantId, fac.id).created === 0,
+      'AND COMMITTING A BLOCKED FILE WRITES NOTHING — no partial import');
+    assert(st.questionsForFaculty(fac.id).length === before, 'the bank is still untouched');
+    return out;
+  }
+
+  /* ---- a published artefact is not editable in place ---- */
+  function checkPublishedEditGuard() {
+    var st = XRSLP.state;
+    var out = { name: 'content manager — a published artefact is not rewritten in place',
+                checks: [], failures: [] };
+    function assert(cond, label, detail) {
+      out.checks.push({ label: label, pass: !!cond });
+      if (!cond) { out.failures.push(label + (detail ? ' — ' + detail : '')); }
+    }
+
+    var manager = (st.contentActors ? st.contentActors() : [])
+      .filter(function (a) { return a.role === 'manager'; })[0];
+    var rec = (st.contentRecords ? st.contentRecords() : []).filter(function (r) {
+      return r.status === st.CONTENT_STATUS.PUBLISHED && st.managerCanEditDelivery(r, manager && manager.id) &&
+        (r.technologies || []).indexOf('web') !== -1;
+    })[0];
+    if (!manager || !rec) {
+      out.checks.push({ label: 'no published web record in this manager’s scope — skipped', pass: true });
+      return out;
+    }
+
+    var liveUrl = st.deliverySummaryFor(rec, 'web');
+    var liveLabel = rec.versionLabel;
+    nav('#/content/' + encodeURIComponent(manager.id) + '/item/' + encodeURIComponent(rec.id));
+    var main = document.getElementById('main-content') || document.body;
+    var text = main.innerText || '';
+
+    assert(/material change becomes a version/i.test(text),
+      'the screen states that a material change on published content becomes a version');
+    assert(!/creates no new version and grants nobody access/i.test(text),
+      'AND NO LONGER CLAIMS THE OPPOSITE — the pre-publication footnote is not shown here');
+
+    var openVer = st.openVersionForRecord(rec.id);
+    var save = document.getElementById('dl-save-0');
+    if (openVer && st.managerCanReviseVersion(openVer, manager.id)) {
+      /* ⚠ TWO DIFFERENT BLOCKED CASES, and this used to assert only
+         one. When the open candidate is this manager's OWN correction
+         and still theirs to change, the editor REVISES it rather than
+         refusing — otherwise a correction a reviewer returned could
+         only be re-sent unchanged and would block the experiment for
+         good. A save control is correct here, and it must say what it
+         actually does. */
+      assert(!!save, 'a correction this manager may still revise offers a save control');
+      assert(!!save && /update your correction/i.test(save.textContent),
+        'AND IT SAYS IT UPDATES THE CORRECTION rather than promising a direct write');
+      assert(!!document.getElementById('dl-ver-0'),
+        'and the version label is carried on the form');
+    } else if (openVer) {
+      assert(!save, 'a version somebody ELSE holds offers no save control at all');
+    } else {
+      assert(!!save && /correction version/i.test(save.textContent),
+        'the save control names what it will actually do');
+      assert(!!document.getElementById('dl-ver-0'),
+        'and a new version label is asked for');
+    }
+
+    /* The state layer refuses regardless of what the screen offers. */
+    assert(st.managerUpdateDelivery(manager.id, rec.id, 'web',
+      { url: 'https://example.org/audit-probe' }, 'UI audit probe.') === null,
+      'THE IN-PLACE WRITER REFUSES A MATERIAL CHANGE, whatever the screen does');
+    assert(st.deliverySummaryFor(st.contentRecord(rec.id), 'web') === liveUrl,
+      'and the live delivery reference is unchanged');
+    assert(st.contentRecord(rec.id).versionLabel === liveLabel,
+      'and so is the published version label');
+    return out;
+  }
+
   async function interactions() {
     var startHash = window.location.hash;
     var results = [checkStudentHomeNoDuplicates(), checkReturnPath(), checkOverlayHandoff(),
-                   await checkSupportMedia()];
+                   await checkSupportMedia(),
+                   /* Implementation 09 — the three new flows, driven for real. */
+                   checkPrototypeRuntime(), checkQuestionImport(), checkPublishedEditGuard()];
     window.location.hash = startHash || '#/';
     var failures = results.reduce(function (n, r) { return n + r.failures.length; }, 0);
     var checks = results.reduce(function (n, r) { return n + r.checks.length; }, 0);

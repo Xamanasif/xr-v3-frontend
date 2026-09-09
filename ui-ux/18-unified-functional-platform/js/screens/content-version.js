@@ -64,6 +64,9 @@ XRSLP.screens = XRSLP.screens || {};
      named as theirs on every step where it matters.
 
      Derived from `v.status` alone, so it reports and never decides. */
+  /* `raisedByRole` is declared below; a function declaration hoists, so
+     this is safe — and it is named here so a reader does not have to
+     take that on trust. */
   function versionTrack(v) {
     var s = v.status;
     var proposed = 'done', academic = 'todo', decision = 'todo', out = 'todo';
@@ -73,10 +76,20 @@ XRSLP.screens = XRSLP.screens || {};
     else if (s === VS.APPROVED) { academic = 'done'; decision = 'live'; }
     else if (s === VS.HELD) { academic = 'done'; decision = 'blocked'; }
     else if (s === VS.RELEASED) { academic = 'done'; decision = 'done'; out = 'done'; }
+    /* ⚠ THE ACTOR COMES FROM THE CANDIDATE — Implementation 09 QA.
+       Every one of these three lines named the Vendor, so a correction
+       raised by a Content Manager was described on the Academic
+       Reviewer's own screen as *"Submitted by the Vendor"* — a plainly
+       false statement about who did the work, on the surface where the
+       reader most needs to know. `createCorrectionVersion` has recorded
+       the provenance since it was written; nothing read it here. */
+    var who = raisedByRole(v);
+    var isCorrection = v.origin === 'content-manager';
     return ui.track([
-      { t: 'Proposed', d: s === VS.DRAFT ? 'With you — not yet submitted'
-        : s === VS.CHANGES_ACADEMIC ? 'Returned to the Vendor to correct'
-        : 'Submitted by the Vendor', state: proposed },
+      { t: isCorrection ? 'Correction proposed' : 'Version proposed',
+        d: s === VS.DRAFT ? 'With you — not yet submitted'
+        : s === VS.CHANGES_ACADEMIC ? 'Returned to the ' + who + ' to correct'
+        : 'Submitted by the ' + who, state: proposed },
       { t: 'Academic review', d: 'The Academic Reviewer approves it or asks for changes', state: academic },
       { t: 'Release / Hold', d: s === VS.HELD ? 'Held by the Super Admin'
         : 'The Super Admin’s decision', state: decision },
@@ -187,18 +200,42 @@ XRSLP.screens = XRSLP.screens || {};
      published value would in fact survive — and this card is read by the
      two people deciding whether to approve and release it. */
   function mergedDelivery(rec, v, tech) {
+    /* ⚠ A WITHDRAWAL IS NOT AN ABSENT VALUE — Implementation 09.
+       `releaseVersion` skips empty incoming values so an untouched
+       technology carries its published values forward, and this
+       function mirrors that so the decision surface shows what a
+       release would actually produce. A Content Manager's correction
+       can also WITHDRAW a reference, and that is an instruction rather
+       than an absent value — recorded in `v.removals`. Without this
+       branch the Academic Reviewer and the Super Admin would be shown
+       the link that the release is about to remove, and would be
+       approving one thing while reading another. */
+    if (isWithdrawn(v, tech)) { return {}; }
     var current = state.deliveryOf(rec, tech) || {};
     var incoming = (v && v.delivery && v.delivery[tech]) || null;
-    if (!incoming) { return current; }
     var merged = {};
     Object.keys(current).forEach(function (k) { merged[k] = current[k]; });
-    Object.keys(incoming).forEach(function (k) {
-      var val = incoming[k];
-      if (typeof val === 'string' && !val.trim()) { return; }
-      if (val === null || val === undefined) { return; }
-      merged[k] = val;
-    });
+    if (incoming) {
+      Object.keys(incoming).forEach(function (k) {
+        var val = incoming[k];
+        if (typeof val === 'string' && !val.trim()) { return; }
+        if (val === null || val === undefined) { return; }
+        merged[k] = val;
+      });
+    }
+    clearedFields(v, tech).forEach(function (k) { delete merged[k]; });
     return merged;
+  }
+  function isWithdrawn(v, tech) {
+    return !!(v && v.removals && v.removals.indexOf(tech) !== -1);
+  }
+  /* Fields this version will CLEAR on that technology — a blanked
+     runtime requirement, say, rather than a whole withdrawal. Shown for
+     the same reason the withdrawal is: the merge cannot express a
+     clear, so a reader would otherwise see the value that is about to
+     go. */
+  function clearedFields(v, tech) {
+    return (v && v.clears && v.clears[tech]) ? v.clears[tech] : [];
   }
 
   function deliveryReadOnly(rec, v) {
@@ -212,6 +249,21 @@ XRSLP.screens = XRSLP.screens || {};
       return '<div class="tr-block">' +
         '<div class="tr-h">' + ui.fmtBadge(t) + '<span class="tr-n">' + esc(def.name) + '</span>' +
         '<span class="tr-d">' + esc(def.deliveryLabel) + '</span></div>' +
+        /* Said before the fields, not after them: a row of em-dashes on
+           its own reads as "the Vendor supplied nothing", which is a
+           different decision from "this version withdraws it". */
+        (isWithdrawn(v, t)
+          ? '<p class="cardlede">' + ui.ic('alert', 'sm') +
+            ' <strong>This version withdraws the ' + esc(def.label) + ' delivery reference.</strong> ' +
+            'If it is released, the platform will hold nothing for ' + esc(def.label) +
+            ' until a replacement is recorded. ' + esc(def.label) +
+            ' stays on the experiment — a version never removes a technology.</p>'
+          : clearedFields(v, t).length
+          ? '<p class="cardlede">' + ui.ic('alert', 'sm') +
+            ' <strong>This version clears ' + esc(clearedFields(v, t).join(', ')) + ' for ' +
+            esc(def.label) + '.</strong> Those values are shown as empty below because that is what a ' +
+            'release would leave.</p>'
+          : '') +
         '<div class="kv">' + rows +
         '<div class="k">Device / runtime</div><div class="v">' + esc(cur.runtime || '—') + '</div>' +
         '</div></div>';
@@ -638,7 +690,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="kv">' +
       '<div class="k">Version label</div><div class="v">' + esc(v.versionLabel) + '</div>' +
       '<div class="k">Replaces</div><div class="v">' + esc(v.replacesVersionLabel || '—') + '</div>' +
-      '<div class="k">Submitted by</div><div class="v">' + esc(v.createdByName) + ' <span class="muted">· Vendor</span></div>' +
+      '<div class="k">Submitted by</div><div class="v">' + raisedByLine(v) + correctionChip(v) + '</div>' +
       '<div class="k">What changed</div><div class="v">' + esc(v.changeNote) + '</div>' +
       '</div>' +
       '<h3 class="vh">Description</h3><p class="vd-d">' + esc(v.description) + '</p>' +
@@ -656,6 +708,14 @@ XRSLP.screens = XRSLP.screens || {};
          above states that the word publish appears nowhere here as an
          action. The paragraph immediately below it already had it right,
          which is how the heading survived. */
+      /* ── Implementation 09 QA — WHAT ACTUALLY CHANGES ────────
+         The reviewer could see the proposed value and had to work out
+         for themselves whether it differed from the live one. The
+         comparison comes first now, because it is the decision; the
+         full delivery block stays beneath it as the context it always
+         was. */
+      '<h3 class="vh">What this version changes</h3>' +
+      versionDiffHTML(rec, v, { hideReason: true }) +
       '<h3 class="vh">Technology delivery a release would write</h3>' +
       deliveryReadOnly(rec, v) +
       '<p class="cardfoot">The Vendor owns these technical references; they are shown here as ' +
@@ -743,7 +803,174 @@ XRSLP.screens = XRSLP.screens || {};
 
   /* Exposed so the reviewer queue and the Content Library can render the
      same badge and holder line without re-deriving them. */
+  /* ── Implementation 09 — WHO RAISED THIS VERSION ──────────────
+     `createCorrectionVersion` records `origin: 'content-manager'` so
+     the history can never present a Content Manager's correction as a
+     Vendor's technical submission — and then every downstream screen
+     printed the literal word "Vendor" beside `createdByName` anyway.
+     The Super Admin's Release / Hold panel and the Academic Reviewer's
+     queue were both telling the two roles who make the decision that a
+     correction came from somebody who did not raise it.
+
+     One helper, so the label is derived from the record in every place
+     that shows it. */
+  function raisedByRole(v) {
+    return (v && v.origin === 'content-manager') ? 'Content Manager' : 'Vendor';
+  }
+  function raisedByLine(v) {
+    return esc(v ? (v.createdByName || '') : '') +
+      ' <span class="muted">· ' + esc(raisedByRole(v)) + '</span>';
+  }
+  /* A correction is a different KIND of candidate from a Vendor's later
+     version, and a reviewer deciding on one should be able to see which
+     they are looking at without opening it. */
+  function correctionChip(v) {
+    if (!v || v.origin !== 'content-manager') { return ''; }
+    return ' ' + ui.badge('b-outline', 'edit', 'Content Manager correction');
+  }
+
+
+  /* ============================================================
+     CURRENT → PROPOSED — Implementation 09 QA correction.
+
+     ── WHY THIS EXISTS ──────────────────────────────────────────
+     Both people who decide on a later version could see what it
+     PROPOSES, and neither could see what it CHANGES. The Academic
+     Reviewer read a hosted URL; whether it differed from the live one,
+     and how, was theirs to work out by opening another screen and
+     comparing two strings by eye. The Super Admin took the release
+     decision on the same information.
+
+     A decision surface that shows only the new value is asking someone
+     to approve a diff they have not been shown.
+
+     ── WHAT IT DELIBERATELY IS NOT ──────────────────────────────
+     ⛔ NOT a side-by-side copy of the whole Experiment. Almost every
+     field of a correction is identical to the published record, and a
+     wall of unchanged rows is how the two or three that actually moved
+     get missed. ONLY changed fields are listed; everything else is
+     summarised as unchanged, in one line.
+
+     It reports and never decides: it compares the candidate against
+     the published record and renders the difference. `releaseVersion`
+     remains the only thing that writes.
+     ============================================================ */
+
+  /* One comparison row. `kind` is 'changed' | 'cleared' — a withdrawal
+     is not an empty new value, it is a removal, and the two must not
+     read alike. */
+  function diffRow(label, current, proposed, kind) {
+    return { label: label, current: current, proposed: proposed, kind: kind || 'changed' };
+  }
+
+  /* Everything a RELEASE of this candidate would actually change on the
+     published record. Mirrors `releaseVersion`'s own write rules: it
+     merges non-empty values, and applies `clears` afterwards. */
+  function versionChanges(rec, v) {
+    var out = [];
+    if (!rec || !v) { return out; }
+
+    function textDiff(label, now, next) {
+      var a = String(now == null ? '' : now).trim();
+      var b = String(next == null ? '' : next).trim();
+      if (!b || a === b) { return; }          /* empty carries forward — not a change */
+      out.push(diffRow(label, a, b, 'changed'));
+    }
+    textDiff('Description', rec.description, v.description);
+    textDiff('Catalogue summary', rec.summary, v.summary);
+    textDiff('Vendor notes', rec.vendorNotes, v.vendorNotes);
+
+    var FIELD = {
+      url: 'Hosted URL', packageLabel: 'Package label', packageRef: 'Package reference',
+      runtime: 'Device / runtime requirement', notes: 'Technical notes',
+      install: 'Installation / access notes'
+    };
+    data.sortTech(rec.technologies || []).forEach(function (t) {
+      var def = data.TECHNOLOGIES[t] || {};
+      var now = state.deliveryOf(rec, t) || {};
+      var incoming = (v.delivery && v.delivery[t]) || {};
+      var cleared = (v.clears && v.clears[t]) || [];
+      Object.keys(FIELD).forEach(function (k) {
+        var a = String(now[k] == null ? '' : now[k]).trim();
+        if (cleared.indexOf(k) !== -1) {
+          if (a) { out.push(diffRow((def.label || t) + ' · ' + FIELD[k], a, '', 'cleared')); }
+          return;
+        }
+        var raw = incoming[k];
+        if (raw === undefined || raw === null) { return; }
+        var b = String(raw).trim();
+        if (!b || a === b) { return; }
+        out.push(diffRow((def.label || t) + ' · ' + FIELD[k], a, b, 'changed'));
+      });
+    });
+    return out;
+  }
+
+  /* The count of technologies a release would leave exactly as they
+     are — said in one line, so "nothing else moves" is stated rather
+     than inferred from an absence. */
+  function unchangedTechnologies(rec, v) {
+    var changed = {};
+    versionChanges(rec, v).forEach(function (d) {
+      (rec.technologies || []).forEach(function (t) {
+        var def = data.TECHNOLOGIES[t] || {};
+        if (d.label.indexOf((def.label || t) + ' · ') === 0) { changed[t] = true; }
+      });
+    });
+    return (rec.technologies || []).filter(function (t) { return !changed[t]; });
+  }
+
+  /* "AR and VR", not "AR, VR" — a sentence a person reads, not a list
+     a machine printed. */
+  function listWords(items) {
+    if (items.length <= 1) { return items.join(''); }
+    return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
+  }
+
+  function versionDiffHTML(rec, v, opts) {
+    opts = opts || {};
+    var rows = versionChanges(rec, v);
+    var liveLabel = esc(rec.versionLabel || '—');
+    var nextLabel = esc(v.versionLabel || '—');
+    if (!rows.length) {
+      return '<p class="cardlede">' + ui.ic('info', 'sm') +
+        ' This version changes no delivery reference and no catalogue text against version <strong>' +
+        liveLabel + '</strong>. Releasing it would move the version label and nothing else.</p>';
+    }
+    var untouched = unchangedTechnologies(rec, v);
+    return '<div class="vdiff">' + rows.map(function (d) {
+      return '<div class="vd-row' + (d.kind === 'cleared' ? ' cleared' : '') + '">' +
+        '<div class="vd-f">' + esc(d.label) +
+          (d.kind === 'cleared'
+            ? ' ' + ui.badge('b-warning', 'alert', 'Withdrawn') : '') + '</div>' +
+        '<div class="vd-side"><span class="vd-k">Current · v' + liveLabel + '</span>' +
+          '<span class="vd-v mono brk">' + (d.current
+            ? esc(d.current) : '<span class="muted">Nothing recorded</span>') + '</span></div>' +
+        '<div class="vd-side vd-new"><span class="vd-k">Proposed · v' + nextLabel + '</span>' +
+          '<span class="vd-v mono brk">' + (d.proposed
+            ? esc(d.proposed)
+            : '<span class="muted">Nothing — the reference is withdrawn</span>') + '</span></div>' +
+        '</div>';
+    }).join('') + '</div>' +
+    '<p class="cardfoot">' +
+    rows.length + ' ' + util.plural(rows.length, 'field') + ' would change. ' +
+    (untouched.length
+      ? 'Every other field, and ' + listWords(untouched.map(function (t) {
+          return esc((data.TECHNOLOGIES[t] || {}).label || t);
+        })) + ', ' + (untouched.length === 1 ? 'is' : 'are') + ' unchanged and carried forward.'
+      : 'Every field not listed is unchanged and carried forward.') +
+    (v.changeNote && !opts.hideReason
+      ? '</p><blockquote class="qquote">' + esc(v.changeNote) + '</blockquote><p class="cardfoot">' +
+        'The reason recorded by whoever raised it.'
+      : '') +
+    '</p>';
+  }
+
   XRSLP.versionUI = {
+    raisedByRole: raisedByRole, raisedByLine: raisedByLine, correctionChip: correctionChip,
+    /* Implementation 09 QA — current → proposed, for the two people
+       who decide on a version. */
+    changes: versionChanges, diff: versionDiffHTML,
     badge: versionBadge, holderLine: holderLine, history: versionHistory,
     /* Also used by the Super Admin's Release / Hold screen, so the two
        approvers see exactly the same delivery the release would write. */

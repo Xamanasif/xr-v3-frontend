@@ -243,6 +243,20 @@ XRSLP.contentUI = (function () {
      AR / VR / MR are an authorised PACKAGE; Web / WebGL is a HOSTED
      link (STK31-37). The two therefore show different fields, and a
      field is never asked of a technology that does not use it. */
+  /* The delivery TARGET of each technology, in the words the runtime
+     contract uses. Not a new model — a restatement of `TECHNOLOGIES`
+     in terms of what a reviewer or a Content Manager would have to
+     have in front of them to run it. */
+  var RUNTIME_TARGET = {
+    web: 'A hosted browser experience. It opens in this browser, and can be inspected from here.',
+    ar:  'A mobile / native AR runtime. It runs in an AR application on a supported phone or tablet, ' +
+         'and cannot be executed in a browser.',
+    vr:  'A VR headset / native runtime. It runs in a headset application on a supported device, ' +
+         'and cannot be executed in a browser.',
+    mr:  'An MR device / native runtime. It runs in an application on supported MR hardware, ' +
+         'and cannot be executed in a browser.'
+  };
+
   function deliveryRows(rec) {
     if (!rec.technologies.length) {
       return '<p class="muted">No technology variant has been selected for this experiment yet.</p>';
@@ -275,6 +289,25 @@ XRSLP.contentUI = (function () {
       lines.push(kvLine('Device / runtime requirement', d.runtime
         ? esc(d.runtime) : '<span class="muted">Not supplied</span>'));
       if (d.notes) { lines.push(kvLine('Technical notes', esc(d.notes))); }
+      /* ── Implementation 09 — WHERE THIS ACTUALLY RUNS ────────────
+         PM-08 asked how a reviewer tests AR or VR content. The honest
+         first step is to stop leaving the delivery TARGET implicit: a
+         hosted link opens in the browser the reviewer is already using,
+         and a package reference does not open anywhere in this build,
+         because running it needs the device application that is the
+         subject of RUNTIME_INTEGRATION_CONTRACT.md.
+
+         Stated per technology, from the technology's own definition, so
+         it cannot drift from the delivery model it describes. */
+      /* ⚠ NOT UNCONDITIONAL. The Web sentence promises the reviewer
+         that the experience "opens in this browser, and can be
+         inspected from here" — which is false on a record whose hosted
+         URL has not been supplied, two lines above a field that says
+         "Not supplied". A record with nothing recorded says so. */
+      lines.push(kvLine('Where it runs', esc(
+        (def.delivery === 'hosted' && !d.url)
+          ? 'A hosted browser experience. No link has been supplied yet, so there is nothing to open.'
+          : (RUNTIME_TARGET[t] || def.device))));
       return '<div class="tr-block">' +
         '<div class="tr-h">' + ui.fmtBadge(t) + '<span class="tr-n">' + esc(def.name) + '</span>' +
         '<span class="tr-d">' + esc(def.deliveryLabel) + '</span></div>' +
@@ -382,20 +415,53 @@ XRSLP.contentUI = (function () {
       /* Provenance, not status — so it is a line of text with an icon
          rather than a badge. A pill cannot wrap, and this phrase is
          longer than the value column of a narrow rail card. */
+      /* The seed branch carried the same ambiguity as the one below:
+         a bare "Version" beside a header showing the CURRENT version
+         reads as a contradiction the moment a release moves them
+         apart. Both are labelled. */
       return '<div class="kv">' +
         kvLine('Publication origin',
           '<span class="provline">' + ui.ic('layers', 'sm') + 'Existing published content</span>') +
-        kvLine('Recorded', esc(util.fmtDate(p.publishedAt))) +
-        kvLine('Version', esc(p.versionLabel)) +
+        kvLine('First recorded', esc(util.fmtDate(p.publishedAt))) +
+        kvLine('First recorded version', esc(p.versionLabel)) +
+        kvLine('Current public version', rec.versionLabel
+          ? '<strong>' + esc(rec.versionLabel) + '</strong>' +
+            (String(rec.versionLabel) !== String(p.versionLabel || '')
+              ? '<span class="dnote">' + ui.ic('info', 'sm') +
+                'A later version has been released since. The first record above is unchanged.</span>'
+              : '')
+          : '<span class="muted">—</span>') +
         '</div>' +
         '<p class="dnote">' + ui.ic('info', 'sm') +
         'This experiment was already in the published catalogue when the content production workflow was ' +
         'integrated. No Vendor submission or review history is claimed for it.</p>';
     }
+    /* ⚠ "Version 1.0" UNDER A CARD HEADED "Publication record", ON A
+       PAGE WHOSE TITLE SAID "Published · v1.1" — Implementation 09 QA.
+
+       Both were correct and together they read as a contradiction.
+       This card is the record of the FIRST publication, and 1.0 is the
+       version that was first published; the header shows the version
+       the public sees NOW, which a Super Admin release has since moved
+       on. Neither number is wrong, and neither is rewritten here.
+
+       What was wrong was the labels. Every field now says which of the
+       two it is, and where they differ the current version is named on
+       the same card so a reader never has to reconcile it against the
+       page title. */
+    var current = String(rec.versionLabel || '');
+    var first = String(p.versionLabel || '');
     return '<div class="kv">' +
       kvLine('Published by', esc(p.publishedByName) + ' <span class="muted">· Content Manager</span>') +
-      kvLine('Published', esc(util.fmtDateTime(p.publishedAt))) +
-      kvLine('Version', esc(p.versionLabel)) +
+      kvLine('First published', esc(util.fmtDateTime(p.publishedAt))) +
+      kvLine('First published version', esc(first)) +
+      kvLine('Current public version', current
+        ? '<strong>' + esc(current) + '</strong>' +
+          (current !== first
+            ? '<span class="dnote">' + ui.ic('info', 'sm') +
+              'A later version has been released since. The first publication above is unchanged.</span>'
+            : '')
+        : '<span class="muted">—</span>') +
       kvLine('Submission revision published', esc(String(p.revision))) +
       kvLine('Technologies published', ui.techBadges(p.technologies)) +
       kvLine('Learning Outcomes published', String(p.outcomes.length)) +
@@ -725,6 +791,8 @@ XRSLP.contentUI = (function () {
     holderLine: holderLine, contextLine: contextLine,
     productionTrack: productionTrack, returnReason: returnReason, returnReasonHTML: returnReasonHTML,
     outcomesList: outcomesList, deliveryRows: deliveryRows, documentsList: documentsList,
+    /* Implementation 09 — the delivery target per technology. */
+    RUNTIME_TARGET: RUNTIME_TARGET,
     historyTimeline: historyTimeline, readinessCard: readinessCard,
     academicDecisionCard: academicDecisionCard, publicationCard: publicationCard,
     publishedNextVersionNote: publishedNextVersionNote,

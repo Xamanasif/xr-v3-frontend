@@ -252,7 +252,7 @@ XRSLP.tenantUI = (function () {
       '"><span style="width:' + pct + '%"></span></div>' +
       (alloc.over > 0 ?
         '<p class="al-note">' + alloc.over + ' ' + XRSLP.util.plural(alloc.over, 'student') +
-        ' hold an access grant beyond the approved quantity and are <strong>not</strong> entitled. ' +
+        ' hold an access grant beyond the approved quantity and <strong>cannot open it</strong>. ' +
         'Free a licence, or ask the Super Admin to revise the approved quantity.</p>' : '') +
       (opts.noteHTML ? '<p class="al-note">' + opts.noteHTML + '</p>' : '') +
       '</div>';
@@ -302,7 +302,7 @@ XRSLP.tenantUI = (function () {
 
   /* Same reasoning, for the rule two screens both need to state. */
   var FACULTY_LICENCE_RULE = 'The approved quantity is a student allocation. Mapping a ' +
-    'Faculty member consumes none of it and entitles no student.';
+    'Faculty member consumes none of it and gives no student access.';
 
   /* What a record COVERS, for use as its heading. An opaque identifier
      tells a reader nothing about which record they are looking at; the
@@ -660,6 +660,11 @@ XRSLP.tenantUI = (function () {
       students: 0, started: 0, notStartedStudents: 0, allComplete: 0,
       pairs: 0,
       notStarted: 0, inProgress: 0, awaitingReview: 0, awaitingRelease: 0, completed: 0,
+      /* Implementation 09 — institution-level utilisation, accumulated
+         in the same pass. `ranStudents` counts a student who has a
+         RECORDED SIMULATION RUN, which is not the same question as
+         `started` and is never presented as if it were. */
+      ranStudents: 0, neverRanStudents: 0, launches: 0, sessions: 0, seconds: 0,
       byExperiment: {}, experimentOrder: [],
       byCourse: {}, courseOrder: []
     };
@@ -672,7 +677,16 @@ XRSLP.tenantUI = (function () {
       return 'notStarted';
     }
     function blank(extra) {
-      var o = { students: 0, notStarted: 0, inProgress: 0, awaitingReview: 0, awaitingRelease: 0, completed: 0 };
+      var o = { students: 0, notStarted: 0, inProgress: 0, awaitingReview: 0, awaitingRelease: 0, completed: 0,
+        /* ── Implementation 09 — FACTUAL UTILISATION, SAME PASS ──
+           PM-08 asked how an institution knows an experiment is
+           actually being used. These four accumulate from the
+           `factual` block `experimentProgress` already returns, so
+           they cost NOTHING: no second walk over the students, no
+           second call into the state layer, and no new derivation.
+           The screen this feeds is already the most expensive in the
+           build and its search box is debounced because of it. */
+        usedStudents: 0, launches: 0, sessions: 0, seconds: 0 };
       for (var k in extra) { if (Object.prototype.hasOwnProperty.call(extra, k)) { o[k] = extra[k]; } }
       return o;
     }
@@ -687,7 +701,7 @@ XRSLP.tenantUI = (function () {
          learner for a licence state. Those cases already have their own
          attention rows above. */
       var rows = state.studentExperiments(pid).filter(function (r) { return r.effective; });
-      var touched = 0, done = 0;
+      var touched = 0, done = 0, ran = 0;
       rows.forEach(function (row) {
         var prog = state.experimentProgress(pid, row.experimentId, row.technologies, { studentView: true });
         var b = bucketOf(prog.status);
@@ -695,6 +709,16 @@ XRSLP.tenantUI = (function () {
         out[b] += 1;
         if (b !== 'notStarted') { touched += 1; }
         if (b === 'completed') { done += 1; }
+
+        /* ⚠ RAN A SIMULATION, not "made some progress". `touched`
+           above is the four-strand progress bucket and moves when a
+           resource is opened; this counts only a recorded RUN, which
+           is the thing PM-08 was actually asking about. The two are
+           deliberately different numbers and are labelled differently
+           wherever they are shown. */
+        var fact = prog.factual ? prog.factual.simulation : null;
+        var usedHere = !!(fact && fact.technologiesUsed.length);
+        if (usedHere) { ran += 1; }
 
         var ctx = data.contextOf(row.experimentId);
         var e = out.byExperiment[row.experimentId];
@@ -709,6 +733,15 @@ XRSLP.tenantUI = (function () {
           out.experimentOrder.push(e);
         }
         e.students += 1; e[b] += 1;
+        if (fact) {
+          if (usedHere) { e.usedStudents += 1; }
+          e.launches += fact.launches;
+          e.sessions += fact.sessions;
+          e.seconds += fact.totalSeconds;
+          out.launches += fact.launches;
+          out.sessions += fact.sessions;
+          out.seconds += fact.totalSeconds;
+        }
 
         var cKey = (ctx && ctx.course ? ctx.course.id : '__none');
         var c = out.byCourse[cKey];
@@ -723,6 +756,12 @@ XRSLP.tenantUI = (function () {
           out.courseOrder.push(c);
         }
         c[b] += 1;
+        if (fact) {
+          if (usedHere) { c.usedStudents += 1; }
+          c.launches += fact.launches;
+          c.sessions += fact.sessions;
+          c.seconds += fact.totalSeconds;
+        }
         if (!c.experiments[row.experimentId]) { c.experiments[row.experimentId] = true; c.experimentCount += 1; }
         /* A student taking three experiments in one Course is ONE
            student in that Course's "students with access" column. The
@@ -732,6 +771,7 @@ XRSLP.tenantUI = (function () {
         if (!c.studentIds[pid]) { c.studentIds[pid] = true; c.students += 1; }
       });
       if (touched) { out.started += 1; } else { out.notStartedStudents += 1; }
+      if (ran) { out.ranStudents += 1; } else if (rows.length) { out.neverRanStudents += 1; }
       if (rows.length && done === rows.length) { out.allComplete += 1; }
     });
 
@@ -743,6 +783,124 @@ XRSLP.tenantUI = (function () {
     out.experimentOrder.sort(order);
     out.courseOrder.sort(order);
     return out;
+  }
+
+  /* ============================================================
+     INSTITUTION UTILISATION — Implementation 09.
+
+     PM-08: how does an institution know an Experiment is actually
+     being used, who has not started, who is using it, and where a
+     completion has genuinely been recorded.
+
+     ── WHAT THIS IS NOT ─────────────────────────────────────────
+     ⛔ NO OUTCOMES. No mark, no score, no pass rate, no individual
+     student result and no route into a review. Faculty is the only
+     human evaluator (STK31-31) and this is oversight of USE.
+     ⛔ NO COMPOSITE INDEX, RANK, PREDICTION OR TREND. Every figure
+     below states its own numerator and denominator, exactly as the
+     Super Admin's usage card does.
+     ⛔ NO NEW ROUTE, NO NEW NAV ITEM, and nothing added to the
+     accepted Overview.
+
+     Every figure is folded from the runtime event log by
+     `learningRollup`, in the pass it was already making.
+     ============================================================ */
+  function fmtMins(seconds) {
+    if (!seconds) { return '0m'; }
+    var mins = Math.round(seconds / 60);
+    if (mins < 60) { return mins + 'm'; }
+    return Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm';
+  }
+
+  function utilisationCard(tenant) {
+    /* ⚠ A DEACTIVATED INSTITUTION HAS NO EFFECTIVE ENTITLEMENT, so
+       every figure would be a truthful zero that reads as a false
+       claim about learning that did happen. It gets the same explicit
+       branch the Learning snapshot has, rather than a grid of noughts. */
+    if (!state.tenantIsActive(tenant.id)) {
+      return ui.card('Experiment utilisation',
+        '<p class="cardlede">' + esc(tenant.name) + ' is deactivated, so no student can currently open ' +
+        'an experiment and no usage can be reported. Nothing recorded before the deactivation has been ' +
+        'removed.</p>', null, 'h2');
+    }
+    var learn = learningRollup(tenant);
+    if (!learn.students) {
+      return ui.card('Experiment utilisation',
+        '<p class="cardlede">No student can open an experiment yet, so there is nothing to report. ' +
+        'Usage appears here once students are given access and start opening experiments.</p>' +
+        '<div class="formact"><a class="btn sec sm" href="' + T.href.assignments(tenant.id) +
+        '">Student access</a></div>', null, 'h2');
+    }
+
+    /* FOUR FIGURES, each naming its own denominator — the same shape
+       the Super Admin's usage card uses, for the same reason. */
+    /* `T.statGrid`, not `statGrid`: this is the SECOND IIFE in this
+       file, and the helper is declared in the first one that builds
+       the `XRSLP.tenantUI` namespace. */
+    var tiles = T.statGrid([
+      { label: 'Students with learning access', value: learn.students,
+        note: 'can access at least one experiment' },
+      { label: 'Have opened a simulation', value: learn.ranStudents,
+        note: 'of ' + learn.students + ' — from recorded runtime sessions' },
+      { label: 'Have not opened one yet', value: learn.neverRanStudents,
+        note: 'of ' + learn.students + ' — they can access one and have run nothing',
+        tone: learn.neverRanStudents ? 'warn' : '' },
+      { label: 'Completed', value: learn.completed,
+        note: 'of ' + learn.pairs + ' student–experiment ' + util.plural(learn.pairs, 'pairing') }
+    ]);
+
+    var rows = learn.experimentOrder.filter(function (e) { return e.students > 0; });
+    var table = rows.length
+      ? '<div class="tscroll"><table class="dt">' +
+        '<caption class="sr-only">One row per experiment. Students with access is a count of people; ' +
+        'every other column counts what those people did.</caption>' +
+        '<thead><tr><th scope="col">Experiment</th><th scope="col">Students with access</th>' +
+        '<th scope="col">Have opened it</th><th scope="col">Sessions</th>' +
+        '<th scope="col">Time recorded</th><th scope="col">Completed</th></tr></thead><tbody>' +
+        rows.map(function (e) {
+          return '<tr>' +
+            '<td data-label="Experiment"><span class="tmain">' + esc(e.name) + '</span>' +
+              '<span class="tsub2">' + esc(e.groupingName + ' › ' + e.courseName) + '</span></td>' +
+            '<td data-label="Students with access" class="num tabular">' + e.students + '</td>' +
+            '<td data-label="Have opened it" class="num tabular">' + e.usedStudents +
+              (e.students && !e.usedStudents ? ' <span class="muted">none</span>' : '') + '</td>' +
+            '<td data-label="Sessions" class="num tabular">' + e.sessions + '</td>' +
+            '<td data-label="Time recorded" class="num tabular">' + esc(fmtMins(e.seconds)) + '</td>' +
+            '<td data-label="Completed" class="num tabular">' + e.completed + '</td>' +
+            '</tr>';
+        }).join('') + '</tbody></table></div>'
+      : '<p class="cardlede">No experiment has a student with access yet.</p>';
+
+    return ui.card('Experiment utilisation',
+      tiles + table +
+      /* THE COUNTING RULE, folded, in the sibling position the map
+         identified — beside the licence and renewal explanation this
+         screen already carries. */
+      ui.about('How these usage figures are counted',
+        '<p><strong>Students with access</strong> counts PEOPLE. Every other column counts what those ' +
+        'people did against one experiment, so a student taking three experiments appears once in the ' +
+        'first figure and in three rows of the table.</p>' +
+        '<p style="margin-top:8px"><strong>Have opened it</strong> means a simulation run was actually ' +
+        'recorded — not that a learning resource was read. <strong>Sessions</strong> and <strong>time ' +
+        'recorded</strong> come from those runs; a session left open records no time, because none was ' +
+        'measured.</p>' +
+        '<p style="margin-top:8px"><strong>Completed</strong> is shown only when nothing is ' +
+        'outstanding: every technology format the student can open has a recorded completion, every ' +
+        'learning resource is done, and the assessment is passed where one is configured. A simulation ' +
+        'is only ever finished when the runtime reports a completion for that technology — watching a ' +
+        'video, reading a resource or submitting the assessment never completes one. ' +
+        'Whether a student must finish an experiment in <em>every</em> format an institution holds is ' +
+        '<strong>not settled</strong>, so this figure takes the cautious reading and never over-counts.</p>' +
+        '<p style="margin-top:8px">No mark, score, pass rate or individual result appears here or in ' +
+        'any figure above. A result the assessment policy is still withholding from a student cannot be ' +
+        'inferred from this screen.</p>') +
+      /* HONESTY ABOUT THE SOURCE. Nothing in this build receives
+         traffic from an AR or VR application, so a figure that came
+         from a stand-in must not be read as device telemetry. */
+      ui.protoNote('<p>AR, VR and MR figures in this prototype come from the platform standing in for a ' +
+        'device application, not from one. Web figures come from the prototype runtime in the browser. ' +
+        'No native application is connected to this build.</p>'),
+      learn.pairs + ' student–experiment ' + util.plural(learn.pairs, 'pairing'), 'h2');
   }
 
   /* ============================================================
@@ -1691,7 +1849,7 @@ XRSLP.tenantUI = (function () {
             '<td data-label="Where those students are">' + learningCellHTML(l) + '</td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>' +
-        '<p class="cardfoot"><strong>Students with access</strong> is effective entitlement, not a licence ' +
+        '<p class="cardfoot"><strong>Students with access</strong> counts who can actually open it, not a licence ' +
         'count. No mark or result is shown here.</p>'
       : ui.emptyState({
           icon: 'search', heading: 'h3',
@@ -1754,8 +1912,8 @@ XRSLP.tenantUI = (function () {
             '<div class="cv-ent">' + g.courseOrder.map(function (c) {
               return esc(c.name) + ' <span class="tabular">(' + c.rows.length + ')</span>';
             }).join(' · ') + '</div>' +
-            '<div class="cv-ent tabular">' + entitledHere + ' student ' +
-            util.plural(entitledHere, 'entitlement') + ' across this programme</div>' +
+            '<div class="cv-ent tabular">' + entitledHere + ' ' +
+            util.plural(entitledHere, 'student') + ' with access across this programme</div>' +
             '<div style="margin-top:8px"><button class="btn sm sec" type="button" ' +
             'data-lib-rec="' + esc(rec.id) + '" data-lib-prog="' + esc(g.id) + '">' + ui.ic('search') +
             'Show in the content library<span class="sr-only"> — ' + esc(g.name) + ' in ' +
@@ -1837,6 +1995,14 @@ XRSLP.tenantUI = (function () {
       body = '<div class="stack">' +
         ui.card('Content library', filterBar + libraryTable,
           distinctExperiments + ' ' + util.plural(distinctExperiments, 'experiment'), 'h2') +
+        /* ── Implementation 09 — INSTITUTION UTILISATION ──────────
+           PM-08 asked how an institution knows its experiments are
+           being used. It goes HERE, on the screen that already owns
+           the institution's detailed content reporting, and NOT on
+           the Overview: the Learning snapshot there is four values by
+           stakeholder-closed decision, and adding a fifth reopens a
+           settled redesign. */
+        utilisationCard(tenant) +
         ui.sectionHead({
           title: 'Approved content', count: records.length, heading: 'h2', id: 'ar-sec',
           desc: 'One approved allocation each. The licences, the term and the technologies all belong to the record.'

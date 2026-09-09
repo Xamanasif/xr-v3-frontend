@@ -58,7 +58,7 @@ XRSLP.csv = (function () {
      escaped quotes (""). A naive line.split(',') would corrupt any
      real institutional export, so it is deliberately not used.
      ============================================================ */
-  function parse(text) {
+  function rawRows(text) {
     var rows = [], row = [], field = '';
     var inQuotes = false, i = 0, c;
     var src = String(text == null ? '' : text);
@@ -89,11 +89,28 @@ XRSLP.csv = (function () {
     /* Trailing field/row unless the file ended on a newline. */
     if (field !== '' || row.length) { endRow(); }
 
-    /* Drop rows that are entirely empty (a trailing newline, or blank
-       separator lines some spreadsheet tools leave behind). */
-    return rows.filter(function (r) {
-      return r.some(function (v) { return String(v).trim() !== ''; });
-    });
+    return rows;
+  }
+
+  /* ⚠ TWO PARSERS, AND THE DIFFERENCE MATTERS.
+     `parse()` drops entirely-empty rows, which is right for the student
+     import: it reports no row numbers a person has to find again, and a
+     trailing newline is not a row.
+
+     But a validator that DOES report row numbers must keep them, or
+     every number after the first blank line points at the wrong row —
+     the Question Bank import told a faculty member to fix row 4 when
+     the problem was on row 5. `parseRows()` is therefore the raw table,
+     blank rows included and in place, and the caller decides what a
+     blank row means to it. */
+  function parseRows(text) { return rawRows(text); }
+
+  function isBlankRow(r) {
+    return !(r || []).some(function (v) { return String(v == null ? '' : v).trim() !== ''; });
+  }
+
+  function parse(text) {
+    return rawRows(text).filter(function (r) { return !isBlankRow(r); });
   }
 
   /* ---------- header resolution (case / spacing tolerant) ---------- */
@@ -388,6 +405,18 @@ XRSLP.csv = (function () {
        and reads offline. The VALUE and its source are unchanged. */
     'Platform course code', 'Institution course code', 'Experiment',
     'Technologies licensed', 'Technologies used', 'Simulation status by technology',
+    /* ── Implementation 09 — THE FACTUAL UTILISATION COLUMNS ──────
+       PM-08 asked how anyone knows an experiment was actually used,
+       for how long, and how often. These are that answer, exported
+       alongside the state the file already carried, so the figures a
+       Faculty member reads on screen are the figures they can take
+       away. Every one is folded from the runtime event log.
+
+       ⚠ NOT ONE OF THEM IS A RESULT. The withholding rules below are
+       untouched: an unreleased score is still not in this file. */
+    'Simulation launches', 'Simulation sessions', 'Sessions left open',
+    'Time spent (minutes)', 'First simulation activity', 'Last activity',
+    'Simulation completed in', 'Usage evidence',
     'Resources completed', 'Resources total',
     'Assessment state', 'Attempt number', 'Score %', 'Score basis', 'Outcome',
     'Result released to student', 'Responses awaiting review', 'Progress'
@@ -396,6 +425,45 @@ XRSLP.csv = (function () {
   /* `rows` are the screen's own row objects. `deps` supplies the label
      helpers the screen already uses, so the file and the table can never
      describe the same state with two different words. */
+  /* Every distinct runtime that contributed to one experiment's
+     figures. `experimentUtilisation` rolls them up; this tolerates a
+     caller that passed an older shape without one. */
+  /* ⚠ THE COLUMN THAT EXISTS TO STATE PROVENANCE MUST NOT ASSERT ONE.
+     This read only the SOURCES, and a pre-telemetry record has none —
+     so a figure inherited from a build that had no telemetry at all was
+     labelled the same as a real one, and a MIXED record (part inherited,
+     part session-backed) was labelled "runtime sessions" outright. The
+     per-technology `evidence` is what actually answers this, so it is
+     what the column reports. */
+  function usageEvidence(state, use) {
+    var rows = use.technologies || [];
+    if (!rows.length) { return ''; }
+    var kinds = {};
+    rows.forEach(function (u) { if (u.evidence !== 'none') { kinds[u.evidence] = true; } });
+    if (!Object.keys(kinds).length) { return 'none recorded'; }
+    var inherited = !!(kinds['pre-telemetry'] || kinds.mixed);
+    var sources = usageSources(use);
+    var standIn = sources.length && !state.runtimeSourcesAllReal(sources);
+    var parts = [];
+    if (kinds['runtime-events'] || kinds.mixed) {
+      parts.push(standIn ? 'runtime sessions (stand-in — no device application connected)'
+                         : 'runtime sessions');
+    }
+    if (inherited) { parts.push('inherited from before session tracking'); }
+    return parts.join(' + ');
+  }
+
+  function usageSources(use) {
+    if (use && use.sources) { return use.sources; }
+    var out = [];
+    ((use && use.technologies) || []).forEach(function (u) {
+      (u.sources || []).forEach(function (sid) {
+        if (out.indexOf(sid) === -1) { out.push(sid); }
+      });
+    });
+    return out;
+  }
+
   function facultyProgressRows(rows, deps) {
     var state = deps.state, data = deps.data, L = deps.labels;
     var out = [PROGRESS_EXPORT_COLUMNS.slice()];
@@ -416,6 +484,8 @@ XRSLP.csv = (function () {
       var withheld = scoreHidden;
       var decided = att && (att.outcome === state.OUTCOME.PASSED || att.outcome === state.OUTCOME.NOT_PASSED);
       var mapping = deps.courseMapping ? deps.courseMapping(x.experimentId) : null;
+      var use09 = x.use ||
+        state.experimentUtilisation(x.person.id, x.experimentId, x.technologies || []);
       out.push([
         x.person.name || '',
         x.person.studentId || '',
@@ -432,6 +502,25 @@ XRSLP.csv = (function () {
         (x.progress.technologies || []).map(function (tp) {
           return tp.technology + '=' + L.simLabel(tp.simulationStatus);
         }).join(' | '),
+        /* Implementation 09. `x.use` is put on the row by the Student
+           Progress screen; the export recomputes it when a caller did
+           not, so the file is never silently short of the columns its
+           own header promises. */
+        use09.launches,
+        use09.sessionCount,
+        use09.openSessions,
+        /* MINUTES, and rounded — a spreadsheet column of seconds is not
+           something a Faculty member can read, and a decimal hour is
+           not something they can check. */
+        Math.round(use09.totalSeconds / 60),
+        use09.firstActivityAt || '',
+        use09.lastActivityAt || '',
+        use09.completed.join(' | '),
+        /* WHERE THE FIGURES CAME FROM, in the file as on the screen. A
+           column of session counts that quietly mixed device traffic
+           with a demo control would be the most misleading thing in
+           the export. */
+        usageEvidence(state, use09),
         x.progress.resources.completed,
         x.progress.resources.total,
         L.assessLabel ? L.assessLabel(x.assessState) : String(x.assessState || ''),
@@ -464,7 +553,8 @@ XRSLP.csv = (function () {
   return {
     COLUMNS: COLUMNS,
     requiredColumns: requiredColumns, optionalColumns: optionalColumns,
-    parse: parse, validate: validate, commit: commit,
+    parse: parse, parseRows: parseRows, isBlankRow: isBlankRow,
+    validate: validate, commit: commit,
     templateText: templateText, toCsv: toCsv,
     PROGRESS_EXPORT_COLUMNS: PROGRESS_EXPORT_COLUMNS,
     facultyProgressRows: facultyProgressRows, download: download

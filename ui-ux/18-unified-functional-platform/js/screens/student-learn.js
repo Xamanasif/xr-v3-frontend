@@ -344,8 +344,21 @@ XRSLP.screens = XRSLP.screens || {};
         '<dl class="tc-meta">' +
         '<dt>What you need</dt><dd>' + esc(def.requirement) + '</dd>' +
         '<dt>How it runs</dt><dd>' + esc(def.deliveryLabel) + '</dd>' +
-        (sim && sim.status === state.SIM_STATUS.COMPLETED
-          ? '<dt>Time spent</dt><dd>' + esc(L.fmtDuration(sim.timeSpentSeconds)) + '</dd>' : '') +
+        /* ── Implementation 09 — WHAT THIS TECHNOLOGY ACTUALLY COST ──
+           This showed a time only once the run was COMPLETE, so a
+           Student who had spent an hour and not finished saw nothing
+           at all. Time and sessions are real either way, and the card
+           now says so — from the runtime fold, not from a single
+           subtraction. */
+        (t.utilisation && t.utilisation.used
+          ? '<dt>Time spent</dt><dd>' +
+            (t.utilisation.totalSeconds
+              ? esc(L.fmtDuration(t.utilisation.totalSeconds)) +
+                (t.utilisation.sessionCount > 1
+                  ? ' <span class="muted">over ' + t.utilisation.sessionCount + ' sessions</span>' : '')
+              : '<span class="muted">Nothing measured yet</span>') + '</dd>' +
+            '<dt>Times opened</dt><dd class="tabular">' + t.utilisation.launches + '</dd>'
+          : '') +
         '</dl>' +
         '<div class="tc-act"><a class="btn sm pri" href="' +
         L.href.simulation(p.id, e.id, t.technology) + '">' + esc(action) + '</a></div>' +
@@ -439,9 +452,11 @@ XRSLP.screens = XRSLP.screens || {};
       '<section class="lpanel">' +
       '<h2 class="lp-h">Your progress</h2>' +
       '<div class="lp-b">' +
-      '<div class="lc-pl"><span>' + esc(L.progressLabel(prog.status)) + '</span>' +
-      '<span class="tabular">' + prog.percent + '%</span></div>' +
-      L.progressBar(prog.percent, prog.percent + ' per cent of the learning steps complete') +
+      /* ⚠ NO PERCENTAGE — Implementation 09 QA. Its denominator counted
+         one mandatory step per technology format, which no source
+         establishes. The three strands below say what is actually
+         true, each against its own denominator. */
+      '<div class="lc-pl"><span>' + esc(L.progressLabel(prog.status)) + '</span></div>' +
       (prog.technologies.length && prog.technologies.every(function (t) { return t.waitingOnResources; })
         ? '<p class="lp-cue">' + ui.ic('book', 'sm') +
           ' Everything else is done. Mark the remaining learning resources as done to complete ' +
@@ -453,7 +468,10 @@ XRSLP.screens = XRSLP.screens || {};
           ' only needs the remaining learning resources marked as done.</p>' : '') +
       '<dl class="lp-steps">' +
       '<dt>Learning resources</dt><dd>' + resProg.completed + ' of ' + resProg.total + '</dd>' +
-      '<dt>Learning steps done</dt><dd>' + prog.steps.done + ' of ' + prog.steps.total + '</dd>' +
+      /* The SIMULATION strand, per format and never summed: "1 of 3
+         formats" would be the same unsupported claim in a smaller
+         font. What is reported is which formats are finished. */
+      '<dt>Simulations</dt><dd>' + esc(L.simulationSentence(prog)) + '</dd>' +
       (prog.lastActivityAt
         ? '<dt>Last activity</dt><dd>' + esc(util.fmtDateTime(prog.lastActivityAt)) + '</dd>' : '') +
       '</dl>' +
@@ -550,6 +568,9 @@ XRSLP.screens = XRSLP.screens || {};
 
     var sim = state.simulationActivity(p.id, e.id, tech);
     var status = sim ? sim.status : state.SIM_STATUS.NOT_STARTED;
+    /* Implementation 09 — the runtime fold for this technology, read
+       once and used by every figure on the page. */
+    var use = state.simulationUtilisation(p.id, e.id, tech);
     var delivery = sim ? sim.deliveryState
       : (def.delivery === 'hosted' ? state.DELIVERY_STATE.READY : state.DELIVERY_STATE.NOT_REQUESTED);
     var isPackage = def.delivery === 'package';
@@ -633,37 +654,69 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="formact"><button class="btn sec" type="button" id="sim-ready">' +
         'Mark the package as ready</button></div>');
     } else if (status === state.SIM_STATUS.NOT_STARTED) {
-      actions = '<button class="btn pri" type="button" id="sim-start">' +
-        (isPackage ? 'Open the ' + def.label + ' experiment' : 'Open the Web simulation') + '</button>';
-      /* Honest, and short. The build opens a stand-in; it says so once,
-         beside the control that does it, and does not go on to explain
-         which delivery decisions are still open — that is a build fact,
-         not something a learner acts on. */
+      /* ── Implementation 09 — WEB OPENS A REAL RUNTIME. ─────────
+         A hosted experience runs in a browser, and this is a browser,
+         so the Web control now LEADS SOMEWHERE: the bounded prototype
+         runtime environment, which opens a session, keeps an elapsed
+         clock and reports its own completion through the same
+         ingestion a native client would use. The Student presses one
+         product control and every utilisation figure that follows is
+         real evidence of what they did.
+
+         A PACKAGE technology cannot be given the same thing without
+         fabricating an in-browser AR or VR runtime, so its control is
+         unchanged and its stand-in stays where it was. */
+      actions = isPackage
+        ? '<button class="btn pri" type="button" id="sim-start">Open the ' + def.label +
+          ' experiment</button>'
+        : '<a class="btn pri" href="' + L.href.runtime(p.id, e.id, tech) + '">' +
+          'Open the Web simulation</a>';
       actionNote = isPackage
         ? 'Nothing is downloaded or installed. This opens a stand-in for the ' + def.name + ' experience.'
-        : 'This opens a stand-in for the ' + def.name + ' experience — the hosted experience itself is ' +
-          'not built here.';
+        : 'This opens a prototype runtime in your browser. The ' + def.name + ' experience itself is ' +
+          'not built here, but the time and sessions it records are real.';
     } else if (status === state.SIM_STATUS.IN_PROGRESS) {
-      /* No "open it again" here: the experiment is already open — the note
-         above IS that state — and a control that produces no visible change
-         reads as a dead one. */
-      actions = '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
-      actionNote = 'Your ' + def.label + ' experiment is open. The time between opening it and completing ' +
-        'it is what is stored.';
-      /* HEDGED ON PURPOSE, AND NOW ALSO PLACED ON PURPOSE. The earlier
-         wording — "in the product the experiment itself reports your
-         completion" — asserted a settled contract between the experiment
-         runtime and the platform. No such contract exists: the direction
-         has been discussed and nothing about it is decided. So the claim
-         is stated as an expectation, and the control that stands in for
-         it is labelled as the stand-in it is. The writer and the id are
-         untouched. */
-      demo = ui.demoPanel('Record a completion for ' + def.label,
-        '<p>The experiment itself is expected to confirm a finished run, and how it does that has not been ' +
-        'decided. Until it is, the demo records the completion here, with the time between opening and ' +
-        'completing.</p>' +
-        '<div class="formact"><button class="btn sec" type="button" id="sim-complete">' +
-        'Record my completion</button></div>');
+      /* Implementation 09 — for Web there IS somewhere to go back to:
+         the runtime, where the session is running and the clock is.
+         For a package technology there still is not, so its branch is
+         unchanged. */
+      actions = (isPackage ? '' :
+        '<a class="btn pri" href="' + L.href.runtime(p.id, e.id, tech) + '">' +
+        'Back to the simulation</a>') +
+        '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
+      actionNote = isPackage
+        ? 'Your ' + def.label + ' experiment is open. The time you spend in it is what is stored.'
+        : 'Your ' + def.label + ' session is open. Time is recorded per session, and a session you ' +
+          'leave open records none.';
+      /* ── Implementation 09 — THE DEMO RUNTIME-EVENT SIMULATOR ──
+         WEB no longer needs this: the prototype runtime page above is
+         a real runtime as far as the platform is concerned, and it
+         reports its own completion from a real session. The control
+         that stood in for that has moved there, where it belongs.
+
+         A PACKAGE technology still needs one, and this is what it
+         honestly is: a way to make an AR or VR native client's traffic
+         appear so the reporting can be demonstrated. It is labelled as
+         a demo control, it names the runtime it is standing in for,
+         and the events it writes are stamped with a source that every
+         reporting surface prints as NOT CONNECTED — so a figure
+         produced here can never be read as native-application traffic.
+         See RUNTIME_INTEGRATION_CONTRACT.md for what the real client
+         would send. */
+      demo = isPackage
+        ? ui.demoPanel('Simulate a ' + def.label + ' runtime report',
+            '<p>No ' + esc(def.name) + ' application is connected to this build, and none is built here. ' +
+            'This writes the session and completion events such an application would report, so the ' +
+            'usage and progress screens can be seen working. Everything recorded this way is marked as ' +
+            'coming from a demo, not from a device.</p>' +
+            '<div class="field"><label for="sim-mins">Minutes to report</label>' +
+            '<input type="number" id="sim-mins" min="1" max="240" step="1" value="25"></div>' +
+            '<div class="formact">' +
+            '<button class="btn sec" type="button" id="sim-session">Report a session only</button>' +
+            '<button class="btn sec" type="button" id="sim-complete">Report a completed run</button>' +
+            '<button class="btn sec" type="button" id="sim-error">Report a runtime error</button>' +
+            '</div>')
+        : '';
     } else {
       actions = '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
       var asmExists = state.assessmentForStudent(p.id, e.id);
@@ -754,9 +807,27 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="k">Technology</div><div class="v">' + ui.fmtBadge(tech) + ' ' + esc(def.name) + '</div>' +
       '<div class="k">Device</div><div class="v">' + esc(def.requirement) + '</div>' +
       '<div class="k">How it runs</div><div class="v">' + esc(def.deliveryLabel) + '</div>' +
-      (sim && sim.status === state.SIM_STATUS.COMPLETED
-        ? '<div class="k">Completed</div><div class="v">' + esc(util.fmtDateTime(sim.completedAt)) + '</div>' +
-          '<div class="k">Time spent</div><div class="v">' + esc(L.fmtDuration(sim.timeSpentSeconds)) + '</div>'
+      /* Implementation 09 — the same figures, from the same fold, on
+         the technology's own page. Reported whenever there IS activity,
+         not only once it is finished. */
+      (use.used
+        ? (use.completedAt
+            ? '<div class="k">Completed</div><div class="v">' + esc(util.fmtDateTime(use.completedAt)) +
+              '</div>' : '') +
+          '<div class="k">Times opened</div><div class="v tabular">' + use.launches + '</div>' +
+          '<div class="k">Sessions</div><div class="v tabular">' + use.sessionCount +
+            (use.openSessions
+              ? ' <span class="muted">(' + use.openSessions + ' left open)</span>' : '') + '</div>' +
+          '<div class="k">Time spent</div><div class="v tabular">' +
+            (use.totalSeconds ? esc(L.fmtDuration(use.totalSeconds))
+              : '<span class="muted">Nothing measured yet</span>') + '</div>' +
+          '<div class="k">Last activity</div><div class="v">' +
+            (use.lastActivityAt ? esc(util.fmtDateTime(use.lastActivityAt))
+              : '<span class="muted">—</span>') +
+            /* Implementation 09 — the same one-line honesty the Progress
+               table carries, from the same shared helper, so the two
+               Student screens cannot describe one figure differently. */
+            L.useSourceNote(use) + '</div>'
         : '') +
       '</div>' +
       /* KEPT, AND SHORTENED. This is a real disclaimer, not a note about
@@ -844,13 +915,330 @@ XRSLP.screens = XRSLP.screens || {};
           def.label + ' is marked ready for you.');
         bind('sim-start', function () { state.startSimulation(p.id, e.id, tech); },
           def.label + ' simulation opened.');
-        var done = document.getElementById('sim-complete');
+        /* ── Implementation 09 — the demo runtime-event simulator ──
+           Every one of these goes through the SAME ingestion a native
+           client would use, stamped with a source the reporting
+           surfaces print as not connected. The minutes are what the
+           "client" measured, so the platform stores a measured
+           duration rather than deriving one from the demo's own
+           wall-clock — which is exactly the field a real client
+           supplies. */
+        function demoSource(technology) {
+          return technology === 'ar' ? state.RUNTIME_SOURCE.AR_CLIENT
+               : technology === 'vr' ? state.RUNTIME_SOURCE.VR_CLIENT
+               : technology === 'mr' ? state.RUNTIME_SOURCE.MR_CLIENT
+               : state.RUNTIME_SOURCE.DEMO;
+        }
+        function demoMinutes() {
+          var el = document.getElementById('sim-mins');
+          var n = el ? Number(el.value) : 25;
+          if (!isFinite(n) || n < 1) { n = 1; }
+          if (n > 240) { n = 240; }
+          return Math.round(n);
+        }
+        function bindDemo(id, complete) {
+          var el = document.getElementById(id);
+          if (!el) { return; }
+          el.addEventListener('click', function () {
+            el.disabled = true;
+            var mins = demoMinutes();
+            var res = state.runtimeSimulateRun(p.id, e.id, tech, {
+              durationSeconds: mins * 60, complete: complete, source: demoSource(tech)
+            });
+            ui.toast(res.ok
+              ? (complete ? 'A completed ' + def.label + ' run was reported.'
+                          : 'A ' + mins + '-minute ' + def.label + ' session was reported.')
+              : 'The runtime report was refused.', res.ok ? 'success' : 'warn');
+            XRSLP.render(false);
+          });
+        }
+        bindDemo('sim-session', false);
+        bindDemo('sim-complete', true);
+
+        var errBtn = document.getElementById('sim-error');
+        if (errBtn) {
+          errBtn.addEventListener('click', function () {
+            errBtn.disabled = true;
+            var launched = state.runtimeLaunch(p.id, e.id, tech, { source: demoSource(tech) });
+            if (launched.ok) {
+              state.runtimeError(p.id, e.id, tech, launched.sessionId, {
+                code: 'RUNTIME_FAILURE',
+                message: 'The ' + def.name + ' runtime reported a failure and the run did not finish.'
+              }, { source: demoSource(tech) });
+              state.runtimeEndSession(p.id, e.id, tech, launched.sessionId, {
+                durationSeconds: 0, source: demoSource(tech)
+              });
+            }
+            ui.toast('A runtime error was reported. It is not a completion.');
+            XRSLP.render(false);
+          });
+        }
+      }
+    };
+  };
+
+
+  /* ============================================================
+     PROTOTYPE WEB RUNTIME — Implementation 09.
+
+     PM-08 asked how the platform knows a Student actually used an
+     Experiment, for how long, and how many times. For AR and VR the
+     honest answer is a future native application, and the contract it
+     would report against is written down in
+     RUNTIME_INTEGRATION_CONTRACT.md rather than pretended into
+     existence. For WEB the answer can be real in this build, because a
+     Web simulation runs in a browser and this IS a browser.
+
+     So this screen is a bounded, clearly-labelled PROTOTYPE RUNTIME
+     ENVIRONMENT. It is not the Web simulation — no such simulation is
+     built here, and the screen says so in its own first sentence. What
+     it does is behave the way a real one would towards the platform:
+     it opens a session, keeps a live elapsed clock, and reports
+     SESSION_ENDED and SIMULATION_COMPLETED through exactly the same
+     ingestion a native client would use. Every figure the Student,
+     the Faculty member and the institution then read is derived from
+     those events.
+
+     ── WHY THE COMPLETION CONTROL IS ALLOWED TO LIVE HERE ───────
+     The rule elsewhere in this build is that a control standing in for
+     something the PLATFORM or the EXPERIMENT would report is
+     scaffolding and belongs in `ui.demoPanel`. A completion is exactly
+     that — so on the Student's own simulation page it stays in the
+     demo panel, and it does. Here it is different: this page IS the
+     stand-in runtime. Inside a runtime environment, "I have finished"
+     is a control the runtime itself owns, and the whole page is
+     labelled as the stand-in it is. It is never presented as a product
+     capability of the platform.
+
+     ⚠ NOTHING COMPLETES BY BEING OPENED OR CLOSED. Leaving this page
+     without ending the session leaves an OPEN session, which the
+     utilisation model reports as open and counts no time for. That is
+     the honest outcome and it is asserted in `qa/checks.js`.
+     ============================================================ */
+
+  /* The live clock. One interval for the whole app, cleared on every
+     re-render — `after()` runs after each innerHTML replacement, so an
+     un-cleared interval would accumulate one timer per render and keep
+     writing into detached nodes. */
+  var runtimeTimer = null;
+  function stopRuntimeClock() {
+    if (runtimeTimer) { clearInterval(runtimeTimer); runtimeTimer = null; }
+  }
+
+  XRSLP.screens.studentRuntime = function (params) {
+    var r = L.requireStudent(params, 'my-learning');
+    if (!r.student) { return r.fail; }
+    var p = r.student, tenant = r.tenant;
+    var tech = params.tech;
+    var ctx = data.contextOf(params.experimentId);
+    var def = data.TECHNOLOGIES[tech];
+    var row = state.studentExperiment(p.id, params.experimentId);
+
+    /* The same refusal every technology-scoped student screen gives.
+       A runtime a Student is not entitled to must not render a single
+       control, and the state layer refuses the events anyway. */
+    if (!ctx || !def || !row || !row.effective || !state.studentCanRun(p.id, params.experimentId, tech)) {
+      return techRefusal(p, tenant, ctx || { experiment: { id: params.experimentId, name: 'Experiment' } },
+        row || { technologies: [], blockedTechnologies: [] }, tech, def);
+    }
+    var e = ctx.experiment;
+
+    /* ⚠ WEB ONLY, AND THAT IS THE POINT.
+       An AR or VR experience runs on a device this build cannot reach.
+       Offering an in-browser "runtime" for one would be exactly the
+       fabrication the delta forbids, so a package technology is sent
+       back to its own page, where the delivery ladder and the demo
+       runtime simulator live. */
+    if (def.delivery !== 'hosted') {
+      return { redirect: L.href.simulation(p.id, e.id, tech) };
+    }
+
+    var open = state.openRuntimeSession(p.id, e.id, tech);
+    var u = state.simulationUtilisation(p.id, e.id, tech);
+
+    var elapsedHTML = open
+      ? '<div class="rtclock"><span class="rt-k">This session</span>' +
+        '<span class="rt-v tabular" id="rt-elapsed" data-since="' + esc(open.startedAt) +
+        '" role="timer" aria-live="off">' + esc(L.fmtDuration(0)) + '</span></div>'
+      : '';
+
+    var stateLine = u.completed
+      ? ui.badge('b-success', 'check', 'Completion recorded')
+      : open ? ui.badge('b-info', 'play', 'Session running')
+      : u.used ? ui.badge('b-info', 'clock', 'Used, not finished')
+      : ui.badge('b-neutral', 'minus', 'Not started');
+
+    /* The controls. Start / End / Finished — a runtime's own three
+       verbs, and nothing else. */
+    var controls;
+    if (!open) {
+      controls =
+        '<button class="btn pri" type="button" id="rt-start">' + ui.ic('play') +
+          (u.used ? 'Start another session' : 'Start the simulation') + '</button>' +
+        '<a class="btn sec" href="' + L.href.simulation(p.id, e.id, tech) + '">Back</a>';
+    } else {
+      controls =
+        '<button class="btn pri" type="button" id="rt-done">' + ui.ic('check') +
+          'I have finished the simulation</button>' +
+        '<button class="btn sec" type="button" id="rt-end">End this session</button>';
+    }
+
+    var sessionRows = (u.sessions || []).slice().reverse().slice(0, 8);
+    var sessionsHTML = sessionRows.length
+      ? '<div class="tscroll"><table class="dt">' +
+        '<caption class="sr-only">Every session recorded for this technology</caption>' +
+        '<thead><tr><th scope="col">Session</th><th scope="col">Started</th>' +
+        '<th scope="col">Time</th><th scope="col">Outcome</th></tr></thead><tbody>' +
+        sessionRows.map(function (s) {
+          return '<tr>' +
+            '<td data-label="Session"><span class="mono">' + esc(s.sessionId) + '</span></td>' +
+            '<td data-label="Started">' + (s.startedAt
+              ? esc(util.fmtDateTime(s.startedAt)) : '<span class="muted">—</span>') + '</td>' +
+            '<td data-label="Time" class="num tabular">' + (s.open
+              ? '<span class="muted">running</span>' : esc(L.fmtDuration(s.seconds))) + '</td>' +
+            '<td data-label="Outcome">' + (s.completed
+                ? ui.badge('b-success', 'check', 'Completed')
+                : s.errored ? ui.badge('b-warning', 'alert', 'Error reported')
+                : s.open ? ui.badge('b-info', 'play', 'Running')
+                : s.abandoned ? ui.badge('b-neutral', 'minus', 'Left open')
+                : ui.badge('b-neutral', 'clock', 'Ended')) + '</td></tr>';
+        }).join('') + '</tbody></table></div>'
+      : '<p class="cardlede">No session has been recorded for this technology yet.</p>';
+
+    var html =
+      ui.crumbs([{ label: 'My Learning', href: L.href.myLearning(p.id) },
+                 { label: e.name, href: L.href.experiment(p.id, e.id) },
+                 { label: def.label + ' simulation', href: L.href.simulation(p.id, e.id, tech) },
+                 { label: 'Runtime' }]) +
+      ui.phead(e.name + ' — ' + def.name + ' runtime', L.courseLine(e.id), null, ' ' + stateLine) +
+      '<div class="grid-rail">' +
+      '<div class="stack">' +
+      ui.card('Prototype runtime',
+        /* ⚠ THE FIRST SENTENCE ON THE PAGE SAYS WHAT THIS IS.
+           A reader must never be able to mistake this for the
+           simulation. The claim is made once, plainly, at the top,
+           and the panel around it is visibly scaffolding. */
+        '<div class="protoruntime">' +
+        '<div class="pr-tag">PROTOTYPE RUNTIME ENVIRONMENT</div>' +
+        '<p class="pr-lede">The ' + esc(def.name) + ' simulation for <strong>' + esc(e.name) +
+          '</strong> is not built in this prototype. This stands in for it, and reports your usage to ' +
+          'the platform the way the real one would — so the time, the sessions and the completion ' +
+          'recorded against your name are real records of what you did here.</p>' +
+        '<div class="pr-stage" aria-hidden="true"><span class="pr-glyph">' + ui.ic('flask', 'lg') +
+          '</span><span class="pr-cap">' + esc(open ? 'Session running' :
+            u.completed ? 'Nothing is running' : 'Nothing is running yet') + '</span></div>' +
+        elapsedHTML +
+        '<div class="formact">' + controls + '</div>' +
+        '<p class="formnote">' + esc(open
+          ? 'Closing this page without ending the session leaves it open. Nothing is completed by leaving.'
+          : u.completed
+          ? 'Your completion is recorded. Running it again does not remove it.'
+          : 'Starting records that you opened it. It does not record a completion.') + '</p>' +
+        '</div>', null, 'h2') +
+      ui.card('Your sessions on ' + def.label, sessionsHTML,
+        u.sessionCount + ' ' + util.plural(u.sessionCount, 'session'), 'h2') +
+      '</div>' +
+      '<div class="stack">' +
+      ui.card('What is recorded',
+        '<div class="kv">' +
+        '<div class="k">Technology</div><div class="v">' + ui.fmtBadge(tech) + ' ' + esc(def.name) + '</div>' +
+        '<div class="k">Times opened</div><div class="v tabular">' + u.launches + '</div>' +
+        '<div class="k">Sessions</div><div class="v tabular">' + u.sessionCount +
+          (u.openSessions ? ' <span class="muted">(' + u.openSessions + ' open)</span>' : '') + '</div>' +
+        '<div class="k">Time spent</div><div class="v tabular">' +
+          (u.totalSeconds ? esc(L.fmtDuration(u.totalSeconds)) : '<span class="muted">None recorded</span>') +
+          '</div>' +
+        '<div class="k">Last activity</div><div class="v">' + (u.lastActivityAt
+          ? esc(util.fmtDateTime(u.lastActivityAt)) : '<span class="muted">None</span>') + '</div>' +
+        '<div class="k">Simulation</div><div class="v">' + L.simBadge(u.status) + '</div>' +
+        '</div>' +
+        '<p class="cardfoot">Time is the total of your finished sessions. A session you leave open ' +
+        'records no time, because none was measured.</p>', null, 'h2') +
+      '</div></div>';
+
+    return {
+      area: 'learn', title: e.name + ' — ' + def.label + ' runtime', html: html,
+      student: p, tenant: tenant, navKey: 'my-learning',
+      after: function () {
+        stopRuntimeClock();
+
+        /* The live clock. Reads the session's own start time out of
+           the DOM rather than closing over a value, so a re-render
+           that keeps the session running picks the same one up. */
+        var el = document.getElementById('rt-elapsed');
+        if (el) {
+          var since = new Date(el.getAttribute('data-since')).getTime();
+          var tick = function () {
+            var node = document.getElementById('rt-elapsed');
+            if (!node) { stopRuntimeClock(); return; }
+            var secs = Math.max(0, Math.round((new Date().getTime() - since) / 1000));
+            node.textContent = L.fmtDuration(secs);
+          };
+          tick();
+          runtimeTimer = setInterval(tick, 1000);
+        }
+
+        var start = document.getElementById('rt-start');
+        if (start) {
+          start.addEventListener('click', function () {
+            start.disabled = true;
+            var res = state.runtimeLaunch(p.id, e.id, tech);
+            if (!res.ok) { ui.toast('This simulation cannot be opened.', 'warn'); }
+            else { ui.announce('Session started.'); }
+            XRSLP.render(false);
+          });
+        }
+
+        /* END and FINISH are two different REPORTS, and the difference
+           is the whole model: ending says how long the run lasted,
+           finishing says it was completed. A runtime that finishes
+           sends BOTH — the run is over, so the session is over — and
+           `runtimeComplete` deliberately does not imply the end on its
+           own, because a client may legitimately report a completion
+           and keep the session open while the learner looks around.
+           The finish handler below therefore sends the completion and
+           then the end, in that order, which is also the order they
+           read in the event log. */
+        var end = document.getElementById('rt-end');
+        if (end) {
+          end.addEventListener('click', function () {
+            end.disabled = true;
+            var openNow = state.openRuntimeSession(p.id, e.id, tech);
+            if (openNow) { state.runtimeEndSession(p.id, e.id, tech, openNow.sessionId); }
+            ui.toast('Session ended. Your time has been recorded.');
+            XRSLP.render(false);
+          });
+        }
+
+        var done = document.getElementById('rt-done');
         if (done) {
           done.addEventListener('click', function () {
-            done.disabled = true;
-            state.completeSimulation(p.id, e.id, tech);
-            ui.toast('Completion recorded for ' + def.label + '.');
-            XRSLP.render(false);
+            var openNow = state.openRuntimeSession(p.id, e.id, tech);
+            if (!openNow) { return; }
+            ui.openDialog({
+              title: 'Report this ' + def.label + ' simulation as completed?',
+              bodyHTML:
+                '<p>Records a <strong>completion</strong> for ' + esc(def.name) + ' on <strong>' +
+                esc(e.name) + '</strong>, and ends this session.</p>' +
+                '<div class="consequence">' + ui.ic('info') + '<span>It applies to <strong>' +
+                esc(def.label) + '</strong> only. Your other technologies for this experiment are ' +
+                'tracked separately and are not affected.</span></div>' +
+                '<div class="consequence">' + ui.ic('shield') + '<span>The assessment is separate. ' +
+                'Completing the simulation does not submit, pass or change it.</span></div>',
+              okLabel: 'Report it as completed',
+              onConfirm: function () {
+                var s2 = state.openRuntimeSession(p.id, e.id, tech);
+                if (!s2) { return; }
+                state.runtimeComplete(p.id, e.id, tech, s2.sessionId);
+                /* The session ends with the run. Without this the
+                   completion would be recorded beside a session that
+                   never closed, and the time spent on it would stay
+                   at zero — a completed run reporting no duration. */
+                state.runtimeEndSession(p.id, e.id, tech, s2.sessionId);
+                ui.toast('Completion recorded for ' + def.label + '.');
+                XRSLP.render(false);
+              }
+            });
           });
         }
       }

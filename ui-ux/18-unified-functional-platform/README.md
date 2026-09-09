@@ -1,4 +1,4 @@
-# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06 + 07 + 08
+# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06 + 07 + 08 + 09
 
 **The content that reaches a learner, from the people who produce it to the learner who runs
 it** — content production, B2B access, tenant operations, student entitlement, the student
@@ -186,9 +186,56 @@ the Student workspace can open.
 |---|---|
 | **Source of truth** | `ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md` (STK31-01…48) · `ui-ux/17-stakeholder-correction-blueprint/` |
 | **Reuse sources** | Batches 01–05 (`ui-ux/13-full-platform-design/`) as read-only reference implementations — design tokens, shell, component grammar ported once; nothing is runtime-imported from historical folders |
-| **Technology** | Dependency-free HTML + CSS + vanilla JS (ES5-style), single-page hash routing. No framework, no build step, no backend, no real payment or authentication |
-| **State** | `localStorage`, isolated namespace **`xrslp-unified-v1`** (no historical batch key is reused), **`schemaVersion: 11`**; every earlier state upgrades in place. Implementation 07 required no schema change; **07.1 raised 8 → 9** to make the canonical academic structure state; **07.2 raised 9 → 10** for three additive fields — the canonical Course code, the renewal audit line on an access record, and the forwarding fields on a device request; **07.3 raised 10 → 11** for four more — a content record's preview video, supporting references on a history entry and on an academic review, and the durable withdraw/restore audit line on a role assignment. Every migration is purely additive, presence-guarded and idempotent |
+| **Technology** | Dependency-free HTML + CSS + vanilla JS (ES5-style), single-page hash routing. No framework, no build step, no backend, no real payment or authentication. **Implementation 09 keeps this**: spreadsheet import needed an XLSX reader, and rather than vendoring one or loading a CDN, `js/xlsx.js` implements the subset required — a ZIP reader, a raw DEFLATE decompressor (RFC 1951), CRC-32 and enough SpreadsheetML — first-party, with no network access at build time or run time |
+| **State** | `localStorage`, isolated namespace **`xrslp-unified-v1`** (no historical batch key is reused), **`schemaVersion: 12`**; every earlier state upgrades in place. Implementation 07 required no schema change; **07.1 raised 8 → 9** to make the canonical academic structure state; **07.2 raised 9 → 10** for three additive fields — the canonical Course code, the renewal audit line on an access record, and the forwarding fields on a device request; **07.3 raised 10 → 11** for four more — a content record's preview video, supporting references on a history entry and on an academic review, and the durable withdraw/restore audit line on a role assignment; **09 raised 11 → 12** for one additive collection — the append-only runtime utilisation event log — and its two sequence counters. Every migration is purely additive, presence-guarded and idempotent |
 | **Theme** | Light only (logo constraint QX-07, carried forward) — with the Stage-0 a11y token fixes applied once (`--text-3:#5F6B7A`, `--control-border:#7E8A99`, `[hidden]` restored) |
+
+## Implementation 09 — the PM functional delta
+
+The build below was functionally complete and visually closed. **Implementation 09 answered the
+questions the PM review asked that it could not answer from evidence**, and fixed the one place
+where it was quietly wrong. Full record, including everything left open:
+**[`PM_DELTA_09.md`](PM_DELTA_09.md)** · **[`RUNTIME_INTEGRATION_CONTRACT.md`](RUNTIME_INTEGRATION_CONTRACT.md)**.
+
+The short version:
+
+- **Utilisation is evidence now, not a counter.** `launches` and `timeSpentSeconds` were two numbers
+  written by two button handlers. There is now an append-only **runtime event log** —
+  `SIMULATION_LAUNCHED` · `SESSION_STARTED` · `SESSION_ENDED` · `SIMULATION_COMPLETED` ·
+  `SIMULATION_ERROR` — with one ingestion door, client-minted idempotency keys, a runtime clock and a
+  platform clock. Launches, sessions, time spent, first and last activity and completion are all
+  **folded from it**. The Implementation-03 record still exists and every existing reader still reads
+  it; its four utilisation fields are now projections of the log, so the two cannot disagree.
+- **A simulation is complete when a runtime says so, and never otherwise.** Not from elapsed time,
+  not from a session count, not from a resource, not from a video, not from a Learning Outcome, not
+  from submitting the assessment, and never from a *different technology*. The event vocabulary
+  contains **no content event**, which is what makes that structural rather than a convention.
+- **The Web simulation opens a real prototype runtime.** A bounded, clearly-labelled runtime
+  environment that opens a session, keeps a live elapsed clock, and reports its own completion
+  through the same ingestion a native client would use. AR, VR and MR get a **demo runtime-event
+  simulator** inside a demo panel instead — because no such application is built here, and every
+  figure it produces is labelled `STAND-IN` wherever it is shown.
+- **A published artefact can no longer be silently rewritten under its own version label.** The
+  Content Manager's correction authority is unchanged before first publication. After it, a
+  **material** change — hosted URL, package reference or label, device requirement, any removal, the
+  instructional description — becomes a **correction version**: a draft, then academic review, then
+  the Super Admin's Release or Hold. The live version stays live and no institution loses access
+  while a correction exists. Technical notes and catalogue metadata stay in-place corrections, and
+  the Super Admin's own `07.2` rule-F master correction is a **named, audited exception** rather than
+  a hole (`PM_DELTA_09.md` §6.3.1). A correction can be revised after a reviewer returns it, and
+  withdrawn by whoever raised it — nothing is deleted either way.
+- **Faculty can see utilisation for a cohort without opening records one at a time.** Student
+  Progress carries technology used, launches, sessions, recorded time, sessions left open and last
+  activity per row; the full per-technology session breakdown opens in a drawer in place. Eight
+  factual columns were added to the CSV export. Result withholding is untouched.
+- **The institution gets the same question answered** on Content access — the screen that already
+  owns its detailed content reporting. The accepted Tenant Overview is untouched.
+- **Faculty Question Bank import, CSV and XLSX.** Context chosen before the file, a preview showing
+  the *resolved* values, an explicit confirmation, all-or-nothing, duplicates flagged and never
+  resolved for you, and honest provenance that is kept distinct from an AI-assisted draft.
+
+**What it deliberately was not:** a visual redesign, a dashboard redesign, a B2C implementation, a
+backend, a fake native application, or permission to reopen an accepted workflow.
 
 ## Implementation 08 — the UX / product closure pass
 
@@ -724,7 +771,9 @@ Required: `Programme` · `Course Name` · `Course ID/Code` · `Student ID` · `S
 - Programme and Course resolve against the **canonical** catalogue only; an institution maps a
   local code onto a canonical Course and never invents a replacement (STK31-10).
 - Parsing is a real RFC 4180-shaped state machine — quoted values, commas and newlines inside
-  quotes, escaped `""`, and a stripped UTF-8 BOM. `.csv` only; `.xlsx` is **not** claimed.
+  quotes, escaped `""`, and a stripped UTF-8 BOM. **This importer** (Tenant Admin → students) is
+  `.csv` only, and its hint says so. The Faculty **Question Bank** importer added in Implementation
+  09 reads `.csv` **and** `.xlsx`, through the first-party reader in `js/xlsx.js`.
 - **Download CSV template** generates a real file from the same column contract.
 - Error policy is **all-or-nothing**: if any row carries a blocking error, nothing is committed.
   The per-row report (row number · field · problem · valid/invalid counts) is produced either way.
@@ -1707,10 +1756,11 @@ payment-required state and a clearly-labelled payment simulation.
 - **Vendor review history and Content Manager reviewed-content archives** (`U-ARV-02` / `U-CM-02`,
   both **P2**) — every decision is recorded and readable on the item itself and in the reviewer's
   own recent-decisions list; the separate archive screens are not built
-- **Spreadsheet import of questions** (FRD 5.1.1) — Batch 02 built an upload with per-row error
-  reporting and `13_…` keeps it. It is **not** implemented here and no control claims otherwise;
-  the Question Bank names it as a gap. Faculty-supplied **source material** for drafting *is*
-  implemented
+- ~~**Spreadsheet import of questions** (FRD 5.1.1)~~ — **implemented in Implementation 09.** CSV
+  and XLSX, with the context chosen before the file, per-row error reporting naming the row the
+  spreadsheet shows, an all-or-nothing commit and honest provenance. See
+  [`QUESTION_IMPORT_TEMPLATE.md`](QUESTION_IMPORT_TEMPLATE.md). Faculty-supplied **source material**
+  for drafting is unchanged and still offered beside it
 - **Negative marking, a per-assessment marks scheme, and the assessment timer** — Batch 02's
   `cfg` carried `marksCorrect` / `marksIncorrect` / `marksUnanswered` / `floorZero` and a total
   time budget. Implementation 03 replaced the per-assessment marks scheme with **per-question
@@ -1720,6 +1770,21 @@ payment-required state and a clearly-labelled payment simulation.
   once a server exists
 - **Assessment timer** — Batch 02's timer (which prompts and never auto-submits) is not rebuilt;
   `Q-43` flags it for re-confirmation once a server exists, and exam security is out of scope here
+- **A production backend, API, transport or authentication for runtime telemetry.**
+  Implementation 09 defines the event vocabulary, the payload, the ingestion rules and the
+  derivations, and implements all of them locally — `recordRuntimeEvent()` is an in-page function,
+  not an endpoint. What a production integration must add is written down in
+  [`RUNTIME_INTEGRATION_CONTRACT.md`](RUNTIME_INTEGRATION_CONTRACT.md) §5.1, and nothing in the
+  product claims any of it exists
+- **A native AR mobile application or a VR / Meta application.** Neither is built and neither is
+  implied. The Web runtime is a bounded, labelled prototype runtime that reports real session
+  telemetry; AR, VR and MR have a **demo runtime-event simulator** inside a demo panel, and every
+  figure it produces is marked `STAND-IN — no device application is connected in this build`
+- **In-browser execution of an AR or VR package, for a reviewer or anyone else.** The review
+  surface now names, per technology, where each one actually runs, and states plainly that a
+  device-delivered experience cannot be executed from a browser. **Who performs the final technical
+  validation on the target device is an open question** and is not assigned to the Academic
+  Reviewer here
 - **A device REGISTRY.** Implementation 06 builds the confirmed device *transfer* workflow at
   both ends, but the platform still holds no device records: the binding is a relationship, not
   an administrable object. Nothing registers hardware, records a serial number, names a headset
@@ -1803,9 +1868,12 @@ level.**
 - **A request cannot be refused outright.** The two outcomes the sources confirm — approve, and
   request more information — are both built (Implementation 07). A rejection state is not, because
   no source defines one.
-- **Question spreadsheet import (FRD 5.1.1) is not built**, because no source defines the column
-  schema or how a multiple-choice question's options and answer key are expressed in one. The
-  Question Bank names the gap in its own words and no control claims otherwise.
+- ~~**Question spreadsheet import (FRD 5.1.1) is not built**~~ — **built in Implementation 09.**
+  The reason it was absent was that no source defined the column schema or how a multiple-choice
+  question's options and answer key are expressed in one. That schema is now **defined by this
+  build and documented** in [`QUESTION_IMPORT_TEMPLATE.md`](QUESTION_IMPORT_TEMPLATE.md), generated
+  from a single array so the template, the validator and the documentation cannot drift — and it is
+  recorded as a **prototype schema this build chose**, not as one a source confirmed.
 - Prices, payment provider, renewal mechanics, notification channels (the required 15-day
   expiry reminder's **channel** is `ND-16`; the derived `Active / Expiring soon / Expired`
   display state is implemented as recommended supporting UX)
@@ -1843,15 +1911,34 @@ index.html                 entry point (classic scripts — works from file://)
 assets/                    byte-identical logo copy (protected asset, never edited)
 qa/                        sample CSV fixtures for the bulk-import checks, plus
                            harness.js + checks.js — a PROTOTYPE-ONLY headless
-                           assertion suite over the state layer. index.html
-                           references none of it and no product code knows it exists
+                           assertion suite over the state layer, and ui-audit.js,
+                           which audits the rendered DOM of every route at five
+                           widths. index.html references none of it and no
+                           product code knows it exists
+PM_DELTA_09.md             Implementation 09 — the PM functional delta, and what
+                           is left OPEN for CIL / PM confirmation
+RUNTIME_INTEGRATION_CONTRACT.md
+                           how a Web / AR / VR / MR runtime reports utilisation
+                           and completion — implemented vs future production,
+                           stated line by line
+QUESTION_IMPORT_TEMPLATE.md
+                           the Question Bank import file format
 css/  tokens → base → layout → components → screens → responsive
 js/   utils · data (sample pool + scenarios + seeded tenant people + the
         assessment SEED SOURCE that state.js evolves into mutable state)
       · ai-assist (local deterministic drafting + review suggestion — no network)
       · state (records, state machine, allocation, derived entitlement,
         question bank, assessment definitions, reviews, faculty scope + analytics)
-      · csv (parser + validation + template) · components
+      · csv (parser + validation + template) 
+      · xlsx (IMPLEMENTATION 09 — FIRST-PARTY spreadsheet support: a ZIP
+        container reader, a raw DEFLATE decompressor (RFC 1951), CRC-32,
+        a stored-entry ZIP writer, and enough SpreadsheetML to read and
+        write one worksheet. No third-party library and no network — see
+        the file header for why)
+      · question-import (IMPLEMENTATION 09 — the Faculty Question Bank
+        CSV / XLSX importer: one column contract, validation, preview,
+        all-or-nothing commit, honest provenance)
+      · components
       · content-ui (ONE implementation of the routes, status badge, holder line,
         technology delivery panel, outcomes list, readiness card and history
         timeline that all three content workspaces render)
@@ -1873,16 +1960,23 @@ js/screens/  public-catalogue · public-request
                the point of contact for, and forwarding one to the Super Admin)
              · student (helpers · prototype chooser · home · my learning · progress
                · the SHARED question renderer the Faculty preview also uses)
-             · student-learn (experiment · simulation · assessment · attempt · result)
+             · student-learn (experiment · simulation · assessment · attempt · result
+               · IMPLEMENTATION 09: the bounded PROTOTYPE WEB RUNTIME, and the
+                 demo runtime-event simulator that stands in for an AR / VR / MR
+                 native client)
              · faculty (helpers · chooser · overview · my content · student progress)
              · faculty-assess (assessments · builder · settings · preview
-               · question bank · editor · assisted drafts · review queue · review)
+               · question bank · editor · assisted drafts · review queue · review
+               · IMPLEMENTATION 09: the Question Bank import screen)
              · vendor (chooser · overview · my experiments · submissions
                · submission detail · create / edit / correct)
              · reviewer (chooser · overview · review queue · academic review
                + the Learning Outcomes editor)
              · content-manager (chooser · overview · Content Library
-               · publication queue · final review + Publish · canonical metadata)
+               · publication queue · final review + Publish · canonical metadata
+               · IMPLEMENTATION 09: the correction-version flow — a MATERIAL
+                 change to published content raises a version instead of
+                 rewriting the released artefact)
              · content-version (LATER versions: the Vendor's proposal and edit,
                and the Academic Reviewer's decision — the two steps before the
                Super Admin's Release / Hold)

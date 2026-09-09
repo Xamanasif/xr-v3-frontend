@@ -668,7 +668,9 @@ XRSLP.screens = XRSLP.screens || {};
                qualification; what the record actually attests is that it
                started as a draft and a faculty member accepted it. The
                explanation sits in the card head, once. */
-            (q.origin === 'ai' ? ' ' + ui.badge('b-outline', 'info', 'From an assisted draft') : '') +
+            (q.origin === 'ai' ? ' ' + ui.badge('b-outline', 'info', 'From an assisted draft')
+              : state.questionWasImported(q)
+              ? ' ' + ui.badge('b-outline', 'doc', state.questionOriginMeta(q.origin).label) : '') +
             '</span></span></label></li>';
         }).join('') + '</ul></fieldset>' +
         '<div class="formact"><button class="btn pri" type="submit" id="pick-add">Add selected questions</button>' +
@@ -1115,9 +1117,16 @@ XRSLP.screens = XRSLP.screens || {};
           return '<tr>' +
             '<td data-label="Question"><a class="rowlink" href="' + F.href.question(f.id, q.id) + '">' +
               '<span class="tmain">' + esc(q.text) + '</span>' +
+              /* PROVENANCE, AND THE RIGHT ONE. An imported question was
+                 written by a person and must never carry the assisted-
+                 draft line; the two origins are separate values in the
+                 state layer precisely so this cannot drift. */
               (q.origin === 'ai'
                 ? '<span class="tsub">' + esc('From an assisted draft — reviewed and added by a faculty member') +
-                  '</span>' : '') +
+                  '</span>'
+                : state.questionWasImported(q)
+                ? '<span class="tsub">' + esc(state.questionOriginMeta(q.origin).label +
+                    ' — checked and confirmed by a faculty member') + '</span>' : '') +
               '</a></td>' +
             '<td data-label="Type">' + F.typeBadge(q.type) + '</td>' +
             '<td data-label="Marks" class="num tabular">' + (q.points || 1) + '</td>' +
@@ -1175,7 +1184,14 @@ XRSLP.screens = XRSLP.screens || {};
     var html =
       ui.phead('Question Bank',
         'Questions for the experiments mapped to you, inside ' + esc(tenant.name) + '.',
+        /* Implementation 09 — three ways in, in the order a faculty
+           member reaches for them: type one, bring a file, ask for a
+           draft. Import sits beside the other two rather than being
+           buried inside the Add form, because it is a different
+           workflow with its own preview and its own confirmation. */
         '<a class="btn sec" href="' + F.href.draft(f.id) + '">Draft with assistance</a>' +
+        '<a class="btn sec" href="' + F.href.importQuestions(f.id) + '">' + ui.ic('doc') +
+          'Import questions</a>' +
         '<a class="btn pri" href="' + F.href.newQuestion(f.id) + '">Add a question</a>') +
       '<div class="stack">' +
       ui.sectionHead({ title: 'Questions', count: all.length, desc: contextDesc }) +
@@ -1228,12 +1244,14 @@ XRSLP.screens = XRSLP.screens || {};
         '<p>Delete removes a question from your active Question Bank. An assessment that already contains it ' +
         'keeps its copy and continues to work, and every attempt a student has already submitted keeps the ' +
         'question, the answer key and the marks it was taken against.</p>') +
-      /* ⚠ REMOVED: a "NOT IN THIS BUILD — spreadsheet import" gapNote.
-         Nothing on this screen offers or implies import, so the note
-         answered a question only the build team was asking; a roadmap
-         absence is not product copy. The absence itself is unchanged and
-         is recorded in README / QA_CHECKLIST. Supplying source material
-         for drafting IS implemented and is offered above. */
+      /* ⚠ THE ABSENCE THIS ONCE RECORDED IS CLOSED — Implementation 09.
+         An earlier pass carried a "NOT IN THIS BUILD — spreadsheet
+         import" gapNote here, then removed it on the grounds that a
+         roadmap absence is not product copy. Spreadsheet import is now
+         implemented and is offered in the page header, in both CSV and
+         XLSX, through a first-party reader — see `js/xlsx.js` for why
+         no third-party parser was added. Supplying source material for
+         drafting is unchanged and is still offered beside it. */
       '</div>';
 
     return {
@@ -1522,6 +1540,481 @@ XRSLP.screens = XRSLP.screens || {};
           ui.toast('Question added to your Question Bank.');
           XRSLP.render(true);
         });
+      }
+    };
+  };
+
+
+  /* ============================================================
+     QUESTION BANK IMPORT — Implementation 09.
+
+     The Faculty member's third way of getting a question into their
+     bank, beside Add a question and Draft with assistance.
+
+     ── THE ORDER OF THE STEPS IS THE SAFETY MODEL ───────────────
+     Context, then file, then preview, then confirm. The Experiment is
+     chosen from the Faculty member's OWN mapped content before a file
+     is read, and a spreadsheet row never names one — see the header
+     of `js/question-import.js` for why.
+
+     ⛔ NOTHING IS WRITTEN UNTIL THE CONFIRM DIALOG IS ACCEPTED.
+     Choosing a file parses and validates it and renders a preview.
+     The Question Bank is not touched, so navigating away, choosing a
+     different file, or pressing Start again leaves the bank exactly
+     as it was. `qa/checks.js` asserts this directly.
+     ============================================================ */
+
+  /* Module-level, like every other multi-step form in the build: it
+     survives the full re-render each control triggers. Re-validated
+     against the CURRENT faculty member on every render — a stale
+     experiment id from another person's scope must never survive a
+     workspace switch. */
+  var imp = {
+    facultyId: null, experimentId: '', fileName: '', kind: null,
+    result: null, committed: null, failed: null, busy: false, showAll: false
+  };
+  function resetImport(facultyId) {
+    imp.facultyId = facultyId || null;
+    imp.experimentId = '';
+    imp.fileName = ''; imp.kind = null;
+    imp.result = null; imp.committed = null; imp.failed = null;
+    imp.busy = false; imp.showAll = false;
+  }
+
+  /* The row-level problem table. Errors first, because they are what
+     blocks the import; warnings are shown for every row that has one
+     so a duplicate is never discovered after the fact. */
+  function importIssuesHTML(res) {
+    var rows = res.rows.filter(function (r) {
+      return r.errors.length || (r.warnings.length && !res.ok ? true : r.warnings.length);
+    });
+    if (!rows.length) { return ''; }
+    var shown = imp.showAll ? rows : rows.slice(0, 12);
+    return '<div class="tscroll"><table class="dt">' +
+      '<caption class="sr-only">Rows needing attention, with the row number and how to correct each one</caption>' +
+      '<thead><tr><th scope="col">Row</th><th scope="col">Column</th>' +
+      '<th scope="col">What is wrong</th><th scope="col">How to correct it</th></tr></thead><tbody>' +
+      shown.map(function (r) {
+        return r.errors.map(function (e) {
+          return '<tr>' +
+            '<td data-label="Row" class="num tabular">' + r.rowNo + '</td>' +
+            '<td data-label="Column"><span class="mono">' + esc(e.field) + '</span></td>' +
+            '<td data-label="What is wrong">' + ui.badge('b-danger', 'alert', 'Blocks import') +
+              ' ' + esc(e.message) + '</td>' +
+            '<td data-label="How to correct it">' + esc(e.fix) + '</td></tr>';
+        }).join('') +
+        r.warnings.map(function (w) {
+          return '<tr>' +
+            '<td data-label="Row" class="num tabular">' + r.rowNo + '</td>' +
+            '<td data-label="Column"><span class="muted">—</span></td>' +
+            '<td data-label="What is wrong">' + ui.badge('b-warning', 'info', 'Worth checking') +
+              ' ' + esc(w) + '</td>' +
+            '<td data-label="How to correct it"><span class="muted">' +
+              'Nothing has to change. Import it if you meant to.</span></td></tr>';
+        }).join('');
+      }).join('') +
+      '</tbody></table></div>' +
+      (rows.length > shown.length || imp.showAll
+        ? '<div class="formact"><button class="btn sec sm" type="button" id="qi-showall">' +
+          (imp.showAll ? 'Show fewer rows' : 'Show all ' + rows.length + ' rows') + '</button></div>'
+        : '');
+  }
+
+  /* What WOULD be created. Deliberately shows the resolved values —
+     the mapped question type, the options that were kept and which
+     one the answer key landed on — rather than echoing the raw cells,
+     because the resolution is the part a person cannot check by
+     re-reading their own spreadsheet. */
+  function importPreviewHTML(res) {
+    var good = res.rows.filter(function (r) { return !r.errors.length; });
+    if (!good.length) { return ''; }
+    var shown = good.slice(0, 20);
+    return '<div class="tscroll"><table class="dt">' +
+      '<caption class="sr-only">The questions that would be added, as the platform read them</caption>' +
+      '<thead><tr><th scope="col">Row</th><th scope="col">Question</th>' +
+      '<th scope="col">Type</th><th scope="col">Marks</th>' +
+      '<th scope="col">Correct answer</th></tr></thead><tbody>' +
+      shown.map(function (r) {
+        var answerHTML;
+        if (r.type === 'mcq') {
+          answerHTML = r.answer === null || r.answer === undefined || !r.options[r.answer]
+            ? '<span class="muted">—</span>'
+            : '<span class="tmain">' + esc(String.fromCharCode(65 + r.answer)) + '</span>' +
+              '<span class="tsub2">' + esc(r.options[r.answer]) + '</span>';
+        } else if (r.type === 'tf') {
+          answerHTML = '<span class="tmain">' + (r.answer ? 'True' : 'False') + '</span>';
+        } else {
+          answerHTML = '<span class="muted">Marked by you</span>';
+        }
+        return '<tr>' +
+          '<td data-label="Row" class="num tabular">' + r.rowNo + '</td>' +
+          '<td data-label="Question"><span class="tmain">' + esc(r.text) + '</span>' +
+            (r.type === 'mcq' && r.options.length
+              ? '<span class="tsub2">' + esc(r.options.length + ' options: ' +
+                  r.options.join(' · ')) + '</span>' : '') +
+            (r.duplicate
+              ? '<span class="tsub2">' + esc(r.duplicate === 'bank'
+                  ? 'Already in your Question Bank' : 'Repeated in this file') + '</span>' : '') +
+            '</td>' +
+          '<td data-label="Type">' + F.typeBadge(r.type) + '</td>' +
+          '<td data-label="Marks" class="num tabular">' + r.points + '</td>' +
+          '<td data-label="Correct answer">' + answerHTML + '</td></tr>';
+      }).join('') +
+      '</tbody></table></div>' +
+      (good.length > shown.length
+        ? '<p class="cardfoot">Showing the first ' + shown.length + ' of ' + good.length +
+          ' questions. All ' + good.length + ' would be imported.</p>'
+        : '');
+  }
+
+  function importSchemaHTML() {
+    var guide = XRSLP.questionImport.columnGuide();
+    return '<div class="tscroll"><table class="dt">' +
+      '<caption class="sr-only">The columns this import accepts</caption>' +
+      '<thead><tr><th scope="col">Column</th><th scope="col">Needed for</th>' +
+      '<th scope="col">What it must contain</th></tr></thead><tbody>' +
+      guide.map(function (g) {
+        return '<tr><td data-label="Column"><span class="mono">' + esc(g.label) + '</span></td>' +
+          '<td data-label="Needed for">' + esc(g.required) + '</td>' +
+          '<td data-label="What it must contain">' + esc(g.rule) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  XRSLP.screens.facultyQuestionImport = function (params) {
+    var r = F.requireFaculty(params, 'questions');
+    if (!r.faculty) { return r.fail; }
+    var f = r.faculty, tenant = r.tenant;
+    var scope = state.facultyScope(f.id);
+    if (!scope.experiments.length) { return { redirect: F.href.bank(f.id) }; }
+
+    /* ⚠ VIEW STATE IS RE-VALIDATED AGAINST THIS FACULTY MEMBER.
+       The prototype's workspace switcher can change who this is
+       between renders, and an experiment id carried over from
+       somebody else's scope would be offered by a control that the
+       state layer would then refuse. */
+    if (imp.facultyId !== f.id) { resetImport(f.id); }
+    var mapped = state.facultyExperimentIds(f.id);
+    if (imp.experimentId && mapped.indexOf(imp.experimentId) === -1) {
+      imp.experimentId = '';
+      imp.result = null;
+    }
+
+    var res = imp.result;
+    var chosenCtx = imp.experimentId ? data.contextOf(imp.experimentId) : null;
+
+    /* ---- step 1 · context ---- */
+    var contextCard = ui.card('1 · Choose the course and experiment',
+      '<p class="cardlede">Every imported question is filed against one experiment, and against the course ' +
+      'that experiment belongs to — exactly as it is when you add a question by hand. You choose it here, ' +
+      'before the file. The file cannot choose it.</p>' +
+      '<div class="field"><label for="qi-exp">Course and experiment</label>' +
+      '<select id="qi-exp">' +
+      '<option value="">Choose an experiment</option>' +
+      scope.experiments.map(function (row) {
+        var c = data.contextOf(row.experimentId);
+        return '<option value="' + esc(row.experimentId) + '"' +
+          (imp.experimentId === row.experimentId ? ' selected' : '') + '>' +
+          esc(c ? c.course.name + ' — ' + c.experiment.name : row.experimentId) + '</option>';
+      }).join('') +
+      '</select>' +
+      '<p class="hint">Only the experiments mapped to you are listed. Nothing else can be imported into.</p>' +
+      '</div>', null, 'h2');
+
+    /* ---- step 2 · file ---- */
+    var fileCard = ui.card('2 · Choose a file',
+      '<div class="field" id="qi-field">' +
+      '<label for="qi-file">Question file</label>' +
+      '<input type="file" id="qi-file" accept=".csv,.xlsx,text/csv" ' +
+        (imp.experimentId ? '' : 'disabled ') + 'aria-describedby="qi-file-hint">' +
+      '<p class="hint" id="qi-file-hint">' +
+      (imp.experimentId
+        ? 'A .csv or .xlsx file, up to ' + XRSLP.questionImport.MAX_ROWS +
+          ' questions. Nothing is added to your Question Bank until you confirm it.'
+        : 'Choose a course and experiment first.') + '</p>' +
+      (imp.fileName
+        ? '<p class="filepick">' + ui.ic('doc', 'sm') + '<span>' + esc(imp.fileName) + '</span>' +
+          (res && res.sheetName
+            ? ' <span class="muted">(sheet: ' + esc(res.sheetName) + ')</span>' : '') + '</p>'
+        : '') +
+      '</div>' +
+      '<div class="formact">' +
+      '<button class="btn sec" type="button" id="qi-tpl-csv">' + ui.ic('doc') + 'Download CSV template</button>' +
+      '<button class="btn sec" type="button" id="qi-tpl-xlsx">' + ui.ic('doc') + 'Download XLSX template</button>' +
+      (imp.result || imp.fileName
+        ? '<button class="btn sec" type="button" id="qi-clear">Start again</button>' : '') +
+      '</div>' +
+      '<p class="formnote">The template carries one example of each question type and matches the ' +
+      'rules below exactly.</p>', null, 'h2');
+
+    /* ---- step 3 · preview and confirm ---- */
+    var previewCard = '';
+    if (imp.failed) {
+      previewCard = ui.card('Nothing was imported',
+        ui.alertBox('warning', 'The import was refused',
+          '<p>Nothing from <strong>' + esc(imp.failed.fileName) + '</strong> was added, and your ' +
+          'Question Bank is unchanged.</p>' +
+          '<p>This happens when something changed between the preview and the confirmation — the ' +
+          'experiment is no longer mapped to you, or your institution has been deactivated. Check ' +
+          'the experiment is still yours and try again.</p>') +
+        '<div class="formact">' +
+        '<button class="btn sec" type="button" id="qi-clear">Start again</button>' +
+        '<a class="btn sec" href="' + F.href.bank(f.id) + '">Back to the Question Bank</a>' +
+        '</div>', null, 'h2');
+    } else if (imp.committed) {
+      previewCard = ui.card('Imported',
+        ui.alertBox('success',
+          imp.committed.created + ' ' + util.plural(imp.committed.created, 'question') + ' added',
+          '<p><strong>' + imp.committed.created + '</strong> ' +
+          util.plural(imp.committed.created, 'question') + ' from <strong>' +
+          esc(imp.committed.fileName) + '</strong> ' +
+          util.plural(imp.committed.created, 'is', 'are') + ' now in your Question Bank, filed under ' +
+          '<strong>' + esc(imp.committed.experimentName) + '</strong>.</p>' +
+          '<p>They are in the bank only. No assessment changed, and no student sees any of them until ' +
+          'you add them to an assessment yourself.</p>' +
+          (imp.committed.refused
+            ? '<p><strong>' + imp.committed.refused + ' ' +
+              util.plural(imp.committed.refused, 'row') + ' ' +
+              util.plural(imp.committed.refused, 'was', 'were') + ' refused at the last step</strong> ' +
+              'and ' + util.plural(imp.committed.refused, 'is', 'are') + ' not in your bank. Check the ' +
+              'file and import the missing ' + util.plural(imp.committed.refused, 'row') + ' again.</p>'
+            : '')) +
+        '<div class="formact">' +
+        '<a class="btn pri" href="' + F.href.bank(f.id) + '">Back to the Question Bank</a>' +
+        '<button class="btn sec" type="button" id="qi-clear">Import another file</button>' +
+        '</div>', null, 'h2');
+    } else if (res && res.fatal) {
+      previewCard = ui.card('3 · Review',
+        ui.alertBox('warning', 'This file cannot be imported', '<p>' + esc(res.fatal) + '</p>' +
+          (res.headerErrors.length
+            ? '<ul class="bullets">' + res.headerErrors.map(function (h) {
+                return '<li>' + esc(h) + '</li>';
+              }).join('') + '</ul>' : '')) +
+        '<p class="cardfoot">Your Question Bank has not been changed.</p>', null, 'h2');
+    } else if (res) {
+      var head = res.ok
+        ? ui.alertBox('success',
+            res.validCount + ' ' + util.plural(res.validCount, 'question') + ' ready to import',
+            '<p>Every row was read successfully. Nothing has been added yet — check the questions below, ' +
+            'then confirm.</p>' +
+            (res.duplicateCount
+              ? '<p><strong>' + res.duplicateCount + ' ' +
+                util.plural(res.duplicateCount, 'row') + '</strong> ' +
+                util.plural(res.duplicateCount, 'repeats', 'repeat') +
+                ' a question you already have, or another row of this file. ' +
+                'Nothing has been removed or merged — importing adds every row shown.</p>' : ''))
+        : ui.alertBox('warning',
+            'Import blocked: ' + res.invalidCount + ' of ' + res.rows.length + ' ' +
+            util.plural(res.rows.length, 'row') + ' ' +
+            util.plural(res.invalidCount, 'has', 'have') + ' a problem',
+            '<p>Nothing is imported while any row has a problem, so you can never end up with half a ' +
+            'file in your bank. Correct the rows below in your spreadsheet and choose the file again.</p>' +
+            '<p>Your Question Bank has not been changed.</p>');
+
+      previewCard = ui.card('3 · Review' + (res.ok ? ' and confirm' : ''),
+        head +
+        importIssuesHTML(res) +
+        (res.ok
+          ? '<h3 class="subh">What would be added</h3>' + importPreviewHTML(res) +
+            '<div class="formact">' +
+            '<button class="btn pri" type="button" id="qi-commit"' + (imp.busy ? ' disabled' : '') + '>' +
+            'Import ' + res.validCount + ' ' + util.plural(res.validCount, 'question') + '</button>' +
+            '<button class="btn sec" type="button" id="qi-clear">Cancel</button>' +
+            '<span class="formnote">Cancelling leaves your Question Bank exactly as it is.</span>' +
+            '</div>'
+          : ''),
+        res.rows.length + ' ' + util.plural(res.rows.length, 'row') + ' read', 'h2');
+    }
+
+    var html =
+      ui.crumbs([{ label: 'Question Bank', href: F.href.bank(f.id) }, { label: 'Import questions' }]) +
+      ui.phead('Import questions',
+        'Add questions from a spreadsheet. You choose where they go, and you confirm before anything ' +
+        'is added.') +
+      '<div class="stack">' +
+      contextCard + fileCard + previewCard +
+      ui.card('The columns this import accepts', importSchemaHTML(), null, 'h2') +
+      ui.about('What import does, and does not, do',
+        '<p>Imported questions go into your <strong>Question Bank only</strong>. No assessment changes ' +
+        'and no student sees them until you add them to an assessment yourself, exactly as for a question ' +
+        'you type in.</p>' +
+        '<p style="margin-top:8px">Every imported question records that it came from a file, and which ' +
+        'kind of file. That is kept separate from a draft made with assistance — an imported question is ' +
+        'never presented as one.</p>' +
+        '<p style="margin-top:8px">If any row has a problem the whole file is blocked. Nothing is ' +
+        'partially imported, and nothing is silently corrected, skipped or merged on your behalf.</p>') +
+      '</div>';
+
+    return {
+      area: 'faculty', faculty: f, tenant: tenant, navKey: 'questions',
+      title: 'Import questions — ' + f.name, html: html,
+      after: function () {
+        var sel = document.getElementById('qi-exp');
+        if (sel) {
+          sel.addEventListener('change', function () {
+            imp.experimentId = sel.value;
+            /* A new context invalidates a preview built against the old
+               one — the duplicate check and the scope check both read
+               it, so keeping the old result would show a preview that
+               no longer describes what would happen. */
+            imp.result = null; imp.fileName = ''; imp.kind = null; imp.committed = null;
+            XRSLP.render(true);
+            var again = document.getElementById('qi-exp');
+            if (again) { again.focus(); }
+          });
+        }
+
+        function template(kind) {
+          var rows = XRSLP.questionImport.templateRows();
+          if (kind === 'xlsx') {
+            XRSLP.xlsx.download('question-import-template.xlsx', rows, 'Questions');
+            ui.toast('XLSX template downloaded.', 'info');
+          } else {
+            XRSLP.csv.download('question-import-template.csv', XRSLP.questionImport.templateCsv());
+            ui.toast('CSV template downloaded.', 'info');
+          }
+        }
+        var tc = document.getElementById('qi-tpl-csv');
+        if (tc) { tc.addEventListener('click', function () { template('csv'); }); }
+        var tx = document.getElementById('qi-tpl-xlsx');
+        if (tx) { tx.addEventListener('click', function () { template('xlsx'); }); }
+
+        var file = document.getElementById('qi-file');
+        if (file) {
+          file.addEventListener('change', function () {
+            var f0 = file.files && file.files[0];
+            if (!f0) { return; }
+            var kind = XRSLP.questionImport.kindOfFile(f0.name);
+            imp.fileName = f0.name;
+            imp.committed = null;
+            imp.showAll = false;
+            if (kind === 'xls') {
+              imp.result = { fatal: 'This is an older .xls workbook. Save it as .xlsx, or export it as ' +
+                'CSV, and choose it again.', headerErrors: [], rows: [], errors: [], warnings: [] };
+              XRSLP.render(false);
+              ui.announce('This file cannot be imported.');
+              return;
+            }
+            if (!kind) {
+              imp.result = { fatal: 'Choose a .csv or .xlsx file.',
+                headerErrors: [], rows: [], errors: [], warnings: [] };
+              XRSLP.render(false);
+              ui.announce('This file cannot be imported.');
+              return;
+            }
+            imp.kind = kind;
+            var reader = new FileReader();
+            reader.onerror = function () {
+              imp.result = { fatal: 'The file could not be read.',
+                headerErrors: [], rows: [], errors: [], warnings: [] };
+              XRSLP.render(false);
+            };
+            reader.onload = function () {
+              imp.result = XRSLP.questionImport.validate(kind,
+                kind === 'xlsx' ? new Uint8Array(reader.result) : String(reader.result || ''),
+                { experimentId: imp.experimentId, facultyPersonId: f.id });
+              XRSLP.render(false);
+              var r0 = imp.result;
+              ui.announce(r0.fatal ? 'This file cannot be imported.'
+                : r0.ok ? r0.validCount + ' questions are ready to import.'
+                : 'Import blocked: ' + r0.invalidCount + ' of ' + r0.rows.length +
+                  ' rows have a problem.');
+            };
+            /* A workbook is binary and a CSV is text. Reading a
+               workbook as text would corrupt it before the parser
+               ever saw it. */
+            if (kind === 'xlsx') { reader.readAsArrayBuffer(f0); } else { reader.readAsText(f0); }
+          });
+        }
+
+        var clear = document.getElementById('qi-clear');
+        if (clear) {
+          clear.addEventListener('click', function () {
+            var keep = imp.experimentId;
+            resetImport(f.id);
+            imp.experimentId = keep;
+            XRSLP.render(false);
+          });
+        }
+
+        var showAll = document.getElementById('qi-showall');
+        if (showAll) {
+          showAll.addEventListener('click', function () {
+            imp.showAll = !imp.showAll;
+            XRSLP.render(true);
+            var again = document.getElementById('qi-showall');
+            if (again) { again.focus(); }
+          });
+        }
+
+        var commit = document.getElementById('qi-commit');
+        if (commit) {
+          commit.addEventListener('click', function () {
+            if (imp.busy || !imp.result || !imp.result.ok) { return; }
+            var res0 = imp.result;
+            var ctx0 = data.contextOf(res0.experimentId);
+            var expName = ctx0 ? ctx0.course.name + ' — ' + ctx0.experiment.name : res0.experimentId;
+            /* ⚠ CONFIRMED, LIKE EVERY OTHER CONSEQUENTIAL CONTROL.
+               The dialog names the count, the file and the destination,
+               because those are the three things a person who picked
+               the wrong file needs to notice BEFORE it happens. */
+            ui.openDialog({
+              title: 'Import ' + res0.validCount + ' ' +
+                util.plural(res0.validCount, 'question') + '?',
+              bodyHTML:
+                '<p>Adds <strong>' + res0.validCount + '</strong> ' +
+                util.plural(res0.validCount, 'question') + ' from <strong>' +
+                esc(imp.fileName) + '</strong> to your Question Bank, filed under <strong>' +
+                esc(expName) + '</strong>.</p>' +
+                (res0.duplicateCount
+                  ? '<div class="consequence">' + ui.ic('alertCirc') + '<span><strong>' +
+                    res0.duplicateCount + '</strong> of them ' +
+                    util.plural(res0.duplicateCount, 'repeats', 'repeat') +
+                    ' a question you already have or another row of this file. ' +
+                    'Every row shown is added — nothing is merged.</span></div>' : '') +
+                '<div class="consequence">' + ui.ic('shield') + '<span>Nothing is added to any ' +
+                '<strong>assessment</strong>, and no student sees any of these until you add them ' +
+                'to one yourself.</span></div>' +
+                '<div class="consequence">' + ui.ic('info') + '<span>Each one records that it was ' +
+                'imported from ' + (res0.kind === 'xlsx' ? 'an XLSX' : 'a CSV') + ' file.</span></div>',
+              okLabel: 'Import questions',
+              onConfirm: function () {
+                if (imp.busy || !imp.result || !imp.result.ok) { return; }
+                imp.busy = true;                    /* double-click guard */
+                var outcome = XRSLP.questionImport.commit(imp.result, tenant.id, f.id);
+                imp.busy = false;
+                /* ⚠ A COMMIT THAT WROTE NOTHING IS NOT A SUCCESS.
+                   The success card and the toast used to render from
+                   `outcome.created` unconditionally, so a commit the
+                   state layer refused — a scope that changed between
+                   the preview and the confirmation, an institution
+                   deactivated in the meantime — was announced as
+                   "0 questions imported" inside a green panel saying
+                   they were now in the bank. The refusal is reported as
+                   a refusal, and the preview is kept so the faculty
+                   member can see what they were trying to import. */
+                if (!outcome.created) {
+                  imp.failed = {
+                    fileName: imp.fileName,
+                    refused: outcome.refused.length,
+                    attempted: imp.result ? imp.result.validCount : 0
+                  };
+                  XRSLP.render(false);
+                  ui.toast('Nothing was imported.', 'warn');
+                  ui.announce('Nothing was imported. Your Question Bank is unchanged.');
+                  return;
+                }
+                imp.committed = {
+                  created: outcome.created, fileName: imp.fileName, experimentName: expName,
+                  refused: outcome.refused.length
+                };
+                imp.result = null; imp.failed = null; imp.showAll = false;
+                XRSLP.render(false);
+                ui.toast(outcome.created + ' ' +
+                  util.plural(outcome.created, 'question') + ' imported.');
+              }
+            });
+          });
+        }
       }
     };
   };

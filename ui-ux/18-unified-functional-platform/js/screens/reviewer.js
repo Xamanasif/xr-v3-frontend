@@ -476,7 +476,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="tscroll"><table class="dt">' +
       '<caption class="sr-only">Later versions of published experiments in your assigned scope</caption>' +
       '<thead><tr><th scope="col">Experiment</th><th scope="col">Version</th><th scope="col">Replaces</th>' +
-      '<th scope="col">Vendor</th><th scope="col">State</th>' +
+      '<th scope="col">Raised by</th><th scope="col">State</th>' +
       '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
       vers.map(function (v) {
         var rec = state.contentRecord(v.recordId);
@@ -485,7 +485,11 @@ XRSLP.screens = XRSLP.screens || {};
           '<td data-label="Experiment">' + esc(rec ? rec.name : v.recordId) + '</td>' +
           '<td data-label="Version">' + esc(v.versionLabel) + '</td>' +
           '<td data-label="Replaces">' + esc(v.replacesVersionLabel || '—') + '</td>' +
-          '<td data-label="Vendor">' + esc(v.createdByName) + '</td>' +
+          /* Implementation 09 — a Content Manager's correction is not a
+             Vendor's submission, and the reviewer deciding on it should
+             see which it is before opening it. */
+          '<td data-label="Raised by">' + esc(v.createdByName) +
+            '<span class="tsub2">' + esc(XRSLP.versionUI.raisedByRole(v)) + '</span></td>' +
           '<td data-label="State">' + XRSLP.versionUI.badge(v) + '</td>' +
           '<td class="cell-actions"><a class="btn ' + (actionable ? 'sec' : 'gho') + ' sm" href="' +
           href.rVersion(actor.id, v.id) + '">' + (actionable ? 'Review' : 'View') + '</a></td>' +
@@ -818,7 +822,40 @@ XRSLP.screens = XRSLP.screens || {};
           'Manager corrects them. You can open one to inspect it.' }) +
       /* R16 — openable, still read-only. See `deliveryOpenHTML()`. */
       ui.card('Technology delivery',
-        cui.deliveryRows(rec) + deliveryOpenHTML(rec),
+        cui.deliveryRows(rec) + deliveryOpenHTML(rec) +
+        /* ── Implementation 09 — HOW A REVIEWER TESTS AR OR VR ───────
+           PM-08 asked the question directly, and the honest answer in
+           this build is: not from here. Every row above now names where
+           its technology actually runs, and this says what that means
+           for the decision this reviewer is about to make — including
+           the part nobody has decided, which is who performs the
+           technical validation on the target device.
+
+           ⚠ IT DOES NOT ASSIGN THAT OWNERSHIP. No confirmed source
+           makes technical or runtime QA the Academic Reviewer's, and
+           quietly implying it here would settle a stakeholder question
+           by wording. It is recorded as open, in the product and in
+           PM_DELTA_09.md. */
+        /* ⚠ PARENTHESISED, AND IT MATTERS. Without the outer brackets
+           `a + b + cond ? x : y` parses as `(a + b + cond) ? x : y`,
+           the whole concatenation becomes a truthy condition, and the
+           delivery rows above it vanish from the card entirely. */
+        ((rec.technologies || []).some(function (t) {
+          var d0 = data.TECHNOLOGIES[t];
+          return d0 && d0.delivery !== 'hosted';
+        })
+          ? ui.about('Testing a device-delivered experience',
+              '<p>A hosted Web experience opens in this browser and you can inspect it from here. An AR, VR ' +
+              'or MR experience does not: it runs inside an application on a supported device, and this ' +
+              'build has no such application and delivers no package to one.</p>' +
+              '<p style="margin-top:8px">What you can inspect here is the <strong>delivery reference</strong>, ' +
+              'the <strong>package and version metadata</strong>, the <strong>technologies</strong> the Vendor ' +
+              'submitted and the <strong>device requirement</strong> stated for each. Your decision is the ' +
+              '<strong>academic</strong> one — whether the experiment and its Learning Outcomes are sound.</p>' +
+              '<p style="margin-top:8px"><strong>Who performs the technical validation on the target device ' +
+              'has not been decided.</strong> It is not assigned to this role by anything confirmed, and this ' +
+              'screen does not assign it. It is recorded as an open question for the platform team.</p>')
+          : ''),
         'Read-only · inspect only', 'h3') +
       /* Named for whose list it is. The reviewer's own change-request
          references are a different list and are shown with the decision
