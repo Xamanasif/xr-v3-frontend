@@ -196,24 +196,28 @@ XRSLP.screens = XRSLP.screens || {};
     var html =
       ui.phead('Role governance',
         'Vendor · Academic Reviewer · Content Manager — platform roles and what each person reaches') +
+      /* SCOPE, AS A PAGE LEDE RATHER THAN AS A TAGGED GAP NOTE. This is
+         an ordinary statement of what a screen covers; the gapNote tag
+         made it read as a defect report. */
+      '<p class="chelp">These are <strong>platform</strong> roles. No institutional person appears here and no ' +
+      'institutional role can be assigned from this screen — Faculty and Student records belong to the Tenant ' +
+      'Admin, inside a tenant. Vendor, Academic Reviewer and Content Manager are the whole set; there is no ' +
+      'way to create a new platform role.</p>' +
       '<div class="stack">' +
       (withoutScope.length
-        ? ui.card('Needs attention', P.attentionList(withoutScope), null, 'h2') : '') +
+        ? ui.card('Needs attention', P.attentionList(withoutScope),
+            withoutScope.length + ' ' + util.plural(withoutScope.length, 'person', 'people'), 'h2') : '') +
       sections + registerCard() +
-      ui.gapNote('IDENTITY ORIGIN STILL NOT DECIDED',
-        '<strong><code>QD-02</code> is unchanged and unanswered.</strong> The sources confirm <strong>who ' +
-        'assigns</strong> a platform role, not how a person&rsquo;s identity first comes into being; ' +
-        'identity-provider role mapping and custom roles are both later-phase, and the standing instruction is to ' +
-        '&ldquo;invent no invitation, activation or account-creation mechanism&rdquo;. This surface obeys that ' +
-        'literally: registering someone <strong>records a named person</strong> in the platform&rsquo;s own ' +
-        'directory and nothing more &mdash; no account, password, credential, invitation, activation or single ' +
-        'sign-on is created, and none is implied &mdash; and where a person came from is stated as a plain ' +
-        'sentence on their own record rather than as a provenance token in a column. ' +
-        'It is the same treatment the assigned Tenant Admin already receives. Creating a new ' +
-        'platform <em>role</em> remains absent: Vendor, Academic Reviewer and Content Manager are the confirmed set.') +
-      ui.gapNote('NOT INSTITUTIONAL ROLES',
-        'No institutional person appears on this screen and no institutional role can be assigned from it. ' +
-        'Faculty and Student records belong to the Tenant Admin, inside a tenant.') +
+      /* ⚠ REMOVED FROM THE UI, KEPT HERE: the "IDENTITY ORIGIN STILL NOT
+         DECIDED" gap note (QD-02). It said the sources confirm who
+         ASSIGNS a platform role but not how a person's identity first
+         comes into being; that identity-provider role mapping and custom
+         roles are later-phase; and that the standing instruction is to
+         invent no invitation, activation or account-creation mechanism.
+         All of that is build-process traceability. The single fact an
+         operator needs from it — registering records a person and
+         creates no account — is on the register form's own formnote,
+         where the person is about to do it. */
       '</div>';
 
     return {
@@ -376,7 +380,9 @@ XRSLP.screens = XRSLP.screens || {};
          promising "they get this scope back immediately" before the
          refusal surfaced in a toast afterwards. The condition is fully
          computable here, so the button is disabled and says why. */
-      ? '<ul class="scopelist muted-list">' + gone.map(function (m) {
+      /* `.muted-list` had no rule in any stylesheet; `.sc.off` on the
+         child row is what actually distinguishes a withdrawn scope. */
+      ? '<ul class="scopelist">' + gone.map(function (m) {
           var covered = live.some(function (x) {
             return x.scope === m.scope && x.courseId === m.courseId &&
                    x.experimentId === m.experimentId;
@@ -524,9 +530,11 @@ XRSLP.screens = XRSLP.screens || {};
         '<p class="cardfoot">' +
         (actor.source === 'seed'
           ? 'A sample identity, not a real person. No account, credential or invitation exists behind it.'
-          : 'Recorded on this platform by the Super Admin. It names a person and nothing more &mdash; there is ' +
-            'no account, password, credential, invitation, activation or single sign-on behind it, and none is ' +
-            'implied. How an identity first comes into being is still undecided (<code>QD-02</code>).') +
+          /* The open question about where an identity first comes from
+             (QD-02) is a build-team question; the operator needs only
+             what this record is and is not. */
+          : 'Recorded on this platform by the Super Admin. It names a person and nothing more — no account, ' +
+            'password, credential, invitation or single sign-on exists behind it, and none is implied.') +
         '</p>', null, 'h2') +
       reachCard + historyCard +
       '</div></div>';
@@ -807,13 +815,11 @@ XRSLP.screens = XRSLP.screens || {};
             P.href.transfer(r.id) + '">' + (mine ? 'Review' : 'Open') + '</a></td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>'
-      : ui.emptyState({
-          icon: 'monitor', heading: 'h3',
+      : ui.emptyRow({
+          ok: true, heading: 'h3',
           title: 'No device requests',
-          body: 'A student who needs the authorised package moved to a replacement device raises the request ' +
-            'from their own workspace, and it goes first to their own institution’s Institute / Tenant Admin. ' +
-            'It reaches the platform only when that person forwards it — no device request comes straight ' +
-            'from a student to the Super Admin.'
+          body: 'A student raises one in their own workspace; it reaches the platform only once their ' +
+            'Institute / Tenant Admin forwards it.'
         });
 
     /* ---- support ---- */
@@ -841,11 +847,11 @@ XRSLP.screens = XRSLP.screens || {};
             (t.status === state.SUPPORT_STATUS.OPEN ? 'Resolve' : 'Open') + '</a></td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>'
-      : ui.emptyState({
-          icon: 'check', heading: 'h3',
+      : ui.emptyRow({
+          ok: true, heading: 'h3',
           title: 'No issues reported',
-          body: 'Students, Faculty, Tenant Admins and the content roles report technical issues from the Help ' +
-            'destination in their own workspace. Reports appear here.'
+          body: 'Students, Faculty, Tenant Admins and the content roles report technical issues from Help in ' +
+            'their own workspace. Reports arrive here.'
         });
 
     /* ---- expiry ---- */
@@ -865,8 +871,8 @@ XRSLP.screens = XRSLP.screens || {};
       var routeLine = !route
         ? 'This record is not bound to an institution, so it has no renewal route.'
         : route.paymentRequired
-        ? 'Route: the same payment step this record was bought through.'
-        : 'Route: no payment step — that is how this record was granted.';
+        ? 'Route: the same payment step this access was bought through.'
+        : 'Route: no payment step — that is how this access was granted.';
       if (!open) {
         return '<span class="muted">None in flight</span>' +
           '<span class="tsub">' + esc(routeLine) + '</span>';
@@ -880,7 +886,7 @@ XRSLP.screens = XRSLP.screens || {};
     var expiryBody = (reminders.length || expired.length)
       ? '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">Access terms needing attention</caption>' +
-        '<thead><tr><th scope="col">Access record</th><th scope="col">Institution</th>' +
+        '<thead><tr><th scope="col">Approved content</th><th scope="col">Institution</th>' +
         '<th scope="col">Term ends</th><th scope="col">Remaining</th><th scope="col">State</th>' +
         '<th scope="col">Renewal</th>' +
         '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
@@ -889,9 +895,13 @@ XRSLP.screens = XRSLP.screens || {};
           var days = state.accessDaysUntilExpiry(rec);
           var live = state.accessIsLive(rec);
           return '<tr>' +
-            '<td data-label="Access record"><span class="tmain">' + esc(rec.id) + '</span>' +
-            '<span class="tsub">' + rec.items.length + ' ' + util.plural(rec.items.length, 'experiment') +
-            ' · ' + rec.quantity + ' ' + util.plural(rec.quantity, 'user') + '</span></td>' +
+            /* The renewal queue led with the record key, so an operator
+               scanning for "which access is about to lapse" read a column
+               of identifiers. The content leads; the reference follows. */
+            '<td data-label="Approved content"><span class="tmain">' + ui.accessTitle(rec) + '</span>' +
+            '<span class="tsub">' + ui.accessScope(rec) +
+            ' · ' + rec.quantity + ' ' + util.plural(rec.quantity, 'user') + '</span>' +
+            '<span class="tsub">' + ui.techBadges(ui.recTechnologies(rec)) + '</span></td>' +
             '<td data-label="Institution">' + esc(t ? t.name : rec.tenantId) + '</td>' +
             '<td data-label="Term ends">' + esc(util.fmtDate(rec.endsOn)) + '</td>' +
             '<td data-label="Remaining" class="num">' + (live && days != null ? days + ' ' + util.plural(days, 'day') : '—') + '</td>' +
@@ -902,10 +912,10 @@ XRSLP.screens = XRSLP.screens || {};
             '<td class="cell-actions"><a class="btn sm sec" href="' + P.href.institution(rec.tenantId) + '">Institution</a></td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>'
-      : ui.emptyState({
-          icon: 'check', heading: 'h3',
+      : ui.emptyRow({
+          ok: true, heading: 'h3',
           title: 'No access term needs attention',
-          body: 'No institutional access term ends within the next 15 days, and none has expired.'
+          body: 'None ends within the next 15 days, and none has expired.'
         });
 
     /* THE RENEWAL RULE, STATED WHERE THE EXPIRY IS SEEN.
@@ -917,19 +927,25 @@ XRSLP.screens = XRSLP.screens || {};
        which no source grants and which the state layer has no writer
        for. */
     var renewalFoot =
-      '<p class="cardfoot"><strong>A renewal follows the institution&rsquo;s original access route, and nobody ' +
-      'can extend an access term directly.</strong> Not the student, not the Institute / Tenant Admin, not the ' +
-      'Super Admin, and not this screen. The institution raises a renewal against the record it already holds; ' +
-      'it arrives on the <a href="' + P.href.requests() + '">Access requests</a> queue as an ordinary request ' +
-      'marked as a renewal, and the term moves only when that request activates.</p>' +
-      '<p class="muted" style="font-size:12.5px;line-height:1.6;margin-top:8px">An institution on the ' +
-      '<strong>Subscription</strong> access context completes the <strong>same payment step it was onboarded ' +
-      'through</strong>; an institution on <strong>BITS Community</strong> has no payment step on its route, so ' +
-      'approval activates the renewal at once. The route is read from the institution and its original ' +
-      'onboarding request, never from which prototype scenario happens to be selected. A renewal ' +
-      '<strong>extends the existing record</strong> — its id, assignments, faculty mappings and licence ' +
-      'allocation all stay where they are — rather than creating a second one. Requesting a renewal extends ' +
-      'nothing on its own.</p>';
+      '<p class="cardfoot"><strong>Nobody can extend an access term directly</strong> — not the student, not ' +
+      'the Institute / Tenant Admin, not the Super Admin, not this screen. The institution raises a renewal ' +
+      'against the record it holds; it arrives on the <a href="' + P.href.requests() + '">Access requests</a> ' +
+      'queue as an ordinary request marked as a renewal, and the term moves only when that request activates. ' +
+      'The Renewal column above shows each record&rsquo;s own route.</p>' +
+      /* The rest was three restatements of one rule plus a defence of
+         how the route is derived. What survives is what an operator
+         cannot work out from the table: what a renewal may and may not
+         change, and that a renewal in flight has not moved anything yet. */
+      ui.about('What a renewal can and cannot change',
+        '<p>A renewal <strong>extends the record it names</strong>. Its id, assignments, Faculty mappings and ' +
+        'licence allocation all stay exactly where they are, and no second record is created.</p>' +
+        '<p>It <strong>mirrors the current plan</strong> — the same experiments, technologies, licence count ' +
+        'and term length — and is decided without the allocation controls an ordinary request carries. An ' +
+        'institution that wants more raises an ordinary access request instead, which adds a second record ' +
+        'beside the one it holds.</p>' +
+        '<p>Requesting a renewal extends nothing on its own. An institution on the <strong>Subscription</strong> ' +
+        'context completes the same payment step it was onboarded through; one on <strong>BITS Community</strong> ' +
+        'has no payment step, so approval activates the renewal at once.</p>');
 
     /* ⚠ PROTOTYPE-ONLY. The 15-day reminder is a confirmed requirement
        (STK31-28), but no product action can reach the state: the
@@ -949,76 +965,82 @@ XRSLP.screens = XRSLP.screens || {};
        itself raised. The copy below says so in the user's own words. */
     var liveRecords = state.accessAll().filter(state.accessIsLive);
     var expiryDemo = liveRecords.length
-      ? ui.protoNote(
-          '<p><strong>The reminder state cannot be reached by using the product.</strong> The shortest access ' +
-          'term is Monthly, so a freshly activated record is about thirty days from its end date. To see the ' +
-          'confirmed 15-day rule on a real record, move one record&rsquo;s end date below — the equivalent of ' +
-          'winding the demo clock forward. It grants nothing, renews nothing, and changes no quantity, ' +
-          'assignment or licence allocation.</p>' +
-          '<p><strong>This is not a renewal control and not an extension control.</strong> It is a demo clock, ' +
-          'and it moves the date backwards as readily as forwards. No renewal request is created, no decision ' +
-          'is recorded, and nothing is written to the record&rsquo;s renewal history. A term is lengthened on ' +
-          'purpose in exactly one way: the institution raises a renewal against the record, the Super Admin ' +
-          'decides it on the Access requests queue, and it activates through that institution&rsquo;s own ' +
-          'route.</p>' +
-          '<p><strong>It is a date change, so it has a date change&rsquo;s consequences.</strong> Moving a record ' +
-          'past its end date expires it, and entitlement derived from an expired record stops being effective — ' +
-          'exactly as it would on the day the term really ended. Nothing is deleted, and moving the date back ' +
-          'restores it.</p>',
-          '<label for="xp-rec" style="font-weight:600;margin-right:6px">Access record</label> ' +
+      ? ui.demoPanel('Demo clock — move an access term’s end date',
+          '<p>The shortest access term is Monthly, so a freshly activated record is about thirty days from its ' +
+          'end date and the confirmed 15-day rule cannot be reached by using the product. This moves one ' +
+          'record&rsquo;s end date, in either direction, so the rule can be seen on a real record.</p>' +
+          '<p><strong>It is not a renewal and not an extension.</strong> It grants nothing, writes no request, ' +
+          'records no decision and changes no quantity, assignment or licence allocation. Moving access past ' +
+          'its end date expires it, exactly as the real date would; moving it back restores it.</p>' +
+          '<div class="frow">' +
+          '<div class="field"><label for="xp-rec">Approved content</label>' +
           '<select id="xp-rec">' + liveRecords.map(function (rec) {
             var t = state.tenantById(rec.tenantId);
-            return '<option value="' + esc(rec.id) + '">' + esc(rec.id + ' — ' + (t ? t.name : rec.tenantId)) +
+            /* Content and institution first; the reference trails, as it
+               does everywhere else. An <option> carries no markup, so it
+               cannot be styled down — only ordered. */
+            return '<option value="' + esc(rec.id) + '">' +
+              esc(XRSLP.tenantUI.accessChoiceLabel(rec) + ' — ' + (t ? t.name : rec.tenantId)) +
               '</option>';
-          }).join('') + '</select> ' +
-          '<label for="xp-days" style="font-weight:600;margin:0 6px 0 14px">Ends in</label> ' +
+          }).join('') + '</select></div>' +
+          '<div class="field"><label for="xp-days">Ends in</label>' +
           '<select id="xp-days">' +
           '<option value="16">16 days (not due)</option>' +
           '<option value="15" selected>15 days (reminder due)</option>' +
           '<option value="10">10 days (reminder due)</option>' +
           '<option value="-1">already ended (expired)</option>' +
-          '</select> ' +
-          '<button class="btn sec sm" type="button" id="xp-go">Move the end date</button>')
+          '</select></div>' +
+          '</div>' +
+          '<div class="formact"><button class="btn sec sm" type="button" id="xp-go">Move the end date</button>' +
+          '</div>')
       : '';
+
+    var needing = openTransfers.length + openTickets.length + reminders.length;
 
     var html =
       ui.phead('Operations',
-        (function () {
-          var n = openTransfers.length + openTickets.length + reminders.length;
-          return n ? n + ' ' + util.plural(n, 'item') + ' ' + (n === 1 ? 'needs' : 'need') + ' attention'
-                   : 'Device transfers, support reports and access-term expiry';
-        })()) +
+        needing
+          ? needing + ' ' + util.plural(needing, 'item') + ' ' + (needing === 1 ? 'needs' : 'need') + ' attention'
+          : 'Device transfers, support reports and access-term expiry — nothing is waiting') +
+      /* THE QUEUE COUNTS FIRST. Four figures say whether this screen
+         needs the operator at all, before they read three tables to find
+         out. Every one is the same selector the Overview tile and the
+         nav badge read, so they cannot disagree. */
+      ui.statStrip([
+        { v: openTransfers.length, k: 'Device transfers to decide',
+          tone: openTransfers.length ? 'warn' : '' },
+        { v: openTickets.length, k: 'Support reports open', tone: openTickets.length ? 'warn' : '' },
+        { v: reminders.length, k: 'Terms ending within 15 days', tone: reminders.length ? 'warn' : '' },
+        { v: expired.length, k: 'Terms already expired', tone: expired.length ? 'bad' : '' },
+        { v: withTenant.length, k: 'With an institution, not ours' }
+      ]) +
       '<div class="stack">' +
       ui.card('Device replacement and transfer', transferBody +
-        '<p class="cardfoot"><strong>A device request reaches the platform through the institution.</strong> ' +
-        'A student raises it in their own workspace and it sits with their Institute / Tenant Admin, who is ' +
-        'the platform&rsquo;s point of contact for it; it becomes the Super Admin&rsquo;s to decide only once ' +
-        'that person has forwarded it. ' +
+        '<p class="cardfoot">A device request reaches the platform <strong>through the institution</strong>: ' +
+        'it becomes yours to decide only once that institution&rsquo;s Tenant Admin has forwarded it. ' +
         (withTenant.length
           ? '<strong>' + withTenant.length + ' ' + util.plural(withTenant.length, 'request') + '</strong> ' +
-            (withTenant.length === 1 ? 'is' : 'are') + ' still with an institution and cannot be decided here — ' +
-            'that move belongs to its Tenant Admin.'
-          : 'Nothing is currently waiting on an institution.') + '</p>' +
-        '<p class="muted" style="font-size:12.5px;line-height:1.6;margin-top:8px">A decision here moves the ' +
-        'authorised device binding and nothing else. It consumes no licence, grants no experiment, adds no ' +
-        'technology, and changes no assessment state. There is no device registry anywhere in the platform, ' +
-        'so no hardware is registered, certified or configured — the request records what the student told ' +
-        'us.</p>', null, 'h2') +
+            (withTenant.length === 1 ? 'is' : 'are') + ' still with an institution and cannot be decided here.'
+          : 'Nothing is currently waiting on an institution.') +
+        ' A decision moves the authorised device binding and nothing else — no licence, experiment, technology ' +
+        'or assessment state changes, and no hardware is registered or certified.</p>',
+        openTransfers.length ? String(openTransfers.length) + ' to decide' : null, 'h2') +
       ui.card('Support reports', supportBody +
-        '<p class="cardfoot">No response time is promised, no priority is assigned, no external ticketing ' +
-        'provider is integrated, and no notification is sent to anybody. The reporter sees the state in ' +
-        'their own workspace.</p>', null, 'h2') +
-      ui.card('Access terms, the 15-day reminder and renewal', expiryBody + renewalFoot + expiryDemo, null, 'h2') +
-      P.reminderNote() +
-      ui.gapNote('RENEWAL PLAN CHANGES NOT DECIDED',
-        'Whether a renewal may <strong>change</strong> the plan — more licences, different technologies, a ' +
-        'different term — is <strong>not settled</strong>. This build fails safe rather than deciding it: a ' +
-        'renewal mirrors the current plan exactly, and the Super Admin decides it <strong>without</strong> the ' +
-        'allocation controls an ordinary request carries &mdash; the decision screen replaces them with a panel ' +
-        'saying the plan is not adjustable on a renewal, because <code>approveRequest()</code> refuses a grant on ' +
-        'one. An institution that wants ' +
-        '<em>more</em> today raises an ordinary access request, which adds a second record beside the one it ' +
-        'holds; that is a different thing from a renewal and the two are deliberately kept apart.') +
+        '<p class="cardfoot">No response time is promised and no priority is assigned. ' +
+        '<strong>Nothing is sent to anybody</strong> — the reporter sees the state in their own workspace.</p>',
+        openTickets.length ? String(openTickets.length) + ' open' : null, 'h2') +
+      ui.card('Access terms, the 15-day reminder and renewal',
+        expiryBody + renewalFoot +
+        /* The reminder note lives HERE and nowhere else — this is the
+           surface that owns the reminder state. See `P.reminderNote`. */
+        '<div style="margin-top:14px">' + P.reminderNote() + '</div>',
+        reminders.length ? String(reminders.length) + ' due' : null, 'h2') +
+      /* The demo clock is not product UI, so it does not sit inside an
+         operational card. It is the only prototype control on this
+         screen; it stays available because the 15-day rule cannot
+         otherwise be demonstrated, and it stays collapsed and dashed
+         because it is scaffolding. */
+      expiryDemo +
       '</div>';
 
     return {
@@ -1158,7 +1180,14 @@ XRSLP.screens = XRSLP.screens || {};
                             : '<span class="muted">None recorded</span>') + '</div>'
         : '') +
       (r.decisionNote ? '<div class="k">Decision note</div><div class="v">' + esc(r.decisionNote) + '</div>' : '') +
-      '</div>' + decisionHTML + '</div></section>' +
+      /* ⚠ `.decidebar` CARRIES ITS OWN PADDING AND A BOTTOM RADIUS that
+         has to meet the card edge, so it belongs OUTSIDE `.cbody`. It
+         was rendered inside it here and on the support report, which
+         made the component's shape contradict its position — an inset
+         grey block with rounded bottom corners floating in the middle of
+         20px of padding. One placement rule, applied on every detail
+         screen in this workspace. */
+      '</div></div>' + decisionHTML + '</section>' +
       '</div>' +
       '<div class="stack">' +
       ui.card('The student&rsquo;s entitlement — unchanged by this decision',
@@ -1170,15 +1199,23 @@ XRSLP.screens = XRSLP.screens || {};
             }).join('') + '</ul>'
           : '<p class="muted">This student holds no effective entitlement at the moment.</p>',
         null, 'h2') +
-      ui.card('History', timeline) +
-      ui.gapNote('NO DEVICE REGISTRY',
-        'The platform holds a device <em>transfer approval</em> with no device <em>registry</em> behind it — the ' +
-        'binding is a relationship, not an administrable record. Nothing here registers hardware, names a model, ' +
-        'or certifies compatibility. Device registration and remote configuration are later-phase.') +
-      ui.gapNote('IMPLEMENTATION JUDGEMENT',
-        'The requirement contains <strong>no rejection behaviour</strong>: the confirmed flow is request → ' +
-        'approve. The Decline path is an implementation decision taken for this build so a request cannot sit ' +
-        'open forever, and it is recorded as a judgement call rather than a confirmed capability.') +
+      ui.card('History', timeline, null, 'h2') +
+      /* WHAT IS AND IS NOT BEING CERTIFIED — genuinely useful before
+         approving, so it stays, in two sentences. The "later-phase"
+         roadmap clause is gone.
+         ⚠ ALSO REMOVED FROM THE UI: an "IMPLEMENTATION JUDGEMENT" note
+         saying the requirement contains no rejection behaviour and that
+         the Decline path was an implementer's decision. That is a note
+         from the implementer to a reviewer of the build, rendered beside
+         a live Decline button that works and already demands a reason.
+         The judgement itself is unchanged and is recorded here: the
+         confirmed flow is request → approve; Decline exists so a request
+         cannot sit open forever. */
+      ui.about('What a device approval actually certifies',
+        '<p>The platform holds a device <em>transfer approval</em> with no device <em>registry</em> behind it: ' +
+        'the binding is a relationship, not an administrable record.</p>' +
+        '<p>Nothing here registers hardware, names a model or certifies compatibility. The request records ' +
+        'what the student told us.</p>') +
       '</div></div>';
 
     return {
@@ -1308,24 +1345,33 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="k">Technology</div><div class="v">' +
       (def ? ui.fmtBadge(t.technology) + ' ' + esc(def.name) : '<span class="muted">Not technology specific</span>') + '</div>' +
       '</div>' +
-      '<h3 style="font-size:13.5px;font-weight:640;margin:14px 0 4px">What they described</h3>' +
+      '<h3 class="vh">What they described</h3>' +
       '<p class="tk-d">' + esc(t.description) + '</p>' +
+      /* THE EVIDENCE THE REPORTER SENT, rendered by the SAME shared
+         helper their own Help page uses — so the person who attached it
+         and the person acting on it see the same thing rather than two
+         descriptions of it. Renders nothing when nothing was attached. */
+      XRSLP.supportUI.ticketMediaHTML(t, { reviewer: true }) +
       (t.resolutionNote
-        ? '<h3 style="font-size:13.5px;font-weight:640;margin:14px 0 4px">Resolution</h3>' +
+        ? '<h3 class="vh">Resolution</h3>' +
           '<p class="tk-d">' + esc(t.resolutionNote) + '</p>'
         : t.previousResolution
-        ? '<h3 style="font-size:13.5px;font-weight:640;margin:14px 0 4px">Previous resolution — reopened</h3>' +
+        ? '<h3 class="vh">Previous resolution — reopened</h3>' +
           '<p class="tk-d">' + esc(t.previousResolution) + '</p>'
         : '') +
-      decisionHTML +
-      '</div></section>' +
+      /* The resolve FORM belongs inside `.cbody` (it has no padding of
+         its own); the resolved-state `.decidebar` belongs outside it.
+         Same rule as the device transfer above. */
+      (open ? decisionHTML + '</div></section>' : '</div>' + decisionHTML + '</section>') +
       '</div>' +
       '<div class="stack">' +
-      ui.card('History', timeline) +
-      ui.gapNote('NOT IN THIS BUILD',
-        'No SLA, response-time promise, priority or severity formula, external ticketing provider, chatbot, ' +
-        'escalation path or knowledge base exists. No email, SMS or notification is sent at any point in this ' +
-        'workflow — the reporter sees the state in the product.') +
+      ui.card('History', timeline, null, 'h2') +
+      /* The load-bearing half — that the reporter was NOT notified — is
+         stated on the resolve control itself and on the Operations card.
+         What is gone is the eight-item list of absent capabilities (SLA,
+         priority formula, chatbot, escalation path, knowledge base…),
+         which was scope documentation for the build team. None of them
+         exists; none of them is implied anywhere on this screen. */
       '</div></div>';
 
     return {

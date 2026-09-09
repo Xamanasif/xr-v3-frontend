@@ -378,6 +378,12 @@ Batch 04 is preserved in full as reusable historical work.
 
 ## 10 · Explicitly deferred to Implementation 08 (visual design)
 
+> **STATUS: Implementation 08 has now been carried out.** Everything listed in this section as
+> deferred was done, and the full record — including the decisions deliberately *not* invented —
+> is in **[`UX_REDESIGN_08.md`](UX_REDESIGN_08.md)** and summarised in §15 below. The paragraphs
+> immediately following are left as written, because they are the accurate record of what
+> Implementation 07 deferred and why.
+
 No visual redesign was started. Deferred, and deliberately untouched here:
 
 - The design system, branding and any premium restyling of the marketplace or dashboards
@@ -582,3 +588,121 @@ decided would be the opposite of useful.
 
 **The final visual design has not been started.** That is Implementation 08, and this build is
 deliberately still wearing its functional clothes.
+
+> **AMENDED AT IMPLEMENTATION 08.** The two paragraphs above were correct when written and are the
+> record of the 07 closeout. Implementation 08 changed the second one — the visual design has now
+> been done — and *refined* the first rather than reversing it. The honesty those notices carried is
+> kept in full; what changed is where it lives. Each one was classified individually: information a
+> user genuinely needs became product help or a folded "About this"; a demo-only control moved into a
+> collapsed demo panel; a note that only documented an unresolved **engineering** decision moved into
+> a code comment beside the logic and into `UX_REDESIGN_08.md`. **Nothing was resolved by claiming a
+> missing integration exists**, and the genuinely open policy questions are still listed — in
+> `OPEN_DECISIONS_FOR_STAKEHOLDER.md` and in `UX_REDESIGN_08.md` §8 — rather than on top of the
+> screens a stakeholder walks through. See §15.
+
+---
+
+## 15 · Implementation 08 — the UX / product closure pass
+
+Full record: **[`UX_REDESIGN_08.md`](UX_REDESIGN_08.md)**. This section is the audit-level summary.
+
+**Method.** Nine parallel read-only analyses of the sources and every role surface, then six
+implementation passes with strictly disjoint file ownership, then **six independent adversarial
+verifiers** whose only job was to find what broke. One area came back clean; five found real
+defects, every one of which was fixed. Two further defects were found by central verification.
+
+**Scope.** Presentation only. No guard, authority boundary, state transition or business rule was
+changed. `js/data.js` — the seed — was not touched at all.
+
+### Verification
+
+| | Before | After |
+|---|---|---|
+| Deterministic suite | 1292 assertions, 0 failures | **1386 assertions, 0 failures** (+94; none weakened or removed) |
+| Product JS files parsing | not checked | **30 / 30** — now asserted by the suite itself |
+| `index.html` loads every one, on one cache token | not checked | asserted |
+| Every CSS custom property resolves | not checked | asserted (**118 defined**, 0 dangling) |
+| Rendered-DOM audit | none existed | **890 checks** — 178 routes × 375/768/1024/1280/1440 — **0 issues** |
+| Interaction checks | none existed | **25**, 0 failures |
+| Engineering prose in product UI | 15,771 chars over 39 routes | **617 chars over 2 routes** |
+
+The rendered-DOM audit covers horizontal overflow *and the elements causing it*, duplicate ids,
+controls with no accessible name, heading-level skips, raw entities, missing `alt`, WCAG 2.5.8
+target size, dead links, blank pages, uncaught runtime errors, and WCAG 1.4.3 colour contrast —
+the last two with their standard exemptions (inline links; inactive controls) encoded rather than
+ignored. **No WCAG certification is claimed.**
+
+### Two defects that had been invisible
+
+- **`var(--line)` was declared in no stylesheet.** An invalid value inside a CSS *shorthand*
+  invalidates the whole declaration, so `.refed` — the supporting-references editor used by both
+  the Content Manager's return and the Academic Reviewer's change request — had been rendering
+  with **no border at all** since it was written. CSS does not throw, so nothing failed.
+- **`courseUsage()` was blind to the Question Bank.** Six collections carry a `courseId` and it
+  counted five. A Course whose other references had all been cleared but which still held a
+  Faculty question bank would report **"Not yet referenced"** to a Super Admin. Corrected, given a
+  Programme-level counterpart (`groupingUsage()`), surfaced on the screen that states the
+  conclusion, and covered by 21 assertions.
+
+### §11 is unchanged, and deliberately so
+
+**Retiring or deleting a Programme / Course master record is still not built, and is still not a
+gap.** The decision was re-examined against the full source corpus rather than carried forward:
+the FRD contains zero occurrences of delete/retire/deprecate/unpublish/cascade; the conceptual
+data model gives these records no lifecycle; `STK31-22` scopes its reversibility rule to tenants,
+students and the Question Bank; and "a Course id never changes and nothing deletes a Course" is
+already a load-bearing assumption in this codebase. A guarded zero-reference delete was considered
+and rejected — the counter it would have had to trust was the incomplete one above. What changed
+is that the ~700-character dashed panel explaining all this to the stakeholder is gone; the
+reasoning lives in code comments and in `UX_REDESIGN_08.md` §3, and the product simply does not
+offer the action.
+
+### 15b · Reconciliation pass
+
+Four items were re-examined against the sources after the redesign, on request, before review.
+
+| Item | Finding |
+|---|---|
+| **Student course-code display** | The redesign report claimed the course-code issue was both *resolved* and *unresolved*. Both halves were true of different things and the wording blurred them. **Ownership is stakeholder-confirmed** (written clarification E, 6 Sep, quoted verbatim; re-verified at 07.3 R19). **Which code a Student sees is stated by no source at any date** — an exhaustive search of the FRD, the 31 Aug decisions, the correction blueprint and the 6/7 Sep clarifications returns nothing. The build's choice (institution code, rendered with no label asserting its kind) is now recorded everywhere as a **reversible UX judgement**, not a requirement |
+| **"Courses this institution uses"** | Not two rival definitions — two different questions, one asked in the wrong place. Unified into `state.tenantMappableCourseIds()`; the Overview attention row and the Academic mappings table can no longer show two numbers under one label |
+| **Manual add vs CSV provisioning** | A true implementation inconsistency, not an open workflow choice: both paths collect the same *required* field and the confirmed model puts the institution's code on `courseMappings`. `addStudent()` now writes the mapping under the CSV importer's own **ND-04** rule (create only where none exists; never overwrite) |
+| **Source precedence** | Verified traceable to direct stakeholder wording, **and narrowed**. 07.2/07.3 are stakeholder-sourced answers to questions 31 Aug left open. They supersede earlier **prototype assumptions**, not earlier stakeholder decisions — 07.2 says so in its own words, and 07.3 records that none of them reopens an STK31 decision. The earlier report's "supersede 31 Aug" was too broad and is corrected |
+
+One further vocabulary defect was found and fixed while reconciling: the Faculty CSV **export**
+still headed its column *"Official course code"* while every screen said *"Platform course code"* —
+one value under two names, in the one artefact a stakeholder takes away and reads offline. Two
+validation messages in `js/state.js` still said *"canonical"*. All aligned, and the static-source
+guard now covers `js/state.js` and `js/csv.js` as well as the screens, and rejects *"official"* as
+well as *"canonical"*.
+
+**Suite: 1292 → 1429 assertions, 0 failures.** One assertion was *changed* — the CSV export column
+header — and it was strengthened, not relaxed: it asserts the new heading **and** that the old one
+is gone. No schema change; `schemaVersion` remains **11**.
+
+### 15c · Implementation 08R — visual recovery pass
+
+Every major route was compared against checkpoint `a52615c`, both served with identical state on
+separate ports, and the earlier pattern recovered wherever it was better. Full matrix and reasoning
+in [`UX_REDESIGN_08.md`](UX_REDESIGN_08.md) §9.
+
+**Two real defects the comparison exposed**, neither of which the existing checks could see:
+
+- **Three competing `.expcard` rules** in the merged stylesheet, the last of which removed the card
+  entirely — so every Experiment on the public catalogue rendered as bare text.
+- **Two cross-IIFE `statGrid` calls** (`tenant.js`, `faculty.js`) that threw on render. The route
+  sweep called both routes **clean**, because the error boundary renders a page with a heading,
+  body copy and no overflow. `qa/ui-audit.js` now detects that fallback: a caught render error can
+  never again pass as a healthy route.
+
+**Stakeholder requirement delivered:** support reports can carry media, on all six authenticated
+role Help screens, through the shared module. Facts plus a browser-downscaled 320px preview are
+stored; the full file never leaves the device and no upload is claimed. The write is verified and
+falls back to metadata-only rather than risking the build's persistence.
+
+**Internal identifiers demoted:** `ACC-001` is no longer the leading label anywhere. No record was
+merged and no identifier changed — `ui.accessRef()` renders it as secondary metadata after the
+human-readable content and term.
+
+**Suite: 1429 → 1460 assertions, 0 failures** (+31, media coverage). Rendered-DOM audit **895
+checks** (179 routes × 5 widths), 0 issues. Interaction checks **38**, 0 failures. `schemaVersion`
+remains **11** — the media field is additive and presence-guarded, like every 07.2 field before it.

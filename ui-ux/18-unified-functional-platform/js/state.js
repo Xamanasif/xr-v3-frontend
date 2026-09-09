@@ -3424,14 +3424,14 @@ XRSLP.state = (function () {
     return null;
   }
   var RENEWAL_BLOCK_REASON = {
-    'missing':          'the access record no longer exists',
+    'missing':          'that access no longer exists',
     'tenant-inactive':  'the institution has been deactivated by the Super Admin',
-    'no-institution':   'this record is not bound to an institution',
-    'already-open':     'a renewal for this record is already in progress',
+    'no-institution':   'this access is not bound to an institution',
+    'already-open':     'a renewal for this access is already in progress',
     'nothing-to-renew': 'the record carries no approved experiments'
   };
   function renewalBlockText(reason) {
-    return RENEWAL_BLOCK_REASON[reason] || 'a renewal cannot be raised for this record';
+    return RENEWAL_BLOCK_REASON[reason] || 'a renewal cannot be raised for this access';
   }
   function canRenewAccess(accessId) { return renewalBlock(accessId) === null; }
 
@@ -3622,7 +3622,7 @@ XRSLP.state = (function () {
      it is), so the UI can always say why instead of showing an empty
      screen that disagrees with the rest of the workspace. */
   var ASSIGNABILITY_REASON = {
-    'missing':         'the access record no longer exists',
+    'missing':         'that access no longer exists',
     'other-tenant':    'the record belongs to another institution',
     'tenant-inactive': 'the institution has been deactivated by the Super Admin',
     'expired':         'its access term has expired',
@@ -3839,6 +3839,36 @@ XRSLP.state = (function () {
       createdAt: now, activatedAt: now, activationSeq: nextEvent(), deactivatedAt: null
     };
     S.people.push(rec);
+
+    /* ── THE ACADEMIC MAPPING, ON BOTH PROVISIONING PATHS ───────
+       MANUAL ADD AND CSV IMPORT NOW OBEY THE SAME INVARIANT.
+
+       The institution's own code for a Course lives on
+       `courseMappings[].localCode` — that is the field STK31-11 / 25
+       give the Tenant Admin, and it is what every mapping, reporting and
+       export surface reads. STK31-26 makes Course ID/Code a REQUIRED
+       column for provisioning, and the Add Student form requires it too.
+
+       The CSV importer has always written both: the person record AND
+       the tenant mapping. Manual add wrote only `person.localCourseCode`,
+       so the same required datum, entered on the same institution, was
+       recorded institution-wide by one route and not the other — and
+       `studentCourseMembership` then read the person's copy first, which
+       hid the difference on the one screen most likely to reveal it.
+
+       ND-04 is the rule this follows, and it is the CSV importer's rule
+       verbatim: create the mapping ONLY where none exists yet. An
+       existing mapping is never silently overwritten by adding a
+       student, because a Tenant Admin's deliberate mapping outranks a
+       value typed into one person's form. */
+    if (rec.courseId && rec.localCourseCode && tenantById(tenantId)) {
+      var existingMap = courseMapping(tenantId, rec.courseId);
+      if (!existingMap || !existingMap.localCode) {
+        setCourseMapping(tenantId, rec.courseId, rec.localCourseCode,
+          existingMap ? existingMap.semester : rec.semester);
+      }
+    }
+
     save();
     return rec;
   }
@@ -7062,7 +7092,7 @@ XRSLP.state = (function () {
     if (clash) {
       return [{ field: 'pc-code',
         message: 'Another Course already uses the code ' + clash.code + ' (' + clash.name + '). ' +
-                 'A canonical Course code identifies one Course across the whole platform.' }];
+                 'A platform course code identifies one Course across the whole platform.' }];
     }
     return [];
   }
@@ -7251,7 +7281,7 @@ XRSLP.state = (function () {
     var actor = contentActor(actorId);
     if (!actor || actor.role !== CONTENT_ROLE.MANAGER) {
       return { ok: false, errors: [{ field: 'pc-code',
-        message: 'The canonical Course code is managed by the Content Manager and the Super Admin.' }], course: null };
+        message: 'The platform course code is managed by the Content Manager and the Super Admin.' }], course: null };
     }
     var rec = courseRecord(courseId);
     if (!rec) {
@@ -7286,7 +7316,62 @@ XRSLP.state = (function () {
       facultyMappings: S.facultyMappings.filter(function (f) {
         return f.courseId === courseId && f.status === 'active';
       }).length,
-      people: S.people.filter(function (pp) { return pp.courseId === courseId; }).length
+      people: S.people.filter(function (pp) { return pp.courseId === courseId; }).length,
+      /* ⚠ THE SIXTH REFERENCE CLASS, ADDED AT IMPLEMENTATION 08.
+         `questions` was the one collection carrying a `courseId` that
+         this function did not look at — and the Question Bank is not a
+         small corner of the product: the seed alone files twelve
+         questions against Courses.
+
+         It was latent rather than visible, because no seeded Course has
+         a zero count on the other five. But the reading it produces is
+         wrong in exactly the case the screen exists for: a Course whose
+         content records, mappings, assignments, faculty mappings and
+         enrolments have all been cleared, but against which a Faculty
+         member has written a question bank, reported "Not yet
+         referenced". Any removal control built on that reading would
+         have orphaned the bank silently.
+
+         There is no removal control, and this pass deliberately does not
+         add one — no source describes retire or delete semantics for
+         canonical structure (the FRD contains zero occurrences of
+         delete/retire/deprecate/cascade, and STK31-22's reversibility
+         rule scopes itself to tenants, students and the Question Bank).
+         The count is corrected anyway, because the number is shown to a
+         Super Admin as a statement of fact about the record. */
+      questions: S.questions.filter(function (q) { return q.courseId === courseId; }).length
+    };
+  }
+
+  /* ── PROGRAMME / DEPARTMENT USAGE (Implementation 08) ────────
+     The Course-level counter had no Programme-level counterpart, so the
+     structure screen could describe a Course precisely and a Programme
+     only by counting its Courses. A Programme is referenced two ways:
+     through the Courses filed under it, and DIRECTLY by person records,
+     which store their own `groupingId` alongside their `courseId`.
+
+     `courses` is the direct count; `courseRefs` rolls up every reference
+     held by those Courses, so "is anything using this Programme?" is one
+     question with one answer. */
+  function groupingUsage(groupingId) {
+    var courseIds = S.courses
+      .filter(function (c) { return c.groupingId === groupingId; })
+      .map(function (c) { return c.id; });
+    var roll = { records: 0, mappings: 0, assignments: 0, facultyMappings: 0, people: 0, questions: 0 };
+    courseIds.forEach(function (cid) {
+      var u = courseUsage(cid);
+      Object.keys(roll).forEach(function (k) { roll[k] += u[k]; });
+    });
+    return {
+      courses: courseIds.length,
+      /* People filed DIRECTLY against the Programme. A person carries
+         both ids, so this is not the same set as the roll-up above and
+         is not double counting: it answers "would removing this
+         Programme strand a person record?" on its own terms. */
+      people: S.people.filter(function (pp) { return pp.groupingId === groupingId; }).length,
+      courseRefs: roll,
+      total: courseIds.length + roll.records + roll.mappings + roll.assignments +
+             roll.facultyMappings + roll.people + roll.questions
     };
   }
   /* A Course may only change Programme while NO PERSON is filed against
@@ -8583,6 +8668,101 @@ XRSLP.state = (function () {
     return S.supportTickets.filter(function (t) { return t.tenantId === tenantId; });
   }
 
+  /* ── SUPPORT MEDIA (Implementation 08R) ──────────────────────
+     STAKEHOLDER REQUIREMENT: a technical issue report can carry
+     evidence — a screenshot, a photo, a short recording.
+
+     WHAT IS AND IS NOT STORED, stated exactly.
+
+     There is no server and no file storage in this prototype, and
+     inventing one would be the dishonesty this build has refused
+     everywhere else. What is kept instead is:
+
+       · the file's own FACTS  — name, MIME type, byte size, and pixel
+         dimensions for an image. Durable, and enough for the platform
+         team to know what they were sent.
+       · a small THUMBNAIL for an image — downscaled and re-encoded by
+         the browser to at most THUMB_EDGE px on its long side. That is
+         a real picture, so Operations sees the evidence rather than a
+         filename, and it is small enough to live beside the record.
+
+     The FULL-RESOLUTION file is never stored and never leaves the
+     machine it was chosen on. Video is recorded by its facts only —
+     a frame grab would need playback the picker does not give us.
+
+     ⚠ AND THE WRITE IS VERIFIED. `save()` swallows a quota failure so
+     the prototype can continue in memory, which means a thumbnail that
+     did not fit would silently cost the whole build its persistence.
+     `attachSupportMedia` therefore checks the encoded size against a
+     hard cap BEFORE the record is written, and the creation path
+     re-reads its own write and drops the thumbnail if it did not
+     survive. Metadata is kept either way, so a report never loses the
+     fact that evidence was attached. */
+  var SUPPORT_MEDIA = {
+    THUMB_EDGE: 320,          /* px, long side */
+    MAX_THUMB_BYTES: 48000,   /* encoded data-URL length */
+    MAX_SOURCE_BYTES: 25 * 1024 * 1024,
+    IMAGE_TYPES: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+    VIDEO_TYPES: ['video/mp4', 'video/webm', 'video/quicktime', 'video/ogg']
+  };
+
+  function supportMediaKind(type) {
+    var t = String(type || '').toLowerCase();
+    if (SUPPORT_MEDIA.IMAGE_TYPES.indexOf(t) !== -1) { return 'image'; }
+    if (SUPPORT_MEDIA.VIDEO_TYPES.indexOf(t) !== -1) { return 'video'; }
+    if (t.indexOf('image/') === 0) { return 'image'; }
+    if (t.indexOf('video/') === 0) { return 'video'; }
+    return null;
+  }
+
+  /* Turn whatever the picker produced into a record, or refuse it with
+     a reason the user can act on. Never throws. */
+  function attachSupportMedia(input) {
+    var m = input || {};
+    var name = String(m.name || '').trim();
+    var type = String(m.type || '').trim();
+    var size = Number(m.size) || 0;
+    if (!name) { return { ok: false, error: 'That file could not be read.', media: null }; }
+
+    var kind = supportMediaKind(type);
+    if (!kind) {
+      return { ok: false, media: null,
+        error: 'That file type is not supported. Attach an image or a video.' };
+    }
+    if (size > SUPPORT_MEDIA.MAX_SOURCE_BYTES) {
+      return { ok: false, media: null,
+        error: 'That file is larger than 25 MB. Attach a smaller image or a shorter clip.' };
+    }
+
+    var thumb = typeof m.thumb === 'string' ? m.thumb : '';
+    if (thumb && thumb.length > SUPPORT_MEDIA.MAX_THUMB_BYTES) { thumb = ''; }
+
+    return {
+      ok: true, error: '',
+      media: {
+        name: name.slice(0, 160),
+        type: type.slice(0, 100),
+        kind: kind,
+        size: size,
+        width: Number(m.width) || null,
+        height: Number(m.height) || null,
+        /* '' when the picture could not be reduced far enough, or for a
+           video. The report still records that media was attached. */
+        thumb: thumb,
+        attachedAt: new Date().toISOString()
+      }
+    };
+  }
+
+  function supportMediaSummary(media) {
+    if (!media) { return ''; }
+    var kb = media.size ? Math.max(1, Math.round(media.size / 1024)) : 0;
+    var bits = [media.kind === 'video' ? 'Video' : 'Image'];
+    if (media.width && media.height) { bits.push(media.width + ' x ' + media.height); }
+    if (kb) { bits.push(kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb + ' KB'); }
+    return bits.join(' · ');
+  }
+
   function validateSupportTicket(fields) {
     var errs = [];
     if (!String(fields.subject || '').trim()) {
@@ -8622,12 +8802,37 @@ XRSLP.state = (function () {
       description: String(fields.description || '').trim(),
       status: SUPPORT_STATUS.OPEN,
       resolutionNote: '', resolvedBy: null, resolvedAt: null,
+      /* null when nothing was attached. Never invented. */
+      media: fields.media || null,
       createdAt: now,
       history: [{ seq: S.seq.event, kind: 'submitted', label: 'Issue reported',
                   who: context.name || 'Unknown', at: now, note: '' }]
     };
     S.supportTickets.push(rec);
     save();
+
+    /* ⚠ VERIFY THE WRITE, because `save()` cannot fail loudly.
+       A thumbnail is the only thing in this build that can push the
+       stored state past the browser's quota, and a silent failure there
+       would cost every later write too. If the record did not survive,
+       drop the picture and keep the facts — a report that says an image
+       was attached and names it is far better than a build that has
+       quietly stopped persisting anything. */
+    if (rec.media && rec.media.thumb) {
+      var verified = false;
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        var back = raw ? JSON.parse(raw) : null;
+        verified = !!(back && (back.supportTickets || []).some(function (t) {
+          return t.id === rec.id && t.media && t.media.thumb;
+        }));
+      } catch (e) { verified = false; }
+      if (!verified) {
+        rec.media.thumb = '';
+        rec.media.thumbDropped = true;
+        save();
+      }
+    }
     return { ok: true, errors: [], ticket: rec };
   }
 
@@ -9016,8 +9221,43 @@ XRSLP.state = (function () {
       return assignmentsForAccess(tenantId, rec.id).length === 0;
     });
   }
+  /* ── WHICH COURSES AN INSTITUTION MAY MAP ────────────────────
+     TWO QUESTIONS, TWO DENOMINATORS, AND THEY ARE NOT THE SAME ONE.
+
+     `tenantCourseIds` answers a CONTENT question — which Courses are
+     reachable through this institution's live access records — and that
+     is the right denominator for content, assignment and entitlement
+     surfaces.
+
+     Mapping is a different question. `courseMappings[].localCode` is the
+     institution's own code for a Course (STK31-11 / 25, Tenant Admin
+     owned), and STK31-26 makes Course ID/Code a REQUIRED column when a
+     student is provisioned — so a Course that students are filed
+     against needs a local code whether or not the institution currently
+     holds access to content in it. The denominator for mapping is
+     therefore the UNION: reachable through live access, PLUS the
+     Courses this institution's students are placed in.
+
+     That union was already the rule — it was written inline in the
+     Academic mappings screen, with that comment. What was wrong is that
+     `coursesWithoutMapping` did not use it: the Overview attention row
+     counted only the access-derived set, so a Course listed on the
+     mappings table could sit unmapped forever without the Overview ever
+     saying so. Two screens, one label, two numbers. Factored here so
+     there is one definition and both read it. */
+  function tenantMappableCourseIds(tenantId) {
+    var seen = {}, out = [];
+    tenantCourseIds(tenantId).forEach(function (cid) {
+      if (!seen[cid]) { seen[cid] = true; out.push(cid); }
+    });
+    studentsForTenant(tenantId).forEach(function (p) {
+      if (p.courseId && !seen[p.courseId]) { seen[p.courseId] = true; out.push(p.courseId); }
+    });
+    return out;
+  }
+
   function coursesWithoutMapping(tenantId) {
-    return tenantCourseIds(tenantId).filter(function (cid) {
+    return tenantMappableCourseIds(tenantId).filter(function (cid) {
       var m = courseMapping(tenantId, cid);
       return !m || !m.localCode;
     });
@@ -9101,6 +9341,7 @@ XRSLP.state = (function () {
     effectiveEntitlementCount: effectiveEntitlementCount,
     entitledStudentsFor: entitledStudentsFor, entitledStudentIds: entitledStudentIds,
     unassignedStudents: unassignedStudents, accessWithoutAssignments: accessWithoutAssignments,
+    tenantMappableCourseIds: tenantMappableCourseIds,
     coursesWithoutMapping: coursesWithoutMapping,
 
     /* ---- Implementation 03 — Student / learning ---- */
@@ -9257,7 +9498,8 @@ XRSLP.state = (function () {
     createGrouping: createGrouping, updateGrouping: updateGrouping,
     createCourse: createCourse, updateCourse: updateCourse,
     validateGroupingFields: validateGroupingFields, validateCourseFields: validateCourseFields,
-    courseUsage: courseUsage, courseMoveBlock: courseMoveBlock, structureSource: structureSource,
+    courseUsage: courseUsage, groupingUsage: groupingUsage,
+    courseMoveBlock: courseMoveBlock, structureSource: structureSource,
     roleAssignments: roleAssignments, roleAssignmentById: roleAssignmentById,
     actorsForCourse: actorsForCourse, actorsForRecord: actorsForRecord,
     validateRoleAssignment: validateRoleAssignment,
@@ -9331,6 +9573,8 @@ XRSLP.state = (function () {
     ticketsForRequester: ticketsForRequester, openSupportTickets: openSupportTickets,
     ticketsForTenant: ticketsForTenant,
     validateSupportTicket: validateSupportTicket,
+    SUPPORT_MEDIA: SUPPORT_MEDIA, attachSupportMedia: attachSupportMedia,
+    supportMediaKind: supportMediaKind, supportMediaSummary: supportMediaSummary,
     createSupportTicket: createSupportTicket,
     resolveSupportTicket: resolveSupportTicket, reopenSupportTicket: reopenSupportTicket,
 

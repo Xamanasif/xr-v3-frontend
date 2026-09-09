@@ -20,9 +20,18 @@
    presses. That control is a stand-in: an API/event call from the
    experiment runtime back to the platform has been discussed and is the
    expected direction, but nothing about it is settled, so no surface here
-   may describe the confirmation as a mechanism that exists. The gap note
-   in the run card says so unconditionally — see the comment there for why
-   it cannot live in the in-progress panel.
+   may describe the confirmation as a mechanism that exists.
+
+   Implementation 08 moved that statement out of the learner's way without
+   softening it. The stand-in controls sit in a `ui.demoPanel()` that names
+   itself a demo control, and the caveat over every figure they produce is
+   `L.completionNote()` — a folded product note, still rendered in every
+   state on both screens that assert a completion, still saying plainly
+   that nothing here was reported by the experiment. What was removed is
+   the 73-word engineering panel, the four-step narrative of a delivery
+   mechanism that does not exist, and the three restatements of the same
+   open decision on one screen. The reasoning behind each removal is kept
+   in a comment at the place the logic lives.
 
    ⚠ NOTHING IS DOWNLOADED, INSTALLED, HOSTED OR LAUNCHED.
    AR/VR/MR are an authorised-package model and Web is a hosted link
@@ -80,15 +89,83 @@ XRSLP.screens = XRSLP.screens || {};
     });
     return TECH_HELD_TEXT[reason] || 'it cannot be opened at the moment';
   }
+  /* Rendered as a `.polnote` — the compact grey note this file already
+     uses for the assessment release policy. It used to be a `.lp-note`,
+     which only exists inside the rail panel it was written for; the note
+     now sits with the technologies it is about, in the Simulation card. */
   function heldTechNote(row) {
     if (!row.blockedTechnologies.length) { return ''; }
-    return '<p class="lp-note">' + ui.ic('alert', 'sm') + ' ' +
+    return '<div class="polnote">' + ui.ic('alert', 'sm') + '<span>' +
       row.blockedTechnologies.map(function (t) {
         var def = data.TECHNOLOGIES[t];
         return esc((def ? def.label : t) + ' was made available to you for this experiment, but ' +
           heldTechReason(row, t) + '.');
       }).join(' ') +
-      ' Your institution administers this. Nothing has been removed.</p>';
+      ' Your institution administers this. Nothing has been removed.</span></div>';
+  }
+
+  /* ---------------- the progression, drawn from one place ----------------
+     LEARNING RESOURCES → SIMULATION → ASSESSMENT → COMPLETION is the
+     confirmed model (PM-09). It was drawn only on the Experiment page, by
+     a Student-only `.seqstrip` that predates the shared stepper, so a
+     Student who followed a link into the assessment lost every sense of
+     where they were in it. It is drawn here through `ui.track()` — the
+     one stepper in the design system — and the same four steps are shown
+     on the Experiment page and on the assessment introduction.
+
+     ⚠ STEP 3 IS THE EXPERIMENT'S ASSESSMENT, ON EVERY SCREEN.
+     There is ONE assessment per Experiment. It is read with no technology
+     in the call, and where the Student holds more than one technology the
+     step says so in its own words, so no screen can be read as offering
+     one assessment per technology.
+
+     `live` names the step the CURRENT SCREEN is, so a step nobody has
+     started still reads as "you are here". A step already finished keeps
+     its done state: arriving on a screen does not un-finish it. */
+  function progressTrack(prog, asm, assessState, live) {
+    var res = prog.resources;
+    /* Every figure comes from `prog`, which was derived from the
+       technologies this Student actually holds — never from a list this
+       function was handed separately, which is how a denominator and a
+       label drift apart. */
+    var rows = prog.technologies;
+    var simDone = rows.length && rows.every(function (t) {
+      return t.simulationStatus === state.SIM_STATUS.COMPLETED;
+    });
+    var simStarted = rows.some(function (t) {
+      return t.simulationStatus !== state.SIM_STATUS.NOT_STARTED;
+    });
+    var steps = [
+      { t: 'Learning resources',
+        d: res.total ? res.completed + ' of ' + res.total + ' marked as done'
+                     : 'None for this experiment',
+        state: !res.total ? 'todo'
+             : res.completed === res.total ? 'done'
+             : res.started ? 'live' : 'todo' },
+      { t: 'Simulation',
+        d: !rows.length ? 'No technology available to you'
+          : rows.length === 1
+          ? data.TECHNOLOGIES[rows[0].technology].label + ' — ' +
+            L.simLabel(rows[0].simulationStatus).toLowerCase()
+          : rows.filter(function (t) {
+              return t.simulationStatus === state.SIM_STATUS.COMPLETED;
+            }).length + ' of ' + rows.length + ' technologies complete',
+        state: simDone ? 'done' : simStarted ? 'live' : 'todo' },
+      { t: 'Assessment',
+        d: !asm ? 'None set for this experiment'
+          : L.assessLabel(assessState) +
+            (rows.length > 1 ? ' — one for the whole experiment' : ''),
+        state: !asm ? 'todo'
+          : assessState === state.ASSESS_STATE.PASSED ? 'done'
+          : assessState === state.ASSESS_STATE.NOT_STARTED ? 'todo' : 'live' },
+      { t: 'Completion',
+        d: L.progressLabel(prog.status),
+        state: prog.status === state.TECH_PROGRESS.COMPLETED ? 'done' : 'todo' }
+    ];
+    if (steps[live] && steps[live].state !== 'done') { steps[live].state = 'live'; }
+    return '<div class="exptrack">' +
+      '<h2 class="et-k">Your progress through this experiment</h2>' +
+      ui.track(steps) + '</div>';
   }
 
   /* ---------------- shared resolution ----------------
@@ -168,55 +245,50 @@ XRSLP.screens = XRSLP.screens || {};
        The derivation underneath is untouched. */
     var assessState = L.studentAssessState(p.id, e.id);
 
-    /* ---- the sequence, with its live state ---- */
-    var seq = L.sequenceStrip([
-      { title: 'Learning resources',
-        detail: resProg.total
-          ? resProg.completed + ' of ' + resProg.total + ' marked as done'
-          : 'None for this experiment',
-        tone: resProg.total && resProg.completed === resProg.total ? 'done'
-            : resProg.started ? 'live' : '' },
-      { title: 'Simulation',
-        detail: techs.length === 1
-          ? data.TECHNOLOGIES[techs[0]].label + ' — ' +
-            L.progressLabel(prog.technologies[0].simulationStatus).toLowerCase()
-          : prog.technologies.filter(function (t) {
-              return t.simulationStatus === state.SIM_STATUS.COMPLETED;
-            }).length + ' of ' + techs.length + ' technologies complete',
-        tone: prog.technologies.every(function (t) { return t.simulationStatus === state.SIM_STATUS.COMPLETED; })
-          ? 'done' : prog.technologies.some(function (t) { return t.simulationStatus !== state.SIM_STATUS.NOT_STARTED; })
-          ? 'live' : '' },
-      { title: 'Assessment',
-        detail: asm ? L.assessLabel(assessState) : 'Not set for this experiment',
-        tone: !asm ? ''
-          : assessState === state.ASSESS_STATE.PASSED ? 'done'
-          : assessState === state.ASSESS_STATE.NOT_STARTED ? '' : 'live' },
-      { title: 'Completion',
-        detail: L.progressLabel(prog.status),
-        tone: prog.status === state.TECH_PROGRESS.COMPLETED ? 'done' : '' }
-    ]);
+    /* ---- the sequence, with its live state ----
+       `L.sequenceStrip` (the Student-only `.seqstrip`) predates the shared
+       `ui.track()` stepper and drew the same four steps in a private
+       component. One stepper, one place. */
+    var seq = progressTrack(prog, asm, assessState, null);
 
-    /* ---- about ---- */
-    var about = ui.card('About this experiment',
-      '<p class="cardlede">' + esc(e.description) + '</p>' +
-      '<h3 class="subh" style="margin-top:14px">What you should be able to do afterwards</h3>' +
-      '<ul class="outcomelist">' + e.outcomes.map(function (o) {
-        return '<li>' + ui.ic('check', 'sm') + '<span>' + esc(o) + '</span></li>';
-      }).join('') + '</ul>', null, 'h2');
+    /* ---- about ----
+       DEMOTED TO THE RAIL, ON PURPOSE. The description and the outcomes
+       are reference material: true, worth reading once, and nobody's
+       reason for opening the page a second time. Given a card of its own
+       at the top of the main column it made the first screenful of a
+       LEARNING page a piece of prose, which is most of why this page read
+       as a specification. The main column now carries the three things
+       the Student came to do, in the order the model puts them. */
+    var outcomes = e.outcomes || [];
+    var aboutPanel =
+      '<section class="lpanel">' +
+      '<h2 class="lp-h">About this experiment</h2>' +
+      '<div class="lp-b">' +
+      (e.description ? '<p class="lp-txt">' + esc(e.description) + '</p>' : '') +
+      /* An experiment with no stated outcomes gets no empty heading over
+         an empty list — the catalogue does not require them. */
+      (outcomes.length
+        ? '<h3 class="subh">What you should be able to do afterwards</h3>' +
+          '<ul class="outcomelist">' + outcomes.map(function (o) {
+            return '<li>' + ui.ic('check', 'sm') + '<span>' + esc(o) + '</span></li>';
+          }).join('') + '</ul>'
+        : '') +
+      '</div></section>';
 
     /* ---- learning resources ---- */
     var resBody;
     if (!resources.length) {
-      resBody = ui.emptyState({
+      /* A card whose body is a 48px medallion reads as unfinished. The
+         compact row says the same thing at the weight it is worth. */
+      resBody = ui.emptyRow({
         icon: 'book', heading: 'h3',
         title: 'No learning resources for this experiment',
         body: 'You can go straight to the simulation.'
       });
     } else {
       resBody =
-        '<p class="cardlede">Working through these first is recommended, and they are not a gate — you can ' +
-        'open the simulation at any time. They do count towards completing this experiment, so mark each one ' +
-        'as done when you have read it.</p>' +
+        '<p class="cardlede">Not a gate — you can open the simulation at any time — but they do count ' +
+        'towards completing this experiment. Mark each one as done when you have read it.</p>' +
         '<ul class="reslist">' + resources.map(function (res, i) {
           var st = state.resourceStatus(p.id, e.id, res.id);
           var kind = data.resourceKind(res.kind);
@@ -280,33 +352,30 @@ XRSLP.screens = XRSLP.screens || {};
         '</article>';
     }).join('');
 
-    /* ⚠ R10 — THE COMPLETION CAVEAT BELONGS ON THIS SCREEN TOO, AND IT
-       IS UNCONDITIONAL HERE.
+    /* ⚠ WHAT THIS CARD MAY AND MAY NOT BE READ AS SAYING.
+       The technologies listed are the ENTITLEMENT statement: they are what
+       this institution made available to this Student for this experiment,
+       and each one is tracked on its own. The assessment is NOT among them
+       — it belongs to the Experiment — so the foot of the card says so
+       wherever more than one technology could invite the opposite reading.
 
-       This page asserts a completion in four separate places: the
-       "Completion recorded" badge on a technology card above, the
-       "Completion" step of the sequence strip at the top, the completion
-       percentage in the progress rail, and the progress badge beside the
-       title. Until now not one of them carried a qualification — the note
-       lived on the simulation sub-screen only, so a Student (or a
-       stakeholder) who read this page and never opened a simulation was
-       shown a completion as a settled, platform-confirmed fact.
-
-       It renders in EVERY state, exactly as it does on the simulation
-       screen: the moment a completion HAS been claimed is the moment the
-       claim most needs qualifying, so a note that appeared only while
-       something was outstanding would vanish precisely when it matters.
-
-       The wording is `XRSLP.studentUI.completionGapNote()` and is not
-       restated here — one sentence, one owner, so the caveat on this page
-       can never drift from the caveat on the simulation page. */
+       The two branches of the second sentence are not interchangeable.
+       Only say "no other technology was made available" when it is true;
+       when one WAS made available and is currently held back, this page
+       names it, and `heldTechNote` says which and why. */
     var simCard = ui.card('Simulation',
       '<p class="cardlede">' + (techs.length === 1
         ? 'Your institution has made this experiment available to you in one technology.'
         : 'Your institution has made this experiment available to you in ' + techs.length +
           ' technologies. Each one is tracked separately.') + '</p>' +
       '<div class="techgrid">' + simCards + '</div>' +
-      L.completionGapNote('figures'),
+      heldTechNote(row) +
+      '<p class="cardfoot">' +
+      (row.blockedTechnologies.length
+        ? 'Any technology not named here has not been made available to you. '
+        : 'Other technologies may exist for this experiment; they have not been made available to you. ') +
+      'The assessment is separate and covers the experiment as a whole.' +
+      '</p>',
       techs.length + ' ' + util.plural(techs.length, 'technology', 'technologies'), 'h2');
 
     /* ---- assessment entry ---- */
@@ -342,21 +411,30 @@ XRSLP.screens = XRSLP.screens || {};
         '<span class="as-n">' + esc(note) + '</span>' +
         '<a class="btn sm ' + (last && !open ? 'sec' : 'pri') + '" href="' + target + '">' +
         esc(label) + '</a></li></ul>' +
+        /* THE canonical statement of the one-assessment rule on this
+           page. The Simulation card above points at it in half a line;
+           this is where it is spelled out, because this is the card the
+           rule is about. */
         (techs.length > 1
-          ? '<p class="cardfoot">One assessment covers this experiment. You are not asked to sit it again ' +
-            'for each technology your institution made available to you.</p>' : ''),
+          ? '<p class="cardfoot">One assessment covers this experiment, whichever technology you work ' +
+            'in — you are not asked to sit it again for each one.</p>' : ''),
         asm.questions.length + ' ' + util.plural(asm.questions.length, 'question'), 'h2');
     } else {
       asmCard = ui.card('Assessment',
-        ui.emptyState({
+        ui.emptyRow({
           icon: 'doc', heading: 'h3',
           title: 'No assessment is set for this experiment',
-          body: 'Not every experiment has one. This experiment is complete once you have finished the simulation ' +
-            'in each technology available to you.'
+          body: 'Not every experiment has one. This experiment is complete once you have finished the ' +
+            'simulation in each technology available to you.'
         }), null, 'h2');
     }
 
-    /* ---- progress panel ---- */
+    /* ---- progress panel ----
+       The per-technology chips that used to sit in a second rail panel
+       are gone: every technology on this page already carries its own
+       status badge on its own card, three inches to the left. What is
+       left here is the roll-up — one figure, the steps behind it, and the
+       one thing a Student can act on when everything else is finished. */
     var progPanel =
       '<section class="lpanel">' +
       '<h2 class="lp-h">Your progress</h2>' +
@@ -364,13 +442,12 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="lc-pl"><span>' + esc(L.progressLabel(prog.status)) + '</span>' +
       '<span class="tabular">' + prog.percent + '%</span></div>' +
       L.progressBar(prog.percent, prog.percent + ' per cent of the learning steps complete') +
-      '<p class="lp-roll">' + esc(L.simulationSentence(prog)) + '</p>' +
       (prog.technologies.length && prog.technologies.every(function (t) { return t.waitingOnResources; })
-        ? '<p class="lp-note" style="margin-top:10px;padding-top:0;border-top:0">' + ui.ic('book', 'sm') +
+        ? '<p class="lp-cue">' + ui.ic('book', 'sm') +
           ' Everything else is done. Mark the remaining learning resources as done to complete ' +
           'this experiment.</p>'
         : prog.technologies.some(function (t) { return t.waitingOnResources; })
-        ? '<p class="lp-note" style="margin-top:10px;padding-top:0;border-top:0">' + ui.ic('book', 'sm') +
+        ? '<p class="lp-cue">' + ui.ic('book', 'sm') +
           ' ' + esc(prog.technologies.filter(function (t) { return t.waitingOnResources; })
             .map(function (t) { return data.TECHNOLOGIES[t.technology].label; }).join(' and ')) +
           ' only needs the remaining learning resources marked as done.</p>' : '') +
@@ -383,25 +460,18 @@ XRSLP.screens = XRSLP.screens || {};
       '<a class="btn sec blk sm" href="' + L.href.progress(p.id) + '">See all your progress</a>' +
       '</div></section>';
 
-    /* The chips report each technology's own SIMULATION, so the panel is
-       titled for what it actually shows. Which technologies appear is
-       still the entitlement statement — the note says so. */
-    var techPanel =
-      '<section class="lpanel">' +
-      '<h2 class="lp-h">Your simulations</h2>' +
-      '<div class="lp-b">' +
-      L.techStateChips(prog) +
-      '<p class="lp-note">These are the technologies your institution made available to you for this ' +
-      'experiment, and how far you have got with each one. ' +
-      /* Only say "no other technology was made available" when that is
-         true. When one WAS made available and is currently held back,
-         the note below names it and says why. */
-      (row.blockedTechnologies.length
-        ? 'Any technology not named on this page has not been made available to you. '
-        : 'Other technologies may exist for it; they have not been made available to you. ') +
-      'The assessment is separate and covers the experiment as a whole.</p>' +
-      heldTechNote(row) +
-      '</div></section>';
+    /* R10 — this page states a completion in four places (a technology
+       card's badge, the Completion step above, the percentage in the rail
+       and the badge beside the title), so it carries the note that says
+       where a completion actually came from. UNCONDITIONAL, as it has
+       always been on this screen: the moment a completion HAS been
+       claimed is the moment the claim most needs qualifying, so a note
+       that appeared only while something was outstanding would vanish
+       precisely when it matters. Implementation 08 changed only its
+       DRESS — `L.completionNote()` is the same statement, folded, in
+       product language, at the foot of the reading order instead of a
+       dashed engineering panel in the middle of the Simulation card. */
+    var completionNote = L.completionNote('figures');
 
     var html =
       ui.crumbs([{ label: 'My Learning', href: L.href.myLearning(p.id) }, { label: e.name }]) +
@@ -409,8 +479,8 @@ XRSLP.screens = XRSLP.screens || {};
       '<p class="plede">' + esc(e.summary) + '</p>' +
       seq +
       '<div class="grid-rail">' +
-      '<div class="stack">' + about + resCard + simCard + asmCard + '</div>' +
-      '<div class="stack">' + progPanel + techPanel + '</div>' +
+      '<div class="stack">' + resCard + simCard + asmCard + completionNote + '</div>' +
+      '<div class="stack">' + progPanel + aboutPanel + '</div>' +
       '</div>';
 
     return {
@@ -484,73 +554,116 @@ XRSLP.screens = XRSLP.screens || {};
       : (def.delivery === 'hosted' ? state.DELIVERY_STATE.READY : state.DELIVERY_STATE.NOT_REQUESTED);
     var isPackage = def.delivery === 'package';
 
-    /* ---- the state ladder, mechanism-neutral ---- */
+    /* ---- the state ladder, mechanism-neutral ----
+       Drawn through the shared `ui.track()` stepper rather than the
+       private `.ladder` this screen used to build. Two gains beyond
+       consistency: the FIRST unfinished step is now marked live, so the
+       ladder answers "what happens next" instead of only "what is done".
+       Nothing about the states themselves changed.
+
+       ⚠ EVERY STEP NAMES ITS OWN STATE IN WORDS. `ui.track()` carries
+       the state in a class and an aria-hidden mark, so a step whose text
+       reads the same whether it is finished or not tells a screen reader
+       nothing — which is what the old ladder's `sr-only` "Done / Not yet"
+       existed to prevent. Each detail below therefore has a done form and
+       a not-yet form, and the difference between them is the state. */
+    function step(t, done, doneText, todoText) {
+      return { t: t, d: done ? doneText : todoText, done: done };
+    }
     var ladder = [];
     if (isPackage) {
-      ladder.push({
-        title: 'Access requested for your device',
-        detail: 'Your institution has made this experiment available to you in ' + def.label + '.',
-        done: delivery !== state.DELIVERY_STATE.NOT_REQUESTED
-      });
-      ladder.push({
-        title: 'Ready on your device',
-        detail: 'The authorised ' + def.label + ' package is available to open.',
-        done: delivery === state.DELIVERY_STATE.READY
-      });
+      ladder.push(step('Access requested', delivery !== state.DELIVERY_STATE.NOT_REQUESTED,
+        'Requested for a supported device.',
+        'Not requested yet — ask for it on this page.'));
+      ladder.push(step('Ready on your device', delivery === state.DELIVERY_STATE.READY,
+        'The authorised ' + def.label + ' package is available to open.',
+        'Not ready yet. The authorised ' + def.label + ' package becomes available on your device.'));
     } else {
-      ladder.push({
-        title: 'Available to open',
-        detail: 'This experiment runs in your browser — nothing needs to be installed.',
-        done: true
-      });
+      ladder.push(step('Available to open', true,
+        'Ready. This experiment runs in your browser — nothing is installed.', ''));
     }
-    ladder.push({
-      title: 'Simulation opened',
-      detail: 'You have started working through the experiment.',
-      done: status !== state.SIM_STATUS.NOT_STARTED
-    });
-    ladder.push({
-      title: 'Completion recorded',
-      detail: 'Your completion for ' + def.label + ' has been recorded.',
-      done: status === state.SIM_STATUS.COMPLETED
-    });
+    ladder.push(step('Simulation opened', status !== state.SIM_STATUS.NOT_STARTED,
+      'Opened. You are working through the experiment.',
+      'Not opened yet.'));
+    ladder.push(step('Completion recorded', status === state.SIM_STATUS.COMPLETED,
+      'Your completion for ' + def.label + ' is recorded.',
+      'Not recorded yet.'));
 
-    var ladderHTML = '<ol class="ladder">' + ladder.map(function (s) {
-      return '<li class="ld' + (s.done ? ' done' : '') + '">' +
-        '<span class="ld-d">' + ui.ic(s.done ? 'check' : 'minus', 'sm') + '</span>' +
-        '<span class="ld-b"><span class="ld-t">' + esc(s.title) + '</span>' +
-        '<span class="ld-s">' + esc(s.detail) + '</span></span>' +
-        '<span class="sr-only">' + (s.done ? 'Done' : 'Not yet') + '</span></li>';
-    }).join('') + '</ol>';
+    var reached = true;
+    var ladderHTML = ui.track(ladder.map(function (s) {
+      /* Exactly one step is live: the first one not yet done. Steps after
+         it are still ahead, and a finished step stays finished. */
+      if (s.done) { return { t: s.t, d: s.d, state: 'done' }; }
+      var live = reached;
+      reached = false;
+      return { t: s.t, d: s.d, state: live ? 'live' : 'todo' };
+    }));
 
-    /* ---- actions — every one of them does something real ---- */
-    var actions = '', actionNote = '';
+    /* ---- actions ----
+       ⚠ WHICH CONTROLS ARE THE PRODUCT'S AND WHICH ARE SCAFFOLDING.
+       One rule decides it, and it is worth stating because the answer is
+       not obvious: a control the STUDENT would genuinely press stays in
+       the product — asking for access on a device, and opening the
+       experiment. A control that stands in for something the PLATFORM or
+       the EXPERIMENT would report is scaffolding, and goes into
+       `ui.demoPanel()`: the package becoming available, and the finished
+       run being confirmed. Neither behaviour changes; both keep their
+       element ids and their state writers. What changes is that a learner
+       reading this page is no longer offered "Simulate the package
+       becoming ready" as though it were something they do.
+
+       Everything the demo panel holds is a state the product would reach
+       on its own, so leaving it collapsed costs a learner nothing and
+       costs a demo one click. */
+    var actions = '', actionNote = '', demo = '';
     if (isPackage && delivery === state.DELIVERY_STATE.NOT_REQUESTED) {
       actions = '<button class="btn pri" type="button" id="sim-request">Request access on my device</button>';
       actionNote = 'This records that you want the ' + def.label + ' experiment on a supported device.';
     } else if (isPackage && delivery === state.DELIVERY_STATE.PENDING) {
-      actions = '<button class="btn sec" type="button" id="sim-ready">Simulate the package becoming ready</button>';
-      actionNote = 'Prototype action. In the product the platform reports when the authorised package is ' +
-        'available on your device; that delivery mechanism is not built here.';
+      /* Nothing for the Student to DO here: they are waiting on the
+         package, and a button that claimed otherwise would be a button
+         that lies. They still get a way back, so the screen is never a
+         dead end. */
+      actions = '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
+      actionNote = 'Nothing is needed from you here. This page shows the ' + def.label + ' experiment as ' +
+        'ready once the authorised package is available on your device.';
+      demo = ui.demoPanel('Make the ' + def.label + ' package ready on this device',
+        '<p>The platform would report this once the authorised package reached the device. No delivery ' +
+        'mechanism is built here, so the demo records it instead.</p>' +
+        '<div class="formact"><button class="btn sec" type="button" id="sim-ready">' +
+        'Mark the package as ready</button></div>');
     } else if (status === state.SIM_STATUS.NOT_STARTED) {
       actions = '<button class="btn pri" type="button" id="sim-start">' +
         (isPackage ? 'Open the ' + def.label + ' experiment' : 'Open the Web simulation') + '</button>';
-      actionNote = 'Prototype action. It opens a stand-in for the experiment, not the experiment itself.';
+      /* Honest, and short. The build opens a stand-in; it says so once,
+         beside the control that does it, and does not go on to explain
+         which delivery decisions are still open — that is a build fact,
+         not something a learner acts on. */
+      actionNote = isPackage
+        ? 'Nothing is downloaded or installed. This opens a stand-in for the ' + def.name + ' experience.'
+        : 'This opens a stand-in for the ' + def.name + ' experience — the hosted experience itself is ' +
+          'not built here.';
     } else if (status === state.SIM_STATUS.IN_PROGRESS) {
-      /* No "open it again" here: the experiment is already open — the panel
-         below IS that state — and a control that produces no visible change
+      /* No "open it again" here: the experiment is already open — the note
+         above IS that state — and a control that produces no visible change
          reads as a dead one. */
-      actions = '<button class="btn pri" type="button" id="sim-complete">Record my completion</button>' +
-        '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
-      /* HEDGED ON PURPOSE. The earlier wording — "in the product the
-         experiment itself reports your completion" — asserted a settled
-         contract between the experiment runtime and the platform. No such
-         contract exists: the direction has been discussed and nothing about
-         it is decided, so the sentence states the expectation and says so.
-         The button's behaviour is unchanged; only the claim around it is. */
-      actionNote = 'The experiment itself is expected to confirm your completion and the time you spent ' +
-        'back to the platform, and how that happens is not decided yet. Here you record it, and the time ' +
-        'between opening and completing is what is stored.';
+      actions = '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
+      actionNote = 'Your ' + def.label + ' experiment is open. The time between opening it and completing ' +
+        'it is what is stored.';
+      /* HEDGED ON PURPOSE, AND NOW ALSO PLACED ON PURPOSE. The earlier
+         wording — "in the product the experiment itself reports your
+         completion" — asserted a settled contract between the experiment
+         runtime and the platform. No such contract exists: the direction
+         has been discussed and nothing about it is decided. So the claim
+         is stated as an expectation, and the control that stands in for
+         it is labelled as the stand-in it is. The writer and the id are
+         untouched. */
+      demo = ui.demoPanel('Record a completion for ' + def.label,
+        '<p>The experiment itself is expected to confirm a finished run, and how it does that has not been ' +
+        'decided. Until it is, the demo records the completion here, with the time between opening and ' +
+        'completing.</p>' +
+        '<div class="formact"><button class="btn sec" type="button" id="sim-complete">' +
+        'Record my completion</button></div>');
     } else {
       actions = '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>';
       var asmExists = state.assessmentForStudent(p.id, e.id);
@@ -566,68 +679,75 @@ XRSLP.screens = XRSLP.screens || {};
       actionNote = 'Your completion for ' + def.label + ' is recorded. It does not affect any other technology.';
     }
 
-    /* ---- the stand-in runtime panel, only while genuinely open ---- */
-    var runtime = '';
-    if (status === state.SIM_STATUS.IN_PROGRESS) {
-      runtime = ui.protoNote(
-        '<p><strong>This panel stands in for the ' + esc(def.name) + ' experience.</strong> ' +
-        (isPackage
-          ? 'In the product the authorised ' + esc(def.label) + ' package runs on your device, and it is ' +
-            'expected to confirm what you completed and how long you spent back to the platform — how that ' +
-            'confirmation is made has not been decided. Which delivery mechanism carries the package is a ' +
-            'separate technical decision that has deliberately not been made either, so nothing is ' +
-            'downloaded or installed here.'
-          : 'In the product this opens the hosted Web experience. No hosted experience exists yet, so nothing ' +
-            'is loaded here.') + '</p>' +
-        '<p style="margin-top:8px">Opened ' + esc(util.fmtDateTime(sim.startedAt)) + '.</p>');
-    }
-
-    /* ---- launch instructions, real content, no invented URL ---- */
-    var instructions = isPackage
-      ? '<details class="instr"><summary>' + ui.ic('info', 'sm') +
-        'How the ' + esc(def.label) + ' experiment reaches your device</summary>' +
-        '<div class="instr-b">' +
-        '<p>This is how it will work once the ' + esc(def.label) + ' experiences are delivered. ' +
-        'None of these steps is available yet.</p>' +
-        '<ol>' +
-        '<li>Your institution has to hold this experiment in ' + esc(def.label) +
-        ', and it has to be assigned to you. Both are already true, which is why this page is open to you.</li>' +
-        '<li>You will sign in on a supported device with the same institutional account.</li>' +
-        '<li>The ' + esc(def.label) + ' experiment will appear among the experiences you are authorised to ' +
-        'run. Experiments you are not entitled to will not appear.</li>' +
-        '<li>You will open it and work through the procedure. Your completion is expected to come back to ' +
-        'this page against ' + esc(def.label) + ' specifically, and how it does is not settled yet.</li>' +
-        '</ol>' +
-        '<p class="instr-n">The exact delivery mechanism — a package installed directly, or a single ' +
-        'institutional application that carries the experiments you are entitled to — has not been selected. ' +
-        'Nothing on this page depends on which one is chosen.</p>' +
-        '</div></details>'
+    /* ---- the stand-in runtime state, only while genuinely open ----
+       One sentence in the product's own voice, where five sentences of
+       decision status used to sit. The learner does need to know that
+       nothing is really running; they do not need the two undecided
+       technical questions behind that, which are recorded in the comment
+       above and in the folded completion note below. */
+    var runtime = status === state.SIM_STATUS.IN_PROGRESS
+      ? '<div class="polnote">' + ui.ic('play', 'sm') +
+        '<span><strong>Opened ' + esc(util.fmtDateTime(sim.startedAt)) + '.</strong> ' +
+        'Nothing launches here — this stands in for the ' + esc(def.name) + ' experience.</span></div>'
       : '';
 
-    /* ⚠ UNCONDITIONAL, AND THAT IS THE WHOLE POINT OF WHERE IT SITS.
-       The stand-in panel above (`runtime`) renders only while the
-       simulation is IN PROGRESS, so every label it carries disappears at
-       exactly the moment a completion has been claimed — the moment a
-       reader is most likely to take "Completion recorded" for a confirmed
-       fact reported by the experiment. This note renders in every state,
-       completed included, so the claim is never left standing unqualified.
+    /* ---- how a package experiment reaches a device ----
+       What survives of the old four-step narrative is the part a Student
+       could act on: they sign in on a supported device with the same
+       institutional account, and they see what they are entitled to and
+       nothing else. What was removed was a walk-through of a delivery
+       mechanism that has not been selected — a package installed
+       directly, or one institutional application carrying the
+       experiments a Student is entitled to. Nothing on this page depends
+       on which is chosen, which is exactly why it did not belong on the
+       page. Web needs none of this: it opens in the browser. */
+    /* ⚠ WRITTEN IN THE CONDITIONAL, DELIBERATELY.
 
-       It names no verb, path, payload or provider, because none has been
-       chosen; naming one here would invent the decision the note exists
-       to say is open.
+       An earlier draft of this said "You sign in on a supported device
+       with the same institutional account" and "the experiment appears
+       among the experiences you are authorised to run" — in the present
+       tense, as statements of fact. Neither is true of this build: there
+       is no authentication anywhere in it, and no package is delivered
+       to any device. Describing an intended mechanism is fine; asserting
+       it already works is the one thing the honesty rule forbids, and it
+       is the more dangerous error because a stakeholder cannot tell the
+       difference from the copy alone. */
+    var deviceHelp = isPackage
+      ? ui.about('How the ' + def.label + ' experiment would reach your device',
+          '<p>On a device-delivered technology the intended model is that you sign in on a supported ' +
+          'device and see only the experiments you are entitled to, with your work recorded against ' +
+          esc(def.label) + ' here.</p>' +
+          '<p><strong>None of that is built yet.</strong> This build has no sign-in and delivers no ' +
+          'package to any device, and how a simulation reports back has not been decided. Use the ' +
+          'controls on this page to follow the journey in the meantime.</p>')
+      : '';
 
-       07.3 (R10): the WORDING moved to `XRSLP.studentUI.completionGapNote()`
-       so that every screen asserting a completion renders the same
-       sentence and the claim cannot drift between them. Only the closing
-       sentence differs by screen, and `control` is the one that belongs
-       here — this is the page that carries the prototype control. What
-       renders is unchanged. */
-    var completionGap = L.completionGapNote('control');
+    /* ⚠ UNCONDITIONAL, AND THAT IS THE POINT OF WHERE IT SITS.
+       The runtime note above renders only while the simulation is IN
+       PROGRESS, so every qualification it carries disappears at exactly
+       the moment a completion has been claimed — the moment a reader is
+       most likely to take "Completion recorded" for a confirmed fact
+       reported by the experiment. This note renders in every state,
+       completed included, so the claim is never left standing
+       unqualified. It names no verb, path, payload or provider, because
+       none has been chosen; naming one would invent the decision the note
+       exists to say is open.
 
-    var runCard = ui.card('Opening the ' + def.label + ' experiment',
-      ladderHTML + runtime + instructions + completionGap +
+       `control` is the closing sentence that belongs here — this is the
+       page that carries the stand-in. The wording is owned by
+       `XRSLP.studentUI` so it cannot drift from the Experiment page. */
+    var completionNote = L.completionNote('control');
+
+    /* "Opening the VR experiment" is the right title while there is
+       something left to open, and the wrong one once the run is behind
+       the Student. */
+    var runCard = ui.card(status === state.SIM_STATUS.COMPLETED
+        ? 'Your ' + def.label + ' simulation'
+        : 'Opening the ' + def.label + ' experiment',
+      ladderHTML + runtime +
       '<div class="formact">' + actions +
-      '<span class="formnote">' + esc(actionNote) + '</span></div>', null, 'h2');
+      '<span class="formnote">' + esc(actionNote) + '</span></div>' +
+      demo + completionNote, null, 'h2');
 
     var reqCard = ui.card('What you need',
       '<div class="kv">' +
@@ -639,8 +759,11 @@ XRSLP.screens = XRSLP.screens || {};
           '<div class="k">Time spent</div><div class="v">' + esc(L.fmtDuration(sim.timeSpentSeconds)) + '</div>'
         : '') +
       '</div>' +
-      '<p class="cardfoot">Device compatibility is described, not certified. No specific headset, handset or ' +
-      'browser build is claimed as supported here.</p>' +
+      /* KEPT, AND SHORTENED. This is a real disclaimer, not a note about
+         an open decision: the platform describes what a technology needs
+         and certifies no particular device. */
+      '<p class="cardfoot">Device compatibility is described here, not certified.</p>' +
+      deviceHelp +
       /* Implementation 06 — the device-transfer entry point sits where
          the device itself is being discussed, and only for a technology
          that actually runs from an authorised package on one (STK31-38).
@@ -648,18 +771,24 @@ XRSLP.screens = XRSLP.screens || {};
       (isPackage
         ? '<div class="formact"><a class="btn sec sm" href="' + L.href.device(p.id) + '">' +
           'Replace or transfer my device</a>' +
-          /* Implementation 07.2 — the route is Student → Institute /
-             Tenant Admin → platform team, so this entry point cannot go on
-             describing a request that lands on the platform team's desk.
-             The open-request sentence deliberately points at My device
-             rather than naming a holder: that page reads the record and
-             says which of the two steps it is actually sitting at. */
+          /* ONE LINE, AND NOT THE ROUTE. Implementation 07.2 established
+             that the route is Student → Institute / Tenant Admin →
+             platform team, and this entry point spelled all three steps
+             out — which is how the same two sentences came to appear five
+             times across the workspace. My device draws that route once,
+             as a stepper, and is the only page that can also say which
+             step a live request has reached; so this says the one thing a
+             Student needs before following the link, which is what a
+             transfer costs them: nothing.
+
+             The open-request sentence still points at My device rather
+             than naming a holder, for the same reason: that page reads
+             the record and says where it actually is. */
           '<span class="formnote">' +
           (state.openTransferForStudent(p.id)
             ? 'You already have a request in progress. My device shows where it has reached.'
-            : 'Your request goes to your institution’s Institute / Tenant Admin, who reviews it and ' +
-              'forwards it to the platform team; the platform team takes the final decision. It moves your ' +
-              'authorised device and changes nothing about which experiments or technologies you hold.') +
+            : 'It moves your authorised device and changes nothing about which experiments or ' +
+              'technologies you hold.') +
           '</span></div>'
         : ''), null, 'h2');
 
@@ -684,7 +813,11 @@ XRSLP.screens = XRSLP.screens || {};
       ui.crumbs([{ label: 'My Learning', href: L.href.myLearning(p.id) },
                  { label: e.name, href: L.href.experiment(p.id, e.id) },
                  { label: def.label + ' simulation' }]) +
-      ui.phead(e.name + ' — ' + def.name, L.courseLine(e.id)) +
+      /* The badge states THIS technology's own simulation and nothing
+         else — never the Experiment roll-up, which moves when the shared
+         assessment moves and would report an untouched AR run as "in
+         progress". */
+      ui.phead(e.name + ' — ' + def.name, L.courseLine(e.id), null, ' ' + L.simBadge(status)) +
       '<div class="grid-rail">' +
       '<div class="stack">' + runCard + '</div>' +
       '<div class="stack">' + reqCard + otherCard + '</div>' +
@@ -708,7 +841,7 @@ XRSLP.screens = XRSLP.screens || {};
         bind('sim-request', function () { state.requestSimulationAccess(p.id, e.id, tech); },
           def.label + ' access requested for your device.');
         bind('sim-ready', function () { state.simulatePackageReady(p.id, e.id, tech); },
-          def.label + ' is now ready on your device (prototype).');
+          def.label + ' is marked ready for you.');
         bind('sim-start', function () { state.startSimulation(p.id, e.id, tech); },
           def.label + ' simulation opened.');
         var done = document.getElementById('sim-complete');
@@ -744,8 +877,7 @@ XRSLP.screens = XRSLP.screens || {};
             : 'Your institution decides which technologies it makes available for each experiment. ' +
               (known ? def.label + ' has not been made available to you for this experiment.'
                      : 'The technology in this address is not one you have been given.')) +
-          '</p><p style="margin-top:8px">Nothing here is blocked as a formality — there is no authorised ' +
-          'access behind this page to open.</p>', 'alert') +
+          ' There is no authorised access behind this page to open.</p>', 'alert') +
         ui.card('What you can open',
           row.technologies.length
             ? '<ul class="othertech">' + row.technologies.map(function (t) {
@@ -852,28 +984,64 @@ XRSLP.screens = XRSLP.screens || {};
       noteHTML = 'Your answers are saved as you go, so you can leave and come back.';
     }
 
+    /* Where this sits in the experiment. The assessment is step 3, and it
+       is the Experiment's — this is the screen where a Student is most
+       likely to wonder whether there is another one waiting for the other
+       technology they hold, so the step says there is not. */
+    var prog = state.experimentProgress(p.id, e.id, row.technologies, { studentView: true });
+    /* The Student-facing state: a decided result the policy has not
+       released reads as reviewed-but-not-released, never as passed or not
+       passed. Read once and used by both the badge and the step. */
+    var assessState = L.studentAssessState(p.id, e.id);
+    var track = progressTrack(prog, asm, assessState, 2);
+
+    /* ---- the rail ----
+       ONE card, useful in both states, and it replaces the old
+       "Suggested order" card that built a simulation link from
+       `row.technologies[0]` with no guard — an effective row with no
+       technology would have produced `.../simulation/undefined`. Here the
+       links are built FROM the technologies the Student holds, so a row
+       with none simply renders no rail at all.
+
+       It is also the honest place for the recommended order: the order is
+       a property of the simulations, and the note changes with whether
+       any of them is finished rather than the card appearing and
+       disappearing under the Student. */
+    var simRail = row.technologies.length
+      ? ui.card('Your simulations',
+          '<ul class="othertech">' + row.technologies.map(function (t) {
+            return '<li>' + ui.fmtBadge(t) +
+              '<span class="ot-s">' + L.simBadge(state.simulationStatus(p.id, e.id, t)) + '</span>' +
+              '<a class="btn sm sec" href="' + L.href.simulation(p.id, e.id, t) + '">Open</a></li>';
+          }).join('') + '</ul>' +
+          '<p class="cardfoot">' + (simDone
+            ? 'One assessment covers this experiment, whichever technology you worked in.'
+            : 'The recommended order is the resources, then a simulation, then this assessment — but ' +
+              'nothing stops you starting here.') + '</p>',
+          null, 'h2')
+      : '';
+
+    var beforeCard = ui.card('Before you start',
+      '<p class="cardlede">' + esc(asm.intro) + '</p>' + disclosure +
+      '<div class="formact">' + actionHTML +
+      '<span class="formnote">' + esc(noteHTML) + '</span></div>', null, 'h2');
+
     var html =
       ui.crumbs([{ label: 'My Learning', href: L.href.myLearning(p.id) },
                  { label: e.name, href: L.href.experiment(p.id, e.id) },
                  { label: 'Assessment' }]) +
-      ui.phead(asm.title, L.courseLine(e.id)) +
-      '<div class="grid-rail"><div class="stack">' +
-      ui.card('Before you start',
-        '<p class="cardlede">' + esc(asm.intro) + '</p>' + disclosure +
-        '<div class="formact">' + actionHTML +
-        '<span class="formnote">' + esc(noteHTML) + '</span></div>', null, 'h2') +
-      '</div><div class="stack">' +
-      (!simDone ? ui.card('Suggested order',
-        '<p class="cardlede">You have not recorded a completion for any of your simulations yet. The ' +
-        'recommended order is to work through the resources, run the simulation, then take the ' +
-        'assessment — but nothing stops you starting here.</p>' +
-        '<div class="formact"><a class="btn sec sm" href="' +
-        L.href.simulation(p.id, e.id, row.technologies[0]) + '">Go to the simulation</a></div>',
-        null, 'h2') : '') +
-      ui.protoNote('<p>Everything above comes from the assessment your faculty configured for this ' +
-        'experiment — the questions, the pass mark, how many attempts you have and when answers become ' +
-        'visible. Change nothing here: a learner never configures an assessment.</p>') +
-      '</div></div>';
+      /* The experiment name is in the breadcrumb directly above, and an
+         assessment title normally carries it too — printing it a third
+         time in the page meta is how a head starts to read as a record. */
+      ui.phead(asm.title, L.courseLine(e.id), null, ' ' + L.assessBadge(assessState)) +
+      track +
+      /* A two-column skeleton with an empty second column is not a
+         layout, it is a gap. With no rail to show, the card takes the
+         page. */
+      (simRail
+        ? '<div class="grid-rail"><div class="stack">' + beforeCard + '</div>' +
+          '<div class="stack">' + simRail + '</div></div>'
+        : '<div class="stack">' + beforeCard + '</div>');
 
     return {
       area: 'learn', title: asm.title, html: html, student: p, tenant: tenant, navKey: 'my-learning',
@@ -909,7 +1077,6 @@ XRSLP.screens = XRSLP.screens || {};
     if (!asm) { return { redirect: L.href.experiment(p.id, e.id) }; }
 
     var answered = state.answeredCount(att);
-    var unanswered = state.unansweredQuestions(att);
     var descN = asm.questions.filter(function (q) { return q.type === 'descriptive'; }).length;
 
     /* THE SHARED RENDERER. Faculty preview draws its questions through
@@ -948,11 +1115,18 @@ XRSLP.screens = XRSLP.screens || {};
       return asm.questions.map(function (q, i) { return isAnswered(q) ? null : (i + 1); })
         .filter(function (n) { return n !== null; });
     }
-    function countText(n) { return n + ' of ' + asm.questions.length + ' answered'; }
-    function noteText(left) {
+    /* ONE live statement of where the attempt stands, and it sits beside
+       the control it is about. The sticky bar above carries the figure
+       ("3 of 5") on every screenful, the chips name exactly which
+       questions are open, and this says the only thing neither of them
+       does: what submitting now would cost. Three separate restatements
+       — a repeated count, a prose count and a list of numbers — said
+       nothing the bar and the chips had not already said. */
+    function hintText(left) {
       return left
         ? left + ' ' + util.plural(left, 'question') + ' still ' +
-          (left === 1 ? 'needs' : 'need') + ' an answer.'
+          (left === 1 ? 'needs' : 'need') + ' an answer. You can submit now, but ' +
+          (left === 1 ? 'it will' : 'they will') + ' receive no marks.'
         : 'All questions have been answered. Review anything you want before submitting.';
     }
     var openList = unansweredList();
@@ -973,18 +1147,18 @@ XRSLP.screens = XRSLP.screens || {};
       '<h2 id="rv-h">Review your answers</h2>' +
       '<p class="rv-lede">Check that you are happy with every answer. You cannot change an answer after ' +
       'you submit.</p>' +
-      '<div class="rv-sum">' +
-      '<span class="rv-count tabular" id="rv-count">' + esc(countText(answered)) + '</span>' +
-      '<span class="rv-note" id="rv-note">' + esc(noteText(openList.length)) + '</span>' +
-      '</div>' +
       '<div class="rv-nav">' +
       '<h3 class="rv-navh" id="rv-navh">Questions</h3>' +
       '<ul class="qnav" id="rv-chips" aria-labelledby="rv-navh">' + navChips + '</ul>' +
       '<p class="qnav-key" aria-hidden="true">' +
       '<span>' + ui.ic('check', 'sm') + 'answered</span>' +
       '<span>' + ui.ic('circle', 'sm') + 'not answered</span></p>' +
-      '<p class="rv-open" id="rv-open"' + (openList.length ? '' : ' hidden') + '>Still to answer: ' +
-      '<span id="rv-open-n">' + esc(openList.join(', ')) + '</span></p>' +
+      /* The "Still to answer: 3, 5" line stood here and is gone with the
+         repeated count above it. The chips name the same questions,
+         carry the same status in their accessible name, and are the only
+         one of those three a Student can act on; every number that line
+         listed is still reachable, by chip or by "Go to next
+         unanswered". */
       '</div>' +
       '<div class="rv-act">' +
       '<button class="btn sec" type="button" id="as-next"' + (openList.length ? '' : ' hidden') + '>' +
@@ -993,8 +1167,7 @@ XRSLP.screens = XRSLP.screens || {};
          makes every question mandatory, so the prototype must not encode
          that as a rule — it warns instead, and the Student decides. */
       '<button class="btn pri lg" type="button" id="as-submit">Submit assessment</button>' +
-      '<span class="formnote" id="rv-hint">' +
-      (openList.length ? 'You can submit now, but unanswered questions will receive no marks.' : '') +
+      '<span class="formnote" id="rv-hint">' + esc(hintText(openList.length)) +
       '</span></div></section>';
 
     return {
@@ -1029,10 +1202,6 @@ XRSLP.screens = XRSLP.screens || {};
 
           var bar = document.getElementById('ab-count');
           if (bar) { bar.textContent = n + ' of ' + asm.questions.length; }
-          var cnt = document.getElementById('rv-count');
-          if (cnt) { cnt.textContent = countText(n); }
-          var note = document.getElementById('rv-note');
-          if (note) { note.textContent = noteText(open.length); }
 
           /* Each chip carries its status in its accessible name, so the
              mark is never the only way to know. */
@@ -1047,21 +1216,17 @@ XRSLP.screens = XRSLP.screens || {};
             if (mark) { mark.innerHTML = ui.ic(has ? 'check' : 'circle', 'sm'); }
           });
 
-          var openRow = document.getElementById('rv-open');
-          var openN = document.getElementById('rv-open-n');
-          if (openN) { openN.textContent = open.join(', '); }
-          if (openRow) { openRow.hidden = open.length === 0; }
-
+          /* The repeated count and the "still to answer" list are no
+             longer in the markup, so there is nothing here to refresh
+             for them. `open` still drives the chips above, the
+             next-unanswered control and the hint below. */
           var next = document.getElementById('as-next');
           if (next) { next.hidden = open.length === 0; }
 
           /* The Submit control is never disabled — incompleteness is a
              warning, not a block. The note beside it states the cost. */
           var hint = document.getElementById('rv-hint');
-          if (hint) {
-            hint.textContent = open.length
-              ? 'You can submit now, but unanswered questions will receive no marks.' : '';
-          }
+          if (hint) { hint.textContent = hintText(open.length); }
         }
 
         Array.prototype.slice.call(document.querySelectorAll('[data-jump]')).forEach(function (btn) {
@@ -1289,7 +1454,10 @@ XRSLP.screens = XRSLP.screens || {};
     var showObjectiveOnly = pending || !sc.includesReview;
     var scoreBody;
     if (scoreHidden) {
-      scoreBody = ui.emptyState({
+      /* Compact, not a 48px medallion: this is a card body with a status
+         in it, not a page whose purpose is emptiness. The WORDS are
+         unchanged, and they still carry no figure and no outcome. */
+      scoreBody = ui.emptyRow({
         icon: 'clock', heading: 'h3',
         title: 'Your marks are not available yet',
         body: release.sentence
@@ -1299,7 +1467,7 @@ XRSLP.screens = XRSLP.screens || {};
          "0 of 0 marks on the questions that are marked automatically" —
          a denominator this assessment never had, presented as a score.
          There is no figure to show until the Faculty review lands. */
-      scoreBody = ui.emptyState({
+      scoreBody = ui.emptyRow({
         icon: 'clock', heading: 'h3',
         title: 'No marks yet',
         body: 'Nothing in this assessment is marked automatically. Your marks come from your faculty ' +
@@ -1356,7 +1524,7 @@ XRSLP.screens = XRSLP.screens || {};
     var answersCard;
     if (!release.released) {
       answersCard = ui.card('Your answers',
-        ui.emptyState({
+        ui.emptyRow({
           icon: 'clock', heading: 'h3',
           title: 'Your answers are not available yet',
           body: release.sentence
@@ -1437,14 +1605,17 @@ XRSLP.screens = XRSLP.screens || {};
         '<ul class="anslist">' + items + '</ul>', null, 'h2');
     }
 
+    /* The trailing note that restated the one-assessment rule is gone.
+       The rule is a property of the assessment, and it is stated where a
+       Student meets the assessment — the "Covers" row of the pre-attempt
+       disclosure — not on every screen that mentions a result. The page
+       head and the score card already say which experiment this is. */
     var actions =
       '<div class="formact">' +
       (canRetry
         ? '<button class="btn pri" type="button" id="as-retry">Try again</button>' : '') +
       '<a class="btn sec" href="' + L.href.experiment(p.id, e.id) + '">Back to the experiment</a>' +
       '<a class="btn sec" href="' + L.href.progress(p.id) + '">See your progress</a>' +
-      '<span class="formnote">This is your result for ' + esc(e.name) +
-      '. One assessment covers the experiment, whichever technology you worked in.</span>' +
       '</div>';
 
     var html =

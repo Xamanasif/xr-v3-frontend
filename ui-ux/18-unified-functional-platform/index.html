@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>XR Simulation Learning Platform (Prototype)</title>
 <meta name="description" content="Unified functional prototype — the XR Simulation Learning Platform, from content production to the learner. Sample data only.">
-<link rel="stylesheet" href="css/tokens.css?v=073">
-<link rel="stylesheet" href="css/base.css?v=073">
-<link rel="stylesheet" href="css/layout.css?v=073">
-<link rel="stylesheet" href="css/components.css?v=073">
-<link rel="stylesheet" href="css/screens.css?v=073">
-<link rel="stylesheet" href="css/responsive.css?v=073">
+<link rel="stylesheet" href="css/tokens.css?v=090">
+<link rel="stylesheet" href="css/base.css?v=090">
+<link rel="stylesheet" href="css/layout.css?v=090">
+<link rel="stylesheet" href="css/components.css?v=090">
+<link rel="stylesheet" href="css/screens.css?v=090">
+<link rel="stylesheet" href="css/responsive.css?v=090">
 </head>
 <body>
 <div id="app-root"></div>
@@ -44,54 +44,54 @@
      Bumping this token changes the URL, so the browser cannot serve a stale
      copy for it. While actively editing, a hard reload is still the quicker
      loop. -->
-<script src="js/utils.js?v=073"></script>
-<script src="js/data.js?v=073"></script>
-<script src="js/ai-assist.js?v=073"></script>
-<script src="js/state.js?v=073"></script>
-<script src="js/csv.js?v=073"></script>
-<script src="js/components.js?v=073"></script>
+<script src="js/utils.js?v=090"></script>
+<script src="js/data.js?v=090"></script>
+<script src="js/ai-assist.js?v=090"></script>
+<script src="js/state.js?v=090"></script>
+<script src="js/csv.js?v=090"></script>
+<script src="js/components.js?v=090"></script>
 <!-- Shared content-production UI. Loads after components.js (it builds on
      XRSLP.ui) and before the three content workspaces that consume it. -->
-<script src="js/content-ui.js?v=073"></script>
+<script src="js/content-ui.js?v=090"></script>
 <!-- Shared Help / support surface (Implementation 06). One
      implementation, used by every workspace that has a Help
      destination. Loads after components.js. -->
-<script src="js/support-ui.js?v=073"></script>
-<script src="js/router.js?v=073"></script>
-<script src="js/screens/public-catalogue.js?v=073"></script>
-<script src="js/screens/public-request.js?v=073"></script>
+<script src="js/support-ui.js?v=090"></script>
+<script src="js/router.js?v=090"></script>
+<script src="js/screens/public-catalogue.js?v=090"></script>
+<script src="js/screens/public-request.js?v=090"></script>
 <!-- Super Admin workspace — three files, ONE workspace.
      platform.js declares XRSLP.platformUI, so it loads first. -->
-<script src="js/screens/platform.js?v=073"></script>
-<script src="js/screens/platform-content.js?v=073"></script>
-<script src="js/screens/platform-ops.js?v=073"></script>
-<script src="js/screens/tenant.js?v=073"></script>
-<script src="js/screens/tenant-people.js?v=073"></script>
-<script src="js/screens/tenant-groups.js?v=073"></script>
-<script src="js/screens/tenant-assign.js?v=073"></script>
+<script src="js/screens/platform.js?v=090"></script>
+<script src="js/screens/platform-content.js?v=090"></script>
+<script src="js/screens/platform-ops.js?v=090"></script>
+<script src="js/screens/tenant.js?v=090"></script>
+<script src="js/screens/tenant-people.js?v=090"></script>
+<script src="js/screens/tenant-groups.js?v=090"></script>
+<script src="js/screens/tenant-assign.js?v=090"></script>
 <!-- Implementation 07.2 — the Tenant Admin is the institution's point of
      contact for device replacement / transfer requests. Loads after
      tenant.js, whose href map and requireTenant guard it uses. -->
-<script src="js/screens/tenant-ops.js?v=073"></script>
-<script src="js/screens/student.js?v=073"></script>
-<script src="js/screens/student-learn.js?v=073"></script>
+<script src="js/screens/tenant-ops.js?v=090"></script>
+<script src="js/screens/student.js?v=090"></script>
+<script src="js/screens/student-learn.js?v=090"></script>
 <!-- Student operational screens (Implementation 06): My device and Help. -->
-<script src="js/screens/student-ops.js?v=073"></script>
+<script src="js/screens/student-ops.js?v=090"></script>
 <!-- Faculty loads after the Student screens: the Faculty preview renders
      through XRSLP.studentUI, so that module must exist first. -->
-<script src="js/screens/faculty.js?v=073"></script>
-<script src="js/screens/faculty-assess.js?v=073"></script>
+<script src="js/screens/faculty.js?v=090"></script>
+<script src="js/screens/faculty-assess.js?v=090"></script>
 <!-- Implementation 05 — the content production chain:
      Vendor → Academic Reviewer → Content Manager → Published. -->
-<script src="js/screens/vendor.js?v=073"></script>
-<script src="js/screens/reviewer.js?v=073"></script>
-<script src="js/screens/content-manager.js?v=073"></script>
+<script src="js/screens/vendor.js?v=090"></script>
+<script src="js/screens/reviewer.js?v=090"></script>
+<script src="js/screens/content-manager.js?v=090"></script>
 <!-- Implementation 06 — later-version screens for the Vendor and the
      Academic Reviewer, and the shared Help destination for the five
      workspaces that are not the Student. Both load after the
      workspaces whose UI helpers they use. -->
-<script src="js/screens/content-version.js?v=073"></script>
-<script src="js/screens/workspace-help.js?v=073"></script>
-<script src="js/app.js?v=073"></script>
+<script src="js/screens/content-version.js?v=090"></script>
+<script src="js/screens/workspace-help.js?v=090"></script>
+<script src="js/app.js?v=090"></script>
 </body>
 </html>

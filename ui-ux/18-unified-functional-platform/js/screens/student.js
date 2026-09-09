@@ -418,6 +418,32 @@ XRSLP.studentUI = (function () {
       COMPLETION_GAP_CLAIM + (COMPLETION_GAP_CLOSING[kind] || COMPLETION_GAP_CLOSING.figures));
   }
 
+  /* ⚠ THE SAME TRUTH, OUT OF THE STUDENT'S WAY (Implementation 08).
+
+     How a simulation reports completion is genuinely undecided, and
+     nothing here pretends otherwise — but a dashed engineering panel
+     with the words COMPLETION CONFIRMATION NOT DECIDED across it, on
+     the page a student uses to study, is a build note wearing the
+     product's clothes. The stakeholder reads it before they read the
+     product.
+
+     So the statement is kept in full and folded away: closed by
+     default, one quiet line, product language, and honest. It does NOT
+     claim an integration that does not exist, and it does not claim
+     one is coming. `completionGapNote` remains for surfaces where the
+     engineering framing is the point — the audit documents cite it. */
+  function completionNote(kind) {
+    return ui.about('How completion is recorded',
+      '<p>A simulation runs outside this platform, and how it reports back that a student ' +
+      'finished has <strong>not been decided yet</strong> — so nothing on this page was reported by ' +
+      'the experiment itself.</p>' +
+      '<p>' + esc(kind === 'control'
+        ? 'The control on the simulation page is a stand-in, so the learning journey can be followed ' +
+          'from end to end while that decision is open.'
+        : 'Every completion shown here was recorded through that stand-in control on the simulation ' +
+          'page.') + '</p>');
+  }
+
   /* Does a screen actually ASSERT a completion? A list of experiments
      none of which has been finished claims nothing, and the stakeholder
      asked for less on these screens, not more — so the caveat is rendered
@@ -454,7 +480,8 @@ XRSLP.studentUI = (function () {
     techStateChips: techStateChips,
     courseLine: courseLine, sequenceStrip: sequenceStrip,
     accountNotice: accountNotice, fmtDuration: fmtDuration,
-    completionGapNote: completionGapNote, assertsCompletion: assertsCompletion,
+    completionGapNote: completionGapNote, completionNote: completionNote,
+    assertsCompletion: assertsCompletion,
     questionBody: questionBody, disclosureRows: disclosureRows
   };
 })();
@@ -598,6 +625,35 @@ XRSLP.studentUI = (function () {
      there is genuinely nothing to open — no control at all rather than a
      disabled one.
      ============================================================ */
+  /* ============================================================
+     STUDENT HOME — REBUILT (Implementation 08).
+
+     ── THE PROBLEM THIS REPLACES ────────────────────────────────
+     Home rendered "Continue where you left off" with a **Continue
+     learning** button, and then, directly underneath, "Your
+     experiments" — a list whose first row was THE SAME EXPERIMENT with
+     its own **Continue** button. My Learning then showed it a third
+     time. The old code said so in a comment: "It repeats a row from the
+     list below on purpose."
+
+     It is not a copy-writing problem and renaming the buttons does not
+     fix it. Two controls of equal weight, side by side, doing exactly
+     the same thing, is a page that has not decided what it is for.
+
+     ── WHAT THIS PAGE IS FOR ────────────────────────────────────
+     Four questions, in this order:
+       1. What should I do next?      -> ONE featured action, and only one
+       2. Is anything waiting for me? -> the attention list, when non-empty
+       3. How am I progressing?       -> the compact figures
+       4. What else do I have?        -> the rest, WITHOUT the featured item
+     Then, quietly, where the student studies.
+
+     ── THE RULE THAT MAKES IT WORK ──────────────────────────────
+     `featured` is REMOVED from `others` (see `others` below). One
+     experiment therefore renders exactly ONE card and exactly ONE
+     control, never a hero plus its own duplicate row. This is asserted
+     in qa/checks.js so it cannot regress.
+     ============================================================ */
   XRSLP.screens.studentHome = function (params) {
     var r = L.requireStudent(params, 'home');
     if (!r.student) { return r.fail; }
@@ -606,21 +662,10 @@ XRSLP.studentUI = (function () {
     var mem = state.studentCourseMembership(p.id);
     var summary = state.studentProgressSummary(p.id);
     var past = state.studentPastExperiments(p.id);
-    /* Assigned, but not currently openable. `studentProgressSummary`
-       counts these and does not carry them, so the rows come from the
-       same read model My Learning uses — there is no second source. */
+    /* Assigned, but not currently openable. Same read model My Learning
+       uses — there is no second source of truth. */
     var blocked = state.studentExperiments(p.id).filter(function (row) { return !row.effective; });
-
-    /* "Continue learning" points at real work in progress, and only
-       exists when there is some. */
-    var inProgress = summary.items.filter(function (it) {
-      return it.progress.status === state.TECH_PROGRESS.IN_PROGRESS ||
-             it.progress.status === state.TECH_PROGRESS.PENDING_REVIEW;
-    }).sort(function (a, b) {
-      var x = a.progress.lastActivityAt || '', y = b.progress.lastActivityAt || '';
-      return x < y ? 1 : x > y ? -1 : 0;
-    });
-    var resume = inProgress[0] || null;
+    var active = p.status === 'active';
 
     function nameOf(experimentId) {
       var c = data.contextOf(experimentId);
@@ -628,10 +673,12 @@ XRSLP.studentUI = (function () {
     }
 
     /* THE ORDER OF THE LIST IS THE POINT OF THE LIST. Work that can be
-       picked up comes first, then work not started yet; states that are
-       waiting on somebody else, and work already finished, sink. Within a
-       rank the most recently touched comes first, then alphabetically, so
-       the order is stable between renders. */
+       picked up comes first, then work not started; states waiting on
+       somebody else, and work already finished, sink. Within a rank the
+       most recently touched comes first, then alphabetically, so the
+       order is stable between renders — and so the FEATURED item is
+       deterministic rather than whichever the read model happened to
+       return first. */
     var RANK = {};
     RANK[state.TECH_PROGRESS.IN_PROGRESS] = 0;
     RANK[state.TECH_PROGRESS.NOT_STARTED] = 1;
@@ -651,163 +698,263 @@ XRSLP.studentUI = (function () {
       return na < nb ? -1 : na > nb ? 1 : 0;
     });
 
-    /* The verb matches what pressing it does. "Review" for finished work
-       is not a euphemism for "start again" — the experiment page is
-       readable in every state. */
-    function openLabel(status) {
-      if (status === state.TECH_PROGRESS.COMPLETED) { return 'Review'; }
-      if (status === state.TECH_PROGRESS.NOT_STARTED) { return 'Start learning'; }
-      return 'Continue';
+    /* ⚠ THE ANTI-DUPLICATION RULE, IN ONE LINE.
+       Everything below the featured card is drawn from `others`, and
+       `others` is the ordered list MINUS the featured item. There is no
+       other path by which an experiment can reach this page twice. */
+    var featured = active && ordered.length ? ordered[0] : null;
+    var others = featured ? ordered.slice(1) : ordered;
+
+    /* The verb matches what pressing it does, and the WEIGHT matches
+       whether there is anything to do. "Review" for finished work is not
+       a euphemism for "start again"; a state that is waiting on somebody
+       else gets a secondary control, because pressing it changes
+       nothing the student controls. */
+    var ACTION = {};
+    ACTION[state.TECH_PROGRESS.IN_PROGRESS]    = { label: 'Continue',       primary: true  };
+    ACTION[state.TECH_PROGRESS.NOT_STARTED]    = { label: 'Start learning', primary: true  };
+    ACTION[state.TECH_PROGRESS.PENDING_REVIEW] = { label: 'Open',           primary: false };
+    ACTION[state.TECH_PROGRESS.RESULT_WITHHELD]= { label: 'Open',           primary: false };
+    ACTION[state.TECH_PROGRESS.COMPLETED]      = { label: 'Review',         primary: false };
+    function actionFor(status) { return ACTION[status] || { label: 'Open', primary: false }; }
+
+    /* What the featured card is FOR, said in its own words. A student
+       whose only remaining work is waiting on a Faculty member is told
+       that, rather than being shown a primary button that achieves
+       nothing. */
+    var LEAD = {};
+    LEAD[state.TECH_PROGRESS.IN_PROGRESS]     = 'Continue where you left off';
+    LEAD[state.TECH_PROGRESS.NOT_STARTED]     = 'Start here';
+    LEAD[state.TECH_PROGRESS.PENDING_REVIEW]  = 'Waiting on your Faculty';
+    LEAD[state.TECH_PROGRESS.RESULT_WITHHELD] = 'Result not released yet';
+    LEAD[state.TECH_PROGRESS.COMPLETED]       = 'You have finished everything assigned to you';
+
+    /* ---------- 1 · the one featured action ---------- */
+    var focusCard = '';
+    if (featured) {
+      var fp = featured.progress;
+      var fid = featured.row.experimentId;
+      var act = actionFor(fp.status);
+      focusCard =
+        '<section class="focus' + (act.primary ? '' : ' quiet') + '" aria-labelledby="focus-t">' +
+        '<div class="fc-k">' + esc(LEAD[fp.status] || 'Up next') + '</div>' +
+        '<div class="fc-ctx">' + L.courseLine(fid) + '</div>' +
+        '<h2 class="fc-t" id="focus-t">' +
+        '<a href="' + L.href.experiment(p.id, fid) + '">' + esc(nameOf(fid)) + '</a></h2>' +
+        '<p class="fc-s">' + esc(L.simulationSentence(fp)) + '</p>' +
+        (fp.percent
+          ? '<div class="fc-p">' +
+            '<div class="lc-pl"><span>' + esc(L.progressLabel(fp.status)) + '</span>' +
+            '<span class="tabular">' + fp.percent + '%</span></div>' +
+            L.progressBar(fp.percent, fp.percent + ' per cent of the learning steps for ' +
+              nameOf(fid) + ' complete') + '</div>'
+          : '') +
+        '<div class="fc-a">' +
+        '<a class="btn ' + (act.primary ? 'pri lg' : 'sec') + '" href="' +
+          L.href.experiment(p.id, fid) + '">' + esc(act.label) + '</a>' +
+        (fp.lastActivityAt
+          ? '<span class="fc-when">Last activity ' + esc(util.fmtDateTime(fp.lastActivityAt)) + '</span>'
+          : '<span class="fc-when">Not opened yet</span>') +
+        '</div></section>';
     }
-    function expRow(it) {
+
+    /* ---------- 2 · anything waiting ----------
+       Only states that actually occur are listed. A row of zeroes is
+       noise, and a "0 waiting" row is worse than none. */
+    var waiting = [];
+    if (summary.awaiting) {
+      waiting.push({ icon: 'clock', tone: '',
+        t: summary.awaiting + ' ' + util.plural(summary.awaiting, 'answer') + ' with your Faculty',
+        d: 'Written answers are marked by a person, so this is not instant.' });
+    }
+    if (summary.awaitingRelease) {
+      waiting.push({ icon: 'shield', tone: '',
+        t: summary.awaitingRelease + ' ' + util.plural(summary.awaitingRelease, 'result') +
+          ' not released yet',
+        d: 'Your Faculty decides when results are shown.' });
+    }
+    if (blocked.length) {
+      waiting.push({ icon: 'alert', tone: 'warn',
+        t: blocked.length + ' ' + util.plural(blocked.length, 'experiment') + ' not available',
+        d: 'Still assigned to you, and everything you have done is kept. Your institution administers this.',
+        href: L.href.myLearning(p.id), a: 'See why' });
+    }
+    var waitingCard = waiting.length
+      ? ui.card('Waiting for you',
+          '<ul class="attn">' + waiting.map(function (w) {
+            return '<li class="at-row' + (w.tone ? ' ' + w.tone : '') + '">' +
+              '<span class="at-ic">' + ui.ic(w.icon) + '</span>' +
+              '<div class="at-body"><div class="at-t">' + esc(w.t) + '</div>' +
+              '<p>' + esc(w.d) + '</p></div>' +
+              (w.href ? '<a class="btn sec sm" href="' + w.href + '">' + esc(w.a) + '</a>' : '') +
+              '</li>';
+          }).join('') + '</ul>', null, 'h2')
+      : '';
+
+    /* ---------- 3 · the figures ----------
+       Compact, and only the states that exist. */
+    var stats = [];
+    if (summary.inProgress) { stats.push({ v: summary.inProgress, k: 'In progress' }); }
+    if (summary.notStarted) { stats.push({ v: summary.notStarted, k: 'Not started' }); }
+    if (summary.awaiting) { stats.push({ v: summary.awaiting, k: 'With Faculty' }); }
+    if (summary.awaitingRelease) { stats.push({ v: summary.awaitingRelease, k: 'Result pending' }); }
+    if (summary.completed) { stats.push({ v: summary.completed, k: 'Completed' }); }
+    var statsBlock = stats.length > 1
+      ? ui.statStrip(stats.map(function (x) {
+          return { v: x.v, k: x.k, href: L.href.progress(p.id) };
+        }))
+      : '';
+
+    /* ---------- 4 · everything else ----------
+       Secondary by construction: compact rows, secondary controls, and
+       the featured experiment is NOT among them. With one experiment
+       assigned this section does not exist at all. */
+    /* ⚠ THE SECONDARY ROWS ALL SAY "OPEN", DELIBERATELY.
+
+       Their verb used to match the featured card's — so a student with
+       five experiments none of which they had started read the words
+       "Start learning" five times down one page, once in a primary
+       button and four more times in secondary ones. That is the same
+       repetition the featured/list split was introduced to remove,
+       reappearing as copy instead of as layout.
+
+       The row already states its own state in a badge ("Not started",
+       "In progress", "Completed"), so the verb is not carrying that
+       meaning and does not need to vary. One page, one invitation to
+       start: the featured card. Everything below it is navigation. */
+    function otherRow(it) {
       var prog = it.progress;
       var eid = it.row.experimentId;
-      var primary = prog.status === state.TECH_PROGRESS.IN_PROGRESS ||
-                    prog.status === state.TECH_PROGRESS.NOT_STARTED;
       return '<li class="pickrow">' +
         '<div class="pk-body">' +
         '<div class="pk-n">' + esc(nameOf(eid)) + ' ' + L.progressBadge(prog.status) + '</div>' +
         '<div class="pk-m">' + L.courseLine(eid) + '</div>' +
-        '<div class="pk-e">' + esc(L.simulationSentence(prog)) +
-        (prog.steps
-          ? ' <span class="tabular">' + prog.steps.done + ' of ' + prog.steps.total + ' steps</span>' : '') +
         '</div>' +
-        '</div>' +
-        '<a class="btn sm ' + (primary ? 'pri' : 'sec') + '" href="' + L.href.experiment(p.id, eid) + '">' +
-        esc(openLabel(prog.status)) + '</a>' +
+        '<a class="btn sm sec" href="' + L.href.experiment(p.id, eid) + '">Open</a>' +
         '</li>';
     }
 
-    /* The counts the stat grid used to carry, in one line of words. Only
-       states that actually occur are named — a row of zeroes is noise. */
-    var countBits = [];
-    if (summary.inProgress) { countBits.push(summary.inProgress + ' in progress'); }
-    if (summary.notStarted) { countBits.push(summary.notStarted + ' not started'); }
-    if (summary.awaiting) { countBits.push(summary.awaiting + ' pending Faculty review'); }
-    if (summary.awaitingRelease) {
-      countBits.push(summary.awaitingRelease + ' with a result pending release');
+    var othersBlock = '';
+    if (others.length) {
+      othersBlock =
+        ui.sectionHead({
+          title: 'Your other experiments', count: others.length, countLabel: 'experiment',
+          heading: 'h2',
+          actionsHTML: '<a class="btn sec sm" href="' + L.href.myLearning(p.id) + '">Open My Learning</a>'
+        }) +
+        '<div class="card"><div class="cbody">' +
+        '<ul class="picklistr">' + others.map(otherRow).join('') + '</ul>' +
+        '</div></div>';
     }
-    if (summary.completed) { countBits.push(summary.completed + ' completed'); }
 
+    /* ---------- the empty and blocked states ----------
+       A student with nothing available gets ONE clear statement, not a
+       primary button that cannot work. */
+    var emptyBlock = '';
+    if (!featured) {
+      if (!active) {
+        /* `accountNotice` already states the reason above; repeating it
+           here would be the third time on one screen. */
+        emptyBlock = ui.card('Your learning',
+          ui.emptyRow({
+            icon: 'alertCirc', heading: 'h3',
+            title: 'Nothing can be opened while your account is inactive',
+            body: 'Everything you have already done is kept. Your record is still available under ' +
+              'Your progress.',
+            actionsHTML: '<a class="btn sec sm" href="' + L.href.progress(p.id) + '">Your progress</a>'
+          }), null, 'h2');
+      } else if (blocked.length) {
+        emptyBlock = ui.card('Your learning',
+          ui.emptyRow({
+            icon: 'alert', heading: 'h3',
+            title: 'Nothing is available to you right now',
+            body: blocked.length + ' ' + util.plural(blocked.length, 'experiment') + ' ' +
+              (blocked.length === 1 ? 'is' : 'are') + ' assigned to you but cannot be opened at the ' +
+              'moment. Everything you have already done is kept.',
+            actionsHTML: '<a class="btn sec sm" href="' + L.href.myLearning(p.id) + '">See why</a>'
+          }), null, 'h2');
+      } else {
+        emptyBlock = ui.card('Your learning',
+          ui.emptyState({
+            icon: 'flask', heading: 'h3',
+            title: 'No experiments have been assigned to you yet',
+            body: 'Your institution decides which experiments you take, and in which technologies. ' +
+              'Being enrolled on a course, or belonging to a study group, is not the same thing.'
+          }), null, 'h2');
+      }
+    }
+
+    /* ---------- earlier work ---------- */
+    var pastNote = past.length
+      ? ui.card('Earlier work',
+          ui.emptyRow({
+            icon: 'clock', heading: 'h3',
+            title: past.length + ' ' + util.plural(past.length, 'experiment') + ' no longer assigned to you',
+            body: 'Your record of that work is kept.',
+            actionsHTML: '<a class="btn sec sm" href="' + L.href.progress(p.id) + '">Your progress</a>'
+          }), null, 'h2')
+      : '';
+
+    /* ---------- where you study ----------
+       True, and nobody's reason for opening this page: it goes last and
+       it is compact. */
     var whereCard = ui.card('Where you are studying',
-      '<div class="kv">' +
+      '<div class="kv compact">' +
       '<div class="k">Institution</div><div class="v">' + esc(tenant.name) + '</div>' +
       '<div class="k">Programme / department</div><div class="v">' +
       (mem && mem.grouping ? esc(mem.grouping.name) : '<span class="muted">Not recorded</span>') + '</div>' +
       '<div class="k">Course</div><div class="v">' +
       (mem && mem.course ? esc(mem.course.name) : '<span class="muted">Not recorded</span>') +
-      (mem && mem.localCode ? ' <span class="muted">(' + esc(mem.localCode) + ')</span>' : '') + '</div>' +
+      /* ⚠ A REVERSIBLE UX JUDGEMENT, NOT A CONFIRMED REQUIREMENT.
+
+         The Student is shown their INSTITUTION'S course code and not the
+         platform one. What the sources actually settle is the ownership
+         split — written clarification E (6 Sep 2026): the platform code
+         is the Content Manager's primarily and the Super Admin's also,
+         the institution's `localCourseCode` is a separate field the
+         Tenant Admin owns, and blank is legal for either. **No source,
+         at any date, states which code a STUDENT sees** — an exhaustive
+         search of the FRD, the 31 Aug decisions, the correction
+         blueprint and the 6/7 Sep clarifications returns nothing.
+
+         So this is our judgement, taken because the platform code is
+         governance vocabulary a learner has no use for, and because
+         showing both is what prompted the "why does one course have two
+         codes?" question. It renders the value with no label asserting
+         which kind it is, so nothing on screen claims a convention that
+         has not been agreed. Reversible in one line if the stakeholder
+         decides otherwise. Recorded in UX_REDESIGN_08.md §4 and §8. */
+      (mem && mem.localCode ? ' ' + ui.institutionCode(mem.localCode) : '') + '</div>' +
       (mem && mem.semester ? '<div class="k">Semester</div><div class="v">' + esc(mem.semester) + '</div>' : '') +
       '<div class="k">Student ID</div><div class="v">' + esc(p.studentId || '—') + '</div>' +
       '</div>', null, 'h2');
 
-    /* CONTINUE LEARNING, and only when there is something to continue.
-       It repeats a row from the list below on purpose: the list is
-       complete and predictable, and this is the one thing the Student is
-       most likely to have come back for. */
-    var resumeCard = '';
-    if (resume && p.status === 'active') {
-      var ctx = data.contextOf(resume.row.experimentId);
-      resumeCard = ui.card('Continue where you left off',
-        '<div class="resume">' +
-        '<div class="rz-body">' +
-        '<div class="rz-ctx">' + L.courseLine(resume.row.experimentId) + '</div>' +
-        '<div class="rz-t">' + esc(ctx ? ctx.experiment.name : resume.row.experimentId) + '</div>' +
-        '<div class="rz-s">' + esc(L.simulationSentence(resume.progress)) + '</div>' +
-        (resume.progress.lastActivityAt
-          ? '<div class="rz-m">Last activity ' + esc(util.fmtDateTime(resume.progress.lastActivityAt)) + '</div>' : '') +
-        '</div>' +
-        '<a class="btn pri" href="' + L.href.experiment(p.id, resume.row.experimentId) + '">Continue learning</a>' +
-        '</div>', null, 'h2');
-    }
+    /* R10 — this screen can state a completion, so it carries the note
+       that says how a completion actually got here. It is now a folded
+       "About" rather than a dashed engineering panel: the same honest
+       statement, in product language, out of the way of the journey. It
+       renders only when a completion is actually asserted. */
+    /* ⚠ NOT ON THIS PAGE. The completion caveat is real and is kept —
+       but it was rendering on Home, on My Learning, on the experiment
+       page, on the simulation page and on Progress, which is the same
+       disclosure five times in one journey. Home and My Learning are
+       SUMMARIES; the caveat belongs where a completion is produced and
+       examined — the simulation and experiment pages — and on Progress,
+       which is the record of them. Both of those still carry it. */
+    var completionNote = '';
 
-    /* THE LIST. Every experiment the Student may open, each with its own
-       way in — this is the whole point of R09. */
-    var listCard = '';
-    if (ordered.length) {
-      listCard = ui.card('Your experiments',
-        '<ul class="picklistr">' + ordered.map(expRow).join('') + '</ul>' +
-        (countBits.length ? '<p class="cardfoot">' + esc(countBits.join(' · ')) + '.</p>' : '') +
-        '<div class="formact">' +
-        '<a class="btn sec sm" href="' + L.href.myLearning(p.id) + '">Open My Learning</a>' +
-        '<a class="btn sec sm" href="' + L.href.progress(p.id) + '">See your progress</a>' +
-        '<span class="formnote">My Learning shows each one in full detail.</span>' +
-        '</div>',
-        ordered.length + ' available to you', 'h2');
-    } else if (p.status === 'active') {
-      /* Nothing effective. An experiment that is assigned but held back is
-         not the same as one that was never assigned, and the section below
-         states the reason for each — so this empty state says which of the
-         two it is and stops there, instead of repeating the reason. */
-      listCard = ui.card('Your experiments',
-        ui.emptyState(blocked.length
-          ? { icon: 'alertCirc', heading: 'h3',
-              title: 'Nothing is available to you right now',
-              body: blocked.length + ' ' + util.plural(blocked.length, 'experiment') + ' ' +
-                (blocked.length === 1 ? 'has' : 'have') + ' been assigned to you but cannot be opened at ' +
-                'the moment. The reason is below, and everything you have already done is kept.' }
-          : { icon: 'flask', heading: 'h3',
-              title: 'No experiments have been assigned to you yet',
-              body: 'Being enrolled on a course, or belonging to a study group, does not by itself make ' +
-                'an experiment available. Your institution assigns them.' }
-        ), null, 'h2');
-    }
-
-    /* ⚠ ENTITLEMENT TRUTH SURVIVES THE SIMPLIFICATION.
-       Home used to reduce this to a stat tile reading "Not currently
-       available: 2". The Student could see the number and never the
-       reason, and could not tell it apart from never having been
-       assigned anything. Each row now names its experiment and says why
-       it cannot be opened, in the same words the rest of the workspace
-       uses. NO CONTROL IS RENDERED on these rows — there is genuinely
-       nothing to open, and a disabled button would only invite a click
-       that can never work. */
-    var blockedCard = '';
-    if (blocked.length) {
-      blockedCard = ui.card('Not available at the moment',
-        '<ul class="picklistr">' + blocked.map(function (row) {
-          return '<li class="pickrow"><div class="pk-body">' +
-            '<div class="pk-n">' + esc(nameOf(row.experimentId)) + ' ' +
-            ui.badge('b-warning', 'alert', 'Not available') + '</div>' +
-            '<div class="pk-m">' + L.courseLine(row.experimentId) + '</div>' +
-            '<div class="pk-e">' + esc(L.unavailableText(row.blockedBy)) + '</div>' +
-            '</div></li>';
-        }).join('') + '</ul>' +
-        '<p class="cardfoot">These experiments are still assigned to you. Nothing has been removed, and ' +
-        'everything you have already done is kept. Your institution administers this.</p>',
-        blocked.length + ' ' + util.plural(blocked.length, 'experiment'), 'h2');
-    }
-
-    var pastNote = past.length
-      ? ui.card('Earlier work',
-          '<p class="cardlede">' + past.length + ' ' + util.plural(past.length, 'experiment') +
-          ' you worked on ' + (past.length === 1 ? 'is' : 'are') +
-          ' no longer assigned to you. Your record of that work is kept.</p>' +
-          '<div class="formact"><a class="btn sec sm" href="' + L.href.progress(p.id) + '">See your progress</a></div>',
-          null, 'h2')
-      : '';
-
-    /* R10 — this screen states completions (a "Completed" badge on a row,
-       a roll-up sentence naming a completed simulation), so it carries the
-       caveat that says how a completion actually got here. It is rendered
-       only when a completion is actually asserted: on a Home with nothing
-       finished the note would qualify a claim nobody made. */
-    var completionNote = L.assertsCompletion(ordered) ? L.completionGapNote('figures') : '';
-
-    /* Reading order: what you can do, then what you cannot and why, then
-       your record, then the caveat over the completions above, and last
-       the reference facts about where you study — which are true but are
-       nobody's reason for opening this page. */
     var html =
       ui.phead('Hello, ' + p.name, esc(tenant.name)) +
       '<div class="stack">' +
       L.accountNotice(p) +
-      resumeCard +
-      listCard +
-      blockedCard +
+      focusCard +
+      emptyBlock +
+      waitingCard +
+      statsBlock +
+      othersBlock +
       pastNote +
-      completionNote +
       whereCard +
+      completionNote +
       '</div>';
 
     return {
@@ -840,15 +987,26 @@ XRSLP.studentUI = (function () {
       if (L.assertsCompletion([prog])) { showsCompletion = true; }
     }
 
-    function card(row) {
+    function card(row, wide) {
       var ctx = data.contextOf(row.experimentId);
       var prog = state.experimentProgress(p.id, row.experimentId, row.technologies, { studentView: true });
       noteCompletion(prog);
       var name = ctx ? ctx.experiment.name : row.experimentId;
-      var actionLabel =
-        prog.status === state.TECH_PROGRESS.COMPLETED ? 'Review experiment' :
-        prog.status === state.TECH_PROGRESS.NOT_STARTED ? 'Start learning' : 'Continue';
-      return '<article class="lcard">' +
+      /* ⚠ ONE VERB, AND IT IS NOT "CONTINUE".
+         HOME owns resume semantics — it features exactly one experiment
+         and invites you into it. My Learning is the LIBRARY: every card
+         is equally available, so a card that says "Continue" competes
+         with the one place that should. The card's own badge already
+         states whether it is started, in progress or complete, so the
+         verb does not have to carry that too. */
+      var actionLabel = 'Open experiment';
+      /* ⚠ ONE CARD IN A 1220px GRID IS A DESIGN, NOT AN ACCIDENT.
+         `.lgrid` is `repeat(auto-fill, minmax(330px,1fr))`, so a student
+         holding exactly one experiment got a 330px card marooned in
+         about 900px of empty page. The card is not the problem — the
+         LAYOUT is: with one item there is no grid to be in. `wide`
+         switches it to a horizontal card that uses the width it has. */
+      return '<article class="lcard' + (wide ? ' wide' : '') + '">' +
         '<div class="lc-head">' +
         '<div class="lc-ctx">' + L.courseLine(row.experimentId) + '</div>' +
         '<h3><a href="' + L.href.experiment(p.id, row.experimentId) + '">' + esc(name) + '</a></h3>' +
@@ -876,13 +1034,13 @@ XRSLP.studentUI = (function () {
     /* A blocked entitlement is still an assignment: the technologies it
        covers are known, and so is the work already done under it. Showing
        the reason but hiding the work would be the same as losing it. */
-    function blockedCard(row) {
+    function blockedCard(row, wide) {
       var ctx = data.contextOf(row.experimentId);
       var techs = row.technologies.concat(row.blockedTechnologies);
       var prog = state.experimentProgress(p.id, row.experimentId, techs, { studentView: true });
       var touched = state.hasActivity(p.id, row.experimentId);
       if (touched) { noteCompletion(prog); }
-      return '<article class="lcard blocked">' +
+      return '<article class="lcard blocked' + (wide ? ' wide' : '') + '">' +
         '<div class="lc-head">' +
         '<div class="lc-ctx">' + L.courseLine(row.experimentId) + '</div>' +
         '<h3>' + esc(ctx ? ctx.experiment.name : row.experimentId) + '</h3>' +
@@ -904,7 +1062,7 @@ XRSLP.studentUI = (function () {
         '</article>';
     }
 
-    function pastCard(experimentId) {
+    function pastCard(experimentId, wide) {
       var ctx = data.contextOf(experimentId);
       var techs = state.technologiesWithActivity(p.id, experimentId);
       /* Historical: the assignment is gone, so the technology set it
@@ -912,7 +1070,7 @@ XRSLP.studentUI = (function () {
       var prog = state.experimentProgress(p.id, experimentId, techs,
         { historical: true, studentView: true });
       noteCompletion(prog);
-      return '<article class="lcard past">' +
+      return '<article class="lcard past' + (wide ? ' wide' : '') + '">' +
         '<div class="lc-head">' +
         '<div class="lc-ctx">' + L.courseLine(experimentId) + '</div>' +
         '<h3>' + esc(ctx ? ctx.experiment.name : experimentId) + '</h3>' +
@@ -930,44 +1088,64 @@ XRSLP.studentUI = (function () {
 
     var body;
     if (!available.length && !blocked.length && !past.length) {
-      body = '<div class="tablecard">' + ui.emptyState({
+      /* THE ONE PLACE A LARGE EMPTY STATE IS RIGHT. This is the page's
+         central state, not a quiet queue with nothing in it, so it gets
+         the full treatment rather than the compact row. */
+      body = '<div class="card"><div class="cbody">' + ui.emptyState({
         icon: 'flask',
         title: 'No experiments have been assigned to you yet',
         body: 'Your institution decides which experiments you take and in which technologies. ' +
           'Nothing appears here until an experiment is assigned to you or to a group you belong to — ' +
           'being enrolled on a course is not the same thing.',
         actionsHTML: '<a class="btn sec" href="' + L.href.home(p.id) + '">Back to Home</a>'
-      }) + '</div>';
+      }) + '</div></div>';
     } else {
+      /* ONE / FEW / MANY. The grid is only a grid when there is
+         something to line up. With a single record the card goes wide;
+         with several it fills the row it is given. Designed for the
+         counts, not for the screenshot. */
+      function shelf(items, render) {
+        if (items.length === 1) { return '<div class="lgrid one">' + render(items[0], true) + '</div>'; }
+        return '<div class="lgrid">' + items.map(function (x) { return render(x, false); }).join('') + '</div>';
+      }
+
       body =
+        '<section class="lsec" aria-labelledby="ml-avail">' +
+        ui.sectionHead({
+          title: 'Available to you', heading: 'h2', id: 'ml-avail',
+          count: available.length ? available.length : null, countLabel: 'experiment',
+          desc: available.length > 3
+            ? 'Everything your institution has made available to you, with the technologies you hold.'
+            : null
+        }) +
         (available.length
-          ? '<section class="lsec" aria-labelledby="ml-avail">' +
-            '<h2 id="ml-avail" class="lsec-h">Available to you' +
-            '<span class="lsec-n">' + available.length + '</span></h2>' +
-            '<div class="lgrid">' + available.map(card).join('') + '</div></section>'
-          : '<section class="lsec" aria-labelledby="ml-avail">' +
-            '<h2 id="ml-avail" class="lsec-h">Available to you</h2>' +
-            '<div class="tablecard">' + ui.emptyState({
+          ? shelf(available, card)
+          : '<div class="card"><div class="cbody">' + ui.emptyRow({
               icon: 'flask', heading: 'h3',
               title: 'Nothing is available to you right now',
               body: p.status !== 'active'
                 ? 'Your account is not active at your institution, so no experiment can be opened.'
                 : 'No experiment currently reaches you. Anything listed below is kept for your record.'
-            }) + '</div></section>') +
+            }) + '</div></div>') +
+        '</section>' +
         (blocked.length
           ? '<section class="lsec" aria-labelledby="ml-blocked">' +
-            '<h2 id="ml-blocked" class="lsec-h">Not available at the moment' +
-            '<span class="lsec-n">' + blocked.length + '</span></h2>' +
-            '<p class="lsec-d">These experiments were assigned to you, but something about your account ' +
-            'or your institution’s access means they cannot be opened right now.</p>' +
-            '<div class="lgrid">' + blocked.map(blockedCard).join('') + '</div></section>'
+            ui.sectionHead({
+              title: 'Not available at the moment', count: blocked.length, heading: 'h2',
+              id: 'ml-blocked', countLabel: 'experiment',
+              desc: 'Still assigned to you. Something about your account or your institution\u2019s ' +
+                'access means these cannot be opened right now, and nothing you have done is lost.'
+            }) +
+            shelf(blocked, blockedCard) + '</section>'
           : '') +
         (past.length
           ? '<section class="lsec" aria-labelledby="ml-past">' +
-            '<h2 id="ml-past" class="lsec-h">Earlier work' +
-            '<span class="lsec-n">' + past.length + '</span></h2>' +
-            '<p class="lsec-d">No longer assigned to you. Kept so your record stays complete.</p>' +
-            '<div class="lgrid">' + past.map(pastCard).join('') + '</div></section>'
+            ui.sectionHead({
+              title: 'Earlier work', count: past.length, heading: 'h2', id: 'ml-past',
+              countLabel: 'experiment',
+              desc: 'No longer assigned to you. Kept so your record stays complete.'
+            }) +
+            shelf(past, pastCard) + '</section>'
           : '');
     }
 
@@ -977,7 +1155,9 @@ XRSLP.studentUI = (function () {
       L.accountNotice(p) +
       (p.status !== 'active' ? '<div style="height:16px"></div>' : '') +
       body +
-      (showsCompletion ? '<div style="margin-top:24px">' + L.completionGapNote('figures') + '</div>' : '');
+      /* See Home: the caveat lives on the experiment, simulation and
+         Progress pages, not on the two summary screens. */
+      '';
 
     return {
       area: 'learn', title: 'My Learning — ' + p.name, html: html,

@@ -66,6 +66,27 @@
    STUDENT VIEW (`studentView: true`) precisely so that a result which
    has been evaluated but not yet released cannot be inferred from the
    institution's own dashboard.
+
+   ── IMPLEMENTATION 08 — WHAT THE PRESENTATION PASS CHANGED ────
+   Behaviour, guards, authority boundaries and state transitions are
+   untouched. What moved:
+
+     · The Overview lost eighteen stat tiles across three grids and two
+       dashed notes. Provisioning is one linked `ui.statStrip`; the
+       licence trio is ONE `ui.metrics` line; the learning methodology and
+       the privacy disclosure are folded into `ui.about`; an attention row
+       is a title, one line and one link, and no longer hosts whole
+       renewal panels.
+     · Content access opens on data. The access-record definition, the
+       licence-counting rule and the institution's renewal route are
+       stated ONCE, folded, at the top — the route used to be re-emitted
+       verbatim inside every record panel — and each record leads with
+       what it covers, its term and its licence line, with the detail and
+       the renewal control behind "Show details".
+     · ONE canonical licence rendering (`allocMetrics`) replaced four.
+     · The record actions carry their record: they call the prefill hooks
+       `tenantAssignPrefill` / `tenantAssignListPrefill`, so "Give
+       students access" on ACC-002 opens the builder on ACC-002.
    ============================================================ */
 
 window.XRSLP = window.XRSLP || {};
@@ -186,28 +207,30 @@ XRSLP.tenantUI = (function () {
       : ui.badge('b-neutral', 'minus', 'Inactive');
   }
 
+  /* Provenance required by ND-04 — shown, never asserted as an
+     authority. There is no ERP route in this slice.
+
+     ⚠ `sourceBadge` (the `.prov` chip) is gone with the People
+     directory's Source column. Provenance is a fact about ONE person and
+     belongs on their record, where it still appears as "Record source";
+     a chip repeated on every row of a directory of several hundred
+     people was one more block per person on a phone and told the reader
+     nothing they had asked for. `statGrid` went the same way when the
+     Overview moved to `ui.statStrip` + `ui.metrics`; the Faculty and
+     platform workspaces have their own. */
   function sourceLabel(source) { return state.SOURCE_META[source] || 'Unknown'; }
 
-  /* Provenance line required by ND-04 — shown, never asserted as an
-     authority. There is no ERP route in this slice. */
-  function sourceBadge(source) {
-    return '<span class="prov">' + esc(sourceLabel(source)) + '</span>';
-  }
-
+  /* The subtitle names the ROLE and then the institution's own reference.
+     It used to print the reference alone and fall back to the role word
+     only when there was no reference, which made "Faculty" look like an
+     identifier — and it forced the People directory to carry a whole
+     Role column repeating what the segmented tabs above it already said. */
   function personLink(tenantId, p) {
+    var role = p.role === 'faculty' ? 'Faculty' : 'Student';
+    var ref = p.role === 'faculty' ? p.facultyId : p.studentId;
     return '<a class="rowlink" href="' + href.person(tenantId, p.id) + '">' +
       '<span class="tmain">' + esc(p.name) + '</span>' +
-      '<span class="tsub">' + esc(p.role === 'faculty' ? (p.facultyId || 'Faculty') : (p.studentId || 'Student')) + '</span></a>';
-  }
-
-  function statGrid(items) {
-    return '<div class="statgrid">' + items.map(function (it) {
-      return '<div class="stat' + (it.tone ? ' ' + it.tone : '') + '">' +
-        '<div class="s-k">' + esc(it.label) + '</div>' +
-        '<div class="s-v tabular">' + esc(String(it.value)) + '</div>' +
-        (it.note ? '<div class="s-n">' + esc(it.note) + '</div>' : '') +
-        '</div>';
-    }).join('') + '</div>';
+      '<span class="tsub">' + esc(ref ? role + ' · ' + ref : role) + '</span></a>';
   }
 
   /* Approved · Assigned · Remaining — the exact trio STK31-27 permits,
@@ -235,11 +258,157 @@ XRSLP.tenantUI = (function () {
       '</div>';
   }
 
-  function accessOptionLabel(rec) {
-    var termDef = data.term(rec.term);
-    return rec.id + ' — ' + rec.items.length + ' ' + XRSLP.util.plural(rec.items.length, 'experiment') +
-      ' · ' + rec.quantity + ' approved · ' + (termDef ? termDef.label : rec.term);
+  /* ONE canonical rendering of Approved / Assigned / Remaining.
+
+     The same three numbers were being drawn four different ways across
+     this workspace — the big-number meter below, three stat tiles on the
+     Overview, three stacked lines in a table cell and a key/value list on
+     a blocked grant — so one fact read as four. `allocMeter` survives for
+     the ONE place a PROPORTION is being judged (the access-grant builder,
+     where the reader is about to spend licences and the bar carries
+     meaning); every other surface uses this line.
+
+     The end date rides along because "4 remaining" and "expires in six
+     days" are read together or not at all. */
+  function allocMetrics(alloc, rec, opts) {
+    /* `opts.available` is the Overview's wording only. The deep access
+       screens keep "remaining" — they were accepted as they stand. */
+    opts = opts || {};
+    var items = [
+      { v: alloc.approved, k: 'approved' },
+      { v: alloc.assigned, k: 'assigned' },
+      { v: alloc.remaining, k: opts.available ? 'available' : 'remaining',
+        tone: alloc.over > 0 ? 'bad' : (alloc.approved > 0 && alloc.remaining === 0) ? 'warn' : '' }
+    ];
+    if (rec && rec.endsOn) {
+      var ts = state.accessTermState(rec);
+      items.push({
+        v: XRSLP.util.fmtDate(rec.endsOn),
+        k: ts.key === 'expired' ? 'ended' : 'expires',
+        tone: ts.key === 'expired' ? 'bad' : ts.key === 'expiring' ? 'warn' : ''
+      });
+    }
+    if (alloc.over > 0) {
+      items.push({ v: alloc.over, k: 'held beyond the allocation', tone: 'bad' });
+    }
+    return ui.metrics(items);
   }
+
+  /* The licence-counting rule, stated in ONE place and reused. It used to
+     appear three times on Content access alone, in three wordings. */
+  var LICENCE_RULE = 'Licences belong to the approved content, not to an experiment. A student counts once ' +
+    'against a record however many of its experiments they hold, so the same three figures apply to every ' +
+    'experiment on it.';
+
+  /* Same reasoning, for the rule two screens both need to state. */
+  var FACULTY_LICENCE_RULE = 'The approved quantity is a student allocation. Mapping a ' +
+    'Faculty member consumes none of it and entitles no student.';
+
+  /* What a record COVERS, for use as its heading. An opaque identifier
+     tells a reader nothing about which record they are looking at; the
+     Programmes it covers do, and the identifier stays beside it. */
+  function accessRecordTitle(rec) {
+    var n = (rec.items || []).length;
+    var names = groupContent(rec.items || []).map(function (g) { return g.name; });
+    if (!names.length) { return 'No approved content'; }
+    var label = names.length <= 2
+      ? names.join(' · ')
+      : names.slice(0, 2).join(' · ') + ' +' + (names.length - 2) + ' more';
+    /* The experiment count is part of the heading, not a badge: two
+       records covering the same Programme are otherwise indistinguishable
+       until the reader reaches the identifier beside them. */
+    return label + ' · ' + n + ' ' + XRSLP.util.plural(n, 'experiment');
+  }
+
+  /* ── HUMAN-READABLE ACCESS CONTEXT ───────────────────────────
+     `ACC-001` is a reference, not a description. These two produce the
+     words that should appear WHERE THE REFERENCE USED TO: what the
+     access covers, and how long it runs. The identifier is still shown
+     on every one of those surfaces — through `ui.accessRef` — but after
+     the fact it identifies, not instead of it. */
+  /* The four-tile dashboard grid, linked. `.statgrid`/`.stat` and
+     `a.stat.statlink` are both already in the design system; this is the
+     one place the tenant workspace builds them. */
+  function statGrid(items) {
+    return '<div class="statgrid">' + items.map(function (it) {
+      var inner = '<div class="s-k">' + esc(it.label) + '</div>' +
+        '<div class="s-v tabular">' + esc(String(it.value)) + '</div>' +
+        (it.note ? '<div class="s-n">' + esc(it.note) + '</div>' : '');
+      var cls = 'stat' + (it.tone ? ' ' + it.tone : '') + (it.href ? ' statlink' : '');
+      return it.href
+        ? '<a class="' + cls + '" href="' + it.href + '">' + inner + '</a>'
+        : '<div class="' + cls + '">' + inner + '</div>';
+    }).join('') + '</div>';
+  }
+
+  function accessContentLine(rec) {
+    if (!rec) { return 'Access'; }
+    var names = (rec.items || []).map(function (it) {
+      var c = data.contextOf(it.experimentId);
+      return c ? c.experiment.name : it.experimentId;
+    });
+    if (!names.length) { return 'Approved access'; }
+    if (names.length === 1) { return names[0]; }
+    if (names.length === 2) { return names[0] + ' and ' + names[1]; }
+    return names[0] + ' and ' + (names.length - 1) + ' more';
+  }
+
+  /* The union of technologies an approval carries — one of the two
+     facts (with the term) that tells two approvals of the same
+     Experiment apart, now that the reference is not shown. */
+  function recTechnologies(rec) { return XRSLP.ui.recTechnologies(rec); }
+
+  function accessTermLine(rec) {
+    if (!rec) { return ''; }
+    var termDef = data.term(rec.term);
+    var label = termDef ? termDef.label : rec.term;
+    var st = state.accessTermState(rec);
+    /* `endsOn`, not `endsAt` — the field the record actually carries. */
+    if (rec.endsOn) {
+      return label + ' · ' + (st.key === 'expired' ? 'ended ' : 'ends ') +
+        XRSLP.util.fmtDate(rec.endsOn);
+    }
+    return label;
+  }
+
+  /* THE CONTEXTUAL CHOOSER LABEL.
+
+     An <option> carries no markup, so everything needed to tell two
+     approvals apart has to be IN the text — and none of it may be the
+     internal reference. Two approvals can legitimately carry the SAME
+     Experiment; what separates them is the technology set, the licence
+     quantity and the term, so all three are named. */
+  function accessChoiceLabel(rec) {
+    if (!rec) { return ''; }
+    var termDef = data.term(rec.term);
+    var bits = [accessContentLine(rec)];
+    var courses = [], seenC = {};
+    (rec.items || []).forEach(function (it) {
+      var c = data.contextOf(it.experimentId);
+      var nm = c && c.course ? c.course.name : null;
+      if (nm && !seenC[nm]) { seenC[nm] = 1; courses.push(nm); }
+    });
+    if (courses.length) { bits.push(courses.join(' · ')); }
+    var techs = [], seenT = {};
+    (rec.items || []).forEach(function (it) {
+      (it.technologies || []).forEach(function (t) {
+        if (seenT[t]) { return; }
+        seenT[t] = 1;
+        var def = data.TECHNOLOGIES[t];
+        techs.push(def ? def.name : t);
+      });
+    });
+    if (techs.length) { bits.push(techs.join(' + ')); }
+    bits.push(rec.quantity + ' ' + XRSLP.util.plural(rec.quantity, 'licence'));
+    bits.push(termDef ? termDef.label : rec.term);
+    if (rec.endsOn) {
+      bits.push((state.accessTermState(rec).key === 'expired' ? 'ended ' : 'ends ') +
+        XRSLP.util.fmtDate(rec.endsOn));
+    }
+    return bits.join(' · ');
+  }
+  /* Kept under its old name for the builders that already call it. */
+  function accessOptionLabel(rec) { return accessChoiceLabel(rec); }
 
   /* R04 — "Access record" glossed rather than renamed.
 
@@ -251,8 +420,11 @@ XRSLP.tenantUI = (function () {
      a worse failure than the jargon itself. Instead the term is defined
      in plain words wherever the Tenant Admin first meets it. */
   function accessRecordGlossHTML() {
-    return '<p>An <strong>access record</strong> is one approved allocation: the experiments, the technology ' +
-      'variants, the number of student licences and the term the Super Admin approved for this institution. ' +
+    /* The stakeholder questioned "access record" as a user-facing term
+       and no replacement noun was agreed, so the UI stops naming the
+       object and describes what it IS instead. */
+    return '<p>Each <strong>approval</strong> below is one thing the Super Admin approved for this ' +
+      'institution: the experiments, the technology variants, the number of student licences and the term. ' +
       'It says what the institution <em>may</em> use. It gives no student anything on its own &mdash; that is ' +
       'what <strong>Student access</strong> does.</p>';
   }
@@ -292,13 +464,13 @@ XRSLP.tenantUI = (function () {
     return ui.emptyState({
       icon: 'alert', heading: headingLevel,
       title: blocked.length === 1
-        ? 'The one access record this institution holds cannot be granted from'
-        : 'None of the ' + blocked.length + ' access records this institution holds can be granted from',
-      body: 'Student access can never reach outside an approved, usable access record.',
+        ? 'The one approval this institution holds cannot be granted from'
+        : 'None of the ' + blocked.length + ' approvals this institution holds can be granted from',
+      body: 'Student access can never reach outside what the institution has been approved for.',
       actionsHTML: '<a class="btn sec" href="' + href.access(tenant.id) + '">View content access</a>'
     }) +
     '<ul class="blocklist">' + blocked.map(function (b) {
-      return '<li><span class="mono">' + esc(b.record.id) + '</span> — ' +
+      return '<li>' + ui.accessTitle(b.record) + ' — ' +
         esc(state.assignabilityText(b.reason)) + '.</li>';
     }).join('') + '</ul>';
   }
@@ -414,7 +586,7 @@ XRSLP.tenantUI = (function () {
   /* Reason a derived entitlement is not effective — always explained. */
   var BLOCK_TEXT = {
     'student-inactive': 'Student is inactive',
-    'access-expired': 'Access record expired',
+    'access-expired': 'Access expired',
     'allocation-held': 'Held — allocation full'
   };
   function entitlementBadge(ent) {
@@ -425,10 +597,15 @@ XRSLP.tenantUI = (function () {
   return {
     href: href, requireTenant: requireTenant, inactiveRefusal: inactiveRefusal,
     actionsIfWritable: actionsIfWritable, canWrite: canWrite,
-    personStatusBadge: personStatusBadge, sourceBadge: sourceBadge, sourceLabel: sourceLabel,
-    personLink: personLink, statGrid: statGrid, allocMeter: allocMeter,
+    personStatusBadge: personStatusBadge, sourceLabel: sourceLabel,
+    personLink: personLink, allocMeter: allocMeter,
+    allocMetrics: allocMetrics, LICENCE_RULE: LICENCE_RULE,
+    FACULTY_LICENCE_RULE: FACULTY_LICENCE_RULE, accessRecordTitle: accessRecordTitle,
     noAssignableAccessHTML: noAssignableAccessHTML,
-    accessOptionLabel: accessOptionLabel, expLine: expLine,
+    accessOptionLabel: accessOptionLabel, accessChoiceLabel: accessChoiceLabel, expLine: expLine,
+    accessContentLine: accessContentLine, accessTermLine: accessTermLine,
+    recTechnologies: recTechnologies,
+    statGrid: statGrid,
     accessRecordGlossHTML: accessRecordGlossHTML,
     groupContent: groupContent, contentRows: contentRows,
     experimentOptionsHTML: experimentOptionsHTML, contentMatches: contentMatches,
@@ -595,12 +772,16 @@ XRSLP.tenantUI = (function () {
      because somebody asked.
      ============================================================ */
 
-  /* The institution's route, stated before any control is offered, so
-     the Tenant Admin knows what pressing the button actually starts. */
+  /* The institution's route, stated ONCE, in the folded explanation at
+     the head of Content access.
+
+     ⚠ IT USED TO BE CALLED FROM INSIDE `records.map`, so a four-record
+     institution read this same two-paragraph passage four times — and its
+     argument is the TENANT, so every copy was byte-identical. The route
+     genuinely differs per RECORD, which is what `renewalRouteLine` below
+     now prints beside each record's own renewal control; this paragraph
+     is the institution-level frame and is emitted exactly once. */
   function renewalRouteHTML(tenant) {
-    /* INSTITUTION-WIDE sentence. It is only true where every live record
-       agrees; where they do not, each record states its own route and
-       this paragraph says so rather than generalising. */
     var route = state.renewalRouteFor(tenant.id);
     var recordRoutes = {};
     state.accessForTenant(tenant.id).forEach(function (r) {
@@ -610,18 +791,31 @@ XRSLP.tenantUI = (function () {
     var routesDiffer = recordRoutes.payment && recordRoutes.none;
     if (!route) { return ''; }
     return '<p>' + (routesDiffer
-      ? 'This institution holds access records that arrived on <strong>different routes</strong>. A renewal ' +
-        'follows the route of the <strong>record being renewed</strong>, so each record below states its own ' +
-        'and there is no single answer for the institution as a whole.'
+      ? 'This institution holds approvals that arrived on <strong>different routes</strong>. A renewal ' +
+        'follows the route of the <strong>record being renewed</strong>, and each record states its own beside ' +
+        'its renewal control.'
       : route.paymentRequired
       ? 'A renewal for ' + esc(tenant.name) + ' follows the <strong>same payment step this institution was ' +
         'onboarded through</strong>. The Super Admin decides the renewal request first, and the access term is ' +
         'extended only when that payment step completes.'
       : 'There is <strong>no payment step</strong> on this institution&rsquo;s access route, so the ' +
         '<strong>Super Admin&rsquo;s approval</strong> is what activates a renewal.') + '</p>' +
-      '<p style="margin-top:8px">Requesting a renewal <strong>extends nothing on its own</strong>, and nobody ' +
-      '&mdash; the Super Admin included &mdash; can extend an access term directly. The term moves only when ' +
-      'this institution&rsquo;s own route has completed.</p>';
+      '<p>Requesting a renewal <strong>extends nothing on its own</strong>, and nobody &mdash; the Super Admin ' +
+      'included &mdash; can extend an access term directly. The term moves only when the record&rsquo;s own ' +
+      'route has completed.</p>';
+  }
+
+  /* THIS RECORD'S route, in one line, beside the control that starts it.
+     The institution-level paragraph above promises each record states its
+     own; before this existed that promise was false — the per-record
+     route appeared nowhere outside the confirmation dialog. */
+  function renewalRouteLine(rec) {
+    var route = state.renewalRouteForAccess(rec.id);
+    if (!route) { return ''; }
+    return '<p class="tsub2">Renewal route for ' + ui.accessTitle(rec) + ': ' +
+      (route.paymentRequired
+        ? 'Super Admin decision, then this institution&rsquo;s payment step.'
+        : 'Super Admin decision — no payment step.') + '</p>';
   }
 
   /* A renewal already in flight. It is an ORDINARY request row, so it is
@@ -637,7 +831,7 @@ XRSLP.tenantUI = (function () {
         ? '<a class="btn sm pri" href="#/payment/' + encodeURIComponent(req.id) + '">Complete the payment step</a>'
         : '') +
       '</div>' +
-      '<p class="cardfoot">Until it is activated, this record&rsquo;s end date is unchanged and nothing has ' +
+      '<p class="cardfoot">Until it is activated, the end date is unchanged and nothing has ' +
       'been charged, sent or confirmed.</p>';
   }
 
@@ -648,16 +842,29 @@ XRSLP.tenantUI = (function () {
   function renewalHistoryHTML(rec) {
     var list = Array.isArray(rec.renewals) ? rec.renewals : [];
     if (!list.length) { return ''; }
-    return '<h3 class="subh">Renewal history</h3>' +
-      '<ul class="reslist plain">' + list.map(function (rn) {
+    /* TABULAR, AND FOLDED. Each renewal used to be one unbroken 40-word
+       sentence, so three of them could only be compared by reading them
+       word by word. The same five facts line up as columns instead, and
+       the whole block is closed until it is asked for — history matters,
+       but it is never the reason somebody opened this record. */
+    return ui.about(list.length + ' ' + util.plural(list.length, 'renewal') + ' already activated on this access',
+      '<div class="tscroll"><table class="dt sm">' +
+      '<caption class="sr-only">Renewals activated on ' + esc(T.accessContentLine(rec)) + '</caption>' +
+      '<thead><tr><th scope="col">Activated</th><th scope="col">Term added</th>' +
+      '<th scope="col">Previously ended</th><th scope="col">Now ends</th>' +
+      '<th scope="col">Request</th></tr></thead><tbody>' +
+      list.map(function (rn) {
         var termDef = data.term(rn.term);
-        return '<li>' + ui.ic('clock') + '<span><strong>' + esc(util.fmtDate(rn.at)) + '</strong> &mdash; ' +
-          esc(termDef ? termDef.label : rn.term) + ' added. Previously ended ' +
-          esc(rn.previousEndsOn ? util.fmtDate(rn.previousEndsOn) : 'with no recorded end date') +
-          '; now ends ' + esc(util.fmtDate(rn.endsOn)) + '.' +
-          (rn.requestId ? ' <span class="muted">· request ' + esc(rn.requestId) + '</span>' : '') +
-          '</span></li>';
-      }).join('') + '</ul>';
+        return '<tr><td data-label="Activated">' + esc(util.fmtDate(rn.at)) + '</td>' +
+          '<td data-label="Term added">' + esc(termDef ? termDef.label : rn.term) + '</td>' +
+          '<td data-label="Previously ended">' +
+          (rn.previousEndsOn ? esc(util.fmtDate(rn.previousEndsOn)) : '<span class="muted">Not recorded</span>') +
+          '</td>' +
+          '<td data-label="Now ends">' + esc(util.fmtDate(rn.endsOn)) + '</td>' +
+          '<td data-label="Request">' + (rn.requestId
+            ? '<span class="mono">' + esc(rn.requestId) + '</span>' : '<span class="muted">—</span>') +
+          '</td></tr>';
+      }).join('') + '</tbody></table></div>');
   }
 
   /* What this ONE record can do about renewal right now: track the
@@ -668,41 +875,49 @@ XRSLP.tenantUI = (function () {
     var openReq = state.openRenewalForAccess(rec.id);
     var block = state.renewalBlock(rec.id);
     var action;
+    /* ⚠ THE ROUTE LINE IS UNCONDITIONAL, BECAUSE THE PROMISE ABOVE IT IS.
+       On an institution holding records that arrived by different
+       routes, the paragraph at the head of this screen says "each
+       record states its own beside its renewal control". `renewalRouteLine`
+       was emitted in only ONE of the three branches below, so a record
+       with a renewal already in flight — or one blocked for any other
+       reason — printed no route at all and the promise was false for
+       exactly the records a reader was most likely to be looking at.
+       The route is a fact about the RECORD, not about whether it happens
+       to be renewable this minute. */
+    var routeLine = renewalRouteLine(rec);
     if (openReq) {
       action = openRenewalHTML(openReq);
     } else if (block) {
-      action = '<p style="margin-top:8px">A renewal cannot be requested for <strong class="mono">' +
-        esc(rec.id) + '</strong> right now because ' + esc(state.renewalBlockText(block)) + '. Nothing has ' +
-        'been lost: the record, its access grants and every student&rsquo;s progress are kept exactly as they ' +
-        'stand.</p>';
+      action = '<p>A renewal cannot be requested for this access right now because ' +
+        esc(state.renewalBlockText(block)) + '. Nothing has been lost: the record, its access grants and every ' +
+        'student&rsquo;s progress are kept exactly as they stand.</p>';
     } else if (state.canRenewAccess(rec.id)) {
-      action = '<div class="formact">' +
+      /* ⚠ THE PLAN RULE, STATED WHERE THE DECISION IS TAKEN — not as a
+         492-character note at the foot of the longest screen in the
+         workspace, which is where it used to live and where nobody
+         renewing anything would ever read it. Whether a renewal may
+         CHANGE the plan is not settled by any source; the build fails
+         safe by mirroring it and offering no editing, and that is a
+         product rule the admin can act on rather than an open question
+         they cannot. */
+      action = '<p class="tsub2">A renewal repeats this plan exactly &mdash; same experiments, technologies, licence ' +
+        'quantity and term length &mdash; and cannot be edited on the way through. More licences or different ' +
+        'content come through a new institutional access request.</p>' +
+        '<div class="formact">' +
         '<button class="btn sm pri" type="button" data-renew="' + esc(rec.id) + '">Request renewal' +
-        '<span class="sr-only"> of access record ' + esc(rec.id) + '</span></button></div>';
+        '<span class="sr-only"> of ' + esc(T.accessContentLine(rec)) + '</span></button></div>';
     } else {
       action = '';
     }
-    return action + renewalHistoryHTML(rec);
+    return routeLine + action + renewalHistoryHTML(rec);
   }
 
-  /* The whole renewal block for a SET of records — the shape the two
-     Overview attention rows need, where one row already speaks about
-     several records at once. The route is stated once, because it
-     belongs to the institution rather than to any one record. */
-  function renewalPanelsHTML(tenant, records) {
-    if (!records.length) { return ''; }
-    return renewalRouteHTML(tenant) + records.map(function (rec) {
-      return '<div style="margin-top:10px">' +
-        (records.length > 1 ? '<p><strong class="mono">' + esc(rec.id) + '</strong></p>' : '') +
-        renewalRecordHTML(rec) + '</div>';
-    }).join('');
-  }
-
-  /* THE ONE PLACE A RENEWAL IS RAISED. Both the Overview and Content
-     access bind it, because both offer the control and neither may grow
-     a second submission path. */
-  function bindRenewal() {
-    Array.prototype.slice.call(document.querySelectorAll('[data-renew]')).forEach(function (btn) {
+  /* THE ONE PLACE A RENEWAL IS RAISED. `root` scopes the binding so a
+     panel rendered outside the main region can wire its own control;
+     Content access passes nothing and binds the whole page. */
+  function bindRenewal(root) {
+    Array.prototype.slice.call((root || document).querySelectorAll('[data-renew]')).forEach(function (btn) {
       btn.addEventListener('click', function () {
         var accessId = btn.getAttribute('data-renew');
         var rec = state.accessById(accessId);
@@ -729,7 +944,7 @@ XRSLP.tenantUI = (function () {
             '</span></div>' +
             '<div class="consequence">' + ui.ic('shield') + '<span>The record keeps its identifier, so every ' +
             'access grant, faculty mapping and student&rsquo;s progress on it stays exactly where it is. No ' +
-            'second access record, no extra licence and no extra experiment is created.</span></div>' +
+            'second set of access, no extra licence and no extra experiment is created.</span></div>' +
             '<div class="field" id="rn-note" style="margin-top:12px">' +
             '<label for="rn-note-i">Note recorded on the renewal request (optional)</label>' +
             '<input type="text" id="rn-note-i" autocomplete="off">' +
@@ -811,56 +1026,84 @@ XRSLP.tenantUI = (function () {
     var tenantActive = state.tenantIsActive(tenant.id);
     var entitled = state.entitledStudentIds(tenant.id);
 
-    var stats = T.statGrid([
-      { label: 'Faculty', value: faculty.length },
-      { label: 'Students', value: students.length,
-        note: activeStudents.length === students.length ? 'All active' : activeStudents.length + ' active' },
-      { label: 'Student groups', value: groups.length },
-      { label: 'Active access records', value: live.length },
-      { label: 'Approved licences', value: alloc.approved,
-        note: live.length ? 'across ' + live.length + ' ' + util.plural(live.length, 'record') : 'no active access yet' },
-      /* A LICENCE SUM, NOT A STUDENT COUNT. `tenantAllocation` adds the
-         per-record `assigned` figures together, so a student entitled
-         under two access records is counted twice — correctly, because
-         they hold two licences. Labelling it "Assigned students" made it
-         a student count, and it then contradicted both the student
-         figures beside it and the Super Admin's institution report.
-         `alloc.uniqueLicenceHolders` is the distinct-people answer. */
-      { label: 'Licences assigned', value: alloc.assigned,
-        note: alloc.uniqueLicenceHolders + ' distinct ' +
-          util.plural(alloc.uniqueLicenceHolders, 'student') + ' holding one' },
-      { label: 'Remaining allocation', value: alloc.remaining,
-        tone: alloc.approved > 0 && alloc.remaining === 0 ? 'warn' : '' },
-      /* EFFECTIVE ENTITLEMENT, from the one function the whole platform
-         answers this question with. It is NOT the allocation roll-up:
-         `tenantAllocation()` counts who HOLDS A LICENCE, which is a fact
-         about allocation and must survive a deactivation untouched —
-         which is exactly why reading it here made the Overview contradict
-         itself, showing "Entitled students 1" beside "N active students
-         with no entitlement" (that second figure already came from
-         `entitledStudentIds()`), while the Super Admin and Content access
-         screens both correctly showed nobody entitled.
+    /* FIVE FIGURES, NOT EIGHTEEN. The page carried three grids of tiles
+       and three of them named nearly the same thing — "Licences
+       assigned", "Entitled students" and, further down, "Students with
+       access" — which the reader had to hold apart from small notes.
 
-         ASSIGNED ≠ EFFECTIVELY ENTITLED. The tile above reports the
-         stored allocation and is deliberately left alone; this one
-         reports what is true for a learner right now. */
-      { label: 'Entitled students', value: entitled.length,
-        note: tenantActive
-          ? 'hold at least one experiment'
-          : 'none while the institution is deactivated — access grants are kept' }
-    ]);
+       The provisioning counts are now a compact strip, each one a LINK to
+       the screen that acts on it, and the licence trio moves to the one
+       canonical licence line below it. The two counts that genuinely
+       differ are stated together, once:
+
+         ENTITLED STUDENTS is effective entitlement — what a learner can
+         actually open right now.
+         LICENCES ASSIGNED is a per-record sum, so a student entitled
+         under two access records holds two licences and is counted
+         twice. It is a fact about allocation and survives deactivation
+         untouched, which is exactly why reading it as a student count
+         made this page contradict itself. */
+    /* ⚠ FOUR TILES, AND NO MODEL VOCABULARY.
+
+       This carried five tiles and then two more paragraphs of counting
+       underneath, ending in the sentence "N distinct students hold at
+       least one licence across M active access records" — which is the
+       licence data model read aloud. A Tenant Admin does not think in
+       distinct licence holders across records; they think in people,
+       content and how much room is left.
+
+       Four tiles: the two populations they administer, the content the
+       institution holds, and how many students can actually open
+       something. Student groups moved out — it is a navigation count,
+       and the side nav already carries it. The allocation numbers stay,
+       because Approved / Assigned / Available is the one arithmetic this
+       role genuinely needs, and the counting rule behind it stays one
+       tap away in the info affordance rather than a paragraph. */
+    var stats = T.statGrid([
+      { label: 'Students', value: students.length, href: T.href.people(tenant.id),
+        note: activeStudents.length !== students.length
+          ? activeStudents.length + ' active' : null },
+      { label: 'Faculty', value: faculty.length, href: T.href.people(tenant.id) },
+      { label: 'Content access', value: live.length, href: T.href.access(tenant.id),
+        note: live.length ? 'active' : 'none yet' },
+      { label: 'Students with learning access', value: entitled.length, href: T.href.assignments(tenant.id),
+        note: tenantActive ? 'can start learning' : 'paused while deactivated',
+        tone: tenantActive && live.length && !entitled.length ? 'warn' : '' }
+    ]) +
+      /* §4 — the trio was an unlabelled "5 · 1 · 4". It needs a heading
+         to be readable at all, and "available" says what "remaining"
+         only implies. */
+      '<div class="cardfoot">' +
+      (live.length
+        ? '<h3 class="subh">Student licences ' +
+          ui.infoTip(T.LICENCE_RULE, 'How licences are counted') + '</h3>' +
+          T.allocMetrics(alloc, null, { available: true }) +
+          (tenantActive ? '' :
+            '<p style="margin-top:8px">Every access grant is kept while the institution is ' +
+            'deactivated; no entitlement is effective until it is reactivated.</p>')
+        : '<p>No licences yet — this institution holds no active access.</p>') +
+      '</div>';
 
     /* Attention — every row is a real state of this institution.
        No revenue, completion, assessment or support analytics: none of
-       those exist yet, and inventing them would be fiction. */
+       those exist yet, and inventing them would be fiction.
+
+       ⚠ A ROW IS A TITLE, ONE LINE AND ONE LINK. Two of them used to
+       inject whole renewal panels — route paragraphs, a Request-renewal
+       button per record and the full renewal history — into a list item,
+       which turned a dashboard row into a form and printed a record's
+       history on two screens at once. Renewal is a Content-access action;
+       these rows link to it. */
     var items = [];
     var noAccess = state.accessWithoutAssignments(tenant.id);
     if (noAccess.length) {
       items.push({
         tone: 'warn', icon: 'layers',
-        title: noAccess.length + ' active content ' + util.plural(noAccess.length, 'access record') + ' not yet reaching any student',
-        body: 'Holding approved content does not entitle anyone. ' + esc(noAccess.map(function (a) { return a.id; }).join(', ')) +
-          ' ' + (noAccess.length === 1 ? 'has' : 'have') + ' no access grant on it.',
+        /* §4 — this printed the ACC ids and explained entitlement. It
+           names the content and says what to do instead. */
+        title: noAccess.length + ' approved ' + util.plural(noAccess.length, 'Experiment') +
+          ' ' + (noAccess.length === 1 ? 'hasn\u2019t' : 'haven\u2019t') + ' been given to any student',
+        body: 'Give students access when they are ready to start.',
         href: T.href.newAssignment(tenant.id), label: 'Give students access'
       });
     }
@@ -868,15 +1111,15 @@ XRSLP.tenantUI = (function () {
     if (unassigned.length && live.length) {
       items.push({
         tone: 'info', icon: 'users',
-        title: unassigned.length + ' active ' + util.plural(unassigned.length, 'student') + ' with no entitlement',
+        /* §3 — "entitlement" is model vocabulary. */
+        title: unassigned.length + ' active ' + util.plural(unassigned.length, 'student') +
+          ' without learning access',
         /* "No effective entitlement" is not the same as "never granted
            anything". A student can hold an access grant and still have no
            entitlement — held beyond the approved quantity, or on an
            expired record. Saying they were never given anything sent the
            Tenant Admin to create a grant that already existed. */
-        body: 'These active students hold no effective entitlement. Most have not been given an experiment ' +
-          'yet; a student who already has an access grant can also appear here if the record is out of ' +
-          'licences or its term has ended.',
+        body: 'They have nothing they can open yet.',
         href: T.href.people(tenant.id), label: 'Open People'
       });
     }
@@ -884,10 +1127,12 @@ XRSLP.tenantUI = (function () {
     if (unmapped.length) {
       items.push({
         tone: 'info', icon: 'doc',
-        title: unmapped.length + ' ' + util.plural(unmapped.length, 'course') + ' without a local course code',
-        body: unmapped.map(function (cid) { var c = data.course(cid); return c ? c.name : cid; }).join(', ') +
-          ' — the canonical course name is unchanged; only the institution-local code is missing.',
-        href: T.href.mappings(tenant.id), label: 'Open academic mappings'
+        title: unmapped.length + ' ' + util.plural(unmapped.length, 'course') +
+          ' without an institution course code',
+        body: unmapped.map(function (cid) { var c = data.course(cid); return c ? c.name : cid; }).join(', ') + '.',
+        /* The link opens the mappings table already filtered to exactly
+           these courses, so the fix is the first thing on the screen. */
+        href: T.href.mappings(tenant.id), label: 'Add the codes', attrs: ' data-map-missing="1"'
       });
     }
     /* Records the institution holds that cannot be granted from. This is
@@ -898,12 +1143,12 @@ XRSLP.tenantUI = (function () {
     if (blockedAccess.length) {
       items.push({
         tone: 'warn', icon: 'alert',
-        title: blockedAccess.length + ' access ' + util.plural(blockedAccess.length, 'record') +
-          ' cannot be granted from',
+        /* Named the ACC key. Named by its content now, one line. */
+        title: blockedAccess.length + ' content ' + util.plural(blockedAccess.length, 'access') +
+          ' cannot be given to students',
         body: blockedAccess.map(function (b) {
-          return esc(b.record.id) + ' — ' + esc(state.assignabilityText(b.reason));
-        }).join('; ') + '. The record is still listed under Content access; only giving students access is ' +
-          'unavailable.',
+          return ui.accessTitle(b.record) + ' — ' + esc(state.assignabilityText(b.reason));
+        }).join('; ') + '.',
         href: T.href.access(tenant.id), label: 'Open content access'
       });
     }
@@ -916,38 +1161,34 @@ XRSLP.tenantUI = (function () {
     if (expiring.length) {
       items.push({
         tone: 'warn', icon: 'clock',
-        title: expiring.length + ' access ' + util.plural(expiring.length, 'record') +
-          ' expiring within 15 days — renewal attention',
+        /* ⚠ OVERVIEW LANGUAGE. This said "1 access record expiring" and
+           carried the ACC reference plus three sentences of policy. An
+           Overview row gets a title, ONE line and one action; the
+           reference belongs to the deep screen, not here. */
+        title: expiring.length + ' content ' + util.plural(expiring.length, 'access') +
+          ' ' + (expiring.length === 1 ? 'expires' : 'expire') + ' within 15 days',
         body: expiring.map(function (a) {
           var d = state.accessDaysUntilExpiry(a);
-          return esc(a.id) + ' — ' + d + ' ' + util.plural(d, 'day') + ' remaining, ends ' +
+          return ui.accessTitle(a) + ' — ' + d + ' ' + util.plural(d, 'day') + ' left, ends ' +
             esc(util.fmtDate(a.endsOn));
-        }).join('; ') + '. Entitlement derived from an expired record stops being effective. ' +
-          'There is no automatic renewal, payment or extension.',
-        /* Implementation 07.2 — the renewal entry point sits ON the row
-           that tells the institution its term is ending, because that is
-           where a Tenant Admin is when they need it. It offers the ONE
-           renewal path; it does not extend anything itself. */
-        extraHTML: renewalPanelsHTML(tenant, expiring),
-        href: T.href.access(tenant.id), label: 'Open content access'
+        /* The "nothing was sent" fact is load-bearing — an admin who
+           believes an email went out and does not follow up is a real
+           harm — so it survives, as the last clause of the one line. */
+        }).join('; ') + '. Nothing renews automatically and no reminder is sent &mdash; ' +
+          'this row is the reminder.',
+        href: T.href.access(tenant.id), label: 'Review and renew'
       });
     }
     var expiredRecs = state.expiredAccessForTenant(tenant.id);
     if (expiredRecs.length) {
       items.push({
         tone: 'warn', icon: 'alertCirc',
-        title: expiredRecs.length + ' access ' + util.plural(expiredRecs.length, 'record') + ' has expired',
+        title: expiredRecs.length + ' content ' + util.plural(expiredRecs.length, 'access') +
+          ' ' + (expiredRecs.length === 1 ? 'has' : 'have') + ' expired',
         body: expiredRecs.map(function (a) {
-          return esc(a.id) + ' — ended ' + esc(util.fmtDate(a.endsOn));
-        }).join('; ') + '. Nothing has been deleted: the record, its access grants and every student&rsquo;s ' +
-          'progress are kept, but entitlement derived from it is no longer effective.',
-        /* An expired record is the case renewal exists for, so the same
-           entry point is offered here. A renewed record keeps its own
-           identifier, which is why every assignment and every student&rsquo;s
-           progress on it comes back with the term rather than needing to
-           be rebuilt. */
-        extraHTML: renewalPanelsHTML(tenant, expiredRecs),
-        href: T.href.access(tenant.id), label: 'Open content access'
+          return ui.accessTitle(a) + ' — ended ' + esc(util.fmtDate(a.endsOn));
+        }).join('; ') + '. Nothing is deleted &mdash; students keep their progress, and renewing restores it.',
+        href: T.href.access(tenant.id), label: 'Review and renew'
       });
     }
     var openTickets = state.ticketsForTenant(tenant.id).filter(function (x) {
@@ -958,8 +1199,7 @@ XRSLP.tenantUI = (function () {
         tone: 'info', icon: 'alertCirc',
         title: openTickets.length + ' technical ' + util.plural(openTickets.length, 'issue') +
           ' reported from this institution',
-        body: openTickets.map(function (t) { return esc(t.subject); }).join('; ') +
-          '. The platform team resolves reported issues; the outcome appears on the reporter&rsquo;s own Help page.',
+        body: openTickets.map(function (t) { return esc(t.subject); }).join('; ') + '.',
         href: XRSLP.supportUI.href.tenant(tenant.id), label: 'Open Help'
       });
     }
@@ -998,27 +1238,24 @@ XRSLP.tenantUI = (function () {
       ? '<ul class="attn">' + items.map(function (it) {
           return '<li class="at-row ' + it.tone + '"><span class="at-ic">' + ui.ic(it.icon) + '</span>' +
             '<div class="at-body"><div class="at-t">' + esc(it.title) + '</div>' +
-            /* `extraHTML` is markup this file just built — the renewal
-               block. It sits OUTSIDE the paragraph because it contains
-               block-level elements of its own. */
-            '<p>' + it.body + '</p>' + (it.extraHTML || '') + '</div>' +
-            '<a class="btn sm sec" href="' + it.href + '">' + esc(it.label) + '</a></li>';
+            '<p>' + it.body + '</p></div>' +
+            '<a class="btn sm sec" href="' + it.href + '"' + (it.attrs || '') + '>' + esc(it.label) + '</a></li>';
         }).join('') + '</ul>'
       /* The body must only claim what was actually checked. The
          "students with no entitlement" row is deliberately suppressed
          while the institution holds no live access record — there is
          nothing to assign, so listing every student as unassigned would
          be noise — but the empty state then asserted that no student
-         lacks an entitlement, which was untrue of exactly that state. */
-      : ui.emptyState({
-          icon: 'check', heading: 'h3',
-          title: 'Nothing needs attention',
-          body: live.length
-            ? 'No unmapped courses, no unreached content and no active student left without an entitlement.'
-            : 'This institution holds no active content access yet, so there is nothing to map, and nobody ' +
-              'can be given anything. ' +
-              'Content reaches an institution only through an approved institutional access request.'
-        });
+         lacks an entitlement, which was untrue of exactly that state.
+
+         `emptyRow` rather than `emptyState`: "nothing needs attention" is
+         a RESULT, not a missing page, and half a viewport of medallion
+         and whitespace overstates it. */
+      /* §11 — a normal zero state is ONE line. Half a viewport of
+         medallion and whitespace overstates good news. */
+      : ui.okRow(live.length
+          ? 'Everything is up to date'
+          : 'Nothing to do yet — this institution has no approved content');
 
     /* ---------- R06 · the learning half of the overview ---------- */
     var learn = learningRollup(tenant);
@@ -1028,56 +1265,33 @@ XRSLP.tenantUI = (function () {
        STUDENT, and one row per STUDENT × EXPERIMENT. Presenting them in
        a single grid is how "12 in progress" starts being read as twelve
        people when it is twelve experiments. */
-    var learningStudentStats = T.statGrid([
-      { label: 'Students with access', value: learn.students,
-        note: learn.students ? 'hold at least one experiment they can open' : 'nobody is entitled yet' },
-      { label: 'Started', value: learn.started, note: 'opened at least one experiment' },
-      { label: 'Not started', value: learn.notStartedStudents,
-        tone: learn.students && learn.notStartedStudents === learn.students ? 'warn' : '',
-        note: 'have access but no recorded activity yet' },
-      { label: 'Finished everything they hold', value: learn.allComplete }
-    ]);
-    var learningWorkStats = T.statGrid([
-      { label: 'Experiments given to students', value: learn.pairs,
-        note: 'counted once per student per experiment' },
-      { label: 'Not started', value: learn.notStarted },
-      { label: 'In progress', value: learn.inProgress },
-      { label: 'Awaiting Faculty review', value: learn.awaitingReview,
-        tone: learn.awaitingReview ? 'warn' : '',
-        note: learn.awaitingReview ? 'a written answer is with the mapped Faculty member' : '' },
-      { label: 'Evaluated, result not released', value: learn.awaitingRelease,
-        note: learn.awaitingRelease ? 'the outcome is not shown here or to the student yet' : '' },
-      { label: 'Completed', value: learn.completed }
-    ]);
+    /* ONE ROW PER STUDENT above, one row per STUDENT × EXPERIMENT below,
+       and the two are kept visually apart because they are counted
+       differently: "12 in progress" is twelve experiments, not twelve
+       people. The second altitude is a metrics line rather than six more
+       tiles — six tiles of mostly-zero states read as a dashboard of
+       problems the institution does not have. */
+    /* §5 — THE LEARNING SNAPSHOT. Four values, no more: how many
+       learners can start, and where they are. Every figure is read from
+       the SAME `learningRollup` the removed report used — no new
+       progress formula, no estimate, nothing fabricated.
 
-    /* Where the institution's students actually are, by Course. The
-       per-EXPERIMENT breakdown is on Content access, where it sits with
-       the search and filters that make ~50 experiments navigable — an
-       overview that grew a fifty-row table would stop being an overview. */
-    var courseTable = learn.courseOrder.length
-      ? '<div class="tscroll"><table class="dt">' +
-        '<caption class="sr-only">Student progress by Course across ' + esc(tenant.name) + '</caption>' +
-        '<thead><tr><th scope="col">Programme</th><th scope="col">Course</th>' +
-        '<th scope="col">Experiments</th><th scope="col">Students with access</th>' +
-        '<th scope="col">Not started</th><th scope="col">In progress</th>' +
-        '<th scope="col">Awaiting Faculty review</th><th scope="col">Completed</th></tr></thead><tbody>' +
-        learn.courseOrder.map(function (c) {
-          return '<tr>' +
-            '<td data-label="Programme">' + esc(c.groupingName) + '</td>' +
-            '<td data-label="Course"><span class="tmain">' + esc(c.name) + '</span></td>' +
-            '<td data-label="Experiments" class="num">' + c.experimentCount + '</td>' +
-            '<td data-label="Students with access" class="num">' + c.students + '</td>' +
-            '<td data-label="Not started" class="num">' + c.notStarted + '</td>' +
-            '<td data-label="In progress" class="num">' + c.inProgress + '</td>' +
-            '<td data-label="Awaiting Faculty review" class="num">' + c.awaitingReview + '</td>' +
-            '<td data-label="Completed" class="num">' + c.completed + '</td>' +
-            '</tr>';
-        }).join('') + '</tbody></table></div>' +
-        '<p class="cardfoot"><strong>Students with access</strong> counts a person once per Course. The four ' +
-        'state columns count one <strong>student and experiment</strong> at a time, so a student taking three ' +
-        'experiments in a Course appears three times across them. Anything evaluated but not yet released is ' +
-        'held out of <em>Completed</em> &mdash; it is in the tile above instead.</p>'
-      : '';
+       `students` is one row per STUDENT; the three progress figures are
+       one row per STUDENT x EXPERIMENT, which is why the line beneath
+       states both counts in words rather than letting the reader guess
+       which altitude a number belongs to. */
+    var learningSnapshot = ui.statStrip([
+      { v: learn.students, k: 'Students with learning access' },
+      { v: learn.notStarted, k: 'Not started',
+        tone: learn.pairs && learn.notStarted === learn.pairs ? 'warn' : '' },
+      { v: learn.inProgress, k: 'In progress' },
+      { v: learn.completed, k: 'Completed', tone: learn.completed ? 'good' : '' }
+    ]) +
+      (learn.students
+        ? '<p class="ls-line">' + learn.students + ' ' + util.plural(learn.students, 'student') +
+          ' currently ' + (learn.students === 1 ? 'has' : 'have') + ' access to ' +
+          learn.pairs + ' ' + util.plural(learn.pairs, 'Experiment') + '.</p>'
+        : '');
 
     var learningBody;
     if (!tenantActive) {
@@ -1106,33 +1320,42 @@ XRSLP.tenantUI = (function () {
       });
     } else {
       learningBody =
-        '<h3 class="subh">Students</h3>' + learningStudentStats +
-        '<h3 class="subh" style="margin-top:18px">Experiments students hold</h3>' + learningWorkStats +
-        (courseTable ? '<h3 class="subh" style="margin-top:18px">By Course</h3>' + courseTable : '') +
-        '<p class="cardfoot">Every figure here is counted from real learning records for the students who hold ' +
-        'effective entitlement — nothing is estimated. <strong>No mark, score or pass rate appears anywhere on ' +
-        'this page.</strong> Faculty are the only evaluators, and a result they have finished but whose release ' +
-        'the assessment still holds is deliberately reported as <em>evaluated, result not released</em> so that ' +
-        'it cannot be inferred from here. ' +
-        /* ⚠ STATED RATHER THAN OVERCLAIMED — 07.3 adversarial fix. The
-           earlier wording said no individual result appears at all, but
-           "Completed" is only reachable through a PASSED assessment, so
-           in a released, small cohort the count does carry an individual
-           outcome. The withheld case is correctly masked; this sentence
-           now describes what the released case actually shows. */
-        '<em>Completed</em> counts a student who has finished everything including a <strong>released</strong> ' +
-        'assessment pass, so in a very small cohort it can imply one student&rsquo;s released outcome. A result ' +
-        'the assessment is still withholding is never counted there. ' +
-        '<a href="' + T.href.access(tenant.id) + '">Content access</a> carries the same breakdown per ' +
-        'experiment, with search and filters.</p>';
+        /* §5 — the Overview carried two stat rows, a Course-by-Course
+           table, a disclaimer and a folded methodology panel. That is
+           reporting, and it belongs on the screens that own it: the
+           per-Course and per-Experiment breakdowns are unchanged on
+           Content access and in the Faculty workspace. Four values here,
+           derived from the SAME `learningRollup` as before — no new
+           formula, nothing fabricated. */
+        learningSnapshot +
+        '<p class="cardfoot"><a href="' + T.href.assignments(tenant.id) + '">View student access</a> ' +
+        'for the per-student detail.</p>';
     }
 
     var noAccessYet = !state.accessForTenant(tenant.id).length;
     var awaitingPayment = state.tenantAwaitingActivation(tenant.id);
     var admins = state.tenantAdminsFor(tenant.id);
 
+    /* §4 — orientation, then the four figures, then what to DO. A
+       first-time Tenant Admin previously landed on five numbers with no
+       statement of what this workspace is for and no way forward. */
+    /* §3D — the same four working destinations, but each says what it
+       is for. A first-time Tenant Admin could not tell "Academic
+       mappings" from "Content access" by name alone. */
+    var quick = ui.navTiles([
+      { href: T.href.people(tenant.id), icon: 'users', label: 'People',
+        desc: 'Add or manage Students and Faculty' },
+      { href: T.href.newAssignment(tenant.id), icon: 'plus', label: 'Give student access',
+        desc: 'Make approved Experiments available to learners' },
+      { href: T.href.mappings(tenant.id), icon: 'book', label: 'Academic mappings',
+        desc: 'Set institution Course codes' },
+      { href: T.href.access(tenant.id), icon: 'layers', label: 'Content access',
+        desc: 'View approved Experiments and licences' }
+    ]);
+
     var html =
       ui.phead('Overview', esc(tenant.name) + ' · ' + esc(tenant.accessContext)) +
+      ui.orient('Manage your institution\u2019s people, content access and learning setup.') +
       '<div class="stack">' +
       (noAccessYet ? ui.alertBox('info',
         awaitingPayment ? 'No content access yet — awaiting payment' : 'No content access activated yet',
@@ -1143,53 +1366,24 @@ XRSLP.tenantUI = (function () {
           : 'the Super Admin approves an institutional access request' +
             (tenant.kind === 'external' ? ' and payment completes' : '') + '.') +
         '</p>') : '') +
-      ui.card('Institution at a glance', stats, null, 'h2') +
-      ui.card('Needs attention', attention, null, 'h2') +
+      ui.card('Institution at a glance', stats, esc(tenant.accessContext), 'h2') +
+      ui.card('Manage your institution', quick, null, 'h2') +
+      /* §6 — attention and the learning snapshot sit side by side on a
+         wide screen: both are short, and stacking them left a column of
+         empty page beside each. The grid collapses to one column at
+         1040 and below (`.ov-two` in responsive.css). */
+      '<div class="ov-two">' +
+      ui.card('Needs attention', attention,
+        items.length ? items.length + ' ' + util.plural(items.length, 'item') : null, 'h2') +
       /* R06 — the learning half. It sits directly under the provisioning
          figures because the Tenant Admin is the institution's point of
          contact for both, and separating them across screens is what
          made this workspace look like a licence console. */
-      ui.card('Learning across the institution', learningBody,
-        /* ⚠ `pairs` IS STUDENT × EXPERIMENT, NOT EXPERIMENTS — 07.3
-           adversarial fix. Printed under the bare noun "experiments" it
-           multiplied the institution's real experiment count by its
-           student count: at the stakeholder's stated scale (~50
-           experiments, a few hundred students) the header would have
-           claimed thousands. It also contradicted the tile directly
-           beneath it and the Content access header for the same
-           institution at the same moment. */
-        tenantActive && learn.students
-          ? learn.students + ' ' + util.plural(learn.students, 'student') + ' · ' +
-            learn.pairs + ' student ' + util.plural(learn.pairs, 'entitlement')
-          : null,
-        'h2') +
-      /* Implementation 06 — the honest in-product representation of the
-         confirmed 15-day reminder. It appears only when a reminder is
-         actually due, and it never claims a message was sent. */
-      (expiring.length
-        ? ui.gapNote('DELIVERY CHANNEL PENDING',
-            'Your institution must receive an expiry reminder <strong>15 days before</strong> the access term ' +
-            'ends. That requirement is confirmed; the <strong>delivery channel is not</strong>, so this build ' +
-            'represents the reminder as the attention state above and on the platform&rsquo;s own operations ' +
-            'list. <strong>No email, SMS, push or notification of any kind has been sent</strong>, and no ' +
-            'provider is integrated. Access does not renew automatically, and nothing is charged.')
-        : '') +
-      /* ⚠ THIS NOTE WAS REWRITTEN, NOT DELETED. Implementation 07.3 built
-         the institution-level PROGRESS view above, so the old claim that
-         "institution-wide reporting … is not built on this plane" became
-         false and had to go. What genuinely remains absent is narrower
-         and is still declared: OUTCOME reporting, time-on-task and
-         export. Two of those three are deliberate refusals rather than
-         unfinished work, and the note says which is which. */
-      ui.gapNote('DELIBERATELY NOT SHOWN · NOT IN THIS BUILD',
-        '<strong>Assessment outcomes are deliberately not reported here.</strong> Marks, scores, pass rates and ' +
-        'individual results belong to the Faculty member who evaluated them (STK31-31) and to the student ' +
-        'themselves; an institution-level pass rate would also make a single student&rsquo;s withheld result ' +
-        'inferable in a small cohort. Faculty see progress and results for the content mapped to them under ' +
-        '<strong>Student Progress</strong> in their own workspace.' +
-        '<br><br><strong>Time spent, engagement analytics and any export of the figures above are not built.</strong> ' +
-        'No source settles what should be measured or who may download it, so nothing is invented. There is no ' +
-        'revenue, cost or commercial reporting anywhere in this build.') +
+      /* The count that used to sit in this card's header multiplied
+         students by experiments; the snapshot states both in words
+         instead, so the header carries no figure at all. */
+      ui.card('Learning snapshot', learningBody, null, 'h2') +
+      '</div>' +
       /* Who the platform recorded as responsible for this institution.
          Super Admin assigns it (STK31-21); the Tenant Admin cannot. */
       ui.card('Institution administration',
@@ -1206,10 +1400,17 @@ XRSLP.tenantUI = (function () {
 
     return {
       title: 'Overview — ' + tenant.name, html: html, tenant: tenant, navKey: 'overview',
-      /* The renewal control the two expiry attention rows may render.
-         `bindRenewal` finds nothing and does nothing when neither row
-         is present, so this is unconditional. */
-      after: bindRenewal
+      after: function () {
+        /* The unmapped-courses row opens Academic mappings already
+           filtered to the courses it is complaining about. It sets a view
+           filter on the destination screen and nothing else. */
+        var toMissing = document.querySelector('[data-map-missing]');
+        if (toMissing && XRSLP.screens.tenantMappingsPrefill) {
+          toMissing.addEventListener('click', function () {
+            XRSLP.screens.tenantMappingsPrefill({ missing: true });
+          });
+        }
+      }
     };
   };
 
@@ -1235,6 +1436,26 @@ XRSLP.tenantUI = (function () {
   }
   function resetLib() { lib = { q: '', grouping: 'all', course: 'all', tech: 'all', record: 'all' }; }
 
+  /* Which record panels are open. Presentation state, module-level for
+     the same reason the filter is: every control on this page re-renders
+     it, and a panel that closed itself on each keystroke is unusable. */
+  var openRecs = {};
+  /* The library search debounce (see the input handler). */
+  var libTimer = null;
+
+  /* ONE entitlement read per (record, experiment) per render.
+     The library table and the record panels below it were each walking
+     `entitledStudentsFor` over the same pairs — two independent passes
+     over the same derivation on one render, at an institution that may
+     hold ~50 experiments across several records. Reset at the top of the
+     screen so nothing is ever served from a previous state. */
+  var entCache = {};
+  function entitledIn(accessId, experimentId) {
+    var k = accessId + '::' + experimentId;
+    if (!entCache[k]) { entCache[k] = state.entitledStudentsFor(accessId, experimentId); }
+    return entCache[k];
+  }
+
   /* WHERE THE STUDENTS WHO HOLD ONE EXPERIMENT ACTUALLY ARE.
 
      Same derivation as the Overview roll-up and, underneath it, the same
@@ -1246,7 +1467,7 @@ XRSLP.tenantUI = (function () {
   function experimentLearning(accessId, experimentId) {
     var TP = state.TECH_PROGRESS;
     var out = { students: 0, notStarted: 0, inProgress: 0, awaitingReview: 0, awaitingRelease: 0, completed: 0 };
-    state.entitledStudentsFor(accessId, experimentId).forEach(function (pid) {
+    entitledIn(accessId, experimentId).forEach(function (pid) {
       out.students += 1;
       var techs = state.studentEntitledTechnologies(pid, experimentId);
       var prog = state.experimentProgress(pid, experimentId, techs, { studentView: true });
@@ -1278,20 +1499,39 @@ XRSLP.tenantUI = (function () {
     if (!r.tenant) { return r.fail; }
     var tenant = r.tenant;
 
+    entCache = {};
     var records = state.accessForTenant(tenant.id).slice().reverse();
+    var assignable = state.assignableAccessForTenant(tenant.id);
 
     /* ---- the library: every approved experiment, once per record ----
        An experiment approved on TWO records is two rows on purpose. The
        licences, the term and the technologies all belong to the record,
        so collapsing them would have to invent a combined figure that
-       exists nowhere in the state layer. */
+       exists nowhere in the state layer.
+
+       ⚠ THAT REASONING USED TO EXIST ONLY HERE, IN THIS COMMENT. On the
+       screen the reader simply met the same experiment twice with
+       different licence figures and no cue, which reads as a bug. Every
+       duplicated row now says which other records the experiment is also
+       approved on, so the repetition is a stated relationship. */
     var libItems = [];
+    var expRecords = {};
     records.forEach(function (rec) {
       (rec.items || []).forEach(function (item) {
         libItems.push({ experimentId: item.experimentId, technologies: item.technologies, rec: rec });
+        if (!expRecords[item.experimentId]) { expRecords[item.experimentId] = []; }
+        if (expRecords[item.experimentId].indexOf(rec.id) === -1) { expRecords[item.experimentId].push(rec.id); }
       });
     });
     var allRows = T.contentRows(libItems);
+    /* ⚠ ROWS ARE (RECORD, EXPERIMENT) PAIRS, NOT EXPERIMENTS. Printed
+       under the bare noun "experiment" this multiplied the institution's
+       real catalogue by its number of records — an institution holding 50
+       experiments across 3 records reported 150 — and contradicted every
+       record panel below it. Same correction as `learn.pairs` on the
+       Overview: count distinct experiments for the noun, and label the
+       pair count for what it is. */
+    var distinctExperiments = Object.keys(expRecords).length;
 
     /* Filter options are built from what this institution ACTUALLY
        holds. A filter offering a Programme with no content behind it is
@@ -1369,13 +1609,18 @@ XRSLP.tenantUI = (function () {
         var def = data.TECHNOLOGIES[t];
         return { id: t, name: def ? def.name : t };
       }), 'All technologies') +
-      selectHTML('lib-rec', 'Access record', lib.record, records.map(function (rec) {
-        return { id: rec.id, name: rec.id + ' — ' + rec.items.length + ' ' + util.plural(rec.items.length, 'experiment') };
-      }), 'All access records') +
+      selectHTML('lib-rec', 'Access source', lib.record, records.map(function (rec) {
+        /* The filter listed the institution's own content library by key.
+           It lists it by content now, with the reference trailing. */
+        return { id: rec.id,
+                 name: T.accessChoiceLabel(rec) };
+      }), 'All approved content') +
       '</div>' +
-      '<div class="fb-foot"><span class="fb-count">' + shownRows.length + ' of ' + allRows.length + ' ' +
-      util.plural(allRows.length, 'experiment') + ' shown' +
-      (records.length > 1 ? ' · across ' + records.length + ' access records' : '') + '</span>' +
+      '<div class="fb-foot"><span class="fb-count">Showing ' + shownRows.length + ' of ' + allRows.length + ' ' +
+      (records.length > 1
+        ? util.plural(allRows.length, 'approval') + ' · ' + distinctExperiments + ' distinct ' +
+          util.plural(distinctExperiments, 'experiment') + ' across ' + records.length + ' approvals'
+        : util.plural(allRows.length, 'experiment')) + '</span>' +
       (libIsFiltered() ? '<button class="btn sm sec fb-clear" type="button" id="lib-clear">Clear filters</button>' : '') +
       '</div></div>';
 
@@ -1383,34 +1628,71 @@ XRSLP.tenantUI = (function () {
       ? '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">Experiments ' + esc(tenant.name) + ' is approved to use</caption>' +
         '<thead><tr><th scope="col">Experiment</th><th scope="col">Technologies granted</th>' +
-        '<th scope="col">Access record</th><th scope="col">Licences on that record</th>' +
+        '<th scope="col">Access source / term</th>' +
         '<th scope="col">Students with access</th><th scope="col">Where those students are</th></tr></thead><tbody>' +
         shownRows.map(function (row) {
           var rec = row.item.rec;
           var alloc = allocFor(rec.id);
           var l = experimentLearning(rec.id, row.experimentId);
+          /* The OTHER approvals carrying this same experiment, named by
+             what tells them apart — technologies and term — never by id. */
+          var also = (expRecords[row.experimentId] || [])
+            .filter(function (id) { return id !== rec.id; })
+            .map(function (id) {
+              var other = state.accessById(id);
+              if (!other) { return null; }
+              var techs = [], seen = {};
+              (other.items || []).forEach(function (it) {
+                if (it.experimentId !== row.experimentId) { return; }
+                (it.technologies || []).forEach(function (t) {
+                  if (seen[t]) { return; }
+                  seen[t] = 1;
+                  var def = data.TECHNOLOGIES[t];
+                  techs.push(def ? def.name : t);
+                });
+              });
+              return (techs.length ? techs.join(' + ') + ' \u00b7 ' : '') + T.accessTermLine(other);
+            })
+            .filter(Boolean);
           return '<tr>' +
             '<td data-label="Experiment"><span class="tmain">' + esc(row.name) + '</span>' +
-            '<span class="tsub">' + esc(row.groupingName) + ' › ' + esc(row.courseName) + '</span></td>' +
+            '<span class="tsub">' + esc(row.groupingName) + ' › ' + esc(row.courseName) + '</span>' +
+            (also.length
+              /* Was "Also approved on ACC-002" — a key the reader cannot
+                 act on. The other approval is named by its own term and
+                 technologies, which is what distinguishes it. */
+              ? '<span class="tsub">Also approved under ' + esc(also.join('; ')) + '</span>' : '') + '</td>' +
             '<td data-label="Technologies granted">' + ui.techBadges(row.technologies) + '</td>' +
-            '<td data-label="Access record"><span class="mono">' + esc(rec.id) + '</span>' +
-            '<span class="tsub">' + esc(state.accessTermState(rec).key === 'expired' ? 'Term expired' : 'Term active') +
-            '</span></td>' +
-            /* The allocation belongs to the RECORD, not to this row —
-               said plainly rather than left to be assumed, because a
-               reader who takes it as per-experiment will over-count the
-               institution's licences several times over. */
-            '<td data-label="Licences on that record"><span class="tsub2">' + alloc.approved + ' approved</span>' +
-            '<span class="tsub2">' + alloc.assigned + ' assigned</span>' +
-            '<span class="tsub2">' + alloc.remaining + ' remaining</span></td>' +
-            '<td data-label="Students with access" class="num">' + l.students + '</td>' +
+            /* ONE derivation, ONE vocabulary. This cell used to collapse
+               the three-state term into two, so a record three days from
+               expiry read "Term active" here and "Expiring soon" in its
+               own panel on the same page. And the licence trio used to be
+               three stacked lines repeated down the column, which needed
+               325 characters of cardfoot to explain why they never add
+               up; one compact "12 of 30 used" removes the question. */
+            /* ⚠ TERM AND LICENCES FIRST, REFERENCE LAST. The cell led
+               with `ACC-001` in monospace, which put a database key at
+               the head of the institution's own content library. What a
+               Tenant Admin needs from this column is how long the access
+               runs and how much of it is used; the reference stays, and
+               stays exact, underneath. */
+            '<td data-label="Access source / term">' +
+            ui.termBadge(state.accessTermState(rec)) +
+            '<span class="tsub">' + esc(T.accessTermLine(rec)) + '</span>' +
+            '<span class="tsub tabular">' + alloc.assigned + ' of ' + alloc.approved + ' licences used</span>' +
+            '</td>' +
+            '<td data-label="Students with access" class="num">' +
+            (l.students
+              /* Not a dead number: it opens Student access filtered to
+                 exactly this record and this experiment. */
+              ? '<a href="' + T.href.assignments(tenant.id) + '" data-asg-rec="' + esc(rec.id) +
+                '" data-asg-q="' + esc(row.name) + '">' + l.students + '</a>'
+              : '0') + '</td>' +
             '<td data-label="Where those students are">' + learningCellHTML(l) + '</td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>' +
-        '<p class="cardfoot">Licence figures are <strong>per access record</strong>, shared by every experiment ' +
-        'on it — a student counts once against a record however many of its experiments they hold, so these ' +
-        'three numbers repeat down the column rather than adding up. <strong>Students with access</strong> is ' +
-        'effective entitlement, not a licence count. No mark or result is shown here.</p>'
+        '<p class="cardfoot"><strong>Students with access</strong> is effective entitlement, not a licence ' +
+        'count. No mark or result is shown here.</p>'
       : ui.emptyState({
           icon: 'search', heading: 'h3',
           title: 'No experiment matches these filters',
@@ -1429,13 +1711,27 @@ XRSLP.tenantUI = (function () {
           ' is approved and activated by the platform.'
       }) + '</div>';
     } else {
-      body = '<div class="stack">' +
-        ui.card('Content library', filterBar + libraryTable,
-          allRows.length + ' ' + util.plural(allRows.length, 'experiment'), 'h2') +
-        records.map(function (rec) {
+      /* ---- the access records ----
+         Each one used to be roughly a viewport and a half: a big-number
+         meter with a 172-character note, a key/value block, one row per
+         Programme, an actions row, then a Renewal heading with 312-430
+         characters of route prose — repeated verbatim per record — and
+         the full renewal history. The three things an admin actually came
+         for were the last items on the panel, and there was no way to see
+         four records at once.
+
+         A record now opens as a SUMMARY: what it covers, its term, its
+         licence line, and the three actions. Everything else — the term
+         detail, the content breakdown, renewal — is one click away in the
+         panel below it, and stays open across the re-renders the filters
+         above cause. */
+      var recordsHTML = records.map(function (rec) {
         var termDef = data.term(rec.term);
         var termState = state.accessTermState(rec);
-        var alloc = state.accessAllocation(rec.id);
+        var alloc = allocFor(rec.id);
+        var open = !!openRecs[rec.id];
+        var panelId = 'ar-p-' + rec.id;
+        var headId = 'ar-h-' + rec.id;
 
         /* R05 — the record's content BY PROGRAMME, not fifty flat rows.
            Every experiment is still reachable: the library above lists
@@ -1446,7 +1742,7 @@ XRSLP.tenantUI = (function () {
           var entitledHere = 0;
           g.courseOrder.forEach(function (c) {
             c.rows.forEach(function (row) {
-              entitledHere += state.entitledStudentsFor(rec.id, row.experimentId).length;
+              entitledHere += entitledIn(rec.id, row.experimentId).length;
             });
           });
           return '<div class="cvrow"><span class="cv-ic">' + ui.ic('layers') + '</span>' +
@@ -1462,84 +1758,118 @@ XRSLP.tenantUI = (function () {
             util.plural(entitledHere, 'entitlement') + ' across this programme</div>' +
             '<div style="margin-top:8px"><button class="btn sm sec" type="button" ' +
             'data-lib-rec="' + esc(rec.id) + '" data-lib-prog="' + esc(g.id) + '">' + ui.ic('search') +
-            'Show in the content library<span class="sr-only"> — ' + esc(g.name) + ' on access record ' +
-            esc(rec.id) + '</span></button></div>' +
+            'Show in the content library<span class="sr-only"> — ' + esc(g.name) + ' in ' +
+            esc(T.accessContentLine(rec)) + '</span></button></div>' +
             '</div>' +
             '<div class="cv-tech">' + ui.techBadges(g.technologies) + '</div></div>';
         }).join('');
 
         var blockedReason = state.accessAssignability(rec, tenant.id);
-        return '<section class="accessrec" aria-label="Access record ' + esc(rec.id) + '">' +
-          '<div class="ar-head"><h2>Access record ' + esc(rec.id) + '</h2>' +
-          '<span class="ar-ref">from request ' + esc(rec.requestId) + '</span>' +
+        /* THE ACTIONS ARE PER RECORD, AND NOW ACTUALLY GO THERE. Both
+           buttons used to carry tenant-wide routes with no record in
+           them, so every copy led to the same two places and the builder
+           opened blank unless the institution happened to hold exactly
+           one usable record. The prefill hooks the builder and the grant
+           list already export are called on the way through. */
+        var recActions = (blockedReason ? '' :
+          '<a class="btn sm pri" href="' + T.href.newAssignment(tenant.id) + '" data-asg-new="' + esc(rec.id) + '">' +
+          ui.ic('plus') + 'Give students access<span class="sr-only"> from ' +
+          esc(T.accessContentLine(rec)) + '</span></a>' +
+          '<a class="btn sm sec" href="' + T.href.assignments(tenant.id) + '" data-asg-rec="' + esc(rec.id) + '">' +
+          'View student access<span class="sr-only"> on ' + esc(T.accessContentLine(rec)) + '</span></a>') +
+          '<button class="btn sm sec" type="button" data-ar-toggle="' + esc(rec.id) + '" ' +
+          'aria-expanded="' + (open ? 'true' : 'false') + '" aria-controls="' + esc(panelId) + '">' +
+          (open ? 'Hide details' : 'Show details') +
+          '<span class="sr-only"> for ' + esc(T.accessContentLine(rec)) + '</span></button>';
+
+        return '<section class="accessrec" aria-labelledby="' + esc(headId) + '">' +
+          /* The internal reference is NOT on the card. It lives in the
+             expandable detail below, which is the forensic context. */
+          /* §5 — content-first: the Experiments the approval carries,
+             then the courses and count. It led with the Programme, which
+             is not what a Tenant Admin recognises the approval by. */
+          '<div class="ar-head"><h3 id="' + esc(headId) + '">' + esc(T.accessContentLine(rec)) + '</h3>' +
+          '<span class="ar-sub">' + ui.accessScope(rec) + ' \u00b7 ' + esc(T.accessTermLine(rec)) + '</span>' +
+          '<span class="ar-sub">' + ui.techBadges(ui.recTechnologies(rec)) + '</span>' +
           '<div class="ar-badges">' + ui.badge('b-outline', null, rec.accessContext) + ui.termBadge(termState) + '</div>' +
           '</div>' +
           '<div class="ar-body">' +
-          T.allocMeter(alloc, {
-            noteHTML: 'A student counts <strong>once</strong> against this record however many of its experiments they receive. ' +
-              'Giving a student a second experiment on the same record consumes no further licence.'
-          }) +
-          '<div class="kv" style="margin:14px 0">' +
+          T.allocMetrics(alloc, rec) +
+          (blockedReason
+            ? '<div style="margin-top:12px">' + ui.alertBox('warning',
+                blockedReason === 'expired' ? 'This access has expired'
+                  : 'No student can be given content from this access',
+                '<p>Nobody can be given content from it because ' + esc(state.assignabilityText(blockedReason)) +
+                '. It, every access grant on it and every student&rsquo;s progress are kept exactly as ' +
+                'they stand' +
+                (blockedReason === 'expired' ? ' — renewal is under <em>Show details</em>.' : '.') +
+                '</p>') + '</div>'
+            : '') +
+          '<div class="ar-act">' + recActions + '</div>' +
+          '<div class="ar-more" id="' + esc(panelId) + '"' + (open ? '' : ' hidden') + '>' +
+          '<div class="kv compact">' +
           '<div class="k">Access term</div><div class="v">' + esc(termDef ? termDef.label : rec.term) +
           (rec.endsOn ? ' — until ' + esc(util.fmtDate(rec.endsOn)) : '') + '</div>' +
           '<div class="k">Activated</div><div class="v">' + esc(util.fmtDate(rec.startsOn)) + '</div>' +
+          '<div class="k">From request</div><div class="v"><span class="mono">' + esc(rec.requestId) + '</span></div>' +
           '<div class="k">Granted by</div><div class="v">' + esc(rec.recordedBy) + '</div>' +
+          /* THE ONE PLACE A TENANT ADMIN SEES THE INTERNAL REFERENCE:
+             an explicitly opened detail panel, for quoting to support.
+             It appears nowhere in the normal operational view. */
+          '<div class="k">Internal reference</div><div class="v"><span class="mono">' + esc(rec.id) +
+          '</span><span class="hint"> Quote this when contacting support.</span></div>' +
           '</div>' +
-          '<h3 class="subh">Approved content by Programme / department</h3>' +
+          '<h4 class="subh" style="margin-top:14px">Approved content by Programme / department</h4>' +
           '<div class="covers">' + covers + '</div>' +
-          (!blockedReason ?
-            '<div class="ar-act"><a class="btn sm pri" href="' + T.href.newAssignment(tenant.id) + '">' +
-            ui.ic('plus') + 'Give students access</a>' +
-            '<a class="btn sm sec" href="' + T.href.assignments(tenant.id) + '">View student access</a></div>' :
-            '<div style="margin-top:14px">' + ui.alertBox('warning',
-              blockedReason === 'expired' ? 'This access record has expired' : 'No student can be given content from this record',
-              '<p>Nobody can be given content from it because ' + esc(state.assignabilityText(blockedReason)) + '. ' +
-              (blockedReason === 'expired'
-                ? 'Entitlement derived from it is no longer effective. Every access grant on it is retained for ' +
-                  'traceability. Renewal is an explicit institutional action — nothing renews automatically — and ' +
-                  'it is offered under <em>Renewal</em> directly below.'
-                : 'The record is kept exactly as the Super Admin allocated it; only giving students access is ' +
-                  'unavailable.') +
-              '</p>') + '</div>') +
           /* Implementation 07.2 — the renewal entry point on the screen
              that shows what the institution actually holds. Every record
              gets it, expired or not: a term that is still running is
              exactly where an early renewal is raised, and the state layer
              adds the new term to whatever is left rather than discarding
-             it. The route sentence is repeated per record on purpose —
-             each record is read on its own here. */
-          '<h3 class="subh">Renewal</h3>' +
-          renewalRouteHTML(tenant) +
+             it. The institution-level route is stated once at the top of
+             the page; what appears here is this RECORD's own route. */
+          '<h4 class="subh" style="margin-top:16px">Renewal</h4>' +
           renewalRecordHTML(rec) +
+          '</div>' +
           '</div></section>';
-      }).join('') + '</div>';
+      }).join('');
+
+      body = '<div class="stack">' +
+        ui.card('Content library', filterBar + libraryTable,
+          distinctExperiments + ' ' + util.plural(distinctExperiments, 'experiment'), 'h2') +
+        ui.sectionHead({
+          title: 'Approved content', count: records.length, heading: 'h2', id: 'ar-sec',
+          desc: 'One approved allocation each. The licences, the term and the technologies all belong to the record.'
+        }) +
+        recordsHTML + '</div>';
     }
 
     var html =
       ui.phead('Content access',
-        'Content and technologies activated for ' + esc(tenant.name) + ' through approved institutional requests.') +
+        'What the Super Admin approved for ' + esc(tenant.name) + '. Nothing here reaches a student until ' +
+        'somebody is given access to it.',
+        (assignable.length && T.canWrite(tenant)
+          ? '<a class="btn pri" href="' + T.href.newAssignment(tenant.id) + '">' + ui.ic('plus') +
+            'Give students access</a>'
+          : null)) +
       /* R04 — the jargon defined where it is first met, rather than
-         renamed. The reasoning is at the head of `accessRecordGlossHTML`. */
-      '<div style="margin-bottom:16px">' +
-      ui.alertBox('info', 'What this page holds — and what it does not give anybody',
-        T.accessRecordGlossHTML() +
-        '<p style="margin-top:8px">Everything below is what the Super Admin approved for this institution. ' +
-        '<strong>Nobody can open any of it until a student is given access</strong> under ' +
-        '<a href="' + T.href.assignments(tenant.id) + '">Student access</a>.</p>') +
-      '</div>' +
-      body +
-      /* ONE declaration of what is genuinely unresolved about renewal.
-         It is not decided here, in either direction: the build fails
-         safe by mirroring the plan and offering no editing at all. */
+         renamed (the reasoning is at the head of `accessRecordGlossHTML`)
+         — but FOLDED. The page used to open on a 49-word definition and a
+         26-word restriction before the first number, and close on an
+         83-word note about an unresolved decision. Everything a reader
+         may want and nobody needs on first read is in one place here:
+         the definition, the licence-counting rule stated ONCE for the
+         whole page, and the institution's renewal route stated ONCE
+         rather than repeated inside every record panel. */
       (records.length
-        ? '<div style="margin-top:16px">' + ui.gapNote('RENEWAL PLAN CHANGES NOT SETTLED',
-            'A renewal currently <strong>mirrors this institution&rsquo;s current plan exactly</strong> &mdash; the ' +
-            'same experiments, the same technologies, the same licence quantity and the same term length &mdash; ' +
-            'and none of it can be edited on the way through. That is because whether a renewal may ' +
-            '<strong>change</strong> any of those is <strong>not settled</strong>, and it is left open here rather ' +
-            'than decided by accident. In this build, more licences or different content reach an institution ' +
-            'through an ordinary institutional access request, not through a renewal.') + '</div>'
-        : '');
+        ? '<div style="margin-bottom:16px">' +
+          ui.about('How content access, licences and renewal work here',
+            T.accessRecordGlossHTML() +
+            '<p>' + esc(T.LICENCE_RULE) + '</p>' +
+            renewalRouteHTML(tenant)) +
+          '</div>'
+        : '') +
+      body;
 
     return {
       title: 'Content access — ' + tenant.name,
@@ -1563,7 +1893,21 @@ XRSLP.tenantUI = (function () {
         }
         var q = document.getElementById('lib-q');
         if (q) {
-          q.addEventListener('input', function () { lib.q = q.value; rerender('lib-q', true); });
+          /* ⚠ DEBOUNCED, BECAUSE THE RE-RENDER IS EXPENSIVE HERE.
+             Every keystroke rebuilds the workspace shell and re-derives
+             the learning figures for every shown row — `entitledStudentsFor`
+             plus `experimentProgress` per entitled student. At the
+             stakeholder's stated scale that ran on every character typed.
+             The filter value is taken immediately, so nothing is ever
+             applied late or out of order; only the paint waits. */
+          q.addEventListener('input', function () {
+            lib.q = q.value;
+            if (libTimer) { window.clearTimeout(libTimer); }
+            libTimer = window.setTimeout(function () {
+              libTimer = null;
+              rerender('lib-q', true);
+            }, 180);
+          });
         }
         [['lib-prog', 'grouping', true], ['lib-course', 'course', false],
          ['lib-tech', 'tech', false], ['lib-rec', 'record', false]].forEach(function (row) {
@@ -1604,9 +1948,46 @@ XRSLP.tenantUI = (function () {
             XRSLP.render(true);
             var again = document.getElementById('lib-rec');
             if (again) { again.focus(); }
-            ui.announce('Content library filtered to access record ' + lib.record +
+            ui.announce('Content library filtered to ' + T.accessContentLine(state.accessById(lib.record)) +
               (lib.grouping !== 'all' ? ', programme ' + lib.grouping : '') +
               '. Other filters cleared.');
+          });
+        });
+
+        /* Show / hide one record's detail. It is a view state and nothing
+           else: no record is read, written or re-derived, and the panel
+           is already in the page so the toggle costs no re-render. */
+        Array.prototype.slice.call(document.querySelectorAll('[data-ar-toggle]')).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-ar-toggle');
+            var panel = document.getElementById('ar-p-' + id);
+            if (!panel) { return; }
+            var nowOpen = !!panel.hidden;
+            panel.hidden = !nowOpen;
+            openRecs[id] = nowOpen;
+            btn.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
+            btn.firstChild.nodeValue = nowOpen ? 'Hide details' : 'Show details';
+          });
+        });
+
+        /* RECORD-SCOPED HAND-OFFS. Each one sets a view filter on the
+           destination screen through the hook that screen exports, then
+           lets the ordinary link navigate. Nothing is granted, nothing is
+           written, and if the destination has not been loaded the link
+           still works — it simply arrives unfiltered. */
+        Array.prototype.slice.call(document.querySelectorAll('[data-asg-new]')).forEach(function (el) {
+          el.addEventListener('click', function () {
+            if (XRSLP.screens.tenantAssignPrefill) {
+              XRSLP.screens.tenantAssignPrefill(el.getAttribute('data-asg-new'));
+            }
+          });
+        });
+        Array.prototype.slice.call(document.querySelectorAll('[data-asg-rec]')).forEach(function (el) {
+          el.addEventListener('click', function () {
+            if (XRSLP.screens.tenantAssignListPrefill) {
+              XRSLP.screens.tenantAssignListPrefill(
+                el.getAttribute('data-asg-rec'), el.getAttribute('data-asg-q') || '');
+            }
           });
         });
       }

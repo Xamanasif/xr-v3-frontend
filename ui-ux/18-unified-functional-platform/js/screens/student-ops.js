@@ -36,6 +36,15 @@
    the request carries the plain labels the Student types. Nothing here
    names a headset or handset model, checks a serial number, or
    certifies that any device is compatible.
+
+   That last paragraph used to render on the page as a dashed
+   NOT IN THIS BUILD panel, in the rail, unconditionally — including
+   beside a body that had just said no request could be raised at all.
+   Device registration, serial numbers, certification and remote device
+   management are later-phase capabilities that nothing here claims and
+   nothing here needs to deny at length: the one clause a Student can
+   act on ("nothing is registered or checked") is the hint on the field
+   where they type a device name, and the rest is this comment.
    ============================================================ */
 
 window.XRSLP = window.XRSLP || {};
@@ -62,6 +71,41 @@ XRSLP.screens = XRSLP.screens || {};
     var open = state.openTransferForStudent(p.id);
     var canWrite = state.personCanWrite(p.id);
 
+    /* ⚠ THE DESTINATION THE NAVIGATION HAS ALREADY DECIDED IS IRRELEVANT.
+       The nav offers My device only to a Student who holds a
+       device-delivered technology — including through an entitlement that
+       is currently held back — or who has a request on record. The ROUTE
+       stays reachable either way (a bookmark, a typed address), and it
+       used to answer with a full two-column page: a form-shaped card
+       holding an empty state, an empty request history, a rail explaining
+       what a transfer does, and a panel denying a device registry — all
+       about a device the Student does not have.
+
+       The same two conditions are asked here, and the answer when both
+       are false is one statement and a way back. */
+    if (!state.studentHasPackageTechnology(p.id) && !mine.length) {
+      return {
+        area: 'learn', title: 'My device', student: p, tenant: tenant, navKey: 'device',
+        /* ⚠ THE ACCOUNT NOTICE BELONGS ON EVERY STUDENT SCREEN, INCLUDING
+           THIS ONE. The early return above is the right shape, but it
+           first shipped without `L.accountNotice(p)` — so a Student
+           whose own account had been deactivated reached this route and
+           was told only that nothing they hold runs on a device, with
+           no statement anywhere on the page that their account is the
+           reason they can open nothing at all. The full page below has
+           always carried it; the short answer must too. */
+        html: ui.phead('My device', 'Your authorised device and any transfer requests') +
+          L.accountNotice(p) +
+          '<div class="tablecard">' + ui.emptyState({
+            icon: 'monitor',
+            title: 'Nothing you hold runs on a device',
+            body: 'Your experiments open in a web browser, so there is no authorised device to move. ' +
+              'This page becomes useful if your institution gives you an experiment in AR, VR or MR.',
+            actionsHTML: '<a class="btn pri" href="' + L.href.myLearning(p.id) + '">Back to My Learning</a>'
+          }) + '</div>'
+      };
+    }
+
     /* What the Student actually holds on a device — derived from
        entitlement, never asserted. Kept visible while the institution is
        suspended: it is a statement about what this Student HOLDS, and
@@ -80,6 +124,11 @@ XRSLP.screens = XRSLP.screens || {};
       : '';
 
     var body;
+    /* The card is titled for the state it is actually in. A card headed
+       "Request a device replacement or transfer" whose body says a
+       request cannot be raised is a heading arguing with its own
+       contents. */
+    var bodyTitle = 'Device transfer';
     /* ACCESS STATE IS TESTED BEFORE THE TECHNOLOGY LIST — both halves of
        it. A suspended institution AND a deactivated Student each leave a
        Student with no *effective* entitlement, so testing the technology
@@ -97,19 +146,16 @@ XRSLP.screens = XRSLP.screens || {};
         '<p>' + esc(L.unavailableText('student-inactive')) + ' A device request cannot be raised while it ' +
         'is, and nothing about your device has changed. Any request you already made is still here, with ' +
         'the state it is in.</p>');
-    /* Whether the Student holds ANY device-delivered technology, including
-       through an entitlement that is currently held back — the question
-       `studentHasPackageTechnology` was written for, and the one the nav
-       item already asks. `techs` is the narrower "can act right now" list,
-       and reading it here made a held or expired entitlement produce the
-       same untruth. */
+    /* No device-delivered technology at all, but a request on record —
+       the one way past the early return above. Their holding changed
+       after they asked; the request itself is still theirs and is listed
+       below, so the page says what is true now and keeps the history. */
     } else if (!state.studentHasPackageTechnology(p.id)) {
-      body = ui.emptyState({
-        icon: 'monitor', heading: 'h2',
+      body = ui.emptyRow({
+        icon: 'monitor', heading: 'h3',
         title: 'Nothing you hold runs on a device',
-        body: 'Your experiments open in a web browser, so there is no authorised device to move. This page ' +
-          'becomes useful if your institution gives you an experiment in AR, VR or MR.',
-        actionsHTML: '<a class="btn pri" href="' + L.href.myLearning(p.id) + '">Back to My Learning</a>'
+        body: 'Your experiments open in a web browser, so there is no authorised device to move. Any ' +
+          'request you already made is kept below, with the state it is in.'
       });
     } else if (!techs.length) {
       /* They DO hold a device-delivered technology, but every entitlement
@@ -127,18 +173,22 @@ XRSLP.screens = XRSLP.screens || {};
       /* An open request is now at one of TWO desks, and saying which is
          the only useful thing this box can tell the Student: "waiting"
          alone leaves them unable to tell a request their own institution
-         has not looked at yet from one already forwarded for decision. */
+         has not looked at yet from one already forwarded for decision.
+         Which of the two steps that is now also shows in the track in
+         the rail; this sentence names the desk, that shows the shape.
+
+         The card title stays the neutral "Device transfer" here — a card
+         headed "Your request" directly above one headed "Your requests"
+         reads as two different things when it is one. */
       body = ui.alertBox('info', 'You already have a request waiting',
         '<p>Request <strong>' + esc(open.id) + '</strong> is ' +
         (open.status === state.TRANSFER_STATUS.ESCALATED
-          ? 'with the platform team for the final decision, forwarded by your institution&rsquo;s ' +
-            'Institute / Tenant Admin'
-          : 'with your institution&rsquo;s Institute / Tenant Admin, who reviews it and forwards it to the ' +
-            'platform team') +
-        '. Its state appears below. ' +
-        'You can raise another once this one has been decided — two open requests would describe two ' +
+          ? 'with the platform team for the final decision'
+          : 'with your institution&rsquo;s Institute / Tenant Admin') +
+        '. You can raise another once this one has been decided — two open requests would describe two ' +
         'different devices at the same time.</p>');
     } else {
+      bodyTitle = 'Request a device replacement or transfer';
       var techOptions = techs.map(function (t) {
         var d = data.TECHNOLOGIES[t];
         return '<option value="' + esc(t) + '">' + esc(d ? d.name : t) + '</option>';
@@ -157,18 +207,25 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="field" id="dt-current"><label for="dt-current-i">The device you use now ' +
         '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
         '<input type="text" id="dt-current-i" maxlength="120" autocomplete="off">' +
-        '<p class="hint">Describe it in your own words. Nothing is registered, checked or certified — the ' +
-        'platform holds no device records.</p></div>' +
+        /* The hint the field needs, and the one clause about the absent
+           device registry a Student can act on. The rest of that
+           statement is the comment at the head of this file. */
+        '<p class="hint">Describe it in your own words. Nothing is registered or checked ' +
+        'automatically.</p></div>' +
         '<div class="field" id="dt-new"><label for="dt-new-i">The replacement device ' +
         '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
         '<input type="text" id="dt-new-i" maxlength="120" autocomplete="off"></div>' +
         '<div class="field" id="dt-reason"><label for="dt-reason-i">Why does it need to change? ' +
         '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
         '<textarea id="dt-reason-i" rows="4"></textarea></div>' +
+        /* THE CONSEQUENCE, NOT THE ROUTE. The three-step route is drawn
+           once on this page, as the track in "How a request is decided",
+           where it can also show which step an open request has reached.
+           Spelling it out again beside the button is how the same two
+           sentences came to appear four times on one screen. */
         '<div class="formact"><button class="btn pri" type="submit">Request the transfer</button>' +
-        '<span class="formnote">Your request goes to your institution&rsquo;s Institute / Tenant Admin, who ' +
-        'reviews it and forwards it to the platform team; the platform team takes the final decision. ' +
-        'Approval moves your authorised device and changes nothing else about what you can open.</span></div>' +
+        '<span class="formnote">Approval moves your authorised device and changes nothing else about ' +
+        'what you can open.</span></div>' +
         '</form>';
     }
 
@@ -237,21 +294,60 @@ XRSLP.screens = XRSLP.screens || {};
               ? '<div class="tk-w">' + ui.ic('x', 'sm') +
                 '<div><strong>Declined</strong> ' + esc(util.fmtDateTime(t.decidedAt)) +
                 '<p>' + esc(t.decisionNote) + '</p></div></div>'
+              /* The badge above already names the desk this request is
+                 sitting at ("Awaiting Institute Admin review" /
+                 "Forwarded — awaiting Super Admin"), so this line says
+                 the one thing the badge does not: nothing further is
+                 needed from the Student, and the answer lands here. */
               : '<div class="tk-w">' + ui.ic('clock', 'sm') +
-                '<span>' + (t.status === state.TRANSFER_STATUS.ESCALATED
-                  ? 'Forwarded by your Institute / Tenant Admin, and with the platform team for the final ' +
-                    'decision.'
-                  : 'With your institution&rsquo;s Institute / Tenant Admin, who reviews it and forwards it ' +
-                    'to the platform team for the final decision.') +
-                ' The outcome appears here.</span></div>') +
+                '<span>Nothing further is needed from you. The outcome appears here.</span></div>') +
             eventsHTML(t) +
             '</li>';
         }).join('') + '</ul>'
-      : ui.emptyState({
-          icon: 'check', heading: 'h3',
+      /* Compact: an empty request history on a page whose subject is the
+         request form is routine, not the page's purpose. */
+      : ui.emptyRow({
+          icon: 'check', heading: 'h3', ok: true,
           title: 'No device requests',
           body: 'Anything you request appears here with the state it is in.'
         });
+
+    /* ---- the route, drawn instead of described ----
+       Student → Institute / Tenant Admin → Super Admin. It was stated in
+       prose in four places on this screen; here it is one stepper that
+       also says WHERE an open request has actually got to, which prose
+       repeated four times never did.
+
+       ⚠ The card foot is the transfer guarantee and is not decoration:
+       approval moves the authorised device binding and nothing else. It
+       consumes no licence, grants no experiment, adds no technology and
+       changes no assessment result — which is exactly what the state
+       writer does, and the only thing it does. */
+    var forwarded = !!open && open.status === state.TRANSFER_STATUS.ESCALATED;
+    var routeCard = ui.card('How a request is decided',
+      /* ⚠ EVERY STEP NAMES ITS OWN STATE IN WORDS. The stepper carries
+         the state in a class and an aria-hidden mark, so a step whose
+         text reads identically whether it is done, live or still ahead
+         tells a screen reader nothing at all. */
+      ui.track([
+        { t: 'You raise the request',
+          d: open ? 'Raised on ' + util.fmtDateTime(open.createdAt) + '.'
+                  : 'From this page, when you need to move your device.',
+          state: open ? 'done' : 'todo' },
+        { t: 'Your Institute / Tenant Admin reviews it',
+          d: !open ? 'They review it and forward it to the platform team.'
+            : forwarded ? 'Reviewed, and forwarded to the platform team.'
+            : 'With them now. They forward it to the platform team.',
+          state: !open ? 'todo' : forwarded ? 'done' : 'live' },
+        { t: 'The platform team decides',
+          d: forwarded ? 'With them now for the final decision.'
+            : 'They take the final decision. Approval moves your authorised device.',
+          state: forwarded ? 'live' : 'todo' }
+      ]) +
+      '<p class="cardfoot">A transfer moves the authorised device your institution&rsquo;s licence is ' +
+      'bound to. It does <strong>not</strong> use up another licence, give you another experiment, add a ' +
+      'technology, or affect any assessment you have taken.</p>',
+      null, 'h2');
 
     var html =
       ui.phead('My device',
@@ -259,32 +355,31 @@ XRSLP.screens = XRSLP.screens || {};
           ? 'Move your authorised device for ' + esc(data.sortTech(techs).map(function (t) {
               return (data.TECHNOLOGIES[t] || {}).label || t;
             }).join(' · '))
-          : 'Device access') +
+          /* Not "Device access". A subtitle that degrades to a two-word
+             fragment the moment a Student cannot act reads as a
+             placeholder on the screens where they most need telling what
+             the page is for. */
+          : 'Your authorised device and any transfer requests') +
       /* The account state is stated once at the top, exactly as Home, My
          Learning and Progress do. This destination stays reachable while
          the account is inactive — the Student still has a device — so it
-         has to say so rather than leave the page silent about it. */
+         has to say so rather than leave the page silent about it. The
+         gap between it and the page comes from `.stack`, not from a
+         spacer div. */
+      '<div class="stack">' +
       L.accountNotice(p) +
-      (p.status !== 'active' ? '<div style="height:16px"></div>' : '') +
       '<div class="grid-rail">' +
       '<div class="stack">' +
-      ui.card('Request a device replacement or transfer', body, null, 'h2') +
+      ui.card(bodyTitle, body, null, 'h2') +
       ui.card('Your requests', history, null, 'h2') +
       '</div>' +
       '<div class="stack">' +
       (holdings ? ui.card('What you hold on a device', holdings +
-        '<p class="cardfoot">A device transfer moves your authorised device. It never changes which ' +
-        'experiments or technologies you hold — those come from what your institution assigned you.</p>',
+        '<p class="cardfoot">A transfer never changes which experiments or technologies you hold — ' +
+        'those come from what your institution assigned you.</p>',
         null, 'h2') : '') +
-      ui.alertBox('info', 'What a transfer does',
-        '<p>It moves the authorised device your institution&rsquo;s licence is bound to. It does ' +
-        '<strong>not</strong> use up another licence, give you another experiment, add a technology, or ' +
-        'affect any assessment you have taken.</p>') +
-      ui.gapNote('NOT IN THIS BUILD',
-        'The platform holds no device registry, so nothing here registers hardware, records a serial number ' +
-        'or certifies that a particular headset or handset is supported. Device registration and remote ' +
-        'device management are later-phase capabilities.') +
-      '</div></div>';
+      routeCard +
+      '</div></div></div>';
 
     return {
       area: 'learn', title: 'My device', html: html, student: p, tenant: tenant, navKey: 'device',
@@ -316,7 +411,19 @@ XRSLP.screens = XRSLP.screens || {};
     };
   };
 
-  /* ---------------- Help ---------------- */
+  /* ---------------- Help ----------------
+     The whole screen is `XRSLP.supportUI.helpScreen(ctx)`, shared with
+     every other workspace, so a Student is told exactly what a Faculty
+     member or a Tenant Admin is told. This function's only job is the
+     CONTEXT: who is reporting, and which experiments and technologies
+     they can actually reach — built from entitlement, including rows
+     that are currently blocked, because an experiment a Student cannot
+     open is a very good reason to report an issue.
+
+     The support surface promises no response time, assigns no priority,
+     routes nothing automatically and sends no email, SMS or
+     notification — it says all four in `honestyPanel()`, and this file
+     adds no claim of its own. */
   XRSLP.screens.studentHelp = function (params) {
     var r = L.requireStudent(params, 'help');
     if (!r.student) { return r.fail; }

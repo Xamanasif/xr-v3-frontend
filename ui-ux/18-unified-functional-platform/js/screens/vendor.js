@@ -131,14 +131,19 @@ XRSLP.screens = XRSLP.screens || {};
     var outOfScopeLine = ' This experiment is no longer in your assigned scope, so the record is read-only ' +
       'until the scope is restored. Nothing has been deleted.';
     o.returned.forEach(function (r) {
-      var last = state.academicReviewsFor(r.id)[0];
+      /* ONE ACCESSOR FOR EITHER GATE. This used to read the academic
+         review record, which only ever carries the academic return — so
+         a submission the Content Manager sent back said "see the
+         submission for the reason" while the reason was sitting on the
+         record's newest `changes` history entry all along. */
+      var back = cui.returnReason(r);
       var open = mutable(r);
       attention.push({
         kind: 'warn', icon: 'alert',
         title: r.name,
-        body: (r.status === CS.CHANGES_ACADEMIC
-          ? 'Returned at academic review' + (last && last.comment ? ' — ' + last.comment : '.')
-          : 'Returned at content readiness review — see the submission for the reason.') +
+        body: 'Returned at ' + (r.status === CS.CHANGES_ACADEMIC
+          ? 'academic review' : 'content readiness review') +
+          (back && back.text ? ' by ' + back.who + ' — ' + back.text : '.') +
           (open ? '' : outOfScopeLine),
         actionHTML: open
           ? '<a class="btn sec sm" href="' + href.vEdit(actor.id, r.id) + '">Correct submission</a>'
@@ -207,13 +212,28 @@ XRSLP.screens = XRSLP.screens || {};
             'assigned by the Super Admin, on the Role governance screen.') +
       '</p>';
 
+    /* §8 — a first-time Vendor should know immediately that this is
+       where submissions are created and carried through review. The
+       pipeline tiles already say WHERE work is; the orientation line
+       says what the workspace is, and the actions say where to go. */
+    var quick = ui.quickActions([
+      { href: href.vExperiments(actor.id), icon: 'layers', label: 'My Experiments' }
+    ].concat(canCreate
+      ? [{ href: href.vNew(actor.id), icon: 'plus', label: 'Create Experiment' }]
+      : []).concat([
+      { href: href.vSubmissions(actor.id), icon: 'doc',   label: 'Submissions' },
+      { href: href.vVersions(actor.id),    icon: 'clock', label: 'Versions' }
+    ]));
+
     var html =
       ui.phead('Overview',
         esc(actor.organisation) + ' · ' + esc(actor.name),
         canCreate
           ? '<a class="btn pri" href="' + href.vNew(actor.id) + '">' + ui.ic('plus') + 'Create experiment</a>'
           : '') +
+      ui.orient('Create and manage Experiment submissions and their technical delivery.') +
       tiles +
+      '<div style="margin-top:18px">' + ui.card('Quick actions', quick, null, 'h2') + '</div>' +
       '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' +
       ui.card('Needs your attention', attnHTML) +
@@ -221,15 +241,20 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="stack">' +
       ui.card('Courses you may submit into', scopeHTML,
         'Assigned scope') +
+      /* The chain as a stepper rather than a numbered paragraph — the
+         same four steps, the same words, in the shared component every
+         other workspace uses for a workflow. The two facts that matter
+         to a Vendor stay in text below it: a Vendor never publishes, and
+         publication grants the experiment to nobody. */
       ui.card('What happens after you submit',
-        '<ol class="steplist">' +
-        '<li><strong>Academic review.</strong> An Academic Reviewer validates the academic content and authors the Learning Outcomes.</li>' +
-        '<li><strong>Content readiness review.</strong> The Content Manager checks the canonical metadata and the technical delivery information.</li>' +
-        '<li><strong>Publish.</strong> The Content Manager performs the first publication. A Vendor never publishes.</li>' +
-        '</ol>' +
-        '<p class="dnote">' + ui.ic('info', 'sm') +
-        'Publication makes an experiment discoverable in the catalogue. It does not grant it to any institution — ' +
-        'that still requires an institutional request and Super Admin approval.</p>') +
+        ui.track([
+          { t: 'You submit', d: 'Your technical delivery and catalogue detail', state: 'live' },
+          { t: 'Academic review', d: 'The Academic Reviewer authors the Learning Outcomes', state: 'todo' },
+          { t: 'Content readiness', d: 'The Content Manager checks metadata and delivery', state: 'todo' },
+          { t: 'Publish', d: 'The Content Manager alone — a Vendor never publishes', state: 'todo' }
+        ]) +
+        '<p class="cardfoot">Publication makes an experiment discoverable in the catalogue. It grants it to ' +
+        'no institution — that still needs an institutional request and Super Admin approval.</p>') +
       '</div></div>';
 
     return shell(actor, 'overview', 'Vendor overview', html);
@@ -272,8 +297,20 @@ XRSLP.screens = XRSLP.screens || {};
     }
 
     cui.normaliseFilters(all, listFilter);
+    /* WHAT THIS LIST IS, said in figures. My Experiments and Submissions
+       overlap by design — one is everything you have created, the other
+       is everything that has entered the review chain — and the fastest
+       way to tell a reader which one they are on is to count the thing
+       that distinguishes them. */
+    var drafts = all.filter(function (r) { return r.status === CS.DRAFT && !r.submittedAt; }).length;
+    var live = all.filter(function (r) { return r.status === CS.PUBLISHED; }).length;
     var html =
-      ui.phead('My Experiments', esc(actor.organisation), createBtn) +
+      ui.phead('My Experiments', ui.metrics([
+        { v: all.length, k: 'you have created' },
+        { v: drafts, k: 'never submitted' },
+        { v: all.length - drafts - live, k: 'in the workflow' },
+        { v: live, k: 'published', tone: live ? 'good' : null }
+      ]), createBtn) +
       '<div class="tablecard">' +
       '<div class="listbar">' +
       '<label for="v-q">Search' +
@@ -341,48 +378,107 @@ XRSLP.screens = XRSLP.screens || {};
       return r.status === CS.CHANGES_ACADEMIC || r.status === CS.CHANGES_CONTENT;
     });
 
-    var cards = subs.map(function (r) {
-      var last = state.academicReviewsFor(r.id)[0];
-      var isReturned = r.status === CS.CHANGES_ACADEMIC || r.status === CS.CHANGES_CONTENT;
+    /* THE CARD HEADING IS AN h3, under the h2 its zone heading supplies.
+       It was an h2 with no zone above it, and the design system styles
+       only `.lcard h3` — so every card on this page rendered its title
+       at the browser's default 24px bold with the link in link-blue,
+       while every other `.lcard` in the build sat at 16.5px in body
+       colour. One outline, one treatment. */
+    function subCard(r) {
       return '<article class="lcard sub-card">' +
         '<div class="lc-head">' +
         '<div class="lc-ctx">' + cui.contextLine(r) + '</div>' +
-        '<h2><a href="' + href.vRecord(actor.id, r.id) + '">' + esc(r.name) + '</a></h2>' +
+        '<h3><a href="' + href.vRecord(actor.id, r.id) + '">' + esc(r.name) + '</a></h3>' +
         '</div>' +
         '<div class="lc-badges">' + cui.statusBadge(r) + cui.revisionChip(r) + cui.resubmittedChip(r) + '</div>' +
         '<p class="lc-sum">' + esc(cui.holderLine(r, 'vendor')) + '</p>' +
-        (isReturned && r.status === CS.CHANGES_ACADEMIC && last && last.comment
-          ? '<div class="retbox">' + ui.ic('alert', 'sm') +
-            '<div><strong>' + esc(last.reviewerName) + ' · Academic Reviewer</strong><p>' +
-            esc(last.comment) + '</p></div></div>'
-          : '') +
+        /* ONE ACCESSOR FOR EITHER GATE. The reason used to be rendered
+           only for an ACADEMIC return, read out of the review record —
+           so a submission the Content Manager sent back showed a bare
+           status badge and no reason at all, on the one screen a Vendor
+           uses to triage, even though the reason was on the record and
+           was shown on the detail page. `cui.returnReasonHTML` reads the
+           newest `changes` history entry, which both gates write. */
+        cui.returnReasonHTML(r) +
         '<div class="lc-foot">' + ui.techBadges(r.technologies) +
         '<a class="btn sec sm" href="' + href.vRecord(actor.id, r.id) + '">Open</a>' +
         '</div></article>';
-    }).join('');
+    }
+
+    /* THREE ZONES, IN THE ORDER A VENDOR ASKS THE QUESTIONS: what has
+       come back to me, what is out of my hands, and what is finished.
+       An ungrouped grid answered none of those without reading every
+       badge, and it degraded badly as the list grew. */
+    function zone(title, rows, desc, id) {
+      if (!rows.length) { return ''; }
+      return ui.sectionHead({ title: title, count: rows.length, desc: desc, id: id }) +
+        '<section class="lgrid" aria-labelledby="' + id + '">' +
+        rows.map(subCard).join('') + '</section>';
+    }
+    var withOthers = subs.filter(function (r) {
+      return r.status === CS.ACADEMIC_REVIEW || r.status === CS.CONTENT_REVIEW ||
+             r.status === CS.CHANGES_ACADEMIC_RECHECK;
+    });
+    var done = subs.filter(function (r) { return r.status === CS.PUBLISHED; });
+    /* Anything a future status introduces still appears, rather than
+       silently dropping out of a screen built from three fixed lists. */
+    var placed = {};
+    [returned, withOthers, done].forEach(function (list) {
+      list.forEach(function (r) { placed[r.id] = true; });
+    });
+    var other = subs.filter(function (r) { return !placed[r.id]; });
 
     /* The same split as the record page: how many came back is a fact
        about the WORK; "correct it and resubmit" is an instruction to the
        READER. If none of the returned submissions is one this Vendor may
        still act on, the instruction is simply wrong. */
+    /* 08 — the banner now fires ONLY for the case it exists to report:
+       something has come back that this Vendor cannot act on. "Open it,
+       correct it, resubmit" is the ordinary instruction and it belongs
+       on the zone heading below, where the returned items actually are —
+       repeating it in a warning box above them made the routine case
+       look like an incident and pushed the work further down the page. */
     var actionable = returned.filter(function (r) { return state.vendorCanEdit(r, actor.id); }).length;
-    var returnedBanner = !returned.length ? ''
-      : ui.alertBox('warning', util.plural(returned.length, 'submission') + ' returned for correction',
-          (actionable === returned.length
-            ? '<p>Open the submission to read the reason, correct it and resubmit.</p>'
-            : actionable === 0
-              ? '<p>Open a submission to read the reason it came back. None of them can be corrected or ' +
-                'resubmitted at the moment: the Courses they belong to are outside your active Vendor scope. ' +
-                'Nothing has been deleted, and the work returns to you if the scope is restored.</p>'
-              : '<p>Open the submission to read the reason, correct it and resubmit. ' +
-                util.plural(returned.length - actionable, 'submission') + ' cannot be corrected at the ' +
-                'moment, because the Course it belongs to is outside your active Vendor scope.</p>'),
+    var frozen = returned.length - actionable;
+    var returnedBanner = !frozen ? ''
+      : ui.alertBox('warning',
+          util.plural(frozen, 'returned submission') + ' you cannot correct at the moment',
+          (actionable === 0
+            ? '<p>Every submission that has come back belongs to a Course outside your active Vendor scope, ' +
+              'so none of them can be corrected or resubmitted. You can still read each one and the reason ' +
+              'it came back.</p>'
+            : '<p>' + util.plural(frozen, 'submission') + ' below belongs to a Course outside your active ' +
+              'Vendor scope, so it cannot be corrected or resubmitted. The rest can.</p>') +
+          '<p style="margin-top:8px"><strong>Nothing has been deleted.</strong> The work returns to you if ' +
+          'the Super Admin restores the scope.</p>',
           'status');
 
     var html =
-      ui.phead('Submissions', esc(actor.organisation)) +
+      ui.phead('Submissions', ui.metrics([
+        { v: subs.length, k: 'in the workflow' },
+        { v: returned.length, k: 'returned to you', tone: returned.length ? 'warn' : null },
+        { v: withOthers.length, k: 'with a reviewer or the Content Manager' },
+        { v: done.length, k: 'published', tone: done.length ? 'good' : null }
+      ])) +
       returnedBanner +
-      '<div class="lgrid" style="margin-top:16px">' + cards + '</div>';
+      /* ⚠ THE INSTRUCTION MUST AGREE WITH THE BANNER ABOVE IT.
+         When the Vendor's role scope has been withdrawn, `returnedBanner`
+         states that none of these can be corrected or resubmitted — and
+         this line used to tell the reader to do exactly that, two
+         centimetres below it. One of the two was always wrong. The
+         guard that governs it (`frozen`) already exists; only the copy
+         had stopped consulting it. */
+      zone('Returned to you', returned,
+        frozen
+          ? 'Read the reason. Correcting these is not available while your role scope is withdrawn.'
+          : 'Read the reason, correct the submission and resubmit it.', 'z-returned') +
+      zone('With someone else', withOthers,
+        'Read-only while they hold it, so the revision they are reading cannot change underneath them.',
+        'z-elsewhere') +
+      zone('Published', done,
+        'In the public catalogue. A change to published content is a later version, proposed from Versions.',
+        'z-published') +
+      zone('Everything else', other, null, 'z-other');
 
     return shell(actor, 'submissions', 'Submissions', html);
   };
@@ -529,8 +625,12 @@ XRSLP.screens = XRSLP.screens || {};
         cui.contextLine(rec) + ' · ' + esc(cui.holderLine(rec, 'vendor')),
         actions,
         ' ' + cui.statusBadge(rec) + cui.revisionChip(rec) + cui.resubmittedChip(rec)) +
-      scopeNote +
-      statusNote +
+      /* Where the work has got to, in the four-step chain every
+         workspace renders identically. It is the first question a Vendor
+         asks about their own submission, and the answer used to be one
+         status badge plus a paragraph. */
+      cui.productionTrack(rec) +
+      '<div style="margin-top:14px">' + scopeNote + statusNote + '</div>' +
       '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' +
       ui.card('Experiment', cui.recordSummaryKV(rec, { showVendor: false, showVendorNotes: true })) +
@@ -872,6 +972,15 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="stack">' +
       '<div class="form-errors"></div>' +
 
+      /* THREE ZONES ON ONE LONG FORM (Implementation 08). It was eight
+         cards in a single column with nothing to say which of them
+         belonged together, and the Vendor's two jobs — describe the
+         experiment for the catalogue, and supply the technical delivery
+         — read as one undifferentiated list of boxes. The fields, their
+         ids and their validation are untouched; only the zoning is new,
+         and the cards drop to h3 so the outline nests. */
+      ui.sectionHead({ id: 'z-cat', title: 'Catalogue detail',
+        desc: 'What an institution reads about this experiment, and the Course it belongs to.' }) +
       ui.card('Academic placement',
         '<div class="field" id="f-course">' +
         '<label for="i-course">Course <span class="req" aria-hidden="true">*</span>' +
@@ -882,9 +991,9 @@ XRSLP.screens = XRSLP.screens || {};
             'stays selected so saving cannot move it; choosing a different Course would re-file the ' +
             'Experiment, and every institution that holds it maps Faculty to it through its Course.</p>'
           : '') +
-        '<p class="hint" id="h-course">The canonical Programme / Department and Course structure is ' +
+        '<p class="hint" id="h-course">The Programme / Department and Course structure is ' +
         'platform-controlled. Select the Course this experiment belongs to; it cannot be created here.</p>' +
-        '</div>') +
+        '</div>', null, 'h3') +
 
       ui.card('Experiment',
         '<div class="field" id="f-name">' +
@@ -913,7 +1022,7 @@ XRSLP.screens = XRSLP.screens || {};
         '<p class="hint" style="margin-top:8px">' +
         esc(editing ? String(rec.revision) : '1') +
         ' — increases each time a returned submission is corrected and resubmitted.</p></div>' +
-        '</div>') +
+        '</div>', null, 'h3') +
 
       (correcting && rec.returnedGate === 'content' && rec.academicReview
         ? ui.card('This correction returns to the Content Manager',
@@ -924,15 +1033,19 @@ XRSLP.screens = XRSLP.screens || {};
             '<strong>technology availability</strong>, that is no longer the work ' +
             esc(rec.academicReview.reviewerName) + ' approved — the approval is withdrawn and the submission ' +
             'returns to academic review instead. Correcting the delivery details or the documentation does ' +
-            'not affect it.</p>')
+            'not affect it.</p>', null, 'h3')
         : '') +
       ui.card('Learning outcomes',
         ui.alertBox('info', 'Authored by the Academic Reviewer',
           '<p>Learning Outcomes are academically owned. They are written during academic review, not on this ' +
           'form, and they are published with the experiment.</p>') +
         (editing && rec.outcomes.length
-          ? '<div style="margin-top:12px">' + cui.outcomesList(rec.outcomes) + '</div>' : '')) +
+          ? '<div style="margin-top:12px">' + cui.outcomesList(rec.outcomes) + '</div>' : ''),
+        'Academic Reviewer owned', 'h3') +
 
+      ui.sectionHead({ id: 'z-tech', title: 'Technical delivery',
+        desc: 'How the platform reaches the experience. A hosted link for Web, an authorised package ' +
+          'reference for AR / VR / MR — no source code, no repository, no container image.' }) +
       ui.card('Technology availability',
         '<fieldset class="fgroup" id="f-tech" style="margin:0">' +
         '<legend>Technologies this experiment is available in</legend>' +
@@ -941,7 +1054,7 @@ XRSLP.screens = XRSLP.screens || {};
         'any combination of what is available. Nothing is added automatically.</p>' +
         '</fieldset>' +
         '<div id="v-tech-panels" style="margin-top:4px"></div>',
-        'AR / VR / MR — package · Web — hosted link') +
+        'AR / VR / MR — package · Web — hosted link', 'h3') +
 
       /* PREVIEW / DEMO VIDEO (07.3 — R13). The stakeholder asked for the
          Vendor to be given "a provision to add the video also", because
@@ -990,16 +1103,18 @@ XRSLP.screens = XRSLP.screens || {};
         esc(previewOf().note) + '</textarea>' +
         '<p class="hint" id="h-preview-note">Optional. One line of context — what the video shows, how long ' +
         'it runs, whether it is narrated.</p></div>' +
-        '<p class="dnote">' + ui.ic('info', 'sm') +
-        'A link reference, not an upload. The prototype stores the address you type and nothing else: no file ' +
-        'is read, no video is uploaded, transcoded or hosted here, and the video keeps playing wherever it ' +
-        'already lives.</p>' +
-        '<p class="dnote">' + ui.ic('info', 'sm') +
-        'The video travels with the submission, so the Academic Reviewer and the Content Manager both see it ' +
-        'while the work is with them. It reaches the public experiment page only when the Content Manager ' +
-        'publishes — and publication still grants the experiment to no institution.</p>',
-        'Optional · one per experiment, whatever technologies it ships in') +
+        /* THE HONESTY LINE FOR THIS FIELD, once. The build has no
+           storage and no transcoder, so a video can only ever be an
+           address it keeps — and where it travels afterwards is the
+           other half of what a Vendor wants to know before typing one. */
+        '<p class="cardfoot">A link, not an upload — the address you type is all this platform keeps, and the ' +
+        'video keeps playing wherever it already lives. It travels with the submission, so the Academic ' +
+        'Reviewer and the Content Manager both see it, and it reaches the public experiment page only when ' +
+        'the Content Manager publishes.</p>',
+        'Optional · one per experiment, whatever technologies it ships in', 'h3') +
 
+      ui.sectionHead({ id: 'z-support', title: 'Supporting material',
+        desc: 'Optional. Nothing here is required to submit, and none of it reaches the public catalogue.' }) +
       ui.card('Supporting documentation',
         '<div id="v-docs"></div>' +
         '<div class="fileline" style="margin-top:10px">' +
@@ -1008,7 +1123,8 @@ XRSLP.screens = XRSLP.screens || {};
         '<span class="muted" id="i-doc-name">No document chosen</span>' +
         '</div>' +
         '<p class="dnote">' + ui.ic('info', 'sm') +
-        'Prototype records document metadata only — file name and size. No file is uploaded or stored.</p>') +
+        'File name and size only — no document is uploaded, here or anywhere in this platform.</p>',
+        null, 'h3') +
 
       ui.card('Vendor technical notes',
         '<div class="field" style="margin-bottom:0">' +
@@ -1016,7 +1132,7 @@ XRSLP.screens = XRSLP.screens || {};
         '<textarea id="i-notes" rows="3" maxlength="800" aria-describedby="h-notes">' +
         esc(work.vendorNotes) + '</textarea>' +
         '<p class="hint" id="h-notes">Internal to the content workflow. Never shown in the public catalogue.</p>' +
-        '</div>') +
+        '</div>', null, 'h3') +
 
       '<div class="formact">' +
       '<button class="btn pri" type="button" id="v-save">Save draft</button>' +
@@ -1051,10 +1167,12 @@ XRSLP.screens = XRSLP.screens || {};
         '<li>' + ui.ic('x') + '<span>A local course code or semester — those are tenant-side mappings.</span></li>' +
         '<li>' + ui.ic('play') + '<span><strong>A preview / demo video is asked for.</strong> It is optional, ' +
         'it is supplied as a link in the form, and it is the Vendor — not the platform — who provides it.</span></li>' +
-        '</ul>' +
-        '<p class="dnote">' + ui.ic('info', 'sm') +
-        'Nor does anything on this form upload a file. The package and document pickers record a file name and ' +
-        'size only, and the preview video is an address you type.</p>') +
+        '</ul>') +
+      /* 08 — the fourth copy of "nothing is uploaded" on this one form
+         is gone. It is now said once beside each control that could be
+         mistaken for an upload: the package picker, the document picker
+         and the video address field. A statement repeated four times
+         stops being read the first time. */
       '</div></div>' +
       '</form>';
 
@@ -1118,7 +1236,7 @@ XRSLP.screens = XRSLP.screens || {};
           (d.packageFile ? '<button class="btn gho sm v-pkgclear" type="button" data-t="' + t + '">Clear</button>' : '') +
           '</div>' +
           '<p class="dnote">' + ui.ic('info', 'sm') +
-          'Prototype records package metadata only — file name and size. No binary is uploaded or stored.</p>' +
+          'File name and size only — no binary is uploaded. The reference above is what the platform holds.</p>' +
           '</div>' +
           '<div class="field" id="f-' + t + '-runtime">' +
           '<label for="i-' + t + '-runtime">Device / runtime requirement</label>' +

@@ -4106,7 +4106,16 @@ function scenarioProgressExport() {
   eq(val('Experiment'), 'Direct Shear Test', 'and the Experiment');
 
   /* THE TWO COURSE CODES STAY SEPARATE, and the canonical one is not invented. */
-  eq(val('Official course code'), '', 'the OFFICIAL course code is blank — no value has been set, and none is invented');
+  /* ⚠ ASSERTION CHANGED AT THE RECONCILIATION PASS, and why.
+     The column was headed "Official course code"; every screen in the
+     product now says "Platform course code", and one value must not
+     carry two names — least of all in the artefact a stakeholder takes
+     away and reads offline. Only the HEADER changed: the value is still
+     read from the same field and is still blank because none has been
+     set. The assertion is strengthened rather than relaxed — it now
+     also proves the old name is gone. */
+  eq(val('Platform course code'), '', 'the PLATFORM course code is blank — no value has been set, and none is invented');
+  eq(val('Official course code'), undefined, 'and the old "Official" heading is gone — one value, one name');
   eq(val('Institution course code'), 'CE-305', 'while the institution’s OWN local code is exported beside it');
 
   /* TECHNOLOGY USED, NOT MERELY LICENSED. */
@@ -4443,6 +4452,694 @@ function scenarioSchema11Migration() {
   eq(S.contentRecord(rec.id).previewVideo, null, 'and re-stamps nothing');
 }
 
+
+
+
+/* ============================================================
+   IMPLEMENTATION 08 — RECONCILIATION PASS.
+
+   Three reconciliations, two of which changed behaviour. Each is
+   asserted against the rule that settles it, not against the number the
+   code happened to produce.
+   ============================================================ */
+
+/* ---- one denominator for "the Courses this institution may map" ---- */
+function scenario08MappableCourses() {
+  group('IMPL 08R — one definition of the Courses an institution may map');
+  boot();
+
+  /* TWO QUESTIONS, TWO DENOMINATORS — and they must stay different.
+     `tenantCourseIds` is the CONTENT denominator (live access records).
+     `tenantMappableCourseIds` is the MAPPING denominator: access PLUS
+     the Courses students are filed against, because STK31-26 makes
+     Course ID/Code required when a student is provisioned. */
+  var access = S.tenantCourseIds(TENANT);
+  var mappable = S.tenantMappableCourseIds(TENANT);
+  eq(access.length, 0, 'a clean seed grants no access, so the CONTENT denominator is empty');
+  ok(mappable.length > 0,
+    'but the MAPPING denominator is not — students are already filed against Courses');
+
+  /* The union contains the access set. */
+  ok(access.every(function (cid) { return mappable.indexOf(cid) !== -1; }),
+    'every Course reachable through access is mappable');
+
+  /* And it contains every Course a student is placed in. */
+  var studentCourses = S.studentsForTenant(TENANT)
+    .map(function (p) { return p.courseId; })
+    .filter(Boolean);
+  ok(studentCourses.every(function (cid) { return mappable.indexOf(cid) !== -1; }),
+    'AND EVERY COURSE A STUDENT IS PLACED IN — the case the old denominator missed');
+
+  /* No duplicates: a Course reachable both ways appears once. */
+  var seen = {}, dupes = 0;
+  mappable.forEach(function (cid) { if (seen[cid]) { dupes += 1; } seen[cid] = 1; });
+  eq(dupes, 0, 'and it is a set, not a concatenation');
+
+  /* ⚠ THE DEFECT THIS FIXES, STATED AS AN INVARIANT.
+     The Overview's "missing a local code" row and the Academic mappings
+     table must never disagree: every Course the mappings screen can
+     show is a Course the attention row can count. */
+  var unmapped = S.coursesWithoutMapping(TENANT);
+  ok(unmapped.every(function (cid) { return mappable.indexOf(cid) !== -1; }),
+    'THE UNMAPPED LIST IS DRAWN FROM THE SAME SET THE MAPPINGS SCREEN SHOWS');
+  ok(unmapped.length > 0,
+    'and on the seed it actually reports the Courses with no local code');
+  unmapped.forEach(function (cid) {
+    var m = S.courseMapping(TENANT, cid);
+    ok(!m || !m.localCode, cid + ' genuinely has no institution course code');
+  });
+  /* The converse: a Course WITH a code is never reported as missing one. */
+  mappable.filter(function (cid) {
+    var m = S.courseMapping(TENANT, cid);
+    return m && m.localCode;
+  }).forEach(function (cid) {
+    eq(unmapped.indexOf(cid), -1, cid + ' has a code and is not reported as missing');
+  });
+
+  /* Granting access must not shrink the mapping denominator. */
+  var beforeCount = S.tenantMappableCourseIds(TENANT).length;
+  grantAccess(['direct-shear'], ['web'], 3, 'yearly');
+  ok(S.tenantMappableCourseIds(TENANT).length >= beforeCount,
+    'granting access never removes a Course from the mappable set');
+}
+
+/* ---- manual add and CSV import obey ONE academic-mapping rule ---- */
+function scenario08ProvisioningParity() {
+  group('IMPL 08R — manual add and CSV import record the institution code the same way');
+  boot();
+
+  var COURSE = 'fluid-mechanics';
+  eq(S.courseMapping(TENANT, COURSE), null, 'the seed has no mapping for this Course');
+
+  var made = S.addStudent(TENANT, {
+    studentId: 'SEI/CE/2099/0001', name: 'QA Manual', email: 'qa.manual@sample-institute.example',
+    groupingId: 'civil-engineering', courseId: COURSE, localCourseCode: 'FM-101', semester: ''
+  });
+  ok(!!made, 'a student is created by the manual path');
+  eq(made.localCourseCode, 'FM-101', 'their own record still carries the code they were entered with');
+
+  /* THE FIX. The institution's code for a Course lives on the tenant
+     mapping (STK31-11 / 25) — that is what the mappings screen, the
+     Faculty surfaces and the CSV export all read. Manual add used to
+     write only the person copy, so the same required field recorded
+     institution-wide by CSV was invisible when typed by hand. */
+  var mapping = S.courseMapping(TENANT, COURSE);
+  ok(!!mapping, 'AND THE MANUAL PATH NOW WRITES THE TENANT MAPPING TOO');
+  eq(mapping.localCode, 'FM-101', 'with the same value');
+
+  /* Which means the Course immediately stops being reported as unmapped. */
+  eq(S.coursesWithoutMapping(TENANT).indexOf(COURSE), -1,
+    'so it is no longer counted as missing a local code');
+
+  /* ND-04, THE CSV IMPORTER'S OWN RULE, APPLIES HERE TOO: an existing
+     mapping is never silently overwritten. A Tenant Admin's deliberate
+     mapping outranks a value typed into one person's form. */
+  boot();
+  S.setCourseMapping(TENANT, 'structural-analysis', 'SA-DELIBERATE', 'Sem 5');
+  S.addStudent(TENANT, {
+    studentId: 'SEI/CE/2099/0002', name: 'QA Two', email: 'qa.two@sample-institute.example',
+    groupingId: 'civil-engineering', courseId: 'structural-analysis',
+    localCourseCode: 'SA-TYPED-BY-MISTAKE', semester: ''
+  });
+  eq(S.courseMapping(TENANT, 'structural-analysis').localCode, 'SA-DELIBERATE',
+    'AN EXISTING MAPPING IS NOT OVERWRITTEN by adding a student (ND-04)');
+  eq(S.courseMapping(TENANT, 'structural-analysis').semester, 'Sem 5',
+    'and its Semester survives untouched');
+
+  /* A student added without a code writes no mapping — nothing invented. */
+  boot();
+  var noCode = S.addStudent(TENANT, {
+    studentId: 'SEI/CE/2099/0003', name: 'QA Three', email: 'qa.three@sample-institute.example',
+    groupingId: 'civil-engineering', courseId: COURSE, localCourseCode: '', semester: ''
+  });
+  ok(!!noCode, 'a student can be created without an institution course code');
+  eq(S.courseMapping(TENANT, COURSE), null, 'AND NO MAPPING IS INVENTED FOR THEM');
+
+  /* The tenant write guard still governs both paths. */
+  boot();
+  S.deactivateTenant(TENANT, 'QA — checking the write guard.');
+  eq(S.addStudent(TENANT, {
+    studentId: 'SEI/CE/2099/0004', name: 'QA Four', email: 'qa.four@sample-institute.example',
+    groupingId: 'civil-engineering', courseId: COURSE, localCourseCode: 'FM-999', semester: ''
+  }), null, 'a deactivated institution takes no manual add');
+  eq(S.courseMapping(TENANT, COURSE), null, 'AND WRITES NO MAPPING EITHER — the guard covers both');
+}
+
+
+/* ---- support media attachment (08R stakeholder requirement) ---- */
+function scenario08RSupportMedia() {
+  group('IMPL 08R — a support report can carry evidence, honestly');
+  boot();
+
+  var CTX = { kind: 'student', id: RAHUL, name: 'Rahul Verma',
+              roleLabel: 'Student', tenantId: TENANT };
+  function fields(extra) {
+    var f = { category: S.SUPPORT_CATEGORIES[0].id,
+              subject: 'VR headset shows a black screen',
+              description: 'Launched the experiment and the headset stayed black.' };
+    Object.keys(extra || {}).forEach(function (k) { f[k] = extra[k]; });
+    return f;
+  }
+
+  /* ---- 1 · no attachment is the ordinary case and must stay free ---- */
+  var plain = S.createSupportTicket(CTX, fields());
+  ok(plain.ok, 'a report submits with NO attachment');
+  eq(plain.ticket.media, null, 'and carries no media — nothing is invented');
+
+  /* ---- 2 · what the picker hands over is normalised, not trusted ---- */
+  var img = S.attachSupportMedia({
+    name: 'headset-error.png', type: 'image/png', size: 22194,
+    width: 900, height: 600, thumb: 'data:image/jpeg;base64,AAAA'
+  });
+  ok(img.ok, 'an image is accepted');
+  eq(img.media.kind, 'image', 'and classified as an image');
+  eq(img.media.width, 900, 'keeping its real dimensions');
+  eq(img.media.thumb, 'data:image/jpeg;base64,AAAA', 'and the reduced preview');
+
+  var vid = S.attachSupportMedia({ name: 'clip.mp4', type: 'video/mp4', size: 900000 });
+  ok(vid.ok, 'a video is accepted');
+  eq(vid.media.kind, 'video', 'and classified as a video');
+  eq(vid.media.thumb, '', 'with NO preview — a file input gives no frame to grab, and one is not faked');
+
+  /* ---- 3 · unsupported and oversized fail GRACEFULLY ---- */
+  var bad = S.attachSupportMedia({ name: 'notes.pdf', type: 'application/pdf', size: 1000 });
+  eq(bad.ok, false, 'a PDF is refused');
+  eq(bad.media, null, 'with no media record');
+  ok(bad.error.length > 0, 'and a reason the user can act on');
+
+  var huge = S.attachSupportMedia({ name: 'huge.png', type: 'image/png', size: 40 * 1024 * 1024 });
+  eq(huge.ok, false, 'a 40 MB file is refused');
+  ok(/25 MB/.test(huge.error), 'and the message names the limit');
+
+  var nameless = S.attachSupportMedia({ name: '', type: 'image/png', size: 10 });
+  eq(nameless.ok, false, 'a file with no name is refused rather than stored half-formed');
+
+  /* ⚠ THE QUOTA GUARD. `save()` swallows a storage failure so the
+     prototype can continue in memory, which means an oversized preview
+     would silently cost the whole build its persistence. A thumbnail
+     over the cap is dropped BEFORE the record is written; the facts
+     survive, so a report never loses that evidence was attached. */
+  var big = '';
+  while (big.length < S.SUPPORT_MEDIA.MAX_THUMB_BYTES + 100) { big += 'x'; }
+  var capped = S.attachSupportMedia({
+    name: 'huge-preview.png', type: 'image/png', size: 5000, width: 10, height: 10, thumb: big
+  });
+  ok(capped.ok, 'an image whose preview is too large is still accepted');
+  eq(capped.media.thumb, '', 'THE OVERSIZED PREVIEW IS DROPPED, not written');
+  eq(capped.media.name, 'huge-preview.png', 'and the file is still named on the report');
+
+  /* ---- 4 · the attachment travels with the report ---- */
+  boot();
+  var withMedia = S.createSupportTicket(CTX, fields({ media: img.media }));
+  ok(withMedia.ok, 'a report submits WITH an attachment');
+  ok(!!withMedia.ticket.media, 'and the ticket carries it');
+  eq(withMedia.ticket.media.name, 'headset-error.png', 'by name');
+  eq(withMedia.ticket.media.thumb, 'data:image/jpeg;base64,AAAA', 'and by preview');
+
+  /* The reporter sees it on their own list... */
+  var mine = S.ticketsForRequester('student', RAHUL);
+  eq(mine.length, 1, 'the reporter sees their own report');
+  ok(!!mine[0].media, 'AND THAT IT CARRIES MEDIA');
+
+  /* ...and the platform team sees the same record. */
+  var open = S.openSupportTickets();
+  ok(open.some(function (t) { return t.id === withMedia.ticket.id && t.media; }),
+    'THE SUPPORT REVIEWER SEES THE SAME ATTACHMENT on the open queue');
+  eq(S.supportTicketById(withMedia.ticket.id).media.name, 'headset-error.png',
+    'and on the report detail');
+
+  /* ---- 5 · a summary line a person can read ---- */
+  ok(/Image/.test(S.supportMediaSummary(img.media)), 'the summary names the kind');
+  ok(/900/.test(S.supportMediaSummary(img.media)), 'and the dimensions');
+  eq(S.supportMediaSummary(null), '', 'and says nothing when there is nothing');
+
+  /* ---- 6 · attaching evidence grants nothing and leaks nothing ---- */
+  eq(S.studentExperiments(RAHUL).filter(function (r) { return r.effective; }).length, 0,
+    'a report with an attachment creates NO entitlement');
+  var other = S.ticketsForRequester('student', 'USR-004');
+  eq(other.length, 0, 'and another student sees nothing of it — role/requester isolation holds');
+}
+
+/* ============================================================
+   IMPLEMENTATION 08 — STATIC SOURCE ASSERTIONS.
+
+   Everything above this point exercises the state layer. These check
+   the SOURCE TEXT of the screen files instead, because three of the
+   rules this pass had to hold are properties of the markup and copy,
+   not of any function:
+
+     · the Content Manager's return has NO pre-selected destination
+     · no page masks a layout defect with overflow-x:hidden
+     · the two course codes are never labelled with the old ambiguous
+       vocabulary
+
+   A state-layer test cannot see any of those, and the browser-side
+   harness (qa/ui-audit.js) is not run by this suite. `readFile` is
+   provided by the JavaScriptCore shell the harness already relies on.
+   ============================================================ */
+function scenario08StaticSource() {
+  group('IMPL 08 — static source rules the redesign must not have broken');
+
+  function src(f) {
+    try { return readFile(f); } catch (e) { return null; }
+  }
+
+  /* ---- 0 · EVERY PRODUCT FILE PARSES ----
+     The suite loads four of the thirty-one JS files (utils · data ·
+     ai-assist · state); the other twenty-seven are screens, and a
+     syntax error in any of them takes the whole app down at load with
+     nothing here going red. `checkSyntax` compiles a file without
+     running it, so this validates all of them with no DOM and no side
+     effects — the cheapest possible guard against the most total
+     failure this build can have. */
+  var PRODUCT_FILES = [
+    'js/utils.js', 'js/data.js', 'js/ai-assist.js', 'js/state.js', 'js/csv.js',
+    'js/components.js', 'js/content-ui.js', 'js/support-ui.js', 'js/router.js',
+    'js/screens/public-catalogue.js', 'js/screens/public-request.js',
+    'js/screens/platform.js', 'js/screens/platform-content.js', 'js/screens/platform-ops.js',
+    'js/screens/tenant.js', 'js/screens/tenant-people.js', 'js/screens/tenant-groups.js',
+    'js/screens/tenant-assign.js', 'js/screens/tenant-ops.js',
+    'js/screens/student.js', 'js/screens/student-learn.js', 'js/screens/student-ops.js',
+    'js/screens/faculty.js', 'js/screens/faculty-assess.js',
+    'js/screens/vendor.js', 'js/screens/reviewer.js', 'js/screens/content-manager.js',
+    'js/screens/content-version.js', 'js/screens/workspace-help.js', 'js/app.js'
+  ];
+  var unparsed = [];
+  PRODUCT_FILES.forEach(function (f) {
+    try { checkSyntax(f); } catch (e) { unparsed.push(f + ' (' + e.message + ')'); }
+  });
+  ok(unparsed.length === 0,
+    'ALL ' + PRODUCT_FILES.length + ' PRODUCT JS FILES PARSE', unparsed.join('; '));
+
+  /* index.html must actually load every one of them, in order — a file
+     that parses but is never included is not in the product. */
+  var html = src('index.html');
+  ok(!!html, 'index.html is readable');
+  if (html) {
+    var missing = PRODUCT_FILES.filter(function (f) { return html.indexOf(f) === -1; });
+    ok(missing.length === 0, 'AND index.html LOADS EVERY ONE OF THEM', missing.join(', '));
+    /* One cache-busting token, bumped together. A file left on the old
+       token is the stale-copy failure this build has already been bitten
+       by once. */
+    var tokens = {};
+    (html.match(/\?v=\d+/g) || []).forEach(function (t) { tokens[t] = (tokens[t] || 0) + 1; });
+    eq(Object.keys(tokens).length, 1,
+      'and every asset carries the SAME cache-busting token (' + Object.keys(tokens).join(', ') + ')');
+  }
+
+  /* ---- 1 · no default destination on the return control ----
+     The stakeholder rule is that the Content Manager must CHOOSE where a
+     returned item goes. The state function keeps a legacy three-argument
+     form meaning "Vendor" for pre-07.3 callers (asserted in
+     scenarioManagerRouting), so the no-default guarantee lives entirely
+     in this markup: the destination inputs must render UNCHECKED. */
+  var cm = src('js/screens/content-manager.js');
+  ok(!!cm, 'content-manager.js is readable');
+  if (cm) {
+    /* Scoped to the RENDERED INPUT, not to every mention of the name.
+       An earlier version matched on `name="cm-dest"` alone and so also
+       caught the event-handler's own selector string
+       `input[name="cm-dest"]:checked` — which contains the word
+       "checked" and no ternary, and reported a pre-selected default
+       that did not exist. */
+    var destMarkup = cm.match(/type="radio" name="cm-dest"[\s\S]{0,160}/g) || [];
+    ok(destMarkup.length > 0, 'the destination control is still rendered');
+
+    /* The radio MAY carry `checked` — cancelling the confirmation brings
+       the sheet back with the choice the manager already made still in
+       it, which is correct. What must never exist is an UNCONDITIONAL
+       one. So the rule is not "no checked" but "no checked that is not
+       guarded by an expression". */
+    var unconditional = destMarkup.some(function (t) {
+      return /checked/.test(t) && !/\?[^:]*checked[^:]*:/.test(t);
+    });
+    ok(!unconditional,
+      'NO DESTINATION IS PRE-SELECTED — any `checked` is conditional, never a default');
+
+    /* ...and nothing may hand that conditional a literal truth. */
+    ok(!/destRadio\([^)]*,\s*true\s*\)/.test(cm),
+      'and no destRadio call hard-codes a selected destination');
+
+    /* Both destinations are still offered. The file aliases the enum
+       (`var DEST = state.CHANGE_DESTINATION`), so the alias is what to
+       look for — searching for the full name only ever matched the
+       alias declaration itself. */
+    ok(/DEST\.REVIEWER/.test(cm) && /DEST\.VENDOR/.test(cm),
+      'and both destinations are still offered');
+    ok(/state\.CHANGE_DESTINATION/.test(cm),
+      'resolved from the state enum, not from a local string');
+  }
+
+  /* ---- 2 · no masked overflow ----
+     Fixing a horizontal-overflow defect by hiding it on the root is the
+     one repair this project has always refused, because it hides the
+     symptom and keeps the bug. */
+  ['css/base.css', 'css/layout.css', 'css/components.css', 'css/screens.css', 'css/responsive.css']
+    .forEach(function (f) {
+      var css = src(f);
+      if (css === null) { return; }
+      var masked = /(^|[^-\w])(html|body)\s*\{[^}]*overflow-x\s*:\s*hidden/i.test(css);
+      ok(!masked, 'NO ROOT-LEVEL overflow-x:hidden in ' + f);
+    });
+
+  /* ---- 3 · every CSS custom property resolves ----
+     `border: 1px solid var(--line)` shipped in components.css with
+     `--line` defined in no stylesheet. An invalid value inside a
+     SHORTHAND invalidates the whole declaration, so that fieldset
+     rendered with no border from the day it was written and nothing
+     failed, logged or looked obviously wrong. That is the failure mode
+     worth a permanent guard: CSS does not throw. */
+  (function () {
+    var files = ['css/tokens.css', 'css/base.css', 'css/layout.css',
+                 'css/components.css', 'css/screens.css', 'css/responsive.css'];
+    var defined = {}, used = {};
+    files.forEach(function (f) {
+      var t = src(f);
+      if (t === null) { return; }
+      /* A token NAMED IN A COMMENT is prose, not a reference. */
+      t = t.replace(/\/\*[\s\S]*?\*\//g, '');
+      (t.match(/--[A-Za-z0-9_-]+\s*:/g) || []).forEach(function (m) {
+        defined[m.replace(/\s*:$/, '')] = true;
+      });
+      (t.match(/var\(\s*--[A-Za-z0-9_-]+/g) || []).forEach(function (m) {
+        used[m.replace(/var\(\s*/, '')] = f;
+      });
+    });
+    var missing = Object.keys(used).filter(function (k) { return !defined[k]; });
+    ok(missing.length === 0,
+      'EVERY CSS CUSTOM PROPERTY REFERENCED IS DEFINED — an undefined one fails silently',
+      missing.map(function (k) { return k + ' (' + used[k] + ')'; }).join(', '));
+    ok(Object.keys(defined).length > 50, 'and the token set was actually read (' +
+      Object.keys(defined).length + ' defined)');
+  })();
+
+  /* ---- 4 · the course-code vocabulary ----
+     "Canonical code" is engineering vocabulary. The confirmed labels are
+     "Platform course code" and "Institution course code". This checks the
+     USER-FACING strings, so a code comment explaining the history is
+     still allowed — comments are stripped before the search. */
+  /* js/state.js and js/csv.js are in this list because they carry
+     USER-FACING strings too — validation messages the Course-code forms
+     render, and the CSV export's column headings. Two of each were still
+     saying "canonical"/"Official" after the screens had all been
+     relabelled, which is the same one-value-two-names defect one layer
+     down. */
+  var SCREENS = [
+    'js/screens/platform-content.js', 'js/screens/tenant.js',
+    'js/screens/content-manager.js', 'js/screens/faculty-assess.js',
+    'js/screens/student.js', 'js/screens/tenant-groups.js',
+    'js/screens/tenant-people.js', 'js/state.js', 'js/csv.js'
+  ];
+  SCREENS.forEach(function (f) {
+    var t = src(f);
+    if (t === null) { return; }
+    /* strip block and line comments — the rule is about what a user reads */
+    var code = t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    ok(!/canonical\s+course\s+code/i.test(code),
+      'no user-facing "canonical course code" in ' + f);
+    ok(!/official\s+course\s+code/i.test(code),
+      'and no user-facing "official course code" in ' + f);
+
+    /* ⚠ A `data-label` IS USER-FACING COPY, and it is easy to forget.
+       Below 740px css/responsive.css turns every table row into a card
+       and prints `td[data-label]::before { content: attr(data-label) }`
+       as the visible field label. A column whose <th> was correctly
+       relabelled "Platform course code" therefore still read a bare
+       "Course code" on a phone — the exact ambiguity this pass exists
+       to remove, surviving at one breakpoint only. */
+    var labels = code.match(/data-label="([^"]*)"/g) || [];
+    var bare = labels.filter(function (l) {
+      return /course\s+code/i.test(l) &&
+             !/platform\s+course\s+code/i.test(l) &&
+             !/institution\s+course\s+code/i.test(l);
+    });
+    ok(bare.length === 0,
+      'no bare "Course code" in a responsive data-label in ' + f, bare.join(', '));
+  });
+}
+
+/* ============================================================
+   IMPLEMENTATION 08 — the UX/product closure pass.
+
+   These assertions cover the behaviour this pass CHANGED or newly
+   depends on. Nothing here was weakened or removed to make a redesign
+   pass; where a figure changed, the assertion states why.
+
+   The harness runs the STATE layer with no DOM, so these check the
+   read models the redesigned screens are built from — the derivation,
+   not the markup. Rendered-DOM and responsive checks live in
+   qa/ui-audit.js, which runs inside the browser.
+   ============================================================ */
+
+/* ---- 1 · the canonical-structure dependency counters ---- */
+function scenario08StructureUsage() {
+  group('IMPL 08 — canonical structure dependency counting is COMPLETE');
+  boot();
+
+  /* THE DEFECT THIS FIXES. `courseUsage` looked at five collections and
+     there are six carrying a courseId: the Question Bank was invisible
+     to it. A Course whose other five references were all cleared but
+     which still held a bank of questions therefore reported "Not yet
+     referenced" — the exact opposite of what the Super Admin screen
+     showing that phrase is for. */
+  var use = S.courseUsage('soil-mechanics');
+  eq(typeof use.questions, 'number', 'courseUsage now reports the QUESTION BANK as a reference class');
+  ok(use.questions > 0, 'and the seeded Soil Mechanics bank is actually counted');
+
+  /* Proved against the raw store rather than against another read model,
+     so this cannot pass by both sides sharing one bug. `boot()` starts
+     from the in-memory seed and nothing has written yet, so the store is
+     empty until it is asked to persist. */
+  S.save();
+  var raw = JSON.parse(localStorage.getItem(S.STORAGE_KEY));
+  var expected = raw.questions.filter(function (q) { return q.courseId === 'soil-mechanics'; }).length;
+  eq(use.questions, expected, 'the count matches the stored rows exactly');
+
+  /* Every previously-counted class still counts — the fix is additive. */
+  ok(use.records > 0, 'content records still counted');
+  ok(use.people > 0, 'enrolled people still counted');
+  ok(use.assignments > 0, 'role assignments still counted');
+  eq(typeof use.mappings, 'number', 'tenant course mappings still counted');
+  eq(typeof use.facultyMappings, 'number', 'Faculty mappings still counted');
+
+  var none = S.courseUsage('a-course-that-does-not-exist');
+  eq(none.questions, 0, 'an unknown Course reports no questions');
+  eq(none.records, 0, 'and no records');
+
+  /* ---- the Programme-level counter, new at 08 ---- */
+  var g = S.groupingUsage('civil-engineering');
+  eq(g.courses, 3, 'groupingUsage counts the Courses filed under the Programme');
+  ok(g.courseRefs.records > 0, 'and rolls up the references those Courses hold');
+  ok(g.courseRefs.questions > 0, 'INCLUDING the question banks — same completeness as courseUsage');
+  ok(g.people > 0, 'and counts people filed DIRECTLY against the Programme');
+  ok(g.total > 0, 'so a referenced Programme can never read as unused');
+
+  var empty = S.groupingUsage('electrical-engineering');
+  eq(empty.courses, 0, 'an empty Programme reports no Courses');
+  eq(empty.total, 0, 'and a total of zero');
+
+  /* ⚠ NO REMOVAL CONTROL EXISTS, AND THAT IS DELIBERATE.
+     No source describes retire or delete semantics for canonical
+     structure: the FRD contains zero occurrences of delete / retire /
+     deprecate / cascade, the conceptual data model gives Programme,
+     Course and Experiment no lifecycle, and STK31-22's
+     "prefer reversible deactivation" rule scopes itself to tenant
+     termination, student removal and the Question Bank. The counters
+     above exist to STATE dependency, not to authorise deletion. */
+  eq(typeof S.deleteCourse, 'undefined', 'THE STATE LAYER EXPOSES NO deleteCourse');
+  eq(typeof S.deleteGrouping, 'undefined', 'and no deleteGrouping');
+  eq(typeof S.retireCourse, 'undefined', 'and no retireCourse');
+  eq(typeof S.retireGrouping, 'undefined', 'and no retireGrouping');
+}
+
+/* ---- 2 · the two course codes stay independent ---- */
+function scenario08CourseCodes() {
+  group('IMPL 08 — platform course code and institution course code are separate objects');
+  boot();
+
+  var COURSE = 'soil-mechanics';
+
+  /* Blank is a permanent legitimate state for the platform code: no
+     official code has been supplied and inventing one would put
+     fabricated institutional data on the public catalogue. */
+  var seeded = D.courses().filter(function (c) { return c.id === COURSE; })[0];
+  eq(seeded.code || '', '', 'the platform course code is seeded BLANK, and blank is legal');
+
+  /* The tenant's own code is a different field on a different record. */
+  grantAccess(['direct-shear'], ['web'], 3, 'yearly');
+  S.setCourseMapping(TENANT, COURSE, 'CE-306', '');
+  eq(S.courseMapping(TENANT, COURSE).localCode, 'CE-306', 'the institution course code is stored on the tenant mapping');
+
+  /* SETTING ONE MUST NEVER TOUCH THE OTHER — in both directions. */
+  S.updateCourseCode(KULK, COURSE, 'CE G511');
+  eq(S.courseRecord(COURSE).code, 'CE G511', 'the Content Manager sets the PLATFORM code');
+  eq(S.courseMapping(TENANT, COURSE).localCode, 'CE-306',
+    'AND THE INSTITUTION CODE IS UNTOUCHED — they are not two views of one value');
+
+  S.setCourseMapping(TENANT, COURSE, 'CE-999', '');
+  eq(S.courseMapping(TENANT, COURSE).localCode, 'CE-999', 'the Tenant Admin changes their own code');
+  eq(S.courseRecord(COURSE).code, 'CE G511',
+    'AND THE PLATFORM CODE IS UNTOUCHED — a tenant can never redefine canonical metadata');
+
+  /* Two institutions can hold different codes for the same Course
+     without either reaching the platform value. */
+  eq(S.courseRecord(COURSE).code, 'CE G511', 'the platform code is still the platform code');
+}
+
+/* ---- 3 · the Student read models the rebuilt Home is built from ---- */
+function scenario08StudentHome() {
+  group('IMPL 08 — Student Home: one featured item, and it is never repeated');
+  boot();
+
+  /* ZERO. A clean seed grants nothing — publication alone entitles
+     nobody — so Home has nothing to feature and nothing to list. */
+  var zero = S.studentProgressSummary(RAHUL);
+  eq(zero.items.length, 0, 'ZERO ENTITLEMENT: nothing to feature');
+  eq(S.studentExperiments(RAHUL).filter(function (r) { return r.effective; }).length, 0,
+    'and nothing effective — so no primary action can be rendered');
+
+  /* ONE. The screen features it and, because the featured item is
+     removed from the remainder, there is nothing left to list. This is
+     the invariant behind the reported defect: Home used to render a
+     "Continue learning" hero AND repeat the same experiment in the list
+     directly beneath it, each with its own button. */
+  var g1 = grantAccess(['direct-shear'], ['web'], 3, 'yearly');
+  S.assignExperiment(TENANT, g1.access.id, 'direct-shear', 'student', [RAHUL]);
+  var one = S.studentProgressSummary(RAHUL);
+  eq(one.items.length, 1, 'ONE ENTITLEMENT: exactly one item in the summary');
+  eq(one.items.length - 1, 0, 'AND ZERO REMAIN once the featured item is taken out — nothing can repeat');
+
+  /* MANY. The remainder is the ordered list minus the featured item, so
+     the count below the hero is always one less than the total. */
+  var g2 = grantAccess(['consolidation', 'total-station'], ['web'], 3, 'yearly');
+  S.assignExperiment(TENANT, g2.access.id, 'consolidation', 'student', [RAHUL]);
+  S.assignExperiment(TENANT, g2.access.id, 'total-station', 'student', [RAHUL]);
+  var many = S.studentProgressSummary(RAHUL);
+  eq(many.items.length, 3, 'MANY: three items in the summary');
+  eq(many.items.length - 1, 2, 'and exactly two remain below the featured one');
+
+  /* The featured item is DETERMINISTIC. Home sorts by state rank, then
+     recency, then name — so the same state always features the same
+     experiment and the page does not reshuffle between renders. */
+  var a = S.studentProgressSummary(RAHUL).items.map(function (i) { return i.row.experimentId; });
+  var b = S.studentProgressSummary(RAHUL).items.map(function (i) { return i.row.experimentId; });
+  eq(a.join(','), b.join(','), 'the summary order is stable between reads');
+
+  /* INACTIVE STUDENT: no primary action may be offered, because none
+     can work. The read model still carries the record, so the history
+     is not lost — the screen renders it without controls. */
+  S.setStudentStatus(RAHUL, 'inactive');
+  eq(S.personById(RAHUL).status, 'inactive', 'the student is inactive');
+  ok(S.studentExperiments(RAHUL).every(function (r) { return !r.effective; }),
+    'AND NOTHING IS EFFECTIVE — so Home renders no primary action at all');
+  S.setStudentStatus(RAHUL, 'active');
+  ok(S.studentExperiments(RAHUL).some(function (r) { return r.effective; }),
+    'reactivating restores entitlement, and the featured action returns');
+}
+
+/* ---- 4 · My Device is offered only where a device exists ---- */
+function scenario08DeviceGating() {
+  group('IMPL 08 — My Device is entitlement-gated, not role-gated');
+  boot();
+
+  eq(S.studentHasPackageTechnology(RAHUL), false,
+    'a student with no entitlement holds no device-based technology');
+
+  var web = grantAccess(['beam-deflection'], ['web'], 3, 'yearly');
+  S.assignExperiment(TENANT, web.access.id, 'beam-deflection', 'student', [RAHUL]);
+  eq(S.studentHasPackageTechnology(RAHUL), false,
+    'A WEB-ONLY STUDENT IS NOT LED INTO DEVICE MANAGEMENT');
+  eq(S.transfersForStudent(RAHUL).length, 0, 'and holds no transfer request either');
+
+  var vr = grantAccess(['direct-shear'], ['vr', 'web'], 3, 'yearly');
+  S.assignExperiment(TENANT, vr.access.id, 'direct-shear', 'student', [RAHUL]);
+  eq(S.studentHasPackageTechnology(RAHUL), true,
+    'a student who actually holds VR does get the destination');
+}
+
+/* ---- 5 · the Content Manager return path, unchanged by the redesign ---- */
+function scenario08ReturnPath() {
+  group('IMPL 08 — Request changes: two destinations, no default, nothing written early');
+  boot();
+
+  /* The fork is real: each destination writes a different status whose
+     HOLDER is a different role. The redesign changed how it is
+     presented; it must not have changed where an item lands. */
+  eq(typeof S.CHANGE_DESTINATION.REVIEWER, 'string', 'the Academic Reviewer destination exists');
+  eq(typeof S.CHANGE_DESTINATION.VENDOR, 'string', 'the Vendor destination exists');
+  ok(S.CHANGE_DESTINATION.REVIEWER !== S.CHANGE_DESTINATION.VENDOR,
+    'AND THEY ARE GENUINELY DIFFERENT VALUES — not one label over one path');
+
+  var rec = S.contentRecords().filter(function (r) { return r.status === S.CONTENT_STATUS.CONTENT_REVIEW; })[0];
+  ok(!!rec, 'a record is sitting in the Content Manager queue');
+  var before = rec.status;
+
+  /* A REASON IS REQUIRED FOR EITHER DESTINATION, and refusing one must
+     leave the record exactly where it was. */
+  eq(S.requestChangesContent(KULK, rec.id, '', { destination: S.CHANGE_DESTINATION.VENDOR }), null,
+    'the Vendor route with NO REASON is refused');
+  eq(S.contentRecord(rec.id).status, before, 'and the record has not moved');
+  eq(S.requestChangesContent(KULK, rec.id, '   ', { destination: S.CHANGE_DESTINATION.REVIEWER }), null,
+    'the academic route with a whitespace-only reason is refused too');
+  eq(S.contentRecord(rec.id).status, before, 'and the record still has not moved');
+
+  /* ⚠ WHERE THE "NO DEFAULT DESTINATION" RULE ACTUALLY LIVES.
+     It is a UI-LAYER rule, and this is worth stating precisely because
+     it is easy to assert the wrong thing here and think the product is
+     broken.
+
+     The state function deliberately keeps a THREE-ARGUMENT form that
+     means the Vendor: every pre-07.3 caller passed three arguments, and
+     `scenarioManagerRouting` asserts that contract explicitly ("a
+     three-argument call still means the Vendor — no caller changed
+     behaviour"). Removing that default would silently change those
+     callers.
+
+     What the stakeholder asked for — that the Content Manager must
+     CHOOSE, with nothing pre-selected — is enforced where the choice is
+     actually made: the destination radios in
+     js/screens/content-manager.js render with no `checked` attribute,
+     and the submit handler refuses and toasts when none is selected
+     rather than falling through to a default. The redesign at
+     Implementation 08 moved that form into a side sheet and MUST NOT
+     have introduced a pre-selected destination. */
+  var out = S.requestChangesContent(KULK, rec.id, 'The learning outcomes do not match the build.',
+    { destination: S.CHANGE_DESTINATION.REVIEWER });
+  ok(!!out, 'the academic route is accepted with a reason');
+  eq(S.contentRecord(rec.id).status, S.CONTENT_STATUS.CHANGES_ACADEMIC_RECHECK,
+    'AND IT LANDS WITH THE ACADEMIC REVIEWER');
+  eq(S.CONTENT_STATUS_META[S.contentRecord(rec.id).status].holder, 'reviewer',
+    'held by the reviewer, not the Vendor');
+
+  boot();
+  var rec2 = S.contentRecords().filter(function (r) { return r.status === S.CONTENT_STATUS.CONTENT_REVIEW; })[0];
+  S.requestChangesContent(KULK, rec2.id, 'The hosted link returns 404.',
+    { destination: S.CHANGE_DESTINATION.VENDOR });
+  eq(S.contentRecord(rec2.id).status, S.CONTENT_STATUS.CHANGES_CONTENT,
+    'and the technical route lands with the VENDOR — a broken link never goes through academic review');
+}
+
+/* ---- 6 · the firewall words, checked as data ---- */
+function scenario08Terminology() {
+  group('IMPL 08 — Publish is first publication; Release / Hold is a later version');
+  boot();
+
+  /* These are the labels the screens render, so checking them here
+     catches a regression in the vocabulary itself rather than in one
+     screen that happens to use it. */
+  var vs = S.VERSION_STATUS_META;
+  Object.keys(vs).forEach(function (k) {
+    ok(!/publish/i.test(vs[k].label),
+      'no LATER-VERSION status is labelled with the word Publish: ' + vs[k].label);
+  });
+
+  var cs = S.CONTENT_STATUS_META;
+  Object.keys(cs).forEach(function (k) {
+    ok(!/\brelease/i.test(cs[k].label),
+      'no FIRST-PUBLICATION status is labelled with the word Release: ' + cs[k].label);
+  });
+}
+
 scenarioSchema10Migration();
 /* Implementation 07.3 — the full stakeholder meeting closure. */
 scenarioManagerRouting();
@@ -4455,4 +5152,16 @@ scenarioRequesterIdentity();
 scenarioSchema11Migration();
 scenarioProgressExport();
 scenarioAdversarial073();
+/* Implementation 08 — the UX/product closure pass. */
+scenario08StructureUsage();
+scenario08CourseCodes();
+scenario08StudentHome();
+scenario08DeviceGating();
+scenario08ReturnPath();
+scenario08Terminology();
+scenario08StaticSource();
+/* Implementation 08 — reconciliation pass. */
+scenario08MappableCourses();
+scenario08ProvisioningParity();
+scenario08RSupportMedia();
 summary();

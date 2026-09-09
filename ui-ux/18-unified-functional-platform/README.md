@@ -1,9 +1,14 @@
-# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06 + 07
+# 18 — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06 + 07 + 08
 
 **The content that reaches a learner, from the people who produce it to the learner who runs
 it** — content production, B2B access, tenant operations, student entitlement, the student
 learning experience and the Faculty workspace that authors and evaluates it — for the XR
-Simulation Learning Platform, built against the 31 Aug stakeholder decisions.
+Simulation Learning Platform, built against the 31 Aug stakeholder decisions, **together with
+the two later written clarifications that answer questions 31 Aug left open** —
+`STAKEHOLDER_CORRECTIONS_07_2.md` (6 Sep 2026, which is what settles Course-code *ownership*) and
+`STAKEHOLDER_CLOSURE_07_3.md` (7 Sep 2026). Both are stakeholder-sourced — each 07.2 decision opens
+with the stakeholder's own words — and both supersede earlier **prototype assumptions**, not
+earlier stakeholder decisions: neither reopens an STK31 decision.
 
 One connected, functional prototype. Implementation 01 proved the *granting* half of the
 chain; Implementation 02 completed the *receiving* half inside the institution; Implementation
@@ -184,6 +189,67 @@ the Student workspace can open.
 | **Technology** | Dependency-free HTML + CSS + vanilla JS (ES5-style), single-page hash routing. No framework, no build step, no backend, no real payment or authentication |
 | **State** | `localStorage`, isolated namespace **`xrslp-unified-v1`** (no historical batch key is reused), **`schemaVersion: 11`**; every earlier state upgrades in place. Implementation 07 required no schema change; **07.1 raised 8 → 9** to make the canonical academic structure state; **07.2 raised 9 → 10** for three additive fields — the canonical Course code, the renewal audit line on an access record, and the forwarding fields on a device request; **07.3 raised 10 → 11** for four more — a content record's preview video, supporting references on a history entry and on an academic review, and the durable withdraw/restore audit line on a role assignment. Every migration is purely additive, presence-guarded and idempotent |
 | **Theme** | Light only (logo constraint QX-07, carried forward) — with the Stage-0 a11y token fixes applied once (`--text-3:#5F6B7A`, `--control-border:#7E8A99`, `[hidden]` restored) |
+
+## Implementation 08 — the UX / product closure pass
+
+The build you are reading about below is functionally complete and was verified as such.
+**Implementation 08 changed how it looks and reads, not what it does.** Full record, including
+the decisions taken and the ones deliberately *not* invented: **[`UX_REDESIGN_08.md`](UX_REDESIGN_08.md)**.
+
+The short version:
+
+- **A design system that can express something other than "another card".** The build had exactly
+  one overlay — the confirmation dialog — so every piece of secondary detail became another stacked
+  card. `ui.openSheet()` (a focus-trapped side sheet sharing one overlay primitive with the dialog),
+  `ui.metrics()`, `ui.statStrip()`, `ui.emptyRow()`, `ui.about()`, `ui.demoPanel()`, `ui.track()`,
+  `ui.sectionHead()`, `ui.dangerZone()` and `ui.infoTip()` are the new shared vocabulary, on a named
+  spacing and type scale.
+- **Student Home stopped offering the same thing twice.** It featured an experiment with a
+  *Continue learning* button and then repeated that same experiment, with its own *Continue* button,
+  in the list directly beneath. The featured item is now removed from the list, so one experiment
+  renders one card and one control — asserted at every entitlement count.
+- **The two course codes are visually distinct.** *Platform course code* (`CE G511`, the Content
+  Manager's and the Super Admin's) and *Institution course code* (`CE-306`, the Tenant Admin's) are
+  different kinds of thing and no longer share styling. Both appear together on one screen only —
+  the academic mappings screen, where the mapping between them is the subject. The **ownership
+  split is stakeholder-confirmed**; which code a *Student* sees is **not stated by any source** and
+  the choice made here is a reversible UX judgement (`UX_REDESIGN_08.md` §4).
+- **Engineering notices left the product journey.** The dashed *NOT IN THIS BUILD* /
+  *OPEN POLICY QUESTION* panels were classified one by one: genuine user information became product
+  help or a folded "About this", demo controls moved into a collapsed demo panel, and notes that
+  only documented an unresolved engineering decision moved into code comments and the audit
+  documents. Nothing was resolved by pretending a missing integration exists.
+- **No delete or retire for canonical structure**, and that is a decision with evidence behind it
+  rather than an omission — see `UX_REDESIGN_08.md` §3. A real defect was found while deciding it:
+  `courseUsage()` was blind to the Question Bank, so a Course could report *"Not yet referenced"*
+  while a Faculty question bank still pointed at it.
+
+### The two harnesses
+
+| | |
+|---|---|
+| `qa/checks.js` | The state layer, outside a browser. **Now also parse-checks every product JS file, confirms `index.html` loads all of them on one cache token, proves every CSS custom property resolves, and asserts the no-default-destination and course-code rules against the source text.** |
+| `qa/ui-audit.js` | **New.** Runs *inside* the page and audits the rendered DOM of every route at 375 / 768 / 1024 / 1280 / 1440 — horizontal overflow and the elements causing it, duplicate ids, controls with no accessible name, heading-level skips, raw entities, missing `alt`, target size, dead links, blank pages, uncaught runtime errors, and the amount of development prose still on screen. It also drives two interactions the DOM alone cannot prove: that Student Home never offers one experiment twice, and that the Content Manager's return has no pre-selected destination and writes nothing until confirmed. |
+
+```bash
+# state layer, static source rules and every file's syntax — one command
+/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc qa/harness.js qa/checks.js
+
+# rendered DOM — in the browser console, with the prototype open
+#   const src = await (await fetch('qa/ui-audit.js')).text(); (0,eval)(src);
+#   XRSLPAudit.build('many');          // real product path: request -> approval -> assignment
+#   XRSLPAudit.begin({widths:[1280]}); await XRSLPAudit.step(400, 26000);
+#   XRSLPAudit.finish();               // check summary.valid === true
+#   XRSLPAudit.interactions();
+```
+
+`XRSLPAudit.build('one'|'few'|'many')` creates records through the product's own path — a public
+selection, an institutional request, a Super Admin approval, then tenant assignment — so no screen
+is ever tested against fabricated state. The clean seed grants nobody anything, which is correct:
+publication alone entitles no one. That makes the seed the **zero** state, and the zero state alone
+cannot show whether a screen handles one record, a few, or many.
+
+---
 
 ## Run locally
 

@@ -182,7 +182,9 @@
 .accessrec{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1)}
 .accessrec .ar-head{display:flex; align-items:center; gap:10px; padding:14px 20px; border-bottom:1px solid var(--border-subtle); flex-wrap:wrap}
 .accessrec .ar-head h2{font-size:15.5px; font-weight:650}
-.accessrec .ar-ref{font-family:var(--mono); font-size:12px; color:var(--text-3)}
+/* `.ar-ref` is gone from this header: the internal reference is not
+   shown in the normal view, only inside the opened detail panel. */
+.accessrec .ar-head .ar-sub{flex-basis:100%; font-size:12.5px; color:var(--text-3)}
 .accessrec .ar-head .ar-badges{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap}
 .accessrec .ar-body{padding:16px 20px 18px}
 .covers .cvrow{display:flex; gap:12px; align-items:flex-start; padding:11px 0; border-top:1px solid var(--border-subtle); flex-wrap:wrap}
@@ -380,6 +382,21 @@ table.dt.sm td{padding:10px 20px; font-size:13.5px}
 .lsec-h+.lgrid,.lsec-h+.stack{margin-top:14px}
 
 .lgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px}
+/* ONE record is not a grid. `auto-fill` left a single 330px card
+   marooned in ~900px of empty page on a 1280px desktop; the fix is not
+   a wider minmax (that breaks the many-card case) but dropping out of
+   the grid entirely and letting the card go horizontal. */
+.lgrid.one{grid-template-columns:1fr}
+.lcard.wide{display:grid; grid-template-columns:minmax(0,1.35fr) minmax(240px,.65fr);
+  gap:0 var(--s-8); align-items:start; padding:var(--s-6) var(--s-7)}
+.lcard.wide .lc-head{grid-column:1}
+.lcard.wide .lc-sum{grid-column:1; max-width:62ch}
+.lcard.wide .lc-tech{grid-column:2; grid-row:1 / span 2; margin-top:0}
+.lcard.wide .lc-prog{grid-column:1; margin-top:var(--s-5); max-width:520px}
+.lcard.wide .lc-foot{grid-column:1 / -1; margin-top:var(--s-5);
+  padding-top:var(--s-4); border-top:1px solid var(--border-subtle)}
+.lcard.wide .alert{grid-column:1 / -1}
+.lcard.wide h3{font-size:var(--t-xl)}
 .lcard{display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border);
   border-radius:var(--r-lg); box-shadow:var(--e1); padding:18px 20px 16px; min-width:0}
 .lcard:hover,.lcard:focus-within{border-color:var(--action-border); box-shadow:var(--e2)}
@@ -418,6 +435,33 @@ table.dt.sm td{padding:10px 20px; font-size:13.5px}
 .techstates .ts-not-started .ts-s{color:var(--text-3)}
 
 /* ---------- Student Home ---------- */
+/* `.resume` was the old "Continue where you left off" strip, which sat
+   above a list that repeated the same experiment with its own Continue
+   button. The duplication is gone (see studentHome in student.js) and
+   `.focus` is what replaced it: THE one primary action on the page,
+   given the weight that being the only one earns it. */
+.focus{background:var(--surface); border:1px solid var(--action-border); border-radius:var(--r-lg);
+  box-shadow:var(--e1); padding:var(--s-6) var(--s-7);
+  border-left:3px solid var(--action)}
+/* A state nobody can act on — waiting on a Faculty member, or all
+   finished — is still worth featuring, but it is not an invitation.
+   It loses the accent so it never looks like a call to action. */
+.focus.quiet{border-color:var(--border); border-left-color:var(--border-strong); background:var(--n-25)}
+.focus .fc-k{font-size:var(--t-xs); font-weight:var(--w-bold); letter-spacing:.08em;
+  text-transform:uppercase; color:var(--action); margin-bottom:var(--s-3)}
+.focus.quiet .fc-k{color:var(--text-3)}
+.focus .fc-ctx{font-size:var(--t-sm); color:var(--text-3)}
+.focus .fc-t{font-size:var(--t-2xl); line-height:1.25; font-weight:var(--w-bold);
+  letter-spacing:-.016em; margin-top:var(--s-1); overflow-wrap:anywhere}
+.focus .fc-t a{color:var(--text); text-decoration:none}
+.focus .fc-t a:hover{color:var(--action); text-decoration:underline}
+.focus .fc-s{font-size:14px; color:var(--text-2); line-height:var(--lh-snug); margin-top:var(--s-2);
+  max-width:64ch}
+.focus .fc-p{margin-top:var(--s-5); max-width:520px}
+.focus .fc-a{display:flex; align-items:center; gap:var(--s-4); flex-wrap:wrap; margin-top:var(--s-6)}
+.focus .fc-when{font-size:var(--t-sm); color:var(--text-3)}
+
+/* Retained: the assessment-attempt screens still use it. */
 .resume{display:flex; gap:16px; align-items:center; flex-wrap:wrap}
 .resume .rz-body{flex:1 1 260px; min-width:0}
 .resume .rz-ctx{font-size:12px; color:var(--text-3)}
@@ -1131,3 +1175,861 @@ details.canon .cn-b{min-width:0}
 .tickets .tk-r svg.ic{color:var(--success-700); flex:0 0 auto; margin-top:2px}
 .tickets .tk-w svg.ic{color:var(--text-3); flex:0 0 auto; margin-top:2px}
 .tickets .tk-r p,.tickets .tk-w p{margin-top:3px}
+
+
+/* ============================================================
+   IMPLEMENTATION 08R — support media + the rebuilt Help screen.
+   ============================================================ */
+
+/* Help is ONE column now. The old two-column layout put a rail of
+   scope caveats beside the form; at the reading width the form wants,
+   a second column of prose is what made the page feel like paperwork. */
+.helpcol{max-width:760px}
+.helpfoot{display:flex; gap:var(--s-2); align-items:flex-start; font-size:var(--t-sm);
+  color:var(--text-3); line-height:var(--lh-snug); padding:0 var(--s-1)}
+.helpfoot svg.ic{flex:0 0 auto; margin-top:2px}
+
+/* ---------- the attach surface ----------
+   A real label wrapping a real file input: the whole panel is the
+   control, so a click anywhere on it opens the picker and the keyboard
+   reaches it through the input itself. `.sr-only` is not used because
+   the input must keep a focus ring the user can see on the panel. */
+.dropsurface{display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:var(--s-2); text-align:center; cursor:pointer;
+  border:1.5px dashed var(--control-border); border-radius:var(--r-md);
+  background:var(--n-25); padding:var(--s-6) var(--s-5); color:var(--text-3);
+  transition:border-color var(--m-fast) var(--ease), background var(--m-fast) var(--ease)}
+.dropsurface:hover{border-color:var(--action); background:var(--action-subtle); color:var(--action)}
+.dropsurface svg.ic{color:var(--text-3)}
+.dropsurface:hover svg.ic{color:var(--action)}
+.dropsurface .ds-t{font-size:var(--t-md); font-weight:var(--w-semi); color:var(--text)}
+.dropsurface:hover .ds-t{color:var(--action)}
+.dropsurface .ds-s{font-size:var(--t-sm); color:var(--text-3)}
+/* The input is inside the label and must not add a second box, but it
+   still has to be focusable and must not contribute page overflow. */
+.dropsurface input[type=file]{position:absolute; width:1px; height:1px; min-width:0; min-height:0;
+  padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); border:0; opacity:0}
+.dropsurface:focus-within{border-color:var(--focus); outline:2px solid var(--focus); outline-offset:2px}
+
+/* ---------- the chosen file, and the same row inside a report ---------- */
+.mediapick{margin-top:var(--s-3)}
+.mediapick .mp-err{display:flex; gap:var(--s-2); align-items:flex-start;
+  font-size:var(--t-sm); color:var(--danger-700); line-height:var(--lh-snug)}
+.mp-row{display:flex; align-items:center; gap:var(--s-4); flex-wrap:wrap;
+  border:1px solid var(--border); border-radius:var(--r-md); background:var(--surface);
+  padding:var(--s-3) var(--s-4)}
+.mp-thumb{width:64px; height:48px; flex:0 0 auto; border-radius:var(--r-sm);
+  object-fit:cover; background:var(--sunken); border:1px solid var(--border)}
+span.mp-thumb.mp-none{display:flex; align-items:center; justify-content:center; color:var(--text-3)}
+.mp-b{min-width:0; flex:1 1 180px; display:flex; flex-direction:column; gap:1px}
+.mp-n{font-size:var(--t-md); font-weight:var(--w-semi); color:var(--text); overflow-wrap:anywhere}
+.mp-m{font-size:var(--t-sm); color:var(--text-3)}
+.mp-row .btn{flex:0 0 auto; margin-left:auto}
+
+/* ---------- attached evidence on a submitted report ---------- */
+.tk-media{margin-top:var(--s-4); padding-top:var(--s-4); border-top:1px solid var(--border-subtle)}
+.tk-mk{display:flex; align-items:center; gap:var(--s-2); font-size:var(--t-eyebrow);
+  font-weight:var(--w-bold); letter-spacing:.07em; text-transform:uppercase;
+  color:var(--text-3); margin-bottom:var(--s-3)}
+.tk-media .mp-row{background:var(--n-25)}
+.tk-mn{font-size:var(--t-sm); color:var(--text-3); line-height:var(--lh-snug); margin-top:var(--s-2)}
+
+
+/* ---------- an internal reference, kept secondary ----------
+   Small, muted, and never the loudest thing in its row. `ACC-001` is a
+   traceability handle; the content, the recipient and the term are what
+   the reader is actually there for. */
+.accref{display:inline-flex; align-items:baseline; gap:var(--s-2);
+  font-size:var(--t-sm); color:var(--text-3); white-space:nowrap}
+.accref .ar-k{font-size:var(--t-xs)}
+.accref .ar-v{font-family:var(--mono); font-size:var(--t-sm)}
+td .accref, .rr-m .accref{margin-top:2px}
+
+
+/* The requester clause in the catalogue results bar — one muted line
+   where a bordered callout used to sit across the whole page. */
+.rb-held{display:flex; gap:var(--s-2); align-items:flex-start; margin-top:var(--s-2);
+  font-size:var(--t-sm); color:var(--text-3); line-height:var(--lh-snug); max-width:66ch}
+.rb-held svg.ic{flex:0 0 auto; margin-top:2px}
+.rb-held strong{color:var(--text-2)}
+/* The chip stays subtle: it marks a state, it is not a call to action. */
+.badge.heldchip{cursor:default}
+
+/* ==== BEGIN IMPLEMENTATION 08 — merged per-area screen CSS ==== */
+/* ============================================================
+   IMPLEMENTATION 08 — per-area screen CSS, merged.
+
+   The redesign was carried out one role area at a time, with each area
+   owning its own screen files. CSS was collected separately and merged
+   here in one pass, rather than letting six writers edit one stylesheet
+   concurrently.
+
+   This block is MACHINE-MERGED and delimited by the sentinels above and
+   below it. Everything above the BEGIN sentinel is the hand-written
+   stylesheet and is not touched by the merge.
+
+   Order is alphabetical by area, so the cascade is stable between runs.
+   ============================================================ */
+
+
+/* ---------------- area: content-production (css-content-production.css) ---------------- */
+/* ============================================================
+   Implementation 08 — CONTENT PRODUCTION (Vendor · Academic Reviewer ·
+   Content Manager · later versions).
+
+   Appended for central merge into css/screens.css. Nothing here is a
+   new visual language: each rule either repairs a declaration that has
+   never applied, or promotes an existing treatment out of the one
+   screen it was scoped to so a second screen can reuse it.
+   ============================================================ */
+
+/* ---------- 1 · the supporting-references editor ----------
+   The undefined `var(--line)` border has already been repaired at the
+   root in components.css, so nothing here touches the box itself. What
+   is still missing is everything INSIDE it: `.refed` is not a `.field`,
+   so its labels, its two text inputs, its file picker and its `.fhint`
+   lines match no rule in any stylesheet and render as raw browser
+   defaults. It is the control the Content Manager's return sheet and
+   the Academic Reviewer's change request both draw. */
+.refed .fhint{font-size:var(--t-sm); color:var(--text-3); line-height:var(--lh-snug);
+  margin:0 0 var(--s-3); display:flex; gap:var(--s-2); align-items:baseline}
+.refed .fhint svg.ic{flex:0 0 auto}
+.refed label{display:block; font-size:var(--t-sm); font-weight:var(--w-semi); color:var(--text);
+  margin-top:var(--s-3)}
+.refed label:first-of-type{margin-top:0}
+.refed input[type=url],.refed input[type=text]{display:block; width:100%; margin-top:var(--s-2);
+  height:36px; border:1px solid var(--control-border); border-radius:var(--r-sm);
+  background:var(--surface); color:var(--text); font:inherit; font-size:var(--t-md);
+  padding:0 var(--s-3)}
+.refed input:focus-visible{outline:2px solid var(--focus); outline-offset:1px}
+.refed input[type=file]{display:block; margin-top:var(--s-2); font-size:var(--t-sm); max-width:100%}
+
+/* ---------- 2 · a radio row that is a real choice ----------
+   The Content Manager's two return destinations are the single most
+   consequential binary on that plane, and they rendered as two bare
+   `.radiorow` list items — 8px of vertical padding, no border, no
+   hover, no selected state — while a Student answering a quiz question
+   got bordered tiles (screens.css `.qcard .radiorow`). This promotes
+   that treatment to a reusable modifier so the fork reads as two cards
+   you pick between. `.qcard .radiorow` is untouched. */
+.radiorow.choice{padding:var(--s-4); border:1px solid var(--border); border-radius:var(--r-md);
+  background:var(--surface); cursor:pointer; align-items:flex-start;
+  transition:border-color var(--m-fast) var(--ease), background var(--m-fast) var(--ease)}
+.radiorow.choice+.radiorow.choice{margin-top:var(--s-3)}
+.radiorow.choice:hover{background:var(--raised); border-color:var(--control-border)}
+.radiorow.choice:focus-within{border-color:var(--action-border);
+  box-shadow:0 0 0 3px var(--action-subtle)}
+.radiorow.choice.is-selected{border-color:var(--action); background:var(--action-subtle)}
+.radiorow.choice .rr-t{font-size:var(--t-base)}
+.radiorow.choice .rr-n{margin-top:var(--s-1)}
+/* The destination's consequence, one line, attached to its own tile so
+   both options stay comparable and nothing reflows when the choice
+   changes. */
+.radiorow.choice .rr-c{display:block; font-size:var(--t-sm); color:var(--text-2);
+  line-height:var(--lh-snug); margin-top:var(--s-2); padding-top:var(--s-2);
+  border-top:1px dashed var(--border-subtle)}
+.radiorow.choice.is-selected .rr-c{color:var(--text)}
+/* A radio group is never painted with the input-border error rule: a
+   1.5px danger border around a 18px radio reads as a broken control
+   rather than as a message. The `.ferr` line under the fieldset carries
+   the error, and the fieldset itself takes the tint. */
+.field.invalid fieldset.fgroup{border-radius:var(--r-md)}
+.field.invalid .radiorow.choice{border-color:var(--danger-200)}
+.field.invalid input[type=radio]{border:0}
+
+/* ---------- 3 · the actions column, on a desktop ----------
+   `td.cell-actions` is used on every table in the production chain and
+   is styled only inside the ≤740px media query, so on a desktop the
+   Actions column had no alignment and no width — the Open buttons sat
+   left-aligned in a column of arbitrary size. */
+table.dt td.cell-actions{text-align:right; white-space:nowrap; width:1%}
+
+/* ---------- 4 · the return sheet ----------
+   The Content Manager's "Request changes" decision, in `ui.openSheet`.
+   The sheet stacks its own DIRECT children (`.sh-body>*+*`) and this
+   decision is one child, so the rhythm between the lead line, the two
+   destination tiles, the live line and the reason field comes from
+   here. Nothing may change height as the choice changes: the two tiles
+   carry fixed one-line consequences and the warning box collapses when
+   it is empty, so the reason field does not move under the cursor. */
+.retsheet>*+*{margin-top:var(--s-5)}
+.retsheet .rs-lead{font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-snug); max-width:66ch}
+.retsheet fieldset.fgroup{margin:0; border:0; padding:0}
+.retsheet fieldset.fgroup>legend{font-size:var(--t-md); font-weight:var(--w-semi); color:var(--text);
+  padding:0; margin-bottom:var(--s-3)}
+.retsheet .field{margin-bottom:0}
+/* Empty until a destination is chosen — an empty box must take no room,
+   or the reason field sits at a different height on every open. */
+.retsheet .rs-warn:empty{display:none}
+.retsheet .rs-warn>.alert+.alert{margin-top:var(--s-3)}
+.retsheet .rs-live{margin-top:var(--s-4)}
+.sheet .sh-foot .btn{min-width:0}
+
+/* ---------------- area: faculty (css-faculty.css) ---------------- */
+/* ============================================================
+   IMPLEMENTATION 08 — FACULTY workspace additions.
+
+   Every rule below is needed by js/screens/faculty.js or
+   js/screens/faculty-assess.js and has no equivalent in the existing
+   stylesheets. Nothing here restyles a shared component; each block
+   names the screen that needs it and why.
+   ============================================================ */
+
+/* ---------- segmented proportion bar ----------
+   FACULTY OVERVIEW ("Your experiments" roll-up) and MY CONTENT.
+   Not started / In progress / Awaiting review / Completed are four
+   parts of ONE whole, and printed as four bare integers the reader has
+   to do the proportion arithmetic for every row. `.alloc .al-bar` is
+   the design system's single-fill bar and cannot show four parts, so
+   this is the multi-segment sibling of it — same height, same radius,
+   same track colour. The counts stay in the row beside it and in the
+   table caption, so the bar is never the only carrier of the figure. */
+.pbar{display:flex; height:7px; border-radius:var(--r-pill); background:var(--sunken);
+  overflow:hidden; min-width:110px}
+.pbar>span{display:block; height:100%}
+.pbar .pb-completed{background:var(--success-700)}
+.pbar .pb-awaiting{background:var(--warning-700)}
+.pbar .pb-progress{background:var(--action)}
+.pbar .pb-notstarted{background:var(--n-200)}
+/* The legend under the bar. `.metrics` is the shared figure row, but it
+   cannot carry a colour key, and a key is what makes the bar readable. */
+.pbkey{display:flex; flex-wrap:wrap; gap:2px var(--s-4); margin-top:var(--s-2)}
+.pbkey .pk{display:inline-flex; align-items:baseline; gap:var(--s-2); font-size:var(--t-sm);
+  color:var(--text-3); white-space:nowrap}
+.pbkey .pk-d{width:7px; height:7px; border-radius:2px; flex:0 0 auto; align-self:center}
+.pbkey .pk-d.completed{background:var(--success-700)}
+.pbkey .pk-d.awaiting{background:var(--warning-700)}
+.pbkey .pk-d.progress{background:var(--action)}
+.pbkey .pk-d.notstarted{background:var(--n-200)}
+.pbkey .pk-v{font-weight:var(--w-semi); color:var(--text-2); font-variant-numeric:tabular-nums}
+.pbcell{min-width:150px}
+
+/* ---------- "not released to the student" marker ----------
+   STUDENT PROGRESS and STUDENT DETAIL. Faculty keep seeing a score they
+   evaluated (state.js deliberately does not apply the release guard
+   without `studentView`), but the screen must say when the STUDENT has
+   not been shown it — the progress export already says so in its own
+   column, and a figure quoted from the screen must not contradict it.
+   Deliberately quiet: this is a qualifier on a number, not an alarm. */
+.withheld{display:inline-flex; align-items:center; gap:var(--s-2); margin-top:2px;
+  font-size:var(--t-xs); font-weight:var(--w-semi); color:var(--warning-700);
+  line-height:var(--lh-snug)}
+.withheld svg.ic{width:12px; height:12px; flex:0 0 auto}
+
+/* ---------- faculty student-detail resource list ----------
+   `.reslist` is defined TWICE in screens.css with two incompatible
+   contracts — a stack of <details> cards for the Student learning list
+   (445) and a flat two-column row list for this Faculty card (903) —
+   and both are live at once, so a change made for one workspace reached
+   the other. The Faculty variant gets its own name here; the Student
+   component keeps `.reslist` untouched. */
+.facreslist{list-style:none; margin:0; padding:0}
+.facreslist li{display:flex; gap:var(--s-4); align-items:center; justify-content:space-between;
+  flex-wrap:wrap; padding:9px 0; border-top:1px solid var(--border-subtle)}
+.facreslist li:first-child{border-top:0; padding-top:0}
+.facreslist .rl-t{flex:1 1 200px; min-width:0; font-size:var(--t-md); color:var(--text)}
+
+/* ---------- preview view switch ----------
+   ASSESSMENT PREVIEW. The two view buttons toggle a view of the same
+   page, so they are `aria-pressed` toggles, not `aria-current`
+   navigation. `.seg .segi[aria-current]` already styles the tab case;
+   this is the identical treatment for the toggle case. */
+.seg .segi[aria-pressed="true"]{background:var(--action-subtle); border-color:var(--action);
+  color:var(--action)}
+
+/* ---------- the AI draft workspace ----------
+   DRAFT WITH ASSISTANCE. A draft must never be mistakable for a live
+   Question Bank item, so the whole review area is set on a dashed,
+   tinted ground that no product surface uses. `.draftcard` keeps its
+   own styling inside it. */
+.draftzone{border:1px dashed var(--warning-200); border-radius:var(--r-lg);
+  background:var(--warning-50); padding:var(--s-5)}
+.draftzone>.card{border-color:var(--border)}
+.draftzone .dz-lede{display:flex; gap:var(--s-3); align-items:flex-start; margin-bottom:var(--s-4);
+  font-size:var(--t-sm); color:var(--warning-700); line-height:var(--lh-snug)}
+.draftzone .dz-lede svg.ic{flex:0 0 auto; width:15px; height:15px}
+
+/* ---------- table pagination ----------
+   STUDENT PROGRESS. One row per (student × experiment) across every
+   mapped experiment is unbounded — six experiments with sixty entitled
+   students each is 360 rows in one document. The bar sits under the
+   table and states the window, so "N shown" is never ambiguous. */
+.pagebar{display:flex; align-items:center; gap:var(--s-4); flex-wrap:wrap;
+  padding:var(--s-4) var(--s-6); border-top:1px solid var(--border-subtle)}
+.pagebar .pg-n{font-size:var(--t-sm); color:var(--text-3)}
+.pagebar .pg-a{margin-left:auto; display:flex; gap:var(--s-3)}
+
+/* ---------- a quiet inline note under a card body ----------
+   Used where a card's own footnote would otherwise be a full paragraph:
+   the Student Progress export scope, and the Question Bank filing line. */
+.facnote{font-size:var(--t-sm); color:var(--text-3); line-height:var(--lh-snug);
+  margin-top:var(--s-3)}
+
+/* ---------- a totals row on a stacked table ----------
+   FACULTY OVERVIEW roll-up. Below 740px `table.dt` degrades to stacked
+   cards, and that rule sets thead/tbody/tr/td to block but not the
+   `<th scope="row">` a totals row uses — leaving one table-cell inside a
+   block row. The row keeps its heading semantics and stacks with the
+   rest. (Added AFTER the first merge of this file.) */
+@media (max-width:740px){
+  table.dt tfoot,table.dt tfoot th{display:block; width:100%}
+  table.dt tfoot th{padding:3px 0; font-size:var(--t-md)}
+}
+
+/* ---------- shared-definition marker ----------
+   ASSESSMENT tabs. An assessment definition is keyed tenant × experiment,
+   so two mapped faculty members edit ONE definition. Saying so is the
+   difference between a shared record and a private one. */
+.sharedwith{display:flex; gap:var(--s-3); align-items:flex-start; font-size:var(--t-sm);
+  color:var(--text-2); line-height:var(--lh-snug); margin-top:var(--s-3);
+  padding-top:var(--s-3); border-top:1px solid var(--border-subtle)}
+.sharedwith svg.ic{flex:0 0 auto; width:15px; height:15px; color:var(--text-3)}
+
+/* ---------------- area: public (css-public.css) ---------------- */
+/* ============================================================
+   PUBLIC PLANE — Implementation 08 presentation pass.
+
+   Screens: landing · catalogue · programme / department · course ·
+   experiment detail · selection · institutional request · request
+   status · payment, plus the shared Help surface.
+
+   WHY THIS BLOCK EXISTS. The public sections of screens.css predate
+   the token scale: they set type, spacing and weight as literals, and
+   the two public screen files carried 45 inline `style="…"` attributes
+   between them. Everything below is written on --t-*, --s-*, --w-* and
+   --lh-* so the surface a stakeholder judges the product by reads as
+   one designed system. The old public rules are left in place because
+   several are still used (`.hero`, `.filterbar`, `.accesspanel`,
+   `.sumcard`, `.reqitems`) — these either extend them or replace the
+   ones the screens no longer emit.
+
+   Nothing here introduces a new visual language: every rule composes
+   tokens and patterns the design system already ships.
+   ============================================================ */
+
+/* ---------- landing: the hero's factual line ----------
+   Replaces the three `.herofacts` chips, two of which repeated the
+   lede and the journey strip below them. One `ui.metrics` row of real
+   catalogue figures says more in less space, and cannot drift from the
+   data because it is derived from it. */
+.hero .herostats{margin:var(--s-5) 0 var(--s-8)}
+.hero .herostats .m-v{font-size:var(--t-lg)}
+.hero .hform{font-size:var(--t-md); color:var(--text-3); margin-top:var(--s-3);
+  display:flex; align-items:center; gap:var(--s-2); flex-wrap:wrap}
+.hero .hform svg.ic{width:15px; height:15px; color:var(--text-3); flex:0 0 auto}
+
+/* ---------- catalogue: the results header ----------
+   The result count was filter-bar furniture at 12.5px in the lowest
+   contrast on the page, and the VIEW switch sat inside the filter bar
+   in the same pill styling as the technology FILTERS — two controls
+   with different semantics, visually identical. The count is now a
+   metric row under a real results heading, and the view switch is a
+   segmented control on the right of that header, outside the filters. */
+/* §2 — a "RESULTS" heading over three stat tiles made a catalogue read
+   as a report. The figures are now one quiet line of metadata. */
+.resbar{display:flex; align-items:center; gap:var(--s-4); flex-wrap:wrap;
+  margin:0 0 var(--s-6); padding-bottom:var(--s-3); border-bottom:1px solid var(--border)}
+.resbar .rb-meta{margin:0; min-width:0; flex:1 1 auto; display:flex; align-items:center;
+  gap:var(--s-2); flex-wrap:wrap; font-size:var(--t-sm); color:var(--text-3)}
+.resbar .rb-meta strong{color:var(--text-2); font-weight:var(--w-bold)}
+.resbar .rb-dot{color:var(--border-strong)}
+
+/* §4 — Programme / department is the primary model and the default. The
+   switch was two equal pills under a "VIEW" label, which asked a visitor
+   to choose an information architecture before browsing. It is a small
+   secondary control now: the default reads as plain text, and only the
+   non-default option looks like something to press. */
+.resbar .viewswitch{margin-left:auto; display:flex; align-items:center; gap:var(--s-1)}
+.viewswitch .segi{border:1px solid transparent; background:none; border-radius:var(--r-sm);
+  padding:var(--s-1) var(--s-3); font-size:var(--t-sm); font-weight:var(--w-semi);
+  color:var(--text-3); cursor:pointer; line-height:1.4; font-family:inherit}
+.viewswitch .segi:hover{color:var(--action); background:var(--action-subtle)}
+.viewswitch .segi:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.viewswitch .segi[aria-pressed="true"]{color:var(--text); background:var(--sunken)}
+
+/* One quiet line naming the institution the "Already held" badges
+   refer to. The catalogue is a pre-sign-in surface with no
+   authentication, so a badge that asserts knowledge of the visitor
+   must say where that knowledge came from — on the page where the
+   badge appears, not only on the detail screen. */
+.heldnote{display:flex; gap:var(--s-3); align-items:flex-start; margin-bottom:var(--s-5);
+  padding:var(--s-3) var(--s-4); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  background:var(--n-25); font-size:var(--t-sm); color:var(--text-2); line-height:var(--lh-snug)}
+.heldnote svg.ic{flex:0 0 auto; width:15px; height:15px; color:var(--text-3); margin-top:2px}
+.heldnote strong{color:var(--text)}
+
+/* ---------- catalogue: Programme → Course → Experiment ----------
+   The type hierarchy was inverted: programme 16px, course 14px,
+   experiment 15.5px — the middle level of the structure the catalogue
+   is organised around was the smallest text of the three. One real
+   three-step scale, carried by weight and rule as well as size. */
+.progsec{margin-top:var(--s-9)}
+.progsec:first-child{margin-top:0}
+.progsec .ps-h{padding-bottom:var(--s-3); border-bottom:1px solid var(--border-subtle)}
+.progsec h2{font-size:var(--t-xl); font-weight:var(--w-bold); letter-spacing:-.014em;
+  line-height:var(--lh-tight); overflow-wrap:anywhere}
+.progsec h2 a{color:var(--text); text-decoration:none}
+.progsec h2 a:hover{color:var(--action); text-decoration:underline}
+.progsec .ps-s{font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-snug);
+  margin-top:var(--s-2); max-width:78ch}
+.progsec .ps-m{margin-top:var(--s-3)}
+.progsec .ps-b{margin-top:var(--s-5); display:flex; flex-direction:column; gap:var(--s-4)}
+.progsec .ps-n{font-size:var(--t-sm); color:var(--text-3); line-height:var(--lh-snug);
+  margin-top:var(--s-4); max-width:78ch}
+
+/* An appendix, not a peer of Civil Engineering: published content the
+   catalogue cannot place in the structure is still reachable, but it
+   does not get a full programme section's weight. */
+.progsec.unfiled{margin-top:var(--s-8); padding:var(--s-5); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); background:var(--n-25)}
+.progsec.unfiled .ps-h{border-bottom:0; padding-bottom:0}
+.progsec.unfiled h2{font-size:var(--t-md); font-weight:var(--w-bold); letter-spacing:.04em;
+  text-transform:uppercase; color:var(--text-3)}
+
+/* A PUBLIC course block. The catalogue previously reused the Super
+   Admin's content-governance disclosure row verbatim, so the course
+   name was neither a heading nor a link and carried a right-aligned
+   count where a description belongs. `details` is kept — it is what
+   makes a long course readable on a phone, and the collapse state is
+   remembered across the re-render every keystroke causes. */
+details.coursebk{border:1px solid var(--border); border-radius:var(--r-lg);
+  background:var(--surface); box-shadow:var(--e1); min-width:0}
+details.coursebk>summary{display:flex; align-items:baseline; gap:var(--s-3);
+  padding:var(--s-4) var(--s-5); cursor:pointer; list-style:none; border-radius:var(--r-lg)}
+details.coursebk>summary::-webkit-details-marker{display:none}
+details.coursebk>summary:hover{background:var(--n-25)}
+details.coursebk>summary:focus-visible{outline:2px solid var(--focus); outline-offset:-2px;
+  border-radius:var(--r-lg)}
+details.coursebk>summary h3{font-size:var(--t-lg); font-weight:var(--w-semi); letter-spacing:-.008em;
+  line-height:var(--lh-tight); color:var(--text); min-width:0; flex:1 1 auto; overflow-wrap:anywhere}
+details.coursebk .cb-n{flex:0 0 auto; font-size:var(--t-sm); color:var(--text-3); white-space:nowrap}
+details.coursebk .cb-x{flex:0 0 auto; color:var(--text-3); align-self:center;
+  transition:transform var(--m-fast) var(--ease)}
+details.coursebk[open]>summary .cb-x{transform:rotate(90deg)}
+details.coursebk[open]>summary{border-bottom:1px solid var(--border-subtle);
+  border-radius:var(--r-lg) var(--r-lg) 0 0}
+details.coursebk .cb-b{padding:var(--s-4) var(--s-5) var(--s-5); min-width:0}
+details.coursebk .cb-s{font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-base); max-width:78ch;
+  margin:0; flex:1 1 320px}
+/* §5 — one consistent action per Course, replacing the underlined
+   "<Course name> course page" link. */
+details.coursebk .cb-head{display:flex; align-items:baseline; gap:var(--s-4); flex-wrap:wrap}
+details.coursebk .cb-go{margin-left:auto; flex:0 0 auto; display:inline-flex; align-items:center;
+  gap:var(--s-1); font-size:var(--t-sm); font-weight:var(--w-semi); color:var(--action);
+  text-decoration:none; white-space:nowrap}
+details.coursebk .cb-go:hover{text-decoration:underline}
+details.coursebk .cb-go:focus-visible{outline:2px solid var(--focus); outline-offset:2px;
+  border-radius:var(--r-sm)}
+details.coursebk .cb-go svg.ic{width:14px; height:14px}
+
+/* ---------- ONE experiment component ----------
+   The same experiment used to be rendered by two unrelated card
+   systems that did not carry the same information, so switching view
+   changed what the reader LEARNED and not only how results were
+   arranged. One anatomy now; the container decides whether the
+   programme / course line is shown and how the items are laid out. */
+/* A GRID, not a column. Twenty to fifty Experiments stacked one per
+   row is a scroll, not a catalogue; three across at desktop width is
+   what makes the set scannable. Collapses to one column on a phone
+   through the existing `.catgrid` breakpoint rule below. */
+.explist{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:var(--s-4); list-style:none; margin:0; padding:0}
+.explist.inset{margin-top:var(--s-2)}
+.expgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(288px,1fr));
+  gap:var(--s-4); list-style:none; margin:0; padding:0}
+/* ⚠ ONE RULE. There were THREE `.expcard` rules in this stylesheet —
+   this one, a padding override, and a third that set
+   `background:transparent; border:0; border-radius:0; box-shadow:none`.
+   The last one won, so the public catalogue rendered every Experiment
+   as bare text separated by a hairline: the single worst surface in the
+   build, on the page a stakeholder judges the product by. The two
+   overrides are gone and this is the card. */
+.expcard{display:flex; flex-direction:column; gap:var(--s-2); min-width:0;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  box-shadow:var(--e1); padding:var(--s-5) var(--s-5) var(--s-4);
+  transition:border-color var(--m-fast) var(--ease), box-shadow var(--m-fast) var(--ease)}
+.expcard:hover,.expcard:focus-within{border-color:var(--action-border); box-shadow:var(--e2)}
+.expcard h3,.expcard h4{font-size:var(--t-lg); font-weight:var(--w-bold); line-height:1.3;
+  letter-spacing:-.008em}
+.expcard h3 a,.expcard h4 a{color:var(--text); text-decoration:none}
+.expcard h3 a:hover,.expcard h4 a:hover{color:var(--action); text-decoration:underline}
+.expcard .xc-ctx{font-size:var(--t-sm); color:var(--text-3)}
+.expcard .xc-s{font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-snug); flex:1 1 auto}
+.expcard .xc-f{display:flex; align-items:center; gap:var(--s-2); flex-wrap:wrap;
+  margin-top:var(--s-3); padding-top:var(--s-3); border-top:1px solid var(--border-subtle)}
+.expcard .xc-sel{display:inline-flex; align-items:center; gap:var(--s-1);
+  font-size:var(--t-sm); font-weight:var(--w-semi); color:var(--success-700)}
+.expcard:hover,.expcard:focus-within{border-color:var(--action-border); box-shadow:var(--e1)}
+.expcard .xc-ctx{font-size:var(--t-xs); color:var(--text-3); overflow-wrap:anywhere}
+.expcard h3,.expcard h4{font-size:var(--t-base); font-weight:var(--w-semi); letter-spacing:-.006em;
+  line-height:var(--lh-tight); overflow-wrap:anywhere}
+.expcard h3 a,.expcard h4 a{color:var(--text); text-decoration:none}
+.expcard h3 a:hover,.expcard h4 a:hover{color:var(--action); text-decoration:underline}
+.expcard .xc-s{font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-snug); max-width:82ch}
+.expcard .xc-f{display:flex; align-items:center; gap:var(--s-2); flex-wrap:wrap;
+  margin-top:auto; padding-top:var(--s-2)}
+
+/* §9 — ONE link per card, stretched over the whole card, so the card is
+   clickable everywhere without a second competing anchor. The cue below
+   is decorative; the link's accessible name is the experiment's own. */
+.expcard{position:relative}
+.expcard h3 a::after,.expcard h4 a::after{content:''; position:absolute; inset:0; z-index:1}
+.expcard h3 a:hover,.expcard h4 a:hover{text-decoration:none}
+.expcard:hover h3 a,.expcard:hover h4 a{color:var(--action)}
+.expcard:focus-within{border-color:var(--action-border); box-shadow:var(--e2)}
+
+/* §8 — "Already held" is an ACCESS STATE, not a technology. It sat in
+   the same badge row as Web / VR / AR and read as a fourth format. It
+   gets its own row and its own semantics: no format colour, a building
+   glyph, and a quiet neutral surface. */
+.expcard .xc-state{display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap;
+  margin-top:var(--s-3); padding-top:var(--s-3); border-top:1px solid var(--border-subtle)}
+.heldstate{display:inline-flex; align-items:center; gap:var(--s-2);
+  font-size:var(--t-sm); font-weight:var(--w-semi); color:var(--text-2);
+  background:var(--sunken); border:1px solid var(--border); border-radius:var(--r-pill);
+  padding:2px var(--s-3)}
+.heldstate svg.ic{width:13px; height:13px; color:var(--text-3)}
+
+/* §7/§9 — the discovery cue. */
+.expcard .xc-go{display:inline-flex; align-items:center; gap:var(--s-1); margin-top:var(--s-3);
+  font-size:var(--t-sm); font-weight:var(--w-semi); color:var(--action)}
+.expcard .xc-go svg.ic{width:14px; height:14px;
+  transition:transform var(--m-fast) var(--ease)}
+.expcard:hover .xc-go svg.ic{transform:translateX(2px)}
+.expcard .xc-sel{position:relative; z-index:2; font-size:var(--t-sm); font-weight:var(--w-bold);
+  color:var(--success-700); display:inline-flex; align-items:center; gap:var(--s-1)}
+.expgrid /* (removed at 08R — see the consolidated .expcard rule) */
+
+/* Inside a course block the rows are already inside a card, so they
+   drop their own chrome and separate on a rule instead — a card in a
+   card reads as two objects when it is one list. */
+.explist.inset{gap:0}
+.explist.inset /* (removed at 08R — this stripped the card entirely; see below) */
+.explist.inset .expcard:first-child{border-top:0; padding-top:var(--s-2)}
+.explist.inset .expcard:hover,.explist.inset .expcard:focus-within{box-shadow:none;
+  border-top-color:var(--border-subtle)}
+
+/* ---------- experiment detail: the hero ----------
+   The eyebrow and the technology row were marked up as `.pmeta`, whose
+   only stylesheet rule is `.phead .pmeta` — a selector that never
+   matched here, so the context line rendered at full body size in full
+   black and competed with the h1 beneath it. They get their own
+   classes, sized and coloured BELOW the h1 in the hierarchy. */
+.phero .ph-eyebrow{display:flex; align-items:center; gap:var(--s-2); flex-wrap:wrap;
+  font-size:var(--t-sm); color:var(--text-3); margin-bottom:var(--s-2); overflow-wrap:anywhere}
+.phero .ph-tags{display:flex; align-items:center; gap:var(--s-2); flex-wrap:wrap; margin-top:var(--s-4)}
+/* Provenance, not a fifth technology format. "Version 1.0" sat inline
+   with the technology badges in matching pill styling and read as one
+   of them. */
+.phero .ph-prov{display:flex; align-items:center; gap:var(--s-2); flex-wrap:wrap;
+  font-size:var(--t-sm); color:var(--text-3); margin-top:var(--s-3)}
+.phero .ph-prov svg.ic{width:14px; height:14px; color:var(--text-3); flex:0 0 auto}
+.phero .ph-cards{margin-top:var(--s-7)}
+
+/* Learning outcomes use the shared ordered list (`cui.outcomesList`),
+   which numbers them and hides the tick. A green check is this
+   product's ACHIEVED signal; on a pre-login catalogue page it implied
+   the visitor had reached outcomes the experiment merely intends. */
+.outcomelist.ordered{padding-left:22px}
+.outcomelist.ordered li{padding:var(--s-2) 0 var(--s-2) var(--s-1);
+  font-size:var(--t-base); color:var(--text-2); line-height:var(--lh-snug)}
+.outcomelist.ordered li::marker{color:var(--text-3); font-size:var(--t-sm); font-weight:var(--w-bold)}
+
+/* The procurement question, answered. The card was titled "technologies
+   & device requirements" and rendered only `def.device`; the two
+   strings that actually answer "can we deploy this?" — the delivery
+   mode and the hardware requirement — were never shown publicly. */
+.techreq{display:flex; flex-direction:column; list-style:none; margin:0; padding:0; min-width:0}
+.techreq li{display:flex; gap:var(--s-4); align-items:flex-start;
+  padding:var(--s-4) 0; border-top:1px solid var(--border-subtle); min-width:0}
+.techreq li:first-child{border-top:0; padding-top:0}
+.techreq li:last-child{padding-bottom:0}
+.techreq .fmt{flex:0 0 auto; margin-top:2px}
+.techreq .tr-b{min-width:0; flex:1 1 auto}
+.techreq .tr-n{font-size:var(--t-base); font-weight:var(--w-semi); color:var(--text)}
+.techreq .tr-d{font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-snug); margin-top:var(--s-1)}
+.techreq .tr-r{font-size:var(--t-md); color:var(--text-3); line-height:var(--lh-snug); margin-top:2px}
+
+/* ---------- experiment detail: the preview ----------
+   NO IMAGERY IS FABRICATED. The build hosts no media and no seeded
+   experiment carries a preview link, so this is what most catalogue
+   pages show. The old treatment was a 170px DASHED box — and a dashed
+   outline is this product's own convention for prototype scaffolding,
+   so the resting state of every experiment page read as unfinished.
+   This is a solid, aspect-locked neutral surface tinted with the
+   accent of the technology the experiment already carries. */
+.pvframe{position:relative; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:var(--s-3); text-align:center; padding:var(--s-6);
+  aspect-ratio:16/9; min-height:148px; border:1px solid var(--border);
+  border-radius:var(--r-md); background:var(--n-50); overflow:hidden}
+.pvframe.t-web{background:var(--fmt-web-s); border-color:var(--fmt-web-b)}
+.pvframe.t-vr{background:var(--fmt-vr-s); border-color:var(--fmt-vr-b)}
+.pvframe.t-mr{background:var(--fmt-mr-s); border-color:var(--fmt-mr-b)}
+.pvframe.t-ar{background:var(--fmt-ar-s); border-color:var(--fmt-ar-b)}
+.pvframe .pv-mark{width:44px; height:44px; border-radius:50%; flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--surface); border:1px solid var(--border-strong); color:var(--text-2)}
+.pvframe .pv-mark svg.ic{width:20px; height:20px}
+.pvframe .pv-empty{font-size:var(--t-md); font-weight:var(--w-semi); color:var(--text-2)}
+.pvframe .pvid{margin-top:0; justify-content:center}
+.pv-cap{font-size:var(--t-sm); color:var(--text-3); line-height:var(--lh-snug);
+  margin-top:var(--s-3); max-width:66ch}
+
+/* ---------- what the institution already holds ----------
+   Moved out of the 360px sticky rail and into the main column. In the
+   rail it was a kicker, a paragraph, a block per access record, an
+   expired-records caveat and a prototype note stacked ABOVE the rail's
+   own title and its primary action — which routinely made the rail the
+   tallest column on the page, at which point `position:sticky` can
+   never engage. */
+.heldrecs{display:flex; flex-direction:column; gap:var(--s-3); list-style:none; margin:0; padding:0}
+.heldrec{border:1px solid var(--border); border-radius:var(--r-md); background:var(--n-25);
+  padding:var(--s-4) var(--s-5); min-width:0}
+.heldrec .hr-h{display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap}
+.heldrec .hr-id{font-family:var(--mono); font-size:var(--t-sm); color:var(--text-3); margin-left:auto}
+.heldrec .hr-t{display:flex; gap:var(--s-2); flex-wrap:wrap; margin-top:var(--s-3)}
+.heldrec .hr-m{font-size:var(--t-sm); color:var(--text-2); margin-top:var(--s-3)}
+.heldrec .metrics{margin-top:var(--s-3)}
+
+/* ---------- experiment detail: the decision rail ----------
+   The rail carries the decision and nothing else now: choose formats,
+   add to selection. The device sentence it used to repeat verbatim
+   from the requirements card is replaced by a pointer to it. */
+.techpick.compact .tp-row{padding:var(--s-3) var(--s-4)}
+.accesspanel .ap-x{font-size:var(--t-sm); color:var(--text-3); line-height:var(--lh-snug);
+  margin:var(--s-3) 0 0}
+
+/* ---------- selection ---------- */
+/* The load-bearing honesty claim of the public plane was carried in the
+   smallest, lowest-contrast type on the screen, below the CTAs. The
+   entitlement statement is body size beside the primary action; only
+   the build caveat stays small. */
+.sumcard .sc-say{padding:0 20px var(--s-5); font-size:var(--t-md); color:var(--text-2);
+  line-height:var(--lh-snug)}
+.sumcard .sc-say strong{color:var(--text); font-weight:var(--w-semi)}
+/* The rule is legible BEFORE it is hit: the last remaining format is
+   locked rather than silently re-checked after the reader clears it. */
+.selrow .sr-lock{font-size:var(--t-sm); color:var(--text-3); line-height:var(--lh-snug);
+  margin-top:var(--s-2)}
+.techchecks label.locked{color:var(--text-2)}
+
+/* ---------- institutional request: the route statement ----------
+   Whether the institution will be asked to pay is the one fact on this
+   form with commercial consequences, and it was the second sentence of
+   a 13px grey box. It is now a statement of record with the route
+   drawn as a `ui.track`. */
+.routecard{border:1px solid var(--border); border-left:3px solid var(--action);
+  border-radius:var(--r-md); background:var(--surface); padding:var(--s-5); min-width:0}
+.routecard .rc-k{font-size:var(--t-eyebrow); font-weight:var(--w-bold); letter-spacing:.08em;
+  text-transform:uppercase; color:var(--text-3)}
+.routecard .rc-t{display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap;
+  font-size:var(--t-lg); font-weight:var(--w-bold); color:var(--text); margin-top:var(--s-1);
+  overflow-wrap:anywhere}
+.routecard .rc-d{font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-base);
+  margin-top:var(--s-2); max-width:74ch}
+.routecard .track{margin-top:var(--s-4)}
+
+/* One submit area that carries the action and the consequence together,
+   instead of a button with a caption under it. */
+.submitbar{display:flex; align-items:center; gap:var(--s-4) var(--s-5); flex-wrap:wrap;
+  padding:var(--s-5); border:1px solid var(--border); border-radius:var(--r-md);
+  background:var(--n-25); min-width:0}
+.submitbar .sb-n{flex:1 1 260px; min-width:0; font-size:var(--t-md); color:var(--text-2);
+  line-height:var(--lh-snug); max-width:60ch}
+.submitbar .sb-n strong{color:var(--text); font-weight:var(--w-semi)}
+
+/* ---------- payment ----------
+   The page ran to 660px while every other public screen runs to 1120,
+   and its only controls sat inside a dashed prototype caveat. The
+   outcomes now have a real action bar; the note beside them explains
+   why three outcomes exist rather than boxing them in. */
+.payact{display:flex; align-items:center; gap:var(--s-4) var(--s-5); flex-wrap:wrap;
+  padding:var(--s-5); border:1px solid var(--border); border-radius:var(--r-md);
+  background:var(--surface); box-shadow:var(--e1); min-width:0}
+.payact .pa-n{flex:1 1 260px; min-width:0; font-size:var(--t-md); color:var(--text-2);
+  line-height:var(--lh-snug); max-width:56ch}
+.payact .pa-alt{display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap; min-width:0}
+.payact .pa-k{font-size:var(--t-xs); font-weight:var(--w-bold); letter-spacing:.05em;
+  text-transform:uppercase; color:var(--text-3); white-space:nowrap}
+
+/* ---------- Help / support ----------
+   The reporter can now see their report's own lifecycle. The state
+   layer has maintained submitted / resolved / reopened entries all
+   along; the reporter was shown two states and never the trail. */
+.tickets .tk-hist{margin-top:var(--s-3)}
+.tickets .tk-hist .timeline{margin-top:var(--s-2)}
+.tickets .tk-prev{display:flex; gap:var(--s-3); align-items:flex-start; margin-top:var(--s-3);
+  padding-top:var(--s-3); border-top:1px solid var(--border-subtle);
+  font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-snug)}
+.tickets .tk-prev svg.ic{flex:0 0 auto; margin-top:2px; color:var(--text-3)}
+
+/* ---------- responsive ---------- */
+@media (max-width:640px){
+  .expgrid{grid-template-columns:1fr}
+  .resbar .rb-a{margin-left:0; width:100%}
+  .submitbar .btn,.payact .btn{flex:1 1 auto; justify-content:center}
+}
+
+/* ---------- rules that replace the inline styles ----------
+   The two public screen files carried 45 `style="…"` attributes between
+   them, almost all of them `margin-top:8px` on a paragraph inside an
+   alert or a list inside a card. There are none left; these are the
+   rules that took their place. Everything is scoped to `.pubmain` (the
+   public shell's main region) or to a public-only class, so no
+   workspace surface changes. */
+.pubmain .alert>div>*+*{margin-top:var(--s-3)}
+.pubmain .alert .reqitems{margin-top:var(--s-3)}
+.pubmain .kv+.reqitems{margin-top:var(--s-4)}
+.ri-body .ri-held{margin-top:var(--s-1)}
+.accesspanel .fgroup{margin:0}
+.pubnote{margin-top:var(--s-5)}
+
+/* The results header's own label sits above its metric row. */
+.resbar .rb-b .rb-k{display:block; margin-bottom:var(--s-2)}
+
+/* The access term was a bare radio group with three one-word labels and
+   no statement of what a term means. `.rr-t` / `.rr-n` already exist;
+   the group needed a container that makes the three read as choices. */
+.termgroup .radiorow{padding:var(--s-3) var(--s-4); border:1px solid var(--border);
+  border-radius:var(--r-sm); margin-bottom:var(--s-2)}
+.termgroup .radiorow:last-child{margin-bottom:0}
+.termgroup .radiorow:hover{background:var(--n-25)}
+.termgroup .radiorow label{flex:1 1 auto; min-width:0; cursor:pointer; margin-bottom:0}
+
+/* The access record's id is an issued identifier (mono); the term
+   beside it is ordinary text and must not read as a second id. */
+.heldrec .hr-term{font-size:var(--t-sm); color:var(--text-3)}
+
+/* `.field label` sets weight 600 for the whole label, which made the
+   term's consequence line as heavy as the term's own name. */
+.termgroup .radiorow .rr-n{font-weight:400}
+
+/* A locked format is dimmed, and the pointer says so. */
+.techchecks label.locked{color:var(--text-2)}
+.techchecks label.locked input{cursor:not-allowed}
+
+/* The alert's own title already sits tight against its first line; the
+   paragraph rule above must not open a gap under it. */
+.pubmain .alert>div>.at+*{margin-top:var(--s-1)}
+
+/* The catalogue's view switch is a TOGGLE group, so its state is
+   `aria-pressed`; `.seg .segi[aria-current]` styles the navigation
+   variant. Same look, correct semantics. */
+.seg .segi[aria-pressed="true"]{background:var(--action-subtle); border-color:var(--action); color:var(--action)}
+
+/* ---------------- area: student-rest (css-student-rest.css) ---------------- */
+/* ============================================================
+   Implementation 08 — CSS requested by the STUDENT-REST area
+   (js/screens/student-learn.js · js/screens/student-ops.js).
+
+   Five small additions. Nothing here overrides an existing rule; each
+   one exists because a screen in this area stopped building a private
+   component by hand and started using a shared one, and the shared one
+   needs a container or a size it did not need before.
+   ============================================================ */
+
+/* ---------- the experiment progression band ----------
+   SCREEN: Student · Experiment detail, and the Assessment introduction.
+   WHY: those two screens draw LEARNING RESOURCES → SIMULATION →
+   ASSESSMENT → COMPLETION with the shared `ui.track()` stepper instead
+   of the Student-only `.seqstrip` that predated it. `.seqstrip` carried
+   its own `margin:0 0 24px`; `.track` is a general-purpose component
+   with no outer margin, so the one place it is used as a page-level
+   band between the head and the working columns needs the spacing and
+   a label. The label matters on the assessment screen in particular:
+   it is what says the four steps belong to the EXPERIMENT, so a
+   Student cannot read the Assessment step as one assessment per
+   technology. */
+.exptrack{margin:0 0 24px}
+.exptrack .et-k{font-size:11px; font-weight:650; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--text-3); margin:0 0 9px}
+
+/* ---------- rail panel: running text and the outcome list ----------
+   SCREEN: Student · Experiment detail — the "About this experiment"
+   panel.
+   WHY: the description and the learning outcomes moved out of a
+   full-width card at the top of the main column (where a page about
+   DOING an experiment opened with two paragraphs about it) into the
+   rail beside the work. `.lpanel` had styles for its heading, its
+   figures and its notes but none for a paragraph of running text, and
+   `.outcomelist` is sized for a 600px column rather than a 320px one. */
+.lpanel .lp-txt{font-size:13px; color:var(--text-2); line-height:1.6; margin:0}
+.lpanel .subh{margin-top:14px}
+.lpanel .outcomelist li{font-size:13px; padding:6px 0; line-height:1.5}
+
+/* ---------- rail panel: the one thing left to do ----------
+   SCREEN: Student · Experiment detail — "Your progress".
+   WHY: the "mark the remaining resources as done" cue used `.lp-note`
+   with three inline style overrides cancelling that class's top rule
+   and padding. `.lp-note` is the panel's FOOTNOTE (separated by a rule
+   above it); this is a cue attached to the progress bar directly above
+   it, which is a different thing and now says so. */
+.lpanel .lp-cue{display:flex; gap:7px; align-items:flex-start; font-size:12px; color:var(--text-3);
+  line-height:1.55; margin-top:10px}
+.lpanel .lp-cue svg.ic{flex:0 0 auto; margin-top:2px}
+
+/* ---------------- area: tenant (css-tenant.css) ---------------- */
+/* ============================================================
+   TENANT AREA — CSS hand-back for the Implementation 08 UX pass.
+   Three rules. Everything else in the tenant workspace was rebuilt on
+   classes that already exist (.accessrec, .filterbar, .reclist/.recrow,
+   .metrics, .statstrip, .kv.compact, details.about, .sechead,
+   .dangerzone, .codepair, .infotip, .empty.compact).
+
+   Merge target: css/screens.css.
+   ============================================================ */
+
+/* ---- 1. Content access · the access-record detail panel ----
+   js/screens/tenant.js — tenantContentAccess.
+
+   Each access record used to render as roughly a viewport and a half:
+   an allocation meter with a 172-character note, a key/value block, one
+   row per Programme, the actions, and a Renewal section carrying the
+   institution's whole renewal route re-stated per record. Four records
+   were six screens of scrolling before the reader could compare any two
+   of them.
+
+   A record now opens as a summary — what it covers, its term, its
+   licence line and its three actions — and everything else lives in this
+   panel, toggled by the "Show details" button in `.ar-act` (the button
+   carries aria-expanded / aria-controls; the panel is toggled with the
+   `hidden` attribute, so no display rule may fight it). */
+.accessrec .ar-more{
+  margin-top: var(--s-4);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--border-subtle);
+}
+.accessrec .ar-more > .kv{ margin-bottom: 0 }
+
+/* The record heading is now an h3, because the records sit under the
+   "Access records" `ui.sectionHead` h2 rather than beside the library's
+   h2. Same visual weight as the h2 rule it replaces — only the outline
+   level changed, so a screen-reader user reads the records as part of
+   that section instead of as a flat run of sibling h2s. */
+.accessrec .ar-head h3{ font-size: 15.5px; font-weight: 650 }
+
+/* ---- 2. Academic mappings · the "missing institution code" filter ----
+   js/screens/tenant-groups.js — tenantMappings.
+
+   The only reason anybody opens Academic mappings is to fill in the
+   codes the Overview says are missing, and the table could not be
+   filtered by that. The checkbox lives in the shared `.filterbar`, whose
+   `label` rule is written for the `.fb-label` caption above a select;
+   `label.chk` is otherwise only styled inside `.listbar`. This gives it
+   the same treatment there. */
+.filterbar label.chk{
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  font-size: 13px; font-weight: 500; color: var(--text-2);
+  height: 38px; white-space: nowrap;
+}
+.filterbar label.chk input{ width: 17px; height: 17px; accent-color: var(--action) }
+
+/* ---- 3. Student access · the capacity rows ----
+   js/screens/tenant-assign.js — tenantAssignments.
+
+   One compact row per assignable record replaced a stack of full
+   allocation meters above the grant table. The row is the shared
+   `.recrow`; only the metrics line inside it needs to sit hard against
+   the identifier above it. */
+.recrow .rr-m > .metrics{ margin-top: 2px }
+/* ==== END IMPLEMENTATION 08 — merged per-area screen CSS ==== */

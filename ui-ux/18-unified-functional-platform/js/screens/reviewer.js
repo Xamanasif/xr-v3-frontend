@@ -270,11 +270,18 @@ XRSLP.screens = XRSLP.screens || {};
          Marked-up text must therefore be wrapped in ONE span, or every
          inline element becomes its own flex item and the sentence lays
          itself out in columns. */
+      /* TWO DIFFERENT KINDS OF STATEMENT, so they are two lines. The
+         first is a permanent authority boundary and is product
+         information: opening is not owning. The second is prototype
+         honesty about what this build can do, and it will stop being
+         true the day there is a real distribution channel — so it is
+         phrased as a fact about this build, never as a product rule. */
       '<p class="dnote">' + ui.ic('info', 'sm') +
-      '<span>Opening a link is <strong>inspection only</strong>. It gives you no authority over the ' +
-      'delivery: the Vendor supplies it and the Content Manager corrects it with a recorded reason. ' +
-      'Nothing is installed, downloaded or deployed by this prototype, so an authorised package can only ' +
-      'be described here, never opened.</span></p>' +
+      '<span><strong>Inspection only.</strong> The Vendor supplies these references and the Content Manager ' +
+      'corrects them with a recorded reason — opening one gives you no authority over the delivery.</span></p>' +
+      '<p class="dnote">' + ui.ic('info', 'sm') +
+      '<span>This prototype installs, downloads and deploys nothing, so an authorised package can be ' +
+      'described here but never opened.</span></p>' +
       '</div>';
   }
 
@@ -428,9 +435,17 @@ XRSLP.screens = XRSLP.screens || {};
         esc(state.actorScopeText(actor.id)) + '</strong></span></li></ul>'
       : '<p class="muted">No Course or Experiment has been assigned to you.</p>';
 
+    /* §9 — the page shows the right queues; it never said what the role
+       is for, and offered no direct way into the review queue. */
+    var quick = ui.quickActions([
+      { href: cui.href.rQueue(actor.id), icon: 'check', label: 'Review queue' }
+    ]);
+
     var html =
       ui.phead('Overview', esc(actor.name) + ' · Academic Reviewer') +
+      ui.orient('Review academic quality and Learning Outcomes for submitted Experiments.') +
       tiles +
+      '<div style="margin-top:18px">' + ui.card('Quick actions', quick, null, 'h2') + '</div>' +
       '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' + ui.card('Awaiting your academic decision', attnHTML) + '</div>' +
       '<div class="stack">' +
@@ -537,8 +552,17 @@ XRSLP.screens = XRSLP.screens || {};
           }).join('') + '</ul>') + '</div>'
       : '';
 
+    /* THE FIGURES A REVIEWER SCANS FOR, above a table of eight columns:
+       how much is actually mine to decide, and how much of that came
+       BACK rather than in. Derived from the same rows the table renders,
+       so a figure and the list under it cannot disagree. */
+    var actionableNow = all.filter(function (r) { return state.reviewerCanAct(r, actor.id); }).length;
     var html =
-      ui.phead('Review queue', esc(actor.name) + ' · Academic Reviewer') +
+      ui.phead('Review queue', ui.metrics([
+        { v: all.length, k: 'in your scope' },
+        { v: actionableNow, k: 'awaiting your decision', tone: actionableNow ? 'warn' : null },
+        { v: returned.length, k: 'returned by the Content Manager' }
+      ])) +
       returnedBanner +
       '<div class="tablecard">' +
       '<div class="listbar">' +
@@ -722,7 +746,7 @@ XRSLP.screens = XRSLP.screens || {};
           '<span class="formnote">Approval records your identity, the time, the decision and the Learning ' +
           'Outcomes as they stand. It does not publish anything, and it attaches no reference — references ' +
           'travel with a change request.</span>' +
-          '</div>')
+          '</div>', null, 'h3')
       : '';
 
     var priorHTML = priorDecisions.length
@@ -745,15 +769,32 @@ XRSLP.screens = XRSLP.screens || {};
         }).join('') + '</div>'
       : '<p class="muted">No academic decision has been recorded for this submission yet.</p>';
 
+    /* ZONED, BECAUSE THE THREE KINDS OF THING ON THIS PAGE HAVE
+       DIFFERENT AUTHORITY (Implementation 08). It was one undifferentiated
+       column of six cards, so the Learning Outcomes editor — the one
+       thing on the plane this role OWNS — sat between two cards it may
+       only read, and the technical delivery, which is inspection
+       context and nothing else, looked like part of the same job.
+
+       Three zones now say what each is: the academic content being
+       validated, the decision itself, and the technical delivery as
+       read-only context. Nothing moved between zones that changes what
+       anyone may do — the authority is in `state`, and every guard on
+       this screen is unchanged. Cards inside a zone drop to h3 so the
+       outline nests instead of running flat. */
     var html =
       ui.crumbs([{ label: 'Review queue', href: href.rQueue(actor.id) }, { label: rec.name }]) +
       ui.phead(rec.name,
         cui.contextLine(rec) + ' · ' + esc(holderText(rec, 'reviewer')),
         '', ' ' + cui.statusBadge(rec) + cui.revisionChip(rec) + cui.resubmittedChip(rec)) +
-      stateNote +
+      cui.productionTrack(rec) +
+      '<div style="margin-top:14px">' + stateNote + '</div>' +
       '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' +
-      ui.card('Experiment', cui.recordSummaryKV(rec, { showVendorNotes: true })) +
+      ui.sectionHead({ id: 'z-academic', title: 'Academic content',
+        desc: 'What you are validating: the catalogue text the Vendor wrote, and the Learning Outcomes you ' +
+          'author against it.' }) +
+      ui.card('Experiment', cui.recordSummaryKV(rec, { showVendorNotes: true }), null, 'h3') +
       /* R13 — the Vendor's preview / demo video, on the screen where the
          academic decision is actually taken. It sits directly under the
          Experiment summary and above the decision controls so it can be
@@ -762,21 +803,27 @@ XRSLP.screens = XRSLP.screens || {};
          supplied, not an upload and not a substitute for the delivery. */
       ui.card('Preview / demo video',
         cui.previewVideoHTML(rec) +
-        '<p class="dnote">' + ui.ic('info', 'sm') +
-        '<span>A demonstration of the experience supplied by the Vendor. It is not the delivery itself, ' +
-        'and watching it is not a substitute for reading the academic content below.</span></p>',
-        rec.previewVideo ? 'Supplied by the Vendor' : null) +
+        '<p class="cardfoot">A demonstration supplied by the Vendor. It is not the delivery itself, and ' +
+        'watching it is not a substitute for reading the academic content.</p>',
+        rec.previewVideo ? 'Supplied by the Vendor' : null, 'h3') +
       ui.card('Learning outcomes', outcomesHTML,
-        actionable ? 'You own these' : 'Academic Reviewer owned') +
-      decisionCard +
+        actionable ? 'Yours to author' : 'Academic Reviewer owned', 'h3') +
+      (decisionCard
+        ? ui.sectionHead({ id: 'z-decision', title: 'Your academic decision',
+            desc: 'Approve to send it on to the Content Manager, or return it to the Vendor with your reason. ' +
+              'Neither publishes anything.' }) + decisionCard
+        : '') +
+      ui.sectionHead({ id: 'z-delivery', title: 'Technical delivery',
+        desc: 'Context for your decision, and read-only: the Vendor supplies these references and the Content ' +
+          'Manager corrects them. You can open one to inspect it.' }) +
       /* R16 — openable, still read-only. See `deliveryOpenHTML()`. */
-      ui.card('Technology delivery — context for your review',
+      ui.card('Technology delivery',
         cui.deliveryRows(rec) + deliveryOpenHTML(rec),
-        'Read-only · inspect only') +
+        'Read-only · inspect only', 'h3') +
       /* Named for whose list it is. The reviewer's own change-request
          references are a different list and are shown with the decision
          that carried them, never merged into this card. */
-      ui.card('Supporting documentation from the Vendor', cui.documentsList(rec.documents)) +
+      ui.card('Supporting documentation from the Vendor', cui.documentsList(rec.documents), null, 'h3') +
       '</div>' +
       '<div class="stack">' +
       ui.card('Submission',
@@ -797,16 +844,15 @@ XRSLP.screens = XRSLP.screens || {};
       ui.card('Academic decision history', priorHTML) +
       ui.card('Not part of this review',
         '<ul class="reslist plain">' +
-        '<li>' + ui.ic('x') + '<span>Publishing — first publication is handled by the Content Manager.</span></li>' +
-        '<li>' + ui.ic('x') + '<span>Granting the experiment to an institution — that needs a request and Super Admin approval.</span></li>' +
-        '<li>' + ui.ic('x') + '<span>Assessment questions or student answers — those are Faculty’s, inside a tenant.</span></li>' +
-        '<li>' + ui.ic('x') + '<span>Installing or deploying a package — no deployment is performed by this platform prototype.</span></li>' +
+        '<li>' + ui.ic('x') + '<span><strong>Publishing</strong> — first publication is the Content Manager’s.</span></li>' +
+        '<li>' + ui.ic('x') + '<span><strong>Granting the experiment to an institution</strong> — that needs a request and Super Admin approval.</span></li>' +
+        '<li>' + ui.ic('x') + '<span><strong>Assessment questions or student answers</strong> — those are Faculty’s, inside a tenant.</span></li>' +
         /* R16 states the boundary in the same place every other refusal
            on this screen is stated, so "I can open it" is never read as
-           "I can change it". */
-        '<li>' + ui.ic('x') + '<span>Correcting a delivery link or package reference — you can open it to ' +
-        'inspect it, but the Vendor supplies it and the Content Manager corrects it with a recorded ' +
-        'reason.</span></li>' +
+           "I can change it". The full sentence lives beside the links
+           themselves; here it is one line among the other refusals. */
+        '<li>' + ui.ic('x') + '<span><strong>Correcting a delivery link or package reference</strong> — the Content Manager’s, with a recorded reason. You may open one to inspect it.</span></li>' +
+        '<li>' + ui.ic('x') + '<span><strong>Installing or deploying a package</strong> — no deployment happens anywhere in this platform.</span></li>' +
         '</ul>') +
       ui.card('History', cui.historyTimeline(rec)) +
       '</div></div>';
@@ -850,12 +896,15 @@ XRSLP.screens = XRSLP.screens || {};
             ' aria-label="Delete outcome ' + (i + 1) + '">Delete</button>' +
             '</span></li>';
         }).join('') + '</ol>'
-      : ui.emptyState({
-          icon: 'book', heading: 'h3',
+      /* `h4`: this sits inside a card whose own title is an h3 since the
+         record page was zoned. Compact, because an empty outcomes list
+         is the normal starting point of a review, not an error. */
+      : ui.emptyRow({
+          icon: 'book', heading: 'h4',
           title: 'No Learning Outcomes yet',
-          body: 'Learning Outcomes are yours to author. Add one at a time — the list is numbered ' +
-            'automatically. Add at least one before approving: they are published with the experiment and ' +
-            'are what a prospective institution and every entitled student read.'
+          body: 'Yours to author, one at a time — the list is numbered automatically. At least one is ' +
+            'required before you can approve: they are published with the experiment and are what a ' +
+            'prospective institution and every entitled student read.'
         });
 
     return list +
@@ -1084,12 +1133,14 @@ XRSLP.screens = XRSLP.screens || {};
       changes.addEventListener('click', function () {
         var text = comment();
         if (!text) {
+          /* ONE ANNOUNCEMENT, NOT THREE. `showErrors` writes a
+             role="alert" summary, marks the field and focuses its input;
+             the toast that used to fire alongside it was a second live
+             region saying the same thing, and it won the race, so the
+             message that named the field was the one nobody heard. */
           ui.showErrors(document.getElementById('f-comment').closest('.card'),
             [{ field: 'f-comment', message: 'Enter the reason before returning this submission to the Vendor.' }],
             'A returned submission needs a reason');
-          var el = document.getElementById('i-comment');
-          if (el) { el.focus(); }
-          ui.toast('Enter your reason before requesting changes.', 'info');
           return;
         }
         /* Captured once, so the dialog describes exactly what the confirm

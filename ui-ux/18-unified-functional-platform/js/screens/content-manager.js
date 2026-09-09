@@ -171,7 +171,13 @@ XRSLP.screens = XRSLP.screens || {};
        asked for anything and the submission has not reopened for editing.
        `managerOverview()` deliberately keeps it out of `withVendor`, and
        folding the two together here would undo that and tell the Content
-       Manager the wrong person is holding their work. */
+       Manager the wrong person is holding their work.
+
+       08 — the paragraph that used to explain that separation to the
+       reader is gone. It described the IMPLEMENTATION of the counters,
+       not the work; the two tiles already carry distinct labels and
+       distinct sub-labels, and the lists below now name the actual
+       items, which is the answer the count was standing in for. */
     var tiles = '<div class="statgrid">' +
       cui.statTile(o.published, 'Published experiments', 'in the Content Library') +
       cui.statTile(o.awaitingPublication, 'Awaiting publication', 'academically approved') +
@@ -179,11 +185,48 @@ XRSLP.screens = XRSLP.screens || {};
       cui.statTile(o.returnedToReviewer, 'Returned for academic re-check',
         'sent back by you — with an Academic Reviewer') +
       cui.statTile(o.withVendor, 'With a Vendor', 'draft or returned for correction') +
-      '</div>' +
-      '<p class="dnote" style="margin-top:8px">' + ui.ic('info', 'sm') +
-      'An item you returned to the Academic Reviewer is counted under <strong>Returned for academic ' +
-      're-check</strong> and never under <strong>With a Vendor</strong> — the reviewer is holding it and the ' +
-      'Vendor has not been asked for anything. Nothing is counted twice.</p>';
+      '</div>';
+
+    /* THE TWO FIGURES THAT HAD NOWHERE TO GO. The publication queue is
+       CONTENT_REVIEW only, by design, and the Content Library's status
+       filter offers a status only once rows carry it — so "Returned for
+       academic re-check" and "With a Vendor" were counts with no route
+       to the list behind them. Both lists are derived here from the same
+       scope `managerOverview()` counts, so a figure and its list can
+       never disagree. Rendered only when there is something in them. */
+    var scope = state.contentForManager(actor.id);
+    function inStatus(list) {
+      return scope.filter(function (r) { return list.indexOf(r.status) !== -1; });
+    }
+    var recheck = inStatus([CS.CHANGES_ACADEMIC_RECHECK]);
+    var withVendorRows = inStatus([CS.DRAFT, CS.CHANGES_ACADEMIC, CS.CHANGES_CONTENT]);
+
+    function elsewhereList(rows, note) {
+      return '<ul class="reclist">' + rows.map(function (r) {
+        return '<li class="recrow quiet">' +
+          '<div class="rr-b"><div class="rr-t">' +
+          '<a href="' + href.mRecord(actor.id, r.id) + '">' + esc(r.name) + '</a></div>' +
+          '<div class="rr-m">' + cui.contextLine(r) + ' · ' + esc(cui.holderLine(r, 'manager')) + '</div></div>' +
+          '<div class="rr-a">' + cui.statusBadge(r) + '</div></li>';
+      }).join('') + '</ul>' +
+        (note ? '<p class="cardfoot">' + note + '</p>' : '');
+    }
+
+    var elsewhereHTML =
+      (recheck.length
+        ? ui.card('Returned for academic re-check',
+            elsewhereList(recheck,
+              'You sent these back to an Academic Reviewer. They are with the reviewer, not the Vendor, and ' +
+              'they return to your queue if the reviewer approves them again.'),
+            recheck.length + ' ' + util.plural(recheck.length, 'item'))
+        : '') +
+      (withVendorRows.length
+        ? ui.card('With a Vendor',
+            elsewhereList(withVendorRows,
+              'A draft the Vendor has not submitted, or a submission returned for correction. Nothing here is ' +
+              'waiting on you.'),
+            withVendorRows.length + ' ' + util.plural(withVendorRows.length, 'item'))
+        : '');
 
     var attnHTML = o.queue.length
       ? '<div class="attn">' + o.queue.map(function (r) {
@@ -198,56 +241,64 @@ XRSLP.screens = XRSLP.screens || {};
             '</p></div>' +
             '<a class="btn sec sm" href="' + href.mRecord(actor.id, r.id) + '">Open</a></div>';
         }).join('') + '</div>'
-      : ui.emptyState({
-          icon: 'check', heading: 'h3',
-          title: 'Nothing is awaiting publication',
-          body: 'No academically approved submission is waiting for a publication decision.'
-        });
+      /* Compact, not half a viewport of nothing: an empty publication
+         queue is a routine result on this page, and it is a GOOD one. */
+      : ui.okRow('Nothing is awaiting publication');
 
-    var coverHTML = o.technologyCoverage.length
-      ? '<ul class="techmetrics">' + o.technologyCoverage.map(function (row) {
-          return '<li>' + ui.fmtBadge(row.tech) +
-            '<span class="tm-v">' + row.count + '</span>' +
-            '<span class="tm-n">published ' + esc(util.plural(row.count, 'experiment')) + '</span></li>';
-        }).join('') + '</ul>'
-      : '<p class="muted">No published experiment carries a technology yet.</p>';
+    /* §10 — publication readiness, the library and the platform course
+       codes are the three things this role owns. */
+    var quick = ui.quickActions([
+      { href: href.mQueue(actor.id),    icon: 'doc',    label: 'Publication queue' },
+      { href: href.mLibrary(actor.id),  icon: 'layers', label: 'Content Library' },
+      { href: coursesHref(actor.id),    icon: 'book',   label: 'Platform course codes' }
+    ]);
 
     var html =
-      ui.phead('Overview', esc(actor.name) + ' · Content Manager') +
+      ui.phead('Overview', esc(actor.name) + ' · Content Manager',
+        '<a class="btn sec" href="' + href.mQueue(actor.id) + '">Open the publication queue</a>') +
+      ui.orient('Manage publication readiness, the Content Library and Platform course codes.') +
       scopeGapNote(actor) +
       tiles +
+      '<div style="margin-top:18px">' + ui.card('Quick actions', quick, null, 'h2') + '</div>' +
       '<div class="grid-rail" style="margin-top:18px">' +
-      '<div class="stack">' + ui.card('Awaiting a publication decision', attnHTML) + '</div>' +
       '<div class="stack">' +
-      ui.card('Technology coverage', coverHTML,
-        'Derived from published content') +
-      /* 07.3 R15 — said on the overview as well as at the gate, because
-         the split is the thing the stakeholder asked for and the person
-         should meet it before they are standing in front of the choice. */
-      ui.card('Returning an item — two destinations',
-        '<p>When an item at your gate is not publishable, <strong>you choose who it goes back to</strong>. ' +
-        'There is no default, because the two answers reach different people and fix different problems.</p>' +
-        '<ul class="reslist plain" style="margin-top:10px">' +
-        '<li>' + ui.ic('book') + '<span><strong>The Academic Reviewer</strong> — an academic or content issue: ' +
-        'the Learning Outcomes, the description, whether the experiment teaches what it claims. The Vendor is ' +
-        'not involved and the submission does not reopen for editing.</span></li>' +
-        '<li>' + ui.ic('monitor') + '<span><strong>The Vendor</strong> — a technical, application or delivery ' +
-        'issue: the app not working, a package that will not install, a broken hosted link, a delivery ' +
-        'discrepancy. The submission reopens for them to correct and resubmit.</span></li>' +
-        '</ul>' +
-        '<p class="cardfoot">A broken link sent back through academic review fixes nothing, and an Academic ' +
-        'Reviewer cannot rebuild a package. Choosing the wrong one costs a round trip, so each choice states ' +
-        'what it causes before you take it.</p>') +
-      ui.card('What publishing does — and does not do',
-        '<p><strong>Publish</strong> makes a new Experiment part of the published catalogue: discoverable by ' +
+      ui.card('Awaiting a publication decision', attnHTML,
+        o.awaitingPublication ? o.awaitingPublication + ' at your gate' : null) +
+      elsewhereHTML +
+      '</div>' +
+      '<div class="stack">' +
+      /* §10 — "Technology coverage" was a derived analytic on a
+         repository. The stakeholder review treated the Content Library
+         as a repository rather than an analytics dashboard, so it does
+         not belong on this Overview. The data is unchanged; only this
+         card is gone. */
+      ui.card('What publishing does',
+        '<p><strong>Publish</strong> makes a new Experiment part of the published catalogue — discoverable by ' +
         'the public and selectable in an institutional request.</p>' +
         '<ul class="blocklist" style="margin-top:10px">' +
         '<li>It grants the experiment to <strong>no</strong> institution.</li>' +
-        '<li>It changes <strong>no</strong> existing licence or access record.</li>' +
+        '<li>It changes <strong>no</strong> existing licence or institutional access.</li>' +
         '<li>It assigns the experiment to <strong>no</strong> student.</li>' +
         '</ul>' +
-        '<p style="margin-top:10px">An institution still requests it and the Super Admin still approves that ' +
-        'request; a Tenant Admin still assigns it before any student can see it.</p>') +
+        '<p style="margin-top:10px">An institution still requests it, the Super Admin still approves that ' +
+        'request, and a Tenant Admin still assigns it before any student can see it.</p>') +
+      /* 07.3 R15 — the two destinations were also spelled out here, at
+         ~130 words, as onboarding. 08 folds it away: the decision
+         surface itself now states the fork and each destination's
+         consequence at the moment the choice is made, which is where a
+         person needs it. This stays as the answer to "what happens if I
+         send something back" asked away from the gate. */
+      ui.about('How returning an item works',
+        '<p>An item at your gate that is not publishable goes back to <strong>one</strong> of two people, and ' +
+        'which one is your decision — there is no default.</p>' +
+        '<ul>' +
+        '<li><strong>The Academic Reviewer</strong> — an academic or content issue. The Vendor is not ' +
+        'involved and the submission does not reopen for editing.</li>' +
+        '<li><strong>The Vendor</strong> — a technical, application or delivery issue. The submission reopens ' +
+        'for them to correct and resubmit.</li>' +
+        '</ul>' +
+        '<p>A broken link sent back through academic review fixes nothing, and an Academic Reviewer cannot ' +
+        'rebuild a package. Each choice states what it causes before you take it.</p>') +
       '</div></div>';
 
     return shell(actor, 'overview', 'Content Manager overview', html);
@@ -328,10 +379,24 @@ XRSLP.screens = XRSLP.screens || {};
     }
 
     cui.normaliseFilters(all, libFilter);
+    /* FIGURES, NOT A SENTENCE. The same three facts the old meta line
+       carried, in the shared `ui.metrics` shape every other operational
+       page uses — and the pipeline figure is the one a Content Manager
+       actually scans for, so it is named rather than left to be worked
+       out by subtraction. */
+    function countIn(list) {
+      return all.filter(function (r) { return list.indexOf(r.status) !== -1; }).length;
+    }
+    var libPublished = countIn([CS.PUBLISHED]);
     var html =
-      ui.phead('Content Library',
-        esc(all.filter(function (r) { return r.status === CS.PUBLISHED; }).length) + ' published · ' +
-        esc(all.length) + ' total in your scope') +
+      ui.phead('Content Library', ui.metrics([
+        { v: all.length, k: 'in your scope' },
+        { v: libPublished, k: 'published' },
+        { v: all.length - libPublished, k: 'in the production chain' },
+        { v: countIn([CS.CONTENT_REVIEW]), k: 'at your gate',
+          tone: countIn([CS.CONTENT_REVIEW]) ? 'warn' : null }
+      ]), countIn([CS.CONTENT_REVIEW])
+        ? '<a class="btn sec" href="' + href.mQueue(actor.id) + '">Publication queue</a>' : '') +
       '<div class="tablecard">' +
       '<div class="listbar">' +
       '<label for="m-q">Search<input type="text" id="m-q" class="cellinput" ' +
@@ -422,8 +487,9 @@ XRSLP.screens = XRSLP.screens || {};
           icon: 'layers',
           title: 'Nothing is awaiting publication',
           body: 'An item appears here once an Academic Reviewer has approved it academically. Until then it is ' +
-            'with the Vendor or with the Academic Reviewer.',
-          actionsHTML: '<a class="btn sec" href="' + href.mLibrary(actor.id) + '">Open the Content Library</a>'
+            'with the Vendor or with the Academic Reviewer — the Overview lists both.',
+          actionsHTML: '<a class="btn sec" href="' + href.mOverview(actor.id) + '">Back to the Overview</a>' +
+            '<a class="btn sec" href="' + href.mLibrary(actor.id) + '">Open the Content Library</a>'
         }) + '</div>');
     }
 
@@ -447,14 +513,31 @@ XRSLP.screens = XRSLP.screens || {};
         '">Open</a></td></tr>';
     }).join('');
 
+    var blocked = queue.filter(function (r) { return !state.publishReadiness(r).ok; }).length;
+
+    /* WHERE THIS QUEUE SITS IN THE CHAIN, shown rather than described.
+       Every row here is at exactly the same point — `contentForManager`
+       filters this queue to CONTENT_REVIEW alone — so one stepper is
+       true of all of them, and it replaces the paragraph that used to
+       explain that publication is the first publication of a NEW
+       Experiment and a later version is somebody else's decision. The
+       firewall itself is unchanged and is restated in the foot line. */
     var html =
-      ui.phead('Publication queue',
-        esc(queue.length) + ' academically approved ' + esc(util.plural(queue.length, 'item')) +
-        ' awaiting a first publication decision') +
-      ui.alertBox('info', 'First publication only',
-        '<p>Items here are new Experiments reaching the catalogue for the first time. Replacing an ' +
-        'already-published Experiment with a newer version is a separate Super Admin decision on a different ' +
-        'object and does not appear in this queue.</p>') +
+      ui.phead('Publication queue', ui.metrics([
+        { v: queue.length, k: 'awaiting your decision' },
+        { v: queue.length - blocked, k: 'ready to publish', tone: 'good' },
+        { v: blocked, k: 'with something to resolve', tone: blocked ? 'warn' : null }
+      ]), '<a class="btn sec" href="' + href.mLibrary(actor.id) + '">Content Library</a>') +
+      ui.track([
+        { t: 'Vendor submission', d: 'Submitted and corrected', state: 'done' },
+        { t: 'Academic review', d: 'Approved academically', state: 'done' },
+        { t: 'Content readiness', d: 'Your decision', state: 'live' },
+        { t: 'Published', d: 'First publication', state: 'todo' }
+      ]) +
+      '<p class="dnote" style="margin-top:10px">' + ui.ic('info', 'sm') +
+      '<span><strong>First publication only.</strong> Replacing an already-published Experiment with a newer ' +
+      'version is the Super Admin&rsquo;s Release / Hold decision, on a different object, and never appears ' +
+      'here.</span></p>' +
       '<div class="tablecard" style="margin-top:16px">' +
       '<div class="tscroll"><table class="dt">' +
       '<caption class="sr-only">Academically approved items awaiting first publication</caption>' +
@@ -488,16 +571,24 @@ XRSLP.screens = XRSLP.screens || {};
     });
   }
 
-  /* One description of each destination's consequences, rendered two
-     ways: as alert boxes inside the card (live, as the choice is made)
-     and as `.consequence` rows inside the confirmation dialog. Building
-     it once means the card and the dialog can never drift into
-     promising two different things. */
+  /* One description of each destination's consequences, rendered three
+     ways: as the one-line summary the live region announces, as the
+     alert boxes the sheet shows beneath the choice, and as
+     `.consequence` rows inside the confirmation dialog. Building it once
+     means no two of them can drift into promising different things.
+
+     `lead: true` marks the box that says WHERE IT GOES. The sheet's
+     destination tiles and its live line already say that, so the sheet
+     skips the lead box and shows only what a reader could not have
+     worked out — who can actually pick it up, what becomes of the
+     academic approval, and whether anybody can act on it at all. The
+     confirmation still shows every box, so nothing is dropped from the
+     last statement before the write. */
   function destConsequences(dest, rec, vendor) {
     var out = [];
     if (dest === DEST.REVIEWER) {
       var revs = reviewersCovering(rec);
-      out.push({ kind: 'info', title: 'It goes to an Academic Reviewer',
+      out.push({ kind: 'info', lead: true, title: 'It goes to an Academic Reviewer',
         html: 'This item leaves your queue and its status becomes &ldquo;' +
           esc(state.contentStatusMeta(CS.CHANGES_ACADEMIC_RECHECK).label) + '&rdquo;. The <strong>Vendor is ' +
           'not asked for anything</strong> and the submission does not reopen for editing, so nothing about ' +
@@ -519,7 +610,7 @@ XRSLP.screens = XRSLP.screens || {};
       return out;
     }
 
-    out.push({ kind: 'info', title: 'It goes to the Vendor' + (vendor ? ' — ' + vendor.name : ''),
+    out.push({ kind: 'info', lead: true, title: 'It goes to the Vendor' + (vendor ? ' — ' + vendor.name : ''),
       html: 'This item leaves your queue and its status becomes &ldquo;' +
         esc(state.contentStatusMeta(CS.CHANGES_CONTENT).label) + '&rdquo;. The submission <strong>reopens ' +
         'for the Vendor to correct</strong> and resubmit.' });
@@ -564,60 +655,108 @@ XRSLP.screens = XRSLP.screens || {};
     }).join('');
   }
 
-  function destRadio(value, label, note) {
-    return '<label class="radiorow"><input type="radio" name="cm-dest" value="' + esc(value) + '">' +
+  /* ONE SENTENCE, for the live region. A screen-reader user changing
+     their mind between the two destinations used to have 110–200 words
+     of consequence read out again on every keystroke through the group.
+     What they need announced is which person now receives it; the detail
+     stays on screen, outside the live region, where it can be read at
+     leisure and is repeated in full at the confirmation. */
+  function destSummaryLine(dest, vendor) {
+    return dest === DEST.REVIEWER
+      ? 'Selected: an Academic Reviewer. The Vendor is not asked for anything.'
+      : 'Selected: the Vendor' + (vendor ? ' — ' + vendor.name : '') +
+        '. The submission reopens for them to correct.';
+  }
+
+  /* A DESTINATION IS A CARD YOU PICK BETWEEN, not a list item. Same
+     input, same name, same value, still with NO `checked` attribute on
+     either — the absence of a default is the whole point of R15 — but
+     with the tile treatment the build already gives a Student choosing a
+     quiz answer, plus the one-line consequence attached to the tile so
+     the two options stay comparable side by side and nothing reflows
+     when the choice changes. */
+  function destRadio(value, label, note, consequence, selected) {
+    return '<label class="radiorow choice' + (selected ? ' is-selected' : '') + '">' +
+      '<input type="radio" name="cm-dest" value="' + esc(value) + '"' + (selected ? ' checked' : '') + '>' +
       '<span><span class="rr-t">' + esc(label) + '</span>' +
-      '<span class="rr-n">' + esc(note) + '</span></span></label>';
+      '<span class="rr-n">' + esc(note) + '</span>' +
+      '<span class="rr-c">' + esc(consequence) + '</span></span></label>';
   }
 
-  function destPlaceholderHTML() {
-    return '<p class="dnote">' + ui.ic('info', 'sm') +
-      'Choose a destination above and this will say exactly who receives the item and what happens next.</p>';
-  }
+  /* THE RETURN, AS ONE DECISION SURFACE (Implementation 08).
 
-  /* The return control itself. It lives in the body of a card rather
-     than in the page header, because it is no longer one button: the
-     destination, the reason and any supporting reference are all part of
-     the same decision and belong beside each other. */
-  function changeRequestCard(rec, vendor) {
-    return ui.card('Request changes — choose where it goes back to',
+     It used to be an always-expanded card sitting seventh and last in
+     the left rail, six cards below the Publish button it is the
+     alternative to, wrapped in ~280 words of prose. The BEHAVIOUR is
+     unchanged and is the part that matters: two real destinations
+     writing two different statuses held by two different roles, no
+     pre-selected default, a mandatory reason, and no write until the
+     confirmation is accepted. What changed is that the decision now
+     opens as a sheet from the same header row as Publish, so the two
+     halves of one decision sit next to each other.
+
+     `prefill` exists for one path only: cancelling the confirmation
+     brings the sheet back with what was typed still in it. A file
+     reference cannot be restored — no browser lets a page set a file
+     input — so the sheet says so rather than appearing to have kept it. */
+  function returnSheetBodyHTML(rec, vendor, prefill) {
+    var p = prefill || {};
+    return '<div class="retsheet">' +
       '<div class="form-errors"></div>' +
-      '<p>A returned item goes to <strong>one</strong> of two people, and which one is your decision — there ' +
-      'is no default. An academic or content problem is the Academic Reviewer’s to resolve; a technical, ' +
-      'application or delivery problem is the Vendor’s. A broken link sent back through academic review ' +
-      'fixes nothing.</p>' +
+      '<p class="rs-lead">A returned item goes to <strong>one</strong> of two people, and which one is your ' +
+      'decision — there is no default.</p>' +
       '<div class="field" id="f-cm-dest">' +
       '<fieldset class="fgroup"><legend>Send this back to <span class="req" aria-hidden="true">*</span>' +
       '<span class="sr-only">(required)</span></legend>' +
       destRadio(DEST.REVIEWER, 'The Academic Reviewer',
         'Academic or content issue — the Learning Outcomes, the description, whether the experiment teaches ' +
-        'what it claims.') +
+        'what it claims.',
+        'The Vendor is not asked for anything and the submission does not reopen for editing.',
+        p.dest === DEST.REVIEWER) +
       destRadio(DEST.VENDOR, 'The Vendor' + (vendor ? ' — ' + vendor.name : ''),
-        'Technical, application or delivery issue — the app not working, a package that will not install, a ' +
-        'broken hosted link, a delivery discrepancy.') +
+        'Technical, application or delivery issue — a broken hosted link, a package that will not install, a ' +
+        'delivery discrepancy.',
+        'The submission reopens for the Vendor to correct and resubmit.',
+        p.dest === DEST.VENDOR) +
       '</fieldset></div>' +
-      '<div id="cm-dest-what" aria-live="polite">' + destPlaceholderHTML() + '</div>' +
-      '<div class="field" id="f-cm-comment" style="margin-top:14px">' +
+      /* The live region carries ONE sentence. The boxes below it are
+         static, so changing your mind does not re-read them. */
+      '<p id="cm-dest-what" class="dnote rs-live" aria-live="polite">' + ui.ic('info', 'sm') +
+      '<span>Choose a destination and this will say who receives it.</span></p>' +
+      '<div id="cm-dest-warn" class="rs-warn"></div>' +
+      '<div class="field" id="f-cm-comment">' +
       '<label for="i-cm-comment">Reason for requesting changes ' +
       '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
-      '<textarea id="i-cm-comment" rows="3" maxlength="1200" aria-describedby="h-cm-comment"></textarea>' +
-      '<p class="hint" id="h-cm-comment">Required whichever destination you choose: the person receiving this ' +
-      'cannot act on it without knowing what is wrong. Internal to the content workflow; never shown in the ' +
-      'public catalogue.</p></div>' +
+      '<textarea id="i-cm-comment" rows="4" maxlength="1200" aria-describedby="h-cm-comment">' +
+      esc(p.reason || '') + '</textarea>' +
+      '<p class="hint" id="h-cm-comment">Required either way — whoever receives this cannot act on it without ' +
+      'knowing what is wrong. Internal to the content workflow, never shown in the public catalogue.</p></div>' +
       /* R14 — the same references editor the Academic Reviewer uses, so
          a change request can carry the screenshot or document that
          actually shows the problem. The honesty line about uploads lives
          inside the shared helper and is not repeated here. */
       cui.refsEditorHTML('cmchg', {
         legend: 'Supporting references (optional)',
-        hint: 'Point at the thing that shows the problem — an annotated screenshot, a recording, a document, ' +
-          'the failing link itself.'
+        hint: 'Point at the thing that shows the problem — an annotated screenshot, a recording, the failing ' +
+          'link itself.'
       }) +
-      '<div class="formact">' +
-      '<button class="btn sec" type="button" id="m-changes">' + ui.ic('alert') + 'Request changes</button>' +
-      '<span class="formnote">Nothing is sent until you confirm, and the confirmation repeats what this ' +
-      'destination causes.</span>' +
-      '</div>');
+      (p.hadFile
+        ? '<p class="dnote">' + ui.ic('alert', 'sm') +
+          '<span>The file you had chosen was not kept when you went back — choose it again if you still want ' +
+          'to send it.</span></p>'
+        : '') +
+      '</div>';
+  }
+
+  function prefillFromSheet(dest, text) {
+    var url = document.getElementById('cmchg-refurl');
+    var lab = document.getElementById('cmchg-reflabel');
+    var f = document.getElementById('cmchg-reffile');
+    return {
+      dest: dest, reason: text,
+      refUrl: url ? url.value : '', refLabel: lab ? lab.value : '',
+      hadFile: !!(f && f.files && f.files.length)
+    };
   }
 
   /* R14 — PAST CHANGE REQUESTS, WITH WHAT WAS ATTACHED TO THEM. The
@@ -796,38 +935,44 @@ XRSLP.screens = XRSLP.screens || {};
   }
 
   function deliveryCard(rec, editable) {
-    var body = cui.deliveryRows(rec);
-
     if (!editable) {
+      /* THE RULE, THEN THE CURRENT STATE — two sentences, not one
+         sentence with two computed values spliced into the middle of a
+         clause. The old wording read "…not while it is “X” and Y." and
+         was the exact fold that produced a hole mid-sentence when a
+         status had no holder line (fixed at js/content-ui.js:115-125);
+         it is fragile by construction, so it is no longer built that
+         way. */
       return ui.card('Technology delivery',
-        body +
-        '<p class="cardfoot">The Vendor supplies and owns this technical submission. You may correct or ' +
-        'replace the reference the platform holds for a technology once the item reaches content readiness ' +
-        'review, and after it is published — not while it is “' +
-        esc(state.contentStatusMeta(rec.status).label) + '” and ' + esc(cui.holderLine(rec, 'manager')) +
-        '. Editing it now would change the work under the person currently holding it. Which technologies ' +
-        'this Experiment ships in is never editable here.</p>',
+        cui.deliveryRows(rec) +
+        '<p class="cardfoot">The Vendor supplies and owns this technical submission. You may correct the ' +
+        'reference the platform holds once the item reaches content readiness review, and after it is ' +
+        'published — editing it now would change the work under the person currently holding it. Which ' +
+        'technologies this Experiment ships in is never editable here.<br>' +
+        '<span class="muted">Currently ' + esc(state.contentStatusMeta(rec.status).label).toLowerCase() +
+        ' — ' + esc(cui.holderLine(rec, 'manager')) + '.</span></p>',
         'Vendor supplied — not editable in this state');
     }
 
+    /* EACH TECHNOLOGY IS PRESENTED ONCE. When the editors are drawn they
+       ARE the presentation of the delivery — every editor block leads
+       with "Currently recorded" — so the read-only rows above them were
+       the same values a second time on the same card. */
     var editors = rec.technologies.length
-      ? '<div class="techrows deliv" style="margin-top:16px">' +
+      ? '<div class="techrows deliv">' +
         data.sortTech(rec.technologies).map(function (t, i) {
           return deliveryEditorHTML(rec, t, i);
         }).join('') + '</div>'
-      : '';
+      : cui.deliveryRows(rec);
 
     return ui.card('Technology delivery',
-      body +
-      '<div class="form-errors" style="margin-top:14px"></div>' +
+      '<div class="form-errors"></div>' +
+      editors +
       '<p class="cardfoot">The Vendor supplies and owns this technical submission. What you may correct is ' +
       'the <strong>reference the platform holds</strong> — a hosted link that has gone stale, a package ' +
       'reference that has changed — without waiting for a resubmission. You cannot add or remove a ' +
-      '<strong>technology</strong>: that is the Vendor’s submission, and widening it here would hand an ' +
-      'institution a technology nobody reviewed. Every change needs a reason and is written to this item’s ' +
-      'history with what it was and what it became. It creates no new version, changes no recorded academic ' +
-      'approval or publication record, and grants nobody access.</p>' +
-      editors,
+      '<strong>technology</strong>: that is the Vendor’s submission. Every change needs a reason and is ' +
+      'written to this item’s history; it creates no new version and grants nobody access.</p>',
       'Vendor supplied — you may correct the reference');
   }
 
@@ -870,14 +1015,18 @@ XRSLP.screens = XRSLP.screens || {};
 
     var actions = '';
     if (atGate) {
+      /* THE TWO HALVES OF ONE DECISION, SIDE BY SIDE. Publish and
+         Request changes are the only two answers available at this gate,
+         so they sit in the same row. 07.3 split the return into two real
+         destinations and, having nowhere to put a multi-part control,
+         left this button as a scroll-to-the-card jump six cards down the
+         page. 08 gives it the surface it needed: it opens the return
+         sheet, where the destination, the consequence, the reason and
+         any supporting reference are one decision in one place. */
       actions =
         '<button class="btn pri" type="button" id="m-publish"' +
         (ready.ok ? '' : ' aria-disabled="true"') + '>' + ui.ic('check') + 'Publish</button>' +
-        /* 07.3 — the return is no longer a single button with a hidden
-           destination, so the header control cannot BE the action any
-           more: it takes you to the choice instead of making it for you.
-           It is kept because this is where the person looks for it. */
-        '<button class="btn sec" type="button" id="m-changes-jump">' + ui.ic('alert') +
+        '<button class="btn sec" type="button" id="m-changes">' + ui.ic('alert') +
         'Request changes</button>';
     }
     /* Canonical content metadata is the Content Manager's (STK31-09).
@@ -888,15 +1037,19 @@ XRSLP.screens = XRSLP.screens || {};
         'Edit canonical metadata</a>';
     }
 
-    var decisionCard = atGate ? changeRequestCard(rec, vendor) : '';
-
     var html =
       ui.crumbs([{ label: 'Content Library', href: href.mLibrary(actor.id) }, { label: rec.name }]) +
       ui.phead(rec.name,
         cui.contextLine(rec) + ' · ' + esc(cui.holderLine(rec, 'manager')),
         actions,
         ' ' + cui.statusBadge(rec) + cui.revisionChip(rec) + cui.resubmittedChip(rec)) +
-      stateNote +
+      /* Where this item has got to, in the shared four-step chain every
+         workspace renders. It answers "what has already happened to
+         this?" before the reader starts reading cards, and it is derived
+         from the status alone, so it can never claim a hand-off the
+         workflow has not made. */
+      cui.productionTrack(rec) +
+      '<div style="margin-top:14px">' + stateNote + '</div>' +
       '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' +
       ui.card('Canonical metadata', cui.recordSummaryKV(rec, { showVendorNotes: true }),
@@ -914,7 +1067,6 @@ XRSLP.screens = XRSLP.screens || {};
          anything this build hosts; `cui.previewVideoHTML` says so. */
       ui.card('Preview / demo video', cui.previewVideoHTML(rec),
         'Vendor supplied — a link reference') +
-      decisionCard +
       '</div>' +
       '<div class="stack">' +
       (published ? ui.card('Publication record', cui.publicationCard(rec)) : '') +
@@ -978,7 +1130,6 @@ XRSLP.screens = XRSLP.screens || {};
 
   function bindPublish(actor, rec, ready) {
     var pub = document.getElementById('m-publish');
-    var chg = document.getElementById('m-changes-jump');
 
     if (pub) {
       pub.addEventListener('click', function () {
@@ -1018,94 +1169,178 @@ XRSLP.screens = XRSLP.screens || {};
         });
       });
     }
-
-    /* The header control is a JUMP, not the action — see the phead. */
-    if (chg) {
-      chg.addEventListener('click', function () {
-        var wrap = document.getElementById('f-cm-dest');
-        if (!wrap) { return; }
-        wrap.scrollIntoView();
-        var first = wrap.querySelector('input');
-        if (first) { first.focus(); }
-      });
-    }
   }
 
-  /* ---- R15 — the return, with its destination ---- */
+  /* ---- R15 — the return, with its destination ----
+     The header button opens the sheet; the sheet validates; the sheet's
+     own footer button opens the confirmation; the confirmation is the
+     only place `requestChangesContent` is called. Nothing before that
+     last step writes anything at all. */
   function bindChangeRequest(actor, rec, vendor) {
     var btn = document.getElementById('m-changes');
-    var wrap = document.getElementById('f-cm-dest');
-    var what = document.getElementById('cm-dest-what');
-    if (!btn || !wrap) { return; }
+    if (!btn) { return; }
+    btn.addEventListener('click', function () { openReturnSheet(actor, rec, vendor, null); });
+  }
 
-    function chosen() {
-      var picked = wrap.querySelector('input[name="cm-dest"]:checked');
-      return picked ? picked.value : '';
-    }
+  function openReturnSheet(actor, rec, vendor, prefill) {
+    var p = prefill || {};
+    ui.openSheet({
+      eyebrow: 'Content readiness review',
+      title: 'Request changes',
+      subtitle: esc(rec.name) + ' <span class="muted">· ' + cui.contextLine(rec) + '</span>',
+      wide: true,
+      bodyHTML: returnSheetBodyHTML(rec, vendor, p),
+      footNote: 'Nothing is sent until you confirm.',
+      /* `footHTML` because the action's LABEL is part of the decision:
+         a person should read the destination they chose on the button
+         they are about to press, not a generic "Confirm". Only the
+         cancel control uses the sheet's own wiring — the send button is
+         wired below, so a failed validation keeps the sheet open with
+         everything the person typed still in it. */
+      footHTML:
+        '<button class="btn sec" type="button" data-sheet-cancel>Cancel</button>' +
+        '<button class="btn pri" type="button" id="cm-send">Request changes</button>',
+      after: function (scrim, close) {
+        var body = scrim.querySelector('.sh-body');
+        var wrap = document.getElementById('f-cm-dest');
+        var what = document.getElementById('cm-dest-what');
+        var warn = document.getElementById('cm-dest-warn');
+        var send = document.getElementById('cm-send');
+        if (!wrap || !send) { return; }
 
-    /* SAY THE CONSEQUENCE AS THE CHOICE IS MADE, not only in the
-       confirmation. By the time a dialog is open the person has already
-       decided; the point of the split is that they decide with the
-       consequence in front of them. */
-    Array.prototype.slice.call(wrap.querySelectorAll('input[name="cm-dest"]')).forEach(function (input) {
-      input.addEventListener('change', function () {
-        if (!what) { return; }
-        var dest = chosen();
-        what.innerHTML = dest
-          ? conseqCardHTML(destConsequences(dest, rec, vendor))
-          : destPlaceholderHTML();
-      });
-    });
+        /* Restore what a cancelled confirmation had in it. A file input
+           cannot be restored by any page, which the sheet says. */
+        var refUrl = document.getElementById('cmchg-refurl');
+        var refLabel = document.getElementById('cmchg-reflabel');
+        if (refUrl && p.refUrl) { refUrl.value = p.refUrl; }
+        if (refLabel && p.refLabel) { refLabel.value = p.refLabel; }
 
-    btn.addEventListener('click', function () {
-      var card = wrap.closest('.card');
-      var dest = chosen();
-      var el = document.getElementById('i-cm-comment');
-      var text = el ? el.value.trim() : '';
-      var errs = [];
-      if (!dest) {
-        errs.push({ field: 'f-cm-dest',
-          message: 'Choose where this goes back to. An academic or content issue goes to the Academic ' +
-            'Reviewer; a technical, application or delivery issue goes to the Vendor.' });
-      }
-      if (!text) {
-        errs.push({ field: 'f-cm-comment',
-          message: 'Enter the reason. Whoever receives this cannot act on it without knowing what is wrong.' });
-      }
-      if (!ui.showErrors(card, errs, 'This item cannot be returned yet')) {
-        ui.toast('Choose a destination and enter your reason before requesting changes.', 'info');
-        return;
-      }
-
-      var toReviewer = dest === DEST.REVIEWER;
-      /* Read the references from the LIVE page before the dialog opens.
-         The dialog detaches its own body on confirm, which is a
-         different element tree — reading them here keeps the two apart
-         and means the count shown in the dialog is the count sent. */
-      var refs = cui.readRefs('cmchg');
-
-      ui.openDialog({
-        title: toReviewer ? 'Return this for academic re-check?' : 'Return this to the Vendor?',
-        bodyHTML:
-          '<p>This returns <strong>' + esc(rec.name) + '</strong> to ' +
-          (toReviewer ? 'an <strong>Academic Reviewer</strong>' : 'the <strong>Vendor</strong>') +
-          ', with your reason.</p>' +
-          '<blockquote class="qquote">' + esc(text) + '</blockquote>' +
-          (refs.length
-            ? cui.refsHTML(refs, { title: refs.length + ' supporting ' + util.plural(refs.length, 'reference') })
-            : '') +
-          conseqDialogHTML(destConsequences(dest, rec, vendor)),
-        okLabel: toReviewer ? 'Return to the Academic Reviewer' : 'Return to the Vendor',
-        onConfirm: function () {
-          var updated = state.requestChangesContent(actor.id, rec.id, text,
-            { destination: dest, refs: refs });
-          if (!updated) { ui.toast('Changes could not be requested.', 'info'); return; }
-          ui.toast(toReviewer
-            ? 'Returned for academic re-check — an Academic Reviewer now holds it.'
-            : 'Changes requested — returned to the Vendor.');
-          XRSLP.router.go(href.mQueue(actor.id));
+        function chosen() {
+          var picked = wrap.querySelector('input[name="cm-dest"]:checked');
+          return picked ? picked.value : '';
         }
-      });
+
+        /* SAY THE CONSEQUENCE AS THE CHOICE IS MADE, not only in the
+           confirmation. By the time the confirmation is open the person
+           has already decided; the point of the split is that they
+           decide with the consequence in front of them. What changed in
+           08 is the SHAPE: one announced sentence, the tile's own fixed
+           line, and only the non-obvious boxes below — instead of two to
+           four full alert boxes injected into a live region between the
+           radios and the reason field. */
+        function paintChoice() {
+          var dest = chosen();
+          Array.prototype.slice.call(wrap.querySelectorAll('.radiorow.choice')).forEach(function (row) {
+            var input = row.querySelector('input');
+            row.classList.toggle('is-selected', !!(input && input.checked));
+          });
+          if (what) {
+            what.innerHTML = ui.ic('info', 'sm') + '<span>' +
+              (dest ? esc(destSummaryLine(dest, vendor))
+                    : 'Choose a destination and this will say who receives it.') + '</span>';
+          }
+          if (warn) {
+            warn.innerHTML = dest
+              ? conseqCardHTML(destConsequences(dest, rec, vendor).filter(function (c) { return !c.lead; }))
+              : '';
+          }
+          send.textContent = dest === DEST.REVIEWER ? 'Send to Academic Reviewer'
+            : dest === DEST.VENDOR ? 'Send to Vendor'
+            : 'Request changes';
+        }
+
+        Array.prototype.slice.call(wrap.querySelectorAll('input[name="cm-dest"]')).forEach(function (input) {
+          input.addEventListener('change', paintChoice);
+        });
+        paintChoice();
+
+        /* `ui.showErrors` binds an error to the FIRST input inside the
+           field wrapper. For a radio group that is one of the two
+           radios, so a screen-reader user who tabs to the other hears
+           nothing. The summary and the inline message are the shared
+           helper's; this extends the association to every radio in the
+           group, which is the only part a screen can fix for itself. */
+        function describeWholeGroup() {
+          var errId = 'err-f-cm-dest';
+          if (!document.getElementById(errId)) { return; }
+          Array.prototype.slice.call(wrap.querySelectorAll('input[name="cm-dest"]')).forEach(function (input) {
+            input.setAttribute('aria-invalid', 'true');
+            var d = (input.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+            if (d.indexOf(errId) === -1) { d.push(errId); }
+            input.setAttribute('aria-describedby', d.join(' '));
+          });
+        }
+
+        send.addEventListener('click', function () {
+          var dest = chosen();
+          var el = document.getElementById('i-cm-comment');
+          var text = el ? el.value.trim() : '';
+          var errs = [];
+          if (!dest) {
+            errs.push({ field: 'f-cm-dest',
+              message: 'Choose where this goes back to. An academic or content issue goes to the Academic ' +
+                'Reviewer; a technical, application or delivery issue goes to the Vendor.' });
+          }
+          if (!text) {
+            errs.push({ field: 'f-cm-comment',
+              message: 'Enter the reason. Whoever receives this cannot act on it without knowing what is ' +
+                'wrong.' });
+          }
+          /* NO TOAST ON A VALIDATION FAILURE. `showErrors` already
+             writes a role="alert" summary, focuses it and marks each
+             field; the toast was a third simultaneous announcement of
+             the same thing, and it stole the one that names the fields. */
+          if (!ui.showErrors(body, errs, 'This item cannot be returned yet')) {
+            describeWholeGroup();
+            return;
+          }
+
+          /* Read the references from the LIVE sheet before it closes.
+             The confirmation is a different element tree, and reading
+             them here means the count shown in the confirmation is the
+             count sent. */
+          var refs = cui.readRefs('cmchg');
+          var back = prefillFromSheet(dest, text);
+          close(false);
+          openReturnConfirm(actor, rec, vendor, dest, text, refs, back);
+        });
+      }
+    });
+  }
+
+  function openReturnConfirm(actor, rec, vendor, dest, text, refs, back) {
+    var toReviewer = dest === DEST.REVIEWER;
+    /* Re-read the record at confirm time, exactly as Publish does. The
+       consequence text and the approval-freshness statement are derived
+       from the record, and the sheet may have been open while something
+       else moved it; the writer re-checks independently either way. */
+    var fresh = state.contentRecord(rec.id) || rec;
+
+    ui.openDialog({
+      title: toReviewer ? 'Return this for academic re-check?' : 'Return this to the Vendor?',
+      bodyHTML:
+        '<p>This returns <strong>' + esc(fresh.name) + '</strong> to ' +
+        (toReviewer ? 'an <strong>Academic Reviewer</strong>' : 'the <strong>Vendor</strong>') +
+        ', with your reason.</p>' +
+        '<blockquote class="qquote">' + esc(text) + '</blockquote>' +
+        (refs.length
+          ? cui.refsHTML(refs, { title: refs.length + ' supporting ' + util.plural(refs.length, 'reference') })
+          : '') +
+        conseqDialogHTML(destConsequences(dest, fresh, vendor)),
+      okLabel: toReviewer ? 'Send to Academic Reviewer' : 'Send to Vendor',
+      /* "Back", not "Cancel": it returns to the sheet with everything
+         still in it rather than throwing the decision away. */
+      cancelLabel: 'Back',
+      onCancel: function () { openReturnSheet(actor, rec, vendor, back); },
+      onConfirm: function () {
+        var updated = state.requestChangesContent(actor.id, fresh.id, text,
+          { destination: dest, refs: refs });
+        if (!updated) { ui.toast('Changes could not be requested.', 'info'); return; }
+        ui.toast(toReviewer
+          ? 'Returned for academic re-check — an Academic Reviewer now holds it.'
+          : 'Changes requested — returned to the Vendor.');
+        XRSLP.router.go(href.mQueue(actor.id));
+      }
     });
   }
 
@@ -1124,15 +1359,46 @@ XRSLP.screens = XRSLP.screens || {};
 
       if (toggle && panel) {
         toggle.addEventListener('click', function () {
-          var nowOpen = panel.hasAttribute('hidden');
+          var nowOpen = panel.hidden;
+          /* ⚠ A DISCLOSURE MUST NOT RE-RENDER THE PAGE. This used to call
+             `XRSLP.render(true)`, and `render()` replaces the whole
+             document body — so opening or closing any delivery panel
+             destroyed everything typed anywhere on the screen: another
+             technology's reason, and (before 08 moved it into a sheet)
+             the entire return decision. `keepFocus` preserves no values
+             and refocuses nothing, so a keyboard user also landed on
+             <body>. The panel now toggles in place, exactly as the
+             Academic Reviewer's outcomes editor repaints only its own
+             host. `deliveryOpen` is still written, because a SAVE does
+             re-render and the panel it re-opens comes from there. */
+          techs.forEach(function (otherTech, j) {
+            if (j === i) { return; }
+            var other = document.getElementById('dl-panel-' + j);
+            var otherBtn = document.getElementById('dl-toggle-' + j);
+            if (other && !other.hidden) { other.hidden = true; }
+            if (otherBtn) { setToggleLabel(otherBtn, otherTech, false); }
+          });
+          panel.hidden = !nowOpen;
+          setToggleLabel(toggle, tech, nowOpen);
           deliveryOpen = nowOpen
             ? { recordId: rec.id, tech: tech }
             : { recordId: null, tech: null };
-          /* Re-render rather than toggling in place: the button label,
-             the expanded state and the remembered panel then all come
-             from one source, and no second copy of that logic can drift. */
-          XRSLP.render(true);
+          if (nowOpen) {
+            var first = panel.querySelector('input, textarea');
+            if (first) { first.focus(); }
+          }
         });
+      }
+
+      /* One place decides what the toggle says, so the label, the
+         expanded state and the remembered panel cannot drift apart —
+         which was the reason the old code re-rendered. */
+      function setToggleLabel(btn, forTech, open) {
+        var fresh = state.contentRecord(rec.id) || rec;
+        var summary = state.deliverySummaryFor(fresh, forTech);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.innerHTML = ui.ic('edit') +
+          (open ? 'Close' : (summary ? 'Edit or replace' : 'Add the reference'));
       }
 
       /* Report the reason the write ACTUALLY failed. `managerUpdateDelivery`
@@ -1330,7 +1596,7 @@ XRSLP.screens = XRSLP.screens || {};
         '<label for="i-course">Course <span class="req" aria-hidden="true">*</span>' +
         '<span class="sr-only">(required)</span></label>' +
         '<select id="i-course" aria-describedby="h-course">' + courseOptions + '</select>' +
-        '<p class="hint" id="h-course">Moves the experiment under a different canonical Course. The Programme / ' +
+        '<p class="hint" id="h-course">Moves the experiment under a different Course. The Programme / ' +
         'Department and Course master records themselves are platform master data and are not edited here.</p>' +
         '</div>' +
         '<div class="field" id="f-summary">' +
@@ -1359,12 +1625,16 @@ XRSLP.screens = XRSLP.screens || {};
            load-bearing for every access record, academic mapping,
            Faculty mapping and student assignment, and no source states
            what should happen to those live references when a structure
-           record retires. Nothing is deleted anywhere in this build. */
-        '<li>' + ui.ic('x') + '<span><strong>Programme / Course master records</strong> — platform-controlled structure. The Super Admin <strong>creates and renames</strong> them on Academic structure; <strong>retiring or deleting</strong> one is not built anywhere, because those ids are referenced by live access records, mappings and assignments and no source states what should become of those references.</span></li>' +
+           record retires. Nothing is deleted anywhere in this build.
+
+           08 — that reasoning is the traceability record, not something
+           a Content Manager acts on, so it now lives here and the bullet
+           says only the thing the reader needs: who owns the records. */
+        '<li>' + ui.ic('x') + '<span><strong>Programme / Course master records</strong> — platform-controlled structure, created and renamed by the Super Admin on Academic structure.</span></li>' +
         /* The one part of a Course that IS this role's, and it is on a
            screen of its own rather than in this editor — the code
            belongs to the Course master record, not to this Experiment. */
-        '<li>' + ui.ic('arrowR') + '<span><strong>The canonical Course code</strong> — yours, but not from this form. Set it on <a href="' + coursesHref(actor.id) + '">Course codes</a>, where it sits on the Course master record it belongs to.</span></li>' +
+        '<li>' + ui.ic('arrowR') + '<span><strong>The platform course code</strong> — yours, but not from this form. Set it on <a href="' + coursesHref(actor.id) + '">Platform course codes</a>, where it sits on the Course master record it belongs to.</span></li>' +
         '<li>' + ui.ic('x') + '<span><strong>The published revision and its publication record</strong> — fixed once published.</span></li>' +
         '</ul>') +
       '</div></div></form>';
@@ -1443,10 +1713,10 @@ XRSLP.screens = XRSLP.screens || {};
       'platform-controlled; the Super Admin creates and renames them, and retiring one is not built anywhere in ' +
       'this product.</span></li>' +
       '<li>' + ui.ic('x') + '<span><strong>It does not touch any institution&rsquo;s own course code.</strong> ' +
-      'A Tenant Admin records that separately, against the same canonical Course, and the two live side by ' +
+      'A Tenant Admin records that separately, against the same Course, and the two live side by ' +
       'side.</span></li>' +
       '<li>' + ui.ic('x') + '<span><strong>It publishes nothing and grants nothing.</strong> No Experiment, ' +
-      'licence, access record or student assignment changes when a code is set.</span></li>' +
+      'licence, institutional access or student assignment changes when a code is set.</span></li>' +
       '<li>' + ui.ic('x') + '<span><strong>It does not change what a Course is called.</strong> The catalogue, ' +
       'CSV import and manual entry all resolve a Course by its <em>name</em>; the code is carried beside the ' +
       'name, never instead of it.</span></li>' +
@@ -1461,22 +1731,31 @@ XRSLP.screens = XRSLP.screens || {};
       'outside it is not listed here and a code cannot be set on it &mdash; the same rule the Content Library ' +
       'already follows.</p>', null, 'h2');
 
-    var asideNote = ui.gapNote('USE OF THE CODE OUTSIDE THIS PRODUCT IS NOT DECIDED',
-      '<strong>Nothing in this build resolves a Course by its code.</strong> The public catalogue, CSV import ' +
-      'and manual entry all match on the Course name, and the tenant&rsquo;s own conflict check compares local ' +
-      'codes only. So changing a code here is safe, and this screen can say so honestly. What is <strong>not ' +
-      'settled</strong> is whether an external system &mdash; a student information system, a timetabling ' +
-      'tool &mdash; would key on this code. If one did, changing a code would matter to it, and no source ' +
-      'states whether such an integration exists or what it would expect.');
+    /* WHAT CHANGING A CODE AFFECTS. The reader needs one fact: nothing
+       inside this platform resolves a Course by its code, so changing
+       one here is safe.
+
+       ⚠ THE OPEN QUESTION IS NOT ON SCREEN, and this is where it lives.
+       Whether an EXTERNAL system — a student information system, a
+       timetabling tool — would key on this code is not settled by any
+       source, and no such integration exists in this build. That is an
+       integration decision for the product team, not information a
+       Content Manager acts on, so it is recorded here and in the
+       decision log rather than as ~95 words of reasoning in the aside
+       rail of a stakeholder-facing screen. */
+    var asideNote = ui.about('Does changing a code break anything?',
+      '<p><strong>Not inside this platform.</strong> The public catalogue, CSV import and manual entry all ' +
+      'resolve a Course by its <em>name</em>, and an institution&rsquo;s own conflict check compares local ' +
+      'codes only. The code is carried beside the name, never instead of it.</p>');
 
     if (!courses.length) {
-      return shell(actor, 'courses', 'Course codes',
-        ui.phead('Course codes', esc(actor.name) + ' · Content Manager') +
+      return shell(actor, 'courses', 'Platform course codes',
+        ui.phead('Platform course codes', esc(actor.name) + ' · Content Manager') +
         scopeGapNote(actor) +
         '<div class="tablecard">' + ui.emptyState({
           icon: 'book',
           title: 'No Course is inside your assigned scope',
-          body: 'The canonical Course code is managed Course by Course, and none is in reach from this ' +
+          body: 'The platform course code is managed Course by Course, and none is in reach from this ' +
             'identity. Assigned scope: ' + state.actorScopeText(actor.id) + '. Nothing is hidden and nothing ' +
             'has been cleared — every Course still holds whatever code it had.',
           actionsHTML: '<a class="btn sec" href="' + href.mLibrary(actor.id) + '">Open the Content Library</a>'
@@ -1503,11 +1782,11 @@ XRSLP.screens = XRSLP.screens || {};
       var g = data.grouping(c.groupingId);
       return '<tr>' +
         '<td data-label="Programme">' + esc(g ? g.name : '—') + '</td>' +
-        '<td data-label="Course (canonical)"><span class="tmain">' + esc(c.name) + '</span>' +
+        '<td data-label="Course"><span class="tmain">' + esc(c.name) + '</span>' +
         '<span class="tsub">' + esc(c.id) + '</span></td>' +
-        '<td data-label="Course code">' +
+        '<td data-label="Platform course code">' +
         '<div class="field" id="pc-code-' + i + '" style="margin-bottom:0">' +
-        '<label class="sr-only" for="pc-code-i-' + i + '">Canonical Course code for ' + esc(c.name) +
+        '<label class="sr-only" for="pc-code-i-' + i + '">Platform course code for ' + esc(c.name) +
         ' (optional)</label>' +
         '<input type="text" id="pc-code-i-' + i + '" data-course="' + esc(c.id) + '" class="cellinput" ' +
         'maxlength="40" value="' + esc(c.code || '') + '" placeholder="Optional"></div></td>' +
@@ -1522,27 +1801,27 @@ XRSLP.screens = XRSLP.screens || {};
     }).join('');
 
     var html =
-      ui.phead('Course codes',
+      ui.phead('Platform course codes',
         courses.length + ' ' + util.plural(courses.length, 'Course') + ' in your assigned scope') +
       scopeGapNote(actor) +
-      ui.alertBox('info', 'The canonical code — one Course, one code, platform-wide',
+      ui.alertBox('info', 'The platform course code — one Course, one code, platform-wide',
         '<p>This is the platform&rsquo;s own code for a Course. It is <strong>optional</strong>, and a Course ' +
         'with no code is a normal state, not a missing one. When a code is set it must be unique across the ' +
         'whole platform &mdash; unlike a Course <em>name</em>, which only has to be unique inside its ' +
         'Programme.</p>' +
         '<p>It is <strong>not</strong> an institution&rsquo;s local course code. Each Tenant Admin records ' +
-        'theirs against the same canonical Course, on their own Academic mappings screen, and the two are ' +
+        'theirs against the same Course, on their own Academic mappings screen, and the two are ' +
         'shown side by side there. Neither overwrites the other.</p>' +
         '<p>The Super Admin also has access to this field, on the Course master record. It is one value, ' +
         'reached from two places &mdash; not two codes.</p>') +
       '<div class="tablecard" style="margin-top:16px">' +
       '<form id="cc-form" novalidate><div class="form-errors"></div>' +
       '<div class="tscroll"><table class="dt maptable">' +
-      '<caption class="sr-only">Canonical Course codes for the Courses in this Content Manager&rsquo;s scope</caption>' +
-      '<thead><tr><th scope="col">Programme</th><th scope="col">Course (canonical)</th>' +
-      '<th scope="col">Course code</th><th scope="col">Last set</th></tr></thead><tbody>' +
+      '<caption class="sr-only">Platform course codes for the Courses in this Content Manager&rsquo;s scope</caption>' +
+      '<thead><tr><th scope="col">Programme</th><th scope="col">Course</th>' +
+      '<th scope="col">Platform course code</th><th scope="col">Last set</th></tr></thead><tbody>' +
       rows + '</tbody></table></div>' +
-      '<div class="formact"><button class="btn pri" type="submit" id="cc-save">Save Course codes</button>' +
+      '<div class="formact"><button class="btn pri" type="submit" id="cc-save">Save course codes</button>' +
       '<span class="formnote">Each row is saved on its own. Clearing a box removes that Course&rsquo;s code and ' +
       'leaves it with none. A code another Course already holds is refused &mdash; clear it there first, then ' +
       'set it here.</span></div>' +
@@ -1552,7 +1831,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="stack">' + scopeCard + asideNote + '</div>' +
       '</div>';
 
-    return shell(actor, 'courses', 'Course codes', html, function () {
+    return shell(actor, 'courses', 'Platform course codes', html, function () {
       var form = document.getElementById('cc-form');
       if (!form) { return; }
       form.addEventListener('submit', function (e) {
@@ -1581,7 +1860,7 @@ XRSLP.screens = XRSLP.screens || {};
              collide case-insensitively, so they are not necessarily
              typed the same way, and telling somebody their row says
              something it does not is worse than saying nothing. */
-          var tail = ' is also on another row. A canonical Course code identifies one Course across the ' +
+          var tail = ' is also on another row. A platform course code identifies one Course across the ' +
             'whole platform, so no two Courses may carry it. Nothing was saved.';
           dupErrs.push({ field: 'pc-code-' + firstAt[key],
             message: 'The code ' + inputs[firstAt[key]].value.trim() + tail });
@@ -1641,7 +1920,7 @@ XRSLP.screens = XRSLP.screens || {};
            the two content surfaces rather than among them. The count is
            the Courses in reach, not a queue: nothing here is waiting on
            a decision, and a Course with no code is not a task. */
-        { href: coursesHref(actor.id), icon: 'book', label: 'Course codes',
+        { href: coursesHref(actor.id), icon: 'book', label: 'Platform course codes',
           active: activeKey === 'courses', count: cnt,
           countLabel: util.plural(cnt, 'Course') + ' in your assigned scope' },
         { href: href.mHelp(actor.id), icon: 'alertCirc', label: 'Help',

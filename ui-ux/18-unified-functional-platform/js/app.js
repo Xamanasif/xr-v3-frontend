@@ -129,8 +129,35 @@
        document-level horizontal overflow at any width — the roles are
        split into two labelled groups rather than one long line. */
     var isContent = area === 'vendor' || area === 'review' || area === 'content';
-    return '<div class="protobar">' +
+
+    /* ⚠ COLLAPSED BY DEFAULT (08R).
+
+       Every function on this strip is preserved — role switch, requester
+       scenario, sample identity pickers, reset. What changed is that it
+       no longer opens expanded across the top of every screen.
+
+       It is prototype scaffolding, and on a 1440 desktop it was taking
+       the first ~70px of every screenshot and the first two things a
+       stakeholder's eye landed on. Collapsed, it is one small discreet
+       affordance; expanded, it is exactly what it was. The state is
+       remembered per browser through `sessionStorage`, deliberately NOT
+       the product's own `localStorage` namespace — this is a control
+       over the prototype, not product state, and it must never appear
+       in an export or survive a data reset.
+
+       `<details>` carries the whole thing: keyboard operable, announced,
+       and open/closed without a line of script. */
+    var open = false;
+    try { open = window.sessionStorage.getItem('xrslp-protobar') === 'open'; }
+    catch (e) { open = false; }
+
+    return '<details class="protobar"' + (open ? ' open' : '') + ' id="protobar">' +
+      '<summary>' +
       '<span class="plabel">PROTOTYPE CONTROLS — NOT PRODUCT UI</span>' +
+      '<span class="pcur">' + esc(AREA_LABEL[area] || 'Public') + '</span>' +
+      '<span class="phint" aria-hidden="true">Demo controls</span>' +
+      '</summary>' +
+      '<div class="pbody">' +
       '<nav class="pnav" aria-label="Prototype view switch — not product navigation">' +
       '<span class="pgrp"><span class="pgl" aria-hidden="true">Access</span>' +
       '<a href="#/catalogue"' + (area === 'public' ? ' aria-current="true"' : '') + '>Public</a>' +
@@ -157,7 +184,27 @@
         : '<label for="proto-scenario">Requester scenario' +
           '<select id="proto-scenario">' + options + '</select></label>') +
       '<button type="button" id="proto-reset">Reset prototype data</button>' +
-      '</div></div>';
+      '</div></div></details>';
+  }
+
+  /* What the collapsed summary says the prototype is currently showing,
+     so the strip stays useful without being open. */
+  var AREA_LABEL = {
+    public: 'Public', platform: 'Super Admin', tenant: 'Tenant Admin',
+    faculty: 'Faculty', learn: 'Student', vendor: 'Vendor',
+    review: 'Academic Reviewer', content: 'Content Manager'
+  };
+
+  /* Remember the strip's own state across the full re-render every
+     control on it triggers — in sessionStorage, never in the product's
+     localStorage namespace. */
+  function bindProtobarToggle() {
+    var d = document.getElementById('protobar');
+    if (!d) { return; }
+    d.addEventListener('toggle', function () {
+      try { window.sessionStorage.setItem('xrslp-protobar', d.open ? 'open' : 'closed'); }
+      catch (e) { /* private mode — the strip simply reopens closed */ }
+    });
   }
 
   function bindProtobar() {
@@ -232,7 +279,7 @@
         ui.openDialog({
           title: 'Reset prototype data?',
           bodyHTML: '<p>This restores the deterministic seed data: the selection, all requests, ' +
-            'created tenants and tenant access records are cleared, tenant people, groups, mappings and ' +
+            'created tenants and their approved access are cleared, tenant people, groups, mappings and ' +
             'student access grants return to the seed set, the Question Bank and the assessment configuration return ' +
             'to the seeded sample set, every student learning record — resources opened, simulations run, ' +
             'assessment attempts and faculty reviews — is discarded, the content pool returns to the seeded ' +
@@ -535,7 +582,9 @@
       nav = [
         { href: h.overview(tenant.id), icon: 'home', label: 'Overview', active: activeKey === 'overview', count: 0 },
         { href: h.access(tenant.id), icon: 'layers', label: 'Content access', active: activeKey === 'content-access',
-          count: accessCount, countLabel: 'access ' + XRSLP.util.plural(accessCount, 'record') },
+          /* Screen-reader text is user-facing too: it said "3 access
+             records" while the screen itself no longer uses that term. */
+          count: accessCount, countLabel: XRSLP.util.plural(accessCount, 'approval') },
         { href: h.people(tenant.id), icon: 'users', label: 'People', active: activeKey === 'people',
           count: people.length, countLabel: XRSLP.util.plural(people.length, 'person', 'people') +
             ' (' + students + ' ' + XRSLP.util.plural(students, 'student') + ')' },
@@ -660,6 +709,7 @@
     document.title = (result.title ? result.title + ' — ' : '') + 'XR Simulation Learning Platform (Prototype)';
 
     bindProtobar();
+    bindProtobarToggle();
     var skip = document.getElementById('skip-link');
     if (skip) {
       skip.addEventListener('click', function (e) {
@@ -668,6 +718,12 @@
       });
     }
     if (result.after) { result.after(); }
+    /* Info affordances are a shared component, so they are wired once
+       here rather than by each screen that uses one. Idempotent, and it
+       runs AFTER the screen's own `after` so tips added by that hook are
+       picked up too. A screen that injects markup later re-calls
+       `XRSLP.ui.wireInfoTips(scope)` itself. */
+    ui.wireInfoTips();
 
     if (!firstRender && !keepFocus) {
       ui.focusMain(true);

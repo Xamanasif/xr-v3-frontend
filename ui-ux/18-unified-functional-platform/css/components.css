@@ -25,6 +25,20 @@
   border:0; background:transparent; color:var(--text-3)}
 .iconbtn:hover{background:var(--raised); color:var(--text)}
 
+/* ---------- the count pill ----------
+   ONE definition. `.snav .ncount`, `.pubnav .navcount`, `.seg .segn`
+   and `.lsec-n` were four near-identical rules at three paddings and
+   two min-widths; they are now aliases of this one so the pill is the
+   same size everywhere and a fifth copy cannot drift in. The
+   accompanying `ui.count()` helper carries the screen-reader unit, so
+   the number is never announced bare. */
+.count,
+.snav .ncount, .pubnav .navcount, .seg .segn, .lsec-n{
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:var(--t-xs); font-weight:var(--w-bold);
+  background:var(--sunken); color:var(--text-2);
+  border-radius:var(--r-pill); padding:1px var(--s-3); min-width:22px; text-align:center}
+
 /* ---------- badges & chips ---------- */
 .badge{display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:var(--r-xs);
   font-size:11.5px; font-weight:650; letter-spacing:.035em; border:1px solid; white-space:nowrap}
@@ -53,6 +67,11 @@
 .kv>div:nth-child(-n+2){border-top:0}
 .kv .k{color:var(--text-3); font-size:13px; padding-right:14px}
 .kv .v{color:var(--text); overflow-wrap:anywhere}
+/* Reference facts that are true but are nobody's reason for opening the
+   page — "where you are studying" at the foot of Student Home. Same
+   list, less air. */
+.kv.compact{font-size:var(--t-md); grid-template-columns:170px minmax(0,1fr)}
+.kv.compact>div{padding:6px 0}
 
 /* ---------- tables ---------- */
 .tablecard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--e1)}
@@ -147,7 +166,7 @@ fieldset.fgroup legend{font-size:13.5px; font-weight:600; color:var(--text); mar
 .tl-who{color:var(--text-3); font-size:12.5px; margin-top:1px}
 
 /* ---------- dialog ---------- */
-.scrim{position:fixed; inset:0; background:rgba(22,27,34,.45); z-index:100; display:flex; align-items:flex-start; justify-content:center; padding:8vh 20px 20px}
+.scrim{position:fixed; inset:0; background:var(--scrim); z-index:100; display:flex; align-items:flex-start; justify-content:center; padding:8vh 20px 20px}
 .dialog{background:var(--surface); border-radius:var(--r-xl); box-shadow:var(--e3); width:100%; max-width:520px;
   animation:dlgin var(--m-enter) var(--ease); max-height:84vh; overflow:auto}
 @keyframes dlgin{from{transform:translateY(10px); opacity:0} to{transform:none; opacity:1}}
@@ -160,13 +179,13 @@ fieldset.fgroup legend{font-size:13.5px; font-weight:600; color:var(--text); mar
 
 /* ---------- toasts ---------- */
 .toasts{position:fixed; left:20px; bottom:20px; z-index:120; display:flex; flex-direction:column; gap:10px; max-width:min(420px, calc(100vw - 40px))}
-.toast{display:flex; align-items:flex-start; gap:10px; background:var(--n-800); color:#EDF0F3; border-radius:var(--r-md);
+.toast{display:flex; align-items:flex-start; gap:10px; background:var(--inverse-bg); color:var(--inverse-text); border-radius:var(--r-md);
   padding:12px 14px; font-size:13.5px; box-shadow:var(--e3); animation:toastin var(--m-enter) var(--ease); line-height:1.5}
 @keyframes toastin{from{transform:translateY(8px); opacity:0} to{transform:none; opacity:1}}
-.toast svg.ic{color:#7FD3A5; margin-top:1px}
-.toast.info svg.ic{color:#9DB9F0}
+.toast svg.ic{color:var(--ok-inverse); margin-top:1px}
+.toast.info svg.ic{color:var(--info-inverse)}
 .toast .tx{flex:1}
-.toast button{background:none; border:0; color:#AEB7C0; padding:2px}
+.toast button{background:none; border:0; color:var(--inverse-text-3); padding:2px}
 .toast button:hover{color:#fff}
 
 /* ---------- prototype-only note ---------- */
@@ -208,8 +227,359 @@ fieldset.fgroup legend{font-size:13.5px; font-weight:600; color:var(--text); mar
 .reflist .rf-m { font-size: 12px; color: var(--text-3); }
 .reflist .rf-note { flex-basis: 100%; font-size: 13px; color: var(--text-3); }
 .rf-warn { margin: 8px 0 0; font-size: 13px; color: var(--text-3); display: flex; gap: 6px; align-items: baseline; }
-.refed { margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+/* ⚠ `var(--line)` — A TOKEN THAT WAS NEVER DEFINED.
+   This rule shipped referencing `--line`, which is declared in no
+   stylesheet. An invalid value in a SHORTHAND invalidates the whole
+   declaration at computed-value time, so this fieldset has been
+   rendering with no border at all since it was written — and it is the
+   supporting-references editor the Content Manager's return and the
+   Academic Reviewer's change request both draw, so both read as loose
+   inputs rather than one grouped optional block.
+   Repaired at the root (this is the shared component) rather than
+   overridden later, and rewritten onto the token scale while here.
+   It was the only undefined custom property in the build; the whole
+   stylesheet was swept to confirm that. */
+.refed { margin-top: var(--s-4); border: 1px solid var(--border); border-radius: var(--r-md);
+  padding: var(--s-4); background: var(--n-25); }
 .refed legend { font-size: 13px; font-weight: 600; padding: 0 6px; }
 .pvid { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .pvid .pv-l { font-weight: 600; overflow-wrap: anywhere; }
 .pvid .pv-n, .pvid .pv-m { flex-basis: 100%; font-size: 13px; color: var(--text-3); }
+
+/* ============================================================
+   IMPLEMENTATION 08 — the shared patterns the redesign needs.
+
+   Every rule below is a SHARED component, reached through a helper in
+   js/components.js, and every one replaces something the screens were
+   otherwise doing by hand. Nothing here is a per-screen style, and no
+   role gets a visual language of its own.
+
+   What was missing, and why each piece exists:
+
+     · SIDE SHEET   — there was exactly one overlay in the product, the
+                      modal dialog, so every piece of secondary detail
+                      had to become another full page or another stacked
+                      card. A drawer is the surface those belong on; the
+                      modal goes back to bounded confirmation only.
+     · METRIC LINE  — "5 licences · 1 assigned · 4 remaining · expires
+                      7 Dec 2026" is the sentence the stakeholder asked
+                      for in place of a paragraph defining what an
+                      access record is.
+     · STAT STRIP   — `.statgrid` tiles are 26px figures in 160px boxes.
+                      Right for an overview, far too loud repeated down
+                      an operational page.
+     · COMPACT EMPTY— `.empty` is 48px of padding and a 48px medallion.
+                      Correct when "nothing here" IS the page; half a
+                      viewport of nothing when it is one quiet queue.
+     · ABOUT        — the honest replacement for a `.gapnote`: the same
+                      information, folded away, in product language.
+     · DEMO PANEL   — where a genuinely prototype-only control goes, so
+                      it stays available to us without shaping the
+                      product around it.
+     · TRACK        — one workflow visualisation, shared. The Student's
+                      `.seqstrip` was the only stepper in the build and
+                      the request/production chains had none.
+     · SECTION HEAD — page-level zoning above cards, so a long screen
+                      reads as a few areas instead of a stack of boxes.
+     · DANGER ZONE  — consequential actions, separated from information
+                      rather than sitting inline beside it.
+     · CODE PAIR    — the platform vs institution course code, presented
+                      so the difference is self-evident.
+   ============================================================ */
+
+/* ---------- side sheet (secondary detail) ----------
+   Anchored right on a desktop, a bottom sheet on a phone. Shares the
+   scrim, the focus trap and the focus restore with the dialog. */
+.sheet-scrim{position:fixed; inset:0; background:var(--scrim); z-index:110;
+  display:flex; justify-content:flex-end; animation:sheetfade var(--m-base) var(--ease)}
+@keyframes sheetfade{from{opacity:0} to{opacity:1}}
+.sheet{background:var(--surface); width:min(var(--sheet-w), 100vw); max-width:100%;
+  height:100%; display:flex; flex-direction:column; box-shadow:var(--e3);
+  animation:sheetin var(--m-enter) var(--ease)}
+@keyframes sheetin{from{transform:translateX(24px); opacity:.6} to{transform:none; opacity:1}}
+.sheet.wide{--sheet-w:720px}
+.sheet .sh-head{display:flex; align-items:flex-start; gap:var(--s-4);
+  padding:var(--s-6) var(--s-6) var(--s-4); border-bottom:1px solid var(--border-subtle); flex:0 0 auto}
+.sheet .sh-titles{min-width:0; flex:1}
+.sheet .sh-k{font-size:var(--t-eyebrow); font-weight:var(--w-bold); letter-spacing:.08em;
+  text-transform:uppercase; color:var(--text-3); margin-bottom:var(--s-1)}
+.sheet .sh-head h2{font-size:var(--t-lg); font-weight:var(--w-bold); letter-spacing:-.008em;
+  line-height:var(--lh-tight); overflow-wrap:anywhere}
+.sheet .sh-sub{font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-snug);
+  margin-top:var(--s-1); overflow-wrap:anywhere}
+.sheet .sh-body{padding:var(--s-6); overflow:auto; flex:1 1 auto; min-height:0;
+  font-size:14px; color:var(--text-2); line-height:var(--lh-base)}
+.sheet .sh-body>*+*{margin-top:var(--s-5)}
+.sheet .sh-foot{display:flex; justify-content:flex-end; gap:var(--s-4); flex-wrap:wrap;
+  padding:var(--s-4) var(--s-6) var(--s-6); border-top:1px solid var(--border-subtle); flex:0 0 auto}
+.sheet .sh-foot .sh-note{margin-right:auto; font-size:var(--t-sm); color:var(--text-3);
+  line-height:var(--lh-snug); max-width:44ch}
+
+/* ---------- metric line ----------
+   Figures in a row, each with its own label, tabular so columns of them
+   line up between records. This is the compact alternative to a
+   paragraph, NOT a replacement for a stat grid on an overview. */
+.metrics{display:flex; flex-wrap:wrap; gap:var(--s-2) var(--s-6); align-items:baseline;
+  font-size:var(--t-md); color:var(--text-2); min-width:0}
+.metrics .m{display:inline-flex; align-items:baseline; gap:var(--s-2); min-width:0}
+.metrics .m-v{font-size:var(--t-base); font-weight:var(--w-bold); color:var(--text);
+  font-variant-numeric:tabular-nums; letter-spacing:-.01em}
+.metrics .m-k{font-size:var(--t-sm); color:var(--text-3)}
+.metrics .m.warn .m-v{color:var(--warning-700)}
+.metrics .m.bad .m-v{color:var(--danger-700)}
+.metrics .m.good .m-v{color:var(--success-700)}
+/* The separator is drawn, not typed, so it never lands at the start of
+   a wrapped line the way a literal "·" between items does. */
+.metrics .m+.m::before{content:""; align-self:center; width:1px; height:12px;
+  background:var(--border); margin-right:var(--s-6); margin-left:calc(var(--s-6) * -1 + var(--s-3));
+  flex:0 0 auto}
+
+/* ---------- compact stat strip ----------
+   Same information as `.statgrid`, at operational density. */
+.statstrip{display:flex; flex-wrap:wrap; gap:var(--s-3);
+  border:1px solid var(--border); border-radius:var(--r-md); background:var(--n-25);
+  padding:var(--s-4) var(--s-5)}
+.statstrip .ss{display:flex; flex-direction:column; gap:1px; min-width:96px; flex:1 1 auto}
+.statstrip .ss-v{font-size:var(--t-xl); font-weight:var(--w-bold); letter-spacing:-.02em;
+  color:var(--text); line-height:1.15; font-variant-numeric:tabular-nums}
+.statstrip .ss-k{font-size:var(--t-xs); font-weight:var(--w-bold); letter-spacing:.05em;
+  text-transform:uppercase; color:var(--text-3)}
+.statstrip .ss.warn .ss-v{color:var(--warning-700)}
+.statstrip .ss.bad .ss-v{color:var(--danger-700)}
+a.ss{text-decoration:none; color:inherit; border-radius:var(--r-sm)}
+a.ss:hover .ss-v{color:var(--action)}
+a.ss:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+
+/* ---------- compact empty state ----------
+   For a queue or a table where "nothing here" is the routine, good
+   answer. The large `.empty` stays for pages whose whole purpose is
+   the empty state. */
+.empty.compact{padding:var(--s-5) var(--s-5); text-align:left; display:flex;
+  align-items:flex-start; gap:var(--s-4)}
+.empty.compact .echip{width:28px; height:28px; margin:0; border-radius:var(--r-sm);
+  background:var(--raised); flex:0 0 auto}
+.empty.compact .echip svg.ic{width:16px; height:16px}
+.empty.compact .etitle{font-size:var(--t-md); margin-bottom:2px}
+.empty.compact p{font-size:var(--t-sm); max-width:60ch; margin:0}
+.empty.compact .eact{justify-content:flex-start; margin-top:var(--s-3)}
+.empty.compact .ebody{min-width:0}
+/* The good-news variant: nothing needs attention, and that is a result,
+   not an absence. Stated in words as well as colour. */
+.empty.compact.ok .echip{background:var(--success-50); color:var(--success-700)}
+
+/* ---------- "About this" progressive disclosure ----------
+   Native <details>: keyboard operable and announced with no script.
+   This is where genuine product explanation goes when the user needs
+   it but not on first read. */
+details.about{border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  background:var(--n-25); margin-top:var(--s-4)}
+details.about>summary{display:flex; align-items:center; gap:var(--s-2);
+  padding:var(--s-3) var(--s-4); cursor:pointer; list-style:none;
+  font-size:var(--t-sm); font-weight:var(--w-semi); color:var(--text-2); border-radius:var(--r-md)}
+details.about>summary::-webkit-details-marker{display:none}
+details.about>summary:hover{color:var(--text)}
+details.about>summary:focus-visible{outline:2px solid var(--focus); outline-offset:-2px; border-radius:var(--r-md)}
+details.about>summary svg.ic{width:14px; height:14px; color:var(--text-3); flex:0 0 auto}
+details.about>summary .ab-more{margin-left:auto; font-size:var(--t-xs); color:var(--text-3)}
+details.about[open]>summary{border-bottom:1px solid var(--border-subtle)}
+details.about[open]>summary .ab-more{visibility:hidden}
+details.about .ab-b{padding:var(--s-4); font-size:var(--t-md); color:var(--text-2);
+  line-height:var(--lh-base); max-width:76ch}
+details.about .ab-b>*+*{margin-top:var(--s-3)}
+details.about .ab-b ul{margin:0 0 0 18px; padding:0; list-style:disc}
+details.about .ab-b li{padding:2px 0}
+
+/* ---------- demo / prototype panel ----------
+   Deliberately unlike the product: dashed, mono-labelled, collapsed.
+   A stakeholder walking the normal journey never opens it, and we can. */
+details.demopanel{border:1px dashed var(--border-strong); border-radius:var(--r-md);
+  background:var(--n-25); margin-top:var(--s-5)}
+details.demopanel>summary{display:flex; align-items:center; gap:var(--s-3);
+  padding:var(--s-3) var(--s-4); cursor:pointer; list-style:none; border-radius:var(--r-md)}
+details.demopanel>summary::-webkit-details-marker{display:none}
+details.demopanel>summary:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
+details.demopanel>summary:hover{background:var(--sunken)}
+details.demopanel .dp-tag{font-family:var(--mono); font-size:10px; letter-spacing:.09em;
+  color:var(--text-3); border:1px solid var(--border-strong); border-radius:var(--r-xs);
+  padding:1px 6px; white-space:nowrap; flex:0 0 auto}
+details.demopanel .dp-t{font-size:var(--t-sm); color:var(--text-3); min-width:0}
+details.demopanel .dp-b{padding:var(--s-4); border-top:1px dashed var(--border-strong);
+  font-size:var(--t-sm); color:var(--text-2); line-height:var(--lh-snug)}
+details.demopanel .dp-b>*+*{margin-top:var(--s-3)}
+
+/* ---------- workflow track ----------
+   One stepper for every chain in the product: the production chain, the
+   request route, the Student's learning sequence. State is carried by
+   the step's own word as well as its colour. */
+.track{display:flex; flex-wrap:wrap; gap:var(--s-2); list-style:none; margin:0; padding:0}
+.track .tk-s{display:flex; align-items:center; gap:var(--s-3); flex:1 1 170px; min-width:0;
+  border:1px solid var(--border); border-radius:var(--r-md); background:var(--surface);
+  padding:var(--s-3) var(--s-4)}
+.track .tk-i{width:24px; height:24px; border-radius:50%; flex:0 0 auto; display:flex;
+  align-items:center; justify-content:center; background:var(--sunken); color:var(--text-2);
+  border:1px solid var(--border); font-size:var(--t-sm); font-weight:var(--w-bold)}
+.track .tk-i svg.ic{width:13px; height:13px; stroke-width:2.2}
+.track .tk-b{min-width:0}
+.track .tk-t{display:block; font-size:var(--t-md); font-weight:var(--w-semi); color:var(--text);
+  overflow-wrap:anywhere}
+.track .tk-d{display:block; font-size:var(--t-sm); color:var(--text-3); line-height:var(--lh-snug);
+  margin-top:1px; overflow-wrap:anywhere}
+.track .tk-s.done{border-color:var(--success-200); background:var(--success-50)}
+.track .tk-s.done .tk-i{background:var(--success-200); color:var(--success-700); border-color:var(--success-200)}
+.track .tk-s.live{border-color:var(--action-border); background:var(--action-subtle)}
+.track .tk-s.live .tk-i{background:var(--action); color:var(--on-action); border-color:var(--action)}
+.track .tk-s.live .tk-t{color:var(--action)}
+.track .tk-s.blocked{border-color:var(--warning-200); background:var(--warning-50)}
+.track .tk-s.blocked .tk-i{background:var(--warning-200); color:var(--warning-700); border-color:var(--warning-200)}
+.track .tk-s.todo{background:var(--n-25)}
+.track .tk-s.todo .tk-t{color:var(--text-2)}
+
+/* ---------- section head (page zoning above cards) ---------- */
+.sechead{display:flex; align-items:flex-end; gap:var(--s-4); flex-wrap:wrap;
+  margin:var(--s-8) 0 var(--s-4)}
+.sechead:first-child{margin-top:0}
+.sechead .se-b{min-width:0; flex:1 1 260px}
+.sechead h2,.sechead h3{font-size:var(--t-lg); font-weight:var(--w-bold); letter-spacing:-.01em;
+  line-height:var(--lh-tight); display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap}
+.sechead .se-n{font-size:var(--t-xs); font-weight:var(--w-bold); background:var(--sunken);
+  color:var(--text-2); border-radius:var(--r-pill); padding:1px 9px; min-width:22px; text-align:center}
+.sechead .se-d{font-size:var(--t-md); color:var(--text-2); line-height:var(--lh-snug);
+  margin-top:var(--s-1); max-width:78ch}
+.sechead .se-a{margin-left:auto; display:flex; gap:var(--s-3); flex-wrap:wrap; align-items:center}
+
+/* ---------- danger / governance zone ----------
+   Consequential actions, kept away from the information above them. */
+.dangerzone{border:1px solid var(--border); border-left:3px solid var(--danger-200);
+  border-radius:var(--r-md); background:var(--n-25); padding:var(--s-4) var(--s-5)}
+.dangerzone .dz-t{font-size:var(--t-md); font-weight:var(--w-bold); color:var(--text);
+  display:flex; align-items:center; gap:var(--s-2)}
+.dangerzone .dz-t svg.ic{color:var(--text-3); width:15px; height:15px}
+.dangerzone .dz-d{font-size:var(--t-sm); color:var(--text-2); line-height:var(--lh-snug);
+  margin-top:var(--s-1); max-width:70ch}
+.dangerzone .dz-a{display:flex; gap:var(--s-3); flex-wrap:wrap; margin-top:var(--s-4)}
+
+/* ---------- the two course codes ----------
+   A canonical platform code and an institution's own code are DIFFERENT
+   KINDS OF THING, and a stakeholder reading "CE G511" beside "CE-306"
+   with matching styling reasonably asks which is real. So they never
+   get matching styling: the platform code is monospace on a tinted
+   chip — an identifier issued by the platform — and the institution's
+   is plain text under its own label. */
+.pcode{display:inline-flex; align-items:center; gap:var(--s-2); height:22px; padding:0 var(--s-3);
+  border-radius:var(--r-xs); font-family:var(--mono); font-size:var(--t-sm); font-weight:var(--w-semi);
+  background:var(--indigo-50); border:1px solid var(--action-border); color:var(--indigo-700);
+  white-space:nowrap; vertical-align:middle}
+.icode{display:inline-flex; align-items:center; gap:var(--s-2); font-size:var(--t-md);
+  font-weight:var(--w-semi); color:var(--text)}
+.codepair{display:flex; flex-direction:column; gap:var(--s-1); min-width:0}
+.codepair .cp-r{display:flex; align-items:baseline; gap:var(--s-3); flex-wrap:wrap; min-width:0}
+.codepair .cp-k{font-size:var(--t-xs); color:var(--text-3); flex:0 0 auto; min-width:112px}
+.codepair .cp-v{min-width:0; overflow-wrap:anywhere}
+
+/* ---------- info affordance ----------
+   A real button with a real expanded state, not a title attribute:
+   `title` is unreachable by keyboard and unread by touch. */
+.infotip{position:relative; display:inline-block; vertical-align:middle}
+/* 24x24, not the 20 it started at: WCAG 2.5.8 Target Size (Minimum) is
+   24 CSS px at AA, and the route sweep caught this one at 20. The GLYPH
+   stays 12px — the target grew, the mark did not, so nothing else on
+   the row had to move. */
+.infotip>button{display:inline-flex; align-items:center; justify-content:center;
+  width:24px; height:24px; min-width:24px; min-height:24px; padding:0; border-radius:50%;
+  border:1px solid var(--border-strong); background:var(--surface); color:var(--text-3)}
+.infotip>button:hover{color:var(--text); border-color:var(--control-border)}
+.infotip>button svg.ic{width:12px; height:12px; stroke-width:2.2}
+.infotip .it-p{position:absolute; z-index:60; left:0; top:calc(100% + 6px);
+  width:max-content; max-width:min(320px, 78vw);
+  background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--r-md);
+  box-shadow:var(--e2); padding:var(--s-3) var(--s-4); font-size:var(--t-sm); font-weight:400;
+  color:var(--text-2); line-height:var(--lh-snug); text-transform:none; letter-spacing:normal}
+.infotip .it-p[hidden]{display:none}
+
+/* ---------- toolbar ----------
+   One filter/search/action bar. `.listbar` (inside a table card) and
+   `.filterbar` (the public catalogue) both remain; this is the bar for
+   a page-level control row that is neither. */
+.toolbar{display:flex; align-items:center; gap:var(--s-3) var(--s-4); flex-wrap:wrap;
+  margin-bottom:var(--s-4); min-width:0}
+.toolbar>.searchbox{flex:1 1 260px; min-width:0; max-width:420px}
+.toolbar label{font-size:var(--t-sm); font-weight:var(--w-semi); color:var(--text-2);
+  display:inline-flex; align-items:center; gap:var(--s-3); min-width:0}
+.toolbar select{height:36px; border:1px solid var(--control-border); border-radius:var(--r-sm);
+  font:inherit; font-size:var(--t-md); color:var(--text); background:var(--surface);
+  padding:0 var(--s-3); min-width:0; max-width:100%}
+.toolbar .tb-r{margin-left:auto; display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap}
+.toolbar .tb-count{font-size:var(--t-sm); color:var(--text-3); white-space:nowrap}
+
+/* ---------- record row ----------
+   The scannable row used for a queue, an access record or a content
+   item: identity left, figures middle, one action right. */
+.reclist{display:flex; flex-direction:column; gap:var(--s-3); list-style:none; margin:0; padding:0}
+.recrow{display:flex; align-items:center; gap:var(--s-4); flex-wrap:wrap; min-width:0;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md);
+  padding:var(--s-4) var(--s-5);
+  transition:border-color var(--m-fast) var(--ease), box-shadow var(--m-fast) var(--ease)}
+.recrow:hover,.recrow:focus-within{border-color:var(--action-border); box-shadow:var(--e1)}
+.recrow.quiet{background:var(--n-25)}
+.recrow.quiet:hover{border-color:var(--border); box-shadow:none}
+.recrow .rr-b{flex:1 1 260px; min-width:0}
+.recrow .rr-k{font-size:var(--t-xs); color:var(--text-3)}
+.recrow .rr-t{font-size:14.5px; font-weight:var(--w-semi); color:var(--text);
+  display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap; overflow-wrap:anywhere}
+.recrow .rr-t a{color:var(--text); text-decoration:none}
+.recrow .rr-t a:hover{color:var(--action); text-decoration:underline}
+.recrow .rr-m{font-size:var(--t-sm); color:var(--text-3); margin-top:2px; overflow-wrap:anywhere}
+.recrow .rr-mid{flex:0 1 auto; min-width:0}
+.recrow .rr-a{margin-left:auto; display:flex; gap:var(--s-2); align-items:center; flex-wrap:wrap; flex:0 0 auto}
+
+/* ---------- dashboard primitives (Implementation 08D) ----------
+   Orientation sentence, compact quick actions and the one-line zero
+   state. Deliberately small: an Overview earns its place by being
+   scannable, not by being another wall of cards. */
+.orient{margin:var(--s-2) 0 0; color:var(--text-2); font-size:14px; max-width:74ch}
+
+.qacts{display:flex; flex-wrap:wrap; gap:var(--s-3)}
+.qact{display:inline-flex; align-items:center; gap:var(--s-3);
+  padding:var(--s-3) var(--s-4); border:1px solid var(--border); border-radius:var(--r-md);
+  background:var(--surface); color:var(--text); text-decoration:none; font-size:14px;
+  font-weight:550; line-height:1.2; transition:border-color var(--m-fast) var(--ease),
+  background var(--m-fast) var(--ease)}
+.qact:hover{border-color:var(--action-border); background:var(--action-subtle); text-decoration:none}
+.qact:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.qact .qa-ic{display:inline-flex; color:var(--action)}
+.qact .qa-ic svg.ic{width:16px; height:16px}
+
+.okrow{display:flex; align-items:center; gap:var(--s-3); margin:0;
+  color:var(--text-2); font-size:14px}
+.okrow svg.ic{width:16px; height:16px; color:var(--sim); flex:0 0 auto}
+
+/* ---------- navigation tiles (Implementation 08E) ----------
+   `quickActions` with a describing line. Used only where a first-time
+   user cannot tell two destinations apart by name. */
+.navtiles{display:grid; gap:var(--s-3); grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.ntile{display:flex; align-items:flex-start; gap:var(--s-3);
+  padding:var(--s-4); border:1px solid var(--border); border-radius:var(--r-md);
+  background:var(--surface); text-decoration:none; color:var(--text); min-width:0;
+  transition:border-color var(--m-fast) var(--ease), background var(--m-fast) var(--ease)}
+.ntile:hover{border-color:var(--action-border); background:var(--action-subtle); text-decoration:none}
+.ntile:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.ntile .nt-ic{display:inline-flex; color:var(--action); flex:0 0 auto; margin-top:1px}
+.ntile .nt-ic svg.ic{width:17px; height:17px}
+.ntile .nt-b{min-width:0; display:flex; flex-direction:column; gap:2px}
+.ntile .nt-l{font-size:14px; font-weight:600; line-height:1.25}
+.ntile .nt-d{font-size:12.5px; color:var(--text-3); line-height:1.35}
+
+/* Two short Overview cards side by side on a wide screen. Not equal
+   height: if one grows, the other keeps its natural size. */
+.ov-two{display:grid; gap:var(--s-4); grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start}
+
+/* The one-line sentence under the learning snapshot. */
+.ls-line{margin:var(--s-3) 0 0; font-size:13.5px; color:var(--text-2)}
+
+/* §10 — the compact no-decision state. A card would announce an empty
+   container; this is one line in the page flow. */
+.ov-ok{padding:var(--s-3) var(--s-4); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); background:var(--raised)}
+
+/* Six workspaces read as a set at 2x3; auto-fit would break them 4 + 2. */
+.navtiles.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}

@@ -87,16 +87,34 @@ XRSLP.screens = XRSLP.screens || {};
   function resetDraft() {
     draft = { accessId: '', experimentId: '', targetType: 'student', targets: {}, q: '', expQ: '', error: null };
   }
-  /* Preselects an access record when arriving from Content access. */
-  XRSLP.screens.tenantAssignPrefill = function (accessId) { draft.accessId = accessId; };
-
   var showRemoved = false;
   /* R05 — the filter over EXISTING grants. An institution with 50
      experiments and a few hundred students has a grant list far too long
      to read, and it had no filter at all. */
   var listF = { q: '', grouping: 'all', record: 'all' };
   function listIsFiltered() { return !!listF.q || listF.grouping !== 'all' || listF.record !== 'all'; }
-  var fmDraft = { personId: '', accessId: '', courseId: '', experimentId: '' };
+  var fmDraft = { personId: '', accessId: '', courseId: '', experimentId: '', q: '' };
+
+  /* ---- CROSS-SCREEN PRESELECTION. These are not routes and the router
+     never reaches them; they are the hooks Content access calls on its
+     way here so a record-scoped action arrives scoped to that record.
+
+     ⚠ `tenantAssignPrefill` already existed for exactly this and was
+     called from nowhere in the build, so both actions on every access
+     record panel led to the same two unscoped screens and the builder
+     opened blank unless the institution happened to hold exactly one
+     usable record. They set VIEW state only: no record is read, nothing
+     is granted, and the guards on submission are untouched. */
+  XRSLP.screens.tenantAssignPrefill = function (accessId) {
+    /* A draft left over from another record — its experiment, its chosen
+       students — means nothing here, so it starts clean. */
+    resetDraft();
+    draft.accessId = accessId || '';
+  };
+  XRSLP.screens.tenantAssignListPrefill = function (accessId, q) {
+    listF = { q: q || '', grouping: 'all', record: accessId || 'all' };
+    showRemoved = false;
+  };
 
   function tabs(tenant, active) {
     function t(key, href, label) {
@@ -131,7 +149,21 @@ XRSLP.screens = XRSLP.screens || {};
       var gid = ctx && ctx.grouping ? ctx.grouping.id : '__none';
       var gname = ctx && ctx.grouping ? ctx.grouping.name : 'Unresolved';
       if (!progSeen[gid]) { progSeen[gid] = true; progOpts.push({ id: gid, name: gname }); }
-      if (!recSeen[a.accessId]) { recSeen[a.accessId] = true; recOpts.push({ id: a.accessId, name: a.accessId }); }
+      /* The option reads as the content it funds, with the reference
+         after it — an admin picking a filter should not have to know
+         which identifier holds which experiments. */
+      if (!recSeen[a.accessId]) {
+        recSeen[a.accessId] = true;
+        var arec = state.accessById(a.accessId);
+        recOpts.push({
+          id: a.accessId,
+          /* Named by content and term, never by the key — two approvals
+             carrying the same Experiment are told apart by the term. */
+          name: arec
+            ? T.accessContentLine(arec) + ' \u00b7 ' + T.accessTermLine(arec)
+            : 'No longer on the platform'
+        });
+      }
     });
     progOpts.sort(function (x, y) { return x.name < y.name ? -1 : x.name > y.name ? 1 : 0; });
     if (listF.grouping !== 'all' && !progSeen[listF.grouping]) { listF.grouping = 'all'; }
@@ -167,10 +199,14 @@ XRSLP.screens = XRSLP.screens || {};
           '<a class="btn pri" href="' + T.href.newAssignment(tenant.id) + '">Give students access</a>', false)
       });
     } else if (!visible.length) {
+      /* The "show withdrawn" control is the checkbox in the bar above,
+         which is rendered whenever anything has been withdrawn — and in
+         this state something always has. A second control here, worded
+         and shaped differently, was the same switch twice. */
       body = ui.emptyState({
         icon: 'search', title: 'No active access grants',
-        body: 'Every access grant in this institution has been withdrawn. Withdrawn grants are kept for traceability.',
-        actionsHTML: '<button class="btn sec sm" type="button" id="asg-toggle-empty">Show withdrawn access</button>'
+        body: 'Every access grant in this institution has been withdrawn. They are kept for traceability — ' +
+          'tick “Show withdrawn access grants” above to read them.'
       });
     } else if (!list.length) {
       body = ui.emptyState({
@@ -183,7 +219,7 @@ XRSLP.screens = XRSLP.screens || {};
         '<caption class="sr-only">Experiment access grants in ' + esc(tenant.name) + '</caption>' +
         '<thead><tr><th scope="col">Experiment</th><th scope="col">Given to</th>' +
         '<th scope="col">Technologies</th><th scope="col">Students reached</th>' +
-        '<th scope="col">Access record</th><th scope="col">Status</th>' +
+        '<th scope="col">Access source / term</th><th scope="col">Status</th>' +
         '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
         list.map(function (a) {
           var rec = state.accessById(a.accessId);
@@ -215,8 +251,24 @@ XRSLP.screens = XRSLP.screens || {};
             '<td data-label="Given to">' + target + '</td>' +
             '<td data-label="Technologies">' + ui.techBadges(rec ? state.accessTechnologies(rec, a.experimentId) : a.technologies) + '</td>' +
             '<td data-label="Students reached" class="num">' + (a.status === 'active' ? reach : '—') + '</td>' +
-            '<td data-label="Access record"><span class="mono">' + esc(a.accessId) + '</span>' +
-            (rec && !state.accessIsLive(rec) ? '<span class="tsub">Expired</span>' : '') + '</td>' +
+            /* ⚠ CONTENT AND TERM FIRST, IDENTIFIER SECOND.
+               This cell used to be `ACC-001` in monospace and nothing
+               else, which made an institution admin read their own
+               student-access list as a table of database keys. What
+               they actually need is what kind of access funds this
+               grant and when it ends; the reference is kept, exactly
+               and unchanged, as the muted line beneath. */
+            '<td data-label="Access source / term">' +
+            (rec
+              /* No technology badges here: this table already carries a
+                 Technologies column, and repeating them read as a defect. */
+              ? '<span class="tmain">' + esc(T.accessTermLine(rec)) + '</span>' +
+                (state.accessIsLive(rec)
+                  ? ''
+                  : '<span class="tsub">' + esc(state.accessTermState(rec).key === 'expired'
+                      ? 'Term ended' : 'Not currently live') + '</span>')
+              : '<span class="tmain muted">No longer on the platform</span>') +
+            '</td>' +
             '<td data-label="Status">' + (a.status === 'active'
               ? ui.badge('b-success', 'check', 'Active')
               : ui.badge('b-neutral', 'minus', 'Withdrawn ' + util.fmtDate(a.removedAt))) + '</td>' +
@@ -250,7 +302,9 @@ XRSLP.screens = XRSLP.screens || {};
         '<input type="text" id="asg-q" placeholder="Experiment, course, student or group" value="' +
         esc(listF.q) + '"></div></div>' +
         listSelect('asg-prog', 'Programme / department', listF.grouping, progOpts, 'All programmes') +
-        listSelect('asg-rec', 'Access record', listF.record, recOpts, 'All access records') +
+        /* The filter is by the access that funds a grant, so it is
+           labelled by what that means rather than by the record type. */
+        listSelect('asg-rec', 'Access source', listF.record, recOpts, 'All access') +
         '</div>' +
         '<div class="fb-foot"><span class="fb-count">' + list.length + ' of ' + visible.length + ' ' +
         util.plural(visible.length, 'access grant') + ' shown</span>' +
@@ -276,12 +330,44 @@ XRSLP.screens = XRSLP.screens || {};
             }).join('; ') + '. Existing access grants below are unchanged.</p>') + '</div>'
         : '') +
       filterBar +
-      (assignable.length ? '<div class="stack" style="margin-bottom:16px">' + assignable.map(function (rec) {
-        var alloc = state.accessAllocation(rec.id);
-        return '<div class="allocrow"><div class="ar-id"><span class="mono">' + esc(rec.id) + '</span>' +
-          '<span class="ar-sub">' + rec.items.length + ' ' + util.plural(rec.items.length, 'experiment') + '</span></div>' +
-          T.allocMeter(alloc) + '</div>';
-      }).join('') + '</div>' : '') +
+      /* CAPACITY, COMPACT, AND IT DRIVES THE FILTER.
+         This used to stack one full allocation meter per assignable
+         record above the table the reader came for — the same repetition
+         that made Content access long, and with no note explaining the
+         counting rule those meters were the only statement of it. One
+         line per record now, each with the button that filters the list
+         below to exactly that record: `listF.record` was already the
+         filter these figures were describing. */
+      (assignable.length
+        ? '<ul class="reclist" style="margin-bottom:16px">' + assignable.map(function (rec) {
+            var alloc = state.accessAllocation(rec.id);
+            var on = listF.record === rec.id;
+            /* ⚠ WHAT THE ACCESS IS FOR, THEN THE NUMBERS, THEN THE
+               REFERENCE. This row led with `ACC-001` in monospace, so
+               the first thing on the institution's own access page was
+               an identifier that tells nobody anything. It now leads
+               with the content and term the record actually funds. */
+            return '<li class="recrow' + (on ? '' : ' quiet') + '">' +
+              '<div class="rr-b"><div class="rr-t">' +
+              '<span>' + esc(T.accessContentLine(rec)) + '</span>' +
+              ui.badge('b-outline', null, rec.items.length + ' ' +
+                util.plural(rec.items.length, 'experiment')) + '</div>' +
+              /* The internal reference is gone from this summary: it is
+                 not something a Tenant Admin acts on. Technologies and
+                 term are what separate two approvals here. */
+              '<div class="rr-m">' + T.allocMetrics(alloc, rec) + '</div>' +
+              '<div class="rr-m">' + ui.techBadges(T.recTechnologies(rec)) +
+              ' <span class="tsub">' + esc(T.accessTermLine(rec)) + '</span></div></div>' +
+              /* The capacity figures are worth showing even before anybody
+                 has been given anything; the FILTER is not, so it appears
+                 only once there is a list to narrow. */
+              (all.length
+                ? '<div class="rr-a"><button class="btn sm sec" type="button" data-cap-rec="' + esc(rec.id) + '"' +
+                  (on ? ' aria-pressed="true"' : ' aria-pressed="false"') + '>' +
+                  (on ? 'Showing this access' : 'Show only this access') + '</button></div>'
+                : '') + '</li>';
+          }).join('') + '</ul>'
+        : '') +
       '<div class="tablecard">' +
       (removedCount ? '<div class="listbar">' +
         '<label class="chk"><input type="checkbox" id="asg-removed"' + (showRemoved ? ' checked' : '') + '> ' +
@@ -301,10 +387,20 @@ XRSLP.screens = XRSLP.screens || {};
             if (again) { again.focus(); }
           });
         }
-        var te = document.getElementById('asg-toggle-empty');
-        if (te) {
-          te.addEventListener('click', function () { showRemoved = true; XRSLP.render(false); });
-        }
+        /* The capacity rows drive the record filter — the one the select
+           in the bar above also drives, so both write the same value. */
+        Array.prototype.slice.call(document.querySelectorAll('[data-cap-rec]')).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-cap-rec');
+            listF.record = listF.record === id ? 'all' : id;
+            XRSLP.render(true);
+            var again = document.querySelector('[data-cap-rec="' + id + '"]');
+            if (again) { again.focus(); }
+            ui.announce(listF.record === 'all'
+              ? 'Showing access grants on every record.'
+              : 'Showing access grants on ' + id + ' only.');
+          });
+        });
         /* R05 — the grant-list filter. Same focus-preserving re-render
            the rest of this workspace uses. */
         var lq = document.getElementById('asg-q');
@@ -402,12 +498,16 @@ XRSLP.screens = XRSLP.screens || {};
     var alloc = rec ? state.accessAllocation(rec.id) : null;
     var techs = rec && draft.experimentId ? state.accessTechnologies(rec, draft.experimentId) : [];
 
-    /* ---- step 1: access record ---- */
+    /* ---- step 1: which approved content ----
+       The stakeholder questioned "access record" as a user-facing term.
+       No replacement noun was agreed, so the control asks for the thing
+       in plain words and the options carry the business context that
+       tells two approvals apart. */
     var step1 =
-      '<div class="field" id="na-acc"><label for="na-acc-i">Content access record <span class="req" aria-hidden="true">*</span>' +
+      '<div class="field" id="na-acc"><label for="na-acc-i">Approved content <span class="req" aria-hidden="true">*</span>' +
       '<span class="sr-only">(required)</span></label>' +
       '<select id="na-acc-i">' +
-      '<option value="">Select an access record…</option>' +
+      '<option value="">Choose approved content…</option>' +
       live.map(function (a) {
         return '<option value="' + esc(a.id) + '"' + (draft.accessId === a.id ? ' selected' : '') + '>' +
           esc(T.accessOptionLabel(a)) + '</option>';
@@ -466,7 +566,7 @@ XRSLP.screens = XRSLP.screens || {};
             ? '<option value="">Select an experiment…</option>' +
               T.experimentOptionsHTML(expRows.map(function (row) { return row.item; }), draft.experimentId)
             : '<option value="">No experiment matches that filter…</option>')
-        : '<option value="">Select an access record first…</option>') +
+        : '<option value="">Choose approved content first…</option>') +
       '</select>' +
       (rec ? '<p class="hint">Grouped by Programme / department, then Course. Only content inside ' +
         esc(draft.accessId) + ' appears.</p>' : '') +
@@ -475,7 +575,7 @@ XRSLP.screens = XRSLP.screens || {};
         ? '<div class="techinherit">' +
           '<div class="ti-k">Technologies granted by ' + esc(draft.accessId) + '</div>' +
           '<div class="ti-v">' + ui.techBadges(techs) + '</div>' +
-          '<p class="ti-n">Inherited from the approved access record. The institution cannot add a technology it was ' +
+          '<p class="ti-n">Inherited from the approved content. The institution cannot add a technology it was ' +
           'not approved for, and does not remove one it was.</p></div>'
         : '');
 
@@ -515,7 +615,7 @@ XRSLP.screens = XRSLP.screens || {};
                   (draft.targets[p.id] ? ' checked' : '') + '>' +
                   '<span class="pk-b"><span class="pk-t">' + esc(p.name) + '</span>' +
                   '<span class="pk-s">' + esc(p.studentId || '') +
-                  (counted ? ' · already holds a licence on this record' : '') +
+                  (counted ? ' · already holds a licence on this access' : '') +
                   (already.length ? ' · already entitled via ' +
                     esc(already.map(function (s) { return s.type === 'group' ? s.label : 'a direct grant'; }).join(', ')) : '') +
                   '</span></span></label>';
@@ -560,7 +660,7 @@ XRSLP.screens = XRSLP.screens || {};
           util.plural(pre.newStudentIds.length, 'student') + ' would consume a licence on ' + esc(draft.accessId) + '.</li>');
       }
       if (pre.countedStudentIds.length) {
-        lines.push('<li><strong>' + pre.countedStudentIds.length + '</strong> already hold a licence on this record — ' +
+        lines.push('<li><strong>' + pre.countedStudentIds.length + '</strong> already hold a licence on this access — ' +
           'they consume nothing further.</li>');
       }
       if (pre.alreadyEntitled.length) {
@@ -622,12 +722,12 @@ XRSLP.screens = XRSLP.screens || {};
           : pre.reason === 'inactive-target'
             ? 'Blocked — every selected student is inactive, and an inactive student cannot be given new access.'
           : pre.reason === 'access-expired'
-            ? 'Blocked — this access record has expired, so it can no longer entitle anyone.'
+            ? 'Blocked — this access has expired, so it can no longer entitle anyone.'
           : pre.reason === 'not-assignable'
-            ? 'Blocked — nobody can be given content from this access record because ' +
+            ? 'Blocked — nobody can be given content from this access because ' +
               state.assignabilityText(pre.blockedBy) + '.'
           : pre.reason === 'not-approved'
-            ? 'Blocked — that experiment is not part of this access record.'
+            ? 'Blocked — that experiment is not part of this approved content.'
           : pre.reason === 'other-tenant-target'
             ? 'Blocked — a selected student or group does not belong to this institution.'
             : 'Blocked — this access cannot be given.';
@@ -649,27 +749,80 @@ XRSLP.screens = XRSLP.screens || {};
 
     var canSubmit = pre && pre.ok;
 
+    /* ---- step 3: review and confirm ----
+       The submit button used to sit on its own below both cards, under a
+       bulleted alert, with nothing restating WHAT was about to be given
+       to WHOM. An access grant is irreversible in practice — it is
+       withdrawn, never deleted — so the control now sits inside its own
+       summary of the choice it commits. Nothing here re-derives anything:
+       every figure comes from the same `previewAssignment` the state
+       layer checks again on submit. */
+    var chosenCtx = draft.experimentId ? data.contextOf(draft.experimentId) : null;
+    var targetNames = selected.map(function (id) {
+      if (draft.targetType === 'group') {
+        var g = state.groupById(id);
+        return g ? g.name : id;
+      }
+      var p = state.personById(id);
+      return p ? p.name : id;
+    });
+
+    var reviewBody;
+    if (!canSubmit && !pre) {
+      reviewBody = ui.emptyRow({
+        icon: 'circle', heading: 'h3',
+        title: 'Nothing to confirm yet',
+        body: 'Choose approved content, an experiment, and at least one student or group above.'
+      });
+    } else {
+      reviewBody =
+        '<div class="kv compact">' +
+        '<div class="k">Approved content</div><div class="v">' +
+        esc(T.accessChoiceLabel(state.accessById(draft.accessId))) + '</div>' +
+        '<div class="k">Experiment</div><div class="v">' +
+        (chosenCtx
+          ? esc(chosenCtx.experiment.name) + '<span class="tsub2">' + esc(chosenCtx.grouping.name) + ' › ' +
+            esc(chosenCtx.course.name) + '</span>'
+          : esc(draft.experimentId)) + '</div>' +
+        '<div class="k">Technologies</div><div class="v">' + ui.techBadges(techs) + '</div>' +
+        '<div class="k">' + (draft.targetType === 'group' ? 'Groups' : 'Students') + '</div>' +
+        '<div class="v">' + esc(targetNames.join(', ')) + '</div>' +
+        '</div>' +
+        (consequence ? '<div style="margin-top:14px">' + consequence + '</div>' : '');
+    }
+
     var html =
       ui.crumbs([{ label: 'Student access', href: T.href.assignments(tenant.id) },
         { label: 'Give students access' }]) +
       ui.phead('Give students access',
         'Give an approved experiment to individual students or to a group. This is provisioning, not coursework: ' +
         'it decides what a student may <em>open</em>, and sets no task, deadline or mark.') +
-      '<form id="na-form" novalidate><div class="stack">' +
+      ui.track([
+        /* `ui.track` escapes its own text — do not pre-escape here. */
+        { t: 'Approved content', d: draft.experimentId ? draft.accessId : 'Record and experiment',
+          state: (draft.accessId && draft.experimentId) ? 'done' : 'live' },
+        { t: 'Who gets it', d: selected.length
+            ? selected.length + ' ' + util.plural(selected.length, draft.targetType === 'group' ? 'group' : 'student') + ' selected'
+            : 'Students or groups',
+          state: selected.length ? 'done' : (draft.experimentId ? 'live' : 'todo') },
+        { t: 'Review and confirm', d: canSubmit ? 'Ready' : pre ? 'Blocked' : 'Not yet',
+          state: canSubmit ? 'live' : pre ? 'blocked' : 'todo' }
+      ]) +
+      '<form id="na-form" novalidate><div class="stack" style="margin-top:16px">' +
       ui.card('1 · Approved content', step1 + step2, null, 'h2') +
       ui.card('2 · Who gets it',
         '<fieldset class="fgroup"><legend>Give access to</legend>' +
         targetRadio('student', 'Individual students', 'Pick one or more students directly.') +
         targetRadio('group', 'Student groups', 'One grant reaching every active member.') +
         '</fieldset>' + targetList, null, 'h2') +
-      (consequence ? '<div>' + consequence + '</div>' : '') +
-      '<div class="formact">' +
-      '<button class="btn pri" type="submit" id="na-save"' + (canSubmit ? '' : ' disabled aria-disabled="true"') + '>' +
-      'Give access</button>' +
-      '<a class="btn sec" href="' + T.href.assignments(tenant.id) + '">Cancel</a>' +
-      (canSubmit ? '' : '<span class="formnote">Choose an access record, an experiment and at least one valid ' +
-        'student or group.</span>') +
-      '</div></div></form>';
+      ui.card('3 · Review and confirm',
+        reviewBody +
+        '<div class="formact">' +
+        '<button class="btn pri" type="submit" id="na-save"' + (canSubmit ? '' : ' disabled aria-disabled="true"') + '>' +
+        'Give access</button>' +
+        '<a class="btn sec" href="' + T.href.assignments(tenant.id) + '">Cancel</a>' +
+        '</div>', null, 'h2') +
+      '</div></form>';
 
     return {
       title: 'Give students access', html: html, tenant: tenant, navKey: 'assignments',
@@ -777,11 +930,29 @@ XRSLP.screens = XRSLP.screens || {};
     var maps = state.facultyMappingsForTenant(tenant.id);
 
     if (fmDraft.accessId && !live.filter(function (a) { return a.id === fmDraft.accessId; }).length) {
-      fmDraft = { personId: '', accessId: '', courseId: '', experimentId: '' };
+      fmDraft = { personId: '', accessId: '', courseId: '', experimentId: '', q: '' };
     }
     var frec = fmDraft.accessId ? state.accessById(fmDraft.accessId) : null;
     var courseIds = frec ? state.accessCourseIds(frec) : [];
     if (fmDraft.courseId && courseIds.indexOf(fmDraft.courseId) === -1) { fmDraft.courseId = ''; fmDraft.experimentId = ''; }
+
+    /* R05, completed. The Course select got `<optgroup>`s but not the
+       text filter the experiment picker got, so at an institution
+       spanning three departments it was still a long grouped list to
+       scroll. Same contract as the picker's filter: it narrows the VIEW,
+       never the authority — `state.mapFaculty` re-checks the content
+       against the access record on submit — and a course already chosen
+       is never filtered away, because a select whose value nothing on the
+       page can see is worse than a long list. */
+    var courseMatches = function (cid) {
+      if (!fmDraft.q) { return true; }
+      if (cid === fmDraft.courseId) { return true; }
+      var c = data.course(cid);
+      var g = c ? data.grouping(c.groupingId) : null;
+      var hay = ((c ? c.name : cid) + ' ' + (g ? g.name : '') + ' ' + cid).toLowerCase();
+      return hay.indexOf(fmDraft.q.toLowerCase()) !== -1;
+    };
+    var shownCourseIds = courseIds.filter(courseMatches);
     var expOptions = frec && fmDraft.courseId
       ? frec.items.filter(function (i) {
           var ctx = data.contextOf(i.experimentId);
@@ -793,7 +964,7 @@ XRSLP.screens = XRSLP.screens || {};
       ? '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">Faculty mapped to approved content</caption>' +
         '<thead><tr><th scope="col">Faculty</th><th scope="col">Course</th><th scope="col">Experiment</th>' +
-        '<th scope="col">Access record</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
+        '<th scope="col">Approved content</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
         maps.map(function (m) {
           var p = state.personById(m.personId);
           var c = data.course(m.courseId);
@@ -802,7 +973,11 @@ XRSLP.screens = XRSLP.screens || {};
             '<td data-label="Course">' + esc(c ? c.name : m.courseId) + '</td>' +
             '<td data-label="Experiment">' + (m.experimentId ? T.expLine(m.experimentId) :
               '<span class="muted">Whole course context</span>') + '</td>' +
-            '<td data-label="Access record"><span class="mono">' + esc(m.accessId) + '</span></td>' +
+            '<td data-label="Approved content">' +
+            (state.accessById(m.accessId)
+              ? '<span class="tmain">' + ui.accessTitle(state.accessById(m.accessId)) + '</span>' +
+                '<span class="tsub">' + esc(T.accessTermLine(state.accessById(m.accessId))) + '</span>'
+              : '<span class="tmain muted">No longer on the platform</span>') + '</td>' +
             '<td class="cell-actions">' + T.actionsIfWritable(tenant,
               '<button class="btn sm sec" type="button" data-unmap="' + esc(m.id) + '">Remove' +
               '<span class="sr-only"> mapping for ' + esc(p ? p.name : '') + '</span></button>', false) +
@@ -836,14 +1011,22 @@ XRSLP.screens = XRSLP.screens || {};
             return '<option value="' + esc(p.id) + '"' + (fmDraft.personId === p.id ? ' selected' : '') + '>' +
               esc(p.name) + (p.facultyId ? ' — ' + esc(p.facultyId) : '') + '</option>';
           }).join('') + '</select></div>' +
-          '<div class="field" id="fm-a"><label for="fm-a-i">Access record <span class="req" aria-hidden="true">*</span>' +
+          '<div class="field" id="fm-a"><label for="fm-a-i">Approved content <span class="req" aria-hidden="true">*</span>' +
           '<span class="sr-only">(required)</span></label><select id="fm-a-i">' +
-          '<option value="">Select an access record…</option>' +
+          '<option value="">Choose approved content…</option>' +
           live.map(function (a) {
             return '<option value="' + esc(a.id) + '"' + (fmDraft.accessId === a.id ? ' selected' : '') + '>' +
               esc(T.accessOptionLabel(a)) + '</option>';
           }).join('') + '</select></div>' +
           '</div>' +
+          (frec && courseIds.length > 1
+            ? '<div class="field" id="fm-q"><label for="fm-q-i">Filter the course list</label>' +
+              '<div class="searchbox">' + ui.ic('search') +
+              '<input type="text" id="fm-q-i" placeholder="Course or programme" value="' + esc(fmDraft.q) + '"></div>' +
+              '<p class="hint">' + shownCourseIds.length + ' of ' + courseIds.length + ' ' +
+              util.plural(courseIds.length, 'course') + ' on ' + esc(fmDraft.accessId) + ' listed below. ' +
+              'Filtering changes what is shown, never what this institution is approved to use.</p></div>'
+            : '') +
           '<div class="frow">' +
           /* R05 — the Course list is grouped by PROGRAMME / DEPARTMENT
              too. A record spanning Civil, Mechanical and Pharmaceutical
@@ -855,9 +1038,10 @@ XRSLP.screens = XRSLP.screens || {};
           '<div class="field" id="fm-c"><label for="fm-c-i">Course <span class="req" aria-hidden="true">*</span>' +
           '<span class="sr-only">(required)</span></label><select id="fm-c-i"' + (frec ? '' : ' disabled') + '>' +
           (frec
-            ? '<option value="">Select a course…</option>' + (function () {
+            ? (shownCourseIds.length ? '<option value="">Select a course…</option>'
+                                     : '<option value="">No course matches that filter…</option>') + (function () {
                 var progs = {}, order = [];
-                courseIds.forEach(function (cid) {
+                shownCourseIds.forEach(function (cid) {
                   var c = data.course(cid);
                   var g = c ? data.grouping(c.groupingId) : null;
                   var key = g ? g.id : '__none';
@@ -877,7 +1061,7 @@ XRSLP.screens = XRSLP.screens || {};
                   }).join('') + '</optgroup>';
                 }).join('');
               })()
-            : '<option value="">Select an access record first…</option>') + '</select></div>' +
+            : '<option value="">Choose approved content first…</option>') + '</select></div>' +
           '<div class="field" id="fm-e"><label for="fm-e-i">Experiment</label>' +
           '<select id="fm-e-i"' + (fmDraft.courseId ? '' : ' disabled') + '>' +
           '<option value="">Whole course context</option>' +
@@ -896,12 +1080,17 @@ XRSLP.screens = XRSLP.screens || {};
           '</form>', null, 'h2');
 
     var html =
-      ui.phead('Faculty mapping', 'Faculty mapped to content inside ' + esc(tenant.name) + '&rsquo;s approved access.') +
+      /* ONE WORDING OF THE LICENCE RULE. It was stated here and again on
+         the Faculty person page in different words with different titles,
+         which reads as two different rules; both now use the shared
+         string in `XRSLP.tenantUI`. It sits in the page meta rather than
+         in an alert box, because it is a standing fact about this screen
+         rather than something that has just happened. */
+      ui.phead('Faculty mapping',
+        'Faculty mapped to content inside ' + esc(tenant.name) + '&rsquo;s approved access. ' +
+        esc(T.FACULTY_LICENCE_RULE)) +
       tabs(tenant, 'faculty') +
       '<div class="stack">' +
-      ui.alertBox('info', 'Faculty mapping does not consume the student allocation',
-        '<p>The approved quantity on an access record is a student/user allocation. Mapping a Faculty member does not ' +
-        'take one of those licences, and does not entitle any student.</p>') +
       formCard +
       ui.card('Current mappings',
         listBody +
@@ -929,9 +1118,21 @@ XRSLP.screens = XRSLP.screens || {};
           });
         }
         bind('fm-p-i', 'personId');
-        bind('fm-a-i', 'accessId', ['courseId', 'experimentId']);
+        bind('fm-a-i', 'accessId', ['courseId', 'experimentId', 'q']);
         bind('fm-c-i', 'courseId', ['experimentId']);
         bind('fm-e-i', 'experimentId');
+
+        /* The course filter. A view filter, re-rendering the same way
+           every other control on this screen does and keeping the caret. */
+        var fq = document.getElementById('fm-q-i');
+        if (fq) {
+          fq.addEventListener('input', function () {
+            fmDraft.q = fq.value;
+            XRSLP.render(true);
+            var again = document.getElementById('fm-q-i');
+            if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
+          });
+        }
 
         var form = document.getElementById('fm-form');
         if (form) {
@@ -939,7 +1140,7 @@ XRSLP.screens = XRSLP.screens || {};
             e.preventDefault();
             var errs = [];
             if (!fmDraft.personId) { errs.push({ field: 'fm-p', message: 'Select a Faculty member.' }); }
-            if (!fmDraft.accessId) { errs.push({ field: 'fm-a', message: 'Select an access record.' }); }
+            if (!fmDraft.accessId) { errs.push({ field: 'fm-a', message: 'Choose approved content.' }); }
             if (!fmDraft.courseId) { errs.push({ field: 'fm-c', message: 'Select a course.' }); }
             if (fmDraft.personId && fmDraft.accessId && fmDraft.courseId &&
                 state.facultyMappingExists(tenant.id, fmDraft.personId, fmDraft.accessId, fmDraft.courseId, fmDraft.experimentId || null)) {
@@ -948,12 +1149,12 @@ XRSLP.screens = XRSLP.screens || {};
             if (!ui.showErrors(form, errs, 'Faculty not mapped')) { return; }
             var m = state.mapFaculty(tenant.id, fmDraft.personId, fmDraft.accessId, fmDraft.courseId, fmDraft.experimentId || null);
             if (!m) {
-              ui.showErrors(form, [{ field: 'fm-c', message: 'That content is not inside the selected access record.' }],
+              ui.showErrors(form, [{ field: 'fm-c', message: 'That content is not part of the approved content selected.' }],
                 'Faculty not mapped');
               return;
             }
             var p = state.personById(fmDraft.personId);
-            fmDraft = { personId: '', accessId: '', courseId: '', experimentId: '' };
+            fmDraft = { personId: '', accessId: '', courseId: '', experimentId: '', q: '' };
             ui.toast((p ? p.name : 'Faculty') + ' mapped. No student licence was consumed.');
             XRSLP.render(false);
           });

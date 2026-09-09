@@ -49,15 +49,41 @@ XRSLP.screens = XRSLP.screens || {};
 
   /* Answered per card rather than precomputed for the page: the read
      model is a lookup over the institution's own records, and the
-     catalogue re-renders on every keystroke of the search box, so a
-     precomputed list would only be one more thing to keep in step.
+     catalogue re-renders as the reader types, so a precomputed list
+     would only be one more thing to keep in step.
      LIVE records only — an expired record is access history, not access
      the institution has. */
+  /* ⚠ THE PROVENANCE TRAVELS WITH THE CHIP, not in a banner.
+
+     This badge asserts knowledge of the visitor on a page that has no
+     sign-in, so it has to say where that knowledge came from. It used
+     to do that through a bordered callout across the top of the
+     results — which is the "large explanatory banner" that dominated
+     the most important stakeholder surface in the build.
+
+     The chip now names the institution itself: visible text stays the
+     two words a scanner needs, and the full statement is in the
+     accessible name and the tooltip, attached to the thing it explains
+     rather than floating above sixty cards. */
   function heldChip(experimentId) {
     var inst = state.scenarioTenant();
     if (!inst || !state.tenantHoldsExperiment(inst.id, experimentId)) { return ''; }
-    return ui.badge('b-outline', 'building', 'Already held');
+    /* §3/§8 — its own class, not a technology badge, and no tooltip
+       explaining the prototype requester mechanism. */
+    return '<span class="heldstate">' + ui.ic('building', 'sm') + 'Already held' +
+      '<span class="sr-only"> by ' + esc(inst.name) + '</span></span>';
   }
+
+  /* The institution those chips refer to, if any of THIS result set is
+     held. The catalogue is an explicitly pre-sign-in surface, so a badge
+     asserting knowledge of the visitor has to say where the knowledge
+     came from on the same screen — the equivalent note previously lived
+     only on the experiment detail page. */
+  /* §3 — `heldNoteHTML` and `heldInstitutionFor` are gone. They existed
+     only to render the requester-scenario mechanism as product copy;
+     that explanation belongs in Demo controls, not the catalogue body.
+     `heldChip` resolves the requester itself and is unchanged in what it
+     computes — only in what it says. */
 
   /* ============================================================
      THE ACADEMIC CONTEXT, RESOLVED DEFENSIVELY.
@@ -89,9 +115,60 @@ XRSLP.screens = XRSLP.screens || {};
     };
   }
 
+  /* ============================================================
+     ONE EXPERIMENT COMPONENT — Implementation 08.
+
+     The same experiment used to be rendered by two unrelated card
+     systems: `.catcard` in the flat view (which led with a
+     Programme › Course line) and `.exprow` in the grouped view, the
+     course page and the unfiled group (which had no context line at
+     all and put technologies in a right-hand column). Switching view
+     therefore changed WHAT the reader learned about an experiment, not
+     only how the results were arranged — while the page itself claimed
+     the two views showed the same thing.
+
+     There is one anatomy now. The CONTAINER decides the two things that
+     legitimately differ: whether the programme / course line is shown
+     (redundant inside a course block, needed in a flat list) and what
+     heading level the title takes, so the outline mirrors the structure
+     it sits in.
+     ============================================================ */
+  function expItemHTML(e, opts) {
+    opts = opts || {};
+    var h = opts.heading || 'h3';
+    var inSel = !!state.selectionGet(e.id);
+    var ctxLine = '';
+    if (opts.context) {
+      var c = ctxOf(e.id);
+      ctxLine = '<div class="xc-ctx">' + esc(c.groupingName) + ' › ' + esc(c.courseName) + '</div>';
+    }
+    /* §8 — "Already held" is an ACCESS STATE, not a technology. It used
+       to sit in the same badge row as Web / VR / AR and read as a fourth
+       format. Technologies keep their row; access state gets its own,
+       with its own semantics.
+
+       §9 — ONE link, not two. The title anchor is stretched over the
+       whole card (see `.expcard h3 a::after`), so the card is clickable
+       everywhere while the accessible name stays the experiment's own.
+       "View experiment" is a visual cue, not a second competing link. */
+    var held = heldChip(e.id);
+    return '<li class="expcard">' + ctxLine +
+      '<' + h + '><a href="' + expHref(e.id) + '">' + esc(e.name) + '</a></' + h + '>' +
+      '<p class="xc-s">' + esc(e.summary) + '</p>' +
+      '<div class="xc-f">' + ui.techBadges(e.technologies) + '</div>' +
+      (held || inSel
+        ? '<div class="xc-state">' + held +
+          (inSel ? '<span class="xc-sel">' + ui.ic('check', 'sm') + 'In selection</span>' : '') +
+          '</div>'
+        : '') +
+      '<span class="xc-go" aria-hidden="true">View experiment' + ui.ic('arrowR', 'sm') + '</span>' +
+      '</li>';
+  }
+
   /* ---------------- landing ---------------- */
   XRSLP.screens.landing = function () {
-    var groupCards = data.groupings().map(function (g) {
+    var groupings = data.groupings();
+    var groupCards = groupings.map(function (g) {
       var courses = data.coursesInGrouping(g.id);
       var exps = data.experimentsInGrouping(g.id);
       return '<article class="groupcard">' +
@@ -111,6 +188,18 @@ XRSLP.screens = XRSLP.screens || {};
       return data.TECHNOLOGIES[t].label;
     }).join(' · ');
 
+    /* The hero's factual line, DERIVED. It replaces three chips, two of
+       which ("Browse before login", "Institutional access model") only
+       repeated the lede above them and the journey strip below them.
+       These are catalogue figures — what is published, in how much
+       structure — and nothing else: no revenue, no usage, no business
+       metric of any kind exists in this build. */
+    var heroStats = ui.metrics([
+      { v: data.experiments().length, k: 'published experiments' },
+      { v: data.courses().length, k: 'courses' },
+      { v: groupings.length, k: 'programmes / departments' }
+    ]);
+
     var html =
       '<div class="hero">' +
       '<span class="htag">Institutional XR learning</span>' +
@@ -122,10 +211,8 @@ XRSLP.screens = XRSLP.screens || {};
       '<a class="btn pri lg" href="#/catalogue">' + ui.ic('search') + 'Browse catalogue</a>' +
       '<button class="btn sec lg" type="button" id="how-access">How institutional access works</button>' +
       '</div>' +
-      '<div class="herofacts">' +
-      '<span class="hf">' + ui.ic('monitor') + esc(techLabels) + ' experiment formats</span>' +
-      '<span class="hf">' + ui.ic('search') + 'Browse before login</span>' +
-      '<span class="hf">' + ui.ic('building') + 'Institutional access model</span>' +
+      '<div class="herostats">' + heroStats +
+      '<p class="hform">' + ui.ic('monitor') + 'Experiment formats: ' + esc(techLabels) + '</p>' +
       '</div>' +
       '</div>' +
 
@@ -136,15 +223,26 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="jgrid">' +
       '<div class="jstep"><span class="jn">1</span><h3>Browse the catalogue</h3><p>Explore programmes, courses and experiments, with the technology formats each experiment supports.</p></div>' +
       '<div class="jstep"><span class="jn">2</span><h3>Select experiments &amp; technologies</h3><p>Choose the experiments your institution needs and the technology formats for each.</p></div>' +
-      '<div class="jstep"><span class="jn">3</span><h3>Submit an institutional request</h3><p>Provide your organisation and contact details, the number of users, and the access term.</p></div>' +
+      '<div class="jstep"><span class="jn">3</span><h3>Submit an institutional request</h3><p>Provide your organisation and contact details, the number of licences, and the access term.</p></div>' +
       '<div class="jstep"><span class="jn">4</span><h3>Approval &amp; activation</h3><p>The platform team reviews the request. After approval — and payment where applicable — access is activated for your institution.</p></div>' +
       '</div>' +
       '</section>' +
 
       '<section class="landing-groupings" aria-labelledby="lg-h">' +
-      '<h2 id="lg-h">Browse by Programme / Department</h2>' +
-      '<p class="jsub">Published sample catalogue content in this prototype.</p>' +
-      '<div class="groupcards">' + groupCards + '</div>' +
+      /* The "published sample catalogue content" caption used to sit
+         here and again in the shell footer. It is said once, in the
+         footer, where it belongs to the whole prototype. */
+      ui.sectionHead({ title: 'Browse by Programme / Department', id: 'lg-h',
+        count: groupings.length,
+        desc: 'Every published experiment is filed under a course, and every course under a programme or department.' }) +
+      (groupings.length
+        ? '<div class="groupcards">' + groupCards + '</div>'
+        : '<div class="tablecard">' + ui.emptyState({
+            icon: 'book', heading: 'h3',
+            title: 'Nothing is published yet',
+            body: 'The catalogue is open, but no experiment has been published into it so far. Published ' +
+              'content appears here as it reaches the catalogue.'
+          }) + '</div>') +
       '</section>';
 
     return {
@@ -152,6 +250,9 @@ XRSLP.screens = XRSLP.screens || {};
       html: html,
       navKey: 'home',
       after: function () {
+        /* The second CTA opens the real explanation rather than
+           repeating it: it moves the reader to the journey strip, which
+           on a phone is well below the fold. */
         var btn = document.getElementById('how-access');
         if (btn) {
           btn.addEventListener('click', function () {
@@ -210,7 +311,15 @@ XRSLP.screens = XRSLP.screens || {};
 
   /* The reading of the results, not a filter — clearing the filters
      leaves it alone, because it is a preference about presentation and
-     not something the reader asked the catalogue to narrow. */
+     not something the reader asked the catalogue to narrow.
+
+     ⚠ THAT DISTINCTION IS NOW CARRIED VISUALLY. The view switch used to
+     sit inside the filter bar in the same pill styling as the technology
+     FILTERS, so two controls with completely different semantics — one
+     narrows the data, one only rearranges it — were indistinguishable,
+     and "Clear search & filters" deliberately cleared one and not the
+     other. It is a segmented control on the results header now, outside
+     the filters entirely. */
   var CAT_VIEWS = [
     { id: 'grouped', label: 'By programme' },
     { id: 'list', label: 'Flat list' }
@@ -220,14 +329,32 @@ XRSLP.screens = XRSLP.screens || {};
   /* Which Courses the reader has COLLAPSED. Stored as collapsed-ness
      rather than open-ness so the default (open) needs no seeding and a
      Course created after this page was first drawn is open like every
-     other. The catalogue re-renders on every keystroke of the search
-     box, so without this the reader's collapse would be undone by the
-     next character they typed. */
+     other. The results are repainted as the reader types, so without
+     this the reader's collapse would be undone by the next character. */
   var catCollapsed = Object.create(null);
 
   function filtersActive() {
     return catFilters.q.trim() !== '' || catFilters.grouping !== 'all' ||
       Object.keys(catFilters.tech).some(function (k) { return catFilters.tech[k]; });
+  }
+
+  /* What is currently narrowing the results, in words. The reader could
+     previously see a shrunken catalogue and a "Clear" button with no
+     statement of what had been applied. */
+  function filterSummaryHTML() {
+    var parts = [];
+    if (catFilters.q.trim()) { parts.push('search &ldquo;' + esc(catFilters.q.trim()) + '&rdquo;'); }
+    if (catFilters.grouping !== 'all') {
+      var g = data.grouping(catFilters.grouping);
+      parts.push(esc(g ? g.name : catFilters.grouping));
+    }
+    Object.keys(catFilters.tech).forEach(function (t) {
+      if (!catFilters.tech[t]) { return; }
+      var def = data.TECHNOLOGIES[t];
+      parts.push(esc(def ? def.label : t));
+    });
+    if (!parts.length) { return ''; }
+    return 'Filtered by ' + parts.join(' · ');
   }
 
   function filteredExperiments() {
@@ -269,12 +396,13 @@ XRSLP.screens = XRSLP.screens || {};
      These are keyed by Course / Programme id. A bare `{}` inherits every
      Object.prototype key, so a Course whose slug is `constructor`,
      `toString`, `valueOf` … resolved to the INHERITED value instead of
-     undefined: `byCourse[id] || []` handed back a function, `.map` threw
-     inside the count line before any HTML existed, and `render()` has no
-     try/catch — so the whole catalogue went blank. Worse, it was
-     unrecoverable from inside the product, because a Course id never
-     changes and nothing deletes a Course. `Object.create(null)` inherits
-     nothing. */
+     undefined: `byCourse[id] || []` handed back a function and `.map`
+     threw inside the count line before any HTML existed. The shell wraps
+     every screen render in a try/catch now (js/app.js), so the failure
+     mode is an error screen rather than a blank page — but the catalogue
+     would still have been unreachable, and unrecoverable from inside the
+     product, because a Course id never changes and nothing deletes a
+     Course. `Object.create(null)` inherits nothing. */
   function groupResults(list) {
     var byCourse = Object.create(null);
     list.forEach(function (e) {
@@ -297,57 +425,43 @@ XRSLP.screens = XRSLP.screens || {};
     return { programmes: programmes, unfiled: unfiled };
   }
 
-  /* One experiment inside a Course. ONE renderer, used by both the
-     catalogue tree and the Course screen, so an experiment reads
-     identically wherever the structure puts it and the two cannot
-     drift apart. `li`, because in both places it is one item in a list
-     of the experiments a Course holds — `ul[class]` is already stripped
-     of markers and padding by the base reset, so the list costs nothing
-     visually and gives a screen reader the count. */
-  function expRowHTML(e) {
-    var inSel = !!state.selectionGet(e.id);
-    return '<li class="exprow">' +
-      '<div class="xr-body">' +
-      '<h3><a href="' + expHref(e.id) + '">' + esc(e.name) + '</a></h3>' +
-      '<p>' + esc(e.summary) + '</p>' +
-      '</div>' +
-      '<div class="xr-side">' +
-      '<div class="xr-tech">' + ui.techBadges(e.technologies) + '</div>' +
-      heldChip(e.id) +
-      (inSel ? '<span class="cc-insel">' + ui.ic('check', 'sm') + 'In selection</span>' : '') +
-      '</div></li>';
-  }
+  /* A PUBLIC course block, and not the Super Admin's content-governance
+     disclosure row that the catalogue used to reuse verbatim. There, the
+     course name was neither a heading nor a link and carried a
+     right-aligned count where a description belongs.
 
-  /* A Course, with its experiments compiled inside it — the shape the
-     stakeholder asked for. `details` collapses, which is what keeps the
-     tree readable at 375px and at catalogue sizes this prototype does
-     not seed.
-
-     `scoped` (a filter is active) FORCES every rendered Course open. A
-     collapsed Course holding the only match would hide the result and
-     reintroduce the original defect wearing a different hat: the filter
-     would once again be deciding what structure the reader may see. */
+     `details` is kept deliberately: it collapses, which is what keeps a
+     long course readable at 375px, and it is keyboard operable and
+     announced with no script. `scoped` (a filter is active) FORCES every
+     rendered Course open — a collapsed Course holding the only match
+     would hide the result and let the filter decide what structure the
+     reader may see. */
   function courseBlockHTML(node, scoped) {
     var c = node.course;
     var n = node.experiments.length;
     var open = scoped || !catCollapsed[c.id];
-    return '<details class="canon" data-course="' + esc(c.id) + '"' + (open ? ' open' : '') + '>' +
-      '<summary>' + ui.ic('book', 'sm') +
-      '<span class="cn-n">' + esc(c.name) + '</span>' +
-      '<span class="cn-c">' + n + ' ' + XRSLP.util.plural(n, 'experiment') +
+    return '<details class="coursebk" data-course="' + esc(c.id) + '"' + (open ? ' open' : '') + '>' +
+      '<summary>' + ui.ic('chevron', 'sm cb-x') +
+      '<h3>' + esc(c.name) + '</h3>' +
+      '<span class="cb-n">' + n + ' ' + XRSLP.util.plural(n, 'experiment') +
       (scoped ? ' matching' : '') + '</span>' +
       '</summary>' +
-      '<div class="cn-b" style="padding:12px 14px 14px">' +
-      '<p class="cg-s" style="margin:0 0 10px">' + esc(c.summary) + '</p>' +
-      /* The course link the page never had. It names its destination
-         instead of saying "open" so it still reads correctly out of
-         context in a screen reader's link list. It sits in the body
-         rather than in the summary because a summary is already a
-         control, and a link nested inside one is ambiguous to operate
-         by keyboard. */
-      '<p style="margin:0 0 12px"><a href="' + courseHref(c.id) + '">' +
-      esc(c.name) + ' course page</a></p>' +
-      '<ul class="expliste">' + node.experiments.map(expRowHTML).join('') + '</ul>' +
+      '<div class="cb-b">' +
+      /* §5 — this read "<Course name> course page", which is developer
+         wording. The heading itself cannot become the link: it lives in
+         a <summary>, which is already a control, and a link nested in
+         one is ambiguous to operate by keyboard. So the explicit-action
+         pattern is used instead, identically for every Course, with the
+         course named in an accessible label so the link still reads
+         correctly out of context. */
+      '<div class="cb-head">' +
+      '<p class="cb-s">' + esc(c.summary) + '</p>' +
+      '<a class="cb-go" href="' + courseHref(c.id) + '">View course' +
+      '<span class="sr-only"> ' + esc(c.name) + '</span>' + ui.ic('arrowR', 'sm') + '</a>' +
+      '</div>' +
+      '<ul class="explist inset">' +
+      node.experiments.map(function (e) { return expItemHTML(e, { heading: 'h4' }); }).join('') +
+      '</ul>' +
       '</div></details>';
   }
 
@@ -361,9 +475,12 @@ XRSLP.screens = XRSLP.screens || {};
     var empties = node.courses.filter(function (cn) { return !cn.experiments.length; });
     var hid = 'cg-h-' + idx;
 
-    var count = node.total + ' ' + XRSLP.util.plural(node.total, 'experiment') +
-      (scoped ? ' matching' : ' published') + ' in ' +
-      withExps.length + ' ' + XRSLP.util.plural(withExps.length, 'course');
+    /* The counts were a muted trailing clause on the summary paragraph.
+       They are the programme's own figures and read as figures now. */
+    var metrics = ui.metrics([
+      { v: node.total, k: scoped ? 'matching' : 'published' },
+      { v: withExps.length, k: XRSLP.util.plural(withExps.length, 'course') }
+    ]);
 
     /* Courses with nothing to show are NAMED, not hidden — a Course is
        real catalogue structure whether or not anything is published in
@@ -380,25 +497,29 @@ XRSLP.screens = XRSLP.screens || {};
 
     var body;
     if (withExps.length) {
-      body = withExps.map(function (cn) { return courseBlockHTML(cn, scoped); }).join('') +
+      body = '<div class="ps-b">' +
+        withExps.map(function (cn) { return courseBlockHTML(cn, scoped); }).join('') +
+        '</div>' +
         (empties.length && !scoped
-          ? '<p class="muted" style="font-size:13px; margin-top:10px">Nothing is published yet in: ' +
-            emptyCourseLinks + '.</p>'
+          ? '<p class="ps-n">Nothing is published yet in: ' + emptyCourseLinks + '.</p>'
           : '');
     } else if (empties.length && !scoped) {
       /* One sentence, not two. Saying "nothing is published here" and
          then listing every course as empty says the same thing twice. */
-      body = '<p class="muted" style="font-size:13px">Nothing is published yet in ' +
+      body = '<p class="ps-n">Nothing is published yet in ' +
         (empties.length === 1 ? 'the one course listed here: ' : 'any of the courses listed here: ') +
         emptyCourseLinks + '. Experiments appear as they are published.</p>';
     } else {
-      body = '<p class="muted" style="font-size:13px">No experiment is published under this programme / ' +
+      body = '<p class="ps-n">No experiment is published under this programme / ' +
         'department yet. It appears here as soon as one is published.</p>';
     }
 
-    return '<section class="cat-section canongroup" aria-labelledby="' + hid + '">' +
+    return '<section class="progsec" aria-labelledby="' + hid + '">' +
+      '<div class="ps-h">' +
       '<h2 id="' + hid + '"><a href="' + groupHref(g.id) + '">' + esc(g.name) + '</a></h2>' +
-      '<p class="cg-s">' + esc(g.summary) + ' <span class="muted">· ' + esc(count) + '</span></p>' +
+      '<p class="ps-s">' + esc(g.summary) + '</p>' +
+      '<div class="ps-m">' + metrics + '</div>' +
+      '</div>' +
       body +
       '</section>';
   }
@@ -406,58 +527,58 @@ XRSLP.screens = XRSLP.screens || {};
   /* Published, but not placeable in the structure. See `ctxOf` above for
      why this state is reachable at all; it is rendered rather than
      dropped because published content the public cannot find is worse
-     than published content in an oddly-named group. */
+     than published content in an oddly-named group.
+
+     It renders as a quiet appendix, not as a peer of Civil Engineering,
+     and it says what it is in one clause. The four sentences of
+     product-team reasoning that used to explain the decision to the
+     public are now this comment. */
   function unfiledSectionHTML(list) {
-    return '<section class="cat-section canongroup" aria-labelledby="cg-h-unfiled">' +
-      '<h2 id="cg-h-unfiled">' + esc(UNFILED_GROUP_LABEL) + '</h2>' +
-      '<p class="cg-s">' + list.length + ' published ' + XRSLP.util.plural(list.length, 'experiment') +
-      ' below ' + (list.length === 1 ? 'is' : 'are') + ' filed under a course that does not currently sit in ' +
-      'any programme / department, so the catalogue cannot place ' + (list.length === 1 ? 'it' : 'them') +
-      ' in the structure above. ' + (list.length === 1 ? 'It is' : 'They are') + ' listed here rather than ' +
-      'dropped — published content stays reachable.</p>' +
-      '<ul class="expliste">' + list.map(expRowHTML).join('') + '</ul>' +
+    return '<section class="progsec unfiled" aria-labelledby="cg-h-unfiled">' +
+      '<div class="ps-h"><h2 id="cg-h-unfiled">' + esc(UNFILED_GROUP_LABEL) + '</h2>' +
+      '<p class="ps-s">' + list.length + ' published ' + XRSLP.util.plural(list.length, 'experiment') +
+      ' whose course does not currently sit in a programme or department.</p></div>' +
+      '<div class="ps-b"><ul class="explist">' +
+      list.map(function (e) { return expItemHTML(e, { heading: 'h3', context: true }); }).join('') +
+      '</ul></div>' +
       '</section>';
   }
 
-  function catCard(e) {
-    var ctx = ctxOf(e.id);
-    var inSel = !!state.selectionGet(e.id);
-    return '<article class="catcard">' +
-      '<div class="cc-ctx">' + esc(ctx.groupingName) + ' › ' + esc(ctx.courseName) + '</div>' +
-      '<h3><a href="' + expHref(e.id) + '">' + esc(e.name) + '</a></h3>' +
-      '<p class="cc-sum">' + esc(e.summary) + '</p>' +
-      '<div class="cc-foot">' + ui.techBadges(e.technologies) + heldChip(e.id) +
-      (inSel ? '<span class="cc-insel">' + ui.ic('check', 'sm') + 'In selection</span>' : '') +
-      '</div></article>';
-  }
-
+  /* Two different absences, said differently. The old empty state
+     assumed a filter was active and offered a "Clear search & filters"
+     button that would have done nothing on an unfiltered, genuinely
+     empty catalogue — which is a legitimate state, because the Content
+     Manager publishes INTO this pool. */
   function catEmptyHTML() {
-    return '<section class="cat-section"><h2 class="sr-only">Results</h2>' +
-      ui.emptyState({
-        icon: 'search',
+    if (filtersActive()) {
+      return ui.emptyState({
+        icon: 'search', heading: 'h2',
         title: 'No experiments match',
-        body: 'No published experiment matches your current search and filters. Try different words, or clear the filters.',
-        actionsHTML: '<button class="btn sec" type="button" id="cat-clear-empty">Clear search &amp; filters</button>',
-        heading: 'h3'
-      }) + '</section>';
+        body: 'No published experiment matches the current search and filters. Try different words, or clear them.',
+        actionsHTML: '<button class="btn sec" type="button" id="cat-clear-empty">Clear search &amp; filters</button>'
+      });
+    }
+    return ui.emptyState({
+      icon: 'book', heading: 'h2',
+      title: 'Nothing is published yet',
+      body: 'The catalogue is open to browse, but no experiment has been published into it so far. ' +
+        'Published experiments appear here as they reach the catalogue.',
+      actionsHTML: '<a class="btn pri" href="#/">Back to the overview</a>'
+    });
   }
 
   function catResultsHTML() {
     var results = filteredExperiments();
-    if (!results.length) { return catEmptyHTML(); }
+    if (!results.length) { return '<div class="tablecard">' + catEmptyHTML() + '</div>'; }
 
     if (catView === 'list') {
-      return '<section class="cat-section" aria-labelledby="ce-h">' +
-        '<h2 id="ce-h">' + (filtersActive() ? 'Matching experiments' : 'All experiments') + '</h2>' +
-        '<div class="catgrid">' + results.map(catCard).join('') + '</div>' +
-        /* The same set, differently arranged — said plainly, because the
-           two views must never look like two catalogues. The caveat is
-           there because it is true: an experiment the catalogue cannot
-           place appears there in its own group, not under a programme. */
-        '<p class="muted" style="font-size:13px; margin-top:14px">Every experiment above also appears in the ' +
-        '<strong>By programme</strong> view — under its programme and course, or in an explicit ' +
-        '&ldquo;not filed&rdquo; group where the catalogue cannot place it.</p>' +
-        '</section>';
+      /* No reconciliation paragraph between the two views: an experiment
+         the catalogue cannot place carries its own "not filed" context
+         line here, which says the same thing where it matters. */
+      return '<h2 class="sr-only">' + (filtersActive() ? 'Matching experiments' : 'All experiments') + '</h2>' +
+        '<ul class="expgrid">' +
+        results.map(function (e) { return expItemHTML(e, { heading: 'h3', context: true }); }).join('') +
+        '</ul>';
     }
 
     var grouped = groupResults(results);
@@ -476,13 +597,50 @@ XRSLP.screens = XRSLP.screens || {};
 
     return sections.join('') +
       (withoutMatch
-        ? '<p class="muted" style="font-size:13px; margin-top:16px">' + withoutMatch + ' other ' +
+        ? '<p class="ps-n">' + withoutMatch + ' other ' +
           XRSLP.util.plural(withoutMatch, 'programme / department', 'programmes / departments') +
           (withoutMatch === 1 ? ' holds' : ' hold') +
           ' nothing matching the current search and filters.</p>'
         : '');
   }
 
+  /* The result count as FIGURES, at readable contrast, in the results
+     header — not a 12.5px trailing clause in the filter bar's footer. */
+  /* §2 — the same figures as one line: "6 experiments · 5 courses ·
+     2 programmes". `catCountMetrics` is kept because the flat view and
+     the repaint path both read it. */
+  function catCountLine() {
+    var rows = catCountMetrics(true);
+    return rows.map(function (r) {
+      return '<span><strong>' + r.v + '</strong> ' + esc(r.k) + '</span>';
+    }).join('<span class="rb-dot" aria-hidden="true">·</span>');
+  }
+
+  function catCountMetrics(raw) {
+    var results = filteredExperiments();
+    var n = results.length;
+    var rows = [{ v: n, k: XRSLP.util.plural(n, 'experiment') + (filtersActive() ? ' matching' : ' published') }];
+    if (catView === 'grouped' && n) {
+      var grouped = groupResults(results);
+      var courses = 0, progs = 0;
+      grouped.programmes.forEach(function (node) {
+        if (!node.total) { return; }
+        progs += 1;
+        node.courses.forEach(function (cn) { if (cn.experiments.length) { courses += 1; } });
+      });
+      if (progs) {
+        rows.push({ v: courses, k: XRSLP.util.plural(courses, 'course') });
+        rows.push({ v: progs, k: XRSLP.util.plural(progs, 'programme') });
+      }
+      if (grouped.unfiled.length) {
+        rows.push({ v: grouped.unfiled.length, k: 'not filed under a programme' });
+      }
+    }
+    return raw ? rows : ui.metrics(rows);
+  }
+
+  /* The same figures as a sentence, for the live region. A screen
+     reader is told the result, never asked to parse a layout. */
   function catCountText() {
     var results = filteredExperiments();
     var n = results.length;
@@ -520,9 +678,14 @@ XRSLP.screens = XRSLP.screens || {};
 
     var viewToggles = CAT_VIEWS.map(function (v) {
       var pressed = catView === v.id;
-      return '<button type="button" class="ttog" data-view="' + esc(v.id) + '" aria-pressed="' + pressed + '">' +
-        (pressed ? ui.ic('check') : '') + esc(v.label) + '</button>';
+      /* A toggle button, so the state is `aria-pressed` — not
+         `aria-current`, which belongs to navigation. The segmented
+         control's own styling is keyed off the same attribute. */
+      return '<button type="button" class="segi" data-view="' + esc(v.id) + '"' +
+        ' aria-pressed="' + pressed + '">' + esc(v.label) + '</button>';
     }).join('');
+
+    var summary = filterSummaryHTML();
 
     var html =
       ui.phead('Catalogue', 'Published experiments, open to browse before any sign-in — organised by ' +
@@ -534,17 +697,47 @@ XRSLP.screens = XRSLP.screens || {};
       '<input type="search" id="cat-q" placeholder="Search experiments, courses, programmes" value="' + esc(catFilters.q) + '"></div></div>' +
       '<div class="fb-sel"><label class="fb-label" for="cat-grouping">Programme / Department</label>' +
       '<select id="cat-grouping">' + groupingOptions + '</select></div>' +
-      '<div class="fb-tech"><span class="fb-label" id="tech-label">Technology</span>' +
-      '<div class="techtoggles" role="group" aria-labelledby="tech-label">' + techToggles + '</div></div>' +
-      '<div class="fb-tech"><span class="fb-label" id="view-label">View</span>' +
-      '<div class="techtoggles" role="group" aria-labelledby="view-label">' + viewToggles + '</div></div>' +
+      /* Suppressed rather than rendered empty when nothing is published:
+         a labelled control group with no controls in it is furniture. */
+      (techInUse.length
+        ? '<div class="fb-tech"><span class="fb-label" id="tech-label">Technology</span>' +
+          '<div class="techtoggles" role="group" aria-labelledby="tech-label">' + techToggles + '</div></div>'
+        : '') +
       '</div>' +
-      '<div class="fb-foot"><span class="fb-count" id="cat-count">' + esc(catCountText()) + '</span>' +
-      (filtersActive() ? '<button class="btn sm sec fb-clear" type="button" id="cat-clear">Clear search &amp; filters</button>' : '') +
+      '<div class="fb-foot" id="cat-foot"' + (summary ? '' : ' hidden') + '>' +
+      '<span class="fb-count" id="cat-filtersum">' + summary + '</span>' +
+      '<button class="btn sm sec fb-clear" type="button" id="cat-clear">Clear search &amp; filters</button>' +
       '</div></div>' +
+      /* §2 — this was a "RESULTS" heading over three stat tiles, which
+         made a catalogue read as an analytics report. The counts are
+         useful, so they stay — as one compact line of catalogue
+         metadata that does not compete with the content.
+
+         §3 — the paragraph explaining that "Already held" comes from the
+         requester selected in Prototype controls is gone. That is
+         prototype mechanics; it belongs in Demo controls, not in the
+         catalogue body. The badge itself still appears, on the one
+         Experiment it applies to, and says what it means there. */
+      '<div class="resbar">' +
+      '<p class="rb-meta" id="cat-count">' + catCountLine() + '</p>' +
+      /* §4 — Programme / department browsing is the primary model and
+         the default. The switch used to be two equal pills under a
+         "VIEW" label, which asked a first-time visitor to choose an
+         information architecture before browsing. It is now a small
+         secondary control. */
+      '<div class="rb-a viewswitch" role="group" aria-label="Catalogue layout">' + viewToggles + '</div>' +
+      '</div>' +
       '<div id="cat-results">' + catResultsHTML() + '</div>';
 
-    function repaint(keepCaret) {
+    /* A full re-render replaces the whole document body, so it is used
+       only where a control's own pressed state has to change with it —
+       the programme select, the technology toggles, the view switch and
+       Clear. */
+    function repaintAll(keepCaret) {
+      /* A pending debounce belongs to the markup this render replaces.
+         Letting it land would re-bind the results a second time on top
+         of the listeners the new render attaches. */
+      if (searchTimer) { window.clearTimeout(searchTimer); searchTimer = null; }
       var caretPos = null;
       var input = document.getElementById('cat-q');
       if (keepCaret && input) { caretPos = input.selectionStart; }
@@ -559,6 +752,73 @@ XRSLP.screens = XRSLP.screens || {};
       ui.announce(catCountText() + '.');
     }
 
+    /* ⚠ THE SEARCH BOX IS NOT A FULL RE-RENDER, AND IT IS DEBOUNCED.
+       Every keystroke used to rebuild the entire application root —
+       prototype strip, header, main and footer — and fire the live
+       region once per character, which for a screen-reader or switch
+       user is the whole page being replaced mid-word. Only the results,
+       the count and the filter summary depend on the query, so only
+       those are rewritten, and only once the reader stops typing. */
+    var searchTimer = null;
+    function repaintResults() {
+      /* The reader has navigated away with a keystroke still in flight.
+         The repaint belongs to a screen that is no longer on the page,
+         and announcing a catalogue count over an unrelated screen would
+         be worse than doing nothing. */
+      var box = document.getElementById('cat-results');
+      if (!box) { return; }
+      box.innerHTML = catResultsHTML();
+      var count = document.getElementById('cat-count');
+      if (count) { count.innerHTML = catCountLine(); }
+      var sum = document.getElementById('cat-filtersum');
+      var foot = document.getElementById('cat-foot');
+      var text = filterSummaryHTML();
+      if (sum) { sum.innerHTML = text; }
+      if (foot) { foot.hidden = !text; }
+      bindResults();
+      ui.wireInfoTips(box);
+      ui.announce(catCountText() + '.');
+    }
+
+    /* Everything inside `#cat-results` that carries a listener. Called
+       once on first render and again after every scoped repaint, so a
+       control never silently stops working. */
+    function bindResults() {
+      /* Remember a collapsed Course across the repaint that typing in
+         the search box causes.
+
+         ⚠ `toggle` ALSO FIRES FOR THE STATE THE RENDER ITSELF JUST
+         PRODUCED. Setting `open` through innerHTML queues a toggle task
+         in the browser, and that task lands after this function has
+         attached the listener — so a naive handler reads the markup back
+         as if the reader had clicked it. The consequence was real and
+         one-directional: a filter renders every matching Course open,
+         that echo deleted the reader's collapse, and clearing the filter
+         re-expanded a Course they had shut.
+
+         So the state this render produced is captured first, and a
+         toggle that merely repeats it is ignored. Only a change the
+         reader actually made is written down. */
+      Array.prototype.slice.call(document.querySelectorAll('details.coursebk[data-course]')).forEach(function (d) {
+        var lastOpen = d.open;
+        d.addEventListener('toggle', function () {
+          if (d.open === lastOpen) { return; }
+          lastOpen = d.open;
+          var cid = d.getAttribute('data-course');
+          if (d.open) { delete catCollapsed[cid]; } else { catCollapsed[cid] = true; }
+        });
+      });
+      var clearEmpty = document.getElementById('cat-clear-empty');
+      if (clearEmpty) { clearEmpty.addEventListener('click', clearAll); }
+    }
+
+    function clearAll() {
+      catFilters = { q: '', grouping: 'all', tech: {} };
+      repaintAll(false);
+      var qi = document.getElementById('cat-q');
+      if (qi) { qi.focus(); }
+    }
+
     return {
       title: 'Catalogue',
       html: html,
@@ -568,75 +828,49 @@ XRSLP.screens = XRSLP.screens || {};
         if (q) {
           q.addEventListener('input', function () {
             catFilters.q = q.value;
-            repaint(true);
+            if (searchTimer) { window.clearTimeout(searchTimer); }
+            searchTimer = window.setTimeout(function () {
+              searchTimer = null;
+              repaintResults();
+            }, 250);
           });
         }
         var sel = document.getElementById('cat-grouping');
         if (sel) {
           sel.addEventListener('change', function () {
             catFilters.grouping = sel.value;
-            repaint(false);
+            repaintAll(false);
             var again = document.getElementById('cat-grouping');
             if (again) { again.focus(); }
           });
         }
-        /* Scoped to the TECHNOLOGY toggles. The view toggles share the
-           `.ttog` class for their styling, and a bare `.ttog` selector
-           bound them to the technology handler — which read a null
-           `data-tech` and filtered the catalogue down to nothing. */
+        /* Scoped to the TECHNOLOGY toggles. The view switch used to
+           share the `.ttog` class for its styling, and a bare `.ttog`
+           selector bound it to the technology handler — which read a
+           null `data-tech` and filtered the catalogue down to nothing.
+           The two controls no longer share a class at all. */
         Array.prototype.slice.call(document.querySelectorAll('.ttog[data-tech]')).forEach(function (btn) {
           btn.addEventListener('click', function () {
             var t = btn.getAttribute('data-tech');
             catFilters.tech[t] = !catFilters.tech[t];
-            repaint(false);
+            repaintAll(false);
             var again = document.querySelector('.ttog[data-tech="' + t + '"]');
             if (again) { again.focus(); }
           });
         });
-        Array.prototype.slice.call(document.querySelectorAll('.ttog[data-view]')).forEach(function (btn) {
+        Array.prototype.slice.call(document.querySelectorAll('.segi[data-view]')).forEach(function (btn) {
           btn.addEventListener('click', function () {
             var v = btn.getAttribute('data-view');
             if (catView === v) { return; }
             catView = v;
-            repaint(false);
-            var again = document.querySelector('.ttog[data-view="' + v + '"]');
+            repaintAll(false);
+            var again = document.querySelector('.segi[data-view="' + v + '"]');
             if (again) { again.focus(); }
           });
         });
-        /* Remember a collapsed Course across the re-render that every
-           keystroke in the search box causes.
-
-           ⚠ `toggle` ALSO FIRES FOR THE STATE THE RENDER ITSELF JUST
-           PRODUCED. Setting `open` through innerHTML queues a toggle
-           task in the browser, and that task lands after this function
-           has attached the listener — so a naive handler reads the
-           markup back as if the reader had clicked it. The consequence
-           was real and one-directional: a filter renders every matching
-           Course open, that echo deleted the reader's collapse, and
-           clearing the filter re-expanded a Course they had shut.
-
-           So the state this render produced is captured first, and a
-           toggle that merely repeats it is ignored. Only a change the
-           reader actually made is written down. */
-        Array.prototype.slice.call(document.querySelectorAll('details.canon[data-course]')).forEach(function (d) {
-          var lastOpen = d.open;
-          d.addEventListener('toggle', function () {
-            if (d.open === lastOpen) { return; }
-            lastOpen = d.open;
-            var cid = d.getAttribute('data-course');
-            if (d.open) { delete catCollapsed[cid]; } else { catCollapsed[cid] = true; }
-          });
-        });
-        function clearAll() {
-          catFilters = { q: '', grouping: 'all', tech: {} };
-          repaint(false);
-          var qi = document.getElementById('cat-q');
-          if (qi) { qi.focus(); }
-        }
+        bindResults();
         var clearBtn = document.getElementById('cat-clear');
         if (clearBtn) { clearBtn.addEventListener('click', clearAll); }
-        var clearEmpty = document.getElementById('cat-clear-empty');
-        if (clearEmpty) { clearEmpty.addEventListener('click', clearAll); }
       }
     };
   };
@@ -663,17 +897,21 @@ XRSLP.screens = XRSLP.screens || {};
 
     var html =
       ui.crumbs([{ label: 'Catalogue', href: '#/catalogue' }, { label: g.name }]) +
-      ui.phead(g.name, courses.length + ' ' + XRSLP.util.plural(courses.length, 'course') + ' · ' +
-        expCount + ' ' + XRSLP.util.plural(expCount, 'experiment')) +
+      ui.phead(g.name, ui.metrics([
+        { v: courses.length, k: XRSLP.util.plural(courses.length, 'course') },
+        { v: expCount, k: XRSLP.util.plural(expCount, 'published experiment') }
+      ])) +
       '<p class="plede">' + esc(g.summary) + '</p>' +
-      '<section aria-labelledby="pc-h"><h2 id="pc-h" class="sr-only">Courses in ' + esc(g.name) + '</h2>' +
+      '<section aria-labelledby="pc-h">' +
+      ui.sectionHead({ title: 'Courses', id: 'pc-h', count: courses.length,
+        desc: 'Every published experiment in this programme / department is filed under one of these courses.' }) +
       /* A Programme with no Courses is a real, reachable state — the
          platform can add one before any Course sits in it — so the page
          says so rather than rendering an empty container. */
       (courses.length
         ? '<div class="coursecards">' + cards + '</div>'
         : '<div class="tablecard">' + ui.emptyState({
-            icon: 'book', title: 'No course is listed here yet',
+            icon: 'book', heading: 'h3', title: 'No course is listed here yet',
             body: 'This programme / department has been added to the catalogue, but no course has been ' +
               'published under it so far. Published experiments appear here as they reach the catalogue.',
             actionsHTML: '<a class="btn pri" href="#/catalogue">Browse the whole catalogue</a>'
@@ -690,8 +928,6 @@ XRSLP.screens = XRSLP.screens || {};
     var g = data.grouping(c.groupingId);
     var exps = data.experimentsInCourse(c.id);
 
-    var rows = '<ul class="expliste">' + exps.map(expRowHTML).join('') + '</ul>';
-
     /* The parent Programme / Department may not resolve — see `ctxOf`.
        The Course page still stands on its own: the crumb and the meta
        line simply stop claiming a parent this build cannot name, rather
@@ -702,14 +938,16 @@ XRSLP.screens = XRSLP.screens || {};
 
     var html =
       ui.crumbs(crumbItems) +
-      ui.phead(c.name, esc(g ? g.name : UNFILED_GROUP_LABEL) + ' · ' +
-        exps.length + ' ' + XRSLP.util.plural(exps.length, 'experiment')) +
+      ui.phead(c.name, esc(g ? g.name : UNFILED_GROUP_LABEL)) +
       '<p class="plede">' + esc(c.summary) + '</p>' +
-      '<section aria-labelledby="cx-h"><h2 id="cx-h" class="sr-only">Experiments in ' + esc(c.name) + '</h2>' +
+      '<section aria-labelledby="cx-h">' +
+      ui.sectionHead({ title: 'Experiments', id: 'cx-h', count: exps.length,
+        desc: 'Open an experiment for its learning outcomes, technology formats and device requirements.' }) +
       (exps.length
-        ? rows
+        ? '<ul class="explist">' +
+          exps.map(function (e) { return expItemHTML(e, { heading: 'h3' }); }).join('') + '</ul>'
         : '<div class="tablecard">' + ui.emptyState({
-            icon: 'flask', title: 'No experiment is published in this course yet',
+            icon: 'flask', heading: 'h3', title: 'No experiment is published in this course yet',
             body: 'This course exists in the catalogue, but nothing has been published under it so far. ' +
               'Experiments appear here once they are published.',
             /* Back to the parent when there is one to go back to;
@@ -732,51 +970,68 @@ XRSLP.screens = XRSLP.screens || {};
      other is still running — a single "current plan" line would be true
      of neither of them. Expired records are listed too: they are real
      access history and the term badge says plainly that they are
-     expired. */
-  function heldPanelHTML(inst, rows) {
+     expired.
+
+     ⚠ THIS BELONGS IN THE MAIN COLUMN, not the decision rail. In the
+     360px rail it stacked a kicker, a paragraph, a block per record, an
+     expired-record caveat and a prototype note ABOVE the rail's own
+     title and its primary button, which routinely made the rail the
+     tallest column on the page — at which point `position:sticky` can
+     never engage and the decision scrolls away. */
+  function heldAccessCardHTML(inst, rows) {
     var anyExpired = rows.some(function (row) { return !row.live; });
+    var anyLive = rows.some(function (row) { return row.live; });
 
     var recs = rows.map(function (row) {
       var rec = row.record;
       var termDef = data.term(rec.term);
       var alloc = row.allocation;
-      return '<div class="rq">' +
-        '<div class="rq-body">' +
-        '<span class="rq-t">Access record ' + esc(rec.id) + '</span> ' + ui.termBadge(row.termState) +
-        '<div style="margin-top:5px">' + ui.techBadges(row.technologies) + '</div>' +
-        '<div style="margin-top:5px">' + esc(termDef ? termDef.label : rec.term) +
-        (rec.endsOn ? ' · until ' + esc(XRSLP.util.fmtDate(rec.endsOn)) : '') + '</div>' +
+      return '<li class="heldrec">' +
+        /* The card header opened with `ACC-001`, so the first thing an
+           institution read about its own access was a key. The term and
+           its state lead now; the reference sits at the end of the
+           header, muted, still exact. */
+        '<div class="hr-h">' + ui.termBadge(row.termState) +
+        '<span class="hr-term">' + esc(termDef ? termDef.label : rec.term) +
+        (rec.endsOn ? ' · until ' + esc(XRSLP.util.fmtDate(rec.endsOn)) : '') + '</span>' +
+        '</div>' +
+        '<div class="hr-t">' + ui.techBadges(row.technologies) + '</div>' +
         /* Licences, and said so. `allocation.approved` is the licence
            quantity the Super Admin approved on this record — it is an
            allocation figure and is never a count of students. */
-        '<div style="margin-top:3px">Licences: ' + alloc.approved + ' approved · ' +
-        alloc.assigned + ' assigned · ' + alloc.remaining + ' remaining</div>' +
-        '</div></div>';
+        ui.metrics([
+          { v: alloc.approved, k: 'licences approved' },
+          { v: alloc.assigned, k: 'assigned' },
+          { v: alloc.remaining, k: 'remaining' }
+        ]) +
+        '</li>';
     }).join('');
 
-    return '<div class="ctxpanel" style="margin-bottom:14px">' +
-      '<div class="cp-k">' +
-      (rows.some(function (row) { return row.live; })
-        ? 'Your institution already has access to this experiment'
-        /* EVERY record has expired. Saying "already has access" there
-           would be plainly false — the institution held it, and holds
-           nothing now. The records are still listed, because the
-           history is real and is exactly what makes a new request an
-           expansion rather than a first purchase. */
-        : 'Your institution has held this experiment before') + '</div>' +
-      '<p style="margin-top:6px">' + esc(inst.name) + ' has ' + rows.length + ' access ' +
-      XRSLP.util.plural(rows.length, 'record') + ' covering this experiment, listed separately below. ' +
-      'Requesting it again asks for <strong>additional licences</strong> alongside what is already in place — ' +
-      'it does not replace, reduce or end any of it.</p>' +
-      '<div class="reqrows" style="margin-top:8px">' + recs + '</div>' +
+    return ui.card(
+      anyLive
+        ? 'Access ' + esc(inst.name) + ' already holds'
+        /* EVERY record has expired. Saying "already holds" there would be
+           plainly false — the institution held it, and holds nothing
+           now. The records are still listed, because the history is real
+           and is exactly what makes a new request an expansion rather
+           than a first purchase. */
+        : 'Access ' + esc(inst.name) + ' has held before',
+      '<p class="chelp">' + rows.length + ' ' + XRSLP.util.plural(rows.length, 'approval') +
+      ' covering this experiment, listed separately. Requesting it again asks for ' +
+      '<strong>additional licences</strong> alongside what is already in place — it does not replace, ' +
+      'reduce or end any of it.</p>' +
+      '<ul class="heldrecs">' + recs + '</ul>' +
       (anyExpired
-        ? '<p style="margin-top:8px">A record shown as <strong>Expired</strong> is listed because it is part of ' +
+        ? '<p class="cardfoot">Access shown as <strong>Expired</strong> is listed because it is part of ' +
           'this institution&rsquo;s access history. While it is expired it grants nothing.</p>'
         : '') +
-      '</div>' +
-      ui.protoNote('The institution named above is the requester chosen in <strong>Prototype controls</strong>. ' +
-        'The catalogue is deliberately open to browse before any sign-in and this build has no authentication, ' +
-        'so this panel identifies nobody, proves nothing and grants nothing.');
+      /* §3 — cut to one clause. It stays inside `protoNote`, which marks
+         it as prototype scaffolding rather than product copy: this panel
+         names an institution on a page with no sign-in, and saying why
+         is an honesty requirement, not an explanation of mechanics. */
+      ui.protoNote('Requester chosen in <strong>Prototype controls</strong> \u2014 ' +
+        'this build has no sign-in.'),
+      rows.length + ' ' + XRSLP.util.plural(rows.length, 'record'), 'h2');
   }
 
   /* ---------------- experiment detail ---------------- */
@@ -788,46 +1043,52 @@ XRSLP.screens = XRSLP.screens || {};
     if (!ctx.experiment) { return XRSLP.screens.notFound(); }
     var e = ctx.experiment;
     var selItem = state.selectionGet(e.id);
+    var techs = data.sortTech(e.technologies);
 
     /* Rule A, the informational half. Both are empty for a visitor the
-       prototype cannot place in any institution, and the panel below
-       then renders nothing at all rather than an empty container. */
+       prototype cannot place in any institution, and the card below then
+       renders nothing at all rather than an empty container. */
     var inst = state.scenarioTenant();
     var held = inst ? state.tenantAccessForExperiment(inst.id, e.id) : [];
     /* Access that is STILL RUNNING — a different question from whether
        any record exists. An expired record is real history worth
        showing, but it is not something a new request "adds to". */
     var heldLive = held.some(function (row) { return row.live; });
-    var heldHTML = held.length ? heldPanelHTML(inst, held) : '';
+    var heldCard = held.length ? heldAccessCardHTML(inst, held) : '';
 
-    var outcomes = '<ul class="outcomelist">' + e.outcomes.map(function (o) {
-      return '<li>' + ui.ic('check') + '<span>' + esc(o) + '</span></li>';
-    }).join('') + '</ul>';
+    /* The shared ordered list, which numbers the outcomes and renders no
+       tick. A green check is this product's ACHIEVED signal — it marks a
+       resolved support report and an approved decision — and on a
+       pre-login catalogue page one per outcome implied the visitor had
+       reached outcomes the experiment merely intends. */
+    var outcomes = cui.outcomesList(e.outcomes,
+      'No learning outcomes are recorded for this experiment yet.');
 
     /* ============================================================
        R13 — THE PUBLISHED PREVIEW VIDEO.
 
        ⚠ SECURITY-ADJACENT. A preview must never be visible publicly
-       before publication, and this is the one public screen that reads
-       a CONTENT RECORD rather than the published projection of it:
-       `data.contextOf()` hands back `publicShape()`, which deliberately
-       carries no `previewVideo`, so the field has to be fetched from
-       `state.contentRecord()` — and THAT returns any record whatever
-       its status, draft included.
+       before publication.
 
-       So the published status is re-asserted here, on the record
-       itself, before a single field of it is rendered. Two independent
-       gates now stand between a Vendor's draft and this page:
+       `publicShape()` DOES carry `previewVideo` (js/state.js) — that
+       projection is the publication boundary, and `publishedPool()` maps
+       only PUBLISHED records through it. An earlier comment here said
+       the opposite and used it to justify the second read below; that
+       was wrong, and it is corrected rather than built on.
+
+       The second read is kept anyway, as defence in depth rather than
+       as a necessity. Two independent gates stand between a Vendor's
+       draft and this page:
 
          1. the experiment is only resolvable at all while its record is
             PUBLISHED (`publishedPool()` filters on exactly that), which
             is what makes a hand-typed hash route land on Not found;
          2. this check, which refuses to read the record unless the
-            record says PUBLISHED.
+            record itself says PUBLISHED.
 
-       Gate 1 alone would be enough today. It is deliberately not relied
-       on: it lives in another module, it is a lookup by id in a pool
-       this screen does not own, and the cost of it ever changing is a
+       Gate 1 alone is enough today. It is deliberately not relied on: it
+       lives in another module, it is a lookup by id in a pool this
+       screen does not own, and the cost of it ever changing is a
        Vendor's unreleased preview link on an open, pre-sign-in page.
 
        There is no leak through the version workflow either — a later
@@ -839,37 +1100,61 @@ XRSLP.screens = XRSLP.screens || {};
     if (!pubRec || pubRec.status !== state.CONTENT_STATUS.PUBLISHED) { pubRec = null; }
 
     /* A LINK REFERENCE, not an upload and not a player. The prototype
-       stores no bytes and streams nothing, so the honest rendering is
-       the link the published content supplies, said plainly — and when
-       none was supplied, a placeholder that says only that. */
-    var previewHTML = cui.previewVideoHTML(pubRec, {
-      publicView: true,
-      emptyHTML: '<div class="previewbox">' + ui.ic('play', 'lg') +
-        '<span>No preview video has been supplied for this experiment. One appears here when the published ' +
-        'content record carries a preview link.</span></div>'
-    }) + (pubRec && pubRec.previewVideo && pubRec.previewVideo.url
-      ? '<p class="muted" style="font-size:13px; margin-top:8px">The preview opens the video where the ' +
-        'published content hosts it. This prototype does not host, stream or upload video.</p>'
-      : '');
+       stores no bytes and streams nothing.
 
-    var reqRows = '<div class="reqrows">' + data.sortTech(e.technologies).map(function (t) {
+       ⚠ NO IMAGERY IS FABRICATED HERE, and none should be. Where no
+       preview exists — which is every seeded experiment — the frame is a
+       deliberately neutral surface tinted with the accent of the
+       technology this experiment already carries, saying only that
+       nothing was supplied. It used to be a 170px DASHED box, and a
+       dashed outline is this product's own convention for prototype
+       scaffolding, so the resting state of every catalogue page read as
+       unfinished rather than as a designed empty state. */
+    var pvLink = cui.previewVideoHTML(pubRec, { publicView: true, emptyHTML: '' });
+    var previewHTML =
+      '<div class="pvframe t-' + esc(techs[0] || 'web') + '">' +
+      '<span class="pv-mark">' + ui.ic('play', 'lg') + '</span>' +
+      (pvLink ? pvLink : '<p class="pv-empty">No preview supplied</p>') +
+      '</div>' +
+      '<p class="pv-cap">' + (pvLink
+        ? 'The preview opens the video where the published content hosts it. This prototype does not host, ' +
+          'stream or upload video.'
+        : 'A preview appears here when the published content record carries a preview link. This prototype ' +
+          'does not host, stream or upload video.') + '</p>';
+
+    /* THE PROCUREMENT QUESTION, ANSWERED. The card was titled
+       "technologies & device requirements" and rendered only
+       `def.device`; `deliveryLabel` and `requirement` — the two strings
+       that actually tell an institution whether it can run this, and
+       that the Student's own screen already shows — were never public. */
+    var reqRows = '<ul class="techreq">' + techs.map(function (t) {
       var def = data.TECHNOLOGIES[t];
-      return '<div class="rq">' + ui.fmtBadge(t) +
-        '<div class="rq-body"><span class="rq-t">' + esc(def.name) + '</span><br>' + esc(def.device) + '</div></div>';
-    }).join('') + '</div>';
+      /* The badge already carries the short label, so the full name is
+         printed only where it says something more: `def.name` for Web is
+         literally "Web", and rendering both unconditionally produced
+         "Web Web". */
+      return '<li>' + ui.fmtBadge(t) +
+        '<div class="tr-b">' +
+        (def.name !== def.label ? '<div class="tr-n">' + esc(def.name) + '</div>' : '') +
+        '<div class="tr-d">' + esc(def.deliveryLabel) + '</div>' +
+        '<div class="tr-r">' + esc(def.requirement) + '</div></div></li>';
+    }).join('') + '</ul>';
 
+    /* THE RAIL CARRIES THE DECISION AND NOTHING ELSE. The full
+       technology detail is in the card above; the picker references it
+       instead of repeating the same device sentence a second time. */
     var panelHTML;
     if (selItem) {
       panelHTML =
         '<aside class="accesspanel insel" aria-labelledby="ap-h">' +
         '<div class="ap-k" id="ap-h">Institutional access</div>' +
-        heldHTML +
         '<div class="ap-t">' + ui.ic('check') + ' In your selection</div>' +
         '<div class="ap-sub">Selected technologies: ' + ui.techBadges(selItem.technologies) +
         (heldLive
-          ? '<br>The request this selection prepares would be an addition to the access shown above.'
+          ? '<br>The request this selection prepares would add licences to the access listed on this page.'
           : held.length
-          ? '<br>The access shown above has expired, so this selection prepares a fresh request rather than an addition.'
+          ? '<br>The access listed on this page has expired, so this selection prepares a fresh request ' +
+            'rather than an addition.'
           : '') + '</div>' +
         '<div class="ap-act">' +
         '<a class="btn pri blk" href="#/selection">View selection</a>' +
@@ -879,24 +1164,25 @@ XRSLP.screens = XRSLP.screens || {};
         'institutional request — it does not grant access.</p>' +
         '</aside>';
     } else {
-      var picks = data.sortTech(e.technologies).map(function (t) {
+      var picks = techs.map(function (t) {
         var def = data.TECHNOLOGIES[t];
-        return '<div class="tp-row"><input type="checkbox" id="tech-' + esc(t) + '" value="' + esc(t) + '" aria-describedby="techd-' + esc(t) + '">' +
-          '<div class="tp-body"><label class="tp-l" for="tech-' + esc(t) + '">' + ui.fmtBadge(t) + esc(def.name) + '</label>' +
-          '<div class="tp-d" id="techd-' + esc(t) + '">' + esc(def.device) + '</div></div></div>';
+        return '<div class="tp-row"><input type="checkbox" id="tech-' + esc(t) + '" value="' + esc(t) + '">' +
+          '<div class="tp-body"><label class="tp-l" for="tech-' + esc(t) + '">' +
+          ui.fmtBadge(t) + (def.name !== def.label ? esc(def.name) : '') + '</label></div></div>';
       }).join('');
       panelHTML =
         '<aside class="accesspanel" aria-labelledby="ap-h">' +
         '<div class="ap-k" id="ap-h">Institutional access</div>' +
-        heldHTML +
         '<div class="ap-t">Select technologies</div>' +
         '<div class="ap-sub">Choose at least one technology format for this experiment.' +
         (held.length
           ? ' Every format stays selectable, including any the institution does not hold today.'
           : '') + '</div>' +
-        '<fieldset class="fgroup" style="margin:0"><legend class="sr-only">Available technologies</legend>' +
-        '<div class="techpick">' + picks + '</div>' +
+        '<fieldset class="fgroup"><legend class="sr-only">Available technologies</legend>' +
+        '<div class="techpick compact">' + picks + '</div>' +
         '<div id="tech-err"></div></fieldset>' +
+        '<p class="ap-x">Delivery mode and device requirements for each format are listed under ' +
+        '<strong>Technology formats</strong>.</p>' +
         '<div class="ap-act">' +
         /* The label names what a second selection of a held experiment
            actually is. The control itself is unchanged — it adds to the
@@ -930,20 +1216,36 @@ XRSLP.screens = XRSLP.screens || {};
       ui.crumbs(crumbItems) +
       '<div class="phero">' +
       '<div class="ph-main">' +
-      '<div class="pmeta" style="margin-bottom:8px">' + esc(ctx.groupingName) + ' › ' + esc(ctx.courseName) + '</div>' +
+      /* Its own eyebrow class. This line was marked up as `.pmeta`,
+         whose only rule in the stylesheet is `.phead .pmeta` — a
+         selector that never matched here, so the context line rendered
+         at full body size in full black and competed with the h1
+         directly beneath it. */
+      '<div class="ph-eyebrow">' + esc(ctx.groupingName) + ' <span aria-hidden="true">›</span> ' +
+      esc(ctx.courseName) + '</div>' +
       '<h1>' + esc(e.name) + '</h1>' +
       '<p class="ph-lede">' + esc(e.description) + '</p>' +
-      '<div class="pmeta" style="margin-top:12px">' + ui.techBadges(e.technologies) +
+      '<div class="ph-tags">' + ui.techBadges(e.technologies) + '</div>' +
       /* Implementation 06 — the version the catalogue is actually
          showing. It changes only when the Content Manager first
          publishes, or the Super Admin RELEASES a later version. A
-         candidate anywhere in the version workflow never appears. */
+         candidate anywhere in the version workflow never appears.
+
+         It is provenance, not a fifth technology format: it used to sit
+         inline with the badges in matching pill styling and read as one
+         of them. */
       (e.versionLabel
-        ? ' <span class="verchip">Version ' + esc(e.versionLabel) + '</span>' : '') + '</div>' +
-      '<div class="stack" style="margin-top:22px">' +
-      ui.card('Learning outcomes', outcomes) +
-      ui.card('Available technologies &amp; device requirements', reqRows) +
-      ui.card('Preview', previewHTML) +
+        ? '<p class="ph-prov">' + ui.ic('layers', 'sm') + 'Published version ' + esc(e.versionLabel) + '</p>'
+        : '') +
+      '<div class="stack ph-cards">' +
+      ui.card('Learning outcomes', outcomes,
+        e.outcomes.length + ' ' + XRSLP.util.plural(e.outcomes.length, 'outcome'), 'h2') +
+      ui.card('Technology formats &amp; device requirements',
+        '<p class="chelp">Each format is a separate way to run the same experiment. An institution requests ' +
+        'the formats it can support, and the requirement below is what its learners need.</p>' + reqRows,
+        techs.length + ' ' + XRSLP.util.plural(techs.length, 'format'), 'h2') +
+      ui.card('Preview', previewHTML, null, 'h2') +
+      heldCard +
       '</div></div>' +
       panelHTML +
       '</div>';
@@ -960,6 +1262,9 @@ XRSLP.screens = XRSLP.screens || {};
               document.querySelectorAll('.techpick input:checked')
             ).map(function (i) { return i.value; });
             var errBox = document.getElementById('tech-err');
+            /* The write point's own guard: `state.selectionAdd` refuses
+               an empty technology list, and this stops the reader from
+               reaching it by accident. Both halves stay. */
             if (!chosen.length) {
               errBox.innerHTML = '<div class="ferr" role="alert">' + ui.ic('alertCirc', 'sm') +
                 'Select at least one technology before adding this experiment.</div>';

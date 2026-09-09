@@ -381,7 +381,12 @@ XRSLP.csv = (function () {
      ============================================================ */
   var PROGRESS_EXPORT_COLUMNS = [
     'Student name', 'Student ID', 'Email', 'Programme / Department', 'Course',
-    'Official course code', 'Institution course code', 'Experiment',
+    /* "Platform course code", not "Official" — one product vocabulary.
+       Every screen was relabelled to Platform / Institution in this pass;
+       leaving the export saying "Official" would reintroduce the second
+       name for one value in the one artefact a stakeholder takes away
+       and reads offline. The VALUE and its source are unchanged. */
+    'Platform course code', 'Institution course code', 'Experiment',
     'Technologies licensed', 'Technologies used', 'Simulation status by technology',
     'Resources completed', 'Resources total',
     'Assessment state', 'Attempt number', 'Score %', 'Score basis', 'Outcome',

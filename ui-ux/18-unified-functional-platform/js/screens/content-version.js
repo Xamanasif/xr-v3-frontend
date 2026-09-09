@@ -56,6 +56,35 @@ XRSLP.screens = XRSLP.screens || {};
     return ui.badge(m.badge, m.icon, m.label);
   }
 
+  /* ---------- the release chain, as a stepper ----------
+     Implementation 08. The twin of `cui.productionTrack()`, for the
+     OTHER object: a version candidate does not travel the publication
+     chain, it travels the release chain, and the two must never look
+     alike. Four steps ending in Release / Hold — the Super Admin's, and
+     named as theirs on every step where it matters.
+
+     Derived from `v.status` alone, so it reports and never decides. */
+  function versionTrack(v) {
+    var s = v.status;
+    var proposed = 'done', academic = 'todo', decision = 'todo', out = 'todo';
+    if (s === VS.DRAFT) { proposed = 'live'; }
+    else if (s === VS.ACADEMIC_REVIEW) { academic = 'live'; }
+    else if (s === VS.CHANGES_ACADEMIC) { proposed = 'blocked'; }
+    else if (s === VS.APPROVED) { academic = 'done'; decision = 'live'; }
+    else if (s === VS.HELD) { academic = 'done'; decision = 'blocked'; }
+    else if (s === VS.RELEASED) { academic = 'done'; decision = 'done'; out = 'done'; }
+    return ui.track([
+      { t: 'Proposed', d: s === VS.DRAFT ? 'With you — not yet submitted'
+        : s === VS.CHANGES_ACADEMIC ? 'Returned to the Vendor to correct'
+        : 'Submitted by the Vendor', state: proposed },
+      { t: 'Academic review', d: 'The Academic Reviewer approves it or asks for changes', state: academic },
+      { t: 'Release / Hold', d: s === VS.HELD ? 'Held by the Super Admin'
+        : 'The Super Admin’s decision', state: decision },
+      { t: 'Released', d: s === VS.RELEASED ? 'This is the version the catalogue shows'
+        : 'The catalogue keeps the current version until then', state: out }
+    ]);
+  }
+
   /* Who the version is WITH — the first question every workspace asks. */
   function holderLine(v, audience) {
     switch (v.status) {
@@ -119,9 +148,15 @@ XRSLP.screens = XRSLP.screens || {};
         '<input type="text" id="' + idp + '-run-i" value="' + esc(cur.runtime || '') + '" autocomplete="off"></div>' +
         '</div>';
     }).join('') + '</div>' +
-      '<p class="cardfoot">These are references only. Nothing is uploaded or stored, and this form cannot add ' +
-      'or remove a technology — a released version never changes which technologies an Experiment offers, ' +
-      'because no source says what that should do to a tenant that already holds one.</p>';
+      /* ⚠ OPEN POLICY QUESTION, recorded here rather than on screen.
+         The form cannot add or remove a TECHNOLOGY because no source
+         states what should happen to a tenant that already holds a
+         technology a newer version would drop. That is requirements
+         traceability, not something a Vendor filling in this form acts
+         on; the rule itself is what they need, so the rule is what the
+         line says. Also recorded in this file's header. */
+      '<p class="cardfoot">References only — nothing is uploaded. A later version cannot add or remove a ' +
+      'technology: a release never changes which technologies an Experiment offers.</p>';
   }
 
   function readDelivery(rec) {
@@ -247,17 +282,27 @@ XRSLP.screens = XRSLP.screens || {};
       'submit it, and the public catalogue does not change until the Super Admin releases it.</span>' +
       '</div></form>' +
       '<div class="formaside">' +
-      ui.alertBox('info', 'What happens to this version',
-        '<p>You submit it → the Academic Reviewer approves it or asks for changes → the <strong>Super Admin ' +
-        'releases or holds</strong> it.</p>' +
-        '<p style="margin-top:6px">Until that release, <strong>version ' + esc(rec.versionLabel || '—') +
-        ' stays the version everybody sees</strong> — in the public catalogue, in every institution that ' +
-        'holds this experiment, and for every student using it.</p>') +
-      ui.gapNote('THIS IS NOT PUBLICATION',
-        'The first publication of a new Experiment is the Content Manager&rsquo;s decision and uses the word ' +
+      /* THE FIREWALL IS THE POINT OF THIS ASIDE, so it leads it — but it
+         is not a GAP. `ui.gapNote` prints a shouty uppercase tag that
+         means "this is not built", and the later-version workflow is
+         fully built: a Vendor proposes, a Reviewer approves, the Super
+         Admin releases or holds. The wording is kept identical to
+         `cui.publishedNextVersionNote()` so there is one canonical
+         statement of the rule across the whole build. */
+      ui.alertBox('info', 'A later version is a different decision',
+        '<p>First publication of a <em>new</em> Experiment is the Content Manager&rsquo;s and uses the word ' +
         '<strong>publish</strong>. This is a later version of content that is already published, and its ' +
-        'decision is the Super Admin&rsquo;s <strong>Release / Hold</strong>. The two are different actions on ' +
-        'different objects.') +
+        'decision is the Super Admin&rsquo;s <strong>Release / Hold</strong> — a different action on a ' +
+        'different object.</p>') +
+      ui.card('What happens to this version',
+        ui.track([
+          { t: 'You propose it', d: 'Saved here, with you', state: 'live' },
+          { t: 'Academic review', d: 'Approved, or returned to you', state: 'todo' },
+          { t: 'Release / Hold', d: 'The Super Admin decides', state: 'todo' }
+        ]) +
+        '<p class="cardfoot">Until a release, <strong>version ' + esc(rec.versionLabel || '—') +
+        '</strong> stays the version everybody sees — in the public catalogue, in every institution that ' +
+        'holds this experiment, and for every student using it.</p>', null, 'h2') +
       '</div></div>';
 
     return {
@@ -342,18 +387,31 @@ XRSLP.screens = XRSLP.screens || {};
             'exactly as it is.') + '</p>';
 
     var submitted = mine.filter(function (v) { return v.status !== VS.DRAFT; }).length;
+    var released = mine.filter(function (v) { return v.status === VS.RELEASED; }).length;
     var html =
-      ui.phead('Versions',
-        mine.length + ' later ' + util.plural(mine.length, 'version') +
-        (submitted === mine.length ? '' : ' · ' + (mine.length - submitted) + ' not yet submitted')) +
-      '<div class="stack">' +
+      ui.phead('Versions', ui.metrics([
+        { v: mine.length, k: 'later ' + util.plural(mine.length, 'version') },
+        { v: mine.length - submitted, k: 'not yet submitted' },
+        { v: released, k: 'released', tone: released ? 'good' : null }
+      ])) +
+      /* THE THREE-STEP CHAIN, AS A STEPPER RATHER THAN A "GAP".
+         `ui.gapNote` prints an uppercase tag that means "this is not
+         built"; this workflow is fully built, and what the reader
+         actually needs is who does what, in order. The firewall it was
+         carrying — a later version is Released or Held, never published
+         — is in the line beneath it. */
+      ui.track([
+        { t: 'You propose a version', d: 'Of an experiment already published', state: 'done' },
+        { t: 'Academic review', d: 'The Academic Reviewer approves it or asks for changes', state: 'todo' },
+        { t: 'Release or Hold', d: 'The Super Admin decides — nobody publishes a later version', state: 'todo' }
+      ]) +
+      '<p class="dnote" style="margin-top:10px">' + ui.ic('info', 'sm') +
+      '<span>The published version does not change until the Super Admin releases a later one.</span></p>' +
+      '<div class="stack" style="margin-top:18px">' +
       ui.card('Your later versions', list, null, 'h2') +
       ui.card('Published experiments you can propose a version for', startList +
         '<p class="cardfoot">Only one later version of an experiment can be in the workflow at a time, so two ' +
         'candidates can never race for the same public version.</p>', null, 'h2') +
-      ui.gapNote('RELEASE IS NOT PUBLICATION',
-        'You propose; the Academic Reviewer approves; the <strong>Super Admin</strong> decides whether to ' +
-        'release the version or hold it. The published version does not change until that decision is taken.') +
       '</div>';
 
     return { title: 'Versions', html: html, area: 'vendor', navKey: 'versions', contentActor: actor };
@@ -413,11 +471,18 @@ XRSLP.screens = XRSLP.screens || {};
           ? 'Read-only because this version has been <strong>released</strong>. It is the version the public ' +
             'catalogue now shows, and a released version is never edited — a further change is a new later ' +
             'version, which you can propose from Versions.'
+          /* ⚠ WHAT LIFTING A HOLD ACTUALLY DOES. This said the hold is
+             lifted "and released", which is not what
+             `returnHeldVersionToDecision()` does: it sets the candidate
+             back to APPROVED and clears the release decision, so it
+             returns to the Release / Hold queue and may be held again.
+             Telling a Vendor that a lift and a release are one step
+             promises them an outcome nobody has decided. */
           : v.status === VS.HELD
           ? 'Read-only because the Super Admin has placed this version on <strong>hold</strong>. The published ' +
             'version stays live and nothing you wrote has been lost. While it is held it remains this ' +
             'experiment&rsquo;s one open candidate, so a further version cannot be proposed until the Super ' +
-            'Admin lifts the hold and releases it.'
+            'Admin lifts the hold — which returns it to the Release / Hold decision rather than releasing it.'
           : v.status === VS.APPROVED
           ? 'Read-only because it has been academically approved and is now with the <strong>Super Admin</strong> ' +
             'for the Release / Hold decision. Nothing you wrote has changed.'
@@ -437,8 +502,9 @@ XRSLP.screens = XRSLP.screens || {};
       ui.crumbs([{ label: 'Versions', href: href.vVersions(actor.id) }, { label: v.versionLabel }]) +
       ui.phead(rec.name + ' — version ' + v.versionLabel, esc(vendorHolderLine(v, actor.id)), null,
         ' ' + versionBadge(v)) +
-      scopeNote +
-      '<div class="grid-rail">' +
+      versionTrack(v) +
+      (scopeNote ? '<div style="margin-top:14px">' + scopeNote + '</div>' : '') +
+      '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' + ui.card('This version', editor, null, 'h2') + '</div>' +
       '<div class="stack">' +
       ui.card('Currently published',
@@ -559,7 +625,13 @@ XRSLP.screens = XRSLP.screens || {};
                  { label: rec.name + ' — version ' + v.versionLabel }]) +
       ui.phead(rec.name + ' — version ' + v.versionLabel,
         esc(holderLine(v, 'reviewer')), null, ' ' + versionBadge(v)) +
-      '<div class="grid-rail">' +
+      /* The SAME stepper the Vendor sees on the same candidate, so both
+         people reading this version read one picture of where it is —
+         and so the Release / Hold step is visibly the Super Admin's on
+         the screen where an Academic Reviewer might otherwise think
+         approving is the last word. */
+      versionTrack(v) +
+      '<div class="grid-rail" style="margin-top:18px">' +
       '<div class="stack">' +
       '<section class="card"><div class="chead"><h2>What this version proposes</h2></div>' +
       '<div class="cbody">' +
@@ -578,7 +650,13 @@ XRSLP.screens = XRSLP.screens || {};
          Reviewer cannot change them — this is context for the academic
          decision, exactly as the technical delivery is on a first
          submission. */
-      '<h3 class="vh">Technology delivery this version would publish</h3>' +
+      /* ⚠ TERMINOLOGY. This heading read "…this version would publish".
+         A later version is never published by anyone: it is RELEASED or
+         HELD by the Super Admin, and the file header two hundred lines
+         above states that the word publish appears nowhere here as an
+         action. The paragraph immediately below it already had it right,
+         which is how the heading survived. */
+      '<h3 class="vh">Technology delivery a release would write</h3>' +
       deliveryReadOnly(rec, v) +
       '<p class="cardfoot">The Vendor owns these technical references; they are shown here as ' +
       'context and cannot be edited from this screen. Releasing this version writes them onto the ' +

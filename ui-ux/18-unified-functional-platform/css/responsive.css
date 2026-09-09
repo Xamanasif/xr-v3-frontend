@@ -58,14 +58,15 @@
 }
 
 @media (max-width:640px){
-  .catgrid,.groupcards,.coursecards{grid-template-columns:1fr}
+  .catgrid,.groupcards,.coursecards,.explist{grid-template-columns:1fr}
   .phead .pactions{margin-left:0; width:100%}
   .phead .pactions .btn{flex:1 1 auto}
   .hero .hact .btn{flex:1 1 auto}
   .exprow .xr-side{align-items:flex-start; width:100%}
   .exprow .xr-tech{justify-content:flex-start}
   .decidebar .db-note{max-width:none}
-  .protobar{padding:8px 12px}
+  .protobar>summary{padding:5px 12px}
+  .protobar .pbody{padding:4px 12px 10px}
   /* The strip claims (layout.css, app.js) that nothing in it can create
      document-level horizontal overflow at any width. It could: the
      right-hand `<label>` wraps a `<select>` and neither could shrink,
@@ -74,6 +75,7 @@
      reason, as the `.listbar` one further down: give the label its own
      row and let the select shrink inside it. */
   .protobar .pright{min-width:0; max-width:100%}
+  .protobar>summary .phint{display:none}
   .protobar label{min-width:0; max-width:100%; flex:1 1 100%}
   .protobar select{min-width:0; max-width:100%}
   .dialog .dfoot .btn{flex:1 1 auto}
@@ -133,8 +135,21 @@
   .picklistr .pickrow .btn{width:100%; justify-content:center}
   .pgblock table.dt tr{padding-left:0; padding-right:0}
 }
+@media (max-width:900px){
+  /* The wide one-record card stacks: two columns of ~300px each is
+     worse than one of 600px. */
+  .lcard.wide{grid-template-columns:1fr; gap:0}
+  .lcard.wide .lc-tech{grid-column:1; grid-row:auto; margin-top:14px}
+  .focus{padding:var(--s-5) var(--s-5)}
+  .focus .fc-t{font-size:var(--t-xl)}
+}
 @media (max-width:640px){
   .seqstrip{grid-template-columns:1fr}
+  /* The one primary action on the page is full width on a phone, never
+     a narrow target beside a timestamp. */
+  .focus .fc-a{flex-direction:column; align-items:stretch}
+  .focus .fc-a .btn{width:100%; justify-content:center}
+  .focus .fc-when{text-align:left}
   .scorebox .sb-v{font-size:28px}
   /* The chips already wrap; the actions become full width so the primary
      Submit is never a narrow target on a phone. */
@@ -248,3 +263,20 @@
   .verdec .decidebar{margin:12px -13px -12px}
   .tickets .tk{padding:12px 13px}
 }
+
+/* Quick actions wrap by default; below 640 they become full-width rows so
+   a label never truncates on a phone. */
+@media (max-width:640px){
+  .qacts{flex-direction:column; align-items:stretch}
+  .qact{justify-content:flex-start}
+}
+
+/* Overview two-column sections stack before the sidebar does, so a card
+   never gets squeezed under 300px. */
+@media (max-width:1040px){
+  .ov-two{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Workspace tiles: 3 -> 2 -> 1 as the shell narrows. */
+@media (max-width:1040px){ .navtiles.cols3{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:740px){ .navtiles.cols3,.navtiles{grid-template-columns:minmax(0,1fr)} }

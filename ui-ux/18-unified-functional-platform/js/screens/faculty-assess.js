@@ -121,17 +121,44 @@ XRSLP.screens = XRSLP.screens || {};
       'was taken against, so no student’s result changes and no history is lost.</p>');
   }
 
+  /* WHICH EXPERIMENT AM I CONFIGURING? An assessment's title is free
+     text a faculty member chose ("Lab test 2"), so the h1 alone does not
+     answer that; the meta line used to carry only "Grouping › Course",
+     and the Questions, Settings and Preview tabs named the Experiment
+     nowhere but the breadcrumb. It is named here, on every tab. */
   function assessmentHead(f, tenant, def, experimentId, activeTab, extraHTML) {
     var ctx = data.contextOf(experimentId);
     var rd = state.assessmentReadiness(def);
+    /* One definition per tenant × experiment, so a colleague mapped to
+       the same experiment edits this one. Said on every tab, briefly. */
+    var others = tenant ? editorsFor(tenant, experimentId, f.id).length : 0;
     return ui.crumbs([{ label: 'Assessments', href: F.href.assessments(f.id) },
                       { label: ctx ? ctx.experiment.name : experimentId }]) +
       ui.phead(def ? def.title : (ctx ? ctx.experiment.name : experimentId),
-        F.courseLine(experimentId) +
-        (def && def.revision > 1 ? ' · revision ' + def.revision : ''),
+        (ctx ? esc(ctx.experiment.name) + ' · ' : '') + F.courseLine(experimentId) +
+        (def && def.revision > 1 ? ' · revision ' + def.revision : '') +
+        (others ? ' · shared with ' + others + ' other faculty ' +
+          util.plural(others, 'member') : ''),
         extraHTML || null,
         def ? ' ' + ui.badge(rd.ready ? 'b-success' : 'b-warning', rd.ready ? 'check' : 'alert', rd.label) : '') +
       tabs(f, experimentId, activeTab);
+  }
+
+  /* WHO ELSE CAN EDIT THIS ASSESSMENT. A definition is keyed
+     tenant × experiment, so every faculty member mapped to that
+     experiment edits ONE record — `createdBy` / `updatedBy` are stored
+     and were rendered nowhere, so a colleague's change appeared as a
+     changed timestamp with no name against it. Read-only derivation:
+     this grants nothing and changes nothing. */
+  function editorsFor(tenant, experimentId, selfId) {
+    return state.facultyForTenant(tenant.id).filter(function (p) {
+      return p.id !== selfId && state.facultyCanManage(p.id, experimentId);
+    });
+  }
+
+  function lastUpdatedBy(def) {
+    var p = state.personById(def.updatedBy || def.createdBy);
+    return p ? p.name : null;
   }
 
   /* ============================================================
@@ -158,6 +185,7 @@ XRSLP.screens = XRSLP.screens || {};
       };
     }
 
+    var summary = { configured: 0, ready: 0, reach: 0, submitted: 0, pending: 0 };
     var rows = scope.experiments.map(function (row) {
       var ctx = data.contextOf(row.experimentId);
       var def = state.assessmentForTenant(tenant.id, row.experimentId);
@@ -165,6 +193,13 @@ XRSLP.screens = XRSLP.screens || {};
       var totals = state.assessmentTotals(def);
       var stats = state.assessmentAttemptStats(tenant.id, row.experimentId);
       var reach = state.facultyStudentReach(f.id, row.experimentId).length;
+      if (def) { summary.configured += 1; }
+      if (rd.ready) { summary.ready += 1; }
+      summary.reach += reach;
+      summary.submitted += stats.submitted;
+      summary.pending += state.reviewsForFaculty(f.id, {
+        experimentId: row.experimentId, status: 'pending'
+      }).length;
       return '<tr>' +
         '<td data-label="Assessment">' + (def
           ? '<a class="rowlink" href="' + F.href.assessment(f.id, row.experimentId) + '">' +
@@ -178,8 +213,18 @@ XRSLP.screens = XRSLP.screens || {};
           ? ui.badge(rd.ready ? 'b-success' : 'b-warning', rd.ready ? 'check' : 'alert', rd.label)
           : ui.badge('b-neutral', 'minus', 'No assessment')) + '</td>' +
         '<td data-label="Students" class="num tabular">' + reach + '</td>' +
-        '<td data-label="Attempts" class="num tabular">' + stats.submitted + '</td>' +
-        '<td data-label="Updated">' + (def ? esc(util.fmtDate(def.updatedAt)) : '—') + '</td>' +
+        '<td data-label="Submitted" class="num tabular">' + stats.submitted + '</td>' +
+        /* THE ONE TIME-BOUND FACT THE MODEL HOLDS. It was stored, edited
+           and shown only inside one assessment's Configuration card. */
+        '<td data-label="Deadline">' + (def
+          ? (def.deadline
+              ? esc(util.fmtDate(def.deadline))
+              : '<span class="muted">None set</span>')
+          : '—') + '</td>' +
+        '<td data-label="Updated">' + (def
+          ? esc(util.fmtDate(def.updatedAt)) +
+            (lastUpdatedBy(def) ? '<span class="tsub2">by ' + esc(lastUpdatedBy(def)) + '</span>' : '')
+          : '—') + '</td>' +
         '<td class="cell-actions">' + (def
           ? '<a class="btn sm sec" href="' + F.href.assessment(f.id, row.experimentId) + '">Open' +
             '<span class="sr-only"> ' + esc(def.title) + '</span></a>'
@@ -192,19 +237,35 @@ XRSLP.screens = XRSLP.screens || {};
     var html =
       ui.phead('Assessments', 'One assessment per experiment mapped to you, inside ' + esc(tenant.name) + '.') +
       '<div class="stack">' +
-      ui.alertBox('info', 'One assessment covers an experiment',
-        '<p>A student sits <strong>one</strong> assessment for an experiment, however many technologies their ' +
-        'institution licensed. The simulation is technology-specific; the assessment is not.</p>' +
-        '<p style="margin-top:8px">An experiment does not have to have one — assessment is optional.</p>') +
-      ui.card('Your experiments',
+      ui.statStrip([
+        { v: summary.ready + ' of ' + scope.experiments.length, k: 'ready for students' },
+        { v: scope.experiments.length - summary.configured, k: 'not configured' },
+        { v: summary.reach, k: 'students entitled' },
+        { v: summary.submitted, k: 'attempts submitted' },
+        { v: summary.pending, k: 'answers to review', href: F.href.reviews(f.id),
+          tone: summary.pending ? 'warn' : '' }
+      ]) +
+      ui.sectionHead({ title: 'Your experiments', count: scope.experiments.length,
+        desc: 'A student sits one assessment per experiment, however many technologies their institution ' +
+          'licensed — and an experiment does not have to have one.' }) +
+      ui.card(null,
         '<div class="tscroll"><table class="dt">' +
-        '<caption class="sr-only">Assessments for the experiments mapped to you.</caption>' +
+        '<caption class="sr-only">Assessments for the experiments mapped to you, with the questions and marks ' +
+        'each carries, its readiness, the students entitled, attempts submitted, its deadline and when it was ' +
+        'last changed.</caption>' +
         '<thead><tr><th scope="col">Assessment</th><th scope="col" class="num">Questions</th>' +
         '<th scope="col" class="num">Marks</th><th scope="col">Status</th>' +
         '<th scope="col" class="num">Students</th><th scope="col" class="num">Submitted</th>' +
+        '<th scope="col">Deadline</th>' +
         '<th scope="col">Updated</th><th scope="col"><span class="sr-only">Actions</span></th>' +
-        '</tr></thead><tbody>' + rows + '</tbody></table></div>',
-        scope.experiments.length + ' ' + util.plural(scope.experiments.length, 'experiment'), 'h2') +
+        '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        /* The two facts a faculty member new to the model needs once, in
+           product language, folded away from the ninth visit onwards. */
+        ui.about('How assessments work here',
+          '<p>The simulation is technology-specific; the assessment is not. A student sits <strong>one</strong> ' +
+          'assessment for an experiment, whichever technologies they hold.</p>' +
+          '<p style="margin-top:8px">There is no publish or release step. An assessment becomes usable when it ' +
+          'has questions and complete settings, which is what the Status column reports.</p>')) +
       '</div>';
 
     return {
@@ -261,6 +322,7 @@ XRSLP.screens = XRSLP.screens || {};
     var release = state.assessmentRelease(def);
     var pending = state.reviewsForFaculty(f.id, { experimentId: e.id, status: 'pending' }).length;
     var mapping = state.courseMapping(tenant.id, ctx.course.id);
+    var editors = editorsFor(tenant, e.id, f.id);
 
     var summary = ui.card('Configuration',
       '<div class="kv">' +
@@ -281,10 +343,19 @@ XRSLP.screens = XRSLP.screens || {};
         esc(data.policyLabel(def.policy.mode)) +
         (release.releaseAt ? ' — ' + esc(util.fmtDate(release.releaseAt)) : '') +
         (release.unresolved ? ' <span class="muted">(no date set yet)</span>' : '') + '</div>' +
-      '<div class="k">Last updated</div><div class="v">' + esc(util.fmtDateTime(def.updatedAt)) + '</div>' +
+      '<div class="k">Last updated</div><div class="v">' + esc(util.fmtDateTime(def.updatedAt)) +
+        (lastUpdatedBy(def) ? '<span class="tsub2">by ' + esc(lastUpdatedBy(def)) + '</span>' : '') + '</div>' +
       '</div>' +
       '<p class="cardfoot">Scores and attempts are recorded automatically for every attempt. That is platform ' +
-      'behaviour, not a setting.</p>', null, 'h2');
+      'behaviour, not a setting.</p>' +
+      /* A SHARED DEFINITION SAYS SO. Two faculty members mapped to the
+         same experiment edit one record; silence made that look private. */
+      (editors.length
+        ? '<div class="sharedwith">' + ui.ic('users') + '<span>This assessment is shared with ' +
+          esc(editors.map(function (p) { return p.name; }).join(', ')) +
+          ', who ' + (editors.length === 1 ? 'is' : 'are') + ' also mapped to this experiment. ' +
+          'Changes any of you make apply to the same assessment.</span></div>'
+        : ''), null, 'h2');
 
     /* U-FAC-05 — the assign region, realised as REACH.
        ⚠ JUDGEMENT CALL, recorded in the README. Batch 02's third builder
@@ -298,8 +369,12 @@ XRSLP.screens = XRSLP.screens || {};
     var reachCard = ui.card('Who this assessment reaches',
       '<div class="kv">' +
       '<div class="k">Course</div><div class="v">' + esc(ctx.course.name) + '</div>' +
-      '<div class="k">Local course code</div><div class="v">' +
-        (mapping && mapping.localCode ? esc(mapping.localCode) : '<span class="muted">Not mapped</span>') + '</div>' +
+      /* THE INSTITUTION course code — the one that means something
+         inside this institution. The platform course code belongs to
+         the Content Manager and is not this reader's identifier, so it
+         is not shown here (design-system rule 3). */
+      '<div class="k">Institution course code</div><div class="v">' +
+        ui.institutionCode(mapping ? mapping.localCode : '') + '</div>' +
       '<div class="k">Semester</div><div class="v">' +
         (mapping && mapping.semester ? esc(mapping.semester)
           : '<span class="muted">Not set — semester is optional</span>') + '</div>' +
@@ -431,8 +506,8 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="grid-rail"><div class="stack">' +
       (creating
         ? ui.alertBox('info', 'Nothing is pre-filled',
-            '<p>No pass mark, attempt limit or visibility policy is suggested for you. No source establishes a ' +
-            'platform default for any of them, so this form does not assert one — every value here is yours.</p>')
+            '<p>No pass mark, attempt limit or visibility policy is suggested for you — every value here is ' +
+            'yours.</p>')
         : revisionNotice(def, stats)) +
       ui.card(creating ? 'Assessment settings' : 'Settings', form, null, 'h2') +
       '</div><div class="stack">' +
@@ -443,15 +518,20 @@ XRSLP.screens = XRSLP.screens || {};
         'visible, and whether a written answer will come to you.</p>' +
         '<p class="cardlede">Nothing on that screen is written by hand. If you change a setting here, the ' +
         'student’s summary changes with it.</p>', null, 'h2') +
-      /* The tag names the STATE, not the internal question id: a
-          requirement identifier is a project artefact and must not reach
-          a Faculty member's screen. */
-      ui.gapNote('PENDING — NOT ESTABLISHED',
-        '<strong>The BITS / Taxila feedback-timing rule is not implemented, because it is not established.</strong> ' +
-        'The 31 August review said to refer to the Taxila behaviour for BITS cases. That behaviour is not in the ' +
-        'project sources, so no BITS default is preselected here and none is invented. The three options above ' +
-        'are the confirmed general policy; a BITS-specific behaviour would later be <em>selected</em> from a ' +
-        'control like this one, not built into it.') +
+      /* ⚠ REMOVED FROM THE UI, KEPT AS THE REASON THE CODE LOOKS LIKE
+         THIS. A gapNote here used to tell a faculty member that "the
+         BITS / Taxila feedback-timing rule is not implemented because it
+         is not established", citing a customer, a third-party system, a
+         project meeting date and "the project sources". None of that is
+         actionable by someone setting a pass mark, and it belongs in
+         README.md / the requirements traceability document.
+
+         The RULE behind it is unchanged and still enforced by this
+         form: the three options above are the confirmed general policy,
+         NOTHING is preselected, and no BITS-specific default is
+         invented. A future BITS behaviour would be SELECTED from a
+         control like this one, not built into it. The screen already
+         states the honest half positively — "Nothing is pre-filled". */
       '</div></div>';
 
     return {
@@ -583,7 +663,12 @@ XRSLP.screens = XRSLP.screens || {};
             '<span class="pk-b"><span class="pk-t">' + esc(q.text) + '</span>' +
             '<span class="pk-s">' + F.typeBadge(q.type) + ' <span class="tabular">' + (q.points || 1) + ' ' +
             util.plural(q.points || 1, 'mark') + '</span>' +
-            (q.origin === 'ai' ? ' ' + ui.badge('b-outline', 'info', 'AI-assisted') : '') +
+            /* PROVENANCE, NOT A CLAIM. "AI-assisted" on its own reads as
+               a claim about the question on a screen that carries no
+               qualification; what the record actually attests is that it
+               started as a draft and a faculty member accepted it. The
+               explanation sits in the card head, once. */
+            (q.origin === 'ai' ? ' ' + ui.badge('b-outline', 'info', 'From an assisted draft') : '') +
             '</span></span></label></li>';
         }).join('') + '</ul></fieldset>' +
         '<div class="formact"><button class="btn pri" type="submit" id="pick-add">Add selected questions</button>' +
@@ -609,7 +694,10 @@ XRSLP.screens = XRSLP.screens || {};
       ui.card('In this assessment', currentHTML,
         totals.count + ' ' + util.plural(totals.count, 'question') + ' · ' + totals.total + ' ' +
         util.plural(totals.total, 'mark'), 'h2') +
-      ui.card('Add from your Question Bank',
+      ui.card('Add from your Question Bank ' +
+        ui.infoTip('A question marked “From an assisted draft” started as an AI-assisted draft and was added to ' +
+          'the bank by a faculty member, who reviewed and could change every part of it first. No draft ever ' +
+          'becomes a question on its own.', 'What “From an assisted draft” means'),
         '<div class="listbar">' +
         '<label for="pk-q">Search<input type="text" id="pk-q" value="' + esc(pickFilter.q) +
           '" placeholder="Question text"></label>' +
@@ -623,11 +711,13 @@ XRSLP.screens = XRSLP.screens || {};
         '</div>' + pickerHTML, null, 'h2') +
       '</div><div class="stack">' +
       completenessRail(f, def, e.id, reach) +
+      /* KEPT AND KEPT PROMINENT. This is not background: it is the one
+         thing that stops a faculty member using the wrong control, and
+         the two actions are deliberately in different places. */
       ui.alertBox('info', 'Remove is not Delete',
-        '<p><strong>Remove from this assessment</strong> takes a question out of this assessment. The question ' +
-        'stays in your Question Bank and can be added again.</p>' +
-        '<p style="margin-top:8px"><strong>Delete</strong>, in the Question Bank, removes the question from the ' +
-        'bank itself. It is a different action, in a different place.</p>') +
+        '<p><strong>Remove from this assessment</strong> takes a question out of this assessment only — it ' +
+        'stays in your Question Bank and can be added again. <strong>Delete</strong> lives in the Question ' +
+        'Bank and removes it from the bank itself.</p>') +
       '</div></div>';
 
     return {
@@ -640,13 +730,42 @@ XRSLP.screens = XRSLP.screens || {};
               '. Submitted attempts are unchanged.');
           }
         }
+
+        /* ⚠ A RE-RENDER REPLACES app-root, so focus falls to <body>
+           unless it is put back. Reordering is a repeated action —
+           "Move down" three times used to mean tabbing through the whole
+           page twice — and it is silent to a screen reader unless the
+           new position is announced. The same file already restores
+           focus after a filter change and after opening a draft; this
+           makes the builder consistent with itself. */
+        function refocusQuestion(qid, direction) {
+          var def2 = state.assessmentDefById(def.id);
+          var list = def2 ? def2.questions : [];
+          var at = -1;
+          list.forEach(function (q, i) { if (q.id === qid) { at = i; } });
+          var sel = '[data-move="' + direction + '"][data-q="' + qid + '"]';
+          var btn = document.querySelector(sel);
+          /* At either end that button is disabled, so focus goes to the
+             control that is still usable on the same question. */
+          if (!btn || btn.disabled) {
+            btn = document.querySelector('[data-move="' + (direction === 'up' ? 'down' : 'up') +
+              '"][data-q="' + qid + '"]');
+          }
+          if (btn && !btn.disabled) { btn.focus(); }
+          if (at >= 0) {
+            ui.announce('Question ' + (at + 1) + ' of ' + list.length + ', moved ' + direction + '.');
+          }
+        }
+
         Array.prototype.slice.call(document.querySelectorAll('[data-move]')).forEach(function (btn) {
           btn.addEventListener('click', function () {
-            var res = state.moveAssessmentQuestion(def.id, btn.getAttribute('data-q'),
-              btn.getAttribute('data-move'), f.id);
+            var qid = btn.getAttribute('data-q');
+            var direction = btn.getAttribute('data-move');
+            var res = state.moveAssessmentQuestion(def.id, qid, direction, f.id);
             if (!res.ok) { return; }
             announceRevision(res);
             XRSLP.render(true);
+            refocusQuestion(qid, direction);
           });
         });
         Array.prototype.slice.call(document.querySelectorAll('[data-remove]')).forEach(function (btn) {
@@ -667,33 +786,49 @@ XRSLP.screens = XRSLP.screens || {};
                   announceRevision(res);
                 }
                 XRSLP.render(true);
+                /* The dialog restored focus to the Remove button it was
+                   opened from, and the render then destroyed it. Land on
+                   a stable control in the same card instead of <body>. */
+                var next = document.querySelector('[data-remove]') ||
+                  document.getElementById('pk-q');
+                if (next) { next.focus(); }
               }
             });
           });
         });
         Array.prototype.slice.call(document.querySelectorAll('[data-refresh]')).forEach(function (btn) {
           btn.addEventListener('click', function () {
-            var res = state.refreshAssessmentQuestion(def.id, btn.getAttribute('data-refresh'), f.id);
-            if (res.ok) { ui.toast('This assessment now uses the updated question.'); announceRevision(res); }
+            var qid = btn.getAttribute('data-refresh');
+            var res = state.refreshAssessmentQuestion(def.id, qid, f.id);
+            if (res.ok) {
+              ui.toast('This assessment now uses the updated question.');
+              announceRevision(res);
+            }
             XRSLP.render(true);
+            /* The control that was clicked no longer exists — the notice
+               it lived in is gone, which is the point. Focus the moved
+               question's own row instead of dropping to <body>. */
+            var row = document.querySelector('[data-move="down"][data-q="' + qid + '"]') ||
+              document.querySelector('[data-remove="' + qid + '"]');
+            if (row) { row.focus(); }
+            if (res.ok) { ui.announce('This assessment now uses the updated question.'); }
           });
         });
 
-        function bindFilter(id, key, isText) {
+        function bindFilter(id, key) {
           var el = document.getElementById(id);
           if (!el) { return; }
-          el.addEventListener(isText ? 'input' : 'change', function () {
+          el.addEventListener('change', function () {
             pickFilter[key] = el.value;
             XRSLP.render(true);
             var again = document.getElementById(id);
-            if (again) {
-              again.focus();
-              if (isText) { again.setSelectionRange(again.value.length, again.value.length); }
-            }
+            if (again) { again.focus(); }
           });
         }
-        bindFilter('pk-q', 'q', true);
-        bindFilter('pk-t', 'type', false);
+        /* The search box keeps the caret where the typist put it and
+           does not recompute the picker on every character. */
+        F.bindSearch('pk-q', function (value) { pickFilter.q = value; });
+        bindFilter('pk-t', 'type');
 
         var pickForm = document.getElementById('pick-form');
         if (pickForm) {
@@ -720,6 +855,15 @@ XRSLP.screens = XRSLP.screens || {};
             ui.toast(res.added + ' ' + util.plural(res.added, 'question') + ' added to this assessment.');
             announceRevision(res);
             XRSLP.render(true);
+            /* The submit button is gone when the picker empties, so land
+               on whatever the faculty member would use next rather than
+               on <body>. */
+            var totals2 = state.assessmentTotals(state.assessmentDefById(def.id));
+            ui.announce(res.added + ' ' + util.plural(res.added, 'question') +
+              ' added. This assessment now has ' + totals2.count + ' ' +
+              util.plural(totals2.count, 'question') + '.');
+            var back = document.getElementById('pick-add') || document.getElementById('pk-q');
+            if (back) { back.focus(); }
           });
         }
       }
@@ -786,11 +930,15 @@ XRSLP.screens = XRSLP.screens || {};
         'against anyone’s attempt limit.</p>') +
       '<div class="previewswitch">' +
       '<span class="pv-k">View</span>' +
+      /* ⚠ aria-PRESSED, not aria-current. These are toggle buttons over
+         two views of the same page — they navigate nowhere, so "current"
+         (a navigation concept, correct on the assessment tabs above,
+         which are anchors) announced the wrong thing entirely. */
       '<div class="seg" role="group" aria-label="Preview view">' +
-      '<button class="segi" type="button" data-pv="student"' + (!authoring ? ' aria-current="true"' : '') +
-        '>What the student sees</button>' +
-      '<button class="segi" type="button" data-pv="authoring"' + (authoring ? ' aria-current="true"' : '') +
-        '>Authoring view</button>' +
+      '<button class="segi" type="button" data-pv="student" aria-pressed="' + (!authoring) +
+        '">What the student sees</button>' +
+      '<button class="segi" type="button" data-pv="authoring" aria-pressed="' + authoring +
+        '">Authoring view</button>' +
       '</div>' +
       '<span class="pv-n">' + (authoring
         ? 'The correct answers below are authoring information. A student never sees them during an attempt.'
@@ -957,24 +1105,26 @@ XRSLP.screens = XRSLP.screens || {};
           var ctx = data.contextOf(q.experimentId);
           var qCourseId = questionCourseId(q);
           var qCourse = qCourseId ? data.course(qCourseId) : null;
-          /* The institution's own code for this Course, shown BENEATH the
-             canonical name and labelled as local. It is an extra way to
-             recognise the Course, never a replacement for it — a
-             tenant-local code must not stand in for, or overwrite, the
-             canonical Course this question is actually filed under. */
+          /* The INSTITUTION course code, shown BENEATH the Course name.
+             It is an extra way to recognise the Course, never a
+             replacement for it, and it never stands in for or overwrites
+             the platform Course this question is actually filed under.
+             The platform course code is the Content Manager's identifier
+             and is not shown on a Faculty screen. */
           var localMap = qCourseId ? state.courseMapping(tenant.id, qCourseId) : null;
           return '<tr>' +
             '<td data-label="Question"><a class="rowlink" href="' + F.href.question(f.id, q.id) + '">' +
               '<span class="tmain">' + esc(q.text) + '</span>' +
               (q.origin === 'ai'
-                ? '<span class="tsub">' + esc('Added from an assisted draft') + '</span>' : '') +
+                ? '<span class="tsub">' + esc('From an assisted draft — reviewed and added by a faculty member') +
+                  '</span>' : '') +
               '</a></td>' +
             '<td data-label="Type">' + F.typeBadge(q.type) + '</td>' +
             '<td data-label="Marks" class="num tabular">' + (q.points || 1) + '</td>' +
             '<td data-label="Course">' + (qCourse
               ? '<span class="tmain">' + esc(qCourse.name) + '</span>' +
                 (localMap && localMap.localCode
-                  ? '<span class="tsub2">Local code ' + esc(localMap.localCode) + '</span>' : '')
+                  ? '<span class="tsub2">' + ui.institutionCode(localMap.localCode) + '</span>' : '')
               : '<span class="muted">Not recorded</span>') + '</td>' +
             '<td data-label="Experiment">' + esc(ctx ? ctx.experiment.name : q.experimentId) + '</td>' +
             '<td data-label="Used in">' + (usage.assessments.length
@@ -983,24 +1133,44 @@ XRSLP.screens = XRSLP.screens || {};
               (usage.attempts ? '<span class="tsub2">' + usage.attempts + ' submitted ' +
                 util.plural(usage.attempts, 'attempt') + '</span>' : '') + '</td>' +
             '<td data-label="Updated">' + esc(util.fmtDate(q.updatedAt)) + '</td>' +
+            /* `btn dgr` is the design system's destructive button.
+               `sec danger` matched no rule anywhere in css/, so the only
+               irreversible action in the workspace rendered identically
+               to the Edit link beside it. */
             '<td class="cell-actions">' +
               '<a class="btn sm sec" href="' + F.href.question(f.id, q.id) + '">Edit' +
               '<span class="sr-only"> this question</span></a>' +
-              '<button class="btn sm sec danger" type="button" data-del="' + esc(q.id) + '">Delete' +
+              '<button class="btn sm dgr" type="button" data-del="' + esc(q.id) + '">Delete' +
               '<span class="sr-only"> this question</span></button>' +
             '</td></tr>';
         }).join('') + '</tbody></table></div>'
-      : ui.emptyState({
-          icon: all.length ? 'search' : 'book', heading: 'h2',
-          title: all.length ? 'No question matches these filters' : 'Your Question Bank is empty',
-          body: all.length
-            ? 'Change the search, or the course, type or experiment filter.'
-            : 'Write a question yourself, or draft some with assistance and review them before adding.',
-          actionsHTML: all.length
-            ? '<button class="btn sec" type="button" id="qb-clear">Clear filters</button>'
-            : '<a class="btn pri" href="' + F.href.newQuestion(f.id) + '">Add a question</a>' +
+      : (all.length
+        ? ui.emptyRow({
+            icon: 'search', heading: 'h3',
+            title: 'No question matches these filters',
+            body: 'Change the search, or the course, type or experiment filter.',
+            actionsHTML: '<button class="btn sec sm" type="button" id="qb-clear">Clear filters</button>'
+          })
+        : ui.emptyState({
+            icon: 'book', heading: 'h2',
+            title: 'Your Question Bank is empty',
+            body: 'Write a question yourself, or draft some with assistance and review them before adding.',
+            actionsHTML: '<a class="btn pri" href="' + F.href.newQuestion(f.id) + '">Add a question</a>' +
               '<a class="btn sec" href="' + F.href.draft(f.id) + '">Draft with assistance</a>'
-        });
+          }));
+
+    /* WHICH COURSE AND EXPERIMENT AM I LOOKING AT? The filters are the
+       only thing narrowing this list, so the section head says in words
+       what they currently select — a table of 6 rows out of 40 should
+       never leave the reader guessing why. */
+    var filterCourse = bankFilter.courseId ? data.course(bankFilter.courseId) : null;
+    var filterExp = bankFilter.experimentId ? data.contextOf(bankFilter.experimentId) : null;
+    var contextDesc = filterExp
+      ? filterExp.course.name + ' › ' + filterExp.experiment.name
+      : filterCourse
+      ? 'Every experiment in ' + filterCourse.name
+      : 'Every course and experiment mapped to you. Each question is filed under one Experiment and the ' +
+        'Course it belongs to.';
 
     var html =
       ui.phead('Question Bank',
@@ -1008,6 +1178,7 @@ XRSLP.screens = XRSLP.screens || {};
         '<a class="btn sec" href="' + F.href.draft(f.id) + '">Draft with assistance</a>' +
         '<a class="btn pri" href="' + F.href.newQuestion(f.id) + '">Add a question</a>') +
       '<div class="stack">' +
+      ui.sectionHead({ title: 'Questions', count: all.length, desc: contextDesc }) +
       '<div class="tablecard">' +
       '<div class="listbar">' +
       '<label for="qb-q">Search<input type="text" id="qb-q" value="' + esc(bankFilter.q) +
@@ -1037,50 +1208,52 @@ XRSLP.screens = XRSLP.screens || {};
           (bankFilter.experimentId === row.experimentId ? ' selected' : '') + '>' +
           esc(c ? c.course.name + ' — ' + c.experiment.name : row.experimentId) + '</option>';
       }).join('') + '</select></label>' +
-      '<span class="lcount">' + rows.length + ' of ' + all.length + ' shown</span>' +
+      '<span class="lcount">' + (rows.length === all.length
+        ? all.length + ' ' + util.plural(all.length, 'question')
+        : rows.length + ' of ' + all.length + ' shown') + '</span>' +
       '</div>' + tableHTML + '</div>' +
-      ui.alertBox('info', 'Every question is filed under a Course and an Experiment',
-        /* Worded so it stays true when the list is filtered down to
-           nothing: it describes where a question is FILED, not what is
-           on screen at this moment. */
+      /* Two standing info boxes became two folded explanations. Both are
+         genuine product help — how filing works, and what Delete does
+         and does not touch — and neither is something a faculty member
+         needs to re-read on every visit to their own bank. The rules
+         they describe are unchanged. */
+      ui.about('How a question is filed',
         '<p>A question is stored against the Experiment you chose for it, and against the Course that ' +
-        'Experiment belongs to. Every row in this list names both, and the Course and Experiment filters ' +
-        'search exactly that — there is no free-text tag to keep up to date, and no question can sit outside ' +
-        'a Course.</p>' +
-        '<p style="margin-top:8px">A draft made with assistance is filed exactly the same way, under the ' +
-        'Experiment chosen in the draft form — but only once <strong>you</strong> add it. Until then it is not ' +
-        'in this bank at all, and any row that came from a draft says so under the question text.</p>') +
-      ui.alertBox('info', 'Deleting a question never deletes a result',
+        'Experiment belongs to. Every row names both, and the Course and Experiment filters search exactly ' +
+        'that — there is no free-text tag to keep up to date, and no question can sit outside a Course.</p>' +
+        '<p style="margin-top:8px">A draft made with assistance is filed the same way, under the Experiment ' +
+        'chosen in the draft form — but only once <strong>you</strong> add it. Until then it is not in this ' +
+        'bank at all, and any row that came from a draft says so under the question text.</p>') +
+      ui.about('What Delete does, and does not, remove',
         '<p>Delete removes a question from your active Question Bank. An assessment that already contains it ' +
-        'keeps its copy, and every attempt a student has already submitted keeps the question, the answer key ' +
-        'and the marks it was taken against.</p>') +
-      '<div class="gapnote"><span class="gtag">NOT IN THIS BUILD</span><div>' +
-      '<strong>Spreadsheet import of questions.</strong> It is not implemented here, and no control claims ' +
-      'otherwise. Supplying source material for drafting <em>is</em> implemented — see Draft with ' +
-      'assistance.</div></div>' +
+        'keeps its copy and continues to work, and every attempt a student has already submitted keeps the ' +
+        'question, the answer key and the marks it was taken against.</p>') +
+      /* ⚠ REMOVED: a "NOT IN THIS BUILD — spreadsheet import" gapNote.
+         Nothing on this screen offers or implies import, so the note
+         answered a question only the build team was asking; a roadmap
+         absence is not product copy. The absence itself is unchanged and
+         is recorded in README / QA_CHECKLIST. Supplying source material
+         for drafting IS implemented and is offered above. */
       '</div>';
 
     return {
       area: 'faculty', faculty: f, tenant: tenant, navKey: 'questions',
       title: 'Question Bank — ' + f.name, html: html,
       after: function () {
-        function bindFilter(id, key, isText) {
+        function bindFilter(id, key) {
           var el = document.getElementById(id);
           if (!el) { return; }
-          el.addEventListener(isText ? 'input' : 'change', function () {
+          el.addEventListener('change', function () {
             bankFilter[key] = el.value;
             XRSLP.render(true);
             var again = document.getElementById(id);
-            if (again) {
-              again.focus();
-              if (isText) { again.setSelectionRange(again.value.length, again.value.length); }
-            }
+            if (again) { again.focus(); }
           });
         }
-        bindFilter('qb-q', 'q', true);
-        bindFilter('qb-t', 'type', false);
-        bindFilter('qb-c', 'courseId', false);
-        bindFilter('qb-e', 'experimentId', false);
+        F.bindSearch('qb-q', function (value) { bankFilter.q = value; });
+        bindFilter('qb-t', 'type');
+        bindFilter('qb-c', 'courseId');
+        bindFilter('qb-e', 'experimentId');
         var clear = document.getElementById('qb-clear');
         if (clear) {
           clear.addEventListener('click', function () {
@@ -1119,9 +1292,19 @@ XRSLP.screens = XRSLP.screens || {};
                 '<span>The question is removed from your active Question Bank. To use it again you would ' +
                 'write it again.</span></div>',
               okLabel: 'Delete question',
+              /* The confirm button carries the destructive treatment too
+                 — the intent was signalled nowhere in this flow while the
+                 dialog's OK looked exactly like Save. */
+              danger: true,
               onConfirm: function () {
                 if (state.deleteQuestion(id)) { ui.toast('Question deleted from your Question Bank.'); }
                 XRSLP.render(true);
+                /* The dialog handed focus back to the Delete button in
+                   the row it deleted; that row is now gone. Land on the
+                   list's own controls instead of <body>. */
+                var back = document.getElementById('qb-q') ||
+                  document.querySelector('[data-del]');
+                if (back) { back.focus(); }
               }
             });
           });
@@ -1365,8 +1548,14 @@ XRSLP.screens = XRSLP.screens || {};
     var usage = state.questionUsage(q.id);
     var html =
       ui.crumbs([{ label: 'Question Bank', href: F.href.bank(f.id) }, { label: 'Edit question' }]) +
+      /* Both halves of the association, as every other question surface
+         names them: the bank table has a Course column, the Add form's
+         options read "Course — Experiment", and the draft screen states
+         the filing as "Course › Experiment". This header used to drop
+         the Course. */
       ui.phead('Edit question', esc(F.typeLabel(q.type)) + ' · ' +
-        esc(data.contextOf(q.experimentId) ? data.contextOf(q.experimentId).experiment.name : q.experimentId)) +
+        esc(data.contextOf(q.experimentId) ? data.contextOf(q.experimentId).experiment.name : q.experimentId) +
+        ' · ' + F.courseLine(q.experimentId)) +
       '<div class="formwrap"><div class="stack">' +
       ui.card('Question', questionForm(f, { question: q, submitLabel: 'Save question' }), null, 'h2') +
       '</div><div class="formaside">' +
@@ -1626,21 +1815,20 @@ XRSLP.screens = XRSLP.screens || {};
     var draftsCard = aiState.generated
       ? ui.card('Draft questions',
           aiState.drafts.length
-            ? '<p class="cardlede">Review each draft before adding it to the Question Bank. Nothing below is in ' +
-              'your Question Bank yet, and only the draft you open is editable — change anything that is wrong, ' +
+            ? '<p class="cardlede">Only the draft you open is editable — change anything that is wrong, ' +
               'especially the answer key.</p>' +
               '<p class="cardlede">A draft you add is filed under <strong>' + draftFiling + '</strong> — the ' +
-              'Experiment selected above, and the Course it belongs to. You can see and filter by both in the ' +
-              'Question Bank. A draft you discard is filed nowhere.</p>' +
+              'Experiment selected above, and the Course it belongs to. Both are shown, and can be filtered on, ' +
+              'in the Question Bank. A draft you discard is filed nowhere.</p>' +
               '<ul class="draftlist">' + aiState.drafts.map(draftCard).join('') + '</ul>'
-            : ui.emptyState({
-                icon: 'check', heading: 'h3',
+            : ui.emptyRow({
+                ok: true, heading: 'h3',
                 title: 'No drafts left',
                 body: 'You have added or discarded every draft from this run. Generate again if you want more.'
               }),
-          aiState.drafts.length + ' AI-assisted ' + util.plural(aiState.drafts.length, 'draft'), 'h2')
+          aiState.drafts.length + ' unreviewed ' + util.plural(aiState.drafts.length, 'draft'), 'h2')
       : ui.card('Draft questions',
-          ui.emptyState({
+          ui.emptyRow({
             icon: 'edit', heading: 'h3',
             title: 'No drafts yet',
             body: 'Describe what the questions should cover, optionally paste the material they should come ' +
@@ -1657,25 +1845,46 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="grid-rail"><div class="stack">' +
       requestCard +
       '</div><div class="stack">' +
+      /* ⚠ KEPT VERBATIM, and it must stay: this is the only place the
+         drafting screen disclaims an AI vendor, and the build makes NO
+         claim that one exists. What was dropped is "the same prompt
+         always produces the same drafts" — determinism is a property the
+         QA suite tests, not something a faculty member acts on. It is
+         still true: js/ai-assist.js ranks this experiment's own
+         resources plus any supplied material and contacts nothing. */
       ui.protoNote('<p><strong>AI-assisted drafting — prototype.</strong> There is no AI provider connected and ' +
         'no network request is made. Drafts are generated locally, in this browser, from the source material you ' +
-        'supply or from this experiment’s own learning resources. The same prompt always produces the same ' +
-        'drafts.</p>' +
+        'supply or from this experiment’s own learning resources.</p>' +
         '<p style="margin-top:8px">No claim is made about the quality or accuracy of a draft. Read every one ' +
         'before adding it to the Question Bank.</p>') +
       ui.card('How a draft becomes a question',
-        '<ol class="steplist">' +
-        '<li>Drafts are generated and listed below, each marked <strong>AI-assisted draft</strong> and ' +
-        '<strong>Review required</strong>.</li>' +
-        '<li>You open one at a time and edit anything that is wrong — the wording, the options, the marks, and ' +
-        'above all the correct answer.</li>' +
-        '<li>You add the ones you want. Only then does a question exist in your Question Bank.</li>' +
-        '<li>Adding it to an assessment is still a separate step, in the assessment builder.</li>' +
-        '</ol>' +
+        /* The stepper states WHERE THE FACULTY MEMBER IS in the chain,
+           which the flat list could not: the accept step is a person's
+           decision and it is the step that is still outstanding. */
+        ui.track([
+          { t: 'Generate drafts', d: 'Locally, from your prompt and material',
+            state: aiState.generated ? 'done' : 'live' },
+          { t: 'Review and edit each one', d: 'The wording, the options, the marks — above all the answer key',
+            state: aiState.generated && aiState.drafts.length ? 'live'
+              : aiState.generated ? 'done' : 'todo' },
+          { t: 'Add the ones you want', d: 'Only then does a question exist in your bank',
+            state: aiState.generated && aiState.drafts.length ? 'todo'
+              : aiState.generated ? 'done' : 'todo' },
+          { t: 'Add it to an assessment', d: 'A separate step, in the assessment builder', state: 'todo' }
+        ]) +
         '<p class="cardfoot">A question added this way keeps its assisted provenance in the Question Bank, so ' +
         'you can always see where it came from.</p>', null, 'h2') +
       '</div></div>' +
-      '<div class="draftwork">' + draftsCard + '</div>';
+      /* ⚠ THE DRAFTS ARE NOT THE QUESTION BANK, and the workspace is set
+         apart so nobody can read one as the other: a dashed, tinted zone
+         no product surface uses, with the claim stated at the top of it.
+         The accept guard itself is untouched — a draft becomes a
+         question only through the explicit per-draft Add. */
+      '<div class="draftwork draftzone">' +
+      '<p class="dz-lede">' + ui.ic('alert') + '<span><strong>Unreviewed drafts.</strong> Nothing in this area ' +
+      'is in your Question Bank, in any assessment, or visible to any student. A draft becomes a question only ' +
+      'when you add it.</span></p>' +
+      draftsCard + '</div>';
 
     return {
       area: 'faculty', faculty: f, tenant: tenant, navKey: 'questions',
@@ -1951,16 +2160,28 @@ XRSLP.screens = XRSLP.screens || {};
               'an experiment mapped to you.'
         });
 
+    /* THE DENOMINATOR HAS TO MEAN SOMETHING. `all` is every review in
+       scope whatever its status, while the default filter is "waiting for
+       review" — so a faculty member with 3 pending and 20 reviewed landed
+       on "3 of 23 shown" before touching a control, which reads as if 20
+       rows were being hidden by something they did. On the default view
+       the two figures are named; "N of M shown" returns as soon as the
+       reader has actually narrowed something. */
+    var defaultView = revFilter.status === 'pending' && !revFilter.experimentId;
+    var countText = defaultView
+      ? pendingCount + ' waiting for review · ' + (all.length - pendingCount) + ' reviewed'
+      : rows.length + ' of ' + all.length + ' shown';
+
     var html =
       ui.phead('Reviews', 'Written answers from students on the experiments mapped to you.',
         null, pendingCount ? ' ' + ui.badge('b-warning', 'clock', pendingCount + ' waiting') : '') +
       '<div class="stack">' +
-      ui.alertBox('info', 'You are the evaluator',
+      ui.sectionHead({ title: 'Written answers', count: all.length,
         /* The authorisation boundary is the Implementation-02 Faculty
            MAPPING. Nothing in this prototype records a teaching
            assignment, so the copy must not imply one. */
-        '<p>A written answer is evaluated by the Faculty member mapped to the Experiment. No other role ' +
-        'marks it, and no result exists for it until you confirm one.</p>') +
+        desc: 'A written answer is evaluated by the faculty member mapped to the experiment. No other role ' +
+          'marks it, and no result exists for it until you confirm one.' }) +
       '<div class="tablecard">' +
       '<div class="listbar">' +
       '<label for="rv-e">Experiment<select id="rv-e">' +
@@ -1976,23 +2197,24 @@ XRSLP.screens = XRSLP.screens || {};
         return '<option value="' + pair[0] + '"' + (revFilter.status === pair[0] ? ' selected' : '') + '>' +
           esc(pair[1]) + '</option>';
       }).join('') + '</select></label>' +
-      '<span class="lcount">' + rows.length + ' of ' + all.length + ' shown</span>' +
+      /* ⚠ THE PERSISTED PER-FACULTY PREFERENCE, MOVED TO WHERE THE WORK
+         IS. It used to be a card BELOW the whole queue — off-screen at
+         any real length — while the review detail sent people back here
+         to find it. Same writer (`state.setFacultyReviewMode`), same two
+         values, now a labelled control in the bar above the queue. */
+      '<label for="rv-mode">Assistance<select id="rv-mode">' +
+      [[state.REVIEW_MODE.MANUAL, 'Manual — no suggestion'],
+       [state.REVIEW_MODE.ASSISTED, 'With a suggestion']].map(function (pair) {
+        return '<option value="' + esc(pair[0]) + '"' + (pref.reviewMode === pair[0] ? ' selected' : '') + '>' +
+          esc(pair[1]) + '</option>';
+      }).join('') + '</select></label>' +
+      '<span class="lcount">' + esc(countText) + '</span>' +
       '</div>' + tableHTML + '</div>' +
-      ui.card('Review assistance',
-        '<form id="pref-form"><div class="field" id="pref-mode">' +
-        '<fieldset class="fgroup"><legend class="sr-only">Review assistance</legend>' +
-        [[state.REVIEW_MODE.MANUAL, 'Manual', 'Mark and write feedback yourself. No suggestion is offered.'],
-         [state.REVIEW_MODE.ASSISTED, 'With a suggestion',
-          'A local prototype suggestion is offered on each response, which you accept, change or ignore.']]
-          .map(function (trio) {
-            return '<div class="radiorow' + (pref.reviewMode === trio[0] ? ' is-selected' : '') + '">' +
-              '<input type="radio" name="pref-mode" id="pref-' + trio[0] + '" value="' + trio[0] + '"' +
-              (pref.reviewMode === trio[0] ? ' checked' : '') + '>' +
-              '<label for="pref-' + trio[0] + '"><strong>' + esc(trio[1]) + '</strong>' +
-              '<span class="optdesc">' + esc(trio[2]) + '</span></label></div>';
-          }).join('') + '</fieldset></div></form>' +
-        '<p class="cardfoot">This is a preference about how you work, not a change of who evaluates. Either way ' +
-        'the result exists only once you confirm it.</p>', null, 'h2') +
+      ui.about('What “Assistance” changes, and what it does not',
+        '<p><strong>Manual</strong> offers no suggestion. <strong>With a suggestion</strong> offers a local ' +
+        'prototype suggestion on each response, which you accept, change or ignore.</p>' +
+        '<p style="margin-top:8px">It is a preference about how you work, not a change of who evaluates. Either ' +
+        'way the result exists only once you confirm it.</p>') +
       '</div>';
 
     return {
@@ -2011,15 +2233,21 @@ XRSLP.screens = XRSLP.screens || {};
         }
         bindFilter('rv-e', 'experimentId');
         bindFilter('rv-s', 'status');
-        Array.prototype.slice.call(document.querySelectorAll('input[name="pref-mode"]')).forEach(function (el) {
-          el.addEventListener('change', function () {
-            state.setFacultyReviewMode(f.id, el.value);
+        var mode = document.getElementById('rv-mode');
+        if (mode) {
+          mode.addEventListener('change', function () {
+            /* The same single writer as before. Nothing else changes:
+               who evaluates, and what creates a result, are untouched. */
+            state.setFacultyReviewMode(f.id, mode.value);
+            var chosen = mode.value;
             XRSLP.render(true);
-            ui.toast(el.value === state.REVIEW_MODE.ASSISTED
+            var again = document.getElementById('rv-mode');
+            if (again) { again.focus(); }
+            ui.toast(chosen === state.REVIEW_MODE.ASSISTED
               ? 'Review assistance is on. Suggestions still need your confirmation.'
               : 'Review assistance is off.');
           });
-        });
+        }
       }
     };
   };
@@ -2049,6 +2277,20 @@ XRSLP.screens = XRSLP.screens || {};
      reopened itself. A reload must land on a normal Review Detail. This
      flag starts empty on every page load, so it does. */
   var suggestionView = { reviewId: null, shown: false };
+
+  /* ⚠ WHAT THE FACULTY MEMBER HAS TYPED, HELD ACROSS A RE-RENDER.
+     The marks input and the feedback textarea were rendered with no
+     value and no content, and both "Generate suggestion" and "Dismiss"
+     call XRSLP.render(true) — so reading the answer, typing a mark and
+     two paragraphs of feedback and then asking to see the suggestion
+     silently destroyed the lot. It is held here, review-scoped like the
+     two flags above, read out of the DOM before every render that this
+     screen causes, and echoed back into the controls.
+
+     It is PRESENTATION STATE: nothing here is persisted, and it creates
+     no result. Only `state.finaliseReview`, from the confirm dialog,
+     does that. */
+  var reviewDraft = { reviewId: null, marks: '', feedback: '' };
 
   XRSLP.screens.facultyReview = function (params) {
     var r = F.requireFaculty(params, 'reviews');
@@ -2083,6 +2325,7 @@ XRSLP.screens = XRSLP.screens || {};
       return x.id !== rv.id;
     })[0] || null;
     if (suggestionApplied.reviewId !== rv.id) { suggestionApplied = { reviewId: rv.id, applied: false }; }
+    if (reviewDraft.reviewId !== rv.id) { reviewDraft = { reviewId: rv.id, marks: '', feedback: '' }; }
 
     var contextCard = ui.card('The response',
       '<div class="kv">' +
@@ -2125,7 +2368,7 @@ XRSLP.screens = XRSLP.screens || {};
       if (showSuggestion) {
         /* Tolerate a record written before `signals` became `reasons`. */
         var reasons = rv.assistance.reasons || rv.assistance.signals || [];
-        assistHTML = ui.card('Suggestion',
+        assistHTML = ui.card('Assistance (optional)',
           '<div class="assistbox" id="rv-suggestion" role="group" aria-labelledby="rv-sg-h">' +
           '<div class="ab-h"><span id="rv-sg-h" class="ab-t">AI-assisted suggestion</span>' +
           ui.badge('b-warning', 'alert', 'Faculty confirmation required') + '</div>' +
@@ -2141,22 +2384,24 @@ XRSLP.screens = XRSLP.screens || {};
           '<p class="ab-r">This is a starting point only. Review and change it before confirming.</p>' +
           '<div class="formact"><button class="btn sec sm" type="button" id="rv-use">Use suggestion</button>' +
           '<button class="btn sec sm" type="button" id="rv-dismiss">Dismiss</button>' +
-          '<span class="formnote">Using it fills the form below. Nothing is saved until you confirm the ' +
-          'review.</span></div>' +
-          '</div>', null, 'h2');
+          /* Say what it actually does to work already in progress. */
+          '<span class="formnote">Copies both values into your review, replacing anything you have already ' +
+          'typed. Nothing is saved until you confirm.</span></div>' +
+          '</div>', null, 'h3');
       } else {
-        assistHTML = ui.card('Suggestion',
+        assistHTML = ui.card('Assistance (optional)',
           '<p class="cardlede">You can generate a local suggestion for this response. It fills nothing in until ' +
           'you choose to use it, and it never becomes the student’s result on its own.</p>' +
           '<div class="formact"><button class="btn sec" type="button" id="rv-gen">Generate suggestion</button>' +
-          '</div>', null, 'h2');
+          '</div>', null, 'h3');
       }
     } else if (!done) {
-      assistHTML = ui.card('Review assistance is off',
-        '<p class="cardlede">You are marking this response yourself. You can turn a local suggestion on in ' +
-        'Reviews — it would be a suggestion only, and you would still confirm every result.</p>' +
+      assistHTML = ui.card('Assistance (optional)',
+        '<p class="cardlede">Review assistance is off, so you are marking this response yourself. You can turn ' +
+        'a local suggestion on in Reviews — it would be a suggestion only, and you would still confirm every ' +
+        'result.</p>' +
         '<div class="formact"><a class="btn sec sm" href="' + F.href.reviews(f.id) +
-        '">Review assistance settings</a></div>', null, 'h2');
+        '">Review assistance settings</a></div>', null, 'h3');
     }
 
     var decisionCard = done
@@ -2173,22 +2418,28 @@ XRSLP.screens = XRSLP.screens || {};
               (rv.assistance.accepted ? 'A suggestion was used as a starting point'
                                       : 'A suggestion was generated and not used') + '</div>' : '') +
           '</div>' +
-          '<div class="consequence">' + ui.ic('info') +
-          '<span>A completed review is read-only in this prototype. No source establishes a re-grading ' +
-          'workflow, so none is invented — see the note beside this card.</span></div>',
+          /* The build rationale that used to sit here — "no source
+             establishes a re-grading workflow, so none is invented" —
+             is documentation, and it was also a pointer to the note
+             below saying the same thing twice. The FACT is what a
+             faculty member needs. */
+          '<div class="consequence">' + ui.ic('info') + '<span>This review is final.</span></div>',
           null, 'h2')
       : ui.card('Your review',
           '<form id="rv-form" novalidate><div class="form-errors"></div>' +
           '<div class="frow">' +
           '<div class="field" id="rv-marks"><label for="rv-marks-i">Marks awarded ' +
             '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
+            /* The held value is echoed back, so generating or dismissing
+               a suggestion no longer wipes what has been typed. */
             '<input type="number" id="rv-marks-i" min="0" max="' + rv.maxMarks + '" step="0.5" ' +
-            'inputmode="decimal">' +
+            'inputmode="decimal" value="' + esc(reviewDraft.marks) + '">' +
             '<p class="hint">Out of ' + rv.maxMarks + '. Whole or half marks.</p></div>' +
           '<div class="field"></div>' +
           '</div>' +
           '<div class="field" id="rv-feedback"><label for="rv-feedback-i">Feedback for the student</label>' +
-            '<textarea id="rv-feedback-i" rows="4" placeholder="What was good, and what was missing."></textarea>' +
+            '<textarea id="rv-feedback-i" rows="4" placeholder="What was good, and what was missing.">' +
+            esc(reviewDraft.feedback) + '</textarea>' +
             '<p class="hint">Optional. The student sees this with their result, when your visibility policy ' +
             'releases it.</p></div>' +
           '<div class="formact"><button class="btn pri" type="submit" id="rv-save">Confirm review</button>' +
@@ -2219,14 +2470,20 @@ XRSLP.screens = XRSLP.screens || {};
           '">Next waiting response</a>' : ''),
         ' ' + (done ? ui.badge('b-success', 'check', 'Reviewed')
                     : ui.badge('b-warning', 'clock', 'Pending Faculty review'))) +
+      /* ⚠ AUTHORITY FIRST, ASSISTANCE SECOND — and the layout says so.
+         The answer and the faculty member's own decision are the main
+         column; the optional suggestion sits in the secondary rail with
+         the rest of the supporting material. "Use suggestion" still only
+         FILLS THE FORM: the review is created by `finaliseReview`, from
+         the Confirm dialog, and by nothing else. */
       '<div class="grid-rail"><div class="stack">' +
-      answerCard + assistHTML + decisionCard +
+      answerCard + decisionCard +
       '</div><div class="stack">' +
-      contextCard + effectCard +
-      /* The provenance note belongs BESIDE the workflow, not inside it.
-         Its long form — what ND-09 leaves unspecified about a production
-         auto-review — is documentation; what a Faculty member needs here
-         is short and about consequence. */
+      contextCard + assistHTML +
+      /* ⚠ KEPT VERBATIM AND IN PLACE, now directly beneath the panel it
+         qualifies: it is the disclosure that makes the "AI-assisted
+         suggestion" label on that panel truthful, and the only such
+         disclosure on the review surface. */
       (!done && pref.reviewMode === state.REVIEW_MODE.ASSISTED
         ? ui.protoNote('<p><strong>Review assistance.</strong> A suggestion is produced locally in this browser ' +
             'by comparing the answer with your own evaluation guidance. There is no AI provider connected and no ' +
@@ -2234,12 +2491,17 @@ XRSLP.screens = XRSLP.screens || {};
             '<p style="margin-top:8px">It is never a mark and never a judgement of whether the answer is ' +
             'correct. Only your confirmation creates a result.</p>')
         : '') +
+      effectCard +
+      /* KEPT — a confirmed review really cannot be reopened, and a
+         faculty member must be told that. The sourcing behind it
+         ("not established in the project sources", "rather than invent a
+         re-grading workflow") is build rationale for README /
+         QA_CHECKLIST: whether a finalised descriptive mark may be
+         revised, and who could authorise it, is not established, so no
+         re-grading workflow is invented here. */
       (done
         ? ui.gapNote('PROTOTYPE LIMITATION',
-            '<strong>A completed review cannot be reopened here.</strong> Whether a faculty member may revise a ' +
-            'finalised descriptive mark, and who may authorise it, is not established in the project sources. ' +
-            'Rather than invent a re-grading workflow, this prototype makes a confirmed review read-only and ' +
-            'says so.')
+            '<strong>A confirmed review is final.</strong> Re-grading is not available in this prototype.')
         : '') +
       '</div></div>';
 
@@ -2247,10 +2509,27 @@ XRSLP.screens = XRSLP.screens || {};
       area: 'faculty', faculty: f, tenant: tenant, navKey: 'reviews',
       title: 'Review — ' + (student ? student.name : rv.id), html: html,
       after: function () {
+        /* Read whatever is in the form into the held draft. Called
+           before EVERY re-render this screen causes, exactly as the
+           drafting screen's `syncOpenDraft` does — the guards are the
+           same: a missing control means there is nothing to read, and
+           writing an empty result back would wipe intact work. */
+        function syncDraft() {
+          var m = document.getElementById('rv-marks-i');
+          var fb = document.getElementById('rv-feedback-i');
+          if (!m && !fb) { return; }
+          reviewDraft = {
+            reviewId: rv.id,
+            marks: m ? m.value : reviewDraft.marks,
+            feedback: fb ? fb.value : reviewDraft.feedback
+          };
+        }
+
         var gen = document.getElementById('rv-gen');
         if (gen) {
           gen.addEventListener('click', function () {
             gen.disabled = true;
+            syncDraft();
             state.generateReviewAssistance(rv.id);
             /* Opening the panel is THIS interaction's decision, recorded
                only here. Nothing persists it, so a reload will not repeat
@@ -2270,14 +2549,32 @@ XRSLP.screens = XRSLP.screens || {};
           use.addEventListener('click', function () {
             var m = document.getElementById('rv-marks-i');
             var fb = document.getElementById('rv-feedback-i');
-            if (m) { m.value = rv.assistance.suggestedMarks; }
-            if (fb) { fb.value = rv.assistance.suggestedFeedback; }
-            suggestionApplied = { reviewId: rv.id, applied: true };
-            /* Filling the form is the point of the action, so the focus
-               moves to the first field the Faculty member now owns. The
-               review is NOT saved, submitted or completed by this. */
-            if (m) { m.focus(); }
-            ui.toast('Suggestion copied into your review. Change anything you disagree with, then confirm.', 'info');
+            function apply() {
+              if (m) { m.value = rv.assistance.suggestedMarks; }
+              if (fb) { fb.value = rv.assistance.suggestedFeedback; }
+              suggestionApplied = { reviewId: rv.id, applied: true };
+              syncDraft();
+              /* Filling the form is the point of the action, so the focus
+                 moves to the first field the Faculty member now owns. The
+                 review is NOT saved, submitted or completed by this. */
+              if (m) { m.focus(); }
+              ui.toast('Suggestion copied into your review. Change anything you disagree with, then confirm.',
+                'info');
+            }
+            /* ⚠ IT OVERWRITES. Someone who has already written their own
+               marks or feedback and then opens the suggestion to compare
+               is asked first — there is no undo, and losing two
+               paragraphs to a comparison is not a fair trade. */
+            var hasOwn = !!((m && String(m.value).trim()) || (fb && String(fb.value).trim()));
+            if (!hasOwn) { apply(); return; }
+            ui.openDialog({
+              title: 'Replace what you have written?',
+              bodyHTML: '<p>Using the suggestion overwrites the marks and feedback already in your review.</p>' +
+                '<div class="consequence">' + ui.ic('info') +
+                '<span>Nothing is saved either way — the review is recorded only when you confirm it.</span></div>',
+              okLabel: 'Replace with the suggestion',
+              onConfirm: apply
+            });
           });
         }
         var dismiss = document.getElementById('rv-dismiss');
@@ -2285,7 +2582,9 @@ XRSLP.screens = XRSLP.screens || {};
           dismiss.addEventListener('click', function () {
             /* Hides the panel. The generated record stays, so a completed
                review still reports that a suggestion was generated and not
-               used — dismissing is not the same as it never happening. */
+               used — dismissing is not the same as it never happening.
+               What is typed survives the re-render. */
+            syncDraft();
             suggestionView = { reviewId: rv.id, shown: false };
             XRSLP.render(true);
             var again = document.getElementById('rv-gen');
@@ -2297,6 +2596,7 @@ XRSLP.screens = XRSLP.screens || {};
         if (!formEl) { return; }
         formEl.addEventListener('submit', function (ev) {
           ev.preventDefault();
+          syncDraft();
           var marks = document.getElementById('rv-marks-i').value;
           var feedback = document.getElementById('rv-feedback-i').value;
           ui.openDialog({
@@ -2321,7 +2621,16 @@ XRSLP.screens = XRSLP.screens || {};
                 ui.showErrors(formEl, res.errors, 'This review cannot be confirmed yet');
                 return;
               }
+              /* The decision is recorded, so the in-progress copy of it
+                 has nothing left to protect. */
+              reviewDraft = { reviewId: null, marks: '', feedback: '' };
               XRSLP.render(true);
+              /* The form the dialog was opened from is gone. Put focus on
+                 the obvious next action — the next waiting response, or
+                 the queue — instead of leaving it on <body>. */
+              var onward = document.querySelector('.pactions a') ||
+                document.querySelector('.crumb a');
+              if (onward) { onward.focus(); }
               ui.toast('Review confirmed. The student’s result has been updated.');
             }
           });

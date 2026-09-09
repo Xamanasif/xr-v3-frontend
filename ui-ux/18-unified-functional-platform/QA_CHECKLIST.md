@@ -1,5 +1,7 @@
 # QA Checklist — Unified Functional Platform · Implementations 01 + 02 + 03 + 04 + 05 + 06
 
+> **Superseded in large part by automation at Implementation 08 — see the notice below.**
+
 Run from `ui-ux/18-unified-functional-platform/` (see README for local run).
 Every step below was executed against the final build in a Chromium-based browser
 (runtime-verified; see the implementation report). Re-run on Safari for the review pass.
@@ -19,6 +21,42 @@ dialogs, the layout and the copy match those rules.
 > to give is that a *newly produced* Experiment travels the whole platform on the code the seeded
 > catalogue already used. Section **Y8** is that end-to-end test, and **Y6** is its most important
 > negative: publishing grants nobody anything.
+
+---
+
+## ⚠ READ THIS BEFORE WORKING THROUGH THE LIST — Implementation 08
+
+**Most of what follows no longer needs a human.** Implementation 08 added a second harness, and
+between the two of them the great majority of the steps below are now proved automatically, on
+every run, in seconds. Working through the whole list by hand is no longer the way to verify this
+build — it is the way to spend a day re-confirming what two commands already assert.
+
+| Harness | What it proves | Replaces |
+|---|---|---|
+| `qa/checks.js` | The state layer and the business rules under it. Also parse-checks every product JS file, confirms `index.html` loads all of them on one cache token, proves every CSS custom property resolves, and asserts the no-default-destination and course-code rules against the source text. | Every step whose *Expected* column is a rule about entitlement, licences, technologies, authority, status transitions or terminology |
+| `qa/ui-audit.js` | The **rendered DOM** of every route at 375 / 768 / 1024 / 1280 / 1440: horizontal overflow *and the elements causing it*, duplicate ids, controls with no accessible name, heading-level skips, raw entities, missing `alt`, target size, dead links, blank pages, uncaught runtime errors, colour contrast, and the amount of development prose still on screen. It also drives two interactions: that Student Home never offers one experiment twice, and that the Content Manager's return has no pre-selected destination and writes nothing until confirmed. | Every step whose *Expected* column is "renders", "no overflow", "labelled", "no error", "one h1", or a count |
+
+```bash
+# 1 — state, source rules and syntax
+/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc qa/harness.js qa/checks.js
+
+# 2 — rendered DOM, in the browser console with the prototype open
+#     const src = await (await fetch('qa/ui-audit.js')).text(); (0,eval)(src);
+#     XRSLPAudit.build('many');
+#     XRSLPAudit.begin({widths:[1280]}); await XRSLPAudit.step(400, 26000);
+#     XRSLPAudit.finish();        // summary.valid must be true, notFoundRoutes explained
+#     XRSLPAudit.interactions();  // failures must be 0
+```
+
+**What still genuinely needs a person**, and is the only part worth doing by hand before a
+stakeholder meeting: *visual judgement*. Does the hierarchy read correctly, does the page feel
+like one product, is the emphasis in the right place. A machine can prove a page has exactly one
+`h1` and no overflow; it cannot tell you the page is confusing. The short list for that is in
+`UX_REDESIGN_08.md`.
+
+The sections below are retained as the **historical record** of what was verified by hand at
+Implementations 01–06, and as a reference for the expected behaviour of each screen. Do not read
+a ✅ in them as a claim about the current build — run the two harnesses for that.
 
 ## Scenario A — internal / BITS Community (no payment step)
 

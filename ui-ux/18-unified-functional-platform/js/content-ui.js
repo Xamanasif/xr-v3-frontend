@@ -136,6 +136,96 @@ XRSLP.contentUI = (function () {
     return esc(ctx.grouping ? ctx.grouping.name : '—') + ' › ' + esc(ctx.course.name);
   }
 
+  /* ---------------- the production chain, as a stepper ----------------
+     Implementation 08. All three workspaces were describing the same
+     four-step chain in prose, each in their own words, on their own
+     screen. One renderer, so a Vendor, an Academic Reviewer and a
+     Content Manager reading the same Experiment see the same picture of
+     where it has got to.
+
+     IT REPORTS, IT NEVER DECIDES. Every state below is derived from
+     `rec.status` alone — the single fact `holderLine()` and the status
+     badge are already derived from — so the stepper can never claim a
+     hand-off the workflow has not made. `ui.track` names each step's
+     state in its own text as well as its colour. */
+  function productionTrack(rec) {
+    var S = state.CONTENT_STATUS;
+    var s = rec.status;
+    var done = 'done', live = 'live', todo = 'todo', blocked = 'blocked';
+    var submitted = s !== S.DRAFT ? done : live;
+    var academic = todo, readiness = todo, published = todo;
+
+    if (s === S.DRAFT) { submitted = live; }
+    else if (s === S.ACADEMIC_REVIEW) { academic = live; }
+    else if (s === S.CHANGES_ACADEMIC) { submitted = blocked; }
+    else if (s === S.CHANGES_ACADEMIC_RECHECK) { academic = live; }
+    else if (s === S.CONTENT_REVIEW) { academic = done; readiness = live; }
+    else if (s === S.CHANGES_CONTENT) { academic = done; readiness = blocked; }
+    else if (s === S.PUBLISHED) { academic = done; readiness = done; published = done; }
+
+    return ui.track([
+      { t: 'Vendor submission',
+        d: s === S.DRAFT ? 'Draft — not yet submitted'
+          : (s === S.CHANGES_ACADEMIC || s === S.CHANGES_CONTENT)
+            ? 'Returned to the Vendor to correct'
+            : 'Submitted by the Vendor',
+        state: submitted },
+      { t: 'Academic review',
+        d: s === S.CHANGES_ACADEMIC_RECHECK ? 'Returned for an academic re-check'
+          : rec.academicReview ? 'Approved by ' + rec.academicReview.reviewerName
+          : 'Learning Outcomes and academic alignment',
+        state: academic },
+      { t: 'Content readiness',
+        d: s === S.CHANGES_CONTENT ? 'Returned by the Content Manager'
+          : 'Canonical metadata and technical delivery',
+        state: readiness },
+      { t: 'Published',
+        d: s === S.PUBLISHED
+          ? 'First publication by the Content Manager'
+          : 'First publication — the Content Manager’s alone',
+        state: published }
+    ]);
+  }
+
+  /* ---------------- why an item came back ----------------
+     Implementation 08. A submission can be returned at EITHER gate, and
+     the two were being surfaced asymmetrically: the academic return
+     showed its reason on the Vendor's list, the content-readiness one
+     showed nothing at all, even though the reason was on the record and
+     was rendered on the detail page.
+
+     One accessor for both. The newest `changes` history entry is the
+     return being served — the state layer writes the reason, the actor
+     and any supporting references onto it whichever gate produced it —
+     so this reads that rather than the academic review record, which
+     only ever covers one of the two. Returns null when nothing came
+     back, so a caller can render one block or none. */
+  function returnReason(rec) {
+    var S = state.CONTENT_STATUS;
+    if (!rec || (rec.status !== S.CHANGES_ACADEMIC && rec.status !== S.CHANGES_CONTENT &&
+                 rec.status !== S.CHANGES_ACADEMIC_RECHECK)) { return null; }
+    var h = (rec.history || []).filter(function (x) { return x.kind === 'changes'; })[0];
+    if (!h) { return null; }
+    return {
+      who: h.actorName || (rec.status === S.CHANGES_ACADEMIC ? 'Academic Reviewer' : 'Content Manager'),
+      role: h.actorRole || (rec.status === S.CHANGES_ACADEMIC ? 'Academic Reviewer' : 'Content Manager'),
+      at: h.at,
+      text: h.note || '',
+      refs: h.refs || []
+    };
+  }
+
+  /* The compact rendering of the above, for a card or a list row. */
+  function returnReasonHTML(rec) {
+    var r = returnReason(rec);
+    if (!r) { return ''; }
+    return '<div class="retbox">' + ui.ic('alert', 'sm') +
+      '<div><strong>' + esc(r.who) + ' · ' + esc(r.role) + '</strong>' +
+      (r.text ? '<p>' + esc(r.text) + '</p>'
+              : '<p>No reason text was recorded with this return.</p>') +
+      '</div></div>';
+  }
+
   /* ---------------- learning outcomes ----------------
      Academically owned (STK31-08). Rendered read-only everywhere except
      the Academic Review screen, which owns the editor. */
@@ -171,10 +261,14 @@ XRSLP.contentUI = (function () {
           ? '<span class="mono">' + esc(d.packageRef) + '</span>'
           : '<span class="muted">Not supplied</span>'));
         if (d.packageFile && d.packageFile.name) {
+          /* HONEST, AND SHORT. The name and size are all the browser
+             handed over — the bytes were never read and this prototype
+             has no server to send them to. Said once, here, next to the
+             value it qualifies, rather than as a paragraph. */
           lines.push(kvLine('Selected file', '<span class="mono brk">' + esc(d.packageFile.name) + '</span>' +
             (d.packageFile.size ? ' <span class="muted">(' + esc(d.packageFile.size) + ')</span>' : '') +
             '<span class="dnote">' + ui.ic('info', 'sm') +
-            'Prototype records package metadata only; no binary is uploaded or stored.</span>'));
+            'File name and size only — no binary was uploaded.</span>'));
         }
         if (d.install) { lines.push(kvLine('Installation / access notes', esc(d.install))); }
       }
@@ -202,7 +296,7 @@ XRSLP.contentUI = (function () {
         (d.size ? ' <span class="muted">— ' + esc(d.size) + '</span>' : '') + '</span></li>';
     }).join('') + '</ul>' +
       '<p class="dnote">' + ui.ic('info', 'sm') +
-      'Prototype records document metadata only; no file is uploaded or stored.</p>';
+      'File name and size only — no document was uploaded.</p>';
   }
 
   /* ---------------- history ----------------
@@ -366,11 +460,15 @@ XRSLP.contentUI = (function () {
         '</tr>';
     }).join('');
 
+    /* PROTOTYPE CHROME, and it reads as chrome. A stakeholder must not
+       mistake this table for a sign-in, so the note stays — but as one
+       sentence rather than a paragraph. What it used to spell out (reach
+       comes from the Super Admin's per-Course and per-Experiment role
+       assignments, never from this picker) is the product's own rule and
+       is stated on the scope card of every workspace behind it. */
     return ui.phead(opts.title, opts.metaHTML || '') +
-      ui.protoNote('<strong>Prototype view switch — not authentication.</strong> ' +
-        'Choosing an identity below grants nothing. What each person can reach comes only from the ' +
-        'per-Course and per-Experiment role assignments the Super Admin holds on the platform ' +
-        'Role governance screen.') +
+      ui.protoNote('<strong>Prototype view switch, not a sign-in.</strong> Choosing an identity grants ' +
+        'nothing — reach comes from the role assignments the Super Admin holds.') +
       '<div class="tablecard" style="margin-top:16px">' +
       '<div class="tscroll"><table class="dt">' +
       '<caption class="sr-only">' + esc(opts.title) + ' — sample identities</caption>' +
@@ -561,9 +659,14 @@ XRSLP.contentUI = (function () {
       '<label for="' + prefix + '-reffile">Or point at a file on this machine' +
       '<input type="file" id="' + prefix + '-reffile">' +
       '</label>' +
+      /* ⚠ THE HONESTY LINE, kept at the picker it qualifies. This
+         prototype has no server: choosing a file records its name and
+         size and nothing else. Shortened, never removed — a build that
+         quietly implied it had the file would be claiming an
+         integration it does not have. */
       '<p class="fhint">' + ui.ic('info', 'sm') +
-      '<strong>Nothing is uploaded.</strong> Choosing a file records its name and size so the recipient knows ' +
-      'what to ask you for. The file itself stays on your machine.</p>' +
+      '<strong>Nothing is uploaded</strong> — the file&rsquo;s name and size are recorded so the recipient ' +
+      'knows what to ask you for.</p>' +
       '</fieldset>';
   }
 
@@ -620,6 +723,7 @@ XRSLP.contentUI = (function () {
     previewVideoHTML: previewVideoHTML,
     statusBadge: statusBadge, revisionChip: revisionChip, resubmittedChip: resubmittedChip,
     holderLine: holderLine, contextLine: contextLine,
+    productionTrack: productionTrack, returnReason: returnReason, returnReasonHTML: returnReasonHTML,
     outcomesList: outcomesList, deliveryRows: deliveryRows, documentsList: documentsList,
     historyTimeline: historyTimeline, readinessCard: readinessCard,
     academicDecisionCard: academicDecisionCard, publicationCard: publicationCard,

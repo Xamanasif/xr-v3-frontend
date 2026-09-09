@@ -79,13 +79,30 @@ XRSLP.platformUI = (function () {
      sources, one row shape (`12_SUPPORT_AND_OPERATIONS_MODEL.md` §5).
      Every row carries its own accessible name, and every row leads
      somewhere that can act on it. */
+  /* ⚠ THE EMPTY STATE IS COMPACT, and that is the whole point of it.
+
+     "Nothing needs a decision" is the GOOD outcome and the common one —
+     a governance queue is empty most of the time. Rendered through
+     `ui.emptyState` it was a 48px medallion and 48px of padding, so
+     Content governance opened as two enormous white cards saying
+     nothing is wrong, with the content the reader came for pushed below
+     the fold. `ui.emptyRow` says the same thing in one line, with the
+     tick that marks it as a result rather than an absence.
+
+     `emptyOpts.large` forces the full treatment for the one case where
+     the empty state IS the page's purpose. */
   function attentionList(items, emptyOpts) {
     if (!items.length) {
-      return ui.emptyState(emptyOpts || {
+      var o = emptyOpts || {
         icon: 'check', heading: 'h3',
         title: 'Nothing needs a decision',
         body: 'No request, version, transfer, support report or expiring term is waiting on the platform, and ' +
           'no Experiment is stalled with nobody able to act on it.'
+      };
+      if (o.large) { return ui.emptyState(o); }
+      return ui.emptyRow({
+        icon: o.icon || 'check', ok: true, heading: o.heading || 'h3',
+        title: o.title, body: o.body
       });
     }
     return '<ul class="attn">' + items.map(function (it) {
@@ -112,15 +129,26 @@ XRSLP.platformUI = (function () {
     return days + ' ' + util.plural(days, 'day') + ' remaining — ends ' + util.fmtDate(rec.endsOn);
   }
 
-  /* The honest statement about the 15-day reminder. It appears wherever
-     the reminder state does, and it is the same sentence every time. */
+  /* The honest statement about the 15-day reminder, in one sentence.
+     ⚠ THE "NOTHING HAS BEEN SENT" CLAIM IS LOAD-BEARING AND MUST
+     SURVIVE ANY REWRITE of this function: an operator who believes the
+     institution was emailed will not follow it up, and no email, SMS,
+     push or notification provider exists anywhere in this build.
+
+     What was cut is the scaffolding around it. The old version was a
+     five-sentence `gapNote` — tagged DELIVERY CHANNEL PENDING, framed as
+     a missing requirement — repeated verbatim on the Overview, the
+     institution report and Operations. The requirement itself (a tenant
+     is reminded 15 days ahead) is confirmed and is stated by the queue
+     it sits on; only the delivery is unbuilt, and saying so once, as a
+     product fact, is the whole of it. It is now rendered ONLY beside the
+     expiry queue on Operations — the surface that owns the reminder
+     state — rather than on three screens at once. */
   function reminderNote() {
-    return ui.gapNote('DELIVERY CHANNEL PENDING',
-      'A tenant must receive an expiry reminder <strong>15 days before</strong> the access term ends. ' +
-      'That requirement is confirmed; the <strong>delivery channel is not</strong>, so this build represents ' +
-      'the reminder as an operational due-state here and on the tenant’s own workspace. ' +
-      '<strong>No email, SMS, push or notification of any kind has been sent</strong>, and no provider is integrated. ' +
-      'There is no automatic renewal, payment or extension.');
+    return ui.alertBox('info', 'The reminder is a due state, not a message',
+      '<p>Nothing has been sent to anybody — this build integrates no email, SMS, push or notification ' +
+      'provider. The institution sees the same due state on its own workspace, and no term renews, ' +
+      'extends or charges automatically.</p>');
   }
 
   /* ============================================================
@@ -249,38 +277,59 @@ XRSLP.platformUI = (function () {
     var blocked = P.blockedItems();
     var scopeless = P.scopelessItems();
 
+    /* ⚠ FOUR TILES, NOT EIGHT.
+
+       This grid carried one tile per queue — requests, institutions,
+       versions, transfers, support, expiry, stalled experiments, role
+       holders with no scope — eight figures, and on a healthy platform
+       seven of them read 0. Eight zeroes of equal weight is not a
+       dashboard; it is a readout of every collection in the system, and
+       "Needs a decision" directly beneath it says the same thing again,
+       grouped, with the actions attached.
+
+       So the strip answers the question the queue below cannot: how much
+       is waiting IN TOTAL, and what is the platform's standing shape —
+       institutions and published content. Everything else is a row in
+       the decision list, where it has a destination and a verb. */
+    var awaitingTotal = o.requestsAwaiting.length + o.versionsAwaiting.length +
+      o.transfersAwaiting.length + o.ticketsOpen.length;
+    var publishedCount = state.contentRecords().filter(function (r) {
+      return r.status === state.CONTENT_STATUS.PUBLISHED;
+    }).length;
+
     var tiles = P.statGrid([
-      { label: 'Requests awaiting a decision', value: o.requestsAwaiting.length,
-        tone: o.requestsAwaiting.length ? 'warn' : '', href: P.href.requests(),
-        note: o.requestsAwaitingPayment.length
-          ? o.requestsAwaitingPayment.length + ' approved, awaiting payment' : 'Institutional access requests' },
-      { label: 'Active institutions', value: o.activeTenants.length, href: P.href.institutions(),
+      { label: 'Pending decisions', value: awaitingTotal,
+        tone: awaitingTotal ? 'warn' : '', href: P.href.requests(),
+        note: awaitingTotal ? 'across every queue' : 'nothing waiting' },
+      { label: 'Institutions', value: o.activeTenants.length, href: P.href.institutions(),
         note: o.inactiveTenants.length
-          ? o.inactiveTenants.length + ' deactivated' : 'All institutions active' },
-      { label: 'Versions awaiting Release / Hold', value: o.versionsAwaiting.length,
-        tone: o.versionsAwaiting.length ? 'warn' : '', href: P.href.content(),
-        note: o.versionsHeld.length ? o.versionsHeld.length + ' currently on hold' : 'Later versions of published content' },
-      { label: 'Device transfers awaiting a decision', value: o.transfersAwaiting.length,
-        tone: o.transfersAwaiting.length ? 'warn' : '', href: P.href.operations(),
-        note: 'Student device replacement requests' },
-      { label: 'Support reports open', value: o.ticketsOpen.length,
-        tone: o.ticketsOpen.length ? 'warn' : '', href: P.href.operations(),
-        note: 'Reported technical issues' },
-      { label: 'Access terms within 15 days', value: o.expiryReminders.length,
+          ? o.inactiveTenants.length + ' deactivated' : 'all active' },
+      { label: 'Published experiments', value: publishedCount, href: P.href.content(),
+        note: o.versionsAwaiting.length
+          ? o.versionsAwaiting.length + ' new ' + util.plural(o.versionsAwaiting.length, 'version') + ' awaiting release'
+          : 'experiments in the catalogue' },
+      { label: 'Access expiring soon', value: o.expiryReminders.length,
         tone: o.expiryReminders.length ? 'warn' : '', href: P.href.operations(),
-        note: o.expiredAccess.length ? o.expiredAccess.length + ' already expired' : 'Expiry reminder due' },
-      { label: 'Experiments nobody can act on', value: blocked.length,
-        tone: blocked.length ? 'warn' : '', href: P.href.content(),
-        note: 'Stalled in the content production chain' },
-      { label: 'Role holders with no scope', value: scopeless.length,
-        tone: scopeless.length ? 'warn' : '', href: P.href.roles(),
-        note: 'Vendor · Academic Reviewer · Content Manager' }
+        note: o.expiredAccess.length
+          ? o.expiredAccess.length + ' already expired' : 'within 15 days' }
     ]);
 
-    /* ---- the attention list: one grammar, many sources ---- */
-    var items = [];
-    o.requestsAwaiting.forEach(function (r) {
-      items.push({
+    /* ---- the attention list: one grammar, many sources ----
+       GROUPED, COUNTED AND CAPPED. Eight signal types concatenated into
+       one flat list is fine on the sample data and becomes the whole
+       page on any real one: nothing sorted it, nothing grouped it and
+       nothing stopped it. Each kind now carries its own heading, its own
+       total and a cap, with the rest one click away on the surface that
+       can actually work through them. The ORDER of the kinds is
+       unchanged — a stalled Experiment is still not more urgent than an
+       institution waiting on a decision. */
+    var groups = [];
+    function group(title, href, list) {
+      if (list.length) { groups.push({ title: title, href: href, items: list }); }
+    }
+
+    var requestItems = o.requestsAwaiting.map(function (r) {
+      return {
         tone: 'warn', icon: 'doc',
         title: r.institution.name + ' — access request ' + r.id,
         body: r.items.length + ' ' + util.plural(r.items.length, 'experiment') + ' · ' + r.quantity + ' ' +
@@ -288,82 +337,148 @@ XRSLP.platformUI = (function () {
           ' · submitted ' + esc(util.fmtDate(r.submittedAt)),
         href: P.href.request(r.id), label: 'Review',
         aria: 'Review access request ' + r.id + ' from ' + r.institution.name
-      });
+      };
     });
-    o.versionsAwaiting.forEach(function (v) {
+    var versionItems = o.versionsAwaiting.map(function (v) {
       var rec = state.contentRecord(v.recordId);
-      items.push({
+      return {
         tone: 'warn', icon: 'layers',
         title: (rec ? rec.name : v.recordId) + ' — version ' + v.versionLabel + ' awaiting Release / Hold',
         body: 'Academically approved' + (v.academicDecisionByName ? ' by ' + esc(v.academicDecisionByName) : '') +
           '. The published version ' + esc(v.replacesVersionLabel || '—') + ' stays live until you release this one.',
         href: P.href.record(v.recordId), label: 'Decide',
         aria: 'Decide Release or Hold for version ' + v.versionLabel + ' of ' + (rec ? rec.name : v.recordId)
-      });
+      };
     });
-    o.transfersAwaiting.forEach(function (r) {
+    var transferItems = o.transfersAwaiting.map(function (r) {
       var t = state.tenantById(r.tenantId);
-      items.push({
+      return {
         tone: 'warn', icon: 'monitor',
         title: r.personName + ' — device replacement request',
         body: (t ? esc(t.name) + ' · ' : '') + 'requested ' + esc(util.fmtDate(r.createdAt)) +
           '. Approving moves the authorised device binding; it grants no content and consumes no licence.',
         href: P.href.transfer(r.id), label: 'Review',
         aria: 'Review device transfer request ' + r.id + ' from ' + r.personName
-      });
+      };
     });
-    o.ticketsOpen.forEach(function (t) {
+    var ticketItems = o.ticketsOpen.map(function (t) {
       var ten = t.tenantId ? state.tenantById(t.tenantId) : null;
-      items.push({
+      return {
         tone: 'warn', icon: 'alertCirc',
         title: t.subject,
         body: esc(state.supportCategoryLabel(t.category)) + ' · reported by ' + esc(t.requesterName) +
           (ten ? ' · ' + esc(ten.name) : '') + ' · ' + esc(util.fmtDate(t.createdAt)),
         href: P.href.ticket(t.id), label: 'Open',
         aria: 'Open support report ' + t.id + ': ' + t.subject
-      });
+      };
     });
-    o.expiryReminders.forEach(function (rec) {
+    var expiryItems = o.expiryReminders.map(function (rec) {
       var t = state.tenantById(rec.tenantId);
-      items.push({
+      return {
         tone: 'warn', icon: 'clock',
         title: (t ? t.name : rec.tenantId) + ' — access term expiring',
-        body: esc(rec.id) + ' · ' + esc(P.expiryLine(rec)) +
-          '. The tenant must be reminded 15 days ahead; the delivery channel is not selected, ' +
-          'so nothing has been sent.',
+        /* The "nothing has been sent" claim is load-bearing and stays,
+           but it is attached to the reminder state ONCE, on the
+           Operations card that owns it — not restated on every row of
+           every list that mentions an expiry. */
+        /* §1 — an Overview carries no forensic reference. The institution
+           is in the title; the content and the date distinguish the row. */
+        body: ui.accessTitle(rec) + ' \u00b7 ' + esc(P.expiryLine(rec)),
         href: P.href.institution(rec.tenantId), label: 'Institution',
         aria: 'Open the institution report for ' + (t ? t.name : rec.tenantId)
-      });
+      };
     });
-    o.tenantsWithoutAdmin.forEach(function (t) {
-      items.push({
+    var adminItems = o.tenantsWithoutAdmin.map(function (t) {
+      return {
         tone: 'warn', icon: 'users',
         title: t.name + ' — no Tenant Admin assigned',
-        body: 'The Super Admin assigns the Tenant / Institute Admin. Until one is assigned, nobody at this ' +
-          'institution is recorded as responsible for its people and assignments.',
+        body: 'Nobody at this institution is recorded as responsible for its people and assignments.',
         href: P.href.institution(t.id), label: 'Assign',
         aria: 'Assign a Tenant Admin for ' + t.name
-      });
+      };
     });
+
+    group('Access requests awaiting a decision', P.href.requests(), requestItems);
+    group('Versions awaiting Release / Hold', P.href.content(), versionItems);
+    group('Device transfers forwarded to the platform', P.href.operations(), transferItems);
+    group('Support reports open', P.href.operations(), ticketItems);
+    group('Access terms expiring within 15 days', P.href.operations(), expiryItems);
+    group('Institutions with no Tenant Admin', P.href.institutions(), adminItems);
     /* R17 — the content chain's problems reach the same list as
        everything else. They sit LAST on purpose: a stuck Experiment is
        not more urgent than an institution waiting on a decision, and
        the point of the correction is that the Super Admin is TOLD, not
        that the ordering is rewritten around content. */
-    blocked.forEach(function (it) { items.push(it); });
-    scopeless.forEach(function (it) { items.push(it); });
+    group('Experiments nobody can act on', P.href.content(), blocked);
+    group('Role holders with no scope', P.href.roles(), scopeless);
+
+    var total = groups.reduce(function (n, g) { return n + g.items.length; }, 0);
+
+    /* Four rows per kind. The cap exists so that one busy queue cannot
+       bury the other seven — the total is always stated, and the surface
+       that can work through the rest is one click away. */
+    var GROUP_CAP = 4;
+    var attentionHTML = total
+      ? groups.map(function (g) {
+          var shown = g.items.slice(0, GROUP_CAP);
+          return '<h3 class="vh">' + esc(g.title) + ' — ' + g.items.length + '</h3>' +
+            P.attentionList(shown) +
+            (g.items.length > GROUP_CAP
+              ? '<p class="cardfoot"><a href="' + g.href + '">' + (g.items.length - GROUP_CAP) +
+                /* NOT `toLowerCase()`. These titles carry fixed product
+                   terms — "Access requests", "Device transfers",
+                   "Support reports" — and lowercasing them renames the
+                   destination the link opens. */
+                ' more of these — open ' + esc(g.title) + '</a></p>'
+              : '');
+        }).join('')
+      /* §6/§11 — the zero state was a panel listing every kind of item
+         that is NOT waiting. One line says it. Only the Overview's own
+         empty case changes; `attentionList`'s default is untouched for
+         the screens that still use it. */
+      : ui.okRow('No decisions waiting');
+
+    /* §6 — the page was clean but abstract: four numbers, a sentence
+       about how the numbers are counted, and no statement of what this
+       workspace is for or what to do next. The counting sentence is
+       documentation, not product copy (§13), and is gone. */
+    /* §9 — the Super Admin holds six distinct responsibilities and the
+       page named four of them as bare links. Each workspace now says
+       what it is for, in the words of what is actually implemented. */
+    var workspaces = ui.navTiles([
+      { href: P.href.requests(), icon: 'doc', label: 'Access requests',
+        desc: 'Review institutional content requests.' },
+      { href: P.href.institutions(), icon: 'building', label: 'Institutions',
+        desc: 'Manage institutions, admins and institution status.' },
+      { href: P.href.content(), icon: 'layers', label: 'Content governance',
+        desc: 'Review later versions and Release / Hold decisions.' },
+      { href: P.href.structure(), icon: 'book', label: 'Academic structure',
+        desc: 'Manage Programmes / Departments and Courses.' },
+      { href: P.href.roles(), icon: 'shield', label: 'Role governance',
+        desc: 'Manage content-production role scopes.' },
+      { href: P.href.operations(), icon: 'monitor', label: 'Operations',
+        desc: 'Handle support, device requests and expiring access.' }
+    ], { cols: 3 });
 
     var html =
-      ui.phead('Overview',
-        items.length
-          ? items.length + ' ' + util.plural(items.length, 'item') + ' waiting on the platform'
-          : 'Nothing is waiting on the platform') +
+      /* §7 — the header restated the waiting count that the summary
+         cards and the queue below both already carry. The orientation
+         sentence is the only subtitle now. */
+      ui.phead('Overview') +
+      ui.orient('Manage institutions, access decisions, content governance and platform operations.') +
       '<div class="stack">' +
-      ui.card('Platform at a glance', tiles +
-        '<p class="cardfoot">Every figure here is counted from real records and opens the thing it counts. ' +
-        'No revenue or financial metric appears on any Super Admin surface.</p>', null, 'h2') +
-      ui.card('Needs a decision', P.attentionList(items), null, 'h2') +
-      (o.expiryReminders.length ? P.reminderNote() : '') +
+      ui.card('Platform at a glance', tiles, null, 'h2') +
+      /* §10 — a zero state does not get a card. When something IS
+         waiting, the queue takes the card back. */
+      (total
+        ? ui.card('Needs a decision', attentionHTML,
+            total + ' ' + util.plural(total, 'item') + ' across ' +
+            groups.length + ' ' + util.plural(groups.length, 'kind') + ' of work', 'h2')
+        : '<div class="ov-ok">' + ui.okRow('No decisions are waiting') + '</div>') +
+      ui.card('Platform workspaces', workspaces, null, 'h2') +
+      /* The reminder note used to be repeated here as well. It belongs
+         beside the expiry queue on Operations, which is where the rows
+         above already lead. */
       '</div>';
 
     return { title: 'Overview', html: html, navKey: 'overview' };
@@ -422,7 +537,10 @@ XRSLP.platformUI = (function () {
           '<span class="tsub">Submitted ' + esc(util.fmtDate(r.submittedAt)) + '</span></a>' +
           (renewal
             ? '<span class="tsub">' + ui.badge('b-info', 'calendar', 'Renewal') + '</span>' +
-              '<span class="tsub">extends access record ' + esc(r.renewsAccessId) + '</span>'
+              '<span class="tsub">extends ' +
+                (state.accessById(r.renewsAccessId)
+                  ? ui.accessTitle(state.accessById(r.renewsAccessId))
+                  : 'access no longer on the platform') + '</span>'
             : '') + '</td>' +
           '<td data-label="Institution"><span class="tmain" style="font-weight:500">' +
           (renewal && boundTenant
@@ -563,13 +681,132 @@ XRSLP.platformUI = (function () {
        have the reviewer weighing a purchase that is not being made. */
     var renewsRec = r.renewsAccessId ? state.accessById(r.renewsAccessId) : null;
 
-    var itemList = r.items.map(function (item) {
+    /* ── ONE READ MODEL FOR THE OVERLAP, READ BY THREE SURFACES ──
+       The summary strip, the requested-content table and the existing-
+       access comparison all answer one question — what does this
+       institution already hold of what it is asking for? Deriving it
+       three times is how three answers drift apart, so it is derived
+       once, here. */
+    var heldByExperiment = {};
+    held.forEach(function (h) { heldByExperiment[h.experimentId] = h.rows; });
+
+    /* RECORD-FIRST FOR THE COMPARISON, EXPERIMENT-FIRST FOR THE TABLE.
+       `heldSelectionFor` groups by EXPERIMENT, which answers "is this one
+       held?" and is exactly what the requested-content table needs. It is
+       the wrong shape for showing the institution's position: licence
+       quantity, term and assignability all belong to the RECORD, so a
+       record carrying three of the requested experiments has to be read
+       ONCE, as one record, with the three named on it.
+
+       Regrouping here is also what makes the repetition legible. One
+       Experiment sitting on two access records appears under both,
+       because it genuinely sits on both — two independent terms, two
+       independent licence pools — and a reader seeing the record ids
+       reads that as two records rather than as a duplicated row. */
+    var heldRecords = [];
+    (function () {
+      var seen = {};
+      held.forEach(function (h) {
+        h.rows.forEach(function (row) {
+          var entry = seen[row.record.id];
+          if (!entry) {
+            entry = { row: row, experimentIds: [], technologies: [] };
+            seen[row.record.id] = entry;
+            heldRecords.push(entry);
+          }
+          entry.experimentIds.push(h.experimentId);
+          row.technologies.forEach(function (t) {
+            if (entry.technologies.indexOf(t) === -1) { entry.technologies.push(t); }
+          });
+        });
+      });
+    })();
+
+    /* THE TECHNOLOGY TOTAL IS A REQUEST FACT, not a confirmation-dialog
+       fact. It used to be computed only inside the approve handler, so
+       the operator could read "12 of 14 technology variants" in the
+       dialog having had no way to know 14 was the number. */
+    function techTotal(list) {
+      return list.reduce(function (n, i) { return n + i.technologies.length; }, 0);
+    }
+    var askedTech = techTotal(r.items);
+    var sinceSubmitted = util.daysUntil(r.submittedAt);
+    var queueDays = sinceSubmitted == null ? null : Math.max(0, -sinceSubmitted);
+
+    /* ---- the requested content, as a table ----
+       One row per Experiment, with the overlap answered in its own
+       column: the reviewer reads "expansion" or "first purchase" per
+       line rather than assembling it from a paragraph. */
+    var itemRows = r.items.map(function (item) {
       var ctx = data.contextOf(item.experimentId);
-      return '<div class="ri"><div class="ri-body">' +
-        '<div class="ri-ctx">' + (ctx ? esc(ctx.grouping.name) + ' › ' + esc(ctx.course.name) : '') + '</div>' +
-        '<div class="ri-t">' + esc(ctx ? ctx.experiment.name : item.experimentId) + '</div></div>' +
-        '<div class="ri-tech">' + ui.techBadges(item.technologies) + '</div></div>';
+      var rows = heldByExperiment[item.experimentId] || [];
+      var liveRows = rows.filter(function (x) { return x.live; });
+      var overlapCell;
+      if (!reqTenant) {
+        overlapCell = '<span class="muted">New institution</span>';
+      } else if (!rows.length) {
+        overlapCell = '<span class="muted">Not held</span>';
+      } else {
+        overlapCell = ui.badge(liveRows.length ? 'b-info' : 'b-neutral', 'layers',
+            liveRows.length ? 'Already held' : 'Held under an ended term') +
+          /* Listed the record keys. What a reviewer needs is under which
+             terms it is already held — the keys say nothing they can weigh. */
+          '<span class="tsub">' + rows.map(function (x) {
+            return esc(P.expiryLine(x.record));
+          }).join('; ') + '</span>';
+      }
+      return '<tr>' +
+        '<td data-label="Experiment"><span class="tmain">' +
+        esc(ctx ? ctx.experiment.name : item.experimentId) + '</span>' +
+        '<span class="tsub">' +
+        (ctx ? esc(ctx.grouping.name) + ' › ' + esc(ctx.course.name) : esc(item.experimentId)) +
+        '</span></td>' +
+        '<td data-label="Technologies requested">' + ui.techBadges(item.technologies) + '</td>' +
+        '<td data-label="Already held">' + overlapCell + '</td>' +
+        '</tr>';
     }).join('');
+
+    var itemsCard = ui.card('Requested content',
+      (r.items.length
+        ? '<div class="tscroll"><table class="dt">' +
+          '<caption class="sr-only">Experiments and technology variants requested on ' + esc(r.id) + '</caption>' +
+          '<thead><tr><th scope="col">Experiment</th><th scope="col">Technologies requested</th>' +
+          '<th scope="col">Already held</th></tr></thead><tbody>' + itemRows + '</tbody></table></div>'
+        : ui.emptyRow({ icon: 'alertCirc', heading: 'h3',
+            title: 'No experiment on this request',
+            body: 'The request carries no content, so there is nothing an approval could grant.' })),
+      null, 'h2');
+
+    /* ---- the workflow strip ----
+       The same request states the queue filters on, in the order they
+       actually happen, so an approved-awaiting-payment request reads as
+       mid-journey rather than as an unexplained status word. */
+    var trackSteps = [{ t: 'Submitted', d: util.fmtDate(r.submittedAt), state: 'done' }];
+    if (r.status === state.STATUS.INFO_REQUESTED) {
+      trackSteps.push({ t: 'More information requested', d: 'Back with the institution', state: 'live' });
+      trackSteps.push({ t: 'Platform decision', d: 'Resumes when they resubmit', state: 'todo' });
+    } else {
+      trackSteps.push({
+        t: 'Platform decision',
+        d: r.status === state.STATUS.SUBMITTED ? 'Yours to take now' : 'Taken',
+        state: r.status === state.STATUS.SUBMITTED
+          ? (state.requestDecisionBlock(r) ? 'blocked' : 'live')
+          : 'done'
+      });
+    }
+    if (r.paymentRequired) {
+      trackSteps.push({
+        t: 'Payment by the institution',
+        d: 'Same step it was onboarded through',
+        state: r.status === state.STATUS.ACTIVE ? 'done'
+          : r.status === state.STATUS.APPROVED_PAYMENT_REQUIRED ? 'live' : 'todo'
+      });
+    }
+    trackSteps.push({
+      t: r.renewsAccessId ? 'Term extended' : 'Access active',
+      d: r.renewsAccessId ? 'On the existing access' : 'New access is written',
+      state: r.status === state.STATUS.ACTIVE ? 'done' : 'todo'
+    });
 
     /* THE NOTE IS RENDERED, not merely stored. STK31-20 requires a
        REASON and a HISTORY TRAIL, and a reason nobody can read is
@@ -599,6 +836,65 @@ XRSLP.platformUI = (function () {
     var termOptions = ['monthly', 'quarterly', 'yearly'];
     var termIdx = termOptions.indexOf(r.term);
 
+    /* WHICH INSTITUTION THIS WILL ACTIVATE ONTO, in one sentence.
+       The institution name on a request is free text, so a request
+       either joins an institution the platform already knows or creates
+       a new one, and that identity decision used to be invisible until
+       after it had been taken. The lookup is unchanged: matching by name
+       is what lets a returning institution add a second access record
+       rather than becoming a duplicate tenant.
+
+       ⚠ SAID ONCE. This sentence is the single source for the identity
+       fact on this screen — the consequence list below and the approve
+       dialog both read this variable — because the previous version
+       stated it in five places and they were free to disagree. */
+    var identityLine = r.renewsAccessId
+      ? 'Extends the term of <strong>' +
+        (renewsRec ? ui.accessTitle(renewsRec) : 'access already held') + '</strong>' +
+        (reqTenant ? ', held by ' + esc(reqTenant.name) : '') +
+        '. No second institution, no second set of access and no additional licence.'
+      : reqTenant
+      ? 'Adds approved content to the existing institution <strong>' + esc(reqTenant.name) +
+        '</strong>. No second institution is created.'
+      : 'Creates the institution <strong>' + esc(r.institution.name) +
+        '</strong> — no institution on the platform matches this name.';
+
+    /* THE ROUTE, said once, in the same grammar. */
+    var routeLine = r.paymentRequired
+      ? 'Moves to <strong>Approved — payment required</strong>. ' +
+        (r.renewsAccessId ? 'The term moves' : 'Access activates') +
+        ' only when the institution completes the payment step it was onboarded through.'
+      : '<strong>' + (r.renewsAccessId ? 'The term moves' : 'Access activates') +
+        ' immediately</strong> — the ' + esc(r.institution.accessContext) + ' route carries no payment step.';
+
+    /* WHO IS ENTITLED AFTERWARDS — the fact operators most often assume
+       wrongly, and the one that genuinely differs between a purchase and
+       a renewal. */
+    var entitlementLine = r.renewsAccessId
+      ? 'Entitles <strong>no new student</strong>. Students already assigned under that record continue, or ' +
+        'resume if the term had ended.'
+      : 'Entitles <strong>no student</strong>. The Tenant Admin still has to assign the content.';
+
+    /* The consequence list: four short lines, each fact stated exactly
+       once, immediately above the buttons that cause them. */
+    function consequenceList() {
+      var lines = [
+        { icon: 'building', html: identityLine },
+        { icon: r.paymentRequired ? 'card' : 'check', html: routeLine },
+        { icon: 'alertCirc', html: entitlementLine }
+      ];
+      if (held.length) {
+        lines.push({ icon: 'layers',
+          html: '<strong>' + held.length + ' of ' + r.items.length + ' requested ' +
+            util.plural(r.items.length, 'experiment') + '</strong> ' +
+            (held.length === 1 ? 'is' : 'are') + ' already on a record this institution holds — an ' +
+            '<strong>expansion</strong>, not a first purchase. Nothing here argues against approving it.' });
+      }
+      return '<ul class="reslist plain">' + lines.map(function (l) {
+        return '<li>' + ui.ic(l.icon) + '<span>' + l.html + '</span></li>';
+      }).join('') + '</ul>';
+    }
+
     var decisionHTML = '';
     if (r.status === state.STATUS.SUBMITTED && decideBlock === 'tenant-inactive') {
       var blockedTenant = state.resolveRequestTenant(r);
@@ -611,78 +907,45 @@ XRSLP.platformUI = (function () {
         '">institution report</a> first. Nothing about this request has changed.' +
         '</span></div>';
     } else if (r.status === state.STATUS.SUBMITTED) {
-      var consequence = r.paymentRequired ?
-        'External institution (access context “' + r.institution.accessContext + '”): approval moves the request to ' +
-        '“Approved — payment required”. Tenant access is activated only after payment completes.' :
-        'Internal institution (access context “' + r.institution.accessContext + '”): approval activates tenant access ' +
-        'immediately. No payment step exists on this route.';
+      /* ONE ROW PER EXPERIMENT IN THE GRANT EDITOR, in exactly the same
+         row shape as the requested-content list above it — because it is
+         the same content, with the technologies made narrowable.
 
+         ⚠ THIS IS WHY IT IS NOT `.grantrow` / `.granttechs` / `.chk`
+         ANY MORE. Those three classes, and `.grantbox` and `.fhint`
+         around them, had no rule in any of the six stylesheets, and
+         `.chk` was styled only under `.listbar`. The single most
+         consequential control in this workspace therefore rendered as
+         raw browser defaults: a bare disclosure triangle, unstyled
+         checkboxes and no separation between experiments. It is now
+         built from `details.canon`, `.reqitems .ri` and `.field` — the
+         disclosure, list-row and form primitives the design system
+         already carries — so it is styled by construction.
+
+         The ids and hooks are unchanged: `readGrant()` reads
+         `.grant-tech[data-exp]`, `#gq` and `#gt`, and
+         `state.validateGrant` returns errors against `grant-items`,
+         `grant-quantity` and `grant-term`. */
       var allocRows = r.items.map(function (item, ix) {
         var ctx = data.contextOf(item.experimentId);
-        return '<div class="grantrow" data-exp="' + esc(item.experimentId) + '">' +
+        return '<div class="ri">' +
+          '<div class="ri-body">' +
           '<div class="ri-ctx">' + (ctx ? esc(ctx.grouping.name) + ' › ' + esc(ctx.course.name) : '') + '</div>' +
           '<div class="ri-t">' + esc(ctx ? ctx.experiment.name : item.experimentId) + '</div>' +
-          '<div class="granttechs">' + item.technologies.map(function (t, tx) {
+          '</div>' +
+          '<div class="ri-tech">' + item.technologies.map(function (t, tx) {
             var tid = 'gt-' + ix + '-' + tx;
-            return '<label class="chk" for="' + tid + '"><input type="checkbox" id="' + tid +
+            return '<label class="radiorow" for="' + tid + '"><input type="checkbox" id="' + tid +
               '" class="grant-tech" data-exp="' + esc(item.experimentId) + '" value="' + esc(t) + '" checked> ' +
               esc((data.TECHNOLOGIES[t] || {}).label || t) + '</label>';
           }).join('') + '</div></div>';
       }).join('');
 
-      /* WHICH INSTITUTION THIS WILL ACTIVATE ONTO. The institution name
-         on a request is free text, so a request either joins an
-         institution the platform already knows or creates a new one —
-         and that identity decision was previously invisible until after
-         it had been taken. The Super Admin can now see it before
-         deciding. The lookup itself is unchanged: matching by name is
-         what lets a returning institution add a second access record
-         rather than becoming a duplicate tenant. */
-      var targetTenant = reqTenant;
-      /* THE OVERLAP, SAID IN THE SAME BREATH AS THE IDENTITY. Both
-         answer one question — "what is this institution's position
-         before I decide?" — so separating them would make the reviewer
-         assemble the answer themselves. It counts and never judges: an
-         expansion is confirmed business, and no wording here argues
-         against approving one. */
-      var overlapLine = held.length
-        ? ' <strong>' + held.length + ' of the ' + r.items.length + ' requested ' +
-          util.plural(r.items.length, 'experiment') + '</strong> ' +
-          (held.length === 1 ? 'already appears' : 'already appear') + ' on an access record this institution ' +
-          'holds, so this is an <strong>expansion</strong> of existing access rather than a first purchase. ' +
-          'That is legitimate; the existing records are set out below so you can see the overlap.'
-        : '';
-      var identityLine;
-      if (r.renewsAccessId) {
-        identityLine = 'This is a <strong>renewal</strong> of access record ' + esc(r.renewsAccessId) +
-          (targetTenant ? ', held by ' + esc(targetTenant.name) : '') +
-          '. Approving it <strong>extends that record&rsquo;s term</strong>: no second institution, no second ' +
-          'access record and no additional licence is created' +
-          (r.paymentRequired
-            ? ', and the term moves only once the institution completes the same payment step it was onboarded ' +
-              'through.'
-            : ', and the term moves at once because this institution&rsquo;s route carries no payment step.');
-      } else if (targetTenant) {
-        identityLine = 'This attaches to the <strong>existing</strong> institution ' + esc(targetTenant.name) +
-          ' — no second institution is created' +
-          (r.paymentRequired
-            ? ', and an access record is added beside what it already holds once payment completes.'
-            : ', and an access record is added beside what it already holds.') + overlapLine;
-      } else {
-        identityLine = 'No institution on the platform matches this name, so approving creates a <strong>new</strong> ' +
-          'institution called ' + esc(r.institution.name) + ' straight away' +
-          (r.paymentRequired
-            ? ' — you can assign its Tenant Admin immediately, and it receives the approved content when ' +
-              'payment completes.'
-            : ', and activates its access at the same moment.');
-      }
-
       decisionHTML =
-        '<form class="decideform" id="req-decide" novalidate>' +
-        '<h3 style="font-size:13.5px;font-weight:640;margin:18px 0 2px">Decision</h3>' +
-        '<p class="muted" style="margin:0 0 10px">' + esc(consequence) + '</p>' +
-        '<p class="muted" style="margin:0 0 10px">' + identityLine + '</p>' +
+        '<form id="req-decide" novalidate>' +
         '<div class="form-errors"></div>' +
+        '<h3 class="vh">What approving will do</h3>' +
+        consequenceList() +
         /* ── A RENEWAL CARRIES NO GRANT EDITOR ────────────────────────
            A renewal mirrors a plan that already exists, and whether a
            renewal may change licences, technologies or term is an OPEN
@@ -694,47 +957,53 @@ XRSLP.platformUI = (function () {
            `state.approveRequest` refuses a grant on a renewal, so the
            control is not merely hidden — it has nothing to submit to. */
         (r.renewsAccessId
-          ? '<div class="grantbox-off"><p class="muted" style="margin:0">' +
-            '<strong>The plan is not adjustable on a renewal.</strong> A renewal continues exactly what ' +
-            'the institution holds — the same experiments, the same technologies, the same licence count ' +
-            'and the same term length. To give this institution something different, ask them to raise an ' +
-            'ordinary institutional access request. Whether a renewal should be able to change any of ' +
-            'this is not yet settled.</p></div>'
-          : '<details class="grantbox"><summary>What this institution will receive ' +
-        '<span class="muted">— adjust only if it should get less than it asked for</span></summary>' +
-        '<div class="grantbody">' +
-        '<p class="muted">Everything requested is granted by default. Clearing a technology or lowering a ' +
-        'figure narrows what the institution receives; nothing here can grant more than was requested.</p>' +
-        '<div id="grant-items" class="field">' + allocRows + '</div>' +
-        '<div class="frow">' +
-        '<div class="field" id="grant-quantity"><label for="gq">Approved users / licences</label>' +
-        '<input type="number" id="gq" min="1" step="1" max="' + r.quantity + '" value="' + r.quantity + '">' +
-        '<div class="fhint">' + r.quantity + ' requested. Cannot be increased here.</div></div>' +
-        '<div class="field" id="grant-term"><label for="gt">Approved access term</label>' +
-        '<select id="gt">' + termOptions.slice(0, termIdx + 1).map(function (t) {
-          return '<option value="' + esc(t) + '"' + (t === r.term ? ' selected' : '') + '>' +
-            esc((data.term(t) || {}).label || t) + '</option>';
-        }).join('') + '</select>' +
-        '<div class="fhint">' + esc(termLabel) + ' requested. Cannot be extended here.</div></div>' +
-        '</div></div></details>') +
-        '<div class="field" id="decision-reason">' +
+          ? '<p class="chelp" style="margin-top:14px"><strong>The plan is not adjustable on a renewal.</strong> ' +
+            'It continues exactly what the institution holds — same experiments, same technologies, same ' +
+            'licence count, same term length. For anything different they raise an ordinary access request.</p>'
+          : '<details class="canon" id="grant-box" style="margin-top:14px">' +
+            '<summary>' + ui.ic('shield', 'sm') +
+            '<span class="cn-n">Give this institution less than it asked for</span>' +
+            '<span class="cn-c">Optional</span></summary>' +
+            '<div class="cn-b"><div class="cbody">' +
+            '<p class="chelp">Everything requested is granted unless you clear it here. Nothing on this panel ' +
+            'can grant more than was asked for.</p>' +
+            /* `field` for the invalid state and the error slot
+               `showErrors` writes into; `reqitems` for the row styling. */
+            '<div id="grant-items" class="field reqitems">' + allocRows + '</div>' +
+            '<div class="frow">' +
+            '<div class="field" id="grant-quantity"><label for="gq">Approved users / licences</label>' +
+            '<input type="number" id="gq" min="1" step="1" max="' + r.quantity + '" value="' + r.quantity + '">' +
+            '<p class="hint">' + r.quantity + ' requested. Cannot be increased.</p></div>' +
+            '<div class="field" id="grant-term"><label for="gt">Approved access term</label>' +
+            '<select id="gt">' + termOptions.slice(0, termIdx + 1).map(function (t) {
+              return '<option value="' + esc(t) + '"' + (t === r.term ? ' selected' : '') + '>' +
+                esc((data.term(t) || {}).label || t) + '</option>';
+            }).join('') + '</select>' +
+            '<p class="hint">' + esc(termLabel) + ' requested. Cannot be extended.</p></div>' +
+            '</div></div></div></details>') +
+        '<div class="field" id="decision-reason" style="margin-top:16px">' +
         '<label for="dr">Reason for this decision <span class="req">(required)</span></label>' +
         '<textarea id="dr" rows="3" placeholder="The institution reads this on their own request status screen."></textarea>' +
-        '<div class="fhint">Recorded on the request history and shown to the applicant, for either outcome.</div>' +
+        '<p class="hint">Recorded on the request history and shown to the applicant, for either outcome.</p>' +
         '</div>' +
         '<div class="formact">' +
         '<button class="btn pri" type="button" id="req-approve">' + ui.ic('check') + 'Approve request</button>' +
         '<button class="btn sec" type="button" id="req-moreinfo">' + ui.ic('clock') + 'Request more information</button>' +
+        /* The one operator-relevant half of the old "NOT IN THIS BUILD"
+           note in the rail: there is no reject, and this is where a
+           reviewer looking for one would look. The rest of that note
+           explained the absence to a reviewer of the build, not to the
+           person deciding. */
+        '<span class="formnote">There is no reject. Return it for more information instead.</span>' +
         '</div>' +
         '</form>';
     } else if (r.status === state.STATUS.INFO_REQUESTED) {
       decisionHTML =
-        '<div class="decidebar"><span class="db-note">More information has been requested from the institution. ' +
-        'The request is not approved and not refused — it returns to this queue when they resubmit. ' +
+        '<div class="decidebar"><span class="db-note">Returned to the institution for more information. It is ' +
+        'neither approved nor refused, and comes back to this queue when they resubmit. ' +
         (r.renewsAccessId
-          ? 'Nothing has been extended: access record ' + esc(r.renewsAccessId) + ' still runs to whatever end ' +
-            'date it already had.'
-          : 'Nothing has been activated and no entitlement exists.') +
+          ? 'Access record ' + esc(r.renewsAccessId) + ' still runs to its existing end date.'
+          : 'Nothing is activated and no entitlement exists.') +
         (r.decisionReason ? '<br><strong>Reason sent:</strong> ' + esc(r.decisionReason) : '') +
         '</span></div>';
     } else if (r.status === state.STATUS.APPROVED_PAYMENT_REQUIRED) {
@@ -746,12 +1015,9 @@ XRSLP.platformUI = (function () {
       decisionHTML =
         '<div class="decidebar"><span class="db-note">' +
         (r.renewsAccessId
-          ? 'Approved. Awaiting payment from the institution through the same payment step it was onboarded ' +
-            'through. Access record ' + esc(r.renewsAccessId) + ' is <strong>unchanged</strong> in the ' +
-            'meantime — it still runs to its existing end date, and the term is extended only when payment ' +
-            'completes.'
-          : 'Approved. Awaiting payment from the institution — tenant access is not active yet and no ' +
-            'entitlement exists.') +
+          ? 'Approved, awaiting payment. Access record ' + esc(r.renewsAccessId) + ' is <strong>unchanged</strong> ' +
+            'meanwhile: it runs to its existing end date, and the term is extended when payment completes.'
+          : 'Approved, awaiting payment. Tenant access is not active yet and no entitlement exists.') +
         '</span></div>';
     } else if (r.status === state.STATUS.ACTIVE) {
       var tenant = r.tenantId ? state.tenantById(r.tenantId) : null;
@@ -762,137 +1028,154 @@ XRSLP.platformUI = (function () {
             (renewsRec && renewsRec.endsOn ? ' and now runs to ' + esc(util.fmtDate(renewsRec.endsOn)) : '') +
             '. No second access record was created.'
           : 'Access is active' + (tenant ? ' for ' + esc(tenant.name) : '') + '.') +
-        ' The tenant&rsquo;s approved content, licences and term are ' +
-        'on its <a href="' + (tenant ? P.href.institution(tenant.id) : P.href.institutions()) +
-        '">institution report</a>.</span></div>';
+        '</span>' +
+        '<a class="btn sec" href="' + (tenant ? P.href.institution(tenant.id) : P.href.institutions()) +
+        '">Institution report</a></div>';
     }
 
-    /* RULE A — the overlap card. It is a READ MODEL and only a read
-       model: it decides nothing, blocks nothing and recommends nothing.
-       Every figure on it comes from the access records themselves. */
-    var heldCard = (reqTenant && held.length)
-      ? '<section class="card"><div class="chead"><h2>Already held by this institution</h2></div>' +
-        '<div class="cbody">' +
-        '<p class="muted" style="margin:0 0 10px">' + esc(reqTenant.name) + ' already has an access record ' +
-        'covering <strong>' + held.length + '</strong> of the ' + r.items.length + ' ' +
-        util.plural(r.items.length, 'experiment') + ' requested here' +
-        (heldLive < held.length
-          ? ' — ' + heldLive + ' of them under a record whose term is still running. Records whose term has ' +
-            'ended are listed too, because they are real history.'
-          : '.') +
-        '</p>' +
-        '<div class="reqitems">' + held.map(function (h) {
-          var ctx = data.contextOf(h.experimentId);
-          return '<div class="ri"><div class="ri-body">' +
-            '<div class="ri-ctx">' + (ctx ? esc(ctx.grouping.name) + ' › ' + esc(ctx.course.name) : '') + '</div>' +
-            '<div class="ri-t">' + esc(ctx ? ctx.experiment.name : h.experimentId) + '</div>' +
-            '<ul class="reslist plain" style="margin-top:8px">' + h.rows.map(function (row) {
-              var al = row.allocation;
-              return '<li>' + ui.ic('layers') + '<span>' +
-                '<strong>' + esc(row.record.id) + '</strong> ' + ui.termBadge(row.termState) +
-                (row.record.id === r.renewsAccessId
-                  ? ' ' + ui.badge('b-info', 'calendar', 'The record this request renews')
-                  : '') +
-                '<span class="tsub2">' + ui.techBadges(row.technologies) + '</span>' +
-                '<span class="tsub2">' + esc(P.expiryLine(row.record)) + '</span>' +
-                '<span class="tsub2">' + al.approved + ' approved ' + util.plural(al.approved, 'licence') +
-                ' · ' + al.assigned + ' assigned · ' + al.remaining + ' remaining' +
-                (al.over ? ' · ' + al.over + ' held beyond the allocation' : '') + '</span>' +
-                (row.assignable
-                  ? ''
-                  : '<span class="tsub2">Not assignable at the moment — ' +
-                    esc(state.assignabilityText(row.reason)) + '</span>') +
-                '</span></li>';
-            }).join('') + '</ul></div></div>';
-        }).join('') + '</div>' +
-        '<p class="cardfoot">Licence figures are <strong>per record</strong> and are allocation figures, not ' +
-        'student counts. Records are listed separately rather than blended into one &ldquo;current plan&rdquo;: ' +
-        'two records carrying the same experiment have independent technologies, terms and licence quantities, ' +
-        'and one can expire while the other is still running, so a combined figure would be true of neither. ' +
-        'Nothing on this card blocks or discourages approving the request.</p>' +
-        '</div></section>'
+    /* RULE A — the overlap comparison. It is a READ MODEL and only a
+       read model: it decides nothing, blocks nothing and recommends
+       nothing. Every figure on it comes from the access records
+       themselves, and it is placed ABOVE the decision, because the
+       reviewer used to be asked to decide and then shown the evidence. */
+    var comparisonCard = (reqTenant && heldRecords.length)
+      ? ui.card('What ' + esc(reqTenant.name) + ' already holds',
+          ui.metrics([
+            { v: held.length + ' of ' + r.items.length,
+              k: 'requested ' + util.plural(r.items.length, 'experiment') + ' already held' },
+            { v: heldLive, k: 'of those on a record still running',
+              tone: heldLive < held.length ? 'warn' : '' },
+            { v: heldRecords.length, k: util.plural(heldRecords.length, 'approval') + ' involved' }
+          ]) +
+          '<div class="tscroll" style="margin-top:12px"><table class="dt">' +
+          '<caption class="sr-only">Approved content ' + esc(reqTenant.name) +
+          ' already holds that carry experiments requested here</caption>' +
+          '<thead><tr><th scope="col">Approved content</th><th scope="col">Requested experiments it carries</th>' +
+          '<th scope="col">Technologies</th><th scope="col">Term</th>' +
+          '<th scope="col">Licences</th></tr></thead><tbody>' +
+          heldRecords.map(function (entry) {
+            var row = entry.row, al = row.allocation;
+            return '<tr>' +
+              /* CONTENT FIRST. This cell led with `ACC-001` in the row's
+                 primary weight, so the reviewer's eye landed on a database
+                 key and the badge beneath it read as the row's subject.
+                 What identifies a record here is the content it grants;
+                 the reference follows, muted, through `ui.accessRef`. */
+              '<td data-label="Approved content"><span class="tmain">' + ui.accessTitle(row.record) + '</span>' +
+              '<span class="tsub">' + ui.accessScope(row.record) + '</span>' +
+              (row.record.id === r.renewsAccessId
+                ? '<span class="tsub">' + ui.badge('b-info', 'calendar', 'Renewing this') + '</span>'
+                : '') +
+              '<span class="tsub">' + esc(P.expiryLine(row.record)) + '</span></td>' +
+              '<td data-label="Requested experiments it carries">' +
+              entry.experimentIds.map(function (id) {
+                var c = data.contextOf(id);
+                return esc(c ? c.experiment.name : id);
+              }).join('<br>') + '</td>' +
+              '<td data-label="Technologies">' + ui.techBadges(entry.technologies) + '</td>' +
+              '<td data-label="Term">' + ui.termBadge(row.termState) +
+              (row.assignable
+                ? ''
+                : '<span class="tsub">' + esc(state.assignabilityText(row.reason)) + '</span>') + '</td>' +
+              '<td data-label="Licences" class="num">' + al.approved +
+              '<span class="tsub">' + al.assigned + ' assigned · ' + al.remaining + ' remaining' +
+              (al.over ? ' · ' + al.over + ' beyond' : '') + '</span></td>' +
+              '</tr>';
+          }).join('') + '</tbody></table></div>' +
+          /* WHY THE RECORDS ARE NOT MERGED, in one sentence instead of
+             seventy words. The longer version defended the decision to a
+             reviewer of the build; an operator needs the rule. */
+          '<p class="cardfoot">Licence figures are allocation figures per record, not student counts. One ' +
+          'Experiment can sit on more than one record — each carries its own technologies, term and licences, ' +
+          'so records are never blended into a single plan.</p>', null, 'h2')
       : '';
 
-    /* RULE D — the renewal banner. Stated at the top of the screen and
-       not only inside the decision block, because the request keeps
-       being a renewal after it has been decided, and somebody reading
-       an approved one later needs the same fact. */
+    /* RULE D — the renewal banner, as ONE line. It stays at the top of
+       the screen rather than only inside the decision block, because a
+       request keeps being a renewal after it has been decided and
+       somebody reading an approved one later needs the same fact. What
+       approving it does is stated once, in the decision panel. */
     var renewalAlert = r.renewsAccessId
-      ? ui.alertBox('info', 'This is a renewal, not new business',
-          '<p>Request <strong>' + esc(r.id) + '</strong> renews access record <strong>' +
-          esc(r.renewsAccessId) + '</strong>' +
-          (reqTenant
-            ? ', held by <a href="' + P.href.institution(reqTenant.id) + '">' + esc(reqTenant.name) + '</a>'
-            : '') + '. Approving it <strong>extends that record&rsquo;s term</strong> rather than creating a ' +
-          'new one: the record keeps its id, and every assignment, faculty mapping and licence allocation ' +
-          'already pointing at it stays exactly where it is.</p>' +
-          '<p style="margin-top:8px">The plan below <strong>mirrors that record exactly</strong> — the same ' +
-          'experiments, the same technologies, the same licence quantity and the same term, copied from the ' +
-          'record. ' +
-          (r.paymentRequired
-            ? 'This institution came in on the <strong>' + esc(r.institution.accessContext) + '</strong> route, ' +
-              'so the renewal goes through the <strong>same payment step it was onboarded through</strong>; ' +
-              'approving moves it to &ldquo;Approved — payment required&rdquo; and the term moves only when ' +
-              'payment completes.'
-            : 'This institution came in on the <strong>' + esc(r.institution.accessContext) + '</strong> route, ' +
-              'which carries <strong>no payment step</strong>, so approving extends the term immediately.') +
-          '</p>' +
+      /* §6 — WHAT is being renewed, in the institution's own terms.
+         The internal reference is not shown: it tells the reviewer
+         nothing they can weigh. Content, technologies, licences and the
+         current end date do. The stored linkage is unchanged. */
+      ? ui.alertBox('info', 'Renewal — this extends access the institution already holds',
           (renewsRec
-            ? '<p style="margin-top:8px">That record&rsquo;s term currently ends <strong>' +
-              esc(util.fmtDate(renewsRec.endsOn)) + '</strong>.</p>'
-            : '<p style="margin-top:8px">That access record is <strong>no longer on the platform</strong>, so ' +
-              'there is nothing for an approval to extend. Nothing has been changed by saying so.</p>'))
+            ? '<p><strong>Renewing</strong> ' + ui.accessTitle(renewsRec) +
+              (reqTenant
+                ? ' for <a href="' + P.href.institution(reqTenant.id) + '">' + esc(reqTenant.name) + '</a>'
+                : '') + '</p>' +
+              '<p class="tsub">' + ui.techBadges(ui.recTechnologies(renewsRec)) + '</p>' +
+              '<p class="tsub">' + renewsRec.quantity + ' ' +
+                util.plural(renewsRec.quantity, 'licence') + ' \u00b7 current term ends <strong>' +
+                esc(util.fmtDate(renewsRec.endsOn)) + '</strong></p>' +
+              '<p>The plan below mirrors it exactly.</p>'
+            : '<p><strong>That access is no longer on the platform</strong>, so there is nothing for an ' +
+              'approval to extend.</p>'))
       : '';
+
+    var requesterCard = ui.card('Requester',
+      '<div class="kv compact">' +
+      '<div class="k">Institution</div><div class="v">' + esc(r.institution.name) + '</div>' +
+      /* R20 — "(prototype seed)" was prototype bookkeeping printed in an
+         identity field. The classification itself is a real operational
+         attribute and stays. */
+      '<div class="k">Classification</div><div class="v">' +
+      esc(r.institution.kind === 'internal' ? 'Internal' : 'External') + '</div>' +
+      '<div class="k">Access context</div><div class="v">' + esc(r.institution.accessContext) + '</div>' +
+      '<div class="k">Contact (SPOC)</div><div class="v">' + esc(r.institution.contactName) +
+      '<span class="tsub2">' + esc(r.institution.contactEmail) + '</span></div>' +
+      '<div class="k">Payment</div><div class="v">' +
+      (r.paymentRequired ? 'Required after approval' : 'No payment step on this route') + '</div>' +
+      '</div>', null, 'h2');
 
     var html =
       ui.crumbs([{ label: 'Access requests', href: P.href.requests() }, { label: r.id }]) +
-      ui.phead('Request ' + r.id, esc(r.institution.name) + ' · submitted ' + esc(util.fmtDate(r.submittedAt)),
-        null, ui.statusBadge(r.status) +
-        (r.renewsAccessId ? ' ' + ui.badge('b-info', 'calendar', 'Renewal') : '')) +
+      ui.phead('Request ' + r.id,
+        esc(r.institution.name) + ' · ' +
+        esc(r.institution.kind === 'internal' ? 'Internal institution' : 'External institution') + ' · ' +
+        esc(r.institution.accessContext) + ' · submitted ' + esc(util.fmtDate(r.submittedAt)),
+        null, ui.statusBadge(r.status) + ' ' +
+        (r.renewsAccessId
+          ? ui.badge('b-info', 'calendar', 'Renewal')
+          : ui.badge('b-neutral', 'doc', 'New request'))) +
       renewalAlert +
+      ui.card('Where this request stands',
+        ui.track(trackSteps) +
+        '<div style="margin-top:14px">' + ui.statStrip([
+          { v: r.quantity, k: 'Licences requested' },
+          { v: termLabel, k: 'Term requested' },
+          { v: r.items.length, k: util.plural(r.items.length, 'Experiment') },
+          { v: askedTech, k: 'Technology ' + util.plural(askedTech, 'variant') },
+          (reqTenant
+            ? { v: held.length + ' / ' + r.items.length, k: 'Already held' }
+            : { v: 'New', k: 'Institution on the platform' }),
+          { v: queueDays == null ? '—' : queueDays, k: 'Days since submitted' }
+        ]) + '</div>', null, 'h2') +
       '<div class="grid-rail">' +
       '<div class="stack">' +
+      itemsCard +
+      comparisonCard +
       '<section class="card">' +
-      '<div class="chead"><h2>Institution</h2></div>' +
-      '<div class="cbody"><div class="kv">' +
-      '<div class="k">Institution</div><div class="v">' + esc(r.institution.name) + '</div>' +
-      '<div class="k">Classification</div><div class="v">' + esc(r.institution.kind === 'internal' ? 'Internal (prototype seed)' : 'External (prototype seed)') + '</div>' +
-      '<div class="k">Access context</div><div class="v">' + esc(r.institution.accessContext) + '</div>' +
-      '<div class="k">Contact (SPOC)</div><div class="v">' + esc(r.institution.contactName) + ' · ' + esc(r.institution.contactEmail) + '</div>' +
-      '<div class="k">Payment</div><div class="v">' + (r.paymentRequired ? 'Required after approval' : 'Not required — no payment step on this route') + '</div>' +
-      '</div></div></section>' +
-      '<section class="card">' +
-      '<div class="chead"><h2>Requested access</h2></div>' +
-      '<div class="cbody"><div class="kv">' +
-      '<div class="k">Users / licences</div><div class="v">' + r.quantity + '</div>' +
-      '<div class="k">Access term</div><div class="v">' + esc(termLabel) + '</div>' +
-      '<div class="k">Experiments</div><div class="v">' + r.items.length + '</div>' +
-      (r.renewsAccessId
-        ? '<div class="k">Renews</div><div class="v">' + esc(r.renewsAccessId) +
-          (reqTenant
-            ? ' <span class="muted">· <a href="' + P.href.institution(reqTenant.id) + '">' +
-              esc(reqTenant.name) + '</a></span>'
-            : '') +
-          (renewsRec
-            ? ' <span class="muted">· term currently ends ' + esc(util.fmtDate(renewsRec.endsOn)) + '</span>'
-            : ' <span class="muted">· that record is no longer on the platform</span>') +
-          '<div class="tsub2">Approving extends this record&rsquo;s term. The figures above are copied from ' +
-          'it and are not editable — whether a renewal may change the plan is not settled.</div></div>'
-        : '') +
-      '</div>' +
-      '<h3 style="font-size:13.5px;font-weight:640;margin:14px 0 4px">Selected content &amp; technologies</h3>' +
-      '<div class="reqitems">' + itemList + '</div>' +
-      '</div>' +
-      decisionHTML +
+      '<div class="chead"><h2>Decision</h2>' +
+      '<span class="cnote">' + (r.status === state.STATUS.SUBMITTED
+        ? 'Approve, or return it for more information'
+        : 'Already decided') + '</span></div>' +
+      /* THE TWO BRANCHES NEED DIFFERENT PLACEMENT, not one shared slot.
+         A `.decidebar` carries its own padding and a bottom radius that
+         has to meet the card edge, so it belongs OUTSIDE `.cbody`; the
+         decision FORM has no padding of its own and belongs inside it.
+         Concatenating both into the same position is how the form came
+         to render flush against the card border. */
+      (r.status === state.STATUS.SUBMITTED && decideBlock !== 'tenant-inactive'
+        ? '<div class="cbody">' + decisionHTML + '</div>'
+        : decisionHTML) +
       '</section>' +
-      heldCard +
       '</div>' +
       '<div class="stack">' +
-      ui.card('History', timeline) +
-      ui.gapNote('NOT IN THIS BUILD',
-        'A request cannot be refused outright. The two outcomes the sources confirm — approve, and ' +
-        'request more information — are both built; a rejection state is not, because no source ' +
-        'defines one. Absent capabilities are shown as gaps, never as disabled controls.') +
+      requesterCard +
+      ui.card('History', timeline, null, 'h2') +
       '</div>' +
       '</div>';
 
@@ -939,15 +1222,27 @@ XRSLP.platformUI = (function () {
           return reason() ? [] : [{ field: 'decision-reason', message: 'Enter the reason for this decision.' }];
         }
 
+        /* An error against a grant field is rendered INSIDE the grant
+           editor, which is a collapsed disclosure by default — so the
+           summary alert pointed at a message nobody could see, and
+           `showErrors` focuses an input that is not rendered. Opening the
+           panel is a presentation fix for a presentation bug: nothing
+           about which errors are raised, or when, changes. */
+        function revealGrantErrors(errs) {
+          var box = document.getElementById('grant-box');
+          if (!box) { return; }
+          var touchesGrant = errs.some(function (e) {
+            return e.field === 'grant-items' || e.field === 'grant-quantity' || e.field === 'grant-term';
+          });
+          if (touchesGrant) { box.open = true; }
+        }
+
         document.getElementById('req-approve').addEventListener('click', function () {
           var grant = readGrant();
           var errs = reasonErrors().concat(state.validateGrant(r, grant).errors);
+          revealGrantErrors(errs);
           if (!ui.showErrors(form, errs, 'This decision cannot be recorded yet')) { return; }
           var checked = state.validateGrant(r, grant).grant;
-          function techTotal(items) {
-            return items.reduce(function (n, i) { return n + i.technologies.length; }, 0);
-          }
-          var askedTech = techTotal(r.items);
           var expCount = checked ? checked.items.length : r.items.length;
           var techCount = checked ? techTotal(checked.items) : askedTech;
           var qty = checked ? checked.quantity : r.quantity;
@@ -977,7 +1272,11 @@ XRSLP.platformUI = (function () {
               'requested: ' + r.items.length + ' ' + util.plural(r.items.length, 'experiment') + ', ' +
               askedTech + ' technology ' + util.plural(askedTech, 'variant') + ', ' +
               r.quantity + ' ' + util.plural(r.quantity, 'licence') + ', ' + esc(trm) + '.</span></div>';
-          var routeLine = r.paymentRequired
+          /* Renamed from `routeLine` so it cannot be confused with the
+             screen-level route sentence of the same name above: this one
+             is the dialog's `.consequence` row, which only the
+             confirmation renders. */
+          var routeConsequence = r.paymentRequired
             ? '<div class="consequence">' + ui.ic('card') + '<span>External route: the request moves to ' +
               '<strong>Approved — payment required</strong>. Tenant access activates only after payment completes.</span></div>'
             : '<div class="consequence">' + ui.ic('check') + '<span>Internal route (' + esc(r.institution.accessContext) + '): ' +
@@ -1002,7 +1301,7 @@ XRSLP.platformUI = (function () {
               '<p>Approve institutional request <strong>' + esc(r.id) + '</strong> from <strong>' +
               esc(r.institution.name) + '</strong>?</p>' +
               '<div class="consequence">' + ui.ic('building') + '<span>' + identityLine + '</span></div>' +
-              narrowLine + routeLine + renewalLine,
+              narrowLine + routeConsequence + renewalLine,
             okLabel: 'Approve',
             onConfirm: function () {
               var updated = state.approveRequest(r.id, { reason: reason(), grant: grant });
@@ -1076,7 +1375,7 @@ XRSLP.platformUI = (function () {
         '<td data-label="Tenant Admin">' + (admins.length
           ? esc(admins[0].name) + (admins.length > 1 ? ' <span class="muted">+' + (admins.length - 1) + '</span>' : '')
           : '<span class="muted">Not assigned</span>') + '</td>' +
-        '<td data-label="Access records" class="num">' + (pending
+        '<td data-label="Approvals" class="num">' + (pending
           ? '<span class="muted">None yet</span>'
           : live + ' <span class="muted">of ' + access.length + ' live</span>') + '</td>' +
         '<td data-label="Expiry attention" class="num">' + (due ? due : '<span class="muted">—</span>') + '</td>' +
@@ -1099,19 +1398,21 @@ XRSLP.platformUI = (function () {
             'written only when payment completes. Until then the institution holds <strong>no access record</strong>, ' +
             'nothing can be assigned inside it, and no student is entitled.</p>')
         : '') +
+      /* HOW AN INSTITUTION COMES INTO BEING, as a help line under the
+         page title rather than as a tagged gap note under the table.
+         The operator-relevant half is this sentence. The rest of the old
+         note — "the topology permits a campus to be its own tenant, but
+         no source describes the creation form" — answered a question no
+         operator has and was addressed to the build team. */
+      '<p class="chelp">An institution is created by approving an institutional access request, on either ' +
+      'route, at the moment of approval. There is no separate create form, and nothing is ever deleted — an ' +
+      'institution that should stop operating is deactivated, reversibly, on its own report.</p>' +
       '<div class="tablecard"><div class="tscroll">' +
       '<table class="dt"><caption class="sr-only">Platform tenants</caption>' +
       '<thead><tr><th scope="col">Institution</th><th scope="col">Classification</th><th scope="col">Tenant Admin</th>' +
-      '<th scope="col">Access records</th><th scope="col">Expiring within 15 days</th><th scope="col">Status</th>' +
+      '<th scope="col">Approvals</th><th scope="col">Expiring within 15 days</th><th scope="col">Status</th>' +
       '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead>' +
-      '<tbody>' + rows + '</tbody></table></div></div>' +
-      '<div style="margin-top:16px">' +
-      ui.gapNote('NOT IN THIS BUILD',
-        'An institution is created here only by approving an institutional access request — on either route, at ' +
-        'the moment of approval. Creating one outside that route, and the on-campus / off-campus categorisation ' +
-        'attribute, are not built: the topology permits a campus to be its own tenant, but no source describes ' +
-        'the creation form.') +
-      '</div>';
+      '<tbody>' + rows + '</tbody></table></div></div>';
 
     return { title: 'Institutions', html: html, navKey: 'institutions' };
   };
@@ -1201,9 +1502,12 @@ XRSLP.platformUI = (function () {
       '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
       '<input type="email" id="ta-email-i" autocomplete="off"></div>' +
       '<div class="formact"><button class="btn pri" type="submit">Assign Tenant Admin</button>' +
-      '<span class="formnote">This records the assignment against a named person. It creates no account, ' +
-      'sends no invitation and issues no credential — how an identity first exists is not decided by any ' +
-      'source, so nothing is invented here.</span></div>' +
+      /* The operator-relevant half: it records a person, it does not
+         create an account. How an identity first comes into being is an
+         open question for the build team, not for the person filling
+         this form in. */
+      '<span class="formnote">Records the assignment against a named person. No account, invitation or ' +
+      'credential is created, and nothing is sent.</span></div>' +
       '</form>' +
       (removedAdmins.length
         ? '<p class="cardfoot">Previously assigned: ' + removedAdmins.map(function (a) {
@@ -1214,15 +1518,18 @@ XRSLP.platformUI = (function () {
     /* ---- content access + licences + term ---- */
     var accessRows = rep.access.length
       ? '<div class="tscroll"><table class="dt">' +
-        '<caption class="sr-only">Content access records held by ' + esc(t.name) + '</caption>' +
-        '<thead><tr><th scope="col">Record</th><th scope="col">Experiments</th><th scope="col">Approved users</th>' +
+        '<caption class="sr-only">Approved content held by ' + esc(t.name) + '</caption>' +
+        '<thead><tr><th scope="col">Approved content</th><th scope="col">Experiments</th><th scope="col">Approved users</th>' +
         '<th scope="col">Assigned</th><th scope="col">Term</th><th scope="col">State</th></tr></thead><tbody>' +
         rep.access.map(function (rec) {
           var al = state.accessAllocation(rec.id);
           var term = state.accessTermState(rec);
           var due = state.expiryReminderDue(rec);
           return '<tr>' +
-            '<td data-label="Record"><span class="tmain">' + esc(rec.id) + '</span>' +
+            /* Same correction as the comparison table: the record is named
+               by what it grants, not by its key. */
+            '<td data-label="Approved content"><span class="tmain">' + ui.accessTitle(rec) + '</span>' +
+            '<span class="tsub">' + ui.accessScope(rec) + '</span>' +
             '<span class="tsub">' + esc(rec.accessContext) + '</span></td>' +
             '<td data-label="Experiments" class="num">' + rec.items.length + '</td>' +
             '<td data-label="Approved users" class="num">' + al.approved + '</td>' +
@@ -1285,8 +1592,8 @@ XRSLP.platformUI = (function () {
           }).join('<br>')
         : '<span class="muted">No students</span>') + '</div>' +
       '</div>' +
-      '<p class="cardfoot">Licence figures come from the approved request and nothing else. ' +
-      'No universal cap, no seat figure without an approved origin, and no revenue metric.</p>', null, 'h2');
+      '<p class="cardfoot">Licence figures come from the approved request and nothing else — no universal cap, ' +
+      'and no revenue or financial metric on any Super Admin surface.</p>', null, 'h2');
 
     /* ---- STK31-42 — "usage / completion indicators" ----
        Every figure is derived from real learning records and states its
@@ -1306,18 +1613,23 @@ XRSLP.platformUI = (function () {
             { label: 'Waiting on Faculty', value: u.awaitingReview,
               note: 'pairings held up by an unevaluated written answer' }
           ]) +
-          '<p class="cardfoot">The unit is <strong>one student on one experiment</strong>. A student entitled to ' +
-          'three experiments counts three times; a student who holds the same experiment through two access ' +
-          'records counts <strong>once</strong>, because it is one piece of work. ' +
-          '<strong>Completed</strong> uses the prototype-derived completion rule (every learning resource, every ' +
-          'entitled simulation, and the assessment where one is configured); it is not a stakeholder-confirmed ' +
-          'academic completion policy. <strong>Waiting on Faculty</strong> counts pairings, not individual written ' +
-          'answers — one experiment may hold several. No score, index or ranking is produced anywhere.</p>'
-        : ui.emptyState({
+          /* The counting rules are genuine product help — an operator
+             comparing two institutions has to know what the denominator
+             is — but they are not needed on first read, so they fold. */
+          ui.about('How these figures are counted',
+            '<p>The unit is <strong>one student on one experiment</strong>. A student entitled to three ' +
+            'experiments counts three times; a student holding the same experiment through two approvals ' +
+            'counts once, because it is one piece of work.</p>' +
+            '<p><strong>Completed</strong> uses this build&rsquo;s own completion rule — every learning ' +
+            'resource, every entitled simulation, and the assessment where one is configured. It is not a ' +
+            'confirmed academic completion policy.</p>' +
+            '<p><strong>Waiting on Faculty</strong> counts pairings, not individual written answers; one ' +
+            'experiment may hold several. No score, index or ranking is produced anywhere.</p>')
+        : ui.emptyRow({
             icon: 'bars', heading: 'h3',
             title: 'Nothing to report yet',
-            body: 'No student at this institution currently holds an effective entitlement, so there is no usage ' +
-              'to indicate. Content reaching the tenant entitles nobody; the Tenant Admin still has to assign it.'
+            body: 'No student here holds an effective entitlement. Content reaching the tenant entitles nobody; ' +
+              'the Tenant Admin still has to assign it.'
           })), null, 'h2');
 
     /* ---- STK31-25 — student deactivation AS A PLATFORM OVERRIDE ----
@@ -1327,22 +1639,40 @@ XRSLP.platformUI = (function () {
        no second kind of "inactive". Nothing else about the student
        changes: no assignment, no access record, no attempt, no review. */
     var studentPeople = state.studentsForTenant(t.id);
+    /* DESIGNED FOR MANY, NOT FOR THE SAMPLE DATA. A CSV-imported tenant
+       has hundreds of students, and this table had no search, no filter
+       and no cap — it simply became the page. The first 25 rows render;
+       the rest are revealed on request, and a search box narrows the
+       whole set. Both are DOM-only: no state is read or written, no
+       re-render is triggered, and no row is removed from the markup, so
+       the override buttons keep their handlers throughout. */
+    var OVERRIDE_CAP = 25;
     var overrideCard = ui.card('Student access — platform override',
       (studentPeople.length
-        ? '<p class="muted" style="margin:0 0 10px">Deactivating a student here does exactly what the Tenant Admin ' +
-          'action does: the student holds no effective entitlement while inactive, and their licence returns to the ' +
-          'record. Nothing is deleted, and reactivation re-enters the allocation queue at the back so no ' +
-          'currently-entitled student is displaced.</p>' +
+        ? '<p class="chelp">The same action the Tenant Admin has: an inactive student holds no effective ' +
+          'entitlement and their licence returns to the record. Nothing is deleted, and reactivation re-enters ' +
+          'the allocation queue at the back, so nobody currently entitled is displaced.</p>' +
+          (studentPeople.length > 8
+            ? '<div class="toolbar">' +
+              '<div class="searchbox">' + ui.ic('search') +
+              '<input type="search" id="ovr-q" autocomplete="off" aria-label="Find a student at this institution" ' +
+              'placeholder="Find a student by name or id"></div>' +
+              '<div class="tb-r"><span class="tb-count" id="ovr-count">' +
+              Math.min(OVERRIDE_CAP, studentPeople.length) + ' of ' + studentPeople.length + ' shown</span></div>' +
+              '</div>'
+            : '') +
           '<div class="tscroll"><table class="dt">' +
           '<caption class="sr-only">Students at ' + esc(t.name) + ', with the platform override</caption>' +
           '<thead><tr><th scope="col">Student</th><th scope="col">Stream / Course</th>' +
           '<th scope="col">Entitlements</th><th scope="col">Status</th>' +
-          '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
-          studentPeople.map(function (p) {
+          '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="ovr-rows">' +
+          studentPeople.map(function (p, ix) {
             var m = state.studentCourseMembership(p.id);
             var ents = p.status === 'active' ? state.effectiveEntitlementCount(p.id) : 0;
             var last = (p.overrides || [])[(p.overrides || []).length - 1];
-            return '<tr>' +
+            return '<tr data-sname="' + esc(String(p.name + ' ' + (p.studentId || '') + ' ' + (p.email || ''))
+                .toLowerCase()) + '"' +
+              (ix >= OVERRIDE_CAP ? ' style="display:none"' : '') + '>' +
               '<td data-label="Student"><span class="tmain">' + esc(p.name) + '</span>' +
               '<span class="tsub">' + esc(p.studentId || p.email) + '</span></td>' +
               '<td data-label="Stream / Course">' +
@@ -1360,29 +1690,43 @@ XRSLP.platformUI = (function () {
                   (p.status === 'active' ? 'Deactivate' : 'Reactivate') + '</button>') +
               '</td></tr>';
           }).join('') + '</tbody></table></div>' +
-          '<p class="cardfoot">Every override is recorded on the student&rsquo;s own record and on this ' +
-          'institution&rsquo;s governance history, with the reason given. Nothing is sent to anybody — there is no ' +
-          'notification provider in this build.</p>'
-        : ui.emptyState({
+          '<div id="ovr-none" style="display:none">' +
+          ui.emptyRow({ icon: 'search', heading: 'h3', title: 'No student matches that search',
+            body: 'Clear the box to see everybody at this institution again.' }) + '</div>' +
+          (studentPeople.length > OVERRIDE_CAP
+            ? '<div class="formact"><button class="btn sec sm" type="button" id="ovr-more">Show all ' +
+              studentPeople.length + ' students</button></div>'
+            : '') +
+          '<p class="cardfoot">Every override is recorded on the student&rsquo;s record and on this ' +
+          'institution&rsquo;s governance history, with the reason given. Nothing is sent to anybody.</p>'
+        : ui.emptyRow({
             icon: 'users', heading: 'h3',
             title: 'No students recorded',
-            body: 'This institution has no student records yet. The Tenant Admin creates them manually or by CSV ' +
-              'import; the platform does not create people.'
+            body: 'The Tenant Admin creates student records manually or by CSV import; the platform does not ' +
+              'create people.'
           })), null, 'h2');
 
     /* ---- operational signals ---- */
     var signals = [];
     rep.expiryReminders.forEach(function (rec) {
       signals.push({ tone: 'warn', icon: 'clock',
-        title: rec.id + ' — expiry reminder due',
-        body: esc(P.expiryLine(rec)) + '. The tenant must be reminded 15 days ahead. ' +
-          'The delivery channel is not selected, so nothing has been sent.',
+        /* The signal led with the record key; it now leads with the
+           content whose term is lapsing. `title` is escaped by
+           `attentionList`, so the plain form is used here and the
+           reference rides in the body, which is raw. */
+        title: ui.accessTitle(rec, { plain: true }) + ' — expiry reminder due',
+        /* The 15-day rule and the "nothing has been sent" fact belong
+           together, on the queue that owns them. Restating both on every
+           row of every list that mentions an expiry is what made three
+           screens carry the same paragraph. */
+        /* Institution detail is normal operational UI: no reference. */
+        body: esc(P.expiryLine(rec)) + '. Due for the 15-day reminder.',
         href: P.href.operations(), label: 'Operations',
         aria: 'Open operations for the expiring access record ' + rec.id });
     });
     rep.expiredAccess.forEach(function (rec) {
       signals.push({ tone: 'warn', icon: 'alertCirc',
-        title: rec.id + ' — access term ended',
+        title: ui.accessTitle(rec, { plain: true }) + ' — access term ended',
         body: 'Ended ' + esc(util.fmtDate(rec.endsOn)) + '. Entitlement derived from it has stopped being ' +
           'effective; nothing has been deleted. There is no automatic renewal.',
         href: P.href.operations(), label: 'Operations',
@@ -1426,32 +1770,40 @@ XRSLP.platformUI = (function () {
           aria: 'Open device transfer ' + tr.id });
       });
 
-    var signalCard = ui.card('Issues requiring attention',
-      P.attentionList(signals, {
-        icon: 'check', heading: 'h3',
-        title: 'Nothing needs attention',
-        body: 'No expiring term, no expired access, no open support report and no device request for this institution.'
-      }), null, 'h2');
+    var signalCard = ui.card('Needs attention',
+      signals.length
+        ? P.attentionList(signals)
+        : ui.emptyRow({ ok: true, heading: 'h3',
+            title: 'Nothing needs attention',
+            body: 'No expiring term, no expired access, no open support report and no device request here.' }),
+      signals.length ? signals.length + ' ' + util.plural(signals.length, 'item') : null, 'h2');
 
-    /* ---- governance ---- */
-    var governance = ui.card(inactive ? 'Reactivate this institution' : 'Deactivate this institution',
-      (inactive
-        ? '<p>Reactivating restores access <strong>only where the underlying entitlement, allocation and term are ' +
-          'still valid</strong>. Nothing was deleted while the institution was deactivated, and nothing is ' +
-          'recreated now: the same assignments and the same allocation ordering come back, so no student is ' +
-          'displaced.</p>'
-        : '<p>Deactivation is <strong>reversible</strong> and destroys nothing. People, groups, academic ' +
-          'mappings, assignments, licence allocation, assessment attempts, reviews and progress are all kept ' +
-          'exactly as they are.</p>' +
-          '<p style="margin-top:6px">While the institution is deactivated: the Tenant Admin cannot take ' +
-          'operational actions, Faculty cannot use mapped content, and Students cannot launch learning. ' +
-          'Nothing about their history changes.</p>') +
-      '<div class="formact">' +
-      (inactive
+    /* ---- governance ----
+       THE CONSEQUENTIAL ACTION, SEPARATED FROM THE INFORMATION.
+       It used to be the last card in the main column, below a student
+       table with one row per student and no cap — so on a CSV-imported
+       tenant of four hundred students the reversible-deactivate control
+       sat four hundred rows down the page. It now sits in the rail, in a
+       `dangerZone`, at a fixed position regardless of how many people
+       the institution has.
+
+       The IMPACT FIGURE IS ON THE CONTROL, not only in the dialog. It
+       used to appear for the first time after the destructive button had
+       been pressed, which is the wrong side of the decision. */
+    var governance = ui.dangerZone({
+      title: inactive ? 'Institution status — deactivated' : 'Institution status — active',
+      desc: inactive
+        ? 'Reactivating restores access only where the entitlement, allocation and term are still valid. The ' +
+          'allocation ordering is untouched, so no student is displaced.'
+        : 'Deactivating stops ' + rep.entitledStudents + ' ' +
+          util.plural(rep.entitledStudents, 'student') + ' launching learning and stops Faculty using mapped ' +
+          'content. It is reversible and deletes nothing: people, groups, mappings, assignments, licences, ' +
+          'attempts, reviews and progress are all kept.',
+      actionsHTML: (inactive
         ? '<button class="btn pri" type="button" id="ten-reactivate">' + ui.ic('check') + 'Reactivate institution</button>'
         : '<button class="btn dgr" type="button" id="ten-deactivate">' + ui.ic('alertCirc') + 'Deactivate institution</button>') +
-      '<span class="formnote">There is no delete. A tenant is never physically removed.</span>' +
-      '</div>', null, 'h2');
+        '<span class="formnote">There is no delete. A tenant is never physically removed.</span>'
+    });
 
     /* ---- governance history ---- */
     var hist = (t.history || []).slice().reverse();
@@ -1470,18 +1822,11 @@ XRSLP.platformUI = (function () {
 
     var html =
       ui.crumbs([{ label: 'Institutions', href: P.href.institutions() }, { label: t.name }]) +
-      ui.phead(t.name, esc(t.accessContext) + ' · ' + esc(t.kind === 'internal' ? 'Internal' : 'External'),
-        /* ⚠ PROTOTYPE VIEW SWITCH, not a Super Admin capability. This
-           crosses an authority altitude: the Super Admin decides what a
-           tenant may use, the Tenant Admin decides which student gets
-           what (STK31-24 / STK31-25). In the product these are different
-           people signing in separately; there is no authentication here,
-           so the link is labelled for what it is rather than presented
-           as platform chrome. */
-        '<a class="btn sec" href="#/tenant/' + encodeURIComponent(t.id) + '/overview" ' +
-        'title="Prototype view switch — the Tenant Admin workspace is a different role">' +
-        'Prototype: open the Tenant Admin workspace</a>',
-        ' ' + P.tenantBadge(t)) +
+      ui.phead(t.name,
+        esc(t.accessContext) + ' · ' + esc(t.kind === 'internal' ? 'Internal' : 'External') +
+        ' · ' + rep.people + ' ' + util.plural(rep.people, 'person', 'people') +
+        ' · ' + rep.access.length + ' ' + util.plural(rep.access.length, 'approval'),
+        null, ' ' + P.tenantBadge(t)) +
       (inactive
         ? ui.alertBox('warning', 'This institution is deactivated',
             '<p>' + esc(state.TENANT_INACTIVE_TEXT) + '</p>')
@@ -1500,20 +1845,83 @@ XRSLP.platformUI = (function () {
             'holds an entitlement, and no Faculty member reaches any content.</p>')
         : '') +
       '<div class="grid-rail">' +
-      '<div class="stack">' + identity + reach + usageCard +
+      /* ORDER OF THE MAIN COLUMN: what needs doing, then what the
+         institution is, then what it holds, then how it is being used,
+         then the one tenant-owned list this plane can override. The
+         governance controls are in the rail — see the `dangerZone`
+         comment above for why they no longer sit at the bottom of an
+         unbounded table. */
+      '<div class="stack">' + signalCard + identity + reach +
       ui.card('Content access, licences and term', accessRows, null, 'h2') +
-      overrideCard + signalCard + governance + '</div>' +
-      '<div class="stack">' + adminCard + historyCard +
-      (rep.expiryReminders.length ? P.reminderNote() : '') +
-      ui.gapNote('NOT IN THIS BUILD',
-        'Institution-level reporting beyond the operational and usage facts above — per-student result ' +
-        'breakdowns, exportable reports and time-series trends — is not built. ' +
-        'No revenue or financial metric appears here by instruction.') +
+      usageCard + overrideCard + '</div>' +
+      '<div class="stack">' + adminCard + governance + historyCard +
+      /* ⚠ PROTOTYPE VIEW SWITCH, not a Super Admin capability, and no
+         longer dressed as a page action. It crosses an authority
+         altitude: the Super Admin decides what a tenant may use, the
+         Tenant Admin decides which student gets what (STK31-24 /
+         STK31-25). In the product those are different people signing in
+         separately; there is no authentication here, so the link stays
+         available for a demo — inside a demo panel, which is what it is. */
+      ui.demoPanel('Open this institution as its Tenant Admin',
+        '<p>The Tenant Admin workspace is a different role with different authority. There is no ' +
+        'authentication in this build, so this link switches the view directly.</p>' +
+        '<p><a class="btn sec sm" href="#/tenant/' + encodeURIComponent(t.id) + '/overview">' +
+        'Open the Tenant Admin workspace</a></p>') +
       '</div></div>';
 
     return {
       title: t.name, html: html, navKey: 'institutions',
       after: function () {
+        /* THE STUDENT TABLE'S SEARCH AND CAP — DOM ONLY.
+           Nothing here reads or writes state and nothing re-renders, so
+           the override buttons below keep the handlers wired further
+           down this same hook, and a search does not move the caret or
+           lose focus the way a re-render would. Rows are hidden with an
+           inline `display` rather than the `hidden` attribute because the
+           responsive stylesheet gives table rows an explicit `display`
+           at narrow widths, which would out-specify the UA's
+           `[hidden]` rule. */
+        (function wireStudentSearch() {
+          var body = document.getElementById('ovr-rows');
+          if (!body) { return; }
+          var rows = Array.prototype.slice.call(body.querySelectorAll('tr'));
+          var input = document.getElementById('ovr-q');
+          var countEl = document.getElementById('ovr-count');
+          var moreBtn = document.getElementById('ovr-more');
+          var noneEl = document.getElementById('ovr-none');
+          var showAll = false;
+
+          function apply() {
+            var q = String(input ? input.value : '').trim().toLowerCase();
+            var matched = 0, visible = 0;
+            rows.forEach(function (tr) {
+              var hay = tr.getAttribute('data-sname') || '';
+              if (q && hay.indexOf(q) === -1) { tr.style.display = 'none'; return; }
+              matched += 1;
+              /* A search shows every match: a cap that hid results the
+                 operator had just searched for would be a lie. */
+              var show = showAll || !!q || visible < OVERRIDE_CAP;
+              tr.style.display = show ? '' : 'none';
+              if (show) { visible += 1; }
+            });
+            if (countEl) { countEl.textContent = visible + ' of ' + rows.length + ' shown'; }
+            if (moreBtn) { moreBtn.style.display = (showAll || q || matched <= OVERRIDE_CAP) ? 'none' : ''; }
+            if (noneEl) { noneEl.style.display = matched ? 'none' : ''; }
+          }
+
+          if (input) {
+            input.addEventListener('input', apply);
+            input.addEventListener('search', apply);
+          }
+          if (moreBtn) {
+            moreBtn.addEventListener('click', function () {
+              showAll = true;
+              apply();
+              ui.announce('Showing all ' + rows.length + ' students.');
+            });
+          }
+        })();
+
         var deact = document.getElementById('ten-deactivate');
         if (deact) {
           deact.addEventListener('click', function () {

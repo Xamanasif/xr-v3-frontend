@@ -167,23 +167,24 @@ XRSLP.screens = XRSLP.screens || {};
           rest.length + ' ' + util.plural(rest.length, 'request'), 'h2');
     }
 
+    /* ⚠ THE "FORWARDING CHANGES NOTHING" GUARANTEE IS STATED ONCE PER
+       DECISION, NOT FOUR TIMES PER PAGE. It used to appear in this intro
+       alert, again in the detail screen's decide bar, again as a
+       three-item card in that screen's sidebar, and again in the
+       confirmation dialog — four near-identical wordings between an admin
+       and one button. It belongs where the decision is taken: the dialog.
+       Here the reader only needs to know whose queue this is. */
     var html =
       ui.phead('Device requests',
-        'Device replacement requests raised by students in ' + esc(tenant.name) + '.') +
+        'Raised by students in ' + esc(tenant.name) + '. They arrive here first — you review and forward; ' +
+        'the platform team takes the final decision.') +
       '<div class="stack">' +
-      ui.alertBox('info', 'This institution is the point of contact for its own device requests',
-        '<p>A device replacement request raised by a student in ' + esc(tenant.name) + ' arrives here ' +
-        '<strong>first</strong>. The Institute / Tenant Admin reviews it and forwards it, and the ' +
-        '<strong>final decision is the platform team&rsquo;s</strong>. Nothing on this screen approves or ' +
-        'declines anything.</p>' +
-        '<p style="margin-top:8px">Forwarding a request changes <strong>no licence, no experiment, no ' +
-        'technology and no assessment result</strong> &mdash; it moves the request and nothing else. Nothing is ' +
-        'sent to anybody: the student sees each state change in their own workspace.</p>' +
-        (admin
-          ? ''
-          : '<p style="margin-top:8px">No Institute / Tenant Admin has been assigned to ' + esc(tenant.name) +
-            ' yet, so nothing can be forwarded from here. The Super Admin assigns that person; until then ' +
-            'every request stays exactly where it is and nothing about it is lost.</p>')) +
+      (admin
+        ? ''
+        : ui.alertBox('warning', 'Nothing can be forwarded from here yet',
+            '<p>No Institute / Tenant Admin has been assigned to ' + esc(tenant.name) + ', and forwarding ' +
+            'records who performed it. The Super Admin assigns that person; until then every request stays ' +
+            'exactly where it is and nothing about it is lost.</p>')) +
       body +
       '</div>';
 
@@ -265,8 +266,8 @@ XRSLP.screens = XRSLP.screens || {};
     var forwardHTML;
     if (waiting && admin) {
       forwardHTML = '<div class="decidebar">' +
-        '<span class="db-note">Forwarding passes this request to the platform team, who take the final ' +
-        'decision. It changes no licence, no experiment, no technology and no assessment result.</span>' +
+        '<span class="db-note">You are the institution&rsquo;s point of contact, not the approver — the ' +
+        'platform team takes the final decision.</span>' +
         '<button class="btn pri" type="button" id="td-forward">' + ui.ic('arrowR') +
         'Forward to the platform team</button>' +
         '</div>';
@@ -315,12 +316,20 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="k">Student</div><div class="v">' + esc(rec.personName) +
       (person ? ' <span class="muted">· ' + esc(person.studentId || person.email) + '</span>' : '') + '</div>' +
       '<div class="k">Technologies</div><div class="v">' + techDetail(rec) + '</div>' +
-      /* Both device lines are quoted from the student and are shown
-         unedited. There is nothing to resolve them against. */
-      '<div class="k">Current device</div><div class="v">' + esc(rec.currentDevice) +
-      '<span class="tsub">As the student described it</span></div>' +
+      /* ⚠ BOTH DEVICE LINES ARE THE STUDENT'S OWN WORDS, AND SAYING SO
+         ONCE IS ENOUGH. This used to carry "As the student described it"
+         under each field and then repeat the same point at length in a
+         dashed note below — three statements of one fact on one page.
+         The fact the admin genuinely needs is that the labels are
+         unverified, so that is what the one line says. There is no device
+         registry anywhere in this build: nothing here registers hardware,
+         names a model, checks a serial number, certifies compatibility or
+         configures anything remotely, and nothing is invented to make the
+         screen look more capable than the platform is. */
+      '<div class="k">Current device</div><div class="v">' + esc(rec.currentDevice) + '</div>' +
       '<div class="k">Replacement device</div><div class="v">' + esc(rec.newDevice) +
-      '<span class="tsub">As the student described it</span></div>' +
+      '<span class="tsub">Both are free text from the student — the platform does not verify device ' +
+      'details.</span></div>' +
       '<div class="k">Reason given</div><div class="v">' + esc(rec.reason) + '</div>' +
       '<div class="k">Raised</div><div class="v">' + esc(util.fmtDateTime(rec.createdAt)) + '</div>' +
       (rec.escalatedAt
@@ -336,26 +345,18 @@ XRSLP.screens = XRSLP.screens || {};
       '</div>' + forwardHTML + '</div></section>' +
       '</div>' +
       '<div class="stack">' +
-      ui.card('What forwarding does &mdash; and does not do',
-        '<ul class="reslist plain">' +
-        '<li>' + ui.ic('arrowR') + '<span>It moves this request to the platform team, who take the ' +
-        '<strong>final decision</strong>. You are the institution&rsquo;s point of contact, not the ' +
-        'approver.</span></li>' +
-        '<li>' + ui.ic('shield') + '<span>It changes <strong>no licence</strong>, grants <strong>no ' +
-        'experiment</strong>, adds <strong>no technology</strong> and changes <strong>no assessment ' +
-        'result</strong>. This student&rsquo;s entitlement is exactly what it was before and stays that ' +
-        'way whatever the platform team decides.</span></li>' +
-        '<li>' + ui.ic('info') + '<span><strong>Nothing is sent to anybody.</strong> The student sees each ' +
-        'state change on their own device page, and the platform team sees the request on its operations ' +
-        'list.</span></li>' +
-        '</ul>', null, 'h2') +
-      ui.card('History', timeline) +
-      ui.gapNote('NO DEVICE REGISTRY',
-        'The platform holds a device <em>transfer approval</em> with no device <em>registry</em> behind it. ' +
-        'Both devices above are exactly the words the student typed: nothing here registers hardware, names a ' +
-        'model, checks a serial number, certifies compatibility, configures a device remotely or authenticates ' +
-        'anything. Device registration and remote configuration are later-phase, and nothing on this screen ' +
-        'stands in for them.') +
+      ui.card('History', timeline, null, 'h2') +
+      /* The one thing the sidebar card said that the dialog does not:
+         nothing is sent to anybody. Kept, in one line, because an admin
+         who believes the student was notified will not follow up. */
+      ui.about('What forwarding does — and does not do',
+        '<p>Forwarding moves this request one hop to the platform team, who take the final decision, and writes ' +
+        'one line of history. It changes <strong>no licence</strong>, grants <strong>no experiment</strong>, ' +
+        'adds <strong>no technology</strong> and changes <strong>no assessment result</strong>: this ' +
+        'student&rsquo;s entitlement is exactly what it was before, whatever the platform team decides.</p>' +
+        '<p><strong>Nothing is sent to anybody.</strong> This build has no notification channel of any kind. ' +
+        'The student sees each state change on their own device page, and the platform team sees the request ' +
+        'on its operations list.</p>') +
       '</div></div>';
 
     return {

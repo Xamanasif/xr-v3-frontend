@@ -7,23 +7,44 @@
      · PROTOTYPE CONTROLS  — dark strip, clearly not product UI
    ============================================================ */
 
-/* ---------- prototype controls strip (NOT product UI) ---------- */
-.protobar{background:var(--n-800); color:var(--n-100);
-  display:flex; align-items:center; gap:12px 18px; padding:8px 20px; font-size:12.5px; flex-wrap:wrap;
+/* ---------- prototype controls strip (NOT product UI) ----------
+   COLLAPSED BY DEFAULT at 08R. It is a <details>: the summary is a thin
+   discreet bar, and everything that was on the strip is inside. The
+   dark, diagonally-striped treatment is kept precisely because it must
+   never be mistaken for product chrome — but at 28px closed rather than
+   ~70px open, it no longer leads every screenshot. */
+.protobar{background:var(--inverse-bg); color:var(--n-100); font-size:12.5px;
   background-image:repeating-linear-gradient(-45deg, rgba(255,255,255,.045) 0 10px, transparent 10px 20px)}
-.protobar .plabel{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:#B9C2CC; white-space:nowrap}
+/* WRAPS. The three items on the summary are each `nowrap` by nature —
+   a label, a role chip and a hint — and at 375px they came to 378px,
+   scrolling the whole document sideways by 3px. The row wraps and the
+   label shrinks; nothing here may ever set document width. */
+.protobar>summary{display:flex; align-items:center; gap:6px 12px; padding:5px 20px; cursor:pointer;
+  list-style:none; min-height:28px; flex-wrap:wrap; min-width:0}
+.protobar>summary .plabel{min-width:0; overflow:hidden; text-overflow:ellipsis}
+.protobar>summary::-webkit-details-marker{display:none}
+.protobar>summary:hover{background:rgba(255,255,255,.07)}
+.protobar>summary:focus-visible{outline:2px solid #fff; outline-offset:-2px}
+.protobar>summary .pcur{font-size:11.5px; color:var(--inverse-text); font-weight:600;
+  background:rgba(255,255,255,.14); border-radius:var(--r-pill); padding:1px 9px; white-space:nowrap}
+.protobar>summary .phint{margin-left:auto; font-size:11px; color:var(--inverse-text-3); white-space:nowrap}
+.protobar>summary .phint::after{content:" ▾"}
+.protobar[open]>summary .phint::after{content:" ▴"}
+.protobar .pbody{display:flex; align-items:center; gap:12px 18px; padding:4px 20px 10px;
+  flex-wrap:wrap; border-top:1px solid rgba(255,255,255,.12)}
+.protobar .plabel{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--inverse-text-3); white-space:nowrap}
 .protobar nav{display:flex; gap:2px; flex-wrap:wrap}
-.protobar a{color:#CDD5DD; text-decoration:none; padding:4px 10px; border-radius:var(--r-sm); white-space:nowrap}
+.protobar a{color:var(--inverse-text-2); text-decoration:none; padding:4px 10px; border-radius:var(--r-sm); white-space:nowrap}
 .protobar a:hover{background:rgba(255,255,255,.1); color:#fff}
 .protobar a[aria-current="true"]{background:rgba(255,255,255,.16); color:#fff; font-weight:600}
 .protobar a:focus-visible{outline-color:#fff}
 .protobar .pright{margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-.protobar label{font-size:12px; color:#B9C2CC; display:inline-flex; align-items:center; gap:6px}
-.protobar select{background:var(--n-700); color:#EDF0F3; border:1px solid #5A6674; border-radius:var(--r-sm);
+.protobar label{font-size:12px; color:var(--inverse-text-3); display:inline-flex; align-items:center; gap:6px}
+.protobar select{background:var(--inverse-raised); color:var(--inverse-text); border:1px solid var(--inverse-border); border-radius:var(--r-sm);
   font:inherit; font-size:12px; padding:3px 6px; max-width:300px}
 .protobar select:focus-visible{outline:2px solid #fff; outline-offset:1px}
-.protobar button{background:transparent; color:#CDD5DD; border:1px solid #5A6674; border-radius:var(--r-sm); padding:3px 10px; font-size:12px}
-.protobar button:hover{color:#fff; border-color:#8C98A8}
+.protobar button{background:transparent; color:var(--inverse-text-2); border:1px solid var(--inverse-border); border-radius:var(--r-sm); padding:3px 10px; font-size:12px}
+.protobar button:hover{color:#fff; border-color:var(--inverse-border-strong)}
 .protobar button:focus-visible{outline:2px solid #fff; outline-offset:1px}
 
 /* ---------- shared brand lockup ---------- */
@@ -44,8 +65,9 @@ a.brandlink{text-decoration:none; color:inherit; border-radius:var(--r-sm)}
   color:var(--text-2); text-decoration:none; font-size:14px; font-weight:500}
 .pubnav a:hover{background:var(--raised); color:var(--text)}
 .pubnav a[aria-current="page"]{background:var(--action-subtle); color:var(--action); font-weight:640}
-.pubnav .navcount{font-size:11.5px; font-weight:650; background:var(--sunken); color:var(--text-2);
-  border-radius:var(--r-pill); padding:1px 8px; min-width:22px; text-align:center}
+/* Geometry and colour come from the one `.count` component in
+   components.css, which aliases this selector. Only the ACTIVE-nav
+   variant is a genuine difference and stays here. */
 .pubnav a[aria-current="page"] .navcount{background:var(--indigo-100); color:var(--action)}
 
 .pubmain{max-width:var(--public-max); margin:0 auto; padding:28px 24px 80px; min-height:52vh}
@@ -76,8 +98,9 @@ a.brandlink{text-decoration:none; color:inherit; border-radius:var(--r-sm)}
 .snav a.nitem:hover{background:var(--raised); color:var(--text)}
 .snav a.nitem[aria-current="page"]{background:var(--action-subtle); color:var(--action); font-weight:640}
 .snav a.nitem[aria-current="page"]::before{content:""; position:absolute; left:0; top:7px; bottom:7px; width:3px; border-radius:2px; background:var(--action)}
-.snav .ncount{margin-left:auto; font-size:11.5px; font-weight:650; background:var(--sunken); color:var(--text-2);
-  border-radius:var(--r-pill); padding:1px 8px; min-width:22px; text-align:center}
+/* Same: geometry from `.count`; the side-nav pill additionally pushes
+   itself to the end of the row, which is layout, not appearance. */
+.snav .ncount{margin-left:auto}
 .snav a.nitem[aria-current="page"] .ncount{background:var(--indigo-100); color:var(--action)}
 
 .main{flex:1; min-width:0; padding:26px 36px 80px}
@@ -128,5 +151,5 @@ button, a, [role="button"], input, select, textarea{min-block-size:24px; min-inl
    overflow, and no width is masked with overflow-x:hidden. */
 .protobar .pnav{display:flex; gap:6px 14px; flex-wrap:wrap; align-items:center; min-width:0}
 .protobar .pgrp{display:flex; gap:2px; align-items:center; flex-wrap:wrap; min-width:0}
-.protobar .pgl{font-family:var(--mono); font-size:9.5px; letter-spacing:.09em; color:#8C98A8;
+.protobar .pgl{font-family:var(--mono); font-size:9.5px; letter-spacing:.09em; color:var(--inverse-border-strong);
   text-transform:uppercase; padding-right:4px; white-space:nowrap}

@@ -16,10 +16,20 @@
    the ability to open an Experiment is an ACCESS GRANT. The full
    reasoning is at the head of js/screens/tenant-assign.js.
 
-   Academic mappings (STK31-11) sit BESIDE the canonical Course, never
-   over it: the tenant records a local Course Code and an OPTIONAL
-   Semester. The canonical Course name is displayed unchanged and
-   cannot be edited here (STK31-10).
+   Academic mappings (STK31-11) sit BESIDE the platform Course, never
+   over it: the institution records its own INSTITUTION COURSE CODE and an
+   OPTIONAL Semester. The platform Course keeps its name, its identity and
+   its own PLATFORM COURSE CODE, none of which is editable here (STK31-10).
+
+   ⚠ ONE NAME FOR ONE FIELD (Implementation 08). The institution's code
+   was called four different things across four surfaces — "Local course
+   code" here and on the person page, "Course ID / Code" on Add Student,
+   "Course ID/Code" in the CSV columns and "a local course code" on the
+   Overview — so an admin filling in a required field had no way to know
+   it was the concept the Overview said was missing. It is the
+   INSTITUTION COURSE CODE everywhere the tenant screens control the
+   wording; the CSV column label lives in js/csv.js and still reads
+   "Course ID/Code".
    ============================================================ */
 
 window.XRSLP = window.XRSLP || {};
@@ -36,12 +46,23 @@ XRSLP.screens = XRSLP.screens || {};
   var T = XRSLP.tenantUI;
 
   var memberQ = '';
+  /* The filter over a group's own content list — separate from `memberQ`,
+     which filters the student picklist on the same screen. One shared box
+     would filter whichever list the reader was not looking at. */
+  var contentQ = '';
   /* R05 — the academic-mappings filter. An institution holding ~50
      experiments across three Programmes maps a long list of Courses
      here, and the table had no way to reach one of them except
      scrolling. Module-level so it survives the re-render that applies
      it, like every other filter in this workspace. */
-  var mapF = { q: '', grouping: 'all' };
+  var mapF = { q: '', grouping: 'all', missing: false };
+
+  /* The Overview's "courses without an institution code" row opens this
+     screen already filtered to exactly those courses — the only reason
+     anybody arrives here from there. A view filter and nothing else. */
+  XRSLP.screens.tenantMappingsPrefill = function (opts) {
+    mapF = { q: '', grouping: 'all', missing: !!(opts && opts.missing) };
+  };
 
   /* ============================================================
      GROUPS LIST
@@ -59,9 +80,12 @@ XRSLP.screens = XRSLP.screens || {};
       body = ui.emptyState({
         icon: 'users',
         title: 'No student groups yet',
+        /* The "membership grants nothing" rule is stated once for this
+           screen, in the page meta below. Repeating it here made it three
+           statements of one fact on one screen. */
         body: students.length
-          ? 'Groups let one access grant reach a whole cohort at once. A student may belong to several groups, and being in a group grants nothing by itself.'
-          : 'Add students first, then group them. A group is only a convenience for giving access — it grants nothing by itself.',
+          ? 'Groups let one access grant reach a whole cohort at once. A student may belong to several.'
+          : 'Add students first, then group them.',
         actionsHTML: T.actionsIfWritable(tenant,
           '<a class="btn pri" href="' + T.href.newGroup(tenant.id) + '">Create group</a>' +
           (students.length ? '' : '<a class="btn sec" href="' + T.href.addStudent(tenant.id) + '">Add Student</a>'), false)
@@ -91,14 +115,15 @@ XRSLP.screens = XRSLP.screens || {};
     }
 
     var html =
+      /* ONE statement of the rule, in the header, where it frames the
+         whole screen. It used to appear here as a page-level alert, again
+         inside the empty state and again on the person detail. */
       ui.phead('Student groups',
-        groups.length + ' ' + util.plural(groups.length, 'group') + ' in ' + esc(tenant.name),
+        groups.length + ' ' + util.plural(groups.length, 'group') + ' in ' + esc(tenant.name) +
+        ' · a group is not access — membership only decides which students a grant reaches',
         T.actionsIfWritable(tenant,
           '<a class="btn pri" href="' + T.href.newGroup(tenant.id) + '">' + ui.ic('plus') + 'Create group</a>', false)) +
-      '<div class="tablecard">' + body + '</div>' +
-      '<div style="margin-top:16px">' + ui.alertBox('info', 'A group is not access',
-        '<p>Putting a student in a group gives them nothing. It only decides which students an access grant ' +
-        'reaches when that grant is given to the group.</p>') + '</div>';
+      '<div class="tablecard">' + body + '</div>';
 
     return { title: 'Groups — ' + tenant.name, html: html, tenant: tenant, navKey: 'groups' };
   };
@@ -121,13 +146,20 @@ XRSLP.screens = XRSLP.screens || {};
         '<span class="sr-only">(required)</span></label><input type="text" id="gf-name-i" autocomplete="off" required></div>' +
         '<div class="field" id="gf-desc"><label for="gf-desc-i">Description</label>' +
         '<textarea id="gf-desc-i" rows="2"></textarea>' +
+        /* ⚠ A GROUP CARRIES A NAME AND MEMBERS AND NOTHING ELSE.
+           Programme, Course and Semester belong to the academic mapping,
+           not to a group — that is a deliberate model decision, and it
+           used to be announced on this form as a dashed "BY DESIGN" note.
+           A form with exactly two fields already shows it: the absence of
+           academic fields needs no defending to the admin filling it in,
+           only to a reviewer, so the reasoning lives here. */
         '<p class="hint">Optional. A short note about what this group is for.</p></div>', null, 'h2') +
       '<div class="formact">' +
       '<button class="btn pri" type="submit" id="grp-save">Create group</button>' +
       '<a class="btn sec" href="' + T.href.groups(tenant.id) + '">Cancel</a></div></form>' +
-      '<div class="formaside">' + ui.gapNote('BY DESIGN',
-        '<strong>No academic semantics.</strong> A group carries a name and members and nothing else. ' +
-        'Programme, Course and Semester belong to the academic mapping, not to a group.') + '</div>' +
+      '<div class="formaside">' + ui.alertBox('info', 'A group grants nothing',
+        '<p>Creating a group gives nobody any content. It only decides which students an access grant reaches ' +
+        'once that grant is given to the group.</p>') + '</div>' +
       '</div>';
 
     return {
@@ -249,27 +281,58 @@ XRSLP.screens = XRSLP.screens || {};
     /* R05 — grouped by Programme / department, like every other content
        list in this workspace. A cohort group in a large institution can
        hold access to dozens of experiments, and a flat list of them was
-       the same unreadable wall the stakeholder objected to. */
+       the same unreadable wall the stakeholder objected to.
+
+       Implementation 08 — and now searchable, like every other content list in this
+       workspace. This was the one that never got a filter. It uses the
+       shared `T.contentMatches` rule, so it can never disagree with the
+       library or the pickers about what a search matches. */
+    var asgRows = T.contentRows(assignments.map(function (a) {
+      var rec = state.accessById(a.accessId);
+      return {
+        experimentId: a.experimentId,
+        technologies: rec ? state.accessTechnologies(rec, a.experimentId) : a.technologies
+      };
+    }));
+    var shownAsgRows = asgRows.filter(function (row) { return T.contentMatches(row, { q: contentQ }); });
+    /* ⚠ THE BOX MUST APPEAR WHENEVER A QUERY IS ACTIVE, NOT ONLY WHEN
+       THE LIST IS LONG.
+
+       `contentQ` is module-level and therefore shared by every group.
+       Rendering the search box only for groups with more than four
+       experiments meant a query typed on a large group travelled to a
+       small one and hid its real content behind "Nothing matches that
+       search" — with no input anywhere on the page to clear, because
+       the small group did not qualify for one. A filter you cannot see
+       is a filter you cannot undo. */
+    var asgFilter = (asgRows.length > 4 || contentQ)
+      ? '<div class="searchbox" style="margin-bottom:12px">' + ui.ic('search') +
+        '<label class="sr-only" for="gc-q">Search this group&rsquo;s content</label>' +
+        '<input type="text" id="gc-q" placeholder="Experiment, course or programme" value="' + esc(contentQ) + '"></div>' +
+        '<p class="fhint" style="margin-bottom:10px">' + shownAsgRows.length + ' of ' + asgRows.length + ' ' +
+        util.plural(asgRows.length, 'experiment') + ' shown.</p>'
+      : '';
+
     var asgCard = ui.card('Content this group can open',
       assignments.length
-        ? T.groupContent(assignments.map(function (a) {
-            var rec = state.accessById(a.accessId);
-            return {
-              experimentId: a.experimentId,
-              technologies: rec ? state.accessTechnologies(rec, a.experimentId) : a.technologies
-            };
-          })).map(function (g) {
-            return '<h3 class="subh">' + esc(g.name) + ' <span class="muted">· ' + g.count + ' ' +
-              util.plural(g.count, 'experiment') + '</span></h3>' +
-              '<ul class="reqitems">' + g.courseOrder.map(function (c) {
-                return c.rows.map(function (row) {
-                  return '<li class="ri"><div class="ri-body">' + T.expLine(row.experimentId) + '</div>' +
-                    '<div class="ri-tech">' + ui.techBadges(row.technologies) + '</div></li>';
-                }).join('');
-              }).join('') + '</ul>';
-          }).join('') +
+        ? asgFilter +
+          (shownAsgRows.length
+            ? T.groupContent(shownAsgRows.map(function (row) {
+                return { experimentId: row.experimentId, technologies: row.technologies };
+              })).map(function (g) {
+                return '<h3 class="subh">' + esc(g.name) + ' <span class="muted">· ' + g.count + ' ' +
+                  util.plural(g.count, 'experiment') + '</span></h3>' +
+                  '<ul class="reqitems">' + g.courseOrder.map(function (c) {
+                    return c.rows.map(function (row) {
+                      return '<li class="ri"><div class="ri-body">' + T.expLine(row.experimentId) + '</div>' +
+                        '<div class="ri-tech">' + ui.techBadges(row.technologies) + '</div></li>';
+                    }).join('');
+                  }).join('') + '</ul>';
+              }).join('')
+            : ui.emptyRow({ icon: 'search', heading: 'h3', title: 'Nothing matches that search',
+                body: 'This group’s content is unchanged — only the list above is filtered.' })) +
           '<p class="cardfoot">Each of these reaches every <strong>active</strong> member. Adding a member to this ' +
-          'group extends that access to them — subject to the access record&rsquo;s remaining allocation.</p>'
+          'group extends that access to them — subject to the remaining allocation.</p>'
         : ui.emptyState({
             icon: 'flask', heading: 'h3', title: 'This group can open no content',
             body: 'The group exists but has been given no experiment.',
@@ -297,6 +360,15 @@ XRSLP.screens = XRSLP.screens || {};
             memberQ = q.value;
             XRSLP.render(true);
             var again = document.getElementById('gm-q');
+            if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
+          });
+        }
+        var cq = document.getElementById('gc-q');
+        if (cq) {
+          cq.addEventListener('input', function () {
+            contentQ = cq.value;
+            XRSLP.render(true);
+            var again = document.getElementById('gc-q');
             if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
           });
         }
@@ -381,13 +453,15 @@ XRSLP.screens = XRSLP.screens || {};
     if (!r.tenant) { return r.fail; }
     var tenant = r.tenant;
 
-    /* The courses this institution actually uses: those reachable
-       through live access, plus those its students are placed in. */
-    var ids = {}, order = [];
-    state.tenantCourseIds(tenant.id).forEach(function (cid) { if (!ids[cid]) { ids[cid] = true; order.push(cid); } });
-    state.studentsForTenant(tenant.id).forEach(function (p) {
-      if (p.courseId && !ids[p.courseId]) { ids[p.courseId] = true; order.push(p.courseId); }
-    });
+    /* The courses this institution may map: reachable through live
+       access, plus those its students are placed in.
+
+       This rule used to be written out here, and `coursesWithoutMapping`
+       — which drives the Overview's "missing a local code" row — used a
+       narrower one. The same label therefore produced two different
+       numbers on two screens. The union now has ONE definition,
+       `state.tenantMappableCourseIds`, and both read it. */
+    var order = state.tenantMappableCourseIds(tenant.id);
     /* R05 — ordered by PROGRAMME first, then Course, so the table reads
        in the same Programme → Course shape as every other content
        surface in this workspace instead of one alphabetical run of
@@ -417,9 +491,21 @@ XRSLP.screens = XRSLP.screens || {};
     });
     if (mapF.grouping !== 'all' && !mapProgSeen[mapF.grouping]) { mapF.grouping = 'all'; }
 
+    /* WHICH COURSES HAVE NO INSTITUTION CODE — the only reason anybody
+       opens this screen, and until now the one thing it could not be
+       sorted or filtered by. A blank code looked exactly like a filled
+       one except for an empty box. */
+    function isUnmapped(cid) {
+      var m0 = state.courseMapping(tenant.id, cid);
+      return !m0 || !m0.localCode;
+    }
+    var unmappedCount = order.filter(isUnmapped).length;
+    if (mapF.missing && !unmappedCount) { mapF.missing = false; }
+
     var shownIds = order.filter(function (cid) {
       var c = data.course(cid);
       var g = c ? data.grouping(c.groupingId) : null;
+      if (mapF.missing && !isUnmapped(cid)) { return false; }
       if (mapF.grouping !== 'all' && (g ? g.id : '__none') !== mapF.grouping) { return false; }
       if (mapF.q) {
         var m0 = state.courseMapping(tenant.id, cid);
@@ -429,7 +515,22 @@ XRSLP.screens = XRSLP.screens || {};
       }
       return true;
     });
-    var mapFiltered = !!mapF.q || mapF.grouping !== 'all';
+    var mapFiltered = !!mapF.q || mapF.grouping !== 'all' || mapF.missing;
+
+    /* THE CODE THE STUDENTS THEMSELVES CARRY.
+       A student record holds its own institution course code, and
+       `addStudent` writes only that — it creates no tenant mapping — so
+       an admin can add thirty students all typing CE-305 and still see an
+       empty code here and an Overview row telling them it is missing.
+       That is a state-layer behaviour this pass does not change; what it
+       must not do is HIDE it. Where students carry a code the mapping
+       does not have, or a different one, the row says so. */
+    var studentCodes = {};
+    state.studentsForTenant(tenant.id).forEach(function (p) {
+      if (!p.courseId || !p.localCourseCode) { return; }
+      if (!studentCodes[p.courseId]) { studentCodes[p.courseId] = {}; }
+      studentCodes[p.courseId][p.localCourseCode] = (studentCodes[p.courseId][p.localCourseCode] || 0) + 1;
+    });
 
     /* Same low threshold as the other two content filters in this
        workspace: visible on the seeded prototype, suppressed only where
@@ -446,20 +547,28 @@ XRSLP.screens = XRSLP.screens || {};
           return '<option value="' + esc(o.id) + '"' + (mapF.grouping === o.id ? ' selected' : '') + '>' +
             esc(o.name) + '</option>';
         }).join('') + '</select></div>' +
+        (unmappedCount
+          ? '<div class="fb-sel" style="flex:0 0 auto"><span class="fb-label">Show</span>' +
+            '<label class="chk"><input type="checkbox" id="mf-missing"' + (mapF.missing ? ' checked' : '') + '> ' +
+            'Missing institution code (' + unmappedCount + ')</label></div>'
+          : '') +
         '</div>' +
         '<div class="fb-foot"><span class="fb-count">' + shownIds.length + ' of ' + order.length + ' ' +
-        util.plural(order.length, 'course') + ' shown</span>' +
+        util.plural(order.length, 'course') + ' shown' +
+        (unmappedCount ? ' · ' + unmappedCount + ' without an institution code' : ' · all mapped') + '</span>' +
         (mapFiltered ? '<button class="btn sm sec fb-clear" type="button" id="mf-clear">Clear filters</button>' : '') +
         '</div></div>'
       : '';
+
+    var writable = T.canWrite(tenant);
 
     var body;
     if (!order.length) {
       body = ui.emptyState({
         icon: 'doc',
         title: 'No courses to map yet',
-        body: 'Local course codes are recorded against the platform Courses this institution actually uses — ' +
-          'those inside its approved content access, and those its students are placed in.',
+        body: 'Institution course codes are recorded against the platform Courses this institution actually ' +
+          'uses — those inside its approved content access, and those its students are placed in.',
         actionsHTML: '<a class="btn sec" href="' + T.href.access(tenant.id) + '">View content access</a>' +
           '<a class="btn sec" href="' + T.href.people(tenant.id) + '">Open People</a>'
       });
@@ -474,67 +583,95 @@ XRSLP.screens = XRSLP.screens || {};
       body = mapFilterBar +
         '<form id="map-form" novalidate><div class="form-errors"></div>' +
         '<div class="tscroll"><table class="dt maptable">' +
-        '<caption class="sr-only">Institution-local mappings for platform courses</caption>' +
-        '<thead><tr><th scope="col">Programme</th><th scope="col">Course (canonical)</th>' +
-        '<th scope="col">Local course code</th><th scope="col">Semester</th></tr></thead><tbody>' +
+        '<caption class="sr-only">Institution course codes recorded against the platform Courses ' +
+        esc(tenant.name) + ' uses</caption>' +
+        '<thead><tr><th scope="col">Programme</th><th scope="col">Platform Course</th>' +
+        '<th scope="col">Institution course code</th><th scope="col">Semester</th></tr></thead><tbody>' +
         shownIds.map(function (cid, i) {
           var c = data.course(cid);
           var g = c ? data.grouping(c.groupingId) : null;
           var m = state.courseMapping(tenant.id, cid);
+          var mine = m && m.localCode ? m.localCode : '';
+          /* THE TWO CODES, RENDERED SO THEY CANNOT BE READ AS RIVALS.
+             This is the ONE screen where both legitimately appear, because
+             the mapping between them is its subject. The platform's code
+             is an ISSUED IDENTIFIER (`ui.platformCode`) and is strictly
+             read-only here — it is platform-owned exactly as the Course
+             name is (STK31-10) and nothing on this screen writes it.
+             Blank is a real, permanent answer, not a missing value: the
+             helper says "Not set" and no code is ever invented.
+
+             The per-row sentence "Platform-controlled — not editable
+             here" is gone. It was a fixed property of every row, printed
+             N times beside the page-level alert that says it once, and
+             read-only is already carried by the fact that there is no
+             control there. */
+          var codes = Object.keys(studentCodes[cid] || {});
+          var disagree = codes.filter(function (x) { return x !== mine; });
           return '<tr>' +
             '<td data-label="Programme">' + esc(g ? g.name : '—') + '</td>' +
-            /* THE TWO CODES, SIDE BY SIDE, SO THE DIFFERENCE IS VISIBLE
-               RATHER THAN EXPLAINED. The platform now carries a
-               canonical code of its own on the Course master record,
-               managed by the Content Manager and the Super Admin. Next
-               to a column headed "Local course code" that is exactly
-               the pair a Tenant Admin needs to see at once: the
-               platform's code for this Course, and their own. Strictly
-               READ-ONLY here — the canonical code is platform-owned in
-               the same way the Course name is (STK31-10), and nothing
-               on this screen writes it. The local code below is
-               untouched and stays entirely the institution's.
-
-               "None set" is a real answer, not a missing value: the
-               canonical code is optional and a Course may legitimately
-               never carry one. */
-            '<td data-label="Course (canonical)"><span class="tmain">' + esc(c ? c.name : cid) + '</span>' +
-            '<span class="tsub">Canonical code: ' +
-            (c && c.code ? esc(c.code) : 'none set') + '</span>' +
-            '<span class="tsub">Platform-controlled — not editable here</span></td>' +
-            '<td data-label="Local course code">' +
-            '<label class="sr-only" for="mc-' + i + '">Local course code for ' + esc(c ? c.name : cid) + '</label>' +
+            '<td data-label="Platform Course"><span class="tmain">' + esc(c ? c.name : cid) + '</span>' +
+            '<span class="tsub">' + ui.platformCode(c ? c.code : '') + '</span></td>' +
+            '<td data-label="Institution course code">' +
+            '<label class="sr-only" for="mc-' + i + '">Institution course code for ' + esc(c ? c.name : cid) + '</label>' +
             '<input type="text" id="mc-' + i + '" data-course="' + esc(cid) + '" class="cellinput" ' +
-            'value="' + esc(m ? m.localCode : '') + '" placeholder="e.g. CE-305"></td>' +
+            'value="' + esc(mine) + '" placeholder="e.g. CE-305"' + (writable ? '' : ' readonly') + '>' +
+            /* Surfaced, not hidden: a code the students in this Course
+               already carry that this mapping does not have. */
+            (disagree.length
+              ? '<span class="tsub2">' + (mine ? 'Students here carry ' : 'Students here already use ') +
+                esc(disagree.join(', ')) + ' on their own records.</span>'
+              : '') +
+            '</td>' +
             '<td data-label="Semester">' +
             '<label class="sr-only" for="ms-' + i + '">Semester for ' + esc(c ? c.name : cid) + ' (optional)</label>' +
             '<input type="text" id="ms-' + i + '" data-course-sem="' + esc(cid) + '" class="cellinput sm" ' +
-            'value="' + esc(m ? m.semester : '') + '" placeholder="Optional"></td>' +
+            'value="' + esc(m ? m.semester : '') + '" placeholder="Optional"' + (writable ? '' : ' readonly') + '></td>' +
             '</tr>';
         }).join('') + '</tbody></table></div>' +
         '<div class="formact">' + T.actionsIfWritable(tenant,
-          '<button class="btn pri" type="submit" id="map-save">Save mappings</button>', false) +
-        '<span class="formnote">Semester is optional and never required. Leaving a field blank clears that mapping.' +
-        /* ⚠ SAID OUT LOUD BECAUSE IT IS SURPRISING. Save walks the inputs
-           that are actually on the page, so a filtered-out course is left
-           exactly as it is rather than being cleared — which is the safe
-           behaviour, but only if the reader is told. */
-        (mapFiltered ? ' Only the ' + shownIds.length + ' ' + util.plural(shownIds.length, 'course') +
-          ' shown ' + (shownIds.length === 1 ? 'is' : 'are') + ' saved; the ' +
-          (order.length - shownIds.length) + ' hidden by the filter ' +
-          (order.length - shownIds.length === 1 ? 'is' : 'are') + ' left exactly as ' +
-          (order.length - shownIds.length === 1 ? 'it is' : 'they are') + '.' : '') +
-        '</span>' +
+          '<button class="btn pri" type="submit" id="map-save">Save mappings</button>',
+          /* ⚠ NEVER `false` HERE. The inputs above are still rendered —
+             history is never hidden by a deactivation — so passing no
+             note left an editable-looking table with no Save button and
+             no explanation of where it went. The inputs are `readonly`
+             instead, and the reason is stated. */
+          'Mappings cannot be changed while the institution is deactivated. Every code already recorded is ' +
+          'preserved and editable again as soon as it is reactivated.') +
+        (writable
+          ? '<span class="formnote">Semester is optional. A field left blank clears that mapping.' +
+            /* ⚠ SAID OUT LOUD BECAUSE IT IS SURPRISING. Save walks the
+               inputs that are actually on the page, so a filtered-out
+               course is left exactly as it is rather than being cleared —
+               the safe behaviour, but only if the reader is told. It
+               disappears the day Save reads the model instead of the DOM. */
+            (mapFiltered ? ' Only the ' + shownIds.length + ' ' + util.plural(shownIds.length, 'course') +
+              ' shown ' + (shownIds.length === 1 ? 'is' : 'are') + ' saved; the ' +
+              (order.length - shownIds.length) + ' hidden by the filter ' +
+              (order.length - shownIds.length === 1 ? 'is' : 'are') + ' left untouched.' : '') +
+            '</span>'
+          : '') +
         '</div></form>';
     }
 
+    /* THE ONE SCREEN WHERE BOTH CODES BELONG, because the mapping
+       between them is its subject. The header says which is which and
+       what this screen can and cannot change, so the table below needs no
+       per-row disclaimer. */
     var html =
       ui.phead('Academic mappings',
-        'Institution-local codes recorded beside the platform&rsquo;s canonical Courses.') +
+        'Maps your institution&rsquo;s course code to the platform Course. It does not change the platform ' +
+        'course code.') +
       '<div class="stack">' +
-      ui.alertBox('info', 'The platform catalogue is not editable here',
-        '<p>Programmes, Courses and Experiments are platform-controlled. An institution records its own course code ' +
-        'and, where it uses one, a semester — the canonical Course keeps its name and identity.</p>') +
+      ui.about('Which code is which',
+        /* `codePair` is a block element — never wrapped in a <p>, which
+           the browser would close around it. */
+        ui.codePair('CE G511', 'CE-306') +
+        '<p>The <strong>platform course code</strong> belongs to the platform catalogue, alongside the Course ' +
+        'name and identity. It is read-only here, and a Course may legitimately never carry one — “Not set” is ' +
+        'a real answer, not a missing value.</p>' +
+        '<p>The <strong>institution course code</strong> is yours. It records how this institution refers to ' +
+        'the same Course, and changing it never alters the platform Course, its name or its code.</p>') +
       '<div class="tablecard">' + body + '</div>' +
       '</div>';
 
@@ -562,11 +699,23 @@ XRSLP.screens = XRSLP.screens || {};
             if (again) { again.focus(); }
           });
         }
+        var mm = document.getElementById('mf-missing');
+        if (mm) {
+          mm.addEventListener('change', function () {
+            mapF.missing = mm.checked;
+            XRSLP.render(true);
+            var again = document.getElementById('mf-missing');
+            if (again) { again.focus(); }
+            ui.announce(mapF.missing
+              ? 'Showing only courses without an institution course code.'
+              : 'Showing every course this institution uses.');
+          });
+        }
         ['mf-clear', 'mf-clear-empty'].forEach(function (id) {
           var el = document.getElementById(id);
           if (!el) { return; }
           el.addEventListener('click', function () {
-            mapF = { q: '', grouping: 'all' };
+            mapF = { q: '', grouping: 'all', missing: false };
             XRSLP.render(true);
             ui.announce('Course filters cleared.');
             var again = document.getElementById('mf-q');

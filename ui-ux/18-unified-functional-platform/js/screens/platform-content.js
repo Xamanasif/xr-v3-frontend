@@ -126,42 +126,20 @@ XRSLP.screens = XRSLP.screens || {};
       });
     });
 
-    /* ---- the canonical tree ---- */
-    var tree = state.canonicalTree();
-    var treeHTML = tree.map(function (g) {
-      var courses = g.courses.map(function (c) {
-        var rows = c.records.length
-          ? '<div class="tscroll"><table class="dt">' +
-            '<caption class="sr-only">Experiments in ' + esc(c.course.name) + '</caption>' +
-            '<thead><tr><th scope="col">Experiment</th><th scope="col">Technologies</th>' +
-            '<th scope="col">Version</th><th scope="col">State</th>' +
-            '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
-            c.records.map(function (rec) {
-              var open = state.openVersionForRecord(rec.id);
-              return '<tr>' +
-                '<td data-label="Experiment"><a class="rowlink" href="' + P.href.record(rec.id) + '">' +
-                '<span class="tmain">' + esc(rec.name) + '</span>' +
-                '<span class="tsub">' + esc(rec.id) + '</span></a></td>' +
-                '<td data-label="Technologies">' + (rec.technologies.length
-                  ? ui.techBadges(rec.technologies) : '<span class="muted">None</span>') + '</td>' +
-                '<td data-label="Version">' + (rec.versionLabel
-                  ? esc(rec.versionLabel) : '<span class="muted">—</span>') +
-                (open ? '<span class="tsub">' + esc(open.versionLabel) + ' in the workflow</span>' : '') + '</td>' +
-                '<td data-label="State">' + recordStateBadge(rec) + '</td>' +
-                '<td class="cell-actions"><a class="btn sm sec" href="' + P.href.record(rec.id) + '">Open</a></td>' +
-                '</tr>';
-            }).join('') + '</tbody></table></div>'
-          : '<p class="muted" style="padding:14px 20px">No experiment exists under this course yet.</p>';
-        return '<details class="canon"' + '>' +
-          '<summary>' + ui.ic('flask', 'sm') + '<span class="cn-n">' + esc(c.course.name) + '</span>' +
-          '<span class="cn-c">' + c.records.length + ' ' + util.plural(c.records.length, 'experiment') + '</span>' +
-          '</summary><div class="cn-b">' + rows + '</div></details>';
-      }).join('');
-      return '<section class="canongroup">' +
-        '<h3>' + esc(g.grouping.name) + '</h3>' +
-        '<p class="cg-s">' + esc(g.grouping.summary) + '</p>' +
-        courses + '</section>';
-    }).join('');
+    /* ⚠ THE CANONICAL TREE WAS REMOVED FROM THIS SCREEN AT 08R.
+
+       It rendered the full Programme → Course → Experiment hierarchy
+       here, one nav item away from Academic structure, which renders
+       the same hierarchy from the same `state.canonicalTree()`. Two
+       copies of one structure on two screens is not consistency — it
+       made Content governance look like a second structure editor, and
+       it buried the two decision queues this screen exists for under a
+       tree nobody came here to browse.
+
+       Content governance now answers what is live, what is waiting and
+       where to act; the structure is a LINK at the foot of the
+       published-content card. `state.canonicalTree()` is unchanged and
+       is still what Academic structure reads. */
 
     /* ── R17 — THE PROBLEMS THIS PLANE CAN ACTUALLY MITIGATE ─────
        The stakeholder's words were that a Content Manager, an Academic
@@ -184,19 +162,34 @@ XRSLP.screens = XRSLP.screens || {};
         body: 'Every Experiment still in the production chain has somebody with a live scope able to act on it, ' +
           'and every registered Vendor, Academic Reviewer and Content Manager holds at least one scope.'
       }) +
-      '<p class="cardfoot">A record is listed here when <strong>nobody holds a live scope</strong> covering it in ' +
-      'the role that owns its current stage &mdash; most often because a scope was withdrawn. Two things fix it, ' +
-      'and both are yours: assign a scope in <a href="' + P.href.roles() + '">Role governance</a>, which is the ' +
-      'proper repair, or move the record by <strong>platform override</strong> on its own page, which unsticks it ' +
-      'without widening anyone&rsquo;s ordinary authority. ' +
-      '<strong>A published Experiment can never appear here</strong> — it has left the chain, and no override ' +
-      'reaches it in either direction.</p>', null, 'h2');
+      '<p class="cardfoot">A record appears here when <strong>nobody holds a live scope</strong> covering it in ' +
+      'the role that owns its current stage. Assign a scope in <a href="' + P.href.roles() + '">Role ' +
+      'governance</a> — the proper repair — or move it by platform override on its own page. A published ' +
+      'Experiment never appears here: it has left the production chain.</p>', null, 'h2');
+
+    /* The governed set: what the public catalogue actually carries,
+       each with the version in flight behind it if there is one. */
+    var governed = state.contentRecords()
+      .filter(function (r) { return r.status === state.CONTENT_STATUS.PUBLISHED; })
+      .map(function (rec) {
+        var openVersions = (state.versionsForRecord ? state.versionsForRecord(rec.id) : [])
+          .filter(function (v) { return v.status !== state.VERSION_STATUS.RELEASED; });
+        var pending = openVersions[0] || null;
+        return {
+          rec: rec,
+          ctx: data.contextOf(rec.id),
+          pending: pending,
+          pendingMeta: pending ? state.versionStatusMeta(pending.status) : null
+        };
+      });
 
     var html =
+      /* The subtitle used to say "Canonical catalogue and later-version
+         decisions", which described the tree that is no longer here. */
       ui.phead('Content governance',
         awaiting.length
           ? awaiting.length + ' ' + util.plural(awaiting.length, 'version') + ' awaiting a Release / Hold decision'
-          : 'Canonical catalogue and later-version decisions') +
+          : 'What is published, and what is waiting on a decision') +
       '<div class="stack">' +
       stuckCard +
       ui.card('Versions awaiting Release / Hold',
@@ -206,23 +199,59 @@ XRSLP.screens = XRSLP.screens || {};
           body: 'A later version of an already-published Experiment reaches this list once the Academic ' +
             'Reviewer has approved it.'
         }) +
-        '<p class="cardfoot"><strong>Release</strong> and <strong>Hold</strong> apply to a LATER version of an ' +
-        'already-published Experiment. The <strong>first publication</strong> of a new Experiment is the Content ' +
-        'Manager&rsquo;s, and there is no publish control anywhere in this workspace.</p>', null, 'h2') +
-      ui.card('Canonical catalogue',
-        '<p class="chelp">Programme / department → Course → Experiment. This structure is platform-controlled: ' +
-        'a Tenant Admin can never redefine it. Canonical metadata is managed here and by the Content Manager; ' +
-        'Learning Outcomes stay with the Academic Reviewer and technology delivery stays with the Vendor.</p>' +
-        treeHTML, null, 'h2') +
-      ui.gapNote('RETIRING STRUCTURE IS NOT IN THIS BUILD',
-        'A Programme / department or a Course can be <strong>created and renamed</strong> in ' +
-        '<a href="' + P.href.structure() + '">Academic structure</a> &mdash; built on the recommendation in open ' +
-        'decision <strong>D3</strong>, since <strong>no source describes a create operation</strong> either. ' +
-        '<strong>Retiring or deleting one is deliberately absent</strong>: these identifiers are load-bearing for ' +
-        'every existing access record, academic mapping, Faculty mapping and assignment, so retirement needs a ' +
-        'stated rule for what happens to those live references — and no source describes one. Nothing is deleted ' +
-        'anywhere in this build. Also absent by instruction: unpublishing or withdrawing content, and any bundle, ' +
-        'pricing or revenue surface.') +
+        /* ⚠ THE TERMINOLOGY FIREWALL, STATED ON THE SURFACE THAT COULD
+           BREAK IT. Release / Hold acts on a LATER VERSION of an
+           already-published Experiment; first publication is the Content
+           Manager's and the word Publish appears as an action nowhere in
+           this workspace. Do not shorten this away. */
+        '<p class="cardfoot"><strong>Release</strong> and <strong>Hold</strong> apply to a later version of an ' +
+        'already-published Experiment. First publication of a new Experiment is the Content Manager&rsquo;s, ' +
+        'and there is no publish control anywhere in this workspace.</p>', null, 'h2') +
+      /* ⚠ THIS CARD USED TO BE THE WHOLE CANONICAL TREE, and that was a
+         duplicate of Academic structure one nav item away — the same
+         Programme → Course → Experiment hierarchy, rendered twice, on
+         two screens that answer different questions.
+
+         Content GOVERNANCE answers: what is live, what is waiting on
+         me, and where do I act. So this is now the governed content
+         itself — one row per Experiment with its public version, any
+         version in flight, its technologies and its state — and the
+         structure it is filed under is a link, not a second copy. */
+      ui.card('Published content',
+        (governed.length
+          ? '<p class="chelp">Every Experiment the public catalogue carries, with the version that is live ' +
+            'now and anything waiting behind it.</p>' +
+            '<div class="tscroll"><table class="dt">' +
+            '<caption class="sr-only">Published Experiments and their versions</caption>' +
+            '<thead><tr><th scope="col">Experiment</th><th scope="col">Course</th>' +
+            '<th scope="col">Technologies</th><th scope="col">Public version</th>' +
+            '<th scope="col">In flight</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>' +
+            '<tbody>' + governed.map(function (g) {
+              return '<tr>' +
+                '<td data-label="Experiment"><a class="rowlink" href="' + P.href.record(g.rec.id) + '">' +
+                '<span class="tmain">' + esc(g.rec.name) + '</span></a></td>' +
+                '<td data-label="Course">' + (g.ctx
+                  ? esc(g.ctx.grouping.name) + ' <span class="muted">›</span> ' + esc(g.ctx.course.name)
+                  : '<span class="muted">Not resolved</span>') + '</td>' +
+                '<td data-label="Technologies">' + ui.techBadges(g.rec.technologies || []) + '</td>' +
+                '<td data-label="Public version"><span class="verchip">Version ' +
+                esc(g.rec.versionLabel || '1.0') + '</span></td>' +
+                '<td data-label="In flight">' + (g.pending
+                  ? ui.badge(g.pendingMeta.badge, g.pendingMeta.icon,
+                      'v' + g.pending.versionLabel + ' · ' + g.pendingMeta.label)
+                  : '<span class="muted">—</span>') + '</td>' +
+                '<td class="cell-actions"><a class="btn sm sec" href="' + P.href.record(g.rec.id) + '">Open' +
+                '<span class="sr-only"> ' + esc(g.rec.name) + '</span></a></td>' +
+                '</tr>';
+            }).join('') + '</tbody></table></div>'
+          : ui.emptyRow({ icon: 'flask', heading: 'h3',
+              title: 'Nothing is published yet',
+              body: 'An Experiment appears here once the Content Manager publishes it for the first time.' })) +
+        '<p class="cardfoot">The structure these are filed under — Programme / department → Course — is ' +
+        'managed in <a href="' + P.href.structure() + '">Academic structure</a>. Nothing is ever removed ' +
+        'from it: live institutional access, academic mappings, Faculty mappings and assignments point at those ' +
+        'identifiers, and published content is never unpublished or withdrawn.</p>',
+        null, 'h2') +
       '</div>';
 
     return { title: 'Content governance', html: html, navKey: 'content' };
@@ -243,58 +272,148 @@ XRSLP.screens = XRSLP.screens || {};
      ============================================================ */
   XRSLP.screens.platformStructure = function () {
     var groupings = state.groupingRecords();
+    var courseTotal = 0;
+    groupings.forEach(function (g) { courseTotal += state.coursesInGroupingRecord(g.id).length; });
 
+    /* ── THE HIERARCHY, RENDERED AS A HIERARCHY ──────────────────
+       Programme / department → Course → Experiment count and usage.
+       What was here before was a bare `<h3>`, two paragraphs of body
+       prose (one of them wrapping the Manage BUTTON), and a three-column
+       table whose middle cell held a run-on sentence of five unrelated
+       figures. It read as a debug dump of the structure tables rather
+       than as the canonical catalogue the platform is built on.
+
+       Each Programme is now a zone heading carrying its own counts and
+       its own Manage action, over a list of Course records. */
     var rows = groupings.map(function (g) {
       var courses = state.coursesInGroupingRecord(g.id);
+      /* TWO DIFFERENT POPULATIONS, NAMED APART — the same distinction
+         the Programme's own page makes. `experimentsInGrouping` resolves
+         through the PUBLISHED pool; `courseUsage().records` counts every
+         content record, in-flight ones included. */
+      var published = data.experimentsInGrouping(g.id).length;
+      var allRecords = courses.reduce(function (n, c) { return n + state.courseUsage(c.id).records; }, 0);
+
+      /* ⚠ THE MAIN LIST ANSWERS "WHAT IS THE STRUCTURE", NOT "WHAT
+         REFERENCES IT".
+
+         Each Course row carried its full dependency breakdown — 3
+         Experiments · 1 Tenant mapping · 1 Faculty mapping · 2 Role
+         scopes · 2 People · 9 Questions — six figures per row, on every
+         row, which turned a Programme listing into a database inspector
+         and buried the one number a reader is actually scanning for.
+
+         The row now carries what identifies a Course: its name, its
+         PLATFORM COURSE CODE, and how many Experiments are filed under
+         it. The full dependency picture is one click away on the Course
+         page, which already renders it in full and is where somebody
+         asking "what would this affect?" is going anyway. Nothing was
+         removed from the product — it was moved to the level it belongs
+         to. */
       var courseRows = courses.length
-        ? '<div class="tscroll"><table class="dt">' +
-          '<caption class="sr-only">Courses in ' + esc(g.name) + '</caption>' +
-          /* R20 — the "Origin" column is gone. It repeated one word of
-             prototype bookkeeping down every row and answered nothing an
-             operator manages a Course for; the fact now lives once, in a
-             sentence, on the Course's own identity card. */
-          '<thead><tr><th scope="col">Course</th><th scope="col">In use</th>' +
-          '<th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
-          courses.map(function (c) {
+        ? '<ul class="reclist">' + courses.map(function (c) {
             var use = state.courseUsage(c.id);
-            return '<tr>' +
-              '<td data-label="Course"><a class="rowlink" href="' + P.href.course(c.id) + '">' +
-              '<span class="tmain">' + esc(c.name) + '</span>' +
-              '<span class="tsub">' + esc(c.id) + '</span></a></td>' +
-              '<td data-label="In use">' + esc(usageText(use)) + '</td>' +
-              '<td class="cell-actions"><a class="btn sm sec" href="' + P.href.course(c.id) + '">Manage</a></td>' +
-              '</tr>';
-          }).join('') + '</tbody></table></div>'
-        : '<p class="muted" style="padding:14px 20px">No Course sits in this Programme / department yet.</p>';
-      return '<section class="canongroup">' +
-        '<h3>' + esc(g.name) + '</h3>' +
-        '<p class="cg-s">' + esc(g.summary) + '</p>' +
-        '<p class="cg-s"><a class="btn sm sec" href="' + P.href.grouping(g.id) + '">Manage this Programme / department</a></p>' +
-        courseRows + '</section>';
+            return '<li class="recrow">' +
+              '<div class="rr-b">' +
+              '<div class="rr-t"><a href="' + P.href.course(c.id) + '">' + esc(c.name) + '</a>' +
+              (c.code ? ui.platformCode(c.code) : '') + '</div>' +
+              '<div class="rr-m">' + esc(c.summary) + '</div>' +
+              '</div>' +
+              '<div class="rr-mid">' + ui.metrics([
+                { v: use.records, k: util.plural(use.records, 'Experiment') }
+              ]) + '</div>' +
+              '<div class="rr-a"><a class="btn sm sec" href="' + P.href.course(c.id) + '">Manage' +
+              '<span class="sr-only"> the Course ' + esc(c.name) + '</span></a></div>' +
+              '</li>';
+          }).join('') + '</ul>'
+        : ui.emptyRow({ icon: 'book', heading: 'h3',
+            title: 'No Course in this Programme / department yet',
+            body: 'A Course added below appears here, and becomes available to Vendor submissions, role ' +
+              'governance and the public catalogue at once.' });
+
+      /* ONE `<section>` PER PROGRAMME, holding its own zone heading and
+         its own card, so the `.stack` gap separates PROGRAMMES rather
+         than separating each heading from the list it introduces. The
+         old `.canongroup` wrapper is deliberately not reused: its
+         `h3` rule in screens.css would out-specify the section head's
+         own type scale, since screens.css loads after components.css. */
+      return '<section>' +
+        ui.sectionHead({
+          /* h2: this zone head sits directly under the page h1, so h3
+             would skip a level. The Content governance tree uses h3
+             because there the same zone sits inside an h2 card. */
+          title: g.name, heading: 'h2', desc: g.summary,
+          count: courses.length, countLabel: 'Course',
+          actionsHTML: '<a class="btn sm sec" href="' + P.href.grouping(g.id) + '">Manage' +
+            '<span class="sr-only"> the Programme / department ' + esc(g.name) + '</span></a>'
+        }) +
+        ui.card('',
+          ui.metrics([
+            { v: courses.length, k: util.plural(courses.length, 'Course') },
+            { v: published, k: 'Experiments published' },
+            { v: allRecords, k: 'Experiments — all records' }
+          ]) +
+          '<div style="margin-top:12px">' + courseRows + '</div>') +
+        '</section>';
     }).join('');
 
     var html =
       ui.phead('Academic structure',
-        'Programme / department and Course master records — the canonical structure every Experiment is filed under') +
+        groupings.length + ' ' +
+        (groupings.length === 1 ? 'Programme / department' : 'Programmes / departments') + ' · ' +
+        courseTotal + ' ' + util.plural(courseTotal, 'Course') +
+        ' — the canonical structure every Experiment is filed under') +
+      '<p class="chelp">Programme / department → Course → Experiment. This structure is ' +
+      '<strong>platform-controlled</strong>: a Tenant Admin can never redefine it, and a Vendor selects a ' +
+      'canonical Course rather than inventing one. A Course added here is available to role governance, to ' +
+      'Vendor submissions and to the public catalogue immediately &mdash; there is no second catalogue to ' +
+      'keep in step, and no way to take one back out again.</p>' +
       '<div class="stack">' +
-      ui.card('Canonical structure',
-        '<p class="chelp">This structure is <strong>platform-controlled</strong> (<code>STK31-10</code>): a Tenant ' +
-        'Admin can never redefine it, and a Vendor selects a canonical Course rather than inventing one. ' +
-        'Adding a Course here makes it immediately available to role governance, to Vendor submissions and to the ' +
-        'public catalogue &mdash; there is no second catalogue to keep in step.</p>' + rows, null, 'h2') +
-      '<div class="grid-rail"><div class="stack">' + newGroupingCard() + '</div>' +
-      '<div class="stack">' + newCourseCard() + '</div></div>' +
-      ui.gapNote('CREATE AND RENAME ONLY — AND CREATE IS AN IMPLEMENTATION DECISION',
-        '<strong>No source describes a create, retire or delete operation for these records.</strong> The sources ' +
-        'confirm only that the structure is platform-controlled (<code>STK31-10</code>) and that canonical ' +
-        'metadata may be managed (<code>STK31-09</code>). Create and rename are built here on the recommendation ' +
-        'recorded in open decision <strong>D3</strong> — &ldquo;scope create first and treat retire separately&rdquo; ' +
-        '&mdash; and remain open to the stakeholder. <strong>Nothing can be retired or deleted.</strong> Every id ' +
-        'here is referenced by live access records, tenant course mappings, Faculty mappings and student records, ' +
-        'and no source states what should happen to those references when a structure record retires. ' +
-        'An id never changes on a rename, so every <em>stored</em> reference stays valid &mdash; but a CSV import ' +
-        'that names the OLD Programme or Course <em>text</em> will no longer resolve, because that path matches ' +
-        'by name.') +
+      (groupings.length
+        ? rows
+        : ui.card('Canonical structure', ui.emptyRow({ icon: 'book', heading: 'h3',
+            title: 'No Programme / department yet',
+            body: 'Add one below. Every Course, and therefore every Experiment, is filed under one.' }), null, 'h2')) +
+      /* ── WHY THERE IS NO DELETE OR RETIRE CONTROL HERE ───────────
+         There is none, and none is offered, and that is correct. The
+         reasoning used to be printed on screen as a ~700-character
+         dashed gap note — "No source describes a create, retire or
+         delete operation for these records", the STK31-10 / STK31-09
+         citations, open decision D3, "remain open to the stakeholder".
+         All of that is requirements traceability addressed to the build
+         team; on a stakeholder-facing screen it reads as an admission of
+         incompleteness about a decision that is in fact settled. It is
+         recorded here instead, and the product simply does not offer an
+         unsafe action:
+
+           · The FRD contains no occurrence of delete, retire, deprecate,
+             unpublish or cascade. The conceptual data model gives
+             AcademicGrouping, Course and Experiment no lifecycle at all.
+           · STK31-22 ("prefer a reversible status change over physical
+             deletion") scopes itself explicitly to tenant termination,
+             student removal and the Question Bank — not to canonical
+             structure.
+           · Every id here is referenced by live access records, tenant
+             course mappings, Faculty mappings and student records, and
+             elsewhere in this build "a Course id never changes and
+             nothing deletes a Course" is a load-bearing assumption.
+           · Create and rename are built on the D3 recommendation
+             ("scope create first, treat retire separately").
+
+         What the operator needs is the consequence, not the provenance:
+         it is stated once on the create forms ("it cannot be retired")
+         and once beside the dependency figures on each record's own
+         page, where it is a fact about THAT record. The rename /
+         CSV-import consequence lives on the rename forms, which is where
+         somebody is about to cause it. */
+      ui.sectionHead({ title: 'Add to the canonical structure', heading: 'h2',
+        desc: 'A Programme / department or a Course can be created and renamed here. Neither can be retired: ' +
+          'live records point at them.' }) +
+      /* The Course form has five fields including a select and a textarea;
+         the Programme form has two. The wide column goes to the wider
+         form — the reverse of how this was laid out. */
+      '<div class="grid-rail"><div class="stack">' + newCourseCard() + '</div>' +
+      '<div class="stack">' + newGroupingCard() + '</div></div>' +
       '</div>';
 
     return {
@@ -303,18 +422,45 @@ XRSLP.screens = XRSLP.screens || {};
     };
   };
 
-  function usageText(use) {
+  /* WHAT REFERENCES THIS COURSE, as labelled metadata.
+     This was `usageText()`, which joined five independent metrics with
+     middots into one cell: "3 experiments (all records) · 1 tenant
+     mapping · 2 role assignments · 1 person". Five different kinds of
+     dependency read as one sentence, and the identical data was already
+     rendered correctly as separate rows on the Course page one click
+     away. Zero values are still suppressed — a row is shorter and
+     easier to scan when it names only what actually exists — and the
+     complete breakdown, zeros included, stays on the Course page. */
+  function usageMetrics(use) {
     var parts = [];
-    if (use.records) {
-      parts.push(use.records + ' ' + util.plural(use.records, 'experiment') + ' (all records)');
-    }
-    if (use.mappings) { parts.push(use.mappings + ' ' + util.plural(use.mappings, 'tenant mapping')); }
-    if (use.assignments) { parts.push(use.assignments + ' ' + util.plural(use.assignments, 'role assignment')); }
+    if (use.records) { parts.push({ v: use.records, k: util.plural(use.records, 'Experiment') }); }
+    if (use.mappings) { parts.push({ v: use.mappings, k: util.plural(use.mappings, 'Tenant mapping') }); }
     if (use.facultyMappings) {
-      parts.push(use.facultyMappings + ' ' + util.plural(use.facultyMappings, 'Faculty mapping'));
+      parts.push({ v: use.facultyMappings, k: util.plural(use.facultyMappings, 'Faculty mapping') });
     }
-    if (use.people) { parts.push(use.people + ' ' + util.plural(use.people, 'person', 'people')); }
-    return parts.length ? parts.join(' · ') : 'Not yet referenced';
+    if (use.assignments) { parts.push({ v: use.assignments, k: util.plural(use.assignments, 'Role scope') }); }
+    if (use.people) { parts.push({ v: use.people, k: util.plural(use.people, 'Person', 'People') }); }
+    /* ⚠ THE QUESTION BANK IS A REFERENCE TOO — added at Implementation 08
+       together with the `courseUsage().questions` counter behind it.
+       Six collections carry a courseId and this list showed five, so a
+       Course whose other references had all been cleared but against
+       which a Faculty member had written a question bank rendered the
+       words "Not yet referenced" to a Super Admin. The counter was
+       corrected in js/state.js; showing it here is what makes the
+       correction visible on the screen that states the conclusion. */
+    if (use.questions) {
+      parts.push({ v: use.questions, k: util.plural(use.questions, 'Question') });
+    }
+    return parts.length
+      ? ui.metrics(parts)
+      : '<span class="tsub2">Not yet referenced</span>';
+  }
+
+  /* The same five counters as one number — how many live things point at
+     a record, and therefore why it is permanent. */
+  function usageTotal(use) {
+    return (use.records || 0) + (use.mappings || 0) + (use.facultyMappings || 0) +
+      (use.questions || 0) + (use.assignments || 0) + (use.people || 0);
   }
 
   /* ── R20 — "What is this origin? ... I have to remove it" ────
@@ -350,8 +496,13 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="field" id="pg-name"><label for="pg-name-i">Name ' +
       '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
       '<input type="text" id="pg-name-i" autocomplete="off">' +
-      '<p class="hint">One terminology-neutral grouping level. The final wording — Programme, Department or ' +
-      'Academic Stream — is still open (<code>ND-02</code>).</p></div>' +
+      /* The grouping level is deliberately terminology-neutral: whether
+         it is finally called Programme, Department or Academic Stream is
+         open (ND-02). That is a naming decision for the stakeholder, not
+         something the person filling this form in acts on, so the field
+         says what the level IS rather than citing the open question. */
+      '<p class="hint">One grouping level above Course — a Programme, a Department or an academic stream, ' +
+      'whichever this institution&rsquo;s catalogue calls it.</p></div>' +
       '<div class="field" id="pg-summary"><label for="pg-summary-i">Description ' +
       '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
       '<textarea id="pg-summary-i" rows="3"></textarea>' +
@@ -359,7 +510,9 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="formact"><button class="btn pri" type="submit">Add Programme / department</button>' +
       '<span class="formnote">Creates no content and grants no institution anything &mdash; but it is ' +
       '<strong>immediately visible on the public catalogue</strong>, and it cannot be retired.</span></div>' +
-      '</form>', null, 'h2');
+      /* h3: both create cards sit under the "Add to the canonical
+         structure" zone head, which is the h2. */
+      '</form>', null, 'h3');
   }
 
   function newCourseCard() {
@@ -380,11 +533,12 @@ XRSLP.screens = XRSLP.screens || {};
          put a code on it would be an invented handover. Optional, and
          staying blank is a permanent legitimate state — no official
          code exists for the sample Courses and none is invented. */
-      '<div class="field" id="pc-code"><label for="pc-code-i">Course code</label>' +
+      '<div class="field" id="pc-code"><label for="pc-code-i">Platform course code</label>' +
       '<input type="text" id="pc-code-i" autocomplete="off" maxlength="40" aria-describedby="pc-code-h">' +
-      '<p class="hint" id="pc-code-h">Optional. Unique across the whole platform when it is set — a canonical ' +
+      '<p class="hint" id="pc-code-h">Optional. Unique across the whole platform when it is set — the platform ' +
       'code identifies one Course everywhere, unlike the Course <em>name</em>, which only has to be unique ' +
-      'inside its Programme. It is managed primarily by the Content Manager; you also have access to it.</p></div>' +
+      'inside its Programme. It is managed primarily by the Content Manager; you also have access to it. ' +
+      'An institution&rsquo;s own course code is a separate field, recorded by that institution.</p></div>' +
       '<div class="field" id="pc-summary"><label for="pc-summary-i">Description ' +
       '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
       '<textarea id="pc-summary-i" rows="3"></textarea>' +
@@ -392,7 +546,7 @@ XRSLP.screens = XRSLP.screens || {};
       '<div class="formact"><button class="btn pri" type="submit">Add Course</button>' +
       '<span class="formnote">A Vendor still needs a scope on this Course before they can submit into it. ' +
       'It is <strong>immediately visible on the public catalogue</strong>, and it cannot be retired.</span></div>' +
-      '</form>', null, 'h2');
+      '</form>', null, 'h3');
   }
 
   function wireStructureForms() {
@@ -451,10 +605,16 @@ XRSLP.screens = XRSLP.screens || {};
        seeded data alone. Both are shown, each labelled for what it is. */
     var publishedCount = data.experimentsInGrouping(g.id).length;
     var allRecords = courses.reduce(function (n, c) { return n + state.courseUsage(c.id).records; }, 0);
+    /* Everything that points at this Programme, through its Courses. It
+       is the figure the permanence line is about, so the two can never
+       disagree. */
+    var childRefs = courses.reduce(function (n, c) { return n + usageTotal(state.courseUsage(c.id)); }, 0);
 
     var html =
       ui.crumbs([{ label: 'Academic structure', href: P.href.structure() }, { label: g.name }]) +
-      ui.phead(g.name, 'Programme / department master record') +
+      ui.phead(g.name, 'Programme / department master record · ' +
+        courses.length + ' ' + util.plural(courses.length, 'Course') + ' · ' +
+        publishedCount + ' published ' + util.plural(publishedCount, 'Experiment')) +
       '<div class="grid-rail"><div class="stack">' +
       ui.card('Rename or re-describe',
         '<form id="pg-edit" novalidate>' +
@@ -481,8 +641,17 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="k">How this record was added</div><div class="v">' +
         esc(structureAddedLine(g)) + '</div>' +
         '</div>' +
-        '<p class="cardfoot">Retiring a Programme / department is not implemented. Nothing is deleted in this ' +
-        'build, and no source states what should happen to the live references a retirement would orphan.</p>',
+        /* THE PERMANENCE LINE, NEXT TO THE FIGURES IT IS ABOUT.
+           A fact about THIS record rather than a note about what the
+           build does not implement — see the block comment on
+           `platformStructure` for the full reasoning and the sources. */
+        '<p class="cardfoot">This record is <strong>permanent</strong>. ' +
+        (childRefs
+          ? 'Its Courses are referenced ' + childRefs + ' ' + util.plural(childRefs, 'time') +
+            ' by live institutional access, tenant and Faculty mappings, role scopes and student records, so it ' +
+            'cannot be removed. It can be renamed at any time.'
+          : 'Canonical structure is never removed in this build, so a Programme / department stays in the ' +
+            'catalogue once it exists. It can be renamed at any time.') + '</p>',
         null, 'h2') +
       '</div></div>';
 
@@ -527,7 +696,13 @@ XRSLP.screens = XRSLP.screens || {};
 
     var html =
       ui.crumbs([{ label: 'Academic structure', href: P.href.structure() }, { label: c.name }]) +
-      ui.phead(c.name, 'Course master record') +
+      ui.phead(c.name,
+        (function () {
+          var g = data.grouping(c.groupingId);
+          return 'Course master record' + (g ? ' · ' + esc(g.name) : '') +
+            ' · ' + records.length + ' ' + util.plural(records.length, 'Experiment');
+        })(),
+        null, c.code ? ' ' + ui.platformCode(c.code) : '') +
       '<div class="grid-rail"><div class="stack">' +
       ui.card('Rename, re-describe or move',
         '<form id="pc-edit" novalidate>' +
@@ -553,7 +728,7 @@ XRSLP.screens = XRSLP.screens || {};
            Content Manager's field, and this is the Super Admin's access
            to the same one value. Pre-filled from the stored code, and
            an empty box means the Course genuinely has no code. */
-        '<div class="field" id="pc-code"><label for="pc-code-i">Course code</label>' +
+        '<div class="field" id="pc-code"><label for="pc-code-i">Platform course code</label>' +
         '<input type="text" id="pc-code-i" autocomplete="off" maxlength="40" aria-describedby="pc-code-h" ' +
         'value="' + esc(c.code || '') + '">' +
         '<p class="hint" id="pc-code-h">Optional, and unique across the whole platform when it is set. Managed ' +
@@ -575,13 +750,34 @@ XRSLP.screens = XRSLP.screens || {};
            import and manual entry both match canonical structure BY
            NAME. Outside it, it would not be, and saying so is the only
            honest version of this note. */
-        '<strong>The Course code is separate.</strong> Changing it is safe inside this prototype because ' +
-        'nothing here resolves a Course by its code &mdash; every import and every manual entry matches on the ' +
-        'Course <em>name</em>. Outside the prototype an integration that keys on the code would have to be ' +
-        'considered before it is changed.</span></div>' +
+        '<strong>The Course code is separate.</strong> Nothing here resolves a Course by its code, so changing ' +
+        'it breaks nothing on the platform &mdash; an external system keyed on the code would need ' +
+        'checking.</span></div>' +
         '</form>', null, 'h2') +
       ui.card('Experiments filed under this Course', recordsHTML, null, 'h2') +
       '</div><div class="stack">' +
+      /* ⚠ USAGE & DEPENDENCIES LIVE HERE, not on the Programme listing.
+
+         The structure list used to print all six of these figures on
+         every Course row, which made a Programme page read as a
+         database inspector. They belong to the record, and this is the
+         record's own page — the place somebody asking "what would
+         changing this affect?" has already navigated to.
+
+         It is also the page that explains why nothing can be removed:
+         the count IS the reason, so the figures and the sentence sit
+         together instead of the sentence appearing on its own. */
+      ui.card('Usage & dependencies',
+        (usageTotal(use)
+          ? '<p class="chelp">What currently references this Course. Every one of these is a live ' +
+            'record elsewhere in the platform.</p>' + usageMetrics(use)
+          : ui.emptyRow({ icon: 'check', ok: true, heading: 'h3',
+              title: 'Nothing references this Course yet',
+              body: 'No Experiment, tenant mapping, Faculty mapping, role scope, enrolment or question ' +
+                'is filed against it.' })) +
+        '<p class="cardfoot">Canonical structure is permanent in this build. A Course keeps its identifier ' +
+        'for the life of the platform so every record above continues to resolve; renaming and re-describing ' +
+        'are the changes that are safe, and both are on this page.</p>', null, 'h2') +
       ui.card('Identity',
         '<div class="kv">' +
         '<div class="k">Identifier</div><div class="v">' + esc(c.id) + '</div>' +
@@ -590,11 +786,14 @@ XRSLP.screens = XRSLP.screens || {};
            canonical code is optional master data a person sets. Showing
            only the id let the code look like an internal detail of it,
            which is exactly the confusion rule E exists to remove. */
-        '<div class="k">Course code</div><div class="v">' +
-        (c.code ? '<strong>' + esc(c.code) + '</strong>' : '<span class="muted">Not set</span>') +
-        '<span class="tsub2">Canonical, and managed primarily by the Content Manager &mdash; the Super Admin ' +
-        'also has access to it, on the form beside this card. Not the institution&rsquo;s own local course ' +
-        'code, which each Tenant Admin records separately.</span></div>' +
+        /* PLATFORM course code — never "canonical", which is engineering
+           vocabulary, and never a bare "Course code", which is the exact
+           ambiguity this pass exists to remove. */
+        '<div class="k">Platform course code</div><div class="v">' +
+        (c.code ? ui.platformCode(c.code) : '<span class="muted">Not set</span>') +
+        '<span class="tsub2">Managed primarily by the Content Manager &mdash; the Super Admin ' +
+        'also has access to it, on the form beside this card. This is not an institution&rsquo;s own ' +
+        'course code, which each Tenant Admin records separately for their own institution.</span></div>' +
         '<div class="k">Experiments — all records</div><div class="v">' + use.records +
         '<span class="tsub2">in-flight submissions included</span></div>' +
         '<div class="k">Experiments — published</div><div class="v">' +
@@ -606,8 +805,17 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="k">How this record was added</div><div class="v">' +
         esc(structureAddedLine(c)) + '</div>' +
         '</div>' +
-        '<p class="cardfoot">Retiring a Course is not implemented — those references are exactly why. Nothing is ' +
-        'deleted in this build.</p>', null, 'h2') +
+        /* THE PERMANENCE LINE, NEXT TO THE FIGURES IT IS ABOUT — the six
+           rows above ARE the reason, so the sentence names their total
+           rather than asserting a rule in the abstract. See the block
+           comment on `platformStructure` for the sources. */
+        '<p class="cardfoot">This record is <strong>permanent</strong>. ' +
+        (usageTotal(use)
+          ? usageTotal(use) + ' live ' + util.plural(usageTotal(use), 'record') +
+            ' above point at this Course, so it cannot be removed. It can be renamed, re-described and — while ' +
+            'nobody is filed against it — moved to another Programme.'
+          : 'Canonical structure is never removed in this build, so a Course stays in the catalogue once it ' +
+            'exists. It can be renamed, re-described and moved to another Programme.') + '</p>', null, 'h2') +
       '</div></div>';
 
     return {
@@ -779,7 +987,7 @@ XRSLP.screens = XRSLP.screens || {};
           '<div class="field" id="cm-course"><label for="cm-course-i">Course ' +
           '<span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>' +
           '<select id="cm-course-i">' + courseOptions + '</select>' +
-          '<p class="hint">The Experiment identifier never changes, so existing access records, academic ' +
+          '<p class="hint">The Experiment identifier never changes, so existing institutional access, academic ' +
           'mappings and student assignments keep pointing at the same Experiment.' +
           /* Moving an Experiment between Courses is a real consequence, not
              a cosmetic edit: Faculty reach is derived from COURSE-level
@@ -903,7 +1111,7 @@ XRSLP.screens = XRSLP.screens || {};
         'this workspace; replacing what the catalogue shows is yours, through <strong>Release / Hold</strong> ' +
         'above, which acts on a <em>later version</em> &mdash; a different object with its own decision. An ' +
         'override that could reach across that line would be a publish control by another name, and it would ' +
-        'strand the access records, Faculty mappings, assignments and in-progress attempts that already point ' +
+        'strand the institutional access, Faculty mappings, assignments and in-progress attempts that already point ' +
         'at this Experiment.</p>');
     } else if (!overrideDests.length) {
       overrideBody = '<p class="muted">No destination is available for this record.</p>';
@@ -944,11 +1152,15 @@ XRSLP.screens = XRSLP.screens || {};
     }
     var overrideCard = ui.card('Platform override — move this Experiment in the workflow',
       overrideBody +
-      '<p class="cardfoot"><strong>This is an override, not extra authority.</strong> It changes no licence, no ' +
-      'entitlement, no publication and no academic decision, and it widens nobody&rsquo;s ordinary authority by ' +
-      'a single step: the Vendor still submits, the Academic Reviewer still owns the Learning Outcomes, and the ' +
-      'Content Manager still controls first publication. Every override is written into this Experiment&rsquo;s ' +
-      'own history, with the reason given, where all three of them read it. Nothing is sent to anybody.</p>',
+      /* KEPT, AND SHORTENED. This is a product warning on a powerful
+         control, not engineering clutter, so it stays — but it was
+         making two of its five claims twice ("not extra authority" and
+         "widens nobody's authority by a single step" are the same
+         sentence). Every distinct claim survives. */
+      '<p class="cardfoot"><strong>This is an override, not extra authority.</strong> It changes no licence, ' +
+      'entitlement, publication or academic decision: the Vendor still submits, the Academic Reviewer still ' +
+      'owns the Learning Outcomes, and the Content Manager still controls first publication. Every override is ' +
+      'written into this Experiment&rsquo;s own history with your reason, and nothing is sent to anybody.</p>',
       null, 'h2');
 
     /* ---- the version panel ---- */
@@ -1047,8 +1259,20 @@ XRSLP.screens = XRSLP.screens || {};
         }).join('') + '</div>'
       : '<p class="muted">No later version has been submitted for this experiment.</p>';
 
+    /* THE CONSTRAINT ON A RELEASE, ATTACHED TO THE RELEASE DECISION.
+       This was a rail `gapNote` tagged OPEN POLICY QUESTION, framed
+       around what no source states. The RULE is real and binds the
+       decision being taken on this card — a release cannot change
+       technology availability, and no tenant's entitlement moves — so it
+       belongs here, in product language. The reason it is a rule rather
+       than a feature is that nothing states what should happen to a
+       tenant already holding a technology a newer version drops; that
+       is a note for the build team, and this is its home. */
     var versionCard = ui.card('Later versions — Release / Hold',
-      decisionHTML + '<h3 class="vh">Version history</h3>' + versionRows, null, 'h2');
+      decisionHTML + '<h3 class="vh">Version history</h3>' + versionRows +
+      '<p class="cardfoot">A later version carries the description, the version label, the vendor notes and the ' +
+      'per-technology delivery references. It <strong>cannot change technology availability</strong>: a tenant ' +
+      'that holds a technology today still holds it after any release or hold.</p>', null, 'h2');
 
     /* ---- first-publication history, read-only ---- */
     var historyCard = ui.card('Content history',
@@ -1065,13 +1289,10 @@ XRSLP.screens = XRSLP.screens || {};
       stuckAlert +
       '<div class="grid-rail">' +
       '<div class="stack">' + current + versionCard + metaCard + overrideCard + '</div>' +
+      /* The rail's OPEN POLICY QUESTION note is gone: the rule it
+         carried is now stated on the Release / Hold card, beside the
+         decision it constrains. */
       '<div class="stack">' + ownership + historyCard +
-      ui.gapNote('OPEN POLICY QUESTION',
-        'A later version in this build carries the description, the version label, the vendor notes and the ' +
-        'per-technology delivery references. It <strong>cannot change technology availability</strong>: no source ' +
-        'states what should happen to a tenant that already holds a technology a newer version drops, so the ' +
-        'prototype does not offer an action whose consequence it cannot state honestly. Existing tenant ' +
-        'entitlement is therefore left exactly as it stands by every release.') +
       '</div></div>';
 
     return {
@@ -1156,7 +1377,7 @@ XRSLP.screens = XRSLP.screens || {};
                 'catalogue shows for <strong>' + esc(rec.name) + '</strong>, replacing <strong>' +
                 esc(rec.versionLabel || '—') + '</strong>. The Experiment identity does not change.</p>' +
                 '<div class="consequence">' + ui.ic('shield') + '<span>This grants no tenant anything. ' +
-                'No access record, licence quantity, technology variant or student assignment changes, and no ' +
+                'No institutional access, licence quantity, technology variant or student assignment changes, and no ' +
                 'student&rsquo;s progress or attempt history is affected.</span></div>' +
                 '<div class="field" id="v-note" style="margin-top:12px">' +
                 '<label for="v-note-i">Note (recorded in the version history)</label>' +

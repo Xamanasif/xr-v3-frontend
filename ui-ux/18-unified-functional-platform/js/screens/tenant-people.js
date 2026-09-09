@@ -56,10 +56,14 @@ XRSLP.screens = XRSLP.screens || {};
      like the Super Admin queue filter. */
   var f = { role: 'all', status: 'all', q: '' };
   /* CSV working state — file text, validation result, and a commit
-     guard so a double click cannot import twice. */
-  var imp = { fileName: '', text: '', result: null, committed: null, busy: false };
+     guard so a double click cannot import twice. `showAll` is the
+     preview's own view state: the preview opens on the rows that need a
+     decision, not on every row in the file. */
+  var imp = { fileName: '', text: '', result: null, committed: null, busy: false, showAll: false };
 
-  function resetImport() { imp = { fileName: '', text: '', result: null, committed: null, busy: false }; }
+  function resetImport() {
+    imp = { fileName: '', text: '', result: null, committed: null, busy: false, showAll: false };
+  }
 
   /* ============================================================
      PEOPLE DIRECTORY
@@ -109,27 +113,40 @@ XRSLP.screens = XRSLP.screens || {};
         actionsHTML: '<button class="btn sec sm" type="button" id="pf-clear">Clear filters</button>'
       });
     } else {
+      /* FIVE COLUMNS, NOT EIGHT.
+         "Role" repeated what the segmented tabs directly above already
+         say and what the name cell's own subtitle now carries; "Source"
+         printed a provenance string on every row for a fact that belongs
+         to one person at a time and is already on their detail page as
+         "Record source"; "Identifier" is in the name cell's subtitle.
+         Below 740px every cell becomes a labelled block, so three
+         redundant columns were three extra blocks per person. */
       var rows = list.map(function (p) {
         var mem = p.role === 'student' ? state.studentCourseMembership(p.id) : null;
         var ent = p.role === 'student' ? state.effectiveEntitlementCount(p.id) : null;
         return '<tr>' +
           '<td data-label="Name">' + T.personLink(tenant.id, p) + '</td>' +
-          '<td data-label="Role">' + esc(p.role === 'faculty' ? 'Faculty' : 'Student') + '</td>' +
-          '<td data-label="Identifier">' + esc(p.role === 'faculty' ? (p.facultyId || '—') : (p.studentId || '—')) + '</td>' +
           '<td data-label="Email">' + esc(p.email) + '</td>' +
           '<td data-label="Academic context">' +
             (mem ? (mem.course ? esc(mem.course.name) + (mem.localCode ? ' <span class="tsub">' + esc(mem.localCode) + '</span>' : '') : '—') : '—') +
           '</td>' +
           '<td data-label="Entitlements" class="num">' + (ent == null ? '—' : ent) + '</td>' +
-          '<td data-label="Source">' + T.sourceBadge(p.source) + '</td>' +
-          '<td data-label="Status">' + T.personStatusBadge(p) + '</td>' +
+          /* ⚠ FACULTY STATUS IS NOT A CONTROL. `setStudentStatus` refuses
+             a non-student outright and no Faculty status writer exists
+             anywhere in the build, so a Faculty badge reading "Active"
+             offered a state the reader could go looking for a switch for
+             and never find. An em dash is honest; the Faculty detail page
+             says why. */
+          '<td data-label="Status">' + (p.role === 'student'
+            ? T.personStatusBadge(p)
+            : '<span class="muted">—</span>') + '</td>' +
           '</tr>';
       }).join('');
       body = '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">People in ' + esc(tenant.name) + '</caption>' +
-        '<thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">Identifier</th>' +
+        '<thead><tr><th scope="col">Name</th>' +
         '<th scope="col">Email</th><th scope="col">Academic context</th><th scope="col">Entitlements</th>' +
-        '<th scope="col">Source</th><th scope="col">Status</th></tr></thead>' +
+        '<th scope="col">Status</th></tr></thead>' +
         '<tbody>' + rows + '</tbody></table></div>';
     }
 
@@ -232,10 +249,15 @@ XRSLP.screens = XRSLP.screens || {};
       '<button class="btn pri" type="submit" id="fac-save">Create Faculty record</button>' +
       '<a class="btn sec" href="' + T.href.people(tenant.id) + '">Cancel</a>' +
       '</div></form>' +
-      '<div class="formaside">' + ui.gapNote('NOT IN THIS BUILD',
-        '<strong>How an identity first exists</strong> — invitation, activation or identity-provider mapping — is not ' +
-        'decided by any source, so nothing is invented here. This creates the record the institution maps content to; ' +
-        'its origin is shown as provenance on the person&rsquo;s detail page.') + '</div>' +
+      /* ⚠ WHAT THE USER NEEDS FROM THE OLD NOTE IS ONE SENTENCE: no
+         account email goes out. The rest of it — that invitation,
+         activation and identity-provider mapping are undecided by every
+         source, and that nothing was invented rather than guessed — is
+         design rationale for a reviewer, and it lives here in the code
+         and in the audit documents instead of on an admin's screen. */
+      '<div class="formaside">' + ui.alertBox('info', 'This creates a record, not an account',
+        '<p>No invitation, activation email or account is created by this build, and none is sent to the ' +
+        'address above. The record is what the institution maps content to.</p>') + '</div>' +
       '</div>';
 
     return {
@@ -321,9 +343,17 @@ XRSLP.screens = XRSLP.screens || {};
         '<span class="sr-only">(required)</span></label><select id="sf-course-i" required' +
         (chosenGrouping ? '' : ' disabled') + '>' + courseOptions() + '</select></div>' +
         '<div class="frow">' +
-        '<div class="field" id="sf-code"><label for="sf-code-i">Course ID / Code <span class="req" aria-hidden="true">*</span>' +
+        /* ⚠ ONE NAME FOR ONE FIELD. This was "Course ID / Code" here,
+           "Local course code" on Academic mappings and on the person
+           page, and "a local course code" in the Overview attention row —
+           four names for the thing the institution actually owns, so an
+           admin filling in a required field here had no way to know it
+           was the same concept the Overview was telling them was missing.
+           It is the INSTITUTION COURSE CODE everywhere now. */
+        '<div class="field" id="sf-code"><label for="sf-code-i">Institution course code <span class="req" aria-hidden="true">*</span>' +
         '<span class="sr-only">(required)</span></label><input type="text" id="sf-code-i" autocomplete="off" required>' +
-        '<p class="hint">The institution&rsquo;s local code for this Course, e.g. CE-305.</p></div>' +
+        '<p class="hint">Your institution&rsquo;s own code for this Course, e.g. CE-305. It never changes the ' +
+        'platform Course.</p></div>' +
         '<div class="field" id="sf-sem"><label for="sf-sem-i">Semester</label>' +
         '<input type="text" id="sf-sem-i" autocomplete="off">' +
         '<p class="hint">Optional. Never required, anywhere.</p></div>' +
@@ -408,7 +438,7 @@ XRSLP.screens = XRSLP.screens || {};
           }
           if (!v.groupingId) { errs.push({ field: 'sf-prog', message: 'Select a Programme / Academic grouping.' }); }
           if (!v.courseId) { errs.push({ field: 'sf-course', message: 'Select a Course.' }); }
-          if (!v.localCourseCode) { errs.push({ field: 'sf-code', message: 'Enter the local Course ID / Code.' }); }
+          if (!v.localCourseCode) { errs.push({ field: 'sf-code', message: 'Enter your institution’s course code.' }); }
           /* Semester, Organisation and Plan terms are never validated
              as required — that is the whole point of STK31-11/ND-03. */
           if (!ui.showErrors(form, errs, 'Student record not created')) { return; }
@@ -442,7 +472,10 @@ XRSLP.screens = XRSLP.screens || {};
             c.key === 'planTerms' ? 'Optional. Blank is valid. Administrative context only — it never changes approved access.' :
             c.key === 'programme' ? 'Must match a Programme / Department in the platform catalogue.' :
             c.key === 'courseName' ? 'Must match a Course inside that Programme.' :
-            c.key === 'courseCode' ? 'The institution&rsquo;s own local code for the Course.' :
+            /* The CSV column labels come from js/csv.js, which this file
+               does not own; the note is where this screen can still say
+               which concept the column is. */
+            c.key === 'courseCode' ? 'Your institution&rsquo;s own code for the Course &mdash; the institution course code.' :
             c.key === 'email' ? 'Must be a valid address and unique in this institution.' :
             'Must be unique in this institution.';
           return '<tr><td data-label="Column"><span class="tmain">' + esc(c.label) + '</span></td>' +
@@ -460,8 +493,9 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="stack">' +
         ui.alertBox('success', c.created + ' ' + util.plural(c.created, 'Student') + ' imported',
           '<p>Created from <strong>' + esc(c.fileName) + '</strong>. ' +
-          (c.mappings ? c.mappings + ' new local course ' + util.plural(c.mappings, 'code') + ' recorded. ' : '') +
-          'The records persist across a page refresh.</p>' +
+          (c.mappings ? c.mappings + ' new institution course ' + util.plural(c.mappings, 'code') + ' recorded. ' : '') +
+          'The records persist across a page refresh and cannot be deleted — a student record is deactivated, ' +
+          'never removed.</p>' +
           '<p style="margin-top:8px">No student has received any content: an import provisions people, ' +
           'and only an access grant creates entitlement.</p>', 'status') +
         ui.card('Imported students',
@@ -542,12 +576,36 @@ XRSLP.screens = XRSLP.screens || {};
             res.warnings.length + ' ' + util.plural(res.warnings.length, 'note'), 'h2');
         }
 
+        /* ⚠ THE PREVIEW OPENS ON WHAT NEEDS A DECISION.
+           It used to render EVERY row in the file, expanded, below two
+           error tables — a 300-student import was a 300-row eight-column
+           table, and on a phone 2,400 stacked labelled blocks. The rows
+           an admin must act on are the invalid and flagged ones; the rest
+           are one click away and the count says how many. */
+        var attentionRows = res.rows.filter(function (row) {
+          return row.errors.length > 0 || row.warnings.length > 0;
+        });
+        var previewRows = imp.showAll ? res.rows : attentionRows;
+        var previewNote = imp.showAll
+          ? 'Showing all ' + res.rows.length + ' ' + util.plural(res.rows.length, 'row') + ' in the file.'
+          : attentionRows.length
+            ? 'Showing the ' + attentionRows.length + ' ' + util.plural(attentionRows.length, 'row') +
+              ' that need attention, of ' + res.rows.length + ' in the file.'
+            : 'Every row passes. Nothing needs attention.';
+
         var rowsTable = ui.card('Preview',
-          '<div class="tscroll"><table class="dt"><caption class="sr-only">Every row in the uploaded file</caption>' +
+          '<p class="cardlede">' + esc(previewNote) +
+          (res.rows.length > previewRows.length || imp.showAll
+            ? ' <button class="btn sec sm" type="button" id="imp-showall">' +
+              (imp.showAll ? 'Show only rows needing attention' : 'Show all ' + res.rows.length + ' rows') +
+              '</button>'
+            : '') + '</p>' +
+          (previewRows.length
+            ? '<div class="tscroll"><table class="dt"><caption class="sr-only">Rows in the uploaded file</caption>' +
           '<thead><tr><th scope="col">Row</th><th scope="col">Student ID</th><th scope="col">Name</th>' +
           '<th scope="col">Email</th><th scope="col">Programme &amp; Course</th><th scope="col">Semester</th>' +
           '<th scope="col">Plan terms</th><th scope="col">Result</th></tr></thead><tbody>' +
-          res.rows.map(function (row) {
+          previewRows.map(function (row) {
             var bad = row.errors.length > 0;
             return '<tr class="' + (bad ? 'row-bad' : '') + '">' +
               '<td data-label="Row" class="num">' + row.rowNo + '</td>' +
@@ -563,7 +621,9 @@ XRSLP.screens = XRSLP.screens || {};
                 ? ui.badge('b-danger', 'alertCirc', row.errors.length + ' ' + util.plural(row.errors.length, 'error'))
                 : row.warnings.length ? ui.badge('b-warning', 'alert', 'Attention')
                 : ui.badge('b-success', 'check', 'Valid')) + '</td></tr>';
-          }).join('') + '</tbody></table></div>',
+          }).join('') + '</tbody></table></div>'
+            : ui.emptyRow({ ok: true, heading: 'h3', title: 'Every row passes validation',
+                body: 'Nothing in this file needs correcting.' })),
           esc(imp.fileName), 'h2');
 
         previewHTML = '<div class="stack">' + summary + errorTable + warnTable + rowsTable +
@@ -572,7 +632,8 @@ XRSLP.screens = XRSLP.screens || {};
             ? '<button class="btn pri" type="button" id="imp-commit" disabled aria-disabled="true">Import Students</button>' +
               '<span class="formnote">Correct the blocking errors and upload the file again to enable the import.</span>'
             : '<button class="btn pri" type="button" id="imp-commit">Import ' + res.validCount + ' ' +
-              util.plural(res.validCount, 'Student') + '</button>') +
+              util.plural(res.validCount, 'Student') + '</button>' +
+              '<span class="formnote">Student records cannot be deleted afterwards, only deactivated.</span>') +
           '<button class="btn sec" type="button" id="imp-clear">Choose a different file</button>' +
           '</div></div>';
       }
@@ -625,6 +686,9 @@ XRSLP.screens = XRSLP.screens || {};
               imp.text = String(reader.result || '');
               imp.result = XRSLP.csv.validate(imp.text, tenant.id);
               imp.committed = null;
+              /* A new file opens on its own problem rows, whatever the
+                 reader had expanded for the previous one. */
+              imp.showAll = false;
               XRSLP.render(false);
               ui.announce(imp.result.fatal ? 'The file cannot be imported.' :
                 imp.result.ok ? imp.result.validCount + ' rows are valid and ready to import.' :
@@ -636,20 +700,54 @@ XRSLP.screens = XRSLP.screens || {};
         var clear = document.getElementById('imp-clear');
         if (clear) { clear.addEventListener('click', function () { resetImport(); XRSLP.render(false); }); }
 
+        var showAll = document.getElementById('imp-showall');
+        if (showAll) {
+          showAll.addEventListener('click', function () {
+            imp.showAll = !imp.showAll;
+            XRSLP.render(true);
+            var again = document.getElementById('imp-showall');
+            if (again) { again.focus(); }
+          });
+        }
+
         var commit = document.getElementById('imp-commit');
         if (commit) {
           commit.addEventListener('click', function () {
             if (imp.busy || !imp.result || !imp.result.ok) { return; }
-            imp.busy = true;                  /* double-click guard */
-            commit.disabled = true;
-            var outcome = XRSLP.csv.commit(imp.result, tenant.id);
-            imp.committed = {
-              created: outcome.created, students: outcome.students,
-              mappings: outcome.mappings, fileName: imp.fileName
-            };
-            imp.result = null; imp.text = ''; imp.busy = false;
-            XRSLP.render(false);
-            ui.toast(outcome.created + ' ' + util.plural(outcome.created, 'student') + ' imported.');
+            var res0 = imp.result;
+            /* ⚠ CONFIRMED, LIKE EVERY OTHER CONSEQUENTIAL CONTROL HERE.
+               Deactivating, withdrawing, removing a mapping, forwarding
+               and requesting a renewal all confirm; creating a whole
+               cohort was one unguarded click. Nothing in this build
+               deletes a person, so a cohort imported from the wrong file
+               can only be unwound one student at a time — which is
+               exactly why the dialog names the file and the count and
+               says so before it happens. */
+            ui.openDialog({
+              title: 'Import ' + res0.validCount + ' ' + util.plural(res0.validCount, 'student') + '?',
+              bodyHTML:
+                '<p>Creates <strong>' + res0.validCount + '</strong> student ' +
+                util.plural(res0.validCount, 'record') + ' in <strong>' + esc(tenant.name) +
+                '</strong> from <strong>' + esc(imp.fileName) + '</strong>.</p>' +
+                '<div class="consequence">' + ui.ic('alertCirc') + '<span>A student record cannot be deleted ' +
+                'afterwards — only <strong>deactivated</strong>, one at a time. Check the file is the one you ' +
+                'meant.</span></div>' +
+                '<div class="consequence">' + ui.ic('shield') + '<span>Importing gives nobody any content. ' +
+                'Only an access grant creates entitlement, and no licence is consumed here.</span></div>',
+              okLabel: 'Import students',
+              onConfirm: function () {
+                if (imp.busy || !imp.result || !imp.result.ok) { return; }
+                imp.busy = true;                  /* double-click guard */
+                var outcome = XRSLP.csv.commit(imp.result, tenant.id);
+                imp.committed = {
+                  created: outcome.created, students: outcome.students,
+                  mappings: outcome.mappings, fileName: imp.fileName
+                };
+                imp.result = null; imp.text = ''; imp.busy = false; imp.showAll = false;
+                XRSLP.render(false);
+                ui.toast(outcome.created + ' ' + util.plural(outcome.created, 'student') + ' imported.');
+              }
+            });
           });
         }
       }
@@ -705,14 +803,18 @@ XRSLP.screens = XRSLP.screens || {};
     var academic = ui.card('Academic mapping',
       '<div class="kv">' +
       '<div class="k">Programme / grouping</div><div class="v">' + (mem && mem.grouping ? esc(mem.grouping.name) : optional('')) + '</div>' +
-      '<div class="k">Course (canonical)</div><div class="v">' + (mem && mem.course ? esc(mem.course.name) : optional('')) + '</div>' +
-      '<div class="k">Local course code</div><div class="v">' + optional(p.localCourseCode) + '</div>' +
+      '<div class="k">Platform Course</div><div class="v">' + (mem && mem.course ? esc(mem.course.name) : optional('')) + '</div>' +
+      /* One name for one field — see the Add Student form. The
+         institution's own code is rendered with the shared helper so it
+         never reads as a rival value for the platform's. */
+      '<div class="k">Institution course code</div><div class="v">' +
+      (p.localCourseCode ? ui.institutionCode(p.localCourseCode) : optional('')) + '</div>' +
       '<div class="k">Semester</div><div class="v">' + optional(p.semester) + '</div>' +
       '<div class="k">Organisation</div><div class="v">' + optional(p.organisation) + '</div>' +
       '<div class="k">Plan terms / access context</div><div class="v">' + optional(p.planTerms) + '</div>' +
       '</div>' +
       (p.planTerms ? '<p class="cardfoot">Plan terms are administrative context recorded against the student. ' +
-        'What this student may be given comes only from the institution&rsquo;s approved access records.</p>' : ''),
+        'What this student may be given comes only from what the institution has been approved for.</p>' : ''),
       null, 'h2');
 
     var groupCard = ui.card('Groups',
@@ -720,7 +822,7 @@ XRSLP.screens = XRSLP.screens || {};
         ? '<ul class="chiplist">' + groups.map(function (g) {
             return '<li><a class="chip" href="' + T.href.group(tenant.id, g.id) + '">' + esc(g.name) + '</a></li>';
           }).join('') + '</ul>' +
-          '<p class="cardfoot">Group membership by itself grants no content. It only decides which access grants reach this student.</p>'
+          '<p class="cardfoot">Membership alone grants nothing — it only decides which access grants reach this student.</p>'
         : ui.emptyState({
             icon: 'users', heading: 'h3', title: 'Not in any group',
             body: 'Groups are a convenience for giving access — a student can belong to several, or none.',
@@ -743,11 +845,16 @@ XRSLP.screens = XRSLP.screens || {};
       entBody = '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">Effective experiment entitlements for ' + esc(p.name) + '</caption>' +
         '<thead><tr><th scope="col">Course &amp; Experiment</th><th scope="col">Technologies</th>' +
-        '<th scope="col">Access record</th><th scope="col">Where the access comes from</th><th scope="col">Status</th></tr></thead><tbody>' +
+        '<th scope="col">Approved content</th><th scope="col">Where the access comes from</th><th scope="col">Status</th></tr></thead><tbody>' +
         ents.map(function (e) {
           return '<tr><td data-label="Course &amp; Experiment">' + T.expLine(e.experimentId) + '</td>' +
             '<td data-label="Technologies">' + ui.techBadges(e.technologies) + '</td>' +
-            '<td data-label="Access record"><span class="mono">' + esc(e.accessId) + '</span></td>' +
+            /* The cell was the bare key and nothing else. */
+            '<td data-label="Approved content">' +
+            (state.accessById(e.accessId)
+              ? '<span class="tmain">' + ui.accessTitle(state.accessById(e.accessId)) + '</span>' +
+                '<span class="tsub">' + esc(T.accessTermLine(state.accessById(e.accessId))) + '</span>'
+              : '<span class="tmain muted">No longer on the platform</span>') + '</td>' +
             '<td data-label="Where the access comes from">' + e.sources.map(function (s) {
               return '<span class="srcchip">' + ui.ic(s.type === 'group' ? 'users' : 'shield', 'sm') +
                 (s.type === 'group' ? 'Group · ' + esc(s.label) : 'Direct') + '</span>';
@@ -760,19 +867,51 @@ XRSLP.screens = XRSLP.screens || {};
     var entCard = ui.card('Experiment entitlements', entBody,
       effective + ' effective of ' + ents.length, 'h2');
 
+    /* WHAT REACTIVATION WILL ACTUALLY DO, WORKED OUT BEFORE THE CLICK.
+       Reactivating re-enters the allocation queue at the BACK, so a
+       student can come back HELD rather than entitled when the record has
+       no licence left — and that used to be discoverable only afterwards,
+       in a toast. Every record this student holds a grant on is checked
+       against its own remaining allocation. Read-only: `accessAllocation`
+       is the same derivation the meters use. */
+    var heldRecords = [];
+    if (p.status === 'inactive') {
+      var seenRec = {};
+      ents.forEach(function (e) {
+        if (seenRec[e.accessId]) { return; }
+        seenRec[e.accessId] = true;
+        var a = state.accessAllocation(e.accessId);
+        if (a && a.remaining <= 0) { heldRecords.push(e.accessId); }
+      });
+    }
+
+    /* The status control belongs beside the status, not below a
+       two-column rail where a student with several entitlements pushes it
+       off-screen. `dangerZone` separates a consequential action from the
+       information around it. */
     var actions = !T.canWrite(tenant)
-      ? '<div class="formact"><span class="formnote">Student activation cannot be changed while the ' +
-        'institution is deactivated. This record, its access grants and its entitlement history are all ' +
-        'preserved exactly as they stand.</span></div>'
-      :
-      '<div class="formact">' +
-      (p.status === 'active'
-        ? '<button class="btn sec" type="button" id="p-deact">Deactivate student</button>'
-        : '<button class="btn pri" type="button" id="p-react">Reactivate student</button>') +
-      '<span class="formnote">' + (p.status === 'active'
-        ? 'Deactivating is reversible. The student keeps every access grant, holds no effective entitlement while inactive, and frees their licence.'
-        : 'Reactivating restores entitlement where the access record is still active and a licence is available.') +
-      '</span></div>';
+      ? ui.dangerZone({
+          title: 'Student activation',
+          desc: 'Cannot be changed while the institution is deactivated. This record, its access grants and ' +
+            'its entitlement history are all preserved exactly as they stand.',
+          actionsHTML: ''
+        })
+      : ui.dangerZone({
+          title: 'Student activation',
+          desc: p.status === 'active'
+            ? 'Deactivating is reversible. The student keeps every access grant, holds no effective ' +
+              'entitlement while inactive, and frees their licence for another student.'
+            : heldRecords.length
+              ? 'Reactivating restores entitlement where a licence is available. ' +
+                heldRecords.join(', ') + ' ' + (heldRecords.length === 1 ? 'has' : 'have') +
+                ' no licence left, so entitlement from ' + (heldRecords.length === 1 ? 'it' : 'them') +
+                ' will be held until one frees up.'
+              : 'Reactivating restores entitlement where the access is still active and a licence is ' +
+                'available.',
+          actionsHTML: p.status === 'active'
+            ? '<button class="btn sec" type="button" id="p-deact">Deactivate student</button>'
+            : '<button class="btn pri" type="button" id="p-react">Reactivate student</button>'
+        });
 
     var html =
       ui.crumbs([{ label: 'People', href: T.href.people(tenant.id) }, { label: p.name }]) +
@@ -781,8 +920,7 @@ XRSLP.screens = XRSLP.screens || {};
         '<p>Inactive students hold no effective entitlement and cannot be given new access. ' +
         'Every access grant they hold is preserved and nothing has been deleted.</p>') + '<div style="height:16px"></div>' : '') +
       '<div class="grid-rail"><div class="stack">' + entCard + academic + '</div>' +
-      '<div class="stack">' + identity + groupCard + '</div></div>' +
-      actions;
+      '<div class="stack">' + identity + actions + groupCard + '</div></div>';
 
     return {
       title: p.name, html: html, tenant: tenant, navKey: 'people',
@@ -808,13 +946,34 @@ XRSLP.screens = XRSLP.screens || {};
         var re = document.getElementById('p-react');
         if (re) {
           re.addEventListener('click', function () {
-            state.setStudentStatus(p.id, 'active');
-            var after = state.entitlementsForStudent(p.id);
-            var held = after.filter(function (e) { return e.blockedBy === 'allocation-held'; }).length;
-            ui.toast(p.name + ' reactivated' + (held
-              ? ' — ' + held + ' ' + util.plural(held, 'entitlement') + ' held: the allocation is full.'
-              : '.'));
-            XRSLP.render(false);
+            /* Reactivation is confirmed too, because its outcome is the
+               LESS predictable of the two: the student may come back held
+               rather than entitled. The prediction is the same one shown
+               beside the button, restated at the moment of the decision. */
+            ui.openDialog({
+              title: 'Reactivate ' + p.name + '?',
+              bodyHTML: '<p>The student becomes active again in ' + esc(tenant.name) +
+                ' and every access grant they hold is applied afresh.</p>' +
+                '<div class="consequence">' + ui.ic(heldRecords.length ? 'alert' : 'info') + '<span>' +
+                (heldRecords.length
+                  ? 'Entitlement returns wherever a licence is free. <strong>' + esc(heldRecords.join(', ')) +
+                    '</strong> ' + (heldRecords.length === 1 ? 'has' : 'have') + ' none left, so that ' +
+                    'entitlement will be <strong>held</strong> until one frees up.'
+                  : 'Entitlement returns wherever the access is still active and a licence is free.') +
+                '</span></div>' +
+                '<div class="consequence">' + ui.ic('shield') + '<span>They re-enter the allocation queue at ' +
+                'the <strong>back</strong>: nobody who is currently entitled is displaced.</span></div>',
+              okLabel: 'Reactivate',
+              onConfirm: function () {
+                state.setStudentStatus(p.id, 'active');
+                var after = state.entitlementsForStudent(p.id);
+                var held = after.filter(function (e) { return e.blockedBy === 'allocation-held'; }).length;
+                ui.toast(p.name + ' reactivated' + (held
+                  ? ' — ' + held + ' ' + util.plural(held, 'entitlement') + ' held: the allocation is full.'
+                  : '.'));
+                XRSLP.render(false);
+              }
+            });
           });
         }
       }
@@ -833,7 +992,7 @@ XRSLP.screens = XRSLP.screens || {};
       ? '<div class="tscroll"><table class="dt">' +
         '<caption class="sr-only">Content mapped to ' + esc(p.name) + '</caption>' +
         '<thead><tr><th scope="col">Course</th><th scope="col">Experiment</th>' +
-        '<th scope="col">Technologies</th><th scope="col">Access record</th></tr></thead><tbody>' +
+        '<th scope="col">Technologies</th><th scope="col">Approved content</th></tr></thead><tbody>' +
         maps.map(function (m) {
           var course = data.course(m.courseId);
           var rec = state.accessById(m.accessId);
@@ -842,7 +1001,11 @@ XRSLP.screens = XRSLP.screens || {};
               '<span class="muted">Whole course context</span>') + '</td>' +
             '<td data-label="Technologies">' + (m.experimentId && rec
               ? ui.techBadges(state.accessTechnologies(rec, m.experimentId)) : '<span class="muted">—</span>') + '</td>' +
-            '<td data-label="Access record"><span class="mono">' + esc(m.accessId) + '</span></td></tr>';
+            '<td data-label="Approved content">' +
+            (state.accessById(m.accessId)
+              ? '<span class="tmain">' + ui.accessTitle(state.accessById(m.accessId)) + '</span>' +
+                '<span class="tsub">' + esc(T.accessTermLine(state.accessById(m.accessId))) + '</span>'
+              : '<span class="tmain muted">No longer on the platform</span>') + '</td></tr>';
         }).join('') + '</tbody></table></div>'
       : ui.emptyState({
           icon: 'flask', heading: 'h3', title: 'No content mapped',
@@ -863,12 +1026,20 @@ XRSLP.screens = XRSLP.screens || {};
         '<div class="kv">' +
         '<div class="k">Faculty / staff ID</div><div class="v">' + optional(p.facultyId) + '</div>' +
         '<div class="k">Email</div><div class="v">' + esc(p.email) + '</div>' +
+        /* ⚠ SAID, RATHER THAN LEFT TO BE HUNTED FOR. The directory used
+           to show Faculty an Active/Inactive badge that nothing in the
+           build can change — `setStudentStatus` refuses a non-student and
+           no Faculty status writer exists — so the reader could go
+           looking for a control that is not there. */
+        '<div class="k">Status</div><div class="v">' + ui.badge('b-success', 'check', 'Active') +
+        '<span class="tsub2">Faculty records cannot be deactivated in this build.</span></div>' +
         '<div class="k">Record source</div><div class="v">' + esc(T.sourceLabel(p.source)) + '</div>' +
         '<div class="k">Created</div><div class="v">' + esc(util.fmtDate(p.createdAt)) + '</div>' +
-        '</div>', null, 'h2') +
-      ui.alertBox('info', 'Faculty mapping does not consume a student licence',
-        '<p>The approved quantity on an access record is a student/user allocation. Mapping a Faculty member to a ' +
-        'course or experiment does not take one of those licences.</p>') +
+        '</div>' +
+        /* ONE WORDING of the licence rule, shared with Faculty mapping —
+           it used to be stated on both screens in different words under
+           different titles, which reads as two different rules. */
+        '<p class="cardfoot">' + esc(T.FACULTY_LICENCE_RULE) + '</p>', null, 'h2') +
       /* ⚠ CORRECTED IN 07.3. This note used to end "this build carries no
          tenant-level report over it", and that sentence became FALSE the
          moment the institution-level learning overview was built — a
@@ -877,13 +1048,13 @@ XRSLP.screens = XRSLP.screens || {};
          really describing survives and is now stated exactly: the Tenant
          Admin sees PROGRESS at institution level, and never an OUTCOME.
          Faculty remain the only evaluators (STK31-31). */
-      ui.alertBox('info', 'This page is the Tenant Admin’s view',
-        '<p>Assessment authoring and the descriptive review queue are the Faculty member’s, and they reach ' +
+      ui.about('Why no marks or reviews appear here',
+        '<p>Assessment authoring and the descriptive review queue belong to this Faculty member, who reaches ' +
         'them in the Faculty workspace for whatever is mapped above.</p>' +
-        '<p style="margin-top:8px">Institution-level <strong>progress</strong> across everything this ' +
-        'institution holds is on the <a href="' + T.href.overview(tenant.id) + '">Overview</a>. Marks, scores ' +
-        'and individual results are deliberately not reported there: they belong to this Faculty member and to ' +
-        'the student.</p>') +
+        '<p>Institution-level <strong>progress</strong> across everything this institution holds is on the ' +
+        '<a href="' + T.href.overview(tenant.id) + '">Overview</a>. Marks, scores and individual results are ' +
+        'deliberately not reported to the institution: they belong to this Faculty member and to the ' +
+        'student.</p>') +
       '</div></div>';
 
     return { title: p.name, html: html, tenant: tenant, navKey: 'people' };
