@@ -1,0 +1,30 @@
+# Local development infrastructure — PostgreSQL only.
+#
+# Phase 0 deliberately adds nothing else (no Redis, Kafka, ClickHouse, MinIO);
+# object storage stays architecturally documented (docs/ARCHITECTURE.md §12).
+#
+# ⚠ Docker was NOT available on the machine that created Phase 0, so this file
+#   has not been exercised there. See docs/PHASE0_VERIFICATION.md.
+#
+#   docker compose up -d postgres
+#   pnpm --filter @xr/database prisma:migrate:dev
+services:
+  postgres:
+    image: postgres:17
+    container_name: xr-v2-postgres
+    environment:
+      POSTGRES_USER: xr
+      POSTGRES_PASSWORD: xr_dev_password
+      POSTGRES_DB: xr_platform
+    ports:
+      - '5432:5432'
+    volumes:
+      - xr-v2-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U xr -d xr_platform']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  xr-v2-postgres-data:

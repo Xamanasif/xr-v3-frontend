@@ -1,0 +1,49 @@
+{
+  "name": "@xr/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "XR Simulation Learning Platform — web application (Next.js App Router). Not the business backend.",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('.next', { recursive: true, force: true }))\""
+  },
+  "dependencies": {
+    "@hookform/resolvers": "5.9.1",
+    "@tanstack/react-query": "5.102.8",
+    "@xr/config": "workspace:*",
+    "@xr/contracts": "workspace:*",
+    "@xr/domain": "workspace:*",
+    "@xr/ui": "workspace:*",
+    "@xr/validation": "workspace:*",
+    "next": "16.3.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-hook-form": "7.87.0",
+    "zod": "4.6.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.7",
+    "@types/node": "24.13.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "@xr/testing": "workspace:*",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.4",
+    "jsdom": "30.0.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

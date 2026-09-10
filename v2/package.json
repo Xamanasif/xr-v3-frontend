@@ -1,0 +1,30 @@
+{
+  "name": "xr-platform-v2",
+  "version": "0.0.0",
+  "private": true,
+  "description": "XR Simulation Learning Platform \u2014 V2 monorepo (Phase 0 architecture foundation)",
+  "packageManager": "pnpm@12.3.4",
+  "engines": {
+    "node": ">=24.15.0",
+    "pnpm": ">=12.0.0"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "turbo run build && turbo run test:e2e",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "turbo run clean",
+    "test:db": "turbo run test:db",
+    "test:all": "turbo run test test:db",
+    "dev:compile": "tsc -b --watch --preserveWatchOutput tsconfig.solution.json"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6",
+    "turbo": "2.10.12",
+    "typescript": "6.0.3"
+  }
+}

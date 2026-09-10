@@ -1,0 +1,8 @@
+{
+  "extends": "@xr/config/tsconfig/nest-app.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": ["src/**/*", "test/**/*", "vitest.config.mts"]
+}

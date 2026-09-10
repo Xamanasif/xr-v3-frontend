@@ -1,0 +1,45 @@
+{
+  "name": "@xr/database",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Prisma schema, generated client and connection factory for PostgreSQL",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "prisma"
+  ],
+  "scripts": {
+    "db:generate": "prisma generate",
+    "build": "prisma generate && tsc -b tsconfig.build.json",
+    "typecheck": "prisma generate && tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:status": "prisma migrate status",
+    "prisma:studio": "prisma studio",
+    "clean": "node -e \"import('node:fs').then((fs) => { fs.rmSync('dist', { recursive: true, force: true }); fs.rmSync('src/generated', { recursive: true, force: true }); })\"",
+    "test:db": "vitest run --config vitest.db.config.ts"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "pg": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.4",
+    "@types/pg": "8.23.1",
+    "@xr/config": "workspace:*",
+    "@xr/testing": "workspace:*",
+    "eslint": "9.39.5",
+    "prisma": "7.10.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

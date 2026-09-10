@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig/node-library.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": ["src/**/*", "eslint/*.d.mts", "../../scripts/*.d.mts", "vitest.config.ts"]
+}

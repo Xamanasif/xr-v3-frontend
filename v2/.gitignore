@@ -1,0 +1,24 @@
+# dependencies and build output
+node_modules/
+dist/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# generated
+packages/database/src/generated/
+apps/web/next-env.d.ts
+
+# tests
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# environment — placeholders live in .env.example only
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store

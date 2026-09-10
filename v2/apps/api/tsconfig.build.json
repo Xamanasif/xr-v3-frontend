@@ -1,0 +1,27 @@
+{
+  "extends": "@xr/config/tsconfig/nest-app.json",
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.ts"],
+  "compilerOptions": {
+    "noEmitOnError": true,
+    "composite": true,
+    "declaration": true
+  },
+  "references": [
+    {
+      "path": "../../packages/config/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/contracts/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/database/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/validation/tsconfig.build.json"
+    }
+  ]
+}

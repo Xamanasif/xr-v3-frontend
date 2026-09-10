@@ -1,0 +1,10 @@
+{
+  "extends": "@xr/config/tsconfig/node-library.json",
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "noEmitOnError": true
+  },
+  "references": []
+}

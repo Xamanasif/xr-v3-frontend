@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+/* Design V2 defines the token set and the visual system. Nothing below is a design decision. */
+body {
+  font-family: var(--xr-font-sans);
+  color: var(--xr-color-fg);
+  background: var(--xr-color-bg);
+}

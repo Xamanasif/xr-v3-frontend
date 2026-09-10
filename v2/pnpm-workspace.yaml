@@ -1,0 +1,27 @@
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm ≥ 10 refuses dependency lifecycle scripts unless approved here (pnpm 12: `allowBuilds`).
+#   prisma / @prisma/engines — download the schema engine used by `prisma migrate`.
+#   @swc/core               — fallback installer; the platform binary normally arrives as an optional dependency.
+#   @scarf/scarf            — install-time telemetry, deliberately refused.
+#   unrs-resolver           — fallback installer for a binary that arrives as an optional dependency; refused.
+allowBuilds:
+  '@prisma/engines': true
+  prisma: true
+  '@swc/core': true
+  '@scarf/scarf': false
+  unrs-resolver: false
+
+# pnpm 12 gates versions younger than its minimum release age. These exact, pinned
+# versions were published within that window on 10 Sep 2026 and are excluded
+# deliberately; review this list when bumping versions.
+minimumReleaseAgeExclude:
+  - '@types/node@24.13.4'
+  - '@types/react-dom@19.3.0'
+  - '@types/react@19.3.0'
+  - react-dom@19.3.0
+  - react@19.3.0
+  - scheduler@0.28.0
+  - zod@4.6.0

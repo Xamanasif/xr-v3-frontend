@@ -1,0 +1,30 @@
+// Phase 0 foundation schema — NOT the platform data model.
+//
+// Domain modelling (tenants, requests, access, entitlement, content, learning,
+// assessment, telemetry) is a later phase: docs/MIGRATION_STRATEGY.md §3, Phase 3.
+// Nothing here is translated from the prototype's localStorage collections.
+//
+// The single table below exists only to prove client generation, migrations and
+// the API's database health check. Remove it when the first domain migration lands.
+
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  runtime                = "nodejs"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Foundation probe — proves generation, migration and connectivity. Not a domain record.
+model FoundationProbe {
+  id        String   @id @default(uuid(7))
+  label     String   @db.VarChar(200)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("foundation_probe")
+}

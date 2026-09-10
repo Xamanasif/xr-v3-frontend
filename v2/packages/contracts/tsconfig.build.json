@@ -1,0 +1,17 @@
+{
+  "extends": "@xr/config/tsconfig/node-library.json",
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "noEmitOnError": true
+  },
+  "references": [
+    {
+      "path": "../domain/tsconfig.build.json"
+    },
+    {
+      "path": "../validation/tsconfig.build.json"
+    }
+  ]
+}
