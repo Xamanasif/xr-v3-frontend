@@ -12,16 +12,16 @@ Stakeholder-confirmed requirements govern business behaviour. A stakeholder ↔ 
 
 ## Index
 
-| ADR                                                      | Decision                                                                                                    | Status                 | Owner record                              |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------- | ----------------------------------------- |
-| [ADR-0001](ADR-0001-css-architecture-and-tailwind.md)    | v46 CSS verbatim in one cascade layer; Tailwind without Preflight, layout utilities only (closes E-19)      | Accepted               | G-3, Option A, approved 12 Oct 2026       |
-| [ADR-0002](ADR-0002-typed-mock-services.md)              | Typed frontend mock services in a separate package; one connected service/data layer (exception TE-2)       | Accepted               | G-2, approved 12 Oct 2026                 |
-| [ADR-0003](ADR-0003-sample-identity-and-session.md)      | Controlled sample identity and session; sign-in form in Phase 1; no account switcher, no DEMO banner (TE-1) | Accepted               | G-2 and G-8, approved 12 Oct 2026         |
-| [ADR-0004](ADR-0004-sample-world-persistence.md)         | Sample world in memory, one per browser tab (option A); browser persistence deferred (TE-6 not authorised)  | Accepted (option A)    | Browser persistence deferred, 12 Oct 2026 |
-| [ADR-0005](ADR-0005-route-conventions.md)                | Route conventions for the App Router (params, tabs, steps, guards, redirects, unbuilt destinations)         | Accepted (engineering) | Acknowledgement requested                 |
-| [ADR-0006](ADR-0006-system-owned-completion-records.md)  | Learning completion is a system-owned record behind an injectable `CompletionPolicy`; T-12 stays open       | Accepted               | G-2, approved 12 Oct 2026                 |
-| [ADR-0007](ADR-0007-test-only-seams-and-sample-clock.md) | Test-only controls: sample clock, build flags, test hooks, seeded system facts (TE-5, TE-7)                 | Accepted               | G-2 and AD-14, approved 12 Oct 2026       |
-| [ADR-0008](ADR-0008-service-contract-shape.md)           | Typed service-contract boundaries: one port set, one result/error union, one record-kind union              | Accepted (engineering) | Acknowledgement requested                 |
+| ADR                                                      | Decision                                                                                                    | Status                 | Owner record                                                               |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------- | -------------------------------------------------------------------------- |
+| [ADR-0001](ADR-0001-css-architecture-and-tailwind.md)    | v46 CSS verbatim in one cascade layer; Tailwind without Preflight, layout utilities only (closes E-19)      | Accepted               | G-3, Option A, approved 12 Oct 2026; WP-0.5 amendment accepted 12 Oct 2026 |
+| [ADR-0002](ADR-0002-typed-mock-services.md)              | Typed frontend mock services in a separate package; one connected service/data layer (exception TE-2)       | Accepted               | G-2, approved 12 Oct 2026                                                  |
+| [ADR-0003](ADR-0003-sample-identity-and-session.md)      | Controlled sample identity and session; sign-in form in Phase 1; no account switcher, no DEMO banner (TE-1) | Accepted               | G-2 and G-8, approved 12 Oct 2026                                          |
+| [ADR-0004](ADR-0004-sample-world-persistence.md)         | Sample world in memory, one per browser tab (option A); browser persistence deferred (TE-6 not authorised)  | Accepted (option A)    | Browser persistence deferred, 12 Oct 2026                                  |
+| [ADR-0005](ADR-0005-route-conventions.md)                | Route conventions for the App Router (params, tabs, steps, guards, redirects, unbuilt destinations)         | Accepted (engineering) | Acknowledgement requested                                                  |
+| [ADR-0006](ADR-0006-system-owned-completion-records.md)  | Learning completion is a system-owned record behind an injectable `CompletionPolicy`; T-12 stays open       | Accepted               | G-2, approved 12 Oct 2026                                                  |
+| [ADR-0007](ADR-0007-test-only-seams-and-sample-clock.md) | Test-only controls: sample clock, build flags, test hooks, seeded system facts (TE-5, TE-7)                 | Accepted               | G-2 and AD-14, approved 12 Oct 2026                                        |
+| [ADR-0008](ADR-0008-service-contract-shape.md)           | Typed service-contract boundaries: one port set, one result/error union, one record-kind union              | Accepted (engineering) | Acknowledgement requested                                                  |
 
 ## Owner decisions of 12 October 2026
 

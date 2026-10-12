@@ -8,6 +8,7 @@ import {
   noCanvasClassesRule,
   noProcessEnvRule,
   noRawHexRule,
+  productClassAllowListRule,
   v46ClassNamesRule,
 } from '../../eslint/rules/index.mjs';
 import { fixturePath, ruleTester } from './rule-tester.js';
@@ -91,7 +92,9 @@ ruleTester().run('xr/no-canvas-classes', noCanvasClassesRule, {
 ruleTester().run('xr/v46-class-names', v46ClassNamesRule, {
   valid: [
     '<button className="xr-btn xr-btn--primary" />',
-    '<div className="xw-errsum xr-x-sort" />',
+    '<div className="xw-errsum xr-x-th-sort" />',
+    '<dialog className="xr-dialog xr-x-dialog--start" />',
+    '<dialog className={`xr-dialog xr-x-dialog--${align}`} />',
     '<nav className="xr-tabs xw-hubtabs" />',
     "<a className={current ? 'xr-tab is-current' : 'xr-tab'} />",
     '<button className={`xr-btn xr-btn--${variant}`} />',
@@ -116,11 +119,34 @@ ruleTester().run('xr/v46-class-names', v46ClassNamesRule, {
     ['<div className="bg-[#12173F] xr-row" />', 1],
     ["<div className={`xr-row ${wide ? 'grid' : 'xr-row--wide'}`} />", 1],
     ['<div className="xpx" />', 1],
-  ].map(([code, count]) => ({
-    code: code as string,
-    filename: uiFile,
-    errors: Array.from({ length: count as number }, () => ({ messageId: 'notV46' })),
-  })),
+  ]
+    .map(([code, count]) => ({
+      code: code as string,
+      filename: uiFile,
+      errors: Array.from({ length: count as number }, () => ({ messageId: 'notV46' })),
+    }))
+    .concat(
+      [
+        '<div className="xr-x-sort" />',
+        '<dialog className="xr-dialog xr-x-dialog--center" />',
+        '<div className={`xr-x-panel--${side}`} />',
+      ].map((code) => ({ code, filename: uiFile, errors: [{ messageId: 'notAllowed' }] })),
+    ),
+});
+
+ruleTester().run('xr/product-class-allow-list', productClassAllowListRule, {
+  valid: [
+    "const ALIGN = { start: 'xr-x-dialog--start', marks: 'xr-x-dialog--marks' };",
+    'const name = `xr-x-dialog--${align}`;',
+    "const sort = 'xr-x-th-sort';",
+    "const note = 'no product class here: xr-btn';",
+  ].map((code) => ({ code, filename: uiFile })),
+  invalid: [
+    "const ALIGN = { centre: 'xr-x-dialog--centre' };",
+    "const panel = 'xr-x-panel';",
+    'const any = `xr-x-${kind}`;',
+    'const other = `xr-x-table--${kind}`;',
+  ].map((code) => ({ code, filename: uiFile, errors: [{ messageId: 'notAllowed' }] })),
 });
 
 ruleTester().run('xr/no-raw-hex', noRawHexRule, {

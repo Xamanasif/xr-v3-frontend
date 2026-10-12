@@ -27,7 +27,7 @@ const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
 /** Suites the plan names that later work packages create; reported, never claimed. */
 const NOT_YET_PRESENT = [
-  ['component markup, behaviour and axe suites', 'WP-0.6 / WP-0.7 (the @xr/ui components)'],
+  ['DataTable sort and B1-10 (BC13) suites', 'WP-0.7'],
   ['matrix-driven policy and domain suites', 'WP-0.9'],
   ['contract suite', 'WP-0.10 / WP-0.11'],
   ['foundation-screen and connected-flow suites (and flow skeletons)', 'WP-0.13 / WP-0.14'],

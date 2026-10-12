@@ -25,6 +25,7 @@ export const DEVELOPER_SURFACE_TERMS: readonly ScopedTerm[];
 export const CANVAS_TERMS: readonly ScopedTerm[];
 export const CANVAS_CLASS_PATTERNS: readonly RegExp[];
 export const SLICE1_TERMS: readonly ScopedTerm[];
+export const PRODUCT_CLASS_ALLOW_LIST: readonly string[];
 export const POLICY_WORD_TERMS: readonly CopyTerm[];
 export const PUBLISH_CONTROL_TERM: CopyTerm;
 export const DENIED_UI_DEPENDENCIES: readonly DeniedDependency[];

@@ -14,7 +14,8 @@
  *   its @property fallback (`@layer properties{@supports(…){*,::before,…{--tw-*:…}}}`) as soon as a
  *   utility such as `shadow-e1` registers custom properties. Undeclared here, the bundle would
  *   meet it last and make it the strongest layer. The approved order of the four named layers,
- *   theme < xr.v46 < xr.product < utilities (ADR-0001 §3), is unchanged.
+ *   theme < xr.v46 < xr.product < utilities (ADR-0001 §3), is unchanged. Accepted by the owner on
+ *   12 Oct 2026 (WP-0.6 authorisation; ADR-0001 amendment).
  */
 @layer properties, theme, xr.v46, xr.product, utilities;
 

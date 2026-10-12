@@ -14,7 +14,7 @@ import {
  */
 test('frames a specimen at the requested content width', async ({ page }) => {
   await page.goto('/harness-probe?width=343');
-  const frame = page.locator('main.specimen-frame');
+  const frame = page.locator('div.specimen-frame');
   await expect(frame).toHaveAttribute('data-content-width', '343');
   expect((await frame.boundingBox())?.width).toBe(343);
 });

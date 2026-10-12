@@ -296,6 +296,7 @@ export const uiRules = [
       'xr/v46-class-names': 'error',
       'xr/no-raw-hex': 'error',
       'xr/no-canvas-classes': 'error',
+      'xr/product-class-allow-list': 'error',
     },
   },
   {
@@ -303,7 +304,7 @@ export const uiRules = [
     files: ['src/**/*.ts'],
     ignores: TEST_FILES,
     plugins: { xr: xrPlugin },
-    rules: { 'xr/no-canvas-classes': 'error' },
+    rules: { 'xr/no-canvas-classes': 'error', 'xr/product-class-allow-list': 'error' },
   },
 ];
 

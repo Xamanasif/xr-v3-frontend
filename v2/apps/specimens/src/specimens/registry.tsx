@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-
+import { COMPONENT_SPECIMENS } from './components';
 import { HarnessProbe } from './harness-probe';
+import type { Specimen } from './types';
 import { V46FocusedTask } from './v46/assess';
 import { V46Dialog, type DialogAlign } from './v46/dialogs';
 import { V46Foundation } from './v46/foundation';
@@ -8,16 +8,7 @@ import { V46PublicFilters, V46PublicMenu, V46PublicPage } from './v46/public';
 import { V46DrawerShell } from './v46/shell';
 import { V46Tables } from './v46/tables';
 
-export interface Specimen {
-  /** What the specimen shows. */
-  readonly title: string;
-  /**
-   * Where its markup contract comes from: a v46 board and frame (e.g. "B1-10 f2"), or
-   * "harness" for the harness's own self-check.
-   */
-  readonly source: string;
-  readonly render: () => ReactNode;
-}
+export type { Specimen } from './types';
 
 /**
  * Every specimen the harness can render, by id (a lower-case slug used in the address).
@@ -27,6 +18,7 @@ export interface Specimen {
  * product layer (PF-01 … PF-13) and container-query behaviour.
  */
 export const SPECIMENS: Readonly<Record<string, Specimen>> = {
+  ...COMPONENT_SPECIMENS,
   'harness-probe': {
     title: 'Harness probe',
     source: 'harness',

@@ -44,6 +44,22 @@ The committed foundation conflicts with this:
 - `@xr/ui` needs a `./styles.css` export. The `tailwindcss` and `@tailwindcss/postcss` pins (4.3.3) stay.
 - Board inline styles are never copied as-is. Composition uses the constrained utilities.
 
+## Amendment — WP-0.5 implementation (owner-accepted 12 Oct 2026)
+
+The WP-0.6 authorisation (12 Oct 2026) accepts four implementation mechanisms of WP-0.5
+(`packages/ui/README.md`):
+
+1. The layer statement is `@layer properties, theme, xr.v46, xr.product, utilities;`.
+   `properties` is the slot Tailwind 4 fills with its `@property` fallback; declared first it is the
+   weakest layer. The relative order of the four layers in decision 3 is unchanged.
+2. PF-05: the public menu scrim is fixed to the viewport below the header (not `inset: 0`), so the
+   header's Close button stays usable.
+3. PF-11: focus-scoped root `scroll-padding-top`, subject to long-title and wrapped-bar
+   verification in WP-0.8.
+4. PF-04: the product modifier classes `xr-x-dialog--start`, `--end`, `--decision` and `--marks`,
+   the only product classes besides the PF-01 sort classes. The alignment mapping itself (VD-08)
+   stays provisional.
+
 ## Removal trigger
 
 A new owner-approved canvas version that changes the stylesheets. Or evidence from the WP-0.5 spike that the layer pipeline cannot hold, in which case Option B (no Tailwind; typed layout primitives) is the recorded alternative, also under G-3.

@@ -147,7 +147,9 @@
  * quiet dismiss first (Cancel, "Keep answering" or the B5 keep label) and the confirm last; below
  * 600 px each button takes its own line and wrap-reverse puts the last one (confirm) on top.
  *
- * Alignment modifiers replace the canvas scrim classes (frame-relative, never product classes):
+ * Alignment modifiers replace the canvas scrim classes (frame-relative, never product classes);
+ * the four `xr-x-dialog--*` classes were accepted by the owner on 12 Oct 2026 (VD-08 itself stays
+ * provisional):
  * no modifier = centred (v46 margin:auto) · `xr-x-dialog--start` · `xr-x-dialog--end` ·
  * `xr-x-dialog--decision` (start, bottom below 908) · `xr-x-dialog--marks` (start, bottom below
  * 1024). Like the canvas rules, each has an unconditional base, then max-width overrides, then
@@ -255,7 +257,7 @@ dialog.xr-dialog.xr-x-dialog--end {
  * div.xp-scrim + div.xp-sheet: the scrim starts at the bottom of the header. Fixed below the
  * header, not `inset:0` as the register words it: the scrim lives inside the `.xp-head` stacking
  * context with z-index 29, above the in-flow header row, so inset:0 would dim the header and cover
- * the Close button (an amendment for the owner to note). top:100% and height:2000px are reset:
+ * the Close button (accepted by the owner, 12 Oct 2026). top:100% and height:2000px are reset:
  * on a fixed box top:100% is the viewport height, and a set height would cancel bottom. Stacking
  * is unchanged: under `.xp-sheet` (z-index 31), above `.xp-bottombar` (z-index 20). */
 .xp-scrim {
@@ -324,7 +326,8 @@ dialog.xr-dialog.xr-x-dialog--end {
  * =========================================================================================== */
 
 /* ===========================================================================================
- * PF-11 · Focus is never hidden under the focused-task bar (Appendix E §2.3; provisional).
+ * PF-11 · Focus is never hidden under the focused-task bar (Appendix E §2.3; mechanism accepted by
+ * the owner 12 Oct 2026, subject to long-title / wrapped-bar verification in WP-0.8).
  * Board 12 "Keyboard and focus": "Focus is always visible (2.4.7, 2.4.11) and never hidden under
  * the top bar or a menu." xr-assess.css `.xa-bar{position:sticky;top:0;z-index:5;…;
  * flex-wrap:wrap;min-height:56px;padding:8px 28px;…;border-bottom:1px solid #E1E4F3}`; on B4-12,

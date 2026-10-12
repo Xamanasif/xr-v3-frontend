@@ -78,8 +78,16 @@ describe('the rejected Slice-1 work', () => {
     ['export function PlacesMeter() { return null; }', 'slice1-components'],
     ["import { FormatLegend } from './format-legend';", 'slice1-components'],
     ["const route = '/(connected)/learn';", 'slice1-routes'],
+    ['export function Card() { return null; }', 'slice1-identifiers'],
+    ["import { cx } from './cx';", 'slice1-identifiers'],
+    ['const placesShown = 3;', 'slice1-identifiers'],
   ])('%s → %s', (source, rule) => {
     expect(rulesIn(view, source)).toContain(rule);
+  });
+
+  it('allows v46 component names that merely contain a Slice-1 word (ChoiceCard, LogoPlaceholder)', () => {
+    expect(rulesIn(view, 'export function ChoiceCard() { return null; }')).toEqual([]);
+    expect(rulesIn(view, 'export const LogoPlaceholder = () => null;')).toEqual([]);
   });
 
   it('refuses a Campus entity in code but allows the drawn copy "Hyderabad Campus" (B1-11)', () => {

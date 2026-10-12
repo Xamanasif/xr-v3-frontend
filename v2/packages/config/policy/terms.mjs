@@ -158,6 +158,23 @@ export const CANVAS_CLASS_PATTERNS = [
   /^xg-dlg$/,
 ];
 
+/**
+ * The ONLY product-added class names (T-4; Appendix E §2.6 "the tests keep an explicit allow-list";
+ * Appendix F WP-0.6 acceptance 2). Every other class @xr/ui emits is a v46 board class.
+ * - PF-01 sort control (Appendix E §7.1), used from WP-0.7.
+ * - PF-04 dialog alignment modifiers, accepted by the owner in the WP-0.6 authorisation
+ *   (12 Oct 2026); VD-08 (the alignment mapping itself) stays provisional.
+ */
+export const PRODUCT_CLASS_ALLOW_LIST = [
+  'xr-x-table-sortbar',
+  'xr-x-th-sort',
+  'xr-x-th-text',
+  'xr-x-dialog--start',
+  'xr-x-dialog--end',
+  'xr-x-dialog--decision',
+  'xr-x-dialog--marks',
+];
+
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */
 export const SLICE1_TERMS = [
   {
@@ -181,6 +198,13 @@ export const SLICE1_TERMS = [
     scope: ['code'],
     evidence:
       'Appendix F §2.3 DISCARD (Slice-1 UI) and WP-0.6 (6) Slice-1-only identifiers; START-HERE Known exception 4',
+  },
+  {
+    id: 'slice1-identifiers',
+    pattern: /^(?:Card|cx)$|^places/,
+    scope: ['identifier'],
+    evidence:
+      'Appendix F WP-0.6 acceptance 6 (Slice-1-only identifiers `Card`, `cx`, `places*`; `demo-*` is `demo-wording`); START-HERE Known exception 4',
   },
   {
     id: 'slice1-routes',

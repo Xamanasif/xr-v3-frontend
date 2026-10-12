@@ -21,6 +21,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "generate:constants": "node scripts/generate-v46-constants.mjs",
+    "generate:icons": "node scripts/generate-icon-registry.mjs",
     "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('dist', { recursive: true, force: true }))\""
   },
   "peerDependencies": {

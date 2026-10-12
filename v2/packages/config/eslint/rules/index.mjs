@@ -5,6 +5,7 @@ import { importFenceRule } from './import-fence.mjs';
 import { noCanvasClassesRule } from './no-canvas-classes.mjs';
 import { noProcessEnvRule } from './no-process-env.mjs';
 import { noRawHexRule } from './no-raw-hex.mjs';
+import { productClassAllowListRule } from './product-class-allow-list.mjs';
 import { resolvedBoundariesRule } from './resolved-boundaries.mjs';
 import { v46ClassNamesRule } from './v46-class-names.mjs';
 
@@ -18,6 +19,7 @@ export const xrPlugin = {
     'no-canvas-classes': noCanvasClassesRule,
     'v46-class-names': v46ClassNamesRule,
     'no-raw-hex': noRawHexRule,
+    'product-class-allow-list': productClassAllowListRule,
   },
 };
 
@@ -27,6 +29,7 @@ export {
   noCanvasClassesRule,
   noProcessEnvRule,
   noRawHexRule,
+  productClassAllowListRule,
   resolvedBoundariesRule,
   v46ClassNamesRule,
 };
