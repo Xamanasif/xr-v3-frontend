@@ -3,6 +3,7 @@
   "ui": "stream",
   "envMode": "strict",
   "globalPassThroughEnv": ["CI"],
+  "cacheDir": ".turbo/cache",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
