@@ -1,6 +1,7 @@
 import type { Specimen } from '../types';
 import {
   DataTableFlushSpecimen,
+  DataTableShellSpecimen,
   DataTableSpecimen,
   DataTableStatesSpecimen,
   DecisionLayoutSpecimen,
@@ -11,10 +12,25 @@ import {
 
 export const DATA_SPECIMENS: Readonly<Record<string, Specimen>> = {
   'c-data-table': {
-    title: 'DataTable with ListToolbar: search, two filters, More filters, chips, row links',
+    title:
+      'DataTable with ListToolbar: search, two filters, More filters, chips, row links, the sortable "Received" column and its sort bar',
     source:
-      'B1-10 "SA-02 Requests · 1440 · interactive", "More filters open · Internal or external = External", "No match"; 03 "Search, filter, segmented and tabs"',
+      'B1-10 "SA-02 Requests · 1440 · interactive", "More filters open · Internal or external = External", "No match", "Mobile 375"; 03 "Search, filter, segmented and tabs"; Appendix E §7.1 (PF-01)',
     render: () => <DataTableSpecimen />,
+  },
+  'c-data-table-shell': {
+    title:
+      'DataTable sort in the workspace shell (Super Admin): drawer below 1024, rail 1024–1279, full from 1280',
+    source:
+      'B1-10 "SA-02 Requests · 1440 · interactive", "Filtered · Under review", "Mobile 375"; 06 "Collapsed rail and mobile drawer"; Appendix E §6.1, §7.1',
+    render: () => <DataTableShellSpecimen sidebar="auto" />,
+  },
+  'c-data-table-shell-expanded': {
+    title:
+      'DataTable sort in the workspace shell (Super Admin), sidebar expanded at 1024–1279 (content 759/760 at app 1071/1072)',
+    source:
+      'B1-10 "SA-02 Requests · 1440 · interactive"; 06 "Collapsed rail and mobile drawer", "Behaviour"; Appendix E §6.1, §7.1',
+    render: () => <DataTableShellSpecimen sidebar="expanded" />,
   },
   'c-data-table-states': {
     title: 'DataTable states: loading, empty, no match, failed + retry, changed and error rows',

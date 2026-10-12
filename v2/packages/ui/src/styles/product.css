@@ -14,14 +14,15 @@
  * - Layout stays container-query only (xr-app, xr-content, xp): no viewport @media.
  *
  * WP-0.5 entries: PF-01 (guards), PF-02, PF-03, PF-04, PF-05, PF-06, PF-07, PF-09 (note), PF-11,
- * PF-13. Not here: the DataTable sort-control rules of PF-01 (`xr-x-table-sortbar`,
- * `xr-x-th-sort`, `xr-x-th-text` — WP-0.7), PF-08 motion (VD-09), PF-10 (no CSS, VD-05) and PF-12
- * forced colours (VD-15).
+ * PF-13. WP-0.7 adds the DataTable sort-control rules of PF-01 (`xr-x-table-sortbar`,
+ * `xr-x-th-sort`, `xr-x-th-text`). Not here: PF-08 motion (VD-09), PF-10 (no CSS, VD-05) and
+ * PF-12 forced colours (VD-15).
  */
 
 /* ===========================================================================================
- * PF-01 · Table hidden-header guards (BC13; START-HERE Known exception 1; Appendix E §2.3,
- * §7.1; VD-04 provisional design). WP-0.5 holds the guard part only.
+ * PF-01 · Table hidden-header guards and the DataTable sort control (BC13; START-HERE Known
+ * exception 1; Appendix E §2.3, §7.1; VD-04 provisional design). WP-0.5 added the guards, WP-0.7
+ * the sort-control rules after them.
  *
  * In labelled-row mode v46 hides a table header by clipping the <thead>
  * (position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)). Clipping keeps
@@ -38,7 +39,7 @@
  * names a guarded table is xr-public.css `.xp-compare,… td{display:block;width:100%!important}`
  * (width only). `.xp-filter-btn` and `.xp-ex-card .xp-ex-full` carry display !important by
  * class: never put them in a table head. No pixel change: the clipped <thead> paints nothing.
- * WP-0.7 adds the sort-control rules beside these guards and does not repeat them.
+ * The sort-control rules after the guards do not repeat them.
  * =========================================================================================== */
 
 /* PF-01 guard 1/3 · .xr-table — xr-foundation.css @container xr-content (max-width:759.98px)
@@ -74,6 +75,46 @@
     thead
     :is(a, button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])) {
     display: none !important;
+  }
+}
+
+/* PF-01 sort control (WP-0.7; Appendix E §7.1 "Fix: once, in DataTable"; VD-04 provisional
+ * design, placement for owner visual acknowledgement). B1-10 draws one sortable column,
+ * `th[scope=col][aria-sort]` > button.xr-btn.xr-btn--text "Received" + chevron. DataTable emits
+ *   th[aria-sort] > button.xr-btn.xr-btn--text.xr-x-th-sort + span.xr-x-th-text   (the header)
+ *   div.xr-x-table-sortbar > button.xr-btn.xr-btn--text.xr-btn--sm                 (the sort bar)
+ * both named "Received, newest first. Change order" (or "… oldest first …") and driven by one
+ * sort state. Exactly one of the two buttons is displayed at any content width: from 760 px the
+ * header button (the table as drawn); below 760 px, where v46 clips the <thead> (guard 1/3 above),
+ * the sort bar in the toolbar-status row above the first row, while the header keeps only its
+ * words for screen readers (span.xr-x-th-text; the clipped head paints nothing). display:none
+ * takes the hidden button out of the tab order and the accessibility tree. The narrow rules
+ * repeat guard 1/3's container and threshold, so the swap happens at exactly the width where v46
+ * starts clipping; !important as for the guards (Appendix E §2.3). B8-03 "Open finding — B1-10
+ * at 375"; B8-08 "B1-10 sort button at 375": "render the sort as a visible control above the
+ * labelled rows below 760 px". No board draws these classes: the B1-10 baselines carry the
+ * change as an expected deviation (Appendix E §9.1). */
+.xr-x-table-sortbar {
+  display: none;
+}
+
+.xr-table .xr-x-th-text {
+  display: none;
+}
+
+@container xr-content (max-width: 759.98px) {
+  .xr-x-table-sortbar {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .xr-table .xr-x-th-sort {
+    display: none !important;
+  }
+
+  .xr-table .xr-x-th-text {
+    display: inline !important;
   }
 }
 

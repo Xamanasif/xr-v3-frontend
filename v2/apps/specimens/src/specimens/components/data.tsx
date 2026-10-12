@@ -1,11 +1,13 @@
 'use client';
 
 import {
+  AccountMenu,
   BackLink,
   Button,
   ChoiceCard,
   ChoiceList,
   DataTable,
+  DataTableSortBar,
   DecisionLayout,
   FormatSet,
   IdChip,
@@ -19,12 +21,19 @@ import {
   SectionTabs,
   Select,
   Field,
+  Sidebar,
   StatusPill,
   StatusTabs,
   Timeline,
+  TopBar,
+  WorkspaceShell,
   type DataTableColumn,
+  type DataTableSortableColumn,
+  type DataTableSortDirection,
+  type DataTableSorting,
   type DecisionPanelPosition,
   type FilterChip,
+  type SidebarPreference,
   type StatusTone,
   type TimelineEvent,
 } from '@xr/ui';
@@ -34,8 +43,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
  * Data-display specimens (Appendix E §3.3: DataTable, ListToolbar / Filters, Tabs, Timeline,
  * DecisionLayout + DecisionPanel). Words and records are board copy: B1-10 (requests), B1-11
  * (the request decision), B7-02 (institutions), B7-05 (release or hold), boards 03 and 11 (People
- * tabs and students), B2-03 and B2-12. Harness state stands in for the caller (filtering, a retry
- * that loads after a short wait); nothing here is a product screen.
+ * tabs and students), B2-03 and B2-12. Harness state stands in for the caller (filtering, sorting,
+ * a retry that loads after a short wait); nothing here is a product screen.
  */
 
 /**
@@ -205,6 +214,18 @@ const ROUTE_OPTIONS = [
   { value: 'Not set yet', label: 'Not set yet' },
 ];
 
+/**
+ * B1-10's sortable column (WP-0.7): "Received", in the board's own order words (`sortLabel: s.desc
+ * ? 'Received, newest first' : 'Received, oldest first'`). Plain where no sort is given.
+ */
+const RECEIVED: DataTableSortableColumn<AccessRequest> = {
+  key: 'date',
+  header: 'Received',
+  className: 'xr-num',
+  cell: (row) => row.date,
+  sortWords: { descending: 'newest first', ascending: 'oldest first' },
+};
+
 const REQUEST_COLUMNS: readonly DataTableColumn<AccessRequest>[] = [
   {
     key: 'inst',
@@ -236,7 +257,7 @@ const REQUEST_COLUMNS: readonly DataTableColumn<AccessRequest>[] = [
       </>
     ),
   },
-  { key: 'date', header: 'Received', className: 'xr-num', cell: (row) => row.date },
+  RECEIVED,
   {
     key: 'status',
     header: 'Status',
@@ -268,12 +289,23 @@ interface RequestFilters {
 
 const NO_FILTERS: RequestFilters = { q: '', st: 'all', type: 'all', route: 'all' };
 
-/** B1-10 "SA-02 Requests · 1440 · interactive": search, Status, Type, More filters, chips. */
-export function DataTableSpecimen() {
+/**
+ * B1-10 "SA-02 Requests · 1440 · interactive": the page header, then search, Status, Type, More
+ * filters, chips and the sortable "Received" column (WP-0.7). One sort state drives the header's
+ * button and the sort bar in the toolbar's status row (PF-01); the harness sorts the rows as B1-10
+ * does (`iso`, newest first until changed). The sort bar is passed while the table lists rows.
+ */
+function RequestsList() {
   const [filters, setFilters] = useState(NO_FILTERS);
   const [more, setMore] = useState(false);
+  const [direction, setDirection] = useState<DataTableSortDirection>('descending');
   const set = (patch: Partial<RequestFilters>) =>
     setFilters((current) => ({ ...current, ...patch }));
+  const sort: DataTableSorting = {
+    column: RECEIVED.key,
+    direction,
+    onSortChange: (next) => setDirection(next.direction),
+  };
   const q = filters.q.trim().toLowerCase();
   const rows = REQUESTS.filter(
     (row) =>
@@ -281,7 +313,9 @@ export function DataTableSpecimen() {
       (filters.st === 'all' || row.st === filters.st) &&
       (filters.type === 'all' || row.type === filters.type) &&
       (filters.route === 'all' || row.route === filters.route),
-  ).sort((a, b) => b.iso.localeCompare(a.iso));
+  ).sort((a, b) =>
+    direction === 'descending' ? b.iso.localeCompare(a.iso) : a.iso.localeCompare(b.iso),
+  );
   const chips: FilterChip[] = [];
   if (q) {
     chips.push({
@@ -313,7 +347,7 @@ export function DataTableSpecimen() {
   }
   const clear = () => setFilters(NO_FILTERS);
   return (
-    <Page>
+    <>
       <PageHeader
         overline="Super Admin"
         title="Requests"
@@ -365,6 +399,7 @@ export function DataTableSpecimen() {
         }
         chips={chips}
         onClearFilters={chips.length ? clear : undefined}
+        sortBar={rows.length > 0 ? <DataTableSortBar column={RECEIVED} sort={sort} /> : undefined}
       />
       <DataTable
         caption="Institutional access requests"
@@ -372,12 +407,86 @@ export function DataTableSpecimen() {
         columns={REQUEST_COLUMNS}
         rows={rows}
         rowKey={(row) => row.ref}
+        sort={sort}
         loadingLabel="Loading requests"
         filtered={chips.length > 0}
         empty={REQUESTS_EMPTY}
         noMatch={{ title: 'No requests match these filters', onClearFilters: clear }}
       />
+    </>
+  );
+}
+
+/** B1-10 in a plain page: `.xr-content` is the frame width less the page padding. */
+export function DataTableSpecimen() {
+  return (
+    <Page>
+      <RequestsList />
     </Page>
+  );
+}
+
+/** B1-10's Super Admin sidebar (board 06; B1-10 nav count "3 requests under review"). */
+const SUPER_ADMIN_DESTINATIONS = [
+  { label: 'Overview', href: '#overview', icon: 'overview' },
+  {
+    label: 'Requests',
+    href: '#requests',
+    icon: 'requests',
+    current: true,
+    count: { value: 3, label: '3 requests under review' },
+  },
+  { label: 'Institutions', href: '#institutions', icon: 'institutions' },
+  { label: 'Content', href: '#content', icon: 'content' },
+  { label: 'Academic structure', href: '#structure', icon: 'academicStructure' },
+  { label: 'Platform roles', href: '#roles', icon: 'platformRoles' },
+  { label: 'Operations', href: '#operations', icon: 'operations' },
+] as const;
+
+/**
+ * B1-10 inside the workspace shell (WorkspaceShell, WP-0.6) with its Super Admin sidebar, top bar
+ * and account (Arjun Mehta), for the full app-width boundaries of Appendix E §7.1: content is
+ * 759/760 px at app widths 807/808 (drawer) and 1071/1072 with the sidebar expanded. The
+ * sidebar starts expanded at 1024–1279 ("Collapse menu" turns it to the rail, as on board 06);
+ * below 1024 it is the drawer. Harness composition only: SA-02 itself is Phase 1.
+ */
+export function DataTableShellSpecimen({
+  sidebar,
+}: {
+  readonly sidebar: Exclude<SidebarPreference, 'rail'>;
+}) {
+  return (
+    <div data-probe="root" ref={markReady}>
+      <WorkspaceShell
+        defaultSidebarPreference={sidebar}
+        sidebar={
+          <Sidebar
+            workspace="Super Admin"
+            destinations={SUPER_ADMIN_DESTINATIONS}
+            help={{ href: '#help' }}
+          />
+        }
+        topBar={
+          <TopBar
+            title="Requests"
+            account={
+              <AccountMenu
+                name="Arjun Mehta"
+                role="Super Admin"
+                initials="AM"
+                items={[
+                  { kind: 'link', label: 'Help', href: '#help', icon: 'help' },
+                  { kind: 'separator' },
+                  { kind: 'button', label: 'Sign out', icon: 'signOut', onSelect: () => undefined },
+                ]}
+              />
+            }
+          />
+        }
+      >
+        <RequestsList />
+      </WorkspaceShell>
+    </div>
   );
 }
 

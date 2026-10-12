@@ -29,6 +29,7 @@ import {
   normaliseMarkup,
   type BoardSource,
 } from '../testing/index.js';
+import { DataTableSortBar, type DataTableSortableColumn } from './data-table.js';
 import { ListToolbar, type FilterChip, type ListToolbarFilter } from './list-toolbar.js';
 
 const FIND: BoardSource = { board: '03', frame: 'Search, filter, segmented and tabs' };
@@ -606,6 +607,44 @@ describe('ListToolbar behaviour', () => {
     // Nothing to search or filter: no empty `xr-toolbar` row (it would only add its margin).
     expect(container.querySelector('.xr-toolbar')).toBeNull();
     expect(container.children).toHaveLength(1);
+  });
+});
+
+describe('ListToolbar with the DataTable sort bar (WP-0.7; PF-01; Appendix E §7.1)', () => {
+  const received: DataTableSortableColumn<{ readonly date: string }> = {
+    key: 'date',
+    header: 'Received',
+    cell: (row) => row.date,
+    sortWords: { descending: 'newest first', ascending: 'oldest first' },
+  };
+
+  it('the sort bar sits in the status row after the count and before the chips (B1-10 "SA-02 Requests · 1440 · interactive")', () => {
+    expectBoardDraws(
+      { board: 'B1-10', frame: 'SA-02 Requests · 1440 · interactive' },
+      '<div class="xr-toolbar-status"><span class="xr-meta" role="status">{{ q.count }}</span><sc-for list="{{ q.chips }}"',
+    );
+    const onSortChange = vi.fn();
+    const { container } = render(
+      <ListToolbar
+        status="3 of 7 requests"
+        sortBar={
+          <DataTableSortBar
+            column={received}
+            sort={{ column: 'date', direction: 'descending', onSortChange }}
+          />
+        }
+        chips={[{ key: 'st', label: 'Status: Under review', onRemove: () => {} }]}
+        onClearFilters={() => {}}
+      />,
+    );
+    const row = container.querySelector('.xr-toolbar-status')!;
+    expect([...row.children].map((child) => child.className || child.getAttribute('role'))).toEqual(
+      ['xr-meta', 'xr-x-table-sortbar', 'xr-fchip', 'xr-btn xr-btn--text'],
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Received, newest first. Change order' }));
+    expect(onSortChange).toHaveBeenCalledWith({ column: 'date', direction: 'ascending' });
+    // The count keeps the caller's words; the order is the sort bar's own.
+    expect(screen.getByRole('status')).toHaveTextContent(/^3 of 7 requests$/);
   });
 });
 

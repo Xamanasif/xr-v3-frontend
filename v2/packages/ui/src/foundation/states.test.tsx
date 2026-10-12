@@ -234,6 +234,30 @@ describe('LoadingState markup contract and live region', () => {
     expect(region).toHaveAttribute('aria-busy', 'true');
   });
 
+  it('status: words for the same region while not loading (a new sort order); loading words win', () => {
+    const { rerender } = render(
+      <LoadingState label="Loading requests" loading={false} status="Received, oldest first">
+        <p>3 requests</p>
+      </LoadingState>,
+    );
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent(/^Received, oldest first$/);
+    rerender(
+      <LoadingState label="Loading requests" loading status="Received, oldest first">
+        <p>3 requests</p>
+      </LoadingState>,
+    );
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toHaveTextContent(/^Loading requests$/);
+    rerender(
+      <LoadingState label="Loading requests" loading={false}>
+        <p>3 requests</p>
+      </LoadingState>,
+    );
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toBeEmptyDOMElement();
+  });
+
   it('a caller-owned container (surface null) keeps only the caller’s classes (B1-03)', () => {
     expectBoardDraws(
       { board: 'B1-03', frame: 'All areas · loading' },

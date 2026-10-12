@@ -1,7 +1,7 @@
 /**
- * The public surface of @xr/ui (WP-0.6): the stylesheet entry, the generated constants and the
- * Phase-0 components (LEDGER.md). An export added or removed is a deliberate API change and must
- * be recorded here; Slice-1 names never appear.
+ * The public surface of @xr/ui (WP-0.6; WP-0.7 adds DataTableSortBar): the stylesheet entry, the
+ * generated constants and the Phase-0 components (LEDGER.md). An export added or removed is a
+ * deliberate API change and must be recorded here; Slice-1 names never appear.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -80,6 +80,7 @@ const RUNTIME_EXPORTS = [
   'useFieldControl',
   // Data display
   'DataTable',
+  'DataTableSortBar',
   'DecisionLayout',
   'DecisionPanel',
   'ListToolbar',

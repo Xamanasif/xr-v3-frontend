@@ -25,9 +25,12 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
-/** Suites the plan names that later work packages create; reported, never claimed. */
+/** Suites the plan names that later work packages create or that wait for their screen; reported, never claimed. */
 const NOT_YET_PRESENT = [
-  ['DataTable sort and B1-10 (BC13) suites', 'WP-0.7'],
+  [
+    'SA-02 route-level DataTable sort test (apps/web/e2e/a11y/datatable-sort.spec.ts, written as fixme: reported as skipped)',
+    'Phase 1 (SA-02)',
+  ],
   ['matrix-driven policy and domain suites', 'WP-0.9'],
   ['contract suite', 'WP-0.10 / WP-0.11'],
   ['foundation-screen and connected-flow suites (and flow skeletons)', 'WP-0.13 / WP-0.14'],
@@ -75,10 +78,11 @@ function vitestTotals(output) {
   return totals;
 }
 
-function playwrightTotals(output) {
+function playwrightTotals(output, outcome = 'passed') {
   const totals = new Map();
+  const pattern = new RegExp(`^(@xr\\/[\\w-]+):test:e2e:\\s+(\\d+) ${outcome}`);
   for (const line of plain(output).split('\n')) {
-    const match = /^(@xr\/[\w-]+):test:e2e:\s+(\d+) passed/.exec(line);
+    const match = pattern.exec(line);
     if (match) totals.set(match[1], Number(match[2]));
   }
   return totals;
@@ -127,7 +131,7 @@ function report() {
     );
   }
   if (results.every((result) => result.ok) && results.length === 5) {
-    process.stdout.write('\n  Not run — these suites do not exist yet:\n');
+    process.stdout.write('\n  Not run — these suites are deferred or do not exist yet:\n');
     for (const [suite, owner] of NOT_YET_PRESENT)
       process.stdout.write(`    - ${suite}: ${owner}\n`);
     process.stdout.write(
@@ -215,9 +219,13 @@ await step('browser', async () => {
   const { code, output } = await run(pnpm, ['exec', 'turbo', 'run', 'test:e2e']);
   const totals = playwrightTotals(output);
   const sum = [...totals.values()].reduce((total, count) => total + count, 0);
+  // Skipped tests are listed apart and never counted as passed: suites that set their own width
+  // run in one project only, and deferred suites are `fixme`.
+  const skipped = playwrightTotals(output, 'skipped');
+  const skippedSum = [...skipped.values()].reduce((total, count) => total + count, 0);
   return {
     ok: code === 0,
-    detail: `${sum} Playwright tests at 4 viewports (${[...totals].map(([pkg, count]) => `${pkg.replace('@xr/', '')} ${count}`).join(', ')})`,
+    detail: `${sum} Playwright tests passed at 4 viewports (${[...totals].map(([pkg, count]) => `${pkg.replace('@xr/', '')} ${count}`).join(', ')}); ${skippedSum} skipped, not passed (${[...skipped].map(([pkg, count]) => `${pkg.replace('@xr/', '')} ${count}`).join(', ') || 'none'})`,
   };
 });
 

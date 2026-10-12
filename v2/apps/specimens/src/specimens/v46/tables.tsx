@@ -84,3 +84,104 @@ export function V46Tables() {
     </div>
   );
 }
+
+/** The kinds of control the PF-01 guard selector names, one of each (probe = kind). */
+function HeaderControls({ table }: { readonly table: string }) {
+  const probe = (kind: string) => `${table}-${kind}`;
+  return (
+    <>
+      <a href={`#${table}-link`} data-probe={probe('link')}>
+        Link
+      </a>
+      <button type="button" data-probe={probe('button')}>
+        Button
+      </button>
+      <input aria-label={`${table} input`} data-probe={probe('input')} />
+      <select aria-label={`${table} select`} data-probe={probe('select')}>
+        <option>One</option>
+      </select>
+      <textarea aria-label={`${table} textarea`} data-probe={probe('textarea')} />
+      <details>
+        <summary data-probe={probe('summary')}>Summary</summary>
+      </details>
+      <span tabIndex={0} role="button" data-probe={probe('tabindex')}>
+        Tab stop
+      </span>
+      {/* Not a Tab stop: the guard leaves it displayed (focusable by script only). */}
+      <span tabIndex={-1} data-probe={probe('tabindex-minus-one')}>
+        Script focus
+      </span>
+    </>
+  );
+}
+
+/**
+ * Stylesheet specimen (WP-0.7, PF-01 guards): one control of every kind the guard selector names
+ * — `a, button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])` — in each head
+ * v46 clips: `.xr-table` (below 760 px of `xr-content`), `.xp-ftable` (below 760 xp) and
+ * `.xp-compare` (below 600 xp). No board draws these controls (only B1-10's sort button sits in a
+ * head); the specimen proves the guard covers each kind at exactly the clip widths.
+ */
+export function V46TableGuards() {
+  return (
+    <div className="xr-content" data-probe="content">
+      <div className="xr-table-wrap">
+        <table className="xr-table">
+          <caption className="xr-sr">Institutional access requests</caption>
+          <thead>
+            <tr>
+              <th scope="col">Reference</th>
+              <th scope="col">
+                <HeaderControls table="xr-table" />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="is-primary">
+                <a href="#REQ-0042">REQ-0042</a>
+              </td>
+              <td data-label="Received">2 Oct 2026</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div className="xp" data-probe="xp">
+        <table className="xp-ftable">
+          <thead>
+            <tr>
+              <th>Format</th>
+              <th>
+                <HeaderControls table="xp-ftable" />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Format">WEB</td>
+              <td data-label="How it runs">The experiment in a web browser.</td>
+            </tr>
+          </tbody>
+        </table>
+        <table className="xp-compare">
+          <thead>
+            <tr>
+              <th>
+                <span className="xr-sr">Item</span>
+              </th>
+              <th>
+                <HeaderControls table="xp-compare" />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="">Licences</td>
+              <td data-label="You asked for">120</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

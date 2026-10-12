@@ -5,11 +5,12 @@ The frozen v46 visual system of the XR Learning Platform (`design/handoff-v46/`,
 for byte into one cascade layer, a small documented product layer, and React components that emit
 the v46 class names and ARIA exactly. No third-party design system.
 
-Phase 0 status (WP-0.6): the stylesheets, the generated constants and icon registry, and the 42
+Phase 0 status (WP-0.7): the stylesheets, the generated constants and icon registry, and the 42
 Phase-0 components (foundation, forms, data display, overlays, shell primitives — `LEDGER.md`) are
-exported from `@xr/ui`. Links are injected through `LinkProvider` (no `next/*` here). `src/testing/`
-is test support only and is never built or exported. Sorting and the B1-10 control are WP-0.7; role
-navigation and shell composition are WP-0.8; public and sign-in pieces are Phase 1 (G-8).
+exported from `@xr/ui`, with DataTable's sort and the B1-10 fix (WP-0.7). Links are injected through
+`LinkProvider` (no `next/*` here). `src/testing/` is test support only and is never built or
+exported. Role navigation and shell composition are WP-0.8; public and sign-in pieces are Phase 1
+(G-8).
 
 ## Styles — `@xr/ui/styles.css`
 
@@ -106,3 +107,48 @@ this acceptance: VD-08 (the dialog alignment mapping), VD-23 and the rest stay P
 Open for later work packages: the public root's viewport min-height (PF-02, VD-23) shows a white
 band under short pages such as B1-09 sign-in; a focused-task bar wrapped by a long title can be
 taller than PF-11's 113 px (an exact value needs the FocusedTaskShell, WP-0.8).
+
+## WP-0.7 — DataTable sort and the B1-10 fix: for the owner's visual acknowledgement
+
+The PF-01 sort control follows Appendix E §7.1 (VD-04: CONFIRMED defect, PROVISIONAL design). Its
+placement is the documented provisional correction, recorded here for acknowledgement; it is not a
+resolved design-policy decision. None of the items below changes another component or screen.
+
+- **One sort state, two controls.** `DataTable` takes a controlled `sort` (column key, direction,
+  `onSortChange`; the caller sorts the rows). The sorted column's `th[aria-sort]` holds
+  `button.xr-x-th-sort` + `span.xr-x-th-text`; `DataTableSortBar` (the same `sort` object) goes in
+  the ListToolbar's `sortBar` slot as `div.xr-x-table-sortbar`. The product layer displays the
+  header button from 760 px of content and the sort bar below it, at exactly the width where v46
+  clips the header; the other is `display:none` (no Tab stop, not in the accessibility tree).
+- **Placement (VD-04, provisional).** Below 760 px of content the sort bar sits in the
+  `xr-toolbar-status` row, after the count and before the filter chips, above the first row
+  ("Received, newest first" + chevron, a small text button: 36 px tall, so the row grows from 32 to
+  36 px). No board draws it; the B1-10 frames "Filtered · Under review", "Mobile 375" and "Mobile
+  375 · More filters open" carry it as an expected deviation (Appendix E §9.1). It is shown only
+  while the table lists rows, as the header button is.
+- **Header button look.** Drawn without B1-10's inline style (min-height 32 px, padding 0, colour
+  #40476B, weight 700, no underline, 14 px), as Appendix E §2.5 requires ("Never copy the specimen
+  inline style of the B1-10 sort button"). It therefore renders as the v46 text button: link blue
+  #1F4FD8, 600 15 px, underlined, 40 px min-height, so the header row is 64.5 px instead of about
+  56.5 px and "Received" does not match the grey header words beside it. Matching the board needs
+  a PF-01 look rule for `.xr-x-th-sort`, which needs owner approval; it is not added.
+- **Names.** Both buttons are named exactly "Received, newest first. Change order" / "Received,
+  oldest first. Change order" with `aria-label`. The §7.1 sketch's `span.xr-sr` suffix cannot give
+  that name: v46 `.xr-sr` is absolutely positioned, and Chromium joins it with a space ("Received ,
+  newest first. Change order", measured; the boards' own button reads "Received , Received, …" in
+  `derived/frame-index.json`). The visible words start the name (WCAG 2.5.3).
+- **Announcement (provisional; no board draws one).** A change of order is announced in the
+  table's mounted `role=status` region in the sort bar's own words ("Received, oldest first"),
+  once the reordered rows show. The first order is not announced; leaving the table (a load, no
+  match, a failure) clears the words, and the rows coming back do not repeat them. The toolbar's
+  count keeps the board's words.
+- **Sort in place (contract).** The caller reorders the rows it holds in the same render, as
+  B1-10 does; a sort shows no loading state. If a caller does load for an order, focus on the
+  header button moves to the table (as after "Try again", PROVISIONAL) and the order is announced
+  once the rows are back; the sort bar, outside the table, cannot be kept.
+- **Kept as they were:** the WP-0.5 hidden-header guards for `.xr-table`, `.xp-ftable` and
+  `.xp-compare` (tested for every control kind they name); FailedState and the other WP-0.6 open
+  items (the five inline-style gaps in `LEDGER.md`, Stepper, ErrorSummary, format chips).
+- **Deferred:** the SA-02 route test (`apps/web/e2e/a11y/datatable-sort.spec.ts`, `fixme` until
+  SA-02 exists in Phase 1); R-15 explicit table roles in labelled-row mode wait for a VoiceOver
+  check (Chromium keeps the table semantics; WebKit is not run, P0-28).

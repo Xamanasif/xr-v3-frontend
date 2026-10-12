@@ -17,7 +17,17 @@
  * (§5.5), so a `span.xr-sr[role=status]`, empty unless loading, precedes the table or state.
  * The labelled-row mode below 760 px of content is CSS (container query): proven in
  * apps/specimens/e2e/components-data.spec.ts.
+ *
+ * Sorting (WP-0.7; PF-01; Appendix E §7.1; START-HERE Known exception 1): B1-10 "SA-02 Requests ·
+ * 1440 · interactive" draws one sortable column, `th[aria-sort]` > "Received" text button with a
+ * chevron and an `xr-sr` suffix; B1-10 "Filtered · Under review", "Mobile 375" and "Mobile 375 ·
+ * More filters open" draw it clipped but focusable (B8-03 "Open finding — B1-10 at 375"; B8-08
+ * "B1-10 sort button at 375"). Which control shows at which content width is CSS: proven in
+ * apps/specimens/e2e/datatable-sort.spec.ts.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { useState, useTransition } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -35,7 +45,17 @@ import {
   normaliseMarkup,
   type BoardSource,
 } from '../testing/index.js';
-import { DataTable, type DataTableColumn, type DataTableProps } from './data-table.js';
+import {
+  DataTable,
+  DataTableSortBar,
+  type DataTableColumn,
+  type DataTableProps,
+  type DataTableSort,
+  type DataTableSortableColumn,
+  type DataTableSortDirection,
+  type DataTableSorting,
+} from './data-table.js';
+import { ListToolbar } from './list-toolbar.js';
 
 const FIND: BoardSource = { board: '03', frame: 'Search, filter, segmented and tabs' };
 const EDITABLE: BoardSource = { board: '03', frame: 'Decision panel and editable table' };
@@ -686,4 +706,642 @@ describe('DataTable: stylesheet classes and accessibility (axe, WCAG 2.2 AA)', (
     const { container } = render(element);
     await assertNoAxeViolations(container);
   });
+});
+
+/* ------------------------------------------------------------------------------------------ */
+/* Sorting (WP-0.7): B1-10's sortable "Received" column and the PF-01 fix.                      */
+/* ------------------------------------------------------------------------------------------ */
+
+const FILTERED: BoardSource = { board: 'B1-10', frame: 'Filtered · Under review' };
+const MOBILE: BoardSource = { board: 'B1-10', frame: 'Mobile 375' };
+const MOBILE_MORE: BoardSource = { board: 'B1-10', frame: 'Mobile 375 · More filters open' };
+const FINDING: BoardSource = { board: 'B8-03', frame: 'Open finding — B1-10 at 375' };
+const LIMITATION: BoardSource = { board: 'B8-08', frame: 'B1-10 sort button at 375' };
+
+const AUDIT = join(import.meta.dirname, '..', '..', '..', '..', 'docs', 'v46', 'audit');
+const PRODUCT_CSS = join(import.meta.dirname, '..', 'styles', 'product.css');
+const V46_FOUNDATION = join(import.meta.dirname, '..', 'styles', 'v46', 'xr-foundation.css');
+
+const svg16 = (d: string) =>
+  `<svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"></path></svg>`;
+/** B1-10's chevrons: down while "newest first" (`sortIcon: s.desc`), up while "oldest first". */
+const CHEVRON_DOWN = 'M6 9.5l6 6 6-6';
+const CHEVRON_UP = 'M6 14.5l6-6 6 6';
+const NEWEST = 'Received, newest first. Change order';
+const OLDEST = 'Received, oldest first. Change order';
+
+/** B1-10's sortable column, "Received", with its own order words (`sortLabel`). */
+const RECEIVED: DataTableSortableColumn<Request> = {
+  key: 'date',
+  header: 'Received',
+  className: 'xr-num',
+  cell: (row) => row.date,
+  sortWords: { descending: 'newest first', ascending: 'oldest first' },
+};
+
+const SORTABLE_COLUMNS: readonly DataTableColumn<Request>[] = REQUEST_COLUMNS.map((column) =>
+  column.key === 'date' ? RECEIVED : column,
+);
+
+/** B1-10's first three requests (`static get RQ()`) with the date the board sorts by (`iso`). */
+const DATED: readonly (Request & { readonly iso: string })[] = [
+  { ...REQ_0042, iso: '20261002' },
+  {
+    ref: 'REQ-0041',
+    inst: 'Krishna College of Engineering',
+    contact: 'S. Pillai',
+    type: 'New access',
+    route: 'Not set yet',
+    date: '30 Sep 2026',
+    iso: '20260930',
+  },
+  {
+    ref: 'REQ-0040',
+    inst: 'Konark Polytechnic',
+    contact: 'R. Bhatt',
+    type: 'Additional licences',
+    route: 'External',
+    date: '29 Sep 2026',
+    iso: '20260929',
+  },
+];
+
+/** The caller's order: B1-10 sorts by `iso`, newest first until the person changes it. */
+function ordered(direction: DataTableSortDirection) {
+  return [...DATED].sort((a, b) =>
+    direction === 'descending' ? b.iso.localeCompare(a.iso) : a.iso.localeCompare(b.iso),
+  );
+}
+
+/** A fixed order with a spy, for the markup and callback checks. */
+function fixedSorting(
+  direction: DataTableSortDirection,
+  onSortChange: (sort: DataTableSort) => void = vi.fn(),
+): DataTableSorting {
+  return { column: 'date', direction, onSortChange };
+}
+
+/** B1-10 sorted by the caller, with or without changing it. */
+function sortedTable(
+  direction: DataTableSortDirection,
+  overrides: Partial<DataTableProps<Request>> = {},
+) {
+  return requestTable({
+    columns: SORTABLE_COLUMNS,
+    rows: ordered(direction),
+    sort: fixedSorting(direction),
+    ...overrides,
+  });
+}
+
+/**
+ * B1-10 as a caller drives it: one sort state; the header button in the table and the sort bar in
+ * the toolbar's status row share it; the caller sorts the rows.
+ */
+function SortableRequests({
+  onSortChange,
+}: {
+  readonly onSortChange?: (sort: DataTableSort) => void;
+}) {
+  const [direction, setDirection] = useState<DataTableSortDirection>('descending');
+  const sort: DataTableSorting = {
+    column: 'date',
+    direction,
+    onSortChange: (next) => {
+      onSortChange?.(next);
+      setDirection(next.direction);
+    },
+  };
+  const rows = ordered(direction);
+  return (
+    <>
+      <ListToolbar
+        status={`${rows.length} requests`}
+        sortBar={<DataTableSortBar column={RECEIVED} sort={sort} />}
+      />
+      {requestTable({ columns: SORTABLE_COLUMNS, rows, sort })}
+    </>
+  );
+}
+
+/**
+ * A caller that loads for the new order (not B1-10, which sorts in place): `onSortChange` shows
+ * the loading state, and the reordered rows arrive a tick later.
+ */
+function ReloadingRequests() {
+  const [state, setState] = useState<{
+    readonly direction: DataTableSortDirection;
+    readonly loading: boolean;
+  }>({ direction: 'descending', loading: false });
+  const sort: DataTableSorting = {
+    column: 'date',
+    direction: state.direction,
+    onSortChange: (next) => {
+      setState({ direction: next.direction, loading: true });
+      setTimeout(() => setState({ direction: next.direction, loading: false }), 0);
+    },
+  };
+  return requestTable({
+    columns: SORTABLE_COLUMNS,
+    rows: state.loading ? [] : ordered(state.direction),
+    loading: state.loading,
+    sort,
+  });
+}
+
+const headerButton = (container: Element) =>
+  container.querySelector<HTMLButtonElement>('th[aria-sort] > button.xr-x-th-sort')!;
+const barButton = (container: Element) =>
+  container.querySelector<HTMLButtonElement>('.xr-x-table-sortbar > button')!;
+const references = (container: Element) =>
+  [...container.querySelectorAll('tbody td.is-primary a')].map((link) => link.textContent);
+/** The table's own status region (the toolbar's count is another `role=status`). */
+const tableStatus = (container: Element) =>
+  container.querySelector('.xr-table-wrap > [role="status"]')!;
+
+/**
+ * CSS without comments and with whitespace only where it separates selectors (a space before a
+ * colon is a descendant combinator, `thead :is(…)`, and stays).
+ */
+function compactCss(css: string): string {
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([{};,()>])\s*/g, '$1')
+    .replace(/:\s+/g, ':')
+    .replace(/\s*!important/g, '!important')
+    .replace(/;}/g, '}')
+    .trim();
+}
+
+/** The bodies of every `@container <query>{…}` block in compact CSS. */
+function containerBlocks(css: string, query: string): string[] {
+  const bodies: string[] = [];
+  const opening = `@container ${query}{`;
+  for (let start = css.indexOf(opening); start >= 0; start = css.indexOf(opening, start + 1)) {
+    let depth = 0;
+    let end = start + opening.length - 1;
+    for (; end < css.length; end += 1) {
+      if (css[end] === '{') depth += 1;
+      if (css[end] === '}') depth -= 1;
+      if (depth === 0) break;
+    }
+    bodies.push(css.slice(start + opening.length, end));
+  }
+  return bodies;
+}
+
+describe('DataTable sorting: the B1-10 column and the PF-01 fix (WP-0.7)', () => {
+  it('B1-10 draws one sortable column: th[aria-sort] > a "Received" text button with a chevron and the order in words', () => {
+    expectBoardDraws(
+      REQUESTS,
+      `<th scope="col" aria-sort="{{ q.ariaSort }}"><button type="button" class="xr-btn xr-btn--text" style="min-height:32px;padding:0;color:#40476B;font-weight:700;text-decoration:none;font-size:14px" onClick="{{ q.toggleSort }}">Received<sc-if value="{{ q.sortIcon }}" hint-placeholder-val="{{ true }}">${svg16(CHEVRON_DOWN)}</sc-if><sc-if value="{{ q.sortAsc }}" hint-placeholder-val="{{ false }}">${svg16(CHEVRON_UP)}</sc-if><span class="xr-sr">, {{ q.sortLabel }}. Change order</span></button></th>`,
+      "sortLabel: s.desc ? 'Received, newest first' : 'Received, oldest first', ariaSort: s.desc ? 'descending' : 'ascending'",
+    );
+    // The defect (BC13): B1-10 draws these frames below 760 px of content (672 and 343 px), where
+    // the v46 sheet clips the head — which keeps its button in the tab order.
+    expectBoardDraws(FILTERED);
+    expectBoardDraws(MOBILE);
+    expectBoardDraws(MOBILE_MORE);
+    expect(readFileSync(V46_FOUNDATION, 'utf8')).toContain(
+      '@container xr-content (max-width:759.98px){ .xr-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}',
+    );
+    expectBoardDraws(
+      FINDING,
+      'its “Received” sort button stays in the tab order, so a keyboard user can focus an invisible control',
+      'Build: show the sort as a visible control above the rows below 760 px (B8-08).',
+    );
+    expectBoardDraws(
+      LIMITATION,
+      'Defer to the build — render the sort as a visible control above the labelled rows below 760 px',
+    );
+  });
+
+  it('the header: th[aria-sort] > button.xr-x-th-sort + span.xr-x-th-text; the other heads are unchanged', () => {
+    const { container } = render(sortedTable('descending'));
+    expect(container.querySelectorAll('th[aria-sort]')).toHaveLength(1);
+    expect(
+      container.querySelectorAll('th[aria-sort] > button.xr-x-th-sort + span.xr-x-th-text'),
+    ).toHaveLength(1);
+    // As drawn, without the inline style (Appendix E §2.5: "Never copy the specimen inline style
+    // of the B1-10 sort button"), named by aria-label rather than an xr-sr suffix (see below).
+    expect(canonicalMarkup(container.querySelector('th[aria-sort]')!.outerHTML)).toBe(
+      canonicalMarkup(
+        `<th scope="col" aria-sort="descending"><button type="button" class="xr-btn xr-btn--text xr-x-th-sort" aria-label="${NEWEST}">Received${svg16(CHEVRON_DOWN)}</button><span class="xr-x-th-text">Received</span></th>`,
+      ),
+    );
+    expect(normaliseMarkup(container.querySelector('thead')!.outerHTML)).toMatch(
+      /^<thead><tr><th scope="col">Reference<\/th><th scope="col">Institution and contact person<\/th><th scope="col">Type<\/th><th /,
+    );
+    // The column's cells keep their label for labelled-row mode.
+    expect(container.querySelector('tbody td.xr-num')).toHaveAttribute('data-label', 'Received');
+  });
+
+  it('the sort bar: div.xr-x-table-sortbar > a small text button with the order in words', () => {
+    const { container } = render(
+      <DataTableSortBar column={RECEIVED} sort={fixedSorting('descending')} />,
+    );
+    expect(canonicalMarkup(container.innerHTML)).toBe(
+      canonicalMarkup(
+        `<div class="xr-x-table-sortbar"><button type="button" class="xr-btn xr-btn--text xr-btn--sm" aria-label="${NEWEST}">Received, newest first${svg16(CHEVRON_DOWN)}</button></div>`,
+      ),
+    );
+  });
+
+  it('follows the documented mechanism (Appendix E §7.1): its classes and structure; aria-label names', () => {
+    const text = readFileSync(join(AUDIT, 'Appendix-E-Visual-Strategy.md'), 'utf8');
+    const section = text.slice(text.indexOf('### 7.1 B1-10 remediation'), text.indexOf('### 7.2'));
+    for (const piece of [
+      '<div class="xr-x-table-sortbar">',
+      '<button type="button" class="xr-btn xr-btn--text xr-btn--sm">Received, newest first<svg class="xr-ico xr-ico--16" aria-hidden="true">',
+      '<th scope="col" aria-sort="descending">',
+      '<button type="button" class="xr-btn xr-btn--text xr-x-th-sort">Received<svg',
+      '<span class="xr-x-th-text">Received</span>',
+      "Name: 'Received, newest first. Change order'.",
+    ]) {
+      expect(section).toContain(piece);
+    }
+    // The sketch names each button with its visible words plus an xr-sr suffix. v46 `.xr-sr` is
+    // position:absolute (blockified), and Chromium joins a block child's text with a space:
+    // "Received , newest first. Change order" (measured in Chromium 1243, WP-0.7), as the boards'
+    // own name reads "Received , Received, …" in derived/frame-index.json. The exact name needs
+    // aria-label; the visible words stay at the start of it (WCAG 2.5.3 label in name).
+    const { container } = render(
+      <>
+        <DataTableSortBar column={RECEIVED} sort={fixedSorting('descending')} />
+        {sortedTable('descending')}
+      </>,
+    );
+    for (const button of [headerButton(container), barButton(container)]) {
+      expect(button).toHaveAttribute('aria-label', NEWEST);
+      expect(button.querySelector('.xr-sr')).toBeNull();
+      expect(button.textContent).toMatch(/^Received/);
+      expect(NEWEST.startsWith(button.textContent!)).toBe(true);
+    }
+  });
+
+  it('product.css holds the documented PF-01 sort rules (Appendix E §7.1), after the WP-0.5 guards', () => {
+    const text = readFileSync(join(AUDIT, 'Appendix-E-Visual-Strategy.md'), 'utf8');
+    const section = text.slice(text.indexOf('### 7.1 B1-10 remediation'), text.indexOf('### 7.2'));
+    // The second css block of §7.1 (the first quotes the v46 clip rule): "xr.product — PF-01".
+    const fence = section.indexOf('```css', section.indexOf('```css') + 6);
+    const documented = compactCss(section.slice(fence + 6, section.indexOf('```', fence + 6)));
+    expect(documented).toContain('.xr-x-table-sortbar');
+    const product = compactCss(readFileSync(PRODUCT_CSS, 'utf8'));
+    const query = '(max-width:759.98px)';
+    const narrowRules = containerBlocks(documented, `xr-content${query}`)
+      .join('')
+      .split('}')
+      .filter((rule) => /xr-x-/.test(rule))
+      .map((rule) => `${rule}}`);
+    expect(narrowRules).toEqual([
+      '.xr-x-table-sortbar{display:flex!important;align-items:center;gap:8px}',
+      '.xr-table .xr-x-th-sort{display:none!important}',
+      '.xr-table .xr-x-th-text{display:inline!important}',
+    ]);
+    const productNarrow = containerBlocks(product, `xr-content${query}`).join('');
+    for (const rule of narrowRules) expect(productNarrow).toContain(rule);
+    // Outside any container query: the bar and the header's words are not displayed.
+    const productTop = product.replace(/@container[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, '');
+    for (const rule of [
+      '.xr-x-table-sortbar{display:none}',
+      '.xr-table .xr-x-th-text{display:none}',
+    ]) {
+      expect(documented).toContain(rule);
+      expect(productTop).toContain(rule);
+    }
+    // The WP-0.5 guard for every control in a clipped .xr-table head stays as it was.
+    expect(productNarrow).toContain(
+      ".xr-table thead :is(a,button,input,select,textarea,summary,[tabindex]:not([tabindex='-1'])){display:none!important}",
+    );
+  });
+
+  it.each([
+    ['descending', NEWEST, CHEVRON_DOWN, 'Received, newest first'],
+    ['ascending', OLDEST, CHEVRON_UP, 'Received, oldest first'],
+  ] as const)(
+    '%s: both controls are named exactly "%s", "Received" once; aria-sort and the chevron follow',
+    (direction, name, chevron, words) => {
+      const { container } = render(
+        <>
+          <DataTableSortBar column={RECEIVED} sort={fixedSorting(direction)} />
+          {sortedTable(direction)}
+        </>,
+      );
+      const buttons = screen.getAllByRole('button', { name });
+      expect(buttons).toEqual([barButton(container), headerButton(container)]);
+      for (const button of buttons) {
+        expect(button.getAttribute('aria-label')!.match(/Received/g)).toHaveLength(1);
+        expect(button.querySelector('path')).toHaveAttribute('d', chevron);
+      }
+      expect(barButton(container)).toHaveTextContent(new RegExp(`^${words}$`));
+      expect(headerButton(container)).toHaveTextContent(/^Received$/);
+      expect(container.querySelector('th[aria-sort]')).toHaveAttribute('aria-sort', direction);
+    },
+  );
+
+  it('both controls call onSortChange with the reversed order, from either direction', () => {
+    for (const [direction, reversed] of [
+      ['descending', 'ascending'],
+      ['ascending', 'descending'],
+    ] as const) {
+      const onSortChange = vi.fn();
+      const sort = fixedSorting(direction, onSortChange);
+      const { container, unmount } = render(
+        <>
+          <DataTableSortBar column={RECEIVED} sort={sort} />
+          {sortedTable(direction, { sort })}
+        </>,
+      );
+      fireEvent.click(headerButton(container));
+      fireEvent.click(barButton(container));
+      expect(onSortChange.mock.calls).toEqual([
+        [{ column: 'date', direction: reversed }],
+        [{ column: 'date', direction: reversed }],
+      ]);
+      unmount();
+    }
+  });
+
+  it('a caller that sorts: either control reverses the rows, flips aria-sort and renames both controls', () => {
+    const onSortChange = vi.fn();
+    const { container } = render(<SortableRequests onSortChange={onSortChange} />);
+    const th = container.querySelector('th[aria-sort]')!;
+    expect(references(container)).toEqual(['REQ-0042', 'REQ-0041', 'REQ-0040']);
+    expect(th).toHaveAttribute('aria-sort', 'descending');
+    expect(screen.getAllByRole('button', { name: NEWEST })).toHaveLength(2);
+
+    act(() => headerButton(container).click());
+    expect(references(container)).toEqual(['REQ-0040', 'REQ-0041', 'REQ-0042']);
+    expect(container.querySelector('th[aria-sort]')).toBe(th);
+    expect(th).toHaveAttribute('aria-sort', 'ascending');
+    expect(screen.getAllByRole('button', { name: OLDEST })).toHaveLength(2);
+    expect(screen.queryAllByRole('button', { name: NEWEST })).toHaveLength(0);
+    expect(barButton(container)).toHaveTextContent('Received, oldest first');
+
+    act(() => barButton(container).click());
+    expect(references(container)).toEqual(['REQ-0042', 'REQ-0041', 'REQ-0040']);
+    expect(th).toHaveAttribute('aria-sort', 'descending');
+    expect(screen.getAllByRole('button', { name: NEWEST })).toHaveLength(2);
+    expect(onSortChange.mock.calls).toEqual([
+      [{ column: 'date', direction: 'ascending' }],
+      [{ column: 'date', direction: 'descending' }],
+    ]);
+    // Every row still opens its record, in the new order.
+    expect(
+      within(screen.getByRole('table', { name: 'Institutional access requests' }))
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('aria-label')),
+    ).toEqual([
+      'Open request REQ-0042, Godavari Institute of Technology',
+      'Open request REQ-0041, Krishna College of Engineering',
+      'Open request REQ-0040, Konark Polytechnic',
+    ]);
+  });
+
+  it('the pressed control keeps focus while the rows reorder', () => {
+    const { container } = render(<SortableRequests />);
+    const header = headerButton(container);
+    act(() => header.focus());
+    act(() => header.click());
+    expect(headerButton(container)).toBe(header);
+    expect(header).toHaveFocus();
+    const bar = barButton(container);
+    act(() => bar.focus());
+    act(() => bar.click());
+    expect(barButton(container)).toBe(bar);
+    expect(bar).toHaveFocus();
+  });
+
+  it('a new order is announced in the table’s mounted status region, in the sort bar’s words; the first order is not', () => {
+    const { container } = render(<SortableRequests />);
+    const status = tableStatus(container);
+    expect(status).toBeEmptyDOMElement();
+    act(() => headerButton(container).click());
+    expect(tableStatus(container)).toBe(status);
+    expect(status).toHaveTextContent(/^Received, oldest first$/);
+    act(() => barButton(container).click());
+    expect(tableStatus(container)).toBe(status);
+    expect(status).toHaveTextContent(/^Received, newest first$/);
+    // The toolbar's count keeps its own words (B1-10 `count`).
+    expect(container.querySelector('.xr-toolbar-status > [role="status"]')).toHaveTextContent(
+      /^3 requests$/,
+    );
+  });
+
+  it('a load clears the announcement, so rows that arrive after it do not repeat an old order', () => {
+    const { container, rerender } = render(sortedTable('descending'));
+    const status = tableStatus(container);
+    rerender(sortedTable('ascending'));
+    expect(status).toHaveTextContent(/^Received, oldest first$/);
+    rerender(sortedTable('ascending', { loading: true, rows: [] }));
+    expect(tableStatus(container)).toBe(status);
+    expect(status).toHaveTextContent(/^Loading requests$/);
+    rerender(sortedTable('ascending'));
+    expect(status).toBeEmptyDOMElement();
+    expect(references(container)).toEqual(['REQ-0040', 'REQ-0041', 'REQ-0042']);
+  });
+
+  it('the first order is not announced, also when sorting starts after the first render', () => {
+    const { container, rerender } = render(
+      requestTable({ columns: SORTABLE_COLUMNS, rows: ordered('descending') }),
+    );
+    const status = tableStatus(container);
+    rerender(sortedTable('descending'));
+    expect(status).toBeEmptyDOMElement();
+    rerender(sortedTable('ascending'));
+    expect(status).toHaveTextContent(/^Received, oldest first$/);
+  });
+
+  it('leaving the table clears the words; the rows coming back do not repeat them', () => {
+    const { container, rerender } = render(sortedTable('descending'));
+    const region = container.firstElementChild!;
+    const status = region.querySelector(':scope > [role="status"]')!;
+    rerender(sortedTable('ascending'));
+    expect(status).toHaveTextContent(/^Received, oldest first$/);
+    rerender(sortedTable('ascending', { rows: [], filtered: true }));
+    expect(container.firstElementChild).toBe(region);
+    expect(region.querySelector(':scope > [role="status"]')).toBe(status);
+    expect(screen.getByRole('heading', { name: 'No requests match these filters' })).toBeVisible();
+    expect(status).toBeEmptyDOMElement();
+    rerender(sortedTable('ascending'));
+    expect(status).toBeEmptyDOMElement();
+  });
+
+  it('an order changed during a load is announced when the rows are back', () => {
+    const { container, rerender } = render(sortedTable('descending'));
+    const status = tableStatus(container);
+    rerender(sortedTable('descending', { loading: true, rows: [] }));
+    rerender(sortedTable('ascending', { loading: true, rows: [] }));
+    expect(status).toHaveTextContent(/^Loading requests$/);
+    rerender(sortedTable('ascending'));
+    expect(status).toHaveTextContent(/^Received, oldest first$/);
+  });
+
+  it('a caller that loads for the new order: focus on the header button goes to the table, not the page; the order is announced once the rows are back', async () => {
+    const { container } = render(<ReloadingRequests />);
+    const wrap = container.firstElementChild!;
+    const header = headerButton(container);
+    act(() => header.focus());
+    act(() => header.click());
+    expect(header).not.toBeInTheDocument();
+    expect(document.body).not.toHaveFocus();
+    expect(wrap).toHaveFocus();
+    expect(wrap).toHaveAttribute('tabindex', '-1');
+    expect(tableStatus(container)).toHaveTextContent(/^Loading requests$/);
+    await nextTick();
+    expect(references(container)).toEqual(['REQ-0040', 'REQ-0041', 'REQ-0042']);
+    expect(container.querySelector('th[aria-sort]')).toHaveAttribute('aria-sort', 'ascending');
+    expect(tableStatus(container)).toHaveTextContent(/^Received, oldest first$/);
+    // The table keeps focus (not a Tab stop); the next Tab reaches the header button again.
+    expect(wrap).toHaveFocus();
+    act(() => headerButton(container).focus());
+    expect(wrap).not.toHaveAttribute('tabindex');
+  });
+
+  it('a header button that stayed is let go once focus moves on: a later load does not take focus', () => {
+    const onSortChange = vi.fn();
+    const sort = fixedSorting('descending', onSortChange);
+    const { container, rerender } = render(sortedTable('descending', { sort }));
+    const header = headerButton(container);
+    act(() => header.focus());
+    act(() => header.click());
+    expect(onSortChange).toHaveBeenCalledTimes(1);
+    // Focus leaves the button (to the page), then the table renders and later reloads.
+    act(() => header.blur());
+    rerender(sortedTable('descending', { sort }));
+    rerender(sortedTable('descending', { sort, loading: true, rows: [] }));
+    expect(document.body).toHaveFocus();
+    expect(container.firstElementChild).not.toHaveAttribute('tabindex');
+  });
+
+  it('while sorted, the sorted column is the only th with aria-sort', () => {
+    const { container } = render(
+      sortedTable('descending', {
+        primary: {
+          key: 'ref',
+          header: 'Reference',
+          href: () => '#',
+          title: (row) => row.ref,
+          headerCellProps: { 'aria-sort': 'none' },
+        },
+        columns: SORTABLE_COLUMNS.map((column) =>
+          column.key === 'type'
+            ? { ...column, headerCellProps: { 'aria-sort': 'ascending', id: 'Qq-type' } }
+            : column,
+        ),
+      }),
+    );
+    expect(container.querySelectorAll('th[aria-sort]')).toHaveLength(1);
+    expect(container.querySelector('th[aria-sort] > .xr-x-th-sort')).not.toBeNull();
+    expect(container.querySelector('#Qq-type')).not.toHaveAttribute('aria-sort');
+  });
+
+  it.each([
+    ['loading', { loading: true, rows: [] }],
+    ['empty', { rows: [] }],
+    ['no match', { rows: [], filtered: true }],
+    ['failed', { failed: { title: 'We couldn’t load the requests', onRetry: () => {} } }],
+  ] as const)(
+    '%s: no table, so no sort control; the state renders exactly as without sorting',
+    (_state, overrides) => {
+      const { container: sorted } = render(sortedTable('descending', overrides));
+      const { container: plain } = render(requestTable(overrides));
+      expect(sorted.querySelector('th, .xr-x-th-sort, .xr-x-th-text')).toBeNull();
+      expect(within(sorted).queryAllByRole('button', { name: /Change order/ })).toHaveLength(0);
+      expect(sorted.innerHTML).toBe(plain.innerHTML);
+    },
+  );
+
+  it('without sort, a sortable column draws its plain header (the WP-0.6 table)', () => {
+    const { container: sortable } = render(
+      requestTable({ columns: SORTABLE_COLUMNS, rows: ordered('descending') }),
+    );
+    const { container: plain } = render(requestTable({ rows: ordered('descending') }));
+    expect(sortable.innerHTML).toBe(plain.innerHTML);
+    expect(sortable.querySelector('th[aria-sort], button')).toBeNull();
+  });
+
+  it('the sort state wins over a caller’s headerCellProps aria-sort on the sorted column; its id stays', () => {
+    const { container } = render(
+      sortedTable('ascending', {
+        columns: SORTABLE_COLUMNS.map((column) =>
+          column === RECEIVED
+            ? { ...RECEIVED, headerCellProps: { 'aria-sort': 'descending', id: 'Qq-received' } }
+            : column,
+        ),
+      }),
+    );
+    const th = container.querySelector('th[aria-sort]')!;
+    expect(th).toHaveAttribute('aria-sort', 'ascending');
+    expect(th).toHaveAttribute('id', 'Qq-received');
+  });
+
+  it('refuses a sort on a column that cannot be sorted, and a sort bar for another column', () => {
+    expect(() =>
+      render(
+        sortedTable('descending', { sort: { ...fixedSorting('descending'), column: 'inst' } }),
+      ),
+    ).toThrow('DataTable sort.column "inst" must be the key of a column with sortWords.');
+    expect(() =>
+      render(
+        sortedTable('descending', { sort: { ...fixedSorting('descending'), column: 'nope' } }),
+      ),
+    ).toThrow('DataTable sort.column "nope" must be the key of a column with sortWords.');
+    expect(() =>
+      render(
+        <DataTableSortBar
+          column={RECEIVED}
+          sort={{ ...fixedSorting('descending'), column: 'inst' }}
+        />,
+      ),
+    ).toThrow('DataTableSortBar column "date" is not the sorted column "inst".');
+  });
+
+  it('a sortable column must be named in words (compile-time)', () => {
+    // The controls say the column's name, so a column with sortWords needs a string header.
+    // @ts-expect-error — a node header with sortWords is neither a plain nor a sortable column.
+    const column: DataTableColumn<Request> = {
+      key: 'date',
+      header: <span>Received</span>,
+      cell: (row: Request) => row.date,
+      sortWords: { descending: 'newest first', ascending: 'oldest first' },
+    };
+    expect(column.key).toBe('date');
+    // The same column with its name in words is a sortable column.
+    const named: DataTableColumn<Request> = { ...RECEIVED, header: 'Received' };
+    expect(named.sortWords).toEqual(RECEIVED.sortWords);
+  });
+
+  it('emits only stylesheet classes and the PF-01 allow-list, in both orders', () => {
+    for (const direction of ['descending', 'ascending'] as const) {
+      const { container, unmount } = render(
+        <div>
+          <ListToolbar
+            status="3 requests"
+            sortBar={<DataTableSortBar column={RECEIVED} sort={fixedSorting(direction)} />}
+          />
+          {sortedTable(direction)}
+        </div>,
+      );
+      expectStylesheetClassesOnly(container.firstElementChild!);
+      unmount();
+    }
+  });
+
+  it.each(['descending', 'ascending'] as const)(
+    'axe (WCAG 2.2 AA): sort bar, header button and table, %s',
+    async (direction) => {
+      const { container } = render(
+        <main>
+          <ListToolbar
+            status="3 requests"
+            sortBar={<DataTableSortBar column={RECEIVED} sort={fixedSorting(direction)} />}
+          />
+          {sortedTable(direction)}
+        </main>,
+      );
+      await assertNoAxeViolations(container);
+    },
+  );
 });

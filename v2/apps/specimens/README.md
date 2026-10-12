@@ -20,7 +20,10 @@ content widths, computed styles, keyboard order, wheel reach, axe, and later the
   so Turbopack inlines the sheets itself and emits the layer statement after them: `xr.v46` still
   precedes `xr.product`, and the harness has no `theme` or `utilities` rules. The product's own
   pipeline and layer order are checked on the built app (`apps/web/e2e/styles.spec.ts`). The
-  components (WP-0.6, WP-0.7) add theirs.
+  components (WP-0.6, WP-0.7) add theirs. WP-0.7 makes the B1-10 table sortable (`c-data-table`),
+  adds it inside the workspace shell for the app-width boundaries (`c-data-table-shell`,
+  `c-data-table-shell-expanded`) and adds `v46-table-guards` (every control kind the PF-01 guard
+  names); `e2e/datatable-sort.spec.ts` is the DataTable sort and B1-10 (BC13) suite.
 - **Tests** live in `e2e/` and use the shared helpers from `@xr/testing/browser`. Run
   `pnpm build` at the workspace root, then `pnpm --filter @xr/specimens test:e2e`.
 

@@ -88,8 +88,10 @@ interface ListToolbarBaseProps {
   /** The clear button's words: "Clear filters" (default), "Clear search" (B6-06). */
   readonly clearLabel?: string;
   /**
-   * A control for the status row after the count: the slot for WP-0.7's labelled-row sort bar
-   * (`xr-x-table-sortbar`, PF-01, Appendix E §7.1). Nothing is drawn here by this component.
+   * The table's `DataTableSortBar`, drawn in the status row after the count (PF-01, Appendix E
+   * §7.1; VD-04 PROVISIONAL placement): the visible sort control above the first row below
+   * 760 px of content. Pass it while the table lists rows. This component draws nothing of its
+   * own here.
    */
   readonly sortBar?: ReactNode;
   /** Board context classes on `div.xr-toolbar`. */

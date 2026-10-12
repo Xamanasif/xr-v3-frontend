@@ -177,6 +177,11 @@ export interface LoadingStateProps {
    * load is announced reliably (Appendix E §5.5: keep live regions mounted, change their text).
    */
   readonly loading?: boolean;
+  /**
+   * What the status region says while not loading (empty by default): a polite announcement in
+   * the same mounted region, such as DataTable's new sort order ("Received, oldest first").
+   */
+  readonly status?: string;
   /** `null`: no surface class (a caller-supplied board container in `className`). */
   readonly surface?: LoadingSurface | null;
   /** The skeleton in the shape of the content (DataTable rows, cards). Default: `lines` bars. */
@@ -197,12 +202,13 @@ export interface LoadingStateProps {
 /**
  * The loading region, as the product boards draw it (B1-10 "Loading" and 83 more):
  * `<div class="xr-table-wrap" aria-busy="true"><span class="xr-sr" role="status">Loading
- * requests</span>` + skeleton. DataTable (WP-0.7) wraps its table in it and passes its own
- * skeleton rows.
+ * requests</span>` + skeleton. DataTable wraps its table in it, passes its own skeleton rows and
+ * announces a new sort order through `status`.
  */
 export function LoadingState({
   label,
   loading = true,
+  status = '',
   surface = 'table',
   skeleton,
   lines = 3,
@@ -225,7 +231,7 @@ export function LoadingState({
       tabIndex={focusTarget ? -1 : undefined}
     >
       <span className="xr-sr" role="status">
-        {loading ? label : ''}
+        {loading ? label : status}
       </span>
       {loading
         ? (skeleton ?? Array.from({ length: lines }, (_, line) => <Skeleton key={line} />))

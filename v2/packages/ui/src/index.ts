@@ -212,8 +212,16 @@ export { RailTooltip, type RailTooltipProps } from './overlays/rail-tooltip.js';
 // Data display
 export {
   DataTable,
+  DataTableSortBar,
   type DataTableProps,
   type DataTableColumn,
+  type DataTablePlainColumn,
+  type DataTableSortableColumn,
+  type DataTableSort,
+  type DataTableSortBarProps,
+  type DataTableSortDirection,
+  type DataTableSorting,
+  type DataTableSortWords,
   type DataTablePrimaryColumn,
   type DataTableHeaderCellProps,
   type DataTableRowState,

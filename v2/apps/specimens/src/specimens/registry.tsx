@@ -6,7 +6,7 @@ import { V46Dialog, type DialogAlign } from './v46/dialogs';
 import { V46Foundation } from './v46/foundation';
 import { V46PublicFilters, V46PublicMenu, V46PublicPage } from './v46/public';
 import { V46DrawerShell } from './v46/shell';
-import { V46Tables } from './v46/tables';
+import { V46TableGuards, V46Tables } from './v46/tables';
 
 export type { Specimen } from './types';
 
@@ -38,6 +38,11 @@ export const SPECIMENS: Readonly<Record<string, Specimen>> = {
     title: 'v46 tables with clipped headers (PF-01 guards)',
     source: 'B1-10 requests table; B1-05 formats table; B1-08 comparison',
     render: () => <V46Tables />,
+  },
+  'v46-table-guards': {
+    title: 'v46 clipped table heads with every control kind the PF-01 guard names (WP-0.7)',
+    source: 'B1-10 requests table; B1-05 formats table; B1-08 comparison; Appendix E §7.1',
+    render: () => <V46TableGuards />,
   },
   'v46-public-page': {
     title: 'v46 public root with the bottom bar (PF-02, PF-06)',

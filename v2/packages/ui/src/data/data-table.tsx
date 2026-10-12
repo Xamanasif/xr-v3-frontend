@@ -11,6 +11,7 @@ import {
   type ThHTMLAttributes,
 } from 'react';
 
+import { Button } from '../foundation/button.js';
 import { Link } from '../foundation/links.js';
 import { EmptyState, FailedState, LoadingState, NoMatch, Skeleton } from '../foundation/states.js';
 import type { IconName } from '../icons/registry.js';
@@ -22,24 +23,19 @@ function filled(node: ReactNode): boolean {
 }
 
 /**
- * Extra attributes on a column's `th[scope="col"]`. This is the extension point for the sortable
- * column of WP-0.7 (`aria-sort`, Appendix E §7.1 PF-01); DataTable itself never sorts.
+ * Extra attributes on a column's `th[scope="col"]`. `aria-sort` here states an order the person
+ * cannot change; a column sorted through the `sort` prop gets its `aria-sort` from that prop,
+ * which wins (Appendix E §7.1 PF-01).
  */
 export type DataTableHeaderCellProps = Pick<
   ThHTMLAttributes<HTMLTableCellElement>,
   'aria-sort' | 'id'
 >;
 
-/** One data column after the primary one (a `td[data-label]` per row). */
-export interface DataTableColumn<Row> {
+/** What every data column has, sortable or not. */
+interface DataTableColumnBase<Row> {
   /** Unique within the table (the React key of the header and of each cell). */
   readonly key: string;
-  /**
-   * The `th[scope="col"]` content: the column's words ("Institution and contact person"), or a
-   * visually hidden name for an action column (`<VisuallyHidden>Action</VisuallyHidden>`, B2-04).
-   * WP-0.7 passes its sort button and text here.
-   */
-  readonly header: ReactNode;
   /**
    * The `data-label` drawn above the value in labelled-row mode (below 760 px of content, by
    * the v46 sheet). Defaults to the header when the header is a string; give it when the header
@@ -53,6 +49,165 @@ export interface DataTableColumn<Row> {
   readonly className?: string;
   /** Attributes on this column's `th` (see `DataTableHeaderCellProps`). */
   readonly headerCellProps?: DataTableHeaderCellProps;
+}
+
+/** One data column after the primary one (a `td[data-label]` per row). */
+export interface DataTablePlainColumn<Row> extends DataTableColumnBase<Row> {
+  /**
+   * The `th[scope="col"]` content: the column's words ("Institution and contact person"), or a
+   * visually hidden name for an action column (`<VisuallyHidden>Action</VisuallyHidden>`, B2-04).
+   */
+  readonly header: ReactNode;
+  readonly sortWords?: undefined;
+}
+
+/**
+ * The order of a sorted column, as `aria-sort` states it. B1-10 "Received": `descending` is
+ * "newest first", `ascending` "oldest first".
+ */
+export type DataTableSortDirection = 'ascending' | 'descending';
+
+/**
+ * A sortable column's order in words, said after the column's name. B1-10's own words
+ * (`sortLabel: s.desc ? 'Received, newest first' : 'Received, oldest first'`): descending
+ * "newest first", ascending "oldest first".
+ */
+export interface DataTableSortWords {
+  readonly ascending: string;
+  readonly descending: string;
+}
+
+/**
+ * A data column the rows can be sorted by (B1-10 "Received", the only sortable column the
+ * boards draw). Its header is its name in words; the sort controls say it before the order.
+ */
+export interface DataTableSortableColumn<Row> extends DataTableColumnBase<Row> {
+  /** The column's name ("Received"): the header's words and the start of the controls' names. */
+  readonly header: string;
+  /** The order in words, for the controls' names and the sort bar's visible words. */
+  readonly sortWords: DataTableSortWords;
+}
+
+/** One data column after the primary one: plain, or sortable (PF-01). */
+export type DataTableColumn<Row> = DataTablePlainColumn<Row> | DataTableSortableColumn<Row>;
+
+/** The rows' order: the sorted column's `key` and its direction. */
+export interface DataTableSort {
+  /** The `key` of the sorted column, a column with `sortWords`. */
+  readonly column: string;
+  readonly direction: DataTableSortDirection;
+}
+
+/**
+ * The order and its one change handler, controlled by the caller, who sorts `rows` to match.
+ * The same object goes to the DataTable (its header button) and to the `DataTableSortBar` in the
+ * ListToolbar, so both controls show one state and both call `onSortChange`.
+ */
+export interface DataTableSorting extends DataTableSort {
+  /** Called with the reversed order when either sort control is pressed. */
+  readonly onSortChange: (sort: DataTableSort) => void;
+}
+
+/** B1-10's words after the order: "Received, newest first. Change order". */
+const CHANGE_ORDER = 'Change order';
+
+/** "Received, newest first": the order in words (the sort bar's visible words, the announcement). */
+function sortPhrase<Row>(
+  column: DataTableSortableColumn<Row>,
+  direction: DataTableSortDirection,
+): string {
+  return `${column.header}, ${column.sortWords[direction]}`;
+}
+
+/** The sorted column named by `sort`; a programming error when it is not a sortable column. */
+function sortedColumn<Row>(
+  columns: readonly DataTableColumn<Row>[],
+  sort: DataTableSort,
+): DataTableSortableColumn<Row> {
+  const column = columns.find((candidate) => candidate.key === sort.column);
+  if (column?.sortWords === undefined) {
+    throw new Error(
+      `DataTable sort.column "${sort.column}" must be the key of a column with sortWords.`,
+    );
+  }
+  return column;
+}
+
+/**
+ * One sort control: a text button named "<name>, <order>. Change order" that reverses the
+ * order. The name is an `aria-label`, not the visible words plus an `xr-sr` suffix as Appendix
+ * E §7.1 sketches: v46 `.xr-sr` is absolutely positioned, so Chromium joins the suffix with a
+ * space ("Received , newest first. Change order"; the boards' own button reads "Received ,
+ * Received, newest first. Change order" in derived/frame-index.json). The chevron is B1-10's:
+ * down while descending, up while ascending.
+ */
+function SortButton<Row>({
+  column,
+  sort,
+  onPress = sort.onSortChange,
+  size,
+  className,
+  children,
+}: {
+  readonly column: DataTableSortableColumn<Row>;
+  readonly sort: DataTableSorting;
+  /** Called with the reversed order (default `sort.onSortChange`). */
+  readonly onPress?: (sort: DataTableSort) => void;
+  readonly size?: 'sm';
+  readonly className?: string;
+  readonly children: ReactNode;
+}) {
+  const reversed: DataTableSortDirection =
+    sort.direction === 'descending' ? 'ascending' : 'descending';
+  return (
+    <Button
+      variant="text"
+      size={size}
+      className={className}
+      icon={sort.direction === 'descending' ? 'chevronDown' : 'chevronUp'}
+      iconPosition="end"
+      iconSize={16}
+      aria-label={`${sortPhrase(column, sort.direction)}. ${CHANGE_ORDER}`}
+      onClick={() => onPress({ column: column.key, direction: reversed })}
+    >
+      {children}
+    </Button>
+  );
+}
+
+export interface DataTableSortBarProps<Row> {
+  /** The sorted column: the same column object the DataTable's `columns` hold. */
+  readonly column: DataTableSortableColumn<Row>;
+  /** The same sorting object the DataTable gets. */
+  readonly sort: DataTableSorting;
+}
+
+/**
+ * The visible sort control for labelled-row mode (PF-01; START-HERE Known exception 1; B8-03
+ * "Open finding — B1-10 at 375"; B8-08 "B1-10 sort button at 375": "render the sort as a visible
+ * control above the labelled rows below 760 px"): `div.xr-x-table-sortbar` > a small text button
+ * reading "Received, newest first", named "Received, newest first. Change order".
+ *
+ * Put it in the ListToolbar's `sortBar` slot, so it sits in the `xr-toolbar-status` row after
+ * the count, above the first row (Appendix E §7.1, VD-04 PROVISIONAL placement), inside the same
+ * `.xr-content` as the table. The product layer shows it only below 760 px of content, exactly
+ * where it hides the header's button, so one control is ever displayed. Render it only while the
+ * DataTable shows its table — not `loading`, not `failed`, with rows — as the header button is
+ * only drawn then.
+ */
+export function DataTableSortBar<Row>({ column, sort }: DataTableSortBarProps<Row>) {
+  if (sort.column !== column.key) {
+    throw new Error(
+      `DataTableSortBar column "${column.key}" is not the sorted column "${sort.column}".`,
+    );
+  }
+  return (
+    <div className="xr-x-table-sortbar">
+      <SortButton column={column} sort={sort} size="sm">
+        {sortPhrase(column, sort.direction)}
+      </SortButton>
+    </div>
+  );
 }
 
 /**
@@ -132,6 +287,20 @@ export interface DataTableProps<Row> {
   readonly columns: readonly DataTableColumn<Row>[];
   /** The rows to show, in the caller's order (DataTable does not sort or filter). */
   readonly rows: readonly Row[];
+  /**
+   * The rows' order and its change handler (PF-01; Appendix E §7.1), controlled: the caller
+   * sorts `rows` to match. The sorted column's `th` takes `aria-sort` — the only one: other
+   * columns' `headerCellProps` `aria-sort` is dropped while this is given — and holds
+   * `button.xr-x-th-sort` + `span.xr-x-th-text`; below 760 px of content the product layer hides
+   * the button and the `DataTableSortBar` (same object) takes its place. A change of order is
+   * announced in the table's status region in the sort bar's words ("Received, oldest first").
+   *
+   * Sort in place: reorder the rows already held, in the same render, as B1-10 does; do not show
+   * the loading state for a sort. (If a load does replace the table, focus on its header button
+   * moves to the table, as after "Try again", and the new order is announced once the rows are
+   * back; the sort bar, outside the table, would lose focus with it.)
+   */
+  readonly sort?: DataTableSorting;
   /** A stable, unique key per row (the record's reference). */
   readonly rowKey: (row: Row) => string;
   /** A row's tint, if any (board 03 "Decision panel and editable table"). */
@@ -204,13 +373,14 @@ type View = 'loading' | 'failed' | 'table' | 'no-match' | 'empty';
  * with the row's link, `td[data-label]` for every other value — the v46 sheet turns the rows
  * into labelled rows below 760 px of content — and the loading, failed, empty and no-match
  * states in place (B1-10 frames "Loading", "Failed + retry", "Empty · no requests yet", "No
- * match"). Sorting is WP-0.7 (`headerCellProps`, `ListToolbar` `sortBar`).
+ * match"). A sortable column (`sort`) carries B1-10's header sort button, with the B1-10 fix
+ * (PF-01): the `DataTableSortBar` in the ListToolbar is its visible stand-in below 760 px.
  *
- * "Clear filters" (no match) and "Try again" (failed) go away with their own state. When the
- * pressed one had focus, focus then moves to the first row's link, or, while there is none
- * (loading, empty), to the container, which takes `tabindex="-1"` until focus moves on — also
- * when the caller acts in a later commit (a transition, a busy render first). PROVISIONAL: no
- * board draws where focus goes.
+ * "Clear filters" (no match) and "Try again" (failed) go away with their own state; the header's
+ * sort button goes only if the caller loads for the new order. When the pressed one had focus,
+ * focus then moves to the first row's link, or, while there is none (loading, empty), to the
+ * container, which takes `tabindex="-1"` until focus moves on — also when the caller acts in a
+ * later commit (a transition, a busy render first). PROVISIONAL: no board draws where focus goes.
  */
 export function DataTable<Row>({
   caption,
@@ -218,6 +388,7 @@ export function DataTable<Row>({
   columns,
   rows,
   rowKey,
+  sort,
   rowState,
   flush = false,
   loading = false,
@@ -230,6 +401,33 @@ export function DataTable<Row>({
   className,
   ref,
 }: DataTableProps<Row>) {
+  const sorted = sort ? sortedColumn(columns, sort) : null;
+  const phrase = sort && sorted ? sortPhrase(sorted, sort.direction) : '';
+  const view: View = loading
+    ? 'loading'
+    : failed
+      ? 'failed'
+      : rows.length > 0
+        ? 'table'
+        : filtered && noMatch
+          ? 'no-match'
+          : 'empty';
+  const listing = view === 'table';
+  // A change of order is announced in the status region that stays mounted (Appendix E §5.5), in
+  // the sort bar's words ("Received, oldest first"), once the table shows the reordered rows: at
+  // once when the caller sorts in place, after the load when it loads for the order. The first
+  // order is not announced. Leaving the table (a load, no match, a failure) clears the words, so
+  // they are never read above another state nor repeated when the rows come back. State adjusted
+  // while rendering, so the words change in the same commit as the rows.
+  const [announcement, setAnnouncement] = useState({ phrase, text: '', pending: false });
+  if (announcement.phrase !== phrase) {
+    const change = announcement.phrase !== '' && phrase !== '';
+    setAnnouncement({ phrase, text: change && listing ? phrase : '', pending: change && !listing });
+  } else if (!listing && announcement.text !== '') {
+    setAnnouncement({ phrase, text: '', pending: announcement.pending });
+  } else if (listing && announcement.pending) {
+    setAnnouncement({ phrase, text: phrase, pending: false });
+  }
   const wrap = useRef<HTMLDivElement | null>(null);
   // A React 19 callback ref may return its own cleanup, which React then calls instead of
   // calling the ref with null. This merged ref returns a cleanup, so it passes the caller's on.
@@ -252,25 +450,40 @@ export function DataTable<Row>({
     },
     [ref],
   );
-  /** The focused "Clear filters" or "Try again" that was pressed, until it has gone. */
-  const pressed = useRef<HTMLElement | null>(null);
+  /**
+   * The focused control of the table's own that was pressed, until it has gone: "Clear filters"
+   * and "Try again" always go with their state; the header's sort button goes only if the caller
+   * loads for the new order, so it is watched only while it keeps focus (`whileFocused`).
+   */
+  const pressed = useRef<{ readonly control: HTMLElement; readonly whileFocused: boolean } | null>(
+    null,
+  );
   /** The container holds rescued focus (`tabindex="-1"` while it does). */
   const [holdsFocus, setHoldsFocus] = useState(false);
 
-  const recordPress = (action: () => void) => () => {
+  const press = (action: () => void, whileFocused = false) => {
     const active = document.activeElement;
     // Only a control that had focus can lose it (a mouse press in Safari does not focus).
     pressed.current =
-      active instanceof HTMLElement && wrap.current?.contains(active) ? active : null;
+      active instanceof HTMLElement && wrap.current?.contains(active)
+        ? { control: active, whileFocused }
+        : null;
     action();
   };
+  const recordPress = (action: () => void) => () => press(action);
 
   // After every commit, before paint, so focus is never seen resting on the page body. The
   // caller may change the state in a later commit than the press (a transition's urgent render
   // or a busy render comes first), so the rescue waits until the pressed control has gone.
   useLayoutEffect(() => {
-    const control = pressed.current;
-    if (control === null || control.isConnected) return;
+    const record = pressed.current;
+    if (record === null) return;
+    const { control, whileFocused } = record;
+    if (control.isConnected) {
+      // A sort button that stayed (the rows were sorted in place) is let go once focus moves on.
+      if (whileFocused && document.activeElement !== control) pressed.current = null;
+      return;
+    }
     pressed.current = null;
     const active = document.activeElement;
     // Only rescue focus that was lost with the removed control.
@@ -293,15 +506,9 @@ export function DataTable<Row>({
     return () => document.removeEventListener('focusin', release);
   }, [holdsFocus]);
 
-  const view: View = loading
-    ? 'loading'
-    : failed
-      ? 'failed'
-      : rows.length > 0
-        ? 'table'
-        : filtered && noMatch
-          ? 'no-match'
-          : 'empty';
+  // While a column is sorted, its own `aria-sort` is the only one (ARIA: one sorted header).
+  const headerCellProps = (props: DataTableHeaderCellProps | undefined) =>
+    sort && props?.['aria-sort'] !== undefined ? { ...props, 'aria-sort': undefined } : props;
   // One container for every state, so its status region stays mounted (LoadingState): the table
   // wrap while loading or listing; a section around an empty state (B1-10 frames "No match",
   // "Empty · no requests yet"); nothing around the failed notice, which is its own surface.
@@ -316,6 +523,7 @@ export function DataTable<Row>({
       ref={attach}
       label={loadingLabel}
       loading={loading}
+      status={announcement.text}
       surface={surface}
       className={joinClasses(surface === 'table' && flush && 'xw-table-flush', className)}
       skeleton={<SkeletonRows columns={columns.length + 1} rows={skeletonRows} />}
@@ -351,14 +559,35 @@ export function DataTable<Row>({
           <caption className="xr-sr">{caption}</caption>
           <thead>
             <tr>
-              <th scope="col" {...primary.headerCellProps}>
+              <th scope="col" {...headerCellProps(primary.headerCellProps)}>
                 {primary.header}
               </th>
-              {columns.map((column) => (
-                <th key={column.key} scope="col" {...column.headerCellProps}>
-                  {column.header}
-                </th>
-              ))}
+              {columns.map((column) =>
+                sort && column === sorted ? (
+                  // B1-10 `th[aria-sort]` with its sort button, plus the header's words alone for
+                  // labelled-row mode, where the product layer hides the button (PF-01).
+                  <th
+                    key={column.key}
+                    scope="col"
+                    {...column.headerCellProps}
+                    aria-sort={sort.direction}
+                  >
+                    <SortButton
+                      column={column}
+                      sort={sort}
+                      onPress={(next) => press(() => sort.onSortChange(next), true)}
+                      className="xr-x-th-sort"
+                    >
+                      {column.header}
+                    </SortButton>
+                    <span className="xr-x-th-text">{column.header}</span>
+                  </th>
+                ) : (
+                  <th key={column.key} scope="col" {...headerCellProps(column.headerCellProps)}>
+                    {column.header}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
