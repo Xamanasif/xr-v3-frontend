@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice">
+<!-- Concept artwork carried unchanged from frozen B2 File 21 (Premium Direction B2). Illustration only: not a simulation capture, not validated apparatus geometry. -->
+<defs>
+<linearGradient id="b2ShellV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8592E6"></stop><stop offset=".38" stop-color="#3B49B8"></stop><stop offset="1" stop-color="#141B5E"></stop></linearGradient>
+<linearGradient id="b2HotCold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F0A93A" stop-opacity=".9"></stop><stop offset="1" stop-color="#35C0DE" stop-opacity=".75"></stop></linearGradient>
+<linearGradient id="b2ColdHot" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#35C0DE"></stop><stop offset="1" stop-color="#F7C95B"></stop></linearGradient>
+<linearGradient id="b2Steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF1FB"></stop><stop offset=".5" stop-color="#A3ACD9"></stop><stop offset="1" stop-color="#4A559A"></stop></linearGradient>
+<linearGradient id="b2SteelH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#EEF1FB"></stop><stop offset=".5" stop-color="#A3ACD9"></stop><stop offset="1" stop-color="#4A559A"></stop></linearGradient>
+<linearGradient id="b2Copper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4B65E"></stop><stop offset="1" stop-color="#9A4F14"></stop></linearGradient>
+<linearGradient id="b2Dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A3390"></stop><stop offset="1" stop-color="#0C1247"></stop></linearGradient>
+<linearGradient id="b2Glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".38"></stop><stop offset=".45" stop-color="#FFFFFF" stop-opacity=".04"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity=".28"></stop></linearGradient>
+<linearGradient id="b2GlassV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".38"></stop><stop offset=".45" stop-color="#FFFFFF" stop-opacity=".04"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity=".22"></stop></linearGradient>
+<linearGradient id="b2Column" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#F0A93A" stop-opacity=".85"></stop><stop offset=".5" stop-color="#8592E6" stop-opacity=".3"></stop><stop offset="1" stop-color="#35C0DE" stop-opacity=".85"></stop></linearGradient>
+<linearGradient id="b2Wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9C6A5"></stop><stop offset="1" stop-color="#A88B62"></stop></linearGradient>
+<radialGradient id="b2GlowGold"><stop offset="0" stop-color="#F7C95B" stop-opacity=".95"></stop><stop offset="1" stop-color="#F7C95B" stop-opacity="0"></stop></radialGradient>
+<radialGradient id="b2GlowCyan"><stop offset="0" stop-color="#35C0DE" stop-opacity=".85"></stop><stop offset="1" stop-color="#35C0DE" stop-opacity="0"></stop></radialGradient>
+<radialGradient id="b2Shadow"><stop offset="0" stop-color="#040716" stop-opacity=".7"></stop><stop offset="1" stop-color="#040716" stop-opacity="0"></stop></radialGradient>
+<clipPath id="b2Shell"><rect x="190" y="215" width="640" height="180" rx="90"></rect></clipPath>
+<clipPath id="b2Col"><rect x="420" y="40" width="160" height="450" rx="80"></rect></clipPath>
+<clipPath id="b2Visor"><rect x="72" y="106" width="256" height="82" rx="30"></rect></clipPath>
+<clipPath id="b2Phone"><rect x="80" y="46" width="100" height="168" rx="8"></rect></clipPath>
+<clipPath id="b2Drum"><rect x="50" y="60" width="220" height="80" rx="40"></rect></clipPath>
+<clipPath id="b2Win"><rect x="336" y="226" width="328" height="168"></rect></clipPath>
+<clipPath id="b2ColWin"><rect x="424" y="128" width="152" height="244"></rect></clipPath>
+<linearGradient id="b2Cyl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5A66C9"></stop><stop offset=".12" stop-color="#9AA5EE"></stop><stop offset=".3" stop-color="#6F7BD9"></stop><stop offset=".62" stop-color="#2F3A9E"></stop><stop offset=".9" stop-color="#141B5E"></stop><stop offset="1" stop-color="#2A3390"></stop></linearGradient>
+<linearGradient id="b2CylH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5A66C9"></stop><stop offset=".12" stop-color="#9AA5EE"></stop><stop offset=".3" stop-color="#6F7BD9"></stop><stop offset=".62" stop-color="#2F3A9E"></stop><stop offset=".9" stop-color="#141B5E"></stop><stop offset="1" stop-color="#2A3390"></stop></linearGradient>
+<radialGradient id="b2Head" cx=".38" cy=".42" r=".72"><stop offset="0" stop-color="#C9D0F4"></stop><stop offset=".55" stop-color="#6F7BD9"></stop><stop offset="1" stop-color="#1B2470"></stop></radialGradient>
+<radialGradient id="b2HeadR" cx=".62" cy=".42" r=".72"><stop offset="0" stop-color="#C9D0F4"></stop><stop offset=".55" stop-color="#6F7BD9"></stop><stop offset="1" stop-color="#1B2470"></stop></radialGradient>
+<radialGradient id="b2Disc" cx=".36" cy=".32" r=".78"><stop offset="0" stop-color="#8B96E8"></stop><stop offset=".45" stop-color="#3B49B8"></stop><stop offset="1" stop-color="#141B5E"></stop></radialGradient>
+<radialGradient id="b2Rotor" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#2A3390"></stop><stop offset="1" stop-color="#070B2E"></stop></radialGradient>
+<linearGradient id="b2Flange" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C3CBF0"></stop><stop offset=".5" stop-color="#5F6BC0"></stop><stop offset="1" stop-color="#141B5E"></stop></linearGradient>
+<linearGradient id="b2Cavity" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#04071F"></stop><stop offset=".5" stop-color="#0E1440"></stop><stop offset="1" stop-color="#04071F"></stop></linearGradient>
+<linearGradient id="b2TubeFlow" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F4B65E"></stop><stop offset=".5" stop-color="#B9C1EA"></stop><stop offset="1" stop-color="#35C0DE"></stop></linearGradient>
+<linearGradient id="b2TubeShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".38"></stop><stop offset=".3" stop-color="#FFFFFF" stop-opacity="0"></stop><stop offset=".6" stop-color="#000000" stop-opacity="0"></stop><stop offset="1" stop-color="#000000" stop-opacity=".5"></stop></linearGradient>
+<linearGradient id="b2Saddle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A3390"></stop><stop offset="1" stop-color="#070B2E"></stop></linearGradient>
+<linearGradient id="b2EdgeL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000000" stop-opacity=".5"></stop><stop offset="1" stop-color="#000000" stop-opacity="0"></stop></linearGradient>
+<linearGradient id="b2EdgeR" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#000000" stop-opacity=".5"></stop><stop offset="1" stop-color="#000000" stop-opacity="0"></stop></linearGradient>
+</defs>
+<g id="artSyncGen">
+            <circle cx="120" cy="80" r="90" fill="url(#b2GlowGold)" opacity=".3"></circle>
+            <rect x="40" y="34" width="240" height="8" rx="2" fill="url(#b2Flange)"></rect>
+            <path d="M100 42v26M160 42v26M220 42v26" stroke="#B9C1EA" stroke-width="3"></path>
+            <g fill="#0C1247" stroke="#F7C95B" stroke-width="3"><circle cx="100" cy="74" r="8"></circle><circle cx="160" cy="74" r="8"></circle><circle cx="220" cy="74" r="8"></circle></g>
+            <g fill="#F7C95B"><circle cx="100" cy="74" r="3.5"></circle><circle cx="220" cy="74" r="3.5"></circle></g>
+            <path d="M100 82v20" stroke="#B9C1EA" stroke-width="3"></path>
+            <rect x="90" y="96" width="20" height="14" rx="2" fill="url(#b2Flange)"></rect>
+            <circle cx="106" cy="146" r="40" fill="#0A0F3A" opacity=".9"></circle>
+            <circle cx="100" cy="146" r="40" fill="url(#b2Disc)"></circle><circle cx="100" cy="146" r="26" fill="url(#b2Cavity)"></circle><circle cx="100" cy="146" r="9" fill="url(#b2Head)"></circle>
+            <rect x="140" y="140" width="60" height="12" rx="6" fill="url(#b2Cyl)"></rect>
+            <rect x="164" y="132" width="12" height="28" rx="3" fill="url(#b2Flange)"></rect>
+            <rect x="200" y="112" width="80" height="68" rx="8" fill="url(#b2Cyl)"></rect><rect x="200" y="112" width="80" height="68" rx="8" fill="url(#b2GlassV)" opacity=".35"></rect>
+            <rect x="212" y="124" width="56" height="8" rx="2" fill="#0A0F3A" opacity=".5"></rect>
+            <rect x="50" y="190" width="240" height="6" rx="3" fill="#0A0F3A"></rect>
+          </g>
+</svg>

@@ -1,0 +1,57 @@
+{
+ "about": "Real assets vs placeholders. Do not present a placeholder as an approved asset.",
+ "generated": "Batch 8 · built on the approved v45 baseline · generated from the approved boards; the boards win on any difference",
+ "assets": [
+  {
+   "asset": "BITS Pilani / WILP lockup",
+   "status": "Placeholder",
+   "notes": "Labelled dashed placeholder in every header and sidebar (“BITS Pilani / WILP logo — placeholder”). The approved file was never supplied."
+  },
+  {
+   "asset": "Public Sans",
+   "status": "Working typeface",
+   "notes": "Google Fonts; swappable through --xr-font-sans. Not the official WILP font (open)."
+  },
+  {
+   "asset": "Area and format artwork (project/art/*.svg, 19 files)",
+   "status": "Approved B2 illustrations, concept only",
+   "notes": "Labelled “concept artwork, not a simulation capture”. Not production imagery of any simulation."
+  },
+  {
+   "asset": "Icons",
+   "status": "Inline SVG paths (Batch-0 set)",
+   "notes": "Stroke icons defined in the boards; no icon font."
+  },
+  {
+   "asset": "Simulation runtimes · 3D models · device captures",
+   "status": "None",
+   "notes": "Never fabricated; WEB is a launch link; AR / VR / MR show set-up information only."
+  },
+  {
+   "asset": "Sample data",
+   "status": "Illustrative only",
+   "notes": "Names, IDs, dates, figures and .example links are one coherent sample world — never defaults or policy."
+  }
+ ],
+ "art": [
+  "bundle.svg",
+  "casting.svg",
+  "coil.svg",
+  "drum.svg",
+  "fmt-ar.svg",
+  "fmt-mr.svg",
+  "fmt-vr.svg",
+  "fmt-web.svg",
+  "machining.svg",
+  "materials.svg",
+  "motor-crop.svg",
+  "motor.svg",
+  "orifice.svg",
+  "process-crop.svg",
+  "process.svg",
+  "switching.svg",
+  "syncgen.svg",
+  "thermal-crop.svg",
+  "thermal.svg"
+ ]
+}

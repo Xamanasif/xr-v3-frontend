@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · Dialogs DL-1 to DL-3</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1440px; min-height: 3900px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Board 10 · §19 · C.4 · C.6</span>
+    <h1 class="doc-title">Dialogs DL-1 · DL-2 · DL-3</h1>
+    <p class="doc-sub">Dialogs are only for a short confirmation, a confirmation with a reason, or one small edit. Anything longer is a page. The demo at the top works: open each dialog with the mouse or keyboard.</p>
+  </header>
+
+  <div class="doc-body">
+
+    <section class="doc-sec" aria-labelledby="h-demo">
+      <div class="doc-sec-head">
+        <h2 id="h-demo" class="doc-sec-title">Try it · keyboard and pointer</h2>
+        <p class="doc-sec-note">Tab to a button and press Enter. Inside a dialog, Tab stays inside, Escape cancels, and focus returns to the button that opened it. Submitting an empty reason shows the validation state; submitting shows the busy state.</p>
+      </div>
+      <div class="doc-card" style="display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center">
+          <button type="button" class="xr-btn xr-btn--primary" ref="{{ t1 }}" onClick="{{ open1 }}">DL-1 · Publish…</button>
+          <button type="button" class="xr-btn xr-btn--secondary" ref="{{ t2 }}" onClick="{{ open2 }}">DL-2 · Return to vendor…</button>
+          <button type="button" class="xr-btn xr-btn--danger-quiet" ref="{{ t2b }}" onClick="{{ open2b }}">DL-2 · Withdraw access…</button>
+          <button type="button" class="xr-btn xr-btn--secondary" ref="{{ t3 }}" onClick="{{ open3 }}">DL-3 · Rename group…</button>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center" class="xr-meta"><span>Group name now:</span><strong style="color: #12173F">{{ groupName }}</strong></div>
+        <div aria-live="polite" role="status">
+          <sc-if value="{{ hasResult }}" hint-placeholder-val="{{ false }}">
+            <div class="xr-notice xr-notice--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">{{ resultTitle }}</span><span>{{ resultBody }}</span></div></div>
+          </sc-if>
+        </div>
+      </div>
+
+      <dialog class="xr-dialog" ref="{{ d1 }}" aria-labelledby="d1-t" aria-describedby="d1-b" onKeyDown="{{ onKey }}">
+        <div class="xr-dialog-head"><h2 id="d1-t" class="xr-dialog-title">Publish Shell-and-Tube Heat Exchanger?</h2><button type="button" class="xr-icon-btn" aria-label="Close" onClick="{{ cancel }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+        <div class="xr-dialog-body" id="d1-b"><p>It will appear in the public catalogue with WEB and VR. Institutions still need access before their students can open it.</p></div>
+        <div class="xr-dialog-foot">
+          <button type="button" class="xr-btn xr-btn--text" onClick="{{ cancel }}">Cancel</button>
+          <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="xr-btn xr-btn--primary is-busy" aria-busy="true"><span class="xr-spin" aria-hidden="true"></span>Publishing…</button></sc-if>
+          <sc-if value="{{ notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="xr-btn xr-btn--primary" ref="{{ d1p }}" onClick="{{ submit1 }}">Publish</button></sc-if>
+        </div>
+      </dialog>
+
+      <dialog class="xr-dialog" ref="{{ d2 }}" aria-labelledby="d2-t" onKeyDown="{{ onKey }}">
+        <div class="xr-dialog-head"><h2 id="d2-t" class="xr-dialog-title">{{ d2Title }}</h2><button type="button" class="xr-icon-btn" aria-label="Close" onClick="{{ cancel }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+        <div class="xr-dialog-body">
+          <p>{{ d2Body }}</p>
+          <div class="xr-field">
+            <label class="xr-label" for="d2-r">{{ d2Label }}</label>
+            <textarea id="d2-r" class="xr-textarea" ref="{{ d2r }}" style="min-height: 112px" aria-invalid="{{ reasonInvalid }}" aria-describedby="d2-err" value="{{ reason }}" onChange="{{ onReason }}"></textarea>
+            <sc-if value="{{ showReasonErr }}" hint-placeholder-val="{{ false }}"><span id="d2-err" class="xr-error"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>{{ d2Err }}</span></sc-if>
+          </div>
+        </div>
+        <div class="xr-dialog-foot">
+          <button type="button" class="xr-btn xr-btn--text" onClick="{{ cancel }}">Cancel</button>
+          <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="xr-btn {{ d2BtnCls }} is-busy" aria-busy="true"><span class="xr-spin" aria-hidden="true"></span>{{ d2Busy }}</button></sc-if>
+          <sc-if value="{{ notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="xr-btn {{ d2BtnCls }}" onClick="{{ submit2 }}">{{ d2Btn }}</button></sc-if>
+        </div>
+      </dialog>
+
+      <dialog class="xr-dialog" ref="{{ d3 }}" aria-labelledby="d3-t" onKeyDown="{{ onKey }}" style="width: min(440px, 100%)">
+        <div class="xr-dialog-head"><h2 id="d3-t" class="xr-dialog-title">Rename group</h2><button type="button" class="xr-icon-btn" aria-label="Close" onClick="{{ cancel }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+        <div class="xr-dialog-body">
+          <div class="xr-field">
+            <label class="xr-label" for="d3-n">Group name</label>
+            <input id="d3-n" class="xr-input" type="text" ref="{{ d3n }}" value="{{ draftName }}" onChange="{{ onName }}" onKeyDown="{{ onNameKey }}" aria-invalid="{{ nameInvalid }}" aria-describedby="d3-err">
+            <sc-if value="{{ showNameErr }}" hint-placeholder-val="{{ false }}"><span id="d3-err" class="xr-error"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>Enter a group name</span></sc-if>
+          </div>
+        </div>
+        <div class="xr-dialog-foot">
+          <button type="button" class="xr-btn xr-btn--text" onClick="{{ cancel }}">Cancel</button>
+          <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="xr-btn xr-btn--primary is-busy" aria-busy="true"><span class="xr-spin" aria-hidden="true"></span>Saving…</button></sc-if>
+          <sc-if value="{{ notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="xr-btn xr-btn--primary" onClick="{{ submit3 }}">Save</button></sc-if>
+        </div>
+      </dialog>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-when">
+      <div class="doc-sec-head">
+        <h2 id="h-when" class="doc-sec-title">When a dialog is allowed</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 10px"><span class="doc-label">DL-1 · Confirm</span><p class="doc-note">An action that is hard to undo or has an effect beyond this page. One sentence on the effect. Examples: Publish, Release, Approve transfer, Remove from group.</p></div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 10px"><span class="doc-label">DL-2 · Confirm with reason</span><p class="doc-note">Return, send back, withdraw, pause, hold and similar actions. The reason is required and is shown to the person affected — the dialog says who will see it.</p></div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 10px"><span class="doc-label">DL-3 · Small edit</span><p class="doc-note">One short value: rename a group, change a course code. Two fields at most. Anything longer is an AR-8 page.</p></div>
+      </div>
+      <div class="xr-notice xr-notice--quiet" role="note"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5.5M12 7.5h.01"></path></svg><div class="xr-notice-body"><span><strong>Never a dialog for:</strong> forms with sections, anything that scrolls, choosing from long lists, guided steps, reading a record, or a decision that needs the record beside it (that is AR-4).</span></div></div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-states">
+      <div class="doc-sec-head">
+        <h2 id="h-states" class="doc-sec-title">States · focus, validation, busy</h2>
+        <p class="doc-sec-note">Action order: Cancel first (quiet), the confirming action last and strongest. Destructive confirmations use the red button and put initial focus on Cancel; other confirmations focus the first field, or the primary button when there is none.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+        <sc-for list="{{ specimens }}" as="s" hint-placeholder-count="6">
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <span class="doc-label">{{ s.label }}</span>
+            <div class="doc-frame" style="position: relative; height: {{ s.h }}px; background: #F4F5FB">
+              <div style="padding: 24px 28px; display: flex; flex-direction: column; gap: 12px" aria-hidden="true">
+                <span style="display: block; height: 18px; width: 40%; background: #C9CEF2; border-radius: 3px"></span>
+                <span style="display: block; height: 12px; width: 70%; background: #E1E4F3; border-radius: 3px"></span>
+                <span style="display: block; height: 80px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 8px"></span>
+              </div>
+              <div class="xr-dialog-scrim">
+                <div class="xr-dialog" role="dialog" aria-modal="true" aria-label="{{ s.title }}">
+                  <div class="xr-dialog-head"><p class="xr-dialog-title">{{ s.title }}</p><button type="button" class="xr-icon-btn" aria-label="Close"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+                  <div class="xr-dialog-body">
+                    <p>{{ s.body }}</p>
+                    <sc-if value="{{ s.hasField }}" hint-placeholder-val="{{ false }}">
+                      <div class="xr-field">
+                        <label class="xr-label" for="{{ s.id }}">{{ s.fieldLabel }}</label>
+                        <sc-if value="{{ s.isArea }}" hint-placeholder-val="{{ true }}"><textarea id="{{ s.id }}" class="xr-textarea {{ s.fieldFocus }}" style="min-height: 96px" aria-invalid="{{ s.invalid }}" value="{{ s.value }}"></textarea></sc-if>
+                        <sc-if value="{{ s.isLine }}" hint-placeholder-val="{{ false }}"><input id="{{ s.id }}" class="xr-input {{ s.fieldFocus }}" type="text" aria-invalid="{{ s.invalid }}" value="{{ s.value }}"></sc-if>
+                        <sc-if value="{{ s.hasErr }}" hint-placeholder-val="{{ false }}"><span class="xr-error"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>{{ s.err }}</span></sc-if>
+                      </div>
+                    </sc-if>
+                  </div>
+                  <div class="xr-dialog-foot">
+                    <button type="button" class="xr-btn xr-btn--text {{ s.cancelFocus }}">Cancel</button>
+                    <sc-if value="{{ s.isBusy }}" hint-placeholder-val="{{ false }}"><button type="button" class="xr-btn {{ s.btnCls }} is-busy" aria-busy="true"><span class="xr-spin" aria-hidden="true"></span>{{ s.busyLabel }}</button></sc-if>
+                    <sc-if value="{{ s.notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="xr-btn {{ s.btnCls }} {{ s.btnFocus }}">{{ s.btn }}</button></sc-if>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="doc-note">{{ s.note }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-kb">
+      <div class="doc-sec-head">
+        <h2 id="h-kb" class="doc-sec-title">Keyboard path and phone layout</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 377px; gap: 40px; align-items: start">
+        <ol class="doc-card" style="margin: 0; padding: 24px 24px 24px 48px; display: flex; flex-direction: column; gap: 14px; font-size: 16px; line-height: 24px; color: #12173F">
+          <li><span class="doc-kbd">Enter</span> or <span class="doc-kbd">Space</span> on the trigger opens the dialog. The page behind becomes inert.</li>
+          <li>Focus moves into the dialog: first field (DL-2, DL-3), primary button (DL-1), or Cancel (destructive DL-1).</li>
+          <li><span class="doc-kbd">Tab</span> / <span class="doc-kbd">Shift</span>+<span class="doc-kbd">Tab</span> cycle through Close, the field, Cancel and the confirming button — and never leave the dialog.</li>
+          <li><span class="doc-kbd">Esc</span> is Cancel: nothing changes. A typed reason is discarded only after Cancel.</li>
+          <li>On submit with an error: focus goes to the first invalid field; the message is read with it.</li>
+          <li>While busy, buttons ignore repeat presses; the label says what is happening.</li>
+          <li>On close, focus returns to the trigger; a success notice on the page confirms the result.</li>
+        </ol>
+        <div class="doc-frame" style="position: relative; height: 560px; width: 377px">
+          <div class="xr-app" style="width: 375px; height: 558px">
+            <div style="height: 64px; background: #141B5E"></div>
+            <div class="xr-dialog-scrim" style="align-items: flex-end">
+              <div class="xr-dialog" role="dialog" aria-modal="true" aria-label="Return to vendor">
+                <div class="xr-dialog-head"><p class="xr-dialog-title">Return to vendor?</p><button type="button" class="xr-icon-btn" aria-label="Close"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+                <div class="xr-dialog-body"><div class="xr-field"><label class="xr-label" for="m-r">Reason the vendor will see</label><textarea id="m-r" class="xr-textarea" style="min-height: 96px"></textarea></div></div>
+                <div class="xr-dialog-foot"><button type="button" class="xr-btn xr-btn--text">Cancel</button><button type="button" class="xr-btn xr-btn--primary">Return to vendor</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="doc-note">At 375 px the dialog sits at the bottom of the screen at full width, and the buttons stack with the confirming action on top. Below 600 px a dialog never holds more than one field.</p>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3900}}'>
+class Component extends DCLogic {
+  state = { open: null, busy: false, reason: '', reasonTried: false, draftName: '', nameTried: false, groupName: 'ME ZG523 · Sem II · Section A', result: null };
+
+  dlg(k) { return this[k] && this[k].current; }
+  focusLater(ref) { window.setTimeout(() => { const n = ref && ref.current; if (n && n.focus) n.focus(); }, 40); }
+
+  show(which, extra) {
+    const map = { d1: 'd1', d2: 'd2', d2b: 'd2', d3: 'd3' };
+    this._trigger = { d1: this.t1, d2: this.t2, d2b: this.t2b, d3: this.t3 }[which];
+    this.setState(Object.assign({ open: which, busy: false, reason: '', reasonTried: false, nameTried: false, result: null }, extra || {}), () => {
+      const el = this.dlg(map[which]);
+      if (el && el.showModal && !el.open) el.showModal();
+      if (which === 'd1') this.focusLater(this.d1p);
+      if (which === 'd2' || which === 'd2b') this.focusLater(this.d2r);
+      if (which === 'd3') this.focusLater(this.d3n);
+    });
+  }
+
+  hide(result) {
+    ['d1', 'd2', 'd3'].forEach(k => { const el = this.dlg(k); if (el && el.open) el.close(); });
+    const trig = this._trigger;
+    this.setState({ open: null, busy: false, result: result || null });
+    this.focusLater(trig);
+  }
+
+  finish(result, extra) {
+    this.setState({ busy: true });
+    window.setTimeout(() => { if (extra) this.setState(extra); this.hide(result); }, 1100);
+  }
+
+  renderVals() {
+    ['t1', 't2', 't2b', 't3', 'd1', 'd2', 'd3', 'd1p', 'd2r', 'd3n'].forEach(k => { if (!this[k]) this[k] = React.createRef(); });
+    const s = this.state;
+    const isWithdraw = s.open === 'd2b';
+    const reasonEmpty = !s.reason.trim();
+    const nameEmpty = !s.draftName.trim();
+    const specimens = [
+      { label: 'DL-1 · Confirm · default · focus on the primary', h: 400, title: 'Publish Shell-and-Tube Heat Exchanger?', body: 'It will appear in the public catalogue with WEB and VR. Institutions still need access before their students can open it.', btn: 'Publish', btnCls: 'xr-btn--primary', btnFocus: 'is-focus', cancelFocus: '', note: 'Publish never appears on the correction path (LD-4).' },
+      { label: 'DL-1 · Confirm · destructive · focus on Cancel', h: 400, title: 'Remove Priya Natarajan from Section A?', body: 'You can add her to the group again later.', btn: 'Remove from group', btnCls: 'xr-btn--danger', btnFocus: '', cancelFocus: 'is-focus', note: 'Red only for the destructive action itself; Cancel takes initial focus.' },
+      { label: 'DL-2 · Confirm with reason · validation', h: 520, title: 'Return to vendor?', body: 'The vendor sees your reason and can revise and resubmit.', hasField: true, isArea: true, id: 'sp-r1', fieldLabel: 'Reason the vendor will see', invalid: 'true', value: '', hasErr: true, err: 'Add a reason so the vendor knows what to change', fieldFocus: 'is-focus', btn: 'Return to vendor', btnCls: 'xr-btn--primary', note: 'The error appears after Return is pressed with no reason; focus goes to the field.' },
+      { label: 'DL-2 · Confirm with reason · destructive · busy', h: 520, title: 'Withdraw Rahul Verma’s access?', body: 'He will no longer be able to open Shell-and-Tube Heat Exchanger.', hasField: true, isArea: true, id: 'sp-r2', fieldLabel: 'Reason', invalid: 'false', value: 'Moved to a different course group.', isBusy: true, btn: 'Withdraw access', busyLabel: 'Withdrawing…', btnCls: 'xr-btn--danger', note: 'Licence effects are not described — that rule is open (T-06).' },
+      { label: 'DL-3 · Small edit · default', h: 380, title: 'Rename group', body: '', hasField: true, isLine: true, id: 'sp-n1', fieldLabel: 'Group name', invalid: 'false', value: 'ME ZG523 · Sem II · Section A', fieldFocus: 'is-focus', btn: 'Save', btnCls: 'xr-btn--primary', note: 'Enter in the field saves; Esc cancels.' },
+      { label: 'DL-3 · Small edit · validation', h: 380, title: 'Rename group', body: '', hasField: true, isLine: true, id: 'sp-n2', fieldLabel: 'Group name', invalid: 'true', value: '', hasErr: true, err: 'Enter a group name', btn: 'Save', btnCls: 'xr-btn--primary', note: 'One field, one message, no summary needed.' }
+    ].map(x => Object.assign({ hasField: false, isArea: false, isLine: false, hasErr: false, isBusy: false, fieldFocus: '', btnFocus: '', cancelFocus: '', busyLabel: '' }, x, { notBusy: !x.isBusy }));
+    return {
+      t1: this.t1, t2: this.t2, t2b: this.t2b, t3: this.t3, d1: this.d1, d2: this.d2, d3: this.d3, d1p: this.d1p, d2r: this.d2r, d3n: this.d3n,
+      specimens,
+      groupName: s.groupName,
+      hasResult: !!s.result, resultTitle: s.result ? s.result.t : '', resultBody: s.result ? s.result.b : '',
+      busy: s.busy, notBusy: !s.busy,
+      reason: s.reason, reasonInvalid: (s.reasonTried && reasonEmpty) ? 'true' : 'false', showReasonErr: s.reasonTried && reasonEmpty,
+      d2Title: isWithdraw ? 'Withdraw Rahul Verma’s access?' : 'Return to vendor?',
+      d2Body: isWithdraw ? 'He will no longer be able to open Shell-and-Tube Heat Exchanger.' : 'The vendor sees your reason and can revise and resubmit.',
+      d2Label: isWithdraw ? 'Reason' : 'Reason the vendor will see',
+      d2Err: isWithdraw ? 'Add a reason for withdrawing access' : 'Add a reason so the vendor knows what to change',
+      d2Btn: isWithdraw ? 'Withdraw access' : 'Return to vendor',
+      d2Busy: isWithdraw ? 'Withdrawing…' : 'Returning…',
+      d2BtnCls: isWithdraw ? 'xr-btn--danger' : 'xr-btn--primary',
+      draftName: s.draftName, nameInvalid: (s.nameTried && nameEmpty) ? 'true' : 'false', showNameErr: s.nameTried && nameEmpty,
+      open1: () => this.show('d1'),
+      open2: () => this.show('d2'),
+      open2b: () => this.show('d2b'),
+      open3: () => this.show('d3', { draftName: s.groupName }),
+      cancel: () => this.hide(null),
+      onKey: (e) => { if (e.key === 'Escape') { e.preventDefault(); this.hide(null); } },
+      onReason: (e) => this.setState({ reason: e.target.value }),
+      onName: (e) => this.setState({ draftName: e.target.value }),
+      onNameKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.trySave(); } },
+      submit1: () => { if (!s.busy) this.finish({ t: 'Published', b: 'Shell-and-Tube Heat Exchanger is now in the public catalogue. (Demo — nothing was changed.)' }); },
+      submit2: () => {
+        if (s.busy) return;
+        if (reasonEmpty) { this.setState({ reasonTried: true }); this.focusLater(this.d2r); return; }
+        this.finish(isWithdraw ? { t: 'Access withdrawn', b: 'Rahul Verma can no longer open Shell-and-Tube Heat Exchanger. (Demo — nothing was changed.)' } : { t: 'Returned to vendor', b: 'Northline Simulation Studio can see your reason. (Demo — nothing was changed.)' });
+      },
+      submit3: () => this.trySave()
+    };
+  }
+
+  trySave() {
+    const s = this.state;
+    if (s.busy) return;
+    if (!s.draftName.trim()) { this.setState({ nameTried: true }); this.focusLater(this.d3n); return; }
+    this.finish({ t: 'Group renamed', b: 'The group is now called “' + s.draftName.trim() + '”.' }, { groupName: s.draftName.trim() });
+  }
+}
+</script>
+</body>
+</html>

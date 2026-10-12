@@ -1,0 +1,1957 @@
+{
+ "about": "For each designed screen ID: its boards (from handoff/screens.json) and the frames whose caption names the ID. Mechanical extract; not every frame names its ID.",
+ "screens": [
+  {
+   "id": "PU-01",
+   "screen": "Landing",
+   "boards": [
+    "B1-01-Public-Landing.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "PU-02",
+   "screen": "All engineering areas (\"View all areas\")",
+   "boards": [
+    "B1-03-Areas-and-Course.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-03-Areas-and-Course.dc.html",
+     "frame": 0,
+     "caption": "PU-02 All engineering areas · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-03",
+   "screen": "Engineering area",
+   "boards": [
+    "B1-03-Areas-and-Course.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-03-Areas-and-Course.dc.html",
+     "frame": 1,
+     "caption": "PU-03 Engineering area · Mechanical & Manufacturing · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-04",
+   "screen": "Catalogue",
+   "boards": [
+    "B1-04-Catalogue.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-04-Catalogue.dc.html",
+     "frame": 0,
+     "caption": "PU-04 Catalogue · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-05",
+   "screen": "Course",
+   "boards": [
+    "B1-03-Areas-and-Course.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-03-Areas-and-Course.dc.html",
+     "frame": 2,
+     "caption": "PU-05 Course · ME ZG523 · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-06",
+   "screen": "Experiment",
+   "boards": [
+    "B1-05-Experiment-Detail.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-05-Experiment-Detail.dc.html",
+     "frame": 0,
+     "caption": "PU-06 Experiment · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-07",
+   "screen": "Your selection",
+   "boards": [
+    "B1-06-Selection.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-06-Selection.dc.html",
+     "frame": 0,
+     "caption": "PU-07 Your selection · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-08",
+   "screen": "Request institutional access",
+   "boards": [
+    "B1-07-Request-Access.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-07-Request-Access.dc.html",
+     "frame": 0,
+     "caption": "PU-08 Request institutional access · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-09",
+   "screen": "Request sent",
+   "boards": [
+    "B1-07-Request-Access.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-07-Request-Access.dc.html",
+     "frame": 8,
+     "caption": "Step 4 · Request sent (PU-09)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-10",
+   "screen": "Request status",
+   "boards": [
+    "B1-08-Request-Status.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-08-Request-Status.dc.html",
+     "frame": 0,
+     "caption": "PU-10 Request status · REQ-0042 · approved, payment required · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-12",
+   "screen": "Payment (external route only)",
+   "boards": [
+    "B1-08-Request-Status.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-08-Request-Status.dc.html",
+     "frame": 5,
+     "caption": "PU-12 Payment · provider-neutral"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-13",
+   "screen": "Access activated",
+   "boards": [
+    "B1-08-Request-Status.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-08-Request-Status.dc.html",
+     "frame": 8,
+     "caption": "Access active (PU-13)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "PU-14",
+   "screen": "How institutional access works",
+   "boards": [
+    "B1-01-Public-Landing.dc.html",
+    "B1-05-Experiment-Detail.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "PU-15",
+   "screen": "Not found",
+   "boards": [
+    "08-System-Messages.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "XS-01",
+   "screen": "Sign in",
+   "boards": [
+    "B1-09-Sign-In.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "XS-03",
+   "screen": "Signed out / session expired",
+   "boards": [
+    "B1-09-Sign-In.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "XS-04",
+   "screen": "First-time activation · Forgot password",
+   "boards": [
+    "B1-09-Sign-In.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "XS-05",
+   "screen": "Account menu: name, role, institution, Help, Sign out",
+   "boards": [
+    "05-Workspace-Shell.dc.html",
+    "06-Sidebar-Variants.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "XS-06",
+   "screen": "Not your workspace",
+   "boards": [
+    "08-System-Messages.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "XS-07",
+   "screen": "Help & support: report a problem + my reports",
+   "boards": [
+    "07-Help-Support.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "XS-08",
+   "screen": "Institution paused / account inactive notice",
+   "boards": [
+    "05-Workspace-Shell.dc.html",
+    "08-System-Messages.dc.html",
+    "B1-09-Sign-In.dc.html",
+    "B7-04-Pause-Effects.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-09-Sign-In.dc.html",
+     "frame": 7,
+     "caption": "Account inactive → after sign-in"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-01",
+   "screen": "Home",
+   "boards": [
+    "B2-10-Student-Home.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-10-Student-Home.dc.html",
+     "frame": 0,
+     "caption": "ST-01 Home · before access · 8 Oct 2026"
+    },
+    {
+     "board": "B2-10-Student-Home.dc.html",
+     "frame": 1,
+     "caption": "ST-01 Home · first time · after SACC-0310 (9 Oct 2026)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-02",
+   "screen": "My courses",
+   "boards": [
+    "B2-11-My-Courses.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-11-My-Courses.dc.html",
+     "frame": 0,
+     "caption": "ST-02 My courses · 1440 · after SACC-0310"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-03",
+   "screen": "Course (student view)",
+   "boards": [
+    "B2-11-My-Courses.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-11-My-Courses.dc.html",
+     "frame": 1,
+     "caption": "ST-03 Course detail · ME ZG523"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-04",
+   "screen": "All my experiments",
+   "boards": [
+    "B2-11-My-Courses.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-11-My-Courses.dc.html",
+     "frame": 2,
+     "caption": "ST-04 All experiments · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-05",
+   "screen": "Experiment (hub: Overview · Resources · Simulation · Assessment · Progress)",
+   "boards": [
+    "B2-12-Experiment-Hub.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-12-Experiment-Hub.dc.html",
+     "frame": 0,
+     "caption": "ST-05 Experiment hub · Overview · 1440 · Rahul, 9 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-06",
+   "screen": "Resources",
+   "boards": [
+    "B3-01-Hub-Resources-and-Progress.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-01-Hub-Resources-and-Progress.dc.html",
+     "frame": 0,
+     "caption": "ST-06 Resources · 1440 · interactive · 12 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-07",
+   "screen": "Simulation — choose a format",
+   "boards": [
+    "B3-02-Simulation-Choose-Format.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-02-Simulation-Choose-Format.dc.html",
+     "frame": 0,
+     "caption": "ST-07 Simulation — choose a format · 1440 · 12 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-08",
+   "screen": "WEB simulation (launch / resume)",
+   "boards": [
+    "B3-03-WEB-Simulation.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-03-WEB-Simulation.dc.html",
+     "frame": 0,
+     "caption": "ST-08 WEB simulation · 1440 · interactive · in progress"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-09",
+   "screen": "AR / VR / MR format (setup & progress)",
+   "boards": [
+    "B3-04-AR-VR-MR-Format.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-04-AR-VR-MR-Format.dc.html",
+     "frame": 0,
+     "caption": "ST-09 VR format · 1440 · in progress · 16 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-10",
+   "screen": "Progress for this experiment",
+   "boards": [
+    "B3-01-Hub-Resources-and-Progress.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-01-Hub-Resources-and-Progress.dc.html",
+     "frame": 8,
+     "caption": "ST-10 Progress for this experiment · 1440 · 14 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-11",
+   "screen": "Assessments",
+   "boards": [
+    "B4-11-Student-Assessments.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-11-Student-Assessments.dc.html",
+     "frame": 0,
+     "caption": "ST-11 Assessments · 1440 · interactive · 1 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-12",
+   "screen": "Assessment — before you start",
+   "boards": [
+    "B4-11-Student-Assessments.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-11-Student-Assessments.dc.html",
+     "frame": 11,
+     "caption": "ST-12 Before you start · 1440 · 1 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-13",
+   "screen": "Assessment attempt",
+   "boards": [
+    "B4-12-Assessment-Attempt.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-11-Student-Assessments.dc.html",
+     "frame": 11,
+     "caption": "ST-12 Before you start · 1440 · 1 Nov 2026"
+    },
+    {
+     "board": "B4-12-Assessment-Attempt.dc.html",
+     "frame": 0,
+     "caption": "ST-13 Assessment attempt · 1440 · interactive · 5 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-14",
+   "screen": "Result",
+   "boards": [
+    "B4-13-Assessment-Result.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-13-Assessment-Result.dc.html",
+     "frame": 0,
+     "caption": "ST-14 Result · passed · 1440 · 15 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-15",
+   "screen": "Progress (all experiments)",
+   "boards": [
+    "B3-05-Progress.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-05-Progress.dc.html",
+     "frame": 0,
+     "caption": "ST-15 Progress · 1440 · interactive · 14 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-16",
+   "screen": "Format feedback",
+   "boards": [
+    "B3-06-Format-Feedback.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-06-Format-Feedback.dc.html",
+     "frame": 0,
+     "caption": "ST-16 Format feedback · VR · 1440 · interactive · 20 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-17",
+   "screen": "Feedback sent (confirmation, read-only)",
+   "boards": [
+    "B3-06-Format-Feedback.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-06-Format-Feedback.dc.html",
+     "frame": 0,
+     "caption": "ST-16 Format feedback · VR · 1440 · interactive · 20 Oct 2026"
+    },
+    {
+     "board": "B3-06-Format-Feedback.dc.html",
+     "frame": 3,
+     "caption": "ST-17 Feedback sent · WEB · 14 Oct (read-only)"
+    },
+    {
+     "board": "B3-06-Format-Feedback.dc.html",
+     "frame": 4,
+     "caption": "ST-17 Feedback sent · VR · 20 Oct"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-18",
+   "screen": "My device (AR/VR/MR holders only)",
+   "boards": [
+    "B3-07-My-Device.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-07-My-Device.dc.html",
+     "frame": 0,
+     "caption": "ST-18 My device · 1440 · interactive · 22 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "ST-19",
+   "screen": "Experiment not available (refusal page)",
+   "boards": [
+    "B2-11-My-Courses.dc.html",
+    "B2-12-Experiment-Hub.dc.html",
+    "B2-13-Flow-2-Continuity.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-11-My-Courses.dc.html",
+     "frame": 12,
+     "caption": "Opening an experiment that wasn’t given"
+    },
+    {
+     "board": "B2-12-Experiment-Hub.dc.html",
+     "frame": 4,
+     "caption": "Not available now · access withdrawn"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-01",
+   "screen": "Overview",
+   "boards": [
+    "B4-01-Faculty-Overview.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-01-Faculty-Overview.dc.html",
+     "frame": 0,
+     "caption": "FA-01 Overview · 1440 · 6 Nov 2026, 09:00"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-02",
+   "screen": "My courses",
+   "boards": [
+    "B4-02-My-Courses-and-Experiments.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-02-My-Courses-and-Experiments.dc.html",
+     "frame": 0,
+     "caption": "FA-02 My courses · Courses tab · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-03",
+   "screen": "Course (teaching view)",
+   "boards": [
+    "B4-02-My-Courses-and-Experiments.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-02-My-Courses-and-Experiments.dc.html",
+     "frame": 1,
+     "caption": "FA-03 Course · ME ZG523"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-04",
+   "screen": "Experiments",
+   "boards": [
+    "B4-02-My-Courses-and-Experiments.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-02-My-Courses-and-Experiments.dc.html",
+     "frame": 2,
+     "caption": "FA-04 Experiments tab · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-05",
+   "screen": "Experiment (teaching view)",
+   "boards": [
+    "B4-03-Experiment-Teaching-View.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-03-Experiment-Teaching-View.dc.html",
+     "frame": 0,
+     "caption": "FA-05 Experiment · teaching view · 1440 · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-06",
+   "screen": "Assessments",
+   "boards": [
+    "B4-04-Assessments-and-Create.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-04-Assessments-and-Create.dc.html",
+     "frame": 0,
+     "caption": "FA-06 Assessments · 1440 · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-07",
+   "screen": "Create assessment (guided)",
+   "boards": [
+    "B4-04-Assessments-and-Create.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-04-Assessments-and-Create.dc.html",
+     "frame": 1,
+     "caption": "FA-07 Create assessment · 1440 · interactive · 26 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-08",
+   "screen": "Assessment · Summary",
+   "boards": [
+    "B4-05-Assessment-Summary-and-Questions.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-05-Assessment-Summary-and-Questions.dc.html",
+     "frame": 0,
+     "caption": "FA-08 Summary · ASMT-0009 · 1440 · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-09",
+   "screen": "Assessment · Questions",
+   "boards": [
+    "B4-05-Assessment-Summary-and-Questions.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-05-Assessment-Summary-and-Questions.dc.html",
+     "frame": 6,
+     "caption": "FA-09 Questions · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-10",
+   "screen": "Assessment · Settings",
+   "boards": [
+    "B4-06-Settings-Preview-Submissions.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-06-Settings-Preview-Submissions.dc.html",
+     "frame": 0,
+     "caption": "FA-10 Settings · 1440 · interactive · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-11",
+   "screen": "Assessment · Preview",
+   "boards": [
+    "B4-06-Settings-Preview-Submissions.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-06-Settings-Preview-Submissions.dc.html",
+     "frame": 5,
+     "caption": "FA-11 Preview · Student view ↔ Answer key · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-12",
+   "screen": "Assessment · Submissions",
+   "boards": [
+    "B4-06-Settings-Preview-Submissions.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-06-Settings-Preview-Submissions.dc.html",
+     "frame": 7,
+     "caption": "FA-12 Submissions · 1440 · interactive · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-14",
+   "screen": "Question bank (tabs: Questions · Drafts to review)",
+   "boards": [
+    "B4-07-Question-Bank-and-Editor.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-07-Question-Bank-and-Editor.dc.html",
+     "frame": 0,
+     "caption": "FA-14 Question bank · 1440 · interactive · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-15",
+   "screen": "Add / edit question",
+   "boards": [
+    "B4-07-Question-Bank-and-Editor.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-07-Question-Bank-and-Editor.dc.html",
+     "frame": 3,
+     "caption": "FA-15 Add a question · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-16",
+   "screen": "Draft questions with assistance",
+   "boards": [
+    "B4-08-Draft-with-Assistance-and-Import.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-08-Draft-with-Assistance-and-Import.dc.html",
+     "frame": 0,
+     "caption": "FA-16 Draft with assistance · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-17",
+   "screen": "Import questions (CSV / XLSX)",
+   "boards": [
+    "B4-08-Draft-with-Assistance-and-Import.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-08-Draft-with-Assistance-and-Import.dc.html",
+     "frame": 5,
+     "caption": "FA-17 Import questions · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-18",
+   "screen": "Marking queue",
+   "boards": [
+    "B4-09-Marking.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-09-Marking.dc.html",
+     "frame": 0,
+     "caption": "FA-18 Marking queue · 1440 · interactive · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-19",
+   "screen": "Mark a submission",
+   "boards": [
+    "B4-09-Marking.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-09-Marking.dc.html",
+     "frame": 1,
+     "caption": "FA-19 Mark a submission · 1440 · interactive"
+    },
+    {
+     "board": "B4-10-Students-and-Follow-up.dc.html",
+     "frame": 3,
+     "caption": "FA-21 Student detail · Rahul Verma · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-20",
+   "screen": "Students (progress + follow-up)",
+   "boards": [
+    "B4-10-Students-and-Follow-up.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-10-Students-and-Follow-up.dc.html",
+     "frame": 0,
+     "caption": "FA-20 Students · 1440 · interactive · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-21",
+   "screen": "Student detail (per experiment)",
+   "boards": [
+    "B4-10-Students-and-Follow-up.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-10-Students-and-Follow-up.dc.html",
+     "frame": 3,
+     "caption": "FA-21 Student detail · Rahul Verma · 7 Nov 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "FA-22",
+   "screen": "Export progress (CSV)",
+   "boards": [
+    "B4-06-Settings-Preview-Submissions.dc.html",
+    "B4-10-Students-and-Follow-up.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B4-06-Settings-Preview-Submissions.dc.html",
+     "frame": 7,
+     "caption": "FA-12 Submissions · 1440 · interactive · 7 Nov 2026"
+    },
+    {
+     "board": "B4-06-Settings-Preview-Submissions.dc.html",
+     "frame": 10,
+     "caption": "Export CSV (FA-22)"
+    },
+    {
+     "board": "B4-10-Students-and-Follow-up.dc.html",
+     "frame": 2,
+     "caption": "Export CSV · FA-22"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-01",
+   "screen": "Overview",
+   "boards": [
+    "B2-01-IA-Overview.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-01-IA-Overview.dc.html",
+     "frame": 0,
+     "caption": "IA-01 Overview · 1440 · access just activated"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-02",
+   "screen": "Content access",
+   "boards": [
+    "B2-02-Content-Access.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-02-Content-Access.dc.html",
+     "frame": 0,
+     "caption": "IA-02 Content access · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-03",
+   "screen": "Access plan / course detail",
+   "boards": [
+    "B2-03-Access-Plan-and-Course-Codes.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-03-Access-Plan-and-Course-Codes.dc.html",
+     "frame": 0,
+     "caption": "IA-03 Access plan ACC-0107 · 1440 · just activated"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-04",
+   "screen": "Student access",
+   "boards": [
+    "B2-01-IA-Overview.dc.html",
+    "B2-04-Student-Access.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-04-Student-Access.dc.html",
+     "frame": 0,
+     "caption": "IA-04 Student access · 1440 · after SACC-0310 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-05",
+   "screen": "Give students access (guided)",
+   "boards": [
+    "B2-05-Give-Students-Access.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-05-Give-Students-Access.dc.html",
+     "frame": 0,
+     "caption": "IA-05 Give students access · 1440 · interactive · start here"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-06",
+   "screen": "Students",
+   "boards": [
+    "B2-06-People.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-06-People.dc.html",
+     "frame": 0,
+     "caption": "IA-06 People › Students · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-07",
+   "screen": "Student record",
+   "boards": [
+    "B2-01-IA-Overview.dc.html",
+    "B2-06-People.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-06-People.dc.html",
+     "frame": 8,
+     "caption": "IA-07 Student record · Rahul Verma · before access"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-08",
+   "screen": "Faculty",
+   "boards": [
+    "B2-06-People.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-06-People.dc.html",
+     "frame": 14,
+     "caption": "IA-08 People › Faculty · 1440 · interactive search"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-09",
+   "screen": "Faculty record (incl. courses taught)",
+   "boards": [
+    "B2-06-People.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-06-People.dc.html",
+     "frame": 15,
+     "caption": "IA-09 Faculty record · Dr S. Ranganathan"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-10",
+   "screen": "Add a student / Add a faculty member",
+   "boards": [
+    "B2-04-Student-Access.dc.html",
+    "B2-07-Add-and-Import.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-07-Add-and-Import.dc.html",
+     "frame": 0,
+     "caption": "IA-10 Add student · 1440 · interactive"
+    },
+    {
+     "board": "B2-07-Add-and-Import.dc.html",
+     "frame": 3,
+     "caption": "IA-10 Add faculty member · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-11",
+   "screen": "Import students (CSV)",
+   "boards": [
+    "B2-07-Add-and-Import.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-07-Add-and-Import.dc.html",
+     "frame": 5,
+     "caption": "IA-11 Import students · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-13",
+   "screen": "Groups",
+   "boards": [
+    "B2-01-IA-Overview.dc.html",
+    "B2-02-Content-Access.dc.html",
+    "B2-08-Groups.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-08-Groups.dc.html",
+     "frame": 0,
+     "caption": "IA-13 People › Groups · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-14",
+   "screen": "Group (create · members · access)",
+   "boards": [
+    "B2-01-IA-Overview.dc.html",
+    "B2-02-Content-Access.dc.html",
+    "B2-08-Groups.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-08-Groups.dc.html",
+     "frame": 3,
+     "caption": "IA-14 Group · ME ZG523 — Sem II · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-15",
+   "screen": "Faculty courses (who teaches what)",
+   "boards": [
+    "B2-09-Faculty-Courses.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-09-Faculty-Courses.dc.html",
+     "frame": 0,
+     "caption": "IA-15 People › Faculty courses · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-16",
+   "screen": "Course codes (institution code + optional semester)",
+   "boards": [
+    "B2-03-Access-Plan-and-Course-Codes.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B2-03-Access-Plan-and-Course-Codes.dc.html",
+     "frame": 6,
+     "caption": "IA-16 Course codes tab · 1440 · interactive"
+    },
+    {
+     "board": "B2-03-Access-Plan-and-Course-Codes.dc.html",
+     "frame": 7,
+     "caption": "Saved"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-17",
+   "screen": "Requests to BITS (renewal · additional licences)",
+   "boards": [
+    "B3-08-IA-Requests-to-BITS.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-08-IA-Requests-to-BITS.dc.html",
+     "frame": 0,
+     "caption": "IA-17 Requests to BITS · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-18",
+   "screen": "Device requests",
+   "boards": [
+    "B3-09-IA-Device-Requests.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-09-IA-Device-Requests.dc.html",
+     "frame": 0,
+     "caption": "IA-18 Device requests · 1440 · 22 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-19",
+   "screen": "Device request — review & forward",
+   "boards": [
+    "B3-09-IA-Device-Requests.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-09-IA-Device-Requests.dc.html",
+     "frame": 1,
+     "caption": "IA-19 Device request — review & forward · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "IA-20",
+   "screen": "Usage",
+   "boards": [
+    "B3-10-IA-Usage.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-10-IA-Usage.dc.html",
+     "frame": 0,
+     "caption": "IA-20 Usage · 1440 · interactive · figures up to 24 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-01",
+   "screen": "Overview",
+   "boards": [
+    "B5-01-Vendor-Overview.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B5-01-Vendor-Overview.dc.html",
+     "frame": 0,
+     "caption": "VE-01 Overview · 1440 · 27 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-02",
+   "screen": "My experiments (all, any status)",
+   "boards": [
+    "B5-02-My-Experiments.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B5-02-My-Experiments.dc.html",
+     "frame": 0,
+     "caption": "VE-02 My experiments · 1440 · interactive · 27 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-03",
+   "screen": "Create experiment · Course & description",
+   "boards": [
+    "B5-03-Create-Course-and-Description.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B5-03-Create-Course-and-Description.dc.html",
+     "frame": 0,
+     "caption": "VE-03 Create experiment · step 1 · 1440 · interactive · 10 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-04",
+   "screen": "Create experiment · Formats & delivery",
+   "boards": [
+    "B5-04-Formats-and-Delivery.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B5-04-Formats-and-Delivery.dc.html",
+     "frame": 0,
+     "caption": "VE-04 Formats and delivery · step 2 · 1440 · interactive · 11 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-05",
+   "screen": "Create experiment · Preview & documents",
+   "boards": [
+    "B5-05-Preview-Check-and-Submit.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B5-05-Preview-Check-and-Submit.dc.html",
+     "frame": 3,
+     "caption": "VE-05 Preview and documents · step 3 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-06",
+   "screen": "Check & submit",
+   "boards": [
+    "B5-05-Preview-Check-and-Submit.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B5-05-Preview-Check-and-Submit.dc.html",
+     "frame": 0,
+     "caption": "VE-06 Check and submit · step 4 · 1440 · interactive · 12 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-07",
+   "screen": "Experiment record (status, details, timeline)",
+   "boards": [
+    "B5-06-Experiment-Record-and-History.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B5-06-Experiment-Record-and-History.dc.html",
+     "frame": 0,
+     "caption": "VE-07 Experiment record · SUB-0077 · 1440 · 27 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-08",
+   "screen": "Revise & resubmit (after a return)",
+   "boards": [
+    "B5-07-Revise-and-Resubmit.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B5-07-Revise-and-Resubmit.dc.html",
+     "frame": 0,
+     "caption": "VE-08 Revise and resubmit · SUB-0077 · 1440 · interactive · 26 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-09",
+   "screen": "Edit draft",
+   "boards": [
+    "B5-07-Revise-and-Resubmit.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B5-07-Revise-and-Resubmit.dc.html",
+     "frame": 5,
+     "caption": "VE-09 Edit draft · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "VE-13",
+   "screen": "Submission & version history",
+   "boards": [
+    "B5-02-My-Experiments.dc.html",
+    "B5-06-Experiment-Record-and-History.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "RV-01",
+   "screen": "Overview",
+   "boards": [
+    "B6-01-Reviewer-Overview.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-01-Reviewer-Overview.dc.html",
+     "frame": 0,
+     "caption": "RV-01 Overview · 1440 · 27 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "RV-02",
+   "screen": "Review queue",
+   "boards": [
+    "B6-02-Review-Queue-and-Reviewed.dc.html",
+    "B6-12-Flow-5-Completion.dc.html",
+    "B6-13-Flow-6-Steps-1-2.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-02-Review-Queue-and-Reviewed.dc.html",
+     "frame": 0,
+     "caption": "RV-02 Review queue · 1440 · 27 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "RV-03",
+   "screen": "Review a submission",
+   "boards": [
+    "B6-03-Review-a-Submission.dc.html",
+    "B6-11-Critical-States.dc.html",
+    "B6-12-Flow-5-Completion.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-03-Review-a-Submission.dc.html",
+     "frame": 0,
+     "caption": "RV-03 Review a submission · SUB-0077 · resubmitted · revision 2 · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "RV-04",
+   "screen": "Review an update",
+   "boards": [
+    "B6-04-Review-an-Update.dc.html",
+    "B6-13-Flow-6-Steps-1-2.dc.html",
+    "B7-11-Flow-6-Release-and-Hold.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-04-Review-an-Update.dc.html",
+     "frame": 0,
+     "caption": "RV-04 Review an update · UPD-0005 · Distillation Column 1.2 → 1.3 · 1440"
+    },
+    {
+     "board": "B6-13-Flow-6-Steps-1-2.dc.html",
+     "frame": 4,
+     "caption": "Academic Reviewer · Review an update (RV-04)"
+    },
+    {
+     "board": "B7-11-Flow-6-Release-and-Hold.dc.html",
+     "frame": 6,
+     "caption": "2 · Academic Reviewer · Review an update (RV-04)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "RV-05",
+   "screen": "Reviewed by me",
+   "boards": [
+    "B6-02-Review-Queue-and-Reviewed.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-02-Review-Queue-and-Reviewed.dc.html",
+     "frame": 1,
+     "caption": "RV-05 Reviewed by me · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "RV-06",
+   "screen": "Decided item (read-only)",
+   "boards": [
+    "B6-03-Review-a-Submission.dc.html",
+    "B6-12-Flow-5-Completion.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-02-Review-Queue-and-Reviewed.dc.html",
+     "frame": 1,
+     "caption": "RV-05 Reviewed by me · 1440"
+    },
+    {
+     "board": "B6-03-Review-a-Submission.dc.html",
+     "frame": 4,
+     "caption": "Decided · read-only (RV-06)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "CM-01",
+   "screen": "Overview",
+   "boards": [
+    "B6-05-CM-Overview.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-05-CM-Overview.dc.html",
+     "frame": 0,
+     "caption": "CM-01 Overview · 1440 · 27 Aug 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "CM-02",
+   "screen": "Ready to publish",
+   "boards": [
+    "B6-03-Review-a-Submission.dc.html",
+    "B6-06-Ready-to-Publish-and-Library.dc.html",
+    "B6-12-Flow-5-Completion.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-06-Ready-to-Publish-and-Library.dc.html",
+     "frame": 0,
+     "caption": "CM-02 Ready to publish · 1440 · 27 Aug 2026 (after SUB-0077 was approved)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "CM-03",
+   "screen": "Publication decision",
+   "boards": [
+    "B6-07-Publication-Decision.dc.html",
+    "B6-11-Critical-States.dc.html",
+    "B6-12-Flow-5-Completion.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-07-Publication-Decision.dc.html",
+     "frame": 0,
+     "caption": "CM-03 Publication decision · SUB-0077 · approved 27 Aug 2026 · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "CM-04",
+   "screen": "Content library (all statuses incl. published)",
+   "boards": [
+    "B6-06-Ready-to-Publish-and-Library.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-06-Ready-to-Publish-and-Library.dc.html",
+     "frame": 1,
+     "caption": "CM-04 Content library · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "CM-05",
+   "screen": "Published experiment",
+   "boards": [
+    "B6-08-Published-and-Correction-Entry.dc.html",
+    "B6-13-Flow-6-Steps-1-2.dc.html",
+    "B7-11-Flow-6-Release-and-Hold.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-08-Published-and-Correction-Entry.dc.html",
+     "frame": 0,
+     "caption": "CM-05 Published experiment · Distillation Column · live version 1.2 · 1440"
+    },
+    {
+     "board": "B6-13-Flow-6-Steps-1-2.dc.html",
+     "frame": 1,
+     "caption": "Content Manager · Kavya Nair · Published experiment (CM-05)"
+    },
+    {
+     "board": "B7-11-Flow-6-Release-and-Hold.dc.html",
+     "frame": 4,
+     "caption": "5 · Content Manager · published experiment (CM-05)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "CM-06",
+   "screen": "Edit catalogue details → opens a correction (UPD) draft pre-filled with the live fields (M-1)",
+   "boards": [
+    "B6-08-Published-and-Correction-Entry.dc.html",
+    "B6-13-Flow-6-Steps-1-2.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "CM-07",
+   "screen": "Edit a delivery link (with reason) → opens a correction (UPD) draft pre-filled with the live delivery details (M-1)",
+   "boards": [
+    "B6-08-Published-and-Correction-Entry.dc.html",
+    "B6-13-Flow-6-Steps-1-2.dc.html"
+   ],
+   "framesNamingThisId": [],
+   "note": "No frame caption names this ID; use the boards listed (screens.json)."
+  },
+  {
+   "id": "CM-08",
+   "screen": "Corrections / updates I raised",
+   "boards": [
+    "B6-09-Updates-Corrections.dc.html",
+    "B6-11-Critical-States.dc.html",
+    "B6-13-Flow-6-Steps-1-2.dc.html",
+    "B7-11-Flow-6-Release-and-Hold.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-09-Updates-Corrections.dc.html",
+     "frame": 0,
+     "caption": "CM-08 Updates · 1440 · 27 Aug 2026"
+    },
+    {
+     "board": "B6-13-Flow-6-Steps-1-2.dc.html",
+     "frame": 0,
+     "caption": "Content Manager · Correction draft (CM-08)"
+    },
+    {
+     "board": "B7-11-Flow-6-Release-and-Hold.dc.html",
+     "frame": 3,
+     "caption": "1 · Content Manager · the correction (CM-08)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "CM-09",
+   "screen": "Platform course codes",
+   "boards": [
+    "B6-10-Platform-Course-Codes.dc.html",
+    "B6-11-Critical-States.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B6-10-Platform-Course-Codes.dc.html",
+     "frame": 0,
+     "caption": "CM-09 Course codes · 1440"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-01",
+   "screen": "Overview",
+   "boards": [
+    "B7-01-SA-Overview.dc.html",
+    "B7-10-Critical-States.dc.html",
+    "B7-12-Responsive-Proof.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-01-SA-Overview.dc.html",
+     "frame": 0,
+     "caption": "SA-01 Overview · 1440 · 23 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-02",
+   "screen": "Requests",
+   "boards": [
+    "B1-10-SA-Requests.dc.html",
+    "B1-11-SA-Decision.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-10-SA-Requests.dc.html",
+     "frame": 0,
+     "caption": "SA-02 Requests · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-03",
+   "screen": "Request decision",
+   "boards": [
+    "B1-10-SA-Requests.dc.html",
+    "B1-11-SA-Decision.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B1-11-SA-Decision.dc.html",
+     "frame": 0,
+     "caption": "SA-03 Request decision · REQ-0042 · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-06",
+   "screen": "Institutions",
+   "boards": [
+    "B7-02-Institutions.dc.html",
+    "B7-12-Responsive-Proof.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-02-Institutions.dc.html",
+     "frame": 0,
+     "caption": "SA-06 Institutions · 1440 · 23 Oct 2026 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-07",
+   "screen": "Institution detail",
+   "boards": [
+    "B7-02-Institutions.dc.html",
+    "B7-03-Institution-Detail.dc.html",
+    "B7-04-Pause-Effects.dc.html",
+    "B7-10-Critical-States.dc.html",
+    "B7-12-Responsive-Proof.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-02-Institutions.dc.html",
+     "frame": 1,
+     "caption": "SA-07 Institution detail · 1440 · interactive"
+    },
+    {
+     "board": "B7-03-Institution-Detail.dc.html",
+     "frame": 0,
+     "caption": "SA-07 Godavari Institute of Technology · Access active · 1440 · interactive"
+    },
+    {
+     "board": "B7-04-Pause-Effects.dc.html",
+     "frame": 0,
+     "caption": "Super Admin · Godavari Institute of Technology (SA-07)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-10",
+   "screen": "Content updates (awaiting release)",
+   "boards": [
+    "B7-05-Content-Updates-Release-Hold.dc.html",
+    "B7-11-Flow-6-Release-and-Hold.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-05-Content-Updates-Release-Hold.dc.html",
+     "frame": 0,
+     "caption": "SA-10 Content › Updates · 1440 · 23 Oct 2026"
+    },
+    {
+     "board": "B7-11-Flow-6-Release-and-Hold.dc.html",
+     "frame": 0,
+     "caption": "3 · Super Admin · Arjun Mehta · Content › Updates (SA-10)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-11",
+   "screen": "Release or hold an update",
+   "boards": [
+    "B7-01-SA-Overview.dc.html",
+    "B7-05-Content-Updates-Release-Hold.dc.html",
+    "B7-10-Critical-States.dc.html",
+    "B7-11-Flow-6-Release-and-Hold.dc.html",
+    "B7-12-Responsive-Proof.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-05-Content-Updates-Release-Hold.dc.html",
+     "frame": 1,
+     "caption": "SA-11 Release or hold an update · 1440 · interactive"
+    },
+    {
+     "board": "B7-11-Flow-6-Release-and-Hold.dc.html",
+     "frame": 1,
+     "caption": "4 · Super Admin · Release or hold (SA-11)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-12",
+   "screen": "All content & stuck items",
+   "boards": [
+    "B7-06-All-Content.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-06-All-Content.dc.html",
+     "frame": 0,
+     "caption": "SA-12 Content › All content · 1440 · 23 Oct 2026 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-13",
+   "screen": "Content record (read-only for published content; status override for stuck, non-published records — M-1)",
+   "boards": [
+    "B7-06-All-Content.dc.html",
+    "B7-09-Operations.dc.html",
+    "B7-10-Critical-States.dc.html",
+    "B7-12-Responsive-Proof.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-06-All-Content.dc.html",
+     "frame": 1,
+     "caption": "SA-13 Content record · stuck · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-14",
+   "screen": "Academic structure (areas → courses)",
+   "boards": [
+    "B7-07-Academic-Structure.dc.html",
+    "B7-12-Responsive-Proof.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-07-Academic-Structure.dc.html",
+     "frame": 0,
+     "caption": "SA-14 Academic structure · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-15",
+   "screen": "Area / course record",
+   "boards": [
+    "B7-07-Academic-Structure.dc.html",
+    "B7-10-Critical-States.dc.html",
+    "B7-12-Responsive-Proof.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-07-Academic-Structure.dc.html",
+     "frame": 1,
+     "caption": "SA-15 Course record · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-16",
+   "screen": "Platform roles (Vendors · Reviewers · Content Managers)",
+   "boards": [
+    "B7-08-Platform-Roles.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-08-Platform-Roles.dc.html",
+     "frame": 0,
+     "caption": "SA-16 Platform roles · Reviewers tab · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-17",
+   "screen": "Role holder (assign / withdraw scope)",
+   "boards": [
+    "B7-08-Platform-Roles.dc.html",
+    "B7-10-Critical-States.dc.html",
+    "B7-12-Responsive-Proof.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-08-Platform-Roles.dc.html",
+     "frame": 1,
+     "caption": "SA-17 Role holder · Dr K. Iyer · no scope · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-18",
+   "screen": "Device transfers",
+   "boards": [
+    "B3-11-SA-Device-Transfers.dc.html",
+    "B7-09-Operations.dc.html",
+    "B7-10-Critical-States.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-11-SA-Device-Transfers.dc.html",
+     "frame": 0,
+     "caption": "SA-18 Operations › Device transfers · 1440 · 23 Oct 2026"
+    },
+    {
+     "board": "B7-09-Operations.dc.html",
+     "frame": 0,
+     "caption": "SA-18 Operations › Device transfers · 1440 · 23 Oct 2026"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-19",
+   "screen": "Device transfer decision",
+   "boards": [
+    "B3-11-SA-Device-Transfers.dc.html",
+    "B7-09-Operations.dc.html",
+    "B7-10-Critical-States.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B3-11-SA-Device-Transfers.dc.html",
+     "frame": 1,
+     "caption": "SA-19 Device transfer decision · 1440 · interactive"
+    },
+    {
+     "board": "B7-09-Operations.dc.html",
+     "frame": 1,
+     "caption": "SA-19 Device transfer decision · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-20",
+   "screen": "Support reports",
+   "boards": [
+    "B7-09-Operations.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-09-Operations.dc.html",
+     "frame": 7,
+     "caption": "SA-20 Operations › Support · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-21",
+   "screen": "Support report",
+   "boards": [
+    "B7-09-Operations.dc.html",
+    "B7-10-Critical-States.dc.html",
+    "B7-12-Responsive-Proof.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-09-Operations.dc.html",
+     "frame": 8,
+     "caption": "SA-21 Support report · 1440 · interactive"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "SA-22",
+   "screen": "Access ending & renewals",
+   "boards": [
+    "B7-09-Operations.dc.html",
+    "B7-10-Critical-States.dc.html"
+   ],
+   "framesNamingThisId": [
+    {
+     "board": "B7-09-Operations.dc.html",
+     "frame": 4,
+     "caption": "SA-22 Operations › Access ending · 1440"
+    }
+   ],
+   "note": ""
+  }
+ ]
+}

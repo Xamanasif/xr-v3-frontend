@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · GL-03 Help and Support</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 2752px; min-height: 5200px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Deliverable D · Board 07 · GL-03 · XS-07</span>
+    <h1 class="doc-title">Help &amp; support</h1>
+    <p class="doc-sub">“Something isn’t working — how do I report it, and what happened?” One template, one location (sidebar bottom and account menu) in all seven workspaces. Each state below is shown in a different workspace to prove it does not change. No response-time or service promises.</p>
+    <div class="doc-head-meta"><span>Structure: Help &amp; support = My reports list (AR-2) + Report a problem (AR-8) + Report detail (AR-3)</span><span>Resolving and reopening happen in Super Admin › Operations › Support (SA-F8, Batch 7)</span></div>
+  </header>
+
+  <div class="doc-body">
+    <div style="display: flex; flex-wrap: wrap; gap: 64px 48px; align-items: flex-start">
+      <sc-for list="{{ frames }}" as="f" hint-placeholder-count="10">
+        <div style="display: flex; flex-direction: column; gap: 12px; width: {{ f.outerW }}px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span class="doc-label">{{ f.label }}</span>
+            <p class="doc-note">{{ f.note }}</p>
+          </div>
+          <div class="doc-frame">
+            <div class="xr-app" style="width: {{ f.w }}px; min-height: {{ f.h }}px">
+              <div class="xr-shell" style="min-height: {{ f.h }}px">
+
+                <aside class="xr-side" aria-label="{{ f.ws }} workspace">
+                  <div class="xr-side-head"><div class="xr-logo-ph">BITS Pilani / WILP logo — placeholder</div><span class="xr-product">XR Learning Platform</span></div>
+                  <div class="xr-ws"><span class="xr-ws-label">{{ f.ws }}</span><sc-if value="{{ f.hasInst }}" hint-placeholder-val="{{ true }}"><span class="xr-ws-inst">{{ f.inst }}</span></sc-if></div>
+                  <nav aria-label="{{ f.ws }} navigation"><ul class="xr-nav">
+                    <sc-for list="{{ f.nav }}" as="n" hint-placeholder-count="5"><li><a href="#help"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ n.d }}"></path></svg><span class="xr-nav-text">{{ n.label }}</span><span class="xr-tip">{{ n.label }}</span></a></li></sc-for>
+                  </ul></nav>
+                  <div class="xr-side-foot"><ul class="xr-nav"><li><a href="#help" aria-current="page"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span class="xr-nav-text">Help</span><span class="xr-tip">Help</span></a></li></ul></div>
+                </aside>
+
+                <div class="xr-main">
+                  <header class="xr-top">
+                    <button type="button" class="xr-menu-btn" aria-expanded="false"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg><span>Menu</span></button>
+                    <button type="button" class="xr-icon-btn xr-top-collapse" aria-label="Collapse menu"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM9.5 5v14M16 10l-2 2 2 2"></path></svg></button>
+                    <div class="xr-top-loc">
+                      <span class="xr-top-title">{{ f.title }}</span>
+                      <ol class="xr-crumbs" aria-label="You are here">
+                        <sc-if value="{{ f.deep }}" hint-placeholder-val="{{ false }}"><li><a href="#help">Help &amp; support</a><span class="xr-crumb-sep" aria-hidden="true">/</span></li></sc-if>
+                        <li><span aria-current="page">{{ f.title }}</span></li>
+                      </ol>
+                    </div>
+                    <div class="xr-acct"><button type="button" class="xr-acct-btn" aria-expanded="false" aria-label="Account menu: {{ f.person }}, {{ f.ws }}"><span class="xr-avatar" aria-hidden="true">{{ f.initials }}</span><span class="xr-acct-text" aria-hidden="true"><span class="xr-acct-name">{{ f.person }}</span><span class="xr-acct-role">{{ f.ws }}</span></span><svg class="xr-ico xr-acct-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button></div>
+                  </header>
+
+                  <main class="xr-page">
+
+                    <sc-if value="{{ f.isForm }}" hint-placeholder-val="{{ true }}">
+                      <div class="xr-wrap--form xr-content">
+                        <a class="xr-back" href="#help" style="margin-bottom: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Help &amp; support</a>
+                        <div class="xr-phead"><div class="xr-phead-main"><h1 class="xr-h1">Report a problem</h1><p class="xr-lead">Describe what went wrong. You can follow your report in My reports.</p></div></div>
+                        <sc-if value="{{ f.isError }}" hint-placeholder-val="{{ false }}">
+                          <div class="xr-notice xr-notice--err" role="alert" style="margin-bottom: 20px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">One thing needs fixing</span><a href="#help">Say what happened</a></div></div>
+                        </sc-if>
+                        <div class="xr-section" style="padding: 24px; display: flex; flex-direction: column; gap: 20px">
+                          <div class="xr-field">
+                            <label class="xr-label" for="{{ f.id }}-what">What happened?</label>
+                            <span class="xr-hint" id="{{ f.id }}-what-h">Say what you were doing and what you saw.</span>
+                            <textarea id="{{ f.id }}-what" class="xr-textarea" aria-describedby="{{ f.id }}-what-h" aria-invalid="{{ f.whatInvalid }}" value="{{ f.whatVal }}"></textarea>
+                            <sc-if value="{{ f.isError }}" hint-placeholder-val="{{ false }}"><span class="xr-error"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>Say what happened, so it can be looked into</span></sc-if>
+                          </div>
+                          <div class="xr-field">
+                            <label class="xr-label" for="{{ f.id }}-where">Where did it happen?</label>
+                            <span class="xr-hint" id="{{ f.id }}-where-h">Filled in from the page you came from. Change it if needed.</span>
+                            <input id="{{ f.id }}-where" class="xr-input" type="text" aria-describedby="{{ f.id }}-where-h" value="{{ f.whereVal }}">
+                          </div>
+                          <div class="xr-field">
+                            <label class="xr-label" for="{{ f.id }}-shot">Screenshot <span class="xr-opt">(optional)</span></label>
+                            <span class="xr-hint" id="{{ f.id }}-shot-h">A picture of the screen can help.</span>
+                            <input id="{{ f.id }}-shot" class="xr-file" type="file" accept="image/*" aria-describedby="{{ f.id }}-shot-h">
+                          </div>
+                          <div style="display: flex; flex-wrap: wrap-reverse; gap: 12px; justify-content: flex-end; padding-top: 4px">
+                            <a class="xr-btn xr-btn--text" href="#help">Cancel</a>
+                            <sc-if value="{{ f.isSending }}" hint-placeholder-val="{{ false }}"><button type="button" class="xr-btn xr-btn--primary is-busy" aria-busy="true"><span class="xr-spin" aria-hidden="true"></span>Sending…</button></sc-if>
+                            <sc-if value="{{ f.notSending }}" hint-placeholder-val="{{ true }}"><button type="button" class="xr-btn xr-btn--primary">Send report</button></sc-if>
+                          </div>
+                        </div>
+                      </div>
+                    </sc-if>
+
+                    <sc-if value="{{ f.isSent }}" hint-placeholder-val="{{ false }}">
+                      <div class="xr-msg">
+                        <span class="xr-msg-icon" style="background: #E8F4EC; color: #1D6B45"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+                        <h1 class="xr-msg-title">Report sent</h1>
+                        <p class="xr-body" style="color: #40476B">Your reference is <span class="xr-id">SUP-0213</span>. You can follow it in My reports.</p>
+                        <div class="xr-msg-actions"><a class="xr-btn xr-btn--primary" href="#help">View my reports</a><a href="#help">Back to Home</a></div>
+                      </div>
+                    </sc-if>
+
+                    <sc-if value="{{ f.isList }}" hint-placeholder-val="{{ false }}">
+                      <div class="xr-wrap--read xr-content">
+                        <div class="xr-phead">
+                          <div class="xr-phead-main"><h1 class="xr-h1">Help &amp; support</h1><p class="xr-lead">Something isn’t working? Report it here and follow what happens.</p></div>
+                          <sc-if value="{{ f.hasReports }}" hint-placeholder-val="{{ true }}"><div class="xr-phead-actions"><a class="xr-btn xr-btn--primary" href="#help">Report a problem</a></div></sc-if>
+                        </div>
+                        <section class="xr-section" aria-labelledby="{{ f.id }}-mr">
+                          <div class="xr-section-head"><h2 id="{{ f.id }}-mr" class="xr-h2">My reports</h2><sc-if value="{{ f.hasReports }}" hint-placeholder-val="{{ true }}"><span class="xr-meta">{{ f.countText }}</span></sc-if></div>
+                          <sc-if value="{{ f.hasReports }}" hint-placeholder-val="{{ true }}">
+                            <ul class="xr-rows">
+                              <sc-for list="{{ f.reports }}" as="r" hint-placeholder-count="3">
+                                <li><a class="xr-row xr-row-link" href="#help"><div class="xr-row-main"><div class="xr-row-text"><span class="xr-row-title">{{ r.title }}</span><span class="xr-row-sub"><span class="xr-id">{{ r.id }}</span> · {{ r.sub }}</span></div></div><span class="xr-status {{ r.cls }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ r.icon }}"></path></svg>{{ r.status }}</span></a></li>
+                              </sc-for>
+                            </ul>
+                          </sc-if>
+                          <sc-if value="{{ f.isEmpty }}" hint-placeholder-val="{{ false }}">
+                            <div class="xr-empty" style="border-top: 1px solid #E1E4F3">
+                              <span class="xr-empty-icon"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg></span>
+                              <h3 class="xr-h3">No reports yet</h3>
+                              <p class="xr-small" style="color: #40476B">If something isn’t working, report it and follow it here.</p>
+                              <a class="xr-btn xr-btn--primary" href="#help">Report a problem</a>
+                            </div>
+                          </sc-if>
+                        </section>
+                      </div>
+                    </sc-if>
+
+                    <sc-if value="{{ f.isDetail }}" hint-placeholder-val="{{ false }}">
+                      <div class="xr-wrap--read xr-content">
+                        <a class="xr-back" href="#help" style="margin-bottom: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Help &amp; support</a>
+                        <div class="xr-phead">
+                          <div class="xr-phead-main">
+                            <span class="xr-id">{{ f.d.id }}</span>
+                            <h1 class="xr-h1">{{ f.d.title }}</h1>
+                            <div class="xr-phead-meta"><span class="xr-status {{ f.d.cls }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ f.d.icon }}"></path></svg>{{ f.d.status }}</span><span>Sent {{ f.d.sent }}</span></div>
+                          </div>
+                        </div>
+                        <div class="xr-stack">
+                          <sc-if value="{{ f.d.isResolved }}" hint-placeholder-val="{{ true }}">
+                            <div class="xr-notice xr-notice--ok" role="status"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">Resolution note · {{ f.d.resolved }}</span><span>{{ f.d.note }}</span></div></div>
+                          </sc-if>
+                          <sc-if value="{{ f.d.isReopened }}" hint-placeholder-val="{{ false }}">
+                            <div class="xr-notice" role="status"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v4.5h-4.5"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">This report is open again</span><span>It was reopened on {{ f.d.reopened }}. You can follow it here.</span></div></div>
+                          </sc-if>
+                          <section class="xr-section" aria-labelledby="{{ f.id }}-wr">
+                            <div class="xr-section-head"><h2 id="{{ f.id }}-wr" class="xr-h2">What you reported</h2></div>
+                            <div class="xr-section-body">
+                              <dl class="doc-kv" style="grid-template-columns: 180px minmax(0, 1fr)">
+                                <dt>What happened</dt><dd>{{ f.d.what }}</dd>
+                                <dt>Where</dt><dd>{{ f.d.where }}</dd>
+                                <dt>Screenshot</dt><dd><span style="display: inline-flex; align-items: center; gap: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 16l4.5-4.5 3.5 3.5 2.5-2.5L20 18M15.5 9.5h.01"></path></svg>{{ f.d.shot }}</span></dd>
+                              </dl>
+                            </div>
+                          </section>
+                          <section class="xr-section" aria-labelledby="{{ f.id }}-hi">
+                            <div class="xr-section-head"><h2 id="{{ f.id }}-hi" class="xr-h2">History</h2></div>
+                            <div class="xr-section-body">
+                              <ol class="xr-timeline">
+                                <sc-for list="{{ f.d.history }}" as="h" hint-placeholder-count="3">
+                                  <li class="xr-tl {{ h.cls }}"><span class="xr-tl-dot" aria-hidden="true"></span><div><p class="xr-tl-what">{{ h.what }}</p><p class="xr-tl-when">{{ h.when }}</p></div></li>
+                                </sc-for>
+                              </ol>
+                            </div>
+                          </section>
+                          <p class="xr-small" style="color: #40476B">Something else isn’t working? <a href="#help">Report a problem</a></p>
+                        </div>
+                      </div>
+                    </sc-if>
+
+                  </main>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <section class="doc-sec" aria-labelledby="h-help-rules" style="max-width: 1600px">
+      <div class="doc-sec-head"><h2 id="h-help-rules" class="doc-sec-title">Rules for GL-03</h2></div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card"><ul class="doc-list"><li>Same template, same place in every workspace: sidebar bottom and the account menu.</li><li>Fields: what happened, where (pre-filled from the page you came from), optional screenshot. Nothing else.</li></ul></div>
+        <div class="doc-card"><ul class="doc-list"><li>No response times, service levels or promises about who answers — the support model is open (ND-14).</li><li>When the list is empty, its primary action moves into the empty state.</li></ul></div>
+        <div class="doc-card"><ul class="doc-list"><li>The reporter reads the resolution note; resolving and reopening are Super Admin actions (SA-F8).</li><li>Status words: Open · Resolved · Reopened — identical to the Super Admin side.</li></ul></div>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2752,"height":5200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const I = {
+      home: 'M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z',
+      overview: 'M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z',
+      courses: 'M5 5.5A1.5 1.5 0 0 1 6.5 4H19v13H6.5A1.5 1.5 0 0 0 5 18.5zM5 18.5A1.5 1.5 0 0 0 6.5 20H19M9 8h6',
+      assess: 'M9 3.5h6v3H9zM15 5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3M8.5 13.5l2.5 2.5 4.5-5',
+      progress: 'M4 20h16M7 16v-4M12 16V7M17 16v-6',
+      qbank: 'M12 3 3 7.5 12 12l9-4.5zM3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5',
+      marking: 'M14.5 5.5l4 4L8 20H4v-4zM12.5 7.5l4 4',
+      people: 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.3a3.5 3.5 0 0 1 0 6.4M18.5 14.5A6.5 6.5 0 0 1 21.5 20',
+      caccess: 'M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10',
+      saccess: 'M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3.5 20a6.5 6.5 0 0 1 10-5.5M18 14v6M15 17h6',
+      requests: 'M4 13.5 6.5 5h11l2.5 8.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 13.5h4.5l1.5 2.5h4l1.5-2.5H20',
+      usage: 'M3 12h4l3-7 4 14 3-7h4',
+      exps: 'M9 3h6M10 3v6.5L4.8 18.6A1.6 1.6 0 0 0 6.2 21h11.6a1.6 1.6 0 0 0 1.4-2.4L14 9.5V3M7.2 15h9.6',
+      publish: 'M12 15V4M7.5 8.5 12 4l4.5 4.5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5',
+      library: 'M4 4h4v16H4zM10 4h4v16h-4zM16 5l3.5-1 3 15.5-3.5 1z',
+      updates: 'M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4',
+      codes: 'M9.5 4 7.5 20M16.5 4l-2 16M4.5 9h16M3.5 15h16'
+    };
+    const N = (pairs) => pairs.map(([label, icon]) => ({ label, d: I[icon] }));
+    const GIT = 'Godavari Institute of Technology';
+    const W = {
+      st: { ws: 'Student', inst: GIT, person: 'Rahul Verma', initials: 'RV', nav: N([['Home', 'home'], ['My courses', 'courses'], ['Assessments', 'assess'], ['Progress', 'progress']]) },
+      fa: { ws: 'Faculty', inst: GIT, person: 'Dr S. Ranganathan', initials: 'SR', nav: N([['Overview', 'overview'], ['My courses', 'courses'], ['Assessments', 'assess'], ['Question bank', 'qbank'], ['Marking', 'marking'], ['Students', 'people']]) },
+      ia: { ws: 'Institute Admin', inst: GIT, person: 'Meera Iyer', initials: 'MI', nav: N([['Overview', 'overview'], ['Content access', 'caccess'], ['Student access', 'saccess'], ['People', 'people'], ['Requests', 'requests'], ['Usage', 'usage']]) },
+      ve: { ws: 'Vendor', inst: 'Northline Simulation Studio', person: 'Anil Shetty', initials: 'AS', nav: N([['Overview', 'overview'], ['My experiments', 'exps']]) },
+      cm: { ws: 'Content Manager', inst: '', person: 'Kavya Nair', initials: 'KN', nav: N([['Overview', 'overview'], ['Ready to publish', 'publish'], ['Content library', 'library'], ['Updates', 'updates'], ['Course codes', 'codes']]) }
+    };
+    const OPEN = { cls: 'xr-status--info', icon: 'M7 7h11l-3-3M17 17H6l3 3', status: 'Open' };
+    const REOPENED = { cls: 'xr-status--info', icon: 'M20 12a8 8 0 1 1-2.4-5.7M20 4v4.5h-4.5', status: 'Reopened' };
+    const RESOLVED = { cls: 'xr-status--ok', icon: 'M5 12.5l4.5 4.5L19 7.5', status: 'Resolved' };
+    const base = { isForm: false, isError: false, isSending: false, notSending: true, isSent: false, isList: false, isDetail: false, hasReports: false, isEmpty: false, deep: false, whatVal: '', whatInvalid: 'false', whereVal: 'Shell-and-Tube Heat Exchanger · VR', reports: [], d: { history: [] } };
+    const fr = (id, who, w, h, label, note, extra) => {
+      const o = Object.assign({}, base, W[who], { id, w, h, outerW: w + 2, label, note }, extra);
+      o.hasInst = !!o.inst;
+      return o;
+    };
+    const frames = [
+      fr('s1', 'st', 1280, 940, 'State 1 · Report a problem · Student', 'Reached from Help in the sidebar or the account menu. “Where” is pre-filled from the page the person came from.', { isForm: true, deep: true, title: 'Report a problem' }),
+      fr('s2', 'st', 1280, 940, 'State 1a · Validation', 'Submitted without saying what happened: a summary at the top links to the field; the field explains the fix.', { isForm: true, isError: true, whatInvalid: 'true', deep: true, title: 'Report a problem' }),
+      fr('s3', 'st', 1280, 940, 'State 1b · Sending', 'The primary button shows progress in words. Nothing else moves.', { isForm: true, isSending: true, notSending: false, whatVal: 'The VR simulation stopped loading at the second step.', deep: true, title: 'Report a problem' }),
+      fr('s4', 'st', 1280, 940, 'State 1c · Sent · reference', 'An AR-10 confirmation in place: reference number and where to follow it. No promise of when or by whom.', { isSent: true, deep: true, title: 'Report sent' }),
+      fr('s5', 'ia', 1280, 760, 'State 2 · My reports · open / reopened / resolved · Institute Admin', 'The Help landing is the person’s own reports. Rows open the report. Status in words.', { isList: true, hasReports: true, countText: '3 reports', title: 'Help & support', reports: [
+        Object.assign({ id: 'SUP-0211', title: 'Student import stopped part-way', sub: 'sent 1 Oct · reopened 6 Oct' }, REOPENED),
+        Object.assign({ id: 'SUP-0209', title: 'Usage page took a long time to load', sub: 'sent 30 Sep' }, OPEN),
+        Object.assign({ id: 'SUP-0189', title: 'Group name didn’t save', sub: 'sent 15 Sep · resolved 18 Sep' }, RESOLVED)
+      ] }),
+      fr('s6', 've', 1280, 760, 'State 2a · My reports · empty · Vendor', 'With nothing to list, the primary action moves into the empty state.', { isList: true, isEmpty: true, title: 'Help & support' }),
+      fr('s7', 'fa', 1280, 1060, 'State 3 · Report detail · resolved with note · Faculty', 'The resolution note is the first thing on the page. History comes last.', { isDetail: true, deep: true, title: 'SUP-0198', d: Object.assign({ id: 'SUP-0198', title: 'Lab brief link opened a blank page', sent: '21 Sep', isResolved: true, isReopened: false, resolved: '23 Sep', note: '“The lab brief link was updated. It now opens the brief in a new tab.”', what: 'The lab brief link on the Resources tab opened a blank page.', where: 'ME ZG523 · Shell-and-Tube Heat Exchanger · Resources', shot: 'blank-page.png', history: [
+        { what: 'Resolved', when: '23 Sep · resolution note added', cls: 'is-latest' }, { what: 'Sent', when: '21 Sep', cls: '' }
+      ] }, RESOLVED) }),
+      fr('s8', 'cm', 1280, 1060, 'State 3a · Report detail · reopened · Content Manager', 'Reopened reads as open again, with the earlier resolution kept in the history.', { isDetail: true, deep: true, title: 'SUP-0207', d: Object.assign({ id: 'SUP-0207', title: 'Delivery link preview showed an empty frame', sent: '28 Sep', isResolved: false, isReopened: true, reopened: '6 Oct', what: 'The preview of the WEB delivery link showed an empty frame.', where: 'Content library · Forced Convection', shot: 'No screenshot added', history: [
+        { what: 'Reopened', when: '6 Oct', cls: 'is-latest' }, { what: 'Resolved', when: '30 Sep · “The preview now loads. Please try again.”', cls: '' }, { what: 'Sent', when: '28 Sep', cls: '' }
+      ] }, REOPENED) }),
+      fr('m1', 'st', 375, 1060, 'Phone · 375 · Report a problem', 'Single column; actions stack full width; the top bar keeps the title and account.', { isForm: true, deep: true, title: 'Report a problem' }),
+      fr('m2', 'st', 375, 980, 'Phone · 375 · My reports', 'Rows wrap: status moves under the title.', { isList: true, hasReports: true, countText: '1 report', title: 'Help & support', reports: [
+        Object.assign({ id: 'SUP-0213', title: 'VR simulation stopped loading at step 2', sub: 'sent 3 Oct' }, OPEN)
+      ] })
+    ];
+    return { frames };
+  }
+}
+</script>
+</body>
+</html>

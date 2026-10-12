@@ -1,0 +1,115 @@
+{
+ "about": "Sidebar / header destinations per role, in order, and what is reached from them (Inventory §K as designed). A sidebar item exists only when its screen exists.",
+ "generated": "Batch 8 · built on the approved v45 baseline · generated from the approved boards; the boards win on any difference",
+ "roles": [
+  {
+   "surface": "Public header",
+   "baseRoute": "/",
+   "primary": [
+    "Browse experiments → PU-04",
+    "Areas → PU-02",
+    "For institutions → PU-01 section",
+    "Selection (n) → PU-07",
+    "Sign in → XS-01",
+    "Request access → PU-08"
+   ],
+   "reachedFrom": "Area · Course · Experiment · Selection → Request → Sent → Status → Payment · Not found"
+  },
+  {
+   "surface": "Student",
+   "baseRoute": "/student",
+   "primary": [
+    "Home",
+    "My courses",
+    "Assessments",
+    "Progress",
+    "Help (foot)"
+   ],
+   "reachedFrom": "Experiment hub tabs: Overview · Resources · Simulation · Assessment · Progress · WEB / AR / VR / MR format · Assessment intro → Attempt → Result · Format feedback · My device (account menu)"
+  },
+  {
+   "surface": "Faculty",
+   "baseRoute": "/faculty",
+   "primary": [
+    "Overview",
+    "My courses",
+    "Assessments",
+    "Question bank",
+    "Marking",
+    "Students",
+    "Help (foot)"
+   ],
+   "reachedFrom": "Course · Experiment · Create assessment (4 steps) · Assessment tabs: Summary · Questions · Settings · Preview · Submissions · Add / edit question · Draft with assistance · Import · Mark a submission · Student detail"
+  },
+  {
+   "surface": "Institute Admin",
+   "baseRoute": "/institute",
+   "primary": [
+    "Overview",
+    "Content access",
+    "Student access",
+    "People",
+    "Requests",
+    "Usage",
+    "Help (foot)"
+   ],
+   "reachedFrom": "Content access › Course codes tab · Access plan · Give students access (guided) · People tabs: Students · Faculty · Groups · Faculty courses · records · Add · Import · Requests tabs: Requests to BITS · Device requests · Device request"
+  },
+  {
+   "surface": "Vendor",
+   "baseRoute": "/vendor",
+   "primary": [
+    "Overview",
+    "My experiments",
+    "Help (foot)"
+   ],
+   "reachedFrom": "Create experiment (4 steps; same editor for drafts) · Experiment record + history · Revise & resubmit"
+  },
+  {
+   "surface": "Academic Reviewer",
+   "baseRoute": "/reviewer",
+   "primary": [
+    "Overview",
+    "Review queue",
+    "Reviewed by me",
+    "Help (foot)"
+   ],
+   "reachedFrom": "Review a submission · Review an update (decided items read-only)"
+  },
+  {
+   "surface": "Content Manager",
+   "baseRoute": "/content-manager",
+   "primary": [
+    "Overview",
+    "Ready to publish",
+    "Content library",
+    "Updates",
+    "Course codes",
+    "Help (foot)"
+   ],
+   "reachedFrom": "Publication decision · Published experiment · correction draft (from Edit catalogue details / Edit delivery link) · Correction detail"
+  },
+  {
+   "surface": "Super Admin",
+   "baseRoute": "/admin",
+   "primary": [
+    "Overview",
+    "Requests",
+    "Institutions",
+    "Content (tabs: Updates · All content)",
+    "Academic structure",
+    "Platform roles",
+    "Operations (tabs: Device transfers · Support · Access ending)",
+    "Help (foot)"
+   ],
+   "reachedFrom": "Request decision · Institution detail · Release or hold · Content record · Area / course record · Role holder · Device transfer decision · Support report"
+  }
+ ],
+ "rules": [
+  "Help & support sits at the foot of every workspace sidebar (WCAG 3.2.6).",
+  "Below 1024 px of app width the sidebar becomes a Menu button.",
+  "Cross-role movement only through shared public pages (request status) and Help & support.",
+  "No link to removed or deferred destinations (B8-01 list).",
+  "A role opening another role's workspace sees XS-06 “Not your workspace”."
+ ]
+}

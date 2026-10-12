@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09b · Archetypes AR-6 to AR-10</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1440px; min-height: 6400px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Deliverable F · Board 09b · §C.13</span>
+    <h1 class="doc-title">Page archetypes AR-6 to AR-10</h1>
+    <p class="doc-sub">Focused task, record hub, form, public editorial and message. Same rules as 09a: structure, not stamped templates; examples are labelled and approve nothing in later batches.</p>
+  </header>
+
+  <div class="doc-body">
+
+    <!-- AR-6 -->
+    <section class="doc-sec" aria-labelledby="h-ar6">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-6 · used by sign in, assessment attempt, format feedback, payment</span>
+        <h2 id="h-ar6" class="doc-sec-title">Focused task — “Let me finish this one thing.”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div class="doc-card" style="display: flex; gap: 16px; padding: 18px">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 10px 26px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="height: 8px; width: 30%; background: #1F4FD8; border-radius: 2px"></span>
+              <span style="height: 14px; width: 70%; background: #141B5E; border-radius: 2px"></span>
+              <span style="height: 18px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 3px"></span>
+              <span style="height: 18px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 3px"></span>
+              <span style="height: 18px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 3px"></span>
+              <span style="height: 10px; width: 40%; align-self: flex-end; background: #E9A825; border-radius: 2px"></span>
+            </div>
+          </div>
+          <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+            <dt>Structure</dt><dd>Minimal chrome — a slim bar with the way out and the account; no sidebar. Single 720 px column: what, the task, one submit.</dd>
+            <dt style="margin-top: 10px">Rules</dt><dd>Nothing else competes for attention. Leaving keeps what can be kept and says so.</dd>
+            <dt style="margin-top: 10px">Responsive</dt><dd>Full width at 375 px; scales become a vertical list with every point labelled.</dd>
+            <dt style="margin-top: 10px">State shown</dt><dd>Partly answered; failed + retry (inset).</dd>
+          </dl>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · Student content (§P) · not the ST-F7 design</span>
+          <div class="doc-frame">
+            <div style="height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3"><a class="xr-back" href="#h-ar6"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Shell-and-Tube Heat Exchanger</a><span class="xr-avatar" aria-hidden="true">RV</span></div>
+            <div class="xr-content" style="padding: 36px 32px 44px">
+              <div class="xr-wrap--form" style="display: flex; flex-direction: column; gap: 24px">
+                <div style="display: flex; flex-direction: column; gap: 8px">
+                  <span class="xr-overline">Give feedback</span>
+                  <h3 class="xr-h1" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">Shell-and-Tube Heat Exchanger <span class="xr-fmt xr-fmt--yours"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span></h3>
+                  <p class="xr-lead">Your feedback helps improve this experience.</p>
+                </div>
+                <fieldset class="xr-fieldset" style="gap: 10px">
+                  <legend class="xr-legend" style="font-size: 16px; line-height: 24px">1. This experience helped me understand the concept.</legend>
+                  <div class="xr-scale">
+                    <label><input type="radio" name="ar6-q1"><span class="xr-scale-n">1</span>Strongly disagree</label>
+                    <label><input type="radio" name="ar6-q1"><span class="xr-scale-n">2</span>Disagree</label>
+                    <label><input type="radio" name="ar6-q1"><span class="xr-scale-n">3</span>Neither agree nor disagree</label>
+                    <label><input type="radio" name="ar6-q1" checked="{{ true }}"><span class="xr-scale-n">4</span>Agree</label>
+                    <label><input type="radio" name="ar6-q1"><span class="xr-scale-n">5</span>Strongly agree</label>
+                  </div>
+                </fieldset>
+                <fieldset class="xr-fieldset" style="gap: 10px">
+                  <legend class="xr-legend" style="font-size: 16px; line-height: 24px">2. The instructions were clear and easy to follow.</legend>
+                  <div class="xr-scale">
+                    <label><input type="radio" name="ar6-q2"><span class="xr-scale-n">1</span>Strongly disagree</label>
+                    <label><input type="radio" name="ar6-q2"><span class="xr-scale-n">2</span>Disagree</label>
+                    <label><input type="radio" name="ar6-q2"><span class="xr-scale-n">3</span>Neither agree nor disagree</label>
+                    <label><input type="radio" name="ar6-q2"><span class="xr-scale-n">4</span>Agree</label>
+                    <label><input type="radio" name="ar6-q2" checked="{{ true }}"><span class="xr-scale-n">5</span>Strongly agree</label>
+                  </div>
+                </fieldset>
+                <fieldset class="xr-fieldset" style="gap: 10px">
+                  <legend class="xr-legend" style="font-size: 16px; line-height: 24px">3. The simulation was easy to use and interact with.</legend>
+                  <div class="xr-scale">
+                    <label><input type="radio" name="ar6-q3"><span class="xr-scale-n">1</span>Strongly disagree</label>
+                    <label><input type="radio" name="ar6-q3"><span class="xr-scale-n">2</span>Disagree</label>
+                    <label><input type="radio" name="ar6-q3"><span class="xr-scale-n">3</span>Neither agree nor disagree</label>
+                    <label><input type="radio" name="ar6-q3"><span class="xr-scale-n">4</span>Agree</label>
+                    <label><input type="radio" name="ar6-q3"><span class="xr-scale-n">5</span>Strongly agree</label>
+                  </div>
+                </fieldset>
+                <p class="xr-meta">Statements 4 and 5 follow the same pattern.</p>
+                <div class="xr-field"><label class="xr-label" for="ar6-c">Anything else? <span class="xr-opt">(optional)</span></label><textarea id="ar6-c" class="xr-textarea" style="min-height: 104px"></textarea></div>
+                <div style="display: flex; flex-wrap: wrap-reverse; gap: 12px; justify-content: flex-end"><a class="xr-btn xr-btn--text" href="#h-ar6">Cancel</a><button type="button" class="xr-btn xr-btn--primary">Submit feedback</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="doc-frame" style="max-width: 720px">
+            <div style="padding: 20px 24px">
+              <div class="xr-notice xr-notice--err" role="alert"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">Your feedback didn’t send. Nothing was lost.</span><span>Your answers are still here. Try again.</span><div class="xr-notice-actions"><button type="button" class="xr-btn xr-btn--secondary xr-btn--sm"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v4.5h-4.5"></path></svg>Try again</button></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AR-7 -->
+    <section class="doc-sec" aria-labelledby="h-ar7">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-7 · used by Student experiment hub, Faculty assessment</span>
+        <h2 id="h-ar7" class="doc-sec-title">Record hub with tabs — “Everything about this one thing.”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div class="doc-card" style="display: flex; gap: 16px; padding: 18px">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 0; border: 1px solid #E1E4F3; border-radius: 6px; overflow: hidden; background: #F4F5FB">
+              <span style="display: flex; flex-direction: column; gap: 5px; padding: 10px; background: #141B5E"><span style="height: 6px; width: 30%; background: #C9CEF2; border-radius: 2px"></span><span style="height: 12px; width: 60%; background: #FFFFFF; border-radius: 2px"></span><span style="display: flex; gap: 3px"><span style="height: 8px; width: 18px; border: 1px solid #FFFFFF; border-radius: 2px"></span><span style="height: 8px; width: 18px; border: 1px solid #FFFFFF; border-radius: 2px"></span></span></span>
+              <span style="display: flex; gap: 6px; padding: 6px 10px 0; background: #FFFFFF; border-bottom: 1px solid #E1E4F3"><span style="height: 8px; width: 34px; border-bottom: 2px solid #E9A825"></span><span style="height: 8px; width: 30px"></span><span style="height: 8px; width: 30px"></span></span>
+              <span style="margin: 8px 10px 10px; height: 54px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span>
+            </div>
+          </div>
+          <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+            <dt>Structure</dt><dd>Compact navy header band (B2) with the record’s identity and one next step · tabs for this one record · tab content in stacked sections.</dd>
+            <dt style="margin-top: 10px">Rules</dt><dd>Tabs only inside one record. Progress per format in words; no percentage, no overall verdict.</dd>
+            <dt style="margin-top: 10px">Responsive</dt><dd>Header wraps; tabs scroll horizontally with the current tab kept in view; the next step goes full width.</dd>
+            <dt style="margin-top: 10px">State shown</dt><dd>WEB completed (feedback open), VR in progress, AR not included.</dd>
+          </dl>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · Student content · not the ST-F3 design</span>
+          <div class="doc-frame" style="background: #FFFFFF">
+            <div class="xr-dark" style="background: #141B5E; color: #FFFFFF; padding: 28px 32px 24px; display: flex; flex-direction: column; gap: 10px">
+              <a href="#h-ar7" style="display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; color: #C9CEF2; text-decoration: none"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px"><path d="M14.5 6 8.5 12l6 6"></path></svg>My courses</a>
+              <span style="font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #F7C95B">ME ZG523 · Thermodynamics &amp; Heat Transfer</span>
+              <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+                <div style="display: flex; flex-direction: column; gap: 10px">
+                  <h3 style="font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -.015em; color: #FFFFFF">Shell-and-Tube Heat Exchanger</h3>
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+                    <span class="xr-fmt xr-fmt--on-dark"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span>
+                    <span class="xr-fmt xr-fmt--on-dark"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span>
+                    <span style="font-size: 14px; color: #C9CEF2">available to you</span>
+                    <span class="xr-fmt" style="background: transparent; border: 1px dashed rgba(255,255,255,.55); color: #C9CEF2"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5V2.5h2.5M11.5 2.5H14V5M14 11v2.5h-2.5M4.5 13.5H2V11M8 5.3l2.6 1.5v2.9L8 11.2 5.4 9.7V6.8z"></path></svg>AR</span>
+                    <span style="font-size: 14px; color: #C9CEF2">not included for your institution</span>
+                  </div>
+                </div>
+                <a class="xr-btn xr-btn--primary" href="#h-ar7">Continue with VR</a>
+              </div>
+            </div>
+            <div style="padding: 0 32px; background: #FFFFFF">
+              <div class="xr-tabs xr-tabs--on-white" role="tablist" aria-label="Shell-and-Tube Heat Exchanger" style="border-bottom: 0">
+                <button type="button" class="xr-tab" role="tab" aria-selected="true">Overview</button>
+                <button type="button" class="xr-tab" role="tab" aria-selected="false">Resources</button>
+                <button type="button" class="xr-tab" role="tab" aria-selected="false">Simulation</button>
+                <button type="button" class="xr-tab" role="tab" aria-selected="false">Assessment</button>
+                <button type="button" class="xr-tab" role="tab" aria-selected="false">Progress</button>
+              </div>
+            </div>
+            <div class="xr-content" style="padding: 28px 32px 40px; background: #F4F5FB; border-top: 1px solid #E1E4F3">
+              <div class="xr-stack">
+                <section class="xr-section" aria-labelledby="ar7-f">
+                  <div class="xr-section-head"><h4 id="ar7-f" class="xr-h2">Your formats</h4></div>
+                  <ul class="xr-rows">
+                    <li class="xr-row"><div class="xr-row-main"><span class="xr-fmt xr-fmt--yours"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span><div class="xr-row-text"><span class="xr-row-title">Browser</span><span class="xr-row-sub">Completed 12 Sep</span></div></div><div class="xr-row-end"><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Completed</span><a class="xr-btn xr-btn--secondary xr-btn--sm" href="#h-ar7">Give feedback on WEB</a></div></li>
+                    <li class="xr-row"><div class="xr-row-main"><span class="xr-fmt xr-fmt--yours"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span><div class="xr-row-text"><span class="xr-row-title">Virtual reality</span><span class="xr-row-sub">Last opened 3 Oct</span></div></div><div class="xr-row-end"><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>In progress</span><a class="xr-btn xr-btn--text" href="#h-ar7">Open VR</a></div></li>
+                    <li class="xr-row"><div class="xr-row-main"><span class="xr-fmt xr-fmt--off"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5V2.5h2.5M11.5 2.5H14V5M14 11v2.5h-2.5M4.5 13.5H2V11M8 5.3l2.6 1.5v2.9L8 11.2 5.4 9.7V6.8z"></path></svg>AR</span><div class="xr-row-text"><span class="xr-row-title">Augmented reality</span><span class="xr-row-sub">Not included for your institution</span></div></div></li>
+                  </ul>
+                </section>
+                <section class="xr-section" aria-labelledby="ar7-lo">
+                  <div class="xr-section-head"><h4 id="ar7-lo" class="xr-h2">Learning outcomes</h4></div>
+                  <div class="xr-section-body"><ol class="doc-list" style="color: #12173F; font-size: 16px; line-height: 24px"><li>Relate flow arrangement to the temperature profile along the exchanger.</li><li>Estimate the overall heat-transfer coefficient from measured temperatures.</li><li>Explain how fouling changes exchanger performance.</li></ol></div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AR-8 -->
+    <section class="doc-sec" aria-labelledby="h-ar8">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-8 · used by add person, question editor, correction draft, Help report</span>
+        <h2 id="h-ar8" class="doc-sec-title">Form / editor — “Enter this correctly, once.”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div class="doc-card" style="display: flex; gap: 16px; padding: 18px">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 10px 30px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="height: 6px; width: 25%; background: #1F4FD8; border-radius: 2px"></span>
+              <span style="height: 12px; width: 55%; background: #141B5E; border-radius: 2px"></span>
+              <span style="height: 14px; background: #FDECEA; border-radius: 3px"></span>
+              <span style="height: 60px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span>
+              <span style="height: 34px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span>
+              <span style="height: 10px; width: 36%; align-self: flex-end; background: #E9A825; border-radius: 2px"></span>
+            </div>
+          </div>
+          <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+            <dt>Structure</dt><dd>Back link · title · error summary (after submit) · sections of fields in one 720 px column · actions at the end.</dd>
+            <dt style="margin-top: 10px">Rules</dt><dd>Labels above fields; required unless “optional”; errors under the field in words; no placeholder-only labels.</dd>
+            <dt style="margin-top: 10px">Responsive</dt><dd>Already single column; actions stack full width on phones.</dd>
+            <dt style="margin-top: 10px">State shown</dt><dd>Submitted with one invalid field.</dd>
+          </dl>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · Institute Admin content · not the IA-F4 design</span>
+          <div class="doc-frame">
+            <div style="height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3"><ol class="xr-crumbs" style="display: flex"><li><a href="#h-ar8">People</a><span class="xr-crumb-sep" aria-hidden="true">/</span></li><li><span aria-current="page">Add a person</span></li></ol><span class="xr-avatar" aria-hidden="true">MI</span></div>
+            <div class="xr-content" style="padding: 28px 32px 44px">
+              <div class="xr-wrap--form" style="margin: 0">
+                <a class="xr-back" href="#h-ar8" style="margin-bottom: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>People</a>
+                <div class="xr-phead"><div class="xr-phead-main"><h3 class="xr-h1">Add a person</h3></div></div>
+                <div class="xr-notice xr-notice--err" role="alert" style="margin-bottom: 20px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">One thing needs fixing</span><a href="#ar8-e">Enter a full e-mail address</a></div></div>
+                <div class="xr-stack">
+                  <section class="xr-section" aria-labelledby="ar8-who" style="padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 20px">
+                    <h4 id="ar8-who" class="xr-h3">Who they are</h4>
+                    <div class="xr-field"><label class="xr-label" for="ar8-n">Full name</label><input id="ar8-n" class="xr-input" type="text" value="Priya Natarajan"></div>
+                    <div class="xr-field"><label class="xr-label" for="ar8-e">Institution e-mail</label><input id="ar8-e" class="xr-input" type="email" value="priya.n@godavari" aria-invalid="true" aria-describedby="ar8-e-err"><span id="ar8-e-err" class="xr-error"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>Enter a full e-mail address, like name@institution.edu</span></div>
+                    <fieldset class="xr-fieldset"><legend class="xr-legend">Role</legend><label class="xr-check"><input type="radio" name="ar8-r" checked="{{ true }}">Student</label><label class="xr-check"><input type="radio" name="ar8-r">Faculty</label></fieldset>
+                  </section>
+                  <section class="xr-section" aria-labelledby="ar8-pl" style="padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 20px">
+                    <h4 id="ar8-pl" class="xr-h3">Student details</h4>
+                    <div class="xr-field"><label class="xr-label" for="ar8-id">Student ID</label><input id="ar8-id" class="xr-input" type="text" value="GIT-2026-0431"></div>
+                    <div class="xr-field"><label class="xr-label" for="ar8-g">Group <span class="xr-opt">(optional)</span></label><div class="xr-select-wrap"><select id="ar8-g" class="xr-select"><option>ME ZG523 · Sem II · Section A</option><option>No group</option></select><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></div></div>
+                  </section>
+                  <div style="display: flex; flex-wrap: wrap-reverse; gap: 12px; justify-content: flex-end"><a class="xr-btn xr-btn--text" href="#h-ar8">Cancel</a><button type="button" class="xr-btn xr-btn--primary">Add person</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AR-9 -->
+    <section class="doc-sec" aria-labelledby="h-ar9">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-9 · used by landing, areas, course, experiment (public)</span>
+        <h2 id="h-ar9" class="doc-sec-title">Public editorial — “What is this, and how do I get in?”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+            <dt>Structure</dt><dd>B2 public composition kept: strong BITS / WILP identity, navy hero, content-led sections at 64–80 px rhythm.</dd>
+            <dt style="margin-top: 10px">Rules</dt><dd>One primary action per section. No “academically reviewed” seals. Concept imagery labelled “Illustration”; pattern fallback where no artwork exists. No auto-advance; long scroll runways shortened.</dd>
+            <dt style="margin-top: 10px">Responsive</dt><dd>Header collapses to a menu below 1024 px (B2 hid it — fixed in Batch 1); hero actions stack; illustration moves below the text.</dd>
+            <dt style="margin-top: 10px">State shown</dt><dd>Hero + one supporting section.</dd>
+          </dl>
+          <div class="xr-notice xr-notice--quiet" role="note"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5.5M12 7.5h.01"></path></svg><div class="xr-notice-body"><span>The public landing, header, explorer and catalogue are Batch 1. This only shows how AR-9 inherits the Batch-0 tokens.</span></div></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · public content · not the PU-F1 design</span>
+          <div class="doc-frame" style="background: #FFFFFF">
+            <div style="height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 32px; background: #0C1247; border-bottom: 1px solid #1B2470">
+              <div class="xr-logo-ph" style="min-height: 40px; width: 210px">BITS Pilani / WILP logo — placeholder</div>
+              <span class="doc-example-tag" style="background: transparent; color: #C9CEF2; border-color: #8592E6">Public header · Batch 1</span>
+            </div>
+            <div class="xr-dark" style="background: #0C1247; color: #FFFFFF; padding: 56px 48px 64px; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 40px; align-items: center">
+              <div style="display: flex; flex-direction: column; gap: 20px">
+                <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #F7C95B">XR Learning Platform</span>
+                <h3 style="font-size: 44px; line-height: 52px; font-weight: 700; letter-spacing: -.02em; color: #FFFFFF">Set the conditions. See what follows. Understand why.</h3>
+                <p style="font-size: 18px; line-height: 28px; color: #C9CEF2">Engineering experiments as simulations, in the browser and in AR, VR and MR where an experiment offers them.</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center"><a class="xr-btn xr-btn--primary" href="#h-ar9">Browse experiments</a><a href="#h-ar9" style="color: #FFFFFF; font-weight: 600">Already have access? Sign in</a></div>
+              </div>
+              <figure style="display: flex; flex-direction: column; gap: 8px">
+                <svg viewBox="0 0 300 220" role="img" aria-label="Illustration: line drawing of a tube bundle inside a shell" style="width: 100%; height: auto; display: block">
+                  <rect x="1" y="1" width="298" height="218" rx="8" fill="#141B5E" stroke="#2A3390"></rect>
+                  <path d="M20 40h260M20 80h260M20 120h260M20 160h260M20 200h260M60 20v190M120 20v190M180 20v190M240 20v190" stroke="#1B2470" stroke-width="1"></path>
+                  <rect x="40" y="70" width="220" height="80" rx="40" fill="none" stroke="#8592E6" stroke-width="2"></rect>
+                  <path d="M56 92h188M56 110h188M56 128h188" stroke="#C9CEF2" stroke-width="1.5" stroke-dasharray="6 6"></path>
+                  <path d="M150 40v30M150 150v30" stroke="#35C0DE" stroke-width="2"></path>
+                  <path d="M144 46l6-8 6 8M144 174l6 8 6-8" fill="none" stroke="#35C0DE" stroke-width="2"></path>
+                </svg>
+                <figcaption style="font-size: 13px; line-height: 18px; color: #C9CEF2">Illustration · pattern fallback, not a simulation capture</figcaption>
+              </figure>
+            </div>
+            <div style="padding: 48px; display: flex; flex-direction: column; gap: 24px">
+              <h4 class="xr-h2" style="font-size: 26px; line-height: 34px">For institutions</h4>
+              <ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px">
+                <li style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 3px solid #141B5E"><span class="xr-overline" style="color: #40476B">Step 1</span><span class="xr-h3">Browse and select</span></li>
+                <li style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 3px solid #141B5E"><span class="xr-overline" style="color: #40476B">Step 2</span><span class="xr-h3">Request access</span></li>
+                <li style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 3px solid #141B5E"><span class="xr-overline" style="color: #40476B">Step 3</span><span class="xr-h3">BITS reviews — payment where applicable</span></li>
+                <li style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 3px solid #141B5E"><span class="xr-overline" style="color: #40476B">Step 4</span><span class="xr-h3">Your administrator gives students access</span></li>
+              </ol>
+              <a class="xr-btn xr-btn--secondary" href="#h-ar9" style="align-self: flex-start">Request institutional access</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AR-10 -->
+    <section class="doc-sec" aria-labelledby="h-ar10">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-10 · used by not found, not your workspace, not available, sent confirmations</span>
+        <h2 id="h-ar10" class="doc-sec-title">Message page — “What happened, and where now?”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+          <dt>Structure</dt><dd>One icon · one H1 · one sentence · one primary action · optional Help. Inside the normal shell or public header.</dd>
+          <dt style="margin-top: 10px">Full family</dt><dd>Board 08 (GL-04) shows all eight variants and the 375 px version.</dd>
+          <dt style="margin-top: 10px">State shown</dt><dd>Public confirmation with a reference.</dd>
+        </dl>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · public content · not the PU-F5 design</span>
+          <div class="doc-frame">
+            <div style="height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 32px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3"><div class="xr-logo-ph" style="min-height: 40px; width: 210px">BITS Pilani / WILP logo — placeholder</div><span class="doc-example-tag">Public header · Batch 1</span></div>
+            <div style="padding: 48px 48px 56px">
+              <div class="xr-msg" style="margin: 0">
+                <span class="xr-msg-icon" style="background: #E8F4EC; color: #1D6B45"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+                <h3 class="xr-msg-title">Request sent</h3>
+                <p class="xr-body" style="color: #40476B">Your reference is <span class="xr-id">REQ-0042</span>. Use it to check the status of your request at any time.</p>
+                <div class="xr-msg-actions"><a class="xr-btn xr-btn--primary" href="#h-ar10">Check request status</a><a href="#h-ar10">Browse experiments</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":6400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

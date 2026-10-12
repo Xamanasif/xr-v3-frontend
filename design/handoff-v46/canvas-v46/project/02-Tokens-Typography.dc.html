@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Tokens and Typography</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1440px; min-height: 3600px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Deliverable A · Board 02</span>
+    <h1 class="doc-title">Tokens and typography</h1>
+    <p class="doc-sub">One set of named tokens. Body text at 16 px, real content never below 14 px, nothing functional below 12 px. The typeface is a working choice, swappable in one place.</p>
+  </header>
+
+  <div class="doc-body">
+
+    <section class="doc-sec" aria-labelledby="h-face">
+      <div class="doc-sec-head">
+        <h2 id="h-face" class="doc-sec-title">Typeface</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 24px; align-items: stretch">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 14px">
+          <span class="doc-label">Working typeface · from B2</span>
+          <p style="font-size: 64px; line-height: 72px; font-weight: 700; letter-spacing: -.02em; color: #141B5E">Public Sans</p>
+          <p style="font-size: 22px; line-height: 32px; color: #40476B">Shell-and-Tube Heat Exchanger · ME ZG523 · 0123456789</p>
+          <div style="display: flex; gap: 28px; flex-wrap: wrap; font-size: 18px; color: #12173F">
+            <span style="font-weight: 400">Regular 400</span><span style="font-weight: 500">Medium 500</span><span style="font-weight: 600">Semibold 600</span><span style="font-weight: 700">Bold 700</span>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div class="xr-notice xr-notice--warn" role="note">
+            <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.8 19.5h18.4zM12 10v4M12 17h.01"></path></svg>
+            <div class="xr-notice-body"><span class="xr-notice-title">Not the official WILP font</span><span>The official WILP product font is not confirmed. Public Sans is the working face carried from B2. Replace it by changing <span class="xr-id">--xr-font-sans</span> only.</span></div>
+          </div>
+          <div class="doc-card" style="display: flex; flex-direction: column; gap: 8px">
+            <span class="doc-label">Reference IDs</span>
+            <p style="font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 16px; color: #40476B">REQ-0042 · SACC-0310 · UPD-0005</p>
+            <p class="doc-note">System monospace for record IDs only. No extra font download.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-scale">
+      <div class="doc-sec-head">
+        <h2 id="h-scale" class="doc-sec-title">Type scale</h2>
+        <p class="doc-sec-note">Sizes are px / line-height. Below 600 px, H1 becomes 26 / 34 and H2 20 / 28; everything else holds.</p>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th style="width: 160px">Token</th><th>Specimen</th><th style="width: 130px">Size · weight</th><th style="width: 280px">Use</th><th style="width: 200px">From B2</th></tr></thead>
+          <tbody>
+            <tr><td class="xr-id">display</td><td><span class="xr-display">Engineering, made visible</span></td><td>44 / 52 · 700</td><td>Public hero only (AR-9)</td><td><span class="doc-tag doc-tag--adjust">Adjust</span> <span class="xr-sub">real px, not scaled canvas</span></td></tr>
+            <tr><td class="xr-id">h1</td><td><span class="xr-h1">Give students access</span></td><td>32 / 40 · 700</td><td>One page title per screen</td><td><span class="doc-tag doc-tag--adjust">Adjust</span> <span class="xr-sub">B2 34 px home title</span></td></tr>
+            <tr><td class="xr-id">h2</td><td><span class="xr-h2">Needs your attention</span></td><td>22 / 30 · 700</td><td>Section titles</td><td><span class="doc-tag doc-tag--keep">Keep</span></td></tr>
+            <tr><td class="xr-id">h3</td><td><span class="xr-h3">Learning outcomes</span></td><td>18 / 26 · 600</td><td>Sub-sections, panel titles</td><td><span class="doc-tag doc-tag--keep">Keep</span></td></tr>
+            <tr><td class="xr-id">lead</td><td><span class="xr-lead">Choose the experiments to give, then the students.</span></td><td>18 / 28 · 400</td><td>One intro line under an H1</td><td><span class="doc-tag doc-tag--new">New</span></td></tr>
+            <tr><td class="xr-id">body</td><td><span class="xr-body">Your institution’s access to this experiment includes WEB and VR.</span></td><td>16 / 24 · 400</td><td>All reading text</td><td><span class="doc-tag doc-tag--adjust">Adjust</span> <span class="xr-sub">B2 13.5–15 px</span></td></tr>
+            <tr><td class="xr-id">label</td><td><span class="xr-label">What happened?</span></td><td>15 / 20 · 600</td><td>Form labels, nav items, buttons</td><td><span class="doc-tag doc-tag--adjust">Adjust</span> <span class="xr-sub">B2 13–14 px</span></td></tr>
+            <tr><td class="xr-id">small</td><td><span class="xr-small">Sent 3 Oct · reference SUP-0213</span></td><td>14 / 20 · 400</td><td>Secondary row text, table cells</td><td><span class="doc-tag doc-tag--adjust">Adjust</span> <span class="xr-sub">B2 12.5–13.5 px</span></td></tr>
+            <tr><td class="xr-id">meta</td><td><span class="xr-meta">Last changed by Kavya Nair · 2 Oct</span></td><td>14 / 20 · ink 3</td><td>Metadata, hints, timestamps</td><td><span class="doc-tag doc-tag--replace">Replace</span> <span class="xr-sub">B2 10.5–12.5 px in #8C93BF</span></td></tr>
+            <tr><td class="xr-id">overline</td><td><span class="xr-overline">Institute Admin</span></td><td>13 / 16 · 700 · caps</td><td>Workspace label, short kickers</td><td><span class="doc-tag doc-tag--adjust">Adjust</span> <span class="xr-sub">B2 10–10.5 px</span></td></tr>
+            <tr><td class="xr-id">chip</td><td><span class="xr-fmt">VR</span></td><td>13 · 700 (compact 12)</td><td>Format chips</td><td><span class="doc-tag doc-tag--adjust">Adjust</span> <span class="xr-sub">B2 10–11 px</span></td></tr>
+            <tr><td class="xr-id">caption</td><td><span class="xr-caption">Illustration</span></td><td>13 / 18 · 400</td><td>Image labels only — never functional</td><td><span class="doc-tag doc-tag--keep">Keep</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-hier">
+      <div class="doc-sec-head">
+        <h2 id="h-hier" class="doc-sec-title">Hierarchy in use</h2>
+        <p class="doc-sec-note">One H1, a short meta line, sections with H2. Short sentences in plain words.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 20px; padding: 32px">
+          <a class="xr-back" href="#h-hier"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Content access</a>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span class="xr-id">ACC-0107</span>
+            <h3 class="xr-h1">Access plan · Godavari Institute of Technology</h3>
+            <p class="xr-meta">Sample data · term 1 Jul 2026 – 30 Jun 2027</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <h4 class="xr-h2">Experiments in this plan</h4>
+            <p class="xr-body" style="max-width: 640px">Four experiments from ME ZG523. Formats are those your institution holds; students inherit them when you give access.</p>
+            <p class="xr-small" style="color: #40476B">Licences are shown as provided by BITS.</p>
+          </div>
+        </div>
+        <div class="doc-card">
+          <ul class="doc-list">
+            <li>Line length 60–80 characters for reading text (max-width 640–720 px).</li>
+            <li>Sentence case everywhere. Capitals only for format codes and overlines.</li>
+            <li>Numbers that line up use tabular figures.</li>
+            <li>Each policy fact is said once, in help — not on every screen.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-link">
+      <div class="doc-sec-head">
+        <h2 id="h-link" class="doc-sec-title">Links and focus</h2>
+        <p class="doc-sec-note">Links are underlined in text. Focus is always visible: a 2 px ring offset by 2 px, blue on light surfaces, gold on navy.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 14px">
+          <span class="doc-label">Link treatment</span>
+          <p class="xr-body">Read the <a href="#h-link">lab brief</a> before you start.</p>
+          <p class="xr-body">Hover: <a href="#h-link" style="color: #141B5E; text-decoration-thickness: 2px">lab brief</a></p>
+          <p class="xr-body"><a href="#h-link" style="display: inline-flex; align-items: center; gap: 4px">Open delivery link<svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg><span class="xr-sr">(opens in a new tab)</span></a></p>
+          <p class="doc-note">#1F4FD8 · 6.6 : 1 · underline 1 px, 2 px on hover. External links say so to screen readers.</p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 16px">
+          <span class="doc-label">Focus on light</span>
+          <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center">
+            <button type="button" class="xr-btn xr-btn--primary is-focus">Give access</button>
+            <button type="button" class="xr-btn xr-btn--secondary is-focus">Cancel</button>
+          </div>
+          <input class="xr-input is-focus" type="text" aria-label="Search people" value="Rahul" style="border-color: #1F4FD8">
+          <p class="doc-note">Ring #1F4FD8 · 6.6 : 1 against white. Inputs also turn their border blue.</p>
+        </div>
+        <div class="doc-card xr-dark" style="background: #141B5E; border-color: #141B5E; display: flex; flex-direction: column; gap: 16px">
+          <span class="doc-label" style="color: #F7C95B">Focus on navy</span>
+          <nav aria-label="Focus example" class="xr-side" style="width: auto; min-height: 0; background: transparent">
+            <ul class="xr-nav" style="padding: 0">
+              <li><a href="#h-link" class="is-focus"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"></path></svg><span class="xr-nav-text">Content access</span></a></li>
+            </ul>
+          </nav>
+          <p class="doc-note" style="color: #C9CEF2">Ring #F7C95B · 10 : 1 against navy.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-icons">
+      <div class="doc-sec-head">
+        <h2 id="h-icons" class="doc-sec-title">Icon sizing and working icon set</h2>
+        <p class="doc-sec-note">B2 had no navigation icons. A collapsed sidebar needs them, so Batch 0 adds a small stroke set on a 24 px grid. It is a working set — swappable — and an icon is always paired with a visible label or an accessible name.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 16px">
+          <span class="doc-label">Sizes</span>
+          <div style="display: flex; align-items: center; gap: 14px"><svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg><span class="doc-note"><strong>16</strong> · inside status chips and inline errors · stroke 2</span></div>
+          <div style="display: flex; align-items: center; gap: 14px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg><span class="doc-note"><strong>20</strong> · default: nav, buttons, menus · stroke 1.75</span></div>
+          <div style="display: flex; align-items: center; gap: 14px"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg><span class="doc-note"><strong>24</strong> · empty and message pages · stroke 1.75</span></div>
+          <p class="doc-note">Round caps and joins. currentColor only — icons inherit text colour, never carry meaning alone.</p>
+        </div>
+        <div class="doc-card" style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 18px 12px">
+          <sc-for list="{{ icons }}" as="ic" hint-placeholder-count="40">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
+              <span style="width: 48px; height: 48px; border-radius: 8px; background: #F4F5FB; color: #141B5E; display: flex; align-items: center; justify-content: center"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ ic.d }}"></path></svg></span>
+              <span style="font-size: 13px; line-height: 16px; color: #40476B">{{ ic.n }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div class="doc-card" style="display: flex; gap: 32px; align-items: center; flex-wrap: wrap">
+        <span class="doc-label">Format glyphs · 16 px grid</span>
+        <span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span>
+        <span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5V2.5h2.5M11.5 2.5H14V5M14 11v2.5h-2.5M4.5 13.5H2V11M8 5.3l2.6 1.5v2.9L8 11.2 5.4 9.7V6.8z"></path></svg>AR</span>
+        <span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span>
+        <span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 12.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM10 12.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9z"></path></svg>MR</span>
+        <span class="doc-note" style="flex: 1 1 320px">Browser window · view-finder with object · headset · overlapping physical and digital. One shape family; told apart by glyph and code, not colour.</span>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-motion">
+      <div class="doc-sec-head">
+        <h2 id="h-motion" class="doc-sec-title">Motion principles</h2>
+        <p class="doc-sec-note">Motion explains a change of place or state. It is short, quiet and never needed to understand anything.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-label">Durations</span>
+          <dl class="doc-kv" style="grid-template-columns: 90px minmax(0, 1fr)">
+            <dt>120 ms</dt><dd>Hover, colour, focus</dd>
+            <dt>200 ms</dt><dd>Menus, tooltips, tabs</dd>
+            <dt>280 ms</dt><dd>Drawer, dialog, banner</dd>
+          </dl>
+          <p class="doc-note">Easing <span class="xr-id">cubic-bezier(.2, 0, 0, 1)</span>; colour changes are linear.</p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-label">What moves</span>
+          <ul class="doc-list">
+            <li>The drawer slides in from the left.</li>
+            <li>Dialogs fade and settle (scale .98 → 1).</li>
+            <li>Menus and tooltips fade.</li>
+            <li>Loading skeletons shimmer gently.</li>
+          </ul>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-label">What never moves</span>
+          <ul class="doc-list">
+            <li>No auto-advancing carousels.</li>
+            <li>No parallax or scroll-driven runways inside workspaces.</li>
+            <li>No looping decoration.</li>
+            <li>Reduced motion: every transition is instant and shimmer stops.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-tok">
+      <div class="doc-sec-head">
+        <h2 id="h-tok" class="doc-sec-title">Token names</h2>
+        <p class="doc-sec-note">The same names are used in <span class="xr-id">xr-foundation.css</span>, the one stylesheet every Batch-0 board loads. Later batches inherit it.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <pre class="doc-card" style="margin: 0; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 22px; color: #12173F; white-space: pre-wrap">--xr-font-sans
+--xr-font-mono
+--xr-navy-900 · 800 · 700
+--xr-indigo-500 · 200 · 100
+--xr-gold-400 · 500 · 600 · 700 · 50
+--xr-cyan-400 · 700 · 50</pre>
+        <pre class="doc-card" style="margin: 0; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 22px; color: #12173F; white-space: pre-wrap">--xr-ink · ink-2 · ink-3
+--xr-line · line-strong
+--xr-canvas · surface · surface-3
+--xr-link · focus · focus-dark
+--xr-ok · warn · err · info (+ -bg)</pre>
+        <pre class="doc-card" style="margin: 0; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 22px; color: #12173F; white-space: pre-wrap">--xr-s1 … s20   (4 → 80)
+--xr-r-xs · sm · md · lg (4 · 6 · 8 · 12)
+--xr-e1 · e2 · e3
+--xr-dur-1 · 2 · 3 · --xr-ease
+--xr-side-w 248 · --xr-rail-w 72
+--xr-top-h 64</pre>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const icons = [
+      ['Home', 'M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z'],
+      ['Overview', 'M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z'],
+      ['My courses', 'M5 5.5A1.5 1.5 0 0 1 6.5 4H19v13H6.5A1.5 1.5 0 0 0 5 18.5zM5 18.5A1.5 1.5 0 0 0 6.5 20H19M9 8h6'],
+      ['Assessments', 'M9 3.5h6v3H9zM15 5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3M8.5 13.5l2.5 2.5 4.5-5'],
+      ['Progress', 'M4 20h16M7 16v-4M12 16V7M17 16v-6'],
+      ['Question bank', 'M12 3 3 7.5 12 12l9-4.5zM3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5'],
+      ['Marking', 'M14.5 5.5l4 4L8 20H4v-4zM12.5 7.5l4 4'],
+      ['Students · People', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.3a3.5 3.5 0 0 1 0 6.4M18.5 14.5A6.5 6.5 0 0 1 21.5 20'],
+      ['Content access', 'M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10'],
+      ['Student access', 'M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3.5 20a6.5 6.5 0 0 1 10-5.5M18 14v6M15 17h6'],
+      ['Requests', 'M4 13.5 6.5 5h11l2.5 8.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 13.5h4.5l1.5 2.5h4l1.5-2.5H20'],
+      ['Usage', 'M3 12h4l3-7 4 14 3-7h4'],
+      ['My experiments', 'M9 3h6M10 3v6.5L4.8 18.6A1.6 1.6 0 0 0 6.2 21h11.6a1.6 1.6 0 0 0 1.4-2.4L14 9.5V3M7.2 15h9.6'],
+      ['Review queue', 'M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01'],
+      ['Reviewed by me', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8'],
+      ['Ready to publish', 'M12 15V4M7.5 8.5 12 4l4.5 4.5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5'],
+      ['Content library', 'M4 4h4v16H4zM10 4h4v16h-4zM16 5l3.5-1 3 15.5-3.5 1z'],
+      ['Updates', 'M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4'],
+      ['Course codes', 'M9.5 4 7.5 20M16.5 4l-2 16M4.5 9h16M3.5 15h16'],
+      ['Institutions', 'M3 9.5 12 4l9 5.5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20.5h18'],
+      ['Content', 'M8 3h7.5L20 7.5V17a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM15 3v5h5M4 7v13a1 1 0 0 0 1 1h11'],
+      ['Academic structure', 'M10 3h4v4h-4zM3.5 17h4v4h-4zM10 17h4v4h-4zM16.5 17h4v4h-4zM12 7v5M5.5 17v-5h13v5M12 12v5'],
+      ['Platform roles', 'M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6zM9 12l2 2 4-4'],
+      ['Operations', 'M4 6h9M17 6h3M15 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4'],
+      ['Help', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01'],
+      ['Menu', 'M4 7h16M4 12h16M4 17h16'],
+      ['Close', 'M6 6l12 12M18 6 6 18'],
+      ['Back', 'M14.5 6 8.5 12l6 6'],
+      ['Collapse menu', 'M4 5h16v14H4zM9.5 5v14M16 10l-2 2 2 2'],
+      ['Search', 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4'],
+      ['Filter', 'M4 6h16M7 12h10M10 18h4'],
+      ['Info', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5.5M12 7.5h.01'],
+      ['Attention', 'M12 4 2.8 19.5h18.4zM12 10v4M12 17h.01'],
+      ['Failed', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01'],
+      ['Done', 'M5 12.5l4.5 4.5L19 7.5'],
+      ['Paused', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6'],
+      ['Read-only', 'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3'],
+      ['Waiting', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2'],
+      ['Retry', 'M20 12a8 8 0 1 1-2.4-5.7M20 4v4.5h-4.5'],
+      ['My device', 'M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 18h2'],
+      ['Sign out', 'M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 16l4-4-4-4M14 12H4'],
+      ['Not available', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8'],
+      ['With another role', 'M7 7h11l-3-3M17 17H6l3 3'],
+      ['Attach', 'M12 16V4M7.5 8.5 12 4l4.5 4.5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3'],
+      ['External link', 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'],
+      ['Add', 'M12 5v14M5 12h14'],
+      ['Next', 'M5 12h14M13 6l6 6-6 6'],
+      ['Document', 'M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5']
+    ].map(([n, d]) => ({ n, d }));
+    return { icons };
+  }
+}
+</script>
+</body>
+</html>

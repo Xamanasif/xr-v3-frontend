@@ -1,0 +1,2788 @@
+{
+ "about": "Every Inventory v3 screen ID. type: page = own URL · tab = URL segment or ?tab= of its parent · step = guided-flow step · state = state of a page (no own URL) · menu · action. Routes are proposals for the Next.js App Router.",
+ "generated": "Batch 8 · built on the approved v45 baseline · generated from the approved boards; the boards win on any difference",
+ "screens": [
+  {
+   "id": "PU-01",
+   "surface": "Public",
+   "screen": "Landing",
+   "type": "page",
+   "navigation": "Header: Home",
+   "proposedRoute": "/",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-01",
+     "file": "B1-01-Public-Landing.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/ landing"
+  },
+  {
+   "id": "PU-02",
+   "surface": "Public",
+   "screen": "All engineering areas (\"View all areas\")",
+   "type": "page",
+   "navigation": "Header: Areas",
+   "proposedRoute": "/areas",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B1-03",
+     "file": "B1-03-Areas-and-Course.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "landing \"Browse by Programme / Department\" cards"
+  },
+  {
+   "id": "PU-03",
+   "surface": "Public",
+   "screen": "Engineering area",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/areas/[areaId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B1-03",
+     "file": "B1-03-Areas-and-Course.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/programme/:id"
+  },
+  {
+   "id": "PU-04",
+   "surface": "Public",
+   "screen": "Catalogue",
+   "type": "page",
+   "navigation": "Header: Browse experiments",
+   "proposedRoute": "/experiments",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-04",
+     "file": "B1-04-Catalogue.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/catalogue"
+  },
+  {
+   "id": "PU-05",
+   "surface": "Public",
+   "screen": "Course",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/courses/[courseCode]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B1-03",
+     "file": "B1-03-Areas-and-Course.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/course/:id"
+  },
+  {
+   "id": "PU-06",
+   "surface": "Public",
+   "screen": "Experiment",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/experiments/[experimentId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-05",
+     "file": "B1-05-Experiment-Detail.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/experiment/:id"
+  },
+  {
+   "id": "PU-07",
+   "surface": "Public",
+   "screen": "Your selection",
+   "type": "page",
+   "navigation": "Header: Selection (n)",
+   "proposedRoute": "/selection",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-06",
+     "file": "B1-06-Selection.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/selection"
+  },
+  {
+   "id": "PU-08",
+   "surface": "Public",
+   "screen": "Request institutional access",
+   "type": "step",
+   "navigation": "Header: Request access / flow step",
+   "proposedRoute": "/request-access",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-07",
+     "file": "B1-07-Request-Access.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/request"
+  },
+  {
+   "id": "PU-09",
+   "surface": "Public",
+   "screen": "Request sent",
+   "type": "step",
+   "navigation": "Flow step",
+   "proposedRoute": "/request-access/sent",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B1-07",
+     "file": "B1-07-Request-Access.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "toast + redirect"
+  },
+  {
+   "id": "PU-10",
+   "surface": "Public",
+   "screen": "Request status",
+   "type": "page",
+   "navigation": "Detail (link from confirmation / e-mail: OPEN)",
+   "proposedRoute": "/requests/[requestId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-08",
+     "file": "B1-08-Request-Status.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/requests, #/request-status/:id"
+  },
+  {
+   "id": "PU-11",
+   "surface": "Public",
+   "screen": "Reply to an information request",
+   "type": "—",
+   "navigation": "Flow step",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "OPEN",
+   "importance": "CORE if decided",
+   "boards": [],
+   "oldPrototypeRoute": "status-page reply + \"Resubmit request\""
+  },
+  {
+   "id": "PU-12",
+   "surface": "Public",
+   "screen": "Payment (external route only)",
+   "type": "step",
+   "navigation": "Flow step",
+   "proposedRoute": "/requests/[requestId]/payment",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-08",
+     "file": "B1-08-Request-Status.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/payment/:id (simulated)"
+  },
+  {
+   "id": "PU-13",
+   "surface": "Public",
+   "screen": "Access activated",
+   "type": "state",
+   "navigation": "—",
+   "proposedRoute": "/requests/[requestId] (Access active state)",
+   "designed": true,
+   "inventoryDisposition": "MERGE → PU-10 state",
+   "importance": "—",
+   "boards": [
+    {
+     "code": "B1-08",
+     "file": "B1-08-Request-Status.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "status page ACTIVE state"
+  },
+  {
+   "id": "PU-14",
+   "surface": "Public",
+   "screen": "How institutional access works",
+   "type": "state",
+   "navigation": "Landing section",
+   "proposedRoute": "/ (#for-institutions section)",
+   "designed": true,
+   "inventoryDisposition": "MERGE → PU-01 section + help text on PU-07/08",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B1-01",
+     "file": "B1-01-Public-Landing.dc.html"
+    },
+    {
+     "code": "B1-05",
+     "file": "B1-05-Experiment-Detail.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "landing strip"
+  },
+  {
+   "id": "PU-15",
+   "surface": "Public",
+   "screen": "Not found",
+   "type": "page",
+   "navigation": "—",
+   "proposedRoute": "not-found.tsx",
+   "designed": true,
+   "inventoryDisposition": "KEEP",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "08",
+     "file": "08-System-Messages.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "notFound"
+  },
+  {
+   "id": "PU-16",
+   "surface": "Public",
+   "screen": "About · Contact · Privacy · Terms · Accessibility",
+   "type": "—",
+   "navigation": "Footer",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER (needs a content owner; no fake pages)",
+   "importance": "OPT",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "XS-01",
+   "surface": "Entry & shared",
+   "screen": "Sign in",
+   "type": "page",
+   "navigation": "Header: Sign in",
+   "proposedRoute": "/sign-in",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-09",
+     "file": "B1-09-Sign-In.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "— (prototype choosers)"
+  },
+  {
+   "id": "XS-02",
+   "surface": "Entry & shared",
+   "screen": "Choose workspace (person with several roles)",
+   "type": "—",
+   "navigation": "Flow step",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER",
+   "importance": "OPT",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "XS-03",
+   "surface": "Entry & shared",
+   "screen": "Signed out / session expired",
+   "type": "page",
+   "navigation": "—",
+   "proposedRoute": "/signed-out",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B1-09",
+     "file": "B1-09-Sign-In.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "XS-04",
+   "surface": "Entry & shared",
+   "screen": "First-time activation · Forgot password",
+   "type": "state",
+   "navigation": "Link on Sign in",
+   "proposedRoute": "/sign-in (links only — flows OPEN)",
+   "designed": true,
+   "inventoryDisposition": "OPEN",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B1-09",
+     "file": "B1-09-Sign-In.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "XS-05",
+   "surface": "Entry & shared",
+   "screen": "Account menu: name, role, institution, Help, Sign out",
+   "type": "menu",
+   "navigation": "Top bar",
+   "proposedRoute": "(top bar) account menu",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "05",
+     "file": "05-Workspace-Shell.dc.html"
+    },
+    {
+     "code": "06",
+     "file": "06-Sidebar-Variants.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "XS-06",
+   "surface": "Entry & shared",
+   "screen": "Not your workspace",
+   "type": "page",
+   "navigation": "—",
+   "proposedRoute": "/[workspace]/not-allowed",
+   "designed": true,
+   "inventoryDisposition": "KEEP (one template)",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "08",
+     "file": "08-System-Messages.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "route refusals"
+  },
+  {
+   "id": "XS-07",
+   "surface": "Entry & shared",
+   "screen": "Help & support: report a problem + my reports",
+   "type": "page",
+   "navigation": "Sidebar Help in all seven workspaces",
+   "proposedRoute": "/[workspace]/help",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "07",
+     "file": "07-Help-Support.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/…/help in every workspace"
+  },
+  {
+   "id": "XS-08",
+   "surface": "Entry & shared",
+   "screen": "Institution paused / account inactive notice",
+   "type": "state",
+   "navigation": "Shell banner",
+   "proposedRoute": "(shell) paused / inactive banner",
+   "designed": true,
+   "inventoryDisposition": "NEW (a state, not a screen)",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "05",
+     "file": "05-Workspace-Shell.dc.html"
+    },
+    {
+     "code": "08",
+     "file": "08-System-Messages.dc.html"
+    },
+    {
+     "code": "B1-09",
+     "file": "B1-09-Sign-In.dc.html"
+    },
+    {
+     "code": "B7-04",
+     "file": "B7-04-Pause-Effects.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "inactiveBanner, accountNotice"
+  },
+  {
+   "id": "ST-01",
+   "surface": "Student",
+   "screen": "Home",
+   "type": "page",
+   "navigation": "Sidebar Home",
+   "proposedRoute": "/student",
+   "designed": true,
+   "inventoryDisposition": "REFINE (heavy)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-10",
+     "file": "B2-10-Student-Home.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/learn/:s/home"
+  },
+  {
+   "id": "ST-02",
+   "surface": "Student",
+   "screen": "My courses",
+   "type": "page",
+   "navigation": "Sidebar My courses",
+   "proposedRoute": "/student/courses",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-11",
+     "file": "B2-11-My-Courses.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "My Learning (grouped by course)"
+  },
+  {
+   "id": "ST-03",
+   "surface": "Student",
+   "screen": "Course (student view)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/student/courses/[courseId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B2-11",
+     "file": "B2-11-My-Courses.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "ST-04",
+   "surface": "Student",
+   "screen": "All my experiments",
+   "type": "tab",
+   "navigation": "Tab of My courses",
+   "proposedRoute": "/student/courses?tab=experiments",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B2-11",
+     "file": "B2-11-My-Courses.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "My Learning list"
+  },
+  {
+   "id": "ST-05",
+   "surface": "Student",
+   "screen": "Experiment (hub: Overview · Resources · Simulation · Assessment · Progress)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/student/experiments/[experimentId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-12",
+     "file": "B2-12-Experiment-Hub.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/learn/:s/experiment/:e"
+  },
+  {
+   "id": "ST-06",
+   "surface": "Student",
+   "screen": "Resources",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "proposedRoute": "/student/experiments/[experimentId]/resources",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-01",
+     "file": "B3-01-Hub-Resources-and-Progress.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "resources card (inline text)"
+  },
+  {
+   "id": "ST-07",
+   "surface": "Student",
+   "screen": "Simulation — choose a format",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "proposedRoute": "/student/experiments/[experimentId]/simulation",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B3-02",
+     "file": "B3-02-Simulation-Choose-Format.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "simulation card"
+  },
+  {
+   "id": "ST-08",
+   "surface": "Student",
+   "screen": "WEB simulation (launch / resume)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/student/experiments/[experimentId]/simulation/web",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B3-03",
+     "file": "B3-03-WEB-Simulation.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "…/simulation/web, …/run"
+  },
+  {
+   "id": "ST-09",
+   "surface": "Student",
+   "screen": "AR / VR / MR format (setup & progress)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/student/experiments/[experimentId]/simulation/[format]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B3-04",
+     "file": "B3-04-AR-VR-MR-Format.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "…/simulation/:tech"
+  },
+  {
+   "id": "ST-10",
+   "surface": "Student",
+   "screen": "Progress for this experiment",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "proposedRoute": "/student/experiments/[experimentId]/progress",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-01",
+     "file": "B3-01-Hub-Resources-and-Progress.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "progress card on the experiment page"
+  },
+  {
+   "id": "ST-11",
+   "surface": "Student",
+   "screen": "Assessments",
+   "type": "page",
+   "navigation": "Sidebar Assessments",
+   "proposedRoute": "/student/assessments",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-11",
+     "file": "B4-11-Student-Assessments.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "— (reached via each experiment)"
+  },
+  {
+   "id": "ST-12",
+   "surface": "Student",
+   "screen": "Assessment — before you start",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/student/assessments/[assessmentId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-11",
+     "file": "B4-11-Student-Assessments.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "…/assessment"
+  },
+  {
+   "id": "ST-13",
+   "surface": "Student",
+   "screen": "Assessment attempt",
+   "type": "step",
+   "navigation": "Flow step",
+   "proposedRoute": "/student/assessments/[assessmentId]/attempt",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-12",
+     "file": "B4-12-Assessment-Attempt.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "…/assessment/attempt"
+  },
+  {
+   "id": "ST-14",
+   "surface": "Student",
+   "screen": "Result",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/student/assessments/[assessmentId]/result",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-13",
+     "file": "B4-13-Assessment-Result.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "…/assessment/result"
+  },
+  {
+   "id": "ST-15",
+   "surface": "Student",
+   "screen": "Progress (all experiments)",
+   "type": "page",
+   "navigation": "Sidebar Progress",
+   "proposedRoute": "/student/progress",
+   "designed": true,
+   "inventoryDisposition": "REFINE (rename + expand)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B3-05",
+     "file": "B3-05-Progress.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/learn/:s/progress"
+  },
+  {
+   "id": "ST-16",
+   "surface": "Student",
+   "screen": "Format feedback",
+   "type": "step",
+   "navigation": "Flow step",
+   "proposedRoute": "/student/experiments/[experimentId]/feedback/[format]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B3-06",
+     "file": "B3-06-Format-Feedback.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "ST-17",
+   "surface": "Student",
+   "screen": "Feedback sent (confirmation, read-only)",
+   "type": "state",
+   "navigation": "Flow step",
+   "proposedRoute": "/student/experiments/[experimentId]/feedback/[format] (sent state)",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-06",
+     "file": "B3-06-Format-Feedback.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "ST-18",
+   "surface": "Student",
+   "screen": "My device (AR/VR/MR holders only)",
+   "type": "page",
+   "navigation": "Account menu",
+   "proposedRoute": "/student/device",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-07",
+     "file": "B3-07-My-Device.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/learn/:s/device"
+  },
+  {
+   "id": "ST-19",
+   "surface": "Student",
+   "screen": "Experiment not available (refusal page)",
+   "type": "state",
+   "navigation": "—",
+   "proposedRoute": "/student/experiments/[experimentId] (not-available state)",
+   "designed": true,
+   "inventoryDisposition": "KEEP",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B2-11",
+     "file": "B2-11-My-Courses.dc.html"
+    },
+    {
+     "code": "B2-12",
+     "file": "B2-12-Experiment-Hub.dc.html"
+    },
+    {
+     "code": "B2-13",
+     "file": "B2-13-Flow-2-Continuity.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "resolve() refusal pages"
+  },
+  {
+   "id": "ST-20",
+   "surface": "Student",
+   "screen": "Signed-in catalogue",
+   "type": "—",
+   "navigation": "(B2 rail \"Catalogue\")",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "REMOVE from Student nav (R18) — public catalogue stays reachable from the footer",
+   "importance": "OPT",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "FA-01",
+   "surface": "Faculty",
+   "screen": "Overview",
+   "type": "page",
+   "navigation": "Sidebar Overview",
+   "proposedRoute": "/faculty",
+   "designed": true,
+   "inventoryDisposition": "REFINE (heavy)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-01",
+     "file": "B4-01-Faculty-Overview.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/faculty/:f/overview"
+  },
+  {
+   "id": "FA-02",
+   "surface": "Faculty",
+   "screen": "My courses",
+   "type": "page",
+   "navigation": "Sidebar My courses",
+   "proposedRoute": "/faculty/courses",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-02",
+     "file": "B4-02-My-Courses-and-Experiments.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "My Content (/content)"
+  },
+  {
+   "id": "FA-03",
+   "surface": "Faculty",
+   "screen": "Course (teaching view)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/faculty/courses/[courseId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B4-02",
+     "file": "B4-02-My-Courses-and-Experiments.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "My Content rows by course"
+  },
+  {
+   "id": "FA-04",
+   "surface": "Faculty",
+   "screen": "Experiments",
+   "type": "tab",
+   "navigation": "Tab of My courses",
+   "proposedRoute": "/faculty/courses?tab=experiments",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B4-02",
+     "file": "B4-02-My-Courses-and-Experiments.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "My Content table"
+  },
+  {
+   "id": "FA-05",
+   "surface": "Faculty",
+   "screen": "Experiment (teaching view)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/faculty/experiments/[experimentId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-03",
+     "file": "B4-03-Experiment-Teaching-View.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "My Content row + assessment overview"
+  },
+  {
+   "id": "FA-06",
+   "surface": "Faculty",
+   "screen": "Assessments",
+   "type": "page",
+   "navigation": "Sidebar Assessments",
+   "proposedRoute": "/faculty/assessments",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-04",
+     "file": "B4-04-Assessments-and-Create.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/assessments"
+  },
+  {
+   "id": "FA-07",
+   "surface": "Faculty",
+   "screen": "Create assessment (guided)",
+   "type": "step",
+   "navigation": "Flow (from FA-06/05)",
+   "proposedRoute": "/faculty/assessments/new?step=1…4",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-04",
+     "file": "B4-04-Assessments-and-Create.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "Create → …/settings → …/questions → …/preview"
+  },
+  {
+   "id": "FA-08",
+   "surface": "Faculty",
+   "screen": "Assessment · Summary",
+   "type": "tab",
+   "navigation": "Assessment tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B4-05",
+     "file": "B4-05-Assessment-Summary-and-Questions.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/assessment/:e"
+  },
+  {
+   "id": "FA-09",
+   "surface": "Faculty",
+   "screen": "Assessment · Questions",
+   "type": "tab",
+   "navigation": "Assessment tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]/questions",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-05",
+     "file": "B4-05-Assessment-Summary-and-Questions.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "…/questions"
+  },
+  {
+   "id": "FA-10",
+   "surface": "Faculty",
+   "screen": "Assessment · Settings",
+   "type": "tab",
+   "navigation": "Assessment tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]/settings",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-06",
+     "file": "B4-06-Settings-Preview-Submissions.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "…/settings"
+  },
+  {
+   "id": "FA-11",
+   "surface": "Faculty",
+   "screen": "Assessment · Preview",
+   "type": "tab",
+   "navigation": "Assessment tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]/preview",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B4-06",
+     "file": "B4-06-Settings-Preview-Submissions.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "…/preview"
+  },
+  {
+   "id": "FA-12",
+   "surface": "Faculty",
+   "screen": "Assessment · Submissions",
+   "type": "tab",
+   "navigation": "Assessment tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]/submissions",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-06",
+     "file": "B4-06-Settings-Preview-Submissions.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "counts + Student Progress"
+  },
+  {
+   "id": "FA-13",
+   "surface": "Faculty",
+   "screen": "Make available to students",
+   "type": "—",
+   "navigation": "Flow step",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "OPEN",
+   "importance": "CORE if decided",
+   "boards": [],
+   "oldPrototypeRoute": "— (available automatically once it has ≥1 question)"
+  },
+  {
+   "id": "FA-14",
+   "surface": "Faculty",
+   "screen": "Question bank (tabs: Questions · Drafts to review)",
+   "type": "page",
+   "navigation": "Sidebar Question bank",
+   "proposedRoute": "/faculty/question-bank",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-07",
+     "file": "B4-07-Question-Bank-and-Editor.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/questions"
+  },
+  {
+   "id": "FA-15",
+   "surface": "Faculty",
+   "screen": "Add / edit question",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/faculty/question-bank/new · /faculty/question-bank/[questionId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-07",
+     "file": "B4-07-Question-Bank-and-Editor.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/questions/new, /question/:q"
+  },
+  {
+   "id": "FA-16",
+   "surface": "Faculty",
+   "screen": "Draft questions with assistance",
+   "type": "step",
+   "navigation": "Flow",
+   "proposedRoute": "/faculty/question-bank/draft",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B4-08",
+     "file": "B4-08-Draft-with-Assistance-and-Import.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/questions/draft"
+  },
+  {
+   "id": "FA-17",
+   "surface": "Faculty",
+   "screen": "Import questions (CSV / XLSX)",
+   "type": "step",
+   "navigation": "Flow",
+   "proposedRoute": "/faculty/question-bank/import",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B4-08",
+     "file": "B4-08-Draft-with-Assistance-and-Import.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/questions/import"
+  },
+  {
+   "id": "FA-18",
+   "surface": "Faculty",
+   "screen": "Marking queue",
+   "type": "page",
+   "navigation": "Sidebar Marking",
+   "proposedRoute": "/faculty/marking",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-09",
+     "file": "B4-09-Marking.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/reviews"
+  },
+  {
+   "id": "FA-19",
+   "surface": "Faculty",
+   "screen": "Mark a submission",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/faculty/marking/[attemptId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE (heavy)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-09",
+     "file": "B4-09-Marking.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/review/:id (per written answer)"
+  },
+  {
+   "id": "FA-20",
+   "surface": "Faculty",
+   "screen": "Students (progress + follow-up)",
+   "type": "page",
+   "navigation": "Sidebar Students",
+   "proposedRoute": "/faculty/students",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B4-10",
+     "file": "B4-10-Students-and-Follow-up.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/students (Student Progress)"
+  },
+  {
+   "id": "FA-21",
+   "surface": "Faculty",
+   "screen": "Student detail (per experiment)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/faculty/students/[studentId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B4-10",
+     "file": "B4-10-Students-and-Follow-up.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/student/:s/:e"
+  },
+  {
+   "id": "FA-22",
+   "surface": "Faculty",
+   "screen": "Export progress (CSV)",
+   "type": "action",
+   "navigation": "Action on FA-20 / FA-12",
+   "proposedRoute": "(action) Export CSV on FA-20 / FA-12",
+   "designed": true,
+   "inventoryDisposition": "KEEP (as an action)",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B4-06",
+     "file": "B4-06-Settings-Preview-Submissions.dc.html"
+    },
+    {
+     "code": "B4-10",
+     "file": "B4-10-Students-and-Follow-up.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "Export CSV"
+  },
+  {
+   "id": "FA-23",
+   "surface": "Faculty",
+   "screen": "Reports page",
+   "type": "—",
+   "navigation": "(B2 rail \"Reports\")",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER (R15)",
+   "importance": "OPT",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "FA-24",
+   "surface": "Faculty",
+   "screen": "Faculty settings",
+   "type": "—",
+   "navigation": "(B2 rail \"Settings\")",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "REMOVE (no function)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "IA-01",
+   "surface": "Institute Admin",
+   "screen": "Overview",
+   "type": "page",
+   "navigation": "Sidebar Overview",
+   "proposedRoute": "/institute",
+   "designed": true,
+   "inventoryDisposition": "REFINE (heavy)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-01",
+     "file": "B2-01-IA-Overview.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/tenant/:t/overview"
+  },
+  {
+   "id": "IA-02",
+   "surface": "Institute Admin",
+   "screen": "Content access",
+   "type": "page",
+   "navigation": "Sidebar Content access",
+   "proposedRoute": "/institute/content-access",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-02",
+     "file": "B2-02-Content-Access.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/content-access"
+  },
+  {
+   "id": "IA-03",
+   "surface": "Institute Admin",
+   "screen": "Access plan / course detail",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/institute/content-access/plans/[planId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE (split)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-03",
+     "file": "B2-03-Access-Plan-and-Course-Codes.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "approval panel \"Show details\""
+  },
+  {
+   "id": "IA-04",
+   "surface": "Institute Admin",
+   "screen": "Student access",
+   "type": "page",
+   "navigation": "Sidebar Student access",
+   "proposedRoute": "/institute/student-access",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-01",
+     "file": "B2-01-IA-Overview.dc.html"
+    },
+    {
+     "code": "B2-04",
+     "file": "B2-04-Student-Access.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/assignments (relabelled \"Student access\")"
+  },
+  {
+   "id": "IA-05",
+   "surface": "Institute Admin",
+   "screen": "Give students access (guided)",
+   "type": "step",
+   "navigation": "Flow (from IA-02/03/04/07/14)",
+   "proposedRoute": "/institute/student-access/give?step=1…",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-05",
+     "file": "B2-05-Give-Students-Access.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/assignments/new"
+  },
+  {
+   "id": "IA-06",
+   "surface": "Institute Admin",
+   "screen": "Students",
+   "type": "tab",
+   "navigation": "Sidebar People › Students",
+   "proposedRoute": "/institute/people?tab=students",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-06",
+     "file": "B2-06-People.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/people (Students tab)"
+  },
+  {
+   "id": "IA-07",
+   "surface": "Institute Admin",
+   "screen": "Student record",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/institute/people/students/[studentId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-01",
+     "file": "B2-01-IA-Overview.dc.html"
+    },
+    {
+     "code": "B2-06",
+     "file": "B2-06-People.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/person/:id"
+  },
+  {
+   "id": "IA-08",
+   "surface": "Institute Admin",
+   "screen": "Faculty",
+   "type": "tab",
+   "navigation": "People › Faculty",
+   "proposedRoute": "/institute/people?tab=faculty",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-06",
+     "file": "B2-06-People.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/people (Faculty tab)"
+  },
+  {
+   "id": "IA-09",
+   "surface": "Institute Admin",
+   "screen": "Faculty record (incl. courses taught)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/institute/people/faculty/[facultyId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-06",
+     "file": "B2-06-People.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "person (faculty) + faculty mapping"
+  },
+  {
+   "id": "IA-10",
+   "surface": "Institute Admin",
+   "screen": "Add a student / Add a faculty member",
+   "type": "step",
+   "navigation": "Flow",
+   "proposedRoute": "/institute/people/add",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-04",
+     "file": "B2-04-Student-Access.dc.html"
+    },
+    {
+     "code": "B2-07",
+     "file": "B2-07-Add-and-Import.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/people/add-student, /add-faculty"
+  },
+  {
+   "id": "IA-11",
+   "surface": "Institute Admin",
+   "screen": "Import students (CSV)",
+   "type": "step",
+   "navigation": "Flow",
+   "proposedRoute": "/institute/people/import",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-07",
+     "file": "B2-07-Add-and-Import.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/people/import"
+  },
+  {
+   "id": "IA-12",
+   "surface": "Institute Admin",
+   "screen": "Invitations / account activation",
+   "type": "—",
+   "navigation": "People",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "OPEN (R02)",
+   "importance": "SUPP",
+   "boards": [],
+   "oldPrototypeRoute": "— (records only; no accounts)"
+  },
+  {
+   "id": "IA-13",
+   "surface": "Institute Admin",
+   "screen": "Groups",
+   "type": "tab",
+   "navigation": "People › Groups",
+   "proposedRoute": "/institute/people?tab=groups",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-01",
+     "file": "B2-01-IA-Overview.dc.html"
+    },
+    {
+     "code": "B2-02",
+     "file": "B2-02-Content-Access.dc.html"
+    },
+    {
+     "code": "B2-08",
+     "file": "B2-08-Groups.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/groups"
+  },
+  {
+   "id": "IA-14",
+   "surface": "Institute Admin",
+   "screen": "Group (create · members · access)",
+   "type": "page",
+   "navigation": "Detail / flow",
+   "proposedRoute": "/institute/people/groups/[groupId] · /new",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-01",
+     "file": "B2-01-IA-Overview.dc.html"
+    },
+    {
+     "code": "B2-02",
+     "file": "B2-02-Content-Access.dc.html"
+    },
+    {
+     "code": "B2-08",
+     "file": "B2-08-Groups.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/group/:id, /groups/new"
+  },
+  {
+   "id": "IA-15",
+   "surface": "Institute Admin",
+   "screen": "Faculty courses (who teaches what)",
+   "type": "tab",
+   "navigation": "People › Faculty courses",
+   "proposedRoute": "/institute/people?tab=faculty-courses",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B2-09",
+     "file": "B2-09-Faculty-Courses.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/faculty-mapping (tab under Student access)"
+  },
+  {
+   "id": "IA-16",
+   "surface": "Institute Admin",
+   "screen": "Course codes (institution code + optional semester)",
+   "type": "tab",
+   "navigation": "Content access › Course codes",
+   "proposedRoute": "/institute/content-access?tab=course-codes",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B2-03",
+     "file": "B2-03-Access-Plan-and-Course-Codes.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/mappings (\"Academic mappings\")"
+  },
+  {
+   "id": "IA-17",
+   "surface": "Institute Admin",
+   "screen": "Requests to BITS (renewal · additional licences)",
+   "type": "page",
+   "navigation": "Sidebar Requests › Requests to BITS",
+   "proposedRoute": "/institute/requests",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-08",
+     "file": "B3-08-IA-Requests-to-BITS.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "renewal panel + public status"
+  },
+  {
+   "id": "IA-18",
+   "surface": "Institute Admin",
+   "screen": "Device requests",
+   "type": "tab",
+   "navigation": "Requests › Device requests",
+   "proposedRoute": "/institute/requests?tab=devices",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-09",
+     "file": "B3-09-IA-Device-Requests.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/device-requests"
+  },
+  {
+   "id": "IA-19",
+   "surface": "Institute Admin",
+   "screen": "Device request — review & forward",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/institute/requests/devices/[transferId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-09",
+     "file": "B3-09-IA-Device-Requests.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/device-request/:id"
+  },
+  {
+   "id": "IA-20",
+   "surface": "Institute Admin",
+   "screen": "Usage",
+   "type": "page",
+   "navigation": "Sidebar Usage",
+   "proposedRoute": "/institute/usage",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-10",
+     "file": "B3-10-IA-Usage.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "utilisation card + overview snapshot"
+  },
+  {
+   "id": "IA-21",
+   "surface": "Institute Admin",
+   "screen": "Reports page",
+   "type": "—",
+   "navigation": "(B2 rail \"Reports\")",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER (R15)",
+   "importance": "OPT",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "IA-22",
+   "surface": "Institute Admin",
+   "screen": "Institution settings (incl. institution sign-in / SSO)",
+   "type": "—",
+   "navigation": "(B2 rail \"Settings\")",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER (A-01)",
+   "importance": "OPT",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "VE-01",
+   "surface": "Vendor",
+   "screen": "Overview",
+   "type": "page",
+   "navigation": "Sidebar Overview",
+   "proposedRoute": "/vendor",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B5-01",
+     "file": "B5-01-Vendor-Overview.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/vendor/:a/overview"
+  },
+  {
+   "id": "VE-02",
+   "surface": "Vendor",
+   "screen": "My experiments (all, any status)",
+   "type": "page",
+   "navigation": "Sidebar My experiments",
+   "proposedRoute": "/vendor/experiments",
+   "designed": true,
+   "inventoryDisposition": "MERGE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B5-02",
+     "file": "B5-02-My-Experiments.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/experiments + /submissions"
+  },
+  {
+   "id": "VE-03",
+   "surface": "Vendor",
+   "screen": "Create experiment · Course & description",
+   "type": "step",
+   "navigation": "Create flow, step 1",
+   "proposedRoute": "/vendor/experiments/new?step=course",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B5-03",
+     "file": "B5-03-Create-Course-and-Description.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/experiments/new (\"Catalogue detail\" zone)"
+  },
+  {
+   "id": "VE-04",
+   "surface": "Vendor",
+   "screen": "Create experiment · Formats & delivery",
+   "type": "step",
+   "navigation": "Create flow, step 2",
+   "proposedRoute": "/vendor/experiments/[submissionId]/edit?step=formats",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B5-04",
+     "file": "B5-04-Formats-and-Delivery.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "\"Technical delivery\" zone"
+  },
+  {
+   "id": "VE-05",
+   "surface": "Vendor",
+   "screen": "Create experiment · Preview & documents",
+   "type": "step",
+   "navigation": "Create flow, step 3",
+   "proposedRoute": "/vendor/experiments/[submissionId]/edit?step=preview",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B5-05",
+     "file": "B5-05-Preview-Check-and-Submit.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "\"Supporting material\" + preview link"
+  },
+  {
+   "id": "VE-06",
+   "surface": "Vendor",
+   "screen": "Check & submit",
+   "type": "step",
+   "navigation": "Create flow, step 4",
+   "proposedRoute": "/vendor/experiments/[submissionId]/edit?step=submit",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B5-05",
+     "file": "B5-05-Preview-Check-and-Submit.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "submission checklist + submit confirm"
+  },
+  {
+   "id": "VE-07",
+   "surface": "Vendor",
+   "screen": "Experiment record (status, details, timeline)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/vendor/experiments/[submissionId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B5-06",
+     "file": "B5-06-Experiment-Record-and-History.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/experiment/:id"
+  },
+  {
+   "id": "VE-08",
+   "surface": "Vendor",
+   "screen": "Revise & resubmit (after a return)",
+   "type": "step",
+   "navigation": "Flow",
+   "proposedRoute": "/vendor/experiments/[submissionId]/revise",
+   "designed": true,
+   "inventoryDisposition": "REFINE (heavy)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B5-07",
+     "file": "B5-07-Revise-and-Resubmit.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/experiment/:id/edit (\"Correct submission\")"
+  },
+  {
+   "id": "VE-09",
+   "surface": "Vendor",
+   "screen": "Edit draft",
+   "type": "step",
+   "navigation": "Flow",
+   "proposedRoute": "/vendor/experiments/[submissionId]/edit",
+   "designed": true,
+   "inventoryDisposition": "MERGE → VE-03…06 editor",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B5-07",
+     "file": "B5-07-Revise-and-Resubmit.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/edit"
+  },
+  {
+   "id": "VE-10",
+   "surface": "Vendor",
+   "screen": "Propose an update (corrected version)",
+   "type": "—",
+   "navigation": "Flow (from VE-07, published)",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER / OPEN (LD-4; historical evidence only)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "/experiment/:id/version"
+  },
+  {
+   "id": "VE-11",
+   "surface": "Vendor",
+   "screen": "Updates",
+   "type": "—",
+   "navigation": "(no sidebar item)",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER / OPEN (LD-4)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "/versions"
+  },
+  {
+   "id": "VE-12",
+   "surface": "Vendor",
+   "screen": "Update detail",
+   "type": "—",
+   "navigation": "Detail",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER / OPEN (LD-4)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "/version/:id"
+  },
+  {
+   "id": "VE-13",
+   "surface": "Vendor",
+   "screen": "Submission & version history",
+   "type": "tab",
+   "navigation": "Record tab + filter",
+   "proposedRoute": "/vendor/experiments/[submissionId]?tab=history",
+   "designed": true,
+   "inventoryDisposition": "MERGE → VE-07 timeline (+ \"recently changed\" filter on VE-02)",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B5-02",
+     "file": "B5-02-My-Experiments.dc.html"
+    },
+    {
+     "code": "B5-06",
+     "file": "B5-06-Experiment-Record-and-History.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "record History card"
+  },
+  {
+   "id": "VE-14",
+   "surface": "Vendor",
+   "screen": "Add a format to a published experiment",
+   "type": "—",
+   "navigation": "Flow",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER / OPEN (post-publication change — LD-4)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "impossible in the prototype (the format set is fixed at publication)"
+  },
+  {
+   "id": "VE-15",
+   "surface": "Vendor",
+   "screen": "Experiment packages · Technical assets · Contributor settings",
+   "type": "—",
+   "navigation": "(B2 rail)",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "REMOVE (no defined function; R13 / R14)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "RV-01",
+   "surface": "Academic Reviewer",
+   "screen": "Overview",
+   "type": "page",
+   "navigation": "Sidebar Overview",
+   "proposedRoute": "/reviewer",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B6-01",
+     "file": "B6-01-Reviewer-Overview.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/review/:a/overview"
+  },
+  {
+   "id": "RV-02",
+   "surface": "Academic Reviewer",
+   "screen": "Review queue",
+   "type": "page",
+   "navigation": "Sidebar Review queue",
+   "proposedRoute": "/reviewer/queue",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B6-02",
+     "file": "B6-02-Review-Queue-and-Reviewed.dc.html"
+    },
+    {
+     "code": "B6-12",
+     "file": "B6-12-Flow-5-Completion.dc.html"
+    },
+    {
+     "code": "B6-13",
+     "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/queue (+ \"Later versions\" table)"
+  },
+  {
+   "id": "RV-03",
+   "surface": "Academic Reviewer",
+   "screen": "Review a submission",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/reviewer/submissions/[submissionId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE (heavy)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B6-03",
+     "file": "B6-03-Review-a-Submission.dc.html"
+    },
+    {
+     "code": "B6-11",
+     "file": "B6-11-Critical-States.dc.html"
+    },
+    {
+     "code": "B6-12",
+     "file": "B6-12-Flow-5-Completion.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/submission/:id"
+  },
+  {
+   "id": "RV-04",
+   "surface": "Academic Reviewer",
+   "screen": "Review an update",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/reviewer/updates/[updateId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B6-04",
+     "file": "B6-04-Review-an-Update.dc.html"
+    },
+    {
+     "code": "B6-13",
+     "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+    },
+    {
+     "code": "B7-11",
+     "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/version/:id"
+  },
+  {
+   "id": "RV-05",
+   "surface": "Academic Reviewer",
+   "screen": "Reviewed by me",
+   "type": "page",
+   "navigation": "Sidebar Reviewed by me",
+   "proposedRoute": "/reviewer/reviewed",
+   "designed": true,
+   "inventoryDisposition": "KEEP",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B6-02",
+     "file": "B6-02-Review-Queue-and-Reviewed.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "\"recent decisions\" card"
+  },
+  {
+   "id": "RV-06",
+   "surface": "Academic Reviewer",
+   "screen": "Decided item (read-only)",
+   "type": "state",
+   "navigation": "—",
+   "proposedRoute": "/reviewer/submissions/[submissionId] (decided, read-only)",
+   "designed": true,
+   "inventoryDisposition": "MERGE → RV-03 read-only state",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B6-03",
+     "file": "B6-03-Review-a-Submission.dc.html"
+    },
+    {
+     "code": "B6-12",
+     "file": "B6-12-Flow-5-Completion.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "RV-07",
+   "surface": "Academic Reviewer",
+   "screen": "Courses in scope · Learning outcomes · Reviewer settings",
+   "type": "—",
+   "navigation": "(B2 rail)",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "REMOVE (scope shown as one line on RV-01; outcomes are edited on RV-03)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "CM-01",
+   "surface": "Content Manager",
+   "screen": "Overview",
+   "type": "page",
+   "navigation": "Sidebar Overview",
+   "proposedRoute": "/content-manager",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B6-05",
+     "file": "B6-05-CM-Overview.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/content/:a/overview"
+  },
+  {
+   "id": "CM-02",
+   "surface": "Content Manager",
+   "screen": "Ready to publish",
+   "type": "page",
+   "navigation": "Sidebar Ready to publish",
+   "proposedRoute": "/content-manager/ready",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B6-03",
+     "file": "B6-03-Review-a-Submission.dc.html"
+    },
+    {
+     "code": "B6-06",
+     "file": "B6-06-Ready-to-Publish-and-Library.dc.html"
+    },
+    {
+     "code": "B6-12",
+     "file": "B6-12-Flow-5-Completion.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/queue"
+  },
+  {
+   "id": "CM-03",
+   "surface": "Content Manager",
+   "screen": "Publication decision",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/content-manager/decisions/[submissionId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE (heavy)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B6-07",
+     "file": "B6-07-Publication-Decision.dc.html"
+    },
+    {
+     "code": "B6-11",
+     "file": "B6-11-Critical-States.dc.html"
+    },
+    {
+     "code": "B6-12",
+     "file": "B6-12-Flow-5-Completion.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/item/:id at the gate"
+  },
+  {
+   "id": "CM-04",
+   "surface": "Content Manager",
+   "screen": "Content library (all statuses incl. published)",
+   "type": "page",
+   "navigation": "Sidebar Content library",
+   "proposedRoute": "/content-manager/library",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B6-06",
+     "file": "B6-06-Ready-to-Publish-and-Library.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/library"
+  },
+  {
+   "id": "CM-05",
+   "surface": "Content Manager",
+   "screen": "Published experiment",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/content-manager/published/[experimentId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B6-08",
+     "file": "B6-08-Published-and-Correction-Entry.dc.html"
+    },
+    {
+     "code": "B6-13",
+     "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+    },
+    {
+     "code": "B7-11",
+     "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/item/:id (published)"
+  },
+  {
+   "id": "CM-06",
+   "surface": "Content Manager",
+   "screen": "Edit catalogue details → opens a correction (UPD) draft pre-filled with the live fields (M-1)",
+   "type": "step",
+   "navigation": "Flow (into a correction draft)",
+   "proposedRoute": "→ /content-manager/updates/[updateId] (draft, catalogue fields)",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B6-08",
+     "file": "B6-08-Published-and-Correction-Entry.dc.html"
+    },
+    {
+     "code": "B6-13",
+     "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/item/:id/metadata"
+  },
+  {
+   "id": "CM-07",
+   "surface": "Content Manager",
+   "screen": "Edit a delivery link (with reason) → opens a correction (UPD) draft pre-filled with the live delivery details (M-1)",
+   "type": "step",
+   "navigation": "Flow (into a correction draft)",
+   "proposedRoute": "→ /content-manager/updates/[updateId] (draft, delivery)",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B6-08",
+     "file": "B6-08-Published-and-Correction-Entry.dc.html"
+    },
+    {
+     "code": "B6-13",
+     "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "delivery section on the item"
+  },
+  {
+   "id": "CM-08",
+   "surface": "Content Manager",
+   "screen": "Corrections / updates I raised",
+   "type": "page",
+   "navigation": "Sidebar Updates",
+   "proposedRoute": "/content-manager/updates · /content-manager/updates/[updateId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE (sole origin of post-publication corrections — LD-4; was SUPP in v1)",
+   "boards": [
+    {
+     "code": "B6-09",
+     "file": "B6-09-Updates-Corrections.dc.html"
+    },
+    {
+     "code": "B6-11",
+     "file": "B6-11-Critical-States.dc.html"
+    },
+    {
+     "code": "B6-13",
+     "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+    },
+    {
+     "code": "B7-11",
+     "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "correction-version panels"
+  },
+  {
+   "id": "CM-09",
+   "surface": "Content Manager",
+   "screen": "Platform course codes",
+   "type": "page",
+   "navigation": "Sidebar Course codes",
+   "proposedRoute": "/content-manager/course-codes",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B6-10",
+     "file": "B6-10-Platform-Course-Codes.dc.html"
+    },
+    {
+     "code": "B6-11",
+     "file": "B6-11-Critical-States.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/courses"
+  },
+  {
+   "id": "CM-10",
+   "surface": "Content Manager",
+   "screen": "Academic groupings · Governance settings",
+   "type": "—",
+   "navigation": "(B2 rail)",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "REMOVE (the structure belongs to the Super Admin, SA-14; settings undefined)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "SA-01",
+   "surface": "Super Admin",
+   "screen": "Overview",
+   "type": "page",
+   "navigation": "Sidebar Overview",
+   "proposedRoute": "/admin",
+   "designed": true,
+   "inventoryDisposition": "REFINE (heavy)",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B7-01",
+     "file": "B7-01-SA-Overview.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    },
+    {
+     "code": "B7-12",
+     "file": "B7-12-Responsive-Proof.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "#/platform/overview"
+  },
+  {
+   "id": "SA-02",
+   "surface": "Super Admin",
+   "screen": "Requests",
+   "type": "page",
+   "navigation": "Sidebar Requests",
+   "proposedRoute": "/admin/requests",
+   "designed": true,
+   "inventoryDisposition": "KEEP + REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-10",
+     "file": "B1-10-SA-Requests.dc.html"
+    },
+    {
+     "code": "B1-11",
+     "file": "B1-11-SA-Decision.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/requests"
+  },
+  {
+   "id": "SA-03",
+   "surface": "Super Admin",
+   "screen": "Request decision",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/admin/requests/[requestId]",
+   "designed": true,
+   "inventoryDisposition": "KEEP (model pattern) + REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B1-10",
+     "file": "B1-10-SA-Requests.dc.html"
+    },
+    {
+     "code": "B1-11",
+     "file": "B1-11-SA-Decision.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/requests/:id"
+  },
+  {
+   "id": "SA-04",
+   "surface": "Super Admin",
+   "screen": "Decline a request",
+   "type": "—",
+   "navigation": "—",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "OPEN (R21 / D10)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "— (\"There is no reject\")"
+  },
+  {
+   "id": "SA-05",
+   "surface": "Super Admin",
+   "screen": "Record payment / activate manually",
+   "type": "—",
+   "navigation": "—",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "OPEN (R06)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "— (the payer completes payment in the prototype)"
+  },
+  {
+   "id": "SA-06",
+   "surface": "Super Admin",
+   "screen": "Institutions",
+   "type": "page",
+   "navigation": "Sidebar Institutions",
+   "proposedRoute": "/admin/institutions",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B7-02",
+     "file": "B7-02-Institutions.dc.html"
+    },
+    {
+     "code": "B7-12",
+     "file": "B7-12-Responsive-Proof.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/institutions"
+  },
+  {
+   "id": "SA-07",
+   "surface": "Super Admin",
+   "screen": "Institution detail",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/admin/institutions/[institutionId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B7-02",
+     "file": "B7-02-Institutions.dc.html"
+    },
+    {
+     "code": "B7-03",
+     "file": "B7-03-Institution-Detail.dc.html"
+    },
+    {
+     "code": "B7-04",
+     "file": "B7-04-Pause-Effects.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    },
+    {
+     "code": "B7-12",
+     "file": "B7-12-Responsive-Proof.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/institutions/:id"
+  },
+  {
+   "id": "SA-08",
+   "surface": "Super Admin",
+   "screen": "Create an institution directly",
+   "type": "—",
+   "navigation": "—",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "OPEN (R07)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "— (institutions are created only by approving a request)"
+  },
+  {
+   "id": "SA-09",
+   "surface": "Super Admin",
+   "screen": "Content allocation page",
+   "type": "—",
+   "navigation": "(B2 rail \"Content allocation\")",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "REMOVE as a page → MERGE into SA-03 (narrow at approval) and SA-07 (view)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "— (allocation = narrowing at approval)"
+  },
+  {
+   "id": "SA-10",
+   "surface": "Super Admin",
+   "screen": "Content updates (awaiting release)",
+   "type": "tab",
+   "navigation": "Sidebar Content › Updates",
+   "proposedRoute": "/admin/content/updates",
+   "designed": true,
+   "inventoryDisposition": "KEEP",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B7-05",
+     "file": "B7-05-Content-Updates-Release-Hold.dc.html"
+    },
+    {
+     "code": "B7-11",
+     "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/content (versions awaiting)"
+  },
+  {
+   "id": "SA-11",
+   "surface": "Super Admin",
+   "screen": "Release or hold an update",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/admin/content/updates/[updateId]",
+   "designed": true,
+   "inventoryDisposition": "REFINE",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B7-01",
+     "file": "B7-01-SA-Overview.dc.html"
+    },
+    {
+     "code": "B7-05",
+     "file": "B7-05-Content-Updates-Release-Hold.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    },
+    {
+     "code": "B7-11",
+     "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+    },
+    {
+     "code": "B7-12",
+     "file": "B7-12-Responsive-Proof.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "Release / Hold panel on /platform/content/:id"
+  },
+  {
+   "id": "SA-12",
+   "surface": "Super Admin",
+   "screen": "All content & stuck items",
+   "type": "tab",
+   "navigation": "Content › All content",
+   "proposedRoute": "/admin/content/all",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B7-06",
+     "file": "B7-06-All-Content.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/content"
+  },
+  {
+   "id": "SA-13",
+   "surface": "Super Admin",
+   "screen": "Content record (read-only for published content; status override for stuck, non-published records — M-1)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/admin/content/records/[recordId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B7-06",
+     "file": "B7-06-All-Content.dc.html"
+    },
+    {
+     "code": "B7-09",
+     "file": "B7-09-Operations.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    },
+    {
+     "code": "B7-12",
+     "file": "B7-12-Responsive-Proof.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/content/:id"
+  },
+  {
+   "id": "SA-14",
+   "surface": "Super Admin",
+   "screen": "Academic structure (areas → courses)",
+   "type": "page",
+   "navigation": "Sidebar Academic structure",
+   "proposedRoute": "/admin/structure",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B7-07",
+     "file": "B7-07-Academic-Structure.dc.html"
+    },
+    {
+     "code": "B7-12",
+     "file": "B7-12-Responsive-Proof.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/structure"
+  },
+  {
+   "id": "SA-15",
+   "surface": "Super Admin",
+   "screen": "Area / course record",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/admin/structure/areas/[areaId] · /courses/[courseId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B7-07",
+     "file": "B7-07-Academic-Structure.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    },
+    {
+     "code": "B7-12",
+     "file": "B7-12-Responsive-Proof.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/structure/programme/:id, /course/:id"
+  },
+  {
+   "id": "SA-16",
+   "surface": "Super Admin",
+   "screen": "Platform roles (Vendors · Reviewers · Content Managers)",
+   "type": "page",
+   "navigation": "Sidebar Platform roles",
+   "proposedRoute": "/admin/roles?tab=vendors|reviewers|content-managers",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B7-08",
+     "file": "B7-08-Platform-Roles.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/roles"
+  },
+  {
+   "id": "SA-17",
+   "surface": "Super Admin",
+   "screen": "Role holder (assign / withdraw scope)",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/admin/roles/[holderId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "CORE",
+   "boards": [
+    {
+     "code": "B7-08",
+     "file": "B7-08-Platform-Roles.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    },
+    {
+     "code": "B7-12",
+     "file": "B7-12-Responsive-Proof.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/roles/:actorId"
+  },
+  {
+   "id": "SA-18",
+   "surface": "Super Admin",
+   "screen": "Device transfers",
+   "type": "tab",
+   "navigation": "Sidebar Operations › Device transfers",
+   "proposedRoute": "/admin/operations/device-transfers",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-11",
+     "file": "B3-11-SA-Device-Transfers.dc.html"
+    },
+    {
+     "code": "B7-09",
+     "file": "B7-09-Operations.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/operations"
+  },
+  {
+   "id": "SA-19",
+   "surface": "Super Admin",
+   "screen": "Device transfer decision",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/admin/operations/device-transfers/[transferId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B3-11",
+     "file": "B3-11-SA-Device-Transfers.dc.html"
+    },
+    {
+     "code": "B7-09",
+     "file": "B7-09-Operations.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/transfer/:id"
+  },
+  {
+   "id": "SA-20",
+   "surface": "Super Admin",
+   "screen": "Support reports",
+   "type": "tab",
+   "navigation": "Operations › Support",
+   "proposedRoute": "/admin/operations/support",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B7-09",
+     "file": "B7-09-Operations.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/operations"
+  },
+  {
+   "id": "SA-21",
+   "surface": "Super Admin",
+   "screen": "Support report",
+   "type": "page",
+   "navigation": "Detail",
+   "proposedRoute": "/admin/operations/support/[reportId]",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B7-09",
+     "file": "B7-09-Operations.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    },
+    {
+     "code": "B7-12",
+     "file": "B7-12-Responsive-Proof.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/support/:id"
+  },
+  {
+   "id": "SA-22",
+   "surface": "Super Admin",
+   "screen": "Access ending & renewals",
+   "type": "tab",
+   "navigation": "Operations › Access ending",
+   "proposedRoute": "/admin/operations/access-ending",
+   "designed": true,
+   "inventoryDisposition": "NEW",
+   "importance": "SUPP",
+   "boards": [
+    {
+     "code": "B7-09",
+     "file": "B7-09-Operations.dc.html"
+    },
+    {
+     "code": "B7-10",
+     "file": "B7-10-Critical-States.dc.html"
+    }
+   ],
+   "oldPrototypeRoute": "/platform/operations expiry table"
+  },
+  {
+   "id": "SA-23",
+   "surface": "Super Admin",
+   "screen": "Platform reports",
+   "type": "—",
+   "navigation": "(B2 rail \"Platform reports\")",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER (R15); the institution report lives in SA-07",
+   "importance": "OPT",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "SA-24",
+   "surface": "Super Admin",
+   "screen": "Platform settings",
+   "type": "—",
+   "navigation": "(B2 rail \"Platform settings\")",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "REMOVE (\"a gap is shown as a gap\", 17/10 §8)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  },
+  {
+   "id": "SA-25",
+   "surface": "Super Admin",
+   "screen": "Student feedback views / analytics",
+   "type": "—",
+   "navigation": "—",
+   "proposedRoute": "—",
+   "designed": false,
+   "inventoryDisposition": "DEFER (owner OPEN)",
+   "importance": "—",
+   "boards": [],
+   "oldPrototypeRoute": "—"
+  }
+ ]
+}

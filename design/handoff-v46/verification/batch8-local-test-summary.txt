@@ -1,0 +1,23 @@
+Batch 8 local verification run by Claude (Playwright, local server, files byte-identical to hosted v46).
+These are LOCAL results. The four hosted checks were performed by the owner (FREEZE-RECORD-v46.md).
+
+b2: 123 PASS / 0 FAIL · FAIL lines: 0
+b3: 233/233 passed · FAIL lines: 0
+b4: 321/321 passed · FAIL lines: 0
+b5: 184/184 passed · FAIL lines: 0
+b6: 398 / 398 passed · FAIL lines: 0
+b7: 161 / 161 passed · FAIL lines: 0
+reach_b4_chain: 264/264 passed · FAIL lines: 0
+reach_b4_native: 101/101 passed · FAIL lines: 0
+reach_b4_fill: 101/101 passed · FAIL lines: 0
+reach_b5_chain: 240/240 passed · FAIL lines: 0
+reach_b5_frames: 216/216 passed · FAIL lines: 0
+reach_b6_chain: 288 / 288 passed · FAIL lines: 0
+reach_b6_native: 101 / 101 passed · FAIL lines: 0
+reach_b6_fill: 101 / 101 passed · FAIL lines: 0
+reach_b7_chain: 263 / 263 passed · FAIL lines: 0
+reach_b7_native: 221 / 221 passed · FAIL lines: 0
+reach_b7_fill: 221 / 221 passed · FAIL lines: 0
+nav_b8: 132 / 132 passed · FAIL lines: 0 (run 1: 129 / 131 — test filter fixed, see reg8_nav_b8_run1.txt)
+reach_b8: 72 / 72 passed · FAIL lines: 0
+DONE

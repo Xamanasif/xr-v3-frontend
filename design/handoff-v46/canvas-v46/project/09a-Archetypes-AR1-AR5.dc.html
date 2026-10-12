@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09a · Archetypes AR-1 to AR-5</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1440px; min-height: 6400px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Deliverable F · Board 09a · §C.13</span>
+    <h1 class="doc-title">Page archetypes AR-1 to AR-5</h1>
+    <p class="doc-sub">Structural patterns — hierarchy, density, composition and responsive behaviour — not templates to stamp. Each example uses real product content so the structure can be judged, and is labelled as a foundation pattern example: it does not approve the later-batch screen it resembles.</p>
+  </header>
+
+  <div class="doc-body">
+
+    <!-- AR-1 -->
+    <section class="doc-sec" aria-labelledby="h-ar1">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-1 · used by ST-F1 · FA-F1 · IA-F1 · VE-F1 · RV-F1 · CM-F1 · SA-F1</span>
+        <h2 id="h-ar1" class="doc-sec-title">Overview / Home — “What needs my attention?”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div class="doc-card" style="display: flex; gap: 16px; padding: 18px">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="height: 14px; width: 55%; background: #141B5E; border-radius: 2px"></span>
+              <span style="height: 8px; width: 80%; background: #C9CEF2; border-radius: 2px"></span>
+              <span style="display: flex; gap: 4px"><span style="height: 12px; width: 40px; background: #E9A825; border-radius: 2px"></span><span style="height: 12px; width: 34px; border: 1px solid #141B5E; border-radius: 2px"></span></span>
+              <span style="margin-top: 6px; height: 70px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px; background-image: repeating-linear-gradient(#FFFFFF 0 13px, #E1E4F3 13px 14px)"></span>
+            </div>
+            <div style="width: 70px; display: flex; flex-direction: column; gap: 5px; padding: 8px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="height: 10px; width: 70%; background: #141B5E; border-radius: 2px"></span>
+              <span style="height: 6px; background: #C9CEF2; border-radius: 2px"></span>
+              <span style="height: 10px; background: #E9A825; border-radius: 2px"></span>
+              <span style="height: 70px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 3px; background-image: repeating-linear-gradient(#FFFFFF 0 13px, #E1E4F3 13px 14px)"></span>
+            </div>
+          </div>
+          <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+            <dt>Structure</dt><dd>Header · one status line · at most 2 actions · attention list. Single column, 1040 px.</dd>
+            <dt style="margin-top: 10px">Budget</dt><dd>≤ 3 stacked sections · ≤ 5–6 attention rows, one action each · no KPI tiles, charts, multi-column tables or tiles.</dd>
+            <dt style="margin-top: 10px">Responsive</dt><dd>Same order at every width; row actions drop under the text below 600 px.</dd>
+            <dt style="margin-top: 10px">State shown</dt><dd>Normal, and “nothing needs you” (all clear).</dd>
+          </dl>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · Institute Admin content · not the IA-F1 design</span>
+          <div class="doc-frame">
+            <div style="height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3"><ol class="xr-crumbs" style="display: flex"><li><span aria-current="page">Overview</span></li></ol><span class="xr-avatar" aria-hidden="true">MI</span></div>
+            <div class="xr-content" style="padding: 32px 32px 40px">
+              <div class="xr-phead">
+                <div class="xr-phead-main">
+                  <span class="xr-overline">Godavari Institute of Technology</span>
+                  <h3 class="xr-h1">Overview</h3>
+                  <p class="xr-body" style="color: #40476B; display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Access active</span><span class="xr-num">Licences 1,284 of 1,650 · plan ends 30 Jun 2027</span></p>
+                </div>
+                <div class="xr-phead-actions"><a class="xr-btn xr-btn--secondary" href="#h-ar1">Add students</a><a class="xr-btn xr-btn--primary" href="#h-ar1">Give students access</a></div>
+              </div>
+              <section class="xr-section" aria-labelledby="ar1-att">
+                <div class="xr-section-head"><h4 id="ar1-att" class="xr-h2">Needs your attention</h4><span class="xr-meta">5 items</span></div>
+                <ul class="xr-rows">
+                  <li class="xr-row"><div class="xr-row-main"><span class="xr-row-icon xr-row-icon--wait"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.8 19.5h18.4zM12 10v4M12 17h.01"></path></svg></span><div class="xr-row-text"><span class="xr-row-title">Shell-and-Tube Heat Exchanger hasn’t been given to any student</span><span class="xr-row-sub">ME ZG523 · in your access plan</span></div></div><a class="xr-btn xr-btn--secondary xr-btn--sm" href="#h-ar1">Give access</a></li>
+                  <li class="xr-row"><div class="xr-row-main"><span class="xr-row-icon"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3.5 20a6.5 6.5 0 0 1 10-5.5M18 14v6M15 17h6"></path></svg></span><div class="xr-row-text"><span class="xr-row-title">12 students have no access yet</span><span class="xr-row-sub">Added 4 Aug</span></div></div><a class="xr-btn xr-btn--secondary xr-btn--sm" href="#h-ar1">Review students</a></li>
+                  <li class="xr-row"><div class="xr-row-main"><span class="xr-row-icon xr-row-icon--wait"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg></span><div class="xr-row-text"><span class="xr-row-title">3 students are waiting for a licence</span><span class="xr-row-sub">Forced Convection</span></div></div><a class="xr-btn xr-btn--secondary xr-btn--sm" href="#h-ar1">View</a></li>
+                  <li class="xr-row"><div class="xr-row-main"><span class="xr-row-icon xr-row-icon--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 18h2"></path></svg></span><div class="xr-row-text"><span class="xr-row-title">2 device requests to forward to BITS</span><span class="xr-row-sub">Oldest from 29 Sep</span></div></div><a class="xr-btn xr-btn--secondary xr-btn--sm" href="#h-ar1">Open requests</a></li>
+                  <li class="xr-row"><div class="xr-row-main"><span class="xr-row-icon xr-row-icon--err"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg></span><div class="xr-row-text"><span class="xr-row-title">1 open problem report from your institution</span><span class="xr-row-sub">SUP-0213 · 3 Oct</span></div></div><a class="xr-btn xr-btn--secondary xr-btn--sm" href="#h-ar1">View report</a></li>
+                </ul>
+              </section>
+            </div>
+          </div>
+          <div class="doc-frame" style="max-width: 640px">
+            <div class="xr-content" style="padding: 20px 24px 24px">
+              <section class="xr-section" aria-labelledby="ar1-clear">
+                <div class="xr-section-head"><h4 id="ar1-clear" class="xr-h2">Needs your attention</h4></div>
+                <div class="xr-empty" style="border-top: 1px solid #E1E4F3; padding: 24px"><span class="xr-empty-icon" style="background: #E8F4EC; color: #1D6B45"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><p class="xr-h3">Nothing needs you right now</p><p class="xr-small" style="color: #40476B">New items appear here as they come in.</p></div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AR-2 -->
+    <section class="doc-sec" aria-labelledby="h-ar2">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-2 · used by catalogue, queues, people, content lists</span>
+        <h2 id="h-ar2" class="doc-sec-title">List / queue — “Which one do I open next?”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div class="doc-card" style="display: flex; gap: 16px; padding: 18px">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="display: flex; justify-content: space-between"><span style="height: 14px; width: 45%; background: #141B5E; border-radius: 2px"></span><span style="height: 12px; width: 40px; background: #E9A825; border-radius: 2px"></span></span>
+              <span style="display: flex; gap: 4px; margin-top: 4px"><span style="flex: 1; height: 12px; border: 1px solid #7A82AE; border-radius: 2px; background: #FFFFFF"></span><span style="width: 36px; height: 12px; border: 1px solid #7A82AE; border-radius: 2px; background: #FFFFFF"></span><span style="width: 36px; height: 12px; border: 1px solid #7A82AE; border-radius: 2px; background: #FFFFFF"></span></span>
+              <span style="margin-top: 6px; height: 84px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px; background-image: repeating-linear-gradient(#F4F5FB 0 12px, #FFFFFF 12px 13px, #FFFFFF 13px 20px, #E1E4F3 20px 21px)"></span>
+            </div>
+            <div style="width: 70px; display: flex; flex-direction: column; gap: 5px; padding: 8px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="height: 10px; width: 70%; background: #141B5E; border-radius: 2px"></span>
+              <span style="height: 10px; border: 1px solid #7A82AE; border-radius: 2px; background: #FFFFFF"></span>
+              <span style="height: 84px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 3px; background-image: repeating-linear-gradient(#FFFFFF 0 26px, #E1E4F3 26px 27px)"></span>
+            </div>
+          </div>
+          <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+            <dt>Structure</dt><dd>Header (+ primary action if the role creates) · search + ≤ 2 filters, more in a panel · rows that always link · result count.</dd>
+            <dt style="margin-top: 10px">Rules</dt><dd>Status in words. No count that cannot be opened. Sort stated in the header row.</dd>
+            <dt style="margin-top: 10px">Responsive</dt><dd>Below 760 px of content width the table becomes stacked rows with labels; filters move into a sheet.</dd>
+            <dt style="margin-top: 10px">State shown</dt><dd>Normal, and filtered to nothing.</dd>
+          </dl>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · Super Admin content · not the SA-F2 design</span>
+          <div class="doc-frame">
+            <div style="height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3"><ol class="xr-crumbs" style="display: flex"><li><span aria-current="page">Requests</span></li></ol><span class="xr-avatar" aria-hidden="true">AM</span></div>
+            <div class="xr-content" style="padding: 32px 32px 40px">
+              <div class="xr-phead"><div class="xr-phead-main"><h3 class="xr-h1">Requests</h3><p class="xr-meta">Requests from institutions for access to experiments</p></div></div>
+              <div class="xr-toolbar">
+                <div class="xr-field xr-toolbar-search"><label class="xr-label" for="ar2-s">Search</label><div class="xr-search"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4"></path></svg><input id="ar2-s" class="xr-input" type="search" placeholder="Reference or institution"></div></div>
+                <div class="xr-field"><label class="xr-label" for="ar2-f">Status</label><div class="xr-select-wrap"><select id="ar2-f" class="xr-select"><option>All statuses</option><option>Under review</option><option>Information requested</option><option>Approved — payment required</option><option>Access active</option></select><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></div></div>
+              </div>
+              <div class="xr-toolbar-status"><span class="xr-meta">4 requests · oldest first</span></div>
+              <div class="xr-table-wrap">
+                <table class="xr-table">
+                  <thead><tr><th>Reference</th><th>Institution</th><th>Experiments</th><th>Submitted</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td class="is-primary"><a href="#h-ar2" class="xr-id" style="font-weight: 700; color: #1F4FD8">REQ-0042</a></td><td data-label="Institution">Godavari Institute of Technology</td><td data-label="Experiments">Shell-and-Tube Heat Exchanger <span class="xr-sub">+ 1 more</span></td><td data-label="Submitted">2 Oct</td><td data-label="Status"><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>Under review</span></td></tr>
+                    <tr><td class="is-primary"><a href="#h-ar2" class="xr-id" style="font-weight: 700; color: #1F4FD8">REQ-0041</a></td><td data-label="Institution">Krishna College of Engineering <span class="xr-sub">sample</span></td><td data-label="Experiments">3 experiments</td><td data-label="Submitted">30 Sep</td><td data-label="Status"><span class="xr-status xr-status--err"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>Information requested</span></td></tr>
+                    <tr><td class="is-primary"><a href="#h-ar2" class="xr-id" style="font-weight: 700; color: #1F4FD8">REQ-0039</a></td><td data-label="Institution">BITS Pilani Hyderabad</td><td data-label="Experiments">2 experiments</td><td data-label="Submitted">26 Sep</td><td data-label="Status"><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Access active</span></td></tr>
+                    <tr><td class="is-primary"><a href="#h-ar2" class="xr-id" style="font-weight: 700; color: #1F4FD8">REQ-0037</a></td><td data-label="Institution">Vizag Polytechnic <span class="xr-sub">sample</span></td><td data-label="Experiments">1 experiment</td><td data-label="Submitted">22 Sep</td><td data-label="Status"><span class="xr-status xr-status--wait"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg>Approved — payment required</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="doc-frame" style="max-width: 640px">
+            <div class="xr-content" style="padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 12px">
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center"><span class="xr-meta">0 of 4 requests</span><span class="xr-fchip">Search: “Andhra”<button type="button" aria-label="Clear search Andhra"><svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></span></div>
+              <div class="xr-section"><div class="xr-empty"><span class="xr-empty-icon"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4"></path></svg></span><p class="xr-h3">No requests match “Andhra”</p><p class="xr-small" style="color: #40476B">Check the spelling, or search by reference number.</p><button type="button" class="xr-btn xr-btn--secondary">Clear search</button></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AR-3 -->
+    <section class="doc-sec" aria-labelledby="h-ar3">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-3 · used by institution, student record, experiment record, request status</span>
+        <h2 id="h-ar3" class="doc-sec-title">Record detail — “What is this, and where is it now?”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div class="doc-card" style="display: flex; gap: 16px; padding: 18px">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="height: 6px; width: 25%; background: #1F4FD8; border-radius: 2px"></span>
+              <span style="display: flex; justify-content: space-between; align-items: center"><span style="height: 14px; width: 55%; background: #141B5E; border-radius: 2px"></span><span style="height: 12px; width: 40px; background: #E9A825; border-radius: 2px"></span></span>
+              <span style="height: 10px; width: 30%; background: #E8F4EC; border: 1px solid #1D6B45; border-radius: 6px"></span>
+              <span style="margin-top: 6px; height: 34px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span>
+              <span style="height: 34px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span>
+              <span style="height: 22px; background: #FFFFFF; border: 1px dashed #7A82AE; border-radius: 4px"></span>
+            </div>
+          </div>
+          <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+            <dt>Structure</dt><dd>Back link · ID · title · status in words · one next action · full-width sections stacked · history last.</dd>
+            <dt style="margin-top: 10px">Rules</dt><dd>Never two dense columns. Facts said once. Read-only says who has it now.</dd>
+            <dt style="margin-top: 10px">Responsive</dt><dd>Sections stack unchanged; key–value lists become label-over-value below 600 px.</dd>
+            <dt style="margin-top: 10px">State shown</dt><dd>Read-only while with another role (no action).</dd>
+          </dl>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · Vendor content · not the VE-F4 design</span>
+          <div class="doc-frame">
+            <div style="height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3"><ol class="xr-crumbs" style="display: flex"><li><a href="#h-ar3">My experiments</a><span class="xr-crumb-sep" aria-hidden="true">/</span></li><li><span aria-current="page">Conduction Through a Composite Wall</span></li></ol><span class="xr-avatar" aria-hidden="true">AS</span></div>
+            <div class="xr-content" style="padding: 28px 32px 40px">
+              <a class="xr-back" href="#h-ar3" style="margin-bottom: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>My experiments</a>
+              <div class="xr-phead">
+                <div class="xr-phead-main">
+                  <span class="xr-id">SUB-0077</span>
+                  <h3 class="xr-h1">Conduction Through a Composite Wall</h3>
+                  <div class="xr-phead-meta"><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>With Academic Reviewer</span><span>ME ZG523 · revision 2 · submitted 26 Aug</span></div>
+                </div>
+              </div>
+              <div class="xr-stack">
+                <div class="xr-notice xr-notice--quiet" role="note"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">Read-only while it is with the Academic Reviewer</span><span>Nothing is needed from you now. You can edit again if it is returned to you.</span></div></div>
+                <section class="xr-section" aria-labelledby="ar3-det">
+                  <div class="xr-section-head"><h4 id="ar3-det" class="xr-h2">Submission details</h4></div>
+                  <div class="xr-section-body">
+                    <dl class="doc-kv" style="grid-template-columns: 180px minmax(0, 1fr)">
+                      <dt>Course</dt><dd>ME ZG523 — Thermodynamics &amp; Heat Transfer</dd>
+                      <dt>Formats</dt><dd><span class="xr-fmt-set"><span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span><span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span></span></dd>
+                      <dt>Delivery</dt><dd>Web link (WEB) · App package (VR)</dd>
+                      <dt>Summary</dt><dd>Measure the temperature profile across a three-layer wall and compare it with the series-resistance model.</dd>
+                    </dl>
+                  </div>
+                </section>
+                <section class="xr-section" aria-labelledby="ar3-lo">
+                  <div class="xr-section-head"><h4 id="ar3-lo" class="xr-h2">Learning outcomes</h4><span class="xr-meta">One set for every format</span></div>
+                  <div class="xr-section-body">
+                    <ol class="doc-list" style="color: #12173F; font-size: 16px; line-height: 24px"><li>Explain conduction through layers in series using thermal resistance.</li><li>Predict interface temperatures from layer properties.</li><li>Compare measured and predicted heat flux and explain the difference.</li></ol>
+                  </div>
+                </section>
+                <section class="xr-section" aria-labelledby="ar3-hist">
+                  <div class="xr-section-head"><h4 id="ar3-hist" class="xr-h2">Submission and review history</h4></div>
+                  <div class="xr-section-body">
+                    <ol class="xr-timeline">
+                      <li class="xr-tl is-latest"><span class="xr-tl-dot" aria-hidden="true"></span><div><p class="xr-tl-what">Submitted · revision 2</p><p class="xr-tl-when">26 Aug · your changes have been submitted for review</p></div></li>
+                      <li class="xr-tl"><span class="xr-tl-dot" aria-hidden="true"></span><div><p class="xr-tl-what">Returned with a reason</p><p class="xr-tl-when">19 Aug · Academic Reviewer</p><p class="xr-tl-note">“Please clarify the VR device requirements.”</p></div></li>
+                      <li class="xr-tl"><span class="xr-tl-dot" aria-hidden="true"></span><div><p class="xr-tl-what">Submitted</p><p class="xr-tl-when">12 Aug</p></div></li>
+                    </ol>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AR-4 -->
+    <section class="doc-sec" aria-labelledby="h-ar4">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-4 · used by request decision, review, publication decision, release / hold, marking</span>
+        <h2 id="h-ar4" class="doc-sec-title">Decision page — “Should I approve this?”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div class="doc-card" style="display: flex; gap: 16px; padding: 18px">
+            <div style="flex: 1; display: grid; grid-template-columns: 72fr 28fr; gap: 6px; padding: 10px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="grid-column: 1 / -1; height: 14px; width: 55%; background: #141B5E; border-radius: 2px"></span>
+              <span style="display: flex; flex-direction: column; gap: 5px"><span style="height: 30px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span><span style="height: 30px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span><span style="height: 22px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span></span>
+              <span style="display: flex; flex-direction: column; gap: 4px; padding: 5px; background: #FFFFFF; border: 1px solid #141B5E; border-radius: 4px"><span style="height: 8px; background: #141B5E; border-radius: 2px; width: 70%"></span><span style="height: 10px; border: 1px solid #7A82AE; border-radius: 2px"></span><span style="height: 10px; border: 1px solid #7A82AE; border-radius: 2px"></span><span style="height: 10px; background: #E9A825; border-radius: 2px; margin-top: 4px"></span></span>
+            </div>
+            <div style="width: 70px; display: flex; flex-direction: column; gap: 5px; padding: 8px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="height: 10px; width: 70%; background: #141B5E; border-radius: 2px"></span>
+              <span style="height: 30px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 3px"></span>
+              <span style="height: 22px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 3px"></span>
+              <span style="height: 34px; background: #FFFFFF; border: 1px solid #141B5E; border-radius: 3px"></span>
+            </div>
+          </div>
+          <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+            <dt>Structure</dt><dd>Main ~72% — what is being decided, full-width sections · decision panel ~28% — one decision, its reason, one confirm.</dd>
+            <dt style="margin-top: 10px">Rules</dt><dd>Reason required for return, send back, hold and similar. The panel says what the decision does — and what it does not.</dd>
+            <dt style="margin-top: 10px">Responsive</dt><dd>Below 860 px of content width the panel moves under the content, with a “Go to decision” link at the top.</dd>
+            <dt style="margin-top: 10px">State shown</dt><dd>Resubmitted (revision 2), Approve chosen.</dd>
+          </dl>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · Academic Reviewer content · not the RV-F3 design</span>
+          <div class="doc-frame">
+            <div style="height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3"><ol class="xr-crumbs" style="display: flex"><li><a href="#h-ar4">Review queue</a><span class="xr-crumb-sep" aria-hidden="true">/</span></li><li><span aria-current="page">SUB-0077</span></li></ol><span class="xr-avatar" aria-hidden="true">AM</span></div>
+            <div class="xr-content" style="padding: 28px 32px 40px">
+              <a class="xr-back" href="#h-ar4" style="margin-bottom: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Review queue</a>
+              <div class="xr-phead">
+                <div class="xr-phead-main">
+                  <span class="xr-id">SUB-0077</span>
+                  <h3 class="xr-h1">Conduction Through a Composite Wall</h3>
+                  <div class="xr-phead-meta"><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>Resubmitted · revision 2</span><span>Northline Simulation Studio · ME ZG523</span></div>
+                  <a class="xr-jump" href="#ar4-decision">Go to decision<svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></a>
+                </div>
+              </div>
+              <div class="xr-decide">
+                <div class="xr-stack">
+                  <div class="xr-notice" role="note"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v4.5h-4.5"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">You returned revision 1 on 19 Aug</span><span>Your reason: “Please clarify the VR device requirements.”</span></div></div>
+                  <section class="xr-section" aria-labelledby="ar4-lo">
+                    <div class="xr-section-head"><h4 id="ar4-lo" class="xr-h2">Learning outcomes</h4></div>
+                    <div class="xr-section-body"><ol class="doc-list" style="color: #12173F; font-size: 16px; line-height: 24px"><li>Explain conduction through layers in series using thermal resistance.</li><li>Predict interface temperatures from layer properties.</li><li>Compare measured and predicted heat flux and explain the difference.</li></ol></div>
+                  </section>
+                  <section class="xr-section" aria-labelledby="ar4-fmt">
+                    <div class="xr-section-head"><h4 id="ar4-fmt" class="xr-h2">Formats and delivery</h4></div>
+                    <ul class="xr-rows">
+                      <li class="xr-row"><div class="xr-row-main"><span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span><div class="xr-row-text"><span class="xr-row-title">Web link</span><span class="xr-row-sub">Opens in a new tab for review</span></div></div><a href="#h-ar4">Open web link<span class="xr-sr"> (opens in a new tab)</span></a></li>
+                      <li class="xr-row"><div class="xr-row-main"><span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span><div class="xr-row-text"><span class="xr-row-title">App package</span><span class="xr-row-sub">Device requirements clarified in revision 2</span></div></div><div class="xr-row-end"><span class="xr-status xr-status--wait">Changed</span><a href="#h-ar4">View details</a></div></li>
+                    </ul>
+                  </section>
+                </div>
+                <aside class="xr-dpanel" id="ar4-decision" tabIndex="-1" aria-labelledby="ar4-dp">
+                  <h4 id="ar4-dp" class="xr-dpanel-title">Your decision</h4>
+                  <fieldset class="xr-fieldset" style="gap: 10px">
+                    <legend class="xr-sr">Decision</legend>
+                    <label class="xr-choice is-checked"><input type="radio" name="ar4-dec" checked="{{ true }}"><span><span class="xr-choice-title">Approve</span><span class="xr-choice-sub">Moves to the Content Manager. Approving does not publish.</span></span></label>
+                    <label class="xr-choice"><input type="radio" name="ar4-dec"><span><span class="xr-choice-title">Return to vendor</span><span class="xr-choice-sub">You’ll add a reason the vendor will see.</span></span></label>
+                  </fieldset>
+                  <button type="button" class="xr-btn xr-btn--primary xr-btn--block">Approve</button>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AR-5 -->
+    <section class="doc-sec" aria-labelledby="h-ar5">
+      <div class="doc-sec-head">
+        <span class="doc-label">AR-5 · used by request access, give students access, create assessment, create experiment, import</span>
+        <h2 id="h-ar5" class="doc-sec-title">Guided flow — “What do I do in this step?”</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div class="doc-card" style="display: flex; gap: 16px; padding: 18px">
+            <div style="flex: 1; display: grid; grid-template-columns: 74fr 26fr; gap: 6px; padding: 10px; border: 1px solid #E1E4F3; border-radius: 6px; background: #F4F5FB">
+              <span style="grid-column: 1 / -1; display: flex; gap: 3px"><span style="flex: 1; height: 4px; background: #E9A825"></span><span style="flex: 1; height: 4px; background: #E1E4F3"></span><span style="flex: 1; height: 4px; background: #E1E4F3"></span></span>
+              <span style="display: flex; flex-direction: column; gap: 5px"><span style="height: 12px; width: 60%; background: #141B5E; border-radius: 2px"></span><span style="height: 52px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span><span style="display: flex; justify-content: flex-end; gap: 4px"><span style="height: 10px; width: 30px; border: 1px solid #141B5E; border-radius: 2px"></span><span style="height: 10px; width: 34px; background: #E9A825; border-radius: 2px"></span></span></span>
+              <span style="height: 60px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 4px"></span>
+            </div>
+          </div>
+          <dl class="doc-kv doc-card" style="grid-template-columns: 1fr; gap: 4px 0">
+            <dt>Structure</dt><dd>“Step n of N” + stepper · one step per screen · Save draft · Continue · a review step before the final confirm. Optional summary panel ~26%.</dd>
+            <dt style="margin-top: 10px">Rules</dt><dd>Back never loses work. Values the flow cannot change (here: formats) are shown read-only, never as a picker.</dd>
+            <dt style="margin-top: 10px">Responsive</dt><dd>Summary moves to a collapsible “Your selection” block above the actions; only the current step label shows.</dd>
+            <dt style="margin-top: 10px">State shown</dt><dd>Step 1 of 3 with one experiment chosen.</dd>
+          </dl>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-example-tag">Foundation pattern example · Institute Admin content · not the IA-F3 design</span>
+          <div class="doc-frame">
+            <div style="height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3"><ol class="xr-crumbs" style="display: flex"><li><a href="#h-ar5">Student access</a><span class="xr-crumb-sep" aria-hidden="true">/</span></li><li><span aria-current="page">Give students access</span></li></ol><span class="xr-avatar" aria-hidden="true">MI</span></div>
+            <div class="xr-content" style="padding: 28px 32px 40px">
+              <a class="xr-back" href="#h-ar5" style="margin-bottom: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Student access</a>
+              <div class="xr-phead" style="margin-bottom: 16px"><div class="xr-phead-main"><span class="xr-overline" style="color: #40476B">Step 1 of 3</span><h3 class="xr-h1">Choose experiments</h3></div></div>
+              <ol class="xr-steps" aria-label="Give students access" style="margin-bottom: 28px">
+                <li class="xr-step is-current" aria-current="step"><span class="xr-step-n">Step 1</span><span class="xr-step-label">Experiments</span></li>
+                <li class="xr-step"><span class="xr-step-n">Step 2</span><span class="xr-step-label">Students</span></li>
+                <li class="xr-step"><span class="xr-step-n">Step 3</span><span class="xr-step-label">Review and give access</span></li>
+              </ol>
+              <div class="xr-decide" style="grid-template-columns: minmax(0, 1fr)">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 24px; align-items: start">
+                  <div class="xr-section" style="padding: 24px; display: flex; flex-direction: column; gap: 20px">
+                    <div class="xr-field"><label class="xr-label" for="ar5-c">Course</label><div class="xr-select-wrap"><select id="ar5-c" class="xr-select"><option>ME ZG523 — Thermodynamics &amp; Heat Transfer</option></select><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></div></div>
+                    <fieldset class="xr-fieldset">
+                      <legend class="xr-legend">Experiments in your access plan</legend>
+                      <span class="xr-hint" style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px"><svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"></path></svg>Students inherit the formats in your plan. You don’t choose formats here.</span>
+                      <label class="xr-check" style="border-top: 1px solid #E1E4F3"><input type="checkbox" checked="{{ true }}"><span style="display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center">Shell-and-Tube Heat Exchanger <span class="xr-fmt-set"><span class="xr-fmt xr-fmt--compact">WEB</span><span class="xr-fmt xr-fmt--compact">VR</span></span></span></label>
+                      <label class="xr-check" style="border-top: 1px solid #E1E4F3"><input type="checkbox"><span style="display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center">Conduction Through a Composite Wall <span class="xr-fmt-set"><span class="xr-fmt xr-fmt--compact">WEB</span></span></span></label>
+                      <label class="xr-check" style="border-top: 1px solid #E1E4F3"><input type="checkbox"><span style="display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center">Forced Convection <span class="xr-fmt-set"><span class="xr-fmt xr-fmt--compact">WEB</span></span></span></label>
+                    </fieldset>
+                    <div style="display: flex; flex-wrap: wrap-reverse; gap: 12px; justify-content: flex-end; padding-top: 4px"><a class="xr-btn xr-btn--text" href="#h-ar5">Cancel</a><button type="button" class="xr-btn xr-btn--secondary">Save draft</button><button type="button" class="xr-btn xr-btn--primary">Continue</button></div>
+                  </div>
+                  <aside class="xr-dpanel" aria-labelledby="ar5-sum" style="box-shadow: none; background: #F4F5FB">
+                    <h4 id="ar5-sum" class="xr-dpanel-title">Your selection</h4>
+                    <dl class="doc-kv" style="grid-template-columns: 1fr; gap: 2px 0">
+                      <dt>Course</dt><dd>ME ZG523</dd>
+                      <dt style="margin-top: 8px">Experiments</dt><dd>Shell-and-Tube Heat Exchanger · WEB, VR inherited</dd>
+                      <dt style="margin-top: 8px">Students</dt><dd>Not chosen yet</dd>
+                    </dl>
+                  </aside>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":6400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

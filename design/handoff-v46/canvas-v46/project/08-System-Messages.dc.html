@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · GL-04 System and Message Pages</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1440px; min-height: 4300px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Deliverable E · Board 08 · GL-04 · AR-10</span>
+    <h1 class="doc-title">System and message pages</h1>
+    <p class="doc-sub">“Why can’t I see this, and where do I go now?” One template for every refusal, absence and short confirmation: one clear explanation, one clear next action. No giant illustrations, no error codes.</p>
+  </header>
+
+  <div class="doc-body">
+
+    <section class="doc-sec" aria-labelledby="h-anat">
+      <div class="doc-sec-head">
+        <h2 id="h-anat" class="doc-sec-title">Anatomy</h2>
+        <p class="doc-sec-note">The message sits in the normal shell (or the public header), left-aligned in a 600 px column near the top, so the sidebar and account menu stay usable.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 32px; align-items: start">
+        <div class="doc-card" style="position: relative; padding: 40px 48px">
+          <div class="xr-msg" style="margin: 0">
+            <span class="xr-msg-icon"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg></span>
+            <h3 class="xr-msg-title">This experiment isn’t available to you</h3>
+            <p class="xr-body" style="color: #40476B">Your institution hasn’t given you access to it. Experiments you can open are in My courses.</p>
+            <div class="xr-msg-actions"><a class="xr-btn xr-btn--primary" href="#h-anat">Back to My courses</a><a href="#h-anat">Help</a></div>
+          </div>
+        </div>
+        <ol class="doc-card doc-list" style="list-style: decimal; padding-left: 44px; gap: 12px">
+          <li><strong>Icon</strong> in a 48 px circle — shape matches the status tone (board 04). Decorative; hidden from screen readers.</li>
+          <li><strong>Title</strong> as the page’s only H1 — says what happened in plain words.</li>
+          <li><strong>One sentence</strong> — why, and what still holds (e.g. “your work is kept”).</li>
+          <li><strong>One primary action</strong> — always a way forward, named by its destination.</li>
+          <li><strong>Help</strong> as a quiet link where the person may need it.</li>
+          <li>Reference IDs only on confirmations.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-inshell">
+      <div class="doc-sec-head">
+        <h2 id="h-inshell" class="doc-sec-title">In context · Student workspace · 1312 px</h2>
+        <p class="doc-sec-note">The refusal does not replace the shell. The sidebar shows where the person can go; nothing in it is marked current because the page is not a destination.</p>
+      </div>
+      <div class="doc-frame">
+        <div class="xr-app" style="width: 1310px; min-height: 640px">
+          <div class="xr-shell" style="min-height: 640px">
+            <aside class="xr-side" aria-label="Student workspace">
+              <div class="xr-side-head"><div class="xr-logo-ph">BITS Pilani / WILP logo — placeholder</div><span class="xr-product">XR Learning Platform</span></div>
+              <div class="xr-ws"><span class="xr-ws-label">Student</span><span class="xr-ws-inst">Godavari Institute of Technology</span></div>
+              <nav aria-label="Student navigation"><ul class="xr-nav">
+                <li><a href="#h-inshell"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"></path></svg><span class="xr-nav-text">Home</span></a></li>
+                <li><a href="#h-inshell"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5A1.5 1.5 0 0 1 6.5 4H19v13H6.5A1.5 1.5 0 0 0 5 18.5zM5 18.5A1.5 1.5 0 0 0 6.5 20H19M9 8h6"></path></svg><span class="xr-nav-text">My courses</span></a></li>
+                <li><a href="#h-inshell"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5h6v3H9zM15 5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3M8.5 13.5l2.5 2.5 4.5-5"></path></svg><span class="xr-nav-text">Assessments</span></a></li>
+                <li><a href="#h-inshell"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 16v-4M12 16V7M17 16v-6"></path></svg><span class="xr-nav-text">Progress</span></a></li>
+              </ul></nav>
+              <div class="xr-side-foot"><ul class="xr-nav"><li><a href="#h-inshell"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span class="xr-nav-text">Help</span></a></li></ul></div>
+            </aside>
+            <div class="xr-main">
+              <header class="xr-top">
+                <button type="button" class="xr-icon-btn xr-top-collapse" aria-label="Collapse menu"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM9.5 5v14M16 10l-2 2 2 2"></path></svg></button>
+                <div class="xr-top-loc"><ol class="xr-crumbs" aria-label="You are here"><li><a href="#h-inshell">My courses</a><span class="xr-crumb-sep" aria-hidden="true">/</span></li><li><span aria-current="page">Not available</span></li></ol></div>
+                <div class="xr-acct"><button type="button" class="xr-acct-btn" aria-expanded="false" aria-label="Account menu: Rahul Verma, Student"><span class="xr-avatar" aria-hidden="true">RV</span><span class="xr-acct-text" aria-hidden="true"><span class="xr-acct-name">Rahul Verma</span><span class="xr-acct-role">Student</span></span><svg class="xr-ico xr-acct-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button></div>
+              </header>
+              <main class="xr-page">
+                <div class="xr-msg" style="margin: 24px 0 0">
+                  <span class="xr-msg-icon"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg></span>
+                  <h1 class="xr-msg-title">This experiment isn’t available to you</h1>
+                  <p class="xr-body" style="color: #40476B">Your institution hasn’t given you access to Forced Convection. Experiments you can open are in My courses.</p>
+                  <div class="xr-msg-actions"><a class="xr-btn xr-btn--primary" href="#h-inshell">Back to My courses</a><a href="#h-inshell">Help</a></div>
+                </div>
+              </main>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-family">
+      <div class="doc-sec-head">
+        <h2 id="h-family" class="doc-sec-title">The family · same template, different words</h2>
+        <p class="doc-sec-note">Shown without the sidebar for comparison. Sample copy; the person, experiment and dates come from the record.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px">
+        <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="8">
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap"><span class="doc-label">{{ m.label }}</span><span class="xr-meta">{{ m.ids }}</span></div>
+            <div class="doc-frame" style="background: #F4F5FB">
+              <sc-if value="{{ m.isPublic }}" hint-placeholder-val="{{ false }}">
+                <div style="height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3">
+                  <div class="xr-logo-ph" style="min-height: 40px; width: 200px">BITS Pilani / WILP logo — placeholder</div>
+                  <span class="doc-example-tag">Public header · Batch 1</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ m.isWorkspace }}" hint-placeholder-val="{{ true }}">
+                <div style="height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3">
+                  <span style="font-size: 15px; font-weight: 700; color: #12173F">{{ m.crumb }}</span>
+                  <span style="display: inline-flex; align-items: center; gap: 10px"><span class="xr-avatar" aria-hidden="true">{{ m.initials }}</span><span class="xr-meta">{{ m.ws }}</span></span>
+                </div>
+              </sc-if>
+              <div style="padding: 36px 40px 44px; min-height: 330px">
+                <div class="xr-msg" style="margin: 0">
+                  <span class="xr-msg-icon" style="background: {{ m.iconBg }}; color: {{ m.iconFg }}"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ m.icon }}"></path></svg></span>
+                  <h3 class="xr-msg-title">{{ m.title }}</h3>
+                  <p class="xr-body" style="color: #40476B">{{ m.body }}</p>
+                  <div class="xr-msg-actions"><a class="xr-btn xr-btn--primary" href="#h-family">{{ m.action }}</a><sc-if value="{{ m.hasHelp }}" hint-placeholder-val="{{ true }}"><a href="#h-family">Help</a></sc-if></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-mob">
+      <div class="doc-sec-head">
+        <h2 id="h-mob" class="doc-sec-title">At 375 px</h2>
+        <p class="doc-sec-note">The column fills the width; the primary action becomes full-width; the top bar keeps the title and the account menu.</p>
+      </div>
+      <div style="display: flex; gap: 48px; align-items: flex-start; flex-wrap: wrap">
+        <div class="doc-frame" style="width: 377px">
+          <div class="xr-app" style="width: 375px; min-height: 640px">
+            <div class="xr-shell" style="min-height: 640px">
+              <aside class="xr-side" aria-label="Student workspace"></aside>
+              <div class="xr-main">
+                <header class="xr-top">
+                  <button type="button" class="xr-menu-btn" aria-expanded="false"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg><span>Menu</span></button>
+                  <div class="xr-top-loc"><span class="xr-top-title">Not your workspace</span></div>
+                  <div class="xr-acct"><button type="button" class="xr-acct-btn" aria-label="Account menu: Rahul Verma, Student"><span class="xr-avatar" aria-hidden="true">RV</span></button></div>
+                </header>
+                <main class="xr-page">
+                  <div class="xr-msg" style="margin: 8px 0 0">
+                    <span class="xr-msg-icon"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"></path></svg></span>
+                    <h1 class="xr-msg-title">This page isn’t part of your workspace</h1>
+                    <p class="xr-body" style="color: #40476B">You’re signed in to the Student workspace. This address belongs to a different workspace.</p>
+                    <div class="xr-msg-actions" style="width: 100%"><a class="xr-btn xr-btn--primary xr-btn--block" href="#h-mob">Back to Home</a><a href="#h-mob">Help</a></div>
+                  </div>
+                </main>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="doc-card" style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 12px">
+          <span class="doc-label">Rules</span>
+          <ul class="doc-list">
+            <li>One H1 per message page; never repeat the title as a second heading (fixes B2 I10).</li>
+            <li>The primary action names where it goes: “Back to My courses”, “Browse experiments”.</li>
+            <li>Never show route names, role codes, status codes or technical causes.</li>
+            <li>“Paused” always adds “your work is kept”. “Ended” states the date when known.</li>
+            <li>Whether an admin-written reason is shown on paused / ended pages is not decided (pause reason is open) — the template has room for one line if it is.</li>
+            <li>Confirmations (“Report sent”, “Feedback sent”, “Request sent”) use the same template with a reference where one exists.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ICON = {
+      minus: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8',
+      search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
+      lock: 'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3',
+      pause: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6',
+      clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2',
+      check: 'M5 12.5l4.5 4.5L19 7.5'
+    };
+    const N = { iconBg: '#EEF0F8', iconFg: '#141B5E' }, W = { iconBg: '#FBF3E0', iconFg: '#8A5A05' }, OK = { iconBg: '#E8F4EC', iconFg: '#1D6B45' };
+    const ws = (crumb) => ({ isWorkspace: true, isPublic: false, crumb, initials: 'RV', ws: 'Student' });
+    const msgs = [
+      Object.assign({ label: 'Page not found · workspace', ids: 'PU-15 pattern · XS', icon: ICON.search, title: 'We can’t find that page', body: 'The address may be wrong, or the page may have moved.', action: 'Back to Home', hasHelp: true }, N, ws('Not found')),
+      Object.assign({ label: 'Page not found · public', ids: 'PU-15', icon: ICON.search, title: 'We can’t find that page', body: 'The address may be wrong, or the page may have moved. Published experiments are all in the catalogue.', action: 'Browse experiments', hasHelp: false, isPublic: true, isWorkspace: false }, N),
+      Object.assign({ label: 'This page isn’t part of your workspace', ids: 'XS-06', icon: ICON.lock, title: 'This page isn’t part of your workspace', body: 'You’re signed in to the Student workspace. This address belongs to a different workspace.', action: 'Back to Home', hasHelp: true }, N, ws('Not your workspace')),
+      Object.assign({ label: 'Experiment not available · not given to you', ids: 'ST-19', icon: ICON.minus, title: 'This experiment isn’t available to you', body: 'Your institution hasn’t given you access to Forced Convection. Experiments you can open are in My courses.', action: 'Back to My courses', hasHelp: true }, N, ws('Not available')),
+      Object.assign({ label: 'Experiment not available · no longer given', ids: 'ST-19', icon: ICON.minus, title: 'You no longer have access to this experiment', body: 'Transient Cooling is no longer included in your access.', action: 'Back to My courses', hasHelp: true }, N, ws('Not available')),
+      Object.assign({ label: 'Access paused', ids: 'XS-08 · ST-19', icon: ICON.pause, title: 'Your institution’s access is paused', body: 'Your work is kept.', action: 'Back to Home', hasHelp: true }, W, ws('Access paused')),
+      Object.assign({ label: 'Access ended', ids: 'ST-19', icon: ICON.clock, title: 'Your institution’s access to this experiment has ended', body: 'Access to Shell-and-Tube Heat Exchanger ended on 30 Jun 2027.', action: 'Back to My courses', hasHelp: true }, N, ws('Access ended')),
+      Object.assign({ label: 'Short success confirmation', ids: 'ST-17 pattern · PU-09 · GL-03', icon: ICON.check, title: 'Feedback sent', body: 'Your feedback on VR for Shell-and-Tube Heat Exchanger is saved. It helps improve this experience.', action: 'Back to Shell-and-Tube Heat Exchanger', hasHelp: false }, OK, ws('Feedback sent'))
+    ];
+    return { msgs };
+  }
+}
+</script>
+</body>
+</html>

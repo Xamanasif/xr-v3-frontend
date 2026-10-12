@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B1-02 · Engineering Area Explorer</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+<link rel="stylesheet" href="./xr-public.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1600px; min-height: 5451px; font-family: 'Public Sans', system-ui, sans-serif">
+<header class="doc-head"><span class="doc-kicker">Batch 1 · PU-F1 · Engineering-area explorer · keep the B2 idea, make it scale</span><h1 class="doc-title">Engineering-area explorer</h1><p class="doc-sub">One selected, expanded area card with its neighbours in a horizontal track. Proven with today’s three areas and with nine (three sample + six neutral test fixtures), on desktop, tablet and phone.</p><div class="doc-head-meta"><span>All four explorers on this board are live</span><span>Area names: only the three B2 names; others are labelled test placeholders</span><span>No production counts — counts derive from the 12 sample experiments</span></div></header><div class="doc-body"><section class="doc-sec" aria-labelledby="x-3"><div class="doc-sec-head"><h2 id="x-3" class="doc-sec-title">Proof 1 · three areas</h2></div><div style="width: 1440px; max-width: 100%"><div class="b1-cap"><strong>Three areas · 1440 · interactive</strong><span>Today’s sample structure. Selected card 60 %, neighbours 20 %.</span></div><div class="b1-frame" style=""><div class="xp " style=""><section class="xp-sec xp-sec--tight" aria-labelledby="X3-ex-h"><div class="xp-in"><div class="xp-sec-head"><div class="xp-sec-head-main"><span class="xp-eyebrow">Explore by area</span><h2 id="X3-ex-h" class="xp-h2">Every experiment, by engineering area.</h2></div>
+<div class="xp-sec-head-side"><p class="xp-lead">Pick an area to see its courses, then browse its experiments.</p></div></div><div class="{{ ex3.wrapCls }}" role="region" aria-roledescription="carousel" aria-label="Engineering areas">
+<ul class="xp-ex-track" ref="{{ ex3.trackRef }}" onKeyDown="{{ ex3.onKey }}" onScroll="{{ ex3.onScroll }}" style="position:relative">
+<sc-for list="{{ ex3.cards }}" as="a" hint-placeholder-count="3">
+<li class="{{ a.cls }}" role="group" aria-roledescription="slide" aria-label="{{ a.label }}">
+<sc-if value="{{ a.hasArt }}" hint-placeholder-val="{{ true }}"><div class="{{ a.artCls }}"><div class="{{ a.bgCls }}"></div></div></sc-if>
+<sc-if value="{{ a.noArt }}" hint-placeholder-val="{{ false }}"><div class="xp-ex-fallback" aria-hidden="true"><span>{{ a.ini }}</span></div></sc-if>
+<div class="xp-ex-shade" aria-hidden="true"></div>
+<div class="xp-ex-full"><span class="xp-ex-pos">{{ a.pos }}</span><h3 class="xp-ex-name">{{ a.name }}</h3><p class="xp-ex-desc">{{ a.desc }}</p>
+<ul class="xp-ex-courses"><sc-for list="{{ a.courses }}" as="c" hint-placeholder-count="2"><li>{{ c.t }}</li></sc-for></ul><p class="xp-ex-meta">{{ a.meta }}</p>
+<div class="xp-ex-actions"><a class="xr-btn xr-btn--primary" href="{{ a.browseHref }}">{{ a.browse }} <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a><a href="{{ a.areaHref }}">View area</a></div></div>
+<button type="button" class="xp-ex-mini" tabIndex="-1" aria-label="{{ a.pickLabel }}" onClick="{{ a.onPick }}"><span class="xp-ex-name">{{ a.name }}</span><span class="xp-ex-meta">{{ a.meta }}</span></button>
+</li>
+</sc-for>
+</ul>
+<div class="xp-ex-ctrl"><span class="xp-ex-count" aria-hidden="true">{{ ex3.count }}</span><button type="button" class="xp-round" aria-label="Previous area" disabled="{{ ex3.prevDis }}" onClick="{{ ex3.onPrev }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button><button type="button" class="xp-round" aria-label="Next area" disabled="{{ ex3.nextDis }}" onClick="{{ ex3.onNext }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button><span class="xp-ex-swipe">Swipe for more areas</span><a class="xp-more" href="B1-03-Areas-and-Course.dc.html">View all areas <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+<span class="xr-sr" aria-live="polite">{{ ex3.live }}</span>
+</div></div></section></div></div></div></section><section class="doc-sec" aria-labelledby="x-9"><div class="doc-sec-head"><h2 id="x-9" class="doc-sec-title">Proof 2 · eight-plus areas</h2></div><div style="width: 1440px; max-width: 100%"><div class="b1-cap"><strong>Nine areas · 1440 · interactive</strong><span class="b1-sample">Test fixtures — not real areas</span><span>Three sample areas + six neutral test fixtures. Selected 50 %, neighbours 22 %; the track scrolls so the selected area is always in view.</span></div><div class="b1-frame" style=""><div class="xp " style=""><section class="xp-sec xp-sec--tight" aria-labelledby="X9-ex-h"><div class="xp-in"><div class="xp-sec-head"><div class="xp-sec-head-main"><span class="xp-eyebrow">Explore by area</span><h2 id="X9-ex-h" class="xp-h2">Every experiment, by engineering area.</h2></div>
+<div class="xp-sec-head-side"><p class="xp-lead">Pick an area to see its courses, then browse its experiments.</p></div></div><div class="{{ ex9.wrapCls }}" role="region" aria-roledescription="carousel" aria-label="Engineering areas">
+<ul class="xp-ex-track" ref="{{ ex9.trackRef }}" onKeyDown="{{ ex9.onKey }}" onScroll="{{ ex9.onScroll }}" style="position:relative">
+<sc-for list="{{ ex9.cards }}" as="a" hint-placeholder-count="3">
+<li class="{{ a.cls }}" role="group" aria-roledescription="slide" aria-label="{{ a.label }}">
+<sc-if value="{{ a.hasArt }}" hint-placeholder-val="{{ true }}"><div class="{{ a.artCls }}"><div class="{{ a.bgCls }}"></div></div></sc-if>
+<sc-if value="{{ a.noArt }}" hint-placeholder-val="{{ false }}"><div class="xp-ex-fallback" aria-hidden="true"><span>{{ a.ini }}</span></div></sc-if>
+<div class="xp-ex-shade" aria-hidden="true"></div>
+<div class="xp-ex-full"><span class="xp-ex-pos">{{ a.pos }}</span><h3 class="xp-ex-name">{{ a.name }}</h3><p class="xp-ex-desc">{{ a.desc }}</p>
+<ul class="xp-ex-courses"><sc-for list="{{ a.courses }}" as="c" hint-placeholder-count="2"><li>{{ c.t }}</li></sc-for></ul><p class="xp-ex-meta">{{ a.meta }}</p>
+<div class="xp-ex-actions"><a class="xr-btn xr-btn--primary" href="{{ a.browseHref }}">{{ a.browse }} <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a><a href="{{ a.areaHref }}">View area</a></div></div>
+<button type="button" class="xp-ex-mini" tabIndex="-1" aria-label="{{ a.pickLabel }}" onClick="{{ a.onPick }}"><span class="xp-ex-name">{{ a.name }}</span><span class="xp-ex-meta">{{ a.meta }}</span></button>
+</li>
+</sc-for>
+</ul>
+<div class="xp-ex-ctrl"><span class="xp-ex-count" aria-hidden="true">{{ ex9.count }}</span><button type="button" class="xp-round" aria-label="Previous area" disabled="{{ ex9.prevDis }}" onClick="{{ ex9.onPrev }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button><button type="button" class="xp-round" aria-label="Next area" disabled="{{ ex9.nextDis }}" onClick="{{ ex9.onNext }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button><span class="xp-ex-swipe">Swipe for more areas</span><a class="xp-more" href="B1-03-Areas-and-Course.dc.html">View all areas <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+<span class="xr-sr" aria-live="polite">{{ ex9.live }}</span>
+</div></div></section></div></div></div><div style="margin-top:20px"><div class="b1-annot"><strong>Test fixtures.</strong> “Test area 4 — placeholder” to “Test area 9 — placeholder” exist only to prove scale. They have no courses or counts and use the artwork fallback. They are not proposed area names.</div></div></section><section class="doc-sec" aria-labelledby="x-m"><div class="doc-sec-head"><h2 id="x-m" class="doc-sec-title">Proof 3 · mobile and tablet</h2></div><div class="b1-states" style="grid-template-columns: 375px 375px; gap: 32px 40px"><div style="width: 375px; max-width: 100%"><div class="b1-cap"><strong>Mobile 375 · three areas</strong><span>Swipe: cards snap; 16 % of the next card peeks.</span></div><div class="b1-frame" style=""><div class="xp " style=""><section class="xp-sec xp-sec--tight" aria-labelledby="M3-ex-h"><div class="xp-in"><div class="xp-sec-head"><div class="xp-sec-head-main"><span class="xp-eyebrow">Explore by area</span><h2 id="M3-ex-h" class="xp-h2">Every experiment, by engineering area.</h2></div>
+<div class="xp-sec-head-side"><p class="xp-lead">Pick an area to see its courses, then browse its experiments.</p></div></div><div class="{{ exm3.wrapCls }}" role="region" aria-roledescription="carousel" aria-label="Engineering areas">
+<ul class="xp-ex-track" ref="{{ exm3.trackRef }}" onKeyDown="{{ exm3.onKey }}" onScroll="{{ exm3.onScroll }}" style="position:relative">
+<sc-for list="{{ exm3.cards }}" as="a" hint-placeholder-count="3">
+<li class="{{ a.cls }}" role="group" aria-roledescription="slide" aria-label="{{ a.label }}">
+<sc-if value="{{ a.hasArt }}" hint-placeholder-val="{{ true }}"><div class="{{ a.artCls }}"><div class="{{ a.bgCls }}"></div></div></sc-if>
+<sc-if value="{{ a.noArt }}" hint-placeholder-val="{{ false }}"><div class="xp-ex-fallback" aria-hidden="true"><span>{{ a.ini }}</span></div></sc-if>
+<div class="xp-ex-shade" aria-hidden="true"></div>
+<div class="xp-ex-full"><span class="xp-ex-pos">{{ a.pos }}</span><h3 class="xp-ex-name">{{ a.name }}</h3><p class="xp-ex-desc">{{ a.desc }}</p>
+<ul class="xp-ex-courses"><sc-for list="{{ a.courses }}" as="c" hint-placeholder-count="2"><li>{{ c.t }}</li></sc-for></ul><p class="xp-ex-meta">{{ a.meta }}</p>
+<div class="xp-ex-actions"><a class="xr-btn xr-btn--primary" href="{{ a.browseHref }}">{{ a.browse }} <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a><a href="{{ a.areaHref }}">View area</a></div></div>
+<button type="button" class="xp-ex-mini" tabIndex="-1" aria-label="{{ a.pickLabel }}" onClick="{{ a.onPick }}"><span class="xp-ex-name">{{ a.name }}</span><span class="xp-ex-meta">{{ a.meta }}</span></button>
+</li>
+</sc-for>
+</ul>
+<div class="xp-ex-ctrl"><span class="xp-ex-count" aria-hidden="true">{{ exm3.count }}</span><button type="button" class="xp-round" aria-label="Previous area" disabled="{{ exm3.prevDis }}" onClick="{{ exm3.onPrev }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button><button type="button" class="xp-round" aria-label="Next area" disabled="{{ exm3.nextDis }}" onClick="{{ exm3.onNext }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button><span class="xp-ex-swipe">Swipe for more areas</span><a class="xp-more" href="B1-03-Areas-and-Course.dc.html">View all areas <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+<span class="xr-sr" aria-live="polite">{{ exm3.live }}</span>
+</div></div></section></div></div></div><div style="width: 375px; max-width: 100%"><div class="b1-cap"><strong>Mobile 375 · nine areas</strong><span class="b1-sample">Test fixtures</span><span>Same track; the counter follows the swipe.</span></div><div class="b1-frame" style=""><div class="xp " style=""><section class="xp-sec xp-sec--tight" aria-label="Explore by area"><div class="xp-in"><div class="{{ exm9.wrapCls }}" role="region" aria-roledescription="carousel" aria-label="Engineering areas">
+<ul class="xp-ex-track" ref="{{ exm9.trackRef }}" onKeyDown="{{ exm9.onKey }}" onScroll="{{ exm9.onScroll }}" style="position:relative">
+<sc-for list="{{ exm9.cards }}" as="a" hint-placeholder-count="3">
+<li class="{{ a.cls }}" role="group" aria-roledescription="slide" aria-label="{{ a.label }}">
+<sc-if value="{{ a.hasArt }}" hint-placeholder-val="{{ true }}"><div class="{{ a.artCls }}"><div class="{{ a.bgCls }}"></div></div></sc-if>
+<sc-if value="{{ a.noArt }}" hint-placeholder-val="{{ false }}"><div class="xp-ex-fallback" aria-hidden="true"><span>{{ a.ini }}</span></div></sc-if>
+<div class="xp-ex-shade" aria-hidden="true"></div>
+<div class="xp-ex-full"><span class="xp-ex-pos">{{ a.pos }}</span><h3 class="xp-ex-name">{{ a.name }}</h3><p class="xp-ex-desc">{{ a.desc }}</p>
+<ul class="xp-ex-courses"><sc-for list="{{ a.courses }}" as="c" hint-placeholder-count="2"><li>{{ c.t }}</li></sc-for></ul><p class="xp-ex-meta">{{ a.meta }}</p>
+<div class="xp-ex-actions"><a class="xr-btn xr-btn--primary" href="{{ a.browseHref }}">{{ a.browse }} <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a><a href="{{ a.areaHref }}">View area</a></div></div>
+<button type="button" class="xp-ex-mini" tabIndex="-1" aria-label="{{ a.pickLabel }}" onClick="{{ a.onPick }}"><span class="xp-ex-name">{{ a.name }}</span><span class="xp-ex-meta">{{ a.meta }}</span></button>
+</li>
+</sc-for>
+</ul>
+<div class="xp-ex-ctrl"><span class="xp-ex-count" aria-hidden="true">{{ exm9.count }}</span><button type="button" class="xp-round" aria-label="Previous area" disabled="{{ exm9.prevDis }}" onClick="{{ exm9.onPrev }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button><button type="button" class="xp-round" aria-label="Next area" disabled="{{ exm9.nextDis }}" onClick="{{ exm9.onNext }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button><span class="xp-ex-swipe">Swipe for more areas</span><a class="xp-more" href="B1-03-Areas-and-Course.dc.html">View all areas <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+<span class="xr-sr" aria-live="polite">{{ exm9.live }}</span>
+</div></div></section></div></div></div></div><div style="margin-top:40px"><div style="width: 768px; max-width: 100%"><div class="b1-cap"><strong>Tablet 768</strong><span>Selected 70 %, one neighbour 30 %; the rest scroll.</span></div><div class="b1-frame" style=""><div class="xp " style=""><section class="xp-sec xp-sec--tight" aria-labelledby="T7-ex-h"><div class="xp-in"><div class="xp-sec-head"><div class="xp-sec-head-main"><span class="xp-eyebrow">Explore by area</span><h2 id="T7-ex-h" class="xp-h2">Every experiment, by engineering area.</h2></div>
+<div class="xp-sec-head-side"><p class="xp-lead">Pick an area to see its courses, then browse its experiments.</p></div></div><div class="xp-ex" role="region" aria-roledescription="carousel" aria-label="Engineering areas">
+<ul class="xp-ex-track" style="position:relative"><li class="xp-ex-card is-selected" role="group" aria-roledescription="slide" aria-label="1 of 3: Mechanical &amp; Manufacturing"><div class="xp-ex-art xp-atm-thermal"><img src="art/thermal.svg" alt=""></div><div class="xp-ex-shade" aria-hidden="true"></div><div class="xp-ex-full"><span class="xp-ex-pos">1 of 3</span><h3 class="xp-ex-name">Mechanical &amp; Manufacturing</h3><p class="xp-ex-desc">Heat transfer, thermodynamics and manufacturing processes.</p><ul class="xp-ex-courses"><li>ME ZG523 · Thermodynamics &amp; Heat Transfer</li><li>MEL ZG512 · Manufacturing Processes</li></ul><p class="xp-ex-meta">5 experiments · 2 courses</p>
+<div class="xp-ex-actions"><a class="xr-btn xr-btn--primary" href="B1-04-Catalogue.dc.html">Browse 5 experiments <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a><a href="B1-03-Areas-and-Course.dc.html#area">View area</a></div></div><button type="button" class="xp-ex-mini" tabIndex="-1" aria-label="Show Mechanical &amp; Manufacturing"><span class="xp-ex-name">Mechanical &amp; Manufacturing</span><span class="xp-ex-meta">5 experiments · 2 courses</span></button></li><li class="xp-ex-card" role="group" aria-roledescription="slide" aria-label="2 of 3: Electrical &amp; Electronics"><div class="xp-ex-art xp-atm-motor"><img src="art/motor.svg" alt=""></div><div class="xp-ex-shade" aria-hidden="true"></div><div class="xp-ex-full"><span class="xp-ex-pos">2 of 3</span><h3 class="xp-ex-name">Electrical &amp; Electronics</h3><p class="xp-ex-desc">Electrical machines, transformers and power electronics.</p><ul class="xp-ex-courses"><li>EEE ZC341 · Electrical Machines</li><li>EEE ZG512 · Power Electronics</li></ul><p class="xp-ex-meta">4 experiments · 2 courses</p>
+<div class="xp-ex-actions"><a class="xr-btn xr-btn--primary" href="B1-04-Catalogue.dc.html">Browse 4 experiments <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a><a href="B1-03-Areas-and-Course.dc.html#area">View area</a></div></div><button type="button" class="xp-ex-mini" tabIndex="-1" aria-label="Show Electrical &amp; Electronics"><span class="xp-ex-name">Electrical &amp; Electronics</span><span class="xp-ex-meta">4 experiments · 2 courses</span></button></li><li class="xp-ex-card" role="group" aria-roledescription="slide" aria-label="3 of 3: Chemical &amp; Process"><div class="xp-ex-art xp-atm-process"><img src="art/process.svg" alt=""></div><div class="xp-ex-shade" aria-hidden="true"></div><div class="xp-ex-full"><span class="xp-ex-pos">3 of 3</span><h3 class="xp-ex-name">Chemical &amp; Process</h3><p class="xp-ex-desc">Distillation, process control and flow measurement.</p><ul class="xp-ex-courses"><li>CHE ZG513 · Process Instrumentation &amp; Control</li></ul><p class="xp-ex-meta">3 experiments · 1 course</p>
+<div class="xp-ex-actions"><a class="xr-btn xr-btn--primary" href="B1-04-Catalogue.dc.html">Browse 3 experiments <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a><a href="B1-03-Areas-and-Course.dc.html#area">View area</a></div></div><button type="button" class="xp-ex-mini" tabIndex="-1" aria-label="Show Chemical &amp; Process"><span class="xp-ex-name">Chemical &amp; Process</span><span class="xp-ex-meta">3 experiments · 1 course</span></button></li></ul>
+<div class="xp-ex-ctrl"><span class="xp-ex-count" aria-hidden="true">1 of 3</span><button type="button" class="xp-round" aria-label="Previous area" disabled="{{ true }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button><button type="button" class="xp-round" aria-label="Next area"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button><span class="xp-ex-swipe">Swipe for more areas</span><a class="xp-more" href="B1-03-Areas-and-Course.dc.html">View all areas <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div></div></div></section></div></div></div></div></section><section class="doc-sec" aria-labelledby="x-spec"><div class="doc-sec-head"><h2 id="x-spec" class="doc-sec-title">Interaction and accessibility</h2></div><div class="xr-table-wrap"><table class="xr-table"><thead><tr><th>Input</th><th>Behaviour</th></tr></thead><tbody><tr><td>Pointer</td><td>Select a neighbouring card to expand it. Previous / Next buttons move one area. Inside the selected card: <strong>Browse N experiments</strong> (catalogue filtered by the area) and <strong>View area</strong> (area page).</td></tr><tr><td>Keyboard</td><td>Tab reaches the selected card’s two links, then Previous / Next and View all areas. ← → move between areas and focus follows to the new card’s first link; Home / End jump to the first or last area. Neighbouring cards are not separate tab stops.</td></tr><tr><td>Touch (below 600 px)</td><td>Horizontal swipe with snap; 16 % of the next card peeks so more is clearly available. Every card shows its full content and actions; the counter follows the swipe. Previous / Next are replaced by “Swipe for more areas”.</td></tr><tr><td>Screen reader</td><td>Region named “Engineering areas” (carousel); each card is a group named “2 of 9: Area name”. A polite live region announces the newly selected area. Images are decorative (alt="") because the area name is text.</td></tr><tr><td>Reduced motion</td><td>No size or scroll animation — changes are instant. Nothing ever moves on its own: no auto-advance, no timers.</td></tr><tr><td>Artwork</td><td>Bespoke B2 artwork where it exists (three areas). Otherwise the pattern + initials fallback. Images never carry information.</td></tr><tr><td>Data</td><td>Areas, descriptions and courses come from Super Admin Academic structure (SA-F6). Counts come from published experiments (CM-F3). The explorer is not hard-coded to three.</td></tr><tr><td>Long names</td><td>Names wrap to two lines in neighbours and in the selected card; nothing is truncated.</td></tr></tbody></table></div><div style="margin-top:28px"><dl class="doc-kv"><dt>Track</dt><dd>Horizontal list, 16 px gap, scroll-snap to the start of each card, scrollbar hidden (controls and swipe replace it).</dd><dt>Card height</dt><dd>540 px at ≥ 1024 · 480 px tablet · 500 px phone. On phones the course list moves to the area page and the in-card “1 of 3” is replaced by the counter under the track, so text never sits on the artwork.</dd><dt>Selected card</dt><dd>Position (“1 of 3”), name, one-line description, its courses, counts, Browse N experiments (primary), View area.</dd><dt>Neighbour</dt><dd>Name and counts only; the whole card selects it.</dd><dt>Controls row</dt><dd>Counter · Previous · Next · View all areas (→ PU-02 All areas).</dd></dl></div></section></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":5451}}'>
+class Component extends DCLogic {
+static get A3() { return [{"id": "mm", "name": "Mechanical & Manufacturing", "desc": "Heat transfer, thermodynamics and manufacturing processes.", "courses": [{"t": "ME ZG523 · Thermodynamics & Heat Transfer"}, {"t": "MEL ZG512 · Manufacturing Processes"}], "meta": "5 experiments · 2 courses", "browse": "Browse 5 experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": true, "noArt": false, "src": "", "artCls": "xp-ex-art xp-atm-thermal", "bgCls": "xp-bgart xp-art--thermal", "ini": "MM"}, {"id": "ee", "name": "Electrical & Electronics", "desc": "Electrical machines, transformers and power electronics.", "courses": [{"t": "EEE ZC341 · Electrical Machines"}, {"t": "EEE ZG512 · Power Electronics"}], "meta": "4 experiments · 2 courses", "browse": "Browse 4 experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": true, "noArt": false, "src": "", "artCls": "xp-ex-art xp-atm-motor", "bgCls": "xp-bgart xp-art--motor", "ini": "EE"}, {"id": "cp", "name": "Chemical & Process", "desc": "Distillation, process control and flow measurement.", "courses": [{"t": "CHE ZG513 · Process Instrumentation & Control"}], "meta": "3 experiments · 1 course", "browse": "Browse 3 experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": true, "noArt": false, "src": "", "artCls": "xp-ex-art xp-atm-process", "bgCls": "xp-bgart xp-art--process", "ini": "CP"}]; }
+  static get A9() { return [{"id": "mm", "name": "Mechanical & Manufacturing", "desc": "Heat transfer, thermodynamics and manufacturing processes.", "courses": [{"t": "ME ZG523 · Thermodynamics & Heat Transfer"}, {"t": "MEL ZG512 · Manufacturing Processes"}], "meta": "5 experiments · 2 courses", "browse": "Browse 5 experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": true, "noArt": false, "src": "", "artCls": "xp-ex-art xp-atm-thermal", "bgCls": "xp-bgart xp-art--thermal", "ini": "MM"}, {"id": "ee", "name": "Electrical & Electronics", "desc": "Electrical machines, transformers and power electronics.", "courses": [{"t": "EEE ZC341 · Electrical Machines"}, {"t": "EEE ZG512 · Power Electronics"}], "meta": "4 experiments · 2 courses", "browse": "Browse 4 experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": true, "noArt": false, "src": "", "artCls": "xp-ex-art xp-atm-motor", "bgCls": "xp-bgart xp-art--motor", "ini": "EE"}, {"id": "cp", "name": "Chemical & Process", "desc": "Distillation, process control and flow measurement.", "courses": [{"t": "CHE ZG513 · Process Instrumentation & Control"}], "meta": "3 experiments · 1 course", "browse": "Browse 3 experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": true, "noArt": false, "src": "", "artCls": "xp-ex-art xp-atm-process", "bgCls": "xp-bgart xp-art--process", "ini": "CP"}, {"id": "t4", "name": "Test area 4 — placeholder", "desc": "Neutral test fixture to prove the explorer scales. Not a real engineering area.", "courses": [{"t": "Courses come from Academic structure"}], "meta": "Counts come from published experiments", "browse": "Browse experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": false, "noArt": true, "src": "", "artCls": "", "ini": "T4"}, {"id": "t5", "name": "Test area 5 — placeholder", "desc": "Neutral test fixture to prove the explorer scales. Not a real engineering area.", "courses": [{"t": "Courses come from Academic structure"}], "meta": "Counts come from published experiments", "browse": "Browse experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": false, "noArt": true, "src": "", "artCls": "", "ini": "T5"}, {"id": "t6", "name": "Test area 6 — placeholder", "desc": "Neutral test fixture to prove the explorer scales. Not a real engineering area.", "courses": [{"t": "Courses come from Academic structure"}], "meta": "Counts come from published experiments", "browse": "Browse experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": false, "noArt": true, "src": "", "artCls": "", "ini": "T6"}, {"id": "t7", "name": "Test area 7 — placeholder", "desc": "Neutral test fixture to prove the explorer scales. Not a real engineering area.", "courses": [{"t": "Courses come from Academic structure"}], "meta": "Counts come from published experiments", "browse": "Browse experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": false, "noArt": true, "src": "", "artCls": "", "ini": "T7"}, {"id": "t8", "name": "Test area 8 — placeholder", "desc": "Neutral test fixture to prove the explorer scales. Not a real engineering area.", "courses": [{"t": "Courses come from Academic structure"}], "meta": "Counts come from published experiments", "browse": "Browse experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": false, "noArt": true, "src": "", "artCls": "", "ini": "T8"}, {"id": "t9", "name": "Test area 9 — placeholder", "desc": "Neutral test fixture to prove the explorer scales. Not a real engineering area.", "courses": [{"t": "Courses come from Academic structure"}], "meta": "Counts come from published experiments", "browse": "Browse experiments", "browseHref": "B1-04-Catalogue.dc.html", "areaHref": "B1-03-Areas-and-Course.dc.html", "hasArt": false, "noArt": true, "src": "", "artCls": "", "ini": "T9"}]; }
+  state = { ex3: 0, ex9: 3, exm3: 0, exm9: 0 };
+
+  exReduce() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+  exView(key, list, many) {
+    const sel = Math.min(this.state[key] || 0, list.length - 1), n = list.length;
+    this._tr = this._tr || {};
+    if (!this._tr[key]) this._tr[key] = React.createRef();
+    const cards = list.map((a, i) => Object.assign({}, a, {
+      cls: 'xp-ex-card' + (i === sel ? ' is-selected' : ''),
+      label: (i + 1) + ' of ' + n + ': ' + a.name,
+      pos: (i + 1) + ' of ' + n,
+      pickLabel: 'Show ' + a.name,
+      onPick: () => this.exGo(key, i, n, true)
+    }));
+    return {
+      cards, trackRef: this._tr[key], count: (sel + 1) + ' of ' + n,
+      prevDis: sel === 0, nextDis: sel === n - 1,
+      onPrev: () => this.exGo(key, sel - 1, n, false),
+      onNext: () => this.exGo(key, sel + 1, n, false),
+      onKey: (ev) => this.exKey(ev, key, n),
+      onScroll: () => this.exScroll(key, n),
+      live: list[sel].name + ', area ' + (sel + 1) + ' of ' + n,
+      wrapCls: 'xp-ex' + (many ? ' xp-ex--many' : '')
+    };
+  }
+  exGo(key, i, n, focus) {
+    if (i < 0 || i >= n) return;
+    const reduce = this.exReduce();
+    this._exLock = Date.now();
+    this.setState({ [key]: i }, () => {
+      const go = () => {
+        const t = this._tr[key] && this._tr[key].current; if (!t) return;
+        const c = t.children[i]; if (!c) return;
+        t.scrollTo({ left: Math.max(0, c.offsetLeft - 2), behavior: reduce ? 'auto' : 'smooth' });
+        if (focus) { const a = c.querySelector('.xp-ex-full a'); if (a) a.focus({ preventScroll: true }); }
+      };
+      window.setTimeout(go, reduce ? 0 : 300);
+    });
+  }
+  exKey(ev, key, n) {
+    const sel = this.state[key] || 0;
+    let to = null;
+    if (ev.key === 'ArrowRight') to = sel + 1; else if (ev.key === 'ArrowLeft') to = sel - 1;
+    else if (ev.key === 'Home') to = 0; else if (ev.key === 'End') to = n - 1;
+    if (to === null) return;
+    ev.preventDefault();
+    this.exGo(key, Math.max(0, Math.min(n - 1, to)), n, true);
+  }
+  exScroll(key, n) {
+    const t = this._tr[key] && this._tr[key].current; if (!t || t.clientWidth >= 568) return;
+    if (this._exLock && Date.now() - this._exLock < 700) return;
+    if (this._exRaf) window.cancelAnimationFrame(this._exRaf);
+    this._exRaf = window.requestAnimationFrame(() => {
+      const first = t.children[0], second = t.children[1]; if (!first || !second) return;
+      const step = second.offsetLeft - first.offsetLeft;
+      const i = Math.max(0, Math.min(n - 1, Math.round(t.scrollLeft / step)));
+      if (i !== (this.state[key] || 0)) this.setState({ [key]: i });
+    });
+  }
+
+  renderVals() {
+    return {
+      ex3: this.exView('ex3', Component.A3, false),
+      ex9: this.exView('ex9', Component.A9, true),
+      exm3: this.exView('exm3', Component.A3, false),
+      exm9: this.exView('exm9', Component.A9, true)
+    };
+  }
+  componentDidMount() { window.setTimeout(() => { const t = this._tr && this._tr.ex9 && this._tr.ex9.current; if (t && t.children[3]) t.scrollTo({ left: t.children[3].offsetLeft - 2 }); }, 400); }
+}
+</script>
+</body>
+</html>

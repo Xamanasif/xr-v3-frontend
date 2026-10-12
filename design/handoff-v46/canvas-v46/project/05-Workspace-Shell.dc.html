@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · GL-01 Workspace Shell</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr-app" ref="{{ rootRef }}" style="min-height: 100vh; font-family: 'Public Sans', system-ui, sans-serif">
+  <a class="xr-skip" href="#main">Skip to main content</a>
+  <div class="xr-shell {{ shellCls }}" style="min-height: 100vh">
+
+    <aside class="xr-side" aria-label="{{ ws }} workspace" ref="{{ sideRef }}" onKeyDown="{{ onSideKey }}">
+      <div class="xr-side-head">
+        <div class="xr-side-top">
+          <div class="xr-logo-ph" style="flex: 1 1 auto">BITS Pilani / WILP logo — placeholder</div>
+          <button type="button" class="xr-side-btn xr-drawer-close" aria-label="Close menu" ref="{{ closeRef }}" onClick="{{ closeDrawer }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+        </div>
+        <span class="xr-product">XR Learning Platform</span>
+      </div>
+      <div class="xr-ws">
+        <span class="xr-ws-label">{{ ws }}</span>
+        <sc-if value="{{ hasInst }}" hint-placeholder-val="{{ true }}"><span class="xr-ws-inst">{{ inst }}</span></sc-if>
+      </div>
+      <nav aria-label="{{ ws }} navigation">
+        <ul class="xr-nav">
+          <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
+            <li><a href="{{ n.href }}" aria-current="{{ n.current }}" onClick="{{ n.go }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ n.d }}"></path></svg><span class="xr-nav-text">{{ n.label }}</span><span class="xr-tip">{{ n.label }}</span><sc-if value="{{ n.hasCount }}" hint-placeholder-val="{{ false }}"><span class="xr-count"><span aria-hidden="true">{{ n.count }}</span><span class="xr-sr">, {{ n.countText }}</span></span></sc-if></a></li>
+          </sc-for>
+        </ul>
+      </nav>
+      <div class="xr-side-foot">
+        <ul class="xr-nav">
+          <li><a href="#help" aria-current="{{ helpCurrent }}" onClick="{{ goHelp }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span class="xr-nav-text">Help</span><span class="xr-tip">Help</span></a></li>
+        </ul>
+      </div>
+    </aside>
+    <div class="xr-scrim" aria-hidden="true" onClick="{{ closeDrawer }}"></div>
+
+    <div class="xr-main">
+      <header class="xr-top">
+        <button type="button" class="xr-menu-btn" aria-expanded="{{ drawerOpen }}" aria-label="Open menu" ref="{{ menuBtnRef }}" onClick="{{ openDrawer }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg><span>Menu</span></button>
+        <button type="button" class="xr-icon-btn xr-top-collapse" aria-label="{{ collapseLabel }}" aria-expanded="{{ navWide }}" onClick="{{ toggleNav }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ collapseIcon }}"></path></svg></button>
+        <div class="xr-top-loc">
+          <span class="xr-top-title">{{ pageTitle }}</span>
+          <ol class="xr-crumbs" aria-label="You are here">
+            <li><span aria-current="page">{{ pageTitle }}</span></li>
+          </ol>
+        </div>
+        <div class="xr-acct" onKeyDown="{{ onAcctKey }}">
+          <button type="button" class="xr-acct-btn" ref="{{ acctBtnRef }}" aria-expanded="{{ menuOpen }}" aria-controls="acct-menu" aria-label="Account menu: {{ person }}, {{ ws }}" onClick="{{ toggleMenu }}">
+            <span class="xr-avatar" aria-hidden="true">{{ initials }}</span>
+            <span class="xr-acct-text" aria-hidden="true"><span class="xr-acct-name">{{ person }}</span><span class="xr-acct-role">{{ ws }}</span></span>
+            <svg class="xr-ico xr-acct-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg>
+          </button>
+          <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="xr-menu" id="acct-menu">
+              <div class="xr-menu-head"><span class="xr-menu-name">{{ person }}</span><span class="xr-menu-meta">{{ ws }}</span><sc-if value="{{ hasInst }}" hint-placeholder-val="{{ true }}"><span class="xr-menu-meta">{{ inst }}</span></sc-if></div>
+              <sc-if value="{{ hasDevice }}" hint-placeholder-val="{{ false }}"><a class="xr-menu-item" href="#my-device" onClick="{{ goDevice }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 18h2"></path></svg>My device</a></sc-if>
+              <a class="xr-menu-item" href="#help" onClick="{{ goHelp }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg>Help</a>
+              <div class="xr-menu-sep" role="separator"></div>
+              <button type="button" class="xr-menu-item" onClick="{{ closeMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 16l4-4-4-4M14 12H4"></path></svg>Sign out</button>
+            </div>
+          </sc-if>
+        </div>
+      </header>
+
+      <sc-if value="{{ isPaused }}" hint-placeholder-val="{{ false }}">
+        <div class="xr-banner xr-banner--paused" role="status">
+          <div class="xr-banner-msg"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></svg><span><strong>Your institution’s access is paused — your work is kept.</strong></span></div>
+          <a class="xr-btn xr-btn--text" href="#help" onClick="{{ goHelp }}">Help</a>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isInactive }}" hint-placeholder-val="{{ false }}">
+        <div class="xr-banner xr-banner--inactive xr-dark" role="status">
+          <div class="xr-banner-msg"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg><span><strong>Your account is inactive.</strong> Contact your institution administrator.</span></div>
+          <a class="xr-btn xr-btn--text" href="#help" onClick="{{ goHelp }}">Help</a>
+        </div>
+      </sc-if>
+
+      <main class="xr-page" id="main">
+        <div class="xr-wrap--read xr-content">
+
+          <sc-if value="{{ isHelp }}" hint-placeholder-val="{{ false }}">
+            <div class="xr-phead">
+              <div class="xr-phead-main">
+                <h1 class="xr-h1">Help &amp; support</h1>
+                <p class="xr-lead">Something isn’t working? Report it here and follow what happens to your report.</p>
+              </div>
+              <div class="xr-phead-actions"><a class="xr-btn xr-btn--primary" href="#report">Report a problem</a></div>
+            </div>
+            <section class="xr-section" aria-labelledby="sh-rep">
+              <div class="xr-section-head"><h2 id="sh-rep" class="xr-h2">My reports</h2><span class="xr-meta">2 reports</span></div>
+              <ul class="xr-rows">
+                <li><a class="xr-row xr-row-link" href="#r1"><div class="xr-row-main"><div class="xr-row-text"><span class="xr-row-title">VR simulation stopped loading at step 2</span><span class="xr-row-sub"><span class="xr-id">SUP-0213</span> · sent 3 Oct · Shell-and-Tube Heat Exchanger · VR</span></div></div><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>Open</span></a></li>
+                <li><a class="xr-row xr-row-link" href="#r2"><div class="xr-row-main"><div class="xr-row-text"><span class="xr-row-title">Lab brief link opened a blank page</span><span class="xr-row-sub"><span class="xr-id">SUP-0198</span> · sent 21 Sep · resolved 23 Sep</span></div></div><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Resolved</span></a></li>
+              </ul>
+            </section>
+          </sc-if>
+
+          <sc-if value="{{ isDest }}" hint-placeholder-val="{{ true }}">
+            <div class="xr-phead" style="margin-bottom: 16px">
+              <div class="xr-phead-main">
+                <span class="xr-overline">{{ ws }}</span>
+                <h1 class="xr-h1">{{ pageTitle }}</h1>
+                <p class="xr-meta">{{ pageQuestion }}</p>
+              </div>
+            </div>
+            <sc-if value="{{ hasTabs }}" hint-placeholder-val="{{ false }}">
+              <nav class="xr-tabs" aria-label="{{ pageTitle }} sections" style="margin-bottom: 24px">
+                <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+                  <a class="xr-tab" href="{{ t.href }}" aria-current="{{ t.current }}" onClick="{{ t.go }}">{{ t.label }}</a>
+                </sc-for>
+              </nav>
+            </sc-if>
+            <div style="border: 1.5px dashed #7A82AE; border-radius: 12px; background: #FFFFFF; padding: 28px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start">
+              <span class="doc-example-tag">Page content slot · not designed in Batch 0</span>
+              <p class="xr-h3">{{ slotTitle }}</p>
+              <dl class="doc-kv" style="grid-template-columns: 160px minmax(0, 1fr)">
+                <dt>Families</dt><dd>{{ slotFamilies }}</dd>
+                <dt>Archetype</dt><dd>{{ slotArch }}</dd>
+                <dt>Designed in</dt><dd>{{ slotBatch }}</dd>
+              </dl>
+              <p class="doc-note">Only the shell around this slot — sidebar, top bar, account menu, banner slot and Help — is part of Batch 0.</p>
+            </div>
+          </sc-if>
+
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","options":["Student","Faculty","Institute Admin","Vendor","Academic Reviewer","Content Manager","Super Admin"],"default":"Institute Admin","section":"Shell state (canvas only)"},"banner":{"editor":"enum","options":["None","Institution paused","Account inactive"],"default":"None","section":"Shell state (canvas only)"},"startWithMenuOpen":{"editor":"boolean","default":false,"section":"Shell state (canvas only)"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  state = { role: null, active: null, tab: 0, drawerOpen: false, menuOpen: null, navToggled: false, w: 1440 };
+
+  static get I() {
+    return {
+      home: 'M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z',
+      overview: 'M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z',
+      courses: 'M5 5.5A1.5 1.5 0 0 1 6.5 4H19v13H6.5A1.5 1.5 0 0 0 5 18.5zM5 18.5A1.5 1.5 0 0 0 6.5 20H19M9 8h6',
+      assess: 'M9 3.5h6v3H9zM15 5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3M8.5 13.5l2.5 2.5 4.5-5',
+      progress: 'M4 20h16M7 16v-4M12 16V7M17 16v-6',
+      qbank: 'M12 3 3 7.5 12 12l9-4.5zM3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5',
+      marking: 'M14.5 5.5l4 4L8 20H4v-4zM12.5 7.5l4 4',
+      people: 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.3a3.5 3.5 0 0 1 0 6.4M18.5 14.5A6.5 6.5 0 0 1 21.5 20',
+      caccess: 'M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10',
+      saccess: 'M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3.5 20a6.5 6.5 0 0 1 10-5.5M18 14v6M15 17h6',
+      requests: 'M4 13.5 6.5 5h11l2.5 8.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 13.5h4.5l1.5 2.5h4l1.5-2.5H20',
+      usage: 'M3 12h4l3-7 4 14 3-7h4',
+      exps: 'M9 3h6M10 3v6.5L4.8 18.6A1.6 1.6 0 0 0 6.2 21h11.6a1.6 1.6 0 0 0 1.4-2.4L14 9.5V3M7.2 15h9.6',
+      queue: 'M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01',
+      reviewed: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8',
+      publish: 'M12 15V4M7.5 8.5 12 4l4.5 4.5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5',
+      library: 'M4 4h4v16H4zM10 4h4v16h-4zM16 5l3.5-1 3 15.5-3.5 1z',
+      updates: 'M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4',
+      codes: 'M9.5 4 7.5 20M16.5 4l-2 16M4.5 9h16M3.5 15h16',
+      inst: 'M3 9.5 12 4l9 5.5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20.5h18',
+      content: 'M8 3h7.5L20 7.5V17a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM15 3v5h5M4 7v13a1 1 0 0 0 1 1h11',
+      structure: 'M10 3h4v4h-4zM3.5 17h4v4h-4zM10 17h4v4h-4zM16.5 17h4v4h-4zM12 7v5M5.5 17v-5h13v5M12 12v5',
+      roles: 'M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6zM9 12l2 2 4-4',
+      ops: 'M4 6h9M17 6h3M15 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4'
+    };
+  }
+
+  static get ROLES() {
+    const I = Component.I;
+    const d = (label, icon, q, fam, arch, batch, extra) => Object.assign({ label, d: I[icon], q, fam, arch, batch, count: '', countText: '', tabs: [] }, extra || {});
+    const GIT = 'Godavari Institute of Technology';
+    return {
+      'Student': { inst: GIT, person: 'Rahul Verma', initials: 'RV', device: true, nav: [
+        d('Home', 'home', 'What should I do next?', 'ST-F1 Home', 'AR-1 Overview / Home', 'Batch 2'),
+        d('My courses', 'courses', 'Which experiments can I access?', 'ST-F2 My courses · ST-F3 Experiment hub · ST-F4 Simulation by format', 'AR-2 List · AR-7 Record hub', 'Batches 2–3', { tabs: ['Courses', 'All experiments'] }),
+        d('Assessments', 'assess', 'Which assessments are open, and what are my results?', 'ST-F5 Assessments', 'AR-2 · AR-6 · AR-3', 'Batch 4'),
+        d('Progress', 'progress', 'How far have I got in each format?', 'ST-F6 Progress', 'AR-2 List', 'Batch 3')
+      ] },
+      'Faculty': { inst: GIT, person: 'Dr S. Ranganathan', initials: 'SR', nav: [
+        d('Overview', 'overview', 'What needs my attention?', 'FA-F1 Overview', 'AR-1 Overview', 'Batch 4'),
+        d('My courses', 'courses', 'What do I teach?', 'FA-F2 My courses & experiments', 'AR-2 · AR-3', 'Batch 4', { tabs: ['Courses', 'Experiments'] }),
+        d('Assessments', 'assess', 'Which assessments have I made, and how are they going?', 'FA-F3 Assessment builder & workspace', 'AR-2 · AR-5 · AR-7', 'Batch 4'),
+        d('Question bank', 'qbank', 'Which questions can I reuse?', 'FA-F4 Question bank', 'AR-2 · AR-8 · AR-5', 'Batch 4'),
+        d('Marking', 'marking', 'What is waiting for marking?', 'FA-F5 Marking', 'AR-2 · AR-4', 'Batch 4', { count: '12', countText: '12 written answers to mark' }),
+        d('Students', 'people', 'Which students need follow-up?', 'FA-F6 Students & follow-up', 'AR-2 · AR-3', 'Batch 4')
+      ] },
+      'Institute Admin': { inst: GIT, person: 'Meera Iyer', initials: 'MI', nav: [
+        d('Overview', 'overview', 'What needs my attention?', 'IA-F1 Overview', 'AR-1 Overview', 'Batch 2'),
+        d('Content access', 'caccess', 'What does our institution have access to?', 'IA-F2 Content access', 'AR-2 · AR-3', 'Batch 2'),
+        d('Student access', 'saccess', 'Who has which experiments?', 'IA-F3 Student access', 'AR-2 · AR-5', 'Batch 2'),
+        d('People', 'people', 'Who is in our institution?', 'IA-F4 People · IA-F5 Groups · IA-F6 Faculty courses', 'AR-2 · AR-3 · AR-8 · AR-5', 'Batch 2', { tabs: ['Students', 'Faculty', 'Groups', 'Faculty courses'] }),
+        d('Requests', 'requests', 'What have we asked BITS for?', 'IA-F7 Requests', 'AR-2 · AR-4 (light)', 'Batch 3', { count: '2', countText: '2 device requests to forward', tabs: ['Requests to BITS', 'Device requests'] }),
+        d('Usage', 'usage', 'How is our access being used?', 'IA-F8 Usage', 'AR-2 List', 'Batch 3')
+      ] },
+      'Vendor': { inst: 'Northline Simulation Studio', person: 'Anil Shetty', initials: 'AS', nav: [
+        d('Overview', 'overview', 'Which of my experiments need action?', 'VE-F1 Overview', 'AR-1 Overview', 'Batch 5'),
+        d('My experiments', 'exps', 'Where is each of my experiments?', 'VE-F2 My experiments · VE-F3 Editor · VE-F4 Record & history', 'AR-2 · AR-5 · AR-3', 'Batch 5')
+      ] },
+      'Academic Reviewer': { inst: '', person: 'Prof. A. Menon', initials: 'AM', nav: [
+        d('Overview', 'overview', 'What is waiting for my review?', 'RV-F1 Overview', 'AR-1 Overview', 'Batch 6'),
+        d('Review queue', 'queue', 'Which submission do I review next?', 'RV-F2 Review queue · RV-F3 Review a submission · RV-F4 Review an update', 'AR-2 · AR-4', 'Batch 6', { count: '4', countText: '4 waiting for review' }),
+        d('Reviewed by me', 'reviewed', 'What have I decided?', 'RV-F2 Reviewed by me', 'AR-2 List', 'Batch 6')
+      ] },
+      'Content Manager': { inst: '', person: 'Kavya Nair', initials: 'KN', nav: [
+        d('Overview', 'overview', 'What needs my action?', 'CM-F1 Overview', 'AR-1 Overview', 'Batch 6'),
+        d('Ready to publish', 'publish', 'Which approved experiments can I publish?', 'CM-F2 Ready to publish · CM-F3 Publication decision', 'AR-2 · AR-4', 'Batch 6', { count: '2', countText: '2 ready to publish' }),
+        d('Content library', 'library', 'What is in the catalogue?', 'CM-F2 Content library · CM-F4 Published experiment', 'AR-2 · AR-3', 'Batch 6'),
+        d('Updates', 'updates', 'Where is each correction?', 'CM-F5 Corrections (updates)', 'AR-2 · AR-8', 'Batch 6'),
+        d('Course codes', 'codes', 'Which courses have a platform code?', 'CM-F6 Platform course codes', 'AR-2 (editable)', 'Batch 6')
+      ] },
+      'Super Admin': { inst: '', person: 'Arjun Mehta', initials: 'AM', nav: [
+        d('Overview', 'overview', 'What needs my attention across the platform?', 'SA-F1 Overview', 'AR-1 Overview (grouped)', 'Batch 7'),
+        d('Requests', 'requests', 'Should I approve this request?', 'SA-F2 Requests & request decision', 'AR-2 · AR-4', 'Batch 1', { count: '3', countText: '3 requests under review' }),
+        d('Institutions', 'inst', 'Which institutions use the platform?', 'SA-F3 Institutions', 'AR-2 · AR-3', 'Batch 7'),
+        d('Content', 'content', 'What content is live, and what updates wait for release?', 'SA-F4 Release / Hold · SA-F5 All content', 'AR-2 · AR-4 · AR-3', 'Batch 7', { tabs: ['Updates', 'All content'] }),
+        d('Academic structure', 'structure', 'Which engineering areas and courses exist?', 'SA-F6 Academic structure', 'AR-2 · AR-8', 'Batch 7'),
+        d('Platform roles', 'roles', 'Who holds which platform role?', 'SA-F7 Platform roles', 'AR-2 · AR-3', 'Batch 7'),
+        d('Operations', 'ops', 'What operational work is waiting?', 'SA-F8 Operations', 'AR-2 · AR-4 (light)', 'Batch 7', { tabs: ['Device transfers', 'Support', 'Access ending'] })
+      ] }
+    };
+  }
+
+  componentDidMount() {
+    const node = this.rootRef && this.rootRef.current;
+    if (node && typeof ResizeObserver !== 'undefined') {
+      this._ro = new ResizeObserver((entries) => {
+        const w = Math.round(entries[0].contentRect.width);
+        if (Math.abs(w - this.state.w) > 1) this.setState({ w });
+      });
+      this._ro.observe(node);
+    }
+  }
+  componentWillUnmount() { if (this._ro) this._ro.disconnect(); }
+
+  focusLater(ref) { window.setTimeout(() => { const n = ref && ref.current; if (n && n.focus) n.focus(); }, 30); }
+
+  renderVals() {
+    const RR = React;
+    ['rootRef', 'sideRef', 'closeRef', 'menuBtnRef', 'acctBtnRef'].forEach(k => { if (!this[k]) this[k] = RR.createRef(); });
+    const p = this.props || {}, s = this.state;
+    const roleName = Component.ROLES[p.role] ? p.role : 'Institute Admin';
+    const R = Component.ROLES[roleName];
+    const roleChanged = s.role !== roleName;
+    const active = (!roleChanged && s.active) ? s.active : R.nav[0].label;
+    const menuOpen = s.menuOpen === null ? !!p.startWithMenuOpen : s.menuOpen;
+    const isHelp = active === '__help';
+    const isDevice = active === '__device';
+    const dest = R.nav.find(n => n.label === active);
+    const tabIdx = roleChanged ? 0 : s.tab;
+    const go = (label) => (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ role: roleName, active: label, tab: 0, drawerOpen: false, menuOpen: false }); };
+    const nav = R.nav.map(n => Object.assign({}, n, {
+      href: '#' + n.label.toLowerCase().replace(/[^a-z]+/g, '-'),
+      current: n.label === active ? 'page' : undefined,
+      hasCount: !!n.count,
+      go: go(n.label)
+    }));
+    const tabs = dest ? dest.tabs.map((t, i) => ({ label: t, href: '#' + t.toLowerCase().replace(/[^a-z]+/g, '-'), current: i === tabIdx ? 'page' : undefined, go: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ role: roleName, active, tab: i }); } })) : [];
+    const band = s.w >= 1280 ? 'lg' : (s.w >= 1024 ? 'md' : 'sm');
+    const navWide = band === 'lg' ? !s.navToggled : (band === 'md' ? s.navToggled : false);
+    const shellCls = [s.navToggled ? 'is-expanded is-rail' : '', s.drawerOpen ? 'is-drawer' : ''].join(' ');
+    let pageTitle = dest ? dest.label : 'Help & support';
+    if (isDevice) pageTitle = 'My device';
+    return {
+      rootRef: this.rootRef, sideRef: this.sideRef, closeRef: this.closeRef, menuBtnRef: this.menuBtnRef, acctBtnRef: this.acctBtnRef,
+      ws: roleName, inst: R.inst, hasInst: !!R.inst, person: R.person, initials: R.initials, hasDevice: !!R.device,
+      nav, helpCurrent: isHelp ? 'page' : undefined,
+      isHelp, isDest: !isHelp, hasTabs: tabs.length > 0, tabs,
+      pageTitle,
+      pageQuestion: isDevice ? 'Which device do I use for AR, VR and MR?' : (dest ? dest.q : ''),
+      slotTitle: isDevice ? 'My device (account menu, Students with AR / VR / MR only)' : (dest ? dest.label + (tabs.length ? ' · ' + tabs[tabIdx].label : '') : ''),
+      slotFamilies: isDevice ? 'ST-F8 My device' : (dest ? dest.fam : ''),
+      slotArch: isDevice ? 'AR-8 Form / editor' : (dest ? dest.arch : ''),
+      slotBatch: isDevice ? 'Batch 3' : (dest ? dest.batch : ''),
+      isPaused: p.banner === 'Institution paused', isInactive: p.banner === 'Account inactive',
+      shellCls, drawerOpen: !!s.drawerOpen, menuOpen,
+      navWide,
+      collapseLabel: navWide ? 'Collapse menu' : 'Expand menu',
+      collapseIcon: navWide ? 'M4 5h16v14H4zM9.5 5v14M16 10l-2 2 2 2' : 'M4 5h16v14H4zM9.5 5v14M14 10l2 2-2 2',
+      toggleNav: () => this.setState({ role: roleName, active, navToggled: !s.navToggled }),
+      openDrawer: () => { this.setState({ role: roleName, active, drawerOpen: true, menuOpen: false }); this.focusLater(this.closeRef); },
+      closeDrawer: () => { this.setState({ drawerOpen: false }); this.focusLater(this.menuBtnRef); },
+      onSideKey: (e) => { if (e.key === 'Escape' && this.state.drawerOpen) { this.setState({ drawerOpen: false }); this.focusLater(this.menuBtnRef); } },
+      toggleMenu: () => this.setState({ role: roleName, active, menuOpen: !menuOpen }),
+      closeMenu: () => { this.setState({ role: roleName, active, menuOpen: false }); this.focusLater(this.acctBtnRef); },
+      onAcctKey: (e) => { if (e.key === 'Escape' && menuOpen) { this.setState({ role: roleName, active, menuOpen: false }); this.focusLater(this.acctBtnRef); } },
+      goHelp: go('__help'),
+      goDevice: go('__device')
+    };
+  }
+}
+</script>
+</body>
+</html>

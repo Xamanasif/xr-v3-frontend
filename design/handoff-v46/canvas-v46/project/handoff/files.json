@@ -1,0 +1,996 @@
+{
+ "about": "Every deliverable file in the design project with md5 and size, as published with Batch 8. canvas.json and files.json itself change on every publish.",
+ "generated": "Batch 8 · built on the approved v45 baseline · generated from the approved boards; the boards win on any difference",
+ "files": [
+  {
+   "path": "01-Visual-Foundation.dc.html",
+   "kind": "board",
+   "md5": "ee99577a3a95b3cf2d0ccfaf38d97e3e",
+   "bytes": 21099
+  },
+  {
+   "path": "02-Tokens-Typography.dc.html",
+   "kind": "board",
+   "md5": "e8b2acfa37f4e90295b90915fddff587",
+   "bytes": 22843
+  },
+  {
+   "path": "03-Core-Components.dc.html",
+   "kind": "board",
+   "md5": "a2830bb43d8beb54452b8f6bbfe92f7d",
+   "bytes": 48064
+  },
+  {
+   "path": "04-Status-Format-States.dc.html",
+   "kind": "board",
+   "md5": "ed384a986e69ac2d60de1409073d709b",
+   "bytes": 25783
+  },
+  {
+   "path": "05-Workspace-Shell.dc.html",
+   "kind": "board",
+   "md5": "54c3d2f239866954188b1180652d93fa",
+   "bytes": 23585
+  },
+  {
+   "path": "06-Sidebar-Variants.dc.html",
+   "kind": "board",
+   "md5": "89957f7c706251f7cdd663f4200a9c5c",
+   "bytes": 20672
+  },
+  {
+   "path": "07-Help-Support.dc.html",
+   "kind": "board",
+   "md5": "ead3e90e1ff1a3cc5a02ae53b0c1687b",
+   "bytes": 25078
+  },
+  {
+   "path": "08-System-Messages.dc.html",
+   "kind": "board",
+   "md5": "bb8e7a48c13d01c2aa8cecded297003d",
+   "bytes": 16623
+  },
+  {
+   "path": "09a-Archetypes-AR1-AR5.dc.html",
+   "kind": "board",
+   "md5": "615f92ebe8ce4afc112978ce933cd126",
+   "bytes": 40521
+  },
+  {
+   "path": "09b-Archetypes-AR6-AR10.dc.html",
+   "kind": "board",
+   "md5": "15f07bfbfbe32c863743451d55a909ce",
+   "bytes": 31998
+  },
+  {
+   "path": "10-Dialogs.dc.html",
+   "kind": "board",
+   "md5": "105d10b2602c847f270792fe99dab156",
+   "bytes": 22996
+  },
+  {
+   "path": "11-Responsive-Proof.dc.html",
+   "kind": "board",
+   "md5": "e7ceccbeccf4d8714e979f1667d7bbd1",
+   "bytes": 30475
+  },
+  {
+   "path": "12-Accessibility-Motion.dc.html",
+   "kind": "board",
+   "md5": "67f38a35f9af691f4b953de610d6a5e7",
+   "bytes": 14703
+  },
+  {
+   "path": "13-Change-Log.dc.html",
+   "kind": "board",
+   "md5": "553eaead72a9e1435384cc5409f0418a",
+   "bytes": 16389
+  },
+  {
+   "path": "B1-00-Index.dc.html",
+   "kind": "board",
+   "md5": "8badc5c57fea47257eba3ec6d96e81f7",
+   "bytes": 17591
+  },
+  {
+   "path": "B1-01-Public-Landing.dc.html",
+   "kind": "board",
+   "md5": "7f6ef6a4f594524faf5c93f0b2ed71b6",
+   "bytes": 42916
+  },
+  {
+   "path": "B1-02-Area-Explorer.dc.html",
+   "kind": "board",
+   "md5": "7dd3029979c87517c4ac06b57f83db42",
+   "bytes": 31155
+  },
+  {
+   "path": "B1-03-Areas-and-Course.dc.html",
+   "kind": "board",
+   "md5": "f97bc43ba17161505de767882b6dd352",
+   "bytes": 52666
+  },
+  {
+   "path": "B1-04-Catalogue.dc.html",
+   "kind": "board",
+   "md5": "d72ba830318daa495a7de43aca2b75ef",
+   "bytes": 189422
+  },
+  {
+   "path": "B1-05-Experiment-Detail.dc.html",
+   "kind": "board",
+   "md5": "2c3294f1cbe3f2845359215318e35534",
+   "bytes": 113970
+  },
+  {
+   "path": "B1-06-Selection.dc.html",
+   "kind": "board",
+   "md5": "3b382fb3954154328350c2704be7d9b4",
+   "bytes": 48613
+  },
+  {
+   "path": "B1-07-Request-Access.dc.html",
+   "kind": "board",
+   "md5": "1202b0512b80a1d17c2ad89cd00103bf",
+   "bytes": 155640
+  },
+  {
+   "path": "B1-08-Request-Status.dc.html",
+   "kind": "board",
+   "md5": "7ee703c82a20114f4f089f753ef7c811",
+   "bytes": 62265
+  },
+  {
+   "path": "B1-09-Sign-In.dc.html",
+   "kind": "board",
+   "md5": "47398addfc23ce9ebb2cef43ce5c5dc2",
+   "bytes": 86328
+  },
+  {
+   "path": "B1-10-SA-Requests.dc.html",
+   "kind": "board",
+   "md5": "3d3bbcd1058afdab490ea30e7bef4c39",
+   "bytes": 156985
+  },
+  {
+   "path": "B1-11-SA-Decision.dc.html",
+   "kind": "board",
+   "md5": "e30a64c71e5433aff7d13ca2c47e72f7",
+   "bytes": 229152
+  },
+  {
+   "path": "B1-12-Responsive-Proof.dc.html",
+   "kind": "board",
+   "md5": "2609c3aa8ea04413903016a3d332dcb4",
+   "bytes": 407509
+  },
+  {
+   "path": "B1-13-Flow-Continuity.dc.html",
+   "kind": "board",
+   "md5": "80e298c117994360b0ea330c4be4dfba",
+   "bytes": 207514
+  },
+  {
+   "path": "B1-14-Change-Log.dc.html",
+   "kind": "board",
+   "md5": "c4a008e8e26b3f45a7d5425fc7ef4b3d",
+   "bytes": 12709
+  },
+  {
+   "path": "B2-00-Index.dc.html",
+   "kind": "board",
+   "md5": "99cbafa3797bdc356a19a03c4d106da9",
+   "bytes": 17100
+  },
+  {
+   "path": "B2-01-IA-Overview.dc.html",
+   "kind": "board",
+   "md5": "605bef9f52a2a44c0a6a72ebbbf5a79b",
+   "bytes": 55333
+  },
+  {
+   "path": "B2-02-Content-Access.dc.html",
+   "kind": "board",
+   "md5": "b45dc25cd683d94f971d0a5cb96b82ef",
+   "bytes": 89807
+  },
+  {
+   "path": "B2-03-Access-Plan-and-Course-Codes.dc.html",
+   "kind": "board",
+   "md5": "748e1e4fe32b5d28db59c2cba652f71d",
+   "bytes": 105082
+  },
+  {
+   "path": "B2-04-Student-Access.dc.html",
+   "kind": "board",
+   "md5": "b6d3c5eb69095fb43ee8c11fa43e9876",
+   "bytes": 267813
+  },
+  {
+   "path": "B2-05-Give-Students-Access.dc.html",
+   "kind": "board",
+   "md5": "004f2d2ef96644b168329eb87d668fc1",
+   "bytes": 350429
+  },
+  {
+   "path": "B2-06-People.dc.html",
+   "kind": "board",
+   "md5": "4afc08e2d39c96356b71c413b99eacab",
+   "bytes": 208182
+  },
+  {
+   "path": "B2-07-Add-and-Import.dc.html",
+   "kind": "board",
+   "md5": "3b8e19c7b1e07812ff0ad38ac395c85c",
+   "bytes": 144567
+  },
+  {
+   "path": "B2-08-Groups.dc.html",
+   "kind": "board",
+   "md5": "e63d162272d9fc1d68160ef6d69a28b8",
+   "bytes": 141814
+  },
+  {
+   "path": "B2-09-Faculty-Courses.dc.html",
+   "kind": "board",
+   "md5": "63199c9cb1cd75665dd6dbe5fa7d7030",
+   "bytes": 81163
+  },
+  {
+   "path": "B2-10-Student-Home.dc.html",
+   "kind": "board",
+   "md5": "437b30cbc5de91fd3d7a01fbdaa5c3f8",
+   "bytes": 58946
+  },
+  {
+   "path": "B2-11-My-Courses.dc.html",
+   "kind": "board",
+   "md5": "118f1510860e15c6d8b2284349b131f2",
+   "bytes": 100517
+  },
+  {
+   "path": "B2-12-Experiment-Hub.dc.html",
+   "kind": "board",
+   "md5": "6f3f56b2cfe97246ff825c8412fb1494",
+   "bytes": 58988
+  },
+  {
+   "path": "B2-13-Flow-2-Continuity.dc.html",
+   "kind": "board",
+   "md5": "ebe51a5c99b6157e133aeadd1b25b5fd",
+   "bytes": 119964
+  },
+  {
+   "path": "B2-14-Responsive-Proof.dc.html",
+   "kind": "board",
+   "md5": "6677bd78d6daa74bbeb690fe3283d40d",
+   "bytes": 342283
+  },
+  {
+   "path": "B2-15-Change-Log.dc.html",
+   "kind": "board",
+   "md5": "2861ec8e9214a541c788d62ceefd3006",
+   "bytes": 15402
+  },
+  {
+   "path": "B3-00-Index.dc.html",
+   "kind": "board",
+   "md5": "4ed88644a0d02a41d86a782dad9a93b2",
+   "bytes": 20248
+  },
+  {
+   "path": "B3-01-Hub-Resources-and-Progress.dc.html",
+   "kind": "board",
+   "md5": "881aacfcef3406473ca25d431cf8923f",
+   "bytes": 144986
+  },
+  {
+   "path": "B3-02-Simulation-Choose-Format.dc.html",
+   "kind": "board",
+   "md5": "b7d5eec1295b313df833aea758cfbaf6",
+   "bytes": 73666
+  },
+  {
+   "path": "B3-03-WEB-Simulation.dc.html",
+   "kind": "board",
+   "md5": "267aac40ed3d542454f5635189ccc2a4",
+   "bytes": 65321
+  },
+  {
+   "path": "B3-04-AR-VR-MR-Format.dc.html",
+   "kind": "board",
+   "md5": "728f05dfaee8e7abe5257aa2618345d0",
+   "bytes": 50777
+  },
+  {
+   "path": "B3-05-Progress.dc.html",
+   "kind": "board",
+   "md5": "5d0f9dd07190f8713fb04b4774271b61",
+   "bytes": 110273
+  },
+  {
+   "path": "B3-06-Format-Feedback.dc.html",
+   "kind": "board",
+   "md5": "df5c0ef89547f7d3fb72399e89c083a4",
+   "bytes": 70155
+  },
+  {
+   "path": "B3-07-My-Device.dc.html",
+   "kind": "board",
+   "md5": "c87080d98236214dd8edf7b101239a87",
+   "bytes": 116009
+  },
+  {
+   "path": "B3-08-IA-Requests-to-BITS.dc.html",
+   "kind": "board",
+   "md5": "c9bd166c59f367d0a79870cc7edd537b",
+   "bytes": 98974
+  },
+  {
+   "path": "B3-09-IA-Device-Requests.dc.html",
+   "kind": "board",
+   "md5": "1167dd18c28aa0f7b35518947e134e5d",
+   "bytes": 80133
+  },
+  {
+   "path": "B3-10-IA-Usage.dc.html",
+   "kind": "board",
+   "md5": "e2e890a41e4a192af1d4520165dd9230",
+   "bytes": 52260
+  },
+  {
+   "path": "B3-11-SA-Device-Transfers.dc.html",
+   "kind": "board",
+   "md5": "2743484cea04e560d9cb54cb2a99851b",
+   "bytes": 93340
+  },
+  {
+   "path": "B3-12-Flow-3-Continuity.dc.html",
+   "kind": "board",
+   "md5": "f66abe1651a0c34bc3c4b6a48a547a79",
+   "bytes": 101839
+  },
+  {
+   "path": "B3-13-Responsive-Proof.dc.html",
+   "kind": "board",
+   "md5": "1697e74a72455b7d74b3320b7f5c1fe5",
+   "bytes": 339229
+  },
+  {
+   "path": "B3-14-Change-Log.dc.html",
+   "kind": "board",
+   "md5": "4888c1424c0ecfdac6875320876b31ed",
+   "bytes": 15660
+  },
+  {
+   "path": "B4-00-Index.dc.html",
+   "kind": "board",
+   "md5": "3935e38bc839be2580ea2fa51a33be9f",
+   "bytes": 22835
+  },
+  {
+   "path": "B4-01-Faculty-Overview.dc.html",
+   "kind": "board",
+   "md5": "e11c4157b59b5ef915a3f3ba1376ddad",
+   "bytes": 34915
+  },
+  {
+   "path": "B4-02-My-Courses-and-Experiments.dc.html",
+   "kind": "board",
+   "md5": "14db95e111240d499aa7d1b3323e656f",
+   "bytes": 84808
+  },
+  {
+   "path": "B4-03-Experiment-Teaching-View.dc.html",
+   "kind": "board",
+   "md5": "e16d510a15ca8c6621b6364cefc3bbca",
+   "bytes": 50049
+  },
+  {
+   "path": "B4-04-Assessments-and-Create.dc.html",
+   "kind": "board",
+   "md5": "b2c32dc31a66349e7c0ed704c5047a46",
+   "bytes": 252142
+  },
+  {
+   "path": "B4-05-Assessment-Summary-and-Questions.dc.html",
+   "kind": "board",
+   "md5": "e3eabf0b1d2e1bcc61e67b74c5def8e8",
+   "bytes": 153105
+  },
+  {
+   "path": "B4-06-Settings-Preview-Submissions.dc.html",
+   "kind": "board",
+   "md5": "3f5670b750a33d9500b775090b232644",
+   "bytes": 178189
+  },
+  {
+   "path": "B4-07-Question-Bank-and-Editor.dc.html",
+   "kind": "board",
+   "md5": "173e1e0e0d3fd14ff75e6e17e5a4eaf6",
+   "bytes": 156362
+  },
+  {
+   "path": "B4-08-Draft-with-Assistance-and-Import.dc.html",
+   "kind": "board",
+   "md5": "52aacf408106d40f218ee14d030ccca6",
+   "bytes": 163052
+  },
+  {
+   "path": "B4-09-Marking.dc.html",
+   "kind": "board",
+   "md5": "9f28faae616013286abd2f8937e01ae2",
+   "bytes": 117427
+  },
+  {
+   "path": "B4-10-Students-and-Follow-up.dc.html",
+   "kind": "board",
+   "md5": "60344db80fd939e4acb98bda701dfdd5",
+   "bytes": 91336
+  },
+  {
+   "path": "B4-11-Student-Assessments.dc.html",
+   "kind": "board",
+   "md5": "670e3895b5ae805fc7cbf21f75a596b5",
+   "bytes": 120482
+  },
+  {
+   "path": "B4-12-Assessment-Attempt.dc.html",
+   "kind": "board",
+   "md5": "69d87d530eadcd0b16f17ba7b3fc24db",
+   "bytes": 78620
+  },
+  {
+   "path": "B4-13-Assessment-Result.dc.html",
+   "kind": "board",
+   "md5": "24860649c2d482482fe57502ca5be69e",
+   "bytes": 80234
+  },
+  {
+   "path": "B4-14-Flow-4-Continuity.dc.html",
+   "kind": "board",
+   "md5": "5744d357a2429c86715abad1c5450745",
+   "bytes": 107072
+  },
+  {
+   "path": "B4-15-Responsive-Proof.dc.html",
+   "kind": "board",
+   "md5": "9eda970519ec1b315e35ad39fa1f22eb",
+   "bytes": 453191
+  },
+  {
+   "path": "B4-16-Change-Log.dc.html",
+   "kind": "board",
+   "md5": "b0e7c47e12e0c6dc7c428392cfb1adaf",
+   "bytes": 18458
+  },
+  {
+   "path": "B5-00-Index.dc.html",
+   "kind": "board",
+   "md5": "853135b63d697a65c5c05c867a49e4f3",
+   "bytes": 19974
+  },
+  {
+   "path": "B5-01-Vendor-Overview.dc.html",
+   "kind": "board",
+   "md5": "3a493b683f8edb839a1a14b1112585f8",
+   "bytes": 72727
+  },
+  {
+   "path": "B5-02-My-Experiments.dc.html",
+   "kind": "board",
+   "md5": "cf6564d5aab1e1db00335dd5cad30871",
+   "bytes": 116327
+  },
+  {
+   "path": "B5-03-Create-Course-and-Description.dc.html",
+   "kind": "board",
+   "md5": "22a10eb25cbe72cd1e57c1f158389b12",
+   "bytes": 324248
+  },
+  {
+   "path": "B5-04-Formats-and-Delivery.dc.html",
+   "kind": "board",
+   "md5": "d8629b1adb52b265c95d34c3bb5986be",
+   "bytes": 326390
+  },
+  {
+   "path": "B5-05-Preview-Check-and-Submit.dc.html",
+   "kind": "board",
+   "md5": "dec0045d9174147d03e4c0e3b4c4af35",
+   "bytes": 331659
+  },
+  {
+   "path": "B5-06-Experiment-Record-and-History.dc.html",
+   "kind": "board",
+   "md5": "4daaad737e010a3136409680a7cd0a73",
+   "bytes": 238168
+  },
+  {
+   "path": "B5-07-Revise-and-Resubmit.dc.html",
+   "kind": "board",
+   "md5": "d2e09de525491fa33d1f7f179e8ee51d",
+   "bytes": 420959
+  },
+  {
+   "path": "B5-08-Flow-5-Continuity.dc.html",
+   "kind": "board",
+   "md5": "ed47517009e10d10f9b60d0b8df81c6a",
+   "bytes": 116390
+  },
+  {
+   "path": "B5-09-Responsive-Proof.dc.html",
+   "kind": "board",
+   "md5": "b707378c7305f1e6d5ee084f07964e65",
+   "bytes": 926305
+  },
+  {
+   "path": "B5-10-Change-Log.dc.html",
+   "kind": "board",
+   "md5": "6205e377a538fb7d71c07f75ed24262a",
+   "bytes": 15245
+  },
+  {
+   "path": "B6-00-Index.dc.html",
+   "kind": "board",
+   "md5": "ba379ab2ba17c367731fc865585236d8",
+   "bytes": 23695
+  },
+  {
+   "path": "B6-01-Reviewer-Overview.dc.html",
+   "kind": "board",
+   "md5": "c0d7ae0935510ed3d3cc26f34d84807d",
+   "bytes": 131560
+  },
+  {
+   "path": "B6-02-Review-Queue-and-Reviewed.dc.html",
+   "kind": "board",
+   "md5": "e0d48eba15a4f66737e27cf48e494a35",
+   "bytes": 190586
+  },
+  {
+   "path": "B6-03-Review-a-Submission.dc.html",
+   "kind": "board",
+   "md5": "b331bf8c024d964fbbcf962b8da0e2a7",
+   "bytes": 247986
+  },
+  {
+   "path": "B6-04-Review-an-Update.dc.html",
+   "kind": "board",
+   "md5": "655d2da2e9053337a4d07433f8c50b43",
+   "bytes": 187771
+  },
+  {
+   "path": "B6-05-CM-Overview.dc.html",
+   "kind": "board",
+   "md5": "a9b0444c2f76ebf383336c1392c120af",
+   "bytes": 134309
+  },
+  {
+   "path": "B6-06-Ready-to-Publish-and-Library.dc.html",
+   "kind": "board",
+   "md5": "4ca4063b7a3c12d078c450e9ecd4b9dc",
+   "bytes": 157629
+  },
+  {
+   "path": "B6-07-Publication-Decision.dc.html",
+   "kind": "board",
+   "md5": "ad925eddeec82f4e496cdc1eaca45675",
+   "bytes": 273732
+  },
+  {
+   "path": "B6-08-Published-and-Correction-Entry.dc.html",
+   "kind": "board",
+   "md5": "eb327def529120609fc749197ab38747",
+   "bytes": 253272
+  },
+  {
+   "path": "B6-09-Updates-Corrections.dc.html",
+   "kind": "board",
+   "md5": "57da915ed8468157ac3be6671189061f",
+   "bytes": 309833
+  },
+  {
+   "path": "B6-10-Platform-Course-Codes.dc.html",
+   "kind": "board",
+   "md5": "2e7b34bafceae9f792eae53db19df7f1",
+   "bytes": 120706
+  },
+  {
+   "path": "B6-11-Critical-States.dc.html",
+   "kind": "board",
+   "md5": "aeca198f07128fa04af370447cd781bb",
+   "bytes": 474038
+  },
+  {
+   "path": "B6-12-Flow-5-Completion.dc.html",
+   "kind": "board",
+   "md5": "6d5b90e451812385058bcae8114053ad",
+   "bytes": 213260
+  },
+  {
+   "path": "B6-13-Flow-6-Steps-1-2.dc.html",
+   "kind": "board",
+   "md5": "c0e1577cca50fb5db61f262f14b0cf32",
+   "bytes": 172533
+  },
+  {
+   "path": "B6-14-Responsive-Proof.dc.html",
+   "kind": "board",
+   "md5": "2ad879470f24c8a7c459982ecc209281",
+   "bytes": 686546
+  },
+  {
+   "path": "B6-15-Change-Log.dc.html",
+   "kind": "board",
+   "md5": "b7f4ac23b41cf7ff8d32b204c64e899a",
+   "bytes": 16496
+  },
+  {
+   "path": "B7-00-Index.dc.html",
+   "kind": "board",
+   "md5": "fcb5cfb2cc1f9232adbdd3251e8ccbea",
+   "bytes": 22753
+  },
+  {
+   "path": "B7-01-SA-Overview.dc.html",
+   "kind": "board",
+   "md5": "ec81e922b119d363ee21a4b8b9030988",
+   "bytes": 50254
+  },
+  {
+   "path": "B7-02-Institutions.dc.html",
+   "kind": "board",
+   "md5": "60cfb00560fbb579f9c4b637b2c21711",
+   "bytes": 110679
+  },
+  {
+   "path": "B7-03-Institution-Detail.dc.html",
+   "kind": "board",
+   "md5": "21955165f58753be3e20c2d74d517fac",
+   "bytes": 321602
+  },
+  {
+   "path": "B7-04-Pause-Effects.dc.html",
+   "kind": "board",
+   "md5": "c402ee103331929371e8cf6101f5c0a8",
+   "bytes": 92416
+  },
+  {
+   "path": "B7-05-Content-Updates-Release-Hold.dc.html",
+   "kind": "board",
+   "md5": "f412960b400233918b12aad5dc487373",
+   "bytes": 343039
+  },
+  {
+   "path": "B7-06-All-Content.dc.html",
+   "kind": "board",
+   "md5": "eafe4e370147eb550c6d2b611764adbc",
+   "bytes": 158414
+  },
+  {
+   "path": "B7-07-Academic-Structure.dc.html",
+   "kind": "board",
+   "md5": "e7945d61f30a92d003a47329b3bdb3e8",
+   "bytes": 170854
+  },
+  {
+   "path": "B7-08-Platform-Roles.dc.html",
+   "kind": "board",
+   "md5": "3224a0633a4937a6eac8b6eece3cbfe9",
+   "bytes": 158247
+  },
+  {
+   "path": "B7-09-Operations.dc.html",
+   "kind": "board",
+   "md5": "a5683cfe8f0a43d871056a548b253ad3",
+   "bytes": 178740
+  },
+  {
+   "path": "B7-10-Critical-States.dc.html",
+   "kind": "board",
+   "md5": "3c4d092b3132f10ade699a1943b3a337",
+   "bytes": 488441
+  },
+  {
+   "path": "B7-11-Flow-6-Release-and-Hold.dc.html",
+   "kind": "board",
+   "md5": "42c7738044ff7166e88c97ad976863bd",
+   "bytes": 228355
+  },
+  {
+   "path": "B7-12-Responsive-Proof.dc.html",
+   "kind": "board",
+   "md5": "888968b94cb6606e41f7968e76f48c49",
+   "bytes": 755091
+  },
+  {
+   "path": "B7-13-Change-Log.dc.html",
+   "kind": "board",
+   "md5": "8ad46bf583dcfbfb70d69d3ffa757166",
+   "bytes": 17496
+  },
+  {
+   "path": "B8-00-Index.dc.html",
+   "kind": "board",
+   "md5": "3cd30029555bad56d6f67396c8d3310d",
+   "bytes": 9476
+  },
+  {
+   "path": "B8-01-Screen-and-Navigation-Register.dc.html",
+   "kind": "board",
+   "md5": "971f620cf24af496e5fdb06eac969cbf",
+   "bytes": 57781
+  },
+  {
+   "path": "B8-02-Link-Corrections-and-Change-Log.dc.html",
+   "kind": "board",
+   "md5": "fd303b2c583e6972ecb22c665193a78a",
+   "bytes": 31826
+  },
+  {
+   "path": "B8-03-Terminology-and-Visual-Consistency.dc.html",
+   "kind": "board",
+   "md5": "4e0d3e5408fe22c7a142270ab0f74753",
+   "bytes": 13599
+  },
+  {
+   "path": "B8-04-Workflow-Traceability.dc.html",
+   "kind": "board",
+   "md5": "360b5e014b038f44c0fbd855fb8161b6",
+   "bytes": 20042
+  },
+  {
+   "path": "B8-05-Responsive-and-Accessibility.dc.html",
+   "kind": "board",
+   "md5": "bdc0ed28a92c090ff13ddc8ef44c7b1e",
+   "bytes": 439485
+  },
+  {
+   "path": "B8-06-Design-to-Code-Handoff.dc.html",
+   "kind": "board",
+   "md5": "3fe3f320ee9ed43fb1d78f669de8b91e",
+   "bytes": 11996
+  },
+  {
+   "path": "B8-07-Handoff-Specifications.dc.html",
+   "kind": "board",
+   "md5": "58230c3fff2d707201b8f09821f60e97",
+   "bytes": 27741
+  },
+  {
+   "path": "B8-08-Open-Decisions-and-Limitations.dc.html",
+   "kind": "board",
+   "md5": "2b94168b93b7e2e102d74836c4d4baa2",
+   "bytes": 48512
+  },
+  {
+   "path": "Main.dc.html",
+   "kind": "board",
+   "md5": "1ef00359ffe9dbcb4cdc7cce3d3eacb3",
+   "bytes": 13324
+  },
+  {
+   "path": "canvas.json",
+   "kind": "canvas layout",
+   "md5": "3405d617624f0837a25c75226eae9d44",
+   "bytes": 35325
+  },
+  {
+   "path": "xr-admin.css",
+   "kind": "stylesheet",
+   "md5": "a8e6d2ea384971ae326a6de2b5f54f9b",
+   "bytes": 1345
+  },
+  {
+   "path": "xr-assess.css",
+   "kind": "stylesheet",
+   "md5": "1a4e5e9987a88aa07dc9195726f90562",
+   "bytes": 7911
+  },
+  {
+   "path": "xr-foundation.css",
+   "kind": "stylesheet",
+   "md5": "0b8e9c6cd160f51b8567c81ba100dada",
+   "bytes": 36922
+  },
+  {
+   "path": "xr-govern.css",
+   "kind": "stylesheet",
+   "md5": "e301eb483a96c68a8a72c4c6774c3336",
+   "bytes": 5462
+  },
+  {
+   "path": "xr-learning.css",
+   "kind": "stylesheet",
+   "md5": "9dbf06ce248e87bdc3a1f9f99d6b4554",
+   "bytes": 7868
+  },
+  {
+   "path": "xr-public.css",
+   "kind": "stylesheet",
+   "md5": "63216776351e5df83ca08db7e229c7ed",
+   "bytes": 48314
+  },
+  {
+   "path": "xr-vendor.css",
+   "kind": "stylesheet",
+   "md5": "79a38dcfadb95e33c748b933fc6a201e",
+   "bytes": 4119
+  },
+  {
+   "path": "xr-workspace.css",
+   "kind": "stylesheet",
+   "md5": "7abea04c8da71c3f760b37062f02cb95",
+   "bytes": 12240
+  },
+  {
+   "path": "art/bundle.svg",
+   "kind": "art (concept)",
+   "md5": "c202f78a58a645bb5d4cc17eab033442",
+   "bytes": 8503
+  },
+  {
+   "path": "art/casting.svg",
+   "kind": "art (concept)",
+   "md5": "edb6268b424099dce6335b5ce3f7d6a6",
+   "bytes": 7344
+  },
+  {
+   "path": "art/coil.svg",
+   "kind": "art (concept)",
+   "md5": "b88b3d21d39399c66dd4094e5f602018",
+   "bytes": 7511
+  },
+  {
+   "path": "art/drum.svg",
+   "kind": "art (concept)",
+   "md5": "a1d1b69aa57b9f8f9ecacc47fcc54d5c",
+   "bytes": 7755
+  },
+  {
+   "path": "art/fmt-ar.svg",
+   "kind": "art (concept)",
+   "md5": "7405a731c30458bebbbf74969966439d",
+   "bytes": 8252
+  },
+  {
+   "path": "art/fmt-mr.svg",
+   "kind": "art (concept)",
+   "md5": "66c753d4adcadf1925e4547b16195038",
+   "bytes": 8160
+  },
+  {
+   "path": "art/fmt-vr.svg",
+   "kind": "art (concept)",
+   "md5": "fd920179fd91994c690c6e75f612621e",
+   "bytes": 8393
+  },
+  {
+   "path": "art/fmt-web.svg",
+   "kind": "art (concept)",
+   "md5": "14521fab2661047eefafe1109620e5fd",
+   "bytes": 8986
+  },
+  {
+   "path": "art/machining.svg",
+   "kind": "art (concept)",
+   "md5": "2018bb4849fd75d0faa350b34ecc2b09",
+   "bytes": 7856
+  },
+  {
+   "path": "art/materials.svg",
+   "kind": "art (concept)",
+   "md5": "6d0ca1d68b8ed4d2db00944ed86d6979",
+   "bytes": 7431
+  },
+  {
+   "path": "art/motor-crop.svg",
+   "kind": "art (concept)",
+   "md5": "dd3202fd2b122133b389296ca9182598",
+   "bytes": 13950
+  },
+  {
+   "path": "art/motor.svg",
+   "kind": "art (concept)",
+   "md5": "d9d661e705022143ee57a339e32c558f",
+   "bytes": 13948
+  },
+  {
+   "path": "art/orifice.svg",
+   "kind": "art (concept)",
+   "md5": "2c34c16fd490f3e65435ef1cc6525cf0",
+   "bytes": 7700
+  },
+  {
+   "path": "art/process-crop.svg",
+   "kind": "art (concept)",
+   "md5": "4936476424e324f23d49149de5514219",
+   "bytes": 11759
+  },
+  {
+   "path": "art/process.svg",
+   "kind": "art (concept)",
+   "md5": "dc35a7037ff6691ed7f098c1b63a1d1e",
+   "bytes": 11758
+  },
+  {
+   "path": "art/switching.svg",
+   "kind": "art (concept)",
+   "md5": "c76f0d289d9dab3faf43f1e7a9d525da",
+   "bytes": 7649
+  },
+  {
+   "path": "art/syncgen.svg",
+   "kind": "art (concept)",
+   "md5": "1287bfb85944bafec84261e61d52987e",
+   "bytes": 8425
+  },
+  {
+   "path": "art/thermal-crop.svg",
+   "kind": "art (concept)",
+   "md5": "cee69ed3b197ceb60d04452d07563700",
+   "bytes": 12876
+  },
+  {
+   "path": "art/thermal.svg",
+   "kind": "art (concept)",
+   "md5": "355379c738e7723ed03acb84a135cddb",
+   "bytes": 12875
+  },
+  {
+   "path": "handoff/README.md",
+   "kind": "handoff data",
+   "md5": "0ec6d6319b2b3bed9d28cba7b8d86c4d",
+   "bytes": 4355
+  },
+  {
+   "path": "handoff/assets.json",
+   "kind": "handoff data",
+   "md5": "5493457052184dd21440ca1ed0e262c4",
+   "bytes": 1764
+  },
+  {
+   "path": "handoff/entities.json",
+   "kind": "handoff data",
+   "md5": "36f310fd2f39c82bf1ba6a487014b5d7",
+   "bytes": 4861
+  },
+  {
+   "path": "handoff/flows.json",
+   "kind": "handoff data",
+   "md5": "f1c556a2b2f1c455363d6d6a6eaffd38",
+   "bytes": 8748
+  },
+  {
+   "path": "handoff/navigation.json",
+   "kind": "handoff data",
+   "md5": "968eaec1f161f56059e4872bc63b843e",
+   "bytes": 3838
+  },
+  {
+   "path": "handoff/open-decisions.json",
+   "kind": "handoff data",
+   "md5": "93267cbbe1243fb7980a0eea87ea43a1",
+   "bytes": 37935
+  },
+  {
+   "path": "handoff/screens.json",
+   "kind": "handoff data",
+   "md5": "c6a4bed91fff73d690079f55e48e42fd",
+   "bytes": 68353
+  },
+  {
+   "path": "handoff/tokens.css",
+   "kind": "handoff data",
+   "md5": "a51ff63ebaf6a03b6ec47420b27dceef",
+   "bytes": 1845
+  },
+  {
+   "path": "handoff/tokens.json",
+   "kind": "handoff data",
+   "md5": "ed87e62ed569921605b756aff36c3ffb",
+   "bytes": 2273
+  }
+ ]
+}

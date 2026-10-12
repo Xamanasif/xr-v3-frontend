@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 · Accessibility and Motion</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1440px; min-height: 4400px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Board 12 · §21 · C.14 · WCAG 2.2 AA</span>
+    <h1 class="doc-title">Accessibility and motion</h1>
+    <p class="doc-sub">Built toward WCAG 2.2 AA from the foundation up: contrast measured, focus always visible, every control reachable and named by keyboard, status never colour-only, Help in one place, motion optional. The 1–5 scale below works.</p>
+  </header>
+
+  <div class="doc-body">
+
+    <section class="doc-sec" aria-labelledby="h-contrast">
+      <div class="doc-sec-head">
+        <h2 id="h-contrast" class="doc-sec-title">Contrast · measured</h2>
+        <p class="doc-sec-note">WCAG relative-luminance ratios, calculated for each token pair used for text or meaningful UI. Text needs 4.5 : 1 (1.4.3); borders and focus rings that identify a control need 3 : 1 (1.4.11).</p>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th>Foreground</th><th>Background</th><th>Used for</th><th style="width: 110px">Ratio</th><th style="width: 160px">Result</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ pairs }}" as="p" hint-placeholder-count="20">
+              <tr><td><span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 18px; height: 18px; border-radius: 4px; background: {{ p.fg }}; border: 1px solid #E1E4F3"></span><span class="xr-id">{{ p.fg }}</span></span></td><td><span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 18px; height: 18px; border-radius: 4px; background: {{ p.bg }}; border: 1px solid #E1E4F3"></span><span class="xr-id">{{ p.bg }}</span></span></td><td>{{ p.use }}</td><td class="xr-num"><strong>{{ p.ratio }}</strong></td><td><span class="xr-status {{ p.cls }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ p.icon }}"></path></svg>{{ p.result }}</span></td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-kb">
+      <div class="doc-sec-head">
+        <h2 id="h-kb" class="doc-sec-title">Keyboard and focus</h2>
+        <p class="doc-sec-note">Every action works without a mouse. Focus is always visible (2.4.7, 2.4.11) and never hidden under the top bar or a menu.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="doc-label">Shell tab order</span>
+          <ol class="doc-list" style="list-style: decimal">
+            <li><strong>Skip to main content</strong> — first stop, visible when focused (2.4.1).</li>
+            <li>Sidebar destinations in order, then Help.</li>
+            <li>Top bar: Menu / Collapse, then the account menu.</li>
+            <li>Banner action (Help), when a banner shows.</li>
+            <li>Main content, top to bottom.</li>
+          </ol>
+          <div style="position: relative; height: 72px; background: #F4F5FB; border: 1px solid #E1E4F3; border-radius: 8px"><a class="xr-skip is-shown is-focus" href="#h-kb">Skip to main content</a></div>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="doc-label">Patterns</span>
+          <dl class="doc-kv" style="grid-template-columns: 170px minmax(0, 1fr)">
+            <dt>Account menu</dt><dd><span class="doc-kbd">Enter</span> opens · <span class="doc-kbd">Tab</span> moves through items · <span class="doc-kbd">Esc</span> closes and returns focus to the button</dd>
+            <dt>Drawer</dt><dd>Focus moves to Close · <span class="doc-kbd">Esc</span> closes · focus returns to Menu</dd>
+            <dt>Record tabs</dt><dd><span class="doc-kbd">←</span> <span class="doc-kbd">→</span> move between tabs; <span class="doc-kbd">Tab</span> enters the panel</dd>
+            <dt>Section tabs</dt><dd>Ordinary links; <span class="doc-kbd">Tab</span> between them</dd>
+            <dt>Dialogs</dt><dd>Focus trapped inside · <span class="doc-kbd">Esc</span> cancels · focus returns (board 10)</dd>
+            <dt>Radio groups, scales</dt><dd><span class="doc-kbd">←</span> <span class="doc-kbd">→</span> or <span class="doc-kbd">↑</span> <span class="doc-kbd">↓</span> change the choice</dd>
+            <dt>Errors</dt><dd>Summary links move focus to the field; the field’s message is in its description</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-scale">
+      <div class="doc-sec-head">
+        <h2 id="h-scale" class="doc-sec-title">Labelled 1–5 control · for format feedback</h2>
+        <p class="doc-sec-note">A real radio group in a fieldset: the statement is the legend, every point has a number and a word, it is selectable by keyboard and touch, and the chosen point changes fill, text colour and shows a tick — not colour alone. Below 520 px it becomes a vertical list. Point labels are a wording proposal (only 1 and 5 are given in §P).</p>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 377px; gap: 40px; align-items: start">
+        <div class="doc-card xr-content" style="display: flex; flex-direction: column; gap: 16px">
+          <fieldset class="xr-fieldset" style="gap: 10px">
+            <legend class="xr-legend" style="font-size: 16px; line-height: 24px">The instructions were clear and easy to follow.</legend>
+            <div class="xr-scale">
+              <sc-for list="{{ points }}" as="pt" hint-placeholder-count="5">
+                <label><input type="radio" name="a11y-q" value="{{ pt.n }}" checked="{{ pt.checked }}" onChange="{{ pt.pick }}"><span class="xr-scale-n">{{ pt.n }}</span>{{ pt.word }}<sc-if value="{{ pt.checked }}" hint-placeholder-val="{{ false }}"><svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if></label>
+              </sc-for>
+            </div>
+          </fieldset>
+          <p class="xr-small" style="color: #40476B" aria-live="polite">{{ answerText }}</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="doc-label">Same control at 375 px</span>
+          <div class="doc-frame" style="width: 377px; background: #FFFFFF">
+            <div class="xr-content" style="width: 375px; padding: 20px 16px">
+              <fieldset class="xr-fieldset" style="gap: 10px">
+                <legend class="xr-legend" style="font-size: 16px; line-height: 24px">The instructions were clear and easy to follow.</legend>
+                <div class="xr-scale">
+                  <sc-for list="{{ points }}" as="pt" hint-placeholder-count="5">
+                    <label><input type="radio" name="a11y-q-m" value="{{ pt.n }}" checked="{{ pt.checked }}" onChange="{{ pt.pick }}"><span class="xr-scale-n">{{ pt.n }}</span>{{ pt.word }}</label>
+                  </sc-for>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-more">
+      <div class="doc-sec-head">
+        <h2 id="h-more" class="doc-sec-title">Targets, names, status and Help placement</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="doc-label">Target size · 2.5.8 (minimum 24 × 24)</span>
+          <div class="xr-table-wrap">
+            <table class="xr-table">
+              <thead><tr><th>Control</th><th>Size</th></tr></thead>
+              <tbody>
+                <tr><td>Buttons, nav items, menu items, inputs, icon buttons</td><td><strong>44</strong> px high</td></tr>
+                <tr><td>Small buttons in rows and toolbars</td><td><strong>36</strong> px</td></tr>
+                <tr><td>Checkbox and radio rows (whole label is the target)</td><td><strong>44</strong> px</td></tr>
+                <tr><td>Remove-filter button on a chip</td><td><strong>28 × 28</strong> px</td></tr>
+                <tr><td>Status and format chips</td><td>Not interactive</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="doc-label">Names and status · 4.1.2 · 1.4.1 · 4.1.3</span>
+          <ul class="doc-list">
+            <li>Icon-only buttons carry a name: “Open menu”, “Close menu”, “Collapse menu”, “Remove filter Status: No access yet”.</li>
+            <li>The account button says who and which role: “Account menu: Meera Iyer, Institute Admin”.</li>
+            <li>Sidebar counts are spoken in words: “Marking, 12 written answers to mark”.</li>
+            <li>Status chips are text with a decorative icon; tones also differ in lightness and icon shape.</li>
+            <li>Current page, current tab and current step use aria-current plus a gold rule and bold weight.</li>
+            <li>Success and status notices use a polite live region; error summaries use role="alert".</li>
+          </ul>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="doc-label">Consistent help · 3.2.6</span>
+          <p class="doc-note">Help is the last sidebar item in all seven workspaces, in the drawer on phones, and in the account menu. The Help page is the same template everywhere (board 07).</p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="doc-label">Text and reflow · 1.4.4 · 1.4.10 · 1.4.12</span>
+          <p class="doc-note">Sizes in px tokens scale with browser zoom; every page reflows to 320 px without sideways scrolling — tables become stacked rows, section tabs scroll inside their own strip. Line height ≥ 1.4 for body text; no text in images.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-motion">
+      <div class="doc-sec-head">
+        <h2 id="h-motion" class="doc-sec-title">Reduced motion · 2.3.3 · 2.2.2</h2>
+        <p class="doc-sec-note">When the system asks for reduced motion, the foundation stylesheet makes every animation and transition instant. Nothing in the product depends on motion to be understood.</p>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th>Element</th><th>Default</th><th>Reduced motion</th></tr></thead>
+          <tbody>
+            <tr><td>Drawer</td><td>Slides in, 280 ms</td><td>Appears at once</td></tr>
+            <tr><td>Dialog</td><td>Fades and settles, 280 ms</td><td>Appears at once</td></tr>
+            <tr><td>Menus, tooltips</td><td>Fade, 200 ms</td><td>Appear at once</td></tr>
+            <tr><td>Hover and focus colour</td><td>120 ms</td><td>Instant</td></tr>
+            <tr><td>Loading skeleton</td><td>Gentle shimmer</td><td>Static grey blocks; “Loading …” still announced</td></tr>
+            <tr><td>Busy spinner</td><td>Rotates</td><td>Static ring; the label (“Sending…”) carries the state</td></tr>
+            <tr><td>Public pages (Batch 1)</td><td>No auto-advance; short scroll story</td><td>No scroll-driven animation; explorer moves only on request</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4400}}'>
+class Component extends DCLogic {
+  state = { pick: 4 };
+  renderVals() {
+    const ok = { cls: 'xr-status--ok', icon: 'M5 12.5l4.5 4.5L19 7.5', result: 'Passes' };
+    const ret = { cls: 'xr-status--err', icon: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01', result: 'Retired (fails)' };
+    const P = (fg, bg, use, ratio, r) => Object.assign({ fg, bg, use, ratio }, r || ok);
+    const pairs = [
+      P('#12173F', '#FFFFFF', 'Body text on sections', '17.2 : 1'),
+      P('#12173F', '#F4F5FB', 'Body text on canvas', '15.8 : 1'),
+      P('#40476B', '#FFFFFF', 'Secondary text', '9.0 : 1'),
+      P('#5C6389', '#FFFFFF', 'Metadata, hints (lightest text)', '5.8 : 1'),
+      P('#5C6389', '#F4F5FB', 'Metadata on canvas', '5.4 : 1'),
+      P('#5C6389', '#EEF0F8', 'Neutral status chip text', '5.1 : 1'),
+      P('#1F4FD8', '#FFFFFF', 'Links, focus ring', '6.6 : 1'),
+      P('#12173F', '#E9A825', 'Primary button label', '8.3 : 1'),
+      P('#A8740A', '#FFFFFF', 'Primary button edge (UI)', '4.1 : 1'),
+      P('#FFFFFF', '#141B5E', 'Sidebar current item, selected fills', '15.6 : 1'),
+      P('#C9CEF2', '#141B5E', 'Sidebar items', '10.1 : 1'),
+      P('#F7C95B', '#141B5E', 'Workspace label, focus on navy', '10.0 : 1'),
+      P('#7A82AE', '#FFFFFF', 'Input borders, dashed chips (UI)', '3.7 : 1'),
+      P('#8A5A05', '#FBF3E0', 'Waiting status, paused banner icon', '5.4 : 1'),
+      P('#1D6B45', '#E8F4EC', 'Done status', '5.7 : 1'),
+      P('#B42318', '#FDECEA', 'Needs-action status, errors', '5.8 : 1'),
+      P('#1F4FD8', '#EAF0FD', 'In-progress status', '5.8 : 1'),
+      P('#FFFFFF', '#0C1247', 'Inactive banner', '17.6 : 1'),
+      P('#8C93BF', '#FFFFFF', 'B2 captions and kickers', '2.98 : 1', ret),
+      P('#E5323B', '#FFFFFF', 'B2 alert red as text', '4.33 : 1', ret)
+    ];
+    const words = ['Strongly disagree', 'Disagree', 'Neither agree nor disagree', 'Agree', 'Strongly agree'];
+    const points = words.map((word, i) => ({ n: i + 1, word, checked: this.state.pick === i + 1, pick: () => this.setState({ pick: i + 1 }) }));
+    return { pairs, points, answerText: 'Your answer: ' + this.state.pick + ' — ' + words[this.state.pick - 1] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 · Responsive Proof</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" ref="{{ rootRef }}" style="width: 2720px; min-height: 5940px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Board 11 · §7 · §20</span>
+    <h1 class="doc-title">Responsive proof · 1440 · 1024 · 768 · 375</h1>
+    <p class="doc-sub">Every frame below is the same markup and the same stylesheet laid out at its real width — nothing is scaled. The shell switches by its own width (container queries): full sidebar ≥ 1280, collapsible rail 1024–1279, drawer below 1024. Tables become stacked rows below 760 px of content width; the decision panel moves under the content below 860 px.</p>
+    <div class="doc-head-meta"><span>Sample data</span><span>Frames are foundation pattern examples, not later-batch screen approvals</span></div>
+  </header>
+
+  <div class="doc-body">
+    <sc-for list="{{ rows }}" as="row" hint-placeholder-count="3">
+      <section class="doc-sec">
+        <div class="doc-sec-head"><h2 class="doc-sec-title">{{ row.title }}</h2><p class="doc-sec-note">{{ row.note }}</p></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 48px 48px; align-items: flex-start">
+          <sc-for list="{{ row.frames }}" as="f" hint-placeholder-count="3">
+            <div style="display: flex; flex-direction: column; gap: 10px; width: {{ f.outerW }}px">
+              <div style="display: flex; flex-direction: column; gap: 4px"><span class="doc-label">{{ f.label }}</span><span class="doc-note">{{ f.note }}</span></div>
+              <div class="doc-frame">
+                <div class="xr-app" style="width: {{ f.w }}px; min-height: {{ f.h }}px">
+                  <div class="xr-shell {{ f.shellCls }}" style="min-height: {{ f.h }}px">
+
+                    <aside class="xr-side" aria-label="{{ f.ws }} workspace">
+                      <div class="xr-side-head">
+                        <div class="xr-side-top"><div class="xr-logo-ph" style="flex: 1 1 auto">BITS Pilani / WILP logo — placeholder</div><button type="button" class="xr-side-btn xr-drawer-close {{ f.closeFocus }}" aria-label="Close menu"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+                        <span class="xr-product">XR Learning Platform</span>
+                      </div>
+                      <div class="xr-ws"><span class="xr-ws-label">{{ f.ws }}</span><sc-if value="{{ f.hasInst }}" hint-placeholder-val="{{ true }}"><span class="xr-ws-inst">{{ f.inst }}</span></sc-if></div>
+                      <nav aria-label="{{ f.ws }} navigation"><ul class="xr-nav">
+                        <sc-for list="{{ f.nav }}" as="n" hint-placeholder-count="6"><li><a href="#proof" aria-current="{{ n.current }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ n.d }}"></path></svg><span class="xr-nav-text">{{ n.label }}</span><span class="xr-tip">{{ n.label }}</span><sc-if value="{{ n.hasCount }}" hint-placeholder-val="{{ false }}"><span class="xr-count"><span aria-hidden="true">{{ n.count }}</span><span class="xr-sr">, {{ n.countText }}</span></span></sc-if></a></li></sc-for>
+                      </ul></nav>
+                      <div class="xr-side-foot"><ul class="xr-nav"><li><a href="#proof"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span class="xr-nav-text">Help</span><span class="xr-tip">Help</span></a></li></ul></div>
+                    </aside>
+                    <div class="xr-scrim" aria-hidden="true"></div>
+
+                    <div class="xr-main">
+                      <header class="xr-top">
+                        <button type="button" class="xr-menu-btn" aria-expanded="{{ f.drawer }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg><span>Menu</span></button>
+                        <button type="button" class="xr-icon-btn xr-top-collapse" aria-label="{{ f.collapseLabel }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ f.collapseIcon }}"></path></svg></button>
+                        <div class="xr-top-loc">
+                          <span class="xr-top-title">{{ f.title }}</span>
+                          <ol class="xr-crumbs" aria-label="You are here">
+                            <sc-if value="{{ f.hasParent }}" hint-placeholder-val="{{ false }}"><li><a href="#proof">{{ f.parent }}</a><span class="xr-crumb-sep" aria-hidden="true">/</span></li></sc-if>
+                            <li><span aria-current="page">{{ f.crumb }}</span></li>
+                          </ol>
+                        </div>
+                        <div class="xr-acct">
+                          <button type="button" class="xr-acct-btn" aria-expanded="{{ f.menuOpen }}" aria-label="Account menu: {{ f.person }}, {{ f.ws }}"><span class="xr-avatar" aria-hidden="true">{{ f.initials }}</span><span class="xr-acct-text" aria-hidden="true"><span class="xr-acct-name">{{ f.person }}</span><span class="xr-acct-role">{{ f.ws }}</span></span><svg class="xr-ico xr-acct-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+                          <sc-if value="{{ f.menuOpen }}" hint-placeholder-val="{{ false }}">
+                            <div class="xr-menu">
+                              <div class="xr-menu-head"><span class="xr-menu-name">{{ f.person }}</span><span class="xr-menu-meta">{{ f.ws }}</span><sc-if value="{{ f.hasInst }}" hint-placeholder-val="{{ true }}"><span class="xr-menu-meta">{{ f.inst }}</span></sc-if></div>
+                              <sc-if value="{{ f.device }}" hint-placeholder-val="{{ false }}"><a class="xr-menu-item" href="#proof"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 18h2"></path></svg>My device</a></sc-if>
+                              <a class="xr-menu-item" href="#proof"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg>Help</a>
+                              <div class="xr-menu-sep" role="separator"></div>
+                              <button type="button" class="xr-menu-item"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 16l4-4-4-4M14 12H4"></path></svg>Sign out</button>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </header>
+
+                      <main class="xr-page">
+
+                        <sc-if value="{{ f.isList }}" hint-placeholder-val="{{ false }}">
+                          <div class="xr-wrap xr-content">
+                            <div class="xr-phead" style="margin-bottom: 16px"><div class="xr-phead-main"><h1 class="xr-h1">People</h1><p class="xr-meta">Who is in our institution?</p></div><div class="xr-phead-actions"><a class="xr-btn xr-btn--primary" href="#proof">Add person</a></div></div>
+                            <nav class="xr-tabs" aria-label="People sections" style="margin-bottom: 20px"><a class="xr-tab" href="#proof" aria-current="page">Students</a><a class="xr-tab" href="#proof">Faculty</a><a class="xr-tab" href="#proof">Groups</a><a class="xr-tab" href="#proof">Faculty courses</a></nav>
+                            <div class="xr-toolbar">
+                              <div class="xr-field xr-toolbar-search"><label class="xr-label" for="{{ f.id }}-s">Search</label><div class="xr-search"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4"></path></svg><input id="{{ f.id }}-s" class="xr-input" type="search" placeholder="Name, e-mail or student ID"></div></div>
+                              <div class="xr-field"><label class="xr-label" for="{{ f.id }}-f">Status</label><div class="xr-select-wrap"><select id="{{ f.id }}-f" class="xr-select"><option>All statuses</option><option>Access active</option><option>No access yet</option><option>Inactive</option></select><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></div></div>
+                              <button type="button" class="xr-btn xr-btn--secondary" aria-expanded="false"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>More filters</button>
+                            </div>
+                            <div class="xr-toolbar-status"><span class="xr-meta">4 of 214 students</span></div>
+                            <div class="xr-table-wrap">
+                              <table class="xr-table">
+                                <thead><tr><th>Student</th><th>Course</th><th>Experiments given</th><th>Status</th></tr></thead>
+                                <tbody>
+                                  <tr><td class="is-primary"><a href="#proof">Rahul Verma</a><span class="xr-sub">GIT-2026-0418</span></td><td data-label="Course">ME ZG523</td><td data-label="Experiments given">Shell-and-Tube Heat Exchanger <span class="xr-fmt-set"><span class="xr-fmt xr-fmt--compact">WEB</span><span class="xr-fmt xr-fmt--compact">VR</span></span></td><td data-label="Status"><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Access active</span></td></tr>
+                                  <tr><td class="is-primary"><a href="#proof">Priya Natarajan</a><span class="xr-sub">GIT-2026-0431</span></td><td data-label="Course">ME ZG523</td><td data-label="Experiments given"><span class="xr-meta">None yet</span></td><td data-label="Status"><span class="xr-status"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg>No access yet</span></td></tr>
+                                  <tr><td class="is-primary"><a href="#proof">Arun Kumar</a><span class="xr-sub">GIT-2026-0377</span></td><td data-label="Course">ME ZG523</td><td data-label="Experiments given">Forced Convection <span class="xr-fmt-set"><span class="xr-fmt xr-fmt--compact">WEB</span></span></td><td data-label="Status"><span class="xr-status xr-status--wait"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg>Waiting for a licence</span></td></tr>
+                                  <tr><td class="is-primary"><a href="#proof">Sneha Reddy</a><span class="xr-sub">GIT-2026-0352</span></td><td data-label="Course">ME ZG523</td><td data-label="Experiments given">Shell-and-Tube Heat Exchanger <span class="xr-fmt-set"><span class="xr-fmt xr-fmt--compact">WEB</span><span class="xr-fmt xr-fmt--compact">VR</span></span></td><td data-label="Status"><span class="xr-status xr-status--off"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg>Inactive</span></td></tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </sc-if>
+
+                        <sc-if value="{{ f.isDecision }}" hint-placeholder-val="{{ false }}">
+                          <div class="xr-wrap xr-content">
+                            <a class="xr-back" href="#proof" style="margin-bottom: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Requests</a>
+                            <div class="xr-phead">
+                              <div class="xr-phead-main">
+                                <span class="xr-id">REQ-0042</span>
+                                <h1 class="xr-h1">Godavari Institute of Technology</h1>
+                                <div class="xr-phead-meta"><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>Under review</span><span>Submitted 2 Oct · 2 experiments</span></div>
+                                <a class="xr-jump" href="#{{ f.id }}-decision">Go to decision<svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></a>
+                              </div>
+                            </div>
+                            <div class="xr-decide">
+                              <div class="xr-stack">
+                                <section class="xr-section" aria-labelledby="{{ f.id }}-asked">
+                                  <div class="xr-section-head"><h2 id="{{ f.id }}-asked" class="xr-h2">What they asked for</h2></div>
+                                  <ul class="xr-rows">
+                                    <li class="xr-row"><div class="xr-row-main"><div class="xr-row-text"><span class="xr-row-title">Shell-and-Tube Heat Exchanger</span><span class="xr-row-sub">ME ZG523 · 120 licences · 1 year</span></div></div><span class="xr-fmt-set"><span class="xr-fmt">WEB</span><span class="xr-fmt">VR</span></span></li>
+                                    <li class="xr-row"><div class="xr-row-main"><div class="xr-row-text"><span class="xr-row-title">Forced Convection</span><span class="xr-row-sub">ME ZG523 · 120 licences · 1 year</span></div></div><span class="xr-fmt-set"><span class="xr-fmt">WEB</span></span></li>
+                                  </ul>
+                                </section>
+                                <section class="xr-section" aria-labelledby="{{ f.id }}-msg">
+                                  <div class="xr-section-head"><h2 id="{{ f.id }}-msg" class="xr-h2">Message from the institution</h2></div>
+                                  <div class="xr-section-body"><p class="xr-body" style="color: #40476B">“We would like to use these in the second semester of ME ZG523.”</p></div>
+                                </section>
+                              </div>
+                              <aside class="xr-dpanel" id="{{ f.id }}-decision" tabIndex="-1" aria-labelledby="{{ f.id }}-dp">
+                                <h2 id="{{ f.id }}-dp" class="xr-dpanel-title">Your decision</h2>
+                                <fieldset class="xr-fieldset" style="gap: 10px"><legend class="xr-sr">Decision</legend>
+                                  <label class="xr-choice is-checked"><input type="radio" name="{{ f.id }}-d" checked="{{ true }}"><span><span class="xr-choice-title">Approve</span><span class="xr-choice-sub">Choose the access type below.</span></span></label>
+                                  <label class="xr-choice"><input type="radio" name="{{ f.id }}-d"><span><span class="xr-choice-title">Request more information</span><span class="xr-choice-sub">The requester sees your reason.</span></span></label>
+                                </fieldset>
+                                <fieldset class="xr-fieldset"><legend class="xr-legend">Access type</legend>
+                                  <label class="xr-check" style="font-size: 15px"><input type="radio" name="{{ f.id }}-t">Internal · no payment step</label>
+                                  <label class="xr-check" style="font-size: 15px"><input type="radio" name="{{ f.id }}-t">External · payment required</label>
+                                </fieldset>
+                                <button type="button" class="xr-btn xr-btn--primary xr-btn--block">Approve request</button>
+                              </aside>
+                            </div>
+                          </div>
+                        </sc-if>
+
+                        <sc-if value="{{ f.isForm }}" hint-placeholder-val="{{ false }}">
+                          <div class="xr-wrap--form xr-content">
+                            <a class="xr-back" href="#proof" style="margin-bottom: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Help &amp; support</a>
+                            <div class="xr-phead"><div class="xr-phead-main"><h1 class="xr-h1">Report a problem</h1><p class="xr-lead">Describe what went wrong. You can follow your report in My reports.</p></div></div>
+                            <div class="xr-section" style="padding: 20px; display: flex; flex-direction: column; gap: 20px">
+                              <div class="xr-field"><label class="xr-label" for="{{ f.id }}-w">What happened?</label><span class="xr-hint">Say what you were doing and what you saw.</span><textarea id="{{ f.id }}-w" class="xr-textarea"></textarea></div>
+                              <div class="xr-field"><label class="xr-label" for="{{ f.id }}-h">Where did it happen?</label><input id="{{ f.id }}-h" class="xr-input" type="text" value="Shell-and-Tube Heat Exchanger · VR"></div>
+                              <div class="xr-field"><label class="xr-label" for="{{ f.id }}-p">Screenshot <span class="xr-opt">(optional)</span></label><input id="{{ f.id }}-p" class="xr-file" type="file" accept="image/*"></div>
+                              <div style="display: flex; flex-wrap: wrap-reverse; gap: 12px; justify-content: flex-end"><a class="xr-btn xr-btn--text" href="#proof">Cancel</a><button type="button" class="xr-btn xr-btn--primary" style="flex: 1 1 160px">Send report</button></div>
+                            </div>
+                          </div>
+                        </sc-if>
+
+                        <sc-if value="{{ f.isMessage }}" hint-placeholder-val="{{ false }}">
+                          <div class="xr-msg" style="margin: 8px 0 0">
+                            <span class="xr-msg-icon"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg></span>
+                            <h1 class="xr-msg-title">This experiment isn’t available to you</h1>
+                            <p class="xr-body" style="color: #40476B">Your institution hasn’t given you access to Forced Convection. Experiments you can open are in My courses.</p>
+                            <div class="xr-msg-actions" style="width: 100%"><a class="xr-btn xr-btn--primary xr-btn--block" href="#proof">Back to My courses</a><a href="#proof">Help</a></div>
+                          </div>
+                        </sc-if>
+
+                        <sc-if value="{{ f.isHome }}" hint-placeholder-val="{{ false }}">
+                          <div class="xr-wrap--read">
+                            <span class="xr-overline">Student</span>
+                            <h1 class="xr-h1" style="margin: 6px 0 20px">Home</h1>
+                            <div style="border: 1.5px dashed #7A82AE; border-radius: 12px; background: #FFFFFF; padding: 20px; display: flex; flex-direction: column; gap: 8px"><span class="doc-example-tag">Page content slot · ST-F1 · Batch 2</span><p class="doc-note">Only the shell is part of this frame.</p></div>
+                          </div>
+                        </sc-if>
+
+                      </main>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-for>
+
+    <section class="doc-sec" aria-labelledby="h-tabs375">
+      <div class="doc-sec-head"><h2 id="h-tabs375" class="doc-sec-title">Section tabs at 375 px · each People tab as the current one</h2><p class="doc-sec-note">The strip scrolls sideways. The cut-off tab fades at the right edge and the left edge is shaded once scrolled; a thin scroll track shows where the browser displays scrollbars; the current tab is scrolled into view when the page opens; Tab moves through every tab and the browser keeps the focused one in view. Labels never wrap or overlap. No new destinations.</p></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 32px 48px; align-items: flex-start">
+        <sc-for list="{{ tabStrips }}" as="ts" hint-placeholder-count="4">
+          <div style="display: flex; flex-direction: column; gap: 8px; width: 377px">
+            <span class="doc-label">{{ ts.label }}</span>
+            <div class="doc-frame">
+              <div class="xr-content" style="width: 375px; padding: 16px; background: #F4F5FB">
+                <p class="xr-h1" style="margin-bottom: 12px">People</p>
+                <nav class="xr-tabs" aria-label="People sections">
+                  <sc-for list="{{ ts.tabs }}" as="t" hint-placeholder-count="4"><a class="xr-tab {{ t.focusCls }}" href="#proof" aria-current="{{ t.current }}">{{ t.label }}</a></sc-for>
+                </nav>
+                <p class="xr-meta" style="margin-top: 12px">{{ ts.note }}</p>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-768">
+      <div class="doc-sec-head"><h2 id="h-768" class="doc-sec-title">Expected behaviour at about 768 px (admin)</h2></div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card"><span class="doc-label">Navigation</span><p class="doc-note" style="margin-top: 8px">Drawer behind “Menu” in a navy top bar. Same destinations, Help at the bottom. Top bar keeps page title and account.</p></div>
+        <div class="doc-card"><span class="doc-label">Lists</span><p class="doc-note" style="margin-top: 8px">Content is 720 px wide, so tables become stacked rows: primary cell first, each other value with its column label. Every row still opens its record.</p></div>
+        <div class="doc-card"><span class="doc-label">Decisions</span><p class="doc-note" style="margin-top: 8px">The decision panel moves under the content, full width, with a “Go to decision” link at the top of the page. Reason fields keep their size.</p></div>
+        <div class="doc-card"><span class="doc-label">Toolbars and tabs</span><p class="doc-note" style="margin-top: 8px">Search takes a full row; filters wrap under it. Section tabs scroll sideways and keep the current tab in view. Editable tables keep one input per stacked row.</p></div>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2720,"height":5940}}'>
+class Component extends DCLogic {
+  componentDidMount() { this.alignTabs(); window.setTimeout(() => this.alignTabs(), 400); }
+  alignTabs() {
+    const root = this.rootRef && this.rootRef.current;
+    if (!root) return;
+    root.querySelectorAll('.xr-tabs').forEach((strip) => {
+      const cur = strip.querySelector('[aria-current="page"]');
+      if (!cur) return;
+      const sr = strip.getBoundingClientRect(), cr = cur.getBoundingClientRect(), pad = 48;
+      if (cr.right > sr.right - pad) strip.scrollLeft += cr.right - sr.right + pad;
+      else if (cr.left < sr.left + pad) strip.scrollLeft -= sr.left + pad - cr.left;
+    });
+  }
+  renderVals() {
+    if (!this.rootRef) this.rootRef = React.createRef();
+    const I = {
+      home: 'M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z',
+      overview: 'M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z',
+      courses: 'M5 5.5A1.5 1.5 0 0 1 6.5 4H19v13H6.5A1.5 1.5 0 0 0 5 18.5zM5 18.5A1.5 1.5 0 0 0 6.5 20H19M9 8h6',
+      assess: 'M9 3.5h6v3H9zM15 5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3M8.5 13.5l2.5 2.5 4.5-5',
+      progress: 'M4 20h16M7 16v-4M12 16V7M17 16v-6',
+      people: 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.3a3.5 3.5 0 0 1 0 6.4M18.5 14.5A6.5 6.5 0 0 1 21.5 20',
+      caccess: 'M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10',
+      saccess: 'M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3.5 20a6.5 6.5 0 0 1 10-5.5M18 14v6M15 17h6',
+      requests: 'M4 13.5 6.5 5h11l2.5 8.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 13.5h4.5l1.5 2.5h4l1.5-2.5H20',
+      usage: 'M3 12h4l3-7 4 14 3-7h4',
+      inst: 'M3 9.5 12 4l9 5.5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20.5h18',
+      content: 'M8 3h7.5L20 7.5V17a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM15 3v5h5M4 7v13a1 1 0 0 0 1 1h11',
+      structure: 'M10 3h4v4h-4zM3.5 17h4v4h-4zM10 17h4v4h-4zM16.5 17h4v4h-4zM12 7v5M5.5 17v-5h13v5M12 12v5',
+      roles: 'M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6zM9 12l2 2 4-4',
+      ops: 'M4 6h9M17 6h3M15 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4'
+    };
+    const nav = (items, cur) => items.map(([label, icon, count, countText]) => ({ label, d: I[icon], current: label === cur ? 'page' : undefined, count: count || '', countText: countText || '', hasCount: !!count }));
+    const GIT = 'Godavari Institute of Technology';
+    const IA = [['Overview', 'overview'], ['Content access', 'caccess'], ['Student access', 'saccess'], ['People', 'people'], ['Requests', 'requests', '2', '2 device requests to forward'], ['Usage', 'usage']];
+    const SA = [['Overview', 'overview'], ['Requests', 'requests', '3', '3 requests under review'], ['Institutions', 'inst'], ['Content', 'content'], ['Academic structure', 'structure'], ['Platform roles', 'roles'], ['Operations', 'ops']];
+    const ST = [['Home', 'home'], ['My courses', 'courses'], ['Assessments', 'assess'], ['Progress', 'progress']];
+    const roles = {
+      ia: { ws: 'Institute Admin', inst: GIT, person: 'Meera Iyer', initials: 'MI', items: IA, device: false },
+      sa: { ws: 'Super Admin', inst: '', person: 'Arjun Mehta', initials: 'AM', items: SA, device: false },
+      st: { ws: 'Student', inst: GIT, person: 'Rahul Verma', initials: 'RV', items: ST, device: true }
+    };
+    const fr = (id, who, w, h, label, note, o) => {
+      const r = roles[who];
+      const x = Object.assign({ id, w, h, outerW: w + 2, label, note, ws: r.ws, inst: r.inst, hasInst: !!r.inst, person: r.person, initials: r.initials, device: r.device,
+        shellCls: '', drawer: false, closeFocus: '', menuOpen: false, isList: false, isDecision: false, isForm: false, isMessage: false, isHome: false,
+        hasParent: false, parent: '', crumb: '', title: '', cur: '' }, o);
+      x.nav = nav(r.items, x.cur);
+      const lg = w >= 1280;
+      x.collapseLabel = lg ? 'Collapse menu' : 'Expand menu';
+      x.collapseIcon = lg ? 'M4 5h16v14H4zM9.5 5v14M16 10l-2 2 2 2' : 'M4 5h16v14H4zM9.5 5v14M14 10l2 2-2 2';
+      return x;
+    };
+    const rows = [
+      { title: '1440 px · full sidebar · AR-2 list · account menu open', note: 'Institute Admin › People. Full 248 px sidebar with the current destination, top-bar breadcrumbs, the account menu open over the page, and a full table.', frames: [
+        fr('p1440', 'ia', 1440, 920, '1440 · Institute Admin · People › Students', 'Sidebar 248 · content 1112 · table in columns', { cur: 'People', isList: true, menuOpen: true, hasParent: true, parent: 'People', crumb: 'Students', title: 'People' })
+      ] },
+      { title: '1024 px · collapsed rail · AR-4 decision  ·  768 px · drawer · AR-2 stacked', note: 'At 1024 the rail leaves 888 px of content, so the decision panel stays beside the content at about 70 / 30. At 768 the sidebar becomes a drawer and the same table becomes stacked rows.', frames: [
+        fr('p1024', 'sa', 1024, 1000, '1024 · Super Admin · Request decision', 'Rail 72 (icons, tooltips) · “Expand menu” in the top bar · panel 29%', { cur: 'Requests', isDecision: true, hasParent: true, parent: 'Requests', crumb: 'REQ-0042', title: 'REQ-0042' }),
+        fr('p768', 'ia', 768, 1360, '768 · Institute Admin · People › Students', 'Navy top bar with Menu · tabs scroll · stacked rows with labels', { cur: 'People', isList: true, title: 'People' })
+      ] },
+      { title: '375 px · drawer · account menu · AR-2 · AR-4 · AR-8 · AR-10', note: 'Phones get the same system, not a reduced one. Student frames show the interactions that must work at 375; the admin frames show that admin pages stay workable.', frames: [
+        fr('m-drawer', 'st', 375, 760, '375 · Drawer open', 'Focus on “Close menu”; scrim behind', { cur: 'Home', isHome: true, shellCls: 'is-drawer', drawer: true, closeFocus: 'is-focus', title: 'Home', crumb: 'Home' }),
+        fr('m-acct', 'st', 375, 760, '375 · Account menu', 'Avatar only in the bar; full name and role in the menu; My device for this Student', { cur: 'Home', isHome: true, menuOpen: true, title: 'Home', crumb: 'Home' }),
+        fr('m-list', 'ia', 375, 1520, '375 · AR-2 list', 'Rows stack; filters wrap; every row still opens', { cur: 'People', isList: true, title: 'People' }),
+        fr('m-dec', 'sa', 375, 1760, '375 · AR-4 decision', 'Panel moves under the content, full width', { cur: 'Requests', isDecision: true, title: 'REQ-0042' }),
+        fr('m-form', 'st', 375, 1000, '375 · AR-8 form', 'Single column; primary button fills the row', { isForm: true, title: 'Report a problem' }),
+        fr('m-msg', 'st', 375, 640, '375 · AR-10 message', 'One message, one full-width action', { isMessage: true, title: 'Not available' })
+      ] }
+    ];
+    const names = ['Students', 'Faculty', 'Groups', 'Faculty courses'];
+    const notes = ['Starts at the left; the fade on the right shows more tabs.', 'Second tab current; still in view without scrolling.', 'Scrolled so Groups is fully visible; keyboard focus shown.', 'Scrolled to the end; the edge shade is now on the left only.'];
+    const tabStrips = names.map((cur, k) => ({ label: 'Current: ' + cur, note: notes[k], tabs: names.map((label, i) => ({ label, current: i === k ? 'page' : undefined, focusCls: (k === 2 && i === 2) ? 'is-focus' : '' })) }));
+    return { rows, tabStrips, rootRef: this.rootRef };
+  }
+}
+</script>
+</body>
+</html>

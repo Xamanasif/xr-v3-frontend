@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>13 · Batch-0 Change Log</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1440px; min-height: 5200px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Board 13 · §25</span>
+    <h1 class="doc-title">Decision and change log</h1>
+    <p class="doc-sub">Every meaningful departure from B2, why it was made, and what was deliberately left open. B2’s identity was not redesigned: what changed is size, contrast, density, responsiveness and consistency.</p>
+  </header>
+
+  <div class="doc-body">
+
+    <section class="doc-sec" aria-labelledby="h-fixes">
+      <div class="doc-sec-head">
+        <h2 id="h-fixes" class="doc-sec-title">Batch-0 review corrections · 8 Oct 2026</h2>
+        <p class="doc-sec-note">Targeted corrections after the review verdict “approved in principle”. Nothing else in the foundation changed.</p>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th style="width: 260px">Issue</th><th>Correction</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ fixes }}" as="fx" hint-placeholder-count="7">
+              <tr><td><strong>{{ fx.what }}</strong></td><td>{{ fx.how }}</td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-kept">
+      <div class="doc-sec-head">
+        <h2 id="h-kept" class="doc-sec-title">Kept from B2</h2>
+      </div>
+      <div class="doc-card" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 32px">
+        <sc-for list="{{ kept }}" as="k" hint-placeholder-count="15">
+          <div style="display: flex; gap: 10px; align-items: flex-start; padding: 6px 0"><span class="doc-tag doc-tag--keep" style="margin-top: 1px">Keep</span><span class="doc-note">{{ k }}</span></div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-changes">
+      <div class="doc-sec-head">
+        <h2 id="h-changes" class="doc-sec-title">Changes · B2 → Batch-0 decision → reason</h2>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th style="width: 48px">#</th><th style="width: 360px">B2</th><th>Batch-0 decision</th><th style="width: 230px">Reason</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ changes }}" as="c" hint-placeholder-count="28">
+              <tr><td class="xr-num xr-meta">{{ c.n }}</td><td>{{ c.b2 }}</td><td><span class="doc-tag {{ c.tagCls }}" style="margin-right: 8px">{{ c.tag }}</span>{{ c.now }}</td><td><span class="xr-small" style="color: #40476B">{{ c.why }}</span></td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-open">
+      <div class="doc-sec-head">
+        <h2 id="h-open" class="doc-sec-title">Open decisions intentionally not resolved</h2>
+        <p class="doc-sec-note">Where a foundation part touched one of these, it shows the neutral state from Handoff Register §T and nothing more.</p>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th style="width: 300px">Open item</th><th>What Batch 0 shows instead</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ open }}" as="o" hint-placeholder-count="15">
+              <tr><td><strong>{{ o.item }}</strong></td><td>{{ o.neutral }}</td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-amb">
+      <div class="doc-sec-head">
+        <h2 id="h-amb" class="doc-sec-title">Questions for the Batch-0 review</h2>
+        <p class="doc-sec-note">None stops Batch 1 from starting. The first needs an answer before any stakeholder-facing sign-off.</p>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th style="width: 48px">#</th><th>Question</th><th style="width: 380px">Batch-0 handling · effect if unanswered</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ asks }}" as="a" hint-placeholder-count="7">
+              <tr><td class="xr-num xr-meta">{{ a.n }}</td><td><strong>{{ a.q }}</strong><span class="xr-sub">{{ a.detail }}</span></td><td>{{ a.handling }}</td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":5220}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const kept = [
+      'Navy rail #141B5E and navy 900 header bands',
+      'Restrained gold #E9A825 for the one primary action and the “current” rule',
+      'Gold capital workspace label in the sidebar',
+      'Cyan only for simulation cues, never for status',
+      'Public Sans as the working typeface',
+      'Light canvas #F4F5FB with white, hairline-edged sections',
+      'Hairline #E1E4F3 and 6 px control radius',
+      'Filled navy chip for “available to you”; dashed chip for “not available”',
+      '64 px top bar with breadcrumbs on wide screens',
+      'Focus colours: blue on light, gold on navy',
+      'Lockup on a white plate at the top of the sidebar (as placement)',
+      'B2 hero line “Set the conditions. See what follows. Understand why.”',
+      'Labelled concept imagery (“Illustration”)',
+      'Compact navy header band for one record (AR-7)',
+      'Request decision at ~70 / 30 (A2) as the AR-4 model'
+    ];
+    const A = 'doc-tag--adjust', R = 'doc-tag--replace', N = 'doc-tag--new';
+    const c = (b2, tag, now, why) => ({ b2, tag: tag === A ? 'Adjust' : (tag === R ? 'Replace' : 'New'), tagCls: tag, now, why });
+    const changes = [
+      c('Fixed 1440 px canvas scaled to the window (≈10–15 % smaller on laptops)', R, 'Real responsive layouts; the shell responds to its own width (≥ 1280 · 1024–1279 · < 1024)', 'Responsive correctness'),
+      c('Body text 13.5–15 px', A, 'Body 16 px; real content never below 14 px', 'Stakeholder readability'),
+      c('Metadata 10.5–12.5 px in #8C93BF (2.98 : 1)', R, 'Metadata 14 px in #5C6389 (5.8 : 1); #8C93BF retired for text', 'Readability · accessibility'),
+      c('Format and status chips 10–11 px', A, 'Chips 13 px bold (12 px compact)', 'Readability'),
+      c('Kickers and labels 10–10.5 px', A, 'Overline 13 px; workspace label 13 px', 'Readability'),
+      c('Alert red #E5323B used as text (4.3 : 1)', R, 'Error #B42318 (6.6 : 1) with tinted background', 'Accessibility'),
+      c('Light input borders (#C9CEEA, 1.6 : 1)', R, 'Input borders #7A82AE (3.7 : 1)', 'Accessibility (1.4.11)'),
+      c('Gold primary button with no edge (2.1 : 1 against white)', A, 'Same gold, 1.5 px #A8740A edge (4.1 : 1)', 'Accessibility'),
+      c('Progress shown on the chip (gold underline = in progress)', R, 'Chip names the technology only; progress is a status word beside it', 'Accessibility · consistency'),
+      c('Two “unavailable” chip styles (dashed / hairline)', A, 'One dashed style; the words say which kind of “not”', 'Reusable-system consistency'),
+      c('Format chips differ only by their letters', N, 'One chip family with a small glyph per format', 'Consistency · legibility'),
+      c('Sidebar 236 px with disabled placeholder destinations', A, 'Sidebar 248 px with only real destinations (§E); no placeholders', 'Density · accessibility (C.10)'),
+      c('Navigation hidden or sheet-only below 1024 px; no icons', N, 'Icon rail 72 px at 1024–1279 (expandable); drawer below 1024; working icon set', 'Responsive correctness'),
+      c('Inert avatar and name in the top bar', N, 'Account menu: name, role, institution, Help, Sign out, My device for Students with AR / VR / MR', 'Consistency (XS-05)'),
+      c('No Help in workspace rails', N, 'Help at the sidebar bottom in all seven workspaces and in the account menu', 'Accessibility (3.2.6)'),
+      c('“Access term” paragraph in the sidebar footer', R, 'Removed; access status lives in the Overview status line and the shell banner', 'Density'),
+      c('Six radii (4 · 6 · 10 · 12 · 14 · 16)', A, 'Four radii (4 · 6 · 8 · 12); no increase in rounding', 'Consistency'),
+      c('Several soft shadows, some glass on public art', A, 'Three elevation levels for overlays only; sections are flat', 'Density · consistency'),
+      c('Overviews with measure strips, rails and tiles', R, 'AR-1 budget: ≤ 3 stacked sections, ≤ 6 rows, one status line, ≤ 2 actions', 'Density reduction'),
+      c('Side-by-side dense panels (e.g. 340 px Home rail, two-column records)', R, 'Full-width stacked sections; a side panel only for one decision or a flow summary (~26–30 %)', 'Density reduction'),
+      c('Harness and presenter controls (surface, width, reduced-motion, measure)', R, 'None in any stakeholder-facing surface; canvas Tweaks only', '§V non-negotiable'),
+      c('Breadcrumbs only, no back link on details', A, 'Back link on every detail page; breadcrumbs on wide screens; page title on phones', 'Responsive correctness'),
+      c('Focus styles defined per screen', A, 'One rule: 2 px ring, 2 px offset; inputs also turn their border blue', 'Consistency · accessibility'),
+      c('Decorative keyframe motion (drift, sweep, ring)', A, 'Workspaces use functional transitions only; reduced motion makes all instant', 'Accessibility (2.3.3)'),
+      c('Extra faces in B2 artwork and labels', A, 'One working family via --xr-font-sans; system monospace for IDs only', 'Consistency; not the official WILP font'),
+      c('Lockup image referenced from ./assets (not in the package)', A, 'Labelled placeholder “BITS Pilani / WILP logo — approved asset” in the same place', 'Brand safety (M-4)'),
+      c('Inline style tokens repeated per file', N, 'One shared stylesheet, xr-foundation.css, with named tokens and components', 'Reusable-system consistency'),
+      c('Typeset product label “Simulation Learning Platform”', A, 'Working product name “XR Learning Platform” in the shell and examples; the public official name stays replaceable', 'Review decision · naming')
+    ].map((x, i) => Object.assign({ n: i + 1 }, x));
+    const open = [
+      { item: 'Licence counting (T-06 / D7)', neutral: 'Figures shown as provided (“Licences 1,284 of 1,650”); no explanation of what giving or withdrawing access does to them' },
+      { item: 'Request decline (T-02)', neutral: 'No Decline action, no “Declined” status or filter anywhere' },
+      { item: 'Requester identity (T-01)', neutral: 'Reference number and a status page only; no account creation' },
+      { item: 'Internal vs external (T-04)', neutral: 'Set by the Super Admin at approval, with no option pre-selected' },
+      { item: 'Payment provider (T-05)', neutral: 'Not drawn; “Approved — payment required” appears only as a status word' },
+      { item: 'XR delivery mechanism (T-14)', neutral: '“App package (AR / VR / MR)” as a label; no launch, install or device flow' },
+      { item: 'Simulation completion event (T-12)', neutral: '“Completed” appears only as a status set by the system; no self-report' },
+      { item: 'Assessment availability (T-18)', neutral: '“You can save a draft while you add questions”; no availability rule and no make-available control' },
+      { item: 'Result-release default (T-19)', neutral: '“Your result appears here when it is released”; no release options drawn' },
+      { item: 'Staff ownership of feedback (T-25)', neutral: 'Neutral copy (“helps improve this experience”); no staff view' },
+      { item: 'Authentication provider (T-10)', neutral: 'Sign in is Batch 1; only “Sign out” appears here' },
+      { item: 'Invitation lifecycle (T-11)', neutral: 'No invitation UI; inactive banner says “Contact your institution administrator”' },
+      { item: 'Multi-role workspace choice (XS-02)', neutral: 'No role or workspace switcher' },
+      { item: 'Support model (ND-14)', neutral: 'No response time, service level or named responder in Help' },
+      { item: 'Pause reason (SA-07) · what paused or inactive people can open', neutral: 'Banners state the fact and offer Help; message pages leave room for one reason line' }
+    ];
+    const asks = [
+      { n: 1, q: 'Supply the approved BITS Pilani / WILP lockup file', detail: 'B2 references ./assets/bits-wilp-lockup.png, which is not in the File-35 package.', handling: 'Labelled placeholder in every board. Blocks stakeholder-facing visual sign-off of Batch 1 (public identity), not its design work.' },
+      { n: 2, q: 'Confirm the official public product name', detail: 'Review decision: “XR Learning Platform” is the working name in the shell.', handling: 'Used as plain, swappable text — not a wordmark. Safe to defer until stakeholders confirm.' },
+      { n: 3, q: 'Confirm the official WILP product font', detail: 'Not confirmed.', handling: 'Public Sans as the working face; swap through one token.' },
+      { n: 4, q: 'Accept the working icon set, or supply a house set', detail: 'B2 had no navigation icons; the collapsed rail needs them.', handling: 'Stroke set on a 24 px grid; every icon has a visible or accessible label. Swappable.' },
+      { n: 5, q: 'Organisation line for Vendor and platform roles', detail: 'The register names the institution for institution roles only.', handling: 'Vendor shows its organisation; Reviewer, Content Manager and Super Admin show none.' },
+      { n: 6, q: 'Wording of scale points 2–4', detail: '§P gives only 1 = Strongly disagree and 5 = Strongly agree.', handling: 'Proposal: Disagree · Neither agree nor disagree · Agree.' },
+      { n: 7, q: 'Default rail state at 1024–1279', detail: 'The register says “collapsible”, not which way it starts.', handling: 'Starts as the rail, expands on request, remembered per person.' }
+    ];
+    const fixes = [
+      { what: 'Search and filter toolbar', how: 'Root cause: a descendant rule (.xr-toolbar .xr-search) also hit the input wrapper inside the vertical field, turning a 260 px width into a 260 px height and floating the icon in it. Fixed in the shared CSS with child selectors and a dedicated .xr-toolbar-search class; active filters and the count now sit directly under the toolbar (.xr-toolbar-status).' },
+      { what: 'Vendor return reason', how: '“Please clarify the VR device requirements.” replaces a reason that gave Reviewer-owned outcomes to the Vendor (boards 03, 04, 09a). In AR-4 the “Changed” mark moved to the VR delivery row.' },
+      { what: 'Assessment empty state', how: '“Create an assessment for an experiment you teach. You can save a draft while you add questions.” No availability rule implied.' },
+      { what: 'Working product name', how: '“XR Learning Platform” in the shell, drawer and examples (05, 06, 07, 08, 09b, 11). B2 hero headline unchanged.' },
+      { what: 'Long values', how: 'Selects and inputs end long values with an ellipsis instead of clipping; full value in the open list and read in full; radio list recommended for short sets of long names (board 03, at 375 and 768).' },
+      { what: 'Tab overflow', how: 'Overflowing strips fade the cut-off tab at the right edge, shade the left edge once scrolled, show a thin scroll track, keep the current tab in view and stay keyboard reachable (board 11, all four People tabs at 375).' },
+      { what: 'Mobile decision shortcut', how: '“Go to decision” appears under the status when the decision panel sits below the content (under 860 px of content); it moves focus to the panel.' }
+    ];
+    return { kept, changes, open, asks, fixes };
+  }
+}
+</script>
+</body>
+</html>

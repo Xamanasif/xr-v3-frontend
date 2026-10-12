@@ -1,0 +1,99 @@
+/* XR Learning Platform · Batch 4 assessment CSS (Faculty teaching + assessment, Student assessments).
+   Extends xr-foundation.css (Batch 0) and composes xr-workspace.css (Batch 2) and xr-learning.css (Batch 3) — all unchanged.
+   No new colour, type or spacing tokens: every value below is an existing Batch-0 token value. Prefix: xa-. */
+
+/* ---------- focused task bar (AR-6: way out + save state + account; no sidebar) */
+.xa-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;min-height:56px;padding:8px 28px;background:#FFFFFF;border-bottom:1px solid #E1E4F3}
+.xa-bar-end{display:flex;align-items:center;gap:16px}
+@container xr-app (max-width:599.98px){ .xa-bar{padding:8px 16px} }
+.xa-save{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;color:#5C6389;font-weight:600}
+.xa-save .xr-ico{width:16px;height:16px}
+.xa-save.is-err{color:#B42318}
+.xa-save.is-ok{color:#1D6B45}
+
+/* ---------- questions (attempt, preview, answer key) */
+.xa-qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px}
+.xa-q{background:#FFFFFF;border:1px solid #E1E4F3;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:14px;scroll-margin-top:72px}
+.xa-q-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px}
+.xa-q-n{font-size:14px;line-height:20px;font-weight:700;color:#5C6389;text-transform:uppercase;letter-spacing:.04em}
+.xa-q-text{margin:0;font-size:18px;line-height:28px;font-weight:600;color:#12173F}
+.xa-q .xr-fieldset{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:12px}
+.xa-q .xr-textarea{min-height:168px;width:100%}
+@container xr-content (max-width:599.98px){ .xa-q{padding:18px 16px} .xa-q-text{font-size:17px;line-height:26px} }
+
+/* ---------- review strip: which questions are answered */
+.xa-strip{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:14px 20px;background:#FFFFFF;border:1px solid #E1E4F3;border-radius:12px}
+.xa-strip ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.xa-strip a{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:44px;padding:0 10px;border-radius:8px;border:1px solid #7A82AE;background:#FFFFFF;color:#40476B;font-weight:700;font-size:15px;text-decoration:none}
+.xa-strip a.is-done{background:#141B5E;border-color:#141B5E;color:#FFFFFF}
+.xa-strip-text{font-size:15px;line-height:22px;color:#40476B;flex:1 1 200px}
+
+/* ---------- answers after release (result page, answer key, marking) */
+.xa-ans{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
+.xa-ans > li{border:1px solid #E1E4F3;border-radius:12px;background:#FFFFFF;padding:20px 24px;display:flex;flex-direction:column;gap:10px}
+.xa-ans-row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:4px 16px;font-size:15px;line-height:22px;color:#12173F}
+.xa-ans-row > span:first-child{font-weight:600;color:#40476B}
+@container xr-content (max-width:599.98px){ .xa-ans > li{padding:16px} .xa-ans-row{grid-template-columns:minmax(0,1fr)} }
+.xa-mk{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:14px;line-height:20px;white-space:nowrap}
+.xa-mk .xr-ico{width:16px;height:16px}
+.xa-mk.is-ok{color:#1D6B45}
+.xa-mk.is-no{color:#B42318}
+.xa-mk.is-wait{color:#8A5A05}
+
+/* ---------- score card (released results only) */
+.xa-score{display:flex;flex-wrap:wrap;align-items:center;gap:16px 32px;padding:24px;border-radius:12px;background:#FFFFFF;border:1px solid #E1E4F3}
+.xa-score-n{font-size:34px;line-height:40px;font-weight:700;color:#12173F;font-variant-numeric:tabular-nums}
+.xa-score-sub{display:block;font-size:15px;line-height:22px;color:#40476B;font-weight:400}
+.xa-score-facts{display:flex;flex-direction:column;gap:4px;font-size:15px;line-height:22px;color:#40476B}
+
+/* ---------- the student's written answer, quoted for marking */
+.xa-answer{margin:0;padding:16px 20px;border-left:3px solid #3B49B8;background:#F4F5FB;border-radius:0 8px 8px 0;font-size:16px;line-height:26px;color:#12173F;white-space:pre-line}
+.xa-guide{border:1px solid #E1E4F3;border-radius:8px;background:#FFFFFF}
+.xa-guide > summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;cursor:pointer;font-weight:600;color:#1F4FD8;list-style:none}
+.xa-guide > summary::-webkit-details-marker{display:none}
+.xa-guide > summary .xr-ico{transition:transform var(--xr-dur-2) var(--xr-ease)}
+.xa-guide[open] > summary .xr-ico{transform:rotate(180deg)}
+.xa-guide-body{padding:0 16px 16px;font-size:15px;line-height:24px;color:#40476B}
+
+/* ---------- readiness checklist */
+.xa-check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.xa-check li{display:flex;align-items:flex-start;gap:10px;font-size:16px;line-height:24px;color:#12173F}
+.xa-check .xr-ico{margin-top:2px}
+.xa-check .is-ok{color:#1D6B45}
+.xa-check .is-no{color:#8A5A05}
+
+/* ---------- question rows (bank, assessment questions) */
+.xa-qrow-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:14px;line-height:20px;color:#5C6389}
+.xa-tag{display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:0 10px;border-radius:999px;background:#E6E8FA;color:#141B5E;font-size:14px;line-height:20px;font-weight:600;white-space:nowrap}
+.xa-tag--draft{background:#FBF3E0;color:#8A5A05}
+.xa-tag .xr-ico{width:14px;height:14px}
+.xa-order{display:inline-flex;gap:4px}
+.xa-order .xr-icon-btn{width:36px;height:36px}
+
+/* ---------- key facts (ST-12: as configured for this assessment) */
+.xa-facts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:#E1E4F3;border:1px solid #E1E4F3;border-radius:12px;overflow:hidden}
+.xa-facts > div{background:#FFFFFF;padding:16px 20px;display:flex;flex-direction:column;gap:2px}
+.xa-facts dt{font-size:14px;line-height:20px;font-weight:600;color:#5C6389}
+.xa-facts dd{margin:0;font-size:17px;line-height:26px;font-weight:700;color:#12173F}
+.xa-facts dd span{display:block;font-size:14px;line-height:20px;font-weight:400;color:#40476B}
+@container xr-content (max-width:599.98px){ .xa-facts{grid-template-columns:minmax(0,1fr)} }
+
+/* ---------- record header facts row (AR-7 header for an assessment) */
+.xa-headfacts{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:15px;line-height:22px;color:#C9CEF2}
+.xa-headfacts strong{color:#FFFFFF;font-weight:600}
+
+/* ---------- counts in words (per-format activity for staff) */
+.xa-counts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid #E1E4F3;border-radius:8px;overflow:hidden}
+.xa-counts > li{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:12px 16px;border-top:1px solid #E1E4F3;background:#FFFFFF;font-size:15px;line-height:22px;color:#40476B}
+.xa-counts > li:first-child{border-top:0}
+.xa-counts .xl-num{min-width:20px}
+
+/* ---------- board-only control (outside every product frame) */
+.xa-boardctl{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;padding:14px 18px;border:1px dashed #3B49B8;border-radius:8px;background:#F4F5FB;font-size:14px;line-height:20px;color:#40476B}
+.xr-row .xl-n{flex:none}
+
+/* ---------- fix, 8 Oct 2026 · dialogs inside tall frames open beside the control that opened them (Batch-4 boards only; not linked by Batches 0–3) */
+/* Submit (ST-13) is always the last control: its dialog opens at the foot of the page, next to the button. */
+.xr-dialog-scrim.xa-dlg-end{align-items:flex-end;padding-top:16px;padding-bottom:88px}
+/* Confirm marks (FA-19): from 1024 px of app width the marks panel sits beside the answer, near the top; below that it sits under the answer, so the dialog opens at the foot. */
+@container xr-app (max-width:1023.98px){ .xr-dialog-scrim.xa-dlg-auto{align-items:flex-end;padding-top:16px;padding-bottom:88px} }

@@ -1,0 +1,123 @@
+{
+ "about": "Shared records — the cross-role contract. Status words are the exact labels used on the screens.",
+ "generated": "Batch 8 · built on the approved v45 baseline · generated from the approved boards; the boards win on any difference",
+ "records": [
+  {
+   "record": "REQ",
+   "what": "Access request",
+   "ownerWriter": "institution contact → Super Admin",
+   "statuses": "Under review · Information requested · Approved — payment required · Payment not confirmed · Access active",
+   "relations": "creates INST on approval; ACC on activation"
+  },
+  {
+   "record": "INST",
+   "what": "Institution",
+   "ownerWriter": "Super Admin",
+   "statuses": "Access active · Ending soon · Access paused · Approved — payment required · Access ended",
+   "relations": "has ACC plans, people, an Institute Admin"
+  },
+  {
+   "record": "ACC",
+   "what": "Access plan",
+   "ownerWriter": "Super Admin (activation) · read by IA",
+   "statuses": "Access active · Ending soon · Paused · Access ended",
+   "relations": "experiments × formats, licences as provided (D7 open)"
+  },
+  {
+   "record": "SACC",
+   "what": "Student access grant",
+   "ownerWriter": "Institute Admin",
+   "statuses": "Active · Withdrawn",
+   "relations": "Student (or group) × Experiment × formats (LD-1)"
+  },
+  {
+   "record": "PER",
+   "what": "Person (Student / Faculty)",
+   "ownerWriter": "Institute Admin",
+   "statuses": "Active · Inactive",
+   "relations": "groups; Faculty courses (FCM)"
+  },
+  {
+   "record": "RUN",
+   "what": "Simulation progress",
+   "ownerWriter": "Student",
+   "statuses": "Not started · In progress · Completed (per format)",
+   "relations": "Student × Experiment × format; no overall verdict"
+  },
+  {
+   "record": "FB",
+   "what": "Format feedback",
+   "ownerWriter": "Student",
+   "statuses": "“Give feedback on WEB” (per format, shown only after that format is Completed) → “Feedback sent · WEB · 14 Oct”",
+   "relations": "one per Student × Experiment × format, after that format is completed"
+  },
+  {
+   "record": "ASMT / ATT",
+   "what": "Assessment · attempt",
+   "ownerWriter": "Faculty · Student",
+   "statuses": "Draft · Ready · Attempt in progress · Submitted · Waiting for marking · Marks confirmed · Result ready",
+   "relations": "pass mark and rules are per assessment"
+  },
+  {
+   "record": "DTR",
+   "what": "Device transfer",
+   "ownerWriter": "Student → IA → Super Admin",
+   "statuses": "With your Institute Admin · Forwarded to BITS · Approved",
+   "relations": "authorisation only; approve only (T-32)"
+  },
+  {
+   "record": "SUB",
+   "what": "Submission",
+   "ownerWriter": "Vendor → Academic Reviewer → Content Manager",
+   "statuses": "Draft · With Academic Reviewer · Returned · With Content Manager · Published",
+   "relations": "becomes EXP on publication"
+  },
+  {
+   "record": "EXP",
+   "what": "Experiment (published)",
+   "ownerWriter": "Content Manager",
+   "statuses": "Published · version n",
+   "relations": "learning outcomes (LD-3); formats; live version"
+  },
+  {
+   "record": "UPD",
+   "what": "Correction (update)",
+   "ownerWriter": "Content Manager → Academic Reviewer → Super Admin",
+   "statuses": "Draft · In academic review · Returned · Awaiting release decision · On hold · Released · Withdrawn",
+   "relations": "changes EXP only on Release (M-1)"
+  },
+  {
+   "record": "AREA / CRS",
+   "what": "Engineering area · course",
+   "ownerWriter": "Super Admin (platform code: Content Manager, M-2)",
+   "statuses": "—",
+   "relations": "feeds explorer, catalogue, Vendor course lists, import matching"
+  },
+  {
+   "record": "ROLE",
+   "what": "Platform role holder",
+   "ownerWriter": "Super Admin",
+   "statuses": "Scope active · withdrawn (reason)",
+   "relations": "scope: all / course / experiment"
+  },
+  {
+   "record": "SUP",
+   "what": "Support report",
+   "ownerWriter": "any signed-in person → Super Admin",
+   "statuses": "Open · Resolved · Reopened",
+   "relations": "note shown to the reporter"
+  }
+ ],
+ "businessRules": [
+  "Published ≠ access: publishing or releasing never grants anyone access.",
+  "Institution access (ACC) ≠ Student access (SACC).",
+  "Available technology ≠ entitlement.",
+  "Progress is per format; there is no overall completion verdict.",
+  "Scores and pass criteria belong to one assessment.",
+  "First publication: Content Manager only.",
+  "Correction Release / Hold: Super Admin only — never called “Publish”.",
+  "Device transfer = authorisation of a different device, not shipping; approve only.",
+  "Feedback: one record per Student × Experiment × format, offered only after that format is Completed.",
+  "“Composite Wall Conduction” and “Conduction Through a Composite Wall” are two sample records until OD-B5-09 is decided — no merge, no duplicate rule."
+ ]
+}

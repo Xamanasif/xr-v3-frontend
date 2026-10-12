@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Visual Foundation</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1440px; min-height: 3300px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Deliverable A · Board 01</span>
+    <h1 class="doc-title">Visual foundation</h1>
+    <p class="doc-sub">What we keep from B2, what we adjust and what we replace for readability. The product stays institutional, light-first and scientific: navy for structure, restrained gold for identity, controlled cyan for simulation cues, clean neutral surfaces.</p>
+  </header>
+
+  <div class="doc-body">
+
+    <section class="doc-sec" aria-labelledby="h-colour">
+      <div class="doc-sec-head">
+        <h2 id="h-colour" class="doc-sec-title">Colour roles</h2>
+        <p class="doc-sec-note">Every colour has one job. Contrast is measured against white unless noted; text pairs meet 4.5 : 1, meaningful borders and focus rings meet 3 : 1.</p>
+      </div>
+
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="5">
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap">
+            <h3 class="xr-h3">{{ g.title }}</h3>
+            <span class="doc-note">{{ g.rule }}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px">
+            <sc-for list="{{ g.items }}" as="s" hint-placeholder-count="5">
+              <div style="background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column">
+                <div class="doc-swatch" style="background: {{ s.hex }}; color: {{ s.fg }}; box-shadow: inset 0 -1px 0 #E1E4F3">{{ s.sample }}</div>
+                <div style="padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="font-size: 15px; font-weight: 700; color: #12173F">{{ s.name }}</span>
+                  <span class="xr-id" style="font-size: 13px">{{ s.hex }} · {{ s.token }}</span>
+                  <span style="font-size: 14px; line-height: 20px; color: #40476B">{{ s.role }}</span>
+                  <span style="font-size: 13px; line-height: 18px; color: #5C6389">{{ s.ratio }}</span>
+                  <span class="doc-tag {{ s.tagCls }}" style="align-self: flex-start; margin-top: 6px">{{ s.tag }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-surf">
+      <div class="doc-sec-head">
+        <h2 id="h-surf" class="doc-sec-title">Surface hierarchy</h2>
+        <p class="doc-sec-note">Four light levels and one dark band. A section is one white surface; nothing inside it is boxed again. Shadows only mean “this sits above the page”.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 32px; align-items: start">
+        <div style="background: #F4F5FB; border: 1px solid #7A82AE; border-radius: 12px; padding: 28px; position: relative; min-height: 420px">
+          <span class="xr-overline" style="position: absolute; top: 10px; left: 14px">L0 · Canvas #F4F5FB</span>
+          <div style="margin-top: 22px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+            <span class="xr-overline">L1 · Section surface · white · hairline · radius 12</span>
+            <div style="display: flex; flex-direction: column">
+              <div style="padding: 12px 0; border-top: 1px solid #E1E4F3; font-size: 15px">Row separated by a hairline — not boxed</div>
+              <div style="padding: 12px 0; border-top: 1px solid #E1E4F3; font-size: 15px">Row separated by a hairline — not boxed</div>
+            </div>
+            <div style="background: #F4F5FB; border: 1px solid #E1E4F3; border-radius: 6px; padding: 12px 14px; font-size: 15px; color: #40476B">
+              <span class="xr-overline" style="display: block; margin-bottom: 4px">L2 · Subtle surface</span>
+              Read-only values, empty states, summaries inside a section
+            </div>
+          </div>
+          <div style="position: absolute; right: 28px; bottom: 28px; width: 260px; background: #FFFFFF; border: 1px solid #E1E4F3; border-radius: 8px; box-shadow: 0 12px 32px rgba(12,18,71,.14); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+            <span class="xr-overline">L3 · Overlay · e2 / e3</span>
+            <span style="font-size: 15px; color: #40476B">Menus, drawer, dialogs only</span>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div style="background: #141B5E; color: #FFFFFF; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #F7C95B">Dark band · navy</span>
+            <span style="font-size: 15px; line-height: 22px; color: #C9CEF2">Sidebar, mobile top bar, record-hub header (AR-7), public hero, inactive banner. Never a whole dark workspace.</span>
+          </div>
+          <dl class="doc-kv doc-card" style="grid-template-columns: 120px minmax(0, 1fr)">
+            <dt>L0</dt><dd>Workspace canvas behind all sections <span class="doc-tag doc-tag--keep">Keep</span></dd>
+            <dt>L1</dt><dd>One white surface per major section; never nested <span class="doc-tag doc-tag--adjust">Adjust</span></dd>
+            <dt>L2</dt><dd>Subtle grey-blue inside a section for read-only or empty content</dd>
+            <dt>L3</dt><dd>Overlay with shadow; the only shadowed layer</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-shape">
+      <div class="doc-sec-head">
+        <h2 id="h-shape" class="doc-sec-title">Borders, radius and elevation</h2>
+        <p class="doc-sec-note">B2 used six radii (4 · 6 · 10 · 12 · 14 · 16). Batch 0 consolidates to four and does not increase rounding.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 16px">
+          <span class="doc-label">Borders</span>
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <div style="display: flex; gap: 14px; align-items: center"><span style="width: 64px; height: 0; border-top: 1px solid #E1E4F3; flex: none"></span><span class="doc-note"><strong>Hairline</strong> #E1E4F3 · dividers and section edges (decorative)</span></div>
+            <div style="display: flex; gap: 14px; align-items: center"><span style="width: 64px; height: 0; border-top: 1px solid #7A82AE; flex: none"></span><span class="doc-note"><strong>Strong</strong> #7A82AE · inputs, checkboxes, choice cards · 3.7 : 1</span></div>
+            <div style="display: flex; gap: 14px; align-items: center"><span style="width: 64px; height: 0; border-top: 1px dashed #7A82AE; flex: none"></span><span class="doc-note"><strong>Dashed</strong> · “not available” chips only</span></div>
+            <div style="display: flex; gap: 14px; align-items: center"><span style="width: 64px; height: 0; border-top: 1.5px solid #141B5E; flex: none"></span><span class="doc-note"><strong>Emphasis</strong> 1.5 px navy · secondary buttons, selected choice</span></div>
+          </div>
+          <p class="doc-note">No border around small items for decoration. Rows use dividers, not boxes.</p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 16px">
+          <span class="doc-label">Radius</span>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: end">
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center"><span style="width: 56px; height: 56px; border: 2px solid #141B5E; border-radius: 4px; background: #E6E8FA"></span><span class="xr-small"><strong>4</strong> chips</span></div>
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center"><span style="width: 56px; height: 56px; border: 2px solid #141B5E; border-radius: 6px; background: #E6E8FA"></span><span class="xr-small"><strong>6</strong> controls</span></div>
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center"><span style="width: 56px; height: 56px; border: 2px solid #141B5E; border-radius: 8px; background: #E6E8FA"></span><span class="xr-small"><strong>8</strong> menus</span></div>
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center"><span style="width: 56px; height: 56px; border: 2px solid #141B5E; border-radius: 12px; background: #E6E8FA"></span><span class="xr-small"><strong>12</strong> sections</span></div>
+          </div>
+          <p class="doc-note">Pills (999) only for status chips, filter chips and avatars. B2 14 / 16 px card radii → 12. <span class="doc-tag doc-tag--adjust">Adjust</span></p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 16px">
+          <span class="doc-label">Elevation</span>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center"><span style="width: 56px; height: 56px; border-radius: 8px; background: #FFFFFF; border: 1px solid #E1E4F3"></span><span class="xr-small"><strong>e0</strong> flat</span></div>
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center"><span style="width: 56px; height: 56px; border-radius: 8px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(12,18,71,.06); border: 1px solid #E1E4F3"></span><span class="xr-small"><strong>e1</strong> panel</span></div>
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center"><span style="width: 56px; height: 56px; border-radius: 8px; background: #FFFFFF; box-shadow: 0 12px 32px rgba(12,18,71,.14)"></span><span class="xr-small"><strong>e2</strong> menu</span></div>
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center"><span style="width: 56px; height: 56px; border-radius: 8px; background: #FFFFFF; box-shadow: 0 24px 60px rgba(12,18,71,.28)"></span><span class="xr-small"><strong>e3</strong> dialog</span></div>
+          </div>
+          <p class="doc-note">e0 sections · e1 decision panel · e2 menus, tooltips · e3 dialog, mobile drawer. No glass, no blur, no glow.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-space">
+      <div class="doc-sec-head">
+        <h2 id="h-space" class="doc-sec-title">Spacing scale</h2>
+        <p class="doc-sec-note">A 4-based scale. Use gaps between siblings, not margins on children. Generous, but controlled: overview sections sit 24 px apart, page header to content 24 px, form fields 20 px.</p>
+      </div>
+      <div class="doc-card" style="display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 12px; align-items: end">
+        <sc-for list="{{ spaces }}" as="sp" hint-placeholder-count="11">
+          <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+            <span style="display: block; width: {{ sp.v }}px; height: {{ sp.v }}px; background: #3B49B8; border-radius: 2px"></span>
+            <span style="font-size: 15px; font-weight: 700">{{ sp.v }}</span>
+            <span class="xr-id" style="font-size: 13px">{{ sp.t }}</span>
+            <span style="font-size: 13px; line-height: 18px; color: #5C6389">{{ sp.use }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-width">
+      <div class="doc-sec-head">
+        <h2 id="h-width" class="doc-sec-title">Page widths and grid</h2>
+        <p class="doc-sec-note">Real responsive layouts — never B2's fixed 1440 canvas scaled to the window. Breakpoints follow the shell's own width.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 32px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span class="doc-label">1440 · full sidebar · 12-column content grid</span>
+          <div style="display: grid; grid-template-columns: 124px minmax(0, 1fr); height: 300px; border: 1px solid #7A82AE; border-radius: 8px; overflow: hidden">
+            <div style="background: #141B5E; color: #C9CEF2; font-size: 13px; padding: 12px">Sidebar 248</div>
+            <div style="background: #F4F5FB; display: flex; flex-direction: column">
+              <div style="height: 32px; background: #FFFFFF; border-bottom: 1px solid #E1E4F3; display: flex; align-items: center; padding: 0 12px; font-size: 13px; color: #40476B">Top bar 64</div>
+              <div style="flex: 1; padding: 20px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px">
+                <sc-for list="{{ cols }}" as="c" hint-placeholder-count="12"><span style="background: rgba(59,73,184,.12); border-left: 1px solid rgba(59,73,184,.35); border-right: 1px solid rgba(59,73,184,.35)"></span></sc-for>
+              </div>
+            </div>
+          </div>
+          <p class="doc-note">Content max 1160 px inside 40 px padding at 1440. Columns 24 px gutter. Overview and record pages read at 1040 px, forms at 720 px, messages at 600 px.</p>
+        </div>
+        <div class="xr-table-wrap">
+          <table class="xr-table">
+            <thead><tr><th>Shell width</th><th>Navigation</th><th>Padding · grid</th></tr></thead>
+            <tbody>
+              <tr><td><strong>≥ 1280</strong></td><td>Full sidebar 248</td><td>40 · 12 col / 24</td></tr>
+              <tr><td><strong>1024–1279</strong></td><td>Collapsible: 72 rail ⇄ 248</td><td>32 · 12 col / 24</td></tr>
+              <tr><td><strong>600–1023</strong></td><td>Drawer behind Menu</td><td>24 · 8 col / 20</td></tr>
+              <tr><td><strong>&lt; 600</strong></td><td>Drawer behind Menu</td><td>16 · 4 col / 16</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+        <div class="doc-card" style="padding: 18px 20px"><span class="doc-label">Lists · tables</span><p class="doc-note" style="margin-top: 6px"><strong>1160</strong> max · AR-2, AR-4 main</p></div>
+        <div class="doc-card" style="padding: 18px 20px"><span class="doc-label">Overview · record</span><p class="doc-note" style="margin-top: 6px"><strong>1040</strong> max · AR-1, AR-3, AR-7</p></div>
+        <div class="doc-card" style="padding: 18px 20px"><span class="doc-label">Forms · focused tasks</span><p class="doc-note" style="margin-top: 6px"><strong>720</strong> max · AR-5, AR-6, AR-8</p></div>
+        <div class="doc-card" style="padding: 18px 20px"><span class="doc-label">Messages</span><p class="doc-note" style="margin-top: 6px"><strong>600</strong> max · AR-10</p></div>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const K = 'doc-tag--keep', A = 'doc-tag--adjust', R = 'doc-tag--replace', N = 'doc-tag--new';
+    const sw = (name, hex, token, role, ratio, tagCls, tag, fg, sample) => ({ name, hex, token, role, ratio, tagCls, tag, fg: fg || '#FFFFFF', sample: sample || 'Aa' });
+    const groups = [
+      { title: 'Brand + structure · navy / indigo', rule: 'Hierarchy, navigation, selected states. The product’s backbone.', items: [
+        sw('Navy 900', '#0C1247', '--xr-navy-900', 'Board headers, inactive banner, public hero', 'White text 17.6 : 1', K, 'Keep'),
+        sw('Navy 800', '#141B5E', '--xr-navy-800', 'Sidebar, secondary button, selected fills', 'White text 15.6 : 1', K, 'Keep'),
+        sw('Navy 700', '#1B2470', '--xr-navy-700', 'Sidebar hover', 'White text 13.7 : 1', K, 'Keep'),
+        sw('Indigo 500', '#3B49B8', '--xr-indigo-500', 'Illustration, canvas labels', 'On white 7.4 : 1', K, 'Keep'),
+        sw('Indigo 200', '#C9CEF2', '--xr-indigo-200', 'Sidebar text on navy', 'On navy 10.1 : 1', K, 'Keep', '#141B5E'),
+        sw('Indigo 100', '#E6E8FA', '--xr-indigo-100', 'Format chip fill, filter chips', 'Navy text 12.8 : 1', K, 'Keep', '#141B5E')
+      ] },
+      { title: 'Identity accent · restrained gold', rule: 'One primary action per screen, the “current” rule, workspace label. Never decoration.', items: [
+        sw('Gold 500', '#E9A825', '--xr-gold-500', 'Primary button, current-item rule', 'Ink text 8.3 : 1', K, 'Keep', '#12173F'),
+        sw('Gold 600', '#A8740A', '--xr-gold-600', 'Primary button edge', 'Edge on white 4.1 : 1', N, 'New'),
+        sw('Gold 400', '#F7C95B', '--xr-gold-400', 'Workspace label, focus ring on navy', 'On navy 10.0 : 1', K, 'Keep', '#12173F'),
+        sw('Gold 700', '#8A5A05', '--xr-gold-700', 'Gold text on light (waiting)', 'On white 5.9 : 1', K, 'Keep'),
+        sw('Gold 50', '#FBF3E0', '--xr-gold-50', 'Paused banner, waiting status', 'Ink text 15.6 : 1', K, 'Keep', '#8A5A05')
+      ] },
+      { title: 'Interaction cue · controlled cyan', rule: 'Simulation and format cues only. Never general status, never large fills.', items: [
+        sw('Cyan 400', '#35C0DE', '--xr-cyan-400', 'Simulation cue on navy only', 'On navy 8.2 : 1 · fails on white', A, 'Adjust', '#0C1247'),
+        sw('Cyan 700', '#0B6E85', '--xr-cyan-700', 'Cyan as text on light', 'On white 5.9 : 1', N, 'New'),
+        sw('Cyan 50', '#E6F7FB', '--xr-cyan-50', 'Cue background', 'Cyan 700 text 5.3 : 1', N, 'New', '#0B6E85')
+      ] },
+      { title: 'Neutrals + text', rule: 'Ink for reading, two quieter greys, one hairline and one strong line.', items: [
+        sw('Ink', '#12173F', '--xr-ink', 'Body text, headings', 'On white 17.2 : 1', K, 'Keep'),
+        sw('Ink 2', '#40476B', '--xr-ink-2', 'Secondary text, labels in tables', 'On white 9.0 : 1', K, 'Keep'),
+        sw('Ink 3', '#5C6389', '--xr-ink-3', 'Metadata, hints — lightest text allowed', 'On white 5.8 · canvas 5.4', K, 'Keep'),
+        sw('B2 faint grey', '#8C93BF', 'retired', 'B2 captions and kickers', 'On white 2.98 : 1 — fails', R, 'Replace', '#12173F', '→ Ink 3'),
+        sw('Line strong', '#7A82AE', '--xr-line-strong', 'Input borders, dashed chips', 'On white 3.7 : 1 (UI)', N, 'New'),
+        sw('Hairline', '#E1E4F3', '--xr-line', 'Dividers, section edges', 'Decorative only', K, 'Keep', '#40476B')
+      ] },
+      { title: 'Surfaces, links + status support', rule: 'Status colours support the words; they never replace them.', items: [
+        sw('Canvas', '#F4F5FB', '--xr-canvas', 'Workspace background, subtle surface', 'Ink 15.8 : 1', K, 'Keep', '#40476B'),
+        sw('Link / focus', '#1F4FD8', '--xr-link', 'Links, focus ring on light', 'On white 6.6 : 1', K, 'Keep'),
+        sw('Success', '#1D6B45', '--xr-ok', 'Completed, active, resolved', 'On tint 5.7 : 1', N, 'New'),
+        sw('Error', '#B42318', '--xr-err', 'Failed, refused, invalid', 'On white 6.6 : 1', A, 'Adjust'),
+        sw('B2 red', '#E5323B', 'retired', 'B2 alert accent', 'On white 4.3 : 1 — too light for text', R, 'Replace', '#FFFFFF', '→ Error'),
+        sw('Info tint', '#EAF0FD', '--xr-info-bg', 'Info notices, in-review status', 'Link text 5.8 : 1', N, 'New', '#1F4FD8')
+      ] }
+    ];
+    const spaces = [
+      { v: 4, t: 's1', use: 'icon to text' }, { v: 8, t: 's2', use: 'chip gaps' }, { v: 12, t: 's3', use: 'button groups' },
+      { v: 16, t: 's4', use: 'row padding, mobile page' }, { v: 20, t: 's5', use: 'form fields' }, { v: 24, t: 's6', use: 'sections, card padding' },
+      { v: 32, t: 's8', use: 'page padding 1024' }, { v: 40, t: 's10', use: 'page padding 1440' }, { v: 48, t: 's12', use: 'message pages' },
+      { v: 64, t: 's16', use: 'public sections' }, { v: 80, t: 's20', use: 'public hero' }
+    ];
+    const cols = Array.from({ length: 12 }, (_, i) => ({ i }));
+    return { groups, spaces, cols };
+  }
+}
+</script>
+</body>
+</html>

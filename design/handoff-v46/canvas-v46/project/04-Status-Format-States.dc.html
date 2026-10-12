@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · Status, Format and State Grammar</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./xr-foundation.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4FD8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="doc" style="width: 1440px; min-height: 4600px; font-family: 'Public Sans', system-ui, sans-serif">
+
+  <header class="doc-head">
+    <span class="doc-kicker">Batch 0 · Board 04 · C.7 · C.9 · §10 · §11</span>
+    <h1 class="doc-title">Status words, format chips and the state grammar</h1>
+    <p class="doc-sub">Status is always a word. Colour and icon shape support it; they never carry it alone. One chip family for WEB · AR · VR · MR. One set of patterns for every state a family can be in.</p>
+  </header>
+
+  <div class="doc-body">
+
+    <section class="doc-sec" aria-labelledby="h-st">
+      <div class="doc-sec-head">
+        <h2 id="h-st" class="doc-sec-title">Status chips · tone, icon, words</h2>
+        <p class="doc-sec-note">Seven tones. Each tone has its own icon shape so it still reads in greyscale and for colour-blind users. The words come from the approved terminology (C.12) and stay identical as a record moves between roles.</p>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th style="width: 200px">Tone</th><th style="width: 140px">Icon</th><th>Example words (sample)</th><th style="width: 330px">Use when</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Neutral</strong><span class="xr-sub">grey · minus</span></td><td>Line</td><td><div class="xr-fmt-set"><span class="xr-status"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg>Not started</span><span class="xr-status"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg>Draft</span><span class="xr-status"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg>No access yet</span></div></td><td>Nothing has happened yet; no one needs to act</td></tr>
+            <tr><td><strong>In progress</strong><span class="xr-sub">blue · arrows</span></td><td>Arrows</td><td><div class="xr-fmt-set"><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>Under review</span><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>With Academic Reviewer</span><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>In progress</span></div></td><td>Moving, or held by another role</td></tr>
+            <tr><td><strong>Waiting</strong><span class="xr-sub">gold · clock</span></td><td>Clock</td><td><div class="xr-fmt-set"><span class="xr-status xr-status--wait"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg>Waiting for marking</span><span class="xr-status xr-status--wait"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg>Waiting for a licence</span><span class="xr-status xr-status--wait"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg>Awaiting release decision</span></div></td><td>Paused on time or on someone; may need follow-up</td></tr>
+            <tr><td><strong>Done</strong><span class="xr-sub">green · tick</span></td><td>Tick</td><td><div class="xr-fmt-set"><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Access active</span><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Completed</span><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Published</span><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Resolved</span></div></td><td>Finished, in effect</td></tr>
+            <tr><td><strong>Needs action</strong><span class="xr-sub">red · alert</span></td><td>Alert</td><td><div class="xr-fmt-set"><span class="xr-status xr-status--err"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>Returned</span><span class="xr-status xr-status--err"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>Information requested</span><span class="xr-status xr-status--err"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>Payment failed</span></div></td><td>The viewer must do something; always shown with the reason</td></tr>
+            <tr><td><strong>Paused · held</strong><span class="xr-sub">navy outline · pause</span></td><td>Pause</td><td><div class="xr-fmt-set"><span class="xr-status xr-status--paused"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></svg>Paused</span><span class="xr-status xr-status--paused"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></svg>On hold</span><span class="xr-status xr-status--paused"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"></path></svg>Read-only</span></div></td><td>Stopped on purpose and reversible; work is kept</td></tr>
+            <tr><td><strong>Not available</strong><span class="xr-sub">dashed · minus</span></td><td>Line</td><td><div class="xr-fmt-set"><span class="xr-status xr-status--off"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg>Inactive</span><span class="xr-status xr-status--off"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg>Ended</span><span class="xr-status xr-status--off"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg>Withdrawn</span></div></td><td>Out of reach now; say why nearby</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="doc-note">A “Live” navy chip marks the current published version only. Counts appear in a chip only when the chip opens the list it counts.</p>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-fmt">
+      <div class="doc-sec-head">
+        <h2 id="h-fmt" class="doc-sec-title">Format chips · WEB · AR · VR · MR</h2>
+        <p class="doc-sec-note">One product-wide chip: same shape, size and type; each format told apart by its code and glyph — not by colour. The chip names a technology. It does not, on its own, say who has access or how far anyone got; the words beside it do.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 14px">
+          <span class="doc-label">1 · Normal · offered by the experiment</span>
+          <div class="xr-fmt-set">
+            <span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span>
+            <span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5V2.5h2.5M11.5 2.5H14V5M14 11v2.5h-2.5M4.5 13.5H2V11M8 5.3l2.6 1.5v2.9L8 11.2 5.4 9.7V6.8z"></path></svg>AR</span>
+            <span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span>
+            <span class="xr-fmt"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 12.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM10 12.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9z"></path></svg>MR</span>
+          </div>
+          <p class="doc-note">Tinted indigo. Catalogue, vendor editor, review. Means only “this technology exists for this experiment”.</p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 14px">
+          <span class="doc-label">2 · Available to you · inherited</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+            <span class="xr-fmt xr-fmt--yours"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span>
+            <span class="xr-fmt xr-fmt--yours"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span>
+            <span class="xr-small" style="color: #40476B">Available to you</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+            <span class="xr-fmt xr-fmt--yours"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span>
+            <span class="xr-fmt xr-fmt--yours"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span>
+            <span class="xr-small" style="color: #40476B; display: inline-flex; align-items: center; gap: 4px"><svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"></path></svg>Inherited from the access plan</span>
+          </div>
+          <p class="doc-note">Navy fill (B2). Student: “Available to you”. Institute Admin giving access: read-only “Inherited” — no format picker (LD-1).</p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 14px">
+          <span class="doc-label">3 · Unavailable</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+            <span class="xr-fmt xr-fmt--off"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5V2.5h2.5M11.5 2.5H14V5M14 11v2.5h-2.5M4.5 13.5H2V11M8 5.3l2.6 1.5v2.9L8 11.2 5.4 9.7V6.8z"></path></svg>AR</span>
+            <span class="xr-small" style="color: #40476B">Not included for your institution</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+            <span class="xr-fmt xr-fmt--off"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 12.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM10 12.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9z"></path></svg>MR</span>
+            <span class="xr-small" style="color: #40476B">Not offered for this experiment</span>
+          </div>
+          <p class="doc-note">One dashed treatment; the words say which kind of “not”. Never a disabled button in its place.</p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 14px">
+          <span class="doc-label">4 · Completed context</span>
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center">
+              <span class="xr-fmt xr-fmt--yours"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span>
+              <span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Completed</span>
+              <span class="xr-meta">12 Sep · feedback sent</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center">
+              <span class="xr-fmt xr-fmt--yours"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span>
+              <span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Completed</span>
+              <a href="#h-fmt">Give feedback on VR</a>
+            </div>
+          </div>
+          <p class="doc-note">The chip does not change when a format is completed. The status word says so; feedback is per format. No overall percentage.</p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 14px">
+          <span class="doc-label">5 · Compact · inside rows</span>
+          <div class="xr-table-wrap">
+            <table class="xr-table">
+              <tbody>
+                <tr><td>Shell-and-Tube Heat Exchanger</td><td><span class="xr-fmt-set"><span class="xr-fmt xr-fmt--compact">WEB</span><span class="xr-fmt xr-fmt--compact">VR</span><span class="xr-fmt xr-fmt--compact xr-fmt--off">AR</span></span></td></tr>
+                <tr><td>Forced Convection</td><td><span class="xr-fmt-set"><span class="xr-fmt xr-fmt--compact">WEB</span></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="doc-note">24 px high, 12 px bold, glyph dropped. Column header says what the chips mean (e.g. “Formats in your plan”).</p>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 14px; background: #141B5E; border-color: #141B5E">
+          <span class="doc-label" style="color: #F7C95B">6 · On a navy header band</span>
+          <div class="xr-fmt-set">
+            <span class="xr-fmt xr-fmt--on-dark"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 6.5h12"></path></svg>WEB</span>
+            <span class="xr-fmt xr-fmt--on-dark"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 5h12.5v6H10.25L8 9.1 5.75 11H1.75z"></path></svg>VR</span>
+          </div>
+          <p class="doc-note" style="color: #C9CEF2">Record-hub header (AR-7) and public hero only. Outline white, no neon, no glow.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-layers">
+      <div class="doc-sec-head">
+        <h2 id="h-layers" class="doc-sec-title">Four things the chips must never blur</h2>
+        <p class="doc-sec-note">One experiment, four different facts. Sample: Shell-and-Tube Heat Exchanger at Godavari Institute of Technology, for Rahul Verma.</p>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th style="width: 300px">Fact · where it is shown</th><th>WEB</th><th>AR</th><th>VR</th><th>MR</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Technology availability</strong><span class="xr-sub">Published by BITS · catalogue, record</span></td><td><span class="xr-fmt xr-fmt--compact">WEB</span> <span class="xr-sub">Offered</span></td><td><span class="xr-fmt xr-fmt--compact">AR</span> <span class="xr-sub">Offered</span></td><td><span class="xr-fmt xr-fmt--compact">VR</span> <span class="xr-sub">Offered</span></td><td><span class="xr-fmt xr-fmt--compact xr-fmt--off">MR</span> <span class="xr-sub">Not offered for this experiment</span></td></tr>
+            <tr><td><strong>Institution access</strong><span class="xr-sub">Access plan · Institute Admin</span></td><td><span class="xr-fmt xr-fmt--compact">WEB</span> <span class="xr-sub">In your plan</span></td><td><span class="xr-fmt xr-fmt--compact xr-fmt--off">AR</span> <span class="xr-sub">Not in your plan</span></td><td><span class="xr-fmt xr-fmt--compact">VR</span> <span class="xr-sub">In your plan</span></td><td><span class="xr-meta">—</span></td></tr>
+            <tr><td><strong>Student access</strong><span class="xr-sub">Experiment hub · Student</span></td><td><span class="xr-fmt xr-fmt--compact xr-fmt--yours">WEB</span> <span class="xr-sub">Available to you</span></td><td><span class="xr-fmt xr-fmt--compact xr-fmt--off">AR</span> <span class="xr-sub">Not included for your institution</span></td><td><span class="xr-fmt xr-fmt--compact xr-fmt--yours">VR</span> <span class="xr-sub">Available to you</span></td><td><span class="xr-meta">—</span></td></tr>
+            <tr><td><strong>Progress</strong><span class="xr-sub">Status words · never on the chip</span></td><td><span class="xr-status xr-status--ok"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Completed</span></td><td><span class="xr-meta">—</span></td><td><span class="xr-status xr-status--info"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>In progress</span></td><td><span class="xr-meta">—</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="doc-note">Licence figures are shown only as provided (“Licences 1,284 of 1,650”) — the effect of giving or withdrawing access on that figure is not designed (T-06 open).</p>
+    </section>
+
+    <section class="doc-sec" aria-labelledby="h-gram">
+      <div class="doc-sec-head">
+        <h2 id="h-gram" class="doc-sec-title">State grammar · one pattern per state</h2>
+        <p class="doc-sec-note">Every message answers two things: what happened, and what you can do next. Plain words, no internal terms, no diagnostics for ordinary users.</p>
+      </div>
+      <div class="xr-table-wrap">
+        <table class="xr-table">
+          <thead><tr><th style="width: 190px">State</th><th style="width: 250px">Pattern</th><th>Copy formula → sample</th><th style="width: 280px">Never</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Loading</strong></td><td>Skeleton in the shape of the content; announced politely</td><td>(no visible words) → screen readers: “Loading your reports”</td><td>Blank page; full-screen spinner</td></tr>
+            <tr><td><strong>Empty</strong></td><td>Icon, one line, one next step</td><td>Nothing here yet + how it fills → “No reports yet. If something isn’t working, report it and follow it here.”</td><td>Illustrated hero; “No data”</td></tr>
+            <tr><td><strong>Failed + retry</strong></td><td>Error notice in place; Try again; Report a problem</td><td>What didn’t work + reassurance + retry → “The simulation didn’t open. Nothing was lost.”</td><td>Error codes, stack traces, “500”</td></tr>
+            <tr><td><strong>Refused with reason</strong></td><td>Notice with the quoted reason, who, when, next action</td><td>Decision + reason + way forward → “Returned by Prof. A. Menon: ‘Please clarify the VR device requirements.’ Revise and resubmit.”</td><td>A refusal without its reason</td></tr>
+            <tr><td><strong>Read-only</strong></td><td>Lock chip; values as text; who has it now</td><td>Why locked + who + when it can change → “With Academic Reviewer since 2 Oct. You can edit again if it is returned to you.”</td><td>Greyed-out inputs with no explanation</td></tr>
+            <tr><td><strong>Waiting on another role</strong></td><td>In-progress or waiting chip + one line</td><td>Where it is + what happens next → “Waiting for marking. Your result appears here when it is released.”</td><td>Promising a time or a next gate</td></tr>
+            <tr><td><strong>Paused</strong></td><td>Shell banner (amber) + Help</td><td>“Your institution’s access is paused — your work is kept.”</td><td>Hiding content without saying why</td></tr>
+            <tr><td><strong>Inactive</strong></td><td>Shell banner (navy) + Help</td><td>“Your account is inactive.” + “Contact your institution administrator.”</td><td>A sign-in loop with no message</td></tr>
+            <tr><td><strong>Not available</strong></td><td>Dashed chip + words, or AR-10 message page</td><td>What + why + where to go → “This experiment isn’t available to you. Back to My courses.”</td><td>A disabled button with no reason</td></tr>
+            <tr><td><strong>Success</strong></td><td>Success notice in place, or AR-10 confirmation page</td><td>Done + reference + where to follow it → “Report sent. Reference SUP-0213. You can follow it in My reports.”</td><td>Toast that vanishes before it can be read</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 16px">
+          <span class="doc-label">Refused with reason</span>
+          <div class="xr-notice xr-notice--err" role="status"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">Returned to you</span><span>Prof. A. Menon · 19 Aug: “Please clarify the VR device requirements.”</span><div class="xr-notice-actions"><a class="xr-btn xr-btn--secondary xr-btn--sm" href="#h-gram">Revise and resubmit</a></div></div></div>
+          <span class="doc-label">After resubmitting (M-3)</span>
+          <div class="xr-notice xr-notice--ok" role="status"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8"></path></svg><div class="xr-notice-body"><span class="xr-notice-title">Submitted</span><span>Your changes have been submitted for review.</span></div></div>
+        </div>
+        <div class="doc-card" style="display: flex; flex-direction: column; gap: 16px">
+          <span class="doc-label">Waiting on another role</span>
+          <div style="display: flex; flex-direction: column; gap: 8px; padding: 16px; border: 1px solid #E1E4F3; border-radius: 8px">
+            <div style="display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center"><span class="xr-h3">Shell-and-Tube · Assessment</span><span class="xr-status xr-status--wait"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2"></path></svg>Waiting for marking</span></div>
+            <p class="xr-small" style="color: #40476B">Submitted 14 Sep. Your result appears here when it is released.</p>
+          </div>
+          <span class="doc-label">Not available · inline</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 16px; border: 1px dashed #7A82AE; border-radius: 8px">
+            <span class="xr-fmt xr-fmt--off"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5V2.5h2.5M11.5 2.5H14V5M14 11v2.5h-2.5M4.5 13.5H2V11M8 5.3l2.6 1.5v2.9L8 11.2 5.4 9.7V6.8z"></path></svg>AR</span>
+            <span class="xr-small">Not included for your institution</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+        <div class="doc-card" style="padding: 0; overflow: hidden">
+          <span class="doc-label" style="display: block; padding: 16px 20px 10px">Paused · shell banner</span>
+          <div class="xr-banner xr-banner--paused" role="status" style="border-top: 1px solid #E8D3A3">
+            <div class="xr-banner-msg"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></svg><span><strong>Your institution’s access is paused — your work is kept.</strong></span></div>
+            <a class="xr-btn xr-btn--text" href="#h-gram">Help</a>
+          </div>
+        </div>
+        <div class="doc-card" style="padding: 0; overflow: hidden">
+          <span class="doc-label" style="display: block; padding: 16px 20px 10px">Inactive · shell banner</span>
+          <div class="xr-banner xr-banner--inactive xr-dark" role="status">
+            <div class="xr-banner-msg"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg><span><strong>Your account is inactive.</strong> Contact your institution administrator.</span></div>
+            <a class="xr-btn xr-btn--text" href="#h-gram">Help</a>
+          </div>
+        </div>
+      </div>
+      <div class="xr-notice xr-notice--quiet" role="note">
+        <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5.5M12 7.5h.01"></path></svg>
+        <div class="xr-notice-body"><span class="xr-notice-title">Kept open on purpose</span><span>What a person can still open while their institution is paused, or after their account becomes inactive, is not decided here. The banners state the fact and offer Help only. Sign-in behaviour for these states belongs to GL-02 in Batch 1.</span></div>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

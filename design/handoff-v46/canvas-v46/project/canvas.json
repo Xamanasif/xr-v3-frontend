@@ -1,0 +1,1392 @@
+{
+ "v": 3,
+ "attachments": {},
+ "boards": {
+  "01-Visual-Foundation.dc.html": {
+   "h": 4400,
+   "title": "01 · Visual Foundation",
+   "w": 1440,
+   "x": 1520,
+   "y": 0
+  },
+  "02-Tokens-Typography.dc.html": {
+   "h": 4480,
+   "title": "02 · Tokens & Typography",
+   "w": 1440,
+   "x": 3040,
+   "y": 0
+  },
+  "03-Core-Components.dc.html": {
+   "h": 8000,
+   "title": "03 · Core Components",
+   "w": 1440,
+   "x": 4560,
+   "y": 0
+  },
+  "04-Status-Format-States.dc.html": {
+   "h": 3960,
+   "title": "04 · Status + Format System + State Grammar",
+   "w": 1440,
+   "x": 6080,
+   "y": 0
+  },
+  "05-Workspace-Shell.dc.html": {
+   "expand": "fill",
+   "h": 960,
+   "is_interactive": true,
+   "title": "05 · GL-01 Global Workspace Shell (interactive)",
+   "w": 1440,
+   "x": 0,
+   "y": 8880
+  },
+  "06-Sidebar-Variants.dc.html": {
+   "h": 4100,
+   "title": "06 · Seven Sidebar Variants + Account Menu",
+   "w": 2080,
+   "x": 1520,
+   "y": 8880
+  },
+  "07-Help-Support.dc.html": {
+   "h": 6200,
+   "title": "07 · GL-03 Help & Support",
+   "w": 2752,
+   "x": 3680,
+   "y": 8880
+  },
+  "08-System-Messages.dc.html": {
+   "h": 4800,
+   "title": "08 · GL-04 System / Message States",
+   "w": 1440,
+   "x": 6512,
+   "y": 8880
+  },
+  "09a-Archetypes-AR1-AR5.dc.html": {
+   "h": 6120,
+   "title": "09a · Archetypes AR-1…AR-5",
+   "w": 1440,
+   "x": 0,
+   "y": 15500
+  },
+  "09b-Archetypes-AR6-AR10.dc.html": {
+   "h": 5560,
+   "title": "09b · Archetypes AR-6…AR-10",
+   "w": 1440,
+   "x": 1520,
+   "y": 15500
+  },
+  "10-Dialogs.dc.html": {
+   "h": 4100,
+   "is_interactive": true,
+   "title": "10 · DL-1…DL-3 Dialogs (interactive)",
+   "w": 1440,
+   "x": 3040,
+   "y": 15500
+  },
+  "11-Responsive-Proof.dc.html": {
+   "h": 5940,
+   "title": "11 · Responsive Proof · 1440 / 1024 / 768 / 375",
+   "w": 2720,
+   "x": 4560,
+   "y": 15500
+  },
+  "12-Accessibility-Motion.dc.html": {
+   "h": 4400,
+   "is_interactive": true,
+   "title": "12 · Accessibility + Motion Notes",
+   "w": 1440,
+   "x": 7360,
+   "y": 15500
+  },
+  "13-Change-Log.dc.html": {
+   "h": 5220,
+   "title": "13 · Batch-0 Decision / Change Log",
+   "w": 1440,
+   "x": 8880,
+   "y": 15500
+  },
+  "B1-00-Index.dc.html": {
+   "h": 5285,
+   "is_interactive": true,
+   "title": "B1-00 · Batch 1 Index + Screen/State Register",
+   "w": 1440,
+   "x": 0,
+   "y": 22040
+  },
+  "B1-01-Public-Landing.dc.html": {
+   "h": 4928,
+   "is_interactive": true,
+   "title": "B1-01 · PU-F1 Public Landing (live explorer)",
+   "w": 3152,
+   "x": 1520,
+   "y": 22040
+  },
+  "B1-02-Area-Explorer.dc.html": {
+   "h": 5451,
+   "is_interactive": true,
+   "title": "B1-02 · Engineering-Area Explorer · 3 / 9 / mobile (live)",
+   "w": 1600,
+   "x": 4752,
+   "y": 22040
+  },
+  "B1-03-Areas-and-Course.dc.html": {
+   "h": 5942,
+   "is_interactive": true,
+   "title": "B1-03 · PU-F2 Areas and Course (links)",
+   "w": 3152,
+   "x": 6432,
+   "y": 22040
+  },
+  "B1-04-Catalogue.dc.html": {
+   "h": 6644,
+   "is_interactive": true,
+   "title": "B1-04 · PU-F3 Experiment Catalogue (live)",
+   "w": 3152,
+   "x": 9664,
+   "y": 22040
+  },
+  "B1-05-Experiment-Detail.dc.html": {
+   "h": 5609,
+   "is_interactive": true,
+   "title": "B1-05 · PU-F4 Public Experiment Detail (live)",
+   "w": 4704,
+   "x": 12896,
+   "y": 22040
+  },
+  "B1-06-Selection.dc.html": {
+   "h": 5291,
+   "is_interactive": true,
+   "title": "B1-06 · PU-F5 Selection (live)",
+   "w": 1600,
+   "x": 0,
+   "y": 29584
+  },
+  "B1-07-Request-Access.dc.html": {
+   "h": 5798,
+   "is_interactive": true,
+   "title": "B1-07 · PU-F5 Request Access + Request Sent (live)",
+   "w": 3152,
+   "x": 1680,
+   "y": 29584
+  },
+  "B1-08-Request-Status.dc.html": {
+   "h": 5950,
+   "is_interactive": true,
+   "title": "B1-08 · PU-F6 Request Status + Payment (links)",
+   "w": 3152,
+   "x": 4912,
+   "y": 29584
+  },
+  "B1-09-Sign-In.dc.html": {
+   "h": 7120,
+   "is_interactive": true,
+   "title": "B1-09 · GL-02 Sign in + Session (live)",
+   "w": 1600,
+   "x": 8144,
+   "y": 29584
+  },
+  "B1-10-SA-Requests.dc.html": {
+   "h": 7434,
+   "is_interactive": true,
+   "title": "B1-10 · SA-F2 Super Admin Requests (live)",
+   "w": 1600,
+   "x": 9824,
+   "y": 29584
+  },
+  "B1-11-SA-Decision.dc.html": {
+   "h": 7136,
+   "is_interactive": true,
+   "title": "B1-11 · SA-F2 Super Admin Request Decision (live)",
+   "w": 3152,
+   "x": 11504,
+   "y": 29584
+  },
+  "B1-12-Responsive-Proof.dc.html": {
+   "h": 5994,
+   "is_interactive": true,
+   "title": "B1-12 · Responsive Proof · 1440 / 1024 / 768 / 375",
+   "w": 7662,
+   "x": 0,
+   "y": 37918
+  },
+  "B1-13-Flow-Continuity.dc.html": {
+   "h": 6153,
+   "is_interactive": true,
+   "title": "B1-13 · Flow-1 Continuity Review (REQ-0042)",
+   "w": 1600,
+   "x": 7742,
+   "y": 37918
+  },
+  "B1-14-Change-Log.dc.html": {
+   "h": 4288,
+   "title": "B1-14 · Batch-1 Change Log",
+   "w": 1440,
+   "x": 9422,
+   "y": 37918
+  },
+  "Main.dc.html": {
+   "h": 3800,
+   "title": "00 · Batch 0 Index",
+   "w": 1440,
+   "x": 0,
+   "y": 0
+  },
+  "B2-00-Index.dc.html": {
+   "h": 3482,
+   "title": "B2-00 · Batch 2 Index + Coverage Register",
+   "w": 3152,
+   "x": 0,
+   "y": 44771,
+   "is_interactive": true
+  },
+  "B2-01-IA-Overview.dc.html": {
+   "h": 3602,
+   "title": "B2-01 · IA-F1 Institute Admin Overview (links)",
+   "w": 4704,
+   "x": 3232,
+   "y": 44771,
+   "is_interactive": true
+  },
+  "B2-02-Content-Access.dc.html": {
+   "h": 3930,
+   "title": "B2-02 · IA-F2 Content access (live)",
+   "w": 3152,
+   "x": 8016,
+   "y": 44771,
+   "is_interactive": true
+  },
+  "B2-03-Access-Plan-and-Course-Codes.dc.html": {
+   "h": 4164,
+   "title": "B2-03 · IA-F2 Access plan ACC-0107 + Course codes (live)",
+   "w": 4704,
+   "x": 11248,
+   "y": 44771,
+   "is_interactive": true
+  },
+  "B2-04-Student-Access.dc.html": {
+   "h": 5508,
+   "title": "B2-04 · IA-F3 Student access (live)",
+   "w": 4704,
+   "x": 16032,
+   "y": 44771,
+   "is_interactive": true
+  },
+  "B2-05-Give-Students-Access.dc.html": {
+   "h": 5894,
+   "title": "B2-05 · IA-F3 Give students access — guided flow (live)",
+   "w": 4704,
+   "x": 0,
+   "y": 50979,
+   "is_interactive": true
+  },
+  "B2-06-People.dc.html": {
+   "h": 6806,
+   "title": "B2-06 · IA-F4 People · Students, records, Faculty (live)",
+   "w": 4704,
+   "x": 4784,
+   "y": 50979,
+   "is_interactive": true
+  },
+  "B2-07-Add-and-Import.dc.html": {
+   "h": 6421,
+   "title": "B2-07 · IA-F4 Add a person + Import students (live)",
+   "w": 3152,
+   "x": 9568,
+   "y": 50979,
+   "is_interactive": true
+  },
+  "B2-08-Groups.dc.html": {
+   "h": 6680,
+   "title": "B2-08 · IA-F5 Groups (live)",
+   "w": 3152,
+   "x": 12800,
+   "y": 50979,
+   "is_interactive": true
+  },
+  "B2-09-Faculty-Courses.dc.html": {
+   "h": 3461,
+   "title": "B2-09 · IA-F6 Faculty courses (live)",
+   "w": 3152,
+   "x": 16032,
+   "y": 50979,
+   "is_interactive": true
+  },
+  "B2-10-Student-Home.dc.html": {
+   "h": 4414,
+   "title": "B2-10 · ST-F1 Student Home (links)",
+   "w": 3152,
+   "x": 0,
+   "y": 58485,
+   "is_interactive": true
+  },
+  "B2-11-My-Courses.dc.html": {
+   "h": 4646,
+   "title": "B2-11 · ST-F2 My courses + Course + All experiments (live)",
+   "w": 4704,
+   "x": 3232,
+   "y": 58485,
+   "is_interactive": true
+  },
+  "B2-12-Experiment-Hub.dc.html": {
+   "h": 6246,
+   "title": "B2-12 · ST-F3 Experiment hub — Overview (links)",
+   "w": 3152,
+   "x": 8016,
+   "y": 58485,
+   "is_interactive": true
+  },
+  "B2-13-Flow-2-Continuity.dc.html": {
+   "h": 5781,
+   "title": "B2-13 · Flow-2 Continuity ACC-0107 → SACC-0310 (live)",
+   "w": 3152,
+   "x": 11248,
+   "y": 58485,
+   "is_interactive": true
+  },
+  "B2-14-Responsive-Proof.dc.html": {
+   "h": 6798,
+   "title": "B2-14 · Responsive Proof · 7 priority screens + Faculty courses · 1440 / 1024 / 768 / 375 (live)",
+   "w": 7662,
+   "x": 14480,
+   "y": 58485,
+   "is_interactive": true
+  },
+  "B2-15-Change-Log.dc.html": {
+   "h": 3196,
+   "title": "B2-15 · Batch-2 Change Log + Review Register",
+   "w": 3152,
+   "x": 22222,
+   "y": 58485
+  },
+  "B3-00-Index.dc.html": {
+   "h": 3269,
+   "title": "B3-00 · Batch 3 Index + Coverage Register (scope decision)",
+   "w": 3152,
+   "x": 0,
+   "y": 65983,
+   "is_interactive": true
+  },
+  "B3-01-Hub-Resources-and-Progress.dc.html": {
+   "h": 4894,
+   "title": "B3-01 · ST-F3 Hub tabs — Resources + Progress (live)",
+   "w": 4704,
+   "x": 3232,
+   "y": 65983,
+   "is_interactive": true
+  },
+  "B3-02-Simulation-Choose-Format.dc.html": {
+   "h": 4094,
+   "title": "B3-02 · ST-F4 Simulation — choose a format (links)",
+   "w": 3152,
+   "x": 8016,
+   "y": 65983,
+   "is_interactive": true
+  },
+  "B3-03-WEB-Simulation.dc.html": {
+   "h": 3770,
+   "title": "B3-03 · ST-F4 WEB simulation (live)",
+   "w": 3152,
+   "x": 11248,
+   "y": 65983,
+   "is_interactive": true
+  },
+  "B3-04-AR-VR-MR-Format.dc.html": {
+   "h": 3826,
+   "title": "B3-04 · ST-F4 AR / VR / MR format (links)",
+   "w": 3152,
+   "x": 14480,
+   "y": 65983,
+   "is_interactive": true
+  },
+  "B3-05-Progress.dc.html": {
+   "h": 4544,
+   "title": "B3-05 · ST-F6 Progress (live)",
+   "w": 3152,
+   "x": 0,
+   "y": 71577,
+   "is_interactive": true
+  },
+  "B3-06-Format-Feedback.dc.html": {
+   "h": 5994,
+   "title": "B3-06 · ST-F7 Format feedback + Feedback sent (live)",
+   "w": 3152,
+   "x": 3232,
+   "y": 71577,
+   "is_interactive": true
+  },
+  "B3-07-My-Device.dc.html": {
+   "h": 5230,
+   "title": "B3-07 · ST-F8 My device (live)",
+   "w": 3152,
+   "x": 6464,
+   "y": 71577,
+   "is_interactive": true
+  },
+  "B3-08-IA-Requests-to-BITS.dc.html": {
+   "h": 5372,
+   "title": "B3-08 · IA-F7 Requests to BITS (live)",
+   "w": 3152,
+   "x": 9696,
+   "y": 71577,
+   "is_interactive": true
+  },
+  "B3-09-IA-Device-Requests.dc.html": {
+   "h": 3280,
+   "title": "B3-09 · IA-F7 Device requests — review & forward (live)",
+   "w": 3152,
+   "x": 12928,
+   "y": 71577,
+   "is_interactive": true
+  },
+  "B3-10-IA-Usage.dc.html": {
+   "h": 3201,
+   "title": "B3-10 · IA-F8 Usage (live)",
+   "w": 3152,
+   "x": 0,
+   "y": 78271,
+   "is_interactive": true
+  },
+  "B3-11-SA-Device-Transfers.dc.html": {
+   "h": 4044,
+   "title": "B3-11 · SA-F8 Device transfers + decision (live · pulled forward)",
+   "w": 3152,
+   "x": 3232,
+   "y": 78271,
+   "is_interactive": true
+  },
+  "B3-12-Flow-3-Continuity.dc.html": {
+   "h": 4691,
+   "title": "B3-12 · Flow-3 Continuity — learning flow C + DTR-0018 live chain",
+   "w": 3152,
+   "x": 6464,
+   "y": 78271,
+   "is_interactive": true
+  },
+  "B3-13-Responsive-Proof.dc.html": {
+   "h": 6722,
+   "title": "B3-13 · Responsive Proof · 8 Batch-3 screens · 1440 / 1024 / 768 / 375 (live)",
+   "w": 7662,
+   "x": 9696,
+   "y": 78271,
+   "is_interactive": true
+  },
+  "B3-14-Change-Log.dc.html": {
+   "h": 3106,
+   "title": "B3-14 · Batch-3 Change Log + Review Register",
+   "w": 3152,
+   "x": 17438,
+   "y": 78271
+  },
+  "B4-00-Index.dc.html": {
+   "h": 3398,
+   "title": "B4-00 · Batch 4 Index + Coverage Register (Batch-3 approval, scope check)",
+   "w": 3152,
+   "x": 0,
+   "y": 85693,
+   "is_interactive": true
+  },
+  "B4-01-Faculty-Overview.dc.html": {
+   "h": 2688,
+   "title": "B4-01 · FA-F1 Faculty Overview (links)",
+   "w": 3152,
+   "x": 3232,
+   "y": 85693,
+   "is_interactive": true
+  },
+  "B4-02-My-Courses-and-Experiments.dc.html": {
+   "h": 3816,
+   "title": "B4-02 · FA-F2 My courses + Course + Experiments (live)",
+   "w": 3152,
+   "x": 6464,
+   "y": 85693,
+   "is_interactive": true
+  },
+  "B4-03-Experiment-Teaching-View.dc.html": {
+   "h": 3979,
+   "title": "B4-03 · FA-F2 Experiment — teaching view (links)",
+   "w": 3152,
+   "x": 9696,
+   "y": 85693,
+   "is_interactive": true
+  },
+  "B4-04-Assessments-and-Create.dc.html": {
+   "h": 6365,
+   "title": "B4-04 · FA-F3 Assessments + Create assessment (live)",
+   "w": 4704,
+   "x": 12928,
+   "y": 85693,
+   "is_interactive": true
+  },
+  "B4-05-Assessment-Summary-and-Questions.dc.html": {
+   "h": 6859,
+   "title": "B4-05 · FA-F3 Assessment Summary + Questions (live)",
+   "w": 3152,
+   "x": 0,
+   "y": 92758,
+   "is_interactive": true
+  },
+  "B4-06-Settings-Preview-Submissions.dc.html": {
+   "h": 5413,
+   "title": "B4-06 · FA-F3 Settings + Preview + Submissions (live)",
+   "w": 4704,
+   "x": 3232,
+   "y": 92758,
+   "is_interactive": true
+  },
+  "B4-07-Question-Bank-and-Editor.dc.html": {
+   "h": 7406,
+   "title": "B4-07 · FA-F4 Question bank + editor (live)",
+   "w": 3152,
+   "x": 8016,
+   "y": 92758,
+   "is_interactive": true
+  },
+  "B4-08-Draft-with-Assistance-and-Import.dc.html": {
+   "h": 5091,
+   "title": "B4-08 · FA-F4 Draft with assistance + Import (live)",
+   "w": 3152,
+   "x": 11248,
+   "y": 92758,
+   "is_interactive": true
+  },
+  "B4-09-Marking.dc.html": {
+   "h": 6302,
+   "title": "B4-09 · FA-F5 Marking queue + Mark a submission (live)",
+   "w": 3152,
+   "x": 14480,
+   "y": 92758,
+   "is_interactive": true
+  },
+  "B4-10-Students-and-Follow-up.dc.html": {
+   "h": 5267,
+   "title": "B4-10 · FA-F6 Students + Student detail + Export (live)",
+   "w": 3152,
+   "x": 0,
+   "y": 100864,
+   "is_interactive": true
+  },
+  "B4-11-Student-Assessments.dc.html": {
+   "h": 5656,
+   "title": "B4-11 · ST-F5 Assessments + Before you start (live)",
+   "w": 3152,
+   "x": 3232,
+   "y": 100864,
+   "is_interactive": true
+  },
+  "B4-12-Assessment-Attempt.dc.html": {
+   "h": 6749,
+   "title": "B4-12 · ST-F5 Assessment attempt (live)",
+   "w": 3152,
+   "x": 6464,
+   "y": 100864,
+   "is_interactive": true
+  },
+  "B4-13-Assessment-Result.dc.html": {
+   "h": 5704,
+   "title": "B4-13 · ST-F5 Result (live)",
+   "w": 3152,
+   "x": 9696,
+   "y": 100864,
+   "is_interactive": true
+  },
+  "B4-14-Flow-4-Continuity.dc.html": {
+   "h": 5271,
+   "title": "B4-14 · Flow-4 Continuity — ASMT-0009 / ATT-0450 (live)",
+   "w": 3152,
+   "x": 0,
+   "y": 108313,
+   "is_interactive": true
+  },
+  "B4-15-Responsive-Proof.dc.html": {
+   "h": 6591,
+   "title": "B4-15 · Responsive Proof · 8 Batch-4 screens · 1440 / 1024 / 768 / 375 (live)",
+   "w": 11469,
+   "x": 3232,
+   "y": 108313,
+   "is_interactive": true
+  },
+  "B4-16-Change-Log.dc.html": {
+   "h": 3566,
+   "title": "B4-16 · Batch-4 Change Log + Review Register",
+   "w": 3152,
+   "x": 14781,
+   "y": 108313
+  },
+  "B5-00-Index.dc.html": {
+   "h": 3195,
+   "title": "B5-00 · Batch 5 Index + Coverage Register (Batch-4 freeze at v39, scope check)",
+   "w": 3152,
+   "x": 0,
+   "y": 115604,
+   "is_interactive": true
+  },
+  "B5-01-Vendor-Overview.dc.html": {
+   "h": 2498,
+   "title": "B5-01 · VE-F1 Vendor Overview (links)",
+   "w": 3152,
+   "x": 3232,
+   "y": 115604,
+   "is_interactive": true
+  },
+  "B5-02-My-Experiments.dc.html": {
+   "h": 6756,
+   "title": "B5-02 · VE-F2 My experiments (live)",
+   "w": 4704,
+   "x": 6464,
+   "y": 115604,
+   "is_interactive": true
+  },
+  "B5-03-Create-Course-and-Description.dc.html": {
+   "h": 5690,
+   "title": "B5-03 · VE-F3 Create experiment · Course and description (live)",
+   "w": 4704,
+   "x": 11248,
+   "y": 115604,
+   "is_interactive": true
+  },
+  "B5-04-Formats-and-Delivery.dc.html": {
+   "h": 8000,
+   "title": "B5-04 · VE-F3 Create experiment · Formats and delivery (live)",
+   "w": 4704,
+   "x": 0,
+   "y": 123060,
+   "is_interactive": true
+  },
+  "B5-05-Preview-Check-and-Submit.dc.html": {
+   "h": 6466,
+   "title": "B5-05 · VE-F3 Preview and documents + Check and submit (live)",
+   "w": 3152,
+   "x": 4784,
+   "y": 123060,
+   "is_interactive": true
+  },
+  "B5-06-Experiment-Record-and-History.dc.html": {
+   "h": 7149,
+   "title": "B5-06 · VE-F4 Experiment record + history (links)",
+   "w": 4704,
+   "x": 8016,
+   "y": 123060,
+   "is_interactive": true
+  },
+  "B5-07-Revise-and-Resubmit.dc.html": {
+   "h": 7800,
+   "title": "B5-07 · VE-F3 Revise and resubmit + Edit draft (live)",
+   "w": 4704,
+   "x": 12800,
+   "y": 123060,
+   "is_interactive": true
+  },
+  "B5-08-Flow-5-Continuity.dc.html": {
+   "h": 7536,
+   "title": "B5-08 · Flow-5 Continuity — SUB-0077 steps 1–3 (live)",
+   "w": 3152,
+   "x": 0,
+   "y": 131760,
+   "is_interactive": true
+  },
+  "B5-09-Responsive-Proof.dc.html": {
+   "h": 8000,
+   "title": "B5-09 · Responsive Proof · 7 Batch-5 screens · 1440 / 1024 / 768 / 375 (live)",
+   "w": 15276,
+   "x": 3232,
+   "y": 131760,
+   "is_interactive": true
+  },
+  "B5-10-Change-Log.dc.html": {
+   "h": 2918,
+   "title": "B5-10 · Batch-5 Change Log + Review Register",
+   "w": 3152,
+   "x": 18588,
+   "y": 131760
+  },
+  "B6-00-Index.dc.html": {
+   "h": 4092,
+   "title": "B6-00 · Batch 6 Index + Coverage Register (Batch-5 approval, v41 freeze, scope reconciliation)",
+   "w": 3152,
+   "x": 0,
+   "y": 140460
+  },
+  "B6-01-Reviewer-Overview.dc.html": {
+   "h": 3164,
+   "title": "B6-01 · RV-F1 Academic Reviewer Overview (live)",
+   "w": 1600,
+   "x": 3232,
+   "y": 140460,
+   "is_interactive": true
+  },
+  "B6-02-Review-Queue-and-Reviewed.dc.html": {
+   "h": 3448,
+   "title": "B6-02 · RV-F2 Review queue + Reviewed by me (live)",
+   "w": 3152,
+   "x": 4912,
+   "y": 140460,
+   "is_interactive": true
+  },
+  "B6-03-Review-a-Submission.dc.html": {
+   "h": 7400,
+   "title": "B6-03 · RV-F3 Review a submission + decided (live)",
+   "w": 4704,
+   "x": 8144,
+   "y": 140460,
+   "is_interactive": true
+  },
+  "B6-04-Review-an-Update.dc.html": {
+   "h": 5725,
+   "title": "B6-04 · RV-F4 Review an update (live)",
+   "w": 3152,
+   "x": 0,
+   "y": 148560,
+   "is_interactive": true
+  },
+  "B6-05-CM-Overview.dc.html": {
+   "h": 3628,
+   "title": "B6-05 · CM-F1 Content Manager Overview (live)",
+   "w": 1600,
+   "x": 3232,
+   "y": 148560,
+   "is_interactive": true
+  },
+  "B6-06-Ready-to-Publish-and-Library.dc.html": {
+   "h": 5249,
+   "title": "B6-06 · CM-F2 Ready to publish + Content library (live)",
+   "w": 3152,
+   "x": 4912,
+   "y": 148560,
+   "is_interactive": true
+  },
+  "B6-07-Publication-Decision.dc.html": {
+   "h": 7300,
+   "title": "B6-07 · CM-F3 Publication decision (live)",
+   "w": 4704,
+   "x": 8144,
+   "y": 148560,
+   "is_interactive": true
+  },
+  "B6-08-Published-and-Correction-Entry.dc.html": {
+   "h": 3500,
+   "title": "B6-08 · CM-F4 Published experiment + correction entry (live)",
+   "w": 4704,
+   "x": 0,
+   "y": 156560,
+   "is_interactive": true
+  },
+  "B6-09-Updates-Corrections.dc.html": {
+   "h": 5850,
+   "title": "B6-09 · CM-F5 Updates — corrections (live)",
+   "w": 4704,
+   "x": 4784,
+   "y": 156560,
+   "is_interactive": true
+  },
+  "B6-10-Platform-Course-Codes.dc.html": {
+   "h": 4400,
+   "title": "B6-10 · CM-F6 Platform course codes (live)",
+   "w": 1600,
+   "x": 9568,
+   "y": 156560,
+   "is_interactive": true
+  },
+  "B6-11-Critical-States.dc.html": {
+   "h": 7180,
+   "title": "B6-11 · Critical states — 15 governance states (live)",
+   "w": 8880,
+   "x": 11248,
+   "y": 156560,
+   "is_interactive": true
+  },
+  "B6-12-Flow-5-Completion.dc.html": {
+   "h": 5500,
+   "title": "B6-12 · Flow-5 Completion — SUB-0077 steps 4–6, one record (live)",
+   "w": 4704,
+   "x": 0,
+   "y": 164440,
+   "is_interactive": true
+  },
+  "B6-13-Flow-6-Steps-1-2.dc.html": {
+   "h": 4500,
+   "title": "B6-13 · Flow-6 steps 1–2 — UPD-0005, one record (live)",
+   "w": 4704,
+   "x": 4784,
+   "y": 164440,
+   "is_interactive": true
+  },
+  "B6-14-Responsive-Proof.dc.html": {
+   "h": 7100,
+   "title": "B6-14 · Responsive Proof · 7 Batch-6 screens · 1440 / 1024 / 768 / 375 (live)",
+   "w": 15276,
+   "x": 9568,
+   "y": 164440,
+   "is_interactive": true
+  },
+  "B6-15-Change-Log.dc.html": {
+   "h": 3033,
+   "title": "B6-15 · Batch-6 Change Log + Review Register",
+   "w": 3152,
+   "x": 24924,
+   "y": 164440
+  },
+  "B7-00-Index.dc.html": {
+   "h": 3867,
+   "title": "B7-00 · Batch 7 Index + Coverage Register (Batch-6 approval, v43 freeze, scope, SA-F2 consistency)",
+   "w": 3152,
+   "x": 0,
+   "y": 172240
+  },
+  "B7-01-SA-Overview.dc.html": {
+   "h": 4747,
+   "title": "B7-01 · SA-F1 Super Admin Overview",
+   "w": 4704,
+   "x": 3232,
+   "y": 172240,
+   "is_interactive": true
+  },
+  "B7-02-Institutions.dc.html": {
+   "h": 5742,
+   "title": "B7-02 · SA-F3 Institutions + detail (live)",
+   "w": 3152,
+   "x": 8016,
+   "y": 172240,
+   "is_interactive": true
+  },
+  "B7-03-Institution-Detail.dc.html": {
+   "h": 6739,
+   "title": "B7-03 · SA-F3 Institution detail — every state (live)",
+   "w": 8880,
+   "x": 11248,
+   "y": 172240,
+   "is_interactive": true
+  },
+  "B7-04-Pause-Effects.dc.html": {
+   "h": 4319,
+   "title": "B7-04 · Pause effects — Institute Admin, Faculty, Student (live, one record)",
+   "w": 3152,
+   "x": 0,
+   "y": 179679,
+   "is_interactive": true
+  },
+  "B7-05-Content-Updates-Release-Hold.dc.html": {
+   "h": 6960,
+   "title": "B7-05 · SA-F4 Content updates — Release / Hold / Lift hold (live)",
+   "w": 6672,
+   "x": 3232,
+   "y": 179679,
+   "is_interactive": true
+  },
+  "B7-06-All-Content.dc.html": {
+   "h": 5602,
+   "title": "B7-06 · SA-F5 All content + content record (live)",
+   "w": 6672,
+   "x": 9984,
+   "y": 179679,
+   "is_interactive": true
+  },
+  "B7-07-Academic-Structure.dc.html": {
+   "h": 5896,
+   "title": "B7-07 · SA-F6 Academic structure (live)",
+   "w": 4464,
+   "x": 16736,
+   "y": 179679,
+   "is_interactive": true
+  },
+  "B7-08-Platform-Roles.dc.html": {
+   "h": 5754,
+   "title": "B7-08 · SA-F7 Platform roles (live)",
+   "w": 4464,
+   "x": 0,
+   "y": 187339,
+   "is_interactive": true
+  },
+  "B7-09-Operations.dc.html": {
+   "h": 7291,
+   "title": "B7-09 · SA-F8 Operations — device transfers, support, access ending (live)",
+   "w": 4464,
+   "x": 4544,
+   "y": 187339,
+   "is_interactive": true
+  },
+  "B7-10-Critical-States.dc.html": {
+   "h": 5754,
+   "title": "B7-10 · Critical states — 16 Super Admin states (live)",
+   "w": 8880,
+   "x": 9088,
+   "y": 187339,
+   "is_interactive": true
+  },
+  "B7-11-Flow-6-Release-and-Hold.dc.html": {
+   "h": 5838,
+   "title": "B7-11 · Flow 6 — Release and Hold, UPD-0005, one record (live)",
+   "w": 4704,
+   "x": 0,
+   "y": 195330,
+   "is_interactive": true
+  },
+  "B7-12-Responsive-Proof.dc.html": {
+   "h": 6613,
+   "title": "B7-12 · Responsive Proof · 8 Batch-7 screens · 1440 / 1024 / 768 / 375 (live)",
+   "w": 15276,
+   "x": 4784,
+   "y": 195330,
+   "is_interactive": true
+  },
+  "B7-13-Change-Log.dc.html": {
+   "h": 3256,
+   "title": "B7-13 · Batch-7 Change Log + Review Register",
+   "w": 3152,
+   "x": 20140,
+   "y": 195330
+  },
+  "B8-00-Index.dc.html": {
+   "h": 2031,
+   "title": "B8-00 · Batch 8 Index — Batch-7 approval, v45 freeze, authority, coverage",
+   "w": 3152,
+   "x": 0,
+   "y": 202643
+  },
+  "B8-01-Screen-and-Navigation-Register.dc.html": {
+   "h": 7471,
+   "title": "B8-01 · Screen and navigation register + navigation audit",
+   "w": 4008,
+   "x": 3232,
+   "y": 202643
+  },
+  "B8-02-Link-Corrections-and-Change-Log.dc.html": {
+   "h": 6003,
+   "title": "B8-02 · Cross-batch link corrections + change log (checksums, verification)",
+   "w": 4704,
+   "x": 7320,
+   "y": 202643
+  },
+  "B8-03-Terminology-and-Visual-Consistency.dc.html": {
+   "h": 5313,
+   "title": "B8-03 · Terminology and visual consistency findings",
+   "w": 3152,
+   "x": 0,
+   "y": 210814
+  },
+  "B8-04-Workflow-Traceability.dc.html": {
+   "h": 2328,
+   "title": "B8-04 · End-to-end workflow traceability — Flows A–F + device chain",
+   "w": 4704,
+   "x": 3232,
+   "y": 210814
+  },
+  "B8-05-Responsive-and-Accessibility.dc.html": {
+   "h": 7264,
+   "title": "B8-05 · Responsive + accessibility proof · 8 surfaces · 1440 / 1024 / 768 / 375 (live)",
+   "w": 11469,
+   "x": 0,
+   "y": 216827,
+   "is_interactive": true
+  },
+  "B8-06-Design-to-Code-Handoff.dc.html": {
+   "h": 1993,
+   "title": "B8-06 · Design-to-code handoff index (React · Next.js · TypeScript — not started)",
+   "w": 3152,
+   "x": 0,
+   "y": 224791
+  },
+  "B8-07-Handoff-Specifications.dc.html": {
+   "h": 4783,
+   "title": "B8-07 · Handoff specifications — tokens, components, breakpoints, states, records, assets",
+   "w": 4704,
+   "x": 3232,
+   "y": 224791
+  },
+  "B8-08-Open-Decisions-and-Limitations.dc.html": {
+   "h": 4958,
+   "title": "B8-08 · Final open-decision and limitations register",
+   "w": 5388,
+   "x": 8016,
+   "y": 224791
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-10-07T19:55:54Z",
+  "v": 1
+ },
+ "designSystems": [],
+ "launch": {
+  "view": "canvas"
+ },
+ "notes": {
+  "row1": {
+   "kind": "title1",
+   "maxW": 7520,
+   "text": "Batch 0 · System foundation",
+   "w": 240,
+   "x": 0,
+   "y": -300
+  },
+  "row2": {
+   "kind": "title1",
+   "maxW": 7952,
+   "text": "Batch 0 · Global shell + global families (GL-01 · GL-03 · GL-04)",
+   "w": 240,
+   "x": 0,
+   "y": 8580
+  },
+  "row3": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 0 · Archetypes, dialogs, responsive + accessibility proof, change log",
+   "w": 240,
+   "x": 0,
+   "y": 15200
+  },
+  "row4": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 1 · Public experience (PU-F1 … PU-F4)",
+   "w": 240,
+   "x": 0,
+   "y": 21740
+  },
+  "row5": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 1 · Request journey, sign-in and Super Admin decision (PU-F5 · PU-F6 · GL-02 · SA-F2)",
+   "w": 240,
+   "x": 0,
+   "y": 29284
+  },
+  "row6": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 1 · Responsive proof, Flow-1 continuity, change log",
+   "w": 240,
+   "x": 0,
+   "y": 37618
+  },
+  "row7": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 2 · Institute Admin: Overview, Content access, Access plan, Student access (IA-F1 · IA-F2 · IA-F3)",
+   "w": 240,
+   "x": 0,
+   "y": 44471
+  },
+  "row8": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 2 · Institute Admin: Give students access, People, Add + Import, Groups, Faculty courses (IA-F3 … IA-F6)",
+   "w": 240,
+   "x": 0,
+   "y": 50679
+  },
+  "row9": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 2 · Student: Home, My courses, Experiment hub · Flow-2 continuity, responsive proof, change log (ST-F1 … ST-F3)",
+   "w": 240,
+   "x": 0,
+   "y": 58185
+  },
+  "row10": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 3 · Student learning: hub tabs and simulation by format (ST-F3 tabs · ST-F4)",
+   "w": 240,
+   "x": 0,
+   "y": 65683
+  },
+  "row11": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 3 · Student progress, format feedback and My device · Institute Admin requests (ST-F6 · ST-F7 · ST-F8 · IA-F7)",
+   "w": 240,
+   "x": 0,
+   "y": 71277
+  },
+  "row12": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 3 · Usage, Super Admin device transfers · Flow-3 continuity, responsive proof, change log (IA-F8 · SA-F8 part)",
+   "w": 240,
+   "x": 0,
+   "y": 77971
+  },
+  "row13": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 4 · Faculty: Overview, My courses, Experiment, Assessments + Create (FA-F1 · FA-F2 · FA-F3)",
+   "w": 240,
+   "x": 0,
+   "y": 85393
+  },
+  "row14": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 4 · Faculty: Assessment record, Question bank, Draft + Import, Marking (FA-F3 · FA-F4 · FA-F5)",
+   "w": 240,
+   "x": 0,
+   "y": 92458
+  },
+  "row15": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 4 · Faculty Students · Student assessments, attempt, result (FA-F6 · ST-F5)",
+   "w": 240,
+   "x": 0,
+   "y": 100564
+  },
+  "row16": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 4 · Flow-4 continuity, responsive proof, change log",
+   "w": 240,
+   "x": 0,
+   "y": 108013
+  },
+  "row17": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 5 · Vendor: Overview, My experiments, Create experiment — course and description (VE-F1 · VE-F2 · VE-F3)",
+   "w": 240,
+   "x": 0,
+   "y": 115304
+  },
+  "row18": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 5 · Vendor: formats and delivery, check and submit, record and history, revise and resubmit (VE-F3 · VE-F4)",
+   "w": 240,
+   "x": 0,
+   "y": 122760
+  },
+  "row19": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 5 · Flow-5 continuity (steps 1–3), responsive proof, change log",
+   "w": 240,
+   "x": 0,
+   "y": 131460
+  },
+  "row20": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 6 · Academic Reviewer: index, Overview, Review queue + Reviewed by me, Review a submission (RV-F1 · RV-F2 · RV-F3)",
+   "w": 240,
+   "x": 0,
+   "y": 140160
+  },
+  "row21": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 6 · Review an update · Content Manager: Overview, Ready to publish + Content library, Publication decision (RV-F4 · CM-F1 · CM-F2 · CM-F3)",
+   "w": 240,
+   "x": 0,
+   "y": 148260
+  },
+  "row22": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 6 · Content Manager: published experiment, updates (corrections), course codes · critical states (CM-F4 · CM-F5 · CM-F6)",
+   "w": 240,
+   "x": 0,
+   "y": 156260
+  },
+  "row23": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 6 · Flow-5 completion, Flow-6 steps 1–2, responsive proof, change log",
+   "w": 240,
+   "x": 0,
+   "y": 164140
+  },
+  "row24": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 7 · Super Admin: index, Overview, Institutions, Institution detail (SA-F1 · SA-F3)",
+   "w": 240,
+   "x": 0,
+   "y": 171940
+  },
+  "row25": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 7 · Pause effects · Content updates — Release / Hold · All content · Academic structure (SA-F3 · SA-F4 · SA-F5 · SA-F6)",
+   "w": 240,
+   "x": 0,
+   "y": 179379
+  },
+  "row26": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 7 · Platform roles · Operations · critical states (SA-F7 · SA-F8)",
+   "w": 240,
+   "x": 0,
+   "y": 187039
+  },
+  "row27": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 7 · Flow 6 — Release and Hold, responsive proof, change log",
+   "w": 240,
+   "x": 0,
+   "y": 195030
+  },
+  "row28": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 8 · Final consistency sweep: index, screen + navigation register, link corrections",
+   "w": 240,
+   "x": 0,
+   "y": 202343
+  },
+  "row29": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 8 · Terminology + visual consistency, workflow traceability",
+   "w": 240,
+   "x": 0,
+   "y": 210514
+  },
+  "row30": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 8 · Responsive + accessibility proof — every surface at 1440 / 1024 / 768 / 375 (live)",
+   "w": 240,
+   "x": 0,
+   "y": 216527
+  },
+  "row31": {
+   "kind": "title1",
+   "maxW": 8000,
+   "text": "Batch 8 · Design-to-code handoff, specifications, open decisions + limitations",
+   "w": 240,
+   "x": 0,
+   "y": 224491
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "01-Visual-Foundation.dc.html",
+  "02-Tokens-Typography.dc.html",
+  "03-Core-Components.dc.html",
+  "04-Status-Format-States.dc.html",
+  "05-Workspace-Shell.dc.html",
+  "06-Sidebar-Variants.dc.html",
+  "07-Help-Support.dc.html",
+  "08-System-Messages.dc.html",
+  "09a-Archetypes-AR1-AR5.dc.html",
+  "09b-Archetypes-AR6-AR10.dc.html",
+  "10-Dialogs.dc.html",
+  "11-Responsive-Proof.dc.html",
+  "12-Accessibility-Motion.dc.html",
+  "13-Change-Log.dc.html",
+  "B1-00-Index.dc.html",
+  "B1-01-Public-Landing.dc.html",
+  "B1-02-Area-Explorer.dc.html",
+  "B1-03-Areas-and-Course.dc.html",
+  "B1-04-Catalogue.dc.html",
+  "B1-05-Experiment-Detail.dc.html",
+  "B1-06-Selection.dc.html",
+  "B1-07-Request-Access.dc.html",
+  "B1-08-Request-Status.dc.html",
+  "B1-09-Sign-In.dc.html",
+  "B1-10-SA-Requests.dc.html",
+  "B1-11-SA-Decision.dc.html",
+  "B1-12-Responsive-Proof.dc.html",
+  "B1-13-Flow-Continuity.dc.html",
+  "B1-14-Change-Log.dc.html",
+  "B2-00-Index.dc.html",
+  "B2-01-IA-Overview.dc.html",
+  "B2-02-Content-Access.dc.html",
+  "B2-03-Access-Plan-and-Course-Codes.dc.html",
+  "B2-04-Student-Access.dc.html",
+  "B2-05-Give-Students-Access.dc.html",
+  "B2-06-People.dc.html",
+  "B2-07-Add-and-Import.dc.html",
+  "B2-08-Groups.dc.html",
+  "B2-09-Faculty-Courses.dc.html",
+  "B2-10-Student-Home.dc.html",
+  "B2-11-My-Courses.dc.html",
+  "B2-12-Experiment-Hub.dc.html",
+  "B2-13-Flow-2-Continuity.dc.html",
+  "B2-14-Responsive-Proof.dc.html",
+  "B2-15-Change-Log.dc.html",
+  "B3-00-Index.dc.html",
+  "B3-01-Hub-Resources-and-Progress.dc.html",
+  "B3-02-Simulation-Choose-Format.dc.html",
+  "B3-03-WEB-Simulation.dc.html",
+  "B3-04-AR-VR-MR-Format.dc.html",
+  "B3-05-Progress.dc.html",
+  "B3-06-Format-Feedback.dc.html",
+  "B3-07-My-Device.dc.html",
+  "B3-08-IA-Requests-to-BITS.dc.html",
+  "B3-09-IA-Device-Requests.dc.html",
+  "B3-10-IA-Usage.dc.html",
+  "B3-11-SA-Device-Transfers.dc.html",
+  "B3-12-Flow-3-Continuity.dc.html",
+  "B3-13-Responsive-Proof.dc.html",
+  "B3-14-Change-Log.dc.html",
+  "B4-00-Index.dc.html",
+  "B4-01-Faculty-Overview.dc.html",
+  "B4-02-My-Courses-and-Experiments.dc.html",
+  "B4-03-Experiment-Teaching-View.dc.html",
+  "B4-04-Assessments-and-Create.dc.html",
+  "B4-05-Assessment-Summary-and-Questions.dc.html",
+  "B4-06-Settings-Preview-Submissions.dc.html",
+  "B4-07-Question-Bank-and-Editor.dc.html",
+  "B4-08-Draft-with-Assistance-and-Import.dc.html",
+  "B4-09-Marking.dc.html",
+  "B4-10-Students-and-Follow-up.dc.html",
+  "B4-11-Student-Assessments.dc.html",
+  "B4-12-Assessment-Attempt.dc.html",
+  "B4-13-Assessment-Result.dc.html",
+  "B4-14-Flow-4-Continuity.dc.html",
+  "B4-15-Responsive-Proof.dc.html",
+  "B4-16-Change-Log.dc.html",
+  "B5-00-Index.dc.html",
+  "B5-01-Vendor-Overview.dc.html",
+  "B5-02-My-Experiments.dc.html",
+  "B5-03-Create-Course-and-Description.dc.html",
+  "B5-04-Formats-and-Delivery.dc.html",
+  "B5-05-Preview-Check-and-Submit.dc.html",
+  "B5-06-Experiment-Record-and-History.dc.html",
+  "B5-07-Revise-and-Resubmit.dc.html",
+  "B5-08-Flow-5-Continuity.dc.html",
+  "B5-09-Responsive-Proof.dc.html",
+  "B5-10-Change-Log.dc.html",
+  "B6-00-Index.dc.html",
+  "B6-01-Reviewer-Overview.dc.html",
+  "B6-02-Review-Queue-and-Reviewed.dc.html",
+  "B6-03-Review-a-Submission.dc.html",
+  "B6-04-Review-an-Update.dc.html",
+  "B6-05-CM-Overview.dc.html",
+  "B6-06-Ready-to-Publish-and-Library.dc.html",
+  "B6-07-Publication-Decision.dc.html",
+  "B6-08-Published-and-Correction-Entry.dc.html",
+  "B6-09-Updates-Corrections.dc.html",
+  "B6-10-Platform-Course-Codes.dc.html",
+  "B6-11-Critical-States.dc.html",
+  "B6-12-Flow-5-Completion.dc.html",
+  "B6-13-Flow-6-Steps-1-2.dc.html",
+  "B6-14-Responsive-Proof.dc.html",
+  "B6-15-Change-Log.dc.html",
+  "B7-00-Index.dc.html",
+  "B7-01-SA-Overview.dc.html",
+  "B7-02-Institutions.dc.html",
+  "B7-03-Institution-Detail.dc.html",
+  "B7-04-Pause-Effects.dc.html",
+  "B7-05-Content-Updates-Release-Hold.dc.html",
+  "B7-06-All-Content.dc.html",
+  "B7-07-Academic-Structure.dc.html",
+  "B7-08-Platform-Roles.dc.html",
+  "B7-09-Operations.dc.html",
+  "B7-10-Critical-States.dc.html",
+  "B7-11-Flow-6-Release-and-Hold.dc.html",
+  "B7-12-Responsive-Proof.dc.html",
+  "B7-13-Change-Log.dc.html",
+  "B8-00-Index.dc.html",
+  "B8-01-Screen-and-Navigation-Register.dc.html",
+  "B8-02-Link-Corrections-and-Change-Log.dc.html",
+  "B8-03-Terminology-and-Visual-Consistency.dc.html",
+  "B8-04-Workflow-Traceability.dc.html",
+  "B8-05-Responsive-and-Accessibility.dc.html",
+  "B8-06-Design-to-Code-Handoff.dc.html",
+  "B8-07-Handoff-Specifications.dc.html",
+  "B8-08-Open-Decisions-and-Limitations.dc.html"
+ ],
+ "pages": [],
+ "title": "XR Learning Platform · Batch 0 foundation + Batch 1 public journey + Batch 2 access journey + Batch 3 learning journey + Batch 4 assessment journey + Batch 5 vendor journey + Batch 6 academic review and publication + Batch 7 Super Admin and platform governance + Batch 8 consistency sweep and handoff"
+}
