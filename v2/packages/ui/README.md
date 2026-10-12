@@ -94,7 +94,8 @@ this acceptance: VD-08 (the dialog alignment mapping), VD-23 and the rest stay P
   question cards keep v46's own scroll-margin and dialog contents scroll inside the dialog), at
   113 px. Measured in Chromium 153: unscoped, it scrolls the page by about 460 px when focus
   enters the bar itself; `scroll-margin-top` on the controls does not stop focus landing under
-  the bar. Accepted subject to the long-title and wrapped-bar verification in WP-0.8.
+  the bar. Accepted subject to the long-title and wrapped-bar verification in WP-0.8 (done: see
+  "WP-0.8", below).
 - **PF-04 dialog alignment (VD-08):** modifier classes `xr-x-dialog--start`, `--end`, `--decision`
   (top from 908 px of app width, bottom below — the AR-4 rule of the canvas `xg-dlg`) and `--marks`
   (top from 1024, bottom below — FA-19, the canvas `xw-dlg-top xa-dlg-auto`); centred without a
@@ -106,7 +107,7 @@ this acceptance: VD-08 (the dialog alignment mapping), VD-23 and the rest stay P
 
 Open for later work packages: the public root's viewport min-height (PF-02, VD-23) shows a white
 band under short pages such as B1-09 sign-in; a focused-task bar wrapped by a long title can be
-taller than PF-11's 113 px (an exact value needs the FocusedTaskShell, WP-0.8).
+taller than PF-11's 113 px (measured in WP-0.8, below; the FocusedTaskShell itself is Phase 4).
 
 ## WP-0.7 — DataTable sort and the B1-10 fix: owner decisions (13 Oct 2026)
 
@@ -169,3 +170,18 @@ The seven role shells are composed in `apps/web` (`RoleWorkspaceShell`, `Workspa
   written answers to mark"), only that space differs. If the owner wants the exact string, the
   narrow fix is an `aria-label` on counted links only, as the WP-0.7 sort names do; it is not
   applied. Counts never render in Phase 0 (no counting destination is built).
+- **PF-11 long-title and wrapped-bar verification (the owner's WP-0.5 condition).** Measured in
+  Chromium 153.0.8010.12 with Public Sans loaded, on B4-12's bar as drawn — back link with its
+  chevron, the widest save state ("Your last answer didn’t save" + "Try again") and the avatar — in
+  the new stylesheet specimen `v46-focused-task-drawn-bar` (the WP-0.5 excerpt has no avatar: 81
+  px at 375). The drawn bar is 97 px at 375 (two rows, PF-11's own sum) and 56 px from 600 (one
+  row; the "57 px" in the PF-11 comment was corrected), within the 113 px padding at every width,
+  and no focused answer is left under it, whether it starts above the padding or just inside it
+  (`apps/specimens/e2e/v46-styles.spec.ts`). A longer title wraps the bar past the padding. In
+  word steps of the drawn title repeated, the bar stays within the padding up to 79 characters at
+  375 (over at 89), 179 at 768 (194), 239 at 1024 (254) and at least 299 at 1440 (the longest
+  probed); past that, an answer just inside the padded view stays partly under the bar, against
+  board 12's "never hidden under the top bar". The boards' longest experiment name has 29
+  characters, and no maximum is defined (Appendix C). Open for the owner, with the
+  FocusedTaskShell (Phase 4): a title limit or truncation in the bar, or a padding taken from the
+  measured bar. No CSS changed.

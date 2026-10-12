@@ -64,6 +64,11 @@ export const SPECIMENS: Readonly<Record<string, Specimen>> = {
     source: 'B4-12 "Assessment attempt"',
     render: () => <V46FocusedTask />,
   },
+  'v46-focused-task-drawn-bar': {
+    title: 'v46 focused task with B4-12’s bar as drawn (PF-11 long-title verification, WP-0.8)',
+    source: 'B4-12 "Assessment attempt" (bar: back link, save error state, avatar)',
+    render: () => <V46FocusedTask bar="drawn" />,
+  },
   ...Object.fromEntries(
     (['centre', 'start', 'end', 'decision', 'marks'] as const satisfies readonly DialogAlign[]).map(
       (align) => [

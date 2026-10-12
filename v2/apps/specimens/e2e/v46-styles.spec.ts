@@ -361,22 +361,27 @@ test.describe('v46 public root (PF-02, PF-05, PF-06; VD-23 provisional)', () => 
 
 test.describe('PF-11: focus is never hidden under the focused-task bar', () => {
   /**
-   * For each answer: put it 20 px below the viewport top — under the sticky bar, yet "in view" —
-   * focus the next answer, and press Shift+Tab. Returns the answers left hidden under the bar
-   * (WCAG 2.4.11 Focus Not Obscured: the case a plain scroll-into-view does not catch).
+   * For each answer: put it `offset` px below the viewport top — under the sticky bar, yet "in
+   * view" — focus the next answer, and press Shift+Tab. Returns the answers left hidden under the
+   * bar (WCAG 2.4.11 Focus Not Obscured: the case a plain scroll-into-view does not catch). At 20
+   * px an answer is above the 113 px padding, so the browser scrolls it clear; at 114 px it is
+   * already inside the padded view and stays put, so only a bar taller than the padding hides it.
    */
-  async function hiddenUnderBar(page: Page): Promise<string[]> {
+  async function hiddenUnderBar(page: Page, offset = 20): Promise<string[]> {
     const hidden: string[] = [];
     for (let n = 4; n >= 1; n -= 1) {
       await page.locator(`[data-probe="answer-${n + 1}"]`).evaluate((element) => {
         (element as HTMLElement).focus({ preventScroll: true });
       });
-      await page.locator(`[data-probe="answer-${n}"]`).evaluate((element) => {
-        window.scrollBy(0, element.getBoundingClientRect().top - 20);
-      });
+      await page.locator(`[data-probe="answer-${n}"]`).evaluate((element, top) => {
+        window.scrollBy(0, element.getBoundingClientRect().top - top);
+      }, offset);
       await settle(page);
+      const scrolled = await page.evaluate(() => window.scrollY);
       await page.keyboard.press('Shift+Tab');
       await settle(page);
+      // Inside the padded view the browser leaves the answer where it is.
+      if (offset > 113) expect(await page.evaluate(() => window.scrollY)).toBe(scrolled);
       const stop = await page.evaluate(() => {
         const active = document.activeElement as HTMLElement;
         const bar = document.querySelector('[data-probe="bar"]')!;
@@ -473,6 +478,74 @@ test.describe('PF-11: focus is never hidden under the focused-task bar', () => {
         .locator('#q4')
         .evaluate((element) => Math.round(element.getBoundingClientRect().top)),
     ).toBe(72);
+  });
+
+  /**
+   * WP-0.8 (the owner's PF-11 condition: long-title and wrapped-bar verification). B4-12's bar as
+   * drawn — chevron, the widest save state, the avatar — and its title grown word by word (the
+   * drawn title repeated: a stress value, not product data). Returns the bar's height with the
+   * drawn title and the longest title that keeps the bar within the 113 px padding, then puts the
+   * drawn title back.
+   */
+  async function barLimits(page: Page): Promise<{ drawn: number; longest: number; over: string }> {
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
+    return page.locator('[data-probe="bar-title"]').evaluate((link) => {
+      const text = [...link.childNodes].find((node) => node.nodeType === Node.TEXT_NODE)!;
+      const bar = link.closest('header')!;
+      const base = text.textContent!;
+      const drawn = bar.getBoundingClientRect().height;
+      const words = Array.from({ length: 10 }, () => base)
+        .join(' ')
+        .split(' ');
+      let longest = 0;
+      let over = '';
+      for (let count = 1; count <= words.length; count += 1) {
+        text.textContent = words.slice(0, count).join(' ');
+        if (bar.getBoundingClientRect().height > 113) {
+          over = text.textContent;
+          break;
+        }
+        longest = text.textContent.length;
+      }
+      text.textContent = base;
+      return { drawn, longest, over };
+    });
+  }
+
+  test('B4-12’s bar as drawn stays within the 113 px; no focused answer is hidden under it', async ({
+    page,
+  }) => {
+    await open(page, '/v46-focused-task-drawn-bar');
+    const width = Math.round(await appWidth(page));
+    const { drawn } = await barLimits(page);
+    // Below 600 px two rows: 8 + 32 back link + 12 gap + 36 avatar + 8 + 1 = 97 (PF-11's own sum).
+    expect(drawn).toBe(width < 600 ? 97 : 56);
+    expect(await hiddenUnderBar(page)).toEqual([]);
+    expect(await hiddenUnderBar(page, 114)).toEqual([]);
+  });
+
+  test('a long title: the boards’ longest name fits; past the measured length focus can be hidden', async ({
+    page,
+  }) => {
+    await open(page, '/v46-focused-task-drawn-bar');
+    const width = Math.round(await appWidth(page));
+    const { longest, over } = await barLimits(page);
+    test.info().annotations.push({
+      type: 'PF-11 longest bar title within 113 px',
+      description: `${width} px: ${longest} characters${over ? `; over at ${over.length}` : ''}`,
+    });
+    // The boards' longest experiment name, "Shell-and-Tube Heat Exchanger" (29 characters).
+    expect(longest).toBeGreaterThanOrEqual(29);
+    if (over) {
+      // Past it the bar outgrows the padding: an answer just inside the padded view stays put
+      // under the bar (the open item recorded for the owner).
+      await page.locator('[data-probe="bar-title"]').evaluate((link, title) => {
+        [...link.childNodes].find((node) => node.nodeType === Node.TEXT_NODE)!.textContent = title;
+      }, over);
+      expect((await hiddenUnderBar(page, 114)).length).toBeGreaterThan(0);
+    }
   });
 
   test('negative control: without the PF-11 padding, focus lands under the bar', async ({

@@ -409,9 +409,12 @@ dialog.xr-dialog.xr-x-dialog--end {
  * 113 px = the two-row bar drawn on B4-12 "Mobile 375" (xr-assess.css @container xr-app
  * (max-width:599.98px){ .xa-bar{padding:8px 16px} }: 8 + 32 `.xr-back` + 12 row gap + 36
  * `.xr-avatar` + 8 + 1 border = 97) + 16. The root cannot query the `xr-app` container, so one
- * value serves every width; above 600 px, where the bar is one 57 px row, it only makes the
- * browser scroll a little earlier. A bar wrapped by a long title can be taller still; an exact
- * value needs the FocusedTaskShell to measure it (WP-0.8).
+ * value serves every width; above 600 px, where the bar is one 56 px row, it only makes the
+ * browser scroll a little earlier. A bar wrapped by a long title can be taller still. Verified
+ * in WP-0.8 on B4-12's bar as drawn (`v46-focused-task-drawn-bar`): 97 px at 375 and 56 px from
+ * 600, within the padding at every width; titles longer than about 80 characters at 375 (180 at
+ * 768, 240 at 1024; Chromium 153, Public Sans) make it taller — open for the owner
+ * (packages/ui/README.md, WP-0.8).
  * =========================================================================================== */
 :root:has(.xr-app > .xa-bar ~ .xr-page :focus:not(.xa-q, .xr-dialog *)) {
   scroll-padding-top: 113px;
