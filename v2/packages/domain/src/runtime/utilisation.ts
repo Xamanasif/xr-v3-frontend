@@ -26,10 +26,21 @@
  *  - COMPLETED needs a completion event and nothing else — not time, not sessions, not
  *    resources, not video, not an assessment, and never another technology.
  *
+ * Completion goes through an injectable `CompletionPolicy` (docs/decisions/ADR-0006).
+ * The policy is consulted ONLY for `SIMULATION_COMPLETED` reports, so a launch, a session
+ * or an error can never complete a format whatever policy is injected (owner binding
+ * constraint BC3). The default, `interimCompletionPolicy`, is the rule above, kept
+ * verbatim and PROVISIONAL: the completing event is still open (T-12 / OPEN_DECISIONS A-06).
+ *
+ * `SimulationStatus` and `deriveSimulationUtilisation` are for a future runtime adapter
+ * only. They are deliberately NOT exported from the package root, so no UI path can use
+ * them; screens read the system-owned completion record instead (ADR-0006).
+ *
  * Not transcribed here: the prototype's pre-telemetry baseline (`inheritedLaunches`,
  * `inheritedSeconds`, evidence `mixed`). V2 has no localStorage history to inherit
  * (docs/FUNCTIONAL_PARITY_MATRIX.md P-14).
  */
+import { type CompletionPolicy, interimCompletionPolicy } from '../completion/policy.js';
 import type { Technology } from '../technology.js';
 import type { RuntimeEventRecord } from './events.js';
 
@@ -102,8 +113,14 @@ function isMeasuredDuration(value: number | null | undefined): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
 
-/** Fold an already-ordered list of one technology's events into sessions. */
-export function foldSessions(events: readonly RuntimeEventRecord[]): SessionFold {
+/**
+ * Fold an already-ordered list of one technology's events into sessions. Completion is
+ * evaluated through `policy`, which only ever sees `SIMULATION_COMPLETED` reports.
+ */
+export function foldSessions(
+  events: readonly RuntimeEventRecord[],
+  policy: CompletionPolicy = interimCompletionPolicy,
+): SessionFold {
   const order: MutableSession[] = [];
   const byId = new Map<string, MutableSession>();
   let errors = 0;
@@ -182,11 +199,12 @@ export function foldSessions(events: readonly RuntimeEventRecord[]): SessionFold
       }
       case 'SIMULATION_COMPLETED': {
         const row = session(event.sessionId);
-        row.completed = true;
-        if (!row.launched && !row.started) {
-          break; // a completion is a report FROM a run; without one it completes nothing
-        }
-        if (!completed) {
+        row.completed = true; // a completion report reached this session
+        const counts = policy.isCompletion(event, {
+          sessionLaunched: row.launched,
+          sessionStarted: row.started,
+        });
+        if (counts && !completed) {
           completed = true;
           completedAt = event.occurredAt;
         }
@@ -231,9 +249,10 @@ export function foldSessions(events: readonly RuntimeEventRecord[]): SessionFold
 export function deriveSimulationUtilisation(
   events: readonly RuntimeEventRecord[],
   technology: Technology,
+  policy: CompletionPolicy = interimCompletionPolicy,
 ): SimulationUtilisation {
   const own = events.filter((event) => event.technology === technology).sort(byRuntimeClock);
-  const fold = foldSessions(own);
+  const fold = foldSessions(own, policy);
   const used = fold.launches > 0 || fold.sessionCount > 0;
   const status: SimulationStatus = fold.completed
     ? 'COMPLETED'

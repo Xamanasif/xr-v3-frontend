@@ -6,8 +6,7 @@ import './globals.css';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'XR Simulation Learning Platform — V2 foundation',
-  description: 'Phase 0 architecture foundation. Not a product screen.',
+  title: 'XR Learning Platform',
 };
 
 export default function RootLayout({ children }: { readonly children: ReactNode }) {

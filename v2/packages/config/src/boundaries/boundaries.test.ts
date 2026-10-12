@@ -345,12 +345,7 @@ describe('ESLint rule xr/resolved-boundaries', () => {
       'rejected',
       /@nestjs\/\*/,
     ],
-    [
-      '@xr/domain',
-      'packages/domain/src/f.ts',
-      "import { FoundationStatusList } from '@xr/ui';",
-      'rejected',
-    ],
+    ['@xr/domain', 'packages/domain/src/f.ts', "import { Button } from '@xr/ui';", 'rejected'],
     ['@xr/domain', 'packages/domain/src/f.ts', "import { z } from 'zod';", 'rejected'],
     ['@xr/domain', 'packages/domain/src/f.ts', "import { useState } from 'react';", 'rejected'],
     [
@@ -413,12 +408,7 @@ describe('ESLint rule xr/resolved-boundaries', () => {
       'allowed',
     ],
     ['@xr/web', 'apps/web/src/lib/f.ts', "import { publicEnv } from '@/lib/env';", 'allowed'],
-    [
-      '@xr/web',
-      'apps/web/src/lib/f.ts',
-      "import { FoundationStatusList } from '@xr/ui';",
-      'allowed',
-    ],
+    ['@xr/web', 'apps/web/src/lib/f.ts', "import { Button } from '@xr/ui';", 'allowed'],
     ['@xr/web', 'apps/web/src/app/layout.tsx', "import '@xr/ui/tokens.css';", 'allowed'],
     ['@xr/web', 'apps/web/src/lib/f.ts', "import { parseEnv } from '@xr/config/env';", 'allowed'],
     // internals of another package are never a public export
@@ -457,7 +447,7 @@ describe('ESLint rule xr/resolved-boundaries', () => {
       'allowed',
     ],
     // the API stays away from the UI layer
-    ['@xr/api', 'apps/api/src/f.ts', "import { FoundationStatusList } from '@xr/ui';", 'rejected'],
+    ['@xr/api', 'apps/api/src/f.ts', "import { Button } from '@xr/ui';", 'rejected'],
     ['@xr/api', 'apps/api/src/f.ts', "import { useState } from 'react';", 'rejected'],
     [
       '@xr/api',

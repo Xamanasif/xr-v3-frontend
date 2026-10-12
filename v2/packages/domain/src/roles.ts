@@ -1,11 +1,15 @@
 /**
- * The seven formal roles — and no eighth (STK31-01, STK31-02, STK31-03; PM-07).
+ * The seven authenticated roles — and no eighth (STK31-01, STK31-02, STK31-03; PM-07;
+ * v46 owner binding constraint BC1). PUBLIC is a surface, not a role.
  *
- * - Student and Learner are ONE role in two contexts (B2B institutional · B2C individual).
- * - Institute Admin and Tenant Admin are ONE role; the product-facing label is pending (ND-01).
+ * - The role ids are stable internal identifiers. The id `tenant_admin` is kept; its
+ *   display name is "Institute Admin" (docs/OPEN_DECISIONS.md A-20, annotated with the
+ *   v46 position and not resolved).
  * - Internal BITS / WILP content teams operate through the Vendor role.
+ * - One role per signed-in person (v46: choosing between several roles is not designed).
  *
- * Source: ui-ux/17-stakeholder-correction-blueprint/04_FINAL_ROLE_AND_AUTHORITY_MODEL.md
+ * Source: ui-ux/17-stakeholder-correction-blueprint/04_FINAL_ROLE_AND_AUTHORITY_MODEL.md;
+ * display names: design/handoff-v46 board B8-03 (frozen canvas v46).
  */
 export const PLATFORM_ROLES = [
   'student',
@@ -32,11 +36,14 @@ export const ROLE_PLANE: Readonly<Record<Role, RolePlane>> = {
   super_admin: 'both',
 };
 
-/** Planning labels. Final UI copy is a Design V2 / ND-01 matter, not a rule. */
-export const ROLE_PLANNING_LABEL: Readonly<Record<Role, string>> = {
-  student: 'Student / Learner',
+/**
+ * Role display names as the frozen v46 boards draw them (B8-03). The only role words
+ * that may reach product copy. Labels are copy: changing one never changes a role id.
+ */
+export const ROLE_LABEL: Readonly<Record<Role, string>> = {
+  student: 'Student',
   faculty: 'Faculty',
-  tenant_admin: 'Institute Admin / Tenant Admin',
+  tenant_admin: 'Institute Admin',
   vendor: 'Vendor',
   academic_reviewer: 'Academic Reviewer',
   content_manager: 'Content Manager',
