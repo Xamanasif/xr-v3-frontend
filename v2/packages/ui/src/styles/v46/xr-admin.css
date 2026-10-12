@@ -1,0 +1,15 @@
+/* XR Learning Platform · Batch 7 · Super Admin additions (xd- prefix). Loaded after the seven frozen stylesheets; changes none of them. */
+.xd-figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0 0 24px}
+.xd-fig{display:flex;flex-direction:column;gap:4px;min-width:0;background:#FFFFFF;border:1px solid #E1E4F3;border-radius:12px;padding:16px 20px}
+.xd-fig-n{font-size:32px;line-height:40px;font-weight:700;color:#12173F}
+.xd-fig-t{font-size:16px;line-height:24px;font-weight:700;color:#12173F}
+.xd-fig-s{font-size:14px;line-height:20px;color:#40476B}
+.xd-gn{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 8px;margin-left:8px;border-radius:12px;background:#EEF0FA;color:#12173F;font-size:14px;line-height:20px;font-weight:700;vertical-align:2px}
+.xd-group .xr-section-head{align-items:center}
+.xd-scope{display:inline-flex;flex-wrap:wrap;gap:6px}
+@container xr-content (max-width:599.98px){
+  .xd-figs{grid-template-columns:minmax(0,1fr);gap:12px}
+  .xd-fig{padding:14px 16px}
+}
+/* a long status in a decision panel wraps instead of running past the panel (seen with the Batch-6 reviewer panel re-used on B7-11) */
+.xr-dpanel .xr-status{white-space:normal;height:auto;min-height:28px;align-items:flex-start;align-self:flex-start;max-width:100%;text-align:left}

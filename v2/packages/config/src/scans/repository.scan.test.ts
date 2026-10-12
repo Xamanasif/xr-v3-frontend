@@ -22,7 +22,7 @@ import {
 } from './dependencies.js';
 import { RECORDED_SCAN_EXCEPTIONS } from './exceptions.js';
 import { extractScript } from './extract.js';
-import { verifyChecksums } from './integrity.js';
+import { verifyChecksumLines, verifyChecksums } from './integrity.js';
 import {
   PRODUCT_SCAN_RULE_IDS,
   TEST_SEAM_DESIGNATED_LOCATIONS,
@@ -33,6 +33,7 @@ import {
 import {
   productTargets,
   repositoryRoot,
+  toTarget,
   toWorkspacePath,
   walk,
   workspaceRoot,
@@ -75,6 +76,31 @@ describe('frozen design handoff v46 and audit evidence (uncached integrity)', ()
       .digest('hex');
     expect(matrix).toBe('34826fec5420440afb55223fd22c363c29a4e1f58408761796bf0a9e20f3b3fa');
     expect(gitStatus('v2/docs/v46')).toBe('');
+  });
+});
+
+describe('v46 copies in @xr/ui (uncached provenance, WP-0.5)', () => {
+  it('packages/ui/src/styles/v46: 8 stylesheets and 19 SVGs byte-identical to the frozen handoff', () => {
+    const copies = join(workspaceRoot, 'packages', 'ui', 'src', 'styles', 'v46');
+    const lines = readFileSync(
+      join(repositoryRoot, 'design', 'handoff-v46', 'SHA256SUMS.txt'),
+      'utf8',
+    )
+      .split('\n')
+      .filter((line) =>
+        /^[0-9a-f]{64} [ *]canvas-v46\/project\/(?:xr-[a-z]+\.css|art\/[\w-]+\.svg)$/.test(line),
+      )
+      .map((line) => line.replace('canvas-v46/project/', ''));
+    const result = verifyChecksumLines(copies, lines);
+    const present = walk(copies).length;
+    summary.push(
+      `v46 copies: ${result.ok}/${result.checked} OK, ${result.failed.length} failed, ${result.missing.length} missing, ${present - result.ok - result.failed.length} unexpected`,
+    );
+    expect(result).toEqual({ checked: 27, ok: 27, failed: [], missing: [] });
+    expect(present).toBe(27);
+    // `pnpm format` must never rewrite them (Appendix F risk K-4).
+    const prettierIgnore = readFileSync(join(workspaceRoot, '.prettierignore'), 'utf8').split('\n');
+    expect(prettierIgnore).toContain('packages/ui/src/styles/v46/');
   });
 });
 
@@ -137,8 +163,32 @@ describe('static scans of product code (Appendix F §7.6)', () => {
       ).toBe(true);
     }
     summary.push(
-      `recorded scan exceptions: ${RECORDED_SCAN_EXCEPTIONS.map((exception) => `${exception.rule} @ ${exception.file} (until ${exception.removal})`).join('; ')}`,
+      `recorded scan exceptions: ${RECORDED_SCAN_EXCEPTIONS.map((exception) => `${exception.rule} @ ${exception.file} (until ${exception.removal})`).join('; ') || 'none'}`,
     );
+  });
+
+  it('accepts every token colour the web theme defines (globals.css and the scan agree)', () => {
+    const globals = readFileSync(
+      join(workspaceRoot, 'apps', 'web', 'src', 'app', 'globals.css'),
+      'utf8',
+    );
+    const colours = [...globals.matchAll(/--color-([\w-]+):\s*var\(--xr-/g)].map(
+      (match) => match[1] ?? '',
+    );
+    expect(colours).toHaveLength(38);
+    const refused = colours.filter(
+      (colour) =>
+        scanProductFile(
+          toTarget(
+            'apps/web/src/app/page.tsx',
+            `export const A = () => <p className="text-${colour} bg-${colour} border-${colour}" />;`,
+          ),
+        ).length > 0,
+    );
+    summary.push(
+      `web theme colours accepted by the styling scan: ${colours.length - refused.length}/${colours.length}`,
+    );
+    expect(refused).toEqual([]);
   });
 
   it('chooses no identity through an address in product code or test support', () => {

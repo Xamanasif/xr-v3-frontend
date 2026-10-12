@@ -1,0 +1,370 @@
+/*
+ * xr.product — the product layer of the v46 visual system (ADR-0001 §2; Appendix E §2.3;
+ * Appendix F WP-0.5). Imported by ./index.css into the `xr.product` layer, after `xr.v46`.
+ *
+ * Rules of this file:
+ * - It only ADDS rules. The eight v46 sheets (./v46/) are byte-identical copies and are never
+ *   edited; every production delta lives here.
+ * - Every rule names its PF id and its evidence: the v46 rule it relies on or overrides, and the
+ *   board (code + frame caption) or audit record that asks for it.
+ * - Cascade: a normal declaration here beats any normal declaration in xr.v46, whatever its
+ *   specificity. Important declarations reverse: an xr.v46 !important beats one here, which
+ *   beats one in `utilities` or in unlayered CSS.
+ * - Product-only class names use `xr-x-*`, product-only custom properties `--xr-x-*` (T-4).
+ * - Layout stays container-query only (xr-app, xr-content, xp): no viewport @media.
+ *
+ * WP-0.5 entries: PF-01 (guards), PF-02, PF-03, PF-04, PF-05, PF-06, PF-07, PF-09 (note), PF-11,
+ * PF-13. Not here: the DataTable sort-control rules of PF-01 (`xr-x-table-sortbar`,
+ * `xr-x-th-sort`, `xr-x-th-text` — WP-0.7), PF-08 motion (VD-09), PF-10 (no CSS, VD-05) and PF-12
+ * forced colours (VD-15).
+ */
+
+/* ===========================================================================================
+ * PF-01 · Table hidden-header guards (BC13; START-HERE Known exception 1; Appendix E §2.3,
+ * §7.1; VD-04 provisional design). WP-0.5 holds the guard part only.
+ *
+ * In labelled-row mode v46 hides a table header by clipping the <thead>
+ * (position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)). Clipping keeps
+ * every descendant in the tab order and the accessibility tree. B8-03 "Open finding — B1-10 at
+ * 375": the "Received" sort button "stays in the tab order, so a keyboard user can focus an
+ * invisible control". B8-08: "Defer to the build".
+ *
+ * Inside a clipped <thead> every focusable control gets display:none, which takes it out of the
+ * tab order and the accessibility tree. Each guard repeats its clip rule's container and
+ * threshold exactly, so it applies at exactly the widths where v46 clips that <thead>.
+ * !important (Appendix E §2.3) so no utility or unlayered rule can undo it. Only an xr.v46 or
+ * inline !important could beat it. Of the 29 v46 !important flags (8 in xr-foundation.css, 21
+ * in xr-public.css) none sets display on a <thead> or a control inside one; the only one that
+ * names a guarded table is xr-public.css `.xp-compare,… td{display:block;width:100%!important}`
+ * (width only). `.xp-filter-btn` and `.xp-ex-card .xp-ex-full` carry display !important by
+ * class: never put them in a table head. No pixel change: the clipped <thead> paints nothing.
+ * WP-0.7 adds the sort-control rules beside these guards and does not repeat them.
+ * =========================================================================================== */
+
+/* PF-01 guard 1/3 · .xr-table — xr-foundation.css @container xr-content (max-width:759.98px)
+ * { .xr-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} }.
+ * B1-10 th[scope=col][aria-sort] > button.xr-btn.xr-btn--text "Received" (10 tables), clipped in
+ * frames "Filtered · Under review" (content 672), "Mobile 375" and "Mobile 375 · More filters
+ * open" (content 343). */
+@container xr-content (max-width: 759.98px) {
+  .xr-table
+    thead
+    :is(a, button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])) {
+    display: none !important;
+  }
+}
+
+/* PF-01 guard 2/3 · .xp-ftable — xr-public.css @container xp (max-width:759.98px)
+ * { .xp-ftable thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} }.
+ * 35 tables (B1-05, B1-12, B1-13, B6-07, B6-11, B6-12, B6-14, B7-11, B8-05); none draws a header
+ * control today, so the guard is preventive for the same defect class. */
+@container xp (max-width: 759.98px) {
+  .xp-ftable
+    thead
+    :is(a, button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])) {
+    display: none !important;
+  }
+}
+
+/* PF-01 guard 3/3 · .xp-compare — xr-public.css @container xp (max-width:599.98px)
+ * { .xp-compare thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} }.
+ * 13 tables (B1-08 ×10, B1-13 ×3 inside inert thumbnails); preventive. */
+@container xp (max-width: 599.98px) {
+  .xp-compare
+    thead
+    :is(a, button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])) {
+    display: none !important;
+  }
+}
+
+/* ===========================================================================================
+ * PF-02 · Viewport min-height; pages scroll naturally (Appendix E §2.3, §6.2: "The fixed heights
+ * are canvas presentation only"; START-HERE Known exception 3: "product pages grow with their
+ * content"). The boards frame `.xr-app` / `.xr-shell` at canvas heights (`min-height: 900px`
+ * ×1,037 — 495 on .xr-app, 489 on .xr-shell, 53 on frames — and other values such as 760, 640,
+ * 1500 px); none is product behaviour. The sheets create no nested scroll container.
+ * =========================================================================================== */
+
+/* PF-02 · workspace and focused-task root. Board 05 draws `div.xr-app` with
+ * style="min-height: 100vh" around `div.xr-shell`; understand/visual-system.json
+ * responsive.naturalScrolling: "board 05 uses 100vh; prefer 100dvh". xr-foundation.css
+ * `.xr-app{…}` and `body{…}` set no min-height. `.xr-shell{display:grid;…;min-height:inherit}`
+ * inherits this value, so the navy sidebar column reaches the viewport bottom. 100vh is the
+ * fallback where dvh is missing. */
+.xr-app {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* PF-02 · public page root (PROVISIONAL, VD-23). xr-public.css `.xp{…}` sets no min-height. Of the
+ * 138 board `div.xp`, 16 are workspace catalogue previews, 5 page roots carry canvas height crops
+ * (B1-04, B1-06 ×2, B1-12 ×2) and only B1-01 has a min-height, so a short public page would end
+ * above the viewport bottom with the grey body showing under the navy footer
+ * (`.xp-foot{background:#0C1247;…}`). With this rule that band is the root's white instead; on
+ * B1-09 sign-in (`.xp-auth{min-height:820px;…}`) a white band shows under the gradient — both for
+ * the owner under VD-23. Page roots only: `div.xp.xg-preview` inside a workspace (B6-07, B6-11,
+ * B6-12, B6-14) keeps its content height. */
+.xp:not(.xr-app .xp) {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ===========================================================================================
+ * PF-03 · Workspace drawer and scrim fixed to the viewport, below 1024 app width (Appendix E
+ * §2.3, §6.3). xr-foundation.css @container xr-app (max-width:1023.98px){
+ *   .xr-shell.is-drawer > .xr-side{display:flex;position:absolute;z-index:40;left:0;top:0;
+ *     bottom:0;width:min(320px,86%);box-shadow:var(--xr-e3);overflow-y:auto}
+ *   .xr-shell.is-drawer > .xr-scrim{display:block;position:absolute;inset:0;z-index:39;…} }
+ * positions both inside `.xr-app`, so on a scrolled page the drawer would open off screen.
+ * Board 06 "Drawer · Student · 375 px" draws it at full height over a scrim; board 06: "Below
+ * 1024 px: the sidebar becomes a drawer behind the top-bar “Menu” button, over a scrim." Only
+ * `position` changes; left/top/bottom/width and inset now resolve against the viewport and
+ * z-index 40/39 stay above `.xr-top` (z-index 20). The rule keeps the v46 container condition,
+ * so from 1024 the v46 sidebar rule still applies. Inert background, Esc and scrim close are JS.
+ * =========================================================================================== */
+@container xr-app (max-width: 1023.98px) {
+  .xr-shell.is-drawer > .xr-side {
+    position: fixed;
+  }
+
+  .xr-shell.is-drawer > .xr-scrim {
+    position: fixed;
+  }
+}
+
+/* ===========================================================================================
+ * PF-04 · Dialogs are the native `dialog.xr-dialog`, opened with showModal() and rendered inside
+ * `div.xr-app` (no portal), so `@container xr-app` matches and the box sits in the top layer,
+ * fixed to the viewport (Appendix E §2.3; mapping PROVISIONAL, VD-08 / P0-15). It relies on the
+ * v46 rules, unchanged: xr-foundation.css `dialog.xr-dialog{position:fixed;inset:0;margin:auto;
+ * height:fit-content}`, `dialog.xr-dialog::backdrop{background:rgba(8,12,51,.5)}`,
+ * `.xr-dialog{width:min(520px,100%);max-height:calc(100% - 32px);overflow:auto;…}` and
+ * `.xr-dialog-foot{display:flex;flex-wrap:wrap-reverse;justify-content:flex-end;…}` with
+ * @container xr-app (max-width:599.98px){ .xr-dialog-foot .xr-btn{flex:1 1 100%} }.
+ *
+ * Buttons need no product rule. Board 10 "States · focus, validation, busy": "Action order:
+ * Cancel first (quiet), the confirming action last and strongest". All 461 drawn footers put the
+ * quiet dismiss first (Cancel, "Keep answering" or the B5 keep label) and the confirm last; below
+ * 600 px each button takes its own line and wrap-reverse puts the last one (confirm) on top.
+ *
+ * Alignment modifiers replace the canvas scrim classes (frame-relative, never product classes):
+ * no modifier = centred (v46 margin:auto) · `xr-x-dialog--start` · `xr-x-dialog--end` ·
+ * `xr-x-dialog--decision` (start, bottom below 908) · `xr-x-dialog--marks` (start, bottom below
+ * 1024). Like the canvas rules, each has an unconditional base, then max-width overrides, then
+ * the bottom sheet LAST: the order of this section matters (equal specificity, source order), and
+ * no app width — not even a sub-pixel one under zoom — falls between two rules.
+ * =========================================================================================== */
+
+/* PF-04 · side gutter. The canvas scrim `.xr-dialog-scrim{…;padding:16px;…}` caps the drawn
+ * dialog at app width − 32 px: board 10 "Keyboard path and phone layout" draws it 343 px wide at
+ * 375. Without this rule the user-agent `dialog:modal{max-width:calc(100% - 6px - 2em)}` applies
+ * (2em = 32 px from `.xr-app`'s 16 px) and the dialog is 337 px. No effect from 552 px up. */
+dialog.xr-dialog {
+  max-width: calc(100% - 32px);
+}
+
+/* PF-04 · start, and the wide state of decision and marks: 88 px from the top; max-height keeps
+ * the v46 16 px edge on the far side (100% − 88 − 16).
+ * - start replaces xr-workspace.css `.xr-dialog-scrim.xw-dlg-top{align-items:flex-start;
+ *   padding-top:88px}` (184 scrims on 20 boards, B2-04 … B7-12).
+ * - decision replaces xr-govern.css `.xr-dialog-scrim.xg-dlg{align-items:flex-start;
+ *   padding-top:88px}` (149 scrims on 12 boards, B6-03 … B7-12): "decision page (AR-4): the panel
+ *   sits at the top of its column (never floats over content); dialogs open beside it".
+ * - marks replaces the canvas pair `xr-dialog-scrim xw-dlg-top xa-dlg-auto` (B4-09, B4-14, B4-15).
+ * B8-03 "Dialogs and confirmation buttons": "Top-aligned for header actions, beside the panel for
+ * decisions, bottom-aligned at the end of forms". */
+dialog.xr-dialog:is(.xr-x-dialog--start, .xr-x-dialog--decision, .xr-x-dialog--marks) {
+  margin: 88px auto auto;
+  max-height: calc(100% - 104px);
+}
+
+/* PF-04 · end: 88 px from the bottom. Replaces xr-assess.css `.xr-dialog-scrim.xa-dlg-end{
+ * align-items:flex-end;padding-top:16px;padding-bottom:88px}` (101 scrims on 15 boards, B4-12 …
+ * B7-11): "Submit (ST-13) is always the last control: its dialog opens at the foot of the page,
+ * next to the button." B5-05 "DL-1 · submit for academic review": "Opens beside Submit at the
+ * foot of the page." */
+dialog.xr-dialog.xr-x-dialog--end {
+  margin: auto auto 88px;
+  max-height: calc(100% - 104px);
+}
+
+/* PF-04 · marks below 1024 app width: 88 px from the bottom. Replaces xr-assess.css @container
+ * xr-app (max-width:1023.98px){ .xr-dialog-scrim.xa-dlg-auto{align-items:flex-end;
+ * padding-top:16px;padding-bottom:88px} }: "Confirm marks (FA-19): from 1024 px of app width the
+ * marks panel sits beside the answer, near the top; below that it sits under the answer, so the
+ * dialog opens at the foot." */
+@container xr-app (max-width: 1023.98px) {
+  dialog.xr-dialog.xr-x-dialog--marks {
+    margin: auto auto 88px;
+  }
+}
+
+/* PF-04 · decision below 908 app width: 88 px from the bottom. Replaces xr-govern.css @container
+ * xr-app (max-width:907.98px){ .xr-dialog-scrim.xg-dlg{align-items:flex-end;padding-top:16px;
+ * padding-bottom:88px} }. B6-03 "1024 · panel still beside the content": "Below 860 px of content
+ * (about 908 px of screen) the panel drops under the content". Appendix E §6.1: "below 908:
+ * governance dialogs bottom-aligned". */
+@container xr-app (max-width: 907.98px) {
+  dialog.xr-dialog.xr-x-dialog--decision {
+    margin: auto auto 88px;
+  }
+}
+
+/* PF-04 · bottom sheet below 600 app width, whatever the modifier. KEEP THIS BLOCK LAST.
+ * Board 10 "Keyboard path and phone layout", 375 frame `<div class="xr-app" style="width: 375px;
+ * height: 558px">` with the scrim aligned to the bottom (padding 16 px): "At 375 px the dialog
+ * sits at the bottom of the screen at full width, and the buttons stack with the confirming
+ * action on top." Same threshold as the v46 rule that stacks the buttons. max-height restates the
+ * v46 `.xr-dialog` value, undoing the modifiers' 100% − 104 px. At 375: 343 px wide, 16 px from
+ * the left, right and bottom edges, as drawn. */
+@container xr-app (max-width: 599.98px) {
+  dialog.xr-dialog,
+  dialog.xr-dialog:is(
+      .xr-x-dialog--start,
+      .xr-x-dialog--end,
+      .xr-x-dialog--decision,
+      .xr-x-dialog--marks
+    ) {
+    margin: auto auto 16px;
+    max-height: calc(100% - 32px);
+  }
+}
+
+/* ===========================================================================================
+ * PF-05 · Public overlays fixed to the viewport (Appendix E §2.3, §6.3).
+ * =========================================================================================== */
+
+/* PF-05 (named per PF-13 / T-4) · the public header row height, used by the scrim below.
+ * xr-public.css `.xp-head-row{…;height:76px}` and @container xp (max-width:599.98px)
+ * { .xp-head-row{height:64px} }. In v46 the scrim's top:100% resolves to the padding box of
+ * `.xp-head{position:relative;z-index:30;…;border-bottom:1px solid …}`, i.e. the row height (the
+ * 1 px border is covered, as drawn). Keep these values in step with the v46 row heights. */
+.xp-head {
+  --xr-x-xp-head-h: 76px;
+}
+
+@container xp (max-width: 599.98px) {
+  .xp-head {
+    --xr-x-xp-head-h: 64px;
+  }
+}
+
+/* PF-05 · the menu scrim. xr-public.css `.xp-scrim{position:absolute;left:0;right:0;top:100%;
+ * height:2000px;z-index:29;…}` — height:2000px is the canvas workaround (Appendix E §10). Board
+ * B1-01 "Mobile 375 · menu open" draws header.xp-head > .xp-head-row (Close button, undimmed) +
+ * div.xp-scrim + div.xp-sheet: the scrim starts at the bottom of the header. Fixed below the
+ * header, not `inset:0` as the register words it: the scrim lives inside the `.xp-head` stacking
+ * context with z-index 29, above the in-flow header row, so inset:0 would dim the header and cover
+ * the Close button (an amendment for the owner to note). top:100% and height:2000px are reset:
+ * on a fixed box top:100% is the viewport height, and a set height would cancel bottom. Stacking
+ * is unchanged: under `.xp-sheet` (z-index 31), above `.xp-bottombar` (z-index 20). */
+.xp-scrim {
+  position: fixed;
+  inset: var(--xr-x-xp-head-h, 76px) 0 0 0;
+  height: auto;
+}
+
+/* PF-05 · the catalogue filter sheet. xr-public.css `.xp-fsheet{position:absolute;inset:0;
+ * z-index:40;display:flex;flex-direction:column;justify-content:flex-end;…}` sits inside `.xp`.
+ * Board B1-04 "Mobile 375 · filter sheet": "Filters in a sheet fixed to the viewport; results
+ * update behind it." (its 1200 px frame height is a viewport crop, START-HERE Known exception 3).
+ * Only `position` changes: inset:0 now covers the viewport and the header (40 > 30), as drawn;
+ * `.xp-fsheet-panel{max-height:88%;overflow:auto;…}` now resolves against the viewport, and the
+ * sticky `.xp-fsheet-foot` still scrolls with the panel. Focus trap and Esc are JS. */
+.xp-fsheet {
+  position: fixed;
+}
+
+/* ===========================================================================================
+ * PF-06 · The public root clips without becoming a scroll container (Appendix E §2.3, §6.3;
+ * VD-23 provisional). xr-public.css `.xp{…;overflow:hidden}` makes `.xp` the scroll container of
+ * its sticky descendants, and `.xp` never scrolls itself, so `.xp-bottombar{position:sticky;
+ * bottom:0;…}` (below 1024 xp) can only sit in flow. B1-06 "Mobile 375" ("Summary becomes a
+ * bottom bar with the next step") shows the bar sticking only by making the frame a canvas
+ * scroller (style="height:1100px;overflow:auto"; also B1-12 "Selection" 768/375). `clip` clips
+ * exactly as `hidden` does but creates no scroll container, so the viewport becomes the sticky
+ * scrollport. Side effect (VD-23): `.xp-filters` and `.xp-sumcard` (position:sticky;top:24px) now
+ * stick as their rules intend. A root `.xp` must stay a block child (it is: body > .xp); as a
+ * flex or grid item it would also need min-width:0, which `hidden` used to imply. Engines
+ * without `clip` keep the v46 `hidden`, the board behaviour.
+ * =========================================================================================== */
+.xp {
+  overflow: clip;
+}
+
+/* ===========================================================================================
+ * PF-07 · Gold focus ring on navy surfaces the sheets miss (Appendix E §2.3, §7.2; VD-11
+ * provisional). Board 02 "Links and focus", "Focus on navy": "Ring #F7C95B · 10 : 1 against
+ * navy". xr-foundation.css `.xr-side{…;background:#141B5E;…}` has no focus override, so the ring
+ * comes from `:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px
+ * solid var(--xr-focus);…}`: #1F4FD8 on #141B5E = 2.35:1, below 3:1. The sheets switch to gold
+ * only under .xr-dark, .xr-top, .xp-head, .xp-dark and .xp-foot. With this rule: 9.98:1. One rule
+ * covers the full sidebar, the rail and the drawer (the same `aside.xr-side`); only outline-color
+ * changes, as in xr-foundation.css `.xr-top :focus-visible{outline-color:#F7C95B}`.
+ * =========================================================================================== */
+.xr-side :focus-visible {
+  outline-color: var(--xr-focus-dark);
+}
+
+/* PF-07 · `summary` joins the `.xr-dark` gold list. xr-foundation.css `.xr-dark
+ * :where(a,button,input,select,textarea,[tabindex]):focus-visible{outline-color:var(
+ * --xr-focus-dark)}` omits summary, which the base focus list includes. Same :where() form, same
+ * specificity as the v46 rule. */
+.xr-dark :where(summary):focus-visible {
+  outline-color: var(--xr-focus-dark);
+}
+
+/* ===========================================================================================
+ * PF-09 · Public Sans (VD-02, provisional; START-HERE Known exception 7). The self-hosted
+ * @font-face 'Public Sans' waits for gate G-5c (the font files are a download). Until then each
+ * app's root layout loads the boards' own Google Fonts link (B8-07:
+ * fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap), which
+ * declares the family under the exact name `Public Sans`, so `--xr-font-sans` stays verbatim.
+ * Not next/font: it renames the family (Appendix E §11). No rule here yet.
+ * =========================================================================================== */
+
+/* ===========================================================================================
+ * PF-11 · Focus is never hidden under the focused-task bar (Appendix E §2.3; provisional).
+ * Board 12 "Keyboard and focus": "Focus is always visible (2.4.7, 2.4.11) and never hidden under
+ * the top bar or a menu." xr-assess.css `.xa-bar{position:sticky;top:0;z-index:5;…;
+ * flex-wrap:wrap;min-height:56px;padding:8px 28px;…;border-bottom:1px solid #E1E4F3}`; on B4-12,
+ * B4-14 and B4-15 `header.xa-bar` is a child of `div.xr-app`, followed by `main.xr-page`. Without
+ * this rule a control scrolled to just under the bar is "in view", so keyboard focus lands on it
+ * there and stays hidden.
+ *
+ * scroll-padding-top on the root, as the register says, scoped to the moment focus is in the
+ * task page. Measured in Chromium 153: unscoped root padding scrolls the page by about 460 px
+ * when focus enters a control in the sticky bar itself; scroll-margin-top on the controls is
+ * ignored when the browser decides whether a focused control needs scrolling. Question cards
+ * keep v46's own `.xa-q{…;scroll-margin-top:72px}` and are excluded, and dialog contents scroll
+ * inside the dialog. The answer strip (`nav.xa-strip`, in `main.xr-page` on B4-12) still lands a
+ * card at 72 px: Chromium moves focus to the focusable card (`li.xa-q[tabindex=-1]`) on the jump,
+ * which switches this padding off first (WebKit and Firefox are not yet verified, P0-28).
+ *
+ * 113 px = the two-row bar drawn on B4-12 "Mobile 375" (xr-assess.css @container xr-app
+ * (max-width:599.98px){ .xa-bar{padding:8px 16px} }: 8 + 32 `.xr-back` + 12 row gap + 36
+ * `.xr-avatar` + 8 + 1 border = 97) + 16. The root cannot query the `xr-app` container, so one
+ * value serves every width; above 600 px, where the bar is one 57 px row, it only makes the
+ * browser scroll a little earlier. A bar wrapped by a long title can be taller still; an exact
+ * value needs the FocusedTaskShell to measure it (WP-0.8).
+ * =========================================================================================== */
+:root:has(.xr-app > .xa-bar ~ .xr-page :focus:not(.xa-q, .xr-dialog *)) {
+  scroll-padding-top: 113px;
+}
+
+/* ===========================================================================================
+ * PF-13 · Product names for the four non-token colours the boards use inline (T-4; Appendix E
+ * §1.1; provisional). The `x-` keeps them apart from the 65 v46 :root tokens and the local
+ * `--xr-tabs-bg`. Inline scan: 4,112 hex uses, 36 distinct values, 32 of them token values.
+ * =========================================================================================== */
+:root {
+  /* #E6E8F3 ×67 — loading-state media placeholders (B1-04, B1-12, B1-13, B1-03); the stops of
+     xr-foundation.css `.xr-skel{…;background:linear-gradient(90deg,#E6E8F3 0%,…)}`. */
+  --xr-x-skel: #e6e8f3;
+  /* #F3C4BF ×11 — error count tag border, span.xw-tag (B2-07, B4-08); no stylesheet rule. */
+  --xr-x-err-line: #f3c4bf;
+  /* #8F1C13 ×2 — board 03 "Actions", Destructive, Hover; = `.xr-btn--danger:hover`. */
+  --xr-x-danger-hover: #8f1c13;
+  /* #E8D3A3 ×1 — board 04 "Paused · shell banner" border; = `.xr-banner--paused` border. */
+  --xr-x-paused-line: #e8d3a3;
+}

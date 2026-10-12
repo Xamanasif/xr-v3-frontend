@@ -168,6 +168,20 @@ describe('raw styling outside the approved boundaries (ADR-0001)', () => {
     expect(rulesIn('apps/web/src/app/page.tsx', source)).toContain(rule);
   });
 
+  it('allows the v46 colour tokens that share a Tailwind hue name, and nothing else of that hue', () => {
+    const file = 'apps/web/src/app/page.tsx';
+    expect(
+      rulesIn(
+        file,
+        '<div className="text-indigo-600 bg-indigo-100 border-cyan-700 bg-cyan-50/50" />',
+      ),
+    ).toEqual([]);
+    expect(rulesIn(file, '<div className="text-indigo-700" />')).toEqual([
+      'tailwind-default-palette',
+    ]);
+    expect(rulesIn(file, '<div className="bg-cyan-500" />')).toEqual(['tailwind-default-palette']);
+  });
+
   it('allows layout-only composition utilities in the web app (ADR-0001 option A)', () => {
     expect(
       rulesIn('apps/web/src/app/page.tsx', '<div className="flex gap-4 min-h-screen" />'),

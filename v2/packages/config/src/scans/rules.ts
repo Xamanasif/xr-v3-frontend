@@ -104,6 +104,9 @@ function copyTermFindings(
 /** Raw styling and import rules (ADR-0001; Appendix E §11; Appendix F §3.8, §7.6). */
 const TAILWIND_UTILITY_PREFIX =
   '(?:[a-z0-9-]+:)*(?:bg|text|border(?:-[trblxyse])?|fill|stroke|ring|outline|from|via|to|decoration|shadow|accent|caret|divide|placeholder)';
+/** v46 colour tokens (xr-foundation.css :root) named like a Tailwind palette shade. */
+const V46_TOKENS_WITH_TAILWIND_HUES = 'indigo-(?:100|200|300|500|600)|cyan-(?:50|400|700)';
+
 const STYLING_TOKEN_RULES: readonly { id: string; pattern: RegExp; evidence: string }[] = [
   {
     id: 'tailwind-viewport-breakpoint',
@@ -120,8 +123,10 @@ const STYLING_TOKEN_RULES: readonly { id: string; pattern: RegExp; evidence: str
   },
   {
     id: 'tailwind-default-palette',
+    // Except the eight v46 colour tokens whose names share a Tailwind hue: the web theme maps
+    // them 1:1 (`--color-indigo-600: var(--xr-indigo-600)`, apps/web/src/app/globals.css).
     pattern: new RegExp(
-      `^${TAILWIND_UTILITY_PREFIX}-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|[1-9]00|950)(?:/\\d+)?$`,
+      `^${TAILWIND_UTILITY_PREFIX}-(?!(?:${V46_TOKENS_WITH_TAILWIND_HUES})(?:/\\d+)?$)(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|[1-9]00|950)(?:/\\d+)?$`,
     ),
     evidence: 'ADR-0001 §4 (no Tailwind default palette)',
   },

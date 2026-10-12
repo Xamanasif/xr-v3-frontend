@@ -12,8 +12,15 @@ content widths, computed styles, keyboard order, wheel reach, axe, and later the
   the viewport). The frame is a `container-type: inline-size` box, so container queries resolve
   against the content width.
 - **Specimens** are registered in `src/specimens/registry.tsx` with their source (board + frame).
-  WP-0.4 ships only the harness's own self-check, `harness-probe`. The `@xr/ui` stylesheet entry
-  (WP-0.5) and the components (WP-0.6, WP-0.7) add theirs.
+  WP-0.4 shipped the harness's own self-check, `harness-probe`. WP-0.5 adds the `v46-*` stylesheet
+  specimens (`src/specimens/v46/`): static, cited excerpts of board markup — never product
+  screens — on which `e2e/v46-styles.spec.ts` checks the computed styles of `@xr/ui/styles.css`
+  (body, single-layer cascade, PF-01 … PF-13, container-query behaviour, Public Sans). The harness
+  imports the same stylesheet entry and font link as `apps/web`. It has no Tailwind PostCSS step,
+  so Turbopack inlines the sheets itself and emits the layer statement after them: `xr.v46` still
+  precedes `xr.product`, and the harness has no `theme` or `utilities` rules. The product's own
+  pipeline and layer order are checked on the built app (`apps/web/e2e/styles.spec.ts`). The
+  components (WP-0.6, WP-0.7) add theirs.
 - **Tests** live in `e2e/` and use the shared helpers from `@xr/testing/browser`. Run
   `pnpm build` at the workspace root, then `pnpm --filter @xr/specimens test:e2e`.
 

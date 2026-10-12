@@ -27,7 +27,7 @@ v2/
     database/     Prisma 7 schema, generated client, bounded pool configuration
     config/       tsconfig / ESLint presets (incl. package-boundary rules) + environment schemas
     testing/      Vitest and Playwright foundations, browser helpers (keyboard, reach, axe), component axe checks
-    ui/           design tokens and primitives (filled by Design V2)
+    ui/           the frozen v46 visual system: the 8 v46 sheets verbatim in one cascade layer + the product layer; components from WP-0.6
   docs/
   docker-compose.yml   local PostgreSQL (optional)
 ```
@@ -59,7 +59,7 @@ pnpm dev            # shared packages in tsc --watch, API on http://localhost:40
 
 `pnpm dev` is dependency-aware: an edit in a shared package is recompiled by that package's watcher, the API restarts on the new output (and stays stopped while its own code does not compile), and the Next.js dev server picks the change up on the next request.
 
-`pnpm verify` (`scripts/verify.mjs`, `docs/v46/audit/Appendix-F-Phase0-Plan.md` §7.7) is the gate until a CI runner exists. Its repository step re-hashes the frozen `design/handoff-v46/` (178 files) and the audit evidence in `docs/v46/`, and runs the static scans of §7.6 (owner constraints, canvas leakage, Slice-1 terms, B8-03 policy words, raw styling, the UI-kit deny-list) uncached, because they read files outside any one package. The browser suites need ports 3000 and 3100 free.
+`pnpm verify` (`scripts/verify.mjs`, `docs/v46/audit/Appendix-F-Phase0-Plan.md` §7.7) is the gate until a CI runner exists. Its repository step re-hashes the frozen `design/handoff-v46/` (178 files), the audit evidence in `docs/v46/` and the 27 byte-identical v46 copies in `packages/ui/src/styles/v46/`, and runs the static scans of §7.6 (owner constraints, canvas leakage, Slice-1 terms, B8-03 policy words, raw styling, the UI-kit deny-list) uncached, because they read files outside any one package. The browser suites need ports 3000 and 3100 free.
 
 Environment: copy `.env.example` to `.env` (root, used by the API and by Prisma) and `apps/web/.env.example` to `apps/web/.env.local`. Placeholders only — no real secrets are committed. Turborepo runs in strict env mode; the `.env` files a build reads are part of its cache key.
 

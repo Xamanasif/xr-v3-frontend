@@ -4,8 +4,8 @@
 // the gate, and its output is the evidence recorded for each work package.
 //
 //   1. format       prettier --check (frozen copies are prettier-ignored)
-//   2. repository   UNCACHED: frozen handoff 178/178 and audit-evidence checksums, the
-//                   static scans, the dependency deny-list and the lint-fence wiring
+//   2. repository   UNCACHED: frozen handoff 178/178, audit-evidence and @xr/ui v46-copy
+//                   checksums, the static scans, the dependency deny-list and the lint-fence wiring
 //                   (they read files outside any one package, so Turbo must not cache them)
 //   3. workspace    turbo build, then turbo typecheck lint test, --force (no cached replays).
 //                   Two invocations: @xr/database runs `prisma generate` in both its build
@@ -152,9 +152,10 @@ await step('repository', async () => {
   const tests = vitestTotals(output).get('scans');
   const handoff = /frozen handoff: (\d+\/\d+) OK/.exec(output)?.[1];
   const evidence = /audit evidence: (\d+\/\d+) OK/.exec(output)?.[1];
+  const copies = /v46 copies: (\d+\/\d+) OK/.exec(output)?.[1];
   return {
     ok: code === 0,
-    detail: `${tests ?? '?'} checks · handoff ${handoff ?? '?'} · audit evidence ${evidence ?? '?'} · scans, deny-list, fence wiring`,
+    detail: `${tests ?? '?'} checks · handoff ${handoff ?? '?'} · audit evidence ${evidence ?? '?'} · v46 copies ${copies ?? '?'} · scans, deny-list, fence wiring`,
   };
 });
 

@@ -1,0 +1,158 @@
+/* XR Learning Platform · Batch 2 workspace CSS (Institute Admin + Student). Extends xr-foundation.css (Batch 0) — no token, colour or type changes. Board furniture comes from xr-public.css (b1-*). */
+.xw-rel{position:relative}
+.xw-stack{display:flex;flex-direction:column;gap:24px;min-width:0}
+.xw-stack--16{gap:16px}
+.xw-statusline{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:16px;line-height:24px;color:#40476B}
+.xw-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.xw-actions--end{justify-content:flex-end}
+.xw-flow-foot{display:flex;flex-wrap:wrap-reverse;justify-content:space-between;gap:12px;padding-top:8px}
+.xw-flow-foot .xw-actions{margin-left:auto}
+.xw-note{display:flex;align-items:flex-start;gap:8px;font-size:15px;line-height:22px;color:#40476B}
+.xw-note .xr-ico{width:18px;height:18px;margin-top:2px;color:#5C6389}
+.xw-muted{color:#5C6389}
+.xw-strong{font-weight:700;color:#12173F}
+.xw-sub{display:block;font-size:14px;line-height:20px;color:#5C6389}
+.xw-tag{display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:2px 8px;border-radius:4px;background:#F4F5FB;border:1px solid #E1E4F3;color:#40476B;font-size:14px;line-height:20px;font-weight:600;white-space:nowrap}
+.xw-tag .xr-ico{width:14px;height:14px}
+.xw-tag--warn{background:#FBF3E0;border-color:#E8D3A3;color:#8A5A05}
+
+/* ---------- guided flow (AR-5) with a focused summary panel (~25%) */
+.xw-flow{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
+.xw-flow-main{display:flex;flex-direction:column;gap:20px;min-width:0}
+.xw-sum{background:#FFFFFF;border:1px solid #E1E4F3;border-radius:12px;padding:20px;display:none;flex-direction:column;gap:14px;min-width:0}
+.xw-sum-title{font-size:18px;line-height:26px;font-weight:700;color:#12173F;margin:0}
+.xw-sum dl{margin:0;display:flex;flex-direction:column;gap:12px}
+.xw-sum dt{font-size:14px;line-height:20px;font-weight:700;color:#12173F}
+.xw-sum dd{margin:2px 0 0;font-size:15px;line-height:22px;color:#40476B;overflow-wrap:anywhere}
+.xw-sumbar{display:block;background:#FFFFFF;border:1px solid #E1E4F3;border-radius:12px}
+.xw-sumbar > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0 16px;cursor:pointer;font-size:16px;font-weight:700;color:#12173F;list-style:none}
+.xw-sumbar > summary::-webkit-details-marker{display:none}
+.xw-sumbar > summary .xr-ico{transition:transform var(--xr-dur-2) var(--xr-ease)}
+.xw-sumbar[open] > summary .xr-ico{transform:rotate(180deg)}
+.xw-sumbar dl{margin:0;padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+.xw-sumbar dt{font-size:14px;font-weight:700;color:#12173F}
+.xw-sumbar dd{margin:2px 0 0;font-size:15px;line-height:22px;color:#40476B;overflow-wrap:anywhere}
+@container xr-content (min-width:860px){ .xw-flow{grid-template-columns:minmax(0,1fr) minmax(240px,26%)} .xw-sum{display:flex;position:sticky;top:16px} .xw-sumbar{display:none} }
+
+/* ---------- selectable rows (experiments, students, groups) */
+.xw-pick{list-style:none;margin:0;padding:0;border-top:1px solid #E1E4F3}
+.xw-pick > li{border-bottom:1px solid #E1E4F3}
+.xw-pick-row{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:6px 16px;min-height:56px;padding:12px 4px}
+.xw-pick-row label{display:flex;align-items:flex-start;gap:12px;flex:1 1 300px;min-width:0;cursor:pointer;font-size:16px;line-height:24px;color:#12173F}
+.xw-pick-row input[type="checkbox"],.xw-pick-row input[type="radio"]{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:#141B5E}
+.xw-pick-row.is-off label{cursor:default;color:#40476B}
+.xw-pick-name{display:flex;flex-direction:column;gap:2px;min-width:0}
+.xw-pick-state{display:flex;align-items:center;gap:6px;font-size:14px;line-height:20px;color:#5C6389;padding-left:32px}
+.xw-pick-state .xr-ico{width:16px;height:16px}
+.xw-inherit{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:14px;line-height:20px;color:#40476B}
+.xw-noplan{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;padding:12px 4px 12px 36px;border-bottom:1px solid #E1E4F3;font-size:15px;line-height:22px;color:#5C6389}
+
+/* ---------- record hub (AR-7) */
+.xw-hubhead{background:#141B5E;color:#FFFFFF;border-radius:12px;padding:24px 28px 26px;display:flex;flex-direction:column;gap:12px}
+.xw-hubhead .xr-overline{color:#C9CEF2}
+.xw-hubhead .xr-h1{color:#FFFFFF}
+.xw-hubhead p{margin:0;font-size:17px;line-height:26px;color:#E6E8FA;max-width:760px}
+.xw-hubrow{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;margin-top:4px}
+.xw-fav{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,max-content));gap:8px 28px}
+.xw-fav li{display:flex;align-items:center;gap:10px;font-size:15px;line-height:22px;color:#FFFFFF}
+.xw-fav li.is-off{color:#C9CEF2}
+.xw-fav .xr-fmt{flex:none}
+.xw-fav--light li{color:#12173F}.xw-fav--light li.is-off{color:#5C6389}
+.xw-hubtabs{margin:16px 0 24px}
+@container xr-content (max-width:599.98px){ .xw-hubhead{padding:20px 18px 22px} .xw-fav{grid-template-columns:minmax(0,1fr)} .xw-hubrow .xr-btn{flex:1 1 100%} }
+
+/* ---------- three next-stage cards */
+.xw-steps3{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;list-style:none;margin:0;padding:0}
+.xw-scard{background:#FFFFFF;border:1px solid #E1E4F3;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.xw-scard-n{display:flex;align-items:center;gap:10px;font-size:13px;line-height:16px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5C6389}
+.xw-scard-n .xr-row-icon{width:32px;height:32px}
+.xw-scard h3{margin:0;font-size:20px;line-height:28px;font-weight:700;color:#12173F}
+.xw-scard p{margin:0;font-size:16px;line-height:24px;color:#40476B}
+.xw-scard .xr-btn{align-self:flex-start;margin-top:auto}
+@container xr-content (min-width:760px){ .xw-steps3{grid-template-columns:repeat(3,minmax(0,1fr))} }
+
+/* ---------- Student Home */
+.xw-greet{display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+.xw-continue{background:#FFFFFF;border:1px solid #E1E4F3;border-left:4px solid #E9A825;border-radius:12px;padding:24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 24px}
+.xw-continue-main{display:flex;flex-direction:column;gap:6px;flex:1 1 360px;min-width:0}
+.xw-continue-title{margin:0;font-size:24px;line-height:32px;font-weight:700;color:#12173F;letter-spacing:-.01em}
+.xw-continue-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:15px;line-height:22px;color:#40476B}
+@container xr-content (max-width:599.98px){ .xw-continue{padding:20px 18px} .xw-continue .xr-btn{flex:1 1 100%} .xw-continue-title{font-size:21px;line-height:28px} }
+
+/* ---------- content access: course group */
+.xw-cgroup-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px;padding:20px 24px 14px}
+.xw-cgroup-code{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:15px;line-height:22px;color:#40476B}
+.xw-plan{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;padding:16px 24px;background:#F4F5FB;border-top:1px solid #E1E4F3;border-bottom:1px solid #E1E4F3}
+.xw-plan-main{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:15px;line-height:22px;color:#40476B;min-width:0}
+.xw-plan-main strong{color:#12173F}
+.xw-table-flush{border:0;border-radius:0}
+.xw-table-flush .xr-table th{background:#FFFFFF}
+
+/* ---------- list + one focused side panel (Faculty courses) */
+.xw-split{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
+@container xr-content (min-width:1060px){ .xw-split{grid-template-columns:minmax(0,1fr) minmax(300px,28%)} }
+
+/* ---------- editable table (course codes) */
+.xw-edit .xr-input{min-height:40px;padding:8px 10px}
+.xw-edit td{vertical-align:middle}
+.xw-ro{display:inline-flex;align-items:center;gap:6px;color:#40476B}
+.xw-ro .xr-ico{width:16px;height:16px;color:#5C6389}
+
+/* ---------- import report */
+.xw-counts{display:flex;flex-wrap:wrap;gap:8px 12px}
+.xw-file{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:16px;border:1px dashed #7A82AE;border-radius:8px;background:#FAFBFE}
+.xw-file-name{display:flex;align-items:center;gap:8px;font-weight:600;color:#12173F;min-width:0;overflow-wrap:anywhere}
+.xw-cols{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.xw-cols li{font-family:var(--xr-font-mono);font-size:14px;line-height:20px;padding:4px 8px;border-radius:4px;background:#F4F5FB;border:1px solid #E1E4F3;color:#12173F}
+
+/* ---------- confirmation result */
+.xw-result{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid #E1E4F3;border-radius:8px;overflow:hidden}
+.xw-result li{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:14px 16px;border-top:1px solid #E1E4F3;background:#FFFFFF;font-size:16px;line-height:24px}
+.xw-result li:first-child{border-top:0}
+.xw-arrow{color:#5C6389}
+
+/* ---------- walkthrough board (continuity) */
+.xw-live{outline:2px dashed #3B49B8;outline-offset:6px;border-radius:8px}
+@container xr-content (max-width:599.98px){ .xw-flow-foot .xw-actions{width:100%} .xw-flow-foot .xw-actions .xr-btn{flex:1 1 auto} .xw-plan{padding:14px 16px} .xw-cgroup-head{padding:16px 16px 12px} }
+.xr-dialog-scrim.xw-dlg-top{align-items:flex-start;padding-top:88px}
+.xw-errsum{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:8px;background:#FDECEA;color:#12173F;font-size:15px;line-height:22px}
+.xw-errsum > .xr-ico{color:#B42318;margin-top:1px}
+.xw-errsum ul{margin:4px 0 0;padding-left:18px}
+.xw-ferr{display:flex;gap:6px;align-items:flex-start;color:#B42318;font-size:14px;line-height:20px;font-weight:600}
+.xw-ferr .xr-ico{width:16px;height:16px;margin-top:2px}
+.xw-flow-main .xr-seg,.xw-stack .xr-seg{align-self:flex-start}
+.xw-sum dl{display:block}
+.xw-sum dt{margin-top:14px}
+.xw-sum dt:first-child{margin-top:0}
+.xw-sumbar dl{display:block}
+.xw-sumbar dt{margin-top:12px}
+.xw-sumbar dt:first-child{margin-top:0}
+.xw-sec-actions{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.xw-inline-panel{border-top:1px solid #E1E4F3;padding:20px 24px;background:#FAFBFE;display:flex;flex-direction:column;gap:14px}
+@container xr-content (max-width:599.98px){ .xw-inline-panel{padding:16px} }
+.xw-hubhead .xr-fmt--off{color:#E6E8FA;border-color:rgba(255,255,255,.55);background:transparent}
+.xw-hubhead .xr-btn--primary:focus-visible{outline-color:#F7C95B}
+.xw-erow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;padding:18px 24px;border-top:1px solid #E1E4F3}
+.xw-erow:first-child{border-top:0}
+.xw-erow-main{display:flex;flex-direction:column;gap:6px;flex:1 1 360px;min-width:0}
+.xw-erow-title{font-size:18px;line-height:26px;font-weight:700;color:#12173F;margin:0}
+@container xr-content (max-width:599.98px){ .xw-erow{padding:16px} .xw-erow .xr-btn{flex:1 1 100%} }
+.xw-continue .xr-btn{white-space:normal;text-align:center;line-height:1.3;padding-top:10px;padding-bottom:10px}
+.xr-table .xr-id{white-space:nowrap}
+/* Batch-2 review corrections */
+.xw-also{display:flex;align-items:flex-start;gap:6px;margin-top:6px;font-size:14px;line-height:20px;color:#40476B}
+.xw-also .xr-ico{flex:none;margin-top:2px;color:#5C6389}
+/* Faculty courses: the assign panel sits beside the table only when both fit (>= 1060px of content);
+   below that it drops under the table as a compact form row, so table actions never truncate. */
+.xw-apanel .xr-select{text-overflow:ellipsis}
+.xw-nowrap{white-space:nowrap}
+@container xr-content (min-width:600px) and (max-width:1059.98px){
+  .xw-apanel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px;row-gap:14px;align-items:end}
+  .xw-apanel > .xw-full{grid-column:1 / -1}
+  .xw-apanel > .xw-apanel-go{justify-self:start}
+}
+@container xr-content (min-width:800px) and (max-width:1059.98px){
+  .xw-apanel{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
+  .xw-apanel > .xw-apanel-go{grid-column:3;grid-row:2;justify-self:stretch}
+}
+.xw-result li > .xw-grow{flex:1 1 0;min-width:0}

@@ -1,10 +1,8 @@
 /*
- * Harness frame only. Specimen styles come from @xr/ui (its stylesheet entry arrives in
- * WP-0.5); nothing here may style a component.
+ * Harness frame only. Specimen styles come from @xr/ui (`@xr/ui/styles.css`, imported first in
+ * layout.tsx); nothing here may style a component. The v46 foundation sheet's own `body` rule
+ * (margin 0, canvas background, ink colour, Public Sans) applies unchanged.
  */
-body {
-  margin: 0;
-}
 
 /* The specimen sits in a container of a set content width, so container queries resolve
    against that width exactly as they would inside the product's content area. */
@@ -12,4 +10,9 @@ body {
   container-type: inline-size;
   container-name: specimen;
   box-sizing: border-box;
+}
+
+/* Makes a specimen page taller than the viewport, so the document scrolls as a product page does. */
+.specimen-spacer {
+  min-height: 2000px;
 }

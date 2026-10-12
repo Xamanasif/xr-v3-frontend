@@ -1,7 +1,8 @@
 /**
  * Checksum verification equivalent to `shasum -a 256 -c SHA256SUMS.txt`, run from Node so
  * `pnpm verify` needs no platform tool. Used for the frozen handoff (`design/handoff-v46/`,
- * 178 files) and the audit evidence (`v2/docs/v46/`, 36 files).
+ * 178 files), the audit evidence (`v2/docs/v46/`, 36 files) and the byte-identical v46 copies in
+ * `@xr/ui` (27 files, checked against the handoff's own lines).
  */
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
@@ -18,6 +19,11 @@ export function verifyChecksums(directory: string, sumsFile = 'SHA256SUMS.txt'):
   const lines = readFileSync(join(directory, sumsFile), 'utf8')
     .split('\n')
     .filter((line) => line.trim().length > 0);
+  return verifyChecksumLines(directory, lines);
+}
+
+/** Verifies `SHA256SUMS`-format lines whose paths are relative to `directory`. */
+export function verifyChecksumLines(directory: string, lines: readonly string[]): ChecksumResult {
   const failed: string[] = [];
   const missing: string[] = [];
   let ok = 0;

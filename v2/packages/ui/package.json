@@ -2,24 +2,25 @@
   "name": "@xr/ui",
   "version": "0.0.0",
   "private": true,
-  "description": "Design tokens and accessible primitives of the XR Platform. Filled by Design V2; Phase 0 holds a token placeholder and one wiring-proof component.",
+  "description": "The frozen v46 visual system of the XR Platform: the eight v46 stylesheets in one cascade layer, the documented product layer, and (from WP-0.6) components that emit the v46 classes.",
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./tokens.css": "./src/tokens.css"
+    "./styles.css": "./src/styles/index.css"
   },
   "files": [
     "dist",
-    "src/tokens.css"
+    "src/styles"
   ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
+    "generate:constants": "node scripts/generate-v46-constants.mjs",
     "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('dist', { recursive: true, force: true }))\""
   },
   "peerDependencies": {

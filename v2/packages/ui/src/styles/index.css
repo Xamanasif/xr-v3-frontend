@@ -1,0 +1,30 @@
+/*
+ * @xr/ui stylesheet entry — the frozen v46 visual system (ADR-0001, G-3 Option A;
+ * Appendix E §2.2; Appendix F WP-0.5). Exported as `@xr/ui/styles.css`.
+ *
+ * - The eight v46 stylesheets under ./v46/ are byte-identical copies of
+ *   design/handoff-v46/canvas-v46/project/xr-*.css (checksum provenance test). Never edit them.
+ * - All eight share ONE cascade layer, xr.v46, in the B8-07 load order: between the unlayered
+ *   board sheets specificity decides first and load order only breaks ties; per-sheet layers
+ *   would invert that (`.xr-btn[aria-disabled="true"]` vs `.xg-del`, Appendix E §2.2).
+ * - Production deltas live only in ./product.css, in the separate xr.product layer.
+ * - The layer statement below is repeated verbatim as the first statement of
+ *   apps/web/src/app/globals.css, so the order holds whichever CSS chunk loads first.
+ * - `properties` comes first, so it is the weakest layer: it is the slot Tailwind 4 fills with
+ *   its @property fallback (`@layer properties{@supports(…){*,::before,…{--tw-*:…}}}`) as soon as a
+ *   utility such as `shadow-e1` registers custom properties. Undeclared here, the bundle would
+ *   meet it last and make it the strongest layer. The approved order of the four named layers,
+ *   theme < xr.v46 < xr.product < utilities (ADR-0001 §3), is unchanged.
+ */
+@layer properties, theme, xr.v46, xr.product, utilities;
+
+@import './v46/xr-foundation.css' layer(xr.v46);
+@import './v46/xr-public.css' layer(xr.v46);
+@import './v46/xr-workspace.css' layer(xr.v46);
+@import './v46/xr-learning.css' layer(xr.v46);
+@import './v46/xr-assess.css' layer(xr.v46);
+@import './v46/xr-vendor.css' layer(xr.v46);
+@import './v46/xr-govern.css' layer(xr.v46);
+@import './v46/xr-admin.css' layer(xr.v46);
+
+@import './product.css' layer(xr.product);

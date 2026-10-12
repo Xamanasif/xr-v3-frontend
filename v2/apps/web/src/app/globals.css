@@ -1,8 +1,84 @@
-@import 'tailwindcss';
+/*
+ * Web-app stylesheet (ADR-0001, G-3 Option A; Appendix E §2.2, §2.4).
+ *
+ * The v46 visual system arrives first, from `@xr/ui/styles.css` (imported before this file in
+ * layout.tsx). This file adds only Tailwind's theme and utilities for screen composition in
+ * apps/web — never Preflight (`tailwindcss` / `tailwindcss/preflight.css`), which would strip the
+ * list markers, svg/img display and heading/button styles the v46 sheets rely on. The v46
+ * foundation sheet ships its own base reset; there is no body rule here.
+ *
+ * The layer statement is identical to the first statement of @xr/ui's stylesheet entry, so the
+ * order theme < xr.v46 < xr.product < utilities holds whichever CSS chunk loads first. Tailwind's
+ * own @property fallback layer, `properties`, is declared first so it stays the weakest (see the
+ * @xr/ui entry).
+ */
+@layer properties, theme, xr.v46, xr.product, utilities;
 
-/* Design V2 defines the token set and the visual system. Nothing below is a design decision. */
-body {
-  font-family: var(--xr-font-sans);
-  color: var(--xr-color-fg);
-  background: var(--xr-color-bg);
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/*
+ * Composition utilities only, mapped to the v46 tokens (xr-foundation.css :root). `--*: initial`
+ * drops every Tailwind default first: no default palette, type scale, shadows, viewport
+ * breakpoints or container sizes (v46 layout is container-query only). Allowed: flex/grid/gap,
+ * margin/padding/width on the 4 px scale, whitespace and wrapping, text alignment, token colours,
+ * radii and elevations. Never used inside @xr/ui (xr/v46-class-names); arbitrary colours,
+ * breakpoint variants and default-palette/type/shadow classes are refused by the static scans.
+ */
+@theme inline {
+  --*: initial;
+
+  --spacing: 4px;
+
+  --font-sans: var(--xr-font-sans);
+  --font-mono: var(--xr-font-mono);
+
+  --color-navy-950: var(--xr-navy-950);
+  --color-navy-900: var(--xr-navy-900);
+  --color-navy-800: var(--xr-navy-800);
+  --color-navy-700: var(--xr-navy-700);
+  --color-indigo-600: var(--xr-indigo-600);
+  --color-indigo-500: var(--xr-indigo-500);
+  --color-indigo-300: var(--xr-indigo-300);
+  --color-indigo-200: var(--xr-indigo-200);
+  --color-indigo-100: var(--xr-indigo-100);
+  --color-gold-400: var(--xr-gold-400);
+  --color-gold-450: var(--xr-gold-450);
+  --color-gold-500: var(--xr-gold-500);
+  --color-gold-600: var(--xr-gold-600);
+  --color-gold-700: var(--xr-gold-700);
+  --color-gold-50: var(--xr-gold-50);
+  --color-cyan-400: var(--xr-cyan-400);
+  --color-cyan-700: var(--xr-cyan-700);
+  --color-cyan-50: var(--xr-cyan-50);
+  --color-ink: var(--xr-ink);
+  --color-ink-2: var(--xr-ink-2);
+  --color-ink-3: var(--xr-ink-3);
+  --color-line: var(--xr-line);
+  --color-line-strong: var(--xr-line-strong);
+  --color-canvas: var(--xr-canvas);
+  --color-surface: var(--xr-surface);
+  --color-surface-2: var(--xr-surface-2);
+  --color-surface-3: var(--xr-surface-3);
+  --color-link: var(--xr-link);
+  --color-focus: var(--xr-focus);
+  --color-focus-dark: var(--xr-focus-dark);
+  --color-ok: var(--xr-ok);
+  --color-ok-bg: var(--xr-ok-bg);
+  --color-warn: var(--xr-warn);
+  --color-warn-bg: var(--xr-warn-bg);
+  --color-err: var(--xr-err);
+  --color-err-bg: var(--xr-err-bg);
+  --color-info: var(--xr-info);
+  --color-info-bg: var(--xr-info-bg);
+
+  --radius-xs: var(--xr-r-xs);
+  --radius-sm: var(--xr-r-sm);
+  --radius-md: var(--xr-r-md);
+  --radius-lg: var(--xr-r-lg);
+  --radius-full: 999px;
+
+  --shadow-e1: var(--xr-e1);
+  --shadow-e2: var(--xr-e2);
+  --shadow-e3: var(--xr-e3);
 }
