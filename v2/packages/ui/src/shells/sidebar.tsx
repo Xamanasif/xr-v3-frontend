@@ -30,6 +30,8 @@ export interface SidebarProps {
   /**
    * The destinations in the order of the caller's navigation config (at most 8; only real
    * destinations, never disabled placeholders). At most one is current; none on message pages.
+   * While no destination's screen is built (Phase 0) there are none: the sidebar then draws no
+   * empty `nav` landmark, and Help stays in its foot.
    */
   readonly destinations: readonly NavDestination[];
   /** Help, drawn last in `div.xr-side-foot`, separated by the hairline. */
@@ -110,13 +112,15 @@ export function Sidebar({
           {institution ? <span className="xr-ws-inst">{institution}</span> : null}
         </div>
       )}
-      <nav aria-label={`${workspace} navigation`}>
-        <ul className="xr-nav">
-          {destinations.map((destination, index) => (
-            <NavItem key={`${index}-${destination.href}`} {...destination} />
-          ))}
-        </ul>
-      </nav>
+      {destinations.length > 0 ? (
+        <nav aria-label={`${workspace} navigation`}>
+          <ul className="xr-nav">
+            {destinations.map((destination, index) => (
+              <NavItem key={`${index}-${destination.href}`} {...destination} />
+            ))}
+          </ul>
+        </nav>
+      ) : null}
       <div className="xr-side-foot">
         <ul className="xr-nav">
           <NavItem label="Help" href={help.href} icon="help" current={help.current} />

@@ -5,12 +5,12 @@ The frozen v46 visual system of the XR Learning Platform (`design/handoff-v46/`,
 for byte into one cascade layer, a small documented product layer, and React components that emit
 the v46 class names and ARIA exactly. No third-party design system.
 
-Phase 0 status (WP-0.7): the stylesheets, the generated constants and icon registry, and the 42
+Phase 0 status (WP-0.8): the stylesheets, the generated constants and icon registry, and the 42
 Phase-0 components (foundation, forms, data display, overlays, shell primitives — `LEDGER.md`) are
 exported from `@xr/ui`, with DataTable's sort and the B1-10 fix (WP-0.7). Links are injected through
 `LinkProvider` (no `next/*` here). `src/testing/` is test support only and is never built or
-exported. Role navigation and shell composition are WP-0.8; public and sign-in pieces are Phase 1
-(G-8).
+exported. Role navigation and the per-role shell composition live in `apps/web` (WP-0.8,
+`apps/web/src/nav/README.md`); public and sign-in pieces are Phase 1 (G-8).
 
 ## Styles — `@xr/ui/styles.css`
 
@@ -150,3 +150,22 @@ component or screen.
 - **Deferred:** the SA-02 route test (`apps/web/e2e/a11y/datatable-sort.spec.ts`, `fixme` until
   SA-02 exists in Phase 1); R-15 explicit table roles in labelled-row mode wait for a VoiceOver
   check (Chromium keeps the table semantics; WebKit is not run, P0-28).
+
+## WP-0.8 — role shells: what changed here (13 Oct 2026)
+
+The seven role shells are composed in `apps/web` (`RoleWorkspaceShell`, `WorkspaceAccountMenu`,
+`src/nav/**`) from the shell parts above. One behaviour was refined here; no CSS was added.
+
+- **No empty navigation landmark.** With no destination built — every workspace in Phase 0, where
+  only Help & support exists — `Sidebar` renders no `nav`: Help stays alone in the foot, current on
+  the Help pages. No board draws a sidebar without destinations; an empty "<Role> navigation"
+  landmark would be announced with nothing in it. With one destination or more the markup is
+  unchanged.
+- **Counted links in Chromium — reported, not changed.** A counted destination is named
+  "Marking , 12 written answers to mark" in Chromium: it joins the `xr-sr` words to the label with a
+  space because v46 `.xr-sr` is absolutely positioned. The boards' own markup is named the same,
+  character for character (measured beside B1-10's own "Requests" link in
+  `apps/specimens/e2e/role-shells.spec.ts`); the words and their order are board 12's ("Marking, 12
+  written answers to mark"), only that space differs. If the owner wants the exact string, the
+  narrow fix is an `aria-label` on counted links only, as the WP-0.7 sort names do; it is not
+  applied. Counts never render in Phase 0 (no counting destination is built).

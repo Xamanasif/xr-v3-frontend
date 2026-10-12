@@ -245,6 +245,25 @@ describe('Sidebar behaviour and rules', () => {
     expect(links).toHaveLength(SUPER_ADMIN.length + 1);
   });
 
+  it('with no destination built (Phase 0, WP-0.8) there is no empty navigation landmark; Help stays in the foot', () => {
+    const { container } = render(
+      <Sidebar
+        workspace="Vendor"
+        institution="Northline Simulation Studio"
+        destinations={[]}
+        help={{ href: '#help', current: true }}
+      />,
+    );
+    const aside = screen.getByRole('complementary', { name: 'Vendor workspace' });
+    expect(within(aside).queryByRole('navigation')).toBeNull();
+    expect(container.querySelector('nav, ul.xr-nav:empty')).toBeNull();
+    const links = within(aside).getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual(['HelpHelp']);
+    expect(links[0]).toHaveAttribute('aria-current', 'page');
+    expect(links[0]!.closest('.xr-side-foot')).not.toBeNull();
+    expect(aside.querySelector('.xr-ws-label')).toHaveTextContent('Vendor');
+  });
+
   it('only the current item carries aria-current="page"; on the Help pages that is Help', () => {
     const { container, unmount } = render(<SuperAdminSidebar />);
     expect(
@@ -346,6 +365,10 @@ describe('Sidebar accessibility (axe, WCAG 2.2 AA)', () => {
       ),
     ],
     ['in the shell, Help current', () => <InShell help />],
+    [
+      'no destination built yet (Help only)',
+      () => <Sidebar workspace="Vendor" destinations={[]} help={{ href: '#h', current: true }} />,
+    ],
   ] as const)('%s', async (_name, view) => {
     const { container } = render(view());
     await assertNoAxeViolations(container);
