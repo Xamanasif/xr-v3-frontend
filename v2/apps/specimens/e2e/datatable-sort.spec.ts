@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import {
   expectNoAxeViolations,
@@ -392,6 +395,160 @@ test.describe('B1-10 sort at the four content widths (Appendix F WP-0.7 acceptan
         await cdp.detach();
       }
     }
+  });
+});
+
+/**
+ * B1-10's own table head, read from the frozen board (the template of its first table, with the
+ * descending state filled in): the reference the WP-0.7 visual correction is measured against.
+ */
+function boardHead(): string {
+  const board = readFileSync(
+    join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'design',
+      'handoff-v46',
+      'canvas-v46',
+      'project',
+      'B1-10-SA-Requests.dc.html',
+    ),
+    'utf8',
+  );
+  const start = board.indexOf('<thead><tr><th scope="col">Reference</th>');
+  const head = board.slice(start, board.indexOf('</thead>', start) + '</thead>'.length);
+  return head
+    .replace('{{ q.ariaSort }}', 'descending')
+    .replace(' onClick="{{ q.toggleSort }}"', '')
+    .replace(/<sc-if value="\{\{ q\.sortIcon \}\}"[^>]*>(.*?)<\/sc-if>/, '$1')
+    .replace(/<sc-if value="\{\{ q\.sortAsc \}\}"[^>]*>.*?<\/sc-if>/, '')
+    .replace('{{ q.sortLabel }}', 'Received, newest first');
+}
+
+/** The sorted header cell's geometry and the button's computed look, in one table wrap. */
+function headLook(wrap: Locator) {
+  return wrap.evaluate((element) => {
+    const round = (value: number) => Math.round(value * 10) / 10;
+    const th = element.querySelector('th[aria-sort]')!;
+    const button = th.querySelector('button')!;
+    const style = getComputedStyle(button);
+    const [cell, box] = [th.getBoundingClientRect(), button.getBoundingClientRect()];
+    return {
+      row: round(element.querySelector('thead tr')!.getBoundingClientRect().height),
+      cellPadding: getComputedStyle(th).padding,
+      color: style.color,
+      fontSize: style.fontSize,
+      fontWeight: style.fontWeight,
+      lineHeight: style.lineHeight,
+      decoration: style.textDecorationLine,
+      minHeight: style.minHeight,
+      padding: style.padding,
+      display: style.display,
+      gap: style.gap,
+      height: round(box.height),
+      width: round(box.width),
+      top: round(box.top - cell.top),
+      left: round(box.left - cell.left),
+    };
+  });
+}
+
+test.describe('PF-01 header look: the sort button matches B1-10 (WP-0.7 visual correction)', () => {
+  test.skip(
+    ({ viewport }) => viewport?.width !== 1440,
+    'The frame sets the content width; one viewport is enough.',
+  );
+
+  for (const width of [760, 1112]) {
+    test(`content ${width}: the header button and head row measure as B1-10 draws them, and read as header words`, async ({
+      page,
+    }) => {
+      await ready(page, 'c-data-table', width);
+      // The board's head, injected beside the DataTable in the same xr-content.
+      await content(page).evaluate((host, head) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'xr-table-wrap';
+        wrap.setAttribute('data-probe', 'board-head');
+        wrap.innerHTML = `<table class="xr-table"><caption class="xr-sr">B1-10 head as drawn</caption>${head}</table>`;
+        host.append(wrap);
+      }, boardHead());
+      await settle(page);
+      // The DataTable's own wrap: the table's parent.
+      const ours = table(page).locator('..');
+      const drawn = frame(page).locator('[data-probe="board-head"]');
+      const [mine, board] = [await headLook(ours), await headLook(drawn)];
+      expect(mine).toEqual(board);
+      // About 56.5 px (12 + 32 + 12 and the border), not the 64.5 px of the plain text button.
+      expect(mine.row).toBeLessThan(60);
+      expect(mine).toMatchObject({
+        color: 'rgb(64, 71, 107)',
+        fontSize: '14px',
+        fontWeight: '700',
+        decoration: 'none',
+        minHeight: '32px',
+        padding: '0px',
+        height: 32,
+      });
+      // The same words look as the plain head cells beside it ("Reference").
+      const neighbour = await table(page)
+        .locator('thead th')
+        .first()
+        .evaluate((th) => {
+          const style = getComputedStyle(th);
+          return [style.color, style.fontSize, style.fontWeight];
+        });
+      expect([mine.color, mine.fontSize, mine.fontWeight]).toEqual(neighbour);
+      // The reference has served; it leaves the page before the keyboard and pointer checks.
+      await drawn.evaluate((element) => element.remove());
+
+      // Hover keeps the colour, as the board's inline style does; the focus ring is v46's.
+      const button = await box(headerButton(page));
+      await page.mouse.move(button.x + button.width / 2, button.y + button.height / 2);
+      await settle(page);
+      expect(
+        await headerButton(page).evaluate((element) => {
+          const style = getComputedStyle(element);
+          return [style.color, style.textDecorationLine];
+        }),
+      ).toEqual(['rgb(64, 71, 107)', 'none']);
+      await tabTo(page, headerButton(page));
+      await settle(page);
+      expect(
+        await headerButton(page).evaluate((element) => {
+          const style = getComputedStyle(element);
+          return [style.outlineStyle, style.outlineWidth, style.outlineColor];
+        }),
+      ).toEqual(['solid', '2px', rgb(V46_FOCUS_COLOURS.focus)]);
+      // Name, aria-sort and sorting are unchanged.
+      await expect(sortControls(page)).toHaveAccessibleName(NEWEST);
+      await page.keyboard.press('Enter');
+      await expectOrder(page, 'ascending');
+    });
+  }
+
+  test('content 759: the header button stays display:none; the sort bar keeps its §7.1 look in the status row', async ({
+    page,
+  }) => {
+    await ready(page, 'c-data-table', 759);
+    await expectOneSortControl(page, true);
+    expect(
+      await barButton(page).evaluate((element) => {
+        const style = getComputedStyle(element);
+        return [
+          style.color,
+          style.fontSize,
+          style.fontWeight,
+          style.textDecorationLine,
+          style.minHeight,
+        ];
+      }),
+    ).toEqual([rgb(V46_FOCUS_COLOURS.focus), '14px', '600', 'underline', '36px']);
+    await expect(
+      frame(page).locator('.xr-toolbar-status > [role="status"] + .xr-x-table-sortbar'),
+    ).toHaveCount(1);
   });
 });
 

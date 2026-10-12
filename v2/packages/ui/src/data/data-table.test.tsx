@@ -38,6 +38,7 @@ import { StatusPill } from '../foundation/status-pill.js';
 import { VisuallyHidden } from '../foundation/typography.js';
 import {
   assertNoAxeViolations,
+  boardText,
   canonicalMarkup,
   expectBoardDraws,
   expectRenderedAsDrawn,
@@ -977,6 +978,59 @@ describe('DataTable sorting: the B1-10 column and the PF-01 fix (WP-0.7)', () =>
       expect(button.querySelector('.xr-sr')).toBeNull();
       expect(button.textContent).toMatch(/^Received/);
       expect(NEWEST.startsWith(button.textContent!)).toBe(true);
+    }
+  });
+
+  it('product.css gives the header button exactly the look B1-10 draws inline (WP-0.7 visual correction)', () => {
+    // Every B1-10 table draws the same header button; its inline style is the evidence.
+    const drawn =
+      /<th scope="col" aria-sort="\{\{ (\w+)\.ariaSort \}\}"><button type="button" class="xr-btn xr-btn--text" style="([^"]+)"/g;
+    const instances = [...boardText('B1-10').matchAll(drawn)];
+    expect(instances.map(([, table]) => table)).toEqual([
+      'q',
+      'qx',
+      'qf',
+      'qr',
+      'qn',
+      'ql',
+      'qe',
+      'qz',
+      'qm',
+      'qmo',
+    ]);
+    const styles = instances.map(([, , style]) => style!);
+    expect(new Set(styles).size).toBe(1);
+    const declarations = (block: string) =>
+      Object.fromEntries(
+        block
+          .split(';')
+          .filter(Boolean)
+          .map((declaration) => {
+            const [name, value] = declaration.split(':');
+            return [name!.trim(), value!.trim().toLowerCase()];
+          }),
+      );
+    const boardLook = declarations(styles[0]!);
+    expect(boardLook).toEqual({
+      'min-height': '32px',
+      padding: '0',
+      color: '#40476b',
+      'font-weight': '700',
+      'text-decoration': 'none',
+      'font-size': '14px',
+    });
+    // The product rule: the same declarations, on the sort button in a table head only.
+    const product = compactCss(readFileSync(PRODUCT_CSS, 'utf8'));
+    const rules = [...product.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(([, selector]) =>
+      selector!.includes('xr-x-th-sort'),
+    );
+    const look = rules.filter(([, selector]) => selector!.trim() === '.xr-table th .xr-x-th-sort');
+    expect(look).toHaveLength(1);
+    expect(declarations(look[0]![2]!)).toEqual(boardLook);
+    // No other sort-button rule sets anything but display.
+    for (const [, selector, body] of rules) {
+      if (selector!.trim() === '.xr-table th .xr-x-th-sort') continue;
+      expect(Object.keys(declarations(body!))).toEqual(['display']);
     }
   });
 

@@ -118,6 +118,27 @@
   }
 }
 
+/* PF-01 sort control · the header button's look (WP-0.7 visual correction, approved by the owner
+ * on 13 Oct 2026). Every B1-10 table (10, from "SA-02 Requests · 1440 · interactive" on) draws
+ * `th[scope=col][aria-sort] > button.xr-btn.xr-btn--text` with the inline style
+ *   min-height:32px;padding:0;color:#40476B;font-weight:700;text-decoration:none;font-size:14px
+ * so "Received" reads as header words (xr-foundation.css `.xr-table th{…;font-size:14px;
+ * font-weight:700;color:#40476B;…}`), not as the v46 text button (#1F4FD8, 600 15px, underlined,
+ * min-height 40, padding 0 6px), and the head row is 12 + 32 + 12 px high (about 56.5 px with
+ * its border) instead of 64.5. The same six declarations, here instead of inline (Appendix E
+ * §2.5), on the sort button only: no other table or header control changes. As on the board,
+ * hover keeps the colour (a normal declaration in xr.product beats `.xr-btn--text:hover` in
+ * xr.v46, as the board's inline style does); the v46 focus ring is unchanged. Below 760 px of
+ * content the button stays display:none (rules above) and the sort bar keeps its §7.1 look. */
+.xr-table th .xr-x-th-sort {
+  min-height: 32px;
+  padding: 0;
+  color: #40476b;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 14px;
+}
+
 /* ===========================================================================================
  * PF-02 · Viewport min-height; pages scroll naturally (Appendix E §2.3, §6.2: "The fixed heights
  * are canvas presentation only"; START-HERE Known exception 3: "product pages grow with their

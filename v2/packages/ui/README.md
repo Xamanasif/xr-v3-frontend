@@ -108,11 +108,12 @@ Open for later work packages: the public root's viewport min-height (PF-02, VD-2
 band under short pages such as B1-09 sign-in; a focused-task bar wrapped by a long title can be
 taller than PF-11's 113 px (an exact value needs the FocusedTaskShell, WP-0.8).
 
-## WP-0.7 — DataTable sort and the B1-10 fix: for the owner's visual acknowledgement
+## WP-0.7 — DataTable sort and the B1-10 fix: owner decisions (13 Oct 2026)
 
-The PF-01 sort control follows Appendix E §7.1 (VD-04: CONFIRMED defect, PROVISIONAL design). Its
-placement is the documented provisional correction, recorded here for acknowledgement; it is not a
-resolved design-policy decision. None of the items below changes another component or screen.
+The PF-01 sort control follows Appendix E §7.1 (VD-04: CONFIRMED defect, PROVISIONAL design). The
+owner accepted WP-0.7 functionally on 13 Oct 2026, approved the header-look correction below and
+acknowledged the engineering choices listed here. None of the items below changes another
+component or screen.
 
 - **One sort state, two controls.** `DataTable` takes a controlled `sort` (column key, direction,
   `onSortChange`; the caller sorts the rows). The sorted column's `th[aria-sort]` holds
@@ -120,32 +121,29 @@ resolved design-policy decision. None of the items below changes another compone
   the ListToolbar's `sortBar` slot as `div.xr-x-table-sortbar`. The product layer displays the
   header button from 760 px of content and the sort bar below it, at exactly the width where v46
   clips the header; the other is `display:none` (no Tab stop, not in the accessibility tree).
-- **Placement (VD-04, provisional).** Below 760 px of content the sort bar sits in the
-  `xr-toolbar-status` row, after the count and before the filter chips, above the first row
-  ("Received, newest first" + chevron, a small text button: 36 px tall, so the row grows from 32 to
-  36 px). No board draws it; the B1-10 frames "Filtered · Under review", "Mobile 375" and "Mobile
-  375 · More filters open" carry it as an expected deviation (Appendix E §9.1). It is shown only
-  while the table lists rows, as the header button is.
-- **Header button look.** Drawn without B1-10's inline style (min-height 32 px, padding 0, colour
-  #40476B, weight 700, no underline, 14 px), as Appendix E §2.5 requires ("Never copy the specimen
-  inline style of the B1-10 sort button"). It therefore renders as the v46 text button: link blue
-  #1F4FD8, 600 15 px, underlined, 40 px min-height, so the header row is 64.5 px instead of about
-  56.5 px and "Received" does not match the grey header words beside it. Matching the board needs
-  a PF-01 look rule for `.xr-x-th-sort`, which needs owner approval; it is not added.
-- **Names.** Both buttons are named exactly "Received, newest first. Change order" / "Received,
-  oldest first. Change order" with `aria-label`. The §7.1 sketch's `span.xr-sr` suffix cannot give
-  that name: v46 `.xr-sr` is absolutely positioned, and Chromium joins it with a space ("Received ,
-  newest first. Change order", measured; the boards' own button reads "Received , Received, …" in
-  `derived/frame-index.json`). The visible words start the name (WCAG 2.5.3).
-- **Announcement (provisional; no board draws one).** A change of order is announced in the
-  table's mounted `role=status` region in the sort bar's own words ("Received, oldest first"),
-  once the reordered rows show. The first order is not announced; leaving the table (a load, no
-  match, a failure) clears the words, and the rows coming back do not repeat them. The toolbar's
-  count keeps the board's words.
-- **Sort in place (contract).** The caller reorders the rows it holds in the same render, as
-  B1-10 does; a sort shows no loading state. If a caller does load for an order, focus on the
-  header button moves to the table (as after "Try again", PROVISIONAL) and the order is announced
-  once the rows are back; the sort bar, outside the table, cannot be kept.
+- **Placement (VD-04) — accepted as an accessibility correction; remains a documented v46 visual
+  deviation.** Below 760 px of content the sort bar sits in the `xr-toolbar-status` row, after the
+  count and before the filter chips, above the first row ("Received, newest first" + chevron, a
+  small text button: 36 px tall, so the row grows from 32 to 36 px). No board draws it; the B1-10
+  frames "Filtered · Under review", "Mobile 375" and "Mobile 375 · More filters open" carry it as
+  an expected deviation (Appendix E §9.1).
+- **Header button look — corrected (PF-01 visual correction, owner-approved 13 Oct 2026).**
+  `product.css` gives `.xr-table th .xr-x-th-sort` exactly the declarations every B1-10 table
+  draws inline on its sort button (min-height 32 px, padding 0, colour #40476B, weight 700, no
+  underline, 14 px), in the product layer rather than inline (Appendix E §2.5). "Received" reads as
+  the grey header words beside it and the head row is 56.5 px, as drawn (it was a blue underlined
+  text button in a 64.5 px row). Measured equal to B1-10's own head, injected beside the DataTable
+  in the harness (`apps/specimens/e2e/datatable-sort.spec.ts`); hover keeps the colour as the
+  board's inline style does; the focus ring, names, `aria-sort`, sorting and the 759/760 swap are
+  unchanged. The sort bar keeps its §7.1 look; no other table or header control is affected.
+- **Acknowledged by the owner:** the names by `aria-label` (both buttons exactly "Received, newest
+  first. Change order" / "Received, oldest first. Change order"; the §7.1 `span.xr-sr` suffix
+  gives "Received , newest first…" in Chromium because v46 `.xr-sr` is absolutely positioned);
+  the status announcement (a change of order is announced in the table's mounted `role=status`
+  region in the sort bar's words, once the reordered rows show; the first order is not; leaving
+  the table clears the words); sort-in-place ownership (the caller reorders the rows it holds in
+  the same render; if a caller does load for an order, focus on the header button moves to the
+  table, as after "Try again"); and the sort bar shown only while the table lists rows.
 - **Kept as they were:** the WP-0.5 hidden-header guards for `.xr-table`, `.xp-ftable` and
   `.xp-compare` (tested for every control kind they name); FailedState and the other WP-0.6 open
   items (the five inline-style gaps in `LEDGER.md`, Stepper, ErrorSummary, format chips).
