@@ -1,0 +1,4567 @@
+[
+ {
+  "heading": "Navigation hierarchy by role (Inventory §K, as designed)",
+  "rows": [
+   [
+    {
+     "t": "Surface",
+     "l": []
+    },
+    {
+     "t": "Base route (proposed)",
+     "l": []
+    },
+    {
+     "t": "Sidebar / header destinations (in order)",
+     "l": []
+    },
+    {
+     "t": "Reached from them (tabs · details · steps · dialogs)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Public header",
+     "l": []
+    },
+    {
+     "t": "/",
+     "l": []
+    },
+    {
+     "t": "Browse experiments → PU-04 · Areas → PU-02 · For institutions → PU-01 section · Selection (n) → PU-07 · Sign in → XS-01 · Request access → PU-08",
+     "l": []
+    },
+    {
+     "t": "Area · Course · Experiment · Selection → Request → Sent → Status → Payment · Not found",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "/student",
+     "l": []
+    },
+    {
+     "t": "Home · My courses · Assessments · Progress · Help (foot)",
+     "l": []
+    },
+    {
+     "t": "Experiment hub tabs: Overview · Resources · Simulation · Assessment · Progress · WEB / AR / VR / MR format · Assessment intro → Attempt → Result · Format feedback · My device (account menu)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Faculty",
+     "l": []
+    },
+    {
+     "t": "/faculty",
+     "l": []
+    },
+    {
+     "t": "Overview · My courses · Assessments · Question bank · Marking · Students · Help (foot)",
+     "l": []
+    },
+    {
+     "t": "Course · Experiment · Create assessment (4 steps) · Assessment tabs: Summary · Questions · Settings · Preview · Submissions · Add / edit question · Draft with assistance · Import · Mark a submission · Student detail",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "/institute",
+     "l": []
+    },
+    {
+     "t": "Overview · Content access · Student access · People · Requests · Usage · Help (foot)",
+     "l": []
+    },
+    {
+     "t": "Content access › Course codes tab · Access plan · Give students access (guided) · People tabs: Students · Faculty · Groups · Faculty courses · records · Add · Import · Requests tabs: Requests to BITS · Device requests · Device request",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Vendor",
+     "l": []
+    },
+    {
+     "t": "/vendor",
+     "l": []
+    },
+    {
+     "t": "Overview · My experiments · Help (foot)",
+     "l": []
+    },
+    {
+     "t": "Create experiment (4 steps; same editor for drafts) · Experiment record + history · Revise & resubmit",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Academic Reviewer",
+     "l": []
+    },
+    {
+     "t": "/reviewer",
+     "l": []
+    },
+    {
+     "t": "Overview · Review queue · Reviewed by me · Help (foot)",
+     "l": []
+    },
+    {
+     "t": "Review a submission · Review an update (decided items read-only)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Content Manager",
+     "l": []
+    },
+    {
+     "t": "/content-manager",
+     "l": []
+    },
+    {
+     "t": "Overview · Ready to publish · Content library · Updates · Course codes · Help (foot)",
+     "l": []
+    },
+    {
+     "t": "Publication decision · Published experiment · correction draft (from Edit catalogue details / Edit delivery link) · Correction detail",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Super Admin",
+     "l": []
+    },
+    {
+     "t": "/admin",
+     "l": []
+    },
+    {
+     "t": "Overview · Requests · Institutions · Content (tabs: Updates · All content) · Academic structure · Platform roles · Operations (tabs: Device transfers · Support · Access ending) · Help (foot)",
+     "l": []
+    },
+    {
+     "t": "Request decision · Institution detail · Release or hold · Content record · Area / course record · Role holder · Device transfer decision · Support report",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Navigation audit — consolidated, not per batch",
+  "rows": [
+   [
+    {
+     "t": "Check (all product frames, B1–B8)",
+     "l": []
+    },
+    {
+     "t": "Result",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Links that jumped to a batch index board (“designed in a later batch”)",
+     "l": []
+    },
+    {
+     "t": "Before: 660 rendered (845 in the files, incl. hidden states). After: 0.",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Dead links (“#”, “#help”) in product frames",
+     "l": []
+    },
+    {
+     "t": "Before: 247 in B1 frames. After: 0 in B1–B8. The Batch-0 foundation specimens keep their in-board anchors (they are pattern examples, not product screens).",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Links to a missing file",
+     "l": []
+    },
+    {
+     "t": "0 (three CSV template downloads are data links by design).",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Links to removed or deferred destinations (Platform settings, reports, academic groupings, Vendor updates, Decline …)",
+     "l": []
+    },
+    {
+     "t": "0 — text scan and link scan.",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Unauthorised role transitions (a role’s frame linking into another role’s workspace)",
+     "l": []
+    },
+    {
+     "t": "0. Cross-role movement only through shared public pages (request status) and the shared Help & support family.",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Named cross-batch paths, clicked for real (B8-01 list below)",
+     "l": []
+    },
+    {
+     "t": "See the navigation test: every path lands on its approved destination.",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Navigation audit — consolidated, not per batch",
+  "rows": [
+   [
+    {
+     "t": "Surface",
+     "l": []
+    },
+    {
+     "t": "Path",
+     "l": []
+    },
+    {
+     "t": "Destination (approved)",
+     "l": []
+    },
+    {
+     "t": "Result",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "Home “Up next” → Open assessment",
+     "l": []
+    },
+    {
+     "t": "B4-11 Assessments (before you start)",
+     "l": []
+    },
+    {
+     "t": "Corrected · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "Experiment hub tabs Resources · Simulation · Progress · Assessment",
+     "l": []
+    },
+    {
+     "t": "B3-01 · B3-02 · B3-01 (hub progress tab) · B4-11",
+     "l": []
+    },
+    {
+     "t": "Corrected · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "Sidebar Progress · Assessments",
+     "l": []
+    },
+    {
+     "t": "B3-05 · B4-11",
+     "l": []
+    },
+    {
+     "t": "Corrected · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "Home “Give feedback” · Progress “Give feedback on WEB” (after completion)",
+     "l": []
+    },
+    {
+     "t": "B3-06 Format feedback",
+     "l": []
+    },
+    {
+     "t": "Corrected · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "Account menu → My device → transfer request",
+     "l": []
+    },
+    {
+     "t": "B3-07 (Student) → B3-09 (Institute Admin) → B3-11 / B7-09 (Super Admin)",
+     "l": []
+    },
+    {
+     "t": "Unchanged (already correct) · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Faculty",
+     "l": []
+    },
+    {
+     "t": "Overview attention → Marking · Question bank · Students",
+     "l": []
+    },
+    {
+     "t": "B4-09 · B4-07 · B4-10",
+     "l": []
+    },
+    {
+     "t": "Already correct · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Faculty",
+     "l": []
+    },
+    {
+     "t": "Create assessment → Summary · Questions · Settings · Preview · Submissions",
+     "l": []
+    },
+    {
+     "t": "B4-04 → B4-05 · B4-06",
+     "l": []
+    },
+    {
+     "t": "Already correct · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Faculty → Student",
+     "l": []
+    },
+    {
+     "t": "Attempt → marking → released result",
+     "l": []
+    },
+    {
+     "t": "B4-12 → B4-09 → B4-13 (B4-14 one record)",
+     "l": []
+    },
+    {
+     "t": "Already correct · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "“No Faculty marker” → Assign Faculty",
+     "l": []
+    },
+    {
+     "t": "B2-09 Faculty courses (existing approved workflow; no new policy)",
+     "l": []
+    },
+    {
+     "t": "Already correct · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "Sidebar Requests · Usage · Request renewal · Ask BITS",
+     "l": []
+    },
+    {
+     "t": "B3-08 · B3-10 · B3-08",
+     "l": []
+    },
+    {
+     "t": "Corrected · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "Content access vs Student access",
+     "l": []
+    },
+    {
+     "t": "B2-02 (institution access) · B2-04 (student access) — separate destinations",
+     "l": []
+    },
+    {
+     "t": "Already correct · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "Device requests → forward",
+     "l": []
+    },
+    {
+     "t": "B3-09, before the Super Admin decision (B3-11 / B7-09)",
+     "l": []
+    },
+    {
+     "t": "Already correct · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Vendor → governance",
+     "l": []
+    },
+    {
+     "t": "Create → submit → review → publish → catalogue",
+     "l": []
+    },
+    {
+     "t": "B5-03…B5-05 → B6-03 → B6-07 → B6-12",
+     "l": []
+    },
+    {
+     "t": "Hand-off references linked (B5-08 → B6-03 · B6-12)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Governance",
+     "l": []
+    },
+    {
+     "t": "Correction review → Release / Hold",
+     "l": []
+    },
+    {
+     "t": "B6-04 · B6-13 → B7-05 · B7-11",
+     "l": []
+    },
+    {
+     "t": "Hand-off references linked (B6-13 → B7-05 · B7-11)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Super Admin",
+     "l": []
+    },
+    {
+     "t": "Batch-3 device-transfer screens (B3-11) sidebar + Operations tabs",
+     "l": []
+    },
+    {
+     "t": "B7-01 · B7-02 · B7-05 · B7-07 · B7-08 · B7-09",
+     "l": []
+    },
+    {
+     "t": "Corrected · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Super Admin",
+     "l": []
+    },
+    {
+     "t": "Batch-1 Requests / decision sidebar · “View institution”",
+     "l": []
+    },
+    {
+     "t": "B7 destinations · B7-03 Institution detail",
+     "l": []
+    },
+    {
+     "t": "Corrected · passes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Public",
+     "l": []
+    },
+    {
+     "t": "Course breadcrumb “Areas” · “All areas” · payment “Back to request status”",
+     "l": []
+    },
+    {
+     "t": "B1-03 · B1-08",
+     "l": []
+    },
+    {
+     "t": "Corrected · passes",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Screen IDs not designed (by decision)",
+  "rows": [
+   [
+    {
+     "t": "ID",
+     "l": []
+    },
+    {
+     "t": "Screen",
+     "l": []
+    },
+    {
+     "t": "Inventory disposition",
+     "l": []
+    },
+    {
+     "t": "In the design",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "PU-11",
+     "l": []
+    },
+    {
+     "t": "Reply to an information request",
+     "l": []
+    },
+    {
+     "t": "OPEN",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "PU-16",
+     "l": []
+    },
+    {
+     "t": "About · Contact · Privacy · Terms · Accessibility",
+     "l": []
+    },
+    {
+     "t": "DEFER (needs a content owner; no fake pages)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "XS-02",
+     "l": []
+    },
+    {
+     "t": "Choose workspace (person with several roles)",
+     "l": []
+    },
+    {
+     "t": "DEFER",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "ST-20",
+     "l": []
+    },
+    {
+     "t": "Signed-in catalogue",
+     "l": []
+    },
+    {
+     "t": "REMOVE from Student nav (R18) — public catalogue stays reachable from the footer",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "FA-13",
+     "l": []
+    },
+    {
+     "t": "Make available to students",
+     "l": []
+    },
+    {
+     "t": "OPEN",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "FA-23",
+     "l": []
+    },
+    {
+     "t": "Reports page",
+     "l": []
+    },
+    {
+     "t": "DEFER (R15)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "FA-24",
+     "l": []
+    },
+    {
+     "t": "Faculty settings",
+     "l": []
+    },
+    {
+     "t": "REMOVE (no function)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "IA-12",
+     "l": []
+    },
+    {
+     "t": "Invitations / account activation",
+     "l": []
+    },
+    {
+     "t": "OPEN (R02)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "IA-21",
+     "l": []
+    },
+    {
+     "t": "Reports page",
+     "l": []
+    },
+    {
+     "t": "DEFER (R15)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "IA-22",
+     "l": []
+    },
+    {
+     "t": "Institution settings (incl. institution sign-in / SSO)",
+     "l": []
+    },
+    {
+     "t": "DEFER (A-01)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "VE-10",
+     "l": []
+    },
+    {
+     "t": "Propose an update (corrected version)",
+     "l": []
+    },
+    {
+     "t": "DEFER / OPEN (LD-4; historical evidence only)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "VE-11",
+     "l": []
+    },
+    {
+     "t": "Updates",
+     "l": []
+    },
+    {
+     "t": "DEFER / OPEN (LD-4)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "VE-12",
+     "l": []
+    },
+    {
+     "t": "Update detail",
+     "l": []
+    },
+    {
+     "t": "DEFER / OPEN (LD-4)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "VE-14",
+     "l": []
+    },
+    {
+     "t": "Add a format to a published experiment",
+     "l": []
+    },
+    {
+     "t": "DEFER / OPEN (post-publication change — LD-4)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "VE-15",
+     "l": []
+    },
+    {
+     "t": "Experiment packages · Technical assets · Contributor settings",
+     "l": []
+    },
+    {
+     "t": "REMOVE (no defined function; R13 / R14)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "RV-07",
+     "l": []
+    },
+    {
+     "t": "Courses in scope · Learning outcomes · Reviewer settings",
+     "l": []
+    },
+    {
+     "t": "REMOVE (scope shown as one line on RV-01; outcomes are edited on RV-03)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "CM-10",
+     "l": []
+    },
+    {
+     "t": "Academic groupings · Governance settings",
+     "l": []
+    },
+    {
+     "t": "REMOVE (the structure belongs to the Super Admin, SA-14; settings undefined)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SA-04",
+     "l": []
+    },
+    {
+     "t": "Decline a request",
+     "l": []
+    },
+    {
+     "t": "OPEN (R21 / D10)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SA-05",
+     "l": []
+    },
+    {
+     "t": "Record payment / activate manually",
+     "l": []
+    },
+    {
+     "t": "OPEN (R06)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SA-08",
+     "l": []
+    },
+    {
+     "t": "Create an institution directly",
+     "l": []
+    },
+    {
+     "t": "OPEN (R07)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SA-09",
+     "l": []
+    },
+    {
+     "t": "Content allocation page",
+     "l": []
+    },
+    {
+     "t": "REMOVE as a page → MERGE into SA-03 (narrow at approval) and SA-07 (view)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SA-23",
+     "l": []
+    },
+    {
+     "t": "Platform reports",
+     "l": []
+    },
+    {
+     "t": "DEFER (R15); the institution report lives in SA-07",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SA-24",
+     "l": []
+    },
+    {
+     "t": "Platform settings",
+     "l": []
+    },
+    {
+     "t": "REMOVE (\"a gap is shown as a gap\", 17/10 §8)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SA-25",
+     "l": []
+    },
+    {
+     "t": "Student feedback views / analytics",
+     "l": []
+    },
+    {
+     "t": "DEFER (owner OPEN)",
+     "l": []
+    },
+    {
+     "t": "No entry point (link scan)",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Screen register — designed screens",
+  "rows": [
+   [
+    {
+     "t": "ID",
+     "l": []
+    },
+    {
+     "t": "Screen",
+     "l": []
+    },
+    {
+     "t": "Type",
+     "l": []
+    },
+    {
+     "t": "Navigation place",
+     "l": []
+    },
+    {
+     "t": "Proposed route",
+     "l": []
+    },
+    {
+     "t": "Approved boards",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "PU-01",
+     "l": []
+    },
+    {
+     "t": "Landing",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Header: Home",
+     "l": []
+    },
+    {
+     "t": "/",
+     "l": []
+    },
+    {
+     "t": "B1-01",
+     "l": [
+      "B1-01-Public-Landing.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-02",
+     "l": []
+    },
+    {
+     "t": "All engineering areas (\"View all areas\")",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Header: Areas",
+     "l": []
+    },
+    {
+     "t": "/areas",
+     "l": []
+    },
+    {
+     "t": "B1-03",
+     "l": [
+      "B1-03-Areas-and-Course.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-03",
+     "l": []
+    },
+    {
+     "t": "Engineering area",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/areas/[areaId]",
+     "l": []
+    },
+    {
+     "t": "B1-03",
+     "l": [
+      "B1-03-Areas-and-Course.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-04",
+     "l": []
+    },
+    {
+     "t": "Catalogue",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Header: Browse experiments",
+     "l": []
+    },
+    {
+     "t": "/experiments",
+     "l": []
+    },
+    {
+     "t": "B1-04",
+     "l": [
+      "B1-04-Catalogue.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-05",
+     "l": []
+    },
+    {
+     "t": "Course",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/courses/[courseCode]",
+     "l": []
+    },
+    {
+     "t": "B1-03",
+     "l": [
+      "B1-03-Areas-and-Course.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-06",
+     "l": []
+    },
+    {
+     "t": "Experiment",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/experiments/[experimentId]",
+     "l": []
+    },
+    {
+     "t": "B1-05",
+     "l": [
+      "B1-05-Experiment-Detail.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-07",
+     "l": []
+    },
+    {
+     "t": "Your selection",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Header: Selection (n)",
+     "l": []
+    },
+    {
+     "t": "/selection",
+     "l": []
+    },
+    {
+     "t": "B1-06",
+     "l": [
+      "B1-06-Selection.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-08",
+     "l": []
+    },
+    {
+     "t": "Request institutional access",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Header: Request access / flow step",
+     "l": []
+    },
+    {
+     "t": "/request-access",
+     "l": []
+    },
+    {
+     "t": "B1-07",
+     "l": [
+      "B1-07-Request-Access.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-09",
+     "l": []
+    },
+    {
+     "t": "Request sent",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow step",
+     "l": []
+    },
+    {
+     "t": "/request-access/sent",
+     "l": []
+    },
+    {
+     "t": "B1-07",
+     "l": [
+      "B1-07-Request-Access.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-10",
+     "l": []
+    },
+    {
+     "t": "Request status",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail (link from confirmation / e-mail: OPEN)",
+     "l": []
+    },
+    {
+     "t": "/requests/[requestId]",
+     "l": []
+    },
+    {
+     "t": "B1-08",
+     "l": [
+      "B1-08-Request-Status.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-12",
+     "l": []
+    },
+    {
+     "t": "Payment (external route only)",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow step",
+     "l": []
+    },
+    {
+     "t": "/requests/[requestId]/payment",
+     "l": []
+    },
+    {
+     "t": "B1-08",
+     "l": [
+      "B1-08-Request-Status.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-13",
+     "l": []
+    },
+    {
+     "t": "Access activated",
+     "l": []
+    },
+    {
+     "t": "state",
+     "l": []
+    },
+    {
+     "t": "—",
+     "l": []
+    },
+    {
+     "t": "/requests/[requestId] (Access active state)",
+     "l": []
+    },
+    {
+     "t": "B1-08",
+     "l": [
+      "B1-08-Request-Status.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-14",
+     "l": []
+    },
+    {
+     "t": "How institutional access works",
+     "l": []
+    },
+    {
+     "t": "state",
+     "l": []
+    },
+    {
+     "t": "Landing section",
+     "l": []
+    },
+    {
+     "t": "/ (#for-institutions section)",
+     "l": []
+    },
+    {
+     "t": "B1-01 · B1-05",
+     "l": [
+      "B1-01-Public-Landing.dc.html",
+      "B1-05-Experiment-Detail.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "PU-15",
+     "l": []
+    },
+    {
+     "t": "Not found",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "—",
+     "l": []
+    },
+    {
+     "t": "not-found.tsx",
+     "l": []
+    },
+    {
+     "t": "08",
+     "l": [
+      "08-System-Messages.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "XS-01",
+     "l": []
+    },
+    {
+     "t": "Sign in",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Header: Sign in",
+     "l": []
+    },
+    {
+     "t": "/sign-in",
+     "l": []
+    },
+    {
+     "t": "B1-09",
+     "l": [
+      "B1-09-Sign-In.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "XS-03",
+     "l": []
+    },
+    {
+     "t": "Signed out / session expired",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "—",
+     "l": []
+    },
+    {
+     "t": "/signed-out",
+     "l": []
+    },
+    {
+     "t": "B1-09",
+     "l": [
+      "B1-09-Sign-In.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "XS-04",
+     "l": []
+    },
+    {
+     "t": "First-time activation · Forgot password",
+     "l": []
+    },
+    {
+     "t": "state",
+     "l": []
+    },
+    {
+     "t": "Link on Sign in",
+     "l": []
+    },
+    {
+     "t": "/sign-in (links only — flows OPEN)",
+     "l": []
+    },
+    {
+     "t": "B1-09",
+     "l": [
+      "B1-09-Sign-In.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "XS-05",
+     "l": []
+    },
+    {
+     "t": "Account menu: name, role, institution, Help, Sign out",
+     "l": []
+    },
+    {
+     "t": "menu",
+     "l": []
+    },
+    {
+     "t": "Top bar",
+     "l": []
+    },
+    {
+     "t": "(top bar) account menu",
+     "l": []
+    },
+    {
+     "t": "05 · 06",
+     "l": [
+      "05-Workspace-Shell.dc.html",
+      "06-Sidebar-Variants.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "XS-06",
+     "l": []
+    },
+    {
+     "t": "Not your workspace",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "—",
+     "l": []
+    },
+    {
+     "t": "/[workspace]/not-allowed",
+     "l": []
+    },
+    {
+     "t": "08",
+     "l": [
+      "08-System-Messages.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "XS-07",
+     "l": []
+    },
+    {
+     "t": "Help & support: report a problem + my reports",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Help in all seven workspaces",
+     "l": []
+    },
+    {
+     "t": "/[workspace]/help",
+     "l": []
+    },
+    {
+     "t": "07",
+     "l": [
+      "07-Help-Support.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "XS-08",
+     "l": []
+    },
+    {
+     "t": "Institution paused / account inactive notice",
+     "l": []
+    },
+    {
+     "t": "state",
+     "l": []
+    },
+    {
+     "t": "Shell banner",
+     "l": []
+    },
+    {
+     "t": "(shell) paused / inactive banner",
+     "l": []
+    },
+    {
+     "t": "05 · 08 · B1-09 · B7-04",
+     "l": [
+      "05-Workspace-Shell.dc.html",
+      "08-System-Messages.dc.html",
+      "B1-09-Sign-In.dc.html",
+      "B7-04-Pause-Effects.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-01",
+     "l": []
+    },
+    {
+     "t": "Home",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Home",
+     "l": []
+    },
+    {
+     "t": "/student",
+     "l": []
+    },
+    {
+     "t": "B2-10",
+     "l": [
+      "B2-10-Student-Home.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-02",
+     "l": []
+    },
+    {
+     "t": "My courses",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar My courses",
+     "l": []
+    },
+    {
+     "t": "/student/courses",
+     "l": []
+    },
+    {
+     "t": "B2-11",
+     "l": [
+      "B2-11-My-Courses.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-03",
+     "l": []
+    },
+    {
+     "t": "Course (student view)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/student/courses/[courseId]",
+     "l": []
+    },
+    {
+     "t": "B2-11",
+     "l": [
+      "B2-11-My-Courses.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-04",
+     "l": []
+    },
+    {
+     "t": "All my experiments",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Tab of My courses",
+     "l": []
+    },
+    {
+     "t": "/student/courses?tab=experiments",
+     "l": []
+    },
+    {
+     "t": "B2-11",
+     "l": [
+      "B2-11-My-Courses.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-05",
+     "l": []
+    },
+    {
+     "t": "Experiment (hub: Overview · Resources · Simulation · Assessment · Progress)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/student/experiments/[experimentId]",
+     "l": []
+    },
+    {
+     "t": "B2-12",
+     "l": [
+      "B2-12-Experiment-Hub.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-06",
+     "l": []
+    },
+    {
+     "t": "Resources",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Experiment tab",
+     "l": []
+    },
+    {
+     "t": "/student/experiments/[experimentId]/resources",
+     "l": []
+    },
+    {
+     "t": "B3-01",
+     "l": [
+      "B3-01-Hub-Resources-and-Progress.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-07",
+     "l": []
+    },
+    {
+     "t": "Simulation — choose a format",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Experiment tab",
+     "l": []
+    },
+    {
+     "t": "/student/experiments/[experimentId]/simulation",
+     "l": []
+    },
+    {
+     "t": "B3-02",
+     "l": [
+      "B3-02-Simulation-Choose-Format.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-08",
+     "l": []
+    },
+    {
+     "t": "WEB simulation (launch / resume)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/student/experiments/[experimentId]/simulation/web",
+     "l": []
+    },
+    {
+     "t": "B3-03",
+     "l": [
+      "B3-03-WEB-Simulation.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-09",
+     "l": []
+    },
+    {
+     "t": "AR / VR / MR format (setup & progress)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/student/experiments/[experimentId]/simulation/[format]",
+     "l": []
+    },
+    {
+     "t": "B3-04",
+     "l": [
+      "B3-04-AR-VR-MR-Format.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-10",
+     "l": []
+    },
+    {
+     "t": "Progress for this experiment",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Experiment tab",
+     "l": []
+    },
+    {
+     "t": "/student/experiments/[experimentId]/progress",
+     "l": []
+    },
+    {
+     "t": "B3-01",
+     "l": [
+      "B3-01-Hub-Resources-and-Progress.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-11",
+     "l": []
+    },
+    {
+     "t": "Assessments",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Assessments",
+     "l": []
+    },
+    {
+     "t": "/student/assessments",
+     "l": []
+    },
+    {
+     "t": "B4-11",
+     "l": [
+      "B4-11-Student-Assessments.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-12",
+     "l": []
+    },
+    {
+     "t": "Assessment — before you start",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/student/assessments/[assessmentId]",
+     "l": []
+    },
+    {
+     "t": "B4-11",
+     "l": [
+      "B4-11-Student-Assessments.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-13",
+     "l": []
+    },
+    {
+     "t": "Assessment attempt",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow step",
+     "l": []
+    },
+    {
+     "t": "/student/assessments/[assessmentId]/attempt",
+     "l": []
+    },
+    {
+     "t": "B4-12",
+     "l": [
+      "B4-12-Assessment-Attempt.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-14",
+     "l": []
+    },
+    {
+     "t": "Result",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/student/assessments/[assessmentId]/result",
+     "l": []
+    },
+    {
+     "t": "B4-13",
+     "l": [
+      "B4-13-Assessment-Result.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-15",
+     "l": []
+    },
+    {
+     "t": "Progress (all experiments)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Progress",
+     "l": []
+    },
+    {
+     "t": "/student/progress",
+     "l": []
+    },
+    {
+     "t": "B3-05",
+     "l": [
+      "B3-05-Progress.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-16",
+     "l": []
+    },
+    {
+     "t": "Format feedback",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow step",
+     "l": []
+    },
+    {
+     "t": "/student/experiments/[experimentId]/feedback/[format]",
+     "l": []
+    },
+    {
+     "t": "B3-06",
+     "l": [
+      "B3-06-Format-Feedback.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-17",
+     "l": []
+    },
+    {
+     "t": "Feedback sent (confirmation, read-only)",
+     "l": []
+    },
+    {
+     "t": "state",
+     "l": []
+    },
+    {
+     "t": "Flow step",
+     "l": []
+    },
+    {
+     "t": "/student/experiments/[experimentId]/feedback/[format] (sent state)",
+     "l": []
+    },
+    {
+     "t": "B3-06",
+     "l": [
+      "B3-06-Format-Feedback.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-18",
+     "l": []
+    },
+    {
+     "t": "My device (AR/VR/MR holders only)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Account menu",
+     "l": []
+    },
+    {
+     "t": "/student/device",
+     "l": []
+    },
+    {
+     "t": "B3-07",
+     "l": [
+      "B3-07-My-Device.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "ST-19",
+     "l": []
+    },
+    {
+     "t": "Experiment not available (refusal page)",
+     "l": []
+    },
+    {
+     "t": "state",
+     "l": []
+    },
+    {
+     "t": "—",
+     "l": []
+    },
+    {
+     "t": "/student/experiments/[experimentId] (not-available state)",
+     "l": []
+    },
+    {
+     "t": "B2-11 · B2-12 · B2-13",
+     "l": [
+      "B2-11-My-Courses.dc.html",
+      "B2-12-Experiment-Hub.dc.html",
+      "B2-13-Flow-2-Continuity.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-01",
+     "l": []
+    },
+    {
+     "t": "Overview",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Overview",
+     "l": []
+    },
+    {
+     "t": "/faculty",
+     "l": []
+    },
+    {
+     "t": "B4-01",
+     "l": [
+      "B4-01-Faculty-Overview.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-02",
+     "l": []
+    },
+    {
+     "t": "My courses",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar My courses",
+     "l": []
+    },
+    {
+     "t": "/faculty/courses",
+     "l": []
+    },
+    {
+     "t": "B4-02",
+     "l": [
+      "B4-02-My-Courses-and-Experiments.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-03",
+     "l": []
+    },
+    {
+     "t": "Course (teaching view)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/faculty/courses/[courseId]",
+     "l": []
+    },
+    {
+     "t": "B4-02",
+     "l": [
+      "B4-02-My-Courses-and-Experiments.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-04",
+     "l": []
+    },
+    {
+     "t": "Experiments",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Tab of My courses",
+     "l": []
+    },
+    {
+     "t": "/faculty/courses?tab=experiments",
+     "l": []
+    },
+    {
+     "t": "B4-02",
+     "l": [
+      "B4-02-My-Courses-and-Experiments.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-05",
+     "l": []
+    },
+    {
+     "t": "Experiment (teaching view)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/faculty/experiments/[experimentId]",
+     "l": []
+    },
+    {
+     "t": "B4-03",
+     "l": [
+      "B4-03-Experiment-Teaching-View.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-06",
+     "l": []
+    },
+    {
+     "t": "Assessments",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Assessments",
+     "l": []
+    },
+    {
+     "t": "/faculty/assessments",
+     "l": []
+    },
+    {
+     "t": "B4-04",
+     "l": [
+      "B4-04-Assessments-and-Create.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-07",
+     "l": []
+    },
+    {
+     "t": "Create assessment (guided)",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow (from FA-06/05)",
+     "l": []
+    },
+    {
+     "t": "/faculty/assessments/new?step=1…4",
+     "l": []
+    },
+    {
+     "t": "B4-04",
+     "l": [
+      "B4-04-Assessments-and-Create.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-08",
+     "l": []
+    },
+    {
+     "t": "Assessment · Summary",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Assessment tab",
+     "l": []
+    },
+    {
+     "t": "/faculty/assessments/[assessmentId]",
+     "l": []
+    },
+    {
+     "t": "B4-05",
+     "l": [
+      "B4-05-Assessment-Summary-and-Questions.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-09",
+     "l": []
+    },
+    {
+     "t": "Assessment · Questions",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Assessment tab",
+     "l": []
+    },
+    {
+     "t": "/faculty/assessments/[assessmentId]/questions",
+     "l": []
+    },
+    {
+     "t": "B4-05",
+     "l": [
+      "B4-05-Assessment-Summary-and-Questions.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-10",
+     "l": []
+    },
+    {
+     "t": "Assessment · Settings",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Assessment tab",
+     "l": []
+    },
+    {
+     "t": "/faculty/assessments/[assessmentId]/settings",
+     "l": []
+    },
+    {
+     "t": "B4-06",
+     "l": [
+      "B4-06-Settings-Preview-Submissions.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-11",
+     "l": []
+    },
+    {
+     "t": "Assessment · Preview",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Assessment tab",
+     "l": []
+    },
+    {
+     "t": "/faculty/assessments/[assessmentId]/preview",
+     "l": []
+    },
+    {
+     "t": "B4-06",
+     "l": [
+      "B4-06-Settings-Preview-Submissions.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-12",
+     "l": []
+    },
+    {
+     "t": "Assessment · Submissions",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Assessment tab",
+     "l": []
+    },
+    {
+     "t": "/faculty/assessments/[assessmentId]/submissions",
+     "l": []
+    },
+    {
+     "t": "B4-06",
+     "l": [
+      "B4-06-Settings-Preview-Submissions.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-14",
+     "l": []
+    },
+    {
+     "t": "Question bank (tabs: Questions · Drafts to review)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Question bank",
+     "l": []
+    },
+    {
+     "t": "/faculty/question-bank",
+     "l": []
+    },
+    {
+     "t": "B4-07",
+     "l": [
+      "B4-07-Question-Bank-and-Editor.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-15",
+     "l": []
+    },
+    {
+     "t": "Add / edit question",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/faculty/question-bank/new · /faculty/question-bank/[questionId]",
+     "l": []
+    },
+    {
+     "t": "B4-07",
+     "l": [
+      "B4-07-Question-Bank-and-Editor.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-16",
+     "l": []
+    },
+    {
+     "t": "Draft questions with assistance",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow",
+     "l": []
+    },
+    {
+     "t": "/faculty/question-bank/draft",
+     "l": []
+    },
+    {
+     "t": "B4-08",
+     "l": [
+      "B4-08-Draft-with-Assistance-and-Import.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-17",
+     "l": []
+    },
+    {
+     "t": "Import questions (CSV / XLSX)",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow",
+     "l": []
+    },
+    {
+     "t": "/faculty/question-bank/import",
+     "l": []
+    },
+    {
+     "t": "B4-08",
+     "l": [
+      "B4-08-Draft-with-Assistance-and-Import.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-18",
+     "l": []
+    },
+    {
+     "t": "Marking queue",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Marking",
+     "l": []
+    },
+    {
+     "t": "/faculty/marking",
+     "l": []
+    },
+    {
+     "t": "B4-09",
+     "l": [
+      "B4-09-Marking.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-19",
+     "l": []
+    },
+    {
+     "t": "Mark a submission",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/faculty/marking/[attemptId]",
+     "l": []
+    },
+    {
+     "t": "B4-09",
+     "l": [
+      "B4-09-Marking.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-20",
+     "l": []
+    },
+    {
+     "t": "Students (progress + follow-up)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Students",
+     "l": []
+    },
+    {
+     "t": "/faculty/students",
+     "l": []
+    },
+    {
+     "t": "B4-10",
+     "l": [
+      "B4-10-Students-and-Follow-up.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-21",
+     "l": []
+    },
+    {
+     "t": "Student detail (per experiment)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/faculty/students/[studentId]",
+     "l": []
+    },
+    {
+     "t": "B4-10",
+     "l": [
+      "B4-10-Students-and-Follow-up.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "FA-22",
+     "l": []
+    },
+    {
+     "t": "Export progress (CSV)",
+     "l": []
+    },
+    {
+     "t": "action",
+     "l": []
+    },
+    {
+     "t": "Action on FA-20 / FA-12",
+     "l": []
+    },
+    {
+     "t": "(action) Export CSV on FA-20 / FA-12",
+     "l": []
+    },
+    {
+     "t": "B4-06 · B4-10",
+     "l": [
+      "B4-06-Settings-Preview-Submissions.dc.html",
+      "B4-10-Students-and-Follow-up.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-01",
+     "l": []
+    },
+    {
+     "t": "Overview",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Overview",
+     "l": []
+    },
+    {
+     "t": "/institute",
+     "l": []
+    },
+    {
+     "t": "B2-01",
+     "l": [
+      "B2-01-IA-Overview.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-02",
+     "l": []
+    },
+    {
+     "t": "Content access",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Content access",
+     "l": []
+    },
+    {
+     "t": "/institute/content-access",
+     "l": []
+    },
+    {
+     "t": "B2-02",
+     "l": [
+      "B2-02-Content-Access.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-03",
+     "l": []
+    },
+    {
+     "t": "Access plan / course detail",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/institute/content-access/plans/[planId]",
+     "l": []
+    },
+    {
+     "t": "B2-03",
+     "l": [
+      "B2-03-Access-Plan-and-Course-Codes.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-04",
+     "l": []
+    },
+    {
+     "t": "Student access",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Student access",
+     "l": []
+    },
+    {
+     "t": "/institute/student-access",
+     "l": []
+    },
+    {
+     "t": "B2-01 · B2-04",
+     "l": [
+      "B2-01-IA-Overview.dc.html",
+      "B2-04-Student-Access.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-05",
+     "l": []
+    },
+    {
+     "t": "Give students access (guided)",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow (from IA-02/03/04/07/14)",
+     "l": []
+    },
+    {
+     "t": "/institute/student-access/give?step=1…",
+     "l": []
+    },
+    {
+     "t": "B2-05",
+     "l": [
+      "B2-05-Give-Students-Access.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-06",
+     "l": []
+    },
+    {
+     "t": "Students",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Sidebar People › Students",
+     "l": []
+    },
+    {
+     "t": "/institute/people?tab=students",
+     "l": []
+    },
+    {
+     "t": "B2-06",
+     "l": [
+      "B2-06-People.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-07",
+     "l": []
+    },
+    {
+     "t": "Student record",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/institute/people/students/[studentId]",
+     "l": []
+    },
+    {
+     "t": "B2-01 · B2-06",
+     "l": [
+      "B2-01-IA-Overview.dc.html",
+      "B2-06-People.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-08",
+     "l": []
+    },
+    {
+     "t": "Faculty",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "People › Faculty",
+     "l": []
+    },
+    {
+     "t": "/institute/people?tab=faculty",
+     "l": []
+    },
+    {
+     "t": "B2-06",
+     "l": [
+      "B2-06-People.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-09",
+     "l": []
+    },
+    {
+     "t": "Faculty record (incl. courses taught)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/institute/people/faculty/[facultyId]",
+     "l": []
+    },
+    {
+     "t": "B2-06",
+     "l": [
+      "B2-06-People.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-10",
+     "l": []
+    },
+    {
+     "t": "Add a student / Add a faculty member",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow",
+     "l": []
+    },
+    {
+     "t": "/institute/people/add",
+     "l": []
+    },
+    {
+     "t": "B2-04 · B2-07",
+     "l": [
+      "B2-04-Student-Access.dc.html",
+      "B2-07-Add-and-Import.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-11",
+     "l": []
+    },
+    {
+     "t": "Import students (CSV)",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow",
+     "l": []
+    },
+    {
+     "t": "/institute/people/import",
+     "l": []
+    },
+    {
+     "t": "B2-07",
+     "l": [
+      "B2-07-Add-and-Import.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-13",
+     "l": []
+    },
+    {
+     "t": "Groups",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "People › Groups",
+     "l": []
+    },
+    {
+     "t": "/institute/people?tab=groups",
+     "l": []
+    },
+    {
+     "t": "B2-01 · B2-02 · B2-08",
+     "l": [
+      "B2-01-IA-Overview.dc.html",
+      "B2-02-Content-Access.dc.html",
+      "B2-08-Groups.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-14",
+     "l": []
+    },
+    {
+     "t": "Group (create · members · access)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail / flow",
+     "l": []
+    },
+    {
+     "t": "/institute/people/groups/[groupId] · /new",
+     "l": []
+    },
+    {
+     "t": "B2-01 · B2-02 · B2-08",
+     "l": [
+      "B2-01-IA-Overview.dc.html",
+      "B2-02-Content-Access.dc.html",
+      "B2-08-Groups.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-15",
+     "l": []
+    },
+    {
+     "t": "Faculty courses (who teaches what)",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "People › Faculty courses",
+     "l": []
+    },
+    {
+     "t": "/institute/people?tab=faculty-courses",
+     "l": []
+    },
+    {
+     "t": "B2-09",
+     "l": [
+      "B2-09-Faculty-Courses.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-16",
+     "l": []
+    },
+    {
+     "t": "Course codes (institution code + optional semester)",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Content access › Course codes",
+     "l": []
+    },
+    {
+     "t": "/institute/content-access?tab=course-codes",
+     "l": []
+    },
+    {
+     "t": "B2-03",
+     "l": [
+      "B2-03-Access-Plan-and-Course-Codes.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-17",
+     "l": []
+    },
+    {
+     "t": "Requests to BITS (renewal · additional licences)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Requests › Requests to BITS",
+     "l": []
+    },
+    {
+     "t": "/institute/requests",
+     "l": []
+    },
+    {
+     "t": "B3-08",
+     "l": [
+      "B3-08-IA-Requests-to-BITS.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-18",
+     "l": []
+    },
+    {
+     "t": "Device requests",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Requests › Device requests",
+     "l": []
+    },
+    {
+     "t": "/institute/requests?tab=devices",
+     "l": []
+    },
+    {
+     "t": "B3-09",
+     "l": [
+      "B3-09-IA-Device-Requests.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-19",
+     "l": []
+    },
+    {
+     "t": "Device request — review & forward",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/institute/requests/devices/[transferId]",
+     "l": []
+    },
+    {
+     "t": "B3-09",
+     "l": [
+      "B3-09-IA-Device-Requests.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "IA-20",
+     "l": []
+    },
+    {
+     "t": "Usage",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Usage",
+     "l": []
+    },
+    {
+     "t": "/institute/usage",
+     "l": []
+    },
+    {
+     "t": "B3-10",
+     "l": [
+      "B3-10-IA-Usage.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-01",
+     "l": []
+    },
+    {
+     "t": "Overview",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Overview",
+     "l": []
+    },
+    {
+     "t": "/vendor",
+     "l": []
+    },
+    {
+     "t": "B5-01",
+     "l": [
+      "B5-01-Vendor-Overview.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-02",
+     "l": []
+    },
+    {
+     "t": "My experiments (all, any status)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar My experiments",
+     "l": []
+    },
+    {
+     "t": "/vendor/experiments",
+     "l": []
+    },
+    {
+     "t": "B5-02",
+     "l": [
+      "B5-02-My-Experiments.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-03",
+     "l": []
+    },
+    {
+     "t": "Create experiment · Course & description",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Create flow, step 1",
+     "l": []
+    },
+    {
+     "t": "/vendor/experiments/new?step=course",
+     "l": []
+    },
+    {
+     "t": "B5-03",
+     "l": [
+      "B5-03-Create-Course-and-Description.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-04",
+     "l": []
+    },
+    {
+     "t": "Create experiment · Formats & delivery",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Create flow, step 2",
+     "l": []
+    },
+    {
+     "t": "/vendor/experiments/[submissionId]/edit?step=formats",
+     "l": []
+    },
+    {
+     "t": "B5-04",
+     "l": [
+      "B5-04-Formats-and-Delivery.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-05",
+     "l": []
+    },
+    {
+     "t": "Create experiment · Preview & documents",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Create flow, step 3",
+     "l": []
+    },
+    {
+     "t": "/vendor/experiments/[submissionId]/edit?step=preview",
+     "l": []
+    },
+    {
+     "t": "B5-05",
+     "l": [
+      "B5-05-Preview-Check-and-Submit.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-06",
+     "l": []
+    },
+    {
+     "t": "Check & submit",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Create flow, step 4",
+     "l": []
+    },
+    {
+     "t": "/vendor/experiments/[submissionId]/edit?step=submit",
+     "l": []
+    },
+    {
+     "t": "B5-05",
+     "l": [
+      "B5-05-Preview-Check-and-Submit.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-07",
+     "l": []
+    },
+    {
+     "t": "Experiment record (status, details, timeline)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/vendor/experiments/[submissionId]",
+     "l": []
+    },
+    {
+     "t": "B5-06",
+     "l": [
+      "B5-06-Experiment-Record-and-History.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-08",
+     "l": []
+    },
+    {
+     "t": "Revise & resubmit (after a return)",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow",
+     "l": []
+    },
+    {
+     "t": "/vendor/experiments/[submissionId]/revise",
+     "l": []
+    },
+    {
+     "t": "B5-07",
+     "l": [
+      "B5-07-Revise-and-Resubmit.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-09",
+     "l": []
+    },
+    {
+     "t": "Edit draft",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow",
+     "l": []
+    },
+    {
+     "t": "/vendor/experiments/[submissionId]/edit",
+     "l": []
+    },
+    {
+     "t": "B5-07",
+     "l": [
+      "B5-07-Revise-and-Resubmit.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "VE-13",
+     "l": []
+    },
+    {
+     "t": "Submission & version history",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Record tab + filter",
+     "l": []
+    },
+    {
+     "t": "/vendor/experiments/[submissionId]?tab=history",
+     "l": []
+    },
+    {
+     "t": "B5-02 · B5-06",
+     "l": [
+      "B5-02-My-Experiments.dc.html",
+      "B5-06-Experiment-Record-and-History.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "RV-01",
+     "l": []
+    },
+    {
+     "t": "Overview",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Overview",
+     "l": []
+    },
+    {
+     "t": "/reviewer",
+     "l": []
+    },
+    {
+     "t": "B6-01",
+     "l": [
+      "B6-01-Reviewer-Overview.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "RV-02",
+     "l": []
+    },
+    {
+     "t": "Review queue",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Review queue",
+     "l": []
+    },
+    {
+     "t": "/reviewer/queue",
+     "l": []
+    },
+    {
+     "t": "B6-02 · B6-12 · B6-13",
+     "l": [
+      "B6-02-Review-Queue-and-Reviewed.dc.html",
+      "B6-12-Flow-5-Completion.dc.html",
+      "B6-13-Flow-6-Steps-1-2.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "RV-03",
+     "l": []
+    },
+    {
+     "t": "Review a submission",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/reviewer/submissions/[submissionId]",
+     "l": []
+    },
+    {
+     "t": "B6-03 · B6-11 · B6-12",
+     "l": [
+      "B6-03-Review-a-Submission.dc.html",
+      "B6-11-Critical-States.dc.html",
+      "B6-12-Flow-5-Completion.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "RV-04",
+     "l": []
+    },
+    {
+     "t": "Review an update",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/reviewer/updates/[updateId]",
+     "l": []
+    },
+    {
+     "t": "B6-04 · B6-13 · B7-11",
+     "l": [
+      "B6-04-Review-an-Update.dc.html",
+      "B6-13-Flow-6-Steps-1-2.dc.html",
+      "B7-11-Flow-6-Release-and-Hold.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "RV-05",
+     "l": []
+    },
+    {
+     "t": "Reviewed by me",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Reviewed by me",
+     "l": []
+    },
+    {
+     "t": "/reviewer/reviewed",
+     "l": []
+    },
+    {
+     "t": "B6-02",
+     "l": [
+      "B6-02-Review-Queue-and-Reviewed.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "RV-06",
+     "l": []
+    },
+    {
+     "t": "Decided item (read-only)",
+     "l": []
+    },
+    {
+     "t": "state",
+     "l": []
+    },
+    {
+     "t": "—",
+     "l": []
+    },
+    {
+     "t": "/reviewer/submissions/[submissionId] (decided, read-only)",
+     "l": []
+    },
+    {
+     "t": "B6-03 · B6-12",
+     "l": [
+      "B6-03-Review-a-Submission.dc.html",
+      "B6-12-Flow-5-Completion.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "CM-01",
+     "l": []
+    },
+    {
+     "t": "Overview",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Overview",
+     "l": []
+    },
+    {
+     "t": "/content-manager",
+     "l": []
+    },
+    {
+     "t": "B6-05",
+     "l": [
+      "B6-05-CM-Overview.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "CM-02",
+     "l": []
+    },
+    {
+     "t": "Ready to publish",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Ready to publish",
+     "l": []
+    },
+    {
+     "t": "/content-manager/ready",
+     "l": []
+    },
+    {
+     "t": "B6-03 · B6-06 · B6-12",
+     "l": [
+      "B6-03-Review-a-Submission.dc.html",
+      "B6-06-Ready-to-Publish-and-Library.dc.html",
+      "B6-12-Flow-5-Completion.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "CM-03",
+     "l": []
+    },
+    {
+     "t": "Publication decision",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/content-manager/decisions/[submissionId]",
+     "l": []
+    },
+    {
+     "t": "B6-07 · B6-11 · B6-12",
+     "l": [
+      "B6-07-Publication-Decision.dc.html",
+      "B6-11-Critical-States.dc.html",
+      "B6-12-Flow-5-Completion.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "CM-04",
+     "l": []
+    },
+    {
+     "t": "Content library (all statuses incl. published)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Content library",
+     "l": []
+    },
+    {
+     "t": "/content-manager/library",
+     "l": []
+    },
+    {
+     "t": "B6-06",
+     "l": [
+      "B6-06-Ready-to-Publish-and-Library.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "CM-05",
+     "l": []
+    },
+    {
+     "t": "Published experiment",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/content-manager/published/[experimentId]",
+     "l": []
+    },
+    {
+     "t": "B6-08 · B6-13 · B7-11",
+     "l": [
+      "B6-08-Published-and-Correction-Entry.dc.html",
+      "B6-13-Flow-6-Steps-1-2.dc.html",
+      "B7-11-Flow-6-Release-and-Hold.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "CM-06",
+     "l": []
+    },
+    {
+     "t": "Edit catalogue details → opens a correction (UPD) draft pre-filled with the live fields (M-1)",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow (into a correction draft)",
+     "l": []
+    },
+    {
+     "t": "→ /content-manager/updates/[updateId] (draft, catalogue fields)",
+     "l": []
+    },
+    {
+     "t": "B6-08 · B6-13",
+     "l": [
+      "B6-08-Published-and-Correction-Entry.dc.html",
+      "B6-13-Flow-6-Steps-1-2.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "CM-07",
+     "l": []
+    },
+    {
+     "t": "Edit a delivery link (with reason) → opens a correction (UPD) draft pre-filled with the live delivery details (M-1)",
+     "l": []
+    },
+    {
+     "t": "step",
+     "l": []
+    },
+    {
+     "t": "Flow (into a correction draft)",
+     "l": []
+    },
+    {
+     "t": "→ /content-manager/updates/[updateId] (draft, delivery)",
+     "l": []
+    },
+    {
+     "t": "B6-08 · B6-13",
+     "l": [
+      "B6-08-Published-and-Correction-Entry.dc.html",
+      "B6-13-Flow-6-Steps-1-2.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "CM-08",
+     "l": []
+    },
+    {
+     "t": "Corrections / updates I raised",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Updates",
+     "l": []
+    },
+    {
+     "t": "/content-manager/updates · /content-manager/updates/[updateId]",
+     "l": []
+    },
+    {
+     "t": "B6-09 · B6-11 · B6-13 · B7-11",
+     "l": [
+      "B6-09-Updates-Corrections.dc.html",
+      "B6-11-Critical-States.dc.html",
+      "B6-13-Flow-6-Steps-1-2.dc.html",
+      "B7-11-Flow-6-Release-and-Hold.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "CM-09",
+     "l": []
+    },
+    {
+     "t": "Platform course codes",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Course codes",
+     "l": []
+    },
+    {
+     "t": "/content-manager/course-codes",
+     "l": []
+    },
+    {
+     "t": "B6-10 · B6-11",
+     "l": [
+      "B6-10-Platform-Course-Codes.dc.html",
+      "B6-11-Critical-States.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-01",
+     "l": []
+    },
+    {
+     "t": "Overview",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Overview",
+     "l": []
+    },
+    {
+     "t": "/admin",
+     "l": []
+    },
+    {
+     "t": "B7-01 · B7-10 · B7-12",
+     "l": [
+      "B7-01-SA-Overview.dc.html",
+      "B7-10-Critical-States.dc.html",
+      "B7-12-Responsive-Proof.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-02",
+     "l": []
+    },
+    {
+     "t": "Requests",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Requests",
+     "l": []
+    },
+    {
+     "t": "/admin/requests",
+     "l": []
+    },
+    {
+     "t": "B1-10 · B1-11",
+     "l": [
+      "B1-10-SA-Requests.dc.html",
+      "B1-11-SA-Decision.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-03",
+     "l": []
+    },
+    {
+     "t": "Request decision",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/admin/requests/[requestId]",
+     "l": []
+    },
+    {
+     "t": "B1-10 · B1-11",
+     "l": [
+      "B1-10-SA-Requests.dc.html",
+      "B1-11-SA-Decision.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-06",
+     "l": []
+    },
+    {
+     "t": "Institutions",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Institutions",
+     "l": []
+    },
+    {
+     "t": "/admin/institutions",
+     "l": []
+    },
+    {
+     "t": "B7-02 · B7-12",
+     "l": [
+      "B7-02-Institutions.dc.html",
+      "B7-12-Responsive-Proof.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-07",
+     "l": []
+    },
+    {
+     "t": "Institution detail",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/admin/institutions/[institutionId]",
+     "l": []
+    },
+    {
+     "t": "B7-02 · B7-03 · B7-04 · B7-10 · B7-12",
+     "l": [
+      "B7-02-Institutions.dc.html",
+      "B7-03-Institution-Detail.dc.html",
+      "B7-04-Pause-Effects.dc.html",
+      "B7-10-Critical-States.dc.html",
+      "B7-12-Responsive-Proof.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-10",
+     "l": []
+    },
+    {
+     "t": "Content updates (awaiting release)",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Sidebar Content › Updates",
+     "l": []
+    },
+    {
+     "t": "/admin/content/updates",
+     "l": []
+    },
+    {
+     "t": "B7-05 · B7-11",
+     "l": [
+      "B7-05-Content-Updates-Release-Hold.dc.html",
+      "B7-11-Flow-6-Release-and-Hold.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-11",
+     "l": []
+    },
+    {
+     "t": "Release or hold an update",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/admin/content/updates/[updateId]",
+     "l": []
+    },
+    {
+     "t": "B7-01 · B7-05 · B7-10 · B7-11 · B7-12",
+     "l": [
+      "B7-01-SA-Overview.dc.html",
+      "B7-05-Content-Updates-Release-Hold.dc.html",
+      "B7-10-Critical-States.dc.html",
+      "B7-11-Flow-6-Release-and-Hold.dc.html",
+      "B7-12-Responsive-Proof.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-12",
+     "l": []
+    },
+    {
+     "t": "All content & stuck items",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Content › All content",
+     "l": []
+    },
+    {
+     "t": "/admin/content/all",
+     "l": []
+    },
+    {
+     "t": "B7-06",
+     "l": [
+      "B7-06-All-Content.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-13",
+     "l": []
+    },
+    {
+     "t": "Content record (read-only for published content; status override for stuck, non-published records — M-1)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/admin/content/records/[recordId]",
+     "l": []
+    },
+    {
+     "t": "B7-06 · B7-09 · B7-10 · B7-12",
+     "l": [
+      "B7-06-All-Content.dc.html",
+      "B7-09-Operations.dc.html",
+      "B7-10-Critical-States.dc.html",
+      "B7-12-Responsive-Proof.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-14",
+     "l": []
+    },
+    {
+     "t": "Academic structure (areas → courses)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Academic structure",
+     "l": []
+    },
+    {
+     "t": "/admin/structure",
+     "l": []
+    },
+    {
+     "t": "B7-07 · B7-12",
+     "l": [
+      "B7-07-Academic-Structure.dc.html",
+      "B7-12-Responsive-Proof.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-15",
+     "l": []
+    },
+    {
+     "t": "Area / course record",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/admin/structure/areas/[areaId] · /courses/[courseId]",
+     "l": []
+    },
+    {
+     "t": "B7-07 · B7-10 · B7-12",
+     "l": [
+      "B7-07-Academic-Structure.dc.html",
+      "B7-10-Critical-States.dc.html",
+      "B7-12-Responsive-Proof.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-16",
+     "l": []
+    },
+    {
+     "t": "Platform roles (Vendors · Reviewers · Content Managers)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Sidebar Platform roles",
+     "l": []
+    },
+    {
+     "t": "/admin/roles?tab=vendors|reviewers|content-managers",
+     "l": []
+    },
+    {
+     "t": "B7-08",
+     "l": [
+      "B7-08-Platform-Roles.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-17",
+     "l": []
+    },
+    {
+     "t": "Role holder (assign / withdraw scope)",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/admin/roles/[holderId]",
+     "l": []
+    },
+    {
+     "t": "B7-08 · B7-10 · B7-12",
+     "l": [
+      "B7-08-Platform-Roles.dc.html",
+      "B7-10-Critical-States.dc.html",
+      "B7-12-Responsive-Proof.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-18",
+     "l": []
+    },
+    {
+     "t": "Device transfers",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Sidebar Operations › Device transfers",
+     "l": []
+    },
+    {
+     "t": "/admin/operations/device-transfers",
+     "l": []
+    },
+    {
+     "t": "B3-11 · B7-09 · B7-10",
+     "l": [
+      "B3-11-SA-Device-Transfers.dc.html",
+      "B7-09-Operations.dc.html",
+      "B7-10-Critical-States.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-19",
+     "l": []
+    },
+    {
+     "t": "Device transfer decision",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/admin/operations/device-transfers/[transferId]",
+     "l": []
+    },
+    {
+     "t": "B3-11 · B7-09 · B7-10",
+     "l": [
+      "B3-11-SA-Device-Transfers.dc.html",
+      "B7-09-Operations.dc.html",
+      "B7-10-Critical-States.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-20",
+     "l": []
+    },
+    {
+     "t": "Support reports",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Operations › Support",
+     "l": []
+    },
+    {
+     "t": "/admin/operations/support",
+     "l": []
+    },
+    {
+     "t": "B7-09",
+     "l": [
+      "B7-09-Operations.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-21",
+     "l": []
+    },
+    {
+     "t": "Support report",
+     "l": []
+    },
+    {
+     "t": "page",
+     "l": []
+    },
+    {
+     "t": "Detail",
+     "l": []
+    },
+    {
+     "t": "/admin/operations/support/[reportId]",
+     "l": []
+    },
+    {
+     "t": "B7-09 · B7-10 · B7-12",
+     "l": [
+      "B7-09-Operations.dc.html",
+      "B7-10-Critical-States.dc.html",
+      "B7-12-Responsive-Proof.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "SA-22",
+     "l": []
+    },
+    {
+     "t": "Access ending & renewals",
+     "l": []
+    },
+    {
+     "t": "tab",
+     "l": []
+    },
+    {
+     "t": "Operations › Access ending",
+     "l": []
+    },
+    {
+     "t": "/admin/operations/access-ending",
+     "l": []
+    },
+    {
+     "t": "B7-09 · B7-10",
+     "l": [
+      "B7-09-Operations.dc.html",
+      "B7-10-Critical-States.dc.html"
+     ]
+    }
+   ]
+  ]
+ }
+]

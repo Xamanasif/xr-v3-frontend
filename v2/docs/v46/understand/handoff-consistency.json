@@ -1,0 +1,1661 @@
+{
+  "checks": [
+    {
+      "id": 1,
+      "name": "MANIFEST.json vs SHA256SUMS.txt vs handoff/files.json vs files on disk; MANIFEST counts/version vs FREEZE-RECORD",
+      "result": "PASS",
+      "detail": "180 files on disk = the 178 paths listed in MANIFEST.json + MANIFEST.json and SHA256SUMS.txt themselves (not self-listed; expected). MANIFEST.json and SHA256SUMS.txt list the identical 178 paths; sha256 and byte size recomputed for all 178: 0 mismatches. MANIFEST \"counts\" {package document 3, design source (hosted v46, byte-identical) 166, freeze-time extract 4, canvas runtime 2, verification evidence 3} = 178 and equals the per-file role tally. MANIFEST version \"v46\", versionId \"1791542476-9fc2\", frozen \"9 Oct 2026\", canvas https://claude.ai/artifact/C6jPtVuZgHqwzAw5jPti1Y = FREEZE-RECORD-v46.md. canvas-v46/project holds exactly 166 files = 128 *.dc.html boards + 8 xr-*.css + 19 art/*.svg + canvas.json + 10 handoff/* files = FREEZE-RECORD composition. handoff/files.json lists 165 entries (kind: board 128, art (concept) 19, stylesheet 8, handoff data 9, canvas layout 1); md5 + bytes recomputed: 0 mismatches; the only project file not listed is handoff/files.json itself (cannot hash itself). files.json \"about\" says canvas.json \"changes on every publish\", yet its canvas.json md5 matches the package -> files.json was generated in the final v46 publish. canvas.json references all 128 boards (0 missing, 0 extra). assets.json \"art\" list = the 19 files in art/ exactly. runtime/README.md claim support.js SHA-256 8fe7df74...28cbe, 69,150 bytes: verified (8fe7df74405f3c55...bec2e28cbe, 69150 bytes) — read as text/hash only, not executed.",
+      "evidence": [
+        "design/handoff-v46/MANIFEST.json",
+        "design/handoff-v46/SHA256SUMS.txt",
+        "design/handoff-v46/canvas-v46/project/handoff/files.json",
+        "design/handoff-v46/FREEZE-RECORD-v46.md (\"166 design files of its own (128 boards, 8 stylesheets, 19 SVG artworks, canvas.json, 10 handoff data files)\")",
+        "design/handoff-v46/canvas-v46/project/canvas.json",
+        "design/handoff-v46/canvas-v46/project/handoff/assets.json",
+        "design/handoff-v46/runtime/README.md"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "verification/frozen_v45.md5 vs verification/post_v46.md5 vs package",
+      "result": "PASS",
+      "detail": "frozen_v45.md5: 147 entries; post_v46.md5: 166 entries. v45 -> v46: 19 added (9 boards B8-00..B8-08 + 10 handoff/* files), 0 removed, 97 changed, 50 byte-identical. post_v46.md5 matches every file in canvas-v46/project (166/166 md5 equal; 0 missing; 0 extra). Consistent with FREEZE-RECORD \"116 right after publishing, the other 50 at freeze\" (116 = 97 changed + 19 added) and B8-02 Verification \"147 approved v45 files: 50 byte-identical, 97 changed on purpose\". Only stylesheet changed: xr-govern.css (B8-02: one appended wrap rule); xr-foundation.css unchanged so tokens unchanged. Changed boards = Batch-0 shell specimens 05, 06, 07, 08, 09b, 11 (logo label \"approved asset\" -> \"placeholder\"), all B1-B7 product/flow/proof boards except 00-index, change logs and B4-12; plus canvas.json. Unchanged: 01-04, 09a, 10, 12, 13, Main, all B?-00 indexes, all B?-1x change logs, B4-12, 19 SVG, 7 stylesheets.",
+      "evidence": [
+        "design/handoff-v46/verification/frozen_v45.md5",
+        "design/handoff-v46/verification/post_v46.md5",
+        "design/handoff-v46/canvas-v46/project/B8-02-Link-Corrections-and-Change-Log.dc.html (Verification table row \"Checksums\")",
+        "design/handoff-v46/FREEZE-RECORD-v46.md"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "screens.json (147 IDs; 123 designed; 24 not designed) vs B8-01 register markup",
+      "result": "PASS",
+      "detail": "B8-01 is static HTML (its x-dc script is empty renderVals). Extracted the tables \"Screen register — designed screens\" (123 rows) and \"Screen IDs not designed (by decision)\" (24 rows). ID sets identical; designed flags identical; row order identical; for every designed ID the screen name, type, navigation place, proposed route, approved board codes AND board hrefs are identical to screens.json (0 differences). For the 24 not-designed IDs, screen names and inventory dispositions identical (0 differences). Every listed board file exists; every board code matches its file prefix. Fields only in JSON: surface, inventoryDisposition/importance/oldPrototypeRoute for designed rows. Column only on board: \"In the design: No entry point (link scan)\" for all 24 not-designed IDs. B8-01 header \"123 designed IDs · 24 not designed\" matches. Because JSON = B8-01 exactly, the register-level gaps found against drawn frames (see screensVsB8_01Diffs) apply to both.",
+      "evidence": [
+        "design/handoff-v46/canvas-v46/project/B8-01-Screen-and-Navigation-Register.dc.html (sections \"Screen register — designed screens\", \"Screen IDs not designed (by decision)\")",
+        "design/handoff-v46/canvas-v46/project/handoff/screens.json"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "navigation.json vs B8-01 navigation hierarchy and boards 05/06 sidebars",
+      "result": "PASS",
+      "detail": "navigation.json has 8 roles (Public header + 7 authenticated). B8-01 table \"Navigation hierarchy by role (Inventory §K, as designed)\": surface, base route, destinations in order and \"reached from\" text identical for all 8 (0 diffs). Board 06 script (raw[]) and board 05 script (ROLES) define the same destination order for all 7 workspaces: Student Home · My courses · Assessments · Progress; Faculty Overview · My courses · Assessments · Question bank · Marking · Students; Institute Admin Overview · Content access · Student access · People · Requests · Usage; Vendor Overview · My experiments; Academic Reviewer Overview · Review queue · Reviewed by me; Content Manager Overview · Ready to publish · Content library · Updates · Course codes; Super Admin Overview · Requests · Institutions · Content · Academic structure · Platform roles · Operations; Help at the foot (\"Help is always the last item, at the bottom\", board 06). Static scan of sidebar markup on all B1-B8 boards found only these 7 sequences (no variant order anywhere). Board 05/06 sub-tabs (SA Content: Updates · All content; SA Operations: Device transfers · Support · Access ending; IA People: Students · Faculty · Groups · Faculty courses; IA Requests: Requests to BITS · Device requests) = navigation.json reachedFrom. Minor omission in navigation.json / B8-01 reachedFrom: board 05 also defines tabs for Student My courses [\"Courses\",\"All experiments\"] and Faculty My courses [\"Courses\",\"Experiments\"] (present in screens.json as ST-04 / FA-04). Account menu (board 06): Student \"My device* · Help · Sign out\", others \"Help · Sign out\"; \"No workspace or role switcher — multi-role choice is deferred (XS-02)\". Count badges (Marking 12, IA Requests 2, Review queue 4, Ready to publish 2, SA Requests 3) are sample data.",
+      "evidence": [
+        "design/handoff-v46/canvas-v46/project/handoff/navigation.json",
+        "design/handoff-v46/canvas-v46/project/B8-01-Screen-and-Navigation-Register.dc.html",
+        "design/handoff-v46/canvas-v46/project/05-Workspace-Shell.dc.html (static get ROLES)",
+        "design/handoff-v46/canvas-v46/project/06-Sidebar-Variants.dc.html (const raw / subs; \"Account menu · same pattern in every workspace\")"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "derived/screen-frames.json: 111 of 123 designed IDs named in a frame caption",
+      "result": "PASS",
+      "detail": "Confirmed: 123 entries, 111 with >=1 frame, 12 board-only: PU-01, PU-14, PU-15, XS-01, XS-03, XS-04, XS-05, XS-06, XS-07, VE-13, CM-06, CM-07. Board lists equal screens.json for all 123. Nuances: (a) only 109 IDs appear in a caption title; ST-19 and XS-08 are counted only via captionNote text (B2-11 f12 \"ST-19 · same Batch-0 message template\", B2-12 f4, B1-09 f7 \"...inactive banner (XS-08)\"). (b) the extract counts link mentions as \"naming\": ST-13 via B4-11 f11 (\"Start assessment opens ST-13\"), FA-19 via B4-10 f3 (\"Mark their answers opens FA-19\"), RV-06 via B6-02 f1 (\"Open shows the decided page (RV-06)\") — boards not in those IDs' screens.json lists; these are references, not drawings. (c) derived/frame-index.json indexes 966 frames on 90 boards; boards 05-08 (which carry PU-15, XS-05..XS-08) and B1-13 (thumbnail flow board) have 0 indexed frames — why those IDs are board-only.",
+      "evidence": [
+        "design/handoff-v46/derived/screen-frames.json",
+        "design/handoff-v46/derived/frame-index.json",
+        "design/handoff-v46/HANDOFF-AUDIT-v46.md item 3"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "flows.json (27 steps) vs B8-04 Workflow Traceability",
+      "result": "PASS",
+      "detail": "B8-04 has 7 step tables (Flow A 4, B 4, C 3, D 4, Device 3, E 5, F 4 = 27 rows). Field-by-field (step, actor, screens, record, transition, outcome, evidence boards): 0 differences. Only ordering differs: board DOM order A, B, C, D, Device, E, F; JSON order A..F then Device. B8-04 also has \"State sharing — canvas vs product\" (8 flow boards: B1-13 REQ-0042, B2-13 ACC-0107→SACC-0310→Rahul, B3-12 Rahul×Shell-and-Tube + DTR-0018, B4-14 ASMT-0009/ATT-0450, B5-08 SUB-0077, B6-12 SUB-0077 rev 2→Published, B6-13 UPD-0005 steps 1-2, B7-11 UPD-0005 steps 1-5 Release and Hold) — not in flows.json. All screen IDs in flows.json exist and are designed; all evidence board codes exist. Column header on board is \"Actor (permission)\".",
+      "evidence": [
+        "design/handoff-v46/canvas-v46/project/handoff/flows.json",
+        "design/handoff-v46/canvas-v46/project/B8-04-Workflow-Traceability.dc.html"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "entities.json (15 records, 10 business rules) vs B8-03/B8-07 and status words on boards",
+      "result": "PARTIAL",
+      "detail": "entities.json has 15 records and 10 business rules; its records table is identical to board B8-07 \"Shared records and cross-role contracts\" (board = JSON). Every entities status word occurs on at least one board except \"Scope active\" (ROLE), which appears only in the B8-07 table — B7-08 draws no scope status chip. But entities.json lists mostly ONE perspective per record (often the owner/requester view) while product boards use role-relative and sub-state labels: derived frame-index has 84 distinct status-chip labels and B8-03 \"Status vocabulary in use\" lists 61; at least 45 board labels are absent from entities.json (see statusWordDiffs). Same state, different words: UPD \"Awaiting release decision\" (CM, B6-09) = \"Waiting for your decision\" (SA, B7-05); UPD \"In academic review\" (CM) = \"Waiting for your decision\" (RV, B6-04); DTR \"With your Institute Admin\" (Student) = \"Waiting on you\" (IA, B3-09); DTR \"Forwarded to BITS\" (Student/IA) = \"Forwarded\" (SA, B3-11). flows.json itself uses the extra words (\"No access yet\", \"Waiting on you\", \"Forwarded\", \"Waiting for your decision\", \"Result not released yet\", \"To do\", \"Submitted\"). States drawn but missing from entities: REQ \"Submitted\", \"Payment failed\"; SACC \"No access yet\", \"Waiting for a licence\", \"Individual grant withdrawn\"; SUB Content-Manager return to Vendor and \"Back with the Academic Reviewer for a re-check\"; SUB \"Stuck — nobody can act\"; ASMT \"Draft — not ready\"; ATT \"To do\", \"Result not released yet\", \"Passed/Not passed\", \"Marked\"; ROLE \"No scope\". RUN ownerWriter \"Student\" (entities.json and B8-07) must not be read as \"the Student writes Completed\": B3-03 f3 note \"Completion comes only from the simulation (T-12). No “I have finished” button.\"; B3-04 f2 \"Completion reported from the headset (T-12)\"; binding constraint 3. B8-03 terminology scan claims \"Status words differing from Register C.7: 1 fixed\" (B7 All content) — consistent with B8-02. B8-03 counts (e.g. Active 150) differ from frame-index counts (53 exact chips) — different scan scopes; derived is non-authoritative.",
+      "evidence": [
+        "design/handoff-v46/canvas-v46/project/handoff/entities.json",
+        "design/handoff-v46/canvas-v46/project/B8-07-Handoff-Specifications.dc.html (Shared records table)",
+        "design/handoff-v46/canvas-v46/project/B8-03-Terminology-and-Visual-Consistency.dc.html (Status vocabulary in use)",
+        "design/handoff-v46/derived/frame-index.json (statuses)",
+        "design/handoff-v46/canvas-v46/project/B1-08-Request-Status.dc.html",
+        "design/handoff-v46/canvas-v46/project/B3-09-IA-Device-Requests.dc.html",
+        "design/handoff-v46/canvas-v46/project/B3-11-SA-Device-Transfers.dc.html",
+        "design/handoff-v46/canvas-v46/project/B6-04-Review-an-Update.dc.html",
+        "design/handoff-v46/canvas-v46/project/B6-09-Updates-Corrections.dc.html",
+        "design/handoff-v46/canvas-v46/project/B7-05-Content-Updates-Release-Hold.dc.html",
+        "design/handoff-v46/canvas-v46/project/B5-06-Experiment-Record-and-History.dc.html",
+        "design/handoff-v46/canvas-v46/project/B7-08-Platform-Roles.dc.html",
+        "design/handoff-v46/canvas-v46/project/B3-03-WEB-Simulation.dc.html"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "open-decisions.json counts vs B8-08",
+      "result": "PASS",
+      "detail": "frontendBuildBlockers = 0. batchDecisions 79 = 55 \"Product policy\" + 12 \"Shapes the data model\" + 7 \"Sample data only\" + 1 \"Still open\" (OD-B5-09) + 4 resolved/recorded (OD-B3-15 \"Resolved by precedence\", OD-B3-16 \"Resolved in Batch 8\", OD-B4-15 \"Resolved in Batch 8 for navigation\", OD-B6-10 \"Recorded — Batch-0 AR-4 breakpoint followed\"). No duplicate IDs. recordedOn: B2-15 4, B3-14 16, B4-16 17, B5-10 13, B6-15 14, B7-13 15. registerT 35 = 28 design-now-safely (20 pure \"DESIGN NOW SAFELY\" + 8 split \"DESIGN NOW SAFELY (...) · WAIT (...)\": T-03, T-05, T-06 / D7, T-18, T-23, T-25, T-26 residual, T-32) + 7 \"WAIT FOR DECISION\" (T-02, T-08, T-09, T-11, T-20, T-33 \"(report pages)\", T-34). IDs run T-01..T-36 without T-27; T-37 absent; Register v2 (~/Downloads/XR_Claude_Design_Handoff_Register_v2.md line 1614) records \"T-27 (LD-3) ... T-37 (C-3)\" as decided — so 35 is correct. T-26 and T-28 appear as \"residual\". B8-08: Summary table 55/12/4/7/1 and \"0 — every open item has a designed safe treatment\"; Register §T table 35 rows and batch-decision tables 37+42 = 79 rows are identical to the JSON field-by-field and in order (0 diffs). Board-only content not in JSON: B8-08 \"Before production go-live\" (9 rows) and \"Limitations\" (8 rows incl. B1-10 sort defect and 1-3 px proof frames). Cosmetic: B8-08 summary row label \"Resolved / recorded in Batch 8 | 4\" although OD-B3-15 was resolved in Batch 3.",
+      "evidence": [
+        "design/handoff-v46/canvas-v46/project/handoff/open-decisions.json",
+        "design/handoff-v46/canvas-v46/project/B8-08-Open-Decisions-and-Limitations.dc.html",
+        "/Users/mymac/Downloads/XR_Claude_Design_Handoff_Register_v2.md:1614"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "tokens.json / tokens.css (65) vs xr-foundation.css :root and B8-07",
+      "result": "PASS",
+      "detail": "tokens.json 65 tokens (font 2, color 38, space 11, radius 4, elevation 3, motion 4, layout 3); tokens.css 65; xr-foundation.css has exactly one :root block with 65 declarations; B8-07 \"Design tokens\" table 65 rows. Names and values identical across all four (0 diffs); json and css in the same order. xr-foundation.css is byte-identical v45 -> v46. Implementation notes (not defects): the 8 stylesheets mostly hard-code colours (~932 hex literals vs 54 var(--xr-*) uses); 16 distinct hex colours are not token values (#8F1C13, #8F1B12, #FAFBFE, #FFF7F6, #FFFBF0, #E6E8F3, #E8D3A3, #EEF0FA, #EEF0FB, #173A6E, #233069, #7CC0E8, #AEB6EC, #D7DBF5, #E5323B, #F2A33A), and one component-scoped custom property --xr-tabs-bg (#F4F5FB on .xr-tabs, #FFFFFF on .xr-tabs--on-white) is not in tokens.json. The token file is therefore not a complete palette; the stylesheets remain the visual source.",
+      "evidence": [
+        "design/handoff-v46/canvas-v46/project/handoff/tokens.json",
+        "design/handoff-v46/canvas-v46/project/handoff/tokens.css",
+        "design/handoff-v46/canvas-v46/project/xr-foundation.css (:root)",
+        "design/handoff-v46/canvas-v46/project/B8-07-Handoff-Specifications.dc.html (Design tokens table)"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Route-level sanity of screens.json proposedRoute for Next.js App Router",
+      "result": "PARTIAL",
+      "detail": "Routes are proposals (START-HERE known exception 5). All designed workspace-surface IDs start with their navigation.json baseRoute (/student, /faculty, /institute, /vendor, /reviewer, /content-manager, /admin) except FA-22 (an action). Of 123 designed proposedRoute values: 91 are literal paths, 13 are paths with query parameters (?tab= / ?step=), and 19 are not literal routes (annotations, multi-route \" · \" values, ellipses, a \"|\" enumeration, \"→\" prefixes, a file name). 14 paths are shared by more than one ID (states/tabs on one URL). One abbreviated value (SA-15 \"/courses/[courseId]\"), read literally, would collide with public PU-05 /courses/[courseCode] and fail the Next.js build (\"different slug names for the same dynamic path\"). IA-14 \"/new\" contradicts its board: B2-08 f1 draws \"Create group (DL-3)\" as a dialog on the Groups list, not a page. The Student hub \"Assessment\" tab is drawn (B4-11 f7-f9 \"Hub · Assessment tab\") but has no ID and no route. Tabs are modelled inconsistently (path segments vs ?tab=), and 18 intermediate paths implied by child routes have no page. See routeIssues.",
+      "evidence": [
+        "design/handoff-v46/canvas-v46/project/handoff/screens.json (proposedRoute)",
+        "design/handoff-v46/canvas-v46/project/handoff/navigation.json (baseRoute)",
+        "design/handoff-v46/START-HERE.md (Known exceptions 5)",
+        "design/handoff-v46/canvas-v46/project/B2-08-Groups.dc.html (frame \"Create group (DL-3)\")",
+        "design/handoff-v46/canvas-v46/project/B4-11-Student-Assessments.dc.html (frames \"Hub · Assessment tab · ...\")"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Boards referenced by no screen in screens.json",
+      "result": "PARTIAL",
+      "detail": "83 of 128 boards are referenced by screens.json; 45 are not. Classes: foundation 8 (01, 02, 03, 04, 09a, 09b, 10, 12), index 9 (Main + B1-00..B8-00), flow 4 (B1-13, B3-12, B4-14, B5-08), responsive proof 8 (11, B1-12, B2-14, B3-13, B4-15, B5-09, B6-14, B8-05), change log 9 (13, B1-14, B2-15, B3-14, B4-16, B5-10, B6-15, B7-13, B8-02), handoff board 6 (B8-01, B8-03, B8-04, B8-06, B8-07, B8-08), product component 1 (B1-02 Area Explorer). Only B1-02 is a gap: 5 Public product frames (Three areas · Nine areas (TEST FIXTURES) · Mobile 375 ×2 · Tablet 768) that design the landing explorer, cited by B8-03 (\"Explorer drawn with three and with nine areas (B1-02)\"), yet PU-01 lists only B1-01. Inconsistent referencing: flow boards B2-13, B6-12, B6-13, B7-11 and proof B7-12 and critical-state boards B6-11, B7-10 ARE referenced while the other flow/proof boards are not.",
+      "evidence": [
+        "design/handoff-v46/canvas-v46/project/handoff/screens.json",
+        "design/handoff-v46/canvas-v46/project/B1-02-Area-Explorer.dc.html",
+        "design/handoff-v46/canvas-v46/project/B8-03-Terminology-and-Visual-Consistency.dc.html (Public-facing consistency)"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "References in START-HERE.md / HANDOFF-AUDIT-v46.md / handoff/README.md / FREEZE-RECORD vs files",
+      "result": "PARTIAL",
+      "detail": "Verified true: 166-file composition; 3,741 local checks = 132 + 72 + (123+233+321+184+398+161) + (466+456+490+705), matching verification/batch8-local-test-summary.txt sub-suites; \"All 12,156 local href/src/url() references resolve except ./support.js (128 boards)\" reproduced (static regex count 12,213 minus 57 JS-expression false positives = 12,156; only ./support.js unresolved); external refs only fonts.googleapis.com / fonts.gstatic.com; \"0 occurrences of Module in any rendered frame\" (the word occurs only in 2 annotations saying \"No Module layer\": B7-07, B7-13); Programme on the Student record (B2-07 \"Programme (optional)\", \"Required in the CSV import ... OD-B2-04\"; B2-06 record \"Programme: B.Tech Mechanical\"); B1-10 \"Received\" sort button in the table header (toggleSort); handoff/README.md does not mention B1-10 (as HANDOFF-AUDIT says); every board/file named in START-HERE exists. Mismatches: (1) START-HERE table note \"(Paths above are under canvas-v46/project/.)\" is wrong for derived/screen-frames.json, derived/frame-index.json and HANDOFF-AUDIT-v46.md, which are package top-level (runtime/README.md is correctly flagged as top level). (2) FREEZE-RECORD \"Rendered link crawl ... 10,366 links ... Details: verification/\" — verification/ has no link-crawl output (only batch8-local-test-summary.txt and two md5 lists); the summary cites \"reg8_nav_b8_run1.txt\", which is not in the package. The crawl figures exist only on board B8-02 (Verification table). (3) START-HERE known exception 7 \"the three CSV-template data: links\" (also B8-01 \"three CSV template downloads\", B8-02 \"3 CSV template downloads\"): static markup has 11 data:text/csv links but only 2 distinct templates (students-template.csv ×6 on B2-07; questions-template.csv ×5 on B4-08). \"Three\" cannot be reproduced from the files; it may be a rendered-frame count. (4) FREEZE-RECORD cites \"project/handoff/open-decisions.json\"; the package path is canvas-v46/project/handoff/open-decisions.json. (5) handoff/README \"01–13 (Batch 0)\" omits Main.dc.html (the Batch-0 index board \"00 · Batch 0 Index\"), and its \"B?-1x flow boards\" pattern misses B5-08. (6) HANDOFF-AUDIT \"111 of 123 ... named in at least one frame caption\": true only when caption notes are counted (109 by caption title). (7) B8-06 build-order board lists omit boards that screens.json registers (B2-13 for ST-19; B6-11, B6-12, B6-13; B7-10, B7-11, B7-12). Phase 0 lists Batch-0 boards 01-08 and 10 only (09a, 09b, 11, 12 are not listed). (8) handoff/README files table says files.json covers \"every deliverable file\" — it excludes itself and all package-level files (MANIFEST covers those).",
+      "evidence": [
+        "design/handoff-v46/START-HERE.md",
+        "design/handoff-v46/FREEZE-RECORD-v46.md",
+        "design/handoff-v46/HANDOFF-AUDIT-v46.md",
+        "design/handoff-v46/canvas-v46/project/handoff/README.md",
+        "design/handoff-v46/verification/batch8-local-test-summary.txt",
+        "design/handoff-v46/canvas-v46/project/B8-02-Link-Corrections-and-Change-Log.dc.html",
+        "design/handoff-v46/canvas-v46/project/B8-06-Design-to-Code-Handoff.dc.html",
+        "design/handoff-v46/canvas-v46/project/B2-07-Add-and-Import.dc.html",
+        "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html"
+      ]
+    }
+  ],
+  "screensVsB8_01Diffs": [
+    {
+      "scope": "screens.json vs B8-01 register tables",
+      "ids": "all 147",
+      "field": "id, designed, screen, type, navigation, proposedRoute, boards (code + href), disposition (not designed)",
+      "json": "=",
+      "board": "=",
+      "note": "0 differences. JSON-only fields: surface, inventoryDisposition/importance/oldPrototypeRoute (designed rows). Board-only column: \"In the design: No entry point (link scan)\" on the 24 not-designed rows."
+    },
+    {
+      "scope": "register (JSON = B8-01) vs drawn frames",
+      "ids": "PU-01 (and PU-02)",
+      "field": "boards",
+      "json": "PU-01: [B1-01]; PU-02: [B1-03]",
+      "board": "B1-02-Area-Explorer.dc.html draws the landing area explorer (5 Public product frames: Three areas · 1440; Nine areas · 1440 (TEST FIXTURES); Mobile 375 ×2; Tablet 768). B8-03 cites it (\"Explorer drawn with three and with nine areas (B1-02)\").",
+      "note": "Board wins: treat B1-02 as a source board for PU-01 (explorer component). The nine-area frames are labelled \"TEST FIXTURES — NOT REAL AREAS\"."
+    },
+    {
+      "scope": "register vs drawn frames",
+      "ids": "ST-05 (hub Assessment tab)",
+      "field": "boards / route",
+      "json": "ST-05 boards [B2-12]; no ID or route for the hub \"Assessment\" tab (Resources ST-06, Simulation ST-07, Progress ST-10 have path routes)",
+      "board": "B4-11 f7 \"Hub · Assessment tab · to do\", f8 \"... none yet\", f9 \"... waiting for marking\" — \"New frame of the approved hub (B2-12 / B3-01): the tab Batch 3 deferred.\" B2-12/B3-01 hub tab hrefs point to B4-11.",
+      "note": "The hub Assessment tab is a drawn in-hub tab with 3 states; screens.json/B8-01 have no route for it, and ST-05 does not list B4-11."
+    },
+    {
+      "scope": "register vs drawn frames",
+      "ids": "ST-01",
+      "field": "boards",
+      "json": "[B2-10]",
+      "board": "B4-11 f10 \"Home · Up next · the assessment — New frame of the approved Home (B2-10)\"; B7-04 f3 Student Home paused (reference frame)",
+      "note": "ST-01 states drawn on B4-11 (and B7-04) are not listed."
+    },
+    {
+      "scope": "register vs drawn frames",
+      "ids": "IA-01",
+      "field": "boards",
+      "json": "[B2-01]",
+      "board": "B4-09 f6 \"Institute Admin is warned · no Faculty marker\" (\"New attention row on the approved IA Overview pattern\"); B7-04 f1 IA Overview paused",
+      "note": "OD-B4-15 records the merge; IA-01 board list omits B4-09."
+    },
+    {
+      "scope": "register vs drawn frames",
+      "ids": "FA-01",
+      "field": "boards",
+      "json": "[B4-01]",
+      "board": "B7-04 f2 \"Faculty · Overview (Batch-4 design + the shared banner, reference frame)\" — \"Batch 4 had no paused Faculty state\" (OD-B7-07)",
+      "note": "Paused Faculty overview drawn only on B7-04 (XS-08 lists B7-04)."
+    },
+    {
+      "scope": "register vs drawn frames",
+      "ids": "PU-05, PU-06, ST-05, CM-05",
+      "field": "boards",
+      "json": "PU-06 [B1-05]; PU-05 [B1-03]; ST-05 [B2-12]",
+      "board": "flows.json E5 (\"Listed in the catalogue\", evidence B6-12) and F4 (\"Live 1.2 → 1.3\", evidence B7-11) show these screens after publication / release on flow boards",
+      "note": "Post-publication catalogue and live-version states are evidenced only on flow boards that the screens do not list."
+    },
+    {
+      "scope": "register vs drawn frames (link mentions only)",
+      "ids": "ST-13, FA-19, RV-06",
+      "field": "boards (derived/screen-frames.json)",
+      "json": "ST-13 [B4-12]; FA-19 [B4-09]; RV-06 [B6-03, B6-12]",
+      "board": "Mentioned in caption notes on B4-11 f11, B4-10 f3, B6-02 f1 as link targets",
+      "note": "Not a defect in screens.json; screen-frames.json lists those frames under boards not registered for the ID."
+    },
+    {
+      "scope": "register vs drawn frames",
+      "ids": "CM-06, CM-07 (correction entry)",
+      "field": "screen set",
+      "json": "CM-06 \"Edit catalogue details\", CM-07 \"Edit a delivery link\"",
+      "board": "B6-08 f0 also shows a third entry control \"Start a correction\"",
+      "note": "\"Start a correction\" has no ID; treat it as a third entry to the same CM-08 correction draft (inference — confirm against B6-08/B6-13)."
+    }
+  ],
+  "flowDiffs": [
+    {
+      "flow": "all",
+      "field": "step, actor, screens, record, transition, outcome, evidenceBoards",
+      "json": "27 steps",
+      "board": "27 rows",
+      "note": "0 content differences"
+    },
+    {
+      "flow": "Device",
+      "field": "order",
+      "json": "after F (A,B,C,D,E,F,Device)",
+      "board": "between D and E (A,B,C,D,Device,E,F) in B8-04 markup order",
+      "note": "ordering only"
+    },
+    {
+      "flow": "—",
+      "field": "State sharing table",
+      "json": "absent",
+      "board": "B8-04 \"State sharing — canvas vs product\": 8 flow boards with the record each shares and its restart control (B7-11 has two board controls)",
+      "note": "board-only; restart controls are canvas controls, not product features"
+    },
+    {
+      "flow": "E",
+      "field": "transitions (scope)",
+      "json": "E2 RV return → VE revise → With Academic Reviewer (rev 2); E3 RV approve; E4 CM publish",
+      "board": "B5-06 f6 \"Returned by the Content Manager\" (Revise & resubmit) and f7 \"Back with the Academic Reviewer for a re-check\"; B6-03/B6-11 \"Back for a re-check\"; B6-02 \"Approved — later sent back for a re-check\"",
+      "note": "Content Manager → Vendor return and Content Manager → Reviewer re-check are drawn but not traced in flows.json / B8-04 (both show the happy path only). Not a JSON-vs-board diff; a coverage gap for shared-state tests."
+    },
+    {
+      "flow": "F",
+      "field": "status words",
+      "json": "F2 ends \"Awaiting release decision\"; F3 starts \"Waiting for your decision\"",
+      "board": "same on B8-04",
+      "note": "One state with two role-relative labels (CM view B6-09 vs SA view B7-05). The build needs one state value with per-role labels."
+    }
+  ],
+  "statusWordDiffs": [
+    {
+      "record": "REQ",
+      "entities": "Under review · Information requested · Approved — payment required · Payment not confirmed · Access active",
+      "boardsAlsoUse": [
+        "Submitted (B1-08 f1 \"Submitted\")",
+        "Payment failed (B1-08 f7, control \"Try payment again\")"
+      ],
+      "note": "B1-08 f4 \"Approved with changes\" uses the same chip; f9 internal route reaches Access active with no payment step."
+    },
+    {
+      "record": "INST / ACC",
+      "entities": "INST: Access active · Ending soon · Access paused · Approved — payment required · Access ended; ACC: Access active · Ending soon · Paused · Access ended",
+      "boardsAlsoUse": [
+        "Paused (Student/IA format and access pages: B2-02, B2-03, B2-11, B3-01..B3-05) vs Access paused (B2-01, B2-03, B2-13, 08)",
+        "Renewal in progress (B7-09, B7-10)",
+        "Reminder due (B7-09, B7-10; T-31)",
+        "Ended (B2-02, B2-03)"
+      ],
+      "note": "Paused vs Access paused are both used."
+    },
+    {
+      "record": "SACC",
+      "entities": "Active · Withdrawn",
+      "boardsAlsoUse": [
+        "No access yet (B2-06, B2-14; flows.json B3 \"No access yet → Active\")",
+        "Waiting for a licence (B2-04, B2-05 f11, B3-03 f6)",
+        "Individual grant withdrawn (B2-04 f4)",
+        "Not included for your institution / Not available for this experiment (format availability; B3-04, B3-07)",
+        "Can’t open — inactive (B2-06)"
+      ],
+      "note": "\"Waiting for a licence\" is a grant state the entity omits."
+    },
+    {
+      "record": "PER",
+      "entities": "Active · Inactive",
+      "boardsAlsoUse": [
+        "Account active (B2-06)",
+        "Student inactive (B2-04)",
+        "Added (B2-03, B2-07 import result)"
+      ],
+      "note": ""
+    },
+    {
+      "record": "RUN",
+      "entities": "Not started · In progress · Completed (per format); ownerWriter \"Student\"",
+      "boardsAlsoUse": [
+        "Completed <date> e.g. \"Completed 14 Oct 2026\" (39 chips)",
+        "Paused (format page when the institution is paused: B3-03 f5, B3-04 f5)"
+      ],
+      "note": "ownerWriter \"Student\" conflicts with B3-03 f3 \"Completion comes only from the simulation (T-12). No “I have finished” button.\" and B3-04 f2 \"Completion reported from the headset (T-12)\". Completed is system-set (binding constraint 3)."
+    },
+    {
+      "record": "FB",
+      "entities": "“Give feedback on WEB” → “Feedback sent · WEB · 14 Oct”",
+      "boardsAlsoUse": [
+        "See your feedback (B3-03 f4 control)",
+        "Feedback sent · VR · 20 Oct (B3-06 f4)"
+      ],
+      "note": "Consistent; feedback is shown as captions/controls, not status chips."
+    },
+    {
+      "record": "ASMT / ATT",
+      "entities": "Draft · Ready · Attempt in progress · Submitted · Waiting for marking · Marks confirmed · Result ready",
+      "boardsAlsoUse": [
+        "To do (B4-11 Student tab/chip)",
+        "Result not released yet (B4-11 f3; flows.json D4)",
+        "Draft — not ready (B4-03, B4-04, B4-05)",
+        "Assessment ready (B4-02)",
+        "1 waiting for marking (B4-04, B4-05)",
+        "Marked (B4-06, B4-10 \"Marked · result not released yet\")",
+        "Passed / Not passed (B4-13)"
+      ],
+      "note": "Student tabs To do · Submitted · Results (B4-11 f0). \"Attempt in progress\", \"Marks confirmed\" and \"Result ready\" occur once each as chips and are absent from the B8-03 vocabulary table."
+    },
+    {
+      "record": "DTR",
+      "entities": "With your Institute Admin · Forwarded to BITS · Approved (Student view, B3-07)",
+      "boardsAlsoUse": [
+        "Waiting on you (IA view: B3-09 f0, f1, f4, f5)",
+        "Decided · approved by BITS (IA view: B3-09 f0, f3)",
+        "Forwarded (SA view: B3-11 f0, f1, f4, f6, f7)",
+        "Still with the institution (SA view: B3-11 f2, B7-09)"
+      ],
+      "note": "flows.json Device steps 2-3 use \"Waiting on you → Forwarded to BITS\" and \"Forwarded → Approved\"."
+    },
+    {
+      "record": "SUB",
+      "entities": "Draft · With Academic Reviewer · Returned · With Content Manager · Published",
+      "boardsAlsoUse": [
+        "Submitted (B5-06 f4 after resubmit; flows.json E2)",
+        "Draft · read-only (B5-02; B5-06 f9 \"Course no longer assigned\")",
+        "Returned by the Content Manager (B5-06 f6)",
+        "Back with the Academic Reviewer for a re-check (B5-06 f7, chip With Academic Reviewer)",
+        "Resubmitted · revision 2 / Waiting · revision 1 / Back for a re-check (RV: B6-03, B6-11)",
+        "Returned to vendor / Returned to vendor · revision 1 / Approved — with the Content Manager / Approved — later sent back for a re-check / Approved — published (RV-05 history: B6-02 f1)",
+        "Ready / Ready to publish / Ready to publish · 1 to resolve / 1 to resolve: learning outcomes / Still in academic review (CM: B6-06, B6-07)",
+        "Library tabs Ready · In review · With vendor · Published (B6-06 f1)",
+        "Stuck — nobody can act / Returned to vendor (SA: B7-06)"
+      ],
+      "note": "CM return-to-vendor and CM re-check transitions are not in entities/flows."
+    },
+    {
+      "record": "EXP",
+      "entities": "Published · version n",
+      "boardsAlsoUse": [
+        "live version 1.2 (B6-08 f0 caption)",
+        "1.2 → 1.3 (B6-04 f0; flows F4)"
+      ],
+      "note": "Consistent."
+    },
+    {
+      "record": "UPD",
+      "entities": "Draft · In academic review · Returned · Awaiting release decision · On hold · Released · Withdrawn (= CM view, B6-09 f1-f8)",
+      "boardsAlsoUse": [
+        "Waiting for your decision (RV view of In academic review: B6-04 f0-f2; SA view of Awaiting release decision: B7-05)",
+        "Returned to the Content Manager (B6-04 f3)",
+        "Approved — with the Super Admin / Approved — awaiting the Super Admin’s release decision (B6-04 f4)",
+        "Update approved — with the Super Admin / Update approved — released (B6-02 f1)",
+        "Approved (reviewer chip on SA-11: B7-05)",
+        "SA tabs Waiting for you · On hold · Released; \"Hold lifted — waiting again\" (B7-05 f7)"
+      ],
+      "note": "One state, several role-relative labels."
+    },
+    {
+      "record": "ROLE",
+      "entities": "Scope active · withdrawn (reason)",
+      "boardsAlsoUse": [
+        "No scope — can’t act on anything yet (notice, B7-08)",
+        "\"Withdrawn\" scope list + \"Restore scope\" (B7-08 f8)",
+        "\"1 scope withdrawn\" (B7-08 Vendors tab note)"
+      ],
+      "note": "\"Scope active\" appears on no product board (B7-08 frames have no status chips); \"No scope\" state missing from entities."
+    },
+    {
+      "record": "SUP",
+      "entities": "Open · Resolved · Reopened",
+      "boardsAlsoUse": [],
+      "note": "Consistent (07, B7-09, B7-10)."
+    },
+    {
+      "record": "B8-03 vocabulary vs boards",
+      "entities": "n/a",
+      "boardsAlsoUse": [
+        "frame-index has 84 distinct status labels; B8-03 lists 61. Labels with 2 uses missing from B8-03 include: Decided · approved by BITS, Still with the institution, Returned to vendor, Waiting · revision 1, Back for a re-check, Approved — with the Super Admin, Approved — awaiting the Super Admin’s release decision, Ready to publish · 1 to resolve. Labels with 1 use: Payment failed, Can’t open — inactive, Assessment ready, Warning, Marks confirmed, Attempt in progress, Result not released yet, Result ready, Not passed, Returned to vendor · revision 1, Approved — later sent back for a re-check, Update approved — with the Super Admin, Update approved — released, Approved — published, 1 to resolve: learning outcomes"
+      ],
+      "note": "B8-03 counts come from a different scan (e.g. Active 150 vs 53 chips in frame-index); use the boards as the source of label text."
+    }
+  ],
+  "routeIssues": [
+    {
+      "ids": [
+        "ST-08",
+        "ST-09"
+      ],
+      "issue": "/student/experiments/[experimentId]/simulation/web (static) and .../simulation/[format] (dynamic) are siblings. Next.js matches static \"web\" first, so [format] also accepts \"web\" and any other string unless restricted. Format codes are upper-case on boards (WEB · AR · VR · MR) but the literal segment is lower-case.",
+      "suggestion": "Keep static web/ and restrict [format] to ar|vr|mr (generateStaticParams + dynamicParams=false, or notFound() otherwise). Or use one [format] route with a WEB branch. Use lower-case slugs everywhere (ST-16 feedback/[format] includes web)."
+    },
+    {
+      "ids": [
+        "SA-16"
+      ],
+      "issue": "Malformed value \"/admin/roles?tab=vendors|reviewers|content-managers\" (\"|\" enumerates three alternatives). B7-08 tab order: Vendors · Reviewers · Content Managers; the 1440 frame opens on the Reviewers tab (sample).",
+      "suggestion": "/admin/roles?tab=vendors (default) | ?tab=reviewers | ?tab=content-managers, or path tabs /admin/roles/vendors etc. Holder detail SA-17 /admin/roles/[holderId] then needs ids that cannot equal a tab slug."
+    },
+    {
+      "ids": [
+        "SA-15"
+      ],
+      "issue": "Two routes in one value, the second abbreviated: \"/admin/structure/areas/[areaId] · /courses/[courseId]\". Read literally, /courses/[courseId] collides with public PU-05 /courses/[courseCode] and Next.js refuses different slug names for the same dynamic path (build error).",
+      "suggestion": "Expand to /admin/structure/areas/[areaId] and /admin/structure/courses/[courseId]. /admin/structure/areas and /admin/structure/courses have no index page: redirect to /admin/structure."
+    },
+    {
+      "ids": [
+        "IA-14"
+      ],
+      "issue": "Value \"/institute/people/groups/[groupId] · /new\": two routes, the second abbreviated. Board conflict: B2-08 f0 note \"Create group opens DL-3; empty and duplicate names are refused in words\", and f1 \"Create group (DL-3)\" (hasDialog) draws creation as a dialog on the Groups list, not a /new page (board wins).",
+      "suggestion": "Route only /institute/people/groups/[groupId]. Create group is a DL-3 dialog on /institute/people?tab=groups. Do not build /groups/new."
+    },
+    {
+      "ids": [
+        "FA-15"
+      ],
+      "issue": "Two routes in one value: \"/faculty/question-bank/new · /faculty/question-bank/[questionId]\". Static siblings new, draft (FA-16) and import (FA-17) sit beside [questionId].",
+      "suggestion": "Two route files: question-bank/new/page.tsx and question-bank/[questionId]/page.tsx. Question ids (sample Q-0101) must never equal new/draft/import."
+    },
+    {
+      "ids": [
+        "CM-08",
+        "CM-06",
+        "CM-07"
+      ],
+      "issue": "CM-08 holds two routes in one value (list and detail). CM-06/CM-07 values begin with \"→\" plus an annotation: they are entry actions that open a correction (UPD) draft at /content-manager/updates/[updateId], so three IDs share one detail route. No creation route exists, and B6-08 shows a third entry control, \"Start a correction\".",
+      "suggestion": "/content-manager/updates (CM-08 list) and /content-manager/updates/[updateId] (draft/detail). Entry controls on CM-05 call a mock service that creates the UPD draft (pre-filled per M-1) and then router.push to its detail. If an update is already in progress, B6-08 f1/f2 show \"Open update\" instead."
+    },
+    {
+      "ids": [
+        "FA-07",
+        "IA-05"
+      ],
+      "issue": "Ellipsis step values: \"/faculty/assessments/new?step=1…4\" (B4-04 draws 4 steps + Created / Saved-as-draft results) and \"/institute/student-access/give?step=1…\" (B2-05 draws 3 steps + \"Access given\"). Step modelling differs elsewhere: VE-03..06 use named steps (?step=course|formats|preview|submit) across two paths (/new, then /[submissionId]/edit after the first save, OD-B5-07); PU-08 → PU-09 uses a path (/request-access/sent).",
+      "suggestion": "Choose one convention (e.g. named ?step= slugs) and keep the drawn step order. FA-07 ?step=1..4; IA-05 ?step=1..3. The result states (Created, Access given) are states of the same flow, not routes. B4-04 f6 \"Created · ASMT-0009\" and f7 \"Saved as draft\" (\"Name and rules only: not ready, not visible to students\") both offer \"Open assessment\", which goes to /faculty/assessments/[assessmentId]."
+    },
+    {
+      "ids": [
+        "PU-13",
+        "PU-14",
+        "PU-15",
+        "XS-04",
+        "XS-05",
+        "XS-08",
+        "ST-17",
+        "ST-19",
+        "RV-06",
+        "FA-22"
+      ],
+      "issue": "States, menus, actions and a file given as \"routes\": \"/requests/[requestId] (Access active state)\", \"/ (#for-institutions section)\", \"not-found.tsx\", \"/sign-in (links only — flows OPEN)\", \"(top bar) account menu\", \"(shell) paused / inactive banner\", \".../feedback/[format] (sent state)\", \"/student/experiments/[experimentId] (not-available state)\", \"/reviewer/submissions/[submissionId] (decided, read-only)\", \"(action) Export CSV on FA-20 / FA-12\".",
+      "suggestion": "Do not create routes for these. Render them as states of the parent route driven by the shared state, plus app/not-found.tsx (PU-15), the shell account menu (XS-05) and the shell banner (XS-08). Activation and forgot-password links on /sign-in go nowhere (flows OPEN, T-10/T-11)."
+    },
+    {
+      "ids": [
+        "ST-04",
+        "FA-04",
+        "IA-06",
+        "IA-08",
+        "IA-13",
+        "IA-15",
+        "IA-16",
+        "IA-18",
+        "VE-13",
+        "SA-16",
+        "ST-06",
+        "ST-07",
+        "ST-10",
+        "FA-08",
+        "FA-09",
+        "FA-10",
+        "FA-11",
+        "FA-12",
+        "SA-10",
+        "SA-12",
+        "SA-18",
+        "SA-20",
+        "SA-22"
+      ],
+      "issue": "Tabs are modelled two ways. Path segments: Student hub (resources/simulation/progress), Faculty assessment tabs, SA Content (updates/all), SA Operations (device-transfers/support/access-ending). Query ?tab=: My courses (ST-04, FA-04), IA People (students/faculty/groups/faculty-courses), IA Content access course-codes, IA Requests devices, Vendor record history, SA Platform roles. Children of ?tab= parents use path segments (/institute/people/students/[studentId], /institute/requests/devices/[transferId]), so a tab and its children do not share a prefix.",
+      "suggestion": "Pick one convention per parent and document it. Keep the proposals where the owner has not ruled — URLs are the implementer's choice (START-HERE exception 5) — but make sure each tab is linkable and keyboard-operable and that browser back works."
+    },
+    {
+      "ids": [
+        "IA-07",
+        "IA-09",
+        "IA-14",
+        "IA-19",
+        "IA-03",
+        "SA-11",
+        "SA-13",
+        "SA-15",
+        "SA-19",
+        "SA-21",
+        "RV-03",
+        "RV-04",
+        "CM-03",
+        "CM-05",
+        "ST-05",
+        "FA-05",
+        "PU-05",
+        "PU-10"
+      ],
+      "issue": "18 intermediate paths implied by child routes have no screen: /admin/content, /admin/content/records, /admin/operations, /admin/structure/areas, /content-manager/decisions, /content-manager/published, /courses, /faculty/experiments, /institute/content-access/plans, /institute/people/faculty, /institute/people/groups, /institute/people/students, /institute/requests/devices, /requests, /reviewer/submissions, /reviewer/updates, /student/experiments, /student/experiments/[experimentId]/feedback. /admin/content and /admin/operations are sidebar destinations (\"Content\", \"Operations\") with no own route.",
+      "suggestion": "Redirect /admin/content → /admin/content/updates and /admin/operations → /admin/operations/device-transfers (first tab on boards 05/06 and B8-01). Redirect each list-less intermediate to its list (e.g. /institute/people/students → /institute/people?tab=students) or return notFound(). Do not invent new pages."
+    },
+    {
+      "ids": [
+        "ST-05"
+      ],
+      "issue": "The hub \"Assessment\" tab is drawn (B4-11 f7-f9: to do / none yet / waiting for marking; the B2-12/B3-01 tab bar is Overview · Resources · Simulation · Assessment · Progress) but has no ID and no route. Its siblings have path routes (/resources, /simulation, /progress).",
+      "suggestion": "Add /student/experiments/[experimentId]/assessment as the hub tab (the drawn hub-tab frames); its \"Open assessment\" goes to ST-12 /student/assessments/[assessmentId]. Report it to the owner as a register gap, not a new screen."
+    },
+    {
+      "ids": [
+        "XS-06",
+        "XS-07"
+      ],
+      "issue": "Root dynamic segment /[workspace]/not-allowed and /[workspace]/help is a sibling of 16 static top-level segments (admin, areas, content-manager, courses, experiments, faculty, institute, requests, request-access, reviewer, selection, sign-in, signed-out, student, vendor, ...). It would match nonsense like /areas/help or /requests/help unless constrained. The workspace slugs (student, faculty, institute, vendor, reviewer, content-manager, admin) are the navigation.json baseRoutes.",
+      "suggestion": "Implement help/ and not-allowed/ inside each workspace route group (one shared component), or constrain [workspace] to the 7 slugs (generateStaticParams + dynamicParams=false). Public has no Help destination (XS-07 is \"Sidebar Help in all seven workspaces\")."
+    },
+    {
+      "ids": [
+        "PU-05",
+        "ST-03",
+        "FA-03",
+        "SA-15"
+      ],
+      "issue": "Course param naming differs: public [courseCode] vs [courseId] elsewhere. The platform code contains a space (\"ME ZG523\", B8-03 Course codes) and may be blank (T-17 \"public: platform code (blank allowed)\"), so a course without a code has no public URL. Institutions keep their own codes (MEC-523) shown to Students (T-17).",
+      "suggestion": "Key every course route by a stable course id (or slug) and show the platform / institution code as data. Same param name everywhere."
+    },
+    {
+      "ids": [
+        "VE-04",
+        "VE-05",
+        "VE-06",
+        "VE-07",
+        "VE-08",
+        "VE-09",
+        "VE-13",
+        "RV-03",
+        "CM-03",
+        "CM-05",
+        "SA-13",
+        "PU-06",
+        "ST-05",
+        "FA-05"
+      ],
+      "issue": "Experiment identity changes along the pipeline: Vendor /vendor/experiments/[submissionId] (SUB id, given on first save — OD-B5-07); Reviewer and CM decisions by [submissionId]; CM published by [experimentId]; SA content records by [recordId] (SUB or EXP); public, Student and Faculty by [experimentId]. entities.json: SUB \"becomes EXP on publication\". The 2 Composite Wall records stay separate (OD-B5-09).",
+      "suggestion": "In the mock services, define the SUB → EXP link explicitly and type recordId as a union. Never derive access from publication (binding constraints 3, 9)."
+    },
+    {
+      "ids": [
+        "FA-21"
+      ],
+      "issue": "\"Student detail (per experiment)\" is routed /faculty/students/[studentId] without experiment context. FA-20 is per experiment (B4-10 f0 heading \"Shell-and-Tube Heat Exchanger\"); the old prototype route was /student/:s/:e.",
+      "suggestion": "Carry the experiment, e.g. /faculty/students/[studentId]?experiment=[experimentId]. Flag this to the owner rather than choosing silently."
+    },
+    {
+      "ids": [
+        "IA-10"
+      ],
+      "issue": "One route, /institute/people/add, covers two drawn forms: B2-07 f0 \"IA-10 Add student\" and f3 \"IA-10 Add faculty member\".",
+      "suggestion": "Use a discriminator (/institute/people/add?type=student|faculty) or two sub-paths. Entry comes from the Students / Faculty tabs."
+    },
+    {
+      "ids": [
+        "PU-10",
+        "PU-12",
+        "PU-13"
+      ],
+      "issue": "The public status route /requests/[requestId] uses the request reference as the URL key, but B1-07 says \"Reference REQ-0042 identifies the request; it is never presented as a key to the request’s details\" and B8-03 says \"request reference is not a key\". T-01 says \"Reference-number link to the status page\". PU-10 navigation: \"link from confirmation / e-mail: OPEN\".",
+      "suggestion": "In the mock, key the status URL by an opaque token (or a session-scoped link from the confirmation) and show REQ-0042 only as display text. List this tension for the owner."
+    },
+    {
+      "ids": [
+        "FA-06",
+        "FA-07",
+        "FA-14",
+        "FA-15",
+        "FA-16",
+        "FA-17",
+        "VE-02",
+        "VE-03"
+      ],
+      "issue": "Static/dynamic sibling collisions to guard: /faculty/assessments/new vs [assessmentId]; /faculty/question-bank/{new,draft,import} vs [questionId]; /vendor/experiments/new vs [submissionId].",
+      "suggestion": "Next.js prefers static segments. Make sure mock ids (ASMT-0009, Q-0101, SUB-0077 format) can never equal a reserved word."
+    },
+    {
+      "ids": [
+        "ST-05",
+        "ST-06",
+        "ST-07",
+        "ST-08",
+        "ST-09",
+        "ST-10",
+        "FA-05",
+        "RV-03",
+        "RV-04",
+        "CM-03",
+        "CM-05",
+        "IA-03"
+      ],
+      "issue": "Sidebar active state cannot use URL prefixes. Board 05 places the Experiment hub and Simulation under \"My courses\" (ST-F3/ST-F4), but their URLs live under /student/experiments, not /student/courses. Likewise FA-05 /faculty/experiments under \"My courses\" (/faculty/courses); RV-03/RV-04 under \"Review queue\" (/reviewer/queue); CM-03 under \"Ready to publish\" (/content-manager/ready); CM-05 under \"Content library\" (/content-manager/library).",
+      "suggestion": "Keep an explicit route → sidebar-item map, derived from screens.json \"navigation\" and the board 05 families."
+    },
+    {
+      "ids": [
+        "(duplicates)"
+      ],
+      "issue": "14 paths serve more than one ID: / (PU-01, PU-14, plus annotations for XS-08 and FA-22); /requests/[requestId] (PU-10, PU-13); /sign-in (XS-01, XS-04); /student/courses (ST-02, ST-04 tab); /student/experiments/[experimentId] (ST-05, ST-19); .../feedback/[format] (ST-16, ST-17); /faculty/courses (FA-02, FA-04 tab); /institute/people (IA-06, IA-08, IA-13, IA-15 tabs); /institute/content-access (IA-02, IA-16 tab); /institute/requests (IA-17, IA-18 tab); /vendor/experiments/[submissionId] (VE-07, VE-13 tab); /vendor/experiments/[submissionId]/edit (VE-04, VE-05, VE-06, VE-09); /reviewer/submissions/[submissionId] (RV-03, RV-06); /content-manager/updates/[updateId] (CM-06, CM-07, CM-08).",
+      "suggestion": "Expected for tabs, states and steps. Each needs a deterministic state/tab resolver, and tests should cover every drawn state at that URL."
+    }
+  ],
+  "unreferencedBoards": [
+    {
+      "board": "design/handoff-v46/canvas-v46/project/01-Visual-Foundation.dc.html",
+      "class": "foundation (Batch 0 system)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/02-Tokens-Typography.dc.html",
+      "class": "foundation (Batch 0 system; tokens/type)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/03-Core-Components.dc.html",
+      "class": "foundation (Batch 0 components)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/04-Status-Format-States.dc.html",
+      "class": "foundation (Batch 0 status/format chips + state grammar)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/09a-Archetypes-AR1-AR5.dc.html",
+      "class": "foundation (Batch 0 archetype patterns)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/09b-Archetypes-AR6-AR10.dc.html",
+      "class": "foundation (Batch 0 archetype patterns)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/10-Dialogs.dc.html",
+      "class": "foundation (Batch 0 dialogs DL-1..DL-3)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/11-Responsive-Proof.dc.html",
+      "class": "responsive proof (Batch 0)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/12-Accessibility-Motion.dc.html",
+      "class": "foundation (Batch 0 accessibility + motion rules)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/13-Change-Log.dc.html",
+      "class": "change log (Batch 0)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B1-00-Index.dc.html",
+      "class": "index (batch index)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B1-02-Area-Explorer.dc.html",
+      "class": "PRODUCT component board (Public landing area explorer: 3 areas / 9 areas / 375 / 768; 5 product frames) — referenced by no screen ID; should be attached to PU-01 (landing explorer) — see screensVsB8_01Diffs"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B1-12-Responsive-Proof.dc.html",
+      "class": "responsive proof"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B1-13-Flow-Continuity.dc.html",
+      "class": "flow (Flow 1 continuity, thumbnails; not in frame-index)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B1-14-Change-Log.dc.html",
+      "class": "change log"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B2-00-Index.dc.html",
+      "class": "index (batch index)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B2-14-Responsive-Proof.dc.html",
+      "class": "responsive proof"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B2-15-Change-Log.dc.html",
+      "class": "change log (records OD-B2-*)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B3-00-Index.dc.html",
+      "class": "index (batch index)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B3-12-Flow-3-Continuity.dc.html",
+      "class": "flow (Flow 3 + device chain continuity)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B3-13-Responsive-Proof.dc.html",
+      "class": "responsive proof"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B3-14-Change-Log.dc.html",
+      "class": "change log (records OD-B3-*)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B4-00-Index.dc.html",
+      "class": "index (batch index)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B4-14-Flow-4-Continuity.dc.html",
+      "class": "flow (Flow 4 continuity)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B4-15-Responsive-Proof.dc.html",
+      "class": "responsive proof"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B4-16-Change-Log.dc.html",
+      "class": "change log (records OD-B4-*)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B5-00-Index.dc.html",
+      "class": "index (batch index)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B5-08-Flow-5-Continuity.dc.html",
+      "class": "flow (Flow 5 Vendor-side continuity)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B5-09-Responsive-Proof.dc.html",
+      "class": "responsive proof"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B5-10-Change-Log.dc.html",
+      "class": "change log (records OD-B5-*)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B6-00-Index.dc.html",
+      "class": "index (batch index)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B6-14-Responsive-Proof.dc.html",
+      "class": "responsive proof"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B6-15-Change-Log.dc.html",
+      "class": "change log (records OD-B6-*)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B7-00-Index.dc.html",
+      "class": "index (batch index)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B7-13-Change-Log.dc.html",
+      "class": "change log (records OD-B7-*)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B8-00-Index.dc.html",
+      "class": "index (batch index)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B8-01-Screen-and-Navigation-Register.dc.html",
+      "class": "handoff board (screen + navigation register)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B8-02-Link-Corrections-and-Change-Log.dc.html",
+      "class": "change log (Batch 8 link corrections + verification evidence)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B8-03-Terminology-and-Visual-Consistency.dc.html",
+      "class": "handoff board (terminology, status vocabulary, visual consistency)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B8-04-Workflow-Traceability.dc.html",
+      "class": "handoff board (flows A-F + device chain)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B8-05-Responsive-and-Accessibility.dc.html",
+      "class": "responsive proof (Batch 8 whole-product, 32 frames)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B8-06-Design-to-Code-Handoff.dc.html",
+      "class": "handoff board (build instructions, build order)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B8-07-Handoff-Specifications.dc.html",
+      "class": "handoff board (tokens, type, components, breakpoints, records)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/B8-08-Open-Decisions-and-Limitations.dc.html",
+      "class": "handoff board (open decisions + limitations)"
+    },
+    {
+      "board": "design/handoff-v46/canvas-v46/project/Main.dc.html",
+      "class": "index (Batch 0 index, titled \"00 · Batch 0 Index\")"
+    }
+  ],
+  "dataModelDecisions": [
+    {
+      "id": "OD-B3-02",
+      "decision": "Fields of a transfer request",
+      "safeTreatment": "New device (required) and a note (optional) — enough to route the request. Serial, asset tag or proof are not asked.",
+      "recordedOn": "B3-14"
+    },
+    {
+      "id": "OD-B3-06",
+      "decision": "Resource types, delivery and size labels (T-15)",
+      "safeTreatment": "Opens in a new tab; types and names are sample data; “Opened” only (T-13).",
+      "recordedOn": "B3-14"
+    },
+    {
+      "id": "OD-B3-07",
+      "decision": "What “last saved” and a “session” are (T-12 / A-06)",
+      "safeTreatment": "Time only (“Last saved 12 Oct 2026, 11:20”, “Last session reported 16 Oct 2026, 14:10”); no step names or durations.",
+      "recordedOn": "B3-14"
+    },
+    {
+      "id": "OD-B3-08",
+      "decision": "Usage: exact figure definitions and who may see them (A-12 / D18); export (R15 / T-33)",
+      "safeTreatment": "Four figures defined in one line each; Institute Admin only here (Faculty FA-F6 in Batch 4); no export, no Reports page.",
+      "recordedOn": "B3-14"
+    },
+    {
+      "id": "OD-B4-11",
+      "decision": "Question import schema, XLSX, commit mode, warning conditions (T-24 · D5)",
+      "safeTreatment": "Ten-column CSV template; all-or-nothing interim; missing explanation = warning.",
+      "recordedOn": "B4-16"
+    },
+    {
+      "id": "OD-B4-12",
+      "decision": "Assistance: sources, counts, provider, depth (T-23 · A-18 · R16)",
+      "safeTreatment": "Lab brief or pasted text; 3 or 5 drafts; no provider named; no suggested marks.",
+      "recordedOn": "B4-16"
+    },
+    {
+      "id": "OD-B4-13",
+      "decision": "How versions are numbered and shown",
+      "safeTreatment": "“New version — earlier submissions keep theirs”; “Version 2 since …” on Summary.",
+      "recordedOn": "B4-16"
+    },
+    {
+      "id": "OD-B5-02",
+      "decision": "App package model and which package fields are required (T-14)",
+      "safeTreatment": "Provisional: label, a reference or a file, device needed and install notes required; notes optional. No source code. Delivery mechanism (store / device management / download / side-loading) open.",
+      "recordedOn": "B5-10"
+    },
+    {
+      "id": "OD-B5-03",
+      "decision": "Catalogue field schema (T-29 · ND-05)",
+      "safeTreatment": "Prototype set: course, name, one-sentence summary, description, version.",
+      "recordedOn": "B5-10"
+    },
+    {
+      "id": "OD-B5-07",
+      "decision": "When a submission ID is given",
+      "safeTreatment": "Prototype: on the first save of a draft.",
+      "recordedOn": "B5-10"
+    },
+    {
+      "id": "OD-B5-11",
+      "decision": "Documents: allowed types, sizes and where they are shown",
+      "safeTreatment": "Sample file names only; nothing is uploaded. Shown to the Academic Reviewer; catalogue use open.",
+      "recordedOn": "B5-10"
+    },
+    {
+      "id": "OD-B6-08",
+      "decision": "Version label rules for a correction",
+      "safeTreatment": "Required and different from the live version; no format rule.",
+      "recordedOn": "B6-15"
+    }
+  ],
+  "waitForDecisionT": [
+    {
+      "id": "T-02",
+      "title": "Decline of a request",
+      "treatment": "No Decline button, no \"Declined\" state or filter",
+      "status": "WAIT FOR DECISION",
+      "families": "SA-F2, PU-F6"
+    },
+    {
+      "id": "T-08",
+      "title": "Amending an active plan",
+      "treatment": "No amend control",
+      "status": "WAIT FOR DECISION",
+      "families": "SA-F3"
+    },
+    {
+      "id": "T-09",
+      "title": "Direct institution creation",
+      "treatment": "No \"Create institution\" button",
+      "status": "WAIT FOR DECISION",
+      "families": "SA-F3"
+    },
+    {
+      "id": "T-11",
+      "title": "Invitations / activation / identity origin",
+      "treatment": "No invitation UI; \"Contact your institution administrator\"",
+      "status": "WAIT FOR DECISION",
+      "families": "IA-F4, GL-02, SA-F7"
+    },
+    {
+      "id": "T-20",
+      "title": "Re-marking",
+      "treatment": "Confirmed marks read-only",
+      "status": "WAIT FOR DECISION",
+      "families": "FA-F5"
+    },
+    {
+      "id": "T-33",
+      "title": "Reports",
+      "treatment": "Exports of existing lists only; no Reports destination",
+      "status": "WAIT FOR DECISION (report pages)",
+      "families": "FA-F6, IA-F8, SA-F3"
+    },
+    {
+      "id": "T-34",
+      "title": "Notifications / messaging",
+      "treatment": "Status shown in-product only",
+      "status": "WAIT FOR DECISION",
+      "families": "All status screens"
+    }
+  ],
+  "v45toV46Changes": [
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B8-00-Index.dc.html",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B8-01-Screen-and-Navigation-Register.dc.html",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B8-02-Link-Corrections-and-Change-Log.dc.html",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B8-03-Terminology-and-Visual-Consistency.dc.html",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B8-04-Workflow-Traceability.dc.html",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B8-05-Responsive-and-Accessibility.dc.html",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B8-06-Design-to-Code-Handoff.dc.html",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B8-07-Handoff-Specifications.dc.html",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B8-08-Open-Decisions-and-Limitations.dc.html",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/README.md",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/assets.json",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/entities.json",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/files.json",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/flows.json",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/navigation.json",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/open-decisions.json",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/screens.json",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/tokens.css",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/handoff/tokens.json",
+      "change": "added in v46 (Batch 8)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/05-Workspace-Shell.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/06-Sidebar-Variants.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/07-Help-Support.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/08-System-Messages.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/09b-Archetypes-AR6-AR10.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/11-Responsive-Proof.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-01-Public-Landing.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-02-Area-Explorer.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-03-Areas-and-Course.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-04-Catalogue.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-05-Experiment-Detail.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-06-Selection.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-07-Request-Access.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-08-Request-Status.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-09-Sign-In.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-10-SA-Requests.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-11-SA-Decision.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-12-Responsive-Proof.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B1-13-Flow-Continuity.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-01-IA-Overview.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-02-Content-Access.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-03-Access-Plan-and-Course-Codes.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-04-Student-Access.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-05-Give-Students-Access.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-06-People.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-07-Add-and-Import.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-08-Groups.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-09-Faculty-Courses.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-10-Student-Home.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-11-My-Courses.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-12-Experiment-Hub.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-13-Flow-2-Continuity.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B2-14-Responsive-Proof.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-01-Hub-Resources-and-Progress.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-02-Simulation-Choose-Format.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-03-WEB-Simulation.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-04-AR-VR-MR-Format.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-05-Progress.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-06-Format-Feedback.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-07-My-Device.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-08-IA-Requests-to-BITS.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-09-IA-Device-Requests.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-10-IA-Usage.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-11-SA-Device-Transfers.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-12-Flow-3-Continuity.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B3-13-Responsive-Proof.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-01-Faculty-Overview.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-03-Experiment-Teaching-View.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-11-Student-Assessments.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-13-Assessment-Result.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-14-Flow-4-Continuity.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B4-15-Responsive-Proof.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B5-01-Vendor-Overview.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B5-02-My-Experiments.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B5-03-Create-Course-and-Description.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B5-04-Formats-and-Delivery.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B5-05-Preview-Check-and-Submit.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B5-06-Experiment-Record-and-History.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B5-07-Revise-and-Resubmit.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B5-08-Flow-5-Continuity.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B5-09-Responsive-Proof.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-01-Reviewer-Overview.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-02-Review-Queue-and-Reviewed.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-03-Review-a-Submission.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-04-Review-an-Update.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-05-CM-Overview.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-06-Ready-to-Publish-and-Library.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-07-Publication-Decision.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-08-Published-and-Correction-Entry.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-09-Updates-Corrections.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-10-Platform-Course-Codes.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-11-Critical-States.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-12-Flow-5-Completion.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-13-Flow-6-Steps-1-2.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B6-14-Responsive-Proof.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-01-SA-Overview.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-02-Institutions.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-03-Institution-Detail.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-04-Pause-Effects.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-05-Content-Updates-Release-Hold.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-06-All-Content.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-07-Academic-Structure.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-08-Platform-Roles.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-09-Operations.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-10-Critical-States.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-11-Flow-6-Release-and-Hold.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/B7-12-Responsive-Proof.dc.html",
+      "change": "changed (md5 differs v45 -> v46)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/canvas.json",
+      "change": "changed (md5 differs v45 -> v46); canvas layout (B8 boards added)"
+    },
+    {
+      "file": "design/handoff-v46/canvas-v46/project/xr-govern.css",
+      "change": "changed (md5 differs v45 -> v46); B8-02: one appended rule .xr-dpanel .xr-status{white-space:normal;height:auto;text-align:left} (only stylesheet changed)"
+    },
+    {
+      "file": "(50 files)",
+      "change": "unchanged v45 -> v46: 01-Visual-Foundation.dc.html, 02-Tokens-Typography.dc.html, 03-Core-Components.dc.html, 04-Status-Format-States.dc.html, 09a-Archetypes-AR1-AR5.dc.html, 10-Dialogs.dc.html, 12-Accessibility-Motion.dc.html, 13-Change-Log.dc.html, B1-00-Index.dc.html, B1-14-Change-Log.dc.html, B2-00-Index.dc.html, B2-15-Change-Log.dc.html, B3-00-Index.dc.html, B3-14-Change-Log.dc.html, B4-00-Index.dc.html, B4-12-Assessment-Attempt.dc.html, B4-16-Change-Log.dc.html, B5-00-Index.dc.html, B5-10-Change-Log.dc.html, B6-00-Index.dc.html, B6-15-Change-Log.dc.html, B7-00-Index.dc.html, B7-13-Change-Log.dc.html, Main.dc.html, art/bundle.svg, art/casting.svg, art/coil.svg, art/drum.svg, art/fmt-ar.svg, art/fmt-mr.svg, art/fmt-vr.svg, art/fmt-web.svg, art/machining.svg, art/materials.svg, art/motor-crop.svg, art/motor.svg, art/orifice.svg, art/process-crop.svg, art/process.svg, art/switching.svg, art/syncgen.svg, art/thermal-crop.svg, art/thermal.svg, xr-admin.css, xr-assess.css, xr-foundation.css, xr-learning.css, xr-public.css, xr-vendor.css, xr-workspace.css"
+    }
+  ],
+  "supplementary": {
+    "counts": {
+      "packageFilesOnDisk": 180,
+      "manifestEntries": 178,
+      "sha256Lines": 178,
+      "designFiles": 166,
+      "boards": 128,
+      "stylesheets": 8,
+      "svg": 19,
+      "handoffFiles": 10,
+      "filesJsonEntries": 165,
+      "filesJsonMismatches": 0,
+      "v45Files": 147,
+      "v46Files": 166,
+      "v45to46Added": 19,
+      "v45to46Changed": 97,
+      "v45to46Unchanged": 50,
+      "v45to46Removed": 0,
+      "screenIds": 147,
+      "designed": 123,
+      "notDesigned": 24,
+      "screensVsB801Diffs": 0,
+      "navigationRoles": 8,
+      "navigationDiffs": 0,
+      "designedIdsNamedInFrames": 111,
+      "designedIdsNamedInCaptionTitle": 109,
+      "boardOnlyIds": 12,
+      "frameIndexFrames": 966,
+      "frameIndexBoards": 90,
+      "flowSteps": 27,
+      "flowDiffs": 0,
+      "entityRecords": 15,
+      "businessRules": 10,
+      "frameIndexStatusLabels": 84,
+      "b803StatusLabels": 61,
+      "batchDecisions": 79,
+      "productPolicy": 55,
+      "dataModel": 12,
+      "sampleData": 7,
+      "stillOpen": 1,
+      "resolvedOrRecorded": 4,
+      "registerT": 35,
+      "tDesignNowSafely": 28,
+      "tSplitDesignNowWait": 8,
+      "tWaitForDecision": 7,
+      "frontendBuildBlockers": 0,
+      "tokens": 65,
+      "tokenDiffs": 0,
+      "nonTokenHexColours": 16,
+      "designedRoutesLiteral": 91,
+      "designedRoutesWithQuery": 13,
+      "designedRoutesNonLiteral": 19,
+      "sharedPaths": 14,
+      "intermediatePathsWithoutPage": 18,
+      "boardsReferenced": 83,
+      "boardsUnreferenced": 45,
+      "localRefs": 12156,
+      "unresolvedLocalRefs": 128
+    },
+    "splitDesignNowWaitT": [
+      {
+        "id": "T-03",
+        "title": "\"Request more information\" lifecycle / reply",
+        "status": "DESIGN NOW SAFELY (reason) · WAIT (reply)",
+        "treatment": "Requester sees the reason; no reply field"
+      },
+      {
+        "id": "T-05",
+        "title": "Payment provider / confirmation / refund",
+        "status": "DESIGN NOW SAFELY (neutral step) · WAIT (provider screens)",
+        "treatment": "Provider-neutral summary; no amount; only success activates"
+      },
+      {
+        "id": "T-06 / D7",
+        "title": "Licence counting",
+        "status": "DESIGN NOW SAFELY (display) · WAIT (counting copy)",
+        "treatment": "Show figures as provided (\"Licences 1,284 of 1,650\"); never explain what assignment, withdrawal or deactivation does to the count"
+      },
+      {
+        "id": "T-18",
+        "title": "Assessment lifecycle (make available, deadline meaning, closed)",
+        "status": "DESIGN NOW SAFELY · WAIT (make-available control)",
+        "treatment": "Available once it has questions; deadline advisory; no defaults"
+      },
+      {
+        "id": "T-23",
+        "title": "AI provider and assist depth",
+        "status": "DESIGN NOW SAFELY (drafts) · WAIT (suggested marks)",
+        "treatment": "Drafts require review; no marking suggestion"
+      },
+      {
+        "id": "T-25",
+        "title": "Feedback staff ownership",
+        "status": "DESIGN NOW SAFELY (Student side) · WAIT (staff side)",
+        "treatment": "No staff views; neutral copy"
+      },
+      {
+        "id": "T-26 residual",
+        "title": "format hold-back; adding a format after publication",
+        "status": "DESIGN NOW SAFELY · WAIT (controls)",
+        "treatment": "Show per-format status; no partial-approve, no \"add a format\""
+      },
+      {
+        "id": "T-32",
+        "title": "Device-transfer decline; device registry",
+        "status": "DESIGN NOW SAFELY (approve) · WAIT (decline)",
+        "treatment": "Approve only; free-text device fields"
+      }
+    ],
+    "resolvedSampleOpenDecisions": [
+      {
+        "id": "OD-B3-15",
+        "classification": "Resolved by precedence (Register allocation followed)",
+        "decision": "Register vs Inventory allocation (IA-17, SA-18/19)"
+      },
+      {
+        "id": "OD-B3-16",
+        "classification": "Resolved in Batch 8 — frozen Batch-2 links now open the Batch-3 screens",
+        "decision": "Frozen Batch-2 links to Batch-3 screens"
+      },
+      {
+        "id": "OD-B4-15",
+        "classification": "Resolved in Batch 8 for navigation — Home “Up next” and the hub Assessment tab now open B4-11; the frozen Batch-2 frames are unchanged",
+        "decision": "Merging the new states into frozen screens (Home Up next, hub Assessment tab, IA Overview no-marker row)"
+      },
+      {
+        "id": "OD-B4-16",
+        "classification": "Sample data only — no product effect",
+        "decision": "Sample deadline"
+      },
+      {
+        "id": "OD-B5-09",
+        "classification": "Still open — two separate sample records by user instruction; no merge and no duplicate-content rule until decided",
+        "decision": "Sample names: SUB-0077 “Conduction Through a Composite Wall” (Register §Q, Batch-0 example) beside the published “Composite Wall Conduction” (Batch-1 catalogue, WEB + AR)"
+      },
+      {
+        "id": "OD-B6-10",
+        "classification": "Recorded — Batch-0 AR-4 breakpoint followed (identical at the proof widths)",
+        "decision": "Decision-panel breakpoint"
+      },
+      {
+        "id": "OD-B6-11",
+        "classification": "Sample data only — no product effect",
+        "decision": "Second sample Vendor"
+      },
+      {
+        "id": "OD-B6-12",
+        "classification": "Sample data only — no product effect",
+        "decision": "Sample-world timing"
+      },
+      {
+        "id": "OD-B7-06",
+        "classification": "Sample data only — no product effect",
+        "decision": "New sample names"
+      },
+      {
+        "id": "OD-B7-08",
+        "classification": "Sample data only — no product effect",
+        "decision": "Published count"
+      },
+      {
+        "id": "OD-B7-14",
+        "classification": "Sample data only — no product effect",
+        "decision": "Sample-world timing"
+      },
+      {
+        "id": "OD-B7-15",
+        "classification": "Sample data only — no product effect",
+        "decision": "Reviewer scope history"
+      }
+    ],
+    "productPolicyIds": [
+      "OD-B2-01",
+      "OD-B2-02",
+      "OD-B2-03",
+      "OD-B2-04",
+      "OD-B3-01",
+      "OD-B3-03",
+      "OD-B3-04",
+      "OD-B3-05",
+      "OD-B3-09",
+      "OD-B3-10",
+      "OD-B3-11",
+      "OD-B3-12",
+      "OD-B3-13",
+      "OD-B3-14",
+      "OD-B4-01",
+      "OD-B4-02",
+      "OD-B4-03",
+      "OD-B4-04",
+      "OD-B4-05",
+      "OD-B4-06",
+      "OD-B4-07",
+      "OD-B4-08",
+      "OD-B4-09",
+      "OD-B4-10",
+      "OD-B4-14",
+      "OD-B4-17",
+      "OD-B5-01",
+      "OD-B5-04",
+      "OD-B5-05",
+      "OD-B5-06",
+      "OD-B5-08",
+      "OD-B5-10",
+      "OD-B5-12",
+      "OD-B5-13",
+      "OD-B6-01",
+      "OD-B6-02",
+      "OD-B6-03",
+      "OD-B6-04",
+      "OD-B6-05",
+      "OD-B6-06",
+      "OD-B6-07",
+      "OD-B6-09",
+      "OD-B6-13",
+      "OD-B6-14",
+      "OD-B7-01",
+      "OD-B7-02",
+      "OD-B7-03",
+      "OD-B7-04",
+      "OD-B7-05",
+      "OD-B7-07",
+      "OD-B7-09",
+      "OD-B7-10",
+      "OD-B7-11",
+      "OD-B7-12",
+      "OD-B7-13"
+    ],
+    "notes": [
+      "Every check was run read-only on the checksum-verified extraction. Nothing was executed from the handoff folder (support.js was only hashed).",
+      "Derived extracts (frame-index, screen-frames) were used as a search aid. Each finding cites the board frame where possible."
+    ]
+  },
+  "verdict": "The frozen v46 package is internally consistent at the integrity and index level. 178/178 manifest and SHA-256 entries match, and files.json md5/size match on 165/165 entries. The v45 -> v46 delta (19 added, 97 changed, 50 unchanged, 0 removed) matches FREEZE-RECORD and B8-02. screens.json, navigation.json, flows.json, open-decisions.json and tokens.json/css equal their source boards (B8-01, 05/06, B8-04, B8-08, B8-07, xr-foundation.css :root) with 0 field differences. The headline counts (147/123/24, 27 steps, 15 records, 10 rules, 79 = 55+12+7+1+4, 35 = 28+7, 65 tokens, 0 blockers, 111/123 frame-named) all reproduce. The gaps sit between the index and the drawn frames, and in the routes. (1) entities.json gives one status vocabulary per record, but boards use role-relative labels and extra sub-states (REQ Submitted / Payment failed, SACC No access yet / Waiting for a licence, CM return and re-check on SUB, ROLE No scope). \"Scope active\" is drawn nowhere. RUN \"ownerWriter: Student\" must not be read as the Student setting Completed. (2) The register omits some drawn frames: the B1-02 explorer and the Student hub Assessment tab on B4-11 have no ID or route. (3) 19 proposedRoute values are not literal routes. SA-15 read literally breaks the Next.js build, IA-14 \"/new\" contradicts its dialog board, tab conventions are mixed, and 18 intermediate paths need redirects. (4) Small documentation mismatches: the START-HERE path note, the missing link-crawl evidence file, and \"three\" CSV templates where the markup has two. None of these blocks a mock-service frontend. They should be logged as handoff defects (board wins) and resolved in the route map and state model before building."
+}

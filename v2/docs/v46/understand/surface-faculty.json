@@ -1,0 +1,2304 @@
+{
+ "surface": "Faculty workspace (FA-01…FA-24) — design/handoff-v46/ Batch 4 (FA-F1…FA-F6)",
+ "boardsRead": [
+  "B4-00-Index.dc.html",
+  "B4-01-Faculty-Overview.dc.html",
+  "B4-02-My-Courses-and-Experiments.dc.html",
+  "B4-03-Experiment-Teaching-View.dc.html",
+  "B4-04-Assessments-and-Create.dc.html",
+  "B4-05-Assessment-Summary-and-Questions.dc.html",
+  "B4-06-Settings-Preview-Submissions.dc.html",
+  "B4-07-Question-Bank-and-Editor.dc.html",
+  "B4-08-Draft-with-Assistance-and-Import.dc.html",
+  "B4-09-Marking.dc.html",
+  "B4-10-Students-and-Follow-up.dc.html",
+  "B4-14-Flow-4-Continuity.dc.html (Faculty frames + flow table)",
+  "B4-16-Change-Log.dc.html",
+  "B4-15-Responsive-Proof.dc.html (grep only)",
+  "B4-11-Student-Assessments.dc.html (grep only, cross-role)",
+  "B7-04-Pause-Effects.dc.html (Faculty reference frame only)",
+  "B2-09-Faculty-Courses.dc.html (grep only, FCM)",
+  "B8-01-Screen-and-Navigation-Register.dc.html (grep)",
+  "B8-03-Terminology-and-Visual-Consistency.dc.html (grep)",
+  "B8-04-Workflow-Traceability.dc.html (grep)",
+  "B8-06-Design-to-Code-Handoff.dc.html (grep)",
+  "B8-07-Handoff-Specifications.dc.html (grep)",
+  "09a-Archetypes-AR1-AR5.dc.html / 09b-Archetypes-AR6-AR10.dc.html (archetype names)",
+  "handoff/screens.json, navigation.json, flows.json, entities.json, open-decisions.json; derived/frame-index.json, screen-frames.json, controls-by-workspace.json; START-HERE.md, HANDOFF-AUDIT-v46.md"
+ ],
+ "screens": [
+  {
+   "id": "FA-01",
+   "title": "Overview",
+   "screenType": "page",
+   "proposedRoute": "/faculty",
+   "recommendedRoute": "/faculty",
+   "routeNotes": "Keep. Workspace root; sidebar item 1.",
+   "navPlace": "Sidebar › Overview (first item)",
+   "archetype": "AR-1",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "PageHeader(institution eyebrow 'Godavari Institute of Technology' + H1 'Overview')",
+    "ScopeLine('You teach 1 course · 1 experiment · ' + link 'My courses')",
+    "PrimaryActionButton(one top action, e.g. 'Mark 1 written answer'; full width on phones)",
+    "AttentionList(≤ 5 rows, count 'N items', each row = title + meta + one link button)",
+    "DeadlineList('Coming up', 'at most 3', row = assessment name + 'Due … · N of M students submitted' + 'Open')",
+    "EmptyState(icon + heading + sentence + optional Help link)",
+    "AccessBanner(shared Batch-0 paused banner — B7-04 reference frame)",
+    "SidebarCountBadge('1', sr text '1 written answer to mark')"
+   ],
+   "states": [
+    "default — frame 'FA-01 Overview · 1440 · 6 Nov 2026, 09:00' (caption note: 'One scope line, one top action, at most five attention rows and three deadlines. Every row links to the place where the work is done.'): 3 attention rows ('1 written answer to mark', '3 draft questions need your review', '2 students inactive for 14 days or more'), Coming up 1 row",
+    "nothing needs you — frame 'Nothing needs you': 'Nothing needs you right now.' / 'Written answers to mark, drafts to review and inactive students appear here.'; no top action; Coming up still listed; no Marking badge",
+    "no courses yet — frame 'No courses yet' (note 'Before Meera assigns a course in Faculty courses.'): H2 'Your Institute Admin hasn’t assigned you courses yet' + 'When they assign you a course in Faculty courses, its experiments, assessments and students appear here.' + 'Help'; no scope line, no attention list",
+    "course access ended — frame 'Course access ended (later sample)': single attention row 'Your institution’s access to Shell-and-Tube Heat Exchanger ended on 7 Oct 2027' / 'ME ZG523 · students can’t open it now; their work and results are kept' → 'My courses'; Coming up empty",
+    "coming up empty — 'No deadlines in the next 30 days.' (same frame)",
+    "access paused (cross-board) — B7-04 frame 2 'Faculty · Dr S. Ranganathan · Overview (Batch-4 design + the shared banner, reference frame)': banner 'Your institution’s access is paused — your work is kept.' + Help; 'Batch 4 had no paused Faculty state: the shared banner is shown and nothing else is assumed (OD-B7-07)'",
+    "mobile 375 — frame 'Mobile 375'; B4-15 frames 0–3 'Faculty · Overview' 1440/1024/768/375: 'Single column at every width; the top action goes full width on phones.'",
+    "NOT SHOWN: loading and failed states for the Overview"
+   ],
+   "actions": [
+    "Mark 1 written answer (top primary action) → navigate to Marking (link target file B4-09; B8-01 lists 'Overview attention → Marking') [no data change]",
+    "Mark now (row '1 written answer to mark') → navigate B4-09 Marking",
+    "Review drafts (row '3 draft questions need your review') → navigate B4-07 Question bank (Drafts to review tab is inferred, link has no tab target)",
+    "View students (row '2 students inactive for 14 days or more') → navigate B4-10 Students (inactivity filter pre-applied is inferred)",
+    "Open (Coming up row) → navigate B4-05 Summary (FA-08)",
+    "My courses (scope line link; access-ended row button) → navigate FA-02",
+    "Help (no-courses state) → navigate 07-Help-Support (GL help)"
+   ],
+   "outboundLinks": [
+    "Mark 1 written answer → FA-18 (file B4-09-Marking holds FA-18 and FA-19)",
+    "Mark now → FA-18 (B4-09)",
+    "Review drafts → FA-14",
+    "View students → FA-20",
+    "Open → FA-08",
+    "My courses → FA-02",
+    "Help → Help & support (07-Help-Support)",
+    "Sidebar: Overview → FA-01 · My courses → FA-02 · Assessments → FA-06 · Question bank → FA-14 · Marking → FA-18 · Students → FA-20 · Help → 07-Help-Support"
+   ],
+   "records": [
+    "ATT",
+    "Q",
+    "RUN",
+    "ASMT",
+    "FCM",
+    "ACC",
+    "PER"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-01-Faculty-Overview.dc.html frames 0–4 (captions above; annotation 'Contents Needs your attention (≤ 5)… Coming up (≤ 3 deadlines). One scope line → My courses.' 'Scope Only what the Institute Admin assigned in Faculty courses (B2-09)' 'Not designed Reminders or messages to students (T-34 / R11)'); design/handoff-v46/canvas-v46/project/B7-04-Pause-Effects.dc.html frame 2; design/handoff-v46/canvas-v46/project/B4-15-Responsive-Proof.dc.html frames 0–3; design/handoff-v46/canvas-v46/project/B4-14-Flow-4-Continuity.dc.html frame 2 'D3 · Faculty Overview · 6 Nov 2026'"
+  },
+  {
+   "id": "FA-02",
+   "title": "My courses (Courses tab)",
+   "screenType": "page",
+   "proposedRoute": "/faculty/courses",
+   "recommendedRoute": "/faculty/courses",
+   "routeNotes": "Keep. Default tab = Courses; Experiments tab is FA-04 on the same route (?tab=experiments).",
+   "navPlace": "Sidebar › My courses",
+   "archetype": "AR-2",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "PageHeader(eyebrow 'Courses you teach', H1 'My courses', sub 'From Faculty courses, set by your Institute Admin')",
+    "LinkTabs(aria-label 'My courses': Courses · Experiments)",
+    "ListRows(count '1 course'; row = course title + 'ME ZG523 · 1 experiment · 5 students with access · 1 assessment' + 'Open course' link with aria-label 'Open course <title>')",
+    "EmptyState"
+   ],
+   "states": [
+    "default — frame 'FA-02 My courses · Courses tab · 1440' (note: '“Courses you teach” comes from Faculty courses (B2-09).')",
+    "none assigned — frame 'None assigned': 'Your Institute Admin hasn’t assigned you courses yet' / 'Courses appear here when they assign you one in Faculty courses.' (tabs not shown; no Marking badge)",
+    "access ended — frame 'Access ended (later sample)': row 'Thermodynamics & Heat Transfer ME ZG523 · Access ended on 7 Oct 2027 · earlier work and results kept' + 'Open course'",
+    "NOT SHOWN for the Courses tab: loading, failed, no match (these are drawn only for the Experiments tab FA-04)"
+   ],
+   "actions": [
+    "Open course → navigate FA-03",
+    "Experiments tab → navigate FA-04"
+   ],
+   "outboundLinks": [
+    "Open course → FA-03",
+    "Experiments (tab) → FA-04"
+   ],
+   "records": [
+    "FCM",
+    "CRS",
+    "EXP",
+    "SACC",
+    "ASMT",
+    "ACC"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html frames 0, 6 'None assigned', 7 'Access ended (later sample)'; annotation 'Scope Only courses the Institute Admin assigned (B2-09) and, inside them, only experiments the institution holds (ACC-0107).'"
+  },
+  {
+   "id": "FA-03",
+   "title": "Course (teaching view)",
+   "screenType": "page",
+   "proposedRoute": "/faculty/courses/[courseId]",
+   "recommendedRoute": "/faculty/courses/[courseId]",
+   "routeNotes": "Keep. No collision with FA-04 because FA-04 is a query-param tab on /faculty/courses (a '/faculty/courses/experiments' segment would collide with [courseId]).",
+   "navPlace": "Detail of My courses",
+   "archetype": "AR-2",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (My courses / ME ZG523)",
+    "BackLink('My courses')",
+    "PageHeader(eyebrow 'Course you teach', H1 course title, meta 'ME ZG523 1 experiment in your institution’s access · 5 students with access')",
+    "ExperimentCard(name link, StatusPill 'Assessment ready', FormatChips 'Formats your institution has', assessment line, PerFormatCounts(aria-label 'Student activity by format': 'N completed · N in progress · N not started' per format, no %), actions)",
+    "FormatChip(WEB/VR code + words)"
+   ],
+   "states": [
+    "default — frame 'FA-03 Course · ME ZG523' (note: 'Each experiment: formats the institution has, the assessment, per-format student activity in counts and words — no percentages.'); pill 'Assessment ready'; 'Experiments — Only experiments your institution holds'",
+    "NOT SHOWN: course with no experiments, experiment without assessment / with draft assessment on this page (those states are drawn on FA-05 only), loading, failed, access ended on this page"
+   ],
+   "actions": [
+    "Experiment name link → navigate FA-05",
+    "Open experiment → navigate FA-05",
+    "Students on this experiment → navigate FA-20 (experiment pre-filter inferred)",
+    "Breadcrumb / back 'My courses' → FA-02"
+   ],
+   "outboundLinks": [
+    "Shell-and-Tube Heat Exchanger → FA-05",
+    "Open experiment → FA-05",
+    "Students on this experiment → FA-20",
+    "My courses → FA-02"
+   ],
+   "records": [
+    "CRS",
+    "FCM",
+    "EXP",
+    "ACC",
+    "ASMT",
+    "ATT",
+    "RUN",
+    "SACC"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html frame 1 'FA-03 Course · ME ZG523'"
+  },
+  {
+   "id": "FA-04",
+   "title": "Experiments (tab of My courses)",
+   "screenType": "tab",
+   "proposedRoute": "/faculty/courses?tab=experiments",
+   "recommendedRoute": "/faculty/courses?tab=experiments",
+   "routeNotes": "Keep the query-param tab: a path segment would collide with /faculty/courses/[courseId]. Filter values (q, format, activity) can also live in the query string (inferred, not designed).",
+   "navPlace": "Tab of My courses (not a sidebar item — 'FA-04 is a tab, not a separate sidebar item')",
+   "archetype": "AR-2",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (My courses / Experiments)",
+    "LinkTabs(Courses · Experiments)",
+    "FilterBar(search 'Search experiments' placeholder 'Experiment or course'; select 'Format' All formats/WEB/VR; select 'Activity' All/With activity/No activity yet; FilterChips with 'Remove <label>' buttons; 'Clear filters'; result count role=status '1 experiment')",
+    "DataTable(columns: Experiment [link + course code] · Formats your institution has · Completed (WEB) · Completed (VR) · Assessment · Action 'Open'; labelled-row mode on phones)",
+    "LoadingState(role=status 'Loading your experiments')",
+    "ErrorState('We couldn’t load your experiments' / 'Nothing has changed. Try again.' + 'Try again')",
+    "NoMatch('No experiment matches.' + 'Clear filters')",
+    "FormatChip",
+    "StatusPill"
+   ],
+   "states": [
+    "default interactive — frame 'FA-04 Experiments tab · 1440 · interactive' (note 'Search, filter by format and activity; filter chips; clear.'); row assessment state 'Ready'",
+    "no match — frame 'No match' (note 'Searching for an experiment the institution doesn’t hold.'; sample query 'fin-tube'): 'No experiment matches.' + 'Clear filters'",
+    "loading — frame 'Loading': 'Loading your experiments' (role=status)",
+    "failed + retry — frame 'Failed + retry · interactive': 'We couldn’t load your experiments' / 'Nothing has changed. Try again.' + 'Try again'",
+    "mobile — frame 'Mobile 375 · interactive' (note 'Table becomes labelled rows.')"
+   ],
+   "actions": [
+    "Search / Format / Activity filters → filter list (client) [no data change]",
+    "Remove <chip> → clear that filter",
+    "Clear filters → reset all filters",
+    "Try again → reload list",
+    "Experiment name / Open (aria 'Open <experiment>') → navigate FA-05",
+    "Courses tab → FA-02"
+   ],
+   "outboundLinks": [
+    "Open / experiment name → FA-05",
+    "Courses (tab) → FA-02"
+   ],
+   "records": [
+    "EXP",
+    "ACC",
+    "RUN",
+    "ASMT",
+    "FCM"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html frames 2–5, 8; script feView() (filters q / fmt / act; chips 'Format: WEB', 'With activity', 'No activity yet'; count '1 experiment'); B4-16 'F6 My Content list → Keep as the Experiments tab; “Completions · web” → “Completed (WEB)”'"
+  },
+  {
+   "id": "FA-05",
+   "title": "Experiment (teaching view)",
+   "screenType": "page",
+   "proposedRoute": "/faculty/experiments/[experimentId]",
+   "recommendedRoute": "/faculty/experiments/[experimentId]",
+   "routeNotes": "Keep. Breadcrumb is My courses / <course code> / <experiment>; experiment is reached from FA-03/FA-04.",
+   "navPlace": "Detail (from FA-03 / FA-04)",
+   "archetype": "AR-3",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (My courses / ME ZG523 / experiment)",
+    "BackLink('My courses')",
+    "PageHeader(eyebrow 'ME ZG523 · Thermodynamics & Heat Transfer', H1 experiment)",
+    "KeyFacts(two labelled facts: 'Formats your institution has' + 'Formats used by your students')",
+    "AssessmentSummaryRow(name, StatusPill, 'Due … · 1 of 5 submitted · 1 waiting for marking', actions)",
+    "EmptyState('No assessment for this experiment yet')",
+    "PerFormatCounts(as of date, no %)",
+    "ReadOnlySection(About, Learning outcomes list + note 'One set of outcomes for the experiment, written by the Academic Reviewer. Read-only here.', Resources students see)"
+   ],
+   "states": [
+    "default — frame 'FA-05 Experiment · teaching view · 1440 · 7 Nov 2026' (note: 'Three sections: Assessment · Student activity · About + learning outcomes (read-only). Two labelled facts: formats the institution has, formats used.'); assessment pill 'Ready'",
+    "no assessment yet → create — frame 'No assessment yet → Create assessment' (note 'Before 26 Oct 2026.'): 'No assessment for this experiment yet' / 'Create one: choose the rules, add questions from your bank, preview it as a student.' + 'Create assessment'",
+    "assessment in draft — frame 'Assessment in draft' (note 'Rules set, no questions: not visible to students.'): pill 'Draft — not ready', 'Rules set · no questions yet. Students can’t see it.' + 'Continue setting up'",
+    "no activity yet — frame 'No activity yet (later sample)' (note 'Formats used: none yet.'): 'Formats used by your students None yet'; '5 students have this experiment. None has opened it yet.' (per-format counts hidden)",
+    "mobile — frame 'Mobile 375'",
+    "NOT SHOWN: loading, failed, access ended/paused on this page"
+   ],
+   "actions": [
+    "Mark 1 written answer → navigate B4-09 Marking",
+    "Open assessment → navigate FA-08",
+    "Create assessment → navigate FA-07 (pre-selecting this experiment is inferred; board link is just B4-04)",
+    "Continue setting up (draft) → navigate FA-08 (B4-05)",
+    "See students on this experiment → navigate FA-20",
+    "Breadcrumbs My courses → FA-02; ME ZG523 → B4-02 (FA-03 inferred)"
+   ],
+   "outboundLinks": [
+    "Mark 1 written answer → FA-18 (B4-09)",
+    "Open assessment → FA-08",
+    "Create assessment → FA-07",
+    "Continue setting up → FA-08",
+    "See students on this experiment → FA-20",
+    "My courses → FA-02",
+    "ME ZG523 → FA-03"
+   ],
+   "records": [
+    "EXP",
+    "ACC",
+    "RUN",
+    "ASMT",
+    "ATT",
+    "SACC",
+    "RES"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-03-Experiment-Teaching-View.dc.html frames 0–4; annotation 'One assessment per experiment is the prototype’s rule — kept as an open decision (T-18).' '“Formats your institution has” (from the plan) and “Formats used by your students” (opened at least once) are two separate facts.' 'Outcomes One experiment-level set (LD-3), read-only. Feedback is not shown to Faculty (T-25).'"
+  },
+  {
+   "id": "FA-06",
+   "title": "Assessments",
+   "screenType": "page",
+   "proposedRoute": "/faculty/assessments",
+   "recommendedRoute": "/faculty/assessments",
+   "routeNotes": "Keep.",
+   "navPlace": "Sidebar › Assessments",
+   "archetype": "AR-2",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "PageHeader(H1 'Assessments', sub 'Assessments for experiments you teach', primary 'Create assessment')",
+    "FilterBar(search 'Search assessments' placeholder 'Name or experiment'; select 'Course' All courses/ME ZG523; select 'State' All states/Draft/Ready/Waiting for marking; count '1 assessment')",
+    "DataTable(columns: Assessment [name link + ID] · Experiment [name + course code] · State · Deadline and submissions · Action ['Open' / 'Continue setting up'])",
+    "StatusPill('Ready' / 'Draft — not ready' / '1 waiting for marking')",
+    "EmptyState('No assessments yet')"
+   ],
+   "states": [
+    "default — frame 'FA-06 Assessments · 1440 · 7 Nov 2026' (note 'Real links in every row (the B2 F7 defect is fixed). Create assessment is the primary action.'): row 'Heat Exchanger — post-lab ASMT-0009 · Shell-and-Tube Heat Exchanger ME ZG523 · Ready · Due 14 Nov 2026, 23:59 · 1 of 5 submitted · 1 waiting for marking · Open'",
+    "a draft — frame 'Assessments · a draft': pill 'Draft — not ready', 'Rules set · no questions yet · students can’t see it', action 'Continue setting up'",
+    "none yet — frame 'No assessments yet' (note 'Batch-0 empty-state wording.'): 'No assessments yet' / 'Create an assessment for an experiment you teach. You can save a draft while you add questions.' + 'Create assessment'",
+    "NOT SHOWN: loading, failed, filter no-match (filters are static on this board), 'closed' (T-18 OPEN, not designed)"
+   ],
+   "actions": [
+    "Create assessment (header + empty state) → navigate FA-07",
+    "Assessment name link / Open → navigate FA-08",
+    "Continue setting up (draft row) → navigate FA-08 (B4-05)",
+    "Search / Course / State filters → filter list [no data change; static on board]"
+   ],
+   "outboundLinks": [
+    "Create assessment → FA-07",
+    "Heat Exchanger — post-lab → FA-08",
+    "Open → FA-08",
+    "Continue setting up → FA-08"
+   ],
+   "records": [
+    "ASMT",
+    "ATT",
+    "EXP",
+    "CRS",
+    "FCM"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html frames 0, 9 'No assessments yet', 10 'Assessments · a draft'"
+  },
+  {
+   "id": "FA-07",
+   "title": "Create assessment (guided, 4 steps)",
+   "screenType": "step",
+   "proposedRoute": "/faculty/assessments/new?step=1…4",
+   "recommendedRoute": "/faculty/assessments/new?step=1..4",
+   "routeNotes": "Keep. Static 'new' outranks dynamic [assessmentId] in the App Router (assessment IDs must never be 'new'). The outcome screen ('Assessment created' / 'Saved as draft') is a state of this route, not a fifth step route. An optional ?experimentId= pre-selection when launched from FA-05 is inferred, not drawn. Deep-linking to step>1 must not be possible without the in-progress draft state (inferred).",
+   "navPlace": "Flow from FA-06 'Create assessment' / FA-05 'Create assessment'",
+   "archetype": "AR-5",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (Assessments / Create assessment)",
+    "BackLink('Assessments')",
+    "Stepper(4 steps: Experiment · Rules · Questions · Preview; 'Step n of 4'; aria-current=step)",
+    "ErrorSummary(role=alert 'Check this step', links to each field id, takes focus)",
+    "SummaryPanel('This assessment' ~26 %: Experiment / Name / Rules / Questions with 'Not chosen yet' / 'Not named yet' / 'Not set yet' / 'No questions yet'; collapsible block below 860 px of content)",
+    "RadioCardList(fieldset 'Experiments you teach': title + 'ME ZG523 · Thermodynamics & Heat Transfer' + tag 'No assessment yet' / 'Already has an assessment: <name>')",
+    "Notice(role=status refusal with link)",
+    "FormField(label + hint + inline error + aria-invalid + aria-describedby)",
+    "TextInput",
+    "Textarea",
+    "WholeNumberInput(pass mark %, attempts)",
+    "DateTimeTextInput(deadline, release date — free text on board)",
+    "RadioChoiceList(fieldset 'When students see their result and answers', no option pre-selected)",
+    "ConditionalField(Release date only when 'On a date')",
+    "CheckboxList(aria-label 'Questions': title + 'Q-0101 · Multiple choice · 2 marks')",
+    "RunningTotal(role=status '4 questions · 16 marks')",
+    "KeyFacts(preview: Name · Questions · Pass mark · Attempts allowed · Deadline · Result and answers)",
+    "QuestionPreviewList('Question n · type · marks' + text)",
+    "BusyButton('Create assessment' → 'Creating…' aria-disabled)",
+    "Notice(ok 'ASMT-0009 · Ready' / warn 'ASMT-0009 · Draft — not ready')",
+    "ReadyChecklist(aria-label 'Ready checklist': Name and rules · At least one question; ok / no icons)",
+    "ActionBar(Cancel|Back · Save as draft · Continue)"
+   ],
+   "states": [
+    "step 1 choose experiment — frame 'FA-07 Create assessment · 1440 · interactive · 26 Oct 2026' (note 'Choose Shell-and-Tube → Continue → fill the rules (all empty to start) → Continue → tick questions → Continue → Create assessment. Validation, Back, Save as draft and the summary are live.'); controls Cancel · Continue (no Save as draft on step 1 — script canDraft = step > 1 && step < 5); hint 'Students get the formats their institution holds. Assessments are set per experiment, not per format.'",
+    "step 1 validation — 'Choose an experiment' (script next1)",
+    "step 1 refusal — frame 'This experiment already has an assessment' (note 'Refusal at step 1 (later, after 27 Oct).'): error 'This experiment already has an assessment' + status 'This experiment already has an assessment Open <Heat Exchanger — post-lab> to change its questions or rules. One assessment per experiment is how this works for now (open decision).'",
+    "step 2 rules start empty — frame 'Step 2 · rules start empty' (note 'Every field blank; no release option chosen.')",
+    "step 2 validation — frame 'Step 2 · validation' (note 'Error summary links to each field.'): sample pass '50.5' → 'Enter a pass mark from 0 to 100, as a whole number'; 'Enter how many attempts are allowed, as a whole number'; 'Enter the deadline'; 'Choose when students see their result'",
+    "step 2 'On a date' chosen → Release date field appears; empty → 'Enter the release date'",
+    "step 3 questions from the bank — frame 'Step 3 · questions from the bank · interactive' (note 'Sample values from here on. Four questions, 16 marks.'); heading 'From your question bank · Shell-and-Tube Heat Exchanger'; none ticked → 'Add at least one question, or save as a draft'",
+    "step 4 preview — frame 'Step 4 · preview → Create assessment · interactive': 'What students will see before they start. Previewing creates no attempt.'",
+    "creating (busy) — 'Creating…' (aria-disabled) for ~700 ms in script",
+    "created Ready — frame 'Created · ASMT-0009 · Ready · 27 Oct 2026' (note 'Students who have the experiment can now see it.'): 'ASMT-0009 · Ready' / 'Students who have Shell-and-Tube Heat Exchanger can now see it in Assessments and start it.' + Open assessment + Create another",
+    "saved as draft — frame 'Saved as draft' (note 'Name and rules only: not ready, not visible to students.'): 'ASMT-0009 · Draft — not ready' / 'Students can’t see a draft. Finish what’s missing below.' + Ready checklist + Open assessment + Create another",
+    "save-as-draft validation — 'Enter a name to save a draft' (script draft())",
+    "tablet 768 — frame 'Tablet 768 · step 2 · interactive' (note 'Usable at 768 px (FA-F3).'); B4-15 frames 4–7 'Faculty · Create assessment · step 2 rules (interactive)' 1440/1024/768/375: 'The “This assessment” panel sits beside the step from 860 px of content and becomes a collapsible block below. Usable at 768 px.'",
+    "NOT SHOWN: create failure / server error, step-1 list with several experiments, no experiments to choose (no courses), leaving the flow with unsaved changes"
+   ],
+   "actions": [
+    "Continue (step 1) → validate experiment chosen & not already assessed → step 2 [no record yet]",
+    "Continue (step 2) → validate name, pass mark, attempts, deadline, release option (+ release date) → step 3",
+    "Continue (step 3) → validate ≥ 1 question ticked → step 4",
+    "Back → previous step (errors cleared)",
+    "Cancel (step 1, link) → FA-06 (nothing saved)",
+    "Save as draft (steps 2–4) → creates ASMT (— → Draft — not ready); requires only a name (OD-B4-03) [no dialog]",
+    "Create assessment (step 4) → creates ASMT (— → Ready; 'Ready since' timestamp); Ready = name + rules + ≥ 1 question; visible to Students who have the experiment [no confirm dialog; busy 'Creating…']",
+    "Tick / untick question checkbox → selects bank question for this assessment (running total updates)",
+    "New question → navigate FA-15 · Draft with assistance → FA-16 · Import → FA-17 (step-3 links leave the flow; preserving the in-progress assessment is not shown)",
+    "Open assessment (outcome) → FA-08",
+    "Create another (outcome) → restart at step 1 with everything empty",
+    "Open <existing assessment> (refusal notice link) → FA-08 of the existing assessment"
+   ],
+   "outboundLinks": [
+    "Assessments (breadcrumb/back/Cancel) → FA-06",
+    "New question → FA-15",
+    "Draft with assistance → FA-16",
+    "Import → FA-17",
+    "Open assessment → FA-08",
+    "Heat Exchanger — post-lab (refusal) → FA-08"
+   ],
+   "records": [
+    "ASMT",
+    "Q",
+    "EXP",
+    "FCM",
+    "ACC"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html frames 1–8, 11; script crView() (ruleErrs, next1/next2/next3, draft, finish, checklist, canDraft); annotation 'Nothing pre-filled Name, introduction, pass mark, attempts, deadline and when students see results all start empty… (C-5)' 'Ready An assessment is Ready when it has a name, its rules and at least one question… There is no separate “Make available” control (FA-13 · T-18 — open).' 'Not designed Timer, question types beyond the three (T-22), rubric builder (T-21).'; design/handoff-v46/canvas-v46/project/B4-15-Responsive-Proof.dc.html frames 4–7; design/handoff-v46/canvas-v46/project/B4-14-Flow-4-Continuity.dc.html frame 0 'D1 · ASMT-0009 created · 27 Oct 2026'"
+  },
+  {
+   "id": "FA-08",
+   "title": "Assessment · Summary",
+   "screenType": "tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]",
+   "recommendedRoute": "/faculty/assessments/[assessmentId]",
+   "routeNotes": "Keep. Implement /faculty/assessments/[assessmentId]/layout.tsx holding the AR-7 record header + five link tabs; Summary is the index segment, the other four tabs are child segments.",
+   "navPlace": "Assessment record tab 1 (Summary)",
+   "archetype": "AR-7",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (Assessments / <name> / Summary)",
+    "AssessmentRecordHeader(AR-7 compact navy band: course code · experiment, name, StatusPill, IdChip ASMT-xxxx, 'Due …', 'N waiting for marking')",
+    "LinkTabs(Summary · Questions [count] · Settings · Preview · Submissions [count])",
+    "ReadyChecklist(status + words: 'Name and introduction' · 'Rules: pass mark 50%, 2 attempts, due …, results after the deadline' · '4 questions · 16 marks' / 'At least one question — none yet')",
+    "Section('Submissions': '1 of 5 submitted · 1 waiting for marking' + Notice + 'Mark next' + 'See submissions')",
+    "Notice(role=status new-version / 'Version 2 since …')",
+    "Section('Who it reaches' + 'Reach follows Student access, set by the Institute Admin.')",
+    "KeyFacts('Rules as set for this assessment': Introduction · Pass mark '50% · 8 of 16 marks' · Attempts allowed · Deadline · Result and answers · Time limit 'None')",
+    "MetaLine('Created 26 Oct 2026, 16:40 by you · ready since 27 Oct 2026, 11:05 · Change settings')"
+   ],
+   "states": [
+    "default Ready — frame 'FA-08 Summary · ASMT-0009 · 1440 · 7 Nov 2026' (note 'Ready checklist, submissions, who it reaches and the rules as set. Tabs: Summary · Questions · Settings · Preview · Submissions.'); notice '1 student has submitted. If you change questions or rules now, that makes a new version — earlier submissions keep theirs.'",
+    "draft — frame 'Summary · draft': pill 'Draft — not ready'; 'Students can’t see it until it has a question.'; checklist item 'At least one question — none yet' + 'Add questions'; no Submissions section",
+    "version 2 — frame 'Summary · version 2 (later sample)' (note 'After a rule change on 8 Nov.'): 'Version 2 since 8 Nov 2026 You changed a rule after students submitted. Rahul Verma’s submission keeps version 1; new attempts use version 2.'",
+    "NOT SHOWN: loading, failed, not found / not your assessment, 'closed' (T-18), assessment whose course access ended"
+   ],
+   "actions": [
+    "Mark next → navigate FA-19 (oldest waiting; B4-09)",
+    "See submissions → navigate FA-12",
+    "Change settings → navigate FA-10",
+    "Add questions (draft) → navigate FA-09",
+    "Tabs → FA-09 / FA-10 / FA-11 / FA-12"
+   ],
+   "outboundLinks": [
+    "Mark next → FA-19",
+    "See submissions → FA-12",
+    "Change settings → FA-10",
+    "Add questions → FA-09",
+    "Questions tab → FA-09",
+    "Settings tab → FA-10",
+    "Preview tab → FA-11",
+    "Submissions tab → FA-12",
+    "Assessments (breadcrumb) → FA-06"
+   ],
+   "records": [
+    "ASMT",
+    "ATT",
+    "SACC",
+    "EXP",
+    "Q"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html frames 0, 3 'Summary · draft', 4 'Summary · version 2 (later sample)'; annotation 'Ready Checklist in words… Ready means students who have the experiment can see and start it (T-18: no separate “Make available” step). Versions “New version — earlier submissions keep theirs” once anyone has submitted. Nothing already submitted is re-scored by a change. Shared Co-teaching Faculty on the same course see the same assessment (none in this sample).'"
+  },
+  {
+   "id": "FA-09",
+   "title": "Assessment · Questions",
+   "screenType": "tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]/questions",
+   "recommendedRoute": "/faculty/assessments/[assessmentId]/questions",
+   "routeNotes": "Keep. The 'Add from question bank' side panel is a state of this route (not a route).",
+   "navPlace": "Assessment record tab 2 (Questions [count])",
+   "archetype": "AR-7",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "AssessmentRecordHeader(AR-7 compact navy band: course code · experiment, name, StatusPill, IdChip ASMT-xxxx, 'Due …', 'N waiting for marking')",
+    "LinkTabs(Summary · Questions [count] · Settings · Preview · Submissions [count])",
+    "RunningTotal(role=status '4 questions · 16 marks')",
+    "ActionRow(Add from question bank [button] · New question · Draft with assistance · Import [links])",
+    "LiveStatusMessage(role=status: 'Moved Q-0101 to position 2' / 'Q-0101 removed from this assessment. It is still in your question bank.' / 'Q-0103 added as question 5.' / 'Q-0102 now uses the version in your bank.')",
+    "Notice(role=status 'This makes a new version Rahul Verma has submitted. His submission keeps the version he answered; new attempts use this one.')",
+    "OrderedQuestionList(row: number · text · type · marks · ID; 'Move question n up/down' icon buttons, aria-disabled at ends, ≥ 44 px targets; 'Remove' [aria 'Remove question n from this assessment'])",
+    "InlineRowNotice('A newer version is in your question bank.' + 'Use updated version')",
+    "InlineRowNotice('Deleted from your question bank on 25 Oct 2026 — this assessment keeps its copy.')",
+    "SidePanel('From your question bank' ~28 %, Close button aria 'Close question bank', subtitle '<experiment> · not in this assessment', rows with 'Add' [aria 'Add Q-0103 to this assessment'], empty 'Every question in your bank for this experiment is already here.'; moves under the list below 860 px)",
+    "HelpText('Removing takes a question off this assessment. It stays in your question bank — removing is not deleting.')",
+    "EmptyState('No questions yet')"
+   ],
+   "states": [
+    "default interactive — frame 'FA-09 Questions · 1440 · interactive' (note 'Move up / down, Remove (not delete), Add from question bank (side panel ~28 %). Because Rahul has submitted, any change shows the new-version notice.')",
+    "panel open — frame 'Add from question bank · panel open · interactive' (note 'Q-0103 and Q-0105 are in the bank but not here.')",
+    "changed in bank — frame 'Changed in the bank · interactive' (note 'Use updated version is the Faculty’s choice; nothing switches on its own.')",
+    "deleted from bank, copy kept — frame 'Deleted from the bank — copy kept (later sample)': Q-0099 row with 'Deleted from your question bank on 25 Oct 2026 — this assessment keeps its copy.' (no move/remove controls drawn in this static frame)",
+    "empty — frame 'No questions yet' (note 'A draft (before 27 Oct). Students can’t see it.'): 'No questions yet' / 'Add questions from your bank, write a new one, draft some with assistance, or import a file. Students can’t see the assessment until it has a question.' + Add from question bank + New question",
+    "new-version notice — shown once anything changes while submissions exist (script newVer = subs && changed)",
+    "mobile — frame 'Mobile 375 · interactive' (note 'Order buttons stay 44 px targets.'); B4-15 frames 8–11 'Order buttons stay 36–44 px targets; the bank panel moves under the list below 860 px of content.'",
+    "NOT SHOWN: removing the last question of a Ready assessment (does it revert to Draft?), loading, failed save"
+   ],
+   "actions": [
+    "Move question n up / down → reorders ASMT question list (Ready → Ready; new version if submissions exist) [no dialog]",
+    "Remove → removes question from this ASMT only (bank unchanged) [no confirm dialog]",
+    "Add from question bank → opens side panel; Add → appends bank question to ASMT",
+    "Close question bank (×) → closes panel",
+    "Use updated version → switches this ASMT's copy of Q-0102 to the bank's newer version (Faculty choice; never automatic)",
+    "New question → FA-15 · Draft with assistance → FA-16 · Import → FA-17"
+   ],
+   "outboundLinks": [
+    "New question → FA-15",
+    "Draft with assistance → FA-16",
+    "Import → FA-17",
+    "Summary/Settings/Preview/Submissions tabs → FA-08/FA-10/FA-11/FA-12"
+   ],
+   "records": [
+    "ASMT",
+    "Q",
+    "ATT"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html frames 1, 2, 5, 6, 7, 8; script qlView() (move, remove, add, useUpd, newVer); design/handoff-v46/canvas-v46/project/B4-15-Responsive-Proof.dc.html frames 8–11"
+  },
+  {
+   "id": "FA-10",
+   "title": "Assessment · Settings",
+   "screenType": "tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]/settings",
+   "recommendedRoute": "/faculty/assessments/[assessmentId]/settings",
+   "routeNotes": "Keep.",
+   "navPlace": "Assessment record tab 3 (Settings)",
+   "archetype": "AR-7 + AR-8",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "AssessmentRecordHeader(AR-7 compact navy band: course code · experiment, name, StatusPill, IdChip ASMT-xxxx, 'Due …', 'N waiting for marking')",
+    "LinkTabs(Summary · Questions [count] · Settings · Preview · Submissions [count])",
+    "ErrorSummary(role=alert 'Check these settings', links to fields, takes focus)",
+    "Notice(ok role=status 'Settings saved.' / 'Settings saved as version 2. Rahul Verma’s submission keeps version 1.')",
+    "FormField + TextInput + Textarea + WholeNumberInput + DateTimeTextInput + RadioChoiceList(no pre-selection) + ConditionalField(Release date)",
+    "Notice(warn role=status 'This makes a new version …' — shown when pass mark / attempts / deadline change after submissions)",
+    "Notice(warn role=status 'This changes when a submitted student sees their result …' — shown when release option/date changes after submissions)",
+    "HelpText('No time limit. Each value belongs to this assessment only.')",
+    "ActionBar(Cancel · Save settings → 'Saving…' busy)"
+   ],
+   "states": [
+    "as set — frame 'FA-10 Settings · 1440 · interactive · 7 Nov 2026' (note 'The sample values set on 26 Oct. Change the pass mark or when results are shown → the warning explains the effect on Rahul’s submission → Save settings.')",
+    "new-version warning — frame 'New-version warning · pass mark changed' (note 'Live: Save → “saved as version 2”.'): pass mark 60; 'This makes a new version Rahul Verma has submitted. His submission keeps the rules he answered under; new attempts use these.'",
+    "result-release warning — frame 'Result-release warning' (note 'Switching to “Immediately after marking” would show Rahul his result once marked.'): 'This changes when a submitted student sees their result Rahul Verma has submitted. If you save, he sees his result on the new terms.'",
+    "new draft, nothing pre-filled — frame 'New draft · nothing pre-filled · interactive' (note 'Save with gaps → error summary.'): every field empty, no release option; Save → error summary with 'Enter a name for the assessment' · 'Enter a pass mark from 0 to 100, as a whole number' · 'Enter how many attempts are allowed, as a whole number' · 'Enter the deadline' · 'Choose when students see their result' (+ 'Enter the release date')",
+    "saving — 'Saving…' (aria-disabled) ~600 ms",
+    "saved — 'Settings saved.' (no submissions or only name/intro changed) / 'Settings saved as version 2. Rahul Verma’s submission keeps version 1.' (submissions exist and a rule or release setting changed)",
+    "tablet — frame 'Tablet 768' (note 'Usable at 768 px (FA-F3).')",
+    "NOT LOCKED: no field is locked once attempts exist — changes create a new version instead (annotation 'After submissions Changing a rule makes a new version — earlier submissions keep theirs.')",
+    "NOT SHOWN: save failure, experiment change (no experiment field on Settings), rubric (T-21), timer (T-22), Make available / close (FA-13 · T-18)"
+   ],
+   "actions": [
+    "Save settings → validates all rule fields; updates ASMT rules (Ready → Ready, or Draft stays Draft); if submissions exist and pass mark / attempts / deadline / release changed → ASMT version n → n+1 ('earlier submissions keep theirs') [no confirm dialog — inline warnings only]",
+    "Cancel → reverts unsaved edits to the saved values (script cancel = orig)",
+    "Release option radio / Release date → changes when results become visible (applies to already-submitted students on the new terms — warned)"
+   ],
+   "outboundLinks": [
+    "Tabs → FA-08 / FA-09 / FA-11 / FA-12",
+    "Assessments (breadcrumb) → FA-06",
+    "<name> (breadcrumb) → FA-08"
+   ],
+   "records": [
+    "ASMT",
+    "ATT"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html frames 0–4; script seView() (save, ruleChanged = pass/att/dl, relChanged, msg); annotation 'Fields … No defaults For a new assessment every field is empty and no option is selected (frame “New draft”)… After submissions Changing a rule makes a new version — earlier submissions keep theirs. Changing when results are shown is warned separately because it changes what a submitted student sees. Not designed Rubric (T-21), timer (T-22), a “Make available” or “close” control (FA-13 · T-18).'"
+  },
+  {
+   "id": "FA-11",
+   "title": "Assessment · Preview",
+   "screenType": "tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]/preview",
+   "recommendedRoute": "/faculty/assessments/[assessmentId]/preview",
+   "routeNotes": "Keep. Student view / Answer key toggle is local state (optionally ?view=key), not a separate route.",
+   "navPlace": "Assessment record tab 4 (Preview)",
+   "archetype": "AR-7",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "AssessmentRecordHeader(AR-7 compact navy band: course code · experiment, name, StatusPill, IdChip ASMT-xxxx, 'Due …', 'N waiting for marking')",
+    "LinkTabs(Summary · Questions [count] · Settings · Preview · Submissions [count])",
+    "SegmentedToggle(role=group aria-label 'Preview as': Student view · Answer key; aria-pressed)",
+    "HelpText('Previewing creates no attempt and saves nothing.')",
+    "QuestionPreviewList(student renderer, disabled radios / disabled textarea aria-label 'Answer to question 4 (preview)'; 'Question n of 4 · type' + marks; 'Your faculty marks written answers.')",
+    "AnswerKeyList('Only you see the answer key and the marking guidance.'; 'Correct' marker per option; 'Explanation'; 'Marking guidance' for written)"
+   ],
+   "states": [
+    "student view — frame 'FA-11 Preview · Student view ↔ Answer key · 1440 · interactive' (note 'What Rahul sees, then the answer key with explanations and the marking guidance. No attempt is created.'): 'As Rahul sees it: 4 questions · 16 marks · due 14 Nov 2026, 23:59 · no time limit.'",
+    "answer key — frame 'Answer key'",
+    "NOT SHOWN: preview of an assessment with no questions"
+   ],
+   "actions": [
+    "Student view / Answer key toggle → switch view [creates no attempt, saves nothing]"
+   ],
+   "outboundLinks": [
+    "Tabs → FA-08 / FA-09 / FA-10 / FA-12"
+   ],
+   "records": [
+    "ASMT",
+    "Q"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html frames 5–6; script pvView()"
+  },
+  {
+   "id": "FA-12",
+   "title": "Assessment · Submissions",
+   "screenType": "tab",
+   "proposedRoute": "/faculty/assessments/[assessmentId]/submissions",
+   "recommendedRoute": "/faculty/assessments/[assessmentId]/submissions",
+   "routeNotes": "Keep. Filter (All / Waiting for marking / Marked) is local or ?filter= (inferred).",
+   "navPlace": "Assessment record tab 5 (Submissions [count])",
+   "archetype": "AR-7 + AR-2",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "AssessmentRecordHeader(AR-7 compact navy band: course code · experiment, name, StatusPill, IdChip ASMT-xxxx, 'Due …', 'N waiting for marking')",
+    "LinkTabs(Summary · Questions [count] · Settings · Preview · Submissions [count])",
+    "ResultCount(role=status '2 submitted · 2 waiting for marking')",
+    "SegmentedToggle(role=group aria-label 'Show': All · Waiting for marking · Marked)",
+    "PrimaryLink('Mark next' — only when something is waiting)",
+    "ExportCsvButton(FA-22) + ExportStatus(role=status 'Exported submissions-ASMT-0009.csv · 2 rows Columns: student, student ID, submitted, status, score, result released to student. It contains this list only.')",
+    "DataTable(columns: Student [name + ATT id] · Submitted · Status [StatusPill wait/ok] · Score ['—' / '11 of 16'] · Result released to student [lock icon + 'Not yet — after the deadline' / 'Released 14 Nov 2026, 23:59']; rows not linked)",
+    "EmptyState('No submissions yet')",
+    "NoMatch('No submissions match this filter.')"
+   ],
+   "states": [
+    "waiting — frame 'FA-12 Submissions · 1440 · interactive · 7 Nov 2026' (note 'The SAME attempts submitted on B4-12. Filter All / Waiting / Marked; Mark next; Export CSV (FA-22) exports this list only.'): Rahul ATT-0450 + Priya ATT-0451 both 'Waiting for marking', score '—', 'Not yet — after the deadline'",
+    "marked, not released — frame 'After marking Rahul · result not released yet' (note '“Result released to student: Not yet — after the deadline” is the flag Faculty see.'): Rahul 'Marked', '11 of 16', 'Not yet — after the deadline'",
+    "released — frame 'Released · 15 Nov': Rahul 'Released 14 Nov 2026, 23:59'",
+    "exported — frame 'Export CSV (FA-22)' (note 'One action, the same on Students (B4-10): a CSV of the list on screen, including “result released to student”.')",
+    "none yet — frame 'No submissions yet': 'No submissions yet' / 'Students who have Shell-and-Tube Heat Exchanger see this assessment in Assessments. Their submissions appear here.'; 'Mark next' hidden",
+    "filter no match — 'No submissions match this filter.' (script filtNone)",
+    "B4-14 frame 6 'Faculty · Submissions' (note 'Status and the “result released to student” flag follow the same record.')",
+    "NOT SHOWN: loading, failed, export failure"
+   ],
+   "actions": [
+    "Mark next → navigate FA-19 for the oldest waiting answer (B4-09) [shown only when ≥ 1 waiting]",
+    "All / Waiting for marking / Marked → filter rows [no data change]",
+    "Export CSV → FA-22 (downloads CSV of the rows on screen; board shows only a status line)"
+   ],
+   "outboundLinks": [
+    "Mark next → FA-19",
+    "Tabs → FA-08 / FA-09 / FA-10 / FA-11"
+   ],
+   "records": [
+    "ATT",
+    "ASMT"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html frames 7–11; script asView() (rStatus 'Waiting for marking'/'Marked', rel 'Released …' / 'Not yet — after the deadline', subCount, expText, canMarkNext); 'board-only control (outside product frames) advance()'; design/handoff-v46/canvas-v46/project/B4-14-Flow-4-Continuity.dc.html frame 6"
+  },
+  {
+   "id": "FA-14",
+   "title": "Question bank (tabs: Questions · Drafts to review)",
+   "screenType": "page",
+   "proposedRoute": "/faculty/question-bank",
+   "recommendedRoute": "/faculty/question-bank (Drafts to review: /faculty/question-bank?tab=drafts)",
+   "routeNotes": "Keep. screens.json gives one route for both tabs; the board's tabs are in-page anchors (#…-tq / #…-td). Recommend ?tab=drafts so Overview 'Review drafts' can deep-link the Drafts tab (inferred). Static segments new / draft / import outrank [questionId].",
+   "navPlace": "Sidebar › Question bank",
+   "archetype": "AR-2",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "PageHeader(H1 'Question bank', sub 'Questions for Shell-and-Tube Heat Exchanger · ME ZG523', actions Add a question · Draft with assistance · Import)",
+    "LinkTabs(aria-label 'Question bank': Questions · Drafts to review [count])",
+    "FilterBar(search 'Search questions' placeholder 'Words or question ID'; select 'Experiment'; select 'Type' All types/Multiple choice/True or false/Written answer; count role=status)",
+    "LiveStatusMessage(role=status)",
+    "DataTable(columns: Question [text + ID + tag 'From a draft you reviewed'] · Type · Marks · Used ['Used in 1 assessment'/'Not used yet'] · Added · Actions [Edit link aria 'Edit Q-0101', Delete button aria 'Delete Q-0101']; labelled rows on phones)",
+    "DeletedList('Deleted' — '<id> <text> — deleted 7 Nov 2026 · history kept')",
+    "DraftCard(text, tags 'Draft — needs your review' + 'Drafted with assistance', 'type · N marks', actions Review and edit · Add to bank · Discard [aria-labels quote the draft])",
+    "ConfirmDialog(DL-1, role=dialog 'Delete Q-0101?', Close ×, Cancel / 'Delete question'; focus moves to confirm and returns)",
+    "EmptyState('Your question bank is empty' / 'No drafts to review')",
+    "NoMatch('No question matches.')"
+   ],
+   "states": [
+    "questions — frame 'FA-14 Question bank · 1440 · interactive · 7 Nov 2026' (note 'Search, filter by type; Delete → DL-1 → removed from the bank, history kept. Tab Drafts to review: Add to bank or Discard.'): 6 questions Q-0101…Q-0106",
+    "drafts to review — frame 'Drafts to review · interactive' (note 'Add to bank → appears in Questions as Q-0107; Discard → gone, nothing added.'): 'Drafts never go into your bank on their own. Review each one, then add it or discard it.'; 3 drafts",
+    "delete dialog — frame 'Delete a used question · DL-1' (note 'The assessment keeps its copy.'): 'Delete Q-0101?' / 'It leaves your question bank and won’t be offered for new assessments. Its history is kept.' / (used) 'It is used in Heat Exchanger — post-lab. That assessment keeps its copy, so nothing changes for students.' / Cancel · Delete question",
+    "deleted — status 'Q-0101 deleted from your question bank. Its history is kept.' + 'Deleted' list",
+    "added from draft — 'Added to your question bank as Q-0107.'; row tag 'From a draft you reviewed'",
+    "discarded — 'Draft discarded. Nothing was added to your bank.'",
+    "empty bank — frame 'Empty bank': 'Your question bank is empty' / 'Add a question, draft some with assistance from the experiment’s material, or import a file. Questions stay here until you use them in an assessment.' + Add a question + Import",
+    "no drafts — 'No drafts to review' / 'Drafts you ask for appear here until you add or discard them.' + Draft with assistance",
+    "no match — 'No question matches.'",
+    "mobile — frame 'Mobile 375 · bank' (note 'Table becomes labelled rows.')",
+    "NOT SHOWN: loading, failed, delete failure, filtering by course"
+   ],
+   "actions": [
+    "Add a question → navigate FA-15 (new)",
+    "Draft with assistance → navigate FA-16",
+    "Import → navigate FA-17",
+    "Edit → navigate FA-15 (edit Q-xxxx)",
+    "Delete → opens DL-1 dialog; Delete question → Q removed from the active bank (Active → Deleted, history kept; assessments keep their copy) [confirm dialog: yes] [reason: no]",
+    "Add to bank (draft) → Q draft → bank question (new ID, tag 'From a draft you reviewed') [no dialog]",
+    "Discard (draft) → draft removed, nothing added [no dialog]",
+    "Review and edit (draft) → navigate B4-08 (FA-16) — see inconsistencies",
+    "Search / Experiment / Type filters → filter list"
+   ],
+   "outboundLinks": [
+    "Add a question → FA-15",
+    "Edit → FA-15",
+    "Draft with assistance → FA-16",
+    "Import → FA-17",
+    "Review and edit → FA-16 (board link targets B4-08)"
+   ],
+   "records": [
+    "Q",
+    "ASMT",
+    "EXP"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html frames 0, 1, 2 (DIALOG), 7, 9; script qbView() (add, discard, doDel, msgs); annotation 'Delete The label “Delete” is settled; how it works underneath is open (ND-15). DL-1 says the question leaves the bank, its history is kept, and assessments that use it keep their copy. Used in Each question shows how many assessments use it.'"
+  },
+  {
+   "id": "FA-15",
+   "title": "Add / edit question",
+   "screenType": "page",
+   "proposedRoute": "/faculty/question-bank/new · /faculty/question-bank/[questionId]",
+   "recommendedRoute": "/faculty/question-bank/new · /faculty/question-bank/[questionId]",
+   "routeNotes": "Keep. Static new / draft / import segments win over [questionId]; question IDs (Q-0101) never collide. The experiment the question belongs to is page context ('Shell-and-Tube Heat Exchanger'), no selector is drawn — for a new question it must come from the bank's Experiment filter / launching context (inferred).",
+   "navPlace": "Detail of Question bank (also launched from FA-07 step 3 and FA-09 'New question')",
+   "archetype": "AR-8",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (Question bank / Add a question | Edit question)",
+    "BackLink('Question bank')",
+    "PageHeader(context experiment, H1 'Add a question' / 'Edit question' + ID chip)",
+    "Notice(role=status 'Used in 1 assessment: <name> Saving makes a new version in your bank. The assessment keeps the version it has until you choose “Use updated version” on its Questions tab. Earlier submissions are never changed.')",
+    "ErrorSummary(role=alert 'Check this question')",
+    "RadioChoiceList(fieldset 'Question type': Multiple choice · True or false · Written answer; 'Three types only.')",
+    "Textarea('Question')",
+    "OptionRows(fieldset 'Answer options' — 'Up to four; mark the one correct answer.'; Option A–D inputs + 'Correct' radio aria 'Option A is the correct answer')",
+    "RadioChoiceList(fieldset 'The statement is': True · False)",
+    "Textarea('Marking guidance (optional)' — written only)",
+    "WholeNumberInput('Marks')",
+    "Textarea('Explanation (optional)')",
+    "ActionBar(Cancel link · Save question → 'Saving…')",
+    "Notice(ok 'Saved to your question bank as Q-0107.' / 'Saved as a new version. …')"
+   ],
+   "states": [
+    "add — frame 'FA-15 Add a question · 1440 · interactive' (note 'Choose a type → the form shows only what that type needs. Save with gaps first to see the error summary.'): type chosen → MC shows options+correct; TF shows 'The statement is'; Written shows marking guidance; marks + explanation for all",
+    "edit used question — frame 'Edit a used question' (note 'New version; the assessment decides when to switch.'): Q-0102 with the 'Used in 1 assessment' notice",
+    "written answer with marking guidance — frame 'Written answer with marking guidance'",
+    "validation — frame 'Validation' (note 'Options, correct answer and marks named in the summary.'): 'Add at least two answer options' · 'Choose the correct answer' · 'Enter the marks, as a whole number of 1 or more' (sample marks 'two')",
+    "saving — 'Saving…'",
+    "saved — 'Saved to your question bank as Q-0107.' (new) / 'Saved as a new version. Heat Exchanger — post-lab keeps the version it has until you choose “Use updated version” there.' (used)",
+    "mobile — frame 'Mobile 375 · interactive' (note 'Single column.')",
+    "NOT SHOWN: editing a draft-to-review in this editor (no 'Draft — needs your review' state), save failure, unused-question edit result, loading"
+   ],
+   "actions": [
+    "Choose type → shows that type's fields",
+    "Save question → creates Q (new) or saves a new version of Q (used) [no dialog]; assessments using it are NOT changed until 'Use updated version' on FA-09",
+    "Cancel (link) → FA-14"
+   ],
+   "outboundLinks": [
+    "Question bank (breadcrumb/back/Cancel) → FA-14"
+   ],
+   "records": [
+    "Q",
+    "ASMT"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html frames 3–6, 8; script qeView() save(); annotation 'Types Multiple choice (one correct, up to four options) · true or false · written answer with free-text marking guidance (T-21: no rubric builder). No other types (T-22).'"
+  },
+  {
+   "id": "FA-16",
+   "title": "Draft questions with assistance",
+   "screenType": "step",
+   "proposedRoute": "/faculty/question-bank/draft",
+   "recommendedRoute": "/faculty/question-bank/draft",
+   "routeNotes": "Keep. Request → drafting → drafts list are states of one route.",
+   "navPlace": "Flow from Question bank / Create assessment step 3 / Questions tab",
+   "archetype": "AR-5",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (Question bank / Draft with assistance)",
+    "BackLink('Question bank')",
+    "PageHeader(context experiment, H1 'Draft questions with assistance', lead 'Drafts are suggestions for you to check. They never go into your bank on their own.')",
+    "ErrorSummary(role=alert 'Check these choices')",
+    "Alert(role=alert 'Drafting didn’t work this time Nothing was added to your bank. Try again.')",
+    "RadioChoiceList(fieldset 'Draft from': 'The experiment’s lab brief' [Lab brief — Shell-and-Tube Heat Exchanger · PDF document] / 'Text I paste' [Your own notes or a passage])",
+    "ConditionalField(Textarea 'Text to draft from')",
+    "CheckboxGroup(fieldset 'Question types': Multiple choice · True or false · Written answer)",
+    "Select('How many drafts': Choose / 3 / 5)",
+    "LoadingState(role=status 'Drafting questions…')",
+    "DraftCard(+ 'In your bank · reviewed by you' after add)",
+    "ResultCount(role=status 'N left to review')",
+    "ActionBar(Cancel link · Draft questions; list: Draft more)"
+   ],
+   "states": [
+    "request — frame 'FA-16 Draft with assistance · 1440 · interactive' (note 'Choose the material, the types and how many → Draft questions → drafts tagged “Draft — needs your review”. Add to bank or Discard, one by one.')",
+    "validation — frame 'Validation': 'Choose the material to draft from' · 'Choose at least one question type' · 'Choose how many drafts you want' (+ 'Paste the text to draft from' when paste is empty)",
+    "drafting — 'Drafting questions…' (role=status, ~1.2 s on board)",
+    "drafts to review — frame 'Drafts to review · interactive' (note 'Add one to the bank, discard another.'): 'Read each draft against the material before adding it. Edit anything that isn’t right.'; status 'Added to your question bank as Q-0107.' / 'Draft discarded. Nothing was added.'",
+    "fails + try again — frame 'Drafting fails + try again · interactive': alert 'Drafting didn’t work this time Nothing was added to your bank. Try again.' (form kept)",
+    "mobile — frame 'Mobile 375 · interactive'",
+    "NOT SHOWN: provider name, source-file upload, suggested marks, editing a draft inline"
+   ],
+   "actions": [
+    "Draft questions → validates; sends a drafting request (mock service) → drafts listed as 'Draft — needs your review' [nothing enters the bank]",
+    "Add to bank (per draft) → Q draft → bank Q (new ID) [no dialog]",
+    "Discard (per draft) → draft removed, nothing added",
+    "Review and edit → navigate B4-07 (FA-15)",
+    "Draft more → back to the request form",
+    "Cancel → FA-14"
+   ],
+   "outboundLinks": [
+    "Question bank (breadcrumb/back/Cancel) → FA-14",
+    "Review and edit → FA-15 (board link targets B4-07)"
+   ],
+   "records": [
+    "Q",
+    "EXP",
+    "RES"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html frames 0–4; script drView() gen(); annotation 'What it is A request for draft questions from material the Faculty chooses (the experiment’s lab brief, or pasted text). Review first Every draft is tagged “Draft — needs your review” and “Drafted with assistance”. Nothing enters the bank until the Faculty adds it (T-23). Discarded drafts leave no trace in the bank. Not designed Which service drafts the questions, how deep the assistance goes, and suggested marks when marking (T-23 / A-18 / R16 — open). No provider is named anywhere.'"
+  },
+  {
+   "id": "FA-17",
+   "title": "Import questions (CSV)",
+   "screenType": "step",
+   "proposedRoute": "/faculty/question-bank/import",
+   "recommendedRoute": "/faculty/question-bank/import",
+   "routeNotes": "Keep. 3 steps (Choose a file · Check rows · Confirm import) + result are states of one route; the parsed file cannot live in the URL.",
+   "navPlace": "Flow from Question bank / Create assessment step 3 / Questions tab",
+   "archetype": "AR-5",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (Question bank / Import questions)",
+    "BackLink('Question bank')",
+    "Stepper(3 steps: Choose a file · Check rows · Confirm import; 'Step n of 3')",
+    "TemplateCard('Use the template' + column list aria-label 'Template columns' + 'Download the template (CSV)' data: link questions-template.csv)",
+    "FileChooser('Choose a CSV file', 'No file chosen', error role=alert)",
+    "BusyButton('Check file' → 'Checking rows…'; 'Import 8 questions' → 'Importing…')",
+    "SummaryLine(role=status '8 rows · 6 ready · 2 with errors · 1 with a warning')",
+    "Notice(role=status 'Nothing is imported while the file has errors …')",
+    "RowReportTable('Rows that need attention': Row · Question · What to fix · Type [pill 'Error — blocks import' / 'Warning'])",
+    "Notice(ok 'Import finished …')"
+   ],
+   "states": [
+    "choose a file — frame 'FA-17 Import questions · 1440 · interactive' (note 'Choose a CSV file → Check file → errors block (choose the corrected file) → Continue → Import 8 questions.'): 'Questions go into your bank for Shell-and-Tube Heat Exchanger. They aren’t added to any assessment.'",
+    "no file — 'Choose a CSV file first' (role=alert)",
+    "checking — 'Checking rows…'",
+    "errors block — frame 'Check rows · errors block · interactive' (note '2 errors, 1 warning. Choose the corrected file → 8 ready.'): row 3 'correct is “E”, but the question has options A–D only.' (Error) · row 6 'type “multi-select” isn’t available. Use multiple choice (one correct), true or false, or written answer.' (Error) · row 7 'explanation is empty. The question imports without one.' (Warning); only 'Choose the corrected file' + Back",
+    "no errors, warning only — corrected file: '8 rows · 8 ready · 0 with errors · 1 with a warning' → Continue",
+    "confirm — frame 'Confirm import · interactive': '8 questions will be added to your bank from post-lab-questions-corrected.csv. They aren’t added to any assessment. One has no explanation — students would see none for it.' + Back + 'Import 8 questions'",
+    "imported — frame 'Imported': 'Import finished 8 questions were added to your bank as Q-0110 to Q-0117. None is in an assessment yet.' + Open question bank + Import another file",
+    "mobile — frame 'Mobile 375 · interactive'",
+    "NOT SHOWN: XLSX (open T-24 / D5), unreadable file / wrong format error, import failure, duplicate detection"
+   ],
+   "actions": [
+    "Download the template (CSV) → downloads header-only CSV",
+    "Choose a CSV file → pick file (real file input in product; board simulates)",
+    "Check file → parse + validate rows (step 1 → 2)",
+    "Choose the corrected file → re-pick and re-check",
+    "Continue → step 3 (only when 0 errors)",
+    "Import N questions → adds N Q to the bank (all-or-nothing interim) [no extra dialog; step 3 is the review]",
+    "Back → previous step",
+    "Open question bank → FA-14",
+    "Import another file → restart",
+    "Cancel → FA-14"
+   ],
+   "outboundLinks": [
+    "Question bank (breadcrumb/back/Cancel/Open question bank) → FA-14"
+   ],
+   "records": [
+    "Q",
+    "EXP"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html frames 5–9; script imView() (reports bad/good, check, chooseFixed, doImport); annotation 'Format CSV with the template’s ten columns. XLSX and the final column schema are open (T-24 · D5). Commit All or nothing while any row has an error — an interim rule, labelled; valid-rows-only is the other option still open (T-24). Result Questions go into the bank only. They are never added to an assessment by importing.'"
+  },
+  {
+   "id": "FA-18",
+   "title": "Marking queue",
+   "screenType": "page",
+   "proposedRoute": "/faculty/marking",
+   "recommendedRoute": "/faculty/marking",
+   "routeNotes": "Keep. Filters (assessment, Waiting/Marked/All) local or query (inferred).",
+   "navPlace": "Sidebar › Marking (count badge '1, 1 written answer to mark')",
+   "archetype": "AR-2",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "PageHeader(H1 'Marking', count role=status '1 written answer waiting', primary 'Mark next' when any waiting)",
+    "FilterBar(select 'Assessment': All assessments / '<name> · <experiment>'; SegmentedToggle role=group 'Show': Waiting · Marked · All; default Waiting)",
+    "DataTable('Written answers': Student [name + ATT id] · Assessment [name + 'Question 4 · written answer'] · Submitted (oldest first) · Status [Waiting for marking / Marked] · Action [Mark / View, aria 'Mark <name>' / 'View marks for <name>'])",
+    "EmptyState('Nothing is waiting for you')",
+    "NoMatch('Nothing matches these filters.')"
+   ],
+   "states": [
+    "waiting — frame 'FA-18 Marking queue · 1440 · interactive · 7 Nov 2026' (note 'Oldest first. Filter by assessment and Waiting / Marked / All. Only written answers come here; choice questions are marked automatically.'): Rahul 5 Nov 18:52, Priya 6 Nov 20:10",
+    "after marking Rahul — frame 'Queue after marking Rahul' (note 'Rahul → Marked; Priya still waiting.')",
+    "nothing waiting — frame 'Nothing waiting': 'Nothing is waiting for you' / 'Written answers appear here, oldest first, as students submit. Choice questions are marked automatically.' (no Mark next)",
+    "no match — 'Nothing matches these filters.'",
+    "NOT SHOWN: loading, failed, answers with no Faculty marker (that is an Institute Admin state)"
+   ],
+   "actions": [
+    "Mark next → FA-19 for the oldest waiting answer",
+    "Mark (row) → FA-19 for that attempt",
+    "View (marked row) → FA-19 read-only",
+    "Assessment select / Waiting · Marked · All → filter [no data change]"
+   ],
+   "outboundLinks": [
+    "Mark next → FA-19",
+    "Mark / View → FA-19"
+   ],
+   "records": [
+    "ATT",
+    "ASMT"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html frames 0, 4, 5; script mqView() (filt default 'wait', act 'Mark'/'View', count text); annotation 'Queue One row per written answer waiting, oldest first; filters by assessment and state. Mark next opens the oldest.'"
+  },
+  {
+   "id": "FA-19",
+   "title": "Mark a submission",
+   "screenType": "page",
+   "proposedRoute": "/faculty/marking/[attemptId]",
+   "recommendedRoute": "/faculty/marking/[attemptId]",
+   "routeNotes": "Keep. Note the queue is one row per written answer while the route is per attempt; the board only shows an attempt with one written question — if attempts can hold several written answers the page must list each (not shown).",
+   "navPlace": "Detail of Marking (also from FA-12 'Mark next', FA-21 'Mark their answers', FA-08 'Mark next')",
+   "archetype": "AR-4",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (Marking / <student>)",
+    "BackLink('Marking')",
+    "PageHeader(context '<assessment> · <experiment>', H1 student name, meta 'ATT-0450 Submitted 5 Nov 2026, 18:52 · attempt 1 of 2')",
+    "TwoColumnDecisionLayout(main ~72 %: question 'Question 4 · Written answer' + '10 marks' + text, QuotedAnswer('Rahul Verma’s answer'), GuidanceBlock('Marking guidance'), AutoMarkedList('Marked automatically' '<n> of <m> marks' + per question with icon + words) · MarksPanel ~28 % 'Your mark'; panel moves under the answer below 860 px)",
+    "WholeNumberInput('Mark for question 4', hint 'Out of 10, as a whole number.')",
+    "Textarea('Feedback for Rahul (optional)')",
+    "SaveState(role=status 'Mark saved — not confirmed yet')",
+    "ActionBar(Confirm marks [primary] · Save mark) + note 'Confirmed marks can’t be changed.'",
+    "ConfirmDialog(DL-1 role=dialog 'Confirm marks for Rahul Verma?' Close ×; 'Question 4: 7 of 10.' 'Confirmed marks can’t be changed. Rahul sees the result when it’s released — after the deadline, 14 Nov 2026, 23:59.'; Cancel / Confirm marks → 'Confirming…'; opens next to the button when the panel is under the answer)",
+    "ReadOnlyMarks(StatusPill 'Marks confirmed 7 Nov 2026, 10:15 · Dr S. Ranganathan'; Mark '7 of 10'; Feedback text or 'No feedback'; release line; 'Next submission')",
+    "EmptyState('No written answers are waiting')"
+   ],
+   "states": [
+    "editable — frame 'FA-19 Mark a submission · 1440 · interactive' (note 'Question, Rahul’s answer and the marking guidance (~72 %) beside the marks panel (~28 %). Enter a mark (0–10) and optional feedback → Confirm marks → DL-1 → read-only.')",
+    "validation — frame 'Validation' (note '“12” is out of range for a 10-mark question.'): 'Enter a whole number from 0 to 10'; empty → 'Enter a mark for question 4'",
+    "mark saved, not confirmed — 'Mark saved — not confirmed yet' (Save mark keeps it editable)",
+    "confirm dialog open — DL-1 'Confirm marks for Rahul Verma?'",
+    "confirming — 'Confirming…'",
+    "confirmed, read-only — frame 'Confirmed · read-only · 7 Nov 10:15' (note 'Rahul sees it after the deadline. Next submission → Priya.'): 'Marks confirmed 7 Nov 2026, 10:15 · Dr S. Ranganathan'; relLine 'Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this assessment.' / after release 'Released to Rahul on 14 Nov 2026, 23:59 — when the deadline passed.'",
+    "no submission — 'No written answers are waiting' / 'Answers appear here, oldest first, once students submit.' (B4-14 frame 5 'Faculty · Dr S. Ranganathan · mark the written answer' note 'Appears once Rahul submits.')",
+    "tablet — frame 'Tablet 768 · interactive' (note 'Below 860 px of content the marks panel moves under the answer (Batch-0 decision-panel rule).')",
+    "mobile — frame 'Mobile 375'; B4-15 frames 12–15 'Marks panel beside the answer from 860 px of content (1024 viewport and up); under it below.'",
+    "NOT SHOWN: re-marking (T-20), suggested marks (T-23 WAIT), rubric (T-21), save/confirm failure, multiple written questions in one attempt"
+   ],
+   "actions": [
+    "Save mark → stores provisional mark + feedback on ATT (stays 'Waiting for marking'; editable) [no dialog]",
+    "Confirm marks → validates mark → DL-1 dialog → Confirm marks → ATT 'Waiting for marking' → 'Marked' / 'Marks confirmed' (read-only; result still not released) [confirm dialog: yes] [reason: no]",
+    "Cancel / Close (dialog) → back to editable",
+    "Next submission → next waiting answer (B4-09)",
+    "Breadcrumb / back 'Marking' → FA-18"
+   ],
+   "outboundLinks": [
+    "Marking (breadcrumb/back) → FA-18",
+    "Next submission → FA-19 (next attempt)"
+   ],
+   "records": [
+    "ATT",
+    "ASMT",
+    "Q"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html frames 1, 2, 3, 7, 8; script asView() markCheck/saveMark/confirm/doConfirm/relLine; annotation 'Rules Mark required, whole number from 0 to the question’s marks. Feedback optional (open — see B4-16). Save mark keeps it editable; Confirm marks (DL-1) makes it read-only. After confirming Confirmed marks can’t be changed — re-marking is not designed (T-20). The panel says when the student will see the result, per the assessment’s release setting. Not designed Suggested marks from an assistant (T-23 — WAIT), a rubric builder (T-21: free-text guidance only), messages to the student (T-34).'; design/handoff-v46/canvas-v46/project/B4-15-Responsive-Proof.dc.html frames 12–15; design/handoff-v46/canvas-v46/project/B4-14-Flow-4-Continuity.dc.html frame 5"
+  },
+  {
+   "id": "FA-20",
+   "title": "Students (progress + follow-up)",
+   "screenType": "page",
+   "proposedRoute": "/faculty/students",
+   "recommendedRoute": "/faculty/students",
+   "routeNotes": "Keep. Filters (experiment, progress, inactive N days) local or query; 'View students' from FA-01 and 'Students on this experiment' from FA-03/FA-05 can pre-set them (inferred).",
+   "navPlace": "Sidebar › Students",
+   "archetype": "AR-2",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page)",
+    "PageHeader(H1 'Students', sub 'Students who have the experiments you teach · as of 7 Nov 2026', action 'Export CSV')",
+    "SectionHeader(experiment name + 'Progress per format, in words')",
+    "FilterBar(select 'Experiment'; select 'Progress': All / Not started / In progress in a format / Completed a format / Waiting for marking; select 'Inactive for': Any time / 7 / 14 / 30 days or more; FilterChips 'Remove <label>'; Clear filters; count role=status 'N of 5 students')",
+    "ExportStatus(role=status 'Exported students-shell-and-tube.csv · N rows Columns: student, student ID, experiment, WEB, VR, assessment, result released to student, last activity. It contains the filtered list only.')",
+    "DataTable(columns: Student [name link aria 'Open <name>' + student ID] · one column per format the institution has [status words + completion date] · Assessment [Waiting for marking / Not started] · Last activity [date or 'None since access was given (12 Oct 2026)' + tag 'Inactive N days' when ≥ 14]; labelled rows below 760 px)",
+    "EmptyState('No students have this experiment yet')",
+    "NoMatch('No student matches these filters.' + Clear filters)"
+   ],
+   "states": [
+    "default — frame 'FA-20 Students · 1440 · interactive · 7 Nov 2026' (note 'Filter by progress and “inactive for N days” (replaces B2’s follow-up card). Export CSV exports the filtered list.'): 5 students",
+    "inactive 14+ — frame 'Inactive 14 days or more · interactive' (note 'Imran (19 days) and Karthik (26 days).'); chip 'Remove Inactive 14 days or more'",
+    "exported — frame 'Export CSV · FA-22'",
+    "no students — frame 'No students yet': 'No students have this experiment yet' / 'Students appear here when your Institute Admin gives them the experiment.'",
+    "no match — 'No student matches these filters.' + Clear filters",
+    "mobile — frame 'Mobile 375 · interactive' (note 'Table becomes labelled rows.'); B4-15 frames 16–19 'Table becomes labelled rows below 760 px of content; the inactivity filter stays visible on phones.'",
+    "NOT SHOWN: loading, failed, several experiments at once (Experiment select has one option), percentages (never), messaging (T-34)"
+   ],
+   "actions": [
+    "Progress / Inactive for / Experiment filters, chip remove, Clear filters → filter [no data change]",
+    "Student name → FA-21",
+    "Export CSV → FA-22 (CSV of the filtered list)"
+   ],
+   "outboundLinks": [
+    "<student name> → FA-21"
+   ],
+   "records": [
+    "SACC",
+    "PER",
+    "RUN",
+    "ATT",
+    "EXP"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html frames 0, 1, 2, 6, 7; script fsView() (filters, chips, inactive ≥ 14 tag, expText); annotation 'Reach Students the Institute Admin gave the experiment (Student access, B2-04)… Progress Per format in words with the date of completion; never a percentage or an experiment-level verdict… Follow-up The inactivity filter finds who to contact. Contacting them happens outside the platform — no messaging or reminders (T-34). Export (FA-22) A CSV of the list on screen… No reports page (FA-23 deferred, T-33). Not shown Format feedback (T-25), any score before marking.'"
+  },
+  {
+   "id": "FA-21",
+   "title": "Student detail (per experiment)",
+   "screenType": "page",
+   "proposedRoute": "/faculty/students/[studentId]",
+   "recommendedRoute": "/faculty/students/[studentId]?experimentId=[experimentId]",
+   "routeNotes": "The screen is per student × experiment (header 'Shell-and-Tube Heat Exchanger · ME ZG523'; progress, assessment and resources are for that experiment). A Faculty member can teach several experiments, so the experiment must be addressable; keep the proposed path and add the experiment as a query param (or /faculty/students/[studentId]/experiments/[experimentId]).",
+   "navPlace": "Detail of Students",
+   "archetype": "AR-3",
+   "components": [
+    "WorkspaceShell(Faculty sidebar: Overview · My courses · Assessments · Question bank · Marking [count badge] · Students · Help at foot; 'Menu' button below 1024 px; 'Collapse menu'; logo placeholder)",
+    "AccountMenuButton('Account menu: <name>, Faculty, <institution>' — menu contents not drawn on B4 boards)",
+    "Breadcrumb('You are here', aria-current=page) (Students / <name>)",
+    "BackLink('Students')",
+    "PageHeader(context '<experiment> · <course code>', H1 student name, student ID 'GIT-2026-0418', inactivity line 'No activity since access was given (12 Oct 2026) · 26 days')",
+    "ProgressByFormat(aria-label 'Progress by format': FormatChip + 'Completed 14 Oct 2026' / 'In progress' / 'Not started'; note 'Per format only — there is no overall percentage or verdict.')",
+    "AssessmentSummaryRow('<name> · attempt 1 of 2' + 'ATT-0450 · submitted … · Waiting for marking' / 'Marked 11 of 16 · Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59' / 'Not started.')",
+    "ResourcesList(resource + 'Opened 12 Oct 2026, 09:40' / 'Not opened')",
+    "HelpText('Feedback students give on a format isn’t shown to Faculty.')"
+   ],
+   "states": [
+    "waiting for marking — frame 'FA-21 Student detail · Rahul Verma · 7 Nov 2026' (note 'Per-format status · assessment · resources. Mark their answers opens FA-19.')",
+    "marked, result not released — frame 'Marked · result not released yet' → 'See submission'",
+    "inactive student — frame 'Inactive student · Karthik Rao': both formats 'Not started', assessment 'Not started.', all resources 'Not opened'",
+    "NOT SHOWN: released result, loading, failed, student without access (withdrawn)"
+   ],
+   "actions": [
+    "Mark their answers → FA-19 (B4-09)",
+    "See submission → FA-12 (B4-06 Submissions tab — no per-submission page exists)",
+    "Breadcrumb / back 'Students' → FA-20"
+   ],
+   "outboundLinks": [
+    "Mark their answers → FA-19",
+    "See submission → FA-12",
+    "Students → FA-20"
+   ],
+   "records": [
+    "PER",
+    "RUN",
+    "ATT",
+    "ASMT",
+    "RES",
+    "SACC"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html frames 3, 4, 5"
+  },
+  {
+   "id": "FA-22",
+   "title": "Export progress (CSV)",
+   "screenType": "action",
+   "proposedRoute": "(action) Export CSV on FA-20 / FA-12",
+   "recommendedRoute": "(no route) client-side CSV download from FA-12 and FA-20",
+   "routeNotes": "Action, not a page. Generate the file from the rows currently on screen (after filters) via the mock service; announce the result in a role=status line as drawn.",
+   "navPlace": "Secondary button 'Export CSV' on FA-12 (toolbar) and FA-20 (page header)",
+   "archetype": "",
+   "components": [
+    "ExportCsvButton(secondary, download icon)",
+    "ExportStatus(role=status, receives focus: file name · row count · column list · 'It contains this list only.' / 'It contains the filtered list only.')"
+   ],
+   "states": [
+    "FA-12 exported — B4-06 frame 'Export CSV (FA-22)': 'Exported submissions-ASMT-0009.csv · 2 rows Columns: student, student ID, submitted, status, score, result released to student. It contains this list only.'",
+    "FA-20 exported — B4-10 frame 'Export CSV · FA-22': 'Exported students-shell-and-tube.csv · N rows Columns: student, student ID, experiment, WEB, VR, assessment, result released to student, last activity. It contains the filtered list only.'",
+    "NOT SHOWN: export failure, empty list export, XLSX"
+   ],
+   "actions": [
+    "Export CSV (FA-12) → downloads submissions-<ASMT id>.csv with columns student, student ID, submitted, status, score, result released to student [no dialog]",
+    "Export CSV (FA-20) → downloads students-<experiment>.csv with columns student, student ID, experiment, <one column per format>, assessment, result released to student, last activity [no dialog]"
+   ],
+   "outboundLinks": [],
+   "records": [
+    "ATT",
+    "RUN",
+    "PER",
+    "ASMT"
+   ],
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html frame 10; design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html frame 2; B4-00 register 'FA-22 Export progress (action) … One CSV action on Submissions and Students: the list on screen, incl. “result released to student”'; B4-16 'Reports and messages (T-33 · T-34) Export = CSV of the list on screen; no Reports page'"
+  }
+ ],
+ "excluded": [
+  {
+   "id": "FA-13",
+   "disposition": "OPEN (not designed) — 'Make available to students'",
+   "note": "screens.json designed:false, inventoryDisposition OPEN, importance 'CORE if decided'. Safe treatment drawn everywhere: Ready (name + rules + ≥ 1 question) = visible to Students who have the experiment; no Make available / open / close control and no 'closed' state (B4-06 note 'FA-13 “Make available” is not designed. T-18 is open…'; B4-04 annotation; OD-B4-02; T-18). B8-01: 'No entry point (link scan)'. No designed Faculty screen links to it (checked B4-01…B4-10, B4-14). Do not build."
+  },
+  {
+   "id": "FA-23",
+   "disposition": "DEFER (R15) — Reports page",
+   "note": "Not designed; no sidebar item; T-33 'Exports of existing lists only; no Reports destination'; B4-10 annotation 'No reports page (FA-23 deferred, T-33)'. B8-01 'No entry point (link scan)'. No designed screen links to it."
+  },
+  {
+   "id": "FA-24",
+   "disposition": "REMOVE (no function) — Faculty settings",
+   "note": "Not designed; the B2 rail 'Settings' placeholder is gone from the v46 Faculty sidebar (Overview · My courses · Assessments · Question bank · Marking · Students · Help). B8-01 'No entry point (link scan)'. Note: the assessment 'Settings' tab (FA-10) is unrelated and designed. The account menu contents are not drawn on B4 boards."
+  }
+ ],
+ "permissionEvidence": [
+  {
+   "role": "Faculty",
+   "entity": "FCM / CRS",
+   "action": "see only courses assigned to them in Faculty courses",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "assigned courses (FCM set by Institute Admin)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html sub 'From Faculty courses, set by your Institute Admin'; annotation 'Scope Only courses the Institute Admin assigned (B2-09)'; design/handoff-v46/canvas-v46/project/B4-01-Faculty-Overview.dc.html annotation 'Scope Only what the Institute Admin assigned in Faculty courses (B2-09)'; design/handoff-v46/canvas-v46/project/B2-09-Faculty-Courses.dc.html 'This sets what each faculty member sees in their workspace.'",
+   "strength": "explicit-rule",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "FCM",
+   "action": "assign or change own course assignments",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-01-Faculty-Overview.dc.html frame 'No courses yet' / design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html frame 'None assigned': 'Your Institute Admin hasn’t assigned you courses yet' with only a Help link",
+   "strength": "designed-absence",
+   "notes": "No self-assignment control anywhere in the Faculty workspace."
+  },
+  {
+   "role": "Faculty",
+   "entity": "EXP",
+   "action": "see experiments",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "experiments in assigned courses that the institution holds (ACC)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html FA-03 'Only experiments your institution holds'; annotation '…inside them, only experiments the institution holds (ACC-0107)'",
+   "strength": "explicit-rule",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "EXP (learning outcomes, about, resources)",
+   "action": "edit learning outcomes / experiment content",
+   "stateBefore": "Published",
+   "stateAfter": "Published",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-03-Experiment-Teaching-View.dc.html 'One set of outcomes for the experiment, written by the Academic Reviewer. Read-only here.' (LD-3)",
+   "strength": "designed-absence",
+   "notes": "Read-only display only."
+  },
+  {
+   "role": "Faculty",
+   "entity": "ASMT",
+   "action": "create assessment",
+   "stateBefore": "—",
+   "stateAfter": "Ready (name + rules + ≥ 1 question) or Draft — not ready",
+   "scope": "experiments they teach ('Experiments you teach'), one assessment per experiment per institution (OD-B4-01)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html FA-07 frames 1–8; 'Assessments for experiments you teach'",
+   "strength": "designed-control",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "ASMT",
+   "action": "save as draft",
+   "stateBefore": "—",
+   "stateAfter": "Draft — not ready",
+   "scope": "experiments they teach",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html script draft(): only 'Enter a name to save a draft'; OD-B4-03 'a draft needs only a name'",
+   "strength": "explicit-rule",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "ASMT",
+   "action": "create a second assessment for an experiment that already has one",
+   "stateBefore": "Ready/Draft",
+   "stateAfter": "refused",
+   "scope": "per experiment per institution",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html frame 'This experiment already has an assessment' (refusal at step 1); OD-B4-01 (open)",
+   "strength": "designed-absence",
+   "notes": "Prototype rule kept as open decision."
+  },
+  {
+   "role": "Faculty",
+   "entity": "ASMT",
+   "action": "make available / open / close / mark closed",
+   "stateBefore": "Ready",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html annotation 'There is no separate “Make available” control (FA-13 · T-18 — open)'; design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html 'FA-13 “Make available” is not designed'; B4-16 'Lifecycle (T-18) No “Make available”, open / close or “closed” control or state.'",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "ASMT",
+   "action": "edit rules (pass mark, attempts, deadline, release option/date, name, introduction)",
+   "stateBefore": "Ready",
+   "stateAfter": "Ready (version n+1 when submissions exist and a rule/release changed)",
+   "scope": "own assessments (co-teaching Faculty share the same assessment — OD-B4-17)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html FA-10 frames 0–4; 'Settings saved as version 2. Rahul Verma’s submission keeps version 1.'",
+   "strength": "designed-control",
+   "notes": "Nothing is locked once attempts exist — versioning instead."
+  },
+  {
+   "role": "Faculty",
+   "entity": "ASMT",
+   "action": "reorder / remove / add questions; use updated version",
+   "stateBefore": "Ready",
+   "stateAfter": "Ready (new version when submissions exist)",
+   "scope": "own assessments; bank questions of the same experiment",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html FA-09 frames 5–8; 'Use updated version is the Faculty’s choice; nothing switches on its own.'",
+   "strength": "designed-control",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "ASMT",
+   "action": "delete an assessment",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html, design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html, design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html — no delete control drawn",
+   "strength": "designed-absence",
+   "notes": "Not shown anywhere; do not invent."
+  },
+  {
+   "role": "Faculty",
+   "entity": "ASMT",
+   "action": "set a timer / time limit",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html 'No time limit and no timer.'; T-22",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "ASMT",
+   "action": "preview as student / answer key",
+   "stateBefore": "—",
+   "stateAfter": "— (creates no attempt)",
+   "scope": "own assessments",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html FA-11 'Previewing creates no attempt and saves nothing.' 'Only you see the answer key and the marking guidance.'",
+   "strength": "designed-control",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "Q",
+   "action": "add question",
+   "stateBefore": "—",
+   "stateAfter": "Active in bank (Q-0107)",
+   "scope": "bank of an experiment they teach ('Questions for Shell-and-Tube Heat Exchanger · ME ZG523')",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html FA-15 frames 3–6",
+   "strength": "designed-control",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "Q",
+   "action": "edit question",
+   "stateBefore": "Active (used in N)",
+   "stateAfter": "Active — new version; assessments keep their version until 'Use updated version'",
+   "scope": "own bank",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html frame 'Edit a used question'; saved msg 'Saved as a new version…'",
+   "strength": "designed-control",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "Q",
+   "action": "delete question",
+   "stateBefore": "Active",
+   "stateAfter": "Deleted (history kept; assessments keep their copy)",
+   "scope": "own bank",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html frame 'Delete a used question · DL-1' (DIALOG) + 'deleted 7 Nov 2026 · history kept'; STK31-34",
+   "strength": "designed-control",
+   "notes": "Confirm dialog required; no reason field."
+  },
+  {
+   "role": "Faculty",
+   "entity": "Q (draft)",
+   "action": "request drafts with assistance",
+   "stateBefore": "—",
+   "stateAfter": "Draft — needs your review (3 or 5)",
+   "scope": "experiment's lab brief or pasted text",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html FA-16; OD-B4-12",
+   "strength": "designed-control",
+   "notes": "No provider named; not called AI on the board."
+  },
+  {
+   "role": "Faculty",
+   "entity": "Q (draft)",
+   "action": "add draft to bank / discard draft",
+   "stateBefore": "Draft — needs your review",
+   "stateAfter": "Active in bank ('From a draft you reviewed') / gone",
+   "scope": "own drafts",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html Drafts tab; design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html drafts list; 'Drafts never go into your bank on their own.'",
+   "strength": "designed-control",
+   "notes": ""
+  },
+  {
+   "role": "System / assistance service",
+   "entity": "Q (draft)",
+   "action": "put a draft into the bank automatically",
+   "stateBefore": "Draft",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html 'Drafts never go into your bank on their own'; B4-16 'Assistance (T-23) Drafts never enter the bank on their own'",
+   "strength": "explicit-rule",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "Q",
+   "action": "import questions from CSV",
+   "stateBefore": "—",
+   "stateAfter": "Active in bank (all-or-nothing; never added to an assessment)",
+   "scope": "bank of the current experiment ('Questions go into your bank for Shell-and-Tube Heat Exchanger')",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html FA-17; T-24",
+   "strength": "designed-control",
+   "notes": "Errors block; warnings don't."
+  },
+  {
+   "role": "Faculty",
+   "entity": "ATT",
+   "action": "save a provisional mark + feedback",
+   "stateBefore": "Waiting for marking",
+   "stateAfter": "Waiting for marking (mark saved — not confirmed yet)",
+   "scope": "written answers in assessments for their courses",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html FA-19 'Mark saved — not confirmed yet'",
+   "strength": "designed-control",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "ATT",
+   "action": "confirm marks",
+   "stateBefore": "Waiting for marking",
+   "stateAfter": "Marked / Marks confirmed (read-only); result not released yet",
+   "scope": "written answers in assessments for their courses",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html DL-1 'Confirm marks for Rahul Verma?' + frame 'Confirmed · read-only'",
+   "strength": "designed-control",
+   "notes": "Confirm dialog yes; reason no; feedback optional (OD-B4-06)."
+  },
+  {
+   "role": "Faculty",
+   "entity": "ATT",
+   "action": "re-mark / change confirmed marks",
+   "stateBefore": "Marked",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html 'Confirmed marks can’t be changed.' 're-marking is not designed (T-20)'",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "ATT",
+   "action": "use suggested marks from an assistant",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html 'Not designed Suggested marks from an assistant (T-23 — WAIT)'",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "ATT (result)",
+   "action": "release a result manually",
+   "stateBefore": "Marked, result not released",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-14-Flow-4-Continuity.dc.html D4 actor 'The assessment’s own setting' 'Results are released after the deadline'; design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html FA-12 has no release control; design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html 'The panel says when the student will see the result, per the assessment’s release setting.'",
+   "strength": "designed-absence",
+   "notes": "Release is automatic per ASMT release option; contradicts flows.json D4 actor 'Faculty → Student' (see inconsistencies)."
+  },
+  {
+   "role": "System (assessment release setting)",
+   "entity": "ATT (result)",
+   "action": "release result",
+   "stateBefore": "Marked, result not released yet",
+   "stateAfter": "Released (Student: Result ready)",
+   "scope": "per assessment: immediately after marking / after the deadline / on a date",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-14-Flow-4-Continuity.dc.html D4 + board control 'Move the sample date past the deadline'; OD-B4-04",
+   "strength": "explicit-rule",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "ATT / RUN (lists)",
+   "action": "export CSV of the list on screen",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "the list on screen (filtered)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html frame 'Export CSV (FA-22)'; design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html frame 'Export CSV · FA-22'",
+   "strength": "designed-control",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "Reports",
+   "action": "open a reports page",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html 'No reports page (FA-23 deferred, T-33)'",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "PER (student)",
+   "action": "message / remind students",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-01-Faculty-Overview.dc.html 'Not designed Reminders or messages to students (T-34 / R11)'; design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html 'Contacting them happens outside the platform — no messaging or reminders (T-34)'",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "PER / RUN / ATT",
+   "action": "see students' per-format progress, assessment state, resources opened, last activity",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "students the Institute Admin gave the experiment (SACC) in courses they teach",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html 'Reach Students the Institute Admin gave the experiment (Student access, B2-04)'; design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html 'Reach follows Student access, set by the Institute Admin.'",
+   "strength": "explicit-rule",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "FB",
+   "action": "see format feedback",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html 'Feedback students give on a format isn’t shown to Faculty.'; design/handoff-v46/canvas-v46/project/B4-03-Experiment-Teaching-View.dc.html 'Feedback is not shown to Faculty (T-25)'",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Faculty",
+   "entity": "SACC",
+   "action": "give / withdraw student access",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html 'Reach follows Student access, set by the Institute Admin.' — no access control in Faculty workspace",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Student",
+   "entity": "ASMT",
+   "action": "see an assessment",
+   "stateBefore": "Draft — not ready",
+   "stateAfter": "not visible",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html 'Students can’t see a draft.'; design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html 'Students can’t see the assessment until it has a question.'",
+   "strength": "explicit-rule",
+   "notes": "But B4-11 frame 15 draws a Student 'not available yet · no questions' page — see inconsistencies."
+  },
+  {
+   "role": "Student",
+   "entity": "ASMT",
+   "action": "see and start an assessment",
+   "stateBefore": "Ready",
+   "stateAfter": "Attempt in progress",
+   "scope": "students who have the experiment (SACC); formats don't change reach",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html 'ASMT-0009 · Ready Students who have Shell-and-Tube Heat Exchanger can now see it in Assessments and start it.'; design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html 'one assessment covers the experiment, whichever format a student used'",
+   "strength": "explicit-rule",
+   "notes": ""
+  },
+  {
+   "role": "Student",
+   "entity": "ATT (result)",
+   "action": "see any figure before release",
+   "stateBefore": "Marked, result not released yet",
+   "stateAfter": "—",
+   "scope": "own attempt",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-14-Flow-4-Continuity.dc.html result frame 'No figure until marked AND released.'; B4-16 'Release (T-19)… before release the student sees no figure of any kind — not even objective marks.'",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Student",
+   "entity": "Q (marking guidance)",
+   "action": "see marking guidance during attempt",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html editor hint 'Students don’t see it while they answer.'; OD-B4-08",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Institute Admin",
+   "entity": "FCM",
+   "action": "assign / remove a Faculty member's course",
+   "stateBefore": "—",
+   "stateAfter": "assigned / removed (warning when written answers would have no marker)",
+   "scope": "own institution",
+   "evidence": "design/handoff-v46/canvas-v46/project/B2-09-Faculty-Courses.dc.html IA-15 frames; dialog 'Written answers would have no marker …'",
+   "strength": "designed-control",
+   "notes": "Cross-board (Batch 2)."
+  },
+  {
+   "role": "Institute Admin",
+   "entity": "ATT (no marker)",
+   "action": "be warned that answers have no Faculty marker; Assign Faculty",
+   "stateBefore": "Waiting for marking (no Faculty on course)",
+   "stateAfter": "—",
+   "scope": "own institution",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html frame 6 'Institute Admin is warned · no Faculty marker (later sample)': '2 written answers have no Faculty marker' + 'Assign Faculty' → B2-09",
+   "strength": "designed-control",
+   "notes": "New state of IA-01 drawn on B4-09 (OD-B4-15)."
+  },
+  {
+   "role": "Institute Admin",
+   "entity": "ATT",
+   "action": "mark written answers",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "—",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html IA frame offers only 'Assign Faculty'; STK31-31 'FACULTY is the ONLY human role responsible for descriptive-answer evaluation.'",
+   "strength": "designed-absence",
+   "notes": ""
+  },
+  {
+   "role": "Academic Reviewer",
+   "entity": "EXP (learning outcomes)",
+   "action": "write the experiment-level learning outcomes Faculty read",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "platform",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-03-Experiment-Teaching-View.dc.html 'written by the Academic Reviewer. Read-only here.'",
+   "strength": "explicit-rule",
+   "notes": ""
+  },
+  {
+   "role": "Faculty (co-teaching)",
+   "entity": "ASMT",
+   "action": "share the same assessment on one course",
+   "stateBefore": "—",
+   "stateAfter": "—",
+   "scope": "same course",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html annotation 'Shared Co-teaching Faculty on the same course see the same assessment (none in this sample).'; OD-B4-17",
+   "strength": "explicit-rule",
+   "notes": "Safe treatment only; no sample drawn."
+  }
+ ],
+ "fieldEvidence": [
+  {
+   "entity": "ASMT",
+   "field": "experiment",
+   "example": "Shell-and-Tube Heat Exchanger · ME ZG523 · Thermodynamics & Heat Transfer",
+   "shownOn": "FA-07",
+   "inputOrDisplay": "input-required",
+   "validation": "'Choose an experiment'; refusal 'This experiment already has an assessment' (one per experiment, OD-B4-01)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html script next1"
+  },
+  {
+   "entity": "ASMT",
+   "field": "name",
+   "example": "Heat Exchanger — post-lab",
+   "shownOn": "FA-07, FA-10",
+   "inputOrDisplay": "input-required",
+   "validation": "'Enter a name for the assessment' (Continue / Save settings); 'Enter a name to save a draft' (Save as draft)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html ruleErrs/draft; design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html save"
+  },
+  {
+   "entity": "ASMT",
+   "field": "introduction",
+   "example": "Four short questions on what you measured in the Shell-and-Tube Heat Exchanger simulation. One answer is written; your faculty marks it.",
+   "shownOn": "FA-07, FA-10, FA-08",
+   "inputOrDisplay": "input-optional",
+   "validation": "none ('Introduction (optional)', hint 'What students read before they start.')",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "passMarkPercent",
+   "example": "50 (displayed 'Pass mark 50% · 8 of 16 marks')",
+   "shownOn": "FA-07, FA-10, FA-08, FA-11",
+   "inputOrDisplay": "input-required",
+   "validation": "whole number 0–100: 'Enter a pass mark from 0 to 100, as a whole number' (hint 'Share of the total marks needed to pass, 0–100.'; '50.5' rejected)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html frame 'Step 2 · validation'"
+  },
+  {
+   "entity": "ASMT",
+   "field": "attemptsAllowed",
+   "example": "2",
+   "shownOn": "FA-07, FA-10, FA-08",
+   "inputOrDisplay": "input-required",
+   "validation": "whole number ≥ 1: 'Enter how many attempts are allowed, as a whole number' (hint 'A whole number, 1 or more.')",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "deadline",
+   "example": "14 Nov 2026, 23:59",
+   "shownOn": "FA-07, FA-10, FA-08, FA-06, FA-01, FA-05",
+   "inputOrDisplay": "input-required",
+   "validation": "presence only: 'Enter the deadline' (hint 'Date and time, for example 14 Nov 2026, 23:59'); free-text input on board; no past-date / format rule drawn. Meaning after it passes is open (OD-B4-02)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html ruleErrs"
+  },
+  {
+   "entity": "ASMT",
+   "field": "releaseOption",
+   "example": "After the deadline",
+   "shownOn": "FA-07, FA-10, FA-08, FA-11",
+   "inputOrDisplay": "input-required",
+   "validation": "radio, none pre-selected: 'Choose when students see their result'; options 'Immediately after marking' (Each student sees their result once their answers are marked.) · 'After the deadline' (Everyone sees their result when the deadline passes.) · 'On a date' (Everyone sees their result on the date you choose.); hint 'Nothing is chosen for you. Written answers are always marked first.'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html; OD-B4-04; T-19"
+  },
+  {
+   "entity": "ASMT",
+   "field": "releaseDate",
+   "example": "20 Nov 2026, 09:00 (hint example)",
+   "shownOn": "FA-07, FA-10",
+   "inputOrDisplay": "input-required",
+   "validation": "only when 'On a date': 'Enter the release date'; no ordering rule vs deadline drawn",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "questions (selection & order)",
+   "example": "Q-0101, Q-0102, Q-0104, Q-0106 — '4 questions · 16 marks'",
+   "shownOn": "FA-07 step 3, FA-09",
+   "inputOrDisplay": "input-required",
+   "validation": "≥ 1 to continue / be Ready: 'Add at least one question, or save as a draft'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html next3; design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "timeLimit",
+   "example": "None ('No time limit and no timer.')",
+   "shownOn": "FA-08, FA-10, FA-11",
+   "inputOrDisplay": "display",
+   "validation": "fixed — no timer (T-22)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html; design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "id",
+   "example": "ASMT-0009",
+   "shownOn": "FA-06, FA-07, FA-08…FA-12",
+   "inputOrDisplay": "display",
+   "validation": "system-assigned",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "state",
+   "example": "Ready / Draft — not ready",
+   "shownOn": "FA-03, FA-04, FA-05, FA-06, FA-08…FA-12",
+   "inputOrDisplay": "derived",
+   "validation": "Ready = name + rules + ≥ 1 question (B4-04 annotation)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html; design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "readyChecklist",
+   "example": "Name and introduction · Rules: pass mark 50%, 2 attempts, due …, results after the deadline · 4 questions · 16 marks / 'At least one question — none yet'",
+   "shownOn": "FA-07 outcome, FA-08",
+   "inputOrDisplay": "derived",
+   "validation": "items: 'Name and rules', 'At least one question' (script checklist)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html; design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "createdAtBy",
+   "example": "Created 26 Oct 2026, 16:40 by you",
+   "shownOn": "FA-08",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "readySince",
+   "example": "ready since 27 Oct 2026, 11:05",
+   "shownOn": "FA-08",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "version",
+   "example": "Version 2 since 8 Nov 2026",
+   "shownOn": "FA-08, FA-09, FA-10",
+   "inputOrDisplay": "derived",
+   "validation": "new version only when submissions exist and questions/rules change (OD-B4-13)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html frame 'Summary · version 2'"
+  },
+  {
+   "entity": "ASMT",
+   "field": "totalMarks / passMarkInMarks",
+   "example": "16 marks / 8 of 16 marks",
+   "shownOn": "FA-07, FA-08, FA-09, FA-11",
+   "inputOrDisplay": "derived",
+   "validation": "sum of question marks; pass marks = pass % × total",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "reach",
+   "example": "5 students who have Shell-and-Tube Heat Exchanger from Godavari Institute of Technology",
+   "shownOn": "FA-08",
+   "inputOrDisplay": "derived",
+   "validation": "from SACC (not FCM); formats don't change reach",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html"
+  },
+  {
+   "entity": "ASMT",
+   "field": "submissionsSummary",
+   "example": "1 of 5 submitted · 1 waiting for marking",
+   "shownOn": "FA-01, FA-03, FA-05, FA-06, FA-08",
+   "inputOrDisplay": "derived",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "type",
+   "example": "Multiple choice / True or false / Written answer",
+   "shownOn": "FA-15, FA-14",
+   "inputOrDisplay": "input-required",
+   "validation": "'Choose the question type'; 'Three types only.' (T-22)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html qeView save"
+  },
+  {
+   "entity": "Q",
+   "field": "text",
+   "example": "How is the number of transfer units (NTU) defined?",
+   "shownOn": "FA-15, FA-14, FA-09, FA-11, FA-19",
+   "inputOrDisplay": "input-required",
+   "validation": "'Enter the question'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "optionsA–D",
+   "example": "UA ÷ C_min · C_min ÷ C_max · q ÷ q_max · UA ÷ C_max",
+   "shownOn": "FA-15 (MC)",
+   "inputOrDisplay": "input-required",
+   "validation": "MC: at least two filled: 'Add at least two answer options' (hint 'Up to four; mark the one correct answer.')",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "correctAnswer",
+   "example": "Option A (MC) / True (TF)",
+   "shownOn": "FA-15, FA-11 answer key",
+   "inputOrDisplay": "input-required",
+   "validation": "MC: 'Choose the correct answer'; TF: 'Choose whether the statement is true or false'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "markingGuidance",
+   "example": "Look for: fouling adds a thermal resistance; U falls; …",
+   "shownOn": "FA-15 (written only), FA-11 answer key, FA-19",
+   "inputOrDisplay": "input-optional",
+   "validation": "free text; 'Students don’t see it while they answer.' (T-21: no rubric builder; OD-B4-08)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "marks",
+   "example": "2 / 10",
+   "shownOn": "FA-15, FA-14, FA-09, FA-07, FA-11",
+   "inputOrDisplay": "input-required",
+   "validation": "'Enter the marks, as a whole number of 1 or more' ('two' rejected); no upper bound drawn; marks belong to the question in the bank (OD-B4-07)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "explanation",
+   "example": "NTU = UA ÷ C_min — the exchanger’s size measured against the smaller heat-capacity rate.",
+   "shownOn": "FA-15, FA-11",
+   "inputOrDisplay": "input-optional",
+   "validation": "hint 'Shown to students with the correct answer when their result is released.' (OD-B4-09; missing = import warning)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "id",
+   "example": "Q-0101 … Q-0106, Q-0107 (from draft / new), Q-0110…Q-0117 (import)",
+   "shownOn": "FA-14, FA-15, FA-09, FA-07",
+   "inputOrDisplay": "display",
+   "validation": "system-assigned",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html; design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "usedIn",
+   "example": "Used in 1 assessment / Not used yet",
+   "shownOn": "FA-14, FA-15",
+   "inputOrDisplay": "derived",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "added",
+   "example": "20 Oct 2026",
+   "shownOn": "FA-14",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "origin tag",
+   "example": "From a draft you reviewed",
+   "shownOn": "FA-14",
+   "inputOrDisplay": "derived",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html"
+  },
+  {
+   "entity": "Q",
+   "field": "deleted",
+   "example": "Q-0101 … — deleted 7 Nov 2026 · history kept",
+   "shownOn": "FA-14, FA-09",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html; design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html"
+  },
+  {
+   "entity": "Q (draft)",
+   "field": "tags",
+   "example": "Draft — needs your review · Drafted with assistance · (after add) In your bank · reviewed by you",
+   "shownOn": "FA-14, FA-16",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html; design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html"
+  },
+  {
+   "entity": "Q (draft request)",
+   "field": "source",
+   "example": "The experiment’s lab brief (Lab brief — Shell-and-Tube Heat Exchanger · PDF document) / Text I paste",
+   "shownOn": "FA-16",
+   "inputOrDisplay": "input-required",
+   "validation": "'Choose the material to draft from'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html gen()"
+  },
+  {
+   "entity": "Q (draft request)",
+   "field": "pastedText",
+   "example": "(empty)",
+   "shownOn": "FA-16",
+   "inputOrDisplay": "input-required",
+   "validation": "only when 'Text I paste': 'Paste the text to draft from'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html"
+  },
+  {
+   "entity": "Q (draft request)",
+   "field": "questionTypes",
+   "example": "Multiple choice · True or false · Written answer (checkboxes)",
+   "shownOn": "FA-16",
+   "inputOrDisplay": "input-required",
+   "validation": "≥ 1: 'Choose at least one question type'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html"
+  },
+  {
+   "entity": "Q (draft request)",
+   "field": "howMany",
+   "example": "3 / 5",
+   "shownOn": "FA-16",
+   "inputOrDisplay": "input-required",
+   "validation": "'Choose how many drafts you want' (select Choose / 3 / 5)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html"
+  },
+  {
+   "entity": "Q (import)",
+   "field": "file",
+   "example": "post-lab-questions.csv / post-lab-questions-corrected.csv",
+   "shownOn": "FA-17",
+   "inputOrDisplay": "input-required",
+   "validation": "'Choose a CSV file first'; CSV only",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html imView check"
+  },
+  {
+   "entity": "Q (import)",
+   "field": "templateColumns",
+   "example": "type, question, option_a, option_b, option_c, option_d, correct, marks, explanation, marking_guidance",
+   "shownOn": "FA-17",
+   "inputOrDisplay": "display",
+   "validation": "'type is multiple choice, true or false, or written answer. question and marks are always required; choice questions need their options and correct (A–D, or TRUE / FALSE). explanation and marking_guidance are optional.'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html 'Use the template' + data: link questions-template.csv (header only)"
+  },
+  {
+   "entity": "Q (import)",
+   "field": "rowReport",
+   "example": "Row 3 · What does C_min stand for? · correct is “E”, but the question has options A–D only. · Error — blocks import",
+   "shownOn": "FA-17",
+   "inputOrDisplay": "display",
+   "validation": "errors block (all-or-nothing interim); warnings don't ('explanation is empty. The question imports without one.')",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html"
+  },
+  {
+   "entity": "ATT",
+   "field": "id",
+   "example": "ATT-0450 / ATT-0451",
+   "shownOn": "FA-12, FA-18, FA-19, FA-21",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html; design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html"
+  },
+  {
+   "entity": "ATT",
+   "field": "submittedAt",
+   "example": "5 Nov 2026, 18:52",
+   "shownOn": "FA-12, FA-18, FA-19, FA-21",
+   "inputOrDisplay": "display",
+   "validation": "queue sorted oldest first",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html"
+  },
+  {
+   "entity": "ATT",
+   "field": "attemptNumber",
+   "example": "attempt 1 of 2",
+   "shownOn": "FA-19, FA-21",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html"
+  },
+  {
+   "entity": "ATT",
+   "field": "status (Faculty words)",
+   "example": "Waiting for marking / Marked",
+   "shownOn": "FA-12, FA-18, FA-20, FA-21",
+   "inputOrDisplay": "derived",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html; design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html"
+  },
+  {
+   "entity": "ATT",
+   "field": "writtenAnswer",
+   "example": "In the WEB run I turned the fouling up and kept both flow rates the same. …",
+   "shownOn": "FA-19",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html"
+  },
+  {
+   "entity": "ATT",
+   "field": "autoMarks",
+   "example": "Marked automatically 4 of 6 marks (Question 1 2 of 2 · Question 2 0 of 2 · Question 3 2 of 2)",
+   "shownOn": "FA-19",
+   "inputOrDisplay": "derived",
+   "validation": "choice questions marked automatically",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html autoText"
+  },
+  {
+   "entity": "ATT",
+   "field": "markForWrittenQuestion",
+   "example": "7 (of 10)",
+   "shownOn": "FA-19",
+   "inputOrDisplay": "input-required",
+   "validation": "'Enter a mark for question 4' (empty); 'Enter a whole number from 0 to 10' (0 to the question's marks; '12' rejected)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html markCheck"
+  },
+  {
+   "entity": "ATT",
+   "field": "feedback",
+   "example": "Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab.",
+   "shownOn": "FA-19 (shown to Student on ST-14 after release)",
+   "inputOrDisplay": "input-optional",
+   "validation": "optional (OD-B4-06); read-only shows 'No feedback' when empty",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html"
+  },
+  {
+   "entity": "ATT",
+   "field": "marksConfirmed",
+   "example": "Marks confirmed 7 Nov 2026, 10:15 · Dr S. Ranganathan",
+   "shownOn": "FA-19",
+   "inputOrDisplay": "display",
+   "validation": "read-only after confirm (T-20)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html"
+  },
+  {
+   "entity": "ATT",
+   "field": "score",
+   "example": "— / 11 of 16",
+   "shownOn": "FA-12, FA-21",
+   "inputOrDisplay": "derived",
+   "validation": "'—' until marks confirmed",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html"
+  },
+  {
+   "entity": "ATT",
+   "field": "resultReleasedToStudent",
+   "example": "Not yet — after the deadline / Released 14 Nov 2026, 23:59",
+   "shownOn": "FA-12, FA-21, FA-22 export",
+   "inputOrDisplay": "derived",
+   "validation": "from ASMT release setting",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html; design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html"
+  },
+  {
+   "entity": "PER",
+   "field": "studentName / studentId",
+   "example": "Rahul Verma · GIT-2026-0418",
+   "shownOn": "FA-20, FA-21, FA-12",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html"
+  },
+  {
+   "entity": "RUN",
+   "field": "perFormatStatus",
+   "example": "WEB Completed 14 Oct 2026 · VR In progress · Not started",
+   "shownOn": "FA-20, FA-21",
+   "inputOrDisplay": "display",
+   "validation": "per format, words + completion date; never a % or experiment verdict",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html"
+  },
+  {
+   "entity": "RUN",
+   "field": "perFormatCounts",
+   "example": "WEB 2 completed · 2 in progress · 1 not started",
+   "shownOn": "FA-03, FA-05",
+   "inputOrDisplay": "derived",
+   "validation": "counts in words, no percentages",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html; design/handoff-v46/canvas-v46/project/B4-03-Experiment-Teaching-View.dc.html"
+  },
+  {
+   "entity": "RUN",
+   "field": "completedCountPerFormat",
+   "example": "Completed (WEB) 2 · Completed (VR) 1",
+   "shownOn": "FA-04",
+   "inputOrDisplay": "derived",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html"
+  },
+  {
+   "entity": "PER",
+   "field": "lastActivity",
+   "example": "5 Nov 2026 / None since access was given (12 Oct 2026)",
+   "shownOn": "FA-20",
+   "inputOrDisplay": "derived",
+   "validation": "activity = opening a format or the assessment (sample, OD-B4-10)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html"
+  },
+  {
+   "entity": "PER",
+   "field": "inactiveDays",
+   "example": "Inactive 19 days",
+   "shownOn": "FA-20, FA-21, FA-01",
+   "inputOrDisplay": "derived",
+   "validation": "filter 7 / 14 / 30 days (OD-B4-10); tag shown at ≥ 14",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html fsView"
+  },
+  {
+   "entity": "RES",
+   "field": "openedAt",
+   "example": "Lab brief — Shell-and-Tube Heat Exchanger Opened 12 Oct 2026, 09:40 / Not opened",
+   "shownOn": "FA-21",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html"
+  },
+  {
+   "entity": "CRS",
+   "field": "title / platform code",
+   "example": "Thermodynamics & Heat Transfer · ME ZG523",
+   "shownOn": "FA-02, FA-03, FA-04, FA-05",
+   "inputOrDisplay": "display",
+   "validation": "which code Faculty see is T-17 (board shows platform code)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html"
+  },
+  {
+   "entity": "CRS",
+   "field": "courseSummary",
+   "example": "1 experiment · 5 students with access · 1 assessment",
+   "shownOn": "FA-02, FA-03",
+   "inputOrDisplay": "derived",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html"
+  },
+  {
+   "entity": "FCM",
+   "field": "courseAccessEnded",
+   "example": "Access ended on 7 Oct 2027 · earlier work and results kept",
+   "shownOn": "FA-02, FA-01",
+   "inputOrDisplay": "display",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-02-My-Courses-and-Experiments.dc.html; design/handoff-v46/canvas-v46/project/B4-01-Faculty-Overview.dc.html"
+  },
+  {
+   "entity": "EXP",
+   "field": "formatsInstitutionHas",
+   "example": "WEB VR",
+   "shownOn": "FA-03, FA-04, FA-05",
+   "inputOrDisplay": "display",
+   "validation": "from ACC plan",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-03-Experiment-Teaching-View.dc.html"
+  },
+  {
+   "entity": "EXP",
+   "field": "formatsUsedByStudents",
+   "example": "WEB VR / None yet",
+   "shownOn": "FA-05",
+   "inputOrDisplay": "derived",
+   "validation": "'opened at least once'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-03-Experiment-Teaching-View.dc.html"
+  },
+  {
+   "entity": "EXP",
+   "field": "about / learning outcomes / resources",
+   "example": "Vary flow rates and inlet temperatures … / Determine log mean temperature difference … / Lab brief — …",
+   "shownOn": "FA-05",
+   "inputOrDisplay": "display",
+   "validation": "read-only (LD-3)",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-03-Experiment-Teaching-View.dc.html"
+  },
+  {
+   "entity": "export (FA-12)",
+   "field": "columns",
+   "example": "student, student ID, submitted, status, score, result released to student",
+   "shownOn": "FA-12/FA-22",
+   "inputOrDisplay": "derived",
+   "validation": "'It contains this list only.' file 'submissions-ASMT-0009.csv'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html"
+  },
+  {
+   "entity": "export (FA-20)",
+   "field": "columns",
+   "example": "student, student ID, experiment, WEB, VR, assessment, result released to student, last activity",
+   "shownOn": "FA-20/FA-22",
+   "inputOrDisplay": "derived",
+   "validation": "'It contains the filtered list only.' file 'students-shell-and-tube.csv'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html"
+  },
+  {
+   "entity": "Overview",
+   "field": "scopeLine",
+   "example": "You teach 1 course · 1 experiment",
+   "shownOn": "FA-01",
+   "inputOrDisplay": "derived",
+   "validation": "",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-01-Faculty-Overview.dc.html"
+  },
+  {
+   "entity": "Overview",
+   "field": "attentionRows",
+   "example": "1 written answer to mark (Heat Exchanger — post-lab · from Rahul Verma, 5 Nov 2026) · 3 draft questions need your review (Drafted with assistance on 4 Nov 2026) · 2 students inactive for 14 days or more (Imran Shaikh, Karthik Rao)",
+   "shownOn": "FA-01",
+   "inputOrDisplay": "derived",
+   "validation": "≤ 5 rows",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-01-Faculty-Overview.dc.html"
+  },
+  {
+   "entity": "Overview",
+   "field": "comingUp",
+   "example": "Heat Exchanger — post-lab Due 14 Nov 2026, 23:59 · 1 of 5 students submitted",
+   "shownOn": "FA-01",
+   "inputOrDisplay": "derived",
+   "validation": "≤ 3; empty copy 'No deadlines in the next 30 days.'",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-01-Faculty-Overview.dc.html"
+  }
+ ],
+ "crossRoleTouchpoints": [
+  "FCM: Institute Admin assigns/removes a course in Faculty courses (IA-15, B2-09) → Faculty scope on FA-01 scope line, FA-02 course list, FA-03/04/05, FA-06 ('Assessments for experiments you teach'), FA-20; no courses → FA-01/FA-02 'Your Institute Admin hasn’t assigned you courses yet'.",
+  "FCM removal with answers waiting: IA-15 warns 'Written answers would have no marker' (B2-09) → IA-01 Overview attention row '2 written answers have no Faculty marker' + 'Assign Faculty' (new IA state drawn on B4-09 frame 6; OD-B4-15).",
+  "SACC: Institute Admin gives students the experiment (IA-05 / IA-11, B2-05/B2-07) → FA-08 'Who it reaches' (5 students), FA-03 '5 students with access', FA-20 rows ('Students appear here when your Institute Admin gives them the experiment.'), ST-11 sees the Ready assessment.",
+  "ACC: institution's plan formats → FA-03/FA-04/FA-05 'Formats your institution has'; access ended (later sample) → FA-01 attention row and FA-02 'Access ended on 7 Oct 2027 · earlier work and results kept'; access paused (Super Admin, B7-04) → FA-01 shared banner 'Your institution’s access is paused — your work is kept.' (OD-B7-07).",
+  "EXP learning outcomes written by the Academic Reviewer (RV-03, LD-3) → FA-05 read-only 'Learning outcomes'.",
+  "ASMT created Ready on FA-07 → Student ST-11 Assessments 'To do' + ST-12 Before you start (six facts exactly as configured) + Home Up next + hub Assessment tab (B4-11); Draft — not ready → not visible to Students.",
+  "ASMT rules changed on FA-10 / questions changed on FA-09 after a submission → new version; Rahul's ATT-0450 keeps version 1 (FA-08 'Version 2 since 8 Nov 2026'); release-option change applies to already-submitted students ('he sees his result on the new terms').",
+  "ATT submitted by Student on ST-13 (B4-12) → FA-12 row 'Waiting for marking', FA-18 queue row (oldest first), FA-01 'N written answer(s) to mark' + sidebar Marking badge, FA-05/FA-06/FA-08 '1 waiting for marking', FA-20 Assessment column, FA-21 assessment line.",
+  "ATT marks confirmed on FA-19 → ST-14 'Result not released yet' (no figure of any kind) and ST-11 'Result not released yet'; FA-12 'Marked' + 'Not yet — after the deadline'; FA-21 'Marked 11 of 16 · Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59'.",
+  "Result release by the assessment's own setting (system, not a Faculty control) → ST-14 score, Passed / Not passed, answers, correct answers, explanations and 'Feedback from Dr S. Ranganathan'; ST-11 Results tab 'Result ready'; FA-12 'Released 14 Nov 2026, 23:59'; FA-19 'Released to Rahul on 14 Nov 2026, 23:59 — when the deadline passed.' (B4-14 D4–D6).",
+  "Q explanation (FA-15) → Student ST-14 after release with the correct answer; Q marking guidance → Faculty only (FA-11 answer key, FA-19), never shown to the Student during the attempt (OD-B4-08).",
+  "Q deleted from the bank (FA-14) → assessments keep their copy (FA-09 'Deleted from your question bank on 25 Oct 2026 — this assessment keeps its copy.'); nothing changes for students.",
+  "RUN per-format progress recorded by Student (ST-07…ST-09) → FA-03/FA-04/FA-05 counts, FA-20 per-format words with completion dates, FA-21 'Progress by format'; activity drives 'Inactive for N days' (FA-01, FA-20).",
+  "RES opened by Student → FA-21 'Opened 12 Oct 2026, 09:40' / 'Not opened'.",
+  "FB format feedback given by Student (ST-16/17) → NOT shown to Faculty (FA-05, FA-21 'Feedback students give on a format isn’t shown to Faculty.'; T-25).",
+  "ATT 'Try again' on ST-14 (only when not passed with an attempt left, OD-B4-05) → a second ATT that would appear again in FA-12/FA-18 (not drawn on Faculty boards)."
+ ],
+ "canvasOnly": [
+  "B4-14 dashed board control (role=group aria-label 'Board control'): 'Board control — not part of the product. Sample date: before the deadline. … Move the sample date past the deadline (14 Nov 2026, 23:59)' — script comment '// board-only control (outside product frames)' advance(); stands in for time passing. Release must be driven by the real clock / release setting.",
+  "Frame captions and caption notes on every board (e.g. 'FA-07 Create assessment · 1440 · interactive · 26 Oct 2026', '(later sample)', 'interactive'), board title blocks, 'Question … Contents … Not designed …' annotation panels, B4-00 register and B4-16 change log content.",
+  "Each frame is one pre-set state (script state keys c, c2, c2e, xl 'loading', xf 'error', xn q='fin-tube', df failOnce, bn empty …) — the frames themselves are not product features; the product derives these states from data.",
+  "Simulated timings: 'Creating…' 700 ms, 'Saving…' 600 ms, 'Drafting questions…' 1200 ms with one forced failure (failOnce), 'Checking rows…' 800 ms — replace with mock-service latency/errors.",
+  "Simulated file chooser on FA-17: 'Choose a CSV file' just sets the sample name post-lab-questions.csv and 'Choose the corrected file' swaps in post-lab-questions-corrected.csv with canned row reports — product needs a real file input + parser.",
+  "Export CSV on FA-12/FA-20 only writes a status line ('Exported submissions-ASMT-0009.csv · 2 rows') — product must produce the actual file.",
+  "'Try again' on FA-04 failed frame just flips the frame to ok — product must re-request.",
+  "Sample world names, IDs and dates (Dr S. Ranganathan, Rahul Verma, Priya Natarajan, Imran Shaikh, Divya Menon, Karthik Rao, ASMT-0009, ATT-0450/0451, Q-0101…, 'as of 7 Nov 2026', 50% / 2 attempts / 14 Nov 2026) — sample data only, never defaults (C-5, B4-00 'Everything is sample').",
+  "Personalised copy that embeds the sample student in Faculty frames ('As Rahul sees it', 'Rahul Verma has submitted. His submission keeps …', 'Confirm marks for Rahul Verma?', 'Feedback for Rahul (optional)') — keep the pattern, bind names/counts from data (inferred).",
+  "Sample bank IDs Q-0107 / Q-0110…Q-0117 and the static 'Experiment' selects with a single option — sample only.",
+  "Fixed-height frame wrappers: Batch-4 interactive frames were switched to min-height on 8 Oct (B4-16 'Fix · 8 Oct 2026 · controls hidden under clipped frames'); two static frames (B4-04 'Assessments · a draft', B4-05 'Deleted from the bank — copy kept') were corrected to min-height in Batch 8 (B8-02). Product pages grow with content.",
+  "Static record headers on state frames (e.g. 'Ready', 'Questions 4', 'Submissions 1' on a draft or empty frame) are frame scaffolding — drive the header from the record (see inconsistencies).",
+  "Responsive proof frames B4-15 (Faculty: Overview, Create step 2, Questions, Mark a submission, Students × 1440/1024/768/375) — same markup laid out by container queries, not separate designs.",
+  "B4-09 frame 6 is an Institute Admin workspace frame (IA-01 state) drawn on a Faculty board — build it in the IA Overview, not in the Faculty workspace.",
+  "support.js canvas runtime and DCLogic component scripts — not product code."
+ ],
+ "inconsistencies": [
+  "RELEASE ACTOR: flows.json Flow D step 4 says actor 'Faculty → Student', screens 'FA-12 (release) → ST-14' (same on B8-04 Workflow-Traceability). The boards draw no release control on FA-12 or anywhere for Faculty; B4-14 row D4 actor is 'The assessment’s own setting' ('Results are released after the deadline (14 Nov 2026, 23:59)'), B4-09 'The panel says when the student will see the result, per the assessment’s release setting', and Inventory v3 Flow D D4 'System (release setting)'. Board wins: release is automatic per ASMT release option; do not build a Faculty 'Release' button.",
+  "STATUS WORDS: entities.json ASMT/ATT statuses 'Draft · Ready · Attempt in progress · Submitted · Waiting for marking · Marks confirmed · Result ready' (also B8-07). Boards: assessment draft pill is 'Draft — not ready' (B4-03/04/05), not 'Draft'; Faculty attempt pills are 'Waiting for marking' / 'Marked' (FA-12, FA-18, FA-21); 'Marks confirmed' appears only as the FA-19 confirmed heading; 'Result ready' appears only on the Student board B4-11; Faculty see the release flag 'Not yet — after the deadline' / 'Released <date>'. entities.json also mixes ASMT and ATT states in one list.",
+  "FCM naming: entities.json/B8-07 call the Faculty–course record 'Faculty courses (FCM)'; B2-09 labels the sample record 'FMAP-0021' ('Dr S. Ranganathan → ME ZG523 = FMAP-0021').",
+  "FA-17 title in screens.json/B8-01 'Import questions (CSV / XLSX)' but the board offers CSV only ('Format CSV with the template’s ten columns. XLSX and the final column schema are open (T-24 · D5)').",
+  "FA-14 tabs: screens.json gives one route for 'Question bank (tabs: Questions · Drafts to review)'; board tabs are in-page anchors and Overview 'Review drafts' links to B4-07 with no tab target.",
+  "'Review and edit' loop: on B4-07 Drafts tab it links to B4-08 (FA-16), while on B4-08 drafts it links to B4-07 (FA-15). No FA-15 editor state for a draft under review is drawn (no 'Draft — needs your review' frame on the editor).",
+  "Static header contradicts frame state: B4-05 'No questions yet' (caption 'A draft (before 27 Oct). Students can’t see it.') shows header pill 'Ready', 'Questions 4', 'Submissions 1', '1 waiting for marking'; B4-05 'Summary · draft' meta line says 'ready since 27 Oct 2026, 11:05'; B4-06 'New draft · nothing pre-filled' shows header 'Ready ASMT-0009 · 1 waiting for marking · Questions 4 · Submissions 1'; B4-06 'No submissions yet' shows '2 waiting for marking' and 'Submissions 2'.",
+  "Sample counts across boards dated 7 Nov: FA-08 Summary (B4-05) and FA-05 (B4-03) say '1 of 5 submitted · 1 waiting for marking' / tab 'Submissions 1', while FA-12 (B4-06) and the B4-09 sidebar badge show 2 waiting (Priya submitted 6 Nov 20:10). FA-01 (6 Nov 09:00) '1' is consistent.",
+  "FA-10 save message: when only the release option changes after a submission, the script saves 'Settings saved as version 2. Rahul Verma’s submission keeps version 1.' (seView: s.subs && (ruleChanged || relChanged)) although the release warning says 'If you save, he sees his result on the new terms.' — contradictory copy; treat release change as applying to existing submissions.",
+  "Student visibility of drafts: B4-04/B4-05/B4-03 say 'Students can’t see a draft' / 'Students can’t see the assessment until it has a question', but B4-11 frame 15 'Not available yet · no questions' draws a Student 'Before you start' page for an assessment with no questions ('This assessment can’t be started yet It has no questions yet.') that also lists 'Questions 4' and 'You have used 1'.",
+  "Suggested marks: OD-B4-12 / B4-16 say 'no suggested marks' for assistance, yet drafted questions carry marks ('Multiple choice · 2 marks', 'Written answer · 10 marks') on FA-14 Drafts and FA-16. Interpreted as 'no marking suggestion' (T-23), but the wording is ambiguous.",
+  "FA-12 rows are not links; the only way to a submission is 'Mark next'. Inventory v3 FA-12 says 'open a submission' and FA-12 → FA-19/21; FA-21 'See submission' therefore lands on the whole Submissions tab (B4-06). Board wins.",
+  "FA-21 proposedRoute /faculty/students/[studentId] omits the experiment although the screen is 'Student detail (per experiment)' with experiment-scoped content.",
+  "FA-19 route is per attempt (/faculty/marking/[attemptId]) but FA-18 is 'one row per written answer'; boards only show a single written question per attempt.",
+  "Ambiguous link targets: FA-01 'Mark 1 written answer' / 'Mark now' and FA-05 'Mark 1 written answer' all target the B4-09 file, which holds both FA-18 and FA-19; B8-01 lists 'Overview attention → Marking'.",
+  "FA-06 'State' filter options mix assessment state and attempt state ('Draft', 'Ready', 'Waiting for marking'); filters on FA-06 are static (non-interactive) on the board.",
+  "Committed foundation docs vs v46 (repo 1b090c9 v2/docs/FUNCTIONAL_PARITY_MATRIX.md): P-19 'the answer key is never shown' vs v46 ST-14 showing correct answers + explanations after release (OD-B4-09); P-15 'overall Completed only when nothing is outstanding' vs binding constraint 4 and FA-21 'Per format only — there is no overall percentage or verdict'; P-18/P-21 use 'Descriptive' and import provenance 'import-xlsx' vs v46 'Written answer' and CSV only; P-23 progress export with utilisation columns (time spent, launches, sessions, Score %) vs v46 FA-22 eight columns.",
+  "Historical prototype ui-ux/18-unified-functional-platform/QUESTION_IMPORT_TEMPLATE.md columns 'question_type, question, option_a…d, correct_answer, marks, explanation' (9 cols, marks 1–100, sample rows) vs v46 template 'type, question, option_a…d, correct, marks, explanation, marking_guidance' (10 cols, header only, marks ≥ 1). v46 wins.",
+  "Inventory v3 (Downloads) lists FA-19 'optional suggested mark', FA-14 filters 'course / experiment / type', FA-18 filters 'experiment / assessment / state', FA-06 state 'closed (OPEN)'; v46 boards draw none of these (suggested marks T-23 WAIT; bank filters experiment + type; queue filters assessment + Waiting/Marked/All). Board wins.",
+  "Route proposal FA-07 '/faculty/assessments/new?step=1…4' covers only the four steps; the board's outcome screen ('Assessment created' / 'Saved as draft', script step 5) has no route — treat as a state of the same route."
+ ],
+ "sharedComponentCandidates": [
+  "FacultyWorkspaceShell (sidebar 6 items + Help foot, Marking count badge, Menu < 1024 px, Collapse menu, account menu, placeholder logo) — every FA screen",
+  "Breadcrumb + BackLink — every detail/flow screen",
+  "AssessmentRecordLayout (AR-7 navy header band + 5 link tabs with counts) — FA-08…FA-12",
+  "AssessmentRulesForm (name, introduction, pass mark %, attempts, deadline, release option radio, conditional release date; identical validation copy) — FA-07 step 2 and FA-10",
+  "ErrorSummary (role=alert, focus, links to field ids: 'Check this step' / 'Check these settings' / 'Check this question' / 'Check these choices') — FA-07, FA-10, FA-15, FA-16",
+  "FormField / WholeNumberInput / DateTimeTextInput / RadioChoiceList(title+sub) / CheckboxList — FA-07, FA-10, FA-15, FA-16, FA-19",
+  "Stepper (n steps, 'Step n of N', aria-current=step) — FA-07 (4), FA-17 (3)",
+  "StatusPill ('Ready', 'Draft — not ready', 'Waiting for marking', 'Marked', 'Marks confirmed', 'Error — blocks import', 'Warning', 'Assessment ready') — most screens",
+  "FormatChip + PerFormatCounts (counts in words, no %) — FA-03, FA-04, FA-05, FA-20, FA-21",
+  "DataTable with labelled-row mode below 760 px — FA-04, FA-06, FA-12, FA-14, FA-17, FA-18, FA-20",
+  "FilterBar (search + ≤ 2 selects + chips 'Remove …' + Clear filters + role=status count) — FA-04, FA-06, FA-14, FA-20",
+  "SegmentedToggle (aria-pressed group) — FA-11 (Student view/Answer key), FA-12 (All/Waiting/Marked), FA-18 (Waiting/Marked/All)",
+  "ConfirmDialog DL-1 (focus in/return, Close ×, opens beside the trigger when the panel stacks) — FA-14 delete, FA-19 confirm marks",
+  "Notice / LiveStatusMessage (ok / warn / alert; role=status / alert) — new-version, release, saved, added, discarded, deleted, exported messages",
+  "BusyButton ('Creating…', 'Saving…', 'Confirming…', 'Checking rows…', 'Importing…' with aria-disabled) — FA-07, FA-10, FA-15, FA-17, FA-19",
+  "EmptyState / NoMatch / LoadingState / ErrorState(Try again) — all list screens",
+  "QuestionRenderer (student view, disabled) + AnswerKey (correct marker, explanation, marking guidance) — FA-07 step 4, FA-11 (and Student ST-13/ST-14)",
+  "DraftCard ('Draft — needs your review' + 'Drafted with assistance' tags, Add to bank / Discard / Review and edit) — FA-14 Drafts tab, FA-16",
+  "ReadyChecklist — FA-07 outcome, FA-08",
+  "ExportCsvButton + ExportStatus — FA-12, FA-20 (FA-22)",
+  "SidePanel / DecisionPanel (~28 %, stacks below 860 px) — FA-09 bank panel, FA-19 marks panel, FA-07 summary panel (~26 %)",
+  "AccessBanner (shared paused banner) — FA-01 (B7-04)"
+ ],
+ "openQuestions": [
+  "FA-13 / T-18 / OD-B4-02: Make available, open/close, 'closed', and what the deadline means once passed — not designed; Ready = visible; deadline shown as a date only.",
+  "OD-B4-01: one assessment per experiment per institution (prototype rule) — refusal drawn at step 1; product policy open.",
+  "OD-B4-03: which rules are required before Ready — assumed name, pass mark, attempts, deadline, release option; a draft needs only a name.",
+  "OD-B4-04 / T-19 / ND-10: release options and wording; BITS default must follow Taxila reference (STK31-32 'TAXILA-REFERENCE PENDING') — no option pre-selected.",
+  "OD-B4-09 vs D-25: v46 shows correct answer + explanation after release; STK31-32 says 'D-25 — a learner never sees the answer key — is NOT overridden' (during an attempt). Confirm whether showing correct answers after release is approved.",
+  "OD-B4-05: may a student who passed try again? (Try again only when not passed with an attempt left).",
+  "OD-B4-06: is Faculty feedback required on a written answer? (optional now).",
+  "OD-B4-07: marks belong to the question (bank) or to the assessment? (bank now).",
+  "OD-B4-08: marking guidance shown to students during the attempt? (not shown now).",
+  "OD-B4-10: 'Inactive for N days' values (7/14/30) and what counts as activity (sample: opening a format or the assessment).",
+  "OD-B4-11 / T-24 / D5: question import schema, XLSX, commit mode (all-or-nothing interim vs valid rows only), warning conditions.",
+  "OD-B4-12 / T-23 / A-18 / R16: assistance sources, counts, provider, depth; STK31-33 asks for 'Upload source document/material and/or prompt/context' — v46 offers only the experiment's lab brief or pasted text (no upload). Also clarify whether drafts may carry proposed marks.",
+  "OD-B4-13: how versions are numbered and shown; does a release-option change create a version (see FA-10 message inconsistency)?",
+  "OD-B4-14 / ND-15: delete mechanism underneath 'Delete' (history kept, assessments keep their copy).",
+  "OD-B4-17: co-teaching Faculty on one course share the same assessment — no sample; who may edit / confirm marks is not shown.",
+  "T-20 / D16: re-marking after confirmation — not designed; confirmed marks read-only.",
+  "T-21: 'rubric' = free-text marking guidance only.",
+  "T-22 / Q-43: timer and question types beyond three — not designed.",
+  "T-17: which course code Faculty see (board shows platform code 'ME ZG523'; institution code not shown on Faculty boards).",
+  "T-25: Faculty view of format feedback — WAIT (staff side); not shown to Faculty.",
+  "T-33 / R15: Reports page deferred; only CSV of the list on screen.",
+  "T-34 / R11: messaging/reminders to students — not designed.",
+  "OD-B7-07: Faculty view while institution access is paused — only the shared banner is drawn; whether Faculty pages become read-only is not assumed.",
+  "OD-B3-08 / STK31-29 / STK31-43: Faculty usage figures (time spent, experiment usage, student groups) are stakeholder-confirmed content but not drawn on B4 (only per-format status, last activity, inactivity).",
+  "Question bank ownership/scope: board shows 'your question bank' 'Questions for <experiment>' (a bank per experiment); whether the bank is per Faculty or shared per experiment/institution is not stated (inventory says 'Bank shared per experiment').",
+  "New question's experiment: FA-15 has no experiment selector — which experiment a new/imported question belongs to when a Faculty teaches several experiments is not shown.",
+  "Removing the last question from a Ready assessment (FA-09) — does it revert to 'Draft — not ready' and disappear for students? Not shown.",
+  "Attempts with several written questions: FA-19 shows one ('Mark for question 4'); per-answer vs per-attempt marking/confirm is not shown.",
+  "Deadline / release date validation beyond presence (past dates, release date before deadline, time zone) — not drawn.",
+  "Leaving FA-07 at step 3 via 'New question' / 'Draft with assistance' / 'Import' — whether the in-progress assessment is kept is not shown.",
+  "Deleting or archiving an assessment, changing an assessment's experiment — not designed.",
+  "Faculty account menu contents and sign-out — not drawn on B4 boards."
+ ]
+}

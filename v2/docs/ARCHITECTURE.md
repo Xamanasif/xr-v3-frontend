@@ -1,15 +1,28 @@
 # V2 Architecture — XR Simulation Learning Platform
 
-|                       |                                                                                                                                                                                                                                               |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Status**            | Phase 0 — architecture foundation, **accepted by independent audit with required corrections applied** (10 September 2026). Engineering document, reviewable. **Nothing here is a stakeholder decision**                                      |
-| **Created**           | 10 September 2026                                                                                                                                                                                                                             |
-| **Branch**            | `v2/platform-foundation`, created from `8af1f2a4f55d96cd98be4e4ee413e856236ee1f7` (the Implementation 09 checkpoint)                                                                                                                          |
-| **Gold standard**     | `ui-ux/18-unified-functional-platform/` — the functional reference prototype. **Read-only.** V2 is built beside it, never on top of it                                                                                                        |
-| **Source precedence** | stakeholder-confirmed (31 Aug 2026 `STK31-01…48`, plus the 6 Sep 2026 follow-ups) → PM-confirmed (PM-01…18) → FRD v5 / architecture documents → validated gold-standard behaviour → implementation details → reversible engineering judgement |
-| **What this is not**  | Not a redesign, not a database schema, not an API specification for business modules, not a selection of a cloud, identity, payment, notification or XR vendor                                                                                |
+|                       |                                                                                                                                                                                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**            | Phase 0 — architecture foundation, **accepted by independent audit with required corrections applied** (10 September 2026). Engineering document, reviewable. **Nothing here is a stakeholder decision**                                           |
+| **Created**           | 10 September 2026                                                                                                                                                                                                                                  |
+| **Branch**            | `v2/platform-foundation`, created from `8af1f2a4f55d96cd98be4e4ee413e856236ee1f7` (the Implementation 09 checkpoint)                                                                                                                               |
+| **Gold standard**     | `ui-ux/18-unified-functional-platform/` — the functional reference prototype. **Read-only.** V2 is built beside it, never on top of it                                                                                                             |
+| **Source precedence** | stakeholder-confirmed (31 Aug 2026 `STK31-01…48`, plus the 6 Sep 2026 follow-ups) → PM-confirmed (PM-01…18) → FRD v5 / architecture documents → validated gold-standard behaviour → implementation details → reversible engineering judgement      |
+| **What this is not**  | Not a redesign, not a database schema, not an API specification for business modules, not a selection of a cloud, identity, payment, notification or XR vendor                                                                                     |
+| **Amended**           | 12 October 2026 (WP-0.2, branch `v2/frontend-v46`) for the v46 frontend on typed mock services — see §0 and `docs/decisions/` ADR-0001…ADR-0008. The amendments record owner-approved engineering exceptions; none resolves a stakeholder decision |
 
 ---
+
+## 0 · v46 frontend amendments (12 October 2026)
+
+The owner approved the frozen Claude Design canvas v46 as the frontend design authority (committed read-only at `design/handoff-v46/`, commit `c4860a2`) and approved the Phase-0 plan and its gate decisions on 12 October 2026 (`docs/decisions/README.md`). This section and the marked amendment notes in §3, §4, §6, §8, §10, §11, §14 and §16 record what changes for the frontend. The original text is kept: it still describes the production target.
+
+- **Design authority and precedence.** Owner binding constraints (`design/handoff-v46/START-HERE.md` BC1–BC14) → the frozen v46 boards → the handoff JSON. Where the JSON index differs from the drawn behaviour, the approved board takes precedence and the discrepancy is documented (owner, 12 Oct 2026). Stakeholder-confirmed requirements still govern business behaviour; a stakeholder ↔ v46 conflict stays open until the owner decides it (`docs/v46/audit/Appendix-G-Owner-Decisions.md` §C).
+- **Roles (BC1).** Seven authenticated roles — Student, Faculty, **Institute Admin**, Vendor, Academic Reviewer, Content Manager, Super Admin — and the Public surface, which is not a role. One role per signed-in person. The internal id `tenant_admin` (§9) is kept; labels are copy (`OPEN_DECISIONS.md` A-20 annotation).
+- **Hierarchy (BC2).** Engineering area (catalogue grouping) → Course → Experiment → Technology format. Programme is an attribute of the Student record only — not a navigation level, entity, filter or grouping — and there is no Module layer.
+- **Five states (BC3, BC4).** Publication, institution access, Student entitlement, runtime activity and learning completion are separate; none is derived from another. "Completed" is written only by the system (ADR-0006); a simulation launch never completes a format; progress is per technology format with no aggregate verdict.
+- **Frontend on typed mock services (BC10, BC14).** One connected sample world serves every role (ADR-0002, ADR-0004). No real authentication, payment processing, XR runtime, grading automation or backend persistence is built (owner, G-2).
+- **Recorded exceptions.** `OPEN_DECISIONS.md` Part E (TE-1…TE-8): TE-1, TE-2, TE-5 and TE-7 are approved for Phase 0; TE-3, TE-4 and TE-8 are drafted for later phases; TE-6 (browser persistence) is not authorised.
+- **Evidence.** The audit deliverables, the candidate permission matrix and the Understand-stage evidence are in `docs/v46/` (candidate — owner review).
 
 ## 1 · Why V2 exists
 
@@ -62,6 +75,8 @@ V2 is the production-oriented engineering foundation for the **same product**. I
 | **OpenAPI is the external contract.**                                   | TypeScript types shared through `@xr/contracts` are a convenience for TypeScript clients; they never replace the OpenAPI document, which is what a Unity / Android / Swift client codes against. The document is generated from the **same** schema objects the API validates with (§5). |
 | **The API is stateless.**                                               | Identity lives in tokens issued by the IdP; long-running work (imports, reminders, telemetry projections) moves to jobs in a later phase.                                                                                                                                                |
 
+> **Amendment (v46, ADR-0002, exception TE-2).** In sample mode the frontend evaluates `@xr/domain` rules in the browser through typed mock services in a separate package, `@xr/sample-platform`, imported only by the composition root. The rules themselves stay in `@xr/domain`; screens decide nothing and render the actions a port offers. The API remains the authority once `apps/api` serves the ports (TE-2 removal trigger).
+
 ## 4 · Web application — `apps/web`
 
 | Responsibility                                                                                                          | Not a responsibility                                       |
@@ -73,6 +88,8 @@ V2 is the production-oriented engineering foundation for the **same product**. I
 | Forms with React Hook Form + Zod, using the **same** schemas the API validates with (`@xr/validation`, `@xr/contracts`) | Holding a second copy of validation rules                  |
 
 **Phase 0 delivers only proof of the wiring:** the app boots under strict TypeScript, has two App Router routes (`/` and `/system`), a liveness route handler at `/healthz`, a TanStack Query provider, a client-side probe of the API health endpoint (headers merged through the Headers API), imports from `@xr/domain`, `@xr/contracts`, `@xr/ui` and `@xr/config`, and the Tailwind v4 build pipeline (with no design applied). There is no landing page, catalogue, dashboard or role screen — those are Design V2.
+
+> **Amendment (v46).** The web application builds the v46 role workspaces on typed mock services before the backend (`MIGRATION_STRATEGY.md` §8). In sample mode the public discovery pages render on the client, because the sample world exists only in the browser (exception TE-8, drafted; signed before Phase 1). Styling follows ADR-0001.
 
 ## 5 · Platform API — `apps/api`
 
@@ -122,6 +139,8 @@ Enforcement (`packages/config/eslint/boundary-matrix.mjs` is the single declarat
 2. **Dependency-matrix and build-graph test** — `packages/config/src/boundaries/boundaries.test.ts` reads every workspace `package.json` and every `tsconfig.build.json`, fails when a package declares a workspace dependency it is not allowed or references a project it does not depend on, and lints fixtures through the rule — named, relative, aliased, dynamic and type-only forms, including the demonstrated bypass `domain → ../../database/dist/…`.
 3. **Package `exports`** — deep paths such as `@xr/contracts/src/x` do not resolve at all.
 
+> **Amendment (v46, ADR-0002, ADR-0008).** Two additions, each made with its boundary-matrix row, `WorkspacePackage` union entry and tests in the implementing work package: `@xr/contracts` gains a `./draft` subpath export for the typed service ports, DTO schemas and a framework-free contract suite (AD-02); a new package `@xr/sample-platform` (may depend on `@xr/contracts`, `@xr/domain`, `@xr/validation`; forbids framework-server, framework-web and data-layer packages) holds the mock adapter (AD-01). `@xr/domain` stays zero-dependency and zod-free.
+
 ## 7 · Multi-tenancy
 
 | Rule                                                                                                                                                                                                                          | Basis                         |
@@ -148,6 +167,8 @@ Records are classified by who governs them, not by which screen shows them. The 
 
 Persistence principles carried from the validated behaviour: prefer reversible status over deletion (`STK31-22`); every governance act writes who / when / why; a published artefact is never rewritten under its own version label (Implementation 09 §6); a completion is never walked back by a later run; a refused event is not stored.
 
+> **Amendment (v46, ADR-0006).** One record is stored as a system fact rather than derived: **learning completion per technology format** (`FormatCompletion`), written only by the system completion handler, never by a Student command and never from a launch. Progress views remain derived per format. The v46 names apply to the frontend: the course grouping is the **Engineering area** (B7-07); Programme is held on the Student record only (BC2).
+
 ## 9 · Authorization boundary
 
 Authorization is decided in the API's application layer, before any use case runs, from a **Principal** resolved server-side:
@@ -172,6 +193,8 @@ Roles and scopes come from the platform's own records (role assignments, Tenant 
 | Identity ↔ role   | Who a person _is_ comes from the IdP; what they may _do_ comes from platform records (§9).                                                                                                                                 |
 | **Phase 0**       | No authentication is implemented and none is faked. The final identity product / provider is open (see `OPEN_DECISIONS.md`).                                                                                               |
 
+> **Amendment (v46, ADR-0003, exception TE-1).** In sample mode a session port over sample-world people stands in for authentication: the session holds only a person id; there are no tokens and no secrets; there is no account or role switcher and no DEMO banner anywhere. Phase 0 reaches the shells through a CI-only boot descriptor; the designed sign-in form (XS-01) follows in Phase 1. The statement "no authentication is implemented and none is faked" stays true for production.
+
 ## 11 · XR runtimes and telemetry
 
 The runtime contract validated in Implementation 09 is carried unchanged in meaning:
@@ -183,6 +206,8 @@ The runtime contract validated in Implementation 09 is carried unchanged in mean
 - progress is expressed **per technology** (`STK31-36`); no aggregate with a technology denominator is shown while D-09-13 is open.
 
 V2 shape (later phase): `POST /api/v1/runtime/events` accepting batches; an append-only `runtime_events` table keyed by `(personId, experimentId, technology, clientEventId)`; an incremental projection replacing the prototype's whole-log refold. `@xr/domain` carries the vocabulary and the completion predicate today, with the "what cannot complete a simulation" table as unit tests; `@xr/contracts` carries the **draft** wire schema of the event, already verified representable in OpenAPI. Open: the per-technology completion condition (R1 / D25), retention (R2), clock-trust policy (R7), revocation (R8), offline reconciliation (R9).
+
+> **Amendment (v46, ADR-0006).** The completion predicate above is kept as a **labelled interim implementation** behind an injectable `CompletionPolicy`; it does not decide T-12 / `OPEN_DECISIONS.md` A-06, which stays open. In sample mode completion enters only through the test/seed-only runtime report stand-in; nothing a Student operates can complete a format.
 
 ## 12 · File and package storage
 
@@ -214,6 +239,8 @@ Three environment concepts — `development`, `staging`, `production` — expres
 
 Turborepo runs in **strict env mode**: only declared variables reach a task, and only `CI` passes through globally. Environment handling is package-local: the web build (`apps/web/turbo.json`) hashes `NEXT_PUBLIC_*` and every `.env*` file Next.js can load (`.env`, `.env.local`, `.env.development`, `.env.development.local`, `.env.production`, `.env.production.local`), so an ignored file cannot make cache reuse accidental; unrelated variables such as `DATABASE_URL` do not touch its hash. Unit `test` tasks are cacheable because they are **environment-independent by construction** — the shared Vitest factory blanks `DATABASE_URL` for them; database-backed checks run through the uncached `test:db` task, which declares `DATABASE_URL`. `test:e2e` and `dev` are never cached and receive only the runtime variables they need.
 
+> **Amendment (v46, ADR-0007, exceptions TE-5 and TE-7).** Two public build flags — `NEXT_PUBLIC_XR_DATA_SOURCE` (`sample` | `api`) and `NEXT_PUBLIC_XR_TEST_HOOKS` (CI/Playwright builds only) — are read once through `@xr/config/env`. Sample mode runs on a sample clock anchored to a sample "today"; time travel, fixture worlds, test sessions and fault injection exist only through CI test hooks. The product still has **no scenario selector, no demo clock and no stand-in controls**. Turbo's local cache is pinned to `v2/.turbo/cache` (`turbo.json` `cacheDir`) so runs from a linked git worktree never write into another checkout.
+
 ## 15 · Observability
 
 Fastify's structured (pino) logging with a request id on every log line and on every problem-details response. Metrics and tracing (OpenTelemetry, or NestJS 12's `@nestjs/observe`) are deferred to the hosting decision.
@@ -234,6 +261,8 @@ Fastify's structured (pino) logging with a request id on every log line and on e
 | Monorepo         | pnpm 12 workspaces + Turborepo 2, compiled internal packages (`dist/`), strict env mode                                    | Compiled packages work identically for `tsc`, Next and Vitest consumers.                                                                                                                                                                                                                                                                                                                                        |
 | Styling pipeline | Tailwind CSS v4 wired through PostCSS in `apps/web`                                                                        | Build pipeline proven now so Design V2 starts on tokens, not on tooling.                                                                                                                                                                                                                                                                                                                                        |
 | Not chosen       | cloud, identity product, object-storage vendor, notification channel, payment provider, AI provider, AR / VR native stacks | Each is an open decision with a named owner in `OPEN_DECISIONS.md`.                                                                                                                                                                                                                                                                                                                                             |
+
+> **Amendment (v46, ADR-0001; closes `OPEN_DECISIONS.md` E-19).** Styling pipeline for the v46 frontend: the eight v46 stylesheets are ported byte for byte into `@xr/ui` in one cascade layer `xr.v46`, with documented production deltas in an `xr.product` layer; Tailwind 4 stays without Preflight, for layout composition utilities in `apps/web` only.
 
 ## 17 · Explicitly not in Phase 0
 

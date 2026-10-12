@@ -1,0 +1,136 @@
+{
+ "summary": "routes.md / routes.json pass the mechanical checks. All 147 IDs appear exactly once: 123 designed and 24 excluded, with no route, link or nav item for any excluded ID. The App Router tree has 0 dynamic slug-name conflicts and 26 intermediates, which match the redirect table. Every pageRoutePattern is in the tree, and the tree text in the .md and .json is identical. The workspace bases and the sidebar order match navigation.json. The sidebar active-item map matches the aria-current of every B2-B7 product frame. Of the 20 sampled departures, 19 hold against the boards. The exception is D-28/O-11 (correction 2), which reads board-level hrefs wrongly. Nine of the 12 corrections are substantive. 1) The PU-10/PU-12 session gate blocks the drawn Institute Admin entries (B3-08). 2) D-28/O-11 reverses the B7-01 instruction that each row opens the page where it is handled. 3) ST-16 'Not eligible', and the CONFIRMED guard that relies on it, is attributed wrongly: B3-06 f5 is drawn as the ST-09 VR page. 4) VE-05 lists a canvas sample-pool behaviour as a product state. 5) The record-guard row is marked CONFIRMED although D-27/O-07 is UNRESOLVED, and the 'View earlier work' link has no interim target. The rest are status and count wording, default-tab URLs, state attribution, register-board citations, disposition wording, returnTo validation, the IA-01 report link, and the unknown-id behaviour of the record guard.",
+ "checksRun": [
+  {
+   "check": "(a) 147 IDs exactly once; 123 designed with route; 24 excluded with screens.json disposition",
+   "result": "PASS with minor issue",
+   "detail": "python3 -I check_a.py: 147 rows, 147 unique, 0 duplicates, 0 missing, 0 extra. designed=123, excluded=24 (the expected set). designed, proposedRoute, inventoryDisposition, surface, screen and type all equal screens.json. Status counts: CONFIRMED 108, board-forced 7, PROPOSED 8, EXCLUDED 24. Disposition text is paraphrased for 2 IDs. ST-20 drops '— public catalogue stays reachable from the footer'. PU-16 replaces 'no fake pages' with 'footer has real links only'. See correction 10."
+  },
+  {
+   "check": "(b) no two designed routes share a URL unless deliberate",
+   "result": "PASS with minor issue",
+   "detail": "Shared URLs are all deliberate tab, state or step sharing, and each is stated in its row: ST-02/ST-04; IA-02/IA-16; IA-06/08/13/15; IA-17/IA-18; PU-10/PU-13; XS-01/03/04; ST-16/ST-17; ST-05/ST-19; RV-03/RV-06; CM-06/07/08 detail; VE-03…06/VE-09 (/edit). Two URLs exist for one default-tab view: IA-06 '/institute/people?tab=students' with bare '/institute/people', and SA-16 '?tab=vendors (default)'. Both contradict rules T2/T3 (default tab carries no parameter). See correction 7."
+  },
+  {
+   "check": "(c) App Router tree: slug conflicts, catch-all ambiguity, every table route present in the tree",
+   "result": "PASS",
+   "detail": "check_c.py over the 123 pageRoutePatterns found 0 dynamic slug-name conflicts. The static+dynamic siblings are exactly the 5 that the plan declares (simulation/web vs [format]; assessments/new; question-bank/new|draft|import; requests/devices vs [requestId], redirected; vendor experiments/new). There are 26 intermediates, equal to the redirect table: rows 1-19, plus 7 /help/reports. Every path in a row's recommendedRoute is in pageRoutePatterns; the only non-route values are PU-15 file names and the /signed-out alias. All patterns appear in the tree. The tree text in routes.md and routes.json is identical. Each [...unmatched] catch-all sits only beside static siblings, so it cannot shadow a page. One inconsistency: the tree note says the experiment record guard 'never calls notFound()', but runtime guard 14 says an unknown record id gives notFound(). See correction 12."
+  },
+  {
+   "check": "(d) departures from proposedRoute have a board-based reason (sampled 20)",
+   "result": "PASS for 19 of 20; FAIL for D-28/O-11",
+   "detail": "Verified on the boards: PU-05 (B1-03 f6 'Course without a platform code'); D-01 (every B1 header 'Request access' href is B1-06-Selection; B1-06 head 'both land here'); PU-08 (B1-07 stepper Selection/Request details/Review/Sent); XS-03 (the B1-09 card template holds 'Your session ended…' and 'You’re signed out' notices on the same form); XS-06 (board 08: 'This address belongs to a different workspace' in the Student shell); XS-07 (board 07: My reports AR-2 + Report a problem AR-8 + Report detail AR-3, breadcrumb 'Help & support / …'); FA-07 (B4-04 labels ['Experiment','Rules','Questions','Preview']); FA-12/D-02 (no Release button on B4-06; B4-14 D4 actor is 'The assessment’s own setting'); FA-14 (B4-07 tabs are href='#Kb-tq'/'#Kb-td' anchors; B4-01 'Review drafts' points to B4-07); FA-21 (B4-10 'a detail page per student and experiment'; FA-20 has an Experiment filter); IA-05 (B2-05 labels ['Experiments','Students','Review and give access']); IA-10 (B2-07 f0/f3 with breadcrumbs 'People / Add student' and 'People / Add faculty member'); IA-14 (B2-08 f0 'Create group opens DL-3', f1 dialog); VE-03…06 (B5-03 next() advances with no save; saveDraft assigns id = s.id || D.newId; header 'Create experiment'→'Edit draft · Step n of 4'); VE-08 (B5-07 refs {step:2, field:'VR_device'}); VE-13 (B5-06 'Submission and version history · Newest first · not an audit log' section, no role=tab, no tab=history); CM-04 (B6-06 TABS keys ready/review/vendor/published); /admin/content and /admin/operations (sidebar hrefs B7-05 and B7-09, B7-09 f0 breadcrumb 'Operations'). D-28/O-11 fails: B7-01 rows are single records and the caption says 'Every row opens the page where it is handled'. See correction 2."
+  },
+  {
+   "check": "(e) states really drawn (19 screens across all surfaces vs frame-index captions and board text)",
+   "result": "PASS for 15; issues on 4",
+   "detail": "Confirmed: PU-04 (B1-04 f0-f10 + 'Selection marker' annotation); PU-10 (B1-08 f0-f9); XS-01 (B1-09 f0-f10); ST-01 (B2-10 f0-f9; 'No longer given' only on B2-13, which is not cited); ST-07 (B3-02 f0-f7); FA-07 (B4-04 f1-f8); FA-12 (B4-06 f7-f11 + filtNone 'No submissions match this filter.'); IA-05 (B2-05 f0-f18); IA-14 (B2-08 f3-f9); VE-07 (B5-06 f0-f10); RV-03 (B6-03, B6-11); CM-03 (B6-07, B6-11); CM-09 (B6-10, B6-11); SA-03 (B1-11 f0-f16). Issues: ST-16 'Not eligible' is drawn as the ST-09 VR page (correction 3); VE-05 'sample pool' is canvas behaviour (correction 4); PU-06 'Version line' is not on B1-05 (0 matches) and is OPEN (correction 8); SA-16 'Content Managers tab' / 'register success' have no frame, because B7-08 f7 is a holder record (correction 8)."
+  },
+  {
+   "check": "(f) nothing canvas-only listed as a product feature",
+   "result": "FAIL (1 item)",
+   "detail": "Lists were scanned for Restart, Sample, fixture, DEMO, Viewing as, switcher and 'later sample'. One canvas-only item is listed as a product feature: VE-05 state 'Add document hidden when the sample pool is exhausted' (B5-05/B5-03 script o.canAddDoc = D.docPool.some(...), documents shown as '(sample file)'). §4.1 also leaves out the B4-08 FA-17 sample-file cycling (rep = s.file === D.files[0] ? … : D.files[1]). PU-01 '9 = test fixtures' and ST-09 '(pattern)' are flagged correctly."
+  },
+  {
+   "check": "(g) no excluded ID given a route, link or nav item",
+   "result": "PASS",
+   "detail": "Outside their own rows, the 24 excluded IDs appear only in the §2 list and in 'SA-09 narrowing merged here' (SA-03). That matches the screens.json disposition 'MERGE into SA-03'. No page pattern, redirect, sidebar item or link targets an excluded screen."
+  },
+  {
+   "check": "(h) workspace base routes vs navigation.json",
+   "result": "PASS",
+   "detail": "/, /student, /faculty, /institute, /vendor, /reviewer, /content-manager, /admin all equal navigation.json baseRoute."
+  },
+  {
+   "check": "(i) sidebar items per role in navigation.json order",
+   "result": "PASS",
+   "detail": "The tree layout lines list the items in exactly the navigation.json primary order for all 7 roles. The public header order also matches; only 'Request access' departs, deliberately (D-01). The sidebar active map (§3.6) was cross-checked against aria-current in every B2-B7 frame with sidecur.py: hub, format and feedback pages show My courses; FA-05 My courses; RV-03/04/06 Review queue; CM-03 Ready to publish; CM-05 Content library; CM-08 drafts Updates; SA-13 Content; SA-19/21 Operations; ST-18 shows none; B4-12 has no sidebar. All match."
+  }
+ ],
+ "corrections": [
+  {
+   "severity": "major",
+   "location": "routes.md §1 PU-10 and PU-12 rows; §3.8 runtime guard row '/requests/[requestId](/payment) not tied to this visitor session'; §5 D-14; §6 O-02 and O-05 (same fields in routes.json rows / runtimeGuards / ownerDecisions)",
+   "problem": "The plan opens PU-10 and PU-12 only for the browser session that submitted the request; anyone else gets PU-15 not-found. The boards draw a signed-in Institute Admin entering both pages from the workspace. The IA-17 list row REQ-0042 links to the public status page, and the IA request-detail state 'Approved — payment required' has 'Open the payment page'. Under the planned gate, both entries reach not-found. O-02 ('confirm REQ-0042 keeps linking to public PU-10') contradicts O-05 and the guard. navigation.json rules also name request status as the shared cross-role page.",
+   "evidence": "design/handoff-v46/canvas-v46/project/B3-08-IA-Requests-to-BITS.dc.html: RQ data {\"id\":\"REQ-0042\", …, \"href\":\"B1-08-Request-Status.dc.html\"}; frame 6 'Approved — payment required (later sample)' has link 'Open the payment page' → B1-08-Request-Status.dc.html (PU-12 is B1-08 f5). handoff/navigation.json rules: 'Cross-role movement only through shared public pages (request status) and Help & support.' handoff/screens.json PU-10 navigation 'Detail (link from confirmation / e-mail: OPEN)'.",
+   "correction": "Change the guard row to: 'render only when the request is tied to this visitor session OR the signed-in person is the Institute Admin of the requesting institution; otherwise PU-15 public not found (no lookup by reference)'. Mark it PROPOSED and cite B3-08. In the PU-10 and PU-12 rows, add to 'Layout / shell · nav item': 'also from IA-17 REQ-0042 row and IA request detail (B3-08 f6)'. Rewrite O-05 so it covers both entry paths. Note in O-02 that keeping the REQ-0042 link depends on that gate rule."
+  },
+  {
+   "severity": "major",
+   "location": "routes.md §5 D-28 and §6 O-11; ST-13 row 'Change reason' ('Way-out link goes to ST-12 (board href B4-11)'); routes.json routeDefects D-28 / ownerDecisions O-11 / rows ST-13",
+   "problem": "D-28 reads board-level hrefs as page targets. B7-01 rows are single records, and the caption says 'Every row opens the page where it is handled'. Each row's target board also holds that record's detail frame: B1-10 (SA-03 source), B7-05 f1 (SA-11), B7-09 f1/f8 (SA-19/SA-21), B7-06 f1 (SA-13), B7-08 f1 (SA-17), B7-03 (SA-07). So the board says rows go to the record, not the list. The plan proposes 'SA-01 rows -> the list routes (as the hrefs do)', which is the opposite. ST-13 has the same misreading. Its way-out link is labelled 'Shell-and-Tube Heat Exchanger' and points to B4-11, which also holds the hub Assessment tab (f7-f9). Label and href are therefore consistent with the hub Assessment tab, and there is no conflict to escalate.",
+   "evidence": "B7-01-SA-Overview.dc.html f0 caption 'SA-01 Overview · 1440 · 23 Oct 2026 … Every row opens the page where it is handled.'; rows 'REQ-0058 · Godavari… → B1-10 Open', 'UPD-0005 … → B7-05 Review', 'DTR-0018 … → B7-09 Review', 'SUP-0207 … → B7-09 Open', 'SUB-0085 … → B7-06 Open', 'Dr K. Iyer … → B7-08 Assign scope', 'Sahyadri … → B7-03 Assign'; group links 'Open Requests', 'Open Updates', 'Open Device transfers', 'Open Support', 'Open All content'. B4-12 f0 header: <a class=\"xr-back\" href=\"B4-11-Student-Assessments.dc.html\">Shell-and-Tube Heat Exchanger</a>; frame-index B4-11 f7-f9 'Hub · Assessment tab · …'.",
+   "correction": "Rewrite D-28 and O-11. SA-01 row actions (Open / Review / Assign / Assign scope) go to the record's route: /admin/requests/[requestId], /admin/content/updates/[updateId], /admin/operations/device-transfers/[transferId], /admin/operations/support/[reportId], /admin/content/records/[recordId], /admin/roles/[holderId], /admin/institutions/[institutionId]. Access-ending rows go to /admin/operations/access-ending. The 'Open <list>' group links go to the list routes. For ST-13, change the way-out target to /student/experiments/[experimentId]/assessment (hub Assessment tab), or keep ST-12, but drop the claim that the href and label conflict. Remove SA-01 and ST-13 from the PROVISIONAL item; keep IA-01 device row → IA-18 and XS-01 'Back to experiments' → '/' (real label/href conflicts)."
+  },
+  {
+   "severity": "major",
+   "location": "routes.md ST-16 row 'Major states' ('Not eligible') and 'Change reason'; §3.8 runtime guard row 'feedback/[format] format not Completed | Not eligible state | CONFIRMED; B3-06 f5' (routes.json rows ST-16, runtimeGuards)",
+   "problem": "B3-06 f5 is not a state of the feedback route. It is drawn as the ST-09 VR format page (top title 'VR format', breadcrumb '…/Simulation/VR') with no feedback entry: 'The entry appears only after that format is completed. No disabled button.' What a direct visit to /feedback/[format] should show before Completed is not drawn. Labelling it CONFIRMED with B3-06 f5 attributes a behaviour the board does not have.",
+   "evidence": "B3-06-Format-Feedback.dc.html frame 5 caption 'Not eligible · VR in progress → no feedback entry'. Rendered text: 'VR format  My courses / Shell-and-Tube Heat Exchanger / Simulation / VR … Simulation · VR In progress … 4 When the headset reports that you’ve finished, this page shows “Completed”. You can then give feedback on VR.' sidecur.py breadcrumb for f5: 'My courses / Shell-and-Tube Heat Exchanger / Simulation / VR'.",
+   "correction": "Remove 'Not eligible' from the ST-16 states (it stays as the ST-09 state 'VR in progress = not eligible for feedback'), so the count becomes 4. Change the guard row to: '/feedback/[format] when that format is not Completed (system-set, T-12) → redirect to the format page (/simulation/web or /simulation/[format]), which draws the no-entry state | PROPOSED (not drawn; B3-06 f5 shows the format page)'. Keep 'FB exists → ST-17 read-only state'."
+  },
+  {
+   "severity": "major",
+   "location": "routes.md VE-05 row 'Major states' ('Add document hidden when the sample pool is exhausted'); §4.1 'Presenter-only behaviour' row (routes.json rows VE-05, canvasNotProduct)",
+   "problem": "This is canvas presenter behaviour, not a product state. The board's 'Add document' picks the next name from a fixed sample list (D.docPool), and the button hides when that list runs out. Listing it as a product state breaks check (f) and would lead to a fake cap. §4.1 names B2-07's sample-file cycling but not this one, nor the same pattern in FA-17.",
+   "evidence": "B5-05-Preview-Check-and-Submit.dc.html (same in B5-03): o.addDoc = () => { const left = D.docPool.filter(…); … }; o.canAddDoc = D.docPool.some(d => s.docs.indexOf(d) < 0); rendered '{{ d.name }} (sample file) Remove'. B4-08-Draft-with-Assistance-and-Import.dc.html: const rep = s.file === D.files[0] ? D.reports.bad : s.file === D.files[1] ? D.reports.good : null.",
+   "correction": "Delete the VE-05 state (count 4 → 3) and add 'Add document opens a real file input' as a product requirement. In §4.1 'Presenter-only behaviour', add 'B5-03/B5-05/B5-07 Add document cycles a sample docPool' and 'B4-08 Import questions cycles two sample files'. The product treatment is real file inputs for VE-05 documents and FA-17."
+  },
+  {
+   "severity": "major",
+   "location": "routes.md §3.8 runtime guard row '/student/experiments/[experimentId]/** not given · no longer given · access ended | render ST-19 in place | CONFIRMED'; ST-19, ST-02 and ST-01 rows (routes.json runtimeGuards, rows)",
+   "problem": "The guard is marked CONFIRMED for all three cases, but D-27/O-07 marks 'no longer given' and 'access ended' UNRESOLVED. Both conflicts are drawn: B2-11 f7 (withdrawn) and f8 (ended) send 'View earlier work' to the hub board, while B2-12 f4/f6 render ST-19 there. The plan also gives no interim target for the ST-02 'View earlier work' and ST-01 'See earlier work' links. Under the interim guard they would land on the ST-19 refusal page, a dead end.",
+   "evidence": "B2-11-My-Courses.dc.html f7 'Access withdrawn → earlier work' and f8 'Access ended → earlier work': link ('B2-12-Experiment-Hub.dc.html','View earlier work'). B2-12 f4 'Not available now · access withdrawn' (ids ST-19), f6 'Mobile 375 · access ended' (breadcrumb 'My courses / Not available'). B3-02 f6 'Access ended (later sample, 8 Oct 2027) — Earlier work stays viewable.'",
+   "correction": "Split the guard row: 'not given → ST-19 | CONFIRMED (B2-11 f12)'; 'no longer given / access ended → ST-19 (interim) | UNRESOLVED (O-07; B2-12 f4/f6 vs B2-11 f7-f8, B3-02 f6)'. In the ST-01 and ST-02 rows, add an interim target for 'View/See earlier work', for example /student/progress (ST-15 earlier-work section), marked PROPOSED pending O-07. List it in O-07."
+  },
+  {
+   "severity": "minor",
+   "location": "routes.md status table and §2 counts ('CONFIRMED 108'); XS-07 row status; routes.json counts.byStatus and rows XS-07; designer summary '108 CONFIRMED: proposedRoute kept, with only the notation tidied'",
+   "problem": "The CONFIRMED definition is 'proposedRoute kept (notation normalised only)'. XS-07 adds two new path routes, /<base>/help/report and /<base>/help/reports/[reportId], which the row itself calls PROPOSED. That is a route change, not notation, and the in-row 'PROPOSED query parameter' exception covers only query parameters. VE-09 adding ?step= is also beyond notation.",
+   "evidence": "screens.json XS-07 proposedRoute '/[workspace]/help'; routes.md XS-07 'Sub-routes PROPOSED: board 07 \"deep\" frames…'. Board 07: 'Structure: Help & support = My reports list (AR-2) + Report a problem (AR-8) + Report detail (AR-3)'. screens.json VE-09 '/vendor/experiments/[submissionId]/edit'.",
+   "correction": "Either reclassify XS-07 as PROPOSED (counts become CONFIRMED 107 / board-forced 7 / PROPOSED 9) or add a defined status 'CONFIRMED + PROPOSED sub-routes' and count it separately. Update §2, counts.byStatus and the summary. Mark VE-09's '?step=…' as '(PROPOSED query)' like the other in-row additions."
+  },
+  {
+   "severity": "minor",
+   "location": "routes.md IA-06 row recommended route ('/institute/people?tab=students (default; bare /institute/people = same tab)'); SA-16 row ('/admin/roles?tab=vendors (default) | …'); §3.7 redirect row 7; §3.4 T2/T3",
+   "problem": "Rule T2 says 'Default tab has no parameter (the bare URL renders it)', and T3 says 'default omitted'. IA-06 and SA-16 still recommend the parameterised default, so two URLs serve one view and the canonical one is unclear. ST-02/ST-04, FA-02/FA-04, IA-02/IA-16 and IA-17/IA-18 follow the rule.",
+   "evidence": "routes.md §3.4 T2 and T3 text; IA-06 and SA-16 rows; redirect row 7 '/institute/people/students → /institute/people?tab=students'.",
+   "correction": "Make the bare URL canonical: IA-06 → '/institute/people' (with ?tab=students normalised to the bare URL), SA-16 → '/admin/roles (Vendors) | ?tab=reviewers | ?tab=content-managers'. Change redirect row 7 to '/institute/people'. Or, if parameterised defaults are wanted, amend T2/T3 and apply the change to every tab set."
+  },
+  {
+   "severity": "minor",
+   "location": "routes.md PU-06, SA-16 and ST-01 rows 'Major states' / 'Source boards' (routes.json rows PU-06, SA-16, ST-01)",
+   "problem": "Some states are attributed to boards that do not draw them. PU-06 lists 'Version line', but B1-05 has 0 occurrences of 'version'. The Understand file records it as a B7-11 public reference frame whose public visibility is OPEN (OD-B7-05). SA-16 lists 'Content Managers tab' and 'register success', but B7-08 f7 'Content Manager — all experiments' is a holder record (SA-17, breadcrumb 'Platform roles / {{ c.hName }}') and no register-success frame exists. ST-01 'No longer given' is drawn only on B2-13, which is not cited.",
+   "evidence": "B1-05-Experiment-Detail.dc.html: 0 matches for /version/i. wf/understand/surface-public-entry.json PU-06 states: 'Version line — B7-11 public reference frame … whether the version is public is OPEN (OD-B7-05); not on B1-05'. frame-index B7-08 f0-f8. surface-student.json ST-01 'No longer given … (B2-13 \"Rahul · Home\" …)'.",
+   "correction": "PU-06: mark 'Version line' as '(B7-11 reference frame; public visibility OPEN, OD-B7-05)' and add '+ B7-11 (unregistered)' to the source boards. SA-16: replace 'Content Managers tab' / 'register success' with drawn states (f0 Reviewers tab, f3 Vendors tab, f6 Register validation), or mark them 'engine state, no frame'. ST-01: add '+ B2-13' to the source boards."
+  },
+  {
+   "severity": "minor",
+   "location": "routes.md CM-02 row 'Source boards' ('B6-03 (6 fr)') and SA-11 row ('B7-01 (4 fr)'); §5 D-25 'Handling' ('the rows cite the drawing boards')",
+   "problem": "D-25 says these register boards draw no CM-02/SA-11 frame and that 'the rows cite the drawing boards'. Yet both rows still list them as plain source boards with frame counts, which suggests they hold frames of those screens.",
+   "evidence": "routes.md CM-02 'B6-03 (6 fr), B6-06 (5 fr), B6-12 (7 fr)'; SA-11 'B7-01 (4 fr), B7-05 …'. frame-index: B6-03 frames are all RV-03/RV-06; B7-01 frames are SA-01.",
+   "correction": "Annotate them as 'B6-03 (registered; no CM-02 frame, D-25)' and 'B7-01 (registered; link only, D-25)', or move them to a 'registered but not drawing' note."
+  },
+  {
+   "severity": "minor",
+   "location": "routes.md ST-20 and PU-16 rows 'Recommended route' disposition text (routes.json rows ST-20, PU-16)",
+   "problem": "Check (a) requires the screens.json disposition to be kept, but two are paraphrased. ST-20 drops '— public catalogue stays reachable from the footer'. PU-16 replaces 'no fake pages' with 'footer has real links only'.",
+   "evidence": "handoff/screens.json ST-20 inventoryDisposition 'REMOVE from Student nav (R18) — public catalogue stays reachable from the footer'; PU-16 'DEFER (needs a content owner; no fake pages)'. B1-01 footer links: Browse experiments · Areas · For institutions · Sign in.",
+   "correction": "Quote both dispositions verbatim and put the board observation (footer has 4 real links) in a separate note."
+  },
+  {
+   "severity": "minor",
+   "location": "routes.md XS-03 row and §3.8 first guard row ('/sign-in?returnTo=<path>'); IA-21 row disposition ('IA-01 \"View report\" opens Help > My reports')",
+   "problem": "1) returnTo is a free path with no validation rule, so it could be used for an open redirect or a cross-workspace bounce. 2) The IA-21 row states as fact that IA-01 'View report' opens Help > My reports. The row it refers to ('1 open problem report from your institution · SUP-0213', B2-01 f7, later sample) uses a report that board 07 and B7-09 attribute to Rahul Verma (Student). XS-07 My reports lists only the person's own reports, so the target cannot show it. This is a route-level handoff defect that is not in §5.",
+   "evidence": "B1-09: 'Session expired returns them to the page they were on' and 'Your session ended … My courses › Shell-and-Tube Heat Exchanger'. B2-01 f7 row 'View report' → 07-Help-Support.dc.html; B2-01 annotation 'Open problem reports → Help › My reports (Batch-0 board 07)'. B7-09 SP data {\"id\":\"SUP-0213\", \"who\":\"Rahul Verma · Student · Godavari Institute of Technology\"}.",
+   "correction": "Add to the XS-03 row and the guard: 'returnTo accepted only as a same-origin relative path inside the signed-in role's workspace; otherwise land on the role home' (PROPOSED). Add a D-31 defect (PROVISIONAL, owner question): the IA-01 'open problem report from your institution' row targets /institute/help, but My reports holds only the IA's own reports. Remove the factual claim from the IA-21 row."
+  },
+  {
+   "severity": "minor",
+   "location": "routes.md §3.2 tree note 'Experiment hub … never calls notFound()' vs §3.8 last guard row 'unknown record id under any workspace → notFound()' (routes.json appRouterTreeNotes[3], runtimeGuards[13])",
+   "problem": "For a non-existent id under /student/experiments/[experimentId], one note says the record guard never calls notFound() and the other says unknown ids give notFound(). Implementers cannot tell which applies.",
+   "evidence": "routes.md §3.2 bullet 'Experiment hub' and §3.8 row 14. B2-11 f12 'Opening an experiment that wasn’t given' renders ST-19 with breadcrumb 'My courses / Not available'.",
+   "correction": "State one rule. For example, an unknown or unpublished experimentId under /student/experiments renders ST-19 'not given' (same as B2-11 f12, so existence is not revealed), and guard row 14 applies to every other record kind. Mark it PROPOSED."
+  }
+ ]
+}

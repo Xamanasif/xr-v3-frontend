@@ -1,0 +1,3342 @@
+{
+  "meta": {
+    "task": "Phase-0 read-only audit — historical functional prototype mined for functional breadth vs v46",
+    "prototypeRoot": "ui-ux/18-unified-functional-platform/",
+    "prototypeKeyFiles": [
+      "ui-ux/18-unified-functional-platform/js/data.js (730 lines, seed)",
+      "ui-ux/18-unified-functional-platform/js/state.js (11,223 lines, store + rules)",
+      "ui-ux/18-unified-functional-platform/js/csv.js",
+      "ui-ux/18-unified-functional-platform/js/question-import.js",
+      "ui-ux/18-unified-functional-platform/js/screens/*.js",
+      "ui-ux/18-unified-functional-platform/README.md",
+      "ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md",
+      "ui-ux/18-unified-functional-platform/QUESTION_IMPORT_TEMPLATE.md",
+      "ui-ux/18-unified-functional-platform/PM_DELTA_09.md",
+      "ui-ux/18-unified-functional-platform/B2B_FUNCTIONAL_CLOSURE_AUDIT.md",
+      "ui-ux/18-unified-functional-platform/UX_REDESIGN_08.md",
+      "ui-ux/18-unified-functional-platform/QA_CHECKLIST.md"
+    ],
+    "v46Root": "design/handoff-v46/",
+    "v2Commit": "1b090c9",
+    "authority": "owner binding constraints > v46 boards > handoff JSON > derived/. The prototype is functional-breadth reference only, never a visual or rule template.",
+    "prototypeSchemaVersion": "SCHEMA_VERSION 12, localStorage key xrslp-unified-v1 (ui-ux/18-unified-functional-platform/js/state.js:90, 119)",
+    "prototypeCollections": "selection, draft, requests, tenants, access, people, groups, memberships, courseMappings, facultyMappings, assignments, resourceActivity, simulationActivity, attempts, runtimeEvents, questions, assessmentDefs, reviews, contentRecords, academicReviews, publicationRecords, contentActors, contentRoleAssignments, contentVersions, tenantAdmins, deviceTransferRequests, supportTickets, groupings, courses, facultyPrefs (ui-ux/18-unified-functional-platform/js/state.js:151-283)",
+    "counts": {
+      "entities": 32,
+      "prototypeFields": 246,
+      "transitions": 96,
+      "v46Differences": 163,
+      "removedBehaviours": 71,
+      "questionImportColumnsPrototype": 9,
+      "questionImportColumnsV46": 10,
+      "parityMatrixNotes": 28,
+      "warnings": 14,
+      "v46BoardsMentioningCampus": 18,
+      "prototypeStateJsLines": 11223
+    }
+  },
+  "entities": [
+    {
+      "name": "institution (prototype: tenant)",
+      "prototypeFields": [
+        {
+          "field": "id",
+          "type": "string 'tenant-<slug>' (made unique with -n suffix)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3257-3259; seed id 'tenant-sample-engineering' ui-ux/18-unified-functional-platform/js/data.js:492-501"
+        },
+        {
+          "field": "name",
+          "type": "string",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3261"
+        },
+        {
+          "field": "kind",
+          "type": "enum",
+          "enum": [
+            "internal",
+            "external"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3262; ui-ux/18-unified-functional-platform/js/data.js:496"
+        },
+        {
+          "field": "accessContext",
+          "type": "string (sample values)",
+          "enum": [
+            "BITS Community",
+            "Subscription"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3263; ui-ux/18-unified-functional-platform/js/data.js:497, 520"
+        },
+        {
+          "field": "status",
+          "type": "enum (deactivation axis only)",
+          "enum": [
+            "active",
+            "inactive"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3264, 7778-7786 (labels Active / Deactivated)"
+        },
+        {
+          "field": "origin",
+          "type": "string provenance",
+          "enum": [
+            "Seeded prototype tenant",
+            "Created from approved request REQ-nnn"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3265; ui-ux/18-unified-functional-platform/js/data.js:499"
+        },
+        {
+          "field": "createdOn",
+          "type": "ISO datetime",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3266"
+        },
+        {
+          "field": "deactivatedAt / deactivatedReason / reactivatedAt",
+          "type": "ISO / string / ISO",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7808-7809, 7818-7819"
+        },
+        {
+          "field": "history[]",
+          "type": "{seq, kind, label, who, at, note}",
+          "enum": [
+            "deactivated",
+            "reactivated",
+            "admin-assigned",
+            "admin-removed",
+            "student-override"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7788-7797, 7810, 7820, 7903, 7915, 4026"
+        }
+      ],
+      "stateMachine": "Created ONLY as a side effect of a Super Admin approval of an access request, on both routes (provisionTenantFor ui-ux/18-unified-functional-platform/js/state.js:3246-3281); there is no create form. status active <-> inactive (reversible deactivation that deletes nothing and blocks every tenant-plane write, ui-ux/18-unified-functional-platform/js/state.js:7804-7847). 'Awaiting activation' is DERIVED: approved external request with no access record (ui-ux/18-unified-functional-platform/js/state.js:3287-3292).",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "active (provisioned, holds nothing)",
+          "role": "Super Admin (approve request, either route)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3111, 3119, 3246-3281"
+        },
+        {
+          "from": "active",
+          "to": "inactive",
+          "role": "Super Admin (reason accepted but NOT required at state layer)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7804-7813"
+        },
+        {
+          "from": "inactive",
+          "to": "active",
+          "role": "Super Admin (reason optional)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7814-7823"
+        }
+      ],
+      "v46Differences": [
+        "v46 INST statuses are 'Access active · Ending soon · Access paused · Approved — payment required · Access ended' (design/handoff-v46/canvas-v46/project/handoff/entities.json INST); the prototype has only active/inactive and derives term state from the access record.",
+        "v46 names the action 'Pause access' / 'Restore access' and BOTH require a reason kept in history (design/handoff-v46/canvas-v46/project/B7-03-Institution-Detail.dc.html frame 'SA-07 Godavari Institute of Technology · Access active' caption 'Pause access (reason) … Restore access (reason)'; script error 'Add a reason — it is kept in the history'). Prototype deactivate/reactivate accept an optional reason.",
+        "v46: internal/external is set by the Super Admin AT APPROVAL and visitors never self-classify (design/handoff-v46/canvas-v46/project/handoff/open-decisions.json T-04; design/handoff-v46/canvas-v46/project/B1-11-SA-Decision.dc.html frames 'Approve chosen · route not set yet', 'Validation · route missing'). Prototype takes kind/accessContext from the prototype scenario selector or the existing tenant (ui-ux/18-unified-functional-platform/js/state.js:2853-2865; ui-ux/18-unified-functional-platform/js/data.js:457-486).",
+        "v46 Institute Admin assignment is offered only once access is active; awaiting-payment institutions say so instead (design/handoff-v46/canvas-v46/project/handoff/open-decisions.json OD-B7-11). Prototype provisions the external institution at approval precisely so the Tenant Admin can be assigned before payment (ui-ux/18-unified-functional-platform/js/state.js:3102-3111; README 'its Tenant Admin can be assigned').",
+        "v46 route vocabulary is 'Internal — BITS campus or programme' / 'External' (design/handoff-v46/canvas-v46/project/B1-11-SA-Decision.dc.html script const routes); prototype vocabulary 'BITS Community' / 'Subscription' is not used by v46 boards read.",
+        "No direct 'Create institution' (design/handoff-v46/canvas-v46/project/handoff/open-decisions.json T-09) — CONSISTENT with the prototype.",
+        "Sample world differs: v46 Godavari Institute of Technology, BITS Pilani — Hyderabad Campus, Deccan / Malnad / Sahyadri (T-36, OD-B7-06) vs prototype 'Sample Engineering Institute' / 'Northfield Institute of Technology' (ui-ux/18-unified-functional-platform/js/data.js:457-501). Prototype sample data must not be reused."
+      ],
+      "removedBehaviours": [
+        "Classification derived from a scenario selector / requester identity (ui-ux/18-unified-functional-platform/js/state.js:2853-2865) — v46 T-04: Super Admin sets it at approval.",
+        "Assigning the Institute Admin before access is active (ui-ux/18-unified-functional-platform/js/state.js:3102-3111) — v46 OD-B7-11.",
+        "Reason-optional deactivate / reactivate (ui-ux/18-unified-functional-platform/js/state.js:7809, 7820) — v46 requires a reason for Pause and Restore.",
+        "Label 'Deactivated' tenant status — v46 says 'Access paused'."
+      ]
+    },
+    {
+      "name": "campus",
+      "prototypeFields": [],
+      "stateMachine": "Not modelled. No campus/unit record, field or hierarchy level exists in the prototype; a campus may only BE an institution (tenant). See top-level 'campus' object.",
+      "transitions": [],
+      "v46Differences": [
+        "v46 also has no campus entity: 'campus' appears only inside sample institution names, a route label and a flow/build-phase name (see top-level 'campus')."
+      ],
+      "removedBehaviours": [
+        "Do not introduce a campus/unit level below the institution: ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md:629 'No campus/unit hierarchy below the Tenant is created.'"
+      ]
+    },
+    {
+      "name": "programme (prototype: AcademicGrouping 'Programme / Department')",
+      "prototypeFields": [
+        {
+          "field": "groupings[].id",
+          "type": "slug string",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8171-8179; seed ui-ux/18-unified-functional-platform/js/data.js:80-91"
+        },
+        {
+          "field": "groupings[].name",
+          "type": "string, unique (normalised)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8076-8085"
+        },
+        {
+          "field": "groupings[].summary",
+          "type": "string, REQUIRED ('the public catalogue shows it')",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8086-8088"
+        },
+        {
+          "field": "groupings[].source / createdBy / createdAt / updatedAt",
+          "type": "seed|manual / 'Super Admin' / ISO / ISO",
+          "enum": [
+            "seed",
+            "manual"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1392-1401, 8171-8179"
+        },
+        {
+          "field": "courses[].groupingId",
+          "type": "FK to grouping (Programme is the PARENT of Course)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:104-115; ui-ux/18-unified-functional-platform/js/state.js:8092-8099"
+        },
+        {
+          "field": "people[student].groupingId",
+          "type": "FK to the SAME grouping table",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3905, 335; ui-ux/18-unified-functional-platform/js/data.js:545-556"
+        },
+        {
+          "field": "CSV column 'Programme'",
+          "type": "required; resolved BY NAME to a canonical grouping",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/csv.js:41; ui-ux/18-unified-functional-platform/js/data.js:648-651"
+        }
+      ],
+      "stateMachine": "Create / rename / re-describe by Super Admin; no retire or delete (D3). ui-ux/18-unified-functional-platform/js/state.js:1371-1387, 8168-8199.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "exists",
+          "role": "Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8168-8183"
+        },
+        {
+          "from": "exists",
+          "to": "renamed / re-described",
+          "role": "Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8187-8199"
+        }
+      ],
+      "v46Differences": [
+        "BINDING (design/handoff-v46/START-HERE.md:35): Programme is held on the Student record only (B2-07) and is NOT a navigation level; Course → Experiment → format is the navigable chain; the catalogue grouping of courses is the 'Engineering area' set in Academic structure (B7-07). The prototype collapsed both concepts into ONE 'Programme / Department' grouping record that is simultaneously the Course parent (ui-ux/18-unified-functional-platform/js/data.js:13-15, 104-115) and the Student's programme (ui-ux/18-unified-functional-platform/js/state.js:3905, 4035-4054).",
+        "v46 Student programme is a free-text input, optional in Add student, required in the CSV (design/handoff-v46/canvas-v46/project/B2-07-Add-and-Import.dc.html input id 'Aa-prog' class xr-input; field table 'Programme · Optional in this form … Required in the CSV import'; import error 'Programme is empty. Every row needs the student’s programme.'). Prototype stores a FK and resolves the CSV value by grouping name.",
+        "v46 Academic structure manages 'Engineering area' + course: Add area · Add course · Rename · Edit description · Move a course to another area; 'No Module layer, no Retire (D3), no area artwork upload, no invented area names' (design/handoff-v46/canvas-v46/project/B7-07-Academic-Structure.dc.html notes).",
+        "STK31-12 (ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md:338-349) confirmed ONE grouping level 'Programme / Department / Academic Stream'; v46 binding re-labels the catalogue level as Engineering area and moves Programme onto the student — the owner constraint outranks the older stakeholder wording for the build."
+      ],
+      "removedBehaviours": [
+        "Programme as a structural parent of Course or as a navigation level (ui-ux/18-unified-functional-platform/js/data.js:13-15, 104-115).",
+        "Student.programme as a FK into the course-grouping table (ui-ux/18-unified-functional-platform/js/state.js:3905).",
+        "CSV import requiring the programme value to match a canonical grouping name (ui-ux/18-unified-functional-platform/js/data.js:648-651).",
+        "Prototype label 'Programme / Department' in Academic structure forms (ui-ux/18-unified-functional-platform/js/state.js:8080, 8098)."
+      ]
+    },
+    {
+      "name": "course",
+      "prototypeFields": [
+        {
+          "field": "id",
+          "type": "slug string",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8204-8206; seed ui-ux/18-unified-functional-platform/js/data.js:104-115"
+        },
+        {
+          "field": "groupingId",
+          "type": "FK to Programme/Department grouping",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8207, 8096-8099"
+        },
+        {
+          "field": "name",
+          "type": "string, unique within grouping",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8100-8105"
+        },
+        {
+          "field": "code",
+          "type": "platform/canonical course code; optional; ≤40 chars; unique platform-wide; blank is a legitimate permanent state",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:93-103; ui-ux/18-unified-functional-platform/js/state.js:8134-8149"
+        },
+        {
+          "field": "codeSetBy / codeSetAt",
+          "type": "string / ISO provenance",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8222, 8262-8263, 8349-8350"
+        },
+        {
+          "field": "summary",
+          "type": "string, required",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8106-8108"
+        },
+        {
+          "field": "source / createdBy / createdAt / updatedAt",
+          "type": "seed|manual / 'Super Admin' / ISO / ISO",
+          "enum": [
+            "seed",
+            "manual"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8215-8218"
+        }
+      ],
+      "stateMachine": "Create / rename / re-describe / re-parent by Super Admin; re-parent blocked while students are filed against the course; no retire (D3). Code writable by Content Manager in scope AND by Super Admin.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "exists",
+          "role": "Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8201-8226"
+        },
+        {
+          "from": "exists",
+          "to": "renamed / re-described / moved to another grouping (blocked if students enrolled)",
+          "role": "Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8234-8269, 8440-8443"
+        },
+        {
+          "from": "code blank|x",
+          "to": "code y",
+          "role": "Content Manager (course or platform scope)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8310-8353"
+        },
+        {
+          "from": "code blank|x",
+          "to": "code y",
+          "role": "Super Admin (create / edit form)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8222, 8258-8264"
+        }
+      ],
+      "v46Differences": [
+        "M-2: ONE writer of the platform course code — the Content Manager (design/handoff-v46/canvas-v46/project/B6-10-Platform-Course-Codes.dc.html CM-09 'Save codes'); Super Admin sees it read-only ('Read-only · maintained by the Content Manager', design/handoff-v46/canvas-v46/project/B7-07-Academic-Structure.dc.html; ~/Downloads/XR_Claude_Design_Handoff_Register_v2.md:25).",
+        "v46 course parent is an Engineering area, with 'Edit description' (not 'summary') (design/handoff-v46/canvas-v46/project/B7-07-Academic-Structure.dc.html).",
+        "v46 move rule: blocked while students OR Faculty are filed against the course (design/handoff-v46/canvas-v46/project/B7-07 'Move rule'; OD-B7-12). Prototype counts only people with a courseId, i.e. students (ui-ux/18-unified-functional-platform/js/state.js:8440-8443).",
+        "v46 student import MATCHES the course by course_code — 'the BITS code (for example ME ZG523) or your institution’s code (MEC-523)' (design/handoff-v46/canvas-v46/project/B2-07-Add-and-Import.dc.html IA-11 template text; design/handoff-v46/canvas-v46/project/handoff/entities.json AREA/CRS 'import matching'). Prototype rule: 'nothing in the build resolves by code' and CSV resolves by Course NAME (ui-ux/18-unified-functional-platform/js/data.js:96-100, 652-657)."
+      ],
+      "removedBehaviours": [
+        "Super Admin writing the platform course code (ui-ux/18-unified-functional-platform/js/state.js:8222, 8258-8264) — M-2.",
+        "Course parented by Programme/Department (ui-ux/18-unified-functional-platform/js/state.js:8092-8099)."
+      ]
+    },
+    {
+      "name": "experiment (prototype: contentRecords[] row — the canonical pool)",
+      "prototypeFields": [
+        {
+          "field": "id",
+          "type": "string ('EXP-nnn' or seed slug)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1957, 1114"
+        },
+        {
+          "field": "courseId",
+          "type": "FK course",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1052"
+        },
+        {
+          "field": "name",
+          "type": "string; unique across EVERY content record (normalised)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1053, 1725-1730"
+        },
+        {
+          "field": "summary / description",
+          "type": "string / string (required at submit)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1054-1055, 1684-1689"
+        },
+        {
+          "field": "outcomes[]",
+          "type": "string[]; Academic-Reviewer-owned; Vendor never writes",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1056-1057, 2089-2138"
+        },
+        {
+          "field": "technologies[]",
+          "type": "enum[]",
+          "enum": [
+            "web",
+            "vr",
+            "mr",
+            "ar"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1058; ui-ux/18-unified-functional-platform/js/data.js:40-66"
+        },
+        {
+          "field": "delivery",
+          "type": "{tech: delivery metadata}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1059-1062"
+        },
+        {
+          "field": "documents[]",
+          "type": "{name, size, note} (names only, nothing uploaded)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1063, 1251"
+        },
+        {
+          "field": "previewVideo",
+          "type": "{url (http/s only), label, note, addedBy, addedAt} | null",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1032-1047, 1064-1076"
+        },
+        {
+          "field": "vendorNotes / versionLabel",
+          "type": "string / string (required at submit)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1077-1078, 1690-1692"
+        },
+        {
+          "field": "revision",
+          "type": "int — counts correction rounds, NOT the published version",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1079-1083"
+        },
+        {
+          "field": "status",
+          "type": "CONTENT_STATUS enum (see submission)",
+          "enum": [
+            "DRAFT",
+            "ACADEMIC_REVIEW",
+            "CHANGES_ACADEMIC",
+            "CONTENT_REVIEW",
+            "CHANGES_CONTENT",
+            "CHANGES_ACADEMIC_RECHECK",
+            "PUBLISHED"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:939-954"
+        },
+        {
+          "field": "origin",
+          "type": "enum",
+          "enum": [
+            "seed",
+            "vendor"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1085, 1126"
+        },
+        {
+          "field": "createdBy / createdAt / updatedAt / submittedBy / submittedAt",
+          "type": "actor id / ISO",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1086-1090"
+        },
+        {
+          "field": "returnedGate / resubmitted",
+          "type": "academic|content|null / bool",
+          "enum": [
+            "academic",
+            "content",
+            null
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1091-1092"
+        },
+        {
+          "field": "academicReview / publication",
+          "type": "copies of the latest academic decision / publication record",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1093-1094"
+        },
+        {
+          "field": "history[]",
+          "type": "{seq, kind, label, actorId, actorName, actorRole, at, note, refs[]}",
+          "enum": [
+            "created",
+            "submitted",
+            "resubmitted",
+            "approved",
+            "changes",
+            "metadata",
+            "delivery",
+            "published",
+            "seeded"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1869-1888"
+        },
+        {
+          "field": "currentVersionId",
+          "type": "id of the last RELEASED later version",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9797"
+        },
+        {
+          "field": "overrides[]",
+          "type": "{at, from, to, by, reason}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8878-8883"
+        },
+        {
+          "field": "public projection (publicShape)",
+          "type": "id, courseId, name, summary, description, outcomes, technologies, versionLabel, previewVideo — ONLY for PUBLISHED",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1424-1455"
+        }
+      ],
+      "stateMachine": "See 'submission' (first publication) and 'correction/update' (post-publication). One row carries the whole life of the experiment in the prototype.",
+      "transitions": [],
+      "v46Differences": [
+        "v46 separates SUB (submission, Vendor → Academic Reviewer → Content Manager) from EXP (published experiment, 'Published · version n'); 'becomes EXP on publication' (design/handoff-v46/canvas-v46/project/handoff/entities.json SUB/EXP). Prototype uses one record whose status flips to PUBLISHED (ui-ux/18-unified-functional-platform/js/state.js:2521).",
+        "LD-2/LD-3: one catalogue entry and ONE learning-outcome set per Experiment, common to every format (~/Downloads/XR_Claude_Design_Handoff_Register_v2.md:53-54) — consistent with the prototype.",
+        "Format labels are upper-case WEB / VR / AR / MR in v46 (design/handoff-v46/canvas-v46/project/B3-02-Simulation-Choose-Format.dc.html controls 'Open WEB', 'Open VR'; design/handoff-v46/canvas-v46/project/handoff/entities.json FB) — prototype 'Web' (ui-ux/18-unified-functional-platform/js/data.js:41).",
+        "Unique-name scope: v46 checks 'against the catalogue and the Vendor’s own experiments, case-insensitive' (OD-B5-04); prototype checks every content record of every Vendor (ui-ux/18-unified-functional-platform/js/state.js:1725-1730).",
+        "Catalogue field set (OD-B5-03 / T-29): course, name, one-sentence summary, description, version — same as prototype submit validation (ui-ux/18-unified-functional-platform/js/state.js:1673-1723).",
+        "Version shown publicly is open (OD-B7-05); prototype publicShape exposes versionLabel (ui-ux/18-unified-functional-platform/js/state.js:1433)."
+      ],
+      "removedBehaviours": [
+        "In-place edits of a PUBLISHED record by the Content Manager ('safe' fields name / summary / courseId / notes audited in place: ui-ux/18-unified-functional-platform/js/state.js:2232-2273, 9357-9457; ui-ux/18-unified-functional-platform/PM_DELTA_09.md:271-292) — v46 M-1/LD-4: every change opens a correction draft.",
+        "Super Admin platform-master correction of a published record that 'the catalogue shows immediately' (ui-ux/18-unified-functional-platform/js/state.js:8744-8783; ui-ux/18-unified-functional-platform/PM_DELTA_09.md:294-311) — v46 M-1: 'The Super Admin never edits live catalogue records'.",
+        "Vendor-proposed later version of a published experiment (ui-ux/18-unified-functional-platform/js/state.js:9128-9178) — LD-4 'No Vendor Propose an update'."
+      ]
+    },
+    {
+      "name": "technology format",
+      "prototypeFields": [
+        {
+          "field": "id",
+          "type": "enum",
+          "enum": [
+            "web",
+            "vr",
+            "mr",
+            "ar"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:40-66"
+        },
+        {
+          "field": "label / name",
+          "type": "'Web','VR','MR','AR' / 'Web','Virtual Reality','Mixed Reality','Augmented Reality'",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:41-60"
+        },
+        {
+          "field": "delivery",
+          "type": "enum",
+          "enum": [
+            "hosted",
+            "package"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:47, 52, 57, 62"
+        },
+        {
+          "field": "device / deliveryLabel / requirement",
+          "type": "copy strings",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:42-64"
+        },
+        {
+          "field": "TECH_ORDER",
+          "type": "display order",
+          "enum": [
+            "web",
+            "vr",
+            "mr",
+            "ar"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:66"
+        }
+      ],
+      "stateMachine": "Static enum. Availability per experiment = experiment.technologies; per institution = access.items[].technologies; per student = union of effective entitlements (ui-ux/18-unified-functional-platform/js/state.js:4784-4847).",
+      "transitions": [],
+      "v46Differences": [
+        "Student format states drawn in v46: 'Not started', 'In progress', 'Completed <date>', 'Not included for your institution', 'Not available for this experiment', 'Waiting for a licence', 'Paused', 'Access ended' (design/handoff-v46/canvas-v46/project/B3-02-Simulation-Choose-Format.dc.html frames 0-6).",
+        "AR delivery shown once as a labelled 'Needs the phone app' pattern; setup steps information-only (design/handoff-v46/canvas-v46/project/B3-04-AR-VR-MR-Format.dc.html frame 6; T-14; OD-B3-13).",
+        "No partial approve / per-format decision and no 'Add a format' after publication (T-26 residual; design/handoff-v46/canvas-v46/project/B6-03-Review-a-Submission.dc.html 'You decide for the whole Experiment — every format').",
+        "Committed V2 domain (git show 1b090c9:v2/packages/domain/src/technology.ts:12-30) transcribes the prototype enum with labels 'Web'/'VR'/'MR'/'AR' — label casing differs from v46 boards."
+      ],
+      "removedBehaviours": []
+    },
+    {
+      "name": "delivery metadata (per experiment × format)",
+      "prototypeFields": [
+        {
+          "field": "url",
+          "type": "string — hosted (Web) link; must be http(s)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1701-1708, 1661-1665"
+        },
+        {
+          "field": "runtime",
+          "type": "string — device / runtime requirement; REQUIRED for every format at submit",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1717-1720"
+        },
+        {
+          "field": "packageLabel / packageRef",
+          "type": "string / string — at least one (or packageFile) required for package formats",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1709-1716"
+        },
+        {
+          "field": "packageFile",
+          "type": "{name,size} picked file metadata only (no bytes)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1059-1062, 2296-2305"
+        },
+        {
+          "field": "install",
+          "type": "string install notes (stored, NOT validated)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1164, 2305"
+        },
+        {
+          "field": "notes",
+          "type": "string content-plane notes",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2295"
+        }
+      ],
+      "stateMachine": "Vendor writes while DRAFT / returned. Content Manager may edit url/packageRef/packageLabel/runtime/notes (or remove the reference) with a REQUIRED reason and a history entry, pre-publication directly; after publication only non-material edits ('notes') in place, material ones become a correction version (ui-ux/18-unified-functional-platform/js/state.js:2333-2433, 9357-9457). Release merges a correction's delivery and applies explicit 'clears' (ui-ux/18-unified-functional-platform/js/state.js:9770-9795).",
+      "transitions": [
+        {
+          "from": "(empty)",
+          "to": "filled",
+          "role": "Vendor (draft / returned, in scope)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1976-2013"
+        },
+        {
+          "from": "filled",
+          "to": "edited / removed (with reason)",
+          "role": "Content Manager (scope)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2333-2433"
+        },
+        {
+          "from": "published value",
+          "to": "correction candidate value",
+          "role": "Content Manager → Academic Reviewer → Super Admin Release",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9526-9627, 9748-9811"
+        }
+      ],
+      "v46Differences": [
+        "OD-B5-02 (provisional package model): label, a reference OR a file, device needed and INSTALL NOTES REQUIRED; notes optional. Prototype does not require install notes (ui-ux/18-unified-functional-platform/js/state.js:1709-1720).",
+        "OD-B5-08 preview link: 'A preview label without a valid link is an error'; link without label allowed. Prototype previewVideo stores url only when http(s), label optional (ui-ux/18-unified-functional-platform/js/state.js:1032-1047).",
+        "v46 Content Manager publication decision (CM-03) has Publish / Send back only; incomplete delivery is fixed by 'Send it back to the vendor' (design/handoff-v46/canvas-v46/project/B6-07-Publication-Decision.dc.html script checks 'Delivery details for each format … fix: Send it back to the vendor.'). A CM direct delivery edit before publication is NOT shown.",
+        "After publication 'Edit delivery link' opens the correction draft (design/handoff-v46/canvas-v46/project/B6-08-Published-and-Correction-Entry.dc.html 'Every change opens a correction draft. The live experiment changes only when the Super Admin releases it.').",
+        "Correction scope: delivery = web link and VR package reference; no format changes (OD-B6-09).",
+        "Reviewer sees delivery details and web links only (T-30); 'View package details', 'Open web link (opens in a new tab)' (design/handoff-v46/canvas-v46/project/B6-03-Review-a-Submission.dc.html controls)."
+      ],
+      "removedBehaviours": [
+        "Content Manager direct in-place delivery edits on PUBLISHED content, even 'non-material' ones (ui-ux/18-unified-functional-platform/js/state.js:9357-9457) — M-1.",
+        "Content Manager direct delivery edit at the publication gate (ui-ux/18-unified-functional-platform/js/state.js:2333-2433) — not drawn in v46 CM-03 (not shown; do not build without a decision)."
+      ]
+    },
+    {
+      "name": "resource (learning resource) + resource activity",
+      "prototypeFields": [
+        {
+          "field": "LEARNING_RESOURCES[experimentId][]",
+          "type": "{id, kind, title, body} — static inline text, no URLs or files",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:189-285"
+        },
+        {
+          "field": "kind",
+          "type": "enum",
+          "enum": [
+            "intro",
+            "objective",
+            "procedure",
+            "safety",
+            "reference"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:203-210"
+        },
+        {
+          "field": "resourceActivity.id",
+          "type": "'RES-nnn'",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4867-4870"
+        },
+        {
+          "field": "resourceActivity.{tenantId, personId, experimentId, resourceId}",
+          "type": "FKs — EXPERIMENT-level, not format-level",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4868-4872"
+        },
+        {
+          "field": "resourceActivity.status",
+          "type": "enum",
+          "enum": [
+            "NOT_STARTED",
+            "IN_PROGRESS",
+            "COMPLETED"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4723, 4872"
+        },
+        {
+          "field": "openedAt / completedAt",
+          "type": "ISO",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4873"
+        }
+      ],
+      "stateMachine": "NOT_STARTED → IN_PROGRESS on open; IN_PROGRESS ⇄ COMPLETED by the Student's 'Mark as done' checkbox (reversible). Gated on any effective entitlement for the experiment.",
+      "transitions": [
+        {
+          "from": "NOT_STARTED",
+          "to": "IN_PROGRESS",
+          "role": "Student (opens the resource)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4881-4891; ui-ux/18-unified-functional-platform/js/screens/student-learn.js:505-516"
+        },
+        {
+          "from": "IN_PROGRESS",
+          "to": "COMPLETED",
+          "role": "Student ('Mark as done')",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4892-4910; ui-ux/18-unified-functional-platform/js/screens/student-learn.js:309-310, 517-528"
+        },
+        {
+          "from": "COMPLETED",
+          "to": "IN_PROGRESS",
+          "role": "Student (un-mark)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4901-4907"
+        }
+      ],
+      "v46Differences": [
+        "T-13: 'Per-format progress only; resources show \"opened\"' and resources do not count toward completion (design/handoff-v46/canvas-v46/project/handoff/open-decisions.json T-13; OD-B3-06 '\"Opened\" only').",
+        "T-15: resources open in a new tab with a failure state (design/handoff-v46/canvas-v46/project/B3-01-Hub-Resources-and-Progress.dc.html frames 'Couldn’t open + try again', 'None attached').",
+        "Resource types, delivery and size labels are sample data (OD-B3-06). Who authors resources is not shown in the boards read; prototype resources are seed-only and authored by nobody (ui-ux/18-unified-functional-platform/js/data.js:189-202).",
+        "No sequential gating / locks (T-16) — consistent with prototype (resources never gate the simulation, ui-ux/18-unified-functional-platform/js/state.js:6327-6332)."
+      ],
+      "removedBehaviours": [
+        "Student 'Mark as done' on resources (ui-ux/18-unified-functional-platform/js/screens/student-learn.js:309-310) — v46 shows 'Opened' only.",
+        "Resources as a required part of completion (ui-ux/18-unified-functional-platform/js/state.js:6350-6355, 6482-6487; README four-part rule) — T-13.",
+        "Inline resource bodies rendered in-app (ui-ux/18-unified-functional-platform/js/data.js:212-285) — v46 opens resources in a new tab."
+      ]
+    },
+    {
+      "name": "submission (first-publication workflow on the content record)",
+      "prototypeFields": [
+        {
+          "field": "status",
+          "type": "enum with holder",
+          "enum": [
+            "DRAFT(vendor)",
+            "ACADEMIC_REVIEW(reviewer)",
+            "CHANGES_ACADEMIC(vendor)",
+            "CONTENT_REVIEW(manager)",
+            "CHANGES_CONTENT(vendor)",
+            "CHANGES_ACADEMIC_RECHECK(reviewer)",
+            "PUBLISHED(-)"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:939-968"
+        },
+        {
+          "field": "labels",
+          "type": "Draft · Academic review · Changes requested · Content readiness review · Returned for academic re-check · Published",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:959-968"
+        },
+        {
+          "field": "revision / resubmitted / returnedGate",
+          "type": "int / bool / academic|content",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1083, 1091-1092, 2027-2033"
+        },
+        {
+          "field": "academicReview.fingerprint",
+          "type": "JSON of courseId, name, summary, description, technologies, outcomes — approval invalidated if academic content changes",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1745-1754, 2042-2054, 1788-1794"
+        },
+        {
+          "field": "change-request refs[]",
+          "type": "{kind link|file, label, url | fileName+fileSize, storedBytes:false, note} max 10",
+          "enum": [
+            "link",
+            "file"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1832-1867"
+        },
+        {
+          "field": "VENDOR_EDITABLE",
+          "type": "statuses in which the Vendor may edit",
+          "enum": [
+            "DRAFT",
+            "CHANGES_ACADEMIC",
+            "CHANGES_CONTENT"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:981"
+        },
+        {
+          "field": "scope-withdrawn read-only",
+          "type": "Vendor keeps sight of own record; mutation needs live scope",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1923-1943"
+        }
+      ],
+      "stateMachine": "DRAFT →(Vendor submit)→ ACADEMIC_REVIEW →(AR approve, ≥1 outcome)→ CONTENT_REVIEW →(CM publish, readiness)→ PUBLISHED. Returns: AR → CHANGES_ACADEMIC (Vendor); CM → CHANGES_CONTENT (Vendor, technical) or CHANGES_ACADEMIC_RECHECK (AR, academic). Vendor resubmit from CHANGES_CONTENT goes straight back to CONTENT_REVIEW only if the academic fingerprint is unchanged, else to ACADEMIC_REVIEW. Super Admin may override any non-published status to any other non-published status with a reason. No reject/decline state.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "DRAFT",
+          "role": "Vendor (course in creation scope; name unique)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1945-1974"
+        },
+        {
+          "from": "DRAFT",
+          "to": "ACADEMIC_REVIEW",
+          "role": "Vendor (submit validation ui-ux/18-unified-functional-platform/js/state.js:1673-1723)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2019-2075"
+        },
+        {
+          "from": "ACADEMIC_REVIEW | CHANGES_ACADEMIC_RECHECK",
+          "to": "CONTENT_REVIEW",
+          "role": "Academic Reviewer approve (≥1 outcome)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2140-2163, 1756-1772"
+        },
+        {
+          "from": "ACADEMIC_REVIEW | CHANGES_ACADEMIC_RECHECK",
+          "to": "CHANGES_ACADEMIC",
+          "role": "Academic Reviewer request changes (comment required; refs optional)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2167-2191"
+        },
+        {
+          "from": "CHANGES_ACADEMIC",
+          "to": "ACADEMIC_REVIEW",
+          "role": "Vendor resubmit (revision+1)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2027-2033"
+        },
+        {
+          "from": "CONTENT_REVIEW",
+          "to": "CHANGES_CONTENT",
+          "role": "Content Manager return to Vendor (comment required)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2454-2487"
+        },
+        {
+          "from": "CONTENT_REVIEW",
+          "to": "CHANGES_ACADEMIC_RECHECK",
+          "role": "Content Manager return to Academic Reviewer (comment required)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2467-2476"
+        },
+        {
+          "from": "CHANGES_CONTENT",
+          "to": "CONTENT_REVIEW (fingerprint unchanged) | ACADEMIC_REVIEW (changed)",
+          "role": "Vendor resubmit",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2033-2054"
+        },
+        {
+          "from": "CONTENT_REVIEW",
+          "to": "PUBLISHED",
+          "role": "Content Manager publish (publishReadiness)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2498-2526, 1777-1816"
+        },
+        {
+          "from": "any non-PUBLISHED",
+          "to": "any other non-PUBLISHED status",
+          "role": "Super Admin override (reason required)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8817-8896"
+        }
+      ],
+      "v46Differences": [
+        "v46 SUB statuses: 'Draft · With Academic Reviewer · Returned · With Content Manager · Published' (design/handoff-v46/canvas-v46/project/handoff/entities.json SUB); Vendor list adds 'Draft · read-only' (scope withdrawn) and record shows 'Submitted' after a resubmit (design/handoff-v46/canvas-v46/project/B5-02-My-Experiments.dc.html, B5-06-Experiment-Record-and-History.dc.html statuses).",
+        "Reviewer-side labels 'Waiting · revision 1', 'Resubmitted · revision 2', 'Back for a re-check', 'Approved — with the Content Manager' (design/handoff-v46/canvas-v46/project/B6-03-Review-a-Submission.dc.html); CM-side 'Ready to publish', 'Ready to publish · 1 to resolve', 'Still in academic review' (design/handoff-v46/canvas-v46/project/B6-07-Publication-Decision.dc.html).",
+        "M-3 neutral resubmit: copy never promises the next gate; the board routes a resubmit by the normal chain ('With Academic Reviewer · revision 2') and whether a CM-return revision needs fresh academic review is OPEN (OD-B5-05; ~/Downloads/XR_Claude_Design_Handoff_Register_v2.md:26). Prototype silently routes CHANGES_CONTENT resubmits straight to CONTENT_REVIEW when the fingerprint matches (ui-ux/18-unified-functional-platform/js/state.js:2033-2054).",
+        "Return references in v46 are optional STRUCTURED field links 'What it refers to' (step · format · field) shown above the Vendor's editor (design/handoff-v46/canvas-v46/project/B6-03-Review-a-Submission.dc.html; OD-B5-10); CM references only when sending to the Vendor (OD-B6-05). Prototype references are link/file attachments on both gates (ui-ux/18-unified-functional-platform/js/state.js:1832-1867).",
+        "Super Admin override in v46 only moves a record stuck with the Academic Reviewer 'back to the vendor'; Published never a target (OD-B7-09; design/handoff-v46/canvas-v46/project/B7-06-All-Content.dc.html 'Stuck — nobody can act', 'Move status (override)'). Prototype allows six destinations (ui-ux/18-unified-functional-platform/js/state.js:8817-8824).",
+        "OD-B5-06: v46 does not restrict course/format changes while revising; prototype allows them but withdraws the academic approval via fingerprint (ui-ux/18-unified-functional-platform/js/state.js:2042-2054).",
+        "Approve (DL-1) 'Approving does not publish', needs ≥1 outcome; Return to vendor (DL-2) reason required (design/handoff-v46/canvas-v46/project/B6-03 notes) — consistent with prototype (ui-ux/18-unified-functional-platform/js/state.js:1756-1772, 2167-2172).",
+        "No Decline / reject of a submission in either."
+      ],
+      "removedBehaviours": [
+        "Silent fast-path CHANGES_CONTENT → CONTENT_REVIEW that skips the Academic Reviewer (ui-ux/18-unified-functional-platform/js/state.js:2033-2054) — must not be promised; next gate is open (M-3, OD-B5-05).",
+        "Override to arbitrary non-published statuses (ui-ux/18-unified-functional-platform/js/state.js:8817-8896) — OD-B7-09 limits it to 'back to the vendor' for AR-stuck records.",
+        "File/link attachment references on returns (ui-ux/18-unified-functional-platform/js/state.js:1832-1867) — v46 uses structured field references."
+      ]
+    },
+    {
+      "name": "review (academic review decision)",
+      "prototypeFields": [
+        {
+          "field": "academicReviews[].id",
+          "type": "'ACR-nnn' (shares S.seq.review with descriptive reviews)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2146-2148, 6114"
+        },
+        {
+          "field": "recordId / reviewerId / reviewerName",
+          "type": "FK / actor id / string",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2148-2149"
+        },
+        {
+          "field": "decision",
+          "type": "enum",
+          "enum": [
+            "approved",
+            "changes_requested"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2150, 2179"
+        },
+        {
+          "field": "comment",
+          "type": "string (required for changes_requested)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2171-2172"
+        },
+        {
+          "field": "revision / outcomes[] snapshot / at / fingerprint / refs[]",
+          "type": "int / string[] / ISO / string / refs",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2151-2154, 2180-2181"
+        },
+        {
+          "field": "outcome editing",
+          "type": "add / update / delete / move — only while the reviewer holds the record",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2093-2138"
+        }
+      ],
+      "stateMachine": "Append-only decision log per content record; the latest approval is copied onto the record.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "approved",
+          "role": "Academic Reviewer (scope covers record; status ACADEMIC_REVIEW or CHANGES_ACADEMIC_RECHECK)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2079-2087, 2140-2163"
+        },
+        {
+          "from": "(none)",
+          "to": "changes_requested",
+          "role": "Academic Reviewer (comment required)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2167-2191"
+        }
+      ],
+      "v46Differences": [
+        "v46 Reviewer queue/history labels: 'Returned to vendor', 'Returned to vendor · revision 1', 'Approved — with the Content Manager', 'Approved — later sent back for a re-check', 'Approved — published', 'Update approved — with the Super Admin', 'Update approved — released' (design/handoff-v46/canvas-v46/project/B6-02-Review-Queue-and-Reviewed.dc.html).",
+        "Outcome edits travel with the decision (OD-B6-04) — consistent with prototype.",
+        "Reviewer course scoping is a sample line in v46 (OD-B6-01) and Platform roles can give a Reviewer 'All experiments' scope (design/handoff-v46/canvas-v46/project/B7-08-Platform-Roles.dc.html SA-17 Dr K. Iyer on Reviewers tab). Prototype forbids platform-wide scope for Reviewers (ui-ux/18-unified-functional-platform/js/state.js:8449-8465).",
+        "No review checklist or rubric (T-21 / QD-08) and no device testing by the reviewer (T-30) — consistent."
+      ],
+      "removedBehaviours": []
+    },
+    {
+      "name": "publication (first publication record)",
+      "prototypeFields": [
+        {
+          "field": "id",
+          "type": "'PUB-nnn'",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2504-2506"
+        },
+        {
+          "field": "recordId / publishedBy / publishedByName / publishedAt",
+          "type": "FK / actor / string / ISO",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2507-2510"
+        },
+        {
+          "field": "versionLabel / revision / technologies[] / outcomes[]",
+          "type": "snapshot at publication",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2511-2514"
+        },
+        {
+          "field": "academicReviewId / academicReviewerName",
+          "type": "link to the approval",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2515-2516"
+        },
+        {
+          "field": "origin",
+          "type": "enum",
+          "enum": [
+            "seed",
+            "workflow"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1141, 2517"
+        }
+      ],
+      "stateMachine": "Written once by the Content Manager when publishReadiness passes; writes NO access, licence or assignment (ui-ux/18-unified-functional-platform/js/state.js:2489-2497).",
+      "transitions": [
+        {
+          "from": "CONTENT_REVIEW record",
+          "to": "publication record + PUBLISHED",
+          "role": "Content Manager",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2498-2526"
+        }
+      ],
+      "v46Differences": [
+        "Consistent: 'Publishing gives no one access' (design/handoff-v46/canvas-v46/project/handoff/flows.json Flow E step 4); 'First publication: Content Manager only' (design/handoff-v46/canvas-v46/project/handoff/entities.json businessRules).",
+        "v46 publication checks (OD-B6-03): Academic Reviewer approval, learning outcomes, catalogue details (prototype set), delivery details per format — matches prototype publishReadiness list (ui-ux/18-unified-functional-platform/js/state.js:1777-1816) except the prototype also blocks on 'academic content changed since approval' (fingerprint), which v46 does not draw.",
+        "v46 'Send back' at the decision goes to the Academic Reviewer or the Vendor with a reason (design/handoff-v46/canvas-v46/project/B6-07-Publication-Decision.dc.html 'Send back To the Academic Reviewer or the vendor, with a reason.')."
+      ],
+      "removedBehaviours": []
+    },
+    {
+      "name": "correction / update (prototype: contentVersions[] later version)",
+      "prototypeFields": [
+        {
+          "field": "id / seq / recordId",
+          "type": "'CV-nnn' / int / FK",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9149-9152, 9561-9564"
+        },
+        {
+          "field": "versionLabel",
+          "type": "required; ≠ live label; ≠ any earlier released/published label",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9071-9106"
+        },
+        {
+          "field": "description / summary / vendorNotes / changeNote",
+          "type": "description & changeNote required",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9078-9083, 9155-9158"
+        },
+        {
+          "field": "delivery / clears{tech:[fields]} / removals[] / correctionOf",
+          "type": "candidate delivery + explicit clear instructions",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9159, 9581-9602"
+        },
+        {
+          "field": "replacesVersionLabel",
+          "type": "live label frozen at creation",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9161, 9571"
+        },
+        {
+          "field": "status",
+          "type": "enum",
+          "enum": [
+            "DRAFT",
+            "ACADEMIC_REVIEW",
+            "CHANGES_ACADEMIC",
+            "APPROVED",
+            "RELEASED",
+            "HELD",
+            "WITHDRAWN"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8969-8999"
+        },
+        {
+          "field": "labels",
+          "type": "Draft version · Academic review · Changes requested · Awaiting Release / Hold · Released · On hold · Withdrawn",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8991-8999"
+        },
+        {
+          "field": "origin / correction",
+          "type": "'content-manager' + true for CM corrections; absent for Vendor versions",
+          "enum": [
+            "content-manager",
+            null
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9580-9582, 9735"
+        },
+        {
+          "field": "revision / createdBy / createdByName / createdAt / submittedAt",
+          "type": "",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9162-9167"
+        },
+        {
+          "field": "academicDecision / By / ByName / At",
+          "type": "approved|changes",
+          "enum": [
+            "approved",
+            "changes"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9265-9269, 9282-9285"
+        },
+        {
+          "field": "releaseDecision",
+          "type": "{decision released|held, by, at, note, replacedVersionLabel}",
+          "enum": [
+            "released",
+            "held"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9800-9803, 9825"
+        },
+        {
+          "field": "withdrawnAt / withdrawnBy",
+          "type": "",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9713-9714"
+        },
+        {
+          "field": "history[]",
+          "type": "event list",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9058-9069"
+        },
+        {
+          "field": "one-open rule",
+          "type": "only one of DRAFT/ACADEMIC_REVIEW/CHANGES_ACADEMIC/APPROVED/HELD per experiment",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9008-9009, 9140-9143, 9535-9539"
+        }
+      ],
+      "stateMachine": "DRAFT →(author submit)→ ACADEMIC_REVIEW →(AR)→ APPROVED | CHANGES_ACADEMIC →(author resubmit)→ ACADEMIC_REVIEW. APPROVED →(Super Admin)→ RELEASED (merges onto live record) | HELD; HELD →(lift)→ APPROVED. CM corrections can be WITHDRAWN from DRAFT or CHANGES_ACADEMIC with a reason. Authors: Vendor (later version of a published record in scope) AND Content Manager (correction).",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "DRAFT",
+          "role": "Vendor (published record in scope)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9128-9178"
+        },
+        {
+          "from": "(none)",
+          "to": "DRAFT",
+          "role": "Content Manager (correction of a published record in scope)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9459-9467, 9526-9627"
+        },
+        {
+          "from": "DRAFT | CHANGES_ACADEMIC",
+          "to": "ACADEMIC_REVIEW",
+          "role": "author (Vendor or CM)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9226-9238"
+        },
+        {
+          "from": "ACADEMIC_REVIEW",
+          "to": "APPROVED",
+          "role": "Academic Reviewer",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9260-9274"
+        },
+        {
+          "from": "ACADEMIC_REVIEW",
+          "to": "CHANGES_ACADEMIC",
+          "role": "Academic Reviewer (comment required)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9275-9289"
+        },
+        {
+          "from": "APPROVED",
+          "to": "RELEASED",
+          "role": "Super Admin (note optional)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9748-9811"
+        },
+        {
+          "from": "APPROVED",
+          "to": "HELD",
+          "role": "Super Admin (note optional)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9819-9834"
+        },
+        {
+          "from": "HELD",
+          "to": "APPROVED",
+          "role": "Super Admin lift hold (note optional)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9837-9846"
+        },
+        {
+          "from": "DRAFT | CHANGES_ACADEMIC",
+          "to": "WITHDRAWN",
+          "role": "Content Manager (reason required)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9701-9724"
+        }
+      ],
+      "v46Differences": [
+        "v46 UPD statuses 'Draft · In academic review · Returned · Awaiting release decision · On hold · Released · Withdrawn' (design/handoff-v46/canvas-v46/project/handoff/entities.json UPD; design/handoff-v46/canvas-v46/project/B6-09-Updates-Corrections.dc.html); Super Admin side 'Waiting for your decision · Approved · On hold · Released' (design/handoff-v46/canvas-v46/project/B7-05-Content-Updates-Release-Hold.dc.html); Reviewer side 'Returned to the Content Manager', 'Approved — with the Super Admin' (design/handoff-v46/canvas-v46/project/B6-04-Review-an-Update.dc.html).",
+        "Originator is the Content Manager ONLY (LD-4; design/handoff-v46/canvas-v46/project/B5-06-Experiment-Record-and-History.dc.html 'No “Propose an update” and no “Add a format” anywhere (LD-4 · VE-10…14 not designed). Changes to published content start with the Content Manager').",
+        "Withdraw is offered while the update is a draft, returned OR in academic review — not after approval (OD-B6-06; design/handoff-v46/canvas-v46/project/B6-09 frames 1-3 'Withdraw update'). Prototype allows withdraw only in DRAFT / CHANGES_ACADEMIC (ui-ux/18-unified-functional-platform/js/state.js:9644-9646, 9192-9196).",
+        "Hold asks for a reason the Content Manager sees (OD-B7-01); Lift hold returns to waiting with no reason (OD-B7-02); Release is not offered straight from On hold (OD-B7-03). Prototype hold note optional (ui-ux/18-unified-functional-platform/js/state.js:9825).",
+        "Correction may change catalogue details (name, summary, description) and delivery (web link, VR package reference); no format changes; outcomes not in the draft (OD-B6-09). Prototype correction payload carries description, summary and delivery but NOT name (ui-ux/18-unified-functional-platform/js/state.js:9540-9554).",
+        "Version label: required and different from the live version; no format rule (OD-B6-08) — prototype additionally refuses any previously used label (ui-ux/18-unified-functional-platform/js/state.js:9088-9105).",
+        "Three entries (Start a correction · Edit catalogue details · Edit delivery link) open the SAME draft; while it is with the AR or Super Admin only 'Open update' is offered (design/handoff-v46/canvas-v46/project/B6-08-Published-and-Correction-Entry.dc.html notes; OD-B6-07).",
+        "Downstream effects of Hold are not designed (OD-B7-04)."
+      ],
+      "removedBehaviours": [
+        "Vendor-originated later versions / 'Propose an update' (ui-ux/18-unified-functional-platform/js/state.js:9128-9238) — LD-4 DEFER/OPEN.",
+        "Super Admin platform-master in-place correction exception (ui-ux/18-unified-functional-platform/js/state.js:8744-8783; ui-ux/18-unified-functional-platform/PM_DELTA_09.md:294-311) — M-1.",
+        "Content Manager 'safe field' in-place edits on published records (ui-ux/18-unified-functional-platform/js/state.js:9357-9457) — M-1.",
+        "Reason-optional Hold (ui-ux/18-unified-functional-platform/js/state.js:9819-9834) — OD-B7-01."
+      ]
+    },
+    {
+      "name": "access request (+ selection basket and draft)",
+      "prototypeFields": [
+        {
+          "field": "selection[]",
+          "type": "[{experimentId, technologies[] (≥1)}] — a basket, never an entitlement",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:193, 2788-2812"
+        },
+        {
+          "field": "draft",
+          "type": "{institutionName, contactName, contactEmail, quantity, term}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:194, 2815-2817"
+        },
+        {
+          "field": "id",
+          "type": "'REQ-nnn'",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2870"
+        },
+        {
+          "field": "scenarioId",
+          "type": "prototype scenario 'A'|'B'",
+          "enum": [
+            "A",
+            "B"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2871; ui-ux/18-unified-functional-platform/js/data.js:457-486"
+        },
+        {
+          "field": "institution",
+          "type": "{name, kind, accessContext, contactName, contactEmail}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2872-2878"
+        },
+        {
+          "field": "paymentRequired",
+          "type": "bool (from route)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2879"
+        },
+        {
+          "field": "items[]",
+          "type": "[{experimentId, technologies[]}] snapshot of selection",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2880-2882"
+        },
+        {
+          "field": "quantity",
+          "type": "int licences/users requested",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2883"
+        },
+        {
+          "field": "term",
+          "type": "enum",
+          "enum": [
+            "monthly",
+            "quarterly",
+            "yearly"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2884; ui-ux/18-unified-functional-platform/js/data.js:503-508"
+        },
+        {
+          "field": "status",
+          "type": "enum",
+          "enum": [
+            "DRAFT",
+            "SUBMITTED",
+            "INFO_REQUESTED",
+            "APPROVED_PAYMENT_REQUIRED",
+            "ACTIVE"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:121-138"
+        },
+        {
+          "field": "submittedAt / approvedAt / activatedAt / tenantId",
+          "type": "ISO / ISO / ISO / FK bound at provisioning",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2886-2889, 3279"
+        },
+        {
+          "field": "history[]",
+          "type": "{at, event, who, note}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2890-2892"
+        },
+        {
+          "field": "grant",
+          "type": "{items, quantity, term} | null — may only NARROW the request",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2993-3043, 3094"
+        },
+        {
+          "field": "decisionReason",
+          "type": "string (required for approve and for request-more-information)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3087-3095, 3131-3135"
+        },
+        {
+          "field": "paymentOutcome",
+          "type": "enum",
+          "enum": [
+            "success",
+            "declined",
+            "indeterminate"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3166, 3186, 3193, 3200"
+        },
+        {
+          "field": "renewsAccessId",
+          "type": "FK — makes the request a renewal that mirrors the plan",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3527-3574"
+        }
+      ],
+      "stateMachine": "DRAFT → SUBMITTED → (INFO_REQUESTED → resubmit → SUBMITTED)* → ACTIVE (internal: approval provisions AND activates) | APPROVED_PAYMENT_REQUIRED (external: approval provisions the institution) → ACTIVE on payment success; declined / indeterminate payment changes nothing. No Decline. Decision blocked if the bound institution is deactivated. Renewals use the same machine but may not be narrowed.",
+      "transitions": [
+        {
+          "from": "DRAFT",
+          "to": "SUBMITTED",
+          "role": "Public requester (institution contact)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:2828-2899"
+        },
+        {
+          "from": "SUBMITTED",
+          "to": "INFO_REQUESTED",
+          "role": "Super Admin (reason required)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3128-3139"
+        },
+        {
+          "from": "INFO_REQUESTED",
+          "to": "SUBMITTED",
+          "role": "Requester resubmit with note",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3142-3153"
+        },
+        {
+          "from": "SUBMITTED",
+          "to": "ACTIVE",
+          "role": "Super Admin approve, internal route (reason required; may narrow)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3060-3123"
+        },
+        {
+          "from": "SUBMITTED",
+          "to": "APPROVED_PAYMENT_REQUIRED",
+          "role": "Super Admin approve, external route (reason required; may narrow)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3098-3111"
+        },
+        {
+          "from": "APPROVED_PAYMENT_REQUIRED",
+          "to": "ACTIVE",
+          "role": "Institution contact — simulated payment success",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3168-3206"
+        },
+        {
+          "from": "APPROVED_PAYMENT_REQUIRED",
+          "to": "APPROVED_PAYMENT_REQUIRED (+paymentOutcome declined|indeterminate)",
+          "role": "Institution contact — simulated payment",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3185-3198"
+        },
+        {
+          "from": "(none)",
+          "to": "SUBMITTED (renewal)",
+          "role": "Tenant / Institute Admin for an access record",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3495-3574"
+        }
+      ],
+      "v46Differences": [
+        "v46 REQ statuses drawn on design/handoff-v46/canvas-v46/project/B1-08-Request-Status.dc.html: 'Submitted', 'Under review', 'Information requested', 'Approved — payment required', 'Payment not confirmed', 'Payment failed', 'Access active'. design/handoff-v46/canvas-v46/project/handoff/entities.json lists only 'Under review · Information requested · Approved — payment required · Payment not confirmed · Access active' (board wins; difference to report).",
+        "No Decline button, state or filter (T-02) — consistent with the prototype (none).",
+        "'Information requested': the requester sees the reason, NO reply field (T-03; OD-B3-10). Prototype has a resubmit-with-note transition (ui-ux/18-unified-functional-platform/js/state.js:3142-3153).",
+        "Approve: v46 asks a reason only for 'Approve a smaller scope' and 'Request more information' (design/handoff-v46/canvas-v46/project/B1-11-SA-Decision.dc.html caption 'Smaller scope and Request more information need a reason'). Prototype requires a reason for EVERY approval (ui-ux/18-unified-functional-platform/js/state.js:3087-3090).",
+        "Classification internal/external chosen by the Super Admin at approval; approval cannot finish with 'Not set yet' (design/handoff-v46/canvas-v46/project/B1-11 frames 4 and 7; T-04).",
+        "Term: 'Monthly · Quarterly · Yearly · Until a fixed date' + end date; 'BITS confirms the term when it decides' (design/handoff-v46/canvas-v46/project/B1-07-Request-Access.dc.html 'Term' notes). Prototype has three terms only (ui-ux/18-unified-functional-platform/js/data.js:503-508).",
+        "Request form: organisation & contact, 'Licences requested', optional message, term; never asks internal/external or payment details (design/handoff-v46/canvas-v46/project/B1-07 'Three short sections … Never asked'). Prototype has no message field.",
+        "Requester identity before an institution exists: reference number only; no account (T-01). Prototype uses the scenario selector as the requester.",
+        "Institute Admin 'Ask BITS for a renewal or more licences' (design/handoff-v46/canvas-v46/project/B3-08-IA-Requests-to-BITS.dc.html); more licences asks the NUMBER only, no term; renewal mirrors the plan (OD-B3-09). Prototype expansion is a full public request (items + technologies + quantity + term) and renewal mirrors (ui-ux/18-unified-functional-platform/js/state.js:3527-3574).",
+        "Payment: out of scope (design/handoff-v46/START-HERE.md:43); v46 draws a provider-neutral page with 'Payment not confirmed' ('Check again') and 'Payment failed' ('Try payment again') (design/handoff-v46/canvas-v46/project/B1-08 frames 5-7). Prototype simulates success/declined/indeterminate (ui-ux/18-unified-functional-platform/js/state.js:3166-3206).",
+        "Selection: v46 'Last format locked' (design/handoff-v46/canvas-v46/project/B1-06-Selection.dc.html frame 2) — prototype refuses an empty technology set (ui-ux/18-unified-functional-platform/js/state.js:2793-2807); consistent."
+      ],
+      "removedBehaviours": [
+        "Applicant reply / resubmit after 'Information requested' (ui-ux/18-unified-functional-platform/js/state.js:3142-3153) — T-03.",
+        "Scenario selector as requester identity and route source (ui-ux/18-unified-functional-platform/js/state.js:2828-2865; ui-ux/18-unified-functional-platform/js/data.js:447-486) — T-01/T-04.",
+        "Payment simulation screen as product (ui-ux/18-unified-functional-platform/js/state.js:3166-3206) — out of scope; keep only the provider-neutral status boundary."
+      ]
+    },
+    {
+      "name": "licence / access plan (prototype: access[] TenantContentAccess)",
+      "prototypeFields": [
+        {
+          "field": "id",
+          "type": "'ACC-nnn'",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3327"
+        },
+        {
+          "field": "tenantId / requestId",
+          "type": "FKs",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3328-3329"
+        },
+        {
+          "field": "items[]",
+          "type": "[{experimentId, technologies[]}] — what the Super Admin GRANTED",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3320-3332"
+        },
+        {
+          "field": "quantity",
+          "type": "int approved licences (no universal cap)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3333"
+        },
+        {
+          "field": "term",
+          "type": "enum",
+          "enum": [
+            "monthly",
+            "quarterly",
+            "yearly"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3334"
+        },
+        {
+          "field": "accessContext / recordedBy",
+          "type": "copied from request / 'Super Admin — request approval'",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3335-3336"
+        },
+        {
+          "field": "startsOn / endsOn",
+          "type": "ISO / ISO (startsOn + term months)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3337-3338"
+        },
+        {
+          "field": "renewals[]",
+          "type": "{at, requestId, term, previousEndsOn, endsOn, accessContext, route payment|no-payment, recordedBy}",
+          "enum": [
+            "payment",
+            "no-payment"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3341, 3612-3626"
+        },
+        {
+          "field": "derived termState",
+          "type": "enum (≤15 days = expiring)",
+          "enum": [
+            "active",
+            "expiring",
+            "expired"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3657-3670"
+        },
+        {
+          "field": "derived assignability reason",
+          "type": "enum",
+          "enum": [
+            "missing",
+            "other-tenant",
+            "tenant-inactive",
+            "expired",
+            "no-experiments",
+            "no-technologies",
+            "no-quantity"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3703-3732"
+        },
+        {
+          "field": "derived allocation",
+          "type": "{approved, assigned, remaining, over, entitledIds, heldIds, live} — unique active students per record, queued by max(first reach, activationSeq)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4316-4372"
+        },
+        {
+          "field": "expiry reminder",
+          "type": "derived 'due' when live and ≤15 days (EXPIRY_REMINDER_DAYS)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10457-10470"
+        }
+      ],
+      "stateMachine": "Written only by activation (internal approval or external payment success); a renewal activation extends endsOn from max(current end, now) and appends renewals[]; expires by time; never amended, never deleted. A protoSetAccessEnd demo clock exists (ui-ux/18-unified-functional-platform/js/state.js:10487-10495).",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "live",
+          "role": "Super Admin approval (internal) or institution payment success (external)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3294-3343"
+        },
+        {
+          "from": "live",
+          "to": "endsOn extended",
+          "role": "renewal activation (approval or payment on the record's own route)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3585-3634, 3444-3475"
+        },
+        {
+          "from": "live",
+          "to": "expired",
+          "role": "time",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3657-3670"
+        }
+      ],
+      "v46Differences": [
+        "v46 ACC statuses 'Access active · Ending soon · Paused · Access ended' (design/handoff-v46/canvas-v46/project/handoff/entities.json ACC; design/handoff-v46/canvas-v46/project/B2-02-Content-Access.dc.html frames 'Ending soon', 'Ended', 'Paused · read-only'). Prototype label 'Expiring soon'.",
+        "Licence counting (D7) is OPEN: show figures as provided ('Licences 1,284 of 1,650'), never explain what assignment, withdrawal or deactivation does to the count (T-06); 'no licence arithmetic (D7)' in Give students access (design/handoff-v46/canvas-v46/project/B2-05-Give-Students-Access.dc.html notes). The prototype implements a specific counting algorithm (one licence per unique active student per record, FIFO queue, reactivation re-queues at the back, over-allocation refused) (ui-ux/18-unified-functional-platform/js/state.js:4316-4372, 4499; README judgement calls 1-4).",
+        "'Waiting for a licence' IS a v46 state (design/handoff-v46/canvas-v46/project/B2-04-Student-Access.dc.html frame 1; B2-05 frame 11; B3-02 frame 4) — the analogue of the prototype 'allocation-held' block reason (ui-ux/18-unified-functional-platform/js/state.js:4608) — but the rule producing it is D7.",
+        "No amend control on an active plan (T-08) — consistent (prototype has none).",
+        "'Reminder due' is a status only; nothing is sent (T-31; design/handoff-v46/canvas-v46/project/B7-09-Operations.dc.html 'Access ending') — consistent with prototype (no send).",
+        "Term may be 'Until a fixed date' in v46 (design/handoff-v46/canvas-v46/project/B1-07)."
+      ],
+      "removedBehaviours": [
+        "Hard-coded licence-counting semantics and the over-allocation refusal as product rules (ui-ux/18-unified-functional-platform/js/state.js:4336-4372, 4499) — T-06/D7: keep counts as provided data; do not derive or explain.",
+        "Demo expiry clock (ui-ux/18-unified-functional-platform/js/state.js:10487-10495) — prototype-only."
+      ]
+    },
+    {
+      "name": "institutional assignment (Institute Admin assigned to an institution; prototype tenantAdmins[])",
+      "prototypeFields": [
+        {
+          "field": "id",
+          "type": "'TAD-nnn'",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7892"
+        },
+        {
+          "field": "tenantId / name / email",
+          "type": "FK / required / required, valid, unique per tenant",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7866-7879, 7893-7895"
+        },
+        {
+          "field": "status",
+          "type": "enum",
+          "enum": [
+            "active",
+            "removed"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7896, 7911"
+        },
+        {
+          "field": "source",
+          "type": "enum",
+          "enum": [
+            "seed",
+            "manual"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1344, 7897"
+        },
+        {
+          "field": "assignedBy / assignedAt / removedBy / removedAt",
+          "type": "",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7898-7900, 7912-7913"
+        }
+      ],
+      "stateMachine": "Super Admin assigns a named person (no account, invitation or credential) and may remove; a tenant without an admin is surfaced (tenantsWithoutAdmin). Content allocation to an institution is the separate access-plan entity.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "active",
+          "role": "Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7884-7906"
+        },
+        {
+          "from": "active",
+          "to": "removed",
+          "role": "Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7908-7919"
+        }
+      ],
+      "v46Differences": [
+        "v46 'Assign Institute Admin' on the institution record; 'Nothing is sent (T-11)' (design/handoff-v46/canvas-v46/project/handoff/flows.json Flow B step 1; design/handoff-v46/canvas-v46/project/B7-03-Institution-Detail.dc.html control 'Assign Institute Admin'); 'No Institute Admin 1' filter (design/handoff-v46/canvas-v46/project/B7-02-Institutions.dc.html).",
+        "Offered only once access is active (OD-B7-11) — prototype allows it as soon as the institution is provisioned at approval.",
+        "Label is 'Institute Admin' (T-35); prototype 'Tenant Admin' (ui-ux/18-unified-functional-platform/js/state.js:7851-7943).",
+        "Removing an Institute Admin: not shown in the v46 frames read (control list for B7-03 has 'Assign Institute Admin' only).",
+        "Without an Institute Admin a Student device request 'can’t be forwarded yet' (design/handoff-v46/canvas-v46/project/B3-07-My-Device.dc.html frame 7; OD-B3-05) — prototype escalate refuses without an acting admin (ui-ux/18-unified-functional-platform/js/state.js:10118-10124)."
+      ],
+      "removedBehaviours": [
+        "Assignment before access activation (OD-B7-11)."
+      ]
+    },
+    {
+      "name": "student entitlement / grant (prototype: assignments[] + derived entitlement)",
+      "prototypeFields": [
+        {
+          "field": "id",
+          "type": "'ASG-nnn'",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4518"
+        },
+        {
+          "field": "tenantId / accessId / experimentId",
+          "type": "FKs — unit is the Experiment under one access record",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4519-4521"
+        },
+        {
+          "field": "targetType / targetId",
+          "type": "enum / FK",
+          "enum": [
+            "student",
+            "group"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4522-4523, 4434"
+        },
+        {
+          "field": "technologies[]",
+          "type": "snapshot of the access record's technologies (record stays authoritative)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4524-4526"
+        },
+        {
+          "field": "assignedBy",
+          "type": "'Tenant Admin'",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4527"
+        },
+        {
+          "field": "status",
+          "type": "enum",
+          "enum": [
+            "active",
+            "removed"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4528, 4548"
+        },
+        {
+          "field": "createdAt / eventSeq / removedAt",
+          "type": "",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4529-4531"
+        },
+        {
+          "field": "derived entitlement",
+          "type": "{accessId, experimentId, technologies, sources[], effective, blockedBy} — NEVER stored",
+          "enum": [
+            "tenant-inactive",
+            "student-inactive",
+            "allocation-held",
+            "access-expired"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:55-61, 4554-4632, 4775"
+        },
+        {
+          "field": "preview result",
+          "type": "{ok, reason, alloc, newStudentIds, countedStudentIds, inactiveStudentIds, duplicateTargets, alreadyEntitled, emptyGroups, technologies}",
+          "enum": [
+            "no-access",
+            "access-expired",
+            "not-assignable",
+            "not-approved",
+            "no-target",
+            "bad-target-type",
+            "other-tenant-target",
+            "duplicate",
+            "inactive-target",
+            "over-allocation"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4418-4502"
+        }
+      ],
+      "stateMachine": "Tenant Admin previews then assigns (group assignment all-or-nothing); active → removed (no reason). Effective entitlement is derived: tenant active ∧ student active ∧ access live ∧ within allocation ∧ ≥1 active assignment reaching the student; multiple sources union into one entitlement; Student sees the union of technologies.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "active",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4506-4538"
+        },
+        {
+          "from": "active",
+          "to": "removed",
+          "role": "Tenant / Institute Admin (no reason)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4544-4552"
+        }
+      ],
+      "v46Differences": [
+        "SACC statuses 'Active · Withdrawn' (design/handoff-v46/canvas-v46/project/handoff/entities.json SACC); student-access list also shows 'Waiting for a licence', 'Student inactive', 'Individual grant withdrawn' (design/handoff-v46/canvas-v46/project/B2-04-Student-Access.dc.html frames 1, 4, 5).",
+        "Withdraw requires a reason (design/handoff-v46/canvas-v46/project/B2-04 frame 3 'Withdraw · reason missing'; 'Withdraw individual grant'). Prototype removal has no reason (ui-ux/18-unified-functional-platform/js/state.js:4544-4552).",
+        "LD-1: Experiment is the unit; formats inherited, shown read-only, NO format picker (design/handoff-v46/canvas-v46/project/B2-05-Give-Students-Access.dc.html 'There is no WEB / AR / VR / MR picker anywhere in the flow') — consistent with prototype. NOTE design/handoff-v46/canvas-v46/project/handoff/flows.json Flow B step 3 says 'Experiment × format grant' — board wins.",
+        "Overlapping individual + group grants: each grant shown with its own state; withdrawal names the grant it ends; NO can/can’t-open statement (OD-B2-01). Prototype asserts one effective entitlement as the union of sources (ui-ux/18-unified-functional-platform/js/state.js:4563-4632, 4784-4828).",
+        "Late group members: 'Added after the group grant' shown; no promise either way (OD-B2-02). Prototype group reach is dynamic — late members ARE entitled (ui-ux/18-unified-functional-platform/js/state.js:4275-4300).",
+        "Licence effect of overlapping grants not shown (OD-B2-03).",
+        "v46 grant ids SACC-nnnn per grant (design/handoff-v46/canvas-v46/project/B2-05 frame 3 'Access given · SACC-0310')."
+      ],
+      "removedBehaviours": [
+        "Asserting can-open / can't-open for overlapping grants (union semantics) — OD-B2-01.",
+        "Promising late group members receive the group's experiments — OD-B2-02.",
+        "Reason-less withdrawal (ui-ux/18-unified-functional-platform/js/state.js:4544-4552).",
+        "Licence arithmetic in the assign preview ('remaining', 'over-allocation') shown to the Institute Admin (ui-ux/18-unified-functional-platform/js/state.js:4437-4499) — D7."
+      ]
+    },
+    {
+      "name": "group (+ membership)",
+      "prototypeFields": [
+        {
+          "field": "groups[].id / tenantId",
+          "type": "'GRP-nnn' / FK",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4079-4081"
+        },
+        {
+          "field": "groups[].name / description",
+          "type": "string / string",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4082-4083"
+        },
+        {
+          "field": "groups[].createdAt",
+          "type": "ISO",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4084"
+        },
+        {
+          "field": "memberships[]",
+          "type": "{id 'GM-nnn', tenantId, groupId, personId, eventSeq, addedAt}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4123-4133"
+        }
+      ],
+      "stateMachine": "Create / rename (Institute Admin); add student (same tenant, students only, no duplicate); remove member deletes the membership row. Membership alone grants nothing.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "group exists",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4073-4089"
+        },
+        {
+          "from": "group",
+          "to": "renamed",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4090-4098"
+        },
+        {
+          "from": "not member",
+          "to": "member",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4116-4136"
+        },
+        {
+          "from": "member",
+          "to": "(row deleted)",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4137-4146"
+        }
+      ],
+      "v46Differences": [
+        "v46 group has a name only ('Group name — For example a section or lab batch'); no description field drawn (design/handoff-v46/canvas-v46/project/B2-08-Groups.dc.html Create group DL-3).",
+        "Remove member is a DL-1 confirmation (design/handoff-v46/canvas-v46/project/B2-08 frame 5); Add students panel; 'Give this group access' (design/handoff-v46/canvas-v46/project/B2-08 frames 3-7).",
+        "Group can be chosen in Add student (optional) (design/handoff-v46/canvas-v46/project/B2-07 IA-10 'Group (optional)')."
+      ],
+      "removedBehaviours": [
+        "Group description field (ui-ux/18-unified-functional-platform/js/state.js:4083) — not drawn in v46."
+      ]
+    },
+    {
+      "name": "person (Student / Faculty — prototype people[] TenantUser)",
+      "prototypeFields": [
+        {
+          "field": "id / tenantId / role",
+          "type": "'USR-nnn' / FK / enum",
+          "enum": [
+            "student",
+            "faculty"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3877-3879, 3899-3901"
+        },
+        {
+          "field": "name / email",
+          "type": "string / string (unique per tenant by normalised compare)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3880-3881, 3861-3864"
+        },
+        {
+          "field": "status",
+          "type": "enum",
+          "enum": [
+            "active",
+            "inactive"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3883, 3958-3989"
+        },
+        {
+          "field": "source",
+          "type": "enum (provenance, ND-04)",
+          "enum": [
+            "seed",
+            "manual",
+            "csv"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:140-147, 3884"
+        },
+        {
+          "field": "createdAt / activatedAt / activationSeq / deactivatedAt",
+          "type": "ISO / ISO / int queue stamp / ISO",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3885, 3983-3985"
+        },
+        {
+          "field": "faculty.facultyId",
+          "type": "string",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3882"
+        },
+        {
+          "field": "student.studentId",
+          "type": "string (unique per tenant)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3902, 3865-3868"
+        },
+        {
+          "field": "student.groupingId / courseId / localCourseCode",
+          "type": "FK programme grouping / FK course / institution code",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3905-3907"
+        },
+        {
+          "field": "student.semester / organisation / planTerms",
+          "type": "optional strings; planTerms never overrides the access record",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3908-3915; ui-ux/18-unified-functional-platform/js/data.js:510-520"
+        },
+        {
+          "field": "overrides[]",
+          "type": "{at, from, to, by 'Super Admin — platform override', reason}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4014-4020"
+        },
+        {
+          "field": "CSV import columns",
+          "type": "Programme*, Course Name*, Course ID/Code*, Student ID*, Student Name*, Email*, Semester, Organisation, Plan Terms; all-or-nothing",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/csv.js:40-50"
+        }
+      ],
+      "stateMachine": "Added by Institute Admin (manual or CSV, all-or-nothing); active ⇄ inactive by Institute Admin (no reason) or by Super Admin override (reason required). Reactivation re-stamps activationSeq (back of licence queue). Nothing deleted.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "active",
+          "role": "Tenant / Institute Admin (manual add or CSV)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3870-3953; ui-ux/18-unified-functional-platform/js/csv.js:40-50"
+        },
+        {
+          "from": "active",
+          "to": "inactive",
+          "role": "Tenant / Institute Admin (no reason)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3958-3976"
+        },
+        {
+          "from": "inactive",
+          "to": "active",
+          "role": "Tenant / Institute Admin (re-queues licence)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3976-3988"
+        },
+        {
+          "from": "active ⇄ inactive",
+          "to": "(student)",
+          "role": "Super Admin platform override (reason required)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4006-4033"
+        }
+      ],
+      "v46Differences": [
+        "PER statuses 'Active · Inactive' (design/handoff-v46/canvas-v46/project/handoff/entities.json PER); student record shows 'Account active' (design/handoff-v46/canvas-v46/project/B2-06-People.dc.html frame 8).",
+        "Add student fields: Full name, Institution e-mail (unique), Student ID (unique), Programme (optional), Group (optional) — no course, course code, semester, organisation or plan terms (design/handoff-v46/canvas-v46/project/B2-07-Add-and-Import.dc.html IA-10; OD-B2-04 open).",
+        "Student CSV template: student_id, full_name, email, programme, course, course_code — every column required (design/handoff-v46/canvas-v46/project/B2-07 IA-11 template data:text/csv link). Prototype has 6 required + Semester, Organisation, Plan Terms optional (ui-ux/18-unified-functional-platform/js/csv.js:40-50). ND-03/ND-04 plan terms & ERP precedence 'Not designed' (design/handoff-v46/canvas-v46/project/B2-15-Change-Log.dc.html).",
+        "Add faculty member: name and e-mail only; courses assigned in Faculty courses (design/handoff-v46/canvas-v46/project/B2-07 'Add faculty member · interactive'). Prototype has facultyId.",
+        "Deactivate account requires a reason (design/handoff-v46/canvas-v46/project/B2-06 frame 13 'Deactivate · reason missing'); prototype Institute Admin deactivation has none (ui-ux/18-unified-functional-platform/js/state.js:3958-3989).",
+        "Super Admin 'Change status' per student with a reason (design/handoff-v46/canvas-v46/project/B7-03-Institution-Detail.dc.html caption 'People: change one student’s status with a reason (override)') — consistent with prototype override.",
+        "No invitation or e-mail is sent (design/handoff-v46/canvas-v46/project/B2-07 'No invitation or e-mail is sent'; T-11) — consistent."
+      ],
+      "removedBehaviours": [
+        "Student fields semester, organisation, planTerms, localCourseCode on the person (ui-ux/18-unified-functional-platform/js/state.js:3907-3915) — not in v46 forms or template.",
+        "Faculty facultyId (ui-ux/18-unified-functional-platform/js/state.js:3882) — not in v46 form.",
+        "Reason-less deactivation by the Institute Admin (ui-ux/18-unified-functional-platform/js/state.js:3958-3989).",
+        "Student → canonical grouping FK (ui-ux/18-unified-functional-platform/js/state.js:3905)."
+      ]
+    },
+    {
+      "name": "faculty-course mapping (prototype facultyMappings[] FacultyAssignment)",
+      "prototypeFields": [
+        {
+          "field": "id / tenantId / personId",
+          "type": "'FMAP-nnn' / FK / Faculty FK (same tenant enforced)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4235-4237, 4227-4228"
+        },
+        {
+          "field": "accessId",
+          "type": "FK access record (must be assignable)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4229-4230, 4237"
+        },
+        {
+          "field": "courseId",
+          "type": "FK course reachable through that access record",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4231, 4238"
+        },
+        {
+          "field": "experimentId",
+          "type": "FK | null — optional experiment-level mapping",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4232, 4238"
+        },
+        {
+          "field": "status / createdAt / removedAt",
+          "type": "enum active|removed",
+          "enum": [
+            "active",
+            "removed"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4239-4240, 4250-4251"
+        }
+      ],
+      "stateMachine": "Institute Admin maps Faculty → (access record, course[, experiment]); soft removal; Faculty scope and student reach are derived (mapping decides content; reach is effective entitlement); removal reports stranded pending reviews.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "active",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4218-4245"
+        },
+        {
+          "from": "active",
+          "to": "removed",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4246-4254, 6856-6885"
+        }
+      ],
+      "v46Differences": [
+        "v46 'Faculty courses' (never 'Faculty mapping'): Faculty × COURSE only, chosen from 'Courses in your content access', active faculty only, duplicate refused '<name> already teaches <course>' (design/handoff-v46/canvas-v46/project/B2-09-Faculty-Courses.dc.html IA-15 and script). No access-record binding and no experiment-level mapping.",
+        "Removal warns 'Written answers would have no marker' (design/handoff-v46/canvas-v46/project/B2-09 frame 2) — consistent with prototype pendingReviewsLosingEvaluator (ui-ux/18-unified-functional-platform/js/state.js:6856-6885).",
+        "'The course appears in that person’s Faculty workspace. It doesn’t give students anything.' (design/handoff-v46/canvas-v46/project/B2-09) — consistent.",
+        "Co-teaching of one course shares one assessment; no sample (OD-B4-17)."
+      ],
+      "removedBehaviours": [
+        "Experiment-level Faculty mapping and binding a mapping to a specific access record (ui-ux/18-unified-functional-platform/js/state.js:4218-4241).",
+        "Label 'Faculty mapping'."
+      ]
+    },
+    {
+      "name": "runtime session / activity (runtimeEvents[] + simulationActivity[] projection)",
+      "prototypeFields": [
+        {
+          "field": "runtimeEvents[].id / seq",
+          "type": "'RTE-nnn' / platform ingestion order",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5288-5290"
+        },
+        {
+          "field": "clientEventId",
+          "type": "client idempotency key (null = caller does not dedupe)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5291-5295"
+        },
+        {
+          "field": "type",
+          "type": "enum",
+          "enum": [
+            "SIMULATION_LAUNCHED",
+            "SESSION_STARTED",
+            "SESSION_ENDED",
+            "SIMULATION_COMPLETED",
+            "SIMULATION_ERROR"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5105-5116"
+        },
+        {
+          "field": "sessionId",
+          "type": "'RSN-nnn' REQUIRED",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5266-5269, 5732-5735"
+        },
+        {
+          "field": "personId / tenantId / experimentId / technology",
+          "type": "FKs; tenantId derived",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5298-5301"
+        },
+        {
+          "field": "contentRecordId / contentVersionLabel",
+          "type": "captured at ingestion",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5302-5308"
+        },
+        {
+          "field": "source",
+          "type": "enum",
+          "enum": [
+            "web-prototype-runtime",
+            "platform-standin",
+            "ar-native-client",
+            "vr-native-client",
+            "mr-native-client",
+            "demo-runtime-simulator"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5122-5148"
+        },
+        {
+          "field": "occurredAt / recordedAt",
+          "type": "runtime clock (ISO-8601 enforced, normalised UTC) / platform clock",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5217-5228, 5310-5315"
+        },
+        {
+          "field": "durationSeconds / detail",
+          "type": "SESSION_ENDED only, finite ≥0 / object",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5316-5323"
+        },
+        {
+          "field": "reject reasons",
+          "type": "enum (refused events are not stored)",
+          "enum": [
+            "unknown-event-type",
+            "unknown-technology",
+            "unknown-student",
+            "not-entitled",
+            "missing-session-id",
+            "invalid-timestamp"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5179-5186"
+        },
+        {
+          "field": "simulationActivity",
+          "type": "{id 'SIM-nnn', tenantId, personId, experimentId, technology, status, deliveryState, startedAt, completedAt, timeSpentSeconds, launches, preTelemetry, requestedAt, readyAt}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4948-4963, 4972, 4983"
+        },
+        {
+          "field": "deliveryState",
+          "type": "enum (hosted starts 'ready')",
+          "enum": [
+            "not-requested",
+            "pending",
+            "ready"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4730-4734, 4955-4956"
+        },
+        {
+          "field": "derived utilisation",
+          "type": "{launches, sessionCount, openSessions, totalSeconds, errors, firstActivityAt, lastActivityAt, completed, completedAt, used, status, sources, sessions, evidence}",
+          "enum": [
+            "runtime-events",
+            "pre-telemetry",
+            "mixed",
+            "none"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5500-5598"
+        }
+      ],
+      "stateMachine": "Append-only event log; sessions folded on read (duplicate start/end ignored; end-without-start one-step; open session = 0 s; new start abandons open session; clock clamps). Package formats: deliveryState not-requested → pending (Student 'request access') → ready (prototype 'mark ready' stand-in). simulationActivity is a projection rebuilt from events.",
+      "transitions": [
+        {
+          "from": "not-requested",
+          "to": "pending",
+          "role": "Student (requestSimulationAccess, package formats)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4968-4975; ui-ux/18-unified-functional-platform/js/screens/student-learn.js:912"
+        },
+        {
+          "from": "pending",
+          "to": "ready",
+          "role": "PROTOTYPE stand-in (simulatePackageReady)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4979-4986; ui-ux/18-unified-functional-platform/js/screens/student-learn.js:914"
+        },
+        {
+          "from": "(no session)",
+          "to": "session open",
+          "role": "runtime (SIMULATION_LAUNCHED + SESSION_STARTED); in prototype the Student's 'Start' button on the web runtime",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5762-5782; ui-ux/18-unified-functional-platform/js/screens/student-learn.js:1076, 1181-1191"
+        },
+        {
+          "from": "session open",
+          "to": "session ended",
+          "role": "runtime SESSION_ENDED; in prototype Student 'End this session'",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5786-5797; ui-ux/18-unified-functional-platform/js/screens/student-learn.js:1083, 1202-1212"
+        },
+        {
+          "from": "any",
+          "to": "error recorded",
+          "role": "runtime SIMULATION_ERROR (never a completion)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5815-5834"
+        }
+      ],
+      "v46Differences": [
+        "v46 RUN 'Simulation progress': 'Not started · In progress · Completed (per format)'; ownerWriter listed as 'Student' in design/handoff-v46/canvas-v46/project/handoff/entities.json RUN (conflicts with binding #3 — see warnings).",
+        "WEB: 'Launch WEB' / 'Continue WEB' / 'Couldn’t open + try again' (design/handoff-v46/canvas-v46/project/B3-03-WEB-Simulation.dc.html); VR/AR/MR: setup steps information-only, no launch or request control on the platform page — controls are only 'Report a problem', 'Back to Simulation' (design/handoff-v46/canvas-v46/project/B3-04-AR-VR-MR-Format.dc.html; T-14).",
+        "'Last saved' and 'session' are shown as TIME ONLY ('Last saved 12 Oct 2026, 11:20', 'Last session reported 16 Oct 2026, 14:10'); no step names or durations (OD-B3-07).",
+        "Institute Admin Usage (design/handoff-v46/canvas-v46/project/B3-10-IA-Usage.dc.html): four figures — Students with access, Started ('opened this format at least once'), Completed ('reported completed by the simulation or the headset'), Sessions ('times the format was opened in the browser (WEB) or a session was reported from a headset (VR)'); Institute Admin only; no export (OD-B3-08).",
+        "Committed V2 (git show 1b090c9:v2/packages/domain/src/runtime/events.ts:12-37) keeps the five events but restricts sources to web-runtime / ar / vr / mr native clients (stand-ins excluded)."
+      ],
+      "removedBehaviours": [
+        "Student-driven device delivery ladder 'request access' → 'ready' (ui-ux/18-unified-functional-platform/js/state.js:4968-4986; ui-ux/18-unified-functional-platform/js/screens/student-learn.js:912-914) — v46 T-14 information-only setup.",
+        "DEMO CONTROL runtime-event simulator ('Report a session only', 'Report a completed run', 'Report a runtime error') (ui-ux/18-unified-functional-platform/js/screens/student-learn.js:700-720, 925-960).",
+        "Stand-in sources platform-standin / web-prototype-runtime / demo-runtime-simulator (ui-ux/18-unified-functional-platform/js/state.js:5122-5148).",
+        "Surfacing time spent / durations to Students and Faculty (ui-ux/18-unified-functional-platform/js/screens/student-learn.js:1150-1156 'Time is the total of your finished sessions'; ui-ux/18-unified-functional-platform/js/csv.js:418 'Time spent (minutes)') — OD-B3-07 'no step names or durations'.",
+        "Pre-telemetry inheritance (ui-ux/18-unified-functional-platform/js/state.js:5504-5530, 5533-5597) — prototype-data only (V2 P-14 note)."
+      ]
+    },
+    {
+      "name": "per-format progress",
+      "prototypeFields": [
+        {
+          "field": "TECH_PROGRESS status",
+          "type": "enum (derived, never stored)",
+          "enum": [
+            "NOT_STARTED",
+            "IN_PROGRESS",
+            "PENDING_FACULTY_REVIEW",
+            "RESULT_WITHHELD",
+            "COMPLETED"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6247-6255"
+        },
+        {
+          "field": "technologyProgress",
+          "type": "{technology, simulation, simulationStatus, utilisation, deliveryState, assessment, attempt, status, waitingOnResources}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6339-6393"
+        },
+        {
+          "field": "format COMPLETED rule",
+          "type": "simulation COMPLETED ∧ resources complete ∧ (no assessment ∨ PASSED) ∧ not withheld",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6350-6356"
+        },
+        {
+          "field": "experimentProgress",
+          "type": "{technologies[], resources, assessment, status (overall verdict), historical, steps{total,done}, percent, lastActivityAt, factual}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6435-6517"
+        },
+        {
+          "field": "factualLearningState",
+          "type": "three strands resources / simulation / assessment",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6527-6592"
+        },
+        {
+          "field": "studentProgressSummary",
+          "type": "{entitled, notStarted, inProgress, awaiting, awaitingRelease, completed, unavailable, items}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6633-6652"
+        }
+      ],
+      "stateMachine": "Derived on read from resources + simulation + assessment, per technology; then rolled up to an experiment-level status and percent and a Student-wide count.",
+      "transitions": [],
+      "v46Differences": [
+        "BINDING #4 (design/handoff-v46/START-HERE.md:37): progress is per technology format with NO aggregate completion verdict; Faculty sees 'Per format in words with the date of completion; never a percentage or an experiment-level verdict' (design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html notes).",
+        "v46 Student Progress (design/handoff-v46/canvas-v46/project/B3-05-Progress.dc.html) shows per-format 'Not started / In progress / Completed <date>' rows and 'Give feedback on <FORMAT>'.",
+        "Format progress in v46 is the RUN simulation status only (design/handoff-v46/canvas-v46/project/handoff/entities.json RUN); the prototype's format COMPLETED additionally requires resources and assessment (ui-ux/18-unified-functional-platform/js/state.js:6350-6356).",
+        "Faculty CSV export columns: student, student ID, experiment, WEB, VR, assessment, result released to student, last activity (design/handoff-v46/canvas-v46/project/B4-10 export notice). Prototype export carries Score %, Time spent, Resources completed, Progress (ui-ux/18-unified-functional-platform/js/csv.js:399-423)."
+      ],
+      "removedBehaviours": [
+        "Experiment-level overall status, steps and percent (ui-ux/18-unified-functional-platform/js/state.js:6435-6517; ui-ux/18-unified-functional-platform/js/screens/faculty.js:1272, 1311, 1619-1628 'Overall').",
+        "Student-wide completed/in-progress counts (ui-ux/18-unified-functional-platform/js/state.js:6633-6652; ui-ux/18-unified-functional-platform/js/screens/student.js:829) and tenant roll-ups (ui-ux/18-unified-functional-platform/js/screens/tenant.js:1632-1635).",
+        "Four-part derived format completion (resources + simulation + assessment) (ui-ux/18-unified-functional-platform/js/state.js:6350-6356) — five states must not be derived from each other.",
+        "'Progress' and 'Score %' export columns (ui-ux/18-unified-functional-platform/js/csv.js:421-422)."
+      ]
+    },
+    {
+      "name": "completion (format completion)",
+      "prototypeFields": [
+        {
+          "field": "completed / completedAt / completedTechnology",
+          "type": "from the FIRST SIMULATION_COMPLETED whose session was launched or started",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5442-5462"
+        },
+        {
+          "field": "inheritedCompletion",
+          "type": "pre-telemetry COMPLETED honoured (evidence 'mixed')",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5553-5566"
+        },
+        {
+          "field": "never walked back",
+          "type": "a later launch is a re-run, not an undoing",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5699-5706"
+        }
+      ],
+      "stateMachine": "Per Student × Experiment × technology: COMPLETED iff a SIMULATION_COMPLETED event exists for an opened session; nothing else completes (no content event; not time, sessions, resources, video, outcomes, assessment, or another technology). In the prototype the STUDENT emits that event by pressing 'I have finished the simulation' → dialog 'Report it as completed'.",
+      "transitions": [
+        {
+          "from": "IN_PROGRESS",
+          "to": "COMPLETED",
+          "role": "PROTOTYPE: Student self-report button (web runtime) — calls runtimeComplete + runtimeEndSession",
+          "evidence": "ui-ux/18-unified-functional-platform/js/screens/student-learn.js:1081-1082, 1213-1236"
+        },
+        {
+          "from": "IN_PROGRESS",
+          "to": "COMPLETED",
+          "role": "PROTOTYPE: demo 'Report a completed run' (AR/VR/MR stand-in)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/screens/student-learn.js:716, 940-956"
+        },
+        {
+          "from": "IN_PROGRESS",
+          "to": "COMPLETED",
+          "role": "contract: runtime emits SIMULATION_COMPLETED when the experience's own completion condition is met",
+          "evidence": "ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:92, 304-334"
+        }
+      ],
+      "v46Differences": [
+        "BINDING #3 (design/handoff-v46/START-HERE.md:36): 'Completed' is set by the SYSTEM, never by the Student, never inferred from a launch; the event that marks it is OPEN (T-12 'Completed comes from the system; no self-report; feedback unlocks on completed').",
+        "v46 Usage defines Completed as 'reported completed by the simulation or the headset' (design/handoff-v46/canvas-v46/project/B3-10-IA-Usage.dc.html).",
+        "v46 Student pages show 'Completed <date>' and unlock 'Give feedback on <FORMAT>' (design/handoff-v46/canvas-v46/project/B3-03 frame 3, B3-04 frame 2)."
+      ],
+      "removedBehaviours": [
+        "Student 'I have finished the simulation' / 'Report it as completed' (ui-ux/18-unified-functional-platform/js/screens/student-learn.js:1081-1082, 1228) — self-report forbidden.",
+        "Demo completion buttons (ui-ux/18-unified-functional-platform/js/screens/student-learn.js:716).",
+        "Treating SIMULATION_COMPLETED as a DECIDED contract — it is the prototype's choice; T-12 / A-06 / R1 remain open."
+      ]
+    },
+    {
+      "name": "assessment (prototype assessmentDefs[])",
+      "prototypeFields": [
+        {
+          "field": "id / tenantId / experimentId",
+          "type": "'ADEF-nnn' / FK / FK — ONE active per tenant × experiment",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:438-440, 7166-7170, 7369-7371"
+        },
+        {
+          "field": "title / intro",
+          "type": "required / optional",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7313-7315, 7354-7355"
+        },
+        {
+          "field": "passMark",
+          "type": "int 0-100 (create default 60)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7316-7319, 7379"
+        },
+        {
+          "field": "attemptLimit",
+          "type": "int 1-20 (create default 3)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7320-7323, 7379"
+        },
+        {
+          "field": "deadline",
+          "type": "ISO end-of-day | null",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7343-7358"
+        },
+        {
+          "field": "policy",
+          "type": "{mode, date?} (create default SHOW_IMMEDIATELY)",
+          "enum": [
+            "SHOW_IMMEDIATELY",
+            "AFTER_DEADLINE",
+            "CUSTOM_DATE"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:315-319; ui-ux/18-unified-functional-platform/js/state.js:7359-7361, 7380"
+        },
+        {
+          "field": "questions[]",
+          "type": "copies {id, bankQuestionId, bankRevision, type, text, options, answer, points, explanation, guidance}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:465-478"
+        },
+        {
+          "field": "status / revision / origin / derivedFrom",
+          "type": "'active' / int (bumped when edited after a submission) / seed|faculty / sample id",
+          "enum": [
+            "seed",
+            "faculty"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:450-453, 7382, 7416-7426"
+        },
+        {
+          "field": "createdBy / updatedBy / createdAt / updatedAt / revisedAt",
+          "type": "",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:454-455, 7383-7384"
+        },
+        {
+          "field": "readiness",
+          "type": "{hasQuestions, settingsComplete, contextBound, ready, label, missing[]}",
+          "enum": [
+            "Draft",
+            "Incomplete",
+            "Ready for students"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7247-7277"
+        }
+      ],
+      "stateMachine": "Faculty creates (settings validated), adds bank questions as copies, edits; readiness label derived Draft / Incomplete / Ready for students; revision increments if edited after a submitted attempt; no close / make-available control.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "active (Draft until ready)",
+          "role": "Faculty (mapped to experiment; one per tenant × experiment)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7364-7390"
+        },
+        {
+          "from": "active",
+          "to": "settings updated",
+          "role": "Faculty",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7392-7407"
+        },
+        {
+          "from": "questions n",
+          "to": "questions n±1 / reordered / refreshed",
+          "role": "Faculty (revision bump if submissions exist)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7428-7509"
+        }
+      ],
+      "v46Differences": [
+        "ASMT statuses 'Draft · Ready' ('Draft — not ready') (design/handoff-v46/canvas-v46/project/handoff/entities.json ASMT/ATT; design/handoff-v46/canvas-v46/project/B4-04-Assessments-and-Create.dc.html).",
+        "Create wizard with 'Save as draft'; 'rules start empty' and 'No defaults' (design/handoff-v46/canvas-v46/project/B4-04 frame 2; design/handoff-v46/canvas-v46/project/B4-06-Settings-Preview-Submissions.dc.html 'No defaults'; T-18; T-19 'No pre-selected option'). Prototype create seeds passMark 60, attemptLimit 3, policy SHOW_IMMEDIATELY (ui-ux/18-unified-functional-platform/js/state.js:7376-7385).",
+        "Fields: name · introduction (optional) · pass mark (0-100) · attempts allowed ('A whole number, 1 or more') · deadline (date and time) · when students see their result and answers ('immediately after marking · after the deadline · on a date' + release date) (design/handoff-v46/canvas-v46/project/B4-06 Fields). Prototype policy governs answers/explanations and score; 'Show immediately' means at submission; attempts capped at 20.",
+        "One assessment per experiment per institution is a PROTOTYPE RULE kept as open (OD-B4-01; design/handoff-v46/canvas-v46/project/B4-04 frame 8).",
+        "Readiness: name, pass mark, attempts, deadline and release option to continue; a draft needs only a name (OD-B4-03). Prototype: questions + settings (deadline only for AFTER_DEADLINE).",
+        "Make available / open / close / meaning of a passed deadline not designed — Ready = visible, deadline advisory (OD-B4-02; T-18).",
+        "Pass mark and rules belong to each assessment; no universal settings (design/handoff-v46/START-HERE.md:39) — prototype has no universal settings but its seeded values must not become defaults."
+      ],
+      "removedBehaviours": [
+        "Default pass mark / attempt limit / visibility policy on create (ui-ux/18-unified-functional-platform/js/state.js:7379-7380) — 'No defaults'.",
+        "'Incomplete' readiness label (ui-ux/18-unified-functional-platform/js/state.js:7275) — v46 uses Draft — not ready / Ready.",
+        "Attempt limit upper bound 20 (ui-ux/18-unified-functional-platform/js/state.js:7321) — v46 says '1 or more'."
+      ]
+    },
+    {
+      "name": "question (Question Bank item)",
+      "prototypeFields": [
+        {
+          "field": "id / tenantId / courseId / experimentId",
+          "type": "'QB-nnn' / FK / derived / FK (required)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7071-7075, 6995-6997"
+        },
+        {
+          "field": "type",
+          "type": "enum",
+          "enum": [
+            "mcq",
+            "tf",
+            "descriptive"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6946"
+        },
+        {
+          "field": "text",
+          "type": "required",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6992-6994"
+        },
+        {
+          "field": "options[] / answer",
+          "type": "mcq ≥2 options + index; tf boolean; descriptive null",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7002-7019, 7029-7057"
+        },
+        {
+          "field": "points",
+          "type": "int 1-100 (marks live on the question)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6998-7001"
+        },
+        {
+          "field": "explanation / guidance",
+          "type": "optional strings (guidance = marking guidance)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7054-7055"
+        },
+        {
+          "field": "status",
+          "type": "enum (Delete = soft)",
+          "enum": [
+            "active",
+            "deleted"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7144-7152"
+        },
+        {
+          "field": "origin",
+          "type": "enum",
+          "enum": [
+            "manual",
+            "ai",
+            "import-csv",
+            "import-xlsx",
+            "seed"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6954-6959, 420"
+        },
+        {
+          "field": "revision / createdBy / createdAt / updatedAt / deletedAt",
+          "type": "",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7084-7088, 7123-7124"
+        }
+      ],
+      "stateMachine": "Faculty add / edit (revision+1) / delete (soft; assessments and attempts keep their copies); assessments hold copies linked by bankQuestionId + bankRevision ('updated'/'deleted' link states).",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "active",
+          "role": "Faculty (experiment in scope) — manual, assisted draft, or import",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7060-7093"
+        },
+        {
+          "from": "active",
+          "to": "active (revision+1)",
+          "role": "Faculty",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7103-7127"
+        },
+        {
+          "from": "active",
+          "to": "deleted",
+          "role": "Faculty",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7144-7152"
+        }
+      ],
+      "v46Differences": [
+        "'A bank per experiment with drafts kept apart until a person reviews them'; 'Drafts never auto-added (T-23)' (design/handoff-v46/canvas-v46/project/B4-07-Question-Bank-and-Editor.dc.html notes).",
+        "Types 'multiple choice, true or false, or written answer' (design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html); three types, no timer (T-22). Prototype label 'Descriptive'.",
+        "Marks set on the question in the bank (OD-B4-07) — consistent.",
+        "Marking guidance is Faculty-only, NOT shown to students during the attempt (OD-B4-08). Prototype renders guidance as a hint in the attempt (ui-ux/18-unified-functional-platform/js/screens/student.js:307).",
+        "Delete keeps history; assessments keep their copy (OD-B4-14); 'Changed in the bank' → 'Use updated version' (design/handoff-v46/canvas-v46/project/B4-05-Assessment-Summary-and-Questions.dc.html frame 8) — consistent with prototype refresh (ui-ux/18-unified-functional-platform/js/state.js:7481-7509)."
+      ],
+      "removedBehaviours": [
+        "Showing marking guidance to students in the attempt (ui-ux/18-unified-functional-platform/js/screens/student.js:307) — OD-B4-08."
+      ]
+    },
+    {
+      "name": "attempt",
+      "prototypeFields": [
+        {
+          "field": "id / tenantId / personId / experimentId",
+          "type": "'ATT-nnn' / FKs — keyed by Student × Experiment (not format)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6039-6042, 5885-5891"
+        },
+        {
+          "field": "sourceTechnology",
+          "type": "observation: technology of the latest run (not identity)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6043, 5946-5958"
+        },
+        {
+          "field": "assessmentId / snapshot",
+          "type": "FK / frozen copy of questions, key, marks, pass mark, attempt limit",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6044-6050, 7192-7213"
+        },
+        {
+          "field": "attemptNo",
+          "type": "int",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6051"
+        },
+        {
+          "field": "status",
+          "type": "enum",
+          "enum": [
+            "in-progress",
+            "submitted"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5873, 6052"
+        },
+        {
+          "field": "answers{}",
+          "type": "questionId → value; persisted per change",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6053, 6066-6079"
+        },
+        {
+          "field": "startedAt / submittedAt",
+          "type": "ISO",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6054-6055"
+        },
+        {
+          "field": "score",
+          "type": "{earned, total, percent, objectiveEarned, objectiveTotal, descriptiveEarned, descriptiveTotal, pendingReviews, includesReview}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6162-6170"
+        },
+        {
+          "field": "outcome",
+          "type": "enum",
+          "enum": [
+            "PASSED",
+            "NOT_PASSED",
+            "PENDING_FACULTY_REVIEW"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5880, 6171-6181"
+        },
+        {
+          "field": "reviewCompletedAt",
+          "type": "ISO",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6173, 6178-6180"
+        },
+        {
+          "field": "attemptBlock reasons",
+          "type": "enum",
+          "enum": [
+            "not-entitled",
+            "no-assessment",
+            "no-questions",
+            "attempt-limit",
+            "pending-faculty-review",
+            "already-passed"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5912-5928"
+        }
+      ],
+      "stateMachine": "in-progress →(Student submit, idempotent)→ submitted; submit creates one pending descriptive review per written question; outcome PENDING_FACULTY_REVIEW until all reviews complete, then PASSED/NOT_PASSED vs passMark. New attempt blocked while pending, after a pass, or at the limit. Entitlement re-checked on every write.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "in-progress",
+          "role": "Student (effective entitlement; not blocked)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6024-6062"
+        },
+        {
+          "from": "in-progress",
+          "to": "submitted",
+          "role": "Student",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6100-6129"
+        },
+        {
+          "from": "PENDING_FACULTY_REVIEW",
+          "to": "PASSED | NOT_PASSED",
+          "role": "system recompute after Faculty finalises every review",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6141-6183, 7645-7646"
+        }
+      ],
+      "v46Differences": [
+        "v46 Student states: 'To do', 'Attempt in progress', 'Waiting for marking', 'Result not released yet', 'Result ready', 'Passed', 'Not passed' (design/handoff-v46/canvas-v46/project/B4-11-Student-Assessments.dc.html; design/handoff-v46/canvas-v46/project/B4-13-Assessment-Result.dc.html); entities.json ATT adds 'Submitted · Marks confirmed'.",
+        "Try again only when not passed with an attempt left (OD-B4-05) — consistent with prototype 'already-passed' block.",
+        "Unanswered warning inside DL-1 before submit; save/submit failure + retry (design/handoff-v46/canvas-v46/project/B4-12-Assessment-Attempt.dc.html).",
+        "'Deadline passed, marking not finished' result state (design/handoff-v46/canvas-v46/project/B4-13 frame 4); deadline advisory only (T-18).",
+        "sourceTechnology / 'Taken after VR simulation' is not shown in the v46 Faculty boards read (B4-09, B4-10) — not shown."
+      ],
+      "removedBehaviours": []
+    },
+    {
+      "name": "marking (prototype reviews[] DescriptiveReview)",
+      "prototypeFields": [
+        {
+          "field": "id / tenantId / attemptId / questionId / personId / experimentId",
+          "type": "'REV-nnn' / FKs — one per attempt × written question",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6115-6118"
+        },
+        {
+          "field": "maxMarks",
+          "type": "question points",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6119"
+        },
+        {
+          "field": "status",
+          "type": "enum",
+          "enum": [
+            "pending",
+            "completed"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6120, 7637"
+        },
+        {
+          "field": "marks",
+          "type": "number 0..maxMarks, whole OR HALF",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7626-7635"
+        },
+        {
+          "field": "feedback",
+          "type": "optional string",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7639"
+        },
+        {
+          "field": "reviewedBy / reviewedAt",
+          "type": "Faculty id / ISO",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7640-7641"
+        },
+        {
+          "field": "assistance",
+          "type": "{suggestedMarks, suggestedFeedback, reasons, generatedAt, accepted}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7579-7610; ui-ux/18-unified-functional-platform/js/ai-assist.js:361-432"
+        },
+        {
+          "field": "facultyPrefs.reviewMode",
+          "type": "enum",
+          "enum": [
+            "manual",
+            "assisted"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6702-6713"
+        }
+      ],
+      "stateMachine": "pending →(Faculty finaliseReview, in mapped scope)→ completed (immediately final; no re-mark). Optional AI suggestion writes only onto the pending review.",
+      "transitions": [
+        {
+          "from": "pending",
+          "to": "pending + assistance",
+          "role": "Faculty requests suggestion",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7579-7610"
+        },
+        {
+          "from": "pending",
+          "to": "completed",
+          "role": "Faculty (marks required; feedback optional)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:7613-7649"
+        }
+      ],
+      "v46Differences": [
+        "'Mark required, whole number from 0 to the question’s marks'; feedback optional; 'Save mark keeps it editable; Confirm marks (DL-1) makes it read-only'; re-marking not designed (T-20) (design/handoff-v46/canvas-v46/project/B4-09-Marking.dc.html notes). Prototype allows half marks and finalises in one step (ui-ux/18-unified-functional-platform/js/state.js:7633-7637).",
+        "'No suggested marks (T-23)' (design/handoff-v46/canvas-v46/project/B4-09; OD-B4-12). Prototype generates suggestedMarks (ui-ux/18-unified-functional-platform/js/state.js:7589-7591; ui-ux/18-unified-functional-platform/js/ai-assist.js:424).",
+        "Marking is per submission ('FA-19 Mark a submission'); 'Choice questions show as \"Marked automatically\"' (design/handoff-v46/canvas-v46/project/B4-09).",
+        "Institute Admin is warned when no Faculty marker exists (design/handoff-v46/canvas-v46/project/B4-09 frame 6) — consistent with prototype pendingReviewsWithoutEvaluator (ui-ux/18-unified-functional-platform/js/state.js:6827-6853)."
+      ],
+      "removedBehaviours": [
+        "Half marks (ui-ux/18-unified-functional-platform/js/state.js:7633-7635).",
+        "AI-suggested marks / 'assisted' review mode (ui-ux/18-unified-functional-platform/js/state.js:6702-6713, 7579-7610) — T-23.",
+        "Single-step finalisation without a Save mark (editable) vs Confirm marks (read-only) distinction."
+      ]
+    },
+    {
+      "name": "result (score, outcome and release)",
+      "prototypeFields": [
+        {
+          "field": "release",
+          "type": "{mode, label, releaseAt, released, sentence, unresolved}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6190-6232"
+        },
+        {
+          "field": "scoreWithheld / resultWithheld",
+          "type": "derived booleans; while withheld no figure reaches the Student",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6292-6308"
+        },
+        {
+          "field": "ASSESS_STATE",
+          "type": "enum",
+          "enum": [
+            "NONE",
+            "NOT_STARTED",
+            "IN_PROGRESS",
+            "PENDING_FACULTY_REVIEW",
+            "PASSED",
+            "NOT_PASSED"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6243-6246"
+        }
+      ],
+      "stateMachine": "Released when policy allows: SHOW_IMMEDIATELY at submission; AFTER_DEADLINE at deadline; CUSTOM_DATE at date; policy read LIVE (not frozen in snapshot). Answer key never shown during an attempt.",
+      "transitions": [
+        {
+          "from": "withheld",
+          "to": "released",
+          "role": "time / policy (Faculty-configured)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:6190-6232"
+        }
+      ],
+      "v46Differences": [
+        "'Result not released yet' → 'Result ready' (design/handoff-v46/canvas-v46/project/B4-11 frames 3-4); Faculty submissions list shows 'Marked' and 'Released · 15 Nov' (design/handoff-v46/canvas-v46/project/B4-06 frames 8-9; design/handoff-v46/canvas-v46/project/handoff/flows.json Flow D step 4 'FA-12 (release)').",
+        "Release options 'immediately after marking · after the deadline · on a date'; results and answers released together (OD-B4-04). Prototype SHOW_IMMEDIATELY releases at submission.",
+        "Correct answer + explanation shown after release; explanation optional (OD-B4-09) — consistent.",
+        "No figures while withheld (T-19) — consistent."
+      ],
+      "removedBehaviours": []
+    },
+    {
+      "name": "feedback (Student format feedback)",
+      "prototypeFields": [],
+      "stateMachine": "NOT MODELLED in the prototype: no Student feedback record exists. The only 'feedback' is Faculty feedback text on a descriptive review (ui-ux/18-unified-functional-platform/js/state.js:6120, 7639) and Faculty assistance suggestedFeedback (ui-ux/18-unified-functional-platform/js/state.js:7591).",
+      "transitions": [],
+      "v46Differences": [
+        "NEW in v46: FB 'Format feedback' — one record per Student × Experiment × format, offered only after that format is Completed ('Give feedback on WEB' → 'Feedback sent · WEB · 14 Oct') (design/handoff-v46/canvas-v46/project/handoff/entities.json FB; design/handoff-v46/START-HERE.md:38).",
+        "Five labelled 1–5 ratings (required, 'Strongly disagree … Strongly agree') + optional additional comments; 'Feedback can’t be changed after it’s sent'; error summary on missing ratings; send failure keeps answers (design/handoff-v46/canvas-v46/project/B3-06-Format-Feedback.dc.html frames 0-4).",
+        "Not eligible → no entry at all (design/handoff-v46/canvas-v46/project/B3-06 frame 5).",
+        "No staff view or analytics (T-25; OD-B3-12)."
+      ],
+      "removedBehaviours": []
+    },
+    {
+      "name": "device / device transfer (prototype deviceTransferRequests[])",
+      "prototypeFields": [
+        {
+          "field": "id / seq / personId / personName / tenantId",
+          "type": "'DTR-nnn' / int / FK / string / FK",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10021-10026"
+        },
+        {
+          "field": "scope / technologies[] / technology",
+          "type": "specific|all / resolved package technologies / single convenience",
+          "enum": [
+            "specific",
+            "all"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10047-10051, 10061"
+        },
+        {
+          "field": "currentDevice / newDevice / reason",
+          "type": "ALL REQUIRED free text",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9980-9996, 10052-10054"
+        },
+        {
+          "field": "status",
+          "type": "enum",
+          "enum": [
+            "submitted",
+            "escalated",
+            "approved",
+            "declined"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9879-9898"
+        },
+        {
+          "field": "labels",
+          "type": "Awaiting Institute Admin review · Forwarded — awaiting Super Admin · Approved · Declined",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9893-9898"
+        },
+        {
+          "field": "escalatedBy / escalatedAt / escalationNote",
+          "type": "Tenant Admin name / ISO / text",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10127-10130"
+        },
+        {
+          "field": "decidedBy / decidedAt / decisionNote",
+          "type": "'Super Admin' / ISO / text (required for decline)",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10154-10157"
+        },
+        {
+          "field": "history[]",
+          "type": "{seq, kind, label, who, at, note}",
+          "enum": [
+            "submitted",
+            "escalated",
+            "approved",
+            "declined"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10058-10059, 10132-10137, 10159-10166"
+        },
+        {
+          "field": "device registry",
+          "type": "NONE — plain labels only",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9861-9867"
+        }
+      ],
+      "stateMachine": "submitted (with Institute Admin) →(IA forward; real admin required; tenant active)→ escalated →(Super Admin)→ approved | declined. One open request per Student; only Students holding a package technology.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "submitted",
+          "role": "Student (effective package-format entitlement; none open)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:9998-10065"
+        },
+        {
+          "from": "submitted",
+          "to": "escalated",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10110-10140"
+        },
+        {
+          "from": "escalated",
+          "to": "approved",
+          "role": "Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10147-10169"
+        },
+        {
+          "from": "escalated",
+          "to": "declined",
+          "role": "Super Admin (note required) — implementation judgement",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10147-10169, 9868-9871"
+        }
+      ],
+      "v46Differences": [
+        "DTR statuses: Student 'With your Institute Admin · Forwarded to BITS · Approved' (design/handoff-v46/canvas-v46/project/B3-07-My-Device.dc.html); Institute Admin 'Waiting on you · Forwarded to BITS · Decided · approved by BITS' (design/handoff-v46/canvas-v46/project/B3-09-IA-Device-Requests.dc.html); Super Admin 'Forwarded · Still with the institution · Approved' (design/handoff-v46/canvas-v46/project/B3-11-SA-Device-Transfers.dc.html).",
+        "Approve ONLY — no Decline (T-32; OD-B3-04 'A request BITS doesn’t approve stays \"Forwarded\"'; design/handoff-v46/canvas-v46/project/handoff/flows.json Device step 3).",
+        "Fields: New device (required) and a note to the Institute Admin (optional); 'Moving from' the current authorised device is shown from the latest approved record; serial, asset tag or proof not asked (design/handoff-v46/canvas-v46/project/B3-07 'Validation · New device is the only required field'; OD-B3-01, OD-B3-02).",
+        "An 'Authorised device' per headset format is displayed on My device (design/handoff-v46/canvas-v46/project/B3-07 'The device authorised for your headset formats').",
+        "One open request assumed — entry hidden while open (OD-B3-03) — consistent.",
+        "Entry hidden when the Student has no AR / VR / MR formats (design/handoff-v46/canvas-v46/project/B3-07 frame 2) — consistent with prototype package-technology gate."
+      ],
+      "removedBehaviours": [
+        "Decline path (ui-ux/18-unified-functional-platform/js/state.js:10147-10169) — T-32.",
+        "Required currentDevice and reason fields and the technology scope selector (ui-ux/18-unified-functional-platform/js/state.js:9980-9996, 10047-10051)."
+      ]
+    },
+    {
+      "name": "support report (prototype supportTickets[])",
+      "prototypeFields": [
+        {
+          "field": "id / seq",
+          "type": "'SUP-nnn' / int",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10347-10348"
+        },
+        {
+          "field": "requesterKind / requesterId / requesterName / requesterRoleLabel",
+          "type": "enum / FK / string / string",
+          "enum": [
+            "student",
+            "faculty",
+            "tenant-admin",
+            "vendor",
+            "reviewer",
+            "manager"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10349-10352"
+        },
+        {
+          "field": "tenantId / experimentId / technology",
+          "type": "optional context",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10353-10355"
+        },
+        {
+          "field": "category",
+          "type": "enum (STK31-39)",
+          "enum": [
+            "experiment",
+            "package",
+            "login",
+            "access",
+            "device",
+            "other"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10197-10204"
+        },
+        {
+          "field": "subject / description",
+          "type": "both REQUIRED",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10322-10334"
+        },
+        {
+          "field": "status",
+          "type": "enum",
+          "enum": [
+            "open",
+            "resolved"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10187-10191"
+        },
+        {
+          "field": "resolutionNote / resolvedBy / resolvedAt / previousResolution",
+          "type": "note required to resolve",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10395-10404, 10422-10424"
+        },
+        {
+          "field": "media",
+          "type": "{name, type, kind image|video, size ≤25MB, width, height, thumb ≤48KB, attachedAt}",
+          "enum": [
+            "image",
+            "video"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10257-10310"
+        },
+        {
+          "field": "history[]",
+          "type": "{seq, kind submitted|resolved|reopened, label, who, at, note}",
+          "enum": [
+            "submitted",
+            "resolved",
+            "reopened"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10364-10365, 10406-10407, 10426-10427"
+        }
+      ],
+      "stateMachine": "open →(Super Admin, note required)→ resolved →(Super Admin, note optional)→ open. Reporting is not gated by tenant deactivation; a ticket changes nothing else.",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "open",
+          "role": "any prototype actor (Student, Faculty, Tenant Admin, Vendor, Reviewer, Content Manager)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10340-10393"
+        },
+        {
+          "from": "open",
+          "to": "resolved",
+          "role": "Super Admin (note required, shown to reporter)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10395-10410"
+        },
+        {
+          "from": "resolved",
+          "to": "open",
+          "role": "Super Admin (reopen)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:10413-10430"
+        }
+      ],
+      "v46Differences": [
+        "SUP statuses 'Open · Resolved · Reopened' — 'Reopened' is a distinct status word (design/handoff-v46/canvas-v46/project/handoff/entities.json SUP; design/handoff-v46/canvas-v46/project/07-Help-Support.dc.html). Prototype returns to 'open'.",
+        "Report fields: 'what happened, where (pre-filled from the page you came from), optional screenshot. Nothing else.' (design/handoff-v46/canvas-v46/project/07-Help-Support.dc.html 'Rules for GL-03'). Prototype requires subject + category and accepts image OR video.",
+        "Resolve needs a note shown to the reporter; Reopen is a plain confirmation; no response-time target (design/handoff-v46/canvas-v46/project/B7-09-Operations.dc.html notes; ND-14).",
+        "'any signed-in person → Super Admin' (design/handoff-v46/canvas-v46/project/handoff/entities.json SUP)."
+      ],
+      "removedBehaviours": [
+        "Issue category taxonomy and subject field (ui-ux/18-unified-functional-platform/js/state.js:10197-10204, 10322-10334) — not drawn.",
+        "Video attachments (ui-ux/18-unified-functional-platform/js/state.js:10257-10263) — v46 'optional screenshot'."
+      ]
+    },
+    {
+      "name": "platform role / scope (prototype contentActors[] + contentRoleAssignments[])",
+      "prototypeFields": [
+        {
+          "field": "contentActors[]",
+          "type": "{id 'ACT-nnn', key, role, name, organisation, email (unique), source seed|manual, registeredBy, registeredAt}",
+          "enum": [
+            "vendor",
+            "reviewer",
+            "manager"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:1298-1305, 7969-8026"
+        },
+        {
+          "field": "contentRoleAssignments[].id / actorId / role",
+          "type": "'CRA-nnn' / FK / role",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8538-8541"
+        },
+        {
+          "field": "scope",
+          "type": "enum",
+          "enum": [
+            "all",
+            "course",
+            "experiment"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8447-8448"
+        },
+        {
+          "field": "ROLE_SCOPES_ALLOWED",
+          "type": "vendor: course|experiment; reviewer: course|experiment; manager: all|course|experiment",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8449-8465"
+        },
+        {
+          "field": "courseId / experimentId",
+          "type": "set per scope",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8543-8544"
+        },
+        {
+          "field": "status / assignedBy / assignedAt / removedBy / removedAt / removedReason / history[]",
+          "type": "active|removed; append-only history",
+          "enum": [
+            "active",
+            "removed"
+          ],
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8545-8555, 8648-8661"
+        },
+        {
+          "field": "prototype identity pointers",
+          "type": "protoVendorId / protoReviewerId / protoManagerId / protoStudentId / protoFacultyId / protoTenantAdminId — NOT authentication",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:246-268, 1561-1581"
+        }
+      ],
+      "stateMachine": "Super Admin registers a named person (no account/invitation), assigns scopes (duplicate refused), withdraws a scope (reason required; record freezes read-only for its owner), withdraws all scopes, restores (optional note; history keeps the suspension).",
+      "transitions": [
+        {
+          "from": "(none)",
+          "to": "registered",
+          "role": "Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8007-8026"
+        },
+        {
+          "from": "(none)",
+          "to": "scope active",
+          "role": "Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8533-8560"
+        },
+        {
+          "from": "scope active",
+          "to": "removed",
+          "role": "Super Admin (reason required)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8570-8607"
+        },
+        {
+          "from": "removed",
+          "to": "scope active",
+          "role": "Super Admin (note optional)",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8624-8645"
+        }
+      ],
+      "v46Differences": [
+        "Seven authenticated roles; PUBLIC is a surface (design/handoff-v46/START-HERE.md:34). Platform roles page has tabs Vendors · Reviewers · Content Managers (design/handoff-v46/canvas-v46/project/B7-08-Platform-Roles.dc.html).",
+        "Scope options 'All experiments · a course · one experiment' are offered for a REVIEWER (design/handoff-v46/canvas-v46/project/B7-08 SA-17 'Role holder · Dr K. Iyer · no scope' on the Reviewers tab). Prototype forbids 'all' for Vendor and Reviewer (ui-ux/18-unified-functional-platform/js/state.js:8461-8465).",
+        "Withdraw (DL-2) needs a reason kept with the scope; Restore puts the same scope back with NO reason (OD-B7-10; design/handoff-v46/canvas-v46/project/B7-08 notes).",
+        "Register a Vendor / Reviewer: name, work e-mail and organisation required; nothing is sent; no invitation, SSO set-up or identity rule (T-11; design/handoff-v46/canvas-v46/project/B7-08 'Register a Vendor · validation'). Registering a Content Manager is not shown in the controls read.",
+        "Without scope a role holder is flagged and submissions in an unscoped course become 'Stuck — nobody can act' (design/handoff-v46/canvas-v46/project/B7-06-All-Content.dc.html).",
+        "Committed V2 roles (git show 1b090c9:v2/packages/domain/src/roles.ts:10-18) list seven roles with key 'tenant_admin' — label must be Institute Admin (T-35)."
+      ],
+      "removedBehaviours": [
+        "Restriction of Vendor/Reviewer to course|experiment scopes as a hard rule (ui-ux/18-unified-functional-platform/js/state.js:8461-8465) — v46 draws 'All experiments' for a Reviewer.",
+        "Prototype identity pointers / actor switchers (ui-ux/18-unified-functional-platform/js/state.js:246-268) — replaced by authentication (out of scope: typed mock services)."
+      ]
+    },
+    {
+      "name": "course codes (platform code + institution code)",
+      "prototypeFields": [
+        {
+          "field": "courses[].code",
+          "type": "platform code (CM primary, SA also); optional; unique; ≤40",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/data.js:93-103; ui-ux/18-unified-functional-platform/js/state.js:8134-8149, 8310-8353"
+        },
+        {
+          "field": "courseMappings[]",
+          "type": "{id 'MAP-nnn', tenantId, courseId, localCode, semester (optional), updatedAt}",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4162-4193; ui-ux/18-unified-functional-platform/js/data.js:567-572"
+        },
+        {
+          "field": "people[student].localCourseCode",
+          "type": "per-student institution code; WINS over the tenant mapping",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3907, 4050"
+        },
+        {
+          "field": "manual add side effect",
+          "type": "creates the tenant mapping only where none exists",
+          "enum": null,
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:3943-3949"
+        }
+      ],
+      "stateMachine": "Platform code set/changed by Content Manager (scope) or Super Admin; institution code + optional semester set/cleared by Institute Admin; no resolution by code anywhere.",
+      "transitions": [
+        {
+          "from": "blank|x",
+          "to": "y (platform code)",
+          "role": "Content Manager / Super Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:8331-8353, 8258-8264"
+        },
+        {
+          "from": "(none)|x",
+          "to": "localCode/semester",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4162-4184"
+        },
+        {
+          "from": "mapping",
+          "to": "(deleted)",
+          "role": "Tenant / Institute Admin",
+          "evidence": "ui-ux/18-unified-functional-platform/js/state.js:4185-4193"
+        }
+      ],
+      "v46Differences": [
+        "Platform code: Content Manager only (M-2; design/handoff-v46/canvas-v46/project/B6-10-Platform-Course-Codes.dc.html); changing a code on a course with published experiments is saved directly, effects not designed (OD-B6-13).",
+        "Institution code + optional semester on the Institute Admin Course codes tab; validation 'a semester needs a code'; no code format invented (design/handoff-v46/canvas-v46/project/B2-03-Access-Plan-and-Course-Codes.dc.html IA-16 frames 6-8).",
+        "Students see the institution code; public sees the platform code (blank allowed) (T-17).",
+        "Student import course_code may be either code (design/handoff-v46/canvas-v46/project/B2-07 IA-11) — the prototype never resolves by code."
+      ],
+      "removedBehaviours": [
+        "Super Admin writing the platform code (ui-ux/18-unified-functional-platform/js/state.js:8258-8264) — M-2.",
+        "Per-student localCourseCode overriding the institution mapping (ui-ux/18-unified-functional-platform/js/state.js:4050).",
+        "Semester accepted without a code (ui-ux/18-unified-functional-platform/js/state.js:4162-4184 has no such rule)."
+      ]
+    }
+  ],
+  "runtimeContract": {
+    "sources": [
+      "ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md",
+      "ui-ux/18-unified-functional-platform/js/state.js:5059-5863",
+      "ui-ux/18-unified-functional-platform/PM_DELTA_09.md §2.2-2.3, §4",
+      "git show 1b090c9:v2/packages/contracts/src/runtime-events.ts",
+      "git show 1b090c9:v2/packages/domain/src/runtime/events.ts",
+      "git show 1b090c9:v2/packages/domain/src/runtime/utilisation.ts"
+    ],
+    "status": "Event model, ingestion rules and derivations are IMPLEMENTED in the prototype; transport, auth, retention, native clients are future (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:8). No API exists; recordRuntimeEvent is an in-page function (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:31-35).",
+    "events": [
+      {
+        "type": "SIMULATION_LAUNCHED",
+        "meaning": "Student opened the experience; counted per session",
+        "evidence": "ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:89; ui-ux/18-unified-functional-platform/js/state.js:5385-5395"
+      },
+      {
+        "type": "SESSION_STARTED",
+        "meaning": "A run began (interactive); duplicate start ignored; new start abandons an open session",
+        "evidence": "ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:90; ui-ux/18-unified-functional-platform/js/state.js:5396-5424"
+      },
+      {
+        "type": "SESSION_ENDED",
+        "meaning": "Run finished/closed/abandoned; carries client-measured durationSeconds where measured; duplicate end ignored",
+        "evidence": "ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:91; ui-ux/18-unified-functional-platform/js/state.js:5425-5441"
+      },
+      {
+        "type": "SIMULATION_COMPLETED",
+        "meaning": "Student completed the experiment IN THIS TECHNOLOGY when the experience's own completion condition is met; counts only for a launched/started session; first one sets completedAt",
+        "evidence": "ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:92, 99-100; ui-ux/18-unified-functional-platform/js/state.js:5442-5462"
+      },
+      {
+        "type": "SIMULATION_ERROR",
+        "meaning": "Runtime failed; never a completion; an error alone is not use",
+        "evidence": "ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:93, 280-281; ui-ux/18-unified-functional-platform/js/state.js:5463-5467"
+      }
+    ],
+    "noContentEvents": "No VIDEO_WATCHED / RESOURCE_VIEWED / OUTCOME_MET event exists, so content can structurally never complete a simulation (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:95-97).",
+    "payload": "clientEventId (client-minted idempotency key), type, sessionId (required), personId, tenantId (derived, never sent), experimentId, technology web|ar|vr|mr, contentRecordId, contentVersionLabel (captured at ingestion), source, occurredAt (runtime clock, ISO-8601 enforced, normalised UTC), recordedAt (platform clock), durationSeconds (SESSION_ENDED only), detail (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:106-122, 125-165).",
+    "ingestionRules": [
+      "Authorisation: accepted only if studentCanRun(person, experiment, technology) — same predicate as launch (entitlement, tenant active, term, expiry) (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:182; ui-ux/18-unified-functional-platform/js/state.js:5253-5262).",
+      "Idempotency: repeated clientEventId returns ok+duplicate with the stored event; nothing appended (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:183; ui-ux/18-unified-functional-platform/js/state.js:5274-5280).",
+      "Session id required (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:184).",
+      "Unknown type or technology refused (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:185).",
+      "Unparseable occurredAt refused (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:186; ui-ux/18-unified-functional-platform/js/state.js:5209-5222).",
+      "Refused events are not stored; caller gets a RUNTIME_REJECT reason (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:187; ui-ux/18-unified-functional-platform/js/state.js:5179-5186)."
+    ],
+    "derivation": "Per Student × Experiment × Technology: launches (per session), sessionCount, openSessions, totalSeconds (finished sessions; measured preferred; clamped ≥0; open session = 0 s), first/last activity, completed/completedAt (first SIMULATION_COMPLETED), errors, status COMPLETED | IN_PROGRESS (any launch/session) | NOT_STARTED, sources, evidence (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:221-251).",
+    "completionSemantics": {
+      "prototypeRule": "A format is COMPLETED when — and only when — a SIMULATION_COMPLETED event exists for that Student, Experiment and technology, belonging to a launched or started session; the first completion counts; a completion is never walked back; Web never completes VR (ui-ux/18-unified-functional-platform/PM_DELTA_09.md:56-57; ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:232, 288-300; ui-ux/18-unified-functional-platform/js/state.js:5442-5462, 5589-5594, 5699-5706).",
+      "whatDoesNotComplete": [
+        "watching a video",
+        "viewing/completing a learning resource",
+        "meeting a Learning Outcome",
+        "opening the Experiment page",
+        "any amount of time",
+        "submitting or passing the assessment",
+        "completing a different technology",
+        "an error",
+        "a completion for a session nobody opened",
+        "a launch alone"
+      ],
+      "whoEmitsItInPrototype": "Web: the STUDENT presses 'I have finished the simulation' → dialog 'Report it as completed' which calls runtimeComplete + runtimeEndSession (ui-ux/18-unified-functional-platform/js/screens/student-learn.js:1081-1082, 1213-1236). AR/VR/MR: a labelled DEMO CONTROL 'Report a completed run' (ui-ux/18-unified-functional-platform/js/screens/student-learn.js:716, 940-956). Contract §8.5: native clients must 'Never assert completion on the platform's behalf' (ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:332-333).",
+      "v46Position": "T-12 (DESIGN NOW SAFELY): 'Completed comes from the system; no self-report; feedback unlocks on completed'. The EVENT that marks Completed is OPEN (design/handoff-v46/START-HERE.md:36). v46 Usage defines Completed as 'reported completed by the simulation or the headset' (design/handoff-v46/canvas-v46/project/B3-10-IA-Usage.dc.html).",
+      "openQuestions": [
+        "R1/D-09-1/D25/A-06: exact completion rule per technology",
+        "R8/D-09-8: may a completion be revoked, by whom",
+        "R9: what a runtime does when it cannot report",
+        "D17/D-09-13: must every format be completed (v46 answer for display: no aggregate verdict)"
+      ]
+    },
+    "runtimeActivityVsCompletion": "Runtime activity (launches, sessions, time, errors) and completion are separate: activity sets IN_PROGRESS only; completion needs the explicit completion event. v46 additionally separates the five states Published / institution access / Student entitlement / runtime activity / learning completion and forbids deriving one from another (design/handoff-v46/START-HERE.md:36). The prototype nevertheless derives a per-format 'learning completion' from simulation + resources + assessment (ui-ux/18-unified-functional-platform/js/state.js:6350-6356) — not allowed in v46.",
+    "sourcesEnum": {
+      "prototype": [
+        "web-prototype-runtime (real)",
+        "platform-standin",
+        "ar-native-client",
+        "vr-native-client",
+        "mr-native-client",
+        "demo-runtime-simulator"
+      ],
+      "v2_1b090c9": [
+        "web-runtime",
+        "ar-native-client",
+        "vr-native-client",
+        "mr-native-client"
+      ],
+      "evidence": "ui-ux/18-unified-functional-platform/js/state.js:5122-5148; git show 1b090c9:v2/packages/domain/src/runtime/events.ts:32-37"
+    },
+    "v2Committed1b090c9": "contracts/src/runtime-events.ts:22-60 wire schema (clientEventId, type, sessionId, personId, experimentId, technology, contentRecordId?, contentVersionLabel?, source, occurredAt RFC3339, durationSeconds?, detail?), batch max 500 (engineering judgement); domain/src/runtime/utilisation.ts:105-254 transcribes foldSessions + deriveSimulationUtilisation with COMPLETED needing SIMULATION_COMPLETED; evidence limited to 'runtime-events' | 'none' (pre-telemetry dropped). This hard-wires the prototype completion event while T-12 is open.",
+    "v46DisplayRules": [
+      "Student sees per-format words with dates: 'Last saved …', 'Last session reported …' — time only, no durations or step names (OD-B3-07).",
+      "Institute Admin Usage: Students with access · Started · Completed · Sessions; no export (OD-B3-08; design/handoff-v46/canvas-v46/project/B3-10-IA-Usage.dc.html).",
+      "Faculty: per format in words with completion date; inactive N days filter (7/14/30, activity = opening a format or the assessment) (OD-B4-10; design/handoff-v46/canvas-v46/project/B4-10-Students-and-Follow-up.dc.html)."
+    ],
+    "openRegister": {
+      "R1": "exact completion rule per technology",
+      "R2": "telemetry retention",
+      "R3": "native app stack",
+      "R4": "package distribution",
+      "R5": "who validates on device",
+      "R6": "backend/API",
+      "R7": "clock trust",
+      "R8": "completion revocation",
+      "R9": "offline reporting",
+      "evidence": "ui-ux/18-unified-functional-platform/RUNTIME_INTEGRATION_CONTRACT.md:349-363"
+    }
+  },
+  "questionImportColumns": [
+    {
+      "column": "question_type",
+      "prototypeRequired": "Required",
+      "rule": "multiple_choice | true_false | descriptive (aliases: mcq, tf, boolean, long_answer, written, essay …); no fourth type",
+      "evidence": "ui-ux/18-unified-functional-platform/QUESTION_IMPORT_TEMPLATE.md:19, 26-41; ui-ux/18-unified-functional-platform/js/question-import.js:48-49",
+      "v46Column": "type ('multiple choice, true or false, or written answer')",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08-Draft-with-Assistance-and-Import.dc.html template li 'type'"
+    },
+    {
+      "column": "question",
+      "prototypeRequired": "Required",
+      "rule": "question text ≤2000 chars",
+      "evidence": "ui-ux/18-unified-functional-platform/QUESTION_IMPORT_TEMPLATE.md:20; ui-ux/18-unified-functional-platform/js/question-import.js:50",
+      "v46Column": "question (always required)",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08"
+    },
+    {
+      "column": "option_a",
+      "prototypeRequired": "MCQ only (≥2 of a-d)",
+      "rule": "≤600 chars; ignored for other types",
+      "evidence": "ui-ux/18-unified-functional-platform/QUESTION_IMPORT_TEMPLATE.md:21; ui-ux/18-unified-functional-platform/js/question-import.js:52",
+      "v46Column": "option_a",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08"
+    },
+    {
+      "column": "option_b",
+      "prototypeRequired": "MCQ only",
+      "rule": "as option_a",
+      "evidence": "ui-ux/18-unified-functional-platform/js/question-import.js:53",
+      "v46Column": "option_b",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08"
+    },
+    {
+      "column": "option_c",
+      "prototypeRequired": "MCQ only",
+      "rule": "as option_a",
+      "evidence": "ui-ux/18-unified-functional-platform/js/question-import.js:54",
+      "v46Column": "option_c",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08"
+    },
+    {
+      "column": "option_d",
+      "prototypeRequired": "MCQ only",
+      "rule": "as option_a",
+      "evidence": "ui-ux/18-unified-functional-platform/js/question-import.js:55",
+      "v46Column": "option_d",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08"
+    },
+    {
+      "column": "correct_answer",
+      "prototypeRequired": "MCQ and true/false",
+      "rule": "MCQ: letter a-d or exact option text; TF: TRUE/FALSE (T/F, yes/no, 1/0); blank for descriptive",
+      "evidence": "ui-ux/18-unified-functional-platform/QUESTION_IMPORT_TEMPLATE.md:22, 37; ui-ux/18-unified-functional-platform/js/question-import.js:56",
+      "v46Column": "correct ('A–D, or TRUE / FALSE')",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08"
+    },
+    {
+      "column": "marks",
+      "prototypeRequired": "Required",
+      "rule": "whole number 1-100",
+      "evidence": "ui-ux/18-unified-functional-platform/QUESTION_IMPORT_TEMPLATE.md:23; ui-ux/18-unified-functional-platform/js/question-import.js:58",
+      "v46Column": "marks (always required)",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08"
+    },
+    {
+      "column": "explanation",
+      "prototypeRequired": "Optional",
+      "rule": "≤2000 chars; shown after an attempt; NO warning when missing",
+      "evidence": "ui-ux/18-unified-functional-platform/QUESTION_IMPORT_TEMPLATE.md:24; ui-ux/18-unified-functional-platform/js/question-import.js:60",
+      "v46Column": "explanation (optional; missing explanation = WARNING per OD-B4-11)",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/handoff/open-decisions.json OD-B4-11"
+    },
+    {
+      "column": "marking_guidance",
+      "prototypeRequired": "NOT IN PROTOTYPE",
+      "rule": "v46-only tenth column; optional",
+      "evidence": "absent from ui-ux/18-unified-functional-platform/js/question-import.js:47-61",
+      "v46Column": "marking_guidance (optional)",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08 template data:text/csv 'type,question,option_a,option_b,option_c,option_d,correct,marks,explanation,marking_guidance'"
+    },
+    {
+      "column": "(behaviour)",
+      "prototypeRequired": "-",
+      "rule": "Experiment chosen on screen before the file, never from a row; parse → preview resolved values → confirm; ALL-OR-NOTHING on any blocking error; ≤500 rows refused not trimmed; duplicates warned never resolved; row numbers as spreadsheet shows; provenance import-csv / import-xlsx; CSV and XLSX accepted",
+      "evidence": "ui-ux/18-unified-functional-platform/QUESTION_IMPORT_TEMPLATE.md:65-133; ui-ux/18-unified-functional-platform/js/question-import.js:88-91",
+      "v46Column": "CSV with the ten-column template; 'Choose a file → check rows (errors block, warnings don’t) → confirm → result'; all-or-nothing is an INTERIM labelled rule (valid-rows-only is the other option); XLSX and the final schema OPEN (T-24 · D5)",
+      "v46Evidence": "design/handoff-v46/canvas-v46/project/B4-08 notes 'Format CSV with the template’s ten columns. XLSX and the final column schema are open (T-24 · D5). Commit All or nothing while any row has an error — an interim rule'"
+    }
+  ],
+  "studentImportColumns": {
+    "prototype": [
+      {
+        "column": "Programme",
+        "required": true
+      },
+      {
+        "column": "Course Name",
+        "required": true
+      },
+      {
+        "column": "Course ID/Code",
+        "required": true
+      },
+      {
+        "column": "Student ID",
+        "required": true
+      },
+      {
+        "column": "Student Name",
+        "required": true
+      },
+      {
+        "column": "Email",
+        "required": true
+      },
+      {
+        "column": "Semester",
+        "required": false
+      },
+      {
+        "column": "Organisation",
+        "required": false
+      },
+      {
+        "column": "Plan Terms",
+        "required": false
+      }
+    ],
+    "prototypeEvidence": "ui-ux/18-unified-functional-platform/js/csv.js:40-50",
+    "v46": [
+      {
+        "column": "student_id",
+        "required": true
+      },
+      {
+        "column": "full_name",
+        "required": true
+      },
+      {
+        "column": "email",
+        "required": true
+      },
+      {
+        "column": "programme",
+        "required": true
+      },
+      {
+        "column": "course",
+        "required": true
+      },
+      {
+        "column": "course_code",
+        "required": true
+      }
+    ],
+    "v46Evidence": "design/handoff-v46/canvas-v46/project/B2-07-Add-and-Import.dc.html IA-11 ('Every column is required'; template data:text/csv 'student_id,full_name,email,programme,course,course_code')"
+  },
+  "campus": {
+    "prototype": "No campus entity, field or hierarchy level. Mentions are only comments: 'rather than hardcoding any real campus or institution as a record (STK31-23)' (ui-ux/18-unified-functional-platform/js/data.js:488-491) and a removed help note 'the topology permits a campus to be its own tenant' (ui-ux/18-unified-functional-platform/js/screens/platform.js:1400-1405). Stakeholder-review docs list 'A campus or unit may be its own tenant' (ui-ux/18-unified-functional-platform/stakeholder-review/STAKEHOLDER_REVIEW_CHECKLIST.md:77; ui-ux/18-unified-functional-platform/stakeholder-review/OPEN_DECISIONS_FOR_STAKEHOLDER.md:392).",
+    "stakeholderDecision": "STK31-23 CONFIRMED (topology permitted; detail pending): an individual operational campus/unit (WILP · Pilani · Goa · Hyderabad · Dubai) CAN BE ITS OWN TENANT; high-level categorisation 'may include On-campus and Off-campus'; sample institutions must not be hardcoded as production records; 'Closes PM29-A7 structurally: separate tenants, NOT a sub-tenant level. No campus/unit hierarchy below the Tenant is created.' (ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md:615-629). Grep of ui-ux/00-project-context/: only STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md mentions campus.",
+    "v46": "grep -il campus across canvas-v46/project/*.dc.html → 18 boards: B1-08, B1-10, B1-11, B1-12, B1-13, B2-13, B7-01, B7-02, B7-03, B7-04, B7-05, B7-07, B7-09, B7-10, B7-11, B7-12, B8-05, B8-06; plus handoff/README.md and derived/frame-index.json. Every occurrence is one of: (a) the SAMPLE institution name 'BITS Pilani — Hyderabad Campus' (e.g. design/handoff-v46/canvas-v46/project/B1-10-SA-Requests.dc.html REQ-0038/REQ-0039, design/handoff-v46/canvas-v46/project/B7-02-Institutions.dc.html id 'bitshyd'); (b) the request route label 'Internal — BITS campus or programme' (design/handoff-v46/canvas-v46/project/B1-11-SA-Decision.dc.html script const routes) and the note 'Approval of an internal request (BITS campus or programme) activates access directly' (design/handoff-v46/canvas-v46/project/B1-08-Request-Status.dc.html); (c) the flow / build-phase name 'Campus distribution' / 'Campus / Student access' (design/handoff-v46/canvas-v46/project/B2-13-Flow-2-Continuity.dc.html kicker; design/handoff-v46/canvas-v46/project/B8-06-Design-to-Code-Handoff.dc.html; design/handoff-v46/canvas-v46/project/handoff/README.md build order). No campus record, field, filter, status or hierarchy level is drawn; entities.json has no campus record.",
+    "conclusion": "A campus is modelled as an institution (INST) in its own right; do NOT add a Campus entity or a campus level below the institution. 'On-campus / Off-campus' categorisation is not drawn in v46 (not shown).",
+    "boardCount": 18
+  },
+  "parityMatrixNotes": [
+    "The committed matrix (git show 1b090c9:v2/docs/FUNCTIONAL_PARITY_MATRIX.md:5-8) names the prototype at 8af1f2a as the 'gold standard' with 36 rows, none verified, only P-13 at 'Domain (partial)'. v46 + the 9 Oct 2026 owner constraints now OUTRANK it; the rows below conflict and must be re-baselined before any slice is built to them.",
+    "P-01: approve requires a reason and the applicant can resubmit after 'request more information' — v46 asks a reason only for smaller scope / request more info, and has NO reply (T-03, B1-11). Classification is SA-set at approval (T-04) not scenario-seeded. Decline stays absent (T-02).",
+    "P-02: 'Internal/external classification is seeded in the prototype (D9)' — v46: Super Admin sets it at approval (T-04).",
+    "P-03 licence accounting (unique active student per record, FIFO queue, held when full, over-allocation refused) — v46 T-06/D7: show figures as provided; never explain counting; only the 'Waiting for a licence' state is drawn.",
+    "P-04 entitlement derivation (union of sources) — v46 OD-B2-01/02/03: no can/can't-open claim for overlapping grants, no promise for late group members; withdrawal needs a reason.",
+    "P-05 Faculty mapping with experiment-level and access-record binding — v46 FCM is Faculty × Course only (B2-09).",
+    "P-06 expansion = full new public request — v46 Institute Admin 'more licences' asks the number only, no term (OD-B3-09, B3-08).",
+    "P-09 CSV columns (Programme, Course Name, Course ID/Code, Student ID, Student Name, Email + optional Semester, Organisation, Plan Terms) — v46 template student_id, full_name, email, programme, course, course_code, all required; Add student form has no course fields (B2-07).",
+    "P-10 'Groups and course mappings' — v46 group has no description; semester needs a code (B2-03); platform code shown read-only only to SA (M-2).",
+    "P-11 student deactivation — v46 Institute Admin deactivation REQUIRES a reason (B2-06).",
+    "P-13 completion predicate — consistent with T-12 'from the system' only if the event remains configurable; the in-page Student completion control is already excluded (§G) and must stay excluded.",
+    "P-15 progress presentation ('overall Completed only when nothing is outstanding') — v46 binding #4: NO aggregate completion verdict at all; per format only.",
+    "P-16 resources → simulation → assessment progression with resources required for completion — v46 T-13 resources show 'opened' only and do not count.",
+    "P-17 device transfer decline path (D20a judgement) — v46 T-32 approve only; fields new device + optional note.",
+    "P-18/P-19 assessment — v46 'No defaults', release 'immediately after marking', results and answers together (OD-B4-04), one-per-experiment rule open (OD-B4-01).",
+    "P-20 AI review suggestion with suggested marks — v46 T-23 no suggested marks; v46 marks whole numbers only with Save/Confirm (B4-09).",
+    "P-21/P-22 question origins incl. import-xlsx and the 9-column CSV/XLSX import — v46 ten-column CSV template incl. marking_guidance, XLSX open, missing explanation = warning (OD-B4-11).",
+    "P-23 Faculty export columns incl. Score %, Time spent, Progress — v46 export: student, student ID, experiment, WEB, VR, assessment, result released to student, last activity (B4-10).",
+    "P-25 later version 'Vendor proposes' — v46 LD-4: no Vendor 'Propose an update'; corrections are Content Manager → Academic Reviewer → Super Admin.",
+    "P-26 'safe fields audited in place' and 'the Super Admin platform-master correction is the named exception' — v46 M-1: every change to published content is a correction draft; SA never edits live records.",
+    "P-27 Content Manager edits delivery links in place with a reason — v46: 'Edit delivery link' opens the correction draft (B6-08); pre-publication CM delivery edit not drawn.",
+    "P-30 platform role scopes ('Vendor / Reviewer / Content Manager scopes at all / Course / Experiment level' in the row text vs prototype code forbidding 'all' for Vendor/Reviewer) — v46 draws 'All experiments' for a Reviewer; restore without reason (OD-B7-10).",
+    "P-31 canonical structure 'Programme / Department and Course', canonical metadata by CM and SA, code CM-primary + SA — v46: Engineering area + course, Programme on the Student only, platform code CM only (M-2), SA read-only for published records (M-1).",
+    "P-32 platform override to any non-published status — v46 OD-B7-09: only 'back to the vendor' for records stuck with the Academic Reviewer.",
+    "P-33 support with six issue kinds — v46: what happened, where (pre-filled), optional screenshot; statuses Open · Resolved · Reopened.",
+    "P-35 payment boundary with three outcomes — payment processing is out of scope (binding #10); v46 draws provider-neutral 'Payment not confirmed' and 'Payment failed' states only.",
+    "§G 'Excluded from parity' should additionally list: Student 'Mark as done' on resources, the device-access request ladder (request → ready), the payment simulation, Vendor later versions, SA in-place master edits.",
+    "OPEN_DECISIONS.md (git show 1b090c9:v2/docs/OPEN_DECISIONS.md) A-08 keeps 'Vendor / Content Manager → Academic Reviewer → Super Admin' as the later-version chain — LD-4 removes the Vendor branch; A-14 keeps 'Decline exists as a labelled judgement' — T-32 removes it; A-20 Institute Admin vs Tenant Admin terminology is settled in v46 as 'Institute Admin' (T-35); A-21 'Super-Admin-set classification' matches T-04."
+  ],
+  "warnings": [
+    "handoff JSON vs owner constraint: design/handoff-v46/canvas-v46/project/handoff/entities.json RUN lists ownerWriter 'Student' and design/handoff-v46/canvas-v46/project/handoff/flows.json Flow C step 2 names the Student as actor for 'Not started → In progress → Completed'; binding #3 (design/handoff-v46/START-HERE.md:36) says Completed is set by the system, never by the Student. Treat the Student as the subject, not the writer, of the completion state.",
+    "handoff JSON vs board: design/handoff-v46/canvas-v46/project/handoff/entities.json REQ statuses omit 'Payment failed' and 'Submitted', both drawn on design/handoff-v46/canvas-v46/project/B1-08-Request-Status.dc.html (frames 1 and 7). Board wins.",
+    "handoff JSON vs board: design/handoff-v46/canvas-v46/project/handoff/flows.json Flow B step 3 says 'Experiment × format grant' while design/handoff-v46/canvas-v46/project/B2-05-Give-Students-Access.dc.html says formats are inherited and there is no format picker (LD-1). Board wins.",
+    "v46 internal inconsistency to report: design/handoff-v46/canvas-v46/project/07-Help-Support.dc.html says reopening is a Super Admin action, but design/handoff-v46/canvas-v46/project/B7-09-Operations.dc.html SA-21 template contains 'Reopened by the reporter'. Who reopens is therefore not unambiguous.",
+    "Committed V2 domain at 1b090c9 already encodes SIMULATION_COMPLETED as THE completion trigger (git show 1b090c9:v2/packages/domain/src/runtime/utilisation.ts:183-193, 238-242) while T-12 / A-06 keep the completing event open — keep it behind a replaceable policy so the open decision is not silently closed.",
+    "Committed V2 FUNCTIONAL_PARITY_MATRIX.md treats the prototype as gold standard; 26 of its 36 rows (P-01…P-06, P-09…P-11, P-15…P-23, P-25…P-27, P-30…P-33, P-35) conflict wholly or partly with v46 / owner constraints (see parityMatrixNotes). Do not build to those rows.",
+    "Prototype completion 'COMPLETED' in progress views is a DERIVED learning verdict (sim + resources + assessment) — reusing technologyProgress/experimentProgress would violate binding #3 and #4.",
+    "Prototype collapses Programme and the catalogue grouping into one record; reusing data.GROUPINGS / courses[].groupingId / student.groupingId would resurrect a Programme navigation level forbidden by binding #2.",
+    "Prototype 'Tenant Admin' terminology, 'BITS Community' / 'Subscription' route labels, 'Deactivated' tenant status and civil-engineering sample world must not leak into v46 copy or mock data (T-35, T-36).",
+    "Prototype sample assessment values (pass mark 60, attempts 3, ASM-001..003 policies) are sample configuration only (ui-ux/18-unified-functional-platform/js/data.js:287-314) and create defaults in code (ui-ux/18-unified-functional-platform/js/state.js:7379-7380) — v46 requires 'No defaults'.",
+    "Not verified in this pass: who authors learning resources in v46; whether an Institute Admin can be removed; whether a Content Manager can be registered from Platform roles. These are reported as 'not shown' rather than guessed.",
+    "The B1-10 mobile keyboard-focus defect and one-connected-state constraint are build requirements unrelated to the prototype data model; the prototype's single localStorage state is the conceptual precedent for 'one connected application state' but its storage must not be copied.",
+    "Prototype marks a resource IN_PROGRESS on open and COMPLETED on a checkbox; v46 shows 'Opened' only — mapping prototype resourceActivity.status into v46 would over-claim.",
+    "Prototype payment / scenario / demo controls are listed as prototype-only in the parity matrix §G (git show 1b090c9:v2/docs/FUNCTIONAL_PARITY_MATRIX.md:78-88); the device-delivery ladder and resource 'Mark as done' are NOT in that list yet and could be resurrected by mistake."
+  ]
+}

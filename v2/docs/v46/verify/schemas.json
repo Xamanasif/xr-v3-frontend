@@ -1,0 +1,222 @@
+{
+ "summary": "Adversarial verification of wf/design/schemas.md (2,993 lines; 28 models, 22 product ports = 183 methods + 7 stand-in ports = 8 methods; count reproduced exactly). (a) 429 CONFIRMED copy/field/sample-value claims were grepped against the decoded v46 boards (heavily weighted to REQ, SACC, ACC, ASMT/ATT, SUB, UPD, DTR, FB, PER): no fabricated copy was found; about 420 hold as cited, the rest are on a different board than cited or are composed from templates. Two field-level [C] items do not hold as cited: the SACC 'Paused' grant label (not in the B2-04 LBL map; drawn only on B2-03, and B2-04's paused frame keeps 'Active') and the IA example name 'N. Joshi' (a request contact, not an Institute Admin). (b) Binding constraints largely hold: no Module anywhere, Programme only on StudentPerson, FormatCompletion written only by the runtime stand-in, no aggregate verdict, FB unique key (student, experiment, format) gated on FormatCompletion, licences typed Provided<number> with no arithmetic, publish/release create no grants, per-assessment Faculty rules with null defaults. There is one CRITICAL breach: DevIdentityPort (listSampleAccounts/switchTo) is a developer-only account selector that the owner explicitly banned and that B1-09 'Never here' lists. (c) 81 of the 85 distinct status words in frame-index.json appear verbatim, plus 2 trivial equivalents. The deliverable misses 'Can't open — inactive' (B2-06) and '1 to resolve: learning outcomes' (B6-06), and several script-only role words ('Not sent for review', 'Withdrawn by the Content Manager', 'Not submitted yet', 'Not available right now', 'Inactive — can't be given access'). (d) The transitions requested for checking match the permission evidence (CM send-back to reviewer/vendor, UPD withdraw in Draft/Returned/In academic review, Hold needs a reason, Lift hold before Release, DTR approve-only, override of stuck records only, Pause/Restore). The exception is the no-Institute-Admin device transfer, which the deliverable models as a refusal while B3-07 draws a request that exists but cannot be forwarded. (e) One drawn data-changing action has no method: the IA 'Open the payment page' on B3-08. The approveRequest side-effect row would downgrade an existing active external institution and silently decide OD-B3-09 for internal renewals. Four drawn failure states lack Unavailable. (f) Of the 71 prototype removedBehaviours, 66 are not resurrected and 2 are partial risks (the WorkflowRoutingPolicy fast-path branch and the DTR format input). Three are re-introduced as developer-surface controls: the actor switcher, the demo clock and the DEMO runtime simulator. (g) @xr/domain types import IsoInstant from @xr/validation, which the committed boundary matrix forbids ('@xr/domain': []). The required edits to TECHNOLOGY_META / DeliveryModel / ROLE_PLANNING_LABEL / SimulationStatus are not stated.",
+ "checksRun": [
+  {
+   "check": "(a) CONFIRMED fields/copy vs boards",
+   "result": "PASS with corrections",
+   "detail": "429 exact-string greps over html-unescaped boards (scripts in wf/verify/_schemas/checks1-4.py; outputs checks3.out, checks4.out). REQ 51, SACC 25, ACC 11, ASMT 30, ATT 26, SUB 43, UPD 20, DTR 15, FB 17, PER 26, plus INST/IAA/SUP/ROLE/CRS/CCODE/GRP/FMAP/RUN/RES/Q/SESS/SEL. No fabricated copy. Of 35 first-pass misses, 26 are drawn but split by markup or built by templates; 7 are on a different board than cited (Arun wait note B2-06 not B2-05; 'No time limit and no timer.' B4-04 not B4-05; 'VR not started offers nothing' B8-04 not B3-06; 'In your bank · reviewed by you' B4-08 not B4-07; SSO label is 'Sign in with your institution'; 'Two of four answered' is caption wording; 'Four questions, 16 marks' is caption wording); 2 are not drawn as claimed (SACC 'Paused' from the B2-04 LBL; IAA example 'N. Joshi'). Also checked: refOpts 14 options match ReturnReference exactly (B6-03); B6-09 validate() fields; QUESTION_IMPORT_COLUMNS (B4-08); highest drawn ids per prefix (REQ-0058 … FMAP-0021) all reproduce; S-1/S-2/S-3 sample conflicts reproduce."
+  },
+  {
+   "check": "(b1) No Module entity/field",
+   "result": "PASS",
+   "detail": "'module' appears only in BC prose, §6 and a TS module comment; no type, field or route."
+  },
+  {
+   "check": "(b2) Programme only on Student/Person record",
+   "result": "PASS",
+   "detail": "StudentPerson.programme: string | null; addStudent input; CSV column. Not on Course/Area/filters/routes. Faculty has no programme."
+  },
+  {
+   "check": "(b3) No derivation of Completed from launches/activity/resources",
+   "result": "PASS",
+   "detail": "FormatCompletion is a separate record written only by RuntimeReportPort.reportCompletion; FormatProgressView.status completed <= completion fact only; launchWebFormat 'Never writes completion'; ResourceOpened 'never progress'. The committed utilisation.ts SIMULATION_COMPLETED conflict is flagged. The 'CompletionPolicy' it proposes is not defined anywhere (see correction)."
+  },
+  {
+   "check": "(b4) No aggregate completion %/verdict",
+   "result": "PASS",
+   "detail": "All read models are per format (FormatProgressView, UsageRow.perFormat, perFormatCounts, InstitutionDetail.report). §6 forbids aggregates."
+  },
+  {
+   "check": "(b5) Feedback key Student x Experiment x format, gated on Completed",
+   "result": "PASS",
+   "detail": "FormatFeedback(studentId, experimentId, format) uniqueness is enforced as conflict:already-sent; the sendFeedback precondition requires FormatCompletion; refused:format-not-completed; no staff read."
+  },
+  {
+   "check": "(b6) No licence counting arithmetic",
+   "result": "PASS",
+   "detail": "AccessPlan.licences: Provided<number>; ProvidedLicenceWait is supplied by a seed-only oracle; no remaining/in-use fields; Slice-1 places.ts explicitly excluded."
+  },
+  {
+   "check": "(b7) Publish/release create no grants",
+   "result": "PASS",
+   "detail": "publish side effects say 'no ACC, SACC, licence, Faculty or Student change'; releaseUpdate says 'grants and changes no institution's access'; M15 transitions say 'by publication, release, runtime — never'."
+  },
+  {
+   "check": "(b8) Faculty-owned per-assessment pass mark, no global defaults",
+   "result": "PASS",
+   "detail": "AssessmentRules lives on each Assessment, with all fields nullable and no settings service; §4.1 'Sample values are never defaults' (its citation is wrong, see corrections)."
+  },
+  {
+   "check": "(b9) Owner ban on developer-only account selector / DEMO controls",
+   "result": "FAIL",
+   "detail": "§3.18 DevIdentityPort {listSampleAccounts, switchTo} described as a 'developer account switcher'; §4.1 sample credentials 'used by … DevIdentityPort'; §6 narrows the ban to 'in-product account switcher'; §8 item 5 asks for an exception. B1-09 'Never here: DEMO strips, sample accounts, a role switcher …'; B1-09 head-meta 'No sample accounts, no role chooser'."
+  },
+  {
+   "check": "(c) Status enum coverage vs derived/frame-index.json statuses",
+   "result": "PASS with gaps",
+   "detail": "85 distinct drawn status words: 81 verbatim in the doc, 2 equivalent ('Returned to vendor · revision 1', 'Warning'), 2 missing ('Can't open — inactive' B2-06 f11; '1 to resolve: learning outcomes' B6-06 f2). Script/inconsistency words missing: B6-04 rvChipWords 'Not sent for review', 'Withdrawn by the Content Manager'; B4-13 'Not submitted yet'; B2-12 'A format not available right now'; B2-05 'Inactive - can't be given access'. Per-role label maps exist for REQ, INST, ACC, SUB, UPD, SACC, PER, RUN, ASMT/ATT, DTR (DTR verified against W/IAW/SAW). The SACC 'Paused' row is attributed to the wrong board."
+  },
+  {
+   "check": "(d) Transitions vs surface permissionEvidence/actions",
+   "result": "PASS with one exception",
+   "detail": "Matched: CM send back to reviewer (no refs) / vendor (refs optional) from with-CM only; RV approve/return from with-AR incl. re-check; UPD withdraw in draft/returned/in-academic-review; Hold needs a reason; Lift hold has no reason, returns to awaiting, and there is no release from on-hold; DTR forward (IA, irreversible), approve only when forwarded (SA), no decline; SA override only for stuck with-AR and only to returned; Pause from active/ending soon, restore to previous; IA assign only when active/ending/paused and none assigned; scope restore with no reason. Exception: no-IA DTR (B3-07 'This request can't be forwarded yet … It stays here until one is assigned') is modelled as a refusal/blocker."
+  },
+  {
+   "check": "(e) Service coverage of data-changing actions",
+   "result": "PARTIAL",
+   "detail": "All 681 surface actions were scanned (wf/verify/_schemas/actions.txt); about 120 are data-changing. All map to a method except IA-17 'Open the payment page' (B3-08 'Approved - payment required (later sample)' → B1-08 PU-12), whose startPayment needs a public RequestStatusToken the IA does not hold. Side-effect defect: approveRequest row ('External → … INST approved-payment-required'; 'Internal → creates ACC') is not limited to new institutions. Drawn failure states without Unavailable: giveAccess (B2-05 f12), launchWebFormat (B3-03 f2), sendFeedback (B3-06 f2), submitAttempt (B4-12 f3). Error unions: every product write includes NotPermitted except continueStep, startPayment, reportProblem (and public selection, by design). InvalidState is missing on several writes with drawn state preconditions (saveMark/confirmMarks on an in-progress attempt, openCorrection, giveAccess, requestDeviceTransfer)."
+  },
+  {
+   "check": "(f) functional-prototype removedBehaviours not resurrected",
+   "result": "FAIL (3 resurrected in dev-surface form)",
+   "detail": "71 removed behaviours checked (wf/verify/_schemas/removed.txt). Resurrected: 'Prototype identity pointers / actor switchers' → DevIdentityPort; 'Demo expiry clock' → ClockPort.setSampleNow on a developer surface; 'DEMO CONTROL runtime-event simulator' / 'demo-runtime-simulator' → RuntimeReportPort driven from a developer surface (also ARCHITECTURE §14 at 1b090c9: 'no scenario selector, no demo clock, no stand-in controls in V2'). Partial risks: WorkflowRoutingPolicy branch {to:'with-content-manager'} = removed 'silent fast-path … skips the Academic Reviewer'; requestDeviceTransfer input 'format' vs removed 'technology scope selector' (ST-18 form draws only 'New device' and the optional note). The other 66 are absent (no Mark as done, no reason-less hold/withdraw/deactivate, no defaults 60/3, no decline, no half marks, no AI marks, no Programme FK, no group description, no SA platform-code writes, no CM in-place edits, etc.)."
+  },
+  {
+   "check": "(g) Consistency with committed foundation 1b090c9",
+   "result": "FAIL (boundary) / INCOMPLETE (vocabularies)",
+   "detail": "Role ids: the doc keeps PLATFORM_ROLES incl. 'tenant_admin' and adds ROLE_LABEL (owner decision flagged), but does not say to retire ROLE_PLANNING_LABEL ('Student / Learner', 'Institute Admin / Tenant Admin'). Format ids: it keeps Technology 'web'|'vr'|'mr'|'ar' and adds FORMAT_DISPLAY_ORDER, but leaves committed TECHNOLOGY_META (label 'Web'; names 'Virtual Reality'/'Mixed Reality'/'Augmented Reality'; DeliveryModel 'hosted'|'package') alongside a new FORMAT_META with a different delivery vocabulary ('web-link'|'app-package'). SimulationStatus 'NOT_STARTED'|'IN_PROGRESS'|'COMPLETED' is not reconciled with FormatProgressStatus. Boundary: §1.2/§5.1 put the §1–§2 types in @xr/domain but import IsoInstant from '@xr/validation'; boundary-matrix.mjs ALLOWED_WORKSPACE_DEPENDENCIES['@xr/domain'] = [] and resolved-boundaries.mjs checks ImportDeclaration (incl. type imports). The zod 4.6.0 and RHF/@hookform claims are correct."
+  }
+ ],
+ "corrections": [
+  {
+   "severity": "critical",
+   "location": "§3.18 DevIdentityPort; §M26 UNRESOLVED 'developer account switcher'; §4.1 'Sample credentials … used by SessionService.signIn and DevIdentityPort'; §6 row 'in-product account switcher'; §8 item 5",
+   "problem": "The deliverable introduces a developer-only account selector (listSampleAccounts/switchTo) and asks for an exception. The owner binding constraint forbids exactly this ('Do NOT introduce … a developer-only account selector'). §6 narrows the ban to 'in-product', which misstates the constraint.",
+   "evidence": "Audit brief binding constraints (owner, 9 Oct 2026). B1-09 'Never here': 'DEMO strips, sample accounts, a role switcher, \"Viewing as…\", or a \"choose a workspace\" step'. B1-09 head meta: 'No sample accounts, no role chooser'. functional-prototype.json removedBehaviours (platform role/scope): 'Prototype identity pointers / actor switchers … replaced by authentication'.",
+   "correction": "Delete DevIdentityPort from §3.18 and from the '7 stand-in ports' count (6 remain). Remove DevIdentityPort from §4.1, §M26 and §8 item 5. Change the §6 row to 'Generic DEMO banner, any account/role switcher or sample-account chooser (in-product or developer-only)'. Sample people sign in only through SessionService.signIn with fixture test credentials, typed into the drawn XS-01 form. Tests reach a person by seeding the session in the test harness, never through a UI control."
+  },
+  {
+   "severity": "major",
+   "location": "§3.18 System stand-in ports ('reachable only from a developer surface outside product navigation'); §1.2 ClockPort.setSampleNow; §4.1 [U] one clock 'set from the developer surface'; §8 item 5",
+   "problem": "These ports re-introduce three removed prototype behaviours as developer-surface controls: the demo clock (setSampleNow), the DEMO runtime-event simulator (RuntimeReportPort) and payment simulation (PaymentOutcomePort). The committed architecture bans stand-in controls in V2, and the board controls they replace are declared 'not product'. Presenting a developer surface as the default plan pre-empts the owner.",
+   "evidence": "functional-prototype.json removedBehaviours: 'Demo expiry clock … prototype-only'; 'DEMO CONTROL runtime-event simulator (Report a session only, Report a completed run …)'; 'Stand-in sources … demo-runtime-simulator'; 'Payment simulation screen as product'. git show 1b090c9:v2/docs/ARCHITECTURE.md §14: 'no scenario selector, no demo clock, no stand-in controls in V2'. START-HERE Known exception 4: board controls ('Restart', 'Sample: …') are not product features.",
+   "correction": "Re-scope §3.18 as test/seed-only ports. They are called by fixtures and test harnesses and have no UI of any kind. Rely on §4.1 'State coverage', which already seeds every drawn state, so the running app needs no time travel, payment or runtime control. Move 'developer surface' into §8 as an explicit owner choice. The default answer should be 'none'; if the owner picks a surface, record the exception and its removal trigger."
+  },
+  {
+   "severity": "major",
+   "location": "§1.2 'import type { IsoInstant } from \"@xr/validation\"' together with §1.1 'packages/domain (proposed module: ids.ts)' and §5.1 '@xr/domain | TS types and brands of §1–§2'",
+   "problem": "The proposed @xr/domain types (HistoryEntry.at, RecordMeta, every *At field) import from @xr/validation. The committed boundary matrix gives @xr/domain zero workspace dependencies, so lint and the boundaries test would reject this.",
+   "evidence": "git show 1b090c9:v2/packages/config/eslint/boundary-matrix.mjs: ALLOWED_WORKSPACE_DEPENDENCIES = { '@xr/domain': [], '@xr/validation': [], '@xr/contracts': ['@xr/domain','@xr/validation'], … }. rules/resolved-boundaries.mjs checks every ImportDeclaration (type imports included). @xr/domain package.json has no @xr/validation dependency. validation/src/instant.ts: 'export type IsoInstant = z.output<typeof isoInstant>' (a zod-derived type).",
+   "correction": "Declare a framework-free 'export type IsoInstant = Brand<string, \"IsoInstant\">' (and CalendarDate) in @xr/domain. Keep the zod codec (isoInstant / normaliseInstant) in @xr/validation, and let @xr/contracts map the wire string to the domain brand. Change the §1.2 import and the §5.1 table to say this. Do not widen the boundary matrix."
+  },
+  {
+   "severity": "major",
+   "location": "§3.4 approveRequest 'Side effects on other records' row (and approveSmallerScope 'as approveRequest')",
+   "problem": "The row says 'External → REQ approved-payment-required, INST approved-payment-required, no ACC' and 'Internal → creates ACC from the request, INST access-active'. Nothing limits this to a new institution. Approving an additional-licences request from an existing external institution would put an active institution back to 'Approved — payment required'. Approving an internal renewal would mint a new ACC, which silently decides OD-B3-09 / T-07 / T-08. The M01 table (only 'on a new external institution') contradicts the row.",
+   "evidence": "B3-08 frame 'Approved - payment required (later sample)': Godavari's more-licences request is 'Approved - payment required … Nothing changes until the payment is confirmed' while Godavari stays Access active (B2-01/B2-03). B1-11 REQ-0038 is an internal renewal for an institution with existing ACC-0081. OD-B3-09 is open. M01 transitions: '— → approved-payment-required | approveRequest … on a new external institution'.",
+   "correction": "Split the row by request type. new-access from a new institution: as written. new-access from an existing institution, renewal, or additional-licences: INST status unchanged (it stays derived from the existing plans). External sets REQ to approved-payment-required, and payment then triggers the PaymentOutcomePort effect. Internal sets REQ to access-active, and the plan effect is 'policy-open: OD-B3-09' (no new ACC, no licence change) until the owner decides. Mirror the same split in the PaymentOutcomePort 'confirmed' comment and in M05's 'renewed' transition."
+  },
+  {
+   "severity": "major",
+   "location": "§3.4 AccessRequestService.startPayment(input: { token: RequestStatusToken … }); M03 transition 'approved-payment-required · payment-failed → payment-not-confirmed | startPayment | requester'",
+   "problem": "A drawn data-changing action has no contract path. The Institute Admin's request detail offers 'Open the payment page' for its own approved, payment-required request, but startPayment accepts only the public visitor's session-held status token, which a signed-in IA never receives for an IA-17 request.",
+   "evidence": "B3-08 caption 'Approved - payment required (later sample) — Provider-neutral payment page from Batch 1 (B1-08); nothing is added until payment is confirmed.' with button 'Open the payment page' → B1-08. surface-institute-admin.json IA-17 action 'Open the payment page (approved — payment required) → PU-12 payment page via B1-08'.",
+   "correction": "Add an IA path: either startPayment(input: { requestId: RequestId; expectedRev }) resolved from the IA session (own institution, origin 'institute-admin'), or an IA read that returns the request's statusToken. Errors: NotPermitted | NotFound | InvalidState | StaleVersion. Change the M03 actor to 'requester (public token) · Institute Admin (own institution)', and list IA-17 among the startPayment screens."
+  },
+  {
+   "severity": "major",
+   "location": "§3.0 RefusalCode 'no-institute-admin' (copy row: Student 'can’t be forwarded yet'); §3.16 getMyDevice.blockedBy: 'institution-paused' | 'no-institute-admin' | null with canRequest; M23 UNRESOLVED OD-B3-05",
+   "problem": "The deliverable makes 'no Institute Admin' a refusal or blocker on requesting a transfer. The board draws the opposite: the Student's request exists and simply waits, unforwardable, until an IA is assigned. Encoding a refusal blocks a drawn path and turns a notice into a rule.",
+   "evidence": "B3-07 (twice, frames d/dv): notice title 'This request can't be forwarded yet' + 'Your institution has no Institute Admin right now. It stays here until one is assigned.' rendered under an existing request ('From … To …', 'Request history').",
+   "correction": "Remove 'no-institute-admin' from RefusalCode and from getMyDevice.blockedBy. requestDeviceTransfer succeeds and creates the DTR in state with-institute-admin. Add a derived read fact, DeviceTransferView.forwardingBlocked: 'no-institute-admin' | 'institution-paused' | null, shown to the Student as the drawn notice. assignInstituteAdmin's side effects should note that open DTRs become forwardable."
+  },
+  {
+   "severity": "major",
+   "location": "§1.3 ROLE_LABEL; §1.4 FORMAT_META / FormatMeta.delivery; M17 FormatProgressStatus; M17 UNRESOLVED 'replaceable CompletionPolicy'; §8 items 2–4",
+   "problem": "The deliverable adds parallel vocabularies without saying exactly what changes in the committed foundation. Committed TECHNOLOGY_META keeps label 'Web' and names 'Virtual Reality'/'Mixed Reality'/'Augmented Reality', with DeliveryModel 'hosted'|'package'. The new FORMAT_META uses 'Browser'/'Virtual reality'… and a different delivery enum ('web-link'|'app-package') for the same concept. ROLE_PLANNING_LABEL ('Student / Learner', 'Institute Admin / Tenant Admin') stays exported next to ROLE_LABEL. SimulationStatus 'NOT_STARTED'|'IN_PROGRESS'|'COMPLETED' coexists with 'not-started'|'in-progress'|'completed'. 'CompletionPolicy' is referenced but never typed.",
+   "evidence": "git show 1b090c9:v2/packages/domain/src/technology.ts (TECHNOLOGIES ['web','vr','mr','ar']; TECHNOLOGY_META web label 'Web', vr name 'Virtual Reality', delivery 'hosted'|'package'; sortTechnologies). roles.ts (PLATFORM_ROLES incl. 'tenant_admin'; ROLE_PLANNING_LABEL). runtime/utilisation.ts (SimulationStatus; 'COMPLETED needs a completion event …'). B6-07 fmtName {WEB:'Browser', AR:'Augmented reality', VR:'Virtual reality', MR:'Mixed reality'}; B8-03 'Formats WEB · AR · VR · MR'.",
+   "correction": "Add a §1.9 'Required foundation edits' list. (1) technology.ts: keep TECHNOLOGIES ids; add FORMAT_DISPLAY_ORDER; replace TECHNOLOGY_META.label with the code ('WEB'|'AR'|'VR'|'MR') and .name with the B6-07 fmtName words, or delete TECHNOLOGY_META in favour of FORMAT_META; reuse DeliveryModel 'hosted'|'package' instead of inventing 'web-link'|'app-package'; mark sortTechnologies as non-UI or reorder it by ADR. (2) roles.ts: keep or rename 'tenant_admin' (owner decision #2); remove or rename ROLE_PLANNING_LABEL so it cannot reach copy, and drop the 'Student / Learner' B2C wording. (3) utilisation.ts: make the read model's FormatProgressStatus the one UI status; map SimulationStatus to it only inside the future runtime adapter; define 'interface CompletionPolicy { isCompletion(e: RuntimeEventRecord): boolean }' or delete the reference."
+  },
+  {
+   "severity": "minor",
+   "location": "M15 'Status → labels' row 'active + institution paused | Paused' attributed to 'Institute Admin (B2-04 LBL)'; GrantDisplayStatus 'paused'; M12 PER label table; GiveAccessOptions.students.why",
+   "problem": "The B2-04 LBL map has no 'Paused' entry, and the B2-04 paused frame keeps each grant's own word. 'Paused' is drawn only on the B2-03 plan page, so the same grant reads differently on IA-03 and IA-04, an unreported board-to-board inconsistency. The same 'student inactive' condition also has two more unmodelled IA words.",
+   "evidence": "B2-04 script: LBL = { active:'Active', waiting:'Waiting for a licence', inactive:'Student inactive', withdrawn:'Withdrawn', ended:'Access ended' }; B2-04 f12 'Institution paused · read-only' statuses ['Active','Waiting for a licence','Student inactive']. B2-03 paused frame: SACC-0310 row status chip 'Paused'. B2-06 f11 'Can't open - inactive' (IA-07 Experiments given). B2-05 'Inactive - can't be given access'. surface-institute-admin.json inconsistencies 'worded four ways'.",
+   "correction": "Cite B2-03 (paused frame) for the 'Paused' grant word. Add per-screen columns: IA-03 (B2-03) 'Paused'; IA-04 (B2-04) keeps the grant word plus the banner; IA-07 (B2-06) 'Can't open — inactive'; IA-05 (B2-05) 'Inactive — can't be given access'. List the IA-03 vs IA-04 paused wording as a new §7 handoff defect (D-24, board-to-board)."
+  },
+  {
+   "severity": "minor",
+   "location": "M11 'Status → labels' Academic Reviewer column; M22 'Status → labels'; M10 Content Manager column; M15 OpenRefusal / MyExperimentRow.availability",
+   "problem": "Several drawn role words are missing from the label maps.",
+   "evidence": "B6-04 rvChipWords: draft → 'Not sent for review' (meta 'Not sent for review yet'), withdrawn → 'Withdrawn by the Content Manager', on-hold → D.stw 'On hold'. B4-13 ST-14 'Not submitted yet — Your result appears here after you submit…'. B4-09 Faculty status 'Marks confirmed'. B6-06 f2 CM-02 chips 'Ready' and '1 to resolve: learning outcomes'. B2-12 caption 'A format not available right now — VR temporarily unavailable; WEB still opens. Reason wording neutral.' (surface-student.json inconsistency).",
+   "correction": "Add the following. UPD AR map: draft 'Not sent for review', withdrawn 'Withdrawn by the Content Manager', on-hold 'On hold', released 'Released'. ATT Student map: in-progress on ST-14 'Not submitted yet'. ATT Faculty map: confirmed 'Marked' (lists) / 'Marks confirmed' (FA-19). SUB CM-02 map: 'Ready' / '1 to resolve: learning outcomes'. Add availability 'not-available-right-now' (Student word 'Not available right now') as [U]: its cause and record are not designed, so the open gate returns policy-open and encodes no rule."
+  },
+  {
+   "severity": "minor",
+   "location": "§1.6 / M28 'Every command in §3 appends exactly one HistoryEntry per affected record'",
+   "problem": "The boards do not write history on every command, so the rule contradicts them.",
+   "evidence": "B5-07 script: 'const h = first ? [{ what: \"Draft saved\", … note: \"Only you can see a draft.\" }].concat(s.hist) : s.hist' (only the first save writes history); VE-08 'Save changes … no history entry' (surface-vendor.json). CM-08 'Save draft' shows only a message. SA-17 'Assign scope … a matching withdrawn entry is removed' (surface-super-admin.json).",
+   "correction": "Replace the blanket rule with a per-command history table that matches the boards. saveDraft writes history on the first save only; saveRevision and saveCorrection write none; assignScope removes a matching withdrawn scope entry, as drawn on SA-17. Note that the SA-17 removal conflicts with 'nothing is hard-deleted' (BR-126) and flag it [U]."
+  },
+  {
+   "severity": "minor",
+   "location": "§3.7 giveAccess; §3.8 launchWebFormat; §3.9 sendFeedback; §3.10 submitAttempt; §3.12 continueStep; §3.4 startPayment; §3.16 reportProblem/requestDeviceTransfer; §3.11 saveMark/confirmMarks; §3.13 openCorrection",
+   "problem": "Error unions omit drawn failure states and some state/permission cases.",
+   "evidence": "Drawn write failures: B2-05 f12 'Give access fails · interactive' (nothing changes, error summary, try again); B3-03 f2 'Couldn't open + try again' (Launch WEB); B3-06 f2 'Sending fails + try again'; B4-12 f3 'Submit fails + try again' ('Your answers weren't submitted. They're still saved here.'). Parsed signatures: continueStep lacks NotPermitted; startPayment lacks NotFound/NotPermitted; reportProblem lacks NotPermitted; saveMark/confirmMarks lack InvalidState (attempt still in progress); openCorrection lacks NotFound/InvalidState; requestDeviceTransfer lacks InvalidState.",
+   "correction": "Add Unavailable to giveAccess, launchWebFormat, sendFeedback and submitAttempt. Add NotPermitted to continueStep and reportProblem, and NotFound|NotPermitted to startPayment. Add InvalidState to saveMark, confirmMarks, openCorrection and requestDeviceTransfer, so every write carries NotPermitted and InvalidState as the brief requires."
+  },
+  {
+   "severity": "minor",
+   "location": "§3.6 PeopleService.deactivateStudent / reactivateStudent and GroupService.createGroup: Refused<'institution-paused'>",
+   "problem": "These signatures encode a paused-institution refusal that the deliverable itself marks UNRESOLVED ('paused frames not drawn for IA-06…IA-15'). That breaks its own §0.2 rule that [U] items 'encode no rule'. renameGroup, addMembers, addStudent and assign (FMAP) do not carry the refusal, so the pattern is inconsistent.",
+   "evidence": "schemas.md §3.6 '[U] Whether add / import / groups / Faculty courses are blocked while paused — paused frames not drawn'; §0.2 '[U] … The contract leaves room for every answer and encodes no rule'. Only IA-16 (B2-03 f9) and IA-04/IA-05 draw paused read-only states.",
+   "correction": "Replace Refused<'institution-paused'> with PolicyOpen ('paused-ia-people') on every IA-06…IA-15 write, applied uniformly. Keep Refused<'institution-paused'> only where drawn: IA-04 withdraw, IA-05 give access, IA-16 set code, IA-19 forward."
+  },
+  {
+   "severity": "minor",
+   "location": "M03 RequestedTerm comment \"{ kind: 'current-plan' } // renewal / more licences ('Current term', B1-11)\"; §3.4 RequesterRequestView.asked.term",
+   "problem": "'Current term' is drawn only for the additional-licences request. Renewals show the plan's own term ('Yearly'), so tagging renewals 'current-plan' does not match the board.",
+   "evidence": "B1-11 data: REQ-0040 (Additional licences) 'term': 'Current term'; REQ-0038 (Renewal) 'term': 'Yearly'. B3-08 renewal mirror line '… 120 licences · Yearly · current plan ends 7 Oct 2027'.",
+   "correction": "Use 'current-plan' only for type additional-licences. A renewal carries the mirrored plan term (monthly|quarterly|yearly|until-date), copied from the source plan, as in T-07."
+  },
+  {
+   "severity": "minor",
+   "location": "M07 '[C] Platform code rule: unique among non-blank codes, \"case and spaces ignored\" (script compares trim().toUpperCase())'; §3.14 save row",
+   "problem": "The annotation and the script on B6-10 disagree: the annotation ignores spaces, while the script ignores only case and surrounding whitespace, so 'ME ZG523' and 'MEZG523' pass. The deliverable cites both as one CONFIRMED rule.",
+   "evidence": "B6-10 'Rules': 'Each code unique (case and spaces ignored).' vs B6-10 script: 'const k = T(r.code).toUpperCase()' where T trims.",
+   "correction": "Keep 'case-insensitive, trimmed' as [C]. Mark 'internal spaces ignored' as [U], add it to §7 as a board-internal defect (D-25) and to §8 for the owner. Do not choose silently."
+  },
+  {
+   "severity": "minor",
+   "location": "§1.1/M01 citations; M15 ProvidedLicenceWait comment; M19 Eligibility; M20 'No time limit'; M21 status line; §4.1 'START-HERE known exception 7'; M02 example",
+   "problem": "Several CONFIRMED citations point at the wrong board or the wrong item.",
+   "evidence": "'No licence is available for Arun on ACC-0107 right now.' is on B2-06 (B2-05 template says 'for Fatima' / generic). 'No time limit and no timer.' is on B4-04 (not B4-05). 'VR not started offers nothing' is B8-04; B3-06 says 'Not eligible → no entry at all.' 'In your bank · reviewed by you' is B4-08 (not B4-07). The SSO button reads 'Sign in with your institution' (B1-09). START-HERE Known exception 7 is 'Fonts are external …', not sample defaults. 'N. Joshi' is the Sahyadri request contact (B1-10 REQ-0036 'contact'; B7-13/B8-08 'Sahyadri contact N. Joshi'); B7-03 uses 'n.joshi@sahyadri' only as an invalid e-mail sample, and Sahyadri has 'No Institute Admin'.",
+   "correction": "Fix each citation as listed. For M02, use a drawn Institute Admin as the example (R. Bhatt, Dr P. Srinivas, Meera Iyer). In §4.1, move 'Sahyadri · N. Joshi' from 'institutions and admins' to 'request contacts'. Cite BC-6 / BR-076 (and B4-04 'nothing comes pre-filled') for 'sample values are never defaults'."
+  },
+  {
+   "severity": "minor",
+   "location": "§3.18 WorkflowRoutingPolicy.route(): { reason: 'resubmission' } | { to: 'with-content-manager' }",
+   "problem": "The second branch is the prototype's removed 'fast-path' that skips the Academic Reviewer. It sits in the contract while M-3 / OD-B5-05 is open, and BC-7 fixes the first-publication chain at Vendor → Academic Reviewer → Content Manager.",
+   "evidence": "functional-prototype.json removedBehaviours (submission): 'Silent fast-path CHANGES_CONTENT → CONTENT_REVIEW that skips the Academic Reviewer … must not be promised; next gate is open (M-3, OD-B5-05)'. B5-08 drawn default 'Routed by the approved workflow rule' → With Academic Reviewer · revision n.",
+   "correction": "Type the mock policy so it can only return { reason: 'resubmission' }. Record the CM-skip branch in §8 item 15 as a possible owner answer, not as a contract variant, until M-3 is decided."
+  },
+  {
+   "severity": "minor",
+   "location": "§3.16 requestDeviceTransfer(input: { format: 'ar'|'vr'|'mr'; newDevice; note }); M23 DeviceTransfer.format/experimentId",
+   "problem": "The ST-18 form draws only 'New device' and an optional note. A caller-chosen 'format' input invites the removed prototype 'technology scope selector'.",
+   "evidence": "B3-07 labels: 'New device' and 'Anything your Institute Admin should know (optional)' (8 occurrences each, no other field). functional-prototype.json removedBehaviours (device): 'Required currentDevice and reason fields and the technology scope selector'.",
+   "correction": "Derive format and experimentId server-side from the Student's authorised device or the My device page context, as [P]. Remove 'format' from the command input, or mark it [P] 'never a user choice'. If a Student holds more than one AR/VR/MR authorised device, record that as [U] under OD-B3-01."
+  },
+  {
+   "severity": "minor",
+   "location": "M01 transition 'access-active → ending-soon | plan end within 15 days | system:term-clock' and InstitutionStatus comment 'derived: plan ends within 15 days'",
+   "problem": "The 15-day threshold is encoded without a label, though the rule is PROVISIONAL.",
+   "evidence": "decisions-rules.json BR-049 status PROVISIONAL ('access ending within 15 days shows Ending soon / Reminder due …'); boards draw single samples ('15 days left' B2-01, '8 days left' B7-09).",
+   "correction": "Mark the threshold [U]/PROVISIONAL (BR-049, T-31) and hold it as one named constant in @xr/domain (ENDING_SOON_DAYS = 15) with the citation."
+  },
+  {
+   "severity": "minor",
+   "location": "§3.12 ProductionService.sendBack(input: { to: 'academic-reviewer'|'vendor'|null; reason; references … })",
+   "problem": "The input accepts references for a send-back to the Academic Reviewer, although the board allows references only for the Vendor.",
+   "evidence": "B6-07 / surface-reviewer-cm.json CM-03: 'Send back to Academic Reviewer … [recipient + reason required] [no references]'; 'Send back to Vendor … [references optional]'.",
+   "correction": "Make the input a discriminated union: { to: 'academic-reviewer'; reason } | { to: 'vendor'; reason; references }. The unchosen state stays form-level (to: null → 'Choose who it goes back to')."
+  },
+  {
+   "severity": "minor",
+   "location": "§3.18 RuntimeReportPort.reportCompletion (no side-effect list)",
+   "problem": "§3 promises a side-effect list for every method, but reportCompletion, the only completion writer, has none. A system completion changes several role views at once (BC-14).",
+   "evidence": "B3-12 Flow-3 continuity: 'Completion from the simulation → Give feedback on WEB'; B3-10 'Completed' definition; B4-10 per-format 'Completed 14 Oct 2026'; B7-03 institution report 'WEB 4 started · 2 completed'.",
+   "correction": "Add the side effects. FormatCompletion is created, first completion stands. The Student's format page, Simulation, Progress and Home Up next show 'Completed <date>' and the 'Give feedback on <FORMAT>' entry. Faculty FA-03/FA-20 per-format counts, IA-20 'Completed' and the SA-07 institution report change. Nothing else changes: no grant, no assessment, no other format."
+  }
+ ]
+}

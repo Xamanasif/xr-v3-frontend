@@ -1,0 +1,194 @@
+{
+  "summary": "Adversarial verification of wf/design/phase0.md and wf/design/owner-decisions.md (read-only; git read commands and python3 -I only). Most of the plan's factual base holds. 36 load-bearing claims were re-checked and survived: git state, handoff integrity, committed-foundation lines, board strings and CSS thresholds, final-deliverable counts, and id floors. (a) The starting-point procedure matches reality: 3 branches at 1b090c9, main e8c6a84 without v2/, no remote, no stash, one worktree, 98 uncommitted paths (11 M + 60 Slice-1 ?? + 27 Source Pack ??), no CLAUDE.md, zip SHA-256 9d33f32e…24bf, 178/178 OK, 0 CRLF, no gitignore hits. No step touches the main checkout's working-tree files. The only git write there is the owner-chosen G-1 option A, which is limited to pathspec v2 (71 paths), runs with no active hooks and no CRLF in Slice-1, and leaves the Source Pack untracked. (c) The plan adds no DEMO banner, no account or role selector, no third-party design system and no Slice-1 UI. (d) The B1-10 fix is in DataTable, and its tests sit at the verified 759.98 px thresholds. (e) All foundation conflicts are addressed. (i) The package placement is legal once the proposed matrix edits are made. Six major defects: (1) XS-01/03/04 and the public shell are pulled into Phase 0 against B8-06 and against the owner register (A4(c), P1-01, SC-20), and the stated reason contradicts the plan's own CI-only session seam. (2) The two documents' gate lists disagree: register A1 and A3 are missing from phase0, G-4 is not a true blocker, and G-5 is absent from the register. (3) G-2 bundles decisions the register places in Phase 1 or 3, or marks as needing no authorisation (AD-39, TE-5, TE-1 on XS-01, AD-07). (4) prettier --write/--check conflicts with the byte-identical permission-matrix.json and the vendored board-capture scripts. (5) Turbo test caching lets matrix-driven and handoff-reading gates go stale. (6) The Phase-0 port-level flow suites reach AD-14, AD-38/DV-2 and DV-1/AD-18 with no stated Phase-0 interim, and the documents disagree on DV-1. 13 minor defects follow: unsatisfiable or self-referential acceptance criteria, import-fence and bundling gaps, inconsistent defaults between the two documents, dead-end links, and procedure details.",
+  "checksRun": [
+    {
+      "id": "a",
+      "check": "Starting-point procedure vs reality; impact on the main checkout's uncommitted work",
+      "method": "git branch --list -v, rev-parse, remote -v, worktree list, stash list, status --porcelain -uall counts, ls-tree main/1b090c9, rev-list main..1b090c9, diff --name-only, cat-file CLAUDE.md, hooks dir + config, CRLF scan of the 71 Slice-1 paths, check-ignore over the 180 handoff paths, shasum -c of the extraction, zip hash",
+      "result": "All facts in phase0.md §1.1 / register A1–A3 CONFIRMED. No step touches main-checkout working files. G-1 option A is a pathspec-limited commit (71 paths); no hooks, no CRLF, and the Source Pack stays untracked. Issues: approvals for the worktree/branch and the handoff commit are not gated in phase0 (correction 2); chmod -R a-w conflicts with git worktree remove (correction 16)"
+    },
+    {
+      "id": "b",
+      "check": "No unapproved or isolated feature screens or mini-application; contracts for all entities and all 8 surfaces",
+      "method": "Compared phase0 §0.1/§3.3/WP-0.13 with B8-06 build-order text; counted ports, methods and models in final/schemas.md; nav configs vs navigation.json",
+      "result": "Contracts cover all 28 models, 22 ports (183 methods, per-port counts verified) and 6 stand-ins (8 methods), plus 7 role navs and the public header. No unapproved screens. But XS-01/03/04 and the public shell are pulled forward from B8-06 Phase 1 against the register (correction 1)"
+    },
+    {
+      "id": "c",
+      "check": "No DEMO banner, no developer-only account selector, no unrelated design system, no Slice-1 UI",
+      "method": "Read R8, §2.3, §3.4, §7.6 and WP-0.6; compared Slice-1 exports and repo-baseline slice1 classification",
+      "result": "Satisfied: SES-04 DENY CONFIRMED; Slice-1 9/24/38 classification verified; the dependency deny-list is present. The Slice-1 name-ban acceptance criterion is unsatisfiable (correction 7)"
+    },
+    {
+      "id": "d",
+      "check": "B1-10 fix with test",
+      "method": "xr-foundation.css @container xr-content (max-width:759.98px) .xr-table thead clip; xr-public.css .xp-ftable 759.98 / .xp-compare 599.98; visual.md §7.1 widths",
+      "result": "Included (WP-0.7, DoD 8) with Vitest, harness Playwright at 343/759/760/1112, and an SA-02 fixme route test. CONFIRMED"
+    },
+    {
+      "id": "e",
+      "check": "Foundation conflicts: role labels, format order, utilisation.ts trigger, '/', '/system', smoke test",
+      "method": "git show 1b090c9 roles.ts, technology.ts, utilisation.ts L183-193/L238-242, git grep of tenant_admin/ROLE_PLANNING_LABEL/TECHNOLOGY_META/FoundationStatusList, boundaries.test.ts L351/419-422/460, PHASE0_VERIFICATION counts",
+      "result": "All addressed in WP-0.3. Gaps: the grep acceptance misses committed comments and the ui README; the smoke-test content arrives before its pages exist (correction 17)"
+    },
+    {
+      "id": "f",
+      "check": "Acceptance criteria objective and testable",
+      "method": "Read every WP acceptance row and DoD item against repo and board facts",
+      "result": "Mostly objective. Defects: WP-0.2 (4)+(5) cannot both hold (correction 4); WP-0.6 (6) is unsatisfiable (correction 7); invariant 10 fails on the spine-start world (correction 8); WP-0.8 (1) compares icon keys navigation.json lacks (correction 11); WP-0.14 (3) checks the copy tables against themselves (correction 12); WP-0.3 (3) uses 'concerns completion', which is subjective (correction 17)"
+    },
+    {
+      "id": "g",
+      "check": "Blocking-decision list contains only true blockers",
+      "method": "Compared phase0 §10.1 G-1..G-5 with register §A A1..A5 and §A.2, WP-0.16 gate text, and repo-baseline ownerDecisions",
+      "result": "Not satisfied: G-4 has a fallback in the plan itself; G-2 includes deferrable or acknowledgement-only items; register A1/A3 are missing; G-3 over-blocks visual verification (corrections 2, 3, 18)"
+    },
+    {
+      "id": "h",
+      "check": "Consistency with final routes/permissions/schemas/architecture/visual (10+ spot-checks)",
+      "method": "python3 -I counts and greps over wf/final/*",
+      "result": "Matched: permissions 347 rows (ALLOW 103, DENY 156, READ 62, SYSTEM 11, OPEN 15; CONFIRMED 176, PROVISIONAL 130, UNRESOLVED 41; 22 stakeholderConflict; OPEN all UNRESOLVED); schemas 22 ports, 183 methods with per-port counts, 6 stand-ins with 8 methods, all phase0 §4.1 method names present; routes 123/26/16 and redirect rows 20/21; visual §3 42 = 19/10/5/4/4 with PublicShell/SignIn/PublicMenuSheet = Phase 1; PF-01..13 phases; architecture TE-1..8, 18 ports, 12 invariants; flows.json 27 steps; B1-09 13 frame captions; id floors for 12 prefixes (REQ-0058 … FMAP-0021); B1-10 test widths. Mismatches are reported in corrections 6, 11 and 14"
+    },
+    {
+      "id": "i",
+      "check": "Boundary matrix allows the proposed package placement",
+      "method": "git show 1b090c9 boundary-matrix.mjs, boundaries.d.mts, pnpm-workspace.yaml, @xr/ui package.json, turbo.json, lib/env.ts",
+      "result": "Legal once the proposed edits are made: a @xr/sample-platform row (deps contracts/domain/validation; forbidden framework-server/web/data-layer), a @xr/web list entry, the WorkspacePackage union, and the ./draft and ./styles.css exports. Fence and bundling gaps: corrections 9 and 10"
+    }
+  ],
+  "corrections": [
+    {
+      "severity": "major",
+      "location": "phase0.md §0 R11, §0.2 X-11, §8 WP-0.13 screen table (XS-01/XS-03 rows), §10.2 X-11 row, §11.3; owner-decisions.md A4(c), P1-01, SC-20",
+      "problem": "Phase 0 pulls XS-01 sign-in, XS-03 notices, XS-04 disclosure and the public shell (PublicShell, SignInCard, PublicMenuSheet) forward from B8-06 Phase 1, and treats this as a default that proceeds unless the owner objects. The owner register states the opposite: XS-01 follows in Phase 1, pulling it forward is an owner choice for hosted review, and 'B8-06 governs'. The stated justification ('the designed sign-in is the only way to reach any shell … every other Phase-0 proof depends on it') is contradicted by the plan's own CI-only boot descriptor. The plan also says Phase-0 builds are not hosted for review (K-21), so it adds no review benefit.",
+      "evidence": "B8-06 (design/handoff-v46/canvas-v46/project/B8-06-Design-to-Code-Handoff.dc.html) build order: '0 · Foundation — Shell, sidebars, account menu, Help & support, system pages, tokens, components, dialogs'; '1 · Public + access spine — PU-01…12, XS-01/03, …'. visual.md §3.5 PublicShell = 1, SignIn (focused public) = 1; §3.4 PublicMenuSheet = 1. phase0.md §7.2: 'Other tests use the CI-only boot descriptor: page.addInitScript sets { fixture, session }'. K-21: 'Phase-0 builds are not hosted for review'. owner-decisions.md A4(c): 'A session port now; the XS-01 sign-in form follows in Phase 1 (B8-06)'. P1-01: 'If the owner wants Phase-0 shells reviewable in a hosted build, pull XS-01 into Phase 0; otherwise Phase-0 review uses CI captures.' SC-20: 'B8-06 governs'. decisions-rules.json#phaseBoards[0].notes: Inventory §U, the design brief, ranks below B8-06.",
+      "correction": "Make this one explicit owner decision with the same id in both documents, not a proceed-unless-objected default. Default per B8-06: keep XS-01/03/04, PublicShell, SignInCard and PublicMenuSheet in Phase 1. Drive the Phase-0 shell, guard, banner and Help proofs through the CI-only boot descriptor, and move signInAs-through-XS-01 to Phase 1. If the owner approves the pull-forward, update register A4(c), P1-01 and SC-20 to match. Either way, delete the 'only way to reach any shell' sentence."
+    },
+    {
+      "severity": "major",
+      "location": "phase0.md §10.1 (G-1…G-5), §0 R1/R2, §1.3, WP-0.1 Gate, WP-0.16 Gate; owner-decisions.md §A (A1–A5), §A.2",
+      "problem": "The two documents present different blocker lists with no crosswalk. (i) phase0 does not gate register A1 (approve the new branch and worktree, their names and location) or A3 (approve committing design/handoff-v46 and CLAUDE.md, and confirm the zip is the approved artefact). Both are git writes, yet R1/R2 present them as CONFIRMED steps that follow G-1. (ii) G-4 (remote) is not a true blocker. phase0 itself gives the fallback 'local merge review otherwise', and the register demotes it to P0-01. (iii) G-5 (install, axe devDependencies, vendored capture files) is absent from the register's Section A. The register demotes devDependencies and the capture files to 'Phase-0 exit' (P0-08, P0-09). (iv) G-1 says 'the owner asked for this choice first', but the cited source is the audit's own recommendation list, not an owner request.",
+      "evidence": "phase0.md WP-0.16 Gate: 'G-4 (remote) for the PR; local merge review otherwise'. DoD 19: 'PR opened … (G-4) or a local review recorded'. owner-decisions.md A.2 row 1: 'Local work in the A1 worktree proceeds without a remote'. A.2: 'new devDependencies … Each has a buildable default'. P0-08 and P0-09 'Needed by: Phase-0 exit'. wf/understand/repo-baseline.json#recommendation.ownerDecisions[1] 'Name of the new branch and location of the worktree' and [3] 'Commit design/handoff-v46/ … confirm this is the approved artefact'. Verified: /Users/mymac/Desktop/AR-VR-frontend-v46 does not exist; git remote -v is empty.",
+      "correction": "Publish one gate table used by both documents, with a G↔A crosswalk: G-1 = A2 (Slice-1 preservation); add A1 (worktree and branch) and A3 (handoff commit and artefact approval) as gates before WP-0.1 steps 2 and 7; G-2 = A4; G-3 = A5. Move G-4 to §10.2 / P0-01 (needed for the off-machine backup and the PR, not for any WP). Treat G-5a as a session permission for the install. List G-5b and G-5c as Phase-0-exit approvals that gate WP-0.4's axe part and WP-0.15 only, and add them to the register. Replace 'the owner asked for this choice first' with 'recommended first, because no remote exists'."
+    },
+    {
+      "severity": "major",
+      "location": "phase0.md §10.1 G-2 (TE-1, TE-5, AD-07, AD-39) and its 'Blocks' column; §0 R10; WP-0.3 scope (CompletionPolicy); owner-decisions.md A4, A.2, P3-01",
+      "problem": "G-2 bundles items that the register places in later phases or marks as needing no authorisation, so the two documents put the same decisions on different timelines. AD-39 (completion stored as a system record; amends ARCH §8) blocks WP-0.9 in phase0, but the register asks P3-01 (a) stored vs derived and (d) whether the rule moves behind CompletionPolicy only 'Needed by Phase 3 · UNRESOLVED'. Meanwhile phase0 WP-0.3 already does (d) as a Phase-0 default. TE-5 (anchored clock) is in G-2, while register A4 defers TE-5 to Phase 1. TE-1 is scoped 'on XS-01' (see correction 1). AD-07 'acknowledgement' sits inside a merge gate, although register A.2 says option A 'needs no authorisation'.",
+      "evidence": "phase0.md §10.1 G-2: '… TE-5 anchored sample clock … AD-07 acknowledgement … AD-39 learning completion stored as a system record' | Blocks 'Merge of WP-0.9 (completion part), WP-0.11, WP-0.12, WP-0.13'. owner-decisions.md A4: 'TE-5, the sample clock (Phase 1)'; A.2: 'option A … needs no authorisation'; P3-01 rows (a)–(d), 'Phase 3 · UNRESOLVED'. 1b090c9:v2/docs/ARCHITECTURE.md line 147: 'Derived, never stored as truth | … progress (per technology) …'.",
+      "correction": "Decide the placement once and mirror it in both documents. Phase 0 models M17 and walks Flow C at port level (WP-0.14), so the consistent choice is to move AD-39 and P3-01 (a)/(d) into register Section A (A4) and record TE-5 there too, because the walk and seed need the clock. If the owner prefers to keep them in Phase 3, drop the stored FormatCompletion and the Flow C completion steps from Phase-0 scope, and keep completion derived through CompletionPolicy only. Move the AD-07 acknowledgement out of G-2 into §10.2. Set TE-1's scope according to the outcome of correction 1."
+    },
+    {
+      "severity": "major",
+      "location": "phase0.md WP-0.2 acceptance (4)+(5); WP-0.3 scope ('.prettierignore += packages/ui/src/styles/v46/'); §7.5 step 2; WP-0.15 acceptance (1); §7.7",
+      "problem": "The repo formats everything under v2/ with prettier, but two kinds of committed files must stay byte-identical, and neither is in .prettierignore. (1) v2/docs/v46/permission-matrix.json must equal wf/final/permissions.json by SHA-256, and that file uses 1-space JSON indentation while the repo's prettier config uses tabWidth 2. 'prettier --check' therefore fails (WP-0.2 (5) and pnpm verify step 1), and 'pnpm format' (= prettier --write .) would rewrite the file and break (4). (2) The vendored react/react-dom/@babel/standalone files in v2/tools/board-capture/vendor/ must match the support.js SRI hashes. Prettier formats .js, so --check fails on the minified code and --write breaks WP-0.15 (1).",
+      "evidence": "1b090c9:v2/package.json scripts: \"format\": \"prettier --write .\", \"format:check\": \"prettier --check .\". 1b090c9:v2/.prettierignore lists only node_modules, dist, .next, .turbo, coverage, playwright-report, test-results, pnpm-lock.yaml and packages/database paths. 1b090c9:v2/.prettierrc.json \"tabWidth\": 2. wf/final/permissions.json begins '{\\n \"about\": …' (1-space indent, 9,064 lines). phase0 §7.7: 'pnpm verify … runs, in order: prettier --check; …'.",
+      "correction": "In WP-0.2 and WP-0.3, add 'docs/v46/permission-matrix.json' (or 'docs/v46/') and 'tools/board-capture/vendor/' to v2/.prettierignore, and extend the checksum and mutation tests to both paths. Alternatively, commit a prettier-formatted matrix and record its own SHA-256 instead of the scratch file's."
+    },
+    {
+      "severity": "major",
+      "location": "phase0.md §5.3, §7.1 'Policy (matrix-driven)', §7.7 gates; WP-0.5 drift test; WP-0.8 (1); WP-0.14 skeleton tests",
+      "problem": "The gates run 'turbo run … test', and turbo caches the test task using package-local inputs only. Several gate tests read files outside their package: @xr/domain policy tests read v2/docs/v46/permission-matrix.json, and other tests read design/handoff-v46 (tokens.json, navigation.json, flows.json, SHA256SUMS.txt). After an owner flips a row in the matrix, 'turbo run test' can replay the cached pass. The '347/347 rows covered' gate and the 'an owner decision flips one row and its tests' promise would then not re-run. design/handoff-v46 lies outside the v2 turbo root, so it cannot be a declared input at all.",
+      "evidence": "1b090c9:v2/turbo.json \"test\": {\"dependsOn\": [\"^build\"], \"outputs\": []} (cached, no inputs). 1b090c9:v2/docs/PHASE0_VERIFICATION.md ran every task with --force. phase0 §7.7: 'turbo run build typecheck lint test' with no --force.",
+      "correction": "Either keep the test inputs inside the package (copy the matrix into packages/domain/test-data/ with a checksum test against v2/docs/v46/) or declare task inputs ($TURBO_DEFAULT$ plus the matrix path) for @xr/domain#test. Run every test that reads design/handoff-v46 in the uncached 'handoff checks' step of pnpm verify, or run pnpm verify with --force as the foundation verification did."
+    },
+    {
+      "severity": "major",
+      "location": "phase0.md WP-0.14 acceptance (1)–(3), §4.1 (MarkingService 'all', AssessmentService submitAttempt), §6.3 REQ example, §10.2 'schemas §8-7 / AD-18' row, §10.3 Phase 1/4 rows; owner-decisions.md D.0 DV-1/DV-2, P1-04, P2-02, P4-01",
+      "problem": "The Phase-0 port-level suites must pass all 27 flows.json steps with role-relative words, but three of those steps depend on open decisions that phase0 schedules for later phases without a Phase-0 interim. That invites the silent decisions K-10 warns against. (a) Flow D3 'Marks confirmed' needs a rule for choice questions (AD-38 / DV-2 / P4-01, Phase 4). The register's 'seeded marks' interim cannot apply to the walk's live ATT-0450. (b) The requester's 'Submitted' → 'Under review' label needs the 'BITS started reviewing' trigger (AD-14 / P1-04, Phase 1). (c) The two documents disagree on overlapping grants: phase0 says 'OverlapGrantPolicy has no default: policy-open', the register's DV-1 interim says 'the Student guard opens an experiment when any active grant exists', and phase0's laterSample() already builds the overlapping SACC-0311 group grant.",
+      "evidence": "flows.json D step 3 'Waiting for marking → Marks confirmed' (ATT-0450); A step 2 '— → Under review'. phase0 §6.3: 'REQ requester \"Submitted\" until \"BITS started reviewing\", then \"Under review\" (B1-13)'. phase0 §10.3 Phase 4 row 'AD-38 choice-question automatic scoring'. owner-decisions.md DV-2 interim 'Seeded marks until the owner confirms'; P1-04 interim 'the first time the Super Admin opens the request's decision page (SA-03)'; DV-1 interim as quoted. phase0 §4.3 laterSample() 'SACC-0311 via a real group giveAccess'.",
+      "correction": "Add AD-14, AD-38/DV-2 and DV-1/AD-18 to phase0 §10.2 as Phase-0 interims, using the register's wording and noting that the owner may revise them. For AD-38, either use deterministic answer-key scoring flagged PROVISIONAL, or keep the Phase-0 Flow D fixture to written-answer questions only, until P4-01 is decided. Make the domain gate return the same answer as the register's DV-1 (or change DV-1), and record the choice in both documents."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md WP-0.6 acceptance (6)",
+      "problem": "'No file or name from the Slice-1 DISCARD list exists in the package' cannot be met. The Slice-1 DISCARD files and exports Button, ConfirmDialog, Notice, PageHeader and StatusPill (button.tsx, confirm-dialog.tsx, notice.tsx, page-header.tsx, status-pill.tsx) are the same names as the v46 components the plan itself must build.",
+      "evidence": "Working tree v2/packages/ui/src/index.ts (Slice-1) exports Button, ConfirmDialog, Notice, PageHeader and StatusPill (repo-baseline.json#slice1: DISCARD). visual.md §3.1 rows Button, Notice, PageHeader, StatusPill (Phase 0); §3.4 'Dialog: ConfirmDialog (DL-1), ReasonDialog (DL-2), EditDialog (DL-3)'.",
+      "correction": "Replace it with a provenance test: no file in @xr/ui matches the content hash of any Slice-1 file (a hash list of the 38 DISCARD paths), and only Slice-1-specific identifiers are banned (PlacesMeter, FormatLegend/FormatChip, AppShell, Card, cx, demo-*, places*)."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md WP-0.9 acceptance (5), WP-0.14 acceptance (2); architecture.md §5.5 invariant 10 (adopted)",
+      "problem": "The invariant 'Both Composite Wall records exist' is false in the spine-start world and at every walk step before Flow E step 1. SUB-0077 'Conduction Through a Composite Wall' is created by that step, and spine-start explicitly excludes it. 'The 12 invariants are checked after every step' would therefore fail.",
+      "evidence": "phase0 §4.3: spine-start has 'no REQ-0042, SUB-0077 or UPD-0005'. flows.json E1: SUB-0077 'Draft → With Academic Reviewer'. schemas.md §4.1: 'Composite Wall Conduction (published, WEB + AR …) and SUB-0077 \"Conduction Through a Composite Wall\" (WEB · VR)'.",
+      "correction": "Reword the invariant: no command merges, deduplicates or renames one record into the other, and neither is removed by a merge (BC11). Assert that both exist only in afterFlow('E') and stateCoverage() fixtures."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md §3.2 test-hook-bridge.ts, §3.7 './testing' export, §3.8 import fences, WP-0.12 acceptance (3)/(4); architecture.md TE-7 fence",
+      "problem": "As written, the bridge, the import fence and the env rule cannot all hold. The test-hook bridge needs @xr/sample-platform/testing (fixtures, setSampleNow, fault plan), but the fence lets only composition.ts import @xr/sample-platform. WP-0.12 (3) requires the hook code to be absent from non-CI bundles, but TE-7 says flags are 'read once through @xr/config/env; never read ad hoc', and that env object is parsed with zod at runtime, so the bundler cannot remove the branch. A dynamic import would still emit a chunk containing the sentinel. Separately, the fence 'app/** may import only features/**, platform/** providers and next/*' conflicts with app/layout.tsx importing @xr/ui/styles.css, and with the root not-found rendering PublicHeader/PublicFooter.",
+      "evidence": "1b090c9:v2/apps/web/src/lib/env.ts: 'export const publicEnv = parseEnv(webPublicEnvSchema, {…})'. phase0 §3.3: layout.tsx 'imports @xr/ui/styles.css then ./globals.css'.",
+      "correction": "Specify the mechanism. Either resolve the bridge module through a build-time alias in next.config.ts (an empty stub unless NEXT_PUBLIC_XR_TEST_HOOKS=1 at build time), or allow one literal process.env.NEXT_PUBLIC_XR_TEST_HOOKS check at the single import site and record it under TE-7. Extend the fence so that platform/test-hook-bridge.ts may import @xr/sample-platform/testing, and allow app/** to import @xr/ui (components and styles.css)."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md §3.6 (contract-suite under packages/contracts/src/draft), AD-02 './draft' export",
+      "problem": "The framework-free contract suite (node:assert) sits behind the same './draft' subpath that apps/web uses for DTO schemas and types. If draft/index.ts re-exports it, Node built-ins can enter the client graph through composition.ts and the queries.",
+      "evidence": "phase0 §3.6: 'contract-suite/ framework-free (node:assert), runContractSuite(factory)' under src/draft/ with 'index.ts DRAFT re-exports'. AD-02 adds only \"./draft\".",
+      "correction": "Publish the suite on its own subpath (for example './draft/contract-suite' or './testing') that is not re-exported from './draft', and add a lint rule that bans it outside test files and @xr/sample-platform tests."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md WP-0.8 acceptance (1)",
+      "problem": "'Nav config equals navigation.json … (labels, order, icon keys): 0 differences except the board-wins header target' cannot be tested as written. navigation.json has no icon keys, and it lists 'Help (foot)' where the boards draw 'Help', a second board-wins difference (HB-19).",
+      "evidence": "handoff/navigation.json: 0 occurrences of 'icon'; Student primary ['Home','My courses','Assessments','Progress','Help (foot)']. owner-decisions.md HB-19: '\"Help (foot)\" is drawn with the label \"Help\"'.",
+      "correction": "Compare labels and order with navigation.json after the two documented board-wins normalisations (HB-02 Request access → PU-07; HB-19 'Help (foot)' → 'Help'). Compare icon keys with the board 06 markup instead."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md WP-0.14 acceptance (3)",
+      "problem": "'Each step's words for each role match the copy tables' checks the copy tables against themselves, because they are written in the same phase. Wrong words would pass (K-12).",
+      "evidence": "phase0 §3.2 copy/status/<record>.ts [P0]; §6.3 'Sources are the boards and B8-03'.",
+      "correction": "Assert against an independent fixture: the expected words per flow step and role, extracted from the cited board frames (frame-index statuses and headings), with board code and frame number on each entry."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md §10.2 (absent items); owner-decisions.md D.1 (absent item)",
+      "problem": "Register items that shape Phase-0 screens are missing from phase0's decision list: P0-31 (where the 'My reports' title comes from, UNRESOLVED; XS-07 is a Phase-0 screen), P0-32 (Help for Academic Reviewer and Super Admin, not drawn), P0-34 / SC-29 (no problem-category field), P0-10 (one role per person shapes the session model), P0-28 (supported browsers; the plan tests Chromium only). In the other direction, the register lacks phase0's 'unbuilt destinations → not-found pattern, land on not-found after sign-in' acknowledgement.",
+      "evidence": "owner-decisions.md P0-31: 'The Help list is a Phase-0 screen … Interim: the start of the \"What happened\" text'. P0-28: 'Declare Chromium 105+, Safari 16+ and Firefox 121+'. phase0 §7.1 'Playwright 1.63.0 (Chromium)'. phase0 §3.3 'Unbuilt destinations' note and §10.2 row.",
+      "correction": "Add P0-10, P0-28, P0-31, P0-32 and P0-34 to phase0 §10.2 with the register's interims, and add an XS-07 acceptance case for the interim report title. Add the unbuilt-destination interim, and its '/<base>/help' alternative, to the register's D.1."
+    },
+    {
+      "severity": "minor",
+      "location": "owner-decisions.md P0-12, P0-16, P0-21, P0-24, P1-16, A4 TE-5 vs phase0.md §3.4, WP-0.5 'Not included', §0.2 X-10, §10.2, §10.3, WP-0.3",
+      "problem": "Several defaults contradict each other between the two documents. Motion: the register says 'Build it' in Phase 0; phase0 does not build PF-08. Forced colours: the register says 'A minimal outline rule'; phase0 does not build PF-12. Rail preference: the register (P0-24) and visual.md (VD-20) say PROVISIONAL 'Approve' a browser preference; phase0 marks VD-20 'UNRESOLVED (default chosen)' and keeps the preference in memory per tab. Decision panel: the register (P0-12/VD-05) says during Phase 0; phase0 says before Phase 5. /system: the register (P1-16) says Phase 1; phase0 retires it in WP-0.3.",
+      "evidence": "Quoted rows in owner-decisions.md D.1/D.2; visual.md §13 VD-20 'Approve | PROVISIONAL'; phase0.md §0.2 X-10, §3.4 'Not built: PF-08 … PF-12', §10.3 Phase 5 row 'VD-05'.",
+      "correction": "Align each item to a single default and status in both documents. For VD-20, record the architecture R5 conflict (no browser storage) in the register so the 'Approve' recommendation is not taken in isolation."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md §3.3 'Unbuilt destinations', WP-0.13 acceptance (5)/(7)",
+      "problem": "Every Phase-0 screen carries drawn links into unbuilt routes, and some of them loop. Public PU-15 'Browse experiments' (→ /experiments), XS-01 'Back to experiments' (→ /) and 'Request institutional access' all reach the not-found pattern. The in-shell PU-15 and XS-06 'Back to Home' go to /<base>, which is itself notFound() in Phase 0. Only navigation items are gated by the built-screen manifest.",
+      "evidence": "Board 08 script: public not-found action 'Browse experiments'; workspace action 'Back to Home'. B1-09 text 'Back to experiments' and 'Request institutional access'. phase0 §3.3 '<base>/page.tsx interim: notFound()'.",
+      "correction": "Add a link-target ledger for the Phase-0 screens, and state the dead ends in §10.2 for the owner to acknowledge. Prefer the '/<base>/help' landing alternative so that 'Back to Home' does not loop. Add a test that no Phase-0 primary action resolves to the same page."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md §1.4 step 6 (optional chmod -R a-w) and step 12",
+      "problem": "A recursive a-w removes write permission from the directories too. 'git worktree remove' (step 12) and any switch or rebase in that worktree then fail, because files cannot be unlinked.",
+      "evidence": "phase0 §1.4 step 6: 'Optionally chmod -R a-w design/handoff-v46 in the worktree'. Step 12: 'remove the worktree only with git worktree remove'.",
+      "correction": "Make files read-only only (find design/handoff-v46 -type f -exec chmod a-w {} +), or drop the step since the checksum test already protects the folder. Document that write permission must be restored before 'git worktree remove'."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md §2.1 smoke.spec.ts row; WP-0.3 scope and acceptance (1), (3), (6)",
+      "problem": "(1) The new smoke test asserts the /sign-in H1 and the not-found copy, yet it lands in WP-0.3, before WP-0.13 builds those pages, while WP-0.3 (6) requires all suites green. (2) The grep acceptance ('Tenant Admin', 'Learner' and FoundationStatusList nowhere under v2/packages and v2/apps/web) also hits the roles.ts header comment and packages/ui/README.md, which are not in WP-0.3's file list. (3) 'every case … that concerns completion' is subjective.",
+      "evidence": "git grep at 1b090c9: v2/packages/domain/src/roles.ts:4 '…Student and Learner…', :5 '…Tenant Admin…'; v2/packages/ui/README.md:6 'FoundationStatusList'. §2.1 smoke row cites '§8 WP-0.3 / WP-0.13'.",
+      "correction": "Split the smoke test: in WP-0.3, assert /healthz plus a 404 for / and /system; extend it in WP-0.13 with /sign-in and the not-found copy. Add the roles.ts comment and packages/ui/README.md to WP-0.3's files. Rephrase (3) as 'all existing utilisation.test.ts cases pass unchanged; domain test count ≥ 18'."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md §10.1 G-3",
+      "problem": "G-3 is presented as an owner gate that also blocks 'visual verification of WP-0.6 onwards'. Under the committed rule, E-19 is a Part-B engineering decision closed by an ADR, so the owner acknowledges it rather than chooses it. The component verification does not depend on the Tailwind option either: Preflight removal and the verbatim v46 port are common to both options, and @xr/ui contains no Tailwind classes.",
+      "evidence": "1b090c9:v2/docs/OPEN_DECISIONS.md Rule: 'Parts B and D are owned by engineering and are closed with an ADR under v2/docs/decisions/'; E-19 sits under '## B · Engineering decisions (V2-owned)'. phase0 §3.4: 'no Tailwind classes inside @xr/ui'.",
+      "correction": "Scope G-3 to the globals.css and postcss step of WP-0.5 only, and label it 'engineering ADR, owner acknowledgement'. Do not block WP-0.6 or later visual verification on it."
+    },
+    {
+      "severity": "minor",
+      "location": "phase0.md WP-0.2 ('Add v2/docs/v46/ with the six audit deliverables'); citation convention in both documents",
+      "problem": "The deliverables committed to the repo would cite scratch-only sources such as wf/understand/*.json, wf/final/* and scratchpad paths. Their evidence pointers would dangle in the repository.",
+      "evidence": "phase0.md 'Citations': 'Understand-stage findings: wf/understand/<file>.json#<key>'; 'Final audit deliverables (scratch today …)'.",
+      "correction": "Commit the Understand JSON files next to the deliverables under v2/docs/v46/understand/, or rewrite the citations to repo paths when committing. Exclude both from prettier per correction 4."
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{
+ "summary": "Adversarial verification of wf/design/permissions.{md,json} (328 rows). Evidence quality is high: every quoted fragment on the 157 quoted CONFIRMED rows was located on the cited board, handoff JSON or stakeholder record (351/504 fragments matched verbatim automatically; the rest resolved manually as composite captions or stakeholder-record quotes), and the 24 unquoted CONFIRMED rows were spot-checked against boards and surface action lists. No row grants ACC/SACC as a side effect of Publish/Release and no row sets Completed from a launch (five-state check passes). Every data-changing action in surface-*.json screens[].actions has a row. The deliverable fails its own CONFIRMED definition ('no open T-/OD- item governing that exact point') on 12 rows that must be downgraded (REQ-02, REQ-12, REQ-16, CC-07, EXP-06, EXP-07, EXP-08, UPD-12, UPD-22, UPD-23, ROLE-13, DTR-03). Another 9 rows must be split (REQ-25, REQ-26, UPD-20, ROLE-04, SES-04, ATT-20, XC-02, SEL-02, ATT-08), and 8 CONFIRMED rows have scope columns that contradict PROVISIONAL sibling rows. Three stakeholder-basis claims are unsupported: BR-113 lists no stakeholder source; STK31-40/42 do not forbid a Reports destination; and 07.2-C covers forwarding while paused, not creating a request. 14 rows describe actions no board draws but carry kind ALLOW. One of them, SUB-35, is a removed prototype behaviour, so the claim in §1.1 that no ALLOW row brings back a removed behaviour is false. Three stakeholder conflicts are not flagged: ATT-16 vs D-25 in STK31-32, PER-16 vs STK31-25 and 07.3 R06, and RUN-14 vs STK31-42. CC-05's safe treatment contradicts CC-04. The claim that all 278 permissionEvidence entries were used is off by 16. 152 of 181 CONFIRMED rows survive unchanged.",
+ "checksRun": [
+  {
+   "check": "(a) CONFIRMED evidence — quote verification",
+   "result": "PASS (evidence) / FAIL (status)",
+   "detail": "Extracted visible text + script strings of all 128 boards (wf/verify/_perm/btxt) and machine-matched every quoted fragment in every row's evidence (504 fragments): 351 verbatim in the cited board/JSON, 96 verbatim on another board/JSON (segments the parser could not attribute), 57 not verbatim. All 57 resolved manually: composite captions (e.g. B1-11 'What happens after you decide — four separate events 1 Institution record …', B7-03 'Status handling allowed Pause (active or ending soon) · Restore (paused)', B6-07 'Publish It appears in the public catalogue. It gives no one access.', B6-03 'Approve Sends it to the Content Manager. Approving does not publish.', 06-Sidebar-Variants 'Account menu · same pattern in every workspace') and stakeholder-record quotes (STK31-31 'FACULTY is the ONLY human role…', STK31-32 'D-25 — a learner never sees the answer key — is NOT overridden', STK31-08 'Vendor does NOT own Learning Outcomes', STK31-41 'Do NOT assume assignment is global-only', STK31-33 'REVIEW REQUIRED'). Result: all 157 quoted CONFIRMED rows have locatable evidence; 24 unquoted CONFIRMED rows (REQ-17, REQ-26, INST-03, INST-08, SACC-09, SACC-19, GRP-01, PER-06, PER-11, PER-14, CC-01, CC-02, RUN-09, CMP-04, Q-01, ATT-19, DTR-13, DTR-14, UPD-20, CRS-03, CRS-07, ROLE-03, ROLE-04, XC-02) spot-checked against boards (e.g. B7-03 'The Institute Admin manages people; a status change here is an override with a reason.'; B4-10 'Not shown Format feedback (T-25), any score before marking.'; B2-04 script canWithdraw: !s.paused && r.via === 'ind' && (r.st === 'active' || r.st === 'waiting'); B7-03 script noIA includes 'paused') — supported. The failures are classification, not evidence: see corrections 1–6 and 13–18."
+  },
+  {
+   "check": "(a) CONFIRMED rows citing open decision ids",
+   "result": "FAIL on 17 rows",
+   "detail": "54 CONFIRMED rows carry T-/OD-/REG-/ND- ids. The md says such ids 'do not change the permission itself'. For 17 rows the cited open item governs the exact point stated in the row: REQ-02/REQ-12 (T-04 'Super Admin sets it at approval; visitors never self-classify' — DESIGN NOW SAFELY), REQ-16/REQ-25/REQ-26 (T-07, OD-B3-09; boards annotate 'mirrors the current plan — T-07', '(T-07 open)', 'smaller scope unavailable (T-07, D8)'), CC-07 (REG-SA-COURSE-CODE 'WAIT FOR DECISION'), EXP-06 (REG-D-09-6 'WAIT (any bypass)'), EXP-07 (REG-07.2-F), EXP-08/UPD-12 (REG-VE-10-14 'WAIT FOR DECISION'), UPD-20/22/23 (OD-B7-01/02/03), ROLE-04 (OD-B7-10), ROLE-13/SES-04 (REG-XS-02 'WAIT FOR DECISION'), ATT-08 (OD-B4-06; B4-09 'Feedback optional (open — see B4-16)'). The remaining 37 are legitimate: the open item governs a detail and not the permission (e.g. CMP-01/T-12, SACC-07/D7, Q-01/T-21)."
+  },
+  {
+   "check": "(a) Stakeholder basis ('STK') claims",
+   "result": "FAIL on 5 rows",
+   "detail": "Stakeholder records were read read-only (ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md; ui-ux/18-unified-functional-platform/stakeholder-review/STAKEHOLDER_CORRECTIONS_07_2.md, STAKEHOLDER_CLOSURE_07_3.md; PM_CONFIRMED_BASELINE_2026-08-18.md). Unsupported: UPD-22/UPD-23 and UPD-20's reason requirement (BR-113 is labelled CONFIRMED-STAKEHOLDER, but its sources are boards plus OD-B7-01/02/03 only; STK31-07 only assigns Release/Hold to the Super Admin). REQ-16: 07.2-D says only 'same payment method', and the reviewed prototype let renewals inherit 'the grant-may-only-narrow rule'. ATT-20/XC-02 'no Reports destination': STK31-40/42 forbid only fake financial analytics and revenue metrics, and PM-11 says detailed reports are 'pending'. DTR-03: 07.2-C 'Two honest edges' covers forwarding, not the Student creating a request. SEL-02 'never cart/basket': STK31-18 itself says 'ecommerce-style selection / cart experience'. Supported: STK31-06/07/08/18/19/20/21/22/24/25/31/32/33/34/39/41, 07.2-C/E/F and 07.3 R08/R15/R16/R17/R18 as cited elsewhere."
+  },
+  {
+   "check": "(b) Invented permissions",
+   "result": "FAIL (kind) / PASS (INFERRED denies)",
+   "detail": "The 15 INFERRED rows are all DENY absences (never-build), which is consistent with P4. But 14 rows describe actions no board draws ('not drawn' / 'not designed' / 'not stated') and still carry kind ALLOW: REQ-19, REQ-22, INST-06, SACC-08, PER-07, PER-08, CC-06, Q-11, ATT-17, DTR-09, SUB-35, ROLE-11, SUP-04, SES-09. This contradicts the md's own definition ('ALLOW = the design offers the action to the role'). ASMT-13 grants 'share and edit', but B4-05 says only 'Co-teaching Faculty on the same course see the same assessment (none in this sample)'. No invented scopes beyond the inconsistencies in check (f)."
+  },
+  {
+   "check": "(c) Missing rows for data-changing actions",
+   "result": "PASS (data-changing) / minor gaps (READ)",
+   "detail": "All data-changing actions from the seven surface-*.json screens[].actions lists (373 candidate lines filtered from 804) map to a row. Examples: PU-06/07 → SEL-01; PU-08 → REQ-01; ST-08 → RUN-03/04; ST-13 → ATT-02/03; ST-16 → FB-02; ST-18 → DTR-01; FA-07/09/10 → ASMT-01/02/04/05/06; FA-14…17 → Q-01…07; FA-19 → ATT-08/09; IA-04/05 → SACC-01/02/07; IA-07 → PER-05/06; IA-10/11 → PER-01/02/03; IA-13/14 → GRP-01…04; IA-15 → FCM-01/02; IA-16 → CC-01; IA-17 → REQ-25/26; IA-19 → DTR-06; VE-03…09 → SUB-01…09; RV-03/04 → LO-01, SUB-17/18, UPD-13/14; CM-03/08/09 → SUB-24/26/27, UPD-01/04/05/08, CC-04; SA-03/07/11/13/14/15/16/17/19/21 → REQ-12…17, INST-04/07/08, PER-11, UPD-19/20/22, SUB-33, CRS-01…04, ROLE-01…04, DTR-10, SUP-05/06. Missing READ/DENY rows are listed in correction 20."
+  },
+  {
+   "check": "(d) Removed prototype behaviours",
+   "result": "PARTIAL FAIL",
+   "detail": "None of the removed behaviours in functional-prototype.json appears as a CONFIRMED or PROVISIONAL ALLOW. Decline is denied on DTR-11 (device) and REQ-20 (requests); Student self-completion on CMP-02; Vendor update proposals on EXP-08/UPD-12; CM/SA live edits on EXP-06/EXP-07; SA writing the platform code on CC-07; AI-suggested marks on ATT-11; applicant replies on REQ-06; reason-less withdrawal and deactivation on SACC-07/PER-05; Faculty mapping at experiment level on FCM-06. However: SUB-35 'Override to other targets' has kind ALLOW. That is the removed 'Override to arbitrary non-published statuses (state.js:8817-8896)', and §1.1 even cites SUB-35 as its guard. SUP-04 (reporter reopen) is also ALLOW. The §1.1 sentence 'None of the ALLOW rows re-introduces a removed behaviour' is therefore false. Half marks are mapped to ATT-11/Q-08/ASMT-11, none of which mentions them. The whole-number rule is in ATT-08 (B4-09 'Out of 10, as a whole number')."
+  },
+  {
+   "check": "(e) Five-state separation",
+   "result": "PASS",
+   "detail": "No row writes ACC or SACC as a side effect of Publish or Release: SACC-18 and SUB-30 are DENY, SUB-24 and UPD-19 say 'gives no one access', and REQ-14/ACC-01 activation comes from request approval (BR-036), not from publication. No row sets Completed from a launch, a resource or an assessment: CMP-01 is the only route (SYSTEM), CMP-02/03/04 are DENY, and RUN-03 says 'never sets Completed'. 'Waiting for a licence' is seeded and never computed (ACC-09). Minor: RUN-03 still attributes the In progress write to the Student's launch (correction 25)."
+  },
+  {
+   "check": "(f) Scope claims",
+   "result": "PARTIAL FAIL",
+   "detail": "FCM ∩ ACC (FCM-04, SACC-20, EXP-04) is supported by B4-02 'Scope Only courses the Institute Admin assigned (B2-09) … only experiments the institution holds (ACC-0107)'. IA own-institution and active-plan-only (SACC-04, STK31-24) are supported. Reviewer scope on CONFIRMED SUB-17/SUB-18/UPD-13/UPD-14 conflicts with PROVISIONAL SUB-23 (OD-B6-01; B6-01 'How reviewers are given courses is open (Register RV-F2 · \"Reviewer course scoping\")'). CM scope on SUB-24/UPD-01 conflicts with PROVISIONAL ROLE-10/EXP-10. Vendor assigned-course scope on CONFIRMED SUB-01/SUB-03 conflicts with PROVISIONAL CRS-08 (T-29) and SUB-11 (OD-B5-01)."
+  },
+  {
+   "check": "Stakeholder↔v46 conflict flags (authority rule: flag, do not resolve)",
+   "result": "PARTIAL FAIL",
+   "detail": "The 16 flagged rows are correct. Not flagged: ATT-16 (STK31-32 'D-25 — a learner never sees the answer key — is NOT overridden' vs B4-13 ST-14 correct answers after release); PER-16 (STK31-25 Tenant Admin 'reporting and visibility over assigned students and content' and 07.3 R06 'he should have that overview' vs a basis-INFERRED never-build deny); RUN-14 (STK31-42 'students/users by stream where available' is named in the §4.4 prose but the row flag is null); EXP-07 cites STK31-09 but omits STK31-08 ('Super Admin | Canonical/master metadata management (also permitted)'). Four rows are marked CONFIRMED despite a stakeholder conflict whose register item is still open (CC-07, EXP-06, EXP-07; UPD-12/EXP-08 via REG-VE-10-14)."
+  },
+  {
+   "check": "Safe-treatment consistency (§4.1)",
+   "result": "FAIL on 2 rows",
+   "detail": "CC-05's treatment 'Do not build a control' contradicts CC-04 (CONFIRMED: the CM saves codes for every course on B6-10, including ME ZG523, which has published experiments) and the OD-B6-13 safe treatment 'Saved directly by the Content Manager (M-2)'. GRP-05's 'Do not build a control' contradicts GRP-04, where Remove member is built."
+  },
+  {
+   "check": "Counts and sourcing claims",
+   "result": "PASS (counts) / minor FAIL (coverage claim)",
+   "detail": "Counts in json and md agree: 328 rows; 181/106/41; 115/149/53/11; 16 conflict rows; 13 handoff defects; 31 no-rule PROVISIONAL rows. The claim that all 278 permissionEvidence entries are cited is false: 16 are not cited (public-entry #11, #12, #22, #29; student #39; faculty #33, #39; institute-admin #4, #20, #28, #33, #39; reviewer-cm #29; super-admin #24, #51, #59). Their content is covered by other rows."
+  }
+ ],
+ "corrections": [
+  {
+   "severity": "major",
+   "location": "permissions.json rows REQ-02, REQ-12 (and P6 'Never: self-classify'); permissions.md §2 REQ table",
+   "problem": "Marked CONFIRMED, but the open register item T-04 governs exactly this point: who classifies internal or external. No stakeholder record says the Super Admin classifies at approval.",
+   "evidence": "decisions-rules.json T-04 'Internal vs external classification' — safe treatment 'Super Admin sets it at approval; visitors never self-classify' — DESIGN NOW SAFELY, blocksProduction=true; design/handoff-v46/canvas-v46/project/B1-07 'Internal / external — BITS decides that at approval (T-04)'; B1-11 'Internal / external is set here, at approval, for a new institution (T-04)'; STK31-19 confirms only that both branches exist and that 'The commercial classification algorithm is NOT invented' (rule ND-07).",
+   "correction": "Set REQ-02 and REQ-12 to status PROVISIONAL, basis SAFE-TREATMENT, decisionIds [T-04, ND-07]. List them under T-04 in §4.2. Change P6's status cell so the 'self-classify' item reads PROVISIONAL (T-04)."
+  },
+  {
+   "severity": "major",
+   "location": "rows REQ-16 (full downgrade), REQ-25, REQ-26 (split)",
+   "problem": "REQ-16 ('no smaller scope on a renewal') is CONFIRMED/STK, but no stakeholder record states it, and the board itself tags it with open T-07/D8. REQ-25/26 embed the T-07/OD-B3-09 safe treatment ('mirrors the current plan'; 'no term; no new experiments/formats') inside a CONFIRMED row.",
+   "evidence": "design/handoff-v46/canvas-v46/project/B1-11 'Renewal · scope not adjustable REQ-0038 · internal route already set; smaller scope unavailable (T-07, D8)'; design/handoff-v46/canvas-v46/project/B3-08 'Two kinds Renew ACC-0107 (mirrors the current plan — T-07)' and 'Not asked A term for additional licences, new experiments or new formats (T-07 open)'; T-07 DESIGN NOW SAFELY (open); OD-B3-09 'Product policy … decide before production'; STAKEHOLDER_CORRECTIONS_07_2.md §D says only 'Tenant should go through same payment method' and describes the reviewed renewal inheriting 'the grant-may-only-narrow rule'.",
+   "correction": "REQ-16: set status PROVISIONAL, basis SAFE-TREATMENT, decisionIds [T-07, D8, OD-B3-09], and note the 07.2-D prototype behaviour for the owner. REQ-25/REQ-26: keep CONFIRMED only for 'Institute Admin may raise a renewal / more-licences request that the Super Admin decides' (07.2-D, 07.3 R18, 07.2-A). Move 'mirrors the current plan' and 'no term; no new experiments/formats' into new PROVISIONAL rows tagged T-07/OD-B3-09."
+  },
+  {
+   "severity": "major",
+   "location": "row CC-07; P7 ('read-only … on the platform course code (M-2)'); §4.4 lead-in sentence",
+   "problem": "CONFIRMED DENY, but the governing register item is explicitly WAIT FOR DECISION and a stakeholder record says the opposite. CONFIRMED therefore resolves an owner question that the authority rule says must only be flagged.",
+   "evidence": "decisions-rules.json registerExtras REG-SA-COURSE-CODE classification 'WAIT FOR DECISION (future policy only)', blocksProduction=true; conflicts[1] handling 'List as a doubtful case for the owner'; STAKEHOLDER_CORRECTIONS_07_2.md §E 'Content Manager primarily. Super Admin will also get access to it.'; design/handoff-v46/canvas-v46/project/B6-10 '…only a future policy could change that'.",
+   "correction": "Set CC-07 to status PROVISIONAL, basis SAFE-TREATMENT, decisionIds [REG-SA-COURSE-CODE, M-2], and keep stakeholderConflict. Build stays read-only. In §4.4, drop CC-07 from the 'rest on a locked decision' sentence. In P7, append '(PROVISIONAL, REG-SA-COURSE-CODE)'."
+  },
+  {
+   "severity": "major",
+   "location": "rows EXP-06, EXP-07",
+   "problem": "CONFIRMED DENY although the register items governing a bypass edit and Super Admin catalogue correction are still open owner questions with stakeholder records on the other side. EXP-07's conflict also omits STK31-08.",
+   "evidence": "REG-D-09-6 'DESIGN NOW SAFELY · WAIT (any bypass)'; REG-07.2-F 'Not in the current design', blocksProduction=true; conflicts handling: 'Owner to confirm whether further override targets … or SA metadata correction are wanted' and 'Flag to owner that a broken link cannot be fixed without review + release … (D-09-6 / D-09-9 technical-only skip are open)'; STK31-08 table row 'Super Admin | Canonical/master metadata management (also permitted)'; 07.3 R16; 07.2-F.",
+   "correction": "Set both rows to status PROVISIONAL, basis SAFE-TREATMENT. Keep kind DENY (build per v46 / M-1). Add 'STK31-08' to EXP-07.stakeholderConflict. Move both rows from the CONFIRMED part of §4.4 to the PROVISIONAL part, and list them in §4.2 under REG-D-09-6 / REG-07.2-F."
+  },
+  {
+   "severity": "major",
+   "location": "rows EXP-08, UPD-12",
+   "problem": "CONFIRMED DENY for Vendor update proposals and adding a format after publication, but the governing register item is WAIT FOR DECISION. The screens are DEFER / OPEN.",
+   "evidence": "REG-VE-10-14 'VE-10 / 11 / 12, VE-14 Vendor updates; add a format' classification 'WAIT FOR DECISION'; handoff/screens.json VE-10/11/12/14 designed:false 'DEFER / OPEN (LD-4)'; design/handoff-v46/canvas-v46/project/B5-06 'Published = read-only (LD-4) No \"Propose an update\"'.",
+   "correction": "Set status to PROVISIONAL, basis SAFE-TREATMENT, decisionIds [REG-VE-10-14, LD-4, T-26] and keep kind DENY. Add both rows to §4.2. Keep them as the §1.1 guard (the build must not offer it)."
+  },
+  {
+   "severity": "major",
+   "location": "rows UPD-20 (split), UPD-22, UPD-23; §1.1 guard row 'Reason-optional Hold'",
+   "problem": "Basis STK is wrong. BR-113 is labelled CONFIRMED-STAKEHOLDER but cites no stakeholder record, and STK31-07 only assigns Release/Hold to the Super Admin. The Hold reason, Lift-hold semantics and 'no release from On hold' are each the subject of an open OD.",
+   "evidence": "decisions-rules.json BR-113 sources = B7-05, OD-B7-01/02/03, flows.json F3 only; OD-B7-01 'Hold — plain confirmation or reason? … Register SA-F4 says DL-1'; OD-B7-02 'What Lift hold does'; OD-B7-03 'Release straight from On hold?' (all 'Product policy — decide before production'); STK31-07 'Super Admin controls release/hold of later versions'.",
+   "correction": "UPD-20: keep 'Super Admin may Hold' CONFIRMED (BC-8, STK31-07). Move 'DL-2, reason the CM sees' into a PROVISIONAL detail row tagged OD-B7-01. UPD-22 and UPD-23: set status PROVISIONAL, basis SAFE-TREATMENT. In §1.1, annotate the 'Reason-optional Hold' guard with 'v46 safe treatment — OD-B7-01 open; Register SA-F4 specifies DL-1'."
+  },
+  {
+   "severity": "major",
+   "location": "rows REQ-19, REQ-22, INST-06, SACC-08, PER-07, PER-08, CC-06, Q-11, ATT-17, DTR-09, SUB-35, ROLE-11, SUP-04, SES-09; counts.byKind",
+   "problem": "Invented permissions in the machine-readable data. These 14 rows describe actions that no board draws (their own resultingState says 'not drawn', 'not designed' or 'not stated'), yet they have kind ALLOW. The md defines 'ALLOW = the design offers the action to the role', and P4 is deny-by-default, so any consumer filtering on kind=ALLOW will treat them as permitted.",
+   "evidence": "Each row's resultingState ('not drawn' / 'not designed' / 'not stated' / 'conflicting'); permissions.md 'How to read this' kind definition; P4 'A control absent from the boards is not permitted'; e.g. INST-06 notes 'do not invent', SACC-08 notes 'Do not invent one', SUP-04 notes 'Build: no reporter control'.",
+   "correction": "Change kind to DENY, keep status UNRESOLVED, and prefix action with 'Not offered until decided:'. Alternatively add a distinct kind 'OPEN' that build code treats as deny. Recompute counts.byKind and byKindStatus (ALLOW 115→101, ALLOW/UNRESOLVED 15→1, leaving only CC-05 if it is kept as ALLOW per correction 10)."
+  },
+  {
+   "severity": "major",
+   "location": "permissions.md §1.1 closing sentence; row SUB-35",
+   "problem": "The claim 'None of the ALLOW rows re-introduces a removed behaviour' is false. SUB-35 is an ALLOW row for exactly the removed prototype behaviour that §1.1 lists SUB-35 as guarding against.",
+   "evidence": "functional-prototype.json removedBehaviours (submission): 'Override to arbitrary non-published statuses (state.js:8817-8896) — OD-B7-09 limits it to \"back to the vendor\"'; permissions.json SUB-35 kind ALLOW 'Override to other targets'; OD-B7-09 'Other targets need policy'.",
+   "correction": "Make SUB-35 kind DENY (UNRESOLVED) per correction 7, so the guard holds. Rewrite the sentence as 'No ALLOW row re-introduces a removed behaviour; undecided extensions (SUB-35, SUP-04) are DENY until decided.'"
+  },
+  {
+   "severity": "major",
+   "location": "row ATT-16; §4.4",
+   "problem": "Stakeholder↔v46 conflict not flagged. A stakeholder record affirms that the learner never sees the answer key, yet v46 shows correct answers after release.",
+   "evidence": "STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md STK31-32 Supersedes: '`D-25` — a learner never sees the answer key — is NOT overridden; these options govern when explanations become visible'; design/handoff-v46/canvas-v46/project/B4-13 ST-14 released result shows answers with correct answer + explanation; OD-B4-09 'Correct answers after release (D-25)'.",
+   "correction": "Set ATT-16.stakeholderConflict to \"STK31-32 'D-25 — a learner never sees the answer key — is NOT overridden' vs B4-13 correct answers after release\", add the row to §4.4, and update counts.stakeholderConflictRows (16→17, or higher with corrections 11/21)."
+  },
+  {
+   "severity": "major",
+   "location": "row CC-05; §4.1 safe-treatment column",
+   "problem": "The safe treatment 'Do not build a control; show drawn states only' contradicts CONFIRMED CC-04 and the designed safe treatment. Built as written, the CM could not save codes for courses that have published experiments, which B6-10 draws.",
+   "evidence": "OD-B6-13 safe treatment 'Saved directly by the Content Manager (M-2) — no review step invented. Effects on links or institution codes not designed.'; design/handoff-v46/canvas-v46/project/B6-10 'Single writer (M-2) Only the Content Manager edits platform course codes' and lists every course, including ME ZG523, which has published experiments; CM-09 action 'Save codes → … save all … [no confirm; no review step — OD-B6-13]'.",
+   "correction": "Set CC-05 to status PROVISIONAL, basis SAFE-TREATMENT (a designed safe treatment exists). Change the treatment to 'Save directly via CC-04; implement no cascade to delivery links, institution codes or route keys; owner to decide effects (OD-B6-13)'."
+  },
+  {
+   "severity": "minor",
+   "location": "row PER-16; §4.3/§4.4",
+   "problem": "Basis INFERRED ('never build; the owner only confirms the absence') is wrong while a stakeholder record asks for Institute Admin visibility over assigned students.",
+   "evidence": "STK31-25 (CONFIRMED) lists the Tenant Admin's 'reporting and visibility over assigned students and content'; STAKEHOLDER_CLOSURE_07_3.md R06 'Tenant is again a super admin for that particular institution … he should have that overview'; v46 B3-10 Usage is aggregate only.",
+   "correction": "Change PER-16's basis to CONFLICT (status stays PROVISIONAL; build per v46 = aggregate Usage only). Set stakeholderConflict to STK31-25 / 07.3 R06 and move the row from §4.3 to §4.4."
+  },
+  {
+   "severity": "minor",
+   "location": "rows SUB-17, SUB-18, UPD-13, UPD-14 (reviewer scope); SUB-24, UPD-01 (CM scope); SUB-01, SUB-03 (Vendor course scope)",
+   "problem": "Scope columns on CONFIRMED rows assert scope rules that sibling rows mark PROVISIONAL because an open item governs them. The matrix contradicts itself.",
+   "evidence": "SUB-23 PROVISIONAL (OD-B6-01) and design/handoff-v46/canvas-v46/project/B6-01 'One scope line \"You review: ME ZG523 · MEL ZG512 · CHE ZG513\" — sample. How reviewers are given courses is open (Register RV-F2 · \"Reviewer course scoping\")'; ROLE-10/EXP-10 PROVISIONAL ('CM workspace drawn only with an All experiments scope'); CRS-08 PROVISIONAL (T-29) and SUB-11 PROVISIONAL (OD-B5-01) for the Vendor assigned-course guard.",
+   "correction": "Keep the actions CONFIRMED. Annotate each scope cell 'PROVISIONAL — see SUB-23 (OD-B6-01)' / 'see ROLE-10' / 'see CRS-08 (T-29), SUB-11 (OD-B5-01)', or move the scope restriction out of the CONFIRMED rows into the PROVISIONAL rows already present."
+  },
+  {
+   "severity": "minor",
+   "location": "rows ROLE-13 (downgrade), SES-04 (split); P2 status",
+   "problem": "CONFIRMED DENY of 'hold more than one role / choose a workspace' even though the governing register item, multi-role XS-02, is WAIT FOR DECISION. Only the no-DEMO-banner and no-developer-account-selector parts rest on the owner constraint.",
+   "evidence": "REG-XS-02 'XS-02 Multi-role workspace choice' classification 'WAIT FOR DECISION'; handoff/screens.json XS-02 designed:false DEFER; design/handoff-v46/canvas-v46/project/B1-09 'Never here … (multi-role is deferred)'; owner binding constraints (no generic DEMO banner, no developer-only account selector).",
+   "correction": "ROLE-13: set status PROVISIONAL, basis SAFE-TREATMENT. SES-04: keep the 'DEMO banner / sample-account or developer selector' denial CONFIRMED (BC). Split 'role switcher / Viewing as / choose a workspace' into a PROVISIONAL row tagged REG-XS-02. Change P2's status to 'CONFIRMED (no DEMO banner / dev selector) · PROVISIONAL (one role per person, REG-XS-02)'."
+  },
+  {
+   "severity": "minor",
+   "location": "rows ATT-20, XC-02",
+   "problem": "The 'No Reports page / destination' denial is marked CONFIRMED/STK, but the stakeholder records forbid only fake financial analytics and revenue metrics. T-33 (report pages) is WAIT FOR DECISION.",
+   "evidence": "decisions-rules.json T-33 'Reports — safe: Exports of existing lists only; no Reports destination — WAIT FOR DECISION (report pages)'; STK31-40 'No fake financial analytics may be created'; STK31-42 'No revenue metrics may be invented'; PM-11 'detailed report metrics/KPIs remain pending'.",
+   "correction": "Split each row. Keep the 'KPI dashboards / financial or revenue analytics' denial CONFIRMED (STK31-40/42, PM-11). Make the 'Reports page / Reports destination' denial PROVISIONAL, basis SAFE-TREATMENT, decisionIds [T-33, R15]."
+  },
+  {
+   "severity": "minor",
+   "location": "row SEL-02",
+   "problem": "One CONFIRMED row bundles three points with different authority. 'No prices' is the ND-08 safe treatment (REQ-03 is PROVISIONAL for the same point). 'Never call it cart/basket' is v46 terminology contradicted by the stakeholder's own wording. Only buy/checkout is stakeholder-confirmed.",
+   "evidence": "design/handoff-v46/canvas-v46/project/B1-06 'Words \"Your selection\", \"Continue to request\", \"Remove\". Never cart, basket, checkout or buy. No prices (ND-08).'; STK31-18 'use an ecommerce-style selection / cart experience — but the cart does NOT grant direct checkout or access'; ND-08 'Technology-specific pricing construction' (undecided); REQ-03 PROVISIONAL.",
+   "correction": "Keep 'Buy / checkout' as DENY CONFIRMED (STK31-18, BR-140). Move 'see prices' to a PROVISIONAL row (ND-08), matching REQ-03. Move the 'cart/basket' wording to the terminology rules (BR-136), not the permission matrix."
+  },
+  {
+   "severity": "minor",
+   "location": "row ATT-08",
+   "problem": "CONFIRMED row includes 'optional feedback', which the board itself marks as open.",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09 Rules 'Mark required, whole number from 0 to the question's marks. Feedback optional (open — see B4-16).'; OD-B4-06 'Is Faculty feedback required on a written answer?'.",
+   "correction": "Keep 'Faculty saves a provisional mark (whole number 0…question marks)' CONFIRMED. Mark the 'feedback optional' detail PROVISIONAL (OD-B4-06) in the action or notes."
+  },
+  {
+   "severity": "minor",
+   "location": "row ROLE-04",
+   "problem": "'Restore (DL-1, no reason)' is CONFIRMED, but the no-reason detail is the subject of an open OD.",
+   "evidence": "OD-B7-10 'Restoring a withdrawn scope — One click with a confirmation; no reason asked' (Product policy — decide before production); SA-17 action '[inline confirm] [no reason — OD-B7-10]'.",
+   "correction": "Keep 'Super Admin may restore a withdrawn scope' CONFIRMED. Mark 'no reason' PROVISIONAL (OD-B7-10)."
+  },
+  {
+   "severity": "minor",
+   "location": "row DTR-03",
+   "problem": "Basis STK is unsupported: the stakeholder 'edges' cover forwarding while paused, not the Student creating a request. The block exists only on B3-07.",
+   "evidence": "STAKEHOLDER_CORRECTIONS_07_2.md §C 'A deactivated institution cannot forward'; BR-074 'can't be forwarded when the institution is paused'; design/handoff-v46/canvas-v46/project/B3-07 'You can't request a transfer while your institution's access is paused.'",
+   "correction": "Change basis to BOARD-DRAWN, set status PROVISIONAL, and list the row in §4.3. Alternatively cite a handoff rule that states it; none was found in entities.json, flows.json or navigation.json."
+  },
+  {
+   "severity": "minor",
+   "location": "row ASMT-13 (and ASMT-05 scope)",
+   "problem": "Invented scope: the action grants co-teaching Faculty 'share and edit' the same assessment, but the board states only that they see it. The row's own notes say editing between co-teachers is not shown.",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-05 'Shared Co-teaching Faculty on the same course see the same assessment (none in this sample).'; OD-B4-17 'Same assessment would be shared; no sample shows it.'",
+   "correction": "Change ASMT-13 to kind READ, action 'Co-teaching Faculty on one course see the same assessment', status PROVISIONAL (OD-B4-17). Add or merge an UNRESOLVED row 'Co-teaching Faculty edit settings/questions or confirm marks on a shared assessment' paired with Q-10. Remove 'share' from ASMT-05's scope or point it to that row."
+  },
+  {
+   "severity": "minor",
+   "location": "Missing rows (READ/DENY)",
+   "problem": "All data-changing actions are covered, but several role-visibility rows that the boards draw, or that a stakeholder record requires, are absent. This makes the role × entity grid incomplete for guards.",
+   "evidence": "SA-20/21 design/handoff-v46/canvas-v46/project/B7-09 Support (reporter, affected experiment/institution; STK31-39 'see the reported issue · understand the affected user / Experiment / Tenant'); SA-22 B7-09 'Access ending'; SA-10 B7-05 updates awaiting release; IA-06…IA-09 People records and IA-13/14 Groups (B2-06, B2-08); FA-18 marking queue (B4-09); RV-05/RV-06 'Reviewed by me' (B6-02); CM-02 Ready to publish (B6-06); IA-22 'Institution settings (incl. institution sign-in / SSO)' designed:false DEFER and STK31-25 'SSO / institution setup'.",
+   "correction": "Add READ rows: SA reads all support reports, platform-wide, with reporter and affected record. SA reads the Access-ending list. SA reads updates awaiting release (only after reviewer approval, consistent with UPD-18). IA reads own-institution People, Faculty and Group records. Faculty reads the marking queue for assessments in their courses. Reviewer reads own decided items read-only. CM reads Ready to publish in CM scope. Add a DENY PROVISIONAL row for 'Institute Admin configures institution settings / SSO' (IA-22 DEFER) with stakeholderConflict STK31-25."
+  },
+  {
+   "severity": "minor",
+   "location": "row RUN-14; counts.stakeholderConflictRows",
+   "problem": "The §4.4 prose names STK31-42 ('by stream') as a conflict, but the row's stakeholderConflict field is null, so the JSON under-reports.",
+   "evidence": "STK31-42 'students/users by stream where available'; permissions.md §4.4 trailing paragraph; RUN-14 notes.",
+   "correction": "Set RUN-14.stakeholderConflict to the STK31-42 quote and recount stakeholderConflictRows."
+  },
+  {
+   "severity": "minor",
+   "location": "row GRP-05; §4.1",
+   "problem": "The safe treatment 'Do not build a control' conflicts with GRP-04, where Remove member is built (PROVISIONAL ALLOW).",
+   "evidence": "design/handoff-v46/canvas-v46/project/B2-15 'IA-14 · What removing a group member does to access already given / history · Not stated in the dialog'; IA-14 action 'Remove from group → GRP member removed [effect on access/history: not stated, OPEN]'.",
+   "correction": "Change the treatment to 'Build GRP-04 Remove member; the mock changes no SACC rows and shows no access-effect statement until decided (BR-056)'."
+  },
+  {
+   "severity": "minor",
+   "location": "permissions.md §6 'all 278 permissionEvidence rows (each cited as pe:…)'; designer summary",
+   "problem": "The coverage claim is false: 16 permissionEvidence entries are never cited. One of them is direct evidence for an UNRESOLVED row.",
+   "evidence": "Uncited: public-entry #11, #12, #22, #29; student #39; faculty #33, #39; institute-admin #4, #20, #28, #33, #39; reviewer-cm #29; super-admin #24, #51, #59. public-entry#12 = B1-08 Access-active hint 'Institution administrators sign in to give students access.' (supports the OD-B7-11 side of INST-05).",
+   "correction": "Either cite the 16 entries on the rows they duplicate (e.g. pe:public-entry#12 on INST-05, pe:institute-admin#20 on PER-11, pe:reviewer-cm#29 on UPD-20/22) or change §6 to '262 of 278 cited; 16 duplicates covered by other rows'."
+  },
+  {
+   "severity": "minor",
+   "location": "permissions.md §4.5",
+   "problem": "One listed 'handoff defect' is not a handoff defect, and one permission-relevant handoff defect is missing.",
+   "evidence": "§4.5 last row cites surface-reviewer-cm openQuestions (an Understand-stage note, not handoff data). handoff/screens.json PU-10 proposedRoute keyed on the request reference vs design/handoff-v46/canvas-v46/project/B1-08 'The reference number identifies the request — it does not open the page on its own.' (REQ-04).",
+   "correction": "Move the ROLE-10 item to a 'corrections to Understand stage' note. Add the row 'handoff/screens.json PU-10 proposedRoute makes the reference a URL key; B1-08 says the reference never opens the page — session-gate PU-10' → REQ-04/REQ-05."
+  },
+  {
+   "severity": "minor",
+   "location": "row RUN-03",
+   "problem": "resultingState makes the Student's launch write RUN 'In progress'. The matrix itself says RUN is written by the runtime and that the Student only launches.",
+   "evidence": "CMP-02 notes 'entities.json RUN ownerWriter \"Student\" is a handoff defect: the Student only launches'; decisions-rules conflicts 'Treat RUN as written by the runtime (mock stand-in); the Student only launches'; RUN-08 SYSTEM.",
+   "correction": "Change RUN-03.resultingState to 'launch requested; RUN In progress is set by the RUN-08 runtime event (board: on successful open)', and make the Student op T launch-only."
+  },
+  {
+   "severity": "minor",
+   "location": "§1.1 guard table row 'AI-suggested marks …; half marks; …'",
+   "problem": "The half-marks guard points at rows (ATT-11, Q-08, ASMT-11) that say nothing about half marks.",
+   "evidence": "design/handoff-v46/canvas-v46/project/B4-09 'Mark for question 4 Out of 10, as a whole number.'; functional-prototype.json removedBehaviours (marking) 'Half marks (state.js:7633-7635)'; ATT-08 action '(0 … question marks, whole number)'.",
+   "correction": "Add ATT-08 to the guard's rows, or add an explicit DENY row 'Enter a fractional/half mark' (CONFIRMED-DESIGN, B4-09)."
+  },
+  {
+   "severity": "minor",
+   "location": "P6 'Public capabilities' status",
+   "problem": "P6 is CONFIRMED and lists 'reply to an information request' and 'self-classify' under 'Never', but REQ-06 is UNRESOLVED (T-03 reply = WAIT) and the self-classify item is a T-04 safe treatment.",
+   "evidence": "decisions-rules.json T-03 'DESIGN NOW SAFELY (reason) · WAIT (reply)'; REQ-06 UNRESOLVED; T-04 DESIGN NOW SAFELY.",
+   "correction": "Change P6's status to 'CONFIRMED (browse, select, submit, no access); PROVISIONAL (no self-classification, T-04); UNRESOLVED (reply, T-03/REQ-06; return path, REQ-05)'."
+  }
+ ]
+}

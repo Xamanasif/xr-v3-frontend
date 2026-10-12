@@ -1,0 +1,2415 @@
+{
+  "surface": "Student workspace (ST-01…ST-20)",
+  "sourceNote": "Frozen design referenced as design/handoff-v46/ (canvas-v46/project/…). Boards win over handoff JSON; derived/ used only to enumerate frames. Slice-1 UI not used.",
+  "boardsRead": [
+    "B2-10-Student-Home.dc.html",
+    "B2-11-My-Courses.dc.html",
+    "B2-12-Experiment-Hub.dc.html",
+    "B2-13-Flow-2-Continuity.dc.html",
+    "B3-00-Index.dc.html",
+    "B3-01-Hub-Resources-and-Progress.dc.html",
+    "B3-02-Simulation-Choose-Format.dc.html",
+    "B3-03-WEB-Simulation.dc.html",
+    "B3-04-AR-VR-MR-Format.dc.html",
+    "B3-05-Progress.dc.html",
+    "B3-06-Format-Feedback.dc.html",
+    "B3-07-My-Device.dc.html",
+    "B3-12-Flow-3-Continuity.dc.html",
+    "B4-11-Student-Assessments.dc.html",
+    "B4-12-Assessment-Attempt.dc.html",
+    "B4-13-Assessment-Result.dc.html",
+    "B4-14-Flow-4-Continuity.dc.html"
+  ],
+  "boardsConsultedByGrep": [
+    "B2-14-Responsive-Proof.dc.html",
+    "B3-13-Responsive-Proof.dc.html",
+    "B4-15-Responsive-Proof.dc.html",
+    "09a-Archetypes-AR1-AR5.dc.html",
+    "09b-Archetypes-AR6-AR10.dc.html",
+    "10-Dialogs.dc.html",
+    "B7-04-Pause-Effects.dc.html (frame 3 only)",
+    "B7-11-Flow-6-Release-and-Hold.dc.html (frame 8 only)",
+    "B8-01-Screen-and-Navigation-Register.dc.html (ST rows)",
+    "B2-07-Add-and-Import.dc.html (Programme field only)",
+    "xr-assess.css (sticky bar + dialog placement comments)"
+  ],
+  "handoffFilesRead": [
+    "design/handoff-v46/START-HERE.md",
+    "design/handoff-v46/FREEZE-RECORD-v46.md",
+    "design/handoff-v46/HANDOFF-AUDIT-v46.md",
+    "design/handoff-v46/canvas-v46/project/handoff/README.md",
+    "design/handoff-v46/canvas-v46/project/handoff/screens.json",
+    "design/handoff-v46/canvas-v46/project/handoff/navigation.json",
+    "design/handoff-v46/canvas-v46/project/handoff/flows.json",
+    "design/handoff-v46/canvas-v46/project/handoff/entities.json",
+    "design/handoff-v46/canvas-v46/project/handoff/open-decisions.json",
+    "design/handoff-v46/derived/frame-index.json",
+    "design/handoff-v46/derived/screen-frames.json",
+    "design/handoff-v46/derived/controls-by-workspace.json"
+  ],
+  "otherSourcesRead": [
+    "/Users/mymac/Downloads/XR_Final_Frontend_Product_Inventory_v3.md (ST rows §D, D.4, Flow C)",
+    "ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md (STK31-36, STK31-38)",
+    "git 1b090c9: v2/packages/domain/src/{roles.ts, technology.ts, runtime/events.ts, runtime/utilisation.ts}; v2/apps/web/src/app (only /, /system, /healthz routes — no Student routes, no collision)"
+  ],
+  "navigation": {
+    "fromNavigationJson": {
+      "baseRoute": "/student",
+      "primary": [
+        "Home",
+        "My courses",
+        "Assessments",
+        "Progress",
+        "Help (foot)"
+      ],
+      "reachedFrom": "Experiment hub tabs: Overview · Resources · Simulation · Assessment · Progress · WEB / AR / VR / MR format · Assessment intro → Attempt → Result · Format feedback · My device (account menu)"
+    },
+    "asDrawn": "Sidebar (nav aria-label ‘Student navigation’): Home → B2-10 · My courses → B2-11 · Assessments → B4-11 · Progress → B3-05 · Help (foot) → 07; account menu: ‘My device’ (AR/VR/MR holders only) · Help · Sign out (B3-07). Hub pages mark ‘My courses’ current; ST-12/ST-14 mark ‘Assessments’ current; ST-13 has no sidebar. Below 1024 px app width the sidebar becomes a ‘Menu’ button. No link to ST-20 or any other workspace."
+  },
+  "flowSteps": [
+    "B4 Student ST-01 → ST-02 → ST-05 · SACC-0310 ‘— → Not started’ · ‘Rahul sees the experiment and the formats given to him’ (B2-10 · B2-11 · B2-12 · B2-13)",
+    "C1 Student ST-05 → ST-06 → ST-07 · EXP · RES · ‘Resources, then choose a format (only formats given)’ (B3-01 · B3-02)",
+    "C2 Student ST-07 → ST-08 / ST-09 · RUN (per format) · ‘Not started → In progress → Completed’ · ‘Progress per format, no overall verdict’ (B3-03 · B3-04 · B3-05)",
+    "C3 Student ST-10 / ST-15 → ST-16 → ST-17 · FB (Student × Experiment × format) · ‘WEB Completed → “Give feedback on WEB” → Feedback sent (one record per format)’ (B3-06 · B3-12)",
+    "D2 Student ST-11 → ST-12 → ST-13 · ATT-0450 · ‘To do → Attempt in progress → Submitted · waiting for marking’ · ‘Submit reachable at every width (Batch-4 fix)’ (B4-11 · B4-12 · B4-14)",
+    "D4 Faculty → Student FA-12 (release) → ST-14 · ATT-0450 · ‘Result not released yet → Result ready’ (B4-06 · B4-13 · B4-14) — board shows release by the assessment’s own setting",
+    "F4 Content Manager · public · learner CM-05 / CM-08 · PU-06 · ST-05 · EXP (live version) · ‘Live 1.2 → 1.3 (Release) or 1.2 (Hold)’ (B7-11)",
+    "Device 1 Student ST-18 · DTR-0018 · ‘— → With your Institute Admin’ · ‘Authorisation change only — nothing is shipped’ (B3-07 · B3-12); Device 2 IA forwards; Device 3 SA approves (approve only, T-32)"
+  ],
+  "entityRecords": [
+    "SACC Student access grant · Institute Admin · ‘Active · Withdrawn’ · Student (or group) × Experiment × formats (LD-1)",
+    "PER Person · Institute Admin · ‘Active · Inactive’",
+    "RUN Simulation progress · ‘Student’ (board: completion from the system) · ‘Not started · In progress · Completed (per format)’ · no overall verdict",
+    "FB Format feedback · Student · ‘Give feedback on WEB’ → ‘Feedback sent · WEB · 14 Oct’ · one per Student × Experiment × format after that format is completed",
+    "ASMT / ATT Assessment · attempt · Faculty · Student · ‘Draft · Ready · Attempt in progress · Submitted · Waiting for marking · Marks confirmed · Result ready’",
+    "DTR Device transfer · Student → IA → Super Admin · ‘With your Institute Admin · Forwarded to BITS · Approved’ · approve only (T-32)",
+    "EXP Experiment (published) · Content Manager · ‘Published · version n’ · learning outcomes (LD-3), formats, live version",
+    "ACC Access plan · ‘Access active · Ending soon · Paused · Access ended’; INST · ‘Access paused’ etc.; AREA / CRS; SUP Support report"
+  ],
+  "fiveStateMapping": {
+    "published (EXP)": "Student never sees ‘Published’. MR ‘Not available for this experiment’ = not published/not made for MR; AR ‘Not included for your institution’ = published but not in ACC (B2-12 annotation ‘Formats, for Rahul’).",
+    "institution access (ACC / INST)": "‘Not included for your institution’ (format not in plan); ‘Paused — your institution’s access is paused’ (INST paused, work kept); ‘Access ended on 7 Oct 2027’ (ACC ended).",
+    "student entitlement (SACC)": "‘Available to you’, ‘1 experiment given to you’, ‘Waiting for a licence’, ‘No longer given to you’ (Withdrawn), ST-19 ‘isn’t available to you’ (no SACC).",
+    "runtime activity (RUN)": "‘Not started’, ‘In progress · Last saved …’ (WEB), ‘In progress · Last session reported …’ (VR). B3-03 script moves Not started → In progress after a successful Launch WEB.",
+    "learning completion": "‘Completed {date} · Reported by the simulation at 15:30’ / ‘Reported from the headset at 11:15’ — only from a system report; no Student control (‘You can’t mark it yourself’); exact event open (T-12). Unlocks ‘Give feedback on {F}’ for that format only; never an experiment-level verdict."
+  },
+  "screens": [
+    {
+      "id": "ST-01",
+      "title": "Home",
+      "screenType": "page",
+      "proposedRoute": "/student",
+      "recommendedRoute": "/student",
+      "routeNotes": "Keep. Workspace landing. Put the Student shell in a route-group layout (e.g. app/student/(workspace)/layout.tsx) so ST-13 can use the focused AR-6 layout without the sidebar (route groups do not change URLs).",
+      "navPlace": "Sidebar Home (first item); landing after sign-in (B1-09 ‘Account inactive → after sign-in’, ‘Institution paused → after sign-in’)",
+      "archetype": "AR-1",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "AccountMenu(role=menu ‘Account’: name · Student · institution; ‘My device’ only for AR/VR/MR holders; Help; Sign out)",
+        "PageGreeting(H1 ‘Hello, {first name}’)",
+        "ContinueCard(overline ‘Start here’ | ‘Continue where you left off’; H2 experiment; ‘{code} · {course}’; either ‘Available to you: WEB VR’ FormatChips or per-format status words ‘WEB In progress · VR Not started’; ONE primary link that stretches on phones; no percentage)",
+        "UpNextList(H2 ‘Up next’; count ‘n of at most 3’; item = title + meta + one link; empty text ‘Nothing else is waiting for you right now.’)",
+        "CourseSummaryList(H2 ‘My courses’; ≤4 CourseSummaryRow ‘{title}’ + ‘{code} · 1 experiment given to you · WEB and VR available’ + ‘Open course’ (aria-label ‘Open course {title}’); ‘View all courses’)",
+        "EmptyState(icon + H2 + body + optional action) for ‘Your institution hasn’t given you access yet’",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)",
+        "MessageBlock(paused / inactive / access ended / no longer given: H2 + body + one action)",
+        "FormatChip"
+      ],
+      "states": [
+        "No access yet: H2 ‘Your institution hasn’t given you access yet’ / ‘When it gives you an experiment, it appears here and in My courses.’ + Help; nothing else clickable (B2-10 ‘ST-01 Home · before access · 8 Oct 2026’; ‘Mobile 375 · no access yet’; B2-13 ‘Rahul · Home’ first state)",
+        "First time / Start here after SACC-0310: Continue card ‘Start here’ · ‘Available to you: WEB VR’ · ‘Open Shell-and-Tube Heat Exchanger’; Up next ‘Nothing else is waiting for you right now.’; My courses one row (B2-10 ‘ST-01 Home · first time · after SACC-0310 (9 Oct 2026)’; ‘Mobile 375 · first time’ — ‘Same order; Continue first; the button stretches.’)",
+        "Continue available: ‘Continue where you left off’ · ‘WEB In progress · VR Not started’ · ‘Continue Shell-and-Tube Heat Exchanger’ (B2-10 ‘Continue available · later sample’ — ‘Resume names the format in progress — no percentage.’; also B7-04 frame 3, B8-05 Student Home)",
+        "Up next populated (pattern of the three item types): ‘3 of at most 3’ — ‘An assessment for Shell-and-Tube Heat Exchanger is ready · Assessment · to do’ → Open assessment; ‘Give feedback on WEB · Shell-and-Tube Heat Exchanger · you completed WEB’ → Give feedback; ‘VR is waiting for you · Shell-and-Tube Heat Exchanger · VR not started’ → Open experiment (B2-10 ‘Up next · the three item types (pattern)’ — ‘Sample wording for later states … No deadlines or marks invented.’)",
+        "Up next with the real assessment: ‘1 of at most 3’ · ‘Heat Exchanger — post-lab is ready · Shell-and-Tube Heat Exchanger · assessment · due 14 Nov 2026, 23:59’ → Open assessment (B4-11 ‘Home · Up next · the assessment’ — ‘New frame of the approved Home (B2-10).’)",
+        "Institution paused: banner + H2 ‘You can’t open experiments right now’ / ‘Your institution’s access is paused. Your work is kept, and you can continue when it’s lifted.’ + Help; course row ‘Paused — your institution’s access is paused’ still has ‘Open course’; no Continue/Up next (B2-10 ‘Institution paused’ — ‘Batch-0 banner + reason; work kept.’; B2-13 ‘Paused institution · Rahul’; B1-09 ‘Institution paused → after sign-in’)",
+        "Student inactive: banner ‘Your account is inactive. Contact your institution administrator.’ + H2 ‘Your account is inactive’ / ‘You can’t open experiments until your institution reactivates your account. Your work is kept.’ + Help; no My courses block (B2-10 ‘Student inactive’; B1-09 ‘Account inactive → after sign-in’, XS-08)",
+        "Access ended: H2 ‘Your access to Shell-and-Tube Heat Exchanger ended on 7 Oct 2027’ / ‘Your earlier work is kept. You can still look back at it.’ → ‘See earlier work’; course row ‘Access ended on 7 Oct 2027 · earlier work kept’ (B2-10 ‘Access ended’ — ‘Earlier work stays reachable.’)",
+        "No longer given (grant withdrawn): H2 ‘Shell-and-Tube Heat Exchanger is no longer given to you’ / ‘Your institution withdrew it. Your work is kept, and you can look back at it.’ → ‘See earlier work’ (B2-13 ‘Rahul · Home’ — ‘No access → Start here → no longer given (his only grant was withdrawn).’)",
+        "Institution course code: ‘MEC-523 · Thermodynamics & Heat Transfer’ replaces ME ZG523 (B2-10 ‘With the institution’s course code (MEC-523)’ — ‘After Meera adds the code in Course codes (B2-03).’; T-17)",
+        "Group grant: identical Start here for a student reached through a group (B2-13 ‘Group grant · Priya Natarajan (SACC-0311)’)",
+        "Responsive: same order at every width, Continue first, Continue button stretches on phones (B2-14 ‘Student · Home’ 1440/1024/768/375)",
+        "Not shown: loading and failed states for Home; an ‘all done’ state (listed in inventory ST-01, not drawn)"
+      ],
+      "actions": [
+        "Open {experiment} (Start here) → ST-05 hub Overview (navigate; no record change)",
+        "Continue {experiment} → ST-05 (navigate; board links the hub, not the format page)",
+        "Open assessment (Up next) → ST-11/ST-12 (board href B4-11)",
+        "Give feedback (Up next, only after that format is Completed) → ST-16 for that format",
+        "Open experiment (Up next ‘VR is waiting for you’) → ST-05",
+        "Open course → ST-03 (board href B2-11)",
+        "View all courses → ST-02",
+        "See earlier work (access ended / no longer given) → ST-02 earlier-work state",
+        "Help (banner, empty state, sidebar foot) → XS-07"
+      ],
+      "outboundLinks": [
+        "Open Shell-and-Tube Heat Exchanger → ST-05",
+        "Continue Shell-and-Tube Heat Exchanger → ST-05",
+        "Open assessment → ST-11 (board B4-11, which also holds ST-12)",
+        "Give feedback → ST-16",
+        "Open experiment → ST-05",
+        "Open course → ST-03",
+        "View all courses → ST-02",
+        "See earlier work → ST-02",
+        "Help → XS-07",
+        "Sidebar: Home → ST-01 · My courses → ST-02 · Assessments → ST-11 · Progress → ST-15 · Help → XS-07"
+      ],
+      "records": [
+        "SACC",
+        "PER",
+        "INST",
+        "ACC",
+        "CRS",
+        "EXP",
+        "RUN",
+        "FB",
+        "ASMT",
+        "ATT"
+      ],
+      "evidence": "B2-10 all 10 frames (‘ST-01 Home · before access · 8 Oct 2026’, ‘ST-01 Home · first time · after SACC-0310 (9 Oct 2026)’, ‘Mobile 375 · first time’, ‘Mobile 375 · no access yet’, ‘Continue available · later sample’, ‘Up next · the three item types (pattern)’, ‘Institution paused’, ‘Student inactive’, ‘Access ended’, ‘With the institution’s course code (MEC-523)’); annotation ‘Only three blocks: Continue (one experiment) · Up next (at most 3) · My courses (at most 4 + View all courses). Nothing else.’; B2-13 Rahul · Home and Priya frames; B4-11 ‘Home · Up next · the assessment’; B2-14 Student · Home"
+    },
+    {
+      "id": "ST-02",
+      "title": "My courses",
+      "screenType": "page",
+      "proposedRoute": "/student/courses",
+      "recommendedRoute": "/student/courses",
+      "routeNotes": "Keep. ‘Courses’ and ‘All experiments’ are drawn as two links in a nav (aria-label ‘My courses’) with aria-current; ST-04 stays a query-param tab of this route.",
+      "navPlace": "Sidebar My courses (also aria-current for every hub page, B2-12/B3-01…B3-06)",
+      "archetype": "AR-2",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "PageHeader(H1 ‘My courses’; sub ‘Courses with experiments your institution has given you’)",
+        "TabNav(links ‘Courses’ · ‘All experiments’, aria-current)",
+        "CourseRow(title; ‘{code} · 1 experiment given to you · WEB and VR available’ | paused | access-ended line; one action ‘Open course’ that drops under the text on phones)",
+        "EarlierWorkList(H2 ‘Earlier work’; ExperimentRow with FormatChips + reason line + ‘View earlier work’)",
+        "EmptyState(icon + H2 + body + optional action)",
+        "LoadingSkeleton(aria-busy wrapper + visually-hidden role=status text) ‘Loading your courses’",
+        "ErrorState(‘We couldn’t load …’ / ‘Nothing has changed. Try again.’ + ‘Try again’ primary) ‘We couldn’t load your courses’",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)"
+      ],
+      "states": [
+        "Default after SACC-0310: one course row (B2-11 ‘ST-02 My courses · 1440 · after SACC-0310’ — ‘Only courses with at least one experiment given to Rahul. ME ZG523 appears because Shell-and-Tube was given — not because Godavari holds it.’)",
+        "No access yet: ‘Your institution hasn’t given you access yet’ / ‘Courses appear here when your institution gives you an experiment in them.’ + Help (B2-11 ‘No access yet · 8 Oct’; B2-13 ‘Rahul · My courses’)",
+        "Paused with reason: banner + row ‘Paused — your institution’s access is paused’, Open course kept (B2-11 ‘Paused, with reason’)",
+        "Access withdrawn → earlier work: H2 ‘No experiments are given to you right now’ / ‘Your earlier work is kept below.’; ‘Earlier work’ row ‘No longer given to you. Your work is kept.’ → ‘View earlier work’ (B2-11 ‘Access withdrawn → earlier work’ — ‘Shown after SACC-0310 is withdrawn (Flow 2 exception).’; B2-13)",
+        "Access ended → earlier work: row ‘Access ended on 7 Oct 2027. Your earlier work is kept.’ → ‘View earlier work’ (B2-11 ‘Access ended → earlier work’)",
+        "Loading: ‘Loading your courses’ (B2-11 ‘Loading’)",
+        "Failed + retry: ‘We couldn’t load your courses’ / ‘Nothing has changed. Try again.’ + Try again (B2-11 ‘Failed + retry’)",
+        "Institution code: ‘MEC-523 · 1 experiment given to you · WEB and VR available’ (B2-11 ‘With the institution’s code (MEC-523)’)",
+        "Mobile 375 (B2-11 ‘Mobile 375 · My courses’; B2-14 ‘Student · My courses’ — ‘Course rows keep one action; on phones it drops under the text.’)"
+      ],
+      "actions": [
+        "Open course → ST-03",
+        "All experiments (tab link) → ST-04",
+        "View earlier work → ST-05 (board href B2-12 — see inconsistencies: the hub’s withdrawn/ended state is the ST-19 refusal)",
+        "Try again → reload list",
+        "Help → XS-07"
+      ],
+      "outboundLinks": [
+        "Open course → ST-03",
+        "All experiments → ST-04",
+        "View earlier work → ST-05",
+        "Help → XS-07"
+      ],
+      "records": [
+        "SACC",
+        "CRS",
+        "EXP",
+        "INST",
+        "ACC"
+      ],
+      "evidence": "B2-11 frames ‘ST-02 My courses · 1440 · after SACC-0310’, ‘No access yet · 8 Oct’, ‘Paused, with reason’, ‘Access withdrawn → earlier work’, ‘Access ended → earlier work’, ‘Loading’, ‘Failed + retry’, ‘With the institution’s code (MEC-523)’, ‘Mobile 375 · My courses’; annotation ‘Course rows: access only … never a course- or experiment-level progress verdict’; B2-13 ‘Rahul · My courses’"
+    },
+    {
+      "id": "ST-03",
+      "title": "Course (student view)",
+      "screenType": "page",
+      "proposedRoute": "/student/courses/[courseId]",
+      "recommendedRoute": "/student/courses/[courseId]",
+      "routeNotes": "Keep. Breadcrumb ‘My courses / {code}’. Use the course code shown to the Student (institution code when set, T-17) for display only; the route param is an internal id.",
+      "navPlace": "Detail of My courses",
+      "archetype": "AR-2",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs(My courses / {code})",
+        "BackLink(‘My courses’)",
+        "PageHeader(overline code; H1 course title; meta ‘1 experiment given to you’ | ‘Paused’)",
+        "ExperimentRow(H3 experiment; ‘{code} · {course}’; ‘Available to you:’ FormatChips; per-format words ‘WEB Not started · VR Not started’; ‘Open’ secondary button aria-label ‘Open {experiment}’; stretches on phones)",
+        "InlineNotice(role=status paused)",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)"
+      ],
+      "states": [
+        "Default: only experiments given to the Student (B2-11 ‘ST-03 Course detail · ME ZG523’ — ‘Only the experiments given to him: Fin-Tube Bundle and Composite Wall Conduction are published in this course but are not listed.’)",
+        "Paused: header ‘Paused’; notice ‘Your institution’s access is paused · You can’t open experiments right now. Your work is kept.’; row line ‘Paused — your institution’s access is paused. Your work is kept.’ and no Open action (B2-11 ‘Course detail · paused’)",
+        "Mobile 375: rows stack, Open stretches (B2-11 ‘Mobile 375 · course detail’)",
+        "Not shown: loading, failed, empty, earlier-work variants for ST-03 (inventory lists ‘not available now; earlier work’ but no frame)"
+      ],
+      "actions": [
+        "Open → ST-05",
+        "Breadcrumb / back ‘My courses’ → ST-02"
+      ],
+      "outboundLinks": [
+        "Open → ST-05",
+        "My courses → ST-02"
+      ],
+      "records": [
+        "SACC",
+        "CRS",
+        "EXP",
+        "RUN"
+      ],
+      "evidence": "B2-11 ‘ST-03 Course detail · ME ZG523’, ‘Course detail · paused’, ‘Mobile 375 · course detail’; annotation ‘Per format, in words: Progress appears only per format, on the experiment row and in the hub (“WEB not started · VR not started”).’"
+    },
+    {
+      "id": "ST-04",
+      "title": "All my experiments",
+      "screenType": "tab",
+      "proposedRoute": "/student/courses?tab=experiments",
+      "recommendedRoute": "/student/courses?tab=experiments",
+      "routeNotes": "Keep the query-param tab: a static segment /student/courses/experiments would shadow a course whose id is ‘experiments’ under /student/courses/[courseId].",
+      "navPlace": "Tab ‘All experiments’ of My courses",
+      "archetype": "AR-2",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "TabNav(‘Courses’ · ‘All experiments’)",
+        "FilterToolbar(Search: label ‘Search’, input type=search, placeholder ‘Experiment or course’; Select ‘Format’: ‘All formats’ + the Student’s formats (sample WEB, VR))",
+        "FilterChips(removable, aria-label ‘Remove {label}’; ‘Clear filters’ text button)",
+        "LiveCount(role=status ‘1 experiment given to you’ | ‘n of m experiments’)",
+        "ExperimentRow (same as ST-03; one row per experiment, never one per format)",
+        "EmptyState(icon + H2 + body + optional action) no match ‘No experiments match’ + ‘Clear filters’",
+        "EmptyState(icon + H2 + body + optional action) ‘Your institution hasn’t given you access yet’ / ‘Experiments appear here when your institution gives them to you.’",
+        "LoadingSkeleton(aria-busy wrapper + visually-hidden role=status text) ‘Loading your experiments’",
+        "ErrorState(‘We couldn’t load …’ / ‘Nothing has changed. Try again.’ + ‘Try again’ primary) ‘We couldn’t load your experiments’"
+      ],
+      "states": [
+        "Interactive default (B2-11 ‘ST-04 All experiments · 1440 · interactive’ — ‘Search and Format filter are live. One row per experiment — never one per format.’)",
+        "No match (B2-11 ‘All experiments · no match’ with search ‘Fin-Tube’ — ‘“Fin-Tube” is published but not given to him.’)",
+        "Mobile 375 (B2-11 ‘Mobile 375 · All experiments’)",
+        "Template-only (present in board markup and script modes none/loading/error, but no frame is captioned for them): no access yet, loading ‘Loading your experiments’, failed ‘We couldn’t load your experiments’ + Try again"
+      ],
+      "actions": [
+        "Search (client filter)",
+        "Format select (client filter)",
+        "Remove chip / Clear filters",
+        "Open → ST-05",
+        "Courses tab → ST-02",
+        "Try again → reload"
+      ],
+      "outboundLinks": [
+        "Open → ST-05",
+        "Courses → ST-02"
+      ],
+      "records": [
+        "SACC",
+        "EXP",
+        "CRS",
+        "RUN"
+      ],
+      "evidence": "B2-11 ‘ST-04 All experiments · 1440 · interactive’, ‘All experiments · no match’, ‘Mobile 375 · All experiments’; B2-11 script mxView (count text, chips, modes)"
+    },
+    {
+      "id": "ST-05",
+      "title": "Experiment hub — Overview (tabs: Overview · Resources · Simulation · Assessment · Progress)",
+      "screenType": "page",
+      "proposedRoute": "/student/experiments/[experimentId]",
+      "recommendedRoute": "/student/experiments/[experimentId]",
+      "routeNotes": "Keep. Implement app/student/(workspace)/experiments/[experimentId]/layout.tsx holding the hub header, HubTabs and the access guard that renders ST-19 for this route and every child (resources, simulation, simulation/web, simulation/[format], progress, assessment, feedback/[format]). The hub ‘Assessment’ tab is drawn (B4-11) but has no screen ID or route in screens.json: recommend /student/experiments/[experimentId]/assessment.",
+      "navPlace": "Detail (from ST-01/02/03/04/15); sidebar highlights My courses",
+      "archetype": "AR-7",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs(My courses / {code} / {experiment})",
+        "ExperimentHubHeader(code · course overline, H1 experiment, FormatAvailabilityList ul aria-label ‘Formats for you’ with words per format)",
+        "ExperimentDescription",
+        "NextStepBar(‘Next step: …’ + ONE primary link; stretches on phone)",
+        "HubTabs(nav aria-label = experiment name: Overview · Resources · Simulation · Assessment · Progress; tabs scroll on phones)",
+        "StepCard×3(‘Step n of 3’ Resources · Simulation · Assessment; one status sentence + one action)",
+        "Note(‘Suggested order: resources, then a simulation, then the assessment. Nothing is locked.’)",
+        "AboutKV(H2 ‘About this experiment’: Course · Engineering area · What you need per format)",
+        "LearningOutcomesList(H2 ‘Learning outcomes’, ‘The same for every format.’)",
+        "AssessmentTabPanel(name, ‘Due … · 4 questions · 16 marks · no time limit’, StatusPill, one action) — Assessment tab",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)",
+        "FormatChip"
+      ],
+      "states": [
+        "First visit 9 Oct: formats WEB/VR ‘Available to you’, AR ‘Not included for your institution’, MR ‘Not available for this experiment’; ‘Next step: open the resources’; Resources ‘3 resources · none opened yet.’; Simulation ‘WEB and VR are available to you. WEB not started · VR not started.’ → Choose a format; Assessment ‘Your faculty hasn’t set an assessment for this experiment yet.’ / ‘Nothing to do here yet.’ (B2-12 ‘ST-05 Experiment hub · Overview · 1440 · Rahul, 9 Oct 2026’; B2-13 ‘Rahul · Shell-and-Tube’ middle state)",
+        "Later sample WEB in progress: ‘Next step: continue in your browser’ → Continue WEB; Resources ‘Lab brief opened on 12 Oct. 2 more to read.’; Simulation ‘WEB in progress · VR not started. Each format has its own progress.’ (B2-12 ‘Later sample · WEB in progress’ — ‘Next step follows the student’s real position; still no locks, no percentage.’)",
+        "A format not available right now: VR chip ‘Not available right now’; ‘WEB is available to you; VR is not available right now.’ (B2-12 ‘A format not available right now’ — ‘VR temporarily unavailable; WEB still opens. Reason wording neutral.’)",
+        "Institution paused: banner; WEB/VR chips ‘Paused’; Resources ‘Not available while your institution’s access is paused.’; Simulation ‘… Your progress is kept.’; no Next step action (B2-12 ‘Institution paused’ — ‘Banner + every format paused; work kept.’)",
+        "Mobile 375 (B2-12 ‘Mobile 375’ — ‘Tabs scroll; cards stack; Next step stretches.’; B2-14 ‘Student · Experiment hub’ — ‘Header stacks; formats become one column; tabs scroll; the three cards stack below 760 px of content.’)",
+        "Assessment tab · to do: ‘Heat Exchanger — post-lab · Due 14 Nov 2026, 23:59 · 4 questions · 16 marks · no time limit’ · ‘To do’ → Open assessment (B4-11 ‘Hub · Assessment tab · to do’)",
+        "Assessment tab · none yet: H2 ‘Your faculty hasn’t set an assessment for this experiment yet’ / ‘When they do, it appears here and in Assessments.’ (B4-11 ‘Hub · Assessment tab · none yet’)",
+        "Assessment tab · waiting for marking: ‘Submitted 5 Nov 2026, 18:52 · your result appears after the deadline’ · ‘Waiting for marking’ → View (B4-11 ‘Hub · Assessment tab · waiting for marking’)",
+        "Live version after a correction Release: learner reads only the live version, shown as ‘Version n’ (B7-11 ‘5 · Learner · Neha Kulkarni, BITS Pilani — Hyderabad Campus (reference frame)’ — ‘Reads only the live version.’)",
+        "Refusal states (not given / no longer given / access ended) render ST-19 at this URL",
+        "Not shown: hub loading/failed; Overview Step-3 card when an assessment exists (only the Assessment tab frames show assessment states)"
+      ],
+      "actions": [
+        "Open resources → ST-06",
+        "Choose a format → ST-07",
+        "Continue WEB (Next step / Simulation card when WEB in progress) → ST-08",
+        "Open assessment (Assessment tab, To do) → ST-12",
+        "View (Assessment tab, waiting for marking) → ST-14",
+        "Tabs: Overview → ST-05 · Resources → ST-06 · Simulation → ST-07 · Assessment → hub Assessment tab (board href B4-11) · Progress → ST-10",
+        "Breadcrumbs: My courses → ST-02 · {code} → ST-03 (board href B2-11)",
+        "Help (banner) → XS-07"
+      ],
+      "outboundLinks": [
+        "Open resources → ST-06",
+        "Choose a format → ST-07",
+        "Continue WEB → ST-08",
+        "Resources tab → ST-06",
+        "Simulation tab → ST-07",
+        "Assessment tab → (hub Assessment tab; board B4-11)",
+        "Progress tab → ST-10",
+        "Open assessment → ST-12",
+        "View → ST-14",
+        "My courses → ST-02",
+        "ME ZG523 → ST-03",
+        "Help → XS-07"
+      ],
+      "records": [
+        "EXP",
+        "SACC",
+        "ACC",
+        "INST",
+        "RES",
+        "RUN",
+        "ASMT",
+        "ATT",
+        "CRS",
+        "AREA",
+        "LO"
+      ],
+      "evidence": "B2-12 all 7 frames + ‘Hub navigation contract’ table + annotations ‘Formats, for Rahul’, ‘Next step … no locks (T-16). Opening a resource doesn’t complete it (T-13).’, ‘Progress … What marks a format completed is not designed (T-12).’, ‘Outcomes … (LD-3) — shown once’; B4-11 hub Assessment tab frames; B2-13; B7-11 frame 8"
+    },
+    {
+      "id": "ST-06",
+      "title": "Resources (hub tab)",
+      "screenType": "tab",
+      "proposedRoute": "/student/experiments/[experimentId]/resources",
+      "recommendedRoute": "/student/experiments/[experimentId]/resources",
+      "routeNotes": "Keep. Child of the hub layout (header, tabs, access guard). Resources open in a new tab (T-15).",
+      "navPlace": "Experiment hub tab ‘Resources’",
+      "archetype": "AR-7",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs(My courses / {code} / {experiment} / Resources)",
+        "ExperimentHubHeader(code · course overline, H1 experiment, FormatAvailabilityList ul aria-label ‘Formats for you’ with words per format)",
+        "HubTabs(nav aria-label = experiment name: Overview · Resources · Simulation · Assessment · Progress; tabs scroll on phones)",
+        "ResourceList(section ‘Resources’; count ‘3 resources’; row: type icon, title, ‘{kind} · {size}’, status ‘Not opened yet’ | ‘Opened {date}’ | ‘Opened in a new tab just now’; inline role=status ‘Opening…’; inline role=alert ‘It didn’t open. Nothing was lost — try again.’ + ‘Try again’ (aria ‘Try opening {title} again’); ‘Open’ button (aria ‘Open {title} in a new tab’); ‘Paused’ in place of Open when paused)",
+        "EmptyState(icon + H2 + body + optional action) ‘No resources are attached to this experiment yet’ / ‘When resources are added, they appear here. The simulation and its other tabs don’t depend on them.’",
+        "LoadingSkeleton(aria-busy wrapper + visually-hidden role=status text) ‘Loading resources’",
+        "ErrorState(‘We couldn’t load …’ / ‘Nothing has changed. Try again.’ + ‘Try again’ primary) ‘We couldn’t load the resources’",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)"
+      ],
+      "states": [
+        "Interactive default 12 Oct: lab brief ‘Opened 12 Oct 2026, 09:40’; Open → ‘Opening…’ → opened in a new tab (B3-01 ‘ST-06 Resources · 1440 · interactive · 12 Oct 2026’ — ‘Opening a resource only marks it “Opened”.’)",
+        "Couldn’t open + try again (B3-01 ‘Couldn’t open + try again · interactive’ — ‘the first try fails in words, Try again works.’)",
+        "First visit 9 Oct — nothing opened yet (B3-01 ‘First visit · 9 Oct’)",
+        "None attached (B3-01 ‘None attached’ — ‘The other tabs don’t wait for resources.’)",
+        "Loading (B3-01 ‘Loading’)",
+        "List failed + retry (B3-01 ‘List failed + retry’)",
+        "Institution paused: rows listed with ‘Paused’, not openable (B3-01 ‘Institution paused’ — ‘Listed, not openable; work kept.’)",
+        "Mobile 375 (B3-01 ‘Mobile 375’ — ‘Tabs scroll; rows keep one action.’)"
+      ],
+      "actions": [
+        "Open → opens the resource in a new tab; RES per Student: ‘Not opened yet’ → ‘Opened {date}’ (never progress, T-13)",
+        "Try again (row) → retry open",
+        "Try again (list) → reload",
+        "Tabs / breadcrumbs → hub screens"
+      ],
+      "outboundLinks": [
+        "Overview → ST-05",
+        "Simulation → ST-07",
+        "Assessment → hub Assessment tab",
+        "Progress → ST-10",
+        "Help → XS-07"
+      ],
+      "records": [
+        "RES",
+        "EXP",
+        "SACC",
+        "INST"
+      ],
+      "evidence": "B3-01 Resources frames 0–7; annotations ‘Resources (ST-06) … each resource opens in a new tab (T-15 design-safe handling)’, ‘Opened ≠ progress … It is not shown on the Progress tab or in Progress.’; B3-12 C1"
+    },
+    {
+      "id": "ST-07",
+      "title": "Simulation — choose a format (hub tab)",
+      "screenType": "tab",
+      "proposedRoute": "/student/experiments/[experimentId]/simulation",
+      "recommendedRoute": "/student/experiments/[experimentId]/simulation",
+      "routeNotes": "Keep. Child of the hub layout.",
+      "navPlace": "Experiment hub tab ‘Simulation’",
+      "archetype": "AR-2",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs",
+        "ExperimentHubHeader(code · course overline, H1 experiment, FormatAvailabilityList ul aria-label ‘Formats for you’ with words per format)",
+        "HubTabs(nav aria-label = experiment name: Overview · Resources · Simulation · Assessment · Progress; tabs scroll on phones)",
+        "Lead(‘Formats come from your institution’s access. Each one has its own progress.’)",
+        "FormatRowList(H2 ‘Choose a format’; one row per format: FormatBadge, H3 format, needs/reason line, timestamp line, StatusPill word, ONE action; completed rows add ‘Give feedback on {F}’ or text ‘Feedback sent {date}’; action drops under text below 600 px of content)",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)"
+      ],
+      "states": [
+        "Default 12 Oct: WEB ‘In progress’ ‘Last saved 12 Oct 2026, 11:20’ → Continue WEB; VR ‘Not started’ ‘Needs a VR headset’ → Open VR; AR ‘Not included for your institution’ ‘Published for this experiment; your institution’s access doesn’t include it.’; MR ‘Not available for this experiment’ ‘This experiment isn’t made for MR.’ (B3-02 ‘ST-07 Simulation — choose a format · 1440 · 12 Oct 2026’; B3-12 ‘C2 · Simulation · 12 Oct’)",
+        "First visit 9 Oct: WEB ‘Not started’ ‘Opens in your browser’ → Open WEB as the one primary action (B3-02 ‘First visit · 9 Oct’)",
+        "WEB completed 14 Oct: ‘Completed 14 Oct 2026’ + ‘Give feedback on WEB’ + ‘Open WEB’ (B3-02 ‘WEB completed · 14 Oct’ — ‘Give feedback on WEB appears only on the completed format.’)",
+        "VR in progress: ‘Last session reported 16 Oct 2026, 14:10’ · ‘In progress’ → Continue VR; WEB ‘Completed 14 Oct 2026 · Feedback sent 14 Oct 2026’ → Open WEB (B3-07 ‘Entry · account menu (Rahul has VR)’ background frame)",
+        "Both completed, feedback sent 20 Oct: ‘Completed … Feedback sent …’ + Open WEB / Open VR (B3-02 ‘Both completed, feedback sent · 20 Oct’ — ‘No experiment-level “completed”.’)",
+        "Waiting for a licence (Arun Kumar): WEB and VR rows ‘No licence is available for you on ACC-0107 right now.’ · ‘Waiting for a licence’, no action (B3-02 ‘Waiting for a licence · Arun Kumar (later sample)’ — ‘Reason in words; no counting explanation (D7).’)",
+        "Institution paused: rows ‘Not available while your institution’s access is paused. Your progress is kept.’ · ‘Paused’, no action (B3-02 ‘Institution paused’ — ‘Rows stay; nothing opens; progress kept.’)",
+        "Access ended (8 Oct 2027): chips ‘Access ended’; rows ‘Access ended on 7 Oct 2027. Your progress is kept.’ → ‘View earlier work’ (B3-02 ‘Access ended (later sample, 8 Oct 2027)’ — ‘Earlier work stays viewable.’)",
+        "Mobile 375 (B3-02 ‘Mobile 375’ — ‘Action drops under the text and stretches.’; B3-13 ‘Student · Simulation — choose a format’)",
+        "Not shown: ‘couldn’t open + retry’ and ‘not available right now’ rows on this tab (listed in B2-12 contract; drawn only on ST-05/ST-08)"
+      ],
+      "actions": [
+        "Open WEB / Continue WEB → ST-08",
+        "Open VR / Continue VR → ST-09",
+        "Give feedback on WEB|VR → ST-16 (only on a Completed format; never a disabled button)",
+        "View earlier work (access ended) → ST-08 / ST-09",
+        "Help (banner) → XS-07"
+      ],
+      "outboundLinks": [
+        "Continue WEB / Open WEB → ST-08",
+        "Open VR / Continue VR → ST-09",
+        "Give feedback on WEB → ST-16",
+        "View earlier work → ST-08 / ST-09",
+        "Tabs → ST-05/ST-06/ST-10/hub Assessment tab"
+      ],
+      "records": [
+        "RUN",
+        "SACC",
+        "ACC",
+        "EXP",
+        "FB",
+        "INST"
+      ],
+      "evidence": "B3-02 all 8 frames; annotations ‘Rows: Formats inherited … (LD-1) — never chosen by the Institute Admin or the Student.’, ‘One action per row’, ‘Never shown: An overall percentage, an experiment-level “completed”, locks or a required order (T-13, T-16).’; B3-12 C2; B3-13"
+    },
+    {
+      "id": "ST-08",
+      "title": "WEB simulation (launch / resume)",
+      "screenType": "page",
+      "proposedRoute": "/student/experiments/[experimentId]/simulation/web",
+      "recommendedRoute": "/student/experiments/[experimentId]/simulation/web",
+      "routeNotes": "Keep. Static segment ‘web’ coexists with ST-09’s dynamic ‘[format]’ (Next.js matches the static segment first); restrict [format] to ar|vr|mr so ‘web’ never resolves to ST-09.",
+      "navPlace": "Detail of the Simulation tab",
+      "archetype": "AR-3",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs(My courses / {experiment} / Simulation / WEB)",
+        "BackLink(‘Simulation’)",
+        "FormatStatusPanel(section aria-label ‘WEB simulation’; overline ‘Simulation · WEB’; StatusPill + timestamp; H2; needs line ‘Needs a laptop or desktop with a current web browser’)",
+        "BusyButton(‘Launch WEB’ | ‘Continue WEB’ | ‘Try again’; busy ‘Opening the simulation…’ aria-disabled; note ‘Opens in a new tab’; stretches on phones)",
+        "InlineNotice(role=status ‘The simulation opened in a new tab. Come back here any time to continue.’; role=alert ‘The simulation didn’t open · Nothing was lost. Try again, or report a problem if it keeps happening.’)",
+        "SecondaryLinks(‘Report a problem’ → Help, ‘Back to Simulation’)",
+        "AboutKV(H2 ‘About WEB’: Experiment · How it works ‘Runs in your browser in a new tab. This page keeps your place.’ · Completed means ‘The simulation reports that you finished. You can’t mark it yourself.’)",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)"
+      ],
+      "states": [
+        "In progress (interactive): ‘In progress · Last saved 12 Oct 2026, 11:20’, H2 ‘Continue where you left off’, Continue WEB → ‘Opening the simulation…’ → status note (B3-03 ‘ST-08 WEB simulation · 1440 · interactive · in progress’)",
+        "Not started · Launch WEB (interactive): H2 ‘Start the WEB simulation’; after a successful open the board script turns the status to ‘In progress’ (B3-03 ‘Not started · Launch WEB · interactive’; script wbView go(): st none→prog)",
+        "Opening: busy ‘Opening the simulation…’ (B3-03 script, frames 0–2)",
+        "Couldn’t open + try again: alert ‘The simulation didn’t open’ / ‘Nothing was lost…’, button label ‘Try again’ (B3-03 ‘Couldn’t open + try again · interactive’)",
+        "Completed → Give feedback on WEB: ‘Completed 14 Oct 2026 · Reported by the simulation at 15:30’, H2 ‘You’ve completed WEB’, ‘Tell us how this format worked for you. It takes about two minutes.’ (B3-03 ‘Completed · 14 Oct · Give feedback on WEB’ — ‘Completion comes only from the simulation (T-12). No “I have finished” button.’; B3-12 ‘C3 · WEB completed · 14 Oct’)",
+        "Completed · feedback sent: ‘Feedback sent 14 Oct 2026, 15:42’, ‘Thank you — your feedback on WEB is recorded.’ → ‘See your feedback’ (B3-03 ‘Completed · feedback sent’ — ‘One feedback per format; read-only after sending.’)",
+        "Institution paused: ‘Paused’, H2 ‘You can’t open the simulation right now’ / ‘Your institution’s access is paused. Your progress is kept, and you can continue when it’s lifted.’ (B3-03 ‘Institution paused’)",
+        "Waiting for a licence (Arun): ‘Waiting for a licence’, H2 ‘Not available to you yet’ / ‘No licence is available for you on ACC-0107 right now. Your institution can tell you more.’ (B3-03 ‘Waiting for a licence · Arun Kumar (later sample)’)",
+        "Mobile 375 interactive (B3-03 ‘Mobile 375 · interactive’ — ‘The action stretches; the new-tab note stays.’; B3-13 ‘Student · WEB simulation (interactive)’)",
+        "Not shown: access-ended / earlier-work view of this page (ST-07 links here with ‘View earlier work’ but no ST-08 frame draws it)"
+      ],
+      "actions": [
+        "Launch WEB → opens the WEB simulation in a new tab; board: RUN(WEB) Not started → In progress on successful open (runtime activity only, never completion)",
+        "Continue WEB → reopens the simulation in a new tab (status unchanged)",
+        "Try again (after a failed open) → retry",
+        "Give feedback on WEB → ST-16 (only when WEB is Completed)",
+        "See your feedback → ST-17",
+        "Report a problem → XS-07",
+        "Back to Simulation / breadcrumb → ST-07"
+      ],
+      "outboundLinks": [
+        "Give feedback on WEB → ST-16",
+        "See your feedback → ST-17",
+        "Report a problem → XS-07",
+        "Back to Simulation → ST-07",
+        "Shell-and-Tube Heat Exchanger (breadcrumb) → ST-05",
+        "My courses → ST-02"
+      ],
+      "records": [
+        "RUN",
+        "SACC",
+        "ACC",
+        "FB",
+        "EXP",
+        "INST"
+      ],
+      "evidence": "B3-03 all 8 frames; annotations ‘One large action: Launch WEB (not started) · Continue WEB (in progress) · Give feedback on WEB (completed)’, ‘Completion: Only an event reported by the simulation sets “Completed (date)” — the completion contract is OPEN (T-12 / A-06); no self-report control.’, ‘Not designed: Any simulation imagery or runtime screen’"
+    },
+    {
+      "id": "ST-09",
+      "title": "AR / VR / MR format (setup & progress)",
+      "screenType": "page",
+      "proposedRoute": "/student/experiments/[experimentId]/simulation/[format]",
+      "recommendedRoute": "/student/experiments/[experimentId]/simulation/[format]",
+      "routeNotes": "Keep; constrain [format] to ar | vr | mr (lower-case slug), return not-found for anything else. ‘AR not included’ and ‘MR not available’ are message states of this route, not separate URLs.",
+      "navPlace": "Detail of the Simulation tab",
+      "archetype": "AR-3 (AR/MR message states AR-10)",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs(My courses / {experiment} / Simulation / {F})",
+        "BackLink(‘Simulation’)",
+        "FormatStatusPanel(section aria-label ‘VR format’; overline ‘Simulation · VR’; StatusPill + ‘Last session reported …’ or needs line ‘Needs a VR headset’ | ‘Needs the phone app’; H2; body)",
+        "AuthorisedDeviceRow(‘Your authorised device’ + device text + link ‘My device’ → ST-18)",
+        "Disclosure(details/summary ‘View setup steps’; open by default the first time) + NumberedSteps(1–4)",
+        "SecondaryLinks(‘Report a problem’, ‘Back to Simulation’)",
+        "MessagePage(AR-10) for AR not included / MR not available",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)"
+      ],
+      "states": [
+        "VR in progress 16 Oct: ‘In progress · Last session reported 16 Oct 2026, 14:10’, H2 ‘Continue on your headset’, ‘Pick up where you left off on the headset. This page updates when a session is reported.’ (B3-04 ‘ST-09 VR format · 1440 · in progress · 16 Oct 2026’ — ‘No launch button — VR runs on the headset.’)",
+        "VR not started: ‘Not started · Needs a VR headset’, H2 ‘Set up VR’, ‘VR runs on a headset, not in this browser. Follow the setup steps below.’; steps open (B3-04 ‘VR not started’ — ‘Setup steps open by default the first time.’)",
+        "VR completed → Give feedback on VR: ‘Completed 20 Oct 2026 · Reported from the headset at 11:15’, H2 ‘You’ve completed VR’ (B3-04 ‘VR completed · 20 Oct → Give feedback on VR’ — ‘Completion reported from the headset (T-12).’; B3-12 ‘C5 · VR completed · 20 Oct’)",
+        "VR in progress = not eligible for feedback: no feedback entry, no disabled button (B3-06 ‘Not eligible · VR in progress → no feedback entry’)",
+        "AR not included (message page): H2 ‘AR isn’t included for your institution’ / ‘AR is published for this experiment, but your institution’s access includes WEB and VR only.’ → Back to Simulation (B3-04 ‘AR · not included for your institution’ — ‘Message page (AR-10).’)",
+        "MR not available (message page): H2 ‘This experiment isn’t available in MR’ / ‘Shell-and-Tube Heat Exchanger is made for WEB, AR and VR.’ (B3-04 ‘MR · not available for this experiment’)",
+        "Institution paused: ‘Paused’, H2 ‘You can’t use VR right now’ / ‘Your institution’s access is paused. Your progress is kept.’ (B3-04 ‘Institution paused’)",
+        "Pattern ‘Needs the phone app’ (AR): ‘Not started · Needs the phone app’, H2 ‘Set up AR’, ‘AR runs in the phone app, not in this browser.’, 3 steps (B3-04 ‘Pattern · “Needs the phone app” (AR)’ — ‘Wording pattern only — Godavari’s access has no AR, so no Godavari student sees this page.’)",
+        "Mobile 375 setup steps (B3-04 ‘Mobile 375 · setup steps on a phone’ — ‘Steps read top to bottom; device and Help stay reachable.’; B3-13 ‘Student · VR format and setup steps’)",
+        "Not shown: MR setup page (no sample); VR access-ended / earlier-work view (linked from ST-07 ‘View earlier work’)"
+      ],
+      "actions": [
+        "View setup steps → expand/collapse (information only, T-14)",
+        "My device → ST-18",
+        "Give feedback on VR → ST-16 (Completed only)",
+        "Report a problem → XS-07",
+        "Back to Simulation → ST-07",
+        "No launch / no ‘mark complete’ control (designed absence)"
+      ],
+      "outboundLinks": [
+        "My device → ST-18",
+        "Give feedback on VR → ST-16",
+        "Report a problem → XS-07",
+        "Back to Simulation → ST-07",
+        "breadcrumb → ST-05 / ST-02"
+      ],
+      "records": [
+        "RUN",
+        "DTR",
+        "SACC",
+        "ACC",
+        "EXP",
+        "FB",
+        "INST"
+      ],
+      "evidence": "B3-04 all 8 frames; annotations ‘Status: Not started (needs a VR headset) · In progress (last session reported) · Completed (date, reported) → Give feedback on VR.’, ‘Setup steps: Information only. How the app reaches the headset is OPEN (T-14 / QT-01) — the steps never promise a store, download or MDM route.’, ‘Device: … Moving to another device is a transfer request (B3-07).’"
+    },
+    {
+      "id": "ST-10",
+      "title": "Progress for this experiment (hub tab)",
+      "screenType": "tab",
+      "proposedRoute": "/student/experiments/[experimentId]/progress",
+      "recommendedRoute": "/student/experiments/[experimentId]/progress",
+      "routeNotes": "Keep. Child of the hub layout. On the canvas the Resources and Progress tabs share board B3-01; they are separate routes.",
+      "navPlace": "Experiment hub tab ‘Progress’",
+      "archetype": "AR-7",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs",
+        "ExperimentHubHeader(code · course overline, H1 experiment, FormatAvailabilityList ul aria-label ‘Formats for you’ with words per format)",
+        "HubTabs(nav aria-label = experiment name: Overview · Resources · Simulation · Assessment · Progress; tabs scroll on phones)",
+        "FormatProgressList(H2 ‘Your progress, format by format’; ul aria-label ‘Progress by format’; row: FormatBadge, StatusPill word, date/‘Last saved …’, ONE link or ‘Feedback sent {date}’ text; AR/MR rows with reason words)",
+        "AssessmentSummary(H2 ‘Assessment’ + neutral sentence)",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)"
+      ],
+      "states": [
+        "14 Oct: WEB ‘Completed 14 Oct 2026’ → ‘Give feedback on WEB’; VR ‘Not started’ → ‘Open VR’ (B3-01 ‘ST-10 Progress for this experiment · 1440 · 14 Oct 2026’ — ‘WEB completed (reported by the simulation) → Give feedback on WEB. VR not started. One row per format; no experiment-level verdict.’)",
+        "In progress 12 Oct: WEB ‘In progress · Last saved 12 Oct 2026, 11:20’ → Continue WEB (B3-01 ‘In progress · 12 Oct’)",
+        "After WEB feedback: WEB ‘Completed 14 Oct 2026 · Feedback sent 14 Oct 2026’, VR not started (B3-12 ‘C4 · Progress tab after WEB feedback’)",
+        "Both completed, feedback sent 20 Oct (B3-01 ‘Both formats completed, feedback sent · 20 Oct’ — ‘Still no “experiment completed”.’)",
+        "Paused: ‘WEB Paused · Completed 14 Oct 2026 before the pause’, ‘VR Paused · Not started before the pause’ (B3-01 ‘Paused’ — ‘Progress kept, shown as before the pause.’)",
+        "Mobile 375 20 Oct: VR ‘Completed 20 Oct 2026’ → ‘Give feedback on VR’ (B3-01 ‘Mobile 375 · 20 Oct’)",
+        "Assessment section: ‘Your faculty hasn’t set an assessment for this experiment yet.’ in every drawn frame",
+        "Not shown: loading / failed for this tab; Assessment section with a real assessment state"
+      ],
+      "actions": [
+        "Give feedback on WEB|VR → ST-16 (Completed only)",
+        "Continue WEB → ST-08",
+        "Open VR → ST-09"
+      ],
+      "outboundLinks": [
+        "Give feedback on WEB → ST-16",
+        "Give feedback on VR → ST-16",
+        "Continue WEB → ST-08",
+        "Open VR → ST-09",
+        "Tabs → ST-05/ST-06/ST-07/hub Assessment tab"
+      ],
+      "records": [
+        "RUN",
+        "FB",
+        "ASMT",
+        "SACC",
+        "ACC"
+      ],
+      "evidence": "B3-01 Progress frames 8–12; annotation ‘Progress tab (ST-10): One row per format: Not started · In progress (last save) · Completed (date, from the system) → Give feedback on that format … No percentage and no experiment-level verdict (C-6, T-13).’; B3-12 C4"
+    },
+    {
+      "id": "ST-11",
+      "title": "Assessments",
+      "screenType": "page",
+      "proposedRoute": "/student/assessments",
+      "recommendedRoute": "/student/assessments",
+      "routeNotes": "Keep. ‘To do · Submitted · Results’ are aria-pressed toggle buttons (role=group ‘Show’), not routes; optional ?show= param for deep links only.",
+      "navPlace": "Sidebar Assessments",
+      "archetype": "AR-2",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "PageHeader(H1 ‘Assessments’; sub ‘Assessments for the experiments you have’)",
+        "SegmentedFilter(role=group aria-label ‘Show’: ‘To do (n)’ · ‘Submitted (n)’ · ‘Results (n)’, aria-pressed)",
+        "AssessmentRow(name; ‘{experiment} · {code}’; sub-line per state; StatusPill word; ONE action link aria-label ‘{action} {name}’)",
+        "EmptyState(icon + H2 + body + optional action) ‘No assessments yet’ / ‘When your faculty sets an assessment for an experiment you have, it appears here.’",
+        "TabEmptyText(‘Nothing to do right now.’ | ‘Nothing submitted and waiting.’ | ‘No results released yet.’)",
+        "StatusPill"
+      ],
+      "states": [
+        "To do (interactive): row ‘Due 14 Nov 2026, 23:59 · 4 questions · no time limit’ · ‘To do’ → Open (B4-11 ‘ST-11 Assessments · 1440 · interactive · 1 Nov 2026’ — ‘The SAME assessment Dr Ranganathan created (ASMT-0009).’)",
+        "Attempt in progress 5 Nov: ‘Answers saved · due 14 Nov 2026, 23:59’ · ‘Attempt in progress’ → Continue attempt (B4-11 ‘Attempt in progress · 5 Nov’)",
+        "Submitted tab · waiting for marking 5 Nov: ‘Submitted 5 Nov 2026, 18:52 · your faculty marks written answers’ · ‘Waiting for marking’ → View (B4-11 ‘Submitted tab · waiting for marking · 5 Nov’)",
+        "Result not released yet 7 Nov: ‘Released after the deadline: 14 Nov 2026, 23:59’ · ‘Result not released yet’ → View (B4-11 ‘Result not released yet · 7 Nov’ — ‘No figure of any kind.’)",
+        "Results tab · result ready 15 Nov: ‘Released 14 Nov 2026, 23:59’ · ‘Result ready’ → See result (B4-11 ‘Results tab · result ready · 15 Nov’)",
+        "None yet before 27 Oct: ‘No assessments yet’ (B4-11 ‘None yet · before 27 Oct’)",
+        "Per-tab empty text when the selected tab has no rows (script emptyText)",
+        "Mobile 375 interactive (B4-11 ‘Mobile 375 · interactive’)",
+        "Not shown: loading / failed for this list; several assessments; deadline-passed / closed states (T-18 open)"
+      ],
+      "actions": [
+        "To do / Submitted / Results → filter (client)",
+        "Open → ST-12",
+        "Continue attempt → ST-13",
+        "View → ST-14",
+        "See result → ST-14"
+      ],
+      "outboundLinks": [
+        "Open → ST-12",
+        "Continue attempt → ST-13",
+        "View → ST-14",
+        "See result → ST-14"
+      ],
+      "records": [
+        "ASMT",
+        "ATT",
+        "SACC",
+        "EXP"
+      ],
+      "evidence": "B4-11 frames 0–6; annotations ‘States: To do (due date) · attempt in progress · waiting for marking · result not released yet · result ready. None yet. Each state is words plus one action.’, ‘Deadline: Shown as the date the Faculty set. What happens after it (closing, late attempts) is open (T-18)’, ‘Entry points: Sidebar Assessments · the experiment hub’s Assessment tab · Home “Up next”.’; script slView"
+    },
+    {
+      "id": "ST-12",
+      "title": "Assessment — before you start",
+      "screenType": "page",
+      "proposedRoute": "/student/assessments/[assessmentId]",
+      "recommendedRoute": "/student/assessments/[assessmentId]",
+      "routeNotes": "Keep. Breadcrumb ‘Assessments / {name}’; back link to the experiment hub.",
+      "navPlace": "Detail of Assessments (also from hub Assessment tab and Home Up next)",
+      "archetype": "AR-3",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs(Assessments / {name})",
+        "BackLink(experiment → ST-05)",
+        "PageHeader(overline ‘{experiment} · assessment’; H1 name; intro paragraph)",
+        "KeyFactsGrid(6 facts as configured: Questions · Total marks · Pass mark · Attempts allowed · Deadline · Result and answers; two columns, one column below 600 px of content)",
+        "InfoNote(‘No time limit. Answers save as you go, and nothing is submitted until you choose Submit.’)",
+        "InlineNotice(role=status per state)",
+        "ActionRow(primary + secondary)"
+      ],
+      "states": [
+        "Default 1 Nov: facts ‘4 · 2 multiple choice · 1 true or false · 1 written answer’, ‘16’, ‘50% · 8 of 16 marks’, ‘2 · You have used none’, ‘14 Nov 2026, 23:59’, ‘After the deadline · Your faculty marks written answers’ → Start assessment (B4-11 ‘ST-12 Before you start · 1440 · 1 Nov 2026’ — ‘Six key facts exactly as configured for this assessment — none of them a platform default (C-5). Start assessment opens ST-13.’; B4-14 ‘D2 · Rahul’s Before you start · 1 Nov 2026’)",
+        "Continue attempt: status ‘Attempt 1 in progress · Your answers are saved. Two of four questions answered.’ → Continue attempt (B4-11 ‘Continue attempt’)",
+        "Waiting for marking: status ‘Submitted — waiting for marking · You submitted on 5 Nov 2026, 18:52. Your result appears after the deadline.’; ‘You have used 1’ → See result page (B4-11 ‘Waiting for marking’)",
+        "Attempts used · 1 left (later sample): status ‘Not passed on attempt 1 · 1 attempt left · You can try once more. Your first result stays on your result page.’ → Try again · See result (B4-11 ‘Attempts used · 1 left (later sample)’)",
+        "Not available yet · no questions: status ‘This assessment can’t be started yet · It has no questions yet. It appears ready to start when your faculty has added them.’; only Back to experiment (B4-11 ‘Not available yet · no questions’ — ‘The make-available step itself is open (T-18).’)",
+        "Mobile 375 (B4-11 ‘Mobile 375’; B4-15 ‘Student · Before you start’ — ‘Six facts in two columns; one column below 600 px of content.’)"
+      ],
+      "actions": [
+        "Start assessment → ST-13 (ATT: none → Attempt in progress; ‘Attempt 1 of 2’)",
+        "Continue attempt → ST-13 (same attempt)",
+        "See result page / See result → ST-14",
+        "Try again → ST-13 (new attempt; only when not passed and an attempt is left)",
+        "Back to experiment → ST-05",
+        "Start disabled/absent when the assessment has no questions"
+      ],
+      "outboundLinks": [
+        "Start assessment → ST-13",
+        "Continue attempt → ST-13",
+        "See result page → ST-14",
+        "Try again → ST-13",
+        "See result → ST-14",
+        "Back to experiment → ST-05",
+        "Assessments (breadcrumb) → ST-11",
+        "{experiment} (back link) → ST-05"
+      ],
+      "records": [
+        "ASMT",
+        "ATT",
+        "Q",
+        "EXP"
+      ],
+      "evidence": "B4-11 frames 11–16; B4-14 D2; B4-15 Student · Before you start"
+    },
+    {
+      "id": "ST-13",
+      "title": "Assessment attempt",
+      "screenType": "step",
+      "proposedRoute": "/student/assessments/[assessmentId]/attempt",
+      "recommendedRoute": "/student/assessments/[assessmentId]/attempt",
+      "routeNotes": "Keep the URL but render it outside the sidebar shell: AR-6 focused task (‘a slim bar with the way out, the save state and the account; no sidebar’). Place it in a sibling route group, e.g. app/student/(focused)/assessments/[assessmentId]/attempt/page.tsx, while ST-11/12/14 live under app/student/(workspace)/…",
+      "navPlace": "Flow step (from ST-12 Start / Continue attempt / Try again)",
+      "archetype": "AR-6",
+      "components": [
+        "FocusedTaskBar(position:sticky top; way-out link labelled with the experiment name → ST-12; SaveStatusIndicator; Avatar aria-label ‘{name}, Student’ — not a menu)",
+        "SaveStatusIndicator(‘Answers save automatically’ | ‘Saving…’ role=status | ‘All answers saved’ role=status | ‘Your last answer didn’t save’ + ‘Try again’ role=alert)",
+        "PageHeader(overline ‘{experiment} · Attempt n of N’; H1 name; meta ‘4 questions · 16 marks · due … · no time limit’)",
+        "InlineNotice(role=alert ‘Your answers weren’t submitted · They’re still saved here. Try again.’)",
+        "ReviewStrip(nav aria-label ‘Your answers’; live count ‘n of 4 answered’; numbered anchor links aria ‘Question n, answered|not answered’; ‘Next unanswered’ button)",
+        "QuestionCard(‘Question n of 4 · {type}’ + ‘{marks} marks’; ChoiceFieldset (legend = question, radio rows ≥44 px) | labelled Textarea with hint ‘Your faculty marks written answers.’)",
+        "FormFoot(note ‘Nothing is submitted until you choose Submit. You can’t change answers after submitting.’ + ‘Submit’ — always the last control)",
+        "ConfirmDialog DL-1(‘Submit your answers?’; unanswered line ‘{n} questions aren’t answered ({list}). You can still submit.’; ‘You can’t change your answers after submitting.’; ‘Keep answering’ · ‘Submit answers’ · busy ‘Submitting…’; Close icon)",
+        "SuccessMessage(H1 ‘Answers submitted’ + body + actions)"
+      ],
+      "states": [
+        "Interactive default 5 Nov: answer → ‘Saving…’ → ‘All answers saved’; strip shows answered; Next unanswered; Submit → DL-1 → submitted (B4-12 ‘ST-13 Assessment attempt · 1440 · interactive · 5 Nov 2026’)",
+        "Unanswered warning inside DL-1 (dialog open): ‘2 questions aren’t answered (3, 4). You can still submit.’ (B4-12 ‘Unanswered warning inside DL-1’ — ‘the student can keep answering or submit.’)",
+        "Save failed + try again (B4-12 ‘Save failed + try again · interactive’ — ‘The bar says which answer didn’t save. Try again → saved.’)",
+        "Submit fails + try again (B4-12 ‘Submit fails + try again · interactive’ — ‘“Your answers weren’t submitted. They’re still saved here.”’)",
+        "Submitting: busy ‘Submitting…’ in DL-1",
+        "Submitted: ‘Answers submitted · Submitted 5 Nov 2026, 18:52. Your faculty marks written answers. Your result appears after the deadline: 14 Nov 2026, 23:59.’ → Back to experiment / See your result page (B4-12 ‘Submitted’ — ‘Waiting for marking — no figure; when the result appears is the assessment’s own setting.’)",
+        "Tablet 768 continuing an attempt, two of four answered (B4-12 ‘Tablet 768 · continuing an attempt’)",
+        "Mobile 375 interactive (B4-12 ‘Mobile 375 · interactive’ — ‘Full width; options are 44 px+ touch rows; the written answer is full width.’; B4-15 ‘Student · Attempt (interactive)’ — ‘Fully usable at 375 px … Submit stays at the end.’; flows.json D2 ‘Submit reachable at every width (Batch-4 fix)’)",
+        "No timer, no countdown, never auto-submits (B4-12 ‘Submitting: Never automatic and no timer.’; T-22)"
+      ],
+      "actions": [
+        "Choose an option / type an answer → autosave (ATT answers saved; ‘Saving…’ → ‘All answers saved’)",
+        "Try again (save) → re-save",
+        "Question number in strip → jump to that question",
+        "Next unanswered → focus the first unanswered question",
+        "Submit → opens DL-1 [confirm dialog]",
+        "Keep answering / Close → close DL-1",
+        "Submit answers → ATT: Attempt in progress → Submitted · waiting for marking [DL-1 confirm; unanswered allowed; no reason]",
+        "Way-out link (experiment name) → ST-12, answers kept; return via ‘Continue attempt’",
+        "Back to experiment → ST-05 (after submit)",
+        "See your result page → ST-14 (after submit)"
+      ],
+      "outboundLinks": [
+        "Shell-and-Tube Heat Exchanger (way out) → ST-12 (board href B4-11)",
+        "Back to experiment → ST-05",
+        "See your result page → ST-14"
+      ],
+      "records": [
+        "ATT",
+        "ASMT",
+        "Q"
+      ],
+      "evidence": "B4-12 all 7 frames; annotations ‘Shape: AR-6 focused task …’, ‘Questions: Three types only — multiple choice (one correct), true or false, written answer (T-22).’, ‘Saving’, ‘Submitting’, ‘Leaving’, ‘Not shown: Marking guidance … any score, any countdown.’, ‘Same record: ATT-0450 … Submissions (B4-06) and Marking (B4-09).’; xr-assess.css ‘.xa-bar{position:sticky…}’ and comment ‘Submit (ST-13) is always the last control: its dialog opens at the foot of the page, next to the button.’; B4-14 live attempt frame"
+    },
+    {
+      "id": "ST-14",
+      "title": "Result",
+      "screenType": "page",
+      "proposedRoute": "/student/assessments/[assessmentId]/result",
+      "recommendedRoute": "/student/assessments/[assessmentId]/result",
+      "routeNotes": "Keep. Same URL renders pre-release message states; nothing numeric until marked AND released.",
+      "navPlace": "Detail (from ST-11 View/See result, ST-12, ST-13)",
+      "archetype": "AR-3",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs(Assessments / {name} / Result)",
+        "MessageBlock(pre-release: H1 + body + one action)",
+        "PageHeader(overline ‘{name} · result’; H1 ‘You passed’ | ‘Not passed this time’)",
+        "ScoreCard(‘{n} of {total} marks’ + StatusPill Passed|Not passed; facts ‘Pass mark 50% · 8 of 16 marks’ · ‘Attempt 1 of 2’ · ‘Released 14 Nov 2026, 23:59, after the deadline’; wraps)",
+        "AnswerReviewList(H2 ‘Your answers’; item: ‘Question n · {type}’ + marks badge ok/no ‘x of y marks’; question text; ‘Your answer’; ‘Correct answer’ (choice only); ‘Explanation’; ‘Feedback from {Faculty}’ (written answer, when given); rows stack below 600 px)",
+        "ActionRow(‘Back to experiment’ primary · ‘Try again’ + ‘You have 1 attempt left.’ (not passed only) · ‘See your progress’)"
+      ],
+      "states": [
+        "Released · passed 15 Nov: ‘You passed’, ‘11 of 16 marks’, every answer with explanation and the Faculty’s feedback on the written answer (B4-13 ‘ST-14 Result · passed · 1440 · 15 Nov 2026’ — ‘Released when the deadline passed (14 Nov 2026, 23:59), as set for ASMT-0009’)",
+        "Submitted — waiting for marking 5 Nov: ‘You submitted on 5 Nov 2026, 18:52. Your faculty marks written answers. Your result appears after the deadline: 14 Nov 2026, 23:59.’ → Back to experiment (B4-13 ‘Submitted — waiting for marking · 5 Nov’ — ‘Written answer not marked yet. No figure.’)",
+        "Result not released yet 7 Nov: ‘Your answers have been marked. Results for this assessment are released after the deadline: 14 Nov 2026, 23:59.’ (B4-13 ‘Result not released yet · 7 Nov’ — ‘Marked and confirmed, but the release date hasn’t come. Still no figure.’)",
+        "Not passed · 1 attempt left (Imran Shaikh 6 of 16): ‘Not passed this time’ + Try again + ‘You have 1 attempt left.’ (B4-13 ‘Not passed · 1 attempt left (later sample)’ — ‘Try again starts attempt 2 of 2.’)",
+        "Deadline passed, marking not finished: still ‘Submitted — waiting for marking’, never a partial score (B4-13 ‘Deadline passed, marking not finished’)",
+        "Not submitted yet: ‘Your result appears here after you submit and your answers are marked.’ → Back to the assessment (B4-14 ‘Student · Rahul Verma · result page’ initial state; template in B4-13)",
+        "Mobile 375 passed (B4-13 ‘Mobile 375 · passed’; B4-15 ‘Student · Result (released)’ — ‘Score card wraps; each answer’s rows stack below 600 px of content.’)"
+      ],
+      "actions": [
+        "Back to experiment → ST-05",
+        "Try again → ST-13 (new attempt; shown only when not passed and an attempt is left)",
+        "See your progress → ST-15",
+        "Back to the assessment → ST-12 (not submitted yet)"
+      ],
+      "outboundLinks": [
+        "Back to experiment → ST-05",
+        "Try again → ST-13",
+        "See your progress → ST-15",
+        "Back to the assessment → ST-12",
+        "Assessments / {name} (breadcrumb) → ST-11 / ST-12"
+      ],
+      "records": [
+        "ATT",
+        "ASMT",
+        "Q"
+      ],
+      "evidence": "B4-13 all 6 frames; annotations ‘Before release: No figure of any kind — no score, no pass / not passed, no correct answers.’, ‘When it appears: Per the assessment’s own setting … There is no platform default (T-19)’, ‘Try again: Only when not passed and an attempt is left. Whether a student who passed may try again is not designed (open).’; B4-14 D4/D5"
+    },
+    {
+      "id": "ST-15",
+      "title": "Progress (all experiments)",
+      "screenType": "page",
+      "proposedRoute": "/student/progress",
+      "recommendedRoute": "/student/progress",
+      "routeNotes": "Keep. Filters are client-side (Status, Course).",
+      "navPlace": "Sidebar Progress",
+      "archetype": "AR-2",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "PageHeader(H1 ‘Progress’; sub ‘What you’ve started and finished, format by format’)",
+        "FilterToolbar(Select ‘Status’: All statuses · In progress · Completed · Not started; Select ‘Course’: All courses · ‘{code} · {title}’; filters stack on phones)",
+        "FilterChips + ‘Clear filters’ + LiveCount(role=status ‘1 experiment’ | ‘0 experiments’)",
+        "CourseGroup(H2 course title; ‘{code} · n experiment(s)’)",
+        "ExperimentProgressCard(H3 link to the hub; ‘Given by your institution · {SACC id}’; FormatProgressList as ST-10; Disclosure ‘Show details’ with per-format dates, ‘{F} feedback · Sent {date}’, ‘Assessment · None set yet’)",
+        "EmptyState(icon + H2 + body + optional action) no match ‘No experiments match these filters’ + Clear filters",
+        "EmptyState(icon + H2 + body + optional action) ‘Nothing to show yet’ / ‘Your progress appears here when your institution gives you an experiment and you start a format.’ + Help",
+        "EarlierWorkSection(H2 ‘Earlier work’ / ‘Your access to these experiments has ended. Your progress is kept and stays here.’)",
+        "LoadingSkeleton(aria-busy wrapper + visually-hidden role=status text) ‘Loading your progress’",
+        "ErrorState(‘We couldn’t load …’ / ‘Nothing has changed. Try again.’ + ‘Try again’ primary) ‘We couldn’t load your progress’",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)"
+      ],
+      "states": [
+        "Interactive 14 Oct: WEB ‘Completed 14 Oct 2026’ → Give feedback on WEB; VR ‘Not started’ → Open VR; details ‘First opened 12 Oct 2026, 10:05 · completed 14 Oct 2026, 15:30’; ‘Assessment · None set yet’ (B3-05 ‘ST-15 Progress · 1440 · interactive · 14 Oct 2026’)",
+        "In progress 12 Oct: WEB ‘In progress · Last saved 12 Oct 2026, 11:20’ → Continue WEB (B3-05 ‘In progress · 12 Oct’)",
+        "Both completed, feedback sent 20 Oct (B3-05 ‘Both completed, feedback sent · 20 Oct’ — ‘Still no overall percentage or verdict.’; B3-12 ‘C7 · Progress · 20 Oct’)",
+        "No match: Status ‘Not started’ on 20 Oct (B3-05 ‘No match · “Not started” on 20 Oct’)",
+        "Nothing yet · before access (B3-05 ‘Nothing yet · before access’)",
+        "Institution paused: ‘Paused · Completed 14 Oct 2026 before the pause’ (B3-05 ‘Institution paused’ — ‘Progress kept and shown as before the pause.’)",
+        "Earlier work · access ended: rows ‘Access ended · Completed …’, read-only (B3-05 ‘Earlier work · access ended (later sample)’ — ‘Read-only; nothing to continue.’)",
+        "Loading (B3-05 ‘Loading’)",
+        "Failed + retry (B3-05 ‘Failed + retry’)",
+        "Mobile 375 20 Oct · Give feedback on VR (B3-05 ‘Mobile 375 · 20 Oct · Give feedback on VR’; B3-13 ‘Student · Progress (interactive filters)’ — ‘Filters stack; each format line wraps; groups stack.’)"
+      ],
+      "actions": [
+        "Status / Course filters (client)",
+        "Remove chip / Clear filters",
+        "Experiment title → ST-05",
+        "Give feedback on WEB|VR → ST-16 (Completed only)",
+        "Continue WEB → ST-08",
+        "Open VR → ST-09",
+        "Show details → expand dates",
+        "Try again → reload",
+        "Help → XS-07"
+      ],
+      "outboundLinks": [
+        "Shell-and-Tube Heat Exchanger → ST-05",
+        "Give feedback on WEB → ST-16",
+        "Give feedback on VR → ST-16",
+        "Continue WEB → ST-08",
+        "Open VR → ST-09",
+        "Help → XS-07"
+      ],
+      "records": [
+        "RUN",
+        "FB",
+        "SACC",
+        "ASMT",
+        "ATT",
+        "CRS",
+        "EXP"
+      ],
+      "evidence": "B3-05 all 10 frames; annotations ‘Unit: Per Experiment × format … Assessment state shows released results only’, ‘Never shown: Percentages, an aggregate “experiment completed”, a course-level verdict, or resources as progress (C-6, C-8, T-13).’, ‘Same record: Faculty (FA-F6) and the Institute Admin (Usage, B3-10) read the same per-format progress. Feedback is never shown to staff (T-25).’; script pgView"
+    },
+    {
+      "id": "ST-16",
+      "title": "Format feedback",
+      "screenType": "step",
+      "proposedRoute": "/student/experiments/[experimentId]/feedback/[format]",
+      "recommendedRoute": "/student/experiments/[experimentId]/feedback/[format]",
+      "routeNotes": "Keep; [format] = web|vr|ar|mr. Guard: render only when that format is Completed for this Student (otherwise no entry exists — treat a direct hit as not eligible; exact refusal copy not shown). When the FB record exists, the same URL renders ST-17.",
+      "navPlace": "Flow step from the completed format (ST-08/ST-09), ST-07, ST-10, ST-15 and Home Up next",
+      "archetype": "AR-6",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs(My courses / {experiment} / Feedback on {F})",
+        "BackLink(‘{F}’ → format page)",
+        "PageHeader(overline ‘Give feedback’; H1 ‘{experiment}’ + FormatChip)",
+        "Lead(‘Your feedback helps improve this experience.’) + Meta(‘Rate all five statements. Additional comments are optional.’)",
+        "ErrorSummary(role=alert, tabindex=-1, receives focus; title ‘One rating is missing’ | ‘{n} ratings are missing’; links ‘Choose a rating for statement {n}’ → fieldset)",
+        "InlineNotice(role=alert ‘Your feedback wasn’t sent · Nothing was lost — your answers are still here. Try again.’)",
+        "RatingScaleFieldset×5(legend ‘{n}. {statement}’; field error ‘Choose a rating’ via aria-describedby; 5 labelled radios ‘1 Strongly disagree’ … ‘5 Strongly agree’; five columns from 520 px of content, full-width touch rows below)",
+        "Textarea(label ‘Additional comments (optional)’)",
+        "FormFoot(‘Cancel’ link → format page; ‘Submit feedback’ / busy ‘Sending…’ aria-disabled)"
+      ],
+      "states": [
+        "Eligible (interactive) VR 20 Oct (B3-06 ‘ST-16 Format feedback · VR · 1440 · interactive · 20 Oct 2026’ — ‘Five labelled 1–5 ratings (required) + optional comments → Submit feedback → Feedback sent (ST-17). Try submitting with gaps first.’)",
+        "Missing ratings — validation (statements 2, 4, 5 missing → ‘3 ratings are missing’) (B3-06 ‘Missing ratings’ — ‘Error summary takes focus and links to each statement.’)",
+        "Sending: ‘Sending…’ busy button (B3-06 script)",
+        "Sending fails + try again: answers stay (B3-06 ‘Sending fails + try again · interactive’ — ‘Answers stay; “Nothing was lost.”’)",
+        "Not eligible: format not Completed → no entry anywhere, no disabled button (B3-06 ‘Not eligible · VR in progress → no feedback entry’)",
+        "Mobile 375 interactive (B3-06 ‘Mobile 375 · interactive’ — ‘The 1–5 scale stacks into full-width touch rows below 520 px.’; B3-13 ‘Student · Format feedback (interactive)’)"
+      ],
+      "actions": [
+        "Select a rating (radio) per statement",
+        "Type Additional comments (optional)",
+        "Submit feedback → validates the five ratings; FB (none) → Feedback sent {date} — one record per Student × Experiment × format; no confirm dialog; no edit / no resubmit afterwards",
+        "Cancel → ST-09 (VR) / ST-08 (WEB)",
+        "Error-summary link → focus that statement"
+      ],
+      "outboundLinks": [
+        "{F} back link → ST-08 / ST-09",
+        "Cancel → ST-08 / ST-09",
+        "breadcrumb → ST-05 / ST-02"
+      ],
+      "records": [
+        "FB",
+        "RUN",
+        "EXP"
+      ],
+      "evidence": "B3-06 frames 0–2, 5, 6; element table (‘Unit … two records’, ‘Eligibility: Only after that format is recorded as completed (T-12). Not eligible → no entry at all.’, ‘Statements and scale’, ‘Required: The five ratings. Additional comments optional.’, ‘States: Eligible → sending → failed + try again → sent (date, answers read-only). One submission; no edit, no resubmit.’, ‘Copy: … It never says who reads it (T-25).’); script FB.qs / FB.scale"
+    },
+    {
+      "id": "ST-17",
+      "title": "Feedback sent (confirmation, read-only)",
+      "screenType": "state",
+      "proposedRoute": "/student/experiments/[experimentId]/feedback/[format] (sent state)",
+      "recommendedRoute": "/student/experiments/[experimentId]/feedback/[format]",
+      "routeNotes": "State of the ST-16 route (no own URL): shown after a successful submit and whenever the FB record already exists (‘See your feedback’ from ST-08).",
+      "navPlace": "Flow step after ST-16",
+      "archetype": "AR-10",
+      "components": [
+        "MessageBlock(H1 ‘Feedback on {F} sent’; ‘Thank you. Sent {when}. Feedback can’t be changed after it’s sent.’; ‘Back to experiment’ primary · ‘See your progress’ text)",
+        "ReadOnlyAnswerList(H2 ‘Your answers · {F}’; ul aria-label ‘Your answers’; ‘{n}. {statement}’ + ‘{v} — {label}’; ‘Additional comments’ + text or ‘—’)"
+      ],
+      "states": [
+        "Sent WEB 14 Oct read-only, with comment ‘The counter-flow run was easy to follow.’ (B3-06 ‘ST-17 Feedback sent · WEB · 14 Oct (read-only)’ — ‘A separate record from VR. No edit, no resubmit.’)",
+        "Sent VR 20 Oct, no comment (‘—’) (B3-06 ‘ST-17 Feedback sent · VR · 20 Oct’)",
+        "Directly after submit in the interactive frame (B3-06 frame 0, ‘→ Feedback sent (ST-17)’)"
+      ],
+      "actions": [
+        "Back to experiment → ST-05",
+        "See your progress → ST-15",
+        "No edit / resubmit control (designed absence)"
+      ],
+      "outboundLinks": [
+        "Back to experiment → ST-05",
+        "See your progress → ST-15"
+      ],
+      "records": [
+        "FB"
+      ],
+      "evidence": "B3-06 frames 3, 4 and post-submit state; B3-03 ‘Completed · feedback sent’ (‘See your feedback’); B3-12 C4/C6"
+    },
+    {
+      "id": "ST-18",
+      "title": "My device (AR/VR/MR holders only)",
+      "screenType": "page",
+      "proposedRoute": "/student/device",
+      "recommendedRoute": "/student/device",
+      "routeNotes": "Keep. Entry only in the account menu and only for Students who hold an AR/VR/MR format; what a direct URL hit shows for a Student without such a format is not shown.",
+      "navPlace": "Account menu ‘My device’ (also linked from ST-09 ‘My device’)",
+      "archetype": "AR-8",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "AccountMenu(role=menu ‘Account’: name · Student · institution; ‘My device’ only for AR/VR/MR holders; Help; Sign out)",
+        "PageHeader(H1 ‘My device’; sub ‘The device authorised for your headset formats’)",
+        "AuthorisedDeviceCard(H2 ‘Authorised device’ + FormatChip; device text; ‘Used for {F} · {experiment}’; ‘Request a device transfer’ primary only when no request is open and not paused; paused text ‘You can’t request a transfer while your institution’s access is paused.’)",
+        "DeviceTransferForm(H2 ‘Request a device transfer’; ReadOnlyField ‘Moving from’; TextInput ‘New device’ + hint + error; Textarea ‘Anything your Institute Admin should know (optional)’; note ‘Your Institute Admin forwards the request to BITS, and BITS decides.’; ‘Cancel’ · ‘Send request’ / busy ‘Sending…’)",
+        "TransferRequestPanel(H2 ‘Your transfer request’ + id ‘DTR-0018’; StatusPill wait|info|ok; explanatory sentence; WarningNotice role=status ‘This request can’t be forwarded yet’; KV From / To)",
+        "Timeline(H2 ‘Request history’; latest first: what · when · note; empty ‘No transfer requests yet.’)",
+        "StatusBanner(role=status; paused ‘Your institution’s access is paused — your work is kept.’ / inactive ‘Your account is inactive. Contact your institution administrator.’ + Help link)"
+      ],
+      "states": [
+        "Interactive default 22 Oct: Request a device transfer → describe the new device → Send request → ‘With your Institute Admin’, with history (B3-07 ‘ST-18 My device · 1440 · interactive · 22 Oct 2026’ — ‘No decline state exists (T-32).’; B3-12 ‘Student · Rahul Verma · My device’)",
+        "Entry in account menu: menu shows ‘My device’ · ‘Help’ · ‘Sign out’ (B3-07 ‘Entry · account menu (Rahul has VR)’ — ‘only for Students with AR / VR / MR formats.’)",
+        "Entry hidden: no ‘My device’ item, no disabled entry (B3-07 ‘Entry hidden · no AR / VR / MR formats’ — ‘Vikram has no experiments yet’)",
+        "Validation: ‘Describe the new device’ on New device, aria-invalid (B3-07 ‘Validation’ — ‘New device is the only required field.’)",
+        "With your Institute Admin 22 Oct: ‘Your Institute Admin forwards it to BITS. Nothing changes on your device yet.’ (B3-07 ‘With your Institute Admin · 22 Oct’)",
+        "Forwarded to BITS 23 Oct: ‘BITS decides. Nothing changes on your device yet.’ (B3-07 ‘Forwarded to BITS · 23 Oct’ — ‘Meera Iyer forwarded it (B3-09).’)",
+        "Approved 24 Oct: ‘BITS approved the transfer. Your authorised device is updated above.’; authorised device now GIT-VR-07 (B3-07 ‘Approved · 24 Oct’)",
+        "Can’t be forwarded yet · no Institute Admin: notice ‘Your institution has no Institute Admin right now. It stays here until one is assigned.’ (B3-07 ‘Can’t be forwarded yet · no Institute Admin’ — ‘nothing is invented about who else could act.’)",
+        "Institution paused: no new request (B3-07 ‘Institution paused’ — ‘No new request while paused.’)",
+        "No requests yet: history ‘No transfer requests yet.’",
+        "Sending: ‘Sending…’ (script)",
+        "Mobile 375 interactive (B3-07 ‘Mobile 375 · interactive’; B3-13 ‘Student · My device (interactive)’ — ‘Single column at every width.’)",
+        "Not designed: Decline / Declined (T-32 / D20a); device registry (D20b); notifications (T-34)"
+      ],
+      "actions": [
+        "Request a device transfer → opens the form (focus to New device) [hidden while a request is open or the institution is paused]",
+        "Cancel → closes the form and clears it",
+        "Send request → DTR: — → With your Institute Admin [no confirm dialog] [New device required: ‘Describe the new device’] [note optional]",
+        "My device (account menu) → ST-18"
+      ],
+      "outboundLinks": [
+        "Help (account menu / banner) → XS-07",
+        "Sidebar → ST-01/ST-02/ST-11/ST-15"
+      ],
+      "records": [
+        "DTR",
+        "SACC",
+        "INST",
+        "PER"
+      ],
+      "evidence": "B3-07 all 10 frames; annotations ‘Chain: Student requests → Institute Admin forwards (IA-18 / IA-19, B3-09) → BITS approves (SA-18 / SA-19, B3-11).’, ‘Form: Free-text device fields (T-32): New device (required) and an optional note. Which other fields are needed is OPEN (D20b)’, ‘One request at a time … Whether a second request may be opened is not decided’; script dcView; B3-12 device chain"
+    },
+    {
+      "id": "ST-19",
+      "title": "Experiment not available (refusal page)",
+      "screenType": "state",
+      "proposedRoute": "/student/experiments/[experimentId] (not-available state)",
+      "recommendedRoute": "/student/experiments/[experimentId]",
+      "routeNotes": "State, not a route: render from the experiment layout guard for the hub and every child route (resources, simulation, simulation/web, simulation/[format], progress, assessment, feedback/[format]); do not use notFound(). Breadcrumb ‘My courses / Not available’.",
+      "navPlace": "— (shown in place of the hub)",
+      "archetype": "AR-10",
+      "components": [
+        "StudentWorkspaceShell(sidebar: Home · My courses · Assessments · Progress; Help at the foot; ‘Menu’ button below 1024 px app width; ‘Collapse menu’; logo placeholder)",
+        "Breadcrumbs(My courses / Not available)",
+        "MessagePage(AR-10; same Batch-0 message template; H1 + body + ‘Back to My courses’ primary + ‘Help’)"
+      ],
+      "states": [
+        "Not given: H1 ‘This experiment isn’t available to you’ / ‘Your institution hasn’t given you Shell-and-Tube Heat Exchanger. Experiments you can open are in My courses.’ (B2-11 ‘Opening an experiment that wasn’t given’ — ‘ST-19 · same Batch-0 message template.’; B2-13 ‘Rahul · Shell-and-Tube’ first state)",
+        "No longer given (grant withdrawn): H1 ‘This experiment is no longer given to you’ / ‘Your institution no longer gives you Shell-and-Tube Heat Exchanger. Your work is kept.’ (B2-12 ‘Not available now · access withdrawn’ — ‘ST-19 after SACC-0310 is withdrawn.’; B2-13 third state)",
+        "Access ended: H1 ‘Your access to Shell-and-Tube Heat Exchanger has ended’ / ‘It ended on 7 Oct 2027. Your earlier work is kept.’ (B2-12 ‘Mobile 375 · access ended’)",
+        "Institution paused is NOT a refusal: the hub renders with ‘Paused’ chips and a banner (B2-12 ‘Institution paused’)",
+        "Overlapping grants after an individual withdrawal: not drawn on purpose (B2-13 ‘What Rahul sees after this withdrawal is not drawn — on purpose.’ OD-B2-01)"
+      ],
+      "actions": [
+        "Back to My courses → ST-02",
+        "Help → XS-07"
+      ],
+      "outboundLinks": [
+        "Back to My courses → ST-02",
+        "Help → XS-07",
+        "My courses (breadcrumb) → ST-02"
+      ],
+      "records": [
+        "SACC",
+        "ACC",
+        "EXP"
+      ],
+      "evidence": "B2-11 frame 12, B2-12 frames 4 and 6, B2-13 ‘Rahul · Shell-and-Tube’ (‘Isn’t available → hub with WEB · VR → no longer given.’); B2-11 annotation ‘opening its address shows the “isn’t available to you” page’"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "ST-20",
+      "disposition": "REMOVE from Student nav (R18) — public catalogue stays reachable from the footer (screens.json designed:false; B8-01 ‘No entry point (link scan)’)",
+      "note": "Keep excluded. Verified: no Student board links to the public catalogue or any signed-in catalogue — all hrefs on B2-10…B4-13 point only to Student boards, 07-Help-Support and stylesheets/fonts; the word ‘catalogue’ appears only in annotations (B2-11 doc-sub ‘Not the public catalogue’, B2-12 doc-head ‘Batch-1 catalogue data’). The ‘footer’ mentioned in the disposition is not drawn in any Student workspace frame (not shown)."
+    }
+  ],
+  "permissionEvidence": [
+    {
+      "role": "Student",
+      "entity": "SACC / EXP / CRS",
+      "action": "See courses and experiments",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "own grants only (individual or group SACC)",
+      "evidence": "B2-11 annotation ‘Only what was given: Courses and experiments come from Rahul’s grants (SACC-0310). An experiment the institution holds but hasn’t given him never appears as available’; B2-11 ‘ST-02 … ME ZG523 appears because Shell-and-Tube was given — not because Godavari holds it.’",
+      "strength": "explicit-rule",
+      "notes": "Institution access (ACC) alone never lists anything for the Student."
+    },
+    {
+      "role": "Student",
+      "entity": "EXP",
+      "action": "Open an experiment that was not given",
+      "stateBefore": "no SACC",
+      "stateAfter": "ST-19 refusal",
+      "scope": "own grants",
+      "evidence": "B2-11 ‘Opening an experiment that wasn’t given’ (ST-19)",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "SACC (formats)",
+      "action": "Choose or change formats",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B3-02 annotation ‘Formats inherited from the institution’s access (LD-1) — never chosen by the Institute Admin or the Student.’",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "RES",
+      "action": "Open a resource",
+      "stateBefore": "Not opened yet",
+      "stateAfter": "Opened {date}",
+      "scope": "own record × given experiment",
+      "evidence": "B3-01 ‘ST-06 Resources · 1440 · interactive · 12 Oct 2026’; annotation ‘Opening a resource marks it “Opened” and nothing else (T-13).’",
+      "strength": "designed-control",
+      "notes": "Never counts as progress."
+    },
+    {
+      "role": "Student",
+      "entity": "RUN (WEB)",
+      "action": "Launch WEB",
+      "stateBefore": "Not started",
+      "stateAfter": "In progress (board script, after a successful open)",
+      "scope": "own Student × Experiment × WEB, given format only",
+      "evidence": "B3-03 ‘Not started · Launch WEB · interactive’; script wbView go(): st ‘none’ → ‘prog’; inventory Flow C2 ‘RUN events → WEB · In progress’",
+      "strength": "designed-control",
+      "notes": "Runtime activity only. Whether a portal click alone or only a runtime-reported launch sets In progress is not stated on the board (committed foundation utilisation.ts derives IN_PROGRESS from SIMULATION_LAUNCHED / SESSION_STARTED events)."
+    },
+    {
+      "role": "Student",
+      "entity": "RUN (WEB)",
+      "action": "Continue WEB",
+      "stateBefore": "In progress",
+      "stateAfter": "In progress",
+      "scope": "own",
+      "evidence": "B3-03 ‘ST-08 WEB simulation · 1440 · interactive · in progress’",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "RUN (completion)",
+      "action": "Mark a format completed",
+      "stateBefore": "In progress",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B3-03 ‘Completed means: The simulation reports that you finished. You can’t mark it yourself.’; caption ‘No “I have finished” button.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "System (simulation / headset)",
+      "entity": "RUN (completion)",
+      "action": "Report completion",
+      "stateBefore": "In progress",
+      "stateAfter": "Completed {date} (‘Reported by the simulation at 15:30’ / ‘Reported from the headset at 11:15’)",
+      "scope": "per Student × Experiment × format",
+      "evidence": "B3-03 annotation ‘Only an event reported by the simulation sets “Completed (date)” — the completion contract is OPEN (T-12 / A-06)’; B3-12 C3 ‘System · The simulation reports completion (the only route)’; B3-04 ‘Completion reported from the headset (T-12).’",
+      "strength": "explicit-rule",
+      "notes": "T-12 open: the exact event is not designed."
+    },
+    {
+      "role": "Student",
+      "entity": "RUN (VR/AR/MR)",
+      "action": "Launch a headset / phone format from the portal",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B3-04 caption ‘No launch button — VR runs on the headset.’; ‘Setup steps … Information only’ (T-14)",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "RUN",
+      "action": "Open a format while institution paused / while waiting for a licence / after access ended",
+      "stateBefore": "Paused | Waiting for a licence | Access ended",
+      "stateAfter": "—",
+      "scope": "own",
+      "evidence": "B3-02 ‘Institution paused’ (‘Rows stay; nothing opens’), ‘Waiting for a licence · Arun Kumar’, ‘Access ended’ (only ‘View earlier work’)",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "FB",
+      "action": "Open the feedback form for a format",
+      "stateBefore": "format not Completed",
+      "stateAfter": "—",
+      "scope": "own Student × Experiment × format",
+      "evidence": "B3-06 ‘Not eligible · VR in progress → no feedback entry’ — ‘The entry appears only after that format is completed. No disabled button.’; table ‘Eligibility: Only after that format is recorded as completed (T-12).’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "FB",
+      "action": "Submit feedback",
+      "stateBefore": "— (format Completed, no FB)",
+      "stateAfter": "Feedback sent {date}",
+      "scope": "own Student × Experiment × format (one record)",
+      "evidence": "B3-06 ‘ST-16 Format feedback · VR · 1440 · interactive · 20 Oct 2026’; table ‘One submission; no edit, no resubmit.’",
+      "strength": "designed-control",
+      "notes": "Five ratings required; comments optional; no confirm dialog."
+    },
+    {
+      "role": "Student",
+      "entity": "FB",
+      "action": "Edit or resubmit feedback",
+      "stateBefore": "Feedback sent",
+      "stateAfter": "—",
+      "scope": "own",
+      "evidence": "B3-06 ‘Feedback can’t be changed after it’s sent.’; ‘ST-17 Feedback sent · WEB · 14 Oct (read-only)’ — ‘No edit, no resubmit.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Faculty / Institute Admin / Super Admin",
+      "entity": "FB",
+      "action": "View feedback (list, dashboard, analytics)",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B3-06 table ‘Not designed: Any staff view — no Faculty, Institute Admin or Super Admin feedback list, dashboard or analytics.’; B3-12 C8 ‘feedback is not shown to staff’; B3-05 ‘Feedback is never shown to staff (T-25).’",
+      "strength": "designed-absence",
+      "notes": "T-25 / OD-B3-12 open."
+    },
+    {
+      "role": "Student",
+      "entity": "DTR",
+      "action": "Request a device transfer (Send request)",
+      "stateBefore": "— (no open request)",
+      "stateAfter": "With your Institute Admin",
+      "scope": "own authorised device; only Students holding an AR/VR/MR format",
+      "evidence": "B3-07 ‘ST-18 My device · 1440 · interactive · 22 Oct 2026’; doc-sub ‘only for Students with AR / VR / MR formats’",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "DTR",
+      "action": "Open a second transfer request while one is open",
+      "stateBefore": "With your Institute Admin | Forwarded to BITS",
+      "stateAfter": "—",
+      "scope": "own",
+      "evidence": "B3-07 annotation ‘While a request is open, its status replaces the Request button. Whether a second request may be opened is not decided — the design does not offer it.’ (OD-B3-03)",
+      "strength": "designed-absence",
+      "notes": "Labelled as an assumption."
+    },
+    {
+      "role": "Student",
+      "entity": "DTR",
+      "action": "Request a transfer while the institution is paused",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "own",
+      "evidence": "B3-07 ‘Institution paused’ — ‘You can’t request a transfer while your institution’s access is paused.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "DTR",
+      "action": "Withdraw / cancel a sent request",
+      "stateBefore": "With your Institute Admin",
+      "stateAfter": "—",
+      "scope": "own",
+      "evidence": "B3-07 frames show no such control",
+      "strength": "inferred",
+      "notes": "Not shown; not stated either way."
+    },
+    {
+      "role": "Student",
+      "entity": "My device entry",
+      "action": "See ‘My device’ in the account menu",
+      "stateBefore": "no AR/VR/MR format",
+      "stateAfter": "entry hidden",
+      "scope": "own",
+      "evidence": "B3-07 ‘Entry hidden · no AR / VR / MR formats’ — ‘no “My device” item, no disabled entry.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "DTR",
+      "action": "Forward to BITS (DL-1)",
+      "stateBefore": "With your Institute Admin (IA: ‘Waiting on you’)",
+      "stateAfter": "Forwarded to BITS",
+      "scope": "own institution’s students",
+      "evidence": "B3-12 ‘Institute Admin · Meera Iyer · DTR-0018’; dialog ‘Forward DTR-0018 to BITS? … You can’t take it back once it’s forwarded.’",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "DTR",
+      "action": "Approve a device transfer",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B3-12 IA frame ‘Forward it to BITS. BITS decides; you can’t approve device transfers.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "DTR",
+      "action": "Forward while the institution is paused",
+      "stateBefore": "With your Institute Admin",
+      "stateAfter": "—",
+      "scope": "own institution",
+      "evidence": "B3-12 ‘Forwarding is unavailable while access is paused.’ / ‘You can’t forward requests right now’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "DTR",
+      "action": "Approve transfer (DL-1)",
+      "stateBefore": "Forwarded (SA) / Forwarded to BITS (Student)",
+      "stateAfter": "Approved — authorised device becomes the new device",
+      "scope": "platform-wide",
+      "evidence": "B3-12 ‘Super Admin · Arjun Mehta · DTR-0018’; dialog ‘Approve DTR-0018? Rahul Verma’s authorised device for VR becomes {new}. The student and Meera Iyer see “Approved”.’",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "DTR",
+      "action": "Decline a transfer",
+      "stateBefore": "Forwarded",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B3-12 device-chain table ‘Not designed: Decline / Declined (T-32 WAIT)’; OD-B3-04 ‘A request BITS doesn’t approve stays “Forwarded”.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "SACC",
+      "action": "Give access",
+      "stateBefore": "No access yet",
+      "stateAfter": "Active",
+      "scope": "own institution; experiments × formats inherited from ACC",
+      "evidence": "B2-13 ‘Institute Admin · live’ (Give access → ‘Access given … SACC-0310 → Active. Rahul sees it in My courses with WEB and VR.’)",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "SACC",
+      "action": "Withdraw… (DL-2, reason required)",
+      "stateBefore": "Active",
+      "stateAfter": "Withdrawn",
+      "scope": "own institution",
+      "evidence": "B2-13 dialog ‘Withdraw access?’ + ‘Reason (required)’ + error ‘Enter the reason for withdrawing access’; overlap variant ‘Withdraw {name}’s individual grant?’",
+      "strength": "designed-control",
+      "notes": "Student then sees ST-01 ‘no longer given’, ST-02 Earlier work, ST-19."
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "SACC",
+      "action": "Give or withdraw while institution paused",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "own institution",
+      "evidence": "B2-13 overlap frame ‘Read-only while your institution’s access is paused · You can’t give or withdraw access until BITS lifts the pause.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Faculty",
+      "entity": "ASMT",
+      "action": "Create assessment → Ready",
+      "stateBefore": "Draft",
+      "stateAfter": "Ready (‘Students who have Shell-and-Tube Heat Exchanger can now see it in Assessments and start it.’)",
+      "scope": "experiments the Faculty teaches (assigned courses)",
+      "evidence": "B4-14 ‘D1 · ASMT-0009 created · 27 Oct 2026’",
+      "strength": "designed-control",
+      "notes": "‘Students can’t see a draft.’; ‘Assessments are set per experiment, not per format.’"
+    },
+    {
+      "role": "Student",
+      "entity": "ASMT",
+      "action": "See an assessment",
+      "stateBefore": "Ready",
+      "stateAfter": "listed under To do",
+      "scope": "experiments the Student has",
+      "evidence": "B4-11 ‘No assessments yet … When your faculty sets an assessment for an experiment you have, it appears here.’; B4-14 D1 success text",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "ATT",
+      "action": "Start assessment",
+      "stateBefore": "To do (no attempt)",
+      "stateAfter": "Attempt in progress (Attempt 1 of 2)",
+      "scope": "own attempt; attempts allowed per assessment",
+      "evidence": "B4-11 ‘ST-12 Before you start · 1440 · 1 Nov 2026’ — ‘Start assessment opens ST-13.’",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "ATT",
+      "action": "Start an assessment with no questions",
+      "stateBefore": "Ready without questions",
+      "stateAfter": "—",
+      "scope": "own",
+      "evidence": "B4-11 ‘Not available yet · no questions’ — ‘This assessment can’t be started yet’",
+      "strength": "designed-absence",
+      "notes": "T-18 make-available open."
+    },
+    {
+      "role": "Student",
+      "entity": "ATT",
+      "action": "Answer (autosave)",
+      "stateBefore": "Attempt in progress",
+      "stateAfter": "Attempt in progress (answers saved)",
+      "scope": "own attempt",
+      "evidence": "B4-12 ‘ST-13 … interactive’ — ‘Answer a question → “Saving…” → “All answers saved”.’",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "ATT",
+      "action": "Submit answers (DL-1)",
+      "stateBefore": "Attempt in progress",
+      "stateAfter": "Submitted · waiting for marking",
+      "scope": "own attempt",
+      "evidence": "B4-12 ‘Unanswered warning inside DL-1’; ‘Submitted’; flows.json D2",
+      "strength": "designed-control",
+      "notes": "Unanswered questions allowed; ‘You can’t change your answers after submitting.’"
+    },
+    {
+      "role": "Student",
+      "entity": "ATT",
+      "action": "Change answers after submit / auto-submit / timer",
+      "stateBefore": "Submitted",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B4-12 ‘Never automatic and no timer.’; ‘You can’t change answers after submitting.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "ATT",
+      "action": "Try again",
+      "stateBefore": "Not passed with an attempt left",
+      "stateAfter": "new attempt (Attempt 2 of 2)",
+      "scope": "own; attempts allowed per assessment",
+      "evidence": "B4-13 ‘Not passed · 1 attempt left (later sample)’ — ‘Try again starts attempt 2 of 2.’; annotation ‘Only when not passed and an attempt is left.’",
+      "strength": "designed-control",
+      "notes": "Retry after passing not designed (OD-B4-05)."
+    },
+    {
+      "role": "Student",
+      "entity": "ATT result",
+      "action": "See score / pass / correct answers before release",
+      "stateBefore": "Submitted · waiting for marking | Result not released yet",
+      "stateAfter": "—",
+      "scope": "own",
+      "evidence": "B4-13 ‘Before release: No figure of any kind — no score, no pass / not passed, no correct answers.’ (T-19)",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "Q (marking guidance)",
+      "action": "See marking guidance during the attempt",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B4-12 ‘Not shown: Marking guidance for the written answer (Faculty only — open question)’; OD-B4-08",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Faculty",
+      "entity": "ATT",
+      "action": "Confirm marks (DL-1)",
+      "stateBefore": "Waiting for marking",
+      "stateAfter": "Marks confirmed (read-only); Student sees ‘Result not released yet’ until release",
+      "scope": "assigned courses",
+      "evidence": "B4-14 ‘Faculty · Dr S. Ranganathan · mark the written answer’; dialog ‘Confirm marks for Rahul Verma? … Confirmed marks can’t be changed.’",
+      "strength": "designed-control",
+      "notes": "Mark 0–10 whole number required; feedback optional (OD-B4-06)."
+    },
+    {
+      "role": "System (assessment’s own release setting)",
+      "entity": "ATT",
+      "action": "Release result",
+      "stateBefore": "Marks confirmed / Result not released yet",
+      "stateAfter": "Result ready",
+      "scope": "per assessment (Immediately after marking · After the deadline · On a date)",
+      "evidence": "B4-14 D4 ‘The assessment’s own setting · Results are released after the deadline’; create step ‘When students see their result and answers’ options",
+      "strength": "explicit-rule",
+      "notes": "No Faculty ‘release’ button drawn — differs from flows.json D4."
+    },
+    {
+      "role": "Content Manager → Academic Reviewer → Super Admin",
+      "entity": "EXP (live version)",
+      "action": "Release a correction",
+      "stateBefore": "Live 1.2",
+      "stateAfter": "Live 1.3 — Student hub reads only the live version",
+      "scope": "platform-wide",
+      "evidence": "B7-11 ‘5 · Learner · Neha Kulkarni … (reference frame)’ — ‘Reads only the live version.’; flows.json F4",
+      "strength": "explicit-rule",
+      "notes": "Release never grants access (binding constraint 9)."
+    },
+    {
+      "role": "Student (inactive account)",
+      "entity": "EXP / RUN",
+      "action": "Open experiments",
+      "stateBefore": "PER Inactive",
+      "stateAfter": "—",
+      "scope": "own",
+      "evidence": "B2-10 ‘Student inactive’ — ‘You can’t open experiments until your institution reactivates your account.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student (institution paused)",
+      "entity": "EXP / RES / RUN / DTR",
+      "action": "Open experiments, resources, formats; request transfers",
+      "stateBefore": "INST Access paused",
+      "stateAfter": "—",
+      "scope": "own; work kept",
+      "evidence": "B2-10 ‘Institution paused’; B2-12 ‘Institution paused’; B3-01 ‘Listed, not openable’; B3-07 ‘No new request while paused.’",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "SUP",
+      "action": "Report a problem / Help",
+      "stateBefore": "—",
+      "stateAfter": "SUP Open (Help board)",
+      "scope": "own reports",
+      "evidence": "B3-03 / B3-04 ‘Report a problem’ → 07-Help-Support; entities.json SUP ‘any signed-in person → Super Admin’",
+      "strength": "designed-control",
+      "notes": "XS-07 belongs to another surface."
+    }
+  ],
+  "fieldEvidence": [
+    {
+      "entity": "PER",
+      "field": "Full name",
+      "example": "Rahul Verma",
+      "shownOn": "all (account menu button, aria-label ‘Account menu: Rahul Verma, Student, Godavari Institute of Technology’)",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-10 every frame"
+    },
+    {
+      "entity": "PER",
+      "field": "Role label",
+      "example": "Student",
+      "shownOn": "all (account menu)",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-10"
+    },
+    {
+      "entity": "PER",
+      "field": "Initials avatar",
+      "example": "RV",
+      "shownOn": "all; ST-13 bar avatar aria-label ‘Rahul Verma, Student’",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B2-10; B4-12"
+    },
+    {
+      "entity": "PER",
+      "field": "First-name greeting",
+      "example": "Hello, Rahul",
+      "shownOn": "ST-01",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B2-10"
+    },
+    {
+      "entity": "INST",
+      "field": "Institution name",
+      "example": "Godavari Institute of Technology",
+      "shownOn": "all (sidebar workspace label, account menu, Home)",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-10"
+    },
+    {
+      "entity": "PER",
+      "field": "Programme",
+      "example": "(not shown)",
+      "shownOn": "none",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "0 occurrences of ‘Programme’ on any Student board (B2-10…B4-15); Programme exists only on the IA Student form/CSV (B2-07 ‘Programme (optional)’)"
+    },
+    {
+      "entity": "CRS",
+      "field": "Course title",
+      "example": "Thermodynamics & Heat Transfer",
+      "shownOn": "ST-01, ST-02, ST-03, ST-05, ST-15",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-11"
+    },
+    {
+      "entity": "CRS",
+      "field": "Course code shown to Student",
+      "example": "ME ZG523 (BITS code) or MEC-523 (institution code once added)",
+      "shownOn": "ST-01, ST-02, ST-03, ST-05, ST-15 filter",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B2-10/B2-11 ‘With the institution’s course code (MEC-523)’; B2-11 annotation ‘Student-facing code is OPEN (T-17)’"
+    },
+    {
+      "entity": "SACC",
+      "field": "Experiments given count",
+      "example": "1 experiment given to you",
+      "shownOn": "ST-01, ST-02, ST-03",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B2-11"
+    },
+    {
+      "entity": "SACC/ACC",
+      "field": "Formats available summary",
+      "example": "WEB and VR available",
+      "shownOn": "ST-01, ST-02",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B2-11"
+    },
+    {
+      "entity": "SACC",
+      "field": "Formats available chips",
+      "example": "Available to you: WEB VR",
+      "shownOn": "ST-01, ST-03, ST-04",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B2-10 ‘Start here’; B2-11"
+    },
+    {
+      "entity": "SACC",
+      "field": "Grant id",
+      "example": "Given by your institution · SACC-0310",
+      "shownOn": "ST-15",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-05"
+    },
+    {
+      "entity": "EXP",
+      "field": "Experiment title",
+      "example": "Shell-and-Tube Heat Exchanger",
+      "shownOn": "ST-01…ST-10, ST-15, ST-16",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-12"
+    },
+    {
+      "entity": "EXP",
+      "field": "Description",
+      "example": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+      "shownOn": "ST-05 hub header",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-12"
+    },
+    {
+      "entity": "EXP/ACC/SACC",
+      "field": "Format availability word per format",
+      "example": "WEB Available to you · VR Available to you · AR Not included for your institution · MR Not available for this experiment · (variants) Not available right now · Paused · Access ended",
+      "shownOn": "ST-05…ST-10 hub header",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B2-12, B3-02"
+    },
+    {
+      "entity": "AREA",
+      "field": "Engineering area",
+      "example": "Mechanical & Manufacturing",
+      "shownOn": "ST-05 About",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-12"
+    },
+    {
+      "entity": "EXP",
+      "field": "What you need (per format)",
+      "example": "WEB — laptop or desktop with a current web browser · VR — supported VR headset",
+      "shownOn": "ST-05 About",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-12"
+    },
+    {
+      "entity": "LO",
+      "field": "Learning outcomes (one Experiment-level set)",
+      "example": "Determine log mean temperature difference from measured inlet and outlet conditions; Compare countercurrent and cocurrent arrangements at matched duty",
+      "shownOn": "ST-05",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-12 ‘The same for every format.’ (LD-3)"
+    },
+    {
+      "entity": "EXP",
+      "field": "Live version label",
+      "example": "Version 1.3 (via ‘Version ’ + L.ver)",
+      "shownOn": "ST-05 (B7-11 reference frame only)",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-11 frame 8 script pubVer"
+    },
+    {
+      "entity": "RES",
+      "field": "Title",
+      "example": "Lab brief — Shell-and-Tube Heat Exchanger; Pre-lab reading — the effectiveness–NTU method; Readings sheet",
+      "shownOn": "ST-06",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-01 script RS.res"
+    },
+    {
+      "entity": "RES",
+      "field": "Kind",
+      "example": "PDF document · Web page · Spreadsheet",
+      "shownOn": "ST-06",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-01"
+    },
+    {
+      "entity": "RES",
+      "field": "Size label",
+      "example": "6 pages · About 10 minutes · 1 sheet",
+      "shownOn": "ST-06",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-01 (OD-B3-06 sample)"
+    },
+    {
+      "entity": "RES",
+      "field": "Opened (per Student)",
+      "example": "Opened 12 Oct 2026, 09:40 · Not opened yet · Opened in a new tab just now",
+      "shownOn": "ST-06",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-01"
+    },
+    {
+      "entity": "RES",
+      "field": "Overview summary",
+      "example": "3 resources · none opened yet. | Lab brief opened on 12 Oct. 2 more to read.",
+      "shownOn": "ST-05",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B2-12"
+    },
+    {
+      "entity": "RUN",
+      "field": "Status per format",
+      "example": "Not started · In progress · Completed",
+      "shownOn": "ST-01, ST-03, ST-04, ST-05, ST-07, ST-08, ST-09, ST-10, ST-15",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B3-02, B3-05"
+    },
+    {
+      "entity": "RUN",
+      "field": "Last saved (WEB)",
+      "example": "Last saved 12 Oct 2026, 11:20",
+      "shownOn": "ST-07, ST-08, ST-10, ST-15",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-03 (OD-B3-07: time only)"
+    },
+    {
+      "entity": "RUN",
+      "field": "Last session reported (VR)",
+      "example": "Last session reported 16 Oct 2026, 14:10",
+      "shownOn": "ST-07, ST-09",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-04"
+    },
+    {
+      "entity": "RUN",
+      "field": "Completed date + source",
+      "example": "Completed 14 Oct 2026 · Reported by the simulation at 15:30 | Completed 20 Oct 2026 · Reported from the headset at 11:15",
+      "shownOn": "ST-07, ST-08, ST-09, ST-10, ST-15",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-03, B3-04"
+    },
+    {
+      "entity": "RUN",
+      "field": "First opened / first session (details)",
+      "example": "First opened 12 Oct 2026, 10:05 · completed 14 Oct 2026, 15:30 | First session reported 16 Oct 2026, 14:10 · completed 20 Oct 2026, 11:15",
+      "shownOn": "ST-15 Show details",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-05"
+    },
+    {
+      "entity": "RUN",
+      "field": "Paused-before line",
+      "example": "Completed 14 Oct 2026 before the pause | Not started before the pause",
+      "shownOn": "ST-10, ST-15",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B3-01 ‘Paused’, B3-05"
+    },
+    {
+      "entity": "EXP",
+      "field": "Format needs line",
+      "example": "Opens in your browser · Needs a VR headset · Needs the phone app · Needs a laptop or desktop with a current web browser",
+      "shownOn": "ST-07, ST-08, ST-09",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-02, B3-03, B3-04"
+    },
+    {
+      "entity": "ACC/SACC",
+      "field": "Licence wait message",
+      "example": "No licence is available for you on ACC-0107 right now.",
+      "shownOn": "ST-07, ST-08",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-02/B3-03 Arun Kumar frames"
+    },
+    {
+      "entity": "ACC",
+      "field": "Access end date",
+      "example": "Access ended on 7 Oct 2027",
+      "shownOn": "ST-01, ST-02, ST-07, ST-15, ST-19",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B2-10, B2-11, B3-02"
+    },
+    {
+      "entity": "FB",
+      "field": "Statement 1 rating",
+      "example": "4 — Agree",
+      "shownOn": "ST-16 / ST-17",
+      "inputOrDisplay": "input-required",
+      "validation": "radio 1–5; error ‘Choose a rating’; summary link ‘Choose a rating for statement 1’",
+      "evidence": "B3-06 FB.qs[0] ‘This experience helped me understand the concept.’"
+    },
+    {
+      "entity": "FB",
+      "field": "Statement 2 rating",
+      "example": "5 — Strongly agree",
+      "shownOn": "ST-16 / ST-17",
+      "inputOrDisplay": "input-required",
+      "validation": "as statement 1",
+      "evidence": "B3-06 FB.qs[1] ‘The instructions were clear and easy to follow.’"
+    },
+    {
+      "entity": "FB",
+      "field": "Statement 3 rating",
+      "example": "4 — Agree",
+      "shownOn": "ST-16 / ST-17",
+      "inputOrDisplay": "input-required",
+      "validation": "as statement 1",
+      "evidence": "B3-06 FB.qs[2] ‘The simulation was easy to use and interact with.’"
+    },
+    {
+      "entity": "FB",
+      "field": "Statement 4 rating",
+      "example": "5 — Strongly agree",
+      "shownOn": "ST-16 / ST-17",
+      "inputOrDisplay": "input-required",
+      "validation": "as statement 1",
+      "evidence": "B3-06 FB.qs[3] ‘This experience worked smoothly without technical issues.’"
+    },
+    {
+      "entity": "FB",
+      "field": "Statement 5 rating",
+      "example": "4 — Agree",
+      "shownOn": "ST-16 / ST-17",
+      "inputOrDisplay": "input-required",
+      "validation": "as statement 1",
+      "evidence": "B3-06 FB.qs[4] ‘Overall, I was satisfied with this learning experience.’"
+    },
+    {
+      "entity": "FB",
+      "field": "Rating scale labels",
+      "example": "1 Strongly disagree · 2 Disagree · 3 Neither agree nor disagree · 4 Agree · 5 Strongly agree",
+      "shownOn": "ST-16",
+      "inputOrDisplay": "display",
+      "validation": "every point labelled; not colour-only",
+      "evidence": "B3-06 FB.scale; table ‘Statements and scale’"
+    },
+    {
+      "entity": "FB",
+      "field": "Error summary title",
+      "example": "One rating is missing | 3 ratings are missing",
+      "shownOn": "ST-16",
+      "inputOrDisplay": "display",
+      "validation": "shown on Submit when any rating missing; takes focus",
+      "evidence": "B3-06 script errTitle"
+    },
+    {
+      "entity": "FB",
+      "field": "Additional comments",
+      "example": "The counter-flow run was easy to follow.",
+      "shownOn": "ST-16 / ST-17 (‘—’ when empty)",
+      "inputOrDisplay": "input-optional",
+      "validation": "none drawn (no max length)",
+      "evidence": "B3-06 ‘Additional comments (optional)’"
+    },
+    {
+      "entity": "FB",
+      "field": "Sent timestamp",
+      "example": "Sent 14 Oct 2026, 15:42 | Feedback sent 14 Oct 2026 | WEB feedback · Sent 14 Oct 2026",
+      "shownOn": "ST-17, ST-07, ST-08, ST-10, ST-15",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-06, B3-03, B3-05"
+    },
+    {
+      "entity": "DTR",
+      "field": "Authorised device",
+      "example": "ME lab VR headset, asset tag GIT-VR-03 (→ GIT-VR-07 after approval)",
+      "shownOn": "ST-18, ST-09",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-07, B3-04 (OD-B3-01 free text)"
+    },
+    {
+      "entity": "DTR",
+      "field": "Used for",
+      "example": "Used for VR · Shell-and-Tube Heat Exchanger",
+      "shownOn": "ST-18",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-07"
+    },
+    {
+      "entity": "DTR",
+      "field": "Moving from",
+      "example": "ME lab VR headset, asset tag GIT-VR-03",
+      "shownOn": "ST-18 form",
+      "inputOrDisplay": "display",
+      "validation": "read-only in form",
+      "evidence": "B3-07"
+    },
+    {
+      "entity": "DTR",
+      "field": "New device",
+      "example": "ME lab VR headset, asset tag GIT-VR-07",
+      "shownOn": "ST-18 form",
+      "inputOrDisplay": "input-required",
+      "validation": "error ‘Describe the new device’ (aria-invalid, aria-describedby); hint ‘Describe it the way your lab or institution labels it — for example, its asset tag.’",
+      "evidence": "B3-07 ‘Validation’ frame; OD-B3-02"
+    },
+    {
+      "entity": "DTR",
+      "field": "Note to Institute Admin",
+      "example": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+      "shownOn": "ST-18 form (not echoed back to the Student; IA sees ‘Note to you’, SA sees ‘Student’s note’, default ‘No note’)",
+      "inputOrDisplay": "input-optional",
+      "validation": "none drawn",
+      "evidence": "B3-07; B3-12 IA/SA frames"
+    },
+    {
+      "entity": "DTR",
+      "field": "Request id",
+      "example": "DTR-0018",
+      "shownOn": "ST-18",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-07"
+    },
+    {
+      "entity": "DTR",
+      "field": "Status (Student words)",
+      "example": "With your Institute Admin · Forwarded to BITS · Approved",
+      "shownOn": "ST-18",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-07 script W"
+    },
+    {
+      "entity": "DTR",
+      "field": "From / To",
+      "example": "From GIT-VR-03 headset · To GIT-VR-07 headset",
+      "shownOn": "ST-18",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-07"
+    },
+    {
+      "entity": "DTR",
+      "field": "History entries",
+      "example": "Requested by Rahul Verma · 22 Oct 2026, 09:10 · From … to … | Forwarded to BITS by Meera Iyer · 23 Oct 2026, 10:00 | Approved by BITS · 24 Oct 2026, 12:30 · The authorised device is now: …",
+      "shownOn": "ST-18",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-07 script hist"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Name",
+      "example": "Heat Exchanger — post-lab",
+      "shownOn": "ST-11, ST-12, ST-13, ST-14, ST-05 Assessment tab, ST-01 Up next",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-11"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Experiment line",
+      "example": "Shell-and-Tube Heat Exchanger · ME ZG523",
+      "shownOn": "ST-11",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-11 script SL.exp"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Introduction",
+      "example": "Four short questions on what you measured in the Shell-and-Tube Heat Exchanger simulation. One answer is written; your faculty marks it.",
+      "shownOn": "ST-12",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-11; Faculty field ‘Introduction (optional)’ B4-14"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Questions summary",
+      "example": "4 · 2 multiple choice · 1 true or false · 1 written answer",
+      "shownOn": "ST-12",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-11"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Total marks",
+      "example": "16",
+      "shownOn": "ST-12, ST-13 meta, ST-14",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-11"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Pass mark",
+      "example": "50% · 8 of 16 marks",
+      "shownOn": "ST-12, ST-14",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-11 (C-5 sample, set per assessment)"
+    },
+    {
+      "entity": "ASMT/ATT",
+      "field": "Attempts allowed / used",
+      "example": "2 · You have used none | You have used 1",
+      "shownOn": "ST-12",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-11"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Deadline",
+      "example": "14 Nov 2026, 23:59",
+      "shownOn": "ST-11, ST-12, ST-13, ST-14, ST-05 tab, ST-01 Up next",
+      "inputOrDisplay": "display",
+      "validation": "advisory; meaning after it open (T-18)",
+      "evidence": "B4-11"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Result and answers (release setting)",
+      "example": "After the deadline · Your faculty marks written answers",
+      "shownOn": "ST-12",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-11; options in B4-14 create step"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Time limit statement",
+      "example": "No time limit. Answers save as you go, and nothing is submitted until you choose Submit.",
+      "shownOn": "ST-12, ST-13",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-11, B4-12 (T-22)"
+    },
+    {
+      "entity": "ATT",
+      "field": "List status word",
+      "example": "To do · Attempt in progress · Waiting for marking · Result not released yet · Result ready",
+      "shownOn": "ST-11, ST-05 Assessment tab",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-11 script W"
+    },
+    {
+      "entity": "ATT",
+      "field": "List sub-line",
+      "example": "Due 14 Nov 2026, 23:59 · 4 questions · no time limit | Answers saved · due … | Submitted 5 Nov 2026, 18:52 · your faculty marks written answers | Released after the deadline: … | Released 14 Nov 2026, 23:59",
+      "shownOn": "ST-11",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-11 script sub"
+    },
+    {
+      "entity": "ATT",
+      "field": "Tab counts",
+      "example": "To do (1) · Submitted (0) · Results (0)",
+      "shownOn": "ST-11",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-11"
+    },
+    {
+      "entity": "ATT",
+      "field": "Attempt number",
+      "example": "Attempt 1 of 2",
+      "shownOn": "ST-13 overline, ST-14 score card",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-12, B4-13"
+    },
+    {
+      "entity": "ATT",
+      "field": "Answer — multiple choice",
+      "example": "The actual heat transfer with the largest heat transfer possible",
+      "shownOn": "ST-13",
+      "inputOrDisplay": "input-optional",
+      "validation": "not required to submit; unanswered named in DL-1",
+      "evidence": "B4-12 AS.qs[0]"
+    },
+    {
+      "entity": "ATT",
+      "field": "Answer — true or false",
+      "example": "True",
+      "shownOn": "ST-13",
+      "inputOrDisplay": "input-optional",
+      "validation": "as above",
+      "evidence": "B4-12 AS.qs[2]"
+    },
+    {
+      "entity": "ATT",
+      "field": "Answer — written",
+      "example": "In the WEB run I turned the fouling up and kept both flow rates the same…",
+      "shownOn": "ST-13 textarea (hint ‘Your faculty marks written answers.’)",
+      "inputOrDisplay": "input-optional",
+      "validation": "as above; no length rule drawn",
+      "evidence": "B4-12 AS.rahul[4]"
+    },
+    {
+      "entity": "ATT",
+      "field": "Answered count",
+      "example": "2 of 4 answered",
+      "shownOn": "ST-13 strip",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-12"
+    },
+    {
+      "entity": "ATT",
+      "field": "Save status",
+      "example": "Answers save automatically | Saving… | All answers saved | Your last answer didn’t save",
+      "shownOn": "ST-13",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-12"
+    },
+    {
+      "entity": "ATT",
+      "field": "Submitted timestamp",
+      "example": "Submitted 5 Nov 2026, 18:52",
+      "shownOn": "ST-13, ST-12, ST-14, ST-11",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-12"
+    },
+    {
+      "entity": "Q",
+      "field": "Question label + marks",
+      "example": "Question 1 of 4 · Multiple choice · 2 marks",
+      "shownOn": "ST-13, ST-14",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-12"
+    },
+    {
+      "entity": "Q",
+      "field": "Question text / options",
+      "example": "What does the effectiveness (ε) of a heat exchanger compare? (4 options)",
+      "shownOn": "ST-13, ST-14",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-12 AS.qs"
+    },
+    {
+      "entity": "ATT",
+      "field": "Score",
+      "example": "11 of 16 marks",
+      "shownOn": "ST-14",
+      "inputOrDisplay": "derived",
+      "validation": "only after marked AND released",
+      "evidence": "B4-13"
+    },
+    {
+      "entity": "ATT",
+      "field": "Outcome",
+      "example": "Passed | Not passed (H1 ‘You passed’ | ‘Not passed this time’)",
+      "shownOn": "ST-14",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B4-13"
+    },
+    {
+      "entity": "ATT",
+      "field": "Released line",
+      "example": "Released 14 Nov 2026, 23:59, after the deadline",
+      "shownOn": "ST-14",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-13"
+    },
+    {
+      "entity": "ATT",
+      "field": "Per-answer review",
+      "example": "Your answer · Correct answer (choice only) · Explanation · Feedback from Dr S. Ranganathan · ‘2 of 2 marks’",
+      "shownOn": "ST-14",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B4-13 (OD-B4-09)"
+    },
+    {
+      "entity": "ASMT",
+      "field": "Assessment summary in Progress",
+      "example": "Assessment · None set yet | Your faculty hasn’t set an assessment for this experiment yet.",
+      "shownOn": "ST-15, ST-10",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B3-05, B3-01"
+    }
+  ],
+  "crossRoleTouchpoints": [
+    "SACC: Institute Admin Give access (IA-05/IA-04, B2-05/B2-13) → Student ST-01 ‘Start here’, ST-02 course row, ST-05 formats ‘Available to you’ (B2-13 steps 7–10)",
+    "SACC withdrawn (IA-04 ‘Withdraw…’, reason required) → ST-01 ‘… is no longer given to you’, ST-02 ‘Earlier work’, ST-19 ‘This experiment is no longer given to you’ (B2-13)",
+    "SACC via group (SACC-0311, IA Groups) → same Student views as an individual grant (B2-13 Priya); overlapping grants after an individual withdrawal deliberately not drawn (OD-B2-01)",
+    "SACC ‘Waiting for a licence’ (IA Student access status) → ST-07 / ST-08 ‘Waiting for a licence’ (Arun Kumar) (B2-13 script LBL; B3-02; B3-03)",
+    "INST paused by Super Admin (B7-04) → Student banner + paused states on ST-01/02/03/05/06/07/08/09/10/15/18; IA pages read-only (B2-13 ‘Paused institution · Meera’)",
+    "ACC access ended → ST-01 ‘Access ended’, ST-02 earlier work, ST-07 ‘Access ended’ → View earlier work, ST-15 ‘Earlier work’, ST-19 access-ended variant",
+    "Course code MEC-523 added by IA in Course codes (B2-03) → ST-01 / ST-02 show MEC-523 instead of ME ZG523",
+    "RUN per format (Student / runtime) → Institute Admin Usage IA-20 per-format Started / Completed / Sessions (B3-12 C8; ‘Completed: Students whose format was reported completed by the simulation or the headset’) and Faculty Students FA-20/FA-21 (B3-05 ‘Same record’)",
+    "FB (Student) → no staff view anywhere; Usage has no feedback column (B3-06, B3-12 C8, T-25)",
+    "DTR: Student ‘Send request’ (ST-18) → IA-18/IA-19 ‘Waiting on you’ → ‘Forward to BITS’ → SA-18/SA-19 ‘Forwarded’ → ‘Approve transfer’ → Student ‘Approved’ and authorised device updated on ST-18 and ST-09 (B3-12 device chain)",
+    "DTR when the institution has no Institute Admin → Student sees ‘This request can’t be forwarded yet’ (B3-07); IA assignment is Super Admin Flow B (B7-03)",
+    "ASMT Ready (Faculty FA-07, B4-04/B4-14 D1) → ST-11 To do, ST-01 Up next, hub Assessment tab (B4-11)",
+    "ATT submitted (ST-13) → Faculty FA-01 Overview ‘1 written answer to mark’, FA-12 Submissions ‘Waiting for marking’, FA-18/19 Marking (B4-14)",
+    "Marks confirmed (Faculty FA-19, DL-1) → ST-14 / ST-11 ‘Result not released yet’ (B4-13, B4-14)",
+    "Result release per the assessment’s own setting (deadline) → ST-14 score, outcome, answers, Faculty feedback; FA-12 ‘Result released to student’ column (B4-14 D4–D6)",
+    "Correction Release / Hold by Super Admin (UPD, Flow F) → learner hub reads only the live version (B7-11 frame 8; flows.json F4 ‘ST-05’)",
+    "Report a problem (ST-08/ST-09) and Help → XS-07 Help & support; SUP record handled by Super Admin (entities.json SUP)",
+    "PER deactivated by IA (B2-06) → ST-01 ‘Your account is inactive’; sign-in lands on Home with the inactive banner (B1-09 frame 7, XS-08)"
+  ],
+  "canvasOnly": [
+    "Frame captions and caption notes (e.g. ‘ST-01 Home · before access · 8 Oct 2026’) and every doc-kv annotation block (‘Question’, ‘Rows’, ‘Never shown’, ‘Same record’ …)",
+    "Board doc headers/kickers (‘Batch 2 · ST-F1 · ST-01 Home · AR-1 · HEAVILY REDESIGN of B2 S1 / S3’) and doc-head-meta lines",
+    "Fixed-height scrolling frame wrappers on Batch 2–3 boards (overflow-y:auto; height 520–1500 px on B2-10, B2-11, B2-12, B2-13, B3-01, B3-02, B3-03, B3-05, B3-07) — product pages grow with content (START-HERE known exception 3)",
+    "B4-14 dashed ‘Board control — not part of the product.’ with ‘Move the sample date past the deadline (14 Nov 2026, 23:59)’ and ‘Sample date: before / after the deadline’ text",
+    "B2-13 ‘Reload the board to start the walkthrough again.’ and its ten-step / one-set-of-records tables; B3-12 and B4-14 flow tables and ‘What is shared and what isn’t’ notes",
+    "Within-board shared state on B2-13, B3-12, B4-14 (product must use one application state across roles)",
+    "Scripted one-shot failures (failOnce) and timed delays (600–800 ms) that demonstrate ‘couldn’t open’, ‘wasn’t sent’, ‘weren’t submitted’ states — real errors must drive these",
+    "Sample personas and dates used only to show states: Arun Kumar (waiting for a licence), Imran Shaikh (not passed), Vikram Joshi (entry hidden), Priya Natarajan (group grant), ‘Sample student’ (AR phone-app pattern), Neha Kulkarni (B7-11 reference)",
+    "‘Pattern · “Needs the phone app” (AR)’ frame — wording pattern only; no Godavari student sees it",
+    "B2-12 ‘Hub navigation contract’ table and ‘Formats, for Rahul’ annotation; B3-00 index tables",
+    "Generator artefacts in markup: <details open=\"{'res': …}\"> stringified dict, hint-placeholder-val attributes, {{ }} template bindings, sc-if / sc-for elements",
+    "Links to board files (B2-10-Student-Home.dc.html etc.) and canvas runtime ./support.js",
+    "Breadcrumb/tab hrefs that point to the same board for different tabs (Resources and Progress both → B3-01; Assessment tab → B4-11)",
+    "xr-assess.css ‘.xr-dialog-scrim.xa-dlg-end’ placement fix (dialog opens beside the control in tall canvas frames) — product needs a normal modal that stays reachable, tested with a real pointer",
+    "BITS Pilani / WILP logo — placeholder block (unapproved asset)"
+  ],
+  "inconsistencies": [
+    "flows.json Flow D step 4 names actor ‘Faculty → Student’ and screen ‘FA-12 (release)’, but the boards release results by the assessment’s own setting (B4-14 D4 ‘The assessment’s own setting · Results are released after the deadline’); no Faculty ‘Release’ button exists on B4-0x/B4-1x (grep). Board wins.",
+    "flows.json Flow B step 4 records ‘SACC-0310 · — → Not started’ — mixes the grant record with the RUN status; entities.json SACC statuses are ‘Active · Withdrawn’.",
+    "entities.json SACC statuses ‘Active · Withdrawn’ omit board statuses ‘Waiting for a licence’, ‘Student inactive’, ‘Access ended’, ‘Individual grant withdrawn’ (B2-13 script LBL; Student sees ‘Waiting for a licence’ on B3-02/B3-03).",
+    "entities.json RUN ownerWriter ‘Student’ and one status set ‘Not started · In progress · Completed’, but boards set Completed only from a simulation/headset report (B3-03, B3-04, B3-12 C3 actor ‘System’); binding constraint 3 separates runtime activity from learning completion.",
+    "entities.json ASMT/ATT statuses omit Student-facing words ‘To do’, ‘Result not released yet’, ‘Passed / Not passed’, ‘Not submitted yet’ and use ‘Submitted’ where boards say ‘Submitted — waiting for marking’.",
+    "entities.json FB status ‘Feedback sent · WEB · 14 Oct’ vs boards ‘Feedback sent 14 Oct 2026’ (B3-02/B3-05) and ‘Feedback on WEB sent’ (B3-06).",
+    "flows.json Flow C step 3 lists feedback entry only from ‘ST-10 / ST-15’; boards also enter from ST-07, ST-08, ST-09 and Home Up next (B3-06 entry-points table).",
+    "Stale board annotations superseded by Batch-8 re-pointing: B2-12 ‘Hub navigation contract’ says later tabs ‘open the register on board B2-00’ (they now link B3-01/B3-02/B4-11); B3-01 ‘Assessment → Batch-4 register (B3-00)’ (links B4-11); B3-06 table ‘Home Up next … its link opens the Batch-2 register’ (B2-10 links B3-06); B3-00 ‘Frozen Batch-2 links’ section; B4-11 ‘links will be re-pointed in Batch 8’ (done, OD-B4-15).",
+    "Hub ‘Assessment’ tab is drawn (B4-11 ‘Hub · Assessment tab · to do / none yet / waiting for marking’) and listed in ST-05’s title, but screens.json gives it no screen ID or proposed route; on the canvas the tab links to the Assessments board B4-11.",
+    "B3-02 ‘Waiting for a licence · Arun Kumar’: hub header chips still say ‘WEB Available to you / VR Available to you’ while the rows say ‘Waiting for a licence’ — entitlement words disagree within one frame.",
+    "B4-11 ‘Not available yet · no questions’ still shows facts ‘4 · 2 multiple choice · 1 true or false · 1 written answer’, ‘Total marks 16’ and ‘You have used 1’, contradicting ‘It has no questions yet’.",
+    "Earlier-work path is ambiguous: ST-02 ‘View earlier work’ (B2-11/B2-13) links the hub board B2-12, whose withdrawn/ended frames are the ST-19 refusal with no earlier work; ST-07 ‘Access ended’ frame renders the hub with ‘View earlier work’ → format pages (no access-ended frame on B3-03/B3-04); ST-15 shows earlier work read-only.",
+    "Inventory v3 vs board: ST-04 ‘filter course / format / progress · sort’ — board has Search + Format only; ST-02 ‘Search’ — not drawn; ST-19 states include ‘access paused’ — board shows paused inside the hub; ST-03 ‘earlier work’ — not drawn; D.4 Home Up next wording ‘Share feedback on VR — Shell-and-Tube’ — board ‘Give feedback on WEB’; ST-13 ‘Review answers’ — board has a review strip only.",
+    "Up next assessment item wording differs: B2-10 pattern ‘An assessment for Shell-and-Tube Heat Exchanger is ready · Assessment · to do’ vs B4-11 ‘Heat Exchanger — post-lab is ready · … · assessment · due 14 Nov 2026, 23:59’ (B4-11 is the later, specific frame).",
+    "Breadcrumbs differ: B2-12/B3-01/B3-02/B4-11 ‘My courses / ME ZG523 / Shell-and-Tube Heat Exchanger / …’ vs B3-03/B3-04/B3-06 ‘My courses / Shell-and-Tube Heat Exchanger / Simulation / WEB’ (no course segment).",
+    "B3-07 ‘Entry hidden’ Home (Vikram) uses H1 ‘Home’ and ‘When it gives you an experiment, it appears in My courses.’, unlike B2-10 ‘Hello, Rahul’ / ‘… appears here and in My courses.’",
+    "B7-11 learner reference frame shows a hub variant (‘Version n’, H2 ‘Formats given to you’, ‘Opens in your browser · {link}’, ‘On your institution’s VR headset’) not drawn on B2-12; ST-05 shows no version.",
+    "Stakeholder STK31-38 (ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md) states ‘Student requests transfer → SUPER ADMIN reviews / approves’; v46 inserts an Institute Admin forward step (B3-07, B3-12, inventory ST-18). Approved design, but the chain differs from the stakeholder record.",
+    "Committed foundation (git 1b090c9 v2/packages/domain/src/technology.ts) orders formats web, vr, mr, ar with label ‘Web’; boards order WEB · VR · AR · MR in upper case. roles.ts keys the role ‘tenant_admin’ with label ‘Institute Admin / Tenant Admin’; boards say ‘Institute Admin’.",
+    "Route overlap: ST-08 static /simulation/web and ST-09 dynamic /simulation/[format] — [format] must exclude ‘web’.",
+    "Format word for temporary unavailability ‘Not available right now’ (B2-12 frame 2) is not in entities.json or any status list; its cause/record is not modelled.",
+    "ST-13 way-out link is labelled with the experiment name (‘Shell-and-Tube Heat Exchanger’) but targets the assessment intro board B4-11 (ST-12)."
+  ],
+  "sharedComponentCandidates": [
+    "StudentWorkspaceShell + AccountMenu (all ST pages except ST-13)",
+    "FocusedTaskShell / FocusedTaskBar (ST-13; AR-6) — sticky bar with way-out, save state, avatar",
+    "StatusBanner (paused / inactive) — ST-01/02/03/05/06/07/08/09/10/15/18",
+    "MessagePage / MessageBlock (AR-10) — ST-19, ST-09 AR/MR, ST-17, ST-14 pre-release, ST-01 states",
+    "ExperimentHubLayout = ExperimentHubHeader + FormatAvailabilityList + HubTabs + access guard — ST-05, ST-06, ST-07, ST-10, hub Assessment tab",
+    "FormatChip / FormatBadge (WEB · VR · AR · MR; ‘yours’ variant) — ST-01…ST-10, ST-15, ST-16, ST-18",
+    "FormatStatusRow / FormatProgressList (one row per format, one status, one action, feedback link or ‘Feedback sent’) — ST-07, ST-10, ST-15",
+    "FormatStatusPanel (status pill + timestamp + H2 + one large action) — ST-08, ST-09",
+    "StatusPill with tones info / wait / ok / off / err — ST-07…ST-15, ST-18",
+    "ExperimentRow (title, code · course, Available to you chips, per-format words, Open) — ST-03, ST-04, ST-02 earlier work",
+    "CourseRow / CourseSummaryRow — ST-01, ST-02",
+    "FilterToolbar + FilterChips + ‘Clear filters’ + LiveCount(role=status) — ST-04, ST-15",
+    "EmptyState, LoadingSkeleton (aria-busy + sr status), ErrorState(‘Nothing has changed. Try again.’) — ST-02, ST-04, ST-06, ST-11, ST-15",
+    "BusyButton (aria-disabled + spinner: ‘Opening the simulation…’, ‘Sending…’, ‘Submitting…’) — ST-08, ST-13, ST-16, ST-18",
+    "InlineNotice (status / alert / warn) — ST-06, ST-08, ST-12, ST-13, ST-16, ST-18",
+    "Disclosure (details/summary: ‘View setup steps’, ‘Show details’) — ST-09, ST-15",
+    "ConfirmDialog DL-1 (focus to primary, Close icon, busy state) — ST-13 (and IA/SA DTR, Faculty marks)",
+    "ErrorSummary + field error pattern — ST-16 (feedback), ST-18 (single field error)",
+    "RatingScaleFieldset (1–5 labelled radios, responsive) — ST-16",
+    "KeyFactsGrid / ReadOnlyKV (dl) — ST-12, ST-18, ST-05 About, ST-08 About",
+    "Timeline (history) — ST-18",
+    "Breadcrumbs + BackLink — ST-03, ST-05…ST-10, ST-12, ST-14, ST-16, ST-19",
+    "SegmentedFilter (aria-pressed group) — ST-11",
+    "ScoreCard + AnswerReviewList — ST-14"
+  ],
+  "openQuestions": [
+    "T-12 / A-06 completion contract: which runtime event marks a format Completed (boards: ‘reported by the simulation’ / ‘from the headset’); OD-B3-07 what ‘last saved’ and a ‘session’ are.",
+    "In progress trigger: B3-03 script sets In progress after a successful portal launch; inventory C2 says ‘RUN events’; committed foundation derives IN_PROGRESS from runtime SIMULATION_LAUNCHED / SESSION_STARTED. Confirm whether a portal click alone may set In progress (never Completed).",
+    "OD-B2-01 overlapping grants (what Rahul sees after his individual grant is withdrawn while a group grant remains) — intentionally not drawn; OD-B2-02 late group members.",
+    "T-06 / D7 licence counting — ‘Waiting for a licence’ shown with no counting explanation; what moves a Student out of it is not shown.",
+    "‘Not available right now’ per-format state on the hub (B2-12): cause, record and who sets it are not designed.",
+    "Earlier work after withdrawal / access end: which pages remain viewable read-only (hub? format pages? only ST-15?) — boards disagree (see inconsistencies).",
+    "Hub Assessment tab: confirm a screen ID and route (recommend /student/experiments/[experimentId]/assessment) and how the Overview Step-3 card shows due / submitted / result ready (listed in B2-12 contract, not drawn).",
+    "T-17 course code shown to Students (institution code when set; otherwise BITS code).",
+    "T-13 / T-15 resources: opening never counts; delivery (new tab) and type/size labels are sample (OD-B3-06).",
+    "T-14 / QT-01 XR package delivery; AR phone-app pattern only (OD-B3-13); MR setup page not drawn.",
+    "T-25 / OD-B3-12 who may read feedback; T-34 / OD-B3-14 notifications (none promised).",
+    "T-32 / D20a decline of a device transfer; D20b device registry and first registration (OD-B3-01); OD-B3-02 transfer fields; OD-B3-03 one open request; OD-B3-05 institution without an Institute Admin; Student cancel/withdraw of a request not shown.",
+    "ST-18 direct URL for a Student with no AR/VR/MR format — only the hidden menu entry is drawn.",
+    "T-18 / OD-B4-02 assessment lifecycle (make available, deadline meaning, closing, late attempts); OD-B4-01 one assessment per experiment; OD-B4-03 rules required before Ready.",
+    "T-19 / OD-B4-04 release options (Immediately after marking · After the deadline · On a date) and wording; OD-B4-09 correct answers + explanations after release.",
+    "OD-B4-05 may a Student who passed try again; OD-B4-08 marking guidance hidden from Students; T-20 re-marking (confirmed marks read-only); T-22 timer / more question types.",
+    "Automatic marking of choice questions (‘Marked automatically’, B4-14 Faculty frame) vs binding constraint 10 ‘grading automation’ out of scope — confirm the mock service may compute choice-question marks for ST-14.",
+    "Consistent Help (WCAG 3.2.6, B8-07): the AR-6 attempt page (ST-13) has no sidebar and no Help link — confirm acceptable.",
+    "Record identifiers shown to Students (SACC-0310 on ST-15, ACC-0107 in the licence message, DTR-0018 on ST-18) — confirm they are Student-facing.",
+    "STK31-38 device chain (Student → Super Admin) vs v46 (Student → Institute Admin → Super Admin) — confirm the Institute Admin forward step is the approved policy.",
+    "Version display on the Student hub after a correction Release (B7-11 shows ‘Version n’; B2-12 does not).",
+    "‘Student inactive’ (account deactivated, B2-10) vs Faculty ‘inactive for 14 days or more’ (activity, OD-B4-10) — two different meanings of ‘inactive’.",
+    "ST-20 disposition says the public catalogue ‘stays reachable from the footer’, but no footer is drawn in any Student workspace frame."
+  ],
+  "counts": {
+    "screenIdsOnSurface": 20,
+    "designedScreens": 19,
+    "excludedScreens": 1,
+    "boardsRead": 17,
+    "boardsConsultedByGrep": 11,
+    "framesEnumeratedOnBoardsRead": 152,
+    "studentWorkspaceFramesOnBoardsRead": 141,
+    "studentResponsiveProofFrames": 48,
+    "statesListed": 155,
+    "permissionFacts": 43,
+    "fieldFacts": 78,
+    "crossRoleTouchpoints": 18,
+    "canvasOnlyItems": 15,
+    "inconsistencies": 22,
+    "openQuestions": 23,
+    "sharedComponentCandidates": 24,
+    "moduleMentionsOnStudentBoards": 0,
+    "programmeMentionsOnStudentBoards": 0
+  }
+}

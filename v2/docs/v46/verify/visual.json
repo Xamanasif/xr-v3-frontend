@@ -1,0 +1,271 @@
+{
+ "summary": "visual.md survives on its core architecture. These all check out against the frozen v46 CSS, the boards and 1b090c9: the B1-10 root cause and the selector '@container xr-content (max-width:759.98px){ .xr-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}' in xr-foundation.css; the focusable 'Received' header button and its duplicated name 'Received, Received, newest first. Change order'; app widths below 808 px (content = app - 48 in drawer mode), plus 1024-1071 with the sidebar expanded; Preflight being included by @import 'tailwindcss' and the theme.css/utilities.css import without Preflight working in tailwindcss 4.3.3; 65 tokens, 11 read through var(), 89 @container blocks, reduced motion as the only @media rule, and 24,319 style attributes; the responsive shell thresholds; no DEMO banner and no Slice-1 UI; and the new variances V-1, V-2, V-3 and V-5. A Chromium 152 check confirmed PF-03/PF-04: position:fixed inside an inline-size container stays fixed to the viewport, and container queries still match inside a showModal() dialog. Refuted or corrected: (1) B1-13 does NOT repeat the defect: its SA-02 instance is a 1440-px thumbnail scaled 0.3 inside an aria-hidden, inert wrapper, so the thead is not clipped and nothing is focusable. (2) ErrorSummary evidence is wrong: xw-errsum is not drawn on the cited Batch-0 boards, which draw xr-notice--err instead. The 47 'unlinked' B5 summaries navigate with per-item buttons (ul.xv-miss); only 30 instances, on B2-05, B2-07, B2-14 and B3-08, lack navigation. (3) The visual-regression plan cannot run as described: there is no git remote, no CI config and no Docker here; vendored-file provenance is unspecified; and CORS on route.fulfill is needed for the SRI scripts. (4) §11 leaves room for a developer switcher, which conflicts with the owner constraint. Minor items: per-sheet layers invert cross-sheet specificity (use one xr.v46 layer); PF-06 is a confirmed need; and several counts and citations are off (decision IDs 298 not 316, plus T-08; static panels 71 not 65; keepLabel 47 not ~30; hub tabs 67; and others).",
+ "checksRun": [
+  {
+   "check": "(a) B1-10 hiding rule (selector, container, threshold)",
+   "result": "CONFIRMED",
+   "detail": "xr-foundation.css (offset 16430): '@container xr-content (max-width:759.98px){ .xr-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} .xr-table,.xr-table tbody,.xr-table tr,.xr-table td{display:block;width:100%} ...'. Container: '.xr-content{container:xr-content / inline-size;min-width:0}'. The visual.md §7.1 snippet matches."
+  },
+  {
+   "check": "(a) 'Received' sort button inside the thead and focusable",
+   "result": "CONFIRMED",
+   "detail": "B1-10 line 39: '<th scope=\"col\" aria-sort=\"{{ q.ariaSort }}\"><button type=\"button\" class=\"xr-btn xr-btn--text\" style=\"min-height:32px;padding:0;...\" onClick=\"{{ q.toggleSort }}\">Received<svg .../><span class=\"xr-sr\">, {{ q.sortLabel }}. Change order</span></button></th>' in all 10 frame templates. Clip leaves it in the tab order. Rendered in frames 0-3, 8 and 9 (frame-index). In frames 4-7 the table is not rendered."
+  },
+  {
+   "check": "(a) Duplicated accessible name",
+   "result": "CONFIRMED",
+   "detail": "B1-10 script: \"sortLabel: s.desc ? 'Received, newest first' : 'Received, oldest first'\". Name = 'Received' + ', Received, newest first. Change order'. derived/frame-index.json lists 'Received , Received, newest first. Change order' in frames 0, 1, 2, 3, 8 and 9."
+  },
+  {
+   "check": "(a) Affected app widths (< ~808 px)",
+   "result": "CONFIRMED (arithmetic)",
+   "detail": ".xr-page padding is 24px 16px by default, 32px 24px at >=600, 32px 32px at >=1024 and 40px 40px at >=1280. Grid columns are 72px (rail, 1024-1279) and 248px (.is-expanded / >=1280). Content = app-32 (<600), app-48 (600-1023), app-136 (rail), app-312 (expanded 1024-1279), app-328 (>=1280). Content is below 760 when app < 808, or when 1024 <= app < 1072 with the sidebar expanded, or always inside .xr-wrap--form (max 720). Never at 1024-1279 rail (>=888) or >=1280 (>=952). B1-10 frame widths: 1440 (1112), 1080 (944), 720 (672), 375 (343), so frames 3, 8 and 9 are affected. visual.md §6.1 values 343/720/888/712/1112 are correct."
+  },
+  {
+   "check": "(a) B1-13 repeats the defect",
+   "result": "REFUTED",
+   "detail": "B1-13's only thead control (offset 92399, step 08 'F8') sits inside '<div style=\"position:relative;width:432px;height:270px;overflow:hidden;...\" aria-hidden=\"true\" inert=\"true\"><div style=\"width:1440px;transform:scale(0.3);transform-origin:0 0;pointer-events:none\"><div class=\"xr-app\" ...>'. App width 1440 gives content 1112, so the thead is not clipped, and the subtree is inert and aria-hidden. B1-13 is not in frame-index.json. START-HERE Known exception 1, B8-03, B8-05 and B8-08 name only B1-10."
+  },
+  {
+   "check": "(a) Other boards with controls in a clipped thead",
+   "result": "CONFIRMED none",
+   "detail": "A scan of all 128 boards found thead controls only on B1-10 (10) and B1-13 (1, non-defective as above). xr-table 507, xp-ftable 35 and xp-compare 13 have plain headers. Other clip rules: .xr-sr, .xp-sel-label, and .xr-step labels below 600, which are never interactive."
+  },
+  {
+   "check": "(b) Preflight included at 1b090c9",
+   "result": "CONFIRMED",
+   "detail": "1b090c9:v2/apps/web/src/app/globals.css = \"@import 'tailwindcss';\" plus a body rule. postcss.config.mjs uses only '@tailwindcss/postcss'. The installed tailwindcss@4.3.3 index.css starts '@layer theme, base, components, utilities;' and holds Preflight in '@layer base' (ol/ul list-style:none, replaced elements display:block)."
+  },
+  {
+   "check": "(b) Disposition without Preflight works in Tailwind 4",
+   "result": "CONFIRMED with caveats",
+   "detail": "tailwindcss@4.3.3 package.json exports './theme.css' and './utilities.css' (utilities.css = '@tailwind utilities;'). '@import \"tailwindcss/theme.css\" layer(theme); @import \"tailwindcss/utilities.css\" layer(utilities);' is the supported way to drop Preflight. Caveats: the layer-order statement lives only in @xr/ui index.css, so order depends on CSS chunk order (repeat it in globals.css), and @import...layer() plus url() rebasing through @tailwindcss/postcss still needs the spike visual.md already lists."
+  },
+  {
+   "check": "(c) Token count 65 and categories",
+   "result": "CONFIRMED",
+   "detail": "xr-foundation.css :root has 65 custom properties: font 2, colour 38, space 11, radius 4, elevation 3, motion 4, layout 3. handoff/tokens.css also has 65."
+  },
+  {
+   "check": "(c) Only 11 tokens read via var()",
+   "result": "CONFIRMED (wording issue)",
+   "detail": "var() reads across the 8 sheets: --xr-font-sans, --xr-font-mono, --xr-focus, --xr-focus-dark, --xr-e1..e3, --xr-dur-1..3 and --xr-ease, plus the local non-root --xr-tabs-bg (xr-workspace.css). The claims 'every colour ... literal' and 'only --xr-font-sans is a real swap point' contradict this list."
+  },
+  {
+   "check": "(c) Container-query blocks and @media",
+   "result": "CONFIRMED",
+   "detail": "89 @container blocks: foundation 12, public 44, workspace 10, learning 8, assess 5, govern 5, vendor 4, admin 1. The only @media rule is '@media (prefers-reduced-motion: reduce)' in xr-foundation.css. 10 :has() rules. !important: foundation 8, public 21. Total 124,181 bytes. All 8 sheets and 19 SVGs match SHA256SUMS.txt."
+  },
+  {
+   "check": "(c) Inline style attribute count",
+   "result": "CONFIRMED 24,319 (Understand 23,140 refuted)",
+   "detail": "grep -o 'style=' across the 128 boards gives 24,319, with 1,129 distinct values and 16 templated. 155 cropped frames and 1,037 'min-height: 900px' match. visual.md §0 still quotes 23,140."
+  },
+  {
+   "check": "(d) Component inventory grounded in boards",
+   "result": "CONFIRMED with citation slips",
+   "detail": "58 rows / 56 to build / 42 in Phase 0 recount correctly. Every listed class exists in the v46 CSS and on at least one board; PF-01's xr-table-sortbar, xr-th-sort and xr-th-text are documented product additions. 0 <meter>, progressbar, combobox, switch, role=tooltip, 'Load more' or 'Next page'. 'Toast' appears only under board 04 'Never'. No third-party kit is proposed. Several cited source boards do not draw the listed class (see corrections). ErrorSummary's xw-errsum is not on the cited boards 03, 09b, 10 or 12."
+  },
+  {
+   "check": "(e) Responsive claims (Menu below 1024 app width, rail, full sidebar)",
+   "result": "CONFIRMED",
+   "detail": "@container xr-app (max-width:1023.98px) draws the drawer (min(320px,86%), scrim). At min-width:1024px the grid is 72px, 248px when .is-expanded, and .xr-menu-btn/.xr-top-title are hidden. 1024-1279 rail tooltips. At min-width:1280px the grid is 248px, 72px when .is-rail. xg-dlg applies below 908. navigation.json rule 'Below 1024 px of app width the sidebar becomes a Menu button.' Board 05 menu button: aria-label='Open menu'. The xp row omits the 4 'xp (max-width:1279.98px)' blocks."
+  },
+  {
+   "check": "(e) PF-03/PF-04 positioning inside container (Chromium 152 check)",
+   "result": "CONFIRMED in Chromium",
+   "detail": "Test page in the Browser pane (example.com DOM replaced): a position:fixed child of a 'container:xr-app / inline-size' element stays at top 0 after scrollY 1200, so the container does not capture fixed descendants. A container query matches an element inside a showModal() <dialog> nested in the container. WebKit and Firefox are still to verify, as visual.md says."
+  },
+  {
+   "check": "(f) Offline visual-regression capture",
+   "result": "PARTIAL",
+   "detail": "runtime/README.md: 'The runtime loads React 18.3.1, ReactDOM 18.3.1 and Babel standalone 7.29.0 from unpkg.com. The boards load Public Sans from Google Fonts. Both need internet.' support.js has REACT_SRI, REACT_DOM_SRI and BABEL_SRI (sha384) and sets crossOrigin='anonymous'+integrity (cdnScriptFor). It also honours window.__resources[url]. Interception is feasible, but there is no git remote, no CI config at 1b090c9 and no docker binary, while the plan says 'In CI' and 'One Linux container'. support.js is only copied to a CI scratch folder and is excluded from the product (§10.1): CONFIRMED never shipped."
+  },
+  {
+   "check": "(g) No DEMO banner / developer selector / Slice-1 UI",
+   "result": "PARTIAL",
+   "detail": "No DEMO banner (§11.1). Slice-1 UI excluded (§11.4; places-meter rejected). But §11.2 permits 'Any developer tool ... outside product navigation and builds' and cites B8-03 'The developer switcher stays outside the product (Inventory C.2 \"DEV\")'. This conflicts with the owner constraint 'Do NOT introduce ... a developer-only account selector'."
+  },
+  {
+   "check": "V-1 destructive dialog initial focus on the danger button",
+   "result": "CONFIRMED",
+   "detail": "B2-08 'open: () => { this.gdSet(key, { dlg: 'rm', target: m.id }); focus(pid + '-rm-go'); }' (8 '-rm-go' buttons, xr-btn--danger 'Remove from group'). B2-09 (6) and B2-14 (4): 'Remove course'. B4-07 \"askDel: () => { ...; focus(pid + '-dgo'); }\" (5, 'Delete question'). Board 10 says 'Destructive confirmations use the red button and put initial focus on Cancel'. No other board: the B7-10/B7-12 '-pgo' hits are a Publish dialog id collision."
+  },
+  {
+   "check": "V-2 Cancel style",
+   "result": "CONFIRMED (count fix)",
+   "detail": "In xr-dialog-foot: 397 'Cancel' with xr-btn--secondary, 12 'Keep answering', and 47 keepLabel buttons (not ~30), on 44 boards. 5 'Cancel' with xr-btn--text, all on board 10 (3 <dialog> elements). Board 10 text: 'Action order: Cancel first (quiet)'."
+  },
+  {
+   "check": "V-3 role=menu on B3-07",
+   "result": "CONFIRMED (two frames)",
+   "detail": "'<div class=\"xr-menu\" role=\"menu\" aria-label=\"Account\">' in frame 1 'Entry · account menu (Rahul has VR)' and frame 2 'Entry hidden · no AR / VR / MR formats'. Board 03 uses aria-haspopup=\"true\". Board 05 uses aria-controls. 844 product instances use aria-expanded only."
+  },
+  {
+   "check": "V-5 sticky vs static decision panel",
+   "result": "CONFIRMED (count fix)",
+   "detail": "Exact class-token scan: static xr-dpanel+xg-static = 71 (B6-03 6, B6-04 5, B6-07 6, B6-11 9, B6-12 2, B6-13 1, B6-14 12, B7-05 8, B7-09 6, B7-10 6, B7-11 2, B7-12 8), not 65. Sticky = 69, including B1-11 17, B2-09 6, B3-11 5, B4-05 5, B4-09 5, and B7-09 2 + B7-10 1. B8-03: 'the decision panel is static (Batch-6 rule)'."
+  },
+  {
+   "check": "V-10 decision IDs in product copy",
+   "result": "CONFIRMED (count fix)",
+   "detail": "HTML-parser scan of text nodes inside .b1-frame, excluding doc-*/b1-* furniture inside frames: 298 text instances, 17 distinct strings, 25 boards (B5-03…B7-12). IDs: T-14 76, T-29 47, T-28 47, T-11 33, T-06 18, T-08 18, T-25 18, T-26 16, T-30 15, D3 14, T-09 10, T-31 4. 316 counts ID mentions. 'Licence figures … (T-06). A plan can't be amended … (T-08)' appears 18x, not 36x."
+  },
+  {
+   "check": "V-4 error summaries 115/30/47",
+   "result": "NUMBERS CONFIRMED, CHARACTERISATION REFUTED",
+   "detail": "192 xw-errsum: 115 linked + tabindex; 30 tabindex-only with plain '<li>{{ e.t }}</li>' (B2-05 16, B2-07 5, B2-14 4, B3-08 5); 47 on B5-03/04/05/07/08/09 with '<ul class=\"xv-miss\">…<button type=\"button\" class=\"xr-btn xr-btn--text\" onClick=\"{{ m.go }}\">{{ m.where }}</button>'. The last group are actionable 'missing items' summaries, not unlinked ones, and every one of those boards also draws a linked xw-errsum (e.g. B5-03 id=\"Cn-err\" tabindex=\"-1\" with <a href=\"{{ e.href }}\">)."
+  },
+  {
+   "check": "V-7 header Request access target",
+   "result": "CONFIRMED",
+   "detail": "B1-01: 3 x '<a class=\"xr-btn xr-btn--on-dark xp-access\" href=\"B1-06-Selection.dc.html\">'. navigation.json: 'Request access → PU-08'."
+  },
+  {
+   "check": "Nav config per role, rules, active state",
+   "result": "CONFIRMED",
+   "detail": "Board 06 script raw[] (labels, icon keys, sample counts) = navigation.json roles = visual.md §4.1. aria-current='page' on Institutions (B7-03), My courses (B2-12), Marking (B4-09), Review queue (B6-03). Board 08 marks nothing current."
+  },
+  {
+   "check": "Global overrides when all 8 sheets load; load order",
+   "result": "CONFIRMED",
+   "detail": "Only xr-only selectors outside foundation: .xr-choice.is-off (public), .xr-table .xr-id (workspace), .xr-dpanel .xr-status (govern, admin). B8-07: 'xr-foundation → public → workspace → learning → assess → vendor → govern → admin (load order)'. 23 boards link all 8."
+  },
+  {
+   "check": "PF-06 sticky public bottom bar under .xp{overflow:hidden}",
+   "result": "CONFIRMED need (not conditional)",
+   "detail": "Chromium 152 test: with .xp{overflow:hidden} a 'position:sticky;bottom:0' child stayed in flow (top 2000 at viewport 768). With overflow:clip it stuck at 728 (viewport bottom)."
+  },
+  {
+   "check": "Repo facts cited",
+   "result": "CONFIRMED",
+   "detail": "E-19 text, ARCHITECTURE §14 'no scenario selector, no demo clock, no stand-in controls' and §16 'Tailwind CSS v4 wired through PostCSS', boundary-matrix '@xr/ui': [..., 'next', 'next/*', ...], createPlaywrightConfig with a single 'Desktop Chrome' project, web playwright.config booting the API, axe-core 4.13.0 only via eslint-plugin-jsx-a11y in pnpm-lock, PROJECT_CONTEXT 'Protected assets' and D-12, and the foundation layout.tsx body classes."
+  },
+  {
+   "check": "Cascade layering model (per-sheet layers)",
+   "result": "RISK FOUND",
+   "detail": "A static scan of rule pairs that share properties, where an earlier sheet has higher specificity and the subject classes co-occur on board elements, found 15 candidates. The realistic one: xr-foundation '.xr-btn[disabled],.xr-btn[aria-disabled=\"true\"]{...color:#5C6389}' (0,2,0) vs xr-govern '.xg-del{color:#B42318}' (0,1,0), where per-sheet layers make the later layer win regardless of specificity. A single shared layer reproduces the boards' unlayered cascade."
+  }
+ ],
+ "corrections": [
+  {
+   "severity": "major",
+   "location": "visual.md lines 22, 563, 565, 600, 712 (expected deviations), 871 (VD-04); summary 'B1-10 sort fix'",
+   "problem": "Claims B1-13 (SA-02 step) repeats the B1-10 invisible-focus defect and asks the owner to approve an expected baseline deviation on B1-13.",
+   "evidence": "B1-13-Flow-Continuity.dc.html offset ~84,140: step 08 thumbnail '<div style=\"position:relative;width:432px;height:270px;overflow:hidden;…\" aria-hidden=\"true\" inert=\"true\"><div style=\"width:1440px;transform:scale(0.3);transform-origin:0 0;pointer-events:none\"><div class=\"xr-app\" …>'. App width 1440 gives content 1440-248-80 = 1112, at least 760, so '.xr-table thead' is not clipped, and inert/aria-hidden removes the button from focus. B1-13 is absent from derived/frame-index.json. START-HERE Known exception 1, B8-03 'Open finding — B1-10 at 375' and B8-08 name only B1-10.",
+   "correction": "Delete 'B1-13 (SA-02 step) repeats it.' (line 563). Change lines 22/565 to 'controls inside a <thead> are drawn on B1-10 (10) and B1-13 (1); B1-13's is a 1440-px inert, aria-hidden thumbnail, so it is not clipped and not focusable; the defect is drawn only on B1-10 frames 3, 8, 9'. Remove B1-13 from the §9.1 expected-deviation list, from §7.1 'Copy and placement' and from VD-04."
+  },
+  {
+   "severity": "major",
+   "location": "visual.md §3.2 ErrorSummary row (line 294), spot-check line 23, §12 V-4 (line 852), VD-21 (line 888), §9.1 expected deviations",
+   "problem": "ErrorSummary evidence is mis-cited and mis-characterised. (1) The cited Batch-0 boards 03/09b/10/12 never draw xw-errsum: 03 and 09b draw the summary as 'xr-notice xr-notice--err role=\"alert\"' with a list of links, and 10/12 only state rules. Yet the component is 'built and baselined in Phase 0 from its Batch-0 specimen'. (2) The '47 with neither links nor tabindex on B5-03…B5-09' are not unlinked: each item has a button that navigates to the missing field or step. Normalising them to anchors would change a drawn interaction.",
+   "evidence": "03-Core-Components: '<div class=\"xr-notice xr-notice--err\" role=\"alert\" …><span class=\"xr-notice-title\">Two things need fixing before you can continue</span><ul style=\"margin: 4px 0 0; p…'. 09b: '<span class=\"xr-notice-title\">One thing needs fixing</span><a href=\"#ar8-e\">Enter a full e-mail address</a>'. xw-errsum class appears only on B2-05…B7-11 (192 instances, 25 boards). B5-03: '<div class=\"xw-errsum\" role=\"alert\"><div><strong>{{ n.missText }}</strong><ul class=\"xv-miss\">…<button type=\"button\" class=\"xr-btn xr-btn--text\" style=\"min-height:36px\" onClick=\"{{ m.go }}\">{{ m.where }}</button>'. All 47 such instances have ul.xv-miss + button, and the same boards also draw a linked page summary ('id=\"Cn-err\" tabindex=\"-1\" … <a href=\"{{ e.href }}\">'). The truly unlinked set is 30 (B2-05 16, B2-07 5, B2-14 4, B3-08 5: '<li>{{ e.t }}</li>' with tabindex=-1).",
+   "correction": "Change the ErrorSummary source boards to the product boards that draw xw-errsum (e.g. B2-05, B3-06, B4-04, B5-03, B6-09) plus rules from 10/12/B8-07. Add variance V-13: 'Batch-0 specimen draws the summary as xr-notice--err (03, 09b); product boards draw xw-errsum (192)', with an owner pick of one emitted class (recommend xw-errsum) and the Phase-0 baseline taken from a product board, not board 03. Replace '77 of 192 do not link' with '30 of 192 (B2-05, B2-07, B2-14, B3-08) list errors without navigation. The 47 B5 instances are a drawn \"missing items\" summary that navigates by button (ul.xv-miss) and must be kept as drawn; only their missing tabindex=-1/focus-on-submit is a variance.' Rescope VD-21 to the 30, and add a separate decision on focus for the B5 pattern."
+  },
+  {
+   "severity": "major",
+   "location": "visual.md §9.1 steps 1-4, 'Environment' (lines 686-694); §13 VD-18",
+   "problem": "The reference-capture plan cannot run as described in this environment and leaves its offline inputs unspecified. It runs 'In CI' inside 'One Linux container: the official Playwright image', but the repo has no CI and the machine has no container runtime. It never says where the vendored React/ReactDOM/Babel/Public Sans files come from or live. It also misses that the SRI-protected CDN scripts are loaded crossOrigin=anonymous, so an intercepted response without CORS headers will be blocked.",
+   "evidence": "'git -C /Users/mymac/Desktop/AR-VR remote -v' is empty. No .github/workflows or other CI file at 1b090c9 (git ls-tree). 'which docker' gives 'no docker' (also user memory: 'no Docker/psql'). runtime/README.md: '…from unpkg.com. The boards load Public Sans from Google Fonts. Both need internet.' runtime/support.js: 'var REACT_SRI = \"sha384-DGyLxAyjq0f9…\"', 'REACT_DOM_SRI', 'BABEL_SRI', and 'function cdnScriptFor(url, sri) { const res = window.__resources; … return typeof v === \"string\" && v ? { src: v } : { src: url, integrity: sri }; }', which sets 's.integrity = …; s.crossOrigin = \"anonymous\"'.",
+   "correction": "In §9.1 add explicit prerequisites and fallbacks. (i) The runner is an owner decision inside VD-18 (hosted CI or a local Linux container runtime). Until one exists, capture the board reference and the product screen in the same Playwright run on the same machine, so OS rasterisation cancels out, and keep board captures as run artefacts, not committed cross-OS baselines. (ii) Store vendored react@18.3.1/umd/react.production.min.js, react-dom@18.3.1 UMD, @babel/standalone@7.29.0/babel.min.js and the Public Sans woff2 in a test-only tools folder outside every product package and outside @xr/ui 'files'. Fetch them once with owner approval and verify them against the sha384 values in support.js. (iii) Have route.fulfill return 'Access-Control-Allow-Origin: *' with correct content-type, or document the alternative of setting window.__resources via addInitScript (support.js honours it, but it bypasses SRI)."
+  },
+  {
+   "severity": "major",
+   "location": "visual.md §11 item 2 (line 831)",
+   "problem": "Leaves room for a developer account/role switcher 'outside product navigation and builds' with a 'recorded exception', citing B8-03. The owner's binding constraint forbids introducing a developer-only account selector, and owner constraints outrank boards. The cited 'recorded exception' (understand/repo-baseline.json#conflictsWithV46, ARCHITECTURE §14) concerns mock services and stand-in controls, not a developer selector.",
+   "evidence": "Task binding constraints (owner, 9 Oct 2026): 'Do NOT introduce a generic DEMO banner, a developer-only account selector, or an unrelated SaaS design system.' B8-03 text: 'Institution sign-in + e-mail sign-in; no account switcher (B1-09). The developer switcher stays outside the product (Inventory C.2 \"DEV\").' 1b090c9:v2/docs/ARCHITECTURE.md §14: 'no scenario selector, no demo clock, no stand-in controls in V2'.",
+   "correction": "Reword §11.2 to: 'No developer-only account or role selector is introduced in any build or tool. Role entry is only through the B1-09 sign-in (institution or e-mail) against typed mock identities from the sample world (BC10). Automated tests establish sessions programmatically through the VD-17 test-only seam, never through UI.' Add a §12 row flagging B8-03 'The developer switcher stays outside the product' as superseded by the owner constraint, for the owner to acknowledge."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §2.2 index.css sketch and 'Why use layers' (lines 107-119); §2.4 globals.css",
+   "problem": "Putting each of the 8 sheets in its own layer does more than 'preserve the B8-07 internal order'. A later sheet's lower-specificity rule then beats an earlier sheet's higher-specificity rule, which the boards (unlayered sheets) never do, so verbatim CSS no longer yields verbatim cascade. Also, the layer-order statement exists only in @xr/ui index.css, so the order of utilities depends on CSS chunk order.",
+   "evidence": "Static pair scan of the 8 sheets (rules with shared properties whose subject classes co-occur on board elements) found 15 inversion candidates. The realistic one: xr-foundation.css '.xr-btn[disabled],.xr-btn[aria-disabled=\"true\"]{background:#EEF0F8;border-color:#E1E4F3;color:#5C6389;…}' (0,2,0) vs xr-govern.css '.xg-del{color:#B42318}' (0,1,0). The boards draw 'xr-btn xr-btn--text xg-del' (31x), and the product busy state sets aria-disabled. Unlayered gives grey; with xr.foundation < xr.govern it stays red.",
+   "correction": "Import all 8 verbatim sheets into ONE layer in B8-07 order, e.g. '@layer theme, xr.v46, xr.product, utilities;' then '@import \"./v46/xr-foundation.css\" layer(xr.v46); … @import \"./v46/xr-admin.css\" layer(xr.v46);'. That reproduces the boards' cascade exactly while product and utilities still win. Repeat the identical '@layer …;' statement as the first line of apps/web/src/app/globals.css so the order holds whichever file is emitted first."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §2.3 PF-06 (line 161), §6.3 (line 524)",
+   "problem": "PF-06 is written as conditional ('only if the build shows…'). The CSS already guarantees that the public bottom bar cannot stick to the viewport, so it is a confirmed need.",
+   "evidence": "xr-public.css '.xp{container:xp / inline-size;position:relative;…;overflow:hidden}' and '.xp-bottombar{position:sticky;bottom:0;…}'. Chromium 152 test in the Browser pane: with overflow:hidden the sticky bar stayed in flow (top 2000 px, viewport 768), and with overflow:clip it stuck at 728 (viewport bottom).",
+   "correction": "Change PF-06 to 'CONFIRMED need: .xp{overflow:clip} (or overflow-x:clip) in xr.product so .xp-bottombar sticks to the viewport below 1024 xp. Verify in WebKit/Firefox.' Drop 'only if'."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §10 decision IDs (lines 812-821), §12 V-10 (line 858), VD-10 (line 877), deliverable summary",
+   "problem": "'316 instances' counts ID matches, not text instances; one example count is doubled; and T-08 is missing from the ID list.",
+   "evidence": "Independent html.parser scan of text nodes inside .b1-frame (excluding in-frame doc-*/b1-* furniture): 298 instances of 17 distinct strings on 25 boards. 'Licence figures are shown as provided — how licences are counted is still open (T-06). A plan can't be amended …(T-08)' occurs 18 times and carries two IDs, which explains 316 = 298 + 18. ID tallies: T-14 76, T-29 47, T-28 47, T-11 33, T-06 18, T-08 18, T-25 18, T-26 16, T-30 15, D3 14, T-09 10, T-31 4.",
+   "correction": "Write '298 text instances (316 ID mentions) of 17 distinct strings on 25 boards'. Change the T-06 example from x36 to x18 and note it also carries T-08. Add T-08 to 'IDs seen'. Update V-10 and VD-10 accordingly."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §6.4 static panels (line 529); §5.3 Cancel variance (line 459); §3.3 Tabs/V-6 (line 854); §3.1 StatusPill (line 266); §8 Loading (line 651)",
+   "problem": "Several counts are wrong.",
+   "evidence": "Exact class-token scan: xr-dpanel+xg-static = 71 (B6-03 6, B6-04 5, B6-07 6, B6-11 9, B6-12 2, B6-13 1, B6-14 12, B7-05 8, B7-09 6, B7-10 6, B7-11 2, B7-12 8). keepLabel secondary buttons in xr-dialog-foot = 47 (B5-03…B5-09), and board 10 has 3 <dialog> elements with 5 '--text' Cancel buttons. nav.xw-hubtabs = 67 instances on 13 boards (B2-12, B2-13, B2-14, B3-01, B3-02, B3-07, B3-12, B3-13, B4-05, B4-06, B4-11, B4-14, B4-15); board 03 and 09b draw the hub tabs as role=\"tablist\". xr-status modifiers = 6 tones + --live (7 in total). xr-skel appears on 27 boards.",
+   "correction": "Static panels 65 → 71. 'about 30 keepLabel' → 47; 'board 10's 5 dialogs' → 'board 10's 5 Cancel buttons (3 dialogs)'. V-6 hub tabs '(41)' → '67 nav.xw-hubtabs on 13 boards, including the B4-05/B4-06/B4-11 assessment hubs; Batch-0 03/09b draw them as role=tablist'. StatusPill '7 tones + Live' → '6 tones + Live'. Skeleton boards 28 → 27."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §1.1 (line 53)",
+   "problem": "Internal contradiction. It lists --xr-focus and --xr-focus-dark (colours), the elevations, durations, ease and font-mono as read via var(), then says 'Every colour … is written as a literal' and 'Only --xr-font-sans is a real swap point'. It also omits the local custom property --xr-tabs-bg.",
+   "evidence": "var() targets across the 8 sheets: --xr-dur-1..3, --xr-e1..3, --xr-ease, --xr-focus, --xr-focus-dark, --xr-font-mono, --xr-font-sans (11 :root tokens) plus --xr-tabs-bg (xr-workspace.css 'linear-gradient(to right,var(--xr-tabs-bg) 45%,…)'), which is not a :root token.",
+   "correction": "Write: 'Except for the two focus colours, every colour, space, radius and layout size is a literal, so changing those tokens changes nothing on screen. The 11 var()-read tokens are live swap points; board 02 names --xr-font-sans as the designated one. --xr-tabs-bg is a local, non-token custom property; product --xr-x-* names must not collide with it.'"
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §0 item 4 (line 34) and §2.5 heading (line 216)",
+   "problem": "It keeps quoting the Understand-stage 23,140 figure, which this verification refutes.",
+   "evidence": "grep -o 'style=' over canvas-v46/project/*.dc.html = 24,319 (1,129 distinct values, 16 templated). visual.md line 218 already reports 24,319.",
+   "correction": "Use 24,319 in §0 item 4 and the §2.5 heading, and note 'Understand stage reported 23,140 (superseded)'."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §4.4/§3.4 AccountMenu (line 330), §12 V-3 (line 851)",
+   "problem": "Two problems. The variance cites only B3-07 frame 1, and 'Not role=menu (board 12)' is presented as a board quote, which it is not. The account-button ARIA variance between Batch-0 and product boards is also not reported.",
+   "evidence": "B3-07 role=\"menu\" in frame 1 'Entry · account menu (Rahul has VR)' AND frame 2 'Entry hidden · no AR / VR / MR formats'. Board 12 text: 'Account menu Enter opens · Tab moves through items · Esc closes and returns focus to the button' (no 'role=menu' statement). xr-acct-btn variants: board 03 'aria-expanded aria-haspopup=\"true\"' (implies a menu popup), board 05 'aria-expanded aria-controls', and 844 product instances on 85 boards with 'aria-expanded' only.",
+   "correction": "Cite B3-07 frames 1 and 2. Rephrase as 'disclosure pattern inferred from board 12's keyboard spec (Tab between items) and board 05 markup'. Add board 03's aria-haspopup=\"true\" to V-3. State that the component keeps aria-controls (board 05) as a non-visual completion over the 844 product instances."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §3 inventory 'Source boards' column (lines 262-345); §2.3 PF-01 class names",
+   "problem": "Some listed classes are not drawn on the boards cited for that row. Also, the PF-01 additions use the v46 'xr-' namespace, while T-4 deliberately uses '--xr-x-' so product additions are not mistaken for v46.",
+   "evidence": "Board scan: xa-order is on B4-05/B4-15 (not B4-07). a.xr-row-link is on 05/07 only (not 03/09a). xp-more: B1-01/02/03/05. xp-reason and xp-statushead: B1-08. xa-q: B4-04/B4-06/B4-12. xl-steps: B3-04/B3-06. xw-steps3: B2-12. xp-steps4: B1-01. xp-split/xp-sumcard/xp-bottombar: B1-06 (not B1-07). xp-formfoot: B1-07/B1-08. xw-table-flush: B2-02/03/06/08. xd-gn: B7-01/B7-12. xw-apanel: B2-09. xr-table-sortbar, xr-th-sort and xr-th-text are on no board and in no sheet.",
+   "correction": "Add the drawing boards to each row (IconButton +B4-05; Rows: 05, 07; Link +B1-01/B1-05; Notice +B1-08; Textarea +B4-12; Stepper +B1-01, B2-12, B3-04; GuidedFlowLayout +B1-06; FormFooter +B1-07; DataTable +B2-02; Avatar/CountBadge +B7-01; DecisionLayout +B2-09). Rename the PF-01 classes to xr-x-table-sortbar, xr-x-th-sort and xr-x-th-text, or state explicitly that product-added classes keep the xr- prefix, and add them to the markup-contract allow-list."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §0 item 5 (lines 35-40)",
+   "problem": "It says five fixes are 'built in from Phase 0', but three of them depend on undecided owner items.",
+   "evidence": "§13: VD-09 designed motion 'UNRESOLVED (Implement … or ship without)'. VD-16 skip link on public/focused shells 'PROVISIONAL'. VD-11 gold sidebar ring 'PROVISIONAL'. Only B1-10 is owner-mandated (START-HERE BC13).",
+   "correction": "Mark each item with its status: B1-10 CONFIRMED (BC13); viewport-fixed overlays CONFIRMED need; gold ring PROVISIONAL (VD-11); skip link PROVISIONAL (VD-16); designed motion UNRESOLVED (VD-09, not built until decided)."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §2.2 Packaging, last paragraph (line 133); PF-02",
+   "problem": "It says the foundation sheet sets the body classes 'min-h-screen antialiased'. It sets antialiasing only. The public shell gets no min-height, so short public pages show the grey body below the white .xp footer.",
+   "evidence": "xr-foundation.css 'body{margin:0;background:#F4F5FB;color:#12173F;font-family:var(--xr-font-sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}' has no min-height. '.xp{…background:#FFFFFF;…}' has no min-height either, and 98 of the B1 '.xp' frames carry no min-height.",
+   "correction": "Say the foundation sets antialiasing only. Extend PF-02 to 'div.xr-app and div.xp: min-height:100dvh' (or keep a body min-height:100dvh), and record the effect on public baselines."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §7.1 'Where it happens' and test 1 (lines 561-610); §6.1 table",
+   "problem": "The affected widths are given only by example (768, 1024 expanded). There is no exact range and no boundary tests.",
+   "evidence": "Padding and grid arithmetic from xr-foundation.css ('.xr-page{padding:24px 16px 48px}', '@container xr-app (min-width:600px){ .xr-page{padding:32px 24px 56px} }', '(min-width:1024px){ .xr-shell{grid-template-columns:72px …} .xr-shell.is-expanded{grid-template-columns:248px …} … .xr-page{padding:32px 32px 64px} }', '(min-width:1280px){ … 248px … .xr-page{padding:40px 40px 72px} }') gives labelled rows for app < 808 and for 1024 <= app < 1072 with the sidebar expanded.",
+   "correction": "State the exact ranges: 'content < 760 when app < 808 (drawer), or 1024 <= app < 1072 with the sidebar expanded, or always in .xr-wrap--form; never at 1024-1279 rail or >= 1280'. Add 807/808 and 1071/1072 (expanded) cases to e2e/a11y/datatable-sort.spec.ts."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §6.1 container table (lines 496-500)",
+   "problem": "The table leaves out drawn container rules.",
+   "evidence": "xr-public.css has 4 '@container xp (max-width:1279.98px)' blocks: '.xp-in{padding:0 40px}', '.xp-hero-h{font-size:54px}', '.xp-grid--4{grid-template-columns:repeat(2,…)}', '.xp-xhead…/.xp-xgrid,.xp-xbody{grid-template-columns:minmax(0,1fr) 340px}'. xr-workspace.css has '@container xr-content (min-width:600px) and (max-width:1059.98px)' and '(min-width:800px) and (max-width:1059.98px)' for .xw-apanel.",
+   "correction": "Add to the xp row 'below 1280: inner padding 40, hero 54 px, 4-up grids to 2, experiment detail two-column'. Add to the xr-content row '600-1059 / 800-1059: assign panel (xw-apanel) grid under the table'."
+  },
+  {
+   "severity": "minor",
+   "location": "visual.md §9.1 'Product capture' (lines 696-699)",
+   "problem": "The product capture uses viewport heights 768/812/1024 with '.xr-app{min-height:100dvh}', while every board frame's .xr-app carries the canvas 'min-height: 900px'. Short screens therefore differ in image height, and toHaveScreenshot fails on size before any pixel comparison.",
+   "evidence": "1,037 inline 'min-height: 900px' on .xr-app/.xr-shell (e.g. B1-10 '<div class=\"xr-app\" style=\"min-height: 900px; …\">'). PF-02 replaces it with 100dvh.",
+   "correction": "For board-parity captures, set the viewport height to 900, or neutralise the board min-height in the harness alongside the existing '.b1-frame{height:auto!important}' injection. Keep the 768/812/1024 heights for reach and keyboard suites only."
+  }
+ ]
+}

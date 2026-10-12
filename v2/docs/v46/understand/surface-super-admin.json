@@ -1,0 +1,2946 @@
+{
+  "surface": "Super Admin",
+  "sources": {
+    "screens": "design/handoff-v46/canvas-v46/project/handoff/screens.json (SA-01…SA-25: 18 designed, 7 not designed)",
+    "navigation": "design/handoff-v46/canvas-v46/project/handoff/navigation.json role 'Super Admin' baseRoute /admin; primary: Overview · Requests · Institutions · Content (tabs: Updates · All content) · Academic structure · Platform roles · Operations (tabs: Device transfers · Support · Access ending) · Help (foot); reachedFrom: Request decision · Institution detail · Release or hold · Content record · Area / course record · Role holder · Device transfer decision · Support report",
+    "flows": "design/handoff-v46/canvas-v46/project/handoff/flows.json steps A-3 (SA-02 → SA-03, REQ-0042 Under review → Approved — payment required (external) · Access active (internal)), A-4 (requester payment → Access active, ACC-0107), B-1 (SA-07 Assign Institute Admin, 'Nothing is sent (T-11)'), F-3 (SA-10 → SA-11, UPD-0005 Waiting for your decision → Released · On hold · (Lift hold → waiting)), F-4 (live 1.2 → 1.3 on Release), Device-3 (SA-18 → SA-19, DTR-0018 Forwarded → Approved, approve only T-32)",
+    "entities": "design/handoff-v46/canvas-v46/project/handoff/entities.json records REQ, INST, ACC, SACC, PER, UPD, EXP, SUB, AREA / CRS, ROLE, DTR, SUP (+ business rules: Published ≠ access; Correction Release / Hold: Super Admin only — never called “Publish”; Device transfer approve only)",
+    "openDecisions": "design/handoff-v46/canvas-v46/project/handoff/open-decisions.json (T-02…T-36 register, OD-B7-01…15; 0 frontend build blockers)",
+    "stakeholder": "ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md STK31-07, -08, -09, -19, -20, -21, -22, -24, -25, -28, -38, -39, -40, -41, -42",
+    "inventory": "~/Downloads/XR_Final_Frontend_Product_Inventory_v3.md §J (SA register J.1, behaviour J.2, records J.3) and M-1 / M-2"
+  },
+  "boardsRead": [
+    "B1-10-SA-Requests.dc.html",
+    "B1-11-SA-Decision.dc.html",
+    "B1-13-Flow-Continuity.dc.html (SA steps 08–10 + timeline)",
+    "B3-11-SA-Device-Transfers.dc.html",
+    "B7-00-Index.dc.html",
+    "B7-01-SA-Overview.dc.html",
+    "B7-02-Institutions.dc.html",
+    "B7-03-Institution-Detail.dc.html",
+    "B7-04-Pause-Effects.dc.html",
+    "B7-05-Content-Updates-Release-Hold.dc.html",
+    "B7-06-All-Content.dc.html",
+    "B7-07-Academic-Structure.dc.html",
+    "B7-08-Platform-Roles.dc.html",
+    "B7-09-Operations.dc.html",
+    "B7-10-Critical-States.dc.html",
+    "B7-11-Flow-6-Release-and-Hold.dc.html",
+    "B7-13-Change-Log.dc.html",
+    "B7-12-Responsive-Proof.dc.html (grep / frame-index only)",
+    "Supporting (grep): B1-14-Change-Log, B8-01, B8-03, B8-06, B8-07, B8-08, 09a, 09b, 10-Dialogs, xr-foundation.css, xr-admin.css"
+  ],
+  "frameCounts": {
+    "B1-10": 10,
+    "B1-11": 17,
+    "B1-13": "not in frame-index (3 SA steps read from markup)",
+    "B3-11": 8,
+    "B7-01": 4,
+    "B7-02": 7,
+    "B7-03": 10,
+    "B7-04": "4 (1 SA + 3 reference frames)",
+    "B7-05": 12,
+    "B7-06": 9,
+    "B7-07": 9,
+    "B7-08": 9,
+    "B7-09": 15,
+    "B7-10": 16,
+    "B7-11": "9 (2 SA + 7 other roles)",
+    "B7-12": 32
+  },
+  "screens": [
+    {
+      "id": "SA-01",
+      "title": "Overview",
+      "screenType": "page",
+      "proposedRoute": "/admin",
+      "recommendedRoute": "/admin",
+      "routeNotes": "Keep. Workspace root. Loading and 'Nothing is waiting' are states of this route, not routes.",
+      "navPlace": "Sidebar Overview",
+      "archetype": "AR-1",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar: Overview · Requests [count badge = requests Under review, e.g. '3, 3 requests under review'] · Institutions · Content · Academic structure · Platform roles · Operations; Help at foot; Menu button <1024px app width; Collapse menu; account menu 'Arjun Mehta, Super Admin'; breadcrumbs 'You are here')",
+        "PageHeader(overline 'Super Admin · Arjun Mehta', H1 'Overview', status line '15 items waiting across 8 groups · 23 Oct 2026')",
+        "OverviewFigures(exactly two numbers, xd-figs, section aria-label 'Platform at a glance': '4 Active institutions — Access active or ending soon · 1 paused · 1 awaiting payment'; '13 Published experiments — Live in the catalogue today')",
+        "AttentionGroup(H2 title + count chip xd-gn + 'Open <list>' link; ≤4 rows; group omitted when empty)",
+        "AttentionRow(xr-row: title + sub line + one action link: Open / Review / Assign / Assign scope; action drops under text <600px)",
+        "EmptyState(H2 'Waiting on you', H3 'Nothing is waiting', body)",
+        "LoadingSkeleton(skeleton groups + role=status 'Loading what is waiting…')"
+      ],
+      "states": [
+        "default — B7-01 frame 0 'SA-01 Overview · 1440 · 23 Oct 2026': 'Eight groups, each with at most four rows and one way to open the full list. Two figures only. Every row opens the page where it is handled.' Groups in order: Requests 3 · Corrections waiting for your release decision 1 · Device transfers 2 · Support reports 4 · Access ending within 15 days 2 · Institutions without an Institute Admin 1 · Stuck content 1 · Role holders without scope 1",
+        "empty — B7-01 frame 1 'Nothing is waiting' ('A calm, credible empty state — the two figures stay.'); also B7-10 frame 15 '16 · Overview — nothing is waiting'. Copy: 'Requests, corrections to release, device transfers, support reports, ending access, institutions without an Institute Admin, stuck content and role holders without scope appear here when they need you.'",
+        "loading — B7-01 frame 2 'Loading' ('Skeleton groups; the status is announced.'), role=status 'Loading what is waiting…'",
+        "mobile 375 — B7-01 frame 3 'Mobile 375' ('Single column; figures stack; every row keeps its action.'); B7-12 frames 8–11 at 1440/1024/768/375",
+        "group-omitted — annotation: 'A group with nothing in it is left out.'",
+        "failed — not shown"
+      ],
+      "actions": [
+        "Open Requests → SA-02 (navigate)",
+        "Row 'Open: REQ-0058 · Godavari Institute of Technology' (also REQ-0040, REQ-0038) → board links B1-10 (SA-02 list); caption says every row opens the page where it is handled — record-level target SA-03 is INFERRED",
+        "Open Updates → SA-10",
+        "Row 'Review: UPD-0005 · Distillation Column 1.2 → 1.3' → board links B7-05 (SA-10/SA-11); SA-11 for the record is INFERRED",
+        "Open Device transfers → SA-18",
+        "Row 'Review: DTR-0016 · Neha Kulkarni · VR' / 'Review: DTR-0018 · Rahul Verma · VR' → board links B7-09 (SA-18/SA-19); SA-19 INFERRED",
+        "Open Support → SA-20",
+        "Row 'Open: SUP-0207 / SUP-0209 / SUP-0211 / SUP-0213 …' → board links B7-09 (SA-20/SA-21); SA-21 INFERRED",
+        "Open Access ending → SA-22",
+        "Row 'Open: BITS Pilani — Hyderabad Campus · ends 31 Oct 2026' / 'Open: Konark Polytechnic · ends 2 Nov 2026' → board links B7-09 (SA-22)",
+        "Open Institutions → SA-06",
+        "Row 'Assign: Sahyadri Institute of Engineering' → board links B7-03 (SA-07)",
+        "Open All content → SA-12",
+        "Row 'Open: SUB-0085 · DC Motor Speed Control · EEE ZC341' → board links B7-06 (SA-12/SA-13)",
+        "Open Platform roles → SA-16",
+        "Row 'Assign scope: Dr K. Iyer · Academic Reviewer' → board links B7-08 (SA-16/SA-17)",
+        "No data-changing action on this screen (read-only aggregation)"
+      ],
+      "outboundLinks": [
+        "Open Requests → SA-02",
+        "Open: REQ-… → SA-02 (board) / SA-03 (inferred)",
+        "Open Updates → SA-10",
+        "Review: UPD-0005 → SA-10/SA-11",
+        "Open Device transfers → SA-18",
+        "Review: DTR-… → SA-18/SA-19",
+        "Open Support → SA-20",
+        "Open: SUP-… → SA-20/SA-21",
+        "Open Access ending → SA-22",
+        "Open: <institution> · ends … → SA-22",
+        "Open Institutions → SA-06",
+        "Assign: Sahyadri → SA-07",
+        "Open All content → SA-12",
+        "Open: SUB-0085 → SA-12/SA-13",
+        "Open Platform roles → SA-16",
+        "Assign scope: Dr K. Iyer → SA-16/SA-17"
+      ],
+      "records": [
+        "REQ",
+        "UPD",
+        "DTR",
+        "SUP",
+        "ACC",
+        "INST",
+        "SUB",
+        "ROLE",
+        "EXP"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-01-SA-Overview.dc.html frames 0–3 (captions above); B7-10 frame 15; B7-12 frames 8–11; B7-00 'Screen and state register' row SA-01 (AR-1; eight groups ≤4 rows; two figures; nothing waiting; loading; 375)."
+    },
+    {
+      "id": "SA-02",
+      "title": "Requests",
+      "screenType": "page",
+      "proposedRoute": "/admin/requests",
+      "recommendedRoute": "/admin/requests",
+      "routeNotes": "Keep. Search, Status, Type, Internal or external and the Received sort are live filters on one list; INFERRED recommendation: reflect them as query params (?q=&status=&type=&route=&sort=received-desc|received-asc) so a filtered list is linkable. 'More filters' open/closed is UI state, not a route.",
+      "navPlace": "Sidebar Requests (badge: count of Under review requests)",
+      "archetype": "AR-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar: Overview · Requests [count badge = requests Under review, e.g. '3, 3 requests under review'] · Institutions · Content · Academic structure · Platform roles · Operations; Help at foot; Menu button <1024px app width; Collapse menu; account menu 'Arjun Mehta, Super Admin'; breadcrumbs 'You are here')",
+        "PageHeader(overline 'Super Admin', H1 'Requests', meta 'Institutional access requests sent from the public site. Open one to decide it.')",
+        "FilterToolbar(Batch-0: Search [label 'Search', placeholder 'Reference, institution or contact'] grows; Status select; Type select (class xr-filter-2, hidden <600px content); 'More filters' secondary button with aria-expanded + aria-controls; label becomes 'More filters (1)' when Internal or external is set)",
+        "MoreFiltersPanel(role=group aria-label 'More filters': Type (shown only <600px) + 'Internal or external' select All/Internal/External/Not set yet)",
+        "FilterChip(removable chip per active filter; remove button aria-label 'Remove <chip label>')",
+        "ClearFiltersButton('Clear filters', text button)",
+        "ResultCount(role=status: '7 requests' or 'N of 7 requests')",
+        "DataTable(xr-table; caption visually hidden 'Institutional access requests'; columns Reference (link) · Institution and contact person · Experiments · Type (+ route sub-line) · Received (sortable, aria-sort) · Status; labelled-row mode <760px content via td[data-label]) — MUST include the B1-10 fix: a visible sort control above the rows below 760px, and no focusable control inside the visually hidden thead",
+        "SortHeaderButton('Received' + chevron icon + xr-sr suffix ', Received, newest first. Change order')",
+        "IdLink(reference link is the row's single tab stop; aria-label 'Open request REQ-0042, Godavari Institute of Technology'; row tinted while it holds focus)",
+        "StatusPill(xr-status: Under review=info, Information requested=err, Approved — payment required=wait, Payment not confirmed=wait, Access active=ok)",
+        "NoMatchState(H2 'No requests match these filters' + 'Clear filters')",
+        "EmptyState(H2 'No requests yet', 'Requests that institutions send from the public site appear here.'; toolbar hidden)",
+        "LoadingState(role=status 'Loading requests')",
+        "FailedState(H2 'We couldn’t load the requests', 'Nothing has changed. Try again.', 'Try again')"
+      ],
+      "states": [
+        "default interactive — B1-10 frame 0 'SA-02 Requests · 1440 · interactive' ('Search · Status · Type · More filters (Internal or external) — all live; REQ-0042 opens the decision (board B1-11). Nav count 3 = requests under review.') 7 sample rows REQ-0042…REQ-0036, sorted Received newest first",
+        "more filters open — B1-10 frame 1 'More filters open · Internal or external = External' ('Filter applies at once; the chip shows it; the button counts it.') button 'More filters (1)', chip 'Internal or external: External'",
+        "keyboard focus / selected row — B1-10 frame 2 'Selected / keyboard focus' ('Focus ring on the reference link; the row is tinted while it holds focus.')",
+        "filtered — B1-10 frame 3 'Filtered · Under review' ('The three requests that need a decision.') chip 'Status: Under review'",
+        "no match — B1-10 frame 4 'No match' ('One way back: Clear filters.') chip 'Search: “Narmada”'",
+        "loading — B1-10 frame 5 'Loading' (role=status 'Loading requests')",
+        "failed — B1-10 frame 6 'Failed + retry' ('We couldn’t load the requests' / 'Nothing has changed. Try again.' / Try again)",
+        "empty — B1-10 frame 7 'Empty · no requests yet' (toolbar hidden: showTools=false)",
+        "mobile 375 — B1-10 frame 8 'Mobile 375' ('Search, then Status + More filters; rows stack.') — labelled-row mode; this is where the B1-10 keyboard-focus defect occurs",
+        "mobile 375 more filters open — B1-10 frame 9 'Mobile 375 · More filters open' ('Type and Internal or external stack inside the panel.') chip 'Type: New access'",
+        "sort ascending — script state desc=false → sortLabel 'Received, oldest first', aria-sort 'ascending', up-chevron icon (toggle drawn as live behaviour, not a separate frame)"
+      ],
+      "actions": [
+        "Search input → filters list on reference + institution + contact (case-insensitive contains) — no data change",
+        "Status select (All statuses · Under review · Information requested · Approved — payment required · Payment not confirmed · Access active) → filter; NO 'Declined' option (T-02)",
+        "Type select (All types · New access · Additional licences · Renewal) → filter",
+        "More filters → toggles panel (aria-expanded)",
+        "Internal or external select (All · Internal · External · Not set yet) → filter",
+        "Remove chip (×) → clears that filter",
+        "Clear filters → clears search, status, type, route",
+        "Received sort button → toggles newest first ⇄ oldest first (aria-sort descending/ascending)",
+        "Reference link (e.g. REQ-0042) → SA-03 for that request (canvas: every row links to B1-11 REQ-0042)",
+        "Try again (failed) → reload list"
+      ],
+      "outboundLinks": [
+        "Reference link → SA-03"
+      ],
+      "records": [
+        "REQ"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B1-10-SA-Requests.dc.html frames 0–9 + inline script (RQ sample rows, saView: LBL map, chips, count copy, sortLabel/ariaSort) + annotation 'Columns … Filters … Statuses … Internal or external … Same record'; B1-14 change-log row 1; B8-03 'Open finding — B1-10 at 375'; B8-08 'B1-10 sort button at 375'; START-HERE 'Known exceptions' 1."
+    },
+    {
+      "id": "SA-03",
+      "title": "Request decision",
+      "screenType": "page",
+      "proposedRoute": "/admin/requests/[requestId]",
+      "recommendedRoute": "/admin/requests/[requestId]",
+      "routeNotes": "Keep. Choice, validation, confirm dialog, decided, information-requested, renewal and paused-blocked are states of this route (not sub-routes). 'Go to decision' is an in-page anchor to the decision panel (#decision). SA-09 (content allocation) is merged here as 'Approve a smaller scope' — no separate route.",
+      "navPlace": "Detail (breadcrumb Requests / REQ-0042)",
+      "archetype": "AR-4 (+ DL-1 confirm)",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar: Overview · Requests [count badge = requests Under review, e.g. '3, 3 requests under review'] · Institutions · Content · Academic structure · Platform roles · Operations; Help at foot; Menu button <1024px app width; Collapse menu; account menu 'Arjun Mehta, Super Admin'; breadcrumbs 'You are here')",
+        "DecisionLayout(xr-decide: details ~72% + decision panel ~28% (clamp 260–360px); ≥860px content the panel is position:sticky top 24px (xr-foundation.css); <860px content the panel moves under the details and 'Go to decision' jump link shows at the top)",
+        "PageHeader(overline 'Institutional access request · REQ-0042', H1 institution name, StatusPill, 'Received 2 Oct 2026, 10:14', request type, 'Go to decision' link)",
+        "SummaryFacts(section aria-label 'Summary': Experiments · Licences requested · Access term · Internal or external ['Not set yet' until approval commits it])",
+        "KeyValueList(Organisation and contact person: Institution · Contact person · E-mail · Phone; label-over-value <600px)",
+        "DataTable(What they’re asking for: Experiment (+course) · Formats requested · Published formats) + licences/term line",
+        "TextSection(Existing access; Message from the requester)",
+        "HistoryTimeline(xr-timeline newest first: what · when · who · note)",
+        "FourEventsHelp(<details> open by default: 'What happens after you decide — four separate events' 1 Institution record · 2 Request approval · 3 Payment confirmation — external only · 4 Institutional access activation)",
+        "DecisionPanel(xr-dpanel, H2 'Your decision')",
+        "ErrorSummary(role=alert, title 'Check your decision', bullet list of errors; receives focus on failed submit)",
+        "ChoiceList(radio cards with title + sub; disabled option shows reason)",
+        "RouteChoice(fieldset legend 'Internal or external (required to approve)' + hint)",
+        "FormatCheckboxPills(xp-pills 'Formats to approve')",
+        "NumberInput('Licences to approve', inputMode numeric, aria-invalid)",
+        "Select('Access term' Monthly/Quarterly/Yearly)",
+        "DifferenceNotice(warn notice role=status 'Different from the request' listing 'Formats: WEB, VR → WEB' / 'Licences: 120 → 100' / 'Term: Yearly → Quarterly')",
+        "ReasonTextarea(label varies, hint 'Shown to the requester on their request status.', aria-describedby hint, aria-invalid)",
+        "PendingHint(xr-hint: what is still needed before clicking)",
+        "Button(primary block: 'Approve request' / 'Approve smaller scope' / 'Send request for information')",
+        "ConfirmDialog(DL-1, top-aligned; title 'Approve REQ-0042?' or 'Approve a smaller scope for REQ-0042?'; route-specific bullet list; Close × · Cancel · confirm)",
+        "DecidedPanel(StatusPill + 'Decided by you · 8 Oct 2026, 11:20 · External' + dl aria-label 'Where this request stands' + next-step text + 'Back to requests' secondary block link)",
+        "BlockedNotice(warn role=status 'This institution is paused' + 'View institution' link)",
+        "FormatBadge"
+      ],
+      "states": [
+        "default — B1-11 frame 0 'SA-03 Request decision · REQ-0042 · 1440 · interactive' ('Choose a decision; approving asks for internal / external, then confirms. Smaller scope and Request more information need a reason. Try Approve without a route to see validation.') status Under review; no choice selected",
+        "approve, external chosen — B1-11 frame 1 'Approve · external chosen' ('New institution: the route is required.')",
+        "confirm external (dialog open) — B1-11 frame 2 'Confirm · external' ('Says what approving does — and does not do.') bullets: 'Creates the institution record for Godavari Institute of Technology, classified External.' / 'Approves the request. Its status becomes Approved — payment required.' / 'Institutional access is not activated now. It is activated only after the payment is confirmed.' / 'Students get access only when the institution’s administrator gives it.'",
+        "confirm internal (dialog open) — B1-11 frame 3 'Confirm · internal' ('No payment step; access active on approval.') bullets: 'Approves the request. There is no payment step.' / 'Institutional access is activated now and the access plan is created.'",
+        "approve chosen, route not set — B1-11 frame 4 'Approve chosen · route not set yet' ('Before clicking, the panel says what is still needed.') hint 'Choose internal or external before approving.'",
+        "approve a smaller scope — B1-11 frame 5 'Approve a smaller scope' ('Difference listed; reason required and shown to the requester.') sample: licences 100, reason 'Approved for 100 licences for the first term. You can ask for more once enrolment is confirmed.'",
+        "request more information — B1-11 frame 6 'Request more information' ('Reason required; the request stays open.')",
+        "validation route missing — B1-11 frame 7 'Validation · route missing' ('Message at the top and at the field.') error 'Choose internal or external'",
+        "validation smaller scope — B1-11 frame 8 'Validation · smaller scope' ('Nothing changed and no reason.') errors 'Change at least one thing, or choose Approve request' + 'Enter the reason for the change'",
+        "decided external — B1-11 frame 9 'Decided · external · Approved — payment required · 1440' ('Record created and request approved; payment waiting; institutional access not active. Summary now shows External. Fixes “Approved undefined”.') stand: Institution record 'Created · 8 Oct 2026, 11:20' · Request 'Approved · External' · Payment 'Waiting — not confirmed' · Institutional access 'Not active'; next 'The requester now sees Continue to payment on their request status. Institutional access is not active until the payment is confirmed.'",
+        "decided external, later payment confirmed — B1-11 frame 10 'External · later · payment confirmed → access activated' ('Four events, four lines; plan ACC-0107.') history 'Institutional access activated · 8 Oct 2026, 15:05 · Access plan ACC-0107 created.' + 'Payment confirmed · 8 Oct 2026, 15:05'; status Access active",
+        "decided internal — B1-11 frame 11 'Internal · decided' ('Same request decided as internal: no payment, access activated on approval (comparison only).') stand Payment 'Not needed (internal)', Institutional access 'Active · ACC-0107'; next 'Institutional access is active. The institution administrator can now give students access.'",
+        "information requested — B1-11 frame 12 'Information requested · waiting' ('Reply lifecycle OPEN (T-03).') status Information requested; 'Sent by you · 6 Oct 2026, 09:12'; next 'The request stays open. Your question is on the requester’s request status.'",
+        "renewal, scope not adjustable — B1-11 frame 13 'Renewal · scope not adjustable' ('REQ-0038 · internal route already set; smaller scope unavailable (T-07, D8).') smaller option disabled: 'Not available for a renewal — the term continues the current plan.'; route locked hint 'Internal or external: Internal — set when this institution was first approved.'",
+        "institution paused, blocked — B1-11 frame 14 'Institution paused · blocked' ('REQ-0040 · no decision controls while paused.') notice 'This institution is paused — Requests from a paused institution can’t be decided. You can decide this one once the pause ends.' + View institution",
+        "mobile 375 — B1-11 frame 15 'Mobile 375 · full page' ('Panel moves under the content; “Go to decision” at the top jumps to it.')",
+        "renewal 1060 — B1-11 frame 16 'Renewal · 1060' ('REQ-0038 · existing plan shown under Existing access.') Existing access 'Access plan ACC-0081 · these 3 experiments · 860 licences · current term ends 31 Oct 2026.'",
+        "flow continuity — B1-13 steps 09 'Super Admin · Decision' ('Approves and sets the route: External.') and 10 'Super Admin · Decided' ('The record reads Approved — payment required; nothing is active yet.')",
+        "loading / failed / not found — not shown on B1-11"
+      ],
+      "actions": [
+        "Decision radio 'Approve request' ('Approve what they asked for.')",
+        "Decision radio 'Approve a smaller scope' ('Fewer formats, fewer licences or a shorter term, with a reason.') [disabled for Renewal: 'Not available for a renewal — the term continues the current plan.']",
+        "Decision radio 'Request more information' ('The request stays open. Your question is shown to the requester.')",
+        "Internal or external radio — 'Internal — BITS campus or programme' ('No payment step. Institutional access is activated when you approve.') / 'External institution' ('Approval, then payment. Institutional access is activated only after the payment is confirmed.') [shown only when the institution has no route yet (new institution); otherwise locked read-only line]",
+        "Approve request → validate (choice; route required for a new institution) → DL-1 confirm 'Approve REQ-0042?' → 'Approve request' → External: REQ Under review → Approved — payment required; INST created (first approval of a new institution) classified External; ACC NOT created; institutional access not active. Internal: REQ Under review → Access active; INST created; ACC created (access activated, no payment) [confirm dialog] [no reason]",
+        "Approve smaller scope → requires ≥1 real difference (formats kept / licences / term), ≥1 format, whole-number licences, and a reason → DL-1 confirm 'Approve a smaller scope for REQ-0042?' → 'Approve smaller scope' → same transitions as Approve; history 'Request approved with a smaller scope · External' + reason; requester sees difference + reason [confirm dialog] [reason required]",
+        "Send request for information → requires reason ('What do you need from the requester? (required)') → NO dialog → REQ Under review → Information requested; none of the four events happen; question shown on requester's status [reason required]",
+        "Cancel / Close × on confirm dialog → back to panel, nothing changes",
+        "Back to requests (decided panel) → SA-02",
+        "View institution (paused notice) → SA-07",
+        "Go to decision → jumps to panel (in-page)",
+        "Blocked: no decision controls while the institution is paused (REQ-0040)",
+        "Absent by design: Decline (T-02/R21), manual 'mark paid' (R06), create institution directly, amend a plan (D8)"
+      ],
+      "outboundLinks": [
+        "Breadcrumb Requests → SA-02",
+        "Back to requests → SA-02",
+        "View institution → SA-07"
+      ],
+      "records": [
+        "REQ",
+        "INST",
+        "ACC",
+        "EXP"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B1-11-SA-Decision.dc.html frames 0–16 + inline script (RC sample records gdv/ren/kon; dcView: choices, routes, validate(), statusFor, hist, stand, next, confirm lines) + annotation 'Layout (AR-4, B2 A2 kept) … Before approval completes … Not here'; B1-13 steps 08–10 + 'Timeline of REQ-0042'; B1-14 rows 2 and 4; flows.json Flow A step 3."
+    },
+    {
+      "id": "SA-06",
+      "title": "Institutions",
+      "screenType": "page",
+      "proposedRoute": "/admin/institutions",
+      "recommendedRoute": "/admin/institutions",
+      "routeNotes": "Keep. Status tabs are role=tablist buttons filtering one list (not links) — INFERRED: carry the selected tab and search as query params (?status=all|active|ending-soon|paused|awaiting-payment|no-institute-admin&q=) rather than segments.",
+      "navPlace": "Sidebar Institutions",
+      "archetype": "AR-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(overline 'Super Admin', H1 'Institutions', meta 'Institutions are created only by approving a request — there is no direct creation (T-09)'; NO primary 'Create' action)",
+        "SectionHeader(H2 'Every institution' + meta 'Created when a request is approved')",
+        "StatusTabs(role=tablist aria-label 'Show', each tab label + count: All 7 · Access active 4 · Ending soon 2 · Paused 1 · Awaiting payment 1 · No Institute Admin 1; tabs scroll sideways on phone)",
+        "SearchField(label 'Search institutions', placeholder 'Institution, access plan or Institute Admin')",
+        "ResultCount(role=status 'N of 7 institutions') + ClearFiltersButton (shown when filtered)",
+        "DataTable(columns Institution [name + '<External|Internal> · ACC-0107 · 1 course · 1 experiment' or 'No access plan yet · 1 experiment requested'] · Status · Institute Admin [name or 'Not assigned' + flag 'Needs one'] · Access ends ['Ends 7 Oct 2027' / 'Ended 15 Oct 2026' / '—'] · Action 'Open'; labelled blocks <760px)",
+        "StatusPill(Access active=ok, Ending soon=wait, Access paused=paused, Approved — payment required=wait, Access ended=off)",
+        "FlagPill('Needs one' — No Institute Admin is a row flag, not a status)",
+        "NoMatchState(H3 'No institutions match', 'Try another name or clear the filters.', 'Clear filters')",
+        "LoadingSkeleton(skeleton rows; count announced when loaded)"
+      ],
+      "states": [
+        "default — B7-02 frame 0 'SA-06 Institutions · 1440 · 23 Oct 2026 · interactive' ('Search and the status tabs are live. “Open” shows the institution in the detail frame beside it (same record).') 7 institutions: Godavari (Access active), BITS Pilani — Hyderabad Campus (Ending soon, Internal), Konark (Ending soon), Sahyadri (Access active, no IA), Vizag (Approved — payment required), Deccan (Access paused), Malnad (Access ended)",
+        "tab No Institute Admin — B7-02 frame 2 'Tab · No Institute Admin' ('Sahyadri: access active, nobody to give students access.')",
+        "tab Paused — B7-02 frame 3 'Tab · Paused' ('Deccan, paused 12 Oct 2026.')",
+        "no match — B7-02 frame 4 'No match' ('One way back: Clear filters.') search 'Narmada'",
+        "loading — B7-02 frame 5 'Loading' ('Skeleton rows; the count is announced when it loads.')",
+        "mobile 375 — B7-02 frame 6 'Mobile 375' ('Rows become labelled blocks; tabs scroll sideways.'); B7-12 frames 16–19",
+        "tab semantics — 'Access active' tab counts Access active + Ending soon (script match: f==='active' → active||ending); 'No Institute Admin' = no IA and status active/ending/paused",
+        "empty / failed — not shown"
+      ],
+      "actions": [
+        "Status tab → filter list (no data change)",
+        "Search → filter on name + access plan + Institute Admin",
+        "Clear filters → reset tab to All and search to empty",
+        "Open (row) → SA-07 for that institution (aria-label 'Open <institution>')",
+        "Absent by design: Create institution (T-09 / SA-08), amend access plan (T-08)"
+      ],
+      "outboundLinks": [
+        "Open → SA-07"
+      ],
+      "records": [
+        "INST",
+        "ACC"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-02-Institutions.dc.html frames 0, 2–6 + inline script IX (insts, stw/stk maps, F tabs, match(), row plan text) + annotation 'Statuses … Rows … Not here'; B7-00 row SA-06 and scope reconciliation 'Disagreement · SA-06 filters … All five offered'; B7-12 frames 16–19."
+    },
+    {
+      "id": "SA-07",
+      "title": "Institution detail",
+      "screenType": "page",
+      "proposedRoute": "/admin/institutions/[institutionId]",
+      "recommendedRoute": "/admin/institutions/[institutionId]",
+      "routeNotes": "Keep. Assign / Pause / Restore are dialogs and the student-status override is an inline panel — states, not routes. Institution id must exist from first approval (Vizag has no access plan yet), so do not key the route by plan id.",
+      "navPlace": "Detail (breadcrumb Institutions / <institution>)",
+      "archetype": "AR-3 + DL-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(overline '<External|Internal> institution · access plan ACC-0107', H1 name, StatusPill, 'Institute Admin: <name|Not assigned>')",
+        "ActionBar(xw-actions: 'Assign Institute Admin' primary [only when no IA and status Access active/Ending soon/Access paused] · 'Pause access' secondary [Access active or Ending soon] · 'Restore access' [Access paused] · link 'Open request REQ-xxxx')",
+        "FlashStatus(p role=status, receives focus after an action)",
+        "Notice(role=status 'Access paused' + 'Paused on 12 Oct 2026 · “<reason>”' + 'Students can’t open experiments. Everyone’s work is kept.')",
+        "Notice(role=status 'No Institute Admin' + 'Nobody at this institution can give students access until you assign one.')",
+        "KeyValueList(Institution summary: Status · Internal or external · Institute Admin · Access plan line · People) + note 'The Institute Admin is assigned once access is active.' when awaiting payment",
+        "DataTable(Access plans — 'Read-only': Plan · Experiments and formats (FormatBadges) · Licences · Term (+dates) · Status) + note 'Licence figures are shown as provided — how licences are counted is still open (T-06). A plan can’t be amended here; changes come through a new request (T-08).'",
+        "AttentionRows(Needs attention: row text + link button 'Requests' / 'Operations' / 'Operations › Access ending', or buttons 'Assign Institute Admin' / 'Restore access'; empty 'Nothing needs attention.')",
+        "ReportTable(Institution report: Experiment · Students with access · By format [FormatBadge + 'N started · N completed']; note 'Per format, never added up into one figure. Student feedback is not shown here (T-25).'; empty 'No activity yet — access hasn’t started.')",
+        "PeopleList(ul aria-label 'Students': name, student ID, StatusPill Active/Inactive, 'Change status' button aria-label 'Change status for <name>')",
+        "InlinePanel(xw-inline-panel override: label 'Reason for changing the status to <Inactive|Active>', hint 'An override — kept in the history. The Institute Admin normally changes this.', textarea, error, 'Change to <X>' primary sm + 'Cancel')",
+        "HistoryTimeline('History — Newest first')",
+        "FormDialog(Assign Institute Admin: title 'Assign the Institute Admin for <inst>', body 'They manage people, groups and student access for this institution. Nothing is sent from here (T-11).', fields Name + Work e-mail (type email), Cancel · Assign · busy 'Assigning…')",
+        "ReasonDialog DL-2(Pause: title 'Pause access for <inst>?', body, 'Reason — kept in the history', Cancel · 'Pause access' · busy 'Pausing…')",
+        "ReasonDialog DL-2(Restore: title 'Restore access for <inst>?', body, reason, Cancel · 'Restore access' · busy 'Restoring…')",
+        "FormatBadge",
+        "StatusPill"
+      ],
+      "states": [
+        "Access active (default) — B7-03 frame 0 'SA-07 Godavari Institute of Technology · Access active · 1440 · interactive' ('Pause access (reason) → paused banner for its people; Restore access (reason) → active again. People: change one student’s status with a reason (override).'); also B7-02 frame 1 'SA-07 Institution detail · 1440 · interactive' ('Opened from the list. Pause, Restore and Assign Institute Admin work here; every result is kept in the history.'); B7-04 frame 0",
+        "No Institute Admin — B7-03 frame 1 'No Institute Admin — Sahyadri' ('The first action is Assign Institute Admin.')",
+        "Access paused — B7-03 frame 2 'Access paused — Deccan' ('Reason and date first; Restore access is the action.')",
+        "Approved — payment required — B7-03 frame 3 'Approved — payment required — Vizag' ('No access plan yet; no Institute Admin until access is active; no status action.') planLine 'No access plan yet — it is created when the payment for REQ-0037 is confirmed'",
+        "Access ended — B7-03 frame 4 'Access ended — Malnad' ('Read-only: no Pause, no Restore.'); B7-10 frame 8 '9 · Access ended — no status action' ('Ended access comes back only through a renewal request.')",
+        "Ending soon — B7-03 frame 5 'Ending soon — BITS Pilani, Hyderabad' ('Internal; renewal REQ-0038 under review.') Pause access still offered",
+        "Assign IA validation (dialog) — B7-03 frame 6 'Assign Institute Admin · validation' ('Both errors show at once, on the fields.') 'Enter the person’s name' + 'Enter an e-mail address like name@institution.edu.in'",
+        "Pause reason required (dialog) — B7-03 frame 7 'Pause · reason required' ('Pause access with no reason shows the error.'); B7-10 frame 7 '8 · Pause access — reason required' ('Reversible; everyone’s work is kept.')",
+        "Student status override reason required (inline) — B7-03 frame 8 'Student status override · reason required' ('Inline, beside the student it changes.')",
+        "mobile 375 — B7-03 frame 9 'Mobile 375 · Konark Polytechnic' ('Sections stack; tables become labelled rows; actions wrap.'); B7-12 frames 20–23",
+        "success flashes (script) — 'Access paused. Everyone at <inst> now sees the paused banner.' / 'Access restored. <inst> can work again.' / '<name> is now the Institute Admin for <inst>. Nothing is sent from here — how they first sign in is still open (T-11).' / '<student> is now inactive.'",
+        "busy — 'Assigning…' / 'Pausing…' / 'Restoring…' (aria-disabled)",
+        "loading / failed / not found — not shown"
+      ],
+      "actions": [
+        "Assign Institute Admin → FormDialog (Name required; Work e-mail required + format) → 'Assign' → INST: no Institute Admin → Institute Admin assigned; history 'Institute Admin assigned — <name>' note '<email> · Arjun Mehta'; Nothing is sent (T-11) [dialog] [no reason] [offered only when no IA and status Access active / Ending soon / Access paused; not for Approved — payment required (OD-B7-11)]",
+        "Pause access → DL-2 dialog (reason required) → 'Pause access' → INST/ACC Access active|Ending soon → Access paused; history 'Access paused by Arjun Mehta' + “reason”; people see paused banner (B7-04) [confirm dialog] [reason required] [offered only for Access active / Ending soon]",
+        "Restore access (header button or Needs-attention row button) → DL-2 dialog (reason required) → 'Restore access' → Access paused → status before the pause (script prev: active or ending); history 'Access restored by Arjun Mehta' + “reason” [confirm dialog] [reason required] [only when Access paused]",
+        "Change status (per student) → inline panel (reason required) → 'Change to Inactive|Active' → PER Active ⇄ Inactive (override); history 'Student status changed — <name> → Inactive' + “reason” · Arjun Mehta [inline] [reason required]",
+        "Open request REQ-xxxx → SA-03 (board link B1-11)",
+        "Needs attention 'Requests' → SA-02; 'Operations' → SA-18 (DTR row) ; 'Operations › Access ending' → SA-22",
+        "No status action for Approved — payment required or Access ended (annotation 'Status handling allowed')",
+        "Absent by design: plan amendment (T-08), licence arithmetic (T-06), student feedback (T-25), Create institution (T-09), terminate/delete institution"
+      ],
+      "outboundLinks": [
+        "Breadcrumb Institutions → SA-06",
+        "Open request REQ-xxxx → SA-03",
+        "Needs attention 'Requests' → SA-02",
+        "Needs attention 'Operations' → SA-18",
+        "Needs attention 'Operations › Access ending' → SA-22"
+      ],
+      "records": [
+        "INST",
+        "ACC",
+        "REQ",
+        "PER",
+        "SACC",
+        "RUN",
+        "DTR"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-03-Institution-Detail.dc.html frames 0–9 + inline script IX/IXI (canPause=isActive, canRestore=isPaused, noIA(), iaLater, doAssign/doPause/doRestore validation + flashes, stu override) + annotation 'Sections … Assign Institute Admin … Pause / Restore (DL-2) … Status handling allowed … Not here'; B7-02 frame 1; B7-04 frame 0; B7-10 frames 7–8; B7-12 frames 20–23; B7-00 row SA-07; OD-B7-11."
+    },
+    {
+      "id": "SA-10",
+      "title": "Content updates (awaiting release)",
+      "screenType": "tab",
+      "proposedRoute": "/admin/content/updates",
+      "recommendedRoute": "/admin/content/updates",
+      "routeNotes": "Keep. The Content sub-navigation is a <nav aria-label='Content'> of LINKS (Updates · All content, aria-current=page), so URL segments are right. The sidebar 'Content' item and the breadcrumb 'Content' both point at the Updates board (B7-05), so /admin/content should redirect to /admin/content/updates. The status tabs (Waiting for you · On hold · Released) are role=tablist buttons → INFERRED query param ?show=waiting|on-hold|released.",
+      "navPlace": "Sidebar Content › Updates (tab)",
+      "archetype": "AR-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(overline 'Super Admin', H1 'Content', meta 'Corrections raised by the Content Manager and approved by the Academic Reviewer wait here for release')",
+        "SubNavTabs(nav aria-label 'Content': Updates · All content — links with aria-current=page)",
+        "SectionHeader(H2 'Corrections to published content' + meta 'Approved by the Academic Reviewer')",
+        "StatusTabs(role=tablist aria-label 'Show': 'Waiting for you n' · 'On hold n' · 'Released n')",
+        "DataTable(Update [name '· 1.2 → 1.3' + 'UPD-0005 · CHE ZG513'] · Status [StatusPill + when line] · Action)",
+        "StatusPill(Waiting for your decision=wait, On hold=paused, Released=ok)",
+        "RowAction('Review' primary when waiting, otherwise 'Open'; aria-label 'Review UPD-0005 Distillation Column · 1.2 → 1.3')",
+        "EmptyState(H3 per tab: 'Nothing is waiting for a release decision' / 'No update is on hold' / 'No update has been released yet' + 'Corrections reach you after the Academic Reviewer approves them.')"
+      ],
+      "states": [
+        "default — B7-05 frame 0 'SA-10 Content › Updates · 1440 · 23 Oct 2026' ('Corrections approved by the Academic Reviewer. “Review” opens the decision below (same record).') tabs 'Waiting for you 1 · On hold 1 · Released 2'; row UPD-0005 'Approved by the Academic Reviewer on 27 Aug 2026'",
+        "on hold tab — B7-05 frame 2 'Updates · On hold tab' ('UPD-0004 and UPD-0005 on hold.') rows 'On hold since 20 Aug 2026'",
+        "released tab — B7-05 frame 3 'Updates · Released tab' ('Released corrections stay listed with the date.') 'Released on 5 Aug 2026'",
+        "nothing waiting — B7-05 frame 4 'Updates · nothing waiting' ('Calm state when nothing is approved yet.')",
+        "flow step — B7-11 frame 0 '3 · Super Admin · Arjun Mehta · Content › Updates (SA-10)' ('“Review” opens the decision frame.')",
+        "loading / failed — not shown"
+      ],
+      "actions": [
+        "Status tab → filter (no data change)",
+        "Review / Open (row) → SA-11 for that update",
+        "Sub-nav 'All content' → SA-12",
+        "Absent by design: any 'Publish' control; the Super Admin sees an update only after the Academic Reviewer approves it"
+      ],
+      "outboundLinks": [
+        "Review / Open → SA-11",
+        "All content → SA-12"
+      ],
+      "records": [
+        "UPD",
+        "EXP"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-05-Content-Updates-Release-Hold.dc.html frames 0, 2–4 + inline script (SA-10 list: FT tabs, E.stw {'awaiting':'Waiting for your decision','hold':'On hold','released':'Released'}, act Review/Open, sNoneText) ; B7-11 frame 0 and step table row 3; flows.json Flow F step 3."
+    },
+    {
+      "id": "SA-11",
+      "title": "Release or hold an update",
+      "screenType": "page",
+      "proposedRoute": "/admin/content/updates/[updateId]",
+      "recommendedRoute": "/admin/content/updates/[updateId]",
+      "routeNotes": "Keep. Waiting / on hold / released / hold-lifted / nothing-to-decide and the three dialogs are states of this route. 'Go to decision' is an in-page anchor.",
+      "navPlace": "Detail (breadcrumb Content / Updates / UPD-0005)",
+      "archetype": "AR-4 + DL-1 (Release, Lift hold) + DL-2 (Hold with reason — OD-B7-01)",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "DecisionLayout(what changes ~74% · decision panel ~26%; panel under details on phone; 'Go to decision' jump)",
+        "PageHeader(overline 'UPD-0005 · Correction to published content', H1 'Distillation Column · 1.2 → 1.3', StatusPill, live line 'Live now: version 1.2 · since 3 Jul 2026' / '· released <date>', 'Go to decision')",
+        "Notice(role=status 'Hold lifted' + 'The hold was lifted on <date>. It is waiting for your decision again.')",
+        "ComparisonTable(xg-cmp, role=table aria-label 'Current and proposed'; 'What changes — Changed fields only'; columns Field · Live now · Proposed; after release Field · Live before · Released + note '“Live before” is the version that was live until the release.'; stacks live-above-proposed <760px)",
+        "TextSection('Why — from the Content Manager' + 'Raised by Kavya Nair, Content Manager · started 25 Aug 2026 · sent for academic review 25 Aug 2026')",
+        "ReviewSummary('Academic review': StatusPill 'Approved' + 'Approved by Prof. A. Menon on 27 Aug 2026' + 'The full review history is below.')",
+        "DataTable('Institutions using it' (sample): Institution · Access · Students · Note) + note 'Release changes the experiment for everyone at once. Nothing here changes any institution’s access.'",
+        "HistoryTimeline('History — Newest first · kept after every decision')",
+        "DecisionPanel(fieldset legend 'Decision': radio 'Release update — The proposed version goes live for everyone.' / 'Hold — The live version stays. You can lift the hold later.'; one button whose label follows the choice: 'Release update' | 'Hold')",
+        "OnHoldPanel(StatusPill 'On hold' + 'On hold since <date> · Arjun Mehta' + “reason” + 'The live version stays as it is.' + 'Lift hold' button + note 'What else a hold affects, and whether it blocks later corrections, is still open (T-28).')",
+        "ReleasedPanel(StatusPill 'Released' + 'Released on <date> · Arjun Mehta' + 'Version 1.3 is live for everyone. The history below keeps the earlier version and every decision.' + link 'Updates')",
+        "ConfirmDialog DL-1(Release: 'Release UPD-0005?' body 'Version 1.3 of Distillation Column goes live for everyone — the public catalogue and every institution that uses it. Version 1.2 is no longer shown.'; Cancel · 'Release update' · busy 'Releasing…'; initial focus on Release update)",
+        "ReasonDialog DL-2(Hold: 'Hold UPD-0005?' body 'Version 1.2 stays live. The update waits until you lift the hold. The Content Manager sees your reason.'; label 'Reason the Content Manager will see'; Cancel · 'Hold' · busy 'Holding…')",
+        "ConfirmDialog DL-1(Lift: 'Lift the hold on UPD-0005?' body 'It goes back to waiting for your decision. Nothing goes live until you release it.'; Cancel · 'Lift hold' · busy 'Lifting…')",
+        "EmptyState(H1 'Release or hold an update', H2 'Nothing to decide', 'This update hasn’t been approved by the Academic Reviewer yet. It reaches you when it is.', link 'Back to Updates')",
+        "StatusPill (with xr-admin.css wrap rule for long statuses inside .xr-dpanel)"
+      ],
+      "states": [
+        "waiting (default) — B7-05 frame 1 'SA-11 Release or hold an update · 1440 · interactive' ('What changes ~74 % · decision panel ~26 %. Release → DL-1 → Released, version 1.3 live. Hold → reason → On hold, version 1.2 stays live. Lift hold → waiting again.'); B7-11 frame 1 '4 · Super Admin · Release or hold (SA-11)' ('Release, Hold, Lift hold — the only place the live version changes.')",
+        "on hold — B7-05 frame 5 'On hold' ('Reason and date first; Lift hold is the only action. Version 1.2 stays live.'); B7-10 frame 2 '3 · On hold — Lift hold only' ('No Release button while held; lifting returns it to “waiting”, never live. Hold effects are open (T-28).')",
+        "released (decided, read-only) — B7-05 frame 6 'Released — decided, read-only' ('“Live before” keeps version 1.2 for the record.'); B7-10 frame 3",
+        "hold lifted — waiting again — B7-05 frame 7 'Hold lifted — waiting again' ('A notice says the hold was lifted; the decision panel is open again. Nothing went live.')",
+        "release dialog open — B7-05 frame 8 'Release · DL-1 open' ('Focus is on Release update; Cancel returns to the panel.'); B7-10 frame 0 '1 · Release (DL-1) — never “Publish”' ('Says exactly what goes live and for whom. Focus is on Release update.')",
+        "hold reason required — B7-05 frame 9 'Hold · reason required' ('Pressing Hold with no reason shows the error on the field.') error 'Add a reason — the Content Manager sees it'; B7-10 frame 1 '2 · Hold — reason required' ('The Content Manager sees the reason. Version 1.2 stays live.')",
+        "nothing to decide — B7-05 frame 10 'Nothing to decide yet' ('The update is still with the Academic Reviewer — it reaches the Super Admin only when approved.'); B7-10 frame 4 '5 · Not approved yet — nothing to decide'",
+        "mobile 375 — B7-05 frame 11 'Mobile 375 · interactive' ('The comparison stacks (live above proposed); the decision panel follows the details; “Go to decision” jumps to it.'); B7-12 frames 0–3 (1440/1024/768/375)",
+        "busy — 'Releasing…' / 'Holding…' / 'Lifting…' (aria-disabled)",
+        "lift-hold dialog open — template drawn on B7-05 (not a captioned frame)",
+        "loading / failed — not shown"
+      ],
+      "actions": [
+        "Choose 'Release update' (default) → button 'Release update' → DL-1 dialog → 'Release update' → UPD Waiting for your decision (CM: Awaiting release decision) → Released; EXP live version 1.2 → 1.3 for public catalogue and every institution; history 'Released by Arjun Mehta — Version 1.3 is live for everyone.' [confirm dialog] [no reason] [only when waiting]",
+        "Choose 'Hold' → button 'Hold' → DL-2 dialog (reason required) → 'Hold' → UPD Waiting → On hold; live version stays 1.2; history 'Put on hold by Arjun Mehta' + “reason” 'Version 1.2 stays live.'; Content Manager sees the reason [confirm dialog] [reason required] [only when waiting]",
+        "Lift hold → DL-1 dialog → 'Lift hold' → UPD On hold → Waiting for your decision; nothing goes live; history 'Hold lifted by Arjun Mehta — Waiting for a decision again. Nothing went live.' [confirm dialog] [no reason] [only when On hold]",
+        "Release while On hold — NOT offered (OD-B7-03): lift first, then release",
+        "Back to Updates (nothing-to-decide) → SA-10; 'Updates' link (released panel) → SA-10",
+        "Absent by design: the word/action 'Publish'; editing the correction; any access change"
+      ],
+      "outboundLinks": [
+        "Breadcrumb Content → SA-10",
+        "Breadcrumb Updates → SA-10",
+        "Back to Updates → SA-10",
+        "Updates (released panel) → SA-10"
+      ],
+      "records": [
+        "UPD",
+        "EXP",
+        "INST",
+        "ACC"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-05-Content-Updates-Release-Hold.dc.html frames 1, 5–11 + inline script (SA-11 decision: saWords, liveLine, relTitle/relBody, holdTitle/holdBody, liftTitle/liftBody, doRel/doHold/doLift, FIELDS name/summary/desc/web/vrref) + annotation 'Release (DL-1) … Hold (reason) … Lift hold (DL-1) … Not decided here … Never'; B7-10 frames 0–4; B7-11 frames 1 and step/branch table; B7-12 frames 0–3; B7-13 OD-B7-01…05."
+    },
+    {
+      "id": "SA-12",
+      "title": "All content & stuck items",
+      "screenType": "tab",
+      "proposedRoute": "/admin/content/all",
+      "recommendedRoute": "/admin/content/all",
+      "routeNotes": "Keep (Content sub-nav link segment). Workflow tabs are role=tablist buttons → INFERRED ?show=all|stuck|in-workflow|published&q=.",
+      "navPlace": "Content › All content (tab)",
+      "archetype": "AR-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(H1 'Content', meta 'Where every experiment is in the workflow, and who can act on it')",
+        "SubNavTabs(Updates · All content)",
+        "Notice(role=status stuck: '1 record stuck — nobody can act' + 'SUB-0085 · DC Motor Speed Control (EEE ZC341). Open the record to see why.' + button 'Show stuck records')",
+        "Notice(role=status 'A correction is waiting for your release decision' + 'UPD-0005 · Distillation Column 1.2 → 1.3 — approved by the Academic Reviewer.' + link 'Open Updates')",
+        "SectionHeader(H2 'Every experiment and submission' + meta 'Read-only · open a record for its history')",
+        "StatusTabs(role=tablist 'Show': All 19 · Stuck 1 · In the workflow 6 · Published 13; 'In the workflow' includes stuck)",
+        "SearchField(label 'Search content', placeholder 'Name, reference or course code') + ResultCount('N of 19 records') + ClearFiltersButton",
+        "DataTable(Content [name + '<ref or Published experiment> · <course code>' + FormatBadges] · Workflow status [StatusPill + where line + update tag xw-tag] · Who can act · Action 'Open')",
+        "StatusPill(Published=ok, Stuck — nobody can act=err, With Academic Reviewer=wait, With Content Manager=wait, Returned to vendor=info)",
+        "Tag(update tag: 'Update UPD-0005 · approved — waiting for your release decision' / 'Update UPD-0004 · on hold' / 'Update UPD-0006 · returned to the Content Manager' — not a link)",
+        "NoMatchState(H3 'No content matches', 'Try another name, reference or course code.', 'Clear filters')"
+      ],
+      "states": [
+        "default — B7-06 frame 0 'SA-12 Content › All content · 1440 · 23 Oct 2026 · interactive' ('Search and the workflow tabs are live. “Open” shows the record in the frame beside it.')",
+        "no match — B7-06 frame 7 'No match' ('One way back: Clear filters.') search 'Heat pump'",
+        "stuck filter — reached via 'Show stuck records' (script showStuck → f='stuck'); not a separately captioned frame",
+        "no stuck records — script noStuck hides the stuck notice (not drawn as a frame)",
+        "loading / empty / failed — not shown"
+      ],
+      "actions": [
+        "Show stuck records → selects the Stuck tab (filter only)",
+        "Open Updates → SA-10",
+        "Tab / search / Clear filters → filter only",
+        "Open (row) → SA-13 for that record",
+        "Absent by design: any edit on published content (M-1)"
+      ],
+      "outboundLinks": [
+        "Open Updates → SA-10",
+        "Open → SA-13",
+        "Sub-nav Updates → SA-10"
+      ],
+      "records": [
+        "SUB",
+        "EXP",
+        "UPD"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-06-All-Content.dc.html frames 0, 7 + inline script CX (rows, stw, stk, upw, F tabs, match, stuckTitle/stuckBody) + annotation 'Statuses … Published = read-only … Move status (override)'; B8-03 terminology fix note; B7-00 row SA-12."
+    },
+    {
+      "id": "SA-13",
+      "title": "Content record (read-only for published content; status override for stuck, non-published records — M-1)",
+      "screenType": "page",
+      "proposedRoute": "/admin/content/records/[recordId]",
+      "recommendedRoute": "/admin/content/records/[recordId]",
+      "routeNotes": "Keep. Breadcrumb is 'Content / All content / <name>', so /admin/content/all/[recordId] would also fit, but there is no collision and no strong reason to change. recordId must address both submissions (SUB-0085) and published experiments that have no SUB reference (12 Batch-1 experiments show 'Published experiment') → use an internal id, not the SUB ref.",
+      "navPlace": "Detail (breadcrumb Content / All content / <name>)",
+      "archetype": "AR-3 + DL-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(overline '<ref> · <course code> · <course name>', H1 name, StatusPill, where line)",
+        "FlashStatus(role=status)",
+        "Notice(err/role=status 'Stuck — nobody can act' + '<who>. It has been waiting since <date>.' + link 'Open Platform roles' + button 'Move status (override)' + hint 'Giving an Academic Reviewer EEE ZC341 in Platform roles lets the review continue. Use the override only when that isn’t possible.')",
+        "Notice('Published · read-only. Published content changes only through a correction: Content Manager → Academic Reviewer → your release decision.')",
+        "Notice(update awaiting: 'Update UPD-0005 · approved — waiting for your release decision' + 'Version 1.2 stays live until you release it.' + link 'Open the release decision')",
+        "Notice(update on hold: 'Update UPD-0004 · on hold' + 'Version 2.0 stays live.' + link 'Open Updates')",
+        "Notice(update returned (template only): 'Update UPD-0006 · returned to the Content Manager' + 'Nothing reaches you until the Academic Reviewer approves it.')",
+        "Notice(in workflow: 'In the workflow' + 'Who can act: <who>. Nothing to do here.')",
+        "KeyValueList(Catalogue details — 'Read-only': Summary · Formats · Live version '<ver> · since <date>' · Vendor · Who can act) + H3 Learning outcomes list",
+        "HistoryTimeline('Governance history — Newest first')",
+        "ReasonDialog DL-2(title 'Move SUB-0085 out of review?'; From/To display 'With Academic Reviewer — nobody can act' → 'Returned to vendor — Ritu Sharma · Meridian Virtual Labs can change it and send it again'; note 'An override is recorded with your name and reason. Published is never offered — only the Content Manager publishes.'; 'Reason — kept in the history'; Cancel · 'Move status' · busy 'Moving…')"
+      ],
+      "states": [
+        "stuck (default) — B7-06 frame 1 'SA-13 Content record · stuck · 1440 · interactive' ('Stuck: why nobody can act, a link to Platform roles, and Move status (override) with a reason. Published is never a target.')",
+        "published · update waiting for you — B7-06 frame 2 'Published · update waiting for you' ('Distillation Column: read-only; “Open the release decision” goes to Content › Updates.')",
+        "published · read-only — B7-06 frame 3 'Published · read-only (SUB-0077)' ('Published by the Content Manager on 28 Aug 2026. No edit action anywhere.'); B7-10 frame 5 '6 · Published record — read-only' ('No edit, no override, no catalogue form.')",
+        "in the workflow — B7-06 frame 4 'In the workflow — someone can act' ('With the Academic Reviewer; nothing to do here.') SUB-0086 Flash Distillation",
+        "override reason required (dialog) — B7-06 frame 5 'Override · reason required' ('Move status with no reason shows the error on the field.') error 'Add a reason — it is kept in the history'; B7-10 frame 6 '7 · Override — stuck records only, reason required' ('Moves back to the vendor; Published is never offered.')",
+        "published · update on hold — B7-06 frame 6 'Published · update on hold' ('Boiler Drum Level: version 2.0 stays live.')",
+        "mobile 375 stuck — B7-06 frame 8 'Mobile 375 · stuck record' ('Notice, actions and history stack.'); B7-12 frames 4–7",
+        "moved (after override) — script flash 'SUB-0085 is now with the vendor. Ritu Sharma · Meridian Virtual Labs can act on it.'; status 'Returned to vendor'; where 'Moved back to the vendor on <date> (Super Admin override)' (listed in B7-00 register as 'moved')",
+        "published · update returned — template only (UPD-0006 Induction Motor Loading), not a captioned frame",
+        "loading / not found — not shown"
+      ],
+      "actions": [
+        "Move status (override) [stuck, non-published only] → DL-2 dialog (reason required) → 'Move status' → SUB With Academic Reviewer (stuck) → Returned to vendor; history 'Status moved by Arjun Mehta — override' + “reason” + 'From “With Academic Reviewer” to “Returned to vendor”.' [confirm dialog] [reason required] [the only target drawn is back to the vendor (OD-B7-09); Published never offered]",
+        "Open Platform roles → SA-16 (to give a reviewer the course scope instead)",
+        "Open the release decision → SA-11 (board link B7-05)",
+        "Open Updates (update on hold) → SA-10",
+        "No action for published records (read-only, M-1) or for in-workflow records ('Nothing to do here.')"
+      ],
+      "outboundLinks": [
+        "Breadcrumb Content → SA-10",
+        "Breadcrumb All content → SA-12",
+        "Open Platform roles → SA-16",
+        "Open the release decision → SA-11",
+        "Open Updates → SA-10"
+      ],
+      "records": [
+        "SUB",
+        "EXP",
+        "UPD",
+        "ROLE"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-06-All-Content.dc.html frames 1–6, 8 + inline script CX (isPub/isStuck/isFlow, rUpd*, ovrTitle/ovrFrom/ovrTo, doOvr) + annotation 'Published = read-only … Move status (override) … (OD-B7-09)'; B7-10 frames 5–6; B7-12 frames 4–7; Inventory v3 §J.2 SA-13 (M-1)."
+    },
+    {
+      "id": "SA-14",
+      "title": "Academic structure (areas → courses)",
+      "screenType": "page",
+      "proposedRoute": "/admin/structure",
+      "recommendedRoute": "/admin/structure",
+      "routeNotes": "Keep. Add area / Add course are dialogs (states). No Module layer and no Programme level (binding constraint 2).",
+      "navPlace": "Sidebar Academic structure",
+      "archetype": "AR-2 grouped + AR-8",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(H1 'Academic structure', meta '<n> engineering areas · <n> courses · feeds the public explorer, the catalogue, Vendor course lists and student-import matching', actions 'Add area' + 'Add course')",
+        "FlashStatus(p role=status)",
+        "AreaGroup(H2 area name, description or 'No description yet.', count chip 'n courses', 'Open area' (aria-label 'Open area <name>'))",
+        "CourseRow(course name, platform code chip or 'No platform code yet', 'n published experiments' / 'no published experiments yet', 'Open' (aria-label 'Open <course>'))",
+        "EmptyGroup('No courses yet. Add one to start using this area.')",
+        "Footnote('Platform course codes are maintained by the Content Manager and shown read-only here. Retiring an area or course is not available (D3).')",
+        "FormDialog(Add an engineering area: 'Area name' required, 'Description (optional)', note 'No artwork is added here — who supplies area artwork is still open.'; Cancel · 'Add area' · busy 'Adding…')",
+        "FormDialog(Add a course: 'Course name' required, 'Engineering area' radio list required, 'Description (optional)', note 'The platform course code is added by the Content Manager in Course codes.'; Cancel · 'Add course' · busy 'Adding…')"
+      ],
+      "states": [
+        "default grouped — B7-07 frame 0 'SA-14 Academic structure · 1440 · interactive' ('Grouped by engineering area. Add area / Add course open forms; “Open” shows the record beside it.') 3 areas: Mechanical & Manufacturing (ME ZG523, MEL ZG512, Fluid Mechanics) · Electrical & Electronics (EEE ZC341, EEE ZG512) · Chemical & Process (CHE ZG513)",
+        "add course validation (dialog) — B7-07 frame 7 'Add course · validation' ('Name and area are both required.') errors 'Enter the course name' + 'Choose the engineering area it belongs to'",
+        "course without platform code — B7-07 frame 8 'Course without a platform code — Fluid Mechanics' ('“No platform code yet” — the Content Manager adds it in Course codes.') (row shows 'No platform code yet')",
+        "add area validation — script only: 'Enter the area name' / 'There is already an area called <name>' (no captioned frame)",
+        "success — script flashes 'Area added. Add a course to start using it.' / 'Course added to <area>. It has no platform code yet — the Content Manager adds it in Course codes.'",
+        "responsive — B7-12 frames 12–15 (1440/1024/768/375)",
+        "empty area — template 'No courses yet. Add one to start using this area.' (drawn only after adding an area)",
+        "loading / failed — not shown"
+      ],
+      "actions": [
+        "Add area → dialog (Area name required + unique case-insensitive; description optional) → 'Add area' → AREA created (history 'Area added by Arjun Mehta — No courses yet.') [dialog] [no reason]",
+        "Add course → dialog (Course name required + unique; Engineering area required; description optional) → 'Add course' → CRS created in area with NO platform code (history 'Course added by Arjun Mehta — <area> · no platform code yet.') [dialog]",
+        "Open area → SA-15 (area record)",
+        "Open (course) → SA-15 (course record)",
+        "Absent by design: Retire (D3), Module layer, area artwork upload, editing the platform course code (M-2)"
+      ],
+      "outboundLinks": [
+        "Open area → SA-15 (area)",
+        "Open → SA-15 (course)"
+      ],
+      "records": [
+        "AREA",
+        "CRS",
+        "EXP"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-07-Academic-Structure.dc.html frames 0, 7, 8 + inline script AX (areas, courses, doAddArea/doAddCourse, dupe()) + annotation 'Feeds … Forms … Move rule … Read-only … Not here'; B7-12 frames 12–15; B7-00 row SA-14 (D3 · ND-02 · M-2)."
+    },
+    {
+      "id": "SA-15",
+      "title": "Area / course record",
+      "screenType": "page",
+      "proposedRoute": "/admin/structure/areas/[areaId] · /courses/[courseId]",
+      "recommendedRoute": "/admin/structure/areas/[areaId] and /admin/structure/courses/[courseId]",
+      "routeNotes": "The proposed value is two routes in one string; split into two App Router segments sharing one record component. Key courses by an internal id, not the platform code: a course can exist with 'No platform code yet' (Fluid Mechanics) and the code is written by the Content Manager (M-2, OD-B6-13).",
+      "navPlace": "Detail (breadcrumb Academic structure / <name>)",
+      "archetype": "AR-3 + AR-8 (DL-3 small-edit dialogs; inline move panel)",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(overline 'Course · <area>' or 'Engineering area', H1 name, actions 'Rename' · 'Edit description' · 'Move to another area' (course only))",
+        "FlashStatus(role=status)",
+        "InlinePanel(xw-inline-panel 'Move <course> to another area': blocked → notice 'Can’t move this course' + '<who is filed>. It stays in <area>.' + 'Close'; allowed → radio 'Move to' (other areas) + dependency warning + Cancel · 'Move course' · busy 'Moving…')",
+        "KeyValueList(Course: Engineering area · Description · Platform course code + code chip + 'Read-only · maintained by the Content Manager')",
+        "KeyValueList(Engineering area: Description · Courses list or 'No courses yet') + note 'Areas have no artwork set here, and can’t be retired (D3).'",
+        "KeyValueList('What uses this course' (sample): Published experiments · Institutions with access · Vendors with this course in scope · Faculty mapped to it · Students filed against it) + note 'Because people are filed against it, this course can’t be moved.'",
+        "HistoryTimeline('History — Newest first')",
+        "SmallEditDialog DL-3(Rename course|area: label 'Course name'|'Area name', warning text (aria-describedby), Cancel · 'Save name' · busy 'Saving…')",
+        "SmallEditDialog DL-3(Edit the description of <name>: 'Description' textarea, Cancel · 'Save description' · busy 'Saving…')"
+      ],
+      "states": [
+        "course record (default) — B7-07 frame 1 'SA-15 Course record · 1440 · interactive' ('Rename, Edit description, Move to another area — with what depends on it. The platform course code is read-only.') Process Instrumentation & Control CHE ZG513",
+        "mobile 375 course record — B7-07 frame 2 'Mobile 375 · course record' ('Actions wrap; the record stacks.')",
+        "move blocked — B7-07 frame 3 'Move blocked — ME ZG523' ('People are filed against it: 12 students and a Faculty member at Godavari.'); B7-10 frame 9 '10 · Move blocked — people are filed against the course' ('Says who is filed against it; nothing moves.')",
+        "move allowed — B7-07 frame 4 'Move allowed — Manufacturing Processes' ('Nobody is filed against it; its experiments and the access plan that uses it move with it.')",
+        "area record — B7-07 frame 5 'Engineering area — Chemical & Process' ('Rename and description only. No artwork, no Retire.')",
+        "rename validation (dialog) — B7-07 frame 6 'Rename · validation' ('The same name is refused; the warning says where the name shows.') error 'Enter a different name — this is the current one'",
+        "no platform code — B7-07 frame 8 'Course without a platform code — Fluid Mechanics'",
+        "move validation — script 'Choose the area to move it to' (no captioned frame)",
+        "success — script flashes 'Renamed. The explorer, catalogue and Vendor course lists show the new name.' / 'Description saved.' / '<course> is now in <area>.'",
+        "loading / not found — not shown"
+      ],
+      "actions": [
+        "Rename → DL-3 dialog (name required; must differ from current; unique among courses|areas) → 'Save name' → AREA/CRS name changed; history 'Renamed by Arjun Mehta — Was “<old>”.'; warning: 'The new name shows in the public explorer, the catalogue, Vendor course lists and student-import matching. The platform code <code> and every institution’s own course code stay as they are.' (area: 'Its courses stay in it.') [dialog]",
+        "Edit description → DL-3 dialog (no validation drawn) → 'Save description' → description changed; history 'Description changed by Arjun Mehta' [dialog]",
+        "Move to another area (course only) → inline panel; BLOCKED when students > 0 or Faculty mapped (OD-B7-12); otherwise choose area (required) → 'Move course' → CRS area A → area B; published experiments, institutions’ access and Vendor course lists move with it; history 'Moved by Arjun Mehta — From <A> to <B>.' [inline] [no reason]",
+        "Close (blocked notice) / Cancel → closes panel",
+        "Absent by design: edit platform course code (M-2), Retire (D3), area artwork"
+      ],
+      "outboundLinks": [
+        "Breadcrumb Academic structure → SA-14"
+      ],
+      "records": [
+        "AREA",
+        "CRS",
+        "EXP",
+        "INST",
+        "ACC",
+        "ROLE",
+        "PER",
+        "FCM"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-07-Academic-Structure.dc.html frames 1–6, 8 + inline script AX (uses[], blocked/canMove, blockText, depWarn, renWarn, doRename/doDesc/doMove) ; B7-10 frame 9; B7-12; B7-13 OD-B7-12/13; Inventory v3 §J.2 SA-15 (M-2)."
+    },
+    {
+      "id": "SA-16",
+      "title": "Platform roles (Vendors · Reviewers · Content Managers)",
+      "screenType": "page",
+      "proposedRoute": "/admin/roles?tab=vendors|reviewers|content-managers",
+      "recommendedRoute": "/admin/roles?tab=vendors|reviewers|content-managers",
+      "routeNotes": "Keep. Tabs are role=tablist buttons inside one page (not links), so a query param fits. Default tab not stated on the board (frame 0 shows Reviewers; script default is Vendors) — pick vendors as default and note it.",
+      "navPlace": "Sidebar Platform roles",
+      "archetype": "AR-2 + tabs",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(H1 'Platform roles', meta 'Who can produce, review and publish content — and for what')",
+        "SectionHeader(H2 tab title ('Vendors'|'Reviewers'|'Content Managers') + button 'Register a Vendor'|'Register a Reviewer'|'Register a Content Manager')",
+        "RoleTabs(role=tablist aria-label 'Role': Vendors 2 · Reviewers 2 · Content Managers 1)",
+        "Notice(role=status '<n> holder with no scope — they can’t act on anything yet' + 'Open the holder and assign a scope.')",
+        "DataTable(Role holder [name + '<org> · Registered <date>'] · Can act on ['ME ZG523, MEL ZG512' or flagged 'Nothing — no scope yet'; '<n> scope withdrawn'] · Action 'Open')",
+        "Footnote('Registering doesn’t send an invitation. How a registered person first signs in is still open (T-11).')",
+        "FormDialog(Register a <role>: body 'Role: <role>. They start with no scope — you assign it next. Nothing is sent from here.'; Name · Work e-mail · Organisation all required; Cancel · 'Register' · busy 'Registering…')"
+      ],
+      "states": [
+        "Reviewers tab (default frame) — B7-08 frame 0 'SA-16 Platform roles · Reviewers tab · 1440 · interactive' ('Tabs Vendors · Reviewers · Content Managers. Dr K. Iyer has no scope: flagged on the row and above the table.')",
+        "Vendors tab — B7-08 frame 3 'Vendors tab' ('Anil Shetty: ME ZG523 · 1 scope withdrawn.')",
+        "Register validation (dialog) — B7-08 frame 6 'Register a Vendor · validation' ('Name, work e-mail and organisation are required. Nothing is sent.') errors 'Enter the person’s name' · 'Enter a work e-mail address' · 'Enter the organisation'",
+        "register success — script: opens the new holder with flash '<name> is registered as <role>. They have no scope yet — assign one so they can act. Nothing is sent from here.'",
+        "Content Managers tab — data only (Kavya Nair, All experiments); list frame not captioned",
+        "empty / loading / failed — not shown"
+      ],
+      "actions": [
+        "Role tab → switches list (no data change)",
+        "Register a <role> → dialog (Name required; Work e-mail required + format 'Enter an e-mail address like name@organisation.com' + unique 'Someone is already registered with this e-mail address'; Organisation required) → 'Register' → ROLE holder created with no scope; history 'Registered as <role> — Arjun Mehta · no scope yet'; nothing sent (T-11) [dialog]",
+        "Open (row) → SA-17",
+        "Absent by design: invitation e-mail, SSO set-up, identity-origin rule (T-11)"
+      ],
+      "outboundLinks": [
+        "Open → SA-17"
+      ],
+      "records": [
+        "ROLE"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-08-Platform-Roles.dc.html frames 0, 3, 6 + inline script RX (holders, tabs, eff, doReg validation) + annotation 'Scope … Without scope … Withdraw (DL-2) / Restore … Not here'; B7-00 row SA-16 (T-11)."
+    },
+    {
+      "id": "SA-17",
+      "title": "Role holder (assign / withdraw scope)",
+      "screenType": "page",
+      "proposedRoute": "/admin/roles/[holderId]",
+      "recommendedRoute": "/admin/roles/[holderId]",
+      "routeNotes": "Keep. No collision with /admin/roles?tab=… (query param). Assign scope is a dialog; withdraw and restore are inline panels.",
+      "navPlace": "Detail (breadcrumb Platform roles / <name>)",
+      "archetype": "AR-3 + DL-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(overline '<Role> · <organisation>', H1 name, action 'Assign scope')",
+        "FlashStatus(role=status)",
+        "Notice(role=status 'No scope — can’t act on anything yet' + 'Assign a scope so they can act: all experiments, a course, or one experiment.')",
+        "ScopeSection(H2 'Can act on' + effect sentence (per role) + ul aria-label 'Scope': '<scope text>' + 'Since <date>' + 'Withdraw' (aria-label 'Withdraw <scope>'))",
+        "InlinePanel(withdraw: label 'Reason for withdrawing <scope>', hint 'Kept in the history. They stop seeing it straight away.', textarea, error, 'Withdraw scope' + 'Cancel')",
+        "WithdrawnList(H3 'Withdrawn', ul aria-label 'Withdrawn scope': '<scope>' + 'Withdrawn <date> · “<reason>”' + 'Restore')",
+        "InlinePanel(restore confirm: 'Restore <scope>? They can act on it again straight away.' + 'Restore scope' + 'Cancel')",
+        "KeyValueList(Role holder: Role · Organisation · Work e-mail · Registered '<date> · by Arjun Mehta') + note 'How they first sign in is still open (T-11) — nothing is sent from here.'",
+        "HistoryTimeline('History — Newest first')",
+        "FormDialog(Assign scope to <name>: help text; radio 'What can they act on?' All experiments ('Everything on the platform, now and later.') / A course ('Every experiment in one course.') / One experiment ('Only the experiment you choose.'); conditional Course select ('Choose a course' + 5 courses) or Experiment select ('Choose an experiment' + 13 experiments); Cancel · 'Assign scope' · busy 'Assigning…')",
+        "ScopeChip(xd-scope)"
+      ],
+      "states": [
+        "no scope (default) — B7-08 frame 1 'SA-17 Role holder · Dr K. Iyer · no scope · 1440 · interactive' ('Assign scope → All experiments / a course / one experiment. The “Can act on” line says what changes.'); B7-10 frame 10 '11 · Role holder without scope' ('Flagged; their workspace is empty until a scope is assigned.')",
+        "mobile 375 — B7-08 frame 2 'Mobile 375 · holder without scope'; B7-12 frames 24–27",
+        "withdraw reason required (inline) — B7-08 frame 4 'Withdraw scope · reason required' ('Inline, beside the scope it withdraws.') Anil Shetty; B7-10 frame 11 '12 · Withdraw scope — reason required' (Ritu Sharma)",
+        "assign validation (dialog) — B7-08 frame 5 'Assign scope · validation' ('“A course” chosen but no course picked.') error 'Choose a course'",
+        "all experiments — B7-08 frame 7 'Content Manager — all experiments' ('Kavya Nair: scope “All experiments”.')",
+        "restore withdrawn scope (inline confirm) — B7-08 frame 8 'Restore a withdrawn scope' ('Prof. A. Menon: EEE ZC341 was withdrawn on 1 Oct 2026 — restoring it would let SUB-0085 be reviewed.')",
+        "other validation — script: 'Choose what they can act on' / 'Choose an experiment' / '<X> is already in scope'",
+        "success — script flashes '<name> can now act on <X>.' / '<X> withdrawn. <name> can no longer act on it.' / '<X> restored. <name> can act on it again.'",
+        "loading / not found — not shown"
+      ],
+      "actions": [
+        "Assign scope → dialog (kind required; course or experiment required for those kinds; duplicate refused) → 'Assign scope' → ROLE scope added (Scope active); a matching withdrawn entry is removed; history 'Scope assigned — <X> · Arjun Mehta' [dialog] [no reason]",
+        "Withdraw (per scope) → inline panel (reason required) → 'Withdraw scope' → scope active → withdrawn (reason, date); history 'Scope withdrawn — <X>' + “reason” · Arjun Mehta; 'They stop seeing it straight away.' [inline] [reason required]",
+        "Restore (per withdrawn scope) → inline confirm → 'Restore scope' → withdrawn → active; history 'Scope restored — <X> · Arjun Mehta' [inline confirm] [no reason — OD-B7-10]",
+        "Cancel → closes panel/dialog"
+      ],
+      "outboundLinks": [
+        "Breadcrumb Platform roles → SA-16"
+      ],
+      "records": [
+        "ROLE",
+        "CRS",
+        "EXP",
+        "SUB"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-08-Platform-Roles.dc.html frames 1, 2, 4, 5, 7, 8 + inline script RX (eff map, scopeTxt, doScope, withdraw save, restore save) ; B7-10 frames 10–11; B7-12 frames 24–27; B7-13 OD-B7-10; STK31-41."
+    },
+    {
+      "id": "SA-18",
+      "title": "Device transfers",
+      "screenType": "tab",
+      "proposedRoute": "/admin/operations/device-transfers",
+      "recommendedRoute": "/admin/operations/device-transfers",
+      "routeNotes": "Keep. Operations sub-nav is links → segments; the sidebar 'Operations' item lands on the Device transfers tab (B7-09 frame 0; B3-11), so /admin/operations should redirect here. The 'Show' filter is a group of LINKS with aria-current='true' (Forwarded to BITS · Still with an institution · Approved) → INFERRED ?show=forwarded|with-institution|approved.",
+      "navPlace": "Sidebar Operations › Device transfers (tab)",
+      "archetype": "AR-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(H1 'Operations', meta 'Device transfers, support reports and access ending')",
+        "SubNavTabs(nav aria-label 'Operations': Device transfers · Support · Access ending — links with aria-current=page)",
+        "FilterLinkGroup(role=group aria-label 'Show': 'Forwarded to BITS' · 'Still with an institution' · 'Approved' with aria-current='true')",
+        "DataTable(caption-like label 'Device transfers'; Request [DTR id link + '<student> · <format>'] · Institution · Forwarded ['23 Oct 2026, 10:00 · Meera Iyer' / 'Not yet'] · Status · Action 'Review' (aria-label 'Review DTR-0018'))",
+        "StatusPill(SA words: Forwarded · Still with the institution · Approved)"
+      ],
+      "states": [
+        "forwarded (default) — B3-11 frame 0 / B7-09 frame 0 'SA-18 Operations › Device transfers · 1440 · 23 Oct 2026' (B3-11: 'Forwarded requests from every institution.'; B7-09: 'The approved Batch-3 design (B3-11), re-used: only the sidebar and tab links now lead to the Batch-7 destinations.') rows DTR-0018 Rahul Verma · VR, DTR-0016 Neha Kulkarni · VR",
+        "still with an institution — B3-11 frame 2 / B7-09 frame 2 'Still with an institution' ('Not BITS’s to decide yet — shown read-only.') row DTR-0019 Imran Shaikh · VR, 'Not yet', no link, no action",
+        "approved filter — B3-11 frame 3 'Approved' row DTR-0015 Karthik Rao · VR '14 Oct 2026 · Meera Iyer', no Review action",
+        "empty / loading / failed — not shown"
+      ],
+      "actions": [
+        "Show filter link → filter (no data change)",
+        "DTR id link / Review → SA-19",
+        "Sub-nav Support → SA-20; Access ending → SA-22"
+      ],
+      "outboundLinks": [
+        "Review / DTR id → SA-19",
+        "Support → SA-20",
+        "Access ending → SA-22"
+      ],
+      "records": [
+        "DTR"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B3-11-SA-Device-Transfers.dc.html frames 0, 2, 3 + script (SAW map {'sent':'Still with the institution','fwd':'Forwarded','appr':'Approved'}); B7-09 frames 0, 2 + annotation 'Device transfers … Approve only (DL-1) — no Decline (T-32)'; flows.json Device step 3."
+    },
+    {
+      "id": "SA-19",
+      "title": "Device transfer decision",
+      "screenType": "page",
+      "proposedRoute": "/admin/operations/device-transfers/[transferId]",
+      "recommendedRoute": "/admin/operations/device-transfers/[transferId]",
+      "routeNotes": "Keep. Not-yet-forwarded, forwarded, dialog and approved are states of this route.",
+      "navPlace": "Detail (breadcrumb Operations / DTR-0018; back link 'Device transfers')",
+      "archetype": "AR-4 + DL-1",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "DecisionLayout(details ~72% · decision panel ~28%; panel under details at 768)",
+        "PageHeader(back link 'Device transfers', overline 'Device transfer · DTR-0018', H1 'VR device transfer for Rahul Verma', StatusPill + institution)",
+        "FlashStatus(role=status 'Approved. Rahul Verma and Meera Iyer now see “Approved”.')",
+        "KeyValueList(The transfer: Student 'Rahul Verma · GIT-2026-0418' · Institution · Format 'VR for Shell-and-Tube Heat Exchanger' · Moving from · New device · Student’s note · Forwarded by 'Meera Iyer, Institute Admin')",
+        "HistoryTimeline(Approved by BITS · Forwarded to BITS by Meera Iyer · Requested by Rahul Verma)",
+        "DecisionPanel(H2 'Your decision': 'Approving moves Rahul Verma’s VR authorisation to the new device.' + 'Approve transfer'; decided: 'Approved on 24 Oct 2026, 12:30 by Arjun Mehta.' + link 'Operations')",
+        "ConfirmDialog DL-1(H2 'Approve DTR-0018?', body 'Rahul Verma’s authorised device for VR becomes ME lab VR headset, asset tag GIT-VR-07. The student and Meera Iyer see “Approved”.', Close × · Cancel · 'Approve transfer' · busy 'Approving…' aria-disabled)",
+        "EmptyState(H1 'Device transfers', H2 'DTR-0018 hasn’t reached BITS yet', 'It is still with the institution. It appears here when the Institute Admin forwards it.')"
+      ],
+      "states": [
+        "forwarded (default, interactive) — B3-11 frame 1 'SA-19 Device transfer decision · 1440 · interactive' ('Details ~72 % · decision panel ~28 %. Approve transfer → DL-1 confirm → Approved; the Student and the Institute Admin see “Approved”.'); B7-09 frame 1 ('Approve only (DL-1). No Decline, no Declined state (T-32).')",
+        "approve dialog open — B3-11 frame 4 'Approve · DL-1 confirm' ('Says exactly what changes. No reason field: approving is not a refusal.')",
+        "approved (read-only) — B3-11 frame 5 'Approved · 24 Oct' ('Read-only; who and when.'); B7-09 frame 3 'Approved' ('Read-only; who and when.')",
+        "tablet 768 — B3-11 frame 6 'Tablet 768 · interactive' ('Decision panel moves under the details.')",
+        "mobile 375 — B3-11 frame 7 'Mobile 375'",
+        "not yet forwarded — B7-10 frame 14 '15 · Device transfer still with the institution — nothing to approve' ('Approve appears only once it is forwarded. There is no Decline (T-32).')",
+        "busy — 'Approving…'",
+        "loading — not shown"
+      ],
+      "actions": [
+        "Approve transfer → DL-1 dialog → 'Approve transfer' → DTR Forwarded (SA) / Forwarded to BITS (Student, IA) → Approved; the authorised device becomes the new device; history 'Approved by BITS — The authorised device is now: <device>' [confirm dialog] [no reason] [only when Forwarded]",
+        "Cancel / Close × → back to panel",
+        "Operations (decided) → SA-18; back link 'Device transfers' → SA-18",
+        "Absent by design: Decline / Declined state (T-32, OD-B3-04: 'A request BITS doesn’t approve stays “Forwarded”'), device registry (D20b), SLA, notifications"
+      ],
+      "outboundLinks": [
+        "Device transfers (back link) → SA-18",
+        "Breadcrumb Operations → SA-18",
+        "Operations (decided panel) → SA-18"
+      ],
+      "records": [
+        "DTR"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B3-11-SA-Device-Transfers.dc.html frames 1, 4–7 + script DC (devOld/devNew, hist, canApprove, doAppr) + annotation 'Decision — Approve only (DL-1) … Same record … Not designed'; B7-09 frames 1, 3; B7-10 frame 14; flows.json Device step 3."
+    },
+    {
+      "id": "SA-20",
+      "title": "Support reports",
+      "screenType": "tab",
+      "proposedRoute": "/admin/operations/support",
+      "recommendedRoute": "/admin/operations/support",
+      "routeNotes": "Keep. Status tabs are role=tablist buttons → INFERRED ?show=open|resolved|all (default open).",
+      "navPlace": "Operations › Support (tab)",
+      "archetype": "AR-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(H1 'Operations', meta 'Device transfers, support reports and access that is ending')",
+        "SubNavTabs(nav aria-label 'Operations': Device transfers · Support · Access ending — links with aria-current=page)",
+        "SectionHeader(H2 'Support reports' + meta 'Sent from Help by any signed-in person · oldest open first')",
+        "StatusTabs(role=tablist 'Show': Open n · Resolved n · All n; Open = open + reopened)",
+        "DataTable(Report [title + '<SUP id> · Sent <date>'] · From ['<name> · <role> · <institution>'] · Status · Action 'Open' (aria-label 'Open SUP-0213 <title>'))",
+        "StatusPill(Open=info, Reopened=wait, Resolved=ok)",
+        "EmptyState(H3 'No open support reports' / 'No resolved reports yet' / 'No support reports' + 'Reports sent from Help appear here.')"
+      ],
+      "states": [
+        "open tab (default) — B7-09 frame 7 'SA-20 Operations › Support · 1440 · interactive' ('Open (open and reopened) · Resolved · All. “Open” shows the report beside it.') Open 4 · Resolved 2 · All 6",
+        "nothing open — B7-09 frame 13 'Nothing open' ('Calm state on the Open tab.') Open 0 · Resolved 6 · All 6",
+        "loading / failed — not shown"
+      ],
+      "actions": [
+        "Status tab → filter",
+        "Open (row) → SA-21",
+        "Sub-nav Device transfers → SA-18; Access ending → SA-22"
+      ],
+      "outboundLinks": [
+        "Open → SA-21",
+        "Device transfers → SA-18",
+        "Access ending → SA-22"
+      ],
+      "records": [
+        "SUP"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-09-Operations.dc.html frames 7, 13 + script SP (sups, stw/stk, F tabs, isOpen, noRowsText) + annotation 'Support — Open · resolved · reopened … No response-time target (ND-14)'."
+    },
+    {
+      "id": "SA-21",
+      "title": "Support report",
+      "screenType": "page",
+      "proposedRoute": "/admin/operations/support/[reportId]",
+      "recommendedRoute": "/admin/operations/support/[reportId]",
+      "routeNotes": "Keep.",
+      "navPlace": "Detail (breadcrumb Operations / Support / SUP-xxxx)",
+      "archetype": "AR-4-style panel (details ~72% · one panel ~28%)",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "DecisionLayout(details ~72% · panel ~28%; panel follows details on phone)",
+        "PageHeader(overline 'Support report · SUP-0213', H1 title, StatusPill + 'Sent 3 Oct 2026')",
+        "FlashStatus(role=status)",
+        "Notice(role=status 'Reopened by the reporter' + 'Earlier note: “<note>”')",
+        "KeyValueList(What they reported: From · What happened · Where · Screenshot (filename or 'No screenshot added')) + link 'Open <institution>' when the reporter belongs to an institution",
+        "HistoryTimeline('History — Newest first')",
+        "ResolvePanel(H2 'Resolve': textarea label 'Note to the reporter', hint 'They see it with the report. Say what changed and what to try.', error, 'Resolve' · busy 'Resolving…')",
+        "ResolvedPanel(StatusPill 'Resolved' + 'Resolved on <date> by <name>' + “note” + 'The reporter sees this note.' + 'Reopen')",
+        "Footnote('No response-time target is set (ND-14).')",
+        "ConfirmDialog DL-1(H2 'Reopen SUP-0189?', body 'It goes back to the open reports. The reporter sees it is open again. Your earlier note stays in the history.', Close × · Cancel · 'Reopen' · busy 'Reopening…')"
+      ],
+      "states": [
+        "open (default) — B7-09 frame 8 'SA-21 Support report · 1440 · interactive' ('Details ~72 % · one panel ~28 %. Resolve needs a note the reporter sees; a resolved report can be reopened.') SUP-0213",
+        "resolved — B7-09 frame 9 'Resolved — note shown to the reporter' ('Reopen is the only action.') SUP-0198",
+        "reopened by the reporter — B7-09 frame 10 'Reopened by the reporter' ('The earlier note is shown first; resolve again with a new note.') SUP-0211",
+        "resolve note required — B7-09 frame 11 'Resolve · note required' ('Pressing Resolve with no note shows the error.') error 'Add a note — the reporter sees it'; B7-10 frame 12 '13 · Resolve — the note is shown to the reporter' ('A note is required.')",
+        "reopen dialog — B7-09 frame 12 'Reopen · DL-1' ('Focus on Reopen; Cancel returns to the panel.') SUP-0189",
+        "mobile 375 — B7-09 frame 14 'Mobile 375' ('The panel follows the details.'); B7-12 frames 28–31",
+        "success — script flashes '<id> resolved. The reporter sees your note.' / '<id> is open again. The reporter sees it is reopened.'",
+        "loading / not found — not shown"
+      ],
+      "actions": [
+        "Resolve → note required → 'Resolve' → SUP Open|Reopened → Resolved; note shown to the reporter; history 'Resolved' + “note” · Arjun Mehta [no dialog] [note required]",
+        "Reopen → DL-1 dialog → 'Reopen' → SUP Resolved → Reopened; reporter sees it is open again; history 'Reopened — By Arjun Mehta.' [confirm dialog] [no reason]",
+        "Open <institution> → SA-07",
+        "Absent by design: SLA / response-time target (ND-14), priority, external ticket provider"
+      ],
+      "outboundLinks": [
+        "Breadcrumb Operations → SA-18",
+        "Breadcrumb Support → SA-20",
+        "Open <institution> → SA-07"
+      ],
+      "records": [
+        "SUP",
+        "INST"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-09-Operations.dc.html frames 8–12, 14 + script SP (resolve(), doReopen(), prevNote, instHref) ; B7-10 frame 12; B7-12 frames 28–31; STK31-39."
+    },
+    {
+      "id": "SA-22",
+      "title": "Access ending & renewals",
+      "screenType": "tab",
+      "proposedRoute": "/admin/operations/access-ending",
+      "recommendedRoute": "/admin/operations/access-ending",
+      "routeNotes": "Keep.",
+      "navPlace": "Operations › Access ending (tab)",
+      "archetype": "AR-2",
+      "components": [
+        "WorkspaceShell(Super Admin sidebar with Requests count badge; Help at foot; Menu button <1024px; breadcrumbs)",
+        "PageHeader(H1 'Operations', meta 'Device transfers, support reports and access that is ending')",
+        "SubNavTabs(nav aria-label 'Operations': Device transfers · Support · Access ending — links with aria-current=page)",
+        "SectionHeader(H2 'Ending within 15 days, or ended' + meta 'As of 23 Oct 2026 · soonest first')",
+        "DataTable(Institution [name + 'ACC-0098 · Internal'] · Access ends [date + '8 days left' / 'Ended 8 days ago'] · Status [StatusPill + sub-line] · Actions ['Open request' (aria-label 'Open request REQ-0038'), 'Open institution' (aria-label 'Open <institution>')]; labelled blocks on phone)",
+        "StatusPill(Renewal in progress · Reminder due · Access ended) + sub-line ('REQ-0038 under review' / 'Nothing is sent from here' / 'No renewal requested')",
+        "EmptyState(H3 'No access is ending in the next 15 days', 'Institutions whose access ends within 15 days, or has just ended, appear here.')",
+        "Footnote('“Reminder due” is a status only — nothing is sent from here, and no reminder channel is set (T-31). Renewals come in as requests.')"
+      ],
+      "states": [
+        "default — B7-09 frame 4 'SA-22 Operations › Access ending · 1440' ('Ends within 15 days · ended · renewal in progress. Each row opens the institution (or the renewal request).') BITS Pilani — Hyderabad (Renewal in progress), Konark (Reminder due), Malnad (Access ended)",
+        "nothing ending — B7-09 frame 5 'Nothing ending'",
+        "mobile 375 — B7-09 frame 6 'Mobile 375' ('Rows become labelled blocks.')",
+        "reminder due — B7-10 frame 13 '14 · “Reminder due” — nothing is sent' ('A status, not a notification (T-31).')",
+        "loading / failed — not shown"
+      ],
+      "actions": [
+        "Open request → SA-03 for the renewal request (board link goes to B1-10 list, see inconsistencies)",
+        "Open institution → SA-07",
+        "No send/remind action (T-31); no renewal action — renewals arrive as requests"
+      ],
+      "outboundLinks": [
+        "Open request → SA-03 (board: SA-02)",
+        "Open institution → SA-07",
+        "Device transfers → SA-18",
+        "Support → SA-20"
+      ],
+      "records": [
+        "ACC",
+        "INST",
+        "REQ"
+      ],
+      "evidence": "design/handoff-v46/canvas-v46/project/B7-09-Operations.dc.html frames 4–6 + annotation 'Access ending — Ends within 15 days (“Reminder due” — a status only, nothing is sent: T-31) · renewal in progress (a request) · ended'; B7-10 frame 13; STK31-28."
+    }
+  ],
+  "excluded": [
+    {
+      "id": "SA-04",
+      "disposition": "OPEN (R21 / D10) — not designed",
+      "note": "Decline a request. T-02 'WAIT FOR DECISION': 'No Decline button, no \"Declined\" state or filter' (open-decisions.json). B1-10 header 'No Decline, no Declined filter'; Status select has no Declined option; B1-11 'Not here: Decline (T-02 / R21)'. Inventory v3 §J.2 still lists 'declined (OPEN)' as an SA-02 state — must stay excluded. No designed SA screen links to it (B8-01 'No entry point (link scan)'; my text scan of SA boards found only annotations stating its absence)."
+    },
+    {
+      "id": "SA-05",
+      "disposition": "OPEN (R06) — not designed",
+      "note": "Record payment / activate manually. B1-11 four-events help: 'Payment confirmation — external only. Happens after the requester pays. It is not recorded on this page.'; 'Not here … manual “mark paid” (R06)'. The 'Payment not confirmed' status exists in the SA-02 Status filter and on REQ-0036 but no SA action exists for it. No entry point."
+    },
+    {
+      "id": "SA-08",
+      "disposition": "OPEN (R07) / T-09 WAIT — not designed",
+      "note": "Create an institution directly. SA-06 in-frame meta: 'Institutions are created only by approving a request — there is no direct creation (T-09)'; B7-02 annotation 'No Create institution control'; B7-03 'Not here … no Create institution (T-09)'. INST is created only by SA-03 first approval. No entry point."
+    },
+    {
+      "id": "SA-09",
+      "disposition": "REMOVE as a page → MERGE into SA-03 (narrow at approval) and SA-07 (view)",
+      "note": "Narrowing = SA-03 'Approve a smaller scope' (Formats to approve / Licences to approve / Access term + reason); viewing = SA-07 'Access plans — Read-only'. No allocation page, no entry point. Gap: SA-03 narrowing is drawn only for single-experiment requests (script uses the first requested experiment's formats)."
+    },
+    {
+      "id": "SA-23",
+      "disposition": "DEFER (R15); the institution report lives in SA-07",
+      "note": "Platform reports. B7-09 annotation 'Not here: Platform settings (removed), platform reports and student-feedback analytics (deferred)'. T-33 'WAIT FOR DECISION (report pages)'. SA-07 'Institution report' section is the designed replacement. No entry point."
+    },
+    {
+      "id": "SA-24",
+      "disposition": "REMOVE ('a gap is shown as a gap')",
+      "note": "Platform settings. B7-13 policy check 'No Platform Settings · Platform Reports · feedback analytics — No entry point anywhere (script check)'. Sidebar has exactly 7 destinations + Help."
+    },
+    {
+      "id": "SA-25",
+      "disposition": "DEFER (owner OPEN)",
+      "note": "Student feedback views / analytics. SA-07 report note: 'Student feedback is not shown here (T-25).' T-25 'WAIT (staff side)'. No entry point."
+    }
+  ],
+  "permissionEvidence": [
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "View every institutional access request (list, search, filter, sort)",
+      "stateBefore": "any",
+      "stateAfter": "unchanged",
+      "scope": "platform-wide (all institutions)",
+      "evidence": "B1-10 frame 0 'SA-02 Requests'; meta 'Institutional access requests sent from the public site. Open one to decide it.'",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Approve request — External route",
+      "stateBefore": "Under review",
+      "stateAfter": "Approved — payment required (INST created if new; ACC not created; access not active)",
+      "scope": "platform-wide",
+      "evidence": "B1-11 frames 1–2, 9; confirm copy 'Approves the request. Its status becomes Approved — payment required.' / 'Institutional access is not activated now…'",
+      "strength": "designed-control",
+      "notes": "DL-1 confirm; route must be set for a new institution."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Approve request — Internal route",
+      "stateBefore": "Under review",
+      "stateAfter": "Access active (INST created if new; ACC created; no payment)",
+      "scope": "platform-wide",
+      "evidence": "B1-11 frames 3, 11; 'Approves the request. There is no payment step.' / 'Institutional access is activated now and the access plan is created.'",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Set Internal or external classification",
+      "stateBefore": "Not set yet",
+      "stateAfter": "Internal | External (committed on approval)",
+      "scope": "only at the first approval of a new institution",
+      "evidence": "B1-11 'Internal or external (required to approve) — You set this; the requester never chooses it. Approval can’t be completed while it is not set.'; locked line '— set when this institution was first approved.'; B1-10 annotation T-04",
+      "strength": "explicit-rule",
+      "notes": "Requester never self-classifies (T-04). No control to change an existing institution's route is shown."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Approve a smaller scope (fewer formats / licences / shorter term) with reason",
+      "stateBefore": "Under review",
+      "stateAfter": "Approved — payment required (external) | Access active (internal); requester sees difference + reason",
+      "scope": "platform-wide; not for Renewal",
+      "evidence": "B1-11 frames 5, 8; choice sub 'Fewer formats, fewer licences or a shorter term, with a reason.'",
+      "strength": "designed-control",
+      "notes": "Reason required; at least one real difference; at least one format; whole-number licences."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Approve a smaller scope on a Renewal",
+      "stateBefore": "Under review",
+      "stateAfter": "n/a",
+      "scope": "renewal requests",
+      "evidence": "B1-11 frame 13 'Renewal · scope not adjustable' — option disabled: 'Not available for a renewal — the term continues the current plan.' (T-07, D8)",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Request more information (reason)",
+      "stateBefore": "Under review",
+      "stateAfter": "Information requested (request stays open; none of the four events happen)",
+      "scope": "platform-wide",
+      "evidence": "B1-11 frames 6, 12; 'Request more information keeps the request open; none of the four events happen until it is approved.'",
+      "strength": "designed-control",
+      "notes": "No confirm dialog; reason shown to the requester. What happens after the reply is OPEN (T-03)."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Decide a request after 'Information requested'",
+      "stateBefore": "Information requested",
+      "stateAfter": "not shown",
+      "scope": "—",
+      "evidence": "B1-11 frame 12 'Information requested · waiting' shows only the decided panel ('Sent by you …') with no decision controls; 'Reply lifecycle OPEN (T-03)'",
+      "strength": "designed-absence",
+      "notes": "No path back to a decidable state is drawn."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Decline a request",
+      "stateBefore": "Under review",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-10 'No Decline, no Declined filter'; B1-11 'Not here: Decline (T-02 / R21)'; T-02 WAIT",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Record payment / mark paid / activate manually",
+      "stateBefore": "Approved — payment required | Payment not confirmed",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-11 'Payment confirmation … It is not recorded on this page.' and 'Not here … manual “mark paid” (R06)'; SA-05 OPEN",
+      "strength": "designed-absence",
+      "notes": "Payment confirmation is an external/system event (B1-11 frame 10 history 'Payment confirmed')."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Decide a request from a paused institution",
+      "stateBefore": "Under review",
+      "stateAfter": "—",
+      "scope": "institutions with Access paused",
+      "evidence": "B1-11 frame 14 'Institution paused · blocked' — 'Requests from a paused institution can’t be decided. You can decide this one once the pause ends.'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "Create an institution",
+      "stateBefore": "—",
+      "stateAfter": "INST exists (classified)",
+      "scope": "only via first approval of a new institution's request",
+      "evidence": "B1-11 four events '1 Institution record — Created when you approve the first request from a new institution. A record is not access.'; SA-06 meta 'Institutions are created only by approving a request — there is no direct creation (T-09)'",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "Create an institution directly",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-02 annotation 'No Create institution control … (T-09)'; SA-08 OPEN",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "ACC",
+      "action": "Create access plan (activation)",
+      "stateBefore": "no plan",
+      "stateAfter": "ACC created (Access active)",
+      "scope": "internal: on approval; external: only after payment confirmed",
+      "evidence": "B1-11 '4 Institutional access activation — Internal: when you approve. External: only after the payment is confirmed. Activation creates the access plan the institution administrator sees.'",
+      "strength": "explicit-rule",
+      "notes": "External activation is triggered by payment confirmation, not by an SA control."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "ACC",
+      "action": "Amend an active access plan",
+      "stateBefore": "Access active",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "SA-07 'Access plans — Read-only' + 'A plan can’t be amended here; changes come through a new request (T-08).'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "View all institutions and one institution's full picture",
+      "stateBefore": "any",
+      "stateAfter": "unchanged",
+      "scope": "platform-wide",
+      "evidence": "B7-02 frame 0; B7-03 frames 0–9",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "Assign Institute Admin (name + work e-mail)",
+      "stateBefore": "No Institute Admin",
+      "stateAfter": "Institute Admin assigned (history entry)",
+      "scope": "institutions with Access active / Ending soon / Access paused and no IA",
+      "evidence": "B7-03 frame 1 'The first action is Assign Institute Admin.'; dialog 'They manage people, groups and student access for this institution. Nothing is sent from here (T-11).'; flows.json Flow B step 1",
+      "strength": "designed-control",
+      "notes": "Nothing is sent (T-11)."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "Assign Institute Admin before access is active",
+      "stateBefore": "Approved — payment required",
+      "stateAfter": "—",
+      "scope": "awaiting-payment institutions",
+      "evidence": "B7-03 frame 3 'no Institute Admin until access is active'; summary note 'The Institute Admin is assigned once access is active.'; OD-B7-11",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "Replace / change an existing Institute Admin",
+      "stateBefore": "Institute Admin assigned",
+      "stateAfter": "not shown",
+      "scope": "—",
+      "evidence": "B7-03 script: Assign button only when noIA(); no change/remove control drawn",
+      "strength": "designed-absence",
+      "notes": "Not shown — flag for owner rather than invent."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "Pause access (reason required)",
+      "stateBefore": "Access active | Ending soon",
+      "stateAfter": "Access paused",
+      "scope": "one institution",
+      "evidence": "B7-03 frames 0, 7; annotation 'Status handling allowed: Pause (active or ending soon) · Restore (paused).'; B7-10 frame 7",
+      "strength": "designed-control",
+      "notes": "DL-2; reason kept in history; reversible; banner shown to IA/Faculty/Students (B7-04)."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "Restore access (reason required)",
+      "stateBefore": "Access paused",
+      "stateAfter": "previous status (Access active | Ending soon)",
+      "scope": "one institution",
+      "evidence": "B7-03 frame 2 'Reason and date first; Restore access is the action.'; B7-04 frame 0",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "Pause / Restore / any status action on awaiting-payment or ended institutions",
+      "stateBefore": "Approved — payment required | Access ended",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-03 annotation 'Awaiting payment and ended institutions have no status action here: payment is confirmed on the request (Batch 1), and an ended plan comes back only through a renewal request.'; B7-10 frame 8",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST",
+      "action": "Terminate / delete an institution",
+      "stateBefore": "any",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "Not drawn on any SA board; STK31-21 says SA 'can terminate / remove / deactivate a tenant' and STK31-22 prefers reversible deactivation",
+      "strength": "designed-absence",
+      "notes": "Only reversible Pause/Restore is designed; termination not shown."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "PER",
+      "action": "Change a Student's status (override, reason required)",
+      "stateBefore": "Active | Inactive",
+      "stateAfter": "Inactive | Active",
+      "scope": "students of any institution (drawn for Godavari)",
+      "evidence": "B7-03 frame 8; People note 'The Institute Admin manages people; a status change here is an override with a reason.'; hint 'The Institute Admin normally changes this.'",
+      "strength": "designed-control",
+      "notes": "STK31-25 confirms SA override of student deactivation."
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "PER",
+      "action": "Change a Student's status (normal owner)",
+      "stateBefore": "Active | Inactive",
+      "stateAfter": "Inactive | Active",
+      "scope": "own institution",
+      "evidence": "B7-03 hint 'The Institute Admin normally changes this.'; entities.json PER ownerWriter 'Institute Admin'",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "UPD",
+      "action": "See a correction before the Academic Reviewer approves it",
+      "stateBefore": "Draft | In academic review | Returned",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-05 frame 10 'Nothing to decide yet' — 'This update hasn’t been approved by the Academic Reviewer yet. It reaches you when it is.'; B7-10 frame 4",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "UPD",
+      "action": "Release update (DL-1)",
+      "stateBefore": "Waiting for your decision (CM: Awaiting release decision)",
+      "stateAfter": "Released; EXP live version 1.2 → 1.3",
+      "scope": "platform-wide (every institution + public catalogue)",
+      "evidence": "B7-05 frames 1, 8; B7-10 frame 0 'Release (DL-1) — never “Publish”'; B7-11 Branch A",
+      "strength": "designed-control",
+      "notes": "Never called Publish; grants/changes no access."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "UPD",
+      "action": "Hold (reason the Content Manager sees)",
+      "stateBefore": "Waiting for your decision",
+      "stateAfter": "On hold (live version unchanged)",
+      "scope": "platform-wide",
+      "evidence": "B7-05 frame 9; B7-10 frame 1; OD-B7-01",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "UPD",
+      "action": "Lift hold (DL-1, no reason)",
+      "stateBefore": "On hold",
+      "stateAfter": "Waiting for your decision",
+      "scope": "platform-wide",
+      "evidence": "B7-05 frame 7; B7-10 frame 2 'lifting returns it to “waiting”, never live'; OD-B7-02",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "UPD",
+      "action": "Release directly from On hold",
+      "stateBefore": "On hold",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-10 frame 2 'No Release button while held'; OD-B7-03",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "UPD",
+      "action": "Edit the correction",
+      "stateBefore": "any",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-05 annotation 'Never … The Super Admin never edits the correction.'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "EXP",
+      "action": "Publish (first publication)",
+      "stateBefore": "With Content Manager",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-00 'The Super Admin never publishes — “Publish” appears on no Super Admin screen'; B7-13 policy check; B8-03 'no Publish control on any Super Admin or Reviewer frame'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "EXP",
+      "action": "Edit published catalogue details / delivery",
+      "stateBefore": "Published",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-06 annotation 'Published = read-only. No edit, no catalogue form'; B7-10 frame 5 'No edit, no override, no catalogue form.'; Inventory v3 M-1",
+      "strength": "designed-absence",
+      "notes": "Conflicts with STK31-09 wording (SA may manage canonical metadata) — see openQuestions."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "SUB",
+      "action": "Move status (override) of a stuck record, reason required",
+      "stateBefore": "With Academic Reviewer (Stuck — nobody can act)",
+      "stateAfter": "Returned to vendor",
+      "scope": "stuck, non-published records only",
+      "evidence": "B7-06 frames 1, 5; dialog 'An override is recorded with your name and reason. Published is never offered — only the Content Manager publishes.'; B7-10 frame 6; OD-B7-09",
+      "strength": "designed-control",
+      "notes": "Only target drawn: back to the vendor."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "SUB",
+      "action": "Override into or out of Published, or on a non-stuck record",
+      "stateBefore": "Published | In the workflow",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-06 annotation 'Never into or out of Published'; frame 4 'In the workflow — someone can act … nothing to do here.'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "SUB/EXP",
+      "action": "View all content with workflow status and who can act",
+      "stateBefore": "any",
+      "stateAfter": "unchanged",
+      "scope": "platform-wide",
+      "evidence": "B7-06 frame 0 'Read-only · open a record for its history'",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "AREA",
+      "action": "Add engineering area",
+      "stateBefore": "—",
+      "stateAfter": "AREA created (no courses)",
+      "scope": "platform-wide",
+      "evidence": "B7-07 frame 0 'Add area'; script doAddArea",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "CRS",
+      "action": "Add course (no platform code)",
+      "stateBefore": "—",
+      "stateAfter": "CRS created in an area; 'No platform code yet'",
+      "scope": "platform-wide",
+      "evidence": "B7-07 frames 7–8; dialog note 'The platform course code is added by the Content Manager in Course codes.'",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "AREA/CRS",
+      "action": "Rename / Edit description",
+      "stateBefore": "any",
+      "stateAfter": "name / description changed (history)",
+      "scope": "platform-wide",
+      "evidence": "B7-07 frames 1, 5, 6",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "CRS",
+      "action": "Move course to another area",
+      "stateBefore": "in area A",
+      "stateAfter": "in area B (dependants move with it)",
+      "scope": "only when no students or Faculty are filed against it",
+      "evidence": "B7-07 frames 3–4; annotation 'Move rule — Blocked while people are filed against the course'; B7-10 frame 9; OD-B7-12",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "CRS",
+      "action": "Edit the platform course code",
+      "stateBefore": "any",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-07 'Platform course code … Read-only · maintained by the Content Manager'; Inventory M-2",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Content Manager",
+      "entity": "CRS",
+      "action": "Maintain the platform course code (single writer)",
+      "stateBefore": "any",
+      "stateAfter": "code set/changed",
+      "scope": "platform-wide",
+      "evidence": "entities.json AREA/CRS ownerWriter 'Super Admin (platform code: Content Manager, M-2)'; B7-07 history 'Platform code ME ZG523 set by the Content Manager'",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "AREA/CRS",
+      "action": "Retire an area or course; upload area artwork",
+      "stateBefore": "any",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-07 footnote 'Retiring an area or course is not available (D3).'; area note 'Areas have no artwork set here, and can’t be retired (D3).'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "ROLE",
+      "action": "Register a Vendor / Academic Reviewer / Content Manager",
+      "stateBefore": "—",
+      "stateAfter": "ROLE holder with no scope",
+      "scope": "platform-wide",
+      "evidence": "B7-08 frame 6; dialog 'They start with no scope — you assign it next. Nothing is sent from here.'",
+      "strength": "designed-control",
+      "notes": "No invitation (T-11)."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "ROLE",
+      "action": "Assign scope: All experiments / a course / one experiment",
+      "stateBefore": "no scope or other scopes",
+      "stateAfter": "scope active",
+      "scope": "per holder",
+      "evidence": "B7-08 frames 1, 5; STK31-41",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "ROLE",
+      "action": "Withdraw scope (reason required)",
+      "stateBefore": "scope active",
+      "stateAfter": "withdrawn (reason, date)",
+      "scope": "per scope item",
+      "evidence": "B7-08 frame 4; B7-10 frame 11",
+      "strength": "designed-control",
+      "notes": "'They stop seeing it straight away.'"
+    },
+    {
+      "role": "Super Admin",
+      "entity": "ROLE",
+      "action": "Restore a withdrawn scope (no reason)",
+      "stateBefore": "withdrawn",
+      "stateAfter": "scope active",
+      "scope": "per scope item",
+      "evidence": "B7-08 frame 8; OD-B7-10",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "ROLE",
+      "action": "Send invitation / set up SSO for a role holder",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-08 annotation 'Not here: No invitation e-mail, no SSO set-up …(T-11)'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "DTR",
+      "action": "Approve device transfer (DL-1, no reason)",
+      "stateBefore": "Forwarded (Student/IA: Forwarded to BITS)",
+      "stateAfter": "Approved; authorised device changes",
+      "scope": "platform-wide",
+      "evidence": "B3-11 frames 1, 4, 5; B7-09 frames 1, 3; flows.json Device step 3",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "DTR",
+      "action": "Decline a device transfer",
+      "stateBefore": "Forwarded",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B3-11 annotation 'There is no Decline button and no Declined state — T-32 / D20a is WAIT FOR DECISION. A request BITS doesn’t approve stays “Forwarded”.'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "DTR",
+      "action": "Act on a transfer still with the institution",
+      "stateBefore": "With your Institute Admin (SA: Still with the institution)",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B3-11 frame 2 'Not BITS’s to decide yet — shown read-only.'; B7-10 frame 14 'Approve appears only once it is forwarded.'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "DTR",
+      "action": "Forward a device transfer to BITS (cannot approve)",
+      "stateBefore": "With your Institute Admin (IA: Waiting on you)",
+      "stateAfter": "Forwarded to BITS",
+      "scope": "own institution",
+      "evidence": "flows.json Device step 2 'The Institute Admin forwards; cannot approve'; B3-11 'forwarded by Meera Iyer (B3-09)'",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "SUP",
+      "action": "Resolve a support report (note required, shown to reporter)",
+      "stateBefore": "Open | Reopened",
+      "stateAfter": "Resolved",
+      "scope": "platform-wide (reports from every workspace)",
+      "evidence": "B7-09 frames 8, 11; B7-10 frame 12",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "SUP",
+      "action": "Reopen a resolved report (DL-1)",
+      "stateBefore": "Resolved",
+      "stateAfter": "Reopened",
+      "scope": "platform-wide",
+      "evidence": "B7-09 frame 12 'Reopen · DL-1'; history 'Reopened — By Arjun Mehta.'",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Any signed-in person (reporter)",
+      "entity": "SUP",
+      "action": "Reopen own resolved report",
+      "stateBefore": "Resolved",
+      "stateAfter": "Reopened",
+      "scope": "own report",
+      "evidence": "B7-09 frame 10 'Reopened by the reporter' (history 'Reopened … By the reporter.'); entities.json SUP ownerWriter 'any signed-in person → Super Admin'",
+      "strength": "inferred",
+      "notes": "Drawn only as a state/history on B7-09 (frame 10 caption and history “Reopened … By the reporter.”); the reporter-side control lives on board 07 Help & support, not read in this audit."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "ACC",
+      "action": "Send an expiry reminder / renew access",
+      "stateBefore": "Ending soon (≤15 days)",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B7-09 frame 4 footnote '“Reminder due” is a status only — nothing is sent from here, and no reminder channel is set (T-31). Renewals come in as requests.'; B7-10 frame 13",
+      "strength": "designed-absence",
+      "notes": "STK31-28 says the 15-day reminder is a REQUIRED capability — see openQuestions."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "Workspace",
+      "action": "Open the Super Admin workspace",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "Super Admin role only",
+      "evidence": "navigation.json rule 'A role opening another role's workspace sees XS-06 “Not your workspace”'; B8-06 'Role guards per workspace'",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Content Manager",
+      "entity": "UPD",
+      "action": "Sees the Hold reason and Released / On hold end states",
+      "stateBefore": "Awaiting release decision",
+      "stateAfter": "On hold (reason) | Released",
+      "scope": "own corrections",
+      "evidence": "B7-05 hold dialog 'The Content Manager sees your reason.'; B7-11 frame 3 caption 'Shows Released or On hold after the Super Admin decides.'",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Academic Reviewer",
+      "entity": "UPD",
+      "action": "Approve update → sends it to the Super Admin (does not change what is live)",
+      "stateBefore": "In academic review",
+      "stateAfter": "Awaiting release decision",
+      "scope": "scoped courses",
+      "evidence": "B7-11 frame 6 'Approve sends it to the Super Admin.'; flows.json Flow F step 2",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "SACC",
+      "action": "Give students access after activation",
+      "stateBefore": "Access active",
+      "stateAfter": "SACC Active",
+      "scope": "own institution",
+      "evidence": "B1-11 'Students get access only when the institution’s administrator gives it.'; B1-13 'Its institution administrator gives students access.'",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "SACC",
+      "action": "Give students access while the institution is paused",
+      "stateBefore": "Access paused",
+      "stateAfter": "—",
+      "scope": "own institution",
+      "evidence": "B7-04 frame 1 caption 'Paused: the banner, “Access paused · paused by BITS on …”, no Give students access.'; IA attention 'Pages are read-only until BITS lifts the pause.'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Student",
+      "entity": "EXP",
+      "action": "Open experiments while institution is paused",
+      "stateBefore": "Access paused",
+      "stateAfter": "—",
+      "scope": "own enrolments",
+      "evidence": "B7-04 frame 3 'Paused: “You can’t open experiments right now” — their work is kept.'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Change and resubmit after an SA override",
+      "stateBefore": "Returned to vendor",
+      "stateAfter": "resubmitted (not drawn here)",
+      "scope": "own submission",
+      "evidence": "B7-06 override To 'Returned to vendor — Ritu Sharma · Meridian Virtual Labs can change it and send it again'",
+      "strength": "inferred",
+      "notes": "Vendor side not drawn on SA boards."
+    },
+    {
+      "role": "Public (institution contact)",
+      "entity": "REQ",
+      "action": "Choose internal vs external",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-11 'You set this; the requester never chooses it.'; B1-13 table 'Internal or external: never asked'",
+      "strength": "explicit-rule",
+      "notes": ""
+    }
+  ],
+  "fieldEvidence": [
+    {
+      "entity": "REQ",
+      "field": "reference",
+      "example": "REQ-0042",
+      "shownOn": "SA-02, SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-10 column Reference (link); B1-11 overline"
+    },
+    {
+      "entity": "REQ",
+      "field": "institution name",
+      "example": "Godavari Institute of Technology",
+      "shownOn": "SA-02, SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-10 column 'Institution and contact person'"
+    },
+    {
+      "entity": "REQ",
+      "field": "contact person",
+      "example": "Meera Iyer",
+      "shownOn": "SA-02, SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-10; B1-11 'Contact person'"
+    },
+    {
+      "entity": "REQ",
+      "field": "contact e-mail",
+      "example": "meera.iyer@godavari.edu.in",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 'E-mail'"
+    },
+    {
+      "entity": "REQ",
+      "field": "contact phone",
+      "example": "Not given / +91 674 000 0000",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 'Phone'"
+    },
+    {
+      "entity": "REQ",
+      "field": "experiments requested (first title + formats, or count)",
+      "example": "Shell-and-Tube Heat Exchanger · WEB, VR / '3 experiments'",
+      "shownOn": "SA-02",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B1-10 annotation 'Experiments (first title + formats, or a count)'"
+    },
+    {
+      "entity": "REQ",
+      "field": "experiment line: course",
+      "example": "ME ZG523 · Thermodynamics & Heat Transfer",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 table 'Experiment'"
+    },
+    {
+      "entity": "REQ",
+      "field": "formats requested",
+      "example": "WEB, VR",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 table 'Formats requested'"
+    },
+    {
+      "entity": "EXP",
+      "field": "published formats (for comparison)",
+      "example": "WEB, AR, VR",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 table 'Published formats'"
+    },
+    {
+      "entity": "REQ",
+      "field": "type",
+      "example": "New access | Additional licences | Renewal",
+      "shownOn": "SA-02, SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-10 Type column + filter; B1-11 header"
+    },
+    {
+      "entity": "REQ/INST",
+      "field": "internal or external (route)",
+      "example": "Not set yet | Internal | External",
+      "shownOn": "SA-02, SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-10 'Type (with Internal / External / Not set yet underneath)'; B1-11 summary"
+    },
+    {
+      "entity": "REQ",
+      "field": "received",
+      "example": "2 Oct 2026 (list) / 2 Oct 2026, 10:14 (detail)",
+      "shownOn": "SA-02, SA-03",
+      "inputOrDisplay": "display",
+      "validation": "sortable newest/oldest",
+      "evidence": "B1-10 Received column; B1-11 header"
+    },
+    {
+      "entity": "REQ",
+      "field": "status",
+      "example": "Under review | Information requested | Approved — payment required | Payment not confirmed | Access active",
+      "shownOn": "SA-02, SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-10 Status select + LBL map"
+    },
+    {
+      "entity": "REQ",
+      "field": "licences requested",
+      "example": "120 / 860 / '60 more'",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 summary 'Licences requested'"
+    },
+    {
+      "entity": "REQ",
+      "field": "access term requested",
+      "example": "Yearly | Current term",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 summary 'Access term'"
+    },
+    {
+      "entity": "REQ",
+      "field": "experiments count",
+      "example": "1",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B1-11 summary 'Experiments'"
+    },
+    {
+      "entity": "REQ",
+      "field": "existing access",
+      "example": "'None. There is no institution record for Godavari Institute of Technology yet. Approving this request creates the record — it does not activate access.' / 'Access plan ACC-0081 · these 3 experiments · 860 licences · current term ends 31 Oct 2026.'",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B1-11 H2 'Existing access'"
+    },
+    {
+      "entity": "REQ",
+      "field": "message from the requester",
+      "example": "“We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.”",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 H2 'Message from the requester'"
+    },
+    {
+      "entity": "REQ",
+      "field": "history entries (what · when · who · note)",
+      "example": "'Request submitted · 2 Oct 2026, 10:14 · Meera Iyer, contact person'",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 H2 'History'"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "Decision (radio)",
+      "example": "Approve request | Approve a smaller scope | Request more information",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "input-required",
+      "validation": "'Choose a decision'",
+      "evidence": "B1-11 script validate()"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "Internal or external (radio)",
+      "example": "Internal — BITS campus or programme | External institution",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "input-required",
+      "validation": "'Choose internal or external' (required to approve when route not yet set)",
+      "evidence": "B1-11 frame 7"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "Formats to approve (checkboxes)",
+      "example": "WEB ✓ VR ✓",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "input-required",
+      "validation": "'Keep at least one format' (smaller scope)",
+      "evidence": "B1-11 script"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "Licences to approve",
+      "example": "100",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter a whole number of licences' (regex ^[1-9][0-9]*$)",
+      "evidence": "B1-11 script"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "Access term",
+      "example": "Monthly | Quarterly | Yearly",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "input-optional",
+      "validation": "",
+      "evidence": "B1-11 select"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "difference from request",
+      "example": "'Licences: 120 → 100'",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "derived",
+      "validation": "'Change at least one thing, or choose Approve request'",
+      "evidence": "B1-11 frame 8"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "Reason for the change (required)",
+      "example": "'Approved for 100 licences for the first term. You can ask for more once enrolment is confirmed.'",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter the reason for the change'; hint 'Shown to the requester on their request status.'",
+      "evidence": "B1-11 frames 5, 8"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "What do you need from the requester? (required)",
+      "example": "'Please confirm how many students will use VR in the first term.'",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter what you need from the requester'",
+      "evidence": "B1-11 frame 6"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "Where this request stands (Institution record · Request · Payment · Institutional access)",
+      "example": "Created · 8 Oct 2026, 11:20 / Approved · External / Waiting — not confirmed / Not active",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B1-11 frame 9"
+    },
+    {
+      "entity": "REQ decision",
+      "field": "decided meta",
+      "example": "'Decided by you · 8 Oct 2026, 11:20 · External' / 'Sent by you · 6 Oct 2026, 09:12'",
+      "shownOn": "SA-03",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B1-11 script doneMeta"
+    },
+    {
+      "entity": "INST",
+      "field": "name",
+      "example": "Godavari Institute of Technology",
+      "shownOn": "SA-06, SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-02/B7-03"
+    },
+    {
+      "entity": "INST",
+      "field": "kind (Internal / External)",
+      "example": "External",
+      "shownOn": "SA-06, SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-02 row; B7-03 summary 'Internal or external'"
+    },
+    {
+      "entity": "INST",
+      "field": "status",
+      "example": "Access active | Ending soon | Access paused | Approved — payment required | Access ended",
+      "shownOn": "SA-06, SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-02 script stw"
+    },
+    {
+      "entity": "INST",
+      "field": "Institute Admin",
+      "example": "Meera Iyer / 'Not assigned' + 'Needs one'",
+      "shownOn": "SA-06, SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-02 column; B7-03 header"
+    },
+    {
+      "entity": "INST",
+      "field": "access ends",
+      "example": "Ends 7 Oct 2027 / Ended 15 Oct 2026 / —",
+      "shownOn": "SA-06",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-02 column 'Access ends'"
+    },
+    {
+      "entity": "INST",
+      "field": "plan summary in list",
+      "example": "ACC-0107 · 1 course · 1 experiment / 'No access plan yet · 1 experiment requested'",
+      "shownOn": "SA-06",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-02 annotation 'access plan spelled out'"
+    },
+    {
+      "entity": "INST",
+      "field": "access plan line",
+      "example": "ACC-0107 · 120 licences · Yearly · 8 Oct 2026 – 7 Oct 2027 / 'No access plan yet — it is created when the payment for REQ-0037 is confirmed'",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-03 summary"
+    },
+    {
+      "entity": "INST",
+      "field": "people",
+      "example": "12 students · 3 Faculty",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-03 summary 'People'"
+    },
+    {
+      "entity": "INST",
+      "field": "pause date + reason",
+      "example": "Paused on 12 Oct 2026 · “The institution asked us to pause access while it checks its student list.”",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-03 frame 2"
+    },
+    {
+      "entity": "INST",
+      "field": "originating request",
+      "example": "REQ-0042",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-03 'Open request REQ-0042'"
+    },
+    {
+      "entity": "ACC",
+      "field": "plan id",
+      "example": "ACC-0107",
+      "shownOn": "SA-07, SA-22",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-03 Access plans table"
+    },
+    {
+      "entity": "ACC",
+      "field": "experiments and formats",
+      "example": "Shell-and-Tube Heat Exchanger · ME ZG523 + WEB VR",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-03 table"
+    },
+    {
+      "entity": "ACC",
+      "field": "licences",
+      "example": "120",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "display",
+      "validation": "shown as provided (T-06)",
+      "evidence": "B7-03 table + note"
+    },
+    {
+      "entity": "ACC",
+      "field": "term + dates",
+      "example": "Yearly · 8 Oct 2026 – 7 Oct 2027",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-03 table"
+    },
+    {
+      "entity": "ACC",
+      "field": "status",
+      "example": "Access active (chip uses institution words, e.g. 'Access paused')",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-03 script plans stw=D.stw"
+    },
+    {
+      "entity": "SACC/RUN",
+      "field": "institution report: students with access; per format started · completed",
+      "example": "Shell-and-Tube Heat Exchanger · 5 · WEB 4 started · 2 completed · VR 2 started · 1 completed",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "derived",
+      "validation": "per format, never added up",
+      "evidence": "B7-03 'Institution report'"
+    },
+    {
+      "entity": "IA assignment",
+      "field": "Name",
+      "example": "(empty)",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter the person’s name'",
+      "evidence": "B7-03 frame 6"
+    },
+    {
+      "entity": "IA assignment",
+      "field": "Work e-mail",
+      "example": "n.joshi@sahyadri",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter a work e-mail address' / 'Enter an e-mail address like name@institution.edu.in' (regex ^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$)",
+      "evidence": "B7-03 frame 6 + script"
+    },
+    {
+      "entity": "INST pause/restore",
+      "field": "Reason — kept in the history",
+      "example": "(empty)",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Add a reason — it is kept in the history'",
+      "evidence": "B7-03 frame 7"
+    },
+    {
+      "entity": "PER",
+      "field": "student name + ID + status",
+      "example": "Rahul Verma · GIT-2026-0418 · Active",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-03 People list"
+    },
+    {
+      "entity": "PER override",
+      "field": "Reason for changing the status to Inactive|Active",
+      "example": "(empty)",
+      "shownOn": "SA-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Add a reason — it is kept in the history'",
+      "evidence": "B7-03 frame 8"
+    },
+    {
+      "entity": "UPD",
+      "field": "id · course",
+      "example": "UPD-0005 · CHE ZG513",
+      "shownOn": "SA-10, SA-11",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-05 list row"
+    },
+    {
+      "entity": "UPD",
+      "field": "name · version change",
+      "example": "Distillation Column · 1.2 → 1.3",
+      "shownOn": "SA-10, SA-11",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-05"
+    },
+    {
+      "entity": "UPD",
+      "field": "status (SA words)",
+      "example": "Waiting for your decision | On hold | Released",
+      "shownOn": "SA-10, SA-11",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-05 script E.stw"
+    },
+    {
+      "entity": "UPD",
+      "field": "when line",
+      "example": "Approved by the Academic Reviewer on 27 Aug 2026 / On hold since 20 Aug 2026 / Released on 5 Aug 2026",
+      "shownOn": "SA-10",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-05 list"
+    },
+    {
+      "entity": "EXP",
+      "field": "live line",
+      "example": "Live now: version 1.2 · since 3 Jul 2026",
+      "shownOn": "SA-11",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-05 script liveLine"
+    },
+    {
+      "entity": "UPD",
+      "field": "changed fields (Field · Live now · Proposed)",
+      "example": "Description; WEB · web link 'https://labs.meridian.example/distillation-column-1-3'; Version 1.2 → 1.3",
+      "shownOn": "SA-11",
+      "inputOrDisplay": "derived",
+      "validation": "changed fields only among Name · Summary · Description · WEB · web link · VR · package reference (+ Version)",
+      "evidence": "B7-05 script FIELDS, cmp"
+    },
+    {
+      "entity": "UPD",
+      "field": "why (from the Content Manager)",
+      "example": "'Corrects the reflux statement in the description …'",
+      "shownOn": "SA-11",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-05 'Why — from the Content Manager'"
+    },
+    {
+      "entity": "UPD",
+      "field": "raised line",
+      "example": "Raised by Kavya Nair, Content Manager · started 25 Aug 2026 · sent for academic review 25 Aug 2026",
+      "shownOn": "SA-11",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-05 script raised"
+    },
+    {
+      "entity": "UPD",
+      "field": "academic review line",
+      "example": "Approved by Prof. A. Menon on 27 Aug 2026",
+      "shownOn": "SA-11",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-05 'Academic review'"
+    },
+    {
+      "entity": "INST/ACC",
+      "field": "institutions using it (Institution · Access · Students · Note)",
+      "example": "BITS Pilani — Hyderabad Campus · ACC-0098 · WEB + VR · 46 students with access · Access ends 31 Oct 2026 · renewal REQ-0038 under review",
+      "shownOn": "SA-11",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-05 script E.insts"
+    },
+    {
+      "entity": "UPD",
+      "field": "Decision (radio)",
+      "example": "Release update | Hold",
+      "shownOn": "SA-11",
+      "inputOrDisplay": "input-required",
+      "validation": "default Release update",
+      "evidence": "B7-05 decision panel"
+    },
+    {
+      "entity": "UPD",
+      "field": "Reason the Content Manager will see",
+      "example": "(empty)",
+      "shownOn": "SA-11",
+      "inputOrDisplay": "input-required",
+      "validation": "'Add a reason — the Content Manager sees it'",
+      "evidence": "B7-05 frame 9"
+    },
+    {
+      "entity": "UPD",
+      "field": "hold line + reason",
+      "example": "On hold since 23 Oct 2026 · Arjun Mehta · “…”",
+      "shownOn": "SA-11",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-05 frame 5"
+    },
+    {
+      "entity": "SUB/EXP",
+      "field": "content name + ref + course + formats",
+      "example": "DC Motor Speed Control · SUB-0085 · EEE ZC341 · WEB / 'Published experiment'",
+      "shownOn": "SA-12, SA-13",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-06 rows"
+    },
+    {
+      "entity": "SUB/EXP",
+      "field": "workflow status",
+      "example": "Published | Stuck — nobody can act | With Academic Reviewer | With Content Manager | Returned to vendor",
+      "shownOn": "SA-12, SA-13",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-06 script stw"
+    },
+    {
+      "entity": "SUB/EXP",
+      "field": "where line",
+      "example": "With the Academic Reviewer since 2 Oct 2026 / Published · version 1.2 · live since 3 Jul 2026",
+      "shownOn": "SA-12, SA-13",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-06 script"
+    },
+    {
+      "entity": "SUB/EXP",
+      "field": "who can act",
+      "example": "Nobody — no Academic Reviewer has EEE ZC341 in scope / Prof. A. Menon · Academic Reviewer / —",
+      "shownOn": "SA-12, SA-13",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-06 column 'Who can act'"
+    },
+    {
+      "entity": "SUB/EXP",
+      "field": "update tag",
+      "example": "Update UPD-0005 · approved — waiting for your release decision",
+      "shownOn": "SA-12, SA-13",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-06 script upw"
+    },
+    {
+      "entity": "EXP",
+      "field": "catalogue details (Summary · Formats · Live version · Vendor · Who can act) + learning outcomes",
+      "example": "Live version 1.0 · since 28 Aug 2026; Vendor Northline Simulation Studio",
+      "shownOn": "SA-13",
+      "inputOrDisplay": "display",
+      "validation": "read-only",
+      "evidence": "B7-06 'Catalogue details — Read-only'"
+    },
+    {
+      "entity": "SUB override",
+      "field": "From / To",
+      "example": "With Academic Reviewer — nobody can act → Returned to vendor — Ritu Sharma · Meridian Virtual Labs can change it and send it again",
+      "shownOn": "SA-13",
+      "inputOrDisplay": "derived",
+      "validation": "fixed target (OD-B7-09)",
+      "evidence": "B7-06 frame 5"
+    },
+    {
+      "entity": "SUB override",
+      "field": "Reason — kept in the history",
+      "example": "(empty)",
+      "shownOn": "SA-13",
+      "inputOrDisplay": "input-required",
+      "validation": "'Add a reason — it is kept in the history'",
+      "evidence": "B7-06 frame 5"
+    },
+    {
+      "entity": "AREA",
+      "field": "name",
+      "example": "Chemical & Process",
+      "shownOn": "SA-14, SA-15",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-07"
+    },
+    {
+      "entity": "AREA",
+      "field": "description",
+      "example": "Distillation, process control and flow measurement.",
+      "shownOn": "SA-14, SA-15",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-07"
+    },
+    {
+      "entity": "AREA (add)",
+      "field": "Area name",
+      "example": "",
+      "shownOn": "SA-14",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter the area name'; 'There is already an area called <name>'",
+      "evidence": "B7-07 script doAddArea"
+    },
+    {
+      "entity": "AREA (add)",
+      "field": "Description (optional)",
+      "example": "",
+      "shownOn": "SA-14",
+      "inputOrDisplay": "input-optional",
+      "validation": "",
+      "evidence": "B7-07 add-area dialog"
+    },
+    {
+      "entity": "CRS",
+      "field": "name",
+      "example": "Process Instrumentation & Control",
+      "shownOn": "SA-14, SA-15",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-07"
+    },
+    {
+      "entity": "CRS",
+      "field": "platform course code",
+      "example": "CHE ZG513 / 'No platform code yet'",
+      "shownOn": "SA-14, SA-15",
+      "inputOrDisplay": "display",
+      "validation": "read-only · maintained by the Content Manager (M-2)",
+      "evidence": "B7-07 frames 1, 8"
+    },
+    {
+      "entity": "CRS",
+      "field": "engineering area",
+      "example": "Chemical & Process",
+      "shownOn": "SA-15",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-07 'Course' dl"
+    },
+    {
+      "entity": "CRS",
+      "field": "published experiments count",
+      "example": "3 published experiments",
+      "shownOn": "SA-14, SA-15",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-07"
+    },
+    {
+      "entity": "CRS",
+      "field": "what uses this course (Institutions with access · Vendors in scope · Faculty mapped · Students filed)",
+      "example": "Godavari Institute of Technology (MEC-523) · Northline Simulation Studio · Dr S. Ranganathan — Godavari · 12",
+      "shownOn": "SA-15",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-07 'What uses this course' (sample)"
+    },
+    {
+      "entity": "CRS (add)",
+      "field": "Course name",
+      "example": "",
+      "shownOn": "SA-14",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter the course name'; 'There is already a course called <name>'",
+      "evidence": "B7-07 frame 7"
+    },
+    {
+      "entity": "CRS (add)",
+      "field": "Engineering area (radio)",
+      "example": "",
+      "shownOn": "SA-14",
+      "inputOrDisplay": "input-required",
+      "validation": "'Choose the engineering area it belongs to'",
+      "evidence": "B7-07 frame 7"
+    },
+    {
+      "entity": "CRS (add)",
+      "field": "Description (optional)",
+      "example": "",
+      "shownOn": "SA-14",
+      "inputOrDisplay": "input-optional",
+      "validation": "",
+      "evidence": "B7-07 add-course dialog"
+    },
+    {
+      "entity": "AREA/CRS (rename)",
+      "field": "Course name / Area name",
+      "example": "Thermodynamics & Heat Transfer",
+      "shownOn": "SA-15",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter a name'; 'Enter a different name — this is the current one'; 'There is already a course|an area called <name>'",
+      "evidence": "B7-07 frame 6 + script"
+    },
+    {
+      "entity": "AREA/CRS",
+      "field": "Description (edit)",
+      "example": "",
+      "shownOn": "SA-15",
+      "inputOrDisplay": "input-optional",
+      "validation": "none drawn",
+      "evidence": "B7-07 desc dialog"
+    },
+    {
+      "entity": "CRS (move)",
+      "field": "Move to (area radio)",
+      "example": "",
+      "shownOn": "SA-15",
+      "inputOrDisplay": "input-required",
+      "validation": "'Choose the area to move it to'; blocked when students/Faculty filed",
+      "evidence": "B7-07 frames 3–4 + script"
+    },
+    {
+      "entity": "ROLE",
+      "field": "holder name, organisation, registered date",
+      "example": "Anil Shetty · Northline Simulation Studio · Registered 4 Jul 2026",
+      "shownOn": "SA-16, SA-17",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-08"
+    },
+    {
+      "entity": "ROLE",
+      "field": "can act on",
+      "example": "ME ZG523 / All experiments / 'Nothing — no scope yet'",
+      "shownOn": "SA-16, SA-17",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-08"
+    },
+    {
+      "entity": "ROLE",
+      "field": "withdrawn scope + reason",
+      "example": "MEL ZG512 · Withdrawn 15 Aug 2026 · “Manufacturing Processes content is being produced in-house this term.”",
+      "shownOn": "SA-17",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-08"
+    },
+    {
+      "entity": "ROLE",
+      "field": "work e-mail",
+      "example": "anil.shetty@northline.example",
+      "shownOn": "SA-17",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-08 'Role holder' dl"
+    },
+    {
+      "entity": "ROLE (register)",
+      "field": "Name",
+      "example": "",
+      "shownOn": "SA-16",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter the person’s name'",
+      "evidence": "B7-08 frame 6"
+    },
+    {
+      "entity": "ROLE (register)",
+      "field": "Work e-mail",
+      "example": "",
+      "shownOn": "SA-16",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter a work e-mail address'; 'Enter an e-mail address like name@organisation.com'; 'Someone is already registered with this e-mail address'",
+      "evidence": "B7-08 frame 6 + script"
+    },
+    {
+      "entity": "ROLE (register)",
+      "field": "Organisation",
+      "example": "",
+      "shownOn": "SA-16",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter the organisation'",
+      "evidence": "B7-08 frame 6"
+    },
+    {
+      "entity": "ROLE (scope)",
+      "field": "What can they act on? (radio)",
+      "example": "All experiments | A course | One experiment",
+      "shownOn": "SA-17",
+      "inputOrDisplay": "input-required",
+      "validation": "'Choose what they can act on'",
+      "evidence": "B7-08 script"
+    },
+    {
+      "entity": "ROLE (scope)",
+      "field": "Course (select)",
+      "example": "ME ZG523 · Thermodynamics & Heat Transfer",
+      "shownOn": "SA-17",
+      "inputOrDisplay": "input-required",
+      "validation": "'Choose a course'; '<X> is already in scope'",
+      "evidence": "B7-08 frame 5"
+    },
+    {
+      "entity": "ROLE (scope)",
+      "field": "Experiment (select)",
+      "example": "Shell-and-Tube Heat Exchanger · ME ZG523",
+      "shownOn": "SA-17",
+      "inputOrDisplay": "input-required",
+      "validation": "'Choose an experiment'; '<X> is already in scope'",
+      "evidence": "B7-08 script"
+    },
+    {
+      "entity": "ROLE (withdraw)",
+      "field": "Reason for withdrawing <scope>",
+      "example": "",
+      "shownOn": "SA-17",
+      "inputOrDisplay": "input-required",
+      "validation": "'Add a reason — it is kept in the history'",
+      "evidence": "B7-08 frame 4"
+    },
+    {
+      "entity": "DTR",
+      "field": "id + student + format",
+      "example": "DTR-0018 · Rahul Verma · VR",
+      "shownOn": "SA-18, SA-19",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-11"
+    },
+    {
+      "entity": "DTR",
+      "field": "forwarded (date · by)",
+      "example": "23 Oct 2026, 10:00 · Meera Iyer / 'Not yet'",
+      "shownOn": "SA-18",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-11 Forwarded column"
+    },
+    {
+      "entity": "DTR",
+      "field": "student + student ID",
+      "example": "Rahul Verma · GIT-2026-0418",
+      "shownOn": "SA-19",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-11 'The transfer'"
+    },
+    {
+      "entity": "DTR",
+      "field": "format + experiment",
+      "example": "VR for Shell-and-Tube Heat Exchanger",
+      "shownOn": "SA-19",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-11"
+    },
+    {
+      "entity": "DTR",
+      "field": "moving from (free-text device)",
+      "example": "ME lab VR headset, asset tag GIT-VR-03",
+      "shownOn": "SA-19",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-11 script devOld; OD-B3-01"
+    },
+    {
+      "entity": "DTR",
+      "field": "new device (free text)",
+      "example": "ME lab VR headset, asset tag GIT-VR-07",
+      "shownOn": "SA-19",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-11 devNew; OD-B3-02"
+    },
+    {
+      "entity": "DTR",
+      "field": "student's note",
+      "example": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+      "shownOn": "SA-19",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-11"
+    },
+    {
+      "entity": "DTR",
+      "field": "status (SA words)",
+      "example": "Forwarded | Still with the institution | Approved",
+      "shownOn": "SA-18, SA-19",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B3-11 SAW map"
+    },
+    {
+      "entity": "SUP",
+      "field": "id · title · sent",
+      "example": "SUP-0213 · VR simulation stopped loading at step 2 · Sent 3 Oct 2026",
+      "shownOn": "SA-20, SA-21",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-09"
+    },
+    {
+      "entity": "SUP",
+      "field": "from (name · role · institution)",
+      "example": "Rahul Verma · Student · Godavari Institute of Technology",
+      "shownOn": "SA-20, SA-21",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-09"
+    },
+    {
+      "entity": "SUP",
+      "field": "what happened / where / screenshot",
+      "example": "The VR simulation stopped loading at the second step. / ME ZG523 · Shell-and-Tube Heat Exchanger · Simulation · VR / No screenshot added",
+      "shownOn": "SA-21",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-09 'What they reported'"
+    },
+    {
+      "entity": "SUP",
+      "field": "status",
+      "example": "Open | Resolved | Reopened",
+      "shownOn": "SA-20, SA-21",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-09 script stw"
+    },
+    {
+      "entity": "SUP (resolve)",
+      "field": "Note to the reporter",
+      "example": "",
+      "shownOn": "SA-21",
+      "inputOrDisplay": "input-required",
+      "validation": "'Add a note — the reporter sees it'",
+      "evidence": "B7-09 frame 11"
+    },
+    {
+      "entity": "SUP",
+      "field": "resolved line + note",
+      "example": "Resolved on 23 Sep 2026 by Arjun Mehta · “The lab brief link was updated…”",
+      "shownOn": "SA-21",
+      "inputOrDisplay": "display",
+      "validation": "",
+      "evidence": "B7-09 frame 9"
+    },
+    {
+      "entity": "ACC (ending)",
+      "field": "access ends + days left",
+      "example": "31 Oct 2026 · 8 days left / Ended 8 days ago",
+      "shownOn": "SA-22",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-09 frame 4"
+    },
+    {
+      "entity": "ACC (ending)",
+      "field": "status + sub-line",
+      "example": "Renewal in progress · REQ-0038 under review / Reminder due · Nothing is sent from here / Access ended · No renewal requested",
+      "shownOn": "SA-22",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-09 frame 4"
+    },
+    {
+      "entity": "Overview",
+      "field": "figures",
+      "example": "4 Active institutions; 13 Published experiments",
+      "shownOn": "SA-01",
+      "inputOrDisplay": "derived",
+      "validation": "",
+      "evidence": "B7-01"
+    },
+    {
+      "entity": "Overview",
+      "field": "attention group count + rows",
+      "example": "Requests 3 · 'REQ-0058 · Godavari Institute of Technology — 60 more licences · under review since 21 Oct 2026'",
+      "shownOn": "SA-01",
+      "inputOrDisplay": "derived",
+      "validation": "≤4 rows per group",
+      "evidence": "B7-01"
+    }
+  ],
+  "crossRoleTouchpoints": [
+    "REQ (SA-03 Approve, External): requester's PU-10 status shows 'Approved — payment required' + 'Continue to payment' (B1-13 step 11); later payment (PU-12) confirmed → REQ 'Access active' + ACC-0107 (B1-13 step 13) — SA-02/SA-03 then show Access active and the four-event history (B1-11 frame 10).",
+    "REQ (SA-03 Approve, Internal): requester never sees steps 11–12; status goes straight to Access active (B1-13 'Internal route.' note; B1-08 REQ-0039).",
+    "REQ (SA-03 smaller scope): requester's PU-10 'What you asked for and what was approved' shows the difference and the SA's reason (B1-11 confirm 'The requester sees what changed and your reason.').",
+    "REQ (SA-03 Request more information): question shown on the requester's PU-10 status; reply (PU-11) not designed (T-03).",
+    "REQ timeline words differ by role: requester sees 'Submitted' while SA sees 'Under review' on submission (B1-13 'Timeline of REQ-0042').",
+    "INST (created by SA-03 first approval) appears in SA-06 as 'Approved — payment required' with 'No access plan yet' (Vizag, B7-02/B7-03).",
+    "ACC (activation) → Institute Admin sees the plan read-only in IA-02/IA-03 (Flow B step 2; entities ACC 'read by IA'); Students get access only when the IA gives it (IA-05, SACC).",
+    "INST Assign Institute Admin (SA-07) → that person becomes the IA of the institution (Flow B step 1 → IA-01); nothing is sent (T-11).",
+    "INST Pause (SA-07) → IA-01 shell banner 'Your institution’s access is paused — your work is kept.' + 'Access paused · Access plan ACC-0107 · paused by BITS on <date>' + attention 'BITS has paused your institution’s access … Pages are read-only until BITS lifts the pause.' and no Give students access; Faculty FA-01 shared banner only (OD-B7-07); Student ST-01 'You can’t open experiments right now' and course card 'Paused — your institution’s access is paused' (B7-04 frames 1–3; XS-08). Restore reverses it.",
+    "INST paused → SA-03 decisions on that institution's requests are blocked (B1-11 frame 14).",
+    "PER status override (SA-07) → Institute Admin's People (IA-06) shows the new Active/Inactive status (inferred; IA side not drawn on SA boards).",
+    "UPD: only after the Academic Reviewer approves in RV-04 does it appear in SA-10 'Waiting for you' (B7-11 step 2); CM-08 shows 'Awaiting release decision'.",
+    "UPD Release (SA-11) → CM-08 'Released', CM-05 live version 1.3 with history 'Version 1.3 released'; public PU-06 and learner ST-05 read version 1.3 (B7-11 Branch A). Hold → CM sees 'On hold' + reason, everyone still sees 1.2 (Branch B). Lift hold → back to waiting, nothing goes live.",
+    "SUB override (SA-13) → submission 'Returned to vendor'; the Vendor (VE-02/VE-07) can change and resubmit (B7-06 override To text) — Vendor side not drawn here.",
+    "ROLE scope assign/withdraw (SA-17) → controls what appears in the Vendor's course list, the Academic Reviewer's queue (RV-02) and the Content Manager's library (B7-08 annotation 'Scope decides what appears in their workspace'); withdraw takes effect 'straight away'; a course with no reviewer in scope makes submissions stuck (SA-12/SA-13, SUB-0085).",
+    "AREA/CRS (SA-14/15) feed the public explorer (PU-02/PU-03), catalogue (PU-04), Vendor course lists (VE-03) and student-import matching (IA-11) (B7-07 header + rename warning); platform course code comes from CM-09 (B6-10).",
+    "DTR Approve (SA-19) → Student ST-18 and Institute Admin IA-19 see 'Approved' ('Decided · approved by BITS' on IA side); the authorised device changes (B3-11 caption; script IAW map).",
+    "SUP Resolve (SA-21) → reporter sees the note on their report in XS-07 Help; Reopen → reporter sees it open again; reporter can also reopen (B7-09 frames 9–12).",
+    "Access ending (SA-22) 'Reminder due' is the same reminder state as the Institute Admin overview (Inventory v3 §J.3 SA-22) — IA side not drawn on SA boards; renewal arrives as a new REQ from IA-17 / B3-08 (B7-00: REQ-0058 sent from B3-08).",
+    "Overview (SA-01) aggregates the same records: REQ, UPD, DTR, SUP, ACC, INST (no IA), SUB (stuck), ROLE (no scope) — counts must come from the shared state."
+  ],
+  "canvasOnly": [
+    "Frame captions (b1-cap / caption + note text, e.g. 'SA-02 Requests · 1440 · interactive') and the board headers, kickers and doc-sub texts on every board.",
+    "Annotation blocks under frames ('Question', 'Columns', 'Filters', 'Layout (AR-4, B2 A2 kept)', 'Four separate events', 'Not here', 'Same record', 'Statuses', 'Rows', 'Feeds', 'Move rule', 'Scope', 'Release (DL-1)', 'Never', etc.).",
+    "B7-04 board control 'Board control — not part of the product.' with button 'Start again (Godavari active)' and its board note.",
+    "B7-11 board controls 'Start again: approved correction (step 3)' and 'Start again from the Content Manager’s draft (step 1)'.",
+    "B7-04 and B7-11 reference frames of other workspaces (Institute Admin, Faculty, Student, public, learner) sharing state only within the board.",
+    "B1-13 thumbnails at 30% with SA sidebar links href='#' and 'Open board B1-xx' links; its step captions ('Super Admin · Requests', 'Super Admin · Decision', 'Super Admin · Decided').",
+    "Live-board dual row controls: on B7-02 / B7-06 / B7-07 / B7-08 / B7-09 each row has both an 'Open' button (shows the record in the frame beside it) and an 'Open' link — the product needs one link per row to the detail route.",
+    "B1-10 rows all link to the single B1-11 board (REQ-0042) regardless of row; B1-10 sidebar/B3-11 'Operations' self-links; Overview rows linking to list boards.",
+    "Fixed-height scroll crops of Batch 1–3 frames (B1-10, B1-11, B3-11) — product pages grow with content (START-HERE Known exceptions 3).",
+    "Simulated busy delays (window.setTimeout 600–800 ms for 'Approving…', 'Assigning…', 'Releasing…') and canvas 'now' timestamps taken from fixed D.times arrays.",
+    "Sample-data labels inside frames: 'Sample' on 'Institutions using it', 'What uses this course'; 'Sample figures · up to 23 Oct 2026' on the institution report; 'Student names are sample data for Godavari Institute of Technology only.'",
+    "Board meta strings: 'Interactive', '(live)', 'Sample institutions and contacts', 'Sample decision time 8 Oct 2026, 11:20 by Arjun Mehta', '23 Oct 2026 (sample)', 'Everything is sample'.",
+    "B1-11 caption note 'Fixes “Approved undefined”' (design change-log text).",
+    "BITS Pilani / WILP logo box text 'BITS Pilani / WILP logo — placeholder' (unapproved placeholder; build must keep it a labelled placeholder, binding constraint 12).",
+    "support.js runtime and the sc-if / sc-for / {{ }} template syntax and DCLogic scripts (canvas engine, not product code).",
+    "Scripts' unused link targets (e.g. B7-07 codesHref → B6-10, never rendered) — not product links.",
+    "The template-only 'No transfer requests yet.' history text and student-request form logic carried in B3-11's shared engine (Student/IA branches) — not SA product states.",
+    "Inline style overrides on frames (e.g. sort button inline style on B1-10) are canvas specimens; build from tokens/components."
+  ],
+  "inconsistencies": [
+    "entities.json DTR statuses list only the Student-side words ('With your Institute Admin · Forwarded to BITS · Approved'); SA boards use 'Still with the institution · Forwarded · Approved' (B3-11 script SAW map) and filter links 'Forwarded to BITS · Still with an institution · Approved'; IA words 'Waiting on you · Forwarded to BITS · Decided · approved by BITS'. The shared record needs a per-role label map (board wins).",
+    "entities.json UPD lists the CM word 'Awaiting release decision'; SA boards show 'Waiting for your decision' (chip) and the tab 'Waiting for you' (B7-05); flows.json Flow F step 3 uses the SA word. Per-role label map needed.",
+    "entities.json ACC statuses 'Access active · Ending soon · Paused · Access ended' vs SA-07 Access-plans table chip which uses the institution word 'Access paused' (B7-03 script plans stw = D.stw).",
+    "entities.json ROLE statuses 'Scope active · withdrawn (reason)' — no 'Scope active' status word is drawn; boards show 'Since <date>' for active scopes and 'Withdrawn <date> · “reason”' (B7-08).",
+    "entities.json SUB statuses ('Draft · With Academic Reviewer · Returned · With Content Manager · Published') vs SA-12 chips 'Returned to vendor' and the SA-only derived status 'Stuck — nobody can act' (B7-06 script stw). B7-06's own annotation still says 'With the Academic Reviewer · With the Content Manager · With the vendor', which B8-03 reports as aligned — the annotation was not updated (board chips win).",
+    "screens.json SA-13 lists board B7-09 (Operations), but B7-09 contains no content record (no SUB/EXP or 'All content' text in its frames or script).",
+    "screens.json SA-11 lists B7-01 (Overview); B7-01 only shows a UPD-0005 row linking to the Updates board, not the SA-11 page itself (entry point only).",
+    "screens.json SA-15 proposedRoute '/admin/structure/areas/[areaId] · /courses/[courseId]' packs two routes into one string; recommend /admin/structure/areas/[areaId] and /admin/structure/courses/[courseId].",
+    "Overview (B7-01) caption says 'Every row opens the page where it is handled', but row links go to list boards (REQ rows → B1-10, UPD row → B7-05, DTR/SUP/access-ending rows → B7-09); B8-01 does not specify per-row targets. Record-level targets (SA-03/SA-11/SA-19/SA-21) are an inference to confirm.",
+    "'Open request' targets differ: SA-07 'Open request REQ-xxxx' → B1-11 (decision page) while SA-22 'Open request' (REQ-0038) → B1-10 (list) and SA-07 'Needs attention › Requests' → B1-10.",
+    "Decision panel stickiness: B1-11 annotation 'decision panel ~28 % (sticky)' and xr-foundation.css '@container xr-content (min-width:860px){ … .xr-dpanel{position:sticky;top:24px} }' vs B8-03 'Sticky / fixed elements: None fixed to the viewport inside frames; the decision panel is static (Batch-6 rule)'.",
+    "AR-4 breakpoint stated two ways: B1-11 'Below 860 px of content' (container xr-content) vs B8-07 'panel below the content under 908 px of app width' (container xr-app) — same rule, different container; build must pick one container query.",
+    "Validation pattern: B8-07 says 'errors on the field and in a summary'; only B1-11 has an error summary (role=alert 'Check your decision'). All Batch-7 SA dialogs/panels (Assign IA, Pause, Restore, override reason, Hold, Move status, Add area/course, Rename, Register, Assign scope, Withdraw, Resolve) show field errors only — 0 xw-errsum and 0 role=alert on B7-02…B7-09.",
+    "Board 10 rule 'DL-3 · Small edit — One short value … Two fields at most … Never a dialog for … choosing from long lists' vs B7-07 'Add a course' dialog (3 fields incl. area radio list), B7-08 'Register a <role>' dialog (3 required fields) and 'Assign scope' dialog (13-item experiment select). Board wins; note for component API.",
+    "In-frame product copy contains internal decision IDs: '(T-09)' SA-06 meta; '(T-06)', '(T-08)', '(T-25)', '(T-11)' SA-07; '(T-28)' SA-11 on-hold panel; '(D3)' SA-14/15; '(T-11)' SA-16/17; '(ND-14)' SA-21; '(T-31)' SA-22. Whether these ship to users is undecided.",
+    "B1-10 'More filters' button counts only Internal-or-external ('More filters (1)' when route is set) but below 600px Type also lives in the More filters panel and is not counted (frame 9 'Mobile 375 · More filters open': chip 'Type: New access' with button label 'More filters').",
+    "B1-10 sort button accessible name repeats the word: 'Received, Received, newest first. Change order' (visible 'Received' + xr-sr ', Received, newest first. Change order').",
+    "B1-10 keyboard-focus defect (binding constraint 13): focusable 'Received' sort button inside the visually hidden thead at <760px content — see b110KeyboardFocusDefect.",
+    "B3-11 SA sidebar 'Requests' item has no count badge, unlike every other SA board ('3, 3 requests under review' on B1-10, B1-11, B7-01…B7-10).",
+    "Breadcrumb depth differs: SA-19 'Operations / DTR-0018' (+ separate back link 'Device transfers') vs SA-21 'Operations / Support / SUP-xxxx'.",
+    "Operations page meta differs by tab: 'Device transfers, support reports and access ending' (Device transfers tab, B3-11/B7-09) vs 'Device transfers, support reports and access that is ending' (Support and Access ending tabs).",
+    "Pause vocabulary: SA action is 'Restore access' but IA/Student copy says 'until BITS lifts the pause' / 'continue when it’s lifted' (B7-04) and SA-03 says 'once the pause ends'; 'Lift' is otherwise the UPD verb ('Lift hold').",
+    "Sample-world conflicts between B1-11 and Batch 7 for the same institutions: Konark Polytechnic is 'paused' with plan ACC-0064 (180 licences, ends 24 Sep 2027) on B1-11 (REQ-0040) but 'Ending soon' with ACC-0091 (60 licences, ends 2 Nov 2026) on B7-02/B7-09; BITS Pilani — Hyderabad renewal REQ-0038 cites ACC-0081 (Composite Wall Conduction, Fin-Tube Bundle, Investment Casting; 860 licences) on B1-11 but ACC-0098 (Distillation Column, Boiler Drum Level; 80 licences, Monthly) on B7-02. One shared mock world must pick one (OD-B7-06/OD-B7-14 sample-data class).",
+    "SA-06 tab 'Access active 4' counts Access active + Ending soon institutions (script match), while the row chip for those 2 says 'Ending soon'; the Overview figure states it explicitly ('Access active or ending soon'), the tab does not.",
+    "Inventory v3 §J.2 lists SA-02 state 'declined (OPEN)', SA-19 secondary 'Decline (reason — OPEN)', SA-06 filters 'active / ending soon / paused' and SA-07 'is a reason needed to pause? (optional in the prototype)'; v46 boards: no Declined state, approve-only transfers, five filters + No Institute Admin, pause reason required (B7-00 scope reconciliation records these). Boards win.",
+    "B1-11 smaller-scope narrowing uses only the first requested experiment's formats (script R.exps[0]); multi-experiment requests (REQ-0041 '3 experiments', REQ-0038) are not drawn with per-experiment narrowing, although SA-09 is merged into SA-03.",
+    "B1-11 internal confirm copy 'Institutional access is activated now and the access plan is created.' would also apply to a renewal of an existing plan (REQ-0038, ACC-0081) — renewal decided state is not drawn, and the script hard-codes 'Active · ACC-0107' in the decided stand list.",
+    "flows.json Flow A step 3 transition lists only the approval outcomes; the 'Request more information' branch (Under review → Information requested, B1-11 frames 6/12) is not in flows.json.",
+    "navigation.json / B8-01 do not record that the sidebar 'Content' and 'Operations' items land on a default tab (Updates; Device transfers) — boards link Content → B7-05 and Operations → B7-09 (first tab device transfers).",
+    "SA-19 drawn 'not yet forwarded' state (B7-10 frame 14) shows H1 'Device transfers' on the decision route, while SA-18's own 'Still with an institution' rows have no link to that record — the state is only reachable by direct URL/Overview."
+  ],
+  "sharedComponentCandidates": [
+    "WorkspaceShell (Super Admin variant: 7 destinations + Help foot, Requests count badge, Menu button <1024px, collapse, account menu, breadcrumbs) — every SA screen",
+    "PageHeader (overline · H1 · status/meta line · action bar) — every SA screen",
+    "SubNavTabs (link tabs with aria-current=page) — Content (SA-10/SA-12) and Operations (SA-18/SA-20/SA-22)",
+    "StatusTabs (role=tablist with counts, filter one list) — SA-06, SA-10, SA-12, SA-16, SA-20",
+    "FilterLinkGroup (role=group of links with aria-current) — SA-18",
+    "FilterToolbar + FilterChip + ClearFilters + ResultCount(role=status) — SA-02 (full), SA-06 and SA-12 (search + count + clear)",
+    "DataTable with labelled-row mode <760px content (td[data-label]) and a visible sort control in that mode (B1-10 fix) — SA-02, SA-06, SA-07 (plans, report), SA-10, SA-11 (institutions), SA-12, SA-16, SA-18, SA-20, SA-22",
+    "StatusPill (ok · wait · err · info · off · paused; icon + words; wraps inside decision panels) — all screens",
+    "FormatBadge (WEB · AR · VR · MR) — SA-03, SA-07, SA-12, SA-13",
+    "IdChip / IdLink (REQ-, ACC-, UPD-, SUB-, DTR-, SUP- monospace) — SA-02, SA-03, SA-07, SA-10, SA-12, SA-18, SA-20",
+    "KeyValueList (dl, label-over-value <600px) — SA-03, SA-07, SA-13, SA-15, SA-17, SA-19, SA-21",
+    "HistoryTimeline (newest first; what · when · who · note) — SA-03, SA-07, SA-11, SA-13, SA-15, SA-17, SA-19, SA-21",
+    "DecisionLayout + DecisionPanel (AR-4 ~72/28, 'Go to decision' jump <860px content, sticky question open) — SA-03, SA-11, SA-19, SA-21",
+    "ChoiceList (radio cards with title + sub, disabled-with-reason option) — SA-03, SA-11, SA-14 (area radio), SA-15 (move), SA-17 (scope kind)",
+    "ConfirmDialog DL-1 (focus on confirm; Cancel returns focus; busy label) — SA-03 approve, SA-11 release + lift hold, SA-19 approve transfer, SA-21 reopen",
+    "ReasonDialog DL-2 (required reason, says who sees it) — SA-07 pause/restore, SA-11 hold, SA-13 move status",
+    "SmallEditDialog DL-3 / FormDialog (top-aligned header-action dialogs with field errors) — SA-07 assign IA, SA-14 add area/course, SA-15 rename/description, SA-16 register, SA-17 assign scope",
+    "InlinePanel (xw-inline-panel beside the row it affects: reason or confirm) — SA-07 student override, SA-15 move course, SA-17 withdraw/restore scope",
+    "Notice (info/warn/err, role=status, optional actions) — SA-03 paused, SA-07 paused/no IA, SA-11 hold lifted, SA-12 stuck/update, SA-13 all record notices, SA-16 no scope, SA-17 no scope, SA-21 reopened",
+    "FlashStatus (role=status success message that receives focus after an action) — SA-07, SA-13, SA-14, SA-15, SA-17, SA-19, SA-21",
+    "ErrorSummary (role=alert 'Check your decision') + FieldError (aria-invalid) — SA-03 (summary) and every form (field errors)",
+    "BusyButton (aria-disabled + '…ing' label: Approving…, Assigning…, Pausing…, Restoring…, Releasing…, Holding…, Lifting…, Moving…, Adding…, Saving…, Registering…, Resolving…, Reopening…) — all DL dialogs",
+    "EmptyState / NoMatchState / LoadingSkeleton(announced) / FailedState(retry) — SA-01, SA-02, SA-06, SA-10, SA-11, SA-12, SA-14, SA-20, SA-22",
+    "AttentionGroup + AttentionRow (xr-rows) — SA-01 groups, SA-07 Needs attention",
+    "OverviewFigures (xd-figs, exactly two numbers) — SA-01 only",
+    "ComparisonTable (live vs proposed / live before vs released; stacks <760px) — SA-11 (shared with B6-04)",
+    "FourEventsHelp + StandList ('Where this request stands') — SA-03 (reusable for request-status semantics)",
+    "ScopeChip (xd-scope) — SA-16/SA-17"
+  ],
+  "openQuestions": [
+    "T-02 / R21 / D10 — Decline a request (SA-04): WAIT FOR DECISION; keep no Decline control or state.",
+    "T-03 / PU-11 — after 'Information requested', how does the request become decidable again? B1-11 frame 12 shows no decision controls and the reply lifecycle is OPEN.",
+    "R06 / T-05 / ND-08 — who confirms payment and how 'Payment not confirmed' is resolved; SA-05 (record payment / activate manually) is not designed and SA has no action on 'Payment not confirmed' requests (e.g. REQ-0036).",
+    "T-04 / ND-07 / STK31-19 — internal vs external classification rule is not invented (SA chooses at first approval); the stakeholder 'Subscription' / 'BITS Community' plan context is not shown on any SA board.",
+    "SA-09 merged into SA-03 — narrowing is drawn only for a single-experiment request; how to narrow a multi-experiment request (per experiment / per format) is not shown.",
+    "T-07 / D8 — what approving a Renewal or an 'Additional licences' request does to the existing plan (extend ACC-0081 vs new plan; '60 more' licences; external payment for an existing institution) is not drawn.",
+    "OD-B7-11 — assigning an Institute Admin before payment; and replacing/removing an existing Institute Admin is not shown on SA-07.",
+    "T-11 / R02 / STK31-44 — identity origin, invitations and first sign-in for Institute Admins and platform role holders: 'Nothing is sent from here'.",
+    "T-06 / D7 — licence counting copy; figures shown as provided only.",
+    "T-08 / STK31-24 — Super Admin content and technology allocation after approval: v46 allows narrowing only at approval and shows plans read-only (no amendment); confirm this satisfies STK31-24.",
+    "STK31-21 / STK31-22 — tenant termination: v46 designs reversible Pause/Restore only; 'Access ended' comes only from term end. Confirm no terminate action is needed.",
+    "STK31-28 / T-31 / ND-16 — the stakeholder states the 15-day expiry reminder is a REQUIRED capability ('An in-product attention state does not discharge it'); v46 shows 'Reminder due — nothing is sent from here'. Channel undecided; do not invent one.",
+    "STK31-08 / STK31-09 vs M-1 / M-2 — stakeholder record says the Super Admin may also manage canonical/master metadata; v46 (Inventory v3 M-1/M-2) makes published records read-only for the SA and the platform course code CM-only. Board follows M-1/M-2; confirm with owner.",
+    "OD-B7-01 (Hold asks for a reason vs DL-1), OD-B7-02 (Lift hold returns to waiting, no reason), OD-B7-03 (no Release straight from On hold), OD-B7-04 / T-28 residual (downstream effects of Hold; whether a held update blocks later corrections), OD-B7-05 (whether the version label is public).",
+    "OD-B7-09 — override targets: only 'back to the vendor' for a record stuck with the Academic Reviewer is designed; stuck with the Content Manager or other stuck causes are not designed.",
+    "OD-B7-10 — restoring a withdrawn scope asks no reason.",
+    "OD-B7-12 — what blocks moving a course ('people filed against it' read as students or Faculty mapped). OD-B7-13 — whether a new empty area appears in the public explorer. D3 — Retire. Area artwork supplier.",
+    "OD-B6-01 / STK31-41 — reviewer scoping policy; multiple holders per experiment allowed (board permits, not explicitly drawn); what happens to in-flight items when a scope is withdrawn (only 'They stop seeing it straight away' is stated).",
+    "T-32 / D20a / OD-B3-04 — device-transfer decline (WAIT); D20b / OD-B3-01 — device registry; OD-B3-02 transfer fields (free text).",
+    "ND-14 / STK31-39 — support SLA and priority not designed; both reporter and Super Admin can reopen.",
+    "T-25 / SA-25 — student feedback views for staff deferred; SA-07 says 'Student feedback is not shown here'.",
+    "STK31-42 — institution report 'students/users by stream where available' is not shown on SA-07 (report is per experiment × format only; Programme lives on the Student record).",
+    "T-33 / SA-23 — platform reports deferred; exports not shown on SA screens.",
+    "Decision panel: sticky (B1-11 annotation + xr-foundation.css) or static (B8-03 'Batch-6 rule')?",
+    "Dialog validation: add an error summary to Batch-7 dialogs to meet B8-07, or keep field-only errors as drawn?",
+    "In-frame decision IDs (T-xx, D3, ND-14) in product copy — keep verbatim or strip for production?",
+    "B1-10 defect fix approach: visible sort control above rows <760px vs removing hidden header controls from the tab order with a visible equivalent (START-HERE allows either).",
+    "Sample world: which version of Konark Polytechnic and BITS Pilani — Hyderabad plans to seed (B1-11 vs B7-02); sample timing OD-B7-14 / OD-B6-12.",
+    "Overview row targets: list page (as drawn) or the record's decision/detail page (as the caption implies)?",
+    "Default Platform-roles tab (frame shows Reviewers; script default Vendors) and default Updates/Support tabs when arriving from the sidebar.",
+    "Who can see the Super Admin's name in histories shown to other roles (e.g. 'Access paused by Arjun Mehta', 'paused by BITS' on the IA side) — attribution wording differs by audience; not specified beyond the drawn copy.",
+    "Failed / loading states are drawn only for SA-01 (loading), SA-02 (loading, failed) and SA-06 (loading); all other SA lists and records have no drawn loading/failed/not-found state — B8-07 requires them for every list/page."
+  ],
+  "b110KeyboardFocusDefect": {
+    "summary": "B1-10 (SA-02) below 760px of content: the table header is visually hidden (labelled-row mode) but its 'Received' sort button stays in the tab order, so a keyboard user can focus an invisible control. Only B1-10 (10 frames) and its B1-13 thumbnail have an interactive control inside a <thead> on any v46 board (scan of all boards).",
+    "tableMarkup": "<div class=\"xr-table-wrap\"><table class=\"xr-table\"><caption class=\"xr-sr\">Institutional access requests</caption><thead><tr><th scope=\"col\">Reference</th><th scope=\"col\">Institution and contact person</th><th scope=\"col\">Experiments</th><th scope=\"col\">Type</th><th scope=\"col\" aria-sort=\"{{ q.ariaSort }}\"><button type=\"button\" class=\"xr-btn xr-btn--text\" style=\"min-height:32px;padding:0;color:#40476B;font-weight:700;text-decoration:none;font-size:14px\" onClick=\"{{ q.toggleSort }}\">Received<sc-if value=\"{{ q.sortIcon }}\"><svg class=\"xr-ico xr-ico--16\" aria-hidden=\"true\">(down chevron)</svg></sc-if><sc-if value=\"{{ q.sortAsc }}\"><svg class=\"xr-ico xr-ico--16\" aria-hidden=\"true\">(up chevron)</svg></sc-if><span class=\"xr-sr\">, {{ q.sortLabel }}. Change order</span></button></th><th scope=\"col\">Status</th></tr></thead>",
+    "receivedCell": "<td data-label=\"Received\" class=\"xr-num\">{{ r.date }}</td>",
+    "hiddenHeaderCss": "xr-foundation.css: @container xr-content (max-width:759.98px){ .xr-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} .xr-table,.xr-table tbody,.xr-table tr,.xr-table td{display:block;width:100%} .xr-table tr{padding:14px 16px;border-top:1px solid #E1E4F3} .xr-table tbody tr:first-child{border-top:0} .xr-table td{padding:2px 0;border-top:0} .xr-table td[data-label]::before{content:attr(data-label);display:block;margin-top:8px;font-size:13px;line-height:18px;font-weight:700;letter-spacing:.02em;color:#5C6389} .xr-table td.is-primary{font-size:16px} .xr-table td.is-primary::before{display:none} }",
+    "visuallyHiddenClass": "xr-foundation.css .xr-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0} — used for the table caption and the sort-label suffix; the thead itself is hidden by the container-query rule above, NOT by .xr-sr and NOT by display:none, so its button remains focusable.",
+    "sortStateLogic": "B1-10 script saView: sortLabel = desc ? 'Received, newest first' : 'Received, oldest first'; ariaSort = desc ? 'descending' : 'ascending'; toggleSort flips desc; default desc=true.",
+    "accessibleName": "Rendered name 'Received, Received, newest first. Change order' (derived/frame-index.json control 'Received , Received, newest first. Change order') — the word 'Received' is announced twice.",
+    "toolbarAtNarrowWidth": "Below 600px of content: .xr-toolbar > .xr-filter-2{display:none} hides the Type select; Type is then offered inside the More filters panel (xp-morefilters-type).",
+    "requiredFix": "START-HERE 'Known exceptions' 1 + B8-03 + B8-08: below 760px show the sort as a visible control above the rows (or take the hidden header’s controls out of the tab order and provide a visible equivalent). Recommended for the shared DataTable component: in labelled-row mode render a visible 'Sort by' control (same accessible state as aria-sort) above the rows and make the hidden thead non-focusable (e.g. display:none/inert on interactive header content at that container width).",
+    "evidence": "design/handoff-v46/canvas-v46/project/B1-10-SA-Requests.dc.html (all 10 frames; frame 8 'Mobile 375' and frame 9 'Mobile 375 · More filters open'); design/handoff-v46/canvas-v46/project/xr-foundation.css; design/handoff-v46/canvas-v46/project/B8-03-Terminology-and-Visual-Consistency.dc.html 'Open finding — B1-10 at 375'; design/handoff-v46/canvas-v46/project/B8-08-Open-Decisions-and-Limitations.dc.html 'B1-10 sort button at 375'; design/handoff-v46/START-HERE.md binding constraint 13."
+  }
+}

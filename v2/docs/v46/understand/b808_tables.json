@@ -1,0 +1,2956 @@
+[
+ {
+  "heading": "Summary",
+  "rows": [
+   [
+    {
+     "t": "Classification",
+     "l": []
+    },
+    {
+     "t": "Batch decisions (OD-B2 … OD-B7)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Product policy",
+     "l": []
+    },
+    {
+     "t": "55",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Shapes the data model",
+     "l": []
+    },
+    {
+     "t": "12",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Resolved / recorded in Batch 8",
+     "l": []
+    },
+    {
+     "t": "4",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Sample data only",
+     "l": []
+    },
+    {
+     "t": "7",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Still open",
+     "l": []
+    },
+    {
+     "t": "1",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Build blockers for the mock-service frontend",
+     "l": []
+    },
+    {
+     "t": "0 — every open item has a designed safe treatment",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Before production go-live",
+  "rows": [
+   [
+    {
+     "t": "Needed before production (not before the frontend build)",
+     "l": []
+    },
+    {
+     "t": "Register / Inventory ref.",
+     "l": []
+    },
+    {
+     "t": "Safe treatment in the design",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Real sign-in, invitations, identity origin, password policy",
+     "l": []
+    },
+    {
+     "t": "T-10 · T-11 · R02 · XS-04 · IA-12",
+     "l": []
+    },
+    {
+     "t": "Institution + e-mail sign-in screens; “Nothing is sent from here”; no invitation UI",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Payment provider, confirmation, refunds",
+     "l": []
+    },
+    {
+     "t": "T-05 · R06 · SA-05",
+     "l": []
+    },
+    {
+     "t": "Provider-neutral payment step; only success activates",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Licence counting",
+     "l": []
+    },
+    {
+     "t": "T-06 / D7",
+     "l": []
+    },
+    {
+     "t": "Figures shown as provided; no counting copy",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Notifications and reminders",
+     "l": []
+    },
+    {
+     "t": "T-31 · T-34",
+     "l": []
+    },
+    {
+     "t": "Status in-product only; “Reminder due” sends nothing",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Decline (requests, device transfers)",
+     "l": []
+    },
+    {
+     "t": "T-02 · T-32",
+     "l": []
+    },
+    {
+     "t": "No Decline control or state",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Hold side effects; technical-only corrections",
+     "l": []
+    },
+    {
+     "t": "T-28 residual",
+     "l": []
+    },
+    {
+     "t": "Hold keeps the live version; always CM → Reviewer → Super Admin",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Reports and feedback analytics",
+     "l": []
+    },
+    {
+     "t": "T-33 · T-25 · R15 · SA-23/25",
+     "l": []
+    },
+    {
+     "t": "No report pages; exports of existing lists only",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Direct institution creation; plan amendment",
+     "l": []
+    },
+    {
+     "t": "T-09 · T-08",
+     "l": []
+    },
+    {
+     "t": "No such controls",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Brand lockup and official font",
+     "l": []
+    },
+    {
+     "t": "Batch 0",
+     "l": []
+    },
+    {
+     "t": "Labelled placeholder; Public Sans working font",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Limitations",
+  "rows": [
+   [
+    {
+     "t": "Limitation",
+     "l": []
+    },
+    {
+     "t": "Effect",
+     "l": []
+    },
+    {
+     "t": "How to resolve or whether safe to defer",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Canvas boards keep their own state",
+     "l": []
+    },
+    {
+     "t": "Cross-board continuity is not demonstrated on the canvas",
+     "l": []
+    },
+    {
+     "t": "Safe — the shared state is a build requirement (B8-04, B8-06)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Hosted interactive tests",
+     "l": []
+    },
+    {
+     "t": "Claude’s Batch-8 tests are local; the hosted file read-back is byte-exact",
+     "l": []
+    },
+    {
+     "t": "User to run the short hosted test (final report)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Batch-0 specimen boards",
+     "l": []
+    },
+    {
+     "t": "Some foundation specimens log harmless console warnings while an SVG template value is being filled; their in-board “#…” anchors stay",
+     "l": []
+    },
+    {
+     "t": "Safe — specimens, not product screens",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Generators of Batches 1–3",
+     "l": []
+    },
+    {
+     "t": "Still emit the pre-Batch-8 links if re-run",
+     "l": []
+    },
+    {
+     "t": "Safe — the published HTML is the source of truth; do not regenerate those boards",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Frames in Batches 1–3 scroll inside",
+     "l": []
+    },
+    {
+     "t": "A long state frame shows a scrollbar instead of growing",
+     "l": []
+    },
+    {
+     "t": "Safe — keeps the approved layout; every control reachable (reach test)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "B1-10 sort button at 375 (approved Batch-1 layout)",
+     "l": []
+    },
+    {
+     "t": "The “Received” sort control sits in the visually hidden table header in labelled-row mode, so it can take keyboard focus while invisible",
+     "l": []
+    },
+    {
+     "t": "Defer to the build — render the sort as a visible control above the labelled rows below 760 px; not a frontend build blocker",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "1–3 px of content below 3 fixed-height proof frames (B1-12 × 2, B2-14)",
+     "l": []
+    },
+    {
+     "t": "Sub-pixel rounding; no control hidden (crop check)",
+     "l": []
+    },
+    {
+     "t": "Safe to defer",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Sample world",
+     "l": []
+    },
+    {
+     "t": "Dates and records come from different batches (OD-B6-12, OD-B7-14)",
+     "l": []
+    },
+    {
+     "t": "Safe — sample data only",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Register §T — design-safe handling (unchanged)",
+  "rows": [
+   [
+    {
+     "t": "ID",
+     "l": []
+    },
+    {
+     "t": "Decision",
+     "l": []
+    },
+    {
+     "t": "Status",
+     "l": []
+    },
+    {
+     "t": "Treatment",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-01",
+     "l": []
+    },
+    {
+     "t": "Requester identity before an institution exists",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Reference-number link to the status page; no account creation; \"already has this\" only inside the Institute Admin workspace",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-02",
+     "l": []
+    },
+    {
+     "t": "Decline of a request",
+     "l": []
+    },
+    {
+     "t": "WAIT FOR DECISION",
+     "l": []
+    },
+    {
+     "t": "No Decline button, no \"Declined\" state or filter",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-03",
+     "l": []
+    },
+    {
+     "t": "\"Request more information\" lifecycle / reply",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY (reason) · WAIT (reply)",
+     "l": []
+    },
+    {
+     "t": "Requester sees the reason; no reply field",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-04",
+     "l": []
+    },
+    {
+     "t": "Internal vs external classification",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Super Admin sets it at approval; visitors never self-classify",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-05",
+     "l": []
+    },
+    {
+     "t": "Payment provider / confirmation / refund",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY (neutral step) · WAIT (provider screens)",
+     "l": []
+    },
+    {
+     "t": "Provider-neutral summary; no amount; only success activates",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-06 / D7",
+     "l": []
+    },
+    {
+     "t": "Licence counting",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY (display) · WAIT (counting copy)",
+     "l": []
+    },
+    {
+     "t": "Show figures as provided (\"Licences 1,284 of 1,650\"); never explain what assignment, withdrawal or deactivation does to the count",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-07",
+     "l": []
+    },
+    {
+     "t": "Expansion / renewal scope",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Renewal mirrors the current plan; expansion is a new request",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-08",
+     "l": []
+    },
+    {
+     "t": "Amending an active plan",
+     "l": []
+    },
+    {
+     "t": "WAIT FOR DECISION",
+     "l": []
+    },
+    {
+     "t": "No amend control",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-09",
+     "l": []
+    },
+    {
+     "t": "Direct institution creation",
+     "l": []
+    },
+    {
+     "t": "WAIT FOR DECISION",
+     "l": []
+    },
+    {
+     "t": "No \"Create institution\" button",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-10",
+     "l": []
+    },
+    {
+     "t": "Identity provider / SSO / password policy",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "SSO button + e-mail sign-in as a state",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-11",
+     "l": []
+    },
+    {
+     "t": "Invitations / activation / identity origin",
+     "l": []
+    },
+    {
+     "t": "WAIT FOR DECISION",
+     "l": []
+    },
+    {
+     "t": "No invitation UI; \"Contact your institution administrator\"",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-12",
+     "l": []
+    },
+    {
+     "t": "Completion contract per format",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Completed comes from the system; no self-report; feedback unlocks on completed",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-13",
+     "l": []
+    },
+    {
+     "t": "Must every format be completed; do resources count",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Per-format progress only; resources show \"opened\"",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-14",
+     "l": []
+    },
+    {
+     "t": "XR package delivery",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Information-only setup steps; provisional package fields",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-15",
+     "l": []
+    },
+    {
+     "t": "Resource delivery",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Open in a new tab; failure state",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-16",
+     "l": []
+    },
+    {
+     "t": "Sequential gating",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "No locks; default order",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-17",
+     "l": []
+    },
+    {
+     "t": "Course code shown",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Students: institution code; public: platform code (blank allowed)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-18",
+     "l": []
+    },
+    {
+     "t": "Assessment lifecycle (make available, deadline meaning, closed)",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY · WAIT (make-available control)",
+     "l": []
+    },
+    {
+     "t": "Available once it has questions; deadline advisory; no defaults",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-19",
+     "l": []
+    },
+    {
+     "t": "Default result release",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "No pre-selected option; no figures while withheld",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-20",
+     "l": []
+    },
+    {
+     "t": "Re-marking",
+     "l": []
+    },
+    {
+     "t": "WAIT FOR DECISION",
+     "l": []
+    },
+    {
+     "t": "Confirmed marks read-only",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-21",
+     "l": []
+    },
+    {
+     "t": "What \"rubric\" means",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Free-text marking guidance only; no rubric builder",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-22",
+     "l": []
+    },
+    {
+     "t": "Timer / more question types",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "No timer; three question types",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-23",
+     "l": []
+    },
+    {
+     "t": "AI provider and assist depth",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY (drafts) · WAIT (suggested marks)",
+     "l": []
+    },
+    {
+     "t": "Drafts require review; no marking suggestion",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-24",
+     "l": []
+    },
+    {
+     "t": "Import formats / commit mode",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "CSV + template; row report; errors block",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-25",
+     "l": []
+    },
+    {
+     "t": "Feedback staff ownership",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY (Student side) · WAIT (staff side)",
+     "l": []
+    },
+    {
+     "t": "No staff views; neutral copy",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-26 residual",
+     "l": []
+    },
+    {
+     "t": "format hold-back; adding a format after publication",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY · WAIT (controls)",
+     "l": []
+    },
+    {
+     "t": "Show per-format status; no partial-approve, no \"add a format\"",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-28 residual",
+     "l": []
+    },
+    {
+     "t": "Hold effects, D2, withdrawal, technical-only skip",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "CM → Reviewer → Super Admin always; Hold keeps the live version",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-29",
+     "l": []
+    },
+    {
+     "t": "Experiment-to-course mapping; catalogue schema",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Vendor picks from assigned courses; prototype field set",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-30",
+     "l": []
+    },
+    {
+     "t": "Who tests on the real device",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Reviewer sees delivery details and web links only",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-31",
+     "l": []
+    },
+    {
+     "t": "Expiry reminder channel",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "\"Reminder due\" state; nothing is sent",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-32",
+     "l": []
+    },
+    {
+     "t": "Device-transfer decline; device registry",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY (approve) · WAIT (decline)",
+     "l": []
+    },
+    {
+     "t": "Approve only; free-text device fields",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-33",
+     "l": []
+    },
+    {
+     "t": "Reports",
+     "l": []
+    },
+    {
+     "t": "WAIT FOR DECISION (report pages)",
+     "l": []
+    },
+    {
+     "t": "Exports of existing lists only; no Reports destination",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-34",
+     "l": []
+    },
+    {
+     "t": "Notifications / messaging",
+     "l": []
+    },
+    {
+     "t": "WAIT FOR DECISION",
+     "l": []
+    },
+    {
+     "t": "Status shown in-product only",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-35",
+     "l": []
+    },
+    {
+     "t": "Labels (Institute Admin, Engineering area, Access plan, format)",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "Use §C.12 terms; keep labels swappable",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "T-36",
+     "l": []
+    },
+    {
+     "t": "Seed data",
+     "l": []
+    },
+    {
+     "t": "DESIGN NOW SAFELY",
+     "l": []
+    },
+    {
+     "t": "One coherent sample world (BITS Pilani Hyderabad, Godavari Institute, ME ZG523 …) marked as sample; no B2 counts reused",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Batch decisions OD-B2 … OD-B4 (carried, with Batch-8 classification)",
+  "rows": [
+   [
+    {
+     "t": "ID",
+     "l": []
+    },
+    {
+     "t": "Decision",
+     "l": []
+    },
+    {
+     "t": "Safe treatment (as approved)",
+     "l": []
+    },
+    {
+     "t": "Classification",
+     "l": []
+    },
+    {
+     "t": "Recorded on",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "OD-B2-01",
+     "l": []
+    },
+    {
+     "t": "Overlapping grants: when a student has an individual grant and is in a group with a grant for the same experiment, (a) does the group grant also cover them, and (b) if one grant is withdrawn, can they still open it through the other?",
+     "l": []
+    },
+    {
+     "t": "Each grant is shown with its own state; withdrawal names the grant it ends and says the other is not changed. No “can / can’t open” statement for this case; Rahul’s screens for it are not drawn (B2-13 explains which existing state each answer would use).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B2-15",
+     "l": [
+      "B2-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B2-02",
+     "l": []
+    },
+    {
+     "t": "Do students added to a group after a group grant receive that experiment? (Inventory IA-14 says “Group grants reach new members”; the review asked to keep it open until confirmed.)",
+     "l": []
+    },
+    {
+     "t": "No promise either way. A late member is shown as “Added after the group grant”.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B2-15",
+     "l": [
+      "B2-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B2-03",
+     "l": []
+    },
+    {
+     "t": "Licence effect of overlapping grants (one licence or two?) — part of D7",
+     "l": []
+    },
+    {
+     "t": "Not shown; no counting copy.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B2-15",
+     "l": [
+      "B2-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B2-04",
+     "l": []
+    },
+    {
+     "t": "Must Add student (single form) ask for the same programme, course and course code the CSV requires?",
+     "l": []
+    },
+    {
+     "t": "Form keeps the Batch-0 AR-8 fields (programme optional) and says so in its field table.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B2-15",
+     "l": [
+      "B2-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-01",
+     "l": []
+    },
+    {
+     "t": "Where the authorised device comes from and how it is recorded (device registry · D20b)",
+     "l": []
+    },
+    {
+     "t": "Shown as the free-text device on the latest approved record (sample “ME lab VR headset, asset tag GIT-VR-03”). First registration not designed.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-02",
+     "l": []
+    },
+    {
+     "t": "Fields of a transfer request",
+     "l": []
+    },
+    {
+     "t": "New device (required) and a note (optional) — enough to route the request. Serial, asset tag or proof are not asked.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-03",
+     "l": []
+    },
+    {
+     "t": "Can a Student have more than one open transfer request?",
+     "l": []
+    },
+    {
+     "t": "Assumed one: “Request a device transfer” is hidden while a request is open. Labelled as an assumption.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-04",
+     "l": []
+    },
+    {
+     "t": "Decline of a device transfer (T-32 / D20a)",
+     "l": []
+    },
+    {
+     "t": "Not designed. A request BITS doesn’t approve stays “Forwarded”.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-05",
+     "l": []
+    },
+    {
+     "t": "Student request when the institution has no Institute Admin",
+     "l": []
+    },
+    {
+     "t": "Student sees “can’t be forwarded yet” with Help; who resolves it is not stated.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-06",
+     "l": []
+    },
+    {
+     "t": "Resource types, delivery and size labels (T-15)",
+     "l": []
+    },
+    {
+     "t": "Opens in a new tab; types and names are sample data; “Opened” only (T-13).",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-07",
+     "l": []
+    },
+    {
+     "t": "What “last saved” and a “session” are (T-12 / A-06)",
+     "l": []
+    },
+    {
+     "t": "Time only (“Last saved 12 Oct 2026, 11:20”, “Last session reported 16 Oct 2026, 14:10”); no step names or durations.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-08",
+     "l": []
+    },
+    {
+     "t": "Usage: exact figure definitions and who may see them (A-12 / D18); export (R15 / T-33)",
+     "l": []
+    },
+    {
+     "t": "Four figures defined in one line each; Institute Admin only here (Faculty FA-F6 in Batch 4); no export, no Reports page.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-09",
+     "l": []
+    },
+    {
+     "t": "What a renewal or more-licences request may change (T-07 · T-08 amend)",
+     "l": []
+    },
+    {
+     "t": "Renewal mirrors the current plan; More licences asks the number only, no term; approval → payment page; nothing changes until payment is confirmed.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-10",
+     "l": []
+    },
+    {
+     "t": "Replying to “Information requested” (T-03); Declined (T-02 / T-32)",
+     "l": []
+    },
+    {
+     "t": "Reason shown; no reply form; no Declined state.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-11",
+     "l": []
+    },
+    {
+     "t": "Who can raise requests to BITS (T-01)",
+     "l": []
+    },
+    {
+     "t": "Institute Admin, as in the Register; other roles not shown.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-12",
+     "l": []
+    },
+    {
+     "t": "Feedback ownership and staff analytics (T-25)",
+     "l": []
+    },
+    {
+     "t": "No staff view anywhere; Usage has no feedback column.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-13",
+     "l": []
+    },
+    {
+     "t": "AR phone-app delivery (T-14)",
+     "l": []
+    },
+    {
+     "t": "Shown once as a labelled pattern (Godavari has no AR); no store links or app names.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-14",
+     "l": []
+    },
+    {
+     "t": "Notifications (T-34)",
+     "l": []
+    },
+    {
+     "t": "None promised; statuses are read where the person is.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-15",
+     "l": []
+    },
+    {
+     "t": "Register vs Inventory allocation (IA-17, SA-18/19)",
+     "l": []
+    },
+    {
+     "t": "Resolved for Batch 3 by the user (Register + SA-18/19). Batch 7 should keep B3-11 in its SA-F8 consistency pass.",
+     "l": []
+    },
+    {
+     "t": "Resolved by precedence (Register allocation followed)",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B3-16",
+     "l": []
+    },
+    {
+     "t": "Frozen Batch-2 links to Batch-3 screens",
+     "l": []
+    },
+    {
+     "t": "Still open B2-00; listed on B3-00 for re-pointing in Batch 8 or the build.",
+     "l": []
+    },
+    {
+     "t": "Resolved in Batch 8 — frozen Batch-2 links now open the Batch-3 screens",
+     "l": []
+    },
+    {
+     "t": "B3-14",
+     "l": [
+      "B3-14-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-01",
+     "l": []
+    },
+    {
+     "t": "One assessment per experiment per institution (prototype rule)",
+     "l": []
+    },
+    {
+     "t": "Refusal shown at step 1 with a link to the existing assessment; labelled open (T-18).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-02",
+     "l": []
+    },
+    {
+     "t": "Make available, open / close, “closed”, and what the deadline means once passed (T-18)",
+     "l": []
+    },
+    {
+     "t": "Not designed. Ready = visible; deadline shown as a date only; nothing claims late attempts are blocked or allowed.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-03",
+     "l": []
+    },
+    {
+     "t": "Which rules are required before an assessment is Ready",
+     "l": []
+    },
+    {
+     "t": "Assumed: name, pass mark, attempts, deadline and release option to continue; a draft needs only a name.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-04",
+     "l": []
+    },
+    {
+     "t": "Release options and wording (T-19 · ND-10)",
+     "l": []
+    },
+    {
+     "t": "Immediately after marking · after the deadline · on a date (+ release date). Results and answers released together.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-05",
+     "l": []
+    },
+    {
+     "t": "May a student who passed try again?",
+     "l": []
+    },
+    {
+     "t": "Try again shown only when not passed with an attempt left.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-06",
+     "l": []
+    },
+    {
+     "t": "Is Faculty feedback required on a written answer?",
+     "l": []
+    },
+    {
+     "t": "Optional; the mark is required (0 to the question’s marks).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-07",
+     "l": []
+    },
+    {
+     "t": "Do marks belong to the question (bank) or to the assessment?",
+     "l": []
+    },
+    {
+     "t": "Set on the question in the bank; shown per question everywhere.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-08",
+     "l": []
+    },
+    {
+     "t": "Is marking guidance shown to students during the attempt? (prototype: yes)",
+     "l": []
+    },
+    {
+     "t": "Not shown — Faculty only.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-09",
+     "l": []
+    },
+    {
+     "t": "Correct answers after release (D-25); is the explanation required?",
+     "l": []
+    },
+    {
+     "t": "Correct answer + explanation shown after release; explanation optional, warned on import.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-10",
+     "l": []
+    },
+    {
+     "t": "“Inactive for N days”: values and what counts as activity",
+     "l": []
+    },
+    {
+     "t": "7 / 14 / 30 days; activity = opening a format or the assessment (sample).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-11",
+     "l": []
+    },
+    {
+     "t": "Question import schema, XLSX, commit mode, warning conditions (T-24 · D5)",
+     "l": []
+    },
+    {
+     "t": "Ten-column CSV template; all-or-nothing interim; missing explanation = warning.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-12",
+     "l": []
+    },
+    {
+     "t": "Assistance: sources, counts, provider, depth (T-23 · A-18 · R16)",
+     "l": []
+    },
+    {
+     "t": "Lab brief or pasted text; 3 or 5 drafts; no provider named; no suggested marks.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-13",
+     "l": []
+    },
+    {
+     "t": "How versions are numbered and shown",
+     "l": []
+    },
+    {
+     "t": "“New version — earlier submissions keep theirs”; “Version 2 since …” on Summary.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-14",
+     "l": []
+    },
+    {
+     "t": "Delete mechanism (ND-15)",
+     "l": []
+    },
+    {
+     "t": "Label “Delete”; history kept; assessments keep their copy.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-15",
+     "l": []
+    },
+    {
+     "t": "Merging the new states into frozen screens (Home Up next, hub Assessment tab, IA Overview no-marker row)",
+     "l": []
+    },
+    {
+     "t": "Drawn on B4-09 / B4-11; merge and re-point links in Batch 8 or the build.",
+     "l": []
+    },
+    {
+     "t": "Resolved in Batch 8 for navigation — Home “Up next” and the hub Assessment tab now open B4-11; the frozen Batch-2 frames are unchanged",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-16",
+     "l": []
+    },
+    {
+     "t": "Sample deadline",
+     "l": []
+    },
+    {
+     "t": "Moved from 14 Sep to 14 Nov 2026 by the user to fit the frozen timeline; sample data only.",
+     "l": []
+    },
+    {
+     "t": "Sample data only — no product effect",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B4-17",
+     "l": []
+    },
+    {
+     "t": "Co-teaching Faculty on one course",
+     "l": []
+    },
+    {
+     "t": "Same assessment would be shared; no sample shows it.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B4-16",
+     "l": [
+      "B4-16-Change-Log.dc.html"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Batch decisions OD-B5 … OD-B7 (carried, with Batch-8 classification)",
+  "rows": [
+   [
+    {
+     "t": "ID",
+     "l": []
+    },
+    {
+     "t": "Decision",
+     "l": []
+    },
+    {
+     "t": "Safe treatment (as approved)",
+     "l": []
+    },
+    {
+     "t": "Classification",
+     "l": []
+    },
+    {
+     "t": "Recorded on",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-01",
+     "l": []
+    },
+    {
+     "t": "Experiments in a course withdrawn from the Vendor",
+     "l": []
+    },
+    {
+     "t": "Prototype: an unsaved new experiment shows “no longer one of your assigned courses — choose one of your courses”; a saved experiment in that course opens read-only. Rule open (T-29 · PQ-20; assignments are Batch 7).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-02",
+     "l": []
+    },
+    {
+     "t": "App package model and which package fields are required (T-14)",
+     "l": []
+    },
+    {
+     "t": "Provisional: label, a reference or a file, device needed and install notes required; notes optional. No source code. Delivery mechanism (store / device management / download / side-loading) open.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-03",
+     "l": []
+    },
+    {
+     "t": "Catalogue field schema (T-29 · ND-05)",
+     "l": []
+    },
+    {
+     "t": "Prototype set: course, name, one-sentence summary, description, version.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-04",
+     "l": []
+    },
+    {
+     "t": "Scope of the unique-name rule",
+     "l": []
+    },
+    {
+     "t": "Prototype checks against the catalogue and the Vendor’s own experiments, case-insensitive.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-05",
+     "l": []
+    },
+    {
+     "t": "Next gate after a resubmit; whether a revision after a Content Manager return needs a fresh academic review (M-3)",
+     "l": []
+    },
+    {
+     "t": "Never stated in product copy. The Vendor sees “Submitted”; on B5-08 a board control routes it by the normal chain (With Academic Reviewer · revision 2).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-06",
+     "l": []
+    },
+    {
+     "t": "May the Vendor change the course or the formats while revising?",
+     "l": []
+    },
+    {
+     "t": "Not restricted in the prototype — no rule invented; the Academic Reviewer sees the result.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-07",
+     "l": []
+    },
+    {
+     "t": "When a submission ID is given",
+     "l": []
+    },
+    {
+     "t": "Prototype: on the first save of a draft.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-08",
+     "l": []
+    },
+    {
+     "t": "Preview link rules (QX-03)",
+     "l": []
+    },
+    {
+     "t": "“A preview label without a valid link is an error” (Register). A link without a label is allowed in the prototype.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-09",
+     "l": []
+    },
+    {
+     "t": "Sample names: SUB-0077 “Conduction Through a Composite Wall” (Register §Q, Batch-0 example) beside the published “Composite Wall Conduction” (Batch-1 catalogue, WEB + AR)",
+     "l": []
+    },
+    {
+     "t": "Both kept as approved. To settle before SUB-0077 is published in Batch 6, or in the Batch-8 sweep.",
+     "l": []
+    },
+    {
+     "t": "Still open — two separate sample records by user instruction; no merge and no duplicate-content rule until decided",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-10",
+     "l": []
+    },
+    {
+     "t": "Structured references on a return",
+     "l": []
+    },
+    {
+     "t": "The Vendor sees “What it refers to” (step · format · field). The Academic Reviewer’s and Content Manager’s return forms (Batch 6) must be able to supply them.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-11",
+     "l": []
+    },
+    {
+     "t": "Documents: allowed types, sizes and where they are shown",
+     "l": []
+    },
+    {
+     "t": "Sample file names only; nothing is uploaded. Shown to the Academic Reviewer; catalogue use open.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-12",
+     "l": []
+    },
+    {
+     "t": "Telling the Vendor that something changed (returned, published)",
+     "l": []
+    },
+    {
+     "t": "No messages or notifications (T-34); the Overview attention list and the record carry the change.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B5-13",
+     "l": []
+    },
+    {
+     "t": "“Changed in the last 7 days”",
+     "l": []
+    },
+    {
+     "t": "Window and what counts as a change are sample choices.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B5-10",
+     "l": [
+      "B5-10-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-01",
+     "l": []
+    },
+    {
+     "t": "Reviewer course scoping (Register RV-F2 “open policy”)",
+     "l": []
+    },
+    {
+     "t": "One sample scope line (“You review: ME ZG523 · MEL ZG512 · CHE ZG513”); the Course filter lists that sample only. Who assigns it is Batch 7 (Platform roles).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-02",
+     "l": []
+    },
+    {
+     "t": "Must a submission have learning outcomes before it can be approved?",
+     "l": []
+    },
+    {
+     "t": "Read from the “not ready (no outcomes yet)” state: Approve needs at least one outcome. No minimum beyond one, no wording rule.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-03",
+     "l": []
+    },
+    {
+     "t": "What blocks first publication",
+     "l": []
+    },
+    {
+     "t": "The Register names “blockers listed” but no list. The publication check re-reads only stated prerequisites: Academic Reviewer approval, learning outcomes, catalogue details (prototype set, T-29), delivery details for each format. In the prototype chain these are already met upstream, so the blockers state is drawn with a sample (SUB-0070, outcomes missing). No other check is invented.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-04",
+     "l": []
+    },
+    {
+     "t": "When do the Vendor and the Content Manager see outcome edits?",
+     "l": []
+    },
+    {
+     "t": "Prototype: at the decision — the set travels with Approve or Return. Edits in progress stay with the reviewer.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-05",
+     "l": []
+    },
+    {
+     "t": "References on a Content Manager send-back (OD-B5-10)",
+     "l": []
+    },
+    {
+     "t": "Offered only when sending to the Vendor (they map to the Vendor’s editor); to the Academic Reviewer the reason only. References on update returns stay open (T-28).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-06",
+     "l": []
+    },
+    {
+     "t": "Withdrawing an update (D-09-12)",
+     "l": []
+    },
+    {
+     "t": "Offered with a reason while the update is a draft, returned or in academic review; not after approval (Release / Hold is the Super Admin’s).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-07",
+     "l": []
+    },
+    {
+     "t": "Can edits join an update that is in academic review?",
+     "l": []
+    },
+    {
+     "t": "No: only “Open update” (read-only) — joining only while it is a draft or returned. “Never a second, conflicting update” is kept.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-08",
+     "l": []
+    },
+    {
+     "t": "Version label rules for a correction",
+     "l": []
+    },
+    {
+     "t": "Required and different from the live version; no format rule.",
+     "l": []
+    },
+    {
+     "t": "Shapes the data model — build the designed fields behind a service interface; confirm before a real backend",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-09",
+     "l": []
+    },
+    {
+     "t": "What a correction may change (T-28 D2, ND-05)",
+     "l": []
+    },
+    {
+     "t": "Catalogue details (name, summary, description) and delivery (web link, VR package reference). No format changes; learning outcomes are not in the correction draft — whether a correction may change them is open.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-10",
+     "l": []
+    },
+    {
+     "t": "Decision-panel breakpoint",
+     "l": []
+    },
+    {
+     "t": "Register: panel below under 1024 px. Batch-0 AR-4 (frozen): below 860 px of content (~908 px of screen). Followed Batch 0 — identical at the four proof widths.",
+     "l": []
+    },
+    {
+     "t": "Recorded — Batch-0 AR-4 breakpoint followed (identical at the proof widths)",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-11",
+     "l": []
+    },
+    {
+     "t": "Second sample Vendor",
+     "l": []
+    },
+    {
+     "t": "“Meridian Virtual Labs” (contact Ritu Sharma) is new sample data for the queue and library. To confirm in the Batch-8 sweep.",
+     "l": []
+    },
+    {
+     "t": "Sample data only — no product effect",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-12",
+     "l": []
+    },
+    {
+     "t": "Sample-world timing",
+     "l": []
+    },
+    {
+     "t": "SUB-0077 is published on 28 Aug 2026 on B6-12, but the frozen Batch-1 catalogue (October) does not list it. Kept for the Batch-8 sweep together with OD-B5-09.",
+     "l": []
+    },
+    {
+     "t": "Sample data only — no product effect",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-13",
+     "l": []
+    },
+    {
+     "t": "Changing a platform code of a course that already has published experiments",
+     "l": []
+    },
+    {
+     "t": "Saved directly by the Content Manager (M-2) — no review step invented. Effects on links or institution codes not designed.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B6-14",
+     "l": []
+    },
+    {
+     "t": "Released / On hold seen from the Content Manager side",
+     "l": []
+    },
+    {
+     "t": "Shown on CM-08 as the end states of UPD-0005 so her view is complete; the Super Admin screens that cause them are Batch 7.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B6-15",
+     "l": [
+      "B6-15-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-01",
+     "l": []
+    },
+    {
+     "t": "Hold — plain confirmation or reason?",
+     "l": []
+    },
+    {
+     "t": "Register SA-F4 says DL-1; Batch-0 Dialogs (board 10) and AR-4 rules (09a) list hold among the reason-required actions. Followed the frozen Batch-0 design: Hold asks for a reason the Content Manager sees.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-02",
+     "l": []
+    },
+    {
+     "t": "What Lift hold does",
+     "l": []
+    },
+    {
+     "t": "Returns the update to “Waiting for your decision”. It never releases anything; no reason is asked (DL-1).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-03",
+     "l": []
+    },
+    {
+     "t": "Release straight from On hold?",
+     "l": []
+    },
+    {
+     "t": "Not offered: the hold is lifted first, then released — so a release is always a deliberate, separate decision.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-04",
+     "l": []
+    },
+    {
+     "t": "Downstream effects of Hold (T-28 residual)",
+     "l": []
+    },
+    {
+     "t": "Not designed: whether a held update blocks later corrections, and what else it affects. Screens say it is open.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-05",
+     "l": []
+    },
+    {
+     "t": "Version shown to the public and learners",
+     "l": []
+    },
+    {
+     "t": "The public experiment page and the learner frame (Batch-7 reference frames) show “Version 1.2 / 1.3” so Release can be seen. Whether the version is public is open.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-06",
+     "l": []
+    },
+    {
+     "t": "New sample names",
+     "l": []
+    },
+    {
+     "t": "Deccan Institute of Technology, Malnad College of Engineering, their Institute Admins (S. Kulkarni, V. Hegde), Sahyadri contact N. Joshi, Dr K. Iyer, SUB-0085 DC Motor Speed Control, ACC-0079 / 0085 / 0091 / 0098 / 0102 and the institution figures are sample data. Konark, Sahyadri, Vizag and BITS Hyderabad come from the Batch-1 requests.",
+     "l": []
+    },
+    {
+     "t": "Sample data only — no product effect",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-07",
+     "l": []
+    },
+    {
+     "t": "Faculty view while access is paused",
+     "l": []
+    },
+    {
+     "t": "Batch 4 has no paused Faculty state. The Faculty frame shows the shared Batch-0 banner on the Batch-4 overview and nothing more is assumed.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-08",
+     "l": []
+    },
+    {
+     "t": "Published count",
+     "l": []
+    },
+    {
+     "t": "13 = the 12 Batch-1 catalogue experiments + SUB-0077 (published 28 Aug 2026 on B6-12). The frozen Batch-1 catalogue lists 12 (OD-B6-12 timing).",
+     "l": []
+    },
+    {
+     "t": "Sample data only — no product effect",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-09",
+     "l": []
+    },
+    {
+     "t": "Where an override may move a stuck record",
+     "l": []
+    },
+    {
+     "t": "Only “back to the vendor” for a record stuck with the Academic Reviewer. Published is never a target, in or out. Other targets need policy.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-10",
+     "l": []
+    },
+    {
+     "t": "Restoring a withdrawn scope",
+     "l": []
+    },
+    {
+     "t": "One click with a confirmation; no reason asked (withdrawing asks for one).",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-11",
+     "l": []
+    },
+    {
+     "t": "Assigning an Institute Admin before payment",
+     "l": []
+    },
+    {
+     "t": "Offered once access is active (Batch 2: assigned after activation). Awaiting-payment institutions say so instead.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-12",
+     "l": []
+    },
+    {
+     "t": "What blocks moving a course",
+     "l": []
+    },
+    {
+     "t": "Read “people filed against it” as students or Faculty mapped to the course. Published experiments, institutions’ access and Vendor course lists move with it and are listed before the move.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-13",
+     "l": []
+    },
+    {
+     "t": "Whether a new, empty area shows in the public explorer",
+     "l": []
+    },
+    {
+     "t": "Not decided here (Inventory PU-01: “whether empty areas are hidden”). Adding an area changes nothing public in these screens.",
+     "l": []
+    },
+    {
+     "t": "Product policy — the designed safe treatment is complete; decide before production",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-14",
+     "l": []
+    },
+    {
+     "t": "Sample-world timing",
+     "l": []
+    },
+    {
+     "t": "The Super Admin world is 23 Oct 2026 (Batches 1 and 3); UPD-0005 was approved on 27 Aug 2026 (Batch 6), so it has waited about eight weeks in the sample.",
+     "l": []
+    },
+    {
+     "t": "Sample data only — no product effect",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "OD-B7-15",
+     "l": []
+    },
+    {
+     "t": "Reviewer scope history",
+     "l": []
+    },
+    {
+     "t": "B6 shows Prof. A. Menon reviewing an EEE ZC341 update (UPD-0006, 26 Aug) while its scope line lists three other courses. Batch 7 records an EEE ZC341 scope withdrawn on 1 Oct 2026 — which is why SUB-0085 is stuck. B6 is frozen and unchanged.",
+     "l": []
+    },
+    {
+     "t": "Sample data only — no product effect",
+     "l": []
+    },
+    {
+     "t": "B7-13",
+     "l": [
+      "B7-13-Change-Log.dc.html"
+     ]
+    }
+   ]
+  ]
+ }
+]

@@ -1,0 +1,1848 @@
+{
+  "surface": "Public (PU-01…PU-16) + Entry & shared (XS-01…XS-08)",
+  "boardsRead": [
+    "B1-00-Index.dc.html",
+    "B1-01-Public-Landing.dc.html",
+    "B1-02-Area-Explorer.dc.html",
+    "B1-03-Areas-and-Course.dc.html",
+    "B1-04-Catalogue.dc.html",
+    "B1-05-Experiment-Detail.dc.html",
+    "B1-06-Selection.dc.html",
+    "B1-07-Request-Access.dc.html",
+    "B1-08-Request-Status.dc.html",
+    "B1-09-Sign-In.dc.html",
+    "B1-12-Responsive-Proof.dc.html (grep only: section notes + 'Accessibility at every width' table)",
+    "B1-13-Flow-Continuity.dc.html",
+    "B1-14-Change-Log.dc.html",
+    "05-Workspace-Shell.dc.html",
+    "06-Sidebar-Variants.dc.html",
+    "07-Help-Support.dc.html",
+    "08-System-Messages.dc.html",
+    "B7-04-Pause-Effects.dc.html",
+    "09a-Archetypes-AR1-AR5.dc.html / 09b-Archetypes-AR6-AR10.dc.html (headings only, for archetype names)",
+    "B7-09-Operations.dc.html (grep only: SA side of SUP, for cross-role checks)",
+    "B7-11-Flow-6-Release-and-Hold.dc.html (grep only: public experiment reference frame)",
+    "B6-12-Flow-5-Completion.dc.html (frame-index only: public course/experiment before/after publication)",
+    "B8-03 / B8-06 / B8-08 (grep only: terminology, build phase list, open items)",
+    "handoff: START-HERE.md, FREEZE-RECORD-v46.md, HANDOFF-AUDIT-v46.md, handoff/README.md, screens.json, navigation.json, flows.json, entities.json, open-decisions.json",
+    "derived: frame-index.json, screen-frames.json",
+    "external refs (read-only): ~/Downloads/XR_Final_Frontend_Product_Inventory_v3.md (PU/XS rows), ui-ux/00-project-context/STAKEHOLDER_CONFIRMED_UPDATE_2026-08-31.md (STK31-15..20, STK31-27, STK31-39, auth), foundation 1b090c9 v2/packages/domain/src/{roles,technology}.ts and v2/apps/web/src/app/page.tsx"
+  ],
+  "archetypeKey": {
+    "AR-1": "Overview / Home",
+    "AR-2": "List / queue",
+    "AR-3": "Record detail",
+    "AR-4": "Decision page",
+    "AR-5": "Guided flow",
+    "AR-6": "Focused task",
+    "AR-7": "Record hub with tabs",
+    "AR-8": "Form / editor",
+    "AR-9": "Public editorial",
+    "AR-10": "Message page",
+    "evidence": "09a/09b section headings; per-screen archetypes from B1-00 register table"
+  },
+  "screens": [
+    {
+      "id": "PU-01",
+      "title": "Landing",
+      "screenType": "page",
+      "proposedRoute": "/",
+      "recommendedRoute": "/",
+      "routeNotes": "Keep. Must expose a section with id 'for-institutions' (PU-14 anchor, header 'For institutions'). At foundation commit 1b090c9 the route '/' is a Phase-0 status page (v2/apps/web/src/app/page.tsx: 'It is NOT a product screen — the Public Landing … belong to Design V2'); PU-01 replaces it. Suggest a public route group (e.g. app/(public)/layout.tsx) that renders the public header/footer for PU-01…PU-15.",
+      "navPlace": "Header: Home (logo link aria-label 'XR Learning Platform — home'); footer has no Home link",
+      "archetype": "AR-9",
+      "components": [
+        "PublicHeader(logo placeholder 'BITS Pilani / WILP logo — placeholder' + 'XR Learning Platform'; nav Browse experiments · Areas · For institutions with aria-current; Selection (n) counter link with aria-label 'Selection, empty' / 'Selection, 1 experiment' / 'Selection, N experiments' and visual count aria-hidden; Sign in link; Request access outline button; Menu button below 1024 px with sheet)",
+        "MobileMenuSheet(nav list incl. 'Selection n', actions Sign in + Request access; toggle label Menu/Close, aria-expanded, aria-controls)",
+        "Hero(eyebrow 'BITS Pilani · Work Integrated Learning Programmes', H1 three lines, lead, ONE primary gold CTA 'Browse experiments', two audience lines, illustration figure labelled once, figcaption course+experiment link with on-dark FormatBadges)",
+        "AreaExplorer(carousel: region 'Engineering areas', each card role=group aria-label '2 of 9: Area name'; selected card expanded, neighbours = name+counts and whole card selects; counter; Previous area / Next area buttons disabled at ends; ←/→/Home/End; swipe+snap+16 % peek below 600 px with 'Swipe for more areas'; polite live region; reduced motion = instant; no auto-advance; 'View all areas')",
+        "AreaCard(artwork or fallback pattern+initials, position, name, description, course list, counts, 'Browse N experiments' primary, 'View area')",
+        "PlainAreaList(fallback while areas load or art fails: area link + counts, View all areas)",
+        "FeaturedExperimentCard(art decorative, area eyebrow, course line, title link, summary, compact FormatBadges, 'View experiment')",
+        "FormatCard(art, format code + name, description, 'Available in N of 12 experiments', 'Browse <FMT> experiments')",
+        "ForInstitutionsSection(4 numbered steps + one 'Request institutional access' button)",
+        "ClosingBand('Find the experiments for your course.' + Browse experiments)",
+        "PublicFooter(real links only: Browse experiments · Areas · For institutions · Sign in)",
+        "FormatBadge(WEB/AR/VR/MR with glyph; variants on-dark, compact)"
+      ],
+      "states": [
+        "Default · 1440 — frame 'Landing · 1440 · default' ('Explorer is live: Previous / Next, arrow keys, or select a neighbouring area.')",
+        "Mobile 375 · top of page — 'Menu button + Selection stay in the bar; hero actions stack.'",
+        "Mobile 375 · menu open — 'Same items as desktop, Selection with its count, Sign in and Request access.' (button label 'Close', aria-expanded=true; sample count 1)",
+        "Areas loading (or art failed) → plain list — 'Readable immediately; the explorer replaces it when ready.'",
+        "Area without artwork → fallback card — 'Pattern + initials; never a broken image.'",
+        "Reduced motion — annotation only (no frame): 'The selected card changes size instantly instead of over 280 ms … nothing ever moves on its own'",
+        "Area with no published experiments — annotation only: 'Hidden from the landing explorer and from All areas until something is published. Confirm — OPEN' (OD-B7-13)",
+        "Explorer proofs (B1-02): 'Three areas · 1440 · interactive' (selected 60 %, neighbours 20 %); 'Nine areas · 1440 · interactive' (TEST FIXTURES; 50 % / 22 %, track scrolls to keep selected in view); 'Mobile 375 · three areas' (swipe, snap, 16 % peek); 'Mobile 375 · nine areas'; 'Tablet 768' (70 % / 30 %)",
+        "Responsive (B1-12 'Landing · header + hero'): 'Header collapses to Menu below 1024 with Selection still visible; hero becomes one column and the CTA stretches on phones.'"
+      ],
+      "actions": [
+        "Browse experiments (hero primary) → PU-04",
+        "Already have access? Sign in (audience line 'Students and faculty') → XS-01",
+        "Request institutional access (audience line 'Institutions' and For-institutions button) → PU-07 (board href B1-06; annotation 'Request access starts at the Selection, the first step of the request')",
+        "Header 'Request access' (outline) → PU-07",
+        "Header 'Selection (n)' → PU-07",
+        "Header 'Sign in' → XS-01",
+        "Explorer Previous area / Next area (disabled at first/last) → changes the selected card only (no record change); arrow keys move focus to the new card's first link",
+        "Explorer neighbour card (button tabindex=-1, aria-label 'Show <area>') → selects it",
+        "Explorer 'Browse N experiments' → PU-04 with area filter (B1-04 frame 'Filtered by area · arrived from the explorer')",
+        "Explorer 'View area' → PU-03",
+        "'View all areas' → PU-02",
+        "Featured card title (CNC Turning Centre, Shell-and-Tube Heat Exchanger, Induction Motor Loading, Distillation Column) → PU-06",
+        "'Browse all 12 experiments' → PU-04",
+        "Format card 'Browse WEB|AR|VR|MR experiments' → PU-04 with format filter (B1-04 frame 'Filtered by format · arrived from Formats')",
+        "Hero figcaption 'ME ZG523 · Shell-and-Tube Heat Exchanger' → PU-06",
+        "Footer Browse experiments → PU-04 · Areas → PU-02 · For institutions → PU-01#for-institutions · Sign in → XS-01"
+      ],
+      "outboundLinks": [
+        "Browse experiments → PU-04",
+        "Areas → PU-02",
+        "For institutions → PU-14 (PU-01#for-institutions)",
+        "Selection (n) → PU-07",
+        "Sign in → XS-01",
+        "Request access → PU-07",
+        "Request institutional access → PU-07",
+        "Browse N experiments → PU-04",
+        "View area → PU-03",
+        "View all areas → PU-02",
+        "Featured experiment → PU-06",
+        "Browse <FMT> experiments → PU-04"
+      ],
+      "records": [
+        "EXP",
+        "AREA",
+        "CRS",
+        "SEL"
+      ],
+      "evidence": "B1-01 frames 'Landing · 1440 · default', 'Mobile 375 · top of page', 'Mobile 375 · menu open', 'Areas loading (or art failed) → plain list', 'Area without artwork → fallback card'; B1-01 annotations dt 'Primary action' / 'Audience lines' / 'Counts' ('Every number on the page is derived from the 12 sample experiments … areas 5 / 4 / 3, formats 12 / 5 / 7 / 2'); B1-02 'Interaction and accessibility' table and dl (Track, Card height, Selected card, Neighbour, Controls row); B1-00 register row PU-01; B1-12 section notes"
+    },
+    {
+      "id": "PU-02",
+      "title": "All engineering areas ('View all areas')",
+      "screenType": "page",
+      "proposedRoute": "/areas",
+      "recommendedRoute": "/areas",
+      "routeNotes": "Keep. Areas are data from Super Admin Academic structure (B1-02 'Data' row: 'Areas, descriptions and courses come from Super Admin Academic structure (SA-F6) … Counts come from published experiments (CM-F3)').",
+      "navPlace": "Header: Areas (aria-current=page on Areas)",
+      "archetype": "AR-9",
+      "components": [
+        "PublicHeader",
+        "Breadcrumb(Home / Areas)",
+        "CollectionHeader(eyebrow 'Engineering areas', H1, description 'Each area groups the courses that have published experiments.', dl counts Areas 3 · Courses 5 · Experiments 12 where Experiments links to the catalogue)",
+        "AreaGridCard(artwork or fallback initials, H2 name link, description, 'N experiments' link · 'N courses')",
+        "SkeletonCards(aria-busy=true; role=status 'Loading engineering areas', announced once)",
+        "ErrorRetry(H2 'We couldn’t load the engineering areas', text 'Check your connection and try again. You can still browse every experiment.', [Try again] [Browse experiments])",
+        "PublicFooter"
+      ],
+      "states": [
+        "Default — 'PU-02 All engineering areas · 1440' ('From header “Areas” or “View all areas”. Counts link to the catalogue.')",
+        "Loading — 'All areas · loading' ('Skeleton cards, announced once.')",
+        "Failed + retry — 'All areas · failed + retry' ('A way forward even when this list fails.')",
+        "Area without artwork — 'Area without artwork → fallback card' ('Pattern + initials; same size, never a broken image.')",
+        "Empty area hidden — OPEN (B1-01 annotation; OD-B7-13). No empty-list state drawn ('not shown')."
+      ],
+      "actions": [
+        "Area name → PU-03",
+        "'N experiments' → PU-04 (board href B1-04; area filter inferred from B1-04 'Filtered by area' frame)",
+        "Experiments total '12' → PU-04",
+        "Try again → reload areas (on canvas sets loading)",
+        "Browse experiments → PU-04"
+      ],
+      "outboundLinks": [
+        "Area → PU-03",
+        "N experiments → PU-04",
+        "12 → PU-04",
+        "Browse experiments → PU-04",
+        "Home (breadcrumb) → PU-01"
+      ],
+      "records": [
+        "AREA",
+        "CRS",
+        "EXP"
+      ],
+      "evidence": "B1-03 frames 'PU-02 All engineering areas · 1440', 'All areas · loading', 'All areas · failed + retry', 'Area without artwork → fallback card'; B1-00 register PU-02 'Default · loading · failed + retry · area without artwork'"
+    },
+    {
+      "id": "PU-03",
+      "title": "Engineering area",
+      "screenType": "page",
+      "proposedRoute": "/areas/[areaId]",
+      "recommendedRoute": "/areas/[areaId]",
+      "routeNotes": "Keep; areaId = stable id/slug of an AREA record (areas are data, not fixed to three). Unknown id → in-page not-found message 'We can’t find that area' (call notFound() with a segment not-found.tsx).",
+      "navPlace": "Detail (from PU-01 explorer 'View area', PU-02 area name, PU-04 By-area 'View area', PU-05/PU-06 breadcrumb)",
+      "archetype": "AR-9",
+      "components": [
+        "PublicHeader",
+        "Breadcrumb(Home / Areas / <area>)",
+        "CollectionHeader(eyebrow 'Engineering area', H1, description, dl Courses 2 · Experiments 5 (link) · Available in <FormatBadges compact>)",
+        "PrimaryLinkButton('Browse 5 experiments')",
+        "CourseList(H2 'Courses in this area'; item: code chip, H3 course name link, experiment names (text), 'N experiments')",
+        "Link('How institutional access works')",
+        "MessagePage(AR-10 in public header: 'We can’t find that area')"
+      ],
+      "states": [
+        "Default — 'PU-03 Engineering area · Mechanical & Manufacturing · 1440' ('Header with counts that link + one course list. No mosaic, no governance line.')",
+        "Not found — 'Area or course · not found' ('AR-10 message in the public header.'): H1 'We can’t find that area', 'The link may be out of date. Every published experiment is in the catalogue.' [Browse experiments] [All areas]",
+        "Loading / failed for a single area — not shown"
+      ],
+      "actions": [
+        "Browse 5 experiments → PU-04 (area filter)",
+        "Experiments count link → PU-04",
+        "Course name → PU-05",
+        "How institutional access works → PU-14 (PU-01#for-institutions)",
+        "Breadcrumb Areas → PU-02; Home → PU-01",
+        "Not found: Browse experiments → PU-04; All areas → PU-02"
+      ],
+      "outboundLinks": [
+        "Browse N experiments → PU-04",
+        "Course → PU-05",
+        "How institutional access works → PU-14",
+        "Areas → PU-02",
+        "Home → PU-01",
+        "All areas → PU-02"
+      ],
+      "records": [
+        "AREA",
+        "CRS",
+        "EXP"
+      ],
+      "evidence": "B1-03 frames 'PU-03 Engineering area · Mechanical & Manufacturing · 1440', 'Area or course · not found'; B1-00 register PU-03 'Default · not found'"
+    },
+    {
+      "id": "PU-04",
+      "title": "Catalogue",
+      "screenType": "page",
+      "proposedRoute": "/experiments",
+      "recommendedRoute": "/experiments (search, facets, sort and view held in URL query params, e.g. ?area=&course=&format=&q=&sort=&view=)",
+      "routeNotes": "Keep the path. Inferred: filters must be part of the link because the board draws 'Arriving with a filter' (explorer → area filter; Formats → format filter) and 'This link was adjusted' ('An old link asked for a filter that no longer exists'). Param names are the implementer's choice. Only published experiments are listed (LD-2).",
+      "navPlace": "Header: Browse experiments",
+      "archetype": "AR-2",
+      "components": [
+        "PublicHeader",
+        "Breadcrumb(Home / Experiments)",
+        "PageHeader(eyebrow 'Browse experiments', H1 'Experiments', 'Every published experiment, with the formats it is available in.')",
+        "Notice(info, role=status: 'We adjusted this link' 'One of its filters is no longer available, so it was removed. The other filters still apply.' [Dismiss])",
+        "ViewToggle(group 'View': 'All experiments' | 'By area', aria-pressed)",
+        "FilterPanelToggle('Hide filters'/'Show filters', aria-expanded, aria-controls; ≥1024 px)",
+        "FacetPanel(aside 'Filters', H2 'Filters', fieldsets Engineering area · Course · Format; checkbox options with live counts; zero-count options dimmed; caption 'Filters apply as you choose them.'; 'Clear all' when chips exist)",
+        "Toolbar(SearchField label 'Search experiments' type=search placeholder 'Experiment, course or code' (grows); Select 'Sort by': Default order · Title A–Z · Course code (fixed width); 'Filters' / 'Filters (n)' button only below 1024 px)",
+        "ResultCount(role=status: '12 experiments' or 'N of 12 experiments')",
+        "FilterChips(removable 'Area: …' / 'Course: …' / 'Format: …' / 'Search: “…”', button aria-label 'Remove <chip>') + 'Clear all filters'",
+        "ExperimentRow(decorative thumbnail, course line 'CODE · Course', H3 title link covering the row, one-line summary, 'Available in' compact FormatBadges; stacked below 600 px of content)",
+        "AreaGroupHeading(H2 area name, 'N experiments ·', 'View area')",
+        "EmptyState(H2 'No experiments match these filters', 'Remove a filter or try a shorter search. Every published experiment is listed when no filters are set.', [Clear all filters])",
+        "SkeletonRows(role=status 'Loading experiments')",
+        "ErrorRetry(H2 'We couldn’t load the experiments', 'Check your connection and try again.', [Try again]; toolbar stays usable)",
+        "FilterSheet(role=dialog aria-modal, H2 'Filters', 'Close filters' icon button, same fieldsets, footer 'Clear all' + 'Show N experiments'; fixed to viewport, results update behind)"
+      ],
+      "states": [
+        "Results (interactive) — 'PU-04 Catalogue · 1440 · interactive' ('Search, filter, sort, switch views and clear — all live. One row per experiment; every row opens the experiment.')",
+        "Filtered by area — 'Filtered by area · arrived from the explorer' (chip 'Area: Mechanical & Manufacturing')",
+        "Filtered by format — 'Filtered by format · arrived from Formats' (chip 'Format: VR')",
+        "Link adjusted — '“This link was adjusted”' notice with Dismiss",
+        "No results — 'No results' ('Search “forging” matches nothing.'; button label 'Filters (0)')",
+        "Loading — 'Loading' ('Skeleton rows; the count is announced when results arrive.')",
+        "Failed + retry — 'Failed + retry' ('The toolbar stays usable.')",
+        "By area view — 'By area view' ('Same results grouped under area headings.')",
+        "Mobile 375 — 'Rows stack: title · course · formats.'",
+        "Mobile 375 · filter sheet — DIALOG ('Filters in a sheet fixed to the viewport; results update behind it.'; 'Show 7 experiments')",
+        "Mobile 375 · no results — 'Clear all filters is one tap.'",
+        "Selection marker — spec only (dt 'Selection marker': 'Rows already in the visitor’s selection show “In your selection”'); no frame draws it (script class is-sel, selection always empty on this board)"
+      ],
+      "actions": [
+        "Search experiments (live; matches title, summary, course code, course name, area name) → filters list; adds chip 'Search: “…”'",
+        "Facet checkbox (Engineering area / Course / Format) → applied immediately; OR within a facet, AND across facets (board script); adds removable chip; counts per option recompute",
+        "Remove chip → removes that filter",
+        "Clear all filters / Clear all → resets search + all facets (and dismisses link-adjusted notice)",
+        "Sort by → Default order · Title A–Z · Course code ('Order once a course has more than three experiments is OPEN')",
+        "All experiments ↔ By area → same results, same filters",
+        "Hide filters / Show filters (≥1024) → collapses side panel",
+        "Filters (<1024) → opens FilterSheet; Close filters / Show N experiments → closes it",
+        "Dismiss (link adjusted notice) → hides notice",
+        "Try again (failed) → reload",
+        "Row title → PU-06",
+        "By-area 'View area' → PU-03"
+      ],
+      "outboundLinks": [
+        "Experiment row → PU-06",
+        "View area → PU-03",
+        "Home → PU-01",
+        "header links (PU-02, PU-07, XS-01, PU-14)"
+      ],
+      "records": [
+        "EXP",
+        "AREA",
+        "CRS",
+        "SEL"
+      ],
+      "evidence": "B1-04 frames 0–10 (captions above); B1-04 dl 'One record per experiment' ('LD-2 … Unpublished experiments never appear'), 'Row', 'Toolbar', 'Filters', 'Sort', 'Views', 'Selection marker'; B1-04 inline script catView(); B1-12 'Catalogue' note 'Filter panel at ≥ 1024; Filters button and sheet below. Rows stack below 600 px of content.'"
+    },
+    {
+      "id": "PU-05",
+      "title": "Course",
+      "screenType": "page",
+      "proposedRoute": "/courses/[courseCode]",
+      "recommendedRoute": "/courses/[courseId]",
+      "routeNotes": "Change the key: the board draws 'Course without a platform code' (T-17: 'Code chip omitted; breadcrumb uses the course name'), so a public course can have no code and the code cannot be the URL key; codes also contain spaces ('ME ZG523'). Use a stable course id/slug. No Programme or Module level in the path (binding constraint 2).",
+      "navPlace": "Detail (from PU-03 course name; PU-06 breadcrumb code, hero course link, 'View the course')",
+      "archetype": "AR-9",
+      "components": [
+        "PublicHeader",
+        "Breadcrumb(Home / Areas / <area> / <code or course name>)",
+        "CollectionHeader(eyebrow 'Course · <area>', optional CodeChip, H1 course name, description, dl Experiments N · Formats in this course <FormatBadges>)",
+        "ExperimentRow(title link, summary, 'Available in' FormatBadges; stacked items on mobile)",
+        "Link('How institutional access works')",
+        "Link('Back to <area>')",
+        "EmptyState(H2 'No experiments are published for this course yet', 'Experiments appear here once they are published.', [Browse all experiments])",
+        "MessagePage(not found)"
+      ],
+      "states": [
+        "Default — 'PU-05 Course · ME ZG523 · 1440' ('Single column. Experiments listed with their published formats; no course-level outcomes (LD-3).')",
+        "Course without a platform code — 'T-17 which code shows publicly · Code chip omitted; breadcrumb uses the course name.'",
+        "Nothing published yet — 'Course · nothing published yet' ('Shown only if the course is reachable at all (e.g. an old link).'; Experiments 0)",
+        "Not found — 'Area or course · not found' (only the area copy is drawn; course not-found copy not shown)",
+        "Mobile 375 — 'Course · mobile 375' ('Rows become stacked items: title · course · formats.')",
+        "Public reference frame (B6-12 'Public · Course page · ME ZG523'): 'The new experiment appears only once it is published.'"
+      ],
+      "actions": [
+        "Experiment title → PU-06",
+        "How institutional access works → PU-14",
+        "Back to Mechanical & Manufacturing → PU-03",
+        "Breadcrumb Areas → PU-02; area → PU-03; Home → PU-01",
+        "Browse all experiments (empty) → PU-04"
+      ],
+      "outboundLinks": [
+        "Experiment → PU-06",
+        "How institutional access works → PU-14",
+        "Back to area → PU-03",
+        "Areas → PU-02",
+        "Browse all experiments → PU-04"
+      ],
+      "records": [
+        "CRS",
+        "AREA",
+        "EXP"
+      ],
+      "evidence": "B1-03 frames 'PU-05 Course · ME ZG523 · 1440', 'Course without a platform code', 'Course · nothing published yet', 'Area or course · not found', 'Course · mobile 375'; B1-03 dl 'Course code' ('the page works without it (T-17 OPEN)'), 'Formats in this course' ('Union of the published formats of its experiments — a fact, not a promise for every experiment'), 'Removed from B2'"
+    },
+    {
+      "id": "PU-06",
+      "title": "Experiment (public)",
+      "screenType": "page",
+      "proposedRoute": "/experiments/[experimentId]",
+      "recommendedRoute": "/experiments/[experimentId]",
+      "routeNotes": "Keep. Inferred: arriving from a filtered catalogue needs the originating filter (e.g. ?format=VR) to render 'Back to VR experiments', pre-tick VR and mark its row 'Matches your filter'. Unpublished or unknown id → 'We can’t find that experiment' (B6-12: 'Before publication the page does not exist for the public').",
+      "navPlace": "Detail (from PU-04 rows, PU-05 list, PU-01 featured/hero, PU-07 item title)",
+      "archetype": "AR-9",
+      "components": [
+        "PublicHeader(live Selection count)",
+        "Breadcrumb(Experiments / <area> / <course code> / <title>)",
+        "FilterBackLink('Back to VR experiments' when arriving with a filter)",
+        "ExperimentHero(course link 'CODE · Course', H1, summary, 'Available in' on-dark FormatBadges, illustration labelled 'Illustration · concept artwork, not a simulation capture')",
+        "SelectionPanel(aside 'Get this for your institution', H2 focus target tabindex=-1; ≈28 % width at ≥1024, under the hero below; pick text; FormatCheckboxGroup fieldset legend 'Formats your institution needs' listing published formats only; InlineError role=alert 'Choose at least one format to add.'; Add to selection | Update selection + Cancel; In-selection status block role=status 'In your selection' 'Formats: WEB · VR'; Go to selection; Change formats; Remove from selection; help text; 'Already have access? Sign in')",
+        "LearningOutcomesList(H2 'Learning outcomes', 'What learners can do after this experiment. One set for the experiment, whichever format they use.')",
+        "FormatsDeviceTable(H2 'Formats and device needs'; columns Format · How it runs · Device needs; one row per published format; 'Matches your filter' marker; 'Not available in MR.' line; stacks on phones)",
+        "PreviewBlock(H2 'Preview'; format illustration + 'Open preview (opens in a new tab)' | poster-only 'Illustration · no preview for this experiment yet', no play control)",
+        "CourseAside(aside 'About this experiment': 'Part of the course' code + H2 name + '<area> · N experiments' + 'View the course'; MiniAccessSteps 4 steps + 'More about access')",
+        "MessagePage(not found)"
+      ],
+      "states": [
+        "Pick (interactive default) — 'PU-06 Experiment · 1440 · interactive' ('Choose WEB and VR → Add to selection. The header count, panel and Go to selection update; Change formats and Remove work too.')",
+        "In your selection — 'In your selection' ('After Add to selection: one clear next step.')",
+        "Validation · no format chosen — 'Error is announced and tied to the choices.' ('Choose at least one format to add.')",
+        "Change formats — 'Editing an experiment already in the selection.' (Update selection / Cancel; pick text 'Change the formats your institution needs for this experiment.')",
+        "Not found — 'Unpublished or unknown experiment.' H1 'We can’t find that experiment', 'It may have been renamed or is no longer published. Every published experiment is in the catalogue.' [Browse experiments] [Home]",
+        "Arrived with a format filter (VR) — 'back link keeps the filter, VR is pre-chosen and its row is marked.'",
+        "Preview · poster only — 'No preview link supplied: the poster stays, labelled, with no play control.'",
+        "Format not available — inline line 'Not available in MR.' under the formats table (B1-00 register 'format not available'); no separate frame",
+        "Mobile 375 — 'Panel moves below the hero.'",
+        "Mobile 375 · in your selection — 'Same panel, after adding.'",
+        "Version line — B7-11 public reference frame shows a version in 'About this experiment' ('Reads only the live version.'); whether the version is public is OPEN (OD-B7-05); not on B1-05",
+        "Not designed: 'Your institution already has this' / 'Request additional licences' (B1-05 dt 'Not shown': need a recognised institution, R01 / T-01, D26)"
+      ],
+      "actions": [
+        "Format checkbox (published formats only) → local choice; clears the error",
+        "Add to selection → SEL: (not in selection) → in selection with chosen formats; header count updates; focus moves to panel title [validation: ≥1 format, 'Choose at least one format to add.']",
+        "Change formats → edit mode, current formats pre-ticked",
+        "Update selection → SEL item formats replaced [same validation]; Cancel → back to 'In your selection'",
+        "Remove from selection → SEL item removed; header count updates; panel returns to pick; focus to panel title [no confirm dialog]",
+        "Go to selection → PU-07",
+        "Open preview (opens in a new tab) → vendor-supplied preview link (only where supplied)",
+        "View the course / hero course link / breadcrumb code → PU-05; breadcrumb area → PU-03; breadcrumb 'Experiments' → PU-04",
+        "Back to VR experiments → PU-04 with format filter",
+        "More about access → PU-14",
+        "Already have access? Sign in → XS-01",
+        "Not found: Browse experiments → PU-04; Home → PU-01"
+      ],
+      "outboundLinks": [
+        "Go to selection → PU-07",
+        "View the course → PU-05",
+        "Area breadcrumb → PU-03",
+        "Experiments breadcrumb → PU-04",
+        "Back to <FMT> experiments → PU-04",
+        "More about access → PU-14",
+        "Sign in → XS-01",
+        "Header Request access → PU-07"
+      ],
+      "records": [
+        "EXP",
+        "LO",
+        "CRS",
+        "AREA",
+        "SEL"
+      ],
+      "evidence": "B1-05 frames 0–8 (captions above); B1-05 head meta 'Selection lives in the visitor’s session until a request is sent'; B1-05 dl 'Order', 'Panel' ('Never prices, never “Buy”'), 'Learning outcomes' ('One Experiment-level set (LD-3), authored by the Academic Reviewer'), 'Formats and device needs' ('“Device needs” is supplied per format by the Vendor (VE-F3) — sample wording'), 'Student access' ('Never implied'), 'Not shown'; B1-05 script detView()"
+    },
+    {
+      "id": "PU-07",
+      "title": "Your selection",
+      "screenType": "page",
+      "proposedRoute": "/selection",
+      "recommendedRoute": "/selection",
+      "routeNotes": "Keep. SEL is client-held, browser-session scoped, not tied to an account ('The selection lives in the visitor’s browser session until the request is sent; it does not depend on an account'). It is Step 1 of the 4-step request stepper. Both header 'Request access' and 'Selection (n)' land here.",
+      "navPlace": "Header: Selection (n) AND Header: Request access (B1-06 head: 'Header “Request access” and “Selection (n)” both land here'); Step 1 of 'Request institutional access'",
+      "archetype": "AR-2",
+      "components": [
+        "PublicHeader",
+        "Stepper(ol aria-label 'Request institutional access': Step 1 Selection · Step 2 Request details · Step 3 Review · Step 4 Sent; aria-current='step')",
+        "PageHeader(H1 'Your selection', 'Check the experiments and formats your institution needs. You can change formats or remove an experiment here.')",
+        "UndoNotice(quiet, role=status 'Removed <title> from your selection.' + [Undo])",
+        "SelectionItemRow(decorative thumbnail, H2 title link, course line, 'Remove' button aria-label 'Remove <title> from your selection')",
+        "FormatPills(fieldset legend 'Formats for <title>'; checkbox pills '<FMT> · <name>' for the experiment's published formats; last chosen pill disabled with aria-describedby → LockHint)",
+        "LockHint(xr-hint: 'At least one format stays chosen. To take this experiment out, use Remove.')",
+        "SummaryCard(aside H2 'Summary'; dl Experiments n · Formats chosen 'WEB, VR'; hint 'Nothing is requested until you send the request. You’ll add your institution’s details next.'; primary 'Continue to request'; 'Continue browsing') → BottomBar below 1024 px ('n experiments · m formats' + Continue to request)",
+        "EmptyState(H2 'Your selection is empty', 'Browse experiments and add the ones your institution needs, with the formats for each.', [Browse experiments])"
+      ],
+      "states": [
+        "One item (interactive) — 'PU-07 Your selection · 1440 · interactive' ('The continuity record: Shell-and-Tube Heat Exchanger with WEB + VR. Try unticking both formats, removing it, and Undo.')",
+        "Several experiments — 'Distillation Column has one format, so that format is locked.' (sample: Shell-and-Tube WEB+VR, Distillation Column WEB, Induction Motor Loading VR+MR)",
+        "Last format locked — 'The only chosen format can’t be unticked; Remove is the way out.'",
+        "Removed + undo — interactive only (Undo notice appears after Remove); no static frame",
+        "Empty — 'Empty selection' ('Points back to the catalogue. Continue to request is not offered.')",
+        "Mobile 375 — 'Summary becomes a bottom bar with the next step.'",
+        "Mobile 375 · empty"
+      ],
+      "actions": [
+        "Format pill toggle → SEL item formats updated (only published formats; cannot untick the last chosen; clears any pending Undo)",
+        "Remove → SEL item removed; Undo notice shown [no confirm dialog]",
+        "Undo → item restored at its former position",
+        "Continue to request → PU-08 [not offered when selection is empty]",
+        "Continue browsing → PU-04",
+        "Browse experiments (empty) → PU-04",
+        "Item title → PU-06"
+      ],
+      "outboundLinks": [
+        "Continue to request → PU-08",
+        "Continue browsing → PU-04",
+        "Browse experiments → PU-04",
+        "Item title → PU-06"
+      ],
+      "records": [
+        "SEL"
+      ],
+      "evidence": "B1-06 frames 0–5 (captions above); B1-06 head 'Step 1 of the institutional request. Header “Request access” and “Selection (n)” both land here.'; B1-06 dl 'Words' ('Never cart, basket, checkout or buy. No prices (ND-08)'), 'Formats', 'Summary panel', 'Licences' ('Not asked here … D7 OPEN'), 'Persistence'; B1-06 script selView()"
+    },
+    {
+      "id": "PU-08",
+      "title": "Request institutional access",
+      "screenType": "step",
+      "proposedRoute": "/request-access",
+      "recommendedRoute": "/request-access (Step 2 'Request details' and Step 3 'Review' as in-page steps of one client flow)",
+      "routeNotes": "Keep. The Review step ('Check your request') is drawn on the PU-08 board as Step 3 and has no ID of its own; it can stay a client step (focus moves to its H1) or be /request-access/review — implementer's choice. Needs a non-empty SEL (empty selection does not offer 'Continue to request'); the board does not draw a direct visit with an empty selection (not shown). No self-classification, no account/OTP/registration step.",
+      "navPlace": "Flow steps 2–3 from PU-07 'Continue to request' (screens.json says 'Header: Request access / flow step' — boards link header Request access to PU-07, see inconsistencies)",
+      "archetype": "AR-5",
+      "components": [
+        "PublicHeader",
+        "BackLink('Back to selection')",
+        "Stepper(4 steps)",
+        "PageHeader(H1 'Request institutional access' tabindex=-1, lead 'Tell BITS what your institution needs and for how long. Provide your institution and contact details so BITS can review your request.')",
+        "ErrorSummary(notice--err role=alert tabindex=-1 focused on submit; title 'There is 1 problem with this request' / 'There are N problems with this request'; list of links to fields; term error links to the first radio)",
+        "FormSection(eyebrow 'Part 1 of 3' / 'Part 2 of 3' / 'Part 3 of 3' + H2)",
+        "TextField(label, optional hint, inline error with id, aria-invalid, aria-describedby error+hint, autocomplete)",
+        "OptionalMarker('(optional)' — required fields carry no marker)",
+        "SelectionItemSummary(title, course line, FormatBadges, 'Change' link → PU-07)",
+        "NumericTextField(type=text inputmode=numeric)",
+        "Textarea",
+        "RadioCardGroup(fieldset legend 'Access term' with hint; options with sub-labels)",
+        "DateField(type=date, conditional)",
+        "ReviewList(section 'Your request': dl rows each with 'Edit' button aria-label 'Edit <field>'; selection row has 'Change' link)",
+        "Notice(quiet role=note: 'After you send it you’ll get a reference number for this request. BITS reviews every request; if a payment is needed, the request status will say so.')",
+        "BusyButton('Sending request…' aria-disabled=true + role=status 'Sending your request')",
+        "ErrorNotice(role=alert: 'We couldn’t send your request' 'Nothing was sent. Your details are still here — try again.')"
+      ],
+      "states": [
+        "Empty details (interactive) — 'PU-08 Request institutional access · 1440 · interactive' ('Fill it in (or press Review request empty to see validation) → Review → Submit request → Request sent with REQ-0042.')",
+        "Validation — 'Validation' ('Error summary first, each error linked to its field; messages say how to fix.'; drawn with 4 errors: Institution name empty, e-mail 'meera.iyer@godavari' invalid, licences '120 licences' not a whole number, term not chosen)",
+        "Filled — 'Filled · continuity record' ('Godavari Institute of Technology · Meera Iyer · 120 licences · Yearly.')",
+        "Review — 'Step 3 · Review' ('Every answer with its own Edit.'; H1 'Check your request', 'Make sure everything is right before you send it.')",
+        "Submitting — 'Submitting' ('Button busy and announced; nothing can be sent twice.')",
+        "Failed + retry — 'Failed + retry' ('Nothing was sent; every answer is preserved.')",
+        "Mobile 375 · details — 'Single column; actions full width.'",
+        "Not designed: 'includes experiments you already hold → additional licences' and 'saves as you type' (Inventory v3 PU-08 row) — not on B1-07 (D26 / R01)"
+      ],
+      "actions": [
+        "Review request (form submit) → client validation; errors → ErrorSummary focused + inline messages, typed values kept; valid → Review step, focus H1 'Check your request'",
+        "Typing in a field → clears that field's error",
+        "Choose 'Until a fixed date' → reveals required End date field",
+        "Edit (review row) → back to details, focus that field",
+        "Change (selection summary / review 'Experiments and formats') → PU-07",
+        "Back to selection → PU-07; Back to request details → details step",
+        "Submit request → REQ created (— → 'Submitted' as the requester sees it; 'Under review' as the Super Admin sees it, B1-13 timeline); reference REQ-0042 issued; SEL emptied; → PU-09 [no confirm dialog; busy state blocks a second send; failure keeps every answer]"
+      ],
+      "outboundLinks": [
+        "Back to selection → PU-07",
+        "Change → PU-07",
+        "Submit request → PU-09"
+      ],
+      "records": [
+        "REQ",
+        "SEL"
+      ],
+      "evidence": "B1-07 frames 0–8 (captions above); B1-07 dl 'Three short sections', 'Never asked' ('Internal / external — BITS decides that at approval (T-04). Payment details or prices.'), 'Requester identity' (OPEN T-01 / R01 … 'No OTP, magic link or registration step is designed.'), 'Licences', 'Term', 'Validation', 'Sent', 'Same record'; B1-07 script reqValidate() and reqView()"
+    },
+    {
+      "id": "PU-09",
+      "title": "Request sent",
+      "screenType": "step",
+      "proposedRoute": "/request-access/sent",
+      "recommendedRoute": "/request-access/sent",
+      "routeNotes": "Keep, but only reachable right after a successful submit in this session (it continues 'from this session'); a cold visit has no designed state (not shown). The reference is shown but 'never presented as a key to the request’s details'.",
+      "navPlace": "Flow step 4 'Sent'",
+      "archetype": "AR-10",
+      "components": [
+        "PublicHeader(Selection count back to 0)",
+        "Stepper(step 4 current)",
+        "ConfirmationMessage(H1 'Request sent' focused; 'Your reference is REQ-0042. Use it whenever you refer to this request.'; 'Your selection was sent with this request, so it is empty again.')",
+        "PrimaryLink('Check request status')",
+        "SecondaryLink('Browse experiments')"
+      ],
+      "states": [
+        "Sent — 'Step 4 · Request sent (PU-09)' ('Reference REQ-0042 and one next action: Check request status.')",
+        "Mobile 375 · sent"
+      ],
+      "actions": [
+        "Check request status → PU-10",
+        "Browse experiments → PU-04"
+      ],
+      "outboundLinks": [
+        "Check request status → PU-10",
+        "Browse experiments → PU-04"
+      ],
+      "records": [
+        "REQ",
+        "SEL"
+      ],
+      "evidence": "B1-07 frames 'Step 4 · Request sent (PU-09)', 'Mobile 375 · sent'; B1-07 dl 'Sent' ('One primary action, Check request status, continues from this session. How a requester is identified and returns later is OPEN (R01), so the page promises no link, e-mail or account.'); B8-02/B1-14 correction 3"
+    },
+    {
+      "id": "PU-10",
+      "title": "Request status",
+      "screenType": "page",
+      "proposedRoute": "/requests/[requestId]",
+      "recommendedRoute": "/requests/[requestId] (gated: the mock only renders a request tied to the current visitor session; typing a reference must not open it)",
+      "routeNotes": "Keep the shape but do not treat the id in the URL as a key: B1-08 dt 'Who can open this page' — 'It shows private details (institution, contact person, history). How the requester is identified before seeing it is OPEN (T-01 / R01). The reference number identifies the request — it does not open the page on its own. No reference lookup, OTP, magic link or account registration is designed.' Prefer an opaque request id over the human reference in the URL.",
+      "navPlace": "Detail (from PU-09 'Check request status'; link from confirmation / e-mail: OPEN)",
+      "archetype": "AR-3",
+      "components": [
+        "PublicHeader",
+        "PageHeader(eyebrow 'Request status', H1 'Request REQ-0042', institution name)",
+        "StatusHead(role=status; StatusPill + 'Updated <date, time>'; status title; status text; quoted reason block 'What BITS asked' / 'Why it changed'; at most one next action; 'Access plan ACC-0107' line + hint on active)",
+        "StatusPill(tones: info 'Submitted'/'Under review', wait 'Approved — payment required'/'Payment not confirmed', err 'Information requested'/'Payment failed', ok 'Access active')",
+        "ComparisonTable(H2 'What you asked for and what was approved'; columns Item · You asked for · BITS approved; rows Experiments and formats · Licences · Access term; 'Not decided yet' before a decision; 'Changed' marker on differing approved values)",
+        "HistoryList(H2 'History'; newest first; event, date/time, optional note/quote, actor e.g. 'Meera Iyer, contact person')"
+      ],
+      "states": [
+        "Submitted — 'Right after sending. Nothing to do.' ('We’ve received your request' / 'BITS will review it. Nothing is needed from you right now.')",
+        "Under review — 'Still nothing to do; said plainly.' ('BITS is reviewing your request' / 'Nothing is needed from you right now. This page changes when BITS decides.')",
+        "Information requested — 'The reason is visible. No reply field — the reply lifecycle is OPEN (T-03).' ('BITS needs more information' / 'Your request stays open while BITS waits for this information.' + 'What BITS asked')",
+        "Approved — payment required — 'PU-10 Request status · REQ-0042 · approved, payment required · 1440' ('Status in words → one next action → asked vs approved → short history.'; title 'Approved. Payment is needed before access starts.')",
+        "Approved with changes — 'Difference marked in the table; the reason is shown.' (pill still 'Approved — payment required'; title 'Approved with changes. Payment is needed before access starts.'; 'Why it changed'; Licences 120 → '100 Changed')",
+        "Payment not confirmed — 'Returned from payment; confirmation pending. No “pay again”.' ('Payment not confirmed yet' + [Check again])",
+        "Payment failed — 'Nothing activated; one way forward.' ('The payment didn’t go through' + [Try payment again])",
+        "Access active — 'Access active (PU-13)'",
+        "Internal route — 'Internal route · access active with no payment step' (REQ-0039, BITS Pilani — Hyderabad Campus, ACC-0098; history 'Approved' then 'Access active … No payment step.')",
+        "Mobile 375 — 'Single column; the next action stays near the top.'",
+        "Not designed: Declined (T-02 / R21), Reply to information request (PU-11 / T-03), how the requester reaches this page later (R01)"
+      ],
+      "actions": [
+        "Continue to payment (Approved — payment required, incl. approved with changes) → PU-12",
+        "Check again (Payment not confirmed) → re-read status; no 'pay again'",
+        "Try payment again (Payment failed) → PU-12",
+        "Sign in (Access active) → XS-01 ('Institution administrators sign in to give students access.')"
+      ],
+      "outboundLinks": [
+        "Continue to payment → PU-12",
+        "Try payment again → PU-12",
+        "Sign in → XS-01"
+      ],
+      "records": [
+        "REQ",
+        "INST",
+        "ACC"
+      ],
+      "evidence": "B1-08 'Two routes, one record' chain; frames 0–10 (captions above); B1-08 dl 'Layout (AR-3)', 'Three separate facts' ('“Approved” never reads as “active”; “Payment started” never reads as “paid”'), 'Payment (PU-12)', 'Not designed', 'Access active', 'Who can open this page'; B1-13 'Timeline of REQ-0042'"
+    },
+    {
+      "id": "PU-12",
+      "title": "Payment (external route only)",
+      "screenType": "step",
+      "proposedRoute": "/requests/[requestId]/payment",
+      "recommendedRoute": "/requests/[requestId]/payment",
+      "routeNotes": "Keep, with the same gate as PU-10. Render only for an external request in 'Approved — payment required' or 'Payment failed' (the only states that link here); never for an internal request (STK31-19 'Do NOT create a payment screen for internal / BITS-community access'). 'Continue to payment' hands over to a provider step that is not designed (T-05 / R06 / ND-12); on the canvas it links back to B1-08.",
+      "navPlace": "Flow step (from PU-10 'Continue to payment' / 'Try payment again')",
+      "archetype": "AR-6",
+      "components": [
+        "PublicHeader",
+        "BackLink('Back to request status')",
+        "PageHeader(eyebrow 'Payment · REQ-0042', H1 'Pay for access', 'Access for Godavari Institute of Technology starts after the payment is confirmed.')",
+        "SummaryList(H2 'What will be activated': Institution · Experiments and formats · Licences · Access term · Request)",
+        "Notice(quiet role=note 'You’ll complete the payment on the payment step that follows. After that step, the request status shows whether the payment was confirmed.')",
+        "ButtonRow('Back to request status', 'Continue to payment')"
+      ],
+      "states": [
+        "Provider-neutral summary — 'PU-12 Payment · provider-neutral' ('What will be activated; no amount, no method, no provider named.')",
+        "Outcomes are PU-10 states: Payment not confirmed · Payment failed · Access active"
+      ],
+      "actions": [
+        "Back to request status → PU-10",
+        "Continue to payment → external provider step (OPEN) → back to PU-10; REQ: Approved — payment required → Payment not confirmed → Access active (ACC created) or → Payment failed; 'only success activates' (T-05)"
+      ],
+      "outboundLinks": [
+        "Back to request status → PU-10",
+        "Continue to payment → provider step (not designed)"
+      ],
+      "records": [
+        "REQ",
+        "ACC"
+      ],
+      "evidence": "B1-08 frame 'PU-12 Payment · provider-neutral'; B1-08 dl 'Payment (PU-12)' ('External route only … No amount until pricing exists (ND-08), no payment method collected here, no refund wording, no “mark paid”'); B1-13 step 12 'Next: Continue to payment (provider step)'"
+    },
+    {
+      "id": "PU-13",
+      "title": "Access activated",
+      "screenType": "state",
+      "proposedRoute": "/requests/[requestId] (Access active state)",
+      "recommendedRoute": "/requests/[requestId] (state of PU-10; no own URL)",
+      "routeNotes": "State only (screens.json: 'state = state of a page (no own URL)').",
+      "navPlace": "— (state of PU-10)",
+      "archetype": "AR-3",
+      "components": [
+        "StatusHead(ok tone: 'Access is active', '<Institution> now has access to the approved experiments. Its institution administrator gives students access.', 'Access plan ACC-0107', [Sign in], hint 'Institution administrators sign in to give students access.')",
+        "ComparisonTable",
+        "HistoryList('Access active · Access plan ACC-0107.' / 'Payment confirmed')"
+      ],
+      "states": [
+        "External — 'Access active (PU-13)' ('Plan ACC-0107 exists; next step is Sign in for the institution administrator.')",
+        "Internal — 'Internal route · access active with no payment step' ('History shows approval followed directly by activation.')"
+      ],
+      "actions": [
+        "Sign in → XS-01"
+      ],
+      "outboundLinks": [
+        "Sign in → XS-01"
+      ],
+      "records": [
+        "REQ",
+        "ACC",
+        "INST"
+      ],
+      "evidence": "B1-08 frames 'Access active (PU-13)', 'Internal route · access active with no payment step'; B1-08 dl 'Access active' ('How that account is created (T-11) is OPEN.')"
+    },
+    {
+      "id": "PU-14",
+      "title": "How institutional access works",
+      "screenType": "state",
+      "proposedRoute": "/ (#for-institutions section)",
+      "recommendedRoute": "/#for-institutions (section of PU-01; mini version inside PU-06)",
+      "routeNotes": "Not a page. Section id 'for-institutions' on the landing; header 'For institutions' and 'How institutional access works' / 'More about access' links target it.",
+      "navPlace": "Header: For institutions (landing section); mini version on PU-06 aside; links from PU-03 and PU-05",
+      "archetype": "AR-9",
+      "components": [
+        "ForInstitutionsSection(eyebrow 'For institutions', H2 'Anyone can browse. Institutions request access.', lead 'Running an experiment needs access arranged through your institution.', 4 steps, one button 'Request institutional access')",
+        "MiniAccessSteps(numbered 1–4 + 'More about access')"
+      ],
+      "states": [
+        "Landing section — B1-01 section#for-institutions: Step 1 'Browse and select' ('Choose the experiments your courses need, and the formats for each.'); Step 2 'Request institutional access' ('Send one request with your institution’s details, the licences you need and for how long.'); Step 3 'BITS reviews — payment may be required' ('BITS reviews the request. Some institutions complete a payment before access starts.'); Step 4 'Your administrator gives students access' ('Once access is active, your institution administrator gives students the experiments they need.')",
+        "Mini version on PU-06 — 'How institutional access works' 4 short steps + 'More about access'",
+        "Help text on PU-07/PU-08 (merge target per screens.json) — PU-07 hint 'Nothing is requested until you send the request…'; PU-08 review note 'After you send it you’ll get a reference number…'"
+      ],
+      "actions": [
+        "Request institutional access → PU-07",
+        "More about access → PU-01#for-institutions"
+      ],
+      "outboundLinks": [
+        "Request institutional access → PU-07"
+      ],
+      "records": [],
+      "evidence": "B1-01 section id='for-institutions' (aria-labelledby L-inst-h); B1-05 aside 'About this experiment'; B1-00 register PU-14 'Merged: four steps + one button on the landing; mini version on the experiment page'"
+    },
+    {
+      "id": "PU-15",
+      "title": "Not found",
+      "screenType": "page",
+      "proposedRoute": "not-found.tsx",
+      "recommendedRoute": "app/not-found.tsx (public variant) + a not-found.tsx inside each workspace layout segment (in-shell variant); entity-specific notFound() in /areas/[areaId], /courses/[courseId], /experiments/[experimentId]",
+      "routeNotes": "Board 08 draws two variants: public (public header, action 'Browse experiments', no Help) and workspace (inside the shell, 'Back to Home' + Help). PU-03/PU-05/PU-06 have their own copy ('We can’t find that area' / 'We can’t find that experiment').",
+      "navPlace": "— (any unknown address)",
+      "archetype": "AR-10",
+      "components": [
+        "MessagePage(decorative 48 px icon circle, H1 as only heading, one sentence, one primary action named by destination, optional quiet Help link; 600 px column near the top)",
+        "PublicHeader / WorkspaceShell"
+      ],
+      "states": [
+        "Page not found · public (PU-15): 'We can’t find that page' / 'The address may be wrong, or the page may have moved. Published experiments are all in the catalogue.' [Browse experiments]",
+        "Page not found · workspace (PU-15 pattern · XS): 'We can’t find that page' / 'The address may be wrong, or the page may have moved.' [Back to Home] + Help (breadcrumb 'Not found')",
+        "Area not found (B1-03), Experiment not found (B1-05) — see PU-03 / PU-06",
+        "Mobile: 'The column fills the width; the primary action becomes full-width'"
+      ],
+      "actions": [
+        "Browse experiments → PU-04",
+        "Back to Home → role home",
+        "Help → XS-07"
+      ],
+      "outboundLinks": [
+        "Browse experiments → PU-04",
+        "Back to Home → role home (ST-01, FA-01, IA-01 …)",
+        "Help → XS-07"
+      ],
+      "records": [],
+      "evidence": "08-System-Messages 'The family' cards 'Page not found · workspace' (ids 'PU-15 pattern · XS') and 'Page not found · public' (ids 'PU-15'); 08 'Anatomy' list and 'Rules'"
+    },
+    {
+      "id": "XS-01",
+      "title": "Sign in",
+      "screenType": "page",
+      "proposedRoute": "/sign-in",
+      "recommendedRoute": "/sign-in",
+      "routeNotes": "Keep. Focused task without the public header ('No navigation to wander off to — only Back to experiments and Request institutional access'). After sign-in each person lands on their role home. Real authentication is out of scope (binding constraint 10): a typed mock identity service, but the page itself shows no sample accounts, role chooser or 'Viewing as' (B1-09 dt 'Never here').",
+      "navPlace": "Header: Sign in (every public page); PU-01 'Already have access? Sign in'; PU-06; PU-13 'Sign in'",
+      "archetype": "AR-6",
+      "components": [
+        "SignInCard(centred card on brand background, identity in the card; full width on phones)",
+        "BackLink('Back to experiments')",
+        "Notice(variants: status 'Your session ended'; ok 'You’re signed out'; err role=alert tabindex=-1 'The e-mail or password isn’t right' 'Check both and try again.'; quiet 'Institution sign-in isn’t available right now' 'Sign in with your e-mail and password instead.')",
+        "SSOButton('Sign in with your institution' → busy 'Opening your institution’s sign-in…' aria-disabled)",
+        "Divider('or sign in with e-mail')",
+        "TextField(E-mail, type=email, autocomplete=username, inline error)",
+        "PasswordField(type password/text, autocomplete=current-password, '<Show|Hide> password' toggle, inline error)",
+        "DisclosureButton('Forgot your password?' aria-expanded/aria-controls → hint)",
+        "BusyButton('Sign in' → 'Signing in…' aria-disabled + role=status 'Signing in')",
+        "Link('Need access for your institution? Request institutional access')"
+      ],
+      "states": [
+        "Default (interactive) — 'GL-02 Sign in · 1440 · interactive' ('Try Sign in empty (validation), then any e-mail and password (signing in → “isn’t right”: there is no back end here).')",
+        "E-mail and password entered",
+        "Signing in — 'Busy, announced, cannot be sent twice.'",
+        "Wrong details — 'Password cleared; e-mail kept; focus moves to the message.'",
+        "Missing fields — 'Inline messages tied to each field.' ('Enter your e-mail address', 'Enter your password'; no error summary on this form)",
+        "Institution sign-in starting — 'Hands over to the institution’s sign-in (provider OPEN, T-10).'",
+        "Institution sign-in unavailable — 'E-mail sign-in shown as the state; no dead button.' (SSO button not rendered)",
+        "Account inactive → after sign-in — XS-08 (lands on Home with inactive banner)",
+        "Institution paused → after sign-in — XS-08 (lands on Home with paused banner)",
+        "Mobile 375 — 'Card fills the width.'; Mobile 375 · wrong details",
+        "Template-only (no frame renders them): card notices 'Your account is inactive' and 'Your institution’s access is paused — your work is kept / You can sign in…'"
+      ],
+      "actions": [
+        "Sign in with your institution → SSO hand-off (provider OPEN, T-10); busy label",
+        "Show password / Hide password → toggles field type",
+        "Forgot your password? → reveals 'Contact your institution administrator to reset it.' (XS-04)",
+        "Sign in → validate (empty e-mail 'Enter your e-mail address'; bad format 'Enter an e-mail address like name@institution.edu'; empty password 'Enter your password'; focus first invalid field) → busy → wrong details (password cleared, focus alert) | success → role home in the Batch-0 shell (session expired → kept return address)",
+        "Request institutional access → PU-07",
+        "Back to experiments → PU-01 (board href B1-01, label says 'experiments')"
+      ],
+      "outboundLinks": [
+        "Request institutional access → PU-07",
+        "Back to experiments → PU-01",
+        "success → role home (ST-01 /student, FA-01, IA-01, VE-01, RV-01, CM-01, SA-01)",
+        "inactive/paused → role home + XS-08"
+      ],
+      "records": [
+        "PER",
+        "ROLE",
+        "INST"
+      ],
+      "evidence": "B1-09 frames 0–12 (captions above); B1-09 dl 'Pattern', 'Two ways in', 'Forgot password', 'Never here', 'After sign-in'; B1-09 script sgView(); B1-12 'Sign in' note 'Centred card; full width on phones.'"
+    },
+    {
+      "id": "XS-03",
+      "title": "Signed out / session expired",
+      "screenType": "page",
+      "proposedRoute": "/signed-out",
+      "recommendedRoute": "/sign-in?reason=signed-out and /sign-in?reason=expired&returnTo=<path> (or keep /signed-out but render the same Sign in page)",
+      "routeNotes": "Board draws both as the Sign in page (same H1 'Sign in', same form) with a notice on top, and session expired must carry the return address ('Return address kept and shown'). A separate route would duplicate the form; a query on /sign-in keeps one page. screens.json types XS-03 as a page with its own URL — acceptable only if it renders the Sign in card.",
+      "navPlace": "— (after Sign out in XS-05; on session expiry)",
+      "archetype": "AR-6",
+      "components": [
+        "SignInCard",
+        "Notice(role=status 'Your session ended' + 'Sign in again to go back to where you were: <breadcrumb trail>.')",
+        "Notice(ok, role=status 'You’re signed out')"
+      ],
+      "states": [
+        "Session expired — 'Return address kept and shown.' (e-mail pre-filled 'rahul.verma@godavari.edu.in'; return trail 'My courses › Shell-and-Tube Heat Exchanger')",
+        "Signed out — 'Confirmation only.'"
+      ],
+      "actions": [
+        "Sign in → kept return address (expired) or role home",
+        "all XS-01 actions"
+      ],
+      "outboundLinks": [
+        "Sign in → return address / role home",
+        "Request institutional access → PU-07",
+        "Back to experiments → PU-01"
+      ],
+      "records": [
+        "PER"
+      ],
+      "evidence": "B1-09 frames 'Session expired', 'Signed out'; B1-00 register XS-03 'Session expired with return address · signed out' (open QT-13 session policy)"
+    },
+    {
+      "id": "XS-04",
+      "title": "First-time activation · Forgot password",
+      "screenType": "state",
+      "proposedRoute": "/sign-in (links only — flows OPEN)",
+      "recommendedRoute": "/sign-in (disclosure only; no route, no flow)",
+      "routeNotes": "Nothing to route. Activation and recovery flows are OPEN (T-11 / R02) and must not be built.",
+      "navPlace": "Disclosure on Sign in",
+      "archetype": "AR-6",
+      "components": [
+        "DisclosureButton('Forgot your password?' aria-expanded, aria-controls)",
+        "Hint('Contact your institution administrator to reset it.')"
+      ],
+      "states": [
+        "Collapsed — 'Forgot your password?' button",
+        "Expanded — hint 'Contact your institution administrator to reset it.'",
+        "First-time activation — no control drawn (not shown); register: 'Hidden → “Contact your institution administrator”'"
+      ],
+      "actions": [
+        "Forgot your password? → toggles hint only (no navigation, no reset, no e-mail)"
+      ],
+      "outboundLinks": [],
+      "records": [],
+      "evidence": "B1-09 dl 'Forgot password' ('XS-04 is hidden until activation and recovery are decided (T-11 / R02). Until then the link only says: contact your institution administrator.'); B1-09 script toggleForgot; B1-00 register XS-04"
+    },
+    {
+      "id": "XS-05",
+      "title": "Account menu: name, role, institution, Help, Sign out",
+      "screenType": "menu",
+      "proposedRoute": "(top bar) account menu",
+      "recommendedRoute": "(component in WorkspaceShell top bar — no route)",
+      "routeNotes": "Shell component, identical pattern in all seven workspaces.",
+      "navPlace": "Top bar (right) in every workspace",
+      "archetype": "",
+      "components": [
+        "AccountMenuButton(initials avatar + name + role; aria-label 'Account menu: <name>, <role>', aria-expanded, aria-controls 'acct-menu')",
+        "AccountMenu(name; role line; institution line where relevant; 'My device' (Student with AR/VR/MR access only); 'Help'; separator; 'Sign out' button). Escape closes and returns focus to the button."
+      ],
+      "states": [
+        "Closed / open (05 interactive shell; prop startWithMenuOpen is canvas-only)",
+        "Per workspace (06 table): Student Rahul Verma · Student · Godavari Institute of Technology · My device* · Help · Sign out; Faculty Dr S. Ranganathan; Institute Admin Meera Iyer; Vendor Anil Shetty · Northline Simulation Studio; Academic Reviewer Prof. A. Menon / Content Manager Kavya Nair / Super Admin Arjun Mehta with institution line '— (platform role)'; each Help · Sign out",
+        "Student without AR/VR/MR access — no 'My device' ('* Only when that Student has AR, VR or MR access.')"
+      ],
+      "actions": [
+        "My device → ST-18 (Student with AR/VR/MR only)",
+        "Help → XS-07",
+        "Sign out → ends session → XS-03 'You’re signed out' (destination inferred: 05 draws the button without a target; B1-09 draws the 'Signed out' state)"
+      ],
+      "outboundLinks": [
+        "My device → ST-18",
+        "Help → XS-07",
+        "Sign out → XS-03"
+      ],
+      "records": [
+        "PER",
+        "ROLE",
+        "INST"
+      ],
+      "evidence": "05-Workspace-Shell markup (acct-menu) + script ROLES/onAcctKey; 06 section 'Account menu · same pattern in every workspace' ('No workspace or role switcher — multi-role choice is deferred (XS-02).') and its table + footnote ('whether platform roles show an organisation line is open (see board 13)')"
+    },
+    {
+      "id": "XS-06",
+      "title": "Not your workspace",
+      "screenType": "page",
+      "proposedRoute": "/[workspace]/not-allowed",
+      "recommendedRoute": "No own route: a role guard in each workspace layout renders XS-06 at the requested address, inside the signed-in person's own shell",
+      "routeNotes": "Board copy 'You’re signed in to the Student workspace. This address belongs to a different workspace.' + breadcrumb 'Not your workspace' in the Student's own shell implies the address stays the other workspace's URL; navigation.json rule 'A role opening another role's workspace sees XS-06'. A dynamic [workspace] segment would also sit beside the static base routes (/student, /faculty, /institute, /vendor, /reviewer, /content-manager, /admin). If a URL is wanted, use /<ownBase>/not-allowed without a dynamic segment.",
+      "navPlace": "— (role guard on every workspace route)",
+      "archetype": "AR-10",
+      "components": [
+        "WorkspaceShell(signed-in person's own role; no sidebar item current)",
+        "MessagePage(lock icon, H1 'This page isn’t part of your workspace', sentence, primary 'Back to Home', quiet 'Help')"
+      ],
+      "states": [
+        "Desktop family card — 'This page isn’t part of your workspace' (ids 'XS-06')",
+        "375 in shell — top bar title 'Not your workspace'; 'The column fills the width; the primary action becomes full-width'"
+      ],
+      "actions": [
+        "Back to Home → own role home",
+        "Help → XS-07"
+      ],
+      "outboundLinks": [
+        "Back to Home → own role home",
+        "Help → XS-07"
+      ],
+      "records": [
+        "ROLE"
+      ],
+      "evidence": "08 family card 'This page isn’t part of your workspace' and section 'At 375 px'; navigation.json rules; B8-06 'Permissions: Role guards per workspace (XS-06 “Not your workspace”)'"
+    },
+    {
+      "id": "XS-07",
+      "title": "Help & support: report a problem + my reports",
+      "screenType": "page",
+      "proposedRoute": "/[workspace]/help",
+      "recommendedRoute": "/<base>/help (My reports landing), /<base>/help/report (Report a problem + 'Report sent' state), /<base>/help/reports/[reportId] (Report detail), for base in /student /faculty /institute /vendor /reviewer /content-manager /admin",
+      "routeNotes": "One shared template in all seven workspaces (WCAG 3.2.6). Use static workspace bases from navigation.json rather than a dynamic [workspace] segment. Breadcrumbs drawn: 'Help & support / Report a problem', 'Help & support / SUP-0198'.",
+      "navPlace": "Sidebar foot 'Help' in all seven workspaces + account menu 'Help'",
+      "archetype": "AR-2 (My reports) · AR-8 (Report a problem) · AR-3 (Report detail) · AR-10 (Report sent)",
+      "components": [
+        "WorkspaceShell(Help item current, separated by a hairline at the foot)",
+        "PageHeader(H1 'Help & support', 'Something isn’t working? Report it here and follow what happens.' + primary 'Report a problem' when reports exist)",
+        "ReportList(H2 'My reports' + count 'N reports'; row link: title, SUP id, '· sent <d> · resolved/reopened <d>', StatusPill; status moves under the title on phones)",
+        "EmptyState(H3 'No reports yet', 'If something isn’t working, report it and follow it here.', [Report a problem])",
+        "ReportForm(H1 'Report a problem', 'Describe what went wrong. You can follow your report in My reports.'; Textarea 'What happened?' + hint; TextField 'Where did it happen?' pre-filled + hint; FileInput 'Screenshot (optional)' + hint; [Cancel] [Send report] → 'Sending…' aria-busy)",
+        "ErrorSummary(notice--err role=alert 'One thing needs fixing' + link 'Say what happened')",
+        "InlineError('Say what happened, so it can be looked into')",
+        "Confirmation(H1 'Report sent', 'Your reference is SUP-0213. You can follow it in My reports.', [View my reports] [Back to Home])",
+        "ReportDetail(id eyebrow, H1 title, StatusPill, 'Sent <d>'; ok notice 'Resolution note · <d>' + quoted note first; or notice 'This report is open again' 'It was reopened on <d>. You can follow it here.'; H2 'What you reported' dl What happened · Where · Screenshot; H2 'History' list; 'Something else isn’t working? Report a problem')"
+      ],
+      "states": [
+        "State 1 · Report a problem · Student — '“Where” is pre-filled from the page the person came from.'",
+        "State 1a · Validation — 'Submitted without saying what happened: a summary at the top links to the field; the field explains the fix.'",
+        "State 1b · Sending — 'The primary button shows progress in words. Nothing else moves.'",
+        "State 1c · Sent · reference — 'An AR-10 confirmation in place: reference number and where to follow it. No promise of when or by whom.'",
+        "State 2 · My reports · open / reopened / resolved · Institute Admin — 'The Help landing is the person’s own reports. Rows open the report. Status in words.'",
+        "State 2a · My reports · empty · Vendor — 'With nothing to list, the primary action moves into the empty state.'",
+        "State 3 · Report detail · resolved with note · Faculty — 'The resolution note is the first thing on the page. History comes last.'",
+        "State 3a · Report detail · reopened · Content Manager — 'Reopened reads as open again, with the earlier resolution kept in the history.'",
+        "Phone · 375 · Report a problem — 'Single column; actions stack full width'",
+        "Phone · 375 · My reports — 'Rows wrap: status moves under the title.'",
+        "Academic Reviewer and Super Admin Help screens — not drawn on 07 (same template by rule)"
+      ],
+      "actions": [
+        "Report a problem → ReportForm",
+        "Send report → SUP created: — → Open; reference SUP-#### shown in place [validation: What happened? required]",
+        "Cancel → Help landing",
+        "View my reports → Help landing; Back to Home → role home",
+        "Report row → Report detail",
+        "No resolve / reopen / edit / delete controls for the reporter (07 rules)"
+      ],
+      "outboundLinks": [
+        "Back to Home → role home",
+        "Report detail ↔ My reports",
+        "(Super Admin side: SA-20 / SA-21)"
+      ],
+      "records": [
+        "SUP"
+      ],
+      "evidence": "07-Help-Support head ('One template, one location (sidebar bottom and account menu) in all seven workspaces … No response-time or service promises.'), script frames s1–s8, m1–m2 with labels/notes, 'Rules for GL-03'; 05 shell Help landing ('My reports' 2 reports SUP-0213 Open, SUP-0198 Resolved)"
+    },
+    {
+      "id": "XS-08",
+      "title": "Institution paused / account inactive notice",
+      "screenType": "state",
+      "proposedRoute": "(shell) paused / inactive banner",
+      "recommendedRoute": "(WorkspaceShell banner slot — no route); full-page 'Access paused' message where an experiment is opened (ST-19 pattern)",
+      "routeNotes": "A state of the shell driven by INST/ACC 'Access paused' and PER 'Inactive' in the shared store; same words everywhere.",
+      "navPlace": "Shell banner (under the top bar) in institution workspaces (Institute Admin, Faculty, Student)",
+      "archetype": "AR-10 (full-page variant)",
+      "components": [
+        "ShellBanner(paused: role=status 'Your institution’s access is paused — your work is kept.' + Help link)",
+        "ShellBanner(inactive, dark: role=status 'Your account is inactive. Contact your institution administrator.' + Help link)",
+        "MessagePage(pause icon, H1 'Your institution’s access is paused', 'Your work is kept.', [Back to Home] + Help)"
+      ],
+      "states": [
+        "Account inactive → after sign-in — 'Signs in, lands on Home with the Batch-0 inactive banner (XS-08). Same words everywhere.' (Home body 'Nothing can be opened while the account is inactive.')",
+        "Institution paused → after sign-in — 'Signs in, lands on Home with the Batch-0 paused banner; work is kept.' (Home body 'Experiments can’t be opened while access is paused.')",
+        "05 shell banner slot — props 'Institution paused' / 'Account inactive' (prop editor is canvas-only)",
+        "08 'Access paused' full-page message (ids 'XS-08 · ST-19')",
+        "B7-04 Institute Admin reference frame — 'Paused: the banner, “Access paused · paused by BITS on …”, no Give students access.' (attention item 'BITS has paused your institution’s access' 'Students can’t open experiments. Pages are read-only until BITS lifts the pause.')",
+        "B7-04 Faculty reference frame — 'Batch 4 had no paused Faculty state: the shared banner is shown and nothing else is assumed (OD-B7-07).'",
+        "B7-04 Student reference frame — 'Paused: “You can’t open experiments right now” — their work is kept.' (course row '· Paused — your institution’s access is paused')"
+      ],
+      "actions": [
+        "Help → XS-07",
+        "Back to Home (full-page variant) → role home"
+      ],
+      "outboundLinks": [
+        "Help → XS-07",
+        "Back to Home → role home"
+      ],
+      "records": [
+        "INST",
+        "ACC",
+        "PER"
+      ],
+      "evidence": "05 markup banner slots (isPaused/isInactive); 08 card 'Access paused' and rule '“Paused” always adds “your work is kept”'; B1-09 frames 'Account inactive → after sign-in', 'Institution paused → after sign-in'; B7-04 head ('Pausing is reversible and keeps everyone’s work. The Institute Admin, Faculty and Students see the Batch-0 paused banner (GL-01) until the Super Admin restores access.') and frames 1–3"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "PU-11",
+      "disposition": "OPEN — Reply to an information request (CORE if decided)",
+      "note": "Not designed (T-03). B1-08 'Information requested' frame shows the reason and explicitly 'No reply field'. No designed screen links to a reply or 'Resubmit request' (grep of B1-01…B1-09, 05–08: 0 matches for Reply/Resubmit)."
+    },
+    {
+      "id": "PU-16",
+      "disposition": "DEFER — About · Contact · Privacy · Terms · Accessibility (needs a content owner; no fake pages)",
+      "note": "Footer drawn with real links only (Browse experiments · Areas · For institutions · Sign in); B1-01 table 'Info pages (About, Privacy…) DEFER until content exists'. No designed screen links to them (grep: 0)."
+    },
+    {
+      "id": "XS-02",
+      "disposition": "DEFER — Choose workspace (person with several roles)",
+      "note": "B1-09 dt 'Never here' lists 'a “choose a workspace” step (multi-role is deferred)'; 06 'No workspace or role switcher — multi-role choice is deferred (XS-02)'. No designed screen links to it (grep: 0)."
+    }
+  ],
+  "permissionEvidence": [
+    {
+      "role": "Public visitor (surface, unauthenticated)",
+      "entity": "EXP / AREA / CRS",
+      "action": "Browse landing, areas, course, catalogue and experiment pages before sign-in",
+      "stateBefore": "Published",
+      "stateAfter": "—",
+      "scope": "published content only",
+      "evidence": "B1-04 dt 'One record per experiment' ('Unpublished experiments never appear'); B1-05 not-found 'Unpublished or unknown experiment'; STK31-16 'browse content before login'",
+      "strength": "explicit-rule",
+      "notes": "Public is a surface, not a role (binding constraint 1)."
+    },
+    {
+      "role": "Public visitor",
+      "entity": "SEL",
+      "action": "Add to selection / change formats / remove / undo",
+      "stateBefore": "not in selection",
+      "stateAfter": "in selection (Experiment × chosen published formats)",
+      "scope": "own browser session",
+      "evidence": "B1-05 panel controls; B1-06 dt 'Persistence' ('lives in the visitor’s browser session until the request is sent; it does not depend on an account')",
+      "strength": "explicit-rule",
+      "notes": "Only published formats selectable; last chosen format locked (B1-06 dt 'Formats')."
+    },
+    {
+      "role": "Public visitor (institution contact)",
+      "entity": "REQ",
+      "action": "Submit request institutional access",
+      "stateBefore": "—",
+      "stateAfter": "Submitted (requester view) / Under review (Super Admin view)",
+      "scope": "one request per send, from own selection",
+      "evidence": "B1-07 'Submit request'; B1-13 'Timeline of REQ-0042' row 2 Oct 2026 10:14",
+      "strength": "designed-control",
+      "notes": "No account, OTP, magic link or registration (T-01 / R01 OPEN)."
+    },
+    {
+      "role": "Public visitor",
+      "entity": "REQ",
+      "action": "Classify own request as internal / external",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-07 dt 'Never asked' ('Internal / external — BITS decides that at approval (T-04).'); B1-13 'Same facts' row 'Internal or external: never asked'",
+      "strength": "designed-absence",
+      "notes": "Super Admin sets it at approval."
+    },
+    {
+      "role": "Public visitor",
+      "entity": "REQ",
+      "action": "Enter prices / payment details on the request",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-07 dt 'Never asked' ('Payment details or prices.'); B1-06 dt 'Words' ('No prices (ND-08)')",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Requester (institution contact)",
+      "entity": "REQ",
+      "action": "Open the request status page",
+      "stateBefore": "any",
+      "stateAfter": "—",
+      "scope": "own request; route from this session only",
+      "evidence": "B1-08 dt 'Who can open this page' ('The reference number identifies the request — it does not open the page on its own.')",
+      "strength": "explicit-rule",
+      "notes": "Identity / return path OPEN (R01)."
+    },
+    {
+      "role": "Requester",
+      "entity": "REQ",
+      "action": "Reply to 'Information requested'",
+      "stateBefore": "Information requested",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-08 frame 'Information requested' ('No reply field — the reply lifecycle is OPEN (T-03).')",
+      "strength": "designed-absence",
+      "notes": "PU-11 not designed."
+    },
+    {
+      "role": "Requester",
+      "entity": "REQ / payment",
+      "action": "Continue to payment (external route only)",
+      "stateBefore": "Approved — payment required (or Payment failed → 'Try payment again')",
+      "stateAfter": "Payment not confirmed → Access active | Payment failed",
+      "scope": "own request",
+      "evidence": "B1-08 frames 'PU-10 … approved, payment required', 'Payment failed', 'PU-12 Payment · provider-neutral'",
+      "strength": "designed-control",
+      "notes": "Who confirms payment OPEN (R06)."
+    },
+    {
+      "role": "Requester",
+      "entity": "REQ / payment",
+      "action": "Pay again while confirmation pending; 'mark paid'; see amount/method/provider",
+      "stateBefore": "Payment not confirmed",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-08 frame 'Payment not confirmed' ('No “pay again”.'); head meta 'No provider, method, price, refund or “mark paid”'",
+      "strength": "designed-absence",
+      "notes": "Only 'Check again' is offered."
+    },
+    {
+      "role": "Requester (internal route)",
+      "entity": "REQ",
+      "action": "Payment step",
+      "stateBefore": "Under review",
+      "stateAfter": "Access active directly",
+      "scope": "internal institutions",
+      "evidence": "B1-08 'Two routes, one record' ('Approval of an internal request … activates access directly — the requester never sees a payment step.'); STK31-19",
+      "strength": "designed-absence",
+      "notes": "Never render PU-12 for internal."
+    },
+    {
+      "role": "Requester",
+      "entity": "REQ",
+      "action": "See a Declined state",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-08 dt 'Not designed' ('Declined (T-02 / R21 — no declined state exists)')",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Super Admin",
+      "entity": "REQ",
+      "action": "Set internal / external and approve",
+      "stateBefore": "Under review",
+      "stateAfter": "Approved — payment required (external) | Access active (internal)",
+      "scope": "platform-wide",
+      "evidence": "B1-08 chain 'BITS sets internal / external at approval (T-04)'; flows.json A3; B1-13 steps 09–10",
+      "strength": "explicit-rule",
+      "notes": "Decision UI is SA-03 (other surface); no Decline (T-02)."
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "ACC / SACC",
+      "action": "Sign in after activation to give students access",
+      "stateBefore": "Access active",
+      "stateAfter": "—",
+      "scope": "own institution",
+      "evidence": "B1-08 Access active hint 'Institution administrators sign in to give students access.'; PU-14 step 4",
+      "strength": "explicit-rule",
+      "notes": "How the IA account is created is OPEN (T-11)."
+    },
+    {
+      "role": "Public visitor",
+      "entity": "SACC",
+      "action": "Gain Student access from selection / request / publication",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-05 dt 'Student access' ('Never implied'); panel text 'Students get experiments from their institution once its access is active.'; B1-13 'nothing on any screen says a student has access'",
+      "strength": "explicit-rule",
+      "notes": "Availability ≠ entitlement (flows.json A1)."
+    },
+    {
+      "role": "All seven authenticated roles",
+      "entity": "PER (session)",
+      "action": "Sign in (SSO or e-mail)",
+      "stateBefore": "signed out",
+      "stateAfter": "signed in → own role home",
+      "scope": "own account",
+      "evidence": "B1-09 head 'One sign-in for every role, reached from the public header.'; dt 'After sign-in'",
+      "strength": "explicit-rule",
+      "notes": "Mock auth only (binding constraint 10)."
+    },
+    {
+      "role": "All seven authenticated roles",
+      "entity": "PER",
+      "action": "Reset password / activate account self-service",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-09 hint 'Contact your institution administrator to reset it.'; dt 'Forgot password' (XS-04 hidden, T-11 / R02)",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "All seven authenticated roles",
+      "entity": "ROLE",
+      "action": "Switch role / choose workspace / 'Viewing as'",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B1-09 dt 'Never here'; 06 'No workspace or role switcher'; 06 nav rules 'No demo strip, no “Viewing as”, no sample-account selector, no role switcher.'",
+      "strength": "designed-absence",
+      "notes": "XS-02 deferred."
+    },
+    {
+      "role": "Any authenticated role",
+      "entity": "ROLE / route",
+      "action": "Open another role's workspace",
+      "stateBefore": "—",
+      "stateAfter": "XS-06 shown",
+      "scope": "other workspaces",
+      "evidence": "navigation.json rules; 08 card 'This page isn’t part of your workspace'",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Student with AR / VR / MR access",
+      "entity": "DTR / device",
+      "action": "Open 'My device' from the account menu",
+      "stateBefore": "—",
+      "stateAfter": "—",
+      "scope": "own record",
+      "evidence": "06 account-menu table 'My device*' + footnote '* Only when that Student has AR, VR or MR access.'; 05 hasDevice (Student only)",
+      "strength": "explicit-rule",
+      "notes": "Other roles have no My device."
+    },
+    {
+      "role": "Any signed-in person (all seven roles)",
+      "entity": "SUP",
+      "action": "Report a problem",
+      "stateBefore": "—",
+      "stateAfter": "Open",
+      "scope": "own reports",
+      "evidence": "07 head ('in all seven workspaces'); entities.json SUP ownerWriter 'any signed-in person → Super Admin'; 07 drawn for Student, Institute Admin, Vendor, Faculty, Content Manager",
+      "strength": "designed-control",
+      "notes": "Academic Reviewer and Super Admin Help not drawn on 07; covered by the 'same template' rule and their sidebars on 06."
+    },
+    {
+      "role": "Reporter (any signed-in person)",
+      "entity": "SUP",
+      "action": "View own reports and the resolution note",
+      "stateBefore": "Open / Resolved / Reopened",
+      "stateAfter": "—",
+      "scope": "own reports",
+      "evidence": "07 State 2 note ('The Help landing is the person’s own reports.'); rule 'The reporter reads the resolution note'",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Reporter",
+      "entity": "SUP",
+      "action": "Resolve / reopen / edit / delete a report",
+      "stateBefore": "any",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "07 rule 'resolving and reopening are Super Admin actions (SA-F8)'; no such control in 07 frames",
+      "strength": "designed-absence",
+      "notes": "B7-09 labels a reopened report 'Reopened by the reporter' — contradiction, see inconsistencies."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "SUP",
+      "action": "Resolve (note required, shown to reporter) / Reopen (plain confirmation)",
+      "stateBefore": "Open | Reopened / Resolved",
+      "stateAfter": "Resolved / Reopened",
+      "scope": "platform-wide",
+      "evidence": "B7-09 'Resolve needs a note shown to the reporter; Reopen is a plain confirmation.'",
+      "strength": "designed-control",
+      "notes": "Other surface (SA-20/21); affects XS-07 detail states."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "INST / ACC",
+      "action": "Pause access / Restore access",
+      "stateBefore": "Access active | Ending soon / Access paused",
+      "stateAfter": "Access paused / previous state",
+      "scope": "one institution",
+      "evidence": "B7-04 frame 'Super Admin · Godavari Institute of Technology (SA-07)' ('Pause access → reason → Pause access. Restore access → reason → Restore access.'); error 'Add a reason — it is kept in the history'",
+      "strength": "designed-control",
+      "notes": "Reason required for both; drives XS-08 paused banner for IA, Faculty, Students."
+    },
+    {
+      "role": "Institute Admin",
+      "entity": "PER",
+      "action": "Change a Student/Faculty to Inactive / Active",
+      "stateBefore": "Active",
+      "stateAfter": "Inactive",
+      "scope": "own institution",
+      "evidence": "entities.json PER ownerWriter 'Institute Admin'; B7-04 'The Institute Admin manages people; a status change here is an override with a reason.'",
+      "strength": "explicit-rule",
+      "notes": "Drives XS-08 inactive banner."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "PER",
+      "action": "Change status (override) of a Student",
+      "stateBefore": "Active / Inactive",
+      "stateAfter": "Inactive / Active",
+      "scope": "one institution",
+      "evidence": "B7-04 'Change status' control; 'An override — kept in the history. The Institute Admin normally changes this.'; reason required",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Student / Faculty / Institute Admin of a paused institution",
+      "entity": "PER (session)",
+      "action": "Sign in while access is paused",
+      "stateBefore": "INST Access paused",
+      "stateAfter": "signed in with paused banner",
+      "scope": "own account",
+      "evidence": "B1-09 frame 'Institution paused → after sign-in'; card template 'You can sign in.'",
+      "strength": "designed-control",
+      "notes": "Students can’t open experiments; IA pages read-only (B7-04); Faculty: banner only (OD-B7-07)."
+    },
+    {
+      "role": "Student (inactive account)",
+      "entity": "EXP (open)",
+      "action": "Open anything",
+      "stateBefore": "PER Inactive",
+      "stateAfter": "—",
+      "scope": "own account",
+      "evidence": "B1-09 frame 'Account inactive → after sign-in' body 'Nothing can be opened while the account is inactive.'",
+      "strength": "designed-absence",
+      "notes": "Shown for Student only; Faculty inactive not drawn (not shown)."
+    },
+    {
+      "role": "Institute Admin (paused institution)",
+      "entity": "SACC",
+      "action": "Give students access",
+      "stateBefore": "INST Access paused",
+      "stateAfter": "—",
+      "scope": "own institution",
+      "evidence": "B7-04 frame caption 'Paused: the banner, “Access paused · paused by BITS on …”, no Give students access.'",
+      "strength": "designed-absence",
+      "notes": ""
+    },
+    {
+      "role": "Content Manager",
+      "entity": "EXP",
+      "action": "First publication makes an experiment appear on public pages",
+      "stateBefore": "With Content Manager",
+      "stateAfter": "Published (listed in catalogue)",
+      "scope": "platform-wide",
+      "evidence": "flows.json E4–E5; B6-12 frames 'Public · Course page · ME ZG523' ('The new experiment appears only once it is published.'), 'Public · Experiment page' ('Before publication the page does not exist for the public.')",
+      "strength": "explicit-rule",
+      "notes": "Publishing gives no one access."
+    }
+  ],
+  "fieldEvidence": [
+    {
+      "entity": "REQ",
+      "field": "Institution name",
+      "example": "Godavari Institute of Technology",
+      "shownOn": "PU-08",
+      "inputOrDisplay": "input-required",
+      "validation": "empty → 'Enter your institution’s name' (autocomplete=organization)",
+      "evidence": "B1-07 script reqValidate; label 'Institution name'"
+    },
+    {
+      "entity": "REQ",
+      "field": "Contact person",
+      "example": "Meera Iyer",
+      "shownOn": "PU-08",
+      "inputOrDisplay": "input-required",
+      "validation": "hint 'The person BITS will contact about this request.'; empty → 'Enter the contact person’s name' (autocomplete=name)",
+      "evidence": "B1-07 markup + reqValidate"
+    },
+    {
+      "entity": "REQ",
+      "field": "E-mail",
+      "example": "meera.iyer@godavari.edu.in",
+      "shownOn": "PU-08",
+      "inputOrDisplay": "input-required",
+      "validation": "empty → 'Enter an e-mail address'; not matching /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/ → 'Enter an e-mail address like name@institution.edu' (type=email, autocomplete=email)",
+      "evidence": "B1-07 reqValidate; validation frame value 'meera.iyer@godavari'"
+    },
+    {
+      "entity": "REQ",
+      "field": "Phone",
+      "example": "(empty) → review shows 'Not given'",
+      "shownOn": "PU-08",
+      "inputOrDisplay": "input-optional",
+      "validation": "label suffix '(optional)'; no rule drawn (type=tel, autocomplete=tel)",
+      "evidence": "B1-07 markup; review row 'Phone'"
+    },
+    {
+      "entity": "REQ / SEL",
+      "field": "Experiments and formats (what you need)",
+      "example": "Shell-and-Tube Heat Exchanger — WEB, VR (ME ZG523 · Thermodynamics & Heat Transfer)",
+      "shownOn": "PU-08, PU-10, PU-12",
+      "inputOrDisplay": "display",
+      "validation": "from SEL; 'Change' → PU-07",
+      "evidence": "B1-07 'What you need' item; review row 'Experiments and formats'; B1-08 comparison row"
+    },
+    {
+      "entity": "REQ",
+      "field": "Licences requested",
+      "example": "120",
+      "shownOn": "PU-08",
+      "inputOrDisplay": "input-required",
+      "validation": "hint 'How many licences your institution is asking for.'; empty → 'Enter the number of licences you are requesting'; not /^[1-9][0-9]*$/ → 'Enter a whole number, like 120' (type=text inputmode=numeric). One number per request; nothing says what a licence covers (D7)",
+      "evidence": "B1-07 reqValidate; validation frame value '120 licences'; dt 'Licences'"
+    },
+    {
+      "entity": "REQ",
+      "field": "Message to BITS",
+      "example": "We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.",
+      "shownOn": "PU-08",
+      "inputOrDisplay": "input-optional",
+      "validation": "label suffix '(optional)'; no length rule drawn; review shows 'None' when empty",
+      "evidence": "B1-07 textarea Rr-msg; review row"
+    },
+    {
+      "entity": "REQ",
+      "field": "Access term",
+      "example": "Yearly",
+      "shownOn": "PU-08, PU-10, PU-12",
+      "inputOrDisplay": "input-required",
+      "validation": "radio group 'Access term' with hint 'BITS confirms the term when it decides the request.'; options Monthly · Quarterly · Yearly (sub 'Recurring term') · Until a fixed date (sub 'Access ends on a date you choose'); none chosen → 'Choose how long you need access'",
+      "evidence": "B1-07 reqView terms; dt 'Term'"
+    },
+    {
+      "entity": "REQ",
+      "field": "End date",
+      "example": "Until 30 Jun 2027 (REQ-0039 display)",
+      "shownOn": "PU-08 (when 'Until a fixed date'), PU-10",
+      "inputOrDisplay": "input-required",
+      "validation": "shown only for 'Until a fixed date'; empty → 'Enter the date access should end' (type=date); review shows 'Until <date>'",
+      "evidence": "B1-07 reqValidate; B1-08 internal frame"
+    },
+    {
+      "entity": "REQ",
+      "field": "Error summary title",
+      "example": "There are 4 problems with this request",
+      "shownOn": "PU-08",
+      "inputOrDisplay": "derived",
+      "validation": "'There is 1 problem with this request' / 'There are N problems with this request'; role=alert, focused, each item links to its field",
+      "evidence": "B1-07 reqView errTitle; frame 'Validation'"
+    },
+    {
+      "entity": "REQ",
+      "field": "Reference",
+      "example": "REQ-0042",
+      "shownOn": "PU-09, PU-10, PU-12",
+      "inputOrDisplay": "display",
+      "validation": "issued on send; 'Use it whenever you refer to this request.'; never a key",
+      "evidence": "B1-07 sent; B1-08 H1 'Request REQ-0042'"
+    },
+    {
+      "entity": "REQ",
+      "field": "Status + updated time",
+      "example": "Approved — payment required · Updated 8 Oct 2026, 11:20",
+      "shownOn": "PU-10",
+      "inputOrDisplay": "display",
+      "validation": "requester words: Submitted · Under review · Information requested · Approved — payment required · Payment not confirmed · Payment failed · Access active",
+      "evidence": "B1-08 StatusHead in each frame"
+    },
+    {
+      "entity": "REQ",
+      "field": "Reason from BITS (information requested)",
+      "example": "“Please confirm how many students will use VR in the first term.”",
+      "shownOn": "PU-10",
+      "inputOrDisplay": "display",
+      "validation": "label 'What BITS asked'",
+      "evidence": "B1-08 frame 'Information requested'"
+    },
+    {
+      "entity": "REQ",
+      "field": "Reason for change (approved with changes)",
+      "example": "“Approved for 100 licences for the first term. You can ask for more once enrolment is confirmed.”",
+      "shownOn": "PU-10",
+      "inputOrDisplay": "display",
+      "validation": "label 'Why it changed'; changed cells marked 'Changed'",
+      "evidence": "B1-08 frame 'Approved with changes'"
+    },
+    {
+      "entity": "REQ",
+      "field": "Asked vs approved (Experiments and formats · Licences · Access term)",
+      "example": "120 / 100 Changed; 'Not decided yet' before decision",
+      "shownOn": "PU-10",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "B1-08 table 'What you asked for and what was approved'"
+    },
+    {
+      "entity": "REQ",
+      "field": "History entry",
+      "example": "Request submitted · 2 Oct 2026, 10:14 · Meera Iyer, contact person",
+      "shownOn": "PU-10",
+      "inputOrDisplay": "display",
+      "validation": "events seen: Request submitted · BITS started reviewing · BITS asked for more information · Approved — payment needed · Approved with changes — payment needed · Approved · Payment started · Payment not completed · Payment confirmed · Access active",
+      "evidence": "B1-08 history lists"
+    },
+    {
+      "entity": "REQ / INST",
+      "field": "Institution name (status header)",
+      "example": "Godavari Institute of Technology",
+      "shownOn": "PU-10, PU-12",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "B1-08 frames"
+    },
+    {
+      "entity": "ACC",
+      "field": "Access plan id",
+      "example": "ACC-0107 (internal sample ACC-0098)",
+      "shownOn": "PU-13",
+      "inputOrDisplay": "display",
+      "validation": "exists only after activation",
+      "evidence": "B1-08 'Access active (PU-13)'"
+    },
+    {
+      "entity": "REQ / ACC",
+      "field": "What will be activated (Institution · Experiments and formats · Licences · Access term · Request)",
+      "example": "Godavari Institute of Technology · Shell-and-Tube Heat Exchanger — WEB, VR · 120 · Yearly · REQ-0042",
+      "shownOn": "PU-12",
+      "inputOrDisplay": "display",
+      "validation": "no amount, method or provider",
+      "evidence": "B1-08 frame 'PU-12 Payment · provider-neutral'"
+    },
+    {
+      "entity": "SEL",
+      "field": "Item: experiment + chosen formats",
+      "example": "Shell-and-Tube Heat Exchanger · WEB, VR",
+      "shownOn": "PU-06, PU-07, PU-08",
+      "inputOrDisplay": "input-required",
+      "validation": "≥1 format per item ('Choose at least one format to add.' on PU-06; last pill locked on PU-07 with hint 'At least one format stays chosen. To take this experiment out, use Remove.'); only published formats",
+      "evidence": "B1-05 script add(); B1-06 script selView()"
+    },
+    {
+      "entity": "SEL",
+      "field": "Summary: Experiments / Formats chosen",
+      "example": "1 / WEB, VR (bar: '2 experiments · 3 formats')",
+      "shownOn": "PU-07",
+      "inputOrDisplay": "derived",
+      "validation": "formats list = union in order WEB, AR, VR, MR",
+      "evidence": "B1-06 script fmtList / bar"
+    },
+    {
+      "entity": "SEL",
+      "field": "Header count",
+      "example": "Selection 1 (aria-label 'Selection, 1 experiment')",
+      "shownOn": "all public pages",
+      "inputOrDisplay": "derived",
+      "validation": "'Selection, empty' when 0; 'Selection, N experiments' plural",
+      "evidence": "B1-01/B1-05/B1-06 header aria-labels; B1-06 selAria"
+    },
+    {
+      "entity": "EXP",
+      "field": "Title, course line, summary",
+      "example": "Shell-and-Tube Heat Exchanger · ME ZG523 · Thermodynamics & Heat Transfer · 'Vary flow rates and inlet temperatures…'",
+      "shownOn": "PU-01, PU-04, PU-05, PU-06",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "B1-04 CX data; B1-05 hero"
+    },
+    {
+      "entity": "EXP",
+      "field": "Available in (published formats)",
+      "example": "WEB · AR · VR",
+      "shownOn": "PU-04, PU-05, PU-06",
+      "inputOrDisplay": "display",
+      "validation": "only formats that passed governance (LD-2); never an entitlement",
+      "evidence": "B1-04 row spec; B8-03 'Availability ≠ entitlement'"
+    },
+    {
+      "entity": "LO",
+      "field": "Learning outcomes (one Experiment-level set)",
+      "example": "Determine log mean temperature difference from measured inlet and outlet conditions",
+      "shownOn": "PU-06",
+      "inputOrDisplay": "display",
+      "validation": "authored by the Academic Reviewer (LD-3)",
+      "evidence": "B1-05 section 'Learning outcomes'; dt 'Learning outcomes'"
+    },
+    {
+      "entity": "EXP (format)",
+      "field": "How it runs / Device needs per format",
+      "example": "VR · Virtual reality · 'The experiment in a virtual lab, on a supported headset.' · 'Supported VR headset'",
+      "shownOn": "PU-06",
+      "inputOrDisplay": "display",
+      "validation": "device needs supplied by the Vendor (VE-F3) — sample wording",
+      "evidence": "B1-05 table; dt 'Formats and device needs'"
+    },
+    {
+      "entity": "EXP",
+      "field": "Preview link",
+      "example": "Open preview (opens in a new tab) — or poster 'Illustration · no preview for this experiment yet'",
+      "shownOn": "PU-06",
+      "inputOrDisplay": "display",
+      "validation": "only where supplied (QX-03)",
+      "evidence": "B1-05 'Preview · poster only'"
+    },
+    {
+      "entity": "EXP",
+      "field": "Version label",
+      "example": "Version 1.2 / 1.3",
+      "shownOn": "PU-06 (B7-11 reference frame only)",
+      "inputOrDisplay": "display",
+      "validation": "OPEN whether public (OD-B7-05)",
+      "evidence": "open-decisions OD-B7-05; B7-11 frame '5 · Public · experiment page'"
+    },
+    {
+      "entity": "AREA",
+      "field": "Name, description, courses, counts, artwork",
+      "example": "Mechanical & Manufacturing · 'Heat transfer, thermodynamics and manufacturing processes.' · 5 experiments · 2 courses",
+      "shownOn": "PU-01, PU-02, PU-03",
+      "inputOrDisplay": "display",
+      "validation": "counts from published experiments; fallback initials when no art",
+      "evidence": "B1-01 A3 data; B1-03 frames"
+    },
+    {
+      "entity": "CRS",
+      "field": "Platform course code (optional), name, description, formats in this course",
+      "example": "ME ZG523 · Thermodynamics & Heat Transfer · 'Laboratory experiments covering conduction…'",
+      "shownOn": "PU-03, PU-05, PU-06",
+      "inputOrDisplay": "display",
+      "validation": "code chip omitted when blank (T-17)",
+      "evidence": "B1-03 'Course without a platform code'"
+    },
+    {
+      "entity": "Catalogue query",
+      "field": "Search / facets / sort / view",
+      "example": "Search 'forging'; Area: Mechanical & Manufacturing; Format: VR; Sort 'Default order'",
+      "shownOn": "PU-04",
+      "inputOrDisplay": "input-optional",
+      "validation": "placeholder 'Experiment, course or code'; sort options Default order · Title A–Z · Course code",
+      "evidence": "B1-04 markup + script"
+    },
+    {
+      "entity": "PER (sign-in)",
+      "field": "E-mail",
+      "example": "meera.iyer@godavari.edu.in",
+      "shownOn": "XS-01",
+      "inputOrDisplay": "input-required",
+      "validation": "empty → 'Enter your e-mail address'; bad format → 'Enter an e-mail address like name@institution.edu'; autocomplete=username; kept after wrong details",
+      "evidence": "B1-09 script submit()"
+    },
+    {
+      "entity": "PER (sign-in)",
+      "field": "Password",
+      "example": "(masked)",
+      "shownOn": "XS-01",
+      "inputOrDisplay": "input-required",
+      "validation": "empty → 'Enter your password'; cleared after wrong details; Show/Hide toggle; autocomplete=current-password",
+      "evidence": "B1-09 script; frame 'Wrong details'"
+    },
+    {
+      "entity": "Session",
+      "field": "Return address",
+      "example": "My courses › Shell-and-Tube Heat Exchanger",
+      "shownOn": "XS-03",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "B1-09 'Session expired'"
+    },
+    {
+      "entity": "PER / ROLE / INST",
+      "field": "Account menu identity lines",
+      "example": "Rahul Verma · Student · Godavari Institute of Technology (initials RV)",
+      "shownOn": "XS-05",
+      "inputOrDisplay": "display",
+      "validation": "platform roles show '— (platform role)'; Vendor shows its organisation",
+      "evidence": "06 account-menu table"
+    },
+    {
+      "entity": "SUP",
+      "field": "What happened?",
+      "example": "The VR simulation stopped loading at the second step.",
+      "shownOn": "XS-07",
+      "inputOrDisplay": "input-required",
+      "validation": "hint 'Say what you were doing and what you saw.'; empty → summary 'One thing needs fixing' (link 'Say what happened') + inline 'Say what happened, so it can be looked into'",
+      "evidence": "07 State 1a"
+    },
+    {
+      "entity": "SUP",
+      "field": "Where did it happen?",
+      "example": "Shell-and-Tube Heat Exchanger · VR",
+      "shownOn": "XS-07",
+      "inputOrDisplay": "input-optional",
+      "validation": "pre-filled from the page the person came from; hint 'Filled in from the page you came from. Change it if needed.'; no rule drawn, no '(optional)' marker",
+      "evidence": "07 markup"
+    },
+    {
+      "entity": "SUP",
+      "field": "Screenshot",
+      "example": "blank-page.png / 'No screenshot added'",
+      "shownOn": "XS-07",
+      "inputOrDisplay": "input-optional",
+      "validation": "'(optional)'; hint 'A picture of the screen can help.'; type=file; allowed types/sizes not shown",
+      "evidence": "07 markup; detail frames"
+    },
+    {
+      "entity": "SUP",
+      "field": "Reference, title, status, sent / resolved / reopened dates",
+      "example": "SUP-0213 · 'VR simulation stopped loading at step 2' · Open · sent 3 Oct",
+      "shownOn": "XS-07",
+      "inputOrDisplay": "display",
+      "validation": "status words Open · Resolved · Reopened; title has no input field (source not shown)",
+      "evidence": "07 frames s5, m2; 05 Help landing"
+    },
+    {
+      "entity": "SUP",
+      "field": "Resolution note",
+      "example": "“The lab brief link was updated. It now opens the brief in a new tab.”",
+      "shownOn": "XS-07",
+      "inputOrDisplay": "display",
+      "validation": "written by Super Admin on Resolve",
+      "evidence": "07 State 3; B7-09 'Note to the reporter'"
+    },
+    {
+      "entity": "SUP",
+      "field": "History",
+      "example": "Resolved · 23 Sep · resolution note added / Sent · 21 Sep",
+      "shownOn": "XS-07",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "07 State 3 / 3a"
+    },
+    {
+      "entity": "INST / ACC",
+      "field": "Paused banner / status",
+      "example": "Your institution’s access is paused — your work is kept. · Access paused · Access plan ACC-0107 · paused by BITS on <date>",
+      "shownOn": "XS-08",
+      "inputOrDisplay": "display",
+      "validation": "pause reason shown to users is OPEN (08 rules)",
+      "evidence": "05 / B7-04"
+    },
+    {
+      "entity": "PER",
+      "field": "Inactive banner",
+      "example": "Your account is inactive. Contact your institution administrator.",
+      "shownOn": "XS-08",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "05; B1-09 frame 7"
+    }
+  ],
+  "crossRoleTouchpoints": [
+    "REQ: Public visitor submits on PU-08 → Super Admin sees the same REQ-0042 in SA-02 Requests ('Under review', 'Internal or external: Not set yet') and decides on SA-03 (B1-07 dt 'Same record'; B1-13 steps 08–10).",
+    "REQ status words differ by audience at the same moment: requester PU-10 'Submitted' vs Super Admin 'Under review' (B1-13 'Timeline of REQ-0042', 2 Oct 2026 10:14); afterwards both see 'Under review', 'Approved — payment required', 'Payment not confirmed', 'Access active'.",
+    "REQ: Super Admin 'Request more information' (reason required) → PU-10 'Information requested' shows 'What BITS asked'; no reply path (T-03).",
+    "REQ: Super Admin 'smaller scope' (difference + reason) → PU-10 'Approved with changes' with 'Changed' marker and 'Why it changed' (B1-08; B1-12 dec375 confirmation 'The requester sees what changed and your reason.').",
+    "REQ → INST: institution record created at the first approval of a new institution; ACC created at activation (B1-13 'Four separate events'; entities.json REQ relations).",
+    "ACC-0107 activation (payment confirmed or internal approval) → Institute Admin sees the plan read-only in IA-02 Content access (flows.json B2) — publication/activation never grants Student access; IA gives SACC (flows.json B3).",
+    "PU-13 'Sign in' is for the institution administrator; Super Admin assigns the Institute Admin on SA-07 ('Nothing is sent (T-11)', flows.json B1); sample Meera Iyer is both contact person on REQ-0042 and Institute Admin (06 table) — how the account is created is OPEN (T-11, OD-B7-11).",
+    "EXP: Content Manager Publish (CM-03) → experiment appears on PU-05 / PU-06 / PU-04 (B6-12 frames 5–6; flows.json E5). Super Admin Release / Hold of a correction changes the live version the public page reads (B7-11 frame '5 · Public · experiment page'; OD-B7-05 version visibility open).",
+    "AREA / CRS: Super Admin Academic structure (B7-07) feeds the explorer, PU-02, PU-03, PU-05, catalogue facets; adding an empty area changes nothing public (OD-B7-13).",
+    "CRS platform code: Content Manager course codes (CM, B6-10) decide whether PU-05 shows a code chip (T-17).",
+    "SUP: any signed-in person sends on XS-07 → Super Admin Operations › Support (SA-20 list, SA-21 detail) sees reporter ('From'), what/where/screenshot; Resolve requires 'Note to the reporter' → XS-07 detail shows 'Resolution note' first; Reopen → XS-07 shows 'This report is open again' (07 rules; B7-09). Inventory XS-07: the Institute Admin overview counts its institution's reports.",
+    "INST pause: Super Admin Pause access (reason) on SA-07 → Institute Admin, Faculty and Students see the XS-08 paused banner; Students can’t open experiments; IA pages read-only, no Give students access; Restore access (reason) removes it (B7-04).",
+    "PER inactive: Institute Admin (or Super Admin override with reason, B7-04) sets a Student Inactive → that Student signs in and lands on Home with the XS-08 inactive banner (B1-09 frame 7).",
+    "XS-05 'My device' (Student with AR/VR/MR) → ST-18 → DTR chain Student → IA → Super Admin (flows.json Device)."
+  ],
+  "canvasOnly": [
+    "Frame captions (.b1-cap), board heads/kickers ('Batch 1 · PU-F…'), 'Sample data: …' meta chips, annotation dl/tables ('Kept, changed and removed from B2', 'Interaction and accessibility', 'Rules for GL-03'), B1-00 register and navigation map, B1-14 change log.",
+    "Links between .dc.html boards stand for product links; '#Dd-preview', '#help', '#h-anat', '#A1-area' etc. are in-board anchors.",
+    "B1-02 explorer test fixtures 'Test area 4 — placeholder' … 'Test area 9 — placeholder' ('TEST FIXTURES — NOT REAL AREAS'; 'They are not proposed area names').",
+    "B1-09 sign-in: any e-mail/password always ends in 'isn’t right' ('there is no back end here'); timing 1300 ms.",
+    "B1-07 submit: 1400 ms timer and failNext flag simulate send/fail; 'What you need' item is static (only Shell-and-Tube WEB + VR) — product must render the live SEL.",
+    "B1-04 'Try again' sets the board to loading forever; facet counts computed from 12 fixture rows.",
+    "B1-08 PU-12 'Continue to payment' links back to B1-08 (stands for the provider step); 'Check again' has no handler.",
+    "B1-13 thumbnails (inert, 30 % scale) and 'Open board …' links; B1-12 frames clipped to fixed heights ('Frames are clipped to the height shown').",
+    "Batches 1–3 frames scroll inside a fixed height (b1-frame) — viewport crop, not product behaviour (START-HERE Known exceptions 3).",
+    "05 shell props 'role', 'banner', 'startWithMenuOpen' in section 'Shell state (canvas only)'; 'Page content slot · not designed in Batch 0' placeholder with Families / Archetype / Designed in metadata.",
+    "06 sidebar links all point to '#h-seven' / '#h-collapse' / '#h-sub'; sample counts (Marking 12, Requests 2, Review queue 4, Ready to publish 2, Requests 3).",
+    "07 state labels ('State 1 · Report a problem · Student' …) and the choice of a different workspace per state ('to prove it does not change').",
+    "08 'The family · same template, different words' cards shown 'without the sidebar for comparison'; label 'Public header · Batch 1'.",
+    "B7-04 'Board control — not part of the product.' with 'Start again (Godavari active)'; 'Shared on this board only.' and reference-frame captions.",
+    "Sample people, institutions, dates and references (Meera Iyer, Rahul Verma, REQ-0042/0039, ACC-0107/0098, SUP-0213/0211/0209/0198/0189/0207, 8 Oct 2026 …) — mock sample world only (T-36).",
+    "support.js runtime (host-supplied) — never copy into the product."
+  ],
+  "inconsistencies": [
+    "Header 'Request access' target: navigation.json Public header says 'Request access → PU-08' and screens.json PU-08 navigation 'Header: Request access / flow step', but every v46 public header links 'Request access' (and the landing 'Request institutional access') to B1-06 = PU-07; B1-01 dd 'Request access starts at the Selection, the first step of the request.'; B1-06 head 'Header “Request access” and “Selection (n)” both land here'; B1-00 nav map '… · B1-06'. Board wins → PU-07.",
+    "REQ status vocabulary: entities.json REQ lists 'Under review · Information requested · Approved — payment required · Payment not confirmed · Access active' but B1-08 also draws 'Submitted' and 'Payment failed' as requester-facing statuses (B8-03 vocabulary counts 'Submitted' 2). flows.json A2 transition '— → Under review' is the Super Admin view; the requester sees 'Submitted' (B1-13 timeline). The store needs audience-specific labels or a Submitted state.",
+    "REQ history wording differs from status pills on B1-08: history 'Approved — payment needed' / 'Approved with changes — payment needed' / 'Payment started' / 'Payment not completed' vs pills 'Approved — payment required' / 'Payment not confirmed' / 'Payment failed' (events vs statuses; keep both exactly as drawn).",
+    "Legacy ID on B1-09: caption 'GL-02 Sign in · 1440 · interactive' and head 'GL-02 Sign in and session · XS-01 · XS-03' vs screens.json XS-01; B1-00 register also says 'XS-08 Account inactive / institution paused … GL-02'.",
+    "B1-09 'Back to experiments' links to B1-01 (Landing, PU-01), not the catalogue (PU-04); Inventory v3 XS-01 row says 'Back to catalogue'. Odd label/target pair — confirm which destination (board href = PU-01).",
+    "XS-04: screens.json navigation 'Link on Sign in' — the board draws a disclosure button (aria-expanded) that reveals a hint, not a link; no first-time activation control is drawn at all.",
+    "XS-03: screens.json type 'page' with route '/signed-out', but B1-09 draws 'Signed out' and 'Session expired' as notices on the Sign in page (same H1 'Sign in', same form).",
+    "B1-09 sign-in card template contains 'Your account is inactive' and 'Your institution’s access is paused — your work is kept · You can sign in…' notices that no frame renders; drawn behaviour is sign-in succeeds then Home + shell banner (frames 7–8). Inventory v3 XS-01 lists 'account inactive; institution paused' as sign-in states. Board frames win.",
+    "XS-06 action: Inventory v3 XS-06 primary 'Back to my workspace'; board 08 uses 'Back to Home'.",
+    "SUP reopen: 07 rules say 'resolving and reopening are Super Admin actions (SA-F8)' and the reporter has no Reopen control, but B7-09 labels the state 'Reopened by the reporter' (7 occurrences) while also giving the Super Admin a Reopen button. Who reopens is contradictory.",
+    "SUP list shows a report title (e.g. 'VR simulation stopped loading at step 2') but the Report a problem form has no title field ('Fields: what happened, where …, optional screenshot. Nothing else.') — title source not shown.",
+    "Help problem categories: STK31-39 lists problem types (Experiment not opening · package/link issue · login issue · access issue · device issue · other) and Inventory v3 XS-07 renames '“Package / link issue” → “App or link problem”', but board 07 has no category field. Board wins; flag for owner.",
+    "Logo placeholder text: B1-14 'Missing assets' says boards are labelled 'BITS Pilani / WILP logo — approved asset'; every board actually reads 'BITS Pilani / WILP logo — placeholder' (B8-03 'Logo box now reads “placeholder”').",
+    "Catalogue selection marker: B1-04 dt 'Selection marker' ('Rows already in the visitor’s selection show “In your selection”') has no drawn frame (selection empty in every B1-04 state) — behaviour specified, visual not shown.",
+    "PU-05 route key: proposed '/courses/[courseCode]' while B1-03 draws a course without a platform code (T-17) — the code cannot be a reliable URL key.",
+    "PU-10 route '/requests/[requestId]' vs board rule 'the reference … does not open the page on its own' — the route must be session-gated in the mock, not a lookup by reference.",
+    "XS-06 route '/[workspace]/not-allowed' vs board copy 'This address belongs to a different workspace' (message rendered at the requested address in the person’s own shell); dynamic [workspace] also overlaps static workspace bases.",
+    "XS-07 route '/[workspace]/help' uses a dynamic segment while navigation.json gives static bases per role (/student, /faculty, /institute, /vendor, /reviewer, /content-manager, /admin).",
+    "Board 07 draws Help for only five workspaces (Student, Institute Admin, Vendor, Faculty, Content Manager); Academic Reviewer and Super Admin Help screens are not drawn (template rule covers them; Super Admin is also the resolver).",
+    "Inventory v3 PU-08 lists 'saves as you type' and 'includes experiments you already hold → “additional licences”'; neither is on B1-07 (D26 / R01 OPEN) — do not build.",
+    "B1-03 caption 'Area or course · not found' draws only the area copy ('We can’t find that area'); course not-found copy is not shown.",
+    "Foundation code at 1b090c9 vs v46: v2/packages/domain/src/technology.ts orders formats web, vr, mr, ar with labels 'Web' / 'Virtual Reality', while v46 public boards order WEB · AR · VR · MR (B1-06 fmtList order, catalogue chips) with labels 'WEB · Browser', 'VR · Virtual reality'; roles.ts uses id 'tenant_admin' with planning label 'Institute Admin / Tenant Admin' vs v46 'Institute Admin'. '/' at 1b090c9 is a Phase-0 status page (to be replaced by PU-01).",
+    "Historical prototype stored the selection in localStorage (ui-ux/18-unified-functional-platform/js/state.js 'Persistence: localStorage'); v46 says browser session until the request is sent (B1-06 dt 'Persistence') — do not copy the prototype persistence.",
+    "PU-02/PU-03 screens.json list only B1-03; B1-02 (explorer) is not mapped to any screen ID — it is a PU-01 component (B1-00 register row '— Engineering-area explorer'). Not a defect, but B1-02 must be read for PU-01."
+  ],
+  "sharedComponentCandidates": [
+    "PublicHeader (logo placeholder, nav with aria-current, Selection (n) counter with spoken count, Sign in, Request access outline, Menu sheet <1024) — PU-01…PU-12, PU-15",
+    "PublicFooter (real links only) — PU-01…PU-12",
+    "Breadcrumb (nav 'Breadcrumb', aria-current) — PU-02, PU-03, PU-04, PU-05, PU-06; workspace variant 'You are here' — XS-06, XS-07",
+    "FormatBadge (WEB/AR/VR/MR glyph; default, compact, on-dark) — PU-01, PU-03, PU-04, PU-05, PU-06, PU-07, PU-08",
+    "ExperimentRow (thumbnail, course line, title link covering row, summary, 'Available in') — PU-04, PU-05",
+    "AreaCard / AreaFallbackArt (pattern + initials) — PU-01 explorer, PU-02",
+    "CollectionHeader with linked counts (dl) — PU-02, PU-03, PU-05",
+    "Stepper (4 steps, aria-current=step) — PU-07, PU-08, PU-09",
+    "FormField family (label, hint, '(optional)' marker, inline error, aria-describedby) + ErrorSummary (role=alert, focus, linked) — PU-08, XS-01 (inline only), XS-07",
+    "BusyButton (aria-disabled + role=status text: 'Sending request…', 'Signing in…', 'Sending…') — PU-08, XS-01, XS-07",
+    "Notice (info/quiet/ok/warn/err; role status/alert/note) — PU-04, PU-07 undo, PU-08, PU-12, XS-01, XS-03, XS-07",
+    "StatusPill (info, wait, ok, err, paused tones; status in words) — PU-10, PU-13, XS-07, XS-08",
+    "StatusHead (status + updated + title + text + one next action) — PU-10, PU-13",
+    "ComparisonTable (asked vs approved, 'Changed' marker, stacked rows <600) — PU-10",
+    "HistoryList (event, date, note, actor) — PU-10, XS-07 detail",
+    "SummaryList / ReviewList (dl with per-row Edit/Change) — PU-08 review, PU-12",
+    "EmptyState / SkeletonList (role=status, announced once) / ErrorRetry ('We couldn’t load …' + Try again) — PU-02, PU-04, PU-05, PU-07, XS-07",
+    "MessagePage (AR-10: icon, single H1, one sentence, one primary action named by destination, quiet Help) — PU-03/PU-05/PU-06 not found, PU-09, PU-15, XS-06, XS-07 'Report sent', XS-08 full page",
+    "SelectionPanel + FormatCheckboxGroup / FormatPills with last-format lock — PU-06, PU-07",
+    "SummaryCard ↔ BottomBar (<1024) — PU-07",
+    "FacetPanel ↔ FilterSheet (modal dialog <1024) + FilterChips — PU-04",
+    "AreaExplorer carousel — PU-01 (B1-02)",
+    "SignInCard + PasswordField (Show/Hide) + DisclosureButton — XS-01, XS-03, XS-04",
+    "WorkspaceShell (sidebar ≥1280, 72 px rail 1024–1279 with tooltips, drawer <1024 with focus management; top bar title/breadcrumbs; AccountMenu; banner slot; Help at foot) — XS-05, XS-06, XS-07, XS-08, workspace PU-15",
+    "AccountMenu (Escape closes, focus returns) — XS-05",
+    "ShellBanner (paused / inactive, role=status, Help link) — XS-08",
+    "ReportForm / ReportList / ReportDetail — XS-07 (same template in all seven workspaces)"
+  ],
+  "openQuestions": [
+    "T-01 / R01 — Who the requester is before an institution exists and how they return to PU-10 later (no account, OTP, magic link or reference lookup designed). Affects PU-09/PU-10/PU-12 routing and the SEL lifetime.",
+    "T-02 / R21 — Decline of a request: no Declined state, filter or control.",
+    "T-03 / PU-11 — 'Request more information' reply lifecycle: reason shown, no reply field.",
+    "T-04 / ND-07 — Internal vs external classification rule (Super Admin sets it at approval; visitors never self-classify).",
+    "T-05 / R06 / ND-08 / ND-12 — Payment provider, who confirms payment, pricing, refunds; PU-12 stays provider-neutral, 'only success activates'.",
+    "D7 / T-06 — What a licence covers; 'Licences requested' with neutral help only.",
+    "D26 / T-07 / D8 — 'Your institution already has this' / 'Request additional licences' on public pages (needs a recognised institution); renewal / expansion scope.",
+    "T-10 — Identity provider / SSO; 'Sign in with your institution' is generic.",
+    "T-11 / R02 — Activation, invitations, password recovery (XS-04 hidden) and how the Institute Admin account exists after 'Access active' (OD-B7-11 assigning an IA before payment).",
+    "QT-13 — Session policy (when 'Your session ended' appears; return address rules).",
+    "QP-11 / XS-02 — Multi-role workspace chooser (deferred).",
+    "T-17 — Which course code shows publicly (code chip optional; affects PU-05 URL key).",
+    "ND-02 / T-35 — Final label for 'Engineering area' (working label).",
+    "OD-B7-13 — Whether an area with no published experiments shows in the explorer / All areas (drawn: hidden, 'Confirm — OPEN').",
+    "OD-B7-05 — Whether the live version label shows on the public experiment page.",
+    "B1-14 — Featured experiments curated vs derived; B1-04 — catalogue order once a course has more than three experiments; Inventory PU-04 — OR-inside / AND-across facet rule is a reversible design choice.",
+    "QX-03 — Preview captions / transcript ownership (preview link only where supplied).",
+    "OD-B5-09 — 'Composite Wall Conduction' (public catalogue e3, WEB + AR) and 'Conduction Through a Composite Wall' (SUB-0077) stay two records; do not merge in catalogue seed data.",
+    "ND-14 — Support model / SLA (no response-time promises on XS-07); T-34 notifications (status in-product only).",
+    "XS-07 — Who may reopen a resolved report (07 rule: Super Admin; B7-09 label: 'Reopened by the reporter').",
+    "XS-07 — Source of the report title shown in My reports (no title field on the form); whether a problem category (STK31-39 list) is needed; screenshot types/sizes.",
+    "XS-07 — Signed-out users with a login problem cannot reach Help & support (SUP is 'any signed-in person'); sign-in only says 'Contact your institution administrator'.",
+    "08 rules — Whether an admin-written pause reason is shown on paused / ended pages (pause reason exists on SA side, B7-04).",
+    "06 footnote — Whether platform roles (Academic Reviewer, Content Manager, Super Admin) show an organisation line in the account menu (see board 13).",
+    "OD-B7-07 — Faculty view while access is paused (banner only drawn).",
+    "B1-09 'Back to experiments' destination: landing (board href) or catalogue (label / Inventory 'Back to catalogue')?",
+    "PU-09 / PU-10 cold visit (no session request) — no state drawn; decide between not-found and a message page."
+  ],
+  "counts": {
+    "idsOnSurface": 24,
+    "designed": 21,
+    "notDesigned": 3,
+    "productFramesIndexedB1_01_to_B1_09": 79,
+    "helpSupportStatesBoard07": 10,
+    "permissionFacts": 30,
+    "fieldFacts": 43,
+    "inconsistencies": 24,
+    "openQuestions": 27,
+    "crossRoleTouchpoints": 14,
+    "statesTotal": 125,
+    "sharedComponentCandidates": 27
+  }
+}

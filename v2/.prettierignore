@@ -8,3 +8,4 @@ test-results
 pnpm-lock.yaml
 packages/database/src/generated
 packages/database/prisma/migrations
+docs/v46

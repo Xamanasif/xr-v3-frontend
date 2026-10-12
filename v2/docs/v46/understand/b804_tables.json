@@ -1,0 +1,1303 @@
+[
+ {
+  "heading": "State sharing — canvas vs product",
+  "rows": [
+   [
+    {
+     "t": "Flow board",
+     "l": []
+    },
+    {
+     "t": "Shared within the board",
+     "l": []
+    },
+    {
+     "t": "Restart control",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "B1-13",
+     "l": [
+      "B1-13-Flow-Continuity.dc.html"
+     ]
+    },
+    {
+     "t": "REQ-0042 from request to decision",
+     "l": []
+    },
+    {
+     "t": "Board control",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "B2-13",
+     "l": [
+      "B2-13-Flow-2-Continuity.dc.html"
+     ]
+    },
+    {
+     "t": "ACC-0107 → SACC-0310 → Rahul",
+     "l": []
+    },
+    {
+     "t": "Board control",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "B3-12",
+     "l": [
+      "B3-12-Flow-3-Continuity.dc.html"
+     ]
+    },
+    {
+     "t": "Rahul × Shell-and-Tube (WEB, VR) + DTR-0018",
+     "l": []
+    },
+    {
+     "t": "Board control",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "B4-14",
+     "l": [
+      "B4-14-Flow-4-Continuity.dc.html"
+     ]
+    },
+    {
+     "t": "ASMT-0009 / ATT-0450",
+     "l": []
+    },
+    {
+     "t": "Board control",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "B5-08",
+     "l": [
+      "B5-08-Flow-5-Continuity.dc.html"
+     ]
+    },
+    {
+     "t": "SUB-0077 (Vendor side; reviewer return by a labelled board control)",
+     "l": []
+    },
+    {
+     "t": "Board control",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "B6-12",
+     "l": [
+      "B6-12-Flow-5-Completion.dc.html"
+     ]
+    },
+    {
+     "t": "SUB-0077 revision 2 → Published",
+     "l": []
+    },
+    {
+     "t": "Board control",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "B6-13",
+     "l": [
+      "B6-13-Flow-6-Steps-1-2.dc.html"
+     ]
+    },
+    {
+     "t": "UPD-0005 steps 1–2",
+     "l": []
+    },
+    {
+     "t": "Board control",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "B7-11",
+     "l": [
+      "B7-11-Flow-6-Release-and-Hold.dc.html"
+     ]
+    },
+    {
+     "t": "UPD-0005 steps 1–5, Release and Hold (hosted pass confirmed by the user)",
+     "l": []
+    },
+    {
+     "t": "Two board controls",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Flow A — Public discovery → access request → Super Admin decision → institution next state",
+  "rows": [
+   [
+    {
+     "t": "Step",
+     "l": []
+    },
+    {
+     "t": "Actor (permission)",
+     "l": []
+    },
+    {
+     "t": "Screens",
+     "l": []
+    },
+    {
+     "t": "Record",
+     "l": []
+    },
+    {
+     "t": "Status before → after",
+     "l": []
+    },
+    {
+     "t": "Visible outcome",
+     "l": []
+    },
+    {
+     "t": "Evidence",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "1",
+     "l": []
+    },
+    {
+     "t": "Public visitor (institution contact)",
+     "l": []
+    },
+    {
+     "t": "PU-01 → PU-04 → PU-06 → PU-07",
+     "l": []
+    },
+    {
+     "t": "SEL",
+     "l": []
+    },
+    {
+     "t": "— → selection (n)",
+     "l": []
+    },
+    {
+     "t": "Selection count in the header; availability shown, never an entitlement",
+     "l": []
+    },
+    {
+     "t": "B1-01 · B1-04 · B1-05 · B1-06",
+     "l": [
+      "B1-01-Public-Landing.dc.html",
+      "B1-04-Catalogue.dc.html",
+      "B1-05-Experiment-Detail.dc.html",
+      "B1-06-Selection.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "2",
+     "l": []
+    },
+    {
+     "t": "Public visitor",
+     "l": []
+    },
+    {
+     "t": "PU-07 → PU-08 → PU-09",
+     "l": []
+    },
+    {
+     "t": "REQ-0042",
+     "l": []
+    },
+    {
+     "t": "— → Under review",
+     "l": []
+    },
+    {
+     "t": "“Request REQ-0042 sent”; the reference is not a key",
+     "l": []
+    },
+    {
+     "t": "B1-07",
+     "l": [
+      "B1-07-Request-Access.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "3",
+     "l": []
+    },
+    {
+     "t": "Super Admin",
+     "l": []
+    },
+    {
+     "t": "SA-02 → SA-03",
+     "l": []
+    },
+    {
+     "t": "REQ-0042",
+     "l": []
+    },
+    {
+     "t": "Under review → Approved — payment required (external) · Access active (internal)",
+     "l": []
+    },
+    {
+     "t": "Decision panel; no Decline (T-02); approval prerequisites enforced",
+     "l": []
+    },
+    {
+     "t": "B1-10 · B1-11 · B1-13",
+     "l": [
+      "B1-10-SA-Requests.dc.html",
+      "B1-11-SA-Decision.dc.html",
+      "B1-13-Flow-Continuity.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "4",
+     "l": []
+    },
+    {
+     "t": "Institution contact",
+     "l": []
+    },
+    {
+     "t": "PU-10 → PU-12",
+     "l": []
+    },
+    {
+     "t": "REQ-0042 · ACC-0107",
+     "l": []
+    },
+    {
+     "t": "Approved — payment required → Access active",
+     "l": []
+    },
+    {
+     "t": "Status page next step; payment provider-neutral (provider OPEN)",
+     "l": []
+    },
+    {
+     "t": "B1-08 · B1-13",
+     "l": [
+      "B1-08-Request-Status.dc.html",
+      "B1-13-Flow-Continuity.dc.html"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Flow B — Institution access → Institute Admin assignment → Student access",
+  "rows": [
+   [
+    {
+     "t": "Step",
+     "l": []
+    },
+    {
+     "t": "Actor (permission)",
+     "l": []
+    },
+    {
+     "t": "Screens",
+     "l": []
+    },
+    {
+     "t": "Record",
+     "l": []
+    },
+    {
+     "t": "Status before → after",
+     "l": []
+    },
+    {
+     "t": "Visible outcome",
+     "l": []
+    },
+    {
+     "t": "Evidence",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "1",
+     "l": []
+    },
+    {
+     "t": "Super Admin",
+     "l": []
+    },
+    {
+     "t": "SA-07 (Assign Institute Admin)",
+     "l": []
+    },
+    {
+     "t": "INST · IA",
+     "l": []
+    },
+    {
+     "t": "No Institute Admin → assigned",
+     "l": []
+    },
+    {
+     "t": "Nothing is sent (T-11)",
+     "l": []
+    },
+    {
+     "t": "B7-03",
+     "l": [
+      "B7-03-Institution-Detail.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "2",
+     "l": []
+    },
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "IA-01 → IA-02 → IA-03",
+     "l": []
+    },
+    {
+     "t": "ACC-0107",
+     "l": []
+    },
+    {
+     "t": "Access active (plan read-only)",
+     "l": []
+    },
+    {
+     "t": "Content access ≠ Student access",
+     "l": []
+    },
+    {
+     "t": "B2-01 · B2-02 · B2-03",
+     "l": [
+      "B2-01-IA-Overview.dc.html",
+      "B2-02-Content-Access.dc.html",
+      "B2-03-Access-Plan-and-Course-Codes.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "3",
+     "l": []
+    },
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "IA-06 / IA-11 → IA-05",
+     "l": []
+    },
+    {
+     "t": "SACC-0310",
+     "l": []
+    },
+    {
+     "t": "No access yet → Active",
+     "l": []
+    },
+    {
+     "t": "Give students access (Experiment × format grant, LD-1)",
+     "l": []
+    },
+    {
+     "t": "B2-05 · B2-07 · B2-13",
+     "l": [
+      "B2-05-Give-Students-Access.dc.html",
+      "B2-07-Add-and-Import.dc.html",
+      "B2-13-Flow-2-Continuity.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "4",
+     "l": []
+    },
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "ST-01 → ST-02 → ST-05",
+     "l": []
+    },
+    {
+     "t": "SACC-0310",
+     "l": []
+    },
+    {
+     "t": "— → Not started",
+     "l": []
+    },
+    {
+     "t": "Rahul sees the experiment and the formats given to him",
+     "l": []
+    },
+    {
+     "t": "B2-10 · B2-11 · B2-12 · B2-13",
+     "l": [
+      "B2-10-Student-Home.dc.html",
+      "B2-11-My-Courses.dc.html",
+      "B2-12-Experiment-Hub.dc.html",
+      "B2-13-Flow-2-Continuity.dc.html"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Flow C — Student resources → WEB / AR / VR / MR → per-format progress → eligible feedback",
+  "rows": [
+   [
+    {
+     "t": "Step",
+     "l": []
+    },
+    {
+     "t": "Actor (permission)",
+     "l": []
+    },
+    {
+     "t": "Screens",
+     "l": []
+    },
+    {
+     "t": "Record",
+     "l": []
+    },
+    {
+     "t": "Status before → after",
+     "l": []
+    },
+    {
+     "t": "Visible outcome",
+     "l": []
+    },
+    {
+     "t": "Evidence",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "1",
+     "l": []
+    },
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "ST-05 → ST-06 → ST-07",
+     "l": []
+    },
+    {
+     "t": "EXP · RES",
+     "l": []
+    },
+    {
+     "t": "—",
+     "l": []
+    },
+    {
+     "t": "Resources, then choose a format (only formats given)",
+     "l": []
+    },
+    {
+     "t": "B3-01 · B3-02",
+     "l": [
+      "B3-01-Hub-Resources-and-Progress.dc.html",
+      "B3-02-Simulation-Choose-Format.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "2",
+     "l": []
+    },
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "ST-07 → ST-08 / ST-09",
+     "l": []
+    },
+    {
+     "t": "RUN (per format)",
+     "l": []
+    },
+    {
+     "t": "Not started → In progress → Completed",
+     "l": []
+    },
+    {
+     "t": "Progress per format, no overall verdict",
+     "l": []
+    },
+    {
+     "t": "B3-03 · B3-04 · B3-05",
+     "l": [
+      "B3-03-WEB-Simulation.dc.html",
+      "B3-04-AR-VR-MR-Format.dc.html",
+      "B3-05-Progress.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "3",
+     "l": []
+    },
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "ST-10 / ST-15 → ST-16 → ST-17",
+     "l": []
+    },
+    {
+     "t": "FB (Student × Experiment × format)",
+     "l": []
+    },
+    {
+     "t": "WEB Completed → “Give feedback on WEB” → Feedback sent (one record per format)",
+     "l": []
+    },
+    {
+     "t": "“Give feedback on WEB” appears only after WEB is Completed; VR not started offers nothing",
+     "l": []
+    },
+    {
+     "t": "B3-06 · B3-12",
+     "l": [
+      "B3-06-Format-Feedback.dc.html",
+      "B3-12-Flow-3-Continuity.dc.html"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Flow D — Faculty assessment → Student attempt → Faculty marking → result release",
+  "rows": [
+   [
+    {
+     "t": "Step",
+     "l": []
+    },
+    {
+     "t": "Actor (permission)",
+     "l": []
+    },
+    {
+     "t": "Screens",
+     "l": []
+    },
+    {
+     "t": "Record",
+     "l": []
+    },
+    {
+     "t": "Status before → after",
+     "l": []
+    },
+    {
+     "t": "Visible outcome",
+     "l": []
+    },
+    {
+     "t": "Evidence",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "1",
+     "l": []
+    },
+    {
+     "t": "Faculty",
+     "l": []
+    },
+    {
+     "t": "FA-06 → FA-07 → FA-08…FA-12",
+     "l": []
+    },
+    {
+     "t": "ASMT-0009",
+     "l": []
+    },
+    {
+     "t": "Draft → Ready",
+     "l": []
+    },
+    {
+     "t": "Pass mark and rules belong to this assessment only",
+     "l": []
+    },
+    {
+     "t": "B4-04 · B4-05 · B4-06 · B4-14",
+     "l": [
+      "B4-04-Assessments-and-Create.dc.html",
+      "B4-05-Assessment-Summary-and-Questions.dc.html",
+      "B4-06-Settings-Preview-Submissions.dc.html",
+      "B4-14-Flow-4-Continuity.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "2",
+     "l": []
+    },
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "ST-11 → ST-12 → ST-13",
+     "l": []
+    },
+    {
+     "t": "ATT-0450",
+     "l": []
+    },
+    {
+     "t": "To do → Attempt in progress → Submitted · waiting for marking",
+     "l": []
+    },
+    {
+     "t": "Submit reachable at every width (Batch-4 fix)",
+     "l": []
+    },
+    {
+     "t": "B4-11 · B4-12 · B4-14",
+     "l": [
+      "B4-11-Student-Assessments.dc.html",
+      "B4-12-Assessment-Attempt.dc.html",
+      "B4-14-Flow-4-Continuity.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "3",
+     "l": []
+    },
+    {
+     "t": "Faculty",
+     "l": []
+    },
+    {
+     "t": "FA-01 → FA-18 → FA-19",
+     "l": []
+    },
+    {
+     "t": "ATT-0450",
+     "l": []
+    },
+    {
+     "t": "Waiting for marking → Marks confirmed",
+     "l": []
+    },
+    {
+     "t": "Marks confirmed; result not released yet",
+     "l": []
+    },
+    {
+     "t": "B4-01 · B4-09 · B4-14",
+     "l": [
+      "B4-01-Faculty-Overview.dc.html",
+      "B4-09-Marking.dc.html",
+      "B4-14-Flow-4-Continuity.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "4",
+     "l": []
+    },
+    {
+     "t": "Faculty → Student",
+     "l": []
+    },
+    {
+     "t": "FA-12 (release) → ST-14",
+     "l": []
+    },
+    {
+     "t": "ATT-0450",
+     "l": []
+    },
+    {
+     "t": "Result not released yet → Result ready",
+     "l": []
+    },
+    {
+     "t": "Student sees the released result",
+     "l": []
+    },
+    {
+     "t": "B4-06 · B4-13 · B4-14",
+     "l": [
+      "B4-06-Settings-Preview-Submissions.dc.html",
+      "B4-13-Assessment-Result.dc.html",
+      "B4-14-Flow-4-Continuity.dc.html"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Device-transfer chain — Student → Institute Admin → Super Admin",
+  "rows": [
+   [
+    {
+     "t": "Step",
+     "l": []
+    },
+    {
+     "t": "Actor (permission)",
+     "l": []
+    },
+    {
+     "t": "Screens",
+     "l": []
+    },
+    {
+     "t": "Record",
+     "l": []
+    },
+    {
+     "t": "Status before → after",
+     "l": []
+    },
+    {
+     "t": "Visible outcome",
+     "l": []
+    },
+    {
+     "t": "Evidence",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "1",
+     "l": []
+    },
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "ST-18",
+     "l": []
+    },
+    {
+     "t": "DTR-0018",
+     "l": []
+    },
+    {
+     "t": "— → With your Institute Admin",
+     "l": []
+    },
+    {
+     "t": "Authorisation change only — nothing is shipped",
+     "l": []
+    },
+    {
+     "t": "B3-07 · B3-12",
+     "l": [
+      "B3-07-My-Device.dc.html",
+      "B3-12-Flow-3-Continuity.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "2",
+     "l": []
+    },
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "IA-18 → IA-19",
+     "l": []
+    },
+    {
+     "t": "DTR-0018",
+     "l": []
+    },
+    {
+     "t": "Waiting on you → Forwarded to BITS",
+     "l": []
+    },
+    {
+     "t": "The Institute Admin forwards; cannot approve",
+     "l": []
+    },
+    {
+     "t": "B3-09 · B3-12",
+     "l": [
+      "B3-09-IA-Device-Requests.dc.html",
+      "B3-12-Flow-3-Continuity.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "3",
+     "l": []
+    },
+    {
+     "t": "Super Admin",
+     "l": []
+    },
+    {
+     "t": "SA-18 → SA-19",
+     "l": []
+    },
+    {
+     "t": "DTR-0018",
+     "l": []
+    },
+    {
+     "t": "Forwarded → Approved",
+     "l": []
+    },
+    {
+     "t": "Approve only — no Decline (T-32); the authorised device changes",
+     "l": []
+    },
+    {
+     "t": "B3-11 · B7-09 · B3-12",
+     "l": [
+      "B3-11-SA-Device-Transfers.dc.html",
+      "B7-09-Operations.dc.html",
+      "B3-12-Flow-3-Continuity.dc.html"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Flow E — Vendor submission → Academic Reviewer → Content Manager → Published → catalogue",
+  "rows": [
+   [
+    {
+     "t": "Step",
+     "l": []
+    },
+    {
+     "t": "Actor (permission)",
+     "l": []
+    },
+    {
+     "t": "Screens",
+     "l": []
+    },
+    {
+     "t": "Record",
+     "l": []
+    },
+    {
+     "t": "Status before → after",
+     "l": []
+    },
+    {
+     "t": "Visible outcome",
+     "l": []
+    },
+    {
+     "t": "Evidence",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "1",
+     "l": []
+    },
+    {
+     "t": "Vendor",
+     "l": []
+    },
+    {
+     "t": "VE-02 → VE-03…VE-06",
+     "l": []
+    },
+    {
+     "t": "SUB-0077",
+     "l": []
+    },
+    {
+     "t": "Draft → With Academic Reviewer",
+     "l": []
+    },
+    {
+     "t": "Submitting does not publish",
+     "l": []
+    },
+    {
+     "t": "B5-03 · B5-04 · B5-05 · B5-08",
+     "l": [
+      "B5-03-Create-Course-and-Description.dc.html",
+      "B5-04-Formats-and-Delivery.dc.html",
+      "B5-05-Preview-Check-and-Submit.dc.html",
+      "B5-08-Flow-5-Continuity.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "2",
+     "l": []
+    },
+    {
+     "t": "Academic Reviewer → Vendor",
+     "l": []
+    },
+    {
+     "t": "RV-02 → RV-03 → VE-07 → VE-08",
+     "l": []
+    },
+    {
+     "t": "SUB-0077",
+     "l": []
+    },
+    {
+     "t": "With Academic Reviewer → Returned (reason) → Submitted → With Academic Reviewer (revision 2)",
+     "l": []
+    },
+    {
+     "t": "Reason and references shown above the editor",
+     "l": []
+    },
+    {
+     "t": "B6-03 · B5-07 · B5-08 · B6-12",
+     "l": [
+      "B6-03-Review-a-Submission.dc.html",
+      "B5-07-Revise-and-Resubmit.dc.html",
+      "B5-08-Flow-5-Continuity.dc.html",
+      "B6-12-Flow-5-Completion.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "3",
+     "l": []
+    },
+    {
+     "t": "Academic Reviewer",
+     "l": []
+    },
+    {
+     "t": "RV-03 (Approve)",
+     "l": []
+    },
+    {
+     "t": "SUB-0077 · LO",
+     "l": []
+    },
+    {
+     "t": "With Academic Reviewer → With Content Manager",
+     "l": []
+    },
+    {
+     "t": "Approve ≠ Publish; outcomes set by the reviewer (LD-3)",
+     "l": []
+    },
+    {
+     "t": "B6-03 · B6-12",
+     "l": [
+      "B6-03-Review-a-Submission.dc.html",
+      "B6-12-Flow-5-Completion.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "4",
+     "l": []
+    },
+    {
+     "t": "Content Manager",
+     "l": []
+    },
+    {
+     "t": "CM-02 → CM-03 (Publish)",
+     "l": []
+    },
+    {
+     "t": "SUB-0077 → EXP",
+     "l": []
+    },
+    {
+     "t": "With Content Manager → Published",
+     "l": []
+    },
+    {
+     "t": "“Publishing gives no one access”",
+     "l": []
+    },
+    {
+     "t": "B6-06 · B6-07 · B6-12",
+     "l": [
+      "B6-06-Ready-to-Publish-and-Library.dc.html",
+      "B6-07-Publication-Decision.dc.html",
+      "B6-12-Flow-5-Completion.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "5",
+     "l": []
+    },
+    {
+     "t": "Public",
+     "l": []
+    },
+    {
+     "t": "PU-05 / PU-06",
+     "l": []
+    },
+    {
+     "t": "EXP",
+     "l": []
+    },
+    {
+     "t": "Listed in the catalogue",
+     "l": []
+    },
+    {
+     "t": "Appears only after the publication decision",
+     "l": []
+    },
+    {
+     "t": "B6-12",
+     "l": [
+      "B6-12-Flow-5-Completion.dc.html"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Flow F — Content Manager correction → Academic Reviewer → Super Admin Release / Hold → live version",
+  "rows": [
+   [
+    {
+     "t": "Step",
+     "l": []
+    },
+    {
+     "t": "Actor (permission)",
+     "l": []
+    },
+    {
+     "t": "Screens",
+     "l": []
+    },
+    {
+     "t": "Record",
+     "l": []
+    },
+    {
+     "t": "Status before → after",
+     "l": []
+    },
+    {
+     "t": "Visible outcome",
+     "l": []
+    },
+    {
+     "t": "Evidence",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "1",
+     "l": []
+    },
+    {
+     "t": "Content Manager",
+     "l": []
+    },
+    {
+     "t": "CM-05 → CM-06/07 → CM-08",
+     "l": []
+    },
+    {
+     "t": "UPD-0005",
+     "l": []
+    },
+    {
+     "t": "Draft → In academic review",
+     "l": []
+    },
+    {
+     "t": "Live version 1.2 unchanged",
+     "l": []
+    },
+    {
+     "t": "B6-08 · B6-09 · B6-13 · B7-11",
+     "l": [
+      "B6-08-Published-and-Correction-Entry.dc.html",
+      "B6-09-Updates-Corrections.dc.html",
+      "B6-13-Flow-6-Steps-1-2.dc.html",
+      "B7-11-Flow-6-Release-and-Hold.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "2",
+     "l": []
+    },
+    {
+     "t": "Academic Reviewer",
+     "l": []
+    },
+    {
+     "t": "RV-02 → RV-04",
+     "l": []
+    },
+    {
+     "t": "UPD-0005",
+     "l": []
+    },
+    {
+     "t": "In academic review → Awaiting release decision",
+     "l": []
+    },
+    {
+     "t": "Approve update does not change what is live",
+     "l": []
+    },
+    {
+     "t": "B6-04 · B6-13 · B7-11",
+     "l": [
+      "B6-04-Review-an-Update.dc.html",
+      "B6-13-Flow-6-Steps-1-2.dc.html",
+      "B7-11-Flow-6-Release-and-Hold.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "3",
+     "l": []
+    },
+    {
+     "t": "Super Admin",
+     "l": []
+    },
+    {
+     "t": "SA-10 → SA-11",
+     "l": []
+    },
+    {
+     "t": "UPD-0005",
+     "l": []
+    },
+    {
+     "t": "Waiting for your decision → Released · On hold · (Lift hold → waiting)",
+     "l": []
+    },
+    {
+     "t": "Release: 1.3 live everywhere; Hold: 1.2 stays; never “Publish”",
+     "l": []
+    },
+    {
+     "t": "B7-05 · B7-11",
+     "l": [
+      "B7-05-Content-Updates-Release-Hold.dc.html",
+      "B7-11-Flow-6-Release-and-Hold.dc.html"
+     ]
+    }
+   ],
+   [
+    {
+     "t": "4",
+     "l": []
+    },
+    {
+     "t": "Content Manager · public · learner",
+     "l": []
+    },
+    {
+     "t": "CM-05 / CM-08 · PU-06 · ST-05",
+     "l": []
+    },
+    {
+     "t": "EXP (live version)",
+     "l": []
+    },
+    {
+     "t": "Live 1.2 → 1.3 (Release) or 1.2 (Hold)",
+     "l": []
+    },
+    {
+     "t": "History keeps every version and decision",
+     "l": []
+    },
+    {
+     "t": "B7-11",
+     "l": [
+      "B7-11-Flow-6-Release-and-Hold.dc.html"
+     ]
+    }
+   ]
+  ]
+ }
+]

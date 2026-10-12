@@ -1,0 +1,255 @@
+{
+ "summary": "Adversarial verification of wf/design/architecture.md. The overall shape holds up: one Next.js application, typed ports, invalidation by changed record type, identity through XS-01/XS-05/XS-03 with no DEMO banner or switcher, and a correct Slice-1 classification (9/24/38, matching repo-baseline.json). All 27 flows.json steps are covered across the 39 rows. The Release defect (D4/HD-1), the device chain with no IA approval and no Decline, publish/release granting no access, and feedback only after Completed are all correct against the boards. Refuted or incomplete: (1) the TE-3 WEB stand-in gives the signed-in Student, via Launch WEB, the only sample-mode path to SIMULATION_COMPLETED, and stamps those events with a production source id (critical, BC3). (2) Completion is typed as derived from runtime activity and marked CONFIRMED, although BC3 says never derive one state from another (major). (3) Browser persistence is presented as fitting the constraints, but B8-06 says 'persistence stay[s] out until decided', and FUNCTIONAL_PARITY_MATRIX §G excludes the localStorage schema-version chain. No exception is recorded for it (major). (4) The spine-start seed contradicts Flow A/B: Godavari, ACC-0107, Rahul and Arun cannot exist before REQ-0042 is approved, and a pre-seeded SACC-0311 breaks B2-13 f0–f3 (major). (5) The boundary plan misses that @xr/contracts exports only '.', so @xr/contracts/draft/* imports fail xr/resolved-boundaries (notExported). It also puts World types in @xr/sample-platform while @xr/domain's decide(command, world) needs them, which is a forbidden domain→sample-platform import (major). (6) The test-hook and stand-in scope versus ARCH §14 is ambiguous, and the WEB stand-in page has no route or allowed home (major). (7) Seven stakeholder↔v46 conflicts that touch these flows are marked CONFIRMED instead of being flagged; only STK31-28 is flagged (major). There are also 15 minor errors: nav count, id counters, provisional BRs labelled CONFIRMED, the omitted ST-15, the Vendor 'Submitted' label, the 'default' release wording, the PU-10 bearer URL, the SSO default, a missing RES record, and Next.js client-only details.",
+ "checksRun": [
+  {
+   "check": "(a) flows.json coverage: 27 steps (A4 B4 C3 D4 E5 F4 Device3) mapped to the 39 rows of §4.2–§4.8",
+   "result": "PASS",
+   "detail": "Every flows.json step maps to a row: E2 is split into E2a/E2b, F3 into F3a–c and C2 into C2a–d. The row count of 39 and the 10 rows in §4.9 are correct."
+  },
+  {
+   "check": "(a) actors and screens per step against flows.json and the boards",
+   "result": "PARTIAL",
+   "detail": "Actors are correct, and D4 is correctly re-attributed to the System (B4-06 f7–f9 and B4-14 f6 controls have no Release). Screen deviations: C3 drops ST-15, although flows.json lists 'ST-10 / ST-15' and B3-05 f0 has a 'Give feedback on WEB' control. A2 says 'SA nav count 3 → 4', but B1-10 f0 and B7-00 say 3 under review = REQ-0042, REQ-0040, REQ-0038, so the count goes 2 → 3. A3 says 'Internal route: ACC-0107 activated', but ACC-0107 belongs to external REQ-0042 and is created after payment (B1-08 f8); the internal sample is REQ-0039 (B1-08 f9)."
+  },
+  {
+   "check": "(a) forbidden side effects: publish or release granting access, launch completing, feedback before Completed, IA approving a device transfer, Decline",
+   "result": "PARTIAL",
+   "detail": "The flow tables are clean: E4 and F3a change no INST/ACC/SACC/FCM, Dv2 is forward-only, Dv3 is approve-only, A3 has no Decline, and C3 is gated on Completed. However, the TE-3 sample-mode mechanism makes the Student's 'Launch WEB' the only path that reaches SIMULATION_COMPLETED for WEB (see the critical correction)."
+  },
+  {
+   "check": "(a) status labels: CONFIRMED vs the business-rule status in decisions-rules.json",
+   "result": "FAIL",
+   "detail": "Rows marked CONFIRMED rest on PROVISIONAL rules: BR-078 (D1 Ready and 'no make-available control'; B4-11 f15 says 'The make-available step itself is open (T-18)'), BR-111 (F-alt), BR-087 (D2) and BR-099 (§6.2). Dv1 states 'One open request at a time' as a rule, but OD-B3-03 is open."
+  },
+  {
+   "check": "(b) boundary matrix: new @xr/sample-platform row",
+   "result": "PARTIAL",
+   "detail": "The proposed row ['@xr/contracts','@xr/domain','@xr/validation'], the addition to @xr/web and the FORBIDDEN_THIRD_PARTY entry are the right matrix edits. Missed: the WorkspacePackage union in boundaries.d.mts; tsconfig.build.json with composite, noEmitOnError and references; tsconfig.solution.json; and the package's own eslint.config with boundaries('@xr/sample-platform'). The boundaries test auto-discovers packages, so it does not need to 'list' the new one."
+  },
+  {
+   "check": "(b) @xr/contracts/draft subpath imports",
+   "result": "FAIL",
+   "detail": "At 1b090c9, @xr/contracts package.json exports only '.'. resolved-boundaries.mjs rejects any bare workspace subpath that is not in the exports map ('notExported'). The planned imports of '@xr/contracts/draft/ports/*' from apps/web and @xr/sample-platform are therefore rejected."
+  },
+  {
+   "check": "(b) domain purity vs the decide(command, world, …) signature",
+   "result": "FAIL",
+   "detail": "§1.2 puts 'World types' in @xr/sample-platform, while @xr/domain's decide and apply take the world. Domain's allowed dependency list is [], so it cannot import the World type."
+  },
+  {
+   "check": "(c) no DEMO banner and no account selector in product UI",
+   "result": "PASS",
+   "detail": "§2.3 keeps sample accounts out of the UI, which matches BR-006 and B8-03 ('Sign in looks like a product … no account switcher'). XS-05 matches board 05 (name · workspace · institution · My device · Help · separator · Sign out)."
+  },
+  {
+   "check": "(c) honest handling of ARCHITECTURE §14 and FUNCTIONAL_PARITY_MATRIX §G",
+   "result": "PARTIAL",
+   "detail": "TE-1…TE-5 are recorded. Not recorded: browser persistence (FPM §G 'localStorage namespace and schema-version chain'); the test-hook build flag and data-source switch (env/index.ts 'there are no prototype flags'); client rendering of public pages (ARCH §4 'Public discovery … server-rendered'); and the test hooks in 'sample builds' (reset world, advance clock, set payment outcome, emit runtime events), which are stand-in controls and a demo clock (ARCH §14)."
+  },
+  {
+   "check": "(d) persistence vs 'no backend persistence' and 'apps/web is not the business backend'",
+   "result": "PARTIAL",
+   "detail": "Option C (a server world in Next route handlers) is rightly rejected. Option B is browser-only, so it does not make apps/web a backend. But B8-06 'Mock services' reads 'Real auth, payment, XR runtimes, grading automation and persistence stay out until decided', which is broader than the BC10/README 'backend persistence'. The document cites only the narrower wording."
+  },
+  {
+   "check": "(e) five-state read models: is any state derived from another?",
+   "result": "FAIL",
+   "detail": "⑤ completion is typed as 'derived from ④ by a replaceable policy' and marked CONFIRMED, but BC3 says 'Never derive one from another'. Invariant 2 ('No command at all writes ⑤') contradicts BC3's 'Completed is set by the system'. experimentGate, formatAvailability, canOpenFormat, usage and feedbackEntry combine states into gates without rewriting them, which is acceptable."
+  },
+  {
+   "check": "(f) Next.js 16 App Router feasibility",
+   "result": "PARTIAL",
+   "detail": "The approach is consistent overall: §6.1 makes every sample-mode page client-rendered because the world and session live only in browser storage (AD-12). Not stated: SessionGate and WorkspaceGuard must be client components ('use client'), since layout.tsx defaults to a server component that cannot read sessionStorage or localStorage. Also missing: the pre-hydration render, Suspense around useSearchParams for the '?step=' wizards, and client-set document titles. The WEB stand-in 'simulation tab' needs a Next route, which is absent from the §6.1 tree and cannot live in a package that forbids framework-web."
+  },
+  {
+   "check": "(f) XS-06 rendered in place",
+   "result": "PASS",
+   "detail": "This matches board 08 'In context': 'The refusal does not replace the shell … nothing in it is marked current'. Choosing the shell by session role in the parent layout and guarding in the child layout is feasible."
+  },
+  {
+   "check": "(g) Slice-1 salvage vs repo-baseline.json",
+   "result": "PASS",
+   "detail": "The counts are 9 SAFE, 24 SALVAGE_WITH_CHANGES and 38 DISCARD, and each file's class matches. No rejected UI is reused: every packages/ui/src/*.tsx file, app/(connected)/**, demo-bar, demo-accounts-screen*, features/** and the e2e spec are DISCARD. The quotes check out against the working tree ('The caller is never a parameter' in services/access/types.ts:7; 'refusals write nothing' in access-adapter.test.ts:104). Minor: §9 says 'Each file was re-read', but §12 lists only six Slice-1 files as checked."
+  },
+  {
+   "check": "Spine-start seed and id counters vs board references",
+   "result": "FAIL",
+   "detail": "Godavari is created by approving REQ-0042 (B1-13; B2-00 'new institution created by approving REQ-0042'). The 12 students, including Rahul, Priya and Arun, were imported on 8 Oct, after that approval. B2-04: SACC-0311 and SACC-0312 are 'later sample states (12 Oct)'. B2-13 f0: on 9 Oct 'his group has no grant yet'. Boards also show ids above the flow ids: REQ-0058 (IA-17, 21 Oct), SUB-0079…0086, UPD-0006/0007, DTR-0019 and ATT-0451."
+  },
+  {
+   "check": "Stakeholder↔v46 conflicts surfaced for the owner",
+   "result": "FAIL",
+   "detail": "Only STK31-28 is flagged (AD-30). Flow rows marked CONFIRMED silently follow v46 where decisions-rules.json#conflicts records a stakeholder conflict: 07.3 R16 (CM direct link edit, F1), 07.2-F/07.3 R17 (SA override scope, E-alt3), 07.2-E (SA edits the platform code, §4.9), PM-09 (sequential gating, Flow C), PM-08 (timer, D2), STK31-26 (CSV columns, B3 importStudents) and STK31-21/24 (SA creates tenants, Flow A)."
+  }
+ ],
+ "corrections": [
+  {
+   "severity": "critical",
+   "location": "wf/design/architecture.md §2.6 TE-3; §4.4 C2a–C2c; §1.2 mock adapter row (stand-ins)",
+   "problem": "In sample builds, TE-3 makes the WEB stand-in 'simulation' tab, opened from the Student's own 'Launch WEB' (C2a), the only source of SIMULATION_COMPLETED for WEB. The page acts for the signed-in Student. Either it emits completion automatically (completion inferred from a launch or from time) or through a control the Student presses (completion set by the Student). Both are forbidden by BC3. Moving the control to another tab does not avoid FPM §G's exclusion of a 'stand-in completion control on the Student's run screen'. The stand-in also stamps events with the production source 'web-runtime', so stand-in completions are indistinguishable from real runtime data, which defeats the deliberate exclusion of stand-in sources. The 'labelled stand-in page' also puts developer/demo wording into a product path.",
+   "evidence": "START-HERE BC3: 'Completed is set by the system, never by the Student, and never inferred from a launch'. B3-03 f3 caption: 'Completion comes only from the simulation (T-12). No “I have finished” button.' 1b090c9:v2/packages/domain/src/runtime/events.ts RUNTIME_SOURCES comment: stand-in sources 'are excluded from V2 (docs/FUNCTIONAL_PARITY_MATRIX.md §G)'. 1b090c9:v2/docs/FUNCTIONAL_PARITY_MATRIX.md §G row: 'In-page stand-in completion control on the Student's run screen … V2 implements the contract, not the stand-in'. B8-03 'Developer / demo wording 0'.",
+   "correction": "Rewrite TE-3 and C2b/C2c as follows. (1) The WEB stand-in reached from 'Launch WEB' may emit only SIMULATION_LAUNCHED, SESSION_STARTED and SESSION_ENDED; it must have no completion control and no timer-based completion. (2) SIMULATION_COMPLETED, for WEB as well as headset formats, is emitted only through the test-hook or fixture path from §2.5, never from a page the signed-in Student operates. If the owner wants reviewers to see 'Completed' in a hosted sample build, record that explicitly as an owner-authorised exception naming who triggers it. (3) Keep the domain enum and the wire schema unchanged, but record a sample-only provenance on every stand-in event inside the @xr/sample-platform envelope (e.g. origin: 'sample-standin'), so stand-in events stay distinguishable. (4) Remove 'labelled' wording from any page reachable from product navigation. (5) Mark C2c's mechanism UNRESOLVED (T-12) instead of 'PROVISIONAL (stand-in)'."
+  },
+  {
+   "severity": "major",
+   "location": "wf/design/architecture.md §5.1 type ⑤; §5.2 row ⑤; §5.5 invariant 2; §1.3 completion/ module; §4.4 C2c",
+   "problem": "Learning completion (⑤) is defined as 'written by NOBODY; derived from ④ by a replaceable policy' over the runtime event log, and is marked CONFIRMED. BC3 forbids deriving any of the five states from another, and says Completed is 'set by the system', which is a write. Invariant 2 ('No command at all writes ⑤') states the opposite of the owner wording. The tension with committed ARCH §8 ('progress (per technology) … Derived, never stored as truth') and with utilisation.ts, which hard-codes SIMULATION_COMPLETED as the trigger, is not flagged.",
+   "evidence": "START-HERE BC3 ('five different states. Never derive one from another … “Completed” is set by the system'). decisions-rules.json BR-024 (CONFIRMED-STAKEHOLDER). 1b090c9:v2/docs/ARCHITECTURE.md §8 'Derived, never stored as truth … progress (per technology)'. 1b090c9:v2/packages/domain/src/runtime/utilisation.ts header ('COMPLETED needs a completion event'). The task brief lists utilisation.ts hard-coding SIMULATION_COMPLETED as an open T-12 conflict.",
+   "correction": "(1) Model ⑤ as its own system-written record, e.g. CompletionRecord {personId, experimentId, format, completedAt, triggerRef}. A system completion handler (not a user command) writes it when the completion event decided by T-12 is accepted. formatProgress then reads ④ and ⑤ side by side. (2) Change invariant 2 to 'Only the system completion handler writes ⑤; no user-facing command, launch, resource, assessment or other format does'. (3) Downgrade §5.2 row ⑤ and C2c to CONFIRMED (who may not set it) · PROVISIONAL (mechanism) · UNRESOLVED (T-12 trigger). (4) Add an owner decision: BC3 versus ARCH §8 / utilisation.ts on whether completion is a derived read model or a stored system fact."
+  },
+  {
+   "severity": "major",
+   "location": "wf/design/architecture.md §3.1 options table (option B 'Fits … Yes'); §3.2; R5; AD-07; §2.6 TE list",
+   "problem": "Browser persistence (a versioned localStorage world, a schema version and reseed) is recommended, and AD-07 is marked 'Accept'. The only check made is against BC10's 'backend persistence'. The v46 board B8-06 is broader: 'persistence stay[s] out until decided'. The committed FUNCTIONAL_PARITY_MATRIX §G excludes the 'localStorage namespace and schema-version chain'. No exception (TE) covers it.",
+   "evidence": "B8-06 'Mock services' line: 'Typed service interfaces for requests, institutions, … operations — returning the sample world. Real auth, payment, XR runtimes, grading automation and persistence stay out until decided.' 1b090c9:v2/docs/FUNCTIONAL_PARITY_MATRIX.md §G row 'localStorage namespace and schema-version chain | Replaced by PostgreSQL migrations'. handoff/README.md item 9 ('backend persistence'). repo-baseline.json slice1 world-store.ts changesNeeded: 'confirm with the owner that browser persistence of the sample world is acceptable'.",
+   "correction": "(1) Change the option-B cell 'Fits no backend persistence: Yes' to 'Fits BC10 literally; conflicts with B8-06 “persistence stay out until decided” and FPM §G — needs owner authorisation'. (2) Make the default sample mode option A: one in-memory world per tab, with sign-out and sign-in for cross-role review. Make option B an owner-authorised upgrade that adds BroadcastChannel/locks and persistence across reloads. (3) Add TE-6 'browser persistence of the sample world' against FPM §G, with a removal trigger. (4) Change AD-07 from 'Accept' to 'Owner authorisation required before building option B'."
+  },
+  {
+   "severity": "major",
+   "location": "wf/design/architecture.md §3.3 spine-start seed (content list, 'Seeded-only cases', 'Walking Flows A → … produces exactly the board references'); §4.3 B3 'Seeded cases only'; AD-17; AD-18",
+   "problem": "The spine-start seed lists Godavari Institute of Technology in the sample world and only says that REQ-0042, SACC-0310 and similar are absent. But B1-13 and B2-00 create Godavari, ACC-0107 and its people from REQ-0042. INST Godavari, ACC-0107, the Institute Admin Meera Iyer, the 12 students imported on 8 Oct (Rahul, Priya, Arun, …), the ME ZG523 — Sem II group, Dr Ranganathan's FCM and the MEC-523 code cannot exist before A3/A4/B1. If they are seeded, A3's 'INST created at the first approval' and B1-11 f7 ('route required for a new institution') cannot happen. Arun Kumar's 'Waiting for a licence' grant (under ACC-0107) and SACC-0311 cannot be in a pre-Flow-A seed either. A pre-seeded SACC-0311, a group grant reaching Rahul, would also break B2-13 f0–f3: on 9 Oct, withdrawing SACC-0310 ends his access only because 'his group has no grant yet'. AD-18 ('overlap screens not seeded') contradicts §3.3 (SACC-0311 seeded). The walk also omits the setup steps needed between B1 and B3 and before D1, which flows.json does not trace: importing the students, creating the group, adding Faculty and assigning the course.",
+   "evidence": "B1-13 'Institution record (created at the first approval of a new institution)'. B2-00: 'Godavari Institute of Technology — new institution created by approving REQ-0042 … 12 students imported on 8 Oct 2026 incl. Rahul Verma (GIT-2026-0418), Priya Natarajan, Arun Kumar'. B2-04: 'SACC-0311 (group, Rahul is a member) and SACC-0312 (withdrawn) are later sample states', 'Later sample · 12 Oct 2026'. B2-13 f0 caption note: 'On 9 Oct SACC-0310 is Rahul’s only grant — his group has no grant yet'. B3-03 f6 'Waiting for a licence · Arun Kumar (later sample)'.",
+   "correction": "(1) State explicitly that, at spine-start, nothing that depends on Godavari exists: INST, ACC-0107, PER (IA, students, Faculty), GRP, FCM and CCODE. (2) Add the untraced setup commands to the scripted walk: after B1, people.importStudents on 8 Oct, groups.create, people.addFaculty and assignCourse. Mark them as walk steps not traced in flows.json. (3) Move Arun's 'Waiting for a licence' grant and SACC-0311/0312 to a 'later sample' fixture applied after Flow B (12 Oct). Create SACC-0311 with a real access.giveAccess(group) command; only the waiting state is a seeded value (D7). (4) Reconcile AD-18 with §3.3."
+  },
+  {
+   "severity": "major",
+   "location": "wf/design/architecture.md §1.1 layer diagram ('@xr/contracts/draft/ports/*.ts'); §1.2 Ports + DTOs row ('Allowed by the matrix today? Yes') and mock-adapter row ('The boundaries test … must list it')",
+   "problem": "The plan imports ports from the subpath '@xr/contracts/draft/…'. At 1b090c9, @xr/contracts exposes only '.' in its package.json exports, and xr/resolved-boundaries rejects any workspace subpath that is not in the exports map. Those imports would fail lint in apps/web and in @xr/sample-platform. The list of 'three matrix changes' also omits the TypeScript and type-union edits that the committed boundaries test enforces. The claim that the test 'must list' the package is inaccurate: the test auto-discovers apps/* and packages/*.",
+   "evidence": "1b090c9:v2/packages/contracts/package.json \"exports\": { \".\": {…} } only. 1b090c9:v2/packages/config/eslint/rules/resolved-boundaries.mjs header: 'the subpath must be exposed by the package's `exports` map' (message notExported). 1b090c9:v2/packages/config/src/boundaries/boundaries.test.ts: workspacePackages() reads apps/ and packages/; it asserts every package has ALLOWED and FORBIDDEN entries, a composite/noEmitOnError tsconfig.build.json with references equal to its runtime deps, and a reference in tsconfig.solution.json. 1b090c9:v2/packages/config/eslint/boundaries.d.mts closed WorkspacePackage union.",
+   "correction": "Change the Ports row to 'Allowed only after an exports change' and record the minimal change: either add \"./draft\": {types, default} (pointing at dist/draft/index) to the @xr/contracts exports, or re-export the draft ports from the root index under a DRAFT namespace. Replace 'The boundaries test must list it' with the actual edits: add '@xr/sample-platform' to ALLOWED_WORKSPACE_DEPENDENCIES and FORBIDDEN_THIRD_PARTY (boundary-matrix.mjs) and to the WorkspacePackage union (boundaries.d.mts); create packages/sample-platform/tsconfig.build.json (composite, noEmitOnError, references to contracts, domain and validation); add it to tsconfig.solution.json; add an eslint.config.mjs with boundaries('@xr/sample-platform'); add a package.json exports map that exposes only the composition entry and './testing' or './contract-suite'; and add the package row to ARCHITECTURE §6. Mark AD-01/AD-02 accordingly."
+  },
+  {
+   "severity": "major",
+   "location": "wf/design/architecture.md §1.2 Domain row ('decide(command, world, actor, now)', 'apply(world, events)') vs Mock-adapter row ('World types'); §1.3 Pattern; §8 item 3",
+   "problem": "@xr/domain's decide and apply take 'world', but the World types are placed in @xr/sample-platform. @xr/domain may depend on nothing, so it cannot import World from @xr/sample-platform (forbiddenWorkspace). The design does not type-check as placed. §8 item 3 also claims apps/api will call the same whole-world decide/apply, which a PostgreSQL-backed, stateless API (ARCH §3) will not load per command.",
+   "evidence": "1b090c9:v2/packages/config/eslint/boundary-matrix.mjs ALLOWED_WORKSPACE_DEPENDENCIES '@xr/domain': []; boundaries.test.ts expect(ALLOWED_WORKSPACE_DEPENDENCIES['@xr/domain']).toEqual([]). 1b090c9:v2/docs/ARCHITECTURE.md §3 'The API is stateless'.",
+   "correction": "Give each domain decision an explicit, minimal input instead of the world, for example decideApproveRequest({request, institution?, actor, now}) and decidePublish({submission, actor, now}). Define the record types it needs in @xr/domain. Keep World, fact-loading and apply-to-world in @xr/sample-platform. Change §8 item 3 to: 'apps/api loads the same inputs from its repositories and calls the same per-command domain functions'."
+  },
+  {
+   "severity": "major",
+   "location": "wf/design/architecture.md §1.2 Composition-root row ('test-hook bridge … only in sample and test builds'); §2.5 test hooks; TE-3/TE-4/TE-5; AD-10; AD-11; §6.1 'Rendering mode'/AD-12",
+   "problem": "The document says the test hooks exist in 'sample and test builds' (§1.2) and also 'never set for production' (§2.5). It never says whether the owner/reviewer sample deployment has them. If it does, that build carries hidden stand-in controls (reset world, advance clock, set payment outcome, emit runtime events), which ARCH §14 forbids, and no exception records them. If it does not, reviewers cannot reach VR completion (C2d), B1-08 f6/f7 or 'Result ready' (§3.5) in sample mode, and the document does not say so. Also unrecorded: the two new NEXT_PUBLIC flags (the env module states 'there are no prototype flags') and the client-only rendering of public pages (ARCH §4 'server-rendered'). These are listed only as AD 'Accept' items, not as TEs.",
+   "evidence": "1b090c9:v2/docs/ARCHITECTURE.md §14 'Configuration is data supplied at boot, never prototype flags scattered through code: no scenario selector, no demo clock, no stand-in controls in V2'; §4 'Public discovery before login (STK31-16), server-rendered'. 1b090c9:v2/packages/config/src/env/index.ts header 'nothing in V2 reads process.env ad hoc, and there are no prototype flags'; webPublicEnvSchema has only NEXT_PUBLIC_API_BASE_URL and NEXT_PUBLIC_APP_ENV.",
+   "correction": "(1) Decide and state one rule: test hooks exist only in CI/Playwright builds and are never in any hosted build, owner review included. Then list which drawn states are unreachable in hosted sample mode (C2d VR Completed, B1-08 f6/f7, 'Result ready' with an after-the-deadline release). Alternatively, record a TE covering 'reviewer-build hidden controls'. (2) Add TE-7 for NEXT_PUBLIC_XR_TEST_HOOKS and NEXT_PUBLIC_XR_DATA_SOURCE, both added to webPublicEnvSchema, against env/index.ts and ARCH §14. (3) Add TE-8 for client-rendered public discovery against ARCH §4, with removal trigger AD-12."
+  },
+  {
+   "severity": "major",
+   "location": "wf/design/architecture.md §4.7 F1 (CONFIRMED); §4.6 E-alt3 (CONFIRMED); §4.9 structure.savePlatformCodes (CONFIRMED); §4.4 Flow C; §4.5 D2; §4.3 B3 importStudents; §4.2 Flow A; §11 AD list",
+   "problem": "Owner rule: where a stakeholder record conflicts with v46, flag it and do not resolve it. The document flags only STK31-28 (AD-30). It marks as CONFIRMED, with no flag, flow rows that implement v46 against recorded stakeholder positions. F1 sends every change, including the delivery link, through the draft, against 07.3 R16 (CM direct link edit). E-alt3 limits SA override to stuck records, against 07.2-F/07.3 R17 ('ultimate superpower'). CM-only platform codes contradict 07.2-E. Flow C has no locks, against PM-09 sequential gating. D2 has no timer, against PM-08. B3 importStudents uses six required columns, against STK31-26. Flow A creates institutions only from a request, against STK31-21/24.",
+   "evidence": "wf/understand/decisions-rules.json#conflicts entries: 'Content Manager editing / replacing a delivery link' (07.3 R16 vs M-1); 'Super Admin override / ultimate superpower' (07.2-F, 07.3 R17 vs M-1); 'Super Admin authority over the platform course code' (07.2-E vs M-2); 'Sequential gating / progression model' (PM-09 vs T-16); 'Assessment timer' (PM-08 vs T-22); 'Student CSV columns' (STK31-26 vs B2-07); 'Super Admin tenant creation' (STK31-21/24 vs T-09).",
+   "correction": "Add an owner-decision row for each conflict (AD-31…AD-37), citing the stakeholder id and the v46 board, with 'Build per v46 pending owner' as the interim. Change the status of F1, E-alt3 and the savePlatformCodes row to 'CONFIRMED (v46) · conflict flagged (AD-nn)'. Add the same annotation to Flow C (no locks), D2 (no timer), B3 (CSV columns) and A3 (no SA-created institution)."
+  },
+  {
+   "severity": "major",
+   "location": "wf/design/architecture.md §2.6 TE-3 ('labelled stand-in page opened as the simulation tab'); §6.1 route tree; §1.2 import fences ('@xr/sample-platform may be imported only by src/platform/composition.ts and by test files'); §1.2 mock-adapter row ('stand-ins (runtime, payment …)')",
+   "problem": "The WEB runtime stand-in is a page, so it needs a React/Next route in apps/web. It cannot live in @xr/sample-platform, which the document says must forbid framework-web. The page is not in the §6.1 route tree. A route that drives sample-platform's runtime ingest also breaks the stated fence that only composition.ts may import the package. The page has to be reachable from 'Launch WEB' through a URL, but the document does not say how it is excluded from production builds (ARCH §14).",
+   "evidence": "1b090c9:v2/packages/config/eslint/boundary-matrix.mjs FRAMEWORK_WEB = ['react','react-dom',…,'next','next/*']. Deliverable §1.2: 'forbid framework-web, framework-server and data-layer for the new package'. B3-03 f0: 'Continue WEB → “Opening the simulation…” → opened in a new tab'.",
+   "correction": "Either (a) add an explicit non-product route, e.g. app/(sample-runtime)/runtime/web/page.tsx. It calls notFound() unless the build flag is set, uses only the runtime port obtained from PlatformProvider (no direct sample-platform import), and appears in §6.1 and in the TE-3 fence. Or (b) drop the WEB stand-in page and let launchFormat return a URL that the test harness intercepts. Either way, update the §1.2 fence wording."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §4.2 A2 'Others now see'",
+   "problem": "The text says 'SA nav count 3 → 4 (B1-10 f0)'. The drawn count of 3 already includes REQ-0042.",
+   "evidence": "B1-10 f0 note: 'Nav count 3 = requests under review.' B7-00: 'B1-10 (2 Oct 2026): 3 under review — REQ-0042, REQ-0040, REQ-0038'.",
+   "correction": "Change it to 'SA nav count 2 → 3 (B1-10 f0; B7-00)'."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §4.2 A3 'Record + transition'",
+   "problem": "'Internal route: ACC-0107 activated' attaches the internal-route activation to ACC-0107. ACC-0107 is the plan of external REQ-0042 and is created only after payment.",
+   "evidence": "B1-08 f8 'Plan ACC-0107 exists' (after payment); B1-08 f9 'Internal route · access active with no payment step — Sample: REQ-0039'; B1-13 event 4 'Internal: when you approve. External: only after the payment is confirmed'.",
+   "correction": "Change it to 'Internal route: an access plan is created and activated at approval (sample REQ-0039, B1-08 f9). For REQ-0042 (external), ACC-0107 is created only in A4.'"
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md R8; §3.3 'Ids … Per-prefix counters'; §3.4 'Ids come from counters'",
+   "problem": "The claim that per-prefix counters reproduce the board references is false in general. The boards show records with higher ids than the flow records: REQ-0058 (created on IA-17 on 21 Oct, after REQ-0042), SUB-0079/0081/0083/0085/0086, UPD-0006/0007, DTR-0019, ATT-0451 and SACC-0312…0314. A counter starting at 0042 yields REQ-0043 for the IA-17 request, not REQ-0058. Counters set below existing background ids collide with them later.",
+   "evidence": "B3-08 'IA-17 … Send → REQ-0058 Under review'; B7-00 'Batch 7 (23 Oct 2026): 3 under review — REQ-0058 (sent from B3-08 on 21 Oct)'; B5-06 f1 'SUB-0079 Pin Fin Efficiency'; B3-11 'DTR-0019 Imran Shaikh'. Id census across the boards: REQ-0058 ×54, SUB-0079…0086, UPD-0006 ×69.",
+   "correction": "Replace 'counters give exactly the board references' with: 'the scripted walk reserves each board reference explicitly (e.g. REQ-0042, REQ-0058, SUB-0077, UPD-0005, DTR-0018). Otherwise the id source returns the next free id above a per-prefix floor and skips existing ids. Live walks outside the script may produce other ids.'"
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §4.5 D1 and §5.3 assessmentForStudent; §4.7 F-alt; §4.5 D2; §6.2 'Draft · read-only'; §4.8 Dv1",
+   "problem": "Rules that decisions-rules.json marks PROVISIONAL, or that rest on an open decision, are presented as CONFIRMED. D1's Ready derivation and 'No make-available control' use BR-078 (PROVISIONAL), and B4-11 f15 says the make-available step 'is open (T-18)'. F-alt uses BR-111, D2's guidance rule uses BR-087 and §6.2 uses BR-099, all PROVISIONAL. Dv1's 'One open request at a time' is OD-B3-03, which is open.",
+   "evidence": "decisions-rules.json businessRules: BR-078 PROVISIONAL, BR-111 PROVISIONAL, BR-087 PROVISIONAL, BR-099 PROVISIONAL. B4-11 f15 caption note: 'The make-available step itself is open (T-18).' surface-student.json: 'Whether a second request may be opened is not decided — the design does not offer it.' (OD-B3-03).",
+   "correction": "Re-mark D1 as 'CONFIRMED (no defaults, BC6) · PROVISIONAL (readiness rule BR-078; T-18 open)', assessmentForStudent as PROVISIONAL, F-alt as 'CONFIRMED (drawn) · PROVISIONAL (BR-111 timing)', the D2 guidance clause as PROVISIONAL, and the §6.2 'Draft · read-only' row as PROVISIONAL (BR-099). In Dv1, write 'No second request is offered while one is open (designed absence; OD-B3-03 open)'."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §4.4 C3 'Screen'; §5.3 feedbackEntry 'Used by'",
+   "problem": "ST-15 is dropped as a feedback entry point. flows.json C3 lists 'ST-10 / ST-15 → ST-16 → ST-17', and the ST-15 Progress page draws the control.",
+   "evidence": "flows.json step C3 screens 'ST-10 / ST-15 → ST-16 → ST-17'; B3-05 f0 'ST-15 Progress' controls include 'Give feedback on WEB'; B3-05 f9 'Give feedback on VR'.",
+   "correction": "Change C3's screen column to 'ST-08 / ST-09 / ST-10 / ST-15 → ST-16 → ST-17', and add ST-15 to feedbackEntry's 'Used by' and to the meta.deps examples."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §5.4 row 'SUB with-reviewer (revision 2)'",
+   "problem": "After a resubmit, the Vendor label is given as \"'Submitted' confirmation, then 'With Academic Reviewer'\". The boards keep the Vendor-facing status at 'Submitted' (neutral, no gate named) while revision 2 is with the reviewer.",
+   "evidence": "B5-06 f4 'Submitted (after the resubmit) — neutral; no gate named (M-3)', status 'Submitted'. B6-12 text: 'Submitted for the Vendor (M-3); the normal chain resumes: With Academic Reviewer · revision 2' and the Vendor view 'Submitted · Your changes have been submitted for review. Nothing is needed from you now.' BR-100 (CONFIRMED-DESIGN): 'After a resubmit the Vendor sees only “Submitted …”'.",
+   "correction": "Change the Vendor cell to 'Submitted' (it persists until the record moves on), and make the label key revision- and origin-aware: revision 1 → 'With Academic Reviewer' (B5-06 f2); after a resubmit → 'Submitted'; CM re-check → 'Back with the Academic Reviewer for a re-check'."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §3.5 'Consequence for reviewers'",
+   "problem": "The phrase 'With the default “After the deadline”' calls a sample value a default, which BC6 and BR-076 forbid.",
+   "evidence": "START-HERE BC6 'no universal assessment settings'; BR-076 (CONFIRMED-STAKEHOLDER): 'sample values (50%, 2 attempts, 14 Nov 2026 23:59) are never defaults'; B4-06 f3 'New draft · nothing pre-filled'.",
+   "correction": "Change it to 'With ASMT-0009's own release setting “After the deadline” (sample 14 Nov 2026 23:59)'."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §6.1 '(public) requests/[ticket]'; §6.4 PU-10; AD-13",
+   "problem": "An opaque ticket in the URL path works as a bearer link: anyone who has the URL opens the request status. The boards draw no lookup, link or magic link, and the design keeps the status 'from this session'. The text does not say whether the URL ticket alone is enough or whether it must match the sessionStorage ticket.",
+   "evidence": "B1-08: 'The reference number identifies the request — it does not open the page on its own. No reference lookup, OTP, magic link or account registration is designed.' B1-07: 'Check request status, continues from this session … the page promises no link, e-mail or account.'",
+   "correction": "Use a capability-free route such as /requests/status (and /requests/status/payment) that resolves the ticket held in this browser session. Alternatively, state that /requests/[ticket] renders only when the path ticket equals a ticket held in this session (or the viewer is the signed-in IA of that institution), and otherwise renders the public not-found pattern. Record this under AD-13."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §2.2 f5/f6 row; AD-03",
+   "problem": "The recommended sample-mode default is to render B1-09 f6 ('Institution sign-in unavailable') at all times. That hides the stakeholder-confirmed 'Sign in with your institution' entry that the drawn default f0 shows.",
+   "evidence": "BR-008 (CONFIRMED-STAKEHOLDER): 'Sign in offers “Sign in with your institution (SSO)” and “Sign in with e-mail”'. B8-03: 'Institution sign-in + e-mail sign-in; no account switcher (B1-09)'. B1-09 f0 controls include 'Sign in with your institution'.",
+   "correction": "Recommend the drawn sequence f0 → (click) f5 'Institution sign-in starting' → f6 'unavailable'. Offer the permanent f6 only as the alternative for the owner to choose."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §4.4 C1 'Record + transition'; §3.2 'What lives where' shared-records list; §1.5 meta.deps",
+   "problem": "C1 writes 'RES: not opened → Opened (date)', which FA-21 reads. But RES or resource activity is missing from the shared-records list and from the RecordType set that drives invalidation, so the write has no persisted home and no invalidation key.",
+   "evidence": "B4-10 'Opened 12 Oct 2026, 09:40'; 1b090c9:v2/docs/ARCHITECTURE.md §8 'Learner-generated: ResourceActivity'; flows.json C1 record 'EXP · RES'.",
+   "correction": "Add a RES-activity record (Student × resource, openedAt) to the §3.2 shared-records list and to RecordType. List it in the meta.deps of ST-05, ST-06 and FA-21, and in invariant 2's 'not ④' set."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §3.2 'What lives where' (SEL, PU-10 ticket, drafts in sessionStorage); §2.3 per-tab session",
+   "problem": "sessionStorage is per tab, but B1-06 says the selection lives in the visitor's browser session. A selection or ticket held in one tab disappears in a tab opened from the catalogue. The per-tab session is also missing in the new tabs the product itself opens (ST-06 resources, ST-08 'opened in a new tab'), and every deep link opened in a new tab forces a new sign-in. None of these consequences is stated.",
+   "evidence": "B1-06: 'The selection lives in the visitor’s browser session until the request is sent'. B3-03 f0: 'opened in a new tab'. B3-01 'Opened in a new tab just now' (surface-student.json fieldEvidence).",
+   "correction": "State the per-tab consequence and either accept it explicitly (AD-07) or keep SEL and the ticket in localStorage under a browser-session marker. Say how the WEB stand-in tab learns the person, e.g. from a nonce handed over by launchFormat, without putting personal data in the URL."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §1.2 'Why the ports go in @xr/contracts' point 2; §8 items 4 and 9",
+   "problem": "The contract suite is said to live in @xr/sample-platform and to run 'against the mock and against a test API (HTTP)'. The HTTP adapter lives in apps/web/src/platform/http, which the package cannot import. Retirement (§8 item 9) removes @xr/sample-platform, and the suite would go with it.",
+   "evidence": "1b090c9:v2/packages/config/eslint/boundary-matrix.mjs: no package may depend on @xr/web. Deliverable §1.1: 'http adapter apps/web/src/platform/http/* (later)'.",
+   "correction": "Either place the contract suite in @xr/contracts/draft as a framework-free function that takes an adapter factory, run by both packages' tests, or state that apps/web hosts the HTTP run. Say that the suite outlives @xr/sample-platform."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §6.1 route tree and §6.2 guards (Next.js 16 App Router)",
+   "problem": "The document does not state that SessionGate, WorkspaceShell and WorkspaceGuard must be client components. layout.tsx is a server component by default and cannot read sessionStorage or localStorage. It also does not cover what renders before hydration, the Suspense boundary that useSearchParams needs for the '?step=' wizards during next build, or how page titles carrying record data are set.",
+   "evidence": "1b090c9:v2/apps/web/src/app/providers.tsx ('use client' pattern); 1b090c9:v2/apps/web/package.json next 16.3.4; deliverable §12 'Next.js 16 behaviour … assumed … not tested'.",
+   "correction": "Add: 'The (workspace) and (public) layouts stay server components that render client <SessionGate>, <WorkspaceShell> and <WorkspaceGuard>. Storage is read through useSyncExternalStore with a null server snapshot. Before hydration the drawn Loading state renders. Wizard pages wrap their useSearchParams consumer in <Suspense>. Titles are set on the client from the view model.'"
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §1.6 'Never copied [CONFIRMED]' citation; §9 intro 'Each file was re-read for this design'",
+   "problem": "BC14 ('one connected application state') is cited for not copying the rejected Slice-1 UI; the correct source is START-HERE Known exception 4. §9 says every Slice-1 file was re-read, but §12 lists only six Slice-1 files as checked.",
+   "evidence": "START-HERE Known exceptions item 4: 'Not product features: … the rejected Slice-1 connected UI'. Deliverable §12: 'Slice-1 working-tree files: services/access/types.ts, queries.ts, demo/runtime-provider.tsx, identity-store.ts, world-store.ts, world.ts'.",
+   "correction": "Cite 'START-HERE Known exceptions 3, 4, 6' without BC14. Change the §9 sentence to 'classification taken from repo-baseline.json; six files re-read (listed in §12)'."
+  },
+  {
+   "severity": "minor",
+   "location": "wf/design/architecture.md §1.3 assessment/ module ('automatic marking of choice questions'); §4.5 D2",
+   "problem": "The mock implements automatic marking of choice questions, but BC10 lists 'grading automation' as out of scope unless authorised. The Understand stage reads BC10 as excluding auto-review of written answers, and v46 B4-09 draws automatic choice marking. That interpretation is not recorded for the owner.",
+   "evidence": "START-HERE BC10; B4-09 f0 note 'choice questions are marked automatically'; decisions-rules.json#conflicts 'Auto-review of written answers … Consistent with owner constraint 10 (no grading automation)'.",
+   "correction": "Add an AD row: 'Deterministic scoring of choice questions in the mock is drawn v46 behaviour (B4-09) and is not the excluded grading automation (AI or auto-review of written answers, STK31-31/T-23). Owner to confirm.'"
+  }
+ ]
+}

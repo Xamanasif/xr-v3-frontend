@@ -1,0 +1,1893 @@
+[
+ {
+  "heading": "Design tokens (xr-foundation.css :root)",
+  "rows": [
+   [
+    {
+     "t": "Token",
+     "l": []
+    },
+    {
+     "t": "Value",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-font-sans",
+     "l": []
+    },
+    {
+     "t": "'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-font-mono",
+     "l": []
+    },
+    {
+     "t": "ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-navy-950",
+     "l": []
+    },
+    {
+     "t": "#080C33",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-navy-900",
+     "l": []
+    },
+    {
+     "t": "#0C1247",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-navy-800",
+     "l": []
+    },
+    {
+     "t": "#141B5E",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-navy-700",
+     "l": []
+    },
+    {
+     "t": "#1B2470",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-indigo-600",
+     "l": []
+    },
+    {
+     "t": "#2A3390",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-indigo-500",
+     "l": []
+    },
+    {
+     "t": "#3B49B8",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-indigo-300",
+     "l": []
+    },
+    {
+     "t": "#8592E6",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-indigo-200",
+     "l": []
+    },
+    {
+     "t": "#C9CEF2",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-indigo-100",
+     "l": []
+    },
+    {
+     "t": "#E6E8FA",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-gold-400",
+     "l": []
+    },
+    {
+     "t": "#F7C95B",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-gold-450",
+     "l": []
+    },
+    {
+     "t": "#F4B93A",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-gold-500",
+     "l": []
+    },
+    {
+     "t": "#E9A825",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-gold-600",
+     "l": []
+    },
+    {
+     "t": "#A8740A",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-gold-700",
+     "l": []
+    },
+    {
+     "t": "#8A5A05",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-gold-50",
+     "l": []
+    },
+    {
+     "t": "#FBF3E0",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-cyan-400",
+     "l": []
+    },
+    {
+     "t": "#35C0DE",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-cyan-700",
+     "l": []
+    },
+    {
+     "t": "#0B6E85",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-cyan-50",
+     "l": []
+    },
+    {
+     "t": "#E6F7FB",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-ink",
+     "l": []
+    },
+    {
+     "t": "#12173F",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-ink-2",
+     "l": []
+    },
+    {
+     "t": "#40476B",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-ink-3",
+     "l": []
+    },
+    {
+     "t": "#5C6389",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-line",
+     "l": []
+    },
+    {
+     "t": "#E1E4F3",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-line-strong",
+     "l": []
+    },
+    {
+     "t": "#7A82AE",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-canvas",
+     "l": []
+    },
+    {
+     "t": "#F4F5FB",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-surface",
+     "l": []
+    },
+    {
+     "t": "#FFFFFF",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-surface-2",
+     "l": []
+    },
+    {
+     "t": "#F4F5FB",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-surface-3",
+     "l": []
+    },
+    {
+     "t": "#EEF0F8",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-link",
+     "l": []
+    },
+    {
+     "t": "#1F4FD8",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-focus",
+     "l": []
+    },
+    {
+     "t": "#1F4FD8",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-focus-dark",
+     "l": []
+    },
+    {
+     "t": "#F7C95B",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-ok",
+     "l": []
+    },
+    {
+     "t": "#1D6B45",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-ok-bg",
+     "l": []
+    },
+    {
+     "t": "#E8F4EC",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-warn",
+     "l": []
+    },
+    {
+     "t": "#8A5A05",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-warn-bg",
+     "l": []
+    },
+    {
+     "t": "#FBF3E0",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-err",
+     "l": []
+    },
+    {
+     "t": "#B42318",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-err-bg",
+     "l": []
+    },
+    {
+     "t": "#FDECEA",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-info",
+     "l": []
+    },
+    {
+     "t": "#1F4FD8",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-info-bg",
+     "l": []
+    },
+    {
+     "t": "#EAF0FD",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s1",
+     "l": []
+    },
+    {
+     "t": "4px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s2",
+     "l": []
+    },
+    {
+     "t": "8px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s3",
+     "l": []
+    },
+    {
+     "t": "12px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s4",
+     "l": []
+    },
+    {
+     "t": "16px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s5",
+     "l": []
+    },
+    {
+     "t": "20px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s6",
+     "l": []
+    },
+    {
+     "t": "24px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s8",
+     "l": []
+    },
+    {
+     "t": "32px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s10",
+     "l": []
+    },
+    {
+     "t": "40px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s12",
+     "l": []
+    },
+    {
+     "t": "48px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s16",
+     "l": []
+    },
+    {
+     "t": "64px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-s20",
+     "l": []
+    },
+    {
+     "t": "80px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-r-xs",
+     "l": []
+    },
+    {
+     "t": "4px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-r-sm",
+     "l": []
+    },
+    {
+     "t": "6px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-r-md",
+     "l": []
+    },
+    {
+     "t": "8px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-r-lg",
+     "l": []
+    },
+    {
+     "t": "12px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-e1",
+     "l": []
+    },
+    {
+     "t": "0 1px 2px rgba(12,18,71,.06)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-e2",
+     "l": []
+    },
+    {
+     "t": "0 12px 32px rgba(12,18,71,.14)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-e3",
+     "l": []
+    },
+    {
+     "t": "0 24px 60px rgba(12,18,71,.28)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-dur-1",
+     "l": []
+    },
+    {
+     "t": "120ms",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-dur-2",
+     "l": []
+    },
+    {
+     "t": "200ms",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-dur-3",
+     "l": []
+    },
+    {
+     "t": "280ms",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-ease",
+     "l": []
+    },
+    {
+     "t": "cubic-bezier(.2,0,0,1)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-side-w",
+     "l": []
+    },
+    {
+     "t": "248px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-rail-w",
+     "l": []
+    },
+    {
+     "t": "72px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "--xr-top-h",
+     "l": []
+    },
+    {
+     "t": "64px",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Type scale",
+  "rows": [
+   [
+    {
+     "t": "Style",
+     "l": []
+    },
+    {
+     "t": "Size / line",
+     "l": []
+    },
+    {
+     "t": "Weight",
+     "l": []
+    },
+    {
+     "t": "Use",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Display",
+     "l": []
+    },
+    {
+     "t": "44 / 52",
+     "l": []
+    },
+    {
+     "t": "700",
+     "l": []
+    },
+    {
+     "t": "Public hero",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "H1",
+     "l": []
+    },
+    {
+     "t": "32 / 40",
+     "l": []
+    },
+    {
+     "t": "700",
+     "l": []
+    },
+    {
+     "t": "Page title (one per page)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "H2",
+     "l": []
+    },
+    {
+     "t": "22 / 30",
+     "l": []
+    },
+    {
+     "t": "700",
+     "l": []
+    },
+    {
+     "t": "Section title",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "H3",
+     "l": []
+    },
+    {
+     "t": "18 / 26",
+     "l": []
+    },
+    {
+     "t": "600",
+     "l": []
+    },
+    {
+     "t": "Sub-section, card title",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Lead",
+     "l": []
+    },
+    {
+     "t": "18 / 28",
+     "l": []
+    },
+    {
+     "t": "400",
+     "l": []
+    },
+    {
+     "t": "Intro paragraph",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Body",
+     "l": []
+    },
+    {
+     "t": "16 / 24",
+     "l": []
+    },
+    {
+     "t": "400",
+     "l": []
+    },
+    {
+     "t": "Default text",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Meta / hint",
+     "l": []
+    },
+    {
+     "t": "14–15 / 20–22",
+     "l": []
+    },
+    {
+     "t": "400–600",
+     "l": []
+    },
+    {
+     "t": "Secondary text, labels, chips (never below 14 px)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Overline",
+     "l": []
+    },
+    {
+     "t": "13 / 16, uppercase",
+     "l": []
+    },
+    {
+     "t": "700",
+     "l": []
+    },
+    {
+     "t": "Eyebrow above a title (Batch-0 component)",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Components",
+  "rows": [
+   [
+    {
+     "t": "Component (class prefix)",
+     "l": []
+    },
+    {
+     "t": "Defined on",
+     "l": []
+    },
+    {
+     "t": "Notes for the build",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Shell: sidebar, rail, top bar, breadcrumbs, account menu (xr-shell, xr-side, xr-top)",
+     "l": []
+    },
+    {
+     "t": "05 · 06",
+     "l": [
+      "05-Workspace-Shell.dc.html",
+      "06-Sidebar-Variants.dc.html"
+     ]
+    },
+    {
+     "t": "Sidebar 248 px; rail 72 px; top bar 64 px; Menu button below 1024 px; Help at the foot",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Buttons (xr-btn primary · secondary · text · danger · sm · block)",
+     "l": []
+    },
+    {
+     "t": "03",
+     "l": [
+      "03-Core-Components.dc.html"
+     ]
+    },
+    {
+     "t": "One primary per screen; busy state with spinner + aria-disabled",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Fields, choice lists, selects, textareas, error summary (xr-field, xr-choice, xw-errsum)",
+     "l": []
+    },
+    {
+     "t": "03 · 10",
+     "l": [
+      "03-Core-Components.dc.html",
+      "10-Dialogs.dc.html"
+     ]
+    },
+    {
+     "t": "Visible labels; error under the field (aria-invalid) + summary with links",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Status chip (xr-status ok · wait · err · info · off · paused · live)",
+     "l": []
+    },
+    {
+     "t": "04",
+     "l": [
+      "04-Status-Format-States.dc.html"
+     ]
+    },
+    {
+     "t": "Icon + words; never colour alone",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Format chip (xr-fmt WEB · AR · VR · MR, yours / plan / off)",
+     "l": []
+    },
+    {
+     "t": "04",
+     "l": [
+      "04-Status-Format-States.dc.html"
+     ]
+    },
+    {
+     "t": "Code + words; “Available in” ≠ given to you",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Tables → labelled rows (xr-table)",
+     "l": []
+    },
+    {
+     "t": "03 · 11",
+     "l": [
+      "03-Core-Components.dc.html",
+      "11-Responsive-Proof.dc.html"
+     ]
+    },
+    {
+     "t": "Below 760 px of content each row becomes a labelled block",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Attention list / rows (xr-rows, xr-row)",
+     "l": []
+    },
+    {
+     "t": "09a",
+     "l": [
+      "09a-Archetypes-AR1-AR5.dc.html"
+     ]
+    },
+    {
+     "t": "Overviews: ≤ 4–6 rows, one action each",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Decision page + panel (xr-decide, xr-dpanel)",
+     "l": []
+    },
+    {
+     "t": "09a · B6-03 · B7-05",
+     "l": [
+      "09a-Archetypes-AR1-AR5.dc.html",
+      "B6-03-Review-a-Submission.dc.html",
+      "B7-05-Content-Updates-Release-Hold.dc.html"
+     ]
+    },
+    {
+     "t": "~70–80 / 20–30; panel below the content under 908 px of app width",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Dialogs DL-1 · DL-2 · DL-3 (xr-dialog)",
+     "l": []
+    },
+    {
+     "t": "10",
+     "l": [
+      "10-Dialogs.dc.html"
+     ]
+    },
+    {
+     "t": "DL-2 asks for a reason; focus in, focus back; never for navigation",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Inline panel (xw-inline-panel)",
+     "l": []
+    },
+    {
+     "t": "B2-09 · B7-07",
+     "l": [
+      "B2-09-Faculty-Courses.dc.html",
+      "B7-07-Academic-Structure.dc.html"
+     ]
+    },
+    {
+     "t": "Mid-page confirmations and reasons, beside the row they affect",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Comparison: live vs proposed (xg-cmp)",
+     "l": []
+    },
+    {
+     "t": "B6-04 · B7-05",
+     "l": [
+      "B6-04-Review-an-Update.dc.html",
+      "B7-05-Content-Updates-Release-Hold.dc.html"
+     ]
+    },
+    {
+     "t": "Changed fields only; stacks below 760 px",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Timeline / history (xr-timeline)",
+     "l": []
+    },
+    {
+     "t": "03",
+     "l": [
+      "03-Core-Components.dc.html"
+     ]
+    },
+    {
+     "t": "Newest first; who · when · note",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Banners: paused · inactive (xr-banner)",
+     "l": []
+    },
+    {
+     "t": "08 · B7-04",
+     "l": [
+      "08-System-Messages.dc.html",
+      "B7-04-Pause-Effects.dc.html"
+     ]
+    },
+    {
+     "t": "GL-01 shell banner, never a modal",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Empty · loading · failed states (xr-empty, xr-skel)",
+     "l": []
+    },
+    {
+     "t": "04 · 08",
+     "l": [
+      "04-Status-Format-States.dc.html",
+      "08-System-Messages.dc.html"
+     ]
+    },
+    {
+     "t": "One way forward each",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Figures (xd-figs) — Super Admin Overview only",
+     "l": []
+    },
+    {
+     "t": "B7-01",
+     "l": [
+      "B7-01-SA-Overview.dc.html"
+     ]
+    },
+    {
+     "t": "Two numbers, no dashboard",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Responsive layout — container queries",
+  "rows": [
+   [
+    {
+     "t": "Container query",
+     "l": []
+    },
+    {
+     "t": "Behaviour",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "xr-app < 600 px",
+     "l": []
+    },
+    {
+     "t": "Phone: single column, actions full width",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "xr-app 600–1023 px",
+     "l": []
+    },
+    {
+     "t": "Tablet: Menu button; content full width",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "xr-app ≥ 1024 px",
+     "l": []
+    },
+    {
+     "t": "Sidebar shown; ≥ 1280 px wider reading width",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "xr-app < 908 px",
+     "l": []
+    },
+    {
+     "t": "Decision panel drops below the content (AR-4)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "xr-content < 760 px",
+     "l": []
+    },
+    {
+     "t": "Tables become labelled rows; comparison stacks",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "xr-content < 600 / 520 px",
+     "l": []
+    },
+    {
+     "t": "Toolbars and filters wrap; chips and actions stack",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "xr-content ≥ 860 px",
+     "l": []
+    },
+    {
+     "t": "Two-part layouts (content + panel) appear",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "xr-app < 600 px — type",
+     "l": []
+    },
+    {
+     "t": "H1 26 / 34 · H2 20 / 28 · Display 32 / 40 (phone scale)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "xp (public pages) < 600 · < 760 · < 1024 px; ≥ 1280 · ≥ 1360 px",
+     "l": []
+    },
+    {
+     "t": "Public header, explorer and cards: phone · narrow · tablet · desktop · wide",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Proof widths",
+     "l": []
+    },
+    {
+     "t": "1440 · 1024 · 768 · 375 on every batch proof and B8-05",
+     "l": [
+      "B8-05-Responsive-and-Accessibility.dc.html"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "States, validation, interaction, accessibility",
+  "rows": [
+   [
+    {
+     "t": "Requirement",
+     "l": []
+    },
+    {
+     "t": "Rule",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "States every list / page needs",
+     "l": []
+    },
+    {
+     "t": "Loading (skeleton + announced status) · empty (one way forward) · failed (retry) · no match (clear filters) · read-only · success (flash with role=status) · decided",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Validation",
+     "l": []
+    },
+    {
+     "t": "Validate on the primary action; errors on the field and in a summary; focus moves to the summary or the first field",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Reasons",
+     "l": []
+    },
+    {
+     "t": "Return, send back, withdraw, pause, restore, hold, override, withdraw scope: reason required and kept in the history",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Dialogs",
+     "l": []
+    },
+    {
+     "t": "Open with focus on the first field or the confirm button; Cancel returns focus to the trigger; header actions top-aligned, form-end actions bottom-aligned",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Focus after a decision",
+     "l": []
+    },
+    {
+     "t": "Moves to the result (decided panel, flash or heading)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Keyboard",
+     "l": []
+    },
+    {
+     "t": "All actions reachable by Tab; radios by arrow keys; Enter / Space activate; visible 2 px focus ring (#1F4FD8 / #F7C95B on dark)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Targets",
+     "l": []
+    },
+    {
+     "t": "≥ 44 px (≥ 32 px for small row actions) — above WCAG 2.2 AA 24 × 24",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Contrast",
+     "l": []
+    },
+    {
+     "t": "Batch-0 colour pairs only (≥ 4.5 : 1 text)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Motion",
+     "l": []
+    },
+    {
+     "t": "120–280 ms, reduced-motion respected (board 12)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Consistent help",
+     "l": []
+    },
+    {
+     "t": "Help at the sidebar foot in every workspace (WCAG 3.2.6)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Reachability",
+     "l": []
+    },
+    {
+     "t": "Every confirm button must be reachable by mouse wheel + click at every proof width — test it with a real pointer, not only programmatic scroll",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Shared records and cross-role contracts",
+  "rows": [
+   [
+    {
+     "t": "Record",
+     "l": []
+    },
+    {
+     "t": "What it is",
+     "l": []
+    },
+    {
+     "t": "Owner / writer",
+     "l": []
+    },
+    {
+     "t": "Status vocabulary",
+     "l": []
+    },
+    {
+     "t": "Relations / contract",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "REQ",
+     "l": []
+    },
+    {
+     "t": "Access request",
+     "l": []
+    },
+    {
+     "t": "institution contact → Super Admin",
+     "l": []
+    },
+    {
+     "t": "Under review · Information requested · Approved — payment required · Payment not confirmed · Access active",
+     "l": []
+    },
+    {
+     "t": "creates INST on approval; ACC on activation",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "INST",
+     "l": []
+    },
+    {
+     "t": "Institution",
+     "l": []
+    },
+    {
+     "t": "Super Admin",
+     "l": []
+    },
+    {
+     "t": "Access active · Ending soon · Access paused · Approved — payment required · Access ended",
+     "l": []
+    },
+    {
+     "t": "has ACC plans, people, an Institute Admin",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "ACC",
+     "l": []
+    },
+    {
+     "t": "Access plan",
+     "l": []
+    },
+    {
+     "t": "Super Admin (activation) · read by IA",
+     "l": []
+    },
+    {
+     "t": "Access active · Ending soon · Paused · Access ended",
+     "l": []
+    },
+    {
+     "t": "experiments × formats, licences as provided (D7 open)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SACC",
+     "l": []
+    },
+    {
+     "t": "Student access grant",
+     "l": []
+    },
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "Active · Withdrawn",
+     "l": []
+    },
+    {
+     "t": "Student (or group) × Experiment × formats (LD-1)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "PER",
+     "l": []
+    },
+    {
+     "t": "Person (Student / Faculty)",
+     "l": []
+    },
+    {
+     "t": "Institute Admin",
+     "l": []
+    },
+    {
+     "t": "Active · Inactive",
+     "l": []
+    },
+    {
+     "t": "groups; Faculty courses (FCM)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "RUN",
+     "l": []
+    },
+    {
+     "t": "Simulation progress",
+     "l": []
+    },
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "Not started · In progress · Completed (per format)",
+     "l": []
+    },
+    {
+     "t": "Student × Experiment × format; no overall verdict",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "FB",
+     "l": []
+    },
+    {
+     "t": "Format feedback",
+     "l": []
+    },
+    {
+     "t": "Student",
+     "l": []
+    },
+    {
+     "t": "“Give feedback on WEB” (per format, shown only after that format is Completed) → “Feedback sent · WEB · 14 Oct”",
+     "l": []
+    },
+    {
+     "t": "one per Student × Experiment × format, after that format is completed",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "ASMT / ATT",
+     "l": []
+    },
+    {
+     "t": "Assessment · attempt",
+     "l": []
+    },
+    {
+     "t": "Faculty · Student",
+     "l": []
+    },
+    {
+     "t": "Draft · Ready · Attempt in progress · Submitted · Waiting for marking · Marks confirmed · Result ready",
+     "l": []
+    },
+    {
+     "t": "pass mark and rules are per assessment",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "DTR",
+     "l": []
+    },
+    {
+     "t": "Device transfer",
+     "l": []
+    },
+    {
+     "t": "Student → IA → Super Admin",
+     "l": []
+    },
+    {
+     "t": "With your Institute Admin · Forwarded to BITS · Approved",
+     "l": []
+    },
+    {
+     "t": "authorisation only; approve only (T-32)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SUB",
+     "l": []
+    },
+    {
+     "t": "Submission",
+     "l": []
+    },
+    {
+     "t": "Vendor → Academic Reviewer → Content Manager",
+     "l": []
+    },
+    {
+     "t": "Draft · With Academic Reviewer · Returned · With Content Manager · Published",
+     "l": []
+    },
+    {
+     "t": "becomes EXP on publication",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "EXP",
+     "l": []
+    },
+    {
+     "t": "Experiment (published)",
+     "l": []
+    },
+    {
+     "t": "Content Manager",
+     "l": []
+    },
+    {
+     "t": "Published · version n",
+     "l": []
+    },
+    {
+     "t": "learning outcomes (LD-3); formats; live version",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "UPD",
+     "l": []
+    },
+    {
+     "t": "Correction (update)",
+     "l": []
+    },
+    {
+     "t": "Content Manager → Academic Reviewer → Super Admin",
+     "l": []
+    },
+    {
+     "t": "Draft · In academic review · Returned · Awaiting release decision · On hold · Released · Withdrawn",
+     "l": []
+    },
+    {
+     "t": "changes EXP only on Release (M-1)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "AREA / CRS",
+     "l": []
+    },
+    {
+     "t": "Engineering area · course",
+     "l": []
+    },
+    {
+     "t": "Super Admin (platform code: Content Manager, M-2)",
+     "l": []
+    },
+    {
+     "t": "—",
+     "l": []
+    },
+    {
+     "t": "feeds explorer, catalogue, Vendor course lists, import matching",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "ROLE",
+     "l": []
+    },
+    {
+     "t": "Platform role holder",
+     "l": []
+    },
+    {
+     "t": "Super Admin",
+     "l": []
+    },
+    {
+     "t": "Scope active · withdrawn (reason)",
+     "l": []
+    },
+    {
+     "t": "scope: all / course / experiment",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "SUP",
+     "l": []
+    },
+    {
+     "t": "Support report",
+     "l": []
+    },
+    {
+     "t": "any signed-in person → Super Admin",
+     "l": []
+    },
+    {
+     "t": "Open · Resolved · Reopened",
+     "l": []
+    },
+    {
+     "t": "note shown to the reporter",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Assets — real vs placeholder",
+  "rows": [
+   [
+    {
+     "t": "Asset",
+     "l": []
+    },
+    {
+     "t": "Status",
+     "l": []
+    },
+    {
+     "t": "Notes",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "BITS Pilani / WILP lockup",
+     "l": []
+    },
+    {
+     "t": "Placeholder",
+     "l": []
+    },
+    {
+     "t": "Labelled dashed placeholder in every header and sidebar (“BITS Pilani / WILP logo — placeholder”). The approved file was never supplied.",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Public Sans",
+     "l": []
+    },
+    {
+     "t": "Working typeface",
+     "l": []
+    },
+    {
+     "t": "Google Fonts; swappable through --xr-font-sans. Not the official WILP font (open).",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Area and format artwork (project/art/*.svg, 19 files)",
+     "l": []
+    },
+    {
+     "t": "Approved B2 illustrations, concept only",
+     "l": []
+    },
+    {
+     "t": "Labelled “concept artwork, not a simulation capture”. Not production imagery of any simulation.",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Icons",
+     "l": []
+    },
+    {
+     "t": "Inline SVG paths (Batch-0 set)",
+     "l": []
+    },
+    {
+     "t": "Stroke icons defined in the boards; no icon font.",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Simulation runtimes · 3D models · device captures",
+     "l": []
+    },
+    {
+     "t": "None",
+     "l": []
+    },
+    {
+     "t": "Never fabricated; WEB is a launch link; AR / VR / MR show set-up information only.",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Sample data",
+     "l": []
+    },
+    {
+     "t": "Illustrative only",
+     "l": []
+    },
+    {
+     "t": "Names, IDs, dates, figures and .example links are one coherent sample world — never defaults or policy.",
+     "l": []
+    }
+   ]
+  ]
+ },
+ {
+  "heading": "Deliverable files and dependencies",
+  "rows": [
+   [
+    {
+     "t": "Deliverable",
+     "l": []
+    },
+    {
+     "t": "Count",
+     "l": []
+    },
+    {
+     "t": "Depends on",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Boards (.dc.html)",
+     "l": []
+    },
+    {
+     "t": "128",
+     "l": []
+    },
+    {
+     "t": "support.js (canvas runtime), the stylesheets below, Google Fonts (Public Sans), art/*.svg",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Stylesheets",
+     "l": []
+    },
+    {
+     "t": "8",
+     "l": []
+    },
+    {
+     "t": "xr-foundation → public → workspace → learning → assess → vendor → govern → admin (load order)",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Art (project/art/*.svg)",
+     "l": []
+    },
+    {
+     "t": "19",
+     "l": []
+    },
+    {
+     "t": "B2 illustrations — concept only",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Canvas layout (canvas.json)",
+     "l": []
+    },
+    {
+     "t": "1",
+     "l": []
+    },
+    {
+     "t": "Board positions, sizes and titles",
+     "l": []
+    }
+   ],
+   [
+    {
+     "t": "Handoff package (project/handoff/)",
+     "l": []
+    },
+    {
+     "t": "10",
+     "l": []
+    },
+    {
+     "t": "Generated from the boards; the boards win on any difference",
+     "l": []
+    }
+   ]
+  ]
+ }
+]

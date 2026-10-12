@@ -1,0 +1,1259 @@
+{
+  "surface": "Vendor (base route /vendor) — VE-01…VE-15; 10 designed IDs (VE-01…VE-09, VE-13), 5 not designed (VE-10, VE-11, VE-12, VE-14 DEFER/OPEN LD-4; VE-15 REMOVE). Sample persona: Anil Shetty · Vendor · Northline Simulation Studio; assigned course ME ZG523; MEL ZG512 withdrawn 15 Aug 2026.",
+  "boardsRead": [
+    "B5-00-Index.dc.html",
+    "B5-01-Vendor-Overview.dc.html",
+    "B5-02-My-Experiments.dc.html",
+    "B5-03-Create-Course-and-Description.dc.html",
+    "B5-04-Formats-and-Delivery.dc.html",
+    "B5-05-Preview-Check-and-Submit.dc.html",
+    "B5-06-Experiment-Record-and-History.dc.html",
+    "B5-07-Revise-and-Resubmit.dc.html",
+    "B5-08-Flow-5-Continuity.dc.html",
+    "B5-10-Change-Log.dc.html",
+    "B5-09-Responsive-Proof.dc.html (grep only)",
+    "06-Sidebar-Variants.dc.html (grep: Vendor account menu row)",
+    "08-System-Messages.dc.html (grep: message family)",
+    "09a-Archetypes-AR1-AR5.dc.html (grep: AR-1/2/3/5, AR-3 Vendor pattern example)",
+    "10-Dialogs.dc.html (grep: DL-1/DL-2)",
+    "B6-03-Review-a-Submission.dc.html (grep: return form, references)",
+    "B6-07-Publication-Decision.dc.html (grep: send back)",
+    "B6-12-Flow-5-Completion.dc.html (grep: vendor-facing vs staff-facing history)",
+    "B7-06-All-Content.dc.html (grep: override back to vendor)",
+    "B7-08-Platform-Roles.dc.html (grep: Vendor scope)",
+    "B7-10-Critical-States.dc.html (grep: override)",
+    "B8-01-Screen-and-Navigation-Register.dc.html (grep)",
+    "B8-02-Link-Corrections-and-Change-Log.dc.html (grep)",
+    "B8-03-Terminology-and-Visual-Consistency.dc.html (grep)",
+    "B8-04-Workflow-Traceability.dc.html (grep)",
+    "B8-07-Handoff-Specifications.dc.html (grep)",
+    "B8-08-Open-Decisions-and-Limitations.dc.html (grep)"
+  ],
+  "boardEngineNote": "All nine interactive B5 boards (B5-01…B5-09) embed the SAME 'Vendor record engine' (identical vxView/vxInit/VX bodies by md5 across boards; B5-10 'One Vendor record engine'). It is the single best behavioural spec for the editor, record, overview and list: validation rules e1/e2/e3, saveDraft, submit/doSubmit, startRevise, status-word map stw, chip-tone map stk, 'With' map withw, attention list and status-line derivation, list filters. Frames differ only by their initial state object. Read as text: design/handoff-v46/canvas-v46/project/B5-01-Vendor-Overview.dc.html <script type=text/x-dc>.",
+  "screens": [
+    {
+      "id": "VE-01",
+      "title": "Overview",
+      "screenType": "page",
+      "proposedRoute": "/vendor",
+      "recommendedRoute": "/vendor",
+      "routeNotes": "Keep. Workspace landing; sidebar item 'Overview' (aria-current=page).",
+      "navPlace": "Sidebar Overview (Vendor sidebar: Overview · My experiments · Help at foot)",
+      "archetype": "AR-1",
+      "components": [
+        "WorkspaceShell(Vendor: sidebar Overview · My experiments · Help foot; Menu button <1024px; Collapse menu; logo placeholder)",
+        "AccountMenu(XS-05: name, role 'Vendor', organisation line 'Northline Simulation Studio', Help, Sign out)",
+        "Breadcrumbs('You are here')",
+        "PageHeader(eyebrow = organisation name, H1 'Overview')",
+        "StatusLine(role=status, counts in words: Draft n · With Academic Reviewer n · With Content Manager n · Published n)",
+        "Button(secondary link) 'Create experiment'",
+        "AttentionList(xr-rows: icon by kind, title, sub-line, one action per row; first row primary, others secondary; count chip 'n items')",
+        "EmptyState(icon, H2, one sentence, one action) — two variants",
+        "TextLink 'See all your experiments'"
+      ],
+      "states": [
+        "default with attention — caption 'VE-01 Overview · 1440 · 27 Aug 2026': “Top item first: “Revise “Forced Convection”” (returned with a reason), then a draft to finish. One status line of counts in words. Create experiment is secondary.” Sample derived by engine: status line 2 Draft (SUB-0079 draft + SUB-0083 read-only) · 1 With Academic Reviewer · 1 With Content Manager · 1 Published; attention 2 items: 'Returned: Forced Convection' / 'Academic Reviewer · 24 Aug 2026 · “The AR install notes don’t say which phones…”' → 'Revise “Forced Convection”' (primary); 'Draft to finish: Pin Fin Efficiency' / 'Last saved 25 Aug 2026 · only you can see it' → 'Finish draft' (secondary)",
+        "nothing needs you — caption 'Nothing needs you': “Everything is with the Academic Reviewer or the Content Manager, or published.” H2 'Nothing needs you right now' + 'Experiments with the Academic Reviewer or the Content Manager need nothing from you. You’ll see them here if they come back.' + Create experiment (secondary); status line still shown",
+        "first visit / empty — caption 'First visit — no experiments yet': “The primary action moves into the empty state.” H2 'Create your first experiment' + 'Describe it, add its formats and delivery, then submit it for academic review. You can save a draft at every step.' + Create experiment (primary); status line hidden (listAny false); header 'Create experiment' (secondary) and 'See all your experiments' still rendered (markup outside the sc-if)",
+        "mobile — caption 'Mobile 375': “Single column; actions go full width.”",
+        "live after a return (B5-08 frame 'Vendor · Overview'): “After the return, the top item is “Revise …”. It opens the editor above in revise mode.” — 'Revise “Conduction Through a Composite Wall”'",
+        "responsive proof B5-09 'Vendor · Overview' at 1440 / 1024 / 768 / 375",
+        "loading / failed: NOT drawn on B5 boards (B8-07 'States every list / page needs: Loading (skeleton + announced status) · empty · failed (retry)…' → use board 04/08 patterns)"
+      ],
+      "actions": [
+        "Create experiment → VE-03 (no data change)",
+        "Revise “<name>” (row for each Returned SUB, by Academic Reviewer or Content Manager) → VE-08 for that SUB (no status change until Resubmit)",
+        "Finish draft (row for each Draft SUB; Draft · read-only rows are NOT listed) → VE-09 (no status change)",
+        "See all your experiments → VE-02"
+      ],
+      "outboundLinks": [
+        "Create experiment → VE-03",
+        "Revise “<name>” → VE-08",
+        "Finish draft → VE-09",
+        "See all your experiments → VE-02",
+        "Sidebar My experiments → VE-02",
+        "Sidebar Help → XS-07",
+        "Account menu → XS-05"
+      ],
+      "records": [
+        "SUB"
+      ],
+      "evidence": "B5-01 frames 'VE-01 Overview · 1440 · 27 Aug 2026', 'Nothing needs you', 'First visit — no experiments yet', 'Mobile 375'; B5-01 annotations 'Attention list', 'Status line', 'Removed (B2 V1)'; engine o.statusLine / o.att; B5-08 frame 'Vendor · Overview'; B5-09 frames 0–3; Register v2 VE-F1"
+    },
+    {
+      "id": "VE-02",
+      "title": "My experiments (all, any status)",
+      "screenType": "page",
+      "proposedRoute": "/vendor/experiments",
+      "recommendedRoute": "/vendor/experiments",
+      "routeNotes": "Keep. Filters (q, status, recent) may be mirrored in query params (?q=&status=&recent=1) — the board does not define URL state; that is an implementer choice. 'Changed in the last 7 days' is the merged VE-13 filter.",
+      "navPlace": "Sidebar My experiments",
+      "archetype": "AR-2",
+      "components": [
+        "WorkspaceShell(Vendor)",
+        "PageHeader(H1 'My experiments', subtitle 'Every experiment you created, in any status', primary 'Create experiment')",
+        "FilterToolbar(SearchField label 'Search your experiments', placeholder 'Name, ID or course'; Select label 'Status'; Checkbox 'Changed in the last 7 days'; ResultCount role=status 'n of N experiments'; 'Clear filters' button when any filter set)",
+        "DataTable(5 columns: Experiment (+ ID · course) · Formats · Status · last change · With · Action (visually hidden header); NO sort controls; labelled-row mode <760px of content)",
+        "StatusChip(tones: off=Draft, wait=With Academic Reviewer / With Content Manager, err=Returned, info=Submitted, ok=Published, paused=Draft · read-only; icon + words)",
+        "FormatChip(WEB · AR · VR · MR)",
+        "RowAction(link; primary for 'Revise', secondary for 'Edit draft' / 'Open')",
+        "EmptyState('You haven’t created an experiment yet')",
+        "NoMatchState('No experiments match' + 'Clear filters')"
+      ],
+      "states": [
+        "default — caption 'VE-02 My experiments · 1440 · interactive · 27 Aug 2026': “Search by name, ID or course; filter by status; tick “Changed in the last 7 days”. Returned and draft rows open the editor; the rest open the record.” Six sample rows: SUB-0077 With Academic Reviewer (revision 2), SUB-0081 Returned, SUB-0079 Draft, SUB-0074 With Content Manager, SUB-0052 Published, SUB-0083 Draft · read-only",
+        "filtered — caption 'Filtered: Returned': “One row; Revise is the primary action.”",
+        "no match — caption 'No match': “Clear filters is offered.” (sample search 'Radiation'): 'No experiments match' / 'Try a different name, or clear the filters.'",
+        "empty — caption 'Empty — no experiments yet': 'You haven’t created an experiment yet' / 'Create one, describe it, add its formats and delivery, and submit it for academic review.' + Create experiment",
+        "tablet — caption 'Tablet 768 · interactive': “Labelled rows below 760 px of content.”",
+        "mobile — caption 'Mobile 375 · interactive': “Rows stack as labelled cards.”",
+        "Submitted row (status 'Submitted', With '—') — drawn only live on B5-08 frame 'Vendor · My experiments' (“Status and “With” follow the same record.”); B5-02 annotation 'Status words' lists it",
+        "responsive proof B5-09 'My experiments (interactive)' 1440/1024/768/375",
+        "loading / failed: NOT drawn (B8-07 requirement)"
+      ],
+      "actions": [
+        "Create experiment → VE-03",
+        "Search (name, ID or course; case-insensitive substring) → filters rows (no data change)",
+        "Status filter (All statuses · Draft · Submitted · With Academic Reviewer · Returned · With Content Manager · Published) → filters rows; engine: 'Draft' also matches Draft · read-only, 'Returned' also matches returned-by-Content-Manager, 'With Academic Reviewer' also matches re-check",
+        "Changed in the last 7 days (checkbox) → filters rows (window/definition sample, OD-B5-13)",
+        "Clear filters → resets q, status, recent",
+        "Row name link → VE-07 (every row)",
+        "Revise (Returned rows) → VE-08",
+        "Edit draft (Draft rows) → VE-09",
+        "Open (With Academic Reviewer · Submitted · With Content Manager · Published · Draft · read-only rows) → VE-07"
+      ],
+      "outboundLinks": [
+        "Create experiment → VE-03",
+        "Experiment name → VE-07",
+        "Revise → VE-08",
+        "Edit draft → VE-09",
+        "Open → VE-07",
+        "Sidebar Overview → VE-01",
+        "Sidebar Help → XS-07"
+      ],
+      "records": [
+        "SUB",
+        "CRS"
+      ],
+      "evidence": "B5-02 frames 'VE-02 My experiments · 1440 · interactive · 27 Aug 2026', 'Filtered: Returned', 'No match', 'Empty — no experiments yet', 'Mobile 375 · interactive', 'Tablet 768 · interactive'; annotations 'Columns', 'Status words', 'Filters', 'Empty'; engine o.rows / D.stw / D.stk / D.withw; B5-08 frame 'Vendor · My experiments'; B5-09 frames 4–7"
+    },
+    {
+      "id": "VE-03",
+      "title": "Create experiment · Course & description (editor step 1)",
+      "screenType": "step",
+      "proposedRoute": "/vendor/experiments/new?step=course",
+      "recommendedRoute": "/vendor/experiments/new?step=course (before first save) → after first save replace URL with /vendor/experiments/[submissionId]/edit?step=course",
+      "routeNotes": "The submission ID is assigned only on first Save draft (OD-B5-07; caption 'Draft saved · SUB-0077' “The ID is given on first save.”), and after that save the editor header switches from 'Create experiment · Step 1 of 4' to 'Edit draft · Step 1 of 4' with ID line 'SUB-0077 · draft' (engine o.over / o.idLine). An unsaved new experiment can also Continue to steps 2–4 and even submit without ever saving (engine next() and doSubmit assign the ID at submit). So steps 2–4 of an UNSAVED experiment need a /new?step=… form too. Static segment 'new' outranks dynamic [submissionId] in the App Router (no collision while IDs are SUB-nnnn).",
+      "navPlace": "Create flow, step 1 (sidebar current item stays 'My experiments'; breadcrumb 'My experiments / Experiment')",
+      "archetype": "AR-5",
+      "components": [
+        "WorkspaceShell(Vendor; My experiments current)",
+        "Breadcrumbs('My experiments' / 'Experiment') + BackLink 'My experiments'",
+        "EditorHeader(overline '<Create experiment | Edit draft | Revise and resubmit> · Step n of 4', H1 step title, ID line 'Not saved yet' | 'SUB-0077 · draft' | 'SUB-0077 · revision 1 was returned')",
+        "Stepper(4 steps, ol aria-label='Steps', labels Course · Formats · Preview · Check, aria-current='step', is-done; not clickable; only current label <600px)",
+        "SavedMessage(role=status)",
+        "ErrorSummary(role=alert, heading 'Check this step', links to each field; receives focus)",
+        "Field(label, hint linked by aria-describedby, aria-invalid, inline error)",
+        "Select 'Course' (assigned courses only)",
+        "TextInput 'Experiment name'",
+        "Textarea 'Summary'",
+        "Textarea 'Description'",
+        "TextInput 'Version'",
+        "InfoNote 'Prototype field set — … still open (T-29). Learning outcomes are added by the Academic Reviewer.'",
+        "ButtonBar(Cancel link · Save draft secondary · Continue primary)"
+      ],
+      "states": [
+        "new / all empty — caption 'VE-03 Create experiment · step 1 · 1440 · interactive · 10 Aug 2026': “Choose the course → name it → summary, description, version → Continue. Validation, Save draft and Cancel are live. Everything starts empty.”",
+        "tablet — caption 'Tablet 768 · interactive': “Usable at 768 px (VE-F3).”",
+        "mobile — caption 'Mobile 375 · interactive': “Single column; actions wrap.”",
+        "validation error — caption 'Validation · nothing entered': “Error summary links to each field.” Errors: 'Choose a course' · 'Enter the experiment name' · 'Enter a one-sentence summary' · 'Enter a description' · 'Enter a version, for example 1.0'",
+        "name already in use — caption 'Name already in use': “Sample: the published “Composite Wall Conduction” already has the name.” Error 'An experiment called “Composite Wall Conduction” already exists. Choose a different name.'",
+        "course no longer assigned — caption 'Course no longer assigned': “MEL ZG512 was withdrawn while Anil was editing (sample): choose one of your courses.” Hint 'You chose MEL ZG512 · Manufacturing Processes, which was withdrawn from your courses while you were editing.' Error 'MEL ZG512 is no longer one of your assigned courses. Choose one of your courses.'",
+        "draft saved — caption 'Draft saved · SUB-0077': “Only the Vendor can see a draft. The ID is given on first save.” Status message 'Draft saved · 11 Aug 2026, 17:40'",
+        "save-draft refused without a name (engine saveDraft: error 'Enter a name to save a draft', jumps to step 1) — template state, not a captioned frame",
+        "responsive proof B5-09 'Create experiment · Course and description (interactive)' 1440/1024/768/375"
+      ],
+      "actions": [
+        "Save draft → SUB (new → Draft; ID assigned on first save; history 'Draft saved' / 'Only you can see a draft.'); [requires Experiment name only — 'Enter a name to save a draft']; no confirm",
+        "Continue → validate step 1 (course required and assigned; name required and unique case-insensitive vs catalogue + own experiments, own current name excluded; summary, description, version required) → VE-04; on error focus moves to the error summary; no status change",
+        "Cancel (link) → VE-02; no confirm or unsaved-changes dialog drawn"
+      ],
+      "outboundLinks": [
+        "Continue → VE-04",
+        "Cancel → VE-02",
+        "Breadcrumb / back link 'My experiments' → VE-02",
+        "Sidebar Overview → VE-01",
+        "Sidebar Help → XS-07"
+      ],
+      "records": [
+        "SUB",
+        "CRS",
+        "ROLE"
+      ],
+      "evidence": "B5-03 frames 'VE-03 Create experiment · step 1 · 1440 · interactive · 10 Aug 2026', 'Tablet 768 · interactive', 'Mobile 375 · interactive', 'Validation · nothing entered', 'Name already in use', 'Course no longer assigned', 'Draft saved · SUB-0077'; annotations 'Steps', 'Course', 'Name', 'Field set', 'Not here'; engine e1() and saveDraft(); B5-09 frames 8–11"
+    },
+    {
+      "id": "VE-04",
+      "title": "Create experiment · Formats & delivery (editor step 2)",
+      "screenType": "step",
+      "proposedRoute": "/vendor/experiments/[submissionId]/edit?step=formats",
+      "recommendedRoute": "/vendor/experiments/[submissionId]/edit?step=formats (saved) · /vendor/experiments/new?step=formats (not yet saved)",
+      "routeNotes": "Proposed route assumes an ID, but an unsaved new experiment reaches step 2 via Continue without an ID (OD-B5-07; engine next()). Same editor serves create, edit draft and revise; in revise mode use /revise?step=formats.",
+      "navPlace": "Create flow, step 2",
+      "archetype": "AR-5",
+      "components": [
+        "EditorHeader + Stepper(4) + ErrorSummary + SavedMessage (as VE-03)",
+        "CheckboxGroup 'Formats it supports' (WEB Browser (WEB) · AR Augmented reality (AR) · VR Virtual reality (VR) · MR Mixed reality (MR)); group error under the legend",
+        "FormatDeliveryPanel(WEB variant: 'Browser (WEB) · Web link' — Web link, Browser and computer needed, Notes for WEB (optional))",
+        "FormatDeliveryPanel(Package variant for AR / VR / MR: '<Augmented|Virtual|Mixed> reality (XX) · App package', provisional note T-14, Package label, Package reference, Package file (optional) with Choose file / Remove, Device needed, Install notes, Notes for XX (optional))",
+        "FileAttachRow('<file> (sample file)' + Remove, aria-label 'Remove the VR package file')",
+        "FormatChip",
+        "ButtonBar(Back · Save draft · Continue)"
+      ],
+      "states": [
+        "default / no format ticked — caption 'VE-04 Formats and delivery · step 2 · 1440 · interactive · 11 Aug 2026': “Tick WEB and VR → one panel opens per format → fill the web link, browser need, package label, reference (or attach the file), device need and install notes → Continue. Untick to close a panel.”",
+        "package file instead of reference — caption 'Package file instead of a reference': “A sample file name only — nothing is uploaded in this prototype.” (VR_file 'composite-wall-vr-1.0.zip', VR_ref empty)",
+        "mobile — caption 'Mobile 375 · interactive': “Checkboxes stack; panels are full width.”",
+        "filled — caption 'WEB + VR filled (sample)': “What Anil entered for SUB-0077 on 11 Aug 2026 (revision 1).” (VR device need 'VR headset' — the value later returned)",
+        "validation error — caption 'Validation': “Link must start with https://; each package needs a label, a reference or file, a device and install notes.” Errors: 'Enter a web link that starts with https://' · 'Say which browser and computer WEB needs' · 'Enter a package reference for VR, or attach the package file' · 'Say which device VR needs' · 'Add install notes for VR'",
+        "no format chosen — caption 'No format chosen': “Choose at least one format”.",
+        "all four formats — caption 'All four formats chosen': “Each format gets its own panel; AR, VR and MR share the app-package fields.”",
+        "responsive proof B5-09 'Formats and delivery (interactive)' 1440/1024/768/375"
+      ],
+      "actions": [
+        "Tick / untick a format → opens / closes its delivery panel (engine keeps entered values in state when unticked; whether product discards them is not stated)",
+        "Choose file (AR/VR/MR) → attaches a SAMPLE file name, clears the reference error (nothing uploaded; T-14 / OD-B5-02)",
+        "Remove (package file) → clears the file",
+        "Back → VE-03 (no validation; AR-5 'Back never loses work')",
+        "Save draft → SUB saved (Draft) [requires name]",
+        "Continue → validate step 2 → VE-05"
+      ],
+      "outboundLinks": [
+        "Back → VE-03",
+        "Continue → VE-05",
+        "Breadcrumb 'My experiments' → VE-02",
+        "Sidebar Help → XS-07"
+      ],
+      "records": [
+        "SUB"
+      ],
+      "evidence": "B5-04 frames 'VE-04 Formats and delivery · step 2 · 1440 · interactive · 11 Aug 2026', 'Package file instead of a reference', 'Mobile 375 · interactive', 'WEB + VR filled (sample)', 'Validation', 'No format chosen', 'All four formats chosen'; annotations 'One panel per format', 'Provisional', 'Governance', 'Not designed'; engine e2(); B5-09 frames 12–15"
+    },
+    {
+      "id": "VE-05",
+      "title": "Create experiment · Preview & documents (editor step 3)",
+      "screenType": "step",
+      "proposedRoute": "/vendor/experiments/[submissionId]/edit?step=preview",
+      "recommendedRoute": "/vendor/experiments/[submissionId]/edit?step=preview (saved) · /vendor/experiments/new?step=preview (not yet saved)",
+      "routeNotes": "Same as VE-04. VE-05 and VE-06 share board B5-05.",
+      "navPlace": "Create flow, step 3",
+      "archetype": "AR-5",
+      "components": [
+        "EditorHeader + Stepper(4) + ErrorSummary + SavedMessage",
+        "InfoNote 'Everything here is optional. A preview reaches the public only if the experiment is published.'",
+        "Fieldset 'Preview': TextInput 'Preview label (optional)' hint 'For example: Two-minute walkthrough'; TextInput 'Preview link (optional)' hint 'Starts with https://'",
+        "DocumentList 'Documents (optional)' — 'Handouts or notes for the Academic Reviewer and the catalogue.'; rows '<name> (sample file)' + Remove (aria 'Remove <name>'); empty 'No documents added.'; 'Add document' button",
+        "ButtonBar(Back · Save draft · Continue)"
+      ],
+      "states": [
+        "default / all optional, empty — caption 'VE-05 Preview and documents · step 3 · interactive': “All optional: add a preview label + link, add or remove documents (sample file names), Continue.”",
+        "validation error — caption 'Preview label without a link': “A preview label without a valid link is an error.” Error 'Add a preview link for “Two-minute walkthrough”, or remove the label'; also 'Enter a preview link that starts with https://' when a link is not https (engine e3)",
+        "documents added (two sample documents shown in the 'Preview label without a link' frame)",
+        "'Add document' hidden when the sample pool is exhausted (engine o.canAddDoc) — prototype only"
+      ],
+      "actions": [
+        "Add document → adds a document (prototype adds the next sample file name; real picker, types and sizes not designed — OD-B5-11)",
+        "Remove (document) → removes it",
+        "Back → VE-04",
+        "Save draft → SUB saved",
+        "Continue → validate step 3 (link optional but must be https://; label without link is an error; link without label allowed — OD-B5-08) → VE-06"
+      ],
+      "outboundLinks": [
+        "Back → VE-04",
+        "Continue → VE-06",
+        "Breadcrumb 'My experiments' → VE-02"
+      ],
+      "records": [
+        "SUB"
+      ],
+      "evidence": "B5-05 frames 'VE-05 Preview and documents · step 3 · interactive', 'Preview label without a link'; engine e3(), o.addDoc; OD-B5-08, OD-B5-11"
+    },
+    {
+      "id": "VE-06",
+      "title": "Check & submit (editor step 4)",
+      "screenType": "step",
+      "proposedRoute": "/vendor/experiments/[submissionId]/edit?step=submit",
+      "recommendedRoute": "/vendor/experiments/[submissionId]/edit?step=submit (saved) · /vendor/experiments/new?step=submit (not yet saved; submit assigns the ID)",
+      "routeNotes": "The post-submit confirmation ('Submitted for academic review') is a state of this step, not a separate route.",
+      "navPlace": "Create flow, step 4",
+      "archetype": "AR-5 + DL-1",
+      "components": [
+        "EditorHeader + Stepper(4)",
+        "ReadinessNotice(3 variants: role=status 'Everything required is provided — You can submit it for academic review now.'; role=status quiet '<n> things to finish before you can submit — Finish them, or save a draft and come back.'; role=alert '<n> things to finish before you can submit' with MissingItemsList)",
+        "MissingItemsList(each item = error text + button 'Go to <step title>' jumping to step and field)",
+        "Checklist(ul aria-label 'What you have provided': Course and description · Formats and delivery · Preview and documents (optional); state 'Provided' | '<n> missing' | 'None — optional' | 'Preview link missing'; 'Change' button, aria 'Change <section>')",
+        "KeyValueSummary(Experiment · Course · Version · Formats · Preview · Documents; label-over-value <600px)",
+        "LearningOutcomesReadOnly('Added by the Academic Reviewer · read-only'; empty 'None yet. The Academic Reviewer adds them during review — one set for every format.'; filled 'One set for every format.' + list)",
+        "InfoNote 'Submitting sends it to the Academic Reviewer. It does not publish anything.'",
+        "ButtonBar(Back · Save draft · 'Submit for academic review' primary)",
+        "ConfirmDialog DL-1 (no reason field; Close icon button; 'Cancel' + 'Submit for academic review'; busy 'Submitting…' aria-disabled; focus to primary; Cancel returns focus to Submit; opens beside Submit at foot of page)",
+        "ResultPanel('Submitted for academic review' + 'Open the experiment record' + 'Back to My experiments')"
+      ],
+      "states": [
+        "ready — caption 'VE-06 Check and submit · step 4 · 1440 · interactive · 12 Aug 2026': “Everything required is provided → Submit for academic review → DL-1 (“It does not publish anything”) → Submitted · SUB-0077 · With Academic Reviewer. “Change” jumps back to a step.”",
+        "submitted (success) — caption 'Submitted · SUB-0077 · 12 Aug 2026': “With the Academic Reviewer. Nothing is published.” Copy: 'Submitted for academic review' / '<SUB-0077 · name> is with the Academic Reviewer. Nothing is published. You can’t edit it while it is being reviewed.'",
+        "mobile — caption 'Mobile 375 · interactive': “Checklist rows and actions stack.”",
+        "missing items (validation) — caption 'Missing items listed': “Submit pressed with three things missing: each links to its step.” (sample: WEB link, VR device need, preview link) — nothing is sent",
+        "dialog open — caption 'DL-1 · submit for academic review': “Opens beside Submit at the foot of the page.” Title 'Submit for academic review?' Body 'This sends “<name>” to the Academic Reviewer. It does not publish anything.' + 'You can’t edit it while it is being reviewed. If it comes back to you, you can revise it.'",
+        "quiet missing (arrived at step 4 with gaps, before pressing Submit) — template state (engine quietMissing), reachable live",
+        "submitting (busy) — template: 'Submitting…' aria-disabled",
+        "responsive proof B5-09 'Check and submit (interactive)' 1440/1024/768/375; live start state on B5-08 editor frame"
+      ],
+      "actions": [
+        "Change (per checklist row) → jumps to step 1 / 2 / 3 (focus heading)",
+        "Go to <step> (per missing item) → jumps to that step with its errors shown, focus on the field",
+        "Back → VE-05",
+        "Save draft → SUB saved (Draft)",
+        "Submit for academic review → if anything required is missing: lists missing items, nothing sent; else opens DL-1 [confirm dialog] [no reason]",
+        "DL-1 'Submit for academic review' → SUB: Draft (or unsaved new) → With Academic Reviewer; ID assigned if absent; history 'Submitted for academic review' / 'With the Academic Reviewer. Nothing is published.'; editor becomes read-only for the Vendor",
+        "DL-1 'Cancel' / Close → closes, focus returns to Submit",
+        "Open the experiment record → VE-07",
+        "Back to My experiments → VE-02"
+      ],
+      "outboundLinks": [
+        "Change → VE-03 / VE-04 / VE-05",
+        "Go to formats and delivery → VE-04",
+        "Go to preview and documents → VE-05",
+        "Back → VE-05",
+        "Open the experiment record → VE-07",
+        "Back to My experiments → VE-02"
+      ],
+      "records": [
+        "SUB",
+        "LO"
+      ],
+      "evidence": "B5-05 frames 'VE-06 Check and submit · step 4 · 1440 · interactive · 12 Aug 2026', 'Submitted · SUB-0077 · 12 Aug 2026', 'Mobile 375 · interactive', 'Missing items listed', 'DL-1 · submit for academic review'; annotations 'Checklist', 'Missing items', 'DL-1', 'After submitting'; engine submit()/doSubmit()/o.checklist/o.missing; B5-09 frames 16–19; board 10 DL-1"
+    },
+    {
+      "id": "VE-07",
+      "title": "Experiment record (status, details, timeline)",
+      "screenType": "page",
+      "proposedRoute": "/vendor/experiments/[submissionId]",
+      "recommendedRoute": "/vendor/experiments/[submissionId]",
+      "routeNotes": "Keep. History (VE-13) is a section of this page, not a tab — use an anchor (#history) rather than ?tab=history.",
+      "navPlace": "Detail (from My experiments; breadcrumb 'My experiments / Experiment record'; sidebar current 'My experiments')",
+      "archetype": "AR-3",
+      "components": [
+        "WorkspaceShell(Vendor; My experiments current)",
+        "Breadcrumbs('My experiments' / 'Experiment record') + BackLink 'My experiments'",
+        "RecordHeader(meta line '<SUB-id> · <course code> [· revision n]', H1 experiment name, StatusChip)",
+        "RecordStatusBanner(role=status; one variant per state; at most one action)",
+        "ReturnReasonBox(heading 'Returned by the <Academic Reviewer|Content Manager>', '<date, time> · <person>', reason text, 'What it refers to' list — plain text on the record)",
+        "DetailsList(Course · Summary · Description · Version · Formats (chips) · Preview · Documents; label-over-value <600px)",
+        "DeliveryCards(one per format: WEB 'Web link' rows Web link / Browser and computer / Notes; package 'App package' rows Package label / Package reference / Package file / Device needed / Install notes / Notes)",
+        "LearningOutcomesReadOnly",
+        "HistoryTimeline('Submission and version history' · 'Newest first · not an audit log'; what · when · note)",
+        "ReadOnlyNotice(course withdrawn)"
+      ],
+      "states": [
+        "With Academic Reviewer (revision 2) — caption 'VE-07 Experiment record · SUB-0077 · 1440 · 27 Aug 2026': “Status banner → details (course, formats, delivery per format) → learning outcomes (read-only) → history, newest first. With the Academic Reviewer: nothing to do, no edit.” Banner 'With the Academic Reviewer — Nothing is needed from you now. You can edit it again only if it is returned to you.'",
+        "Draft — caption 'Draft': “SUB-0079 Pin Fin Efficiency · only the Vendor can see it.” Banner 'Draft — only you can see it — Finish it and submit it for academic review.' + 'Edit draft'",
+        "With Academic Reviewer · revision 1 (read-only) — caption 'With Academic Reviewer · revision 1': “12 Aug 2026 · read-only for the Vendor.” Outcomes 'None yet…'",
+        "Returned by the Academic Reviewer — caption 'Returned by the Academic Reviewer': “19 Aug 2026 · reason and what it refers to at the top · learning outcomes now added.” Reason 'Please clarify the VR device requirements.' · 'Formats & delivery · VR · Device need' + 'Revise & resubmit'",
+        "Submitted (after resubmit, M-3) — caption 'Submitted (after the resubmit)': “26 Aug 2026 · neutral; no gate named (M-3).” Banner 'Submitted — Your changes have been submitted for review. Nothing is needed from you now.'",
+        "With Content Manager — caption 'With Content Manager': “SUB-0074 Transient Cooling · approved by the Academic Reviewer.” Banner 'With the Content Manager — Approved by the Academic Reviewer on 14 Aug 2026. The Content Manager decides whether to publish it. Nothing is needed from you now.'",
+        "Returned by the Content Manager — caption 'Returned by the Content Manager': “Reason + what it refers to → Revise & resubmit.” (Kavya Nair, 22 Aug 2026, 10:40; ref 'Course & description · Summary')",
+        "Back with the Academic Reviewer for a re-check — caption 'Back with the Academic Reviewer for a re-check': ““Nothing is needed from you.”” Banner 'Back with the Academic Reviewer for a re-check — The Content Manager asked the Academic Reviewer to look at it again. Nothing is needed from you.' (chip 'With Academic Reviewer')",
+        "Published · read-only — caption 'Published · read-only': “SUB-0052 Fin-Tube Bundle · formats published WEB and VR.” Banner 'Published · 30 Jul 2026 — It is live in the catalogue with the formats below. It is read-only here.' Details note 'Formats published: WEB · VR. Changes to a published experiment are not made from the Vendor workspace.'",
+        "Course no longer assigned · read-only — caption 'Course no longer assigned · read-only': “SUB-0083 · MEL ZG512 withdrawn on 15 Aug 2026 (sample).” Chip 'Draft · read-only'; banner 'MEL ZG512 is no longer assigned to you — Withdrawn from Northline Simulation Studio on 15 Aug 2026. This draft is kept, read-only. BITS / WILP decides which courses are yours.'",
+        "mobile — caption 'Mobile 375 · returned': “Banner, details and history stack; label above value.”",
+        "live chain on B5-08 frame 'Vendor · Experiment record': Draft → With Academic Reviewer → Returned → Submitted (revision 2) → With Academic Reviewer · revision 2",
+        "Returned · revision 2 (second return) — drawn live on B6-12 path B ('Vendor record: Returned · revision 2, the new reason and references above; the 19 Aug return and the resubmission stay in the history')",
+        "responsive proof B5-09 'Experiment record · returned' 1440/1024/768/375",
+        "loading / failed / not found: NOT drawn on B5 (board 08 'Page not found · workspace' / XS-06 apply by inference)"
+      ],
+      "actions": [
+        "Edit draft → VE-09 [only in Draft]",
+        "Revise & resubmit → VE-08 [only in Returned — by Academic Reviewer or Content Manager]",
+        "No action in With Academic Reviewer · Submitted · With Content Manager · re-check · Published · Draft · read-only (designed absence)"
+      ],
+      "outboundLinks": [
+        "Edit draft → VE-09",
+        "Revise & resubmit → VE-08",
+        "Breadcrumb / back link 'My experiments' → VE-02",
+        "Sidebar Overview → VE-01",
+        "Sidebar Help → XS-07"
+      ],
+      "records": [
+        "SUB",
+        "LO",
+        "EXP",
+        "CRS"
+      ],
+      "evidence": "B5-06 all 11 frames (captions quoted in states); annotations 'Banner by state', 'After a resubmit', 'Published', 'History'; engine o.canEdit (st==='draft') / o.canRevise (returned | returned_cm); B5-08 frame 'Vendor · Experiment record'; B6-12 paths A/B/C; Register v2 VE-F4"
+    },
+    {
+      "id": "VE-08",
+      "title": "Revise & resubmit (after a return)",
+      "screenType": "step",
+      "proposedRoute": "/vendor/experiments/[submissionId]/revise",
+      "recommendedRoute": "/vendor/experiments/[submissionId]/revise?step=course|formats|preview|submit",
+      "routeNotes": "Revise mode is the same 4-step editor (overline 'Revise and resubmit · Step n of 4'); 'What it refers to' links jump to a step and focus a field (engine retRefs: step + field id, e.g. step 2 / VR_device), so a step param (and optionally a field hash) is needed. Only valid while status is Returned; for other statuses the editor shows its read-only view state (see VE-09 guard states).",
+      "navPlace": "Flow (from VE-01 'Revise “…”', VE-02 'Revise', VE-07 'Revise & resubmit')",
+      "archetype": "AR-5 + DL-1",
+      "components": [
+        "EditorHeader(overline 'Revise and resubmit · Step n of 4', ID line '<SUB-id> · revision <n> was returned')",
+        "ReturnReasonBox(placed ABOVE the stepper/editor: 'Returned by the <role>', '<date, time> · <person>', reason in their words, 'What it refers to' as jump buttons aria 'Go to <ref>'; full-width links on mobile)",
+        "Stepper(4) + all editor step components (VE-03…VE-06)",
+        "SavedMessage('Changes saved · <date, time> · not resubmitted yet')",
+        "LearningOutcomesReadOnly (step 4)",
+        "ButtonBar(Cancel | Back · 'Save changes' · Continue | 'Resubmit')",
+        "ConfirmDialog DL-1 resubmit variant (title 'Resubmit your changes?', body 'Your changes are submitted for review. This does not publish anything.' + 'You can’t edit it while it is being reviewed. If it comes back to you, you can revise it.'; buttons 'Keep editing' + 'Resubmit'; busy 'Submitting…')",
+        "ResultPanel('Submitted' / 'Your changes have been submitted for review.' / '<SUB-id · name> · nothing is needed from you now.' + 'Open the experiment record' + 'Back to My experiments')"
+      ],
+      "states": [
+        "revise step 1 with reason (Academic Reviewer return) — caption 'VE-08 Revise and resubmit · SUB-0077 · 1440 · interactive · 26 Aug 2026': ““What it refers to” jumps to Formats and delivery → VR → Device needed → change it → Continue to step 4 → Resubmit → DL-1 → “Submitted — your changes have been submitted for review.””",
+        "Content Manager return — caption 'Returned by the Content Manager · interactive': “SUB-0074: the reason refers to the summary in step 1.”",
+        "two references — caption 'Two references · interactive': “SUB-0081 Forced Convection — the top item on the Overview (“Revise “Forced Convection””).” refs 'Formats & delivery · AR · Device need', 'Formats & delivery · AR · Install notes'",
+        "step 4 ready to resubmit — caption 'Step 4 · ready to resubmit': “VR device need now says which headset and that no PC is needed.”",
+        "submitted (success, M-3) — caption 'Submitted (M-3)': “Neutral: no reviewer, Content Manager or other gate named.”",
+        "tablet — caption 'Tablet 768 · interactive': “Usable at 768 px.”",
+        "mobile — caption 'Mobile 375 · interactive': “Reason box first; references are full-width links.”",
+        "changes saved (template / live): 'Changes saved · 26 Aug 2026, 11:12 · not resubmitted yet'",
+        "dialog open DL-1 resubmit (live on B5-07 / B5-08 / B5-09)",
+        "validation errors / missing items as in VE-03…VE-06 (same engine)",
+        "responsive proof B5-09 'Revise and resubmit (interactive)' 1440/1024/768/375"
+      ],
+      "actions": [
+        "What it refers to (<step · format · field>) → jumps to that step, focuses the field (no data change)",
+        "Save changes → stores edits; SUB stays Returned; message 'not resubmitted yet'; no history entry",
+        "Continue / Back / Change → step navigation with per-step validation (as create)",
+        "Cancel (link, step 1) → VE-02 (no confirm drawn)",
+        "Resubmit → missing items listed if incomplete, else DL-1 [confirm dialog] [no reason]",
+        "DL-1 'Resubmit' → SUB: Returned → Submitted; revision n → n+1; return reason cleared from banner; history 'Submitted · revision <n+1>' / 'Your changes have been submitted for review.'; next gate NOT named (M-3)",
+        "DL-1 'Keep editing' → closes, focus to Resubmit",
+        "Open the experiment record → VE-07; Back to My experiments → VE-02",
+        "Course and formats may be changed while revising — not restricted (OD-B5-06)"
+      ],
+      "outboundLinks": [
+        "What it refers to → VE-04 / VE-03 field (within editor)",
+        "Cancel → VE-02",
+        "Open the experiment record → VE-07",
+        "Back to My experiments → VE-02"
+      ],
+      "records": [
+        "SUB",
+        "LO"
+      ],
+      "evidence": "B5-07 frames 0–4, 7, 8 (captions quoted); annotations 'Reason first', 'Same editor', 'Resubmit', 'Read-only'; engine startRevise()/doSubmit() mode==='revise'; B5-08 steps 2–3 and board-control table; B5-09 frames 24–27; Register v2 M-3"
+    },
+    {
+      "id": "VE-09",
+      "title": "Edit draft",
+      "screenType": "step",
+      "proposedRoute": "/vendor/experiments/[submissionId]/edit",
+      "recommendedRoute": "/vendor/experiments/[submissionId]/edit?step=… (default = the step where the Vendor stopped)",
+      "routeNotes": "Merged into the VE-03…06 editor. The draft opens at the step where the Vendor stopped (caption 'VE-09 Edit draft · interactive': SUB-0079 opens at step 2) → the SUB needs a persisted last-step value (inferred data need). /edit for a non-draft SUB renders the editor's read-only view states, not the form.",
+      "navPlace": "Flow (from VE-01 'Finish draft', VE-02 'Edit draft', VE-07 'Edit draft')",
+      "archetype": "AR-5",
+      "components": [
+        "Same editor as VE-03…VE-06 (overline 'Edit draft · Step n of 4', ID line '<SUB-id> · draft')",
+        "ReadOnlyNotice + 'What you entered' summary (Course · Summary · Version · Formats + DeliveryCards) for a withdrawn course",
+        "EditorViewState banners for non-editable statuses (role=status) with 'Open the experiment record'"
+      ],
+      "states": [
+        "edit draft — caption 'VE-09 Edit draft · interactive': “SUB-0079 Pin Fin Efficiency opens at step 2, where Anil stopped.”",
+        "read-only — caption 'Read-only — course no longer assigned': “MEL ZG512 withdrawn on 15 Aug 2026 (sample). Nothing can be changed or submitted.” Copy 'MEL ZG512 is no longer assigned to you — MEL ZG512 · Manufacturing Processes was withdrawn from Northline Simulation Studio on 15 Aug 2026. This draft is kept, read-only. BITS / WILP decides which courses are yours.' + 'What you entered' + 'Back to My experiments' + 'Ask for help'",
+        "editor view state 'With the Academic Reviewer — You can’t edit it while it is being reviewed. If it is returned to you, you can revise it here.' + 'Open the experiment record' (template; live on B5-08 after submit)",
+        "editor view state 'Submitted — Your changes have been submitted for review. Nothing is needed from you now.' + 'Open the experiment record' (template; live on B5-08)",
+        "editor view state 'Returned' — reason box + 'Revise & resubmit' button (template; live on B5-08)",
+        "all VE-03…VE-06 step states apply (validation, missing items, DL-1, submitted)"
+      ],
+      "actions": [
+        "Save draft → SUB stays Draft",
+        "Continue / Back / Change → step navigation",
+        "Submit for academic review (step 4) → DL-1 → SUB: Draft → With Academic Reviewer",
+        "Back to My experiments (read-only) → VE-02",
+        "Ask for help (read-only) → XS-07",
+        "Revise & resubmit (editor view state for Returned) → revise mode (VE-08)",
+        "Open the experiment record (view states) → VE-07"
+      ],
+      "outboundLinks": [
+        "Back to My experiments → VE-02",
+        "Ask for help → XS-07",
+        "Open the experiment record → VE-07",
+        "Revise & resubmit → VE-08"
+      ],
+      "records": [
+        "SUB",
+        "CRS",
+        "ROLE"
+      ],
+      "evidence": "B5-07 frames 'VE-09 Edit draft · interactive', 'Read-only — course no longer assigned'; editor template blocks n.idle (st_with_rv / st_submitted / st_returned) and n.isReadonly in B5-03…B5-07 markup; B5-08 live chain; OD-B5-01"
+    },
+    {
+      "id": "VE-13",
+      "title": "Submission & version history (merged: record timeline + 'Changed in the last 7 days' filter)",
+      "screenType": "tab",
+      "proposedRoute": "/vendor/experiments/[submissionId]?tab=history",
+      "recommendedRoute": "/vendor/experiments/[submissionId]#history (section of VE-07) + /vendor/experiments?recent=1 (filter on VE-02)",
+      "routeNotes": "Board wins over screens.json: B5-06 draws history as the last SECTION of the record page ('Submission and version history · Newest first · not an audit log'), with no tab control anywhere on the page; B5-02 draws the merged filter as a checkbox. A ?tab=history route would invent a tab UI.",
+      "navPlace": "Record section (VE-07) + filter on VE-02",
+      "archetype": "Timeline (B5-00 register: 'Timeline'); component xr-timeline (B8-07)",
+      "components": [
+        "HistoryTimeline(newest first; what · when · note; 'not an audit log')",
+        "Checkbox filter 'Changed in the last 7 days' (VE-02)"
+      ],
+      "states": [
+        "timeline per VE-07 state (all 11 B5-06 frames). Vendor-facing event wording drawn: 'Created' · 'Draft saved' ('Only you can see a draft.') · 'Submitted for academic review' ('With the Academic Reviewer. Nothing is published.') · 'Returned with a reason' ('Academic Reviewer: “…”' or 'Content Manager: “…”') · 'Submitted · revision n' ('Your changes have been submitted for review.') · 'With Academic Reviewer · revision n' ('Routed by the approved workflow rule.') · 'Approved by the Academic Reviewer' ('With the Content Manager.') · 'Back with the Academic Reviewer for a re-check' ('Sent back by the Content Manager. Nothing is needed from you.') · 'Published by the Content Manager' ('WEB and VR are live in the catalogue.') · 'Course withdrawn from Northline Simulation Studio' ('Read-only from now on.')",
+        "filter on/off on VE-02 (sample recent set SUB-0077, SUB-0081, SUB-0079 — OD-B5-13)"
+      ],
+      "actions": [
+        "Changed in the last 7 days (checkbox on VE-02) → filters the list (no data change)",
+        "Timeline is display-only"
+      ],
+      "outboundLinks": [],
+      "records": [
+        "SUB"
+      ],
+      "evidence": "B5-06 annotation 'History' “Submission and version history as a timeline — not an audit log (VE-13).”; B5-02 annotation 'Filters' “… “Changed in the last 7 days” (the merged history filter, VE-13).”; B5-00 register row VE-13; derived/screen-frames.json 'No frame caption names this ID'"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "VE-10",
+      "disposition": "DEFER / OPEN (LD-4; historical evidence only) — 'Propose an update (corrected version)'",
+      "note": "Not designed. No designed screen links to it: B5-10 policy check “No “Propose an update”, “Updates”, “Update detail” or “Add a format” anywhere (script check)”; B8-01 'No entry point (link scan)'. The phrase occurs on B5 boards only in canvas annotations (B5-01 header meta 'No “Propose an update” (LD-4)', B5-03 'Not here', B5-06 header meta and 'Published' note). All hrefs on B5-01…B5-08 resolve only to B5-01/02/03/04/05/06/07, 07-Help-Support and (B5-08 doc cells) B6-03/B6-12. The old prototype had #/vendor/:a/experiment/:id/version — do not port."
+    },
+    {
+      "id": "VE-11",
+      "disposition": "DEFER / OPEN (LD-4) — 'Updates' (no sidebar item)",
+      "note": "Not designed; no entry point (B8-01 link scan; board 06 rule 'no … Vendor Updates'). navigation.json Vendor primary = Overview · My experiments · Help only. Old prototype route #/vendor/:a/versions — do not port."
+    },
+    {
+      "id": "VE-12",
+      "disposition": "DEFER / OPEN (LD-4) — 'Update detail'",
+      "note": "Not designed; no entry point (B8-01). Old prototype #/vendor/:a/version/:id — do not port."
+    },
+    {
+      "id": "VE-14",
+      "disposition": "DEFER / OPEN (post-publication change — LD-4) — 'Add a format to a published experiment'",
+      "note": "Not designed; no control. B5-04 annotation 'Not designed': “Holding back one format while others pass, and adding a format after publication (T-26 residual · VE-14) — no controls for either.” Published record is read-only (B5-06 'Published · read-only')."
+    },
+    {
+      "id": "VE-15",
+      "disposition": "REMOVE (no defined function; R13 / R14) — 'Experiment packages · Technical assets · Contributor settings'",
+      "note": "Not designed; B5-10 'Rail placeholders (Experiment packages, Technical assets, Contributor settings) — Remove'. No link anywhere (B8-01). Note: screens.json disposition is REMOVE, not DEFER."
+    }
+  ],
+  "permissionEvidence": [
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Start a new experiment (open editor)",
+      "stateBefore": "—",
+      "stateAfter": "unsaved new (no ID, 'Not saved yet')",
+      "scope": "own (creator); course must be one of the Vendor's assigned courses",
+      "evidence": "B5-01 / B5-02 'Create experiment' → B5-03; B5-03 caption 'VE-03 Create experiment · step 1 …'",
+      "strength": "designed-control",
+      "notes": "No ID until first save (OD-B5-07)."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Save draft (first save)",
+      "stateBefore": "unsaved new",
+      "stateAfter": "Draft (ID assigned, history 'Draft saved')",
+      "scope": "own",
+      "evidence": "B5-03 frame 'Draft saved · SUB-0077' “Only the Vendor can see a draft. The ID is given on first save.”; engine saveDraft()",
+      "strength": "designed-control",
+      "notes": "Requires only the Experiment name ('Enter a name to save a draft'); course etc. may be empty."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Edit draft / Save draft",
+      "stateBefore": "Draft",
+      "stateAfter": "Draft",
+      "scope": "own; course still assigned",
+      "evidence": "B5-06 frame 'Draft' banner action 'Edit draft'; B5-07 'VE-09 Edit draft · interactive'; engine o.canEdit = st==='draft'",
+      "strength": "designed-control",
+      "notes": "Edit is offered only in Draft (and revise only in Returned)."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Submit for academic review (DL-1, no reason)",
+      "stateBefore": "Draft (or unsaved new)",
+      "stateAfter": "With Academic Reviewer (revision 1)",
+      "scope": "own; all required fields provided",
+      "evidence": "B5-05 caption 'VE-06 Check and submit …' and 'DL-1 · submit for academic review'; dialog body “It does not publish anything.”; flows.json E1",
+      "strength": "designed-control",
+      "notes": "Submit with gaps lists missing items; nothing is sent (B5-05 'Missing items')."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Edit or submit while under review",
+      "stateBefore": "With Academic Reviewer · Submitted · With Content Manager · back for re-check",
+      "stateAfter": "— (no change)",
+      "scope": "own",
+      "evidence": "B5-06 banners 'Nothing is needed from you now. You can edit it again only if it is returned to you.'; B5-05 result 'You can’t edit it while it is being reviewed.'; B5-06 caption 'With the Academic Reviewer: nothing to do, no edit.'",
+      "strength": "designed-absence",
+      "notes": "No withdraw/recall control drawn either."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Revise & resubmit (DL-1 'Resubmit', no reason)",
+      "stateBefore": "Returned (by Academic Reviewer or by Content Manager)",
+      "stateAfter": "Submitted · revision n+1 (Vendor-facing); then routed by the workflow rule",
+      "scope": "own",
+      "evidence": "B5-06 frames 'Returned by the Academic Reviewer' / 'Returned by the Content Manager' → 'Revise & resubmit'; B5-07 'Submitted (M-3)'; engine o.canRevise = returned | returned_cm",
+      "strength": "designed-control",
+      "notes": "M-3: copy never names the next gate."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Save changes while revising",
+      "stateBefore": "Returned",
+      "stateAfter": "Returned (edits kept, 'not resubmitted yet')",
+      "scope": "own",
+      "evidence": "B5-07 annotation 'Same editor' “Save changes keeps them without resubmitting.”; engine saveDraft isRev",
+      "strength": "designed-control",
+      "notes": ""
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Change course or formats while revising",
+      "stateBefore": "Returned",
+      "stateAfter": "Returned",
+      "scope": "own",
+      "evidence": "OD-B5-06 “Not restricted in the prototype — no rule invented; the Academic Reviewer sees the result.”; B5-07 revise editor fully editable",
+      "strength": "explicit-rule",
+      "notes": "Open policy."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB / EXP",
+      "action": "Edit, propose an update or add a format to a published experiment",
+      "stateBefore": "Published",
+      "stateAfter": "—",
+      "scope": "own",
+      "evidence": "B5-06 'Published · read-only': 'It is read-only here.' + 'Changes to a published experiment are not made from the Vendor workspace.'; B5-06 annotation 'Published'; B5-10 'No Vendor updates (LD-4)'",
+      "strength": "designed-absence",
+      "notes": "VE-10/11/12/14 DEFER/OPEN."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB / EXP",
+      "action": "Publish",
+      "stateBefore": "any",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "DL-1 body “It does not publish anything.”; B5-10 policy check 'Approve ≠ Publish (LD-4) — The Vendor never publishes.'; PM_CONFIRMED_UPDATE_2026-08-25 FRD 1.4.5",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Vendor",
+      "entity": "LO",
+      "action": "Add / edit learning outcomes",
+      "stateBefore": "any",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B5-05/B5-06 'Learning outcomes · Added by the Academic Reviewer · read-only'; B5-03 note 'Learning outcomes are added by the Academic Reviewer.'; STAKEHOLDER STK31-08 'Vendor does NOT own Learning Outcomes'; LD-3",
+      "strength": "explicit-rule",
+      "notes": "Shown read-only to the Vendor from the return onward (B5-06 'learning outcomes now added')."
+    },
+    {
+      "role": "Vendor",
+      "entity": "CRS",
+      "action": "Choose a course for the experiment",
+      "stateBefore": "—",
+      "stateAfter": "course set",
+      "scope": "assigned courses only (sample ME ZG523)",
+      "evidence": "B5-03 hint 'Only the courses assigned to Northline Simulation Studio are listed.'; annotation 'Course' “BITS / WILP sets them (Super Admin · Platform roles — Batch 7).”; T-29",
+      "strength": "explicit-rule",
+      "notes": "Board wording says assigned to the organisation; B7-08 holds scope on the person (Anil Shetty). See inconsistencies."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Edit or submit a draft whose course was withdrawn",
+      "stateBefore": "Draft",
+      "stateAfter": "Draft · read-only (kept)",
+      "scope": "own",
+      "evidence": "B5-07 'Read-only — course no longer assigned' “Nothing can be changed or submitted.”; B5-06 'Course no longer assigned · read-only'; OD-B5-01",
+      "strength": "designed-absence",
+      "notes": "An unsaved new experiment instead shows the course error and must choose another course."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "View own experiments in any status",
+      "stateBefore": "any",
+      "stateAfter": "—",
+      "scope": "own (experiments the Vendor created)",
+      "evidence": "B5-02 subtitle 'Every experiment you created, in any status'",
+      "strength": "explicit-rule",
+      "notes": "Organisation-wide visibility (other users of the same Vendor organisation) is not shown."
+    },
+    {
+      "role": "Academic Reviewer",
+      "entity": "SUB (Draft)",
+      "action": "See a Vendor draft",
+      "stateBefore": "Draft",
+      "stateAfter": "—",
+      "scope": "—",
+      "evidence": "B5-06 'Draft — only you can see it'; B5-03 caption “Only the Vendor can see a draft.”",
+      "strength": "explicit-rule",
+      "notes": "Applies equally to Content Manager and others (only the Vendor sees drafts)."
+    },
+    {
+      "role": "Vendor",
+      "entity": "SUB",
+      "action": "Attach package file / add or remove documents",
+      "stateBefore": "Draft or Returned (editing)",
+      "stateAfter": "same",
+      "scope": "own",
+      "evidence": "B5-04 'Choose file' / 'Remove'; B5-05 'Add document' / 'Remove'; captions 'A sample file name only — nothing is uploaded in this prototype.'",
+      "strength": "designed-control",
+      "notes": "No real upload (T-14, OD-B5-02, OD-B5-11); 'No source code'."
+    },
+    {
+      "role": "Academic Reviewer",
+      "entity": "SUB",
+      "action": "Return to vendor with a reason (references optional)",
+      "stateBefore": "With Academic Reviewer",
+      "stateAfter": "Returned",
+      "scope": "submissions in the reviewer's scope (B7-08 scope: all / course / one experiment)",
+      "evidence": "B5-08 step 2 (board control stands in); B6-03 'Reason required — the vendor sees it above their editor. “What it refers to” is optional; the vendor sees the same labels as links (OD-B5-10).'",
+      "strength": "explicit-rule",
+      "notes": "Vendor sees 'Returned by the Academic Reviewer'; staff boards show 'Returned to vendor'."
+    },
+    {
+      "role": "Academic Reviewer",
+      "entity": "LO",
+      "action": "Add the Experiment-level learning outcomes (one set for every format)",
+      "stateBefore": "With Academic Reviewer",
+      "stateAfter": "outcomes visible read-only to the Vendor at the decision",
+      "scope": "reviewer scope",
+      "evidence": "B5-08 step 2 'Adds three Experiment-level learning outcomes'; B5-00 cross-role 'LO'; OD-B6-04 (seen at the decision)",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Academic Reviewer",
+      "entity": "SUB",
+      "action": "Approve (does not publish)",
+      "stateBefore": "With Academic Reviewer",
+      "stateAfter": "With Content Manager",
+      "scope": "reviewer scope",
+      "evidence": "B5-06 frame 'With Content Manager' banner 'Approved by the Academic Reviewer on 14 Aug 2026.'; history 'Approved by the Academic Reviewer'; flows.json E3",
+      "strength": "explicit-rule",
+      "notes": ""
+    },
+    {
+      "role": "Content Manager",
+      "entity": "SUB",
+      "action": "Send back to the Vendor with a reason (+ optional references)",
+      "stateBefore": "With Content Manager",
+      "stateAfter": "Returned",
+      "scope": "platform (Content Manager scope per B7-08)",
+      "evidence": "B5-06 'Returned by the Content Manager'; B5-07 'Returned by the Content Manager · interactive'; OD-B6-05 references only when sending to the Vendor",
+      "strength": "explicit-rule",
+      "notes": "Whether the Vendor's resubmission after a CM return needs fresh academic review is open (OD-B5-05, M-3)."
+    },
+    {
+      "role": "Content Manager",
+      "entity": "SUB",
+      "action": "Send back to the Academic Reviewer for a re-check",
+      "stateBefore": "With Content Manager",
+      "stateAfter": "With Academic Reviewer (re-check)",
+      "scope": "platform",
+      "evidence": "B5-06 'Back with the Academic Reviewer for a re-check' (“Nothing is needed from you.”); B6-12 path C",
+      "strength": "explicit-rule",
+      "notes": "Vendor list chip shows 'With Academic Reviewer'; no Vendor action."
+    },
+    {
+      "role": "Content Manager",
+      "entity": "SUB → EXP",
+      "action": "Publish",
+      "stateBefore": "With Content Manager",
+      "stateAfter": "Published (Vendor record read-only)",
+      "scope": "platform",
+      "evidence": "B5-06 'With Content Manager' banner 'The Content Manager decides whether to publish it.'; 'Published · read-only' history 'Published by the Content Manager'; flows.json E4",
+      "strength": "explicit-rule",
+      "notes": "Publishing grants no access (binding constraint 9)."
+    },
+    {
+      "role": "System (approved workflow rule)",
+      "entity": "SUB",
+      "action": "Route a resubmission",
+      "stateBefore": "Submitted",
+      "stateAfter": "With Academic Reviewer · revision n (normal chain)",
+      "scope": "—",
+      "evidence": "B5-08 board control 'The workflow routes the resubmission (approved rule — normal chain)'; history note 'Routed by the approved workflow rule.'; OD-B5-05",
+      "strength": "explicit-rule",
+      "notes": "Board control is canvas-only; the product needs a mock-service rule."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "ROLE / CRS",
+      "action": "Assign / withdraw a Vendor's course scope (withdraw requires a reason)",
+      "stateBefore": "Draft in that course",
+      "stateAfter": "Draft · read-only",
+      "scope": "platform",
+      "evidence": "B5-06 / B5-07 read-only frames ('BITS / WILP decides which courses are yours'); B7-08 'Scope decides what appears in their workspace: a Vendor’s course list'; 'Withdraw scope · reason required'",
+      "strength": "explicit-rule",
+      "notes": "Effect on a SUB already With Academic Reviewer / Content Manager when the course is withdrawn: not shown."
+    },
+    {
+      "role": "Super Admin",
+      "entity": "SUB",
+      "action": "Override a stuck record back to the vendor (reason required)",
+      "stateBefore": "stuck with Academic Reviewer",
+      "stateAfter": "returned to vendor",
+      "scope": "platform; never into or out of Published",
+      "evidence": "OD-B7-09; B7-06 'Here the one supported move is back to the vendor'; B7-10 'Override — stuck records only, reason required'",
+      "strength": "explicit-rule",
+      "notes": "What the Vendor sees after an override (banner/reason source) is not drawn on B5."
+    }
+  ],
+  "fieldEvidence": [
+    {
+      "entity": "SUB",
+      "field": "id (submission ID)",
+      "example": "SUB-0077",
+      "shownOn": "VE-02, VE-03 (after save), VE-06 result, VE-07, VE-08",
+      "inputOrDisplay": "derived",
+      "validation": "Assigned on first Save draft (OD-B5-07) or at submit if never saved; editor ID line 'Not saved yet' until then",
+      "evidence": "B5-03 'Draft saved · SUB-0077'; engine saveDraft/doSubmit"
+    },
+    {
+      "entity": "SUB",
+      "field": "course",
+      "example": "ME ZG523 · Thermodynamics & Heat Transfer",
+      "shownOn": "VE-03 (select), VE-06, VE-07, VE-02 (code)",
+      "inputOrDisplay": "input-required",
+      "validation": "'Choose a course'; '<code> is no longer one of your assigned courses. Choose one of your courses.'",
+      "evidence": "B5-03 frames 'Validation · nothing entered', 'Course no longer assigned'; engine e1"
+    },
+    {
+      "entity": "SUB",
+      "field": "name (Experiment name)",
+      "example": "Conduction Through a Composite Wall",
+      "shownOn": "VE-03, VE-02, VE-07, VE-06",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter the experiment name'; unique case-insensitive vs catalogue + own experiments (own current name excluded): 'An experiment called “<name>” already exists. Choose a different name.' — checked on Continue; scope of the rule open (OD-B5-04)",
+      "evidence": "B5-03 'Name already in use'; hint 'Must be different from every other experiment’s name.'; engine e1 / VX.taken"
+    },
+    {
+      "entity": "SUB",
+      "field": "summary",
+      "example": "Measure the temperature profile across a three-layer wall and compare it with the series-resistance model.",
+      "shownOn": "VE-03, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter a one-sentence summary' (non-empty only; 'one sentence' is a hint, not validated)",
+      "evidence": "B5-03 hint 'One sentence. It is the first thing people read in the catalogue.'; engine e1"
+    },
+    {
+      "entity": "SUB",
+      "field": "description",
+      "example": "Learners build a wall from three layers — brick, insulation and plaster — …",
+      "shownOn": "VE-03, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter a description'",
+      "evidence": "B5-03 hint 'What learners do and what they find out.'"
+    },
+    {
+      "entity": "SUB",
+      "field": "version",
+      "example": "1.0 (SUB-0083: 0.9)",
+      "shownOn": "VE-03, VE-06, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter a version, for example 1.0' (non-empty only)",
+      "evidence": "B5-03 hint 'For example 1.0'; OD-B5-03 prototype field set"
+    },
+    {
+      "entity": "SUB",
+      "field": "formats",
+      "example": "WEB · VR",
+      "shownOn": "VE-04, VE-02, VE-06, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Choose at least one format'",
+      "evidence": "B5-04 'No format chosen'; checkbox labels 'Browser (WEB)', 'Augmented reality (AR)', 'Virtual reality (VR)', 'Mixed reality (MR)'"
+    },
+    {
+      "entity": "SUB",
+      "field": "WEB · Web link",
+      "example": "https://labs.northline.example/composite-wall",
+      "shownOn": "VE-04, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter the web link for WEB'; 'Enter a web link that starts with https://' (engine regex ^https://[^\\s/.]+\\.[^\\s]+$)",
+      "evidence": "B5-04 'Validation'; hint 'Starts with https://'"
+    },
+    {
+      "entity": "SUB",
+      "field": "WEB · Browser and computer needed",
+      "example": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop, with a keyboard and mouse",
+      "shownOn": "VE-04, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Say which browser and computer WEB needs'",
+      "evidence": "B5-04 hint 'For example: a current browser on a laptop or desktop, with a keyboard and mouse.'"
+    },
+    {
+      "entity": "SUB",
+      "field": "WEB · Notes for WEB",
+      "example": "(empty in samples)",
+      "shownOn": "VE-04, VE-07 (only when filled)",
+      "inputOrDisplay": "input-optional",
+      "validation": "none",
+      "evidence": "B5-04 label 'Notes for WEB (optional)'"
+    },
+    {
+      "entity": "SUB",
+      "field": "AR/VR/MR · Package label",
+      "example": "Composite Wall — VR build 1.0",
+      "shownOn": "VE-04, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Enter a package label for <XX>'",
+      "evidence": "B5-04 hint 'The name people will see for this build.'; provisional (T-14)"
+    },
+    {
+      "entity": "SUB",
+      "field": "AR/VR/MR · Package reference",
+      "example": "NSS-CW-VR-1.0",
+      "shownOn": "VE-04, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "required unless a package file is attached: 'Enter a package reference for <XX>, or attach the package file'",
+      "evidence": "B5-04 hint 'Your build or store reference.'; 'Package file instead of a reference'"
+    },
+    {
+      "entity": "SUB",
+      "field": "AR/VR/MR · Package file",
+      "example": "composite-wall-vr-1.0.zip (sample file)",
+      "shownOn": "VE-04, VE-07",
+      "inputOrDisplay": "input-optional",
+      "validation": "none drawn; 'Instead of, or as well as, a reference. No source code.'; nothing uploaded",
+      "evidence": "B5-04 'Package file instead of a reference'; OD-B5-02"
+    },
+    {
+      "entity": "SUB",
+      "field": "AR/VR/MR · Device needed",
+      "example": "Standalone VR headset — no PC or cable needed — and about 2 × 2 m of clear floor (revision 1 value: 'VR headset')",
+      "shownOn": "VE-04, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Say which device <XX> needs'",
+      "evidence": "B5-04 hint 'Which devices it runs on, and anything else it needs.'"
+    },
+    {
+      "entity": "SUB",
+      "field": "AR/VR/MR · Install notes",
+      "example": "Install the build named above on the headset and open “Composite Wall Lab”. On first launch, set the play-area boundary.",
+      "shownOn": "VE-04, VE-07",
+      "inputOrDisplay": "input-required",
+      "validation": "'Add install notes for <XX>'",
+      "evidence": "B5-04 hint 'What an institution’s lab team needs to install and start it.'"
+    },
+    {
+      "entity": "SUB",
+      "field": "AR/VR/MR · Notes for <XX>",
+      "example": "(empty in samples)",
+      "shownOn": "VE-04, VE-07 (only when filled)",
+      "inputOrDisplay": "input-optional",
+      "validation": "none",
+      "evidence": "B5-04 '<Notes for VR> (optional)'"
+    },
+    {
+      "entity": "SUB",
+      "field": "Preview label",
+      "example": "Two-minute walkthrough",
+      "shownOn": "VE-05, VE-06, VE-07",
+      "inputOrDisplay": "input-optional",
+      "validation": "label without a valid link is an error: 'Add a preview link for “<label>”, or remove the label'",
+      "evidence": "B5-05 'Preview label without a link'; OD-B5-08"
+    },
+    {
+      "entity": "SUB",
+      "field": "Preview link",
+      "example": "https://media.northline.example/composite-wall-walkthrough",
+      "shownOn": "VE-05, VE-06, VE-07",
+      "inputOrDisplay": "input-optional",
+      "validation": "'Enter a preview link that starts with https://'; link without label allowed",
+      "evidence": "B5-05 hint 'Starts with https://'; engine e3"
+    },
+    {
+      "entity": "SUB",
+      "field": "Documents",
+      "example": "Lab handout — Composite Wall.pdf · Thermocouple positions.pdf",
+      "shownOn": "VE-05, VE-06, VE-07",
+      "inputOrDisplay": "input-optional",
+      "validation": "none drawn; types/sizes open (OD-B5-11)",
+      "evidence": "B5-05 'Documents (optional)' 'Handouts or notes for the Academic Reviewer and the catalogue.'"
+    },
+    {
+      "entity": "SUB",
+      "field": "status (Vendor-facing word)",
+      "example": "Draft · Submitted · With Academic Reviewer · Returned · With Content Manager · Published · Draft · read-only",
+      "shownOn": "VE-02, VE-07",
+      "inputOrDisplay": "derived",
+      "validation": "—",
+      "evidence": "engine D.stw; B5-02 annotation 'Status words'; B5-06 chips"
+    },
+    {
+      "entity": "SUB",
+      "field": "internal state (engine keys)",
+      "example": "draft · with_rv · returned · submitted · with_cm · returned_cm · recheck · published · readonly",
+      "shownOn": "— (model)",
+      "inputOrDisplay": "derived",
+      "validation": "—",
+      "evidence": "engine D.stw / D.stk / D.withw keys — 9 states map to 7 Vendor words"
+    },
+    {
+      "entity": "SUB",
+      "field": "With (who has it now)",
+      "example": "You · Academic Reviewer · Content Manager · —",
+      "shownOn": "VE-02",
+      "inputOrDisplay": "derived",
+      "validation": "Draft/Returned → You; With AR/re-check → Academic Reviewer; With CM → Content Manager; Submitted/Published/read-only → —",
+      "evidence": "engine D.withw; B5-02 annotation 'Status words' “after a resubmit it shows “—” until the workflow routes it (M-3)”"
+    },
+    {
+      "entity": "SUB",
+      "field": "last change date",
+      "example": "26 Aug 2026",
+      "shownOn": "VE-02 ('Status · last change')",
+      "inputOrDisplay": "derived",
+      "validation": "—",
+      "evidence": "B5-02 column header; engine row.when"
+    },
+    {
+      "entity": "SUB",
+      "field": "revision",
+      "example": "revision 2",
+      "shownOn": "VE-07 meta line, VE-08 ID line ('revision 1 was returned'), history",
+      "inputOrDisplay": "derived",
+      "validation": "starts at 1; +1 on each Resubmit; shown only when > 1 on the record meta",
+      "evidence": "engine doSubmit (r = c.rev + 1), o.recMeta, o.idLine; B5-06 caption 'With Academic Reviewer · revision 1'"
+    },
+    {
+      "entity": "SUB",
+      "field": "return (by, who, when, reason, references[step · format · field])",
+      "example": "Academic Reviewer · Prof. A. Menon · 19 Aug 2026, 16:05 · “Please clarify the VR device requirements.” · Formats & delivery · VR · Device need",
+      "shownOn": "VE-01 (sub-line), VE-07, VE-08",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "B5-06 'Returned by the Academic Reviewer'; B5-07 frames; OD-B5-10 (references structured step · format · field)"
+    },
+    {
+      "entity": "SUB",
+      "field": "approved date",
+      "example": "14 Aug 2026",
+      "shownOn": "VE-07 (With Content Manager banner)",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "B5-06 'With Content Manager'"
+    },
+    {
+      "entity": "SUB / EXP",
+      "field": "published date + formats published",
+      "example": "Published · 30 Jul 2026 · Formats published: WEB · VR",
+      "shownOn": "VE-07",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "B5-06 'Published · read-only'"
+    },
+    {
+      "entity": "SUB",
+      "field": "history entries (what · when · note)",
+      "example": "Submitted · revision 2 · 26 Aug 2026, 11:30 · Your changes have been submitted for review.",
+      "shownOn": "VE-07 (VE-13)",
+      "inputOrDisplay": "display",
+      "validation": "newest first; 'not an audit log'",
+      "evidence": "B5-06 timeline; engine hist"
+    },
+    {
+      "entity": "SUB",
+      "field": "last step reached (to reopen a draft where the Vendor stopped)",
+      "example": "step 2 (SUB-0079)",
+      "shownOn": "VE-09",
+      "inputOrDisplay": "derived",
+      "validation": "—",
+      "evidence": "B5-07 caption 'SUB-0079 Pin Fin Efficiency opens at step 2, where Anil stopped.' (inferred persisted field)"
+    },
+    {
+      "entity": "LO",
+      "field": "learning outcomes (one Experiment-level list)",
+      "example": "Explain conduction through layers in series using thermal resistance. (+2)",
+      "shownOn": "VE-06, VE-07, VE-08",
+      "inputOrDisplay": "display",
+      "validation": "read-only for Vendor; empty text 'None yet. The Academic Reviewer adds them during review — one set for every format.'",
+      "evidence": "B5-05 / B5-06 'Learning outcomes · Added by the Academic Reviewer · read-only'; LD-3"
+    },
+    {
+      "entity": "CRS",
+      "field": "assigned course list (code · name)",
+      "example": "ME ZG523 · Thermodynamics & Heat Transfer (withdrawn: MEL ZG512 · Manufacturing Processes)",
+      "shownOn": "VE-03",
+      "inputOrDisplay": "display",
+      "validation": "only assigned courses offered",
+      "evidence": "B5-03 select; VX.assigned / VX.cname; B7-08 holder Anil Shetty scope ME ZG523"
+    },
+    {
+      "entity": "ROLE",
+      "field": "course withdrawal date (read-only reason)",
+      "example": "15 Aug 2026",
+      "shownOn": "VE-07, VE-09",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "B5-06 / B5-07 read-only frames; B7-08 'Scope withdrawn — MEL ZG512 · 15 Aug 2026'"
+    },
+    {
+      "entity": "Vendor account",
+      "field": "person name · role · organisation",
+      "example": "Anil Shetty · Vendor · Northline Simulation Studio",
+      "shownOn": "all VE screens (shell, account menu)",
+      "inputOrDisplay": "display",
+      "validation": "—",
+      "evidence": "account button aria-label 'Account menu: Anil Shetty, Vendor, Northline Simulation Studio'; board 06 account menu table"
+    },
+    {
+      "entity": "SUB (list)",
+      "field": "result count",
+      "example": "6 of 6 experiments",
+      "shownOn": "VE-02",
+      "inputOrDisplay": "derived",
+      "validation": "—",
+      "evidence": "engine o.count; span role=status"
+    },
+    {
+      "entity": "SUB (overview)",
+      "field": "status line counts / attention count",
+      "example": "2 Draft · 1 With Academic Reviewer · 1 With Content Manager · 1 Published · '2 items'",
+      "shownOn": "VE-01",
+      "inputOrDisplay": "derived",
+      "validation": "Draft count includes Draft · read-only; With Academic Reviewer includes re-check; Returned and Submitted are not in the status line",
+      "evidence": "engine o.statusLine / o.attCount"
+    }
+  ],
+  "crossRoleTouchpoints": [
+    "SUB: Vendor DL-1 Submit (VE-06) → the SAME record enters the Academic Reviewer Review queue (RV-02) and Review a submission (RV-03) — B5-05 annotation 'After submitting', B5-00 'Cross-role records'.",
+    "SUB: Vendor Resubmit (VE-08) → Vendor sees 'Submitted' then 'With Academic Reviewer · revision 2'; Academic Reviewer sees 'Resubmitted · revision 2' with 'What changed' first (RV-02/RV-03; B6-01/02/03 status word 'Resubmitted · revision 2').",
+    "SUB: Academic Reviewer 'Return to vendor' (RV-03, DL-2, reason required, references optional) → Vendor VE-01 attention 'Returned: <name>', VE-02 'Returned' / With 'You', VE-07 reason box, VE-08 reason above editor with jump links; staff-side label 'Returned to vendor'.",
+    "LO: Academic Reviewer outcomes (RV-03) → read-only on Vendor VE-06 step 4, VE-07, VE-08 (seen at the decision — OD-B6-04).",
+    "SUB: Academic Reviewer Approve (RV-03) → Vendor VE-07 'With the Content Manager — Approved by the Academic Reviewer on <date>'; Content Manager Ready to publish (CM-02).",
+    "SUB: Content Manager 'Send back' to vendor (CM-03, references offered — OD-B6-05) → Vendor 'Returned by the Content Manager' on VE-07 / VE-08; staff history 'Sent back to the vendor by Kavya Nair'.",
+    "SUB: Content Manager 'Send back' to Academic Reviewer → Vendor VE-07 'Back with the Academic Reviewer for a re-check', VE-02 chip 'With Academic Reviewer'.",
+    "SUB → EXP: Content Manager Publish (CM-03) → Vendor VE-07 'Published · <date>' read-only; public catalogue PU-05 / PU-06 lists it; no institution or Student access is created (B6-12 'Publication ≠ access').",
+    "History: one event log rendered per role — B6-12 keeps a Vendor-facing 'hist' ('Returned with a reason', 'Submitted · revision 2', 'Published by the Content Manager') and a staff-facing 'sh' ('Returned to vendor by Prof. A. Menon', 'Resubmitted · revision 2' — 'Northline Simulation Studio changed the VR device need.', 'Sent back to the vendor by …'). The shared store needs role-specific event wording.",
+    "ROLE / CRS: Super Admin Platform roles (SA-16 / SA-17, B7-08) assigns / withdraws a Vendor's course scope → Vendor VE-03 course list; withdrawn course turns drafts 'Draft · read-only' on VE-02 / VE-07 / VE-09.",
+    "AREA / CRS: Super Admin Academic structure (B7-07) supplies course codes and names → Vendor course list (entities.json AREA / CRS 'feeds … Vendor course lists').",
+    "SUB: Super Admin All content / Content record (SA-12 / SA-13, B7-06 · B7-10) override of a stuck record → 'back to the vendor' (OD-B7-09); Vendor-side presentation not drawn on B5.",
+    "Unique-name rule: Vendor VE-03 checks against the public catalogue names (Batch-1) and own experiments — couples VE-03 to EXP catalogue data (OD-B5-04).",
+    "Notifications: none — the Overview attention list and the record carry every change (OD-B5-12, T-34)."
+  ],
+  "canvasOnly": [
+    "B5-08 board-control group (role=group aria-label='Board control') with text 'Board control — not part of the product.', flow note ('Not submitted yet.' / 'Returned — waiting for the Vendor.' / 'Submitted — waiting for the workflow to route it.') and buttons 'Academic Reviewer returns SUB-0077 with a reason (19 Aug 2026)' and 'The workflow routes the resubmission (approved rule — normal chain)'.",
+    "Frame captions and caption notes (e.g. 'VE-01 Overview · 1440 · 27 Aug 2026', 'Interactive') and every board annotation block (Question, Attention list, Status line, Removed (B2 V1), Columns, Status words, Filters, Empty, Steps, Course, Name, Field set, Not here, One panel per format, Provisional, Governance, Not designed, Checklist, Missing items, DL-1, After submitting, Banner by state, After a resubmit, Published, History, Reason first, Same editor, Resubmit, Read-only).",
+    "Board header metas ('Anil Shetty · Northline Simulation Studio (sample)', 'Attention + one status line', 'No “Propose an update” (LD-4)', 'Package fields provisional (T-14)', etc.) and the B5-00 Index / B5-10 Change Log boards in full.",
+    "Sample data: persona, organisation, SUB IDs, names, dates (Vendor 'now' = 27 Aug 2026), .example links, sample file names; the '(sample file)' suffix after file names; fixed docPool for 'Add document' and fixed D.files for 'Choose file' (product needs a real picker — not designed); fixed recentIds for 'Changed in the last 7 days'.",
+    "Hard-coded sample copy inside templates: 'MEL ZG512 is no longer assigned to you … 15 Aug 2026' — must be data-driven in product.",
+    "Simulated 800 ms submit delay (engine later(800)).",
+    "Per-frame / per-board state: each frame holds its own record; B5-08 four frames share one record only within the board ('Within-board state only'). Product must use one connected application state.",
+    "B5-09 responsive-proof frame wrappers at 1440 / 1024 / 768 / 375 and frame min-heights; 'hint-placeholder-val' attributes carrying unrelated Batch-3 timestamps (template artefacts).",
+    "'./support.js' canvas runtime and the <x-dc>/<sc-if>/<sc-for> template syntax.",
+    "Doc-card links between boards (B5-00 board list; B5-08 'Where' cells linking B5-03/04/05/07, B6-03, B6-12).",
+    "Logo box text 'BITS Pilani / WILP logo — placeholder' (unapproved placeholder asset; keep as labelled placeholder per binding constraint 12, never as an official asset)."
+  ],
+  "inconsistencies": [
+    "VE-13 is typed 'tab' with proposedRoute '/vendor/experiments/[submissionId]?tab=history' and navigation 'Record tab + filter' in screens.json / B8-01, but B5-06 draws history as the last SECTION of the record page with no tab control (board wins).",
+    "VE-04 / VE-05 / VE-06 proposed routes require [submissionId], but an unsaved new experiment can Continue to steps 2–4 and submit without a prior save (engine next(), doSubmit assigns the ID; OD-B5-07 'ID on the first save of a draft'). VE-03's '/new?step=course' is the only unsaved route listed.",
+    "VE-08 proposed route '/vendor/experiments/[submissionId]/revise' has no step parameter although revise mode is the full 4-step editor and 'What it refers to' jumps to step 2 fields.",
+    "After the first Save draft on VE-03 the board header becomes 'Edit draft · Step 1 of 4' (VE-09 wording) while screens.json keeps VE-03 at '/new?step=course' — route should change after first save.",
+    "entities.json SUB statuses 'Draft · With Academic Reviewer · Returned · With Content Manager · Published' omit the Vendor-facing 'Submitted' (M-3; B5-06 frame 'Submitted (after the resubmit)', B5-07 'Submitted (M-3)', B5-02 status filter option) and 'Draft · read-only' (B5-02, B5-06 frame 'Course no longer assigned · read-only'); they also omit the staff-facing words for the same SUB states used on B6/B7 boards ('Returned to vendor', 'Resubmitted · revision 2', 'Approved — with the Content Manager', 'Stuck — nobody can act'). Same for B8-07 SUB row.",
+    "entities.json SUB ownerWriter 'Vendor → Academic Reviewer → Content Manager' omits the Super Admin effects on SUB (course-scope withdrawal → read-only draft; stuck-record override back to vendor, OD-B7-09) and the system routing step after resubmit.",
+    "B5-03 wording 'Only the courses assigned to Northline Simulation Studio are listed' / 'withdrawn from Northline Simulation Studio' (organisation-level) vs B7-08 where scope is held by the role holder Anil Shetty (person-level, org shown as an attribute). Person vs organisation scope is ambiguous.",
+    "STK31-41 and B7-08 allow Vendor scope kinds 'All experiments · a course · one experiment', but the Vendor editor designs only a course choice; a Vendor with 'all' or 'one experiment' scope is not drawn.",
+    "Overview status line (engine o.statusLine) counts Draft (+ read-only), With Academic Reviewer (+ re-check), With Content Manager, Published — a record in 'Submitted' is counted nowhere on VE-01 (Returned ones appear in the attention list). Register v2 VE-F1 defines the same four counts, so it is consistent with the Register but leaves Submitted invisible on the Overview.",
+    "B5-00 register lists 'Submitted' among VE-02 designed states, but no captioned B5-02 frame shows a Submitted row (only the live B5-08 'Vendor · My experiments' frame reaches it).",
+    "First-visit Overview frame: the header 'Create experiment' (secondary) and the 'See all your experiments' link are outside the sc-if, so both still render beside the empty-state primary 'Create experiment' and link to an empty list — drawn as such; caption says the primary action 'moves into the empty state'.",
+    "On VE-07 'What it refers to' items are plain text, while B6-03 tells the reviewer 'the vendor sees the same labels as links' — they are links only in the revise editor (VE-08).",
+    "The read-only editor state (B5-07 'Read-only — course no longer assigned') has no inbound designed link: VE-02 'Open' on a read-only row goes to VE-07, VE-01 omits read-only drafts, and VE-07 offers no edit. It is effectively the guard for a direct /edit URL.",
+    "flows.json Flow E step 1 lists screens 'VE-02 → VE-03…VE-06'; VE-01 'Create experiment' is an equally designed entry (minor).",
+    "B7-06 annotation still reads 'With the Academic Reviewer · With the Content Manager · With the vendor' while B8-02 records the B7-06 status words corrected to 'With Academic Reviewer / With Content Manager / Returned to vendor' (annotation text not regenerated; outside VE but same SUB vocabulary).",
+    "Committed foundation (git 1b090c9 v2/packages/domain/src/technology.ts) orders formats web · vr · mr · ar with labels 'Web' / 'Virtual Reality', whereas v46 boards use WEB · AR · VR · MR (B5-04 checkbox order; B8-03 'Formats WEB · AR · VR · MR — always the chip with the code next to words') with words 'Browser (WEB)', 'Augmented reality (AR)', 'Virtual reality (VR)', 'Mixed reality (MR)'.",
+    "Vendor 'Version' field (Vendor-entered, e.g. 1.0) vs EXP 'Published · version n' (entities.json) and B6-12 content-record history 'Published · version 1.0': the relation between the Vendor's version string and the live version number is not stated on B5."
+  ],
+  "sharedComponentCandidates": [
+    "VendorWorkspaceShell (sidebar Overview · My experiments · Help foot; Menu <1024px; account menu with organisation line) — every VE screen",
+    "ExperimentEditor (one component, modes create | draft | revise | readonly; 4 steps; shared validation e1/e2/e3; Save draft / Save changes; Submit / Resubmit) — VE-03, VE-04, VE-05, VE-06, VE-08, VE-09",
+    "Stepper(4 steps, aria-current=step, current label only <600px) — VE-03…06, 08, 09",
+    "ErrorSummary(role=alert, links to fields, receives focus) — all editor steps",
+    "FormField family (label + hint via aria-describedby + aria-invalid + inline error; '(optional)' suffix) — all editor steps",
+    "FormatDeliveryPanel (WEB variant, Package variant AR/VR/MR) — VE-04, revise mode",
+    "DeliveryCards / DeliverySummary (per-format key–value) — VE-07, VE-09 read-only, (B6 reviewer read-only)",
+    "StatusChip (tones ok · wait · err · info · off · paused) — VE-02, VE-07 (and B6/B7)",
+    "FormatChip (WEB · AR · VR · MR code + words) — VE-02, VE-04, VE-07",
+    "ReturnReasonBox (by · when · who · reason · 'What it refers to' as text or jump links) — VE-07, VE-08 (and VE-01 sub-line)",
+    "LearningOutcomesReadOnly — VE-06, VE-07, VE-08",
+    "HistoryTimeline (newest first, what · when · note) — VE-07 / VE-13 (and other record pages)",
+    "RecordStatusBanner (role=status, one action max) — VE-07 and editor view states",
+    "ConfirmDialog DL-1 (no reason; busy state; focus to primary; Cancel/Keep editing returns focus; opens beside the trigger at the page foot) — VE-06, VE-08, VE-09",
+    "ResultPanel / confirmation ('Submitted for academic review', 'Submitted') with two onward links — VE-06, VE-08",
+    "AttentionList + StatusLine — VE-01 (AR-1 pattern shared with other overviews)",
+    "DataTable with labelled-row mode <760px + FilterToolbar (search, select, checkbox, count, Clear filters) + NoMatch / Empty states — VE-02",
+    "EmptyState (icon, H2, one sentence, one action) — VE-01, VE-02",
+    "ReadOnlyNotice (course withdrawn) — VE-07, VE-09"
+  ],
+  "openQuestions": [
+    "OD-B5-09 — 'Composite Wall Conduction' (published Batch-1, WEB + AR) and SUB-0077 'Conduction Through a Composite Wall' (WEB + VR) stay two separate records; VE-03 unique-name check must stay exact-match case-insensitive (the B5-03 'Name already in use' frame blocks only the identical name) — no similarity/duplicate rule. Seed both.",
+    "OD-B5-05 / M-3 — next gate after a resubmit, and whether a resubmission after a Content Manager return needs fresh academic review; how long 'Submitted' persists before routing (board control stands in). Mock service must implement 'normal chain' without naming the gate in Vendor copy.",
+    "OD-B5-07 — when the submission ID is given (prototype: first save; also at submit if never saved) → affects routes for unsaved steps 2–4.",
+    "OD-B5-01 / T-29 / PQ-20 — rule for experiments in a course withdrawn from the Vendor (unsaved: choose another course; saved: read-only). Effect on SUBs already under review or published when scope is withdrawn: not shown.",
+    "OD-B5-02 / T-14 — app package model and required fields (label, reference-or-file, device, install notes required; notes optional; no source code). Delivery mechanism open.",
+    "OD-B5-03 / T-29 / ND-05 — catalogue field schema (prototype: course, name, one-sentence summary, description, version).",
+    "OD-B5-04 — scope of the unique-name rule (prototype: catalogue + Vendor's own experiments, case-insensitive).",
+    "OD-B5-06 — may the Vendor change course or formats while revising (not restricted in prototype).",
+    "OD-B5-08 / QX-03 — preview link rules (label without valid link = error; link without label allowed).",
+    "OD-B5-10 / OD-B6-05 — structured references (step · format · field) on returns; supplied by Reviewer return and CM send-back-to-vendor only.",
+    "OD-B5-11 — document types, sizes and where documents are shown (Academic Reviewer; catalogue use open). Real file picker not designed.",
+    "OD-B5-12 / T-34 — no notifications; Overview and record carry changes.",
+    "OD-B5-13 — 'Changed in the last 7 days': window and what counts as a change are sample choices.",
+    "OD-B6-04 — Vendor sees Reviewer outcome edits only at the decision (Approve / Return).",
+    "OD-B7-09 — Super Admin override 'back to the vendor': what the Vendor sees (who is named in 'Returned by …', reason) is not drawn on B5.",
+    "T-26 residual / LD-4 — per-format hold-back and adding a format after publication: no controls (VE-14 DEFER).",
+    "LD-4 — VE-10 / VE-11 / VE-12 Vendor updates DEFER / OPEN; VE-15 REMOVE.",
+    "Not shown: deleting a draft, withdrawing / recalling a submission, duplicating an experiment — no controls drawn; confirm none are wanted.",
+    "Not shown: unsaved-changes guard when leaving the editor via Cancel / sidebar (AR-5 says only 'Back never loses work').",
+    "Not shown: whether unticking a format discards its entered delivery values (engine keeps them hidden).",
+    "Not shown: organisation-wide visibility — whether other users of the same Vendor organisation see each other's submissions (B5-02 says 'Every experiment you created'); person vs organisation course scope (B5-03 vs B7-08); Vendor with 'all experiments' or 'one experiment' scope (STK31-41, B7-08).",
+    "Not shown on B5: loading, failed (retry) and not-found states for VE-01 / VE-02 / VE-07 and the editor; B8-07 requires loading/empty/failed for every list/page — use board 04 / 08 patterns ('Page not found · workspace', XS-06 'Not your workspace' for another Vendor's SUB by inference).",
+    "Relation between the Vendor-entered 'Version' and the published EXP 'version n' / correction versions (UPD) — not stated on B5.",
+    "Should a 'Submitted' record be counted in the Overview status line? (currently counted nowhere).",
+    "QP-26 / ND-13 (stakeholder record, 31 Aug) — may the Super Admin return a submission at the first-publication gate — still open; no Vendor-facing state for it."
+  ],
+  "counts": {
+    "designedScreenIds": 10,
+    "notDesignedScreenIds": 5,
+    "boardsInBatch": 11,
+    "productFramesNonProof": 55,
+    "responsiveProofFrames": 28,
+    "totalB5ProductFrames": 83,
+    "vendorStatusWords": 7,
+    "engineInternalStates": 9,
+    "historyEventKindsVendorFacing": 10,
+    "editorSteps": 4,
+    "validationMessages": 18,
+    "dialogs": 2,
+    "openDecisionsB5": 13,
+    "permissionFacts": 25,
+    "fieldFacts": 35,
+    "inconsistencies": 17,
+    "openQuestions": 25,
+    "crossRoleTouchpoints": 14
+  }
+}

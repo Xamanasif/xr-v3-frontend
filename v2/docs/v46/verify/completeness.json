@@ -1,0 +1,443 @@
+{
+ "summary": "Completeness critique of the Phase-0 audit deliverables (wf/final/*.md, wf/design/phase0.md, wf/design/owner-decisions.md) against the owner's 10-section final response and Tasks 1–7. 54 checklist items were checked: 43 COVERED, 7 COVERED with a stated gap, 3 PARTIAL and 1 MISSING. The MISSING item is the READY / PARTIAL / NO-GO verdict; a draft is supplied (PARTIAL: GO once the start gates are answered). The 3 PARTIAL items are R1 (consolidated handoff verdict; draft supplied), T1.d (repository package/test/infrastructure inventory; draft supplied) and T5.a (Flow 1–6 ↔ A–F mapping; mapping supplied, incl. the Flow-5 step-count difference). The 7 COVERED-with-gap items are R2 (inventory), R6 (flow numbering), R9 and T7.h (phase0 ↔ owner-decisions inconsistency), R11 (no-files-changed wording), T1.e (OPEN_DECISIONS A-07/A-08/A-14 annotations) and T6.g (Chromium-only tests vs the declared browser policy). The phase0 ↔ owner-decisions gaps are the main problem: the two files give different Phase-0 gate sets (A1/A3 are not gates in phase0; install approval is absent from owner-decisions) and a contradictory Phase-0 scope (XS-01 pulled forward vs 'B8-06 governs'; TE-5 and AD-39 placed in different phases). In addition, a Phase-0 screen (XS-07) depends on UNRESOLVED items that phase0 defers to Phase 6. 16 corrections: 1 critical, 5 major, 10 minor. Read-only spot checks re-ran handoff integrity (178/178 OK), counts (128 boards, 966 frames, 147/123/24, 347 matrix rows, 183 port methods, 24,319 style attributes) and repository state (unchanged: 98 paths, diff 11 files +192/−58), and re-read the board strings the corrections rely on. Two Understand-stage figures did not survive: 23,140 style attributes, and B1-13 repeating the B1-10 defect.",
+ "checksRun": [
+  {
+   "item": "R1 Handoff verification verdict",
+   "verdict": "PARTIAL",
+   "location": "wf/understand/handoff-consistency.json#verdict + checks[0..11]; design/phase0.md lines 27-37 (spot checks); design/owner-decisions.md §B (HB-01..HB-24)",
+   "note": "Evidence complete and re-verified (178/178 OK, 180 files, 128 boards, 966 frames, 147/123/24, 0 frontend build blockers) but no final/design deliverable states one consolidated verdict; draft supplied in corrections."
+  },
+  {
+   "item": "R2 Repository baseline and safety assessment",
+   "verdict": "COVERED (inventory PARTIAL)",
+   "location": "design/phase0.md §1.1-§1.5, §2.1-§2.4, §11.1 K-1..K-3; design/owner-decisions.md A1, A2; wf/understand/repo-baseline.json",
+   "note": "Branch/commit/working tree re-verified read-only. Package/toolchain/test/infrastructure inventory exists only in repo-baseline.json#foundation; draft supplied."
+  },
+  {
+   "item": "R3 Complete screen and route coverage summary",
+   "verdict": "COVERED",
+   "location": "wf/final/routes.md §1 (147 rows: route, layout, key components, major states, source boards), §2 counts, §3 tree, §4 product vs canvas, §5 D-01..D-31, §6 O-01..O-12; design/phase0.md §3.3 (Phase-0 subset)",
+   "note": "Counts recomputed: 123 + 24 = 147; route decisions 107 + 7 + 9 = 123."
+  },
+  {
+   "item": "R4 Candidate role x action permission matrix",
+   "verdict": "COVERED",
+   "location": "wf/final/permissions.md §1 P1-P12, §2 (columns: ID, action, role, kind, required state, resulting state, scope, evidence, status, notes), §3 grid, §4 owner list; wf/final/permissions.json",
+   "note": "Recounted 347 rows: ALLOW 103, DENY 156, READ 62, SYSTEM 11, OPEN 15; CONFIRMED 176, PROVISIONAL 130, UNRESOLVED 41."
+  },
+  {
+   "item": "R5 Candidate domain schema and service-contract summary",
+   "verdict": "COVERED",
+   "location": "wf/final/schemas.md §1 (ids, time, roles, formats, labels, history, Provided<T>), §2 M01-M28 with [C]/[P]/[U], §3 22 ports + 6 stand-ins, §4 sample world, §5 validation, §6 NOT modelled; design/phase0.md §3.5-§3.7, §4.1, §6",
+   "note": "Port/method count re-summed from phase0 §4.1: 22 ports, 183 methods."
+  },
+  {
+   "item": "R6 Cross-role workflow and shared-state architecture",
+   "verdict": "COVERED (flow numbering PARTIAL)",
+   "location": "wf/final/architecture.md §4.2-§4.9 (Others now see column), §5 five-state types/invariants; design/phase0.md §4, WP-0.14",
+   "note": "Deliverables use Flow A-F; owner and the continuity boards use Flow 1-6; no mapping anywhere."
+  },
+  {
+   "item": "R7 Visual implementation strategy",
+   "verdict": "COVERED",
+   "location": "wf/final/visual.md §1-§13; design/phase0.md §3.4, §7, WP-0.5..WP-0.8, WP-0.15",
+   "note": "Final numbers re-verified: 8 sheets 124,181 bytes, 89 @container, only @media is reduced-motion, 19 art SVGs, 24,319 style attributes."
+  },
+  {
+   "item": "R8 Proposed Phase 0 implementation plan",
+   "verdict": "COVERED",
+   "location": "design/phase0.md §0-§11 (16 WPs, 5 gates, 22 risks, 19 DoD items)",
+   "note": "Internal inconsistencies with owner-decisions.md listed in corrections."
+  },
+  {
+   "item": "R9 Open decisions requiring owner approval",
+   "verdict": "COVERED (inconsistent with phase0)",
+   "location": "design/owner-decisions.md §A-§E; design/phase0.md §10.1-§10.4",
+   "note": "Row counts re-verified (HB 24, SC 32, D.1-D.8 104 rows = 60 UNRESOLVED + 44 PROVISIONAL). Gate set, phase placement and several defaults disagree with phase0."
+  },
+  {
+   "item": "R10 Final verdict READY / PARTIAL / NO-GO",
+   "verdict": "MISSING",
+   "location": "none (grep for READY|NO-GO|verdict across wf/final/*.md and wf/design/{phase0,owner-decisions}.md finds no readiness verdict)",
+   "note": "Draft supplied in corrections."
+  },
+  {
+   "item": "R11 Statement that no implementation files were changed",
+   "verdict": "COVERED (needs precision)",
+   "location": "design/phase0.md line 4 and §11.4; design/owner-decisions.md line 4",
+   "note": "Re-verified: git status path set identical to understand baseline (98), diff stat unchanged, zip SHA-256 unchanged. A host lock file under the repo folder has a new mtime; wording should say tracked/implementation files."
+  },
+  {
+   "item": "T1.a Handoff present and readable",
+   "verdict": "COVERED",
+   "location": "design/phase0.md line 29; handoff-consistency.json checks[0]",
+   "note": "Re-run: shasum -c = 178 OK; 180 files; zip SHA-256 9d33f32e...24bf."
+  },
+  {
+   "item": "T1.b Register and source mappings consistent",
+   "verdict": "COVERED",
+   "location": "handoff-consistency.json checks 3-9, 11, 12; owner-decisions.md §B.1",
+   "note": "screens/navigation/flows/open-decisions/tokens = boards (0 field diffs); entities PARTIAL; assets.json art list = 19 files."
+  },
+  {
+   "item": "T1.c Repo branch / commit / working tree",
+   "verdict": "COVERED",
+   "location": "design/phase0.md §1.1; owner-decisions.md A1/A2 + verification log",
+   "note": "Re-verified: HEAD 1b090c9 on v2/connected-frontend-slice1; 3 v2 branches at 1b090c9; main e8c6a84 without v2/; no remote; one worktree; 11 M + 87 ?? (60 v2 + 27 Source Pack)."
+  },
+  {
+   "item": "T1.d Existing architecture / packages / components / services / tests / infrastructure",
+   "verdict": "PARTIAL",
+   "location": "design/phase0.md §2.1 (file-level verdicts), §1.4 step 9 (218 tests, e2e 2/2); repo-baseline.json#foundation (full inventory)",
+   "note": "No consolidated inventory in final/design deliverables."
+  },
+  {
+   "item": "T1.e Conflicts between code and v46",
+   "verdict": "COVERED (minor gap)",
+   "location": "design/phase0.md §2.1-§2.4; owner-decisions.md P0-03; repo-baseline.json#conflictsWithV46",
+   "note": "phase0 §2.2 OPEN_DECISIONS amendment omits A-07, A-08, A-14."
+  },
+  {
+   "item": "T2.a All eight surfaces",
+   "verdict": "COVERED",
+   "location": "wf/final/routes.md §1 (Public; Entry & shared; 7 role workspaces)",
+   "note": "Nine table groups; final response should state that Entry & shared (XS-01..XS-08) serves all eight surfaces."
+  },
+  {
+   "item": "T2.b 123 designed IDs -> routes, reusable components, major states",
+   "verdict": "COVERED",
+   "location": "wf/final/routes.md §1 columns 'Recommended route', 'Key components', 'Major states'",
+   "note": ""
+  },
+  {
+   "item": "T2.c 24 excluded IDs preserved",
+   "verdict": "COVERED",
+   "location": "wf/final/routes.md §1 EXCLUDED rows, §2; design/phase0.md §9 opening",
+   "note": "Re-verified 24 IDs from screens.json."
+  },
+  {
+   "item": "T2.d Product screens vs canvas boards / annotations / test controls / presenter-only behaviour",
+   "verdict": "COVERED",
+   "location": "wf/final/routes.md §4.1-§4.2; wf/final/visual.md §10",
+   "note": ""
+  },
+  {
+   "item": "T3.a entity x action x role x state x scope x evidence x status",
+   "verdict": "COVERED",
+   "location": "wf/final/permissions.md §2 column header line 63",
+   "note": ""
+  },
+  {
+   "item": "T3.b No invented permissions",
+   "verdict": "COVERED",
+   "location": "wf/final/permissions.md P4, kind OPEN (never offered), §4.3 X-01 bulk confirmation of 32 rule-less rows",
+   "note": ""
+  },
+  {
+   "item": "T3.c Unsupported decisions flagged",
+   "verdict": "COVERED",
+   "location": "wf/final/permissions.md §4.1 (41 UNRESOLVED), §4.2 (98), §4.4 (22 stakeholder conflicts), §4.5 (handoff defects); owner-decisions.md D.10",
+   "note": "Entity code FCM in the matrix vs FMAP in schemas/phase0 (X-9)."
+  },
+  {
+   "item": "T4.a Institutions, campuses, programmes, courses, experiments",
+   "verdict": "COVERED",
+   "location": "schemas.md M01, §6 (no Campus), M12 programme free text (line 1176), M06, M07, M09",
+   "note": ""
+  },
+  {
+   "item": "T4.b Technology formats and delivery metadata",
+   "verdict": "COVERED",
+   "location": "schemas.md §1.4, M09",
+   "note": ""
+  },
+  {
+   "item": "T4.c Submissions, reviews, publication, corrections",
+   "verdict": "COVERED",
+   "location": "schemas.md M10, M11, §3.12, §3.13",
+   "note": ""
+  },
+  {
+   "item": "T4.d Access requests, licences, institutional assignments, Student entitlements",
+   "verdict": "COVERED",
+   "location": "schemas.md M03, M05 + §1.7 Provided<T>, M02, M14, M15, §3.4-§3.7",
+   "note": ""
+  },
+  {
+   "item": "T4.e Learning activity and per-format progress",
+   "verdict": "COVERED",
+   "location": "schemas.md M16, M17, M18, M27",
+   "note": ""
+  },
+  {
+   "item": "T4.f Faculty assessments, questions, attempts, marking, results",
+   "verdict": "COVERED",
+   "location": "schemas.md M20-M22, §3.10-§3.11 (pass mark per assessment, no defaults)",
+   "note": ""
+  },
+  {
+   "item": "T4.g Per-format feedback",
+   "verdict": "COVERED",
+   "location": "schemas.md M19, §3.9",
+   "note": ""
+  },
+  {
+   "item": "T4.h Device transfers and admin operations",
+   "verdict": "COVERED",
+   "location": "schemas.md M23-M25, §3.15-§3.16",
+   "note": ""
+  },
+  {
+   "item": "T4.i Confirmed / proposed / unresolved separated; no Module layer; no completion from launch",
+   "verdict": "COVERED",
+   "location": "schemas.md §0.2 [C]/[P]/[U]; §6 NOT modelled",
+   "note": "schemas uses PROPOSED where other deliverables use PROVISIONAL; legend needed in the final response."
+  },
+  {
+   "item": "T5.a Flows 1-6 with shared state",
+   "verdict": "PARTIAL",
+   "location": "architecture.md §4.2-§4.8 (A-F + Device)",
+   "note": "No Flow 1-6 <-> A-F mapping; Flow 5 board numbering has 6 steps vs flows.json E 5 steps."
+  },
+  {
+   "item": "T5.b One role's action updates what others see",
+   "verdict": "COVERED",
+   "location": "architecture.md §4 'Others now see' column; phase0 WP-0.14",
+   "note": ""
+  },
+  {
+   "item": "T5.c Publication vs entitlement vs runtime vs completion",
+   "verdict": "COVERED",
+   "location": "architecture.md §5.1-§5.5; permissions.md P8; phase0 WP-0.9 acceptance (5)",
+   "note": ""
+  },
+  {
+   "item": "T6.a Tokens and components",
+   "verdict": "COVERED",
+   "location": "visual.md §1, §3",
+   "note": ""
+  },
+  {
+   "item": "T6.b Public and authenticated shells; role-aware nav",
+   "verdict": "COVERED",
+   "location": "visual.md §3.5, §4; phase0 WP-0.8",
+   "note": ""
+  },
+  {
+   "item": "T6.c Forms, tables, dialogs, validation",
+   "verdict": "COVERED",
+   "location": "visual.md §5; phase0 §6.6",
+   "note": ""
+  },
+  {
+   "item": "T6.d Responsive at approved widths; natural scrolling",
+   "verdict": "COVERED",
+   "location": "visual.md §6.1-§6.3",
+   "note": ""
+  },
+  {
+   "item": "T6.e Keyboard",
+   "verdict": "COVERED",
+   "location": "visual.md §5.4, §7; phase0 §7.2",
+   "note": ""
+  },
+  {
+   "item": "T6.f Loading / empty / error / confirmation states",
+   "verdict": "COVERED",
+   "location": "visual.md §8 (Success / confirmation row)",
+   "note": ""
+  },
+  {
+   "item": "T6.g Visual regression and functional tests",
+   "verdict": "COVERED (browser matrix gap)",
+   "location": "visual.md §9; phase0 §7",
+   "note": "Supported-browser policy P0-28 (Safari 16+, Firefox 121+) vs Chromium-only Phase-0 projects."
+  },
+  {
+   "item": "T6.h No DEMO banner / developer selector / SaaS kit",
+   "verdict": "COVERED",
+   "location": "visual.md §11 items 1-3; phase0 §7.6",
+   "note": ""
+  },
+  {
+   "item": "T6.i B1-10 remediation",
+   "verdict": "COVERED",
+   "location": "visual.md §7.1; phase0 WP-0.7, §7.3",
+   "note": "visual.md corrects the Understand claim: B1-13 shows only an embedded SA-02 thumbnail (1 thead control), not a product frame."
+  },
+  {
+   "item": "T6.j support.js / frame wrappers / board controls not production",
+   "verdict": "COVERED",
+   "location": "visual.md §10; routes.md §4.1; phase0 §7.6 canvas-leakage scan",
+   "note": ""
+  },
+  {
+   "item": "T7.a Reuse / replace / refactor",
+   "verdict": "COVERED",
+   "location": "phase0 §2.1-§2.4",
+   "note": ""
+  },
+  {
+   "item": "T7.b Route and component organisation",
+   "verdict": "COVERED",
+   "location": "phase0 §3.1-§3.4, §3.8",
+   "note": ""
+  },
+  {
+   "item": "T7.c Data / store / service structure",
+   "verdict": "COVERED",
+   "location": "phase0 §3.5-§3.7, §4",
+   "note": ""
+  },
+  {
+   "item": "T7.d Permission enforcement",
+   "verdict": "COVERED",
+   "location": "phase0 §5",
+   "note": ""
+  },
+  {
+   "item": "T7.e Schema and validation foundations",
+   "verdict": "COVERED",
+   "location": "phase0 §6",
+   "note": ""
+  },
+  {
+   "item": "T7.f Tests and visual parity",
+   "verdict": "COVERED",
+   "location": "phase0 §7, WP-0.15",
+   "note": ""
+  },
+  {
+   "item": "T7.g How later phases connect",
+   "verdict": "COVERED",
+   "location": "phase0 §9",
+   "note": ""
+  },
+  {
+   "item": "T7.h Actual blocking decisions",
+   "verdict": "COVERED (inconsistent)",
+   "location": "phase0 §10.1 G-1..G-5 vs owner-decisions §A A1..A5",
+   "note": "See correction 2."
+  },
+  {
+   "item": "BC1-BC14 each traced to design + test",
+   "verdict": "COVERED",
+   "location": "phase0 §0 R1-R12, WP-0.9 acceptance (5)-(6), §7.6 scans, §11.2; permissions P1-P12; schemas §6",
+   "note": "BC14 met per tab under option A; consequence (two tabs = two worlds; reload resets) should be stated in the final response."
+  }
+ ],
+ "corrections": [
+  {
+   "severity": "critical",
+   "location": "Final response §10 (no source in wf/final/*.md, wf/design/phase0.md, wf/design/owner-decisions.md)",
+   "problem": "The owner-required final verdict READY / PARTIAL / NO-GO does not exist in any deliverable. grep for READY|NO-GO|verdict finds only unrelated table headers.",
+   "evidence": "grep -n -i -E 'NO-GO|READY|verdict' over the 7 files: no readiness verdict. Inputs that support a verdict, re-verified this pass: handoff 178/178 OK; open-decisions.json frontendBuildBlockers = 0; decisions-rules.json#counts decisionsBlockingPhase0 = 0; phase0 §10.1 lists 5 start/merge gates; owner-decisions §A lists 5 'before Phase 0' items, all 'decision UNRESOLVED'.",
+   "correction": "Add §10 with this draft (status: the verdict is a recommendation): 'Verdict: PARTIAL. GO for Phase 0 as soon as the owner answers the start gates. Nothing in the handoff, the repository or the design is a NO-GO. Evidence: the frozen v46 package verifies (178/178 SHA-256 OK; index files equal their boards with 0 field differences; 0 frontend build blockers; 0 Phase-0 blockers among the 141 business rules / 114 decisions). Foundation 1b090c9 is reusable with listed refactors. All 123 designed IDs are routed and the 24 excluded are preserved. The candidate matrix has 347 rows. There are 28 models and 22 ports (183 methods), and every binding constraint is traced to a design and a test. Why not READY: no implementation step may start until the owner approves (1) creating the worktree and branch, (2) the Slice-1 preservation option, (3) committing design/handoff-v46/ and CLAUDE.md, (4) the ARCHITECTURE exception packet (TE-1, TE-2 with AD-01/AD-02, TE-5, TE-7/VD-17, AD-39, AD-07 acknowledgement), (5) ADR VD-01 (CSS / Tailwind without Preflight), and (6) the install and devDependency approvals (G-5a/b). The remote (G-4) and the capture downloads (G-5c) block only the PR and the parity baselines. Becomes READY when (1)-(6) are answered. It would become NO-GO only if the owner refused both browser-side mock services (TE-2) and any sample session (TE-1). Phase 0 would then have no lawful way to reach a shell and would need re-planning.'"
+  },
+  {
+   "severity": "major",
+   "location": "design/phase0.md §10.1 (G-1..G-5) vs design/owner-decisions.md §A (A1..A5) and §A.2",
+   "problem": "The two deliverables give different sets of 'true Phase-0 blockers'. (a) owner-decisions A1 (approve the worktree/branch, a git write) and A3 (approve committing design/handoff-v46 + CLAUDE.md) block Phase 0 there. In phase0 they are recommendations R1/R2 marked CONFIRMED and are not gates, although both are git writes. (b) phase0 G-4 (remote) is a gate; owner-decisions demotes it to P0-01. (c) phase0 G-5 (a: pnpm install; b: axe devDependencies; c: vendored React/Babel/Public Sans) has no §A counterpart. Install approval is absent from owner-decisions entirely; b and c appear only as P0-09, P0-05 and P0-08. (d) phase0 G-2 includes the MIGRATION_STRATEGY 'frontend-on-mocks' amendment, which owner-decisions §A.2 / P0-03 says does not block Phase 0.",
+   "evidence": "phase0.md lines 951-957 (G-1..G-5); owner-decisions.md lines 30-128 (A1-A5), 134-139 (A.2), 269 (P0-01), 271 (P0-03), 273/276/277 (P0-05/08/09). START-HERE steps 1-3 call for the commit, but it is still a repo write that needs owner approval under this audit's rules.",
+   "correction": "Publish one gate list in the final response §9 and use it in both files. G-0 approve A1 (worktree + branch name/path) and A3 (handoff commit + CLAUDE.md line); blocks WP-0.1. G-1 = A2 Slice-1 preservation. G-2 = A4 exception packet, plus TE-5, AD-39, the AD-07 acknowledgement and the X-11 pull-forward acknowledgement (see the next correction); blocks the merges of WP-0.9 (completion part) and WP-0.11 to WP-0.13. G-3 = A5 VD-01. G-4 = remote and PR base (blocks only the PR). G-5a = install approval (blocks WP-0.1 step 9). G-5b = axe devDependencies (blocks WP-0.4). G-5c = vendored capture files + self-hosted fonts (blocks WP-0.15; WP-0.5 falls back to the Google Fonts link). Keep the MIGRATION_STRATEGY/FPM amendments in WP-0.2 as P0-03 (non-blocking until Phase-1 screens). Remove them from G-2 or mark them 'sign-off requested, not a merge blocker'."
+  },
+  {
+   "severity": "major",
+   "location": "design/owner-decisions.md A4(c) line 91, §A.2 line 139, SC-20 line 234, P1-01 line 308, P3-01 line 356 vs design/phase0.md R11, §0.2 X-11, §10.1 G-2, WP-0.13",
+   "problem": "The deliverables disagree on what Phase 0 contains. owner-decisions says TE-1 is 'a session port now; the XS-01 sign-in form follows in Phase 1 (B8-06)'. It also places TE-5 (sample clock) in Phase 1, says in SC-20 that 'B8-06 governs' phase allocation, and treats completion-as-stored (AD-39) as a Phase-3 decision (P3-01 a/d). phase0 does four things differently: it builds XS-01/XS-03/XS-04 and the public header in Phase 0 (X-11), puts TE-5 in G-2, signs AD-39 off in G-2 for WP-0.9, and records TE-5 in DoD item 4. The owner would be asked contradictory questions.",
+   "evidence": "B8-06 Build-order row read this pass: '1 · Public + access spine — PU-01…12, XS-01/03, SA-01 requests group, SA-02/03, SA-06/07'; Phase-0 row 'Shell, sidebars, account menu, Help & support, system pages, tokens, components, dialogs'. phase0.md lines 57, 82, 880-887, 954, 1053; owner-decisions.md lines 91, 105, 139, 234, 308, 356.",
+   "correction": "Adopt the phase0 scope and state it as an explicit owner acknowledgement. Item: 'X-11: XS-01 (+XS-03 notices, XS-04 disclosure) and the public header/footer pulled forward from B8-06 Phase 1 into Phase 0, because no account selector may exist and the designed sign-in is the only way to reach a shell; B8-06 otherwise governs (SC-20)'. Status: PROVISIONAL, deviation from the board build order, owner to acknowledge. Then update owner-decisions accordingly. A4(c): TE-1 covers the XS-01 form in Phase 0. A4 and A.2: TE-5 is recorded in Phase 0 (f9 'Session expired' is tested via the CI clock). Move P1-01 to Phase 0. Split P3-01: (a) stored vs derived and (d) CompletionPolicy go to G-2 because WP-0.9 builds the completion module; (b), (c) and TE-3 stay in Phase 3. The alternative is to drop the completion module from WP-0.9 until P3-01 is answered. If so, say so in phase0 §8 WP-0.9 and DoD item 10."
+  },
+  {
+   "severity": "major",
+   "location": "design/phase0.md §10.2 (Phase-0 defaults) and §10.3 Phase 6 row; WP-0.13 XS-07 acceptance",
+   "problem": "XS-07 Help & support is built in Phase 0. It renders 'My reports' rows with a title, plus open / reopened / resolved states and report detail. Its UNRESOLVED dependencies are not among phase0's Phase-0 defaults, and phase0 §10.3 defers 'AD-26 / §8-21 who reopens a support report' to Phase 6. These are owner-decisions P0-30 (who reopens), P0-31 (report title source: the form has no title field), P0-34 / SC-29 (problem category) and P0-32 / P0-33 (Help for Academic Reviewer and Super Admin; Help when signed out). The title source can therefore be decided silently in Phase-0 code. The Phase-0 acceptance also omits the drawn 'Where did it happen?' pre-fill and the optional screenshot field.",
+   "evidence": "phase0.md line 999 (Phase 6 row: 'AD-26 / §8-21 who reopens a support report'); schemas.md §8 item 21 'Support — who reopens (07 vs B7-09), title source, IA visibility'; schemas M24 '[U] Source of the report title (no input field)', '[C] Where did it happen? pre-filled', 'Screenshot (optional)'; owner-decisions.md lines 298-302; board 07 'resolving and reopening are Super Admin actions' (1 hit) vs B7-09 'Reopened by the reporter' (7 hits), both re-counted.",
+   "correction": "Add to phase0 §10.2 the following Phase-0 defaults. P0-30: the reporter gets no Reopen control; reopen exists only as the Super Admin command; the 'Reopened by the reporter' wording stays unbuilt (Phase 6) until decided. P0-31: interim title = the start of the 'What happened' text, recorded in the state-copy register as provisional. P0-34 / SC-29: no category field. P0-32: the board-07 template in the Academic Reviewer and Super Admin shells. P0-33: as drawn. In §10.3, move AD-26 / §8-21 to the Phase-0 row; keep the IA visibility part (P2-11 / O-12) in Phase 2. Extend WP-0.13 acceptance (3) with the pre-filled 'Where' field ('Filled in from the page you came from') and the optional screenshot field (file name only; nothing uploaded in the mock)."
+  },
+  {
+   "severity": "major",
+   "location": "Final response §1 (no consolidated verdict in wf/final/*.md or wf/design/*.md)",
+   "problem": "Handoff verification is evidenced (phase0 spot checks; owner-decisions §B; understand/handoff-consistency.json), but no deliverable states the Task-1 verdict in one place. The owner asked for a 'Handoff verification verdict' as section 1.",
+   "evidence": "Re-verified this pass (read-only): ~/Downloads zip SHA-256 9d33f32e1919b239725b2abee0500795174df804f0f7d6dfa58f25b9c08d24bf; extraction 180 files; shasum -a 256 -c SHA256SUMS.txt = 178 OK, 0 FAILED; 128 *.dc.html boards; derived/frame-index.json 966 frames; screens.json 147 = 123 designed + 24 not; open-decisions.json frontendBuildBlockers 0, batchDecisions 79, registerT 35; handoff-consistency.json checks 1-6, 8, 9 PASS and 7, 10, 11, 12 PARTIAL.",
+   "correction": "Add §1 with this draft: 'Verdict: VERIFIED, usable as the frozen design authority. The v46 package is present in ~/Downloads (SHA-256 9d33f32e…24bf, unchanged) and readable. Its 180 files pass 178/178 SHA-256 (SHA256SUMS.txt and MANIFEST.json are not self-listed). It holds 128 boards and 966 indexed frames. screens.json, navigation.json, flows.json, open-decisions.json and tokens.json equal B8-01, boards 05/06, B8-04, B8-08 and B8-07/xr-foundation.css :root with 0 field differences. Headline counts reproduce (147/123/24, 27 flow steps, 65 tokens, 0 frontend build blockers). Partial: entities.json is single-perspective (status vocab incomplete; ‘Scope active’ is drawn nowhere; RUN ownerWriter ‘Student’). 19 proposedRoute values are not literal routes (SA-15 would break the build). 45 boards are unreferenced by screens.json and are all non-product kinds. Package docs have small mismatches. 24 handoff defects (HB-01…HB-24) are reported with ‘board wins’ treatment; none blocks a mock-service frontend. Not yet in the repository: design/handoff-v46/ is the canonical citation path pending owner approval (A3).'"
+  },
+  {
+   "severity": "major",
+   "location": "wf/final/architecture.md §4 (Flow A-F + Device), design/phase0.md §7.2 and WP-0.14; final response §6",
+   "problem": "The owner's checklist says 'flows 1–6'. The continuity boards are titled Flow 1–6, but every deliverable uses flows.json letters A–F plus 'Device'. No mapping exists anywhere. Board step numbering for Flow 5 (Register §Q: 6 steps over B5-08 + B6-12) also differs from flows.json E (5 steps). Readers cannot match the owner's flows to the sequence tables.",
+   "evidence": "Board titles read this pass: B1-13 'Flow-1 Continuity Review' ('one record from the public site to active access', REQ-0042 → ACC-0107); B2-13 'Flow-2 Continuity' ('ACC-0107 → SACC-0310'); B3-12 'Flow 3 · Student learning + per-format feedback · device chain'; B4-14 'Flow-4 Continuity' ('ASMT-0009 / ATT-0450'); B5-08 'Flow 5 · First publication, steps 1–3 (Vendor side)' and B6-12 'steps 4–6'; B6-13 'Flow 6 · Corrected version, steps 1–2' and B7-11 'Flow 6 — Release and Hold'. flows.json about: 'Flows A–F and the device-transfer chain'; steps A4 B4 C3 D4 E5 F4 Device3 = 27. grep 'Flow [1-6]' in architecture.md/phase0.md/owner-decisions.md: 0 hits.",
+   "correction": "Add a mapping table to final response §6 and to architecture.md §4. Flow 1 = A (A1–A4; boards B1-13, B1-01…B1-11). Flow 2 = B (B1–B4 + B5 withdraw alternate; B2-13). Flow 3 = C (C1–C3) + Device chain (Dv1–Dv3; B3-12). Flow 4 = D (D1–D4; B4-14; D4 release by the assessment's own setting, HB-01). Flow 5 = E: board steps 1–3 ↔ E1–E2 incl. revise/resubmit, 4 ↔ E3, 5 ↔ E4, 6 ↔ E5 (B5-08, B6-12). Flow 6 = F (F1–F4 + Hold / Lift hold; B6-13, B7-11). State that the 27 flows.json steps and the drawn alternates are the test units (phase0 WP-0.14)."
+  },
+  {
+   "severity": "minor",
+   "location": "Final response §2; design/phase0.md §2.1 (no inventory summary)",
+   "problem": "Task 1 asks for existing architecture/packages/components/services/tests/infrastructure. phase0 gives file-level verdicts but no compact inventory. The full facts sit only in understand/repo-baseline.json#foundation.",
+   "evidence": "git ls-tree 1b090c9 v2/packages v2/apps: apps api, web; packages config, contracts, database, domain, testing, ui, validation (9 workspace packages). 1b090c9:v2/docs/PHASE0_VERIFICATION.md line 37: '218 passed … config 67 · testing 5 · validation 8 · domain 18 · database 5 · contracts 66 · ui 1 · api 38 · web 10'; line 39 e2e 2/2 Chromium; line 7 'No Node.js, npm, pnpm, Docker or PostgreSQL is installed' (at that time). git branch --list: 8 local branches (3 v2/* at 1b090c9 plus main, requirements/frd-v5-draft and 3 uiux/*). No remote. No CI configuration (ARCH §17).",
+   "correction": "Add an inventory table to §2. Toolchain: Node ≥24.15 (24.21.0 installed), pnpm 12.3.4, TS 6.0.3, turbo 2.10.12, Next 16.3.4, React 19.3.0, Tailwind 4.3.3, TanStack Query 5.102.8, RHF 7.87.0, zod 4.6.0, Vitest 4.1.11, Playwright 1.63.0, ESLint 9.39.5, NestJS 12.0.1 and Prisma 7.10 (API only). 9 packages with roles and the boundary matrix. Web routes /, /system, /healthz. Services: api-client fetchApi, env schema, forms helper. Tests: 218 unit tests by package; e2e 2/2 Chromium; test:db needs PostgreSQL (absent). Infrastructure: no remote, no CI, no Docker/PostgreSQL; a local Playwright Chromium cache exists (~/Library/Caches/ms-playwright/chromium-1243) and no WebKit/Firefox. Also list the 5 non-v2 local branches so they are not mistaken for work in scope."
+  },
+  {
+   "severity": "minor",
+   "location": "design/phase0.md line 4 and §11.4; design/owner-decisions.md line 4; final response closing statement",
+   "problem": "Both deliverables say no file under /Users/mymac/Desktop/AR-VR changed. The only file under the repository folder with a new mtime during the audit is the Claude Code host's lock file. The statement should be precise about scope so it stays true.",
+   "evidence": "find -newermt '2026-10-09 18:00' under the repo (excluding .git, node_modules, build output) returns only .claude/scheduled_tasks.lock (mtime 18:31), excluded by .git/info/exclude line 8. git status --porcelain -uall path set = the 98 paths in repo-baseline.json#uncommitted (the only difference is octal quoting of one Source Pack filename). git diff --stat = '11 files changed, 192 insertions(+), 58 deletions(-)', unchanged. The ~/Downloads zip SHA-256 is unchanged and its mtime (18:07) predates the audit outputs.",
+   "correction": "Word the statement as follows: 'No implementation, tracked or untracked project file was created, edited, moved or deleted in /Users/mymac/Desktop/AR-VR or ~/Downloads. Git status (98 paths), the tracked diff (11 files, +192/−58), the branches and HEAD 1b090c9 are identical to the start of the audit. The handoff zip SHA-256 is unchanged. All audit outputs are under the session scratchpad (wf/, report/). The only file whose mtime moved under the repo folder is the Claude Code host lock .claude/scheduled_tasks.lock, which git ignores and the audit did not write.'"
+  },
+  {
+   "severity": "minor",
+   "location": "design/owner-decisions.md §D.0 (DV-1..DV-4) vs design/phase0.md §0.2 (X-1..X-15); owner-decisions P1-02, P1-12, P0-16, P0-21, P0-24",
+   "problem": "The register's list of 'places where this audit's own deliverables differ' leaves out owner-facing divergences that phase0 records. X-5 PU-10/PU-12 URL: owner-decisions P1-02 recommends architecture's /requests/status without noting routes.md O-05's /requests/[requestId] alternative. X-6 hosted seed default: spine-start vs state-coverage. X-10 / VD-20 rail preference: P0-24 says 'Approve' browser storage; phase0 keeps it in memory, UNRESOLVED. VD-09 motion and VD-15 forced colours: P0-16/P0-21 recommend building them during Phase 0 (as visual.md §13 does); phase0 §10.2 says 'not built'.",
+   "evidence": "phase0.md lines 76-81, 974-979; owner-decisions.md lines 256-263, 284, 289, 292, 309, 319; visual.md §13 VD-09 'Implement, gated by reduced motion', VD-15 'Add a minimal outline rule', VD-20 'Approve'.",
+   "correction": "Add DV-5 (X-5 PU-10 URL; Phase 1), DV-6 (X-6 hosted seed default; before Phase-1 review), DV-7 (X-10 rail preference storage; Phase 0) and DV-8 (VD-09/VD-15: build in Phase 0 or defer) to owner-decisions §D.0. Give one interim each, and use the same interim in phase0 §10.2 and in the final response. Recommended: X-5 interim from routes O-05 (opaque id plus session gate; the reference is never a key); X-6 spine-start; X-10 memory until VD-20 is approved; VD-09/VD-15 deferred with the reduced-motion guard already in the CSS."
+  },
+  {
+   "severity": "minor",
+   "location": "Final response legend; wf/final/schemas.md §0.2, wf/final/routes.md status tables, design/phase0.md 'How to read this'",
+   "problem": "The owner asked for every item to be marked CONFIRMED / PROVISIONAL / UNRESOLVED, but the deliverables use different vocabularies. schemas uses [P] PROPOSED. routes uses CONFIRMED (board-forced) / PROPOSED / EXCLUDED. phase0 adds GATE. permissions adds kinds and bases. owner-decisions labels decisions, not evidence. Copying sections verbatim would mix scales.",
+   "evidence": "schemas.md lines 11-15; routes.md lines 8-24; phase0.md lines 10-15; owner-decisions.md lines 12-18.",
+   "correction": "Open the final response with one legend. PROPOSED (schemas, routes) = PROVISIONAL (an engineering choice, reversible). CONFIRMED (board-forced) = CONFIRMED. EXCLUDED = CONFIRMED not-designed. GATE = UNRESOLVED owner decision that blocks a named WP. In owner-decisions the status is that of the decision; the evidence is separately CONFIRMED."
+  },
+  {
+   "severity": "minor",
+   "location": "Final response §7 (if it reuses Understand-stage figures)",
+   "problem": "Two Understand-stage figures quoted in the audit brief are superseded by the final visual deliverable and must not reappear. First, '23,140 inline style attributes': the recount is 24,319. Second, 'B1-13 repeats the B1-10 defect': visual.md §7.1 says B1-13 only embeds an SA-02 thumbnail (1 thead with a control) and has no indexed product frame.",
+   "evidence": "Recount this pass over 128 boards: `style=` attributes = 24,319 (three regexes agree). visual.md lines 24, 35, 234 and verification row C10 (line 1038) 'Use 24,319, not 23,140'. thead-with-control scan this pass: B1-10 10 tables, B1-13 1 (the Flow-1 thumbnail of SA-02); visual.md §7.1 line 616 'B1-13 does not repeat the defect' and verification row C1 (line 1029).",
+   "correction": "Use 24,319. Describe B1-13 as an embedded SA-02 thumbnail that is fixed by the same DataTable change (PF-01) and needs no separate remediation."
+  },
+  {
+   "severity": "minor",
+   "location": "design/phase0.md §2.2 row 'OPEN_DECISIONS.md'",
+   "problem": "The planned amendment to OPEN_DECISIONS lists E-19, Part E (TE-1…TE-8), A-20 and A-06. It omits the other Part-A rows that v46 answers or conflicts with. owner-decisions P0-03 and K-15 name them: A-07 (Student-facing course code vs v46 IA code + CM platform code, M-2), A-08 (later-version governance: BC8 draws CM → AR → SA Release/Hold), A-14 (device-transfer decline: v46 has none, T-32).",
+   "evidence": "1b090c9:v2/docs/OPEN_DECISIONS.md rows A-07 (line 22), A-08 (line 23), A-14 (line 29) read this pass; owner-decisions.md line 271; phase0.md line 197 and K-15 line 1037.",
+   "correction": "Add A-07, A-08 and A-14 to the WP-0.2 OPEN_DECISIONS amendment as annotations ('v46 position: …; not resolved, owner to confirm'). Keep the rule that no Part-A row is marked resolved (WP-0.2 acceptance 3)."
+  },
+  {
+   "severity": "minor",
+   "location": "design/phase0.md R7 / §4.2; final response §6",
+   "problem": "BC14 requires 'one connected application state for every shared record'. Option A gives one world per browser tab, rebuilt on reload or full navigation. Two tabs (e.g. Student and Faculty side by side) therefore hold two divergent worlds, and a reload loses a walk. phase0 records this as risk K-8 and owner item AD-07/P0-02, but the final response must not present BC14 as fully met without that qualification.",
+   "evidence": "phase0.md line 53 (R7) and lines 502, 1030 (K-8); owner-decisions.md P0-02 line 270; START-HERE BC14 'On the canvas each board keeps its own state; the product must not.'",
+   "correction": "In §6 state: 'BC14 is met inside one tab: every role signed in to that tab reads and writes one world, and sign-out and sign-in keep it. It is not met across tabs or reloads until the owner authorises option B (P0-02/AD-07). Hosted reviewer walk-throughs of cross-role flows therefore need P0-02 answered first.' Keep the mechanism PROVISIONAL."
+  },
+  {
+   "severity": "minor",
+   "location": "design/phase0.md §7.1-§7.2 (Playwright projects) vs design/owner-decisions.md P0-28",
+   "problem": "owner-decisions recommends declaring Chromium 105+, Safari 16+ and Firefox 121+ as supported (10 :has() rules, container queries). phase0 runs every e2e, reach and parity test in Chromium only, and §11.4 lists WebKit/Firefox behaviour of container queries inside showModal() as an unproven assumption. The declared policy would be untested at Phase-0 exit.",
+   "evidence": "owner-decisions.md line 296; phase0.md lines 669, 1081; local cache ~/Library/Caches/ms-playwright has chromium-1243 and chromium_headless_shell-1243 only.",
+   "correction": "Choose one. Either add WebKit and Firefox Playwright projects for the shell, dialog, DataTable and B1-10 suites (the browser download then joins the G-5 approval), or state in DoD item 16 and the verification record that Phase 0 proves Chromium only and that the P0-28 browser policy is verified in Phase 7 / CI (VD-18)."
+  },
+  {
+   "severity": "minor",
+   "location": "design/phase0.md §3.3 Notes ('Unbuilt destinations') and WP-0.13 acceptance (1), (2), (5)",
+   "problem": "The Phase-0 interim creates dead-end links. Sign-in lands each role on /<base>, which renders the in-shell not-found page. That page's 'Back to Home' and XS-06's 'Back to Home' both point back to /<base>, i.e. to not-found again. The public PU-15 'Browse experiments' targets /experiments (PU-04, Phase 1), which also resolves to not-found. This contradicts phase0's own rule that no navigation item points to an unbuilt destination (navigation.json 'No link to removed or deferred destinations').",
+   "evidence": "phase0.md lines 324-326, 338, 893; board 08 strings re-counted: 'Back to Home' ×4, 'Browse experiments' ×2, 'We can’t find that page' ×2.",
+   "correction": "Pick and record one interim in ADR-0005. Option (a): land on /<base>/help in Phase-0 engineering builds (the alternative phase0 already names), so 'Back to Home' reaches a built page. Option (b): keep the drawn actions and accept the loops as engineering-build behaviour, listed in the verification record (K-21). In both, gate the PU-15 'Browse experiments' action through the built-screen manifest, or note it as a known Phase-0 dead link that resolves in Phase 1."
+  },
+  {
+   "severity": "minor",
+   "location": "Final response §3 (surfaces) and §4 (entity codes)",
+   "problem": "(a) The owner counts eight surfaces (PUBLIC + 7 roles). routes.md groups the 147 IDs into nine tables because 'Entry & shared' (XS-01…XS-08) is cross-surface. (b) The permission matrix keys Faculty-course rows as FCM-xx, while schemas and phase0 (X-9) adopt the board code FMAP. WP-0.2 commits the matrix byte-identical, so policy tests keyed by row id will say FCM while RecordKind says FMAP.",
+   "evidence": "routes.md §2 table (9 rows); permissions.json entity counter FCM 6; phase0.md line 80 (X-9) and line 578 (byte-identical matrix commit); B2-09 FMAP-0021.",
+   "correction": "(a) In §3 say: '8 surfaces = Public + 7 role workspaces; the 8 Entry & shared IDs (7 designed) are rendered inside whichever surface the person is in.' (b) In §4 add one line: 'Matrix row prefix FCM = record kind FMAP (board code); the row ids stay unchanged for traceability.'"
+  }
+ ]
+}
