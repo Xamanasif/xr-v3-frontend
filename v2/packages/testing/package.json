@@ -2,7 +2,7 @@
   "name": "@xr/testing",
   "version": "0.0.0",
   "private": true,
-  "description": "Test foundations: Vitest configuration factory and Playwright base configuration",
+  "description": "Test foundations: Vitest configuration factory, Playwright base configuration, browser helpers (keyboard, reach, axe) and component axe checks",
   "type": "module",
   "exports": {
     ".": {
@@ -12,6 +12,14 @@
     "./playwright": {
       "types": "./dist/playwright.d.ts",
       "default": "./dist/playwright.js"
+    },
+    "./browser": {
+      "types": "./dist/browser/index.d.ts",
+      "default": "./dist/browser/index.js"
+    },
+    "./axe": {
+      "types": "./dist/axe.d.ts",
+      "default": "./dist/axe.js"
     }
   },
   "files": [
@@ -22,17 +30,21 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('dist', { recursive: true, force: true }))\""
   },
   "dependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.63.0",
     "@vitest/coverage-v8": "4.1.11",
+    "axe-core": "4.13.0",
     "vitest": "4.1.11"
   },
   "devDependencies": {
     "@types/node": "24.13.4",
     "@xr/config": "workspace:*",
     "eslint": "9.39.5",
+    "jsdom": "30.0.1",
     "typescript": "6.0.3"
   }
 }

@@ -19,6 +19,9 @@ export const ALLOWED_WORKSPACE_DEPENDENCIES = {
   '@xr/ui': [],
   '@xr/api': ['@xr/config', '@xr/contracts', '@xr/database', '@xr/domain', '@xr/validation'],
   '@xr/web': ['@xr/config', '@xr/contracts', '@xr/domain', '@xr/ui', '@xr/validation'],
+  // The specimen harness (VD-17): renders @xr/ui specimens for tests; never deployed, and no
+  // package may depend on it.
+  '@xr/specimens': ['@xr/ui'],
 };
 
 /** Tooling-only workspace packages: any package may use them (devDependencies, config files). */
@@ -41,6 +44,7 @@ export const FORBIDDEN_THIRD_PARTY = {
   '@xr/ui': [...FRAMEWORK_SERVER, 'next', 'next/*', ...DATA_LAYER],
   '@xr/api': [...FRAMEWORK_WEB],
   '@xr/web': [...DATA_LAYER, ...FRAMEWORK_SERVER],
+  '@xr/specimens': [...DATA_LAYER, ...FRAMEWORK_SERVER],
 };
 
 /** Workspace packages `name` may import: itself, its allowed dependencies, and tooling. */

@@ -1,7 +1,8 @@
 import { defineConfig, devices, type PlaywrightTestConfig } from '@playwright/test';
 
 export interface PlaywrightConfigOptions {
-  baseURL: string;
+  /** Optional: suites that load their own fixture pages (route-fulfilled) have no server. */
+  baseURL?: string;
   testDir?: string;
   /** Optional: suites that need no server (or start their own) omit it. */
   webServer?: PlaywrightTestConfig['webServer'];
@@ -31,7 +32,7 @@ export function createPlaywrightConfig(options: PlaywrightConfigOptions): Playwr
     retries: ci ? 2 : 0,
     reporter: ci ? [['github'], ['html', { open: 'never' }]] : [['list']],
     use: {
-      baseURL: options.baseURL,
+      ...(options.baseURL ? { baseURL: options.baseURL } : {}),
       trace: 'on-first-retry',
     },
     projects: REVIEW_VIEWPORTS.map(({ name, width, height }) => ({

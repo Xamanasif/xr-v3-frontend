@@ -4,5 +4,13 @@
     "noEmit": true,
     "rootDir": "."
   },
-  "include": ["src/**/*", "eslint/*.d.mts", "../../scripts/*.d.mts", "vitest.config.ts"]
+  "include": [
+    "src/**/*",
+    "eslint/*.d.mts",
+    "eslint/rules/*.d.mts",
+    "policy/*.d.mts",
+    "../../scripts/*.d.mts",
+    "vitest.config.ts",
+    "vitest.scans.config.ts"
+  ]
 }

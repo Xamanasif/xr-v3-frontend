@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fixture — focus walk past an iframe</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        margin: 24px;
+      }
+      iframe {
+        width: 320px;
+        height: 80px;
+        border: 1px solid #999;
+      }
+      .collapsed {
+        height: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Focus walk past an iframe</h1>
+      <button type="button" id="before">Before the frame</button>
+      <iframe
+        title="Embedded content"
+        srcdoc="<button type='button'>Inside the frame</button> <a href='#x'>A link inside</a>"
+      ></iframe>
+      <div class="collapsed">
+        <button type="button" id="after">Clipped after the frame</button>
+      </div>
+    </main>
+  </body>
+</html>

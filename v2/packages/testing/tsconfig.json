@@ -2,7 +2,8 @@
   "extends": "@xr/config/tsconfig/node-library.json",
   "compilerOptions": {
     "noEmit": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "lib": ["es2023", "dom", "dom.iterable"]
   },
-  "include": ["src/**/*", "vitest.config.ts"]
+  "include": ["src/**/*", "e2e/**/*", "vitest.config.ts", "playwright.config.ts"]
 }

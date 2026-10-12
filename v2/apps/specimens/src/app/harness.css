@@ -1,0 +1,15 @@
+/*
+ * Harness frame only. Specimen styles come from @xr/ui (its stylesheet entry arrives in
+ * WP-0.5); nothing here may style a component.
+ */
+body {
+  margin: 0;
+}
+
+/* The specimen sits in a container of a set content width, so container queries resolve
+   against that width exactly as they would inside the product's content area. */
+.specimen-frame {
+  container-type: inline-size;
+  container-name: specimen;
+  box-sizing: border-box;
+}

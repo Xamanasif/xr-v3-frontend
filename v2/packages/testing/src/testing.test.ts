@@ -50,6 +50,12 @@ describe('createPlaywrightConfig', () => {
     ]);
   });
 
+  it('needs no base URL for suites that serve their own fixture pages', () => {
+    const config = createPlaywrightConfig({ testDir: './e2e' });
+    expect(config.use?.baseURL).toBeUndefined();
+    expect(config.projects).toHaveLength(4);
+  });
+
   it('starts a web server only when one is given', () => {
     expect(createPlaywrightConfig({ baseURL: 'http://127.0.0.1:3000' }).webServer).toBeUndefined();
     const withServer = createPlaywrightConfig({

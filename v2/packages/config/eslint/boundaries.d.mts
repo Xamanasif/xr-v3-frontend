@@ -9,7 +9,8 @@ export type WorkspacePackage =
   | '@xr/testing'
   | '@xr/ui'
   | '@xr/api'
-  | '@xr/web';
+  | '@xr/web'
+  | '@xr/specimens';
 
 export const ALLOWED_WORKSPACE_DEPENDENCIES: Readonly<
   Record<WorkspacePackage, readonly WorkspacePackage[]>

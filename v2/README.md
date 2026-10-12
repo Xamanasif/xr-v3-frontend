@@ -19,13 +19,14 @@ v2/
   apps/
     web/          Next.js 16 (App Router) — the web application
     api/          NestJS 12 on Fastify, native ESM — the platform API (/api/v1, OpenAPI at /api/docs)
+    specimens/    component specimen harness (VD-17) — test infrastructure only, never deployed
   packages/
     domain/       pure business rules and vocabularies (no dependencies at all)
     contracts/    Zod schemas for API payloads + strict OpenAPI conversion + wire-contract registry
     validation/   shared validation primitives (wire and accepted forms)
     database/     Prisma 7 schema, generated client, bounded pool configuration
     config/       tsconfig / ESLint presets (incl. package-boundary rules) + environment schemas
-    testing/      Vitest and Playwright foundations
+    testing/      Vitest and Playwright foundations, browser helpers (keyboard, reach, axe), component axe checks
     ui/           design tokens and primitives (filled by Design V2)
   docs/
   docker-compose.yml   local PostgreSQL (optional)
@@ -50,12 +51,15 @@ pnpm typecheck
 pnpm lint           # ESLint 9 flat config, including the package-boundary rules
 pnpm test           # deterministic unit / component / API-integration suites (cacheable, environment-independent)
 pnpm test:db        # database-backed checks against DATABASE_URL (never cached; skipped when unset)
-pnpm test:e2e       # Playwright smoke test against the BUILT web app and API (needs browsers: pnpm --filter @xr/web exec playwright install chromium)
+pnpm test:e2e       # Playwright at the four approved widths against the BUILT apps: web smoke, browser-helper self-tests, specimen harness (no API)
 pnpm format:check
+pnpm verify         # the local gate: format, uncached repository checks, build/typecheck/lint/test, bundle scan, browser suites
 pnpm dev            # shared packages in tsc --watch, API on http://localhost:4000, web on http://localhost:3000
 ```
 
 `pnpm dev` is dependency-aware: an edit in a shared package is recompiled by that package's watcher, the API restarts on the new output (and stays stopped while its own code does not compile), and the Next.js dev server picks the change up on the next request.
+
+`pnpm verify` (`scripts/verify.mjs`, `docs/v46/audit/Appendix-F-Phase0-Plan.md` §7.7) is the gate until a CI runner exists. Its repository step re-hashes the frozen `design/handoff-v46/` (178 files) and the audit evidence in `docs/v46/`, and runs the static scans of §7.6 (owner constraints, canvas leakage, Slice-1 terms, B8-03 policy words, raw styling, the UI-kit deny-list) uncached, because they read files outside any one package. The browser suites need ports 3000 and 3100 free.
 
 Environment: copy `.env.example` to `.env` (root, used by the API and by Prisma) and `apps/web/.env.example` to `apps/web/.env.local`. Placeholders only — no real secrets are committed. Turborepo runs in strict env mode; the `.env` files a build reads are part of its cache key.
 

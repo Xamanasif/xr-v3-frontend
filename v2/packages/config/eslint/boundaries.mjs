@@ -1,15 +1,15 @@
 // ESLint preset enforcing the package boundaries declared in `boundary-matrix.mjs`
 // through the resolved-target rule in `rules/resolved-boundaries.mjs`.
 import { WORKSPACE_PACKAGES } from './boundary-matrix.mjs';
-import { xrPlugin } from './rules/resolved-boundaries.mjs';
+import { xrPlugin } from './rules/index.mjs';
 
 export * from './boundary-matrix.mjs';
 export {
   externalPackageOf,
   isPublicExport,
   resolvedBoundariesRule,
-  xrPlugin,
 } from './rules/resolved-boundaries.mjs';
+export { xrPlugin } from './rules/index.mjs';
 
 /** ESLint flat-config object enforcing the boundary of one package. */
 export function boundaries(packageName) {

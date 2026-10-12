@@ -75,10 +75,20 @@ describe('workspace dependency matrix', () => {
     expect(ALLOWED_WORKSPACE_DEPENDENCIES['@xr/web']).not.toContain('@xr/api');
     expect(ALLOWED_WORKSPACE_DEPENDENCIES['@xr/domain']).toEqual([]);
   });
+
+  it('keeps the specimen harness (VD-17) out of every package and away from the product app', () => {
+    for (const [name, allowed] of Object.entries(ALLOWED_WORKSPACE_DEPENDENCIES)) {
+      expect(allowed, name).not.toContain('@xr/specimens');
+    }
+    expect(TOOLING_WORKSPACE_DEPENDENCIES).not.toContain('@xr/specimens');
+    expect(ALLOWED_WORKSPACE_DEPENDENCIES['@xr/specimens']).toEqual(['@xr/ui']);
+  });
 });
 
 describe('TypeScript build graph (project references)', () => {
-  const tscProjects = [...packages].filter(([name]) => name !== '@xr/web');
+  // Next.js apps typecheck with `next typegen && tsc --noEmit`; they are not build projects.
+  const nextApps = new Set<WorkspacePackage>(['@xr/web', '@xr/specimens']);
+  const tscProjects = [...packages].filter(([name]) => !nextApps.has(name));
 
   it('every build project is composite and never emits a broken program', () => {
     for (const [name, { dir }] of tscProjects) {
@@ -460,6 +470,36 @@ describe('ESLint rule xr/resolved-boundaries', () => {
       'apps/api/test/f.ts',
       "import { createApp } from '../src/bootstrap.js';",
       'allowed',
+    ],
+    // the specimen harness renders @xr/ui only, and nothing may import the harness
+    ['@xr/specimens', 'apps/specimens/src/f.tsx', "import { Button } from '@xr/ui';", 'allowed'],
+    [
+      '@xr/specimens',
+      'apps/specimens/src/f.tsx',
+      "import { ROLE_LABEL } from '@xr/domain';",
+      'rejected',
+      /must not depend on @xr\/domain/,
+    ],
+    [
+      '@xr/specimens',
+      'apps/specimens/src/f.tsx',
+      "import RootLayout from '../../web/src/app/layout';",
+      'rejected',
+      /resolves into @xr\/web/,
+    ],
+    [
+      '@xr/web',
+      'apps/web/src/lib/f.ts',
+      "import { SPECIMENS } from '@xr/specimens';",
+      'rejected',
+      /must not depend on @xr\/specimens/,
+    ],
+    [
+      '@xr/web',
+      'apps/web/src/lib/f.ts',
+      "import { SPECIMENS } from '../../../specimens/src/specimens/registry';",
+      'rejected',
+      /resolves into @xr\/specimens/,
     ],
     // ui and tooling
     ['@xr/ui', 'packages/ui/src/f.tsx', "import { HEALTH_PATH } from '@xr/contracts';", 'rejected'],

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fixture — below-the-fold confirm button</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        margin: 24px;
+      }
+      .long-form {
+        height: 2600px;
+        border-left: 4px solid #ccc;
+        padding-left: 12px;
+      }
+    </style>
+    <script>
+      // Records how the page was scrolled and clicked, so the self-test can prove that the
+      // helper used the mouse wheel and a pointer click — never a programmatic scroll API.
+      window.__fixture = { clicks: 0, wheelEvents: 0, programmaticScrolls: [] };
+      for (const [owner, names] of [
+        [
+          Element.prototype,
+          ['scrollIntoView', 'scrollIntoViewIfNeeded', 'scrollTo', 'scrollBy', 'scroll'],
+        ],
+        [window, ['scrollTo', 'scrollBy', 'scroll']],
+      ]) {
+        for (const name of names) {
+          const original = owner[name];
+          if (typeof original !== 'function') continue;
+          owner[name] = function (...args) {
+            window.__fixture.programmaticScrolls.push(name);
+            return original.apply(this, args);
+          };
+        }
+      }
+      window.addEventListener('wheel', () => (window.__fixture.wheelEvents += 1), {
+        passive: true,
+      });
+    </script>
+  </head>
+  <body>
+    <main>
+      <h1>Transfer request</h1>
+      <div class="long-form">A long form whose confirm button sits far below the fold.</div>
+      <button type="button" id="confirm" onclick="window.__fixture.clicks += 1">
+        Confirm transfer
+      </button>
+    </main>
+  </body>
+</html>

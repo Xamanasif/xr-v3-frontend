@@ -9,6 +9,7 @@ import globalsMap from 'globals';
 import tseslint from 'typescript-eslint';
 
 export { boundaries } from './boundaries.mjs';
+export { determinism, uiRules, webFences } from './fences.mjs';
 
 /** Paths no package lints: build output, generated code, dependencies. */
 export const ignores = {

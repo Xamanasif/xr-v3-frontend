@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fixture — focus targets</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        margin: 24px;
+      }
+      /* A skip link hidden until focused, the correct pattern. */
+      .skip {
+        position: absolute;
+        left: -10000px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+      .skip:focus {
+        position: static;
+        width: auto;
+        height: auto;
+      }
+      /* The defect under test: a header row collapsed to nothing, as in B1-10 at 375. */
+      .collapsed-header {
+        height: 0;
+        overflow: hidden;
+      }
+      /* A viewport-fixed control inside a clipped wrapper that is not its containing block. */
+      .clipped-wrapper {
+        height: 0;
+        overflow: hidden;
+      }
+      .fixed-close {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+      }
+      .spacer {
+        height: 1600px;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to main content</a>
+    <main id="main">
+      <h1>Focus targets</h1>
+      <button type="button" id="first">Visible action</button>
+      <div class="collapsed-header">
+        <button type="button" id="sort">Sort by Received</button>
+      </div>
+      <div class="clipped-wrapper">
+        <button type="button" id="close" class="fixed-close">Close menu</button>
+      </div>
+      <div class="spacer"></div>
+      <button type="button" id="last">Below the fold, still visible when focused</button>
+    </main>
+  </body>
+</html>

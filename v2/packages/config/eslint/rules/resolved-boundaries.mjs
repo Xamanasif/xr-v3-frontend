@@ -356,8 +356,3 @@ export const resolvedBoundariesRule = {
     };
   },
 };
-
-export const xrPlugin = {
-  meta: { name: 'xr-boundaries', version: '0.0.0' },
-  rules: { 'resolved-boundaries': resolvedBoundariesRule },
-};

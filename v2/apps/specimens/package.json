@@ -1,0 +1,30 @@
+{
+  "name": "@xr/specimens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Component specimen harness (VD-17): renders @xr/ui specimens for Playwright checks. Developer and test infrastructure only — never deployed, never a product route.",
+  "scripts": {
+    "build": "next build",
+    "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "test:e2e": "playwright test",
+    "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('.next', { recursive: true, force: true }))\""
+  },
+  "dependencies": {
+    "@xr/ui": "workspace:*",
+    "next": "16.3.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.13.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@xr/config": "workspace:*",
+    "@xr/testing": "workspace:*",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.4",
+    "typescript": "6.0.3"
+  }
+}

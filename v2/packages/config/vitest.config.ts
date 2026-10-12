@@ -6,5 +6,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // Repository scans read other packages and the frozen handoff: they run uncached through
+    // `test:scans` (vitest.scans.config.ts), never inside the cached `test` task.
+    exclude: ['**/node_modules/**', 'src/**/*.scan.test.ts'],
   },
 });

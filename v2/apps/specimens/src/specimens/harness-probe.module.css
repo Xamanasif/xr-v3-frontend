@@ -1,0 +1,23 @@
+.probe {
+  padding: 16px;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+}
+
+/* One column below 760 px of content, two from 760 px: the same threshold the v46 tables use
+   for labelled rows (B1-10). The harness checks it resolves against the frame, not the viewport. */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@container specimen (min-width: 760px) {
+  .layout {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.longContent {
+  min-height: 1400px;
+}

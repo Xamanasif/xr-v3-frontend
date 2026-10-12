@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fixture — controls clipped by overflow:clip</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        margin: 24px;
+      }
+      .clipped {
+        height: 120px;
+        overflow: clip;
+        border: 1px solid #999;
+        margin-top: 16px;
+      }
+      .tall {
+        height: 200px;
+      }
+      .very-tall {
+        height: 2000px;
+      }
+    </style>
+    <script>
+      window.__fixture = { clicks: [] };
+    </script>
+  </head>
+  <body>
+    <main>
+      <h1>Clipped controls</h1>
+      <button type="button" onclick="window.__fixture.clicks.push('save')">Save draft</button>
+      <div class="clipped">
+        <div class="tall">Content taller than its clipped box.</div>
+        <button type="button" onclick="window.__fixture.clicks.push('near')">
+          Confirm (clipped in view)
+        </button>
+      </div>
+      <div class="clipped">
+        <div class="very-tall">Content far taller than its clipped box.</div>
+        <button type="button" onclick="window.__fixture.clicks.push('far')">
+          Submit (clipped below the fold)
+        </button>
+      </div>
+    </main>
+  </body>
+</html>
