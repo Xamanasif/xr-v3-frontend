@@ -176,6 +176,13 @@ production runtime-event vocabulary is unchanged. No launch, session, time or us
 a format. Two fixture-supplied values have no product command: Prof. Ravi Shankar's inactive
 account (PER-07 open) and the authorised VR devices (no device registry, D20b).
 
+### Identity seams for the web test-hook bridge (WP-0.12)
+
+`asPersonId(platform, personId)` is `asPerson` by person id (the Playwright helpers name people by
+id), in a session of its own. `beginSession(platform, personId)` starts the platform's own session
+— the CI-only boot descriptor's signed-in person, without the XS-01 form. Both refuse an id the
+world does not know, live in `./testing` only, and list no one.
+
 ## Sample credentials
 
 Sign-in (XS-01) takes a known sample e-mail and any non-empty password (AD-03); an unknown e-mail is

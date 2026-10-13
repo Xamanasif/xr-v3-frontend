@@ -20,10 +20,11 @@ const booted = new WeakSet<Page>();
  * page (sample worlds live in memory per tab and are rebuilt on full navigation, ADR-0004;
  * multi-step tests navigate client-side). The descriptor is frozen and read-only in the page.
  *
- * Phase 0 (WP-0.4) builds the Playwright half only. The bridge that reads the descriptor
- * and builds the world arrives with the composition root (WP-0.12); until then a page
- * carries the descriptor and nothing consumes it. One world per page: boot another page (or
- * context) for another world.
+ * In a test-hook build (`TEST_HOOKS_URL`) the bridge (`src/platform/test-hook-bridge.ts`,
+ * WP-0.12) reads it before the tab's platform is composed: the page starts on that fixture
+ * world, signed in as that person, with no sign-in form. Product builds do not contain the
+ * bridge, so there the descriptor is inert. One world per page: boot another page (or context)
+ * for another world.
  */
 export async function bootWorld(page: Page, descriptor: BootDescriptor): Promise<void> {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(descriptor.fixture)) {

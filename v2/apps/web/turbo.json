@@ -5,8 +5,19 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "env": ["NEXT_PUBLIC_*"],
+      "env": ["NEXT_PUBLIC_*", "NEXT_PUBLIC_XR_DATA_SOURCE", "NEXT_PUBLIC_XR_TEST_HOOKS"],
       "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "build:test-hooks": {
+      "dependsOn": ["^build", "build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": ["NEXT_PUBLIC_*", "NEXT_PUBLIC_XR_DATA_SOURCE", "NEXT_PUBLIC_XR_TEST_HOOKS"],
+      "outputs": [".next-test-hooks/**", "!.next-test-hooks/cache/**"]
+    },
+    "test:e2e": {
+      "dependsOn": ["build", "build:test-hooks"],
+      "cache": false,
+      "passThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH"]
     }
   }
 }

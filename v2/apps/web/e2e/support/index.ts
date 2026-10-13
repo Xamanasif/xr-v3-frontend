@@ -11,12 +11,13 @@ export {
   expectNoInvisibleFocusTargets,
   reachAndClick,
 } from '@xr/testing/browser';
-export { actAs, type PortCommand } from './act-as';
+export { actAs, inspectWorld, type PortCommand, type WorldInspection } from './act-as';
 export { bootWorld, type BootDescriptor } from './boot-world';
 export { signInAs } from './sign-in';
 export {
   BOOT_DESCRIPTOR_GLOBAL,
   HarnessUnavailableError,
   TEST_HOOKS_GLOBAL,
+  TEST_HOOKS_URL,
   type SamplePerson,
 } from './test-seam';

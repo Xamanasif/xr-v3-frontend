@@ -11,6 +11,10 @@
       "types": "./dist/env/index.d.ts",
       "default": "./dist/env/index.js"
     },
+    "./env/build": {
+      "types": "./dist/env/build.d.ts",
+      "default": "./dist/env/build.js"
+    },
     "./package.json": "./package.json",
     "./eslint/boundaries": "./eslint/boundaries.mjs",
     "./eslint/boundary-matrix": "./eslint/boundary-matrix.mjs",

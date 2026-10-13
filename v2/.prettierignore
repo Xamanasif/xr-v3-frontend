@@ -1,6 +1,7 @@
 node_modules
 dist
 .next
+.next-test-hooks
 .turbo
 coverage
 playwright-report

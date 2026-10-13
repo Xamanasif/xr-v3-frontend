@@ -23,14 +23,16 @@ const routes = [fenceOptions('xr/fence: app routes')];
 const composition = [fenceOptions('xr/fence: composition root')];
 const bridge = [fenceOptions('xr/fence: test-hook bridge')];
 const application = [fenceOptions('xr/fence: application code')];
-const providersException = [
-  fenceOptions('xr/fence: recorded exception — apps/web/src/app/providers.tsx'),
-];
 
 const featureFile = fixturePath('src/features/shared/xs-07-help/view.tsx');
 const routeFile = fixturePath('src/app/student/help/page.tsx');
 
 describe('the presets behind these cases', () => {
+  it('record no fence exception: providers.tsx left its WP-0.4 exception in WP-0.12', () => {
+    const names = webFences(fixtureApp).map((item: Linter.Config) => item.name ?? '');
+    expect(names.filter((name) => name.includes('recorded exception'))).toEqual([]);
+  });
+
   it('limit @xr/domain to vocabulary: no decision, policy or derive function', () => {
     expect(DOMAIN_VOCABULARY).not.toContain('interimCompletionPolicy');
     expect(DOMAIN_VOCABULARY).not.toContain('foldSessions');
@@ -114,22 +116,21 @@ ruleTester().run('xr/import-fence — app routes', importFenceRule, {
   })),
 });
 
-ruleTester().run('xr/import-fence — recorded exception (providers.tsx)', importFenceRule, {
+ruleTester().run('xr/import-fence — app providers (route fence, WP-0.12)', importFenceRule, {
   valid: [
-    {
-      code: "import { QueryClient } from '@tanstack/react-query';",
-      filename: fixturePath('src/app/providers.tsx'),
-      options: providersException,
-    },
-  ],
+    "import { PlatformProvider } from '@/platform/platform-provider';",
+    "import { AppLinkProvider } from '@/platform/link';",
+  ].map((code) => ({ code, filename: fixturePath('src/app/providers.tsx'), options: routes })),
   invalid: [
-    {
-      code: "import { ROLE_LABEL } from '@xr/domain';",
-      filename: fixturePath('src/app/providers.tsx'),
-      options: providersException,
-      errors: [{ messageId: 'notAllowed' }],
-    },
-  ],
+    ["import { QueryClient } from '@tanstack/react-query';", 'notAllowed'],
+    ["import { composePlatform } from '@/platform/composition';", 'denied'],
+    ["import { testHooks } from '@/platform/test-hook-bridge';", 'denied'],
+  ].map(([code, messageId]) => ({
+    code: code as string,
+    filename: fixturePath('src/app/providers.tsx'),
+    options: routes,
+    errors: [{ messageId: messageId as string }],
+  })),
 });
 
 ruleTester().run('xr/import-fence — composition root', importFenceRule, {

@@ -16,6 +16,7 @@ export const ignores = {
   ignores: [
     '**/dist/**',
     '**/.next/**',
+    '**/.next-test-hooks/**',
     '**/.turbo/**',
     '**/coverage/**',
     '**/node_modules/**',

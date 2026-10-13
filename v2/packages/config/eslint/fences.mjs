@@ -109,17 +109,12 @@ const ROUTE_ALLOW = [
 /**
  * Explicit, evidence-based exceptions to the fences. Each one names the file, what it may
  * import beyond its fence, why, and when the exception ends.
+ *
+ * None is recorded. The WP-0.4 exception for apps/web/src/app/providers.tsx
+ * (`@tanstack/react-query`) ended in WP-0.12: the QueryClient provider moved into
+ * src/platform/platform-provider.tsx with the composition root (Appendix F §3.2).
  */
-export const RECORDED_FENCE_EXCEPTIONS = [
-  {
-    file: 'apps/web/src/app/providers.tsx',
-    fence: 'app routes',
-    allows: ['@tanstack/react-query'],
-    evidence:
-      'The QueryClient provider predates the platform folder (1b090c9). Appendix F §2.1 and §3.2 move it into src/platform/platform-provider.tsx with the composition root.',
-    removal: 'WP-0.12 (composition root, query layer and session)',
-  },
-];
+export const RECORDED_FENCE_EXCEPTIONS = [];
 
 function routeFence(extraAllow = []) {
   return {

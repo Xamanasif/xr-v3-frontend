@@ -7,12 +7,16 @@
 //   2. repository   UNCACHED: frozen handoff 178/178, audit-evidence and @xr/ui v46-copy
 //                   checksums, the static scans, the dependency deny-list and the lint-fence wiring
 //                   (they read files outside any one package, so Turbo must not cache them)
-//   3. workspace    turbo build, then turbo typecheck lint test, --force (no cached replays).
-//                   Two invocations: @xr/database runs `prisma generate` in both its build
-//                   and typecheck scripts, and two uncached generates into one folder collide.
-//   4. bundle       the built product contains no test seam and no specimen-harness code
+//   3. workspace    turbo build (+ the web app's dedicated test-hook build), then turbo
+//                   typecheck lint test, --force (no cached replays). Two invocations:
+//                   @xr/database runs `prisma generate` in both its build and typecheck
+//                   scripts, and two uncached generates into one folder collide.
+//   4. bundle       the product build (`.next`, made in this run) contains no test seam and no
+//                   specimen-harness code; the test-hook build (`.next-test-hooks`) is the
+//                   positive control — the same scan must find the bridge there (TE-7, WP-0.12)
 //   5. browser      Playwright at the four approved widths: product smoke, browser-helper
-//                   self-tests, specimen harness (needs ports 3000 and 3100 free)
+//                   self-tests, test-hook bridge, specimen harness (ports 3000, 3100 and 3200
+//                   must be free)
 //
 // Suites that do not exist yet are listed as such at the end; nothing is reported as run
 // that did not run.
@@ -35,11 +39,19 @@ const NOT_YET_PRESENT = [
   ['visual-parity suite', 'WP-0.15 (inputs not yet approved: G-5c, VD-18)'],
 ];
 
+/** What the test-hook build must contain, proving the bundle scan finds the bridge when it is there. */
+const TEST_HOOK_BUILD_MARKERS = [
+  'xr-web-test-hook-bridge',
+  '__XR_TEST_HOOKS__',
+  '__XR_TEST_BOOT__',
+];
+
 /**
  * Names that may exist only in tests, the CI-only bridge or the specimen harness; the contract
  * suite and the stand-in ports of @xr/contracts/draft carry their own markers.
  */
 const BUNDLE_SENTINELS = [
+  'xr-web-test-hook-bridge',
   '__XR_TEST_BOOT__',
   '__XR_TEST_HOOKS__',
   'NEXT_PUBLIC_XR_TEST_HOOKS',
@@ -115,6 +127,15 @@ function portInUse(port) {
 const results = [];
 const started = Date.now();
 
+// The test-hook flag belongs to the dedicated Playwright build only (TE-7). Set in this shell it
+// would turn the product build into a test-hook build and the bundle step would scan a stale one.
+if (process.env.NEXT_PUBLIC_XR_TEST_HOOKS !== undefined) {
+  process.stderr.write(
+    'verify: unset NEXT_PUBLIC_XR_TEST_HOOKS first — only the dedicated test-hook build sets it (ADR-0007 §2).\n',
+  );
+  process.exit(1);
+}
+
 async function step(name, work) {
   const begin = Date.now();
   process.stdout.write(`\n━━ verify · ${name} ━━\n`);
@@ -172,7 +193,7 @@ await step('workspace', async () => {
     const match = /Tasks:\s+(\d+) successful, (\d+) total/.exec(plain(output));
     return match ? `${match[1]}/${match[2]}` : '?';
   };
-  const build = await run(pnpm, ['exec', 'turbo', 'run', 'build', '--force']);
+  const build = await run(pnpm, ['exec', 'turbo', 'run', 'build', 'build:test-hooks', '--force']);
   if (build.code !== 0) return { ok: false, detail: `turbo build ${tasksOf(build.output)} tasks` };
   const { code, output } = await run(pnpm, [
     'exec',
@@ -192,11 +213,17 @@ await step('workspace', async () => {
   };
 });
 
+/** Built files of a Next.js output folder, if it was (re)built during this run. */
+function freshBuild(folder) {
+  const buildId = join(folder, 'BUILD_ID');
+  if (!existsSync(buildId) || statSync(buildId).mtimeMs < started) return null;
+  return walk(folder).filter((file) => /\.(?:js|html|json|rsc|txt)$/.test(file));
+}
+
 await step('bundle', async () => {
-  const build = join(root, 'apps', 'web', '.next');
-  const files = walk(build).filter((file) => /\.(?:js|html|json|rsc|txt)$/.test(file));
-  if (files.length === 0)
-    return { ok: false, detail: 'apps/web/.next is missing: the build did not run' };
+  const files = freshBuild(join(root, 'apps', 'web', '.next'));
+  if (!files?.length)
+    return { ok: false, detail: 'apps/web/.next was not built in this run: the build did not run' };
   const hits = [];
   for (const file of files) {
     const text = readFileSync(file, 'utf8');
@@ -205,14 +232,23 @@ await step('bundle', async () => {
     }
   }
   for (const hit of hits) process.stdout.write(`  found ${hit}\n`);
+  // Positive control: the dedicated test-hook build must carry the bridge in a client chunk.
+  const testBuild = freshBuild(join(root, 'apps', 'web', '.next-test-hooks'));
+  const clientChunks = (testBuild ?? []).filter((file) =>
+    file.startsWith(join(root, 'apps', 'web', '.next-test-hooks', 'static')),
+  );
+  const missing = TEST_HOOK_BUILD_MARKERS.filter(
+    (marker) => !clientChunks.some((file) => readFileSync(file, 'utf8').includes(marker)),
+  );
+  for (const marker of missing) process.stdout.write(`  test-hook build lacks ${marker}\n`);
   return {
-    ok: hits.length === 0,
-    detail: `${files.length} built product files, ${hits.length} test-seam or harness sentinels`,
+    ok: hits.length === 0 && testBuild !== null && missing.length === 0,
+    detail: `${files.length} built product files, ${hits.length} test-seam or harness sentinels · test-hook build: ${testBuild === null ? 'not built in this run' : `bridge in its client chunks (${TEST_HOOK_BUILD_MARKERS.length - missing.length}/${TEST_HOOK_BUILD_MARKERS.length} markers)`}`,
   };
 });
 
 await step('browser', async () => {
-  for (const port of [3000, 3100]) {
+  for (const port of [3000, 3100, 3200]) {
     if (await portInUse(port)) {
       return {
         ok: false,

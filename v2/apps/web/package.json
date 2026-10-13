@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
+    "build:test-hooks": "node scripts/next-with-test-hooks.mjs build",
     "start": "next start -p 3000",
+    "start:test-hooks": "node scripts/next-with-test-hooks.mjs start -p 3200",
     "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "test": "vitest run",
@@ -19,6 +21,7 @@
     "@xr/config": "workspace:*",
     "@xr/contracts": "workspace:*",
     "@xr/domain": "workspace:*",
+    "@xr/sample-platform": "workspace:*",
     "@xr/ui": "workspace:*",
     "@xr/validation": "workspace:*",
     "next": "16.3.4",

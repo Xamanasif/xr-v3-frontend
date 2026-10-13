@@ -1,12 +1,19 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
 
-/** Server-state foundation: one QueryClient per browser session. */
+import { AppLinkProvider } from '@/platform/link';
+import { PlatformProvider } from '@/platform/platform-provider';
+
+/**
+ * The application providers (Appendix F §3.2): the tab's platform — ports, session, the one
+ * QueryClient and its defaults from the composition root — and `next/link` for `@xr/ui` links.
+ * They render no UI of their own.
+ */
 export function Providers({ children }: { readonly children: ReactNode }) {
-  const [client] = useState(
-    () => new QueryClient({ defaultOptions: { queries: { staleTime: 5_000 } } }),
+  return (
+    <PlatformProvider>
+      <AppLinkProvider>{children}</AppLinkProvider>
+    </PlatformProvider>
   );
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }

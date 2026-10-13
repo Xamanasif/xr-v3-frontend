@@ -17,6 +17,12 @@ export const BOOT_DESCRIPTOR_GLOBAL = '__XR_TEST_BOOT__';
 export const TEST_HOOKS_GLOBAL = '__XR_TEST_HOOKS__';
 
 /**
+ * The dedicated test-hook build (`pnpm build:test-hooks`, `.next-test-hooks`), served by the
+ * Playwright web server on its own port; the product build is served at the config's baseURL.
+ */
+export const TEST_HOOKS_URL = 'http://localhost:3200';
+
+/**
  * A sample-world person. A session stores only the person's id; role, institution and
  * scope are resolved from the world's records, never supplied by a test (ADR-0003 §1).
  */

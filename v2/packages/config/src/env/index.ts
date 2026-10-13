@@ -5,6 +5,12 @@
  * process reads its configuration ONCE at boot through one of these schemas. A
  * malformed environment fails fast with a named list of problems; nothing in V2
  * reads `process.env` ad hoc, and there are no prototype flags.
+ *
+ * Recorded exception TE-7 (ADR-0007 §2; OPEN_DECISIONS Part E): two public build flags. The
+ * data source (`NEXT_PUBLIC_XR_DATA_SOURCE`) is data supplied at boot and lives in the web
+ * schema below. The test-hook flag is a build-time switch only: it lives in `./build.ts`
+ * (`@xr/config/env/build`), which `apps/web/next.config.ts` alone reads, so its name never
+ * reaches a module that ships to the browser.
  */
 import { z } from 'zod';
 
@@ -61,6 +67,20 @@ export const apiEnvSchema = z.object({
 export type ApiEnv = z.output<typeof apiEnvSchema>;
 
 /**
+ * Where the web application's service ports come from (TE-7; ADR-0002, ADR-0007 §2):
+ * `sample` — the in-browser sample world of `@xr/sample-platform` (ADR-0004 option A);
+ * `api` — the future HTTP adapter over `apps/api` (Appendix F §3.2 `platform/http/`, not built).
+ * Unset means `sample`, the only adapter that exists. Any other value is refused, and `api` is
+ * never replaced by `sample` when it cannot run: the composition root refuses it instead.
+ */
+export const DATA_SOURCES = ['sample', 'api'] as const;
+export type DataSource = (typeof DATA_SOURCES)[number];
+export const dataSourceSchema = z.preprocess(
+  emptyToUndefined,
+  z.enum(DATA_SOURCES).default('sample'),
+);
+
+/**
  * Browser-visible configuration of the web application (`apps/web`).
  * Next.js inlines `NEXT_PUBLIC_*` at build time, so the caller must pass each
  * variable as a literal `process.env.NEXT_PUBLIC_…` expression.
@@ -71,6 +91,7 @@ export const webPublicEnvSchema = z.object({
     z.url().default('http://localhost:4000'),
   ),
   NEXT_PUBLIC_APP_ENV: z.preprocess(emptyToUndefined, appEnvironmentSchema.default('development')),
+  NEXT_PUBLIC_XR_DATA_SOURCE: dataSourceSchema,
 });
 export type WebPublicEnv = z.output<typeof webPublicEnvSchema>;
 

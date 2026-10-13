@@ -19,8 +19,9 @@ import {
 } from '@xr/domain';
 
 import { type SamplePlatform, internalsOf } from '../platform/create.js';
-import { SessionContext } from '../platform/core.js';
+import { type PlatformCore, SessionContext, type SessionState } from '../platform/core.js';
 import { buildPorts } from '../platform/ports.js';
+import { resolvePerson } from '../pipeline/actor.js';
 import { systemCommand } from '../pipeline/runner.js';
 import { BrowserSession } from '../session/browser-session.js';
 import { createStandins, settle } from '../standins/index.js';
@@ -65,17 +66,45 @@ export function personIdOf(world: World, name: string): PersonId {
   throw new Error(`No sample person called ${name} in this world.`);
 }
 
-/** The ports as a sample person, in a session of their own (the harness seam, ADR-0003 §5). */
-export function asPerson(platform: SamplePlatform, name: string): ProductPorts {
-  const { core } = internalsOf(platform);
-  const context = new SessionContext(new BrowserSession(core.nonces.next('browser'), null));
-  context.session = {
-    personId: personIdOf(core.store.world, name),
+/** A session for a person the world knows now (a PER, an IA, a holder or the Super Admin). */
+function sessionOf(core: PlatformCore, personId: string): SessionState {
+  const world = core.store.world;
+  if (!resolvePerson(world.records, world.identities, personId)) {
+    throw new Error(`No sample person with id ${personId} in this world.`);
+  }
+  return {
+    personId: personId as PersonId,
     nonce: core.nonces.next('session'),
     signedInAt: core.clock.now(),
     returnTo: null,
   };
+}
+
+/** The ports as a sample person, in a session of their own (the harness seam, ADR-0003 §5). */
+export function asPerson(platform: SamplePlatform, name: string): ProductPorts {
+  return asPersonId(platform, personIdOf(worldOf(platform), name));
+}
+
+/**
+ * `asPerson` by person id — what the web test-hook bridge's `actAs` receives from Playwright
+ * (Appendix F §7.2: the e2e helpers name a person by id only). A session of its own: the
+ * platform's own session (the tab's signed-in person) is untouched.
+ */
+export function asPersonId(platform: SamplePlatform, personId: string): ProductPorts {
+  const { core } = internalsOf(platform);
+  const context = new SessionContext(new BrowserSession(core.nonces.next('browser'), null));
+  context.session = sessionOf(core, personId);
   return buildPorts(core, context, null);
+}
+
+/**
+ * Starts the platform's own session as a sample person, without the XS-01 form — the CI-only
+ * boot descriptor of the web test-hook bridge (ADR-0003 §3; ADR-0007 §3). Test builds only: the
+ * product signs in only through `SessionService.signIn`.
+ */
+export function beginSession(platform: SamplePlatform, personId: string): void {
+  const { core, context } = internalsOf(platform);
+  context.session = sessionOf(core, personId);
 }
 
 /** A visitor's ports with a browser session of their own (the public surface). */

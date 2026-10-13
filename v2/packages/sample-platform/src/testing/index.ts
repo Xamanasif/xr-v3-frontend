@@ -30,6 +30,8 @@ export {
 } from './fixtures.js';
 export {
   asPerson,
+  asPersonId,
+  beginSession,
   faults,
   personIdOf,
   type SampleSeams,

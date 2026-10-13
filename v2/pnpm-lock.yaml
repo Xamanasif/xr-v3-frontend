@@ -246,6 +246,9 @@ importers:
       '@xr/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@xr/sample-platform':
+        specifier: workspace:*
+        version: link:../../packages/sample-platform
       '@xr/ui':
         specifier: workspace:*
         version: link:../../packages/ui
