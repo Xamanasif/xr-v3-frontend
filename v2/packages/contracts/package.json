@@ -2,12 +2,24 @@
   "name": "@xr/contracts",
   "version": "0.0.0",
   "private": true,
-  "description": "Zod schemas for API payloads, their inferred TypeScript types and JSON-Schema export for OpenAPI. OpenAPI remains the external contract.",
+  "description": "Zod schemas for API payloads, their inferred TypeScript types and JSON-Schema export for OpenAPI (OpenAPI remains the external contract); the draft service contracts of the v46 frontend under ./draft.",
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./draft": {
+      "types": "./dist/draft/index.d.ts",
+      "default": "./dist/draft/index.js"
+    },
+    "./draft/standins": {
+      "types": "./dist/draft/standins/index.d.ts",
+      "default": "./dist/draft/standins/index.js"
+    },
+    "./draft/contract-suite": {
+      "types": "./dist/draft/contract-suite/index.d.ts",
+      "default": "./dist/draft/contract-suite/index.js"
     }
   },
   "files": [

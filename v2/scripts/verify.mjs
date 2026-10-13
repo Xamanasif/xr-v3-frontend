@@ -31,12 +31,18 @@ const NOT_YET_PRESENT = [
     'SA-02 route-level DataTable sort test (apps/web/e2e/a11y/datatable-sort.spec.ts, written as fixme: reported as skipped)',
     'Phase 1 (SA-02)',
   ],
-  ['contract suite', 'WP-0.10 / WP-0.11'],
+  [
+    'contract-suite cases against a world (built in WP-0.10; every case reports not run until the sample world exists)',
+    'WP-0.11',
+  ],
   ['foundation-screen and connected-flow suites (and flow skeletons)', 'WP-0.13 / WP-0.14'],
   ['visual-parity suite', 'WP-0.15 (inputs not yet approved: G-5c, VD-18)'],
 ];
 
-/** Names that may exist only in tests, the CI-only bridge or the specimen harness. */
+/**
+ * Names that may exist only in tests, the CI-only bridge or the specimen harness; the contract
+ * suite and the stand-in ports of @xr/contracts/draft carry their own markers.
+ */
 const BUNDLE_SENTINELS = [
   '__XR_TEST_BOOT__',
   '__XR_TEST_HOOKS__',
@@ -44,6 +50,8 @@ const BUNDLE_SENTINELS = [
   'harness-probe',
   'specimen-frame',
   'Specimen harness',
+  'xr-contracts-draft-contract-suite',
+  'xr-contracts-draft-standins',
 ];
 
 function run(command, args) {

@@ -1,7 +1,7 @@
 // Folder-level import fences and code bans of the v46 frontend (Appendix F §3.8, WP-0.4).
 //
 //   webFences(appDir)  apps/web: features, route files, composition root, test-hook bridge,
-//                      the @xr/sample-platform and contract-suite fences, process.env,
+//                      the @xr/sample-platform, contract-suite and stand-in fences, process.env,
 //                      raw hex and canvas classes in product code
 //   uiRules            @xr/ui: v46 class names only, no raw hex, no canvas classes
 //   determinism        @xr/domain now, @xr/sample-platform when it exists (WP-0.11)
@@ -59,6 +59,12 @@ const CONTRACT_SUITE = {
   pattern: '@xr/contracts/draft/contract-suite{,/**}',
   reason:
     'the contract suite runs in tests only, so Node built-ins never reach the client graph (Appendix F §3.6)',
+};
+
+const STANDINS = {
+  pattern: '@xr/contracts/draft/standins{,/**}',
+  reason:
+    'the stand-in ports are test- and seed-only: the seed loader and test harnesses call them, never product code (Appendix C §3.18; ADR-0007)',
 };
 
 /** Test tooling and test support never reach product code (Appendix F §3.8; ADR-0007). */
@@ -120,7 +126,13 @@ function routeFence(extraAllow = []) {
     fence: 'app routes',
     scope: 'all',
     allow: [...ROUTE_ALLOW, ...extraAllow],
-    deny: deny(...SAMPLE_PLATFORM_EVERYWHERE, CONTRACT_SUITE, PLATFORM_WIRING, ...TEST_TOOLING),
+    deny: deny(
+      ...SAMPLE_PLATFORM_EVERYWHERE,
+      CONTRACT_SUITE,
+      STANDINS,
+      PLATFORM_WIRING,
+      ...TEST_TOOLING,
+    ),
   };
 }
 
@@ -144,7 +156,7 @@ export function webFences(appDir) {
           'error',
           {
             fence: 'application code',
-            deny: deny(...SAMPLE_PLATFORM_EVERYWHERE, CONTRACT_SUITE, ...TEST_TOOLING),
+            deny: deny(...SAMPLE_PLATFORM_EVERYWHERE, CONTRACT_SUITE, STANDINS, ...TEST_TOOLING),
           },
         ],
       },
@@ -165,6 +177,7 @@ export function webFences(appDir) {
                   'the composition root takes only the root export of @xr/sample-platform; its test seams belong to the test-hook bridge (Appendix F §3.8)',
               },
               CONTRACT_SUITE,
+              STANDINS,
               ...TEST_TOOLING,
             ),
           },
@@ -193,6 +206,7 @@ export function webFences(appDir) {
                   'the test-hook bridge may import only the ./testing export of @xr/sample-platform (Appendix F §3.8; ADR-0007)',
               },
               CONTRACT_SUITE,
+              STANDINS,
               ...TEST_TOOLING,
             ),
           },
@@ -222,6 +236,7 @@ export function webFences(appDir) {
             deny: deny(
               ...SAMPLE_PLATFORM_EVERYWHERE,
               CONTRACT_SUITE,
+              STANDINS,
               {
                 pattern: '@tanstack/**',
                 reason:

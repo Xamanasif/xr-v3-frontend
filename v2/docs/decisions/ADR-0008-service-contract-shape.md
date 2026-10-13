@@ -1,12 +1,24 @@
 # ADR-0008 — Typed service-contract boundaries
 
-|                    |                                                                                                                                                           |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Status**         | Accepted — engineering decision under the owner-approved Phase-0 plan                                                                                     |
-| **Date**           | 12 Oct 2026                                                                                                                                               |
-| **Audit ids**      | X-1, X-2, X-7, X-9                                                                                                                                        |
-| **Implemented in** | WP-0.9 (record kinds), WP-0.10 (ports, DTOs, contract suite)                                                                                              |
-| **Owner sign-off** | Supports G-2 "one connected frontend service/data layer" (approved 12 Oct 2026). **Owner acknowledgement of this ADR is requested at the WP-0.2 review.** |
+|                    |                                                                                                                        |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| **Status**         | Accepted — engineering decision under the owner-approved Phase-0 plan                                                  |
+| **Date**           | 12 Oct 2026                                                                                                            |
+| **Audit ids**      | X-1, X-2, X-7, X-9                                                                                                     |
+| **Implemented in** | WP-0.9 (record kinds), WP-0.10 (ports, DTOs, contract suite)                                                           |
+| **Owner sign-off** | Supports G-2 "one connected frontend service/data layer" (approved 12 Oct 2026). Acknowledged 13 Oct 2026 — see below. |
+
+## Owner acknowledgement (13 Oct 2026, limited)
+
+The WP-0.10 authorisation acknowledges this ADR as the **provisional engineering architecture for frontend service contracts**:
+
+- typed service-port interfaces;
+- DTO validation boundaries;
+- the `Result` / `ServiceError` model;
+- a reusable, framework-independent contract suite;
+- the later replacement of the frontend mock services by real API adapters.
+
+The acknowledgement does **not** approve unresolved business policies, speculative field requirements or production API behaviour. Those stay open where they are open; the draft contracts carry them in their provisional register (`@xr/contracts/draft`, `provisional.ts`).
 
 ## Context
 

@@ -70,6 +70,7 @@ ruleTester().run('xr/import-fence — features', importFenceRule, {
     ["import { createSamplePlatform } from '@xr/sample-platform';", 'denied'],
     ["import { buildWorld } from '@xr/sample-platform/testing';", 'denied'],
     ["import { runContractSuite } from '@xr/contracts/draft/contract-suite';", 'denied'],
+    ["import type { ClockPort } from '@xr/contracts/draft/standins';", 'denied'],
     ["import { useQuery } from '@tanstack/react-query';", 'denied'],
     ["import Link from 'next/link';", 'denied'],
     ["import type { Metadata } from 'next';", 'denied'],
@@ -103,6 +104,7 @@ ruleTester().run('xr/import-fence — app routes', importFenceRule, {
     ["import { installTestHooks } from '@/platform/test-hook-bridge';", 'denied'],
     ["import { expectNoAxeViolations } from '@xr/testing/browser';", 'denied'],
     ["import { createSamplePlatform } from '@xr/sample-platform';", 'denied'],
+    ["import { STANDIN_LEDGER } from '@xr/contracts/draft/standins';", 'denied'],
     ["import { publicEnv } from '../../../lib/env';", 'escapes'],
   ].map(([code, messageId]) => ({
     code: code as string,
@@ -151,6 +153,12 @@ ruleTester().run('xr/import-fence — composition root', importFenceRule, {
       options: composition,
       errors: [{ messageId: 'denied' }],
     },
+    {
+      code: "import type { StandinPorts } from '@xr/contracts/draft/standins';",
+      filename: fixturePath('src/platform/composition.ts'),
+      options: composition,
+      errors: [{ messageId: 'denied' }],
+    },
   ],
 });
 
@@ -175,12 +183,19 @@ ruleTester().run('xr/import-fence — test-hook bridge', importFenceRule, {
       options: bridge,
       errors: [{ messageId: 'denied' }],
     },
+    {
+      code: "import { STANDINS_MARKER } from '@xr/contracts/draft/standins';",
+      filename: fixturePath('src/platform/test-hook-bridge.ts'),
+      options: bridge,
+      errors: [{ messageId: 'denied' }],
+    },
   ],
 });
 
 ruleTester().run('xr/import-fence — application code', importFenceRule, {
   valid: [
     "import { healthResponseSchema } from '@xr/contracts';",
+    "import type { ProductPorts } from '@xr/contracts/draft';",
     "import { z } from 'zod';",
     "import { publicEnv } from '@/lib/env';",
   ].map((code) => ({ code, filename: fixturePath('src/lib/api-client.ts'), options: application })),
@@ -190,6 +205,8 @@ ruleTester().run('xr/import-fence — application code', importFenceRule, {
     ["import { reachAndClick } from '@xr/testing/browser';", 'denied'],
     ["import { renderScreen } from '@/test-support/render-screen';", 'denied'],
     ["export { runContractSuite } from '@xr/contracts/draft/contract-suite';", 'denied'],
+    ["import { STANDIN_LEDGER } from '@xr/contracts/draft/standins';", 'denied'],
+    ["export type * from '@xr/contracts/draft/standins';", 'denied'],
   ].map(([code, messageId]) => ({
     code: code as string,
     filename: fixturePath('src/queries/operations.ts'),

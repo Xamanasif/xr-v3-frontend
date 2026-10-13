@@ -21,7 +21,7 @@ Stakeholder-confirmed requirements govern business behaviour. A stakeholder ↔ 
 | [ADR-0005](ADR-0005-route-conventions.md)                | Route conventions for the App Router (params, tabs, steps, guards, redirects, unbuilt destinations)         | Accepted (engineering) | Acknowledgement requested                                                  |
 | [ADR-0006](ADR-0006-system-owned-completion-records.md)  | Learning completion is a system-owned record behind an injectable `CompletionPolicy`; T-12 stays open       | Accepted               | G-2, approved 12 Oct 2026                                                  |
 | [ADR-0007](ADR-0007-test-only-seams-and-sample-clock.md) | Test-only controls: sample clock, build flags, test hooks, seeded system facts (TE-5, TE-7)                 | Accepted               | G-2 and AD-14, approved 12 Oct 2026                                        |
-| [ADR-0008](ADR-0008-service-contract-shape.md)           | Typed service-contract boundaries: one port set, one result/error union, one record-kind union              | Accepted (engineering) | Acknowledgement requested                                                  |
+| [ADR-0008](ADR-0008-service-contract-shape.md)           | Typed service-contract boundaries: one port set, one result/error union, one record-kind union              | Accepted (engineering) | Acknowledged 13 Oct 2026, limited scope (WP-0.10)                          |
 
 ## Owner decisions of 12 October 2026
 
