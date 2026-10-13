@@ -82,6 +82,8 @@ export async function actAs<Result = unknown>(
 /** What the bridge reports about the page's world and session (assertions only). */
 export interface WorldInspection {
   readonly marker: string;
+  /** This tab's one world, named when the bridge attached: unchanged for the life of the page. */
+  readonly instance: string;
   /** The boot descriptor's fixture, or `null` for the spine-start seed. */
   readonly fixture: string | null;
   readonly seedId: string;
@@ -109,4 +111,37 @@ export async function inspectWorld(page: Page): Promise<WorldInspection> {
       ).inspect(),
     TEST_HOOKS_GLOBAL,
   );
+}
+
+/** What a same-tab session switch reports. */
+export interface SessionSwitch {
+  readonly marker: string;
+  readonly instance: string;
+  readonly previousSessionKey: string | null;
+  readonly sessionKey: string | null;
+  readonly personId: string | null;
+  readonly worldVersion: number;
+}
+
+/**
+ * Changes who is signed in to THIS tab, keeping its world (WP-0.14 §7; CI/Playwright builds only).
+ * The bridge signs the tab's own session in as `person` through `SessionService.signIn` (their
+ * sample e-mail; the sign-in policy applies) and the tab's session store adopts the answer: the
+ * query cache is cleared, a new session key is published and the shell re-renders from the
+ * person's own stored role. No reload, no second world, no UI: there is no account selector,
+ * workspace chooser or role switch anywhere in the product. Product builds do not contain the
+ * bridge, so this fails there.
+ */
+export async function switchIdentity(page: Page, person: SamplePerson): Promise<SessionSwitch> {
+  assertSamplePerson(person);
+  if (!(await bridgeOf(page))) throw unavailable('switchIdentity');
+  return page.evaluate(
+    async ({ key, personId }) => {
+      const hooks = (window as unknown as Record<string, unknown>)[key] as {
+        switchSession: (personId: string) => Promise<unknown>;
+      };
+      return hooks.switchSession(personId);
+    },
+    { key: TEST_HOOKS_GLOBAL, personId: person.personId },
+  ) as Promise<SessionSwitch>;
 }

@@ -11,7 +11,14 @@ export {
   expectNoInvisibleFocusTargets,
   reachAndClick,
 } from '@xr/testing/browser';
-export { actAs, inspectWorld, type PortCommand, type WorldInspection } from './act-as';
+export {
+  actAs,
+  inspectWorld,
+  type PortCommand,
+  type SessionSwitch,
+  switchIdentity,
+  type WorldInspection,
+} from './act-as';
 export { bootWorld, type BootDescriptor } from './boot-world';
 export { signInAs } from './sign-in';
 export {

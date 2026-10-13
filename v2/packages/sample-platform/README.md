@@ -228,6 +228,36 @@ address is not drawn; it follows the drawn platform-staff domain.
 - **Feedback state** (FB-01) is `eligible` exactly when the feedback form may open — the rule that
   also sends it; an unknown experiment or format is `not-eligible` (the read answers a state).
 
+## WP-0.14 — the cross-role proof on one world (`src/one-world.test.ts`)
+
+One platform, assembled once from the spine-start seed, runs every walk step exactly once in
+board-date order (so every board reference is the walk's) and then the cross-cutting commands and
+the drawn alternates (A "Request more information", B-withdraw, E-alt1…3, F2b return, F-alt
+withdraw; Hold and Lift hold are walk steps). Each Vitest test is one proof step
+(`src/test-support/one-world/`, excluded from the build):
+
+- every call — the walk's and the proof's — goes through the WP-0.10 conformance proxy and is
+  recorded with its answer, so a step asserts the actual command result and `changed`;
+- what each relevant role then reads through its own port methods, and the drawn absences as
+  refusals, each checked to leave the world version and every record unchanged;
+- the twelve `@xr/domain` invariants per commit (observed on the change bus, independently of the
+  pipeline's own check) and per step — invariant 10 as reworded (SUB-0077 absent before E1, both
+  Composite Wall records after E4), invariant 12 over every runtime event's provenance; append-only
+  command log and record histories, `changed` equal to what each commit wrote, rising `rev`s;
+- the interims are named in the step titles: AD-14 (review start supplied by the test-only seam;
+  opening SA-03 starts nothing), DV-2 (objective marks supplied by the fixture seam), M-3
+  (resubmission routed by the seam). DV-1 (an unresolved overlap answers `policy-open` OD-B2-01) is
+  kept apart in `src/dv1-overlap.test.ts` on the later sample, never in a seeded journey.
+
+Alternates run after the spine on records the boards draw for them (SUB-0074, SUB-0085, UPD-0006,
+SACC-0310) so none takes a reserved board reference; the last test checks that only the later-sample
+reservations remain. `src/one-world-checks.test.ts` proves the checks fail on hand-broken worlds.
+Set `XR_ONE_WORLD_REPORT=<file>` to write the per-step evidence (calls, refusals, commits).
+
+Found on the way (owner items, not changed): SA-07's student list carries no `rev`, which "Change
+status" (`overrideStudentStatus`) needs as `expectedRev`; PU-10 answers only the browser session
+that holds the request's ticket (T-01 otherwise).
+
 ## Hosted-walkthrough gaps (for the owner)
 
 A live walk from spine-start stops where no product path exists by design: a payment is never

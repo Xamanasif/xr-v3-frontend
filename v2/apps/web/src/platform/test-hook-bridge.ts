@@ -14,8 +14,17 @@
  * - **`actAs(personId, { port, method, input })`**: runs one port method as another sample
  *   person, in a session of its own, against the SAME world the page shows; the receipt
  *   invalidates the page's queries through the one invalidation function.
- * - **`inspect()`**: the world's identity, the tab's session and the session keys its cached
- *   answers belong to, for assertions.
+ * - **`switchSession(personId)`** (WP-0.14, owner-authorised): signs the tab's OWN session in as
+ *   another sample person through the product's session port — `SessionService.signIn` with that
+ *   person's sample e-mail and a non-empty password (the AD-03 interim), so the sign-in policy
+ *   applies (an inactive Faculty member is refused, SES-09) — and the tab's session store adopts
+ *   the answer as it adopts every sign-in: the whole query cache is cleared first, then the new
+ *   session key is published, so the shell re-renders from that person's stored role. The same
+ *   world, nothing reloaded. It is the CI stand-in for typing a sign-in on XS-01 while XS-01 is
+ *   unbuilt (Phase 1, G-8): it chooses the person; it decides nothing else. No UI reaches it: no
+ *   selector, no chooser.
+ * - **`inspect()`**: the world's identity (including this tab's world instance), the tab's session
+ *   and the session keys its cached answers belong to, for assertions.
  */
 import { PORT_KEYS, type PortKey } from '@xr/contracts/draft';
 import type { RecordRef } from '@xr/domain';
@@ -33,6 +42,8 @@ import type { PreparedBoot, TestHooks } from './test-hook-contract';
 
 /** Its presence in a bundle marks a test-hook build; `pnpm verify` requires it absent elsewhere. */
 export const TEST_HOOK_BRIDGE_MARKER = 'xr-web-test-hook-bridge';
+/** Marks the same-tab session switch (WP-0.14); `pnpm verify` requires it in no product bundle. */
+export const TEST_SESSION_SWITCH_MARKER = 'xr-web-test-session-switch';
 /** Kept equal to `e2e/support/test-seam.ts` (checked by the bridge's unit test). */
 export const BOOT_DESCRIPTOR_GLOBAL = '__XR_TEST_BOOT__';
 export const TEST_HOOKS_GLOBAL = '__XR_TEST_HOOKS__';
@@ -78,6 +89,30 @@ interface PortCommand {
   readonly input: unknown;
 }
 
+/** Any non-empty password signs a known sample e-mail in (AD-03 interim; README "Sample credentials"). */
+const SAMPLE_PASSWORD = 'test-hook-session-switch';
+
+/**
+ * The sample e-mail a person signs in with, found where `SessionService.signIn` looks for it: a
+ * person's institution e-mail, an institution's Institute Admin, a platform-role holder, or a
+ * Super Admin identity.
+ */
+function sampleEmailOf(world: ReturnType<typeof worldOf>, personId: string): string | null {
+  const person = Object.values(world.records.people).find((candidate) => candidate.id === personId);
+  if (person) return person.institutionEmail;
+  const institution = Object.values(world.records.institutions).find(
+    (candidate) => candidate.instituteAdmin?.personId === personId,
+  );
+  if (institution?.instituteAdmin) return institution.instituteAdmin.workEmail;
+  const holder = Object.values(world.records.holders).find(
+    (candidate) => candidate.personId === personId,
+  );
+  if (holder) return holder.workEmail;
+  return (
+    world.identities.superAdmins.find((identity) => identity.personId === personId)?.email ?? null
+  );
+}
+
 function portCommand(value: unknown): PortCommand {
   const command = value as {
     readonly port?: unknown;
@@ -108,6 +143,13 @@ interface Booted {
   readonly sample: Sample;
   readonly runtime: PlatformRuntime;
   readonly fixture: string | null;
+  /** This tab's one world, named once when the bridge attaches: a second world would differ. */
+  readonly instance: string;
+}
+
+function newInstanceId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(6));
+  return `world-${Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
 }
 
 let booted: Booted | null = null;
@@ -143,12 +185,42 @@ const handle = Object.freeze({
     if (isReceipt(answer)) await runtime.invalidate(answer.changed);
     return answer;
   },
+  switchSession: async (personId: unknown): Promise<unknown> => {
+    const { sample, runtime, instance } = await whenBooted();
+    if (typeof personId !== 'string' || !PERSON_ID.test(personId)) {
+      throw new TestHookError('switchSession names a sample person by a non-empty id.');
+    }
+    const email = sampleEmailOf(worldOf(sample), personId);
+    if (!email) throw new TestHookError(`No sample person with id ${personId} signs in here.`);
+    const previous = runtime.session.getSnapshot();
+    // The product's own sign-in, on the tab's session port: policy, then adoption by the store.
+    const answer = await runtime.ports.session.signIn({
+      method: 'email',
+      email,
+      password: SAMPLE_PASSWORD,
+    });
+    if (!answer.ok) {
+      throw new TestHookError(
+        `Sign-in as ${personId} was refused: ${JSON.stringify(answer.error)}`,
+      );
+    }
+    const next = runtime.session.getSnapshot();
+    return {
+      marker: TEST_SESSION_SWITCH_MARKER,
+      instance,
+      previousSessionKey: previous.status === 'unknown' ? null : previous.sessionKey,
+      sessionKey: next.status === 'unknown' ? null : next.sessionKey,
+      personId: next.status === 'signed-in' ? next.personId : null,
+      worldVersion: worldOf(sample).worldVersion,
+    };
+  },
   inspect: async () => {
-    const { sample, runtime, fixture } = await whenBooted();
+    const { sample, runtime, fixture, instance } = await whenBooted();
     const world = worldOf(sample);
     const session = runtime.session.getSnapshot();
     return {
       marker: TEST_HOOK_BRIDGE_MARKER,
+      instance,
       fixture,
       seedId: world.seedId,
       worldVersion: world.worldVersion,
@@ -206,7 +278,12 @@ export const testHooks: TestHooks = {
     if (booted) throw new TestHookError('The bridge is already attached to this tab’s world.');
     if (prepared?.personId) beginSession(composed.sample, prepared.personId);
     attached += 1;
-    booted = { sample: composed.sample, runtime, fixture: prepared?.fixture ?? null };
+    booted = {
+      sample: composed.sample,
+      runtime,
+      fixture: prepared?.fixture ?? null,
+      instance: newInstanceId(),
+    };
   },
   settle(outcome) {
     if (outcome.ok) {

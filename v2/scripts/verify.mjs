@@ -16,8 +16,9 @@
 //                   positive control — the same scan must find the bridge there (TE-7, WP-0.12)
 //   5. browser      Playwright at the four approved widths: product smoke, browser-helper
 //                   self-tests, test-hook bridge, the Phase-0 foundation screens and guards
-//                   (e2e/foundation, WP-0.13), specimen harness (ports 3000, 3100 and 3200 must be
-//                   free)
+//                   (e2e/foundation, WP-0.13), the cross-role proofs on one tab and one world
+//                   (e2e/foundation/cross-role, WP-0.14), the deferred flow skeletons (e2e/flows,
+//                   fixme), specimen harness (ports 3000, 3100 and 3200 must be free)
 //
 // Suites that do not exist yet are listed as such at the end; nothing is reported as run
 // that did not run.
@@ -36,13 +37,17 @@ const NOT_YET_PRESENT = [
     'SA-02 route-level DataTable sort test (apps/web/e2e/a11y/datatable-sort.spec.ts, written as fixme: reported as skipped)',
     'Phase 1 (SA-02)',
   ],
-  ['cross-role connected-flow suites and the flow skeletons (e2e/flows)', 'WP-0.14'],
+  [
+    'full-UI flow tests (apps/web/e2e/flows, 36 deferred test.fixme: reported as skipped)',
+    'Phase 7 (each needs its flow’s screens, B8-06 Phases 1–6)',
+  ],
   ['visual-parity suite', 'WP-0.15 (inputs not yet approved: G-5c, VD-18)'],
 ];
 
 /** What the test-hook build must contain, proving the bundle scan finds the bridge when it is there. */
 const TEST_HOOK_BUILD_MARKERS = [
   'xr-web-test-hook-bridge',
+  'xr-web-test-session-switch',
   '__XR_TEST_HOOKS__',
   '__XR_TEST_BOOT__',
 ];
@@ -53,6 +58,8 @@ const TEST_HOOK_BUILD_MARKERS = [
  */
 const BUNDLE_SENTINELS = [
   'xr-web-test-hook-bridge',
+  'xr-web-test-session-switch',
+  'switchSession',
   '__XR_TEST_BOOT__',
   '__XR_TEST_HOOKS__',
   'NEXT_PUBLIC_XR_TEST_HOOKS',

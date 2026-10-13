@@ -57,7 +57,13 @@ export async function runContractSuite(
 }
 
 export { ContractViolation } from './assert.js';
-export { checkError, checkValue, writtenKeys } from './conformance.js';
+export {
+  type CallLog,
+  checkError,
+  checkValue,
+  conformingPorts,
+  writtenKeys,
+} from './conformance.js';
 export { DEFERRED_OBLIGATIONS, type Obligation } from './obligations.js';
 export type {
   CaseContext,

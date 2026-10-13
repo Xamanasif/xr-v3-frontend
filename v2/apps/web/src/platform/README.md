@@ -51,3 +51,16 @@ and exposes `actAs` and `inspect` (the world's identity, the session, and the se
 cached answers) to `e2e/support`. `pnpm verify` proves the product build holds
 none of the bridge's names or code and that the test build does (positive control). No hosted
 build — owner and reviewer builds included — is made with the flag.
+
+### Same-tab identity switch (WP-0.14, CI/Playwright builds only)
+
+`switchSession(personId)` on the bridge handle (Playwright: `switchIdentity(page, person)`) signs the
+tab's own session in as another sample person through the product's session port —
+`SessionService.signIn` with that person's sample e-mail and a non-empty password (AD-03 interim) —
+so the sign-in policy applies (an inactive Faculty member is refused, SES-09), and the session store
+adopts the answer as it adopts every sign-in: the whole query cache is cleared, a new session key
+is published, and the shell re-renders from the person's stored role. The world, the QueryClient
+and the document are the same; `inspect()` reports the tab's world `instance` so tests can prove
+it. It stands in for typing on XS-01 (Phase 1, G-8): it chooses the person and decides nothing
+else. No UI reaches it. `pnpm verify` requires its marker (`xr-web-test-session-switch`) and
+`switchSession` in the test-hook build and in no product bundle.
