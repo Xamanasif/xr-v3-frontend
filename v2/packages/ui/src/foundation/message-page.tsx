@@ -28,6 +28,23 @@ export interface MessagePageProps extends Omit<
    * in-place confirmations of the product boards draw it (B3-06, B3-08, B4-12, B5-03).
    */
   readonly iconSize?: 20 | 24;
+  /**
+   * The icon circle's tint (board 08 "The family": the circle takes the status tone). `neutral` is
+   * the v46 default (`#EEF0F8` / `#141B5E`: not found, not your workspace, not available); `ok` is
+   * the confirmation tint board 07 "State 1c · Sent · reference" and board 08 "Short success
+   * confirmation" draw inline (`#E8F4EC` / `#1D6B45`): `span.xr-msg-icon.xr-x-msg-icon--ok`
+   * (PF-15). The amber "Access paused" tint comes with its screen (ST-19, Phase 2).
+   */
+  readonly tone?: 'neutral' | 'ok';
+  /**
+   * Where the column sits. `centered` is the v46 default (`margin: 40px auto`; board 07 "State 1c ·
+   * Sent · reference", board 09b). `shell` is a refusal or absence in the workspace shell (board 08
+   * "In context": `margin: 24px 0 0`, `8px 0 0` at 375 px — left-aligned near the top so the sidebar
+   * and account menu stay usable). `public` is the public pages' placement (B1-03, B1-05:
+   * `margin: 24px 0 40px`). The two product placements are PF-15 (`xr-x-msg--shell`,
+   * `xr-x-msg--public`).
+   */
+  readonly placement?: 'centered' | 'shell' | 'public';
   /** What happened, in plain words: the page's only H1 (`h1.xr-msg-title`). */
   readonly title: ReactNode;
   /** One sentence: why, and what still holds ("your work is kept"); a reference on confirmations. */
@@ -66,6 +83,8 @@ export interface MessagePageProps extends Omit<
 export function MessagePage({
   icon,
   iconSize = 24,
+  tone = 'neutral',
+  placement = 'centered',
   title,
   children,
   lead = false,
@@ -77,8 +96,17 @@ export function MessagePage({
   ...rest
 }: MessagePageProps) {
   return (
-    <div className={joinClasses('xr-msg', className)} {...rest} ref={ref}>
-      <span className="xr-msg-icon">
+    <div
+      className={joinClasses(
+        'xr-msg',
+        placement === 'shell' && 'xr-x-msg--shell',
+        placement === 'public' && 'xr-x-msg--public',
+        className,
+      )}
+      {...rest}
+      ref={ref}
+    >
+      <span className={joinClasses('xr-msg-icon', tone === 'ok' && 'xr-x-msg-icon--ok')}>
         <Icon name={icon} size={iconSize} />
       </span>
       <h1 className="xr-msg-title">{title}</h1>

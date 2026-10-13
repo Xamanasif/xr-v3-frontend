@@ -35,8 +35,11 @@ One world per tab, shared by everyone signed in there: signing out and in as ano
 it. A reload — or any navigation that loads a new document — rebuilds it from the seed, signed
 out. Next.js performs a document load for a client-side navigation whose server answer is not OK,
 so a link to an address that answers 404 restarts the world too: product links must target built
-screens only (ADR-0005 link-target ledger). Browser persistence (TE-6) is not authorised and must
-be decided before the hosted manager review.
+screens only (ADR-0005 link-target ledger, `src/nav/link-targets.ts`). Since WP-0.13 every
+workspace address answers 200 (an unknown one renders the in-shell not-found in the browser), so
+only the public addresses — and the unbuilt `/sign-in` the session gate leaves for after a sign-out
+— load a new document. Browser persistence (TE-6) is not authorised and must be decided before the
+hosted manager review.
 
 ## Test hooks (CI/Playwright builds only)
 
@@ -44,6 +47,7 @@ be decided before the hosted manager review.
 the test-hook flag (`pnpm --filter @xr/web build:test-hooks`, output `.next-test-hooks`, served on
 port 3200 by the Playwright config). Then it resolves the bridge, which reads the boot descriptor
 installed by `bootWorld` (fixture world + signed-in person, no sign-in form — XS-01 is Phase 1)
-and exposes `actAs` and `inspect` to `e2e/support`. `pnpm verify` proves the product build holds
+and exposes `actAs` and `inspect` (the world's identity, the session, and the session keys of the
+cached answers) to `e2e/support`. `pnpm verify` proves the product build holds
 none of the bridge's names or code and that the test build does (positive control). No hosted
 build — owner and reviewer builds included — is made with the flag.

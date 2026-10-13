@@ -30,6 +30,7 @@ import type { NavDestination } from './nav-item.js';
 import { Sidebar } from './sidebar.js';
 import { TopBar } from './top-bar.js';
 import {
+  PageContent,
   shellBandFor,
   sidebarWideAt,
   WorkspaceShell,
@@ -522,5 +523,25 @@ describe('WorkspaceShell accessibility (axe, WCAG 2.2 AA)', () => {
     WidthObserver.resize(width);
     expect(toggle()).toHaveAccessibleName(name);
     await assertNoAxeViolations(container);
+  });
+});
+
+describe('PageContent (WP-0.13: the page chooses its width under a shell rendered with wrap="none")', () => {
+  it('emits the same width wrapper the shell emits for that width', () => {
+    for (const [wrap, className] of [
+      ['wide', 'xr-wrap xr-content'],
+      ['read', 'xr-wrap--read xr-content'],
+      ['form', 'xr-wrap--form xr-content'],
+    ] as const) {
+      const page = render(
+        <PageContent wrap={wrap}>
+          <p>content</p>
+        </PageContent>,
+      );
+      const wrapper = page.container.firstElementChild!;
+      expect(wrapper.className).toBe(className);
+      expect(wrapper.innerHTML).toBe('<p>content</p>');
+      page.unmount();
+    }
   });
 });

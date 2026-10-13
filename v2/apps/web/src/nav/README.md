@@ -5,15 +5,20 @@ into a sidebar (Appendix F WP-0.8; Appendix E §4; boards 05, 06, 08, 12). The s
 `features/shared/workspace-shell/role-workspace-shell.tsx`, composed from the `@xr/ui` shell parts;
 the account menu (XS-05) is `features/shared/xs-05-account-menu/`.
 
-| Module               | What it holds                                                                                                                                                                                            |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `nav-config.ts`      | The seven workspaces in board 06's order (labels, icon keys, routes, count words, section tabs), "My device", and the public header (data only: PublicShell is Phase 1 under G-8)                        |
-| `screens.ts`         | The designed workspace screen ids the navigation can name (no excluded id), and the two unnumbered views that need a sidebar owner                                                                       |
-| `active-item.ts`     | The explicit current-item map (Appendix A §3.6): each screen's owning destination, Help on the Help pages, nothing on XS-06, the in-shell PU-15 and ST-18                                                |
-| `built-screens.ts`   | The built-screen manifest. Phase 0 builds only XS-07, so every sidebar shows Help alone; each later package adds the ids it builds and the items appear in board order                                   |
-| `sidebar-model.ts`   | Config + manifest + current screen + count figures → the `Sidebar` props (the configured singular for 1, no count at zero)                                                                               |
-| `help.ts`            | Help & support's addresses under each workspace base and each view's top-bar words, crumb and page width (board 07)                                                                                      |
-| `rail-preference.ts` | The rail choice in memory, per person, for the life of the tab (the Phase-0 interim, VD-20 / X-10). Nothing is stored in localStorage, sessionStorage or cookies; a reload starts from the board default |
+| Module               | What it holds                                                                                                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `nav-config.ts`      | The seven workspaces in board 06's order (labels, icon keys, routes, count words, section tabs), "My device", and the public header (data only: PublicShell is Phase 1 under G-8)                            |
+| `screens.ts`         | The designed workspace screen ids the navigation can name (no excluded id), and the two unnumbered views that need a sidebar owner                                                                           |
+| `active-item.ts`     | The explicit current-item map (Appendix A §3.6): each screen's owning destination, Help on the Help pages, nothing on XS-06, the in-shell PU-15 and ST-18                                                    |
+| `built-screens.ts`   | The built-screen manifest, generated from `routes.ts` (a screen is built when it has a page). Phase 0 builds only XS-07, so every sidebar shows Help alone; the items of later screens appear in board order |
+| `routes.ts`          | The Phase-0 route manifest (WP-0.13): the 35 page files and the other §3.3 route files, the row-20 redirects, `resolveAddress` (what an address shows), and the role ↔ workspace-base mapping                |
+| `link-targets.ts`    | The link-target ledger (ADR-0005 §8): every action drawn on the Phase-0 screens, where it goes and what that address shows — with the one documented dead link ("Browse experiments", PU-04 Phase 1)         |
+| `return-to.ts`       | The `returnTo` rule (own base only, same-origin relative path) and the sign-in addresses the session gate uses (XS-01 in Phase 1)                                                                            |
+| `page-location.ts`   | "Where did it happen?": the last page outside Help & support, in the person's words, in memory per person per tab (PROVISIONAL)                                                                              |
+| `navigation.tsx`     | The framework-free navigation the route layer supplies to the features (address, query, `replace`, `notFound`), as `@/platform/link` supplies `next/link`                                                    |
+| `sidebar-model.ts`   | Config + manifest + current screen + count figures → the `Sidebar` props (the configured singular for 1, no count at zero)                                                                                   |
+| `help.ts`            | Help & support's addresses under each workspace base and each view's top-bar words, crumb and page width (board 07)                                                                                          |
+| `rail-preference.ts` | The rail choice in memory, per person, for the life of the tab (the Phase-0 interim, VD-20 / X-10). Nothing is stored in localStorage, sessionStorage or cookies; a reload starts from the board default     |
 
 ## Sources and checks
 
@@ -26,8 +31,8 @@ the account menu (XS-05) is `features/shared/xs-05-account-menu/`.
   account-menu and shell tests.
 - **No undrawn destination.** No Settings, Reports, role switcher, workspace chooser or licence
   meter appears in any configuration (tested), and the account menu has only My device\*, Help
-  and Sign out. "My device" needs a Student holding AR, VR or MR **and** ST-18 built; Sign out is
-  the caller's callback (the session layer is later work).
+  and Sign out. "My device" needs a Student holding AR, VR or MR **and** ST-18 built; Sign out runs
+  the session port's command through the session gate (WP-0.13), which clears the query cache.
 - **In a browser.** The specimen harness renders the seven shells from the same `@xr/ui` parts with
   board-06 fixture data (`apps/specimens/src/specimens/components/role-shells.tsx`; the harness
   may import `@xr/ui` only). `apps/specimens/e2e/role-shells.spec.ts` compares what renders with
@@ -67,16 +72,16 @@ the account menu (XS-05) is `features/shared/xs-05-account-menu/`.
   (WP-0.9 authorization, 13 Oct 2026), as is the omitted navigation landmark while nothing is
   built.
 
-## For WP-0.13 (the routes)
+## Done in WP-0.13
 
-- **The page's facts reach the shell.** `RoleWorkspaceShell` takes the screen, title, crumbs and
-  page width as props; Appendix F §3.3 places the shell in each workspace's `layout.tsx`
-  (WorkspaceFrame), which cannot receive props from its pages, and the in-shell PU-15 is a
-  `not-found` boundary. WP-0.13 supplies them (for example a page-registered context or the route
-  register's pattern → screen map).
-- **Focus after choosing a destination in the drawer.** The drawer closes and leaves focus to the
-  navigation (WP-0.6 `useDrawer`, as board 05's script does); boards 06 and 12 say only that
-  choosing closes it. Where focus lands on the new page — and on choosing the page already shown —
-  is route-level focus handling.
-- **The manifest is written by hand** until the route files it would be generated from exist
-  (Appendix F §3.2 "generated manifest"); the route-manifest test comes with them.
+- **The page's facts reach the shell**: pages register them with `useShellPage`
+  (`features/shared/workspace-frame/shell-page.tsx`); the shell in the workspace layout uses them
+  before paint. The in-shell PU-15 and XS-06 register theirs the same way.
+- **Focus after choosing a destination**: after a client-side navigation focus moves to `main`
+  (the skip link's target), and so after choosing the page already shown (drawer or account
+  menu). A document load moves nothing. See `features/shared/workspace-frame/route-focus.ts`.
+- **The manifest is generated** from the route manifest, which `routes.test.ts` holds equal to
+  the route files on disk (Appendix F WP-0.13 acceptance 8).
+- The route-level suite repeats the WP-0.8 shell checks on the real composition
+  (`e2e/foundation/`): bands at 1023/1024 and 1279/1280, the drawer, the account menu, axe and
+  visible focus at the four widths.

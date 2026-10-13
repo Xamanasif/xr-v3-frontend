@@ -28,6 +28,11 @@ import type { IconName } from '../icons/registry.js';
  * no validation rules, no sending: the caller (WP-0.8 / WP-0.13) owns all of that, and places
  * each part in the WorkspaceShell with the width board 07 draws (`read` for the list and the
  * detail, `form` for the form, `none` for the confirmation).
+ *
+ * Board 07's inline glue that has no v46 class is reproduced by PF-14 in the product layer
+ * (WP-0.13, owner-authorised): the product classes `xr-x-help-form` (the form card and its
+ * actions), `xr-x-help-back` (the back link's 8 px gap), `xr-x-help-empty` (the empty state's top
+ * rule) and `xr-x-help-foot` (the detail's closing line in ink-2). Nothing else is added.
  */
 
 const HELP = 'Help & support';
@@ -139,6 +144,7 @@ export function HelpSupportHome({
             title="No reports yet"
             line="small"
             actions={report}
+            className="xr-x-help-empty"
           >
             If something isn’t working, report it and follow it here.
           </EmptyState>
@@ -186,8 +192,9 @@ export interface HelpReportFormProps {
  * came from), optional screenshot. Nothing else." The form card is `div.xr-section` and the
  * actions are one group at the end, Cancel right before "Send report", as boards 07 and 11 draw
  * them: `div.xw-actions.xw-actions--end` (flex, wrap, 12 px gap, flex-end). The drawn inline glue
- * — the card's 24 px padding (20 px at 375) with its 20 px column gap, and the group's 4 px top
- * padding — has no v46 class and is not emitted (reported).
+ * — the card's 24 px padding (20 px below 600 px of app width, board 11) with its 20 px column
+ * gap, the group's wrap-reverse and 4 px top padding, and the primary filling the row below
+ * 600 px (board 11) — is PF-14 on `div.xr-section.xr-x-help-form` (WP-0.13).
  */
 export function HelpReportForm({
   helpHref,
@@ -220,7 +227,11 @@ export function HelpReportForm({
   return (
     <>
       <PageHeader
-        back={<BackLink href={helpHref}>{HELP}</BackLink>}
+        back={
+          <BackLink className="xr-x-help-back" href={helpHref}>
+            {HELP}
+          </BackLink>
+        }
         title={REPORT_A_PROBLEM}
         lead="Describe what went wrong. You can follow your report in My reports."
       />
@@ -232,7 +243,7 @@ export function HelpReportForm({
             items={[{ fieldId: whatId, summaryText: 'Say what happened' }]}
           />
         ) : null}
-        <Section>
+        <Section className="xr-x-help-form">
           <Field
             id={whatId}
             label="What happened?"
@@ -314,6 +325,7 @@ export function HelpReportSent({
       id={id}
       tabIndex={-1}
       icon="done"
+      tone="ok"
       title="Report sent"
       action={{ href: reportsHref, label: 'View my reports' }}
       secondary={{ href: homeHref, label: 'Back to Home' }}
@@ -383,7 +395,11 @@ export function HelpReportDetail({
   return (
     <>
       <PageHeader
-        back={<BackLink href={helpHref}>{HELP}</BackLink>}
+        back={
+          <BackLink className="xr-x-help-back" href={helpHref}>
+            {HELP}
+          </BackLink>
+        }
         recordId={reference}
         title={title}
         meta={
@@ -410,7 +426,7 @@ export function HelpReportDetail({
         <Section title="History" headingId={`${prefix}-hi`}>
           <SectionBody>{history}</SectionBody>
         </Section>
-        <p className="xr-small">
+        <p className="xr-small xr-x-help-foot">
           Something else isn’t working? <Link href={reportHref}>{REPORT_A_PROBLEM}</Link>
         </p>
       </Stack>

@@ -191,3 +191,45 @@ The seven role shells are composed in `apps/web` (`RoleWorkspaceShell`, `Workspa
   characters, and no maximum is defined (Appendix C). Open for the owner, with the
   FocusedTaskShell (Phase 4): a title limit or truncation in the bar, or a padding taken from the
   measured bar. No CSS changed.
+
+## WP-0.13 — narrow corrections for the Phase-0 screens (13 Oct 2026)
+
+The owner authorised additive product-layer corrections only where they are needed to reproduce
+the frozen Phase-0 screens (XS-05 … XS-08, PU-15), each with a PF entry and a computed-style test
+(`apps/web/e2e/foundation/visual-corrections.spec.ts`, on the real routes at the four widths). No
+v46 sheet changed; no other component's decisions (FailedState, Stepper, ErrorSummary, format
+chips) changed.
+
+| PF    | What                                                                                                                                                       | Board and frame                                                                      | Product class               |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------- |
+| PF-14 | Report form card: padding 24 (20 below 600 px app width), flex column, gap 20; actions wrap-reverse, 4 px top padding; primary `flex: 1 1 160px` below 600 | 07 "State 1 · Report a problem" (and 1a, 1b, m1); 11 "375 · AR-8 form"               | `xr-x-help-form`            |
+| PF-14 | Back link above a Help page header: margin-bottom 8                                                                                                        | 07 "State 1", "State 3"; 11 "375 · AR-8 form"                                        | `xr-x-help-back`            |
+| PF-14 | My reports empty: 1 px `--xr-line` top rule                                                                                                                | 07 "State 2a · My reports · empty · Vendor"                                          | `xr-x-help-empty`           |
+| PF-14 | The detail's closing line in ink-2                                                                                                                         | 07 "State 3", "State 3a"                                                             | `xr-x-help-foot`            |
+| PF-15 | `div.xr-msg > p.xr-body` in ink-2 (40 of 40 drawn instances)                                                                                               | 07, 08, 09b, 11, B1-03, B1-05, B1-07, B1-12, B1-13, B6-12                            | — (CSS only)                |
+| PF-15 | The confirmation's ok tint (`#E8F4EC` / `#1D6B45`)                                                                                                         | 07 "State 1c · Sent · reference"; 08 "Short success confirmation"                    | `xr-x-msg-icon--ok`         |
+| PF-15 | In the shell: `margin: 24px 0 0`, `8px 0 0` below 600 px app width                                                                                         | 08 "In context · Student workspace · 1312 px", "At 375 px"; 11 "375 · AR-10 message" | `xr-x-msg--shell`           |
+| PF-15 | On a public page: `margin: 24px 0 40px`                                                                                                                    | B1-03 "We can’t find that area"; B1-05 "We can’t find that experiment"               | `xr-x-msg--public`          |
+| PF-15 | The primary action full-width below 600 px app width                                                                                                       | 08 "At 375 px"; 11 "375 · AR-10 message"                                             | — (`xr-app` container rule) |
+| PF-16 | `div.xr-empty > p` in ink-2 (519 of 519 drawn instances); the empty icon keeps the v46 default tint, as board 07 draws Help's                              | 07 "State 2a" and every product board                                                | — (CSS only)                |
+
+API additions: `MessagePage` `tone` (`neutral` · `ok`) and `placement` (`centered` · `shell` ·
+`public`); `PageContent` (the width wrapper for a page under a shell rendered with `wrap="none"`,
+which the persistent workspace layouts of apps/web use). Not built: the amber "Access paused" tint
+(ST-19, Phase 2) and KeyValueList (Phase 1, as the ledger says).
+
+**Board variances reported, not resolved (owner):**
+
+- **"What you reported" (XS-07 detail).** Board 07 lists it in `dl.doc-kv` — a canvas-only class
+  (Appendix E §10; lint-banned in product code) — with an inline 180 px label column. The build
+  uses the product KeyValueList class `dl.xl-kv` (Appendix E §3 KeyValueList), which differs: 200 px
+  column, 12/24 gaps, 16/24 text, labels ink-2 600 and values ink (board 07: 15/22, labels ink 700,
+  values ink-2). Keep `xl-kv`, or approve a PF entry reproducing board 07's look.
+- **Report form at 375.** Board 07's own 375 frame (m1) repeats the desktop template (24 px card
+  padding, actions not widened) while its note says "actions stack full width"; board 11 "375 ·
+  AR-8 form" draws 20 px padding and the primary filling the row beside Cancel. PF-14 follows
+  board 11, the responsive proof.
+- **Where the confirmation sits.** Board 08 "Anatomy" places every message "left-aligned in a
+  600 px column near the top"; board 07 "State 1c" draws "Report sent" with the sheet's centred
+  `margin: 40px auto`. Each screen follows its own board: XS-06 and the in-shell PU-15 use the shell
+  placement, "Report sent" the centred one.

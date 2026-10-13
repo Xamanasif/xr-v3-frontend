@@ -8,9 +8,12 @@
  * as the product boards draw it: a focus target with a 20 px icon, an `xr-lead` sentence and a
  * text-button secondary link).
  *
- * Not emitted (inline styles, Appendix E §2.5–§2.6): the boards' `margin` / `align-items` /
+ * Not emitted as inline styles (Appendix E §2.5–§2.6): the boards' `margin` / `align-items` /
  * `text-align` on `div.xr-msg`, the 40476B grey or `margin:0` of the sentence and the tone
- * tints of the icon circle.
+ * tints of the icon circle. WP-0.13 reproduces the ones its screens draw in the product layer
+ * (PF-15): the sentence's ink-2 (CSS only), the `ok` tint (`xr-x-msg-icon--ok`) and the shell
+ * and public placements (`xr-x-msg--shell`, `xr-x-msg--public`); their computed styles are
+ * checked on the real routes (apps/web e2e).
  */
 import { render, screen } from '@testing-library/react';
 import { createRef } from 'react';
@@ -231,5 +234,68 @@ describe('MessagePage: stylesheet classes and accessibility', () => {
   ])('axe: %s', async (_variant, draw) => {
     const { container } = draw();
     await assertNoAxeViolations(container);
+  });
+});
+
+describe('MessagePage tone and placement (PF-15, WP-0.13)', () => {
+  it('emits no product class by default (the v46 neutral tint and the sheet’s centred column)', () => {
+    const { container } = notAvailable();
+    expect(container.querySelector('.xr-msg')!.className).toBe('xr-msg');
+    expect(container.querySelector('.xr-msg-icon')!.className).toBe('xr-msg-icon');
+  });
+
+  it('`tone="ok"` tints the circle as board 07 "State 1c" and board 08 "Short success confirmation" draw it', () => {
+    expectBoardDraws(
+      { board: '07', frame: 'State 1c · Sent · reference' },
+      '<span class="xr-msg-icon" style="background: #E8F4EC; color: #1D6B45">',
+    );
+    const { container } = render(
+      <MessagePage
+        icon="done"
+        tone="ok"
+        title="Report sent"
+        action={{ href: '#help', label: 'View my reports' }}
+      >
+        Your reference is SUP-0213.
+      </MessagePage>,
+    );
+    expect(container.querySelector('.xr-msg-icon')!.className).toBe(
+      'xr-msg-icon xr-x-msg-icon--ok',
+    );
+    expectStylesheetClassesOnly(container);
+  });
+
+  it('`placement` names the shell (board 08 "In context") and public (B1-03) columns', () => {
+    expectBoardDraws(IN_SHELL, '<div class="xr-msg" style="margin: 24px 0 0">');
+    expectBoardDraws(
+      { board: 'B1-03', frame: 'We can’t find that area' },
+      '<div class="xr-msg" style="margin:24px 0 40px">',
+    );
+    const shell = render(
+      <MessagePage
+        icon="readOnly"
+        placement="shell"
+        title="This page isn’t part of your workspace"
+        action={{ href: '#h', label: 'Back to Home' }}
+      >
+        You’re signed in to the Student workspace.
+      </MessagePage>,
+    );
+    expect(shell.container.querySelector('.xr-msg')!.className).toBe('xr-msg xr-x-msg--shell');
+    const publicPage = render(
+      <MessagePage
+        icon="search"
+        placement="public"
+        title="We can’t find that page"
+        action={{ href: '/experiments', label: 'Browse experiments' }}
+      >
+        The address may be wrong, or the page may have moved.
+      </MessagePage>,
+    );
+    expect(publicPage.container.querySelector('.xr-msg')!.className).toBe(
+      'xr-msg xr-x-msg--public',
+    );
+    expectStylesheetClassesOnly(shell.container);
+    expectStylesheetClassesOnly(publicPage.container);
   });
 });

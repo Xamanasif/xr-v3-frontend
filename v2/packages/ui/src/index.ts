@@ -260,6 +260,7 @@ export {
 // Shells
 export {
   WorkspaceShell,
+  PageContent,
   useWorkspaceShell,
   type WorkspaceShellProps,
   type WorkspaceShellContextValue,

@@ -6,7 +6,7 @@
  * now — role, institution and the XS-08 banner facts (`useCurrentSession`). Signing in and out
  * are commands: `useCommand(ports => ports.session.signOut)`, which clears every cached answer.
  */
-import type { ProductPorts } from '@xr/contracts/draft';
+import type { ProductPorts, Workspace } from '@xr/contracts/draft';
 
 import { useXrQuery, defineQuery } from './use-xr-query';
 
@@ -27,4 +27,21 @@ export const currentSession = defineQuery({
 
 export function useCurrentSession() {
   return useXrQuery(currentSession, null);
+}
+
+/**
+ * `SessionService.checkWorkspace`: whether this workspace is the signed-in person's own (the
+ * workspace guard, XS-06; ADR-0005 §5). The port decides from the person's role as the records say
+ * now; another role's workspace is refused `not-permitted` (`wrong-workspace`), which the
+ * workspace frame renders as XS-06 in place.
+ */
+export const workspaceAccess = defineQuery({
+  family: 'session',
+  view: 'workspace',
+  deps: ['PER', 'INST', 'ROLE'],
+  read: (ports: ProductPorts, workspace: Workspace) => ports.session.checkWorkspace(workspace),
+});
+
+export function useWorkspaceAccess(workspace: Workspace) {
+  return useXrQuery(workspaceAccess, workspace);
 }

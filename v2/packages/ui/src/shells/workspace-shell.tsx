@@ -43,6 +43,22 @@ const WRAP_CLASS: Readonly<Record<Exclude<PageWrap, 'none'>, string>> = {
   form: 'xr-wrap--form',
 };
 
+/**
+ * The page width wrapper (`div.xr-wrap… .xr-content`), for a page that sits in a shell rendered
+ * with `wrap="none"` — a shell that stays mounted while its pages change (the workspace layouts
+ * of apps/web, WP-0.13), so each page chooses its own width (board 07: `read` for My reports and
+ * the detail, `form` for the form, none for the sent confirmation).
+ */
+export function PageContent({
+  wrap,
+  children,
+}: {
+  readonly wrap: Exclude<PageWrap, 'none'>;
+  readonly children?: ReactNode;
+}) {
+  return <div className={joinClasses(WRAP_CLASS[wrap], 'xr-content')}>{children}</div>;
+}
+
 /** The band at an app width, with the v46 container thresholds (`xr-app`, Appendix E §6.1). */
 export function shellBandFor(appWidth: number): ShellBand {
   if (appWidth < V46_CONTAINER_THRESHOLDS.sidebar.px) return 'drawer';
@@ -205,11 +221,7 @@ export function WorkspaceShell({
             {topBar}
             {banner}
             <main className="xr-page" id={mainId} tabIndex={-1}>
-              {wrap === 'none' ? (
-                children
-              ) : (
-                <div className={joinClasses(WRAP_CLASS[wrap], 'xr-content')}>{children}</div>
-              )}
+              {wrap === 'none' ? children : <PageContent wrap={wrap}>{children}</PageContent>}
             </main>
           </div>
         </div>

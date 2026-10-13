@@ -43,6 +43,18 @@ export function normaliseMarkup(html: string): string {
     .trim();
 }
 
+/**
+ * Markup with the allow-listed product classes (`xr-x-*`, T-4) taken out of every `class`
+ * attribute, for comparing a rendered element that carries a PF product class with the board
+ * excerpt it reproduces; the product class itself is asserted separately with its PF entry.
+ */
+export function withoutProductClasses(html: string): string {
+  return html.replace(/ class="([^"]*)"/g, (_match, value: string) => {
+    const kept = value.split(/\s+/).filter((token) => token && !token.startsWith('xr-x-'));
+    return kept.length > 0 ? ` class="${kept.join(' ')}"` : '';
+  });
+}
+
 /** The normalised source of the board whose file name starts with `<code>-`. */
 export function boardText(code: string): string {
   const cached = cache.get(code);

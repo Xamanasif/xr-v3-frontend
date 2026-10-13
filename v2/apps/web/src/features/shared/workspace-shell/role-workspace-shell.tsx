@@ -42,8 +42,8 @@ export interface RoleWorkspaceShellProps {
   readonly wrap?: PageWrap;
   /**
    * XS-08: the institution's access is paused or the account is inactive (board 05). The facts
-   * come from the sample world (WP-0.13); the slot shows the drawn banner with this workspace's
-   * Help.
+   * come from the session read (`SessionService.getSession` banners); the slot shows the drawn
+   * banner with this workspace's Help.
    */
   readonly banner?: ShellBannerKind | null;
   /** The Student holds an AR, VR or MR format ("My device", once ST-18 is built). */
@@ -52,7 +52,7 @@ export interface RoleWorkspaceShellProps {
   readonly built?: ReadonlySet<ScreenKey>;
   /** Sidebar count figures by destination key (zero or absent: no count). */
   readonly counts?: Readonly<Partial<Record<string, number>>>;
-  /** Sign out, injected (the session layer ends the session; WP-0.12 / WP-0.13). */
+  /** Sign out, injected: the session gate runs the session port's command (WP-0.13). */
   readonly onSignOut: () => void;
   readonly children?: ReactNode;
 }
@@ -65,10 +65,9 @@ export interface RoleWorkspaceShellProps {
  * in this tab. The skip link, the drawer below 1024 px, the 72 px rail at 1024–1279 and the full
  * sidebar from 1280 come from WorkspaceShell, measured on the app width.
  *
- * It takes the page's facts (screen, title, crumbs, width) as props. Appendix F §3.3 places the
- * shell in each workspace's `layout.tsx` (WorkspaceFrame), which cannot receive props from its
- * pages, and the in-shell PU-15 is a `not-found` boundary: WP-0.13 supplies those facts to the
- * layout (for example a page-registered context or the route register's pattern → screen map).
+ * It takes the page's facts (screen, title, crumbs, width) as props. In the app it sits in each
+ * workspace's layout (WorkspaceFrame, WP-0.13) with `wrap="none"`; the pages register their facts
+ * with `useShellPage` and render their own width (`PageContent`).
  */
 export function RoleWorkspaceShell({
   role,

@@ -94,6 +94,8 @@ export interface WorldInspection {
     | { readonly status: 'signed-out'; readonly sessionKey: string }
     | { readonly status: 'unknown' };
   readonly cachedQueries: number;
+  /** The session keys of the cached answers, each once (WP-0.13: none of a signed-out person's). */
+  readonly cachedSessionKeys: readonly string[];
 }
 
 export async function inspectWorld(page: Page): Promise<WorldInspection> {

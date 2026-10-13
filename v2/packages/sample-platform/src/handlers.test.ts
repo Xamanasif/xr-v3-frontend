@@ -344,3 +344,59 @@ describe('policy and scope come before the input check (step 3 before step 4)', 
     });
   });
 });
+
+describe('XS-05 — the session names the institution the account menu shows (board 06)', () => {
+  it('reads the institution’s name from its record for the tenant roles; none for the others', async () => {
+    const platform = createSamplePlatform({ world: await afterFlow('D') });
+    const lines = async (name: string) => {
+      const answer = await asPerson(platform, name).session.getSession();
+      if (!answer.ok || !answer.value) throw new Error(`getSession refused for ${name}`);
+      const { role, institutionName, organisation } = answer.value.session;
+      return { role, institutionName, organisation };
+    };
+    expect(await lines('Rahul Verma')).toEqual({
+      role: 'student',
+      institutionName: 'Godavari Institute of Technology',
+      organisation: null,
+    });
+    expect(await lines('Dr S. Ranganathan')).toMatchObject({
+      role: 'faculty',
+      institutionName: 'Godavari Institute of Technology',
+    });
+    expect(await lines('Meera Iyer')).toMatchObject({
+      role: 'tenant_admin',
+      institutionName: 'Godavari Institute of Technology',
+    });
+    expect(await lines('Anil Shetty')).toEqual({
+      role: 'vendor',
+      institutionName: null,
+      organisation: 'Northline Simulation Studio',
+    });
+    expect((await lines('Arjun Mehta')).institutionName).toBeNull();
+  });
+});
+
+describe('lenient ids never name an inherited member of the record tables (WP-0.13 review)', () => {
+  const INHERITED = ['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf'];
+
+  it.each(INHERITED)('getMyReport(%j) is not found, not a thrown error', async (id) => {
+    const platform = createSamplePlatform({ world: await afterFlow('D') });
+    const answer = await asPerson(platform, 'Rahul Verma').operations.getMyReport(id as never);
+    expect(answer).toMatchObject({ ok: false, error: { kind: 'not-found' } });
+  });
+
+  it('other id reads answer not-found too', async () => {
+    const platform = createSamplePlatform({ world: await afterFlow('D') });
+    const admin = asPerson(platform, 'Arjun Mehta');
+    for (const id of INHERITED) {
+      expect(await admin.institutions.getInstitution(id as never)).toMatchObject({
+        ok: false,
+        error: { kind: 'not-found' },
+      });
+      expect(await admin.accessRequests.getRequestForDecision(id as never)).toMatchObject({
+        ok: false,
+        error: { kind: 'not-found' },
+      });
+    }
+  });
+});

@@ -23,6 +23,7 @@ import {
   expectRenderedAsDrawn,
   expectStylesheetClassesOnly,
   normaliseMarkup,
+  withoutProductClasses,
   type BoardSource,
 } from '../testing/index.js';
 import {
@@ -82,6 +83,8 @@ function fromTemplate(
 }
 
 const markup = (element: Element) => normaliseMarkup(element.outerHTML);
+/** The board markup an element reproduces, its PF-14 / PF-15 product classes set aside. */
+const drawnPart = (element: Element) => withoutProductClasses(markup(element));
 
 /* --------------------------------------------------------------------------------------------- */
 
@@ -216,8 +219,11 @@ describe('My reports (HelpSupportHome)', () => {
       ),
     );
     // Board 07 draws this one line as `p.xr-small` (EmptyState `line="small"`; the product
-    // boards' empty states draw `p.xr-body`). The inline border and colour are glue.
-    expect(markup(container.querySelector('.xr-empty')!)).toBe(
+    // boards' empty states draw `p.xr-body`). The inline top border is PF-14
+    // (`xr-x-help-empty`), the line's ink-2 is PF-16 (every drawn empty-state line).
+    const empty = container.querySelector('.xr-empty')!;
+    expect(empty.className).toBe('xr-empty xr-x-help-empty');
+    expect(drawnPart(empty)).toBe(
       fromTemplate(
         EMPTY,
         '<div class="xr-empty" style="border-top: 1px solid #E1E4F3"> <span class="xr-empty-icon"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg></span> <h3 class="xr-h3">No reports yet</h3> <p class="xr-small" style="color: #40476B">If something isn’t working, report it and follow it here.</p> <a class="xr-btn xr-btn--primary" href="#help">Report a problem</a> </div>',
@@ -290,7 +296,10 @@ function ValidatingForm({ onValid }: { readonly onValid: () => void }) {
 describe('Report a problem (HelpReportForm)', () => {
   it('the back link and the header render as board 07 draws them', () => {
     const { container } = render(<Form />);
-    expect(markup(container.querySelector('a.xr-back')!)).toBe(
+    // The drawn 8 px gap under the back link is PF-14 (`xr-x-help-back`).
+    const back = container.querySelector('a.xr-back')!;
+    expect(back.className).toBe('xr-back xr-x-help-back');
+    expect(drawnPart(back)).toBe(
       fromTemplate(
         FORM,
         '<a class="xr-back" href="#help" style="margin-bottom: 8px"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Help &amp; support</a>',
@@ -350,14 +359,14 @@ describe('Report a problem (HelpReportForm)', () => {
   it('the card and its actions: one group at the end, Cancel right before "Send report" (boards 07, 11)', () => {
     const { container } = render(<Form />);
     // The card is `div.xr-section` as drawn. Its inline glue (24 px padding, 20 px column gap) has
-    // no v46 class and is not emitted (reported); `xg-form` (28 px, 18/16 below 600 px) is not
-    // the drawn padding, so it is not borrowed.
+    // no v46 class: it is PF-14 on the product class `xr-x-help-form` (WP-0.13); `xg-form` (28 px,
+    // 18/16 below 600 px) is not the drawn padding, so it is not borrowed.
     expectBoardDraws(
       FORM,
       '<div class="xr-section" style="padding: 24px; display: flex; flex-direction: column; gap: 20px"> <div class="xr-field">',
     );
     const formSection = container.querySelector('.xr-stack > div.xr-section')!;
-    expect(formSection.className).toBe('xr-section');
+    expect(formSection.className).toBe('xr-section xr-x-help-form');
     expect([...formSection.children].map((child) => child.className)).toEqual([
       'xr-field',
       'xr-field',
@@ -365,7 +374,8 @@ describe('Report a problem (HelpReportForm)', () => {
       'xw-actions xw-actions--end',
     ]);
     // The actions as board 07 draws them, the drawn inline flex-end group emitted as the v46
-    // `xw-actions xw-actions--end` (flex, wrap, 12 px gap, flex-end; its 4 px top padding is glue).
+    // `xw-actions xw-actions--end` (flex, wrap, 12 px gap, flex-end); PF-14 restores its
+    // wrap-reverse and 4 px top padding from the card's product class.
     const actions = formSection.lastElementChild!;
     expect(markup(actions)).toBe(
       fromTemplate(
@@ -376,7 +386,7 @@ describe('Report a problem (HelpReportForm)', () => {
       ).replace('<div>', '<div class="xw-actions xw-actions--end">'),
     );
     // Board 11 draws the same group at 375, Cancel and Send on one row; Send's `flex: 1 1 160px`
-    // (the primary filling the row) is inline glue with no v46 class and is not emitted (reported).
+    // (the primary filling the row) is PF-14 below 600 px of app width (computed in the browser).
     expectBoardDraws(
       PHONE_FORM,
       "'Single column; primary button fills the row'",
@@ -472,15 +482,16 @@ describe('Sent (HelpReportSent)', () => {
   const drawn =
     '<div class="xr-msg"> <span class="xr-msg-icon" style="background: #E8F4EC; color: #1D6B45"><svg class="xr-ico xr-ico--24" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span> <h1 class="xr-msg-title">Report sent</h1> <p class="xr-body" style="color: #40476B">Your reference is <span class="xr-id">SUP-0213</span>. You can follow it in My reports.</p> <div class="xr-msg-actions"><a class="xr-btn xr-btn--primary" href="#help">View my reports</a><a href="#help">Back to Home</a></div> </div>';
 
-  it('renders as board 07 draws it (the green tint is inline glue; focus target added)', () => {
+  it('renders as board 07 draws it (the green tint is PF-15; focus target added)', () => {
     const { container } = render(
       <HelpReportSent reference="SUP-0213" reportsHref="#help" homeHref="#help" />,
     );
     const message = container.querySelector('.xr-msg')!;
     expect(message).toHaveAttribute('tabindex', '-1');
+    expect(message.querySelector('.xr-msg-icon')!.className).toBe('xr-msg-icon xr-x-msg-icon--ok');
     const copy = message.cloneNode(true) as Element;
     copy.removeAttribute('tabindex');
-    expect(markup(copy)).toBe(fromTemplate(SENT, drawn));
+    expect(drawnPart(copy)).toBe(fromTemplate(SENT, drawn));
   });
 
   it('focus moves to the confirmation when it appears (it replaces the form in place)', () => {
@@ -616,7 +627,9 @@ describe('Report detail (HelpReportDetail)', () => {
       'The lab brief link on the Resources tab opened a blank page.',
     );
     expect(sections[1]!.querySelector('.xr-section-body > ol.xr-timeline')).not.toBeNull();
-    expect(markup(stack.lastElementChild!)).toBe(
+    // The closing line's ink-2 is PF-14 (`xr-x-help-foot`).
+    expect(stack.lastElementChild!.className).toBe('xr-small xr-x-help-foot');
+    expect(drawnPart(stack.lastElementChild!)).toBe(
       fromTemplate(
         RESOLVED,
         '<p class="xr-small" style="color: #40476B">Something else isn’t working? <a href="#help">Report a problem</a></p>',

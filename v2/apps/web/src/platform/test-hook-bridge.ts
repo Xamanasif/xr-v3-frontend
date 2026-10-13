@@ -14,7 +14,8 @@
  * - **`actAs(personId, { port, method, input })`**: runs one port method as another sample
  *   person, in a session of its own, against the SAME world the page shows; the receipt
  *   invalidates the page's queries through the one invalidation function.
- * - **`inspect()`**: the world's identity and the tab's session, for assertions.
+ * - **`inspect()`**: the world's identity, the tab's session and the session keys its cached
+ *   answers belong to, for assertions.
  */
 import { PORT_KEYS, type PortKey } from '@xr/contracts/draft';
 import type { RecordRef } from '@xr/domain';
@@ -158,6 +159,16 @@ const handle = Object.freeze({
           ? { status: session.status, sessionKey: session.sessionKey, personId: session.personId }
           : session,
       cachedQueries: runtime.queryClient.getQueryCache().getAll().length,
+      // The session key of every cached answer (`['xr', sessionKey, …]`), each once: a sign-out
+      // must leave none of the previous person's (WP-0.13).
+      cachedSessionKeys: [
+        ...new Set(
+          runtime.queryClient
+            .getQueryCache()
+            .getAll()
+            .map((query) => String(query.queryKey[1])),
+        ),
+      ],
     };
   },
 });

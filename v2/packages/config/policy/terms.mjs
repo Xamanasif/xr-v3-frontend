@@ -164,6 +164,8 @@ export const CANVAS_CLASS_PATTERNS = [
  * - PF-01 sort control (Appendix E §7.1), used from WP-0.7.
  * - PF-04 dialog alignment modifiers, accepted by the owner in the WP-0.6 authorisation
  *   (12 Oct 2026); VD-08 (the alignment mapping itself) stays provisional.
+ * - PF-14 Help & support glue and PF-15 message-page tint and placement (board 07, 08, 11 inline
+ *   styles), authorised by the owner as narrow Phase-0 corrections in the WP-0.13 authorisation.
  */
 export const PRODUCT_CLASS_ALLOW_LIST = [
   'xr-x-table-sortbar',
@@ -173,6 +175,13 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
   'xr-x-dialog--end',
   'xr-x-dialog--decision',
   'xr-x-dialog--marks',
+  'xr-x-help-form',
+  'xr-x-help-back',
+  'xr-x-help-empty',
+  'xr-x-help-foot',
+  'xr-x-msg--shell',
+  'xr-x-msg--public',
+  'xr-x-msg-icon--ok',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

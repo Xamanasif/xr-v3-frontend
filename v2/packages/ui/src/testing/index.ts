@@ -6,6 +6,7 @@ export {
   expectRenderedAsDrawn,
   expectRenderedAsDrawnInAnyAttributeOrder,
   normaliseMarkup,
+  withoutProductClasses,
   type BoardSource,
 } from './board.js';
 export { classesIn, expectStylesheetClassesOnly, STYLESHEET_CLASS_NAMES } from './v46-css.js';

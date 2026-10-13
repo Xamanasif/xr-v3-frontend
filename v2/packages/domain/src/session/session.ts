@@ -17,6 +17,13 @@ export interface MockSession {
   readonly role: Role;
   readonly displayName: string;
   readonly institutionId: InstitutionId | null;
+  /**
+   * The institution's name as its INST record carries it now (tenant roles), for the line under
+   * the role in the account menu and the sidebar (board 06 "Account menu": "Godavari Institute of
+   * Technology"). Display only; never a permission. Added in WP-0.13 (no other Phase-0 read gives
+   * a Student or a Faculty member their institution's name).
+   */
+  readonly institutionName: string | null;
   readonly organisation: string | null;
   readonly signedInAt: IsoInstant;
   /** 'Sign in again to go back to where you were …'. */

@@ -40,13 +40,21 @@ const WORKSPACE_ROLE: Readonly<Record<Workspace, Role>> = {
   admin: 'super_admin',
 };
 
-export function mockSessionOf(person: ResolvedPerson, session: SessionState): MockSession {
+/**
+ * The session as the records say now. The institution's name is read from its INST record on
+ * every call (board 06 account menu line; display only), like the role and the banners.
+ */
+export function mockSessionOf(op: Op, person: ResolvedPerson, session: SessionState): MockSession {
+  const institution = person.institutionId
+    ? (op.records.institutions[person.institutionId] ?? null)
+    : null;
   return {
     sessionKey: `person:${person.personId}#${session.nonce}`,
     personId: person.personId,
     role: person.role,
     displayName: person.displayName,
     institutionId: person.institutionId,
+    institutionName: institution?.name ?? null,
     organisation: person.organisation,
     signedInAt: session.signedInAt,
     returnTo: session.returnTo,
@@ -90,7 +98,10 @@ export function sessionPort(call: Call): SessionService {
           returnTo: null,
         };
         return {
-          value: { session: mockSessionOf(person, session), landing: WORKSPACE_BASE[person.role] },
+          value: {
+            session: mockSessionOf(op, person, session),
+            landing: WORKSPACE_BASE[person.role],
+          },
           decision: 'signIn',
           actor: person.ref,
           after: () => {
@@ -104,7 +115,7 @@ export function sessionPort(call: Call): SessionService {
         const session = op.liveSession();
         const person = op.sessionPerson();
         if (!session || !person) return null;
-        return { session: mockSessionOf(person, session), banners: bannersOf(op, person) };
+        return { session: mockSessionOf(op, person, session), banners: bannersOf(op, person) };
       }),
 
     signOut: () =>

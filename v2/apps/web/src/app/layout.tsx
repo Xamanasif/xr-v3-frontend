@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 // The v46 visual system first (one xr.v46 layer + the xr.product layer), then the app's
@@ -7,9 +6,9 @@ import '@xr/ui/styles.css';
 import './globals.css';
 import { Providers } from './providers';
 
-export const metadata: Metadata = {
-  title: 'XR Learning Platform',
-};
+// No metadata title here: each page renders its own `<title>` ("Help & support · XR Learning
+// Platform"; features/shared/document-title.tsx), because the workspace pages know theirs only in
+// the browser, and a metadata title committed after hydration would replace it (WP-0.13).
 
 export default function RootLayout({ children }: { readonly children: ReactNode }) {
   return (

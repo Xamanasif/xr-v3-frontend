@@ -31,6 +31,21 @@ const testHooksTarget = flags.NEXT_PUBLIC_XR_TEST_HOOKS
   ? './src/platform/test-hook-bridge.ts'
   : './src/platform/test-hooks.ts';
 
+/**
+ * The seven static workspace bases (ADR-0005 §1; `@xr/contracts/draft` WORKSPACES). Kept literal
+ * here — next.config.ts loads before the app's modules — and held equal to the route manifest
+ * (`src/nav/routes.ts` PHASE0_REDIRECTS) by its unit test.
+ */
+const WORKSPACE_BASES = [
+  'student',
+  'faculty',
+  'institute',
+  'vendor',
+  'reviewer',
+  'content-manager',
+  'admin',
+] as const;
+
 // Turbopack is the default in Next.js 16 for `next dev` and `next build`.
 // Workspace packages are consumed as compiled ESM (`dist/`), so no transpilePackages.
 const nextConfig: NextConfig = {
@@ -43,6 +58,20 @@ const nextConfig: NextConfig = {
   ...(flags.NEXT_PUBLIC_XR_TEST_HOOKS ? { distDir: '.next-test-hooks' } : {}),
   turbopack: {
     resolveAlias: { [TEST_HOOKS_MODULE]: testHooksTarget },
+  },
+  /**
+   * Appendix A §3.7 row 20 (Phase 0): `/<base>/help/reports` is an intermediate path created by
+   * the XS-07 sub-routes — My reports lives on `/<base>/help`. Not permanent (the route plan may
+   * still change). Row 21 (`/signed-out`) arrives with XS-03 in Phase 1.
+   */
+  redirects() {
+    return Promise.resolve(
+      WORKSPACE_BASES.map((base) => ({
+        source: `/${base}/help/reports`,
+        destination: `/${base}/help`,
+        permanent: false,
+      })),
+    );
   },
 };
 

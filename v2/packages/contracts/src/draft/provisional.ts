@@ -462,4 +462,17 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'When OD-B3-01 is decided, canRequest answers the decided boolean and the union narrows.',
   },
+  {
+    id: 'PC-29',
+    subject:
+      'The session names the institution of a Student, Faculty member or Institute Admin (`institutionName`), for the account-menu and sidebar line',
+    status: 'provisional-engineering',
+    source:
+      'Board 06 "Account menu" ("Rahul Verma · Student · Godavari Institute of Technology"); Appendix C M26 gives `organisation` to the Vendor only and no Phase-0 read gives a Student or Faculty member their institution’s name; added in WP-0.13, read from the INST record on every call (display only)',
+    decisions: [],
+    trace: [{ kind: 'schema-field', schema: 'mockSession', path: 'institutionName' }],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the field and read the name from an own-institution read model once one exists; the shell takes the line from there.',
+  },
 ];

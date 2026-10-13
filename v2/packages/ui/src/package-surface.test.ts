@@ -105,6 +105,7 @@ const RUNTIME_EXPORTS = [
   'HelpSupportHome',
   'MAX_DESTINATIONS',
   'NavItem',
+  'PageContent',
   'Sidebar',
   'TopBar',
   'useWorkspaceShell',

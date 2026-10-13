@@ -153,6 +153,7 @@ export const mockSession = typedAs<MockSession>()(
     role,
     displayName: z.string().min(1),
     institutionId: institutionId.nullable(),
+    institutionName: z.string().min(1).nullable(),
     organisation: z.string().nullable(),
     signedInAt: isoInstant,
     returnTo: z.string().nullable(),

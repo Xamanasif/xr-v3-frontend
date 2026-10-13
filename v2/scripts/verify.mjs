@@ -15,8 +15,9 @@
 //                   specimen-harness code; the test-hook build (`.next-test-hooks`) is the
 //                   positive control — the same scan must find the bridge there (TE-7, WP-0.12)
 //   5. browser      Playwright at the four approved widths: product smoke, browser-helper
-//                   self-tests, test-hook bridge, specimen harness (ports 3000, 3100 and 3200
-//                   must be free)
+//                   self-tests, test-hook bridge, the Phase-0 foundation screens and guards
+//                   (e2e/foundation, WP-0.13), specimen harness (ports 3000, 3100 and 3200 must be
+//                   free)
 //
 // Suites that do not exist yet are listed as such at the end; nothing is reported as run
 // that did not run.
@@ -35,7 +36,7 @@ const NOT_YET_PRESENT = [
     'SA-02 route-level DataTable sort test (apps/web/e2e/a11y/datatable-sort.spec.ts, written as fixme: reported as skipped)',
     'Phase 1 (SA-02)',
   ],
-  ['foundation-screen and connected-flow suites (and flow skeletons)', 'WP-0.13 / WP-0.14'],
+  ['cross-role connected-flow suites and the flow skeletons (e2e/flows)', 'WP-0.14'],
   ['visual-parity suite', 'WP-0.15 (inputs not yet approved: G-5c, VD-18)'],
 ];
 

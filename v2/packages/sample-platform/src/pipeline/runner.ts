@@ -237,9 +237,12 @@ export class Op {
   /**
    * A bare id argument (`ids.in.*`, PC-16): a bounded string names a record or nothing; a value of
    * the wrong type names nothing (`''`), so the method answers its own not-found or gate refusal.
+   * The record tables are plain objects, so a name an object already has (`constructor`,
+   * `__proto__`, `toString` …) names nothing either — never an inherited member (WP-0.13 review).
    */
   idText(value: unknown): string {
-    return typeof value === 'string' && value.length > 0 && value.length <= 200 ? value : '';
+    if (typeof value !== 'string' || value.length === 0 || value.length > 200) return '';
+    return value in Object.prototype ? '' : value;
   }
 
   /** A record the caller named, or `not-found`. */

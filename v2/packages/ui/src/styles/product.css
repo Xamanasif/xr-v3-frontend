@@ -15,8 +15,9 @@
  *
  * WP-0.5 entries: PF-01 (guards), PF-02, PF-03, PF-04, PF-05, PF-06, PF-07, PF-09 (note), PF-11,
  * PF-13. WP-0.7 adds the DataTable sort-control rules of PF-01 (`xr-x-table-sortbar`,
- * `xr-x-th-sort`, `xr-x-th-text`). Not here: PF-08 motion (VD-09), PF-10 (no CSS, VD-05) and
- * PF-12 forced colours (VD-15).
+ * `xr-x-th-sort`, `xr-x-th-text`). WP-0.13 adds PF-14 (Help & support glue), PF-15 (message
+ * pages) and PF-16 (empty-state line), owner-authorised as narrow corrections for the Phase-0
+ * screens. Not here: PF-08 motion (VD-09), PF-10 (no CSS, VD-05) and PF-12 forced colours (VD-15).
  */
 
 /* ===========================================================================================
@@ -435,4 +436,143 @@ dialog.xr-dialog.xr-x-dialog--end {
   --xr-x-danger-hover: #8f1c13;
   /* #E8D3A3 ×1 — board 04 "Paused · shell banner" border; = `.xr-banner--paused` border. */
   --xr-x-paused-line: #e8d3a3;
+}
+
+/* ===========================================================================================
+ * PF-14 · Help & support glue (XS-07; WP-0.13, owner-authorised narrow correction; WP-0.6 ledger
+ * row 42 "card spacing … and the actions' 4 px top padding … renders unpadded until an
+ * owner-approved PF entry"). Board 07 writes these as inline styles on its one template (every
+ * frame); none has a v46 class. Classes are emitted only by @xr/ui HelpSupport.
+ * =========================================================================================== */
+
+/* PF-14 · the report form card. Board 07 "State 1 · Report a problem · Student" (and 1a, 1b, the
+ * 375 frame m1): `div.xr-section style="padding: 24px; display: flex; flex-direction: column;
+ * gap: 20px"`. xr-foundation.css `.xr-section{background:#FFFFFF;border:1px solid #E1E4F3;
+ * border-radius:12px;min-width:0}` has no padding or layout of its own. */
+.xr-section.xr-x-help-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* PF-14 · the actions row in the card. Board 07 (same frames): `div style="display: flex;
+ * flex-wrap: wrap-reverse; gap: 12px; justify-content: flex-end; padding-top: 4px"`. HelpSupport
+ * emits the nearest v46 group, `div.xw-actions.xw-actions--end` (xr-workspace.css
+ * `.xw-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}` +
+ * `.xw-actions--end{justify-content:flex-end}`); this restores the drawn wrap direction, the
+ * default cross alignment and the 4 px top padding. */
+.xr-x-help-form > .xw-actions {
+  flex-wrap: wrap-reverse;
+  align-items: normal;
+  padding-top: 4px;
+}
+
+/* PF-14 · below 600 px of app width (the v46 phone scale, xr-foundation.css @container xr-app
+ * (max-width:599.98px)). Board 11 "375 · AR-8 form" ("Single column; primary button fills the
+ * row"): `div.xr-section style="padding: 20px; …; gap: 20px"` and `button.xr-btn--primary
+ * style="flex: 1 1 160px"` beside Cancel. Board 07's own 375 frame (m1) repeats the desktop
+ * template while its note says "actions stack full width"; the responsive-proof board is followed
+ * and the variance is reported (packages/ui/README.md, WP-0.13). */
+@container xr-app (max-width: 599.98px) {
+  .xr-section.xr-x-help-form {
+    padding: 20px;
+  }
+  .xr-x-help-form > .xw-actions > .xr-btn--primary {
+    flex: 1 1 160px;
+  }
+}
+
+/* PF-14 · the back link above a Help page header. Board 07 "State 1 · Report a problem" and
+ * "State 3 · Report detail …" (and board 11 "375 · AR-8 form"): `a.xr-back style="margin-bottom:
+ * 8px"`. xr-foundation.css `.xr-back{display:inline-flex;…;min-height:32px;…}` sets no margin.
+ * Scoped to Help: the other 445 drawn back links carry no such margin. */
+.xr-back.xr-x-help-back {
+  margin-bottom: 8px;
+}
+
+/* PF-14 · My reports, empty. Board 07 "State 2a · My reports · empty · Vendor": `div.xr-empty
+ * style="border-top: 1px solid #E1E4F3"` under the "My reports" section head (= --xr-line). */
+.xr-empty.xr-x-help-empty {
+  border-top: 1px solid var(--xr-line);
+}
+
+/* PF-14 · the detail's closing line. Board 07 "State 3 · Report detail · resolved with note ·
+ * Faculty" and "State 3a · … reopened": `p.xr-small style="color: #40476B"` ("Something else
+ * isn’t working? Report a problem"); xr-foundation.css `.xr-small{font-size:14px;line-height:20px}`
+ * sets no colour (#40476B = --xr-ink-2). */
+.xr-small.xr-x-help-foot {
+  color: var(--xr-ink-2);
+}
+
+/* ===========================================================================================
+ * PF-15 · Message pages (AR-10, GL-04; XS-06, PU-15, the XS-07 "Report sent" confirmation;
+ * WP-0.13, owner-authorised; WP-0.6 ledger row 10 "xr-msg-icon tone tints and body colour are
+ * board inline styles, and the 375 px full-width primary (boards 08, 11) needs a container rule").
+ * =========================================================================================== */
+
+/* PF-15 · the sentence in ink-2. Every `div.xr-msg > p.xr-body` the boards draw (40 of 40, on 07,
+ * 08, 09b, 11, B1-03, B1-05, B1-07, B1-12, B1-13, B6-12) carries `style="color: #40476B"`;
+ * xr-foundation.css `.xr-body{font-size:16px;line-height:24px}` sets no colour. The product boards'
+ * `p.xr-lead` variant already is #40476B in the sheet. */
+.xr-msg > .xr-body {
+  color: var(--xr-ink-2);
+}
+
+/* PF-15 · the confirmation tint. Board 07 "State 1c · Sent · reference" and board 08 "Short
+ * success confirmation" (its `OK` tint): `span.xr-msg-icon style="background: #E8F4EC; color:
+ * #1D6B45"` (= --xr-ok-bg, --xr-ok) over xr-foundation.css `.xr-empty-icon,.xr-msg-icon{…;
+ * background:#EEF0F8;color:#141B5E}` (board 08's neutral `N` tint, kept as the default). */
+.xr-msg-icon.xr-x-msg-icon--ok {
+  background: var(--xr-ok-bg);
+  color: var(--xr-ok);
+}
+
+/* PF-15 · in the workspace shell. Board 08 "In context · Student workspace · 1312 px": `div.xr-msg
+ * style="margin: 24px 0 0"` ("left-aligned in a 600 px column near the top, so the sidebar and
+ * account menu stay usable"), and "At 375 px" / board 11 "375 · AR-10 message": `margin: 8px 0 0`.
+ * Replaces xr-foundation.css `.xr-msg{max-width:600px;margin:40px auto;…}` for XS-06 and the
+ * in-shell PU-15 only (the "Report sent" confirmation keeps the sheet's margin, as board 07 draws
+ * it). */
+.xr-msg.xr-x-msg--shell {
+  margin: 24px 0 0;
+}
+
+@container xr-app (max-width: 599.98px) {
+  .xr-msg.xr-x-msg--shell {
+    margin: 8px 0 0;
+  }
+}
+
+/* PF-15 · on a public page. B1-03 "We can’t find that area" and B1-05 "We can’t find that
+ * experiment" (the public message pages inside `main.xp-page > div.xp-in`): `div.xr-msg
+ * style="margin:24px 0 40px"`. Used by the public PU-15 variant. */
+.xr-msg.xr-x-msg--public {
+  margin: 24px 0 40px;
+}
+
+/* PF-15 · the primary action becomes full-width at phone width. Board 08 "At 375 px" ("The column
+ * fills the width; the primary action becomes full-width") and board 11 "375 · AR-10 message":
+ * `div.xr-msg-actions style="width: 100%"` with `a.xr-btn.xr-btn--primary.xr-btn--block`
+ * (xr-foundation.css `.xr-btn--block{width:100%}`); the quiet Help link wraps under it. Drawn in
+ * the workspace shell only, so it is keyed on the `xr-app` container (the v46 phone scale). */
+@container xr-app (max-width: 599.98px) {
+  .xr-msg > .xr-msg-actions {
+    width: 100%;
+  }
+  .xr-msg > .xr-msg-actions > .xr-btn--primary {
+    width: 100%;
+  }
+}
+
+/* ===========================================================================================
+ * PF-16 · The empty state's line in ink-2 (WP-0.13; Phase-0 use: XS-07 "No reports yet"). Every
+ * `div.xr-empty > p` the boards draw — 515 `p.xr-body` and 4 `p.xr-small`, board 07 "State 2a ·
+ * My reports · empty · Vendor" among them — carries `color:#40476B`; xr-foundation.css `.xr-body`
+ * and `.xr-small` set no colour. The empty-state icon keeps the v46 default tint, which is what
+ * board 07 draws for Help (no other empty or all-clear state is on a Phase-0 screen).
+ * =========================================================================================== */
+.xr-empty > .xr-body,
+.xr-empty > .xr-small {
+  color: var(--xr-ink-2);
 }

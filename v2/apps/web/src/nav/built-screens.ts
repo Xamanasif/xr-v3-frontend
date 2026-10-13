@@ -1,3 +1,4 @@
+import { SCREENS_WITH_PAGES } from './routes';
 import type { ScreenKey } from './screens';
 
 /**
@@ -6,9 +7,10 @@ import type { ScreenKey } from './screens';
  * when its screen exists"; B8-06 "a sidebar item exists only when its screen exists"). Unbuilt
  * destinations stay in the typed configuration and never appear as disabled placeholders.
  *
- * Phase 0 builds Help & support (XS-07) as the one workspace destination, so every sidebar shows
- * only Help. Appendix F §3.2 makes this a generated manifest: it is written by hand until the
- * route files it would be generated from exist (WP-0.13 builds XS-07's pages and the
- * route-manifest test). Each later work package adds the screen ids it builds.
+ * Generated from the route manifest (`routes.ts`), which the route-manifest test holds equal to
+ * the page files under `src/app`: a screen is built when it has a page. Phase 0 builds Help &
+ * support (XS-07) as the one workspace destination, so every sidebar shows only Help, and the
+ * account menu offers no "My device" (ST-18 is not built). Each later work package adds the
+ * pages it builds, and their items appear in board order.
  */
-export const BUILT_SCREENS: ReadonlySet<ScreenKey> = new Set<ScreenKey>(['XS-07']);
+export const BUILT_SCREENS: ReadonlySet<ScreenKey> = new Set<ScreenKey>(SCREENS_WITH_PAGES);

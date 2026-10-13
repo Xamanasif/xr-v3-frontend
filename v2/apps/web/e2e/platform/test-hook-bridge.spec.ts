@@ -10,9 +10,10 @@ import {
 
 /**
  * The CI-only test-hook bridge in a real browser, on the dedicated test-hook build (WP-0.12;
- * ADR-0003 §3; ADR-0004 option A; ADR-0007 §2–3; Appendix F §7.2). Phase 0 has no product
- * screen yet (WP-0.13), so every page here is the not-found page inside the root layout — which
- * mounts the application providers, so the tab's platform boots exactly as under any screen.
+ * ADR-0003 §3; ADR-0004 option A; ADR-0007 §2–3; Appendix F §7.2). Written before WP-0.13 built
+ * the workspace routes; the pages here mount the application providers, so the tab's platform
+ * boots exactly as under any screen. The route-to-route proofs on real screens are in
+ * `e2e/foundation/` (WP-0.13).
  * No test chooses an identity through UI: `bootWorld` and `actAs` speak to the bridge only.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
@@ -59,8 +60,9 @@ test('bootWorld starts the page on the named fixture world, signed in, without a
   page,
 }) => {
   await bootWorld(page, { fixture: 'after-flow-a', session: ARJUN });
-  const response = await page.goto('/admin');
-  expect(response?.status()).toBe(404);
+  const response = await page.goto('/admin/help');
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
 
   expect(await inspectWorld(page)).toMatchObject({
     fixture: 'after-flow-a',
@@ -156,20 +158,22 @@ test('a router navigation to an address that answers 404 is a full page load, so
   page,
 }) => {
   // Next.js turns a client-side navigation whose server answer is not OK into a document load.
-  // Every unbuilt address answers the not-found page with 404, so a link to one restarts the
-  // tab's sample world (ADR-0004 option A) — product links must target built screens only
-  // (ADR-0005 link-target ledger, WP-0.13).
+  // Since WP-0.13 the workspace addresses all answer 200 (unknown ones render the in-shell
+  // not-found in the browser, spike S1b); an address outside the workspaces still answers the
+  // public not-found with 404, so a link to one restarts the tab's sample world (ADR-0004
+  // option A) — product links target built screens only (ADR-0005 link-target ledger), and the
+  // one documented dead link is PU-15's "Browse experiments" (/experiments, PU-04 Phase 1).
   await bootWorld(page, { fixture: 'spine-start', session: ANIL });
-  await page.goto('/student');
+  await page.goto('/vendor/help');
   await pauseDeccan(page);
   const changed = await inspectWorld(page);
   await page.evaluate(() => {
     (window as unknown as { __sameDocument: boolean }).__sameDocument = true;
     (window as unknown as { next: { router: { push(href: string): void } } }).next.router.push(
-      '/faculty',
+      '/experiments',
     );
   });
-  await page.waitForURL('**/faculty');
+  await page.waitForURL('**/experiments');
   await page.waitForLoadState('load');
   expect(
     await page.evaluate(() => (window as unknown as { __sameDocument?: boolean }).__sameDocument),
@@ -182,7 +186,8 @@ test('every page is its own world: a command on one never reaches another', asyn
   const two = await context.newPage();
   for (const page of [one, two]) {
     await bootWorld(page, { fixture: 'spine-start', session: null });
-    await page.goto('/student');
+    // A public address: signed out, a workspace address would leave for the sign-in (WP-0.13).
+    await page.goto('/nope');
   }
   const before = await inspectWorld(two);
 

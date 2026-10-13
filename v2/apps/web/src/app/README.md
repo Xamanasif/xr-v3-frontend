@@ -1,0 +1,101 @@
+# App routes, guards and the Phase-0 screens (WP-0.13)
+
+The App Router tree of Phase 0 — exactly Appendix F §3.3 — and the guards and foundation screens
+it renders (ADR-0003, ADR-0004, ADR-0005, ADR-0007; boards 05, 06, 07, 08, 10, 11, 12). Route files
+only resolve params and render a feature (import fences, Appendix F §3.8); the screens live in
+`src/features/shared/`, the route data in `src/nav/`.
+
+## The tree
+
+| Path                                 | File(s)                                                   | Shows                                                             |
+| ------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------- |
+| every address outside the workspaces | `not-found.tsx` (root)                                    | PU-15 public variant, HTTP 404                                    |
+| `/<base>` × 7                        | `<base>/layout.tsx`                                       | SessionGate → WorkspaceFrame (session-role shell; XS-06 in place) |
+| `/<base>`                            | `<base>/page.tsx`                                         | interim landing → `/<base>/help` (ADR-0005 §8), after the guard   |
+| `/<base>/help`                       | `<base>/help/page.tsx`                                    | XS-07 My reports                                                  |
+| `/<base>/help/report`                | `<base>/help/report/page.tsx`                             | XS-07 Report a problem, then Report sent in place                 |
+| `/<base>/help/reports/[reportId]`    | `<base>/help/reports/[reportId]/page.tsx`                 | XS-07 report detail (record guard)                                |
+| `/<base>/help/reports`               | `next.config.ts` `redirects()`                            | → `/<base>/help` (Appendix A §3.7 row 20), 307                    |
+| any other `/<base>/…`                | `<base>/[...unmatched]/page.tsx` + `<base>/not-found.tsx` | PU-15 workspace variant in the shell                              |
+| `/healthz`                           | `healthz/route.ts`                                        | liveness (kept, O-10)                                             |
+
+`<base>` is each of `student`, `faculty`, `institute`, `vendor`, `reviewer`, `content-manager`,
+`admin` — seven static folders, no dynamic `[workspace]` root segment (D-12) and no `proxy.ts` in
+sample mode (X-3). `_workspace/workspace-route.tsx` is the one route-level module that reads
+Next.js navigation (address, query, router, `notFound`) and hands it to the features through
+`@/nav/navigation`. `src/nav/routes.ts` is the manifest; `routes.test.ts` fails if a page or route
+file outside it exists, and the built-screen manifest (`BUILT_SCREENS`) is generated from it.
+
+Nothing of Phase 1 exists: no `/sign-in` (XS-01, XS-03, XS-04), no PublicShell, no public page
+(PU-01…PU-14) and no role home or feature page (G-8; B8-06). A Phase-0 build is an engineering
+build reached through the CI-only boot descriptor — not a build an unauthenticated stakeholder
+can walk.
+
+## Guards
+
+- **SessionGate** (`features/shared/session-gate`). The tab's session is in memory (ADR-0004), so
+  the gate is a client component reading the session store with `useSyncExternalStore` (server
+  snapshot `unknown`). Unknown: the loading state ("Loading …", board 04/12). Signed out:
+  `router.replace('/sign-in?returnTo=<the address asked for>')`; after "Sign out",
+  `/sign-in?reason=signed-out` (XS-03 "Signed out", Phase 1). Until XS-01 exists that address shows
+  the public not-found page (K-21) — and, as it answers 404, Next.js loads it as a new document,
+  so the tab's world restarts. This and the public PU-15's dead link to `/experiments` are the
+  only Phase-0 actions that load a new document.
+- **`returnTo`** (`nav/return-to.ts`): honoured only as a same-origin relative path inside the
+  signed-in role's own base, else the role home (AD-21; acceptance 6). Unit-tested now; used by
+  XS-01 in Phase 1.
+- **WorkspaceFrame** (`features/shared/workspace-frame`). The shell is chosen by the session role
+  (`SessionService.getSession`); whether the workspace is the person's own is the port's answer
+  (`SessionService.checkWorkspace`). On another role's workspace the person's own shell renders
+  **XS-06 in place of the page**: the address is kept, nothing in the sidebar is current, "Back to
+  Home" and Help are their own, and the requested page is never rendered (all 42 pairs tested in
+  jsdom and in the browser at four widths).
+- **RecordGuard** (`features/shared/record-guard`): renders a record page from the service's
+  answer — loading, failed (Try again), the record, or the drawn treatment of a refusal. Phase 0
+  wires the XS-07 detail, where every refusal is the in-shell not-found (another person's report is
+  never revealed). Later guards map their refusals to their drawn states (ST-19 …).
+- **Unknown and unbuilt addresses**: `[...unmatched]` calls `notFound()` → the workspace's
+  `not-found.tsx` renders PU-15 inside the shell (nothing current). The root `not-found.tsx` is the
+  public PU-15.
+
+## Shell facts, titles, focus
+
+- Pages register their top-bar facts (screen, title, crumbs) with `useShellPage`; the persistent
+  shell in the layout picks them up before paint (a layout effect). Pages render their own width
+  (`PageContent`), so a page that changes width in place (Report a problem → Report sent) keeps its
+  state.
+- The browser tab's title is a React `<title>` ("Help & support · XR Learning Platform"); the root
+  layout sets no metadata title, which, committed after hydration, would replace it.
+- After a client-side navigation focus moves to `main#main` (the skip link's target), without
+  scrolling; also when a link to the page already shown is chosen (the drawer and the account menu
+  hide the chosen link). A document load moves nothing — the skip link stays the first Tab stop.
+
+## App Router spikes (WP-0.13, Next.js 16.3.4, React 19.3, Chromium)
+
+| Spike                                           | Result                                                                                                                                                                                                                                                                                                                           | Used as                                                                                                           |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| S1 · client-side `notFound()`                   | A client component that calls `notFound()` while rendering, after its data loads, renders the segment's `not-found.tsx` inside the persistent layout: layout state kept, same document, URL kept; leaving resets the boundary. A direct load answers **HTTP 200** (the status line went first).                                  | Adopted (no MessagePage fallback needed); 200 recorded as a limitation                                            |
+| S1b · server `notFound()` under a client layout | `[...unmatched]`'s server `notFound()` beneath a layout that withholds its children until the tab's session is known also answers **200**, and the error travels in the RSC payload; a client navigation there stays in the same document. Root unknown addresses answer 404, and a client navigation to one is a document load. | In-shell PU-15 = 200 (limitation); product links never target the 404 public addresses (one documented dead link) |
+| S2 · `useSyncExternalStore` session             | The server snapshot (`unknown`) is in the server HTML; hydration uses it with no mismatch warning; the client snapshot follows the boot.                                                                                                                                                                                         | SessionGate, `useSession`                                                                                         |
+| S3 · `Suspense` around `useSearchParams`        | Without a boundary the production build fails ("useSearchParams() should be wrapped in a suspense boundary"); with one the server renders the fallback and the client the value. React does not hoist a `<title>` out of a fallback into the server head.                                                                        | Boundary in `workspace-route.tsx`; the boot title rendered outside it                                             |
+| S4 · `router.replace` from a client page        | Same document, layout state kept.                                                                                                                                                                                                                                                                                                | The interim landing                                                                                               |
+
+## Recorded limitations and interims
+
+Every undrawn state string and rule the Phase-0 screens use — loading and failed words, the report
+title (P0-31), the "Where" pre-fill, the empty "Where", dates, document titles — is in the
+per-screen state-copy register `src/copy/state-copy.ts` (VD-12), each `drawn` (with its board) or
+`provisional` (with the decision it waits on); the screens read their words from it.
+
+- **HTTP status of the in-shell not-found is 200** (S1, S1b): the workspace layout waits for the
+  tab's session before rendering its pages (sample mode, ADR-0004). The public not-found is 404.
+  A server-side session (cookie or BFF, E-02) would allow 404s; Appendix F §3.3 anticipated this.
+- **`/<base>` → `/<base>/help`** is an engineering-build interim (ADR-0005 §8), run after the
+  workspace guard so another role's base shows XS-06 at the address asked for.
+- **"Browse experiments" → `/experiments`** (public PU-15) is the one Phase-0 dead link (PU-04,
+  Phase 1); see `src/nav/link-targets.ts`.
+- **"Where did it happen?"** is pre-filled with the words of the last page the person saw outside
+  Help & support, in this tab (`nav/page-location.ts`, PROVISIONAL); with none, it starts empty.
+- **Sign-out leaves for `/sign-in`**, unbuilt until XS-01; the document load restarts the world.
+- The report title is a display-only excerpt of "What happened" (P0-31, PROVISIONAL;
+  `copy/help.ts`).
