@@ -7,7 +7,7 @@
  */
 import type { PortInterfaces, PortName } from '../ports/index.js';
 import { PORT_KEYS } from '../ports/index.js';
-import type { BuildPhase, LedgerEntry } from './entry.js';
+import type { BuildPhase, ImplementationPhase, LedgerEntry } from './entry.js';
 import {
   ACCESS_REQUEST_LEDGER,
   CATALOGUE_LEDGER,
@@ -89,6 +89,31 @@ export function ledgerRows(): readonly LedgerRow[] {
     ),
   );
 }
+
+/**
+ * Owner-approved departures from the Appendix F §4.1 phase schedule. Appendix F is frozen audit
+ * evidence and is never edited; the ledger records each departure here, and `ledger.test.ts`
+ * checks the ledger against Appendix F §4.1 plus these entries — nothing else may move.
+ */
+export interface PhaseScheduleException {
+  readonly method: string;
+  readonly from: ImplementationPhase;
+  readonly to: ImplementationPhase;
+  readonly decision: string;
+  readonly scope: string;
+}
+
+export const PHASE_SCHEDULE_EXCEPTIONS: readonly PhaseScheduleException[] = [
+  {
+    method: 'ProductionService.listAllContent',
+    from: 'P6',
+    to: 'WP-0.11',
+    decision:
+      'Owner decision E-alt3 (WP-0.11 authorisation §2, 13 Oct 2026): implement listAllContent during WP-0.11 solely so the Super Admin stuck-submission workflow (E-alt3) can reach the seeded stuck record; discharges obligation WP-0.10/E-alt3-reach.',
+    scope:
+      'The existing WP-0.10 signature, the current domain policy (canRead SUB-37 for submissions, EXP-03 for published experiments, UPD-18 / UPD-26 for the open correction it names) and the Super Admin read-only permission; no new permission, no Phase-6 screen, no other deferred Phase-6 method.',
+  },
+];
 
 export * from './entry.js';
 export * from './screens.js';

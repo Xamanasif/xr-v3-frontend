@@ -9,6 +9,7 @@ export type WorkspacePackage =
   | '@xr/testing'
   | '@xr/ui'
   | '@xr/api'
+  | '@xr/sample-platform'
   | '@xr/web'
   | '@xr/specimens';
 

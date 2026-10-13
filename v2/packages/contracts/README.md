@@ -31,11 +31,13 @@ How the contracts stay faithful:
   words come from the catalogue, each checked verbatim against its frozen board.
 - **Ledger ↔ ports.** Each method's entry (input, output, error kinds, refusal codes) is checked
   against its signature at compile time; `ledger.test.ts` checks the 183 methods against Appendix
-  C §3, the Phase-0 set against Appendix F §4.1, and every calling screen against B8-06.
+  C §3, the Phase-0 set against Appendix F §4.1 plus the owner-approved departures recorded in
+  `PHASE_SCHEDULE_EXCEPTIONS` (E-alt3: `ProductionService.listAllContent`, 13 Oct 2026), and every
+  calling screen against B8-06.
 - **Undecided rules stay open.** A method that can reach an open decision declares `policy-open`
   with the decision id; read models carry the open decision as a value. Nothing defaults to allow
   or deny. `provisional.ts` lists every field, code or rule that is not an owner-approved
   requirement, with its trace and how to reverse it.
 - **No false passes.** A suite case the adapter cannot run yet (no world, a later-phase method, a
-  missing seam) reports `not-run`. The world-dependent proofs are WP-0.11 obligations
-  (`DEFERRED_OBLIGATIONS`).
+  missing seam) reports `not-run`. The world-dependent proofs were WP-0.11 obligations
+  (`DEFERRED_OBLIGATIONS`); `@xr/sample-platform` runs every case against its sample world.

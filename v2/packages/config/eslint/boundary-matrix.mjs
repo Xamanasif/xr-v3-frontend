@@ -18,7 +18,19 @@ export const ALLOWED_WORKSPACE_DEPENDENCIES = {
   '@xr/testing': [],
   '@xr/ui': [],
   '@xr/api': ['@xr/config', '@xr/contracts', '@xr/database', '@xr/domain', '@xr/validation'],
-  '@xr/web': ['@xr/config', '@xr/contracts', '@xr/domain', '@xr/ui', '@xr/validation'],
+  // The mock adapter (ADR-0002, AD-01; WP-0.11): the sample world behind the draft ports. It
+  // may use only the contracts, the domain rules and the validation primitives.
+  '@xr/sample-platform': ['@xr/contracts', '@xr/domain', '@xr/validation'],
+  // `@xr/sample-platform` only through src/platform/composition.ts and its ./testing export only
+  // through the test-hook bridge (Appendix F §3.8; webFences in fences.mjs).
+  '@xr/web': [
+    '@xr/config',
+    '@xr/contracts',
+    '@xr/domain',
+    '@xr/sample-platform',
+    '@xr/ui',
+    '@xr/validation',
+  ],
   // The specimen harness (VD-17): renders @xr/ui specimens for tests; never deployed, and no
   // package may depend on it.
   '@xr/specimens': ['@xr/ui'],
@@ -43,6 +55,7 @@ export const FORBIDDEN_THIRD_PARTY = {
   '@xr/testing': [...FRAMEWORK_SERVER, ...DATA_LAYER],
   '@xr/ui': [...FRAMEWORK_SERVER, 'next', 'next/*', ...DATA_LAYER],
   '@xr/api': [...FRAMEWORK_WEB],
+  '@xr/sample-platform': [...FRAMEWORK_SERVER, ...FRAMEWORK_WEB, ...DATA_LAYER],
   '@xr/web': [...DATA_LAYER, ...FRAMEWORK_SERVER],
   '@xr/specimens': [...DATA_LAYER, ...FRAMEWORK_SERVER],
 };

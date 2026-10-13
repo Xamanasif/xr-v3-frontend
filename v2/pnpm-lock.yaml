@@ -440,6 +440,37 @@ importers:
         specifier: 4.1.11
         version: 4.1.11(@types/node@24.13.4)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.2.2(@types/node@24.13.4))
 
+  packages/sample-platform:
+    dependencies:
+      '@xr/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@xr/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@xr/validation':
+        specifier: workspace:*
+        version: link:../validation
+    devDependencies:
+      '@types/node':
+        specifier: 24.13.4
+        version: 24.13.4
+      '@xr/config':
+        specifier: workspace:*
+        version: link:../config
+      '@xr/testing':
+        specifier: workspace:*
+        version: link:../testing
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@2.7.0)(supports-color@7.2.0)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.11
+        version: 4.1.11(@types/node@24.13.4)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.2.2(@types/node@24.13.4))
+
   packages/testing:
     dependencies:
       '@axe-core/playwright':

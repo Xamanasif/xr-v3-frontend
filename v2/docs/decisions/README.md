@@ -40,6 +40,17 @@ The owner reviewed the complete Phase-0 audit and "approved all nine recommendat
 | P0-31                       | For the prototype Help report list, use a display-only excerpt from "What happened" as a provisional title. Do not introduce a new saved title field.                                                                                                                                                                                                                           | This page (interim choice 2)                                       |
 | Precedence                  | Where handoff JSON conflicts with the frozen behavioural boards, the approved boards take precedence, with the discrepancy documented. Genuine unresolved business-policy conflicts remain open.                                                                                                                                                                                | This page; `ARCHITECTURE.md` amendments                            |
 
+## Owner decision of 13 October 2026 — E-alt3 phase-schedule exception
+
+The WP-0.11 authorisation (13 Oct 2026, §2) advances one method out of the Appendix F §4.1 phase
+schedule. Appendix F stays as frozen audit evidence; the method ledger records the departure in
+`PHASE_SCHEDULE_EXCEPTIONS` (`@xr/contracts/draft`), and `ledger.test.ts` allows nothing else to
+move.
+
+| Decision                                    | Owner wording (abridged)                                                                                                                                                                                                                                                                                       | Recorded in                                                                 |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| E-alt3 — `ProductionService.listAllContent` | Implement it during WP-0.11 solely to enable the Super Admin stuck-submission workflow; reuse the WP-0.10 signature; enforce the current domain policy and the Super Admin read-only permission; grant no additional permission; no Phase-6 screen and no other deferred Phase-6 method; record the exception. | `PHASE_SCHEDULE_EXCEPTIONS`; `packages/sample-platform/README.md` (WP-0.11) |
+
 ## Approved interim choices
 
 These are interim treatments the build follows. Where the underlying product question is open, it **stays open**.

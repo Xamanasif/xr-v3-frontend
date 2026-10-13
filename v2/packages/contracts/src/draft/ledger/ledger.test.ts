@@ -16,6 +16,7 @@ import {
   type LedgerRow,
   METHOD_LEDGER,
   NOT_DESIGNED_SCREENS,
+  PHASE_SCHEDULE_EXCEPTIONS,
   SCREEN_PHASE,
   firstPhaseOf,
   ledgerRows,
@@ -28,7 +29,7 @@ const ID: unknown = idSchemas.in.request;
 const appendixC = appendixCInterfaces();
 const ids = (list: readonly LedgerRow[]) => list.map((row) => row.id);
 
-/** The Appendix F §4.1 table: each port's Phase-0 mock methods. */
+/** The Appendix F §4.1 table: each port's Phase-0 mock methods (before the recorded exceptions). */
 function phaseZeroMethods(): ReadonlyMap<string, ReadonlySet<string>> {
   const text = appendix('F');
   const section = text.slice(text.indexOf('### 4.1 Ports'), text.indexOf('### 4.2'));
@@ -149,19 +150,41 @@ describe('implementation phases (Appendix F §4.1; ADR-0008 decision 1)', () => 
     expect([...phaseZero.keys()].sort()).toEqual([...PORT_NAMES].sort());
   });
 
-  it('marks exactly the Appendix F §4.1 Phase-0 methods WP-0.11', () => {
+  it('marks exactly the Appendix F §4.1 Phase-0 methods WP-0.11, plus the recorded exceptions', () => {
     for (const port of PORT_NAMES) {
       const marked = rows
         .filter((row) => row.port === port && row.mock === 'WP-0.11')
         .map((row) => row.method);
-      expect(new Set(marked), port).toEqual(phaseZero.get(port));
+      const advanced = PHASE_SCHEDULE_EXCEPTIONS.filter(
+        (exception) => exception.to === 'WP-0.11' && exception.method.startsWith(`${port}.`),
+      ).map((exception) => exception.method.slice(port.length + 1));
+      expect(new Set(marked), port).toEqual(new Set([...phaseZero.get(port)!, ...advanced]));
     }
   });
 
-  it('splits 138 Phase-0 methods from 45 that land with their screens', () => {
-    expect(rows.filter((row) => row.mock === 'WP-0.11')).toHaveLength(138);
+  it('records the one owner-approved phase-schedule exception (E-alt3) and nothing else', () => {
+    expect(PHASE_SCHEDULE_EXCEPTIONS.map((exception) => exception)).toEqual([
+      expect.objectContaining({
+        method: 'ProductionService.listAllContent',
+        from: 'P6',
+        to: 'WP-0.11',
+      }),
+    ]);
+    for (const exception of PHASE_SCHEDULE_EXCEPTIONS) {
+      const row = rows.find((candidate) => candidate.id === exception.method);
+      expect(row?.mock, exception.method).toBe(exception.to);
+      const [port, method] = exception.method.split('.') as [string, string];
+      expect(
+        phaseZero.get(port)?.has(method),
+        `${exception.method} is outside Appendix F §4.1`,
+      ).toBe(false);
+    }
+  });
+
+  it('splits 139 Phase-0 methods from 44 that land with their screens', () => {
+    expect(rows.filter((row) => row.mock === 'WP-0.11')).toHaveLength(139);
     const later = rows.filter((row) => row.mock !== 'WP-0.11');
-    expect(later).toHaveLength(45);
+    expect(later).toHaveLength(44);
     expect(
       Object.fromEntries(
         ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'].map((phase) => [
@@ -169,7 +192,7 @@ describe('implementation phases (Appendix F §4.1; ADR-0008 decision 1)', () => 
           later.filter((row) => row.mock === phase).length,
         ]),
       ),
-    ).toEqual({ P1: 4, P2: 9, P3: 1, P4: 14, P5: 7, P6: 10 });
+    ).toEqual({ P1: 4, P2: 9, P3: 1, P4: 14, P5: 7, P6: 9 });
   });
 
   it('implements every command in Phase 0 except CSV import, assisted drafting and CSV export', () => {

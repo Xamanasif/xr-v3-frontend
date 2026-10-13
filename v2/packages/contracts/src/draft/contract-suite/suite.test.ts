@@ -22,7 +22,7 @@ import {
 import { WIRE_CONTRACTS } from '../../wire-contracts.js';
 import * as draft from '../index.js';
 import { fieldError, validationFailed } from '../errors/field-errors.js';
-import { ledgerRows } from '../ledger/index.js';
+import { PHASE_SCHEDULE_EXCEPTIONS, ledgerRows } from '../ledger/index.js';
 import type { ProductPorts } from '../ports/index.js';
 import { STANDINS_MARKER } from '../standins/index.js';
 import { ContractViolation } from './assert.js';
@@ -31,9 +31,11 @@ import {
   CONTRACT_CASES,
   CONTRACT_SUITE_MARKER,
   DEFERRED_OBLIGATIONS,
+  type ContractCase,
   type ContractSubject,
   runContractSuite,
 } from './index.js';
+import { runCases } from './run.js';
 
 /** The runtime graph of relative imports from `entry` (type-only imports carry no code). */
 function runtimeGraph(entry: string): ReadonlySet<string> {
@@ -168,18 +170,44 @@ describe('a case never passes falsely', () => {
 
   it('runs no case whose methods land in a later phase', async () => {
     const empty = {} as ProductPorts;
-    const report = await runContractSuite(() => ({
+    const subject: ContractSubject = {
       implements: ['WP-0.11'],
       publicPorts: empty,
       as: () => empty,
       standins: {} as ContractSubject['standins'],
       seams: {},
       snapshot: () => ({}),
-    }));
-    const altThree = report.cases.find((item) => item.id === 'flow:E-alt3-override')!;
-    expect(altThree.status).toBe('not-run');
-    expect(altThree.reason).toMatch(/ProductionService\.listAllContent \(P6\)/);
+    };
+    const later: ContractCase = {
+      id: 'synthetic:later-phase',
+      title: 'A case that calls a P5 method',
+      group: 'flow',
+      evidence: 'synthetic — the not-run rule of run.ts',
+      requires: {
+        fixture: { kind: 'spine-start' },
+        methods: ['ProductionService.listMyExperiments'],
+      },
+      run: () => Promise.reject(new Error('a later-phase case must not run')),
+    };
+    const report = await runCases(() => subject, [later]);
+    expect(report.cases[0]).toMatchObject({
+      status: 'not-run',
+      reason: expect.stringMatching(/ProductionService\.listMyExperiments \(P5\)/),
+    });
     expect(report.counts.passed).toBe(0);
+  });
+
+  it('runs E-alt3 with the Phase-0 set: listAllContent is advanced by the recorded owner exception', () => {
+    const altThree = CONTRACT_CASES.find((item) => item.id === 'flow:E-alt3-override')!;
+    const phase = new Map(ledgerRows().map((row) => [row.id, row.mock]));
+    expect(altThree.requires.methods.map((method) => phase.get(method))).toEqual([
+      'WP-0.11',
+      'WP-0.11',
+      'WP-0.11',
+    ]);
+    expect(PHASE_SCHEDULE_EXCEPTIONS.map((exception) => exception.method)).toEqual([
+      'ProductionService.listAllContent',
+    ]);
   });
 
   it('reports a factory that throws as failed', async () => {

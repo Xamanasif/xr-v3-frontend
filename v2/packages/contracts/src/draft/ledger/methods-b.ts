@@ -874,10 +874,12 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
     kind: 'read',
     input: allContentInput,
     output: allContentOutput,
-    mock: 'P6',
+    // Advanced from P6 by the owner's E-alt3 decision (PHASE_SCHEDULE_EXCEPTIONS).
+    mock: 'WP-0.11',
     screens: ['SA-12'],
     errors: SIGNED_IN_READ,
-    policy: ['read:submission'],
+    policy: ['read:submission', 'read:published-experiment', 'read:update'],
+    note: 'Implemented in WP-0.11 only so E-alt3 can reach the stuck record (owner decision; PHASE_SCHEDULE_EXCEPTIONS). SA-12 itself is still built in P6. An open correction is named only where the reader may see it (UPD-18, UPD-26).',
   }),
   getContentRecord: entry({
     kind: 'read',
@@ -886,7 +888,7 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
     mock: 'WP-0.11',
     screens: ['SA-13'],
     errors: SIGNED_IN_RECORD_READ,
-    policy: ['read:submission', 'read:published-experiment'],
+    policy: ['read:submission', 'read:published-experiment', 'read:update'],
   }),
   overrideStatus: entry({
     kind: 'command',
