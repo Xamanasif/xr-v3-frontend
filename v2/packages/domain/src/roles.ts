@@ -11,6 +11,8 @@
  * Source: ui-ux/17-stakeholder-correction-blueprint/04_FINAL_ROLE_AND_AUTHORITY_MODEL.md;
  * display names: design/handoff-v46 board B8-03 (frozen canvas v46).
  */
+import type { PersonId } from './kernel/ids.js';
+
 export const PLATFORM_ROLES = [
   'student',
   'faculty',
@@ -52,4 +54,62 @@ export const ROLE_LABEL: Readonly<Record<Role, string>> = {
 
 export function isRole(value: unknown): value is Role {
   return typeof value === 'string' && (PLATFORM_ROLES as readonly string[]).includes(value);
+}
+
+/**
+ * Who reads a label, a history entry or a read model. PUBLIC is an audience of the public
+ * surface, never a role (BC1; Appendix C §1.3).
+ */
+export type Audience = Role | 'public';
+
+/**
+ * Non-human writers (Appendix C §1.3, §3.18). Each is driven only by the seed and by tests —
+ * never by a control of any kind, product or developer (ADR-0002 decision 6, ADR-0007).
+ *
+ * - `runtime-report`: runtime activity and the completion report (completing event open, T-12).
+ * - `payment-provider`: the payment outcome (provider open, T-05).
+ * - `workflow-routing`: routes a resubmission, only to the drawn default (OD-B5-05, M-3).
+ * - `release-setting`: a result released by the assessment's own setting (B4-14 D4).
+ * - `term-clock`: Ending soon / Access ended by the plan term.
+ * - `review-start`: the request's "BITS started reviewing" fact, from the seed or a test only —
+ *   opening SA-03 never starts review (owner decision AD-14 / P1-04, 12 Oct 2026; ADR-0007 §4).
+ * - `objective-marks`: choice-question marks supplied by fixtures, with no scoring engine
+ *   (DV-2 interim; ATT-07 UNRESOLVED; P4-01).
+ */
+export const SYSTEM_ACTORS = [
+  'system:runtime-report',
+  'system:payment-provider',
+  'system:workflow-routing',
+  'system:release-setting',
+  'system:term-clock',
+  'system:review-start',
+  'system:objective-marks',
+] as const;
+
+export type SystemActor = (typeof SYSTEM_ACTORS)[number];
+
+/** A signed-in person acting in their one role (one role per person, P2; XS-02 deferred). */
+export interface PersonActorRef {
+  readonly kind: 'person';
+  readonly personId: PersonId;
+  readonly role: Role;
+  readonly displayName: string;
+}
+
+/** The public contact person of a request: no account (T-01). */
+export interface RequesterActorRef {
+  readonly kind: 'requester';
+  readonly name: string;
+}
+
+export interface SystemActorRef<S extends SystemActor = SystemActor> {
+  readonly kind: 'system';
+  readonly system: S;
+}
+
+/** Who did something — recorded on history entries and decisions (Appendix C §1.3). */
+export type ActorRef = PersonActorRef | RequesterActorRef | SystemActorRef;
+
+export function systemActor<S extends SystemActor>(system: S): SystemActorRef<S> {
+  return { kind: 'system', system };
 }

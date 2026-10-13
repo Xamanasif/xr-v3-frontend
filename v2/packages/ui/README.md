@@ -170,6 +170,12 @@ The seven role shells are composed in `apps/web` (`RoleWorkspaceShell`, `Workspa
   written answers to mark"), only that space differs. If the owner wants the exact string, the
   narrow fix is an `aria-label` on counted links only, as the WP-0.7 sort names do; it is not
   applied. Counts never render in Phase 0 (no counting destination is built).
+- **Owner acknowledgement (WP-0.9 authorization, 13 Oct 2026).** Both refinements are kept as
+  implementation choices, not changes to the frozen design: no navigation landmark is rendered
+  while no destination is built, and counted links keep Chromium's harmless spacing (the
+  `aria-label` fix stays unapplied). The other WP-0.8 board conflicts stay open until their phases:
+  no rule is invented for the Institute Admin's Requests count (`apps/web/src/nav/README.md`) and no
+  maximum experiment-title length is set (PF-11, below).
 - **PF-11 long-title and wrapped-bar verification (the owner's WP-0.5 condition).** Measured in
   Chromium 153.0.8010.12 with Public Sans loaded, on B4-12's bar as drawn — back link with its
   chevron, the widest save state ("Your last answer didn’t save" + "Try again") and the avatar — in

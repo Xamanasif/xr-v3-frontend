@@ -31,7 +31,6 @@ const NOT_YET_PRESENT = [
     'SA-02 route-level DataTable sort test (apps/web/e2e/a11y/datatable-sort.spec.ts, written as fixme: reported as skipped)',
     'Phase 1 (SA-02)',
   ],
-  ['matrix-driven policy and domain suites', 'WP-0.9'],
   ['contract suite', 'WP-0.10 / WP-0.11'],
   ['foundation-screen and connected-flow suites (and flow skeletons)', 'WP-0.13 / WP-0.14'],
   ['visual-parity suite', 'WP-0.15 (inputs not yet approved: G-5c, VD-18)'],

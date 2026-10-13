@@ -59,9 +59,13 @@ the account menu (XS-05) is `features/shared/xs-05-account-menu/`.
   "Requests", which opens Requests to BITS (IA-17), not the Device requests tab it counts (IA-18) —
   against its own rule "Counts appear only where they open the list they count". Keep, drop, or
   open the Device requests tab while the count shows: an owner decision before IA-17 is built.
+  Still open after WP-0.9: `@xr/domain`'s `navCounts.instituteAdminDeviceRequests` counts the
+  records only and decides nothing about where the count belongs.
 - **Counted link names in Chromium** ("Marking , 12 written answers to mark", as the boards' own
   markup is named): reported in `packages/ui/README.md` (WP-0.8), with the narrow `aria-label` fix
-  not applied.
+  not applied. Kept by the owner as an implementation choice, not a change to the frozen design
+  (WP-0.9 authorization, 13 Oct 2026), as is the omitted navigation landmark while nothing is
+  built.
 
 ## For WP-0.13 (the routes)
 
