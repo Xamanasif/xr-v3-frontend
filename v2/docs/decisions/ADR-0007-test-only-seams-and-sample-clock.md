@@ -62,3 +62,36 @@ Tests and the seed must reach them, but the product may show no stand-in control
 - `v2/docs/v46/audit/Appendix-C-Schemas-and-Contracts.md` §3 (stand-in ports, `reviewStartedAt` on M03).
 - `v2/docs/v46/audit/Appendix-G-Owner-Decisions.md` A4 (b)/(d), P1-04, DV-1, DV-2; `v2/docs/v46/audit/OWNER-REVIEW.md` §0 row 8.
 - Board B1-13 (review-started timeline); `1b090c9:v2/docs/ARCHITECTURE.md` §14; `1b090c9:v2/packages/config/src/env/index.ts`.
+
+## Amendment — Phase-1 Package 1C (14 Oct 2026): TE-4 payment outcome and the request seams
+
+**Owner authorisation (Package 1C, TE-4 approved):** a provider-neutral payment as B1-08 draws it;
+"Continue to payment" may confirm through the approved sample payment stand-in **in local prototype
+builds**; "not confirmed" and "failed" come from fixtures or CI hooks unless the frozen behaviour
+gives an ordinary user action. **No actual payment provider, money movement, payment details,
+invented amount, payment-method collection or manual "mark paid" control.** Approval, payment
+requirement, payment confirmation and activated access stay separate. "This is not authorization to
+deploy simulated payment behavior as a real payment system."
+
+1. **The stand-in lives in the sample adapter.** `PaymentStandIn` (`@xr/sample-platform`
+   `platform/core.ts`) answers the payment just started. The composition root of the sample data
+   source asks for `confirm-on-start` only in a local prototype build (`NEXT_PUBLIC_APP_ENV` =
+   `development`, the default); a `staging` or `production` build leaves a started payment
+   unconfirmed, as no provider reports (`apps/web/src/platform/composition.ts`); the API data
+   source has no stand-in. Its report is the payment provider's own system command
+   (`PaymentOutcomePort.report`, `handlers/payment-provider.ts`), written by
+   `system:payment-provider` with `sample-standin` provenance after the requester's
+   `startPayment` has committed — never the requester's write and never a product control.
+   Confirmed for a new external institution: the plan is created and access activates (ACC-02);
+   for an existing institution no plan is written while OD-B3-09 is open.
+2. **Test-only outcomes.** `planPayment(platform, 'pending' | 'failed' | 'confirmed')` and the
+   provider port (`standinsOf(platform).paymentOutcome.report`) are exported from
+   `@xr/sample-platform/testing` only.
+3. **Request seams of the test-hook bridge** (marker `xr-web-test-request-seams`, in `pnpm verify`'s
+   bundle sentinels and the test-hook build's required markers): `startReview(reference)` records
+   the AD-14 review-start fact through the existing seam; `planPayment(outcome)`; and
+   `reportPayment(reference, outcome)`, the provider's later report. Their writes invalidate the
+   page's reads like `actAs` receipts. Playwright helpers: `startReview`, `planPayment`,
+   `reportPayment` (`apps/web/e2e/support/act-as.ts`).
+
+TE-4's removal trigger is unchanged: a payment provider decided (T-05 / R06).

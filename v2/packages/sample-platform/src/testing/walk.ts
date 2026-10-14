@@ -31,6 +31,7 @@ import {
   type IsoInstant,
   type Person,
   type PersonId,
+  type RequestRouteId,
   type StudentImportRow,
   unsafeBrand,
 } from '@xr/domain';
@@ -285,7 +286,7 @@ export const WALK_STEPS: readonly WalkStep[] = [
         }),
         'A2 send the request',
       );
-      walk.carried.set('requestToken', sent.statusToken);
+      walk.carried.set('requestRoute', sent.routeId);
     },
   ),
   step(
@@ -367,17 +368,10 @@ export const WALK_STEPS: readonly WalkStep[] = [
     '2026-10-08 14:55',
     'flows.json A4; B1-08 "Continue to payment" (undrawn time)',
     async (walk) => {
-      const token = walk.carried.get('requestToken')!;
-      const status = await must(
-        walk.visitor.accessRequests.getRequestStatus(unsafeBrand(token)),
-        'A4 PU-10',
-      );
+      const route = unsafeBrand<RequestRouteId>(walk.carried.get('requestRoute')!);
+      const status = await must(walk.visitor.accessRequests.getRequestStatus(route), 'A4 PU-10');
       await must(
-        walk.visitor.accessRequests.startPayment({
-          by: 'status-token',
-          token: unsafeBrand(token),
-          expectedRev: status.rev,
-        }),
+        walk.visitor.accessRequests.startPayment({ request: route, expectedRev: status.rev }),
         'A4 start payment',
       );
     },

@@ -34,6 +34,29 @@ export function noteInterimLanding(target: string): void {
   landingTarget = target;
 }
 
+/** The element a flow asks focus to land on when it arrives at an address (Package 1C). */
+let arrival: { readonly pathname: string; readonly elementId: string } | null = null;
+
+/**
+ * A flow that moves to its result page calls this right before the move: when that address is
+ * shown, focus goes to the element with this id (`tabIndex=-1`) instead of `main` — B1-07 moves
+ * focus to the "Request sent" heading after Submit (`reqFocus(pid + '-h1s')`). If the element is
+ * not there, focus goes to `main` as after any move.
+ */
+export function noteRouteFocus(pathname: string, elementId: string): void {
+  arrival = { pathname, elementId };
+}
+
+function focusArrival(pathname: string): boolean {
+  const wanted = arrival;
+  if (!wanted || wanted.pathname !== pathname) return false;
+  arrival = null;
+  const element = document.getElementById(wanted.elementId);
+  if (!element) return false;
+  if (element !== document.activeElement) element.focus({ preventScroll: true });
+  return true;
+}
+
 export const MAIN_ID = 'main';
 
 export function focusMain(): void {
@@ -64,6 +87,7 @@ export function useRouteFocus(pathname: string): void {
       landingTarget = null;
       return;
     }
+    if (focusArrival(pathname)) return;
     if (focusHashTarget(window.location.hash)) return;
     focusMain();
   }, [pathname]);
@@ -103,4 +127,5 @@ export function useRouteFocus(pathname: string): void {
 export function forgetLastAddress(): void {
   lastAddress = null;
   landingTarget = null;
+  arrival = null;
 }

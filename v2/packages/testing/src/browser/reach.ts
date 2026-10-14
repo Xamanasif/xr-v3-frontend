@@ -26,7 +26,11 @@ interface HitTest {
   readonly scroll: string;
 }
 
-/** Wheel steps without movement before the page is declared to have stopped scrolling. */
+/**
+ * Wheel steps without movement before the page is declared to have stopped scrolling: neither the
+ * target's box nor the scroll position of the page (or of a scrolling ancestor) changed. A sticky
+ * target stays where it is while the page scrolls under it, so its box alone does not tell.
+ */
 const STILL_STEPS = 3;
 
 /**
@@ -63,9 +67,11 @@ export async function reachAndClick(
   let still = 0;
   for (let i = 0; i < maxSteps && still < STILL_STEPS; i += 1) {
     const before = await settledBox(page, target);
+    const scrolledBefore = await target.evaluate(scrollPositions);
     await page.mouse.wheel(0, -step * 8);
     const after = await settledBox(page, target);
-    still = sameBox(before, after) ? still + 1 : 0;
+    const scrolledAfter = await target.evaluate(scrollPositions);
+    still = sameBox(before, after) && scrolledBefore === scrolledAfter ? still + 1 : 0;
   }
 
   // 2–4. Wheel down until the target can be hit, then click it.
@@ -94,9 +100,11 @@ export async function reachAndClick(
     const dx =
       box.x + box.width / 2 < 0 ? -step : box.x + box.width / 2 > viewport.width ? step : 0;
     const dy = box.y + box.height / 2 < 0 ? -step : visible && dx === 0 ? step / 2 : step;
+    const scrolledBefore = await target.evaluate(scrollPositions);
     await page.mouse.wheel(dx, dy);
     const moved = await settledBox(page, target);
-    still = sameBox(box, moved) ? still + 1 : 0;
+    const scrolledAfter = await target.evaluate(scrollPositions);
+    still = sameBox(box, moved) && scrolledBefore === scrolledAfter ? still + 1 : 0;
   }
 
   const where = box
@@ -151,6 +159,20 @@ function visiblePart(box: Box, viewport: { width: number; height: number }): Box
 
 function round(value: number): number {
   return Math.round(value);
+}
+
+/**
+ * The scroll positions the wheel can change for this target: the page's, and every scrolling
+ * ancestor's. Runs in the page; self-contained because Playwright serialises it.
+ */
+function scrollPositions(element: Element): string {
+  const positions = [`${Math.round(scrollX)},${Math.round(scrollY)}`];
+  for (let node = element.parentElement; node; node = node.parentElement) {
+    if (node.scrollHeight > node.clientHeight || node.scrollWidth > node.clientWidth) {
+      positions.push(`${Math.round(node.scrollLeft)},${Math.round(node.scrollTop)}`);
+    }
+  }
+  return positions.join('|');
 }
 
 /** Runs in the page; self-contained because Playwright serialises it. */

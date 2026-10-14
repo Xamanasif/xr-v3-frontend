@@ -252,6 +252,9 @@ describe('the error rules of every entry (ADR-0008 decisions 2–3; provisional 
     'SelectionService.undoRemove',
     'AccessRequestService.submitPublicRequest',
     'AccessRequestService.getRequestStatus',
+    // O-05 (Package 1C; ADR-0009): the requester pays without an account, by the ticket its
+    // browser session holds, so the method never answers not-signed-in.
+    'AccessRequestService.startPayment',
   ];
 
   it('answers not-signed-in from every method that needs a session — all but the public surface', () => {

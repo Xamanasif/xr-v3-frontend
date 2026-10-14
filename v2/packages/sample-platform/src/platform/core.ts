@@ -64,6 +64,48 @@ export class FaultPlan {
   }
 }
 
+/** What the sample payment provider reports for a payment just started (TE-4). */
+export type PaymentStandInOutcome = 'confirmed' | 'failed' | 'pending';
+
+/**
+ * The sample payment provider (TE-4; owner authorisation of Package 1C, 14 Oct 2026; ADR-0007
+ * amendment): "Continue to payment" may be confirmed by the approved sample payment stand-in in
+ * local prototype builds. No amount, method or provider exists, nothing is collected, and no person
+ * reports an outcome — the stand-in is the provider's report (`system:payment-provider`, sample
+ * provenance), separate from the payment start, the approval and the activation (BR-036).
+ *
+ * - `confirm-on-start` (the web composition root, sample mode): each started payment is confirmed.
+ * - `provider-reports` (default; the seed, the walk, the contract suite): nothing is reported until
+ *   the stand-in port is called.
+ *
+ * "Payment not confirmed" and "Payment failed" are reached only through fixtures and CI test hooks
+ * (`plan`, from `@xr/sample-platform/testing`), never through the product (P1-06, P1-18).
+ */
+export class PaymentStandIn {
+  readonly mode: 'confirm-on-start' | 'provider-reports';
+  readonly #planned: PaymentStandInOutcome[] = [];
+
+  constructor(mode: 'confirm-on-start' | 'provider-reports') {
+    this.mode = mode;
+  }
+
+  /** CI and fixtures only: what the provider reports for the next payment started. */
+  plan(outcome: PaymentStandInOutcome): void {
+    this.#planned.push(outcome);
+  }
+
+  /** The report for a payment just started — `null` leaves it pending ("Payment not confirmed"). */
+  take(): 'confirmed' | 'failed' | null {
+    const planned = this.#planned.shift();
+    if (planned !== undefined) return planned === 'pending' ? null : planned;
+    return this.mode === 'confirm-on-start' ? 'confirmed' : null;
+  }
+
+  clear(): void {
+    this.#planned.length = 0;
+  }
+}
+
 /**
  * A checked student-import file waiting to be committed (IA-11 step 2 → 3). Adapter state, not a
  * world record — a preview writes nothing. The Phase-2 preview (CSV parsing) creates these; in
@@ -86,6 +128,13 @@ export interface PlatformCore {
   readonly overlap: OverlapGrantPolicy;
   /** OD-B5-05 / M-3 — can only return the drawn default (B5-08). */
   readonly routing: WorkflowRoutingPolicy;
+  /** TE-4: the sample payment provider's report after a payment is started. */
+  readonly payments: PaymentStandIn;
+  /**
+   * This platform's world, as the composition root named it (ADR-0009): the request tickets a
+   * browser session holds are good for this world only.
+   */
+  readonly instance: string;
 }
 
 /** A signed-in session: only the person id is kept (ADR-0003 §1). */

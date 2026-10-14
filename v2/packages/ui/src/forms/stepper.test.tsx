@@ -49,6 +49,28 @@ describe('Stepper markup contract', () => {
     expectBoardDraws(STEPPER, 'Done = navy bar + the word “Done”.');
   });
 
+  it('without the done words, a done step reads "Step n" — the Batch-1 request flow (B1-07)', () => {
+    // B1-07 `step1Cls: 'xr-step is-done'` over `<span class="xr-step-n">Step 1</span>`.
+    const { container } = render(
+      <Stepper
+        label="Request institutional access"
+        steps={['Selection', 'Request details', 'Review', 'Sent']}
+        current={3}
+        doneWords={false}
+      />,
+    );
+    expect(normaliseMarkup(container.innerHTML)).toBe(
+      normaliseMarkup(
+        `<ol class="xr-steps" aria-label="Request institutional access">
+          <li class="xr-step is-done"><span class="xr-step-n">Step 1<span class="xr-sr"> · Done</span></span><span class="xr-step-label">Selection</span></li>
+          <li class="xr-step is-done"><span class="xr-step-n">Step 2<span class="xr-sr"> · Done</span></span><span class="xr-step-label">Request details</span></li>
+          <li class="xr-step is-current" aria-current="step"><span class="xr-step-n">Step 3</span><span class="xr-step-label">Review</span></li>
+          <li class="xr-step"><span class="xr-step-n">Step 4</span><span class="xr-step-label">Sent</span></li>
+        </ol>`,
+      ),
+    );
+  });
+
   it('step 1 of 3 renders the steps 09a draws', () => {
     const steps = [
       '<li class="xr-step is-current" aria-current="step"><span class="xr-step-n">Step 1</span><span class="xr-step-label">Experiments</span></li>',

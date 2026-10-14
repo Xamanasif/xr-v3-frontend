@@ -34,6 +34,7 @@ export {
   beginSession,
   faults,
   personIdOf,
+  planPayment,
   type SampleSeams,
   seamsOf,
   setSampleNow,

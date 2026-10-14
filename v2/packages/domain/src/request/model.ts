@@ -18,6 +18,7 @@ import type {
   InstitutionId,
   PaymentAttemptId,
   RequestId,
+  RequestRouteId,
   RequestStatusToken,
 } from '../kernel/ids.js';
 import type { TransitionTable } from '../kernel/machine.js';
@@ -101,8 +102,13 @@ export type RequestEvent =
 export interface AccessRequest extends RecordMeta {
   /** 'Your reference is REQ-0042'. */
   readonly id: RequestId;
-  /** The status page's key — the reference is not a key (B1-08). */
+  /**
+   * The ticket the sending browser session holds (B1-07 "continues from this session") — the
+   * reference is not a key (B1-08), and the ticket is never part of an address (V-17).
+   */
   readonly statusToken: RequestStatusToken;
+  /** The opaque id of `/requests/[requestId]` (O-05; ADR-0009): names the request, opens nothing. */
+  readonly routeId: RequestRouteId;
   readonly type: RequestType;
   readonly origin: RequestOrigin;
   /** Null until the first approval of a new institution. */
@@ -217,6 +223,11 @@ export interface Selection {
   readonly items: readonly SelectionItem[];
   /** Single-level undo, as drawn. */
   readonly lastRemoved: SelectionItem | null;
+  /**
+   * The position the removed item held, so Undo puts it back there (B1-06 `undo`:
+   * `splice(index, 0, item)`); `null` with no removal to undo.
+   */
+  readonly lastRemovedAt: number | null;
 }
 
 export interface SelectionItem {
@@ -226,4 +237,4 @@ export interface SelectionItem {
   readonly addedAt: IsoInstant;
 }
 
-export const EMPTY_SELECTION: Selection = { items: [], lastRemoved: null };
+export const EMPTY_SELECTION: Selection = { items: [], lastRemoved: null, lastRemovedAt: null };

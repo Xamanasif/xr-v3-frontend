@@ -39,15 +39,16 @@ function filesUnder(directory: string): string[] {
 const ROUTE_FILE =
   /(?:^|\/)(?:page|layout|template|not-found|error|loading|default|route|global-error|global-not-found|forbidden|unauthorized)\.(?:tsx?|jsx?)$/;
 
-describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Packages 1A, 1B)', () => {
+describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Packages 1A–1C)', () => {
   const routeFiles = filesUnder(APP).filter((file) => ROUTE_FILE.test(file));
 
   it('every page.tsx is in the manifest, and every manifest page exists', () => {
     const pages = routeFiles.filter((file) => /(?:^|\/)page\.tsx$/.test(file)).sort();
     expect(pages).toEqual(PAGES.map((page) => page.file).sort());
     // 35 Phase-0 pages (7 workspaces × 5) + Package 1A's sign-in, Requests and Request decision +
-    // Package 1B's six public pages (PU-01 … PU-06; PU-14 is a section of PU-01).
-    expect(pages).toHaveLength(44);
+    // Package 1B's six public pages (PU-01 … PU-06; PU-14 is a section of PU-01) + Package 1C's
+    // five request pages (PU-07, PU-08, PU-09, PU-10, PU-12; PU-13 is a state of PU-10).
+    expect(pages).toHaveLength(49);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -76,9 +77,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     expect(readdirSync(join(SRC, '..'))).not.toContain('proxy.ts');
   });
 
-  it('Packages 1A and 1B only: sign-in, two Super Admin pages and the six public pages — no Selection or request pages', () => {
+  it('Packages 1A–1C only: sign-in, two Super Admin pages, the six public pages and the five request pages — no Package-1D page', () => {
     const all = filesUnder(APP);
-    for (const forbidden of [/signed-out/, /selection/, /request-access/, /\(public\)\/requests/]) {
+    for (const forbidden of [/signed-out/, /institutions/, /\(public\)\/requests\/page\.tsx$/]) {
       expect(all.filter((file) => forbidden.test(file))).toEqual([]);
     }
     expect(all.filter((file) => /^\(public\)/.test(file)).sort()).toEqual([
@@ -89,6 +90,11 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       '(public)/experiments/page.tsx',
       '(public)/layout.tsx',
       '(public)/page.tsx',
+      '(public)/request-access/page.tsx',
+      '(public)/request-access/sent/page.tsx',
+      '(public)/requests/[requestId]/page.tsx',
+      '(public)/requests/[requestId]/payment/page.tsx',
+      '(public)/selection/page.tsx',
     ]);
     expect(all.filter((file) => /sign-in/.test(file)).sort()).toEqual([
       '(auth)/sign-in/page.tsx',
@@ -120,7 +126,7 @@ describe('the built-screen manifest is generated from the route manifest', () =>
     expect([...BUILT_SCREENS]).toEqual(['XS-07', 'SA-02', 'SA-03']);
   });
 
-  it('the public pages are not sidebar destinations; the public header reads its own set (Package 1B)', () => {
+  it('the public pages are not sidebar destinations; the public header reads its own set (Packages 1B, 1C)', () => {
     expect([...PUBLIC_SCREENS_WITH_PAGES]).toEqual([
       'PU-01',
       'PU-02',
@@ -128,6 +134,11 @@ describe('the built-screen manifest is generated from the route manifest', () =>
       'PU-04',
       'PU-05',
       'PU-06',
+      'PU-07',
+      'PU-08',
+      'PU-09',
+      'PU-10',
+      'PU-12',
     ]);
   });
 });
@@ -153,9 +164,16 @@ describe('resolveAddress — what an address shows', () => {
     ['/courses/fluid-mechanics', { kind: 'public-screen', screen: 'PU-05' }],
     ['/courses', { kind: 'redirect', workspace: null, to: '/areas' }],
     ['/experiments/shell-and-tube-heat-exchanger', { kind: 'public-screen', screen: 'PU-06' }],
-    ['/selection', { kind: 'public-not-found' }],
-    ['/request-access', { kind: 'public-not-found' }],
+    ['/selection', { kind: 'public-screen', screen: 'PU-07' }],
+    ['/selection/x', { kind: 'public-not-found' }],
+    ['/request-access', { kind: 'public-screen', screen: 'PU-08' }],
+    ['/request-access/sent', { kind: 'public-screen', screen: 'PU-09' }],
+    ['/request-access/other', { kind: 'public-not-found' }],
+    // Appendix A §3.7 row 2: no public list of requests.
     ['/requests', { kind: 'public-not-found' }],
+    ['/requests/rq-0012', { kind: 'public-screen', screen: 'PU-10' }],
+    ['/requests/rq-0012/payment', { kind: 'public-screen', screen: 'PU-12' }],
+    ['/requests/rq-0012/other', { kind: 'public-not-found' }],
     ['/sign-in', { kind: 'sign-in' }],
     ['/signed-out', { kind: 'redirect', workspace: null, to: '/sign-in?reason=signed-out' }],
     ['/sign-in/extra', { kind: 'public-not-found' }],

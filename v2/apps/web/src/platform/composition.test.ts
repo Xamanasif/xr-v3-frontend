@@ -26,6 +26,19 @@ afterEach(() => {
 });
 
 describe('composePlatform', () => {
+  it('TE-4: only a local prototype build (development) lets the sample stand-in confirm a payment', async () => {
+    const { internalsOf } = await import('@xr/sample-platform/testing');
+    const modeOf = (appEnvironment?: 'development' | 'staging' | 'production') =>
+      internalsOf(
+        composePlatform({ dataSource: 'sample', ...(appEnvironment ? { appEnvironment } : {}) })
+          .sample,
+      ).core.payments.mode;
+    expect(modeOf()).toBe('confirm-on-start');
+    expect(modeOf('development')).toBe('confirm-on-start');
+    expect(modeOf('staging')).toBe('provider-reports');
+    expect(modeOf('production')).toBe('provider-reports');
+  });
+
   it('sample: the committed sample adapter, its 22 ports and the memory-per-tab capability', async () => {
     const composed = composePlatform({ dataSource: 'sample' });
     expect(created.count).toBe(1);

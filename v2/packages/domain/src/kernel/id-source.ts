@@ -24,6 +24,7 @@ import type {
   QuestionDraftId,
   QuestionId,
   RequestId,
+  RequestRouteId,
   RequestStatusToken,
   RoleHolderId,
   ScopeId,
@@ -36,6 +37,7 @@ import type {
 export interface MintedIds {
   readonly request: RequestId;
   readonly statusToken: RequestStatusToken;
+  readonly requestRoute: RequestRouteId;
   readonly paymentAttempt: PaymentAttemptId;
   readonly accessPlan: AccessPlanId;
   readonly institution: InstitutionId;

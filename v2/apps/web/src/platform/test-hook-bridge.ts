@@ -25,15 +25,26 @@
  *   selector, no chooser.
  * - **`inspect()`**: the world's identity (including this tab's world instance), the tab's session
  *   and the session keys its cached answers belong to, for assertions.
+ * - **Request seams** (Package 1C; owner decisions AD-14 / P1-04 and TE-4, 14 Oct 2026), each a
+ *   non-human writer of `@xr/sample-platform/testing`, never a product control:
+ *   `startReview(reference)` records the review-start fact through the AD-14 test-only seam (the
+ *   requester's "Submitted" becomes "Under review"; opening SA-03 still starts nothing);
+ *   `planPayment(outcome)` sets what the sample payment provider reports for the next payment the
+ *   page starts (`pending` → "Payment not confirmed", `failed` → "Payment failed"); and
+ *   `reportPayment(reference, outcome)` is the provider's later report on a started payment. Their
+ *   writes invalidate the page's reads like `actAs` receipts.
  */
 import { PORT_KEYS, type PortKey } from '@xr/contracts/draft';
-import type { RecordRef } from '@xr/domain';
+import type { RecordRef, RequestId } from '@xr/domain';
 import {
   asPersonId,
   beginSession,
   FIXTURE_NAMES,
   type FixtureName,
   fixtureWorld,
+  planPayment,
+  seamsOf,
+  standinsOf,
   worldOf,
 } from '@xr/sample-platform/testing';
 
@@ -44,6 +55,8 @@ import type { PreparedBoot, TestHooks } from './test-hook-contract';
 export const TEST_HOOK_BRIDGE_MARKER = 'xr-web-test-hook-bridge';
 /** Marks the same-tab session switch (WP-0.14); `pnpm verify` requires it in no product bundle. */
 export const TEST_SESSION_SWITCH_MARKER = 'xr-web-test-session-switch';
+/** Marks the request seams (Package 1C); `pnpm verify` requires it in no product bundle. */
+export const TEST_REQUEST_SEAMS_MARKER = 'xr-web-test-request-seams';
 /** Kept equal to `e2e/support/test-seam.ts` (checked by the bridge's unit test). */
 export const BOOT_DESCRIPTOR_GLOBAL = '__XR_TEST_BOOT__';
 export const TEST_HOOKS_GLOBAL = '__XR_TEST_HOOKS__';
@@ -52,6 +65,8 @@ type Sample = Parameters<typeof worldOf>[0];
 
 const PORT_KEY_SET: ReadonlySet<string> = new Set(Object.values(PORT_KEYS));
 const PERSON_ID = /^\S+$/;
+/** A request's reference (`REQ-0042`): the seams name the record, never its address or ticket. */
+const REQUEST_REFERENCE = /^REQ-\d{4,}$/;
 
 class TestHookError extends Error {
   override readonly name = 'TestHookError';
@@ -126,6 +141,13 @@ function portCommand(value: unknown): PortCommand {
     throw new TestHookError('A port command names its method.');
   }
   return { port: command.port as PortKey, method: command.method, input: command.input };
+}
+
+function requestReference(seam: string, value: unknown): string {
+  if (typeof value !== 'string' || !REQUEST_REFERENCE.test(value)) {
+    throw new TestHookError(`${seam} names a request by its reference, like REQ-0042.`);
+  }
+  return value;
 }
 
 function isReceipt(
@@ -213,6 +235,37 @@ const handle = Object.freeze({
       personId: next.status === 'signed-in' ? next.personId : null,
       worldVersion: worldOf(sample).worldVersion,
     };
+  },
+  startReview: async (reference: unknown): Promise<{ readonly marker: string }> => {
+    const { sample, runtime } = await whenBooted();
+    const requestId = requestReference('startReview', reference);
+    // The AD-14 seam throws when the request cannot start a review (unknown, decided, started).
+    seamsOf(sample).recordReviewStarted(requestId);
+    const changed: RecordRef = { kind: 'REQ', id: requestId };
+    await runtime.invalidate([changed]);
+    return { marker: TEST_REQUEST_SEAMS_MARKER };
+  },
+  planPayment: async (outcome: unknown): Promise<{ readonly marker: string }> => {
+    const { sample } = await whenBooted();
+    if (outcome !== 'pending' && outcome !== 'failed' && outcome !== 'confirmed') {
+      throw new TestHookError('planPayment takes pending, failed or confirmed.');
+    }
+    planPayment(sample, outcome);
+    return { marker: TEST_REQUEST_SEAMS_MARKER };
+  },
+  reportPayment: async (reference: unknown, outcome: unknown): Promise<unknown> => {
+    const { sample, runtime } = await whenBooted();
+    const requestId = requestReference('reportPayment', reference);
+    if (outcome !== 'failed' && outcome !== 'confirmed') {
+      throw new TestHookError('reportPayment takes confirmed or failed.');
+    }
+    // The provider's report, written by `system:payment-provider` with sample provenance.
+    const answer = standinsOf(sample).paymentOutcome.report({
+      requestId: requestId as RequestId,
+      outcome,
+    });
+    if (answer.ok) await runtime.invalidate(answer.changed);
+    return answer;
   },
   inspect: async () => {
     const { sample, runtime, fixture, instance } = await whenBooted();

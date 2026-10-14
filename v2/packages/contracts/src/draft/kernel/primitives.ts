@@ -41,6 +41,7 @@ import {
   RECORD_KINDS,
   type RecordRef,
   type RequestId,
+  type RequestRouteId,
   type RequestStatusToken,
   type ResourceId,
   type RoleHolderId,
@@ -114,6 +115,8 @@ export const questionDraftId = opaque<QuestionDraftId>();
 export const importBatchId = opaque<ImportBatchId>();
 export const historyEntryId = opaque<HistoryEntryId>();
 export const requestStatusToken = opaque<RequestStatusToken>();
+/** The opaque id of `/requests/[requestId]` (O-05; ADR-0009) — never the reference, never the ticket. */
+export const requestRouteId = opaque<RequestRouteId>();
 /** 'ME ZG523' — contains a space; blank is `null`, never '' (T-17). */
 export const platformCourseCode = branded<PlatformCourseCode>()(z.string().min(1));
 
@@ -142,7 +145,11 @@ export const ids = {
     resource: param<ResourceId>(),
     questionDraft: param<QuestionDraftId>(),
     importBatch: param<ImportBatchId>(),
-    statusToken: param<RequestStatusToken>(),
+    /**
+     * `/requests/[requestId]` (O-05). No port takes the ticket itself: the browser session that sent
+     * a request holds it, and the adapter reads it from there (B1-07; V-17).
+     */
+    requestRoute: param<RequestRouteId>(),
   },
 } as const;
 

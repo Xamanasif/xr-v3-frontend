@@ -37,6 +37,7 @@ export const DRAWN_FLOORS: Readonly<Record<DrawnKind, number>> = {
 /** Opaque ids: never shown in product copy (Appendix C §1.1); routes use them where no prefix is drawn. */
 const OPAQUE_PREFIX: Readonly<Record<Exclude<MintedKind, DrawnKind>, string>> = {
   statusToken: 'tok',
+  requestRoute: 'rq',
   paymentAttempt: 'pay',
   institution: 'inst',
   instituteAdminAssignment: 'iaa',

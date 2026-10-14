@@ -4,8 +4,14 @@
  * Approval, payment and activation stay separate events (BR-036); no decision creates a Student
  * grant (BC9); there is no decline (T-02); "Information requested" has no exit (T-03). Opening
  * SA-03 changes nothing: "BITS started reviewing" is a seeded or test-only fact (AD-14 / P1-04).
- * The payment outcome comes only from the test/seed stand-in (TE-4) — no product path confirms
- * a payment.
+ * The payment outcome comes only from the sample payment provider stand-in (TE-4): in a local
+ * prototype build it confirms the payment "Continue to payment" started, as its own system event;
+ * no person confirms or marks a payment, and nothing is collected.
+ *
+ * PU-10 / PU-12 (DV-5 / O-05; ADR-0009): a request's public pages are found by its opaque address
+ * (`routeId`), and shown only to the browser session holding its ticket (REQ-04) or to the
+ * signed-in Institute Admin of the requesting institution (REQ-28). The ticket never crosses a
+ * port: the session holds it, and this adapter reads it from there.
  */
 import {
   type AccessRequestService,
@@ -26,12 +32,15 @@ import {
   type AccessRequest,
   approveRequest,
   approveSmallerScope,
+  type ApprovalOutcome,
   EMPTY_SELECTION,
   type Institution,
   institutionStatus,
   inDisplayOrder,
   type PersonActorRef,
   publishedFormats,
+  type RecordRef,
+  type RequesterActorRef,
   type RequestedItem,
   requestMoreInformation,
   startPayment,
@@ -43,6 +52,9 @@ import {
 
 import type { Call } from '../platform/core.js';
 import { command, type Op, read } from '../pipeline/runner.js';
+import { ticketHolder } from '../session/browser-session.js';
+import { forDecision } from './decision-view.js';
+import { reportPayment } from './payment-provider.js';
 import { plansOf } from '../world/queries.js';
 import { values } from '../world/records.js';
 import type { WorldRecords } from '../world/types.js';
@@ -99,6 +111,7 @@ export function requesterView(request: AccessRequest): RequesterRequestView {
             : 'none';
   return {
     reference: request.id,
+    routeId: request.routeId,
     rev: request.rev,
     institutionName: request.institutionName,
     status: request.status,
@@ -147,7 +160,7 @@ function decisionPage(op: Op, request: AccessRequest): DecisionPage {
   const status = institution ? institutionStatus(institution, plans, op.now) : null;
   const route = request.route ?? institution?.kind ?? null;
   return {
-    request,
+    request: forDecision(request),
     publishedFormats: published,
     existingAccess: institution
       ? { institutionId: institution.id, plans, paused: institution.pause !== null }
@@ -174,8 +187,27 @@ function institutionOf(records: WorldRecords, request: AccessRequest): Instituti
   return request.institutionId ? (records.institutions[request.institutionId] ?? null) : null;
 }
 
-function requestByToken(records: WorldRecords, token: string): AccessRequest | undefined {
-  return values(records.requests).find((request) => request.statusToken === token);
+/** The request a public address names (`/requests/[requestId]`, O-05) — never by reference or ticket. */
+function requestByRoute(records: WorldRecords, routeId: string): AccessRequest | undefined {
+  return values(records.requests).find((request) => request.routeId === routeId);
+}
+
+/**
+ * O-05 (ADR-0009): who may open a request's public pages — the signed-in Institute Admin of the
+ * requesting institution (REQ-28; B3-08), or the browser session holding its ticket for the user
+ * session that sent it (REQ-04). Everyone else is answered as an address that names nothing.
+ */
+function mayOpen(op: Op, request: AccessRequest): boolean {
+  const target = { kind: 'request' as const, request };
+  const person = op.sessionPerson();
+  if (person?.role === 'tenant_admin' && op.canSee(person, target)) return true;
+  return op.canSee(op.visitor(), target);
+}
+
+/** Two receipts' changed records, each once. */
+function joined(first: readonly RecordRef[], second: readonly RecordRef[]): readonly RecordRef[] {
+  const seen = new Set(first.map((ref) => `${ref.kind}:${ref.id}`));
+  return [...first, ...second.filter((ref) => !seen.has(`${ref.kind}:${ref.id}`))];
 }
 
 export function accessRequestPort(call: Call): AccessRequestService {
@@ -213,60 +245,83 @@ export function accessRequestPort(call: Call): AccessRequestService {
         );
         op.tx.put('requests', request.id, request);
         return {
-          value: { reference: request.id, statusToken: request.statusToken },
+          value: { reference: request.id, routeId: request.routeId },
           decision: 'submitPublicRequest',
           actor: { kind: 'requester', name: request.contact.person },
           after: () => {
             // "Your selection was sent with this request, so it is empty again." (B1-07)
             browser.selection = EMPTY_SELECTION;
-            browser.holdTicket(request.statusToken);
+            // The ticket is this user session's: the signed-out visitor's, or this sign-in's.
+            browser.holdTicket(request.statusToken, ticketHolder(op.liveSession()));
           },
         };
       }),
 
-    getRequestStatus: (token) =>
+    getRequestStatus: (id) =>
       read(call, 'AccessRequestService.getRequestStatus', (op) => {
-        const request = op.found(requestByToken(op.records, op.idText(token)));
-        op.see(op.visitor(), { kind: 'request', request });
+        const request = op.found(requestByRoute(op.records, op.idText(id)));
+        // O-05: anyone who may not open it — another browser, a cold visit, another person
+        // signed in to the same tab, another role or institution — is answered as an address
+        // that names nothing (REQ-05; the owner's not-found treatment) and learns not even that
+        // the request exists.
+        if (!mayOpen(op, request)) op.refuse({ kind: 'not-found' });
         return requesterView(request);
       }),
 
-    startPayment: (input) =>
-      command(call, 'AccessRequestService.startPayment', (op) => {
-        const raw = input as { readonly by?: unknown };
-        if (raw?.by === 'institute-admin') {
-          const person = op.person();
-          const request = op.found(op.records.requests[op.idText(field(input, 'requestId'))]);
-          op.allow(person, 'request.start-payment', {
-            kind: 'request',
-            request,
-            institution: institutionOf(op.records, request),
-          });
-          const accepted = op.parse(startPaymentInput, input);
-          if (accepted.by !== 'institute-admin') throw new Error('unreachable');
-          op.rev(request, accepted.expectedRev);
-          const next = op.decide(
-            startPayment({ request, payer: person.ref, now: op.now, ids: op.ids }),
-            input,
-          );
-          op.tx.put('requests', next.id, next);
-          return { value: requesterView(next), decision: 'startPayment', actor: person.ref };
-        }
-        const visitor = op.visitor();
-        const request = op.found(requestByToken(op.records, op.idText(field(input, 'token'))));
-        op.allow(visitor, 'request.start-payment', {
-          kind: 'request',
+    startPayment: async (input) => {
+      let reported: readonly RecordRef[] = [];
+      const answer = await command(call, 'AccessRequestService.startPayment', (op) => {
+        const request = op.found(requestByRoute(op.records, op.idText(field(input, 'request'))));
+        // Only whoever may open the request pays for it; anyone else learns nothing of it (O-05).
+        if (!mayOpen(op, request)) op.refuse({ kind: 'not-found' });
+        const subject = {
+          kind: 'request' as const,
           request,
           institution: institutionOf(op.records, request),
-        });
+        };
+        // Who pays is the session's: the browser session that sent the request, by the ticket it
+        // holds for the user session that sent it (REQ-07 from PU-10; ADR-0009), or the
+        // requesting institution's signed-in Institute Admin ("Open the payment page", B3-08).
+        const visitor = op.visitor();
+        const person = visitor.requestTokens.includes(request.statusToken)
+          ? null
+          : op.sessionPerson();
+        let payer: RequesterActorRef | PersonActorRef;
+        if (person) {
+          const signedIn = op.person();
+          op.allow(signedIn, 'request.start-payment', subject);
+          payer = signedIn.ref;
+        } else {
+          op.allow(visitor, 'request.start-payment', subject);
+          payer = { kind: 'requester', name: request.contact.person };
+        }
         const accepted = op.parse(startPaymentInput, input);
-        if (accepted.by !== 'status-token') throw new Error('unreachable');
         op.rev(request, accepted.expectedRev);
-        const payer = { kind: 'requester' as const, name: request.contact.person };
         const next = op.decide(startPayment({ request, payer, now: op.now, ids: op.ids }), input);
         op.tx.put('requests', next.id, next);
-        return { value: requesterView(next), decision: 'startPayment', actor: payer };
-      }),
+        return {
+          value: requesterView(next),
+          decision: 'startPayment',
+          actor: payer,
+          // TE-4: the sample payment provider reports on the payment just started — a system event
+          // of its own, with sample provenance, never this command's write (BR-036).
+          after: () => {
+            const outcome = call.core.payments.take();
+            if (!outcome) return;
+            const report = reportPayment(
+              call.core,
+              { requestId: next.id, outcome },
+              'sample-standin',
+            );
+            if (report.ok) reported = report.changed;
+          },
+        };
+      });
+      // The receipt names the provider's records too, so every page reading them refreshes.
+      return answer.ok && reported.length > 0
+        ? { ...answer, changed: joined(answer.changed, reported) }
+        : answer;
+    },
 
     // ── Institute Admin (IA-17) ────────────────────────────────────────────────────────────
     listInstitutionRequests: () =>
@@ -469,7 +524,7 @@ export function accessRequestPort(call: Call): AccessRequestService {
         );
         op.tx.put('requests', next.id, next);
         const value: DecisionOutcome = {
-          request: next,
+          request: forDecision(next),
           institution,
           plan: null,
           planEffect: { kind: 'none' },
@@ -482,12 +537,13 @@ export function accessRequestPort(call: Call): AccessRequestService {
 /** Stages an approval's records: the request, the institution (created at the first approval) and any plan. */
 function decided(
   op: Op,
-  outcome: DecisionOutcome,
+  outcome: ApprovalOutcome,
   decision: 'approveRequest' | 'approveSmallerScope',
   actor: PersonActorRef,
 ) {
   op.tx.put('requests', outcome.request.id, outcome.request);
   if (outcome.institution) op.tx.put('institutions', outcome.institution.id, outcome.institution);
   if (outcome.plan) op.tx.put('plans', outcome.plan.id, outcome.plan);
-  return { value: outcome, decision, actor };
+  const value: DecisionOutcome = { ...outcome, request: forDecision(outcome.request) };
+  return { value, decision, actor };
 }

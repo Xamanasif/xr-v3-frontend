@@ -60,7 +60,7 @@ test('Package 1A: /sign-in answers 200; row 21 /signed-out → /sign-in?reason=s
   }
 });
 
-test('the public pages answer 200 (Package 1B; unknown ids are found out in the browser, TE-8)', async ({
+test('the public pages answer 200 (Packages 1B and 1C; unknown ids are found out in the browser, TE-8)', async ({
   request,
 }) => {
   for (const path of [
@@ -72,6 +72,13 @@ test('the public pages answer 200 (Package 1B; unknown ids are found out in the 
     '/experiments?format=vr',
     '/experiments/distillation-column',
     '/experiments/no-such-experiment',
+    '/selection',
+    '/request-access',
+    '/request-access?step=review',
+    '/request-access/sent',
+    '/requests/rq-0011',
+    '/requests/REQ-0042',
+    '/requests/rq-0011/payment',
   ]) {
     const response = await request.get(path, { maxRedirects: 0 });
     expect(response.status(), path).toBe(200);
@@ -83,8 +90,10 @@ test('outside the workspaces and the public pages: 404 and the public not-found'
 }) => {
   for (const path of [
     '/sign-in/x',
-    '/selection',
-    '/request-access',
+    '/selection/x',
+    '/request-access/x',
+    '/requests',
+    '/requests/rq-0011/x',
     '/system',
     '/workspace/help',
     '/help',

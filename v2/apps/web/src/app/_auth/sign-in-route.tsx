@@ -25,6 +25,7 @@ const NO_QUERY: AppNavigation = {
   pathname: '/sign-in',
   search: '',
   replace: () => undefined,
+  navigate: () => undefined,
   notFound,
 };
 
@@ -55,6 +56,7 @@ function WithNavigation() {
       pathname,
       search: query ? `?${query}` : '',
       replace: (href) => router.replace(href),
+      navigate: (href, options) => (options?.replace ? router.replace(href) : router.push(href)),
       notFound,
     }),
     [pathname, query, router],

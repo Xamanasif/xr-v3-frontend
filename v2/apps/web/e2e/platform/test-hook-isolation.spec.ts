@@ -27,6 +27,7 @@ const SENTINELS = [
   '__XR_TEST_HOOKS__',
   'NEXT_PUBLIC_XR_TEST_HOOKS',
   'xr-sample-platform-testing',
+  'xr-web-test-request-seams',
 ];
 /** Test-only code of `@xr/sample-platform/testing`: fixture names and seam functions. */
 const TESTING_FINGERPRINTS = ['after-flow-a', 'state-coverage', 'supplyObjectiveMarks'];

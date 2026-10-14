@@ -1,6 +1,6 @@
 'use client';
 
-import { notFound, usePathname, useSearchParams } from 'next/navigation';
+import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { type ReactNode, Suspense, useMemo } from 'react';
 
 import {
@@ -28,9 +28,16 @@ const replaceInHistory = (href: string) => window.history.replaceState(null, '',
 
 export function PublicRoute({ children }: { readonly children?: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const withoutQuery = useMemo<AppNavigation>(
-    () => ({ pathname, search: '', replace: replaceInHistory, notFound }),
-    [pathname],
+    () => ({
+      pathname,
+      search: '',
+      replace: replaceInHistory,
+      navigate: (href, options) => (options?.replace ? router.replace(href) : router.push(href)),
+      notFound,
+    }),
+    [pathname, router],
   );
   return (
     <PublicFrame pathname={pathname}>
@@ -49,15 +56,17 @@ function WithNavigation({
   readonly children?: ReactNode;
 }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const query = searchParams.toString();
   const navigation = useMemo<AppNavigation>(
     () => ({
       pathname,
       search: query ? `?${query}` : '',
       replace: replaceInHistory,
+      navigate: (href, options) => (options?.replace ? router.replace(href) : router.push(href)),
       notFound,
     }),
-    [pathname, query],
+    [pathname, query, router],
   );
   return <NavigationProvider value={navigation}>{children}</NavigationProvider>;
 }

@@ -46,6 +46,7 @@ import {
 
 import { type IdExists, StagedIds, type MintedKind } from '../ids/id-source.js';
 import type { Call, PlatformCore, SessionContext, SessionState } from '../platform/core.js';
+import { ticketHolder } from '../session/browser-session.js';
 import { Transaction } from '../world/records.js';
 import type {
   ChangeOrigin,
@@ -179,9 +180,13 @@ export class Op {
     return session ? resolvePerson(this.records, this.world.identities, session.personId) : null;
   }
 
-  /** The public surface's actor: a visitor holding this browser session's request tickets. */
+  /**
+   * The public surface's actor: a visitor holding the request tickets this browser session keeps
+   * for the user session the call was made in — the signed-out visitor's, or this sign-in's
+   * (ADR-0009). A person signed in to the tab holds none of the visitor's tickets.
+   */
   visitor(): PublicActor {
-    return publicActor(this.context?.browser.tickets ?? []);
+    return publicActor(this.context?.browser.ticketsOf(ticketHolder(this.liveSession())) ?? []);
   }
 
   /** Step 3: may this actor take the action on this subject now? (`@xr/domain` `may`). */
@@ -538,6 +543,19 @@ export class SystemRefusal extends Error {
   constructor(readonly current: string) {
     super(`refused: ${current}`);
   }
+}
+
+/** A domain decision's value, or the system writer's `invalid-state` refusal. */
+export function settle<T>(decision: Decision<T>): T {
+  if (decision.ok) return decision.value;
+  const refusal = decision.refusal;
+  throw new SystemRefusal(
+    refusal.kind === 'invalid-state'
+      ? refusal.current
+      : refusal.kind === 'refused' || refusal.kind === 'conflict'
+        ? refusal.code
+        : refusal.kind,
+  );
 }
 
 /**

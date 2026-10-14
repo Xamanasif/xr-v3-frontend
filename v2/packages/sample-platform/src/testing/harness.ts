@@ -19,7 +19,12 @@ import {
 } from '@xr/domain';
 
 import { type SamplePlatform, internalsOf } from '../platform/create.js';
-import { type PlatformCore, SessionContext, type SessionState } from '../platform/core.js';
+import {
+  type PaymentStandInOutcome,
+  type PlatformCore,
+  SessionContext,
+  type SessionState,
+} from '../platform/core.js';
 import { buildPorts } from '../platform/ports.js';
 import { resolvePerson } from '../pipeline/actor.js';
 import { systemCommand } from '../pipeline/runner.js';
@@ -44,6 +49,15 @@ export function setSampleNow(platform: SamplePlatform, instant: IsoInstant): voi
 
 export function faults(platform: SamplePlatform) {
   return internalsOf(platform).core.faults;
+}
+
+/**
+ * TE-4, CI and fixtures only (P1-06, P1-18): what the sample payment provider reports for the next
+ * payment started — `pending` leaves it "Payment not confirmed" (B1-08 f6), `failed` answers
+ * "Payment failed" (f7), `confirmed` activates. The product never reaches it.
+ */
+export function planPayment(platform: SamplePlatform, outcome: PaymentStandInOutcome): void {
+  internalsOf(platform).core.payments.plan(outcome);
 }
 
 export function standinsOf(platform: SamplePlatform) {
@@ -92,7 +106,9 @@ export function asPerson(platform: SamplePlatform, name: string): ProductPorts {
  */
 export function asPersonId(platform: SamplePlatform, personId: string): ProductPorts {
   const { core } = internalsOf(platform);
-  const context = new SessionContext(new BrowserSession(core.nonces.next('browser'), null));
+  const context = new SessionContext(
+    new BrowserSession(core.nonces.next('browser'), null, core.instance),
+  );
   context.session = sessionOf(core, personId);
   return buildPorts(core, context, null);
 }
@@ -112,7 +128,7 @@ export function visitorPorts(platform: SamplePlatform): ProductPorts {
   const { core } = internalsOf(platform);
   return buildPorts(
     core,
-    new SessionContext(new BrowserSession(core.nonces.next('browser'), null)),
+    new SessionContext(new BrowserSession(core.nonces.next('browser'), null, core.instance)),
     null,
   );
 }

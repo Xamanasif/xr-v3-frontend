@@ -23,6 +23,9 @@ export const SAMPLE = {
   },
   /** B1-11 sample reason for "Request more information". */
   informationReason: 'Please confirm how many students will use VR in the first term.',
+  /** B1-08 f4 "Why it changed" (B1-11 f8 smaller scope). */
+  changeReason:
+    'Approved for 100 licences for the first term. You can ask for more once enrolment is confirmed.',
   experiments: {
     /** The experiment Flows A–D trace (flows.json; B2-05; B3-02). */
     shellAndTube: 'Shell-and-Tube Heat Exchanger',

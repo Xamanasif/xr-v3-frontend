@@ -39,10 +39,19 @@ export type QuestionDraftId = Brand<string, 'QuestionDraftId'>;
 export type ImportBatchId = Brand<string, 'ImportBatchId'>;
 export type HistoryEntryId = Brand<string, 'HistoryEntryId'>;
 /**
- * Opaque key of the public request-status page. The reference REQ-0042 "identifies the request —
- * it does not open the page on its own" (B1-08 'Who can open this page'; B1-07).
+ * The ticket the browser session that sent a request holds for its status page (B1-07 "continues
+ * from this session"). The reference REQ-0042 "identifies the request — it does not open the page
+ * on its own" (B1-08 'Who can open this page'). Held by the session, never shown and never part
+ * of an address: a ticket in the URL would work as a bearer link (Appendix D V-17, AD-13).
  */
 export type RequestStatusToken = Brand<string, 'RequestStatusToken'>;
+/**
+ * The opaque id of a request's public addresses, `/requests/[requestId]` and its payment step
+ * (owner decision DV-5 / O-05, 14 Oct 2026; ADR-0009). Never the reference (B1-07, B1-08) and
+ * never the ticket (V-17): it names the request and opens nothing — the page is shown only to the
+ * browser session holding the ticket or to the signed-in Institute Admin of the institution.
+ */
+export type RequestRouteId = Brand<string, 'RequestRouteId'>;
 
 /** The drawn prefixes (B8-03 'Record IDs'). */
 export const DRAWN_ID_PREFIX = {

@@ -29,6 +29,11 @@ describe('the link-target ledger', () => {
         'PU-04',
         'PU-05',
         'PU-06',
+        'PU-07',
+        'PU-08',
+        'PU-09',
+        'PU-10',
+        'PU-12',
         'PU-15',
         'SA-02',
         'SA-03',
@@ -56,17 +61,9 @@ describe('the link-target ledger', () => {
 
   it('a drawn action whose page is not built is not rendered, and names that unbuilt page', () => {
     const hidden = LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'not-rendered');
+    // Every way into PU-07 renders since Package 1C built it; the institution detail is Package 1D.
     expect(hidden.map((entry) => `${entry.screen} ${entry.action}`)).toEqual([
-      // PU-07 Selection (Package 1C): every way into it on the public surface and the sign-in card.
-      'XS-01 Request institutional access',
       'SA-03 View institution',
-      'Public shell Selection (n)',
-      'Public shell Request access',
-      'Public shell Selection (n)',
-      'Public shell Request access',
-      'PU-01 Request institutional access',
-      'PU-01 Request institutional access',
-      'PU-06 Go to selection',
     ]);
     for (const entry of hidden) {
       const kind = resolveAddress(expandTarget(entry.target!, '/admin')).kind;
@@ -125,6 +122,11 @@ describe('the link-target ledger', () => {
       'PU-04': '/experiments',
       'PU-05': '/courses/{courseId}',
       'PU-06': '/experiments/{experimentId}',
+      'PU-07': '/selection',
+      'PU-08': '/request-access',
+      'PU-09': '/request-access/sent',
+      'PU-10': '/requests/{routeId}',
+      'PU-12': '/requests/{routeId}/payment',
     };
     for (const entry of LINK_TARGET_LEDGER.filter((item) => item.screen in patterns)) {
       expect(entry.on).toBe(patterns[entry.screen]);
@@ -154,7 +156,7 @@ describe('the link-target ledger', () => {
       case '<base>/[...unmatched]':
         return [`${base}/zz-unknown`, `${base}/courses`];
       case '/*':
-        return ['/zz-unknown', '/selection', '/requests'];
+        return ['/zz-unknown', '/requests', '/request-access/other'];
       case '<public>/*':
         return [
           '/',
@@ -163,6 +165,11 @@ describe('the link-target ledger', () => {
           '/experiments',
           '/courses/thermodynamics-heat-transfer',
           '/experiments/shell-and-tube-heat-exchanger',
+          '/selection',
+          '/request-access',
+          '/request-access/sent',
+          '/requests/rq-0012',
+          '/requests/rq-0012/payment',
           '/zz-unknown',
         ];
       case '/admin/*':
@@ -216,6 +223,20 @@ describe('the link-target ledger', () => {
       'PU-01: Browse experiments',
       'PU-03: Browse N experiments',
       'PU-06: Add to selection',
+      // Package 1C: one primary per drawn state — PU-07 the summary's (from 1024 px) or the bottom
+      // bar's (below it), or the empty state's; PU-08 per step; PU-10 per status (B1-08 f0/f4, f7,
+      // f8/f9, and the not-found page); PU-12 its one button.
+      'PU-07: Continue to request',
+      'PU-07: Continue to request',
+      'PU-07: Browse experiments',
+      'PU-08: Review request',
+      'PU-08: Submit request',
+      'PU-09: Check request status',
+      'PU-10: Continue to payment',
+      'PU-10: Try payment again',
+      'PU-10: Sign in',
+      'PU-10: Browse experiments',
+      'PU-12: Continue to payment',
     ]);
   });
 });

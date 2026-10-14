@@ -59,9 +59,14 @@ describe('PU-15 public variant', () => {
         .map((link) => [link.textContent, link.getAttribute('href')]),
     ).toEqual([['Browse experiments', '/experiments']]);
     expect(document.title).toBe('We can’t find that page · XR Learning Platform');
-    // The public header offers only built destinations: no Selection or Request access (PU-07).
-    expect(screen.getByRole('banner')).toBeVisible();
-    expect(screen.queryByText(/Request access/)).toBeNull();
+    // The public header offers only built destinations — since Package 1C the Selection and
+    // Request access (both to PU-07); no Help on the public surface.
+    const header = screen.getByRole('banner');
+    expect(header).toBeVisible();
+    expect(within(header).getByRole('link', { name: 'Request access' })).toHaveAttribute(
+      'href',
+      '/selection',
+    );
     expect(screen.queryByRole('link', { name: /Help/ })).toBeNull();
   });
 });

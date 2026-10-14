@@ -109,20 +109,20 @@ test.describe('B1-09 · XS-01 Sign in, XS-03, XS-04 on the built card', () => {
         product: ours.locator('form'),
       },
       {
+        // Package 1C: the card foot's "Request institutional access" leads to the built Selection.
         name: 'b1-09-f0-card',
         reference: frame.locator('.xp-auth-card'),
         product: ours.locator('.xp-auth-card'),
-        deviation: 'DEV-21',
       },
       {
-        // Package 1B: the top row's "Back to experiments" now renders (the Landing is built),
-        // with board 02's back icon (DEV-23); the card foot's line still waits for PU-07 (DEV-21).
+        // Package 1B: the top row's "Back to experiments" renders (the Landing is built), with
+        // board 02's back icon (DEV-23); Package 1C: the card foot's line renders too.
         name: 'b1-09-f0-whole-frame',
         reference: frame.locator('.xp'),
         product: ours.locator('div.xp'),
         kind: 'screen',
         frame: true,
-        deviation: ['DEV-21', 'DEV-23', 'DEV-24'],
+        deviation: ['DEV-23', 'DEV-24'],
       },
     ]);
     expect(failures).toEqual([]);
@@ -218,7 +218,6 @@ test.describe('B1-09 · XS-01 Sign in, XS-03, XS-04 on the built card', () => {
         name: 'b1-09-f11-mobile-card',
         reference: frame.locator('.xp-auth-card'),
         product: ours.locator('.xp-auth-card'),
-        deviation: 'DEV-21',
       },
     ]);
     expect(failures).toEqual([]);

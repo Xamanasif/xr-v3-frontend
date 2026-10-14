@@ -42,7 +42,7 @@ const hrefs = (root: ParentNode = document) =>
   [...root.querySelectorAll('a[href]')].map((link) => link.getAttribute('href'));
 
 describe('the public shell (B1-01 header, menu sheet, footer)', () => {
-  it('renders only built destinations: no Selection, no Request access (PU-07, Package 1C)', async () => {
+  it('renders only built destinations — since Package 1C “Selection (n)” and “Request access” too (PU-07, HB-02)', async () => {
     await show(<AllAreas />, '/areas');
     const header = screen.getByRole('banner');
     expect(
@@ -54,11 +54,21 @@ describe('the public shell (B1-01 header, menu sheet, footer)', () => {
       ['Browse experiments', '/experiments'],
       ['Areas', '/areas'],
       ['For institutions', '/#for-institutions'],
+      ['Selection0', '/selection'],
       ['Sign in', '/sign-in'],
+      ['Request access', '/selection'],
     ]);
     expect(within(header).getByRole('link', { name: 'XR Learning Platform — home' })).toBeVisible();
-    expect(hrefs()).not.toContain('/selection');
-    expect(screen.queryByText('Request access')).toBeNull();
+    // B1-01 `a.xp-sel`: named by its count ("Selection, empty"); the drawn count is decorative.
+    const selection = within(header).getByRole('link', { name: 'Selection, empty' });
+    expect(selection).not.toHaveAttribute('aria-current');
+    expect(selection.querySelector('.xp-sel-n')).toHaveClass('is-zero');
+    expect(selection.querySelector('.xp-sel-n')).toHaveAttribute('aria-hidden', 'true');
+    expect(within(header).getByRole('link', { name: 'Request access' })).toHaveClass(
+      'xr-btn',
+      'xr-btn--on-dark',
+      'xp-access',
+    );
     // The skip link comes first and targets the page's main.
     expect(document.querySelector('.xp > *')).toHaveClass('xr-skip');
     expect(document.querySelector('main#main')).toHaveAttribute('tabindex', '-1');
@@ -103,7 +113,17 @@ describe('the public shell (B1-01 header, menu sheet, footer)', () => {
       within(sheet)
         .getAllByRole('link')
         .map((link) => link.textContent),
-    ).toEqual(['Browse experiments', 'Areas', 'For institutions', 'Sign in']);
+    ).toEqual([
+      'Browse experiments',
+      'Areas',
+      'For institutions',
+      'Selection 0',
+      'Sign in',
+      'Request access',
+    ]);
+    expect(within(sheet).getByRole('link', { name: 'Request access' })).toHaveClass(
+      'xr-btn--primary',
+    );
     expect(document.querySelector('main')).toHaveAttribute('inert');
     expect(document.querySelector('footer')).toHaveAttribute('inert');
     expect(document.querySelector('header')).not.toHaveAttribute('inert');
@@ -186,8 +206,17 @@ describe('PU-01 Landing with PU-14 (B1-01, B1-02)', () => {
       'href',
       '/sign-in',
     );
-    expect(document.querySelectorAll('main .xr-btn--primary.xp-cta')).toHaveLength(1);
-    expect(screen.queryByRole('link', { name: 'Request institutional access' })).toBeNull();
+    // One gold primary in the hero (B1-01); For institutions draws its own further down.
+    const heroSection = document.querySelector('.xp-hero')!;
+    expect(heroSection.querySelectorAll('.xr-btn--primary.xp-cta')).toHaveLength(1);
+    const paths = heroSection.querySelector('ul.xp-paths')!;
+    expect([...paths.querySelectorAll('.xp-path-who')].map((who) => who.textContent)).toEqual([
+      'Students and faculty',
+      'Institutions',
+    ]);
+    expect(
+      within(paths as HTMLElement).getByRole('link', { name: 'Request institutional access' }),
+    ).toHaveAttribute('href', '/selection');
   });
 
   it('PU-14 is the `#for-institutions` section with four steps; its heading can take focus', async () => {
@@ -200,7 +229,17 @@ describe('PU-01 Landing with PU-14 (B1-01, B1-02)', () => {
       'BITS reviews — payment may be required',
       'Your administrator gives students access',
     ]);
-    expect(within(section).queryByRole('link')).toBeNull();
+    // B1-01 `div.xp-inst-foot`: the one way on, to Your selection (PU-07, Package 1C).
+    expect(
+      within(section)
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual(['/selection']);
+    expect(within(section).getByRole('link', { name: 'Request institutional access' })).toHaveClass(
+      'xr-btn',
+      'xr-btn--primary',
+      'xp-cta',
+    );
   });
 
   it('the explorer: Next and ← → move the selected area; Home / End jump; the move is announced', async () => {
@@ -520,8 +559,9 @@ describe('PU-06 Experiment (B1-05)', () => {
       'href',
       '/courses/thermodynamics-heat-transfer',
     );
-    // Student access is never implied; no price, no buy, no way into the unbuilt Selection.
-    expect(hrefs()).not.toContain('/selection');
+    // Student access is never implied; no price, no buy. Not yet chosen: the panel offers no "Go to
+    // selection" (only the header's ways into it).
+    expect(hrefs(document.querySelector('main')!)).not.toContain('/selection');
     expect(document.body.textContent).not.toMatch(/price|buy|purchase|has access|active access/i);
   });
 
@@ -552,6 +592,10 @@ describe('PU-06 Experiment (B1-05)', () => {
       'In your selectionFormats: WEB · VR',
     );
     expect(selectionOf(runtime)).toEqual([['shell-and-tube-heat-exchanger', ['web', 'vr']]]);
+    // B1-05 "In your selection": "Go to selection" (B1-06, PU-07 — built in Package 1C).
+    const go = within(panel).getByRole('link', { name: 'Go to selection' });
+    expect(go).toHaveAttribute('href', '/selection');
+    expect(go).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--block');
     await waitFor(() =>
       expect(
         within(panel).getByRole('heading', { name: 'Get this for your institution' }),

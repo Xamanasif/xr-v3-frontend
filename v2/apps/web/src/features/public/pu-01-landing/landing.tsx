@@ -33,8 +33,9 @@ const HERO_DRAWING = 'thermal';
 /**
  * PU-01 Landing with PU-14 "How institutional access works" (B1-01, B1-02): header → hero →
  * explorer → featured → formats → for institutions → closing band → footer. One gold primary in
- * the hero (Browse experiments); students and faculty sign in; institutions request access — that
- * way in (PU-07) renders with Package 1C. Every number is the sample world's (B1-01 "Counts").
+ * the hero (Browse experiments); students and faculty sign in; institutions request access — to
+ * Your selection, step 1 of the request (PU-07, built in Package 1C). Every number is the sample
+ * world's (B1-01 "Counts").
  */
 export function Landing() {
   const areas = usePublicAreas();
@@ -212,7 +213,10 @@ function Hero({ entry }: { readonly entry: CatalogueEntry | null }) {
               <span className="xp-path-who">{LANDING.hero.studentsWho}</span>
               <Link href="/sign-in">{LANDING.hero.studentsLink}</Link>
             </li>
-            {/* "Institutions · Request institutional access" (PU-07) renders with Package 1C (P0-35). */}
+            <li className="xp-path">
+              <span className="xp-path-who">{LANDING.hero.institutionsWho}</span>
+              <Link href="/selection">{LANDING.hero.institutionsLink}</Link>
+            </li>
           </ul>
         </div>
         <figure className="xp-hero-fig">
@@ -360,7 +364,11 @@ function ForInstitutions() {
             </li>
           ))}
         </ol>
-        {/* "Request institutional access" (PU-07) renders with Package 1C (P0-35). */}
+        <div className="xp-inst-foot">
+          <Link className="xr-btn xr-btn--primary xp-cta" href="/selection">
+            {LANDING.institutions.request}
+          </Link>
+        </div>
       </div>
     </section>
   );

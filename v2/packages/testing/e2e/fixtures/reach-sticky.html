@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fixture — a sticky panel taller than the viewport</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        margin: 24px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 24px;
+        align-items: start;
+      }
+      .details {
+        height: 2400px;
+        border-left: 4px solid #ccc;
+        padding-left: 12px;
+      }
+      /* As v46 draws its decision panel (.xr-dpanel): sticky, no height limit. */
+      .panel {
+        position: sticky;
+        top: 24px;
+        border: 1px solid #999;
+        padding: 16px;
+      }
+      .panel .choices {
+        height: 1100px;
+      }
+    </style>
+    <script>
+      window.__fixture = { clicks: 0, programmaticScrolls: [] };
+      for (const [owner, names] of [
+        [
+          Element.prototype,
+          ['scrollIntoView', 'scrollIntoViewIfNeeded', 'scrollTo', 'scrollBy', 'scroll'],
+        ],
+        [window, ['scrollTo', 'scrollBy', 'scroll']],
+      ]) {
+        for (const name of names) {
+          const original = owner[name];
+          if (typeof original !== 'function') continue;
+          owner[name] = function (...args) {
+            window.__fixture.programmaticScrolls.push(name);
+            return original.apply(this, args);
+          };
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="layout">
+      <div class="details">The details column, longer than the panel.</div>
+      <aside class="panel" aria-label="Decision">
+        <div class="choices">Choices taller than the viewport.</div>
+        <button type="button" onclick="window.__fixture.clicks += 1">Approve request</button>
+      </aside>
+    </main>
+  </body>
+</html>

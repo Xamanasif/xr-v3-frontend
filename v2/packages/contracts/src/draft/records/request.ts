@@ -31,6 +31,7 @@ import {
   paymentAttemptId,
   recordMeta,
   requestId,
+  requestRouteId,
   requestStatusToken,
   technology,
 } from '../kernel/primitives.js';
@@ -113,40 +114,56 @@ export const paymentAttempt = typedAs<PaymentAttempt>()(
   }),
 );
 
-export const accessRequest = typedAs<AccessRequest>()(
-  z.object({
-    ...recordMeta,
-    id: requestId,
-    statusToken: requestStatusToken,
-    type: requestType,
-    origin: requestOrigin,
-    institutionId: institutionId.nullable(),
-    institutionName: z.string().min(1),
-    contact: requestContact,
-    items: z.array(requestedItem),
-    licencesRequested: z.number().int().min(1),
-    term: requestedTerm,
-    message: z.string().nullable(),
-    sourcePlanId: accessPlanId.nullable(),
-    receivedAt: isoInstant,
-    reviewStartedAt: isoInstant.nullable(),
-    status: requestStatus,
-    route: institutionKind.nullable(),
-    decision: requestDecision.nullable(),
-    informationRequest: z
-      .object({ reason: z.string().min(1), at: isoInstant, by: actorRef })
-      .nullable(),
-    payments: z.array(paymentAttempt),
-    activatedPlanId: accessPlanId.nullable(),
-    history: historyOf(REQUEST_EVENTS),
-  }),
+const accessRequestObject = z.object({
+  ...recordMeta,
+  id: requestId,
+  statusToken: requestStatusToken,
+  routeId: requestRouteId,
+  type: requestType,
+  origin: requestOrigin,
+  institutionId: institutionId.nullable(),
+  institutionName: z.string().min(1),
+  contact: requestContact,
+  items: z.array(requestedItem),
+  licencesRequested: z.number().int().min(1),
+  term: requestedTerm,
+  message: z.string().nullable(),
+  sourcePlanId: accessPlanId.nullable(),
+  receivedAt: isoInstant,
+  reviewStartedAt: isoInstant.nullable(),
+  status: requestStatus,
+  route: institutionKind.nullable(),
+  decision: requestDecision.nullable(),
+  informationRequest: z
+    .object({ reason: z.string().min(1), at: isoInstant, by: actorRef })
+    .nullable(),
+  payments: z.array(paymentAttempt),
+  activatedPlanId: accessPlanId.nullable(),
+  history: historyOf(REQUEST_EVENTS),
+});
+
+export const accessRequest = typedAs<AccessRequest>()(accessRequestObject);
+
+/**
+ * The request record as the Super Admin's decision page and every decision receipt carry it: all
+ * of it but the requester's ticket, which never leaves the adapter (PC-34; ADR-0009).
+ */
+export const requestForDecision = typedAs<Omit<AccessRequest, 'statusToken'>>()(
+  accessRequestObject.omit({ statusToken: true }),
 );
 
 export const selectionItem = typedAs<SelectionItem>()(
   z.object({ experimentId, formats: z.array(technology).min(1), addedAt: isoInstant }),
 );
 
-/** M04: the visitor's browser-session Selection — not a world record (B1-06). */
+/**
+ * M04: the visitor's browser-session Selection — not a world record (B1-06). `lastRemovedAt` is the
+ * position Undo puts the removed item back to (B1-06 `undo`; PC-35).
+ */
 export const selection = typedAs<Selection>()(
-  z.object({ items: z.array(selectionItem), lastRemoved: selectionItem.nullable() }),
+  z.object({
+    items: z.array(selectionItem),
+    lastRemoved: selectionItem.nullable(),
+    lastRemovedAt: z.number().int().min(0).nullable(),
+  }),
 );

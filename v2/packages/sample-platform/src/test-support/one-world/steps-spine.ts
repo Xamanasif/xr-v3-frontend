@@ -29,11 +29,11 @@ import {
 const REQ_0042 = unsafeBrand<AccessRequest['id']>('REQ-0042');
 const SUB_0077 = unsafeBrand<Submission['id']>('SUB-0077');
 
-/** The requester's PU-10 view of REQ-0042, through the visitor's own ticket. */
+/** The requester's PU-10 view of REQ-0042 at its address, through the visitor's own ticket (O-05). */
 async function requesterView(proof: Parameters<ProofStep['verify']>[0]) {
-  const token = proof.carried.get('requestToken');
-  if (!token) throw new Error('The REQ-0042 ticket was not carried from A2.');
-  return must(proof.visitor.accessRequests.getRequestStatus(unsafeBrand(token)), 'PU-10 REQ-0042');
+  const route = proof.carried.get('requestRoute');
+  if (!route) throw new Error('The REQ-0042 address was not carried from A2.');
+  return must(proof.visitor.accessRequests.getRequestStatus(unsafeBrand(route)), 'PU-10 REQ-0042');
 }
 
 export const SPINE: readonly ProofStep[] = [

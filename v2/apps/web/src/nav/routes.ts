@@ -16,8 +16,11 @@ import type { WorkspaceScreenId } from './screens';
  * `/signed-out` redirect (row 21) and the Super Admin's Requests (SA-02) and Request decision
  * (SA-03). Package 1B adds the public surface in the `(public)` group — PU-01 Landing (with the
  * PU-14 section), PU-02 / PU-03 areas, PU-04 catalogue, PU-05 course, PU-06 experiment — and the
- * `/courses` → `/areas` redirect (Appendix A §3.7 row 1). Every other public address resolves to
- * the root not-found (the public PU-15, now inside the public header and footer).
+ * `/courses` → `/areas` redirect (Appendix A §3.7 row 1). Package 1C adds the public request —
+ * PU-07, PU-08, PU-09, PU-10 (with PU-13) and PU-12; its guards (an empty selection, a cold "sent",
+ * a request that has no payment step now) replace the address in the browser, where the selection
+ * and the tickets live. Every other public address resolves to the root not-found (the public
+ * PU-15, inside the public header and footer).
  */
 
 /** What a page file renders. */
@@ -35,10 +38,22 @@ export type HelpRouteView = 'reports' | 'report' | 'detail';
 export type EntryScreenId = 'XS-01';
 
 /**
- * The public screens with a page of their own (Appendix A "Public"; Package 1B). PU-14 is a section
- * of PU-01 (`/#for-institutions`) and has no page.
+ * The public screens with a page of their own (Appendix A "Public"; Packages 1B and 1C). PU-14 is a
+ * section of PU-01 (`/#for-institutions`) and PU-13 (Access active) a state of PU-10: neither has a
+ * page.
  */
-export type PublicPageScreenId = 'PU-01' | 'PU-02' | 'PU-03' | 'PU-04' | 'PU-05' | 'PU-06';
+export type PublicPageScreenId =
+  | 'PU-01'
+  | 'PU-02'
+  | 'PU-03'
+  | 'PU-04'
+  | 'PU-05'
+  | 'PU-06'
+  | 'PU-07'
+  | 'PU-08'
+  | 'PU-09'
+  | 'PU-10'
+  | 'PU-12';
 
 export interface PageRoute {
   /** The URL pattern, Next.js notation (`/student/help/reports/[reportId]`). */
@@ -156,11 +171,32 @@ const PACKAGE_1B_PAGES: readonly PageRoute[] = (
   ] as const
 ).map(([pattern, file, screen]) => ({ pattern, file, workspace: null, kind: 'screen', screen }));
 
-/** Every page file: the Phase-0 pages of the seven workspaces (35), Package 1A's (3), Package 1B's (6). */
+/**
+ * Package 1C (Phase 1): the public request — PU-07 Your selection, PU-08 Request institutional
+ * access (`?step=details|review`), PU-09 Request sent, PU-10 Request status (with the PU-13 Access
+ * active state) and PU-12 Payment (Appendix A; owner decision DV-5 / O-05: `[requestId]` is the
+ * request's opaque address, never its reference or its ticket). `/requests` alone has no page: it
+ * stays the public not-found (Appendix A §3.7 row 2).
+ */
+const PACKAGE_1C_PAGES: readonly PageRoute[] = (
+  [
+    ['/selection', '(public)/selection/page.tsx', 'PU-07'],
+    ['/request-access', '(public)/request-access/page.tsx', 'PU-08'],
+    ['/request-access/sent', '(public)/request-access/sent/page.tsx', 'PU-09'],
+    ['/requests/[requestId]', '(public)/requests/[requestId]/page.tsx', 'PU-10'],
+    ['/requests/[requestId]/payment', '(public)/requests/[requestId]/payment/page.tsx', 'PU-12'],
+  ] as const
+).map(([pattern, file, screen]) => ({ pattern, file, workspace: null, kind: 'screen', screen }));
+
+/**
+ * Every page file: the Phase-0 pages of the seven workspaces (35), Package 1A's (3), Package 1B's
+ * (6), Package 1C's (5).
+ */
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
   ...PACKAGE_1A_PAGES,
   ...PACKAGE_1B_PAGES,
+  ...PACKAGE_1C_PAGES,
 ];
 
 /**
@@ -279,5 +315,13 @@ function resolvePublic(first: string, tail: readonly string[]): AddressOutcome {
   if (first === 'courses' && tail.length === 0)
     return { kind: 'redirect', workspace: null, to: '/areas' };
   if (first === 'courses' && id) return { kind: 'public-screen', screen: 'PU-05' };
+  if (first === 'selection' && tail.length === 0) return { kind: 'public-screen', screen: 'PU-07' };
+  if (first === 'request-access' && tail.length === 0)
+    return { kind: 'public-screen', screen: 'PU-08' };
+  if (first === 'request-access' && tail.length === 1 && tail[0] === 'sent')
+    return { kind: 'public-screen', screen: 'PU-09' };
+  if (first === 'requests' && id) return { kind: 'public-screen', screen: 'PU-10' };
+  if (first === 'requests' && tail.length === 2 && tail[0] !== '' && tail[1] === 'payment')
+    return { kind: 'public-screen', screen: 'PU-12' };
   return { kind: 'public-not-found' };
 }

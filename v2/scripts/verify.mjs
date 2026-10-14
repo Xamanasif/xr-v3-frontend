@@ -60,6 +60,7 @@ const NOT_YET_PRESENT = [
 const TEST_HOOK_BUILD_MARKERS = [
   'xr-web-test-hook-bridge',
   'xr-web-test-session-switch',
+  'xr-web-test-request-seams',
   '__XR_TEST_HOOKS__',
   '__XR_TEST_BOOT__',
 ];
@@ -78,6 +79,7 @@ const BUNDLE_SENTINELS = [
   'xr-web-test-hook-bridge',
   'xr-web-test-session-switch',
   'switchSession',
+  'xr-web-test-request-seams',
   '__XR_TEST_BOOT__',
   '__XR_TEST_HOOKS__',
   'NEXT_PUBLIC_XR_TEST_HOOKS',

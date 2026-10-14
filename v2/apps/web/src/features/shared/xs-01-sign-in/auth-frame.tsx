@@ -8,12 +8,10 @@ import { SIGN_IN } from '@/copy/sign-in';
  * centred card on the calm B2 brand background … No navigation to wander off to"): `div.xp >
  * div.xp-auth`, the top row and `main.xp-auth-main` holding the card. No public header.
  *
- * B1-09's two ways out are rendered once their pages are built (P0-35 built-screen navigation,
+ * B1-09's two ways out render now that their pages are built (P0-35 built-screen navigation,
  * extended to Phase 1 by the owner; `nav/link-targets.ts`): "Back to experiments" in the top row
- * goes to the Landing, `/` (P1-17 follows the href), built in Package 1B; "Request institutional
- * access" under the card waits for the Selection (PU-07, Package 1C) — an unbuilt address would
- * show the public not-found page and load a new document, which restarts the tab's sample world
- * (ADR-0004).
+ * goes to the Landing, `/` (P1-17 follows the href; Package 1B); "Request institutional access"
+ * under the card goes to Your selection (PU-07; Package 1C, in the card itself).
  */
 export function AuthFrame({ children }: { readonly children?: ReactNode }) {
   return (

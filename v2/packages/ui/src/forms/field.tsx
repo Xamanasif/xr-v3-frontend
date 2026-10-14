@@ -40,6 +40,8 @@ export interface FieldErrorProps {
    * boards: B2-07 "IA-10 Add student · 1440 · interactive", B2-08, B3-07). Same look, same markup.
    */
   readonly variant?: FieldErrorClass;
+  /** Board context classes (B1-07 spaces a group's error `margin-top:8px` under its options). */
+  readonly className?: string;
   /** The error in words, from the caller — never invented here. */
   readonly children: ReactNode;
 }
@@ -50,9 +52,9 @@ export interface FieldErrorProps {
  * a live region: the field's message is in its description, and the page's error summary is the
  * alert (board 12 "Errors": "the field's message is in its description").
  */
-export function FieldError({ id, variant = 'xr-error', children }: FieldErrorProps) {
+export function FieldError({ id, variant = 'xr-error', className, children }: FieldErrorProps) {
   return (
-    <span className={variant} id={id}>
+    <span className={joinClasses(variant, className)} id={id}>
       <Icon name="failed" />
       {children}
     </span>

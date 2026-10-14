@@ -90,6 +90,27 @@ test.describe('reachAndClick', () => {
     expect(error.message).toContain('clipped, covered or beyond what scrolling can show');
   });
 
+  test('reaches the foot of a sticky panel taller than the viewport, which stays put while the page scrolls', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await openFixture(page, 'reach-sticky');
+    const approve = page.getByRole('button', { name: 'Approve request' });
+    await expect(approve).not.toBeInViewport();
+
+    await reachAndClick(page, approve);
+
+    const record = await page.evaluate(
+      () =>
+        (window as unknown as { __fixture: { clicks: number; programmaticScrolls: string[] } })
+          .__fixture,
+    );
+    expect(record.clicks).toBe(1);
+    expect(record.programmaticScrolls).toEqual([]);
+    // Only the end of the page's scroll brings the panel's foot into view.
+    expect(await page.evaluate(() => scrollY + innerHeight)).toBeGreaterThan(2000);
+  });
+
   test('reaches the unclipped control on the same page (positive control)', async ({ page }) => {
     await openFixture(page, 'reach-clip');
 

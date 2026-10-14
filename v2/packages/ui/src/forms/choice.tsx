@@ -43,12 +43,19 @@ export interface ChoiceGroupProps extends Omit<
   /** `span.xr-hint` after the legend (B1-07 "Access term"), in the fieldset's description. */
   readonly hint?: ReactNode;
   /**
+   * Board context classes on the hint: every board spaces a group's hint inline, each its own way
+   * (B1-07, B1-11 `margin:-4px 0 8px`; B4-04 `display:block;margin-bottom:8px`; B6-07 `…6px`).
+   */
+  readonly hintClassName?: string;
+  /**
    * The error in words (B1-07, B1-11, B5-04), in the fieldset's description after the hint. The
    * caller validates on the primary action and passes the drawn message.
    */
   readonly error?: ReactNode;
   /** `after-options` (default) or `before-options`, as the screen's board draws it. */
   readonly errorPlacement?: ChoiceErrorPlacement;
+  /** Board context classes on the error line (B1-07 `margin-top:8px` under the options). */
+  readonly errorClassName?: string;
   /**
    * The fieldset id: an error-summary link target (with `tabIndex={-1}`, as B5-04 draws
    * `fieldset#…-fmts[tabindex=-1]`) and the base of the hint (`<id>-h`) and error (`<id>-e`) ids.
@@ -67,8 +74,10 @@ function ChoiceFieldset({
   legendClass = 'xr-legend',
   marker,
   hint,
+  hintClassName,
   error,
   errorPlacement = 'after-options',
+  errorClassName,
   id,
   className,
   children,
@@ -78,7 +87,11 @@ function ChoiceFieldset({
   const base = id ?? generatedId;
   const hintId = hint ? `${base}-h` : undefined;
   const errorId = error ? `${base}-e` : undefined;
-  const errorLine = error ? <FieldError id={errorId}>{error}</FieldError> : null;
+  const errorLine = error ? (
+    <FieldError id={errorId} className={errorClassName}>
+      {error}
+    </FieldError>
+  ) : null;
   return (
     <fieldset
       className={joinClasses('xr-fieldset', className)}
@@ -96,7 +109,7 @@ function ChoiceFieldset({
         ) : null}
       </legend>
       {hint ? (
-        <span className="xr-hint" id={hintId}>
+        <span className={joinClasses('xr-hint', hintClassName)} id={hintId}>
           {hint}
         </span>
       ) : null}

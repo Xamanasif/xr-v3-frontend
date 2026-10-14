@@ -12,12 +12,16 @@ import {
 } from 'react';
 
 import { PUBLIC_SHELL } from '@/copy/public';
+import { selectionLinkName } from '@/copy/request-access';
 import {
   PUBLIC_FOOTER_LINKS,
   PUBLIC_MAIN_NAV,
+  PUBLIC_REQUEST_ACCESS,
+  PUBLIC_SELECTION_LINK,
   PUBLIC_SIGN_IN,
   publicPlaceOf,
 } from '@/nav/public-nav';
+import { useSelection } from '@/queries/selection';
 
 import { useRouteFocus } from '../../shared/workspace-frame/route-focus';
 
@@ -61,9 +65,11 @@ export function usePublicRoot(): HTMLDivElement | null {
 /**
  * The public shell (Appendix E §3.5 PublicShell; B1-01 … B1-05; Phase-1 Package 1B): `div.xp` >
  * skip link (VD-16), `header.xp-head` (brand, `nav` Main, Sign in, Menu + sheet), the page's own
- * `main#main`, `footer.xp-foot`. Destinations render only when their page is built: the
- * Selection link and Request access (PU-07) wait for Package 1C (P0-35; `nav/public-nav.ts`).
- * After a client-side move, focus goes to the page's `main` (or the `#for-institutions` section).
+ * `main#main`, `footer.xp-foot`. Destinations render only when their page is built (P0-35;
+ * `nav/public-nav.ts`): since Package 1C that includes "Selection (n)" — the count of experiments in
+ * this browser session's selection — and "Request access", both to PU-07 (HB-02: the board sends
+ * "Request access" to the selection, step 1 of the request). After a client-side move, focus goes
+ * to the page's `main` (or the `#for-institutions` section, or a flow's own result heading).
  */
 export function PublicFrame({
   pathname,
@@ -94,6 +100,8 @@ function PublicHeader({
   readonly root: HTMLDivElement | null;
 }) {
   const place = publicPlaceOf(pathname);
+  const { selection } = useSelection();
+  const count = selection.items.length;
   const [open, setOpen] = useState(false);
   const header = useRef<HTMLElement | null>(null);
   const menuButton = useRef<HTMLButtonElement | null>(null);
@@ -172,10 +180,28 @@ function PublicHeader({
           </ul>
         </nav>
         <div className="xp-head-end">
-          {/* "Selection (n)" and "Request access" (PU-07) render with Package 1C (P0-35). */}
+          {PUBLIC_SELECTION_LINK ? (
+            <Link
+              className="xp-sel"
+              href={PUBLIC_SELECTION_LINK.href}
+              aria-label={selectionLinkName(count)}
+              aria-current={place === 'selection' ? 'page' : undefined}
+            >
+              <Icon name="checklist" />
+              <span className="xp-sel-label">{PUBLIC_SELECTION_LINK.label}</span>
+              <span className={count > 0 ? 'xp-sel-n' : 'xp-sel-n is-zero'} aria-hidden="true">
+                {count}
+              </span>
+            </Link>
+          ) : null}
           <Link className="xp-signin" href={PUBLIC_SIGN_IN.href}>
             {PUBLIC_SIGN_IN.label}
           </Link>
+          {PUBLIC_REQUEST_ACCESS ? (
+            <Link className="xr-btn xr-btn--on-dark xp-access" href={PUBLIC_REQUEST_ACCESS.href}>
+              {PUBLIC_REQUEST_ACCESS.label}
+            </Link>
+          ) : null}
           <button
             ref={menuButton}
             type="button"
@@ -206,6 +232,23 @@ function PublicHeader({
                   </Link>
                 </li>
               ))}
+              {PUBLIC_SELECTION_LINK ? (
+                <li>
+                  <Link
+                    href={PUBLIC_SELECTION_LINK.href}
+                    aria-current={place === 'selection' ? 'page' : undefined}
+                    onClick={() => setOpen(false)}
+                  >
+                    <span>
+                      {PUBLIC_SELECTION_LINK.label}{' '}
+                      <span className={count > 0 ? 'xp-sel-n ml-2' : 'xp-sel-n is-zero ml-2'}>
+                        {count}
+                      </span>
+                    </span>
+                    <Icon name="chevronRight" />
+                  </Link>
+                </li>
+              ) : null}
             </ul>
           </nav>
           <div className="xp-sheet-actions">
@@ -216,6 +259,15 @@ function PublicHeader({
             >
               {PUBLIC_SIGN_IN.label}
             </Link>
+            {PUBLIC_REQUEST_ACCESS ? (
+              <Link
+                className="xr-btn xr-btn--primary"
+                href={PUBLIC_REQUEST_ACCESS.href}
+                onClick={() => setOpen(false)}
+              >
+                {PUBLIC_REQUEST_ACCESS.label}
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>

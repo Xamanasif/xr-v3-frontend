@@ -517,4 +517,51 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'Drop the parameter once the owner decides P1-22: a curated list gets its own read, a derived one a rule in the catalogue service.',
   },
+  {
+    id: 'PC-33',
+    subject:
+      'A request has an opaque public address (`AccessRequest.routeId`) — `/requests/[requestId]` and its payment step — distinct from the reference and from the ticket',
+    status: 'owner-approved-interim',
+    source:
+      'Owner decision DV-5 / O-05 (Package-1C authorisation, 14 Oct 2026): "`/requests/[requestId]` … The request reference alone must never grant access." Appendix A §3.3 "requestId (opaque, never the REQ reference)"; B1-07 / B1-08 "the reference … does not open the page on its own"; Appendix D V-17 / AD-13 "no URL may work as a bearer link" — so the address is not the ticket either. Appendix C gave the status page only the ticket (`statusToken`) as its key. Added in Phase-1 Package 1C (ADR-0009)',
+    decisions: ['DV-5', 'O-05', 'T-01', 'R01'],
+    trace: [
+      { kind: 'schema-field', schema: 'accessRequest', path: 'routeId' },
+      { kind: 'schema-field', schema: 'requesterRequestView', path: 'routeId' },
+      { kind: 'schema-field', schema: 'submitPublicRequestOutput', path: 'routeId' },
+    ],
+    irreversible:
+      'Once an API publishes `/requests/{routeId}`, links already handed out keep that form; the id itself stays opaque.',
+    reversal:
+      'If the owner chooses AD-13’s capability-free `/requests/status` instead, drop the field and resolve the request from the session’s ticket alone; the screens keep their markup.',
+  },
+  {
+    id: 'PC-34',
+    subject:
+      'The ticket never crosses a port: `submitPublicRequest` no longer answers `statusToken`; `getRequestStatus` and `startPayment` name the request by its address and the adapter resolves the caller — the sending browser session by the ticket it holds for the user session that sent the request (ADR-0009), or the requesting institution’s signed-in Institute Admin — and anyone else is `not-found`; the Super Admin’s decision page and receipts carry the request without it (`requestForDecision`)',
+    status: 'owner-approved-interim',
+    source:
+      'Owner decision DV-5 / O-05 (14 Oct 2026): "The submitting browser session, using its authorized session-held ticket; or The authenticated Institute Admin authorized for that institution … enforced by existing service/session rules"; matrix REQ-04 (session), REQ-28 (Institute Admin), REQ-05 (anyone else: the owner’s not-found treatment); B3-08 f6 "Open the payment page" → B1-08. Appendix C took the token as the input of both methods and gave the Institute Admin a second payment input by reference. Changed in Phase-1 Package 1C (ADR-0009)',
+    decisions: ['DV-5', 'O-05', 'T-01', 'R01'],
+    trace: [
+      { kind: 'schema-field', schema: 'startPaymentInput', path: 'request' },
+      { kind: 'schema-field', schema: 'decisionPage', path: 'request.routeId' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Put the token back as the input (a bearer key, V-17) only if the owner decides a reference or ticket link may open the page (T-01 / R01).',
+  },
+  {
+    id: 'PC-35',
+    subject:
+      'The selection remembers where a removed experiment was (`Selection.lastRemovedAt`), so Undo puts it back there; a format change ends the undo',
+    status: 'provisional-engineering',
+    source:
+      'B1-06 script: Remove keeps `undo: { item, index }`, Undo runs `splice(index, 0, item)`, a format change sets `undo: null`. Appendix C M04 keeps `lastRemoved` only, and WP-0.9 put the item back last. Added in Phase-1 Package 1C',
+    decisions: [],
+    trace: [{ kind: 'schema-field', schema: 'selection', path: 'lastRemovedAt' }],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the field; Undo then puts the item back last (a stored selection without it already does).',
+  },
 ];

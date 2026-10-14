@@ -57,9 +57,14 @@ test.describe('PU-01 Landing with PU-14 (B1-01, B1-02)', () => {
       'Available in 7 of 12 experiments',
       'Available in 2 of 12 experiments',
     ]);
-    // No way into the unbuilt Selection (PU-07, Package 1C).
-    await expect(page.locator('a[href="/selection"]')).toHaveCount(0);
-    await expect(page.locator('header')).not.toContainText('Request access');
+    // Since Package 1C every drawn way into the Selection is there (B1-01): the header's Selection
+    // count and Request access, the hero's Institutions path and the For institutions button.
+    await expect(page.locator('header a.xp-sel')).toHaveAttribute('href', '/selection');
+    await expect(page.locator('header a.xp-access')).toHaveAttribute('href', '/selection');
+    await expect(
+      page.locator('ul.xp-paths').getByRole('link', { name: /Request institutional access/ }),
+    ).toHaveAttribute('href', '/selection');
+    await expect(page.locator('.xp-inst-foot a[href="/selection"]')).toHaveCount(1);
   });
 
   test('the explorer: Next / arrows (≥ 600 px) or the swipe counter (< 600 px)', async ({
@@ -104,11 +109,15 @@ test.describe('PU-01 Landing with PU-14 (B1-01, B1-02)', () => {
     await landing(page);
     await reachAndClick(page, page.getByRole('button', { name: 'Menu' }));
     const sheet = page.locator('#public-menu');
+    // Since Package 1C the sheet's Selection row and its Request access button too (B1-01
+    // "Mobile 375 · menu open").
     await expect(sheet.getByRole('link')).toHaveText([
       'Browse experiments',
       'Areas',
       'For institutions',
+      'Selection 0',
       'Sign in',
+      'Request access',
     ]);
     await expect(page.locator('main')).toHaveAttribute('inert', '');
     await checkState(page, 'Set the conditions.');
@@ -351,7 +360,9 @@ test.describe('PU-06 Experiment (B1-05)', () => {
     await expect(page.locator('.xp-ftable tbody tr')).toHaveCount(2);
     await checkState(page, 'Distillation Column');
     await expect(page.locator('.xp-unavail')).toHaveText('Not available in AR or MR.');
-    await expect(page.locator('a[href="/selection"]')).toHaveCount(0);
+    // Not in the selection: the panel offers Add, not "Go to selection" (B1-05 "Pick formats").
+    const panel = page.getByRole('complementary', { name: 'Get this for your institution' });
+    await expect(panel.getByRole('link', { name: 'Go to selection' })).toHaveCount(0);
   });
 
   test('arrived with a format filter; the panel: validation, Add, Change formats, Remove', async ({

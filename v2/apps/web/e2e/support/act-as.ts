@@ -145,3 +145,57 @@ export async function switchIdentity(page: Page, person: SamplePerson): Promise<
     { key: TEST_HOOKS_GLOBAL, personId: person.personId },
   ) as Promise<SessionSwitch>;
 }
+
+async function callHook<Result>(
+  page: Page,
+  helper: string,
+  hook: 'startReview' | 'planPayment' | 'reportPayment',
+  args: readonly unknown[],
+): Promise<Result> {
+  if (!(await bridgeOf(page))) throw unavailable(helper);
+  return page.evaluate(
+    async ({ key, name, forwarded }) => {
+      const hooks = (window as unknown as Record<string, unknown>)[key] as Record<
+        string,
+        (...values: unknown[]) => Promise<unknown>
+      >;
+      return hooks[name]!(...forwarded);
+    },
+    { key: TEST_HOOKS_GLOBAL, name: hook, forwarded: [...args] },
+  ) as Promise<Result>;
+}
+
+/**
+ * AD-14 / P1-04 (Package 1C; CI/Playwright builds only): records "BITS started reviewing" on the
+ * request through the test-only review-start seam of the page's world — what a Super Admin's
+ * review would record once its trigger is decided. Opening SA-03 never does it, and no product
+ * control can. The page's request reads are refreshed.
+ */
+export async function startReview(page: Page, reference: string): Promise<void> {
+  await callHook(page, 'startReview', 'startReview', [reference]);
+}
+
+/**
+ * TE-4 (Package 1C; CI/Playwright builds only): what the sample payment provider reports for the
+ * next payment the page starts — `pending` ("Payment not confirmed", B1-08 f6) or `failed`
+ * ("Payment failed", f7). Without a plan a local prototype build's stand-in confirms on start.
+ */
+export async function planPayment(
+  page: Page,
+  outcome: 'pending' | 'failed' | 'confirmed',
+): Promise<void> {
+  await callHook(page, 'planPayment', 'planPayment', [outcome]);
+}
+
+/**
+ * TE-4 (Package 1C; CI/Playwright builds only): the sample payment provider's later report on a
+ * started payment (a pending one confirmed or failed), written by `system:payment-provider` with
+ * sample provenance. Resolves with the provider port's answer (a refusal stays a value).
+ */
+export async function reportPayment(
+  page: Page,
+  reference: string,
+  outcome: 'confirmed' | 'failed',
+): Promise<{ readonly ok: boolean }> {
+  return callHook(page, 'reportPayment', 'reportPayment', [reference, outcome]);
+}

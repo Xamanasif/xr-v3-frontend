@@ -383,6 +383,7 @@ export const contractFactory: ContractFactory = async (fixture): Promise<Contrac
     implements: ['WP-0.11'],
     delivered: DELIVERED_METHODS,
     publicPorts: visitorPorts(platform),
+    newVisitor: () => visitorPorts(platform),
     as: (person) => asPerson(platform, person),
     standins: standinsOf(platform),
     seams: seamsOf(platform),

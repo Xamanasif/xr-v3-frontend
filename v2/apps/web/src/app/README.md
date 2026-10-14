@@ -58,8 +58,24 @@ sample world), by the same rules:
 scroll, no request: the catalogue keeps its state while filters change). Entity not-found states
 (an unknown area, course or experiment) are drawn in place by the page, as the boards draw them,
 with HTTP 200 — a client-rendered page cannot know the record on the server (TE-8 limitation).
-Still not built: the Selection and request pages (PU-07 … PU-13, Package 1C) and the role homes;
-every drawn way into PU-07 is not rendered (P0-35).
+
+**Phase-1 Package 1C** adds the public request (`../../../docs/phase-1/PACKAGE-1C-RECORD.md`), by the
+same mechanism, and renders every drawn way into PU-07 (header "Selection (n)" and "Request access",
+the menu sheet's row and button, the landing's Institutions path and For institutions button,
+PU-06's "Go to selection", the sign-in card's "Request institutional access"):
+
+| Path                                   | File(s)                                          | Shows                                                                                  |
+| -------------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `/selection`                           | `(public)/selection/page.tsx`                    | PU-07 Your selection (B1-06)                                                           |
+| `/request-access?step=details\|review` | `(public)/request-access/page.tsx`               | PU-08 Request institutional access, details then "Check your request" (B1-07)          |
+| `/request-access/sent`                 | `(public)/request-access/sent/page.tsx`          | PU-09 Request sent, right after a submit in this tab; otherwise → `/selection` (P1-03) |
+| `/requests/[requestId]`                | `(public)/requests/[requestId]/page.tsx`         | PU-10 Request status with PU-13 Access active, by the opaque route id (O-05, ADR-0009) |
+| `/requests/[requestId]/payment`        | `(public)/requests/[requestId]/payment/page.tsx` | PU-12 Payment, external route with a payment step now; otherwise → the status          |
+
+An empty selection sends `/request-access` to `/selection`, a review step with details missing to
+`?step=details`, both with `replace` (no Back loop). Who may open `/requests/…` is the service's
+answer (ADR-0009): anyone else sees PU-15's words from the client, HTTP 200 (TE-8 limitation).
+Still not built: the role homes (P0-35).
 
 ## Guards
 

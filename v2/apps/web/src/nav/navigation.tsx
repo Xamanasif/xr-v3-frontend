@@ -13,8 +13,17 @@ export interface AppNavigation {
   readonly pathname: string;
   /** The query of the address on show: `''` or `?…`. */
   readonly search: string;
-  /** Replaces the address on show (no new history entry), client-side. */
+  /**
+   * Replaces the address on show (no new history entry), client-side. On the public pages this
+   * mirrors the page's own view into its address without a navigation (PU-04 filters).
+   */
   replace(href: string): void;
+  /**
+   * Moves to another address client-side, through the router (Package 1C): a new history entry, or
+   * — with `replace` — in place of the current one (a guard's redirect, a flow's result page that
+   * Back must not resubmit; Appendix D §6.5).
+   */
+  navigate(href: string, options?: { readonly replace?: boolean }): void;
   /**
    * Renders the nearest not-found boundary (the workspace's in-shell PU-15). It throws, so it is
    * called while rendering, as Next.js's `notFound()` (WP-0.13 spike S1: client-side `notFound()`

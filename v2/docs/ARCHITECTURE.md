@@ -21,7 +21,7 @@ The owner approved the frozen Claude Design canvas v46 as the frontend design au
 - **Hierarchy (BC2).** Engineering area (catalogue grouping) → Course → Experiment → Technology format. Programme is an attribute of the Student record only — not a navigation level, entity, filter or grouping — and there is no Module layer.
 - **Five states (BC3, BC4).** Publication, institution access, Student entitlement, runtime activity and learning completion are separate; none is derived from another. "Completed" is written only by the system (ADR-0006); a simulation launch never completes a format; progress is per technology format with no aggregate verdict.
 - **Frontend on typed mock services (BC10, BC14).** One connected sample world serves every role (ADR-0002, ADR-0004). No real authentication, payment processing, XR runtime, grading automation or backend persistence is built (owner, G-2).
-- **Recorded exceptions.** `OPEN_DECISIONS.md` Part E (TE-1…TE-8): TE-1, TE-2, TE-5 and TE-7 are approved for Phase 0; TE-8 is approved for Phase-1 Package 1B (14 Oct 2026); TE-3 and TE-4 are drafted for later phases; TE-6 (browser persistence) is not authorised.
+- **Recorded exceptions.** `OPEN_DECISIONS.md` Part E (TE-1…TE-8): TE-1, TE-2, TE-5 and TE-7 are approved for Phase 0; TE-8 is approved for Phase-1 Package 1B (14 Oct 2026; the Package-1C public pages use the same mechanism, for the owner's acknowledgement); TE-4 is approved for Phase-1 Package 1C (14 Oct 2026, local prototype builds only); TE-3 is drafted for a later phase; TE-6 (browser persistence) is not authorised.
 - **Evidence.** The audit deliverables, the candidate permission matrix and the Understand-stage evidence are in `docs/v46/` (candidate — owner review).
 
 ## 1 · Why V2 exists

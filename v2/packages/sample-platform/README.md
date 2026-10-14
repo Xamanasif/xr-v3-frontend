@@ -81,7 +81,10 @@ full navigation rebuilds the world from the seed — every change made in the se
 Nothing is written to `localStorage` or IndexedDB and nothing is shared between tabs; browser
 persistence (TE-6) is not authorised. **It must be reviewed before the hosted manager
 walkthrough.** Only the selection basket and the request tickets use `sessionStorage` (with a
-memory fallback) — board-drawn browser-session behaviour, not world persistence.
+memory fallback) — board-drawn browser-session behaviour, not world persistence. Since Package 1C a
+ticket names the world that issued it (a random name per page load: a reload's new world, which
+mints the same tokens again, drops it) and the user session that sent the request (`visitor` or
+one sign-in): a person who signs in to the tab holds none of the visitor's tickets (ADR-0009).
 
 ## The sample world
 
@@ -169,7 +172,10 @@ S-8 resolved as "one waiting"). The B7-09 reports of Godavari people dated befor
 ## Stand-ins, seams and provenance (`./testing`)
 
 The six stand-in ports of Appendix C §3.18: the sample clock (`setSampleNow`), the payment outcome
-(TE-4 — the only way a payment is confirmed or fails), the runtime report (TE-3 — activity, and the
+(TE-4 — the only way a payment is confirmed or fails; since Package 1C a local prototype build's
+composition root asks `createSamplePlatform({ paymentStandIn: 'confirm-on-start' })`, so the
+provider's report — its own system event with `sample-standin` provenance — follows the
+requester's `startPayment`; `planPayment` makes the next one `pending` or `failed` in tests), the runtime report (TE-3 — activity, and the
 completion report the system completion handler writes; it reports only for a format the Student
 can open now), workflow routing (only the drawn default, M-3), licence availability (seeded answers
 only, T-06 / D7) and the overlapping-grant policy (no default: `undecided`, so the case stays
@@ -260,13 +266,15 @@ reservations remain. `src/one-world-checks.test.ts` proves the checks fail on ha
 Set `XR_ONE_WORLD_REPORT=<file>` to write the per-step evidence (calls, refusals, commits).
 
 Found on the way (owner items, not changed): SA-07's student list carries no `rev`, which "Change
-status" (`overrideStudentStatus`) needs as `expectedRev`; PU-10 answers only the browser session
-that holds the request's ticket (T-01 otherwise).
+status" (`overrideStudentStatus`) needs as `expectedRev`. PU-10 answers only the browser session
+that holds the request's ticket, or the requesting institution's Institute Admin; anyone else is
+answered `not-found`, as for an address that names nothing (decided as O-05 for Package 1C,
+ADR-0009).
 
 ## Hosted-walkthrough gaps (for the owner)
 
 A live walk from spine-start stops where no product path exists by design: a payment is never
-confirmed (TE-4), a format is never Completed (TE-3), a resubmission stays "resubmitted" (M-3), and
+confirmed except through the TE-4 sample stand-in of a local prototype build (Package 1C), a format is never Completed (TE-3), a resubmission stays "resubmitted" (M-3), and
 a reload resets the world (TE-6). Background institutions carry no person records, so their drawn
 student and Faculty counts are not reproduced.
 

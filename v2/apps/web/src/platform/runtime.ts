@@ -117,18 +117,33 @@ function browserSessionStorage(): Storage | null {
   }
 }
 
+function randomHex(length: number): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 /** An opaque id for this tab's visitor partition (`public:<browser-session-id>`). */
 function newPublicSessionKey(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(8));
-  return `public:bs-${Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+  return `public:bs-${randomHex(8)}`;
+}
+
+/**
+ * The name of this page load's world (ADR-0009): every load builds a new world from the seed
+ * (ADR-0004 option A), so the request tickets kept in `sessionStorage` from an earlier load have
+ * expired — named apart, they are never honoured here.
+ */
+function newWorldInstance(): string {
+  return `world-${randomHex(8)}`;
 }
 
 async function start(): Promise<PlatformRuntime> {
   const prepared = testHooks ? await testHooks.prepare() : null;
   const composed = composePlatform({
     dataSource: publicEnv.NEXT_PUBLIC_XR_DATA_SOURCE,
+    appEnvironment: publicEnv.NEXT_PUBLIC_APP_ENV,
     realNow: () => Date.now(),
     browserStorage: browserSessionStorage(),
+    worldInstance: newWorldInstance(),
     ...(prepared ? { world: prepared.world } : {}),
   });
   const runtime = assembleRuntime({

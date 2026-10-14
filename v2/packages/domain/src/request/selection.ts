@@ -44,11 +44,14 @@ export function addToSelection(input: AddToSelectionInput): Decision<Selection> 
       },
     ],
     lastRemoved: input.selection.lastRemoved,
+    lastRemovedAt: input.selection.lastRemovedAt,
   });
 }
 
-/** Change an item's formats. "At least one format stays chosen. To take this experiment out, use
- *  Remove." (B1-06). */
+/**
+ * Change an item's formats. "At least one format stays chosen. To take this experiment out, use
+ * Remove." (B1-06). A format change ends the single-level undo, as B1-06 draws it (`undo: null`).
+ */
 export function setSelectionFormats(
   selection: Selection,
   experimentId: ExperimentId,
@@ -60,10 +63,11 @@ export function setSelectionFormats(
   if (formats.length === 0) return refused('last-format-locked');
   if (formats.some((format) => !published.includes(format))) return refused('format-not-published');
   return ok({
-    ...selection,
     items: selection.items.map((candidate) =>
       candidate === item ? { ...candidate, formats: inDisplayOrder(formats) } : candidate,
     ),
+    lastRemoved: null,
+    lastRemovedAt: null,
   });
 }
 
@@ -71,18 +75,32 @@ export function removeFromSelection(
   selection: Selection,
   experimentId: ExperimentId,
 ): Decision<Selection> {
-  const item = selection.items.find((candidate) => candidate.experimentId === experimentId);
-  if (!item) return invalidState('not-in-selection');
+  const index = selection.items.findIndex((candidate) => candidate.experimentId === experimentId);
+  if (index < 0) return invalidState('not-in-selection');
   return ok({
-    items: selection.items.filter((candidate) => candidate !== item),
-    lastRemoved: item,
+    items: selection.items.filter((_candidate, position) => position !== index),
+    lastRemoved: selection.items[index]!,
+    lastRemovedAt: index,
   });
 }
 
-/** Single-level undo, as drawn (B1-06). */
+/**
+ * Single-level undo, as drawn (B1-06): the item goes back to the position it held. A removal kept
+ * without its position (a selection stored before the position was recorded) goes back last.
+ */
 export function undoRemove(selection: Selection): Decision<Selection> {
-  if (!selection.lastRemoved) return invalidState('nothing-to-undo');
-  return ok({ items: [...selection.items, selection.lastRemoved], lastRemoved: null });
+  const item = selection.lastRemoved;
+  if (!item) return invalidState('nothing-to-undo');
+  if (selection.items.some((candidate) => candidate.experimentId === item.experimentId)) {
+    // Added again since it was removed: putting it back would hold it twice.
+    return invalidState('nothing-to-undo');
+  }
+  const at = Math.min(selection.lastRemovedAt ?? selection.items.length, selection.items.length);
+  return ok({
+    items: [...selection.items.slice(0, at), item, ...selection.items.slice(at)],
+    lastRemoved: null,
+    lastRemovedAt: null,
+  });
 }
 
 /** "2 experiments · 3 formats"; the format list is the union in display order (B1-06 `fmtList`). */

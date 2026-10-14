@@ -63,3 +63,12 @@ and the document are the same; `inspect()` reports the tab's world `instance` so
 it. It stands in for typing on XS-01 (built in Package 1A; `e2e/support/sign-in.ts` drives the card itself): it chooses the person and decides nothing
 else. No UI reaches it. `pnpm verify` requires its marker (`xr-web-test-session-switch`) and
 `switchSession` in the test-hook build and in no product bundle.
+
+The request seams (Phase-1 Package 1C; ADR-0007 amendment) are non-human writers of the tab's own
+world, never product controls: `startReview(reference)` records the AD-14 review-start fact;
+`planPayment(outcome)` sets what the TE-4 sample provider reports for the next payment the page
+starts (`pending`, `failed`, `confirmed`); `reportPayment(reference, outcome)` is the provider's
+later report. They name a request by its reference only, and their writes invalidate the page's
+reads like `actAs` receipts (Playwright: `startReview`, `planPayment`, `reportPayment` in
+`e2e/support/act-as.ts`). `pnpm verify` requires their marker (`xr-web-test-request-seams`) in the
+test-hook build and in no product bundle.

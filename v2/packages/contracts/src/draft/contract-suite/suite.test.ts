@@ -156,6 +156,7 @@ describe('a case never passes falsely', () => {
     const subject: ContractSubject = {
       implements: ['WP-0.11', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6'],
       publicPorts: empty,
+      newVisitor: () => empty,
       as: () => empty,
       standins: {} as ContractSubject['standins'],
       seams: {},
@@ -173,6 +174,7 @@ describe('a case never passes falsely', () => {
     const subject: ContractSubject = {
       implements: ['WP-0.11'],
       publicPorts: empty,
+      newVisitor: () => empty,
       as: () => empty,
       standins: {} as ContractSubject['standins'],
       seams: {},

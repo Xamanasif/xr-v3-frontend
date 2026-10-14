@@ -4,8 +4,8 @@
  * built — and which header item is the current place. PUBLIC is a surface, not a role (BC1).
  *
  * The header data is `PUBLIC_HEADER_NAV` (B1-01; HB-02: "Request access" opens PU-07). PU-07
- * Selection is Package 1C: its "Selection (n)" link and the "Request access" button are drawn but
- * not rendered until it is built (P0-35, extended to Phase 1; link-target ledger `not-rendered`).
+ * Selection is built since Package 1C, so its "Selection (n)" link and the "Request access" button
+ * render in the header and the menu sheet (link-target ledger `built`).
  */
 import { PUBLIC_HEADER_NAV, type PublicHeaderItemConfig, type PublicScreenId } from './nav-config';
 import { PUBLIC_SCREENS_WITH_PAGES } from './routes';
@@ -15,13 +15,17 @@ function isBuilt(screen: PublicScreenId): boolean {
   return screen === 'XS-01' || (PUBLIC_SCREENS_WITH_PAGES as ReadonlySet<string>).has(screen);
 }
 
-/** The header item a page belongs to (B1-03 PU-05 and B1-05 PU-06 keep their section current). */
-export type PublicPlace = 'browse' | 'areas';
+/**
+ * The header item a page belongs to (B1-03 PU-05 and B1-05 PU-06 keep their section current; B1-06
+ * marks "Selection (n)" current on PU-07 only — the request's later steps mark nothing).
+ */
+export type PublicPlace = 'browse' | 'areas' | 'selection';
 
 export function publicPlaceOf(pathname: string): PublicPlace | null {
   if (pathname === '/experiments' || pathname.startsWith('/experiments/')) return 'browse';
   if (pathname === '/areas' || pathname.startsWith('/areas/') || pathname.startsWith('/courses/'))
     return 'areas';
+  if (pathname === '/selection') return 'selection';
   return null;
 }
 
@@ -40,14 +44,14 @@ export const PUBLIC_MAIN_NAV: readonly PublicHeaderItemConfig[] = [
   item('for-institutions'),
 ].filter((entry) => isBuilt(entry.screen));
 
-/** "Selection (n)" in the header and the sheet — rendered once PU-07 is built (Package 1C). */
+/** "Selection (n)" in the header and the sheet (PU-07, built in Package 1C). */
 export const PUBLIC_SELECTION_LINK: PublicHeaderItemConfig | null = isBuilt(
   item('selection').screen,
 )
   ? item('selection')
   : null;
 
-/** "Request access" in the header and the sheet — rendered once PU-07 is built (Package 1C). */
+/** "Request access" in the header and the sheet (to PU-07, HB-02; built in Package 1C). */
 export const PUBLIC_REQUEST_ACCESS: PublicHeaderItemConfig | null = isBuilt(
   item('request-access').screen,
 )
@@ -66,5 +70,5 @@ export const PUBLIC_FOOTER_LINKS: readonly PublicHeaderItemConfig[] = [
 export const FOR_INSTITUTIONS_ID = 'for-institutions';
 export const FOR_INSTITUTIONS_HREF = `/#${FOR_INSTITUTIONS_ID}`;
 
-/** PU-07 is not built (Package 1C): the PU-01 / PU-06 / XS-01 ways into it are not rendered. */
+/** Whether PU-07 is built (Package 1C): the PU-01 / PU-06 / XS-01 ways into it render with it. */
 export const SELECTION_BUILT = isBuilt('PU-07');

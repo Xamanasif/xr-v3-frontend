@@ -16,7 +16,7 @@ type ExperimentId = Parameters<ReturnType<typeof useSelection>['remove']>[0];
  * prices, never "Buy"; students get experiments from their institution once its access is active.
  * The selection port decides (at least one format, published formats only, not twice); a refusal
  * the panel does not draw re-reads the selection (state-copy `PU-06.selection-unexpected`).
- * "Go to selection" (PU-07) renders with Package 1C (P0-35, `Public shell.links-not-rendered`).
+ * "Go to selection" opens Your selection (PU-07, built in Package 1C).
  * After each change focus moves to the panel's heading (B1-05 `focusPanel`).
  */
 export function SelectionPanel({
@@ -151,7 +151,9 @@ export function SelectionPanel({
             </span>
             <span>{inSelectionFormats(held?.formats ?? [])}</span>
           </div>
-          {/* "Go to selection" (PU-07) renders with Package 1C (P0-35). */}
+          <Link className="xr-btn xr-btn--primary xr-btn--block" href="/selection">
+            {EXPERIMENT.goToSelection} <Icon name="next" />
+          </Link>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             <Button variant="text" className="p-0" onClick={onEdit}>
               {EXPERIMENT.change}

@@ -30,6 +30,13 @@ export interface StepperProps {
    * already says it (09a, B2-05: use `stepCountText`).
    */
   readonly showCount?: boolean;
+  /**
+   * The words of a done step: "Step n · Done" as board 03 draws them (default), or "Step n" only,
+   * as the Batch-1 request flow draws them (B1-06, B1-07: `span.xr-step-n` "Step 1" on an
+   * `is-done` step). Done stays drawn by the navy bar and the step's place before the current one,
+   * and is still said to screen readers: " · Done" in a visually hidden span (WCAG 1.3.1).
+   */
+  readonly doneWords?: boolean;
   /** Board context classes on the list, or apps/web composition utilities. */
   readonly className?: string;
 }
@@ -41,7 +48,14 @@ export interface StepperProps {
  * board's fixed text. The info-only `xl-steps`, `xw-steps3` and the public `xp-steps4` are later
  * phases and are not built here.
  */
-export function Stepper({ label, steps, current, showCount = false, className }: StepperProps) {
+export function Stepper({
+  label,
+  steps,
+  current,
+  showCount = false,
+  doneWords = true,
+  className,
+}: StepperProps) {
   const list = (
     <ol className={joinClasses('xr-steps', className)} aria-label={label}>
       {steps.map((step, index) => {
@@ -58,7 +72,8 @@ export function Stepper({ label, steps, current, showCount = false, className }:
             aria-current={state === 'current' ? 'step' : undefined}
           >
             <span className="xr-step-n">
-              {state === 'done' ? `Step ${number} · Done` : `Step ${number}`}
+              {state === 'done' && doneWords ? `Step ${number} · Done` : `Step ${number}`}
+              {state === 'done' && !doneWords ? <span className="xr-sr"> · Done</span> : null}
             </span>
             <span className="xr-step-label">{step}</span>
           </li>

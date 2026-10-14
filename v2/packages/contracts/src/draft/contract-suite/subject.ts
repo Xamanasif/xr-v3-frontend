@@ -65,6 +65,11 @@ export interface ContractSubject {
   readonly delivered?: readonly MethodId[];
   /** One visitor's browser session on the public surface, for the subject's lifetime. */
   readonly publicPorts: ProductPorts;
+  /**
+   * A further visitor in a browser session of its own — another browser, a cold visit (B1-08 "Who
+   * can open this page"; O-05): it holds none of the request tickets `publicPorts` holds.
+   */
+  readonly newVisitor: () => ProductPorts;
   /** The ports as a documented sample person — set by the test-harness seam, never a UI. */
   readonly as: (person: SamplePerson) => ProductPorts;
   readonly standins: StandinPorts;

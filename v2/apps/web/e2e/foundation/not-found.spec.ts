@@ -22,13 +22,15 @@ import {
 test.describe('public variant (product build)', () => {
   // `/sign-in` and `/signed-out` are built in Phase-1 Package 1A (XS-01, XS-03): see
   // `e2e/package-1a/sign-in.spec.ts`; `/`, `/areas[/…]`, `/courses/…` and `/experiments[/…]` in
-  // Package 1B (`e2e/package-1b/`). The Selection and request pages are Package 1C.
+  // Package 1B (`e2e/package-1b/`); `/selection`, `/request-access[/sent]` and
+  // `/requests/[requestId][/payment]` in Package 1C (`e2e/package-1c/`). Around them, nothing.
   for (const path of [
     '/nope',
     '/sign-in/elsewhere',
-    '/selection',
-    '/request-access',
+    '/selection/x',
+    '/request-access/elsewhere',
     '/requests',
+    '/requests/rq-0011/receipt',
   ]) {
     test(`${path}: 404, "We can’t find that page", Browse experiments, no Help`, async ({
       page,

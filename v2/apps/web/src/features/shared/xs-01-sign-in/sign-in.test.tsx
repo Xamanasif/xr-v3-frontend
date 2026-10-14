@@ -92,7 +92,21 @@ describe('XS-01 — the card as B1-09 draws it', () => {
     const hint = screen.getByText('Contact your institution administrator to reset it.');
     expect(hint).toHaveAttribute('id', forgot.getAttribute('aria-controls'));
     expect(B1_09).toContain('Contact your institution administrator to reset it.');
-    expect(document.querySelectorAll('.xp-auth-card a')).toHaveLength(0);
+    // XS-04 links nowhere; the card's one link is B1-09's "Request institutional access" under the
+    // form, to Your selection (PU-07, Package 1C).
+    expect(hint.querySelectorAll('a')).toHaveLength(0);
+    expect(
+      [...document.querySelectorAll('.xp-auth-card a')].map((link) => [
+        link.textContent,
+        link.getAttribute('href'),
+      ]),
+    ).toEqual([['Request institutional access', '/selection']]);
+    expect(B1_09).toContain(
+      'Need access for your institution? <a href="B1-06-Selection.dc.html">Request institutional access</a>',
+    );
+    expect(document.querySelector('.xp-auth-links')).toHaveTextContent(
+      'Need access for your institution? Request institutional access',
+    );
   });
 });
 

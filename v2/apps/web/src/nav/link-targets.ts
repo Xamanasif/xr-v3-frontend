@@ -1,8 +1,8 @@
 /**
  * The link-target ledger (ADR-0005 §8; Appendix F §3.3 "Unbuilt destinations", WP-0.13 acceptance
  * 9; register P0-35): every action drawn on the built screens (Phase 0, then Phase-1 Package 1A:
- * XS-01, SA-02, SA-03; Package 1B: the public shell and PU-01 … PU-06 with PU-14), where it goes,
- * and what that address shows. Its tests prove that every link reaches a built page — the one
+ * XS-01, SA-02, SA-03; Package 1B: the public shell and PU-01 … PU-06 with PU-14; Package 1C: PU-07,
+ * PU-08, PU-09, PU-10 with PU-13, PU-12), where it goes, and what that address shows. Its tests prove that every link reaches a built page — the one
  * Phase-0 dead link (PU-15 → PU-04) is gone since Package 1B — and that no primary action resolves
  * to the page it is on; the browser
  * suite follows each link for real and checks that no document load (which would rebuild the
@@ -28,6 +28,11 @@ export type LedgerScreen =
   | 'PU-04'
   | 'PU-05'
   | 'PU-06'
+  | 'PU-07'
+  | 'PU-08'
+  | 'PU-09'
+  | 'PU-10'
+  | 'PU-12'
   | 'PU-15'
   | 'SA-02'
   | 'SA-03';
@@ -406,9 +411,9 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     role: 'secondary',
     on: '/sign-in',
     target: '/selection',
-    outcome: 'not-rendered',
+    outcome: 'built',
     board: 'B1-09 f0 (`div.xp-auth-links` → B1-06 Selection)',
-    note: 'The Selection (PU-07) is not built: the line appears with it.',
+    note: 'Rendered since Package 1C built Your selection (PU-07).',
   },
   // ---- SA-02 Requests (B1-10) — Package 1A ------------------------------------------------------------
   {
@@ -580,7 +585,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Request institutional access',
       'secondary',
       '/selection',
-      'not-rendered',
+      'built',
       'B1-01 `li.xp-path` → B1-06',
     ],
     [
@@ -694,7 +699,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Request institutional access',
       'secondary',
       '/selection',
-      'not-rendered',
+      'built',
       'B1-01 `.xp-inst-foot a.xr-btn--primary` → B1-06',
     ],
     [
@@ -1028,7 +1033,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Go to selection',
       'secondary',
       '/selection',
-      'not-rendered',
+      'built',
       'B1-05 `a.xr-btn--primary` → B1-06',
     ],
     ['Panel', 'Already have access? Sign in', 'secondary', '/sign-in', 'built', 'B1-05 panel foot'],
@@ -1060,12 +1065,212 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     ['Not found', 'Browse experiments', 'secondary', '/experiments', 'built', 'B1-05 "Not found"'],
     ['Not found', 'Home', 'secondary', '/', 'built', 'B1-05 "Not found"'],
   ]),
+  // ---- The public request (Phase-1 Package 1C: B1-06 … B1-08; DV-5 / O-05, TE-4) -----------------
+  ...publicPage('PU-07', '/selection', [
+    [
+      'Row',
+      '(the experiment’s title)',
+      'secondary',
+      '/experiments/{experimentId}',
+      'built',
+      'B1-06 `h2.xp-srow-title a` → B1-05',
+    ],
+    ['Row', 'Remove', 'secondary', null, 'in-page', 'B1-06 (SelectionService.remove)'],
+    [
+      'Row · formats',
+      '(a format: WEB · Browser …)',
+      'secondary',
+      null,
+      'in-page',
+      'B1-06 `fieldset.xp-pills` (SelectionService.setFormats)',
+    ],
+    ['Undo notice', 'Undo', 'secondary', null, 'in-page', 'B1-06 (SelectionService.undoRemove)'],
+    [
+      'Summary',
+      'Continue to request',
+      'primary',
+      '/request-access',
+      'built',
+      'B1-06 `aside.xp-sumcard` → B1-07',
+    ],
+    [
+      'Summary',
+      'Continue browsing',
+      'secondary',
+      '/experiments',
+      'built',
+      'B1-06 `aside.xp-sumcard` → B1-04',
+    ],
+    [
+      'Bottom bar (below 1024 px)',
+      'Continue to request',
+      'primary',
+      '/request-access',
+      'built',
+      'B1-06 `div.xp-bottombar` → B1-07',
+    ],
+    ['Empty', 'Browse experiments', 'primary', '/experiments', 'built', 'B1-06 "Empty selection"'],
+  ]),
+  ...publicPage('PU-08', '/request-access', [
+    ['Details · top', 'Back to selection', 'secondary', '/selection', 'built', 'B1-07 `a.xr-back`'],
+    [
+      'Details · error summary',
+      '(each error, linked to its field)',
+      'secondary',
+      '#request-institution',
+      'in-page',
+      'B1-07 f3 "Validation" (summary links focus their field)',
+    ],
+    [
+      'Details · What you need',
+      'Change',
+      'secondary',
+      '/selection',
+      'built',
+      'B1-07 `div.xp-reqitem a` → B1-06',
+    ],
+    [
+      'Details · foot',
+      'Back to selection',
+      'secondary',
+      '/selection',
+      'built',
+      'B1-07 `div.xp-formfoot a`',
+    ],
+    [
+      'Details · foot',
+      'Review request',
+      'primary',
+      null,
+      'in-page',
+      'B1-07 `button[type=submit]` (checks the form, then the review step `?step=review`)',
+    ],
+    [
+      'Review',
+      'Edit (each answer)',
+      'secondary',
+      null,
+      'in-page',
+      'B1-07 f5 `button.xp-edit` (the details step, its field focused)',
+    ],
+    [
+      'Review · Experiments and formats',
+      'Change',
+      'secondary',
+      '/selection',
+      'built',
+      'B1-07 f5 `a.xp-edit` → B1-06',
+    ],
+    [
+      'Review · foot',
+      'Back to request details',
+      'secondary',
+      null,
+      'in-page',
+      'B1-07 f5 (the details step)',
+    ],
+    [
+      'Review · foot',
+      'Submit request',
+      'primary',
+      null,
+      'in-page',
+      'B1-07 f5 → f8 (sends the request once, then Request sent `/request-access/sent`)',
+    ],
+  ]),
+  ...publicPage('PU-09', '/request-access/sent', [
+    [
+      'Request sent',
+      'Check request status',
+      'primary',
+      '/requests/{routeId}',
+      'built',
+      'B1-07 f8 `div.xr-msg-actions a.xr-btn--primary` → B1-08 (O-05: the request’s opaque address)',
+    ],
+    [
+      'Request sent',
+      'Browse experiments',
+      'secondary',
+      '/experiments',
+      'built',
+      'B1-07 f8 `div.xr-msg-actions a` → B1-04',
+    ],
+  ]),
+  ...publicPage('PU-10', '/requests/{routeId}', [
+    [
+      'Approved — payment required (f0, f4)',
+      'Continue to payment',
+      'primary',
+      '/requests/{routeId}/payment',
+      'built',
+      'B1-08 f0 `a.xr-btn--primary` → f5 (PU-12)',
+    ],
+    [
+      'Payment not confirmed (f6)',
+      'Check again',
+      'secondary',
+      null,
+      'in-page',
+      'B1-08 f6 `button.xr-btn--secondary` (reads the status again; no “pay again”)',
+    ],
+    [
+      'Payment failed (f7)',
+      'Try payment again',
+      'primary',
+      '/requests/{routeId}/payment',
+      'built',
+      'B1-08 f7 `a.xr-btn--primary` → f5 (PU-12)',
+    ],
+    [
+      'Access active (f8, f9; PU-13)',
+      'Sign in',
+      'primary',
+      '/sign-in',
+      'built',
+      'B1-08 f8 `a.xr-btn--primary` → B1-09',
+    ],
+    [
+      'Not found (O-05: unknown, or not this session’s request)',
+      'Browse experiments',
+      'primary',
+      '/experiments',
+      'built',
+      'Board 08 public not-found (PU-15), as every unknown public address',
+    ],
+  ]),
+  ...publicPage('PU-12', '/requests/{routeId}/payment', [
+    [
+      'Top',
+      'Back to request status',
+      'secondary',
+      '/requests/{routeId}',
+      'built',
+      'B1-08 f5 `a.xr-back` → PU-10',
+    ],
+    [
+      'Foot',
+      'Back to request status',
+      'secondary',
+      '/requests/{routeId}',
+      'built',
+      'B1-08 f5 `div.xp-formfoot a` → PU-10',
+    ],
+    [
+      'Foot',
+      'Continue to payment',
+      'primary',
+      null,
+      'in-page',
+      'B1-08 f5 `a.xr-btn--primary.xp-cta` (starts the payment; TE-4 sample provider; then the request status)',
+    ],
+  ]),
 ];
 
 /**
  * The ledger's target for a workspace (`<base>` → `/student`, `{id}` → a report's reference,
  * `{requestId}` → a request's, `{institutionId}` → an institution's; the public pages' `{areaId}`,
- * `{courseId}`, `{experimentId}` → the spine-start world's Shell-and-Tube chain).
+ * `{courseId}`, `{experimentId}` → the spine-start world's Shell-and-Tube chain; `{routeId}` → a
+ * request's opaque public address, O-05).
  */
 export function expandTarget(target: string, base: string, reportId = 'SUP-0213'): string {
   return target
@@ -1075,7 +1280,8 @@ export function expandTarget(target: string, base: string, reportId = 'SUP-0213'
     .replace('{institutionId}', 'bitshyd')
     .replace('{areaId}', 'mechanical-manufacturing')
     .replace('{courseId}', 'thermodynamics-heat-transfer')
-    .replace('{experimentId}', 'shell-and-tube-heat-exchanger');
+    .replace('{experimentId}', 'shell-and-tube-heat-exchanger')
+    .replace('{routeId}', 'rq-0012');
 }
 
 type PublicRow = readonly [
@@ -1140,15 +1346,9 @@ function publicShell(): LedgerEntry[] {
     ),
     at('Header', 'XR Learning Platform — home', '/', 'built', 'B1-01 `a.xp-brand`'),
     ...nav('Header `nav` Main', 'B1-01 `ul.xp-nav`'),
-    at('Header', 'Selection (n)', '/selection', 'not-rendered', 'B1-01 `a.xp-sel` → B1-06'),
+    at('Header', 'Selection (n)', '/selection', 'built', 'B1-01 `a.xp-sel` → B1-06'),
     at('Header', 'Sign in', '/sign-in', 'built', 'B1-01 `a.xp-signin`'),
-    at(
-      'Header',
-      'Request access',
-      '/selection',
-      'not-rendered',
-      'B1-01 `a.xp-access` → B1-06 (HB-02)',
-    ),
+    at('Header', 'Request access', '/selection', 'built', 'B1-01 `a.xp-access` → B1-06 (HB-02)'),
     at(
       'Header (below 1024 px)',
       'Menu / Close',
@@ -1157,15 +1357,9 @@ function publicShell(): LedgerEntry[] {
       'B1-01 `button.xp-menu-btn` ("Mobile 375 · menu open")',
     ),
     ...nav('Menu sheet', 'B1-01 "Mobile 375 · menu open" `ul.xp-sheet-list`'),
-    at('Menu sheet', 'Selection (n)', '/selection', 'not-rendered', 'B1-01 sheet list → B1-06'),
+    at('Menu sheet', 'Selection (n)', '/selection', 'built', 'B1-01 sheet list → B1-06'),
     at('Menu sheet', 'Sign in', '/sign-in', 'built', 'B1-01 `.xp-sheet-actions`'),
-    at(
-      'Menu sheet',
-      'Request access',
-      '/selection',
-      'not-rendered',
-      'B1-01 `.xp-sheet-actions` → B1-06',
-    ),
+    at('Menu sheet', 'Request access', '/selection', 'built', 'B1-01 `.xp-sheet-actions` → B1-06'),
     ...nav('Footer', 'B1-01 `nav aria-label="Footer"` (real links only; PU-16 excluded)'),
     at('Footer', 'Sign in', '/sign-in', 'built', 'B1-01 footer'),
   ];

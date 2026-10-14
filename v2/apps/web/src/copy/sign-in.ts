@@ -28,6 +28,9 @@ export const SIGN_IN = {
   forgotHint: 'Contact your institution administrator to reset it.',
   /** The top row's way out to the Landing (`a.xr-back`; P1-17 follows the href; Package 1B). */
   backToExperiments: 'Back to experiments',
+  /** B1-09 `div.xp-auth-links` under the form (to B1-06 Your selection). */
+  needAccess: 'Need access for your institution? ',
+  requestAccess: 'Request institutional access',
 } as const;
 
 /** The notices on the card (B1-09 f3, f6, f9, f10 and the card's drawn inactive / paused notices). */

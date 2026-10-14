@@ -26,6 +26,12 @@ export interface StateCopyEntry {
     | 'PU-04'
     | 'PU-05'
     | 'PU-06'
+    | 'PU-07'
+    | 'PU-08'
+    | 'PU-09'
+    | 'PU-10'
+    | 'PU-12'
+    | 'PU-13'
     | 'PU-14'
     | 'PU-15'
     | 'SA-02'
@@ -413,17 +419,6 @@ export const STATE_COPY = {
     decisions: ['P1-11'],
   },
   // ---- Phase 1, Package 1B: the public surface (B1-01 … B1-05; TE-8) ----
-  'Public shell.links-not-rendered': {
-    screen: 'Public shell',
-    state:
-      'The drawn ways into the Selection and the request (PU-07, Package 1C): the header “Selection (n)” link and “Request access” button, the menu sheet’s Selection row and Request access button, the hero and For institutions “Request institutional access”, PU-06 “Go to selection”, and the sign-in card’s “Request institutional access”',
-    words: null,
-    rule: 'Not rendered until PU-07 is built (Package 1C): an unbuilt address shows the public not-found page and, as a document load, restarts the tab’s sample world (ADR-0004). Adding to the selection works on PU-06; its state shows in the panel and on catalogue rows.',
-    basis:
-      'B1-01 header `a.xp-sel`, `a.xp-access`, hero `xp-paths`, `xp-inst-foot`; B1-05 panel; owner P0-35 built-screen navigation, extended to Phase 1 (Package 1A and 1B authorisations: “keep the Public navigation within implemented destinations”)',
-    status: 'provisional',
-    decisions: ['P0-35'],
-  },
   'Public shell.skip-link': {
     screen: 'Public shell',
     state: 'The first Tab stop on every public page',
@@ -598,6 +593,252 @@ export const STATE_COPY = {
     words: null,
     rule: 'The panel re-reads the selection and shows its current state; no undrawn message.',
     basis: 'B1-05 panel states (pick · in your selection · change formats · validation)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  // ---- Phase 1, Package 1C: the public request (B1-06 … B1-08; DV-5 / O-05, TE-4) ----
+  'PU-07.loading': {
+    screen: 'PU-07',
+    state: 'Your selection while the catalogue names of its experiments are read',
+    words: 'Loading your selection',
+    basis: 'Board 04 "State grammar" Loading (announced politely); B1-06 draws no loading state',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-07.failed': {
+    screen: 'PU-07',
+    state: 'Your selection when the catalogue names cannot be read',
+    words: 'We couldn’t load your selection',
+    rule: 'With B1-04’s failed line and “Try again”; the selection itself is the browser session’s and is kept.',
+    basis: 'B1-04 "Failed + retry" formula; B1-06 draws no failed state',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-07.unnamed-experiment': {
+    screen: 'PU-07',
+    state:
+      'A selected experiment the published catalogue no longer names (unpublished since it was added, or a stored selection from elsewhere)',
+    words: null,
+    rule: 'The row shows the experiment’s reference in place of its title, no formats to change, and Remove — as SA-02 names an unnamed experiment (`SA-02.unnamed-experiment`). Sending the request with it is refused by the service.',
+    basis:
+      'B1-06 rows name published experiments only (“Only the experiment’s published formats can be chosen”)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-08.edit-label': {
+    screen: 'PU-08',
+    state: 'The names of the review step’s Edit buttons',
+    words: null,
+    rule: '“Edit <row label, lower case>” (“Edit contact person”), keeping the acronym: “Edit message to BITS”. The board’s script lowercases the whole label (“Edit message to bits”).',
+    basis: "B1-07 `editLabel: 'Edit ' + r.k.toLowerCase()`",
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-08.until-date': {
+    screen: 'PU-08',
+    state: 'The review step’s access term for “Until a fixed date”',
+    words: null,
+    rule: '“Until 30 Jun 2027” — the date in words, as B1-08 f9 draws the same term; B1-07’s script shows the date field’s raw value.',
+    basis: 'B1-07 `termText`; B1-08 f9 “Until 30 Jun 2027”; B8-03 dates in words',
+    status: 'provisional',
+    decisions: ['VD-12', 'P1-10'],
+  },
+  'PU-08.empty-selection': {
+    screen: 'PU-08',
+    state: 'A direct visit to the request form with nothing selected',
+    words: null,
+    rule: 'Replaced by Your selection (`/selection`), whose empty state points to the catalogue; no form is shown (an empty selection never offers “Continue to request”).',
+    basis:
+      'Appendix A §3.7 guard “/request-access with empty selection → /selection”; Appendix G P1-03 (PROVISIONAL)',
+    status: 'provisional',
+    decisions: ['P1-03', 'O-08'],
+  },
+  'PU-08.step-fallback': {
+    screen: 'PU-08',
+    state: 'The review step’s address reached with details still missing (a deep link, a reload)',
+    words: null,
+    rule: 'The address is replaced by the details step (`?step=details`), with what was typed in this tab (S4: a step URL with missing earlier data falls back to the first incomplete step).',
+    basis: 'ADR-0005 §4 S4; Appendix D §6.5',
+    status: 'provisional',
+    decisions: ['VD-12', 'P1-20'],
+  },
+  'PU-08.draft': {
+    screen: 'PU-08',
+    state: 'What the visitor typed, between the details and review steps, Back and Forward',
+    words: null,
+    rule: 'Kept in this tab’s memory until the request is sent or the person signed in changes; never written to the browser’s storage. No prompt on leaving (none is drawn).',
+    basis:
+      'Appendix D §6.5 “values come back from the per-tab draft store”; Appendix G P1-20 interim; owner (14 Oct 2026): browser-session storage is kept to the approved selection and ticket mechanism',
+    status: 'provisional',
+    decisions: ['P1-20'],
+  },
+  'PU-08.selection-refused': {
+    screen: 'PU-08',
+    state:
+      'Submit refused because of the selection itself (a chosen format no longer published, or nothing left to send since the form opened)',
+    words: null,
+    rule: 'Nothing is sent; the visitor is taken back to Your selection, which shows the selection as it is now. No words of their own are drawn.',
+    basis:
+      'B1-07 draws no such state; the service refuses it (`selection-empty`, `PU-08.selection.format-not-published`)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-09.cold-visit': {
+    screen: 'PU-09',
+    state:
+      '“Request sent” reached without a request just sent in this tab (a typed address, a reload)',
+    words: null,
+    rule: 'Replaced by Your selection (`/selection`). The page never looks a request up: the reference is not a key (B1-07).',
+    basis:
+      'Appendix A PU-09 guard and §3.7 “cold /request-access/sent → /selection”; Appendix G P1-03 (PROVISIONAL)',
+    status: 'provisional',
+    decisions: ['P1-03', 'O-08'],
+  },
+  'PU-10.loading': {
+    screen: 'PU-10',
+    state: 'The request status while it is read',
+    words: 'Loading the request status',
+    basis: 'Board 04 "State grammar" Loading; B1-08 draws no loading state',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-10.failed': {
+    screen: 'PU-10',
+    state: 'The request status cannot be read just now',
+    words: 'We couldn’t load the request status',
+    rule: 'With B1-04’s failed line and “Try again”.',
+    basis: 'B1-04 "Failed + retry" formula; B1-08 draws no failed state',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-10.not-found': {
+    screen: 'PU-10',
+    state:
+      'An address that names no request, or a request this browser session did not send and the signed-in person may not open (another browser, a cold visit, another role or institution)',
+    words: null,
+    rule: 'The public not-found page (PU-15, public variant): nothing of the request is read or shown, and the page cannot tell an unknown address from one it may not open. Also for the payment step.',
+    basis:
+      'B1-08 “Who can open this page”; owner decision DV-5 / O-05 (14 Oct 2026): “Unauthorized access must return the approved not-found treatment without exposing request details”; Appendix A §3.7 guard row',
+    status: 'provisional',
+    decisions: ['T-01', 'R01', 'O-05'],
+  },
+  'PU-10.times': {
+    screen: 'PU-10',
+    state: 'The times on the status page (“Updated …”, history)',
+    words: null,
+    rule: 'Every event with its date and time (“5 Oct 2026, 09:12”). B1-08 draws the review start and the information request with a date only, where B1-11 and B3-08 draw the same events with their time.',
+    basis: 'B1-08 f2, f3 against B1-11 (“6 Oct 2026, 09:12”) and B3-08 (“5 Oct 2026, 15:20”)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-10.history-undrawn': {
+    screen: 'PU-10',
+    state: 'History lines B1-08 does not word for its requester',
+    words: null,
+    rule: 'A payment start is shown while it waits (f6); once the provider answers, the outcome stands in its place (f7, f8). A request sent by an Institute Admin names them as its contact person. The deciding Super Admin is never named — BITS decides.',
+    basis: 'B1-08 f6 … f9; matrix INST-15 / REQ-28 (“BITS” as the actor for other readers)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-10.history-approved-with-changes-internal': {
+    screen: 'PU-10',
+    state: 'The history line of an internal approval with a smaller scope',
+    words: 'Approved with changes',
+    basis:
+      'B1-08 draws “Approved” (internal, f9) and “Approved with changes — payment needed” (external, f4) only',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-10.history-no-plan-internal': {
+    screen: 'PU-10',
+    state:
+      'The “Access active” line of an internal renewal or more-licences request, which writes no plan while OD-B3-09 is open',
+    words: 'No payment step.',
+    basis:
+      'B1-08 f9 “Access plan ACC-0098. No payment step.” (a new institution’s plan); OD-B3-09 / P1-11',
+    status: 'provisional',
+    decisions: ['OD-B3-09', 'P1-11'],
+  },
+  'PU-10.check-again': {
+    screen: 'PU-10',
+    state: '“Payment not confirmed” — Check again',
+    words: null,
+    rule: 'Reads the status again. The status panel (`role="status"`) announces a change; with none, the page stays as it is and nothing new is said (no “pay again”, REQ-08).',
+    basis: 'B1-08 f6 “Returned from payment; confirmation pending. No “pay again”.”',
+    status: 'provisional',
+    decisions: ['VD-12', 'R06'],
+  },
+  'PU-13.no-plan': {
+    screen: 'PU-13',
+    state:
+      'Access active for a request that wrote no plan (a renewal or more licences of an existing institution: OD-B3-09 open)',
+    words: null,
+    rule: 'B1-08 f8’s words without the “Access plan” line; the history’s “Access active” line has no plan note.',
+    basis:
+      'B1-08 f8, f9 draw a new institution’s plan only; P1-11 interim (plan effect `policy-open`)',
+    status: 'provisional',
+    decisions: ['OD-B3-09', 'P1-11'],
+  },
+  'PU-12.loading': {
+    screen: 'PU-12',
+    state: 'The payment step while the request is read',
+    words: 'Loading the payment step',
+    basis: 'Board 04 "State grammar" Loading; B1-08 draws no loading state',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-12.not-payable': {
+    screen: 'PU-12',
+    state:
+      'The payment step of a request that has no payment step now (internal, not yet approved, payment pending or confirmed)',
+    words: null,
+    rule: 'Replaced by the request status (`/requests/[requestId]`), which says where the request stands.',
+    basis:
+      'Appendix A §3.7 “/requests/[requestId]/payment for internal or non-payable state → redirect”; matrix REQ-09',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-12.stand-in': {
+    screen: 'PU-12',
+    state: '“Continue to payment” in a local prototype build',
+    words: null,
+    rule: 'TE-4: the sample payment provider stand-in answers the payment just started; the request status then shows the outcome (confirmed → Access active). No provider, amount, method or details exist, nothing is collected, and no person confirms a payment. “Payment not confirmed” and “Payment failed” are reached only through fixtures and CI test hooks.',
+    basis:
+      'Owner TE-4 authorisation (Package 1C, 14 Oct 2026); B1-08 f5 notice; Appendix G P1-06, P1-18',
+    status: 'provisional',
+    decisions: ['TE-4', 'T-05', 'R06'],
+  },
+  'PU-12.busy': {
+    screen: 'PU-12',
+    state: 'Continue to payment while the payment is started',
+    words: 'Starting the payment…',
+    rule: 'The button busy (grey, spinner) with these words and a polite “Starting the payment”; it cannot be pressed twice.',
+    basis:
+      'B1-07 f6 busy formula (“Sending request…” / “Sending your request”); DEV-01 grey busy look',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-12.busy-status': {
+    screen: 'PU-12',
+    state: 'The polite announcement while the payment is started',
+    words: 'Starting the payment',
+    basis: 'B1-07 f6 `span.xr-sr role="status"` formula',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-12.failed': {
+    screen: 'PU-12',
+    state: 'Continue to payment could not reach the service',
+    words: 'We couldn’t continue to payment',
+    basis: 'B1-07 f7 failed formula (“We couldn’t send your request”)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-12.failed-line': {
+    screen: 'PU-12',
+    state: 'The failed notice’s sentence',
+    words: 'Nothing has changed. Try again.',
+    basis: 'B1-07 f7 “Nothing was sent. Your details are still here — try again.”',
     status: 'provisional',
     decisions: ['VD-12'],
   },

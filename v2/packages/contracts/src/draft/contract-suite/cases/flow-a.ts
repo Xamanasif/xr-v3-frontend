@@ -20,7 +20,7 @@ const A_METHODS: readonly MethodId[] = [
   'AccessRequestService.getRequestForDecision',
 ];
 
-/** A1–A2: the selection, then the request. Returns the request's reference and token. */
+/** A1–A2: the selection, then the request. Returns the reference and its address (O-05). */
 async function requestAccess(context: CaseContext) {
   const visitor = context.publicPorts;
   const shell = await experimentNamed(visitor, SAMPLE.experiments.shellAndTube);
@@ -73,6 +73,10 @@ async function requestAccess(context: CaseContext) {
   });
   const sent = valueOf(answer, 'A2 send the request');
   check(DRAWN.request.test(sent.reference), 'A2: the reference reads REQ-nnnn');
+  check(
+    String(sent.routeId) !== String(sent.reference) && !('statusToken' in sent),
+    'A2: the status page has an opaque address; the ticket stays with the browser session (O-05; V-17)',
+  );
   deepEqual(
     changedKinds(answer),
     ['REQ'],
@@ -102,7 +106,7 @@ const flowA: ContractCase = {
     const { sent } = await requestAccess(context);
     const visitor = context.publicPorts;
     const status = valueOf(
-      await visitor.accessRequests.getRequestStatus(sent.statusToken),
+      await visitor.accessRequests.getRequestStatus(sent.routeId),
       'A2 status page',
     );
     check(status.status === 'under-review', 'A2: the request is under review');
@@ -126,7 +130,7 @@ const flowA: ContractCase = {
       'A3 SA-03',
     );
     const after = valueOf(
-      await visitor.accessRequests.getRequestStatus(sent.statusToken),
+      await visitor.accessRequests.getRequestStatus(sent.routeId),
       'A3 status page',
     );
     check(!after.reviewStarted, 'A3: opening SA-03 does not start review (AD-14 / P1-04)');
@@ -174,16 +178,12 @@ const flowA: ContractCase = {
     errorOf(again, 'invalid-state', 'A3 approve twice');
 
     const toPay = valueOf(
-      await visitor.accessRequests.getRequestStatus(sent.statusToken),
+      await visitor.accessRequests.getRequestStatus(sent.routeId),
       'A4 status page',
     );
     check(toPay.nextStep === 'continue-to-payment', 'A4: "Continue to payment" (B1-08 f0)');
     const started = valueOf(
-      await visitor.accessRequests.startPayment({
-        by: 'status-token',
-        token: sent.statusToken,
-        expectedRev: toPay.rev,
-      }),
+      await visitor.accessRequests.startPayment({ request: sent.routeId, expectedRev: toPay.rev }),
       'A4 start the payment',
     );
     check(
@@ -204,7 +204,7 @@ const flowA: ContractCase = {
         check(DRAWN.plan.test(paid.value.planEffect.planId), 'A4: the plan reads ACC-nnnn');
     }
     const active = valueOf(
-      await visitor.accessRequests.getRequestStatus(sent.statusToken),
+      await visitor.accessRequests.getRequestStatus(sent.routeId),
       'A4 status page',
     );
     check(
@@ -251,7 +251,7 @@ const flowAInformation: ContractCase = {
     );
     check(asked.request.status === 'information-requested', 'Information requested');
     const seen = valueOf(
-      await context.publicPorts.accessRequests.getRequestStatus(sent.statusToken),
+      await context.publicPorts.accessRequests.getRequestStatus(sent.routeId),
       'PU-10',
     );
     check(

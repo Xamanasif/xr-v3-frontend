@@ -4,7 +4,9 @@
  * control, developer surface, simulator or account switcher ever reaches them.
  *
  *  - clock: the one sample clock; `setSampleNow` moves it (seed loader and tests only);
- *  - payment outcome (TE-4): the provider's report — the only way a payment is confirmed or fails;
+ *  - payment outcome (TE-4): the provider's report — the only way a payment is confirmed or fails
+ *    (`handlers/payment-provider.ts`; a local prototype build's `startPayment` reports through the
+ *    same writer when its composition root asks for it, Package 1C);
  *  - runtime report (TE-3, X-7): activity, and the completion report the system completion
  *    handler writes. It reports only what a real runtime could — a format the Student can open
  *    now — and records every event with sample provenance (`sample-fixture` for the walk and test
@@ -14,41 +16,29 @@
  *  - licence availability (T-06, D7): answers only from seeded facts, never counts;
  *  - overlapping grants (OD-B2-01): no default — `undecided` unless a test injects one.
  */
-import type { DecisionOutcome, InvalidState, Result } from '@xr/contracts/draft';
+import type { InvalidState, Result } from '@xr/contracts/draft';
 import type { StandinPorts } from '@xr/contracts/draft/standins';
 import {
   type ActivityReport,
   canOpenFormat,
   type CompletionReport,
-  type Decision,
   type FormatCompletion,
   type IsoInstant,
   recordRuntimeActivity,
   reportCompletion,
-  reportPaymentOutcome,
   type RuntimeActivity,
   systemActor,
 } from '@xr/domain';
 
 import type { PlatformCore } from '../platform/core.js';
-import { type Op, SystemRefusal, systemCommand } from '../pipeline/runner.js';
+import { type Op, settle, SystemRefusal, systemCommand } from '../pipeline/runner.js';
+import { reportPayment } from '../handlers/payment-provider.js';
 import { seededLicenceOracle } from '../handlers/student-access.js';
-import { accessFacts, plansOf } from '../world/queries.js';
+import { accessFacts } from '../world/queries.js';
 import { formatKey } from '../world/records.js';
 import type { SampleOrigin } from '../world/types.js';
 
-/** A domain decision's value, or the stand-in's `invalid-state` refusal. */
-export function settle<T>(decision: Decision<T>): T {
-  if (decision.ok) return decision.value;
-  const refusal = decision.refusal;
-  throw new SystemRefusal(
-    refusal.kind === 'invalid-state'
-      ? refusal.current
-      : refusal.kind === 'refused' || refusal.kind === 'conflict'
-        ? refusal.code
-        : refusal.kind,
-  );
-}
+export { settle } from '../pipeline/runner.js';
 
 function answer<T>(outcome: ReturnType<typeof systemCommand<T>>): Result<T, InvalidState> {
   return outcome.ok
@@ -123,40 +113,6 @@ export function reportCompletionAs(
         report: { kind: 'completion', completion: report },
       });
       return { value: outcome.completion, decision: 'reportCompletion', actor };
-    }),
-  );
-}
-
-export function reportPayment(
-  core: PlatformCore,
-  input: { readonly requestId: string; readonly outcome: 'confirmed' | 'failed' },
-  origin: SampleOrigin,
-): Result<DecisionOutcome, InvalidState> {
-  return answer(
-    systemCommand(core, 'PaymentOutcomePort.report', origin, (op) => {
-      const request = op.records.requests[input.requestId];
-      if (!request) throw new SystemRefusal('unknown-request');
-      const institution = request.institutionId
-        ? op.records.institutions[request.institutionId]
-        : undefined;
-      if (!institution) throw new SystemRefusal(request.status);
-      const actor = systemActor('system:payment-provider');
-      const outcome = settle(
-        reportPaymentOutcome({
-          request,
-          outcome: input.outcome,
-          institution,
-          plans: plansOf(op.records, institution.id),
-          actor,
-          now: op.now,
-          ids: op.ids,
-        }),
-      );
-      op.tx.put('requests', outcome.request.id, outcome.request);
-      if (outcome.institution)
-        op.tx.put('institutions', outcome.institution.id, outcome.institution);
-      if (outcome.plan) op.tx.put('plans', outcome.plan.id, outcome.plan);
-      return { value: outcome, decision: 'reportPaymentOutcome', actor };
     }),
   );
 }

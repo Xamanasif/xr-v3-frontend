@@ -14,8 +14,11 @@ export {
 export {
   actAs,
   inspectWorld,
+  planPayment,
   type PortCommand,
+  reportPayment,
   type SessionSwitch,
+  startReview,
   switchIdentity,
   type WorldInspection,
 } from './act-as';

@@ -11,9 +11,12 @@ import { type CompareItem, expect, test } from './support';
  * spine-start sample world, signed out (the public surface needs no session).
  *
  * Where the world holds the board's state the part is compared at the component tolerance; where
- * a drawn link leads to the unbuilt Selection (PU-07, Package 1C) or the world differs from the
- * board's sample, the comparison names its register entry (DEV-26 … DEV-28; DEV-23 for the back
- * icon) — measured, pinned and reported for the owner's review, never approved here. Not compared
+ * the world differs from the board's sample, the comparison names its register entry (DEV-27,
+ * DEV-28; DEV-23 for the back icon; DEV-29 art; DEV-31 a whole frame's fractional height) —
+ * measured, pinned and reported for the owner's review, never approved here. Since Package 1C the
+ * drawn ways into the Selection render (DEV-26 is no longer observed): B1-01 "Mobile 375 · menu
+ * open" draws one experiment in the selection, so its product page starts with one in the tab's
+ * browser-session selection. Not compared
  * (no reachable product state): B1-01 "Areas loading → plain list" and "Area without artwork"
  * (every area has artwork; the plain list shows only while the courses load or fail — jsdom),
  * B1-02's nine-area proofs (test fixtures, not product data), B1-03 "All areas · loading",
@@ -23,15 +26,36 @@ import { type CompareItem, expect, test } from './support';
 const SPINE_START = 'spine-start';
 const FROZEN = new Date('2026-10-14T10:00:00+05:30');
 
+/** A browser-session selection as the tab stores it (`xr.selection.v1`, ADR-0004 §2). */
+const ONE_IN_SELECTION = JSON.stringify({
+  items: [
+    {
+      experimentId: 'shell-and-tube-heat-exchanger',
+      formats: ['web', 'vr'],
+      addedAt: '2026-10-02T04:30:00.000Z',
+    },
+  ],
+  lastRemoved: null,
+  lastRemovedAt: null,
+});
+
 async function open(
   context: BrowserContext,
   width: number,
   path: string,
   ready: (page: Page) => Promise<void>,
+  selection: string | null = null,
 ): Promise<Page> {
   const page = await context.newPage();
   await page.setViewportSize({ width, height: 900 });
   await page.clock.setFixedTime(FROZEN);
+  if (selection) {
+    // The tab's browser session already holds this selection, as after adding on PU-06.
+    await page.addInitScript(
+      (value) => sessionStorage.setItem('xr.selection.v1', value),
+      selection,
+    );
+  }
   await bootWorld(page, { fixture: SPINE_START, session: null });
   await page.goto(path);
   await ready(page);
@@ -102,7 +126,6 @@ test.describe('B1-01 · PU-01 Landing and PU-14 on the built page', () => {
         name: 'b1-01-f0-header',
         reference: frame.locator('header.xp-head'),
         product: ours.locator('header.xp-head'),
-        deviation: 'DEV-26',
       },
       {
         name: 'b1-01-f0-hero-heading',
@@ -123,7 +146,6 @@ test.describe('B1-01 · PU-01 Landing and PU-14 on the built page', () => {
         name: 'b1-01-f0-hero-paths',
         reference: frame.locator('ul.xp-paths'),
         product: ours.locator('ul.xp-paths'),
-        deviation: 'DEV-26',
       },
       {
         name: 'b1-01-f0-hero-figure',
@@ -166,7 +188,6 @@ test.describe('B1-01 · PU-01 Landing and PU-14 on the built page', () => {
         name: 'b1-01-f0-institutions',
         reference: frame.locator('#for-institutions'),
         product: ours.locator('#for-institutions'),
-        deviation: 'DEV-26',
       },
       {
         name: 'b1-01-f0-band',
@@ -184,7 +205,6 @@ test.describe('B1-01 · PU-01 Landing and PU-14 on the built page', () => {
         product: ours.locator('div.xp'),
         kind: 'screen',
         frame: true,
-        deviation: 'DEV-26',
       },
     ]);
     expect(failures).toEqual([]);
@@ -199,7 +219,6 @@ test.describe('B1-01 · PU-01 Landing and PU-14 on the built page', () => {
         name: 'b1-01-f1-mobile-header',
         reference: frames.nth(1).locator('header.xp-head'),
         product: ours.locator('header.xp-head'),
-        deviation: 'DEV-26',
       },
       {
         name: 'b1-01-f1-mobile-hero-heading',
@@ -217,21 +236,21 @@ test.describe('B1-01 · PU-01 Landing and PU-14 on the built page', () => {
         product: ours.locator('figure.xp-hero-fig'),
       },
     ]);
-    await ours.getByRole('button', { name: 'Menu' }).click();
-    await expect(ours.locator('#public-menu')).toBeVisible();
-    await rest(ours);
+    // f2 draws one experiment in the selection ("Selection 1"): a tab whose session holds one.
+    const selected = await open(context, 375, '/', landingReady, ONE_IN_SELECTION);
+    await selected.getByRole('button', { name: 'Menu' }).click();
+    await expect(selected.locator('#public-menu')).toBeVisible();
+    await rest(selected);
     await run([
       {
         name: 'b1-01-f2-menu-sheet',
         reference: frames.nth(2).locator('.xp-sheet'),
-        product: ours.locator('.xp-sheet'),
-        deviation: 'DEV-26',
+        product: selected.locator('.xp-sheet'),
       },
       {
         name: 'b1-01-f2-menu-list',
         reference: frames.nth(2).locator('ul.xp-sheet-list'),
-        product: ours.locator('ul.xp-sheet-list'),
-        deviation: 'DEV-26',
+        product: selected.locator('ul.xp-sheet-list'),
       },
     ]);
     expect(failures).toEqual([]);
@@ -301,7 +320,7 @@ test.describe('B1-03 · PU-02, PU-03 and PU-05 on the built pages', () => {
         product: ours.locator('div.xp'),
         kind: 'screen',
         frame: true,
-        deviation: 'DEV-26',
+        deviation: 'DEV-31',
       },
     ]);
     expect(failures).toEqual([]);
@@ -433,7 +452,6 @@ test.describe('B1-04 · PU-04 Catalogue on the built page', () => {
         product: ours.locator('div.xp'),
         kind: 'screen',
         frame: true,
-        deviation: 'DEV-26',
       },
     ]);
     expect(failures).toEqual([]);
@@ -651,7 +669,7 @@ test.describe('B1-05 · PU-06 Experiment on the built page', () => {
         product: ours.locator('div.xp'),
         kind: 'screen',
         frame: true,
-        deviation: ['DEV-26', 'DEV-27', 'DEV-28'],
+        deviation: ['DEV-27', 'DEV-28', 'DEV-31'],
       },
     ]);
     expect(failures).toEqual([]);
@@ -685,7 +703,6 @@ test.describe('B1-05 · PU-06 Experiment on the built page', () => {
         name: 'b1-05-f1-in-selection-panel',
         reference: frames.nth(1).locator('aside.xp-panel'),
         product: panel,
-        deviation: 'DEV-26',
       },
       {
         name: 'b1-05-f1-in-selection-status',
@@ -779,7 +796,6 @@ test.describe('B1-05 · PU-06 Experiment on the built page', () => {
         name: 'b1-05-f8-mobile-in-selection-panel',
         reference: frames.nth(8).locator('aside.xp-panel'),
         product: panel,
-        deviation: 'DEV-26',
       },
     ]);
     expect(failures).toEqual([]);

@@ -10,7 +10,8 @@ import { expectSameDocument, markDocument } from '../support/workspace';
  * filter → an experiment → its WEB / AR / VR / MR formats → Add to selection → How institutional
  * access works → Sign in → back to a valid destination, and the selection is still there. Every
  * move after the first load is client-side: one document, one sample world (ADR-0004). Nothing
- * claims a request, a payment or institutional access (Package 1C).
+ * here claims a request, a payment or institutional access (those are Package 1C's demonstration,
+ * `e2e/package-1c/demonstration.spec.ts`).
  */
 test.skip(
   ({ viewport }) => viewport?.width !== 1440 && viewport?.width !== 375,
@@ -102,9 +103,13 @@ test('one tab, the product build: landing → areas → course → catalogue →
   await reachAndClick(page, panel.getByText('Browser'));
   await reachAndClick(page, panel.getByRole('button', { name: 'Add to selection' }));
   await expect(panel.getByRole('status')).toContainText('Formats: WEB · VR');
-  // Nothing claims a request, a payment or access (Package 1C).
+  // Adding claims no request, payment or access; the way on is "Go to selection" (Package 1C).
   await expect(page.locator('main')).not.toContainText(
-    /Request sent|Access active|Payment confirmed|Go to selection|Your request/,
+    /Request sent|Access active|Payment confirmed|Your request/,
+  );
+  await expect(panel.getByRole('link', { name: 'Go to selection' })).toHaveAttribute(
+    'href',
+    '/selection',
   );
 
   // 10. How institutional access works.

@@ -365,14 +365,14 @@ export const TAIL: readonly ProofStep[] = [
         }),
         'send the request',
       );
-      proof.carried.set('infoToken', sent.statusToken);
+      proof.carried.set('infoRoute', sent.routeId);
       proof.carried.set('infoReference', sent.reference);
       const admin = proof.as('Arjun Mehta');
       const page = await must(
         admin.accessRequests.getRequestForDecision(unsafeBrand(sent.reference)),
         'SA-03',
       );
-      const status = await must(visitor.accessRequests.getRequestStatus(sent.statusToken), 'PU-10');
+      const status = await must(visitor.accessRequests.getRequestStatus(sent.routeId), 'PU-10');
       expect(status.reviewStarted, 'AD-14: opening SA-03 does not start review').toBe(false);
       await proof.refused(
         'ask without saying what is needed',
@@ -402,7 +402,7 @@ export const TAIL: readonly ProofStep[] = [
           }),
         { kind: 'policy-open', decision: 'T-03' },
       );
-      const seen = await must(visitor.accessRequests.getRequestStatus(sent.statusToken), 'PU-10');
+      const seen = await must(visitor.accessRequests.getRequestStatus(sent.routeId), 'PU-10');
       expect(
         [seen.status, seen.whatBitsAsked, seen.nextStep],
         'PU-10 "BITS needs more information", no reply field (B1-08 f3)',

@@ -184,6 +184,36 @@ describe('Checkbox / Radio groups markup contract', () => {
     );
   });
 
+  it('board context classes on the hint and the error: B1-07 spaces them inline (`margin:-4px 0 8px`, `margin-top:8px`)', () => {
+    expectBoardDraws(
+      ACCESS_TERM,
+      '<span class="xr-hint" id="Rr-term-hint" style="margin:-4px 0 8px">',
+      '<span class="xr-error" style="margin-top:8px">',
+    );
+    const { container } = render(
+      <RadioGroup
+        id="Rr-term"
+        legend="Access term"
+        hint="BITS confirms the term when it decides the request."
+        hintClassName="-mt-1 mb-2"
+        error="Choose how long you need access"
+        errorClassName="mt-2"
+      >
+        <ChoiceList>
+          <ChoiceCard value="Monthly" title="Monthly" sub="Recurring term" />
+        </ChoiceList>
+      </RadioGroup>,
+    );
+    const fieldset = container.firstElementChild!;
+    expect([...fieldset.children].map((child) => child.className)).toEqual([
+      'xr-legend',
+      'xr-hint -mt-1 mb-2',
+      'xr-choice-list',
+      'xr-error mt-2',
+    ]);
+    expect(fieldset).toHaveAttribute('aria-describedby', 'Rr-term-h Rr-term-e');
+  });
+
   it('B5-04: a focusable fieldset (error-summary target), legend.xr-label, the error before the options', () => {
     const hint = FORMATS_HINT;
     expectBoardDraws(

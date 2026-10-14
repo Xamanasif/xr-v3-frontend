@@ -594,6 +594,10 @@ describe('the public request form (REQ-01; B1-07 reqValidate) and the Institute 
       route: null,
     });
     expect(sent.request.statusToken).not.toBe(sent.request.id); // the reference is not a key (B1-08)
+    // O-05 (ADR-0009): the address names the request by an opaque id — never the reference, never
+    // the ticket the sending session holds (V-17: a ticket in the URL would be a bearer link).
+    expect(sent.request.routeId).not.toBe(sent.request.id);
+    expect(sent.request.routeId).not.toBe(sent.request.statusToken);
     expect(sent.request.items[0]!.formats).toEqual(['web', 'vr']); // WEB · AR · VR · MR
     expect(sent.selection).toEqual(EMPTY_SELECTION);
   });
@@ -761,5 +765,66 @@ describe('the selection (SEL-01; SEL-03 published formats only; last format lock
     const removed = expectOk(removeFromSelection(both, ids.shell));
     expect(removed.items).toEqual([]);
     expect(expectOk(undoRemove(removed)).items).toHaveLength(1);
+  });
+
+  const three = () => {
+    let selection = EMPTY_SELECTION;
+    for (const experimentId of [ids.shell, ids.wallA, ids.wallB]) {
+      selection = expectOk(
+        addToSelection({
+          selection,
+          experimentId,
+          published: ['web'],
+          formats: ['web'],
+          now: T.oct2,
+        }),
+      );
+    }
+    return selection;
+  };
+  const order = (selection: typeof EMPTY_SELECTION) =>
+    selection.items.map((item) => item.experimentId);
+
+  it('Undo puts the item back where it was (B1-06 `undo`: splice(index, 0, item)), once', () => {
+    const removed = expectOk(removeFromSelection(three(), ids.wallA));
+    expect(order(removed)).toEqual([ids.shell, ids.wallB]);
+    expect(removed).toMatchObject({ lastRemoved: { experimentId: ids.wallA }, lastRemovedAt: 1 });
+    const undone = expectOk(undoRemove(removed));
+    expect(order(undone)).toEqual([ids.shell, ids.wallA, ids.wallB]);
+    expect(undone).toMatchObject({ lastRemoved: null, lastRemovedAt: null });
+    // Single level: nothing is left to undo.
+    expect(refusalOf(undoRemove(undone))).toEqual({
+      kind: 'invalid-state',
+      current: 'nothing-to-undo',
+    });
+  });
+
+  it('a format change ends the undo (B1-06 sets `undo: null`); a removal kept without its position goes back last', () => {
+    const removed = expectOk(removeFromSelection(three(), ids.shell));
+    const changed = expectOk(setSelectionFormats(removed, ids.wallA, ['web', 'vr'], ['vr']));
+    expect(changed).toMatchObject({ lastRemoved: null, lastRemovedAt: null });
+    expect(refusalOf(undoRemove(changed))).toEqual({
+      kind: 'invalid-state',
+      current: 'nothing-to-undo',
+    });
+    const stored = { ...removed, lastRemovedAt: null }; // a selection stored before Package 1C
+    expect(order(expectOk(undoRemove(stored)))).toEqual([ids.wallA, ids.wallB, ids.shell]);
+  });
+
+  it('Undo never holds an experiment twice: added again since it was removed, there is nothing to undo', () => {
+    const removed = expectOk(removeFromSelection(three(), ids.wallB));
+    const again = expectOk(
+      addToSelection({
+        selection: removed,
+        experimentId: ids.wallB,
+        published: ['web'],
+        formats: ['web'],
+        now: T.oct2,
+      }),
+    );
+    expect(refusalOf(undoRemove(again))).toEqual({
+      kind: 'invalid-state',
+      current: 'nothing-to-undo',
+    });
   });
 });

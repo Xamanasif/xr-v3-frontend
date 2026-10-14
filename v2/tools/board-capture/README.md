@@ -128,6 +128,28 @@ None touches a component's own CSS or a frozen file; each is recorded with its c
   candidate, the SUP reference on "Report sent", is deterministic in the sample world (SUP-0214,
   as SUP-0213 is issued on the walk) and is registered (DEV-11) instead.
 
+## Package-1C capture steps (spec side; `apps/web/e2e/parity/b1-package-1c.parity.ts`)
+
+No harness module, tolerance or mask changed for Package 1C. Its spec reaches the boards' states as
+a person does and settles each capture:
+
+- **States.** The selection a tab's browser session holds is planted in its `sessionStorage`
+  (`xr.selection.v1`, as after adding on PU-06); the request is typed and sent through PU-08; the
+  Super Admin's decisions, the AD-14 review start and the TE-4 provider's outcomes come from the
+  CI-only seams; the page clock is moved so the world records the boards' times.
+- **One taller viewport.** B1-06 "Mobile 375" is captured at 375 × 1800, so the sticky bottom bar
+  sits at its own place after the footer (the board frame is drawn whole) instead of over the rows.
+- **Settled captures.** Before each comparison the spec applies the harness's own sub-pixel rule to
+  the product part (the harness then finds nothing to move) and captures it once, thrown away:
+  Chromium settles the line boxes of wrapped text (a trailing space at a line break) at the first
+  element capture after a re-render, which the harness's before/after fingerprint check otherwise
+  reports as "changed while it was captured". At 720 the asked-vs-approved table is compared whole
+  only where its first row does not wrap against "Not decided yet" (`statusParts` documents which
+  parts each frame compares).
+- **Pins.** Package 1C added its pins and re-measured the three it changed (b1-03, b1-05 and b1-09
+  whole frames, where DEV-21 / DEV-26 no longer apply) by merging entries computed as `pin.mjs`
+  computes them from one reviewed run; every other pin is byte-identical (83 of 83).
+
 ## Running
 
 Build first (`pnpm build` and `pnpm --filter @xr/web build:test-hooks` at `v2/`; `pnpm verify` does

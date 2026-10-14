@@ -171,6 +171,7 @@ function addRequest(book: SeedBook, seed: RequestSeed): void {
     ...meta(seed.received, updated, history.length),
     id: unsafeBrand(seed.id),
     statusToken: book.ids.next('statusToken'),
+    routeId: book.ids.next('requestRoute'),
     type: seed.type,
     origin: seed.origin,
     institutionId: seed.institutionId ? unsafeBrand(seed.institutionId) : null,

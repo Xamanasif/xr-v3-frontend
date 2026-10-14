@@ -5,6 +5,13 @@
  * grant (BC9). There is no Declined state and no decline (T-02). "Information requested" has no
  * exit (T-03 → `policy-open`). The requester's "Under review" comes only from the seeded or
  * test-only review-start fact (AD-14 / P1-04) — opening SA-03 changes nothing.
+ *
+ * PU-10 / PU-12 (owner decision DV-5 / O-05, 14 Oct 2026; ADR-0009): a request's public pages are
+ * keyed by its opaque `routeId` — never the reference, never the ticket. The browser session that
+ * sent the request holds its ticket (B1-07 "continues from this session"); the adapter reads it from
+ * that session, so no port takes or returns the ticket (V-17). Only that session, or the signed-in
+ * Institute Admin of the requesting institution (REQ-28; B3-08), reads or pays; anyone else is
+ * answered as for any request it may not open.
  */
 import {
   type AccessPlan,
@@ -31,14 +38,14 @@ import {
   institutionId,
   isoInstant,
   requestId,
-  requestStatusToken,
+  requestRouteId,
   technology,
 } from '../kernel/primitives.js';
 import { branded, typedAs } from '../kernel/typed.js';
 import { accessPlan, institution, institutionKind } from '../records/institution.js';
 import {
-  accessRequest,
   REQUEST_EVENTS,
+  requestForDecision,
   requestedItem,
   requestedTerm,
   requestStatus,
@@ -93,15 +100,13 @@ export const publicRequestInput = z.object({
   term: requiredChoice(requestedTermInput, key('PU-08.term.required')),
 });
 
-export const startPaymentInput = z.discriminatedUnion(
-  'by',
-  [
-    z.object({ by: z.literal('status-token'), token: ids.in.statusToken, expectedRev }),
-    // The Institute Admin's own request ("Open the payment page", B3-08), resolved from the session.
-    z.object({ by: z.literal('institute-admin'), requestId: ids.in.request, expectedRev }),
-  ],
-  { error: key('contract.invalid-input') },
-);
+/**
+ * "Continue to payment" / "Try payment again" on PU-12 (B1-08; REQ-07). The request is named by its
+ * public address; who pays is resolved from the session — the sending browser session by its ticket,
+ * or the requesting institution's Institute Admin ("Open the payment page", B3-08) — never from the
+ * input (O-05; ADR-0009).
+ */
+export const startPaymentInput = z.object({ request: ids.in.requestRoute, expectedRev });
 
 /** IA-17 renewal: the term is mirrored from the plan, never asked (T-07). */
 export const renewalRequestInput = z.object({
@@ -163,9 +168,13 @@ export const requestMoreInformationInput = z.object({
 
 // ---- outputs ----
 
+/**
+ * PU-09 "Request sent": the reference to quote, and the address of the status page. The ticket stays
+ * with the browser session that sent it (B1-07; V-17) — it is not answered here.
+ */
 export const submitPublicRequestOutput = z.object({
   reference: requestId,
-  statusToken: requestStatusToken,
+  routeId: requestRouteId,
 });
 
 export const requestRow = z.object({
@@ -183,6 +192,8 @@ export const requestRow = z.object({
 /** PU-10 / PU-13 / IA-17 detail. Canonical states and facts only — no words. */
 export const requesterRequestView = z.object({
   reference: requestId,
+  /** The request's public address (`/requests/[requestId]`, O-05): names it, opens nothing. */
+  routeId: requestRouteId,
   /** The request's `rev`, so the requester can send `expectedRev` with "Continue to payment" —
    *  a PROVISIONAL engineering field Appendix C's view lacks (provisional register). */
   rev: z.number().int().min(1),
@@ -213,7 +224,7 @@ export const requesterRequestView = z.object({
 
 /** SA-03. */
 export const decisionPage = z.object({
-  request: accessRequest,
+  request: requestForDecision,
   publishedFormats: z.record(experimentId, z.array(technology)),
   existingAccess: z
     .object({ institutionId, plans: z.array(accessPlan), paused: z.boolean() })
@@ -243,7 +254,7 @@ export const planEffect = typedAs<PlanEffect>()(
 );
 
 export const decisionOutcome = z.object({
-  request: accessRequest,
+  request: requestForDecision,
   institution: institution.nullable(),
   plan: accessPlan.nullable(),
   planEffect,
@@ -256,8 +267,11 @@ export type PublicRequestInput = In<typeof publicRequestInput>;
 export type RequestRow = Out<typeof requestRow>;
 export type RequesterRequestView = Out<typeof requesterRequestView>;
 export type DecisionPage = Out<typeof decisionPage>;
+/** `requestForDecision`: the request record without the requester's ticket (PC-34). */
+export type RequestForDecision = Omit<AccessRequest, 'statusToken'>;
+
 export interface DecisionOutcome {
-  readonly request: AccessRequest;
+  readonly request: RequestForDecision;
   readonly institution: Institution | null;
   readonly plan: AccessPlan | null;
   readonly planEffect: PlanEffect;
@@ -283,15 +297,27 @@ export interface AccessRequestService {
     Out<typeof submitPublicRequestOutput>,
     ValidationFailed | Refused<'selection-empty'> | Unavailable
   >;
-  /** The reference alone opens nothing; a token this browser session does not hold is T-01. */
+  /**
+   * PU-10 / PU-13 by the request's address (O-05; ADR-0009): shown to the browser session holding
+   * its ticket for the user session that sent it (REQ-04) or to the signed-in Institute Admin of
+   * the requesting institution (REQ-28). The reference alone opens nothing; anyone else is answered
+   * exactly as an address that names nothing — `not-found` — and learns not even that the request
+   * exists (REQ-05; the owner's not-found treatment).
+   */
   getRequestStatus(
-    token: In<typeof ids.in.statusToken>,
-  ): Answer<RequesterRequestView, NotFound | PolicyOpen | Unavailable>;
+    id: In<typeof ids.in.requestRoute>,
+  ): Answer<RequesterRequestView, NotFound | Unavailable>;
+  /**
+   * PU-12 "Continue to payment" (REQ-07). The payer is whoever may open the request (O-05;
+   * ADR-0009): the browser session holding its ticket for the user session that sent it, or the
+   * requesting institution's signed-in Institute Admin. Anyone else is `not-found`, as for an
+   * address that names nothing. Never `not-signed-in`: a visitor needs no account (T-01).
+   */
   startPayment(
     input: In<typeof startPaymentInput>,
   ): Answer<
     RequesterRequestView,
-    NotSignedIn | NotPermitted | NotFound | InvalidState | StaleVersion | Unavailable
+    NotPermitted | NotFound | InvalidState | StaleVersion | Unavailable
   >;
   // Institute Admin
   listInstitutionRequests(): Answer<

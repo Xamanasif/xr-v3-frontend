@@ -59,15 +59,19 @@ export class NotFoundSignal extends Error {
   override readonly name = 'NotFoundSignal';
 }
 
-/** The app's navigation as a test supplies it: a fixed address, a spied `replace`. */
+/** The app's navigation as a test supplies it: a fixed address, a spied `replace` and `navigate`. */
 export function testNavigation(
   pathname: string,
   search = '',
-): AppNavigation & { readonly replace: Mock<(href: string) => void> } {
+): AppNavigation & {
+  readonly replace: Mock<(href: string) => void>;
+  readonly navigate: Mock<(href: string, options?: { readonly replace?: boolean }) => void>;
+} {
   return {
     pathname,
     search,
     replace: vi.fn<(href: string) => void>(),
+    navigate: vi.fn<(href: string, options?: { readonly replace?: boolean }) => void>(),
     notFound: () => {
       throw new NotFoundSignal(pathname);
     },

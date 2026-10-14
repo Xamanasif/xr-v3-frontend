@@ -12,16 +12,17 @@ Stakeholder-confirmed requirements govern business behaviour. A stakeholder ↔ 
 
 ## Index
 
-| ADR                                                      | Decision                                                                                                    | Status                 | Owner record                                                               |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------- | -------------------------------------------------------------------------- |
-| [ADR-0001](ADR-0001-css-architecture-and-tailwind.md)    | v46 CSS verbatim in one cascade layer; Tailwind without Preflight, layout utilities only (closes E-19)      | Accepted               | G-3, Option A, approved 12 Oct 2026; WP-0.5 amendment accepted 12 Oct 2026 |
-| [ADR-0002](ADR-0002-typed-mock-services.md)              | Typed frontend mock services in a separate package; one connected service/data layer (exception TE-2)       | Accepted               | G-2, approved 12 Oct 2026                                                  |
-| [ADR-0003](ADR-0003-sample-identity-and-session.md)      | Controlled sample identity and session; sign-in form in Phase 1; no account switcher, no DEMO banner (TE-1) | Accepted               | G-2 and G-8, approved 12 Oct 2026                                          |
-| [ADR-0004](ADR-0004-sample-world-persistence.md)         | Sample world in memory, one per browser tab (option A); browser persistence deferred (TE-6 not authorised)  | Accepted (option A)    | Browser persistence deferred, 12 Oct 2026                                  |
-| [ADR-0005](ADR-0005-route-conventions.md)                | Route conventions for the App Router (params, tabs, steps, guards, redirects, unbuilt destinations)         | Accepted (engineering) | Acknowledgement requested                                                  |
-| [ADR-0006](ADR-0006-system-owned-completion-records.md)  | Learning completion is a system-owned record behind an injectable `CompletionPolicy`; T-12 stays open       | Accepted               | G-2, approved 12 Oct 2026                                                  |
-| [ADR-0007](ADR-0007-test-only-seams-and-sample-clock.md) | Test-only controls: sample clock, build flags, test hooks, seeded system facts (TE-5, TE-7)                 | Accepted               | G-2 and AD-14, approved 12 Oct 2026                                        |
-| [ADR-0008](ADR-0008-service-contract-shape.md)           | Typed service-contract boundaries: one port set, one result/error union, one record-kind union              | Accepted (engineering) | Acknowledged 13 Oct 2026, limited scope (WP-0.10)                          |
+| ADR                                                      | Decision                                                                                                    | Status                 | Owner record                                                                    |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------- |
+| [ADR-0001](ADR-0001-css-architecture-and-tailwind.md)    | v46 CSS verbatim in one cascade layer; Tailwind without Preflight, layout utilities only (closes E-19)      | Accepted               | G-3, Option A, approved 12 Oct 2026; WP-0.5 amendment accepted 12 Oct 2026      |
+| [ADR-0002](ADR-0002-typed-mock-services.md)              | Typed frontend mock services in a separate package; one connected service/data layer (exception TE-2)       | Accepted               | G-2, approved 12 Oct 2026                                                       |
+| [ADR-0003](ADR-0003-sample-identity-and-session.md)      | Controlled sample identity and session; sign-in form in Phase 1; no account switcher, no DEMO banner (TE-1) | Accepted               | G-2 and G-8, approved 12 Oct 2026                                               |
+| [ADR-0004](ADR-0004-sample-world-persistence.md)         | Sample world in memory, one per browser tab (option A); browser persistence deferred (TE-6 not authorised)  | Accepted (option A)    | Browser persistence deferred, 12 Oct 2026                                       |
+| [ADR-0005](ADR-0005-route-conventions.md)                | Route conventions for the App Router (params, tabs, steps, guards, redirects, unbuilt destinations)         | Accepted (engineering) | Acknowledgement requested                                                       |
+| [ADR-0006](ADR-0006-system-owned-completion-records.md)  | Learning completion is a system-owned record behind an injectable `CompletionPolicy`; T-12 stays open       | Accepted               | G-2, approved 12 Oct 2026                                                       |
+| [ADR-0007](ADR-0007-test-only-seams-and-sample-clock.md) | Test-only controls: sample clock, build flags, test hooks, seeded system facts (TE-5, TE-7)                 | Accepted               | G-2 and AD-14, approved 12 Oct 2026                                             |
+| [ADR-0008](ADR-0008-service-contract-shape.md)           | Typed service-contract boundaries: one port set, one result/error union, one record-kind union              | Accepted (engineering) | Acknowledged 13 Oct 2026, limited scope (WP-0.10)                               |
+| [ADR-0009](ADR-0009-request-status-access.md)            | Request status access: opaque address; tickets held by the browser session, per world and user session      | Accepted (engineering) | DV-5 / O-05 approved 14 Oct 2026 (Package 1C); two readings for acknowledgement |
 
 ## Owner decisions of 12 October 2026
 
@@ -97,6 +98,21 @@ Still tracked (listed in `DEVIATIONS.md` and printed by `pnpm verify`): runner p
 DEV-05, DEV-16, later phases' destinations (P0-35), the Institute Admin request-count semantics
 (DEV-17; not decided), and the provisional VD-04, VD-08, VD-16 and the open P0-31 title source.
 
+## Owner authorisation of 14 October 2026 — Phase-1 Package 1C
+
+The Package-1C authorisation ("Authorize Package 1C ONLY") approves two decisions for the public
+request flow (PU-07 … PU-13), narrowly; the record is `../phase-1/PACKAGE-1C-RECORD.md`.
+
+| Decision          | Owner wording (abridged)                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Recorded in                                    |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| TE-4              | Provider-neutral payment per B1-08; "Continue to payment" may confirm via the approved sample payment stand-in in local prototype builds; unconfirmed / failed from fixtures or CI unless the frozen behaviour gives an ordinary user action. No actual provider, money movement, payment details, invented amount, method collection or manual "mark paid". Not authorisation to deploy simulated payment behaviour as a real payment system.                             | ADR-0007 amendment; `OPEN_DECISIONS.md` Part E |
+| DV-5 / P1-02 O-05 | `/requests/[requestId]`; status and payment pages open only for the submitting browser session using its authorised session-held ticket, or the authenticated Institute Admin authorised for that institution. The request reference alone never grants access; enforced by service and session rules, not by hiding links; unauthorised → the approved not-found treatment, no request details. `sessionStorage` limited to the ticket mechanism; no general persistence. | ADR-0009                                       |
+
+Not decided by it and kept open: ND-07 (internal / external rule — the Super Admin chooses the route
+on SA-03), T-01 / R01 (requester identity beyond the browser session), T-03 (reply to an
+information request), T-05 / R06 (payment provider), P1-04 (what starts review — AD-14 seam only),
+OD-B3-09 (plans after a confirmed payment for an existing institution).
+
 ## Approved interim choices
 
 These are interim treatments the build follows. Where the underlying product question is open, it **stays open**.
@@ -113,4 +129,4 @@ These are interim treatments the build follows. Where the underlying product que
 
 ## Exceptions to the committed architecture
 
-`OPEN_DECISIONS.md` Part E records the exceptions TE-1…TE-8 with their fences and removal triggers. Per G-2, TE-1, TE-2, TE-5 and TE-7 are approved for Phase 0. TE-8 was approved by the owner for Phase-1 Package 1B only (14 Oct 2026: client-rendered public pages on the browser-only sample world, one world per tab, not the production SSR / SEO architecture; `../phase-1/PACKAGE-1B-RECORD.md` §2). TE-3 and TE-4 are drafted and must be signed before Phases 3 and 1. TE-6 is not authorised.
+`OPEN_DECISIONS.md` Part E records the exceptions TE-1…TE-8 with their fences and removal triggers. Per G-2, TE-1, TE-2, TE-5 and TE-7 are approved for Phase 0. TE-8 was approved by the owner for Phase-1 Package 1B (14 Oct 2026: client-rendered public pages on the browser-only sample world, one world per tab, not the production SSR / SEO architecture; `../phase-1/PACKAGE-1B-RECORD.md` §2); the Package-1C pages use the same mechanism, for the owner's acknowledgement (`../phase-1/PACKAGE-1C-RECORD.md` §2). TE-4 was approved for Phase-1 Package 1C (14 Oct 2026; ADR-0007 amendment). TE-3 is drafted and must be signed before Phase 3. TE-6 is not authorised.

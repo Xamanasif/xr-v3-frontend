@@ -5,6 +5,7 @@ import {
   Button,
   Field,
   FieldError,
+  Link,
   LoadingState,
   LogoPlaceholder,
   Notice,
@@ -276,6 +277,12 @@ export function SignIn() {
           </span>
         ) : null}
       </form>
+      <div className="xp-auth-links">
+        <span>
+          {SIGN_IN.needAccess}
+          <Link href="/selection">{SIGN_IN.requestAccess}</Link>
+        </span>
+      </div>
     </div>
   );
 }

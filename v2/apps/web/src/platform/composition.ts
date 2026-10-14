@@ -8,7 +8,7 @@
  * through `@xr/sample-platform`); the app passes inputs and renders answers.
  */
 import type { DefaultOptions } from '@tanstack/react-query';
-import type { DataSource } from '@xr/config/env';
+import type { AppEnvironment, DataSource } from '@xr/config/env';
 import type { ProductPorts } from '@xr/contracts/draft';
 import {
   createSamplePlatform,
@@ -43,10 +43,21 @@ export type SamplePlatformHandle = SamplePlatform;
 
 export interface ComposeOptions {
   readonly dataSource: DataSource;
+  /**
+   * The build's environment (`NEXT_PUBLIC_APP_ENV`; `development` when unset — a local build).
+   * Only a local prototype build lets the TE-4 sample payment stand-in confirm a payment.
+   */
+  readonly appEnvironment?: AppEnvironment;
   /** The real clock; the sample clock then runs from the world's anchor. Omitted: fixed at the anchor. */
   readonly realNow?: RealNow;
   /** `sessionStorage` for the two board-drawn browser-session items only (ADR-0004 §2). */
   readonly browserStorage?: SessionStorageLike | null;
+  /**
+   * The name of this page load's world (ADR-0009): the request tickets kept in `browserStorage` are
+   * good for the world that issued them only, so a reload's new world never honours an old one.
+   * Required with `browserStorage`.
+   */
+  readonly worldInstance?: string;
   /** The starting world; the spine-start seed when omitted (product builds never pass one). */
   readonly world?: SampleWorld;
 }
@@ -75,6 +86,15 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
         ...(options.world ? { world: options.world } : {}),
         ...(options.realNow ? { realNow: options.realNow } : {}),
         browserStorage: options.browserStorage ?? null,
+        ...(options.worldInstance ? { worldInstance: options.worldInstance } : {}),
+        // TE-4 (owner authorisation of Package 1C, 14 Oct 2026): in a local prototype build the
+        // sample payment provider stand-in answers "Continue to payment"; any other build leaves a
+        // started payment unconfirmed (no provider reports). No provider, amount or method exists;
+        // "not confirmed" and "failed" come only from fixtures and CI test hooks.
+        paymentStandIn:
+          (options.appEnvironment ?? 'development') === 'development'
+            ? 'confirm-on-start'
+            : 'provider-reports',
       });
       return {
         adapter: {

@@ -659,16 +659,6 @@
     "pixels": 2413,
     "run": ".runs/2026-10-14T14-40-32-051Z-web"
   },
-  "b1-01-f0-header": {
-    "deviations": ["DEV-26"],
-    "reference": "1440×77",
-    "product": "1440×77",
-    "iconsSame": false,
-    "productFingerprint": "556732240b2946ad51c925d009c6ab3944e2dd8ac39f352ff7cf8d080925c8a0",
-    "productContent": "653d7a08472a6762494de980d58ef8619b16413246cb9203af95a9a409cac4e9",
-    "pixels": 1471,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
   "b1-01-f0-hero-figure": {
     "deviations": ["DEV-29"],
     "reference": "683×483",
@@ -679,75 +669,15 @@
     "pixels": 1213,
     "run": ".runs/2026-10-14T14-40-32-051Z-web"
   },
-  "b1-01-f0-hero-paths": {
-    "deviations": ["DEV-26"],
-    "reference": "560×66",
-    "product": "560×66",
-    "iconsSame": true,
-    "productFingerprint": "1a48bd0fb2298b7ecf847b8751b7a5f83916feec71ddbe7159a8a53d929a3653",
-    "productContent": "023be910b9247edbd7d33eae6fc6aa9e9d636f9b7b49f427c0dbbe9a7d18abe5",
-    "pixels": 1924,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
-  "b1-01-f0-institutions": {
-    "deviations": ["DEV-26"],
-    "reference": "1440×615",
-    "product": "1440×523",
-    "iconsSame": true,
-    "productFingerprint": "1226118d99a211118447f3e51818af1c70b6e260bbdc65fc75606a503b1d3259",
-    "productContent": "35296ce738ec68b8cbb25844acca61a8ea4394264f861e5ae8b5a43994ea1ac3",
-    "pixels": null,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
-  "b1-01-f0-whole-frame": {
-    "deviations": ["DEV-26"],
-    "reference": "1440×4148",
-    "product": "1440×4056",
-    "iconsSame": false,
-    "productFingerprint": "f2b0840568702bbb7d37aa8016a4890ebb7c3086a1eba6fa545ced524a10c440",
-    "productContent": "44dc8fd4c102c1b691b78bbbaca33e6718d664610999cd54fce4dd3fedc4d828",
-    "pixels": null,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
-  "b1-01-f1-mobile-header": {
-    "deviations": ["DEV-26"],
-    "reference": "375×65",
-    "product": "375×65",
-    "iconsSame": false,
-    "productFingerprint": "720f47bc89cd1b79edb7c3e9e6da97e99382f98062ff3f99d4a5b44b281c0166",
-    "productContent": "0e798c84b4703047e1a8cacd32d50f246645eea15420ede6751dc763e1ae2c28",
-    "pixels": 414,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
-  "b1-01-f2-menu-list": {
-    "deviations": ["DEV-26"],
-    "reference": "343×224",
-    "product": "343×168",
-    "iconsSame": false,
-    "productFingerprint": "d671b90605fa75b94ba26c6ac3adf5e9a9225e61d775b7527426ac0f59226a72",
-    "productContent": "c9cdc2cb73cee2fd7d81a5d86e8844ee5c333c2d2b2e19144abbe641ecd0e042",
-    "pixels": null,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
-  "b1-01-f2-menu-sheet": {
-    "deviations": ["DEV-26"],
-    "reference": "375×377",
-    "product": "375×265",
-    "iconsSame": false,
-    "productFingerprint": "2ee7a7d88693202d3a946deb2b80d514fcf33ea84751dc66c8268ede737d47e9",
-    "productContent": "adf632040c010cca065d82e317331c4a475c86beaa86380933ed3118cd96d61a",
-    "pixels": null,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
   "b1-03-f0-whole-frame": {
-    "deviations": ["DEV-26"],
+    "deviations": ["DEV-31"],
     "reference": "1440×1037",
     "product": "1440×1036",
-    "iconsSame": false,
-    "productFingerprint": "61d6e0b82e459a048d387d30600d2640068a2fc010324690bdd44ad5178df26e",
-    "productContent": "fee2f8fc34251124b6ef4966e8a55749f1a3d4699118b632a6dcd51d3427fe51",
+    "iconsSame": true,
+    "productFingerprint": "eaa1d3a45417e07efd8bccff80a4a4b546ecdf0f29c0a73d351d3542e2bdcafe",
+    "productContent": "66e89453920ff06f32d714c12ba7bb9b17bd4053c463f446c0752f47a2dcc972",
     "pixels": null,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
+    "run": ".runs/2026-10-14-package-1c-pin-web"
   },
   "b1-03-f2-experiments": {
     "deviations": ["DEV-29"],
@@ -757,16 +687,6 @@
     "productFingerprint": "d04d9b7e2355836b64a52c5a8f13435050a78478b9c816e41be05b005caee32c",
     "productContent": "31caa017db7ddf90cf66af71e317f56da42749f4be9e14174651a30b5937a947",
     "pixels": 749,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
-  "b1-04-f0-whole-frame": {
-    "deviations": ["DEV-26"],
-    "reference": "1440×2770",
-    "product": "1440×2770",
-    "iconsSame": false,
-    "productFingerprint": "715b20ae3e238af25eb8f5fdfcc4ee6cbbf209d5e2699be1b4a81a6192467240",
-    "productContent": "480bc1c01a7d7f408602eb635898df4e546748dc0cc402bacc5892ba6ba6378e",
-    "pixels": 1074,
     "run": ".runs/2026-10-14T14-40-32-051Z-web"
   },
   "b1-04-f9-sheet-foot": {
@@ -800,24 +720,14 @@
     "run": ".runs/2026-10-14T14-40-32-051Z-web"
   },
   "b1-05-f0-whole-frame": {
-    "deviations": ["DEV-26", "DEV-27", "DEV-28"],
+    "deviations": ["DEV-27", "DEV-28", "DEV-31"],
     "reference": "1440×2207",
     "product": "1440×2206",
     "iconsSame": false,
-    "productFingerprint": "35d43e52b254b31c573005c8bf554acd3f697735cdfb7a35000d577f690aeff6",
-    "productContent": "630bcc02c1fa0088d498ad8acf4f7e96e01162fe1edc58833a4af195f7373c75",
+    "productFingerprint": "3c8b26052a781276f43e34296af2e9c04198df0327f9b299f6e63da81faa80cd",
+    "productContent": "8d66eabc7eaec9609d207e6dc8f0e06df7df692fbc650e5caebf064a6b1a8ba0",
     "pixels": null,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
-  "b1-05-f1-in-selection-panel": {
-    "deviations": ["DEV-26"],
-    "reference": "656×398",
-    "product": "656×338",
-    "iconsSame": false,
-    "productFingerprint": "681b526bc077159d0688061cce593ae28f9d144e9508a763a19cc7dd0e26e337",
-    "productContent": "c4d462af1a6eeb095b09706eaabf66263f3fe7674e77440258090cab36f27ebe",
-    "pixels": null,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
+    "run": ".runs/2026-10-14-package-1c-pin-web"
   },
   "b1-05-f5-back-link": {
     "deviations": ["DEV-23"],
@@ -849,45 +759,225 @@
     "pixels": 981,
     "run": ".runs/2026-10-14T14-40-32-051Z-web"
   },
-  "b1-05-f8-mobile-in-selection-panel": {
-    "deviations": ["DEV-26"],
-    "reference": "343×429",
-    "product": "343×369",
-    "iconsSame": false,
-    "productFingerprint": "ff2d91e752c123afedd5a3f8a912a611b2cb442b73fb5b55398c67302d5117b1",
-    "productContent": "d7440f61848a2d06f4d14f37a4bf0be94644327daf0d3887005d733e99a64038",
-    "pixels": null,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
-  "b1-09-f0-card": {
-    "deviations": ["DEV-21"],
-    "reference": "460×653",
-    "product": "460×572",
+  "b1-06-f3-whole-frame": {
+    "deviations": ["DEV-24"],
+    "reference": "720×893",
+    "product": "720×900",
     "iconsSame": true,
-    "productFingerprint": "8697f7f8f356e3dc0a3a0870334d985329de57a7c8448347d69e31441a7c2098",
-    "productContent": "e26fbfa4e09525b12c9b3e92b985a9555e2f5c9f75907187db3f7b3ae6e4b440",
+    "productFingerprint": "8d9ccdf12018f25ce136557ee908a0a1065ec5cb2a216ac75ff39c93114a637a",
+    "productContent": "ea12c420ddaefee8a50b176b765b65c8ac62d3f77dcf8c55d3ef566cd2a43764",
     "pixels": null,
-    "run": "parity-full-1/web"
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-06-f4-mobile-bottom-bar": {
+    "deviations": ["DEV-31"],
+    "reference": "375×66",
+    "product": "375×66",
+    "iconsSame": true,
+    "productFingerprint": "ecf3a41efbd29145f5d2ede9d8ccdfbdd8b5f9ed0b5619dfafc6a72c09ca773e",
+    "productContent": "c1d3c441a75c68eb86d38d768a27fec442287b541a672226974942d60fb1cbb7",
+    "pixels": 375,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-06-f4-mobile-header": {
+    "deviations": ["DEV-31"],
+    "reference": "375×66",
+    "product": "375×65",
+    "iconsSame": true,
+    "productFingerprint": "dc3c4c385cbbb6c10c8e58214d09a44043d532e2b8b73fa5d981bd0b0256f953",
+    "productContent": "eef93e5664c81580b0718afb83c2e4a0405520238628a530f8dbc498f43f0e63",
+    "pixels": null,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-07-f0-back-link": {
+    "deviations": ["DEV-23"],
+    "reference": "144×32",
+    "product": "144×32",
+    "iconsSame": false,
+    "productFingerprint": "506ff582e70e9c97acb87bbcf109d928c3be76f3f19b1355b42ec6f0b42c5fca",
+    "productContent": "c3423f55c8dd327ebd92e0c65cecb34c04b98fa09c61c89ef194b0a8ea0a7fff",
+    "pixels": 3,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-07-f0-whole-frame": {
+    "deviations": ["DEV-23"],
+    "reference": "1440×2206",
+    "product": "1440×2206",
+    "iconsSame": false,
+    "productFingerprint": "0eab9451a3da92768cc3e757838f14a0f681457f90556772b5d2b68771cd54c5",
+    "productContent": "2c48933a1d9f5277344858bcee93a8e2d97ac27a274ae223ed3d9243fdbab6ae",
+    "pixels": 0,
+    "run": ".runs/2026-10-15-package-1c-review-pin-web"
+  },
+  "b1-07-f1-mobile-header": {
+    "deviations": ["DEV-31"],
+    "reference": "375×66",
+    "product": "375×65",
+    "iconsSame": true,
+    "productFingerprint": "661376ef4863fce3a2e0fa76d139d38cbdb645bebb9692fe6335596362f5b862",
+    "productContent": "23bc9b5d14f0ba31442041081f2c7ceb8a72cca0f2ae62feca02f4d121479dec",
+    "pixels": null,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-07-f2-mobile-header": {
+    "deviations": ["DEV-31"],
+    "reference": "375×66",
+    "product": "375×65",
+    "iconsSame": true,
+    "productFingerprint": "9c016780dec484ee26225fe91647b0b9ed657977cd69952483b9f0d6121b7204",
+    "productContent": "7caaef24d99044e93f754bdebb37c279594cc5538171b0a436e1623a99564cdb",
+    "pixels": null,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-07-f3-summary": {
+    "deviations": ["DEV-12"],
+    "reference": "656×147",
+    "product": "656×143",
+    "iconsSame": true,
+    "productFingerprint": "952911fe2c88b3558e5977771501044acc850fc280dd49c3d52c4a4ca97bfa96",
+    "productContent": "4abef225041dcd9b5adc34e7f9dfb303ef75395eecf2f40081b94ba1ed9fb96d",
+    "pixels": null,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f0-review-start-when": {
+    "deviations": ["DEV-32"],
+    "reference": "956×21",
+    "product": "956×21",
+    "iconsSame": true,
+    "productFingerprint": "40c034c471d407b16125ebeb95dd62c4270e3967c00b87c80e1f479174334af4",
+    "productContent": "30087ca53003a2890e67ef3eccb4cd9b27294fde082ac72230aae80da02b50de",
+    "pixels": 56,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f10-mobile-header": {
+    "deviations": ["DEV-31"],
+    "reference": "375×66",
+    "product": "375×65",
+    "iconsSame": true,
+    "productFingerprint": "9c016780dec484ee26225fe91647b0b9ed657977cd69952483b9f0d6121b7204",
+    "productContent": "7caaef24d99044e93f754bdebb37c279594cc5538171b0a436e1623a99564cdb",
+    "pixels": null,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f10-mobile-review-start-when": {
+    "deviations": ["DEV-32"],
+    "reference": "259×21",
+    "product": "259×21",
+    "iconsSame": true,
+    "productFingerprint": "ab0adf029aeaaa537bd694521a218ac533e167dce134e25800b18465cf513b7e",
+    "productContent": "30087ca53003a2890e67ef3eccb4cd9b27294fde082ac72230aae80da02b50de",
+    "pixels": 56,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f2-review-start-when": {
+    "deviations": ["DEV-32"],
+    "reference": "572×21",
+    "product": "572×21",
+    "iconsSame": true,
+    "productFingerprint": "bf8ee46bf48f9e0c1ddf510f3bf4ece90139e5981d2ccb2d8d5a52d0d5caf7bd",
+    "productContent": "30087ca53003a2890e67ef3eccb4cd9b27294fde082ac72230aae80da02b50de",
+    "pixels": 56,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f2-updated": {
+    "deviations": ["DEV-32"],
+    "reference": "133×21",
+    "product": "174×21",
+    "iconsSame": true,
+    "productFingerprint": "a55db93dd089e42a498031a76bdb893df4d7a95821026f9d96449f0a404c0f4d",
+    "productContent": "68eba3133b5f3365ce544c5ccb772dca879454f41ba074fbdf8b1d3e0060655b",
+    "pixels": null,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f3-information-requested-when": {
+    "deviations": ["DEV-32"],
+    "reference": "572×21",
+    "product": "572×21",
+    "iconsSame": true,
+    "productFingerprint": "4b8fa2f3189c43fb9923be26580d6936a21b24cbe2065c0270906102e82c69c4",
+    "productContent": "30087ca53003a2890e67ef3eccb4cd9b27294fde082ac72230aae80da02b50de",
+    "pixels": 50,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f3-updated": {
+    "deviations": ["DEV-32"],
+    "reference": "132×21",
+    "product": "173×21",
+    "iconsSame": true,
+    "productFingerprint": "cb375b395965ee5e704f82bca77685ed4ef18f12985d934441ef77f8b7818737",
+    "productContent": "68eba3133b5f3365ce544c5ccb772dca879454f41ba074fbdf8b1d3e0060655b",
+    "pixels": null,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f4-review-start-when": {
+    "deviations": ["DEV-32"],
+    "reference": "572×21",
+    "product": "572×21",
+    "iconsSame": true,
+    "productFingerprint": "bf8ee46bf48f9e0c1ddf510f3bf4ece90139e5981d2ccb2d8d5a52d0d5caf7bd",
+    "productContent": "30087ca53003a2890e67ef3eccb4cd9b27294fde082ac72230aae80da02b50de",
+    "pixels": 56,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f5-payment-back-link": {
+    "deviations": ["DEV-23"],
+    "reference": "182×32",
+    "product": "182×32",
+    "iconsSame": false,
+    "productFingerprint": "66163cf9112a9d21ea9f3724abb0317f2f3d3573dcb2ce9fbfdcbeba2643026d",
+    "productContent": "c3423f55c8dd327ebd92e0c65cecb34c04b98fa09c61c89ef194b0a8ea0a7fff",
+    "pixels": 3,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f6-review-start-when": {
+    "deviations": ["DEV-32"],
+    "reference": "572×21",
+    "product": "572×21",
+    "iconsSame": true,
+    "productFingerprint": "bf8ee46bf48f9e0c1ddf510f3bf4ece90139e5981d2ccb2d8d5a52d0d5caf7bd",
+    "productContent": "30087ca53003a2890e67ef3eccb4cd9b27294fde082ac72230aae80da02b50de",
+    "pixels": 56,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f7-review-start-when": {
+    "deviations": ["DEV-32"],
+    "reference": "572×21",
+    "product": "572×21",
+    "iconsSame": true,
+    "productFingerprint": "bf8ee46bf48f9e0c1ddf510f3bf4ece90139e5981d2ccb2d8d5a52d0d5caf7bd",
+    "productContent": "30087ca53003a2890e67ef3eccb4cd9b27294fde082ac72230aae80da02b50de",
+    "pixels": 56,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f8-review-start-when": {
+    "deviations": ["DEV-32"],
+    "reference": "572×21",
+    "product": "572×21",
+    "iconsSame": true,
+    "productFingerprint": "bf8ee46bf48f9e0c1ddf510f3bf4ece90139e5981d2ccb2d8d5a52d0d5caf7bd",
+    "productContent": "30087ca53003a2890e67ef3eccb4cd9b27294fde082ac72230aae80da02b50de",
+    "pixels": 56,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
+  },
+  "b1-08-f9-history": {
+    "deviations": ["DEV-33"],
+    "reference": "656×383",
+    "product": "656×319",
+    "iconsSame": true,
+    "productFingerprint": "134bee96c6c029228cc2b8933c7b70d78e77ca2a4963ecf65b96c0765eb92680",
+    "productContent": "2141c956896fbb12ef25da8561d9db52737090708ecfe1612c424ffaafc7a69d",
+    "pixels": null,
+    "run": ".runs/2026-10-14-package-1c-pin-web"
   },
   "b1-09-f0-whole-frame": {
-    "deviations": ["DEV-21", "DEV-23", "DEV-24"],
+    "deviations": ["DEV-23", "DEV-24"],
     "reference": "1440×825",
     "product": "1440×900",
     "iconsSame": false,
-    "productFingerprint": "dfffea67891d7ffd62ceee10e19bc9b009ad517799ed24262c7ca6f5f43eef6d",
-    "productContent": "7f7957355f37f8e89a30abc9b2eafd21bbe4b8223a5690f7deccd68de15996b8",
+    "productFingerprint": "578bddca4ce4b9e6373935db56573385938e1b15f849011cb2ace7d93364c675",
+    "productContent": "897b3a0f06cfd3446c17ef2f09e21c4bc704885ef063b021c98cccffb2491bde",
     "pixels": null,
-    "run": ".runs/2026-10-14T14-40-32-051Z-web"
-  },
-  "b1-09-f11-mobile-card": {
-    "deviations": ["DEV-21"],
-    "reference": "343×629",
-    "product": "343×548",
-    "iconsSame": true,
-    "productFingerprint": "c23ae8aae5a43346d1f3a19a24b8fdc25f3cc582783a9a44c3e2fffef61b9203",
-    "productContent": "e415643bdd38b4b0a2f678d46fd9dd2d6501d458d6cde2e1125e54e03d28e77d",
-    "pixels": null,
-    "run": "parity-full-1/web"
+    "run": ".runs/2026-10-14-package-1c-pin-web"
   },
   "b1-09-f9-expired-notice": {
     "deviations": ["DEV-22"],

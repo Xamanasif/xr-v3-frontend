@@ -207,10 +207,10 @@ async function v<T>(
 
 const w = (words: Words): string | null => wordsOf(words);
 
-/** PU-10 for a request, read by the visitor whose browser session holds its ticket. */
+/** PU-10 for a request at its address, read by the visitor whose browser session holds its ticket. */
 async function requester(world: At, reference = 'REQ-0042') {
-  const token = worldOf(world.platform).records.requests[reference]!.statusToken;
-  return v(world.visitor.accessRequests.getRequestStatus(token));
+  const route = worldOf(world.platform).records.requests[reference]!.routeId;
+  return v(world.visitor.accessRequests.getRequestStatus(route));
 }
 
 /**
@@ -231,7 +231,7 @@ async function asRequester(id: string): Promise<At> {
   };
 }
 
-async function infoRequested(): Promise<{ world: At; reference: string; token: string }> {
+async function infoRequested(): Promise<{ world: At; reference: string; route: string }> {
   const world = await at('A2');
   const visitor = world.visitor;
   await v(visitor.selection.add({ experimentId: SHELL, formats: ['web'] }));
@@ -255,7 +255,7 @@ async function infoRequested(): Promise<{ world: At; reference: string; token: s
       expectedRev: page.request.rev,
     }),
   );
-  return { world, reference: sent.reference, token: sent.statusToken };
+  return { world, reference: sent.reference, route: sent.routeId };
 }
 
 /** After the walk, the Institute Admin withdraws SACC-0310, Rahul's only grant (B2-04 f7). */

@@ -48,6 +48,8 @@ export const LANDING = {
     browse: 'Browse experiments',
     studentsWho: 'Students and faculty',
     studentsLink: 'Already have access? Sign in',
+    institutionsWho: 'Institutions',
+    institutionsLink: 'Request institutional access',
     illustration: 'Illustration · concept artwork, not a simulation capture',
   },
   explorer: {
@@ -78,6 +80,7 @@ export const LANDING = {
     eyebrow: 'For institutions',
     title: 'Anyone can browse. Institutions request access.',
     lead: 'Running an experiment needs access arranged through your institution.',
+    request: 'Request institutional access',
   },
   band: {
     label: 'Browse experiments',
@@ -336,6 +339,7 @@ export const EXPERIMENT = {
   update: 'Update selection',
   cancel: 'Cancel',
   inSelection: 'In your selection',
+  goToSelection: 'Go to selection',
   change: 'Change formats',
   remove: 'Remove from selection',
   panelNote:

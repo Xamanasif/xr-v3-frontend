@@ -26,6 +26,8 @@ export interface CaseContext {
   /** Later-phase methods it implements ahead of their phase (ledger `PACKAGE_DELIVERIES`). */
   readonly delivered: readonly MethodId[];
   readonly publicPorts: ProductPorts;
+  /** Another visitor's browser session: it holds none of `publicPorts`' request tickets. */
+  readonly newVisitor: () => ProductPorts;
   readonly as: (person: SamplePerson) => ProductPorts;
   readonly standins: StandinPorts;
   readonly seams: ContractSeams;
@@ -35,7 +37,7 @@ export interface CaseContext {
   readonly note: (line: string) => void;
 }
 
-export type CaseGroup = 'surface' | 'session' | 'catalogue' | 'flow' | 'invariant';
+export type CaseGroup = 'surface' | 'session' | 'catalogue' | 'flow' | 'access' | 'invariant';
 
 export interface ContractCase {
   readonly id: string;
@@ -125,6 +127,7 @@ async function runCase(contractCase: ContractCase, factory: ContractFactory): Pr
     implements: live.implements,
     delivered: live.delivered ?? [],
     publicPorts: conformingPorts(live.publicPorts, live.snapshot, log),
+    newVisitor: () => conformingPorts(live.newVisitor(), live.snapshot, log),
     as: (person) => conformingPorts(live.as(person), live.snapshot, log),
     standins: live.standins,
     seams: live.seams,

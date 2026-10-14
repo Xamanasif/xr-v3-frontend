@@ -165,8 +165,7 @@ test('a router navigation to an address that answers 404 is a full page load, so
   // not-found in the browser, spike S1b); an address outside the workspaces still answers the
   // public not-found with 404, so a link to one restarts the tab's sample world (ADR-0004
   // option A) — product links target built screens only (ADR-0005 link-target ledger). Since
-  // Package 1B PU-15's "Browse experiments" leads to the built catalogue; the probe uses the
-  // Selection's address (PU-07, Package 1C), which still answers 404.
+  // Package 1C built the Selection (PU-07), the probe uses an address that names no page.
   await bootWorld(page, { fixture: 'spine-start', session: ANIL });
   await page.goto('/vendor/help');
   await pauseDeccan(page);
@@ -174,10 +173,10 @@ test('a router navigation to an address that answers 404 is a full page load, so
   await page.evaluate(() => {
     (window as unknown as { __sameDocument: boolean }).__sameDocument = true;
     (window as unknown as { next: { router: { push(href: string): void } } }).next.router.push(
-      '/selection',
+      '/zz-not-a-page',
     );
   });
-  await page.waitForURL('**/selection');
+  await page.waitForURL('**/zz-not-a-page');
   await page.waitForLoadState('load');
   expect(
     await page.evaluate(() => (window as unknown as { __sameDocument?: boolean }).__sameDocument),

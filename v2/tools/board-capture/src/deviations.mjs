@@ -451,7 +451,7 @@ export const DEVIATIONS = [
     expected:
       'B1-09 draws the two links on the sign-in page; B1-10 and board 05 draw the Super Admin sidebar with all seven destinations.',
     actual:
-      'The sign-in card has no "Request institutional access" line (the Selection PU-07 is not built). The top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23). The Super Admin sidebar lists Requests (built in 1A, with its count of requests under review read from the world) and Help only. Measured per comparison in DEVIATIONS.md.',
+      'The Super Admin sidebar lists Requests (built in 1A, with its count of requests under review read from the world) and Help only. On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
     accessibility:
       'None: an unbuilt address would show the public not-found page and, as a document load, restart the tab’s sample world (ADR-0004).',
     decision:
@@ -510,9 +510,12 @@ export const DEVIATIONS = [
     class: 'design-conflict',
     status: 'provisional',
     blocksParity: false,
-    boards: ['B1-09 f0 "GL-02 Sign in · 1440 · interactive" (the whole frame, 825 px high)'],
+    boards: [
+      'B1-09 f0 "GL-02 Sign in · 1440 · interactive" (the whole frame, 825 px high)',
+      'B1-06 f3 "Empty selection" at 720 (Package 1C): the frame ends at 893 px; the product page fills the 900 px viewport by the same rule',
+    ],
     product:
-      'XS-01 `/sign-in` (`div.xp` > `div.xp-auth`), product.css PF-02 `.xp:not(.xr-app .xp){min-height:100dvh}`',
+      'XS-01 `/sign-in` (`div.xp` > `div.xp-auth`); since Package 1C also PU-07 Your selection when it is short (empty); product.css PF-02 `.xp:not(.xr-app .xp){min-height:100dvh}`',
     expected:
       'The canvas frame is as tall as the drawn page: the 76 px top row and the gradient `.xp-auth` at its 820 px minimum (825 px in the capture).',
     actual:
@@ -568,6 +571,8 @@ export const DEVIATIONS = [
       'Rule: owner P0-35 interim, extended to Phase 1 (Package 1A and 1B authorisations: "keep the Public navigation within implemented destinations"). The measured difference is for the owner’s review — not approved by the harness.',
     proposal:
       'Close as covered by P0-35 for Package 1B; the links appear with PU-07 in Package 1C and the comparisons then come within tolerance.',
+    tracked:
+      'Package 1C (14 Oct 2026) built PU-07 and rendered every link listed: the comparisons that named this entry are within tolerance (no longer observed) and name it no more. The 1-px height of the B1-03 and B1-05 whole frames, measured under this entry since Package 1B, is DEV-31.',
   },
   {
     id: 'DEV-27',
@@ -655,6 +660,75 @@ export const DEVIATIONS = [
     decision:
       'The canvas runtime’s binding wrapper (START-HERE Known exception 6 family), not the drawn design. For the owner’s review — not approved by the harness.',
     proposal: 'Keep the centred label (no change).',
+  },
+  // ---- Phase-1 Package 1C (14 Oct 2026): newly identified, for the owner's review ----------------
+  {
+    id: 'DEV-31',
+    title:
+      'Whole-frame captures of a page whose height is fractional: the board frame rasterises one pixel row taller than the product page',
+    class: 'capture-environment',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-03 "PU-02 All engineering areas · 1440" (page 1036.38 px: board 1037 rows, product 1036)',
+      'B1-05 "PU-06 Experiment · 1440 · interactive" (board 2207 rows, product 2206; with DEV-27, DEV-28)',
+      'B1-06 "Mobile 375" header, B1-07 "Mobile 375 · details" and "· sent" headers, B1-08 "Mobile 375" header (board 66 rows, product 65; the frames sit 0.125–0.25 px off the pixel grid)',
+      'B1-06 "Mobile 375" bottom bar (its 1-px top border falls on the next row: 375 px, one row)',
+    ],
+    product:
+      'Whole frames and a few parts of the public pages, where the board frame sits off the pixel grid',
+    expected: 'The board frame’s capture height.',
+    actual:
+      'Every element box of the page is the same to 0.01 px on the board frame and on the product page (measured element by element on B1-03 f0: header 76, page head 326.88, page 496.50, footer 136; footer bottom 1036.38). The board frame sits at a fractional offset inside its canvas, so its clip covers 1037 device-pixel rows; the product page starts at 0 and covers 1036. The comparator then reports a size mismatch with no pixel count — the harness’s sub-pixel alignment moves the product by the offset (0.125–0.25 px here) but cannot add the row. Since Package 1B this was measured under DEV-26 (the missing Selection links), which Package 1C resolved; it is registered on its own now, with the Package-1C parts it also affects.',
+    accessibility: 'None.',
+    decision:
+      'Capture environment (sub-pixel position of the canvas frame), not a product difference. For the owner’s review — not approved by the harness.',
+    proposal:
+      'Acknowledge as measured. Alternative: align the board frame to a whole pixel in the harness before the whole-frame capture (a harness normalisation, recorded in README "Capture normalisations").',
+  },
+  {
+    id: 'DEV-32',
+    title:
+      'PU-10 history and status line: B1-08 writes the review start and the information request with a date only ("5 Oct 2026"); the product writes the time the world recorded ("5 Oct 2026, 10:00")',
+    class: 'design-conflict',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-08 f0, f2, f3, f4, f6, f7, f8, f10 — history "BITS started reviewing · 5 Oct 2026"; f3 "BITS asked for more information · 6 Oct 2026"',
+      'B1-08 f2 "Updated 5 Oct 2026", f3 "Updated 6 Oct 2026" (the status head after those two events)',
+      'B3-08 — the same information request written with its time: "BITS asked for more information · 22 Oct 2026, 11:00 · BITS"',
+    ],
+    product:
+      'PU-10 Request status (apps/web features/public/pu-10-request-status; copy/request-access.ts `requesterHistory`, `updatedWords`)',
+    expected:
+      'B1-08: a date without a time for the review start and the information request, and for "Updated" after either; every other event with its time ("2 Oct 2026, 10:14", "8 Oct 2026, 11:20").',
+    actual:
+      'The product writes every history line and the status line from the instant the world recorded, in the one date-time form the requester pages use ("5 Oct 2026, 10:00"). The review start is a seeded or test-only fact (AD-14), recorded with a time like every other event. The words are compared line by line (`.xr-tl-when`, the status line): inside the whole history or status head the added ", 10:00" (about 56 pixels) is under the tolerance, which those parts keep. Measured per comparison in DEVIATIONS.md.',
+    accessibility: 'None.',
+    decision:
+      'Board versus board (B1-08 against B3-08); no rule says which events have no time. For the owner’s review — not approved by the harness.',
+    proposal:
+      'Keep one date-time form for every event (no change), or the owner names the events written with a date only and the copy follows (one change in `requesterHistory` / `updatedWords`).',
+  },
+  {
+    id: 'DEV-33',
+    title:
+      'B1-08 f9 "Internal route" draws the B1 variant of REQ-0039; the spine-start world holds the B7 variant',
+    class: 'fixture-state',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-08 f9 — REQ-0039, BITS Pilani — Hyderabad Campus: Composite Wall Conduction — WEB, AR; Fin-Tube Bundle — WEB, VR; 860 licences; Until 30 Jun 2027; submitted 26 Sep, review started 27 Sep, approved and active 29 Sep 2026, 09:40; ACC-0098',
+    ],
+    product:
+      'PU-10 / PU-13 for REQ-0039, read by its Institute Admin (Dr P. Srinivas) on the spine-start world',
+    expected: 'The B1 boards’ sample record (S-1/S-2 "B1 variant").',
+    actual:
+      'The world holds one answer per record (P1-12; sample-platform README; DEV-22): REQ-0039 activated ACC-0098 on 26 Sep 2026 for Distillation Column + Boiler Drum Level, WEB + VR, 80 licences, Monthly 1–31 Oct 2026 (the B7 variant). The world records it submitted at 09:00 and approved and active at 11:00 that day, with no review-start fact (B1-08 f9 draws "BITS started reviewing · 27 Sep 2026"). The status head — "Access active", the plan, Sign in — is the same; the table and history follow the world’s record.',
+    accessibility: 'None.',
+    decision:
+      'Sample data only (S-1/S-2, as DEV-22); no product rule. For the owner’s review — not approved by the harness.',
+    proposal: 'Acknowledge as fixture state (one sample answer per record).',
   },
 ];
 

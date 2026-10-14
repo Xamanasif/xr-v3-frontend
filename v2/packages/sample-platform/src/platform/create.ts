@@ -29,7 +29,13 @@ import { BrowserSession, type SessionStorageLike } from '../session/browser-sess
 import type { ChangeListener } from '../store/bus.js';
 import { WorldStore } from '../store/store.js';
 import type { World } from '../world/types.js';
-import { counterNonces, FaultPlan, type PlatformCore, SessionContext } from './core.js';
+import {
+  counterNonces,
+  FaultPlan,
+  PaymentStandIn,
+  type PlatformCore,
+  SessionContext,
+} from './core.js';
 import { buildPorts } from './ports.js';
 
 export interface SamplePlatformOptions {
@@ -42,6 +48,19 @@ export interface SamplePlatformOptions {
   readonly realNow?: RealNow;
   /** The browser's `sessionStorage`, for the selection and the request tickets; memory if omitted. */
   readonly browserStorage?: SessionStorageLike | null;
+  /**
+   * The name of this tab's world (ADR-0009): a request ticket held in `browserStorage` is good only
+   * for the world that issued it. Required with `browserStorage` — under ADR-0004 option A every
+   * page load is a new world, and the package draws no random value, so the composition root names
+   * each one. Without storage the tickets live in memory with the world.
+   */
+  readonly worldInstance?: string;
+  /**
+   * TE-4 (owner authorisation of Package 1C, 14 Oct 2026): `confirm-on-start` — the web composition
+   * root in sample mode — lets the sample payment provider stand-in confirm each started payment.
+   * Default `provider-reports`: nothing is reported until the stand-in port is called.
+   */
+  readonly paymentStandIn?: 'confirm-on-start' | 'provider-reports';
 }
 
 export interface SamplePlatform {
@@ -106,6 +125,13 @@ export function assemblePlatform(
       : fixedClock(world.anchor),
   );
   const nonces = counterNonces(commandsSoFar(world));
+  const browserStorage = options.browserStorage ?? null;
+  if (browserStorage && !options.worldInstance) {
+    throw new Error(
+      'A browser storage needs the world instance its request tickets belong to (ADR-0009).',
+    );
+  }
+  const instance = options.worldInstance ?? 'memory';
   const core: PlatformCore = {
     store: new WorldStore(world, memoryPersistence()),
     clock,
@@ -114,9 +140,12 @@ export function assemblePlatform(
     imports: new Map(),
     overlap: options.overlap ?? UNDECIDED_OVERLAP_POLICY,
     routing: DRAWN_WORKFLOW_ROUTING,
+    payments: new PaymentStandIn(options.paymentStandIn ?? 'provider-reports'),
+    instance,
   };
-  const browserStorage = options.browserStorage ?? null;
-  const context = new SessionContext(new BrowserSession(nonces.next('browser'), browserStorage));
+  const context = new SessionContext(
+    new BrowserSession(nonces.next('browser'), browserStorage, instance),
+  );
   const platform: SamplePlatform = {
     ports: buildPorts(core, context, null),
     withCommandId: (commandId) => buildPorts(core, context, commandId),
