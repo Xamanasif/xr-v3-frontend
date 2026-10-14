@@ -9,6 +9,7 @@ import { initialsOf } from '@/copy/people';
 import { WORKSPACE_NAV } from '@/nav/nav-config';
 import { useAppNavigation } from '@/nav/navigation';
 import { recordPageVisit } from '@/nav/page-location';
+import { useNavCounts } from '@/queries/nav-counts';
 import { useCurrentSession, useWorkspaceAccess } from '@/queries/session';
 
 import { DocumentTitle } from '../document-title';
@@ -124,6 +125,8 @@ function FrameShell({
     [role, session.personId, config],
   );
   const person = useMemo(() => shellPersonOf(session), [session]);
+  // The sidebar's counts are the person's own workspace's figures (board 06; B1-10 "Nav count").
+  const counts = useNavCounts(role);
 
   useRouteFocus(pathname);
 
@@ -154,6 +157,7 @@ function FrameShell({
           currentCrumb={placement?.currentCrumb}
           wrap="none"
           banner={bannerKindOf(banners)}
+          counts={counts}
           onSignOut={signOut}
         >
           {own ? children : <NotYourWorkspace />}

@@ -20,6 +20,15 @@ let lastAddress: string | null = null;
 /** The address the interim landing is replacing itself with, until that navigation is seen. */
 let landingTarget: string | null = null;
 
+/**
+ * A page outside the workspaces (the sign-in card, XS-01) records its address, so the move from
+ * it into a workspace counts as a navigation too: after signing in, focus moves to the
+ * workspace's main content rather than staying lost with the sign-in button that has gone.
+ */
+export function noteEntryAddress(pathname: string): void {
+  lastAddress = pathname;
+}
+
 /** The interim landing calls this right before it replaces its address with `target`. */
 export function noteInterimLanding(target: string): void {
   landingTarget = target;

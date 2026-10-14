@@ -13,7 +13,8 @@ import {
 /**
  * Self-tests of the app-specific session and world helpers (WP-0.4). Protocol checks run
  * on isolated fixture pages at a reserved `.test` origin (route-fulfilled, never a product
- * route); product checks run against the built app. No test chooses an identity through UI.
+ * route); product checks run against the built app. The only UI that chooses an identity is the
+ * designed sign-in card (XS-01), driven by `signInAs` as a person would; there is no other.
  */
 const FIXTURE = 'http://harness.xr.test';
 
@@ -165,22 +166,24 @@ test.describe('actAs (port command as another actor, no UI)', () => {
   });
 });
 
-test.describe('signInAs (XS-01 is a Phase-1 screen)', () => {
-  test('refuses in Phase 0 without touching the page or offering any fallback', async ({
+test.describe('signInAs drives the designed XS-01 card (Phase-1 Package 1A)', () => {
+  test('in the product build, through the form only: the session port decides', async ({
     page,
   }) => {
+    await page.goto('/admin/requests');
+    await page.waitForURL('**/sign-in?returnTo=%2Fadmin%2Frequests');
+    await signInAs(page, { email: 'arjun.mehta@wilp.example' });
+    await page.waitForURL('**/admin/requests');
+    await expect(page.getByRole('heading', { level: 1, name: 'Requests' })).toBeVisible();
+    expect(await page.evaluate((key) => key in window, TEST_HOOKS_GLOBAL)).toBe(false);
+  });
+
+  test('refuses what is not an e-mail, without touching the page', async ({ page }) => {
     await openFixture(page, '<main><h1>Fixture</h1></main>');
-    const requests: string[] = [];
-    page.on('request', (request) => requests.push(request.url()));
     const before = page.url();
-
-    const error = await failureOf(signInAs(page, { personId: 'PER-0001' }));
-
-    expect(error).toBeInstanceOf(HarnessUnavailableError);
-    expect(error.message).toContain('signInAs is not available yet');
-    expect(error.message).toContain('Phase 1 (owner decision G-8; ADR-0003)');
+    const error = await failureOf(signInAs(page, { email: 'PER-0001' }));
+    expect(error).toBeInstanceOf(TypeError);
     expect(page.url()).toBe(before);
-    expect(requests).toEqual([]);
   });
 });
 

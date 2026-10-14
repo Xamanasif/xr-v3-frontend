@@ -52,3 +52,23 @@ export function dayMonthYear(instant: string): string {
   const { day, month, year } = partsOf(instant);
   return `${day} ${MONTHS[month - 1]} ${year}`;
 }
+
+const IST_TIME = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Asia/Kolkata',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
+/** Day, month, year and the 24-hour time, "2 Oct 2026, 10:14" (B1-11 "Received", history). */
+export function dateTime(instant: string): string {
+  const time = IST_TIME.format(new Date(instant));
+  return `${dayMonthYear(instant)}, ${time}`;
+}
+
+/** A calendar date ("2026-10-31"), "31 Oct 2026" (B1-11 "current term ends 31 Oct 2026"). */
+export function calendarDay(date: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!match) throw new Error(`"${date}" is not a calendar date.`);
+  return `${Number(match[3])} ${MONTHS[Number(match[2]) - 1]} ${match[1]}`;
+}

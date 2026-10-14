@@ -18,7 +18,7 @@ import {
  * Safe interim navigation (ADR-0005 §8; Appendix F §3.3; WP-0.13 acceptance 9), in the browser:
  * - every link a Phase-0 page renders is a link-target ledger entry (`src/nav/link-targets.ts`) —
  *   nothing undocumented, nothing to an unbuilt page except the one recorded dead link;
- * - every ordinary navigation item leads to a built route (the sidebar shows Help alone);
+ * - every ordinary navigation item leads to a built route (Help, and the Super Admin's Requests);
  * - following each link is a client-side navigation: the same document, so the same sample world,
  *   QueryClient and session (no silent reload, ADR-0004);
  * - after a client-side navigation focus is in `main` (the drawer's chosen link is hidden).
@@ -166,7 +166,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
   });
 });
 
-test('the sidebar offers built destinations only: Help alone, in every workspace (B8-06)', async ({
+test('the sidebar offers built destinations only: Help, and the Super Admin’s Requests (B8-06)', async ({
   page,
 }) => {
   test.skip(
@@ -178,10 +178,17 @@ test('the sidebar offers built destinations only: Help alone, in every workspace
     await openAs(tab, entry.person, `${entry.base}/help`);
     await waitForShell(tab);
     const side = tab.locator('aside.xr-side');
-    await expect(side.locator('a[href]')).toHaveCount(1);
-    await expect(side.locator('a[href]')).toHaveAttribute('href', `${entry.base}/help`);
-    // No empty navigation landmark while nothing else is built (WP-0.8).
-    await expect(side.locator('nav')).toHaveCount(0);
+    if (entry.role === 'super_admin') {
+      // SA-02 is built (Package 1A): Requests, then Help.
+      await expect(side.locator('a[href]')).toHaveCount(2);
+      await expect(side.locator('nav a[href]')).toHaveAttribute('href', '/admin/requests');
+      await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute('href', '/admin/help');
+    } else {
+      await expect(side.locator('a[href]')).toHaveCount(1);
+      await expect(side.locator('a[href]')).toHaveAttribute('href', `${entry.base}/help`);
+      // No empty navigation landmark while nothing else is built (WP-0.8).
+      await expect(side.locator('nav')).toHaveCount(0);
+    }
     await tab.close();
   }
 });

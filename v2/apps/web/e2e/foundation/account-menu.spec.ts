@@ -77,7 +77,7 @@ test('Help in the account menu: that role’s Help, client-side, the same world'
   expect(after.cachedQueries).toBeGreaterThan(before.cachedQueries); // My reports joined the cache
 });
 
-test('Sign out: the session service ends the session, the cache is cleared, the gate leaves for sign-in', async ({
+test('Sign out: the session service ends the session, the cache is cleared, the “Signed out” card shows', async ({
   page,
 }) => {
   test.skip(test.info().project.name !== 'chromium-1440x900', 'One width proves the flow.');
@@ -88,19 +88,13 @@ test('Sign out: the session service ends the session, the cache is cleared, the 
   expect(before.session).toMatchObject({ status: 'signed-in', personId: 'per-0002' });
   expect(before.cachedQueries).toBeGreaterThan(0);
 
-  // Hold the sign-in address (unbuilt until XS-01, Phase 1): a 204 leaves this document in place,
-  // so the tab's state after signing out can be read before the gate's document load.
-  const asked: string[] = [];
-  await page.route('**/sign-in**', async (route) => {
-    asked.push(new URL(route.request().url()).pathname + new URL(route.request().url()).search);
-    await route.fulfill({ status: 204 });
-  });
   await page.getByRole('button', { name: ACCOUNT_LINES.student, exact: true }).click();
   await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
 
-  await expect
-    .poll(() => asked.some((url) => url.startsWith('/sign-in?reason=signed-out')))
-    .toBe(true);
+  // The gate replaces the address with the sign-in card's "Signed out" notice (XS-03, built in
+  // Package 1A) — a client-side move: the same document, the same world (ADR-0004).
+  await page.waitForURL('**/sign-in?reason=signed-out');
+  await expect(page.getByText('You’re signed out')).toBeVisible();
   const after = await inspectWorld(page);
   expect(after.session).toMatchObject({ status: 'signed-out' });
   // Nothing cached for Rahul's session survives; the world itself is kept (ADR-0004 option A).
@@ -110,19 +104,12 @@ test('Sign out: the session service ends the session, the cache is cleared, the 
   // Signing out writes no record: the world is the same world, unchanged (ADR-0004 option A).
   expect(after.worldVersion).toBe(before.worldVersion);
   expect(after.seedId).toBe(before.seedId);
+  expect(after.instance).toBe(before.instance);
   expect(after.attached).toBe(1);
-  expect(asked.every((url) => !url.includes('returnTo'))).toBe(true);
-
-  // Let the gate go on: /sign-in shows the public not-found page until XS-01 (K-21).
-  await page.unroute('**/sign-in**');
-  await page.goto('/sign-in?reason=signed-out');
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'We can’t find that page' }),
-  ).toBeVisible();
-  await expect(page.locator('form, input[type="password"]')).toHaveCount(0);
+  expect(page.url()).not.toContain('returnTo');
 });
 
-test('no identity UI anywhere: no sign-in form, switcher, "Viewing as" or DEMO banner (owner constraint)', async ({
+test('no identity UI in the workspace: no sign-in form, switcher, "Viewing as" or DEMO banner (owner constraint)', async ({
   page,
 }) => {
   await openAs(page, roleEntry('super_admin').person, '/admin/help');

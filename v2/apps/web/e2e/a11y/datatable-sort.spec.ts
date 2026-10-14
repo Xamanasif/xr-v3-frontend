@@ -2,43 +2,33 @@ import { expect, test, type Page } from '@playwright/test';
 import { V46_CONTAINER_THRESHOLDS } from '@xr/ui';
 
 import {
+  bootWorld,
   expectNoAxeViolations,
   expectNoInvisibleFocusTargets,
-  HarnessUnavailableError,
   reachAndClick,
+  TEST_HOOKS_URL,
 } from '../support';
 
 /**
  * SA-02 Requests — the DataTable sort and the B1-10 fix on the product route (BC13; START-HERE
  * Known exception 1; Appendix E §7.1 test 1; Appendix F WP-0.7 acceptance 5).
  *
- * DEFERRED TO PHASE 1. SA-02 is not built: WP-0.7 builds the shared DataTable only ("Not
- * included: SA-02 itself"), and the owner's WP-0.7 authorisation says not to build SA-02 to make
- * this test executable. Every test here is `fixme`, so Playwright reports it as skipped — never
- * as passed — and `openRequests` refuses, so removing the `fixme` early fails loudly. The
- * component-level proofs of the same behaviour run now on the specimen harness
- * (apps/specimens/e2e/datatable-sort.spec.ts).
- *
- * When SA-02 exists (Phase 1): boot its sample world with `bootWorld` (the Super Admin B1-10
- * draws, from the WP-0.11 world), open the route (screens.json proposes `/admin/requests`;
- * ADR-0005), and remove the `fixme`.
+ * Written in WP-0.7 as `fixme` until SA-02 existed; Phase-1 Package 1A builds SA-02 and turns it
+ * on. The page is the Super Admin's Requests on the spine-start sample world, reached through the
+ * CI-only boot descriptor (the sign-in itself is proven in `e2e/package-1a/sign-in.spec.ts`).
  */
+test.use({ baseURL: TEST_HOOKS_URL });
 
 const NEWEST = 'Received, newest first. Change order';
 const OLDEST = 'Received, oldest first. Change order';
 const SORT_NAME = /^Received, (?:newest|oldest) first\. Change order$/;
 const LABELLED_ROWS = V46_CONTAINER_THRESHOLDS.labelledRows.px;
 
-/**
- * Phase 1 opens SA-02 as the sample Super Admin here (`bootWorld` on the test's page, then the
- * route) and takes the page as its argument. SA-02 and its sample world are not built, so it
- * refuses before touching any page.
- */
-async function openRequests(): Promise<void> {
-  throw new HarnessUnavailableError(
-    'openRequests (SA-02)',
-    'SA-02 Requests is built in Phase 1 (Appendix F WP-0.7 "Not included: SA-02 itself").',
-  );
+/** SA-02 as the sample Super Admin (Arjun Mehta), its rows listed. */
+async function openRequests(page: Page): Promise<void> {
+  await bootWorld(page, { fixture: 'spine-start', session: { personId: 'sa-arjun-mehta' } });
+  await page.goto('/admin/requests');
+  await expect(page.locator('table.xr-table tbody td.is-primary a').first()).toBeVisible();
 }
 
 /** Classic scrollbars narrow the app (R-20): a boundary is only checked at its real width. */
@@ -89,7 +79,7 @@ async function expectSortOnRoute(page: Page): Promise<void> {
   await expectNoAxeViolations(page);
 }
 
-test.describe.fixme('SA-02 Requests: DataTable sort on the route (Phase 1; deferred)', () => {
+test.describe('SA-02 Requests: DataTable sort on the route (Package 1A)', () => {
   for (const { width, height, expanded } of [
     { width: 375, height: 812, expanded: false },
     { width: 768, height: 1024, expanded: false },
@@ -98,7 +88,7 @@ test.describe.fixme('SA-02 Requests: DataTable sort on the route (Phase 1; defer
   ]) {
     test(`${width}×${height}${expanded ? ', sidebar expanded' : ''}`, async ({ page }) => {
       await page.setViewportSize({ width, height });
-      await openRequests();
+      await openRequests(page);
       if (expanded) await page.getByRole('button', { name: 'Expand menu' }).click();
       await expectAppIsViewport(page, width);
       await expectSortOnRoute(page);
@@ -115,7 +105,7 @@ test.describe.fixme('SA-02 Requests: DataTable sort on the route (Phase 1; defer
       page,
     }) => {
       await page.setViewportSize({ width, height: 900 });
-      await openRequests();
+      await openRequests(page);
       if (expanded) await page.getByRole('button', { name: 'Expand menu' }).click();
       await expectAppIsViewport(page, width);
       expect(await contentWidth(page)).toBe(labelled ? 759 : 760);

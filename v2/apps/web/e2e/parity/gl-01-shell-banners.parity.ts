@@ -104,13 +104,25 @@ test('board 05 · the built shell on Help for 7 roles, with the applicable banne
         reference: board.locator('aside.xr-side .xr-side-foot'),
         product: ours.locator('aside.xr-side .xr-side-foot'),
       },
-      {
-        name: `${name}-sidebar`,
-        reference: board.locator('aside.xr-side'),
-        product: ours.locator('aside.xr-side'),
-        kind: 'specimen',
-        deviation: 'DEV-10',
-      },
+      role.label === 'Super Admin'
+        ? {
+            // Package 1A builds the Super Admin's Requests (SA-02), so this sidebar now lists it
+            // with its count: measured under its own name and DEV-21 (owner review). The Phase-0
+            // pin `05-super-admin-help-built-sidebar` (DEV-10, Help only) is kept unchanged in
+            // pinned.json as the record of the Phase-0 state; it is no longer observed.
+            name: `${name}-sidebar-package-1a`,
+            reference: board.locator('aside.xr-side'),
+            product: ours.locator('aside.xr-side'),
+            kind: 'specimen',
+            deviation: 'DEV-21',
+          }
+        : {
+            name: `${name}-sidebar`,
+            reference: board.locator('aside.xr-side'),
+            product: ours.locator('aside.xr-side'),
+            kind: 'specimen',
+            deviation: 'DEV-10',
+          },
       {
         name: `${name}-help-header`,
         reference: board.locator('main .xr-phead'),

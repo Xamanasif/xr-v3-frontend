@@ -19,8 +19,9 @@
  * pages) and PF-16 (empty-state line), owner-authorised as narrow corrections for the Phase-0
  * screens. WP-0.15 (visual parity) adds PF-17 (the toolbar's Clear filters height), PF-18 (a
  * failed state's report link beside Try again), PF-19 (text-link hover underline and the
- * external text link) and PF-20 (the logo placeholder in the drawer head). Not here:
- * PF-08 motion (VD-09), PF-10 (no CSS, VD-05) and PF-12 forced colours (VD-15).
+ * external text link) and PF-20 (the logo placeholder in the drawer head). Phase-1 Package 1A
+ * adds PF-21 (a confirmation's list of effects, B1-11). Not here: PF-08 motion (VD-09), PF-10
+ * (no CSS, VD-05) and PF-12 forced colours (VD-15).
  */
 
 /* ===========================================================================================
@@ -647,4 +648,24 @@ a[target='_blank']:not([class]) > .xr-ico {
  * =========================================================================================== */
 .xr-side-top > .xr-logo-ph {
   flex: 1 1 auto;
+}
+
+/* ===========================================================================================
+ * PF-21 · A confirmation that lists its effects (Phase-1 Package 1A, SA-03; narrow correction
+ * awaiting the owner's acknowledgement). B1-11 f2 "Confirm · external" and f3 "Confirm ·
+ * internal" draw the body as `ul.doc-list` with `style="font-size:16px;line-height:24px"` —
+ * "Says what approving does — and does not do", event by event. `doc-` classes are canvas-only
+ * (Appendix E §10; `xr/no-canvas-classes`), so xr-foundation.css `.doc-list{margin:0;padding-
+ * left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:22px;color:
+ * #40476B}` is given the product name `xr-x-dialog-effects`, with the board's inline type size.
+ * =========================================================================================== */
+.xr-dialog-body .xr-x-dialog-effects {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--xr-ink-2);
 }

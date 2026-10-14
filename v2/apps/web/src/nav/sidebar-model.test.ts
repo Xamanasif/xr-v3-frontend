@@ -17,12 +17,16 @@ const everyScreen = (role: (typeof PLATFORM_ROLES)[number]): ReadonlySet<ScreenK
     ...WORKSPACE_NAV[role].destinations.map((destination) => destination.screen),
   ]);
 
-describe('the Phase-0 manifest', () => {
-  it('builds Help & support (XS-07) as the one workspace destination', () => {
-    expect([...BUILT_SCREENS]).toEqual(['XS-07']);
+describe('the built-screen manifest (Phase 0 + Package 1A)', () => {
+  it('builds Help & support (XS-07) everywhere and the Super Admin’s Requests (SA-02, SA-03)', () => {
+    expect([...BUILT_SCREENS]).toEqual(['XS-07', 'SA-02', 'SA-03']);
   });
 
-  it.each(PLATFORM_ROLES.map((role) => [ROLE_LABEL[role], role] as const))(
+  it.each(
+    PLATFORM_ROLES.filter((role) => role !== 'super_admin').map(
+      (role) => [ROLE_LABEL[role], role] as const,
+    ),
+  )(
     '%s: the sidebar shows only Help, current on the Help pages, not current on a message page',
     (_label, role) => {
       const help = sidebarModel(role, { screen: 'XS-07' });
@@ -35,6 +39,37 @@ describe('the Phase-0 manifest', () => {
       }
     },
   );
+
+  it('Super Admin: Requests, then Help — Requests current on SA-02 and SA-03, its count in words', () => {
+    const help = sidebarModel('super_admin', { screen: 'XS-07' });
+    expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
+      ['Requests', '/admin/requests', false],
+    ]);
+    expect(help.help.current).toBe(true);
+    for (const screen of ['SA-02', 'SA-03'] as const) {
+      const page = sidebarModel('super_admin', { screen, counts: { requests: 2 } });
+      expect(page.destinations).toEqual([
+        {
+          label: 'Requests',
+          href: '/admin/requests',
+          icon: BOARD_ICON.requests,
+          current: true,
+          count: { value: 2, label: '2 requests under review' },
+        },
+      ]);
+      expect(page.help.current).toBe(false);
+    }
+    for (const screen of ['XS-06', 'PU-15'] as const) {
+      const message = sidebarModel('super_admin', { screen });
+      expect(message.destinations.map((item) => item.current)).toEqual([false]);
+      expect(message.help.current).toBe(false);
+    }
+    // No count at zero (board 05 `hasCount`).
+    expect(
+      sidebarModel('super_admin', { screen: 'SA-02', counts: { requests: 0 } }).destinations[0]!
+        .count,
+    ).toBeUndefined();
+  });
 });
 
 describe('built-screen gating: adding a screen id renders its item, in board order', () => {

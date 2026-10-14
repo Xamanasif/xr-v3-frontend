@@ -13,9 +13,9 @@ import { resolveAddress } from './routes';
 const BASES = WORKSPACES.map((workspace) => `/${workspace}`);
 
 describe('the link-target ledger', () => {
-  it('names the five Phase-0 screens and the shell, each action once per place', () => {
+  it('names the built screens and the shell, each action once per place', () => {
     expect(new Set(LINK_TARGET_LEDGER.map((entry) => entry.screen))).toEqual(
-      new Set(['Shell', 'XS-05', 'XS-06', 'XS-07', 'XS-08', 'PU-15']),
+      new Set(['Shell', 'XS-01', 'XS-05', 'XS-06', 'XS-07', 'XS-08', 'PU-15', 'SA-02', 'SA-03']),
     );
     const keys = LINK_TARGET_LEDGER.map(
       (entry) => `${entry.screen}|${entry.where}|${entry.action}`,
@@ -27,9 +27,27 @@ describe('the link-target ledger', () => {
   it('every link marked built reaches a built page in all seven workspaces', () => {
     for (const entry of LINK_TARGET_LEDGER.filter((item) => item.outcome === 'built')) {
       for (const base of BASES) {
-        const outcome = resolveAddress(expandTarget(entry.target!, base));
-        expect(outcome.kind, `${entry.screen} ${entry.action} in ${base}`).toBe('screen');
+        const target = expandTarget(entry.target!, base).split('?')[0]!;
+        const outcome = resolveAddress(target);
+        expect(
+          ['screen', 'record-screen', 'sign-in'],
+          `${entry.screen} ${entry.action} in ${base}`,
+        ).toContain(outcome.kind);
       }
+    }
+  });
+
+  it('a drawn action whose page is not built is not rendered, and names that unbuilt page', () => {
+    const hidden = LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'not-rendered');
+    expect(hidden.map((entry) => `${entry.screen} ${entry.action}`)).toEqual([
+      'XS-01 Back to experiments',
+      'XS-01 Request institutional access',
+      'SA-03 View institution',
+    ]);
+    for (const entry of hidden) {
+      const kind = resolveAddress(expandTarget(entry.target!, '/admin')).kind;
+      expect(['public-not-found', 'workspace-not-found'], entry.action).toContain(kind);
+      expect(entry.note).toMatch(/not built/);
     }
   });
 
@@ -63,9 +81,10 @@ describe('the link-target ledger', () => {
     expect(resolveAddress('/experiments')).toEqual({ kind: 'public-not-found' });
   });
 
-  it('only Sign out leaves for the unbuilt sign-in (K-21)', () => {
-    const signIn = LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'sign-in');
-    expect(signIn.map((entry) => `${entry.screen} ${entry.action}`)).toEqual(['XS-05 Sign out']);
+  it('Sign out reaches the built sign-in card’s “Signed out” notice (XS-03, Package 1A)', () => {
+    const signOut = LINK_TARGET_LEDGER.find((entry) => entry.action === 'Sign out')!;
+    expect(signOut).toMatchObject({ outcome: 'built', target: '/sign-in?reason=signed-out' });
+    expect(resolveAddress('/sign-in')).toEqual({ kind: 'sign-in' });
   });
 
   it('in-page actions are commands, jumps or not rendered at all', () => {
@@ -87,7 +106,9 @@ describe('the link-target ledger', () => {
       case '<base>/[...unmatched]':
         return [`${base}/zz-unknown`, `${base}/courses`];
       case '/*':
-        return ['/', '/zz-unknown', '/sign-in'];
+        return ['/', '/zz-unknown', '/selection'];
+      case '/admin/*':
+        return ['/admin/help', '/admin/requests', '/admin/requests/REQ-0038'];
       case '<base>/*':
         return [`${base}/help`, `${base}/help/report`, `${base}/help/reports/SUP-0213`];
       default:
@@ -132,6 +153,8 @@ describe('the link-target ledger', () => {
       'XS-07: Report a problem',
       'XS-07: Send report',
       'XS-07: View my reports',
+      'XS-01: Sign in',
+      'SA-03: (the panel’s button: Approve request · Approve smaller scope · Send request for information)',
     ]);
   });
 });

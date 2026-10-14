@@ -84,8 +84,18 @@ export interface DialogCommonProps {
 }
 
 export interface ConfirmDialogProps extends DialogCommonProps {
-  /** One sentence on the effect (board 10 "DL-1 · Confirm"), read as the dialog's description. */
-  readonly effect: ReactNode;
+  /**
+   * One sentence on the effect (board 10 "DL-1 · Confirm"), read as the dialog's description.
+   * Give `effects` instead where the board lists the effect event by event.
+   */
+  readonly effect?: ReactNode;
+  /**
+   * The effect as a list, one line per event — what the action does and does not do yet (B1-11
+   * f2 "Confirm · external", f3 "Confirm · internal": "Says what approving does — and does not
+   * do"): `ul.xr-x-dialog-effects` in the body (PF-21; the board's `ul.doc-list` is a canvas
+   * class). Exactly one of `effect` and `effects` is given.
+   */
+  readonly effects?: readonly ReactNode[];
   /**
    * The red `xr-btn--danger` confirm, and initial focus on Cancel (board 10 "DL-1 · Confirm ·
    * destructive · focus on Cancel"; VD-07: B2-08, B2-09 and B4-07 focus the danger button, the
@@ -397,15 +407,20 @@ function DialogFrame({
 /**
  * DL-1 Confirm (board 10): an action that is hard to undo or has an effect beyond this page, with
  * one sentence on the effect. Initial focus: the confirming button, or Cancel when destructive.
- * Body as drawn: `<div class="xr-dialog-body" id="d1-b"><p>…</p></div>`.
+ * Body as drawn: `<div class="xr-dialog-body" id="d1-b"><p>…</p></div>`; with `effects`, B1-11's list
+ * (`ul.xr-x-dialog-effects`, PF-21) in its place.
  */
 export function ConfirmDialog({
   effect,
+  effects,
   destructive = false,
   idPrefix,
   ...common
 }: ConfirmDialogProps) {
   const { titleId, descriptionId } = useDialogIds(idPrefix);
+  if ((effect === undefined) === (effects === undefined)) {
+    throw new Error('ConfirmDialog takes exactly one of `effect` and `effects`.');
+  }
   return (
     <DialogFrame
       {...common}
@@ -416,7 +431,15 @@ export function ConfirmDialog({
       submitOnEnter={false}
       body={
         <div className="xr-dialog-body" id={descriptionId}>
-          <p>{effect}</p>
+          {effects ? (
+            <ul className="xr-x-dialog-effects">
+              {effects.map((line, index) => (
+                <li key={index}>{line}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>{effect}</p>
+          )}
         </div>
       }
     />

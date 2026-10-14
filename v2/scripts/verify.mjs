@@ -51,10 +51,6 @@ const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 /** Suites the plan names that later work packages create or that wait for their screen; reported, never claimed. */
 const NOT_YET_PRESENT = [
   [
-    'SA-02 route-level DataTable sort test (apps/web/e2e/a11y/datatable-sort.spec.ts, written as fixme: reported as skipped)',
-    'Phase 1 (SA-02)',
-  ],
-  [
     'full-UI flow tests (apps/web/e2e/flows, 36 deferred test.fixme: reported as skipped)',
     'Phase 7 (each needs its flow’s screens, B8-06 Phases 1–6)',
   ],

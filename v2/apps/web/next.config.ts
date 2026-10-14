@@ -34,7 +34,7 @@ const testHooksTarget = flags.NEXT_PUBLIC_XR_TEST_HOOKS
 /**
  * The seven static workspace bases (ADR-0005 §1; `@xr/contracts/draft` WORKSPACES). Kept literal
  * here — next.config.ts loads before the app's modules — and held equal to the route manifest
- * (`src/nav/routes.ts` PHASE0_REDIRECTS) by its unit test.
+ * (`src/nav/routes.ts` REDIRECTS) by its unit test.
  */
 const WORKSPACE_BASES = [
   'student',
@@ -61,17 +61,19 @@ const nextConfig: NextConfig = {
   },
   /**
    * Appendix A §3.7 row 20 (Phase 0): `/<base>/help/reports` is an intermediate path created by
-   * the XS-07 sub-routes — My reports lives on `/<base>/help`. Not permanent (the route plan may
-   * still change). Row 21 (`/signed-out`) arrives with XS-03 in Phase 1.
+   * the XS-07 sub-routes — My reports lives on `/<base>/help`. Row 21 (Phase 1, Package 1A, with
+   * XS-03): `/signed-out` → the sign-in card's "You’re signed out" notice (D-15). Not permanent
+   * (the route plan may still change).
    */
   redirects() {
-    return Promise.resolve(
-      WORKSPACE_BASES.map((base) => ({
+    return Promise.resolve([
+      ...WORKSPACE_BASES.map((base) => ({
         source: `/${base}/help/reports`,
         destination: `/${base}/help`,
         permanent: false,
       })),
-    );
+      { source: '/signed-out', destination: '/sign-in?reason=signed-out', permanent: false },
+    ]);
   },
 };
 

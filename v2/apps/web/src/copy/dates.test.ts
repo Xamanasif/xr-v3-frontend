@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { dayMonth, dayMonthYear } from './dates';
+import { calendarDay, dateTime, dayMonth, dayMonthYear } from './dates';
 
 describe('dates as the boards write them (B8-03; board 07)', () => {
   it('day and month in Indian time, with the boards’ month names', () => {
@@ -16,6 +16,18 @@ describe('dates as the boards write them (B8-03; board 07)', () => {
       const text = dayMonth(new Date(Date.UTC(2026, month, 15, 6)).toISOString());
       expect(text).toMatch(/^15 [A-Z][a-z]{2}$/);
     }
+  });
+
+  it('date and 24-hour time in Indian time, as B1-11 writes "Received 2 Oct 2026, 10:14"', () => {
+    expect(dateTime('2026-10-02T04:44:00.000Z')).toBe('2 Oct 2026, 10:14');
+    expect(dateTime('2026-09-26T10:32:00.000Z')).toBe('26 Sep 2026, 16:02');
+    expect(dateTime('2026-10-01T18:35:00.000Z')).toBe('2 Oct 2026, 00:05');
+  });
+
+  it('a calendar date as words, never moved by a time zone', () => {
+    expect(calendarDay('2026-10-31')).toBe('31 Oct 2026');
+    expect(calendarDay('2027-09-04')).toBe('4 Sep 2027');
+    expect(() => calendarDay('31/10/2026')).toThrow();
   });
 
   it('refuses what is not an instant', () => {

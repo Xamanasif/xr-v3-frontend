@@ -92,13 +92,11 @@ test('a product page exposes no hook at run time, even with a boot descriptor in
 }) => {
   await bootWorld(page, { fixture: 'state-coverage', session: { personId: 'sa-arjun-mehta' } });
   // WP-0.13: /admin is a product page now. Without the bridge the descriptor gives no session, so
-  // the session gate leaves for the (Phase-1) sign-in with the address asked for (K-21).
+  // the session gate leaves for the sign-in card (XS-01, Package 1A) with the address asked for.
   const response = await page.goto('/admin');
   expect(response?.status()).toBe(200);
   await page.waitForURL('**/sign-in?returnTo=%2Fadmin');
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'We can’t find that page' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
   await page.waitForLoadState('load');
   expect(await page.evaluate((key) => key in window, TEST_HOOKS_GLOBAL)).toBe(false);
   const scripts = await page.evaluate(() =>

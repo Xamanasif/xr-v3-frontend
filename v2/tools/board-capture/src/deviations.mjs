@@ -15,7 +15,8 @@
 //   'owner-review'       — newly identified; the owner must decide. Never approved by the harness.
 // `class` (the WP-0.15 mismatch classes): 'capture-environment' | 'fixture-state' |
 //   'approved-accessibility' | 'product-regression' | 'design-conflict' | 'canvas-only' |
-//   'phase-0-scope'.
+//   'phase-0-scope' | 'phase-1-scope' (a Phase-1 package builds a screen whose drawn links lead
+//   to pages of a later package).
 // `blocksParity`: whether the entry kept Phase-0 parity acceptance open until the owner decided.
 // `tracked`: what stays to be done or rechecked after the decision (runner, later phase, open
 //   question) — listed in DEVIATIONS.md and by `pnpm verify`.
@@ -431,6 +432,115 @@ export const DEVIATIONS = [
     decision:
       'Owner visual-decision closure, 14 Oct 2026 (WP-0.15; frozen-v46 prototype only — not an approval of unrelated business policies or future screen designs): retain the public shell’s white background.',
     proposal: 'Decided: no change.',
+  },
+  // ---- Phase-1 Package 1A (14 Oct 2026): newly identified, for the owner's review ----------------
+  {
+    id: 'DEV-21',
+    title:
+      'Package 1A: drawn links and destinations whose pages are not built yet are not rendered (P0-35, Phase-1 extension)',
+    class: 'phase-1-scope',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-09 f0, f11 — "Back to experiments" (top row, to B1-01) and "Need access for your institution? Request institutional access" (under the card, to B1-06)',
+      'B1-10 f0 — the Super Admin sidebar: Overview, Requests, Institutions, Content, Academic structure, Platform roles, Operations',
+      '05 "Super Admin" shell on Help — the same seven destinations. The Phase-0 comparison `05-super-admin-help-built-sidebar` (DEV-10, Help only) is now measured as `05-super-admin-help-built-sidebar-package-1a`; its Phase-0 pin is kept unchanged and is no longer observed',
+    ],
+    product:
+      'XS-01 `AuthFrame` / `SignIn` (apps/web features/shared/xs-01-sign-in); the Super Admin sidebar from the built-screen manifest (nav/built-screens.ts)',
+    expected:
+      'B1-09 draws the two links on the sign-in page; B1-10 and board 05 draw the Super Admin sidebar with all seven destinations.',
+    actual:
+      'The sign-in card has no "Request institutional access" line and the top row no "Back to experiments" (the Landing PU-01 and the Selection PU-07 are not built; the top row keeps its drawn height). The Super Admin sidebar lists Requests (built in 1A, with its count of requests under review read from the world) and Help only. Measured per comparison in DEVIATIONS.md.',
+    accessibility:
+      'None: an unbuilt address would show the public not-found page and, as a document load, restart the tab’s sample world (ADR-0004).',
+    decision:
+      'Rule: owner P0-35 interim, extended to Phase 1 in the Package-1A authorisation (14 Oct 2026: "Keep built-screen-only navigation and avoid links to unavailable pages"). The measured difference itself is for the owner’s review — not approved by the harness.',
+    proposal:
+      'Close as covered by P0-35 for Package 1A; each link and destination appears with the package that builds its page (1B–1D), and the comparisons then come within tolerance.',
+  },
+  {
+    id: 'DEV-22',
+    title:
+      'Package 1A: the spine-start sample world’s requests differ from the B1 boards’ sample data',
+    class: 'fixture-state',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-10 f0 — seven requests from REQ-0042 (2 Oct) to REQ-0036, count "3 requests under review"',
+      'B1-11 f16 — REQ-0038: 3 experiments, 860 licences, Yearly, received 24 Sep 2026; ACC-0081',
+      'B1-09 f9 — "Sign in again to go back to where you were: My courses › Shell-and-Tube Heat Exchanger."',
+    ],
+    product: 'SA-02 / SA-03 on the spine-start world; XS-03 with a built return address',
+    expected: 'The B1 boards’ own sample records (the S-1/S-2 "B1 variant").',
+    actual:
+      'The world holds one answer per record (P1-12 reading, sample-platform README): the B7 variant — REQ-0038 renews ACC-0098 (2 experiments, 80 licences, Monthly, received 26 Sep 2026, 16:02); REQ-0042 does not exist until the public request path (Package 1C), so the list holds the ten seeded requests (with the origin requests REQ-0027/0029/0031/0033) and two are under review. The expired notice names a built page ("Requests › REQ-0038"); "My courses" is a Phase-2 page. Layout, type and colour of the same parts are compared strictly where the words are the same (organisation, message, panel, toolbar, table head).',
+    accessibility: 'None.',
+    decision:
+      'Sample data only (P1-12, S-1/S-2 B7 reading recorded in the sample-platform README); no product rule. For the owner’s review — not approved by the harness.',
+    proposal:
+      'Acknowledge as fixture state; recheck B1-10 / B1-11 f0 against REQ-0042 once Package 1C creates it.',
+  },
+  {
+    id: 'DEV-23',
+    title:
+      'Back-link icon: the Batch-1 boards’ chevron (`M15 6l-6 6 6 6`) vs board 02’s Back icon (`M14.5 6 8.5 12l6 6`)',
+    class: 'design-conflict',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-11 f0, f9, f15, f16 — `a.xr-back` "Requests" (and B1-05, B1-07, B1-08, B1-09, B1-12, B1-13: 55 back links on the Batch-1 boards)',
+      '02 "Icon sizing and working icon set" (Back) and every Batch 2–7 board (456 back links)',
+    ],
+    product: '@xr/ui BackLink (WP-0.6), on SA-03',
+    expected: 'B1-11 draws the back link with the chevron path `M15 6l-6 6 6 6`.',
+    actual:
+      'BackLink draws board 02’s Back icon `M14.5 6 8.5 12l6 6`, as all 456 back links on the other product boards and the Phase-0 Help pages do; the 20 px glyph differs by a few pixels (measured in DEVIATIONS.md) and the icon check reports the different path.',
+    accessibility: 'None: the icon is decorative (`aria-hidden`); the link names its destination.',
+    decision:
+      'Board versus board (Batch 1 against board 02 and Batches 2–7). For the owner’s review — not approved by the harness.',
+    proposal:
+      'Keep board 02’s Back icon everywhere (one icon set, Appendix E §3); no per-screen icon.',
+  },
+  {
+    id: 'DEV-24',
+    title:
+      'Sign-in page height: the product page fills the viewport (PF-02, VD-23) where B1-09’s frame ends at `.xp-auth{min-height:820px}`',
+    class: 'design-conflict',
+    status: 'provisional',
+    blocksParity: false,
+    boards: ['B1-09 f0 "GL-02 Sign in · 1440 · interactive" (the whole frame, 825 px high)'],
+    product:
+      'XS-01 `/sign-in` (`div.xp` > `div.xp-auth`), product.css PF-02 `.xp:not(.xr-app .xp){min-height:100dvh}`',
+    expected:
+      'The canvas frame is as tall as the drawn page: the 76 px top row and the gradient `.xp-auth` at its 820 px minimum (825 px in the capture).',
+    actual:
+      'PF-02 gives every public page root the viewport’s height, so at 1440 × 900 the page is 900 px high: the gradient keeps its 820 px minimum and the root’s white shows under it — the white band PF-02 already records for the owner under VD-23. The card and its parts are compared strictly and match.',
+    accessibility: 'None.',
+    decision:
+      'Documented provisional choice PF-02 / VD-23 (product.css): "on B1-09 sign-in a white band shows under the gradient — for the owner under VD-23".',
+    proposal: 'The owner decides VD-23 (public page height); the sign-in page follows it.',
+  },
+  {
+    id: 'DEV-25',
+    title:
+      'B1-11 f16 (1060 px): the static frame keeps the expanded shell’s "Collapse menu" button in the rail band',
+    class: 'canvas-only',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-11 f16 "Renewal · 1060" — `button.xr-top-collapse aria-label="Collapse menu" aria-expanded="true"` with the collapse icon, while the frame’s container query shows the 72 px rail',
+      '11 "Responsive proof" — the live shell: "Expand menu" and the expand icon in the rail',
+    ],
+    product: 'WorkspaceShell top bar at 1024–1279 px of app width (WP-0.8)',
+    expected: 'B1-11 f16: the collapse icon (`M4 5h16v14H4zM9.5 5v14M16 10l-2 2 2 2`).',
+    actual:
+      'The live shell in the rail band offers "Expand menu" with the expand icon, as board 11 draws it; the top bar is otherwise identical (measured in DEVIATIONS.md).',
+    accessibility:
+      'The product’s name and `aria-expanded` state what the button does in the rail; the static frame’s do not.',
+    decision:
+      'A static template state inside a fixed-width canvas frame (START-HERE Known exception 4 family). For the owner’s review — not approved by the harness.',
+    proposal: 'Follow board 11’s live shell (no change).',
   },
 ];
 

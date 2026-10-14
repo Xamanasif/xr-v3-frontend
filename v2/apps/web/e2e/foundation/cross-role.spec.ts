@@ -369,10 +369,11 @@ test('D · identity continuity: a change made as one role is there for the next,
   await myReportsLoaded(page);
   await expect(page.locator('main')).not.toContainText(reference);
 
-  // The new role's actual workspace: its shell, its navigation (Help only in Phase 0) and its
-  // permissions — the Student's addresses are not part of it.
+  // The new role's actual workspace: its shell, its navigation (its built destinations — the
+  // Super Admin's Requests since Package 1A — and Help) and its permissions: the Student's
+  // addresses are not part of it.
   await expectShellOf(page, ADMIN);
-  await expect(page.locator('aside.xr-side nav')).toHaveCount(0);
+  await expect(page.locator('aside.xr-side nav a .xr-nav-text')).toHaveText(['Requests']);
   await expect(sidebarHelp(page)).toHaveAttribute('href', '/admin/help');
   await checkScreen(page);
   await page.locator('main').getByRole('link', { name: 'Report a problem' }).click();

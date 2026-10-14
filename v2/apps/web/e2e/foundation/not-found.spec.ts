@@ -20,14 +20,9 @@ import {
  */
 
 test.describe('public variant (product build)', () => {
-  for (const path of [
-    '/',
-    '/nope',
-    '/sign-in',
-    '/sign-in?returnTo=%2Fstudent',
-    '/experiments',
-    '/signed-out',
-  ]) {
+  // `/sign-in` and `/signed-out` are built in Phase-1 Package 1A (XS-01, XS-03): see
+  // `e2e/package-1a/sign-in.spec.ts`.
+  for (const path of ['/', '/nope', '/sign-in/elsewhere', '/experiments', '/selection']) {
     test(`${path}: 404, "We can’t find that page", Browse experiments, no Help`, async ({
       page,
     }) => {
@@ -54,7 +49,8 @@ test.describe('public variant (product build)', () => {
 test.describe('workspace variant (test-hook build)', () => {
   test.use({ baseURL: TEST_HOOKS_URL });
 
-  // Designed but not built in Phase 0 (each workspace's first destination), then unknown ones.
+  // Designed but not built yet (each workspace's first unbuilt destination; the Super Admin's
+  // Requests are built in Package 1A), then unknown ones.
   const UNBUILT: Readonly<Record<string, string>> = {
     student: '/student/courses',
     faculty: '/faculty/marking',
@@ -62,7 +58,7 @@ test.describe('workspace variant (test-hook build)', () => {
     vendor: '/vendor/experiments',
     academic_reviewer: '/reviewer/queue',
     content_manager: '/content-manager/ready',
-    super_admin: '/admin/requests',
+    super_admin: '/admin/institutions',
   };
 
   for (const entry of ROLES) {

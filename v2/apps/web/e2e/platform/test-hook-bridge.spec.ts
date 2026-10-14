@@ -89,9 +89,8 @@ test('a signed-out boot on the seed: a visitor partition, and no Flow-A record y
 }) => {
   await bootWorld(page, { fixture: 'spine-start', session: null });
   await page.goto('/student');
-  // Since WP-0.13 the session gate replaces a signed-out workspace address with the (Phase-1,
-  // unbuilt) sign-in address, which loads a new document: inspect the tab once it has settled
-  // there, never during that navigation.
+  // The session gate replaces a signed-out workspace address with the sign-in card (XS-01,
+  // Package 1A): inspect the tab once it has settled there.
   await page.waitForURL(/\/sign-in\?returnTo=/);
   const world = await inspectWorld(page);
   expect(world.seedId).toBe('spine-start');

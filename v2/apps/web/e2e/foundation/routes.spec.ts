@@ -4,8 +4,10 @@ import { expect, test } from '@playwright/test';
  * The Phase-0 route set as the product build serves it (Appendix F §3.3; ADR-0005; WP-0.13
  * acceptance 8): the seven workspace bases with their Help pages answer 200 (the shell and page are
  * drawn in the browser once the tab's session is known, ADR-0004); `/<base>/help/reports`
- * redirects to `/<base>/help` (Appendix A §3.7 row 20); every address outside the workspaces —
- * the public pages and sign-in included until Phase 1 (G-8) — is the public not-found with 404.
+ * redirects to `/<base>/help` (Appendix A §3.7 row 20); `/sign-in` (XS-01) answers 200 and
+ * `/signed-out` redirects to its "Signed out" notice (row 21; Phase-1 Package 1A); every other
+ * address outside the workspaces — the public pages included until their packages — is the public
+ * not-found with 404.
  */
 test.skip(({ viewport }) => viewport?.width !== 1440, 'HTTP answers do not depend on the width.');
 
@@ -39,13 +41,31 @@ test('row 20: /<base>/help/reports → /<base>/help (not permanent)', async ({ r
   }
 });
 
-test('outside the workspaces: 404 and the public not-found — no public page or sign-in yet', async ({
+test('Package 1A: /sign-in answers 200; row 21 /signed-out → /sign-in?reason=signed-out', async ({
+  request,
+}) => {
+  const signIn = await request.get('/sign-in', { maxRedirects: 0 });
+  expect(signIn.status()).toBe(200);
+  const html = await signIn.text();
+  // The card is server-rendered without a notice (the query is read in the browser).
+  expect(html).toContain('Sign in · XR Learning Platform');
+  expect(html).toContain('xp-auth-card');
+  const signedOut = await request.get('/signed-out', { maxRedirects: 0 });
+  expect(signedOut.status()).toBe(307);
+  expect(signedOut.headers()['location']).toBe('/sign-in?reason=signed-out');
+  for (const path of ['/admin/requests', '/admin/requests/REQ-0038']) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect(response.status(), path).toBe(200);
+    expect(await response.text(), path).not.toMatch(/Konark|REQ-0038 ·|Arjun/);
+  }
+});
+
+test('outside the workspaces: 404 and the public not-found — no public page yet', async ({
   request,
 }) => {
   for (const path of [
     '/',
-    '/sign-in',
-    '/signed-out',
+    '/sign-in/x',
     '/experiments',
     '/areas',
     '/selection',

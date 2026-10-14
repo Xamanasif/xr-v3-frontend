@@ -20,7 +20,7 @@ export {
   type WorldInspection,
 } from './act-as';
 export { bootWorld, type BootDescriptor } from './boot-world';
-export { signInAs } from './sign-in';
+export { SAMPLE_PASSWORD, type SampleCredential, signInAs } from './sign-in';
 export {
   BOOT_DESCRIPTOR_GLOBAL,
   HarnessUnavailableError,

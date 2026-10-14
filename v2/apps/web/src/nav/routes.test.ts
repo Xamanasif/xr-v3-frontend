@@ -15,11 +15,11 @@ import nextConfig from '../../next.config';
 import { BUILT_SCREENS } from './built-screens';
 import { WORKSPACE_BASE } from './nav-config';
 import {
-  PHASE0_PAGES,
-  PHASE0_REDIRECTS,
-  PHASE0_ROUTE_FILES,
+  PAGES,
+  REDIRECTS,
   resolveAddress,
   roleOfWorkspace,
+  ROUTE_FILES,
   SCREENS_WITH_PAGES,
   workspaceOf,
 } from './routes';
@@ -38,24 +38,26 @@ function filesUnder(directory: string): string[] {
 const ROUTE_FILE =
   /(?:^|\/)(?:page|layout|template|not-found|error|loading|default|route|global-error|global-not-found|forbidden|unauthorized)\.(?:tsx?|jsx?)$/;
 
-describe('the route files are exactly Appendix F §3.3 (WP-0.13 acceptance 8)', () => {
+describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Package 1A)', () => {
   const routeFiles = filesUnder(APP).filter((file) => ROUTE_FILE.test(file));
 
   it('every page.tsx is in the manifest, and every manifest page exists', () => {
     const pages = routeFiles.filter((file) => /(?:^|\/)page\.tsx$/.test(file)).sort();
-    expect(pages).toEqual(PHASE0_PAGES.map((page) => page.file).sort());
-    expect(pages).toHaveLength(35);
+    expect(pages).toEqual(PAGES.map((page) => page.file).sort());
+    // 35 Phase-0 pages (7 workspaces × 5) + Package 1A's sign-in, Requests and Request decision.
+    expect(pages).toHaveLength(38);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
     const others = routeFiles.filter((file) => !/(?:^|\/)page\.tsx$/.test(file)).sort();
-    expect(others).toEqual([...PHASE0_ROUTE_FILES].sort());
+    expect(others).toEqual([...ROUTE_FILES].sort());
   });
 
   it('seven static workspace bases and no dynamic root segment (ADR-0005 §1; D-12)', () => {
     const roots = readdirSync(APP).filter((entry) => statSync(join(APP, entry)).isDirectory());
+    // Plus the `(auth)` route group (ADR-0005 §1), which adds no URL segment.
     expect(roots.filter((entry) => !entry.startsWith('_')).sort()).toEqual(
-      [...WORKSPACES, 'healthz'].sort(),
+      [...WORKSPACES, 'healthz', '(auth)'].sort(),
     );
     expect(roots.some((entry) => entry.startsWith('['))).toBe(false);
     // Private folders hold route-level modules only, never a route.
@@ -72,29 +74,39 @@ describe('the route files are exactly Appendix F §3.3 (WP-0.13 acceptance 8)', 
     expect(readdirSync(join(SRC, '..'))).not.toContain('proxy.ts');
   });
 
-  it('no Phase-1 page: no sign-in, signed-out notice, public shell or public page (G-8)', () => {
+  it('Package 1A only: the sign-in page and two Super Admin pages — no public shell or page', () => {
     const all = filesUnder(APP);
-    for (const forbidden of [/sign-in/, /signed-out/, /\(public\)/, /\(auth\)/, /experiments/]) {
+    for (const forbidden of [/\(public\)/, /experiments/, /signed-out/, /selection/, /catalogue/]) {
       expect(all.filter((file) => forbidden.test(file))).toEqual([]);
     }
+    expect(all.filter((file) => /sign-in/.test(file)).sort()).toEqual([
+      '(auth)/sign-in/page.tsx',
+      '_auth/sign-in-route.tsx',
+    ]);
+    expect(all.filter((file) => /^admin\/requests/.test(file)).sort()).toEqual([
+      'admin/requests/[requestId]/page.tsx',
+      'admin/requests/page.tsx',
+    ]);
   });
 });
 
 describe('static redirects (next.config.ts; Appendix A §3.7)', () => {
-  it('row 20 for the seven bases, not permanent; nothing else', async () => {
+  it('row 20 for the seven bases and row 21 (/signed-out), not permanent; nothing else', async () => {
     const redirects = await nextConfig.redirects!();
-    expect(redirects).toEqual(
-      PHASE0_REDIRECTS.map((redirect) => ({ ...redirect, permanent: false })),
-    );
-    expect(redirects).toHaveLength(7);
-    expect(redirects.map((redirect) => redirect.source)).not.toContain('/signed-out');
+    expect(redirects).toEqual(REDIRECTS.map((redirect) => ({ ...redirect, permanent: false })));
+    expect(redirects).toHaveLength(8);
+    expect(redirects.at(-1)).toEqual({
+      source: '/signed-out',
+      destination: '/sign-in?reason=signed-out',
+      permanent: false,
+    });
   });
 });
 
 describe('the built-screen manifest is generated from the route manifest', () => {
-  it('Phase 0 builds XS-07 as the one workspace destination', () => {
-    expect([...SCREENS_WITH_PAGES]).toEqual(['XS-07']);
-    expect([...BUILT_SCREENS]).toEqual(['XS-07']);
+  it('Help (XS-07) in every workspace, and the Super Admin’s Requests and decision (Package 1A)', () => {
+    expect([...SCREENS_WITH_PAGES]).toEqual(['XS-07', 'SA-02', 'SA-03']);
+    expect([...BUILT_SCREENS]).toEqual(['XS-07', 'SA-02', 'SA-03']);
   });
 });
 
@@ -108,10 +120,16 @@ describe('workspace bases and roles', () => {
   });
 });
 
-describe('resolveAddress — what an address shows in Phase 0', () => {
+describe('resolveAddress — what an address shows', () => {
   it.each([
     ['/', { kind: 'public-not-found' }],
-    ['/sign-in', { kind: 'public-not-found' }],
+    ['/sign-in', { kind: 'sign-in' }],
+    ['/signed-out', { kind: 'redirect', workspace: null, to: '/sign-in?reason=signed-out' }],
+    ['/sign-in/extra', { kind: 'public-not-found' }],
+    ['/admin/requests', { kind: 'record-screen', workspace: 'admin', screen: 'SA-02' }],
+    ['/admin/requests/REQ-0038', { kind: 'record-screen', workspace: 'admin', screen: 'SA-03' }],
+    ['/admin/requests/REQ-0038/x', { kind: 'workspace-not-found', workspace: 'admin' }],
+    ['/student/requests', { kind: 'workspace-not-found', workspace: 'student' }],
     ['/experiments', { kind: 'public-not-found' }],
     ['/student', { kind: 'interim-landing', workspace: 'student', lands: '/student/help' }],
     ['/admin/', { kind: 'interim-landing', workspace: 'admin', lands: '/admin/help' }],

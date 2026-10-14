@@ -48,27 +48,48 @@ function renderShell(role: Role, overrides: Partial<RoleWorkspaceShellProps> = {
 
 const ROLES = PLATFORM_ROLES.map((role) => [ROLE_LABEL[role], role] as const);
 
-describe('Phase 0: every workspace shows only Help (the one built destination)', () => {
-  it.each(ROLES)('%s on Help & support', (label, role) => {
-    const { aside, container } = renderShell(role);
-    // No empty "<Role> navigation" landmark while nothing is built; Help in the foot, current.
-    expect(within(aside).queryByRole('navigation')).toBeNull();
-    const links = within(aside).getAllByRole('link');
-    expect(links.map((link) => link.textContent)).toEqual(['HelpHelp']);
-    expect(links[0]).toHaveAttribute('href', WORKSPACE_NAV[role].help.href);
-    expect(links[0]).toHaveAttribute('aria-current', 'page');
-    expect(links[0]!.closest('.xr-side-foot')).not.toBeNull();
-    // The workspace label and the line board 06 draws (none for the platform roles).
-    expect(aside.querySelector('.xr-ws-label')).toHaveTextContent(label);
-    const row = BOARD_ACCOUNT_ROWS.get(label)!;
-    if (row.line) expect(aside.querySelector('.xr-ws-inst')).toHaveTextContent(row.line);
-    else expect(aside.querySelector('.xr-ws-inst')).toBeNull();
-    // No link anywhere in the shell leads to an unbuilt screen.
+describe('built so far: Help in every workspace, Requests for the Super Admin (Package 1A)', () => {
+  it('Super Admin on Help & support: Requests, then Help (current)', () => {
+    const { aside, container } = renderShell('super_admin');
+    const nav = within(aside).getByRole('navigation', { name: 'Super Admin navigation' });
+    const links = within(nav).getAllByRole('link');
+    expect(links.map((link) => link.querySelector('.xr-nav-text')!.textContent)).toEqual([
+      'Requests',
+    ]);
+    expect(links[0]).toHaveAttribute('href', '/admin/requests');
+    expect(links[0]).not.toHaveAttribute('aria-current');
+    const help = within(aside).getAllByRole('link').at(-1)!;
+    expect(help).toHaveAttribute('aria-current', 'page');
+    expect(help.closest('.xr-side-foot')).not.toBeNull();
     const hrefs = [...container.querySelectorAll('a[href]')].map((link) =>
       link.getAttribute('href'),
     );
-    expect(new Set(hrefs)).toEqual(new Set(['#main', WORKSPACE_NAV[role].help.href]));
+    expect(new Set(hrefs)).toEqual(new Set(['#main', '/admin/requests', '/admin/help']));
   });
+
+  it.each(ROLES.filter(([, role]) => role !== 'super_admin'))(
+    '%s on Help & support',
+    (label, role) => {
+      const { aside, container } = renderShell(role);
+      // No empty "<Role> navigation" landmark while nothing is built; Help in the foot, current.
+      expect(within(aside).queryByRole('navigation')).toBeNull();
+      const links = within(aside).getAllByRole('link');
+      expect(links.map((link) => link.textContent)).toEqual(['HelpHelp']);
+      expect(links[0]).toHaveAttribute('href', WORKSPACE_NAV[role].help.href);
+      expect(links[0]).toHaveAttribute('aria-current', 'page');
+      expect(links[0]!.closest('.xr-side-foot')).not.toBeNull();
+      // The workspace label and the line board 06 draws (none for the platform roles).
+      expect(aside.querySelector('.xr-ws-label')).toHaveTextContent(label);
+      const row = BOARD_ACCOUNT_ROWS.get(label)!;
+      if (row.line) expect(aside.querySelector('.xr-ws-inst')).toHaveTextContent(row.line);
+      else expect(aside.querySelector('.xr-ws-inst')).toBeNull();
+      // No link anywhere in the shell leads to an unbuilt screen.
+      const hrefs = [...container.querySelectorAll('a[href]')].map((link) =>
+        link.getAttribute('href'),
+      );
+      expect(new Set(hrefs)).toEqual(new Set(['#main', WORKSPACE_NAV[role].help.href]));
+    },
+  );
 });
 
 describe('with every destination built (later phases): board 06 order, icons, Help last', () => {

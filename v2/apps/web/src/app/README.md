@@ -26,10 +26,18 @@ Next.js navigation (address, query, router, `notFound`) and hands it to the feat
 `@/nav/navigation`. `src/nav/routes.ts` is the manifest; `routes.test.ts` fails if a page or route
 file outside it exists, and the built-screen manifest (`BUILT_SCREENS`) is generated from it.
 
-Nothing of Phase 1 exists: no `/sign-in` (XS-01, XS-03, XS-04), no PublicShell, no public page
-(PU-01…PU-14) and no role home or feature page (G-8; B8-06). A Phase-0 build is an engineering
-build reached through the CI-only boot descriptor — not a build an unauthenticated stakeholder
-can walk.
+**Phase-1 Package 1A** adds, by the same rules:
+
+| Path                          | File(s)                                        | Shows                                                              |
+| ----------------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
+| `/sign-in`                    | `(auth)/layout.tsx`, `(auth)/sign-in/page.tsx` | XS-01 (+ XS-03 via `?reason=signed-out\|expired&returnTo=`, XS-04) |
+| `/signed-out`                 | `next.config.ts` `redirects()`                 | → `/sign-in?reason=signed-out` (Appendix A §3.7 row 21), 307       |
+| `/admin/requests`             | `admin/requests/page.tsx`                      | SA-02 Requests (B1-10)                                             |
+| `/admin/requests/[requestId]` | `admin/requests/[requestId]/page.tsx`          | SA-03 Request decision (B1-11)                                     |
+
+`_auth/sign-in-route.tsx` reads Next.js navigation for the sign-in page as `_workspace/` does for
+the workspaces. Still not built: PublicShell, every public page (PU-01…PU-14) and the role homes
+(Packages 1B–1D and later phases); `/` shows the public not-found page.
 
 ## Guards
 
@@ -37,13 +45,12 @@ can walk.
   the gate is a client component reading the session store with `useSyncExternalStore` (server
   snapshot `unknown`). Unknown: the loading state ("Loading …", board 04/12). Signed out:
   `router.replace('/sign-in?returnTo=<the address asked for>')`; after "Sign out",
-  `/sign-in?reason=signed-out` (XS-03 "Signed out", Phase 1). Until XS-01 exists that address shows
-  the public not-found page (K-21) — and, as it answers 404, Next.js loads it as a new document,
-  so the tab's world restarts. This and the public PU-15's dead link to `/experiments` are the
-  only Phase-0 actions that load a new document.
+  `/sign-in?reason=signed-out` (XS-03 "Signed out"). Both are the XS-01 card since Package 1A — a
+  client-side move, so the tab's world is kept. The public PU-15's dead link to `/experiments` is
+  the one action left that loads a new document.
 - **`returnTo`** (`nav/return-to.ts`): honoured only as a same-origin relative path inside the
-  signed-in role's own base, else the role home (AD-21; acceptance 6). Unit-tested now; used by
-  XS-01 in Phase 1.
+  signed-in role's own base, else the role home (AD-21; acceptance 6). XS-01 applies it after
+  every sign-in (Package 1A).
 - **WorkspaceFrame** (`features/shared/workspace-frame`). The shell is chosen by the session role
   (`SessionService.getSession`); whether the workspace is the person's own is the port's answer
   (`SessionService.checkWorkspace`). On another role's workspace the person's own shell renders
@@ -96,6 +103,7 @@ per-screen state-copy register `src/copy/state-copy.ts` (VD-12), each `drawn` (w
   Phase 1); see `src/nav/link-targets.ts`.
 - **"Where did it happen?"** is pre-filled with the words of the last page the person saw outside
   Help & support, in this tab (`nav/page-location.ts`, PROVISIONAL); with none, it starts empty.
-- **Sign-out leaves for `/sign-in`**, unbuilt until XS-01; the document load restarts the world.
+- **Sign-in and sign-out stay in the document** (Package 1A): the world is kept; a reload still
+  restarts it (ADR-0004 option A).
 - The report title is a display-only excerpt of "What happened" (P0-31, PROVISIONAL;
   `copy/help.ts`).

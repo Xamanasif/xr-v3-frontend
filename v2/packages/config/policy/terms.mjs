@@ -182,6 +182,9 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
   'xr-x-msg--shell',
   'xr-x-msg--public',
   'xr-x-msg-icon--ok',
+  // PF-21 (Phase 1 Package 1A): B1-11's confirmation lists its effects (`ul.doc-list`, a canvas
+  // class) — the product name for the same declarations.
+  'xr-x-dialog-effects',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

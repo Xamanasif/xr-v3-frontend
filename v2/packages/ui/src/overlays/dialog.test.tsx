@@ -201,6 +201,60 @@ describe('Dialog markup contract (board 10)', () => {
     expect(dialog.children).toHaveLength(3);
   });
 
+  it('DL-1 with a list of effects (B1-11 f2 / f3; PF-21): one item per event, as the description', () => {
+    const { container } = render(
+      <ConfirmDialog
+        open
+        idPrefix="cf"
+        title="Approve REQ-0042?"
+        effects={[
+          <>
+            Approves the request. Its status becomes <strong>Approved — payment required</strong>.
+          </>,
+          'Students get access only when the institution’s administrator gives it.',
+        ]}
+        confirmLabel="Approve request"
+        onConfirm={noop}
+        onCancel={noop}
+      />,
+    );
+    const dialog = dialogIn(container);
+    expect(dialog).toHaveAttribute('aria-describedby', 'cf-b');
+    const body = dialog.querySelector('.xr-dialog-body')!;
+    expect(body).toHaveAttribute('id', 'cf-b');
+    expect(body.querySelector('p')).toBeNull();
+    const list = body.querySelector('ul')!;
+    expect(list).toHaveClass('xr-x-dialog-effects');
+    expect([...list.children].map((item) => item.tagName)).toEqual(['LI', 'LI']);
+    expect(list.querySelector('strong')).toHaveTextContent('Approved — payment required');
+    expectBoardDraws(
+      { board: 'B1-11', frame: 'Confirm · external' },
+      '<li>Approves the request. Its status becomes <strong>Approved — payment required</strong>.</li>',
+      '<li>Students get access only when the institution’s administrator gives it.</li>',
+    );
+  });
+
+  it('DL-1 takes exactly one of effect and effects', () => {
+    const silence = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    expect(() =>
+      render(<ConfirmDialog open title="t" confirmLabel="c" onConfirm={noop} onCancel={noop} />),
+    ).toThrow('exactly one of `effect` and `effects`');
+    expect(() =>
+      render(
+        <ConfirmDialog
+          open
+          title="t"
+          effect="e"
+          effects={['e']}
+          confirmLabel="c"
+          onConfirm={noop}
+          onCancel={noop}
+        />,
+      ),
+    ).toThrow('exactly one of `effect` and `effects`');
+    silence.mockRestore();
+  });
+
   it('DL-1 footer: Cancel first (xr-btn--secondary, VD-06), the confirming action last', () => {
     const { container } = render(<Publish />);
     const foot = dialogIn(container).querySelector('.xr-dialog-foot')!;
