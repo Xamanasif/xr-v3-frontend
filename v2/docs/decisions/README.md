@@ -73,6 +73,30 @@ link, and the capture network serves the same files to board and product).
 | Expected-deviation register (owner-approved / provisional / owner review) | `../../tools/board-capture/DEVIATIONS.md`                                                |
 | Product corrections made under "fix confirmed regressions"                | `packages/ui/src/styles/product.css` PF-17 … PF-20                                       |
 
+## Owner visual-decision closure of 14 October 2026 — WP-0.15
+
+The owner reviewed all 20 entries of `../../tools/board-capture/DEVIATIONS.md` and decided them for
+the **frozen-v46 frontend prototype**. These decisions do not approve unrelated business policies
+or future screen designs, and they do not claim that the designed screens are implemented. No
+component or style changed: every decision keeps the product as built. The comparisons, pins,
+tolerances and the zero-mask policy are unchanged; only the entries' statuses moved.
+
+| Decision                                                        | Entries                                    | Status                                          |
+| --------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------- |
+| Grey busy button (spinner, busy words, no duplicate submission) | DEV-01                                     | Approved (was blocking)                         |
+| VD-06: dialog Cancel `xr-btn--secondary`                        | DEV-08                                     | Approved (was blocking)                         |
+| VD-22: `xw-errsum` ErrorSummary with field links                | DEV-12                                     | Approved (was blocking)                         |
+| VD-11: gold focus ring on navy                                  | DEV-06                                     | Approved                                        |
+| P0-35: built-screen-only navigation                             | DEV-10                                     | Approved as the Phase-0 interim                 |
+| Product-board patterns and wording                              | DEV-02, 04, 07, 09, 13, 14, 15, 17, 18, 20 | Approved                                        |
+| Earlier approvals kept                                          | DEV-03, DEV-11, DEV-19                     | Unchanged                                       |
+| Rendering residuals, cause not proven                           | DEV-05                                     | Acknowledged as measured; recheck on the runner |
+| Amber paused-message icon                                       | DEV-16                                     | Deferred to the phase that builds ST-19         |
+
+Still tracked (listed in `DEVIATIONS.md` and printed by `pnpm verify`): runner portability (VD-18),
+DEV-05, DEV-16, later phases' destinations (P0-35), the Institute Admin request-count semantics
+(DEV-17; not decided), and the provisional VD-04, VD-08, VD-16 and the open P0-31 title source.
+
 ## Approved interim choices
 
 These are interim treatments the build follows. Where the underlying product question is open, it **stays open**.

@@ -361,10 +361,11 @@ dialog.xr-dialog.xr-x-dialog--end {
 }
 
 /* ===========================================================================================
- * PF-07 · Gold focus ring on navy surfaces the sheets miss (Appendix E §2.3, §7.2; VD-11
- * provisional). Board 02 "Links and focus", "Focus on navy": "Ring #F7C95B · 10 : 1 against
- * navy". xr-foundation.css `.xr-side{…;background:#141B5E;…}` has no focus override, so the ring
- * comes from `:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px
+ * PF-07 · Gold focus ring on navy surfaces the sheets miss (Appendix E §2.3, §7.2; VD-11,
+ * owner-approved 14 Oct 2026). Board 02 "Links and focus", "Focus on navy": "Ring #F7C95B ·
+ * 10 : 1 against navy". xr-foundation.css `.xr-side{…;background:#141B5E;…}` has no focus
+ * override, so the ring comes from
+ * `:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px
  * solid var(--xr-focus);…}`: #1F4FD8 on #141B5E = 2.35:1, below 3:1. The sheets switch to gold
  * only under .xr-dark, .xr-top, .xp-head, .xp-dark and .xp-foot. With this rule: 9.98:1. One rule
  * covers the full sidebar, the rail and the drawer (the same `aside.xr-side`); only outline-color

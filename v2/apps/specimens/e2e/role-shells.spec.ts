@@ -107,11 +107,17 @@ const ACCOUNT = (() => {
   );
 })();
 
-/** Lets running transitions finish (the v46 reduced-motion backstop makes them 0.01 ms). */
+/**
+ * Lets running transitions finish (the v46 reduced-motion backstop makes them 0.01 ms). A
+ * transition cancelled by the next style change rejects `finished` with an AbortError; it is
+ * settled too.
+ */
 async function settle(page: Page): Promise<void> {
   await page.evaluate(async () => {
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    await Promise.all(document.getAnimations().map((animation) => animation.finished));
+    await Promise.all(
+      document.getAnimations().map((animation) => animation.finished.catch(() => undefined)),
+    );
   });
 }
 

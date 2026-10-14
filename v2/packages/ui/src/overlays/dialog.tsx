@@ -375,8 +375,8 @@ function DialogFrame({
       </div>
       {body}
       <div className="xr-dialog-foot">
-        {/* VD-06 (UNRESOLVED): board 10 draws Cancel as xr-btn--text; every product board draws
-            xr-btn--secondary, the recorded provisional default. */}
+        {/* VD-06, decided by the owner on 14 Oct 2026 (WP-0.15 closure, DEV-08): Cancel is
+            xr-btn--secondary, as every product board draws it; board 10 draws xr-btn--text. */}
         <Button ref={cancelRef} variant="secondary" onClick={() => onCancel()}>
           {cancelLabel}
         </Button>

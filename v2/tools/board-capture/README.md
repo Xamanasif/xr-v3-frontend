@@ -68,7 +68,7 @@ at the component tolerance. Nothing was loosened.
 Every comparison ends as one of: **within tolerance**; **registered deviation** — outside tolerance
 (or different icons) and naming an entry of `src/deviations.mjs` (`DEVIATIONS.md`) _and_ measuring
 what `src/pinned.json` pinned for it (the same entries, both capture sizes, icon equality and the
-product element's content fingerprint exactly, different pixels within max(20 px, 10 %)); or
+product element's two fingerprints exactly, different pixels within max(20 px, 10 %)); or
 **failed** — anything else, including a registered comparison with no pin, a changed measurement,
 and a registered comparison that now passes (a stale entry). The fingerprint (`fingerprintOf`)
 hashes the product element's DOM as drawn — every rendered element's box relative to the element,
@@ -76,10 +76,25 @@ the computed styles that paint it, its words, each text node's line boxes, icon 
 registered difference cannot absorb another change even where the captures differ in size and no
 pixel count exists (proved with a changed word and a changed colour on the size-mismatched public
 PU-15 sentence: both fail). It is deterministic where anti-aliasing is not: 441 of 441 identical
-across two runs, while 3 unregistered sidebar captures varied by 1–16 pixels. A register entry is never a mask and never an approval: its `status` says
-whether an owner decision covers it (`owner-approved`, `approved-rule`) or not (`provisional`,
-`owner-review`). Pins are written from a reviewed run with `node src/pin.mjs <run>/specimens
-<run>/web`.
+across two runs, while 3 unregistered sidebar captures varied by 1–16 pixels. The closure review
+(14 Oct 2026) found what that walk misses — form-control values, placeholders and padding (a
+control's text lives in the browser's shadow tree), pseudo-elements, some drawn properties, image
+sources, SVG shape geometry, the background behind the element — so a supplement,
+`contentFingerprintOf`, hashes those and is pinned beside it (`productContent`); the first
+fingerprint and every earlier pin field are unchanged (64 of 64). Both are taken again after the
+capture and must agree. Proved on the size-mismatched 375 px report form (DEV-14): a changed field
+value, 1 px of input padding and a new placeholder each fail, and so does a recoloured timeline
+`::before` in the 07 State 3a whole frame; the unchanged form passes. A registered comparison may
+not be masked. A register entry is never a mask and never an approval: its `status` says
+whether an owner decision covers it (`owner-approved`, `approved-rule`), closes it with a
+qualification (`owner-acknowledged`: accepted only as measured, cause not proven;
+`owner-deferred`: moved to a named later phase), or not yet (`provisional`, `owner-review`); a
+decision changes no measurement. `pnpm verify` reports parity acceptance as closed only when every
+observed entry is closed by the owner, and always lists the tracked items (an entry's `tracked`
+text and `TRACKED` in `src/deviations.mjs`: runner portability, unproven causes, later-phase
+requirements, undecided provisional choices). The owner's visual-decision closure of 14 Oct 2026
+decided every WP-0.15 entry (`../../docs/decisions/README.md`). Pins are written from a reviewed
+run with `node src/pin.mjs <run>/specimens <run>/web`.
 
 ## Capture normalisations (harness side only)
 

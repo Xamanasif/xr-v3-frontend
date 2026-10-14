@@ -1,12 +1,12 @@
 /**
- * ErrorSummary — markup contract, behaviour and accessibility (Appendix E §3.2 ErrorSummary,
- * §5.1; Appendix F §6.6). Sources: B4-04 "Step 2 · validation" (`xw-errsum`, linked items,
- * "Check this step", focus on every failed submit), B3-06 "Missing ratings" (the title given per
- * screen), board 12 "Patterns" ("Summary links move focus to the field"), B2-05 "Validation ·
- * step 1" (the plain-text variance normalised to links, VD-21) and board 03 "Form controls" (the
- * Batch-0 `xr-notice--err` drawing that VD-22 keeps open). Every excerpt uses the cited frame's
- * own binding and ids (`Cc2e-…` on B4-04, `Bfe-…` on B3-06, `g1e` on B2-05). The B5 missing-items
- * summary is Phase 5.
+ * ErrorSummary — markup contract, behaviour and accessibility (Appendix E §3.2 ErrorSummary, §5.1;
+ * Appendix F §6.6). Sources: B4-04 "Step 2 · validation" (`xw-errsum`, linked items, "Check this
+ * step", focus on every failed submit), B3-06 "Missing ratings" (the title given per screen),
+ * board 12 "Patterns" ("Summary links move focus to the field"), B2-05 "Validation · step 1" (the
+ * plain-text variance normalised to links, VD-21) and board 03 "Form controls" (the Batch-0
+ * `xr-notice--err` drawing that the VD-22 decision of 14 Oct 2026 set aside). Every excerpt uses
+ * the cited frame's own binding and ids (`Cc2e-…` on B4-04, `Bfe-…` on B3-06, `g1e` on B2-05). The
+ * B5 missing-items summary is Phase 5.
  */
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRef } from 'react';
@@ -126,7 +126,7 @@ describe('ErrorSummary markup contract', () => {
     );
   });
 
-  it('emits xw-errsum, not the Batch-0 xr-notice--err drawing (VD-22, open)', () => {
+  it('emits xw-errsum, not the Batch-0 xr-notice--err drawing (VD-22, decided)', () => {
     expectBoardDraws(
       FORM_CONTROLS,
       '<div class="xr-notice xr-notice--err" role="alert"',

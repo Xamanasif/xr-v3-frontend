@@ -59,8 +59,8 @@ describe('Report a problem — Sending (board 07 "State 1b")', () => {
     await user.click(screen.getByRole('button', { name: 'Send report' }));
     const busy = await screen.findByRole('button', { name: 'Sending…' });
     // The WP-0.6 Button's busy state (590 product-board instances: `is-busy`, `aria-disabled`);
-    // board 07 draws `aria-busy` on this one button — a component-level variance left as WP-0.6
-    // decided it.
+    // board 07 draws `aria-busy` on this one button. The owner kept the product-board look and
+    // the duplicate-submission guard (DEV-01, 14 Oct 2026).
     expect(busy).toHaveAttribute('aria-disabled', 'true');
     expect(busy).toHaveClass('is-busy');
     await user.click(busy);

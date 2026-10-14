@@ -1,6 +1,7 @@
 // Writes `src/pinned.json`: the measurement of every registered comparison of a reviewed run —
 // the register entries it names, both capture sizes, whether the icons are the same, the product
-// element's content fingerprint (parity.mjs `fingerprintOf`) and the different-pixel count.
+// element's two fingerprints (parity.mjs `fingerprintOf` and its supplement
+// `contentFingerprintOf`) and the different-pixel count.
 // `compareAll` accepts a registered difference only when it still measures the same (sizes, icons
 // and fingerprint exactly, pixels within max(20 px, 10 %)), so a register entry cannot absorb a
 // later change — also where the captures differ in size and no pixel count exists. Run it only after reviewing the run's diff images:
@@ -27,12 +28,17 @@ for (const run of runs) {
     // A registered comparison inside tolerance with the same icons is a stale entry: never pinned.
     if (within && record.icons?.same) continue;
     if (pinned[record.name]) throw new Error(`${record.name} appears twice`);
+    // Only a size difference may leave the pixel count empty; a comparator error is never pinned.
+    if (record.measured?.differentPixels == null && !record.measured?.sizeMismatch) {
+      throw new Error(`${record.name}: not measured (${record.measured?.error ?? 'no count'})`);
+    }
     pinned[record.name] = {
       deviations: ids,
       reference: `${record.referenceSize.width}×${record.referenceSize.height}`,
       product: `${record.productSize.width}×${record.productSize.height}`,
       iconsSame: Boolean(record.icons?.same),
       productFingerprint: record.productFingerprint.sha256,
+      productContent: record.productContent.sha256,
       pixels: record.measured?.differentPixels ?? null,
       run: `${basename(dirname(run))}/${basename(run)}`,
     };

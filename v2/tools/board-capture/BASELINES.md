@@ -6,7 +6,7 @@ states of board 05), the ErrorSummary from a linked product instance (B4-04, VD-
 (XS-07 Help & support) and board 08 (XS-06, PU-15 and the foundation message states). Sign-in
 (B1-09, XS-01/03/04) stays in Phase 1 (owner decision G-8). No Phase-1+ screen is baselined.
 
-Recorded run `2026-10-14T07-52-00-370Z-verify` (the `pnpm verify` run of the WP-0.15 commit):
+Recorded run `2026-10-14T08-46-43-822Z-verify` (the `pnpm verify` run of the WP-0.15 decision-closure commit):
 Chromium 153.0.8010.12 (Playwright 1.63.0, the only browser in the local cache), macOS (Darwin
 25.5.0), 1× pixels, reduced motion, en-GB, Asia/Kolkata, browser clock frozen by Playwright for the
 screen captures. Same machine and same run for board and product (VD-18 local interim) — these
@@ -41,7 +41,11 @@ built Phase-0 screens of the test-hook build on the `after-flow-d` sample world.
 is an acceptance comparison: element comparisons (including every part of a screen) at the component
 tolerance, the six whole frames at the screen tolerance. "Register" = outside tolerance (or drawing
 other icons) and measured exactly as `src/pinned.json` pinned it for an entry of `DEVIATIONS.md` —
-a registered difference is reported, not approved (see each entry's status).
+the harness reports a registered difference, it never approves one. The owner's decisions are
+the entries' statuses: since the visual-decision closure of 14 Oct 2026 every entry is approved,
+except DEV-05 (acknowledged as measured, cause not proven) and DEV-16 (deferred to the ST-19
+phase); both stay tracked with runner portability (VD-18). This baseline is the Phase-0 visual
+foundation, not a claim that the designed screens are implemented.
 
 | Board      | Product                                                                                                                                                                                                                                                                                                                                   | Comparisons | Within tolerance | Register | Entries                    |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------- | -------- | -------------------------- |
@@ -69,8 +73,8 @@ lock, DEV-02, 1; the success notice tick, DEV-18, 2). Six whole frames are gated
 and 2a are inside its ratio but draw fewer icons (the Phase-0 sidebar, DEV-10, with DEV-11 for
 1c) and are registered; 07 State 1a and 3a are 4 and 10 px taller (DEV-12; DEV-11 + DEV-13), so
 no pixel comparison of the whole frame is possible — they are registered on their size and their
-content fingerprint is pinned, while every part of them is compared on its own. Every registered
-comparison is pinned by size, icons, content fingerprint and pixel count. Tests: 41/41 passed (31
+content fingerprints are pinned, while every part of them is compared on its own. Every registered
+comparison is pinned by size, icons, two content fingerprints and pixel count. Tests: 41/41 passed (31
 specimen-suite, 10 screen-suite). Board 08 paints the public PU-15 frame #F4F5FB, the product's
 public shell is white (`.xp`): the 0.1 threshold does not separate the two, so DEV-20 records it
 for the owner.

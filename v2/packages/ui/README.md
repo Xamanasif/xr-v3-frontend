@@ -247,6 +247,8 @@ scoped and board-evidenced (comments in `src/styles/product.css`); no component 
   itself stays inline, so it still wraps in running text.
 - **PF-20** — the logo placeholder fills the drawer head beside "Close menu" (844 of 844 heads).
 
-Differences that are design decisions, not regressions, are left as they are and listed in
-`tools/board-capture/DEVIATIONS.md` for the owner — among them the busy look (DEV-01), the dialog
-Cancel style (VD-06, DEV-08) and the ErrorSummary class (VD-22, DEV-12).
+Differences that are design decisions, not regressions, are listed in
+`tools/board-capture/DEVIATIONS.md`. The owner's visual-decision closure (14 Oct 2026) kept the
+product as built — among them the grey busy look (DEV-01), the secondary dialog Cancel (VD-06,
+DEV-08), the `xw-errsum` ErrorSummary (VD-22, DEV-12) and the gold ring on navy (VD-11, DEV-06);
+no component changed. DEV-16 (a `warn` MessagePage tone) is deferred to the ST-19 phase.

@@ -205,7 +205,8 @@ describe('Dialog markup contract (board 10)', () => {
     const { container } = render(<Publish />);
     const foot = dialogIn(container).querySelector('.xr-dialog-foot')!;
     const [cancel, confirm] = [...foot.children];
-    // VD-06 (UNRESOLVED): board 10 draws Cancel as --text; every product board as --secondary.
+    // VD-06, decided 14 Oct 2026 (DEV-08): --secondary, as every product board draws it;
+    // board 10 draws --text.
     expectBoardDraws(
       TRY_IT,
       '<button type="button" class="xr-btn xr-btn--text" onClick="{{ cancel }}">Cancel</button>',

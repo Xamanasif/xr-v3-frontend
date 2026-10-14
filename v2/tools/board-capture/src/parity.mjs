@@ -344,6 +344,152 @@ async function fingerprintOf(locator) {
 }
 
 /**
+ * The supplement to `fingerprintOf` (added after the WP-0.15 closure review; `fingerprintOf` itself
+ * is unchanged, so the pins made with it stay valid). It hashes what that walk does not see:
+ * - form controls: value, placeholder, checked / indeterminate / disabled state, selected options
+ *   (a control's text lives in the browser's own shadow tree), and the `::placeholder` and
+ *   `::file-selector-button` styles;
+ * - `::before` / `::after` (when they have content) and list `::marker`s: content and styles;
+ * - more drawn properties of every element (padding, text indent and shadow, decoration colour and
+ *   style, filter, stacking, stroke dashes, white space, overflow, clipping, list style);
+ * - images (`currentSrc`), SVG shape geometry beyond path data, and the words of
+ *   `display: contents` elements, whose own boxes the main walk skips;
+ * - what lies behind the element: the nearest painted ancestor background and the ancestors'
+ *   combined opacity and filters.
+ * Every element of the subtree is visited, rendered or not (hidden words change it too).
+ */
+async function contentFingerprintOf(locator) {
+  const parts = await locator.evaluate((root) => {
+    const EXTRA = [
+      'paddingTop',
+      'paddingRight',
+      'paddingBottom',
+      'paddingLeft',
+      'textIndent',
+      'textShadow',
+      'textDecorationColor',
+      'textDecorationStyle',
+      'filter',
+      'position',
+      'zIndex',
+      'strokeDasharray',
+      'strokeLinecap',
+      'strokeLinejoin',
+      'fillOpacity',
+      'strokeOpacity',
+      'whiteSpace',
+      'textOverflow',
+      'overflowX',
+      'overflowY',
+      'clipPath',
+      'mixBlendMode',
+      'listStyleType',
+      'backgroundPosition',
+      'backgroundSize',
+      'backgroundRepeat',
+      'visibility',
+    ];
+    const PSEUDO = [
+      'content',
+      'display',
+      'position',
+      'top',
+      'right',
+      'bottom',
+      'left',
+      'width',
+      'height',
+      'color',
+      'backgroundColor',
+      'backgroundImage',
+      'borderTopColor',
+      'borderTopWidth',
+      'borderTopStyle',
+      'borderRightColor',
+      'borderRightWidth',
+      'borderBottomColor',
+      'borderBottomWidth',
+      'borderLeftColor',
+      'borderLeftWidth',
+      'borderTopLeftRadius',
+      'borderBottomRightRadius',
+      'boxShadow',
+      'opacity',
+      'transform',
+      'fontSize',
+      'fontWeight',
+      'lineHeight',
+      'textDecorationLine',
+      'paddingTop',
+      'paddingLeft',
+    ];
+    const GEOMETRY = ['points', 'x', 'y', 'width', 'height', 'cx', 'cy', 'r', 'rx', 'ry'];
+    const SHAPE = [...GEOMETRY, 'x1', 'y1', 'x2', 'y2', 'transform', 'viewBox'];
+    const pseudoOf = (element, pseudo) => {
+      const style = getComputedStyle(element, pseudo);
+      return [pseudo, PSEUDO.map((property) => style[property]).join('|')];
+    };
+    const out = [];
+    [root, ...root.querySelectorAll('*')].forEach((element, index) => {
+      const style = getComputedStyle(element);
+      const entry = [index, element.tagName.toLowerCase(), EXTRA.map((p) => style[p]).join('|')];
+      for (const pseudo of ['::before', '::after']) {
+        if (getComputedStyle(element, pseudo).content !== 'none') {
+          entry.push(pseudoOf(element, pseudo));
+        }
+      }
+      if (style.display === 'list-item') entry.push(pseudoOf(element, '::marker'));
+      if (element.matches('input, textarea, select')) {
+        const control = /** @type {any} */ (element);
+        entry.push([
+          'control',
+          control.value,
+          control.placeholder ?? '',
+          control.checked ?? null,
+          control.indeterminate ?? null,
+          control.disabled,
+          element.tagName === 'SELECT' ? [...control.selectedOptions].map((o) => o.text) : null,
+        ]);
+        if (control.placeholder) entry.push(pseudoOf(element, '::placeholder'));
+        if (control.type === 'file') entry.push(pseudoOf(element, '::file-selector-button'));
+      }
+      if (element.tagName === 'IMG') {
+        const image = /** @type {HTMLImageElement} */ (element);
+        entry.push(['img', image.currentSrc, image.naturalWidth, image.naturalHeight]);
+      }
+      if (element instanceof SVGElement && element.tagName !== 'path') {
+        entry.push(['shape', SHAPE.map((attribute) => element.getAttribute(attribute))]);
+      }
+      if (style.display === 'contents') {
+        for (const node of element.childNodes) {
+          if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
+            entry.push(['contents-text', node.nodeValue]);
+          }
+        }
+      }
+      out.push(entry);
+    });
+    let opacity = 1;
+    let background = null;
+    const filters = [];
+    for (let node = root.parentElement; node; node = node.parentElement) {
+      const style = getComputedStyle(node);
+      opacity *= Number(style.opacity);
+      if (style.filter !== 'none') filters.push(style.filter);
+      if (
+        background === null &&
+        (style.backgroundColor !== 'rgba(0, 0, 0, 0)' || style.backgroundImage !== 'none')
+      ) {
+        background = `${style.backgroundColor} ${style.backgroundImage}`;
+      }
+    }
+    out.push(['behind', background, opacity, filters]);
+    return out;
+  });
+  return { entries: parts.length, sha256: sha256(JSON.stringify(parts)) };
+}
+
+/**
  * The harness box around the product element takes a width from the board (the board's column or
  * card width is canvas layout; the box is harness furniture). `matchWidth`: the drawn element's
  * width (block components fill their container); `widthFrom`: another drawn element's width (a
@@ -497,6 +643,7 @@ export async function compareWithBoard({
   const icons = { reference: await iconsOf(reference), product: await iconsOf(product) };
   icons.same = JSON.stringify(icons.reference) === JSON.stringify(icons.product);
   const productFingerprint = await fingerprintOf(product);
+  const productContent = await contentFingerprintOf(product);
   const referenceShot = await stableShot(reference, { margin, insetX, mask: masks.reference });
   const referencePath = testInfo.snapshotPath(`${name}.png`);
   const productPath = join(runDirectory(), 'product', `${name}.png`);
@@ -508,6 +655,13 @@ export async function compareWithBoard({
   const productShot = await stableShot(product, { margin, insetX, mask: masks.product });
   mkdirSync(dirname(productPath), { recursive: true });
   writeFileSync(productPath, productShot);
+  // The fingerprints describe what was captured: taken again after the capture, they must agree.
+  if (
+    (await fingerprintOf(product)).sha256 !== productFingerprint.sha256 ||
+    (await contentFingerprintOf(product)).sha256 !== productContent.sha256
+  ) {
+    throw new Error(`${name}: the product element changed while it was captured`);
+  }
   // Measurement pass (exact pixel count at the same threshold, nothing allowed): its result is
   // recorded, never used to accept. The acceptance assertion follows with the approved tolerance.
   let measured = { differentPixels: 0, ratio: 0 };
@@ -531,6 +685,7 @@ export async function compareWithBoard({
     measured,
     icons,
     productFingerprint,
+    productContent,
     alignment,
     fonts,
     margin,
@@ -578,11 +733,26 @@ function pinProblem(name, ids, record) {
   }
   if (pin.iconsSame !== record.icons.same)
     problems.push(`icons same ${record.icons.same} ≠ pinned`);
-  if (pin.productFingerprint !== record.productFingerprint?.sha256) {
+  if (
+    typeof pin.productFingerprint !== 'string' ||
+    pin.productFingerprint !== record.productFingerprint?.sha256
+  ) {
     problems.push('the product element changed (content, layout or styles ≠ pinned fingerprint)');
+  }
+  if (
+    typeof pin.productContent !== 'string' ||
+    pin.productContent !== record.productContent?.sha256
+  ) {
+    problems.push(
+      'the product element changed (control values, pseudo-elements or drawn styles ≠ pinned content fingerprint)',
+    );
   }
   const pixels = record.measured.differentPixels;
   if ((pin.pixels === null) !== (pixels === null)) problems.push('measurement kind changed');
+  // A pin without a pixel count is only for captures whose sizes differ.
+  if (pin.pixels === null && !record.measured.sizeMismatch) {
+    problems.push('no pixel count although the sizes are equal');
+  }
   if (typeof pin.pixels === 'number' && typeof pixels === 'number') {
     if (Math.abs(pixels - pin.pixels) > Math.max(20, pin.pixels * 0.1)) {
       problems.push(`${pixels} px differ ≠ pinned ${pin.pixels} (± max(20, 10 %))`);
@@ -601,10 +771,11 @@ function pinProblem(name, ids, record) {
  * `deviation` names one entry (or an array) of the expected-deviation register (`deviations.mjs`).
  * Such a comparison is still made and measured; a difference (pixels outside tolerance, or
  * different icons) is reported as that registered deviation — provided its measurement equals the
- * pinned one (`pinned.json`: sizes, icon equality, the product element's content fingerprint, pixel
- * count within max(20 px, 10 %)), so the entry cannot absorb any other change. Inside tolerance with the same icons it FAILS: a
- * registered deviation that is no longer observed is a stale entry. A difference with no register
- * entry always fails. Nothing is masked by a register entry.
+ * pinned one (`pinned.json`: sizes, icon equality, the product element's two fingerprints, pixel
+ * count within max(20 px, 10 %)), so the entry cannot absorb any other change. Inside tolerance
+ * with the same icons it FAILS: a registered deviation that is no longer observed is a stale
+ * entry. A difference with no register entry always fails. A registered comparison may not be
+ * masked, and nothing is masked by a register entry.
  */
 export async function compareAll({ expect, testInfo, kind, items }) {
   const failures = [];
@@ -613,6 +784,11 @@ export async function compareAll({ expect, testInfo, kind, items }) {
     const unknown = ids.filter((id) => !DEVIATION_BY_ID.has(id));
     if (unknown.length > 0) {
       failures.push(`${item.name}: unknown deviation id ${unknown.join(', ')}`);
+      continue;
+    }
+    const masked = (item.masks?.reference?.length ?? 0) + (item.masks?.product?.length ?? 0) > 0;
+    if (ids.length > 0 && masked) {
+      failures.push(`${item.name}: a registered comparison cannot be masked`);
       continue;
     }
     const entries = ids.map((id) => DEVIATION_BY_ID.get(id));

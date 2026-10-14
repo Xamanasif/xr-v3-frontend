@@ -5,7 +5,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { DEVIATION_BY_ID } from './deviations.mjs';
+import { CLOSED_STATUSES, DEVIATION_BY_ID } from './deviations.mjs';
 
 function* specs(suite) {
   for (const spec of suite.specs ?? []) yield spec;
@@ -90,12 +90,12 @@ export function summariseRun(runDirectories) {
     blockingOpen: Object.keys(byDeviation)
       .filter((id) => {
         const entry = DEVIATION_BY_ID.get(id);
-        return (
-          entry?.blocksParity &&
-          entry.status !== 'owner-approved' &&
-          entry.status !== 'approved-rule'
-        );
+        return entry?.blocksParity && !CLOSED_STATUSES.includes(entry.status);
       })
+      .sort(),
+    // Observed entries the owner has not closed (provisional or under review).
+    open: Object.keys(byDeviation)
+      .filter((id) => !CLOSED_STATUSES.includes(DEVIATION_BY_ID.get(id)?.status))
       .sort(),
     references: all.flatMap((directory) => referenceManifest(directory)).length,
     boardLoads: boards.length,

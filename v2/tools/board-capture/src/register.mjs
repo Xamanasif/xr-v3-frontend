@@ -4,7 +4,7 @@
 // deviations.mjs; the measurements are the run's, never typed by hand.
 import { basename, dirname } from 'node:path';
 
-import { DEVIATIONS, PRIOR_CORRECTIONS } from './deviations.mjs';
+import { CLOSED_STATUSES, DEVIATIONS, PRIOR_CORRECTIONS, TRACKED } from './deviations.mjs';
 import { parityRecords, summariseRun } from './report.mjs';
 
 const runs = process.argv.slice(2);
@@ -15,6 +15,8 @@ const summary = summariseRun(runs);
 const STATUS = {
   'owner-approved': 'Owner-approved',
   'approved-rule': 'Approved rule (canvas-only)',
+  'owner-acknowledged': 'Owner-acknowledged as measured (cause not proven; tracked)',
+  'owner-deferred': 'Owner-deferred to a later phase (tracked requirement)',
   provisional: 'Documented provisional choice',
   'owner-review': 'Newly identified — owner review',
 };
@@ -37,13 +39,23 @@ const lines = [
   `entries) and the measured comparisons of run ${runs.map((run) => `\`${basename(dirname(run))}/${basename(run)}\``).join(' + ')}. A`,
   'failed visual comparison is never an approved deviation: an entry here is measured on every run',
   'and must measure what `src/pinned.json` pinned for it (sizes, icons and the product element’s',
-  'content fingerprint exactly, pixels within max(20 px, 10 %)); an unregistered difference fails',
+  'two fingerprints exactly, pixels within max(20 px, 10 %)); an unregistered difference fails',
   'the suite, and an entry that is no longer observed fails too. An entry with no comparison is',
   'evidence-only: the threshold or the inventory cannot show it, so its text records the measurement',
-  '(DEV-09, DEV-20). Nothing is masked by an entry. Status words keep three groups apart: owner-approved',
-  'adjustments (and frozen canvas-only rules), documented provisional choices, and discrepancies',
-  'newly identified here that need the owner. Only "Owner-approved" and "Approved rule" are',
-  'approvals; "Documented provisional choice" and "owner review" entries await the owner.',
+  '(DEV-09, DEV-20). Nothing is masked by an entry, and a decision changes no measurement: the',
+  'comparisons, pins, tolerances and the zero-mask policy are the same before and after it. Only',
+  '"Owner-approved" and "Approved rule" are approvals; "Owner-acknowledged" accepts a difference only',
+  'as measured, "Owner-deferred" moves it to a named phase, and both stay tracked;',
+  '"Documented provisional choice" and "owner review" entries await the owner. The owner’s',
+  'visual-decision closure of 14 Oct 2026 decided every WP-0.15 entry for the frozen-v46 prototype —',
+  'not unrelated business policies or future screen designs, and not a claim that the designed',
+  'screens are implemented.',
+  '',
+  `Entries the owner has not closed: ${
+    DEVIATIONS.filter((entry) => !CLOSED_STATUSES.includes(entry.status))
+      .map((entry) => entry.id)
+      .join(', ') || 'none'
+  }. Tracked items: below.`,
   '',
   `Run totals: ${summary.comparisons} comparisons (${summary.frames} whole frames at the screen tolerance, the rest at the component tolerance) — ${summary.within} within tolerance, ${summary.registered} on this register, ${summary.failed} unregistered; ${summary.iconMismatches} with different icons; ${summary.masked.length} masked; ${summary.references} board references; ${summary.externalRequests} external requests.`,
   '',
@@ -73,7 +85,8 @@ for (const entry of DEVIATIONS) {
     `- **Actual (product):** ${entry.actual}`,
     `- **Accessibility impact:** ${entry.accessibility}`,
     `- **Decision / PF reference:** ${entry.decision}`,
-    `- **Proposed correction:** ${entry.proposal}`,
+    `- **Correction / action:** ${entry.proposal}`,
+    ...(entry.tracked ? [`- **Tracked:** ${entry.tracked}`] : []),
     `- **Measured in this run:**${hits.length === 0 ? ' no comparison names this entry (evidence in the text above).' : ''}`,
     ...hits.map((record) => `  - \`${record.name}\` (${record.kind}): ${measured(record)}`),
   );
@@ -82,8 +95,9 @@ lines.push(
   '',
   '## Corrections decided before WP-0.15, and the canvas-only exclusions',
   '',
-  'Listed as the WP-0.15 authorisation asks; their status is the earlier decision record, unchanged',
-  'here (WP-0.15 approves none of them). Counts are this run’s comparisons that exercise each one.',
+  'Listed as the WP-0.15 authorisation asks; their status is the decision record (the harness',
+  'approves none of them; the owner decided VD-11 on 14 Oct 2026). Counts are this run’s',
+  'comparisons that exercise each one.',
   '',
   '| Correction | What | Recorded status | Parity treatment | Comparisons (within / registered) |',
   '|---|---|---|---|---|',
@@ -97,4 +111,18 @@ for (const correction of PRIOR_CORRECTIONS) {
     `| ${correction.id} | ${correction.title} | ${correction.status} | ${correction.parity} | ${correction.comparisons ? `${hits.length} (${count('within-tolerance')} / ${count('registered-deviation')})` : '—'} |`,
   );
 }
+lines.push(
+  '',
+  '## Tracked items',
+  '',
+  'What stays to be done or rechecked after the decisions: runner portability, causes not proven,',
+  'later-phase requirements and the provisional decisions the closure did not decide.',
+  '',
+  '| Item | What stays tracked |',
+  '|---|---|',
+  ...DEVIATIONS.filter((entry) => entry.tracked).map(
+    (entry) => `| ${entry.id} (${STATUS[entry.status]}) | ${entry.tracked} |`,
+  ),
+  ...TRACKED.map((entry) => `| ${entry.id} | ${entry.item} |`),
+);
 process.stdout.write(`${lines.join('\n')}\n`);

@@ -36,7 +36,12 @@ import { createConnection } from 'node:net';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { DEVIATION_BY_ID } from '../tools/board-capture/src/deviations.mjs';
+import {
+  CLOSED_STATUSES,
+  DEVIATION_BY_ID,
+  DEVIATIONS,
+  TRACKED,
+} from '../tools/board-capture/src/deviations.mjs';
 import { EXPECTED_REFERENCES } from '../tools/board-capture/src/inventory.mjs';
 import { summariseRun } from '../tools/board-capture/src/report.mjs';
 
@@ -343,21 +348,26 @@ await step('parity', async () => {
     summary.externalRequests === 0 &&
     summary.references === EXPECTED_REFERENCES &&
     summary.masked.every((masked) => masked.reasons.length > 0);
-  // Acceptance needs every observed register entry approved (owner-approved or a frozen canvas
-  // rule); provisional and owner-review entries are reported, never counted as accepted.
+  // Acceptance needs every observed register entry closed by the owner: approved (owner-approved,
+  // a frozen canvas rule), acknowledged as measured, or deferred to a named phase. Provisional and
+  // owner-review entries are reported, never counted as accepted. Tracked items are always listed.
   const awaiting = Object.keys(summary.byDeviation)
-    .filter((id) => !['owner-approved', 'approved-rule'].includes(DEVIATION_BY_ID.get(id).status))
+    .filter((id) => !CLOSED_STATUSES.includes(DEVIATION_BY_ID.get(id).status))
     .sort();
+  for (const entry of DEVIATIONS.filter((deviation) => deviation.tracked)) {
+    process.stdout.write(`  tracked ${entry.id} (${entry.status}): ${entry.tracked}\n`);
+  }
+  for (const entry of TRACKED) process.stdout.write(`  tracked ${entry.id}: ${entry.item}\n`);
   process.stdout.write(
     `  parity acceptance: ${
       awaiting.length === 0
-        ? 'every difference is within tolerance, owner-approved or a canvas-only rule'
+        ? 'CLOSED for the Phase-0 visual foundation — every difference is within tolerance or covered by an owner decision (approved, acknowledged as measured, or deferred); the tracked items above stay open'
         : `OPEN — ${awaiting.length} register entries await the owner (${awaiting.join(', ')}); blocking: ${summary.blockingOpen.join(', ') || 'none'}. Registered differences are reported, not approved`
     }\n`,
   );
   return {
     ok,
-    detail: `${passedTests}/${summary.tests.length} tests · ${summary.comparisons} comparisons (${summary.frames} whole frames): ${summary.within} within tolerance, ${summary.registered} on the deviation register (${statuses || 'none'}), ${summary.failed} unregistered · ${summary.iconMismatches} icon differences (all registered or failed) · ${summary.masked.length} masked · ${summary.references}/${EXPECTED_REFERENCES} board references · ${summary.externalRequests} external requests · open owner decisions blocking parity: ${summary.blockingOpen.join(', ') || 'none'} · ${relative(root, runRoot)}`,
+    detail: `${passedTests}/${summary.tests.length} tests · ${summary.comparisons} comparisons (${summary.frames} whole frames): ${summary.within} within tolerance, ${summary.registered} on the deviation register (${statuses || 'none'}), ${summary.failed} unregistered · ${summary.iconMismatches} icon differences (all registered or failed) · ${summary.masked.length} masked · ${summary.references}/${EXPECTED_REFERENCES} board references · ${summary.externalRequests} external requests · open owner decisions blocking parity: ${summary.blockingOpen.join(', ') || 'none'} · not closed by the owner: ${summary.open.join(', ') || 'none'} · ${relative(root, runRoot)}`,
   };
 });
 

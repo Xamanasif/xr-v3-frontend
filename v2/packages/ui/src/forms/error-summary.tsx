@@ -64,8 +64,9 @@ function focusField(fieldId: string): void {
  * `ul` of links to the fields (B4-04 "Step 2 · validation", B3-06 "Missing ratings"). Activating a
  * link moves focus to its field without navigating (board 12 "Summary links move focus to the
  * field"). Always linked: the plain-text lists of B2-05, B2-07, B2-14 and B3-08 are normalised to
- * links (VD-21). The emitted class `xw-errsum` is the recommended, still open choice (VD-22) over
- * the Batch-0 `xr-notice--err` drawing (boards 03, 09b). The B5 "missing items" summary with
+ * links (VD-21). The emitted class `xw-errsum` is the owner-approved choice (VD-22, decided on
+ * 14 Oct 2026 with its field-link behaviour; DEV-12) over the Batch-0 `xr-notice--err` drawing
+ * (boards 03, 09b). The B5 "missing items" summary with
  * per-item "Go to …" buttons is Phase 5 and is not built here.
  */
 export function ErrorSummary({
