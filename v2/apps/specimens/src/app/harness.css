@@ -16,3 +16,36 @@
 .specimen-spacer {
   min-height: 2000px;
 }
+
+/* Parity items (WP-0.15): the box around one compared component — its surface colour and room for
+   a focus ring. Never part of a comparison (the compared element is the item's first child). A
+   flex column, as the board's doc-cards are: with the drawn width (matchWidth) a component is
+   stretched to it as on the board; without, the box shrinks to the component. */
+.parity-page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px;
+}
+.parity-item {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+.parity-item--card {
+  background: #ffffff;
+}
+.parity-item--canvas {
+  background: #f4f5fb;
+}
+.parity-item--none {
+  padding: 0;
+}
+.parity-item--navy {
+  background: #141b5e;
+}
+.parity-item--block {
+  display: block;
+}

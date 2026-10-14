@@ -24,3 +24,6 @@ blob-report/
 
 # OS / editor
 .DS_Store
+
+# visual parity (WP-0.15): machine-specific run artefacts, never committed as baselines
+tools/board-capture/.runs/

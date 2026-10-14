@@ -17,7 +17,10 @@
  * PF-13. WP-0.7 adds the DataTable sort-control rules of PF-01 (`xr-x-table-sortbar`,
  * `xr-x-th-sort`, `xr-x-th-text`). WP-0.13 adds PF-14 (Help & support glue), PF-15 (message
  * pages) and PF-16 (empty-state line), owner-authorised as narrow corrections for the Phase-0
- * screens. Not here: PF-08 motion (VD-09), PF-10 (no CSS, VD-05) and PF-12 forced colours (VD-15).
+ * screens. WP-0.15 (visual parity) adds PF-17 (the toolbar's Clear filters height), PF-18 (a
+ * failed state's report link beside Try again), PF-19 (text-link hover underline and the
+ * external text link) and PF-20 (the logo placeholder in the drawer head). Not here:
+ * PF-08 motion (VD-09), PF-10 (no CSS, VD-05) and PF-12 forced colours (VD-15).
  */
 
 /* ===========================================================================================
@@ -575,4 +578,72 @@ dialog.xr-dialog.xr-x-dialog--end {
 .xr-empty > .xr-body,
 .xr-empty > .xr-small {
   color: var(--xr-ink-2);
+}
+
+/* ===========================================================================================
+ * PF-17 · The list toolbar's "Clear filters" is 32 px high (WP-0.15 parity correction, owner-
+ * authorised class "genuine product regression", board-evidenced). Every list toolbar the boards
+ * draw puts it in the status row as `button.xr-btn.xr-btn--text style="min-height:32px"` — 140
+ * of 140 instances on 31 boards (board 03 "List toolbar · one shared component at three widths"
+ * and the B1/B2/B3/B4/B5/B6/B7 list screens); xr-foundation.css `.xr-btn` gives it 40 px, which made the
+ * product's status row 8 px taller than every drawn toolbar. 32 px stays above the 24 × 24
+ * minimum target (board 12 "Targets", WCAG 2.5.8). The DataTable sort bar in the same row is a
+ * `div.xr-x-table-sortbar` (PF-01), not a direct child, so it is unaffected.
+ * =========================================================================================== */
+.xr-toolbar-status > .xr-btn--text {
+  min-height: 32px;
+}
+
+/* ===========================================================================================
+ * PF-18 · A failed state's "Report a problem" link sits centred beside "Try again" (WP-0.15
+ * parity correction, owner-authorised class "genuine product regression", board-evidenced).
+ * Board 03 "Notices, empty, error, loading and read-only" is the only drawing of a failed notice
+ * with a report link: `div.xr-notice-actions` > `button.xr-btn.xr-btn--secondary.xr-btn--sm`
+ * "Try again" + `a style="align-self: center"` "Report a problem". The product's FailedState
+ * (XS-07 Help pages, record guard) rendered the link top-aligned, 6 px above the drawn place.
+ * Scoped to a plain link that follows a button: no product board draws that pattern elsewhere
+ * (the plain notice-action links "View institution" ×23 and "Request renewal" ×3 stand alone).
+ * =========================================================================================== */
+.xr-notice-actions > .xr-btn + a:not(.xr-btn) {
+  align-self: center;
+}
+
+/* ===========================================================================================
+ * PF-19 · Text links (WP-0.15 parity correction, owner-authorised class "genuine product
+ * regression", board-evidenced). Board 02 "Links and focus · Link treatment" is the design rule
+ * for links: "#1F4FD8 · 6.6 : 1 · underline 1 px, 2 px on hover. External links say so to screen
+ * readers." xr-foundation.css only sets `a:hover{color:#141B5E}`, so the drawn 2 px hover
+ * underline (`a style="color: #141B5E; text-decoration-thickness: 2px"`) never appeared.
+ * Scoped to class-less anchors: the boards' running-text links; buttons, nav items, row links,
+ * crumbs and back links carry classes and keep their own hover rules.
+ *
+ * The same card draws the one external text link of the boards — "Open delivery link" — as
+ * `a style="display: inline-flex; align-items: center; gap: 4px"` with the 16 px external-link
+ * icon (the 15 other external links are button links). The product `Link external` emits that
+ * anchor with `target="_blank"`; it rendered the icon tight against the words and above centre.
+ * Only the icon is moved — the anchor stays inline, so a long link still wraps in running text:
+ * 4 px before it (the drawn gap) and `vertical-align: -3px`, which puts the 16 px icon's centre on
+ * the centre of the 24 px body line, where the drawn flex box centres it (pixel-identical to the
+ * board in Chromium, 02-link-external).
+ * =========================================================================================== */
+a:not([class]):hover {
+  text-decoration-thickness: 2px;
+}
+
+a[target='_blank']:not([class]) > .xr-ico {
+  margin-left: 4px;
+  vertical-align: -3px;
+}
+
+/* ===========================================================================================
+ * PF-20 · The logo placeholder fills the drawer head beside "Close menu" (WP-0.15 parity
+ * correction, owner-authorised class "genuine product regression", board-evidenced). All 844
+ * sidebar heads the boards draw are `div.xr-side-top` > `div.xr-logo-ph style="flex: 1 1 auto"`
+ * + the close button (boards 05, 06 "Drawer · Student · 375 px", 07, 08, 11 and every product
+ * board); xr-foundation.css `.xr-side-top{display:flex;…;justify-content:space-between;gap:8px}`
+ * gives the placeholder no grow, so in the drawer it stayed at its words' width (230.5 px instead
+ * of the drawn 232). At other widths the close button is hidden and the head is unchanged.
+ * =========================================================================================== */
+.xr-side-top > .xr-logo-ph {
+  flex: 1 1 auto;
 }

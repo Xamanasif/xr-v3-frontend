@@ -19,6 +19,14 @@
 //                   (e2e/foundation, WP-0.13), the cross-role proofs on one tab and one world
 //                   (e2e/foundation/cross-role, WP-0.14), the deferred flow skeletons (e2e/flows,
 //                   fixme), specimen harness (ports 3000, 3100 and 3200 must be free)
+//   6. parity       WP-0.15 visual parity, kept apart from the four-width suites: the frozen v46
+//                   boards rendered offline by tools/board-capture (vendored, SRI-checked inputs;
+//                   network blocked except localhost) against the @xr/ui specimens (3100) and the
+//                   built Phase-0 screens (3200), same run, same machine, same Chromium (VD-18
+//                   local interim). Fails on any comparison outside tolerance that the
+//                   expected-deviation register does not name, and on any stale register entry;
+//                   prints the register entries still awaiting the owner. Artefacts stay in
+//                   tools/board-capture/.runs/<run> (git-ignored).
 //
 // Suites that do not exist yet are listed as such at the end; nothing is reported as run
 // that did not run.
@@ -27,6 +35,10 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { createConnection } from 'node:net';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { DEVIATION_BY_ID } from '../tools/board-capture/src/deviations.mjs';
+import { EXPECTED_REFERENCES } from '../tools/board-capture/src/inventory.mjs';
+import { summariseRun } from '../tools/board-capture/src/report.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
@@ -41,7 +53,6 @@ const NOT_YET_PRESENT = [
     'full-UI flow tests (apps/web/e2e/flows, 36 deferred test.fixme: reported as skipped)',
     'Phase 7 (each needs its flow’s screens, B8-06 Phases 1–6)',
   ],
-  ['visual-parity suite', 'WP-0.15 (inputs not yet approved: G-5c, VD-18)'],
 ];
 
 /** What the test-hook build must contain, proving the bundle scan finds the bridge when it is there. */
@@ -57,6 +68,12 @@ const TEST_HOOK_BUILD_MARKERS = [
  * suite and the stand-in ports of @xr/contracts/draft carry their own markers.
  */
 const BUNDLE_SENTINELS = [
+  // WP-0.15: the board-capture harness, its canvas-runtime calls and the parity specimens.
+  'xr-v46-board-capture',
+  '__dcSetProps',
+  'XR_BOARD_ORIGIN',
+  'XR_PARITY_RUN_DIR',
+  'data-parity',
   'xr-web-test-hook-bridge',
   'xr-web-test-session-switch',
   'switchSession',
@@ -71,12 +88,12 @@ const BUNDLE_SENTINELS = [
   'xr-sample-platform-testing',
 ];
 
-function run(command, args) {
+function run(command, args, env = {}) {
   return new Promise((resolvePromise) => {
     const child = spawn(command, args, {
       cwd: root,
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: process.env,
+      env: { ...process.env, ...env },
     });
     let output = '';
     const forward = (stream, target) =>
@@ -163,12 +180,15 @@ function report() {
       `  ${result.ok ? 'PASS' : 'FAIL'}  ${result.name.padEnd(12)} ${`${result.seconds}s`.padStart(7)}  ${result.detail}\n`,
     );
   }
-  if (results.every((result) => result.ok) && results.length === 5) {
+  if (results.every((result) => result.ok) && results.length === 6) {
     process.stdout.write('\n  Not run — these suites are deferred or do not exist yet:\n');
     for (const [suite, owner] of NOT_YET_PRESENT)
       process.stdout.write(`    - ${suite}: ${owner}\n`);
     process.stdout.write(
       '  Browsers: Chromium only (P0-28; WebKit/Firefox wait for G-5 or the runner).\n',
+    );
+    process.stdout.write(
+      '  Visual parity: same-machine local interim (VD-18 runner decision open); run artefacts are not committed baselines.\n',
     );
   }
   process.stdout.write(
@@ -274,6 +294,70 @@ await step('browser', async () => {
   return {
     ok: code === 0,
     detail: `${sum} Playwright tests passed at 4 viewports (${[...totals].map(([pkg, count]) => `${pkg.replace('@xr/', '')} ${count}`).join(', ')}); ${skippedSum} skipped, not passed (${[...skipped].map(([pkg, count]) => `${pkg.replace('@xr/', '')} ${count}`).join(', ') || 'none'})`,
+  };
+});
+
+await step('parity', async () => {
+  for (const port of [3100, 3200]) {
+    if (await portInUse(port)) {
+      return {
+        ok: false,
+        detail: `port ${port} is in use; stop that server so parity tests this build`,
+      };
+    }
+  }
+  const stamp = new Date(started).toISOString().replace(/[:.]/g, '-');
+  const runRoot = join(root, 'tools', 'board-capture', '.runs', `${stamp}-verify`);
+  const suites = [
+    ['@xr/specimens', join(runRoot, 'specimens')],
+    ['@xr/web', join(runRoot, 'web')],
+  ];
+  const codes = [];
+  for (const [filter, directory] of suites) {
+    const { code } = await run(
+      pnpm,
+      ['--filter', filter, 'exec', 'playwright', 'test', '-c', 'playwright.parity.config.ts'],
+      { XR_PARITY_RUN_DIR: directory },
+    );
+    codes.push(code);
+  }
+  const summary = summariseRun(suites.map(([, directory]) => directory));
+  const passedTests = summary.tests.filter((test) => test.status === 'passed').length;
+  // Every register entry the run observed, by status: nothing provisional or under owner review is
+  // reported as accepted.
+  for (const [id, total] of Object.entries(summary.byDeviation).sort()) {
+    const entry = DEVIATION_BY_ID.get(id);
+    process.stdout.write(
+      `  ${id} ${entry.status}${entry.blocksParity ? ' (blocks parity acceptance)' : ''} · ${total} comparison(s) · ${entry.title}\n`,
+    );
+  }
+  for (const { name, reasons } of summary.masked) {
+    process.stdout.write(`  mask on ${name}: ${reasons.join('; ')}\n`);
+  }
+  const statuses = Object.entries(summary.byStatus)
+    .map(([status, total]) => `${status} ${total}`)
+    .join(', ');
+  const ok =
+    codes.every((code) => code === 0) &&
+    summary.failed === 0 &&
+    summary.externalRequests === 0 &&
+    summary.references === EXPECTED_REFERENCES &&
+    summary.masked.every((masked) => masked.reasons.length > 0);
+  // Acceptance needs every observed register entry approved (owner-approved or a frozen canvas
+  // rule); provisional and owner-review entries are reported, never counted as accepted.
+  const awaiting = Object.keys(summary.byDeviation)
+    .filter((id) => !['owner-approved', 'approved-rule'].includes(DEVIATION_BY_ID.get(id).status))
+    .sort();
+  process.stdout.write(
+    `  parity acceptance: ${
+      awaiting.length === 0
+        ? 'every difference is within tolerance, owner-approved or a canvas-only rule'
+        : `OPEN — ${awaiting.length} register entries await the owner (${awaiting.join(', ')}); blocking: ${summary.blockingOpen.join(', ') || 'none'}. Registered differences are reported, not approved`
+    }\n`,
+  );
+  return {
+    ok,
+    detail: `${passedTests}/${summary.tests.length} tests · ${summary.comparisons} comparisons (${summary.frames} whole frames): ${summary.within} within tolerance, ${summary.registered} on the deviation register (${statuses || 'none'}), ${summary.failed} unregistered · ${summary.iconMismatches} icon differences (all registered or failed) · ${summary.masked.length} masked · ${summary.references}/${EXPECTED_REFERENCES} board references · ${summary.externalRequests} external requests · open owner decisions blocking parity: ${summary.blockingOpen.join(', ') || 'none'} · ${relative(root, runRoot)}`,
   };
 });
 

@@ -45,3 +45,20 @@ must stay outside the product (ADR-0007 §3, owner decision G-2).
 of every browser helper with the product suites, matches the board-capture engine, and needs no
 download. Option (a) was evaluated from registry metadata only (`pnpm view`); nothing was installed
 for it.
+
+## Visual parity (WP-0.15)
+
+`src/specimens/parity/` holds the **parity specimens** (`p-*`): product components arranged one per
+`[data-parity]` item with the words of the Batch-0 board specimen they are compared with (boards
+02–08, 10–12, B4-04), and `p-shell-*` / `p-11-*` shells composed from the @xr/ui shell parts with
+board 05/06/11 fixture copy. The item box (`.parity-item`, `harness.css`) is harness furniture —
+its surface colour, padding and, during a comparison, its width — and is never part of a capture.
+Where a board specimen is a whole frame of inline layout (board 03 "Long values" at 375/768 and the
+list toolbar at three widths), the item holds a `div.xr-content` copy of that frame's inline width,
+padding, background and gap around the real components, and that copy is captured with them: the
+frame's layout is the board's, the components inside are the product's.
+`e2e/parity/*.parity.ts` run with their own config (`playwright.parity.config.ts`, one Chromium
+project, 900 px high), separate from the four-width suites:
+`pnpm --filter @xr/specimens exec playwright test -c playwright.parity.config.ts`. The boards are
+rendered offline by the test-only harness in `v2/tools/board-capture` (see its README); results
+are summarised in `tools/board-capture/BASELINES.md` and `DEVIATIONS.md`.

@@ -5,8 +5,8 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
 
 import { ESLint } from 'eslint';
 import ts from 'typescript';
@@ -386,5 +386,84 @@ describe('import fences are wired into the real ESLint configs (Appendix F §3.8
     );
     expect(exported.size).toBeGreaterThan(10);
     for (const name of DOMAIN_VOCABULARY) expect(exported, name).toContain(name);
+  });
+});
+
+/**
+ * WP-0.15 (owner gate G-5c, VD-18 local interim): the test-only board-capture inputs. The three
+ * scripts are re-hashed here, independently of the harness, against the sha384 SRI strings in the
+ * frozen `design/handoff-v46/runtime/support.js`; every vendored byte (scripts, the Google Fonts
+ * CSS, the three Public Sans woff2 subsets and their OFL text) against the vendor checksum file.
+ */
+describe('board-capture vendored inputs (WP-0.15, uncached)', () => {
+  const tool = join(workspaceRoot, 'tools', 'board-capture');
+  const vendor = join(tool, 'vendor');
+
+  it('each vendored script equals the SRI the frozen support.js names for it', () => {
+    const support = readFileSync(
+      join(repositoryRoot, 'design', 'handoff-v46', 'runtime', 'support.js'),
+      'utf8',
+    );
+    const checked: string[] = [];
+    for (const name of ['REACT', 'REACT_DOM', 'BABEL']) {
+      const url = new RegExp(`var ${name}_URL = "https://([^"]+)";`).exec(support)?.[1];
+      const sri = new RegExp(`var ${name}_SRI = "(sha384-[^"]+)";`).exec(support)?.[1];
+      expect(url, `${name}_URL`).toBeTruthy();
+      expect(sri, `${name}_SRI`).toBeTruthy();
+      const bytes = readFileSync(join(vendor, url!));
+      expect(`sha384-${createHash('sha384').update(bytes).digest('base64')}`, url).toBe(sri);
+      checked.push(url!);
+    }
+    expect(checked).toEqual([
+      'unpkg.com/react@18.3.1/umd/react.production.min.js',
+      'unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js',
+      'unpkg.com/@babel/standalone@7.29.0/babel.min.js',
+    ]);
+    const result = verifyChecksums(vendor);
+    summary.push(
+      `board-capture vendor: ${checked.length}/3 SRI OK, ${result.ok}/${result.checked} checksums OK`,
+    );
+    expect(result).toEqual({ checked: 8, ok: 8, failed: [], missing: [] });
+  });
+
+  it('the vendor folder holds exactly the checksummed files and their list', () => {
+    const listed = readFileSync(join(vendor, 'SHA256SUMS.txt'), 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => line.replace(/^[0-9a-f]{64} [ *]/, ''));
+    const walk = (directory: string): string[] =>
+      readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
+        entry.isDirectory()
+          ? walk(join(directory, entry.name))
+          : [relative(vendor, join(directory, entry.name))],
+      );
+    expect(walk(vendor).sort()).toEqual([...listed, 'SHA256SUMS.txt'].sort());
+  });
+
+  it('the vendor folder is prettier-ignored and the run artefacts are git- and prettier-ignored', () => {
+    const prettierIgnore = readFileSync(join(workspaceRoot, '.prettierignore'), 'utf8').split('\n');
+    expect(prettierIgnore).toContain('tools/board-capture/vendor/');
+    expect(prettierIgnore).toContain('tools/board-capture/.runs/');
+    expect(readFileSync(join(workspaceRoot, '.gitignore'), 'utf8').split('\n')).toContain(
+      'tools/board-capture/.runs/',
+    );
+    expect(existsSync(join(tool, 'PROVENANCE.md'))).toBe(true);
+  });
+
+  it('no product file reaches the capture tooling or the canvas runtime it drives', () => {
+    const offenders: string[] = [];
+    const { targets } = productTargets();
+    expect(targets.length).toBeGreaterThan(100);
+    for (const target of targets) {
+      for (const marker of [
+        'board-capture',
+        '__dcSetProps',
+        'XR_BOARD_ORIGIN',
+        'XR_PARITY_RUN_DIR',
+      ]) {
+        if (target.source.includes(marker)) offenders.push(`${target.file}: ${marker}`);
+      }
+    }
+    expect(offenders).toEqual([]);
   });
 });

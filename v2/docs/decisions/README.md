@@ -51,6 +51,28 @@ move.
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | E-alt3 — `ProductionService.listAllContent` | Implement it during WP-0.11 solely to enable the Super Admin stuck-submission workflow; reuse the WP-0.10 signature; enforce the current domain policy and the Super Admin read-only permission; grant no additional permission; no Phase-6 screen and no other deferred Phase-6 method; record the exception. | `PHASE_SCHEDULE_EXCEPTIONS`; `packages/sample-platform/README.md` (WP-0.11) |
 
+## Owner authorisation of 14 October 2026 — WP-0.15 (G-5c, VD-18 local interim)
+
+The WP-0.15 authorisation ("Authorize WP-0.15 ONLY") approves, narrowly: downloading React 18.3.1,
+ReactDOM 18.3.1, Babel Standalone 7.29.0 and the required Public Sans woff2 files **for the local
+visual-capture tooling only**; checking the three scripts against the SHA-384 SRI values in the
+frozen `runtime/support.js` before use (stop on any mismatch); recording the fonts' provenance,
+hashes and licence; running temporary same-machine, same-browser reference-versus-product
+comparisons instead of creating a CI runner; and using the documented tolerances. It is recorded
+as the **local WP-0.15 interim for VD-18**; the final runner decision stays open. Not authorised:
+other browser engines, unrelated libraries, a CI service or Git remote, deploying the tooling,
+running the downloaded scripts in the product, altering the frozen handoff, or changing production
+font loading without a demonstrated need (none arose: PF-09 still loads the boards' Google Fonts
+link, and the capture network serves the same files to board and product).
+
+| Item                                                                      | Where                                                                                    |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Inputs, SRI 3/3, hashes, licences                                         | `../../tools/board-capture/PROVENANCE.md`; re-checked by `pnpm verify` (repository step) |
+| Harness, method, tolerances, normalisations                               | `../../tools/board-capture/README.md`                                                    |
+| Phase-0 baseline inventory and results                                    | `../../tools/board-capture/BASELINES.md`                                                 |
+| Expected-deviation register (owner-approved / provisional / owner review) | `../../tools/board-capture/DEVIATIONS.md`                                                |
+| Product corrections made under "fix confirmed regressions"                | `packages/ui/src/styles/product.css` PF-17 … PF-20                                       |
+
 ## Approved interim choices
 
 These are interim treatments the build follows. Where the underlying product question is open, it **stays open**.

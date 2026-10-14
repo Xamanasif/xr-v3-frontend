@@ -233,3 +233,20 @@ which the persistent workspace layouts of apps/web use). Not built: the amber "A
   600 px column near the top"; board 07 "State 1c" draws "Report sent" with the sheet's centred
   `margin: 40px auto`. Each screen follows its own board: XS-06 and the in-shell PU-15 use the shell
   placement, "Report sent" the centred one.
+
+## WP-0.15 — visual parity: what changed here (14 Oct 2026)
+
+The components were compared pixel by pixel with the frozen boards (`v2/tools/board-capture`,
+`BASELINES.md`). Four genuine regressions were corrected in the product layer, each narrowly
+scoped and board-evidenced (comments in `src/styles/product.css`); no component code changed:
+
+- **PF-17** — the list toolbar's "Clear filters" is 32 px high (140 of 140 drawings).
+- **PF-18** — a failed state's "Report a problem" link sits centred beside "Try again" (board 03).
+- **PF-19** — text links thicken their underline to 2 px on hover, and the external text link's
+  icon gets the drawn 4 px gap and is centred on the line (board 02 "Link treatment"); the link
+  itself stays inline, so it still wraps in running text.
+- **PF-20** — the logo placeholder fills the drawer head beside "Close menu" (844 of 844 heads).
+
+Differences that are design decisions, not regressions, are left as they are and listed in
+`tools/board-capture/DEVIATIONS.md` for the owner — among them the busy look (DEV-01), the dialog
+Cancel style (VD-06, DEV-08) and the ErrorSummary class (VD-22, DEV-12).
