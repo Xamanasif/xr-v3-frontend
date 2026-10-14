@@ -2,18 +2,41 @@
  * Read-model pieces several ports share. Canonical states and facts only — the words are the web
  * layer's (Appendix C §3.0 rule 5); every view reads the live version (B7-11).
  */
-import type { CatalogueEntry, CourseCard, PublicExperimentPage } from '@xr/contracts/draft';
+import type {
+  AreaCard,
+  CatalogueEntry,
+  CourseCard,
+  PublicExperimentPage,
+} from '@xr/contracts/draft';
 import {
   type Course,
+  type EngineeringArea,
   type Experiment,
   FORMAT_META,
   inDisplayOrder,
+  type PublicCatalogueEntry,
   publishedFormats,
   type Technology,
 } from '@xr/domain';
 
 import { values } from '../world/records.js';
 import type { WorldRecords } from '../world/types.js';
+
+/** PU-01 / PU-02 / PU-03: an area's card, its counts from the published catalogue only (B1-02). */
+export function areaCardOf(
+  area: EngineeringArea,
+  catalogue: readonly PublicCatalogueEntry[],
+): AreaCard {
+  const entries = catalogue.filter((entry) => entry.areaId === area.id);
+  return {
+    id: area.id,
+    name: area.name,
+    description: area.description,
+    artworkKey: area.artworkKey,
+    courseCount: new Set(entries.map((entry) => entry.courseId)).size,
+    experimentCount: entries.length,
+  };
+}
 
 export function courseCardOf(records: WorldRecords, course: Course): CourseCard {
   const formats = new Set<Technology>();
@@ -41,6 +64,7 @@ export function catalogueEntryOf(records: WorldRecords, experiment: Experiment):
     courseName: course.name,
     platformCode: course.platformCode,
     availableIn: [...publishedFormats(experiment)],
+    artworkKey: experiment.artworkKey,
   };
 }
 

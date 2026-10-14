@@ -26,6 +26,8 @@ export const SIGN_IN = {
   forgot: 'Forgot your password?',
   /** XS-04 (B1-09 "Forgot password": recovery and activation are OPEN, T-11 / R02). */
   forgotHint: 'Contact your institution administrator to reset it.',
+  /** The top row's way out to the Landing (`a.xr-back`; P1-17 follows the href; Package 1B). */
+  backToExperiments: 'Back to experiments',
 } as const;
 
 /** The notices on the card (B1-09 f3, f6, f9, f10 and the card's drawn inactive / paused notices). */

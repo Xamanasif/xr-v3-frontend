@@ -8,15 +8,23 @@ import { joinClasses } from '../internal/classes.js';
 export const LOGO_PLACEHOLDER_TEXT = 'BITS Pilani / WILP logo — placeholder';
 
 export interface LogoPlaceholderProps {
+  /**
+   * `sidebar` (default): the workspace box `div.xr-logo-ph` (boards 05, 06, 07). `public`: the
+   * public header, footer and sign-in card box `span.xp-logo` (B1-01 … B1-09; Phase 1).
+   */
+  readonly placement?: 'sidebar' | 'public';
   /** Composition only (board 05 sets the drawer's box to fill the row beside "Close menu"). */
   readonly className?: string;
 }
 
 /**
- * The dashed logo box at the top of the workspace sidebar (`div.xr-logo-ph`, min-height 48;
- * boards 05, 06, 07). The public placements (`xp-logo`, `xp-auth-brand`) are Phase 1 (G-8).
- * An approved asset later changes this one component.
+ * The dashed logo box: at the top of the workspace sidebar (`div.xr-logo-ph`, min-height 48;
+ * boards 05, 06, 07), and in the public header, footer and sign-in card (`span.xp-logo`; B1-01 …
+ * B1-09). An approved asset later changes this one component.
  */
-export function LogoPlaceholder({ className }: LogoPlaceholderProps) {
+export function LogoPlaceholder({ placement = 'sidebar', className }: LogoPlaceholderProps) {
+  if (placement === 'public') {
+    return <span className={joinClasses('xp-logo', className)}>{LOGO_PLACEHOLDER_TEXT}</span>;
+  }
   return <div className={joinClasses('xr-logo-ph', className)}>{LOGO_PLACEHOLDER_TEXT}</div>;
 }

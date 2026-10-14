@@ -113,4 +113,4 @@ These are interim treatments the build follows. Where the underlying product que
 
 ## Exceptions to the committed architecture
 
-`OPEN_DECISIONS.md` Part E records the exceptions TE-1…TE-8 with their fences and removal triggers. Per G-2, TE-1, TE-2, TE-5 and TE-7 are approved for Phase 0. TE-3, TE-4 and TE-8 are drafted and must be signed before Phases 3, 1 and 1. TE-6 is not authorised.
+`OPEN_DECISIONS.md` Part E records the exceptions TE-1…TE-8 with their fences and removal triggers. Per G-2, TE-1, TE-2, TE-5 and TE-7 are approved for Phase 0. TE-8 was approved by the owner for Phase-1 Package 1B only (14 Oct 2026: client-rendered public pages on the browser-only sample world, one world per tab, not the production SSR / SEO architecture; `../phase-1/PACKAGE-1B-RECORD.md` §2). TE-3 and TE-4 are drafted and must be signed before Phases 3 and 1. TE-6 is not authorised.

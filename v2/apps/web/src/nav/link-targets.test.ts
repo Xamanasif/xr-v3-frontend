@@ -15,7 +15,24 @@ const BASES = WORKSPACES.map((workspace) => `/${workspace}`);
 describe('the link-target ledger', () => {
   it('names the built screens and the shell, each action once per place', () => {
     expect(new Set(LINK_TARGET_LEDGER.map((entry) => entry.screen))).toEqual(
-      new Set(['Shell', 'XS-01', 'XS-05', 'XS-06', 'XS-07', 'XS-08', 'PU-15', 'SA-02', 'SA-03']),
+      new Set([
+        'Shell',
+        'Public shell',
+        'XS-01',
+        'XS-05',
+        'XS-06',
+        'XS-07',
+        'XS-08',
+        'PU-01',
+        'PU-02',
+        'PU-03',
+        'PU-04',
+        'PU-05',
+        'PU-06',
+        'PU-15',
+        'SA-02',
+        'SA-03',
+      ]),
     );
     const keys = LINK_TARGET_LEDGER.map(
       (entry) => `${entry.screen}|${entry.where}|${entry.action}`,
@@ -30,7 +47,7 @@ describe('the link-target ledger', () => {
         const target = expandTarget(entry.target!, base).split('?')[0]!;
         const outcome = resolveAddress(target);
         expect(
-          ['screen', 'record-screen', 'sign-in'],
+          ['screen', 'record-screen', 'sign-in', 'public-screen'],
           `${entry.screen} ${entry.action} in ${base}`,
         ).toContain(outcome.kind);
       }
@@ -40,9 +57,16 @@ describe('the link-target ledger', () => {
   it('a drawn action whose page is not built is not rendered, and names that unbuilt page', () => {
     const hidden = LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'not-rendered');
     expect(hidden.map((entry) => `${entry.screen} ${entry.action}`)).toEqual([
-      'XS-01 Back to experiments',
+      // PU-07 Selection (Package 1C): every way into it on the public surface and the sign-in card.
       'XS-01 Request institutional access',
       'SA-03 View institution',
+      'Public shell Selection (n)',
+      'Public shell Request access',
+      'Public shell Selection (n)',
+      'Public shell Request access',
+      'PU-01 Request institutional access',
+      'PU-01 Request institutional access',
+      'PU-06 Go to selection',
     ]);
     for (const entry of hidden) {
       const kind = resolveAddress(expandTarget(entry.target!, '/admin')).kind;
@@ -69,22 +93,46 @@ describe('the link-target ledger', () => {
     }
   });
 
-  it('the one dead link is PU-15’s "Browse experiments" to PU-04, documented', () => {
-    const dead = LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'dead-link');
-    expect(dead).toHaveLength(1);
-    expect(dead[0]).toMatchObject({
-      screen: 'PU-15',
-      action: 'Browse experiments',
-      target: '/experiments',
-    });
-    expect(dead[0]!.note).toMatch(/PU-04.*Phase 1/);
-    expect(resolveAddress('/experiments')).toEqual({ kind: 'public-not-found' });
+  it('no dead link remains: PU-15’s "Browse experiments" reaches the built catalogue (Package 1B)', () => {
+    expect(LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'dead-link')).toEqual([]);
+    expect(
+      LINK_TARGET_LEDGER.find(
+        (entry) => entry.screen === 'PU-15' && entry.action === 'Browse experiments',
+      ),
+    ).toMatchObject({ outcome: 'built', target: '/experiments' });
+    expect(resolveAddress('/experiments')).toEqual({ kind: 'public-screen', screen: 'PU-04' });
+  });
+
+  it('the one external link is the experiment’s preview, and no seeded experiment has one', () => {
+    expect(
+      LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'external').map(
+        (entry) => `${entry.screen} ${entry.action}`,
+      ),
+    ).toEqual(['PU-06 Open preview']);
   });
 
   it('Sign out reaches the built sign-in card’s “Signed out” notice (XS-03, Package 1A)', () => {
     const signOut = LINK_TARGET_LEDGER.find((entry) => entry.action === 'Sign out')!;
     expect(signOut).toMatchObject({ outcome: 'built', target: '/sign-in?reason=signed-out' });
     expect(resolveAddress('/sign-in')).toEqual({ kind: 'sign-in' });
+  });
+
+  it('every public page pattern resolves to its public screen', () => {
+    const patterns: Readonly<Record<string, string>> = {
+      'PU-01': '/',
+      'PU-02': '/areas',
+      'PU-03': '/areas/{areaId}',
+      'PU-04': '/experiments',
+      'PU-05': '/courses/{courseId}',
+      'PU-06': '/experiments/{experimentId}',
+    };
+    for (const entry of LINK_TARGET_LEDGER.filter((item) => item.screen in patterns)) {
+      expect(entry.on).toBe(patterns[entry.screen]);
+      expect(resolveAddress(expandTarget(entry.on, '/admin'))).toEqual({
+        kind: 'public-screen',
+        screen: entry.screen,
+      });
+    }
   });
 
   it('in-page actions are commands, jumps or not rendered at all', () => {
@@ -106,7 +154,17 @@ describe('the link-target ledger', () => {
       case '<base>/[...unmatched]':
         return [`${base}/zz-unknown`, `${base}/courses`];
       case '/*':
-        return ['/', '/zz-unknown', '/selection'];
+        return ['/zz-unknown', '/selection', '/requests'];
+      case '<public>/*':
+        return [
+          '/',
+          '/areas',
+          '/areas/mechanical-manufacturing',
+          '/experiments',
+          '/courses/thermodynamics-heat-transfer',
+          '/experiments/shell-and-tube-heat-exchanger',
+          '/zz-unknown',
+        ];
       case '/admin/*':
         return ['/admin/help', '/admin/requests', '/admin/requests/REQ-0038'];
       case '<base>/*':
@@ -155,6 +213,9 @@ describe('the link-target ledger', () => {
       'XS-07: View my reports',
       'XS-01: Sign in',
       'SA-03: (the panel’s button: Approve request · Approve smaller scope · Send request for information)',
+      'PU-01: Browse experiments',
+      'PU-03: Browse N experiments',
+      'PU-06: Add to selection',
     ]);
   });
 });

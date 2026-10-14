@@ -23,6 +23,8 @@ import type { StandinPorts } from './../standins/index.js';
 export interface CaseContext {
   /** The ledger phases the adapter implements. */
   readonly implements: readonly ImplementationPhase[];
+  /** Later-phase methods it implements ahead of their phase (ledger `PACKAGE_DELIVERIES`). */
+  readonly delivered: readonly MethodId[];
   readonly publicPorts: ProductPorts;
   readonly as: (person: SamplePerson) => ProductPorts;
   readonly standins: StandinPorts;
@@ -33,7 +35,7 @@ export interface CaseContext {
   readonly note: (line: string) => void;
 }
 
-export type CaseGroup = 'surface' | 'session' | 'flow' | 'invariant';
+export type CaseGroup = 'surface' | 'session' | 'catalogue' | 'flow' | 'invariant';
 
 export interface ContractCase {
   readonly id: string;
@@ -76,6 +78,7 @@ export function describeFixture(fixture: ContractFixture): string {
 function notRunReason(requirement: CaseRequirement, subject: ContractSubject): string | null {
   const missing = requirement.methods.filter((method: MethodId) => {
     const phase = PHASE_OF.get(method);
+    if (subject.delivered?.includes(method)) return false;
     return phase === undefined || !subject.implements.includes(phase);
   });
   if (missing.length > 0) {
@@ -120,6 +123,7 @@ async function runCase(contractCase: ContractCase, factory: ContractFactory): Pr
   const live = subject;
   const context: CaseContext = {
     implements: live.implements,
+    delivered: live.delivered ?? [],
     publicPorts: conformingPorts(live.publicPorts, live.snapshot, log),
     as: (person) => conformingPorts(live.as(person), live.snapshot, log),
     standins: live.standins,

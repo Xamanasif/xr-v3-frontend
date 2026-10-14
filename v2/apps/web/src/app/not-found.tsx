@@ -1,9 +1,9 @@
-import { PublicNotFound } from '@/features/shared/pu-15-not-found/not-found';
+import { PublicNotFoundRoute } from './_public/public-route';
 
 /**
- * PU-15, public variant (board 08): every address outside the seven workspaces — `/` and the
- * public pages included until Phase 1 (G-8) — answers 404 with this page in the root layout.
+ * PU-15, public variant (board 08): every address outside the seven workspaces and the public
+ * pages answers 404 with this page, inside the public header and footer (Package 1B).
  */
 export default function RootNotFound() {
-  return <PublicNotFound />;
+  return <PublicNotFoundRoute />;
 }

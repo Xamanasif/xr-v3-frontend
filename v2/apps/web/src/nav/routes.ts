@@ -14,8 +14,10 @@ import type { WorkspaceScreenId } from './screens';
  * with the Help & support pages (XS-07), the interim landing and the in-shell not-found. Package
  * 1A adds the `(auth)` sign-in page (XS-01, with the XS-03 notices and the XS-04 disclosure), the
  * `/signed-out` redirect (row 21) and the Super Admin's Requests (SA-02) and Request decision
- * (SA-03). No public page exists yet: `/` and every public address resolve to the root not-found
- * (the public PU-15) until their packages build them.
+ * (SA-03). Package 1B adds the public surface in the `(public)` group — PU-01 Landing (with the
+ * PU-14 section), PU-02 / PU-03 areas, PU-04 catalogue, PU-05 course, PU-06 experiment — and the
+ * `/courses` → `/areas` redirect (Appendix A §3.7 row 1). Every other public address resolves to
+ * the root not-found (the public PU-15, now inside the public header and footer).
  */
 
 /** What a page file renders. */
@@ -32,16 +34,22 @@ export type HelpRouteView = 'reports' | 'report' | 'detail';
 /** The entry screens with a page of their own outside the workspaces (Appendix A "Entry & shared"). */
 export type EntryScreenId = 'XS-01';
 
+/**
+ * The public screens with a page of their own (Appendix A "Public"; Package 1B). PU-14 is a section
+ * of PU-01 (`/#for-institutions`) and has no page.
+ */
+export type PublicPageScreenId = 'PU-01' | 'PU-02' | 'PU-03' | 'PU-04' | 'PU-05' | 'PU-06';
+
 export interface PageRoute {
   /** The URL pattern, Next.js notation (`/student/help/reports/[reportId]`). */
   readonly pattern: string;
   /** The page file, relative to `src/app`. */
   readonly file: string;
-  /** The workspace base the page sits under; `null` for the `(auth)` sign-in page. */
+  /** The workspace base the page sits under; `null` for the `(auth)` and `(public)` pages. */
   readonly workspace: Workspace | null;
   readonly kind: PageKind;
   /** The screen a `screen` page shows; `null` otherwise. */
-  readonly screen: WorkspaceScreenId | EntryScreenId | null;
+  readonly screen: WorkspaceScreenId | EntryScreenId | PublicPageScreenId | null;
   /** The Help view a Help page shows. */
   readonly view?: HelpRouteView;
 }
@@ -132,10 +140,27 @@ const PACKAGE_1A_PAGES: readonly PageRoute[] = [
   },
 ];
 
-/** Every page file: the Phase-0 pages of the seven workspaces (35), then Package 1A's (3). */
+/**
+ * Package 1B (Phase 1): the public surface in the `(public)` route group (ADR-0005 §1; Appendix A
+ * PU-01…PU-06; PU-14 is the landing's `#for-institutions` section). Rendered in the browser from
+ * the tab's sample world (TE-8).
+ */
+const PACKAGE_1B_PAGES: readonly PageRoute[] = (
+  [
+    ['/', '(public)/page.tsx', 'PU-01'],
+    ['/areas', '(public)/areas/page.tsx', 'PU-02'],
+    ['/areas/[areaId]', '(public)/areas/[areaId]/page.tsx', 'PU-03'],
+    ['/experiments', '(public)/experiments/page.tsx', 'PU-04'],
+    ['/courses/[courseId]', '(public)/courses/[courseId]/page.tsx', 'PU-05'],
+    ['/experiments/[experimentId]', '(public)/experiments/[experimentId]/page.tsx', 'PU-06'],
+  ] as const
+).map(([pattern, file, screen]) => ({ pattern, file, workspace: null, kind: 'screen', screen }));
+
+/** Every page file: the Phase-0 pages of the seven workspaces (35), Package 1A's (3), Package 1B's (6). */
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
   ...PACKAGE_1A_PAGES,
+  ...PACKAGE_1B_PAGES,
 ];
 
 /**
@@ -148,6 +173,7 @@ export const ROUTE_FILES: readonly string[] = [
   'not-found.tsx',
   'healthz/route.ts',
   '(auth)/layout.tsx',
+  '(public)/layout.tsx',
   ...WORKSPACES.flatMap((workspace) => [`${workspace}/layout.tsx`, `${workspace}/not-found.tsx`]),
 ];
 
@@ -168,11 +194,24 @@ export const REDIRECTS: readonly {
     destination: `/${workspace}/help`,
   })),
   { source: '/signed-out', destination: SIGNED_OUT_ADDRESS },
+  // Row 1 (Package 1B): the PU-05 breadcrumb's intermediate "Areas" level.
+  { source: '/courses', destination: '/areas' },
 ];
 
-/** The workspace screens built as pages (the entry pages are not sidebar destinations). */
+/** The workspace screens built as pages (the entry and public pages are not sidebar destinations). */
 export const SCREENS_WITH_PAGES: ReadonlySet<WorkspaceScreenId> = new Set(
-  PAGES.flatMap((page) => (page.screen && page.screen !== 'XS-01' ? [page.screen] : [])),
+  PAGES.flatMap((page) =>
+    page.screen && page.workspace !== null ? [page.screen as WorkspaceScreenId] : [],
+  ),
+);
+
+/** The public screens built as pages (the public header, menu sheet and footer render only these). */
+export const PUBLIC_SCREENS_WITH_PAGES: ReadonlySet<PublicPageScreenId> = new Set(
+  PAGES.flatMap((page) =>
+    page.screen && page.workspace === null && page.screen !== 'XS-01'
+      ? [page.screen as PublicPageScreenId]
+      : [],
+  ),
 );
 
 /** Where an address leads (for the link-target ledger and its tests). */
@@ -187,12 +226,14 @@ export type AddressOutcome =
   | { readonly kind: 'redirect'; readonly workspace: Workspace | null; readonly to: string }
   | { readonly kind: 'workspace-not-found'; readonly workspace: Workspace }
   | { readonly kind: 'sign-in' }
+  | { readonly kind: 'public-screen'; readonly screen: PublicPageScreenId }
   | { readonly kind: 'public-not-found' };
 
 const WORKSPACE_SET: ReadonlySet<string> = new Set(WORKSPACES);
 
-/** What a same-origin path (no query) resolves to, by the manifest above. */
-export function resolveAddress(pathname: string): AddressOutcome {
+/** What a same-origin path resolves to, by the manifest above (a query or fragment is ignored). */
+export function resolveAddress(address: string): AddressOutcome {
+  const pathname = address.split(/[?#]/)[0]!;
   const segments = pathname.split('/').slice(1);
   const [first, ...rest] = segments;
   const tail = rest.filter((part, index) => part !== '' || index < rest.length - 1);
@@ -200,7 +241,7 @@ export function resolveAddress(pathname: string): AddressOutcome {
   if (first === 'signed-out' && tail.length === 0) {
     return { kind: 'redirect', workspace: null, to: SIGNED_OUT_ADDRESS };
   }
-  if (!first || !WORKSPACE_SET.has(first)) return { kind: 'public-not-found' };
+  if (!first || !WORKSPACE_SET.has(first)) return resolvePublic(first ?? '', tail);
   const workspace = first as Workspace;
   const parts = tail;
   if (parts.length === 0) {
@@ -224,4 +265,19 @@ export function resolveAddress(pathname: string): AddressOutcome {
     }
   }
   return { kind: 'workspace-not-found', workspace };
+}
+
+/** The public surface (Package 1B): `/`, `/areas[/id]`, `/courses/id`, `/experiments[/id]`. */
+function resolvePublic(first: string, tail: readonly string[]): AddressOutcome {
+  if (first === '' && tail.length === 0) return { kind: 'public-screen', screen: 'PU-01' };
+  const id = tail.length === 1 && tail[0] !== '';
+  if (first === 'areas' && tail.length === 0) return { kind: 'public-screen', screen: 'PU-02' };
+  if (first === 'areas' && id) return { kind: 'public-screen', screen: 'PU-03' };
+  if (first === 'experiments' && tail.length === 0)
+    return { kind: 'public-screen', screen: 'PU-04' };
+  if (first === 'experiments' && id) return { kind: 'public-screen', screen: 'PU-06' };
+  if (first === 'courses' && tail.length === 0)
+    return { kind: 'redirect', workspace: null, to: '/areas' };
+  if (first === 'courses' && id) return { kind: 'public-screen', screen: 'PU-05' };
+  return { kind: 'public-not-found' };
 }

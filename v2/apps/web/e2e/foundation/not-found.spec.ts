@@ -21,8 +21,15 @@ import {
 
 test.describe('public variant (product build)', () => {
   // `/sign-in` and `/signed-out` are built in Phase-1 Package 1A (XS-01, XS-03): see
-  // `e2e/package-1a/sign-in.spec.ts`.
-  for (const path of ['/', '/nope', '/sign-in/elsewhere', '/experiments', '/selection']) {
+  // `e2e/package-1a/sign-in.spec.ts`; `/`, `/areas[/…]`, `/courses/…` and `/experiments[/…]` in
+  // Package 1B (`e2e/package-1b/`). The Selection and request pages are Package 1C.
+  for (const path of [
+    '/nope',
+    '/sign-in/elsewhere',
+    '/selection',
+    '/request-access',
+    '/requests',
+  ]) {
     test(`${path}: 404, "We can’t find that page", Browse experiments, no Help`, async ({
       page,
     }) => {
@@ -36,10 +43,12 @@ test.describe('public variant (product build)', () => {
       await expect(links).toHaveText(['Browse experiments']);
       await expect(links.first()).toHaveAttribute('href', '/experiments');
       await expect(page).toHaveTitle('We can’t find that page · XR Learning Platform');
-      // No public header or shell yet (Phase 1, G-8); no workspace shell either.
-      await expect(page.locator('header, aside, .xr-app')).toHaveCount(0);
+      // Inside the public frame since Package 1B: the public header and footer, no workspace shell.
+      await expect(page.locator('header.xp-head')).toHaveCount(1);
+      await expect(page.locator('footer.xp-foot')).toHaveCount(1);
+      await expect(page.locator('aside.xr-side, .xr-app')).toHaveCount(0);
       await expect(
-        page.locator('div.xp > main.xp-page > div.xp-in > .xr-msg.xr-x-msg--public'),
+        page.locator('div.xp > main.xp-page#main > div.xp-in > .xr-msg.xr-x-msg--public'),
       ).toHaveCount(1);
       await expectNoAxeViolations(page);
     });

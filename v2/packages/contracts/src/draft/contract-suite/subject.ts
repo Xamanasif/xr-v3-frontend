@@ -58,6 +58,11 @@ export interface ContractInspection {
 export interface ContractSubject {
   /** The ledger phases whose methods this adapter implements (`['WP-0.11']` for the Phase-0 mock). */
   readonly implements: readonly ImplementationPhase[];
+  /**
+   * Later-phase methods it implements ahead of their phase, as an authorised package delivered
+   * them (ledger `PACKAGE_DELIVERIES`); none by default.
+   */
+  readonly delivered?: readonly MethodId[];
   /** One visitor's browser session on the public surface, for the subject's lifetime. */
   readonly publicPorts: ProductPorts;
   /** The ports as a documented sample person — set by the test-harness seam, never a UI. */

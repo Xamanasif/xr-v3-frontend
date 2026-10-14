@@ -45,7 +45,15 @@ export const catalogueEntry = z.object({
   platformCode: platformCourseCode.nullable(),
   /** Published formats, in display order. */
   availableIn: z.array(technology),
+  /**
+   * The concept artwork key of the row thumbnail, cards and hero (B1-04 "Thumbnail (concept
+   * artwork, decorative)", B1-05); `null` → the drawn fallback. Presentation only (PC-31).
+   */
+  artworkKey: z.string().nullable(),
 });
+
+/** The area a course belongs to: PU-05's eyebrow, breadcrumb and back link (B1-03; PC-30). */
+export const areaRef = z.object({ id: areaId, name: z.string().min(1) });
 
 /**
  * PU-06. `versionLabel` stays `null` while OD-B7-05 (is the version public?) is open — the field is
@@ -62,11 +70,16 @@ export const publicExperimentPage = catalogueEntry.extend({
   versionLabel: z.null(),
 });
 
-/** B1-04: no default order is assumed — the caller names it. */
+/**
+ * B1-04: no default order is assumed — the caller names it. `featured: true` keeps the landing's
+ * featured experiments only (B1-01 "Featured experiments"), in their seeded order under `default`
+ * (P1-22 interim: a seeded list; curated vs derived is OPEN — PC-32).
+ */
 export const catalogueQuery = z.object({
   text: z.string().optional(),
   areaId: ids.in.area.optional(),
   format: technology.optional(),
+  featured: z.boolean({ error: key('contract.invalid-input') }).optional(),
   sort: z.enum(['default', 'title-a-z', 'course-code'], { error: key('contract.invalid-input') }),
 });
 
@@ -74,6 +87,7 @@ export const listAreasOutput = z.array(areaCard);
 export const getAreaOutput = z.object({ area: areaCard, courses: z.array(courseCard) });
 export const getCourseOutput = z.object({
   course: courseCard,
+  area: areaRef,
   experiments: z.array(catalogueEntry),
 });
 export const searchCatalogueOutput = z.object({
@@ -84,6 +98,7 @@ export const searchCatalogueOutput = z.object({
 export type AreaCard = Out<typeof areaCard>;
 export type CourseCard = Out<typeof courseCard>;
 export type CatalogueEntry = Out<typeof catalogueEntry>;
+export type AreaRef = Out<typeof areaRef>;
 export type PublicExperimentPage = Out<typeof publicExperimentPage>;
 export type CatalogueQuery = In<typeof catalogueQuery>;
 

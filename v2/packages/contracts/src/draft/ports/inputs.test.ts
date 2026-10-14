@@ -891,7 +891,7 @@ describe('no input names the caller or claims a permission (Appendix C rule 1; W
     expect(findings).toEqual([]);
   });
 
-  it('lists the booleans an input may carry: two view filters and a true-or-false answer', () => {
+  it('lists the booleans an input may carry: three view filters and a true-or-false answer', () => {
     const booleans = ledgerRows().flatMap((row) =>
       row.input === null
         ? []
@@ -900,6 +900,8 @@ describe('no input names the caller or claims a permission (Appendix C rule 1; W
             .map((field) => `${row.id}: ${field.name}`),
     );
     expect(booleans).toEqual([
+      // Package 1B (PC-32): the landing's featured experiments — a view of the public catalogue.
+      'CatalogueService.searchCatalogue: featured',
       'StudentAccessService.listGrants: showWithdrawn',
       'AssessmentService.saveAnswer: value',
       'QuestionBankService.listQuestions: includeDeleted',

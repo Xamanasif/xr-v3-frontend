@@ -83,9 +83,9 @@ function traceHolds(trace: Trace): boolean {
 }
 
 describe('the provisional register', () => {
-  it('numbers its items PC-01 … PC-29 in order', () => {
+  it('numbers its items PC-01 … PC-32 in order', () => {
     expect(PROVISIONAL_REGISTER.map((item) => item.id)).toEqual(
-      Array.from({ length: 29 }, (_, index) => `PC-${String(index + 1).padStart(2, '0')}`),
+      Array.from({ length: 32 }, (_, index) => `PC-${String(index + 1).padStart(2, '0')}`),
     );
   });
 
@@ -131,7 +131,16 @@ describe('the provisional register', () => {
     const flagged = PROVISIONAL_REGISTER.filter((item) => item.irreversible !== null).map(
       (item) => item.id,
     );
-    expect(flagged).toEqual(['PC-01', 'PC-04', 'PC-19', 'PC-27', 'PC-29']);
+    expect(flagged).toEqual([
+      'PC-01',
+      'PC-04',
+      'PC-19',
+      'PC-27',
+      'PC-29',
+      'PC-30',
+      'PC-31',
+      'PC-32',
+    ]);
   });
 });
 

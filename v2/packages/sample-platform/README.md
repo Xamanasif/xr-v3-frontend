@@ -53,8 +53,13 @@ Every answer's error kind, refusal code and open decision is checked at run time
 method's ledger entry.
 
 **Methods.** The 138 methods Appendix F §4.1 places in Phase 0, plus
-`ProductionService.listAllContent` (the E-alt3 exception below). The other 44 keep their phase:
-calling one rejects with the phase it lands in — never an invented value.
+`ProductionService.listAllContent` (the E-alt3 exception below), plus the three public structure
+reads Phase-1 Package 1B delivered — `CatalogueService.listAreas`, `getArea` and `getCourse`
+(`PACKAGE_DELIVERIES` in `@xr/contracts/draft`; read on the client under TE-8). The other 41 keep
+their phase: calling one rejects with the phase it lands in — never an invented value. Package 1B
+also seeded the boards' concept-artwork keys (areas and the twelve experiments, PC-31) and B1-01's
+four featured experiments (`seeded.featuredExperiments`, P1-22 interim, PC-32); every public count
+is derived from the published experiments, none is stored.
 
 ## The E-alt3 exception — `listAllContent`
 

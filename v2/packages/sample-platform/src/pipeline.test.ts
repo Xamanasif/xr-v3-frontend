@@ -5,7 +5,7 @@
  * exact refs, and the actor is resolved from the records on every call — in the session the call
  * was made in.
  */
-import { ledgerRows, type ProductPorts } from '@xr/contracts/draft';
+import { DELIVERED_METHODS, ledgerRows, type ProductPorts } from '@xr/contracts/draft';
 import { type CourseId, type QuestionId, unsafeBrand } from '@xr/domain';
 import { describe, expect, it } from 'vitest';
 
@@ -398,7 +398,7 @@ describe('fault injection and later-phase methods', () => {
     expect((await ia.studentAccess.listGrants({ showWithdrawn: false })).ok).toBe(true);
   });
 
-  it('builds the 139 WP-0.11 methods and leaves each of the 44 later ones to its phase', async () => {
+  it('builds the 139 WP-0.11 methods and the 3 Package-1B ones, and leaves each of the other 41 later ones to its phase', async () => {
     const platform = await platformAfterB();
     const ports = platform.ports as unknown as Record<
       string,
@@ -408,7 +408,23 @@ describe('fault injection and later-phase methods', () => {
     const later = rows.filter((row) => row.mock !== 'WP-0.11');
     expect(rows.length - later.length).toBe(139);
     expect(later).toHaveLength(44);
-    for (const row of later) {
+    const delivered = later.filter((row) =>
+      (DELIVERED_METHODS as readonly string[]).includes(row.id),
+    );
+    expect(delivered.map((row) => row.id)).toEqual([
+      'CatalogueService.listAreas',
+      'CatalogueService.getArea',
+      'CatalogueService.getCourse',
+    ]);
+    for (const row of delivered) {
+      // Delivered by Package 1B: answered (a Result), never rejected.
+      await expect(ports[row.portKey]![row.method]!(undefined), row.id).resolves.toHaveProperty(
+        'ok',
+      );
+    }
+    const deferredRows = later.filter((row) => !delivered.includes(row));
+    expect(deferredRows).toHaveLength(41);
+    for (const row of deferredRows) {
       // Port construction refuses to stub a WP-0.11 method, so only later ones can reject here.
       await expect(ports[row.portKey]![row.method]!(undefined), row.id).rejects.toThrow(
         `lands in ${row.mock}`,

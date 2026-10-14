@@ -475,4 +475,46 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'Drop the field and read the name from an own-institution read model once one exists; the shell takes the line from there.',
   },
+  {
+    id: 'PC-30',
+    subject:
+      'The public course read names the course’s area (`getCourse` → `area: { id, name }`), for PU-05’s eyebrow, breadcrumb and “Back to …” link',
+    status: 'provisional-engineering',
+    source:
+      'B1-03 "PU-05 Course": eyebrow "Course · Mechanical & Manufacturing", crumbs Home / Areas / <area> / <course> and "Back to Mechanical & Manufacturing"; Appendix C §3.2 `getCourse` returns the course card and its experiments only, and the course card carries no area. Added in Phase-1 Package 1B, when the method was built',
+    decisions: [],
+    trace: [{ kind: 'schema-field', schema: 'getCourseOutput', path: 'area.name' }],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the field and add `areaId` to the course card, or let the page read the area through `getArea`.',
+  },
+  {
+    id: 'PC-31',
+    subject:
+      'An experiment carries a concept-artwork key (`Experiment.artworkKey`, catalogue entry `artworkKey`), seeded from the boards; `null` shows the drawn fallback',
+    status: 'provisional-engineering',
+    source:
+      'B1-04 row "Thumbnail (concept artwork, decorative)" and its 12 rows’ `art`; B1-01 featured cards; B1-05 hero illustration; assets.json "Area and format artwork (19 files) — Approved B2 illustrations, concept only". Appendix C gives artwork to the area only (M06 `artworkKey`). No upload is designed (D3), so an experiment published in the sample period has none. Added in Phase-1 Package 1B',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'catalogueEntry', path: 'artworkKey' },
+      { kind: 'schema-field', schema: 'experiment', path: 'artworkKey' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the field; the public pages then show the drawn artwork fallback for every experiment.',
+  },
+  {
+    id: 'PC-32',
+    subject:
+      'The catalogue search can keep the landing’s featured experiments only (`catalogueQuery.featured`), a seeded list in its drawn order',
+    status: 'provisional-reading',
+    source:
+      'B1-01 "Featured experiments · Start with these experiments" (four experiments); B1-01 change table: "curated vs derived is OPEN"; Appendix G P1-22 (provisional): "Featured experiments are a seeded list". Appendix C §3.2 has no featured read. Added in Phase-1 Package 1B',
+    decisions: [],
+    trace: [{ kind: 'schema-field', schema: 'catalogueQuery', path: 'featured' }],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the parameter once the owner decides P1-22: a curated list gets its own read, a derived one a rule in the catalogue service.',
+  },
 ];

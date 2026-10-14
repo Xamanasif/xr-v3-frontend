@@ -5,6 +5,16 @@
  * entitlement, activity or completion (BC9). An unpublished or unknown experiment is not found.
  * The selection is the visitor's browser session, never a world record (B1-06): its commands
  * write nothing to the world.
+ *
+ * Phase-1 Package 1B builds the structure reads (ledger `PACKAGE_DELIVERIES`): `listAreas`,
+ * `getArea` and `getCourse`. Their counts, courses and formats derive from the published
+ * catalogue only (B1-02 "Counts come from published experiments"; B1-03 "Each area groups the
+ * courses that have published experiments"). An area with no published experiment is hidden —
+ * from the list and as a page (CRS-09; B1-01 "Hidden from the landing explorer and from All areas
+ * until something is published", OD-B7-13 Confirm — OPEN), and its courses are hidden with it
+ * (their pages would lead back to an area that is not found). A course of a shown area is a page
+ * whenever it exists: B1-03 draws "Course · nothing published yet — shown only if the course is
+ * reachable at all".
  */
 import {
   addToSelectionInput,
@@ -15,9 +25,12 @@ import {
 } from '@xr/contracts/draft';
 import {
   addToSelection,
+  type EngineeringArea,
   type Experiment,
   type ExperimentId,
+  publicAreas,
   publicCatalogue,
+  type PublicCatalogueEntry,
   publishedFormats,
   removeFromSelection,
   setSelectionFormats,
@@ -27,25 +40,78 @@ import {
 import type { Call } from '../platform/core.js';
 import { read, refuse, sessionScoped } from '../pipeline/runner.js';
 import { values } from '../world/records.js';
-import { deferred } from './deferred.js';
-import { catalogueEntryOf, publicPageOf } from './views.js';
+import type { WorldRecords } from '../world/types.js';
+import { areaCardOf, catalogueEntryOf, courseCardOf, publicPageOf } from './views.js';
 
 function matches(text: string | undefined, ...fields: readonly (string | null)[]): boolean {
   const wanted = text?.trim().toLowerCase() ?? '';
   return wanted === '' || fields.some((field) => field?.toLowerCase().includes(wanted));
 }
 
+/** The published catalogue, in the world's (default) order. */
+function catalogueOf(records: WorldRecords): readonly PublicCatalogueEntry[] {
+  return publicCatalogue(values(records.experiments), values(records.courses));
+}
+
+/** The area when it is on the public surface (it holds a published experiment), else nothing. */
+function shownArea(
+  area: EngineeringArea | undefined,
+  catalogue: readonly PublicCatalogueEntry[],
+): EngineeringArea | undefined {
+  return area && publicAreas([area], catalogue).length > 0 ? area : undefined;
+}
+
 export function cataloguePort(call: Call): CatalogueService {
   return {
-    listAreas: deferred('CatalogueService.listAreas'),
-    getArea: deferred('CatalogueService.getArea'),
-    getCourse: deferred('CatalogueService.getCourse'),
+    listAreas: () =>
+      read(call, 'CatalogueService.listAreas', (op) => {
+        const catalogue = catalogueOf(op.records);
+        return publicAreas(values(op.records.areas), catalogue).map((area) =>
+          areaCardOf(area, catalogue),
+        );
+      }),
+
+    getArea: (areaId) =>
+      read(call, 'CatalogueService.getArea', (op) => {
+        const records = op.records;
+        const catalogue = catalogueOf(records);
+        const area = op.found(shownArea(records.areas[op.idText(areaId)], catalogue));
+        const published = new Set(
+          catalogue.filter((entry) => entry.areaId === area.id).map((entry) => entry.courseId),
+        );
+        return {
+          area: areaCardOf(area, catalogue),
+          courses: values(records.courses)
+            .filter((course) => published.has(course.id))
+            .map((course) => courseCardOf(records, course)),
+        };
+      }),
+
+    getCourse: (courseId) =>
+      read(call, 'CatalogueService.getCourse', (op) => {
+        const records = op.records;
+        const course = op.found(records.courses[op.idText(courseId)]);
+        const catalogue = catalogueOf(records);
+        if (!records.areas[course.areaId])
+          throw new Error(`${course.id} names an area that does not exist.`);
+        const area = op.found(shownArea(records.areas[course.areaId], catalogue));
+        return {
+          course: courseCardOf(records, course),
+          area: { id: area.id, name: area.name },
+          experiments: catalogue
+            .filter((entry) => entry.courseId === course.id)
+            .map((entry) => catalogueEntryOf(records, records.experiments[entry.experimentId]!)),
+        };
+      }),
 
     searchCatalogue: (query) =>
       read(call, 'CatalogueService.searchCatalogue', (op) => {
         const accepted = op.parse(catalogueQuery, query);
         const records = op.records;
-        const entries = publicCatalogue(values(records.experiments), values(records.courses))
+        // P1-22 interim (PC-32): the landing's featured experiments are a seeded list.
+        const featured = op.seeded.featuredExperiments;
+        const entries = catalogueOf(records)
+          .filter((entry) => !accepted.featured || featured.includes(entry.experimentId))
           .filter((entry) => !accepted.areaId || entry.areaId === accepted.areaId)
           .filter((entry) => !accepted.format || entry.formats.includes(accepted.format))
           .filter((entry) =>
@@ -61,8 +127,15 @@ export function cataloguePort(call: Call): CatalogueService {
         if (accepted.sort === 'title-a-z') {
           entries.sort((a, b) => a.name.localeCompare(b.name, 'en'));
         } else if (accepted.sort === 'course-code') {
-          entries.sort((a, b) =>
-            (a.platformCode ?? '￿').localeCompare(b.platformCode ?? '￿', 'en'),
+          // B1-04's live order: the course code, then the title within one course (Package 1B).
+          entries.sort(
+            (a, b) =>
+              (a.platformCode ?? '￿').localeCompare(b.platformCode ?? '￿', 'en') ||
+              a.name.localeCompare(b.name, 'en'),
+          );
+        } else if (accepted.featured) {
+          entries.sort(
+            (a, b) => featured.indexOf(a.experimentId) - featured.indexOf(b.experimentId),
           );
         }
         return { total: entries.length, entries };

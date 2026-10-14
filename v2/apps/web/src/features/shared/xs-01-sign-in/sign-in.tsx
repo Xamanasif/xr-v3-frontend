@@ -1,7 +1,15 @@
 'use client';
 
 import type { Role } from '@xr/domain';
-import { Button, Field, FieldError, LoadingState, Notice, TextInput } from '@xr/ui';
+import {
+  Button,
+  Field,
+  FieldError,
+  LoadingState,
+  LogoPlaceholder,
+  Notice,
+  TextInput,
+} from '@xr/ui';
 import { type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import { SIGN_IN, SIGN_IN_NOTICES, signInReasonOf } from '@/copy/sign-in';
@@ -15,7 +23,6 @@ import { useCommand } from '@/queries/use-command';
 import { noteEntryAddress } from '../workspace-frame/route-focus';
 
 /** B1-09's placeholder (an unapproved placeholder, never the official asset: owner constraint 12). */
-const LOGO_PLACEHOLDER = 'BITS Pilani / WILP logo — placeholder';
 
 const EMAIL_ID = 'sign-in-email';
 const PASSWORD_ID = 'sign-in-password';
@@ -184,7 +191,7 @@ export function SignIn() {
   return (
     <div className="xp-auth-card">
       <div className="xp-auth-brand">
-        <span className="xp-logo">{LOGO_PLACEHOLDER}</span>
+        <LogoPlaceholder placement="public" />
         <span>{SIGN_IN.product}</span>
       </div>
       {mode === 'expired' ? (

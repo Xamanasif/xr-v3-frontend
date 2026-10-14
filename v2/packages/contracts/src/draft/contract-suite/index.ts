@@ -9,6 +9,7 @@
  * the adapter cannot run yet (its fixture, a later-phase method, a seam) is reported "not run",
  * never "passed".
  */
+import { CATALOGUE_CASES } from './cases/catalogue.js';
 import { SESSION_CASES, SURFACE_CASES } from './cases/generic.js';
 import { CROSS_ROLE_CASES } from './cases/cross-role.js';
 import { FLOW_A_CASES } from './cases/flow-a.js';
@@ -24,10 +25,11 @@ import type { ContractFactory } from './subject.js';
 /** A marker the bundle check looks for: this module must never reach a product build. */
 export const CONTRACT_SUITE_MARKER = 'xr-contracts-draft-contract-suite';
 
-/** Every case, in order: surface, session, flows, cross-cutting, invariants. */
+/** Every case, in order: surface, session, catalogue structure, flows, cross-cutting, invariants. */
 export const CONTRACT_CASES: readonly ContractCase[] = [
   ...SURFACE_CASES,
   ...SESSION_CASES,
+  ...CATALOGUE_CASES,
   ...FLOW_A_CASES,
   ...FLOW_B_CASES,
   ...FLOW_C_CASES,

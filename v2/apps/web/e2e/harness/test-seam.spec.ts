@@ -192,8 +192,12 @@ test.describe('the product build ignores the test seam', () => {
     page,
   }) => {
     await bootWorld(page, { fixture: 'spine-start', session: { personId: 'PER-0001' } });
+    // The landing (PU-01, Package 1B) starts the tab's own world: the descriptor is ignored, so
+    // nobody is signed in and the bridge is absent.
     const response = await page.goto('/');
-    expect(response?.status()).toBe(404);
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Set the conditions.');
+    await expect(page.locator('header a.xp-signin')).toHaveText('Sign in');
     expect(await page.evaluate((key) => key in window, TEST_HOOKS_GLOBAL)).toBe(false);
     await expectNoDeveloperSurfaces(page);
   });

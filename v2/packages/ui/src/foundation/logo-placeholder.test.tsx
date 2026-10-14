@@ -1,9 +1,9 @@
 /**
  * LogoPlaceholder — markup contract and accessibility (Appendix E §3.1 LogoPlaceholder, §4.5;
  * BC12). Sources: board 06 "The seven sidebars · full width (≥ 1280 px)" (the sidebar box, drawn
- * statically), board 05 "GL-01 Workspace Shell" and board 07 (the same box in every shell). The
- * public placements `xp-logo` and `xp-auth-brand` are Phase 1 (G-8). The committed branding PNG
- * is never used (VD-03).
+ * statically), board 05 "GL-01 Workspace Shell" and board 07 (the same box in every shell); the
+ * public placement `span.xp-logo`, board B1-01 "Landing · 1440 · default" (Phase-1 Package 1B).
+ * The committed branding PNG is never used (VD-03).
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -27,6 +27,20 @@ describe('LogoPlaceholder markup contract', () => {
       { board: '06', frame: 'The seven sidebars · full width (≥ 1280 px)' },
       '<div class="xr-logo-ph">BITS Pilani / WILP logo — placeholder</div>',
     );
+  });
+
+  it('renders the public box B1-01 draws in the header and the footer (Phase 1, G-8)', () => {
+    const { container } = render(<LogoPlaceholder placement="public" />);
+    expectRenderedAsDrawn(
+      container.firstElementChild!,
+      { board: 'B1-01', frame: 'Landing · 1440 · default' },
+      '<span class="xp-logo">BITS Pilani / WILP logo — placeholder</span>',
+    );
+    expectBoardDraws(
+      { board: 'B1-01', frame: 'Landing · 1440 · default' },
+      '<div class="xp-foot-brand"><span class="xp-logo">BITS Pilani / WILP logo — placeholder</span><span>XR Learning Platform</span></div>',
+    );
+    expectStylesheetClassesOnly(container.firstElementChild!);
   });
 
   it('the text is exactly the BC12 wording, as boards 05 and 07 draw it too', () => {

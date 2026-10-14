@@ -41,6 +41,20 @@ export function focusMain(): void {
   if (main && main !== document.activeElement) main.focus({ preventScroll: true });
 }
 
+/**
+ * A public page reached at an in-page address (`/#for-institutions`, PU-14; Package 1B): focus
+ * goes to that section's heading (`tabIndex=-1`) instead of `main`, without a second scroll — the
+ * router has scrolled the section into view. False when the address names no such target.
+ */
+function focusHashTarget(hash: string): boolean {
+  if (hash.length < 2) return false;
+  const section = document.getElementById(decodeURIComponent(hash.slice(1)));
+  const heading = section?.querySelector<HTMLElement>('h2[tabindex="-1"]');
+  if (!heading) return false;
+  if (heading !== document.activeElement) heading.focus({ preventScroll: true });
+  return true;
+}
+
 export function useRouteFocus(pathname: string): void {
   useEffect(() => {
     const previous = lastAddress;
@@ -50,6 +64,7 @@ export function useRouteFocus(pathname: string): void {
       landingTarget = null;
       return;
     }
+    if (focusHashTarget(window.location.hash)) return;
     focusMain();
   }, [pathname]);
 
@@ -60,10 +75,21 @@ export function useRouteFocus(pathname: string): void {
       if (event.defaultPrevented || event.button !== 0) return;
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
-      if (!(link instanceof HTMLAnchorElement) || !link.closest('.xr-app')) return;
+      // The workspace shell, and the public shell (Package 1B: `div.xp`).
+      if (!(link instanceof HTMLAnchorElement) || !link.closest('.xr-app, .xp')) return;
       const url = new URL(link.href, window.location.href);
-      if (url.origin !== window.location.origin || url.hash !== '') return;
+      if (url.origin !== window.location.origin) return;
       if (url.pathname !== window.location.pathname) return;
+      // "For institutions" on the landing itself (public shell only): the router scrolls, focus
+      // follows the section. A link that handles its own click (a workspace jump link such as
+      // "Go to decision" moves focus itself) is left alone — read once the click has run.
+      if (url.hash !== '') {
+        if (url.hash === `#${MAIN_ID}` || !link.closest('.xp')) return;
+        window.setTimeout(() => {
+          if (!event.defaultPrevented) focusHashTarget(url.hash);
+        }, 0);
+        return;
+      }
       window.setTimeout(focusMain, 0);
     };
     // Capture: the account menu and the drawer remove or hide the chosen link while React handles

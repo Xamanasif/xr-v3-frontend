@@ -20,8 +20,9 @@
  * screens. WP-0.15 (visual parity) adds PF-17 (the toolbar's Clear filters height), PF-18 (a
  * failed state's report link beside Try again), PF-19 (text-link hover underline and the
  * external text link) and PF-20 (the logo placeholder in the drawer head). Phase-1 Package 1A
- * adds PF-21 (a confirmation's list of effects, B1-11). Not here: PF-08 motion (VD-09), PF-10
- * (no CSS, VD-05) and PF-12 forced colours (VD-15).
+ * adds PF-21 (a confirmation's list of effects, B1-11); Package 1B adds PF-22 (the public pages'
+ * drawn inline styles, B1-01 … B1-05). Not here: PF-08 motion (VD-09), PF-10 (no CSS, VD-05) and
+ * PF-12 forced colours (VD-15).
  */
 
 /* ===========================================================================================
@@ -668,4 +669,80 @@ a[target='_blank']:not([class]) > .xr-ico {
   font-size: 16px;
   line-height: 24px;
   color: var(--xr-ink-2);
+}
+
+/* ===========================================================================================
+ * PF-22 · The public pages' drawn inline styles (Phase-1 Package 1B, B1-01 … B1-05; narrow
+ * correction awaiting the owner's acknowledgement). The boards set these on the elements
+ * themselves; inline styles are not product code (ADR-0001 §4), spacing and token colours become
+ * composition utilities in apps/web, and what utilities may not express — a type size, a colour
+ * outside the token set, a background size, a margin on a v46 class in one context — is here,
+ * scoped to the context the boards draw it in. No new class names.
+ * =========================================================================================== */
+
+/* PF-22 · B1-03 "PU-02 All engineering areas": `h2.xp-card-title style="font-size:24px;
+ * line-height:30px"` on every area card (xr-public.css gives card titles 20 px). */
+.xp-acard .xp-card-title {
+  font-size: 24px;
+  line-height: 30px;
+}
+
+/* PF-22 · B1-03 "All areas · loading" and B1-04 "Loading": the skeleton card and row media
+ * `style="background:#E6E8F3"` (a placeholder tint outside the token set). The skeletons are
+ * the only `aria-hidden` cards and rows the public pages render. */
+.xp-card[aria-hidden='true'] > .xp-card-media,
+.xp-erow[aria-hidden='true'] > .xp-erow-media {
+  background: #e6e8f3;
+}
+
+/* PF-22 · The art is drawn as the boards' live `div.xp-bgart.xp-art--<key>` (B1-02 explorer, B1-04
+ * rows: `background-size:cover`). Where a board draws the static `img` with `object-fit:contain` —
+ * the landing hero (`.xp-hero-art img`, B1-01) and the experiment preview (`.xp-preview img`,
+ * B1-05) — the drawing is contained the same way. */
+.xp-hero-art > .xp-bgart,
+.xp-preview > .xp-bgart {
+  background-size: contain;
+}
+
+/* PF-22 · Back links on navy: B1-05 "Arrived with a format filter" `a.xr-back style="color:#FFFFFF;
+ * margin:-8px 0 16px"` under the breadcrumb, and B1-09 `a.xr-back style="color:#FFFFFF"` in the
+ * sign-in top row (the link appears with the Landing, Package 1B). */
+.xp-xhero .xp-in > .xr-back {
+  color: #ffffff;
+  margin: -8px 0 16px;
+}
+
+.xp-auth-top > .xr-back {
+  color: #ffffff;
+}
+
+/* PF-22 · B1-05 "Get this for your institution": the "Formats: WEB · VR" line in the green "In
+ * your selection" box `span style="font-size:15px;color:#12173F"`, and the panel's last line
+ * "Already have access? Sign in" `p style="font-size:15px;color:#40476B"`. */
+.xp-insel > span:not(.xp-insel-t) {
+  font-size: 15px;
+  color: var(--xr-ink);
+}
+
+.xp-panel > p:last-child {
+  font-size: 15px;
+  color: var(--xr-ink-2);
+}
+
+/* PF-22 · The catalogue's filter panel scrolls with the page (an accessibility correction, owner
+ * review, Package-1B record §5). xr-public.css `.xp-filters{position:sticky;top:24px;…}` never sticks on the
+ * B1-04 canvas, whose frames do not scroll; in the product (PF-06) it sticks, and with its three
+ * facets it is 955 px tall at 1440 px — taller than the viewport — so its lower options could not
+ * be seen when focused (WCAG 2.4.11) nor reached by a pointer until the end of the results. */
+.xp-cat > .xp-filters {
+  position: static;
+}
+
+/* PF-22 · The filter sheet keeps a focused option above its sticky foot (an accessibility
+ * correction, owner review, Package-1B record §5; WCAG 2.4.11). xr-public.css `.xp-fsheet-foot{
+ * position:sticky;bottom:0;…}` (Clear all · Show N experiments, 72 px) covers the panel's last
+ * visible rows by design; without scroll padding, focusing an option scrolls it to the panel's
+ * bottom edge — under the foot. Nothing moves at rest. */
+.xp-fsheet-panel {
+  scroll-padding-bottom: 80px;
 }

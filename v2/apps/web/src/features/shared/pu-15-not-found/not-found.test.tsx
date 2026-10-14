@@ -12,6 +12,7 @@ import { PERSON_OF_ROLE, renderInTab, tabPlatform, testNavigation } from '@/test
 
 import { forgetLastAddress } from '../workspace-frame/route-focus';
 import { WorkspaceLayout } from '../workspace-frame/workspace-frame';
+import { PublicFrame } from '../../public/shell/public-frame';
 import { PublicNotFound, WorkspaceNotFound } from './not-found';
 
 afterEach(() => forgetLastAddress());
@@ -31,13 +32,18 @@ describe('board 08 draws both variants with these words', () => {
 });
 
 describe('PU-15 public variant', () => {
-  it('one H1, the sentence, "Browse experiments" to /experiments, no Help, in the public page frame', () => {
-    const { container } = render(<PublicNotFound />);
-    const root = container.firstElementChild!;
-    expect(root.className).toBe('xp');
+  it('one H1, the sentence, "Browse experiments" to the built catalogue, no Help, inside the public frame (Package 1B)', () => {
+    render(
+      <PublicFrame pathname="/zz-unknown">
+        <PublicNotFound />
+      </PublicFrame>,
+    );
+    const root = document.querySelector('body > div > div.xp')!;
     expect(
-      root.querySelector(':scope > main.xp-page > div.xp-in > div.xr-msg.xr-x-msg--public'),
+      root.querySelector(':scope > main.xp-page#main > div.xp-in > div.xr-msg.xr-x-msg--public'),
     ).not.toBeNull();
+    expect(root.querySelector(':scope > header.xp-head')).not.toBeNull();
+    expect(root.querySelector(':scope > footer.xp-foot')).not.toBeNull();
     expect(
       screen.getAllByRole('heading', { level: 1 }).map((heading) => heading.textContent),
     ).toEqual(['We can’t find that page']);
@@ -46,13 +52,17 @@ describe('PU-15 public variant', () => {
         'The address may be wrong, or the page may have moved. Published experiments are all in the catalogue.',
       ),
     ).toBeVisible();
+    const main = screen.getByRole('main');
     expect(
-      screen.getAllByRole('link').map((link) => [link.textContent, link.getAttribute('href')]),
+      within(main)
+        .getAllByRole('link')
+        .map((link) => [link.textContent, link.getAttribute('href')]),
     ).toEqual([['Browse experiments', '/experiments']]);
     expect(document.title).toBe('We can’t find that page · XR Learning Platform');
-    // No public header, sign-in or request access until Phase 1 (G-8).
-    expect(screen.queryByRole('banner')).toBeNull();
-    expect(screen.queryByText(/Sign in|Request access/)).toBeNull();
+    // The public header offers only built destinations: no Selection or Request access (PU-07).
+    expect(screen.getByRole('banner')).toBeVisible();
+    expect(screen.queryByText(/Request access/)).toBeNull();
+    expect(screen.queryByRole('link', { name: /Help/ })).toBeNull();
   });
 });
 

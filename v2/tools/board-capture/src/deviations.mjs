@@ -451,7 +451,7 @@ export const DEVIATIONS = [
     expected:
       'B1-09 draws the two links on the sign-in page; B1-10 and board 05 draw the Super Admin sidebar with all seven destinations.',
     actual:
-      'The sign-in card has no "Request institutional access" line and the top row no "Back to experiments" (the Landing PU-01 and the Selection PU-07 are not built; the top row keeps its drawn height). The Super Admin sidebar lists Requests (built in 1A, with its count of requests under review read from the world) and Help only. Measured per comparison in DEVIATIONS.md.',
+      'The sign-in card has no "Request institutional access" line (the Selection PU-07 is not built). The top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23). The Super Admin sidebar lists Requests (built in 1A, with its count of requests under review read from the world) and Help only. Measured per comparison in DEVIATIONS.md.',
     accessibility:
       'None: an unbuilt address would show the public not-found page and, as a document load, restart the tab’s sample world (ADR-0004).',
     decision:
@@ -492,7 +492,8 @@ export const DEVIATIONS = [
       'B1-11 f0, f9, f15, f16 — `a.xr-back` "Requests" (and B1-05, B1-07, B1-08, B1-09, B1-12, B1-13: 55 back links on the Batch-1 boards)',
       '02 "Icon sizing and working icon set" (Back) and every Batch 2–7 board (456 back links)',
     ],
-    product: '@xr/ui BackLink (WP-0.6), on SA-03',
+    product:
+      '@xr/ui BackLink (WP-0.6), on SA-03; since Package 1B also on PU-06 ("Back to VR experiments", B1-05 f5) and the sign-in top row ("Back to experiments", B1-09)',
     expected: 'B1-11 draws the back link with the chevron path `M15 6l-6 6 6 6`.',
     actual:
       'BackLink draws board 02’s Back icon `M14.5 6 8.5 12l6 6`, as all 456 back links on the other product boards and the Phase-0 Help pages do; the 20 px glyph differs by a few pixels (measured in DEVIATIONS.md) and the icon check reports the different path.',
@@ -541,6 +542,119 @@ export const DEVIATIONS = [
     decision:
       'A static template state inside a fixed-width canvas frame (START-HERE Known exception 4 family). For the owner’s review — not approved by the harness.',
     proposal: 'Follow board 11’s live shell (no change).',
+  },
+  // ---- Phase-1 Package 1B (14 Oct 2026): newly identified, for the owner's review ----------------
+  {
+    id: 'DEV-26',
+    title:
+      'Package 1B: the public ways into the Selection and the request (PU-07, Package 1C) are not rendered (P0-35, Phase-1 extension)',
+    class: 'phase-1-scope',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-01 … B1-05 header — `a.xp-sel` "Selection (n)" and `a.xp-access` "Request access" (and at 375 px the Selection link beside Menu)',
+      'B1-01 "Mobile 375 · menu open" — the sheet’s Selection row and its Request access button',
+      'B1-01 hero `li.xp-path` "Institutions · Request institutional access" and the For institutions `div.xp-inst-foot` button',
+      'B1-05 "In your selection" — `a.xr-btn--primary` "Go to selection"',
+    ],
+    product:
+      'apps/web features/public (PublicFrame header and menu sheet, Landing, SelectionPanel); nav/public-nav.ts renders only built destinations',
+    expected: 'The boards draw each of these links, all leading to B1-06 (PU-07 Selection).',
+    actual:
+      'PU-07 is Package 1C: the links are not rendered, so the header end holds Sign in (and Menu) only, the hero lists one audience line, the For institutions section ends after its four steps, and the panel goes from "In your selection" straight to Change formats. Measured per comparison in DEVIATIONS.md.',
+    accessibility:
+      'None: an unbuilt address would show the public not-found page and, as a document load, restart the tab’s sample world (ADR-0004). Adding to the selection works and is shown in the panel and on catalogue rows.',
+    decision:
+      'Rule: owner P0-35 interim, extended to Phase 1 (Package 1A and 1B authorisations: "keep the Public navigation within implemented destinations"). The measured difference is for the owner’s review — not approved by the harness.',
+    proposal:
+      'Close as covered by P0-35 for Package 1B; the links appear with PU-07 in Package 1C and the comparisons then come within tolerance.',
+  },
+  {
+    id: 'DEV-27',
+    title:
+      'Package 1B: the spine-start world holds no preview link, so PU-06 shows the drawn poster where B1-05’s default frame draws a preview',
+    class: 'fixture-state',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-05 "PU-06 Experiment · 1440 · interactive" — `div.xp-preview` with the browser-format art and "Open preview" (href `#Dd-preview`, a canvas anchor)',
+    ],
+    product: 'PU-06 Preview section (features/public/pu-06-experiment)',
+    expected:
+      'B1-05’s default frame: the preview art, "Preview · Browser format" and Open preview.',
+    actual:
+      'No seeded experiment has a preview link (the sample world draws none; inventing one would be fabricated data), so every PU-06 shows B1-05’s own "Preview · poster only" state — compared strictly against that frame. The preview-with-link state is unit-tested only.',
+    accessibility: 'None.',
+    decision:
+      'Sample data only; no product rule. For the owner’s review — not approved by the harness.',
+    proposal:
+      'Acknowledge as fixture state; add a preview link to the sample world only if the owner supplies one.',
+  },
+  {
+    id: 'DEV-28',
+    title:
+      'Package 1B: PU-06 "How it runs" for VR and MR uses the domain’s B6-07 words ("…supported VR headset.", "…mixed-reality device.") where B1-05 / B1-01 draw "…supported headset." / "…supported device."',
+    class: 'design-conflict',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-05 "Formats and device needs" — VR "The experiment in a virtual lab, on a supported headset."',
+      'B1-01 Formats cards (the same sentences; the landing renders B1-01’s words)',
+      'B6-07 `fmtText` (the source of `@xr/domain` FORMAT_META.howItRuns, WP-0.3)',
+    ],
+    product:
+      'CatalogueService.getExperiment `formats[].howItRuns` (sample-platform views.ts → FORMAT_META), rendered by PU-06',
+    expected: 'B1-05: "The experiment in a virtual lab, on a supported headset."',
+    actual:
+      'The read model answers FORMAT_META’s sentence: "The experiment in a virtual lab, on a supported VR headset." The landing’s format cards keep B1-01’s own words (copy/public.ts).',
+    accessibility: 'None.',
+    decision:
+      'Board versus board (B1-05 / B1-01 against B6-07); one vocabulary feeds several screens. For the owner’s review — not approved by the harness.',
+    proposal:
+      'Owner chooses one sentence per format for every screen; FORMAT_META then follows it (one change in @xr/domain).',
+  },
+  {
+    id: 'DEV-29',
+    title:
+      'Package 1B: concept art drawn as the boards’ live `div.xp-bgart` background where B1 static frames draw `<img>` — the SVG edges rasterise differently (0.1–0.4 % of a part)',
+    class: 'design-conflict',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-02 explorer and B1-04 rows — the live markup: `div.xp-ex-art|xp-erow-media > div.xp-bgart.xp-art--<key>` (compared at 0–13 px)',
+      'B1-01 hero, Formats cards; B1-03 area cards and course rows; B1-05 hero and preview — the static frames: `img src="art/<key>.svg"` with `object-fit`',
+    ],
+    product:
+      'apps/web features/public/shared/art.tsx `Drawing` (one mechanism for every public drawing); product.css PF-22 `background-size:contain` where the static frame contains',
+    expected: 'The static frames’ `<img>` rendering of the same SVG files.',
+    actual:
+      'The same drawing at the same size and position, scaled as a background image: anti-aliased edges differ by a few hundred pixels per part (B1-01 hero figure 1,213 px · 0.37 %, Formats cards 2,413 px · 0.24 %, B1-03 course rows 749 px · 0.11 %, B1-05 poster 981 px · 0.42 %); colours, layout and words are identical. Where a board describes the drawing, the product names it (`role="img"` + the drawn description).',
+    accessibility:
+      'None: the drawings are decorative except the hero, which keeps its drawn description.',
+    decision:
+      'Board versus board (static `<img>` frames against the live bound frames of B1-02 / B1-04). For the owner’s review — not approved by the harness.',
+    proposal:
+      'Keep one mechanism (the live boards’ background art). Alternative: an `<img>` for the static placements, which needs the art served as files by @xr/ui.',
+  },
+  {
+    id: 'DEV-30',
+    title:
+      'Package 1B: B1-04 f9 "Show 7 experiments" — on the canvas the bound words sit in a runtime wrapper and overflow the button to the right; the product centres them inside the button',
+    class: 'canvas-only',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B1-04 "Mobile 375 · filter sheet" — `div.xp-fsheet-foot` `button.xr-btn--primary` `{{ c.showN }}`',
+    ],
+    product: 'PU-04 filter sheet foot (features/public/shell/filter-sheet.tsx; @xr/ui Button)',
+    expected:
+      'The canvas frame: the words start at the button’s left padding and run past its right padding to the edge.',
+    actual:
+      'At 375 px the words are wider than the button’s content box (two 165.5 px buttons); the product’s text is the button’s own flex item and is centred, so it stays inside the border on both sides (558 px · 2.2 % of the foot).',
+    accessibility: 'None: the product keeps the whole label inside the button.',
+    decision:
+      'The canvas runtime’s binding wrapper (START-HERE Known exception 6 family), not the drawn design. For the owner’s review — not approved by the harness.',
+    proposal: 'Keep the centred label (no change).',
   },
 ];
 

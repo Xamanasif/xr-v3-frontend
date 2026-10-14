@@ -21,7 +21,7 @@ The owner approved the frozen Claude Design canvas v46 as the frontend design au
 - **Hierarchy (BC2).** Engineering area (catalogue grouping) → Course → Experiment → Technology format. Programme is an attribute of the Student record only — not a navigation level, entity, filter or grouping — and there is no Module layer.
 - **Five states (BC3, BC4).** Publication, institution access, Student entitlement, runtime activity and learning completion are separate; none is derived from another. "Completed" is written only by the system (ADR-0006); a simulation launch never completes a format; progress is per technology format with no aggregate verdict.
 - **Frontend on typed mock services (BC10, BC14).** One connected sample world serves every role (ADR-0002, ADR-0004). No real authentication, payment processing, XR runtime, grading automation or backend persistence is built (owner, G-2).
-- **Recorded exceptions.** `OPEN_DECISIONS.md` Part E (TE-1…TE-8): TE-1, TE-2, TE-5 and TE-7 are approved for Phase 0; TE-3, TE-4 and TE-8 are drafted for later phases; TE-6 (browser persistence) is not authorised.
+- **Recorded exceptions.** `OPEN_DECISIONS.md` Part E (TE-1…TE-8): TE-1, TE-2, TE-5 and TE-7 are approved for Phase 0; TE-8 is approved for Phase-1 Package 1B (14 Oct 2026); TE-3 and TE-4 are drafted for later phases; TE-6 (browser persistence) is not authorised.
 - **Evidence.** The audit deliverables, the candidate permission matrix and the Understand-stage evidence are in `docs/v46/` (candidate — owner review).
 
 ## 1 · Why V2 exists
@@ -89,7 +89,7 @@ V2 is the production-oriented engineering foundation for the **same product**. I
 
 **Phase 0 delivers only proof of the wiring:** the app boots under strict TypeScript, has two App Router routes (`/` and `/system`), a liveness route handler at `/healthz`, a TanStack Query provider, a client-side probe of the API health endpoint (headers merged through the Headers API), imports from `@xr/domain`, `@xr/contracts`, `@xr/ui` and `@xr/config`, and the Tailwind v4 build pipeline (with no design applied). There is no landing page, catalogue, dashboard or role screen — those are Design V2.
 
-> **Amendment (v46).** The web application builds the v46 role workspaces on typed mock services before the backend (`MIGRATION_STRATEGY.md` §8). In sample mode the public discovery pages render on the client, because the sample world exists only in the browser (exception TE-8, drafted; signed before Phase 1). Styling follows ADR-0001.
+> **Amendment (v46).** The web application builds the v46 role workspaces on typed mock services before the backend (`MIGRATION_STRATEGY.md` §8). In sample mode the public discovery pages render on the client, because the sample world exists only in the browser (exception TE-8, approved by the owner for Phase-1 Package 1B, 14 Oct 2026; not the production SSR / SEO architecture). Styling follows ADR-0001.
 
 ## 5 · Platform API — `apps/api`
 

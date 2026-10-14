@@ -361,6 +361,7 @@ export function experiment(
     courseId: ids.course,
     originSubmissionId: null,
     vendorOrganisation: 'Northline Simulation Studio',
+    artworkKey: null,
     live,
     versions: [live],
     learningOutcomes: [{ id: unsafeBrand('lo-1'), text: 'Explain counter-flow heat exchange.' }],

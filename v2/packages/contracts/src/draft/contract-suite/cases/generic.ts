@@ -64,7 +64,10 @@ export const SESSION_CASES: readonly ContractCase[] = PORT_NAMES.filter((port) =
     let called = 0;
     for (const row of rowsOf(port)) {
       if (!row.errors.includes('not-signed-in')) continue;
-      if (!context.implements.includes(row.mock)) {
+      if (
+        !context.implements.includes(row.mock) &&
+        !(context.delivered as readonly string[]).includes(row.id)
+      ) {
         context.note(`${row.method}: lands in ${row.mock}, not called`);
         continue;
       }

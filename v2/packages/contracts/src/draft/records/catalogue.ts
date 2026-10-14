@@ -174,6 +174,7 @@ export const experiment = typedAs<Experiment>()(
     courseId,
     originSubmissionId: submissionId.nullable(),
     vendorOrganisation: z.string(),
+    artworkKey: z.string().nullable(),
     live: experimentVersion,
     versions: z.array(experimentVersion),
     learningOutcomes: z.array(learningOutcome),

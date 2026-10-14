@@ -60,14 +60,29 @@ test('Package 1A: /sign-in answers 200; row 21 /signed-out → /sign-in?reason=s
   }
 });
 
-test('outside the workspaces: 404 and the public not-found — no public page yet', async ({
+test('the public pages answer 200 (Package 1B; unknown ids are found out in the browser, TE-8)', async ({
   request,
 }) => {
   for (const path of [
     '/',
-    '/sign-in/x',
-    '/experiments',
     '/areas',
+    '/areas/mechanical-manufacturing',
+    '/courses/fluid-mechanics',
+    '/experiments',
+    '/experiments?format=vr',
+    '/experiments/distillation-column',
+    '/experiments/no-such-experiment',
+  ]) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect(response.status(), path).toBe(200);
+  }
+});
+
+test('outside the workspaces and the public pages: 404 and the public not-found', async ({
+  request,
+}) => {
+  for (const path of [
+    '/sign-in/x',
     '/selection',
     '/request-access',
     '/system',

@@ -369,6 +369,7 @@ describe('review and publication (SUB-17 … SUB-33)', () => {
       id: ids.wallB,
       courseId: ids.course,
       originSubmissionId: ids.sub77,
+      artworkKey: null,
       openUpdateId: null,
       publishedBy: who.contentManager,
     });

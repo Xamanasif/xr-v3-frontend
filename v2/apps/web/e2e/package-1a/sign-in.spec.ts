@@ -33,10 +33,13 @@ test('the card (B1-09 f0, f11): two ways in, XS-04, nothing to choose', async ({
   await expect(page.locator('body')).not.toContainText(
     /DEMO|Viewing as|Sign in as|@wilp\.example/i,
   );
-  // The focused frame has no header or navigation to wander off to (AR-6), and the drawn links to
-  // the unbuilt Landing and Selection are not rendered yet (P0-35).
+  // The focused frame has no header or navigation to wander off to (AR-6). Its one way back,
+  // "Back to experiments", goes to the Landing (P1-17) since Package 1B built it; the link to the
+  // unbuilt Selection (PU-07, Package 1C) is not rendered yet (P0-35).
   await expect(page.locator('header, nav, aside')).toHaveCount(0);
-  await expect(page.locator('a[href]')).toHaveCount(0);
+  await expect(page.locator('a[href]')).toHaveCount(1);
+  await expect(page.locator('.xp-auth-top a.xr-back')).toHaveAttribute('href', '/');
+  await expect(page.locator('.xp-auth-top a.xr-back')).toHaveText('Back to experiments');
   // XS-04: a disclosure only.
   const forgot = signIn.getByRole('button', { name: 'Forgot your password?' });
   await reachAndClick(page, forgot);

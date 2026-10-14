@@ -160,6 +160,13 @@ export interface Experiment extends RecordMeta {
   /** SUB-0077 → EXP; null for catalogue items published before the sample period. */
   readonly originSubmissionId: SubmissionId | null;
   readonly vendorOrganisation: string;
+  /**
+   * Concept artwork from the asset set for the catalogue row, cards and hero (B1-01, B1-04 `art`,
+   * B1-05; "Thumbnail (concept artwork, decorative)"); null when none is assigned — no artwork
+   * upload is designed (D3), so an experiment published in the sample period has none.
+   * Provisional contract register PC-31.
+   */
+  readonly artworkKey: string | null;
   readonly live: ExperimentVersion;
   /** Every version and decision is kept (B7-11). */
   readonly versions: readonly ExperimentVersion[];

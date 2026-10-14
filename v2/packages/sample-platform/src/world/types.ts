@@ -143,11 +143,14 @@ export interface SeededLicenceWait {
 
 /**
  * Facts the seed supplies that no rule may produce (Appendix C §3.18): the licence oracle's
- * answers (D7), and formats "Not available right now" (D-26, no designed cause).
+ * answers (D7), formats "Not available right now" (D-26, no designed cause), and the landing's
+ * featured experiments (P1-22 interim: "Featured experiments are a seeded list"; curated vs
+ * derived is OPEN, B1-01 / B1-14), in their drawn order.
  */
 export interface SeededFacts {
   readonly licenceWaits: readonly SeededLicenceWait[];
   readonly unavailableRightNow: Readonly<Record<string, readonly Technology[]>>;
+  readonly featuredExperiments: readonly string[];
 }
 
 /**

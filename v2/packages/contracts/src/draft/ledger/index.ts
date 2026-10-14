@@ -5,7 +5,7 @@
  * and the domain checks the adapter runs. Each entry is checked against its port signature at
  * compile time; `ledger.test.ts` checks the counts and the cross-references.
  */
-import type { PortInterfaces, PortName } from '../ports/index.js';
+import type { MethodId, PortInterfaces, PortName } from '../ports/index.js';
 import { PORT_KEYS } from '../ports/index.js';
 import type { BuildPhase, ImplementationPhase, LedgerEntry } from './entry.js';
 import {
@@ -114,6 +114,35 @@ export const PHASE_SCHEDULE_EXCEPTIONS: readonly PhaseScheduleException[] = [
       'The existing WP-0.10 signature, the current domain policy (canRead SUB-37 for submissions, EXP-03 for published experiments, UPD-18 / UPD-26 for the open correction it names) and the Super Admin read-only permission; no new permission, no Phase-6 screen, no other deferred Phase-6 method.',
   },
 ];
+
+/**
+ * Later-phase methods an owner-authorised Phase-1 package has built ahead of the rest of their
+ * phase. Their ledger row keeps its phase (`mock`), so the Appendix F §4.1 schedule and its counts
+ * stay as they are; an adapter that implements them says so (contract subject `delivered`), and
+ * the sample platform answers them instead of rejecting. Each package lists exactly the methods
+ * its authorisation names — nothing else of the phase moves.
+ */
+export interface PackageDelivery {
+  readonly method: MethodId;
+  readonly phase: ImplementationPhase;
+  readonly package: string;
+  readonly authorisation: string;
+}
+
+export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = (
+  ['CatalogueService.listAreas', 'CatalogueService.getArea', 'CatalogueService.getCourse'] as const
+).map((method) => ({
+  method,
+  phase: 'P1' as const,
+  package: 'Phase-1 Package 1B',
+  authorisation:
+    'Owner authorisation of Package 1B (14 Oct 2026, §5): "Implement only the three newly required Phase-1 mock-service methods: listAreas, getArea, getCourse" — PU-01…PU-06 and PU-14 on the browser-only sample world (TE-8). InstitutionService.listInstitutions (P1, SA-06) stays deferred (Package 1D).',
+}));
+
+/** The methods `PACKAGE_DELIVERIES` names. */
+export const DELIVERED_METHODS: readonly MethodId[] = PACKAGE_DELIVERIES.map(
+  (delivery) => delivery.method,
+);
 
 export * from './entry.js';
 export * from './screens.js';

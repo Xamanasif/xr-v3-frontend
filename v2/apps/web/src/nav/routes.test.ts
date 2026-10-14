@@ -19,6 +19,7 @@ import {
   REDIRECTS,
   resolveAddress,
   roleOfWorkspace,
+  PUBLIC_SCREENS_WITH_PAGES,
   ROUTE_FILES,
   SCREENS_WITH_PAGES,
   workspaceOf,
@@ -38,14 +39,15 @@ function filesUnder(directory: string): string[] {
 const ROUTE_FILE =
   /(?:^|\/)(?:page|layout|template|not-found|error|loading|default|route|global-error|global-not-found|forbidden|unauthorized)\.(?:tsx?|jsx?)$/;
 
-describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Package 1A)', () => {
+describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Packages 1A, 1B)', () => {
   const routeFiles = filesUnder(APP).filter((file) => ROUTE_FILE.test(file));
 
   it('every page.tsx is in the manifest, and every manifest page exists', () => {
     const pages = routeFiles.filter((file) => /(?:^|\/)page\.tsx$/.test(file)).sort();
     expect(pages).toEqual(PAGES.map((page) => page.file).sort());
-    // 35 Phase-0 pages (7 workspaces × 5) + Package 1A's sign-in, Requests and Request decision.
-    expect(pages).toHaveLength(38);
+    // 35 Phase-0 pages (7 workspaces × 5) + Package 1A's sign-in, Requests and Request decision +
+    // Package 1B's six public pages (PU-01 … PU-06; PU-14 is a section of PU-01).
+    expect(pages).toHaveLength(44);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -55,9 +57,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
 
   it('seven static workspace bases and no dynamic root segment (ADR-0005 §1; D-12)', () => {
     const roots = readdirSync(APP).filter((entry) => statSync(join(APP, entry)).isDirectory());
-    // Plus the `(auth)` route group (ADR-0005 §1), which adds no URL segment.
+    // Plus the `(auth)` and `(public)` route groups (ADR-0005 §1), which add no URL segment.
     expect(roots.filter((entry) => !entry.startsWith('_')).sort()).toEqual(
-      [...WORKSPACES, 'healthz', '(auth)'].sort(),
+      [...WORKSPACES, 'healthz', '(auth)', '(public)'].sort(),
     );
     expect(roots.some((entry) => entry.startsWith('['))).toBe(false);
     // Private folders hold route-level modules only, never a route.
@@ -74,11 +76,20 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     expect(readdirSync(join(SRC, '..'))).not.toContain('proxy.ts');
   });
 
-  it('Package 1A only: the sign-in page and two Super Admin pages — no public shell or page', () => {
+  it('Packages 1A and 1B only: sign-in, two Super Admin pages and the six public pages — no Selection or request pages', () => {
     const all = filesUnder(APP);
-    for (const forbidden of [/\(public\)/, /experiments/, /signed-out/, /selection/, /catalogue/]) {
+    for (const forbidden of [/signed-out/, /selection/, /request-access/, /\(public\)\/requests/]) {
       expect(all.filter((file) => forbidden.test(file))).toEqual([]);
     }
+    expect(all.filter((file) => /^\(public\)/.test(file)).sort()).toEqual([
+      '(public)/areas/[areaId]/page.tsx',
+      '(public)/areas/page.tsx',
+      '(public)/courses/[courseId]/page.tsx',
+      '(public)/experiments/[experimentId]/page.tsx',
+      '(public)/experiments/page.tsx',
+      '(public)/layout.tsx',
+      '(public)/page.tsx',
+    ]);
     expect(all.filter((file) => /sign-in/.test(file)).sort()).toEqual([
       '(auth)/sign-in/page.tsx',
       '_auth/sign-in-route.tsx',
@@ -91,15 +102,15 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
 });
 
 describe('static redirects (next.config.ts; Appendix A §3.7)', () => {
-  it('row 20 for the seven bases and row 21 (/signed-out), not permanent; nothing else', async () => {
+  it('row 20 for the seven bases, row 21 (/signed-out) and row 1 (/courses), not permanent; nothing else', async () => {
     const redirects = await nextConfig.redirects!();
     expect(redirects).toEqual(REDIRECTS.map((redirect) => ({ ...redirect, permanent: false })));
-    expect(redirects).toHaveLength(8);
-    expect(redirects.at(-1)).toEqual({
-      source: '/signed-out',
-      destination: '/sign-in?reason=signed-out',
-      permanent: false,
-    });
+    expect(redirects).toHaveLength(9);
+    expect(redirects.slice(-2)).toEqual([
+      { source: '/signed-out', destination: '/sign-in?reason=signed-out', permanent: false },
+      // Package 1B: the PU-05 breadcrumb's intermediate level.
+      { source: '/courses', destination: '/areas', permanent: false },
+    ]);
   });
 });
 
@@ -107,6 +118,17 @@ describe('the built-screen manifest is generated from the route manifest', () =>
   it('Help (XS-07) in every workspace, and the Super Admin’s Requests and decision (Package 1A)', () => {
     expect([...SCREENS_WITH_PAGES]).toEqual(['XS-07', 'SA-02', 'SA-03']);
     expect([...BUILT_SCREENS]).toEqual(['XS-07', 'SA-02', 'SA-03']);
+  });
+
+  it('the public pages are not sidebar destinations; the public header reads its own set (Package 1B)', () => {
+    expect([...PUBLIC_SCREENS_WITH_PAGES]).toEqual([
+      'PU-01',
+      'PU-02',
+      'PU-03',
+      'PU-04',
+      'PU-05',
+      'PU-06',
+    ]);
   });
 });
 
@@ -122,7 +144,18 @@ describe('workspace bases and roles', () => {
 
 describe('resolveAddress — what an address shows', () => {
   it.each([
-    ['/', { kind: 'public-not-found' }],
+    ['/', { kind: 'public-screen', screen: 'PU-01' }],
+    ['/#for-institutions', { kind: 'public-screen', screen: 'PU-01' }],
+    ['/areas', { kind: 'public-screen', screen: 'PU-02' }],
+    ['/areas/mechanical-manufacturing', { kind: 'public-screen', screen: 'PU-03' }],
+    ['/areas/a/b', { kind: 'public-not-found' }],
+    ['/experiments?format=vr', { kind: 'public-screen', screen: 'PU-04' }],
+    ['/courses/fluid-mechanics', { kind: 'public-screen', screen: 'PU-05' }],
+    ['/courses', { kind: 'redirect', workspace: null, to: '/areas' }],
+    ['/experiments/shell-and-tube-heat-exchanger', { kind: 'public-screen', screen: 'PU-06' }],
+    ['/selection', { kind: 'public-not-found' }],
+    ['/request-access', { kind: 'public-not-found' }],
+    ['/requests', { kind: 'public-not-found' }],
     ['/sign-in', { kind: 'sign-in' }],
     ['/signed-out', { kind: 'redirect', workspace: null, to: '/sign-in?reason=signed-out' }],
     ['/sign-in/extra', { kind: 'public-not-found' }],
@@ -130,7 +163,7 @@ describe('resolveAddress — what an address shows', () => {
     ['/admin/requests/REQ-0038', { kind: 'record-screen', workspace: 'admin', screen: 'SA-03' }],
     ['/admin/requests/REQ-0038/x', { kind: 'workspace-not-found', workspace: 'admin' }],
     ['/student/requests', { kind: 'workspace-not-found', workspace: 'student' }],
-    ['/experiments', { kind: 'public-not-found' }],
+    ['/experiments', { kind: 'public-screen', screen: 'PU-04' }],
     ['/student', { kind: 'interim-landing', workspace: 'student', lands: '/student/help' }],
     ['/admin/', { kind: 'interim-landing', workspace: 'admin', lands: '/admin/help' }],
     ['/faculty/help', { kind: 'screen', workspace: 'faculty', view: 'reports' }],

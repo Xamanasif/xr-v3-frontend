@@ -13,7 +13,23 @@ export type StateCopyStatus = 'drawn' | 'provisional';
 
 export interface StateCopyEntry {
   /** The screen (or the shell around every screen). */
-  readonly screen: 'Shell' | 'XS-01' | 'XS-03' | 'XS-06' | 'XS-07' | 'PU-15' | 'SA-02' | 'SA-03';
+  readonly screen:
+    | 'Shell'
+    | 'Public shell'
+    | 'XS-01'
+    | 'XS-03'
+    | 'XS-06'
+    | 'XS-07'
+    | 'PU-01'
+    | 'PU-02'
+    | 'PU-03'
+    | 'PU-04'
+    | 'PU-05'
+    | 'PU-06'
+    | 'PU-14'
+    | 'PU-15'
+    | 'SA-02'
+    | 'SA-03';
   /** The state, as the screen reaches it. */
   readonly state: string;
   /** The words shown; `null` where the entry is a rule rather than words. */
@@ -162,7 +178,7 @@ export const STATE_COPY = {
     state:
       'The card’s ways out: “Back to experiments” (top row) and “Request institutional access” (under the card)',
     words: null,
-    rule: 'Not rendered until their pages are built (the Landing `/`, P1-17; the Selection PU-07): an unbuilt address shows the public not-found page and restarts the tab’s world. The top row keeps its drawn height.',
+    rule: 'Each is rendered once its page is built: “Back to experiments” goes to the Landing `/` (P1-17 follows the href) since Package 1B; “Request institutional access” waits for the Selection (PU-07, Package 1C) — an unbuilt address shows the public not-found page and restarts the tab’s world.',
     basis:
       'B1-09 f0 (`a.xr-back` to B1-01, `div.xp-auth-links` to B1-06); owner P0-35 built-screen navigation, extended to Phase 1 (Package 1A authorisation)',
     status: 'provisional',
@@ -395,6 +411,195 @@ export const STATE_COPY = {
       'B1-11 f3 `cfInt`; surface-super-admin.json inconsistencies[26]; P1-11 interim (plan effect `policy-open`, no ACC change)',
     status: 'provisional',
     decisions: ['P1-11'],
+  },
+  // ---- Phase 1, Package 1B: the public surface (B1-01 … B1-05; TE-8) ----
+  'Public shell.links-not-rendered': {
+    screen: 'Public shell',
+    state:
+      'The drawn ways into the Selection and the request (PU-07, Package 1C): the header “Selection (n)” link and “Request access” button, the menu sheet’s Selection row and Request access button, the hero and For institutions “Request institutional access”, PU-06 “Go to selection”, and the sign-in card’s “Request institutional access”',
+    words: null,
+    rule: 'Not rendered until PU-07 is built (Package 1C): an unbuilt address shows the public not-found page and, as a document load, restarts the tab’s sample world (ADR-0004). Adding to the selection works on PU-06; its state shows in the panel and on catalogue rows.',
+    basis:
+      'B1-01 header `a.xp-sel`, `a.xp-access`, hero `xp-paths`, `xp-inst-foot`; B1-05 panel; owner P0-35 built-screen navigation, extended to Phase 1 (Package 1A and 1B authorisations: “keep the Public navigation within implemented destinations”)',
+    status: 'provisional',
+    decisions: ['P0-35'],
+  },
+  'Public shell.skip-link': {
+    screen: 'Public shell',
+    state: 'The first Tab stop on every public page',
+    words: 'Skip to main content',
+    basis:
+      'Appendix E §7.4 (VD-16: skip link in the PublicShell, WCAG 2.4.1; invisible until focused); board 12 “Shell tab order”. No B1 frame draws it.',
+    status: 'provisional',
+    decisions: ['VD-16'],
+  },
+  'Public shell.document-title': {
+    screen: 'Public shell',
+    state: 'The browser tab’s title on the public pages (WCAG 2.4.2)',
+    words: null,
+    rule: 'The page’s heading · XR Learning Platform (“Experiments · …”, “Engineering areas · …”, the area, course or experiment name); the Landing is “XR Learning Platform” alone; a not-found state takes its message title.',
+    basis: 'As `shell.document-title` (Appendix F §3.3); no board draws document titles',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'Public shell.route-focus': {
+    screen: 'Public shell',
+    state: 'Focus after a client-side move between public pages',
+    words: null,
+    rule: 'Focus moves to `main#main` without scrolling, as in the workspaces; arriving at `/#for-institutions` focuses that section (PU-14) and scrolls it into view. A document load moves nothing.',
+    basis: 'WP-0.13 route focus (workspace shell); B1-01 “For institutions” anchor (PU-14)',
+    status: 'provisional',
+    decisions: ['VD-12', 'VD-16'],
+  },
+  'PU-01.hero-caption': {
+    screen: 'PU-01',
+    state: 'The hero’s one static scene and its caption link',
+    words: null,
+    rule: 'The hero shows its drawn illustration (thermal.svg, with its drawn description); the caption names the published experiment that illustration depicts (the experiment whose catalogue artwork is a crop of it), with its published formats — omitted when no published experiment has that artwork.',
+    basis:
+      'B1-01 hero `figcaption.xp-hero-cap` (“ME ZG523 · Shell-and-Tube Heat Exchanger”, WEB AR VR) and its static art; “One static scene”',
+    status: 'provisional',
+    decisions: ['P1-22'],
+  },
+  'PU-01.featured-tag': {
+    screen: 'PU-01',
+    state: 'The area tag on a featured experiment card',
+    words: null,
+    rule: 'The first word of the experiment’s area name (“Mechanical”, “Electrical”, “Chemical”); when the areas cannot be read the cards show without a tag.',
+    basis: 'B1-01 featured cards `span.xp-card-tag`; the area record holds no short name',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-01.sections-loading': {
+    screen: 'PU-01',
+    state: 'The explorer, the featured cards and the format counts while their reads load',
+    words: null,
+    rule: 'The section heads show at once; the explorer section shows B1-01’s plain area list as soon as the areas are known and the explorer when their courses are; each part announces its wait once (“Loading engineering areas”, “Loading experiments”).',
+    basis:
+      'B1-01 “Areas loading (or art failed) → plain list · Readable immediately; the explorer replaces it when ready”; B1-03 / B1-04 loading words',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-01.sections-failed': {
+    screen: 'PU-01',
+    state: 'A landing read fails (the areas, the featured experiments or the catalogue counts)',
+    words: null,
+    rule: 'The section shows the drawn failed block of its family: B1-03 “We couldn’t load the engineering areas” (with Try again and Browse experiments) in the explorer when the areas cannot be read — if only their courses cannot, B1-01’s plain area list stays (“Areas loading (or art failed) → plain list”) — and B1-04 “We couldn’t load the experiments” (with Try again) in Featured; the format cards keep their words and leave the count line out.',
+    basis: 'B1-03 “All areas · failed + retry”; B1-04 “Failed + retry”',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-03.loading': {
+    screen: 'PU-03',
+    state: 'An area page while its read loads',
+    words: 'Loading engineering area',
+    basis: 'Board 04 loading formula; B1-03 “All areas · loading” (“Loading engineering areas”)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-03.failed': {
+    screen: 'PU-03',
+    state: 'An area page’s read fails',
+    words: 'We couldn’t load this engineering area',
+    basis: 'B1-03 “All areas · failed + retry” formula (“We couldn’t load the engineering areas”)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-05.loading': {
+    screen: 'PU-05',
+    state: 'A course page while its read loads',
+    words: 'Loading course',
+    basis: 'Board 04 loading formula; B1-03 “All areas · loading”',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-05.failed': {
+    screen: 'PU-05',
+    state: 'A course page’s read fails',
+    words: 'We couldn’t load this course',
+    basis: 'B1-03 “All areas · failed + retry” formula',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-05.not-found': {
+    screen: 'PU-05',
+    state: 'An unknown course address',
+    words: 'We can’t find that course',
+    basis:
+      'B1-03 “Area or course · not found” (one frame, titled “We can’t find that area”; the same sentence and actions are kept)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-04.course-chip-without-code': {
+    screen: 'PU-04',
+    state: 'The filter chip of a course with no platform code',
+    words: 'Course: {name}',
+    basis: 'B1-04 chips “Course: ME ZG523” (code); T-17 (a course may have no code)',
+    status: 'provisional',
+    decisions: ['T-17'],
+  },
+  'PU-04.address': {
+    screen: 'PU-04',
+    state: 'The catalogue’s address carries its view',
+    words: null,
+    rule: '`/experiments?area=&course=&format=&q=&sort=&view=` — repeated keys for several values; the defaults (no filter, Default order, All experiments) carry no key. Unknown area, course or format values are dropped and “We adjusted this link” shows once; an unknown order or view falls back to its default. Filters, search and order replace the address (no new history entry).',
+    basis:
+      'Appendix A PU-04 (query PROPOSED); B1-04 “Arriving with a filter”, “This link was adjusted”',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-04.format-context': {
+    screen: 'PU-04',
+    state: 'A row opened from a catalogue filtered by one format',
+    words: null,
+    rule: 'With exactly one format filter, each row opens the experiment with `?format=` (B1-05 “Arrived with a format filter”: back link to that catalogue, the format pre-chosen and its row marked). With none or several, the row opens the plain page.',
+    basis: 'B1-05 “Arrived with a format filter (VR)”; Appendix A PU-06 (`?format=` PROPOSED)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-06.loading': {
+    screen: 'PU-06',
+    state: 'An experiment page while its read loads',
+    words: 'Loading experiment',
+    basis: 'Board 04 loading formula; B1-04 “Loading experiments”',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-06.failed': {
+    screen: 'PU-06',
+    state: 'An experiment page’s read fails',
+    words: 'We couldn’t load this experiment',
+    basis: 'B1-04 “Failed + retry” formula (“We couldn’t load the experiments”)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-06.not-available': {
+    screen: 'PU-06',
+    state: 'An experiment missing more than one format',
+    words: null,
+    rule: '“Not available in AR, VR or MR.” — B1-05’s one sentence, listing every format the experiment does not have, in display order.',
+    basis: 'B1-05 “Format not available” (“Not available in MR.” — one missing format drawn)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-06.hero-art': {
+    screen: 'PU-06',
+    state: 'The hero illustration of an experiment',
+    words: null,
+    rule: 'The experiment’s concept artwork (its full drawing where the catalogue uses a crop); described in words where a board describes that drawing (thermal.svg), otherwise decorative beside the visible “Illustration · concept artwork” label; the drawn fallback when it has none.',
+    basis: 'B1-05 hero `figure.xp-xart` (thermal.svg with its description); assets.json',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'PU-06.selection-unexpected': {
+    screen: 'PU-06',
+    state:
+      'The selection refuses a change the panel does not offer (a format no longer published, an experiment added twice in another view)',
+    words: null,
+    rule: 'The panel re-reads the selection and shows its current state; no undrawn message.',
+    basis: 'B1-05 panel states (pick · in your selection · change formats · validation)',
+    status: 'provisional',
+    decisions: ['VD-12'],
   },
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;
 

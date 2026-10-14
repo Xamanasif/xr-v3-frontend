@@ -41,15 +41,15 @@ export function WorkspaceNotFound() {
 /**
  * PU-15, public variant (board 08 "Page not found · public"): "Browse experiments" and no Help,
  * placed as the public boards place their message pages (B1-03, B1-05: `div.xp > main.xp-page >
- * div.xp-in`). The public header and footer frame it once PublicShell exists (Phase 1, G-8); until
- * then it stands alone (engineering-build interim, Appendix F WP-0.13). "Browse experiments" goes
- * to `/experiments` (PU-04, Phase 1): the one documented Phase-0 dead link.
+ * div.xp-in`). Since Package 1B the public frame (header, footer, `div.xp`) surrounds it, and
+ * "Browse experiments" opens the built catalogue (PU-04, `/experiments`) — the documented Phase-0
+ * dead link is gone. `main#main` is the skip link's and route focus's target.
  */
 export function PublicNotFound() {
   return (
-    <div className="xp">
+    <>
       <DocumentTitle title={NOT_FOUND_TITLE} />
-      <main className="xp-page">
+      <main id="main" tabIndex={-1} className="xp-page">
         <div className="xp-in">
           <MessagePage
             icon="search"
@@ -61,6 +61,6 @@ export function PublicNotFound() {
           </MessagePage>
         </div>
       </main>
-    </div>
+    </>
   );
 }

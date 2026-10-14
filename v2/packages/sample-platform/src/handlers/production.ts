@@ -337,6 +337,8 @@ function previewPage(op: Op, submission: Submission): PublicExperimentPage {
     courseName: course.name,
     platformCode: course.platformCode,
     availableIn: formats,
+    // Publishing assigns no artwork (no upload is designed, D3; PC-31): the preview shows none.
+    artworkKey: null,
     description: content.description ?? '',
     areaName: area.name,
     learningOutcomes: submission.learningOutcomes.map((outcome) => outcome.text),

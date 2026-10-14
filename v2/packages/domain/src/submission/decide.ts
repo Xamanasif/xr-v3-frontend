@@ -525,6 +525,8 @@ export function publish(input: {
     courseId: content.courseId!,
     originSubmissionId: input.submission.id,
     vendorOrganisation: input.submission.vendorOrganisation,
+    // No artwork upload is designed (D3): a newly published experiment has none (PC-31).
+    artworkKey: null,
     live,
     versions: [live],
     learningOutcomes: input.submission.learningOutcomes,

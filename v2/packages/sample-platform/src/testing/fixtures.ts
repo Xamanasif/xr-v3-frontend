@@ -23,6 +23,7 @@
  * Institute Admin (B3-11). States no coherent drawn record can hold together with the walk are
  * listed in the package README, never invented.
  */
+import { DELIVERED_METHODS } from '@xr/contracts/draft';
 import type {
   ContractFactory,
   ContractFixture,
@@ -380,6 +381,7 @@ export const contractFactory: ContractFactory = async (fixture): Promise<Contrac
   const platform = assemblePlatform({ world });
   return {
     implements: ['WP-0.11'],
+    delivered: DELIVERED_METHODS,
     publicPorts: visitorPorts(platform),
     as: (person) => asPerson(platform, person),
     standins: standinsOf(platform),

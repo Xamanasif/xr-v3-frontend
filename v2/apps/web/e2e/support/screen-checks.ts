@@ -38,6 +38,12 @@ export async function smallTargets(page: Page): Promise<string[]> {
       const box = element.getBoundingClientRect();
       if (box.width === 0 && box.height === 0) continue;
       if (element.classList.contains('xr-skip')) continue; // off-screen until focused
+      // A target covered at its centre by something else (a sticky sheet foot over the rows it
+      // scrolls past, Package 1B) cannot be pressed there: it is reached by scrolling, so it is
+      // not a target at this scroll position. Its own label still counts as itself.
+      const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+      const label = element instanceof HTMLInputElement ? element.closest('label') : null;
+      if (hit && !element.contains(hit) && !(label && label.contains(hit))) continue;
       const parentText = element.parentElement?.textContent?.trim() ?? '';
       const inline =
         element.tagName === 'A' &&

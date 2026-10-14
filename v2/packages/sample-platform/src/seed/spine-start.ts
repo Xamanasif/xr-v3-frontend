@@ -15,7 +15,7 @@ import { type IsoInstant, type SupportReport, unsafeBrand } from '@xr/domain';
 import { EMPTY_ID_STATE, type IdSourceState, reserve } from '../ids/id-source.js';
 import { WORLD_SCHEMA, WORLD_VERSION, type World } from '../world/types.js';
 import { ARJUN, ist, meta, note, personRef, SeedBook } from './book.js';
-import { addCatalogue, KAVYA_PERSON } from './catalogue.js';
+import { addCatalogue, FEATURED, KAVYA_PERSON } from './catalogue.js';
 import { addInstitutionsAndRequests } from './institutions.js';
 import { addProduction } from './production.js';
 import { addPlatformRoles, SUPER_ADMIN } from './roles.js';
@@ -110,7 +110,7 @@ export function seed(anchor: IsoInstant = SPINE_ANCHOR): World {
     seededAtReal: null,
     records: book.records,
     identities: { superAdmins: [SUPER_ADMIN] },
-    seeded: { licenceWaits: [], unavailableRightNow: {} },
+    seeded: { licenceWaits: [], unavailableRightNow: {}, featuredExperiments: FEATURED },
     history: [],
     idSource: reserved(book.ids.state),
     runtimeEvents: [],

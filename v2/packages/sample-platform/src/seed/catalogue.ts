@@ -55,33 +55,58 @@ export const EXPERIMENT = {
   orifice: 'orifice-plate-metering',
 } as const;
 
+/**
+ * The landing's "Featured experiments" in the drawn order (B1-01: CNC Turning Centre — "one
+ * experiment available in all four formats" — Shell-and-Tube Heat Exchanger, Induction Motor
+ * Loading, Distillation Column). A seeded list (P1-22 interim); whether the set is curated or
+ * derived stays OPEN (B1-14).
+ */
+export const FEATURED: readonly string[] = [
+  EXPERIMENT.cnc,
+  EXPERIMENT.shellAndTube,
+  EXPERIMENT.induction,
+  EXPERIMENT.distillation,
+];
+
 /** The Content Manager who published the catalogue (B7-06 "By the Content Manager"). */
 export const KAVYA_PERSON = 'per-kavya-nair';
 const KAVYA = personRef(KAVYA_PERSON, 'content_manager', 'Kavya Nair');
 
 const LIVE_SINCE = ist('2026-06-02 10:00');
 
+/**
+ * Each area's concept artwork (B1-01 and B1-02 explorer data `artCls`/`bgCls`: thermal, motor,
+ * process; B1-03 cards; "Bespoke B2 artwork where it exists (three areas)"). Package 1B: the
+ * spine-start world had no artwork, so every area showed the drawn fallback.
+ */
 function addAreas(book: SeedBook): void {
-  const areas: [string, string, string][] = [
+  const areas: [string, string, string, string][] = [
     [
       AREA.mechanical,
       'Mechanical & Manufacturing',
       'Heat transfer, thermodynamics and manufacturing processes.',
+      'thermal',
     ],
     [
       AREA.electrical,
       'Electrical & Electronics',
       'Electrical machines, transformers and power electronics.',
+      'motor',
     ],
-    [AREA.chemical, 'Chemical & Process', 'Distillation, process control and flow measurement.'],
+    [
+      AREA.chemical,
+      'Chemical & Process',
+      'Distillation, process control and flow measurement.',
+      'process',
+    ],
   ];
-  for (const [id, name, description] of areas) {
+  for (const [id, name, description, artworkKey] of areas) {
     const area: EngineeringArea = {
       ...meta(LIVE_SINCE),
       id: unsafeBrand(id),
       name,
       description,
-      artworkKey: null,
+      artworkKey,
       history: [
         book.entry({
           event: 'area-added',
@@ -207,6 +232,8 @@ interface ExperimentSeed {
   readonly summary: string;
   readonly description?: string;
   readonly formats: readonly Technology[];
+  /** The concept artwork of the catalogue row (B1-04 `art`; PC-31). */
+  readonly artwork: string;
   readonly outcomes: readonly [string, string];
   readonly vendorOrganisation?: string;
   readonly webLink?: string;
@@ -273,6 +300,7 @@ function addExperiment(book: SeedBook, seed: ExperimentSeed): void {
     courseId: unsafeBrand(seed.courseId),
     originSubmissionId: null,
     vendorOrganisation: seed.vendorOrganisation ?? '',
+    artworkKey: seed.artwork,
     live,
     versions,
     learningOutcomes: outcomes,
@@ -322,6 +350,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.',
     formats: ['web', 'ar', 'vr'],
+    artwork: 'thermal-crop',
     outcomes: [
       'Determine log mean temperature difference from measured inlet and outlet conditions',
       'Compare countercurrent and cocurrent arrangements at matched duty',
@@ -340,6 +369,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Introduce progressive fouling on the tube side and measure its effect on the overall heat transfer coefficient.',
     formats: ['web', 'vr'],
+    artwork: 'bundle',
     outcomes: [
       'Quantify the effect of fouling on the overall heat transfer coefficient',
       'Distinguish degradation from measurement drift',
@@ -356,6 +386,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Build a layered wall, measure the temperature profile and separate the contribution of each material.',
     formats: ['web', 'ar'],
+    artwork: 'materials',
     outcomes: [
       'Measure a steady-state temperature profile across layers',
       'Separate the thermal resistance of each material',
@@ -370,6 +401,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Work through workholding, tool registration and offset entry, then cut a test part and inspect it against tolerance.',
     formats: ['web', 'ar', 'vr', 'mr'],
+    artwork: 'machining',
     outcomes: [
       'Register tool offsets against a known datum',
       'Inspect a cut part against a dimensional tolerance',
@@ -384,6 +416,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Sequence the shell build, dewax and burnout steps, and judge the effect of each on surface finish.',
     formats: ['web'],
+    artwork: 'casting',
     outcomes: [
       'Sequence shell build, dewax and burnout correctly',
       'Relate each step to the resulting surface finish',
@@ -398,6 +431,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Load the machine through its full range and plot torque, slip and efficiency from instrument readings you take yourself.',
     formats: ['web', 'vr', 'mr'],
+    artwork: 'motor-crop',
     outcomes: [
       'Plot torque, slip and efficiency from your own readings',
       'Identify the operating point of maximum efficiency',
@@ -412,6 +446,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Synchronise to an infinite bus, then adjust excitation and prime-mover torque to see how real and reactive power divide.',
     formats: ['web', 'vr'],
+    artwork: 'syncgen',
     outcomes: [
       'Synchronise a generator to an infinite bus safely',
       'Separate the effect of excitation from prime-mover torque',
@@ -426,6 +461,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Run open and short circuit tests, separate core and copper losses and build the equivalent circuit from your measurements.',
     formats: ['web'],
+    artwork: 'coil',
     outcomes: [
       'Separate core losses from copper losses',
       'Build an equivalent circuit from measured data',
@@ -440,6 +476,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Sweep duty cycle and load, observe inductor current ripple and compare against the continuous-conduction prediction.',
     formats: ['web', 'ar'],
+    artwork: 'switching',
     outcomes: [
       'Relate duty cycle to output voltage',
       'Identify the boundary of continuous conduction',
@@ -456,6 +493,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     description:
       'Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. Lowering the reflux ratio raises the overhead purity, at the cost of more reboiler heat.',
     formats: ['web', 'vr'],
+    artwork: 'process-crop',
     outcomes: [
       'Bring a column to steady state from cold start',
       'Tune reflux ratio against an overhead purity target',
@@ -484,6 +522,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Tune a cascade loop against shrink and swell, then test it with a step change in steam demand.',
     formats: ['web', 'vr'],
+    artwork: 'drum',
     outcomes: [
       'Tune a cascade loop against shrink and swell',
       'Test loop performance with a step disturbance',
@@ -498,6 +537,7 @@ const EXPERIMENTS: readonly ExperimentSeed[] = [
     summary:
       'Calibrate against a reference meter and propagate instrument uncertainty into the reported flow.',
     formats: ['web', 'ar'],
+    artwork: 'orifice',
     outcomes: [
       'Calibrate against a reference meter',
       'Propagate instrument uncertainty into a reported flow',

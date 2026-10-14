@@ -4,7 +4,7 @@
  * programming error until its phase builds it: it rejects, naming the phase, and is never
  * answered with a made-up value. The contract suite never calls them against this adapter.
  */
-import type { MethodId } from '@xr/contracts/draft';
+import { DELIVERED_METHODS, type MethodId } from '@xr/contracts/draft';
 
 import { rowOf } from '../pipeline/ledger.js';
 
@@ -16,6 +16,8 @@ export function deferred(method: MethodId): (...args: unknown[]) => Promise<neve
   const phase = rowOf(method).mock;
   if (phase === 'WP-0.11')
     throw new Error(`${method} is a WP-0.11 method and must be implemented.`);
+  if (DELIVERED_METHODS.includes(method))
+    throw new Error(`${method} was delivered by a Phase-1 package and must be implemented.`);
   return () =>
     Promise.reject(
       new NotInThisPhase(

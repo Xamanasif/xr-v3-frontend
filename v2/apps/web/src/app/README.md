@@ -36,8 +36,30 @@ file outside it exists, and the built-screen manifest (`BUILT_SCREENS`) is gener
 | `/admin/requests/[requestId]` | `admin/requests/[requestId]/page.tsx`          | SA-03 Request decision (B1-11)                                     |
 
 `_auth/sign-in-route.tsx` reads Next.js navigation for the sign-in page as `_workspace/` does for
-the workspaces. Still not built: PublicShell, every public page (PU-01…PU-14) and the role homes
-(Packages 1B–1D and later phases); `/` shows the public not-found page.
+the workspaces.
+
+**Phase-1 Package 1B** adds the public surface (TE-8: rendered in the browser from the tab's one
+sample world), by the same rules:
+
+| Path                          | File(s)                                             | Shows                                                            |
+| ----------------------------- | --------------------------------------------------- | ---------------------------------------------------------------- |
+| every public page             | `(public)/layout.tsx`, `_public/public-route.tsx`   | PublicFrame: skip link, header + menu sheet, `main#main`, footer |
+| `/`                           | `(public)/page.tsx`                                 | PU-01 Landing, with PU-14 at `#for-institutions` (B1-01, B1-02)  |
+| `/areas`                      | `(public)/areas/page.tsx`                           | PU-02 All engineering areas (B1-03)                              |
+| `/areas/[areaId]`             | `(public)/areas/[areaId]/page.tsx`                  | PU-03 Engineering area; unknown or hidden → B1-03's message      |
+| `/courses/[courseId]`         | `(public)/courses/[courseId]/page.tsx`              | PU-05 Course (keyed by the course id, D-13)                      |
+| `/courses`                    | `next.config.ts` `redirects()`                      | → `/areas` (Appendix A §3.7 row 1), 307                          |
+| `/experiments`                | `(public)/experiments/page.tsx`                     | PU-04 Catalogue, `?area=&course=&format=&q=&sort=&view=`         |
+| `/experiments/[experimentId]` | `(public)/experiments/[experimentId]/page.tsx`      | PU-06 Experiment (`?format=` from a one-format catalogue)        |
+| any other address             | `not-found.tsx` (root) → `_public/public-route.tsx` | PU-15 public variant, HTTP 404, now inside the public frame      |
+
+`_public/public-route.tsx` is the public pages' one module that reads Next.js navigation; its
+`replace` mirrors a page's view into the address with `history.replaceState` (no history entry, no
+scroll, no request: the catalogue keeps its state while filters change). Entity not-found states
+(an unknown area, course or experiment) are drawn in place by the page, as the boards draw them,
+with HTTP 200 — a client-rendered page cannot know the record on the server (TE-8 limitation).
+Still not built: the Selection and request pages (PU-07 … PU-13, Package 1C) and the role homes;
+every drawn way into PU-07 is not rendered (P0-35).
 
 ## Guards
 
@@ -46,8 +68,8 @@ the workspaces. Still not built: PublicShell, every public page (PU-01…PU-14) 
   snapshot `unknown`). Unknown: the loading state ("Loading …", board 04/12). Signed out:
   `router.replace('/sign-in?returnTo=<the address asked for>')`; after "Sign out",
   `/sign-in?reason=signed-out` (XS-03 "Signed out"). Both are the XS-01 card since Package 1A — a
-  client-side move, so the tab's world is kept. The public PU-15's dead link to `/experiments` is
-  the one action left that loads a new document.
+  client-side move, so the tab's world is kept. Since Package 1B the public PU-15's "Browse
+  experiments" opens the built catalogue in the same document; no product link loads a new one.
 - **`returnTo`** (`nav/return-to.ts`): honoured only as a same-origin relative path inside the
   signed-in role's own base, else the role home (AD-21; acceptance 6). XS-01 applies it after
   every sign-in (Package 1A).
@@ -99,8 +121,8 @@ per-screen state-copy register `src/copy/state-copy.ts` (VD-12), each `drawn` (w
   A server-side session (cookie or BFF, E-02) would allow 404s; Appendix F §3.3 anticipated this.
 - **`/<base>` → `/<base>/help`** is an engineering-build interim (ADR-0005 §8), run after the
   workspace guard so another role's base shows XS-06 at the address asked for.
-- **"Browse experiments" → `/experiments`** (public PU-15) is the one Phase-0 dead link (PU-04,
-  Phase 1); see `src/nav/link-targets.ts`.
+- **"Browse experiments" → `/experiments`** (public PU-15) was the one Phase-0 dead link; it
+  reaches the built catalogue since Package 1B (`src/nav/link-targets.ts`).
 - **"Where did it happen?"** is pre-filled with the words of the last page the person saw outside
   Help & support, in this tab (`nav/page-location.ts`, PROVISIONAL); with none, it starts empty.
 - **Sign-in and sign-out stay in the document** (Package 1A): the world is kept; a reload still
