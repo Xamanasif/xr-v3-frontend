@@ -269,7 +269,7 @@ async function iconsOf(locator) {
  * differ in size and no pixel count exists. Layout and styles are deterministic where the
  * anti-aliasing of a capture is not.
  */
-async function fingerprintOf(locator) {
+export async function fingerprintOf(locator) {
   const parts = await locator.evaluate((root) => {
     const origin = root.getBoundingClientRect();
     const unit = (value) => Math.round(value * 64) / 64;
@@ -350,21 +350,29 @@ async function fingerprintOf(locator) {
  *   (a control's text lives in the browser's own shadow tree), and the `::placeholder` and
  *   `::file-selector-button` styles;
  * - `::before` / `::after` (when they have content) and list `::marker`s: content and styles;
- * - more drawn properties of every element (padding, text indent and shadow, decoration colour and
- *   style, filter, stacking, stroke dashes, white space, overflow, clipping, list style);
+ * - more drawn properties of every element (padding, border styles, the native control accent
+ *   colour, text indent and shadow, decoration colour and style, filter, stacking, stroke dashes,
+ *   white space, overflow, clipping, list style). Border styles and `accent-color` were added in
+ *   the WP-0.16 review: a solid → dashed border keeps its width and colour, so neither fingerprint
+ *   saw it, and a registered comparison whose captures differ in size absorbed it;
  * - images (`currentSrc`), SVG shape geometry beyond path data, and the words of
  *   `display: contents` elements, whose own boxes the main walk skips;
  * - what lies behind the element: the nearest painted ancestor background and the ancestors'
  *   combined opacity and filters.
  * Every element of the subtree is visited, rendered or not (hidden words change it too).
  */
-async function contentFingerprintOf(locator) {
+export async function contentFingerprintOf(locator) {
   const parts = await locator.evaluate((root) => {
     const EXTRA = [
       'paddingTop',
       'paddingRight',
       'paddingBottom',
       'paddingLeft',
+      'borderTopStyle',
+      'borderRightStyle',
+      'borderBottomStyle',
+      'borderLeftStyle',
+      'accentColor',
       'textIndent',
       'textShadow',
       'textDecorationColor',
@@ -407,10 +415,13 @@ async function contentFingerprintOf(locator) {
       'borderTopStyle',
       'borderRightColor',
       'borderRightWidth',
+      'borderRightStyle',
       'borderBottomColor',
       'borderBottomWidth',
+      'borderBottomStyle',
       'borderLeftColor',
       'borderLeftWidth',
+      'borderLeftStyle',
       'borderTopLeftRadius',
       'borderBottomRightRadius',
       'boxShadow',

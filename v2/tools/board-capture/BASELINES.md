@@ -74,8 +74,9 @@ and 2a are inside its ratio but draw fewer icons (the Phase-0 sidebar, DEV-10, w
 1c) and are registered; 07 State 1a and 3a are 4 and 10 px taller (DEV-12; DEV-11 + DEV-13), so
 no pixel comparison of the whole frame is possible — they are registered on their size and their
 content fingerprints are pinned, while every part of them is compared on its own. Every registered
-comparison is pinned by size, icons, two content fingerprints and pixel count. Tests: 41/41 passed (31
-specimen-suite, 10 screen-suite). Board 08 paints the public PU-15 frame #F4F5FB, the product's
+comparison is pinned by size, icons, two content fingerprints and pixel count. Tests: 42/42 passed (32
+specimen-suite — 31 with comparisons plus the fingerprint-sensitivity test added in WP-0.16, which
+compares nothing — and 10 screen-suite). Board 08 paints the public PU-15 frame #F4F5FB, the product's
 public shell is white (`.xp`): the 0.1 threshold does not separate the two, so DEV-20 records it
 for the owner.
 

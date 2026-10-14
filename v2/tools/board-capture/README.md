@@ -84,8 +84,16 @@ sources, SVG shape geometry, the background behind the element — so a suppleme
 fingerprint and every earlier pin field are unchanged (64 of 64). Both are taken again after the
 capture and must agree. Proved on the size-mismatched 375 px report form (DEV-14): a changed field
 value, 1 px of input padding and a new placeholder each fail, and so does a recoloured timeline
-`::before` in the 07 State 3a whole frame; the unchanged form passes. A registered comparison may
-not be masked. A register entry is never a mask and never an approval: its `status` says
+`::before` in the 07 State 3a whole frame; the unchanged form passes. The WP-0.16 review found that
+neither fingerprint saw border styles or the native control accent colour: a solid → dashed border
+on the size-mismatched read-only value (DEV-02) passed as registered. Both now belong to the
+supplement; `productContent` was re-pinned from run `2026-10-14-wp016-repin` (the earlier pins then
+failed on the supplement alone, 64 of 64; every other pin field is unchanged, 64 of 64), and the
+same mutation now fails. `apps/specimens/e2e/parity/fingerprint-sensitivity.parity.ts` keeps this
+proved on every run, on real `@xr/ui` controls: a value, placeholder words and colour, 1 px of
+padding, checked, selected and disabled states, the accent colour, a border style and a `::before`
+each change the supplement, and undoing them restores both fingerprints. A registered comparison
+may not be masked. A register entry is never a mask and never an approval: its `status` says
 whether an owner decision covers it (`owner-approved`, `approved-rule`), closes it with a
 qualification (`owner-acknowledged`: accepted only as measured, cause not proven;
 `owner-deferred`: moved to a named later phase), or not yet (`provisional`, `owner-review`); a
