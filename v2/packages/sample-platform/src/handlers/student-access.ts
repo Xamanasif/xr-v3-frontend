@@ -11,6 +11,7 @@ import {
   giveAccessOptionsInput,
   type GrantRow,
   listGrantsInput,
+  type PlannedGrant,
   previewGiveAccessInput,
   type StudentAccessService,
   type StudentHome,
@@ -22,8 +23,10 @@ import {
   type GiveAccessTarget,
   giveAccess,
   grantDisplayStatus,
+  groupMemberStanding,
   type LicenceAvailabilityOracle,
   type PersonId,
+  type ProvidedLicenceWait,
   publishedFormats,
   type StudentAccessGrant,
   type StudentPerson,
@@ -147,7 +150,60 @@ function prepareGive(
     }),
     input,
   );
-  return { person, outcome };
+  return { person, outcome, target, institution };
+}
+
+/**
+ * IA-05 review (Phase-2 Package 2A; B2-05 f2, f5): whom one planned grant reaches and how each
+ * stands — the domain's `groupMemberStanding` for the grant about to be given, a wait only where
+ * the licence oracle supplied one (the decision's `waits`; T-06, D7). A member whose own grant was
+ * withdrawn is the undecided overlap (OD-B2-01): its standing is the open decision, never a word.
+ */
+function plannedReaches(
+  target: GiveAccessTarget,
+  grant: StudentAccessGrant,
+  waits: readonly ProvidedLicenceWait[],
+  grants: readonly StudentAccessGrant[],
+): PlannedGrant['reaches'][number][] {
+  const recipients =
+    target.kind === 'group'
+      ? target.members
+      : target.students.filter(
+          (student) => grant.target.kind === 'student' && grant.target.studentId === student.id,
+        );
+  return recipients.map((student) => {
+    const own = grants.filter(
+      (other) =>
+        other.experimentId === grant.experimentId &&
+        other.target.kind === 'student' &&
+        other.target.studentId === student.id,
+    );
+    const individual = own.find((other) => other.state === 'active') ?? own.at(-1) ?? null;
+    const waiting = waits.filter((wait) => wait.grantId === grant.id);
+    const membership =
+      target.kind === 'group'
+        ? target.group.memberships.find(
+            (entry) => entry.studentId === student.id && entry.removedAt === null,
+          )
+        : undefined;
+    const standing = membership
+      ? groupMemberStanding({
+          membership,
+          student,
+          groupGrant: grant,
+          individualGrant: individual,
+          waits: waiting,
+        })
+      : waiting.some((wait) => wait.studentId === student.id)
+        ? ('waiting-for-a-licence' as const)
+        : ('can-open-it' as const);
+    return {
+      studentId: student.id,
+      name: student.fullName,
+      standing,
+      individualGrantId: individual?.state === 'active' ? individual.id : null,
+    };
+  });
 }
 
 function whoOf(op: Op, grant: StudentAccessGrant): string {
@@ -290,7 +346,8 @@ export function studentAccessPort(call: Call): StudentAccessService {
 
     previewGiveAccess: (input) =>
       read(call, 'StudentAccessService.previewGiveAccess', (op) => {
-        const { outcome } = prepareGive(op, input, previewGiveAccessInput);
+        const { outcome, target, institution } = prepareGive(op, input, previewGiveAccessInput);
+        const existing = grantsOf(op.records, institution.id);
         // A preview writes nothing (Appendix C rule 3): the decision's records are not staged.
         return outcome.grants.map((grant) => ({
           who: whoOf(op, grant),
@@ -299,6 +356,7 @@ export function studentAccessPort(call: Call): StudentAccessService {
             ...(outcome.plan.items.find((item) => item.experimentId === grant.experimentId)
               ?.formats ?? []),
           ],
+          reaches: plannedReaches(target, grant, outcome.waits, existing),
         }));
       }),
 

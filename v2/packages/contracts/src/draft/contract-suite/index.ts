@@ -20,6 +20,7 @@ import { FLOW_D_CASES } from './cases/flow-d.js';
 import { FLOW_E_CASES } from './cases/flow-e.js';
 import { FLOW_F_CASES } from './cases/flow-f.js';
 import { INSTITUTION_CASES } from './cases/institutions.js';
+import { INSTITUTE_READ_CASES } from './cases/institute-reads.js';
 import { INVARIANT_CASES } from './cases/invariants.js';
 import { type ContractCase, type ContractSuiteReport, runCases } from './run.js';
 import type { ContractFactory } from './subject.js';
@@ -29,7 +30,7 @@ export const CONTRACT_SUITE_MARKER = 'xr-contracts-draft-contract-suite';
 
 /**
  * Every case, in order: surface, session, catalogue structure, flows, request access (Package 1C),
- * institutions (Package 1D), cross-cutting, invariants.
+ * institutions (Package 1D), the Institute Admin's reads (Package 2A), cross-cutting, invariants.
  */
 export const CONTRACT_CASES: readonly ContractCase[] = [
   ...SURFACE_CASES,
@@ -43,6 +44,7 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   ...FLOW_F_CASES,
   ...REQUEST_ACCESS_CASES,
   ...INSTITUTION_CASES,
+  ...INSTITUTE_READ_CASES,
   ...CROSS_ROLE_CASES,
   ...INVARIANT_CASES,
 ];

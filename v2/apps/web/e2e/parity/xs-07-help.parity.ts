@@ -51,8 +51,19 @@ function shell(
   name: string,
   frame: Locator,
   ours: Page,
-  registered: { sidebar?: readonly string[]; frame?: readonly string[] } = {},
+  registered: {
+    sidebar?: readonly string[];
+    frame?: readonly string[];
+    /**
+     * Package 2A built the Student's Home and My courses: the Student's sidebar and whole frame are
+     * measured under new names and DEV-21; their Phase-0 pins (DEV-10, Help only) stay as the
+     * record and are no longer observed.
+     */
+    package2a?: boolean;
+  } = {},
 ): CompareItem[] {
+  const shellDeviation = registered.package2a ? 'DEV-21' : 'DEV-10';
+  const suffix = registered.package2a ? '-package-2a' : '';
   return [
     {
       name: `${name}-top-bar`,
@@ -76,19 +87,19 @@ function shell(
     },
     {
       // The whole sidebar at the strict tolerance: the destination list is absent in Phase 0.
-      name: `${name}-sidebar`,
+      name: `${name}-sidebar${suffix}`,
       reference: frame.locator('aside.xr-side'),
       product: ours.locator('aside.xr-side'),
       kind: 'specimen',
-      deviation: ['DEV-10', ...(registered.sidebar ?? [])],
+      deviation: [shellDeviation, ...(registered.sidebar ?? [])],
     },
     {
-      name: `${name}-whole-frame`,
+      name: `${name}-whole-frame${suffix}`,
       reference: frame,
       product: ours.locator('div.xr-app'),
       kind: 'screen',
       frame: true,
-      deviation: ['DEV-10', ...(registered.frame ?? [])],
+      deviation: [shellDeviation, ...(registered.frame ?? [])],
     },
   ];
 }
@@ -120,7 +131,7 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
     await ours.getByLabel('Where did it happen?').blur();
     const frame = frames.nth(0);
     await run(testInfo, [
-      ...shell('07-f0-state-1-report-a-problem', frame, ours),
+      ...shell('07-f0-state-1-report-a-problem', frame, ours, { package2a: true }),
       {
         name: '07-f0-state-1-report-a-problem-page',
         reference: frame.locator('main .xr-content'),
@@ -144,6 +155,7 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
       ...shell('07-f1-state-1a-validation', frame, ours, {
         sidebar: ['DEV-12'],
         frame: ['DEV-12'],
+        package2a: true,
       }),
       {
         name: '07-f1-state-1a-validation-header',
@@ -180,7 +192,7 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
     // also compared on its own, where the difference shows.
     await expect(ours.locator('main .xr-msg .xr-id')).toHaveText('SUP-0214');
     await run(testInfo, [
-      ...shell('07-f3-state-1c-sent', frame, ours, { frame: ['DEV-11'] }),
+      ...shell('07-f3-state-1c-sent', frame, ours, { frame: ['DEV-11'], package2a: true }),
       {
         name: '07-f3-state-1c-sent-message',
         reference: frame.locator('main .xr-msg'),

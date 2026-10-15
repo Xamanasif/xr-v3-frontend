@@ -150,6 +150,20 @@ export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = [
     authorisation:
       'Owner authorisation of Package 1D (15 Oct 2026, §4): "Implement the deferred Phase-1 method: listInstitutions" — SA-06 Institutions on the shared sample world. OperationsService.getSuperAdminOverview stays in Phase 6: SA-01 is built with its Phase-1 Requests section only (§2, SA-01 scope).',
   },
+  ...(
+    [
+      'InstitutionService.getMyOverview',
+      'PeopleService.listStudents',
+      'PeopleService.listFaculty',
+      'GroupService.listGroups',
+    ] as const
+  ).map((method) => ({
+    method,
+    phase: 'P2' as const,
+    package: 'Phase-2 Package 2A',
+    authorisation:
+      'Owner authorisation of Phase 2A (15 Oct 2026, §6): "Implement only those Phase-2 deferred service methods needed by the selected screens" — IA-01 Overview (getMyOverview), IA-06 Students and its group filter (listStudents, listGroups), IA-08 Faculty (listFaculty). previewStudentImport, getFaculty, getGroup, FacultyCourseService.list and InstitutionCourseCodeService.list stay deferred with IA-09, IA-11, IA-13 … IA-16 (Phase 2B).',
+  })),
 ];
 
 /** The methods `PACKAGE_DELIVERIES` names. */

@@ -22,7 +22,9 @@ import type { WorkspaceScreenId } from './screens';
  * and the tickets live. Every other public address resolves to the root not-found (the public
  * PU-15, inside the public header and footer). Package 1D builds the Super Admin's home — `/admin`
  * is SA-01 Overview (its Phase-1 Requests group), no longer the interim landing — and SA-06
- * Institutions and SA-07 Institution detail; the other six bases keep the interim landing.
+ * Institutions and SA-07 Institution detail. Package 2A (Phase 2) builds the Institute Admin's and
+ * the Student's homes (IA-01, ST-01) and their first destinations; the other four bases keep the
+ * interim landing.
  */
 
 /** What a page file renders. */
@@ -69,6 +71,11 @@ export interface PageRoute {
   readonly screen: WorkspaceScreenId | EntryScreenId | PublicPageScreenId | null;
   /** The Help view a Help page shows. */
   readonly view?: HelpRouteView;
+  /**
+   * Screens the page also shows as a tab or a state (Package 2A): IA-08 Faculty is a tab of the
+   * People page (`?tab=faculty`), ST-19 "Experiment not available" a state of the experiment hub.
+   */
+  readonly also?: readonly WorkspaceScreenId[];
 }
 
 /** The workspace base folder of a role (`/institute` → `institute`), as `SessionService` names it. */
@@ -88,9 +95,12 @@ export function roleOfWorkspace(workspace: Workspace): Role {
 /**
  * The workspace homes built so far: a base whose home screen is built shows it; every other base
  * is the interim landing (ADR-0005 §8; P0-35). Package 1D: the Super Admin's Overview (SA-01).
+ * Package 2A: the Institute Admin's Overview (IA-01) and the Student's Home (ST-01).
  */
 export const BUILT_HOMES: Readonly<Partial<Record<Workspace, WorkspaceScreenId>>> = {
   admin: 'SA-01',
+  institute: 'IA-01',
+  student: 'ST-01',
 };
 
 function workspacePages(workspace: Workspace): PageRoute[] {
@@ -218,8 +228,51 @@ const PACKAGE_1D_PAGES: readonly PageRoute[] = (
 }));
 
 /**
+ * Package 2A (Phase 2): the Institute Admin's campus distribution and the Student's access
+ * (Appendix A register routes). `/institute` is IA-01 and `/student` ST-01 (`BUILT_HOMES`). The
+ * People page shows IA-06 Students and, on `?tab=faculty`, IA-08 Faculty; the experiment hub shows
+ * ST-19 "Experiment not available" in place of its content when the experiment cannot be opened
+ * (the register: "no route, no notFound()").
+ */
+const PACKAGE_2A_PAGES: readonly PageRoute[] = (
+  [
+    ['/institute/content-access', 'institute/content-access/page.tsx', 'IA-02'],
+    [
+      '/institute/content-access/plans/[planId]',
+      'institute/content-access/plans/[planId]/page.tsx',
+      'IA-03',
+    ],
+    ['/institute/student-access', 'institute/student-access/page.tsx', 'IA-04'],
+    ['/institute/student-access/give', 'institute/student-access/give/page.tsx', 'IA-05'],
+    ['/institute/people', 'institute/people/page.tsx', 'IA-06', ['IA-08']],
+    [
+      '/institute/people/students/[studentId]',
+      'institute/people/students/[studentId]/page.tsx',
+      'IA-07',
+    ],
+    ['/institute/people/add', 'institute/people/add/page.tsx', 'IA-10'],
+    ['/student/courses', 'student/courses/page.tsx', 'ST-02'],
+    ['/student/courses/[courseId]', 'student/courses/[courseId]/page.tsx', 'ST-03'],
+    [
+      '/student/experiments/[experimentId]',
+      'student/experiments/[experimentId]/page.tsx',
+      'ST-05',
+      ['ST-19'],
+    ],
+  ] as const
+).map(([pattern, file, screen, also]) => ({
+  pattern,
+  file,
+  workspace: pattern.startsWith('/institute') ? 'institute' : 'student',
+  kind: 'screen',
+  screen,
+  ...(also ? { also } : {}),
+}));
+
+/**
  * Every page file: the Phase-0 pages of the seven workspaces (35; the admin base is SA-01 since
- * Package 1D), Package 1A's (3), Package 1B's (6), Package 1C's (5), Package 1D's (2).
+ * Package 1D, the institute and student bases IA-01 and ST-01 since Package 2A), Package 1A's (3),
+ * Package 1B's (6), Package 1C's (5), Package 1D's (2), Package 2A's (10).
  */
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
@@ -227,6 +280,7 @@ export const PAGES: readonly PageRoute[] = [
   ...PACKAGE_1B_PAGES,
   ...PACKAGE_1C_PAGES,
   ...PACKAGE_1D_PAGES,
+  ...PACKAGE_2A_PAGES,
 ];
 
 /**
@@ -267,7 +321,9 @@ export const REDIRECTS: readonly {
 /** The workspace screens built as pages (the entry and public pages are not sidebar destinations). */
 export const SCREENS_WITH_PAGES: ReadonlySet<WorkspaceScreenId> = new Set(
   PAGES.flatMap((page) =>
-    page.screen && page.workspace !== null ? [page.screen as WorkspaceScreenId] : [],
+    page.screen && page.workspace !== null
+      ? [page.screen as WorkspaceScreenId, ...(page.also ?? [])]
+      : [],
   ),
 );
 
@@ -286,7 +342,7 @@ export type AddressOutcome =
   | {
       readonly kind: 'record-screen';
       readonly workspace: Workspace;
-      readonly screen: 'SA-01' | 'SA-02' | 'SA-03' | 'SA-06' | 'SA-07';
+      readonly screen: WorkspaceScreenId;
     }
   | { readonly kind: 'interim-landing'; readonly workspace: Workspace; readonly lands: string }
   | { readonly kind: 'redirect'; readonly workspace: Workspace | null; readonly to: string }
@@ -311,7 +367,8 @@ export function resolveAddress(address: string): AddressOutcome {
   const workspace = first as Workspace;
   const parts = tail;
   if (parts.length === 0) {
-    if (workspace === 'admin') return { kind: 'record-screen', workspace, screen: 'SA-01' };
+    const home = BUILT_HOMES[workspace];
+    if (home) return { kind: 'record-screen', workspace, screen: home };
     return { kind: 'interim-landing', workspace, lands: `/${workspace}/help` };
   }
   if (parts[0] === 'help') {
@@ -325,19 +382,25 @@ export function resolveAddress(address: string): AddressOutcome {
       return { kind: 'screen', workspace, view: 'detail' };
     }
   }
-  if (workspace === 'admin' && parts[0] === 'requests') {
-    if (parts.length === 1) return { kind: 'record-screen', workspace, screen: 'SA-02' };
-    if (parts.length === 2 && parts[1] !== '') {
-      return { kind: 'record-screen', workspace, screen: 'SA-03' };
-    }
-  }
-  if (workspace === 'admin' && parts[0] === 'institutions') {
-    if (parts.length === 1) return { kind: 'record-screen', workspace, screen: 'SA-06' };
-    if (parts.length === 2 && parts[1] !== '') {
-      return { kind: 'record-screen', workspace, screen: 'SA-07' };
+  // The record and list screens of Packages 1A, 1D and 2A, by their manifest pattern.
+  for (const page of PAGES) {
+    if (page.workspace !== workspace || page.kind !== 'screen' || page.view) continue;
+    if (page.pattern === `/${workspace}`) continue;
+    if (matchesPattern(page.pattern, [first, ...parts])) {
+      return { kind: 'record-screen', workspace, screen: page.screen as WorkspaceScreenId };
     }
   }
   return { kind: 'workspace-not-found', workspace };
+}
+
+/** Whether path segments match a manifest pattern (`[param]` = one non-empty segment). */
+function matchesPattern(pattern: string, segments: readonly string[]): boolean {
+  const wanted = pattern.split('/').slice(1);
+  if (wanted.length !== segments.length) return false;
+  return wanted.every((part, index) => {
+    const segment = segments[index]!;
+    return /^\[[^\].]+\]$/.test(part) ? segment !== '' : part === segment;
+  });
 }
 
 /** The public surface (Package 1B): `/`, `/areas[/id]`, `/courses/id`, `/experiments[/id]`. */

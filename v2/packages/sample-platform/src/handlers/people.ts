@@ -14,6 +14,8 @@ import {
   commitStudentImportInput,
   createGroupInput,
   deactivateStudentInput,
+  type GrantRow,
+  listStudentsInput,
   type FacultyCourseService,
   type GroupService,
   type InstitutionCourseCodeService,
@@ -34,6 +36,7 @@ import {
   createGroup,
   type CourseId,
   deactivateStudent,
+  grantDisplayStatus,
   type Institution,
   navCounts,
   platformCodeKey,
@@ -42,6 +45,7 @@ import {
   removeMember,
   renameGroup,
   setInstitutionCourseCode,
+  type StudentAccessGrant,
   type StudentPerson,
   unmarkedAfterRemoval,
 } from '@xr/domain';
@@ -56,9 +60,16 @@ import {
   heldExperiments,
   mappingsOf,
   peopleOf,
+  waitsOf,
 } from '../world/queries.js';
 import { courseCodeKey, values } from '../world/records.js';
 import { deferred } from './deferred.js';
+import {
+  facultyDirectory,
+  groupDirectory,
+  peopleCoursesOf,
+  studentDirectory,
+} from './institute-reads.js';
 import {
   facultyCourseSubject,
   groupSubject,
@@ -85,6 +96,59 @@ function studentIn(op: Op, id: string): StudentPerson {
   return person;
 }
 
+/**
+ * IA-07 "Experiments given" (B2-06 f9 … f11, f17; PC-40): each grant that reaches the student — as
+ * `StudentAccessService.listGrants` reads it for this student: the experiment and its course code,
+ * the formats inherited from the plan item (LD-1), the Institute Admin's grant word, the active
+ * group grant an individual grant is "Also in", and a supplied licence wait (never counted, D7).
+ */
+function studentGrantRows(
+  op: Op,
+  student: StudentPerson,
+  grants: readonly StudentAccessGrant[],
+): GrantRow[] {
+  const institution = op.found(op.records.institutions[student.institutionId]);
+  const waits = waitsOf(op.records, institution.id);
+  const rows: GrantRow[] = [];
+  for (const grant of grants) {
+    const plan = op.records.plans[grant.accessPlanId];
+    const experiment = op.records.experiments[grant.experimentId];
+    if (!plan || !experiment) continue;
+    const groupGrant =
+      grant.target.kind === 'student'
+        ? grants.find(
+            (other) =>
+              other.target.kind === 'group' &&
+              other.state === 'active' &&
+              other.experimentId === grant.experimentId,
+          )
+        : undefined;
+    rows.push({
+      grant,
+      student,
+      experimentName: experiment.live.catalogue.name,
+      courseCode: op.records.courses[experiment.courseId]?.platformCode ?? null,
+      formats: [
+        ...(plan.items.find((item) => item.experimentId === grant.experimentId)?.formats ?? []),
+      ],
+      display: grantDisplayStatus({
+        grant,
+        student,
+        plan,
+        institution,
+        waits,
+        alsoInActiveGroupGrant: groupGrant !== undefined,
+        screen: 'student-access',
+        now: op.now,
+      }),
+      alsoInGroupGrant: groupGrant?.id ?? null,
+      wait:
+        waits.find((wait) => wait.grantId === grant.id && wait.studentId === student.id) ?? null,
+    });
+  }
+  return rows;
+}
+
 /** Written answers waiting for marking in this institution's assessments of a course (B2-09 f2). */
 function writtenAnswersWaiting(op: Op, institutionId: string, courseId: CourseId): number {
   const experiments = heldExperiments(op.records, institutionId)
@@ -102,9 +166,24 @@ function writtenAnswersWaiting(op: Op, institutionId: string, courseId: CourseId
 
 export function peoplePort(call: Call): PeopleService {
   return {
-    listStudents: deferred('PeopleService.listStudents'),
+    // Phase-2 Package 2A (IA-06): the admin's own students, filtered by the service (PC-39).
+    listStudents: (filter) =>
+      read(call, 'PeopleService.listStudents', (op) => {
+        const person = op.person();
+        const institution = ownInstitution(op, person);
+        op.see(person, { kind: 'people', institutionId: institution.id });
+        const accepted = op.parse(listStudentsInput, filter);
+        return studentDirectory(op, institution, accepted);
+      }),
     previewStudentImport: deferred('PeopleService.previewStudentImport'),
-    listFaculty: deferred('PeopleService.listFaculty'),
+    // Phase-2 Package 2A (IA-08): the admin's own faculty and the courses they teach.
+    listFaculty: () =>
+      read(call, 'PeopleService.listFaculty', (op) => {
+        const person = op.person();
+        const institution = ownInstitution(op, person);
+        op.see(person, { kind: 'people', institutionId: institution.id });
+        return facultyDirectory(op, institution);
+      }),
     getFaculty: deferred('PeopleService.getFaculty'),
 
     getStudent: (id) =>
@@ -118,14 +197,21 @@ export function peoplePort(call: Call): PeopleService {
           ),
         );
         const groupIds = new Set(groups.map((group) => group.id as string));
+        const grants = grantsOf(op.records, student.institutionId).filter((grant) =>
+          grant.target.kind === 'student'
+            ? grant.target.studentId === student.id
+            : groupIds.has(grant.target.groupId),
+        );
         return {
           student,
           groups,
-          grants: grantsOf(op.records, student.institutionId).filter((grant) =>
-            grant.target.kind === 'student'
-              ? grant.target.studentId === student.id
-              : groupIds.has(grant.target.groupId),
+          grants,
+          // Phase-2 Package 2A (IA-07, PC-40): the named courses and each grant as IA-04 reads it.
+          courses: peopleCoursesOf(
+            op,
+            student.courseFilings.map((filing) => filing.courseId),
           ),
+          grantRows: studentGrantRows(op, student, grants),
         };
       }),
 
@@ -313,7 +399,14 @@ export function peoplePort(call: Call): PeopleService {
 
 export function groupPort(call: Call): GroupService {
   return {
-    listGroups: deferred('GroupService.listGroups'),
+    // Phase-2 Package 2A (IA-06's Group filter): the admin's own groups.
+    listGroups: () =>
+      read(call, 'GroupService.listGroups', (op) => {
+        const person = op.person();
+        const institution = ownInstitution(op, person);
+        op.see(person, { kind: 'groups', institutionId: institution.id });
+        return groupDirectory(op, institution);
+      }),
     getGroup: deferred('GroupService.getGroup'),
 
     createGroup: (input) =>

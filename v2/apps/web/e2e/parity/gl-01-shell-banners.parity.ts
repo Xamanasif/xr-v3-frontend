@@ -116,13 +116,24 @@ test('board 05 · the built shell on Help for 7 roles, with the applicable banne
             kind: 'specimen',
             deviation: 'DEV-21',
           }
-        : {
-            name: `${name}-sidebar`,
-            reference: board.locator('aside.xr-side'),
-            product: ours.locator('aside.xr-side'),
-            kind: 'specimen',
-            deviation: 'DEV-10',
-          },
+        : role.label === 'Student' || role.label === 'Institute Admin'
+          ? {
+              // Package 2A builds the Student's Home and My courses and the Institute Admin's
+              // Overview, Content access, Student access and People: measured under its own name
+              // and DEV-21 (owner review); the Phase-0 pin (DEV-10, Help only) stays as the record.
+              name: `${name}-sidebar-package-2a`,
+              reference: board.locator('aside.xr-side'),
+              product: ours.locator('aside.xr-side'),
+              kind: 'specimen',
+              deviation: 'DEV-21',
+            }
+          : {
+              name: `${name}-sidebar`,
+              reference: board.locator('aside.xr-side'),
+              product: ours.locator('aside.xr-side'),
+              kind: 'specimen',
+              deviation: 'DEV-10',
+            },
       {
         name: `${name}-help-header`,
         reference: board.locator('main .xr-phead'),

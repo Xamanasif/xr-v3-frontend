@@ -61,11 +61,12 @@ test.describe('workspace variant (test-hook build)', () => {
   test.use({ baseURL: TEST_HOOKS_URL });
 
   // Designed but not built yet (each workspace's first unbuilt destination; the Super Admin's
-  // Requests are built in Package 1A, Overview and Institutions in 1D), then unknown ones.
+  // Requests are built in Package 1A, Overview and Institutions in 1D; the Student's My courses and
+  // the Institute Admin's People in 2A), then unknown ones.
   const UNBUILT: Readonly<Record<string, string>> = {
-    student: '/student/courses',
+    student: '/student/progress',
     faculty: '/faculty/marking',
-    tenant_admin: '/institute/people',
+    tenant_admin: '/institute/requests',
     vendor: '/vendor/experiments',
     academic_reviewer: '/reviewer/queue',
     content_manager: '/content-manager/ready',
@@ -155,7 +156,11 @@ test.describe('workspace variant (test-hook build)', () => {
     request,
   }) => {
     test.skip(test.info().project.name !== 'chromium-1440x900', 'Width-independent.');
-    for (const path of ['/student/courses', '/student/zz/deep', '/student/help/reports/SUP-9999']) {
+    for (const path of [
+      '/student/progress',
+      '/student/zz/deep',
+      '/student/help/reports/SUP-9999',
+    ]) {
       expect((await request.get(path)).status(), path).toBe(200);
     }
     expect((await request.get('/nope')).status()).toBe(404);

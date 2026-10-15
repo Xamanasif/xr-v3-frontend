@@ -40,7 +40,14 @@ async function links(page: Page): Promise<string[][]> {
 }
 
 const SKIP = ['Skip to main content', '#main'];
-const SIDEBAR_HELP = ['HelpHelp', '/student/help']; // `xr-nav-text` + rail tooltip `xr-tip` (text content)
+// `xr-nav-text` + rail tooltip `xr-tip` (text content). Package 2A builds the Student's Home and My
+// courses, which the sidebar renders before Help.
+const SIDEBAR_HELP = ['HelpHelp', '/student/help'];
+const SIDEBAR = [
+  ['HomeHome', '/student'],
+  ['My coursesMy courses', '/student/courses'],
+  SIDEBAR_HELP,
+];
 const CRUMB = ['Help & support', '/student/help'];
 
 test.describe('every rendered link is in the link-target ledger', () => {
@@ -51,7 +58,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
     await expect(page.locator('main.xr-page ul.xr-rows > li')).toHaveCount(1);
     expect(await links(page)).toEqual([
       SKIP,
-      SIDEBAR_HELP,
+      ...SIDEBAR,
       ['Report a problem', '/student/help/report'],
       [
         'The VR simulation stopped loading at the second stepSUP-0213 · sent 16 OctOpen',
@@ -75,7 +82,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Report a problem' })).toBeVisible();
     const form = [
       SKIP,
-      SIDEBAR_HELP,
+      ...SIDEBAR,
       CRUMB,
       ['Help & support', '/student/help'],
       ['Cancel', '/student/help'],
@@ -90,7 +97,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Report sent' })).toBeVisible();
     expect(await links(page)).toEqual([
       SKIP,
-      SIDEBAR_HELP,
+      ...SIDEBAR,
       CRUMB,
       ['View my reports', '/student/help'],
       ['Back to Home', '/student'],
@@ -102,7 +109,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
     await expect(page.getByRole('region', { name: 'History' })).toBeVisible();
     expect(await links(page)).toEqual([
       SKIP,
-      SIDEBAR_HELP,
+      ...SIDEBAR,
       CRUMB,
       ['Help & support', '/student/help'],
       ['Report a problem', '/student/help/report'],
@@ -116,7 +123,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
     ).toBeVisible();
     expect(await links(page)).toEqual([
       SKIP,
-      SIDEBAR_HELP,
+      ...SIDEBAR,
       ['Back to Home', '/student'],
       ['Help', '/student/help'],
     ]);
@@ -129,7 +136,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
     await expect(page.getByRole('heading', { name: 'We can’t find that page' })).toBeVisible();
     expect(await links(page)).toEqual([
       SKIP,
-      SIDEBAR_HELP,
+      ...SIDEBAR,
       ['Back to Home', '/student'],
       ['Help', '/student/help'],
     ]);
@@ -156,7 +163,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
     await page.getByRole('button', { name: ACCOUNT_LINES.student, exact: true }).click();
     expect(await links(page)).toEqual([
       SKIP,
-      SIDEBAR_HELP,
+      ...SIDEBAR,
       ['Help', '/student/help'], // the account menu
       ['Help', '/student/help'], // the banner
       ['Back to Home', '/student'],
@@ -166,7 +173,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
   });
 });
 
-test('the sidebar offers built destinations only: Help, and the Super Admin’s Overview, Requests and Institutions (B8-06)', async ({
+test('the sidebar offers built destinations only: Help, the Super Admin’s Overview, Requests and Institutions, and Package 2A’s Institute Admin and Student destinations (B8-06)', async ({
   page,
 }) => {
   test.skip(
@@ -187,6 +194,27 @@ test('the sidebar offers built destinations only: Help, and the Super Admin’s 
           .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
       ).toEqual(['/admin', '/admin/requests', '/admin/institutions']);
       await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute('href', '/admin/help');
+    } else if (entry.role === 'tenant_admin' || entry.role === 'student') {
+      // Package 2A: the Institute Admin's Overview, Content access, Student access and People; the
+      // Student's Home and My courses. Requests, Usage, Assessments and Progress wait their phase.
+      const built =
+        entry.role === 'tenant_admin'
+          ? [
+              '/institute',
+              '/institute/content-access',
+              '/institute/student-access',
+              '/institute/people',
+            ]
+          : ['/student', '/student/courses'];
+      expect(
+        await side
+          .locator('nav a[href]')
+          .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
+      ).toEqual(built);
+      await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute(
+        'href',
+        `${entry.base}/help`,
+      );
     } else {
       await expect(side.locator('a[href]')).toHaveCount(1);
       await expect(side.locator('a[href]')).toHaveAttribute('href', `${entry.base}/help`);
@@ -200,7 +228,7 @@ test('the sidebar offers built destinations only: Help, and the Super Admin’s 
 test('following every ledger link is client-side: one document, one world, one session', async ({
   page,
 }) => {
-  await openAs(page, RAHUL.person, '/student/courses');
+  await openAs(page, RAHUL.person, '/student/progress');
   await expect(page.getByRole('heading', { name: 'We can’t find that page' })).toBeVisible();
   const mark = await markDocument(page);
   const start = await inspectWorld(page);
@@ -212,16 +240,16 @@ test('following every ledger link is client-side: one document, one world, one s
     await expect(page.locator('main.xr-page#main')).toBeFocused();
   };
   const main = page.locator('main');
-  // PU-15 → Help; PU-15 → Back to Home (interim) → Help.
+  // PU-15 → Back to Home (the Student's Home, ST-01, since Package 2A); PU-15 → Help.
   await step(
-    () => main.getByRole('link', { name: 'Help' }).click(),
-    '/student/help',
-    'Help & support',
+    () => main.getByRole('link', { name: 'Back to Home' }).click(),
+    '/student',
+    'Hello, Rahul',
   );
   await page.goBack();
   await expect(page.getByRole('heading', { name: 'We can’t find that page' })).toBeVisible();
   await step(
-    () => main.getByRole('link', { name: 'Back to Home' }).click(),
+    () => main.getByRole('link', { name: 'Help' }).click(),
     '/student/help',
     'Help & support',
   );
@@ -271,14 +299,14 @@ test('following every ledger link is client-side: one document, one world, one s
     '/student/help/report',
     'Report a problem',
   );
-  // Send → Sent (in place) → Back to Home (interim → Help) and View my reports.
+  // Send → Sent (in place) → Back to Home (ST-01 since Package 2A).
   await page.getByLabel('What happened?').fill('A link went nowhere.');
   await page.getByRole('button', { name: 'Send report' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Report sent' })).toBeVisible();
   await step(
     () => main.getByRole('link', { name: 'Back to Home' }).click(),
-    '/student/help',
-    'Help & support',
+    '/student',
+    'Hello, Rahul',
   );
   // The account menu's Help and the sidebar's Help.
   await page.getByRole('button', { name: ACCOUNT_LINES.student, exact: true }).click();

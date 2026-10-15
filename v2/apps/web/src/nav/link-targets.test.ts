@@ -7,6 +7,7 @@
 import { WORKSPACES } from '@xr/contracts/draft';
 import { describe, expect, it } from 'vitest';
 
+import { BUILT_SCREENS } from './built-screens';
 import { expandTarget, LINK_TARGET_LEDGER } from './link-targets';
 import { resolveAddress } from './routes';
 
@@ -40,6 +41,21 @@ describe('the link-target ledger', () => {
         'SA-03',
         'SA-06',
         'SA-07',
+        // Package 2A.
+        'IA-01',
+        'IA-02',
+        'IA-03',
+        'IA-04',
+        'IA-05',
+        'IA-06',
+        'IA-07',
+        'IA-08',
+        'IA-10',
+        'ST-01',
+        'ST-02',
+        'ST-03',
+        'ST-05',
+        'ST-19',
       ]),
     );
     const keys = LINK_TARGET_LEDGER.map(
@@ -66,17 +82,48 @@ describe('the link-target ledger', () => {
     const hidden = LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'not-rendered');
     // Every way into PU-07 renders since Package 1C built it, SA-03's "View institution" since
     // Package 1D built SA-07; SA-07's Operations rows wait for Operations (Phases 3 and 6).
-    expect(hidden.map((entry) => `${entry.screen} ${entry.action}`)).toEqual([
-      'SA-07 Operations · Operations › Access ending',
-    ]);
+    expect(
+      hidden
+        .filter((entry) => entry.screen.startsWith('SA-'))
+        .map((entry) => `${entry.screen} ${entry.action}`),
+    ).toEqual(['SA-07 Operations · Operations › Access ending']);
     for (const entry of hidden) {
-      const kind = resolveAddress(expandTarget(entry.target!, '/admin')).kind;
-      expect(['public-not-found', 'workspace-not-found'], entry.action).toContain(kind);
-      expect(entry.note).toMatch(/not built/);
+      expect(entry.note, `${entry.screen} ${entry.action}`).toMatch(/not built/);
+      const target = expandTarget(entry.target!, '/admin');
+      const kind = resolveAddress(target).kind;
+      if (target.includes('?tab=')) {
+        // A tab of a built page (Package 2A: Course codes, Groups, Faculty courses, All
+        // experiments): the screen the note names is not built.
+        const named = /\b((?:IA|ST)-\d\d)\b/.exec(entry.note!)?.[1];
+        expect(named, entry.action).toBeDefined();
+        expect(BUILT_SCREENS.has(named as never), `${entry.screen} ${entry.action}`).toBe(false);
+      } else {
+        expect(['public-not-found', 'workspace-not-found'], entry.action).toContain(kind);
+      }
     }
+    // Every not-rendered action names the unbuilt screen it waits for (SA-18 Operations: Package 1D).
+    expect(
+      new Set(hidden.map((entry) => /\b((?:IA|ST|SA)-\d\d)\b/.exec(entry.note!)?.[1])),
+    ).toEqual(
+      new Set([
+        'IA-16',
+        'IA-17',
+        'IA-14',
+        'IA-11',
+        'IA-13',
+        'IA-15',
+        'IA-09',
+        'ST-11',
+        'ST-10',
+        'ST-15',
+        'ST-04',
+        'ST-06',
+        'SA-18',
+      ]),
+    );
   });
 
-  it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to the Super Admin’s built Overview', () => {
+  it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to a built home (SA-01, IA-01, ST-01)', () => {
     const homes = LINK_TARGET_LEDGER.filter((item) => item.outcome === 'interim-landing');
     expect(homes.map((entry) => entry.action)).toEqual([
       'Back to Home',
@@ -85,9 +132,11 @@ describe('the link-target ledger', () => {
     ]);
     for (const entry of homes) {
       for (const base of BASES) {
+        // Built homes (Package 1D: SA-01; Package 2A: IA-01, ST-01); the other bases land on Help.
+        const home = { '/admin': 'SA-01', '/institute': 'IA-01', '/student': 'ST-01' }[base];
         expect(resolveAddress(expandTarget(entry.target!, base))).toEqual(
-          base === '/admin'
-            ? { kind: 'record-screen', workspace: 'admin', screen: 'SA-01' }
+          home
+            ? { kind: 'record-screen', workspace: base.slice(1), screen: home }
             : { kind: 'interim-landing', workspace: base.slice(1), lands: `${base}/help` },
         );
       }
@@ -158,7 +207,7 @@ describe('the link-target ledger', () => {
       case '<other-base>/*':
         return [`${other}/help`, other, `${other}/help/report`];
       case '<base>/[...unmatched]':
-        return [`${base}/zz-unknown`, `${base}/courses`];
+        return [`${base}/zz-unknown`, `${base}/zz-unknown/deeper`];
       case '/*':
         return ['/zz-unknown', '/requests', '/request-access/other'];
       case '<public>/*':
@@ -178,6 +227,10 @@ describe('the link-target ledger', () => {
         ];
       case '/admin/*':
         return ['/admin/help', '/admin/requests', '/admin/requests/REQ-0038'];
+      case '/institute/*':
+        return ['/institute', '/institute/help', '/institute/people/students/per-0002'];
+      case '/student/*':
+        return ['/student', '/student/help', '/student/courses'];
       case '<base>/*':
         return [`${base}/help`, `${base}/help/report`, `${base}/help/reports/SUP-0213`];
       default:
@@ -244,6 +297,23 @@ describe('the link-target ledger', () => {
       'PU-10: Sign in',
       'PU-10: Browse experiments',
       'PU-12: Continue to payment',
+      // Package 2A: one primary per drawn state — IA-05 per step and its result; IA-06 per tab
+      // (Students, and Faculty as IA-08); IA-07 active or inactive; IA-10 the form and its result.
+      'IA-01: Give students access',
+      'IA-02: Give students access',
+      'IA-03: Give students access',
+      'IA-04: Give students access',
+      'IA-05: Continue',
+      'IA-05: Give access',
+      'IA-05: View Student access',
+      'IA-06: Add student',
+      'IA-08: Add faculty member',
+      'IA-07: Give this student access',
+      'IA-07: Reactivate account',
+      'IA-10: Add student · Add faculty member',
+      'IA-10: Give this student access',
+      'ST-01: Open <experiment> · Continue <experiment>',
+      'ST-19: Back to My courses',
     ]);
   });
 });

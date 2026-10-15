@@ -9,6 +9,11 @@
  * The screens read their words from here, so the register and the product cannot drift apart.
  * Later phases add their screens' entries (Appendix F §9).
  */
+import { STATE_COPY_INSTITUTE_HOME } from './state-copy-institute-home';
+import { STATE_COPY_PEOPLE } from './state-copy-people';
+import { STATE_COPY_STUDENT } from './state-copy-student';
+import { STATE_COPY_STUDENT_ACCESS } from './state-copy-student-access';
+
 /**
  * `drawn` = on a board (cited); `provisional` = written to a board formula or chosen as an interim,
  * awaiting sign-off; `owner-approved` = words or a rule the owner decided (the decision is named).
@@ -42,7 +47,21 @@ export interface StateCopyEntry {
     | 'SA-02'
     | 'SA-03'
     | 'SA-06'
-    | 'SA-07';
+    | 'SA-07'
+    | 'IA-01'
+    | 'IA-02'
+    | 'IA-03'
+    | 'IA-04'
+    | 'IA-05'
+    | 'IA-06'
+    | 'IA-07'
+    | 'IA-08'
+    | 'IA-10'
+    | 'ST-01'
+    | 'ST-02'
+    | 'ST-03'
+    | 'ST-05'
+    | 'ST-19';
   /** The state, as the screen reaches it. */
   readonly state: string;
   /** The words shown; `null` where the entry is a rule rather than words. */
@@ -56,7 +75,7 @@ export interface StateCopyEntry {
   readonly decisions?: readonly string[];
 }
 
-export const STATE_COPY = {
+const PHASE_1_AND_EARLIER = {
   'shell.session-loading': {
     screen: 'Shell',
     state: 'The tab’s session is resolving (a workspace address before the shell can be drawn)',
@@ -1067,6 +1086,19 @@ export const STATE_COPY = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
+} as const satisfies Readonly<Record<string, StateCopyEntry>>;
+
+/**
+ * Package 2A (Phase 2) keeps each screen group's entries in its own file beside this one: the
+ * Institute Admin's home and content (IA-01 … IA-03), Student access (IA-04, IA-05), People (IA-06,
+ * IA-07, IA-08, IA-10) and the Student's screens (ST-01, ST-02, ST-03, ST-05, ST-19).
+ */
+export const STATE_COPY = {
+  ...PHASE_1_AND_EARLIER,
+  ...STATE_COPY_INSTITUTE_HOME,
+  ...STATE_COPY_STUDENT_ACCESS,
+  ...STATE_COPY_PEOPLE,
+  ...STATE_COPY_STUDENT,
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;
 
 export type StateCopyId = keyof typeof STATE_COPY;

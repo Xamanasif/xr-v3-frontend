@@ -398,7 +398,7 @@ describe('fault injection and later-phase methods', () => {
     expect((await ia.studentAccess.listGrants({ showWithdrawn: false })).ok).toBe(true);
   });
 
-  it('builds the 139 WP-0.11 methods, the 3 Package-1B ones and the Package-1D one, and leaves each of the other 40 later ones to its phase', async () => {
+  it('builds the 139 WP-0.11 methods, the 3 Package-1B ones, the Package-1D one and the 4 Package-2A ones, and leaves each of the other 36 later ones to its phase', async () => {
     const platform = await platformAfterB();
     const ports = platform.ports as unknown as Record<
       string,
@@ -416,15 +416,19 @@ describe('fault injection and later-phase methods', () => {
       'CatalogueService.getArea',
       'CatalogueService.getCourse',
       'InstitutionService.listInstitutions',
+      'InstitutionService.getMyOverview',
+      'PeopleService.listStudents',
+      'PeopleService.listFaculty',
+      'GroupService.listGroups',
     ]);
     for (const row of delivered) {
-      // Delivered by Packages 1B and 1D: answered (a Result), never rejected.
+      // Delivered by Packages 1B, 1D and 2A: answered (a Result), never rejected.
       await expect(ports[row.portKey]![row.method]!(undefined), row.id).resolves.toHaveProperty(
         'ok',
       );
     }
     const deferredRows = later.filter((row) => !delivered.includes(row));
-    expect(deferredRows).toHaveLength(40);
+    expect(deferredRows).toHaveLength(36);
     for (const row of deferredRows) {
       // Port construction refuses to stub a WP-0.11 method, so only later ones can reject here.
       await expect(ports[row.portKey]![row.method]!(undefined), row.id).rejects.toThrow(

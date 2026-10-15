@@ -11,6 +11,7 @@ import { requiredTrimmed } from '@xr/validation';
 import { z } from 'zod';
 
 import {
+  accessPlanId,
   assessmentId,
   experimentId,
   expectedRev,
@@ -23,7 +24,7 @@ import {
 } from '../kernel/primitives.js';
 import { grantDisplayStatus, providedLicenceWait, studentAccessGrant } from '../records/access.js';
 import { accessPlan } from '../records/institution.js';
-import { studentPerson } from '../records/people.js';
+import { groupMemberStanding, studentPerson } from '../records/people.js';
 import { formatProgressStatus } from '../records/learning.js';
 import { attemptResult } from '../records/assessment.js';
 import type {
@@ -137,10 +138,29 @@ export const giveAccessOptions = z.object({
   ),
 });
 
+/**
+ * Whom a planned grant reaches and how each one stands (Phase-2 Package 2A, additive; B2-05 f2
+ * "What will be created", f5 the group's members: "Already has it · inactive · waiting — stated,
+ * not computed against licences"). The standing is the domain's `groupMemberStanding` for the
+ * grant about to be given: a wait only where the licence oracle supplies one (T-06, D7); a member
+ * whose own grant was withdrawn is the undecided overlap itself (OD-B2-01) — no can / can't.
+ */
+export const plannedReach = z.object({
+  studentId: personId,
+  name: z.string().min(1),
+  standing: z.union([
+    groupMemberStanding,
+    z.object({ kind: z.literal('policy-open'), decision: z.string().min(1) }),
+  ]),
+  /** The student's own active grant for the experiment ("already has it individually (SACC-0310)"). */
+  individualGrantId: studentAccessGrantId.nullable(),
+});
+
 export const plannedGrant = z.object({
   who: z.string().min(1),
   experimentId,
   formats: z.array(technology),
+  reaches: z.array(plannedReach),
 });
 
 /**
@@ -175,6 +195,19 @@ export const formatAvailabilityOrOpen = z.union([
   z.object({ policyOpen: z.string().min(1) }),
 ]);
 
+/**
+ * The drawn read-only closure of an experiment the Student still sees but cannot open now (the
+ * gate's own refusal): the institution's pause, an inactive account, or a supplied licence wait
+ * (B3-02 "No licence is available for you on ACC-0107 right now."; never counted, T-06 / D7).
+ * The formats read with the closure lifted (B3-02 draws the header "Available to you" beside the
+ * wait), so a screen that names availability names the closure too (Phase-2 Package 2A, PC-45).
+ */
+export const experimentClosure = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('institution-paused') }),
+  z.object({ kind: z.literal('student-inactive') }),
+  z.object({ kind: z.literal('waiting-for-a-licence'), planId: accessPlanId }),
+]);
+
 export const myExperimentRow = z.object({
   experimentId,
   name: z.string().min(1),
@@ -185,6 +218,7 @@ export const myExperimentRow = z.object({
       progress: formatProgressStatus,
     }),
   ),
+  closure: experimentClosure.nullable(),
 });
 
 /** ST-02: the course code shown follows T-17 (institution code when set) [U]. */
@@ -235,8 +269,11 @@ export const getMyCourseOutput = z.object({
 });
 
 export type GrantRow = Out<typeof grantRow>;
+export type PlannedGrant = Out<typeof plannedGrant>;
+export type GrantResult = Out<typeof grantResult>;
 export type GiveAccessOptions = Out<typeof giveAccessOptions>;
 export type MyExperimentRow = Out<typeof myExperimentRow>;
+export type ExperimentClosure = Out<typeof experimentClosure>;
 export type MyCourseRow = Out<typeof myCourseRow>;
 export type StudentHome = Out<typeof studentHome>;
 export type ExperimentHub = Out<typeof experimentHub>;

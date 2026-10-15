@@ -191,9 +191,10 @@ test('one tab, the product build: request → approval → payment → Overview 
 
   // 9. Meera Iyer signs in with the work e-mail just assigned (the sample sign-in, P1-01).
   await signIn(page, 'meera.iyer@godavari.edu.in');
-  await page.waitForURL('**/institute/help');
+  // Her base is IA-01 Overview since Package 2A (before, the interim landing: Help).
+  await page.waitForURL(/\/institute$/);
   await expect(page.getByRole('button', { name: MEERA, exact: true })).toBeVisible();
-  await checkState(page, 'Help & support');
+  await checkState(page, 'Overview');
   // Her institution's request, at its address (ADR-0009: the requesting institution's Institute
   // Admin may open it), and the Super Admin's pages refused in her own shell.
   await openInTab(page, address);

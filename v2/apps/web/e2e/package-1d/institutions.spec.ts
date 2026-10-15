@@ -260,7 +260,9 @@ test('SA-07 Assign: both errors at once, then assigned; the Institute Admin’s 
       '/institute',
     );
   });
-  await page.waitForURL('**/institute/help');
+  // Their base is IA-01 Overview since Package 2A (before, the interim landing: Help).
+  await page.waitForURL((url) => url.pathname === '/institute');
+  await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
   await expect(
     page.getByRole('button', {
       name: 'Account menu: N. Joshi, Institute Admin, Sahyadri Institute of Engineering',

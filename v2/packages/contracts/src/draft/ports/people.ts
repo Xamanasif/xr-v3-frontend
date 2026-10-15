@@ -14,7 +14,16 @@ import type {
 import { emailAsDrawn, optionalTrimmed, requiredTrimmed } from '@xr/validation';
 import { z } from 'zod';
 
-import { courseId, expectedRev, ids, importBatchId } from '../kernel/primitives.js';
+import {
+  courseId,
+  expectedRev,
+  experimentId,
+  groupId,
+  ids,
+  importBatchId,
+  platformCourseCode,
+  technology,
+} from '../kernel/primitives.js';
 import { institutionCodeStatus, institutionCourseCode } from '../records/catalogue.js';
 import {
   facultyCourseMapping,
@@ -39,12 +48,18 @@ import type {
 import { courseCard } from './catalogue.js';
 import type { Answer, In, Out } from './common.js';
 import { key } from './fields.js';
+import { grantRow } from './student-access.js';
 
 // ---- PeopleService ----
 
+/**
+ * IA-06 (B2-06): Search ("Name, student ID or e-mail", ignoring case), Status and Group. The
+ * Group filter's "Not in a group" is `notInGroup` (Phase-2 Package 2A, provisional register PC-39).
+ */
 export const listStudentsInput = z.object({
   status: studentDirectoryStatus.optional(),
   groupId: ids.in.group.optional(),
+  notInGroup: z.boolean().optional(),
   search: z.string().optional(),
 });
 
@@ -117,17 +132,54 @@ export const studentImportReport = z.object({
   canImport: z.boolean(),
 });
 
-export const listStudentsOutput = z.array(
-  z.object({ student: studentPerson, directoryStatus: studentDirectoryStatus }),
-);
+/**
+ * A course as People names it — "ME ZG523 · Thermodynamics & Heat Transfer" (B2-06 IA-06 "Course
+ * and group", IA-07 "Courses and groups", IA-08 "Courses taught"): the platform course's name and
+ * code, read from the course record (Phase-2 Package 2A, PC-40).
+ */
+export const peopleCourse = z.object({
+  id: courseId,
+  name: z.string().min(1),
+  platformCode: platformCourseCode.nullable(),
+});
+
+/**
+ * IA-06 row (B2-06): the student, the directory status, their current groups ("Course and group")
+ * and the experiments active grants give them now ("Experiments given", formats inherited from the
+ * plan item, LD-1) — facts the screen cannot read from one record (Phase-2 Package 2A, PC-39) —
+ * and the courses the student is filed against (PC-40).
+ */
+export const studentDirectoryRow = z.object({
+  student: studentPerson,
+  directoryStatus: studentDirectoryStatus,
+  groups: z.array(z.object({ id: groupId, name: z.string().min(1) })),
+  given: z.array(z.object({ experimentId, name: z.string().min(1), formats: z.array(technology) })),
+  courses: z.array(peopleCourse),
+});
+export const listStudentsOutput = z.array(studentDirectoryRow);
+/**
+ * IA-07 (B2-06 f8 … f13, f17). `courses` are the courses the student is filed against; `grantRows`
+ * are the grants that reach the student — their individual grants in any state and the grants of
+ * the groups they are in now — each as IA-04 reads it for this student (experiment name, course
+ * code, formats inherited from the plan item, the Institute Admin's grant word, "Also in" an
+ * active group grant, a supplied licence wait): facts `grants` alone does not answer (Phase-2
+ * Package 2A, PC-40). No can / can't-open statement is made (OD-B2-01).
+ */
 export const getStudentOutput = z.object({
   student: studentPerson,
   groups: z.array(group),
   grants: z.array(studentAccessGrant),
+  courses: z.array(peopleCourse),
+  grantRows: z.array(grantRow),
 });
 export const commitStudentImportOutput = z.object({ added: z.number().int().min(0) });
+/** IA-08 rows (B2-06 f14): `courses` names the courses `coursesTaught` lists (PC-40). */
 export const listFacultyOutput = z.array(
-  z.object({ faculty: facultyPerson, coursesTaught: z.array(courseId) }),
+  z.object({
+    faculty: facultyPerson,
+    coursesTaught: z.array(courseId),
+    courses: z.array(peopleCourse),
+  }),
 );
 export const getFacultyOutput = z.object({
   faculty: facultyPerson,
@@ -175,6 +227,11 @@ export interface PeopleService {
     id: In<typeof ids.in.person>,
   ): Answer<Out<typeof getFacultyOutput>, NotSignedIn | NotPermitted | NotFound | Unavailable>;
 }
+
+export type StudentDirectoryRow = Out<typeof studentDirectoryRow>;
+export type PeopleCourse = Out<typeof peopleCourse>;
+export type StudentRecordView = Out<typeof getStudentOutput>;
+export type FacultyDirectoryRow = Out<typeof listFacultyOutput>[number];
 
 // ---- GroupService ----
 

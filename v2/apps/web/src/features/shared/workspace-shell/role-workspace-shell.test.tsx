@@ -75,7 +75,8 @@ describe('built so far: Help in every workspace; Overview, Requests and Institut
     );
   });
 
-  it.each(ROLES.filter(([, role]) => role !== 'super_admin'))(
+  // Package 2A builds the Institute Admin's and the Student's first destinations (below).
+  it.each(ROLES.filter(([, role]) => !['super_admin', 'tenant_admin', 'student'].includes(role)))(
     '%s on Help & support',
     (label, role) => {
       const { aside, container } = renderShell(role);
@@ -96,6 +97,35 @@ describe('built so far: Help in every workspace; Overview, Requests and Institut
         link.getAttribute('href'),
       );
       expect(new Set(hrefs)).toEqual(new Set(['#main', WORKSPACE_NAV[role].help.href]));
+    },
+  );
+
+  it.each([
+    ['Institute Admin', 'tenant_admin', ['Overview', 'Content access', 'Student access', 'People']],
+    ['Student', 'student', ['Home', 'My courses']],
+  ] as const)(
+    '%s on Help & support (Package 2A): the built destinations, then Help (current)',
+    (label, role, built) => {
+      const { aside, container } = renderShell(role);
+      const nav = within(aside).getByRole('navigation', { name: `${label} navigation` });
+      const links = within(nav).getAllByRole('link');
+      expect(links.map((link) => link.querySelector('.xr-nav-text')!.textContent)).toEqual([
+        ...built,
+      ]);
+      for (const link of links) expect(link).not.toHaveAttribute('aria-current');
+      const help = aside.querySelector('.xr-side-foot a')!;
+      expect(help).toHaveAttribute('href', WORKSPACE_NAV[role].help.href);
+      expect(help).toHaveAttribute('aria-current', 'page');
+      // No link anywhere in the shell leads to an unbuilt screen.
+      const hrefs = [...container.querySelectorAll('a[href]')].map((link) =>
+        link.getAttribute('href'),
+      );
+      const destinations = WORKSPACE_NAV[role].destinations
+        .filter((destination) => (built as readonly string[]).includes(destination.label))
+        .map((destination) => destination.href);
+      expect(new Set(hrefs)).toEqual(
+        new Set(['#main', ...destinations, WORKSPACE_NAV[role].help.href]),
+      );
     },
   );
 });

@@ -599,4 +599,133 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'Drop the field; an override then needs another read that answers the student record’s revision.',
   },
+  {
+    id: 'PC-38',
+    subject:
+      'IA-01 “Needs your attention” carries facts, not words: one item per drawn row kind (`institution-paused`, `plan-ending-soon`, `plan-ended`, `students-waiting-for-a-licence`, `experiment-not-given`, `students-without-access`, `course-without-code`); the status line’s plan is the newest live plan, else the newest; while paused, or once every plan has ended, that item is the only one; device requests and problem reports are not items',
+    status: 'provisional-engineering',
+    source:
+      'B2-01 f0, f3, f4, f5, f7 (“every row opens its page”; at most six rows, BR-138). Appendix C gave `myOverview.attention` the pre-rendered `attentionRow` (PC-13). Device requests wait on DEV-17 (what the Institute Admin’s Requests count names) and problem reports on P2-11 (does an Institute Admin see the institution’s reports); f4 / f5 draw one item. Built in Phase-2 Package 2A',
+    decisions: ['P2-11'],
+    trace: [
+      { kind: 'schema-field', schema: 'myOverview', path: 'attention.(array).(union)' },
+      { kind: 'schema-field', schema: 'instituteAttention', path: '(union)' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Put `attentionRow` back (words from the adapter), or add the device-request and problem-report items once DEV-17 and P2-11 are decided.',
+  },
+  {
+    id: 'PC-39',
+    subject:
+      'The IA-06 row carries the student’s current groups (`groups[]`) and the experiments active grants give them now (`given[]`, formats inherited from the plan item); the list filter gains `notInGroup` for B2-06’s “Not in a group”; the search matches name, student ID or e-mail, ignoring case',
+    status: 'provisional-engineering',
+    source:
+      'B2-06 f0 table (“Course and group”, “Experiments given” with format badges, “Status”) and its filters (Search “Name, student ID or e-mail”, Status, Group with “All groups” / a group / “Not in a group”). Appendix C’s row names the student and the directory status only. Built in Phase-2 Package 2A',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'studentDirectoryRow', path: 'groups' },
+      { kind: 'schema-field', schema: 'studentDirectoryRow', path: 'given' },
+      { kind: 'schema-field', schema: 'listStudentsInput', path: 'notInGroup' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the fields; the screen then reads each student’s record (`getStudent`) for its groups and grants, and filters “Not in a group” itself.',
+  },
+  {
+    id: 'PC-40',
+    subject:
+      'People names its courses and IA-07 reads each grant as IA-04 does: `peopleCourse` {id, name, platformCode} on the IA-06 row (`studentDirectoryRow.courses`, the courses the student is filed against), on the IA-08 row (`listFacultyOutput.(array).courses`, the courses taught) and on the record (`getStudentOutput.courses`); `getStudentOutput.grantRows` — every grant that reaches the student (their individual grants in any state, the grants of the groups they are in now) as a `grantRow` (experiment name, course code, formats inherited from the plan item, the grant word, the active group grant it is “Also in”, a supplied wait), with no can / can’t-open statement (OD-B2-01)',
+    status: 'provisional-engineering',
+    source:
+      'B2-06 f0 “Course and group”, f8 “Courses and groups”, f9–f11 and f17 “Experiments given”, f14 “Courses taught”. Appendix C’s `getStudent` answers raw grants only and `listFaculty` course ids only. Built in Phase-2 Package 2A',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'studentDirectoryRow', path: 'courses' },
+      { kind: 'schema-field', schema: 'getStudentOutput', path: 'courses' },
+      { kind: 'schema-field', schema: 'getStudentOutput', path: 'grantRows' },
+      { kind: 'schema-field', schema: 'listFacultyOutput', path: '(array).courses' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the fields; the screens then read the catalogue for course names (published courses only) and `listGrants` filtered to the student.',
+  },
+  {
+    id: 'PC-41',
+    subject:
+      'The days left in a plan’s term are a read fact on the sample clock (`myOverview.planDaysLeft`, `planStanding.daysLeft`, `accessPlanView.daysLeft`); null once the term has ended',
+    status: 'provisional-engineering',
+    source:
+      'B2-01 f3, B2-02 f3, B2-03 f2 (“15 days left”); the screens have no clock of their own (the sample “today” is the platform’s). Built in Phase-2 Package 2A',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'myOverview', path: 'planDaysLeft' },
+      { kind: 'schema-field', schema: 'planStanding', path: 'daysLeft' },
+      { kind: 'schema-field', schema: 'accessPlanView', path: 'daysLeft' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Drop the fields and give the screens the platform clock’s today.',
+  },
+  {
+    id: 'PC-42',
+    subject:
+      'The IA-02 row carries its plans (`plans[]`, each with its status and days left) and one entry per plan item (`experiments[]`: plan, formats, the published formats left out of the plan for that experiment, and the students an active grant of that plan reaches — people, never licences)',
+    status: 'provisional-engineering',
+    source:
+      'B2-02 f0–f5 (one section per plan, a row per experiment with its own “AR is published but not in your plan” and “N students”). Appendix C’s row merges the items and names the left-out formats per course. Built in Phase-2 Package 2A',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'contentAccessRow', path: 'plans' },
+      { kind: 'schema-field', schema: 'contentAccessRow', path: 'experiments' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the fields; the screen then reads each plan (`getAccessPlan`) for its standing.',
+  },
+  {
+    id: 'PC-43',
+    subject:
+      'The IA-03 view carries the institution’s name, the plan’s experiments with their course and per-experiment left-out formats, `givenTo` (each active grant × each student it reaches, with the plan page’s display status) and `grants` (every grant of the plan in any state, naming its target) for the history',
+    status: 'provisional-engineering',
+    source:
+      'B2-03 f0–f4 (“What BITS gave your institution”, “Students you’ve given access”, History). Appendix C’s `AccessPlanView` names the plan, its status and a student count only. Built in Phase-2 Package 2A',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'accessPlanView', path: 'institutionName' },
+      { kind: 'schema-field', schema: 'accessPlanView', path: 'experiments' },
+      { kind: 'schema-field', schema: 'accessPlanView', path: 'givenTo' },
+      { kind: 'schema-field', schema: 'accessPlanView', path: 'grants' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the fields; the screen then reads Student access (`listGrants`) and the catalogue for the same facts.',
+  },
+  {
+    id: 'PC-44',
+    subject:
+      'IA-05’s preview answers whom each planned grant reaches and how each stands (`plannedGrant.reaches`: the domain’s group-member standing for the grant about to be given; a wait only where one is supplied, never counted; the undecided overlap as `policy-open` OD-B2-01)',
+    status: 'provisional-engineering',
+    source:
+      'B2-05 f2, f5, f11 (step 3 review: each student or group member with “Active”, “Already has it”, “Inactive”, “Waiting for a licence”). Appendix C’s `plannedGrant` names who, the experiment and the formats only. Built in Phase-2 Package 2A',
+    decisions: ['D7', 'T-06', 'OD-B2-01'],
+    trace: [{ kind: 'schema-field', schema: 'plannedGrant', path: 'reaches' }],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Drop the field; the review then lists the planned grants without member standings.',
+  },
+  {
+    id: 'PC-45',
+    subject:
+      'The Student’s experiment row names the gate’s own read-only closure (`myExperimentRow.closure`: the institution’s pause, an inactive account, or a supplied licence wait with its plan), because its formats read with the closure lifted; IA-01’s “not given” item names the experiment’s course (`courseId`) so “Give access” opens IA-05 on it',
+    status: 'provisional-engineering',
+    source:
+      'B3-02 (Arun Kumar, later sample): the hub header “Available to you” beside “No licence is available for you on ACC-0107 right now.” — Phase-0 rows lifted the closures with no word (sample-platform README contract gap); independent review of Package 2A. B2-01 f0 “Give access” → B2-05 on the experiment',
+    decisions: ['D7', 'T-06'],
+    trace: [
+      { kind: 'schema-field', schema: 'myExperimentRow', path: 'closure' },
+      { kind: 'schema-field', schema: 'experimentClosure', path: '(union)' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the field; the screens then read the closure from the session banners (pause, inactive) and cannot name a licence wait.',
+  },
 ];

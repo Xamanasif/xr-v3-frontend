@@ -1,7 +1,14 @@
 import { HELP_TITLE } from './help';
+import {
+  CONTENT_ACCESS_TITLE,
+  OVERVIEW_TITLE as INSTITUTE_OVERVIEW_TITLE,
+  PEOPLE_TITLE,
+  STUDENT_ACCESS_TITLE,
+} from './institute';
 import { INSTITUTIONS_TITLE, OVERVIEW_TITLE } from './institutions';
 import { REQUESTS_TITLE } from './requests';
 import { resolveAddress } from './routes';
+import { HOME_TITLE, MY_COURSES_TITLE } from './student';
 
 /**
  * The return address in words, for XS-03 "Session expired" (B1-09 f9: "Sign in again to go back
@@ -50,6 +57,21 @@ export function placeWordsOf(returnTo: string | null): string | null {
       if (outcome.screen === 'SA-01') return OVERVIEW_TITLE;
       if (outcome.screen === 'SA-06' || outcome.screen === 'SA-07') return INSTITUTIONS_TITLE;
       if (outcome.screen === 'SA-02') return REQUESTS_TITLE;
+      // Package 2A: each page names its destination; an access plan its drawn reference
+      // ("Content access › ACC-0107"). Students, people, courses and experiments are addressed by
+      // ids, not drawn references, so they name the destination alone.
+      if (outcome.screen === 'IA-01') return INSTITUTE_OVERVIEW_TITLE;
+      if (outcome.screen === 'IA-02') return CONTENT_ACCESS_TITLE;
+      if (outcome.screen === 'IA-03') {
+        const plan = referenceIn(pathname);
+        return plan ? `${CONTENT_ACCESS_TITLE} › ${plan}` : CONTENT_ACCESS_TITLE;
+      }
+      if (outcome.screen === 'IA-04' || outcome.screen === 'IA-05') return STUDENT_ACCESS_TITLE;
+      if (outcome.screen === 'IA-06' || outcome.screen === 'IA-07' || outcome.screen === 'IA-10')
+        return PEOPLE_TITLE;
+      if (outcome.screen === 'ST-01') return HOME_TITLE;
+      if (outcome.screen === 'ST-02' || outcome.screen === 'ST-03' || outcome.screen === 'ST-05')
+        return MY_COURSES_TITLE;
       const reference = referenceIn(pathname);
       return reference ? `${REQUESTS_TITLE} › ${reference}` : REQUESTS_TITLE;
     }

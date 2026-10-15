@@ -19,6 +19,15 @@ describe('placeWordsOf', () => {
     ['/admin', 'Overview'],
     ['/admin/institutions', 'Institutions'],
     ['/admin/institutions/godavari', 'Institutions'],
+    // Package 2A: the Institute Admin's and the Student's pages name their destination.
+    ['/institute', 'Overview'],
+    ['/institute/content-access', 'Content access'],
+    ['/institute/content-access/plans/ACC-0107', 'Content access › ACC-0107'],
+    ['/institute/student-access/give?step=review', 'Student access'],
+    ['/institute/people/students/per-0002', 'People'],
+    ['/student', 'Home'],
+    ['/student/courses', 'My courses'],
+    ['/student/experiments/shell-and-tube-heat-exchanger', 'My courses'],
   ])('%s → %s', (path, place) => {
     expect(placeWordsOf(path)).toBe(place);
   });
@@ -27,8 +36,8 @@ describe('placeWordsOf', () => {
     [null],
     [''],
     ['/'],
-    ['/student'],
-    ['/student/courses'],
+    ['/student/progress'],
+    ['/faculty'],
     ['https://evil.example/admin/requests'],
     ['//evil.example/admin/requests'],
     ['/sign-in'],

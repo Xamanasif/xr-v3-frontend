@@ -1,6 +1,6 @@
-import { InterimLanding } from '@/features/shared/workspace-frame/interim-landing';
+import { StudentHome } from '@/features/student/st-01-home/home';
 
-/** `/student`: the interim landing — Help & support until the workspace home is built (ADR-0005 §8). */
-export default function StudentHome() {
-  return <InterimLanding />;
+/** ST-01 Home (board B2-10), the Student's home since Package 2A. */
+export default function StudentHomePage() {
+  return <StudentHome />;
 }

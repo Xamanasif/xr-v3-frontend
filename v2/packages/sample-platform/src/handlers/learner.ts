@@ -205,7 +205,36 @@ export function experimentRow(
     experimentId: experiment.id,
     name: experiment.live.catalogue.name,
     formats: formatRows(op, standing, experiment),
+    closure: closureOf(standing, experiment.id),
   };
+}
+
+/**
+ * The gate's own read-only closure of a visible experiment (PC-45): what the formats read with
+ * lifted is named here, so no screen shows "Available to you" without it. A licence wait names the
+ * plan whose supplied wait closes the experiment (never counted, T-06 / D7).
+ */
+function closureOf(
+  standing: Exclude<Standing, { kind: 'unlisted' }>,
+  experimentId: string,
+): MyExperimentRow['closure'] {
+  if (standing.kind !== 'visible' || standing.gate.canOpen) return null;
+  switch (standing.gate.reason) {
+    case 'institution-paused':
+      return { kind: 'institution-paused' };
+    case 'student-inactive':
+      return { kind: 'student-inactive' };
+    case 'waiting-for-a-licence': {
+      const { facts } = standing;
+      const waited = facts.waits
+        .filter((wait) => wait.studentId === facts.student.id)
+        .map((wait) => facts.grants.find((grant) => grant.id === wait.grantId))
+        .find((grant) => grant?.experimentId === experimentId);
+      return waited ? { kind: 'waiting-for-a-licence', planId: waited.accessPlanId } : null;
+    }
+    default:
+      return null;
+  }
 }
 
 /** The experiments any grant names for the Student (candidates only — `standingOf` decides). */

@@ -209,6 +209,16 @@
     "pixels": 1692,
     "run": "2026-10-14-wp016-repin/web"
   },
+  "05-institute-admin-help-built-sidebar-package-2a": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "cc7931f22e445bd681bb2eac98698def8044e02b0fdc85154d7b034c0c409daf",
+    "productContent": "2b85a12a2b8b1f65d8296d26edf258c656fe6d7fcb26744c5ef7b48088ba8e4a",
+    "pixels": 762,
+    "run": ".runs/2026-10-15T13-44-05-918Z-web"
+  },
   "05-student-help-built-help-header": {
     "deviations": ["DEV-15"],
     "reference": "1040×76",
@@ -228,6 +238,16 @@
     "productContent": "9ba683593afcbea5cfcd0bdd361e6ab3d089422fe03599368f9e00d52d579e7f",
     "pixels": 856,
     "run": "2026-10-14-wp016-repin/web"
+  },
+  "05-student-help-built-sidebar-package-2a": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "7f5981fd5bc6740e0c1f2e3f6051880ef0628f01706cef1bf4e44182f2379dc6",
+    "productContent": "ac3822079a4e0ff077fdb3a834c54822d18943aade33242b3b007f8b0c550d4f",
+    "pixels": 490,
+    "run": ".runs/2026-10-15T13-44-05-918Z-web"
   },
   "05-super-admin-help-built-help-header": {
     "deviations": ["DEV-15", "DEV-11"],
@@ -319,6 +339,16 @@
     "pixels": 866,
     "run": "2026-10-14-wp016-repin/web"
   },
+  "07-f0-state-1-report-a-problem-sidebar-package-2a": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "7f5981fd5bc6740e0c1f2e3f6051880ef0628f01706cef1bf4e44182f2379dc6",
+    "productContent": "ac3822079a4e0ff077fdb3a834c54822d18943aade33242b3b007f8b0c550d4f",
+    "pixels": 500,
+    "run": ".runs/2026-10-15T13-44-05-918Z-web"
+  },
   "07-f0-state-1-report-a-problem-whole-frame": {
     "deviations": ["DEV-10"],
     "reference": "1280×900",
@@ -329,6 +359,16 @@
     "pixels": 795,
     "run": "2026-10-14-wp016-repin/web"
   },
+  "07-f0-state-1-report-a-problem-whole-frame-package-2a": {
+    "deviations": ["DEV-21"],
+    "reference": "1280×900",
+    "product": "1280×900",
+    "iconsSame": false,
+    "productFingerprint": "56d9b002f3138d6ed74a970b8596598cf012cb4b75fa3ef01d9a588fc4ca3340",
+    "productContent": "7107e7b4cb7545dc07453590f3757c68c4a39bf5b77b1649a4161400c04b8b52",
+    "pixels": 454,
+    "run": ".runs/2026-10-15T13-44-05-918Z-web"
+  },
   "07-f1-state-1a-validation-sidebar": {
     "deviations": ["DEV-10", "DEV-12"],
     "reference": "248×964",
@@ -338,6 +378,16 @@
     "productContent": "9ba683593afcbea5cfcd0bdd361e6ab3d089422fe03599368f9e00d52d579e7f",
     "pixels": null,
     "run": "2026-10-14-wp016-repin/web"
+  },
+  "07-f1-state-1a-validation-sidebar-package-2a": {
+    "deviations": ["DEV-21", "DEV-12"],
+    "reference": "248×964",
+    "product": "248×968",
+    "iconsSame": false,
+    "productFingerprint": "512ba9a555285e4067a5ca8d93369dd3ac00de1ddb3f964616d7271645bdd939",
+    "productContent": "ac3822079a4e0ff077fdb3a834c54822d18943aade33242b3b007f8b0c550d4f",
+    "pixels": null,
+    "run": ".runs/2026-10-15T13-44-05-918Z-web"
   },
   "07-f1-state-1a-validation-summary": {
     "deviations": ["DEV-12"],
@@ -358,6 +408,16 @@
     "productContent": "298fe55266294f78b91419dcab0032c0da5266b5ebc46341097f13217a67bc59",
     "pixels": null,
     "run": "2026-10-14-wp016-repin/web"
+  },
+  "07-f1-state-1a-validation-whole-frame-package-2a": {
+    "deviations": ["DEV-21", "DEV-12"],
+    "reference": "1280×964",
+    "product": "1280×968",
+    "iconsSame": false,
+    "productFingerprint": "3126e425ebb5da9272e07dfcd5cd3f5ee8263d16b981aca3b7d366ada3cccbb8",
+    "productContent": "59a873d0b691b9f935540623de0848b9da2b60584aeb45ccf9819dc7edadeb7e",
+    "pixels": null,
+    "run": ".runs/2026-10-15T13-44-05-918Z-web"
   },
   "07-f2-state-1b-sending-actions": {
     "deviations": ["DEV-01"],
@@ -389,6 +449,16 @@
     "pixels": 866,
     "run": "2026-10-14-wp016-repin/web"
   },
+  "07-f3-state-1c-sent-sidebar-package-2a": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "7f5981fd5bc6740e0c1f2e3f6051880ef0628f01706cef1bf4e44182f2379dc6",
+    "productContent": "ac3822079a4e0ff077fdb3a834c54822d18943aade33242b3b007f8b0c550d4f",
+    "pixels": 500,
+    "run": ".runs/2026-10-15T13-44-05-918Z-web"
+  },
   "07-f3-state-1c-sent-whole-frame": {
     "deviations": ["DEV-10", "DEV-11"],
     "reference": "1280×900",
@@ -398,6 +468,16 @@
     "productContent": "2f8b964f5299fec098d2f137160de56473e2804337659793b0357aae7854ab82",
     "pixels": 820,
     "run": "2026-10-14-wp016-repin/web"
+  },
+  "07-f3-state-1c-sent-whole-frame-package-2a": {
+    "deviations": ["DEV-21", "DEV-11"],
+    "reference": "1280×900",
+    "product": "1280×900",
+    "iconsSame": false,
+    "productFingerprint": "784d97834f45ed024b20cfc8c48ec046fb1df7f8071d4e8a072c9222f24dfe41",
+    "productContent": "6f55e68e3f93781514f1b5355cb7bfb781ccc30145095a5f9a09bcc75bfc134c",
+    "pixels": 479,
+    "run": ".runs/2026-10-15T13-44-05-918Z-web"
   },
   "07-f4-state-2-my-reports-institute-admin-sidebar": {
     "deviations": ["DEV-17"],

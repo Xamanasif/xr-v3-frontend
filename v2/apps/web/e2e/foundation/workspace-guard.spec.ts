@@ -64,20 +64,30 @@ for (const { person, other } of PAIRS) {
     await expect(
       page.getByRole('button', { name: new RegExp(`^Account menu: [^,]+, ${person.label}`) }),
     ).toBeAttached();
-    // Nothing of the requested page, no route, role code or status code.
+    // Nothing of the requested page, no route, role code or status code. The person's own
+    // sidebar is left out: since Package 2A it names their own destinations ("Student access").
     await expect(page.getByRole('heading', { name: 'Help & support' })).toHaveCount(0);
-    const text = (await page.locator('body').innerText()).toLowerCase();
+    const nav = page.locator('aside.xr-side nav');
+    const navText = (await nav.count()) > 0 ? await nav.innerText() : '';
+    const text = (await page.locator('body').innerText()).replace(navText, '').toLowerCase();
     for (const leak of [other.base, other.role, '403', '404', 'not-permitted', 'forbidden']) {
       expect(text).not.toContain(leak.toLowerCase());
     }
 
     // "Back to Home": the person's own base — their Help until their home is built; the Super
-    // Admin's Overview (SA-01) since Package 1D — client-side, the same world.
+    // Admin's Overview (SA-01) since Package 1D, the Institute Admin's Overview (IA-01) and the
+    // Student's Home (ST-01) since Package 2A — client-side, the same world.
     const mark = await markDocument(page);
     await message.getByRole('link', { name: 'Back to Home' }).click();
-    if (person.role === 'super_admin') {
-      await page.waitForURL(`**${person.base}`);
-      await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
+    const home: Readonly<Partial<Record<string, string>>> = {
+      super_admin: 'Overview',
+      tenant_admin: 'Overview',
+      student: 'Hello, Rahul',
+    };
+    const homeHeading = home[person.role];
+    if (homeHeading) {
+      await page.waitForURL((url) => url.pathname === person.base);
+      await expect(page.getByRole('heading', { level: 1, name: homeHeading })).toBeVisible();
       await expect(page.locator('aside.xr-side a[aria-current="page"]')).toHaveAttribute(
         'href',
         person.base,
@@ -101,8 +111,14 @@ test.describe('leaving XS-06 shown at another role’s bare base: focus moves in
       await expect(page).toHaveURL(`${TEST_HOOKS_URL}/faculty`);
       const mark = await markDocument(page);
       await page.locator('main .xr-msg').getByRole('link', { name: action }).click();
-      await page.waitForURL('**/student/help');
-      await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
+      // "Back to Home" reaches the Student's built Home (ST-01, Package 2A); Help reaches Help.
+      if (action === 'Help') {
+        await page.waitForURL('**/student/help');
+        await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
+      } else {
+        await page.waitForURL(/\/student$/);
+        await expect(page.getByRole('heading', { level: 1, name: 'Hello, Rahul' })).toBeVisible();
+      }
       await expect(page.locator('main.xr-page#main')).toBeFocused();
       await expectSameDocument(page, mark);
     });

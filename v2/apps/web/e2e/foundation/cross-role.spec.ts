@@ -98,10 +98,17 @@ async function switchTo(page: Page, entry: RoleEntry, from: RoleEntry): Promise<
     ).toBeVisible();
     await expect(message).toContainText(`You’re signed in to the ${entry.label} workspace.`);
     await message.getByRole('link', { name: 'Back to Home' }).click();
-    if (entry.role === 'super_admin') {
-      // The Super Admin's home is built since Package 1D (SA-01 Overview); Help is a sidebar step.
-      await page.waitForURL('**/admin');
-      await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
+    // Built homes: the Super Admin's since Package 1D (SA-01 Overview), the Institute Admin's and
+    // the Student's since Package 2A (IA-01 Overview, ST-01 Home); Help is then a sidebar step.
+    const home: Readonly<Partial<Record<string, string>>> = {
+      super_admin: 'Overview',
+      tenant_admin: 'Overview',
+      student: 'Hello, Rahul',
+    };
+    const heading = home[entry.role];
+    if (heading) {
+      await page.waitForURL((url) => url.pathname === entry.base);
+      await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
       await revealSidebar(page);
       await sidebarHelp(page).click();
     }

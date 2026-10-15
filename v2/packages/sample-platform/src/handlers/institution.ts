@@ -11,12 +11,15 @@
  */
 import {
   assignInstituteAdminInput,
+  type ContentAccessExperiment,
   type INSTITUTION_TABS,
   type InstitutionRow,
   type InstitutionService,
   listInstitutionsInput,
   overrideStudentStatusInput,
   pauseInstitutionInput,
+  type PlanGrant,
+  type PlanGrantRow,
   restoreInstitutionInput,
 } from '@xr/contracts/draft';
 import {
@@ -25,6 +28,7 @@ import {
   type AccessPlanItem,
   assignInstituteAdmin,
   currentMembers,
+  grantDisplayStatus,
   iaContentAccess,
   type Institution,
   institutionStatus,
@@ -40,7 +44,8 @@ import type { Call } from '../platform/core.js';
 import { command, type Op, read, refuse } from '../pipeline/runner.js';
 import { grantsOf, groupsOf, plansOf, studentsOf, waitsOf } from '../world/queries.js';
 import { courseCodeKey, values } from '../world/records.js';
-import { deferred } from './deferred.js';
+import { instituteOverview, termDaysLeft } from './institute-reads.js';
+import { ownInstitution } from './people.js';
 import { institutionSubject, personSubject } from './subjects.js';
 import { courseCardOf } from './views.js';
 
@@ -62,11 +67,15 @@ export function usageOf(op: Op, institution: Institution) {
   });
 }
 
-/** Distinct students an active grant of this plan reaches (a count of people, never licences). */
-function studentsGiven(op: Op, planId: string): number {
+/**
+ * Distinct students an active grant of this plan reaches (a count of people, never licences) —
+ * for one of its experiments only when `experimentId` is given (IA-02 "1 student", Package 2A).
+ */
+function studentsGiven(op: Op, planId: string, experimentId?: string): number {
   const reached = new Set<string>();
   for (const grant of values(op.records.grants)) {
     if (grant.accessPlanId !== planId || grant.state !== 'active') continue;
+    if (experimentId !== undefined && grant.experimentId !== experimentId) continue;
     if (grant.target.kind === 'student') reached.add(grant.target.studentId);
     else {
       const group = op.records.groups[grant.target.groupId];
@@ -74,6 +83,93 @@ function studentsGiven(op: Op, planId: string): number {
     }
   }
   return reached.size;
+}
+
+/** IA-02 / IA-03 (Package 2A): a plan with its status and the days left in its term. */
+function planStandingOf(op: Op, plan: AccessPlan, institution: Institution) {
+  return {
+    plan,
+    status: accessPlanStatus(plan, institution, op.now),
+    daysLeft: termDaysLeft(plan, op.now),
+  };
+}
+
+/**
+ * IA-03 "Students you’ve given access" (B2-03 f1, Package 2A): each active grant of the plan and
+ * each student it reaches now (a group grant: its current members), oldest grant first, with the
+ * grant's status as the plan page reads it (`grantDisplayStatus`, screen `plan-page`).
+ */
+function planGrantRows(op: Op, plan: AccessPlan, institution: Institution): PlanGrantRow[] {
+  const waits = waitsOf(op.records, institution.id);
+  const rows: PlanGrantRow[] = [];
+  const grants = grantsOf(op.records, institution.id)
+    .filter((grant) => grant.accessPlanId === plan.id && grant.state === 'active')
+    .sort((a, b) => (a.givenAt === b.givenAt ? 0 : a.givenAt < b.givenAt ? -1 : 1));
+  for (const grant of grants) {
+    const group = grant.target.kind === 'group' ? op.records.groups[grant.target.groupId] : null;
+    const reached =
+      grant.target.kind === 'student'
+        ? [grant.target.studentId]
+        : group
+          ? [...currentMembers(group)]
+          : [];
+    for (const studentId of reached) {
+      const student = op.records.people[studentId];
+      if (student?.kind !== 'student') continue;
+      rows.push({
+        grantId: grant.id,
+        experimentId: grant.experimentId,
+        student: {
+          id: student.id,
+          fullName: student.fullName,
+          institutionStudentId: student.institutionStudentId,
+        },
+        givenAt: grant.givenAt,
+        via: group
+          ? { kind: 'group', groupId: group.id, groupName: group.name }
+          : { kind: 'student' },
+        display: grantDisplayStatus({
+          grant,
+          student,
+          plan,
+          institution,
+          waits,
+          alsoInActiveGroupGrant: false,
+          screen: 'plan-page',
+          now: op.now,
+        }),
+      });
+    }
+  }
+  return rows;
+}
+
+/** IA-03's history (Package 2A): every grant of the plan, in any state, naming whom it gives to. */
+function planGrants(op: Op, plan: AccessPlan): PlanGrant[] {
+  return grantsOf(op.records, plan.institutionId)
+    .filter((grant) => grant.accessPlanId === plan.id)
+    .flatMap((grant): PlanGrant[] => {
+      if (grant.target.kind === 'student') {
+        const student = op.records.people[grant.target.studentId];
+        if (!student) return [];
+        return [
+          {
+            id: grant.id,
+            experimentId: grant.experimentId,
+            target: { kind: 'student', studentId: student.id, name: student.fullName },
+          },
+        ];
+      }
+      const group = op.records.groups[grant.target.groupId];
+      if (!group) return [];
+      return [
+        {
+          id: grant.id,
+          experimentId: grant.experimentId,
+          target: { kind: 'group', groupId: group.id, name: group.name },
+        },
+      ];
+    });
 }
 
 /**
@@ -215,7 +311,15 @@ export function institutionPort(call: Call): InstitutionService {
           .map((institution) => institutionRowOf(op, institution))
           .filter((row) => inTab(row, accepted.tab) && matchesSearch(row, search));
       }),
-    getMyOverview: deferred('InstitutionService.getMyOverview'),
+    // Phase-2 Package 2A (IA-01): the Institute Admin's own institution (PC-38).
+    getMyOverview: () =>
+      read(call, 'InstitutionService.getMyOverview', (op) => {
+        const person = op.person();
+        const institution = ownInstitution(op, person);
+        op.see(person, { kind: 'institution', institutionId: institution.id });
+        op.see(person, { kind: 'people', institutionId: institution.id });
+        return instituteOverview(op, institution);
+      }),
 
     getInstitution: (id) =>
       read(call, 'InstitutionService.getInstitution', (op) => {
@@ -312,16 +416,40 @@ export function institutionPort(call: Call): InstitutionService {
         const person = op.person();
         const institutionId = op.found(person.institutionId);
         op.see(person, { kind: 'access-plan', institutionId });
-        const byCourse = new Map<string, { items: AccessPlanItem[]; notInPlan: Set<Technology> }>();
+        const institution = op.found(op.records.institutions[institutionId]);
+        const byCourse = new Map<
+          string,
+          {
+            items: AccessPlanItem[];
+            notInPlan: Set<Technology>;
+            plans: AccessPlan[];
+            experiments: ContentAccessExperiment[];
+          }
+        >();
         const experiments = values(op.records.experiments);
         for (const plan of plansOf(op.records, institutionId)) {
           // The plan's experiments × formats and the published formats it leaves out (`iaContentAccess`).
           for (const { item, publishedNotInPlan } of iaContentAccess(plan, experiments)) {
             const experiment = op.records.experiments[item.experimentId];
             if (!experiment) continue;
-            const row = byCourse.get(experiment.courseId) ?? { items: [], notInPlan: new Set() };
+            const row = byCourse.get(experiment.courseId) ?? {
+              items: [],
+              notInPlan: new Set(),
+              plans: [],
+              experiments: [],
+            };
             row.items.push(item);
             for (const format of publishedNotInPlan) row.notInPlan.add(format);
+            // Package 2A (B2-02): the plan band and one table row per plan item.
+            if (!row.plans.includes(plan)) row.plans.push(plan);
+            row.experiments.push({
+              experimentId: experiment.id,
+              name: experiment.live.catalogue.name,
+              planId: plan.id,
+              formats: [...item.formats],
+              publishedNotInPlan: [...publishedNotInPlan],
+              studentsGiven: studentsGiven(op, plan.id, experiment.id),
+            });
             byCourse.set(experiment.courseId, row);
           }
         }
@@ -337,6 +465,10 @@ export function institutionPort(call: Call): InstitutionService {
               ),
               institutionCode:
                 op.records.courseCodes[courseCodeKey(institutionId, courseId)] ?? null,
+              plans: [...row.plans]
+                .sort(newestPlanFirst)
+                .map((plan) => planStandingOf(op, plan, institution)),
+              experiments: row.experiments,
             },
           ];
         });
@@ -348,10 +480,30 @@ export function institutionPort(call: Call): InstitutionService {
         const plan = op.found(op.records.plans[op.idText(planId)]);
         op.see(person, { kind: 'access-plan', institutionId: plan.institutionId });
         const institution = op.found(op.records.institutions[plan.institutionId]);
+        // Package 2A (B2-03): the students' names are the institution's people (same audience).
+        op.see(person, { kind: 'people', institutionId: plan.institutionId });
         return {
-          plan,
-          status: accessPlanStatus(plan, institution, op.now),
+          ...planStandingOf(op, plan, institution),
           studentsGiven: studentsGiven(op, plan.id),
+          institutionName: institution.name,
+          experiments: iaContentAccess(plan, values(op.records.experiments)).flatMap(
+            ({ item, publishedNotInPlan }) => {
+              const experiment = op.records.experiments[item.experimentId];
+              const course = experiment ? op.records.courses[experiment.courseId] : undefined;
+              if (!experiment || !course) return [];
+              return [
+                {
+                  experimentId: experiment.id,
+                  name: experiment.live.catalogue.name,
+                  course: { id: course.id, name: course.name, platformCode: course.platformCode },
+                  formats: [...item.formats],
+                  publishedNotInPlan: [...publishedNotInPlan],
+                },
+              ];
+            },
+          ),
+          givenTo: planGrantRows(op, plan, institution),
+          grants: planGrants(op, plan),
         };
       }),
   };

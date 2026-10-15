@@ -120,9 +120,11 @@ export function sidebarHelp(page: Page) {
  * is always shown (board 05 bands).
  */
 export async function revealSidebar(page: Page): Promise<void> {
-  const menu = page.getByRole('button', { name: 'Open menu' });
-  if (await menu.isVisible()) {
-    await menu.click();
-    await expect(page.getByRole('button', { name: 'Close menu' })).toBeFocused();
-  }
+  // Below 1024 px the sidebar is the drawer (board 05). Decide by the width, not by whether the
+  // menu button happens to be drawn yet: right after a sign-in the shell may still be arriving.
+  if ((page.viewportSize()?.width ?? 1440) >= 1024) return;
+  const close = page.getByRole('button', { name: 'Close menu' });
+  if (await close.isVisible()) return;
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await expect(close).toBeFocused();
 }

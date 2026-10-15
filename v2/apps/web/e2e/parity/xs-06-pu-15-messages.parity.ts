@@ -80,7 +80,8 @@ test('board 08 · PU-15 (workspace, public) and XS-06 on the built screens', asy
       product: ours.locator('.xr-msg .xr-msg-actions'),
     },
   ];
-  const inShell = await open(context, 1440, RAHUL, '/student/courses');
+  // An unbuilt Student address (My courses is built since Package 2A; Progress is Phase 3).
+  const inShell = await open(context, 1440, RAHUL, '/student/progress');
   await run(
     testInfo,
     message(family.nth(0), inShell, '08-f1-page-not-found-workspace-message'),

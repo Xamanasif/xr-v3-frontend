@@ -445,13 +445,14 @@ export const DEVIATIONS = [
       'B1-09 f0, f11 — "Back to experiments" (top row, to B1-01) and "Need access for your institution? Request institutional access" (under the card, to B1-06)',
       'B1-10 f0 — the Super Admin sidebar: Overview, Requests, Institutions, Content, Academic structure, Platform roles, Operations',
       '05 "Super Admin" shell on Help — the same seven destinations. The Phase-0 comparison `05-super-admin-help-built-sidebar` (DEV-10, Help only) is now measured as `05-super-admin-help-built-sidebar-package-1a`; its Phase-0 pin is kept unchanged and is no longer observed',
+      '05 "Student" and "Institute Admin" shells on Help, and board 07 f0, f1, f3 (Rahul Verma\'s Help pages) — Package 2A: `05-student-help-built-sidebar`, `05-institute-admin-help-built-sidebar` and the three Student `07-…-sidebar` / `07-…-whole-frame` comparisons (DEV-10, Help only) are now measured with the suffix `-package-2a`; their Phase-0 pins are kept unchanged and are no longer observed',
     ],
     product:
       'XS-01 `AuthFrame` / `SignIn` (apps/web features/shared/xs-01-sign-in); the Super Admin sidebar from the built-screen manifest (nav/built-screens.ts)',
     expected:
       'B1-09 draws the two links on the sign-in page; B1-10 and board 05 draw the Super Admin sidebar with all seven destinations.',
     actual:
-      'The Super Admin sidebar lists the destinations built so far — Overview and Institutions (Package 1D) and Requests (1A, with its count of requests under review read from the world) — and Help. On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
+      'The Super Admin sidebar lists the destinations built so far — Overview and Institutions (Package 1D) and Requests (1A, with its count of requests under review read from the world) — and Help. Since Package 2A the Student sidebar lists Home and My courses (not Assessments, Progress) and the Institute Admin sidebar Overview, Content access, Student access and People (not Requests, Usage). On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
     accessibility:
       'None: an unbuilt address would show the public not-found page and, as a document load, restart the tab’s sample world (ADR-0004).',
     decision:

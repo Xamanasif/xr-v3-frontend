@@ -260,9 +260,10 @@ test('Flow A and B1 in one tab of the product build: browse → select → reque
 
   // 15. Meera Iyer signs in: her own workspace, and its boundary.
   await signIn(page, RECORD.email);
-  await page.waitForURL('**/institute/help');
+  // Her base is IA-01 Overview since Package 2A (before, the interim landing: Help).
+  await page.waitForURL(/\/institute$/);
   await expect(page.getByRole('button', { name: MEERA, exact: true })).toBeVisible();
-  await checkState(page, 'Help & support');
+  await checkState(page, 'Overview');
   await revealSidebar(page);
   await expect(page.locator('aside.xr-side a[href^="/admin"]')).toHaveCount(0);
   // Her institution's request at its address (TEST NAVIGATION): readable by its Institute Admin.

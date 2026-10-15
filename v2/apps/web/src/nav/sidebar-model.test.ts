@@ -17,15 +17,36 @@ const everyScreen = (role: (typeof PLATFORM_ROLES)[number]): ReadonlySet<ScreenK
     ...WORKSPACE_NAV[role].destinations.map((destination) => destination.screen),
   ]);
 
-describe('the built-screen manifest (Phase 0 + Packages 1A and 1D)', () => {
-  it('builds Help & support (XS-07) everywhere and the Super Admin’s Overview, Requests and Institutions', () => {
-    expect([...BUILT_SCREENS]).toEqual(['XS-07', 'SA-01', 'SA-02', 'SA-03', 'SA-06', 'SA-07']);
+describe('the built-screen manifest (Phase 0 + Packages 1A, 1D and 2A)', () => {
+  it('builds Help & support (XS-07) everywhere, the Super Admin’s Overview, Requests and Institutions, and Package 2A’s Institute Admin and Student screens', () => {
+    expect([...BUILT_SCREENS]).toEqual([
+      'ST-01',
+      'XS-07',
+      'IA-01',
+      'SA-01',
+      'SA-02',
+      'SA-03',
+      'SA-06',
+      'SA-07',
+      'IA-02',
+      'IA-03',
+      'IA-04',
+      'IA-05',
+      'IA-06',
+      'IA-08',
+      'IA-07',
+      'IA-10',
+      'ST-02',
+      'ST-03',
+      'ST-05',
+      'ST-19',
+    ]);
   });
 
   it.each(
-    PLATFORM_ROLES.filter((role) => role !== 'super_admin').map(
-      (role) => [ROLE_LABEL[role], role] as const,
-    ),
+    PLATFORM_ROLES.filter(
+      (role) => role !== 'super_admin' && role !== 'tenant_admin' && role !== 'student',
+    ).map((role) => [ROLE_LABEL[role], role] as const),
   )(
     '%s: the sidebar shows only Help, current on the Help pages, not current on a message page',
     (_label, role) => {
@@ -39,6 +60,51 @@ describe('the built-screen manifest (Phase 0 + Packages 1A and 1D)', () => {
       }
     },
   );
+
+  it('Institute Admin (Package 2A): Overview, Content access, Student access, People, then Help — each current on its own screens; Requests and Usage wait for their phase', () => {
+    const help = sidebarModel('tenant_admin', { screen: 'XS-07' });
+    expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
+      ['Overview', '/institute', false],
+      ['Content access', '/institute/content-access', false],
+      ['Student access', '/institute/student-access', false],
+      ['People', '/institute/people', false],
+    ]);
+    expect(help.help.current).toBe(true);
+    const current = (screen: ScreenKey) =>
+      sidebarModel('tenant_admin', { screen })
+        .destinations.filter((item) => item.current)
+        .map((item) => item.label);
+    expect(current('IA-01')).toEqual(['Overview']);
+    expect(current('IA-02')).toEqual(['Content access']);
+    expect(current('IA-03')).toEqual(['Content access']);
+    expect(current('IA-04')).toEqual(['Student access']);
+    expect(current('IA-05')).toEqual(['Student access']);
+    for (const screen of ['IA-06', 'IA-07', 'IA-08', 'IA-10'] as const) {
+      expect(current(screen)).toEqual(['People']);
+    }
+    for (const screen of ['XS-06', 'PU-15'] as const) {
+      expect(current(screen)).toEqual([]);
+    }
+  });
+
+  it('Student (Package 2A): Home and My courses, then Help — My courses current on a course, an experiment and its refusal; Assessments and Progress wait for their phase', () => {
+    const help = sidebarModel('student', { screen: 'XS-07' });
+    expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
+      ['Home', '/student', false],
+      ['My courses', '/student/courses', false],
+    ]);
+    const current = (screen: ScreenKey) =>
+      sidebarModel('student', { screen })
+        .destinations.filter((item) => item.current)
+        .map((item) => item.label);
+    expect(current('ST-01')).toEqual(['Home']);
+    for (const screen of ['ST-02', 'ST-03', 'ST-05', 'ST-19'] as const) {
+      expect(current(screen)).toEqual(['My courses']);
+    }
+    for (const screen of ['XS-06', 'PU-15'] as const) {
+      expect(current(screen)).toEqual([]);
+    }
+  });
 
   it('Super Admin: Overview, Requests, Institutions, then Help — each current on its own screens, the Requests count in words', () => {
     const help = sidebarModel('super_admin', { screen: 'XS-07' });
