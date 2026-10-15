@@ -5,7 +5,7 @@
  * `AccessRequestService` command's, and its refusals are shown as they come — and it reads only
  * facts the ports answered (`DecisionPage`, the published catalogue).
  */
-import type { DecisionPage, FieldError } from '@xr/contracts/draft';
+import type { DecisionPage, FieldError, ProductPorts } from '@xr/contracts/draft';
 import type {
   AccessPlan,
   InstitutionKind,
@@ -227,6 +227,60 @@ export function smallerScopeItems(
       ? { experimentId: item.experimentId, formats: [...keptFormats(page, draft)] }
       : item,
   );
+}
+
+type DecisionPort = ProductPorts['accessRequests'];
+
+/** A decision as the port's command: which one, and its input. */
+export type DecisionCommand =
+  | {
+      readonly choice: 'approve';
+      readonly input: Parameters<DecisionPort['approveRequest']>[0];
+    }
+  | {
+      readonly choice: 'smaller';
+      readonly input: Parameters<DecisionPort['approveSmallerScope']>[0];
+    }
+  | {
+      readonly choice: 'info';
+      readonly input: Parameters<DecisionPort['requestMoreInformation']>[0];
+    };
+
+/**
+ * The command a decision sends, built once from the page and the decision as they stand when it
+ * is sent or its confirmation opens, with the request's revision from when the decision began
+ * (`expectedRev`). Nothing is read again before it goes: a newer read can neither change what a
+ * confirmation names nor stand in for its revision — the service refuses a change shown meanwhile
+ * as stale (P1-21). `null` until a decision is chosen.
+ */
+export function decisionCommand(
+  page: DecisionPage,
+  draft: DecisionDraft,
+  expectedRev: number,
+): DecisionCommand | null {
+  const { request } = page;
+  const route = page.routeCommitted === null ? draft.route : null;
+  switch (draft.choice) {
+    case 'approve':
+      return { choice: 'approve', input: { id: request.id, route, expectedRev } };
+    case 'smaller':
+      return {
+        choice: 'smaller',
+        input: {
+          id: request.id,
+          route,
+          items: smallerScopeItems(page, draft),
+          licences: licencesValue(page, draft),
+          term: termValue(page, draft),
+          reason: draft.reason,
+          expectedRev,
+        },
+      };
+    case 'info':
+      return { choice: 'info', input: { id: request.id, reason: draft.reason, expectedRev } };
+    default:
+      return null;
+  }
 }
 
 // ---- after a decision (B1-11 f9 … f12) ----

@@ -35,8 +35,11 @@ export function scrollTabIntoView(strip: HTMLElement, tab: HTMLElement): void {
 
 /**
  * Brings the strip's current tab into view when it mounts and when the current tab changes, and
- * once more when the web fonts have loaded (wider glyphs move the tabs; board 11's own script
- * re-aligns after the font swap for the same reason) unless the strip was scrolled meanwhile.
+ * again after each batch of web fonts finishes loading (wider glyphs move the tabs; board 11's own
+ * script re-aligns after the font swap for the same reason) unless the strip was scrolled
+ * meanwhile. Every batch, not only the first: a face is fetched when the layout first needs it, so
+ * `document.fonts.ready` can resolve with the regular face loaded and the tabs' semibold and bold
+ * faces still to come (measured in Package 1E: board 11's 375 px strip left unscrolled).
  */
 function useCurrentTabInView(
   strip: RefObject<HTMLElement | null>,
@@ -45,19 +48,22 @@ function useCurrentTabInView(
 ): void {
   useLayoutEffect(() => {
     const element = strip.current;
+    if (!element) return;
+    let aligned = 0;
     const align = () => {
-      const tab = element?.querySelector<HTMLElement>(selector);
-      if (element && tab) scrollTabIntoView(element, tab);
-      return element?.scrollLeft ?? 0;
+      const tab = element.querySelector<HTMLElement>(selector);
+      if (tab) scrollTabIntoView(element, tab);
+      aligned = element.scrollLeft;
     };
-    const aligned = align();
-    let cancelled = false;
-    void element?.ownerDocument.fonts?.ready.then(() => {
-      if (!cancelled && element.scrollLeft === aligned) align();
-    });
-    return () => {
-      cancelled = true;
+    align();
+    const realign = () => {
+      if (element.scrollLeft === aligned) align();
     };
+    // No font set to listen to (a document without the CSS Font Loading API): nothing more to do.
+    const fonts = element.ownerDocument.fonts as FontFaceSet | undefined;
+    if (typeof fonts?.addEventListener !== 'function') return;
+    fonts.addEventListener('loadingdone', realign);
+    return () => fonts.removeEventListener('loadingdone', realign);
   }, [strip, selector, current]);
 }
 

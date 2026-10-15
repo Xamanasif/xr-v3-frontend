@@ -324,23 +324,48 @@ describe('the current tab is scrolled into view (board 11 "Section tabs at 375 p
     });
   }
 
-  /** jsdom has no `document.fonts`: a stand-in whose `ready` the test resolves. */
+  /**
+   * jsdom has no `document.fonts`: a stand-in that behaves as Chromium's FontFaceSet was measured
+   * to (Package 1E, board 11 at 375 px): each call finishes one batch of faces — `loadingdone`
+   * fires — and `ready` resolves after the first batch, whatever is still to load.
+   */
   function stubFonts() {
-    let loaded: () => void = () => {};
+    const fonts = new EventTarget();
+    let resolveReady: () => void = () => {};
     const ready = new Promise<void>((resolve) => {
-      loaded = resolve;
+      resolveReady = resolve;
     });
-    Object.defineProperty(document, 'fonts', { value: { ready }, configurable: true });
+    Object.defineProperty(fonts, 'ready', { value: ready });
+    Object.defineProperty(document, 'fonts', { value: fonts, configurable: true });
     return async () => {
-      loaded();
+      resolveReady();
       await act(async () => {
         await ready;
+        fonts.dispatchEvent(new Event('loadingdone'));
       });
     };
   }
 
   afterEach(() => {
     Reflect.deleteProperty(document, 'fonts');
+  });
+
+  it('re-aligned after every batch of fonts, not only when `fonts.ready` first resolves', async () => {
+    // As measured: at mount no Public Sans face has loaded and the fallback glyphs fit (no
+    // scroll); the regular face loads first and `ready` resolves; the semibold and bold faces of
+    // the tab labels come in a later batch and widen the tabs.
+    let width = 80;
+    layOutStrip(() => width);
+    const batchLoaded = stubFonts();
+    const tabs = PEOPLE_TABS.map((tab) => ({ ...tab, current: tab.label === 'Faculty courses' }));
+    render(<SectionTabs label="People sections" tabs={tabs} />);
+    const nav = screen.getByRole('navigation', { name: 'People sections' });
+    expect(nav.scrollLeft).toBe(0); // Faculty courses at x 252 … 332: in view
+    await batchLoaded(); // the regular face: the labels keep their fallback widths
+    expect(nav.scrollLeft).toBe(0);
+    width = 120; // Faculty courses now at x 372 … 492
+    await batchLoaded(); // the semibold and bold faces
+    expect(nav.scrollLeft).toBe(492 - 375);
   });
 
   it('re-aligned once the web fonts have loaded (wider glyphs move the tabs)', async () => {

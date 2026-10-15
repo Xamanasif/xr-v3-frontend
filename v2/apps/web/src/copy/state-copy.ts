@@ -406,6 +406,17 @@ export const STATE_COPY = {
     status: 'provisional',
     decisions: ['P1-05', 'P1-07'],
   },
+  'SA-03.moved-on': {
+    screen: 'SA-03',
+    state:
+      'A decision refused because the request moved on (a stale revision; decided elsewhere; its institution paused) — or the panel ended by such a change while in use',
+    words: null,
+    rule: 'Nothing is written: the confirmation closes, the request is read again and the page shows its current drawn state. No notice; focus goes to the decision panel’s heading. A decision keeps the request’s revision from when it began (the first change to the form, or the press that sends it or opens its confirmation) and a confirmation sends exactly what it names, so a change shown meanwhile is refused, never acted on. While the request is still open the decision being composed stays in the form, and the next attempt begins from the request as now shown.',
+    basis:
+      'Appendix G P1-21 interim (“Refetch and render the current drawn state”); as SA-07.moved-on (Package 1D); B1-11 draws no refusal for a decision',
+    status: 'provisional',
+    decisions: ['P1-21'],
+  },
   'SA-03.internal-confirm-plan': {
     screen: 'SA-03',
     state: 'Confirming an internal approval of a renewal or more licences',

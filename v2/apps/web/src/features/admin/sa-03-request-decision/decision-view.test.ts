@@ -12,6 +12,7 @@ import { SUPER_ADMIN, tabPlatform } from '@/test-support/workspace';
 
 import {
   createdByThisApproval,
+  decisionCommand,
   differencesOf,
   draftErrors,
   EMPTY_DRAFT,
@@ -217,5 +218,64 @@ describe('the decided panel and the details (B1-11 f9 … f12)', () => {
     );
     expect(lines[0]!.when).toBe('22 Sep 2026, 15:00 · Arjun Mehta');
     expect(lines[1]!.when).toBe('22 Sep 2026, 10:00 · K. Rao, contact person');
+  });
+});
+
+describe('the command a decision sends (P1-21; Package 1E)', () => {
+  it('takes the revision it is given — the decision’s — not the page’s, even when the page is newer', async () => {
+    const seeded = await pages();
+    const page = seeded['REQ-0040']!;
+    const began = page.request.rev;
+    // The page read again after a change elsewhere: a newer revision.
+    const newer = { ...page, request: { ...page.request, rev: began + 1 } };
+    expect(decisionCommand(newer, { ...EMPTY_DRAFT, choice: 'approve' }, began)).toEqual({
+      choice: 'approve',
+      input: { id: 'REQ-0040', route: null, expectedRev: began },
+    });
+    expect(
+      decisionCommand(newer, { ...EMPTY_DRAFT, choice: 'info', reason: 'Which section?' }, began),
+    ).toEqual({
+      choice: 'info',
+      input: { id: 'REQ-0040', reason: 'Which section?', expectedRev: began },
+    });
+    expect(decisionCommand(page, EMPTY_DRAFT, began)).toBeNull();
+  });
+
+  it('a smaller scope: the narrowed items, licences, term and reason the panel shows', async () => {
+    const seeded = await pages();
+    const page = seeded['REQ-0040']!;
+    const draft = {
+      ...EMPTY_DRAFT,
+      choice: 'smaller' as const,
+      formats: ['web' as const],
+      reason: 'AR is not part of the second section.',
+    };
+    expect(decisionCommand(page, draft, 7)).toEqual({
+      choice: 'smaller',
+      input: {
+        id: 'REQ-0040',
+        route: null,
+        items: smallerScopeItems(page, draft),
+        licences: String(page.request.licencesRequested),
+        term: termValue(page, draft),
+        reason: 'AR is not part of the second section.',
+        expectedRev: 7,
+      },
+    });
+  });
+
+  it('a new institution’s route goes with the approval; a committed route is never re-sent', async () => {
+    const seeded = await pages();
+    const fresh = newInstitutionRequest(seeded['REQ-0040']!);
+    expect(
+      decisionCommand(fresh, { ...EMPTY_DRAFT, choice: 'approve', route: 'internal' }, 3),
+    ).toMatchObject({ input: { route: 'internal', expectedRev: 3 } });
+    expect(
+      decisionCommand(
+        seeded['REQ-0038']!,
+        { ...EMPTY_DRAFT, choice: 'approve', route: 'external' },
+        3,
+      ),
+    ).toMatchObject({ input: { route: null } });
   });
 });

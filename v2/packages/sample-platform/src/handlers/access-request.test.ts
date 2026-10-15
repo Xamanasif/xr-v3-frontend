@@ -21,7 +21,9 @@ import type { SessionStorageLike } from '../session/browser-session.js';
 import {
   asPerson,
   asPersonId,
+  beginSession,
   planPayment,
+  seamsOf,
   standinsOf,
   visitorPorts,
   worldOf,
@@ -482,4 +484,158 @@ describe('the ticket never crosses a port (PC-34; ADR-0009)', () => {
       'access-active',
     );
   });
+});
+
+describe('Package 1E — a ticket opens its own request only, whatever reaches storage', () => {
+  it('a visitor’s own ticket does not open another request’s address, nor pay for it', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    const visitor = visitorPorts(platform);
+    const sent = await send(visitor);
+    const other = requestOf(platform, 'REQ-0037');
+    expect(other.routeId).not.toBe(sent.routeId);
+    const before = worldOf(platform).worldVersion;
+    expect(await visitor.accessRequests.getRequestStatus(other.routeId)).toEqual({
+      ok: false,
+      error: { kind: 'not-found' },
+    });
+    expect(
+      await visitor.accessRequests.startPayment({ request: other.routeId, expectedRev: other.rev }),
+    ).toEqual({ ok: false, error: { kind: 'not-found' } });
+    expect(worldOf(platform).worldVersion).toBe(before);
+  });
+
+  it('a well-formed ticket planted after the world started — this world, a real token — opens nothing', async () => {
+    const storage = memoryStorage();
+    const platform = createSamplePlatform({
+      world: seed(),
+      browserStorage: storage,
+      worldInstance: 'world-x',
+    });
+    // The seed's tokens are deterministic: the forged entry names a real one, the world the tab
+    // runs and the visitor. Storage is read once, when the world starts; a later write is not a
+    // ticket. (In the browser the world instance is minted at random on every page load, as the
+    // world is built, so an entry naming it cannot be written beforehand.)
+    const seeded = requestOf(platform, 'REQ-0037');
+    storage.setItem(
+      'xr.request-tickets.v2',
+      JSON.stringify([{ world: 'world-x', token: seeded.statusToken, holder: 'visitor' }]),
+    );
+    const before = worldOf(platform).worldVersion;
+    expect(await platform.ports.accessRequests.getRequestStatus(seeded.routeId)).toEqual({
+      ok: false,
+      error: { kind: 'not-found' },
+    });
+    expect(worldOf(platform).worldVersion).toBe(before);
+  });
+
+  it('the Super Admin’s list and a smaller-scope receipt carry no ticket either (PC-34)', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    const sent = await send(visitorPorts(platform));
+    const token = requestOf(platform, sent.reference).statusToken;
+    const admin = asPerson(platform, 'Arjun Mehta');
+    const rows = ok(await admin.accessRequests.listRequests({ sort: 'received-newest' }));
+    expect(rows.map((row) => row.id)).toContain(sent.reference);
+    expect(JSON.stringify(rows)).not.toContain(token);
+    const page = ok(await admin.accessRequests.getRequestForDecision(sent.reference));
+    const smaller = ok(
+      await admin.accessRequests.approveSmallerScope({
+        id: sent.reference,
+        route: 'external',
+        items: [{ experimentId: SHELL, formats: ['web'] }],
+        licences: '100',
+        term: 'yearly',
+        reason: 'WEB for the first term.',
+        expectedRev: page.request.rev,
+      }),
+    );
+    expect(JSON.stringify(smaller)).not.toContain(token);
+  });
+});
+
+describe('Package 1E — repeated and stale commands write nothing (P1-21; dedupe)', () => {
+  it('a repeated command id answers the first request’s receipt: one request, one world change', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    ok(platform.ports.selection.add({ experimentId: SHELL, formats: ['web', 'vr'] }));
+    const submit = () =>
+      platform.withCommandId('cmd-1e-submit').accessRequests.submitPublicRequest({
+        institutionName: 'Godavari Institute of Technology',
+        contactPerson: 'Meera Iyer',
+        email: 'meera.iyer@godavari.edu.in',
+        phone: null,
+        licencesRequested: '120',
+        message: null,
+        term: { kind: 'yearly' },
+      });
+    const first = ok(await submit());
+    const version = worldOf(platform).worldVersion;
+    const requests = Object.keys(worldOf(platform).records.requests).length;
+    expect(ok(await submit())).toEqual(first);
+    expect(worldOf(platform).worldVersion).toBe(version);
+    expect(Object.keys(worldOf(platform).records.requests)).toHaveLength(requests);
+  });
+
+  it('a repeated approval command id answers its first receipt and decides once', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    const sent = await send(visitorPorts(platform));
+    // The tab's own session signs in as the Super Admin (the CI seam): its command-id view is the
+    // one the web query layer sends commands through.
+    beginSession(platform, 'sa-arjun-mehta');
+    const page = ok(await platform.ports.accessRequests.getRequestForDecision(sent.reference));
+    const approve = () =>
+      platform.withCommandId('cmd-1e-approve').accessRequests.approveRequest({
+        id: sent.reference,
+        route: 'external',
+        expectedRev: page.request.rev,
+      });
+    const first = await approve();
+    expect(first.ok && first.value.request.status).toBe('approved-payment-required');
+    const version = worldOf(platform).worldVersion;
+    expect(await approve()).toEqual(first);
+    expect(worldOf(platform).worldVersion).toBe(version);
+    expect(
+      requestOf(platform, sent.reference).history.filter((entry) => entry.event === 'approved'),
+    ).toHaveLength(1);
+    // The same approval under a new command id is a new command: refused, nothing written.
+    expect(
+      await platform.withCommandId('cmd-1e-approve-2').accessRequests.approveRequest({
+        id: sent.reference,
+        route: 'external',
+        expectedRev: page.request.rev,
+      }),
+    ).toMatchObject({ ok: false });
+    expect(worldOf(platform).worldVersion).toBe(version);
+  });
+
+  it.each([
+    ['approveRequest', { route: 'external' }],
+    [
+      'approveSmallerScope',
+      {
+        route: 'external',
+        items: [{ experimentId: SHELL, formats: ['web'] }],
+        licences: '100',
+        term: 'yearly',
+        reason: 'WEB for the first term.',
+      },
+    ],
+    ['requestMoreInformation', { reason: 'Which cohort?' }],
+  ] as const)(
+    '%s with the revision from before a change is refused as stale and writes nothing',
+    async (method, input) => {
+      const platform = createSamplePlatform({ world: seed() });
+      const sent = await send(visitorPorts(platform));
+      const admin = asPerson(platform, 'Arjun Mehta');
+      const page = ok(await admin.accessRequests.getRequestForDecision(sent.reference));
+      // The AD-14 review start (a test-only fact): the request stays under review, one revision on.
+      seamsOf(platform).recordReviewStarted(sent.reference);
+      const before = worldOf(platform).worldVersion;
+      const record = requestOf(platform, sent.reference);
+      const command = admin.accessRequests[method] as (input: unknown) => Promise<unknown>;
+      expect(
+        await command({ id: sent.reference, ...input, expectedRev: page.request.rev }),
+      ).toEqual({ ok: false, error: { kind: 'stale-version', currentRev: page.request.rev + 1 } });
+      expect(worldOf(platform).worldVersion).toBe(before);
+      expect(requestOf(platform, sent.reference)).toEqual(record);
+    },
+  );
 });

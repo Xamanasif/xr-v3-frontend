@@ -280,3 +280,102 @@ describe('an assigned Institute Admin signs in with the work e-mail (P1-01 sampl
     expect(ok(await browser.session.getSession())?.banners).toEqual([]);
   });
 });
+
+/**
+ * Owner decision T-11 / P1-01, OPEN (Package 1E reproduction — no rule added, P1-08): nothing checks
+ * an assigned work e-mail against the people who already sign in with it, and the sample sign-in
+ * resolves an e-mail to the first holder in a fixed order — people, then Institute Admins, then role
+ * holders, then Super Admins (`personIdByEmail`). These cases record what happens today; they are
+ * not an accepted rule. A hosted demonstration that lets reviewers assign any e-mail is blocked on
+ * this decision (`docs/phase-1/PHASE-1-HANDOVER.md`).
+ */
+describe('T-11 / P1-01 open: an assigned work e-mail someone already signs in with (reproduction)', () => {
+  async function signIn(platform: Awaited<ReturnType<typeof platformAfter>>, email: string) {
+    const answer = await visitorPorts(platform).session.signIn({
+      method: 'email',
+      email,
+      password: 'any password',
+    });
+    return answer.ok
+      ? {
+          landing: answer.value.landing,
+          role: answer.value.session.role,
+          name: answer.value.session.displayName,
+          institution: answer.value.session.institutionId,
+        }
+      : answer.error;
+  }
+
+  async function assignSahyadri(
+    platform: Awaited<ReturnType<typeof platformAfter>>,
+    email: string,
+  ) {
+    const admin = asPerson(platform, 'Arjun Mehta');
+    const detail = ok(await admin.institutions.getInstitution(id('sahyadri')));
+    // Accepted: the work e-mail is checked for its form only (B7-03 `doAssign`).
+    return ok(
+      await admin.institutions.assignInstituteAdmin({
+        institutionId: id('sahyadri'),
+        name: 'N. Joshi',
+        workEmail: email,
+        expectedRev: detail.institution.rev,
+      }),
+    );
+  }
+
+  const SAHYADRI_IA = {
+    landing: '/institute',
+    role: 'tenant_admin',
+    name: 'N. Joshi',
+    institution: 'sahyadri',
+  };
+
+  it('the Super Admin’s e-mail: his sample sign-in now lands as the new Institute Admin', async () => {
+    const platform = await platformAfter('C');
+    const email = 'arjun.mehta@wilp.example';
+    expect(await signIn(platform, email)).toMatchObject({ landing: '/admin', role: 'super_admin' });
+    const people = Object.keys(worldOf(platform).records.people).length;
+    await assignSahyadri(platform, email);
+    expect(await signIn(platform, email)).toEqual(SAHYADRI_IA);
+    // No record was overwritten: the collision is the sign-in's resolution only.
+    expect(Object.keys(worldOf(platform).records.people)).toHaveLength(people);
+    expect(worldOf(platform).identities.superAdmins.map((admin) => admin.email)).toContain(email);
+  });
+
+  it('a role holder’s e-mail (the Content Manager): her sign-in now lands as the Institute Admin', async () => {
+    const platform = await platformAfter('C');
+    const email = 'kavya.nair@wilp.example';
+    expect(await signIn(platform, email)).toMatchObject({ role: 'content_manager' });
+    await assignSahyadri(platform, email);
+    expect(await signIn(platform, email)).toEqual(SAHYADRI_IA);
+  });
+
+  it('another institution’s Institute Admin: one e-mail, two Institute Admins — only one can sign in', async () => {
+    const platform = await platformAfter('C');
+    const email = 'meera.iyer@godavari.edu.in';
+    expect(await signIn(platform, email)).toMatchObject({
+      role: 'tenant_admin',
+      name: 'Meera Iyer',
+      institution: 'godavari',
+    });
+    await assignSahyadri(platform, email);
+    // The institution listed first wins: Meera Iyer now lands in Sahyadri's workspace.
+    expect(await signIn(platform, email)).toEqual(SAHYADRI_IA);
+  });
+
+  it('a Student’s e-mail: the Student keeps signing in, and the new Institute Admin never can', async () => {
+    const platform = await platformAfter('C');
+    const email = 'rahul.verma@godavari.edu.in';
+    expect(await signIn(platform, email)).toMatchObject({ role: 'student', name: 'Rahul Verma' });
+    await assignSahyadri(platform, email);
+    expect(await signIn(platform, email)).toMatchObject({ role: 'student', name: 'Rahul Verma' });
+  });
+
+  it('the approved demonstration’s e-mail collides with nobody on the spine-start world', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    expect(await signIn(platform, 'meera.iyer@godavari.edu.in')).toEqual({
+      kind: 'refused',
+      code: 'wrong-details',
+    });
+  });
+});

@@ -4,9 +4,10 @@
  * panel's decisions are the port's commands with the request's revision, refusals are shown as
  * they come, and every change is the shared world's — read back through the ports.
  */
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { messageFor } from '@xr/contracts/draft';
+import { type DecisionPage, messageFor } from '@xr/contracts/draft';
+import { asPersonId, seamsOf, visitorPorts } from '@xr/sample-platform/testing';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -377,6 +378,299 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
       kind: 'refused',
       code: 'institution-paused',
     });
+  });
+});
+
+describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 1E)', () => {
+  type Sample = Awaited<ReturnType<typeof tabPlatform>>['sample'];
+
+  /**
+   * The AD-14 review start recorded meanwhile (the CI-only seam, as the test-hook bridge's
+   * `startReview`): the request stays under review with a newer revision, and this page shows it.
+   */
+  async function reviewStartedElsewhere(runtime: PlatformRuntime, sample: Sample, id: string) {
+    const before = (await decisionOf(runtime, id)).request.rev;
+    seamsOf(sample).recordReviewStarted(id);
+    await act(() => runtime.invalidate([{ kind: 'REQ', id }]));
+    await waitFor(() =>
+      expect(screen.getByRole('region', { name: 'History' })).toHaveTextContent(
+        'BITS started reviewing',
+      ),
+    );
+    expect((await decisionOf(runtime, id)).request.rev).toBe(before + 1);
+  }
+
+  const heading = (decision: HTMLElement) =>
+    within(decision).getByRole('heading', { name: 'Your decision' });
+
+  it('Request more information composed before a change shown meanwhile: refused as stale, nothing written, the question kept', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    openDecision(runtime, 'REQ-0040');
+    const decision = await panel();
+    const user = userEvent.setup();
+    // The decision begins: its revision is the one the page shows now.
+    await user.click(within(decision).getByRole('radio', { name: /Request more information/ }));
+    const question = within(decision).getByLabelText(
+      'What do you need from the requester? (required)',
+    );
+    await user.type(question, 'Please confirm the size of the second section.');
+    await reviewStartedElsewhere(runtime, sample, 'REQ-0040');
+    const version = sample.worldVersion();
+    await user.click(
+      within(decision).getByRole('button', { name: 'Send request for information' }),
+    );
+    // The service refuses the revision the decision began with; nothing is written.
+    await waitFor(() => expect(heading(decision)).toHaveFocus());
+    expect(sample.worldVersion()).toBe(version);
+    const page = await decisionOf(runtime, 'REQ-0040');
+    expect(page.request.status).toBe('under-review');
+    expect(page.request.informationRequest).toBeNull();
+    // The panel shows the request as it is, with the decision being composed still in it.
+    expect(within(decision).getByRole('radio', { name: /Request more information/ })).toBeChecked();
+    expect(question).toHaveValue('Please confirm the size of the second section.');
+    expect(within(decision).queryByRole('alert')).toBeNull();
+    // Sent again, it goes with the revision now shown.
+    await user.click(
+      within(decision).getByRole('button', { name: 'Send request for information' }),
+    );
+    await waitFor(async () =>
+      expect((await decisionOf(runtime, 'REQ-0040')).request.status).toBe('information-requested'),
+    );
+    await waitFor(() => expect(decision).toHaveTextContent('Information requested'));
+  });
+
+  it('a confirmation open while the request changes elsewhere: it keeps its revision; confirming is refused, nothing written', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    openDecision(runtime, 'REQ-0040');
+    const decision = await panel();
+    const user = userEvent.setup();
+    await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
+    await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Approve REQ-0040?' });
+    const lines = [...dialog.querySelectorAll('li')].map((li) => li.textContent);
+    await reviewStartedElsewhere(runtime, sample, 'REQ-0040');
+    // Still open, naming the same decision.
+    expect(dialog).toBeVisible();
+    expect([...dialog.querySelectorAll('li')].map((li) => li.textContent)).toEqual(lines);
+    const version = sample.worldVersion();
+    await user.click(within(dialog).getByRole('button', { name: 'Approve request' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(heading(decision)).toHaveFocus());
+    expect(sample.worldVersion()).toBe(version);
+    const page = await decisionOf(runtime, 'REQ-0040');
+    expect(page.request.status).toBe('under-review');
+    expect(page.request.decision).toBeNull();
+    // A new confirmation begins from the request as now shown, and is accepted.
+    expect(within(decision).getByRole('radio', { name: /Approve request/ })).toBeChecked();
+    await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
+    const again = await screen.findByRole('dialog', { name: 'Approve REQ-0040?' });
+    await user.click(within(again).getByRole('button', { name: 'Approve request' }));
+    await waitFor(async () =>
+      expect((await decisionOf(runtime, 'REQ-0040')).request.status).toBe(
+        'approved-payment-required',
+      ),
+    );
+    await waitFor(() => expect(heading(decision)).toHaveFocus());
+  });
+
+  it('a smaller scope confirmed after a change shown meanwhile is refused as stale, and its scope is kept', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    openDecision(runtime, 'REQ-0040');
+    const decision = await panel();
+    const user = userEvent.setup();
+    await user.click(within(decision).getByRole('radio', { name: /Approve a smaller scope/ }));
+    await user.click(within(decision).getByRole('checkbox', { name: 'AR' }));
+    const reason = within(decision).getByLabelText('Reason for the change (required)');
+    await user.type(reason, 'AR is not part of the second section.');
+    await reviewStartedElsewhere(runtime, sample, 'REQ-0040');
+    await user.click(within(decision).getByRole('button', { name: 'Approve smaller scope' }));
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Approve a smaller scope for REQ-0040?',
+    });
+    const version = sample.worldVersion();
+    await user.click(within(dialog).getByRole('button', { name: 'Approve smaller scope' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(heading(decision)).toHaveFocus());
+    expect(sample.worldVersion()).toBe(version);
+    expect((await decisionOf(runtime, 'REQ-0040')).request.decision).toBeNull();
+    expect(within(decision).getByRole('checkbox', { name: 'AR' })).not.toBeChecked();
+    expect(reason).toHaveValue('AR is not part of the second section.');
+  });
+
+  it('decided in another session while the confirmation is open: nothing more is sent; the decided panel shows, focus on its heading', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    openDecision(runtime, 'REQ-0040');
+    const decision = await panel();
+    const user = userEvent.setup();
+    await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
+    await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
+    await screen.findByRole('dialog', { name: 'Approve REQ-0040?' });
+    const opened = await decisionOf(runtime, 'REQ-0040');
+    const elsewhere = await asPersonId(sample, SUPER_ADMIN).accessRequests.requestMoreInformation({
+      id: opened.request.id,
+      reason: 'Asked from another tab.',
+      expectedRev: opened.request.rev,
+    });
+    if (!elsewhere.ok) throw new Error(elsewhere.error.kind);
+    const version = sample.worldVersion();
+    await act(() => runtime.invalidate(elsewhere.changed));
+    await waitFor(() => expect(decision).toHaveTextContent('Information requested'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    await waitFor(() => expect(heading(decision)).toHaveFocus());
+    expect(sample.worldVersion()).toBe(version);
+    expect((await decisionOf(runtime, 'REQ-0040')).request.decision).toBeNull();
+  });
+
+  /** A new institution's request (REQ-0042), sent by a visitor of this world, for these formats. */
+  async function publicRequest(
+    sample: Sample,
+    experiments: Readonly<Record<string, readonly ('web' | 'vr')[]>>,
+  ) {
+    const visitor = visitorPorts(sample);
+    for (const [experimentId, formats] of Object.entries(experiments)) {
+      const added = visitor.selection.add({ experimentId: experimentId as never, formats });
+      if (!added.ok) throw new Error(added.error.kind);
+    }
+    const sent = await visitor.accessRequests.submitPublicRequest({
+      institutionName: 'Godavari Institute of Technology',
+      contactPerson: 'Meera Iyer',
+      email: 'meera.iyer@godavari.edu.in',
+      phone: null,
+      licencesRequested: '120',
+      message: null,
+      term: { kind: 'yearly' },
+    });
+    if (!sent.ok) throw new Error(sent.error.kind);
+    return sent.value.reference;
+  }
+
+  it('the confirmation sends the decision it names, even when the page is read again with other facts meanwhile', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    const reference = await publicRequest(sample, { 'shell-and-tube-heat-exchanger': ['web'] });
+    openDecision(runtime, reference);
+    const decision = await panel();
+    const user = userEvent.setup();
+    await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
+    await user.click(document.querySelector('label[for="decision-route-internal"]')!);
+    await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
+    const dialog = await screen.findByRole('dialog', { name: `Approve ${reference}?` });
+    const lines = [...dialog.querySelectorAll('li')].map((li) => li.textContent);
+    expect(lines.join(' ')).toContain('Internal');
+    // A newer read of the page that says other things — its route already External, its record
+    // created — written into the cache (no Phase-1 command can change a request's own route while
+    // it is open; this stands for any read that answers differently).
+    act(() => {
+      runtime.queryClient.setQueriesData<{ ok: true; value: DecisionPage }>(
+        {
+          predicate: (query) =>
+            query.queryKey[2] === 'REQ' &&
+            query.queryKey[3] === 'decision' &&
+            query.queryKey[4] === reference,
+        },
+        (answer) =>
+          answer && {
+            ...answer,
+            value: {
+              ...answer.value,
+              routeCommitted: 'external',
+              whereItStands: { ...answer.value.whereItStands, institutionRecord: 'created' },
+            },
+          },
+      );
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('region', { name: 'Summary' })).toHaveTextContent('External'),
+    );
+    // The page shows the newer read; the confirmation names what it opened with, and sends it.
+    expect([...dialog.querySelectorAll('li')].map((li) => li.textContent)).toEqual(lines);
+    await user.click(within(dialog).getByRole('button', { name: 'Approve request' }));
+    await waitFor(async () =>
+      expect((await decisionOf(runtime, reference)).request.status).toBe('access-active'),
+    );
+    expect((await decisionOf(runtime, reference)).request.decision).toMatchObject({
+      route: 'internal',
+    });
+  });
+
+  it('an open policy (REQ-19: narrowing a request of several experiments): nothing written, the decision kept, focus back on its button — as before Package 1E', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    const reference = await publicRequest(sample, {
+      'shell-and-tube-heat-exchanger': ['web', 'vr'],
+      'distillation-column': ['web'],
+    });
+    openDecision(runtime, reference);
+    const decision = await panel();
+    const user = userEvent.setup();
+    await user.click(within(decision).getByRole('radio', { name: /Approve a smaller scope/ }));
+    await user.click(document.querySelector('label[for="decision-route-external"]')!);
+    // The first experiment narrowed to WEB: a request of two experiments (REQ-19 is OPEN).
+    const vr = within(decision).getByRole('checkbox', { name: 'VR' });
+    await user.click(vr);
+    const reason = within(decision).getByLabelText('Reason for the change (required)');
+    await user.type(reason, 'One section for now.');
+    const trigger = within(decision).getByRole('button', { name: 'Approve smaller scope' });
+    await user.click(trigger);
+    const dialog = await screen.findByRole('dialog', {
+      name: `Approve a smaller scope for ${reference}?`,
+    });
+    const version = sample.worldVersion();
+    await user.click(within(dialog).getByRole('button', { name: 'Approve smaller scope' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
+    expect(sample.worldVersion()).toBe(version);
+    expect((await decisionOf(runtime, reference)).request.status).toBe('under-review');
+    expect(vr).not.toBeChecked();
+    expect(reason).toHaveValue('One section for now.');
+    expect(within(decision).queryByRole('alert')).toBeNull();
+  });
+
+  it('paused in another session while the confirmation is open: it goes, nothing is sent, focus on the panel’s heading', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    openDecision(runtime, 'REQ-0040');
+    const decision = await panel();
+    const user = userEvent.setup();
+    await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
+    await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
+    await screen.findByRole('dialog', { name: 'Approve REQ-0040?' });
+    const detail = await runtime.ports.institutions.getInstitution('konark' as never);
+    if (!detail.ok) throw new Error(detail.error.kind);
+    const paused = await asPersonId(sample, SUPER_ADMIN).institutions.pauseInstitution({
+      institutionId: 'konark' as never,
+      reason: 'Licence review.',
+      expectedRev: detail.value.institution.rev,
+    });
+    if (!paused.ok) throw new Error(paused.error.kind);
+    const version = sample.worldVersion();
+    await act(() => runtime.invalidate(paused.changed));
+    await waitFor(() => expect(decision).toHaveTextContent('This institution is paused'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    await waitFor(() => expect(heading(decision)).toHaveFocus());
+    expect(sample.worldVersion()).toBe(version);
+    expect((await decisionOf(runtime, 'REQ-0040')).request.status).toBe('under-review');
+  });
+
+  it('paused in another session while a question is being typed: the controls go, focus moves to the panel’s heading', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    openDecision(runtime, 'REQ-0040');
+    const decision = await panel();
+    const user = userEvent.setup();
+    await user.click(within(decision).getByRole('radio', { name: /Request more information/ }));
+    await user.type(
+      within(decision).getByLabelText('What do you need from the requester? (required)'),
+      'Please confirm',
+    );
+    const detail = await runtime.ports.institutions.getInstitution('konark' as never);
+    if (!detail.ok) throw new Error(detail.error.kind);
+    const paused = await asPersonId(sample, SUPER_ADMIN).institutions.pauseInstitution({
+      institutionId: 'konark' as never,
+      reason: 'Licence review.',
+      expectedRev: detail.value.institution.rev,
+    });
+    if (!paused.ok) throw new Error(paused.error.kind);
+    await act(() => runtime.invalidate(paused.changed));
+    await waitFor(() => expect(decision).toHaveTextContent('This institution is paused'));
+    expect(within(decision).queryAllByRole('textbox')).toHaveLength(0);
+    await waitFor(() => expect(heading(decision)).toHaveFocus());
   });
 });
 

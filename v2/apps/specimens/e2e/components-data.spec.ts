@@ -519,18 +519,22 @@ test.describe('Tabs (03, 11, 12 "Keyboard and focus", B7-02)', () => {
     );
     await ready(page, 'c-tabs-375', 343);
     const nav = frame(page).getByRole('navigation', { name: 'People sections' });
-    const geometry = await nav.evaluate((strip) => {
-      const tab = strip.querySelector('[aria-current="page"]')!;
-      const [s, t] = [strip.getBoundingClientRect(), tab.getBoundingClientRect()];
-      return {
-        overflows: strip.scrollWidth > strip.clientWidth,
-        scrollLeft: strip.scrollLeft,
-        inView: t.left >= s.left && t.right <= s.right,
-        name: tab.textContent,
-      };
-    });
-    expect(geometry).toMatchObject({ overflows: true, inView: true, name: 'Faculty courses' });
-    expect(geometry.scrollLeft).toBeGreaterThan(0);
+    // Polled, not read once: the web fonts load in batches and `fonts.ready` can resolve before
+    // the tabs' semibold and bold faces arrive (Package 1E); the strip re-aligns after each batch.
+    await expect
+      .poll(() =>
+        nav.evaluate((strip) => {
+          const tab = strip.querySelector('[aria-current="page"]')!;
+          const [s, t] = [strip.getBoundingClientRect(), tab.getBoundingClientRect()];
+          return {
+            overflows: strip.scrollWidth > strip.clientWidth,
+            scrolled: strip.scrollLeft > 0,
+            inView: t.left >= s.left && t.right <= s.right,
+            name: tab.textContent,
+          };
+        }),
+      )
+      .toEqual({ overflows: true, scrolled: true, inView: true, name: 'Faculty courses' });
     // The page itself did not scroll sideways or down to bring it into view.
     expect(await page.evaluate(() => [window.scrollX, window.scrollY])).toEqual([0, 0]);
     // Tab reaches every tab, and the browser keeps the focused one in view.

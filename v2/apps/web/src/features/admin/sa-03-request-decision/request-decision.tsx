@@ -25,7 +25,15 @@ import {
   TextInput,
   Timeline,
 } from '@xr/ui';
-import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   CONFIRM_LINES,
@@ -65,6 +73,8 @@ import { RequestStatusPill } from '../shared/request-status';
 import {
   type ApprovedTerm,
   type DecisionChoice,
+  type DecisionCommand,
+  decisionCommand,
   type DecisionDraft,
   differencesOf,
   draftErrors,
@@ -82,7 +92,6 @@ import {
   type PanelErrors,
   pendingHint,
   requestedFormatsOf,
-  smallerScopeItems,
   standRows,
   termValue,
 } from './decision-view';
@@ -97,13 +106,16 @@ const PANEL_ID = 'decision';
  *   the published catalogue. Opening the page changes nothing: review start stays the seeded or
  *   test-only fact (AD-14 / P1-04, owner interim).
  * - **Decide**: Approve request · Approve a smaller scope · Request more information, each the
- *   port's command through `useCommand` with the request's revision (`expectedRev`). The panel runs
- *   B1-11's drawn checks before a confirmation opens; the command checks again and its refusals
- *   are shown as they come: field errors in "Check your decision"; a request that moved on, a
- *   stale revision or a pause refetches the page, which then shows its current drawn state (P1-21
- *   interim). Approvals confirm first (DL-1, "what approving does — and does not do"); a request
- *   for information does not (B1-11 f6 → f12). After a decision the panel shows the decided state
- *   and focus moves to its heading.
+ *   port's command through `useCommand` with the request's revision from when the decision began
+ *   (`expectedRev`: the first change to the form, or the press that sends it or opens its
+ *   confirmation), never a newer read. The panel runs B1-11's drawn checks before a confirmation
+ *   opens; the command checks again and its refusals are shown as they come: field errors in
+ *   "Check your decision"; a request that moved on, a stale revision or a pause writes nothing and
+ *   refetches the page, which then shows its current drawn state, with focus on the panel's
+ *   heading (P1-21 interim; state-copy `SA-03.moved-on`). Approvals confirm first (DL-1, "what
+ *   approving does — and does not do"), and the confirmation sends exactly the decision it names,
+ *   fixed when it opened; a request for information does not confirm (B1-11 f6 → f12). After a
+ *   decision the panel shows the decided state and focus moves to its heading.
  * - **Panels** (B1-11 `open`, `blocked`, `done`): open while under review; "This institution is
  *   paused" with no decision controls while its institution is paused (f14), and its "View
  *   institution" link (SA-07, Package 1D); decided otherwise.
@@ -174,6 +186,16 @@ function DecisionContent({
   const focusTitle = () => {
     window.setTimeout(() => titleRef.current?.focus(), 0);
   };
+  // Focus to the panel's heading when the open panel asks for it — after a refusal because the
+  // request moved on, or when a change made elsewhere ends the panel while one of its controls has
+  // focus (the request decided, or its institution paused, in another session). Moved in an effect:
+  // in the same commit the confirmation's own close has given focus back to its trigger (a child's
+  // effect runs first), so this request wins (as SA-07).
+  const [headingFocus, setHeadingFocus] = useState(0);
+  useEffect(() => {
+    if (headingFocus > 0) titleRef.current?.focus();
+  }, [headingFocus]);
+  const focusHeading = () => setHeadingFocus((count) => count + 1);
 
   return (
     <>
@@ -205,7 +227,17 @@ function DecisionContent({
           position: 'sticky',
           children:
             kind === 'open' ? (
-              <OpenPanel page={page} onDecided={focusTitle} onMovedOn={refetch} />
+              <OpenPanel
+                page={page}
+                titleRef={titleRef}
+                onDecided={focusTitle}
+                onReread={refetch}
+                onMovedOn={() => {
+                  refetch();
+                  focusHeading();
+                }}
+                onFocusLost={focusHeading}
+              />
             ) : kind === 'blocked' ? (
               <Notice
                 tone="warn"
@@ -434,21 +466,47 @@ function FourEvents() {
 
 // ---- the open panel (B1-11 f0 … f8, f13) ----
 
+/**
+ * An open confirmation: the page and the decision as they stood when it opened, and the command
+ * built from them — what the confirmation names is what it sends.
+ */
+interface Confirmation {
+  readonly page: DecisionPage;
+  readonly draft: DecisionDraft;
+  readonly command: DecisionCommand;
+}
+
 function OpenPanel({
   page,
+  titleRef,
   onDecided,
+  onReread,
   onMovedOn,
+  onFocusLost,
 }: {
   readonly page: DecisionPage;
+  /** The panel's heading: where focus goes when the confirmation's trigger is gone on close. */
+  readonly titleRef: RefObject<HTMLHeadingElement | null>;
   /** A decision was recorded: the decided panel will show, with focus on its heading. */
   readonly onDecided: () => void;
-  /** The request moved on, or its revision is stale: read it again (P1-21 interim). */
+  /** Read the page again, focus staying where it is (an open policy: nothing to show). */
+  readonly onReread: () => void;
+  /** The request moved on, or its revision is stale: read it again, focus on the heading (P1-21). */
   readonly onMovedOn: () => void;
+  /** The panel is going while one of its controls has focus: focus on the heading instead. */
+  readonly onFocusLost: () => void;
 }) {
   const { request } = page;
   const [draft, setDraft] = useState<DecisionDraft>(EMPTY_DRAFT);
+  /**
+   * The request's revision when this decision began — the first change to the form, or the press
+   * that sends it or opens its confirmation — kept through the confirmation and never replaced by
+   * a newer read. A refusal because the request moved on releases it: the next attempt begins from
+   * the request as the page then shows it.
+   */
+  const [basis, setBasis] = useState<number | null>(null);
   const [errors, setErrors] = useState<PanelErrors>({});
-  const [confirming, setConfirming] = useState(false);
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const errorsRef = useRef<HTMLDivElement>(null);
   /** "Check your decision" takes focus once it has rendered (B1-11 `focus(pid + '-errs')`). */
   const focusErrors = useRef(false);
@@ -464,7 +522,31 @@ function OpenPanel({
     errorsRef.current?.focus();
   });
 
+  // When the panel goes (a change made elsewhere ended it), its controls go with it: if one of
+  // them has focus — the panel's own heading and frame excepted — the page asks for focus on the
+  // heading. A layout cleanup runs before the panel's elements leave the document.
+  const lost = useRef(onFocusLost);
+  useLayoutEffect(() => {
+    lost.current = onFocusLost;
+  });
+  useLayoutEffect(
+    () => () => {
+      const frame = document.getElementById(PANEL_ID);
+      const active = document.activeElement;
+      if (
+        frame &&
+        active &&
+        active !== frame &&
+        active !== titleRef.current &&
+        frame.contains(active)
+      )
+        lost.current();
+    },
+    [titleRef],
+  );
+
   const update = (patch: Partial<DecisionDraft>, clear: readonly (keyof PanelErrors)[] = []) => {
+    setBasis((current) => current ?? request.rev);
     setDraft((current) => ({ ...current, ...patch }));
     if (clear.length > 0) {
       setErrors((current) => {
@@ -483,7 +565,7 @@ function OpenPanel({
 
   /** What a refusal of a command means for the panel (refusals are values, ADR-0008). */
   const handleAnswer = (answer: Result<unknown, ServiceError>) => {
-    setConfirming(false);
+    setConfirmation(null);
     if (answer.ok) {
       onDecided();
       return;
@@ -493,10 +575,28 @@ function OpenPanel({
       showErrors(panelErrorsOf(error.fieldErrors));
       return;
     }
-    // Moved on, stale, paused, not adjustable, not found: the page is read again and shows the
-    // request's current drawn state (P1-21 interim; B1-11 f13, f14). A policy that is still open
-    // (T-03, REQ-19) writes nothing and has no drawn state here (state-copy `SA-03.policy-open`).
+    // A policy that is still open (T-03, REQ-19) writes nothing and has no drawn state here: the
+    // page is read again and the decision stays as it is (state-copy `SA-03.policy-open`).
+    if (error.kind === 'policy-open') {
+      onReread();
+      return;
+    }
+    // Moved on, stale, paused, not adjustable, not found: nothing was written; the page is read
+    // again and shows the request's current drawn state (P1-21 interim; B1-11 f13, f14), and the
+    // decision's revision is released (state-copy `SA-03.moved-on`).
+    setBasis(null);
     onMovedOn();
+  };
+
+  /** Sends a command; `unavailable` (thrown) changes nothing and keeps the decision as it is. */
+  const send = (command: DecisionCommand) => {
+    const sent =
+      command.choice === 'approve'
+        ? approve.run(command.input)
+        : command.choice === 'smaller'
+          ? smaller.run(command.input)
+          : information.run(command.input);
+    sent.then(handleAnswer, () => setConfirmation(null));
   };
 
   const go = () => {
@@ -506,46 +606,28 @@ function OpenPanel({
       return;
     }
     setErrors({});
-    if (draft.choice === 'info') {
-      information
-        .run({ id: request.id, reason: draft.reason, expectedRev: request.rev })
-        .then(handleAnswer, () => undefined);
-      return;
-    }
-    setConfirming(true);
-  };
-
-  const confirm = () => {
-    const route = page.routeCommitted === null ? draft.route : null;
-    if (draft.choice === 'smaller') {
-      smaller
-        .run({
-          id: request.id,
-          route,
-          items: smallerScopeItems(page, draft),
-          licences: licencesValue(page, draft),
-          term: termValue(page, draft),
-          reason: draft.reason,
-          expectedRev: request.rev,
-        })
-        .then(handleAnswer, () => setConfirming(false));
-      return;
-    }
-    approve
-      .run({ id: request.id, route, expectedRev: request.rev })
-      .then(handleAnswer, () => setConfirming(false));
+    const expectedRev = basis ?? request.rev;
+    setBasis(expectedRev);
+    const command = decisionCommand(page, draft, expectedRev);
+    if (!command) return;
+    // A request for information is sent as it is (B1-11 f6 → f12); an approval confirms first.
+    if (command.choice === 'info') send(command);
+    else setConfirmation({ page, draft, command });
   };
 
   const listed = errorList(errors);
   const pending = pendingHint(page, draft);
   const differences = draft.choice === 'smaller' ? differencesOf(page, draft) : [];
-  const route = page.routeCommitted ?? draft.route;
-  const goLabel =
-    draft.choice === 'info'
+  const labelOf = (choice: DecisionChoice | null) =>
+    choice === 'info'
       ? DECISION_ACTIONS.info
-      : draft.choice === 'smaller'
+      : choice === 'smaller'
         ? DECISION_ACTIONS.smaller
         : DECISION_ACTIONS.approve;
+  const goLabel = labelOf(draft.choice);
+  // What the dialog names: the confirmation's own page and decision while it is open (the page
+  // may be read again meanwhile); closed, the panel's, as before.
+  const named = confirmation ?? { page, draft };
 
   return (
     <>
@@ -678,16 +760,23 @@ function OpenPanel({
         {goLabel}
       </Button>
       <ConfirmDialog
-        open={confirming}
+        open={confirmation !== null}
         align="decision"
         idPrefix="decision-confirm"
-        title={confirmTitle(draft.choice === 'smaller', request.id)}
-        effects={confirmEffects(page, draft, route)}
-        confirmLabel={goLabel}
+        title={confirmTitle(named.draft.choice === 'smaller', named.page.request.id)}
+        effects={confirmEffects(
+          named.page,
+          named.draft,
+          named.page.routeCommitted ?? named.draft.route,
+        )}
+        confirmLabel={labelOf(named.draft.choice)}
         busy={busy}
-        busyLabel={goLabel}
-        onConfirm={confirm}
-        onCancel={() => setConfirming(false)}
+        busyLabel={labelOf(named.draft.choice)}
+        returnFocusFallback={titleRef}
+        onConfirm={() => {
+          if (confirmation) send(confirmation.command);
+        }}
+        onCancel={() => setConfirmation(null)}
       />
     </>
   );
