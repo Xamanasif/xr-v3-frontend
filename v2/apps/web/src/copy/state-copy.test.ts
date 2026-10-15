@@ -21,7 +21,7 @@ describe('the state-copy register', () => {
   it.each(entries)('%s: words or a rule, a basis, a status', (_, entry) => {
     expect(entry.words === null ? Boolean(entry.rule) : entry.words.length > 0).toBe(true);
     expect(entry.basis.length).toBeGreaterThan(10);
-    if (entry.status === 'provisional') expect(entry.decisions?.length).toBeGreaterThan(0);
+    if (entry.status !== 'drawn') expect(entry.decisions?.length).toBeGreaterThan(0);
   });
 
   it.each(entries.filter(([, entry]) => entry.status === 'drawn'))(

@@ -150,6 +150,32 @@ a person does and settles each capture:
   whole frames, where DEV-21 / DEV-26 no longer apply) by merging entries computed as `pin.mjs`
   computes them from one reviewed run; every other pin is byte-identical (83 of 83).
 
+## Package-1D capture steps (spec side; `apps/web/e2e/parity/b7-package-1d.parity.ts`)
+
+No harness module, tolerance or mask changed for Package 1D. Its spec compares B7-01 (SA-01's
+Phase-1 Requests group and calm state), B7-02 (SA-06), B7-03 (SA-07, every drawn state) and B7-04
+f0 against the test-hook build as the Super Admin:
+
+- **States.** The world is the walk after Flow C (opening 27 Oct 2026), whose seven institutions
+  stand as the B7 boards draw them; the calm Overview is the spine-start world with its two requests
+  under review answered through the CI-only `actAs`. The dialogs' and the status change's drawn
+  errors come from pressing their confirm buttons with the fields as drawn.
+- **Selectors that read the same on both pages.** An institution's row is found by its name
+  (`tbody tr:has(td.is-primary strong:text-is(…))`) and a section by its heading
+  (`section.xr-section:has(> .xr-section-head > h2.xr-h2:text-is(…))`): Playwright's
+  `filter({ has })` with a locator rooted elsewhere never matched inside a board frame.
+- **The tab strip at its start.** B7-02 f2 is a still frame of the 720 px tab strip at its start
+  (the selected tab beyond its right edge); the click that selects "No Institute Admin" scrolls the
+  strip, so the spec puts it back at the start before the capture.
+- **Sidebars.** The sidebar is as tall as the page, so a sidebar comparison names, beside DEV-21,
+  the entries that make the page shorter or taller than the board's.
+- **Settled captures** as in Package 1C (the harness's sub-pixel rule applied first, one capture
+  thrown away).
+- **Pins.** Package 1D added its pins and re-measured the Super Admin sidebar's (B1-10 f0 and board
+  05), which now lists Overview and Institutions, by merging entries computed as `pin.mjs` computes
+  them from reviewed runs (three B7-01 entries were pinned again when DEV-22 was named on them, with
+  the same measurements); every other pin is byte-identical.
+
 ## Running
 
 Build first (`pnpm build` and `pnpm --filter @xr/web build:test-hooks` at `v2/`; `pnpm verify` does

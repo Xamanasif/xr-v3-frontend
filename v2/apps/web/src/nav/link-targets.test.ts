@@ -35,8 +35,11 @@ describe('the link-target ledger', () => {
         'PU-10',
         'PU-12',
         'PU-15',
+        'SA-01',
         'SA-02',
         'SA-03',
+        'SA-06',
+        'SA-07',
       ]),
     );
     const keys = LINK_TARGET_LEDGER.map(
@@ -61,9 +64,10 @@ describe('the link-target ledger', () => {
 
   it('a drawn action whose page is not built is not rendered, and names that unbuilt page', () => {
     const hidden = LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'not-rendered');
-    // Every way into PU-07 renders since Package 1C built it; the institution detail is Package 1D.
+    // Every way into PU-07 renders since Package 1C built it, SA-03's "View institution" since
+    // Package 1D built SA-07; SA-07's Operations rows wait for Operations (Phases 3 and 6).
     expect(hidden.map((entry) => `${entry.screen} ${entry.action}`)).toEqual([
-      'SA-03 View institution',
+      'SA-07 Operations · Operations › Access ending',
     ]);
     for (const entry of hidden) {
       const kind = resolveAddress(expandTarget(entry.target!, '/admin')).kind;
@@ -72,7 +76,7 @@ describe('the link-target ledger', () => {
     }
   });
 
-  it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help', () => {
+  it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to the Super Admin’s built Overview', () => {
     const homes = LINK_TARGET_LEDGER.filter((item) => item.outcome === 'interim-landing');
     expect(homes.map((entry) => entry.action)).toEqual([
       'Back to Home',
@@ -81,11 +85,11 @@ describe('the link-target ledger', () => {
     ]);
     for (const entry of homes) {
       for (const base of BASES) {
-        expect(resolveAddress(expandTarget(entry.target!, base))).toEqual({
-          kind: 'interim-landing',
-          workspace: base.slice(1),
-          lands: `${base}/help`,
-        });
+        expect(resolveAddress(expandTarget(entry.target!, base))).toEqual(
+          base === '/admin'
+            ? { kind: 'record-screen', workspace: 'admin', screen: 'SA-01' }
+            : { kind: 'interim-landing', workspace: base.slice(1), lands: `${base}/help` },
+        );
       }
     }
   });
@@ -220,6 +224,9 @@ describe('the link-target ledger', () => {
       'XS-07: View my reports',
       'XS-01: Sign in',
       'SA-03: (the panel’s button: Approve request · Approve smaller scope · Send request for information)',
+      // Package 1D: SA-07's one primary per drawn state — no Institute Admin (B7-03 f1), paused (f2).
+      'SA-07: Assign Institute Admin',
+      'SA-07: Restore access',
       'PU-01: Browse experiments',
       'PU-03: Browse N experiments',
       'PU-06: Add to selection',

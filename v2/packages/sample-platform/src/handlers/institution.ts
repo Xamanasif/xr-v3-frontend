@@ -4,15 +4,23 @@
  * Pause changes the institution's one stored fact; work, grants and progress are untouched
  * (B7-04; invariant 4). Assigning an Institute Admin sends nothing (T-11); replacing one is
  * INST-06 (`policy-open`). Licences are shown as provided — never counted (T-06).
+ *
+ * `listInstitutions` (SA-06) was built by Phase-1 Package 1D (ledger `PACKAGE_DELIVERIES`): the
+ * rows are read from the same records and status rules as `getInstitution`, so the list and the
+ * detail always agree.
  */
 import {
   assignInstituteAdminInput,
+  type INSTITUTION_TABS,
+  type InstitutionRow,
   type InstitutionService,
+  listInstitutionsInput,
   overrideStudentStatusInput,
   pauseInstitutionInput,
   restoreInstitutionInput,
 } from '@xr/contracts/draft';
 import {
+  type AccessPlan,
   accessPlanStatus,
   type AccessPlanItem,
   assignInstituteAdmin,
@@ -20,6 +28,7 @@ import {
   iaContentAccess,
   type Institution,
   institutionStatus,
+  type InstitutionStatus,
   overrideStudentStatus,
   pauseInstitution,
   restoreInstitution,
@@ -65,6 +74,76 @@ function studentsGiven(op: Op, planId: string): number {
     }
   }
   return reached.size;
+}
+
+/**
+ * "Needs one" (B7-02): no Institute Admin while access is active, ending soon or paused — the
+ * states in which `assignInstituteAdmin` assigns one (INST-04; it refuses `access-not-active`
+ * before activation and after access ended, INST-05, INST-09).
+ */
+function needsInstituteAdmin(institution: Institution, status: InstitutionStatus): boolean {
+  return (
+    institution.instituteAdmin === null &&
+    (status === 'access-active' || status === 'ending-soon' || status === 'access-paused')
+  );
+}
+
+/** Newest plan first (by activation; the reference breaks a tie). */
+function newestPlanFirst(a: AccessPlan, b: AccessPlan): number {
+  if (a.activatedAt !== b.activatedAt) return a.activatedAt < b.activatedAt ? 1 : -1;
+  return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
+}
+
+/** SA-06 row: the institution's facts as `getInstitution` reads them (B7-02). */
+function institutionRowOf(op: Op, institution: Institution): InstitutionRow {
+  const records = op.records;
+  const plans = plansOf(records, institution.id).sort(newestPlanFirst);
+  const status = institutionStatus(institution, plans, op.now);
+  const ends = plans.map((plan) => plan.endsOn).sort();
+  return {
+    id: institution.id,
+    name: institution.name,
+    kind: institution.kind,
+    status,
+    instituteAdminName: institution.instituteAdmin?.name ?? null,
+    needsInstituteAdmin: needsInstituteAdmin(institution, status),
+    accessEndsOn: ends.at(-1) ?? null,
+    plans: plans.map((plan) => ({
+      id: plan.id,
+      courseCount: new Set(
+        plan.items.flatMap((item) => records.experiments[item.experimentId]?.courseId ?? []),
+      ).size,
+      experimentCount: plan.items.length,
+    })),
+    requestedExperimentCount: records.requests[institution.createdFromRequestId]?.items.length ?? 0,
+  };
+}
+
+/** The B7-02 status tabs (`match`): "Access active" also holds the institutions ending soon. */
+function inTab(row: InstitutionRow, tab: (typeof INSTITUTION_TABS)[number]): boolean {
+  switch (tab) {
+    case 'all':
+      return true;
+    case 'access-active':
+      return row.status === 'access-active' || row.status === 'ending-soon';
+    case 'no-institute-admin':
+      return row.needsInstituteAdmin;
+    default:
+      return row.status === tab;
+  }
+}
+
+/**
+ * "Institution, access plan or Institute Admin" (B7-02 search), ignoring case: the words as one
+ * line — name, plan references, Institute Admin — as B7-02's script joins them (`r.name + ' ' +
+ * r.plan + ' ' + r.ia`), so a search may run across two of them ("Technology ACC-0107").
+ */
+function matchesSearch(row: InstitutionRow, search: string): boolean {
+  if (search === '') return true;
+  return [row.name, ...row.plans.map((plan) => plan.id), row.instituteAdminName ?? '']
+    .join(' ')
+    .toLocaleLowerCase('en')
+    .includes(search);
 }
 
 function pauseOrRestore(call: Call, which: 'pause' | 'restore') {
@@ -114,7 +193,28 @@ function pauseOrRestore(call: Call, which: 'pause' | 'restore') {
 
 export function institutionPort(call: Call): InstitutionService {
   return {
-    listInstitutions: deferred('InstitutionService.listInstitutions'),
+    listInstitutions: (filter) =>
+      read(call, 'InstitutionService.listInstitutions', (op) => {
+        const person = op.person();
+        const accepted = op.parse(listInstitutionsInput, filter);
+        const search = accepted.search?.trim().toLocaleLowerCase('en') ?? '';
+        // The method's audience is SA-06's workspace (`op.person()`): the Super Admin, who sees
+        // every institution (INST-03). The record created last comes first (PC-36: no sort control
+        // is drawn).
+        return values(op.records.institutions)
+          .filter((institution) =>
+            op.canSee(person, { kind: 'institution', institutionId: institution.id }),
+          )
+          .sort((a, b) =>
+            a.createdAt === b.createdAt
+              ? a.name.localeCompare(b.name, 'en')
+              : a.createdAt < b.createdAt
+                ? 1
+                : -1,
+          )
+          .map((institution) => institutionRowOf(op, institution))
+          .filter((row) => inTab(row, accepted.tab) && matchesSearch(row, search));
+      }),
     getMyOverview: deferred('InstitutionService.getMyOverview'),
 
     getInstitution: (id) =>
@@ -138,6 +238,8 @@ export function institutionPort(call: Call): InstitutionService {
               name: student.fullName,
               institutionStudentId: student.institutionStudentId,
               status: student.accountStatus,
+              // The record's own revision: "Change status" sends it as `expectedRev` (PC-37).
+              rev: student.rev,
             })),
           },
           report: [...usageOf(op, institution)],

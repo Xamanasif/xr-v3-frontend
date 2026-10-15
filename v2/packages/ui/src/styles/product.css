@@ -746,3 +746,14 @@ a[target='_blank']:not([class]) > .xr-ico {
 .xp-fsheet-panel {
   scroll-padding-bottom: 80px;
 }
+
+/* ===========================================================================================
+ * PF-23 · The all-clear tint of an empty state (Phase-1 Package 1D; narrow correction awaiting
+ * the owner's acknowledgement, as PF-15's). B7-01 f1 "Nothing is waiting" (SA-01) and B7-10 f15
+ * draw `span.xr-empty-icon style="background:#E8F4EC;color:#1D6B45"` (= --xr-ok-bg, --xr-ok) over
+ * xr-foundation.css `.xr-empty-icon{…;background:#EEF0F8;color:#141B5E}` (kept as the default).
+ * =========================================================================================== */
+.xr-empty-icon.xr-x-empty-icon--ok {
+  background: var(--xr-ok-bg);
+  color: var(--xr-ok);
+}

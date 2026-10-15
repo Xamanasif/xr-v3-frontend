@@ -53,6 +53,7 @@ import {
   unnamedExperiment,
 } from '@/copy/requests';
 import { stateWords } from '@/copy/state-copy';
+import { institutionAddress } from '@/nav/institutions';
 import { decisionPlacement, REQUESTS_ADDRESS } from '@/nav/requests';
 import { useRequestForDecision } from '@/queries/access-requests';
 import { usePublishedCatalogue } from '@/queries/catalogue';
@@ -104,7 +105,8 @@ const PANEL_ID = 'decision';
  *   for information does not (B1-11 f6 → f12). After a decision the panel shows the decided state
  *   and focus moves to its heading.
  * - **Panels** (B1-11 `open`, `blocked`, `done`): open while under review; "This institution is
- *   paused" with no decision controls while its institution is paused (f14); decided otherwise.
+ *   paused" with no decision controls while its institution is paused (f14), and its "View
+ *   institution" link (SA-07, Package 1D); decided otherwise.
  *   A renewal's smaller scope is shown unavailable with its reason (f13; T-07, D8).
  * - **Layout**: details ~72 % and the sticky decision panel ~28 % from 860 px of content; below,
  *   the panel follows the details and "Go to decision" at the top moves focus to it (VD-05: B1-11
@@ -205,7 +207,18 @@ function DecisionContent({
             kind === 'open' ? (
               <OpenPanel page={page} onDecided={focusTitle} onMovedOn={refetch} />
             ) : kind === 'blocked' ? (
-              <Notice tone="warn" icon="paused" title={PAUSED_BLOCK.title}>
+              <Notice
+                tone="warn"
+                icon="paused"
+                title={PAUSED_BLOCK.title}
+                actions={
+                  request.institutionId ? (
+                    <Link href={institutionAddress(request.institutionId)}>
+                      {PAUSED_BLOCK.viewInstitution}
+                    </Link>
+                  ) : undefined
+                }
+              >
                 {PAUSED_BLOCK.line}
               </Notice>
             ) : (

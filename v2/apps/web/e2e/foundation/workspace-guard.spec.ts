@@ -71,12 +71,22 @@ for (const { person, other } of PAIRS) {
       expect(text).not.toContain(leak.toLowerCase());
     }
 
-    // "Back to Home": the person's own base, then their Help — client-side, the same world.
+    // "Back to Home": the person's own base — their Help until their home is built; the Super
+    // Admin's Overview (SA-01) since Package 1D — client-side, the same world.
     const mark = await markDocument(page);
     await message.getByRole('link', { name: 'Back to Home' }).click();
-    await page.waitForURL(`**${person.base}/help`);
-    await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
-    await expect(sidebarHelp(page)).toHaveAttribute('aria-current', 'page');
+    if (person.role === 'super_admin') {
+      await page.waitForURL(`**${person.base}`);
+      await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
+      await expect(page.locator('aside.xr-side a[aria-current="page"]')).toHaveAttribute(
+        'href',
+        person.base,
+      );
+    } else {
+      await page.waitForURL(`**${person.base}/help`);
+      await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
+      await expect(sidebarHelp(page)).toHaveAttribute('aria-current', 'page');
+    }
     await expectSameDocument(page, mark);
   });
 }

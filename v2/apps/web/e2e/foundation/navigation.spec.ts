@@ -166,7 +166,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
   });
 });
 
-test('the sidebar offers built destinations only: Help, and the Super Admin’s Requests (B8-06)', async ({
+test('the sidebar offers built destinations only: Help, and the Super Admin’s Overview, Requests and Institutions (B8-06)', async ({
   page,
 }) => {
   test.skip(
@@ -179,9 +179,13 @@ test('the sidebar offers built destinations only: Help, and the Super Admin’s 
     await waitForShell(tab);
     const side = tab.locator('aside.xr-side');
     if (entry.role === 'super_admin') {
-      // SA-02 is built (Package 1A): Requests, then Help.
-      await expect(side.locator('a[href]')).toHaveCount(2);
-      await expect(side.locator('nav a[href]')).toHaveAttribute('href', '/admin/requests');
+      // SA-02 is built (Package 1A), SA-01 and SA-06 (Package 1D): those three, then Help.
+      await expect(side.locator('a[href]')).toHaveCount(4);
+      expect(
+        await side
+          .locator('nav a[href]')
+          .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
+      ).toEqual(['/admin', '/admin/requests', '/admin/institutions']);
       await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute('href', '/admin/help');
     } else {
       await expect(side.locator('a[href]')).toHaveCount(1);

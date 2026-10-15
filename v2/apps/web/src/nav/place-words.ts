@@ -1,4 +1,5 @@
 import { HELP_TITLE } from './help';
+import { INSTITUTIONS_TITLE, OVERVIEW_TITLE } from './institutions';
 import { REQUESTS_TITLE } from './requests';
 import { resolveAddress } from './routes';
 
@@ -44,6 +45,10 @@ export function placeWordsOf(returnTo: string | null): string | null {
       return reference ? `${HELP_TITLE} › ${reference}` : HELP_TITLE;
     }
     case 'record-screen': {
+      // Package 1D: the Overview, and Institutions — whose detail addresses carry an institution
+      // id, not a drawn reference, so they name the list alone.
+      if (outcome.screen === 'SA-01') return OVERVIEW_TITLE;
+      if (outcome.screen === 'SA-06' || outcome.screen === 'SA-07') return INSTITUTIONS_TITLE;
       if (outcome.screen === 'SA-02') return REQUESTS_TITLE;
       const reference = referenceIn(pathname);
       return reference ? `${REQUESTS_TITLE} › ${reference}` : REQUESTS_TITLE;

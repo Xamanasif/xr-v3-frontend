@@ -9,7 +9,11 @@
  * The screens read their words from here, so the register and the product cannot drift apart.
  * Later phases add their screens' entries (Appendix F §9).
  */
-export type StateCopyStatus = 'drawn' | 'provisional';
+/**
+ * `drawn` = on a board (cited); `provisional` = written to a board formula or chosen as an interim,
+ * awaiting sign-off; `owner-approved` = words or a rule the owner decided (the decision is named).
+ */
+export type StateCopyStatus = 'drawn' | 'provisional' | 'owner-approved';
 
 export interface StateCopyEntry {
   /** The screen (or the shell around every screen). */
@@ -34,8 +38,11 @@ export interface StateCopyEntry {
     | 'PU-13'
     | 'PU-14'
     | 'PU-15'
+    | 'SA-01'
     | 'SA-02'
-    | 'SA-03';
+    | 'SA-03'
+    | 'SA-06'
+    | 'SA-07';
   /** The state, as the screen reaches it. */
   readonly state: string;
   /** The words shown; `null` where the entry is a rule rather than words. */
@@ -63,7 +70,7 @@ export const STATE_COPY = {
     screen: 'Shell',
     state: 'The browser tab’s title on every Phase-0 page (WCAG 2.4.2)',
     words: null,
-    rule: '“<the page’s top-bar title> · XR Learning Platform”; “XR Learning Platform” alone while loading. The public not-found: “We can’t find that page · XR Learning Platform”.',
+    rule: '“<the page’s top-bar title> · XR Learning Platform”; “XR Learning Platform” alone while loading. The public not-found: “We can’t find that page · XR Learning Platform”. Where the current crumb names a record under its destination’s top-bar title (SA-07, Package 1D), it leads: “<record> · <title> · XR Learning Platform”.',
     basis:
       'Appendix F §3.3 (metadata "XR Learning Platform" + per-page titles); the product name as the shells write it. No board draws document titles.',
     status: 'provisional',
@@ -398,15 +405,6 @@ export const STATE_COPY = {
       'AccessRequestService contract (`policy-open` T-03, REQ-19); B1-11 builds only single-experiment narrowing (P1-07)',
     status: 'provisional',
     decisions: ['P1-05', 'P1-07'],
-  },
-  'SA-03.paused-no-link': {
-    screen: 'SA-03',
-    state: '“This institution is paused” — its “View institution” link',
-    words: null,
-    rule: 'Not rendered until Institution detail (SA-07) is built.',
-    basis: 'B1-11 f14 (`xr-notice-actions` → B7-03); owner P0-35 built-screen navigation',
-    status: 'provisional',
-    decisions: ['P0-35'],
   },
   'SA-03.internal-confirm-plan': {
     screen: 'SA-03',
@@ -839,6 +837,222 @@ export const STATE_COPY = {
     state: 'The failed notice’s sentence',
     words: 'Nothing has changed. Try again.',
     basis: 'B1-07 f7 “Nothing was sent. Your details are still here — try again.”',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  // ---- Package 1D: SA-01 Overview (B7-01, Requests group only), SA-06, SA-07 (B7-02, B7-03) ----
+  'SA-01.scope': {
+    screen: 'SA-01',
+    state: 'The Overview in Phase 1',
+    words: null,
+    rule: 'Only the Requests group is built: the two figures (“Active institutions”, “Published experiments”), the other seven groups and the “15 items waiting across 8 groups · 23 Oct 2026” line arrive with the full overview in Phase 6 (`OperationsService.getSuperAdminOverview`). Nothing is counted or dated that the Phase-1 reads do not answer.',
+    basis:
+      'Owner decision “SA-01 scope” (Package-1D authorisation §2); B7-01 f0 … f3; B8-06 (Phase 1 “SA-01 requests group”, Phase 6 “full SA-01”)',
+    status: 'owner-approved',
+    decisions: ['SA-01 scope (Package 1D)'],
+  },
+  'SA-01.rows': {
+    screen: 'SA-01',
+    state: 'The Requests group’s count and rows',
+    words: null,
+    rule: 'The requests under review, newest first — the sidebar’s count (`listRequests`, status Under review) — at most four rows; with none, the group is left out.',
+    basis:
+      'B7-01 f0 caption (“at most four rows and one way to open the full list”) and note (“A group with nothing in it is left out”); B1-10 caption “Nav count 3 = requests under review”; owner: “Use existing AccessRequestService.listRequests data and approved request-count behavior”',
+    status: 'owner-approved',
+    decisions: ['SA-01 scope (Package 1D)'],
+  },
+  'SA-01.request-line': {
+    screen: 'SA-01',
+    state: 'The line under a request row',
+    words: null,
+    rule: '“<type> · under review since <the day it was received>” (B7-01 REQ-0040). B7-01 writes REQ-0058 as “60 more licences …” and REQ-0038 with “· access ends 31 Oct 2026”: the Phase-1 request rows carry no licence count and no plan end, so neither is composed.',
+    basis: 'B7-01 f0 rows; `requestRow` (Appendix C §3.4)',
+    status: 'provisional',
+    decisions: ['SA-01 scope (Package 1D)', 'VD-12'],
+  },
+  'SA-01.calm': {
+    screen: 'SA-01',
+    state: 'Nothing is waiting (no request under review)',
+    words: 'Requests appear here when they need you.',
+    basis:
+      'B7-01 f1 “Requests, corrections to release, device transfers, … appear here when they need you.”, limited to the one group Phase 1 builds',
+    status: 'provisional',
+    decisions: ['SA-01 scope (Package 1D)', 'VD-12'],
+  },
+  'SA-01.failed': {
+    screen: 'SA-01',
+    state: 'The requests under review failed to load (service unavailable; a test fault plan only)',
+    words: 'What is waiting didn’t load. Nothing was lost.',
+    basis: 'Board 04 "State grammar" Failed + retry formula; B7-01 draws no failed frame',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-01.failed.line': {
+    screen: 'SA-01',
+    state: 'The failed state’s next step',
+    words: 'Try again. If it keeps happening, report the problem.',
+    basis: 'Board 03 "Notices, empty, error, loading and read-only" (the failed notice’s line)',
+    status: 'drawn',
+  },
+  'SA-06.order': {
+    screen: 'SA-06',
+    state: 'The order of the institutions',
+    words: null,
+    rule: 'The institution created last comes first (contract PC-36). B7-02 draws no sort control; its sample order follows no rule the records hold.',
+    basis: 'B7-02 f0 (7 rows, no sort control)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-06.none': {
+    screen: 'SA-06',
+    state: 'No institution exists yet',
+    words: null,
+    rule: 'The tabs count 0 and the status line reads “0 of 0 institutions”; no table is drawn. Not reachable on the sample world.',
+    basis: 'B7-02 draws seven institutions; no empty frame',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-06.failed': {
+    screen: 'SA-06',
+    state: 'The institutions failed to load (service unavailable; a test fault plan only)',
+    words: 'The institutions didn’t load. Nothing was lost.',
+    basis: 'Board 04 "State grammar" Failed + retry formula; B7-02 draws no failed frame',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-06.failed.line': {
+    screen: 'SA-06',
+    state: 'The failed state’s next step',
+    words: 'Try again. If it keeps happening, report the problem.',
+    basis: 'Board 03 "Notices, empty, error, loading and read-only" (the failed notice’s line)',
+    status: 'drawn',
+  },
+  'SA-06.decision-ids': {
+    screen: 'SA-06',
+    state: 'The page header line “Institutions are created only by approving a request …”',
+    words: null,
+    rule: 'Shown without “(T-09)”; `copy/institutions.ts` `STRIPPED` keeps the frozen wording and the id.',
+    basis: 'B7-02 f0 … f6; owner decision P1-14 / VD-10 (Package-1D authorisation §2)',
+    status: 'owner-approved',
+    decisions: ['P1-14', 'VD-10'],
+  },
+  'SA-07.decision-ids': {
+    screen: 'SA-07',
+    state: 'The four SA-07 sentences that carry decision ids',
+    words: null,
+    rule: 'The licence note (“(T-06)”, “(T-08)”), the report note (“(T-25)”), the Assign dialog’s sentence and the Assign flash (“(T-11)”) are shown without the ids; `copy/institutions.ts` `STRIPPED` keeps each frozen wording and its ids.',
+    basis:
+      'B7-03 f0, f6 and its script; owner decision P1-14 / VD-10 (Package-1D authorisation §2)',
+    status: 'owner-approved',
+    decisions: ['P1-14', 'VD-10'],
+  },
+  'SA-07.loading': {
+    screen: 'SA-07',
+    state: 'The institution loading (screen readers)',
+    words: 'Loading the institution',
+    basis:
+      'Board 04 "State grammar" Loading formula (as SA-03.loading); B7-03 draws no loading frame',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-07.failed': {
+    screen: 'SA-07',
+    state: 'The institution failed to load (service unavailable; a test fault plan only)',
+    words: 'The institution didn’t load. Nothing was lost.',
+    basis: 'Board 04 "State grammar" Failed + retry formula',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-07.failed.line': {
+    screen: 'SA-07',
+    state: 'The failed state’s next step',
+    words: 'Try again. If it keeps happening, report the problem.',
+    basis: 'Board 03 "Notices, empty, error, loading and read-only" (the failed notice’s line)',
+    status: 'drawn',
+  },
+  'SA-07.attention-request': {
+    screen: 'SA-07',
+    state: '“Needs attention”: the institution’s requests',
+    words: null,
+    rule: 'Every request the institution’s record names that is not yet Access active, newest first, after the institution’s own rows (no Institute Admin, paused): “<reference> <type> — <status>” in lower case (B7-03 “REQ-0040 additional licences — under review”, “REQ-0036 additional licences — payment not confirmed”), and for the request it was created from while it waits for its payment B7-03’s “Approved — payment required (REQ-0037). Access starts when the payment is confirmed.” Each opens Requests. B7-03’s hand-written variants (“REQ-0058 — 60 more licences, sent 21 Oct 2026 — under review”; “Access ends 31 Oct 2026 — renewal REQ-0038 is under review”) are not composed.',
+    basis: 'B7-03 `att` rows; the institution record’s own history names its requests',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-07.attention-later': {
+    screen: 'SA-07',
+    state: '“Needs attention”: device transfers and access ending',
+    words: null,
+    rule: 'Not listed in Phase 1: a forwarded device transfer (“DTR-0018 — device transfer forwarded …” → Operations) arrives with the Phase-3 device chain, an access-ending reminder (“Access ends 2 Nov 2026 — reminder due …” → Operations › Access ending) with Phase 6; neither destination is built.',
+    basis:
+      'B7-03 `att` (godavari, konark); B8-06 phases 3 and 6; owner P0-35 built-screen navigation',
+    status: 'provisional',
+    decisions: ['P0-35'],
+  },
+  'SA-07.history': {
+    screen: 'SA-07',
+    state: 'The History section',
+    words: null,
+    rule: 'The institution record’s own events, newest first, each with the time it was recorded: approved (“Request … approved — payment required” / “approved”, note “External.” / “Internal.”), access active, Institute Admin assigned (note: work e-mail · who assigned), paused and restored (note: the reason), more licences and renewals received (note: who sent them). A request’s receipt before the record existed and a student’s status change are kept in the request’s and the student’s own histories (IA-07 shows the student’s); the sample world writes no event when a plan ends.',
+    basis:
+      'B7-03 `hist` and the script’s flashes (`doAssign`, `doPause`, `doRestore`, `save`); Appendix C M01 events',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-07.sample-labels': {
+    screen: 'SA-07',
+    state: 'The canvas sample labels',
+    words: null,
+    rule: 'Neither canvas label is shown — the date note in the Institution report’s head, and the note under People naming the one institution whose student names are sample data; an institution without students shows its People line only.',
+    basis:
+      'START-HERE Known exception 4 (not product features: sample-data labels); Appendix E §10 item 5 (sample labels are canvas-only); T-36',
+    status: 'owner-approved',
+    decisions: ['START-HERE Known exception 4', 'Appendix E §10 item 5', 'T-36'],
+  },
+  'SA-07.plan-status': {
+    screen: 'SA-07',
+    state: 'The Status column of “Access plans”',
+    words: null,
+    rule: 'The institution’s status words and tone, as B7-03 draws its one plan (`stw: D.stw[r.st]`).',
+    basis: 'B7-03 script (`plans`)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-07.people-singular': {
+    screen: 'SA-07',
+    state: 'An institution with one student',
+    words: null,
+    rule: '“1 student · 3 Faculty” (the boards draw the plural only).',
+    basis: 'B7-03 “12 students · 3 Faculty”, “0 students · 0 Faculty”',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-07.term-until': {
+    screen: 'SA-07',
+    state: 'A plan whose term runs until a fixed date (B1-07)',
+    words: 'Until a fixed date',
+    basis:
+      'B1-07 term option “Until a fixed date”; B7-03 terms Monthly · Quarterly · Yearly (board versus board)',
+    status: 'provisional',
+    decisions: ['P1-10'],
+  },
+  'SA-07.moved-on': {
+    screen: 'SA-07',
+    state:
+      'Assign, Pause, Restore or a status change refused because the record moved on (a stale revision; paused, restored or assigned elsewhere; a status that no longer allows it)',
+    words: null,
+    rule: 'Nothing is written: the dialog or the inline panel closes, the institution is read again and the page shows its current drawn state. No notice; focus goes to the page title (after a status change, to its student’s “Change status”). A dialog or panel keeps the revision — and a status change its direction — from when it opened, so a change shown meanwhile is refused, never acted on.',
+    basis: 'Appendix G P1-21 interim (“Refetch and render the current drawn state”); as SA-03',
+    status: 'provisional',
+    decisions: ['P1-21'],
+  },
+  'SA-07.unavailable': {
+    screen: 'SA-07',
+    state: 'A command failed for now (service unavailable; a test fault plan only)',
+    words: null,
+    rule: 'Nothing changes: the dialog or the inline panel stays open with what was typed and can be confirmed again; no message.',
+    basis:
+      'B7-03 draws no failure for its commands; Appendix F §6.6 “command unavailable → nothing changes … answers kept” (as SA-03.unavailable)',
     status: 'provisional',
     decisions: ['VD-12'],
   },

@@ -56,7 +56,9 @@ test('one tab, the product build: selection → request → status → Super Adm
   }
   await page.waitForURL('**/sign-in');
   await signIn(page, 'arjun.mehta@wilp.example');
-  await page.waitForURL('**/admin/help');
+  // His base is SA-01 Overview since Package 1D (before, the interim landing: Help).
+  await page.waitForURL('**/admin');
+  await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
   // Signed in as someone else, the requester's page shows nothing of the request (O-05).
   await openInTab(page, address);
   await expect(
@@ -65,6 +67,8 @@ test('one tab, the product build: selection → request → status → Super Adm
 
   // 8. SA-02: REQ-0042 is there, from the public request; SA-03: approve it, External.
   await openInTab(page, '/admin/help');
+  // The shell is drawn before its drawer is opened (below 1024 px the sidebar is a drawer).
+  await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
   await revealSidebar(page);
   await reachAndClick(page, page.locator('aside.xr-side nav a[href="/admin/requests"]'));
   await page.waitForURL('**/admin/requests');

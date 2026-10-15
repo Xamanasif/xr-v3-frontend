@@ -113,6 +113,22 @@ on SA-03), T-01 / R01 (requester identity beyond the browser session), T-03 (rep
 information request), T-05 / R06 (payment provider), P1-04 (what starts review — AD-14 seam only),
 OD-B3-09 (plans after a confirmed payment for an existing institution).
 
+## Owner authorisation of 15 October 2026 — Phase-1 Package 1D
+
+The Package-1D authorisation ("Authorize Package 1D ONLY") decides three questions for the Super
+Admin's institution pages (SA-01, SA-06, SA-07), narrowly; the record is
+`../phase-1/PACKAGE-1D-RECORD.md`.
+
+| Decision      | Owner wording (abridged)                                                                                                                                                                                                                                                                                                                        | Recorded in                                                                    |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| SA-01 scope   | Approve only the Phase-1 Requests section of SA-01, from `AccessRequestService.listRequests` and the approved request-count behaviour. `getSuperAdminOverview` is not implemented early; no overview figures, licence totals, expiry dates or metrics absent from the Phase-1 DTOs. The remaining full SA-01 overview is a Phase-6 requirement. | DEV-34 (owner-approved; tracked for Phase 6); state-copy `SA-01.scope`; ledger |
+| P1-14 / VD-10 | Remove internal policy identifiers such as `(T-06)`, `(T-08)`, `(T-11)`, `(T-25)` from user-visible copy, keeping the meaningful sentences; keep traceability to the frozen-board wording in the copy register; document the deviation. The identifiers stay in domain logic, tests, audit evidence and technical documentation.                | DEV-36 (owner-approved); `copy/institutions.ts` `STRIPPED`; state-copy         |
+| P1-08         | Institute Admin assignment only when the institution has active access, as already documented; no new eligibility rules.                                                                                                                                                                                                                        | domain INST-04 / `assignInstituteAdmin` (unchanged); SA-07 controls            |
+
+Not decided by it and kept open: the full SA-01 overview (Phase 6), the Operations rows of SA-07's
+"Needs attention" (Phases 3 and 6), how an assigned Institute Admin first signs in (T-11; the sample
+sign-in accepts the assigned work e-mail, P1-01), OD-B3-09.
+
 ## Approved interim choices
 
 These are interim treatments the build follows. Where the underlying product question is open, it **stays open**.

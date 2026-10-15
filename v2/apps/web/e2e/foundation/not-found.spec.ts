@@ -61,7 +61,7 @@ test.describe('workspace variant (test-hook build)', () => {
   test.use({ baseURL: TEST_HOOKS_URL });
 
   // Designed but not built yet (each workspace's first unbuilt destination; the Super Admin's
-  // Requests are built in Package 1A), then unknown ones.
+  // Requests are built in Package 1A, Overview and Institutions in 1D), then unknown ones.
   const UNBUILT: Readonly<Record<string, string>> = {
     student: '/student/courses',
     faculty: '/faculty/marking',
@@ -69,7 +69,7 @@ test.describe('workspace variant (test-hook build)', () => {
     vendor: '/vendor/experiments',
     academic_reviewer: '/reviewer/queue',
     content_manager: '/content-manager/ready',
-    super_admin: '/admin/institutions',
+    super_admin: '/admin/content/updates',
   };
 
   for (const entry of ROLES) {

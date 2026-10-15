@@ -15,6 +15,10 @@ describe('placeWordsOf', () => {
     ['/student/help', 'Help & support'],
     ['/faculty/help/report', 'Help & support › Report a problem'],
     ['/vendor/help/reports/SUP-0213', 'Help & support › SUP-0213'],
+    // Package 1D: the Super Admin's Overview and Institutions.
+    ['/admin', 'Overview'],
+    ['/admin/institutions', 'Institutions'],
+    ['/admin/institutions/godavari', 'Institutions'],
   ])('%s → %s', (path, place) => {
     expect(placeWordsOf(path)).toBe(place);
   });
@@ -23,7 +27,7 @@ describe('placeWordsOf', () => {
     [null],
     [''],
     ['/'],
-    ['/admin'],
+    ['/student'],
     ['/student/courses'],
     ['https://evil.example/admin/requests'],
     ['//evil.example/admin/requests'],
@@ -36,5 +40,6 @@ describe('placeWordsOf', () => {
     expect(placeWordsOf('/admin/requests/Enter%20your%20password%20here')).toBe('Requests');
     expect(placeWordsOf('/student/help/reports/%E0%A4%A')).toBe('Help & support');
     expect(placeWordsOf('/admin/requests/req-0038')).toBe('Requests');
+    expect(placeWordsOf('/admin/institutions/Enter%20your%20password%20here')).toBe('Institutions');
   });
 });

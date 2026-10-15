@@ -43,6 +43,13 @@ export function shellPersonOf(session: MockSession): ShellPerson {
   };
 }
 
+/** The page's words in the browser tab: its current crumb, then its top-bar title (state-copy). */
+export function documentWords(placement: ShellPlacement): string {
+  return placement.currentCrumb && placement.currentCrumb !== placement.title
+    ? `${placement.currentCrumb} · ${placement.title}`
+    : placement.title;
+}
+
 /** A workspace base folder (ADR-0005 §1), as the route files name it. */
 export type WorkspaceBase = Workspace;
 
@@ -144,8 +151,10 @@ function FrameShell({
 
   return (
     <WorkspaceIdentityContext value={identity}>
-      {/* The browser tab names the page (WCAG 2.4.2); Next's route announcer reads it. */}
-      <DocumentTitle title={placement?.title ?? ''} />
+      {/* The browser tab names the page (WCAG 2.4.2); Next's route announcer reads it. Where the
+          current crumb names the record and the top bar its destination (B7-03: "Institutions"
+          over "Godavari Institute of Technology"), the record leads. */}
+      <DocumentTitle title={placement ? documentWords(placement) : ''} />
       <ShellPlacementContext value={setPlacement}>
         <RoleWorkspaceShell
           role={role}

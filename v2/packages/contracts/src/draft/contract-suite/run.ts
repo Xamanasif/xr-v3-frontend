@@ -37,7 +37,8 @@ export interface CaseContext {
   readonly note: (line: string) => void;
 }
 
-export type CaseGroup = 'surface' | 'session' | 'catalogue' | 'flow' | 'access' | 'invariant';
+export type CaseGroup =
+  'surface' | 'session' | 'catalogue' | 'flow' | 'access' | 'institution' | 'invariant';
 
 export interface ContractCase {
   readonly id: string;

@@ -286,6 +286,8 @@ export const PENDING_HINTS = {
 export const PAUSED_BLOCK = {
   title: 'This institution is paused',
   line: 'Requests from a paused institution can’t be decided. You can decide this one once the pause ends.',
+  /** B1-11 f14 `xr-notice-actions` → B7-03 (SA-07, rendered since Package 1D built it). */
+  viewInstitution: 'View institution',
 } as const;
 
 /** The confirmation of an approval (B1-11 f2 external, f3 internal; `confirmTitle`, `cf*`). */

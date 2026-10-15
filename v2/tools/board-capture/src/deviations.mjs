@@ -451,7 +451,7 @@ export const DEVIATIONS = [
     expected:
       'B1-09 draws the two links on the sign-in page; B1-10 and board 05 draw the Super Admin sidebar with all seven destinations.',
     actual:
-      'The Super Admin sidebar lists Requests (built in 1A, with its count of requests under review read from the world) and Help only. On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
+      'The Super Admin sidebar lists the destinations built so far — Overview and Institutions (Package 1D) and Requests (1A, with its count of requests under review read from the world) — and Help. On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
     accessibility:
       'None: an unbuilt address would show the public not-found page and, as a document load, restart the tab’s sample world (ADR-0004).',
     decision:
@@ -470,8 +470,10 @@ export const DEVIATIONS = [
       'B1-10 f0 — seven requests from REQ-0042 (2 Oct) to REQ-0036, count "3 requests under review"',
       'B1-11 f16 — REQ-0038: 3 experiments, 860 licences, Yearly, received 24 Sep 2026; ACC-0081',
       'B1-09 f9 — "Sign in again to go back to where you were: My courses › Shell-and-Tube Heat Exchanger."',
+      'B7-01 f0 (Package 1D) — REQ-0038 "under review since 24 Sep 2026"; the world received it on 26 Sep 2026',
     ],
-    product: 'SA-02 / SA-03 on the spine-start world; XS-03 with a built return address',
+    product:
+      'SA-02 / SA-03 on the spine-start world; XS-03 with a built return address; SA-01’s REQ-0038 row (Package 1D)',
     expected: 'The B1 boards’ own sample records (the S-1/S-2 "B1 variant").',
     actual:
       'The world holds one answer per record (P1-12 reading, sample-platform README): the B7 variant — REQ-0038 renews ACC-0098 (2 experiments, 80 licences, Monthly, received 26 Sep 2026, 16:02); REQ-0042 does not exist until the public request path (Package 1C), so the list holds the ten seeded requests (with the origin requests REQ-0027/0029/0031/0033) and two are under review. The expired notice names a built page ("Requests › REQ-0038"); "My courses" is a Phase-2 page. Layout, type and colour of the same parts are compared strictly where the words are the same (organisation, message, panel, toolbar, table head).',
@@ -729,6 +731,195 @@ export const DEVIATIONS = [
     decision:
       'Sample data only (S-1/S-2, as DEV-22); no product rule. For the owner’s review — not approved by the harness.',
     proposal: 'Acknowledge as fixture state (one sample answer per record).',
+  },
+  // ---- Phase-1 Package 1D (15 Oct 2026): SA-01, SA-06, SA-07 -------------------------------------
+  {
+    id: 'DEV-34',
+    title:
+      'Package 1D: SA-01 Overview in its Phase-1 scope — the Requests group only; no figures, no other group, no summary line',
+    class: 'phase-1-scope',
+    status: 'owner-approved',
+    blocksParity: false,
+    boards: [
+      'B7-01 f0 "SA-01 Overview · 1440" — the meta line "15 items waiting across 8 groups · 23 Oct 2026", the figures "Active institutions 4" and "Published experiments 13", and seven further groups (corrections, device transfers, support reports, access ending, institutions without an Institute Admin, stuck content, role holders without scope)',
+      'B7-01 f1 "Nothing is waiting" — the two figures and the date line above the calm state',
+    ],
+    product: 'SA-01 Overview (apps/web features/admin/sa-01-overview)',
+    expected: 'B7-01: the full overview — two figures and eight groups.',
+    actual:
+      'The page header has its overline and title only; the page holds the Requests group (the requests under review, as the sidebar counts them) or the calm state. Everything else waits for `OperationsService.getSuperAdminOverview` (Phase 6). Measured per comparison in DEVIATIONS.md.',
+    accessibility: 'None.',
+    decision:
+      'Owner decision "SA-01 scope" (Package-1D authorisation, 15 Oct 2026): "Approve only the Phase-1 Requests section of SA-01 … Do not invent overview figures, licence totals, expiry dates or metrics absent from the Phase-1 DTOs. Record the remaining full SA-01 overview as a Phase-6 requirement."',
+    proposal: 'Decided for Phase 1; the full overview is built in Phase 6.',
+    tracked:
+      'Phase 6: the full SA-01 overview (two figures, eight groups, the summary line) through `getSuperAdminOverview`.',
+  },
+  {
+    id: 'DEV-35',
+    title:
+      'Package 1D: SA-01 rows and calm state in Phase-1 words — "<type> · under review since <received>" for every row; the calm sentence names requests only',
+    class: 'phase-1-scope',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B7-01 f0 rows — "REQ-0058 · 60 more licences · under review since 21 Oct 2026" and "REQ-0038 · Renewal · under review since 24 Sep 2026 · access ends 31 Oct 2026" (REQ-0040\'s line is the product\'s form)',
+      'B7-01 f1 — "Requests, corrections to release, device transfers, support reports, ending access, institutions without an Institute Admin, stuck content and role holders without scope appear here when they need you."',
+    ],
+    product:
+      'SA-01 Requests group and calm state (copy/overview.ts `requestRowLine`; state-copy SA-01.request-line, SA-01.calm)',
+    expected: 'B7-01’s hand-written lines.',
+    actual:
+      'Each row is written from the Phase-1 request row (`listRequests`): its type and the day it was received — "Additional licences · under review since 21 Oct 2026" for REQ-0058 (the row has no licence count) and "Renewal · under review since 26 Sep 2026" for REQ-0038 (no plan end; the world received it on 26 Sep, DEV-22). The calm sentence reads "Requests appear here when they need you." (the one group Phase 1 builds).',
+    accessibility: 'None.',
+    decision:
+      'Words for the owner’s review (provisional state-copy entries); the data limit follows the owner’s SA-01 scope decision. Not approved by the harness.',
+    proposal:
+      'Keep the Phase-1 forms; the drawn lines return with the Phase-6 overview read, which can answer licences and plan ends.',
+  },
+  {
+    id: 'DEV-36',
+    title:
+      'Package 1D: internal decision ids taken out of the product copy — "(T-06)", "(T-08)", "(T-09)", "(T-11)", "(T-25)" (P1-14 / VD-10)',
+    class: 'design-conflict',
+    status: 'owner-approved',
+    blocksParity: false,
+    boards: [
+      'B7-02 page header "Institutions are created only by approving a request — there is no direct creation (T-09)"',
+      'B7-03 "Access plans" note "… still open (T-06). … a new request (T-08).", "Institution report" note "… not shown here (T-25).", the Assign dialog "… Nothing is sent from here (T-11)." and its flash',
+    ],
+    product:
+      'SA-06 and SA-07 (copy/institutions.ts `STRIPPED`, which keeps each frozen wording and its ids; tested against the boards)',
+    expected: 'The sentences as drawn, ids included.',
+    actual:
+      'The same sentences without the ids (each " (T-nn)" removed, nothing else changed). Measured per comparison in DEVIATIONS.md.',
+    accessibility: 'None: screen readers no longer read internal codes.',
+    decision:
+      'Owner decision P1-14 / VD-10 (Package-1D authorisation, 15 Oct 2026): "Remove internal policy identifiers such as (T-06), (T-08), (T-11) and (T-25) from user-visible copy while preserving the meaningful sentences … Maintain traceability to their frozen-board wording in the copy register."',
+    proposal: 'Decided.',
+  },
+  {
+    id: 'DEV-37',
+    title:
+      'Package 1D: SA-06 lists the institutions newest first; B7-02 draws them in its sample order',
+    class: 'design-conflict',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B7-02 f0 — Godavari, BITS Pilani — Hyderabad Campus, Konark, Sahyadri, Vizag, Deccan, Malnad',
+    ],
+    product: 'SA-06 (InstitutionService.listInstitutions; contract PC-36; state-copy SA-06.order)',
+    expected: 'The board’s row order.',
+    actual:
+      'The service lists the institution created last first: Godavari, BITS Pilani — Hyderabad Campus, Vizag, Sahyadri, Konark, Malnad, Deccan. Every row holds the board’s words and is compared on its own within tolerance, except the two whose place as the table’s last row (no bottom rule) changes: Deccan is one pixel row shorter in the product, Malnad one taller. The whole table differs by order only. Measured in DEVIATIONS.md.',
+    accessibility: 'None.',
+    decision:
+      'B7-02 draws no sort control and its order follows no rule the records hold. For the owner’s review — not approved by the harness.',
+    proposal: 'Keep newest first, or the owner names an order (one comparator in the service).',
+  },
+  {
+    id: 'DEV-38',
+    title:
+      'Package 1D: SA-07 "Needs attention" in Phase 1 — the institution’s open requests, its missing Institute Admin and its pause; no device-transfer or access-ending rows',
+    class: 'phase-1-scope',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B7-03 Godavari "REQ-0058 — 60 more licences, sent 21 Oct 2026 — under review" and "DTR-0018 — device transfer forwarded on 23 Oct 2026" (Operations)',
+      'B7-03 BITS Pilani — Hyderabad Campus "Access ends 31 Oct 2026 — renewal REQ-0038 is under review"; Konark "Access ends 2 Nov 2026 — reminder due (nothing is sent from here)" (Operations › Access ending)',
+    ],
+    product:
+      'SA-07 (features/admin/sa-07-institution-detail/institution-view.ts `attentionRows`; state-copy SA-07.attention-request, SA-07.attention-later)',
+    expected: 'B7-03’s hand-written rows, Operations rows included.',
+    actual:
+      'Rows written from the records: the requests the institution’s own history names, read for their status (`listRequests`), as "<reference> <type> — <status>" (B7-03’s Konark and Sahyadri rows), the request it was created from while it waits for payment (B7-03 Vizag), no Institute Admin and the pause (B7-03 Sahyadri, Deccan). Device transfers (Phase 3) and access-ending reminders (Phase 6) are not listed: Operations is not built (P0-35).',
+    accessibility: 'None.',
+    decision: 'For the owner’s review — not approved by the harness.',
+    proposal:
+      'Keep the Phase-1 rows; the Operations rows arrive with SA-18 … SA-22 (Phases 3 and 6).',
+    tracked: 'Phases 3 and 6: SA-07 attention rows for device transfers and access ending.',
+  },
+  {
+    id: 'DEV-39',
+    title:
+      'Package 1D: canvas sample labels not shown on SA-07 — "Sample figures · up to 23 Oct 2026" and "Student names are sample data for Godavari Institute of Technology only."',
+    class: 'canvas-only',
+    status: 'approved-rule',
+    blocksParity: false,
+    boards: [
+      'B7-03 every frame — "Institution report" head meta "Sample figures · up to 23 Oct 2026"',
+      'B7-03 f1 … f5, f9 — People: "Student names are sample data for Godavari Institute of Technology only."',
+    ],
+    product: 'SA-07 (state-copy SA-07.sample-labels)',
+    expected: 'The canvas’s sample labels.',
+    actual: 'Not rendered: the report section head has its title only; People ends with its line.',
+    accessibility: 'None.',
+    decision:
+      'Rule: Appendix E §10 item 5 ("Sample labels … The labels do not ship"); T-36 (sample values come from the mock services, marked in seed metadata, never in product chrome).',
+    proposal: 'Decided by the rule.',
+  },
+  {
+    id: 'DEV-40',
+    title:
+      'Package 1D: SA-07 History is the institution record’s own events, each with its recorded time',
+    class: 'design-conflict',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B7-03 Godavari — "Request REQ-0042 received · 2 Oct 2026, 10:14" (a request event); notes "External · approved as requested." and an assignment with no note',
+      'B7-03 Deccan, BITS, Konark, Malnad, Sahyadri — seeded events written with a date only ("12 Oct 2026, 09:40" beside "14 Jul 2026"), and fewer of them than their records hold (Deccan: the pause and "Access active · ACC-0085" only)',
+    ],
+    product:
+      'SA-07 (institution-view.ts `historyLines`; copy/institutions.ts history words; state-copy SA-07.history)',
+    expected: 'B7-03’s hand-written history.',
+    actual:
+      'The institution record’s events, newest first, with the time each was recorded ("8 Oct 2026, 15:20"): the approval ("External." / "Internal."), access active ("Payment confirmed." / "Internal — no payment step."), the Institute Admin assigned (note: work e-mail · who assigned, as B7-03’s script writes it), pauses and restores (the reason), and requests its Institute Admin sent — for the seeded institutions also the approval and the Institute Admin’s assignment their records hold (Deccan: four events where B7-03 draws two). A request’s receipt before the record existed and a student’s status change are kept in the request’s and the student’s own histories.',
+    accessibility: 'None.',
+    decision: 'For the owner’s review — not approved by the harness (as DEV-32 for PU-10).',
+    proposal:
+      'Keep the record’s own history; or the owner decides which request and person events SA-07 also shows.',
+  },
+  {
+    id: 'DEV-41',
+    title:
+      'Package 1D: the sample world’s background institutions hold no people or learning activity',
+    class: 'fixture-state',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B7-03 Deccan "24 students · 1 Faculty", BITS "46 students · 4 Faculty", Konark "28 students · 2 Faculty", Malnad "18 students · 1 Faculty", and their report figures',
+      'B7-03 Godavari report "Shell-and-Tube Heat Exchanger · 5 · WEB 4 started · 2 completed · VR 2 started · 1 completed"',
+    ],
+    product: 'SA-07 summary, People and Institution report on the walk after Flow C',
+    expected: 'The boards’ sample figures.',
+    actual:
+      'The world holds people only where a flow created them (Godavari’s twelve students and three Faculty, imported in the walk); the background institutions have none ("0 students · 0 Faculty"), and the report counts what the world’s grants and runtime events record. No figure is made up to match a board (P1-12, T-36).',
+    accessibility: 'None.',
+    decision:
+      'Sample data only (one answer per record, as DEV-22); no product rule. For the owner’s review — not approved by the harness.',
+    proposal: 'Acknowledge as fixture state.',
+  },
+  {
+    id: 'DEV-42',
+    title:
+      'Package 1D: words bound into a button — on the canvas the bound word sits in a runtime wrapper, its own flex item 8 px from the words before it; the product writes one run of words',
+    class: 'canvas-only',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B7-03 every frame and B7-04 f0 — the actions row\'s `a.xr-btn.xr-btn--text` "Open request {{ d.req }}" ("Open request" and "REQ-0042" underlined apart)',
+      'B7-03 f8 "Override reason required" — `button.xr-btn--primary.xr-btn--sm` "Change to {{ x.toWords }}"',
+    ],
+    product:
+      'SA-07 actions row and the People status change (features/admin/sa-07-institution-detail; copy/institutions.ts `openRequestWords`, `overrideConfirm`)',
+    expected:
+      'The canvas frame: the bound reference or status word 8 px (the `.xr-btn` gap) after the words before it, with a break in the link’s underline.',
+    actual:
+      'The product’s label is one text node — one flex item with an ordinary word space ("Open request REQ-0042", "Change to Active"), underlined as one link. Measured per comparison in DEVIATIONS.md.',
+    accessibility: 'None: the accessible names are the same words.',
+    decision:
+      'The canvas runtime’s binding wrapper (START-HERE Known exception 6; the DEV-30 family), not the drawn design. For the owner’s review — not approved by the harness.',
+    proposal: 'Keep one run of words (no change).',
   },
 ];
 

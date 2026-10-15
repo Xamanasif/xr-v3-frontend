@@ -129,15 +129,28 @@ export interface PackageDelivery {
   readonly authorisation: string;
 }
 
-export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = (
-  ['CatalogueService.listAreas', 'CatalogueService.getArea', 'CatalogueService.getCourse'] as const
-).map((method) => ({
-  method,
-  phase: 'P1' as const,
-  package: 'Phase-1 Package 1B',
-  authorisation:
-    'Owner authorisation of Package 1B (14 Oct 2026, §5): "Implement only the three newly required Phase-1 mock-service methods: listAreas, getArea, getCourse" — PU-01…PU-06 and PU-14 on the browser-only sample world (TE-8). InstitutionService.listInstitutions (P1, SA-06) stays deferred (Package 1D).',
-}));
+export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = [
+  ...(
+    [
+      'CatalogueService.listAreas',
+      'CatalogueService.getArea',
+      'CatalogueService.getCourse',
+    ] as const
+  ).map((method) => ({
+    method,
+    phase: 'P1' as const,
+    package: 'Phase-1 Package 1B',
+    authorisation:
+      'Owner authorisation of Package 1B (14 Oct 2026, §5): "Implement only the three newly required Phase-1 mock-service methods: listAreas, getArea, getCourse" — PU-01…PU-06 and PU-14 on the browser-only sample world (TE-8). InstitutionService.listInstitutions (P1, SA-06) stays deferred (Package 1D).',
+  })),
+  {
+    method: 'InstitutionService.listInstitutions',
+    phase: 'P1',
+    package: 'Phase-1 Package 1D',
+    authorisation:
+      'Owner authorisation of Package 1D (15 Oct 2026, §4): "Implement the deferred Phase-1 method: listInstitutions" — SA-06 Institutions on the shared sample world. OperationsService.getSuperAdminOverview stays in Phase 6: SA-01 is built with its Phase-1 Requests section only (§2, SA-01 scope).',
+  },
+];
 
 /** The methods `PACKAGE_DELIVERIES` names. */
 export const DELIVERED_METHODS: readonly MethodId[] = PACKAGE_DELIVERIES.map(

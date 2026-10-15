@@ -7,8 +7,9 @@
  * signed-in person's own workspace run.
  *
  * Built so far: the Super Admin's Requests — "requests under review" (B1-10 caption "Nav count 3 =
- * requests under review"), the rows `AccessRequestService.listRequests` answers with that status.
- * Other workspaces' counts arrive with their destinations.
+ * requests under review"), the rows `AccessRequestService.listRequests` answers with that status
+ * (also SA-01's Requests group, Package 1D). Other workspaces' counts arrive with their
+ * destinations.
  */
 import type { ProductPorts } from '@xr/contracts/draft';
 import type { Role } from '@xr/domain';
@@ -23,6 +24,15 @@ export const requestsUnderReview = defineQuery({
   read: (ports: ProductPorts) =>
     ports.accessRequests.listRequests({ status: 'under-review', sort: 'received-newest' }),
 });
+
+/**
+ * The requests under review themselves, newest first: the Super Admin's Overview lists them in its
+ * Requests group (SA-01, Package 1D) from the very read the sidebar counts, so the group's figure
+ * and the sidebar's can never differ.
+ */
+export function useRequestsUnderReview() {
+  return useXrQuery(requestsUnderReview, null);
+}
 
 /** Count figures by destination key (zero or absent: no count is drawn). */
 export function useNavCounts(role: Role): Readonly<Partial<Record<string, number>>> {

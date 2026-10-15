@@ -54,9 +54,13 @@ method's ledger entry.
 
 **Methods.** The 138 methods Appendix F §4.1 places in Phase 0, plus
 `ProductionService.listAllContent` (the E-alt3 exception below), plus the three public structure
-reads Phase-1 Package 1B delivered — `CatalogueService.listAreas`, `getArea` and `getCourse`
-(`PACKAGE_DELIVERIES` in `@xr/contracts/draft`; read on the client under TE-8). The other 41 keep
-their phase: calling one rejects with the phase it lands in — never an invented value. Package 1B
+reads Phase-1 Package 1B delivered — `CatalogueService.listAreas`, `getArea` and `getCourse` — and
+the institutions list Package 1D delivered, `InstitutionService.listInstitutions` (SA-06; the
+`PACKAGE_DELIVERIES` of `@xr/contracts/draft`). The other 40 keep their phase: calling one rejects
+with the phase it lands in — never an invented value; `OperationsService.getSuperAdminOverview`
+stays in Phase 6 (SA-01 is built with its Phase-1 Requests group only). Since Package 1D
+`getInstitution` lists each student with its record's revision (`studentList[].rev`, PC-37), the
+`expectedRev` of `overrideStudentStatus`. Package 1B
 also seeded the boards' concept-artwork keys (areas and the twelve experiments, PC-31) and B1-01's
 four featured experiments (`seeded.featuredExperiments`, P1-22 interim, PC-32); every public count
 is derived from the published experiments, none is stored.

@@ -75,7 +75,18 @@ PU-06's "Go to selection", the sign-in card's "Request institutional access"):
 An empty selection sends `/request-access` to `/selection`, a review step with details missing to
 `?step=details`, both with `replace` (no Back loop). Who may open `/requests/…` is the service's
 answer (ADR-0009): anyone else sees PU-15's words from the client, HTTP 200 (TE-8 limitation).
-Still not built: the role homes (P0-35).
+
+**Phase-1 Package 1D** adds the Super Admin's home and institutions
+(`../../../docs/phase-1/PACKAGE-1D-RECORD.md`), by the Package-1A rules:
+
+| Path                                  | File(s)                                       | Shows                                                                     |
+| ------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------- |
+| `/admin`                              | `admin/page.tsx`                              | SA-01 Overview, its Phase-1 Requests group (B7-01); no longer the interim |
+| `/admin/institutions`                 | `admin/institutions/page.tsx`                 | SA-06 Institutions (B7-02)                                                |
+| `/admin/institutions/[institutionId]` | `admin/institutions/[institutionId]/page.tsx` | SA-07 Institution detail (B7-03, B7-04); unknown → the in-shell PU-15     |
+
+The Super Admin's "Back to Home" (XS-06, PU-15, Report sent) and sign-in land on SA-01. The other
+six workspaces' homes are still not built (P0-35): their bases keep the interim landing.
 
 ## Guards
 

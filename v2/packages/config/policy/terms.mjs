@@ -185,6 +185,8 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
   // PF-21 (Phase 1 Package 1A): B1-11's confirmation lists its effects (`ul.doc-list`, a canvas
   // class) — the product name for the same declarations.
   'xr-x-dialog-effects',
+  // PF-23 (Phase 1 Package 1D): B7-01 f1's all-clear tint on the empty-state icon (inline style).
+  'xr-x-empty-icon--ok',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

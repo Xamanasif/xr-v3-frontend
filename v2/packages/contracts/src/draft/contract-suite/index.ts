@@ -19,6 +19,7 @@ import { FLOW_C_CASES } from './cases/flow-c.js';
 import { FLOW_D_CASES } from './cases/flow-d.js';
 import { FLOW_E_CASES } from './cases/flow-e.js';
 import { FLOW_F_CASES } from './cases/flow-f.js';
+import { INSTITUTION_CASES } from './cases/institutions.js';
 import { INVARIANT_CASES } from './cases/invariants.js';
 import { type ContractCase, type ContractSuiteReport, runCases } from './run.js';
 import type { ContractFactory } from './subject.js';
@@ -26,7 +27,10 @@ import type { ContractFactory } from './subject.js';
 /** A marker the bundle check looks for: this module must never reach a product build. */
 export const CONTRACT_SUITE_MARKER = 'xr-contracts-draft-contract-suite';
 
-/** Every case, in order: surface, session, catalogue structure, flows, request access (Package 1C), cross-cutting, invariants. */
+/**
+ * Every case, in order: surface, session, catalogue structure, flows, request access (Package 1C),
+ * institutions (Package 1D), cross-cutting, invariants.
+ */
 export const CONTRACT_CASES: readonly ContractCase[] = [
   ...SURFACE_CASES,
   ...SESSION_CASES,
@@ -38,6 +42,7 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   ...FLOW_E_CASES,
   ...FLOW_F_CASES,
   ...REQUEST_ACCESS_CASES,
+  ...INSTITUTION_CASES,
   ...CROSS_ROLE_CASES,
   ...INVARIANT_CASES,
 ];

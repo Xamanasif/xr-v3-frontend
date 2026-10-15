@@ -39,7 +39,7 @@ function filesUnder(directory: string): string[] {
 const ROUTE_FILE =
   /(?:^|\/)(?:page|layout|template|not-found|error|loading|default|route|global-error|global-not-found|forbidden|unauthorized)\.(?:tsx?|jsx?)$/;
 
-describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Packages 1A–1C)', () => {
+describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Packages 1A–1D)', () => {
   const routeFiles = filesUnder(APP).filter((file) => ROUTE_FILE.test(file));
 
   it('every page.tsx is in the manifest, and every manifest page exists', () => {
@@ -47,8 +47,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     expect(pages).toEqual(PAGES.map((page) => page.file).sort());
     // 35 Phase-0 pages (7 workspaces × 5) + Package 1A's sign-in, Requests and Request decision +
     // Package 1B's six public pages (PU-01 … PU-06; PU-14 is a section of PU-01) + Package 1C's
-    // five request pages (PU-07, PU-08, PU-09, PU-10, PU-12; PU-13 is a state of PU-10).
-    expect(pages).toHaveLength(49);
+    // five request pages (PU-07, PU-08, PU-09, PU-10, PU-12; PU-13 is a state of PU-10) + Package
+    // 1D's Institutions and Institution detail (SA-01 is the admin base's own page).
+    expect(pages).toHaveLength(51);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -77,9 +78,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     expect(readdirSync(join(SRC, '..'))).not.toContain('proxy.ts');
   });
 
-  it('Packages 1A–1C only: sign-in, two Super Admin pages, the six public pages and the five request pages — no Package-1D page', () => {
+  it('Packages 1A–1D only: sign-in, four Super Admin pages, the six public pages and the five request pages — nothing of Package 1E', () => {
     const all = filesUnder(APP);
-    for (const forbidden of [/signed-out/, /institutions/, /\(public\)\/requests\/page\.tsx$/]) {
+    for (const forbidden of [/signed-out/, /\(public\)\/requests\/page\.tsx$/]) {
       expect(all.filter((file) => forbidden.test(file))).toEqual([]);
     }
     expect(all.filter((file) => /^\(public\)/.test(file)).sort()).toEqual([
@@ -104,6 +105,18 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       'admin/requests/[requestId]/page.tsx',
       'admin/requests/page.tsx',
     ]);
+    // Package 1D: SA-06 and SA-07; the Super Admin's base page is SA-01.
+    expect(all.filter((file) => /^admin\/institutions/.test(file)).sort()).toEqual([
+      'admin/institutions/[institutionId]/page.tsx',
+      'admin/institutions/page.tsx',
+    ]);
+    expect(PAGES.find((page) => page.file === 'admin/page.tsx')).toMatchObject({
+      kind: 'screen',
+      screen: 'SA-01',
+    });
+    expect(
+      PAGES.filter((page) => page.kind === 'interim-landing').map((page) => page.pattern),
+    ).toEqual(['/student', '/faculty', '/institute', '/vendor', '/reviewer', '/content-manager']);
   });
 });
 
@@ -121,9 +134,9 @@ describe('static redirects (next.config.ts; Appendix A §3.7)', () => {
 });
 
 describe('the built-screen manifest is generated from the route manifest', () => {
-  it('Help (XS-07) in every workspace, and the Super Admin’s Requests and decision (Package 1A)', () => {
-    expect([...SCREENS_WITH_PAGES]).toEqual(['XS-07', 'SA-02', 'SA-03']);
-    expect([...BUILT_SCREENS]).toEqual(['XS-07', 'SA-02', 'SA-03']);
+  it('Help (XS-07) in every workspace, the Super Admin’s Requests and decision (Package 1A), Overview, Institutions and Institution detail (Package 1D)', () => {
+    expect([...SCREENS_WITH_PAGES]).toEqual(['XS-07', 'SA-01', 'SA-02', 'SA-03', 'SA-06', 'SA-07']);
+    expect([...BUILT_SCREENS]).toEqual(['XS-07', 'SA-01', 'SA-02', 'SA-03', 'SA-06', 'SA-07']);
   });
 
   it('the public pages are not sidebar destinations; the public header reads its own set (Packages 1B, 1C)', () => {
@@ -180,10 +193,19 @@ describe('resolveAddress — what an address shows', () => {
     ['/admin/requests', { kind: 'record-screen', workspace: 'admin', screen: 'SA-02' }],
     ['/admin/requests/REQ-0038', { kind: 'record-screen', workspace: 'admin', screen: 'SA-03' }],
     ['/admin/requests/REQ-0038/x', { kind: 'workspace-not-found', workspace: 'admin' }],
+    ['/admin', { kind: 'record-screen', workspace: 'admin', screen: 'SA-01' }],
+    ['/admin/institutions', { kind: 'record-screen', workspace: 'admin', screen: 'SA-06' }],
+    [
+      '/admin/institutions/godavari',
+      { kind: 'record-screen', workspace: 'admin', screen: 'SA-07' },
+    ],
+    ['/admin/institutions/godavari/x', { kind: 'workspace-not-found', workspace: 'admin' }],
+    ['/institute/institutions', { kind: 'workspace-not-found', workspace: 'institute' }],
     ['/student/requests', { kind: 'workspace-not-found', workspace: 'student' }],
     ['/experiments', { kind: 'public-screen', screen: 'PU-04' }],
     ['/student', { kind: 'interim-landing', workspace: 'student', lands: '/student/help' }],
-    ['/admin/', { kind: 'interim-landing', workspace: 'admin', lands: '/admin/help' }],
+    ['/admin/', { kind: 'record-screen', workspace: 'admin', screen: 'SA-01' }],
+    ['/vendor/', { kind: 'interim-landing', workspace: 'vendor', lands: '/vendor/help' }],
     ['/faculty/help', { kind: 'screen', workspace: 'faculty', view: 'reports' }],
     ['/institute/help/report', { kind: 'screen', workspace: 'institute', view: 'report' }],
     ['/vendor/help/reports', { kind: 'redirect', workspace: 'vendor', to: '/vendor/help' }],

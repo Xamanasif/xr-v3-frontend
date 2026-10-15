@@ -15,6 +15,7 @@ import {
   expectSameDocument,
   markDocument,
   openAs,
+  revealSidebar,
   roleEntry,
   type RoleEntry,
   sidebarHelp,
@@ -97,6 +98,13 @@ async function switchTo(page: Page, entry: RoleEntry, from: RoleEntry): Promise<
     ).toBeVisible();
     await expect(message).toContainText(`You’re signed in to the ${entry.label} workspace.`);
     await message.getByRole('link', { name: 'Back to Home' }).click();
+    if (entry.role === 'super_admin') {
+      // The Super Admin's home is built since Package 1D (SA-01 Overview); Help is a sidebar step.
+      await page.waitForURL('**/admin');
+      await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
+      await revealSidebar(page);
+      await sidebarHelp(page).click();
+    }
     await page.waitForURL(`**${entry.base}/help`);
   }
   await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
@@ -370,10 +378,14 @@ test('D · identity continuity: a change made as one role is there for the next,
   await expect(page.locator('main')).not.toContainText(reference);
 
   // The new role's actual workspace: its shell, its navigation (its built destinations — the
-  // Super Admin's Requests since Package 1A — and Help) and its permissions: the Student's
-  // addresses are not part of it.
+  // Super Admin's Requests since Package 1A, Overview and Institutions since 1D — and Help) and its
+  // permissions: the Student's addresses are not part of it.
   await expectShellOf(page, ADMIN);
-  await expect(page.locator('aside.xr-side nav a .xr-nav-text')).toHaveText(['Requests']);
+  await expect(page.locator('aside.xr-side nav a .xr-nav-text')).toHaveText([
+    'Overview',
+    'Requests',
+    'Institutions',
+  ]);
   await expect(sidebarHelp(page)).toHaveAttribute('href', '/admin/help');
   await checkScreen(page);
   await page.locator('main').getByRole('link', { name: 'Report a problem' }).click();

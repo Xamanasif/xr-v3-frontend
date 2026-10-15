@@ -155,7 +155,9 @@ test('one tab, the product build: sign-in, requests, a decision, sign-out, anoth
   // And the same world: Arjun again sees the decision he recorded before signing out.
   await signOut(page, ACCOUNT_LINES.content_manager);
   await signIn(page, 'arjun.mehta@wilp.example');
-  await page.waitForURL('**/admin/help');
+  // His base is SA-01 Overview since Package 1D.
+  await page.waitForURL('**/admin');
+  await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
   await reachAndClick(page, page.locator('aside.xr-side nav a[href="/admin/requests"]'));
   await page.waitForURL('**/admin/requests');
   await expect(

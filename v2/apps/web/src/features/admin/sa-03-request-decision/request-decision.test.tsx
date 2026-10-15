@@ -356,7 +356,13 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
     );
     expect(within(decision).queryAllByRole('radio')).toHaveLength(0);
     expect(within(decision).queryAllByRole('button')).toHaveLength(0);
-    expect(within(decision).queryAllByRole('link')).toHaveLength(0);
+    // B1-11 f14's one next step, rendered since SA-07 is built (Package 1D).
+    expect(
+      within(decision)
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual(['/admin/institutions/konark']);
+    expect(within(decision).getByRole('link', { name: 'View institution' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Existing access' })).toHaveTextContent(
       'The institution is paused.',
     );

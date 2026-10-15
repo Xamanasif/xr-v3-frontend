@@ -20,7 +20,9 @@ import type { WorkspaceScreenId } from './screens';
  * PU-07, PU-08, PU-09, PU-10 (with PU-13) and PU-12; its guards (an empty selection, a cold "sent",
  * a request that has no payment step now) replace the address in the browser, where the selection
  * and the tickets live. Every other public address resolves to the root not-found (the public
- * PU-15, inside the public header and footer).
+ * PU-15, inside the public header and footer). Package 1D builds the Super Admin's home — `/admin`
+ * is SA-01 Overview (its Phase-1 Requests group), no longer the interim landing — and SA-06
+ * Institutions and SA-07 Institution detail; the other six bases keep the interim landing.
  */
 
 /** What a page file renders. */
@@ -83,15 +85,24 @@ export function roleOfWorkspace(workspace: Workspace): Role {
   return role;
 }
 
+/**
+ * The workspace homes built so far: a base whose home screen is built shows it; every other base
+ * is the interim landing (ADR-0005 §8; P0-35). Package 1D: the Super Admin's Overview (SA-01).
+ */
+export const BUILT_HOMES: Readonly<Partial<Record<Workspace, WorkspaceScreenId>>> = {
+  admin: 'SA-01',
+};
+
 function workspacePages(workspace: Workspace): PageRoute[] {
   const base = `/${workspace}`;
+  const home = BUILT_HOMES[workspace] ?? null;
   return [
     {
       pattern: base,
       file: `${workspace}/page.tsx`,
       workspace,
-      kind: 'interim-landing',
-      screen: null,
+      kind: home ? 'screen' : 'interim-landing',
+      screen: home,
     },
     {
       pattern: `${base}/help`,
@@ -189,14 +200,33 @@ const PACKAGE_1C_PAGES: readonly PageRoute[] = (
 ).map(([pattern, file, screen]) => ({ pattern, file, workspace: null, kind: 'screen', screen }));
 
 /**
- * Every page file: the Phase-0 pages of the seven workspaces (35), Package 1A's (3), Package 1B's
- * (6), Package 1C's (5).
+ * Package 1D (Phase 1): the Super Admin's Institutions and Institution detail (Appendix A: SA-06
+ * `/admin/institutions`, SA-07 `/admin/institutions/[institutionId]`). SA-01 Overview is the admin
+ * base's own page (`BUILT_HOMES`).
+ */
+const PACKAGE_1D_PAGES: readonly PageRoute[] = (
+  [
+    ['/admin/institutions', 'admin/institutions/page.tsx', 'SA-06'],
+    ['/admin/institutions/[institutionId]', 'admin/institutions/[institutionId]/page.tsx', 'SA-07'],
+  ] as const
+).map(([pattern, file, screen]) => ({
+  pattern,
+  file,
+  workspace: 'admin',
+  kind: 'screen',
+  screen,
+}));
+
+/**
+ * Every page file: the Phase-0 pages of the seven workspaces (35; the admin base is SA-01 since
+ * Package 1D), Package 1A's (3), Package 1B's (6), Package 1C's (5), Package 1D's (2).
  */
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
   ...PACKAGE_1A_PAGES,
   ...PACKAGE_1B_PAGES,
   ...PACKAGE_1C_PAGES,
+  ...PACKAGE_1D_PAGES,
 ];
 
 /**
@@ -256,7 +286,7 @@ export type AddressOutcome =
   | {
       readonly kind: 'record-screen';
       readonly workspace: Workspace;
-      readonly screen: 'SA-02' | 'SA-03';
+      readonly screen: 'SA-01' | 'SA-02' | 'SA-03' | 'SA-06' | 'SA-07';
     }
   | { readonly kind: 'interim-landing'; readonly workspace: Workspace; readonly lands: string }
   | { readonly kind: 'redirect'; readonly workspace: Workspace | null; readonly to: string }
@@ -281,6 +311,7 @@ export function resolveAddress(address: string): AddressOutcome {
   const workspace = first as Workspace;
   const parts = tail;
   if (parts.length === 0) {
+    if (workspace === 'admin') return { kind: 'record-screen', workspace, screen: 'SA-01' };
     return { kind: 'interim-landing', workspace, lands: `/${workspace}/help` };
   }
   if (parts[0] === 'help') {
@@ -298,6 +329,12 @@ export function resolveAddress(address: string): AddressOutcome {
     if (parts.length === 1) return { kind: 'record-screen', workspace, screen: 'SA-02' };
     if (parts.length === 2 && parts[1] !== '') {
       return { kind: 'record-screen', workspace, screen: 'SA-03' };
+    }
+  }
+  if (workspace === 'admin' && parts[0] === 'institutions') {
+    if (parts.length === 1) return { kind: 'record-screen', workspace, screen: 'SA-06' };
+    if (parts.length === 2 && parts[1] !== '') {
+      return { kind: 'record-screen', workspace, screen: 'SA-07' };
     }
   }
   return { kind: 'workspace-not-found', workspace };

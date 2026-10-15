@@ -2,7 +2,8 @@
  * The link-target ledger (ADR-0005 §8; Appendix F §3.3 "Unbuilt destinations", WP-0.13 acceptance
  * 9; register P0-35): every action drawn on the built screens (Phase 0, then Phase-1 Package 1A:
  * XS-01, SA-02, SA-03; Package 1B: the public shell and PU-01 … PU-06 with PU-14; Package 1C: PU-07,
- * PU-08, PU-09, PU-10 with PU-13, PU-12), where it goes, and what that address shows. Its tests prove that every link reaches a built page — the one
+ * PU-08, PU-09, PU-10 with PU-13, PU-12; Package 1D: SA-01, SA-06, SA-07), where it goes, and what
+ * that address shows. Its tests prove that every link reaches a built page — the one
  * Phase-0 dead link (PU-15 → PU-04) is gone since Package 1B — and that no primary action resolves
  * to the page it is on; the browser
  * suite follows each link for real and checks that no document load (which would rebuild the
@@ -34,8 +35,11 @@ export type LedgerScreen =
   | 'PU-10'
   | 'PU-12'
   | 'PU-15'
+  | 'SA-01'
   | 'SA-02'
-  | 'SA-03';
+  | 'SA-03'
+  | 'SA-06'
+  | 'SA-07';
 
 export type ActionRole =
   /** The page's one primary action (board 08 "One primary action"; `xr-btn--primary`). */
@@ -113,7 +117,28 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     target: null,
     outcome: 'in-page',
     board: '06 "Navigation rules"; navigation.json "No link to removed or deferred destinations"',
-    note: 'The built-screen manifest renders only built destinations (XS-07, and the Super Admin’s Requests); the rest appear with their phase.',
+    note: 'The built-screen manifest renders only built destinations (XS-07; the Super Admin’s Overview, Requests and Institutions); the rest appear with their phase.',
+  },
+  {
+    screen: 'Shell',
+    where: 'Sidebar destination (Super Admin only)',
+    action: 'Overview',
+    role: 'secondary',
+    on: '/admin/*',
+    target: '/admin',
+    outcome: 'built',
+    board: '06 (Super Admin raw[]); B7-01 f0 (`aria-current="page"`)',
+    note: 'SA-01, its Phase-1 Requests group (Package 1D).',
+  },
+  {
+    screen: 'Shell',
+    where: 'Sidebar destination (Super Admin only)',
+    action: 'Institutions',
+    role: 'secondary',
+    on: '/admin/*',
+    target: '/admin/institutions',
+    outcome: 'built',
+    board: '06 (Super Admin raw[]); B7-02 f0, B7-03 f0 (`aria-current="page"`)',
   },
   {
     screen: 'Shell',
@@ -180,7 +205,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     target: '<base>',
     outcome: 'interim-landing',
     board: '08 "This page isn’t part of your workspace"; "At 375 px"',
-    note: 'The person’s own base; until their home is built it lands on their Help (ADR-0005 §8).',
+    note: 'The person’s own base; until their home is built it lands on their Help (ADR-0005 §8). The Super Admin’s home is built since Package 1D: SA-01 Overview.',
   },
   {
     screen: 'XS-06',
@@ -202,7 +227,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     target: '<base>',
     outcome: 'interim-landing',
     board: '08 "Page not found · workspace"',
-    note: 'Lands on the workspace’s Help until its home is built (ADR-0005 §8).',
+    note: 'Lands on the workspace’s Help until its home is built (ADR-0005 §8); in the Super Admin’s workspace, SA-01 Overview (Package 1D).',
   },
   {
     screen: 'PU-15',
@@ -316,7 +341,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     target: '<base>',
     outcome: 'interim-landing',
     board: '07 "State 1c · Sent · reference"',
-    note: 'Lands on My reports until the workspace home is built (ADR-0005 §8).',
+    note: 'Lands on My reports until the workspace home is built (ADR-0005 §8); in the Super Admin’s workspace, SA-01 Overview (Package 1D).',
   },
   {
     screen: 'XS-07',
@@ -557,9 +582,198 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     role: 'secondary',
     on: '/admin/requests/{requestId}',
     target: '/admin/institutions/{institutionId}',
-    outcome: 'not-rendered',
+    outcome: 'built',
     board: 'B1-11 f14 (`xr-notice-actions` → B7-03 Institution detail)',
-    note: 'Institution detail (SA-07) is not built: the link appears with it.',
+    note: 'Rendered since Package 1D built Institution detail (SA-07).',
+  },
+  // ---- SA-01 Overview (B7-01), its Phase-1 Requests group — Package 1D -----------------------------
+  {
+    screen: 'SA-01',
+    where: 'Requests group head',
+    action: 'Open Requests',
+    role: 'secondary',
+    on: '/admin',
+    target: '/admin/requests',
+    outcome: 'built',
+    board: 'B7-01 f0, f3 (`a.xr-btn--text.xr-btn--sm` → B1-10)',
+  },
+  {
+    screen: 'SA-01',
+    where: 'Each request row',
+    action: 'Open',
+    role: 'secondary',
+    on: '/admin',
+    target: '/admin/requests/{requestId}',
+    outcome: 'built',
+    board:
+      'B7-01 f0 (“Every row opens the page where it is handled”); Appendix A SA-01 (REQ → /admin/requests/[requestId])',
+  },
+  {
+    screen: 'SA-01',
+    where: 'Failed state',
+    action: 'Try again',
+    role: 'secondary',
+    on: '/admin',
+    target: null,
+    outcome: 'in-page',
+    board: 'Board 04 "State grammar" Failed + retry (B7-01 draws no failed frame)',
+  },
+  // ---- SA-06 Institutions (B7-02) — Package 1D -----------------------------------------------------------
+  {
+    screen: 'SA-06',
+    where: 'Status tabs',
+    action: 'All · Access active · Ending soon · Paused · Awaiting payment · No Institute Admin',
+    role: 'secondary',
+    on: '/admin/institutions',
+    target: null,
+    outcome: 'in-page',
+    board: 'B7-02 f0 … f4, f6 (`role="tablist"`, “Search and the status tabs are live”)',
+  },
+  {
+    screen: 'SA-06',
+    where: 'Toolbar status row (and the no-match state)',
+    action: 'Clear filters',
+    role: 'secondary',
+    on: '/admin/institutions',
+    target: null,
+    outcome: 'in-page',
+    board: 'B7-02 f2, f3, f4 (“One way back: Clear filters”)',
+  },
+  {
+    screen: 'SA-06',
+    where: 'Each row',
+    action: 'Open',
+    role: 'secondary',
+    on: '/admin/institutions',
+    target: '/admin/institutions/{institutionId}',
+    outcome: 'built',
+    board: 'B7-02 f2 … f6 (`a.xr-btn--secondary.xr-btn--sm` → B7-03)',
+  },
+  {
+    screen: 'SA-06',
+    where: 'Failed state',
+    action: 'Try again',
+    role: 'secondary',
+    on: '/admin/institutions',
+    target: null,
+    outcome: 'in-page',
+    board: 'Board 04 "State grammar" Failed + retry (B7-02 draws no failed frame)',
+  },
+  // ---- SA-07 Institution detail (B7-03, B7-04) — Package 1D ----------------------------------------------
+  {
+    screen: 'SA-07',
+    where: 'Back link',
+    action: 'Institutions',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: '/admin/institutions',
+    outcome: 'built',
+    board: 'B7-03 f0 (`a.xr-back`)',
+  },
+  {
+    screen: 'SA-07',
+    where: 'Top-bar crumb (from 1024 px)',
+    action: 'Institutions',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: '/admin/institutions',
+    outcome: 'built',
+    board: 'B7-03 f0 (`ol.xr-crumbs`)',
+  },
+  {
+    screen: 'SA-07',
+    where: 'Page actions — no Institute Admin (and its “Needs attention” row)',
+    action: 'Assign Institute Admin',
+    role: 'primary',
+    on: '/admin/institutions/{institutionId}',
+    target: null,
+    outcome: 'in-page',
+    board: 'B7-03 f1 (“The first action is Assign Institute Admin”), f6',
+    note: 'Opens the dialog (name + work e-mail); its Assign is the assignInstituteAdmin command with the institution’s revision.',
+  },
+  {
+    screen: 'SA-07',
+    where: 'Page actions — access active or ending soon',
+    action: 'Pause access',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: null,
+    outcome: 'in-page',
+    board: 'B7-03 f0, f5, f7; B7-04 f0',
+    note: 'Opens the reason dialog (DL-2); its Pause access is the pauseInstitution command.',
+  },
+  {
+    screen: 'SA-07',
+    where: 'Page actions — access paused (and its “Needs attention” row)',
+    action: 'Restore access',
+    role: 'primary',
+    on: '/admin/institutions/{institutionId}',
+    target: null,
+    outcome: 'in-page',
+    board: 'B7-03 f2 (“Restore access is the action”); B7-04 f0',
+    note: 'Opens the reason dialog; its Restore access is the restoreInstitution command.',
+  },
+  {
+    screen: 'SA-07',
+    where: 'Page actions',
+    action: 'Open request <reference>',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: '/admin/requests/{requestId}',
+    outcome: 'built',
+    board: 'B7-03 f0 … f9 (`a.xr-btn--text` → B1-11 SA-03)',
+  },
+  {
+    screen: 'SA-07',
+    where: '“Needs attention” — a request row',
+    action: 'Requests',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: '/admin/requests',
+    outcome: 'built',
+    board: 'B7-03 `att` (`["…", "Requests", "sareq"]` → B1-10)',
+  },
+  {
+    screen: 'SA-07',
+    where: '“Needs attention” — device transfers and access ending',
+    action: 'Operations · Operations › Access ending',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: '/admin/operations/device-transfers',
+    outcome: 'not-rendered',
+    board: 'B7-03 `att` (godavari, konark → B7-09)',
+    note: 'Operations (SA-18 … SA-22) is not built (Phases 3 and 6): the rows appear with it (state-copy SA-07.attention-later).',
+  },
+  {
+    screen: 'SA-07',
+    where: 'People — each student',
+    action: 'Change status · Change to <status> · Cancel',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: null,
+    outcome: 'in-page',
+    board: 'B7-03 f0, f8 (“Inline, beside the student it changes”)',
+    note: 'Change to … is the overrideStudentStatus command with the student record’s revision (PC-37).',
+  },
+  {
+    screen: 'SA-07',
+    where: 'Dialogs (Assign, Pause, Restore)',
+    action: 'Cancel · Close',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: null,
+    outcome: 'in-page',
+    board: 'B7-03 f6, f7',
+  },
+  {
+    screen: 'SA-07',
+    where: 'Failed state',
+    action: 'Try again',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: null,
+    outcome: 'in-page',
+    board: 'Board 04 "State grammar" Failed + retry (B7-03 draws no failed frame)',
   },
   // ---- The public surface (Phase-1 Package 1B: B1-01 … B1-05) --------------------------------
   ...publicShell(),

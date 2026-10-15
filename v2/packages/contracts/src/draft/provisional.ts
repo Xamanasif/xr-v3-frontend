@@ -231,13 +231,12 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
   {
     id: 'PC-13',
     subject:
-      'Pre-rendered words in later-phase read models (attention rows, plan summary, queue sub-line, scope line, library tags, who can act, can act on, release line, institution note)',
+      'Pre-rendered words in later-phase read models (attention rows, queue sub-line, scope line, library tags, who can act, can act on, release line, institution note); the SA-06 plan summary was replaced by facts in Phase-1 Package 1D (PC-36)',
     status: 'provisional-engineering',
     source: 'Appendix C [P] shapes; they conflict with §1.5 ("never pre-rendered words")',
     decisions: [],
     trace: [
       { kind: 'schema-field', schema: 'attentionRow', path: 'text' },
-      { kind: 'schema-field', schema: 'institutionRow', path: 'planSummary' },
       { kind: 'schema-field', schema: 'reviewQueueItem', path: 'subLine' },
       { kind: 'schema-field', schema: 'reviewerOverviewOutput', path: 'scopeLine' },
       { kind: 'schema-field', schema: 'listHoldersOutput', path: '(array).canActOn' },
@@ -563,5 +562,41 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     irreversible: WHILE_DRAFT,
     reversal:
       'Drop the field; Undo then puts the item back last (a stored selection without it already does).',
+  },
+  {
+    id: 'PC-36',
+    subject:
+      'The SA-06 row carries facts, not words: its plans (`plans[]` — reference, course and experiment counts), the experiments its first request asked for (`requestedExperimentCount`) and the “Needs one” flag (`needsInstituteAdmin`); `accessEndsOn` is the last end date of its plans; rows come newest institution first; the `access-active` tab also holds the institutions ending soon',
+    status: 'provisional-engineering',
+    source:
+      'B7-02 rows ("ACC-0107 · 1 course · 1 experiment"; "No access plan yet · 1 experiment requested"; "Needs one"; "Ends 7 Oct 2027" / "Ended 15 Oct 2026") and its script (`match`: the "Access active" tab holds active and ending; `noIA`: no Institute Admin while active, ending or paused = matrix INST-04). Appendix C gave the row a pre-rendered `planSummary` (PC-13) and no flag; the board draws no sort control, so the order is an engineering choice (the record created last first). Built in Phase-1 Package 1D',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'institutionRow', path: 'plans.(array).courseCount' },
+      { kind: 'schema-field', schema: 'institutionRow', path: 'requestedExperimentCount' },
+      { kind: 'schema-field', schema: 'institutionRow', path: 'needsInstituteAdmin' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Put `planSummary` words back (and drop the facts), or let the screen derive the flag from the `no-institute-admin` tab; a sort control, once designed, replaces the fixed order.',
+  },
+  {
+    id: 'PC-37',
+    subject:
+      'Each student SA-07 lists carries its record revision (`studentList[].rev`), the `expectedRev` “Change status” sends to `overrideStudentStatus`',
+    status: 'provisional-engineering',
+    source:
+      'WP-0.14 / Phase-0 handover owner item "SA-07 student list lacks `rev` for overrideStudentStatus"; owner authorisation of Package 1D §5: "the minimal additive DTO/read-model revision field required by the existing command contract … Take the revision from the actual record". Appendix C’s `InstitutionDetail.people.studentList` names id, name, Student ID and status only. Added in Phase-1 Package 1D',
+    decisions: [],
+    trace: [
+      {
+        kind: 'schema-field',
+        schema: 'institutionDetail',
+        path: 'people.studentList.(array).rev',
+      },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the field; an override then needs another read that answers the student record’s revision.',
   },
 ];

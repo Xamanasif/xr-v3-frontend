@@ -150,8 +150,9 @@ test('open redirects and other workspaces are refused: the person’s own base i
   for (const returnTo of ['https://evil.example/admin', '//evil.example/admin', '/student/help']) {
     await page.goto(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
     await signInAs(page, { email: ARJUN });
-    // `/admin` is the interim landing: Help & support until SA-01 is built (P0-35).
-    await page.waitForURL('**/admin/help');
+    // `/admin` is SA-01 Overview since Package 1D (before, the interim landing: Help, P0-35).
+    await page.waitForURL('**/admin');
+    await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
     expect(new URL(page.url()).origin).toBe('http://localhost:3000');
   }
 });

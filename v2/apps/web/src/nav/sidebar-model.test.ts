@@ -17,9 +17,9 @@ const everyScreen = (role: (typeof PLATFORM_ROLES)[number]): ReadonlySet<ScreenK
     ...WORKSPACE_NAV[role].destinations.map((destination) => destination.screen),
   ]);
 
-describe('the built-screen manifest (Phase 0 + Package 1A)', () => {
-  it('builds Help & support (XS-07) everywhere and the Super Admin’s Requests (SA-02, SA-03)', () => {
-    expect([...BUILT_SCREENS]).toEqual(['XS-07', 'SA-02', 'SA-03']);
+describe('the built-screen manifest (Phase 0 + Packages 1A and 1D)', () => {
+  it('builds Help & support (XS-07) everywhere and the Super Admin’s Overview, Requests and Institutions', () => {
+    expect([...BUILT_SCREENS]).toEqual(['XS-07', 'SA-01', 'SA-02', 'SA-03', 'SA-06', 'SA-07']);
   });
 
   it.each(
@@ -40,33 +40,40 @@ describe('the built-screen manifest (Phase 0 + Package 1A)', () => {
     },
   );
 
-  it('Super Admin: Requests, then Help — Requests current on SA-02 and SA-03, its count in words', () => {
+  it('Super Admin: Overview, Requests, Institutions, then Help — each current on its own screens, the Requests count in words', () => {
     const help = sidebarModel('super_admin', { screen: 'XS-07' });
     expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
+      ['Overview', '/admin', false],
       ['Requests', '/admin/requests', false],
+      ['Institutions', '/admin/institutions', false],
     ]);
     expect(help.help.current).toBe(true);
+    const current = (screen: ScreenKey) =>
+      sidebarModel('super_admin', { screen })
+        .destinations.filter((item) => item.current)
+        .map((item) => item.label);
+    expect(current('SA-01')).toEqual(['Overview']);
+    expect(current('SA-06')).toEqual(['Institutions']);
+    expect(current('SA-07')).toEqual(['Institutions']);
     for (const screen of ['SA-02', 'SA-03'] as const) {
       const page = sidebarModel('super_admin', { screen, counts: { requests: 2 } });
-      expect(page.destinations).toEqual([
-        {
-          label: 'Requests',
-          href: '/admin/requests',
-          icon: BOARD_ICON.requests,
-          current: true,
-          count: { value: 2, label: '2 requests under review' },
-        },
-      ]);
+      expect(page.destinations.find((item) => item.label === 'Requests')).toEqual({
+        label: 'Requests',
+        href: '/admin/requests',
+        icon: BOARD_ICON.requests,
+        current: true,
+        count: { value: 2, label: '2 requests under review' },
+      });
       expect(page.help.current).toBe(false);
     }
     for (const screen of ['XS-06', 'PU-15'] as const) {
       const message = sidebarModel('super_admin', { screen });
-      expect(message.destinations.map((item) => item.current)).toEqual([false]);
+      expect(message.destinations.map((item) => item.current)).toEqual([false, false, false]);
       expect(message.help.current).toBe(false);
     }
     // No count at zero (board 05 `hasCount`).
     expect(
-      sidebarModel('super_admin', { screen: 'SA-02', counts: { requests: 0 } }).destinations[0]!
+      sidebarModel('super_admin', { screen: 'SA-02', counts: { requests: 0 } }).destinations[1]!
         .count,
     ).toBeUndefined();
   });
