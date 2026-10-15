@@ -19,6 +19,8 @@ import {
 } from '@xr/contracts/draft';
 import type { GroupId, PersonId, StudentDirectoryStatus } from '@xr/domain';
 
+import { fieldWords } from '@/copy/field-words';
+
 import { defineQuery, useXrQuery } from './use-xr-query';
 
 /** The IA-06 filters as the toolbar holds them (`''` = not applied). */
@@ -76,11 +78,14 @@ export function useFacultyDirectory(enabled = true) {
   return useXrQuery(facultyDirectory, null, { enabled });
 }
 
-/** `listGroups`: the institution's groups (IA-06's Group filter, IA-10's Group). */
+/**
+ * `listGroups`: the institution's groups (IA-06's Group filter, IA-10's Group, IA-13 Groups) — each
+ * with its member count and (Package 2B) the experiments its active grants give it now.
+ */
 export const groupList = defineQuery({
   family: 'GRP',
   view: 'institute-groups',
-  deps: ['GRP'],
+  deps: ['GRP', 'SACC', 'ACC', 'EXP'],
   read: (ports: ProductPorts) => ports.groups.listGroups(),
 });
 
@@ -122,19 +127,25 @@ export interface PersonFieldError {
   readonly summaryText: string;
 }
 
-/** The service's drawn words for the IA-10 fields, in the form's order (B2-07 `submit`). */
+/**
+ * The service's drawn words for the IA-10 fields, in the form's order (B2-07 `submit`). Package 2B:
+ * the identity safeguard's undrawn rule (PC-49) shows the register's provisional words.
+ */
 export function personFieldErrors(error: ValidationFailed): PersonFieldError[] {
   const errors: PersonFieldError[] = [];
-  for (const item of toErrorSummary(error).items) {
+  const summary = toErrorSummary(error).items;
+  error.fieldErrors.forEach((fieldError, index) => {
+    const item = summary[index]!;
     const field = item.field.split('.')[0]!;
-    if (!PERSON_FIELDS.has(field) || !item.message) continue;
-    if (errors.some((entry) => entry.field === field)) continue;
+    const message = fieldWords(fieldError);
+    if (!PERSON_FIELDS.has(field) || !message) return;
+    if (errors.some((entry) => entry.field === field)) return;
     errors.push({
       field: field as PersonField,
-      message: item.message,
-      summaryText: item.summaryText ?? item.message,
+      message,
+      summaryText: item.summaryText ?? message,
     });
-  }
+  });
   return errors;
 }
 

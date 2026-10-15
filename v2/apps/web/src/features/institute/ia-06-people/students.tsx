@@ -26,7 +26,7 @@ import {
   STUDENTS_TAB,
 } from '@/copy/institute-people';
 import { formatName } from '@/copy/flow-state-words';
-import { addPersonAddress, studentRecordAddress } from '@/nav/institute';
+import { addPersonAddress, IMPORT_STUDENTS_ADDRESS, studentRecordAddress } from '@/nav/institute';
 import { NOT_IN_GROUP, useAllStudents, useGroupList, useStudentDirectory } from '@/queries/people';
 
 import { ListFailed, ListLoading, PeopleToolbar } from './list-parts';
@@ -139,9 +139,11 @@ export function StudentsTab({ paused }: { readonly paused: boolean }) {
           actions={
             paused ? undefined : (
               <div className="xw-actions">
-                {/* B2-06 f3 also draws "Import students" (IA-11, not built: DEV-21). */}
                 <Link className="xr-btn xr-btn--secondary" href={addPersonAddress('student')}>
                   {PEOPLE_PAGE.addStudent}
+                </Link>
+                <Link className="xr-btn xr-btn--secondary" href={IMPORT_STUDENTS_ADDRESS}>
+                  {PEOPLE_PAGE.importStudents}
                 </Link>
               </div>
             )

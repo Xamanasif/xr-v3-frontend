@@ -94,7 +94,7 @@ const TITLE_ID = 'give-access-title';
  *   (`expectedPlanRev`). The result names each new grant ("Access given · SACC-0310") with its
  *   status; "View Student access" and "Give more access". A failure keeps every choice (f12); a
  *   refusal says so and reads the options again.
- * - Not rendered (DEV-21): "Import students" (IA-11) on f14 and "Request renewal" (IA-17) on f16.
+ * - Not rendered (DEV-21): "Request renewal" (IA-17) on f16. "Import students" (f14) opens IA-11.
  */
 export function GiveAccess() {
   useShellPage(underPlacement('IA-05', GIVE_ACCESS.title));
@@ -111,12 +111,14 @@ export function GiveAccess() {
 
   // One read for the course the page names; with no course named and more than one in access, the
   // first course's experiments are read on their own (an experiment carries no course).
-  const base = useGiveAccessOptions(draft.courseId);
+  // Package 2B (PC-48): the experiments chosen in step 1 go with the read, so "Already has it" is
+  // answered per chosen experiment from the grant records — never per course.
+  const base = useGiveAccessOptions(draft.courseId, draft.experimentIds);
   const firstCourse =
     draft.courseId === null && base.data?.ok && base.data.value.courses.length > 1
       ? base.data.value.courses[0]!.id
       : null;
-  const scoped = useGiveAccessOptions(firstCourse, firstCourse !== null);
+  const scoped = useGiveAccessOptions(firstCourse, draft.experimentIds, firstCourse !== null);
   const options = firstCourse !== null ? scoped : base;
   const students = useGiveAccessStudents();
   const answer = options.data;

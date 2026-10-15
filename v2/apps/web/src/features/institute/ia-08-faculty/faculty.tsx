@@ -1,11 +1,12 @@
 'use client';
 
 import type { FacultyDirectoryRow } from '@xr/contracts/draft';
-import { Button, EmptyState, StatusPill } from '@xr/ui';
+import { Button, EmptyState, Link, StatusPill } from '@xr/ui';
 import { useLayoutEffect, useRef, useState } from 'react';
 
 import { FACULTY_TAB, facultyCountWords, PEOPLE_PAGE, STUDENTS_TAB } from '@/copy/institute-people';
 import { stateWords } from '@/copy/state-copy';
+import { facultyRecordAddress } from '@/nav/institute';
 import { useFacultyDirectory } from '@/queries/people';
 
 import { ListFailed, ListLoading, PeopleToolbar } from '../ia-06-people/list-parts';
@@ -16,7 +17,7 @@ import { ListFailed, ListLoading, PeopleToolbar } from '../ia-06-people/list-par
  * ("No courses yet") and their status. The search ("Name or e-mail", ignoring case) narrows the
  * rows the read answered — the read takes no search (state-copy `IA-08.search`); the count "1 of 3
  * faculty members" is announced, and no match offers "Clear search". A faculty member's name opens
- * nothing: IA-09 Faculty record is not built (DEV-21). Faculty access (courses taught) is separate
+ * their Faculty record (IA-09, Package 2B). Faculty access (courses taught) is separate
  * from student experiment grants; no Faculty deactivation is designed (PER-07), so none is offered.
  */
 export function FacultyTab() {
@@ -105,8 +106,10 @@ export function FacultyTab() {
               {listed.map((row) => (
                 <tr key={row.faculty.id}>
                   <td className="is-primary">
-                    {/* B2-06 f14 links the name to IA-09 (not built: DEV-21). */}
-                    <strong>{row.faculty.fullName}</strong>
+                    {/* B2-06 f14: the name opens the Faculty record (IA-09, Package 2B). */}
+                    <Link href={facultyRecordAddress(row.faculty.id)} className="font-[700]">
+                      {row.faculty.fullName}
+                    </Link>
                     <span className="xr-sub">{row.faculty.institutionEmail}</span>
                   </td>
                   <td data-label={columns.coursesTaught}>

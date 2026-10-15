@@ -95,6 +95,57 @@ export function useMyCourses() {
   return useXrQuery(myCourses, null);
 }
 
+/** One row of ST-04: a given experiment and the course it is in. */
+export interface MyExperimentEntry {
+  readonly course: MyCourseRow;
+  readonly experiment: MyExperimentRow;
+}
+
+/** What ST-04 reads: every given experiment, and whether any course has earlier work only. */
+export interface MyExperimentsRead {
+  readonly rows: readonly MyExperimentEntry[];
+  readonly earlierWork: boolean;
+}
+
+/**
+ * ST-04 All experiments (B2-11 f2; Package 2B): `listMyCourses`, then `getMyCourse` for each listed
+ * course — one row per experiment it lists, never one per format, in course order.
+ * Only what the service gives the Student is listed: an experiment not given never appears (f4
+ * "Fin-Tube is published but not given to him"). A course that stopped being given between the
+ * reads is left out; any other failure is the read's.
+ */
+export const myExperiments = defineQuery({
+  family: 'student',
+  view: 'my-experiments',
+  deps: [...ACCESS_DEPS, 'RUN', 'COMP'],
+  read: async (ports: ProductPorts): Promise<Result<MyExperimentsRead>> => {
+    const courses = await ports.studentAccess.listMyCourses();
+    if (!courses.ok) return courses;
+    // Every listed course: "given" counts only what opens now, so a paused institution's or a
+    // waiting Student's course has none open but still lists its experiments (ST-03's rows).
+    const pages = await Promise.all(
+      courses.value.map((course) => ports.studentAccess.getMyCourse(course.courseId)),
+    );
+    const rows: MyExperimentEntry[] = [];
+    for (const page of pages) {
+      if (!page.ok && page.error.kind === 'not-found') continue;
+      if (!page.ok) return page;
+      for (const experiment of page.value.experiments) {
+        rows.push({ course: page.value.course, experiment });
+      }
+    }
+    return {
+      ok: true,
+      value: { rows, earlierWork: courses.value.some((course) => course.earlierWork) },
+      changed: [],
+    };
+  },
+});
+
+export function useMyExperiments(enabled = true) {
+  return useXrQuery(myExperiments, null, { enabled });
+}
+
 /** ST-03: one course and the experiments given in it (`getMyCourse`); not given → not found. */
 export const myCourse = defineQuery({
   family: 'student',

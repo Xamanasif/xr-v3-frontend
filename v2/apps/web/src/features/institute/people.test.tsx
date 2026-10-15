@@ -120,7 +120,7 @@ describe('IA-06 — the students are the port’s answer (B2-06 f0)', () => {
     const rahul = screen.getByRole('link', { name: 'Open student record: Rahul Verma' });
     expect(rahul).toHaveAttribute('href', `/institute/people/students/${RAHUL}`);
     expect(count()).toHaveTextContent('12 students');
-    // The header: "People", its line, one primary action; "Import students" (IA-11) is not built.
+    // The header: "People", its line, one primary action and "Import students" (IA-11, Package 2B).
     expect(screen.getByRole('heading', { level: 1, name: 'People' })).toBeVisible();
     expect(main().querySelector('.xr-phead-meta')).toHaveTextContent(
       'Students and faculty at your institution',
@@ -129,12 +129,20 @@ describe('IA-06 — the students are the port’s answer (B2-06 f0)', () => {
       'href',
       '/institute/people/add',
     );
-    expect(screen.queryByRole('link', { name: 'Import students' })).toBeNull();
-    // The People tabs: Students (current) and Faculty — Groups and Faculty courses are not built.
+    expect(screen.getByRole('link', { name: 'Import students' })).toHaveAttribute(
+      'href',
+      '/institute/people/import',
+    );
+    expect(main().querySelector('.xr-phead-actions .xr-btn--primary')).toHaveTextContent(
+      'Add student',
+    );
+    // The People tabs: Students (current), Faculty, Groups and Faculty courses (Package 2B).
     const tabs = within(screen.getByRole('navigation', { name: 'People' })).getAllByRole('link');
     expect(tabs.map((tab) => [tab.textContent, tab.getAttribute('href')])).toEqual([
       ['Students', '/institute/people'],
       ['Faculty', '/institute/people?tab=faculty'],
+      ['Groups', '/institute/people?tab=groups'],
+      ['Faculty courses', '/institute/people?tab=faculty-courses'],
     ]);
     expect(tabs[0]).toHaveAttribute('aria-current', 'page');
     // The table's labelled cells (B2-06 f7, rows become labelled blocks).
@@ -264,10 +272,19 @@ describe('IA-08 — the faculty tab (B2-06 f14)', () => {
       ['Dr Anita Desaianita.desai@godavari.edu.in', 'No courses yet', 'Active'],
       ['Prof. Ravi Shankarravi.shankar@godavari.edu.in', 'No courses yet', 'Inactive'],
     ]);
-    // IA-09 Faculty record is not built: the names open nothing.
-    expect(within(screen.getByRole('table', { name: 'Faculty' })).queryAllByRole('link')).toEqual(
-      [],
-    );
+    // Each name opens the Faculty record (IA-09, Package 2B).
+    expect(
+      within(screen.getByRole('table', { name: 'Faculty' }))
+        .getAllByRole('link')
+        .map((link) => [
+          link.textContent,
+          /^\/institute\/people\/faculty\/per-/.test(link.getAttribute('href') ?? ''),
+        ]),
+    ).toEqual([
+      ['Dr S. Ranganathan', true],
+      ['Dr Anita Desai', true],
+      ['Prof. Ravi Shankar', true],
+    ]);
     expect(count()).toHaveTextContent('3 faculty members');
     expect(screen.getByRole('link', { name: 'Add faculty member' })).toHaveAttribute(
       'href',
@@ -337,8 +354,11 @@ describe('IA-07 — the student’s record as it is (B2-06 f8, f9, f10, f11, f17
     const courses = region('Courses and groups');
     expect(courses).toHaveTextContent('CourseME ZG523 · Thermodynamics & Heat Transfer');
     expect(courses).toHaveTextContent('GroupME ZG523 — Sem II');
-    // IA-14 is not built: the group's name is not a link.
-    expect(within(courses).queryAllByRole('link')).toEqual([]);
+    // The group's name opens the group (IA-14, Package 2B).
+    expect(within(courses).getByRole('link', { name: 'ME ZG523 — Sem II' })).toHaveAttribute(
+      'href',
+      '/institute/people/groups/GRP-0012',
+    );
     expect(region('Details')).toHaveTextContent(
       'Student IDGIT-2026-0418Institution e-mailrahul.verma@godavari.edu.inProgrammeB.Tech MechanicalAdded8 Oct 2026 · imported by Meera Iyer',
     );
@@ -612,7 +632,7 @@ describe('People while the institution is paused: read-only (B2-01 f5)', () => {
     await openRecord(runtime, RAHUL);
     await waitFor(() =>
       expect(main()).toHaveTextContent(
-        'You can’t add people or change their accounts until BITS lifts the pause.',
+        'You can’t add people or change their accounts, groups or courses until BITS lifts the pause.',
       ),
     );
     expect(screen.queryByRole('link', { name: 'Give this student access' })).toBeNull();
@@ -862,8 +882,10 @@ describe('IA-10 — Add faculty member (B2-07 f3)', () => {
     expect(result).toHaveTextContent(
       'Dr Kavitha Rao is in People now, with no courses yet. No invitation or e-mail is sent.',
     );
-    // "Assign a course" (IA-15) is not built: not rendered.
-    expect(within(result).queryByRole('link')).toBeNull();
+    // "Assign a course" opens Faculty courses with them chosen (IA-15, Package 2B; B2-07 f3).
+    expect(
+      within(result).getByRole('link', { name: 'Assign a course' }).getAttribute('href'),
+    ).toMatch(/^\/institute\/people\?tab=faculty-courses&faculty=per-/);
     expect(
       within(result).getByRole('button', { name: 'Add another faculty member' }),
     ).toBeVisible();

@@ -16,8 +16,9 @@ import {
   SectionTabs,
   Skeleton,
 } from '@xr/ui';
-import { Fragment, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+import { COURSE_CODES_TAB } from '@/copy/course-codes';
 import {
   ACCESS_PLAN_LABEL,
   accessPlanName,
@@ -41,13 +42,18 @@ import {
 import {
   accessPlanAddress,
   CONTENT_ACCESS_ADDRESS,
+  COURSE_CODES_ADDRESS,
   destinationPlacement,
   giveAccessAddress,
   STUDENT_ACCESS_ADDRESS,
+  tabPlacement,
 } from '@/nav/institute';
+import { useAppNavigation } from '@/nav/navigation';
 import { useContentAccess, useInstituteOverview } from '@/queries/institute-home';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { useInstitutionPaused } from '../ia-06-people/paused';
+import { CourseCodesTab } from '../ia-16-course-codes/course-codes';
 import {
   type ContentRowView,
   type CourseGroupView,
@@ -60,17 +66,21 @@ const code = (format: Technology) => format.toUpperCase() as FormatCode;
 
 const SEARCH_ID = 'content-access-search';
 
+type ContentTab = 'experiments' | 'course-codes';
+
 /**
  * IA-02 Content access — board B2-02 ("What has BITS given my institution to use?"), at
- * `/institute/content-access`.
+ * `/institute/content-access`, and its Course codes tab IA-16 (B2-03 f6 … f10,
+ * `?tab=course-codes`; Package 2B). Any other `tab` shows Experiments and the address becomes the
+ * bare `/institute/content-access` (state-copy `IA-16.tab-address`).
  *
  * - **Read**: `InstitutionService.listContentAccess` — per course, the plans that hold its
  *   experiments (status and days left on the sample clock) and one row per plan item: the formats
  *   in the plan, the published formats it leaves out ("AR is published but not in your plan",
  *   ACC-10) and how many students an active grant of that plan gives it to now — people, never
  *   licences (T-06). Licence figures are shown as approved; there is no amend control (T-08).
- * - **As B2-02 draws it**: the header, the section tabs (only "Experiments": the Course codes tab
- *   opens IA-16, not built in Package 2A), the Search and Status filters with the count, chips
+ * - **As B2-02 draws it**: the header, the section tabs ("Experiments · Course codes"), the
+ *   Search and Status filters with the count, chips
  *   and "Clear filters" (state-copy `IA-02.filters`), then one section per plan — its band with
  *   "View plan" (IA-03), its notice (ending soon f3, ended f4, paused f5), each course group with
  *   its code line and the experiments table. Rows open the plan (IA-03), the count opens Student
@@ -80,11 +90,36 @@ const SEARCH_ID = 'content-access-search';
  *   and "No content yet" before any plan (f6; not reachable in the sample world, INST-04).
  */
 export function ContentAccess() {
-  useShellPage(destinationPlacement('IA-02'));
+  const navigation = useAppNavigation();
+  const tabParam = new URLSearchParams(navigation.search).get('tab');
+  const tab: ContentTab = tabParam === 'course-codes' ? 'course-codes' : 'experiments';
+  const normalise = tabParam !== null && tab === 'experiments';
+  useEffect(() => {
+    if (normalise) navigation.replace(CONTENT_ACCESS_ADDRESS);
+  }, [normalise, navigation]);
+  useShellPage(
+    tab === 'course-codes'
+      ? tabPlacement('IA-16', COURSE_CODES_TAB.tab)
+      : destinationPlacement('IA-02'),
+  );
+  const paused = useInstitutionPaused();
   const read = useContentAccess();
   const rows = read.data?.ok ? read.data.value : null;
   const failed = read.isError || (read.data !== undefined && !read.data.ok);
   const loading = !failed && rows === null;
+
+  if (tab === 'course-codes') {
+    // B2-03 f6 keeps the header's "Give students access" while something can be given (f9: none
+    // while paused).
+    const givable =
+      rows !== null && !paused && contentAccessView(rows, { search: '', status: 'all' }).anyGivable;
+    return (
+      <PageContent wrap="wide">
+        <Header showGive={givable} tab="course-codes" />
+        <CourseCodesTab paused={paused} />
+      </PageContent>
+    );
+  }
 
   return (
     <PageContent wrap="wide">
@@ -115,8 +150,14 @@ export function ContentAccess() {
   );
 }
 
-/** B2-02 header and section tabs ("Experiments" is the only built tab in Package 2A). */
-function Header({ showGive }: { readonly showGive: boolean }) {
+/** B2-02 / B2-03 header and section tabs ("Experiments · Course codes"). */
+function Header({
+  showGive,
+  tab = 'experiments',
+}: {
+  readonly showGive: boolean;
+  readonly tab?: ContentTab;
+}) {
   return (
     <>
       <PageHeader
@@ -137,7 +178,12 @@ function Header({ showGive }: { readonly showGive: boolean }) {
           {
             href: CONTENT_ACCESS_ADDRESS,
             label: CONTENT_ACCESS_WORDS.experimentsTab,
-            current: true,
+            current: tab === 'experiments',
+          },
+          {
+            href: COURSE_CODES_ADDRESS,
+            label: COURSE_CODES_TAB.tab,
+            current: tab === 'course-codes',
           },
         ]}
       />
@@ -280,17 +326,21 @@ function CourseHead({ group }: { readonly group: CourseGroupView }) {
             <span aria-hidden="true">·</span>
           </>
         ) : null}
-        {group.institutionCode ? (
+        {/* A code record cleared on IA-16 keeps no code: "not added" again (Package 2B). */}
+        {group.institutionCode?.code ? (
           <span>
             {CONTENT_ACCESS_WORDS.yourCode}{' '}
             <strong className="text-ink">{group.institutionCode.code}</strong>
           </span>
         ) : (
-          // "Add code" opens Course codes (IA-16), not built in Package 2A (IA-02.not-rendered).
-          <span className="xw-tag xw-tag--warn">
-            <Icon name="warning" />
-            {CONTENT_ACCESS_WORDS.codeNotAdded}
-          </span>
+          // Package 2B: "Add code" opens Course codes (IA-16).
+          <>
+            <span className="xw-tag xw-tag--warn">
+              <Icon name="warning" />
+              {CONTENT_ACCESS_WORDS.codeNotAdded}
+            </span>
+            <Link href={COURSE_CODES_ADDRESS}>{CONTENT_ACCESS_WORDS.addCode}</Link>
+          </>
         )}
       </div>
     </div>

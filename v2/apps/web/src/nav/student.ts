@@ -9,7 +9,7 @@ import { WORKSPACE_NAV } from './nav-config';
  * ME ZG523" on a course, "My courses / ME ZG523 / Shell-and-Tube Heat Exchanger" on an
  * experiment, "My courses / Not available" on the refusal.
  */
-type StudentScreen = 'ST-01' | 'ST-02' | 'ST-03' | 'ST-05' | 'ST-19';
+type StudentScreen = 'ST-01' | 'ST-02' | 'ST-03' | 'ST-04' | 'ST-05' | 'ST-19';
 
 const destinationOf = (screen: 'ST-01' | 'ST-02') =>
   WORKSPACE_NAV.student.destinations.find((destination) => destination.screen === screen)!;
@@ -47,6 +47,14 @@ export function myCoursesPlacement(): StudentPlacement {
 }
 
 const MY_COURSES_CRUMB: BreadcrumbLevel = { label: MY_COURSES_TITLE, href: MY_COURSES_ADDRESS };
+
+/** ST-04: My courses' "All experiments" tab (`?tab=experiments`, Appendix A rule T2). */
+export const ALL_EXPERIMENTS_ADDRESS = `${MY_COURSES_ADDRESS}?tab=experiments`;
+
+/** ST-04 (B2-11 f2): the top bar reads the tab, crumbed "My courses / All experiments". */
+export function allExperimentsPlacement(tabLabel: string): StudentPlacement {
+  return { screen: 'ST-04', title: tabLabel, trail: [MY_COURSES_CRUMB], currentCrumb: tabLabel };
+}
 
 /** ST-03 (B2-11 f1): title = the course's name; crumbs "My courses / <code shown>". */
 export function coursePlacement(

@@ -698,7 +698,7 @@ describe('IA-05 — failure, refusals and the empty states (B2-05 f12, f14–f17
     expect(await heading('Access given')).toBeVisible();
   });
 
-  it('no students yet (f14): Add student — no import (IA-11 is not built)', async () => {
+  it('no students yet (f14): Add student and Import students (IA-11 since Package 2B)', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(PAUSED_INSTITUTE_ADMIN, 'after-flow-a');
     showGiveAccess(runtime);
@@ -713,7 +713,10 @@ describe('IA-05 — failure, refusals and the empty states (B2-05 f12, f14–f17
       'href',
       '/institute/people/add',
     );
-    expect(screen.queryByRole('link', { name: 'Import students' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Import students' })).toHaveAttribute(
+      'href',
+      '/institute/people/import',
+    );
   });
 
   it('institution paused (f15): the message page, back to Student access and Help', async () => {

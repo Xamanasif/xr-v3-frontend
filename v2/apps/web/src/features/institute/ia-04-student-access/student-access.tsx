@@ -53,6 +53,7 @@ import {
 import {
   destinationPlacement,
   giveAccessAddress,
+  groupAddress,
   STUDENT_ACCESS_TITLE,
   studentRecordAddress,
 } from '@/nav/institute';
@@ -82,7 +83,8 @@ import { type AccessRowView, accessRows, filterRows } from './student-access-vie
  *   error is the service's; a refusal closes the dialog and the page reads again; a failure keeps
  *   the dialog and the reason. The result is said in the flash, which takes focus.
  * - **Read-only while paused** (f12): no Give students access, no Withdraw…; rows stay readable.
- * - Not rendered (DEV-21): "Change on the group" (IA-14 is not built).
+ * - "Change on the group" on a group grant's row opens that group (IA-14, Package 2B; B2-04 draws
+ *   the Groups board).
  */
 export function StudentAccess() {
   useShellPage(destinationPlacement('IA-04'));
@@ -679,6 +681,11 @@ function AccessTableRow({
           >
             {STUDENT_ACCESS_PAGE.withdraw}
           </Button>
+        ) : null}
+        {view.changeOnGroup !== null ? (
+          <Link href={groupAddress(view.changeOnGroup)} className="xr-small">
+            {STUDENT_ACCESS_PAGE.changeOnGroup}
+          </Link>
         ) : null}
         {withdrawal ? <span className="xr-small text-ink-3">{withdrawal.reason}</span> : null}
       </td>

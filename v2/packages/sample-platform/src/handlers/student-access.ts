@@ -311,7 +311,11 @@ export function studentAccessPort(call: Call): StudentAccessService {
               formats: [...(item?.formats ?? publishedFormats(experiment))],
             };
           });
-        const inPlan = experiments.filter((entry) => entry.inPlan).map((e) => e.experimentId);
+        // Package 2B (PC-48): "Already has it" is answered for the experiments chosen in step 1,
+        // from the experiment-level grant records — the rule `giveAccess` refuses `already-given`
+        // by — so holding one experiment of a course never blocks another. No overlap with group
+        // grants is decided here (OD-B2-01).
+        const chosen = [...new Set(accepted.experimentIds ?? [])];
         const grants = grantsOf(op.records, institution.id);
         const hasIt = (student: StudentPerson, experimentId: string) =>
           grants.some(
@@ -329,13 +333,20 @@ export function studentAccessPort(call: Call): StudentAccessService {
           }),
           experiments,
           students: studentsOf(op.records, institution.id).map((student) => {
+            const alreadyHas = chosen.filter((id) => hasIt(student, id));
             const why =
               student.accountStatus === 'inactive'
                 ? ('inactive' as const)
-                : inPlan.length > 0 && inPlan.every((id) => hasIt(student, id))
+                : alreadyHas.length > 0
                   ? ('already-has-it' as const)
                   : null;
-            return { id: student.id, name: student.fullName, selectable: why === null, why };
+            return {
+              id: student.id,
+              name: student.fullName,
+              selectable: why === null,
+              why,
+              alreadyHas,
+            };
           }),
           groups: groupsOf(op.records, institution.id).map((group) => {
             const memberCount = currentMembers(group).length;

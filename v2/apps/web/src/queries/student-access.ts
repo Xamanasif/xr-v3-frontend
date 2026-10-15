@@ -69,18 +69,36 @@ export function useInstituteStanding() {
 /**
  * IA-05 steps 1–2: the plan, the courses in access, a course's experiments (in the plan or not,
  * formats inherited), the students and the groups with what the service computes about each
- * (`selectable`, `why`). Refused while paused, after the plan has ended or before anything is held.
+ * (`selectable`, `why`, and — Package 2B, PC-48 — `alreadyHas` for the experiments chosen in step
+ * 1, from the experiment-level grant records). Refused while paused, after the plan has ended or
+ * before anything is held.
  */
 export const giveAccessOptions = defineQuery({
   family: 'SACC',
   view: 'ia-give-access-options',
   deps: ['SACC', 'PER', 'GRP', 'ACC', 'INST', 'EXP', 'CRS'],
-  read: (ports: ProductPorts, courseId: string | null) =>
-    ports.studentAccess.getGiveAccessOptions(courseId ? { courseId: courseId as CourseId } : {}),
+  read: (
+    ports: ProductPorts,
+    params: { readonly courseId: string | null; readonly experimentIds: readonly string[] },
+  ) =>
+    ports.studentAccess.getGiveAccessOptions({
+      ...(params.courseId ? { courseId: params.courseId as CourseId } : {}),
+      ...(params.experimentIds.length > 0
+        ? { experimentIds: params.experimentIds.map((id) => id as ExperimentId) }
+        : {}),
+    }),
 });
 
-export function useGiveAccessOptions(courseId: string | null, enabled = true) {
-  return useXrQuery(giveAccessOptions, courseId, { enabled, keepPrevious: true });
+export function useGiveAccessOptions(
+  courseId: string | null,
+  experimentIds: readonly string[],
+  enabled = true,
+) {
+  return useXrQuery(
+    giveAccessOptions,
+    { courseId, experimentIds: [...experimentIds].sort() },
+    { enabled, keepPrevious: true },
+  );
 }
 
 /** IA-05 step 2: each student's institution ID and groups (B2-05 "GIT-2026-0418 · ME ZG523 — Sem II"). */

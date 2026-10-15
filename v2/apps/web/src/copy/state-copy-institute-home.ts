@@ -56,9 +56,9 @@ export const STATE_COPY_INSTITUTE_HOME = {
   },
   'IA-01.not-rendered': {
     screen: 'IA-01',
-    state: 'Attention rows and states whose drawn action opens a screen not built in Package 2A',
+    state: 'Attention rows and states whose drawn action opens a screen not built yet',
     words: null,
-    rule: 'The row keeps its icon, title and line; the action is not drawn: “Request renewal” (IA-17 / IA-18 Requests), “Add course code” (IA-16 Course codes), “View request status” (PU-10 from the workspace). “Open requests” (device requests, DEV-17) and “View report” (problem reports, P2-11) belong to items the service does not produce until those decisions are taken (PC-38).',
+    rule: 'The row keeps its icon, title and line; the action is not drawn: “Request renewal” (IA-17 / IA-18 Requests), “View request status” (PU-10 from the workspace). “Add course code” opens IA-16 Course codes since Package 2B. “Open requests” (device requests, DEV-17) and “View report” (problem reports, P2-11) belong to items the service does not produce until those decisions are taken (PC-38).',
     basis: 'DEV-21 interim (links to unbuilt screens are not rendered); B2-01 f1, f3, f4, f7',
     status: 'provisional',
     decisions: ['DEV-21', 'DEV-17', 'P2-11'],
@@ -103,9 +103,9 @@ export const STATE_COPY_INSTITUTE_HOME = {
   },
   'IA-02.not-rendered': {
     screen: 'IA-02',
-    state: 'Drawn controls that open screens not built in Package 2A',
+    state: 'Drawn controls that open screens not built yet',
     words: null,
-    rule: 'The “Course codes” tab and the course group’s “Add code” (IA-16), “Request renewal” in the ending-soon and ended notices (IA-17 / IA-18), and “View request status” under “No content yet” (PU-10 from the workspace) are not drawn; the tab strip keeps “Experiments”, the notices keep their words.',
+    rule: '“Request renewal” in the ending-soon and ended notices (IA-17 / IA-18) and “View request status” under “No content yet” (PU-10 from the workspace) are not drawn; the notices keep their words. The “Course codes” tab and the course group’s “Add code” open IA-16 since Package 2B.',
     basis: 'DEV-21 interim; B2-02 f0, f3, f4, f6',
     status: 'provisional',
     decisions: ['DEV-21'],

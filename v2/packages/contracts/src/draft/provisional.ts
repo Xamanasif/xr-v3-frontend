@@ -728,4 +728,75 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'Drop the field; the screens then read the closure from the session banners (pause, inactive) and cannot name a licence wait.',
   },
+  {
+    id: 'PC-46',
+    subject:
+      'Groups and the Faculty record name what they show: the IA-13 row carries the experiments the group’s active grants give it now (`listGroupsOutput.(array).given`, formats inherited from the plan item); IA-14 carries each group grant as the page names it (`getGroupOutput.grantRows`: experiment, course code, formats, the grant’s own state on its plan’s term) and member standings only for active grants on live plans while the institution is not paused (no “Can open it” where access is not live); IA-09 names the courses its mappings name (`getFacultyOutput.courses`)',
+    status: 'provisional-engineering',
+    source:
+      'B2-08 f0, f2 (“Experiments given to the group” / “None yet”), f3, f4 (“Experiments given to this group”: Experiment, Formats “From access plan ACC-0107”, Given, Status; member words “Can open it”, “Waiting for a licence”, “Has it individually · SACC-0310”, “Added after the group grant”, “Inactive”); B2-06 f15 (“ME ZG523 · Thermodynamics & Heat Transfer”). Appendix C’s `getGroup` answers raw grants and `getFaculty` course ids only. Built in Phase-2 Package 2B',
+    decisions: ['OD-B2-01', 'OD-B2-02', 'GRP-05'],
+    trace: [
+      { kind: 'schema-field', schema: 'listGroupsOutput', path: '(array).given' },
+      { kind: 'schema-field', schema: 'getGroupOutput', path: 'grantRows' },
+      { kind: 'schema-field', schema: 'groupGrantRow', path: 'status' },
+      { kind: 'schema-field', schema: 'getFacultyOutput', path: 'courses' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the fields; the screens then read Student access (`listGrants`) for the group’s grants and the catalogue for course names, and compute no standing beside a paused or ended plan.',
+  },
+  {
+    id: 'PC-47',
+    subject:
+      'IA-11 parses the CSV in the service: the first line must name the six template columns (any order, case and spaces ignored; RFC 4180 quoting; a leading BOM dropped), otherwise `IA-11.file.columns`; a file with no student rows is `IA-11.file.no-rows`. Each report problem names the row’s student as the file gives them (`who`) and the values its words need (`params`); the commit answers who was added (`students`). All-or-nothing stays the T-24 interim',
+    status: 'provisional-engineering',
+    source:
+      'B2-07 f5–f10 (template “student_id, full_name, email, programme, course, course_code”; “Rows that need attention”: Row, Student “Imran S. · GIT-2026-0409”, What to fix; result “Added: Rahul Verma, … and Ananya Das.”); Appendix A “product needs a real CSV file input”. T-24 (all-or-nothing vs valid rows only) stays open. Built in Phase-2 Package 2B',
+    decisions: ['T-24'],
+    trace: [
+      { kind: 'schema-field', schema: 'studentImportReport', path: 'problems.(array).who' },
+      { kind: 'schema-field', schema: 'studentImportReport', path: 'problems.(array).params' },
+      { kind: 'schema-field', schema: 'commitStudentImportOutput', path: 'students' },
+      { kind: 'message-key', key: 'IA-11.file.columns' },
+      { kind: 'message-key', key: 'IA-11.file.no-rows' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the fields and keys; the screen then parses the file itself for the row names and keeps the file’s names for the result, and an unreadable header becomes one problem per row.',
+  },
+  {
+    id: 'PC-48',
+    subject:
+      'IA-05’s options answer “Already has it” per chosen experiment: the input names the experiments chosen in step 1 (`giveAccessOptionsInput.experimentIds`) and each student lists the chosen experiments an active individual grant already gives them (`alreadyHas`); `why` is `already-has-it` exactly when that list is not empty — the same experiment-level rule `giveAccess` refuses `already-given` by. The overlap of individual and group grants stays OD-B2-01',
+    status: 'provisional-engineering',
+    source:
+      'B2-05 f1 (“Already has it” beside Rahul for Shell-and-Tube); Package 2A independent review (the course-level check: holding one experiment of a course hid or offered students for another). Built in Phase-2 Package 2B',
+    decisions: ['OD-B2-01'],
+    trace: [
+      { kind: 'schema-field', schema: 'giveAccessOptionsInput', path: 'experimentIds' },
+      { kind: 'schema-field', schema: 'giveAccessOptions', path: 'students.(array).alreadyHas' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the field and the input; the screen then reads Student access (`listGrants`) and decides per chosen experiment itself.',
+  },
+  {
+    id: 'PC-49',
+    subject:
+      'Sample-mode identity safeguard: adding a student or faculty member, importing students and assigning an Institute Admin refuse an e-mail another sample identity already signs in with (a person of any institution, an Institute Admin, a platform-role holder, a Super Admin) or that two import rows share — a field error with no drawn words, never a merge or a silent replacement',
+    status: 'unresolved',
+    source:
+      'Owner authorisation of Phase 2B §5 (Phase 1E and 2A: an e-mail an existing sample identity holds shadowed that sign-in); ADR-0003 sample identity; the sign-in resolver reads People first. Not the final invitation or identity policy (T-11, P1-01). Built in Phase-2 Package 2B',
+    decisions: ['T-11', 'P1-01'],
+    trace: [
+      { kind: 'message-key', key: 'IA-10.institutionEmail.identity-taken' },
+      { kind: 'message-key', key: 'IA-11.row.email.identity-taken' },
+      { kind: 'message-key', key: 'IA-11.row.email.duplicate-in-file' },
+      { kind: 'message-key', key: 'SA-07.workEmail.identity-taken' },
+    ],
+    irreversible: null,
+    reversal:
+      'Remove the adapter check and the keys once T-11 decides how one person holds several roles or institutions (invitation, account linking or a shared identity).',
+  },
 ];

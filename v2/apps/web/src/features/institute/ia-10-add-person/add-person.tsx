@@ -21,6 +21,7 @@ import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { ADD_PERSON, ADDED_FACULTY_LINE, ADDED_STUDENT_LINE } from '@/copy/institute-people';
 import {
   FACULTY_ADDRESS,
+  facultyCoursesAddress,
   giveAccessAddress,
   PEOPLE_ADDRESS,
   underPlacement,
@@ -79,8 +80,8 @@ const EMPTY: Draft = {
  * - **Sent once**; "Adding…" while busy. Adding creates the record only: no invitation or e-mail
  *   (T-11). A failure for now keeps every answer (state-copy `IA-10.unavailable`).
  * - **The result in place** (f2), which takes focus: "Give this student access" (IA-05 with the new
- *   student chosen), "Add another student", "Back to People". A faculty member's result offers "Add
- *   another faculty member"; B2-07's "Assign a course" (IA-15) is not built and not rendered.
+ *   student chosen), "Add another student", "Back to People". A faculty member's result offers
+ *   "Assign a course" (IA-15 with them chosen, Package 2B) and "Add another faculty member".
  * - **Paused institution**: read-only — the paused notice instead of the form.
  */
 export function AddPerson() {
@@ -222,7 +223,12 @@ function AddPersonForm({
               {ADD_PERSON.giveAccess}
             </Link>
           ) : null}
-          {/* B2-07 f3 draws "Assign a course" first for a faculty member (IA-15, not built: DEV-21). */}
+          {student ? null : (
+            // B2-07 f3: "Assign a course" opens Faculty courses with them chosen (IA-15, Package 2B).
+            <Link className="xr-btn xr-btn--primary" href={facultyCoursesAddress(added.id)}>
+              {ADD_PERSON.assignCourse}
+            </Link>
+          )}
           <Button variant="secondary" onClick={again}>
             {words.again}
           </Button>

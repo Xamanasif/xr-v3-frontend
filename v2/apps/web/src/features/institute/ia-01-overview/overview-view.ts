@@ -1,7 +1,7 @@
 /**
  * IA-01's pure view rules (B2-01): each "Needs your attention" fact as the row the board draws —
  * icon, tone, title, line and its one action, or no action where the page it opens is not built
- * in Package 2A (state-copy `IA-01.not-rendered`) — and the header's actions for a status.
+ * yet (Requests, Phase 3; state-copy `IA-01.not-rendered`) — and the header's actions for a status.
  */
 import type { InstituteAttention } from '@xr/contracts/draft';
 import type { InstitutionStatus } from '@xr/domain';
@@ -21,6 +21,7 @@ import {
   withoutAccessTitle,
 } from '@/copy/institute-home';
 import {
+  COURSE_CODES_ADDRESS,
   giveAccessAddress,
   INSTITUTE_HELP_ADDRESS,
   PEOPLE_ADDRESS,
@@ -101,13 +102,13 @@ export function attentionRows(items: readonly InstituteAttention[]): AttentionRo
           action: { href: PEOPLE_ADDRESS, label: OVERVIEW_WORDS.reviewStudents },
         };
       case 'course-without-code':
-        // f0: "Add course code" opens Course codes (IA-16), not built in 2A.
+        // f0: "Add course code" opens Course codes (IA-16, Package 2B).
         return {
           key,
           icon: 'courseCodes',
           title: noCodeTitle(item.courseCode),
           sub: OVERVIEW_WORDS.courseCodesPlace,
-          action: null,
+          action: { href: COURSE_CODES_ADDRESS, label: OVERVIEW_WORDS.addCourseCode },
         };
     }
   });

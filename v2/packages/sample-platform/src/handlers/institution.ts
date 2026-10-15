@@ -21,6 +21,7 @@ import {
   type PlanGrant,
   type PlanGrantRow,
   restoreInstitutionInput,
+  SAMPLE_IDENTITY_KEYS,
 } from '@xr/contracts/draft';
 import {
   type AccessPlan,
@@ -43,6 +44,7 @@ import {
 import type { Call } from '../platform/core.js';
 import { command, type Op, read, refuse } from '../pipeline/runner.js';
 import { grantsOf, groupsOf, plansOf, studentsOf, waitsOf } from '../world/queries.js';
+import { decideWithIdentity } from './identity-safeguard.js';
 import { courseCodeKey, values } from '../world/records.js';
 import { instituteOverview, termDaysLeft } from './institute-reads.js';
 import { ownInstitution } from './people.js';
@@ -365,7 +367,10 @@ export function institutionPort(call: Call): InstitutionService {
         );
         const accepted = op.parse(assignInstituteAdminInput, input);
         op.rev(institution, accepted.expectedRev);
-        const next = op.decide(
+        // Package 2B (PC-49): an e-mail another sample identity signs in with is refused, so the
+        // new Institute Admin never takes over or hides that sign-in (T-11 stays open).
+        const next = decideWithIdentity(
+          op,
           assignInstituteAdmin({
             institution,
             plans: plansOf(op.records, institution.id),
@@ -377,6 +382,12 @@ export function institutionPort(call: Call): InstitutionService {
             ids: op.ids,
           }),
           input,
+          {
+            email: accepted.workEmail,
+            field: 'workEmail',
+            key: SAMPLE_IDENTITY_KEYS.assignInstituteAdmin,
+            order: ['name', 'workEmail'],
+          },
         );
         op.tx.put('institutions', next.id, next);
         return { value: next, decision: 'assignInstituteAdmin', actor: person.ref };

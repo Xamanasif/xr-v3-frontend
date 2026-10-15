@@ -18,8 +18,10 @@ export const STATE_COPY_PEOPLE = {
   },
   'IA-06.paused.line': {
     screen: 'IA-06',
-    state: 'People while paused: what cannot be done',
-    words: 'You can’t add people or change their accounts until BITS lifts the pause.',
+    state:
+      'People while paused: what cannot be done (IA-06 … IA-11, IA-13 … IA-15 since Package 2B)',
+    words:
+      'You can’t add people or change their accounts, groups or courses until BITS lifts the pause.',
     basis:
       'B2-04 paused line formula (“You can’t give or withdraw access until BITS lifts the pause.”); B2-01 f5 “Pages are read-only until BITS lifts the pause.”',
     status: 'provisional',
@@ -74,11 +76,11 @@ export const STATE_COPY_PEOPLE = {
   },
   'IA-06.unbuilt': {
     screen: 'IA-06',
-    state: 'Ways to screens Package 2A does not build',
+    state: 'Ways to screens Package 2A did not build',
     words: null,
-    rule: '“Import students” (IA-11), the Groups (IA-13) and Faculty courses (IA-15) tabs, a faculty member’s name (IA-09), a group’s name on the record (IA-14) and “Assign a course” (IA-15) are not rendered (DEV-21). The drawn words that only mention them stay.',
+    rule: 'Package 2A did not render “Import students” (IA-11), the Groups (IA-13) and Faculty courses (IA-15) tabs, a faculty member’s name (IA-09), a group’s name on the record (IA-14) or “Assign a course” (IA-15) (DEV-21). Since Package 2B every one of them renders and opens its screen; nothing on People waits for a later phase.',
     basis:
-      'B2-06 f0, f8, f14; B2-07 f3; DEV-21 interim (links to unbuilt screens are not rendered)',
+      'B2-06 f0, f8, f14; B2-07 f3; DEV-21 interim (links to unbuilt screens are not rendered), closed for People by Package 2B',
     status: 'provisional',
     decisions: ['DEV-21'],
   },

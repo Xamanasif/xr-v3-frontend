@@ -51,6 +51,7 @@ import type { Call } from '../platform/core.js';
 import { command, type Op, read, refuse } from '../pipeline/runner.js';
 import { values } from '../world/records.js';
 import { deferred } from './deferred.js';
+import { decideWithIdentity } from './identity-safeguard.js';
 import { filedAgainst, structureSubject } from './subjects.js';
 
 function field(input: unknown, name: string): unknown {
@@ -391,7 +392,10 @@ export function platformRolePort(call: Call): PlatformRoleService {
         const person = op.person();
         op.allow(person, 'platform-role.register', holderSubject(op, null, null));
         const accepted = op.parse(registerHolderInput, input);
-        const holder = op.decide(
+        // Package 2B (PC-49): an e-mail another sample identity signs in with is refused with SA-16's
+        // own words ("Someone is already registered with this e-mail address"), not shadowed.
+        const holder = decideWithIdentity(
+          op,
           registerHolder({
             holders: values(op.records.holders),
             role: accepted.role,
@@ -404,6 +408,12 @@ export function platformRolePort(call: Call): PlatformRoleService {
             ids: op.ids,
           }),
           input,
+          {
+            email: accepted.workEmail,
+            field: 'workEmail',
+            key: 'SA-16.workEmail.taken',
+            order: ['role', 'name', 'workEmail', 'organisation'],
+          },
         );
         // "They start with no scope — you assign it next. Nothing is sent from here." (T-11)
         op.tx.put('holders', holder.id, holder);

@@ -21,7 +21,15 @@ import {
   type InstitutionCourseCodeService,
   type PeopleService,
   previewRemovalInput,
+  previewStudentImportInput,
   reactivateStudentInput,
+  SAMPLE_IDENTITY_KEYS,
+  STUDENT_IMPORT_FILE_KEYS,
+  STUDENT_IMPORT_SAFEGUARD_ROW_KEYS,
+  fieldError,
+  fieldErrorsFromDomain,
+  type GroupRecordView,
+  validationFailed,
   removeFacultyCourseInput,
   removeMemberInput,
   renameGroupInput,
@@ -32,14 +40,20 @@ import {
   addMembers,
   addStudent,
   assignFacultyCourse,
+  checkStudentImport,
   commitStudentImport,
   createGroup,
   type CourseId,
   deactivateStudent,
   grantDisplayStatus,
+  type Group,
+  groupMemberStanding,
+  type ImportProblem,
+  type InputIssue,
   type Institution,
+  institutionCodeStatus,
   navCounts,
-  platformCodeKey,
+  planTermState,
   reactivateStudent,
   removeFacultyCourse,
   removeMember,
@@ -63,13 +77,21 @@ import {
   waitsOf,
 } from '../world/queries.js';
 import { courseCodeKey, values } from '../world/records.js';
-import { deferred } from './deferred.js';
+import { decideWithIdentity } from './identity-safeguard.js';
 import {
   facultyDirectory,
   groupDirectory,
   peopleCoursesOf,
   studentDirectory,
 } from './institute-reads.js';
+import {
+  courseResolver,
+  identityProblems,
+  importReport,
+  parseStudentFile,
+  problemParams,
+} from './student-import.js';
+import { courseCardOf } from './views.js';
 import {
   facultyCourseSubject,
   groupSubject,
@@ -83,6 +105,7 @@ export function ownInstitution(op: Op, person: ResolvedPerson): Institution {
 }
 
 type Params = Readonly<Record<string, string>>;
+type ImportProblemField = ImportProblem['field'];
 
 function idIn(input: unknown, field: string): unknown {
   return typeof input === 'object' && input !== null
@@ -149,6 +172,89 @@ function studentGrantRows(
   return rows;
 }
 
+/** The People form's fields in its order (B2-07), for the identity safeguard's error summary. */
+const PERSON_FORM_ORDER = ['fullName', 'institutionEmail', 'institutionStudentId'] as const;
+
+/** Each staged import file's reference, per platform (adapter state, never a world record). */
+const importCounters = new WeakMap<object, number>();
+
+function nextBatchId(call: Call, fileName: string): string {
+  const next = (importCounters.get(call.core) ?? call.core.imports.size) + 1;
+  importCounters.set(call.core, next);
+  const safe = fileName.replace(/[^\w.-]+/g, '-').slice(0, 60);
+  return `imp-${String(next).padStart(4, '0')}-${safe}`;
+}
+
+/**
+ * IA-14 (B2-08; PC-46): the group's grants as the page names them, and each current member's
+ * standing per active grant on a live plan — none while the institution is paused, so no "Can open
+ * it" is shown where access is not live. An individual grant beside an active group grant whose
+ * own grant was withdrawn is the open decision itself (OD-B2-01, the domain's standing).
+ */
+function groupView(op: Op, group: Group, institution: Institution): GroupRecordView {
+  const grants = grantsOf(op.records, institution.id);
+  const waits = waitsOf(op.records, institution.id);
+  const own = grants
+    .filter((grant) => grant.target.kind === 'group' && grant.target.groupId === group.id)
+    .sort((a, b) => (a.givenAt < b.givenAt ? -1 : a.givenAt > b.givenAt ? 1 : 0));
+  const grantRows: GroupRecordView['grantRows'][number][] = [];
+  for (const grant of own) {
+    const plan = op.records.plans[grant.accessPlanId];
+    const experiment = op.records.experiments[grant.experimentId];
+    if (!plan || !experiment) continue;
+    grantRows.push({
+      grant,
+      experimentName: experiment.live.catalogue.name,
+      courseCode: op.records.courses[experiment.courseId]?.platformCode ?? null,
+      formats: [
+        ...(plan.items.find((item) => item.experimentId === grant.experimentId)?.formats ?? []),
+      ],
+      status:
+        grant.state === 'withdrawn'
+          ? 'withdrawn'
+          : planTermState(plan, op.now) === 'ended'
+            ? 'access-ended'
+            : 'active',
+    });
+  }
+  const live = institution.pause ? [] : grantRows.filter((row) => row.status === 'active');
+  const members: GroupRecordView['members'][number][] = [];
+  for (const membership of group.memberships) {
+    if (membership.removedAt !== null) continue;
+    const student = op.records.people[membership.studentId];
+    if (student?.kind !== 'student') continue;
+    members.push({
+      student,
+      standing: live.map(({ grant }) => {
+        // The member's own grant for the experiment on a live plan (an ended plan's grant gives
+        // nothing now — IA-04 reads it `access-ended`); withdrawn ones stay (the OD-B2-01 case).
+        const individual = grants
+          .filter((other) => {
+            const plan = op.records.plans[other.accessPlanId];
+            return (
+              other.target.kind === 'student' &&
+              other.target.studentId === student.id &&
+              other.experimentId === grant.experimentId &&
+              plan !== undefined &&
+              planTermState(plan, op.now) !== 'ended'
+            );
+          })
+          .sort((a, b) =>
+            a.state === b.state ? (a.givenAt < b.givenAt ? 1 : -1) : a.state === 'active' ? -1 : 1,
+          )[0];
+        return groupMemberStanding({
+          membership,
+          student,
+          groupGrant: grant,
+          individualGrant: individual ?? null,
+          waits,
+        });
+      }),
+    });
+  }
+  return { group, members, grants: own, grantRows };
+}
+
 /** Written answers waiting for marking in this institution's assessments of a course (B2-09 f2). */
 function writtenAnswersWaiting(op: Op, institutionId: string, courseId: CourseId): number {
   const experiments = heldExperiments(op.records, institutionId)
@@ -175,7 +281,38 @@ export function peoplePort(call: Call): PeopleService {
         const accepted = op.parse(listStudentsInput, filter);
         return studentDirectory(op, institution, accepted);
       }),
-    previewStudentImport: deferred('PeopleService.previewStudentImport'),
+    // Phase-2 Package 2B (IA-11; PC-47): the service reads the chosen CSV file and checks every
+    // row; the rows wait in the adapter for the commit. Nothing is written.
+    previewStudentImport: (input) =>
+      read(call, 'PeopleService.previewStudentImport', (op) => {
+        const person = op.person();
+        const institution = ownInstitution(op, person);
+        op.allow(person, 'person.import-students', institutionSubject(op.records, institution));
+        const accepted = op.parse(previewStudentImportInput, input);
+        const parsed = parseStudentFile(accepted.csvText);
+        if (parsed.kind !== 'rows') {
+          refuse(
+            validationFailed([fieldError('file', STUDENT_IMPORT_FILE_KEYS[parsed.kind])], null),
+          );
+        }
+        const rows = parsed.rows;
+        const domain = checkStudentImport({
+          rows,
+          people: peopleOf(op.records, institution.id),
+          resolveCourse: courseResolver(op, institution),
+        }).problems;
+        const batchId = nextBatchId(call, accepted.fileName);
+        call.core.imports.set(batchId, {
+          batchId,
+          institutionId: institution.id,
+          fileName: accepted.fileName,
+          rows,
+        });
+        return importReport(op, institution, { batchId, fileName: accepted.fileName }, rows, [
+          ...domain,
+          ...identityProblems(op, rows, domain),
+        ]);
+      }),
     // Phase-2 Package 2A (IA-08): the admin's own faculty and the courses they teach.
     listFaculty: () =>
       read(call, 'PeopleService.listFaculty', (op) => {
@@ -184,7 +321,26 @@ export function peoplePort(call: Call): PeopleService {
         op.see(person, { kind: 'people', institutionId: institution.id });
         return facultyDirectory(op, institution);
       }),
-    getFaculty: deferred('PeopleService.getFaculty'),
+    // Phase-2 Package 2B (IA-09; PC-46): the faculty member, every mapping of theirs (current and
+    // removed — the screen lists the current ones) and the courses those mappings name.
+    getFaculty: (id) =>
+      read(call, 'PeopleService.getFaculty', (op) => {
+        const person = op.person();
+        const faculty = op.found(op.records.people[op.idText(id)]);
+        if (faculty.kind !== 'faculty') refuse({ kind: 'not-found' });
+        op.see(person, { kind: 'people', institutionId: faculty.institutionId });
+        const mappings = mappingsOf(op.records, faculty.institutionId).filter(
+          (mapping) => mapping.facultyId === faculty.id,
+        );
+        return {
+          faculty,
+          mappings,
+          courses: peopleCoursesOf(
+            op,
+            mappings.map((mapping) => mapping.courseId),
+          ),
+        };
+      }),
 
     getStudent: (id) =>
       read(call, 'PeopleService.getStudent', (op) => {
@@ -224,7 +380,9 @@ export function peoplePort(call: Call): PeopleService {
         const group = accepted.groupId ? op.found(op.records.groups[accepted.groupId]) : null;
         if (group && group.institutionId !== institution.id) refuse({ kind: 'not-found' });
         const people = peopleOf(op.records, institution.id);
-        const student = op.decide(
+        // Package 2B (PC-49): an e-mail another sample identity signs in with is refused.
+        const student = decideWithIdentity(
+          op,
           addStudent({
             institution,
             people,
@@ -239,15 +397,21 @@ export function peoplePort(call: Call): PeopleService {
             ids: op.ids,
           }),
           input,
-          (_issue, target): Params => {
-            if (target.key !== 'IA-10.institutionStudentId.taken') return {};
-            const holder = people.find(
-              (other) =>
-                other.kind === 'student' &&
-                other.institutionStudentId.toUpperCase() ===
-                  accepted.institutionStudentId.toUpperCase(),
-            );
-            return { id: accepted.institutionStudentId, name: holder?.fullName ?? '' };
+          {
+            email: accepted.institutionEmail,
+            field: 'institutionEmail',
+            key: SAMPLE_IDENTITY_KEYS.addPerson,
+            order: PERSON_FORM_ORDER,
+            paramsFor: (_issue, target): Params => {
+              if (target.key !== 'IA-10.institutionStudentId.taken') return {};
+              const holder = people.find(
+                (other) =>
+                  other.kind === 'student' &&
+                  other.institutionStudentId.toUpperCase() ===
+                    accepted.institutionStudentId.toUpperCase(),
+              );
+              return { id: accepted.institutionStudentId, name: holder?.fullName ?? '' };
+            },
           },
         );
         op.tx.put('people', student.id, student);
@@ -274,7 +438,9 @@ export function peoplePort(call: Call): PeopleService {
         const institution = ownInstitution(op, person);
         op.allow(person, 'person.add-faculty', institutionSubject(op.records, institution));
         const accepted = op.parse(addFacultyInput, input);
-        const faculty = op.decide(
+        // Package 2B (PC-49): an e-mail another sample identity signs in with is refused.
+        const faculty = decideWithIdentity(
+          op,
           addFaculty({
             institution,
             people: peopleOf(op.records, institution.id),
@@ -285,6 +451,12 @@ export function peoplePort(call: Call): PeopleService {
             ids: op.ids,
           }),
           input,
+          {
+            email: accepted.institutionEmail,
+            field: 'institutionEmail',
+            key: SAMPLE_IDENTITY_KEYS.addPerson,
+            order: PERSON_FORM_ORDER,
+          },
         );
         op.tx.put('people', faculty.id, faculty);
         return { value: faculty, decision: 'addFaculty', actor: person.ref };
@@ -298,25 +470,52 @@ export function peoplePort(call: Call): PeopleService {
         const accepted = op.parse(commitStudentImportInput, input);
         const batch = op.found(call.core.imports.get(accepted.batchId));
         if (batch.institutionId !== institution.id) refuse({ kind: 'not-found' });
-        const resolveCourse = (code: string): CourseId | null => {
-          const key = platformCodeKey(code);
-          const platform = values(op.records.courses).find(
-            (course) =>
-              course.platformCode !== null && platformCodeKey(course.platformCode) === key,
-          );
-          if (platform) return platform.id;
-          const own = values(op.records.courseCodes).find(
-            (entry) =>
-              entry.institutionId === institution.id &&
-              entry.code !== null &&
-              platformCodeKey(entry.code) === key,
-          );
-          return own?.courseId ?? null;
+        const resolveCourse = courseResolver(op, institution);
+        const people = peopleOf(op.records, institution.id);
+        const paramsFor = (issue: InputIssue): Params => {
+          const match = /^row (\d+) (\w+)$/.exec(issue.field);
+          if (!match) return {};
+          return problemParams(op, institution, batch.rows, {
+            row: Number(match[1]),
+            field: match[2] as ImportProblemField,
+            rule: issue.rule,
+          });
         };
+        // Package 2B (PC-49): the identity safeguard is checked again on the records as they are
+        // now; its rows join the domain's in one refusal.
+        const domain = checkStudentImport({ rows: batch.rows, people, resolveCourse }).problems;
+        const safeguard = identityProblems(op, batch.rows, domain);
+        if (safeguard.length > 0) {
+          refuse(
+            validationFailed(
+              [
+                ...fieldErrorsFromDomain(
+                  'PeopleService.commitStudentImport',
+                  domain.map((problem) => ({
+                    field: `row ${problem.row} ${problem.field}`,
+                    rule: problem.rule,
+                  })),
+                  input,
+                  paramsFor,
+                ),
+                ...safeguard.map((problem) =>
+                  fieldError(
+                    `rows.${problem.row}.${problem.field}`,
+                    STUDENT_IMPORT_SAFEGUARD_ROW_KEYS[
+                      `email:${problem.rule}` as keyof typeof STUDENT_IMPORT_SAFEGUARD_ROW_KEYS
+                    ],
+                    problemParams(op, institution, batch.rows, problem),
+                  ),
+                ),
+              ],
+              null,
+            ),
+          );
+        }
         const students = op.decide(
           commitStudentImport({
             institution,
-            people: peopleOf(op.records, institution.id),
+            people,
             rows: batch.rows,
             resolveCourse,
             fileName: batch.fileName,
@@ -325,23 +524,14 @@ export function peoplePort(call: Call): PeopleService {
             ids: op.ids,
           }),
           input,
-          (issue): Params => {
-            const rowNumber = Number(/^row (\d+)/.exec(issue.field)?.[1]);
-            const row = batch.rows.find((candidate) => candidate.row === rowNumber);
-            if (issue.rule === 'email-format') return { value: row?.email.trim() ?? '' };
-            if (issue.rule === 'duplicate-in-file') {
-              const id = row?.studentId.trim() ?? '';
-              const first = batch.rows.find(
-                (candidate) => candidate.studentId.trim().toUpperCase() === id.toUpperCase(),
-              );
-              return { id, row: String(first?.row ?? rowNumber) };
-            }
-            return {};
-          },
+          paramsFor,
         );
         for (const student of students) op.tx.put('people', student.id, student);
         return {
-          value: { added: students.length },
+          value: {
+            added: students.length,
+            students: students.map((student) => ({ id: student.id, fullName: student.fullName })),
+          },
           decision: 'commitStudentImport',
           actor: person.ref,
           after: () => {
@@ -407,7 +597,15 @@ export function groupPort(call: Call): GroupService {
         op.see(person, { kind: 'groups', institutionId: institution.id });
         return groupDirectory(op, institution);
       }),
-    getGroup: deferred('GroupService.getGroup'),
+    // Phase-2 Package 2B (IA-14; PC-46): the group, its current members with their standing per
+    // live group grant, and its grants as the page names them.
+    getGroup: (id) =>
+      read(call, 'GroupService.getGroup', (op) => {
+        const person = op.person();
+        const group = op.found(op.records.groups[op.idText(id)]);
+        op.see(person, { kind: 'groups', institutionId: group.institutionId });
+        return groupView(op, group, op.found(op.records.institutions[group.institutionId]));
+      }),
 
     createGroup: (input) =>
       command(call, 'GroupService.createGroup', (op) => {
@@ -512,7 +710,15 @@ export function groupPort(call: Call): GroupService {
 
 export function facultyCoursePort(call: Call): FacultyCourseService {
   return {
-    list: deferred('FacultyCourseService.list'),
+    // Phase-2 Package 2B (IA-15): every Faculty course mapping of the admin's own institution —
+    // current and removed (the record and its dates stay); the screen lists the current ones.
+    list: () =>
+      read(call, 'FacultyCourseService.list', (op) => {
+        const person = op.person();
+        const institution = ownInstitution(op, person);
+        op.see(person, { kind: 'people', institutionId: institution.id });
+        return mappingsOf(op.records, institution.id);
+      }),
 
     assign: (input) =>
       command(call, 'FacultyCourseService.assign', (op) => {
@@ -594,7 +800,26 @@ export function facultyCoursePort(call: Call): FacultyCourseService {
 
 export function institutionCourseCodePort(call: Call): InstitutionCourseCodeService {
   return {
-    list: deferred('InstitutionCourseCodeService.list'),
+    // Phase-2 Package 2B (IA-16): each course in the institution's content access, its BITS code
+    // (read-only here, M-2) and the institution's own code with its status — "Missing" / "Added".
+    list: () =>
+      read(call, 'InstitutionCourseCodeService.list', (op) => {
+        const person = op.person();
+        const institution = ownInstitution(op, person);
+        op.see(person, { kind: 'access-plan', institutionId: institution.id });
+        return coursesInAccess(op.records, institution.id).flatMap((courseId) => {
+          const course = op.records.courses[courseId];
+          if (!course) return [];
+          const code = op.records.courseCodes[courseCodeKey(institution.id, courseId)] ?? null;
+          return [
+            {
+              course: courseCardOf(op.records, course),
+              code,
+              status: institutionCodeStatus(code),
+            },
+          ];
+        });
+      }),
 
     set: (input) =>
       command(call, 'InstitutionCourseCodeService.set', (op) => {

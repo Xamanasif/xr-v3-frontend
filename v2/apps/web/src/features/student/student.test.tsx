@@ -127,7 +127,7 @@ describe('before access — Rahul on after-setup (B2-10 f0, B2-11 f3, B2-11 f12;
     expect(topTitle()).toHaveTextContent('Home');
   });
 
-  it('ST-02: no courses yet, with Help — and no tab strip (ST-04 not built)', async () => {
+  it('ST-02: no courses yet, with Help — and the tab strip (ST-04, Package 2B)', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-setup');
     inStudent(runtime, '/student/courses', <MyCourses />);
     expect(await screen.findByRole('heading', { level: 1, name: 'My courses' })).toBeVisible();
@@ -142,8 +142,17 @@ describe('before access — Rahul on after-setup (B2-10 f0, B2-11 f3, B2-11 f12;
       'href',
       '/student/help',
     );
-    expect(main().querySelector('.xr-tabs')).toBeNull();
-    expect(main()).not.toHaveTextContent('All experiments');
+    // Package 2B: the "Courses · All experiments" strip (ST-04), Courses current.
+    expect(
+      within(main().querySelector<HTMLElement>('.xr-tabs')!).getByRole('link', {
+        name: 'Courses',
+      }),
+    ).toHaveAttribute('aria-current', 'page');
+    expect(
+      within(main().querySelector<HTMLElement>('.xr-tabs')!).getByRole('link', {
+        name: 'All experiments',
+      }),
+    ).toHaveAttribute('href', '/student/courses?tab=experiments');
   });
 
   it('ST-19: opening Shell-and-Tube reads “isn’t available”, named, with a way back', async () => {
@@ -237,7 +246,7 @@ describe('after SACC-0310 — Rahul on after-flow-b (B2-10 f1, f9; B2-11 f0, f1,
     expect(main().querySelector('.xr-row-sub')).toHaveTextContent(
       'MEC-523 · 1 experiment given to you · WEB and VR available',
     );
-    expect(main().querySelector('.xr-tabs')).toBeNull();
+    expect(main().querySelector('.xr-tabs')).toHaveTextContent('CoursesAll experiments');
     courses.view.unmount();
 
     const course = inStudent(runtime, COURSE, <MyCourse courseId={THERMO} />);

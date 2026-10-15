@@ -1,6 +1,7 @@
 /**
  * The Institute Admin reads Phase-2 Package 2A delivers (IA-01, IA-06, IA-08 and IA-06's group
- * filter): `getMyOverview`, `listStudents`, `listFaculty`, `listGroups`. Each reads the admin's own
+ * filter): `getMyOverview`, `listStudents`, `listFaculty`, `listGroups` (with IA-13's experiments
+ * given since Package 2B). Each reads the admin's own
  * institution only and derives every fact from the records on every read — nothing is stored or
  * counted for licences (T-06, D7): a "waiting for a licence" item is a supplied wait.
  */
@@ -324,13 +325,41 @@ export function facultyDirectory(
     });
 }
 
-/** IA-13 / IA-06's Group filter: each group and its current member count. */
+/**
+ * IA-13 / IA-06's Group filter: each group, its current member count and (Package 2B, PC-46) the
+ * experiments its active grants give it now, with the plan item's formats — as IA-06's `given`.
+ */
 export function groupDirectory(
   op: Op,
   institution: Institution,
-): { readonly group: Group; readonly memberCount: number }[] {
-  return groupsOf(op.records, institution.id).map((group) => ({
-    group,
-    memberCount: currentMembers(group).length,
-  }));
+): {
+  readonly group: Group;
+  readonly memberCount: number;
+  readonly given: StudentDirectoryRow['given'][number][];
+}[] {
+  // Given now: active grants on a plan whose term has not ended — as IA-14 reads them (`access-ended`).
+  const active = grantsOf(op.records, institution.id).filter((grant) => {
+    const plan = op.records.plans[grant.accessPlanId];
+    return (
+      grant.state === 'active' &&
+      grant.target.kind === 'group' &&
+      plan !== undefined &&
+      planTermState(plan, op.now) !== 'ended'
+    );
+  });
+  return groupsOf(op.records, institution.id).map((group) => {
+    const given: StudentDirectoryRow['given'][number][] = [];
+    for (const grant of active) {
+      if (grant.target.kind !== 'group' || grant.target.groupId !== group.id) continue;
+      if (given.some((entry) => entry.experimentId === grant.experimentId)) continue;
+      const experiment = op.records.experiments[grant.experimentId];
+      if (!experiment) continue;
+      given.push({
+        experimentId: experiment.id,
+        name: experiment.live.catalogue.name,
+        formats: [...formatsOf(op, grant)],
+      });
+    }
+    return { group, memberCount: currentMembers(group).length, given };
+  });
 }

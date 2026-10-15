@@ -18,7 +18,7 @@ const everyScreen = (role: (typeof PLATFORM_ROLES)[number]): ReadonlySet<ScreenK
   ]);
 
 describe('the built-screen manifest (Phase 0 + Packages 1A, 1D and 2A)', () => {
-  it('builds Help & support (XS-07) everywhere, the Super Admin’s Overview, Requests and Institutions, and Package 2A’s Institute Admin and Student screens', () => {
+  it('builds Help & support (XS-07) everywhere, the Super Admin’s Overview, Requests and Institutions, and Phase 2’s Institute Admin and Student screens (Packages 2A, 2B)', () => {
     expect([...BUILT_SCREENS]).toEqual([
       'ST-01',
       'XS-07',
@@ -29,17 +29,24 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D and 2A)', () => {
       'SA-06',
       'SA-07',
       'IA-02',
+      'IA-16',
       'IA-03',
       'IA-04',
       'IA-05',
       'IA-06',
       'IA-08',
+      'IA-13',
+      'IA-15',
       'IA-07',
       'IA-10',
       'ST-02',
+      'ST-04',
       'ST-03',
       'ST-05',
       'ST-19',
+      'IA-09',
+      'IA-11',
+      'IA-14',
     ]);
   });
 

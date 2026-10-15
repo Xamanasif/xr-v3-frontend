@@ -59,6 +59,7 @@ import {
   restoreTitle,
   startedCompletedWords,
 } from '@/copy/institutions';
+import { fieldWords } from '@/copy/field-words';
 import { stateWords } from '@/copy/state-copy';
 import { INSTITUTIONS_ADDRESS, institutionPlacement } from '@/nav/institutions';
 import { requestAddress } from '@/nav/requests';
@@ -187,13 +188,17 @@ function without(
   return Object.fromEntries(Object.entries(errors).filter(([key]) => key !== field));
 }
 
-/** The drawn words of a refusal's field errors, by field (`name`, `workEmail`, `reason`). */
+/**
+ * The drawn words of a refusal's field errors, by field (`name`, `workEmail`, `reason`); Package
+ * 2B's identity safeguard (PC-49) shows the register's provisional words (`SA-07.identity-taken`).
+ */
 function fieldMessages(error: ServiceError): Readonly<Record<string, string>> | null {
   if (error.kind !== 'validation-failed') return null;
   const messages: Record<string, string> = {};
   for (const item of error.fieldErrors) {
     const field = item.field.split('.')[0]!;
-    if (item.message && !messages[field]) messages[field] = item.message;
+    const words = fieldWords(item);
+    if (words && !messages[field]) messages[field] = words;
   }
   return messages;
 }

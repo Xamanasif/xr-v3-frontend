@@ -20,6 +20,11 @@ export interface AccessRowView {
   readonly alsoGroupName: string | null;
   /** B2-04 `canWithdraw`: an individual grant, active or waiting, while not paused. */
   readonly canWithdraw: boolean;
+  /**
+   * B2-04 `grpRow` (`via === 'grp' && !paused`): "Change on the group" opens the group's own page
+   * (IA-14, Package 2B) — group grants are changed on the group (SACC-08).
+   */
+  readonly changeOnGroup: string | null;
 }
 
 /**
@@ -52,6 +57,7 @@ export function accessRows(
         !paused &&
         via === 'ind' &&
         (row.display === 'active' || row.display === 'waiting-for-a-licence'),
+      changeOnGroup: !paused && row.grant.target.kind === 'group' ? row.grant.target.groupId : null,
     };
   });
 }

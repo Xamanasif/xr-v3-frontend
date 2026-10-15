@@ -56,6 +56,14 @@ describe('the link-target ledger', () => {
         'ST-03',
         'ST-05',
         'ST-19',
+        // Package 2B.
+        'IA-09',
+        'IA-11',
+        'IA-13',
+        'IA-14',
+        'IA-15',
+        'IA-16',
+        'ST-04',
       ]),
     );
     const keys = LINK_TARGET_LEDGER.map(
@@ -102,25 +110,10 @@ describe('the link-target ledger', () => {
       }
     }
     // Every not-rendered action names the unbuilt screen it waits for (SA-18 Operations: Package 1D).
+    // Package 2B built the rest of Phase 2: what stays hidden waits for Phases 3 and 4.
     expect(
       new Set(hidden.map((entry) => /\b((?:IA|ST|SA)-\d\d)\b/.exec(entry.note!)?.[1])),
-    ).toEqual(
-      new Set([
-        'IA-16',
-        'IA-17',
-        'IA-14',
-        'IA-11',
-        'IA-13',
-        'IA-15',
-        'IA-09',
-        'ST-11',
-        'ST-10',
-        'ST-15',
-        'ST-04',
-        'ST-06',
-        'SA-18',
-      ]),
-    );
+    ).toEqual(new Set(['IA-17', 'ST-11', 'ST-10', 'ST-15', 'ST-06', 'SA-18']));
   });
 
   it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to a built home (SA-01, IA-01, ST-01)', () => {
@@ -301,6 +294,9 @@ describe('the link-target ledger', () => {
       // (Students, and Faculty as IA-08); IA-07 active or inactive; IA-10 the form and its result.
       'IA-01: Give students access',
       'IA-02: Give students access',
+      // Package 2B: IA-16 draws two (B2-03 f6: the header's and the form's "Save course codes").
+      'IA-16: Give students access',
+      'IA-16: Save course codes',
       'IA-03: Give students access',
       'IA-04: Give students access',
       'IA-05: Continue',
@@ -312,6 +308,15 @@ describe('the link-target ledger', () => {
       'IA-07: Reactivate account',
       'IA-10: Add student · Add faculty member',
       'IA-10: Give this student access',
+      // Package 2B: IA-10's faculty result (B2-07 f3); IA-11 per step and its result; one each on
+      // IA-09, IA-13, IA-14 and IA-15.
+      'IA-10: Assign a course',
+      'IA-09: Assign a course',
+      'IA-11: Check file · Choose the corrected file · Continue · Import N students',
+      'IA-11: Give students access',
+      'IA-13: Create group',
+      'IA-14: Add students',
+      'IA-15: Assign course',
       'ST-01: Open <experiment> · Continue <experiment>',
       'ST-19: Back to My courses',
     ]);

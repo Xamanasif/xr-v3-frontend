@@ -3,16 +3,31 @@ import type { BreadcrumbLevel } from '@xr/ui';
 import { WORKSPACE_NAV } from './nav-config';
 
 /**
- * The Institute Admin's Package-2A screens (boards B2-01 … B2-07): their addresses (Appendix A
+ * The Institute Admin's Phase-2 screens (boards B2-01 … B2-09): their addresses (Appendix A
  * register routes) and their place in the shell (Appendix A §3.6: Overview current on IA-01,
- * Content access on IA-02 / IA-03, Student access on IA-04 / IA-05, People on IA-06 … IA-10). The
- * top bars follow the boards: a destination's own page is titled with the destination; a record or
- * a flow is titled with itself and crumbed under its destination ("Content access / ACC-0107",
- * "Student access / Give students access", "People / Students / Rahul Verma", "People / Add
- * student").
+ * Content access on IA-02 / IA-03 / IA-16, Student access on IA-04 / IA-05, People on IA-06 …
+ * IA-11 and IA-13 … IA-15). The top bars follow the boards: a destination's own page is titled
+ * with the destination; a tab with the tab, crumbed under its destination ("People / Groups",
+ * "Content access / Course codes"); a record or a flow is titled with itself and crumbed under its
+ * destination ("Content access / ACC-0107", "People / Faculty / Dr S. Ranganathan", "People /
+ * Groups / ME ZG523 — Sem II", "People / Import students").
  */
 type InstituteScreen =
-  'IA-01' | 'IA-02' | 'IA-03' | 'IA-04' | 'IA-05' | 'IA-06' | 'IA-07' | 'IA-08' | 'IA-10';
+  | 'IA-01'
+  | 'IA-02'
+  | 'IA-03'
+  | 'IA-04'
+  | 'IA-05'
+  | 'IA-06'
+  | 'IA-07'
+  | 'IA-08'
+  | 'IA-09'
+  | 'IA-10'
+  | 'IA-11'
+  | 'IA-13'
+  | 'IA-14'
+  | 'IA-15'
+  | 'IA-16';
 
 const destinationOf = (screen: 'IA-01' | 'IA-02' | 'IA-04' | 'IA-06') =>
   WORKSPACE_NAV.tenant_admin.destinations.find((destination) => destination.screen === screen)!;
@@ -36,6 +51,38 @@ export function accessPlanAddress(planId: string): string {
 
 /** IA-08: the People page's Faculty tab. */
 export const FACULTY_ADDRESS = `${PEOPLE_ADDRESS}?tab=faculty`;
+
+/** IA-13: the People page's Groups tab (Appendix A rule T2). */
+export const GROUPS_ADDRESS = `${PEOPLE_ADDRESS}?tab=groups`;
+
+/** IA-15: the People page's Faculty courses tab. */
+export const FACULTY_COURSES_ADDRESS = `${PEOPLE_ADDRESS}?tab=faculty-courses`;
+
+/**
+ * IA-15 with a faculty member chosen in "Assign a course" (Appendix A IA-09 "?faculty= pre-select",
+ * PROPOSED): from the Faculty record and the faculty member's "Add faculty member" result.
+ */
+export function facultyCoursesAddress(facultyId?: string): string {
+  return facultyId
+    ? `${FACULTY_COURSES_ADDRESS}&faculty=${encodeURIComponent(facultyId)}`
+    : FACULTY_COURSES_ADDRESS;
+}
+
+/** IA-16: the Content access page's Course codes tab. */
+export const COURSE_CODES_ADDRESS = `${CONTENT_ACCESS_ADDRESS}?tab=course-codes`;
+
+/** IA-11: `/institute/people/import`. */
+export const IMPORT_STUDENTS_ADDRESS = `${PEOPLE_ADDRESS}/import`;
+
+/** IA-09: `/institute/people/faculty/[facultyId]`. */
+export function facultyRecordAddress(facultyId: string): string {
+  return `${PEOPLE_ADDRESS}/faculty/${encodeURIComponent(facultyId)}`;
+}
+
+/** IA-14: `/institute/people/groups/[groupId]` (no `/new`: D-06). */
+export function groupAddress(groupId: string): string {
+  return `${PEOPLE_ADDRESS}/groups/${encodeURIComponent(groupId)}`;
+}
 
 /** IA-07: `/institute/people/students/[studentId]`. */
 export function studentRecordAddress(studentId: string): string {
@@ -93,7 +140,7 @@ export function destinationPlacement(
  * its record has loaded the name is not known: the destination's own crumb stands alone.
  */
 export function underPlacement(
-  screen: 'IA-03' | 'IA-05' | 'IA-07' | 'IA-10',
+  screen: 'IA-03' | 'IA-05' | 'IA-07' | 'IA-09' | 'IA-10' | 'IA-11' | 'IA-14',
   current: string | null,
   middle: readonly BreadcrumbLevel[] = [],
 ): InstitutePlacement {
@@ -112,10 +159,21 @@ export function underPlacement(
  * "People / Faculty".
  */
 export function facultyTabPlacement(tabLabel: string): InstitutePlacement {
-  return {
-    screen: 'IA-08',
-    title: tabLabel,
-    trail: [{ label: PEOPLE_TITLE, href: PEOPLE_ADDRESS }],
-    currentCrumb: tabLabel,
-  };
+  return tabPlacement('IA-08', tabLabel);
+}
+
+/**
+ * A tab with a screen id of its own (Package 2B): the top bar reads the tab, crumbed under its
+ * page — "People / Groups" (B2-08 f0), "People / Faculty courses" (B2-09 f0), "Content access /
+ * Course codes" (B2-03 f6).
+ */
+export function tabPlacement(
+  screen: 'IA-08' | 'IA-13' | 'IA-15' | 'IA-16',
+  tabLabel: string,
+): InstitutePlacement {
+  const page =
+    screen === 'IA-16'
+      ? { label: CONTENT_ACCESS_TITLE, href: CONTENT_ACCESS_ADDRESS }
+      : { label: PEOPLE_TITLE, href: PEOPLE_ADDRESS };
+  return { screen, title: tabLabel, trail: [page], currentCrumb: tabLabel };
 }

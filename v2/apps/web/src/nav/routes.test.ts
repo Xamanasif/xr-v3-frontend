@@ -39,7 +39,7 @@ function filesUnder(directory: string): string[] {
 const ROUTE_FILE =
   /(?:^|\/)(?:page|layout|template|not-found|error|loading|default|route|global-error|global-not-found|forbidden|unauthorized)\.(?:tsx?|jsx?)$/;
 
-describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Packages 1A–1D, 2A)', () => {
+describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Packages 1A–1D, 2A, 2B)', () => {
   const routeFiles = filesUnder(APP).filter((file) => ROUTE_FILE.test(file));
 
   it('every page.tsx is in the manifest, and every manifest page exists', () => {
@@ -49,8 +49,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     // Package 1B's six public pages (PU-01 … PU-06; PU-14 is a section of PU-01) + Package 1C's
     // five request pages (PU-07, PU-08, PU-09, PU-10, PU-12; PU-13 is a state of PU-10) + Package
     // 1D's Institutions and Institution detail (SA-01 is the admin base's own page) + Package 2A's
-    // ten Institute Admin and Student pages (IA-01 and ST-01 are their bases' own pages).
-    expect(pages).toHaveLength(61);
+    // ten Institute Admin and Student pages (IA-01 and ST-01 are their bases' own pages) + Package
+    // 2B's three (IA-09, IA-11, IA-14; its four tabs are `?tab=` views of 2A pages).
+    expect(pages).toHaveLength(64);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -79,7 +80,7 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     expect(readdirSync(join(SRC, '..'))).not.toContain('proxy.ts');
   });
 
-  it('Packages 1A–1D and 2A only: sign-in, four Super Admin pages, the six public pages, the five request pages and the Package-2A pages', () => {
+  it('Packages 1A–1D, 2A and 2B only: sign-in, four Super Admin pages, the six public pages, the five request pages and the Phase-2 pages', () => {
     const all = filesUnder(APP);
     for (const forbidden of [/signed-out/, /\(public\)\/requests\/page\.tsx$/]) {
       expect(all.filter((file) => forbidden.test(file))).toEqual([]);
@@ -115,7 +116,8 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       kind: 'screen',
       screen: 'SA-01',
     });
-    // Package 2A: the Institute Admin's and the Student's pages; their bases are IA-01 and ST-01.
+    // Packages 2A and 2B: the Institute Admin's and the Student's pages; their bases are IA-01 and
+    // ST-01. Package 2B adds IA-09, IA-11 and IA-14 (no `/groups/new`: D-06).
     expect(
       all
         .filter((file) => /^(institute|student)\//.test(file) && file.endsWith('page.tsx'))
@@ -126,6 +128,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       'institute/content-access/plans/[planId]/page.tsx',
       'institute/page.tsx',
       'institute/people/add/page.tsx',
+      'institute/people/faculty/[facultyId]/page.tsx',
+      'institute/people/groups/[groupId]/page.tsx',
+      'institute/people/import/page.tsx',
       'institute/people/page.tsx',
       'institute/people/students/[studentId]/page.tsx',
       'institute/student-access/give/page.tsx',
@@ -163,7 +168,7 @@ describe('static redirects (next.config.ts; Appendix A §3.7)', () => {
 });
 
 describe('the built-screen manifest is generated from the route manifest', () => {
-  it('Help (XS-07) in every workspace, the Super Admin’s Requests and decision (Package 1A), Overview, Institutions and Institution detail (Package 1D), and Package 2A’s fourteen ids', () => {
+  it('Help (XS-07) in every workspace, the Super Admin’s Requests and decision (Package 1A), Overview, Institutions and Institution detail (Package 1D), and Phase 2’s twenty-one ids (Packages 2A, 2B)', () => {
     const built = [
       'ST-01',
       'XS-07',
@@ -174,18 +179,28 @@ describe('the built-screen manifest is generated from the route manifest', () =>
       'SA-06',
       'SA-07',
       'IA-02',
+      // IA-16 Course codes is the Content access page's tab (Package 2B).
+      'IA-16',
       'IA-03',
       'IA-04',
       'IA-05',
       'IA-06',
-      // IA-08 Faculty is the People page's tab; ST-19 a state of the experiment hub.
+      // IA-08 Faculty, IA-13 Groups and IA-15 Faculty courses are the People page's tabs; ST-19 a
+      // state of the experiment hub.
       'IA-08',
+      'IA-13',
+      'IA-15',
       'IA-07',
       'IA-10',
       'ST-02',
+      // ST-04 All experiments is My courses' tab (Package 2B).
+      'ST-04',
       'ST-03',
       'ST-05',
       'ST-19',
+      'IA-09',
+      'IA-11',
+      'IA-14',
     ];
     expect([...SCREENS_WITH_PAGES]).toEqual(built);
     expect([...BUILT_SCREENS]).toEqual(built);
@@ -301,7 +316,30 @@ describe('resolveAddress — what an address shows', () => {
       { kind: 'record-screen', workspace: 'institute', screen: 'IA-07' },
     ],
     ['/institute/people/add', { kind: 'record-screen', workspace: 'institute', screen: 'IA-10' }],
-    ['/institute/people/faculty/per-0014', { kind: 'workspace-not-found', workspace: 'institute' }],
+    // Package 2B: the Faculty record, Import students and a Group; `/groups/new` is not a page (D-06)
+    // — it is a group id the adapter answers not found for.
+    [
+      '/institute/people/faculty/per-0014',
+      { kind: 'record-screen', workspace: 'institute', screen: 'IA-09' },
+    ],
+    [
+      '/institute/people/import',
+      { kind: 'record-screen', workspace: 'institute', screen: 'IA-11' },
+    ],
+    [
+      '/institute/people/groups/GRP-0012',
+      { kind: 'record-screen', workspace: 'institute', screen: 'IA-14' },
+    ],
+    ['/institute/people/groups', { kind: 'workspace-not-found', workspace: 'institute' }],
+    ['/institute/people/import/x', { kind: 'workspace-not-found', workspace: 'institute' }],
+    [
+      '/institute/content-access?tab=course-codes',
+      { kind: 'record-screen', workspace: 'institute', screen: 'IA-02' },
+    ],
+    [
+      '/student/courses?tab=experiments',
+      { kind: 'record-screen', workspace: 'student', screen: 'ST-02' },
+    ],
     ['/institute/requests', { kind: 'workspace-not-found', workspace: 'institute' }],
     ['/faculty/courses', { kind: 'workspace-not-found', workspace: 'faculty' }],
   ] as const)('%s', (path, outcome) => {

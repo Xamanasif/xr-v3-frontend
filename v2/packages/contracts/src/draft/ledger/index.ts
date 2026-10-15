@@ -164,6 +164,21 @@ export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = [
     authorisation:
       'Owner authorisation of Phase 2A (15 Oct 2026, §6): "Implement only those Phase-2 deferred service methods needed by the selected screens" — IA-01 Overview (getMyOverview), IA-06 Students and its group filter (listStudents, listGroups), IA-08 Faculty (listFaculty). previewStudentImport, getFaculty, getGroup, FacultyCourseService.list and InstitutionCourseCodeService.list stay deferred with IA-09, IA-11, IA-13 … IA-16 (Phase 2B).',
   })),
+  ...(
+    [
+      'PeopleService.previewStudentImport',
+      'PeopleService.getFaculty',
+      'GroupService.getGroup',
+      'FacultyCourseService.list',
+      'InstitutionCourseCodeService.list',
+    ] as const
+  ).map((method) => ({
+    method,
+    phase: 'P2' as const,
+    package: 'Phase-2 Package 2B',
+    authorisation:
+      'Owner authorisation of Phase 2B (15 Oct 2026, §2–3): "Implement exactly the remaining designed Phase-2 screen IDs" — IA-11 Import students (previewStudentImport: the CSV parsed by the service), IA-09 Faculty record (getFaculty), IA-14 Group (getGroup), IA-15 Faculty courses (FacultyCourseService.list), IA-16 Course codes (InstitutionCourseCodeService.list). With them every Phase-2 method is implemented.',
+  })),
 ];
 
 /** The methods `PACKAGE_DELIVERIES` names. */

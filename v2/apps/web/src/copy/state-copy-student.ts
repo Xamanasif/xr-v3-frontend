@@ -98,7 +98,7 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-02',
     state: 'The “Courses | All experiments” tab strip',
     words: null,
-    rule: 'Not rendered: “All experiments” (ST-04) is not built in Package 2A, and a one-tab strip is not drawn (DEV-21 interim). The page header, then the list.',
+    rule: 'Package 2A did not render the strip (ST-04 not built, DEV-21). Since Package 2B it renders as drawn — “Courses” (ST-02, the bare address) and “All experiments” (ST-04, `?tab=experiments`) — under the page header on every state.',
     basis: 'B2-11 f0, f3, f5, f7 … f11, f13 (`nav.xr-tabs aria-label="My courses"`)',
     status: 'provisional',
     decisions: ['DEV-21'],

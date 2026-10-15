@@ -60,8 +60,16 @@ the four Institute Admin reads Phase-2 Package 2A delivered — `InstitutionServ
 (IA-01, attention items as facts, PC-38), `PeopleService.listStudents` (IA-06, rows with groups and
 the experiments given, PC-39), `PeopleService.listFaculty` (IA-08) and `GroupService.listGroups`
 (IA-06's group filter) in `handlers/institute-reads.ts` (the `PACKAGE_DELIVERIES` of
-`@xr/contracts/draft`). The other 36 keep their phase: calling one rejects with the phase it lands
-in — never an invented value; `OperationsService.getSuperAdminOverview` stays in Phase 6 (SA-01 is
+`@xr/contracts/draft`), and the five Phase-2 Package 2B delivered — `PeopleService.previewStudentImport`
+(IA-11: the CSV parsed by the service in `handlers/student-import.ts`, the rows staged in the
+adapter for the commit, PC-47), `PeopleService.getFaculty` (IA-09), `GroupService.getGroup` (IA-14,
+standings only for live group grants, PC-46), `FacultyCourseService.list` (IA-15) and
+`InstitutionCourseCodeService.list` (IA-16) — so every Phase-2 method is implemented. Package 2B
+also answers IA-05's "Already has it" per chosen experiment (PC-48) and adds the sample-mode
+identity safeguard (`handlers/identity-safeguard.ts`, PC-49): adding a person, importing students
+and assigning an Institute Admin refuse an e-mail another sample identity signs in with — never a
+merge or a silent takeover; T-11 stays open. The other 31 keep their phase: calling one rejects
+with the phase it lands in — never an invented value; `OperationsService.getSuperAdminOverview` stays in Phase 6 (SA-01 is
 built with its Phase-1 Requests group only). Since Package 1D
 `getInstitution` lists each student with its record's revision (`studentList[].rev`, PC-37), the
 `expectedRev` of `overrideStudentStatus`. Package 1B

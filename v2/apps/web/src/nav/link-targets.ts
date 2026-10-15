@@ -2,8 +2,9 @@
  * The link-target ledger (ADR-0005 §8; Appendix F §3.3 "Unbuilt destinations", WP-0.13 acceptance
  * 9; register P0-35): every action drawn on the built screens (Phase 0, then Phase-1 Package 1A:
  * XS-01, SA-02, SA-03; Package 1B: the public shell and PU-01 … PU-06 with PU-14; Package 1C: PU-07,
- * PU-08, PU-09, PU-10 with PU-13, PU-12; Package 1D: SA-01, SA-06, SA-07), where it goes, and what
- * that address shows. Its tests prove that every link reaches a built page — the one
+ * PU-08, PU-09, PU-10 with PU-13, PU-12; Package 1D: SA-01, SA-06, SA-07; Phase 2, Packages 2A and
+ * 2B: the Institute Admin's and the Student's 21 screens), where it goes, and what that address
+ * shows. Its tests prove that every link reaches a built page — the one
  * Phase-0 dead link (PU-15 → PU-04) is gone since Package 1B — and that no primary action resolves
  * to the page it is on; the browser
  * suite follows each link for real and checks that no document load (which would rebuild the
@@ -48,10 +49,17 @@ export type LedgerScreen =
   | 'IA-06'
   | 'IA-07'
   | 'IA-08'
+  | 'IA-09'
   | 'IA-10'
+  | 'IA-11'
+  | 'IA-13'
+  | 'IA-14'
+  | 'IA-15'
+  | 'IA-16'
   | 'ST-01'
   | 'ST-02'
   | 'ST-03'
+  | 'ST-04'
   | 'ST-05'
   | 'ST-19';
 
@@ -1611,9 +1619,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Add course code',
       'secondary',
       '/institute/content-access?tab=course-codes',
-      'not-rendered',
-      'B2-01 f0, f6',
-      'IA-16 Course codes is not built (Phase 2B): the action appears with it; the row’s words stay.',
+      'built',
+      'B2-01 f0, f6 (→ B2-03 IA-16, Package 2B)',
     ],
     [
       '“Needs your attention” row',
@@ -1648,9 +1655,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Course codes',
       'secondary',
       '/institute/content-access?tab=course-codes',
-      'not-rendered',
-      'B2-02 f0 … f9',
-      'IA-16 Course codes is not built (Phase 2B): the tab appears with it.',
+      'built',
+      'B2-02 f0 … f9 (IA-16, Package 2B)',
     ],
     [
       'Toolbar',
@@ -1681,9 +1687,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Add code',
       'secondary',
       '/institute/content-access?tab=course-codes',
-      'not-rendered',
-      'B2-02 f0, f1, f3 … f5, f7',
-      'IA-16 Course codes is not built (Phase 2B): the action appears with it.',
+      'built',
+      'B2-02 f0, f1, f3 … f5, f7 (→ IA-16, Package 2B)',
     ],
     [
       'Experiment row',
@@ -1711,6 +1716,29 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'IA-17 Requests to BITS is not built (Phase 3): the action appears with it.',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-02 f9'],
+  ]),
+  // Package 2B: IA-16 Course codes, the Content access page's second tab (B2-03 f6 … f10).
+  ...workspacePage('IA-16', '/institute/content-access?tab=course-codes', [
+    [
+      'Header',
+      'Give students access',
+      'primary',
+      '/institute/student-access/give',
+      'built',
+      'B2-03 f6, f7, f10 (none while paused, f9)',
+    ],
+    ['Tabs', 'Experiments', 'secondary', '/institute/content-access', 'built', 'B2-03 f6 … f10'],
+    ['Toolbar', 'Show missing codes only', 'secondary', null, 'in-page', 'B2-03 f6'],
+    ['Foot (changed)', 'Undo changes', 'secondary', null, 'in-page', 'B2-03 f6, f8'],
+    [
+      'Foot',
+      'Save course codes',
+      'primary',
+      null,
+      'in-page',
+      'B2-03 f6 … f8, f10 (`institutionCourseCodes.set` with the revision read)',
+    ],
+    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-02 f9 formula (IA-16.failed)'],
   ]),
   ...workspacePage('IA-03', '/institute/content-access/plans/{planId}', [
     [
@@ -1818,10 +1846,9 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Group grant row',
       'Change on the group',
       'secondary',
-      '/institute/people?tab=groups',
-      'not-rendered',
-      'B2-04 f1',
-      'IA-14 Group is not built (Phase 2B): the action appears with it.',
+      '/institute/people/groups/{groupId}',
+      'built',
+      'B2-04 f1 (→ B2-08; the grant’s own group, IA-14, Package 2B)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-04 f11'],
   ]),
@@ -1868,9 +1895,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Import students',
       'secondary',
       '/institute/people/import',
-      'not-rendered',
-      'B2-05 f14',
-      'IA-11 Import students is not built (Phase 2B): the action appears with it.',
+      'built',
+      'B2-05 f14 (→ IA-11, Package 2B)',
     ],
     [
       'Institution paused',
@@ -1913,9 +1939,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Import students',
       'secondary',
       '/institute/people/import',
-      'not-rendered',
-      'B2-06 f0',
-      'IA-11 Import students is not built (Phase 2B): the action appears with it.',
+      'built',
+      'B2-06 f0 (→ IA-11, Package 2B)',
     ],
     ['Tabs', 'Students', 'secondary', '/institute/people', 'built', 'B2-06 f0'],
     [
@@ -1926,23 +1951,14 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'built',
       'B2-06 f0, f14 (IA-08)',
     ],
-    [
-      'Tabs',
-      'Groups',
-      'secondary',
-      '/institute/people?tab=groups',
-      'not-rendered',
-      'B2-06 f0',
-      'IA-13 Groups is not built (Phase 2B): the tab appears with it.',
-    ],
+    ['Tabs', 'Groups', 'secondary', '/institute/people?tab=groups', 'built', 'B2-06 f0 (IA-13)'],
     [
       'Tabs',
       'Faculty courses',
       'secondary',
       '/institute/people?tab=faculty-courses',
-      'not-rendered',
-      'B2-06 f0',
-      'IA-15 Faculty courses is not built (Phase 2B): the tab appears with it.',
+      'built',
+      'B2-06 f0 (IA-15)',
     ],
     [
       'Student row',
@@ -1966,9 +1982,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Import students',
       'secondary',
       '/institute/people/import',
-      'not-rendered',
-      'B2-06 f3',
-      'IA-11 Import students is not built (Phase 2B): the action appears with it.',
+      'built',
+      'B2-06 f3 (→ IA-11, Package 2B)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-06 f5'],
   ]),
@@ -1985,10 +2000,9 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Faculty row',
       '(the faculty member’s name)',
       'secondary',
-      '/institute/people/faculty/{studentId}',
-      'not-rendered',
-      'B2-06 f14',
-      'IA-09 Faculty record is not built (Phase 2B): names are plain text until then.',
+      '/institute/people/faculty/{facultyId}',
+      'built',
+      'B2-06 f14 (→ IA-09, Package 2B)',
     ],
     ['No match', 'Clear search', 'secondary', null, 'in-page', 'B2-06 f14'],
   ]),
@@ -2030,10 +2044,9 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       '“Courses and groups”',
       '(the group’s name)',
       'secondary',
-      '/institute/people?tab=groups',
-      'not-rendered',
-      'B2-06 f8',
-      'IA-14 Group is not built (Phase 2B): the name is plain text until then.',
+      '/institute/people/groups/{groupId}',
+      'built',
+      'B2-06 f8 (→ B2-08 IA-14, Package 2B)',
     ],
   ]),
   ...workspacePage('IA-10', '/institute/people/add', [
@@ -2073,12 +2086,220 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     [
       'Faculty result',
       'Assign a course',
+      'primary',
+      '/institute/people?tab=faculty-courses&faculty={facultyId}',
+      'built',
+      'B2-07 f3 (→ B2-09 IA-15 with them chosen, Package 2B)',
+    ],
+  ]),
+  // ---- Package 2B: IA-09, IA-11, IA-13, IA-14, IA-15 (B2-06 f15 f16, B2-07 f5 … f10, B2-08, B2-09)
+  ...workspacePage('IA-09', '/institute/people/faculty/{facultyId}', [
+    [
+      'Back link',
+      'Faculty',
+      'secondary',
+      '/institute/people?tab=faculty',
+      'built',
+      'B2-06 f15, f16',
+    ],
+    [
+      'Header',
+      'Assign a course',
+      'primary',
+      '/institute/people?tab=faculty-courses&faculty={facultyId}',
+      'built',
+      'B2-06 f15, f16 (→ B2-09 IA-15 with them chosen; not while inactive or paused)',
+    ],
+    [
+      '“Courses taught” head',
+      'Open Faculty courses',
       'secondary',
       '/institute/people?tab=faculty-courses',
-      'not-rendered',
-      'B2-07 f3',
-      'IA-15 Faculty courses is not built (Phase 2B): the action appears with it.',
+      'built',
+      'B2-06 f15 (→ B2-09 IA-15)',
     ],
+    [
+      'Course row',
+      'Remove…',
+      'secondary',
+      '/institute/people?tab=faculty-courses&faculty={facultyId}',
+      'built',
+      'B2-06 f15 (→ B2-09, where the removal is confirmed; not while paused)',
+    ],
+    [
+      '“No courses yet”',
+      'Assign a course',
+      'secondary',
+      '/institute/people?tab=faculty-courses&faculty={facultyId}',
+      'built',
+      'B2-06 f16',
+    ],
+    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-06 f5 formula (IA-09.failed)'],
+  ]),
+  ...workspacePage('IA-11', '/institute/people/import', [
+    ['Back link', 'Students', 'secondary', '/institute/people', 'built', 'B2-07 f5 … f10'],
+    [
+      'Step 1',
+      'Download the template (CSV)',
+      'secondary',
+      null,
+      'in-page',
+      'B2-07 f5 (a `data:` download of the six-column template; no navigation)',
+    ],
+    [
+      'Step 1',
+      'Choose a CSV file',
+      'secondary',
+      null,
+      'in-page',
+      'B2-07 f5 (the browser’s own file chooser)',
+    ],
+    ['Step 1', 'Cancel', 'secondary', '/institute/people', 'built', 'B2-07 f5'],
+    [
+      'Steps 1 … 3',
+      'Check file · Choose the corrected file · Continue · Import N students',
+      'primary',
+      null,
+      'in-page',
+      'B2-07 f5 … f8, f10 (`previewStudentImport`, `commitStudentImport`; in-page steps, rule S3)',
+    ],
+    ['Steps 2 and 3', 'Back', 'secondary', null, 'in-page', 'B2-07 f6 … f8'],
+    [
+      'Result',
+      'Give students access',
+      'primary',
+      '/institute/student-access/give',
+      'built',
+      'B2-07 f9 (→ B2-05 IA-05)',
+    ],
+    ['Result', 'View students', 'secondary', '/institute/people', 'built', 'B2-07 f9'],
+    ['Result', 'Import another file', 'secondary', null, 'in-page', 'B2-07 f9'],
+  ]),
+  ...workspacePage('IA-13', '/institute/people?tab=groups', [
+    [
+      'Header (Groups tab)',
+      'Create group',
+      'primary',
+      null,
+      'in-page',
+      'B2-08 f0 … f2 (opens DL-3; not while paused)',
+    ],
+    [
+      'Group row',
+      '(the group’s name)',
+      'secondary',
+      '/institute/people/groups/{groupId}',
+      'built',
+      'B2-08 f0, f2 (→ IA-14)',
+    ],
+    [
+      'Create group (DL-3)',
+      'Create group · Cancel · Close',
+      'secondary',
+      null,
+      'in-page',
+      'B2-08 f1 (`createGroup`)',
+    ],
+    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-06 f5 formula (IA-13.failed)'],
+  ]),
+  ...workspacePage('IA-14', '/institute/people/groups/{groupId}', [
+    ['Back link', 'Groups', 'secondary', '/institute/people?tab=groups', 'built', 'B2-08 f3 … f10'],
+    ['Header', 'Rename', 'secondary', null, 'in-page', 'B2-08 f3, f6 (DL-3, `renameGroup`)'],
+    [
+      'Header',
+      'Give this group access',
+      'secondary',
+      '/institute/student-access/give?group={groupId}',
+      'built',
+      'B2-08 f3 … f10 (→ B2-05 with the group chosen)',
+    ],
+    [
+      'Header',
+      'Add students',
+      'primary',
+      null,
+      'in-page',
+      'B2-08 f3 … f6, f8 … f10 (opens the inline panel)',
+    ],
+    [
+      'Member row',
+      '(the student’s name)',
+      'secondary',
+      '/institute/people/students/{studentId}',
+      'built',
+      'B2-08 f3 … f10 (→ B2-06 IA-07)',
+    ],
+    ['Member row', 'Remove…', 'secondary', null, 'in-page', 'B2-08 f3, f5 (opens DL-1)'],
+    [
+      'Remove member (DL-1)',
+      'Remove from group · Cancel · Close',
+      'secondary',
+      null,
+      'in-page',
+      'B2-08 f5 (`removeMember`)',
+    ],
+    ['Rename (DL-3)', 'Save name · Cancel · Close', 'secondary', null, 'in-page', 'B2-08 f6'],
+    [
+      'Add students panel',
+      'Add N students · Cancel',
+      'secondary',
+      null,
+      'in-page',
+      'B2-08 f7 (`addMembers`)',
+    ],
+    [
+      '“Nothing given to this group yet”',
+      'Give this group access',
+      'secondary',
+      '/institute/student-access/give?group={groupId}',
+      'built',
+      'B2-08 f3, f5 … f8',
+    ],
+    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-06 f5 formula (IA-14.failed)'],
+  ]),
+  ...workspacePage('IA-15', '/institute/people?tab=faculty-courses', [
+    [
+      'Faculty row',
+      '(the faculty member’s name)',
+      'secondary',
+      '/institute/people/faculty/{facultyId}',
+      'built',
+      'B2-09 f0 … f5 (→ B2-06 IA-09)',
+    ],
+    [
+      'Faculty row',
+      'Assign a course',
+      'secondary',
+      null,
+      'in-page',
+      'B2-09 f0 (chooses them in the panel; active members only)',
+    ],
+    [
+      'Courses taught',
+      'Remove…',
+      'secondary',
+      null,
+      'in-page',
+      'B2-09 f0, f2, f3 (DL-1 after `previewRemoval`)',
+    ],
+    [
+      'Remove course (DL-1)',
+      'Remove course · Cancel · Close',
+      'secondary',
+      null,
+      'in-page',
+      'B2-09 f2, f3 (`remove`)',
+    ],
+    ['Toolbar · no match', 'Search · Clear search', 'secondary', null, 'in-page', 'B2-09 f0'],
+    [
+      'Assign a course panel',
+      'Assign course',
+      'primary',
+      null,
+      'in-page',
+      'B2-09 f0, f1, f4, f5 (`facultyCourses.assign`; not while paused)',
+    ],
+    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-06 f5 formula (IA-15.failed)'],
   ]),
   ...workspacePage('ST-01', '/student', [
     [
@@ -2152,12 +2373,11 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
   ...workspacePage('ST-02', '/student/courses', [
     [
       'Tabs',
-      'All experiments',
+      'Courses · All experiments',
       'secondary',
       '/student/courses?tab=experiments',
-      'not-rendered',
-      'B2-11 f0, f3, f5, f7 … f11, f13',
-      'ST-04 All experiments is not built (Phase 2B): the tab strip appears with it.',
+      'built',
+      'B2-11 f0, f3, f5, f7 … f11, f13 (ST-04, Package 2B)',
     ],
     [
       'Course row',
@@ -2178,6 +2398,28 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'ST-15 Progress is not built (Phase 3; SACC-14 open): the action appears with it.',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-11 f10'],
+  ]),
+  // Package 2B: ST-04 All experiments, My courses' second tab (B2-11 f2, f4, f15).
+  ...workspacePage('ST-04', '/student/courses?tab=experiments', [
+    ['Tabs', 'Courses', 'secondary', '/student/courses', 'built', 'B2-11 f2, f4, f15'],
+    [
+      'Toolbar',
+      'Search · Format · Remove (chip) · Clear filters',
+      'secondary',
+      null,
+      'in-page',
+      'B2-11 f2, f4',
+    ],
+    [
+      'Experiment row',
+      'Open',
+      'secondary',
+      '/student/experiments/{experimentId}',
+      'built',
+      'B2-11 f2, f15 (→ B2-12 ST-05)',
+    ],
+    ['No match', 'Clear filters', 'secondary', null, 'in-page', 'B2-11 f4'],
+    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-11 f2 (`x.failed`)'],
   ]),
   ...workspacePage('ST-03', '/student/courses/{courseId}', [
     ['Back link', 'My courses', 'secondary', '/student/courses', 'built', 'B2-11 f1, f6, f14'],
@@ -2248,7 +2490,9 @@ export function expandTarget(target: string, base: string, reportId = 'SUP-0213'
     .replace('{experimentId}', 'shell-and-tube-heat-exchanger')
     .replace('{routeId}', 'rq-0012')
     .replace('{planId}', 'ACC-0107')
-    .replace('{studentId}', 'per-0002');
+    .replace('{studentId}', 'per-0002')
+    .replace('{groupId}', 'GRP-0012')
+    .replace('{facultyId}', 'per-0013');
 }
 
 type WorkspaceRow = readonly [

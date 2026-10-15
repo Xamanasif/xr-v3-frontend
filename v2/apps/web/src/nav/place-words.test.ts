@@ -25,6 +25,13 @@ describe('placeWordsOf', () => {
     ['/institute/content-access/plans/ACC-0107', 'Content access › ACC-0107'],
     ['/institute/student-access/give?step=review', 'Student access'],
     ['/institute/people/students/per-0002', 'People'],
+    // Package 2B: the Faculty record, Import students, a Group and the tabs.
+    ['/institute/people/faculty/per-0013', 'People'],
+    ['/institute/people/import', 'People'],
+    ['/institute/people/groups/GRP-0012', 'People'],
+    ['/institute/people?tab=groups', 'People'],
+    ['/institute/content-access?tab=course-codes', 'Content access'],
+    ['/student/courses?tab=experiments', 'My courses'],
     ['/student', 'Home'],
     ['/student/courses', 'My courses'],
     ['/student/experiments/shell-and-tube-heat-exchanger', 'My courses'],

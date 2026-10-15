@@ -108,8 +108,8 @@ export class PaymentStandIn {
 
 /**
  * A checked student-import file waiting to be committed (IA-11 step 2 → 3). Adapter state, not a
- * world record — a preview writes nothing. The Phase-2 preview (CSV parsing) creates these; in
- * WP-0.11 only the seed loader and tests stage the validated rows.
+ * world record — a preview writes nothing. `previewStudentImport` (Phase-2 Package 2B: the CSV
+ * parsed by the service) creates these; the walk's S1 and tests may stage validated rows directly.
  */
 export interface StagedStudentImport {
   readonly batchId: string;

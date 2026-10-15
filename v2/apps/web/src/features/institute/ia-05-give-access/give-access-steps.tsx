@@ -50,7 +50,7 @@ import {
   studentsChosenWords,
   summaryFormatsWords,
 } from '@/copy/student-access';
-import { addPersonAddress, STUDENT_ACCESS_ADDRESS } from '@/nav/institute';
+import { addPersonAddress, IMPORT_STUDENTS_ADDRESS, STUDENT_ACCESS_ADDRESS } from '@/nav/institute';
 import type { GiveChoice, useGiveAccessPreview } from '@/queries/student-access';
 
 import { type Chosen, type Draft, FIELD_IDS } from './give-access-view';
@@ -227,7 +227,11 @@ export function StudentsStep({
     const studentId = known.get(student.id)?.student.institutionStudentId ?? '';
     return `${student.name} ${studentId}`.toLowerCase().includes(search);
   });
-  const inPlanNames = chosen.inPlan.map((entry) => entry.name);
+  // "Already has <experiment>" names the chosen experiments the student already holds (PC-48).
+  const namesOf = (experimentIds: readonly string[]) =>
+    chosen.inPlan
+      .filter((entry) => experimentIds.includes(entry.experimentId))
+      .map((entry) => entry.name);
   const toggle = (studentId: string) =>
     update({
       studentIds: draft.studentIds.includes(studentId)
@@ -288,7 +292,7 @@ export function StudentsStep({
                         {student.why === 'already-has-it' ? (
                           <span className="xw-pick-state">
                             <Icon name="done" />
-                            {alreadyHasWords(inPlanNames)}
+                            {alreadyHasWords(namesOf(student.alreadyHas))}
                           </span>
                         ) : null}
                         {student.why === 'inactive' ? (
@@ -315,6 +319,9 @@ export function StudentsStep({
               <div className="flex flex-wrap gap-3">
                 <Link className="xr-btn xr-btn--secondary" href={addPersonAddress('student')}>
                   {GIVE_ACCESS.addStudent}
+                </Link>
+                <Link className="xr-btn xr-btn--secondary" href={IMPORT_STUDENTS_ADDRESS}>
+                  {GIVE_ACCESS.importStudents}
                 </Link>
               </div>
             }

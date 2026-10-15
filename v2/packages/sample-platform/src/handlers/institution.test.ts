@@ -282,14 +282,14 @@ describe('an assigned Institute Admin signs in with the work e-mail (P1-01 sampl
 });
 
 /**
- * Owner decision T-11 / P1-01, OPEN (Package 1E reproduction — no rule added, P1-08): nothing checks
- * an assigned work e-mail against the people who already sign in with it, and the sample sign-in
- * resolves an e-mail to the first holder in a fixed order — people, then Institute Admins, then role
- * holders, then Super Admins (`personIdByEmail`). These cases record what happens today; they are
- * not an accepted rule. A hosted demonstration that lets reviewers assign any e-mail is blocked on
- * this decision (`docs/phase-1/PHASE-1-HANDOVER.md`).
+ * Owner decision T-11 / P1-01 stays OPEN. Package 1E reproduced the collision: the sample sign-in
+ * resolves an e-mail to the first holder in a fixed order — people, then Institute Admins, then
+ * role holders, then Super Admins (`personIdByEmail`) — so an Institute Admin assigned an e-mail
+ * someone already signs in with took over or lost that sign-in. Package 2B's sample-mode identity
+ * safeguard (PC-49) refuses such an assignment on the work e-mail field instead; nothing is merged
+ * or replaced, and the earlier sign-in keeps working. It is not the T-11 policy.
  */
-describe('T-11 / P1-01 open: an assigned work e-mail someone already signs in with (reproduction)', () => {
+describe('T-11 / P1-01 open: an assigned work e-mail someone already signs in with (safeguard)', () => {
   async function signIn(platform: Awaited<ReturnType<typeof platformAfter>>, email: string) {
     const answer = await visitorPorts(platform).session.signIn({
       method: 'email',
@@ -312,63 +312,72 @@ describe('T-11 / P1-01 open: an assigned work e-mail someone already signs in wi
   ) {
     const admin = asPerson(platform, 'Arjun Mehta');
     const detail = ok(await admin.institutions.getInstitution(id('sahyadri')));
-    // Accepted: the work e-mail is checked for its form only (B7-03 `doAssign`).
-    return ok(
-      await admin.institutions.assignInstituteAdmin({
-        institutionId: id('sahyadri'),
-        name: 'N. Joshi',
-        workEmail: email,
-        expectedRev: detail.institution.rev,
-      }),
-    );
+    return admin.institutions.assignInstituteAdmin({
+      institutionId: id('sahyadri'),
+      name: 'N. Joshi',
+      workEmail: email,
+      expectedRev: detail.institution.rev,
+    });
   }
 
-  const SAHYADRI_IA = {
-    landing: '/institute',
-    role: 'tenant_admin',
-    name: 'N. Joshi',
-    institution: 'sahyadri',
+  const REFUSED = {
+    ok: false,
+    error: {
+      kind: 'validation-failed',
+      fieldErrors: [
+        { field: 'workEmail', key: 'SA-07.workEmail.identity-taken', message: null, params: {} },
+      ],
+      summaryTitle: null,
+    },
   };
 
-  it('the Super Admin’s e-mail: his sample sign-in now lands as the new Institute Admin', async () => {
+  async function refusedAndUnchanged(email: string, before: Record<string, unknown>) {
     const platform = await platformAfter('C');
-    const email = 'arjun.mehta@wilp.example';
-    expect(await signIn(platform, email)).toMatchObject({ landing: '/admin', role: 'super_admin' });
-    const people = Object.keys(worldOf(platform).records.people).length;
-    await assignSahyadri(platform, email);
-    expect(await signIn(platform, email)).toEqual(SAHYADRI_IA);
-    // No record was overwritten: the collision is the sign-in's resolution only.
-    expect(Object.keys(worldOf(platform).records.people)).toHaveLength(people);
-    expect(worldOf(platform).identities.superAdmins.map((admin) => admin.email)).toContain(email);
+    expect(await signIn(platform, email)).toMatchObject(before);
+    const world = worldOf(platform);
+    const sahyadri = world.records.institutions['sahyadri'];
+    expect(await assignSahyadri(platform, email)).toEqual(REFUSED);
+    // Nothing was written: Sahyadri still has no Institute Admin, the sign-in is unchanged.
+    expect(worldOf(platform).records.institutions['sahyadri']).toEqual(sahyadri);
+    expect(await signIn(platform, email)).toMatchObject(before);
+  }
+
+  it('the Super Admin’s e-mail is refused; his sample sign-in still lands in the admin workspace', async () => {
+    await refusedAndUnchanged('arjun.mehta@wilp.example', {
+      landing: '/admin',
+      role: 'super_admin',
+    });
   });
 
-  it('a role holder’s e-mail (the Content Manager): her sign-in now lands as the Institute Admin', async () => {
-    const platform = await platformAfter('C');
-    const email = 'kavya.nair@wilp.example';
-    expect(await signIn(platform, email)).toMatchObject({ role: 'content_manager' });
-    await assignSahyadri(platform, email);
-    expect(await signIn(platform, email)).toEqual(SAHYADRI_IA);
+  it('a role holder’s e-mail (the Content Manager) is refused; her sign-in is unchanged', async () => {
+    await refusedAndUnchanged('kavya.nair@wilp.example', { role: 'content_manager' });
   });
 
-  it('another institution’s Institute Admin: one e-mail, two Institute Admins — only one can sign in', async () => {
-    const platform = await platformAfter('C');
-    const email = 'meera.iyer@godavari.edu.in';
-    expect(await signIn(platform, email)).toMatchObject({
+  it('another institution’s Institute Admin’s e-mail is refused, in any case and spacing', async () => {
+    await refusedAndUnchanged(' Meera.Iyer@Godavari.edu.in ', {
       role: 'tenant_admin',
       name: 'Meera Iyer',
       institution: 'godavari',
     });
-    await assignSahyadri(platform, email);
-    // The institution listed first wins: Meera Iyer now lands in Sahyadri's workspace.
-    expect(await signIn(platform, email)).toEqual(SAHYADRI_IA);
   });
 
-  it('a Student’s e-mail: the Student keeps signing in, and the new Institute Admin never can', async () => {
+  it('a Student’s e-mail is refused; the Student keeps signing in', async () => {
+    await refusedAndUnchanged('rahul.verma@godavari.edu.in', {
+      role: 'student',
+      name: 'Rahul Verma',
+    });
+  });
+
+  it('a free e-mail is assigned and signs the new Institute Admin in', async () => {
     const platform = await platformAfter('C');
-    const email = 'rahul.verma@godavari.edu.in';
-    expect(await signIn(platform, email)).toMatchObject({ role: 'student', name: 'Rahul Verma' });
-    await assignSahyadri(platform, email);
-    expect(await signIn(platform, email)).toMatchObject({ role: 'student', name: 'Rahul Verma' });
+    const answer = await assignSahyadri(platform, 'n.joshi@sahyadri.edu.in');
+    expect(answer.ok).toBe(true);
+    expect(await signIn(platform, 'n.joshi@sahyadri.edu.in')).toEqual({
+      landing: '/institute',
+      role: 'tenant_admin',
+      name: 'N. Joshi',
+      institution: 'sahyadri',
+    });
   });
 
   it('the approved demonstration’s e-mail collides with nobody on the spine-start world', async () => {

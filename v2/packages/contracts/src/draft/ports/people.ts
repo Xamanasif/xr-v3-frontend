@@ -21,6 +21,7 @@ import {
   groupId,
   ids,
   importBatchId,
+  personId,
   platformCourseCode,
   technology,
 } from '../kernel/primitives.js';
@@ -45,6 +46,7 @@ import type {
   Unavailable,
   ValidationFailed,
 } from '../errors/service-error.js';
+import type { MessageKey } from '../errors/messages.js';
 import { courseCard } from './catalogue.js';
 import type { Answer, In, Out } from './common.js';
 import { key } from './fields.js';
@@ -81,7 +83,7 @@ export const addStudentInput = z.object({
 
 export const addFacultyInput = z.object(personFields);
 
-/** IA-11 step 1: "Choose a CSV file first". Parsing the rows is Phase 2. */
+/** IA-11 step 1: "Choose a CSV file first". The service parses the rows (Phase-2 Package 2B, PC-47). */
 export const previewStudentImportInput = z.object({
   fileName: requiredTrimmed(key('IA-11.file.required')),
   csvText: z.string(),
@@ -110,6 +112,12 @@ export const STUDENT_IMPORT_FIELDS = [
  * IA-11 step 2 (B2-07): one problem per row × field, as a rule key — words come from the copy
  * catalogue. Any error blocks the whole import (all-or-nothing interim, T-24). A course code that
  * names no course is an error — a PROVISIONAL WP-0.9 reading (provisional register).
+ *
+ * Phase-2 Package 2B (PC-47): each problem names the row's student as the file gives them (`who`,
+ * B2-07 "Imran S. · GIT-2026-0409") and the values its words need (`params`: the e-mail as typed,
+ * the first row with the same ID); `identity-taken` (and `duplicate-in-file` on the e-mail) is the
+ * sample-mode identity safeguard — an e-mail another sample identity signs in with, or two rows
+ * sharing one, is refused rather than shadowing a sign-in (not the T-11 policy).
  */
 export const studentImportReport = z.object({
   batchId: importBatchId,
@@ -126,11 +134,40 @@ export const studentImportReport = z.object({
         'in-people',
         'duplicate-in-file',
         'unknown-course',
+        'identity-taken',
       ]),
+      who: z.object({ fullName: z.string(), studentId: z.string() }),
+      params: z.record(z.string(), z.string()),
     }),
   ),
   canImport: z.boolean(),
 });
+
+/**
+ * The file checks of `previewStudentImport` (PC-47): its first line names the six template columns,
+ * and at least one student row follows. Field `file`; no drawn words.
+ */
+export const STUDENT_IMPORT_FILE_KEYS = {
+  columns: 'IA-11.file.columns',
+  'no-rows': 'IA-11.file.no-rows',
+} as const satisfies Readonly<Record<string, MessageKey>>;
+
+/**
+ * The sample-mode identity safeguard (Phase-2 Package 2B, PC-49): an e-mail another sample identity
+ * signs in with is refused on the form's e-mail field — never merged, never silently replaced —
+ * and so are two import rows sharing one e-mail. The adapter raises these rows, not the domain.
+ * Not the T-11 invitation or identity policy.
+ */
+export const SAMPLE_IDENTITY_KEYS = {
+  addPerson: 'IA-10.institutionEmail.identity-taken',
+  importRow: 'IA-11.row.email.identity-taken',
+  assignInstituteAdmin: 'SA-07.workEmail.identity-taken',
+} as const satisfies Readonly<Record<string, MessageKey>>;
+
+export const STUDENT_IMPORT_SAFEGUARD_ROW_KEYS = {
+  'email:duplicate-in-file': 'IA-11.row.email.duplicate-in-file',
+  'email:identity-taken': 'IA-11.row.email.identity-taken',
+} as const satisfies Readonly<Record<string, MessageKey>>;
 
 /**
  * A course as People names it — "ME ZG523 · Thermodynamics & Heat Transfer" (B2-06 IA-06 "Course
@@ -172,7 +209,11 @@ export const getStudentOutput = z.object({
   courses: z.array(peopleCourse),
   grantRows: z.array(grantRow),
 });
-export const commitStudentImportOutput = z.object({ added: z.number().int().min(0) });
+/** `students`: who was added, in file order (B2-07 f9 "Added: Rahul Verma, … and Ananya Das."; PC-47). */
+export const commitStudentImportOutput = z.object({
+  added: z.number().int().min(0),
+  students: z.array(z.object({ id: personId, fullName: z.string().min(1) })),
+});
 /** IA-08 rows (B2-06 f14): `courses` names the courses `coursesTaught` lists (PC-40). */
 export const listFacultyOutput = z.array(
   z.object({
@@ -181,9 +222,11 @@ export const listFacultyOutput = z.array(
     courses: z.array(peopleCourse),
   }),
 );
+/** IA-09 (B2-06 f15, f16): `courses` names the courses its mappings name (PC-46). */
 export const getFacultyOutput = z.object({
   faculty: facultyPerson,
   mappings: z.array(facultyCourseMapping),
+  courses: z.array(peopleCourse),
 });
 
 type IaWriteErrors = NotSignedIn | NotPermitted | Refused<'institution-paused'> | Unavailable;
@@ -232,6 +275,9 @@ export type StudentDirectoryRow = Out<typeof studentDirectoryRow>;
 export type PeopleCourse = Out<typeof peopleCourse>;
 export type StudentRecordView = Out<typeof getStudentOutput>;
 export type FacultyDirectoryRow = Out<typeof listFacultyOutput>[number];
+export type FacultyRecordView = Out<typeof getFacultyOutput>;
+export type StudentImportReport = Out<typeof studentImportReport>;
+export type StudentImportProblem = StudentImportReport['problems'][number];
 
 // ---- GroupService ----
 
@@ -252,7 +298,19 @@ export const removeMemberInput = z.object({
   expectedRev,
 });
 
-export const listGroupsOutput = z.array(z.object({ group, memberCount: z.number().int().min(0) }));
+/**
+ * IA-13 rows (B2-08 f0, f2): `given` — the experiments the group's active grants give it now, with
+ * the plan item's formats (LD-1) — "Experiments given to the group" / "None yet" (PC-46).
+ */
+export const listGroupsOutput = z.array(
+  z.object({
+    group,
+    memberCount: z.number().int().min(0),
+    given: z.array(
+      z.object({ experimentId, name: z.string().min(1), formats: z.array(technology) }),
+    ),
+  }),
+);
 /**
  * IA-14: each member's standing per group grant. Where the overlap rule is undecided (OD-B2-01),
  * the standing is the open decision itself — no "Can open it" is computed (WP-0.9 DV-1).
@@ -262,11 +320,35 @@ export const memberStanding = z.union([
   z.object({ kind: z.literal('policy-open'), decision: z.string().min(1) }),
 ]);
 
+/**
+ * IA-14 "Experiments given to this group" (B2-08 f4): each of the group's grants as the page names
+ * it — the experiment and its course code, the formats inherited from the plan item (LD-1) and the
+ * grant's own state on the plan's term (PC-46). No member count of licences (D7).
+ */
+export const groupGrantRow = z.object({
+  grant: studentAccessGrant,
+  experimentName: z.string().min(1),
+  courseCode: z.string().nullable(),
+  formats: z.array(technology),
+  status: z.enum(['active', 'access-ended', 'withdrawn']),
+});
+
+/**
+ * `members[].standing` holds one entry per active group grant on a live plan, in `grantRows` order;
+ * none while the institution is paused or no such grant exists (the page shows the account status
+ * then). `grantRows` lists every grant of the group (PC-46).
+ */
 export const getGroupOutput = z.object({
   group,
   members: z.array(z.object({ student: studentPerson, standing: z.array(memberStanding) })),
   grants: z.array(studentAccessGrant),
+  grantRows: z.array(groupGrantRow),
 });
+
+export type GroupDirectoryRow = Out<typeof listGroupsOutput>[number];
+export type GroupRecordView = Out<typeof getGroupOutput>;
+export type GroupGrantRow = Out<typeof groupGrantRow>;
+export type MemberStanding = Out<typeof memberStanding>;
 
 export interface GroupService {
   listGroups(): Answer<Out<typeof listGroupsOutput>, NotSignedIn | NotPermitted | Unavailable>;
@@ -370,6 +452,8 @@ export const listInstitutionCourseCodesOutput = z.array(
     status: institutionCodeStatus,
   }),
 );
+
+export type InstitutionCourseCodeRow = Out<typeof listInstitutionCourseCodesOutput>[number];
 
 export interface InstitutionCourseCodeService {
   list(): Answer<

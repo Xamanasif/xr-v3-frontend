@@ -750,6 +750,48 @@ export const UNDRAWN_RULES = {
       'A course code that names no course — a PROVISIONAL WP-0.9 reading (filing needs a course); B2-07 draws no words for it.',
     source: 'domain checkStudentImport (WP-0.9 [PROPOSED])',
   },
+  // Phase-2 Package 2B: the IA-11 file checks B2-07 implies but draws no words for (the template's
+  // six columns; at least one student row) — the file is parsed by the service (Appendix A "product
+  // needs a real CSV file input").
+  'IA-11.file.columns': {
+    screen: 'IA-11',
+    reason:
+      'A file whose first line is not the template header (student_id, full_name, email, programme, course, course_code); B2-07 draws only the template and its columns.',
+    source: 'sample-platform previewStudentImport (Phase-2 Package 2B)',
+  },
+  'IA-11.file.no-rows': {
+    screen: 'IA-11',
+    reason: 'A file with the header and no student rows; B2-07 draws no words for it.',
+    source: 'sample-platform previewStudentImport (Phase-2 Package 2B)',
+  },
+  'IA-11.row.email.duplicate-in-file': {
+    screen: 'IA-11',
+    reason:
+      'The same e-mail on two rows — two people would share one sign-in. B2-07 draws the duplicate-ID words only; a sample-mode identity safeguard, not the T-11 policy.',
+    source: 'sample-platform identity safeguard (Phase-2 Package 2B)',
+  },
+  // Phase-2 Package 2B sample-mode identity safeguard (owner authorisation §5; T-11 / P1-01 stay
+  // open): an e-mail that already signs someone in to the sample platform — a person of another
+  // institution, an Institute Admin, a platform-role holder or a Super Admin — is refused rather
+  // than silently shadowing that sign-in. No board draws words for it.
+  'IA-10.institutionEmail.identity-taken': {
+    screen: 'IA-10',
+    reason:
+      'An e-mail another sample identity signs in with; adding it would take over or hide that sign-in. Not the final T-11 invitation or identity policy.',
+    source: 'sample-platform identity safeguard (Phase-2 Package 2B)',
+  },
+  'IA-11.row.email.identity-taken': {
+    screen: 'IA-11',
+    reason:
+      'An e-mail another sample identity signs in with; importing it would take over or hide that sign-in. Not the final T-11 invitation or identity policy.',
+    source: 'sample-platform identity safeguard (Phase-2 Package 2B)',
+  },
+  'SA-07.workEmail.identity-taken': {
+    screen: 'SA-07',
+    reason:
+      'An e-mail another sample identity signs in with; assigning it would take over or hide that sign-in. Not the final T-11 invitation or identity policy.',
+    source: 'sample-platform identity safeguard (Phase-2 Package 2B)',
+  },
   // FA-17 import report rows B4-08 states as rules ("question and marks are always required; choice
   // questions need their options") but draws no words for.
   'FA-17.row.question': {
@@ -866,7 +908,9 @@ export function summaryTitleFor(form: SummaryForm | null, count: number): string
 /**
  * The catalogue key of each import-report row rule, by the domain's `field:rule`
  * (`StudentImportReport.problems`) or problem (`QuestionImportReport.rows`). Four student rules and
- * three question rules have drawn words; the others are undrawn rules (`message: null`).
+ * three question rules have drawn words; the others are undrawn rules (`message: null`). The
+ * sample-mode identity safeguard's two e-mail rows (Package 2B) come from the adapter, not the
+ * domain: `STUDENT_IMPORT_SAFEGUARD_ROW_KEYS` (`ports/people.ts`).
  */
 export const STUDENT_IMPORT_ROW_KEYS = {
   'programme:required': 'IA-11.row.programme.required',

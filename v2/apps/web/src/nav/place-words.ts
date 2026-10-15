@@ -67,7 +67,15 @@ export function placeWordsOf(returnTo: string | null): string | null {
         return plan ? `${CONTENT_ACCESS_TITLE} › ${plan}` : CONTENT_ACCESS_TITLE;
       }
       if (outcome.screen === 'IA-04' || outcome.screen === 'IA-05') return STUDENT_ACCESS_TITLE;
-      if (outcome.screen === 'IA-06' || outcome.screen === 'IA-07' || outcome.screen === 'IA-10')
+      // Package 2B: the Faculty record, Import students and a Group name People.
+      if (
+        outcome.screen === 'IA-06' ||
+        outcome.screen === 'IA-07' ||
+        outcome.screen === 'IA-09' ||
+        outcome.screen === 'IA-10' ||
+        outcome.screen === 'IA-11' ||
+        outcome.screen === 'IA-14'
+      )
         return PEOPLE_TITLE;
       if (outcome.screen === 'ST-01') return HOME_TITLE;
       if (outcome.screen === 'ST-02' || outcome.screen === 'ST-03' || outcome.screen === 'ST-05')

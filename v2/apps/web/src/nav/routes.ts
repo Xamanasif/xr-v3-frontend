@@ -24,7 +24,8 @@ import type { WorkspaceScreenId } from './screens';
  * is SA-01 Overview (its Phase-1 Requests group), no longer the interim landing — and SA-06
  * Institutions and SA-07 Institution detail. Package 2A (Phase 2) builds the Institute Admin's and
  * the Student's homes (IA-01, ST-01) and their first destinations; the other four bases keep the
- * interim landing.
+ * interim landing. Package 2B completes Phase 2: IA-09, IA-11 and IA-14 get pages; IA-13 and IA-15 are
+ * tabs of People, IA-16 of Content access and ST-04 of My courses.
  */
 
 /** What a page file renders. */
@@ -74,6 +75,9 @@ export interface PageRoute {
   /**
    * Screens the page also shows as a tab or a state (Package 2A): IA-08 Faculty is a tab of the
    * People page (`?tab=faculty`), ST-19 "Experiment not available" a state of the experiment hub.
+   * Package 2B: People's `?tab=groups` (IA-13) and `?tab=faculty-courses` (IA-15), Content
+   * access's `?tab=course-codes` (IA-16) and My courses' `?tab=experiments` (ST-04) — Appendix A
+   * rule T2.
    */
   readonly also?: readonly WorkspaceScreenId[];
 }
@@ -236,7 +240,7 @@ const PACKAGE_1D_PAGES: readonly PageRoute[] = (
  */
 const PACKAGE_2A_PAGES: readonly PageRoute[] = (
   [
-    ['/institute/content-access', 'institute/content-access/page.tsx', 'IA-02'],
+    ['/institute/content-access', 'institute/content-access/page.tsx', 'IA-02', ['IA-16']],
     [
       '/institute/content-access/plans/[planId]',
       'institute/content-access/plans/[planId]/page.tsx',
@@ -244,14 +248,14 @@ const PACKAGE_2A_PAGES: readonly PageRoute[] = (
     ],
     ['/institute/student-access', 'institute/student-access/page.tsx', 'IA-04'],
     ['/institute/student-access/give', 'institute/student-access/give/page.tsx', 'IA-05'],
-    ['/institute/people', 'institute/people/page.tsx', 'IA-06', ['IA-08']],
+    ['/institute/people', 'institute/people/page.tsx', 'IA-06', ['IA-08', 'IA-13', 'IA-15']],
     [
       '/institute/people/students/[studentId]',
       'institute/people/students/[studentId]/page.tsx',
       'IA-07',
     ],
     ['/institute/people/add', 'institute/people/add/page.tsx', 'IA-10'],
-    ['/student/courses', 'student/courses/page.tsx', 'ST-02'],
+    ['/student/courses', 'student/courses/page.tsx', 'ST-02', ['ST-04']],
     ['/student/courses/[courseId]', 'student/courses/[courseId]/page.tsx', 'ST-03'],
     [
       '/student/experiments/[experimentId]',
@@ -270,9 +274,32 @@ const PACKAGE_2A_PAGES: readonly PageRoute[] = (
 }));
 
 /**
+ * Package 2B (Phase 2): the three remaining Phase-2 pages (Appendix A register routes) — IA-09
+ * Faculty record, IA-11 Import students and IA-14 Group (no `/new`: "Create group" is a DL-3 dialog
+ * on the Groups tab, D-06). The four tabs are `also` screens of their Package-2A pages.
+ */
+const PACKAGE_2B_PAGES: readonly PageRoute[] = (
+  [
+    [
+      '/institute/people/faculty/[facultyId]',
+      'institute/people/faculty/[facultyId]/page.tsx',
+      'IA-09',
+    ],
+    ['/institute/people/import', 'institute/people/import/page.tsx', 'IA-11'],
+    ['/institute/people/groups/[groupId]', 'institute/people/groups/[groupId]/page.tsx', 'IA-14'],
+  ] as const
+).map(([pattern, file, screen]) => ({
+  pattern,
+  file,
+  workspace: 'institute',
+  kind: 'screen',
+  screen,
+}));
+
+/**
  * Every page file: the Phase-0 pages of the seven workspaces (35; the admin base is SA-01 since
  * Package 1D, the institute and student bases IA-01 and ST-01 since Package 2A), Package 1A's (3),
- * Package 1B's (6), Package 1C's (5), Package 1D's (2), Package 2A's (10).
+ * Package 1B's (6), Package 1C's (5), Package 1D's (2), Package 2A's (10), Package 2B's (3).
  */
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
@@ -281,6 +308,7 @@ export const PAGES: readonly PageRoute[] = [
   ...PACKAGE_1C_PAGES,
   ...PACKAGE_1D_PAGES,
   ...PACKAGE_2A_PAGES,
+  ...PACKAGE_2B_PAGES,
 ];
 
 /**

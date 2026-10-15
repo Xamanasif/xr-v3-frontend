@@ -9,6 +9,10 @@
  * The screens read their words from here, so the register and the product cannot drift apart.
  * Later phases add their screens' entries (Appendix F §9).
  */
+import { STATE_COPY_PACKAGE_2B } from './state-copy-package-2b';
+import { STATE_COPY_FACULTY } from './state-copy-faculty';
+import { STATE_COPY_GROUPS } from './state-copy-groups';
+import { STATE_COPY_IMPORT } from './state-copy-import';
 import { STATE_COPY_INSTITUTE_HOME } from './state-copy-institute-home';
 import { STATE_COPY_PEOPLE } from './state-copy-people';
 import { STATE_COPY_STUDENT } from './state-copy-student';
@@ -56,10 +60,17 @@ export interface StateCopyEntry {
     | 'IA-06'
     | 'IA-07'
     | 'IA-08'
+    | 'IA-09'
     | 'IA-10'
+    | 'IA-11'
+    | 'IA-13'
+    | 'IA-14'
+    | 'IA-15'
+    | 'IA-16'
     | 'ST-01'
     | 'ST-02'
     | 'ST-03'
+    | 'ST-04'
     | 'ST-05'
     | 'ST-19';
   /** The state, as the screen reaches it. */
@@ -1091,7 +1102,9 @@ const PHASE_1_AND_EARLIER = {
 /**
  * Package 2A (Phase 2) keeps each screen group's entries in its own file beside this one: the
  * Institute Admin's home and content (IA-01 … IA-03), Student access (IA-04, IA-05), People (IA-06,
- * IA-07, IA-08, IA-10) and the Student's screens (ST-01, ST-02, ST-03, ST-05, ST-19).
+ * IA-07, IA-08, IA-10) and the Student's screens (ST-01, ST-02, ST-03, ST-05, ST-19). Package 2B
+ * adds Groups (IA-13, IA-14), Faculty (IA-09, IA-15), Import students (IA-11) and the rest (IA-16,
+ * ST-04, the identity safeguard).
  */
 export const STATE_COPY = {
   ...PHASE_1_AND_EARLIER,
@@ -1099,6 +1112,10 @@ export const STATE_COPY = {
   ...STATE_COPY_STUDENT_ACCESS,
   ...STATE_COPY_PEOPLE,
   ...STATE_COPY_STUDENT,
+  ...STATE_COPY_GROUPS,
+  ...STATE_COPY_FACULTY,
+  ...STATE_COPY_IMPORT,
+  ...STATE_COPY_PACKAGE_2B,
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;
 
 export type StateCopyId = keyof typeof STATE_COPY;

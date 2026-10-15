@@ -634,7 +634,7 @@ export const PEOPLE_LEDGER = portLedger<PeopleService>()({
     errors: ['validation-failed', ...IA_WRITE],
     refusals: ['institution-paused'],
     policy: ['person.import-students'],
-    note: 'Writes nothing (preview). CSV parsing lands with IA-11 in Phase 2 (Appendix F §4.1).',
+    note: 'Writes nothing (preview): the service parses the CSV and stages the rows for the commit (Phase-2 Package 2B, PC-47).',
   }),
   commitStudentImport: entry({
     kind: 'command',
@@ -949,7 +949,7 @@ export const STUDENT_ACCESS_LEDGER = portLedger<StudentAccessService>()({
     input: ids.in.course,
     output: getMyCourseOutput,
     mock: 'WP-0.11',
-    screens: ['ST-03'],
+    screens: ['ST-03', 'ST-04'],
     errors: SIGNED_IN_RECORD_READ,
     policy: ['read:student-learning'],
   }),

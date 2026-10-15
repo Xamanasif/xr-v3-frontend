@@ -52,10 +52,16 @@ export const listGrantsInput = z.object({
   search: z.string().optional(),
 });
 
+/**
+ * `experimentIds` (Phase-2 Package 2B, PC-48): the experiments chosen in step 1. A student's "Already
+ * has it" is answered for exactly these — from the experiment-level grant records — so holding one
+ * experiment never blocks giving another; without them no student is marked.
+ */
 export const giveAccessOptionsInput = z.object({
   courseId: ids.in.course.optional(),
   preselectStudentId: ids.in.person.optional(),
   preselectGroupId: ids.in.group.optional(),
+  experimentIds: z.array(ids.in.experiment, { error: key('contract.invalid-input') }).optional(),
 });
 
 /** IA-05 step 2 (B2-05 `next2`): students, or one group. */
@@ -120,12 +126,18 @@ export const giveAccessOptions = z.object({
       formats: z.array(technology),
     }),
   ),
+  /**
+   * `alreadyHas` (PC-48): the chosen experiments an active individual grant already gives the
+   * student — `why` is `already-has-it` exactly when it is not empty (giving any of them again is
+   * refused `already-given`).
+   */
   students: z.array(
     z.object({
       id: personId,
       name: z.string().min(1),
       selectable: z.boolean(),
       why: z.enum(['already-has-it', 'inactive']).nullable(),
+      alreadyHas: z.array(experimentId),
     }),
   ),
   groups: z.array(

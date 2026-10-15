@@ -1,47 +1,24 @@
 'use client';
 
 import type { MyCourseRow, MyExperimentRow } from '@xr/contracts/draft';
-import {
-  BackLink,
-  EmptyState,
-  FormatSet,
-  Link,
-  Notice,
-  PageContent,
-  PageHeader,
-  StatusPill,
-} from '@xr/ui';
-import { Fragment, useId } from 'react';
+import { BackLink, EmptyState, Notice, PageContent, PageHeader, StatusPill } from '@xr/ui';
+import { useId } from 'react';
 
 import { stateWords } from '@/copy/state-copy';
-import {
-  COURSE_PAGE,
-  experimentsGivenWords,
-  formatCode,
-  HOME_PAGE,
-  openExperimentLabel,
-  progressLabel,
-  STUDENT_WORDS,
-  noLicenceForYouWords,
-} from '@/copy/student';
+import { COURSE_PAGE, experimentsGivenWords, HOME_PAGE, STUDENT_WORDS } from '@/copy/student';
 import { useAppNavigation } from '@/nav/navigation';
-import {
-  coursePlacement,
-  MY_COURSES_ADDRESS,
-  MY_COURSES_TITLE,
-  myExperimentAddress,
-} from '@/nav/student';
+import { coursePlacement, MY_COURSES_ADDRESS, MY_COURSES_TITLE } from '@/nav/student';
 import { useMyCourse } from '@/queries/student';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { ExperimentRow } from '../shared/experiment-row';
 import {
-  CodeThen,
   StudentFailed,
   StudentLoading,
   useRetryFocus,
   useStudentSession,
 } from '../shared/student-states';
-import { availableFormats, type Closure, givenFormats, undecidedOf } from '../shared/student-view';
+import type { Closure } from '../shared/student-view';
 
 /**
  * ST-03 Course (student view) — board B2-11 (f1, f6, f14), at `/student/courses/[courseId]`:
@@ -164,85 +141,5 @@ function CourseContent({
         )}
       </section>
     </>
-  );
-}
-
-/**
- * One given experiment (B2-11 f1 `div.xw-erow`): name, "<code> · <course>", the formats available
- * to the Student, each given format's progress word, and "Open" (the hub). Paused (f6): the given
- * formats off with "Paused — …. Your work is kept." and no "Open".
- */
-function ExperimentRow({
-  experiment,
-  course,
-  closure,
-}: {
-  readonly experiment: MyExperimentRow;
-  readonly course: MyCourseRow;
-  readonly closure: Closure;
-}) {
-  const undecided = undecidedOf(experiment);
-  const given = givenFormats(experiment);
-  const available = availableFormats(experiment);
-  // A supplied licence wait (B3-02) closes the experiment for now: its formats read off with the
-  // Student's words; the hub still opens (PC-45).
-  const waitingPlan =
-    experiment.closure?.kind === 'waiting-for-a-licence' ? experiment.closure.planId : null;
-  const closedLine =
-    closure === 'paused'
-      ? COURSE_PAGE.pausedRow
-      : closure === 'inactive'
-        ? stateWords('ST-03.inactive-row')
-        : waitingPlan !== null
-          ? noLicenceForYouWords(waitingPlan)
-          : null;
-  return (
-    <div className="xw-erow">
-      <div className="xw-erow-main">
-        <h3 className="xw-erow-title">{experiment.name}</h3>
-        <span className="xr-meta">
-          <CodeThen code={course.codeShown}>{course.name}</CodeThen>
-        </span>
-        {undecided !== null ? (
-          <span className="xw-inherit">{stateWords('ST-03.policy-open')}</span>
-        ) : closedLine !== null ? (
-          <span className="xw-inherit">
-            <FormatSet formats={given.map((row) => formatCode(row.format))} variant="off" compact />
-            <span>{closedLine}</span>
-          </span>
-        ) : (
-          <>
-            {available.length > 0 ? (
-              <span className="xw-inherit">
-                {STUDENT_WORDS.availableToYou}{' '}
-                <FormatSet formats={available.map(formatCode)} variant="yours" compact />
-              </span>
-            ) : null}
-            {given.length > 0 ? (
-              <span className="xw-inherit">
-                {given.map((row, index) => (
-                  <Fragment key={row.format}>
-                    {index > 0 ? ' · ' : null}
-                    <span>
-                      <strong className="text-ink">{formatCode(row.format)}</strong>{' '}
-                      {progressLabel(row.progress)}
-                    </span>
-                  </Fragment>
-                ))}
-              </span>
-            ) : null}
-          </>
-        )}
-      </div>
-      {undecided === null && (closedLine === null || waitingPlan !== null) ? (
-        <Link
-          className="xr-btn xr-btn--secondary"
-          href={myExperimentAddress(experiment.experimentId)}
-          aria-label={openExperimentLabel(experiment.name)}
-        >
-          {COURSE_PAGE.open}
-        </Link>
-      ) : null}
-    </div>
   );
 }

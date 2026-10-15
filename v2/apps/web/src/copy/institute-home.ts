@@ -83,6 +83,8 @@ export const OVERVIEW_WORDS = {
     'Experiments appear here when your institution’s access is active — after the payment is confirmed.',
   giveAccess: 'Give access',
   reviewStudents: 'Review students',
+  // Package 2B: B2-01 f0 "Add course code" (opens IA-16 Course codes).
+  addCourseCode: 'Add course code',
   viewStudents: 'View students',
   help: 'Help',
   pausedTitle: 'BITS has paused your institution’s access',
@@ -211,6 +213,8 @@ export const CONTENT_ACCESS_WORDS = {
   tryAgain: 'Try again',
   viewPlan: 'View plan',
   codeNotAdded: 'Your institution’s code: not added',
+  // Package 2B: B2-02 course head "Add code" (opens IA-16 Course codes).
+  addCode: 'Add code',
   yourCode: 'Your code:',
   columns: {
     experiment: 'Experiment',

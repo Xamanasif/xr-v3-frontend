@@ -23,9 +23,17 @@ export function firstName(fullName: string): string {
 export const PEOPLE_PAGE = {
   meta: 'Students and faculty at your institution',
   tabsLabel: 'People',
-  tabs: { students: 'Students', faculty: 'Faculty' },
+  // Package 2B: the Groups (IA-13, B2-08) and Faculty courses (IA-15, B2-09) tabs.
+  tabs: {
+    students: 'Students',
+    faculty: 'Faculty',
+    groups: 'Groups',
+    facultyCourses: 'Faculty courses',
+  },
   addStudent: 'Add student',
   addFaculty: 'Add faculty member',
+  // Package 2B: B2-06 f0 "Import students" (IA-11).
+  importStudents: 'Import students',
   searchLabel: 'Search',
   clearFilters: 'Clear filters',
 } as const;
@@ -366,6 +374,8 @@ export const ADD_PERSON = {
   added: 'Added',
   giveAccess: 'Give this student access',
   backToPeople: 'Back to People',
+  // Package 2B: B2-07 f3 faculty result "Assign a course" (opens IA-15 with them chosen).
+  assignCourse: 'Assign a course',
 } as const;
 
 /** B2-07 result: "<strong>Meenakshi Pillai</strong> is in People now, with no experiments yet. …". */

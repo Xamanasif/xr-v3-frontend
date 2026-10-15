@@ -91,7 +91,8 @@ describe('attentionRows (B2-01 f0, f3, f4, f5, f7)', () => {
         null,
         'ME ZG523 has no course code from your institution',
         'Content access · Course codes',
-        null,
+        // Package 2B: Course codes (IA-16) is built.
+        { href: '/institute/content-access?tab=course-codes', label: 'Add course code' },
       ],
     ]);
   });

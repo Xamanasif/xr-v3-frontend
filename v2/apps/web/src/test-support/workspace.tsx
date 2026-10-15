@@ -54,6 +54,28 @@ export async function tabPlatform(
   return { runtime, sample: composed.sample };
 }
 
+/**
+ * A tab's platform on a given world (Package 2B: a fixture world a test adjusts, such as a plan
+ * with two experiments of one course for IA-05's per-experiment rule), signed in as `personId`.
+ */
+export async function worldPlatform(
+  personId: string | null,
+  world: Awaited<ReturnType<typeof fixtureWorld>>,
+): Promise<{
+  readonly runtime: PlatformRuntime;
+  readonly sample: ReturnType<typeof composePlatform>['sample'];
+}> {
+  const composed = composePlatform({ dataSource: 'sample', world });
+  const runtime = assembleRuntime({
+    composed,
+    queryClient: createQueryClient('sample'),
+    publicSessionKey: 'public:bs-test',
+  });
+  if (personId) beginSession(composed.sample, personId);
+  await runtime.session.refresh();
+  return { runtime, sample: composed.sample };
+}
+
 /** What `notFound()` throws in these renders (Next.js throws its own; the boundary catches it). */
 export class NotFoundSignal extends Error {
   override readonly name = 'NotFoundSignal';

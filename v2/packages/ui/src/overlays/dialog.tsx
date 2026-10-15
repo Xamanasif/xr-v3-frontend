@@ -102,6 +102,11 @@ export interface ConfirmDialogProps extends DialogCommonProps {
    * product follows board 10 everywhere, with no per-screen override).
    */
   readonly destructive?: boolean;
+  /**
+   * A notice after the effect, inside the body (B2-09 f2 "Remove · written answers would have no
+   * marker": `p` then `div.xr-notice--warn`). Phase-2 Package 2B.
+   */
+  readonly notice?: ReactNode;
 }
 
 export interface ReasonDialogProps extends DialogCommonProps {
@@ -414,6 +419,7 @@ export function ConfirmDialog({
   effect,
   effects,
   destructive = false,
+  notice,
   idPrefix,
   ...common
 }: ConfirmDialogProps) {
@@ -440,6 +446,7 @@ export function ConfirmDialog({
           ) : (
             <p>{effect}</p>
           )}
+          {notice}
         </div>
       }
     />

@@ -190,7 +190,10 @@ describe('IA-01 — the status line, actions and attention rows are the port’s
 
   it('nothing needs attention once every active student has it (B2-01 f2)', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-b');
-    const options = await runtime.ports.studentAccess.getGiveAccessOptions({});
+    // Package 2B (PC-48): "Already has it" is answered for the experiment being given.
+    const options = await runtime.ports.studentAccess.getGiveAccessOptions({
+      experimentIds: [SHELL as never],
+    });
     if (!options.ok) throw new Error('options');
     const studentIds = options.value.students
       .filter((student) => student.selectable)
@@ -296,7 +299,7 @@ describe('IA-01 — the status line, actions and attention rows are the port’s
     expect(B2_01).toContain('2 students are waiting for a licence');
   });
 
-  it('an item whose page is not built keeps its words: course codes (Konark, B2-01 f0)', async () => {
+  it('a course without the institution’s code: “Add course code” opens Course codes (Konark, B2-01 f0; IA-16 since Package 2B)', async () => {
     const { runtime } = await tabPlatform(KONARK_IA, 'after-flow-b');
     inInstitute(runtime, '/institute', <InstituteOverview />);
     const region = await attentionRegion();
@@ -304,8 +307,9 @@ describe('IA-01 — the status line, actions and attention rows are the port’s
       row.textContent!.includes('has no course code from your institution'),
     )!;
     expect(text(noCode.querySelector('.xr-row-sub'))).toBe('Content access · Course codes');
-    expect(noCode.querySelector('a')).toBeNull();
-    expect(main()).not.toHaveTextContent('Add course code');
+    expect(
+      within(noCode as HTMLElement).getByRole('link', { name: 'Add course code' }),
+    ).toHaveAttribute('href', '/institute/content-access?tab=course-codes');
   });
 
   it('announces loading; a failed read has Try again', async () => {
@@ -350,13 +354,13 @@ describe('IA-02 — what BITS has given, per plan and experiment (B2-02 f0, f2)'
       'href',
       '/institute/student-access/give',
     );
-    // Only the built tab: Course codes (IA-16) is not drawn.
+    // Both tabs since Package 2B: Course codes is IA-16.
     const tabs = screen.getByRole('navigation', { name: 'Content access' });
     expect(
       within(tabs)
         .getAllByRole('link')
         .map((link) => link.textContent),
-    ).toEqual(['Experiments']);
+    ).toEqual(['Experiments', 'Course codes']);
     expect(within(tabs).getByRole('link', { name: 'Experiments' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -509,7 +513,7 @@ describe('IA-02 — what BITS has given, per plan and experiment (B2-02 f0, f2)'
     expect(screen.queryByRole('link', { name: /Give students access/ })).toBeNull();
   });
 
-  it('a course without the institution’s code is flagged; “Add code” is not drawn (Konark)', async () => {
+  it('a course without the institution’s code is flagged, with “Add code” to Course codes (Konark; IA-16 since Package 2B)', async () => {
     const { runtime } = await tabPlatform(KONARK_IA, 'after-flow-b');
     inInstitute(runtime, '/institute/content-access', <ContentAccess />);
     const rows = await runtime.ports.institutions.listContentAccess();
@@ -518,7 +522,10 @@ describe('IA-02 — what BITS has given, per plan and experiment (B2-02 f0, f2)'
     expect(section.querySelector('.xw-tag--warn')).toHaveTextContent(
       'Your institution’s code: not added',
     );
-    expect(within(section).queryByRole('link', { name: 'Add code' })).toBeNull();
+    expect(within(section).getByRole('link', { name: 'Add code' })).toHaveAttribute(
+      'href',
+      '/institute/content-access?tab=course-codes',
+    );
   });
 
   it('announces loading; a failed read has Try again (B2-02 f8, f9)', async () => {

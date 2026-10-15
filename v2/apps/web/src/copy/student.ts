@@ -166,6 +166,42 @@ export const MY_COURSES_PAGE = {
   failedTitle: 'We couldn’t load your courses',
 } as const;
 
+/** B2-11 `nav.xr-tabs` "My courses": "Courses · All experiments" (ST-02 / ST-04; Package 2B). */
+export const MY_COURSES_TABS = {
+  label: 'My courses',
+  courses: 'Courses',
+  experiments: 'All experiments',
+} as const;
+
+// ---- ST-04 All experiments (B2-11 f2, f4, f15; Package 2B) ---------------------------------
+
+export const ALL_EXPERIMENTS_PAGE = {
+  searchLabel: 'Search',
+  searchPlaceholder: 'Experiment or course',
+  formatLabel: 'Format',
+  allFormats: 'All formats',
+  clearFilters: 'Clear filters',
+  noMatchTitle: 'No experiments match',
+  noAccessTitle: 'Your institution hasn’t given you access yet',
+  noAccessLine: 'Experiments appear here when your institution gives them to you.',
+  loading: 'Loading your experiments',
+  failedTitle: 'We couldn’t load your experiments',
+} as const;
+
+/** B2-11 `count`: "1 experiment given to you", or "1 of 3 experiments" while a filter applies. */
+export function allExperimentsCountWords(shown: number, total: number, filtered: boolean): string {
+  return filtered ? `${shown} of ${plural(total, 'experiment')}` : experimentsGivenWords(total);
+}
+
+/** B2-11 `chips`: "Search: “Fin-Tube”", "Format: WEB". */
+export function experimentSearchChip(search: string): string {
+  return `Search: “${search.trim()}”`;
+}
+
+export function formatChip(format: Technology): string {
+  return `Format: ${formatCode(format)}`;
+}
+
 // ---- ST-03 Course (B2-11 f1, f6, f14) ------------------------------------------------------
 
 export const COURSE_PAGE = {

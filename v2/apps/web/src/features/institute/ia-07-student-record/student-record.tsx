@@ -20,7 +20,7 @@ import {
   Textarea,
   Timeline,
 } from '@xr/ui';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import { dayMonthYear } from '@/copy/dates';
 import {
@@ -45,6 +45,7 @@ import {
 import { stateWords } from '@/copy/state-copy';
 import {
   giveAccessAddress,
+  groupAddress,
   INSTITUTE_HELP_ADDRESS,
   PEOPLE_ADDRESS,
   STUDENT_ACCESS_ADDRESS,
@@ -72,7 +73,7 @@ const REACTIVATE_ID = 'student-reactivate';
  *   admin's institution — unknown or another institution's — shows the in-shell not-found page.
  * - **Sections as drawn**: Experiments given (Experiment and course code · Formats "From access plan
  *   ACC-0107" · How given · Status with its reason in words; "Open Student access"), Courses and
- *   groups (group names are not links: IA-14 is not built), Details, History, Account. Each grant
+ *   groups (each group name opens IA-14), Details, History, Account. Each grant
  *   keeps its own word; the record makes no can / can't-open statement (OD-B2-01). Licences are
  *   never counted: "Waiting for a licence" is a supplied wait (D7).
  * - **Act**: "Give this student access" opens IA-05 with the student chosen. "Deactivate account…"
@@ -304,9 +305,14 @@ function RecordContent({
                   : []),
                 [
                   RECORD_PAGE.keys.group,
-                  // Group names are not links: IA-14 is not built (DEV-21).
+                  // Package 2B: each group name opens its page (IA-14; B2-06 f8 → B2-08).
                   record.groups.length > 0
-                    ? record.groups.map((group) => group.name).join(', ')
+                    ? record.groups.map((group, index) => (
+                        <Fragment key={group.id}>
+                          {index > 0 ? ', ' : null}
+                          <Link href={groupAddress(group.id)}>{group.name}</Link>
+                        </Fragment>
+                      ))
                     : STUDENTS_TAB.noGroup,
                 ] as const,
               ]}

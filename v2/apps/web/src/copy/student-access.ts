@@ -58,6 +58,8 @@ export const STUDENT_ACCESS_PAGE = {
   statusLabel: 'Status',
   viaLabel: 'How given',
   clearFilters: 'Clear filters',
+  // Package 2B: B2-04 f1 group rows' "Change on the group" (opens IA-14).
+  changeOnGroup: 'Change on the group',
   caption: 'Student access — one row per student and experiment',
   columns: {
     student: 'Student',
@@ -236,6 +238,8 @@ export const GIVE_ACCESS = {
   noStudentsTitle: 'No students yet',
   noStudentsLine: 'Add students to People first. Adding them doesn’t give them any experiments.',
   addStudent: 'Add student',
+  // Package 2B: B2-05 f14 "Import students" (opens IA-11).
+  importStudents: 'Import students',
   groups: 'Groups',
   noMembers: 'No members yet',
   groupEmpty: 'Add members before giving access',
