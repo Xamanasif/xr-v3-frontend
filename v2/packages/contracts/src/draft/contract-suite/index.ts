@@ -23,6 +23,7 @@ import { INSTITUTION_CASES } from './cases/institutions.js';
 import { INSTITUTE_READ_CASES } from './cases/institute-reads.js';
 import { INVARIANT_CASES } from './cases/invariants.js';
 import { LEARNING_CASES } from './cases/learning.js';
+import { TEACHING_CASES } from './cases/teaching.js';
 import { type ContractCase, type ContractSuiteReport, runCases } from './run.js';
 import type { ContractFactory } from './subject.js';
 
@@ -48,6 +49,7 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   ...INSTITUTION_CASES,
   ...INSTITUTE_READ_CASES,
   ...LEARNING_CASES,
+  ...TEACHING_CASES,
   ...CROSS_ROLE_CASES,
   ...INVARIANT_CASES,
 ];

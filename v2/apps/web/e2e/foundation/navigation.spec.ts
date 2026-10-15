@@ -176,7 +176,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
   });
 });
 
-test('the sidebar offers built destinations only: Help, the Super Admin’s Overview, Requests, Institutions and Operations, and the Institute Admin’s and Student’s destinations of Package 2A and Phase 3 (B8-06)', async ({
+test('the sidebar offers built destinations only: Help, the Super Admin’s Overview, Requests, Institutions and Operations, the Institute Admin’s and Student’s destinations of Package 2A and Phase 3, and the Faculty destinations of Phase 4A (B8-06)', async ({
   page,
 }) => {
   test.skip(
@@ -203,10 +203,15 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
         '/admin/operations/device-transfers',
       ]);
       await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute('href', '/admin/help');
-    } else if (entry.role === 'tenant_admin' || entry.role === 'student') {
+    } else if (
+      entry.role === 'tenant_admin' ||
+      entry.role === 'student' ||
+      entry.role === 'faculty'
+    ) {
       // Package 2A: the Institute Admin's Overview, Content access, Student access and People; the
-      // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Assessments waits
-      // for Phase 4.
+      // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Phase 4A: the
+      // Faculty member's Overview, My courses, Assessments and Question bank (Marking and Students
+      // wait for Phase 4B; the Student's Assessments too).
       const built =
         entry.role === 'tenant_admin'
           ? [
@@ -217,7 +222,9 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
               '/institute/requests',
               '/institute/usage',
             ]
-          : ['/student', '/student/courses', '/student/progress'];
+          : entry.role === 'faculty'
+            ? ['/faculty', '/faculty/courses', '/faculty/assessments', '/faculty/question-bank']
+            : ['/student', '/student/courses', '/student/progress'];
       expect(
         await side
           .locator('nav a[href]')

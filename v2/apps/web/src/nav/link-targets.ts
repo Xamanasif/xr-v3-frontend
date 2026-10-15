@@ -22,6 +22,14 @@ import { P3_INSTITUTE_REQUESTS_LINK_TARGETS } from './link-targets-p3/institute-
 import { P3_OPERATIONS_LINK_TARGETS } from './link-targets-p3/operations';
 import { P3_PROGRESS_FEEDBACK_LINK_TARGETS } from './link-targets-p3/progress-feedback';
 import { P3_USAGE_LINK_TARGETS } from './link-targets-p3/usage';
+import { P4_FACULTY_OVERVIEW_LINK_TARGETS } from './link-targets-p4/overview';
+import { P4_FACULTY_COURSES_LINK_TARGETS } from './link-targets-p4/courses';
+import { P4_FACULTY_EXPERIMENT_LINK_TARGETS } from './link-targets-p4/experiment';
+import { P4_ASSESSMENTS_LINK_TARGETS } from './link-targets-p4/assessments';
+import { P4_ASSESSMENT_RECORD_LINK_TARGETS } from './link-targets-p4/assessment-record';
+import { P4_ASSESSMENT_SETTINGS_LINK_TARGETS } from './link-targets-p4/assessment-settings';
+import { P4_QUESTION_BANK_LINK_TARGETS } from './link-targets-p4/question-bank';
+import { P4_FACULTY_SHELL_LINK_TARGETS } from './link-targets-p4/shell';
 
 /** The screen (or shell part) an action is drawn on. */
 export type LedgerScreen =
@@ -85,7 +93,21 @@ export type LedgerScreen =
   | 'IA-19'
   | 'IA-20'
   | 'SA-18'
-  | 'SA-19';
+  | 'SA-19'
+  // Phase 4A.
+  | 'FA-01'
+  | 'FA-02'
+  | 'FA-03'
+  | 'FA-04'
+  | 'FA-05'
+  | 'FA-06'
+  | 'FA-07'
+  | 'FA-08'
+  | 'FA-09'
+  | 'FA-10'
+  | 'FA-11'
+  | 'FA-14'
+  | 'FA-15';
 
 export type ActionRole =
   /** The page's one primary action (board 08 "One primary action"; `xr-btn--primary`). */
@@ -2582,6 +2604,15 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
   ...P3_INSTITUTE_REQUESTS_LINK_TARGETS,
   ...P3_USAGE_LINK_TARGETS,
   ...P3_OPERATIONS_LINK_TARGETS,
+  // ---- Phase 4A: one file per screen group (`link-targets-p4/`) --------------------------------
+  ...P4_FACULTY_OVERVIEW_LINK_TARGETS,
+  ...P4_FACULTY_COURSES_LINK_TARGETS,
+  ...P4_FACULTY_EXPERIMENT_LINK_TARGETS,
+  ...P4_ASSESSMENTS_LINK_TARGETS,
+  ...P4_ASSESSMENT_RECORD_LINK_TARGETS,
+  ...P4_ASSESSMENT_SETTINGS_LINK_TARGETS,
+  ...P4_QUESTION_BANK_LINK_TARGETS,
+  ...P4_FACULTY_SHELL_LINK_TARGETS,
 ];
 
 /**
@@ -2605,6 +2636,8 @@ export function expandTarget(target: string, base: string, reportId = 'SUP-0213'
     .replace('{groupId}', 'GRP-0012')
     .replace('{facultyId}', 'per-0013')
     .replace('{transferId}', 'DTR-0018')
+    .replace('{assessmentId}', 'ASMT-0009')
+    .replace('{questionId}', 'Q-0101')
     .replace('{format}', 'vr');
 }
 

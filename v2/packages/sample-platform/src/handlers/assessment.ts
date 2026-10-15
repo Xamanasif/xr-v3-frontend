@@ -12,10 +12,13 @@ import {
   acceptMarkAsTyped,
   addQuestionInput,
   type AssessmentService,
+  type AssessmentListRow,
   confirmMarksInput,
+  type CreateOption,
   createAssessmentInput,
   deleteQuestionInput,
   editQuestionInput,
+  type FacultyAttention,
   type FacultyStudentRow,
   listQueueInput,
   listQuestionsInput,
@@ -26,6 +29,7 @@ import {
   saveMarkInput,
   studentDetailInput,
   submitAttemptInput,
+  type TeachingCourseRow,
   type TeachingService,
   updateQuestionsInput,
   updateSettingsInput,
@@ -39,8 +43,10 @@ import {
   assessmentReadiness,
   assessmentVersion,
   type Attempt,
+  type CalendarDate,
   changeAssessment,
   confirmMarks,
+  courseCodeFor,
   createAssessment,
   currentMembers,
   deleteQuestion,
@@ -48,11 +54,14 @@ import {
   type Experiment,
   type ExperimentId,
   experimentGate,
+  facultyScope,
+  FORMAT_DISPLAY_ORDER,
   formatProgressView,
   inactiveDays,
   type IsoInstant,
   laterOf,
   pinnedQuestions,
+  planTermState,
   type Question,
   resultReleaseAt,
   resultView,
@@ -68,10 +77,11 @@ import {
 import type { Call } from '../platform/core.js';
 import type { ResolvedPerson } from '../pipeline/actor.js';
 import { command, type Op, read, refuse } from '../pipeline/runner.js';
-import { accessFacts, grantsOf, plansOf } from '../world/queries.js';
-import { formatKey, resourceKey, values } from '../world/records.js';
+import { accessFacts, grantsOf, heldExperiments, mappingsOf, plansOf } from '../world/queries.js';
+import { courseCodeKey, formatKey, resourceKey, values } from '../world/records.js';
 import { deferred } from './deferred.js';
 import { factsFor, studentAssessmentView, studentOf } from './learner.js';
+import { courseCardOf, publicPageOf } from './views.js';
 
 function field(input: unknown, name: string): unknown {
   return typeof input === 'object' && input !== null
@@ -185,10 +195,98 @@ function usedIn(op: Op, questionId: string): Assessment[] {
 
 export function assessmentPort(call: Call): AssessmentService {
   return {
-    listAssessments: deferred('AssessmentService.listAssessments'),
-    getCreateOptions: deferred('AssessmentService.getCreateOptions'),
-    previewAsStudent: deferred('AssessmentService.previewAsStudent'),
     exportSubmissionsCsv: deferred('AssessmentService.exportSubmissionsCsv'),
+
+    // FA-06 (B4-04 f0, f9, f10; Phase 4A): the institution's assessments of the experiments the
+    // Faculty member teaches, each with its readiness, who has submitted, its reach and how many
+    // submissions wait for a written answer's marks.
+    listAssessments: () =>
+      read(call, 'AssessmentService.listAssessments', (op) => {
+        const person = facultyOf(op.person());
+        return values(op.records.assessments)
+          .filter((assessment) => assessment.institutionId === person.institutionId)
+          .filter((assessment) => op.canSee(person, { kind: 'assessment', assessment }))
+          .sort(byName)
+          .map((assessment): AssessmentListRow => ({
+            assessment,
+            readiness: assessmentReadiness(assessment),
+            submitted: submittedStudents(op, assessment),
+            reach: reachOf(op, assessment.institutionId, assessment.experimentId),
+            waitingForMarking: waitingForMarking(op, assessment).length,
+          }));
+      }),
+
+    // FA-07 step 1 (B4-04 f1, f8; Phase 4A): the experiments the Faculty member teaches, each with
+    // the code Faculty see (the platform code, `courseCodeFor`) and the assessment it already has
+    // (one per experiment per institution, OD-B4-01 PROVISIONAL — the command refuses a second).
+    getCreateOptions: () =>
+      read(call, 'AssessmentService.getCreateOptions', (op) => {
+        const person = facultyOf(op.person());
+        return taughtExperimentRecords(op, person).map((experiment): CreateOption => ({
+          experimentId: experiment.id,
+          name: experiment.live.catalogue.name,
+          courseCode: facultyCourseCode(op, person, experiment.courseId),
+          existingAssessmentId:
+            assessmentOfExperiment(op, person.institutionId, experiment.id)?.id ?? null,
+        }));
+      }),
+
+    // FA-11 (B4-06 f5, f6; Phase 4A): the questions exactly as the assessment pins them now —
+    // each question's pinned version, never a newer bank version (B4-05 f8 "Use updated
+    // version" is the Faculty member's own step) — and the answer key with the marking guidance.
+    // Faculty only: the key never reaches a Student. A read: it creates no attempt and saves
+    // nothing (B4-04 f5, B4-06 f5).
+    previewAsStudent: (id) =>
+      read(call, 'AssessmentService.previewAsStudent', (op) => {
+        const person = facultyOf(op.person());
+        const assessment = op.found(op.records.assessments[op.idText(id)]);
+        op.see(person, { kind: 'assessment', assessment });
+        const pinned = pinnedQuestions(
+          {
+            version: assessment.version,
+            since: assessment.versionSince,
+            name: assessment.name,
+            introduction: assessment.introduction,
+            rules: assessment.rules,
+            questions: assessment.questions,
+          },
+          values(op.records.questions),
+        );
+        // The key of each question is read under the question's own rule: a colleague's question
+        // on a co-taught experiment is policy-open (OD-B4-17, Q-10), as `getQuestion` answers it.
+        for (const { questionId } of pinned) {
+          const record = op.records.questions[questionId];
+          if (record) op.see(person, { kind: 'question', question: record });
+        }
+        const questions = pinned.flatMap(({ questionId, version }) => {
+          const record = op.records.questions[questionId];
+          if (!record) return [];
+          return [
+            {
+              ...record,
+              text: version.text,
+              body: version.body,
+              marks: version.marks,
+              explanation: version.explanation,
+              version: version.version,
+            },
+          ];
+        });
+        return {
+          questions,
+          answerKey: questions.map((question) => ({
+            questionId: question.id,
+            correct:
+              question.body.type === 'multiple-choice'
+                ? question.body.correct
+                : question.body.type === 'true-false'
+                  ? String(question.body.correct)
+                  : null,
+            markingGuidance:
+              question.body.type === 'written' ? question.body.markingGuidance : null,
+          })),
+        };
+      }),
 
     createAssessment: (input) =>
       command(call, 'AssessmentService.createAssessment', (op) => {
@@ -253,6 +351,14 @@ export function assessmentPort(call: Call): AssessmentService {
           assessment,
           readiness: assessmentReadiness(assessment),
           reach: reachOf(op, assessment.institutionId, assessment.experimentId),
+          submittedOnCurrentVersion: new Set(
+            attemptsOf(op, assessment.id)
+              .filter(
+                (attempt) =>
+                  attempt.state === 'submitted' && attempt.assessmentVersion === assessment.version,
+              )
+              .map((attempt) => attempt.studentId),
+          ).size,
           totalMarks: total,
           passMarkMarks:
             assessment.rules.passMarkPercent === null
@@ -934,10 +1040,180 @@ function teachingScope(person: ResolvedPerson, experimentId: unknown): void {
 
 export function teachingPort(call: Call): TeachingService {
   return {
-    getFacultyOverview: deferred('TeachingService.getFacultyOverview'),
-    listMyCourses: deferred('TeachingService.listMyCourses'),
-    getTeachingExperiment: deferred('TeachingService.getTeachingExperiment'),
     exportStudentsCsv: deferred('TeachingService.exportStudentsCsv'),
+
+    // FA-01 (B4-01; Phase 4A; provisional register PC-51): the scope line, the attention facts
+    // and the Ready assessments due in the next 30 days (at most 3, soonest first).
+    getFacultyOverview: () =>
+      read(call, 'TeachingService.getFacultyOverview', (op) => {
+        const person = facultyOf(op.person());
+        const scope = scopeOf(op, person);
+        const experiments = taughtExperimentRecords(op, person);
+        const attention: FacultyAttention[] = [];
+        const assessments = values(op.records.assessments)
+          .filter((assessment) => assessment.institutionId === person.institutionId)
+          .filter((assessment) => op.canSee(person, { kind: 'assessment', assessment }))
+          .sort(byName);
+        for (const assessment of assessments) {
+          const waiting = waitingForMarking(op, assessment);
+          const oldest = waiting[0];
+          const student = oldest ? op.records.people[oldest.studentId] : undefined;
+          if (oldest?.submittedAt && student) {
+            attention.push({
+              kind: 'written-answers-to-mark',
+              assessmentId: assessment.id,
+              assessmentName: assessment.name,
+              answers: waiting.length,
+              oldest: { studentName: student.fullName, submittedAt: oldest.submittedAt },
+            });
+          }
+        }
+        const ended = new Map<string, CalendarDate>();
+        for (const experiment of experiments) {
+          const endedOn = accessEndedOn(op, person.institutionId, experiment.id);
+          if (endedOn) ended.set(experiment.id, endedOn);
+        }
+        for (const experiment of experiments) {
+          if (ended.has(experiment.id)) continue;
+          // OD-B4-10 sample rule (PC-22) as FA-20's filter reads it: no activity counts as inactive.
+          const formats = planFormatsOf(op, person.institutionId, experiment.id);
+          const inactive = reachedStudents(op, person.institutionId, experiment.id).filter(
+            (student) => {
+              const days = facultyRow(op, student, experiment, formats).inactiveDays;
+              return days === null || days >= INACTIVE_ATTENTION_DAYS;
+            },
+          );
+          if (inactive.length > 0) {
+            attention.push({
+              kind: 'students-inactive',
+              experimentId: experiment.id,
+              experimentName: experiment.live.catalogue.name,
+              days: INACTIVE_ATTENTION_DAYS,
+              students: inactive.map((student) => ({
+                studentId: student.id,
+                name: student.fullName,
+              })),
+            });
+          }
+        }
+        for (const experiment of experiments) {
+          const endedOn = ended.get(experiment.id);
+          if (!endedOn) continue;
+          attention.push({
+            kind: 'access-ended',
+            experimentId: experiment.id,
+            experimentName: experiment.live.catalogue.name,
+            courseCode: facultyCourseCode(op, person, experiment.courseId),
+            endedOn,
+          });
+        }
+        const now = Date.parse(op.now);
+        const comingUp = assessments
+          .filter((assessment) => assessmentReadiness(assessment) === 'ready')
+          .flatMap((assessment) => {
+            const deadline = assessment.rules.deadline;
+            if (deadline === null) return [];
+            const at = Date.parse(deadline);
+            if (at < now || at > now + COMING_UP_DAYS * 86_400_000) return [];
+            return [
+              {
+                assessmentId: assessment.id,
+                name: assessment.name,
+                deadline,
+                submitted: submittedStudents(op, assessment),
+                reach: reachOf(op, assessment.institutionId, assessment.experimentId),
+              },
+            ];
+          })
+          .sort((a, b) => Date.parse(a.deadline) - Date.parse(b.deadline))
+          .slice(0, COMING_UP_AT_MOST);
+        return {
+          scopeLine: { courses: scope.courseIds.length, experiments: experiments.length },
+          attention,
+          comingUp,
+        };
+      }),
+
+    // FA-02 / FA-03 / FA-04 (B4-02; Phase 4A): the courses Faculty courses (IA-15) map to the
+    // Faculty member, with the experiments of each that the institution holds — the counts the
+    // course row draws ("1 experiment · 5 students with access · 1 assessment") and the date the
+    // institution's access to the course ended, once no live plan holds any of them (f7).
+    listMyCourses: () =>
+      read(call, 'TeachingService.listMyCourses', (op) => {
+        const person = facultyOf(op.person());
+        const taught = taughtExperimentRecords(op, person);
+        return scopeOf(op, person)
+          .courseIds.flatMap((courseId) => {
+            const course = op.records.courses[courseId];
+            return course ? [course] : [];
+          })
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((course): TeachingCourseRow => {
+            const experiments = taught.filter((experiment) => experiment.courseId === course.id);
+            const reached = new Set<string>();
+            for (const experiment of experiments) {
+              reachedStudents(op, person.institutionId, experiment.id).forEach((student) =>
+                reached.add(student.id),
+              );
+            }
+            const endings = experiments.map((experiment) =>
+              accessEndedOn(op, person.institutionId, experiment.id),
+            );
+            return {
+              course: courseCardOf(op.records, course),
+              experiments: experiments.length,
+              studentsWithAccess: reached.size,
+              assessments: experiments.filter((experiment) =>
+                assessmentOfExperiment(op, person.institutionId, experiment.id),
+              ).length,
+              accessEndedOn:
+                endings.length > 0 && endings.every((date) => date !== null)
+                  ? endings.reduce((latest, date) => (date > latest ? date : latest))
+                  : null,
+            };
+          });
+      }),
+
+    // FA-05 (B4-03; Phase 4A): the published page (outcomes and resources read-only), the formats
+    // the institution's plans give it, the formats its Students have opened, per format how many
+    // of the Students it reaches completed, are in progress or have not started (never one
+    // figure across formats, BC4), and the institution's assessment.
+    getTeachingExperiment: (experimentId) =>
+      read(call, 'TeachingService.getTeachingExperiment', (op) => {
+        const person = facultyOf(op.person());
+        teachingScope(person, experimentId);
+        const experiment = op.found(op.records.experiments[op.idText(experimentId)]);
+        const formats = planFormatsOf(op, person.institutionId, experiment.id);
+        const rows = reachedStudents(op, person.institutionId, experiment.id).map((student) =>
+          facultyRow(op, student, experiment, formats),
+        );
+        // The formats the Students it reaches have started or completed — the same Students and
+        // the same reading as the per-format counts (Phase 4A review).
+        const used = new Set<Technology>();
+        for (const row of rows) {
+          for (const view of row.perFormat)
+            if (view.status !== 'not-started') used.add(view.format);
+        }
+        return {
+          experiment: publicPageOf(op.records, experiment),
+          formatsInstitutionHas: formats,
+          formatsUsedByStudents: FORMAT_DISPLAY_ORDER.filter((format) => used.has(format)),
+          perFormatCounts: formats.map((format) => {
+            const statuses = rows.map(
+              (row) => row.perFormat.find((view) => view.format === format)?.status,
+            );
+            return {
+              format,
+              completed: statuses.filter((status) => status === 'completed').length,
+              inProgress: statuses.filter((status) => status === 'in-progress').length,
+              notStarted: statuses.filter((status) => status === 'not-started').length,
+            };
+          }),
+          assessmentId: assessmentOfExperiment(op, person.institutionId, experiment.id)?.id ?? null,
+          resources: experiment.resources.map((resource) => ({ title: resource.title })),
+          asOf: op.now,
+        };
+      }),
 
     listStudents: (input) =>
       read(call, 'TeachingService.listStudents', (op) => {
@@ -987,4 +1263,110 @@ export function teachingPort(call: Call): TeachingService {
         };
       }),
   };
+}
+
+// ---- Phase 4A Faculty reads (FA-01 … FA-07, FA-11) ----
+
+const INACTIVE_ATTENTION_DAYS = 14;
+const COMING_UP_DAYS = 30;
+const COMING_UP_AT_MOST = 3;
+
+type FacultyPerson = ResolvedPerson & { readonly institutionId: string };
+
+/** The Faculty reads are the Faculty member's own: any other role is in the wrong workspace. */
+function facultyOf(person: ResolvedPerson): FacultyPerson {
+  if (person.role !== 'faculty' || !person.institutionId) {
+    refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+  }
+  return person as FacultyPerson;
+}
+
+function byName(a: Assessment, b: Assessment): number {
+  return a.name.localeCompare(b.name) || a.id.localeCompare(b.id);
+}
+
+/** Faculty courses (IA-15) ∩ the institution's plans (FCM-04, `facultyScope`). */
+function scopeOf(op: Op, person: FacultyPerson) {
+  return facultyScope({
+    facultyId: person.personId,
+    mappings: mappingsOf(op.records, person.institutionId),
+    heldExperiments: heldExperiments(op.records, person.institutionId),
+  });
+}
+
+/** The experiments the Faculty member teaches, by course then name. */
+function taughtExperimentRecords(op: Op, person: FacultyPerson): Experiment[] {
+  return person.taughtExperiments
+    .flatMap((id) => {
+      const experiment = op.records.experiments[id];
+      return experiment ? [experiment] : [];
+    })
+    .sort(
+      (a, b) =>
+        (op.records.courses[a.courseId]?.name ?? '').localeCompare(
+          op.records.courses[b.courseId]?.name ?? '',
+        ) || a.live.catalogue.name.localeCompare(b.live.catalogue.name),
+    );
+}
+
+/** The code Faculty see (`courseCodeFor('faculty')`: the platform code, B4-02 "ME ZG523"). */
+function facultyCourseCode(op: Op, person: FacultyPerson, courseId: string): string | null {
+  const course = op.records.courses[courseId];
+  if (!course) return null;
+  const institutionCode =
+    op.records.courseCodes[courseCodeKey(person.institutionId, courseId)]?.code ?? null;
+  return courseCodeFor('faculty', course.platformCode, institutionCode);
+}
+
+function assessmentOfExperiment(
+  op: Op,
+  institutionId: string,
+  experimentId: string,
+): Assessment | null {
+  return (
+    values(op.records.assessments).find(
+      (assessment) =>
+        assessment.institutionId === institutionId && assessment.experimentId === experimentId,
+    ) ?? null
+  );
+}
+
+/** "1 of 5 submitted": distinct Students with a submitted attempt (any version). */
+function submittedStudents(op: Op, assessment: Assessment): number {
+  return new Set(
+    attemptsOf(op, assessment.id)
+      .filter((attempt) => attempt.state === 'submitted')
+      .map((attempt) => attempt.studentId),
+  ).size;
+}
+
+/** Submitted attempts with a written answer whose marks are not confirmed — oldest first. */
+function waitingForMarking(op: Op, assessment: Assessment): Attempt[] {
+  return attemptsOf(op, assessment.id)
+    .filter((attempt) => attempt.state === 'submitted' && attempt.marking.confirmed === null)
+    .filter((attempt) =>
+      writtenOf(op, assessment, attempt).some((entry) => entry.version.body.type === 'written'),
+    )
+    .sort((a, b) =>
+      (a.submittedAt ?? '') === (b.submittedAt ?? '')
+        ? 0
+        : (a.submittedAt ?? '') < (b.submittedAt ?? '')
+          ? -1
+          : 1,
+    );
+}
+
+/**
+ * The day the institution's access to an experiment ended: every plan holding it has ended — the
+ * latest end (B4-01 f3, B4-02 f7 "Access ended on 7 Oct 2027"). `null` while a plan is live.
+ */
+function accessEndedOn(op: Op, institutionId: string, experimentId: string): CalendarDate | null {
+  const holding = plansOf(op.records, institutionId).filter((plan) =>
+    plan.items.some((item) => item.experimentId === experimentId),
+  );
+  if (holding.length === 0) return null;
+  if (holding.some((plan) => planTermState(plan, op.now) !== 'ended')) return null;
+  return holding
+    .map((plan) => plan.endsOn)
+    .reduce((latest, date) => (date > latest ? date : latest));
 }

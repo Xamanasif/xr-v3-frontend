@@ -270,9 +270,10 @@ export const ASSESSMENT_LEDGER = portLedger<AssessmentService>()({
     output: previewAsStudentOutput,
     mock: 'P4',
     screens: ['FA-11'],
-    errors: SIGNED_IN_RECORD_READ,
+    errors: ['not-signed-in', 'not-permitted', 'not-found', 'policy-open', 'unavailable'],
+    open: ['OD-B4-17'],
     policy: ['read:assessment'],
-    note: 'Creates no attempt and saves nothing.',
+    note: 'Creates no attempt and saves nothing. The answer key of a colleague’s question on a co-taught experiment is policy-open (OD-B4-17, Q-10), as `getQuestion` answers it (Phase 4A review).',
   }),
   listSubmissions: entry({
     kind: 'read',

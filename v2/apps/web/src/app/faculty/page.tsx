@@ -1,6 +1,6 @@
-import { InterimLanding } from '@/features/shared/workspace-frame/interim-landing';
+import { FacultyOverview } from '@/features/faculty/fa-01-overview/overview';
 
-/** `/faculty`: the interim landing — Help & support until the workspace home is built (ADR-0005 §8). */
+/** FA-01 Overview, the Faculty workspace home (board B4-01). */
 export default function FacultyHome() {
-  return <InterimLanding />;
+  return <FacultyOverview />;
 }

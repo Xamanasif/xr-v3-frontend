@@ -186,6 +186,22 @@ export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = [
     authorisation:
       'Owner authorisation of Phase 3 (15 Oct 2026, §2 and §6): "Implement exactly the 15 designed Phase-3 screen IDs … Implement only Phase-3 service methods" — ST-07 Simulation, choose a format (getSimulationChooser: one progress view per published format). With it every Phase-3 method is implemented; nothing of Phases 4–6 moves.',
   },
+  ...(
+    [
+      'TeachingService.getFacultyOverview',
+      'TeachingService.listMyCourses',
+      'TeachingService.getTeachingExperiment',
+      'AssessmentService.listAssessments',
+      'AssessmentService.getCreateOptions',
+      'AssessmentService.previewAsStudent',
+    ] as const
+  ).map((method) => ({
+    method,
+    phase: 'P4' as const,
+    package: 'Phase 4A',
+    authorisation:
+      'Owner authorisation of Phase 4A (16 Oct 2026, §2 and §6): "Implement only deferred Phase-4 service methods required for these 13 screens" (FA-01 … FA-11, FA-14, FA-15) — FA-01 Overview (getFacultyOverview: attention as facts, PC-51), FA-02 / FA-03 / FA-04 My courses, Course and Experiments (listMyCourses with getTeachingExperiment), FA-05 Experiment (getTeachingExperiment), FA-06 Assessments (listAssessments), FA-07 Create assessment (getCreateOptions), FA-11 Preview (previewAsStudent: the pinned question versions; creates no attempt). The FA-12, FA-16, FA-17 and FA-22 methods (exportSubmissionsCsv, requestDrafts, listDrafts, addDraftToBank, discardDraft, previewQuestionImport, commitQuestionImport, exportStudentsCsv) stay deferred: no draft exists until FA-16 requests one (T-23).',
+  })),
 ];
 
 /** The methods `PACKAGE_DELIVERIES` names. */

@@ -10,6 +10,12 @@ import { REQUESTS_TITLE } from './requests';
 import { resolveAddress } from './routes';
 import { INSTITUTE_REQUESTS_TITLE } from './institute-requests';
 import { USAGE_TITLE } from './institute-usage';
+import {
+  ASSESSMENTS_TITLE,
+  FACULTY_MY_COURSES_TITLE,
+  FACULTY_OVERVIEW_TITLE,
+  QUESTION_BANK_TITLE,
+} from './faculty';
 import { WORKSPACE_NAV } from './nav-config';
 import { OPERATIONS_TITLE } from './operations';
 import { HOME_TITLE, MY_COURSES_TITLE } from './student';
@@ -107,7 +113,25 @@ export function placeWordsOf(returnTo: string | null): string | null {
       if (outcome.screen === 'ST-15') return PROGRESS_TITLE;
       if (outcome.screen === 'ST-18') return MY_DEVICE_TITLE;
       if (outcome.screen === 'IA-20') return USAGE_TITLE;
+      // Phase 4A: each Faculty page names its destination (courses, experiments, questions and
+      // assessments are addressed by ids, not drawn references); an assessment adds its drawn
+      // reference ("Assessments › ASMT-0009").
+      if (outcome.screen === 'FA-01') return FACULTY_OVERVIEW_TITLE;
+      if (outcome.screen === 'FA-02' || outcome.screen === 'FA-03' || outcome.screen === 'FA-05')
+        return FACULTY_MY_COURSES_TITLE;
+      if (outcome.screen === 'FA-14' || outcome.screen === 'FA-15') return QUESTION_BANK_TITLE;
       const reference = referenceIn(pathname);
+      if (
+        outcome.screen === 'FA-06' ||
+        outcome.screen === 'FA-07' ||
+        outcome.screen === 'FA-08' ||
+        outcome.screen === 'FA-09' ||
+        outcome.screen === 'FA-10' ||
+        outcome.screen === 'FA-11'
+      ) {
+        const assessment = /\/assessments\/(ASMT-\d{4})(?:\/|$)/.exec(pathname)?.[1];
+        return assessment ? `${ASSESSMENTS_TITLE} › ${assessment}` : ASSESSMENTS_TITLE;
+      }
       if (outcome.screen === 'IA-17') {
         return reference ? `${INSTITUTE_REQUESTS_TITLE} › ${reference}` : INSTITUTE_REQUESTS_TITLE;
       }

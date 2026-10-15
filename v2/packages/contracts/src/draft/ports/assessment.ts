@@ -72,7 +72,6 @@ import type {
 import { courseCard, publicExperimentPage } from './catalogue.js';
 import type { Answer, In, Out } from './common.js';
 import { key } from './fields.js';
-import { attentionRow } from './shared.js';
 
 // ---- the rules form "as typed" (B4-04 / B4-06) ----
 
@@ -278,6 +277,11 @@ export const getAssessmentOutput = z.object({
   assessment,
   readiness: assessmentReadiness,
   reach: z.number().int().min(0),
+  /**
+   * Students with a submitted attempt on the CURRENT version (PC-53): a change to questions or
+   * rules makes a new version exactly while this is above zero (B4-05 f0, B4-06 f1).
+   */
+  submittedOnCurrentVersion: z.number().int().min(0),
   totalMarks: z.number().int().min(0),
   passMarkMarks: z.number().min(0).nullable(),
   questions: z.array(
@@ -384,11 +388,12 @@ export interface AssessmentService {
     },
     ValidationFailed | InvalidState | StaleVersion | PolicyOpen | FacultyWrite
   >;
+  /** Policy-open: OD-B4-17 (the answer key of a colleague's question, Q-10). */
   previewAsStudent(
     id: In<typeof ids.in.assessment>,
   ): Answer<
     Out<typeof previewAsStudentOutput>,
-    NotSignedIn | NotPermitted | NotFound | Unavailable
+    NotSignedIn | NotPermitted | NotFound | PolicyOpen | Unavailable
   >;
   listSubmissions(
     id: In<typeof ids.in.assessment>,
@@ -781,15 +786,55 @@ export const facultyStudentRow = z.object({
   inactiveDays: z.number().int().min(0).nullable(),
 });
 
+/**
+ * FA-01 "Needs your attention" (B4-01; Phase 4A, provisional register PC-51): facts, never words —
+ * the screen words them (as IA-01's `instituteAttention`, PC-38). In the order B4-01 draws them:
+ * written answers waiting for marking per assessment (f0), Students inactive for 14 days or more
+ * per experiment (f0; OD-B4-10 sample rule, PC-22), and a taught experiment whose institution
+ * access has ended (f3). B4-01's "draft questions need your review" row has no fact: drafts exist
+ * only once FA-16 requests them, and T-23 names no provider (FA-16 is not built).
+ */
+export const facultyAttention = z.discriminatedUnion('kind', [
+  /** "1 written answer to mark" · "Heat Exchanger — post-lab · from Rahul Verma, 5 Nov 2026". */
+  z.object({
+    kind: z.literal('written-answers-to-mark'),
+    assessmentId,
+    assessmentName: z.string(),
+    /** Submitted attempts with a written answer whose marks are not confirmed. */
+    answers: z.number().int().min(1),
+    /** The oldest waiting submission (the queue is oldest first). */
+    oldest: z.object({ studentName: z.string().min(1), submittedAt: isoInstant }),
+  }),
+  /** "2 students inactive for 14 days or more" · "Imran Shaikh, Karthik Rao · <experiment>". */
+  z.object({
+    kind: z.literal('students-inactive'),
+    experimentId,
+    experimentName: z.string().min(1),
+    days: z.literal(14),
+    students: z.array(z.object({ studentId: personId, name: z.string().min(1) })).min(1),
+  }),
+  /** "Your institution’s access to <experiment> ended on 7 Oct 2027" · "ME ZG523 · …". */
+  z.object({
+    kind: z.literal('access-ended'),
+    experimentId,
+    experimentName: z.string().min(1),
+    courseCode: z.string().nullable(),
+    endedOn: calendarDate,
+  }),
+]);
+
 export const facultyOverviewOutput = z.object({
   scopeLine: z.object({
     courses: z.number().int().min(0),
     experiments: z.number().int().min(0),
   }),
-  attention: z.array(attentionRow),
+  attention: z.array(facultyAttention),
+  /** B4-01 "Coming up · at most 3": Ready assessments due in the next 30 days, soonest first. */
   comingUp: z.array(
     z.object({
       assessmentId,
+      /** The assessment's name (PC-51), as the row draws it. */
+      name: z.string(),
       deadline: isoInstant,
       submitted: z.number().int().min(0),
       reach: z.number().int().min(0),
@@ -818,6 +863,10 @@ export const teachingExperimentOutput = z.object({
     }),
   ),
   assessmentId: assessmentId.nullable(),
+  /** B4-03 f0 "Resources students see" — the published resources' titles, read-only (PC-52). */
+  resources: z.array(z.object({ title: z.string().min(1) })),
+  /** B4-03 f0 "Student activity · as of 7 Nov 2026": the instant the counts were read (PC-52). */
+  asOf: isoInstant,
 });
 export const listTeachingStudentsOutput = z.array(facultyStudentRow);
 export const studentDetailOutput = z.object({
@@ -827,6 +876,15 @@ export const studentDetailOutput = z.object({
 });
 
 export type FacultyStudentRow = Out<typeof facultyStudentRow>;
+export type FacultyAttention = Out<typeof facultyAttention>;
+export type FacultyOverview = Out<typeof facultyOverviewOutput>;
+export type TeachingCourseRow = Out<typeof teachingCoursesOutput>[number];
+export type TeachingExperiment = Out<typeof teachingExperimentOutput>;
+export type AssessmentListRow = Out<typeof listAssessmentsOutput>[number];
+export type CreateOption = Out<typeof createOptionsOutput>[number];
+export type AssessmentView = Out<typeof getAssessmentOutput>;
+export type AssessmentPreview = Out<typeof previewAsStudentOutput>;
+export type QuestionBankRow = Out<typeof listQuestionsOutput>[number];
 
 export interface TeachingService {
   getFacultyOverview(): Answer<

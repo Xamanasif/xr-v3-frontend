@@ -189,6 +189,16 @@
     "pixels": 1979,
     "run": "2026-10-14-wp016-repin/web"
   },
+  "05-faculty-help-built-sidebar-phase-4a": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "68d5e439bf169152a0fd219239b7187101b6d716555399421e6507aa816c9ac8",
+    "productContent": "2b85a12a2b8b1f65d8296d26edf258c656fe6d7fcb26744c5ef7b48088ba8e4a",
+    "pixels": 863,
+    "run": ".runs/2026-10-16-phase4a-web"
+  },
   "05-institute-admin-help-built-help-header": {
     "deviations": ["DEV-15", "DEV-11"],
     "reference": "1040×76",

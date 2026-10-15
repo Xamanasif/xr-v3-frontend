@@ -103,6 +103,7 @@ export function roleOfWorkspace(workspace: Workspace): Role {
  */
 export const BUILT_HOMES: Readonly<Partial<Record<Workspace, WorkspaceScreenId>>> = {
   admin: 'SA-01',
+  faculty: 'FA-01',
   institute: 'IA-01',
   student: 'ST-01',
 };
@@ -375,6 +376,50 @@ const PHASE_3_PAGES: readonly PageRoute[] = (
  * Package 1B's (6), Package 1C's (5), Package 1D's (2), Package 2A's (10), Package 2B's (3),
  * Phase 3's (14).
  */
+/**
+ * Phase 4A (boards B4-01 … B4-07): the Faculty workspace's home (FA-01), My courses with its
+ * Experiments tab (FA-02, FA-04 `?tab=experiments`), a course (FA-03), an experiment (FA-05),
+ * Assessments (FA-06), Create assessment (FA-07, `?step=`), an assessment's Summary, Questions,
+ * Settings and Preview tabs (FA-08 … FA-11; Submissions, FA-12, is Phase 4B), the Question bank
+ * (FA-14) and Add / edit question (FA-15). The static `new` pages are listed before their dynamic
+ * siblings: they outrank them in the App Router, and `resolveAddress` takes the first match.
+ */
+const PHASE_4A_PAGES: readonly PageRoute[] = (
+  [
+    ['/faculty/courses', 'faculty/courses/page.tsx', 'FA-02', ['FA-04']],
+    ['/faculty/courses/[courseId]', 'faculty/courses/[courseId]/page.tsx', 'FA-03'],
+    ['/faculty/experiments/[experimentId]', 'faculty/experiments/[experimentId]/page.tsx', 'FA-05'],
+    ['/faculty/assessments', 'faculty/assessments/page.tsx', 'FA-06'],
+    ['/faculty/assessments/new', 'faculty/assessments/new/page.tsx', 'FA-07'],
+    ['/faculty/assessments/[assessmentId]', 'faculty/assessments/[assessmentId]/page.tsx', 'FA-08'],
+    [
+      '/faculty/assessments/[assessmentId]/questions',
+      'faculty/assessments/[assessmentId]/questions/page.tsx',
+      'FA-09',
+    ],
+    [
+      '/faculty/assessments/[assessmentId]/settings',
+      'faculty/assessments/[assessmentId]/settings/page.tsx',
+      'FA-10',
+    ],
+    [
+      '/faculty/assessments/[assessmentId]/preview',
+      'faculty/assessments/[assessmentId]/preview/page.tsx',
+      'FA-11',
+    ],
+    ['/faculty/question-bank', 'faculty/question-bank/page.tsx', 'FA-14'],
+    ['/faculty/question-bank/new', 'faculty/question-bank/new/page.tsx', 'FA-15'],
+    ['/faculty/question-bank/[questionId]', 'faculty/question-bank/[questionId]/page.tsx', 'FA-15'],
+  ] as const
+).map(([pattern, file, screen, also]) => ({
+  pattern,
+  file,
+  workspace: 'faculty',
+  kind: 'screen',
+  screen,
+  ...(also ? { also } : {}),
+}));
+
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
   ...PACKAGE_1A_PAGES,
@@ -384,6 +429,7 @@ export const PAGES: readonly PageRoute[] = [
   ...PACKAGE_2A_PAGES,
   ...PACKAGE_2B_PAGES,
   ...PHASE_3_PAGES,
+  ...PHASE_4A_PAGES,
 ];
 
 /**
@@ -458,6 +504,12 @@ export type AddressOutcome =
 
 const WORKSPACE_SET: ReadonlySet<string> = new Set(WORKSPACES);
 
+/** Static addresses the register reserves beside a dynamic sibling for screens not built yet. */
+const RESERVED_UNBUILT: ReadonlySet<string> = new Set([
+  '/faculty/question-bank/draft',
+  '/faculty/question-bank/import',
+]);
+
 /** What a same-origin path resolves to, by the manifest above (a query or fragment is ignored). */
 export function resolveAddress(address: string): AddressOutcome {
   const pathname = address.split(/[?#]/)[0]!;
@@ -490,6 +542,12 @@ export function resolveAddress(address: string): AddressOutcome {
   // A static redirect of a workspace address (Phase 3, row 17: `/admin/operations`).
   const redirect = REDIRECTS.find((entry) => entry.source === `/${[first, ...parts].join('/')}`);
   if (redirect) return { kind: 'redirect', workspace, to: redirect.destination };
+  // Phase 4A: the register reserves `draft` and `import` beside `[questionId]` for FA-16 and
+  // FA-17 (Phase 4B); until they are built those addresses are the in-shell not-found, as the
+  // page itself answers (no question has such an id).
+  if (RESERVED_UNBUILT.has(`/${[first, ...parts].join('/')}`)) {
+    return { kind: 'workspace-not-found', workspace };
+  }
   // The record and list screens of Packages 1A, 1D and 2A, by their manifest pattern.
   for (const page of PAGES) {
     if (page.workspace !== workspace || page.kind !== 'screen' || page.view) continue;

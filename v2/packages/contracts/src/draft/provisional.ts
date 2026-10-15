@@ -811,4 +811,52 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     irreversible: WHILE_DRAFT,
     reversal: 'Drop the field; IA-17’s detail then shows no “Message to BITS” row.',
   },
+  {
+    id: 'PC-51',
+    subject:
+      'FA-01 “Needs your attention” carries facts, not words: `written-answers-to-mark` (per assessment: the waiting submissions and the oldest one), `students-inactive` (per experiment: the Students inactive for 14 days or more — no activity counts, as FA-20’s filter reads OD-B4-10’s sample rule, PC-22) and `access-ended` (per taught experiment no live plan holds); “Coming up” rows carry the assessment’s name; B4-01’s “draft questions need your review” has no item (drafts exist only once FA-16 requests them, T-23)',
+    status: 'provisional-engineering',
+    source:
+      'B4-01 f0, f1, f3 (attention rows with their actions; “Coming up · at most 3”, “No deadlines in the next 30 days”). Appendix C gave `facultyOverviewOutput.attention` the pre-rendered `attentionRow` (PC-13), as IA-01’s before PC-38. Built in Phase 4A',
+    decisions: ['OD-B4-10', 'T-23'],
+    trace: [
+      { kind: 'schema-field', schema: 'facultyOverviewOutput', path: 'attention.(array).(union)' },
+      { kind: 'schema-field', schema: 'facultyAttention', path: '(union)' },
+      { kind: 'schema-field', schema: 'facultyOverviewOutput', path: 'comingUp.(array).name' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Put `attentionRow` back (words from the adapter) and drop `comingUp.name` (the screen then reads each assessment for its name); add a drafts item once FA-16 and T-23 are decided.',
+  },
+  {
+    id: 'PC-52',
+    subject:
+      'The Faculty teaching view of an experiment carries the titles of the resources its Students see (`teachingExperimentOutput.resources`), read-only, and the instant its counts were read (`teachingExperimentOutput.asOf`, “Student activity · as of 7 Nov 2026”)',
+    status: 'provisional-engineering',
+    source:
+      'B4-03 f0 “About this experiment · Resources students see: Lab brief — Shell-and-Tube Heat Exchanger · Pre-lab reading — … · Readings sheet” and “Student activity · as of 7 Nov 2026”. Appendix C’s teaching view has the published page only, which carries no resources and no reading instant (the screens have no clock of their own, PC-41). Built in Phase 4A',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'teachingExperimentOutput', path: 'resources' },
+      { kind: 'schema-field', schema: 'teachingExperimentOutput', path: 'asOf' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the fields; FA-05 then shows no “Resources students see” line and no “as of” date.',
+  },
+  {
+    id: 'PC-53',
+    subject:
+      'The assessment read counts the Students with a submission on its current version (`getAssessmentOutput.submittedOnCurrentVersion`): FA-10 warns “This makes a new version” and FA-08 says a change makes one exactly while it is above zero',
+    status: 'provisional-engineering',
+    source:
+      'B4-05 f0 (“1 student has submitted. If you change questions or rules now, that makes a new version”) and B4-06 f1. The domain makes a new version only while the current version has submissions (`changeAssessment` `hasSubmissions`); a count over every version would warn when nothing is versioned. Phase 4A review',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'getAssessmentOutput', path: 'submittedOnCurrentVersion' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the field; the screens then read the attempts (FA-12, Phase 4B) for the current version’s submissions.',
+  },
 ];

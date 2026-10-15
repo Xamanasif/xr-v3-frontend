@@ -44,7 +44,7 @@ describe('placeWordsOf', () => {
     [''],
     ['/'],
     ['/student/assessments'],
-    ['/faculty'],
+    ['/faculty/marking'],
     ['https://evil.example/admin/requests'],
     ['//evil.example/admin/requests'],
     ['/sign-in'],
@@ -53,6 +53,13 @@ describe('placeWordsOf', () => {
   });
 
   it.each([
+    // Phase 4A.
+    ['/faculty', 'Overview'],
+    ['/faculty/courses?tab=experiments', 'My courses'],
+    ['/faculty/experiments/shell-and-tube-heat-exchanger', 'My courses'],
+    ['/faculty/assessments/new?step=rules', 'Assessments'],
+    ['/faculty/assessments/ASMT-0009/settings', 'Assessments › ASMT-0009'],
+    ['/faculty/question-bank/Q-0101', 'Question bank'],
     ['/student/progress', 'Progress'],
     ['/student/device', 'My device'],
     ['/student/experiments/shell-and-tube-heat-exchanger/simulation/web', 'My courses'],

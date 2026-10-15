@@ -45,6 +45,7 @@ export type CaseGroup =
   | 'access'
   | 'institution'
   | 'learning'
+  | 'teaching'
   | 'invariant';
 
 export interface ContractCase {

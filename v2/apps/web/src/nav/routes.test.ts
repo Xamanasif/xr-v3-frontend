@@ -51,8 +51,10 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     // 1D's Institutions and Institution detail (SA-01 is the admin base's own page) + Package 2A's
     // ten Institute Admin and Student pages (IA-01 and ST-01 are their bases' own pages) + Package
     // 2B's three (IA-09, IA-11, IA-14; its four tabs are `?tab=` views of 2A pages) + Phase 3's
-    // fourteen (ST-17 and IA-18 are a state and a tab; the request detail has no screen id, O-02).
-    expect(pages).toHaveLength(78);
+    // fourteen (ST-17 and IA-18 are a state and a tab; the request detail has no screen id, O-02)
+    // + Phase 4A's twelve (FA-01 is the faculty base's own page; FA-04 is My courses' tab; FA-15 has
+    // two pages, new and edit).
+    expect(pages).toHaveLength(90);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -168,9 +170,34 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       kind: 'screen',
       screen: 'ST-01',
     });
+    expect(PAGES.find((page) => page.file === 'faculty/page.tsx')).toMatchObject({
+      kind: 'screen',
+      screen: 'FA-01',
+    });
     expect(
       PAGES.filter((page) => page.kind === 'interim-landing').map((page) => page.pattern),
-    ).toEqual(['/faculty', '/vendor', '/reviewer', '/content-manager']);
+    ).toEqual(['/vendor', '/reviewer', '/content-manager']);
+    // Phase 4A: the Faculty pages (FA-01 is the base's own page; FA-04 a tab of My courses).
+    expect(
+      all
+        .filter((file) => /^faculty\//.test(file) && file.endsWith('page.tsx'))
+        .filter((file) => !/\/(help|\[\.\.\.unmatched\])\//.test(file))
+        .sort(),
+    ).toEqual([
+      'faculty/assessments/[assessmentId]/page.tsx',
+      'faculty/assessments/[assessmentId]/preview/page.tsx',
+      'faculty/assessments/[assessmentId]/questions/page.tsx',
+      'faculty/assessments/[assessmentId]/settings/page.tsx',
+      'faculty/assessments/new/page.tsx',
+      'faculty/assessments/page.tsx',
+      'faculty/courses/[courseId]/page.tsx',
+      'faculty/courses/page.tsx',
+      'faculty/experiments/[experimentId]/page.tsx',
+      'faculty/page.tsx',
+      'faculty/question-bank/[questionId]/page.tsx',
+      'faculty/question-bank/new/page.tsx',
+      'faculty/question-bank/page.tsx',
+    ]);
   });
 });
 
@@ -198,6 +225,8 @@ describe('the built-screen manifest is generated from the route manifest', () =>
     const built = [
       'ST-01',
       'XS-07',
+      // Phase 4A: the faculty base's own page.
+      'FA-01',
       'IA-01',
       'SA-01',
       'SA-02',
@@ -243,6 +272,19 @@ describe('the built-screen manifest is generated from the route manifest', () =>
       'IA-20',
       'SA-18',
       'SA-19',
+      // Phase 4A's other twelve ids: FA-04 is My courses' tab.
+      'FA-02',
+      'FA-04',
+      'FA-03',
+      'FA-05',
+      'FA-06',
+      'FA-07',
+      'FA-08',
+      'FA-09',
+      'FA-10',
+      'FA-11',
+      'FA-14',
+      'FA-15',
     ];
     expect([...SCREENS_WITH_PAGES]).toEqual(built);
     expect([...BUILT_SCREENS]).toEqual(built);
@@ -314,7 +356,7 @@ describe('resolveAddress — what an address shows', () => {
     ['/experiments', { kind: 'public-screen', screen: 'PU-04' }],
     ['/student', { kind: 'record-screen', workspace: 'student', screen: 'ST-01' }],
     ['/institute', { kind: 'record-screen', workspace: 'institute', screen: 'IA-01' }],
-    ['/faculty', { kind: 'interim-landing', workspace: 'faculty', lands: '/faculty/help' }],
+    ['/faculty', { kind: 'record-screen', workspace: 'faculty', screen: 'FA-01' }],
     ['/admin/', { kind: 'record-screen', workspace: 'admin', screen: 'SA-01' }],
     ['/vendor/', { kind: 'interim-landing', workspace: 'vendor', lands: '/vendor/help' }],
     ['/faculty/help', { kind: 'screen', workspace: 'faculty', view: 'reports' }],
@@ -422,7 +464,41 @@ describe('resolveAddress — what an address shows', () => {
       { kind: 'record-screen', workspace: 'admin', screen: 'SA-19' },
     ],
     ['/admin/operations/support', { kind: 'workspace-not-found', workspace: 'admin' }],
-    ['/faculty/courses', { kind: 'workspace-not-found', workspace: 'faculty' }],
+    // Phase 4A: the static `new` pages outrank their dynamic siblings.
+    ['/faculty/courses', { kind: 'record-screen', workspace: 'faculty', screen: 'FA-02' }],
+    [
+      '/faculty/courses/thermodynamics-heat-transfer',
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-03' },
+    ],
+    [
+      '/faculty/experiments/shell-and-tube-heat-exchanger',
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-05' },
+    ],
+    ['/faculty/assessments/new', { kind: 'record-screen', workspace: 'faculty', screen: 'FA-07' }],
+    [
+      '/faculty/assessments/ASMT-0009',
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-08' },
+    ],
+    [
+      '/faculty/assessments/ASMT-0009/preview',
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-11' },
+    ],
+    [
+      '/faculty/question-bank/new',
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-15' },
+    ],
+    [
+      '/faculty/question-bank/Q-0101',
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-15' },
+    ],
+    ['/faculty/marking', { kind: 'workspace-not-found', workspace: 'faculty' }],
+    // FA-16 and FA-17 (Phase 4B): reserved beside `[questionId]`, not built.
+    ['/faculty/question-bank/draft', { kind: 'workspace-not-found', workspace: 'faculty' }],
+    ['/faculty/question-bank/import', { kind: 'workspace-not-found', workspace: 'faculty' }],
+    [
+      '/faculty/assessments/ASMT-0009/submissions',
+      { kind: 'workspace-not-found', workspace: 'faculty' },
+    ],
   ] as const)('%s', (path, outcome) => {
     expect(resolveAddress(path)).toEqual(outcome);
   });

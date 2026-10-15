@@ -24,6 +24,14 @@ import { STATE_COPY_PROGRESS_FEEDBACK } from './state-copy-progress-feedback';
 import { STATE_COPY_STUDENT } from './state-copy-student';
 import { STATE_COPY_STUDENT_ACCESS } from './state-copy-student-access';
 import { STATE_COPY_USAGE } from './state-copy-usage';
+import { STATE_COPY_FACULTY_OVERVIEW } from './state-copy-faculty-overview';
+import { STATE_COPY_FACULTY_COURSES } from './state-copy-faculty-courses';
+import { STATE_COPY_FACULTY_EXPERIMENT } from './state-copy-faculty-experiment';
+import { STATE_COPY_ASSESSMENTS } from './state-copy-assessments';
+import { STATE_COPY_ASSESSMENT_RECORD } from './state-copy-assessment-record';
+import { STATE_COPY_ASSESSMENT_SETTINGS } from './state-copy-assessment-settings';
+import { STATE_COPY_QUESTION_BANK } from './state-copy-question-bank';
+import { STATE_COPY_FACULTY_SHARED } from './state-copy-faculty-shared';
 
 /**
  * `drawn` = on a board (cited); `provisional` = written to a board formula or chosen as an interim,
@@ -95,7 +103,21 @@ export interface StateCopyEntry {
     | 'IA-19'
     | 'IA-20'
     | 'SA-18'
-    | 'SA-19';
+    | 'SA-19'
+    // Phase 4A.
+    | 'FA-01'
+    | 'FA-02'
+    | 'FA-03'
+    | 'FA-04'
+    | 'FA-05'
+    | 'FA-06'
+    | 'FA-07'
+    | 'FA-08'
+    | 'FA-09'
+    | 'FA-10'
+    | 'FA-11'
+    | 'FA-14'
+    | 'FA-15';
   /** The state, as the screen reaches it. */
   readonly state: string;
   /** The words shown; `null` where the entry is a rule rather than words. */
@@ -1147,6 +1169,15 @@ export const STATE_COPY = {
   ...STATE_COPY_INSTITUTE_REQUESTS,
   ...STATE_COPY_USAGE,
   ...STATE_COPY_OPERATIONS,
+  // Phase 4A: one file per screen group, and the Faculty pages' shared parts.
+  ...STATE_COPY_FACULTY_OVERVIEW,
+  ...STATE_COPY_FACULTY_COURSES,
+  ...STATE_COPY_FACULTY_EXPERIMENT,
+  ...STATE_COPY_ASSESSMENTS,
+  ...STATE_COPY_ASSESSMENT_RECORD,
+  ...STATE_COPY_ASSESSMENT_SETTINGS,
+  ...STATE_COPY_QUESTION_BANK,
+  ...STATE_COPY_FACULTY_SHARED,
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;
 
 export type StateCopyId = keyof typeof STATE_COPY;

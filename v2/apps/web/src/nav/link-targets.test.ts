@@ -80,6 +80,20 @@ describe('the link-target ledger', () => {
         'IA-20',
         'SA-18',
         'SA-19',
+        // Phase 4A.
+        'FA-01',
+        'FA-02',
+        'FA-03',
+        'FA-04',
+        'FA-05',
+        'FA-06',
+        'FA-07',
+        'FA-08',
+        'FA-09',
+        'FA-10',
+        'FA-11',
+        'FA-14',
+        'FA-15',
       ]),
     );
     const keys = LINK_TARGET_LEDGER.map(
@@ -119,7 +133,7 @@ describe('the link-target ledger', () => {
       if (target.includes('?tab=')) {
         // A tab of a built page (Package 2A: Course codes, Groups, Faculty courses, All
         // experiments): the screen the note names is not built.
-        const named = /\b((?:IA|ST)-\d\d)\b/.exec(entry.note!)?.[1];
+        const named = /\b((?:IA|ST|FA)-\d\d)\b/.exec(entry.note!)?.[1];
         expect(named, entry.action).toBeDefined();
         expect(BUILT_SCREENS.has(named as never), `${entry.screen} ${entry.action}`).toBe(false);
       } else if (kind === 'record-screen' && /SACC-14/.test(entry.note!)) {
@@ -130,15 +144,18 @@ describe('the link-target ledger', () => {
         expect(['public-not-found', 'workspace-not-found'], entry.action).toContain(kind);
       }
     }
-    // Every not-rendered action names the screen it waits for. Phase 3 built its fifteen ids: what
-    // stays hidden waits for Phase 4 (ST-11 assessments), Phase 6 (SA-20, SA-22) or SACC-14 (ST-15's
-    // earlier work).
+    // Every not-rendered action names the screen it waits for. Phase 3 built its fifteen ids, Phase
+    // 4A thirteen: what stays hidden waits for Phase 4B (ST-11 assessments, FA-12 submissions,
+    // FA-16 drafting, FA-17 import, FA-18 marking, FA-20 students), Phase 6 (SA-20, SA-22) or
+    // SACC-14 (ST-15's earlier work).
     expect(
-      new Set(hidden.map((entry) => /\b((?:IA|ST|SA)-\d\d)\b/.exec(entry.note!)?.[1])),
-    ).toEqual(new Set(['SA-22', 'ST-11', 'ST-15', 'SA-20']));
+      new Set(hidden.map((entry) => /\b((?:IA|ST|SA|FA)-\d\d)\b/.exec(entry.note!)?.[1])),
+    ).toEqual(
+      new Set(['SA-22', 'ST-11', 'ST-15', 'SA-20', 'FA-12', 'FA-16', 'FA-17', 'FA-18', 'FA-20']),
+    );
   });
 
-  it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to a built home (SA-01, IA-01, ST-01)', () => {
+  it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to a built home (SA-01, IA-01, ST-01, FA-01)', () => {
     const homes = LINK_TARGET_LEDGER.filter((item) => item.outcome === 'interim-landing');
     expect(homes.map((entry) => entry.action)).toEqual([
       'Back to Home',
@@ -147,8 +164,14 @@ describe('the link-target ledger', () => {
     ]);
     for (const entry of homes) {
       for (const base of BASES) {
-        // Built homes (Package 1D: SA-01; Package 2A: IA-01, ST-01); the other bases land on Help.
-        const home = { '/admin': 'SA-01', '/institute': 'IA-01', '/student': 'ST-01' }[base];
+        // Built homes (Package 1D: SA-01; Package 2A: IA-01, ST-01; Phase 4A: FA-01); the other
+        // bases land on Help.
+        const home = {
+          '/admin': 'SA-01',
+          '/institute': 'IA-01',
+          '/student': 'ST-01',
+          '/faculty': 'FA-01',
+        }[base];
         expect(resolveAddress(expandTarget(entry.target!, base))).toEqual(
           home
             ? { kind: 'record-screen', workspace: base.slice(1), screen: home }
@@ -246,6 +269,8 @@ describe('the link-target ledger', () => {
         return ['/institute', '/institute/help', '/institute/people/students/per-0002'];
       case '/student/*':
         return ['/student', '/student/help', '/student/courses'];
+      case '/faculty/*':
+        return ['/faculty', '/faculty/help', '/faculty/courses'];
       case '<base>/*':
         return [`${base}/help`, `${base}/help/report`, `${base}/help/reports/SUP-0213`];
       default:
@@ -364,6 +389,25 @@ describe('the link-target ledger', () => {
       'IA-17: Open the payment page',
       'IA-19: Forward to BITS',
       'SA-19: Approve transfer',
+      // Phase 4A: one primary per drawn state; FA-01's and FA-08's marking actions are drawn
+      // primaries that are not rendered until FA-18 is built (DEV-21).
+      'FA-01: Mark <n> written answer',
+      'FA-05: Open assessment',
+      'FA-05: Create assessment',
+      'FA-05: Continue setting up',
+      'FA-06: Create assessment',
+      'FA-06: Create assessment',
+      'FA-07: Continue',
+      'FA-07: Create assessment',
+      'FA-07: Open assessment',
+      'FA-08: Add questions',
+      'FA-08: Mark next',
+      'FA-09: Add from question bank',
+      'FA-09: Add from question bank',
+      'FA-10: Save settings',
+      'FA-14: Add a question',
+      'FA-15: Save question',
+      'FA-15: Save question',
     ]);
   });
 });

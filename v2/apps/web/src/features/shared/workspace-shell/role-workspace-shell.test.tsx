@@ -84,30 +84,32 @@ describe('built so far: Help in every workspace; Overview, Requests, Institution
     );
   });
 
-  // Package 2A builds the Institute Admin's and the Student's first destinations (below).
-  it.each(ROLES.filter(([, role]) => !['super_admin', 'tenant_admin', 'student'].includes(role)))(
-    '%s on Help & support',
-    (label, role) => {
-      const { aside, container } = renderShell(role);
-      // No empty "<Role> navigation" landmark while nothing is built; Help in the foot, current.
-      expect(within(aside).queryByRole('navigation')).toBeNull();
-      const links = within(aside).getAllByRole('link');
-      expect(links.map((link) => link.textContent)).toEqual(['HelpHelp']);
-      expect(links[0]).toHaveAttribute('href', WORKSPACE_NAV[role].help.href);
-      expect(links[0]).toHaveAttribute('aria-current', 'page');
-      expect(links[0]!.closest('.xr-side-foot')).not.toBeNull();
-      // The workspace label and the line board 06 draws (none for the platform roles).
-      expect(aside.querySelector('.xr-ws-label')).toHaveTextContent(label);
-      const row = BOARD_ACCOUNT_ROWS.get(label)!;
-      if (row.line) expect(aside.querySelector('.xr-ws-inst')).toHaveTextContent(row.line);
-      else expect(aside.querySelector('.xr-ws-inst')).toBeNull();
-      // No link anywhere in the shell leads to an unbuilt screen.
-      const hrefs = [...container.querySelectorAll('a[href]')].map((link) =>
-        link.getAttribute('href'),
-      );
-      expect(new Set(hrefs)).toEqual(new Set(['#main', WORKSPACE_NAV[role].help.href]));
-    },
-  );
+  // Package 2A builds the Institute Admin's and the Student's first destinations, Phase 4A the
+  // Faculty member's (below).
+  it.each(
+    ROLES.filter(
+      ([, role]) => !['super_admin', 'tenant_admin', 'student', 'faculty'].includes(role),
+    ),
+  )('%s on Help & support', (label, role) => {
+    const { aside, container } = renderShell(role);
+    // No empty "<Role> navigation" landmark while nothing is built; Help in the foot, current.
+    expect(within(aside).queryByRole('navigation')).toBeNull();
+    const links = within(aside).getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual(['HelpHelp']);
+    expect(links[0]).toHaveAttribute('href', WORKSPACE_NAV[role].help.href);
+    expect(links[0]).toHaveAttribute('aria-current', 'page');
+    expect(links[0]!.closest('.xr-side-foot')).not.toBeNull();
+    // The workspace label and the line board 06 draws (none for the platform roles).
+    expect(aside.querySelector('.xr-ws-label')).toHaveTextContent(label);
+    const row = BOARD_ACCOUNT_ROWS.get(label)!;
+    if (row.line) expect(aside.querySelector('.xr-ws-inst')).toHaveTextContent(row.line);
+    else expect(aside.querySelector('.xr-ws-inst')).toBeNull();
+    // No link anywhere in the shell leads to an unbuilt screen.
+    const hrefs = [...container.querySelectorAll('a[href]')].map((link) =>
+      link.getAttribute('href'),
+    );
+    expect(new Set(hrefs)).toEqual(new Set(['#main', WORKSPACE_NAV[role].help.href]));
+  });
 
   it.each([
     [
@@ -116,6 +118,7 @@ describe('built so far: Help in every workspace; Overview, Requests, Institution
       ['Overview', 'Content access', 'Student access', 'People', 'Requests', 'Usage'],
     ],
     ['Student', 'student', ['Home', 'My courses', 'Progress']],
+    ['Faculty', 'faculty', ['Overview', 'My courses', 'Assessments', 'Question bank']],
   ] as const)(
     '%s on Help & support (Package 2A, Phase 3): the built destinations, then Help (current)',
     (label, role, built) => {

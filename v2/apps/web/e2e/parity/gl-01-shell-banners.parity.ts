@@ -131,13 +131,24 @@ test('board 05 · the built shell on Help for 7 roles, with the applicable banne
               // The Institute Admin's Requests count is not drawn while what it counts is open.
               deviation: role.label === 'Institute Admin' ? ['DEV-21', 'DEV-43'] : 'DEV-21',
             }
-          : {
-              name: `${name}-sidebar`,
-              reference: board.locator('aside.xr-side'),
-              product: ours.locator('aside.xr-side'),
-              kind: 'specimen',
-              deviation: 'DEV-10',
-            },
+          : role.label === 'Faculty'
+            ? {
+                // Phase 4A builds the Faculty member's Overview, My courses, Assessments and
+                // Question bank (Marking and Students are Phase 4B): measured as `-phase-4a` and
+                // DEV-21 (owner review); the Phase-0 pin (DEV-10, Help only) stays as the record.
+                name: `${name}-sidebar-phase-4a`,
+                reference: board.locator('aside.xr-side'),
+                product: ours.locator('aside.xr-side'),
+                kind: 'specimen',
+                deviation: 'DEV-21',
+              }
+            : {
+                name: `${name}-sidebar`,
+                reference: board.locator('aside.xr-side'),
+                product: ours.locator('aside.xr-side'),
+                kind: 'specimen',
+                deviation: 'DEV-10',
+              },
       {
         name: `${name}-help-header`,
         reference: board.locator('main .xr-phead'),

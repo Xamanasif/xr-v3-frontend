@@ -398,7 +398,7 @@ describe('fault injection and later-phase methods', () => {
     expect((await ia.studentAccess.listGrants({ showWithdrawn: false })).ok).toBe(true);
   });
 
-  it('builds the 139 WP-0.11 methods, the 3 Package-1B ones, the Package-1D one, the 4 Package-2A ones, the 5 Package-2B ones and the Phase-3 one, and leaves each of the other 30 later ones to its phase', async () => {
+  it('builds the 139 WP-0.11 methods, the 3 Package-1B ones, the Package-1D one, the 4 Package-2A ones, the 5 Package-2B ones, the Phase-3 one and the 6 Phase-4A ones, and leaves each of the other 24 later ones to its phase', async () => {
     const platform = await platformAfterB();
     const ports = platform.ports as unknown as Record<
       string,
@@ -426,15 +426,21 @@ describe('fault injection and later-phase methods', () => {
       'FacultyCourseService.list',
       'InstitutionCourseCodeService.list',
       'LearningService.getSimulationChooser',
+      'AssessmentService.listAssessments',
+      'AssessmentService.getCreateOptions',
+      'AssessmentService.previewAsStudent',
+      'TeachingService.getFacultyOverview',
+      'TeachingService.listMyCourses',
+      'TeachingService.getTeachingExperiment',
     ]);
     for (const row of delivered) {
-      // Delivered by Packages 1B, 1D, 2A, 2B and Phase 3: answered (a Result), never rejected.
+      // Delivered by Packages 1B, 1D, 2A, 2B, Phase 3 and Phase 4A: answered (a Result), never rejected.
       await expect(ports[row.portKey]![row.method]!(undefined), row.id).resolves.toHaveProperty(
         'ok',
       );
     }
     const deferredRows = later.filter((row) => !delivered.includes(row));
-    expect(deferredRows).toHaveLength(30);
+    expect(deferredRows).toHaveLength(24);
     for (const row of deferredRows) {
       // Port construction refuses to stub a WP-0.11 method, so only later ones can reject here.
       await expect(ports[row.portKey]![row.method]!(undefined), row.id).rejects.toThrow(

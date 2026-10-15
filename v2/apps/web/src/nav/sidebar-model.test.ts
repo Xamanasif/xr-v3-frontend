@@ -17,11 +17,13 @@ const everyScreen = (role: (typeof PLATFORM_ROLES)[number]): ReadonlySet<ScreenK
     ...WORKSPACE_NAV[role].destinations.map((destination) => destination.screen),
   ]);
 
-describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B and Phase 3)', () => {
+describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 and Phase 4A)', () => {
   it('builds Help & support (XS-07) everywhere, the Super Admin’s Overview, Requests and Institutions, and Phase 2’s Institute Admin and Student screens (Packages 2A, 2B)', () => {
     expect([...BUILT_SCREENS]).toEqual([
       'ST-01',
       'XS-07',
+      // Phase 4A: the faculty base's own page.
+      'FA-01',
       'IA-01',
       'SA-01',
       'SA-02',
@@ -63,12 +65,29 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B and Phase
       'IA-20',
       'SA-18',
       'SA-19',
+      // Phase 4A.
+      'FA-02',
+      'FA-04',
+      'FA-03',
+      'FA-05',
+      'FA-06',
+      'FA-07',
+      'FA-08',
+      'FA-09',
+      'FA-10',
+      'FA-11',
+      'FA-14',
+      'FA-15',
     ]);
   });
 
   it.each(
     PLATFORM_ROLES.filter(
-      (role) => role !== 'super_admin' && role !== 'tenant_admin' && role !== 'student',
+      (role) =>
+        role !== 'super_admin' &&
+        role !== 'tenant_admin' &&
+        role !== 'student' &&
+        role !== 'faculty',
     ).map((role) => [ROLE_LABEL[role], role] as const),
   )(
     '%s: the sidebar shows only Help, current on the Help pages, not current on a message page',
@@ -83,6 +102,34 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B and Phase
       }
     },
   );
+
+  it('Faculty (Phase 4A): Overview, My courses, Assessments, Question bank, then Help — each current on its own screens; Marking and Students wait for Phase 4B', () => {
+    const help = sidebarModel('faculty', { screen: 'XS-07' });
+    expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
+      ['Overview', '/faculty', false],
+      ['My courses', '/faculty/courses', false],
+      ['Assessments', '/faculty/assessments', false],
+      ['Question bank', '/faculty/question-bank', false],
+    ]);
+    expect(help.help.current).toBe(true);
+    const current = (screen: ScreenKey) =>
+      sidebarModel('faculty', { screen })
+        .destinations.filter((item) => item.current)
+        .map((item) => item.label);
+    expect(current('FA-01')).toEqual(['Overview']);
+    for (const screen of ['FA-02', 'FA-03', 'FA-04', 'FA-05'] as const) {
+      expect(current(screen)).toEqual(['My courses']);
+    }
+    for (const screen of ['FA-06', 'FA-07', 'FA-08', 'FA-09', 'FA-10', 'FA-11'] as const) {
+      expect(current(screen)).toEqual(['Assessments']);
+    }
+    for (const screen of ['FA-14', 'FA-15'] as const) {
+      expect(current(screen)).toEqual(['Question bank']);
+    }
+    for (const screen of ['XS-06', 'PU-15'] as const) {
+      expect(current(screen)).toEqual([]);
+    }
+  });
 
   it('Institute Admin (Package 2A, Phase 3): Overview, Content access, Student access, People, Requests, Usage, then Help — each current on its own screens; no Requests count (DEV-17)', () => {
     const help = sidebarModel('tenant_admin', { screen: 'XS-07' });
