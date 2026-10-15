@@ -12,6 +12,7 @@ import { recordPageVisit } from '@/nav/page-location';
 import { useNavCounts } from '@/queries/nav-counts';
 import { useCurrentSession, useWorkspaceAccess } from '@/queries/session';
 
+import { useMyDeviceEntry } from '../../student/st-18-my-device/device-entry';
 import { DocumentTitle } from '../document-title';
 import { SessionGate, SessionLoading, useSignOut } from '../session-gate/session-gate';
 import { RoleWorkspaceShell } from '../workspace-shell/role-workspace-shell';
@@ -134,6 +135,9 @@ function FrameShell({
   const person = useMemo(() => shellPersonOf(session), [session]);
   // The sidebar's counts are the person's own workspace's figures (board 06; B1-10 "Nav count").
   const counts = useNavCounts(role);
+  // XS-05 "My device": a Student holding AR, VR or MR now, or with an open transfer request
+  // (B3-07 f1 / f2; state-copy `ST-18.offered`). Read for a Student only; hidden until answered.
+  const device = useMyDeviceEntry(role === 'student');
 
   useRouteFocus(pathname);
 
@@ -166,6 +170,7 @@ function FrameShell({
           currentCrumb={placement?.currentCrumb}
           wrap="none"
           banner={bannerKindOf(banners)}
+          deviceEligible={device.offered}
           counts={counts}
           onSignOut={signOut}
         >

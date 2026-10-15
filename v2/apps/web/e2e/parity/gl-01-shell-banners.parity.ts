@@ -109,8 +109,9 @@ test('board 05 · the built shell on Help for 7 roles, with the applicable banne
             // Package 1A builds the Super Admin's Requests (SA-02), so this sidebar now lists it
             // with its count: measured under its own name and DEV-21 (owner review). The Phase-0
             // pin `05-super-admin-help-built-sidebar` (DEV-10, Help only) is kept unchanged in
-            // pinned.json as the record of the Phase-0 state; it is no longer observed.
-            name: `${name}-sidebar-package-1a`,
+            // pinned.json as the record of the Phase-0 state; it is no longer observed. Phase 3
+            // adds Operations (SA-18): measured as `-phase-3`, the Package-1A pin kept as the record.
+            name: `${name}-sidebar-phase-3`,
             reference: board.locator('aside.xr-side'),
             product: ours.locator('aside.xr-side'),
             kind: 'specimen',
@@ -121,11 +122,14 @@ test('board 05 · the built shell on Help for 7 roles, with the applicable banne
               // Package 2A builds the Student's Home and My courses and the Institute Admin's
               // Overview, Content access, Student access and People: measured under its own name
               // and DEV-21 (owner review); the Phase-0 pin (DEV-10, Help only) stays as the record.
-              name: `${name}-sidebar-package-2a`,
+              // Phase 3 adds the Student's Progress and the Institute Admin's Requests and Usage:
+              // measured as `-phase-3`, the Package-2A pins kept as the record.
+              name: `${name}-sidebar-phase-3`,
               reference: board.locator('aside.xr-side'),
               product: ours.locator('aside.xr-side'),
               kind: 'specimen',
-              deviation: 'DEV-21',
+              // The Institute Admin's Requests count is not drawn while what it counts is open.
+              deviation: role.label === 'Institute Admin' ? ['DEV-21', 'DEV-43'] : 'DEV-21',
             }
           : {
               name: `${name}-sidebar`,

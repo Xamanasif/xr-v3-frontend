@@ -31,7 +31,6 @@ import {
 import type { Call } from '../platform/core.js';
 import { command, type Op, read, refuse } from '../pipeline/runner.js';
 import { deviceKey, formatKey, resourceKey, values } from '../world/records.js';
-import { deferred } from './deferred.js';
 import {
   assessmentOf,
   factsFor,
@@ -73,7 +72,17 @@ function feedbackOf(op: Op, student: StudentPerson, experiment: Experiment, form
 
 export function learningPort(call: Call): LearningService {
   return {
-    getSimulationChooser: deferred('LearningService.getSimulationChooser'),
+    // ST-07 (Phase 3): one progress view per format the experiment publishes, in display order —
+    // the same per-format reading as the hub and Progress (BC4); availability stays the hub's.
+    getSimulationChooser: (experimentId) =>
+      read(call, 'LearningService.getSimulationChooser', (op) => {
+        const { person, student, experiment, facts } = learnerContext(op, experimentId);
+        op.see(person, { kind: 'student-learning', experiment, access: facts });
+        const gate = gateOf(op, facts, experiment);
+        return publishedFormats(experiment).map((format) =>
+          progressView(op, student, experiment, format, gate),
+        );
+      }),
 
     listResources: (experimentId) =>
       read(call, 'LearningService.listResources', (op) => {

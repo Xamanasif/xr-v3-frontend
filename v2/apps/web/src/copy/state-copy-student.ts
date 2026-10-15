@@ -31,7 +31,7 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-01',
     state: 'What Up next lists',
     words: null,
-    rule: 'The service’s Up next items in its order, leaving out the format items of the experiment the first card names (B2-10 f1, f4: “Nothing else is waiting for you right now.” beside that card), at most three, with “<n> of at most 3”. A format item of another experiment opens its hub (“Open experiment”). An assessment item and a feedback item keep their words; their actions (“Open assessment”, “Give feedback”) are not rendered until their screens are built (Phases 3–4, DEV-21). An assessment is named from the Student’s own assessments list.',
+    rule: 'The service’s Up next items in its order, leaving out the format items of the experiment the first card names (B2-10 f1, f4: “Nothing else is waiting for you right now.” beside that card), at most three, with “<n> of at most 3”. A format item of another experiment opens its hub (“Open experiment”). A feedback item’s “Give feedback” opens that format’s feedback (ST-16, Phase 3; the service lists it only for a format with its own completion and no feedback yet). An assessment item keeps its words; its “Open assessment” is not rendered until ST-11 is built (Phase 4, DEV-21). An assessment is named from the Student’s own assessments list.',
     basis:
       'B2-10 f1, f4, f5 (f5 is the pattern frame of the three item types: “Sample wording for later states”; it lists a format of the card’s own experiment, which f4 does not)',
     status: 'provisional',
@@ -60,7 +60,7 @@ export const STATE_COPY_STUDENT = {
     state:
       'Nothing is given now, only earlier work (the only grant withdrawn, or the access ended, after some work)',
     words: 'No experiments are given to you right now',
-    rule: 'B2-10 f8 and B2-13 f1 name the experiment and the cause (“ended on 7 Oct 2027”, “Your institution withdrew it”); while SACC-14 is open the Student’s reads give neither (PC-23: no row, words or progress — only the course’s earlier-work flag), so the Home says what My courses says (B2-11 f7, f8 heading) and lists the course as earlier work. “See earlier work” (Progress, ST-15) is not rendered.',
+    rule: 'B2-10 f8 and B2-13 f1 name the experiment and the cause (“ended on 7 Oct 2027”, “Your institution withdrew it”); while SACC-14 is open the Student’s reads give neither (PC-23: no row, words or progress — only the course’s earlier-work flag), so the Home says what My courses says (B2-11 f7, f8 heading) and lists the course as earlier work. “See earlier work” is not rendered: Progress (ST-15, Phase 3) is built but has no earlier-work row to show while SACC-14 is open (`ST-15.earlier-only`).',
     basis:
       'B2-11 f7, f8 heading reused; B2-10 f8, B2-13 f1 (not reproducible: the cause and the name are not read); StudentAccessService.getMyHome `myCourses[].earlierWork`',
     status: 'provisional',
@@ -117,7 +117,7 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-02',
     state: 'Earlier work (the only grant withdrawn, or the access ended, after some work)',
     words: null,
-    rule: 'B2-11 f7 and f8 list each experiment of earlier work with its cause (“No longer given to you.”, “Access ended on 7 Oct 2027.”) and “View earlier work”; while SACC-14 is open the read keeps only the course’s earlier-work flag (PC-23), so “Earlier work” lists the course — its name and “<code> · earlier work kept” (B2-10 f8) — with no action. “View earlier work” (Progress, ST-15) is not rendered.',
+    rule: 'B2-11 f7 and f8 list each experiment of earlier work with its cause (“No longer given to you.”, “Access ended on 7 Oct 2027.”) and “View earlier work”; while SACC-14 is open the read keeps only the course’s earlier-work flag (PC-23), so “Earlier work” lists the course — its name and “<code> · earlier work kept” (B2-10 f8) — with no action. “View earlier work” is not rendered: Progress (ST-15, Phase 3) is built but the service gives it no earlier-work row while SACC-14 is open (`ST-15.earlier-only`), so the action would lead to nothing.',
     basis: 'B2-11 f7, f8; B2-10 f8; StudentAccessService.listMyCourses `earlierWork`',
     status: 'provisional',
     decisions: ['SACC-14', 'DEV-21'],
@@ -207,10 +207,10 @@ export const STATE_COPY_STUDENT = {
   },
   'ST-05.unbuilt': {
     screen: 'ST-05',
-    state: 'The hub’s tabs and its actions',
+    state: 'The hub’s tabs and its actions (Phase 3)',
     words: null,
-    rule: 'Overview only: the tab strip (Resources, Simulation, Assessment, Progress), the header’s “Next step: …” line with its button (“Open resources”, “Continue WEB”) and the cards’ actions (“Open resources”, “Choose a format”, “Continue WEB”) lead to Phase-3/4 screens and are not rendered (DEV-21 interim). The cards keep their words.',
-    basis: 'B2-12 f0 … f3, f5',
+    rule: 'Since Phase 3 the tab strip renders Overview, Resources, Simulation and Progress (ST-06, ST-07, ST-10), the header’s one “Next step: …” line with its button (`ST-05.next-step`) and the cards’ actions (`ST-05.card-actions`). The Assessment tab and any assessment action lead to Phase-4 screens (ST-11 … ST-14) and are not rendered (DEV-21); the Assessment card keeps its words.',
+    basis: 'B2-12 f0 … f3, f5; B3-01; B3-02',
     status: 'provisional',
     decisions: ['DEV-21'],
   },

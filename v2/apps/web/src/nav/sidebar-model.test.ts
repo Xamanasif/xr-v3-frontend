@@ -17,7 +17,7 @@ const everyScreen = (role: (typeof PLATFORM_ROLES)[number]): ReadonlySet<ScreenK
     ...WORKSPACE_NAV[role].destinations.map((destination) => destination.screen),
   ]);
 
-describe('the built-screen manifest (Phase 0 + Packages 1A, 1D and 2A)', () => {
+describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B and Phase 3)', () => {
   it('builds Help & support (XS-07) everywhere, the Super Admin’s Overview, Requests and Institutions, and Phase 2’s Institute Admin and Student screens (Packages 2A, 2B)', () => {
     expect([...BUILT_SCREENS]).toEqual([
       'ST-01',
@@ -47,6 +47,22 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D and 2A)', () => {
       'IA-09',
       'IA-11',
       'IA-14',
+      // Phase 3.
+      'ST-06',
+      'ST-07',
+      'ST-08',
+      'ST-09',
+      'ST-10',
+      'ST-16',
+      'ST-17',
+      'ST-15',
+      'ST-18',
+      'IA-17',
+      'IA-18',
+      'IA-19',
+      'IA-20',
+      'SA-18',
+      'SA-19',
     ]);
   });
 
@@ -68,14 +84,17 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D and 2A)', () => {
     },
   );
 
-  it('Institute Admin (Package 2A): Overview, Content access, Student access, People, then Help — each current on its own screens; Requests and Usage wait for their phase', () => {
+  it('Institute Admin (Package 2A, Phase 3): Overview, Content access, Student access, People, Requests, Usage, then Help — each current on its own screens; no Requests count (DEV-17)', () => {
     const help = sidebarModel('tenant_admin', { screen: 'XS-07' });
     expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
       ['Overview', '/institute', false],
       ['Content access', '/institute/content-access', false],
       ['Student access', '/institute/student-access', false],
       ['People', '/institute/people', false],
+      ['Requests', '/institute/requests', false],
+      ['Usage', '/institute/usage', false],
     ]);
+    expect(help.destinations.every((item) => item.count === undefined)).toBe(true);
     expect(help.help.current).toBe(true);
     const current = (screen: ScreenKey) =>
       sidebarModel('tenant_admin', { screen })
@@ -89,36 +108,56 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D and 2A)', () => {
     for (const screen of ['IA-06', 'IA-07', 'IA-08', 'IA-10'] as const) {
       expect(current(screen)).toEqual(['People']);
     }
+    for (const screen of ['IA-17', 'IA-18', 'IA-19', 'institute-request-detail'] as const) {
+      expect(current(screen)).toEqual(['Requests']);
+    }
+    expect(current('IA-20')).toEqual(['Usage']);
     for (const screen of ['XS-06', 'PU-15'] as const) {
       expect(current(screen)).toEqual([]);
     }
   });
 
-  it('Student (Package 2A): Home and My courses, then Help — My courses current on a course, an experiment and its refusal; Assessments and Progress wait for their phase', () => {
+  it('Student (Package 2A, Phase 3): Home, My courses and Progress, then Help — My courses current on a course, an experiment, its tabs, format pages, feedback and its refusal; nothing on My device; Assessments waits for Phase 4', () => {
     const help = sidebarModel('student', { screen: 'XS-07' });
     expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
       ['Home', '/student', false],
       ['My courses', '/student/courses', false],
+      ['Progress', '/student/progress', false],
     ]);
     const current = (screen: ScreenKey) =>
       sidebarModel('student', { screen })
         .destinations.filter((item) => item.current)
         .map((item) => item.label);
     expect(current('ST-01')).toEqual(['Home']);
-    for (const screen of ['ST-02', 'ST-03', 'ST-05', 'ST-19'] as const) {
+    for (const screen of [
+      'ST-02',
+      'ST-03',
+      'ST-05',
+      'ST-06',
+      'ST-07',
+      'ST-08',
+      'ST-09',
+      'ST-10',
+      'ST-16',
+      'ST-17',
+      'ST-19',
+    ] as const) {
       expect(current(screen)).toEqual(['My courses']);
     }
+    expect(current('ST-15')).toEqual(['Progress']);
+    expect(current('ST-18')).toEqual([]);
     for (const screen of ['XS-06', 'PU-15'] as const) {
       expect(current(screen)).toEqual([]);
     }
   });
 
-  it('Super Admin: Overview, Requests, Institutions, then Help — each current on its own screens, the Requests count in words', () => {
+  it('Super Admin: Overview, Requests, Institutions and Operations (Phase 3), then Help — each current on its own screens, the Requests count in words', () => {
     const help = sidebarModel('super_admin', { screen: 'XS-07' });
     expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
       ['Overview', '/admin', false],
       ['Requests', '/admin/requests', false],
       ['Institutions', '/admin/institutions', false],
+      ['Operations', '/admin/operations/device-transfers', false],
     ]);
     expect(help.help.current).toBe(true);
     const current = (screen: ScreenKey) =>
@@ -128,6 +167,8 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D and 2A)', () => {
     expect(current('SA-01')).toEqual(['Overview']);
     expect(current('SA-06')).toEqual(['Institutions']);
     expect(current('SA-07')).toEqual(['Institutions']);
+    expect(current('SA-18')).toEqual(['Operations']);
+    expect(current('SA-19')).toEqual(['Operations']);
     for (const screen of ['SA-02', 'SA-03'] as const) {
       const page = sidebarModel('super_admin', { screen, counts: { requests: 2 } });
       expect(page.destinations.find((item) => item.label === 'Requests')).toEqual({
@@ -141,7 +182,12 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D and 2A)', () => {
     }
     for (const screen of ['XS-06', 'PU-15'] as const) {
       const message = sidebarModel('super_admin', { screen });
-      expect(message.destinations.map((item) => item.current)).toEqual([false, false, false]);
+      expect(message.destinations.map((item) => item.current)).toEqual([
+        false,
+        false,
+        false,
+        false,
+      ]);
       expect(message.help.current).toBe(false);
     }
     // No count at zero (board 05 `hasCount`).

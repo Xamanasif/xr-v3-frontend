@@ -452,7 +452,7 @@ export const DEVIATIONS = [
     expected:
       'B1-09 draws the two links on the sign-in page; B1-10 and board 05 draw the Super Admin sidebar with all seven destinations.',
     actual:
-      'The Super Admin sidebar lists the destinations built so far — Overview and Institutions (Package 1D) and Requests (1A, with its count of requests under review read from the world) — and Help. Since Package 2A the Student sidebar lists Home and My courses (not Assessments, Progress) and the Institute Admin sidebar Overview, Content access, Student access and People (not Requests, Usage). On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
+      'The Super Admin sidebar lists the destinations built so far — Overview and Institutions (Package 1D) and Requests (1A, with its count of requests under review read from the world) — and Help. Since Package 2A the Student sidebar lists Home and My courses and the Institute Admin sidebar Overview, Content access, Student access and People; since Phase 3 the Student’s adds Progress (not Assessments, Phase 4), the Institute Admin’s Requests and Usage (every destination; the Requests count is DEV-43) and the Super Admin’s Operations (not Content, Academic structure, Platform roles: Phase 6). On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
     accessibility:
       'None: an unbuilt address would show the public not-found page and, as a document load, restart the tab’s sample world (ADR-0004).',
     decision:
@@ -921,6 +921,27 @@ export const DEVIATIONS = [
     decision:
       'The canvas runtime’s binding wrapper (START-HERE Known exception 6; the DEV-30 family), not the drawn design. For the owner’s review — not approved by the harness.',
     proposal: 'Keep one run of words (no change).',
+  },
+  {
+    id: 'DEV-43',
+    title:
+      'Phase 3: the Institute Admin’s Requests destination shows no count badge — what it counts is open (board 06 counts device requests to forward on “Requests”, which opens Requests to BITS)',
+    class: 'design-conflict',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      '05 Institute Admin shell — Requests with the count “2” (board 06 `countText` “{n} device requests to forward”)',
+    ],
+    product:
+      'The Institute Admin sidebar (nav/nav-config.ts `countWords` kept; nav-counts.ts reads no Institute Admin figure)',
+    expected: 'The canvas sidebar: “Requests” with a count badge.',
+    actual:
+      'The product draws “Requests” with no badge: the count opens Requests to BITS (IA-17) while it counts the Device requests tab (IA-18), against board 06’s own rule “Counts appear only where they open the list they count” (nav/README.md open item; Institute Admin request-count semantics, OWNER_DECISIONS_HANDOVER §4).',
+    accessibility: 'None: no count is announced because none is drawn.',
+    decision:
+      'Open owner decision (request-count semantics): keep, drop, or open the Device requests tab while the count shows. Not decided by the build. For the owner’s review — not approved by the harness.',
+    proposal:
+      'Count device requests waiting on the Institute Admin on “Requests” and open `?tab=devices` while a count shows (as IA-01’s device row does, P3-07).',
   },
 ];
 

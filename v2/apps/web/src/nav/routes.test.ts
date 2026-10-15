@@ -39,7 +39,7 @@ function filesUnder(directory: string): string[] {
 const ROUTE_FILE =
   /(?:^|\/)(?:page|layout|template|not-found|error|loading|default|route|global-error|global-not-found|forbidden|unauthorized)\.(?:tsx?|jsx?)$/;
 
-describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Packages 1A–1D, 2A, 2B)', () => {
+describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 acceptance 8; Packages 1A–1D, 2A, 2B; Phase 3)', () => {
   const routeFiles = filesUnder(APP).filter((file) => ROUTE_FILE.test(file));
 
   it('every page.tsx is in the manifest, and every manifest page exists', () => {
@@ -50,8 +50,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     // five request pages (PU-07, PU-08, PU-09, PU-10, PU-12; PU-13 is a state of PU-10) + Package
     // 1D's Institutions and Institution detail (SA-01 is the admin base's own page) + Package 2A's
     // ten Institute Admin and Student pages (IA-01 and ST-01 are their bases' own pages) + Package
-    // 2B's three (IA-09, IA-11, IA-14; its four tabs are `?tab=` views of 2A pages).
-    expect(pages).toHaveLength(64);
+    // 2B's three (IA-09, IA-11, IA-14; its four tabs are `?tab=` views of 2A pages) + Phase 3's
+    // fourteen (ST-17 and IA-18 are a state and a tab; the request detail has no screen id, O-02).
+    expect(pages).toHaveLength(78);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -133,12 +134,31 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       'institute/people/import/page.tsx',
       'institute/people/page.tsx',
       'institute/people/students/[studentId]/page.tsx',
+      // Phase 3: Requests (IA-17 with the IA-18 tab), its request detail, IA-19 and IA-20.
+      'institute/requests/[requestId]/page.tsx',
+      'institute/requests/devices/[transferId]/page.tsx',
+      'institute/requests/page.tsx',
       'institute/student-access/give/page.tsx',
       'institute/student-access/page.tsx',
+      'institute/usage/page.tsx',
       'student/courses/[courseId]/page.tsx',
       'student/courses/page.tsx',
+      // Phase 3: My device (ST-18), the hub's tabs and pages, feedback and Progress.
+      'student/device/page.tsx',
+      'student/experiments/[experimentId]/feedback/[format]/page.tsx',
       'student/experiments/[experimentId]/page.tsx',
+      'student/experiments/[experimentId]/progress/page.tsx',
+      'student/experiments/[experimentId]/resources/page.tsx',
+      'student/experiments/[experimentId]/simulation/[format]/page.tsx',
+      'student/experiments/[experimentId]/simulation/page.tsx',
+      'student/experiments/[experimentId]/simulation/web/page.tsx',
       'student/page.tsx',
+      'student/progress/page.tsx',
+    ]);
+    // Phase 3: the Super Admin's Operations › Device transfers (SA-18) and the decision (SA-19).
+    expect(all.filter((file) => /^admin\/operations/.test(file)).sort()).toEqual([
+      'admin/operations/device-transfers/[transferId]/page.tsx',
+      'admin/operations/device-transfers/page.tsx',
     ]);
     expect(PAGES.find((page) => page.file === 'institute/page.tsx')).toMatchObject({
       kind: 'screen',
@@ -158,11 +178,17 @@ describe('static redirects (next.config.ts; Appendix A §3.7)', () => {
   it('row 20 for the seven bases, row 21 (/signed-out) and row 1 (/courses), not permanent; nothing else', async () => {
     const redirects = await nextConfig.redirects!();
     expect(redirects).toEqual(REDIRECTS.map((redirect) => ({ ...redirect, permanent: false })));
-    expect(redirects).toHaveLength(9);
-    expect(redirects.slice(-2)).toEqual([
+    expect(redirects).toHaveLength(10);
+    expect(redirects.slice(-3)).toEqual([
       { source: '/signed-out', destination: '/sign-in?reason=signed-out', permanent: false },
       // Package 1B: the PU-05 breadcrumb's intermediate level.
       { source: '/courses', destination: '/areas', permanent: false },
+      // Phase 3, row 17 (board-forced): "Operations" opens Device transfers.
+      {
+        source: '/admin/operations',
+        destination: '/admin/operations/device-transfers',
+        permanent: false,
+      },
     ]);
   });
 });
@@ -201,6 +227,22 @@ describe('the built-screen manifest is generated from the route manifest', () =>
       'IA-09',
       'IA-11',
       'IA-14',
+      // Phase 3's fifteen ids: ST-17 is ST-16's state, IA-18 the Requests page's tab.
+      'ST-06',
+      'ST-07',
+      'ST-08',
+      'ST-09',
+      'ST-10',
+      'ST-16',
+      'ST-17',
+      'ST-15',
+      'ST-18',
+      'IA-17',
+      'IA-18',
+      'IA-19',
+      'IA-20',
+      'SA-18',
+      'SA-19',
     ];
     expect([...SCREENS_WITH_PAGES]).toEqual(built);
     expect([...BUILT_SCREENS]).toEqual(built);
@@ -290,7 +332,7 @@ describe('resolveAddress — what an address shows', () => {
       { kind: 'record-screen', workspace: 'student', screen: 'ST-05' },
     ],
     ['/student/experiments', { kind: 'workspace-not-found', workspace: 'student' }],
-    ['/student/progress', { kind: 'workspace-not-found', workspace: 'student' }],
+    ['/student/progress', { kind: 'record-screen', workspace: 'student', screen: 'ST-15' }],
     [
       '/institute/content-access',
       { kind: 'record-screen', workspace: 'institute', screen: 'IA-02' },
@@ -340,7 +382,46 @@ describe('resolveAddress — what an address shows', () => {
       '/student/courses?tab=experiments',
       { kind: 'record-screen', workspace: 'student', screen: 'ST-02' },
     ],
-    ['/institute/requests', { kind: 'workspace-not-found', workspace: 'institute' }],
+    // Phase 3.
+    [
+      '/institute/requests?tab=devices',
+      { kind: 'record-screen', workspace: 'institute', screen: 'IA-17' },
+    ],
+    [
+      '/institute/requests/REQ-0058',
+      { kind: 'record-screen', workspace: 'institute', screen: 'IA-17' },
+    ],
+    [
+      '/institute/requests/devices/DTR-0018',
+      { kind: 'record-screen', workspace: 'institute', screen: 'IA-19' },
+    ],
+    ['/institute/usage', { kind: 'record-screen', workspace: 'institute', screen: 'IA-20' }],
+    [
+      '/student/experiments/shell-and-tube-heat-exchanger/resources',
+      { kind: 'record-screen', workspace: 'student', screen: 'ST-06' },
+    ],
+    [
+      '/student/experiments/shell-and-tube-heat-exchanger/simulation/web',
+      { kind: 'record-screen', workspace: 'student', screen: 'ST-08' },
+    ],
+    [
+      '/student/experiments/shell-and-tube-heat-exchanger/simulation/vr',
+      { kind: 'record-screen', workspace: 'student', screen: 'ST-09' },
+    ],
+    [
+      '/student/experiments/shell-and-tube-heat-exchanger/feedback/web',
+      { kind: 'record-screen', workspace: 'student', screen: 'ST-16' },
+    ],
+    ['/student/device', { kind: 'record-screen', workspace: 'student', screen: 'ST-18' }],
+    [
+      '/admin/operations',
+      { kind: 'redirect', workspace: 'admin', to: '/admin/operations/device-transfers' },
+    ],
+    [
+      '/admin/operations/device-transfers/DTR-0018',
+      { kind: 'record-screen', workspace: 'admin', screen: 'SA-19' },
+    ],
+    ['/admin/operations/support', { kind: 'workspace-not-found', workspace: 'admin' }],
     ['/faculty/courses', { kind: 'workspace-not-found', workspace: 'faculty' }],
   ] as const)('%s', (path, outcome) => {
     expect(resolveAddress(path)).toEqual(outcome);

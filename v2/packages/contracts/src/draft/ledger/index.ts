@@ -179,6 +179,13 @@ export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = [
     authorisation:
       'Owner authorisation of Phase 2B (15 Oct 2026, §2–3): "Implement exactly the remaining designed Phase-2 screen IDs" — IA-11 Import students (previewStudentImport: the CSV parsed by the service), IA-09 Faculty record (getFaculty), IA-14 Group (getGroup), IA-15 Faculty courses (FacultyCourseService.list), IA-16 Course codes (InstitutionCourseCodeService.list). With them every Phase-2 method is implemented.',
   })),
+  {
+    method: 'LearningService.getSimulationChooser',
+    phase: 'P3',
+    package: 'Phase 3',
+    authorisation:
+      'Owner authorisation of Phase 3 (15 Oct 2026, §2 and §6): "Implement exactly the 15 designed Phase-3 screen IDs … Implement only Phase-3 service methods" — ST-07 Simulation, choose a format (getSimulationChooser: one progress view per published format). With it every Phase-3 method is implemented; nothing of Phases 4–6 moves.',
+  },
 ];
 
 /** The methods `PACKAGE_DELIVERIES` names. */

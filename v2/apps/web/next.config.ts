@@ -75,6 +75,12 @@ const nextConfig: NextConfig = {
       { source: '/signed-out', destination: '/sign-in?reason=signed-out', permanent: false },
       // Row 1 (Phase 1, Package 1B): the PU-05 breadcrumb's "Areas" level has no page of its own.
       { source: '/courses', destination: '/areas', permanent: false },
+      // Row 17 (Phase 3, board-forced): "Operations" opens Device transfers (B7-09 f0; B3-11).
+      {
+        source: '/admin/operations',
+        destination: '/admin/operations/device-transfers',
+        permanent: false,
+      },
     ]);
   },
 };

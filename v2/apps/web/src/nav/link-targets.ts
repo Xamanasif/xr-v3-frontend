@@ -15,6 +15,14 @@
  * reference.
  */
 
+import { P3_DEVICE_LINK_TARGETS } from './link-targets-p3/device';
+import { P3_FORMATS_LINK_TARGETS } from './link-targets-p3/formats';
+import { P3_HUB_LINK_TARGETS } from './link-targets-p3/hub';
+import { P3_INSTITUTE_REQUESTS_LINK_TARGETS } from './link-targets-p3/institute-requests';
+import { P3_OPERATIONS_LINK_TARGETS } from './link-targets-p3/operations';
+import { P3_PROGRESS_FEEDBACK_LINK_TARGETS } from './link-targets-p3/progress-feedback';
+import { P3_USAGE_LINK_TARGETS } from './link-targets-p3/usage';
+
 /** The screen (or shell part) an action is drawn on. */
 export type LedgerScreen =
   | 'Shell'
@@ -61,7 +69,23 @@ export type LedgerScreen =
   | 'ST-03'
   | 'ST-04'
   | 'ST-05'
-  | 'ST-19';
+  | 'ST-19'
+  // Phase 3.
+  | 'ST-06'
+  | 'ST-07'
+  | 'ST-08'
+  | 'ST-09'
+  | 'ST-10'
+  | 'ST-15'
+  | 'ST-16'
+  | 'ST-17'
+  | 'ST-18'
+  | 'IA-17'
+  | 'IA-18'
+  | 'IA-19'
+  | 'IA-20'
+  | 'SA-18'
+  | 'SA-19';
 
 export type ActionRole =
   /** The page's one primary action (board 08 "One primary action"; `xr-btn--primary`). */
@@ -213,7 +237,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     target: '/institute/people',
     outcome: 'built',
     board: '06 (Institute Admin raw[]); B2-06 f0, B2-07 f0 (`aria-current="page"`)',
-    note: 'Requests (IA-17) and Usage (IA-20) are not rendered until their phase (DEV-21); the Requests count waits on DEV-17.',
+    note: 'Requests (IA-17) and Usage (IA-20) render since Phase 3; the Requests count waits on DEV-17 (no count is drawn).',
   },
   {
     screen: 'Shell',
@@ -235,7 +259,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     target: '/student/courses',
     outcome: 'built',
     board: '06 (Student raw[]); B2-11 f0, B2-12 f0 (`aria-current="page"`)',
-    note: 'Assessments (ST-11) and Progress (ST-15) are not rendered until their phase (DEV-21).',
+    note: 'Progress (ST-15) renders since Phase 3; Assessments (ST-11) is not rendered until Phase 4 (DEV-21).',
   },
   // ---- XS-05 Account menu (boards 05, 06) ------------------------------------------------------
   {
@@ -264,11 +288,11 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     where: 'Account menu (Students holding AR, VR or MR)',
     action: 'My device',
     role: 'secondary',
-    on: ANY_PAGE,
-    target: null,
-    outcome: 'in-page',
-    board: '06 "Account menu" (My device*); B3-07 frame 2',
-    note: 'Not offered: ST-18 is not built (Phase 3) — no entry, no disabled item.',
+    on: '/student/*',
+    target: '/student/device',
+    outcome: 'built',
+    board: '06 "Account menu" (My device*); B3-07 f1, f2',
+    note: 'ST-18 (Phase 3): offered only to a Student given an AR, VR or MR format (B3-07 f2 “Entry hidden”); never a disabled item.',
   },
   // ---- XS-08 Paused / inactive banners (boards 05, 08) ----------------------------------------
   {
@@ -821,14 +845,25 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
   },
   {
     screen: 'SA-07',
-    where: '“Needs attention” — device transfers and access ending',
-    action: 'Operations · Operations › Access ending',
+    where: '“Needs attention” — a device transfer forwarded to BITS',
+    action: 'Operations',
     role: 'secondary',
     on: '/admin/institutions/{institutionId}',
     target: '/admin/operations/device-transfers',
+    outcome: 'built',
+    board: 'B7-03 `att` (godavari → B7-09 / B3-11 f0)',
+    note: 'Phase 3: rendered with SA-18 Operations › Device transfers, one row per forwarded transfer of the institution (state-copy SA-07.attention-later).',
+  },
+  {
+    screen: 'SA-07',
+    where: '“Needs attention” — access ending',
+    action: 'Operations › Access ending',
+    role: 'secondary',
+    on: '/admin/institutions/{institutionId}',
+    target: '/admin/operations/access-ending',
     outcome: 'not-rendered',
-    board: 'B7-03 `att` (godavari, konark → B7-09)',
-    note: 'Operations (SA-18 … SA-22) is not built (Phases 3 and 6): the rows appear with it (state-copy SA-07.attention-later).',
+    board: 'B7-03 `att` (konark → B7-09)',
+    note: 'SA-22 Operations › Access ending is not built (Phase 6): the row appears with it (state-copy SA-07.attention-later).',
   },
   {
     screen: 'SA-07',
@@ -1627,18 +1662,17 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Request renewal',
       'secondary',
       '/institute/requests',
-      'not-rendered',
-      'B2-01 f3, f4, f7',
-      'IA-17 Requests to BITS is not built (Phase 3): the action appears with it; the row’s words stay.',
+      'built',
+      'B2-01 f3, f4, f7 (→ B3-08 IA-17, Phase 3)',
     ],
     [
       '“No content yet” (approved — payment required)',
       'View request status',
       'secondary',
-      '/institute/requests',
-      'not-rendered',
-      'B2-01 f1',
-      'IA-17 is not built (the request status opens from Requests, Phase 3); the state itself is unreachable in the sample world (INST-04).',
+      '/institute/requests/{requestId}',
+      'built',
+      'B2-01 f1 (→ the request’s detail in Requests, B3-08 f4 … f6, Phase 3; the board’s B1-08 is the public view of the same record)',
+      'The state itself is unreachable in the sample world (INST-04).',
     ],
   ]),
   ...workspacePage('IA-02', '/institute/content-access', [
@@ -1711,9 +1745,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Request renewal',
       'secondary',
       '/institute/requests',
-      'not-rendered',
-      'B2-02 f3, f4',
-      'IA-17 Requests to BITS is not built (Phase 3): the action appears with it.',
+      'built',
+      'B2-02 f3, f4 (→ B3-08 IA-17, Phase 3)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-02 f9'],
   ]),
@@ -1785,19 +1818,17 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Header meta',
       'REQ-0042',
       'secondary',
-      '/institute/requests',
-      'not-rendered',
-      'B2-03 f0 … f5',
-      'IA-17 is not built (Phase 3): the reference is plain text until then.',
+      '/institute/requests/{requestId}',
+      'built',
+      'B2-03 f0 … f5 (→ the request’s detail in Requests, B3-08 f4 … f6, Phase 3; the board’s B1-08 is the public view of the same record)',
     ],
     [
       '“What BITS gave your institution”',
       'Ask BITS from Requests · Request renewal',
       'secondary',
       '/institute/requests',
-      'not-rendered',
-      'B2-03 f0 … f5',
-      'IA-17 Requests to BITS is not built (Phase 3): the paragraph and action appear with it.',
+      'built',
+      'B2-03 f0 … f5 (the ended notice’s “Request renewal”, f3; → B3-08 IA-17, Phase 3)',
     ],
   ]),
   ...workspacePage('IA-04', '/institute/student-access', [
@@ -1910,11 +1941,10 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     [
       'Access plan ended',
       'Request renewal',
-      'secondary',
+      'primary',
       '/institute/requests',
-      'not-rendered',
-      'B2-05 f16',
-      'IA-17 Requests to BITS is not built (Phase 3): the action appears with it.',
+      'built',
+      'B2-05 f16 (→ B3-08 IA-17, Phase 3)',
     ],
     [
       'Access plan ended · nothing held',
@@ -2331,10 +2361,10 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Up next (feedback)',
       'Give feedback',
       'secondary',
-      '/student/progress',
-      'not-rendered',
-      'B2-10 f5',
-      'ST-10 Feedback is not built (Phase 3): the action appears with it.',
+      '/student/experiments/{experimentId}/feedback/{format}',
+      'built',
+      'B2-10 f5 (→ B3-06 ST-16; B3-00 “Frozen Batch-2 links”)',
+      'Phase 3: opens that format’s feedback; the service lists the item only for a format with its own completion and no feedback yet.',
     ],
     [
       'My courses',
@@ -2367,7 +2397,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       '/student/progress',
       'not-rendered',
       'B2-10 f8; B2-13 f1',
-      'ST-15 Progress is not built (Phase 3; SACC-14 open): the action appears with it.',
+      'ST-15 Progress is built (Phase 3), but its earlier-work view is not built while SACC-14 is open: the service gives no earlier-work row (PC-23), so the action would lead to nothing (`ST-01.earlier-only`).',
     ],
   ]),
   ...workspacePage('ST-02', '/student/courses', [
@@ -2395,7 +2425,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       '/student/progress',
       'not-rendered',
       'B2-11 f7, f8',
-      'ST-15 Progress is not built (Phase 3; SACC-14 open): the action appears with it.',
+      'ST-15 Progress is built (Phase 3), but its earlier-work view is not built while SACC-14 is open: the service gives no earlier-work row (PC-23), so the action would lead to nothing (`ST-02.earlier-rows`).',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B2-11 f10'],
   ]),
@@ -2433,23 +2463,96 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     ],
   ]),
   ...workspacePage('ST-05', '/student/experiments/{experimentId}', [
+    // Phase 3 (hub builder): the tabs, the header's Next step and the cards' actions render
+    // (`ST-05.next-step`, `ST-05.card-actions`); the Assessment tab waits for Phase 4.
     [
       'Hub tabs',
-      'Resources · Simulation · Assessment · Progress',
+      'Overview',
       'secondary',
-      '/student/progress',
-      'not-rendered',
-      'B2-12 f0 … f3, f5',
-      'ST-06 … ST-15 are not built (Phases 3, 4): the tabs appear with them.',
+      '/student/experiments/{experimentId}',
+      'built',
+      'B2-12 f0 … f3, f5 (`aria-current="page"`)',
     ],
     [
-      'Next step',
-      'Open resources · Choose a format · Continue WEB',
+      'Hub tabs',
+      'Resources',
       'secondary',
-      '/student/progress',
+      '/student/experiments/{experimentId}/resources',
+      'built',
+      'B2-12 f0 … f3, f5',
+    ],
+    [
+      'Hub tabs',
+      'Simulation',
+      'secondary',
+      '/student/experiments/{experimentId}/simulation',
+      'built',
+      'B2-12 f0 … f3, f5',
+    ],
+    [
+      'Hub tabs',
+      'Progress',
+      'secondary',
+      '/student/experiments/{experimentId}/progress',
+      'built',
+      'B2-12 f0 … f3, f5',
+    ],
+    [
+      'Hub tabs',
+      'Assessment',
+      'secondary',
+      '/student/experiments/{experimentId}/assessment',
       'not-rendered',
+      'B2-12 f0 … f3, f5',
+      'ST-11 Assessments is not built (Phase 4): the tab appears with it (DEV-21).',
+    ],
+    [
+      'Header Next step',
+      'Open resources',
+      'primary',
+      '/student/experiments/{experimentId}/resources',
+      'built',
+      'B2-12 f0, f2, f5',
+    ],
+    [
+      'Header Next step',
+      'Continue WEB',
+      'primary',
+      '/student/experiments/{experimentId}/simulation/web',
+      'built',
+      'B2-12 f1',
+    ],
+    [
+      'Header Next step',
+      'Choose a format',
+      'primary',
+      '/student/experiments/{experimentId}/simulation',
+      'built',
+      'B2-12 (provisional, `ST-05.next-step`)',
+    ],
+    [
+      'Resources card',
+      'Open resources',
+      'secondary',
+      '/student/experiments/{experimentId}/resources',
+      'built',
       'B2-12 f0 … f2, f5',
-      'ST-06 Resources and ST-07/ST-08 launch are not built (Phase 3): the actions appear with them.',
+    ],
+    [
+      'Simulation card',
+      'Choose a format',
+      'secondary',
+      '/student/experiments/{experimentId}/simulation',
+      'built',
+      'B2-12 f0, f2, f5',
+    ],
+    [
+      'Simulation card',
+      'Continue WEB',
+      'secondary',
+      '/student/experiments/{experimentId}/simulation/web',
+      'built',
+      'B2-12 f1',
     ],
     [
       'Top bar crumbs',
@@ -2471,6 +2574,14 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     ],
     ['Message', 'Help', 'secondary', '/student/help', 'built', 'B2-11 f12; B2-12 f4, f6; B2-13 f3'],
   ]),
+  // ---- Phase 3: one file per screen group (`link-targets-p3/`) ---------------------------------
+  ...P3_HUB_LINK_TARGETS,
+  ...P3_FORMATS_LINK_TARGETS,
+  ...P3_PROGRESS_FEEDBACK_LINK_TARGETS,
+  ...P3_DEVICE_LINK_TARGETS,
+  ...P3_INSTITUTE_REQUESTS_LINK_TARGETS,
+  ...P3_USAGE_LINK_TARGETS,
+  ...P3_OPERATIONS_LINK_TARGETS,
 ];
 
 /**
@@ -2492,7 +2603,9 @@ export function expandTarget(target: string, base: string, reportId = 'SUP-0213'
     .replace('{planId}', 'ACC-0107')
     .replace('{studentId}', 'per-0002')
     .replace('{groupId}', 'GRP-0012')
-    .replace('{facultyId}', 'per-0013');
+    .replace('{facultyId}', 'per-0013')
+    .replace('{transferId}', 'DTR-0018')
+    .replace('{format}', 'vr');
 }
 
 type WorkspaceRow = readonly [

@@ -297,9 +297,83 @@ const PACKAGE_2B_PAGES: readonly PageRoute[] = (
 }));
 
 /**
+ * Phase 3 (learning, feedback, the device chain, requests to BITS and usage; Appendix A register
+ * routes): the experiment hub's Resources (ST-06), Simulation (ST-07) and Progress (ST-10) tabs;
+ * the WEB page (ST-08) and the AR / VR / MR page (ST-09, `[format]` = ar | vr | mr, else not
+ * found); format feedback (ST-16, with ST-17 Feedback sent as its state); Progress (ST-15); My
+ * device (ST-18); the Institute Admin's Requests page — Requests to BITS (IA-17) and, on
+ * `?tab=devices`, Device requests (IA-18) — its request detail (B3-08 f4 … f6, no screen id: O-02),
+ * the device request (IA-19) and Usage (IA-20); the Super Admin's Operations › Device transfers
+ * (SA-18) and the transfer decision (SA-19).
+ */
+const PHASE_3_PAGES: readonly PageRoute[] = (
+  [
+    [
+      '/student/experiments/[experimentId]/resources',
+      'student/experiments/[experimentId]/resources/page.tsx',
+      'ST-06',
+    ],
+    [
+      '/student/experiments/[experimentId]/simulation',
+      'student/experiments/[experimentId]/simulation/page.tsx',
+      'ST-07',
+    ],
+    [
+      '/student/experiments/[experimentId]/simulation/web',
+      'student/experiments/[experimentId]/simulation/web/page.tsx',
+      'ST-08',
+    ],
+    [
+      '/student/experiments/[experimentId]/simulation/[format]',
+      'student/experiments/[experimentId]/simulation/[format]/page.tsx',
+      'ST-09',
+    ],
+    [
+      '/student/experiments/[experimentId]/progress',
+      'student/experiments/[experimentId]/progress/page.tsx',
+      'ST-10',
+    ],
+    [
+      '/student/experiments/[experimentId]/feedback/[format]',
+      'student/experiments/[experimentId]/feedback/[format]/page.tsx',
+      'ST-16',
+      ['ST-17'],
+    ],
+    ['/student/progress', 'student/progress/page.tsx', 'ST-15'],
+    ['/student/device', 'student/device/page.tsx', 'ST-18'],
+    ['/institute/requests', 'institute/requests/page.tsx', 'IA-17', ['IA-18']],
+    ['/institute/requests/[requestId]', 'institute/requests/[requestId]/page.tsx', 'IA-17'],
+    [
+      '/institute/requests/devices/[transferId]',
+      'institute/requests/devices/[transferId]/page.tsx',
+      'IA-19',
+    ],
+    ['/institute/usage', 'institute/usage/page.tsx', 'IA-20'],
+    ['/admin/operations/device-transfers', 'admin/operations/device-transfers/page.tsx', 'SA-18'],
+    [
+      '/admin/operations/device-transfers/[transferId]',
+      'admin/operations/device-transfers/[transferId]/page.tsx',
+      'SA-19',
+    ],
+  ] as const
+).map(([pattern, file, screen, also]) => ({
+  pattern,
+  file,
+  workspace: pattern.startsWith('/institute')
+    ? 'institute'
+    : pattern.startsWith('/admin')
+      ? 'admin'
+      : 'student',
+  kind: 'screen',
+  screen,
+  ...(also ? { also } : {}),
+}));
+
+/**
  * Every page file: the Phase-0 pages of the seven workspaces (35; the admin base is SA-01 since
  * Package 1D, the institute and student bases IA-01 and ST-01 since Package 2A), Package 1A's (3),
- * Package 1B's (6), Package 1C's (5), Package 1D's (2), Package 2A's (10), Package 2B's (3).
+ * Package 1B's (6), Package 1C's (5), Package 1D's (2), Package 2A's (10), Package 2B's (3),
+ * Phase 3's (14).
  */
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
@@ -309,6 +383,7 @@ export const PAGES: readonly PageRoute[] = [
   ...PACKAGE_1D_PAGES,
   ...PACKAGE_2A_PAGES,
   ...PACKAGE_2B_PAGES,
+  ...PHASE_3_PAGES,
 ];
 
 /**
@@ -344,6 +419,8 @@ export const REDIRECTS: readonly {
   { source: '/signed-out', destination: SIGNED_OUT_ADDRESS },
   // Row 1 (Package 1B): the PU-05 breadcrumb's intermediate "Areas" level.
   { source: '/courses', destination: '/areas' },
+  // Row 17 (Phase 3, board-forced): "Operations" opens Device transfers (B7-09 f0; B3-11).
+  { source: '/admin/operations', destination: '/admin/operations/device-transfers' },
 ];
 
 /** The workspace screens built as pages (the entry and public pages are not sidebar destinations). */
@@ -410,6 +487,9 @@ export function resolveAddress(address: string): AddressOutcome {
       return { kind: 'screen', workspace, view: 'detail' };
     }
   }
+  // A static redirect of a workspace address (Phase 3, row 17: `/admin/operations`).
+  const redirect = REDIRECTS.find((entry) => entry.source === `/${[first, ...parts].join('/')}`);
+  if (redirect) return { kind: 'redirect', workspace, to: redirect.destination };
   // The record and list screens of Packages 1A, 1D and 2A, by their manifest pattern.
   for (const page of PAGES) {
     if (page.workspace !== workspace || page.kind !== 'screen' || page.view) continue;

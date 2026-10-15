@@ -41,11 +41,12 @@ async function links(page: Page): Promise<string[][]> {
 
 const SKIP = ['Skip to main content', '#main'];
 // `xr-nav-text` + rail tooltip `xr-tip` (text content). Package 2A builds the Student's Home and My
-// courses, which the sidebar renders before Help.
+// courses, Phase 3 their Progress, which the sidebar renders before Help.
 const SIDEBAR_HELP = ['HelpHelp', '/student/help'];
 const SIDEBAR = [
   ['HomeHome', '/student'],
   ['My coursesMy courses', '/student/courses'],
+  ['ProgressProgress', '/student/progress'],
   SIDEBAR_HELP,
 ];
 const CRUMB = ['Help & support', '/student/help'];
@@ -130,7 +131,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
 
     await page.evaluate(() => {
       (window as unknown as { next: { router: { push(href: string): void } } }).next.router.push(
-        '/student/progress',
+        '/student/assessments',
       );
     });
     await expect(page.getByRole('heading', { name: 'We can’t find that page' })).toBeVisible();
@@ -164,6 +165,8 @@ test.describe('every rendered link is in the link-target ledger', () => {
     expect(await links(page)).toEqual([
       SKIP,
       ...SIDEBAR,
+      // Phase 3: Rahul holds VR, so the account menu offers My device (kept while paused, B3-07 f8).
+      ['My device', '/student/device'],
       ['Help', '/student/help'], // the account menu
       ['Help', '/student/help'], // the banner
       ['Back to Home', '/student'],
@@ -173,7 +176,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
   });
 });
 
-test('the sidebar offers built destinations only: Help, the Super Admin’s Overview, Requests and Institutions, and Package 2A’s Institute Admin and Student destinations (B8-06)', async ({
+test('the sidebar offers built destinations only: Help, the Super Admin’s Overview, Requests, Institutions and Operations, and the Institute Admin’s and Student’s destinations of Package 2A and Phase 3 (B8-06)', async ({
   page,
 }) => {
   test.skip(
@@ -186,17 +189,24 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
     await waitForShell(tab);
     const side = tab.locator('aside.xr-side');
     if (entry.role === 'super_admin') {
-      // SA-02 is built (Package 1A), SA-01 and SA-06 (Package 1D): those three, then Help.
-      await expect(side.locator('a[href]')).toHaveCount(4);
+      // SA-02 is built (Package 1A), SA-01 and SA-06 (Package 1D), SA-18 Operations (Phase 3):
+      // those four, then Help.
+      await expect(side.locator('a[href]')).toHaveCount(5);
       expect(
         await side
           .locator('nav a[href]')
           .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
-      ).toEqual(['/admin', '/admin/requests', '/admin/institutions']);
+      ).toEqual([
+        '/admin',
+        '/admin/requests',
+        '/admin/institutions',
+        '/admin/operations/device-transfers',
+      ]);
       await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute('href', '/admin/help');
     } else if (entry.role === 'tenant_admin' || entry.role === 'student') {
       // Package 2A: the Institute Admin's Overview, Content access, Student access and People; the
-      // Student's Home and My courses. Requests, Usage, Assessments and Progress wait their phase.
+      // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Assessments waits
+      // for Phase 4.
       const built =
         entry.role === 'tenant_admin'
           ? [
@@ -204,8 +214,10 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
               '/institute/content-access',
               '/institute/student-access',
               '/institute/people',
+              '/institute/requests',
+              '/institute/usage',
             ]
-          : ['/student', '/student/courses'];
+          : ['/student', '/student/courses', '/student/progress'];
       expect(
         await side
           .locator('nav a[href]')
@@ -228,7 +240,7 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
 test('following every ledger link is client-side: one document, one world, one session', async ({
   page,
 }) => {
-  await openAs(page, RAHUL.person, '/student/progress');
+  await openAs(page, RAHUL.person, '/student/assessments');
   await expect(page.getByRole('heading', { name: 'We can’t find that page' })).toBeVisible();
   const mark = await markDocument(page);
   const start = await inspectWorld(page);

@@ -37,9 +37,10 @@ export function organisationLine(role: Role, person: ShellPerson): string | unde
 
 export interface AccountMenuOptions {
   /**
-   * The Student holds an AR, VR or MR format (from the sample world). "My device" appears only
-   * then, and only once ST-18 is built (board 06 "*"; B3-07 frame 2 "Entry hidden · no AR / VR /
-   * MR formats").
+   * The Student holds an AR, VR or MR format — given now, or an open transfer request (the
+   * workspace frame reads it: `features/student/st-18-my-device/device-entry.ts`, state-copy
+   * `ST-18.offered`). "My device" appears only then, and only once ST-18 is built (board 06 "*";
+   * B3-07 f1, f2 "Entry hidden · no AR / VR / MR formats").
    */
   readonly deviceEligible?: boolean;
   /** The built screens (default: the manifest). */

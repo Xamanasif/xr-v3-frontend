@@ -8,7 +8,13 @@ import {
 import { INSTITUTIONS_TITLE, OVERVIEW_TITLE } from './institutions';
 import { REQUESTS_TITLE } from './requests';
 import { resolveAddress } from './routes';
+import { INSTITUTE_REQUESTS_TITLE } from './institute-requests';
+import { USAGE_TITLE } from './institute-usage';
+import { WORKSPACE_NAV } from './nav-config';
+import { OPERATIONS_TITLE } from './operations';
 import { HOME_TITLE, MY_COURSES_TITLE } from './student';
+import { MY_DEVICE_TITLE } from './student-device';
+import { PROGRESS_TITLE } from './student-progress';
 
 /**
  * The return address in words, for XS-03 "Session expired" (B1-09 f9: "Sign in again to go back
@@ -24,6 +30,11 @@ import { HOME_TITLE, MY_COURSES_TITLE } from './student';
  * - Whether the person may go back there is decided after sign-in (`return-to.ts`), not here.
  */
 const REFERENCE = /^[A-Z]{2,5}-\d{4}$/;
+
+/** IA-18's tab words, as the Requests destination names its section tabs (board 06). */
+const DEVICE_REQUESTS_TITLE = WORKSPACE_NAV.tenant_admin.destinations.find(
+  (destination) => destination.screen === 'IA-17',
+)!.sectionTabs![1]!;
 
 function referenceIn(path: string): string | null {
   const last =
@@ -78,9 +89,37 @@ export function placeWordsOf(returnTo: string | null): string | null {
       )
         return PEOPLE_TITLE;
       if (outcome.screen === 'ST-01') return HOME_TITLE;
-      if (outcome.screen === 'ST-02' || outcome.screen === 'ST-03' || outcome.screen === 'ST-05')
+      // Phase 3: the hub's tabs and pages, and feedback, name My courses (experiments are
+      // addressed by ids); Progress, My device and Usage name themselves; the Institute Admin's
+      // requests and the Super Admin's transfers add a drawn reference (REQ-0058, DTR-0018).
+      if (
+        outcome.screen === 'ST-02' ||
+        outcome.screen === 'ST-03' ||
+        outcome.screen === 'ST-05' ||
+        outcome.screen === 'ST-06' ||
+        outcome.screen === 'ST-07' ||
+        outcome.screen === 'ST-08' ||
+        outcome.screen === 'ST-09' ||
+        outcome.screen === 'ST-10' ||
+        outcome.screen === 'ST-16'
+      )
         return MY_COURSES_TITLE;
+      if (outcome.screen === 'ST-15') return PROGRESS_TITLE;
+      if (outcome.screen === 'ST-18') return MY_DEVICE_TITLE;
+      if (outcome.screen === 'IA-20') return USAGE_TITLE;
       const reference = referenceIn(pathname);
+      if (outcome.screen === 'IA-17') {
+        return reference ? `${INSTITUTE_REQUESTS_TITLE} › ${reference}` : INSTITUTE_REQUESTS_TITLE;
+      }
+      if (outcome.screen === 'IA-19') {
+        return reference
+          ? `${INSTITUTE_REQUESTS_TITLE} › ${DEVICE_REQUESTS_TITLE} › ${reference}`
+          : INSTITUTE_REQUESTS_TITLE;
+      }
+      if (outcome.screen === 'SA-18' || outcome.screen === 'SA-19') {
+        return reference ? `${OPERATIONS_TITLE} › ${reference}` : OPERATIONS_TITLE;
+      }
+      // SA-03, the Super Admin's request decision.
       return reference ? `${REQUESTS_TITLE} › ${reference}` : REQUESTS_TITLE;
     }
     default:

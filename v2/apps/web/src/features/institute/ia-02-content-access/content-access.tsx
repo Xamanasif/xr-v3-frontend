@@ -39,6 +39,7 @@ import {
   studentsGivenWords,
   viewPlanLabel,
 } from '@/copy/institute-home';
+import { REQUEST_ACTIONS } from '@/copy/institute-requests';
 import {
   accessPlanAddress,
   CONTENT_ACCESS_ADDRESS,
@@ -48,6 +49,7 @@ import {
   STUDENT_ACCESS_ADDRESS,
   tabPlacement,
 } from '@/nav/institute';
+import { INSTITUTE_REQUESTS_ADDRESS } from '@/nav/institute-requests';
 import { useAppNavigation } from '@/nav/navigation';
 import { useContentAccess, useInstituteOverview } from '@/queries/institute-home';
 
@@ -349,17 +351,18 @@ function CourseHead({ group }: { readonly group: CourseGroupView }) {
 
 /**
  * The plan's notice (B2-02 f3 ending soon, f4 ended, f5 paused), under its first course group's
- * head. "Request renewal" (IA-17 / IA-18) is not built in Package 2A.
+ * head. "Request renewal" opens Requests (IA-17, Phase 3).
  */
 function PlanNotice({ section }: { readonly section: PlanSectionView }) {
   const { plan, status } = section.standing;
+  const renewal = <Link href={INSTITUTE_REQUESTS_ADDRESS}>{REQUEST_ACTIONS.requestRenewal}</Link>;
   const notice =
     status === 'ending-soon' ? (
-      <Notice tone="warn" icon="clock" title={endsOnTitle(plan.endsOn)}>
+      <Notice tone="warn" icon="clock" title={endsOnTitle(plan.endsOn)} actions={renewal}>
         {PLAN_NOTICES.endingSoonLine}
       </Notice>
     ) : status === 'access-ended' ? (
-      <Notice tone="quiet" title={PLAN_NOTICES.contentEndedTitle}>
+      <Notice tone="quiet" title={PLAN_NOTICES.contentEndedTitle} actions={renewal}>
         {PLAN_NOTICES.contentEndedLine}
       </Notice>
     ) : status === 'paused' ? (

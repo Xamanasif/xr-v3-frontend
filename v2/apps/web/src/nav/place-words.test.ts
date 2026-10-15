@@ -43,13 +43,28 @@ describe('placeWordsOf', () => {
     [null],
     [''],
     ['/'],
-    ['/student/progress'],
+    ['/student/assessments'],
     ['/faculty'],
     ['https://evil.example/admin/requests'],
     ['//evil.example/admin/requests'],
     ['/sign-in'],
   ])('%j has no words', (path) => {
     expect(placeWordsOf(path)).toBeNull();
+  });
+
+  it.each([
+    ['/student/progress', 'Progress'],
+    ['/student/device', 'My device'],
+    ['/student/experiments/shell-and-tube-heat-exchanger/simulation/web', 'My courses'],
+    ['/student/experiments/shell-and-tube-heat-exchanger/feedback/vr', 'My courses'],
+    ['/institute/requests', 'Requests'],
+    ['/institute/requests/REQ-0058', 'Requests › REQ-0058'],
+    ['/institute/requests/devices/DTR-0018', 'Requests › Device requests › DTR-0018'],
+    ['/institute/usage', 'Usage'],
+    ['/admin/operations/device-transfers', 'Operations'],
+    ['/admin/operations/device-transfers/DTR-0018', 'Operations › DTR-0018'],
+  ])('Phase 3: %s is “%s”', (path, words) => {
+    expect(placeWordsOf(path)).toBe(words);
   });
 
   it('a record segment that is not a reference names the list alone', () => {

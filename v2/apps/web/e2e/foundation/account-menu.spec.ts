@@ -14,8 +14,8 @@ import {
 /**
  * XS-05 Account menu in the real shell (Appendix F WP-0.13 acceptance 5; boards 05, 06, 12): the
  * name, role and organisation lines of board 06 for each role; Help to that role's Help page (a
- * client-side navigation, same world); keyboard and focus as board 12 draws them; no "My device"
- * (ST-18 is not built), no switcher, no sign-in form; "Sign out" runs the session service, clears
+ * client-side navigation, same world); keyboard and focus as board 12 draws them; "My device" for
+ * the Student who holds VR only (ST-18, Phase 3), no switcher, no sign-in form; "Sign out" runs the session service, clears
  * the query cache and leaves with `reason=signed-out`.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
@@ -31,12 +31,25 @@ for (const entry of ROLES) {
     const menu = page.locator(`#${await button.getAttribute('aria-controls')}`);
     const lines = ACCOUNT_LINES[entry.role].replace('Account menu: ', '').split(', ');
     await expect(menu.locator('.xr-menu-head > span')).toHaveText(lines);
-    await expect(menu.locator('a, button')).toHaveText(['Help', 'Sign out']);
+    // "My device" only for the Student, who holds VR here (ST-18 is built since Phase 3; B3-07 f1).
+    const device = entry.role === 'student';
+    await expect(menu.locator('a, button')).toHaveText([
+      ...(device ? ['My device'] : []),
+      'Help',
+      'Sign out',
+    ]);
     await expect(menu.getByRole('link', { name: 'Help' })).toHaveAttribute(
       'href',
       `${entry.base}/help`,
     );
-    await expect(menu).not.toContainText('My device');
+    if (device) {
+      await expect(menu.getByRole('link', { name: 'My device' })).toHaveAttribute(
+        'href',
+        '/student/device',
+      );
+    } else {
+      await expect(menu).not.toContainText('My device');
+    }
   });
 }
 

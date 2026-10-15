@@ -1,7 +1,7 @@
 /**
  * IA-01's view rules (B2-01): every attention fact the contract names becomes the drawn row — its
- * icon, tone, words and one action — and a row whose page is not built in Package 2A keeps its
- * words with no action (state-copy `IA-01.not-rendered`); the header's actions follow the status.
+ * icon, tone, words and one action — "Request renewal" opening Requests since Phase 3 (IA-17);
+ * the header's actions follow the status.
  */
 import type { InstituteAttention } from '@xr/contracts/draft';
 import { describe, expect, it } from 'vitest';
@@ -53,14 +53,14 @@ describe('attentionRows (B2-01 f0, f3, f4, f5, f7)', () => {
         'wait',
         'Access plan ACC-0107 ends in 15 days',
         'Ends 7 Oct 2027 · renewal reminder due',
-        null,
+        { href: '/institute/requests', label: 'Request renewal' },
       ],
       [
         'notAvailable',
         null,
         'Access plan ACC-0107 has ended',
         'Ended 7 Oct 2027 · students can’t open its experiments now',
-        null,
+        { href: '/institute/requests', label: 'Request renewal' },
       ],
       [
         'clock',

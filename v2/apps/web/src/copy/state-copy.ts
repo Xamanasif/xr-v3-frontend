@@ -9,14 +9,21 @@
  * The screens read their words from here, so the register and the product cannot drift apart.
  * Later phases add their screens' entries (Appendix F §9).
  */
-import { STATE_COPY_PACKAGE_2B } from './state-copy-package-2b';
+import { STATE_COPY_DEVICE } from './state-copy-device';
 import { STATE_COPY_FACULTY } from './state-copy-faculty';
+import { STATE_COPY_FORMATS } from './state-copy-formats';
 import { STATE_COPY_GROUPS } from './state-copy-groups';
 import { STATE_COPY_IMPORT } from './state-copy-import';
 import { STATE_COPY_INSTITUTE_HOME } from './state-copy-institute-home';
+import { STATE_COPY_INSTITUTE_REQUESTS } from './state-copy-institute-requests';
+import { STATE_COPY_LEARNING_HUB } from './state-copy-learning-hub';
+import { STATE_COPY_OPERATIONS } from './state-copy-operations';
+import { STATE_COPY_PACKAGE_2B } from './state-copy-package-2b';
 import { STATE_COPY_PEOPLE } from './state-copy-people';
+import { STATE_COPY_PROGRESS_FEEDBACK } from './state-copy-progress-feedback';
 import { STATE_COPY_STUDENT } from './state-copy-student';
 import { STATE_COPY_STUDENT_ACCESS } from './state-copy-student-access';
+import { STATE_COPY_USAGE } from './state-copy-usage';
 
 /**
  * `drawn` = on a board (cited); `provisional` = written to a board formula or chosen as an interim,
@@ -72,7 +79,23 @@ export interface StateCopyEntry {
     | 'ST-03'
     | 'ST-04'
     | 'ST-05'
-    | 'ST-19';
+    | 'ST-19'
+    // Phase 3.
+    | 'ST-06'
+    | 'ST-07'
+    | 'ST-08'
+    | 'ST-09'
+    | 'ST-10'
+    | 'ST-15'
+    | 'ST-16'
+    | 'ST-17'
+    | 'ST-18'
+    | 'IA-17'
+    | 'IA-18'
+    | 'IA-19'
+    | 'IA-20'
+    | 'SA-18'
+    | 'SA-19';
   /** The state, as the screen reaches it. */
   readonly state: string;
   /** The words shown; `null` where the entry is a rule rather than words. */
@@ -1024,11 +1047,11 @@ const PHASE_1_AND_EARLIER = {
     screen: 'SA-07',
     state: '“Needs attention”: device transfers and access ending',
     words: null,
-    rule: 'Not listed in Phase 1: a forwarded device transfer (“DTR-0018 — device transfer forwarded …” → Operations) arrives with the Phase-3 device chain, an access-ending reminder (“Access ends 2 Nov 2026 — reminder due …” → Operations › Access ending) with Phase 6; neither destination is built.',
+    rule: 'Phase 3: each device transfer of the institution forwarded to BITS and not yet approved is a row after the institution’s requests and before the pause, newest first — “<reference> — device transfer forwarded on <date>” (B7-03 “DTR-0018 — device transfer forwarded on 23 Oct 2026”) — and opens Operations › Device transfers (SA-18) under the drawn “Operations”. A transfer still with the institution or approved is not listed. An access-ending reminder (“Access ends 2 Nov 2026 — reminder due …” → Operations › Access ending) arrives with Phase 6: its destination (SA-22) is not built, so the row is not rendered.',
     basis:
-      'B7-03 `att` (godavari, konark); B8-06 phases 3 and 6; owner P0-35 built-screen navigation',
+      'B7-03 `att` (godavari, konark); OperationsService `listDeviceTransfers({ state: forwarded })`; B8-06 phases 3 and 6; owner P0-35 built-screen navigation',
     status: 'provisional',
-    decisions: ['P0-35'],
+    decisions: ['P0-35', 'DEV-21'],
   },
   'SA-07.history': {
     screen: 'SA-07',
@@ -1116,6 +1139,14 @@ export const STATE_COPY = {
   ...STATE_COPY_FACULTY,
   ...STATE_COPY_IMPORT,
   ...STATE_COPY_PACKAGE_2B,
+  // Phase 3: one file per screen group.
+  ...STATE_COPY_LEARNING_HUB,
+  ...STATE_COPY_FORMATS,
+  ...STATE_COPY_PROGRESS_FEEDBACK,
+  ...STATE_COPY_DEVICE,
+  ...STATE_COPY_INSTITUTE_REQUESTS,
+  ...STATE_COPY_USAGE,
+  ...STATE_COPY_OPERATIONS,
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;
 
 export type StateCopyId = keyof typeof STATE_COPY;

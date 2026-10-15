@@ -738,7 +738,7 @@ describe('IA-05 — failure, refusals and the empty states (B2-05 f12, f14–f17
     );
   });
 
-  it('access plan ended (f16): its id and end date; Content access — no Request renewal (IA-17 is not built)', async () => {
+  it('access plan ended (f16): its id and end date; Request renewal (IA-17 since Phase 3) and Content access', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-b');
     setSampleNow(sample, unsafeBrand<IsoInstant>('2027-10-20T04:30:00.000Z'));
     showGiveAccess(runtime);
@@ -750,7 +750,11 @@ describe('IA-05 — failure, refusals and the empty states (B2-05 f12, f14–f17
       'href',
       '/institute/content-access',
     );
-    expect(screen.queryByRole('link', { name: 'Request renewal' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Request renewal' })).toHaveAttribute(
+      'href',
+      '/institute/requests',
+    );
+    expect(screen.getByRole('link', { name: 'Request renewal' })).toHaveClass('xr-btn--primary');
   });
 
   it('a step’s address without its choices goes back to the first step not complete', async () => {

@@ -23,11 +23,16 @@ import {
   giveAccessAddress,
   OVERVIEW_TITLE,
 } from '@/nav/institute';
+import { REQUEST_ACTIONS } from '@/copy/institute-requests';
+import { instituteRequestAddress } from '@/nav/institute-requests';
+import { useDeviceRequests } from '@/queries/devices';
 import { useInstituteOverview } from '@/queries/institute-home';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import { InstituteStatusPill, LoadFailed } from '../ia-02-content-access/institute-parts';
-import { attentionRows, headerActions } from './overview-view';
+import { newestFirst, studentOf } from '../ia-18-device-requests/transfer-view';
+import { useStudentNames } from '../ia-18-device-requests/use-student-names';
+import { attentionRows, headerActions, type WaitingDeviceRequests } from './overview-view';
 
 /**
  * IA-01 Overview — board B2-01 ("What needs my attention at my institution?"), at `/institute`:
@@ -42,15 +47,19 @@ import { attentionRows, headerActions } from './overview-view';
  *   f3 ending soon, f4 ended, f5 paused), the header's actions per state, the rows in the
  *   service's order with one action each, the calm state (f2) and "No content yet" before access
  *   is active (f1; not reachable in the sample world — an Institute Admin is assigned only once
- *   access is active, INST-04). A row whose action opens a screen not built in Package 2A keeps
- *   its words and draws no action (state-copy `IA-01.not-rendered`).
+ *   access is active, INST-04). A row whose action opens a screen not built yet keeps its words
+ *   and draws no action (state-copy `IA-01.not-rendered`). Phase 3: "Request renewal" opens
+ *   Requests (IA-17), "View request status" the request's detail, and the device requests
+ *   waiting on the Institute Admin (`OperationsService.listDeviceRequests`) add f7's row, which
+ *   opens Device requests (IA-18; state-copy `IA-01.device-row`, P3-07).
  * - Nothing here changes a record: every action opens the page where it is handled.
  */
 export function InstituteOverview() {
   useShellPage(destinationPlacement('IA-01'));
   const overview = useInstituteOverview();
+  const devices = useWaitingDeviceRequests();
   const answer = overview.data?.ok ? overview.data.value : null;
-  const loading = !overview.isError && overview.isPending;
+  const loading = !overview.isError && (overview.isPending || devices.pending);
 
   if (overview.isError || (overview.data && !overview.data.ok)) {
     return (
@@ -83,10 +92,47 @@ export function InstituteOverview() {
     );
   }
 
-  return <OverviewPage overview={answer} />;
+  return <OverviewPage overview={answer} devices={devices.waiting} />;
 }
 
-function OverviewPage({ overview }: { readonly overview: MyOverview }) {
+/**
+ * The device requests waiting on the Institute Admin, with the newest one's student (B2-01 f7
+ * "From Imran Shaikh · 18 Sep 2027"). A failed read draws no row rather than failing the overview.
+ */
+function useWaitingDeviceRequests(): {
+  readonly waiting: WaitingDeviceRequests | null;
+  readonly pending: boolean;
+} {
+  const requests = useDeviceRequests('with-institute-admin');
+  const students = useStudentNames();
+  const answer = requests.data;
+  if (!answer || students.pending) {
+    return {
+      waiting: null,
+      pending: !requests.isError && (requests.isPending || students.pending),
+    };
+  }
+  const newest = answer.ok ? newestFirst(answer.value)[0] : undefined;
+  if (!answer.ok || !newest) return { waiting: null, pending: false };
+  return {
+    waiting: {
+      count: answer.value.length,
+      newest: {
+        student: studentOf(newest, students.byId).fullName,
+        requestedAt: newest.requestedAt,
+      },
+    },
+    pending: false,
+  };
+}
+
+function OverviewPage({
+  overview,
+  devices,
+}: {
+  readonly overview: MyOverview;
+  readonly devices: WaitingDeviceRequests | null;
+}) {
   const actions = headerActions(overview.status);
   const reference = overview.institution.createdFromRequestId;
   return (
@@ -121,7 +167,7 @@ function OverviewPage({ overview }: { readonly overview: MyOverview }) {
       {overview.status === 'approved-payment-required' ? (
         <NoContentYet reference={reference} />
       ) : (
-        <Attention overview={overview} />
+        <Attention overview={overview} devices={devices} />
       )}
     </PageContent>
   );
@@ -149,9 +195,15 @@ function statusLine(overview: MyOverview): string {
 }
 
 /** B2-01 "Needs your attention": the rows (f0, f3 … f7) or the calm state (f2). */
-function Attention({ overview }: { readonly overview: MyOverview }) {
+function Attention({
+  overview,
+  devices,
+}: {
+  readonly overview: MyOverview;
+  readonly devices: WaitingDeviceRequests | null;
+}) {
   const headingId = useId();
-  const rows = attentionRows(overview.attention);
+  const rows = attentionRows(overview.attention, devices);
   return (
     <section className="xr-section" aria-labelledby={headingId}>
       <div className="xr-section-head">
@@ -187,7 +239,8 @@ function Attention({ overview }: { readonly overview: MyOverview }) {
 
 /**
  * B2-01 f1 "Institution approved · access not active": no content and no Give access until the
- * payment is confirmed. "View request status" (PU-10 from the workspace) is not built in 2A.
+ * payment is confirmed. "View request status" opens the request's detail in Requests (IA-17,
+ * Phase 3; the board's B1-08 is the requester's public view of the same record).
  */
 function NoContentYet({ reference }: { readonly reference: string }) {
   const headingId = useId();
@@ -204,6 +257,11 @@ function NoContentYet({ reference }: { readonly reference: string }) {
         </span>
         <h3 className="xr-h3 m-0">{approvedTitle(reference)}</h3>
         <p className="xr-body m-0 text-ink-2">{OVERVIEW_WORDS.approvedLine}</p>
+        <div className="flex flex-wrap gap-3">
+          <Link className="xr-btn xr-btn--secondary" href={instituteRequestAddress(reference)}>
+            {REQUEST_ACTIONS.viewRequestStatus}
+          </Link>
+        </div>
       </div>
     </section>
   );

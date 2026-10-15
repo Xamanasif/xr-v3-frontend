@@ -799,4 +799,16 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'Remove the adapter check and the keys once T-11 decides how one person holds several roles or institutions (invitation, account linking or a shared identity).',
   },
+  {
+    id: 'PC-50',
+    subject:
+      'The requester’s view of a request carries the requester’s own message as sent (`requesterRequestView.message`, `null` when none) — IA-17’s request detail shows it as “Message to BITS”',
+    status: 'provisional-engineering',
+    source:
+      'B3-08 f4 “What you asked for” (“Message to BITS · “Sem II has a larger batch than planned.””); Appendix C’s requester view has no message. Built in Phase 3',
+    decisions: [],
+    trace: [{ kind: 'schema-field', schema: 'requesterRequestView', path: 'message' }],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Drop the field; IA-17’s detail then shows no “Message to BITS” row.',
+  },
 ];

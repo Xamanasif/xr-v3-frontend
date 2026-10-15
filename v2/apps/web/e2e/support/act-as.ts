@@ -149,7 +149,7 @@ export async function switchIdentity(page: Page, person: SamplePerson): Promise<
 async function callHook<Result>(
   page: Page,
   helper: string,
-  hook: 'startReview' | 'planPayment' | 'reportPayment',
+  hook: 'startReview' | 'planPayment' | 'reportPayment' | 'reportRuntime',
   args: readonly unknown[],
 ): Promise<Result> {
   if (!(await bridgeOf(page))) throw unavailable(helper);
@@ -198,4 +198,35 @@ export async function reportPayment(
   outcome: 'confirmed' | 'failed',
 ): Promise<{ readonly ok: boolean }> {
   return callHook(page, 'reportPayment', 'reportPayment', [reference, outcome]);
+}
+
+/** What the sample runtime reports for a Student's format (Phase 3; CI/Playwright builds only). */
+export interface RuntimeReport {
+  readonly person: SamplePerson;
+  readonly experimentId: string;
+  readonly format: 'web' | 'ar' | 'vr' | 'mr';
+  /** Activity (`opened`, `saved`, `session`) or the completion (`completed`). */
+  readonly kind: 'opened' | 'saved' | 'session' | 'completed';
+  /** Where a completion is reported from (default: the simulation for WEB, the headset else). */
+  readonly from?: 'simulation' | 'headset';
+}
+
+/**
+ * T-12 / P3-01 open, ADR-0006 (Phase 3; CI/Playwright builds only): the sample runtime's own
+ * report, written by `system:runtime-report` with sample provenance at the world's sample "now" —
+ * the ONLY way a browser test reaches "In progress" or "Completed". No product control, launch,
+ * resource, page or time writes either, and product builds do not contain this seam. The page's
+ * learning reads are refreshed.
+ */
+export async function reportRuntime(page: Page, report: RuntimeReport): Promise<void> {
+  assertSamplePerson(report.person);
+  await callHook(page, 'reportRuntime', 'reportRuntime', [
+    {
+      personId: report.person.personId,
+      experimentId: report.experimentId,
+      format: report.format,
+      kind: report.kind,
+      ...(report.from ? { from: report.from } : {}),
+    },
+  ]);
 }

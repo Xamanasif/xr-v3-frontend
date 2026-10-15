@@ -76,14 +76,16 @@ describe('XS-05 "Sign out"', () => {
     expect(runtime.queryClient.getQueryCache().getAll().length).toBeGreaterThan(0);
 
     const button = screen.getByRole('button', { name: /^Account menu: Rahul Verma, Student/ });
+    // Rahul holds VR (Phase 3: ST-18 is built): "My device" joins once the shell's reads answer.
+    await waitFor(() => expect(runtime.queryClient.isFetching()).toBe(0));
     await user.click(button);
     const menu = document.getElementById(button.getAttribute('aria-controls')!)!;
-    // Board 06: Help · Sign out — no "My device" (ST-18 not built), no switcher.
+    // Board 06: My device* · Help · Sign out — no switcher.
     expect(
       within(menu)
         .getAllByRole('link')
         .map((link) => link.textContent),
-    ).toEqual(['Help']);
+    ).toEqual(['My device', 'Help']);
     expect(within(menu).getByRole('link', { name: 'Help' })).toHaveAttribute(
       'href',
       '/student/help',

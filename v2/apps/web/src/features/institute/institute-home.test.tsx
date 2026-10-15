@@ -213,7 +213,7 @@ describe('IA-01 — the status line, actions and attention rows are the port’s
     expect(main().querySelector('.xw-statusline')).toHaveTextContent('Access active');
   });
 
-  it('ending soon: the 15-day reminder is a state; “Request renewal” is not drawn (B2-01 f3)', async () => {
+  it('ending soon: the 15-day reminder is a state; “Request renewal” opens Requests (B2-01 f3; IA-17 since Phase 3)', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-b');
     moveClock(sample, ENDING_SOON);
     inInstitute(runtime, '/institute', <InstituteOverview />);
@@ -226,8 +226,9 @@ describe('IA-01 — the status line, actions and attention rows are the port’s
     const first = region.querySelector('li.xr-row')!;
     expect(text(first.querySelector('.xr-row-title'))).toBe('Access plan ACC-0107 ends in 15 days');
     expect(text(first.querySelector('.xr-row-sub'))).toBe('Ends 7 Oct 2027 · renewal reminder due');
-    expect(first.querySelector('a')).toBeNull();
-    expect(main()).not.toHaveTextContent('Request renewal');
+    expect(
+      within(first as HTMLElement).getByRole('link', { name: 'Request renewal' }),
+    ).toHaveAttribute('href', '/institute/requests');
     for (const words of [
       'Access plan ACC-0107 · 120 licences · ends 7 Oct 2027 — 15 days left',
       'Access plan ACC-0107 ends in 15 days',
@@ -253,7 +254,11 @@ describe('IA-01 — the status line, actions and attention rows are the port’s
     expect(text(region.querySelector('.xr-row-sub'))).toBe(
       'Ended 7 Oct 2027 · students can’t open its experiments now',
     );
-    expect(region.querySelector('li.xr-row a')).toBeNull();
+    // Phase 3: "Request renewal" opens Requests (IA-17).
+    expect(within(region).getByRole('link', { name: 'Request renewal' })).toHaveAttribute(
+      'href',
+      '/institute/requests',
+    );
     expect(screen.getByRole('link', { name: 'Add students' })).toBeVisible();
     expect(screen.queryByRole('link', { name: 'Give students access' })).toBeNull();
     expect(B2_01).toContain('Access plan ACC-0107 ended on 7 Oct 2027');
@@ -475,7 +480,11 @@ describe('IA-02 — what BITS has given, per plan and experiment (B2-02 f0, f2)'
     expect(notice).toHaveClass('xr-notice--warn');
     expect(notice).toHaveTextContent('Ends on 7 Oct 2027');
     expect(notice).toHaveTextContent('Renewal reminder due. Ask BITS for a renewal from Requests.');
-    expect(within(notice).queryByRole('link')).toBeNull();
+    // Phase 3: "Request renewal" opens Requests (IA-17).
+    expect(within(notice).getByRole('link', { name: 'Request renewal' })).toHaveAttribute(
+      'href',
+      '/institute/requests',
+    );
     expect(section.querySelector('tbody .xr-status--wait')).toHaveTextContent('Ending soon');
     expect(within(section).getByRole('link', { name: /^Give students access to/ })).toBeVisible();
     expect(B2_02).toContain('120 licences · Yearly · 8 Oct 2026 – 7 Oct 2027 · 15 days left');
@@ -582,7 +591,11 @@ describe('IA-03 — what BITS gave and who has it (B2-03 f0, f1)', () => {
     const meta = main().querySelector('.xr-phead-meta')!;
     expect(meta.querySelector('.xr-status--ok')).toHaveTextContent('Active');
     expect(meta).toHaveTextContent('From request REQ-0042');
-    expect(within(meta as HTMLElement).queryByRole('link')).toBeNull();
+    // Phase 3: the reference opens the request's detail in Requests (IA-17).
+    expect(within(meta as HTMLElement).getByRole('link', { name: 'REQ-0042' })).toHaveAttribute(
+      'href',
+      '/institute/requests/REQ-0042',
+    );
     expect(meta).toHaveTextContent('Active since 8 Oct 2026, 15:05');
     expect(
       within(main().querySelector('.xr-phead-actions') as HTMLElement).getByRole('link', {
@@ -610,7 +623,12 @@ describe('IA-03 — what BITS gave and who has it (B2-03 f0, f1)', () => {
     expect([...cells[2]!.querySelectorAll('.xr-fmt--off')].map((chip) => chip.textContent)).toEqual(
       ['AR'],
     );
-    expect(gave).not.toHaveTextContent('Ask BITS from Requests');
+    // Phase 3: "Need more, or a renewal? Ask BITS from Requests" opens Requests (IA-17).
+    expect(gave).toHaveTextContent('Need more, or a renewal? Ask BITS from Requests');
+    expect(within(gave).getByRole('link', { name: 'Ask BITS from Requests' })).toHaveAttribute(
+      'href',
+      '/institute/requests',
+    );
     const given = regionNamed('Students you’ve given access');
     expect(within(given).getByRole('heading', { level: 3 })).toHaveTextContent(
       'You haven’t given anyone access yet',
@@ -728,7 +746,10 @@ describe('IA-03 — ending soon, ended and paused (B2-03 f2, f3, f4)', () => {
     expect(notice).toHaveTextContent(
       'Students can’t open its experiments now. Your records stay here.',
     );
-    expect(notice.querySelector('a')).toBeNull();
+    // Phase 3: "Request renewal" opens Requests (IA-17).
+    expect(
+      within(notice as HTMLElement).getByRole('link', { name: 'Request renewal' }),
+    ).toHaveAttribute('href', '/institute/requests');
     expect(
       regionNamed('Students you’ve given access').querySelector('tbody .xr-status--off'),
     ).toHaveTextContent('Access ended');

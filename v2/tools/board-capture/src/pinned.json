@@ -219,6 +219,16 @@
     "pixels": 762,
     "run": ".runs/2026-10-15T13-44-05-918Z-web"
   },
+  "05-institute-admin-help-built-sidebar-phase-3": {
+    "deviations": ["DEV-21", "DEV-43"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": true,
+    "productFingerprint": "3c6e1139d7622a71854e28558e27e1eb2a0236535d9818bdce9d7b5d3440f09c",
+    "productContent": "72a2488651fddb669d721a36571361f6df4203ea1c220493a5fd6e3f049122a7",
+    "pixels": 373,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
   "05-student-help-built-help-header": {
     "deviations": ["DEV-15"],
     "reference": "1040×76",
@@ -249,6 +259,16 @@
     "pixels": 490,
     "run": ".runs/2026-10-15T13-44-05-918Z-web"
   },
+  "05-student-help-built-sidebar-phase-3": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "1a2512aa99ea5a1069d434640cee0f0e89f4bcea1f2ae8b63195e8d14b092353",
+    "productContent": "8224c9643ba80122f6b4c05b5a22a79cb4434cfe830378713b768c6f6ec8d1bf",
+    "pixels": 664,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
   "05-super-admin-help-built-help-header": {
     "deviations": ["DEV-15", "DEV-11"],
     "reference": "1040×76",
@@ -278,6 +298,16 @@
     "productContent": "1e6eb624029856b6e02d30f7278b4ee1a085f928efd66cf607f1fac92234f882",
     "pixels": 984,
     "run": ".runs/1d-web-e"
+  },
+  "05-super-admin-help-built-sidebar-phase-3": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "99695fb8470904130832b84b26c4c28e766edc5a60ab7f987de8f4847a7d0f19",
+    "productContent": "0495ffbb13606072b1ec7e2d1140153b7744358545adbe1826d4d88a24284dd0",
+    "pixels": 1118,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
   },
   "05-vendor-help-built-help-header": {
     "deviations": ["DEV-15", "DEV-11"],
@@ -349,6 +379,16 @@
     "pixels": 500,
     "run": ".runs/2026-10-15T13-44-05-918Z-web"
   },
+  "07-f0-state-1-report-a-problem-sidebar-phase-3": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "1a2512aa99ea5a1069d434640cee0f0e89f4bcea1f2ae8b63195e8d14b092353",
+    "productContent": "8224c9643ba80122f6b4c05b5a22a79cb4434cfe830378713b768c6f6ec8d1bf",
+    "pixels": 674,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
   "07-f0-state-1-report-a-problem-whole-frame": {
     "deviations": ["DEV-10"],
     "reference": "1280×900",
@@ -369,6 +409,16 @@
     "pixels": 454,
     "run": ".runs/2026-10-15T13-44-05-918Z-web"
   },
+  "07-f0-state-1-report-a-problem-whole-frame-phase-3": {
+    "deviations": ["DEV-21"],
+    "reference": "1280×900",
+    "product": "1280×900",
+    "iconsSame": false,
+    "productFingerprint": "7fe93b104b0ef8493f3e7aef2ee21e890bb8ac652281d0e04ae19e43f5804f0e",
+    "productContent": "9c3ddc55add2b7959f5d78fe42b7714c8e2dcd54e7a486a09354d360a7ba86ec",
+    "pixels": 590,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
   "07-f1-state-1a-validation-sidebar": {
     "deviations": ["DEV-10", "DEV-12"],
     "reference": "248×964",
@@ -388,6 +438,16 @@
     "productContent": "ac3822079a4e0ff077fdb3a834c54822d18943aade33242b3b007f8b0c550d4f",
     "pixels": null,
     "run": ".runs/2026-10-15T13-44-05-918Z-web"
+  },
+  "07-f1-state-1a-validation-sidebar-phase-3": {
+    "deviations": ["DEV-21", "DEV-12"],
+    "reference": "248×964",
+    "product": "248×968",
+    "iconsSame": false,
+    "productFingerprint": "0a5aaaf538d0dbbcff07cd804a897ade69fafa114027ad571054c4789d73456a",
+    "productContent": "8224c9643ba80122f6b4c05b5a22a79cb4434cfe830378713b768c6f6ec8d1bf",
+    "pixels": null,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
   },
   "07-f1-state-1a-validation-summary": {
     "deviations": ["DEV-12"],
@@ -418,6 +478,16 @@
     "productContent": "59a873d0b691b9f935540623de0848b9da2b60584aeb45ccf9819dc7edadeb7e",
     "pixels": null,
     "run": ".runs/2026-10-15T13-44-05-918Z-web"
+  },
+  "07-f1-state-1a-validation-whole-frame-phase-3": {
+    "deviations": ["DEV-21", "DEV-12"],
+    "reference": "1280×964",
+    "product": "1280×968",
+    "iconsSame": false,
+    "productFingerprint": "0e742c5037d3fc8af2931da6b02340b0cdcb06f63b27978de0937420f96508e9",
+    "productContent": "c373774bfdfb5eea4c3beb156cf86aa65b6928053f51d750fdc1293d5ecac673",
+    "pixels": null,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
   },
   "07-f2-state-1b-sending-actions": {
     "deviations": ["DEV-01"],
@@ -459,6 +529,16 @@
     "pixels": 500,
     "run": ".runs/2026-10-15T13-44-05-918Z-web"
   },
+  "07-f3-state-1c-sent-sidebar-phase-3": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "1a2512aa99ea5a1069d434640cee0f0e89f4bcea1f2ae8b63195e8d14b092353",
+    "productContent": "8224c9643ba80122f6b4c05b5a22a79cb4434cfe830378713b768c6f6ec8d1bf",
+    "pixels": 674,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
   "07-f3-state-1c-sent-whole-frame": {
     "deviations": ["DEV-10", "DEV-11"],
     "reference": "1280×900",
@@ -478,6 +558,16 @@
     "productContent": "6f55e68e3f93781514f1b5355cb7bfb781ccc30145095a5f9a09bcc75bfc134c",
     "pixels": 479,
     "run": ".runs/2026-10-15T13-44-05-918Z-web"
+  },
+  "07-f3-state-1c-sent-whole-frame-phase-3": {
+    "deviations": ["DEV-21", "DEV-11"],
+    "reference": "1280×900",
+    "product": "1280×900",
+    "iconsSame": false,
+    "productFingerprint": "19023db0311e6017eb0c3e9b250e527d0bfb7dc08e871a3ad662e4d64e8f95cf",
+    "productContent": "1e4d7ce79f61cfda20187df58430476781746898abaa84ec8c802f35919af968",
+    "pixels": 615,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
   },
   "07-f4-state-2-my-reports-institute-admin-sidebar": {
     "deviations": ["DEV-17"],
@@ -1089,6 +1179,16 @@
     "pixels": null,
     "run": ".runs/1d-web-e"
   },
+  "b1-10-f0-sidebar-phase-3": {
+    "deviations": ["DEV-21", "DEV-22"],
+    "reference": "248×1087",
+    "product": "248×1324",
+    "iconsSame": false,
+    "productFingerprint": "7e77e3b154159f83326df3151f3431b5f84c610e9f9246de49aaafaa7a9dc35b",
+    "productContent": "d068f40c3e36d7ea8eac7c3ccd8b350d7181b0ed47ea34b1903f81f8f8950d11",
+    "pixels": null,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
   "b1-10-f0-table": {
     "deviations": ["DEV-22"],
     "reference": "1112×669",
@@ -1118,6 +1218,16 @@
     "productContent": "d39efaff725d42f1952dd755877ab0b09cea5ae7f6252ee8d8ecc91d7e1feada",
     "pixels": null,
     "run": ".runs/1d-web-e"
+  },
+  "b1-10-f0-whole-frame-phase-3": {
+    "deviations": ["DEV-21", "DEV-22"],
+    "reference": "1440×1087",
+    "product": "1440×1324",
+    "iconsSame": false,
+    "productFingerprint": "febb92fa6802e8d42e0faf303de02d5d5ae99b4887a7d54ef90fe123961d1b5f",
+    "productContent": "a01cc52a29ef4e9909683b58071fb5aaaf5b8c1de24f01951f29dd4a9971c0af",
+    "pixels": null,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
   },
   "b1-11-f16-back-link": {
     "deviations": ["DEV-23"],
@@ -1199,6 +1309,16 @@
     "pixels": null,
     "run": ".runs/1d-web-e"
   },
+  "b7-01-f0-sidebar-phase-3": {
+    "deviations": ["DEV-21", "DEV-34"],
+    "reference": "248×2341",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "fc76ffcff157afb19fed0a25463669b1d70bd2bd6c4eb0787cb2dbfe9e5414c8",
+    "productContent": "01cb22240864196615395cbbd5109565e31fb7b87218f23e16f91cce71de4631",
+    "pixels": null,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
   "b7-01-f0-whole-frame": {
     "deviations": ["DEV-21", "DEV-22", "DEV-34", "DEV-35"],
     "reference": "1440×2341",
@@ -1208,6 +1328,16 @@
     "productContent": "ebf930b8a167ef34718758ae75f06f076503a3717a11da811411ca10b1b86f38",
     "pixels": null,
     "run": ".runs/1d-web-f"
+  },
+  "b7-01-f0-whole-frame-phase-3": {
+    "deviations": ["DEV-21", "DEV-22", "DEV-34", "DEV-35"],
+    "reference": "1440×2341",
+    "product": "1440×900",
+    "iconsSame": false,
+    "productFingerprint": "110b5493a70f92513a692e94017c877dc5c79f209d8c7aa22de5ee3e52e206a3",
+    "productContent": "66ce06191bf99bffec0cb357ee8c735aa313e4d46fdbd56e050da7440b60f405",
+    "pixels": null,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
   },
   "b7-01-f1-calm": {
     "deviations": ["DEV-35"],
@@ -1259,6 +1389,16 @@
     "pixels": 998,
     "run": ".runs/1d-web-e"
   },
+  "b7-02-f0-sidebar-phase-3": {
+    "deviations": ["DEV-21"],
+    "reference": "248×1115",
+    "product": "248×1115",
+    "iconsSame": false,
+    "productFingerprint": "8933ab6cc7b2da973cf013e15633339ca43925e9caf586949d62228c4f7fa222",
+    "productContent": "5bd9fca78dd55d40939c8bc86cf148f5eec2158087e3eb87a5a8b40b489a33de",
+    "pixels": 1132,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
   "b7-02-f0-table": {
     "deviations": ["DEV-37"],
     "reference": "1110×568",
@@ -1278,6 +1418,16 @@
     "productContent": "bfb4210e7e2aaf44c176c19f8c72b493cd7f0badbf614b56724908d08721f790",
     "pixels": 16387,
     "run": ".runs/1d-web-e"
+  },
+  "b7-02-f0-whole-frame-phase-3": {
+    "deviations": ["DEV-21", "DEV-36", "DEV-37"],
+    "reference": "1440×1115",
+    "product": "1440×1115",
+    "iconsSame": false,
+    "productFingerprint": "8b46c1c6e9529a1476a9aaa6574c68ab793c5d50d5a41e1e4e3af6770ece6faa",
+    "productContent": "ce637122022a483b31def6508573ca93844be2689038e669c4ec1109fb743153",
+    "pixels": 16482,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
   },
   "b7-03-f0-actions": {
     "deviations": ["DEV-42"],
@@ -1339,6 +1489,16 @@
     "pixels": null,
     "run": ".runs/1d-web-e"
   },
+  "b7-03-f0-sidebar-phase-3": {
+    "deviations": ["DEV-21", "DEV-38", "DEV-40"],
+    "reference": "248×2991",
+    "product": "248×2858",
+    "iconsSame": false,
+    "productFingerprint": "da54df722d5356a0a171a03dcdbda28a399d912e0523eb4e4287b3907b80ef72",
+    "productContent": "5bd9fca78dd55d40939c8bc86cf148f5eec2158087e3eb87a5a8b40b489a33de",
+    "pixels": null,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
   "b7-03-f0-whole-frame": {
     "deviations": ["DEV-21", "DEV-36", "DEV-38", "DEV-39", "DEV-40", "DEV-41"],
     "reference": "1440×2991",
@@ -1348,6 +1508,16 @@
     "productContent": "c836ed4c2c016ac0f5e2d65a7edd80e7b23d0decd14bb4de4dd9041d51f12d87",
     "pixels": null,
     "run": ".runs/1d-web-e"
+  },
+  "b7-03-f0-whole-frame-phase-3": {
+    "deviations": ["DEV-21", "DEV-36", "DEV-38", "DEV-39", "DEV-40", "DEV-41"],
+    "reference": "1440×2991",
+    "product": "1440×2858",
+    "iconsSame": false,
+    "productFingerprint": "15c05a0dab829ab6654b3461c8e88475275f9c07686e6940ae73399de6266357",
+    "productContent": "29844e0831a755ecb17df88127b839cc478ea21192aeae4f13007957d986b934",
+    "pixels": null,
+    "run": ".runs/2026-10-15T18-54-19-693Z-web"
   },
   "b7-03-f1-actions": {
     "deviations": ["DEV-42"],

@@ -285,8 +285,8 @@ describe('after SACC-0310 — Rahul on after-flow-b (B2-10 f1, f9; B2-11 f0, f1,
     );
     const cards = [...main().querySelectorAll('.xw-scard')].map((card) => card.textContent);
     expect(cards).toEqual([
-      'Step 1 of 3Resources3 resources · none opened yet.',
-      'Step 2 of 3SimulationWEB and VR are available to you. WEB not started · VR not started.',
+      'Step 1 of 3Resources3 resources · none opened yet.Open resources',
+      'Step 2 of 3SimulationWEB and VR are available to you. WEB not started · VR not started.Choose a format',
       'Step 3 of 3AssessmentYour faculty hasn’t set an assessment for this experiment yet.Nothing to do here yet.',
     ]);
     expect(main()).toHaveTextContent(
@@ -302,12 +302,16 @@ describe('after SACC-0310 — Rahul on after-flow-b (B2-10 f1, f9; B2-11 f0, f1,
     const outcomes = screen.getByRole('region', { name: 'Learning outcomes' });
     expect(outcomes).toHaveTextContent('The same for every format.');
     expect(outcomes.querySelectorAll('li')).toHaveLength(2);
-    // Overview only: no tabs and no Phase-3/4 actions (DEV-21).
-    expect(main().querySelector('.xr-tabs')).toBeNull();
-    for (const action of ['Open resources', 'Choose a format', 'Continue WEB', 'Next step']) {
-      expect(main()).not.toHaveTextContent(action);
-    }
-    expect(within(main()).queryAllByRole('link')).toHaveLength(0);
+    // Phase 3: the tabs (no Assessment, Phase 4 — DEV-21), the Next step and the cards' actions
+    // lead to the built tabs (`ST-05.unbuilt`; the hub's own tests: learning-hub.test.tsx).
+    expect([...main().querySelectorAll('.xw-hubtabs a')].map((tab) => tab.textContent)).toEqual([
+      'Overview',
+      'Resources',
+      'Simulation',
+      'Progress',
+    ]);
+    expect(main()).toHaveTextContent('Next step: open the resources');
+    expect(within(main()).queryByRole('link', { name: /Assessment/ })).toBeNull();
     await waitFor(() => expect(topTitle()).toHaveTextContent(SHELL_NAME));
     const crumbs = document.querySelector('.xr-crumbs')!;
     expect(within(crumbs as HTMLElement).getByRole('link', { name: 'MEC-523' })).toHaveAttribute(
@@ -636,7 +640,7 @@ describe('view helpers', () => {
         progress: 'not-started',
       },
       { kind: 'assessment', experimentName: SHELL_NAME },
-      { kind: 'feedback', experimentName: SHELL_NAME, format: 'web' },
+      { kind: 'feedback', experimentId: SHELL, experimentName: SHELL_NAME, format: 'web' },
     ]);
   });
 

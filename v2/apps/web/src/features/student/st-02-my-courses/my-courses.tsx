@@ -42,7 +42,9 @@ import { courseRowKind } from '../shared/student-view';
  * - **Tabs** (Package 2B): "Courses · All experiments" (`nav.xr-tabs` "My courses", ordinary links);
  *   `?tab=experiments` shows ST-04 All experiments, any other `tab` shows Courses and the address
  *   becomes the bare `/student/courses` (state-copy `ST-04.tab-address`).
- * - **Not rendered**: "View earlier work" (Progress, ST-15).
+ * - **Not rendered**: "View earlier work" — Progress (ST-15) is built (Phase 3), but while
+ *   SACC-14 is open the service gives no earlier-work row to show there or anywhere
+ *   (`ST-02.earlier-rows`), so the action would lead to nothing.
  */
 export function MyCourses() {
   const navigation = useAppNavigation();

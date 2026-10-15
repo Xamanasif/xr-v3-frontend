@@ -58,10 +58,10 @@ export const STATE_COPY_INSTITUTE_HOME = {
     screen: 'IA-01',
     state: 'Attention rows and states whose drawn action opens a screen not built yet',
     words: null,
-    rule: 'The row keeps its icon, title and line; the action is not drawn: “Request renewal” (IA-17 / IA-18 Requests), “View request status” (PU-10 from the workspace). “Add course code” opens IA-16 Course codes since Package 2B. “Open requests” (device requests, DEV-17) and “View report” (problem reports, P2-11) belong to items the service does not produce until those decisions are taken (PC-38).',
+    rule: 'The row keeps its icon, title and line; the action is not drawn where its page is not built yet. “Add course code” opens IA-16 Course codes since Package 2B; since Phase 3 “Request renewal” opens Requests (IA-17), “View request status” the request’s detail in Requests, and the device-request row’s “Open requests” opens Device requests (IA-18; `IA-01.device-row`). “View report” (problem reports, P2-11) belongs to an item the service does not produce until that decision is taken (PC-38).',
     basis: 'DEV-21 interim (links to unbuilt screens are not rendered); B2-01 f1, f3, f4, f7',
     status: 'provisional',
-    decisions: ['DEV-21', 'DEV-17', 'P2-11'],
+    decisions: ['DEV-21', 'P2-11'],
   },
   // ---- IA-02 Content access (B2-02) ----
   'IA-02.filters': {
@@ -105,7 +105,7 @@ export const STATE_COPY_INSTITUTE_HOME = {
     screen: 'IA-02',
     state: 'Drawn controls that open screens not built yet',
     words: null,
-    rule: '“Request renewal” in the ending-soon and ended notices (IA-17 / IA-18) and “View request status” under “No content yet” (PU-10 from the workspace) are not drawn; the notices keep their words. The “Course codes” tab and the course group’s “Add code” open IA-16 since Package 2B.',
+    rule: '“View request status” under “No content yet” (PU-10 from the workspace) is not drawn. The “Course codes” tab and the course group’s “Add code” open IA-16 since Package 2B; “Request renewal” in the ending-soon and ended notices opens Requests (IA-17) since Phase 3.',
     basis: 'DEV-21 interim; B2-02 f0, f3, f4, f6',
     status: 'provisional',
     decisions: ['DEV-21'],
@@ -179,9 +179,9 @@ export const STATE_COPY_INSTITUTE_HOME = {
     screen: 'IA-03',
     state: 'Drawn links that open screens not built in Package 2A',
     words: null,
-    rule: '“From request REQ-0042” is plain text (PU-10 from the workspace is not built); the paragraph “Need more, or a renewal? Ask BITS from Requests” and the ended notice’s “Request renewal” are not drawn (IA-17 / IA-18 Requests).',
+    rule: 'None since Phase 3: “From request REQ-0042” opens the request’s detail in Requests (B2-03 links the public request status, B1-08; the workspace detail reads the same record, `IA-17.row-link`); “Ask BITS from Requests” and the ended notice’s “Request renewal” open Requests (IA-17).',
     basis: 'DEV-21 interim; B2-03 f0 … f5',
     status: 'provisional',
-    decisions: ['DEV-21'],
+    decisions: ['DEV-21', 'O-02'],
   },
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;

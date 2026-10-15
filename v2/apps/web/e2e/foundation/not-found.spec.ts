@@ -62,11 +62,13 @@ test.describe('workspace variant (test-hook build)', () => {
 
   // Designed but not built yet (each workspace's first unbuilt destination; the Super Admin's
   // Requests are built in Package 1A, Overview and Institutions in 1D; the Student's My courses and
-  // the Institute Admin's People in 2A), then unknown ones.
+  // the Institute Admin's People in 2A; Progress, Requests, Usage and Operations in Phase 3 — the
+  // Institute Admin has no unbuilt destination left, so an undesigned address stands in), then
+  // unknown ones.
   const UNBUILT: Readonly<Record<string, string>> = {
-    student: '/student/progress',
+    student: '/student/assessments',
     faculty: '/faculty/marking',
-    tenant_admin: '/institute/requests',
+    tenant_admin: '/institute/reports',
     vendor: '/vendor/experiments',
     academic_reviewer: '/reviewer/queue',
     content_manager: '/content-manager/ready',
@@ -157,7 +159,7 @@ test.describe('workspace variant (test-hook build)', () => {
   }) => {
     test.skip(test.info().project.name !== 'chromium-1440x900', 'Width-independent.');
     for (const path of [
-      '/student/progress',
+      '/student/assessments',
       '/student/zz/deep',
       '/student/help/reports/SUP-9999',
     ]) {

@@ -63,7 +63,9 @@ function shell(
   } = {},
 ): CompareItem[] {
   const shellDeviation = registered.package2a ? 'DEV-21' : 'DEV-10';
-  const suffix = registered.package2a ? '-package-2a' : '';
+  // Phase 3 adds the Student's Progress: the Package-2A names become `-phase-3` (their pins stay
+  // as the record).
+  const suffix = registered.package2a ? '-phase-3' : '';
   return [
     {
       name: `${name}-top-bar`,

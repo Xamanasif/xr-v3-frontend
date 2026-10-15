@@ -258,7 +258,8 @@ test.describe('B1-10 · SA-02 Requests on the built screen', () => {
         product: ours.locator('aside.xr-side .xr-side-foot'),
       },
       {
-        name: 'b1-10-f0-sidebar',
+        // Phase 3 builds Operations (SA-18): the Super Admin's sidebar lists it, so this is measured under its own name and DEV-21; the earlier pin stays as the record.
+        name: 'b1-10-f0-sidebar-phase-3',
         reference: frame.locator('aside.xr-side'),
         product: ours.locator('aside.xr-side'),
         deviation: ['DEV-21', 'DEV-22'],
@@ -305,7 +306,7 @@ test.describe('B1-10 · SA-02 Requests on the built screen', () => {
         deviation: 'DEV-22',
       },
       {
-        name: 'b1-10-f0-whole-frame',
+        name: 'b1-10-f0-whole-frame-phase-3',
         reference: frame.locator('.xr-app'),
         product: ours.locator('div.xr-app'),
         kind: 'screen',

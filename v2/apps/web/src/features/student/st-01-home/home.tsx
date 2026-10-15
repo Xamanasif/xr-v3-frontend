@@ -4,6 +4,7 @@ import type { MyCourseRow } from '@xr/contracts/draft';
 import { EmptyState, FormatSet, Icon, type IconName, Link, PageContent, Row, Rows } from '@xr/ui';
 import { Fragment, type ReactNode, useId } from 'react';
 
+import { UP_NEXT_FEEDBACK } from '@/copy/progress-feedback';
 import { stateWords } from '@/copy/state-copy';
 import {
   assessmentReadyWords,
@@ -28,6 +29,7 @@ import {
   myExperimentAddress,
   STUDENT_HELP_ADDRESS,
 } from '@/nav/student';
+import { feedbackAddress } from '@/nav/student-progress';
 import { type HomeRead, useStudentHome } from '@/queries/student';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
@@ -61,9 +63,11 @@ import {
  *   T-17), continue (f4), Up next items (f5), institution paused (f6), inactive (f7), earlier work
  *   only (f8, SACC-14 open — see `ST-01.earlier-only`), loading and failed (undrawn, provisional).
  * - **Links**: the card and "Open experiment" open the hub (ST-05), "Open course" the course
- *   (ST-03), "View all courses" My courses (ST-02), Help the Student's Help. Up next's "Open
- *   assessment" and "Give feedback" and f8's "See earlier work" lead to later phases' screens and
- *   are not rendered (DEV-21).
+ *   (ST-03), "View all courses" My courses (ST-02), Help the Student's Help; Up next's "Give
+ *   feedback" opens that format's feedback (ST-16, Phase 3) — the service lists the item only for a
+ *   format with its own completion and no feedback yet (BC5). Up next's "Open assessment" leads to
+ *   Phase 4 and is not rendered (DEV-21); f8's "See earlier work" stays unrendered while SACC-14
+ *   is open (Progress has no earlier-work rows to show, `ST-01.earlier-only`).
  */
 export function StudentHome() {
   useShellPage(homePlacement());
@@ -264,16 +268,24 @@ function UpNextRow({ item }: { readonly item: UpNextView }) {
           sub={HOME_PAGE.assessmentSub}
         />
       );
-    case 'feedback':
-      // "Give feedback" (ST-10, Phase 3) is not rendered (DEV-21).
+    case 'feedback': {
+      // "Give feedback" opens ST-16 for that experiment's format (B2-10 f5 → B3-06; Phase 3).
       return (
         <Row
           icon="flag"
           tone="ok"
           title={giveFeedbackWords(item.format)}
           sub={feedbackSubWords(item.experimentName, item.format)}
-        />
+        >
+          <Link
+            className="xr-btn xr-btn--secondary xr-btn--sm"
+            href={feedbackAddress(item.experimentId, item.format)}
+          >
+            {UP_NEXT_FEEDBACK}
+          </Link>
+        </Row>
       );
+    }
     case 'format':
       return (
         <Row

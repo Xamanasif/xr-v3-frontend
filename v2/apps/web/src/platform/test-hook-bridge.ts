@@ -33,9 +33,15 @@
  *   page starts (`pending` → "Payment not confirmed", `failed` → "Payment failed"); and
  *   `reportPayment(reference, outcome)` is the provider's later report on a started payment. Their
  *   writes invalidate the page's reads like `actAs` receipts.
+ * - **Runtime-report seam** (Phase 3; T-12 / P3-01 open, ADR-0006, TE-3 unsigned): `reportRuntime`
+ *   is the sample runtime's own report — activity (`opened`, `saved`, `session`) or a completion
+ *   (`completed`, from the simulation or the headset) — written by `system:runtime-report` with
+ *   sample provenance through `@xr/sample-platform/testing`'s stand-in, at the world's sample "now".
+ *   It is the ONLY way a browser test reaches In progress or Completed: no product control, launch,
+ *   page or time writes either, and product builds do not contain this seam.
  */
 import { PORT_KEYS, type PortKey } from '@xr/contracts/draft';
-import type { RecordRef, RequestId } from '@xr/domain';
+import type { ExperimentId, PersonId, RecordRef, RequestId } from '@xr/domain';
 import {
   asPersonId,
   beginSession,
@@ -57,6 +63,8 @@ export const TEST_HOOK_BRIDGE_MARKER = 'xr-web-test-hook-bridge';
 export const TEST_SESSION_SWITCH_MARKER = 'xr-web-test-session-switch';
 /** Marks the request seams (Package 1C); `pnpm verify` requires it in no product bundle. */
 export const TEST_REQUEST_SEAMS_MARKER = 'xr-web-test-request-seams';
+/** Marks the runtime-report seam (Phase 3); `pnpm verify` requires it in no product bundle. */
+export const TEST_RUNTIME_SEAM_MARKER = 'xr-web-test-runtime-seam';
 /** Kept equal to `e2e/support/test-seam.ts` (checked by the bridge's unit test). */
 export const BOOT_DESCRIPTOR_GLOBAL = '__XR_TEST_BOOT__';
 export const TEST_HOOKS_GLOBAL = '__XR_TEST_HOOKS__';
@@ -148,6 +156,48 @@ function requestReference(seam: string, value: unknown): string {
     throw new TestHookError(`${seam} names a request by its reference, like REQ-0042.`);
   }
   return value;
+}
+
+const RUNTIME_KINDS = ['opened', 'saved', 'session', 'completed'] as const;
+type RuntimeKind = (typeof RUNTIME_KINDS)[number];
+const FORMATS = ['web', 'ar', 'vr', 'mr'] as const;
+
+/** A runtime report as a test names it: whose, which experiment and format, what happened. */
+function runtimeReport(value: unknown): {
+  readonly personId: string;
+  readonly experimentId: string;
+  readonly format: (typeof FORMATS)[number];
+  readonly kind: RuntimeKind;
+  readonly from: 'simulation' | 'headset';
+} {
+  const report = value as Record<string, unknown> | null;
+  const personId = report?.personId;
+  const experimentId = report?.experimentId;
+  const format = report?.format;
+  const kind = report?.kind;
+  if (typeof personId !== 'string' || !PERSON_ID.test(personId)) {
+    throw new TestHookError('reportRuntime names a sample Student by a non-empty personId.');
+  }
+  if (typeof experimentId !== 'string' || experimentId.trim() === '') {
+    throw new TestHookError('reportRuntime names the experiment by its id.');
+  }
+  if (!(FORMATS as readonly unknown[]).includes(format)) {
+    throw new TestHookError('reportRuntime takes a format: web, ar, vr or mr.');
+  }
+  if (!(RUNTIME_KINDS as readonly unknown[]).includes(kind)) {
+    throw new TestHookError('reportRuntime takes a kind: opened, saved, session or completed.');
+  }
+  const from = report?.from ?? (format === 'web' ? 'simulation' : 'headset');
+  if (from !== 'simulation' && from !== 'headset') {
+    throw new TestHookError('reportRuntime reports from the simulation or the headset.');
+  }
+  return {
+    personId,
+    experimentId,
+    format: format as (typeof FORMATS)[number],
+    kind: kind as RuntimeKind,
+    from,
+  };
 }
 
 function isReceipt(
@@ -266,6 +316,29 @@ const handle = Object.freeze({
     });
     if (answer.ok) await runtime.invalidate(answer.changed);
     return answer;
+  },
+  reportRuntime: async (value: unknown): Promise<unknown> => {
+    const { sample, runtime } = await whenBooted();
+    const report = runtimeReport(value);
+    const standins = standinsOf(sample);
+    const at = standins.clock.now();
+    const base = {
+      studentId: report.personId as PersonId,
+      experimentId: report.experimentId as ExperimentId,
+      format: report.format,
+      at,
+    };
+    // The runtime's own report (`system:runtime-report`, sample provenance): activity never
+    // completes a format; a completion is written only here, the first one standing (ADR-0006).
+    const answer =
+      report.kind === 'completed'
+        ? standins.runtimeReport.reportCompletion({ ...base, from: report.from })
+        : standins.runtimeReport.reportActivity({ ...base, kind: report.kind });
+    if (!answer.ok) {
+      throw new TestHookError(`The runtime report was refused: ${JSON.stringify(answer.error)}`);
+    }
+    await runtime.invalidate(answer.changed);
+    return { marker: TEST_RUNTIME_SEAM_MARKER, value: answer.value };
   },
   inspect: async () => {
     const { sample, runtime, fixture, instance } = await whenBooted();

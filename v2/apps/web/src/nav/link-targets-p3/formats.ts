@@ -1,0 +1,130 @@
+import type { LedgerEntry } from '../link-targets';
+import { pageRows } from './rows';
+
+const WEB = '/student/experiments/{experimentId}/simulation/web';
+const FORMAT = '/student/experiments/{experimentId}/simulation/{format}';
+const SIMULATION = '/student/experiments/{experimentId}/simulation';
+
+/** Phase 3 link targets: ST-08 WEB simulation and ST-09 AR / VR / MR format (B3-03, B3-04). */
+export const P3_FORMATS_LINK_TARGETS: readonly LedgerEntry[] = [
+  ...pageRows('ST-08', WEB, [
+    ['Back link', 'Simulation', 'secondary', SIMULATION, 'built', 'B3-03 f0 … f7'],
+    [
+      'Top bar crumbs',
+      'My courses · <experiment> · Simulation',
+      'secondary',
+      '/student/experiments/{experimentId}',
+      'built',
+      'B3-03 f0 … f7',
+      'My courses opens ST-02, the experiment ST-05, Simulation ST-07.',
+    ],
+    [
+      'WEB panel (not started · in progress · didn’t open)',
+      'Launch WEB · Continue WEB · Try again',
+      'primary',
+      null,
+      'in-page',
+      'B3-03 f0, f1, f2, f7',
+      'LearningService.launchWebFormat, then the returned WEB link opens in a new tab (noopener); it stores nothing (AD-16) and TE-3 draws no runtime page.',
+    ],
+    [
+      'WEB panel (completed, feedback offered)',
+      'Give feedback on WEB',
+      'primary',
+      '/student/experiments/{experimentId}/feedback/web',
+      'built',
+      'B3-03 f3; B3-12 f1',
+      'ST-16; offered only when FeedbackService answers eligible for WEB (BC5).',
+    ],
+    [
+      'WEB panel (completed, feedback sent)',
+      'See your feedback',
+      'secondary',
+      '/student/experiments/{experimentId}/feedback/web',
+      'built',
+      'B3-03 f4',
+      'ST-17 (the read-only state of the feedback page).',
+    ],
+    [
+      'WEB panel',
+      'Report a problem',
+      'secondary',
+      '/student/help/report',
+      'built',
+      'B3-03 f0 … f7',
+    ],
+    ['WEB panel', 'Back to Simulation', 'secondary', SIMULATION, 'built', 'B3-03 f0 … f7'],
+  ]),
+  ...pageRows('ST-09', FORMAT, [
+    ['Back link', 'Simulation', 'secondary', SIMULATION, 'built', 'B3-04 f0 … f5, f7'],
+    [
+      'Top bar crumbs',
+      'My courses · <experiment> · Simulation',
+      'secondary',
+      '/student/experiments/{experimentId}',
+      'built',
+      'B3-04 f0 … f5, f7',
+      'My courses opens ST-02, the experiment ST-05, Simulation ST-07.',
+    ],
+    [
+      'Format panel (completed, feedback offered)',
+      'Give feedback on VR',
+      'primary',
+      '/student/experiments/{experimentId}/feedback/{format}',
+      'built',
+      'B3-04 f2; B3-12 f3',
+      'ST-16; offered only when FeedbackService answers eligible for the format (BC5). There is no launch button for AR, VR or MR.',
+    ],
+    [
+      'Format panel (completed, feedback sent)',
+      'See your feedback',
+      'secondary',
+      '/student/experiments/{experimentId}/feedback/{format}',
+      'built',
+      'B3-03 f4 (pattern)',
+      'ST-17; state-copy ST-09.feedback-sent.',
+    ],
+    [
+      'Device block',
+      'My device',
+      'secondary',
+      '/student/device',
+      'built',
+      'B3-04 f0, f1, f2, f7',
+      'ST-18; shown only with an authorised device for the format.',
+    ],
+    [
+      'Setup steps',
+      'View setup steps',
+      'secondary',
+      null,
+      'in-page',
+      'B3-04 f0, f1, f7',
+      'A disclosure (`details.xl-more`): open by default while Not started.',
+    ],
+    [
+      'Format panel',
+      'Report a problem',
+      'secondary',
+      '/student/help/report',
+      'built',
+      'B3-04 f0 … f2, f5, f7',
+    ],
+    [
+      'Format panel',
+      'Back to Simulation',
+      'secondary',
+      SIMULATION,
+      'built',
+      'B3-04 f0 … f2, f5, f7',
+    ],
+    [
+      'Message (not included · not available)',
+      'Back to Simulation',
+      'primary',
+      SIMULATION,
+      'built',
+      'B3-04 f3, f4',
+    ],
+  ]),
+];

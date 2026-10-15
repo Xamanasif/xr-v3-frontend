@@ -171,7 +171,8 @@ function shellParts(
       product: ours.locator('header.xr-top'),
     },
     {
-      name: `${prefix}-sidebar`,
+      // Phase 3 builds Operations (SA-18): the Super Admin's sidebar lists it, so this is measured under its own name and DEV-21; the earlier pin stays as the record.
+      name: `${prefix}-sidebar-phase-3`,
       reference: frame.locator('aside.xr-side'),
       product: ours.locator('aside.xr-side'),
       deviation: height.length > 0 ? ['DEV-21', ...height] : 'DEV-21',
@@ -240,7 +241,7 @@ test.describe('B7-01 · SA-01 Overview (Phase-1 Requests group)', () => {
         deviation: ['DEV-22', 'DEV-35'],
       },
       {
-        name: 'b7-01-f0-whole-frame',
+        name: 'b7-01-f0-whole-frame-phase-3',
         reference: frame.locator('.xr-app'),
         product: ours.locator('div.xr-app'),
         kind: 'screen',
@@ -428,7 +429,7 @@ test.describe('B7-02 · SA-06 Institutions', () => {
         deviation: 'DEV-37',
       },
       {
-        name: 'b7-02-f0-whole-frame',
+        name: 'b7-02-f0-whole-frame-phase-3',
         reference: frame.locator('.xr-app'),
         product: ours.locator('div.xr-app'),
         kind: 'screen',
@@ -632,7 +633,7 @@ test.describe('B7-03 · SA-07 Institution detail', () => {
         deviation: 'DEV-40',
       },
       {
-        name: 'b7-03-f0-whole-frame',
+        name: 'b7-03-f0-whole-frame-phase-3',
         reference: frame.locator('.xr-app'),
         product: ours.locator('div.xr-app'),
         kind: 'screen',

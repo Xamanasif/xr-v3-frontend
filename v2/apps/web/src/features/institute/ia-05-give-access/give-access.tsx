@@ -17,6 +17,7 @@ import {
 } from '@xr/ui';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
+import { REQUEST_ACTIONS } from '@/copy/institute-requests';
 import { stateWords } from '@/copy/state-copy';
 import {
   GIVE_ACCESS,
@@ -32,6 +33,7 @@ import {
   STUDENT_ACCESS_ADDRESS,
   underPlacement,
 } from '@/nav/institute';
+import { INSTITUTE_REQUESTS_ADDRESS } from '@/nav/institute-requests';
 import { useAppNavigation } from '@/nav/navigation';
 import {
   type GiveChoice,
@@ -94,7 +96,7 @@ const TITLE_ID = 'give-access-title';
  *   (`expectedPlanRev`). The result names each new grant ("Access given · SACC-0310") with its
  *   status; "View Student access" and "Give more access". A failure keeps every choice (f12); a
  *   refusal says so and reads the options again.
- * - Not rendered (DEV-21): "Request renewal" (IA-17) on f16. "Import students" (f14) opens IA-11.
+ * - "Request renewal" on f16 opens Requests (IA-17, Phase 3). "Import students" (f14) opens IA-11.
  */
 export function GiveAccess() {
   useShellPage(underPlacement('IA-05', GIVE_ACCESS.title));
@@ -273,9 +275,15 @@ export function GiveAccess() {
           title={planEndedTitle(overview.plan.id)}
           line={planEndedLine(overview.plan.endsOn)}
           actions={
-            <Link className="xr-btn xr-btn--text" href={CONTENT_ACCESS_ADDRESS}>
-              {GIVE_ACCESS.contentAccess}
-            </Link>
+            <>
+              {/* f16: "Request renewal" opens Requests (IA-17, Phase 3). */}
+              <Link className="xr-btn xr-btn--primary" href={INSTITUTE_REQUESTS_ADDRESS}>
+                {REQUEST_ACTIONS.requestRenewal}
+              </Link>
+              <Link className="xr-btn xr-btn--text" href={CONTENT_ACCESS_ADDRESS}>
+                {GIVE_ACCESS.contentAccess}
+              </Link>
+            </>
           }
         />
       );

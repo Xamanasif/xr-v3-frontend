@@ -9,7 +9,7 @@
  * `AccessRequestService.listRequests` — never from invented counts.
  */
 import type { InstitutionDetail, RequestRow } from '@xr/contracts/draft';
-import type { ActorRef, InstitutionStatus } from '@xr/domain';
+import type { ActorRef, DeviceTransfer, InstitutionStatus } from '@xr/domain';
 
 import { dateTime, dayMonthYear } from '@/copy/dates';
 import {
@@ -34,6 +34,8 @@ import {
   isOpenRequest,
   quoted,
 } from '@/copy/institutions';
+import { ATTENTION_OPERATIONS, attentionTransfer } from '@/copy/operations';
+import { DEVICE_TRANSFERS_ADDRESS } from '@/nav/operations';
 import { REQUESTS_ADDRESS } from '@/nav/requests';
 
 import { requestStatusWords } from '../shared/request-status';
@@ -95,12 +97,14 @@ export function requestsNamed(detail: InstitutionDetail): readonly string[] {
 
 /**
  * "Needs attention" (B7-03 `att`): a missing Institute Admin first, then the institution's open
- * requests (newest first), then the pause (the board adds it last). Device transfers and
- * access-ending reminders arrive with Phases 3 and 6 (state-copy `SA-07.attention-later`).
+ * requests (newest first), then its device transfers forwarded to BITS (Phase 3: newest first,
+ * each opening Operations › Device transfers), then the pause (the board adds it last).
+ * Access-ending reminders arrive with Phase 6 (state-copy `SA-07.attention-later`).
  */
 export function attentionRows(
   detail: InstitutionDetail,
   requests: readonly RequestRow[],
+  transfers: readonly DeviceTransfer[] = [],
 ): readonly AttentionView[] {
   const controls = drawnControls(detail);
   const rows: AttentionView[] = [];
@@ -120,6 +124,24 @@ export function attentionRows(
           ? attentionAwaitingPayment(row.id)
           : attentionRequest(row.id, row.type, requestStatusWords(row.status)),
       action: { kind: 'link', href: REQUESTS_ADDRESS, label: ATTENTION_REQUESTS },
+    });
+  }
+  // B7-03 godavari: "DTR-0018 — device transfer forwarded on 23 Oct 2026" → Operations (SA-18).
+  const forwarded = transfers
+    .filter(
+      (transfer) =>
+        transfer.institutionId === detail.institution.id &&
+        transfer.state === 'forwarded' &&
+        transfer.forwarded !== null,
+    )
+    .sort((a, b) =>
+      a.forwarded!.at === b.forwarded!.at ? 0 : a.forwarded!.at < b.forwarded!.at ? 1 : -1,
+    );
+  for (const transfer of forwarded) {
+    rows.push({
+      key: transfer.id,
+      text: attentionTransfer(transfer.id, dayMonthYear(transfer.forwarded!.at)),
+      action: { kind: 'link', href: DEVICE_TRANSFERS_ADDRESS, label: ATTENTION_OPERATIONS },
     });
   }
   const pause = detail.institution.pause;

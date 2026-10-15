@@ -48,8 +48,8 @@ function renderShell(role: Role, overrides: Partial<RoleWorkspaceShellProps> = {
 
 const ROLES = PLATFORM_ROLES.map((role) => [ROLE_LABEL[role], role] as const);
 
-describe('built so far: Help in every workspace; Overview, Requests and Institutions for the Super Admin (Packages 1A, 1D)', () => {
-  it('Super Admin on Help & support: Overview, Requests, Institutions, then Help (current)', () => {
+describe('built so far: Help in every workspace; Overview, Requests, Institutions and Operations for the Super Admin (Packages 1A, 1D; Phase 3)', () => {
+  it('Super Admin on Help & support: Overview, Requests, Institutions, Operations, then Help (current)', () => {
     const { aside, container } = renderShell('super_admin');
     const nav = within(aside).getByRole('navigation', { name: 'Super Admin navigation' });
     const links = within(nav).getAllByRole('link');
@@ -57,11 +57,13 @@ describe('built so far: Help in every workspace; Overview, Requests and Institut
       'Overview',
       'Requests',
       'Institutions',
+      'Operations',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/admin',
       '/admin/requests',
       '/admin/institutions',
+      '/admin/operations/device-transfers',
     ]);
     for (const link of links) expect(link).not.toHaveAttribute('aria-current');
     const help = within(aside).getAllByRole('link').at(-1)!;
@@ -71,7 +73,14 @@ describe('built so far: Help in every workspace; Overview, Requests and Institut
       link.getAttribute('href'),
     );
     expect(new Set(hrefs)).toEqual(
-      new Set(['#main', '/admin', '/admin/requests', '/admin/institutions', '/admin/help']),
+      new Set([
+        '#main',
+        '/admin',
+        '/admin/requests',
+        '/admin/institutions',
+        '/admin/operations/device-transfers',
+        '/admin/help',
+      ]),
     );
   });
 
@@ -101,10 +110,14 @@ describe('built so far: Help in every workspace; Overview, Requests and Institut
   );
 
   it.each([
-    ['Institute Admin', 'tenant_admin', ['Overview', 'Content access', 'Student access', 'People']],
-    ['Student', 'student', ['Home', 'My courses']],
+    [
+      'Institute Admin',
+      'tenant_admin',
+      ['Overview', 'Content access', 'Student access', 'People', 'Requests', 'Usage'],
+    ],
+    ['Student', 'student', ['Home', 'My courses', 'Progress']],
   ] as const)(
-    '%s on Help & support (Package 2A): the built destinations, then Help (current)',
+    '%s on Help & support (Package 2A, Phase 3): the built destinations, then Help (current)',
     (label, role, built) => {
       const { aside, container } = renderShell(role);
       const nav = within(aside).getByRole('navigation', { name: `${label} navigation` });

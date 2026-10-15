@@ -121,6 +121,7 @@ export function requesterView(request: AccessRequest): RequesterRequestView {
     approved,
     whatBitsAsked: request.informationRequest?.reason ?? null,
     whyItChanged: decision?.kind === 'approved-smaller-scope' ? decision.reason : null,
+    message: request.message,
     nextStep,
     activatedPlanId: request.activatedPlanId,
     history: request.history,

@@ -78,9 +78,16 @@ describe('board 06: the same pattern in every workspace', () => {
 });
 
 describe('"My device": a Student with AR / VR / MR, once ST-18 is built', () => {
-  it('hidden in Phase 0 (ST-18 is not built), even for a Student who holds VR', () => {
-    const { panel } = openMenu('student', { deviceEligible: true });
+  it('hidden while ST-18 is not built, even for a Student who holds VR', () => {
+    const unbuilt = new Set<ScreenKey>([...BUILT_SCREENS].filter((screen) => screen !== 'ST-18'));
+    const { panel } = openMenu('student', { deviceEligible: true, built: unbuilt });
     expect(itemNames(panel)).toEqual(['Help', 'Sign out']);
+  });
+
+  it('ST-18 is built since Phase 3: the manifest offers it to a Student who holds VR (B3-07 f1)', () => {
+    expect(BUILT_SCREENS.has('ST-18')).toBe(true);
+    const { panel } = openMenu('student', { deviceEligible: true });
+    expect(itemNames(panel)).toEqual(['My device', 'Help', 'Sign out']);
   });
 
   it('hidden for a Student without AR / VR / MR (B3-07 frame 2 "Entry hidden")', () => {

@@ -217,6 +217,11 @@ export const requesterRequestView = z.object({
     .nullable(),
   whatBitsAsked: z.string().nullable(),
   whyItChanged: z.string().nullable(),
+  /**
+   * The requester's own message as sent (PU-08 "Message", IA-17's forms), or `null` — B3-08 f4
+   * "Message to BITS" (provisional register PC-50; Appendix C's view lacks it).
+   */
+  message: z.string().nullable(),
   nextStep: z.enum(['none', 'continue-to-payment', 'check-again', 'try-payment-again', 'sign-in']),
   activatedPlanId: accessPlanId.nullable(),
   history: historyOf(REQUEST_EVENTS),

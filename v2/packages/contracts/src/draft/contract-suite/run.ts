@@ -38,7 +38,14 @@ export interface CaseContext {
 }
 
 export type CaseGroup =
-  'surface' | 'session' | 'catalogue' | 'flow' | 'access' | 'institution' | 'invariant';
+  | 'surface'
+  | 'session'
+  | 'catalogue'
+  | 'flow'
+  | 'access'
+  | 'institution'
+  | 'learning'
+  | 'invariant';
 
 export interface ContractCase {
   readonly id: string;

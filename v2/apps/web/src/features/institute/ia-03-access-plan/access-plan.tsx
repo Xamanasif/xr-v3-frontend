@@ -31,6 +31,7 @@ import {
   planTitle,
   termWords,
 } from '@/copy/institute-home';
+import { REQUEST_ACTIONS } from '@/copy/institute-requests';
 import { stateWords } from '@/copy/state-copy';
 import {
   CONTENT_ACCESS_ADDRESS,
@@ -39,6 +40,7 @@ import {
   studentRecordAddress,
   underPlacement,
 } from '@/nav/institute';
+import { INSTITUTE_REQUESTS_ADDRESS, instituteRequestAddress } from '@/nav/institute-requests';
 import { useAppNavigation } from '@/nav/navigation';
 import { useAccessPlan, usePlanRequest } from '@/queries/institute-home';
 
@@ -69,8 +71,8 @@ const code = (format: Technology) => format.toUpperCase() as FormatCode;
  *   "Active since …", "Give students access" while active or ending soon), the ended (f3) or
  *   paused (f4) notice, "What BITS gave your institution", "Students you’ve given access" (or its
  *   empty state, f0) and "History". Student names open their record (IA-07); "Open Student
- *   access" opens IA-04. Links to screens not built in Package 2A are not drawn
- *   (state-copy `IA-03.not-rendered`).
+ *   access" opens IA-04. Phase 3: "From request REQ-0042" opens the request's detail; "Ask
+ *   BITS from Requests" and the ended notice's "Request renewal" open Requests (IA-17).
  * - An address that names no plan of this institution shows the in-shell not-found page.
  */
 export function AccessPlanDetail({ planId }: { readonly planId: string }) {
@@ -128,9 +130,12 @@ function PlanPage({
         meta={
           <>
             <PlanStatusPill status={status} />
-            {/* "REQ-0042" opens PU-10 from the workspace, not built in Package 2A. */}
+            {/* "REQ-0042" opens the request's detail in Requests (IA-17, Phase 3). */}
             <span>
-              {ACCESS_PLAN_WORDS.fromRequest} {plan.sourceRequestId}
+              {ACCESS_PLAN_WORDS.fromRequest}{' '}
+              <Link href={instituteRequestAddress(plan.sourceRequestId)}>
+                {plan.sourceRequestId}
+              </Link>
             </span>
             <span>{activeSinceWords(dateTime(plan.activatedAt))}</span>
           </>
@@ -145,7 +150,13 @@ function PlanPage({
       />
       <div className="xw-stack">
         {status === 'access-ended' ? (
-          <Notice tone="quiet" title={planEndedTitle(plan.endsOn)}>
+          <Notice
+            tone="quiet"
+            title={planEndedTitle(plan.endsOn)}
+            actions={
+              <Link href={INSTITUTE_REQUESTS_ADDRESS}>{REQUEST_ACTIONS.requestRenewal}</Link>
+            }
+          >
             {PLAN_NOTICES.planEndedLine}
           </Notice>
         ) : status === 'paused' ? (
@@ -242,7 +253,11 @@ function WhatBitsGave({ view }: { readonly view: AccessPlanView }) {
             </tbody>
           </table>
         </div>
-        {/* "Need more, or a renewal? Ask BITS from Requests" opens IA-17 / IA-18, not built in 2A. */}
+        {/* "Need more, or a renewal? Ask BITS from Requests" opens Requests (IA-17, Phase 3). */}
+        <p className="xr-meta mx-0 mt-4 mb-0">
+          {REQUEST_ACTIONS.needMore}{' '}
+          <Link href={INSTITUTE_REQUESTS_ADDRESS}>{REQUEST_ACTIONS.askFromRequests}</Link>
+        </p>
       </div>
     </TitledSection>
   );

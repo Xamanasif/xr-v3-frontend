@@ -64,6 +64,22 @@ describe('the link-target ledger', () => {
         'IA-15',
         'IA-16',
         'ST-04',
+        // Phase 3.
+        'ST-06',
+        'ST-07',
+        'ST-08',
+        'ST-09',
+        'ST-10',
+        'ST-15',
+        'ST-16',
+        'ST-17',
+        'ST-18',
+        'IA-17',
+        'IA-18',
+        'IA-19',
+        'IA-20',
+        'SA-18',
+        'SA-19',
       ]),
     );
     const keys = LINK_TARGET_LEDGER.map(
@@ -89,12 +105,13 @@ describe('the link-target ledger', () => {
   it('a drawn action whose page is not built is not rendered, and names that unbuilt page', () => {
     const hidden = LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'not-rendered');
     // Every way into PU-07 renders since Package 1C built it, SA-03's "View institution" since
-    // Package 1D built SA-07; SA-07's Operations rows wait for Operations (Phases 3 and 6).
+    // Package 1D built SA-07, SA-07's Operations row since Phase 3 built SA-18; what stays hidden
+    // on the Super Admin's pages waits for Phase 6 (Support SA-20, Access ending SA-22).
     expect(
       hidden
         .filter((entry) => entry.screen.startsWith('SA-'))
         .map((entry) => `${entry.screen} ${entry.action}`),
-    ).toEqual(['SA-07 Operations · Operations › Access ending']);
+    ).toEqual(['SA-07 Operations › Access ending', 'SA-18 Support · Access ending']);
     for (const entry of hidden) {
       expect(entry.note, `${entry.screen} ${entry.action}`).toMatch(/not built/);
       const target = expandTarget(entry.target!, '/admin');
@@ -105,15 +122,20 @@ describe('the link-target ledger', () => {
         const named = /\b((?:IA|ST)-\d\d)\b/.exec(entry.note!)?.[1];
         expect(named, entry.action).toBeDefined();
         expect(BUILT_SCREENS.has(named as never), `${entry.screen} ${entry.action}`).toBe(false);
+      } else if (kind === 'record-screen' && /SACC-14/.test(entry.note!)) {
+        // Phase 3: a built page whose view of this action waits on an open decision (ST-01 / ST-02
+        // "earlier work" → ST-15 while SACC-14 is open: the service gives no earlier-work row).
+        expect(entry.target, entry.action).toBe('/student/progress');
       } else {
         expect(['public-not-found', 'workspace-not-found'], entry.action).toContain(kind);
       }
     }
-    // Every not-rendered action names the unbuilt screen it waits for (SA-18 Operations: Package 1D).
-    // Package 2B built the rest of Phase 2: what stays hidden waits for Phases 3 and 4.
+    // Every not-rendered action names the screen it waits for. Phase 3 built its fifteen ids: what
+    // stays hidden waits for Phase 4 (ST-11 assessments), Phase 6 (SA-20, SA-22) or SACC-14 (ST-15's
+    // earlier work).
     expect(
       new Set(hidden.map((entry) => /\b((?:IA|ST|SA)-\d\d)\b/.exec(entry.note!)?.[1])),
-    ).toEqual(new Set(['IA-17', 'ST-11', 'ST-10', 'ST-15', 'ST-06', 'SA-18']));
+    ).toEqual(new Set(['SA-22', 'ST-11', 'ST-15', 'SA-20']));
   });
 
   it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to a built home (SA-01, IA-01, ST-01)', () => {
@@ -302,6 +324,8 @@ describe('the link-target ledger', () => {
       'IA-05: Continue',
       'IA-05: Give access',
       'IA-05: View Student access',
+      // Phase 3: f16's "Request renewal" opens Requests to BITS (IA-17).
+      'IA-05: Request renewal',
       'IA-06: Add student',
       'IA-08: Add faculty member',
       'IA-07: Give this student access',
@@ -318,7 +342,28 @@ describe('the link-target ledger', () => {
       'IA-14: Add students',
       'IA-15: Assign course',
       'ST-01: Open <experiment> · Continue <experiment>',
+      // Phase 3: ST-05's Next step (one variant at a time), the hub tabs, the format pages,
+      // feedback, My device, the Institute Admin's requests and the Super Admin's decision.
+      'ST-05: Open resources',
+      'ST-05: Continue WEB',
+      'ST-05: Choose a format',
       'ST-19: Back to My courses',
+      'ST-06: Try again',
+      'ST-07: Open WEB · Continue WEB',
+      'ST-08: Launch WEB · Continue WEB · Try again',
+      'ST-08: Give feedback on WEB',
+      'ST-09: Give feedback on VR',
+      'ST-09: Back to Simulation',
+      'ST-16: Submit feedback',
+      'ST-17: Back to experiment',
+      'ST-18: Request a device transfer',
+      'ST-18: Send request',
+      'IA-17: Ask BITS for a renewal or more licences',
+      'IA-17: Send request to BITS',
+      'IA-17: Back to Requests',
+      'IA-17: Open the payment page',
+      'IA-19: Forward to BITS',
+      'SA-19: Approve transfer',
     ]);
   });
 });

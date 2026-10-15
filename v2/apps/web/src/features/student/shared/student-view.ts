@@ -148,6 +148,7 @@ export type UpNextView =
   | { readonly kind: 'assessment'; readonly experimentName: string }
   | {
       readonly kind: 'feedback';
+      readonly experimentId: string;
       readonly experimentName: string;
       readonly format: Technology;
     };
@@ -167,7 +168,12 @@ export function upNextItems(read: HomeRead, card: HomeCard | null): UpNextView[]
     const place = placeOf(read, item.experimentId);
     if (!place) continue;
     if (item.kind === 'feedback') {
-      views.push({ kind: 'feedback', experimentName: place.experiment.name, format: item.format });
+      views.push({
+        kind: 'feedback',
+        experimentId: item.experimentId,
+        experimentName: place.experiment.name,
+        format: item.format,
+      });
       continue;
     }
     if (card && card.experiment.experimentId === item.experimentId) continue;
