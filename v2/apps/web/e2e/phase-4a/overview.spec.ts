@@ -16,7 +16,8 @@ import {
  * Ranganathan — the scope line, nothing needs him (f1), and Coming up once he saves a Ready
  * assessment through the assessments port (f0's row) — and as Dr Anita Desai, before and after
  * Meera Iyer assigns her a Faculty course (f2 → the scope line, in the same tab). At 375 the rows
- * stack their action under the text (f4). Rows whose page is Phase 4B are not rendered (DEV-21).
+ * stack their action under the text (f4). With nothing to mark and no inactive Student, none of the
+ * Phase-4B actions shows; they are proved in `e2e/phase-4b/marking.spec.ts` (DEV-21 lifted).
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 
@@ -73,7 +74,7 @@ async function createReady(page: Page): Promise<string> {
   return created.value.id;
 }
 
-/** None of the Phase-4B actions B4-01 draws is on the page (DEV-21). */
+/** Nothing to mark, no inactive Student: none of the Phase-4B actions B4-01 draws is on the page. */
 async function expectNoPhase4BActions(page: Page): Promise<void> {
   for (const name of [/^Mark \d+ written answer/, 'Mark now', 'Review drafts', 'View students']) {
     await expect(main(page).getByRole('link', { name })).toHaveCount(0);
@@ -119,7 +120,7 @@ test.describe('FA-01 Overview', () => {
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/faculty');
     await expect(
       page.getByRole('navigation', { name: 'Faculty navigation' }).locator('.xr-nav-text'),
-    ).toHaveText(['Overview', 'My courses', 'Assessments', 'Question bank']);
+    ).toHaveText(['Overview', 'My courses', 'Assessments', 'Question bank', 'Marking', 'Students']);
   });
 
   test('“My courses” in the scope line opens My courses in the same tab', async ({ page }) => {

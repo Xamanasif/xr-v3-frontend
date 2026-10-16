@@ -56,16 +56,18 @@ function shell(
     frame?: readonly string[];
     /**
      * Package 2A built the Student's Home and My courses: the Student's sidebar and whole frame are
-     * measured under new names and DEV-21; their Phase-0 pins (DEV-10, Help only) stay as the
-     * record and are no longer observed.
+     * measured under new names (DEV-21 until every Student destination was built); their Phase-0
+     * pins (DEV-10, Help only) stay as the record and are no longer observed. Phase 4B builds the
+     * last one (Assessments): the sidebar is the board's, and no shell deviation applies.
      */
     package2a?: boolean;
   } = {},
 ): CompareItem[] {
-  const shellDeviation = registered.package2a ? 'DEV-21' : 'DEV-10';
+  const shellDeviations: readonly string[] = registered.package2a ? [] : ['DEV-10'];
   // Phase 3 adds the Student's Progress: the Package-2A names become `-phase-3` (their pins stay
-  // as the record).
-  const suffix = registered.package2a ? '-phase-3' : '';
+  // as the record). Phase 4B adds the Student's Assessments: `-phase-4b` (the Phase-3 pins stay as
+  // the record).
+  const suffix = registered.package2a ? '-phase-4b' : '';
   return [
     {
       name: `${name}-top-bar`,
@@ -93,7 +95,7 @@ function shell(
       reference: frame.locator('aside.xr-side'),
       product: ours.locator('aside.xr-side'),
       kind: 'specimen',
-      deviation: [shellDeviation, ...(registered.sidebar ?? [])],
+      deviation: [...shellDeviations, ...(registered.sidebar ?? [])],
     },
     {
       name: `${name}-whole-frame${suffix}`,
@@ -101,7 +103,7 @@ function shell(
       product: ours.locator('div.xr-app'),
       kind: 'screen',
       frame: true,
-      deviation: [shellDeviation, ...(registered.frame ?? [])],
+      deviation: [...shellDeviations, ...(registered.frame ?? [])],
     },
   ];
 }
@@ -194,7 +196,9 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
     // also compared on its own, where the difference shows.
     await expect(ours.locator('main .xr-msg .xr-id')).toHaveText('SUP-0214');
     await run(testInfo, [
-      ...shell('07-f3-state-1c-sent', frame, ours, { frame: ['DEV-11'], package2a: true }),
+      // Phase 4B: with every Student destination built the whole frame comes within tolerance —
+      // DEV-11 (only Rahul and Kavya hold reports) is no longer observed in this frame.
+      ...shell('07-f3-state-1c-sent', frame, ours, { package2a: true }),
       {
         name: '07-f3-state-1c-sent-message',
         reference: frame.locator('main .xr-msg'),

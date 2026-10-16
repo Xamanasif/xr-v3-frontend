@@ -9,6 +9,7 @@ import { initialsOf } from '@/copy/people';
 import { WORKSPACE_NAV } from '@/nav/nav-config';
 import { useAppNavigation } from '@/nav/navigation';
 import { recordPageVisit } from '@/nav/page-location';
+import { isFocusedAddress } from '@/nav/routes';
 import { useNavCounts } from '@/queries/nav-counts';
 import { useCurrentSession, useWorkspaceAccess } from '@/queries/session';
 
@@ -21,6 +22,7 @@ import { NotYourWorkspace } from '../xs-06-not-your-workspace/not-your-workspace
 import { useRouteFocus } from './route-focus';
 import {
   type ShellPlacement,
+  ShellPersonContext,
   ShellPlacementContext,
   type WorkspaceIdentity,
   WorkspaceIdentityContext,
@@ -152,6 +154,18 @@ function FrameShell({
       help: placement.screen === 'XS-07',
     });
   }, [placement, session.personId]);
+
+  // Phase 4B: a focused task (ST-13's attempt, B4-12) draws its own bar — no sidebar, no top bar
+  // of the shell — behind the same session gate and workspace guard; it names the browser tab.
+  if (own && isFocusedAddress(pathname)) {
+    return (
+      <WorkspaceIdentityContext value={identity}>
+        <ShellPersonContext value={person}>
+          <ShellPlacementContext value={setPlacement}>{children}</ShellPlacementContext>
+        </ShellPersonContext>
+      </WorkspaceIdentityContext>
+    );
+  }
 
   return (
     <WorkspaceIdentityContext value={identity}>

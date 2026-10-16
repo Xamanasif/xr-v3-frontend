@@ -145,10 +145,10 @@ export const STATE_COPY_FACULTY_EXPERIMENT = {
     screen: 'FA-05',
     state: '“Mark <n> written answer” and “See students on this experiment”',
     words: null,
-    rule: 'Not rendered until FA-18 Marking and FA-20 Students are built (Phase 4B, DEV-21). The Ready row keeps “Open assessment” only.',
+    rule: 'Since Phase 4B both render: “Mark <n> written answer” (FA-18 for this assessment) beside “Open assessment” only while answers wait for marking (the list row’s count), and “See students on this experiment” (FA-20) under the per-format rows.',
     basis:
       'B4-03 f0 `a.xr-btn--secondary` “Mark 1 written answer”, `a` “See students on this experiment”',
     status: 'provisional',
-    decisions: ['DEV-21'],
+    decisions: ['VD-12'],
   },
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;

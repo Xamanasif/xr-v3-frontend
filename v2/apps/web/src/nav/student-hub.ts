@@ -18,7 +18,7 @@ import {
  * "My courses / ME ZG523 / Shell-and-Tube Heat Exchanger / Resources", the experiment crumb
  * opening the Overview. My courses stays current in the sidebar (`nav/active-item.ts`).
  */
-export type HubTab = 'overview' | 'resources' | 'simulation' | 'progress';
+export type HubTab = 'overview' | 'resources' | 'simulation' | 'assessment' | 'progress';
 
 /** A tab's place in the shell (the shape `useShellPage` takes). */
 export interface HubPlacement {
@@ -28,15 +28,19 @@ export interface HubPlacement {
   readonly currentCrumb: string;
 }
 
-/** The tab's screen (ST-05 Overview, ST-06, ST-07, ST-10). */
+/**
+ * The tab's screen (ST-05 Overview, ST-06, ST-07, ST-10; Phase 4B: the Assessment tab, the
+ * register's unnumbered "hub Assessment tab", B4-11 f7 … f9).
+ */
 export const HUB_TAB_SCREEN = {
   overview: 'ST-05',
   resources: 'ST-06',
   simulation: 'ST-07',
+  assessment: 'student-hub-assessment',
   progress: 'ST-10',
 } as const satisfies Record<HubTab, ScreenKey>;
 
-/** `/student/experiments/[experimentId]` and its tabs `/resources`, `/simulation`, `/progress`. */
+/** `/student/experiments/[experimentId]` and its tabs `/resources`, `/simulation`, `/assessment`, `/progress`. */
 export function hubTabAddress(experimentId: string, tab: HubTab): string {
   const hub = myExperimentAddress(experimentId);
   return tab === 'overview' ? hub : `${hub}/${tab}`;

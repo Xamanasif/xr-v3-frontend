@@ -7,7 +7,8 @@
  * question leaves the list with its history kept. The service's drawn validation words for each
  * type; the `returnTo` + `added=` protocol FA-07 and FA-09 rely on; the undrawn loading, failed,
  * no-match, no-experiment, colleague's question (an undecided rule), conflict and not-found
- * states. Drafting with assistance and importing are not rendered (FA-16, FA-17 not built).
+ * states. Since Phase 4B the header links to drafting with assistance (FA-16) and importing
+ * (FA-17), and the "Drafts to review" tab is drawn (its behaviour: `question-tools.test.tsx`).
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -143,11 +144,42 @@ describe('FA-14 — the bank (B4-07 f0, f9)', () => {
       `/faculty/question-bank/new?experimentId=${SHELL}`,
     );
     expect(screen.getByRole('link', { name: 'Add a question' })).toHaveClass('xr-btn--primary');
-    // FA-16 and FA-17 are not built: no "Draft with assistance", no "Import", no tab strip.
-    expect(screen.queryByText('Draft with assistance')).toBeNull();
-    expect(screen.queryByText('Import')).toBeNull();
-    expect(screen.queryByText('Drafts to review')).toBeNull();
-    expect(main().querySelector('nav.xr-tabs')).toBeNull();
+    // Phase 4B: "Draft with assistance" (FA-16) and "Import" (FA-17), and the tab strip.
+    const actions = main().querySelector('.xr-phead-actions') as HTMLElement;
+    expect(
+      [...actions.querySelectorAll('a')].map((link) => [
+        link.textContent,
+        link.getAttribute('href'),
+        link.className,
+      ]),
+    ).toEqual([
+      [
+        'Add a question',
+        `/faculty/question-bank/new?experimentId=${SHELL}`,
+        'xr-btn xr-btn--primary',
+      ],
+      [
+        'Draft with assistance',
+        `/faculty/question-bank/draft?experimentId=${SHELL}`,
+        'xr-btn xr-btn--secondary',
+      ],
+      ['Import', `/faculty/question-bank/import?experimentId=${SHELL}`, 'xr-btn xr-btn--secondary'],
+    ]);
+    const tabs = screen.getByRole('navigation', { name: 'Question bank' });
+    expect(tabs).toHaveClass('xr-tabs');
+    expect(within(tabs).getByRole('link', { name: 'Questions' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await waitFor(() =>
+      expect(within(tabs).getByRole('link', { name: /^Drafts to review/ })).toHaveTextContent(
+        'Drafts to review 0',
+      ),
+    );
+    expect(within(tabs).getByRole('link', { name: /^Drafts to review/ })).toHaveAttribute(
+      'href',
+      `/faculty/question-bank?tab=drafts&experimentId=${SHELL}`,
+    );
     // The shell: Question bank current; the top bar reads "Question bank".
     expect(document.querySelector('.xr-top-title')?.textContent).toBe('Question bank');
     expect(
@@ -269,7 +301,7 @@ describe('FA-14 — the bank (B4-07 f0, f9)', () => {
 // ---- f7: the empty bank -----------------------------------------------------------------------
 
 describe('FA-14 — the empty bank (B4-07 f7)', () => {
-  it('“Your question bank is empty” with “Add a question” (no Import)', async () => {
+  it('“Your question bank is empty” with “Add a question” and “Import”', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-b');
     showBank(runtime);
     const title = await screen.findByRole(
@@ -279,13 +311,16 @@ describe('FA-14 — the empty bank (B4-07 f7)', () => {
     );
     const empty = title.closest('.xr-empty') as HTMLElement;
     expect(empty).toHaveTextContent(
-      'Add a question. Questions stay here until you use them in an assessment.',
+      'Add a question, draft some with assistance from the experiment’s material, or import a file. Questions stay here until you use them in an assessment.',
     );
     expect(within(empty).getByRole('link', { name: 'Add a question' })).toHaveAttribute(
       'href',
       `/faculty/question-bank/new?experimentId=${SHELL}`,
     );
-    expect(within(empty).queryByText('Import')).toBeNull();
+    expect(within(empty).getByRole('link', { name: 'Import' })).toHaveAttribute(
+      'href',
+      `/faculty/question-bank/import?experimentId=${SHELL}`,
+    );
     expect(count()).toBe('0 questions');
     expect(screen.getByRole('searchbox', { name: 'Search questions' })).toBeVisible();
   });
@@ -1086,22 +1121,26 @@ describe('FA-14 / FA-15 words (B4-07)', () => {
     }
   });
 
-  it('the ledger: one primary per page; the unbuilt actions are not rendered and say why', () => {
+  it('the ledger: one primary per page; drafting, importing and the tabs are built (Phase 4B)', () => {
     const primaries = P4_QUESTION_BANK_LINK_TARGETS.filter((entry) => entry.role === 'primary');
     expect(primaries.map((entry) => `${entry.screen} ${entry.on} ${entry.action}`)).toEqual([
       'FA-14 /faculty/question-bank Add a question',
       'FA-15 /faculty/question-bank/new Save question',
       'FA-15 /faculty/question-bank/{questionId} Save question',
     ]);
-    const hidden = P4_QUESTION_BANK_LINK_TARGETS.filter(
-      (entry) => entry.outcome === 'not-rendered',
-    );
-    expect(hidden.map((entry) => entry.action)).toEqual([
-      'Draft with assistance',
-      'Import',
-      'Drafts to review',
-      'Import',
+    expect(
+      P4_QUESTION_BANK_LINK_TARGETS.filter((entry) => entry.outcome === 'not-rendered'),
+    ).toEqual([]);
+    expect(
+      P4_QUESTION_BANK_LINK_TARGETS.filter((entry) =>
+        ['Draft with assistance', 'Import', 'Questions', 'Drafts to review'].includes(entry.action),
+      ).map((entry) => `${entry.where} ${entry.action} → ${entry.target}`),
+    ).toEqual([
+      'Header Draft with assistance → /faculty/question-bank/draft?experimentId={experimentId}',
+      'Header Import → /faculty/question-bank/import?experimentId={experimentId}',
+      'Tabs Questions → /faculty/question-bank?experimentId={experimentId}',
+      'Tabs Drafts to review → /faculty/question-bank?tab=drafts&experimentId={experimentId}',
+      'Empty bank Import → /faculty/question-bank/import?experimentId={experimentId}',
     ]);
-    for (const entry of hidden) expect(entry.note).toMatch(/FA-1[67] .* is not built/);
   });
 });

@@ -115,7 +115,8 @@ function isRuleError(error: CreateError): error is CreateError & { readonly fiel
  *   in place: the record's readiness, the checklist, "Open assessment" (FA-08) and "Create
  *   another". A refusal because the experiment already has an assessment goes back to step 1 with
  *   f8; a failure for now keeps everything and says nothing was saved.
- * - "Draft with assistance" (FA-16) and "Import" (FA-17) are not built and not rendered (T-23).
+ * - Step 3's "Draft with assistance" (FA-16) and "Import" (FA-17) open those tools for the experiment
+ *   (Phase 4B); what they add goes into the bank, to be chosen here — never into the assessment.
  */
 export function CreateAssessment() {
   useShellPage(createAssessmentPlacement(CREATE_ASSESSMENT.title));

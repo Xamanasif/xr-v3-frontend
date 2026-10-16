@@ -95,6 +95,15 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
           (options.appEnvironment ?? 'development') === 'development'
             ? 'confirm-on-start'
             : 'provider-reports',
+        // P4-01 (owner answer, Phase 4B, 16 Oct 2026; PC-60): in a local prototype build the
+        // sample `system:objective-marks` stand-in marks each submitted attempt's single-choice
+        // and true-or-false questions by the pinned version's key, so Faculty can confirm marks.
+        // Any other build keeps the DV-2 interim (marks only from fixtures): Confirm marks then
+        // answers "policy-open" ATT-07 for an attempt with choice questions.
+        objectiveMarks:
+          (options.appEnvironment ?? 'development') === 'development'
+            ? 'answer-key-on-submit'
+            : 'supplied-only',
       });
       return {
         adapter: {

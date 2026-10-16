@@ -1,11 +1,16 @@
 'use client';
 
-import type { MyCourseRow } from '@xr/contracts/draft';
+import type { MyAssessmentRow, MyCourseRow } from '@xr/contracts/draft';
 import { EmptyState, FormatSet, Icon, type IconName, Link, PageContent, Row, Rows } from '@xr/ui';
 import { Fragment, type ReactNode, useId } from 'react';
 
 import { UP_NEXT_FEEDBACK } from '@/copy/progress-feedback';
 import { stateWords } from '@/copy/state-copy';
+import {
+  UP_NEXT_OPEN_ASSESSMENT,
+  upNextAssessmentSub,
+  upNextAssessmentTitle,
+} from '@/copy/student-assessments';
 import {
   assessmentReadyWords,
   continueExperimentWords,
@@ -29,8 +34,10 @@ import {
   myExperimentAddress,
   STUDENT_HELP_ADDRESS,
 } from '@/nav/student';
+import { studentAssessmentAddress } from '@/nav/student-assessments';
 import { feedbackAddress } from '@/nav/student-progress';
 import { type HomeRead, useStudentHome } from '@/queries/student';
+import { useMyAssessments } from '@/queries/student-assessments';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import { CourseRow } from '../shared/course-row';
@@ -65,14 +72,25 @@ import {
  * - **Links**: the card and "Open experiment" open the hub (ST-05), "Open course" the course
  *   (ST-03), "View all courses" My courses (ST-02), Help the Student's Help; Up next's "Give
  *   feedback" opens that format's feedback (ST-16, Phase 3) — the service lists the item only for a
- *   format with its own completion and no feedback yet (BC5). Up next's "Open assessment" leads to
- *   Phase 4 and is not rendered (DEV-21); f8's "See earlier work" stays unrendered while SACC-14
- *   is open (Progress has no earlier-work rows to show, `ST-01.earlier-only`).
+ *   format with its own completion and no feedback yet (BC5). Up next's assessment (an assessment
+ *   to do, Phase 4B) reads as B4-11 f10 draws it — "<assessment> is ready", "<experiment> ·
+ *   assessment · due <deadline>" — named from the Student's own assessments (`listMyAssessments`),
+ *   and "Open assessment" opens "Before you start" (ST-12; state-copy `ST-01.up-next-assessment`);
+ *   f8's "See earlier work" stays unrendered while SACC-14 is open (Progress has no earlier-work
+ *   rows to show, `ST-01.earlier-only`).
  */
 export function StudentHome() {
   useShellPage(homePlacement());
   const student = useStudentSession();
   const read = useStudentHome();
+  // Up next names an assessment from the Student's own assessments (B4-11 f10): read only when it
+  // lists one, and waited for so the row is drawn once.
+  const listsAssessment =
+    read.data?.ok === true &&
+    read.data.value.home.upNext.some((item) => item.kind === 'assessment');
+  const assessments = useMyAssessments(listsAssessment);
+  const assessmentsSettled =
+    !listsAssessment || assessments.data !== undefined || assessments.isError;
   const retried = useRetryFocus(read.data?.ok === true);
 
   const retry = () => {
@@ -91,10 +109,14 @@ export function StudentHome() {
         </div>
         {read.isError ? (
           <StudentFailed title={stateWords('ST-01.failed')} onRetry={retry} />
-        ) : !student || read.isPending || !read.data ? (
+        ) : !student || read.isPending || !read.data || !assessmentsSettled ? (
           <StudentLoading label={stateWords('ST-01.loading')} />
         ) : read.data.ok ? (
-          <HomeContent read={read.data.value} closure={student.closure} />
+          <HomeContent
+            read={read.data.value}
+            closure={student.closure}
+            assessments={assessments.data?.ok ? assessments.data.value : []}
+          />
         ) : (
           // The Home answers every signed-in Student; a refusal is the workspace guard's (XS-06).
           <StudentFailed title={stateWords('ST-01.failed')} onRetry={retry} />
@@ -104,7 +126,16 @@ export function StudentHome() {
   );
 }
 
-function HomeContent({ read, closure }: { readonly read: HomeRead; readonly closure: Closure }) {
+function HomeContent({
+  read,
+  closure,
+  assessments,
+}: {
+  readonly read: HomeRead;
+  readonly closure: Closure;
+  /** The Student's own assessments, naming Up next's assessment (empty: not read or not readable). */
+  readonly assessments: readonly MyAssessmentRow[];
+}) {
   const state = homeState(read.home, closure);
   const help = (
     <div className="flex flex-wrap gap-3">
@@ -151,7 +182,7 @@ function HomeContent({ read, closure }: { readonly read: HomeRead; readonly clos
       return (
         <>
           {card ? <ContinueCard card={card} /> : null}
-          <UpNext items={upNextItems(read, card)} />
+          <UpNext items={upNextItems(read, card)} assessments={assessments} />
           <MyCoursesSection courses={read.home.myCourses} paused={false} allLink />
         </>
       );
@@ -231,7 +262,13 @@ function ContinueCard({ card }: { readonly card: HomeCard }) {
 }
 
 /** Up next (f1, f4: honestly empty; f5: the three item types, at most three). */
-function UpNext({ items }: { readonly items: readonly UpNextView[] }) {
+function UpNext({
+  items,
+  assessments,
+}: {
+  readonly items: readonly UpNextView[];
+  readonly assessments: readonly MyAssessmentRow[];
+}) {
   const headingId = useId();
   return (
     <section className="xr-section" aria-labelledby={headingId}>
@@ -248,7 +285,7 @@ function UpNext({ items }: { readonly items: readonly UpNextView[] }) {
       ) : (
         <Rows>
           {items.map((item, index) => (
-            <UpNextRow key={index} item={item} />
+            <UpNextRow key={index} item={item} assessments={assessments} />
           ))}
         </Rows>
       )}
@@ -256,18 +293,42 @@ function UpNext({ items }: { readonly items: readonly UpNextView[] }) {
   );
 }
 
-function UpNextRow({ item }: { readonly item: UpNextView }) {
+function UpNextRow({
+  item,
+  assessments,
+}: {
+  readonly item: UpNextView;
+  readonly assessments: readonly MyAssessmentRow[];
+}) {
   switch (item.kind) {
-    case 'assessment':
-      // "Open assessment" (ST-11, Phase 4) is not rendered (DEV-21).
+    case 'assessment': {
+      // B4-11 f10: named from the Student's own assessments; "Open assessment" opens "Before you
+      // start" (ST-12). Without that list, B2-10 f5's words (`ST-01.up-next-assessment`).
+      const row = assessments.find((entry) => entry.assessment.id === item.assessmentId);
       return (
         <Row
           icon="assessments"
           tone="info"
-          title={assessmentReadyWords(item.experimentName)}
-          sub={HOME_PAGE.assessmentSub}
-        />
+          title={
+            row
+              ? upNextAssessmentTitle(row.assessment.name)
+              : assessmentReadyWords(item.experimentName)
+          }
+          sub={
+            row
+              ? upNextAssessmentSub(row.experimentName, row.assessment.rules.deadline)
+              : HOME_PAGE.assessmentSub
+          }
+        >
+          <Link
+            className="xr-btn xr-btn--secondary xr-btn--sm"
+            href={studentAssessmentAddress(item.assessmentId)}
+          >
+            {UP_NEXT_OPEN_ASSESSMENT}
+          </Link>
+        </Row>
       );
+    }
     case 'feedback': {
       // "Give feedback" opens ST-16 for that experiment's format (B2-10 f5 → B3-06; Phase 3).
       return (

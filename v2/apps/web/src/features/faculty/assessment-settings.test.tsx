@@ -157,8 +157,10 @@ describe('FA-10 Settings — as set (B4-06 f0, f4)', () => {
       'aria-current',
       'page',
     );
-    // Submissions (FA-12) is Phase 4B: not rendered (DEV-21).
-    expect(within(tabs).queryByRole('link', { name: /Submissions/ })).toBeNull();
+    // Submissions (FA-12, Phase 4B): the fifth tab, with the Students who have submitted.
+    expect(within(tabs).getByRole('link', { name: /^Submissions/ })).toHaveTextContent(
+      'Submissions 1',
+    );
 
     expect(field(RULES_FORM.name).value).toBe(NAME);
     expect(field('Introduction (optional)').value).toBe('');
@@ -823,17 +825,15 @@ describe('FA-10 / FA-11 link targets', () => {
     ).toEqual(['FA-10 Save settings']);
   });
 
-  it('every built target resolves; Submissions waits for FA-12', () => {
+  it('every built target resolves (Submissions since FA-12 is built)', () => {
     for (const entry of rows) {
       if (entry.outcome === 'built') {
         expect(resolveAddress(expandTarget(entry.target!, '/faculty')).kind, entry.action).toBe(
           'record-screen',
         );
       }
-      if (entry.outcome === 'not-rendered') {
-        expect(entry.note).toMatch(/FA-12 Submissions is not built/);
-      }
     }
+    expect(rows.filter((entry) => entry.outcome === 'not-rendered')).toEqual([]);
   });
 });
 

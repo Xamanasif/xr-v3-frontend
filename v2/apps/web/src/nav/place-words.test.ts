@@ -43,13 +43,31 @@ describe('placeWordsOf', () => {
     [null],
     [''],
     ['/'],
-    ['/student/assessments'],
-    ['/faculty/marking'],
+    // Phase 4B: every workspace destination is built now; an unbuilt Vendor page has no words.
+    ['/vendor/experiments'],
     ['https://evil.example/admin/requests'],
     ['//evil.example/admin/requests'],
     ['/sign-in'],
   ])('%j has no words', (path) => {
     expect(placeWordsOf(path)).toBeNull();
+  });
+
+  it.each([
+    // Phase 4B: the Student's assessment pages, Marking, a submission, Students, the tools.
+    ['/student/assessments', 'Assessments'],
+    ['/student/assessments/ASMT-0009', 'Assessments › ASMT-0009'],
+    ['/student/assessments/ASMT-0009/attempt', 'Assessments › ASMT-0009'],
+    ['/student/assessments/ASMT-0009/result', 'Assessments › ASMT-0009'],
+    ['/student/experiments/shell-and-tube-heat-exchanger/assessment', 'My courses'],
+    ['/faculty/assessments/ASMT-0009/submissions', 'Assessments › ASMT-0009'],
+    ['/faculty/marking', 'Marking'],
+    ['/faculty/marking/ATT-0450', 'Marking › ATT-0450'],
+    ['/faculty/students', 'Students'],
+    ['/faculty/students/per-0002?experimentId=shell-and-tube-heat-exchanger', 'Students'],
+    ['/faculty/question-bank/draft', 'Question bank'],
+    ['/faculty/question-bank/import', 'Question bank'],
+  ])('%s → %s', (path, place) => {
+    expect(placeWordsOf(path)).toBe(place);
   });
 
   it.each([

@@ -9,8 +9,9 @@ import { currentSidebarItem } from '../support/workspace';
  * 768 and 375. Each drawn state passes `checkState` (axe WCAG A/AA, one h1, visible focus targets,
  * 24 × 24 targets, no developer surface, no sideways scroll). Worlds: after Flow D (ASMT-0009
  * Ready, f0 / f4), after Flow C (no assessment yet, f1; a draft saved through `actAs`, f2), after
- * Flow B (nothing opened yet, f3). "Mark 1 written answer" (FA-18) and "See students on this
- * experiment" (FA-20) are not rendered (DEV-21).
+ * Flow B (nothing opened yet, f3). Since Phase 4B "Mark <n> written answer" opens FA-18 while answers
+ * wait (none wait after Flow D: ATT-0450's marks are confirmed) and "See students on this
+ * experiment" opens FA-20.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 
@@ -77,6 +78,7 @@ test.describe('FA-05 Experiment (teaching view)', () => {
     );
     const openAssessment = row.getByRole('link', { name: 'Open assessment' });
     await expect(openAssessment).toHaveClass(/xr-btn--primary/);
+    // Nothing waits for marking after Flow D, so "Mark <n> written answer" is not shown.
     await expect(assessment.getByRole('link')).toHaveCount(1);
     await expect(page.getByRole('link', { name: /Mark .* written answer/ })).toHaveCount(0);
 
@@ -88,9 +90,10 @@ test.describe('FA-05 Experiment (teaching view)', () => {
       'WEBWEB | 1 completed | 0 in progress | 0 not started',
       'VRVR | 1 completed | 0 in progress | 0 not started',
     ]);
-    await expect(page.getByRole('link', { name: 'See students on this experiment' })).toHaveCount(
-      0,
-    );
+    // Phase 4B: "See students on this experiment" opens FA-20 for it (the 4B suite follows it).
+    await expect(
+      activity.getByRole('link', { name: 'See students on this experiment' }),
+    ).toHaveAttribute('href', `/faculty/students?experimentId=${SHELL}`);
 
     const about = section(page, 'About this experiment');
     await expect(about.locator('ul > li')).toHaveText([

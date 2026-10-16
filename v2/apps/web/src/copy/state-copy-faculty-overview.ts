@@ -28,13 +28,13 @@ export const STATE_COPY_FACULTY_OVERVIEW = {
   },
   'FA-01.not-rendered': {
     screen: 'FA-01',
-    state: 'Attention rows and the header action whose page is not built yet (Phase 4A)',
+    state: 'The attention row B4-01 draws that has no fact yet (Phase 4B)',
     words: null,
-    rule: 'The access-ended row (→ My courses) is drawn with its action. The written-answers row is drawn as the fact it is — the assessment, the oldest submission — WITHOUT “Mark now” (FA-18 Marking, Phase 4B), so the page never says nothing needs the Faculty member while an answer waits (Phase 4A review). The inactive-students row (“View students” → FA-20, whose sample rule OD-B4-10 is undecided), the draft-questions row (“Review drafts”; drafts exist only once FA-16 requests them and no provider is named) and the header’s primary “Mark <n> written answer” (FA-18) are not drawn until those screens are built. With no row to draw, “Needs your attention” shows the calm state (f1).',
+    rule: 'Since Phase 4B the written-answers row (“Mark now”), the inactive-students row (“View students”) and the header’s “Mark <n> written answer” are drawn with their actions (`FA-01.phase-4b-actions`). The draft-questions row (“Review drafts”) is still not drawn: the overview read carries no drafts fact (drafts are held for review outside the records, Q-06, and `facultyAttention` names none, PC-51). With no row to draw, “Needs your attention” shows the calm state (f1).',
     basis:
-      'DEV-21 interim (links to unbuilt screens are not rendered); B4-01 f0, f4 rows and header action; contract `facultyAttention` (no drafts fact, PC-51)',
+      'B4-01 f0, f4 rows and header action; contract `facultyAttention` (no drafts fact, PC-51); FA-16 drafts are adapter state (PC-61)',
     status: 'provisional',
-    decisions: ['DEV-21', 'T-23', 'PC-51'],
+    decisions: ['T-23', 'PC-51'],
   },
   'FA-01.attention-rows': {
     screen: 'FA-01',

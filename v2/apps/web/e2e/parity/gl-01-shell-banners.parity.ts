@@ -117,38 +117,48 @@ test('board 05 · the built shell on Help for 7 roles, with the applicable banne
             kind: 'specimen',
             deviation: 'DEV-21',
           }
-        : role.label === 'Student' || role.label === 'Institute Admin'
+        : role.label === 'Institute Admin'
           ? {
-              // Package 2A builds the Student's Home and My courses and the Institute Admin's
-              // Overview, Content access, Student access and People: measured under its own name
-              // and DEV-21 (owner review); the Phase-0 pin (DEV-10, Help only) stays as the record.
-              // Phase 3 adds the Student's Progress and the Institute Admin's Requests and Usage:
-              // measured as `-phase-3`, the Package-2A pins kept as the record.
+              // Package 2A builds the Institute Admin's Overview, Content access, Student access and
+              // People: measured under its own name and DEV-21 (owner review); the Phase-0 pin
+              // (DEV-10, Help only) stays as the record. Phase 3 adds Requests and Usage: measured
+              // as `-phase-3`, the Package-2A pin kept as the record.
               name: `${name}-sidebar-phase-3`,
               reference: board.locator('aside.xr-side'),
               product: ours.locator('aside.xr-side'),
               kind: 'specimen',
               // The Institute Admin's Requests count is not drawn while what it counts is open.
-              deviation: role.label === 'Institute Admin' ? ['DEV-21', 'DEV-43'] : 'DEV-21',
+              deviation: ['DEV-21', 'DEV-43'],
             }
-          : role.label === 'Faculty'
+          : role.label === 'Student'
             ? {
-                // Phase 4A builds the Faculty member's Overview, My courses, Assessments and
-                // Question bank (Marking and Students are Phase 4B): measured as `-phase-4a` and
-                // DEV-21 (owner review); the Phase-0 pin (DEV-10, Help only) stays as the record.
-                name: `${name}-sidebar-phase-4a`,
+                // Phase 4B builds the Student's Assessments, the last Student destination: the
+                // sidebar is board 05's (no deviation), measured as `-phase-4b`; the Package-2A and
+                // Phase-3 pins stay as the record.
+                name: `${name}-sidebar-phase-4b`,
                 reference: board.locator('aside.xr-side'),
                 product: ours.locator('aside.xr-side'),
                 kind: 'specimen',
-                deviation: 'DEV-21',
               }
-            : {
-                name: `${name}-sidebar`,
-                reference: board.locator('aside.xr-side'),
-                product: ours.locator('aside.xr-side'),
-                kind: 'specimen',
-                deviation: 'DEV-10',
-              },
+            : role.label === 'Faculty'
+              ? {
+                  // Phase 4B adds Marking and Students (every Faculty destination): measured as
+                  // `-phase-4b`; the Phase-4A pin stays as the record. What remains is the Marking
+                  // count's figure — the sample world's written answers waiting, not board 06's
+                  // sample number (DEV-44).
+                  name: `${name}-sidebar-phase-4b`,
+                  reference: board.locator('aside.xr-side'),
+                  product: ours.locator('aside.xr-side'),
+                  kind: 'specimen',
+                  deviation: 'DEV-44',
+                }
+              : {
+                  name: `${name}-sidebar`,
+                  reference: board.locator('aside.xr-side'),
+                  product: ours.locator('aside.xr-side'),
+                  kind: 'specimen',
+                  deviation: 'DEV-10',
+                },
       {
         name: `${name}-help-header`,
         reference: board.locator('main .xr-phead'),

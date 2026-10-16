@@ -39,6 +39,19 @@ describe('composePlatform', () => {
     expect(modeOf('production')).toBe('provider-reports');
   });
 
+  it('P4-01 (PC-60): only a local prototype build marks choice questions by the pinned key', async () => {
+    const { internalsOf } = await import('@xr/sample-platform/testing');
+    const modeOf = (appEnvironment?: 'development' | 'staging' | 'production') =>
+      internalsOf(
+        composePlatform({ dataSource: 'sample', ...(appEnvironment ? { appEnvironment } : {}) })
+          .sample,
+      ).core.objectiveMarks;
+    expect(modeOf()).toBe('answer-key-on-submit');
+    expect(modeOf('development')).toBe('answer-key-on-submit');
+    expect(modeOf('staging')).toBe('supplied-only');
+    expect(modeOf('production')).toBe('supplied-only');
+  });
+
   it('sample: the committed sample adapter, its 22 ports and the memory-per-tab capability', async () => {
     const composed = composePlatform({ dataSource: 'sample' });
     expect(created.count).toBe(1);

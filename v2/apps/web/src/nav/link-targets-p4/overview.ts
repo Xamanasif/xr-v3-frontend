@@ -3,9 +3,10 @@ import { pageRows } from '../link-targets-p3/rows';
 
 /**
  * Phase 4A link targets: FA-01 Overview (B4-01). A reading page: every action opens the page where
- * the work is done. The board's one primary ("Mark <n> written answer") and the rows whose page is
- * Phase 4B are not rendered (DEV-21; state-copy `FA-01.not-rendered`): Phase 4A draws the scope
- * line's "My courses", the access-ended row (f3), "Open" per deadline coming up and f2's "Help".
+ * the work is done. Phase 4A drew the scope line's "My courses", the access-ended row (f3), "Open"
+ * per deadline coming up and f2's "Help"; Phase 4B renders the board's one primary ("Mark <n>
+ * written answer") and the rows' "Mark now" (FA-18) and "View students" (FA-20) (state-copy
+ * `FA-01.phase-4b-actions`). The draft-questions row stays undrawn: the service has no such fact.
  */
 export const P4_FACULTY_OVERVIEW_LINK_TARGETS: readonly LedgerEntry[] = pageRows(
   'FA-01',
@@ -16,9 +17,8 @@ export const P4_FACULTY_OVERVIEW_LINK_TARGETS: readonly LedgerEntry[] = pageRows
       'Mark <n> written answer',
       'primary',
       '/faculty/marking',
-      'not-rendered',
-      'B4-01 f0, f4 `div.xr-phead-actions > a.xr-btn--primary`',
-      'FA-18 Marking is not built (Phase 4B): the action appears with it (DEV-21).',
+      'built',
+      'B4-01 f0, f4 `div.xr-phead-actions > a.xr-btn--primary` (→ B4-09 FA-18; shown while a written answer waits)',
     ],
     [
       'Header scope line',
@@ -32,10 +32,9 @@ export const P4_FACULTY_OVERVIEW_LINK_TARGETS: readonly LedgerEntry[] = pageRows
       '“Needs your attention” row (written answers to mark)',
       'Mark now',
       'secondary',
-      '/faculty/marking',
-      'not-rendered',
-      'B4-01 f0, f4',
-      'FA-18 Marking is not built (Phase 4B): the row appears with it (DEV-21).',
+      '/faculty/marking?assessmentId={assessmentId}',
+      'built',
+      'B4-01 f0, f4 (→ B4-09 FA-18, for the row’s assessment)',
     ],
     [
       '“Needs your attention” row (draft questions to review)',
@@ -44,16 +43,15 @@ export const P4_FACULTY_OVERVIEW_LINK_TARGETS: readonly LedgerEntry[] = pageRows
       '/faculty/question-bank?tab=drafts',
       'not-rendered',
       'B4-01 f0, f4 (→ B4-07 “Drafts to review”)',
-      'FA-16 Draft questions with assistance is not built (no provider is named, T-23): the bank has no drafts and the service no such fact, so the row appears with it (DEV-21).',
+      'Not drawn: the overview service has no drafts fact (contract `facultyAttention`, PC-51). Phase 4B built FA-16 and the bank’s Drafts tab; the row appears once the service names drafts waiting for review (DEV-21; T-23).',
     ],
     [
       '“Needs your attention” row (students inactive)',
       'View students',
       'secondary',
-      '/faculty/students',
-      'not-rendered',
-      'B4-01 f0, f4',
-      'FA-20 Students is not built (Phase 4B): the row appears with it (DEV-21).',
+      '/faculty/students?experimentId={experimentId}',
+      'built',
+      'B4-01 f0, f4 (→ B4-10 FA-20, for the row’s experiment)',
     ],
     [
       '“Needs your attention” row (access ended)',

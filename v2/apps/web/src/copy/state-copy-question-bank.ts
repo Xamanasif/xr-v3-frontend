@@ -7,6 +7,9 @@ import type { StateCopyEntry } from './state-copy';
  */
 export const STATE_COPY_QUESTION_BANK = {
   // ---- FA-14 Question bank (B4-07 f0, f2, f7, f9) ----------------------------------------------
+  // Since Phase 4B the header's “Draft with assistance” and “Import”, the empty bank's drawn line
+  // and “Import”, and the Drafts to review tab render as B4-07 draws them; the tab's rule is
+  // `FA-14.drafts-tab` in `state-copy-question-tools.ts`.
   'FA-14.experiment': {
     screen: 'FA-14',
     state: 'Which experiment’s questions the bank shows',
@@ -71,34 +74,6 @@ export const STATE_COPY_QUESTION_BANK = {
     basis: 'B4-02 f5 `button.xr-btn--primary` “Try again”',
     status: 'provisional',
     decisions: ['VD-12'],
-  },
-  'FA-14.drafts-tab': {
-    screen: 'FA-14',
-    state: 'The “Questions · Drafts to review” tab strip and the Drafts to review tab (f1)',
-    words: null,
-    rule: 'Not rendered: drafts come only from FA-16 Draft with assistance, which is not built (no drafting provider). With one tab left, no tab strip is drawn — the Questions section follows the page header.',
-    basis:
-      'B4-07 f0 `nav.xr-tabs`, f1 “Drafts to review”; the link-target ledger’s “not rendered” rule',
-    status: 'provisional',
-    decisions: ['DEV-21', 'T-23'],
-  },
-  'FA-14.assist-import': {
-    screen: 'FA-14',
-    state: 'The header’s “Draft with assistance” and “Import”, and the empty state’s “Import”',
-    words: null,
-    rule: 'Not rendered until FA-16 and FA-17 are built: the header holds “Add a question” only.',
-    basis: 'B4-07 f0, f7, f9 `div.xr-phead-actions`, f7 `div.xr-empty`; the link-target ledger',
-    status: 'provisional',
-    decisions: ['DEV-21', 'T-23'],
-  },
-  'FA-14.empty-line': {
-    screen: 'FA-14',
-    state: 'The empty bank’s line (f7) while drafting and importing are not built',
-    words: 'Add a question. Questions stay here until you use them in an assessment.',
-    basis:
-      'B4-07 f7 “Add a question, draft some with assistance from the experiment’s material, or import a file. Questions stay here until you use them in an assessment.” — the two unbuilt ways are left out',
-    status: 'provisional',
-    decisions: ['DEV-21', 'T-23'],
   },
   'FA-14.used-several': {
     screen: 'FA-14',

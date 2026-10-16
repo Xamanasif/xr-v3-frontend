@@ -46,6 +46,7 @@ const SIDEBAR_HELP = ['HelpHelp', '/student/help'];
 const SIDEBAR = [
   ['HomeHome', '/student'],
   ['My coursesMy courses', '/student/courses'],
+  ['AssessmentsAssessments', '/student/assessments'],
   ['ProgressProgress', '/student/progress'],
   SIDEBAR_HELP,
 ];
@@ -131,7 +132,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
 
     await page.evaluate(() => {
       (window as unknown as { next: { router: { push(href: string): void } } }).next.router.push(
-        '/student/assessments',
+        '/student/catalogue',
       );
     });
     await expect(page.getByRole('heading', { name: 'We can’t find that page' })).toBeVisible();
@@ -210,8 +211,8 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
     ) {
       // Package 2A: the Institute Admin's Overview, Content access, Student access and People; the
       // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Phase 4A: the
-      // Faculty member's Overview, My courses, Assessments and Question bank (Marking and Students
-      // wait for Phase 4B; the Student's Assessments too).
+      // Faculty member's Overview, My courses, Assessments and Question bank. Phase 4B: Marking
+      // and Students, and the Student's Assessments.
       const built =
         entry.role === 'tenant_admin'
           ? [
@@ -223,8 +224,15 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
               '/institute/usage',
             ]
           : entry.role === 'faculty'
-            ? ['/faculty', '/faculty/courses', '/faculty/assessments', '/faculty/question-bank']
-            : ['/student', '/student/courses', '/student/progress'];
+            ? [
+                '/faculty',
+                '/faculty/courses',
+                '/faculty/assessments',
+                '/faculty/question-bank',
+                '/faculty/marking',
+                '/faculty/students',
+              ]
+            : ['/student', '/student/courses', '/student/assessments', '/student/progress'];
       expect(
         await side
           .locator('nav a[href]')
@@ -247,7 +255,7 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
 test('following every ledger link is client-side: one document, one world, one session', async ({
   page,
 }) => {
-  await openAs(page, RAHUL.person, '/student/assessments');
+  await openAs(page, RAHUL.person, '/student/catalogue');
   await expect(page.getByRole('heading', { name: 'We can’t find that page' })).toBeVisible();
   const mark = await markDocument(page);
   const start = await inspectWorld(page);

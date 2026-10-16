@@ -6,7 +6,9 @@
  * completed without feedback) come from the CI-only runtime-report stand-ins, never from a page.
  * The safeguards: opening a resource or launching WEB completes nothing (T-12, T-13); feedback is
  * offered per format, only on that format's own completion (BC5); no percentage, no
- * experiment-level verdict; no Assessment tab or action (Phase 4, DEV-21).
+ * experiment-level verdict. The strip carries the Assessment tab since Phase 4B (B4-11 f7; the
+ * tab itself: student-assessments.test.tsx); the Overview's and Progress's assessment words keep
+ * no action.
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -65,6 +67,7 @@ const MEERA = 'per-0001';
 const SHELL = 'shell-and-tube-heat-exchanger';
 const SHELL_NAME = 'Shell-and-Tube Heat Exchanger';
 const HUB = `/student/experiments/${SHELL}`;
+const HUB_PATTERN = '/student/experiments/{experimentId}';
 const COURSE = '/student/courses/thermodynamics-heat-transfer';
 const BRIEF = 'Lab brief — Shell-and-Tube Heat Exchanger';
 
@@ -109,6 +112,7 @@ function stripWith(current: string) {
     ['Overview', HUB, current === 'Overview'],
     ['Resources', `${HUB}/resources`, current === 'Resources'],
     ['Simulation', `${HUB}/simulation`, current === 'Simulation'],
+    ['Assessment', `${HUB}/assessment`, current === 'Assessment'],
     ['Progress', `${HUB}/progress`, current === 'Progress'],
   ];
 }
@@ -193,13 +197,17 @@ async function fatima() {
 // ---- ST-05: the Phase-3 additions (B2-12 f0 … f3, f5; B3-12) ----------------------------------
 
 describe('ST-05 Overview — the tabs, the one Next step and the cards’ actions', () => {
-  it('first visit: the tab strip without Assessment; “open the resources”; the cards open the tabs (B2-12 f0)', async () => {
+  it('first visit: the tab strip with Assessment; “open the resources”; the cards open the tabs (B2-12 f0)', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
     await hubReady();
     expect(tabStrip()).toEqual(stripWith('Overview'));
-    // The Assessment tab (Phase 4) is not rendered (DEV-21).
-    expect(screen.queryByRole('link', { name: /Assessment/ })).toBeNull();
+    // The Assessment tab (Phase 4B, B4-11 f7) is the only assessment link: none is set yet.
+    expect(
+      within(main())
+        .getAllByRole('link', { name: /Assessment/ })
+        .map((link) => link.getAttribute('href')),
+    ).toEqual([`${HUB}/assessment`]);
     const head = main().querySelector('.xw-hubhead')!;
     expect(head).not.toHaveClass('xl-hubhead');
     const row = head.querySelector('.xw-hubrow')!;
@@ -889,7 +897,7 @@ describe('ST-10 Progress for this experiment', () => {
 // ---- the registers ---------------------------------------------------------------------------
 
 describe('the hub’s registers', () => {
-  it('every hub action in the ledger reaches a built page, or names the unbuilt Phase-4 screen', () => {
+  it('every hub action in the ledger reaches a built page — the Assessment tab too (Phase 4B)', () => {
     const mine = LINK_TARGET_LEDGER.filter((entry) =>
       ['ST-05', 'ST-06', 'ST-07', 'ST-10'].includes(entry.screen),
     );
@@ -899,14 +907,22 @@ describe('the hub’s registers', () => {
     for (const entry of mine) {
       if (entry.target === null) continue;
       const target = expandTarget(entry.target, '/student');
-      const kind = resolveAddress(target).kind;
-      if (entry.outcome === 'built') {
-        expect(['screen', 'record-screen'], `${entry.screen} ${entry.action}`).toContain(kind);
-      } else {
-        expect(entry.outcome).toBe('not-rendered');
-        expect(entry.note).toMatch(/ST-11 .*not built \(Phase 4\)/);
-        expect(kind).toBe('workspace-not-found');
-      }
+      expect(entry.outcome, `${entry.screen} ${entry.where} ${entry.action}`).toBe('built');
+      expect(['screen', 'record-screen'], `${entry.screen} ${entry.action}`).toContain(
+        resolveAddress(target).kind,
+      );
+    }
+    // Each tab page's strip lists the Assessment tab.
+    for (const on of ['', '/resources', '/simulation', '/assessment', '/progress']) {
+      expect(
+        mine.some(
+          (entry) =>
+            entry.on === `${HUB_PATTERN}${on}` &&
+            entry.action === 'Assessment' &&
+            entry.target === `${HUB_PATTERN}/assessment`,
+        ),
+        on,
+      ).toBe(true);
     }
   });
 

@@ -4,8 +4,8 @@ import { pageRows } from '../link-targets-p3/rows';
 /**
  * Phase 4A link targets: FA-05 Experiment, the teaching view (B4-03). One primary per drawn state —
  * f0 / f4 "Open assessment" (Ready), f1 / f3 "Create assessment" (none yet; the experiment rides
- * along to FA-07), f2 "Continue setting up" (draft). "Mark 1 written answer" (FA-18) and "See
- * students on this experiment" (FA-20) are Phase 4B and not rendered until then (DEV-21).
+ * along to FA-07), f2 "Continue setting up" (draft). Since Phase 4B "Mark 1 written answer" opens
+ * FA-18 for the assessment while answers wait, and "See students on this experiment" opens FA-20.
  */
 export const P4_FACULTY_EXPERIMENT_LINK_TARGETS: readonly LedgerEntry[] = pageRows(
   'FA-05',
@@ -32,10 +32,10 @@ export const P4_FACULTY_EXPERIMENT_LINK_TARGETS: readonly LedgerEntry[] = pageRo
       'Assessment · Ready (f0, f4)',
       'Mark 1 written answer',
       'secondary',
-      '/faculty/marking',
-      'not-rendered',
+      '/faculty/marking?assessmentId={assessmentId}',
+      'built',
       'B4-03 f0, f4 `a.xr-btn.xr-btn--secondary.xr-btn--sm`',
-      'FA-18 Marking is not built (Phase 4B): the action appears with it (DEV-21).',
+      'FA-18 for this assessment, while answers wait (Phase 4B).',
     ],
     [
       'Assessment · none yet (f1, f3)',
@@ -60,9 +60,9 @@ export const P4_FACULTY_EXPERIMENT_LINK_TARGETS: readonly LedgerEntry[] = pageRo
       'See students on this experiment',
       'secondary',
       '/faculty/students?experimentId={experimentId}',
-      'not-rendered',
-      'B4-03 f0, f4 `a` under the per-format rows',
-      'FA-20 Students is not built (Phase 4B): the link appears with it (DEV-21).',
+      'built',
+      'B4-03 f0, f1, f2, f4 `a` under the per-format rows (f3 draws none)',
+      'FA-20 for this experiment (Phase 4B).',
     ],
     [
       'Failed state',

@@ -6,6 +6,8 @@ import { createContext, useContext, useLayoutEffect } from 'react';
 
 import type { ScreenKey } from '@/nav/screens';
 
+import type { ShellPerson } from '../xs-05-account-menu/account-menu';
+
 /**
  * What a page tells the persistent workspace shell about itself (WP-0.8 README "For WP-0.13": the
  * shell sits in the workspace layout, which cannot receive props from its pages). Each page —
@@ -65,4 +67,16 @@ export function useWorkspaceIdentity(): WorkspaceIdentity {
   const identity = useContext(WorkspaceIdentityContext);
   if (!identity) throw new Error('useWorkspaceIdentity is used outside a workspace frame.');
   return identity;
+}
+
+/**
+ * The signed-in person as the shell shows them (initials and name), for a focused page that draws
+ * its own bar without the shell (Phase 4B, ST-13: "RV" with "Rahul Verma, Student").
+ */
+export const ShellPersonContext = createContext<ShellPerson | null>(null);
+
+export function useShellPerson(): ShellPerson {
+  const person = useContext(ShellPersonContext);
+  if (!person) throw new Error('useShellPerson is used outside a focused workspace page.');
+  return person;
 }

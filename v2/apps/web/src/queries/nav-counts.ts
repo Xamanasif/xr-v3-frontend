@@ -8,8 +8,8 @@
  *
  * Built so far: the Super Admin's Requests — "requests under review" (B1-10 caption "Nav count 3 =
  * requests under review"), the rows `AccessRequestService.listRequests` answers with that status
- * (also SA-01's Requests group, Package 1D). Other workspaces' counts arrive with their
- * destinations.
+ * (also SA-01's Requests group, Package 1D); the Faculty member's Marking (Phase 4B). Other
+ * workspaces' counts arrive with their destinations.
  */
 import type { ProductPorts } from '@xr/contracts/draft';
 import type { Role } from '@xr/domain';
@@ -34,10 +34,29 @@ export function useRequestsUnderReview() {
   return useXrQuery(requestsUnderReview, null);
 }
 
+/**
+ * Phase 4B: the Faculty member's Marking count — "2 written answers to mark" (B4-09 f0, B4-06 f7
+ * sidebars) — the rows FA-18's queue answers as waiting, so the figure and the queue agree.
+ */
+export const writtenAnswersToMark = defineQuery({
+  family: 'nav-counts',
+  view: 'faculty-marking',
+  deps: ['FMAP', 'ACC', 'INST', 'PER', 'CRS', 'EXP', 'SACC', 'GRP', 'ASMT', 'ATT', 'Q'],
+  read: (ports: ProductPorts) => ports.marking.listQueue({ state: 'waiting' }),
+});
+
 /** Count figures by destination key (zero or absent: no count is drawn). */
 export function useNavCounts(role: Role): Readonly<Partial<Record<string, number>>> {
   const requests = useXrQuery(requestsUnderReview, null, { enabled: role === 'super_admin' });
+  const marking = useXrQuery(writtenAnswersToMark, null, { enabled: role === 'faculty' });
   const underReview =
     role === 'super_admin' && requests.data?.ok ? requests.data.value.length : undefined;
-  return useMemo(() => (underReview === undefined ? {} : { requests: underReview }), [underReview]);
+  const toMark = role === 'faculty' && marking.data?.ok ? marking.data.value.length : undefined;
+  return useMemo(
+    () => ({
+      ...(underReview === undefined ? {} : { requests: underReview }),
+      ...(toMark === undefined ? {} : { marking: toMark }),
+    }),
+    [underReview, toMark],
+  );
 }

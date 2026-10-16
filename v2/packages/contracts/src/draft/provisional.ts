@@ -859,4 +859,134 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'Drop the field; the screens then read the attempts (FA-12, Phase 4B) for the current version’s submissions.',
   },
+  {
+    id: 'PC-54',
+    subject:
+      'An attempt’s release terms are read from the version it pins (`pinnedRelease`: the option and its date — the deadline, the release date, or none for “immediately after marking”), on the Student’s rows, the result, the submissions list, the marking page and the Student detail',
+    status: 'provisional-engineering',
+    source:
+      'B4-11 f3 “Released after the deadline: 14 Nov 2026, 23:59”, B4-12 f4, B4-13 f1 / f2, B4-06 f7 “Not yet — after the deadline”, B4-09 f2, B4-10 f4. The domain releases a result by the attempt’s own version (`resultView`; P4-06 unresolved). Built in Phase 4B',
+    decisions: ['P4-06', 'OD-B4-04'],
+    trace: [
+      { kind: 'schema-field', schema: 'pinnedRelease', path: 'option' },
+      { kind: 'schema-field', schema: 'pinnedRelease', path: 'on' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop `pinnedRelease` from the outputs; the screens then word the release rule without its date (and from the current version once P4-06 is answered that way).',
+  },
+  {
+    id: 'PC-55',
+    subject:
+      'The Student’s assessment reads carry their own attempts and the attempt in progress: `assessmentIntroOutput` gains the experiment, the course code, the question mix, `attempts` (figure-free `resultView` per attempt) and `sheet` (the pinned questions WITHOUT correct answers, explanations or marking guidance, with the saved answers); `getResultOutput` gains the pinned name, attempt number, attempts allowed, submission instant and release terms, and each released `answerReview` the question’s number, type, words, options and the marker’s name',
+    status: 'provisional-engineering',
+    source:
+      'B4-11 f11 … f16 (six key facts, “Attempt 1 in progress · Two of four questions answered”, “You submitted on …”, “Not passed on attempt 1 · 1 attempt left”), B4-12 f0 (the attempt page needs the questions; no Appendix C method returns them to a Student without the key) and B4-13 f0 (“Your answer … Correct answer … Feedback from Dr S. Ranganathan”). Adding a method would change the 183-method contract (ADR-0008); the facts are added to the existing reads instead. Built in Phase 4B',
+    decisions: ['OD-B4-08', 'OD-B4-09'],
+    trace: [
+      { kind: 'schema-field', schema: 'assessmentIntroOutput', path: 'attempts' },
+      { kind: 'schema-field', schema: 'assessmentIntroOutput', path: 'sheet' },
+      { kind: 'schema-field', schema: 'assessmentIntroOutput', path: 'questionTypes' },
+      { kind: 'schema-field', schema: 'sheetQuestion', path: 'options' },
+      { kind: 'schema-field', schema: 'getResultOutput', path: 'release' },
+      { kind: 'schema-field', schema: 'answerReview', path: 'feedbackBy' },
+      { kind: 'schema-field', schema: 'studentAttemptFacts', path: 'pinned' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the fields and add a Student attempt read (`getMyAttempt`) to Appendix C §3.10 — a contract change the owner approves (ADR-0008).',
+  },
+  {
+    id: 'PC-56',
+    subject:
+      'The Student’s assessment rows carry the course code Students see, the current version’s question count and total marks, and the latest attempt’s facts (`listMyAssessmentsOutput.courseCode` / `questionCount` / `totalMarks` / `latest`)',
+    status: 'provisional-engineering',
+    source:
+      'B4-11 f0 … f4 (“Shell-and-Tube Heat Exchanger · ME ZG523 · Due 14 Nov 2026, 23:59 · 4 questions · no time limit”, “Submitted 5 Nov 2026, 18:52”), f7 / f9 (the hub tab: “4 questions · 16 marks”), f10 (Home “Up next”). Built in Phase 4B',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'listMyAssessmentsOutput', path: '(array).courseCode' },
+      { kind: 'schema-field', schema: 'listMyAssessmentsOutput', path: '(array).latest' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Drop the fields; ST-11 then reads each assessment’s intro for them.',
+  },
+  {
+    id: 'PC-57',
+    subject:
+      'A submissions row carries the attempt’s total marks and pinned release terms (`listSubmissionsOutput.outOf` / `release`) — “11 of 16”, “Not yet — after the deadline”; the CSV export (FA-22) holds the same list with its cells escaped and formula-safe',
+    status: 'provisional-engineering',
+    source: 'B4-06 f7 … f10. Built in Phase 4B',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'listSubmissionsOutput', path: '(array).outOf' },
+      { kind: 'schema-field', schema: 'listSubmissionsOutput', path: '(array).release' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Drop the fields; FA-12 then shows the release rule without its date.',
+  },
+  {
+    id: 'PC-58',
+    subject:
+      'The marking reads carry the attempt’s pinned numbering (`pinnedNumbering`), the Student, the assessment and experiment names, the attempts allowed and the pinned release terms (`attemptForMarkingOutput`), and per queue row the experiment and the written questions’ numbers (`listQueueOutput`); the written questions are returned as the attempt’s version pins them, not the bank’s newer version',
+    status: 'provisional-engineering',
+    source:
+      'B4-09 f0 (“Question 4 · written answer”, the assessment filter “Heat Exchanger — post-lab · Shell-and-Tube Heat Exchanger”), f1 (“Rahul Verma · ATT-0450 · Submitted … · attempt 1 of 2”, “Marked automatically · Question 1 · 2 of 2”), f2 (“Rahul sees the result after the deadline: 14 Nov 2026, 23:59”). `releaseLine` stays `null` (PC-13 words are the screen’s). Built in Phase 4B',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'attemptForMarkingOutput', path: 'numbering' },
+      { kind: 'schema-field', schema: 'attemptForMarkingOutput', path: 'student' },
+      { kind: 'schema-field', schema: 'listQueueOutput', path: '(array).writtenNumbers' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Drop the fields; FA-18 / FA-19 then read the assessment and the people for them.',
+  },
+  {
+    id: 'PC-59',
+    subject:
+      'FA-20 / FA-21: a Student row carries the name and the instant the experiment was first given (`facultyStudentRow.name` / `accessGivenAt`); the list and its CSV take the Progress filter (`listTeachingStudentsInput.progress`, provisional reading of B4-10’s four values); the detail carries the experiment, course code, the assessment and per attempt its confirmed score, total and pinned release terms. A co-teaching colleague’s assessment answers `policy-open` OD-B4-17 in the row and leaves the detail’s attempts empty (narrow protective refusal: ATT-18 “own assessments”, ASMT-17 open)',
+    status: 'provisional-reading',
+    source:
+      'B4-10 f0 (Progress: All · Not started · In progress in a format · Completed a format · Waiting for marking; “None since access was given (12 Oct 2026)”), f3 … f5. Phase 4B authorisation §6 (co-teacher confidentiality). Built in Phase 4B',
+    decisions: ['OD-B4-10', 'OD-B4-17'],
+    trace: [
+      { kind: 'schema-field', schema: 'facultyStudentRow', path: 'name' },
+      { kind: 'schema-field', schema: 'facultyStudentRow', path: 'accessGivenAt' },
+      { kind: 'schema-field', schema: 'listTeachingStudentsInput', path: 'progress' },
+      { kind: 'schema-field', schema: 'studentDetailOutput', path: 'attemptFacts' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the fields and the filter (FA-20 then filters on the screen and its export holds the unfiltered list); remove the `policy-open` row variant once OD-B4-17 is decided.',
+  },
+  {
+    id: 'PC-60',
+    subject:
+      'Choice-question marks in a local prototype build: on submit, the `system:objective-marks` stand-in of the sample platform awards each single-choice and true-or-false question its full marks when the answer equals the pinned version’s key and 0 otherwise, through `applyObjectiveMarks` (the domain still has no scoring function). Other builds and the tests keep the DV-2 fixture-supplied marks; a choice-only attempt (M22) and several written questions (ATT-17) stay `policy-open`',
+    status: 'owner-approved-interim',
+    source:
+      'Owner answer, 16 Oct 2026 (Phase 4B): “Answer-key stand-in” for P4-01 / DV-2 / AD-38 — B4-09 “choice questions are marked automatically”; Appendix G P4-01 recommendation. Built in Phase 4B',
+    decisions: ['P4-01', 'ATT-07', 'M22', 'ATT-17'],
+    trace: [{ kind: 'system-actor', value: 'system:objective-marks' }],
+    irreversible: null,
+    reversal:
+      'Set the composition root’s `objectiveMarks` to `supplied-only`: Confirm marks then answers `policy-open` ATT-07 again for attempts with choice questions.',
+  },
+  {
+    id: 'PC-61',
+    subject:
+      'A question-import report row’s `problem` is the domain’s rule with the cells its drawn words name as URL parameters (`type?value=multi-select`, `correct?value=E&options=A–D`); the screen words it from `FA-17.row.*`. Two file-level keys are added for a file without the template columns or without rows (`FA-17.file.columns`, `FA-17.file.no-rows`, undrawn)',
+    status: 'provisional-engineering',
+    source:
+      'B4-08 f6 (“correct is “E”, but the question has options A–D only.”, “type “multi-select” isn’t available …”); the M21 report row carries the rule only. Built in Phase 4B',
+    decisions: ['OD-B4-11', 'T-24'],
+    trace: [
+      { kind: 'message-key', key: 'FA-17.row.correct' },
+      { kind: 'message-key', key: 'FA-17.file.columns' },
+      { kind: 'message-key', key: 'FA-17.file.no-rows' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Give the report row a `params` record (Appendix C M21) and keep `problem` the rule alone.',
+  },
 ];

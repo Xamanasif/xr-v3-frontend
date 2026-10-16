@@ -1,7 +1,15 @@
 'use client';
 
 import type { AssessmentListRow, AssessmentView, TeachingExperiment } from '@xr/contracts/draft';
-import { FailedState, LoadingState, PageContent, RecordHubTabs, StatusPill } from '@xr/ui';
+import {
+  EmptyState,
+  FailedState,
+  LoadingState,
+  PageContent,
+  PageHeader,
+  RecordHubTabs,
+  StatusPill,
+} from '@xr/ui';
 import type { ReactNode } from 'react';
 
 import { deadlineWords, READINESS_WORDS } from '@/copy/assessment-words';
@@ -11,8 +19,14 @@ import {
   assessmentHeadFacts,
   assessmentOverline,
 } from '@/copy/faculty-assessment-frame';
+import { SUBMISSIONS_WORDS } from '@/copy/submissions';
 import { useAppNavigation } from '@/nav/navigation';
-import { type AssessmentTab, assessmentAddress, assessmentTabPlacement } from '@/nav/faculty';
+import {
+  ASSESSMENT_TABS,
+  type AssessmentTab,
+  assessmentAddress,
+  assessmentTabPlacement,
+} from '@/nav/faculty';
 import {
   useAssessmentRecord,
   useFacultyAssessments,
@@ -22,12 +36,13 @@ import {
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 
 /**
- * The assessment record's frame, shared by its four Phase-4A tabs — FA-08 Summary, FA-09
- * Questions (B4-05), FA-10 Settings, FA-11 Preview (B4-06): the dark header
- * (`div.xw-hubhead.xr-dark.xl-hubhead`: "ME ZG523 · Shell-and-Tube Heat Exchanger", the name,
- * the readiness, the ASMT reference, "Due …" and "<n> waiting for marking") and the link tabs
- * (`nav.xr-tabs.xr-tabs--on-white.xw-hubtabs`: Summary · Questions <n> · Settings · Preview).
- * "Submissions" (FA-12) is Phase 4B and is not rendered (DEV-21).
+ * The assessment record's frame, shared by its five tabs — FA-08 Summary, FA-09 Questions
+ * (B4-05), FA-10 Settings, FA-11 Preview and, since Phase 4B, FA-12 Submissions (B4-06): the dark
+ * header (`div.xw-hubhead.xr-dark.xl-hubhead`: "ME ZG523 · Shell-and-Tube Heat Exchanger", the
+ * name, the readiness, the ASMT reference, "Due …" and "<n> waiting for marking") and the link
+ * tabs (`nav.xr-tabs.xr-tabs--on-white.xw-hubtabs`: Summary · Questions <n> · Settings · Preview
+ * · Submissions <n>; the Submissions figure counts the Students who have submitted,
+ * `FA-12.tab-count`).
  *
  * - **Reads**: `AssessmentService.getAssessment` (the record, its readiness, reach, total marks
  *   and pinned questions), `TeachingService.getTeachingExperiment` (the experiment's name and the
@@ -46,12 +61,17 @@ export type AssessmentPageState =
   | { readonly kind: 'loading' }
   | { readonly kind: 'failed'; readonly retry: () => void }
   | { readonly kind: 'not-found' }
+  /** A co-teaching colleague's assessment (OD-B4-17), held back calmly on every tab. */
+  | { readonly kind: 'policy-open'; readonly tab: AssessmentTab }
   | { readonly kind: 'ready'; readonly view: AssessmentFrameView };
 
-export function useAssessmentPage(
-  assessmentId: string,
-  tab: Exclude<AssessmentTab, 'submissions'>,
-): AssessmentPageState {
+/** The tabs' names: B4-05 / B4-06 `nav.xw-hubtabs`. */
+const TAB_TITLES: Readonly<Record<AssessmentTab, string>> = {
+  ...ASSESSMENT_TAB_TITLES,
+  submissions: SUBMISSIONS_WORDS.tab,
+};
+
+export function useAssessmentPage(assessmentId: string, tab: AssessmentTab): AssessmentPageState {
   const record = useAssessmentRecord(assessmentId);
   const answer = record.data?.ok ? record.data.value : null;
   const experimentId = answer?.assessment.experimentId ?? null;
@@ -61,7 +81,7 @@ export function useAssessmentPage(
   useShellPage(
     assessmentTabPlacement(
       tab,
-      ASSESSMENT_TAB_TITLES[tab],
+      TAB_TITLES[tab],
       answer ? { id: answer.assessment.id, name: answer.assessment.name } : null,
     ),
   );
@@ -70,6 +90,8 @@ export function useAssessmentPage(
   if (record.data && !record.data.ok) {
     const kind = record.data.error.kind;
     if (kind === 'not-found' || kind === 'not-permitted') return { kind: 'not-found' };
+    // Phase 4B: a colleague's assessment is held back calmly on every tab (OD-B4-17).
+    if (kind === 'policy-open') return { kind: 'policy-open', tab };
     return { kind: 'failed', retry: () => void record.refetch() };
   }
   if (!answer || experiment.isPending || list.isPending) return { kind: 'loading' };
@@ -85,7 +107,7 @@ export function useAssessmentPage(
   };
 }
 
-/** Every state of an assessment page but `ready`: loading, failed + retry, not found. */
+/** Every state of an assessment page but `ready`: loading, failed + retry, not found, held back. */
 export function AssessmentFallback({
   state,
 }: {
@@ -109,7 +131,34 @@ export function AssessmentFallback({
           <LoadingState label={stateWords('FA-shared.record-loading')} surface="section" />
         </PageContent>
       );
+    case 'policy-open':
+      // No record words at all: the page is named by its tab.
+      return (
+        <PageContent wrap="wide">
+          <PageHeader
+            title={state.tab === 'submissions' ? SUBMISSIONS_WORDS.title : TAB_TITLES[state.tab]}
+          />
+          <div className="xr-section">
+            {state.tab === 'submissions' ? (
+              <PolicyOpenSubmissions />
+            ) : (
+              <EmptyState icon="assessments" title={stateWords('FA-shared.record-policy-open')}>
+                {stateWords('FA-shared.record-policy-open.line')}
+              </EmptyState>
+            )}
+          </div>
+        </PageContent>
+      );
   }
+}
+
+/** FA-12: the calm provisional state of a colleague's assessment (OD-B4-17). */
+export function PolicyOpenSubmissions() {
+  return (
+    <EmptyState icon="assessments" title={stateWords('FA-12.policy-open.title')}>
+      {stateWords('FA-12.policy-open.line')}
+    </EmptyState>
+  );
 }
 
 /** The header and the tabs above a tab's own content. */
@@ -119,7 +168,7 @@ export function AssessmentFrame({
   children,
 }: {
   readonly view: AssessmentFrameView;
-  readonly tab: Exclude<AssessmentTab, 'submissions'>;
+  readonly tab: AssessmentTab;
   readonly children: ReactNode;
 }) {
   const { assessment, readiness } = view.record;
@@ -159,10 +208,11 @@ export function AssessmentFrame({
       </div>
       <RecordHubTabs
         label={name}
-        tabs={(['summary', 'questions', 'settings', 'preview'] as const).map((key) => ({
+        tabs={ASSESSMENT_TABS.map((key) => ({
           href: assessmentAddress(assessment.id, key),
-          label: ASSESSMENT_TAB_TITLES[key],
+          label: TAB_TITLES[key],
           ...(key === 'questions' ? { count: assessment.questions.length } : {}),
+          ...(key === 'submissions' && view.row ? { count: view.row.submitted } : {}),
           current: key === tab,
         }))}
       />

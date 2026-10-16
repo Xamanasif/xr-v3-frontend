@@ -8,6 +8,8 @@ import type {
   IsoInstant,
   OverlapGrantPolicy,
   PersonId,
+  QuestionDraft,
+  QuestionImportRow,
   RecordRef,
   StudentImportRow,
   WorkflowRoutingPolicy,
@@ -118,12 +120,32 @@ export interface StagedStudentImport {
   readonly rows: readonly StudentImportRow[];
 }
 
+/** A checked question file waiting for its commit (FA-17 step 2 → 3; adapter state). */
+export interface StagedQuestionImport {
+  readonly batchId: string;
+  readonly institutionId: string;
+  readonly experimentId: string;
+  readonly personId: string;
+  readonly fileName: string;
+  readonly rows: readonly QuestionImportRow[];
+}
+
 export interface PlatformCore {
   readonly store: WorldStore;
   readonly clock: SampleClockControl;
   readonly nonces: NonceSource;
   readonly faults: FaultPlan;
   readonly imports: Map<string, StagedStudentImport>;
+  /** FA-16 drafts waiting for their Faculty member's review (adapter state, never a world record). */
+  readonly drafts: Map<string, QuestionDraft>;
+  /** FA-17 checked question files waiting for the commit (adapter state). */
+  readonly questionImports: Map<string, StagedQuestionImport>;
+  /**
+   * PC-60 (owner answer to P4-01, 16 Oct 2026): `answer-key-on-submit` — a local prototype build —
+   * lets the `system:objective-marks` stand-in mark choice questions by the pinned key when a
+   * Student submits; `supplied-only` keeps the DV-2 interim (fixture-supplied marks only).
+   */
+  readonly objectiveMarks: 'answer-key-on-submit' | 'supplied-only';
   /** OD-B2-01 / OD-B2-02 — no default; the Phase-0 interim answers `undecided` (DV-1). */
   readonly overlap: OverlapGrantPolicy;
   /** OD-B5-05 / M-3 — can only return the drawn default (B5-08). */

@@ -34,6 +34,8 @@ import {
   readyLine,
   studentsHaveLine,
 } from '@/copy/faculty-experiment';
+import { STUDENTS_LINKS } from '@/copy/faculty-students';
+import { markHeaderWords } from '@/copy/marking';
 import { stateWords } from '@/copy/state-copy';
 import { formatCode } from '@/copy/student';
 import {
@@ -41,6 +43,8 @@ import {
   createAssessmentAddress,
   FACULTY_MY_COURSES_ADDRESS,
   facultyExperimentPlacement,
+  facultyStudentsAddress,
+  markingQueueAddress,
 } from '@/nav/faculty';
 import {
   useAssessmentRecord,
@@ -71,8 +75,9 @@ import { useShellPage } from '../../shared/workspace-frame/shell-page';
  *   experiment from your institution." and one row per format, or f3's one line) and About this
  *   experiment (the description, "Learning outcomes", the read-only note, "Resources students
  *   see"). At 375 the v46 container rules stack the row and its action (f4).
- * - **Not rendered** (DEV-21): "Mark <n> written answer" (FA-18) and "See students on this
- *   experiment" (FA-20) wait for Phase 4B. The "as of" date is the read's own instant (`asOf`,
+ * - "See students on this experiment" under the per-format rows opens FA-20 for this experiment
+ *   (Phase 4B; f3 draws none). The Ready row's "Mark <n> written answer" opens FA-18 for this
+ *   assessment while answers wait (Phase 4B). The "as of" date is the read's own instant (`asOf`,
  *   PC-52). There is no feedback here (T-25) and no outcome editing (LD-3).
  * - **States B4-03 does not draw**: loading, failed + "Try again", the in-shell not-found for an
  *   unknown or out-of-scope experiment (state-copy `FA-05.*`).
@@ -196,6 +201,17 @@ function AssessmentSection({
 function AssessmentRow({ assessmentId }: { readonly assessmentId: string }) {
   const record = useAssessmentRecord(assessmentId);
   const list = useFacultyAssessments();
+  // A co-teaching colleague's assessment (OD-B4-17; Phase 4B review): held back calmly, never a
+  // failure to try again — the record is not this Faculty member's to read.
+  if (record.data !== undefined && !record.data.ok && record.data.error.kind === 'policy-open') {
+    return (
+      <div className="xr-section-body">
+        <EmptyState icon="assessments" title={stateWords('FA-shared.record-policy-open')}>
+          {stateWords('FA-shared.record-policy-open.line')}
+        </EmptyState>
+      </div>
+    );
+  }
   const failed = record.isError || list.isError || (record.data !== undefined && !record.data.ok);
   if (failed) {
     return (
@@ -263,9 +279,23 @@ function AssessmentRowView({
             </span>
           </div>
         </div>
-        {/* f0 draws the Ready row's actions in a group ("Mark … written answer" is not rendered
-            until FA-18 is built, DEV-21); f2 draws the draft's one action on its own. */}
-        {ready ? <div className="xw-actions">{action}</div> : action}
+        {/* f0 draws the Ready row's actions in a group — "Mark <n> written answer" (FA-18, while
+            answers wait; Phase 4B) before "Open assessment"; f2 draws the draft's one action. */}
+        {ready ? (
+          <div className="xw-actions">
+            {row && row.waitingForMarking > 0 ? (
+              <Link
+                className="xr-btn xr-btn--secondary xr-btn--sm"
+                href={markingQueueAddress({ assessmentId: assessment.id })}
+              >
+                {markHeaderWords(row.waitingForMarking)}
+              </Link>
+            ) : null}
+            {action}
+          </div>
+        ) : (
+          action
+        )}
       </li>
     </ul>
   );
@@ -316,6 +346,9 @@ function ActivitySection({ view }: { readonly view: TeachingExperiment }) {
               );
             })}
           </ul>
+          <Link className="self-start" href={facultyStudentsAddress(view.experiment.experimentId)}>
+            {STUDENTS_LINKS.experiment}
+          </Link>
         </div>
       ) : (
         <div className="xr-section-body">

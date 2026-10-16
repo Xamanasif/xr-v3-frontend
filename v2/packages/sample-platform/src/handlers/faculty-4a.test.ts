@@ -304,11 +304,12 @@ describe('Phase 4A review: a co-teacher and the current version', () => {
     );
     const assessmentId = Object.keys(world.records.assessments)[0] as AssessmentId;
     const colleague = asPerson(platform, 'Dr Anita Desai');
-    // The assessment itself is hers to read now (she teaches the experiment) …
-    expect(ok(await colleague.assessments.getAssessment(assessmentId)).assessment.id).toBe(
-      assessmentId,
-    );
-    // … but not the key of Dr S. Ranganathan's questions.
+    // Phase 4B protective refusal: the record pins Dr S. Ranganathan's questions, so it is not
+    // hers to read while co-teaching is open (Q-10, OD-B4-17) — and neither is their key.
+    expect(errorOf(await colleague.assessments.getAssessment(assessmentId))).toMatchObject({
+      kind: 'policy-open',
+      decision: 'OD-B4-17',
+    });
     expect(errorOf(await colleague.assessments.previewAsStudent(assessmentId))).toMatchObject({
       kind: 'policy-open',
     });

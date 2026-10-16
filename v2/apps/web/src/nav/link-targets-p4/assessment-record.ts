@@ -6,8 +6,8 @@ const QUESTIONS = `${RECORD}/questions`;
 
 /**
  * The record frame on each of these tab pages (B4-05 f0, f6): the crumbs "Assessments / <name> /
- * <tab>" and the tabs Summary · Questions · Settings · Preview; "Submissions" (FA-12) is Phase 4B
- * and is not rendered (DEV-21).
+ * <tab>" and the tabs Summary · Questions · Settings · Preview · Submissions (FA-12, since Phase
+ * 4B).
  */
 function recordFrame(board: string): PageRow[] {
   return [
@@ -17,15 +17,7 @@ function recordFrame(board: string): PageRow[] {
     ['Record tabs', 'Questions', 'secondary', QUESTIONS, 'built', board],
     ['Record tabs', 'Settings', 'secondary', `${RECORD}/settings`, 'built', board],
     ['Record tabs', 'Preview', 'secondary', `${RECORD}/preview`, 'built', board],
-    [
-      'Record tabs',
-      'Submissions',
-      'secondary',
-      `${RECORD}/submissions`,
-      'not-rendered',
-      board,
-      'FA-12 Submissions is not built (Phase 4B): the tab appears with it (DEV-21).',
-    ],
+    ['Record tabs', 'Submissions', 'secondary', `${RECORD}/submissions`, 'built', board],
   ];
 }
 
@@ -35,23 +27,22 @@ export const P4_ASSESSMENT_RECORD_LINK_TARGETS: readonly LedgerEntry[] = [
     ...recordFrame('B4-05 f0, f3, f4'),
     // f3: the one primary of a draft without questions — the Questions tab.
     ['Ready to use (no question yet)', 'Add questions', 'primary', QUESTIONS, 'built', 'B4-05 f3'],
+    // Phase 4B: while a submission waits, FA-19 for the oldest (`FA-12.mark-next-target`).
     [
       'Submissions',
       'Mark next',
       'primary',
-      '/faculty/marking',
-      'not-rendered',
-      'B4-05 f0, f4',
-      'FA-18 Marking is not built (Phase 4B): the action appears with it (DEV-21).',
+      '/faculty/marking/{attemptId}',
+      'built',
+      'B4-05 f0, f4 `a.xr-btn--primary` → B4-09',
     ],
     [
       'Submissions',
       'See submissions',
       'secondary',
       `${RECORD}/submissions`,
-      'not-rendered',
-      'B4-05 f0, f4',
-      'FA-12 Submissions is not built (Phase 4B): the action appears with it (DEV-21).',
+      'built',
+      'B4-05 f0, f4 `a.xr-btn--secondary` → B4-06',
     ],
     [
       'Rules as set for this assessment (footer)',
@@ -78,19 +69,17 @@ export const P4_ASSESSMENT_RECORD_LINK_TARGETS: readonly LedgerEntry[] = [
       'Toolbar',
       'Draft with assistance',
       'secondary',
-      '/faculty/question-bank/draft',
-      'not-rendered',
-      'B4-05 f1, f6 … f8',
-      'FA-16 Draft questions with assistance is not built (T-23 names no provider): the action appears with it (DEV-21).',
+      '/faculty/question-bank/draft?experimentId={experimentId}',
+      'built',
+      'B4-05 f1, f6 … f8 `a.xr-btn--text` (→ B4-08 FA-16; Phase 4B)',
     ],
     [
       'Toolbar',
       'Import',
       'secondary',
-      '/faculty/question-bank/import',
-      'not-rendered',
-      'B4-05 f1, f6 … f8',
-      'FA-17 Import questions is not built: the action appears with it (DEV-21).',
+      '/faculty/question-bank/import?experimentId={experimentId}',
+      'built',
+      'B4-05 f1, f6 … f8 `a.xr-btn--text` (→ B4-08 FA-17; Phase 4B)',
     ],
     // f1 draws the empty state's own primary beside the toolbar's.
     ['No questions yet', 'Add from question bank', 'primary', null, 'in-page', 'B4-05 f1'],

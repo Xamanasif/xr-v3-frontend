@@ -51,10 +51,12 @@ async function open(
 }
 
 async function expectTabs(page: Page, current: string): Promise<void> {
+  // The Assessment tab since Phase 4B (B4-11 f7; e2e/phase-4b/student-assessments.spec.ts).
   await expect(tabs(page).getByRole('link')).toHaveText([
     'Overview',
     'Resources',
     'Simulation',
+    'Assessment',
     'Progress',
   ]);
   await expect(tabs(page).locator('[aria-current="page"]')).toHaveText(current);

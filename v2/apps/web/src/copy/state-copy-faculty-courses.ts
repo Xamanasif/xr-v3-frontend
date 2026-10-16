@@ -246,9 +246,9 @@ export const STATE_COPY_FACULTY_COURSES = {
     screen: 'FA-03',
     state: '“Students on this experiment”',
     words: null,
-    rule: 'Not rendered until FA-20 Students is built (Phase 4B, DEV-21): each card shows “Open experiment” only.',
-    basis: 'B4-02 f1 `a.xr-btn--text` → B4-10; the link-target ledger’s “not rendered” rule',
+    rule: 'Since Phase 4B each experiment card shows “Students on this experiment” (FA-20 for that experiment) after “Open experiment”.',
+    basis: 'B4-02 f1 `a.xr-btn--text` → B4-10',
     status: 'provisional',
-    decisions: ['DEV-21'],
+    decisions: ['VD-12'],
   },
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;

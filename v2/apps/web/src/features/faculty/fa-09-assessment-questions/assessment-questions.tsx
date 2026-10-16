@@ -21,8 +21,14 @@ import {
   updatedMessage,
 } from '@/copy/assessment-record';
 import { marksWords, QUESTION_TYPE_WORDS, questionsAndMarks } from '@/copy/assessment-words';
+import { ASSESSMENT_QUESTIONS_EMPTY_LINE, BANK_TOOLS } from '@/copy/question-tools';
 import { stateWords } from '@/copy/state-copy';
-import { assessmentAddress, newQuestionAddress } from '@/nav/faculty';
+import {
+  assessmentAddress,
+  draftQuestionsAddress,
+  importQuestionsAddress,
+  newQuestionAddress,
+} from '@/nav/faculty';
 import { useAppNavigation } from '@/nav/navigation';
 import { useAssessmentRecord, useFacultyAssessments, useQuestionBank } from '@/queries/teaching';
 import { useCommand } from '@/queries/use-command';
@@ -58,7 +64,8 @@ const rowId = (questionId: string) => `questions-row-${questionId}`;
  * - Every change says what happened in place (the boards' messages) and, when the service made a
  *   new version because Students have submitted, "This makes a new version". Refusals re-read the
  *   record and say so; nothing is written for them. "Draft with assistance" (FA-16) and "Import"
- *   (FA-17) are not built (T-23) and are not rendered (DEV-21).
+ *   (FA-17) open those pages for the assessment's experiment: what they add goes into the bank
+ *   only, and is added here from the bank panel (Phase 4B).
  */
 export function AssessmentQuestions({ assessmentId }: { readonly assessmentId: string }) {
   const navigation = useAppNavigation();
@@ -263,7 +270,8 @@ function QuestionsBody({
         metaLive
         meta={questionsAndMarks(rows.length, totalMarks)}
       >
-        {/* The drawn toolbar row is as tall as its 40 px text buttons (FA-16, FA-17: not rendered). */}
+        {/* The drawn toolbar row: Add from question bank, New question, and the text links to
+            FA-16 Draft with assistance and FA-17 Import for the assessment's experiment. */}
         <div className="xw-actions min-h-14 [padding:0_24px_16px]">
           {panelOpen ? null : (
             <Button variant="primary" size="sm" icon="add" id={OPENER_ID} onClick={openPanel}>
@@ -278,6 +286,20 @@ function QuestionsBody({
             })}
           >
             {QUESTIONS_WORDS.newQuestion}
+          </Link>
+          <Link
+            className="xr-btn xr-btn--text"
+            href={draftQuestionsAddress(assessment.experimentId)}
+          >
+            <Icon name="assist" />
+            {BANK_TOOLS.draftWithAssistance}
+          </Link>
+          <Link
+            className="xr-btn xr-btn--text"
+            href={importQuestionsAddress(assessment.experimentId)}
+          >
+            <Icon name="readyToPublish" />
+            {BANK_TOOLS.import}
           </Link>
         </div>
         <div id={MESSAGE_ID} tabIndex={-1} className="[padding:0_24px]">
@@ -377,7 +399,7 @@ function QuestionsBody({
                 <Icon name="questionBank" />
               </span>
               <h3 className="xr-h3 m-0">{QUESTIONS_WORDS.emptyTitle}</h3>
-              <p className="xr-body m-0 text-ink-2">{stateWords('FA-09.empty-line')}</p>
+              <p className="xr-body m-0 text-ink-2">{ASSESSMENT_QUESTIONS_EMPTY_LINE}</p>
               <div className="flex flex-wrap gap-3">
                 <Button variant="primary" onClick={openPanel}>
                   {QUESTIONS_WORDS.addFromBank}

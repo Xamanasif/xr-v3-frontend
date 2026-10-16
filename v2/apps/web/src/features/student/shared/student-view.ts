@@ -145,7 +145,7 @@ export type UpNextView =
       readonly format: Technology;
       readonly progress: FormatRow['progress'];
     }
-  | { readonly kind: 'assessment'; readonly experimentName: string }
+  | { readonly kind: 'assessment'; readonly assessmentId: string; readonly experimentName: string }
   | {
       readonly kind: 'feedback';
       readonly experimentId: string;
@@ -162,7 +162,8 @@ export function upNextItems(read: HomeRead, card: HomeCard | null): UpNextView[]
   for (const item of read.home.upNext) {
     if (item.kind === 'assessment') {
       const experimentName = read.assessmentExperiments[item.assessmentId];
-      if (experimentName) views.push({ kind: 'assessment', experimentName });
+      if (experimentName)
+        views.push({ kind: 'assessment', assessmentId: item.assessmentId, experimentName });
       continue;
     }
     const place = placeOf(read, item.experimentId);

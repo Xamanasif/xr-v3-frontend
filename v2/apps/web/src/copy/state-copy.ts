@@ -32,6 +32,13 @@ import { STATE_COPY_ASSESSMENT_RECORD } from './state-copy-assessment-record';
 import { STATE_COPY_ASSESSMENT_SETTINGS } from './state-copy-assessment-settings';
 import { STATE_COPY_QUESTION_BANK } from './state-copy-question-bank';
 import { STATE_COPY_FACULTY_SHARED } from './state-copy-faculty-shared';
+import { STATE_COPY_STUDENT_ASSESSMENTS } from './state-copy-student-assessments';
+import { STATE_COPY_ATTEMPT } from './state-copy-attempt';
+import { STATE_COPY_RESULT } from './state-copy-result';
+import { STATE_COPY_SUBMISSIONS } from './state-copy-submissions';
+import { STATE_COPY_MARKING } from './state-copy-marking';
+import { STATE_COPY_FACULTY_STUDENTS } from './state-copy-faculty-students';
+import { STATE_COPY_QUESTION_TOOLS } from './state-copy-question-tools';
 
 /**
  * `drawn` = on a board (cited); `provisional` = written to a board formula or chosen as an interim,
@@ -117,7 +124,20 @@ export interface StateCopyEntry {
     | 'FA-10'
     | 'FA-11'
     | 'FA-14'
-    | 'FA-15';
+    | 'FA-15'
+    // Phase 4B (ST-13 is a focused page; the hub's Assessment tab words are ST-05's).
+    | 'ST-11'
+    | 'ST-12'
+    | 'ST-13'
+    | 'ST-14'
+    | 'FA-12'
+    | 'FA-16'
+    | 'FA-17'
+    | 'FA-18'
+    | 'FA-19'
+    | 'FA-20'
+    | 'FA-21'
+    | 'FA-22';
   /** The state, as the screen reaches it. */
   readonly state: string;
   /** The words shown; `null` where the entry is a rule rather than words. */
@@ -1178,6 +1198,14 @@ export const STATE_COPY = {
   ...STATE_COPY_ASSESSMENT_SETTINGS,
   ...STATE_COPY_QUESTION_BANK,
   ...STATE_COPY_FACULTY_SHARED,
+  // Phase 4B: one file per screen group.
+  ...STATE_COPY_STUDENT_ASSESSMENTS,
+  ...STATE_COPY_ATTEMPT,
+  ...STATE_COPY_RESULT,
+  ...STATE_COPY_SUBMISSIONS,
+  ...STATE_COPY_MARKING,
+  ...STATE_COPY_FACULTY_STUDENTS,
+  ...STATE_COPY_QUESTION_TOOLS,
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;
 
 export type StateCopyId = keyof typeof STATE_COPY;

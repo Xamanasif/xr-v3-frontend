@@ -10,7 +10,7 @@
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { ExperimentId, PersonId, RecordRef } from '@xr/domain';
+import type { CourseId, ExperimentId, PersonId, RecordRef } from '@xr/domain';
 import { asPersonId, faults, standinsOf } from '@xr/sample-platform/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -212,8 +212,14 @@ describe('FA-05 — the teaching view with a Ready assessment (B4-03 f0)', () =>
       'WEBWEB | 1 completed | 0 in progress | 0 not started',
       'VRVR | 1 completed | 0 in progress | 0 not started',
     ]);
-    // FA-20 is not built: no "See students on this experiment".
-    expect(within(activity).queryAllByRole('link')).toHaveLength(0);
+    // "See students on this experiment" under the per-format rows opens FA-20 for it (Phase 4B).
+    const students = within(activity).getByRole('link', {
+      name: 'See students on this experiment',
+    });
+    expect(students).toHaveAttribute('href', `/faculty/students?experimentId=${SHELL}`);
+    expect(students.parentElement).toHaveClass('xr-section-body');
+    expect(students.previousElementSibling).toHaveClass('xa-counts');
+    expect(within(activity).queryAllByRole('link')).toHaveLength(1);
     // "as of <date>": the read's own instant (PC-52), the sample today of the fixture.
     expect(activity.querySelector('.xr-section-head .xr-meta')).toHaveTextContent(
       'as of 15 Nov 2026',
@@ -318,8 +324,15 @@ describe('FA-05 — no assessment yet (B4-03 f1)', () => {
         'Ready Due 14 Nov 2026, 23:59 · 1 of 1 submitted · 1 waiting for marking',
       ),
     );
-    // Marking (FA-18) is not built: still the one action.
-    expect(within(assessmentRegion()).getAllByRole('link')).toHaveLength(1);
+    // Phase 4B: "Mark 1 written answer" opens FA-18 for this assessment, before "Open assessment".
+    expect(
+      within(assessmentRegion())
+        .getAllByRole('link')
+        .map((link) => [link.textContent, link.getAttribute('href')]),
+    ).toEqual([
+      ['Mark 1 written answer', `/faculty/marking?assessmentId=${created.id}`],
+      ['Open assessment', `/faculty/assessments/${created.id}`],
+    ]);
   });
 });
 
@@ -491,6 +504,22 @@ describe('FA-05 — not found (state-copy FA-05.not-found)', () => {
     expect(await notFound()).toBeVisible();
   });
 
+  it('a co-teaching colleague sees the assessment held back calmly, never a failure (Phase 4B review)', async () => {
+    const { runtime, sample } = await tabPlatform(DESAI, 'after-flow-d');
+    const assigned = await asPersonId(sample, MEERA).facultyCourses.assign({
+      facultyId: DESAI as PersonId,
+      courseId: 'thermodynamics-heat-transfer' as CourseId,
+    });
+    expect(assigned.ok).toBe(true);
+    showExperiment(runtime);
+    await heading();
+    await waitFor(() =>
+      expect(assessmentRegion()).toHaveTextContent('This assessment isn’t available to you yet'),
+    );
+    expect(within(assessmentRegion()).queryByRole('button', { name: 'Try again' })).toBeNull();
+    expect(within(assessmentRegion()).queryByRole('link')).toBeNull();
+  });
+
   it('a Faculty member with no course mapped finds nothing', async () => {
     const { runtime } = await tabPlatform(DESAI, 'after-flow-c');
     showExperiment(runtime);
@@ -620,7 +649,7 @@ describe('FA-05 words (B4-03)', () => {
     }
   });
 
-  it('the ledger: one primary per drawn state; FA-18 and FA-20 not rendered', () => {
+  it('the ledger: one primary per drawn state; FA-18 and FA-20 linked (Phase 4B)', () => {
     const rows = P4_FACULTY_EXPERIMENT_LINK_TARGETS;
     expect(rows.every((row) => row.on === '/faculty/experiments/{experimentId}')).toBe(true);
     expect(rows.filter((row) => row.role === 'primary').map((row) => row.action)).toEqual([
@@ -628,11 +657,14 @@ describe('FA-05 words (B4-03)', () => {
       'Create assessment',
       'Continue setting up',
     ]);
-    expect(
-      rows.filter((row) => row.outcome === 'not-rendered').map((row) => [row.action, row.note]),
-    ).toEqual([
-      ['Mark 1 written answer', expect.stringMatching(/^FA-18 Marking is not built/)],
-      ['See students on this experiment', expect.stringMatching(/^FA-20 Students is not built/)],
-    ]);
+    expect(rows.filter((row) => row.outcome === 'not-rendered')).toEqual([]);
+    expect(rows.find((row) => row.action === 'Mark 1 written answer')).toMatchObject({
+      outcome: 'built',
+      target: '/faculty/marking?assessmentId={assessmentId}',
+    });
+    expect(rows.find((row) => row.action === 'See students on this experiment')).toMatchObject({
+      outcome: 'built',
+      target: '/faculty/students?experimentId={experimentId}',
+    });
   });
 });

@@ -30,6 +30,13 @@ import { P4_ASSESSMENT_RECORD_LINK_TARGETS } from './link-targets-p4/assessment-
 import { P4_ASSESSMENT_SETTINGS_LINK_TARGETS } from './link-targets-p4/assessment-settings';
 import { P4_QUESTION_BANK_LINK_TARGETS } from './link-targets-p4/question-bank';
 import { P4_FACULTY_SHELL_LINK_TARGETS } from './link-targets-p4/shell';
+import { P4B_STUDENT_ASSESSMENTS_LINK_TARGETS } from './link-targets-p4b/student-assessments';
+import { P4B_ATTEMPT_LINK_TARGETS } from './link-targets-p4b/attempt';
+import { P4B_RESULT_LINK_TARGETS } from './link-targets-p4b/result';
+import { P4B_SUBMISSIONS_LINK_TARGETS } from './link-targets-p4b/submissions';
+import { P4B_MARKING_LINK_TARGETS } from './link-targets-p4b/marking';
+import { P4B_FACULTY_STUDENTS_LINK_TARGETS } from './link-targets-p4b/faculty-students';
+import { P4B_QUESTION_TOOLS_LINK_TARGETS } from './link-targets-p4b/question-tools';
 
 /** The screen (or shell part) an action is drawn on. */
 export type LedgerScreen =
@@ -107,7 +114,19 @@ export type LedgerScreen =
   | 'FA-10'
   | 'FA-11'
   | 'FA-14'
-  | 'FA-15';
+  | 'FA-15'
+  // Phase 4B.
+  | 'ST-11'
+  | 'ST-12'
+  | 'ST-13'
+  | 'ST-14'
+  | 'FA-12'
+  | 'FA-16'
+  | 'FA-17'
+  | 'FA-18'
+  | 'FA-19'
+  | 'FA-20'
+  | 'FA-21';
 
 export type ActionRole =
   /** The page's one primary action (board 08 "One primary action"; `xr-btn--primary`). */
@@ -2374,10 +2393,10 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Up next (an assessment)',
       'Open assessment',
       'secondary',
-      '/student/assessments',
-      'not-rendered',
-      'B2-10 f5',
-      'ST-11 Assessments is not built (Phase 4): the action appears with it.',
+      '/student/assessments/{assessmentId}',
+      'built',
+      'B2-10 f5; B4-11 f10',
+      'Phase 4B: opens the assessment’s Before you start (ST-12; OD-B4-15 re-points the frozen B2-10 link to B4-11).',
     ],
     [
       'Up next (feedback)',
@@ -2486,7 +2505,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
   ]),
   ...workspacePage('ST-05', '/student/experiments/{experimentId}', [
     // Phase 3 (hub builder): the tabs, the header's Next step and the cards' actions render
-    // (`ST-05.next-step`, `ST-05.card-actions`); the Assessment tab waits for Phase 4.
+    // (`ST-05.next-step`, `ST-05.card-actions`); the Assessment tab since Phase 4B (B4-11 f7).
     [
       'Hub tabs',
       'Overview',
@@ -2524,9 +2543,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
       'Assessment',
       'secondary',
       '/student/experiments/{experimentId}/assessment',
-      'not-rendered',
-      'B2-12 f0 … f3, f5',
-      'ST-11 Assessments is not built (Phase 4): the tab appears with it (DEV-21).',
+      'built',
+      'B2-12 f0 … f3, f5; B4-11 f7 … f9',
     ],
     [
       'Header Next step',
@@ -2613,13 +2631,21 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
   ...P4_ASSESSMENT_SETTINGS_LINK_TARGETS,
   ...P4_QUESTION_BANK_LINK_TARGETS,
   ...P4_FACULTY_SHELL_LINK_TARGETS,
+  // ---- Phase 4B: one file per screen group (`link-targets-p4b/`) -------------------------------
+  ...P4B_STUDENT_ASSESSMENTS_LINK_TARGETS,
+  ...P4B_ATTEMPT_LINK_TARGETS,
+  ...P4B_RESULT_LINK_TARGETS,
+  ...P4B_SUBMISSIONS_LINK_TARGETS,
+  ...P4B_MARKING_LINK_TARGETS,
+  ...P4B_FACULTY_STUDENTS_LINK_TARGETS,
+  ...P4B_QUESTION_TOOLS_LINK_TARGETS,
 ];
 
 /**
  * The ledger's target for a workspace (`<base>` → `/student`, `{id}` → a report's reference,
  * `{requestId}` → a request's, `{institutionId}` → an institution's; the public pages' `{areaId}`,
  * `{courseId}`, `{experimentId}` → the spine-start world's Shell-and-Tube chain; `{routeId}` → a
- * request's opaque public address, O-05).
+ * request's opaque public address, O-05; Phase 4B: `{attemptId}` → ATT-0450).
  */
 export function expandTarget(target: string, base: string, reportId = 'SUP-0213'): string {
   return target
@@ -2638,6 +2664,8 @@ export function expandTarget(target: string, base: string, reportId = 'SUP-0213'
     .replace('{transferId}', 'DTR-0018')
     .replace('{assessmentId}', 'ASMT-0009')
     .replace('{questionId}', 'Q-0101')
+    .replace('{attemptId}', 'ATT-0450')
+    .replace('{draftId}', 'qd-0001')
     .replace('{format}', 'vr');
 }
 

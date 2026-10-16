@@ -9,8 +9,8 @@ const EXPERIMENT = '/faculty/experiments/{experimentId}';
 /**
  * Phase 4A link targets: FA-02 My courses, FA-03 Course and FA-04 Experiments (B4-02). No page
  * draws a primary action outside its failed state; "Try again" is recorded as a command, as the
- * other list pages record it. FA-03's "Students on this experiment" opens FA-20 (Phase 4B) and is
- * not rendered until then (DEV-21).
+ * other list pages record it. FA-03's "Students on this experiment" opens FA-20 for that
+ * experiment since Phase 4B built it.
  */
 export const P4_FACULTY_COURSES_LINK_TARGETS: readonly LedgerEntry[] = [
   ...pageRows('FA-02', MY_COURSES, [
@@ -85,9 +85,9 @@ export const P4_FACULTY_COURSES_LINK_TARGETS: readonly LedgerEntry[] = [
       'Students on this experiment',
       'secondary',
       '/faculty/students?experimentId={experimentId}',
-      'not-rendered',
+      'built',
       'B4-02 f1 `a.xr-btn--text` (→ B4-10 FA-20)',
-      'FA-20 Students is not built (Phase 4B): the action appears with it (DEV-21).',
+      'FA-20 for that experiment (Phase 4B).',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-03.failed`'],
   ]),

@@ -78,6 +78,17 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
       'FA-11',
       'FA-14',
       'FA-15',
+      // Phase 4B (ST-13 is focused: no sidebar).
+      'ST-11',
+      'ST-12',
+      'ST-14',
+      'FA-12',
+      'FA-16',
+      'FA-17',
+      'FA-18',
+      'FA-19',
+      'FA-20',
+      'FA-21',
     ]);
   });
 
@@ -103,14 +114,22 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
     },
   );
 
-  it('Faculty (Phase 4A): Overview, My courses, Assessments, Question bank, then Help — each current on its own screens; Marking and Students wait for Phase 4B', () => {
+  it('Faculty (Phases 4A, 4B): Overview, My courses, Assessments, Question bank, Marking, Students, then Help — each current on its own screens; the Marking count in words', () => {
     const help = sidebarModel('faculty', { screen: 'XS-07' });
     expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
       ['Overview', '/faculty', false],
       ['My courses', '/faculty/courses', false],
       ['Assessments', '/faculty/assessments', false],
       ['Question bank', '/faculty/question-bank', false],
+      ['Marking', '/faculty/marking', false],
+      ['Students', '/faculty/students', false],
     ]);
+    // B4-09 f0 "Marking 2, 2 written answers to mark" (board 06 `countText`).
+    const counted = sidebarModel('faculty', { screen: 'XS-07', counts: { marking: 2 } });
+    expect(counted.destinations.find((item) => item.label === 'Marking')?.count).toEqual({
+      value: 2,
+      label: '2 written answers to mark',
+    });
     expect(help.help.current).toBe(true);
     const current = (screen: ScreenKey) =>
       sidebarModel('faculty', { screen })
@@ -120,11 +139,17 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
     for (const screen of ['FA-02', 'FA-03', 'FA-04', 'FA-05'] as const) {
       expect(current(screen)).toEqual(['My courses']);
     }
-    for (const screen of ['FA-06', 'FA-07', 'FA-08', 'FA-09', 'FA-10', 'FA-11'] as const) {
+    for (const screen of ['FA-06', 'FA-07', 'FA-08', 'FA-09', 'FA-10', 'FA-11', 'FA-12'] as const) {
       expect(current(screen)).toEqual(['Assessments']);
     }
-    for (const screen of ['FA-14', 'FA-15'] as const) {
+    for (const screen of ['FA-14', 'FA-15', 'FA-16', 'FA-17'] as const) {
       expect(current(screen)).toEqual(['Question bank']);
+    }
+    for (const screen of ['FA-18', 'FA-19'] as const) {
+      expect(current(screen)).toEqual(['Marking']);
+    }
+    for (const screen of ['FA-20', 'FA-21'] as const) {
+      expect(current(screen)).toEqual(['Students']);
     }
     for (const screen of ['XS-06', 'PU-15'] as const) {
       expect(current(screen)).toEqual([]);
@@ -164,11 +189,12 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
     }
   });
 
-  it('Student (Package 2A, Phase 3): Home, My courses and Progress, then Help — My courses current on a course, an experiment, its tabs, format pages, feedback and its refusal; nothing on My device; Assessments waits for Phase 4', () => {
+  it('Student (Package 2A, Phases 3, 4B): Home, My courses, Assessments and Progress, then Help — My courses current on a course, an experiment, its tabs, format pages, feedback and its refusal; Assessments on ST-11, ST-12 and ST-14; nothing on My device', () => {
     const help = sidebarModel('student', { screen: 'XS-07' });
     expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
       ['Home', '/student', false],
       ['My courses', '/student/courses', false],
+      ['Assessments', '/student/assessments', false],
       ['Progress', '/student/progress', false],
     ]);
     const current = (screen: ScreenKey) =>
@@ -188,8 +214,12 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
       'ST-16',
       'ST-17',
       'ST-19',
+      'student-hub-assessment',
     ] as const) {
       expect(current(screen)).toEqual(['My courses']);
+    }
+    for (const screen of ['ST-11', 'ST-12', 'ST-14'] as const) {
+      expect(current(screen)).toEqual(['Assessments']);
     }
     expect(current('ST-15')).toEqual(['Progress']);
     expect(current('ST-18')).toEqual([]);

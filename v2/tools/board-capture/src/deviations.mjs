@@ -453,7 +453,7 @@ export const DEVIATIONS = [
     expected:
       'B1-09 draws the two links on the sign-in page; B1-10 and board 05 draw the Super Admin sidebar with all seven destinations.',
     actual:
-      'The Super Admin sidebar lists the destinations built so far — Overview and Institutions (Package 1D) and Requests (1A, with its count of requests under review read from the world) — and Help. Since Package 2A the Student sidebar lists Home and My courses and the Institute Admin sidebar Overview, Content access, Student access and People; since Phase 3 the Student’s adds Progress (not Assessments, Phase 4), the Institute Admin’s Requests and Usage (every destination; the Requests count is DEV-43) and the Super Admin’s Operations (not Content, Academic structure, Platform roles: Phase 6). Since Phase 4A the Faculty sidebar lists Overview, My courses, Assessments and Question bank (not Marking or Students: Phase 4B), and the B4 screens leave out the actions that open Phase-4B screens. On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
+      'The Super Admin sidebar lists the destinations built so far — Overview and Institutions (Package 1D) and Requests (1A, with its count of requests under review read from the world) — and Help. Since Package 2A the Student sidebar lists Home and My courses and the Institute Admin sidebar Overview, Content access, Student access and People; since Phase 3 the Student’s adds Progress (not Assessments, Phase 4), the Institute Admin’s Requests and Usage (every destination; the Requests count is DEV-43) and the Super Admin’s Operations (not Content, Academic structure, Platform roles: Phase 6). Since Phase 4A the Faculty sidebar lists Overview, My courses, Assessments and Question bank, and since Phase 4B Marking and Students too: the Student and Faculty sidebars are then complete — the Student comparisons (`05-student-…-sidebar-phase-4b`, the three board-07 `…-phase-4b`) no longer name this entry, and the Faculty sidebar differs only in its Marking count’s figure (DEV-44). The B4 actions that open Phase-4B screens render since Phase 4B, except FA-01’s "Review drafts" (no drafts fact, PC-51). On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
     accessibility:
       'None: an unbuilt address would show the public not-found page and, as a document load, restart the tab’s sample world (ADR-0004).',
     decision:
@@ -943,6 +943,27 @@ export const DEVIATIONS = [
       'Open owner decision (request-count semantics): keep, drop, or open the Device requests tab while the count shows. Not decided by the build. For the owner’s review — not approved by the harness.',
     proposal:
       'Count device requests waiting on the Institute Admin on “Requests” and open `?tab=devices` while a count shows (as IA-01’s device row does, P3-07).',
+  },
+  {
+    id: 'DEV-44',
+    title:
+      'Phase 4B: the Faculty member’s Marking count reads the sample world’s written answers waiting, not board 06’s sample figure',
+    class: 'fixture-state',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      '05 Faculty shell on Help — “Marking” with board 06’s sample count (`countText` “{n} written answers to mark”)',
+    ],
+    product:
+      'The Faculty sidebar (nav/nav-config.ts `countWords`; queries/nav-counts.ts `writtenAnswersToMark` — FA-18’s waiting queue)',
+    expected: 'The canvas sidebar: “Marking” with the board’s sample figure.',
+    actual:
+      'The product draws the count of written answers waiting for this Faculty member in the parity world (the same rows FA-18 lists, so the badge and the queue agree); the figure — and the badge’s width — differ from the board’s sample number. Every other part of the Faculty sidebar is the board’s since Phase 4B built Marking and Students.',
+    accessibility:
+      'None: the count is announced in words (“, n written answers to mark”), as board 06 draws it.',
+    decision:
+      'Sample data only: the badge shows the world’s own figure (board 06: counts are product data, never the board’s sample numbers). For the owner’s review — not approved by the harness.',
+    proposal: 'Close as sample data (as DEV-22 for the Super Admin’s requests).',
   },
 ];
 

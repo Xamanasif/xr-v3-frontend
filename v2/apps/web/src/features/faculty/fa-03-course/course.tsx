@@ -21,12 +21,14 @@ import {
   COURSE_PAGE,
   courseMetaLine,
 } from '@/copy/faculty-courses';
+import { STUDENTS_LINKS } from '@/copy/faculty-students';
 import { stateWords } from '@/copy/state-copy';
 import {
   FACULTY_MY_COURSES_ADDRESS,
   FACULTY_MY_COURSES_TITLE,
   facultyCoursePlacement,
   facultyExperimentAddress,
+  facultyStudentsAddress,
 } from '@/nav/faculty';
 import { useAppNavigation } from '@/nav/navigation';
 import { useTeachingCourses } from '@/queries/teaching';
@@ -55,8 +57,8 @@ const code = (format: Technology) => format.toUpperCase() as FormatCode;
  *   your institution’s access · 5 students with access"; "Experiments · Only experiments your
  *   institution holds" with one card per experiment: its name (FA-05), the assessment chip, the
  *   formats the institution has, the assessment line, per format "2 completed · 2 in progress · 1
- *   not started" (never summed) and "Open experiment" (FA-05).
- * - **Not rendered**: "Students on this experiment" — FA-20 is Phase 4B (DEV-21, `FA-03.not-rendered`).
+ *   not started" (never summed), "Open experiment" (FA-05) and "Students on this experiment"
+ *   (FA-20 for that experiment, since Phase 4B).
  * - **States B4-02 does not draw**: loading, failed with "Try again", a draft or no assessment,
  *   access ended (`FA-03.*`).
  */
@@ -254,6 +256,9 @@ function ExperimentCard({ entry }: { readonly entry: TaughtExperiment }) {
       <div className="xw-actions">
         <Link className="xr-btn xr-btn--secondary" href={address}>
           {COURSE_PAGE.openExperiment}
+        </Link>
+        <Link className="xr-btn xr-btn--text" href={facultyStudentsAddress(option.experimentId)}>
+          {STUDENTS_LINKS.course}
         </Link>
       </div>
     </li>

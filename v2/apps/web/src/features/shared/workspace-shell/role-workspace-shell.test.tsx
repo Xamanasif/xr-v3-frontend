@@ -117,10 +117,14 @@ describe('built so far: Help in every workspace; Overview, Requests, Institution
       'tenant_admin',
       ['Overview', 'Content access', 'Student access', 'People', 'Requests', 'Usage'],
     ],
-    ['Student', 'student', ['Home', 'My courses', 'Progress']],
-    ['Faculty', 'faculty', ['Overview', 'My courses', 'Assessments', 'Question bank']],
+    ['Student', 'student', ['Home', 'My courses', 'Assessments', 'Progress']],
+    [
+      'Faculty',
+      'faculty',
+      ['Overview', 'My courses', 'Assessments', 'Question bank', 'Marking', 'Students'],
+    ],
   ] as const)(
-    '%s on Help & support (Package 2A, Phase 3): the built destinations, then Help (current)',
+    '%s on Help & support (Package 2A, Phases 3, 4A, 4B): the built destinations, then Help (current)',
     (label, role, built) => {
       const { aside, container } = renderShell(role);
       const nav = within(aside).getByRole('navigation', { name: `${label} navigation` });

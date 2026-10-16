@@ -302,16 +302,23 @@ describe('after SACC-0310 — Rahul on after-flow-b (B2-10 f1, f9; B2-11 f0, f1,
     const outcomes = screen.getByRole('region', { name: 'Learning outcomes' });
     expect(outcomes).toHaveTextContent('The same for every format.');
     expect(outcomes.querySelectorAll('li')).toHaveLength(2);
-    // Phase 3: the tabs (no Assessment, Phase 4 — DEV-21), the Next step and the cards' actions
-    // lead to the built tabs (`ST-05.unbuilt`; the hub's own tests: learning-hub.test.tsx).
+    // Phase 3: the tabs (the Assessment tab since Phase 4B, B4-11 f7), the Next step and the
+    // cards' actions lead to the built tabs (`ST-05.unbuilt`; the hub's own tests:
+    // learning-hub.test.tsx).
     expect([...main().querySelectorAll('.xw-hubtabs a')].map((tab) => tab.textContent)).toEqual([
       'Overview',
       'Resources',
       'Simulation',
+      'Assessment',
       'Progress',
     ]);
     expect(main()).toHaveTextContent('Next step: open the resources');
-    expect(within(main()).queryByRole('link', { name: /Assessment/ })).toBeNull();
+    // No assessment is set yet (after Flow B): the tab is the only way to it.
+    expect(
+      within(main())
+        .getAllByRole('link', { name: /Assessment/ })
+        .map((link) => link.getAttribute('href')),
+    ).toEqual([`${HUB}/assessment`]);
     await waitFor(() => expect(topTitle()).toHaveTextContent(SHELL_NAME));
     const crumbs = document.querySelector('.xr-crumbs')!;
     expect(within(crumbs as HTMLElement).getByRole('link', { name: 'MEC-523' })).toHaveAttribute(
@@ -639,7 +646,7 @@ describe('view helpers', () => {
         format: 'vr',
         progress: 'not-started',
       },
-      { kind: 'assessment', experimentName: SHELL_NAME },
+      { kind: 'assessment', assessmentId: 'ASMT-0009', experimentName: SHELL_NAME },
       { kind: 'feedback', experimentId: SHELL, experimentName: SHELL_NAME, format: 'web' },
     ]);
   });

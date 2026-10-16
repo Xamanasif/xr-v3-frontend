@@ -278,7 +278,11 @@ test.describe('FA-02 → FA-04 → FA-03 → FA-05', () => {
     await expect(
       card.getByRole('list', { name: 'Student activity by format' }).locator(':scope > li'),
     ).toHaveCount(2);
-    await expect(card.getByRole('link', { name: 'Students on this experiment' })).toHaveCount(0);
+    // Phase 4B: "Students on this experiment" opens FA-20 for it (the 4B suite follows it).
+    await expect(card.getByRole('link', { name: 'Students on this experiment' })).toHaveAttribute(
+      'href',
+      `/faculty/students?experimentId=${SHELL}`,
+    );
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/faculty/courses');
     await checkState(page, THERMO_NAME);
 

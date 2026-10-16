@@ -45,7 +45,7 @@ async function markQueryClient(page: Page): Promise<void> {
 test('the seven steps on one world: report, Sent with SUP reference, My reports, detail — no reload', async ({
   page,
 }) => {
-  await openAs(page, RAHUL.person, '/student/assessments');
+  await openAs(page, RAHUL.person, '/student/catalogue');
   // 1. Opens Help (from a page outside Help: the in-shell not-found of an unbuilt address).
   await expect(
     page.getByRole('heading', { level: 1, name: 'We can’t find that page' }),

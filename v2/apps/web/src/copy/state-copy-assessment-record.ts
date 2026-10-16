@@ -175,17 +175,7 @@ export const STATE_COPY_ASSESSMENT_RECORD = {
   },
 
   // ---- FA-09 Questions -------------------------------------------------------------------------
-  'FA-09.empty-line': {
-    screen: 'FA-09',
-    state: 'An assessment with no question yet (f1)',
-    words:
-      'Add questions from your bank or write a new one. Students can’t see the assessment until it has a question.',
-    rule: 'The drawn line also offers “draft some with assistance, or import a file”; drafting (FA-16) and importing (FA-17) are not built and not rendered, so the line names only what the page offers.',
-    basis:
-      'B4-05 f1 “Add questions from your bank, write a new one, draft some with assistance, or import a file. Students can’t see the assessment until it has a question.”',
-    status: 'provisional',
-    decisions: ['DEV-21', 'T-23'],
-  },
+
   'FA-09.new-version-one': {
     screen: 'FA-09',
     state: 'A change made a new version (one Student had submitted)',

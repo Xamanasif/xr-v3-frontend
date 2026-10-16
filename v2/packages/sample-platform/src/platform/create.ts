@@ -61,6 +61,13 @@ export interface SamplePlatformOptions {
    * Default `provider-reports`: nothing is reported until the stand-in port is called.
    */
   readonly paymentStandIn?: 'confirm-on-start' | 'provider-reports';
+  /**
+   * PC-60 (owner answer to P4-01, 16 Oct 2026): `answer-key-on-submit` — the web composition root
+   * in a local prototype build — lets the `system:objective-marks` stand-in mark each submitted
+   * attempt's choice questions by its pinned key. Default `supplied-only`: the DV-2 interim, marks
+   * only from the test seam or fixtures.
+   */
+  readonly objectiveMarks?: 'answer-key-on-submit' | 'supplied-only';
 }
 
 export interface SamplePlatform {
@@ -138,6 +145,9 @@ export function assemblePlatform(
     nonces,
     faults: new FaultPlan(),
     imports: new Map(),
+    drafts: new Map(),
+    questionImports: new Map(),
+    objectiveMarks: options.objectiveMarks ?? 'supplied-only',
     overlap: options.overlap ?? UNDECIDED_OVERLAP_POLICY,
     routing: DRAWN_WORKFLOW_ROUTING,
     payments: new PaymentStandIn(options.paymentStandIn ?? 'provider-reports'),

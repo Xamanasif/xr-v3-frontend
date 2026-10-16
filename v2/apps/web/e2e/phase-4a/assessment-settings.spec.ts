@@ -66,6 +66,7 @@ test.describe('FA-10 Assessment · Settings', () => {
       'Questions 4',
       'Settings',
       'Preview',
+      'Submissions 1',
     ]);
     await expect(tabs.getByRole('link', { name: 'Settings' })).toHaveAttribute(
       'aria-current',

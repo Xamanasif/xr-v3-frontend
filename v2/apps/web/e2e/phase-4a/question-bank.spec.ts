@@ -9,8 +9,9 @@ import { currentSidebarItem } from '../support/workspace';
  * at 1440, 1024, 768 and 375. Each drawn state passes `checkState` (axe WCAG A/AA, one h1, visible
  * focus targets, 24 × 24 targets, no developer surface, no sideways scroll). Worlds: after Flow B
  * (no question yet, f7), after Flow C (Q-0101 … Q-0106), after Flow D (four of them used by
- * ASMT-0009). Questions are added, edited and deleted for real through the pages; the same tab's
- * world answers the follow-up reads (`actAs`, the CI seam).
+ * ASMT-0009). Since Phase 4B the header also links to FA-16 and FA-17 and draws the tabs
+ * (`e2e/phase-4b/question-tools.spec.ts`). Questions are added, edited and deleted for real
+ * through the pages; the same tab's world answers the follow-up reads (`actAs`, the CI seam).
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 // The test-hook build is a dev server shared by parallel suites: pages compile on first hit.
@@ -51,10 +52,18 @@ test.describe('FA-14 Question bank', () => {
       'href',
       NEW,
     );
-    // FA-16 / FA-17 are not built: no drafting, no import, no tab strip.
-    await expect(main(page).getByText('Draft with assistance')).toHaveCount(0);
-    await expect(main(page).getByText('Import')).toHaveCount(0);
-    await expect(main(page).locator('nav.xr-tabs')).toHaveCount(0);
+    // Phase 4B: drafting (FA-16) and importing (FA-17), and the tabs (B4-07 f0).
+    await expect(main(page).locator('.xr-phead-actions a')).toHaveText([
+      'Add a question',
+      'Draft with assistance',
+      'Import',
+    ]);
+    await expect(main(page).getByRole('link', { name: 'Draft with assistance' })).toHaveAttribute(
+      'href',
+      `/faculty/question-bank/draft?experimentId=${SHELL}`,
+    );
+    const tabs = main(page).getByRole('navigation', { name: 'Question bank' });
+    await expect(tabs.locator('a')).toHaveText(['Questions', 'Drafts to review 0']);
     await expect(main(page).locator('.xr-section-head [role="status"]')).toHaveText('6 questions');
     expect(await ids(page)).toEqual(['Q-0101', 'Q-0102', 'Q-0103', 'Q-0104', 'Q-0105', 'Q-0106']);
     await expect(table(page).locator('tbody tr').first().locator('td').nth(3)).toHaveText(
@@ -158,9 +167,12 @@ test.describe('FA-14 Question bank', () => {
       main(page).getByRole('heading', { name: 'Your question bank is empty' }),
     ).toBeVisible({ timeout: 60_000 });
     await expect(main(page).locator('.xr-empty')).toContainText(
-      'Add a question. Questions stay here until you use them in an assessment.',
+      'Add a question, draft some with assistance from the experiment’s material, or import a file. Questions stay here until you use them in an assessment.',
     );
-    await expect(main(page).locator('.xr-empty').getByRole('link')).toHaveText(['Add a question']);
+    await expect(main(page).locator('.xr-empty').getByRole('link')).toHaveText([
+      'Add a question',
+      'Import',
+    ]);
     await checkState(page, 'Question bank');
   });
 });

@@ -764,6 +764,17 @@ export const UNDRAWN_RULES = {
     reason: 'A file with the header and no student rows; B2-07 draws no words for it.',
     source: 'sample-platform previewStudentImport (Phase-2 Package 2B)',
   },
+  'FA-17.file.columns': {
+    screen: 'FA-17',
+    reason:
+      'A file whose header lacks one of the ten template columns (type, question, option_a … option_d, correct, marks, explanation, marking_guidance); B4-08 draws only the template and its columns.',
+    source: 'sample-platform previewQuestionImport (Phase 4B)',
+  },
+  'FA-17.file.no-rows': {
+    screen: 'FA-17',
+    reason: 'A file with the header and no question rows; B4-08 draws no words for it.',
+    source: 'sample-platform previewQuestionImport (Phase 4B)',
+  },
   'IA-11.row.email.duplicate-in-file': {
     screen: 'IA-11',
     reason:

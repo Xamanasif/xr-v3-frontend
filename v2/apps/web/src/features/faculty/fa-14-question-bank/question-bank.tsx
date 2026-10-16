@@ -11,6 +11,7 @@ import {
   Notice,
   PageContent,
   PageHeader,
+  SectionTabs,
   Select,
   Skeleton,
   TextInput,
@@ -34,8 +35,12 @@ import {
   questionCount,
   usedWords,
 } from '@/copy/question-bank';
+import { BANK_TOOLS } from '@/copy/question-tools';
 import { stateWords } from '@/copy/state-copy';
 import {
+  draftQuestionsAddress,
+  draftsToReviewAddress,
+  importQuestionsAddress,
   newQuestionAddress,
   QUESTION_BANK_TITLE,
   questionAddress,
@@ -43,10 +48,12 @@ import {
   questionBankPlacement,
 } from '@/nav/faculty';
 import { useAppNavigation } from '@/nav/navigation';
+import { useQuestionDrafts } from '@/queries/faculty-assessment-work';
 import { useCreateOptions, useFacultyAssessments, useQuestionBank } from '@/queries/teaching';
 import { useCommand } from '@/queries/use-command';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { DraftsList } from '../fa-16-draft-questions/drafts-list';
 
 /** The message slot's id (B4-07 `#Kb-msg`): FA-15 lands focus here after adding a question. */
 export const BANK_MESSAGE_ID = 'qb-msg';
@@ -65,8 +72,8 @@ interface DeletedRow {
 }
 
 /**
- * FA-14 Question bank — board B4-07 f0, f2, f7, f9, at `/faculty/question-bank`
- * (`?experimentId=`).
+ * FA-14 Question bank — board B4-07 f0, f1, f2, f7, f9, at `/faculty/question-bank`
+ * (`?experimentId=`, `?tab=drafts`).
  *
  * - **Reads**: `AssessmentService.getCreateOptions` for the experiments the Faculty member teaches
  *   (name and platform code, the Experiment filter), `QuestionBankService.listQuestions` for the
@@ -75,11 +82,13 @@ interface DeletedRow {
  *   (the delete dialog). The experiment is the address's, else the first taught one; one outside
  *   the teaching scope is the in-shell not-found page (state-copy `FA-14.experiment`).
  * - **As B4-07 draws it**: the header (“Question bank”, “Questions for <experiment> · <code>”,
- *   “Add a question”), the Questions section with its count, the toolbar (Search questions,
- *   Experiment, Type), the table (Question + ID · Type · Marks · Used · Added · Edit / Delete), the
- *   empty bank (f7) and labelled rows below 760 px of content (f9). “Draft with assistance”,
- *   “Import” and the “Drafts to review” tab are not rendered: FA-16 and FA-17 are not built
- *   (`FA-14.drafts-tab`, `FA-14.assist-import`).
+ *   “Add a question”, “Draft with assistance” → FA-16, “Import” → FA-17), the tabs “Questions ·
+ *   Drafts to review <n>”, the Questions section with its count, the toolbar (Search questions,
+ *   Experiment, Type), the table (Question + ID, “From a draft you reviewed” · Type · Marks · Used ·
+ *   Added · Edit / Delete), the empty bank (f7, with “Import”) and labelled rows below 760 px of
+ *   content (f9).
+ * - **Drafts to review** (f1, `?tab=drafts`): the Faculty member's drafts for the experiment, with
+ *   FA-16's review, add and discard (`DraftsList`; `FA-14.drafts-tab`).
  * - **Delete** (f2, DL-1, destructive: focus on Cancel): `QuestionBankService.deleteQuestion` with
  *   the revision read; the question leaves the list, its history is kept and assessments keep their
  *   copy. The drawn message takes focus and the “Deleted” list names it (`FA-14.deleted-list`).
@@ -92,6 +101,7 @@ export function QuestionBank() {
   const navigation = useAppNavigation();
   const params = new URLSearchParams(navigation.search);
   const addressed = params.get('experimentId');
+  const onDrafts = params.get('tab') === 'drafts';
 
   // The experiment lives here while the page is on show; the address mirrors it (replaced, no
   // history entry). An address that differs came from outside (Back): it is read again.
@@ -117,7 +127,9 @@ export function QuestionBank() {
   const optionsFailed = options.isError || (options.data !== undefined && !options.data.ok);
   const experimentId = chosen ?? taught?.[0]?.experimentId ?? null;
   const experiment = taught?.find((entry) => entry.experimentId === experimentId) ?? null;
+  const drafts = useQuestionDrafts(experiment?.experimentId ?? null);
   if (taught && chosen !== null && experiment === null) return navigation.notFound();
+  const draftCount = drafts.data?.ok ? drafts.data.value.length : undefined;
 
   const choose = (next: string) => {
     setChosen(next);
@@ -139,6 +151,14 @@ export function QuestionBank() {
     );
   } else if (experiment === null) {
     body = <NoExperiment />;
+  } else if (onDrafts) {
+    body = (
+      <DraftsList
+        key={experiment.experimentId}
+        place="bank"
+        experimentId={experiment.experimentId}
+      />
+    );
   } else {
     body = (
       <BankList
@@ -162,16 +182,50 @@ export function QuestionBank() {
         }
         actions={
           experiment ? (
-            <Link
-              className="xr-btn xr-btn--primary"
-              href={newQuestionAddress({ experimentId: experiment.experimentId })}
-            >
-              <Icon name="add" />
-              {QUESTION_BANK.addQuestion}
-            </Link>
+            <>
+              <Link
+                className="xr-btn xr-btn--primary"
+                href={newQuestionAddress({ experimentId: experiment.experimentId })}
+              >
+                <Icon name="add" />
+                {QUESTION_BANK.addQuestion}
+              </Link>
+              <Link
+                className="xr-btn xr-btn--secondary"
+                href={draftQuestionsAddress(experiment.experimentId)}
+              >
+                <Icon name="assist" />
+                {BANK_TOOLS.draftWithAssistance}
+              </Link>
+              <Link
+                className="xr-btn xr-btn--secondary"
+                href={importQuestionsAddress(experiment.experimentId)}
+              >
+                <Icon name="readyToPublish" />
+                {BANK_TOOLS.import}
+              </Link>
+            </>
           ) : null
         }
       />
+      {experiment ? (
+        <SectionTabs
+          label={BANK_TOOLS.tabsLabel}
+          tabs={[
+            {
+              href: questionBankAddress(experiment.experimentId),
+              label: BANK_TOOLS.questionsTab,
+              current: !onDrafts,
+            },
+            {
+              href: draftsToReviewAddress(experiment.experimentId),
+              label: BANK_TOOLS.draftsTab,
+              count: draftCount,
+              current: onDrafts,
+            },
+          ]}
+        />
+      ) : null}
       {body}
     </PageContent>
   );
@@ -472,6 +526,9 @@ function QuestionTable({
                 <strong className="text-ink">{row.question.text}</strong>
                 <span className="xa-qrow-meta mt-1">
                   <span className="xr-id">{row.question.id}</span>
+                  {row.question.origin === 'reviewed-draft' ? (
+                    <span className="xa-tag">{BANK_TOOLS.fromDraft}</span>
+                  ) : null}
                 </span>
               </td>
               <td>
@@ -507,7 +564,7 @@ function QuestionTable({
   );
 }
 
-/** f7 “Your question bank is empty” with “Add a question” (“Import” is not built). */
+/** f7 “Your question bank is empty” with “Add a question” and “Import”. */
 function EmptyBank({ experimentId }: { readonly experimentId: string }) {
   return (
     <div className="xr-section-body">
@@ -516,10 +573,13 @@ function EmptyBank({ experimentId }: { readonly experimentId: string }) {
           <Icon name="questionBank" />
         </span>
         <h3 className="xr-h3 m-0">{QUESTION_BANK.emptyTitle}</h3>
-        <p className="xr-body m-0 text-ink-2">{stateWords('FA-14.empty-line')}</p>
+        <p className="xr-body m-0 text-ink-2">{BANK_TOOLS.emptyLine}</p>
         <div className="flex flex-wrap gap-3">
           <Link className="xr-btn xr-btn--primary" href={newQuestionAddress({ experimentId })}>
             {QUESTION_BANK.addQuestion}
+          </Link>
+          <Link className="xr-btn xr-btn--secondary" href={importQuestionsAddress(experimentId)}>
+            {BANK_TOOLS.import}
           </Link>
         </div>
       </div>

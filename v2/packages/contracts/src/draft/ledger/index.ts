@@ -202,6 +202,24 @@ export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = [
     authorisation:
       'Owner authorisation of Phase 4A (16 Oct 2026, §2 and §6): "Implement only deferred Phase-4 service methods required for these 13 screens" (FA-01 … FA-11, FA-14, FA-15) — FA-01 Overview (getFacultyOverview: attention as facts, PC-51), FA-02 / FA-03 / FA-04 My courses, Course and Experiments (listMyCourses with getTeachingExperiment), FA-05 Experiment (getTeachingExperiment), FA-06 Assessments (listAssessments), FA-07 Create assessment (getCreateOptions), FA-11 Preview (previewAsStudent: the pinned question versions; creates no attempt). The FA-12, FA-16, FA-17 and FA-22 methods (exportSubmissionsCsv, requestDrafts, listDrafts, addDraftToBank, discardDraft, previewQuestionImport, commitQuestionImport, exportStudentsCsv) stay deferred: no draft exists until FA-16 requests one (T-23).',
   })),
+  ...(
+    [
+      'AssessmentService.exportSubmissionsCsv',
+      'TeachingService.exportStudentsCsv',
+      'QuestionBankService.requestDrafts',
+      'QuestionBankService.listDrafts',
+      'QuestionBankService.addDraftToBank',
+      'QuestionBankService.discardDraft',
+      'QuestionBankService.previewQuestionImport',
+      'QuestionBankService.commitQuestionImport',
+    ] as const
+  ).map((method) => ({
+    method,
+    phase: 'P4' as const,
+    package: 'Phase 4B',
+    authorisation:
+      'Owner authorisation of Phase 4B (16 Oct 2026, §2 and §5): "Implement all 12 remaining designed Phase-4 screen IDs" — FA-12 / FA-20 Export CSV (FA-22: exportSubmissionsCsv, exportStudentsCsv — the list on screen only, escaped, formula-safe), FA-16 Draft with assistance (requestDrafts, listDrafts, addDraftToBank, discardDraft — a deterministic sample stand-in, no provider; drafts never enter the bank on their own), FA-17 Import questions (previewQuestionImport, commitQuestionImport — the CSV template, all or nothing, T-24 interim). With them every Phase-4 method is implemented.',
+  })),
 ];
 
 /** The methods `PACKAGE_DELIVERIES` names. */

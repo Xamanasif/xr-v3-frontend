@@ -94,6 +94,18 @@ describe('the link-target ledger', () => {
         'FA-11',
         'FA-14',
         'FA-15',
+        // Phase 4B (ST-13 is the focused attempt page; FA-22 is an action of FA-12 and FA-20).
+        'ST-11',
+        'ST-12',
+        'ST-13',
+        'ST-14',
+        'FA-12',
+        'FA-16',
+        'FA-17',
+        'FA-18',
+        'FA-19',
+        'FA-20',
+        'FA-21',
       ]),
     );
     const keys = LINK_TARGET_LEDGER.map(
@@ -126,7 +138,17 @@ describe('the link-target ledger', () => {
         .filter((entry) => entry.screen.startsWith('SA-'))
         .map((entry) => `${entry.screen} ${entry.action}`),
     ).toEqual(['SA-07 Operations › Access ending', 'SA-18 Support · Access ending']);
-    for (const entry of hidden) {
+    // Phase 4B: FA-01's "Review drafts" is the one hidden action whose page is built (the bank's
+    // Drafts tab, FA-14 / FA-16): it waits on a service fact — the overview read names no drafts
+    // (PC-51) — not on a screen.
+    const factWaits = hidden.filter((entry) => /PC-51/.test(entry.note ?? ''));
+    expect(factWaits.map((entry) => `${entry.screen} ${entry.action}`)).toEqual([
+      'FA-01 Review drafts',
+    ]);
+    for (const entry of factWaits) {
+      expect(resolveAddress(expandTarget(entry.target!, '/faculty')).kind).toBe('record-screen');
+    }
+    for (const entry of hidden.filter((item) => !factWaits.includes(item))) {
       expect(entry.note, `${entry.screen} ${entry.action}`).toMatch(/not built/);
       const target = expandTarget(entry.target!, '/admin');
       const kind = resolveAddress(target).kind;
@@ -144,15 +166,16 @@ describe('the link-target ledger', () => {
         expect(['public-not-found', 'workspace-not-found'], entry.action).toContain(kind);
       }
     }
-    // Every not-rendered action names the screen it waits for. Phase 3 built its fifteen ids, Phase
-    // 4A thirteen: what stays hidden waits for Phase 4B (ST-11 assessments, FA-12 submissions,
-    // FA-16 drafting, FA-17 import, FA-18 marking, FA-20 students), Phase 6 (SA-20, SA-22) or
-    // SACC-14 (ST-15's earlier work).
+    // Every other not-rendered action names the screen it waits for. Phase 3 built its fifteen
+    // ids, Phase 4A thirteen, Phase 4B twelve: what stays hidden waits for Phase 6 (SA-20, SA-22)
+    // or SACC-14 (ST-15's earlier work).
     expect(
-      new Set(hidden.map((entry) => /\b((?:IA|ST|SA|FA)-\d\d)\b/.exec(entry.note!)?.[1])),
-    ).toEqual(
-      new Set(['SA-22', 'ST-11', 'ST-15', 'SA-20', 'FA-12', 'FA-16', 'FA-17', 'FA-18', 'FA-20']),
-    );
+      new Set(
+        hidden
+          .filter((entry) => !factWaits.includes(entry))
+          .map((entry) => /\b((?:IA|ST|SA|FA)-\d\d)\b/.exec(entry.note!)?.[1]),
+      ),
+    ).toEqual(new Set(['SA-22', 'ST-15', 'SA-20']));
   });
 
   it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to a built home (SA-01, IA-01, ST-01, FA-01)', () => {
@@ -408,6 +431,32 @@ describe('the link-target ledger', () => {
       'FA-14: Add a question',
       'FA-15: Save question',
       'FA-15: Save question',
+      // Phase 4B: one primary per drawn state — the hub's Assessment tab (ST-05), Before you
+      // start per state (ST-12), the attempt and its DL-1 (ST-13), the result's states (ST-14),
+      // Mark next (FA-12, FA-18), Confirm marks (FA-19), Mark their answers (FA-21), the tools.
+      'ST-05: Open assessment',
+      'ST-05: Continue attempt',
+      'ST-12: Start assessment',
+      'ST-12: Continue attempt',
+      'ST-12: See result page',
+      'ST-12: Try again',
+      'ST-12: See result',
+      'ST-12: Back to experiment',
+      'ST-13: Submit',
+      'ST-13: Submit answers',
+      'ST-13: Back to experiment',
+      'ST-14: Back to experiment',
+      'ST-14: Back to experiment',
+      'ST-14: Back to experiment',
+      'ST-14: Back to the assessment',
+      'ST-14: Try again',
+      'FA-12: Mark next',
+      'FA-18: Mark next',
+      'FA-19: Confirm marks',
+      'FA-21: Mark their answers',
+      'FA-16: Draft questions',
+      'FA-17: Check file · Choose the corrected file · Continue · Import N questions',
+      'FA-17: Open question bank',
     ]);
   });
 });

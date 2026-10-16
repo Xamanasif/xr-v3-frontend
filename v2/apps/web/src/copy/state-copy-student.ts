@@ -31,11 +31,11 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-01',
     state: 'What Up next lists',
     words: null,
-    rule: 'The service’s Up next items in its order, leaving out the format items of the experiment the first card names (B2-10 f1, f4: “Nothing else is waiting for you right now.” beside that card), at most three, with “<n> of at most 3”. A format item of another experiment opens its hub (“Open experiment”). A feedback item’s “Give feedback” opens that format’s feedback (ST-16, Phase 3; the service lists it only for a format with its own completion and no feedback yet). An assessment item keeps its words; its “Open assessment” is not rendered until ST-11 is built (Phase 4, DEV-21). An assessment is named from the Student’s own assessments list.',
+    rule: 'The service’s Up next items in its order, leaving out the format items of the experiment the first card names (B2-10 f1, f4: “Nothing else is waiting for you right now.” beside that card), at most three, with “<n> of at most 3”. A format item of another experiment opens its hub (“Open experiment”). A feedback item’s “Give feedback” opens that format’s feedback (ST-16, Phase 3; the service lists it only for a format with its own completion and no feedback yet). An assessment item keeps its words and its “Open assessment” opens that assessment’s Before you start (ST-12; Phase 4B, B4-11 f10). An assessment is named from the Student’s own assessments list.',
     basis:
-      'B2-10 f1, f4, f5 (f5 is the pattern frame of the three item types: “Sample wording for later states”; it lists a format of the card’s own experiment, which f4 does not)',
+      'B2-10 f1, f4, f5 (f5 is the pattern frame of the three item types: “Sample wording for later states”; it lists a format of the card’s own experiment, which f4 does not); B4-11 f10',
     status: 'provisional',
-    decisions: ['VD-12', 'DEV-21'],
+    decisions: ['VD-12'],
   },
   'ST-01.loading': {
     screen: 'ST-01',

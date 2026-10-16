@@ -652,9 +652,12 @@ describe('FA-03 Course — the teaching view (B4-02 f1)', () => {
     expect(open).toHaveAttribute('href', `/faculty/experiments/${SHELL}`);
     expect(open).toHaveClass('xr-btn', 'xr-btn--secondary');
     expect(open.parentElement).toHaveClass('xw-actions');
-    // FA-20 is not built: "Students on this experiment" is not rendered (DEV-21).
-    expect(within(card).queryByRole('link', { name: 'Students on this experiment' })).toBeNull();
-    expect(within(card).getAllByRole('link')).toHaveLength(2);
+    // "Students on this experiment" (`a.xr-btn--text`) opens FA-20 for it (Phase 4B).
+    const students = within(card).getByRole('link', { name: 'Students on this experiment' });
+    expect(students).toHaveAttribute('href', `/faculty/students?experimentId=${SHELL}`);
+    expect(students).toHaveClass('xr-btn', 'xr-btn--text');
+    expect(students.previousElementSibling).toBe(open);
+    expect(within(card).getAllByRole('link')).toHaveLength(3);
   });
 
   it('after Flow C: no assessment yet (no chip, “No assessment yet”)', async () => {
@@ -828,14 +831,17 @@ describe('B4-02’s words, the state-copy register and the ledger', () => {
     }
   });
 
-  it('the ledger: no primary, FA-20 not rendered with its reason, every built target a page', () => {
+  it('the ledger: no primary, nothing left unrendered — FA-03 links FA-20 since Phase 4B', () => {
     expect(P4_FACULTY_COURSES_LINK_TARGETS.filter((entry) => entry.role === 'primary')).toEqual([]);
-    const hidden = P4_FACULTY_COURSES_LINK_TARGETS.filter(
-      (entry) => entry.outcome === 'not-rendered',
-    );
-    expect(hidden.map((entry) => `${entry.screen} ${entry.action}`)).toEqual([
-      'FA-03 Students on this experiment',
-    ]);
-    expect(hidden[0]!.note).toMatch(/FA-20 Students is not built/);
+    expect(
+      P4_FACULTY_COURSES_LINK_TARGETS.filter((entry) => entry.outcome === 'not-rendered'),
+    ).toEqual([]);
+    const students = P4_FACULTY_COURSES_LINK_TARGETS.find(
+      (entry) => entry.screen === 'FA-03' && entry.action === 'Students on this experiment',
+    )!;
+    expect(students).toMatchObject({
+      outcome: 'built',
+      target: '/faculty/students?experimentId={experimentId}',
+    });
   });
 });

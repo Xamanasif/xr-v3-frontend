@@ -14,11 +14,14 @@ import {
   ASSESSMENTS_TITLE,
   FACULTY_MY_COURSES_TITLE,
   FACULTY_OVERVIEW_TITLE,
+  FACULTY_STUDENTS_TITLE,
+  MARKING_TITLE,
   QUESTION_BANK_TITLE,
 } from './faculty';
 import { WORKSPACE_NAV } from './nav-config';
 import { OPERATIONS_TITLE } from './operations';
 import { HOME_TITLE, MY_COURSES_TITLE } from './student';
+import { STUDENT_ASSESSMENTS_TITLE } from './student-assessments';
 import { MY_DEVICE_TITLE } from './student-device';
 import { PROGRESS_TITLE } from './student-progress';
 
@@ -119,19 +122,45 @@ export function placeWordsOf(returnTo: string | null): string | null {
       if (outcome.screen === 'FA-01') return FACULTY_OVERVIEW_TITLE;
       if (outcome.screen === 'FA-02' || outcome.screen === 'FA-03' || outcome.screen === 'FA-05')
         return FACULTY_MY_COURSES_TITLE;
-      if (outcome.screen === 'FA-14' || outcome.screen === 'FA-15') return QUESTION_BANK_TITLE;
+      if (
+        outcome.screen === 'FA-14' ||
+        outcome.screen === 'FA-15' ||
+        outcome.screen === 'FA-16' ||
+        outcome.screen === 'FA-17'
+      )
+        return QUESTION_BANK_TITLE;
       const reference = referenceIn(pathname);
+      const assessment = /\/assessments\/(ASMT-\d{4})(?:\/|$)/.exec(pathname)?.[1];
       if (
         outcome.screen === 'FA-06' ||
         outcome.screen === 'FA-07' ||
         outcome.screen === 'FA-08' ||
         outcome.screen === 'FA-09' ||
         outcome.screen === 'FA-10' ||
-        outcome.screen === 'FA-11'
+        outcome.screen === 'FA-11' ||
+        outcome.screen === 'FA-12'
       ) {
-        const assessment = /\/assessments\/(ASMT-\d{4})(?:\/|$)/.exec(pathname)?.[1];
         return assessment ? `${ASSESSMENTS_TITLE} › ${assessment}` : ASSESSMENTS_TITLE;
       }
+      // Phase 4B: the Student's assessment pages name Assessments and the drawn reference
+      // ("Assessments › ASMT-0009"); marking a submission names its attempt ("Marking ›
+      // ATT-0450"); Students are addressed by ids, so they name the destination alone.
+      if (
+        outcome.screen === 'ST-11' ||
+        outcome.screen === 'ST-12' ||
+        outcome.screen === 'ST-13' ||
+        outcome.screen === 'ST-14'
+      ) {
+        return assessment
+          ? `${STUDENT_ASSESSMENTS_TITLE} › ${assessment}`
+          : STUDENT_ASSESSMENTS_TITLE;
+      }
+      if (outcome.screen === 'FA-18') return MARKING_TITLE;
+      if (outcome.screen === 'FA-19') {
+        const attempt = /\/marking\/(ATT-\d{4})(?:\/|$)/.exec(pathname)?.[1];
+        return attempt ? `${MARKING_TITLE} › ${attempt}` : MARKING_TITLE;
+      }
+      if (outcome.screen === 'FA-20' || outcome.screen === 'FA-21') return FACULTY_STUDENTS_TITLE;
       if (outcome.screen === 'IA-17') {
         return reference ? `${INSTITUTE_REQUESTS_TITLE} › ${reference}` : INSTITUTE_REQUESTS_TITLE;
       }

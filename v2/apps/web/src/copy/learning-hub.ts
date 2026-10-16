@@ -17,11 +17,12 @@ function plural(count: number, word: string): string {
 
 // ---- the hub's tab strip (B2-12 f0; B3-01 f0, f8; B3-02 f0) -------------------------------
 
-/** `nav.xw-hubtabs` link words; "Assessment" (Phase 4) is not rendered (DEV-21). */
+/** `nav.xw-hubtabs` link words (B2-12 f0; Phase 4B adds "Assessment", B4-11 f7). */
 export const HUB_TABS = {
   overview: 'Overview',
   resources: 'Resources',
   simulation: 'Simulation',
+  assessment: 'Assessment',
   progress: 'Progress',
 } as const;
 

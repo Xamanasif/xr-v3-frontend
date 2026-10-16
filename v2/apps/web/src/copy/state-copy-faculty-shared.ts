@@ -17,6 +17,25 @@ export const STATE_COPY_FACULTY_SHARED = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
+  'FA-shared.record-policy-open': {
+    screen: 'FA-08',
+    state:
+      'An assessment a co-teaching colleague created, on its Summary, Questions, Settings or Preview tab, and as FA-05’s assessment row (the service answers policy-open: the record pins their questions)',
+    words: 'This assessment isn’t available to you yet',
+    rule: 'Under the tab’s own title, with no record header, tabs, question, key or rule: whether co-teaching Faculty share each other’s assessments is undecided (Phase 4B protective refusal, OD-B4-17). The Submissions tab shows its own words (`FA-12.policy-open.title`).',
+    basis: 'Board 08 “not available” pattern; `FA-11.policy-open.title`; Phase 4B authorisation §6',
+    status: 'provisional',
+    decisions: ['VD-12', 'OD-B4-17'],
+  },
+  'FA-shared.record-policy-open.line': {
+    screen: 'FA-08',
+    state: 'The held-back record’s next step',
+    words:
+      'Another faculty member created this assessment. Ask them about it; your own assessments are in Assessments.',
+    basis: 'Board 04 formula (what happened, what to do next); `FA-12.policy-open.line`',
+    status: 'provisional',
+    decisions: ['VD-12', 'OD-B4-17'],
+  },
   'FA-shared.record-failed': {
     screen: 'FA-08',
     state: 'An assessment record failed to load (service unavailable), on any of its tabs',
@@ -47,11 +66,10 @@ export const STATE_COPY_FACULTY_SHARED = {
     screen: 'FA-08',
     state: 'The record’s “Submissions” tab and every action that opens marking or students',
     words: null,
-    rule: 'Not rendered until FA-12, FA-18 and FA-20 are built (Phase 4B, DEV-21): the tabs read Summary · Questions · Settings · Preview; “Mark next”, “See submissions”, “Mark <n> written answer”, “See students on this experiment” and “View students” are not drawn.',
-    basis:
-      'B4-05 f0 and B4-06 f0 tab strips; B4-01, B4-03; the link-target ledger’s “not rendered” rule',
+    rule: 'Since Phase 4B every tab reads Summary · Questions · Settings · Preview · Submissions (with its count), and the actions into marking and students are drawn: FA-08 “Mark next” / “See submissions”, FA-01 and FA-05 “Mark <n> written answer”, FA-05 “See students on this experiment”, FA-01 “View students”.',
+    basis: 'B4-05 f0 and B4-06 f0 tab strips; B4-01, B4-03',
     status: 'provisional',
-    decisions: ['DEV-21'],
+    decisions: ['VD-12'],
   },
   'FA-shared.marks-one': {
     screen: 'FA-09',

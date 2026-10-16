@@ -37,11 +37,14 @@ import {
   resultNoticeTitle,
   THIS_ASSESSMENT,
 } from '@/copy/assessments';
+import { BANK_TOOLS } from '@/copy/question-tools';
 import { stateWords } from '@/copy/state-copy';
 import {
   assessmentAddress,
   ASSESSMENTS_ADDRESS,
   createAssessmentAddress,
+  draftQuestionsAddress,
+  importQuestionsAddress,
   newQuestionAddress,
 } from '@/nav/faculty';
 import { useTeachingExperiment } from '@/queries/teaching';
@@ -348,11 +351,20 @@ export function QuestionsStep({
           })}
         </ul>
       )}
-      {/* "Draft with assistance" (FA-16) and "Import" (FA-17) are not built: not rendered (DEV-21). */}
+      {/* B4-04 f4: New question (FA-15), Draft with assistance (FA-16) and Import (FA-17, Phase 4B)
+          for this experiment; neither tool adds to the assessment on its own. */}
       <div className="xw-actions">
         <Link className="xr-btn xr-btn--text" href={newQuestion}>
           <Icon name="add" />
           {ADD_QUESTIONS.newQuestion}
+        </Link>
+        <Link className="xr-btn xr-btn--text" href={draftQuestionsAddress(experimentId)}>
+          <Icon name="assist" />
+          {BANK_TOOLS.draftWithAssistance}
+        </Link>
+        <Link className="xr-btn xr-btn--text" href={importQuestionsAddress(experimentId)}>
+          <Icon name="readyToPublish" />
+          {BANK_TOOLS.import}
         </Link>
       </div>
       <FlowFoot

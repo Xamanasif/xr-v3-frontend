@@ -199,6 +199,16 @@
     "pixels": 863,
     "run": ".runs/2026-10-16-phase4a-web"
   },
+  "05-faculty-help-built-sidebar-phase-4b": {
+    "deviations": ["DEV-44"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": true,
+    "productFingerprint": "c6d4daabe627b851e02e11545293588e57d8cacc56712f98ddd1c09162b1134e",
+    "productContent": "72a2488651fddb669d721a36571361f6df4203ea1c220493a5fd6e3f049122a7",
+    "pixels": 495,
+    "run": ".runs/2026-10-16-phase4b-web"
+  },
   "05-institute-admin-help-built-help-header": {
     "deviations": ["DEV-15", "DEV-11"],
     "reference": "1040×76",
@@ -459,6 +469,16 @@
     "pixels": null,
     "run": ".runs/2026-10-15T18-54-19-693Z-web"
   },
+  "07-f1-state-1a-validation-sidebar-phase-4b": {
+    "deviations": ["DEV-12"],
+    "reference": "248×964",
+    "product": "248×968",
+    "iconsSame": true,
+    "productFingerprint": "4f0eb5bcd0143170b56cb7f67f4c9328eddbf8817471ac7647a11fea7acfa5f8",
+    "productContent": "2b85a12a2b8b1f65d8296d26edf258c656fe6d7fcb26744c5ef7b48088ba8e4a",
+    "pixels": null,
+    "run": ".runs/2026-10-16-phase4b-web"
+  },
   "07-f1-state-1a-validation-summary": {
     "deviations": ["DEV-12"],
     "reference": "720×76",
@@ -498,6 +518,16 @@
     "productContent": "c373774bfdfb5eea4c3beb156cf86aa65b6928053f51d750fdc1293d5ecac673",
     "pixels": null,
     "run": ".runs/2026-10-15T18-54-19-693Z-web"
+  },
+  "07-f1-state-1a-validation-whole-frame-phase-4b": {
+    "deviations": ["DEV-12"],
+    "reference": "1280×964",
+    "product": "1280×968",
+    "iconsSame": true,
+    "productFingerprint": "c3c9cccf0d6f73c4de0fe14b34d37c2058b93cf589df4612b8d60fb21dc5e0a0",
+    "productContent": "c1be347b6fc7fbc95daf7888c31d2a098247c5a02cb4e4327ba4e6069d9c0dab",
+    "pixels": null,
+    "run": ".runs/2026-10-16-phase4b-web"
   },
   "07-f2-state-1b-sending-actions": {
     "deviations": ["DEV-01"],

@@ -5,8 +5,8 @@ const RECORD = '/faculty/assessments/{assessmentId}';
 
 /**
  * The assessment record's frame on each tab page (B4-06 f0, f5): the top-bar crumbs "Assessments /
- * <name> / <tab>" and the tabs Summary · Questions · Settings · Preview; "Submissions" (FA-12) is
- * Phase 4B and is not rendered (DEV-21).
+ * <name> / <tab>" and the tabs Summary · Questions · Settings · Preview · Submissions (FA-12, since
+ * Phase 4B).
  */
 function recordFrame(board: string): PageRow[] {
   return [
@@ -16,15 +16,7 @@ function recordFrame(board: string): PageRow[] {
     ['Record tabs', 'Questions', 'secondary', `${RECORD}/questions`, 'built', board],
     ['Record tabs', 'Settings', 'secondary', `${RECORD}/settings`, 'built', board],
     ['Record tabs', 'Preview', 'secondary', `${RECORD}/preview`, 'built', board],
-    [
-      'Record tabs',
-      'Submissions',
-      'secondary',
-      `${RECORD}/submissions`,
-      'not-rendered',
-      board,
-      'FA-12 Submissions is not built (Phase 4B): the tab appears with it (DEV-21).',
-    ],
+    ['Record tabs', 'Submissions', 'secondary', `${RECORD}/submissions`, 'built', board],
   ];
 }
 

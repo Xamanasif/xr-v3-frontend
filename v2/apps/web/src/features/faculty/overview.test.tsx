@@ -5,8 +5,10 @@
  * yet). The one world is proved end to end: Meera Iyer's Faculty course assignment (IA-15, through
  * the real `facultyCourses.assign` port) turns Anita's "No courses yet" into her scope line; a
  * Ready assessment saved through the assessments port appears under Coming up; the sample clock
- * past the plan's end gives the access-ended row (f3). Rows whose page is Phase 4B (FA-16, FA-18,
- * FA-20) are not drawn; the undrawn loading and failed states read again.
+ * past the plan's end gives the access-ended row (f3). Phase 4B renders the actions 4A left out
+ * (DEV-21): a submitted written answer brings the header's "Mark 1 written answer" and the row's
+ * "Mark now" (FA-18), and Students inactive for 14 days the row with "View students" (FA-20); the
+ * drafts row stays undrawn (no service fact). The undrawn loading and failed states read again.
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -35,7 +37,12 @@ import { PERSON_OF_ROLE, renderInTab, tabPlatform, testNavigation } from '@/test
 import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
 import { WorkspaceLayout } from '../shared/workspace-frame/workspace-frame';
 import { FacultyOverview } from './fa-01-overview/overview';
-import { ATTENTION_BUDGET, attentionRow, attentionRows } from './fa-01-overview/overview-view';
+import {
+  ATTENTION_BUDGET,
+  attentionRow,
+  attentionRows,
+  writtenAnswersWaiting,
+} from './fa-01-overview/overview-view';
 
 afterEach(() => {
   forgetLastAddress();
@@ -83,7 +90,10 @@ const comingUp = () => screen.findByRole('region', { name: 'Coming up' });
 const rowTitles = (region: HTMLElement) =>
   [...region.querySelectorAll('.xr-row-title')].map((node) => node.textContent);
 
-/** The drawn Phase-4B actions: none of them is ever on the page in Phase 4A (DEV-21). */
+/**
+ * With nothing to mark and no inactive Student, none of the Phase-4B actions is on the page; the
+ * drafts row's "Review drafts" never is (the service has no drafts fact, PC-51).
+ */
 function expectNoPhase4BActions() {
   for (const name of [/^Mark \d+ written answer/, 'Mark now', 'Review drafts', 'View students']) {
     expect(screen.queryByRole('link', { name })).toBeNull();
@@ -92,11 +102,34 @@ function expectNoPhase4BActions() {
   expect(main().querySelector('.xr-phead-actions')).toBeNull();
 }
 
+/** Rahul starts, answers and submits the assessment (ST-13), as he would; the stand-in marks his choices. */
+async function rahulSubmits(runtime: PlatformRuntime, sample: Sample, assessmentId: AssessmentId) {
+  const rahul = asPersonId(sample, 'per-0002');
+  await act(async () => {
+    const started = await rahul.assessments.startAttempt(assessmentId);
+    if (!started.ok) throw new Error(`start ${JSON.stringify(started.error)}`);
+    const saved = await rahul.assessments.saveAnswer({
+      attemptId: started.value.id,
+      questionId: 'Q-0106' as never,
+      answer: { type: 'written', text: 'U falls, so less heat passes.' },
+      expectedRev: started.value.rev,
+    });
+    if (!saved.ok) throw new Error(`answer ${JSON.stringify(saved.error)}`);
+    const submitted = await rahul.assessments.submitAttempt({
+      attemptId: saved.value.id,
+      expectedRev: saved.value.rev,
+    });
+    if (!submitted.ok) throw new Error(`submit ${JSON.stringify(submitted.error)}`);
+    await runtime.invalidate(submitted.changed);
+  });
+}
+
 /** A Ready assessment of Shell-and-Tube through the assessments port (FA-07 "Create"), as he saves it. */
 async function createReady(
   runtime: PlatformRuntime,
   deadline = '2026-11-14T23:59:00+05:30',
   mode: 'create' | 'save-as-draft' = 'create',
+  questions?: readonly string[],
 ): Promise<AssessmentId> {
   const bank = await runtime.ports.questionBank.listQuestions({
     experimentId: SHELL as ExperimentId,
@@ -117,7 +150,7 @@ async function createReady(
         releaseDate: null,
       },
       // A draft without questions is "Draft — not ready"; with every rule and a question it is Ready.
-      questions: mode === 'create' ? [bank.value[0]!.question.id] : [],
+      questions: mode === 'create' ? ((questions as never) ?? [bank.value[0]!.question.id]) : [],
     });
     if (!created.ok) throw new Error(`create ${JSON.stringify(created.error)}`);
     id = created.value.id;
@@ -154,7 +187,7 @@ describe('FA-01 — Dr S. Ranganathan after Flow C (B4-01 f0, f1)', () => {
       within(sidebar)
         .getAllByRole('link')
         .map((link) => link.querySelector('.xr-nav-text')?.textContent),
-    ).toEqual(['Overview', 'My courses', 'Assessments', 'Question bank']);
+    ).toEqual(['Overview', 'My courses', 'Assessments', 'Question bank', 'Marking', 'Students']);
     expect(sidebar.querySelector('[aria-current="page"]')).toHaveAttribute('href', '/faculty');
     expect(document.querySelector('aside.xr-side .xr-side-foot a')).toHaveAttribute(
       'href',
@@ -236,18 +269,63 @@ describe('FA-01 — Dr S. Ranganathan after Flow C (B4-01 f0, f1)', () => {
     );
   });
 
-  it('Students inactive for 14 days are a Phase-4B row: the service names them, the page does not (f1)', async () => {
+  it('Students inactive for 14 days: the row names them, “View students” opens Students for the experiment (f0, f4)', async () => {
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     moveClock(sample, '2026-12-01T03:30:00.000Z');
     const answer = await runtime.ports.teaching.getFacultyOverview();
     expect(answer.ok && answer.value.attention.map((item) => item.kind)).toEqual([
       'students-inactive',
     ]);
+    const fact = answer.ok ? answer.value.attention[0] : null;
+    if (fact?.kind !== 'students-inactive') throw new Error('no inactive fact');
     showOverview(runtime);
     const region = await attention();
-    expect(region.querySelector('.xr-rows')).toBeNull();
-    expect(region).toHaveTextContent('Nothing needs you right now.');
-    expectNoPhase4BActions();
+    await waitFor(() => expect(region.querySelectorAll('li.xr-row')).toHaveLength(1));
+    expect(region.querySelector('.xr-section-head .xr-meta')).toHaveTextContent(/^1 item$/);
+    const row = region.querySelector('li.xr-row')!;
+    const names = fact.students.map((student) => student.name);
+    expect(row.querySelector('.xr-row-title')).toHaveTextContent(
+      names.length === 1
+        ? '1 student inactive for 14 days or more'
+        : `${names.length} students inactive for 14 days or more`,
+    );
+    expect(row.querySelector('.xr-row-sub')).toHaveTextContent(names[0]!);
+    expect(row.querySelector('.xr-row-sub')).toHaveTextContent(`· ${SHELL_NAME}`);
+    // The clock icon, no tone (B4-01 `span.xr-row-icon` with the clock).
+    expect(row.querySelector('.xr-row-icon')?.className.trim()).toBe('xr-row-icon');
+    const view = within(row as HTMLElement).getByRole('link', { name: 'View students' });
+    expect(view).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    expect(view).toHaveAttribute('href', `/faculty/students?experimentId=${SHELL}`);
+    // Nothing to mark: no header action.
+    expect(main().querySelector('.xr-phead-actions')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Review drafts' })).toBeNull();
+  });
+
+  it('a submitted written answer: the header’s “Mark 1 written answer” and the row’s “Mark now” open Marking (f0, f4)', async () => {
+    const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
+    const id = await createReady(runtime, '2026-11-14T23:59:00+05:30', 'create', [
+      'Q-0101',
+      'Q-0106',
+    ]);
+    showOverview(runtime);
+    await attention();
+    await rahulSubmits(runtime, sample, id);
+    const region = await attention();
+    await waitFor(() => expect(rowTitles(region)).toEqual(['1 written answer to mark']));
+    const row = region.querySelector('li.xr-row')!;
+    expect(row.querySelector('.xr-row-sub')).toHaveTextContent(
+      /^Heat Exchanger — post-lab · from Rahul Verma, 27 Oct 2026$/,
+    );
+    const markNow = within(row as HTMLElement).getByRole('link', { name: 'Mark now' });
+    expect(markNow).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    expect(markNow).toHaveAttribute('href', `/faculty/marking?assessmentId=${id}`);
+    const primary = within(main().querySelector('.xr-phead-actions') as HTMLElement).getByRole(
+      'link',
+      { name: 'Mark 1 written answer' },
+    );
+    expect(primary).toHaveClass('xr-btn', 'xr-btn--primary');
+    expect(primary).toHaveAttribute('href', '/faculty/marking');
+    expect(screen.queryByRole('link', { name: 'Review drafts' })).toBeNull();
   });
 });
 
@@ -409,21 +487,30 @@ describe('FA-01 — rows, words and registers', () => {
       days: 14,
       students: [{ studentId: 'per-0002' as PersonId, name: 'Rahul Verma' }],
     };
-    // The waiting written answer is drawn as the fact it is, without "Mark now" (FA-18 is Phase
-    // 4B); the inactive-students row waits for FA-20 (Phase 4A review).
+    // Phase 4B: "Mark now" opens Marking for the assessment (FA-18); the inactive-students row
+    // is drawn with "View students" (FA-20 for the experiment).
     expect(attentionRow(marking)).toMatchObject({
       icon: 'marking',
       tone: 'wait',
       title: '1 written answer to mark',
       sub: 'Heat Exchanger — post-lab · from Rahul Verma, 5 Nov 2026',
-      action: null,
+      action: { label: 'Mark now', href: '/faculty/marking?assessmentId=ASMT-0009' },
     });
-    expect(attentionRow(inactive)).toBeNull();
+    expect(attentionRow(inactive)).toEqual({
+      key: `inactive:${SHELL}`,
+      icon: 'clock',
+      title: '1 student inactive for 14 days or more',
+      sub: `Rahul Verma · ${SHELL_NAME}`,
+      action: { label: 'View students', href: `/faculty/students?experimentId=${SHELL}` },
+    });
+    expect(writtenAnswersWaiting([marking, inactive, { ...marking, answers: 2 }])).toBe(3);
     const rows = attentionRows([marking, ended(1), inactive, ...[2, 3, 4, 5, 6].map(ended)]);
     expect(rows).toHaveLength(ATTENTION_BUDGET);
     expect(rows.map((row) => row.title)).toEqual([
       '1 written answer to mark',
-      ...[1, 2, 3, 4].map(
+      'Your institution’s access to Experiment 1 ended on 7 Oct 2027',
+      '1 student inactive for 14 days or more',
+      ...[2, 3].map(
         (index) => `Your institution’s access to Experiment ${index} ended on 7 Oct 2027`,
       ),
     ]);
@@ -447,39 +534,44 @@ describe('FA-01 — rows, words and registers', () => {
     );
   });
 
-  it('every FA-01 action in the ledger reaches a built page, or names the unbuilt Phase-4B screen', () => {
+  it('every FA-01 action in the ledger reaches a built page; the drafts row waits for its fact', () => {
     const mine = LINK_TARGET_LEDGER.filter((entry) => entry.screen === 'FA-01');
     expect(mine.map((entry) => `${entry.action} · ${entry.outcome}`)).toEqual([
-      'Mark <n> written answer · not-rendered',
+      'Mark <n> written answer · built',
       'My courses · built',
-      'Mark now · not-rendered',
+      'Mark now · built',
       'Review drafts · not-rendered',
-      'View students · not-rendered',
+      'View students · built',
       'My courses · built',
       'Open · built',
       'Help · built',
       'Try again · in-page',
     ]);
-    // One primary, as B4-01 draws it — not rendered until FA-18 is built.
+    // One primary, as B4-01 draws it (Phase 4B: FA-18 is built).
     expect(mine.filter((entry) => entry.role === 'primary').map((entry) => entry.action)).toEqual([
       'Mark <n> written answer',
     ]);
     for (const entry of mine) {
       expect(entry.on).toBe('/faculty');
       if (entry.target === null) continue;
-      const target = expandTarget(entry.target, '/faculty');
+      const target = expandTarget(entry.target, '/faculty').split('?')[0]!;
       const resolved = resolveAddress(target);
       if (entry.outcome === 'built') {
         expect(['screen', 'record-screen'], `${entry.action}`).toContain(resolved.kind);
         continue;
       }
+      // "Review drafts": FA-16 and the Drafts tab are built; the service names no drafts (PC-51).
       expect(entry.outcome).toBe('not-rendered');
-      expect(entry.note).toMatch(/is not built/);
-      const named = /\b(FA-\d\d)\b/.exec(entry.note!)?.[1];
-      expect(['FA-16', 'FA-18', 'FA-20']).toContain(named);
-      expect(BUILT_SCREENS.has(named as never)).toBe(false);
-      if (!target.includes('?tab=')) expect(resolved.kind).toBe('workspace-not-found');
+      expect(entry.action).toBe('Review drafts');
+      expect(entry.note).toMatch(/no drafts fact/);
+      expect(BUILT_SCREENS.has('FA-16')).toBe(true);
     }
+    expect(resolveAddress('/faculty/marking')).toEqual(
+      expect.objectContaining({ screen: 'FA-18' }),
+    );
+    expect(resolveAddress('/faculty/students')).toEqual(
+      expect.objectContaining({ screen: 'FA-20' }),
+    );
     expect(resolveAddress(expandTarget('/faculty/assessments/{assessmentId}', '/faculty'))).toEqual(
       expect.objectContaining({ screen: 'FA-08' }),
     );

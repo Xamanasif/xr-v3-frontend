@@ -644,8 +644,15 @@ describe('FA-07 — the whole flow on the one world (after-flow-c, B4-04 f1 → 
       'href',
       '/faculty/question-bank/new?experimentId=shell-and-tube-heat-exchanger&returnTo=%2Ffaculty%2Fassessments%2Fnew%3Fstep%3Dquestions%26experimentId%3Dshell-and-tube-heat-exchanger',
     );
-    expect(screen.queryByRole('link', { name: 'Draft with assistance' })).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Import' })).toBeNull();
+    // Phase 4B: the drafting and import tools open for this experiment (B4-04 f4).
+    expect(screen.getByRole('link', { name: 'Draft with assistance' })).toHaveAttribute(
+      'href',
+      '/faculty/question-bank/draft?experimentId=shell-and-tube-heat-exchanger',
+    );
+    expect(screen.getByRole('link', { name: 'Import' })).toHaveAttribute(
+      'href',
+      '/faculty/question-bank/import?experimentId=shell-and-tube-heat-exchanger',
+    );
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(summaryLinks()).toEqual(['Add at least one question, or save as a draft']);
     expect(document.getElementById('Cc-qs-e')).toHaveTextContent(

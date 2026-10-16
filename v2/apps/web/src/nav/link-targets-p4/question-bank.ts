@@ -7,9 +7,10 @@ const QUESTION = '/faculty/question-bank/{questionId}';
 
 /** Phase 4A link targets: FA-14 Question bank and FA-15 Add / edit question (B4-07). */
 export const P4_QUESTION_BANK_LINK_TARGETS: readonly LedgerEntry[] = [
-  // FA-14 Question bank (B4-07 f0, f2, f7, f9): one primary, the header's "Add a question" (for
-  // the experiment on show). Drafting with assistance (FA-16) and importing (FA-17) are not built,
-  // so their actions and the "Drafts to review" tab are not rendered (DEV-21; T-23).
+  // FA-14 Question bank (B4-07 f0, f1, f2, f7, f9): one primary, the header's "Add a question"
+  // (for the experiment on show). Since Phase 4B "Draft with assistance" (FA-16), "Import" (FA-17)
+  // and the "Questions · Drafts to review" tabs render; the Drafts tab's own actions are FA-16's
+  // (`link-targets-p4b/question-tools.ts`).
   ...pageRows('FA-14', BANK, [
     [
       'Header',
@@ -23,28 +24,33 @@ export const P4_QUESTION_BANK_LINK_TARGETS: readonly LedgerEntry[] = [
       'Header',
       'Draft with assistance',
       'secondary',
-      `${BANK}/draft`,
-      'not-rendered',
-      'B4-07 f0, f7, f9 `a.xr-btn--secondary`',
-      'FA-16 Draft with assistance is not built (Phase 4B; no drafting provider, T-23): the action appears with it (DEV-21).',
+      `${BANK}/draft?experimentId={experimentId}`,
+      'built',
+      'B4-07 f0, f7, f9 `a.xr-btn--secondary` (→ B4-08 FA-16)',
     ],
     [
       'Header',
       'Import',
       'secondary',
-      `${BANK}/import`,
-      'not-rendered',
-      'B4-07 f0, f7, f9 `a.xr-btn--secondary`',
-      'FA-17 Import questions is not built (Phase 4B): the action appears with it (DEV-21).',
+      `${BANK}/import?experimentId={experimentId}`,
+      'built',
+      'B4-07 f0, f7, f9 `a.xr-btn--secondary` (→ B4-08 FA-17)',
+    ],
+    [
+      'Tabs',
+      'Questions',
+      'secondary',
+      `${BANK}?experimentId={experimentId}`,
+      'built',
+      'B4-07 f0, f1 `nav.xr-tabs` (Questions · Drafts to review)',
     ],
     [
       'Tabs',
       'Drafts to review',
       'secondary',
-      `${BANK}?tab=drafts`,
-      'not-rendered',
-      'B4-07 f0, f1 `nav.xr-tabs` (Questions · Drafts to review)',
-      'Drafts come only from FA-16 Draft with assistance, which is not built (Phase 4B; T-23): the tab appears with it (DEV-21); until then no tab strip is drawn (state-copy `FA-14.drafts-tab`).',
+      `${BANK}?tab=drafts&experimentId={experimentId}`,
+      'built',
+      'B4-07 f0, f1 `nav.xr-tabs` (Appendix A rule T2; state-copy `FA-14.drafts-tab`)',
     ],
     [
       'Toolbar',
@@ -99,10 +105,9 @@ export const P4_QUESTION_BANK_LINK_TARGETS: readonly LedgerEntry[] = [
       'Empty bank',
       'Import',
       'secondary',
-      `${BANK}/import`,
-      'not-rendered',
-      'B4-07 f7 `div.xr-empty` `a.xr-btn--secondary`',
-      'FA-17 Import questions is not built (Phase 4B): the action appears with it (DEV-21).',
+      `${BANK}/import?experimentId={experimentId}`,
+      'built',
+      'B4-07 f7 `div.xr-empty` `a.xr-btn--secondary` (→ B4-08 FA-17)',
     ],
     [
       'No match',

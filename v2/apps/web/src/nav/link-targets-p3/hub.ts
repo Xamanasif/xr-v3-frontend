@@ -6,7 +6,7 @@ const HUB = '/student/experiments/{experimentId}';
 
 /**
  * The hub's tab strip on each tab page (B3-01 f0, f8; B3-02 f0): Overview · Resources ·
- * Simulation · Progress; "Assessment" (B4-11) is Phase 4 and not rendered (DEV-21).
+ * Simulation · Assessment · Progress — the Assessment tab since Phase 4B (B4-11 f7 … f9).
  */
 function hubTabs(board: string): PageRow[] {
   return [
@@ -19,9 +19,9 @@ function hubTabs(board: string): PageRow[] {
       'Assessment',
       'secondary',
       `${HUB}/assessment`,
-      'not-rendered',
-      board,
-      'ST-11 Assessments is not built (Phase 4): the tab appears with it (DEV-21).',
+      'built',
+      `${board}; B4-11 f7 … f9`,
+      'The hub’s Assessment tab (Phase 4B).',
     ],
     [
       'Top bar crumbs',

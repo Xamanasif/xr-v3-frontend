@@ -21,19 +21,26 @@ import {
   FACULTY_OVERVIEW_WORDS,
   scopeLineWords,
 } from '@/copy/faculty-overview';
+import { markHeaderWords } from '@/copy/marking';
 import { stateWords } from '@/copy/state-copy';
 import {
   FACULTY_HELP_ADDRESS,
   FACULTY_MY_COURSES_ADDRESS,
   FACULTY_OVERVIEW_TITLE,
   facultyOverviewPlacement,
+  markingQueueAddress,
 } from '@/nav/faculty';
 import { useCurrentSession } from '@/queries/session';
 import { useFacultyOverview } from '@/queries/teaching';
 
 import { MAIN_ID } from '../../shared/workspace-frame/route-focus';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { attentionRows, comingUpRows, type OverviewRow } from './overview-view';
+import {
+  attentionRows,
+  comingUpRows,
+  type OverviewRow,
+  writtenAnswersWaiting,
+} from './overview-view';
 
 /**
  * FA-01 Overview, the Faculty workspace home (board B4-01: "What needs my attention this week?"),
@@ -49,10 +56,11 @@ import { attentionRows, comingUpRows, type OverviewRow } from './overview-view';
  *   attention" with its count and rows or the calm state (f1), "Coming up · at most 3" with "Open"
  *   per assessment or "No deadlines in the next 30 days." (f3), and "No courses yet" before the
  *   Institute Admin assigns one (f2: the message and Help only). At 375 the rows stack (f4).
- * - **Not rendered (DEV-21)**: rows and actions whose page is Phase 4B — the header's "Mark <n>
- *   written answer" and "Mark now" (FA-18), "View students" (FA-20) and the drafts row (FA-16;
- *   the service has no such fact). Phase 4A draws the access-ended row (f3) only (state-copy
- *   `FA-01.not-rendered`). The paused-institution banner is the shell's (XS-08).
+ * - **Phase 4B actions** (state-copy `FA-01.phase-4b-actions`): the header's one primary "Mark <n>
+ *   written answer" (every written answer waiting) and a written-answers row's "Mark now" open
+ *   Marking (FA-18; the row's for its assessment); the inactive-students row is drawn with "View
+ *   students" (FA-20 for that experiment). The drafts row stays undrawn: the service has no such
+ *   fact (PC-51). The paused-institution banner is the shell's (XS-08).
  * - Undrawn: loading and failed with "Try again" (state-copy `FA-01.loading`, `FA-01.failed`).
  *   Nothing here changes a record: every action opens the page where the work is done.
  */
@@ -66,6 +74,8 @@ export function FacultyOverview() {
   const answer = read.data?.ok ? read.data.value : null;
   const failed = read.isError || (read.data !== undefined && !read.data.ok);
   const retried = useRetryFocus(answer !== null);
+  const toMark =
+    answer && answer.scopeLine.courses > 0 ? writtenAnswersWaiting(answer.attention) : 0;
 
   const retry = () => {
     retried();
@@ -79,6 +89,13 @@ export function FacultyOverview() {
         overline={institutionName}
         title={FACULTY_OVERVIEW_TITLE}
         meta={answer && answer.scopeLine.courses > 0 ? <ScopeLine answer={answer} /> : null}
+        actions={
+          toMark > 0 ? (
+            <Link className="xr-btn xr-btn--primary" href={markingQueueAddress()}>
+              {markHeaderWords(toMark)}
+            </Link>
+          ) : null
+        }
       />
       <div className="xw-stack">
         {failed ? (

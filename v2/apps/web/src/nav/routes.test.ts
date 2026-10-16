@@ -54,7 +54,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     // fourteen (ST-17 and IA-18 are a state and a tab; the request detail has no screen id, O-02)
     // + Phase 4A's twelve (FA-01 is the faculty base's own page; FA-04 is My courses' tab; FA-15 has
     // two pages, new and edit).
-    expect(pages).toHaveLength(90);
+    // + Phase 4B's twelve (ST-11, ST-12, the focused ST-13, ST-14, the hub's Assessment tab,
+    // FA-12, FA-16 … FA-21; FA-22 is an action, not a page).
+    expect(pages).toHaveLength(102);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -143,10 +145,17 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       'institute/student-access/give/page.tsx',
       'institute/student-access/page.tsx',
       'institute/usage/page.tsx',
+      // Phase 4B: Assessments (ST-11), before you start (ST-12), the attempt (ST-13), the result
+      // (ST-14) and the hub's Assessment tab.
+      'student/assessments/[assessmentId]/attempt/page.tsx',
+      'student/assessments/[assessmentId]/page.tsx',
+      'student/assessments/[assessmentId]/result/page.tsx',
+      'student/assessments/page.tsx',
       'student/courses/[courseId]/page.tsx',
       'student/courses/page.tsx',
       // Phase 3: My device (ST-18), the hub's tabs and pages, feedback and Progress.
       'student/device/page.tsx',
+      'student/experiments/[experimentId]/assessment/page.tsx',
       'student/experiments/[experimentId]/feedback/[format]/page.tsx',
       'student/experiments/[experimentId]/page.tsx',
       'student/experiments/[experimentId]/progress/page.tsx',
@@ -188,15 +197,30 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       'faculty/assessments/[assessmentId]/preview/page.tsx',
       'faculty/assessments/[assessmentId]/questions/page.tsx',
       'faculty/assessments/[assessmentId]/settings/page.tsx',
+      // Phase 4B: the record's Submissions tab (FA-12).
+      'faculty/assessments/[assessmentId]/submissions/page.tsx',
       'faculty/assessments/new/page.tsx',
       'faculty/assessments/page.tsx',
       'faculty/courses/[courseId]/page.tsx',
       'faculty/courses/page.tsx',
       'faculty/experiments/[experimentId]/page.tsx',
+      // Phase 4B: Marking (FA-18) and a submission (FA-19).
+      'faculty/marking/[attemptId]/page.tsx',
+      'faculty/marking/page.tsx',
       'faculty/page.tsx',
       'faculty/question-bank/[questionId]/page.tsx',
+      // Phase 4B: Draft with assistance (FA-16) and Import (FA-17).
+      'faculty/question-bank/draft/page.tsx',
+      'faculty/question-bank/import/page.tsx',
       'faculty/question-bank/new/page.tsx',
       'faculty/question-bank/page.tsx',
+      // Phase 4B: Students (FA-20) and a Student (FA-21).
+      'faculty/students/[studentId]/page.tsx',
+      'faculty/students/page.tsx',
+    ]);
+    // Phase 4B: ST-13 is the one focused page (no shell, B4-12).
+    expect(PAGES.filter((page) => page.kind === 'focused').map((page) => page.screen)).toEqual([
+      'ST-13',
     ]);
   });
 });
@@ -285,6 +309,18 @@ describe('the built-screen manifest is generated from the route manifest', () =>
       'FA-11',
       'FA-14',
       'FA-15',
+      // Phase 4B: ST-13 is focused (not a sidebar screen), the hub's Assessment tab is ST-05's
+      // and FA-22 an action.
+      'ST-11',
+      'ST-12',
+      'ST-14',
+      'FA-12',
+      'FA-16',
+      'FA-17',
+      'FA-18',
+      'FA-19',
+      'FA-20',
+      'FA-21',
     ];
     expect([...SCREENS_WITH_PAGES]).toEqual(built);
     expect([...BUILT_SCREENS]).toEqual(built);
@@ -491,14 +527,45 @@ describe('resolveAddress — what an address shows', () => {
       '/faculty/question-bank/Q-0101',
       { kind: 'record-screen', workspace: 'faculty', screen: 'FA-15' },
     ],
-    ['/faculty/marking', { kind: 'workspace-not-found', workspace: 'faculty' }],
-    // FA-16 and FA-17 (Phase 4B): reserved beside `[questionId]`, not built.
-    ['/faculty/question-bank/draft', { kind: 'workspace-not-found', workspace: 'faculty' }],
-    ['/faculty/question-bank/import', { kind: 'workspace-not-found', workspace: 'faculty' }],
+    // Phase 4B.
+    ['/faculty/marking', { kind: 'record-screen', workspace: 'faculty', screen: 'FA-18' }],
+    ['/faculty/marking/ATT-0450', { kind: 'record-screen', workspace: 'faculty', screen: 'FA-19' }],
+    // FA-16 and FA-17: the static pages outrank `[questionId]`.
+    [
+      '/faculty/question-bank/draft',
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-16' },
+    ],
+    [
+      '/faculty/question-bank/import',
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-17' },
+    ],
     [
       '/faculty/assessments/ASMT-0009/submissions',
-      { kind: 'workspace-not-found', workspace: 'faculty' },
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-12' },
     ],
+    ['/faculty/students', { kind: 'record-screen', workspace: 'faculty', screen: 'FA-20' }],
+    [
+      '/faculty/students/per-0002',
+      { kind: 'record-screen', workspace: 'faculty', screen: 'FA-21' },
+    ],
+    ['/student/assessments', { kind: 'record-screen', workspace: 'student', screen: 'ST-11' }],
+    [
+      '/student/assessments/ASMT-0009',
+      { kind: 'record-screen', workspace: 'student', screen: 'ST-12' },
+    ],
+    [
+      '/student/assessments/ASMT-0009/attempt',
+      { kind: 'record-screen', workspace: 'student', screen: 'ST-13' },
+    ],
+    [
+      '/student/assessments/ASMT-0009/result',
+      { kind: 'record-screen', workspace: 'student', screen: 'ST-14' },
+    ],
+    [
+      '/student/experiments/shell-and-tube-heat-exchanger/assessment',
+      { kind: 'record-screen', workspace: 'student', screen: 'ST-05' },
+    ],
+    ['/student/assessments/ASMT-0009/other', { kind: 'workspace-not-found', workspace: 'student' }],
   ] as const)('%s', (path, outcome) => {
     expect(resolveAddress(path)).toEqual(outcome);
   });

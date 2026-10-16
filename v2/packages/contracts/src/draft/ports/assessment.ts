@@ -31,6 +31,7 @@ import { z } from 'zod';
 
 import {
   assessmentId,
+  attemptId,
   calendarDate,
   experimentId,
   expectedRev,
@@ -47,7 +48,9 @@ import {
   assessmentReadiness,
   attempt,
   attemptResult,
+  attemptState,
   CHOICE_KEYS,
+  choiceKey,
   question,
   questionDraft,
   questionType,
@@ -307,12 +310,80 @@ export const previewAsStudentOutput = z.object({
     }),
   ),
 });
+// ---- Phase 4B facts (provisional register PC-54 … PC-59) ----
+
+/**
+ * The release terms of the version an attempt pins (PC-54): `on` is the deadline for "after the
+ * deadline", the release date for "on a date", `null` for "immediately after marking". A submitted
+ * attempt keeps its version's terms (P4-06 UNRESOLVED; Phase 4A).
+ */
+export const pinnedRelease = z.object({
+  option: releaseOption.nullable(),
+  on: isoInstant.nullable(),
+});
+
+/** A question as the Student answers it (PC-55): never its correct answer, explanation or marking guidance. */
+export const sheetQuestion = z.object({
+  questionId,
+  number: z.number().int().min(1),
+  type: questionType,
+  text: z.string().min(1),
+  options: z.partialRecord(choiceKey, z.string()).nullable(),
+  marks: z.number().int().min(1),
+});
+
+/**
+ * One of the Student's own attempts (PC-55), figure-free: `result` is `resultView`'s — no score
+ * before the marks are confirmed and the pinned version's release setting is met (ATT-15).
+ */
+export const studentAttemptFacts = z.object({
+  attemptId,
+  attemptNumber: z.number().int().min(1),
+  state: attemptState,
+  startedAt: isoInstant,
+  submittedAt: isoInstant.nullable(),
+  answered: z.number().int().min(0),
+  questionCount: z.number().int().min(0),
+  result: attemptResult,
+  release: pinnedRelease,
+  /**
+   * The version it pins (PC-55; Phase 4B review): its question mix, total marks, pass mark,
+   * attempts allowed and deadline — what "Before you start" shows beside this attempt's notice.
+   */
+  pinned: z.object({
+    questionTypes: z.object({
+      multipleChoice: z.number().int().min(0),
+      trueFalse: z.number().int().min(0),
+      written: z.number().int().min(0),
+    }),
+    totalMarks: z.number().int().min(0),
+    passMarkPercent: z.number().int().min(0).max(100).nullable(),
+    attemptsAllowed: z.number().int().min(1).nullable(),
+    deadline: isoInstant.nullable(),
+  }),
+});
+
+/** The Student's attempt in progress (ST-13; PC-55): its pinned questions and their saved answers. */
+export const attemptSheet = z.object({
+  attemptId,
+  rev: z.number().int().min(1),
+  attemptNumber: z.number().int().min(1),
+  attemptsAllowed: z.number().int().min(1).nullable(),
+  deadline: isoInstant.nullable(),
+  totalMarks: z.number().int().min(0),
+  answers: z.partialRecord(questionId, answerValue),
+  questions: z.array(sheetQuestion),
+});
+
 export const listSubmissionsOutput = z.array(
   z.object({
     attempt,
     student: studentPerson,
     score: z.number().min(0).nullable(),
     releasedAt: isoInstant.nullable(),
+    /** PC-57: the attempt's total marks and its pinned release terms ("Not yet — after the deadline"). */
+    outOf: z.number().int().min(0),
+    release: pinnedRelease,
   }),
 );
 export const csvExportOutput = z.object({ fileName: z.string().min(1), csv: z.string() });
@@ -323,6 +394,11 @@ export const listMyAssessmentsOutput = z.array(
     experimentName: z.string().min(1),
     result: z.union([attemptResult, toDoResult]),
     attemptsUsed: z.number().int().min(0),
+    /** PC-56: the code Students see, the current version's size and the latest attempt. */
+    courseCode: z.string().nullable(),
+    questionCount: z.number().int().min(0),
+    totalMarks: z.number().int().min(0),
+    latest: studentAttemptFacts.nullable(),
   }),
 );
 export const assessmentIntroOutput = z.object({
@@ -331,6 +407,16 @@ export const assessmentIntroOutput = z.object({
   passMarkMarks: z.number().min(0),
   attemptsUsed: z.number().int().min(0),
   canStart: z.boolean(),
+  /** PC-55: the experiment, the question mix, the Student's own attempts and the one in progress. */
+  experimentName: z.string().min(1),
+  courseCode: z.string().nullable(),
+  questionTypes: z.object({
+    multipleChoice: z.number().int().min(0),
+    trueFalse: z.number().int().min(0),
+    written: z.number().int().min(0),
+  }),
+  attempts: z.array(studentAttemptFacts),
+  sheet: attemptSheet.nullable(),
 });
 /** ST-14: withheld until marks are confirmed and the assessment's own release setting is met. */
 export const answerReview = z.object({
@@ -341,10 +427,22 @@ export const answerReview = z.object({
   feedback: z.string().nullable(),
   awarded: z.number().min(0),
   outOf: z.number().min(0),
+  /** PC-55: the pinned question as it was answered, and who wrote the feedback. */
+  number: z.number().int().min(1),
+  type: questionType,
+  text: z.string().min(1),
+  options: z.partialRecord(choiceKey, z.string()).nullable(),
+  feedbackBy: z.string().nullable(),
 });
 export const getResultOutput = z.object({
   result: attemptResult,
   review: z.array(answerReview).nullable(),
+  /** PC-55: the attempt's pinned version — its name, attempts allowed and release terms. */
+  assessmentName: z.string(),
+  attemptNumber: z.number().int().min(1),
+  attemptsAllowed: z.number().int().min(1).nullable(),
+  submittedAt: isoInstant.nullable(),
+  release: pinnedRelease,
 });
 
 type FacultyWrite = NotSignedIn | NotPermitted | NotFound | Unavailable;
@@ -362,9 +460,13 @@ export interface AssessmentService {
   createAssessment(
     input: In<typeof createAssessmentInput>,
   ): Answer<Assessment, ValidationFailed | Refused<'assessment-exists'> | FacultyWrite>;
+  /** Policy-open: OD-B4-17 (an assessment that pins a colleague's question, Q-10; Phase 4B). */
   getAssessment(
     id: In<typeof ids.in.assessment>,
-  ): Answer<Out<typeof getAssessmentOutput>, NotSignedIn | NotPermitted | NotFound | Unavailable>;
+  ): Answer<
+    Out<typeof getAssessmentOutput>,
+    NotSignedIn | NotPermitted | NotFound | PolicyOpen | Unavailable
+  >;
   /** Policy-open: OD-B4-17 (a co-teaching colleague's assessment). */
   updateQuestions(
     input: In<typeof updateQuestionsInput>,
@@ -395,12 +497,20 @@ export interface AssessmentService {
     Out<typeof previewAsStudentOutput>,
     NotSignedIn | NotPermitted | NotFound | PolicyOpen | Unavailable
   >;
+  /** Policy-open: OD-B4-17 (a co-teaching colleague's assessment; ATT-18 "own assessments"). */
   listSubmissions(
     id: In<typeof ids.in.assessment>,
-  ): Answer<Out<typeof listSubmissionsOutput>, NotSignedIn | NotPermitted | NotFound | Unavailable>;
+  ): Answer<
+    Out<typeof listSubmissionsOutput>,
+    NotSignedIn | NotPermitted | NotFound | PolicyOpen | Unavailable
+  >;
+  /** FA-22: the list on screen only, escaped and formula-safe. Policy-open: OD-B4-17. */
   exportSubmissionsCsv(
     id: In<typeof ids.in.assessment>,
-  ): Answer<Out<typeof csvExportOutput>, NotSignedIn | NotPermitted | NotFound | Unavailable>;
+  ): Answer<
+    Out<typeof csvExportOutput>,
+    NotSignedIn | NotPermitted | NotFound | PolicyOpen | Unavailable
+  >;
   // Student
   listMyAssessments(): Answer<
     Out<typeof listMyAssessmentsOutput>,
@@ -614,6 +724,12 @@ export const previewQuestionImportInput = z.object({
 
 export const commitQuestionImportInput = z.object({ batchId: ids.in.importBatch });
 
+/** A question file that cannot be read at all (its rows are never checked; undrawn on B4-08). */
+export const QUESTION_IMPORT_FILE_KEYS = {
+  columns: 'FA-17.file.columns',
+  'no-rows': 'FA-17.file.no-rows',
+} as const satisfies Readonly<Record<string, MessageKey>>;
+
 export const listQuestionsOutput = z.array(z.object({ question, usedIn: z.number().int().min(0) }));
 export const getQuestionOutput = z.object({ question, usedIn: z.array(assessmentId) });
 export const editQuestionOutput = z.object({ question, newVersion: z.boolean() });
@@ -715,19 +831,37 @@ export function acceptMarkAsTyped(
   return { ok: true, mark: Number(value) };
 }
 
+/** The pinned questions of an attempt by number (PC-58): "Question 4 · Written answer", "Question 1 · 2 of 2". */
+export const pinnedNumbering = z.array(
+  z.object({ questionId, number: z.number().int().min(1), type: questionType, marks: z.number() }),
+);
+
 export const listQueueOutput = z.array(
   z.object({
     attempt,
     student: studentPerson,
     assessmentName: z.string(),
     submittedAt: isoInstant,
+    /** PC-58: the experiment and the written questions' numbers in the attempt's version. */
+    experimentName: z.string(),
+    writtenNumbers: z.array(z.number().int().min(1)),
   }),
 );
-/** `releaseLine` is pre-rendered words (Appendix C [P]) — PROVISIONAL (provisional register). */
+/**
+ * `releaseLine` is pre-rendered words (Appendix C [P]) — PROVISIONAL (provisional register).
+ * `questions` are the written questions as the attempt's version pins them (Phase 4B).
+ */
 export const attemptForMarkingOutput = z.object({
   attempt,
   questions: z.array(question),
   releaseLine: z.string().nullable(),
+  /** PC-58: who submitted, the assessment and experiment, the pinned rules and numbering. */
+  student: studentPerson,
+  assessmentName: z.string(),
+  experimentName: z.string(),
+  attemptsAllowed: z.number().int().min(1).nullable(),
+  release: pinnedRelease,
+  numbering: pinnedNumbering,
 });
 
 type MarkingErrors =
@@ -745,11 +879,12 @@ export interface MarkingService {
   listQueue(
     filter: In<typeof listQueueInput>,
   ): Answer<Out<typeof listQueueOutput>, NotSignedIn | NotPermitted | Unavailable>;
+  /** Policy-open: OD-B4-17 (an attempt at a co-teaching colleague's assessment; ASMT-17). */
   getAttemptForMarking(
     attemptId: In<typeof ids.in.attempt>,
   ): Answer<
     Out<typeof attemptForMarkingOutput>,
-    NotSignedIn | NotPermitted | NotFound | Unavailable
+    NotSignedIn | NotPermitted | NotFound | PolicyOpen | Unavailable
   >;
   /** "Mark saved — not confirmed yet"; the Student sees nothing. Policy-open: OD-B4-17. */
   saveMark(input: In<typeof saveMarkInput>): Answer<Attempt, ValidationFailed | MarkingErrors>;
@@ -763,9 +898,22 @@ export interface MarkingService {
 
 export const INACTIVE_FOR_DAYS = [7, 14, 30] as const;
 
+/**
+ * FA-20's Progress filter (B4-10 f0; PC-59, provisional reading): no format started; a format in
+ * progress; a format completed; the assessment waiting for marking. Shared by the list and its
+ * CSV export, so the export holds the filtered list only.
+ */
+export const STUDENT_PROGRESS_FILTERS = [
+  'not-started',
+  'in-progress',
+  'completed',
+  'waiting-for-marking',
+] as const;
+
 export const listTeachingStudentsInput = z.object({
   experimentId: ids.in.experiment,
   inactiveForDays: z.union([z.literal(7), z.literal(14), z.literal(30)]).optional(),
+  progress: z.enum(STUDENT_PROGRESS_FILTERS, { error: key('contract.invalid-input') }).optional(),
 });
 export const studentDetailInput = z.object({
   studentId: ids.in.person,
@@ -780,10 +928,23 @@ export const facultyStudentRow = z.object({
   studentId: personId,
   institutionStudentId: z.string().min(1),
   perFormat: z.array(formatProgressView),
-  assessment: z.union([attemptResult, z.object({ kind: z.literal('none-set') }), toDoResult]),
+  /**
+   * `policy-open` (Phase 4B protective refusal, PC-59): the assessment was created by a co-teaching
+   * colleague — its results are not shown while co-teaching is open (ASMT-17, OD-B4-17; ATT-18
+   * "own assessments").
+   */
+  assessment: z.union([
+    attemptResult,
+    z.object({ kind: z.literal('none-set') }),
+    toDoResult,
+    z.object({ kind: z.literal('policy-open'), decision: z.literal('OD-B4-17') }),
+  ]),
   resultReleased: z.boolean(),
   lastActivityAt: isoInstant.nullable(),
   inactiveDays: z.number().int().min(0).nullable(),
+  /** PC-59: the Student's name and when the experiment was first given to them (B4-10 f0, f5). */
+  name: z.string().min(1),
+  accessGivenAt: isoInstant.nullable(),
 });
 
 /**
@@ -872,7 +1033,22 @@ export const listTeachingStudentsOutput = z.array(facultyStudentRow);
 export const studentDetailOutput = z.object({
   row: facultyStudentRow,
   resources: z.array(z.object({ title: z.string().min(1), openedAt: isoInstant.nullable() })),
+  /** Empty while the assessment is a co-teaching colleague's (`row.assessment` policy-open). */
   attempts: z.array(attempt),
+  /** PC-59: the experiment, and per attempt its confirmed score, total and pinned release terms. */
+  experimentName: z.string().min(1),
+  courseCode: z.string().nullable(),
+  assessment: z.object({ assessmentId, name: z.string() }).nullable(),
+  attemptFacts: z.array(
+    z.object({
+      attemptId,
+      attemptsAllowed: z.number().int().min(1).nullable(),
+      score: z.number().min(0).nullable(),
+      outOf: z.number().int().min(0),
+      release: pinnedRelease,
+      releasedAt: isoInstant.nullable(),
+    }),
+  ),
 });
 
 export type FacultyStudentRow = Out<typeof facultyStudentRow>;
@@ -885,6 +1061,20 @@ export type CreateOption = Out<typeof createOptionsOutput>[number];
 export type AssessmentView = Out<typeof getAssessmentOutput>;
 export type AssessmentPreview = Out<typeof previewAsStudentOutput>;
 export type QuestionBankRow = Out<typeof listQuestionsOutput>[number];
+export type PinnedRelease = Out<typeof pinnedRelease>;
+export type SheetQuestion = Out<typeof sheetQuestion>;
+export type StudentAttemptFacts = Out<typeof studentAttemptFacts>;
+export type AttemptSheet = Out<typeof attemptSheet>;
+export type MyAssessmentRow = Out<typeof listMyAssessmentsOutput>[number];
+export type AssessmentIntro = Out<typeof assessmentIntroOutput>;
+export type AttemptResultView = Out<typeof getResultOutput>;
+export type AnswerReview = Out<typeof answerReview>;
+export type SubmissionRow = Out<typeof listSubmissionsOutput>[number];
+export type MarkingQueueRow = Out<typeof listQueueOutput>[number];
+export type AttemptForMarking = Out<typeof attemptForMarkingOutput>;
+export type StudentDetail = Out<typeof studentDetailOutput>;
+export type StudentProgressFilter = (typeof STUDENT_PROGRESS_FILTERS)[number];
+export type CsvExport = Out<typeof csvExportOutput>;
 
 export interface TeachingService {
   getFacultyOverview(): Answer<

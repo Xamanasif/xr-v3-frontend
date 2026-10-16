@@ -35,7 +35,15 @@ export type PageKind =
   /** A designed screen. */
   | 'screen'
   /** `/<base>/[...unmatched]`: any other workspace address — the in-shell PU-15. */
-  | 'unmatched';
+  | 'unmatched'
+  /**
+   * A focused task inside a workspace (Phase 4B): the session gate and the workspace guard, but no
+   * sidebar or top bar of the shell — the page draws its own bar (B4-12 ST-13 attempt).
+   */
+  | 'focused';
+
+/** The focused screens (B4-12): ST-13 Assessment attempt has no sidebar (Appendix A §3.6). */
+export type FocusedScreenId = 'ST-13';
 
 export type HelpRouteView = 'reports' | 'report' | 'detail';
 
@@ -69,7 +77,7 @@ export interface PageRoute {
   readonly workspace: Workspace | null;
   readonly kind: PageKind;
   /** The screen a `screen` page shows; `null` otherwise. */
-  readonly screen: WorkspaceScreenId | EntryScreenId | PublicPageScreenId | null;
+  readonly screen: WorkspaceScreenId | EntryScreenId | PublicPageScreenId | FocusedScreenId | null;
   /** The Help view a Help page shows. */
   readonly view?: HelpRouteView;
   /**
@@ -380,7 +388,7 @@ const PHASE_3_PAGES: readonly PageRoute[] = (
  * Phase 4A (boards B4-01 … B4-07): the Faculty workspace's home (FA-01), My courses with its
  * Experiments tab (FA-02, FA-04 `?tab=experiments`), a course (FA-03), an experiment (FA-05),
  * Assessments (FA-06), Create assessment (FA-07, `?step=`), an assessment's Summary, Questions,
- * Settings and Preview tabs (FA-08 … FA-11; Submissions, FA-12, is Phase 4B), the Question bank
+ * Settings and Preview tabs (FA-08 … FA-11; Submissions, FA-12, came with Phase 4B), the Question bank
  * (FA-14) and Add / edit question (FA-15). The static `new` pages are listed before their dynamic
  * siblings: they outrank them in the App Router, and `resolveAddress` takes the first match.
  */
@@ -420,6 +428,64 @@ const PHASE_4A_PAGES: readonly PageRoute[] = (
   ...(also ? { also } : {}),
 }));
 
+/**
+ * Phase 4B (boards B4-06 f7 … f11, B4-08 … B4-13): the Student's Assessments (ST-11), an
+ * assessment's "Before you start" (ST-12), the attempt (ST-13, a focused page without the shell),
+ * the result (ST-14) and the experiment hub's Assessment tab (a tab of ST-05, the register's
+ * unnumbered "hub Assessment tab"); the Faculty assessment's Submissions tab (FA-12, with FA-22
+ * Export CSV), Draft with assistance (FA-16) and Import questions (FA-17) beside the question
+ * bank, Marking (FA-18), Mark a submission (FA-19), Students (FA-20, with FA-22) and a Student's
+ * detail (FA-21, `?experimentId=`). The static `draft` and `import` pages outrank
+ * `[questionId]` (`resolveAddress` matches static patterns first).
+ */
+const PHASE_4B_PAGES: readonly PageRoute[] = (
+  [
+    ['/student/assessments', 'student/assessments/page.tsx', 'ST-11', 'screen'],
+    [
+      '/student/assessments/[assessmentId]',
+      'student/assessments/[assessmentId]/page.tsx',
+      'ST-12',
+      'screen',
+    ],
+    [
+      '/student/assessments/[assessmentId]/attempt',
+      'student/assessments/[assessmentId]/attempt/page.tsx',
+      'ST-13',
+      'focused',
+    ],
+    [
+      '/student/assessments/[assessmentId]/result',
+      'student/assessments/[assessmentId]/result/page.tsx',
+      'ST-14',
+      'screen',
+    ],
+    [
+      '/student/experiments/[experimentId]/assessment',
+      'student/experiments/[experimentId]/assessment/page.tsx',
+      'ST-05',
+      'screen',
+    ],
+    [
+      '/faculty/assessments/[assessmentId]/submissions',
+      'faculty/assessments/[assessmentId]/submissions/page.tsx',
+      'FA-12',
+      'screen',
+    ],
+    ['/faculty/question-bank/draft', 'faculty/question-bank/draft/page.tsx', 'FA-16', 'screen'],
+    ['/faculty/question-bank/import', 'faculty/question-bank/import/page.tsx', 'FA-17', 'screen'],
+    ['/faculty/marking', 'faculty/marking/page.tsx', 'FA-18', 'screen'],
+    ['/faculty/marking/[attemptId]', 'faculty/marking/[attemptId]/page.tsx', 'FA-19', 'screen'],
+    ['/faculty/students', 'faculty/students/page.tsx', 'FA-20', 'screen'],
+    ['/faculty/students/[studentId]', 'faculty/students/[studentId]/page.tsx', 'FA-21', 'screen'],
+  ] as const
+).map(([pattern, file, screen, kind]) => ({
+  pattern,
+  file,
+  workspace: pattern.startsWith('/faculty') ? 'faculty' : 'student',
+  kind,
+  screen,
+}));
+
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
   ...PACKAGE_1A_PAGES,
@@ -430,7 +496,14 @@ export const PAGES: readonly PageRoute[] = [
   ...PACKAGE_2B_PAGES,
   ...PHASE_3_PAGES,
   ...PHASE_4A_PAGES,
+  ...PHASE_4B_PAGES,
 ];
+
+/** Whether an address is a focused page (no shell): ST-13's attempt. */
+export function isFocusedAddress(pathname: string): boolean {
+  const segments = pathname.split(/[?#]/)[0]!.split('/').slice(1);
+  return PAGES.some((page) => page.kind === 'focused' && matchesPattern(page.pattern, segments));
+}
 
 /**
  * The other route files of Appendix F §3.3: the root layout and not-found (public PU-15), each
@@ -472,7 +545,7 @@ export const REDIRECTS: readonly {
 /** The workspace screens built as pages (the entry and public pages are not sidebar destinations). */
 export const SCREENS_WITH_PAGES: ReadonlySet<WorkspaceScreenId> = new Set(
   PAGES.flatMap((page) =>
-    page.screen && page.workspace !== null
+    page.screen && page.workspace !== null && page.kind !== 'focused'
       ? [page.screen as WorkspaceScreenId, ...(page.also ?? [])]
       : [],
   ),
@@ -493,7 +566,7 @@ export type AddressOutcome =
   | {
       readonly kind: 'record-screen';
       readonly workspace: Workspace;
-      readonly screen: WorkspaceScreenId;
+      readonly screen: WorkspaceScreenId | FocusedScreenId;
     }
   | { readonly kind: 'interim-landing'; readonly workspace: Workspace; readonly lands: string }
   | { readonly kind: 'redirect'; readonly workspace: Workspace | null; readonly to: string }
@@ -503,12 +576,6 @@ export type AddressOutcome =
   | { readonly kind: 'public-not-found' };
 
 const WORKSPACE_SET: ReadonlySet<string> = new Set(WORKSPACES);
-
-/** Static addresses the register reserves beside a dynamic sibling for screens not built yet. */
-const RESERVED_UNBUILT: ReadonlySet<string> = new Set([
-  '/faculty/question-bank/draft',
-  '/faculty/question-bank/import',
-]);
 
 /** What a same-origin path resolves to, by the manifest above (a query or fragment is ignored). */
 export function resolveAddress(address: string): AddressOutcome {
@@ -542,19 +609,23 @@ export function resolveAddress(address: string): AddressOutcome {
   // A static redirect of a workspace address (Phase 3, row 17: `/admin/operations`).
   const redirect = REDIRECTS.find((entry) => entry.source === `/${[first, ...parts].join('/')}`);
   if (redirect) return { kind: 'redirect', workspace, to: redirect.destination };
-  // Phase 4A: the register reserves `draft` and `import` beside `[questionId]` for FA-16 and
-  // FA-17 (Phase 4B); until they are built those addresses are the in-shell not-found, as the
-  // page itself answers (no question has such an id).
-  if (RESERVED_UNBUILT.has(`/${[first, ...parts].join('/')}`)) {
-    return { kind: 'workspace-not-found', workspace };
-  }
-  // The record and list screens of Packages 1A, 1D and 2A, by their manifest pattern.
-  for (const page of PAGES) {
-    if (page.workspace !== workspace || page.kind !== 'screen' || page.view) continue;
-    if (page.pattern === `/${workspace}`) continue;
-    if (matchesPattern(page.pattern, [first, ...parts])) {
-      return { kind: 'record-screen', workspace, screen: page.screen as WorkspaceScreenId };
-    }
+  // The record and list screens, by their manifest pattern; a static pattern outranks a dynamic
+  // sibling, as in the App Router (Phase 4B: `/faculty/question-bank/draft` beside `[questionId]`).
+  const candidates = PAGES.filter(
+    (page) =>
+      page.workspace === workspace &&
+      (page.kind === 'screen' || page.kind === 'focused') &&
+      !page.view &&
+      page.pattern !== `/${workspace}` &&
+      matchesPattern(page.pattern, [first, ...parts]),
+  );
+  const page = candidates.find((entry) => !entry.pattern.includes('[')) ?? candidates[0];
+  if (page) {
+    return {
+      kind: 'record-screen',
+      workspace,
+      screen: page.screen as WorkspaceScreenId | FocusedScreenId,
+    };
   }
   return { kind: 'workspace-not-found', workspace };
 }

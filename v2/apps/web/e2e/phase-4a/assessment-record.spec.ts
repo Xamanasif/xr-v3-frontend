@@ -88,6 +88,7 @@ test.describe('FA-08 Assessment · Summary', () => {
       'Questions 4',
       'Settings',
       'Preview',
+      'Submissions 1',
     ]);
     await expect(ready.locator('.xr-status')).toHaveText('Ready');
     await expect(ready).toContainText(`Students who have ${SHELL_NAME} can see and start it.`);
@@ -101,9 +102,12 @@ test.describe('FA-08 Assessment · Summary', () => {
     await expect(submissions.locator('.xr-notice--quiet')).toHaveText(
       '1 student has submitted. If you change questions or rules now, that makes a new version — earlier submissions keep theirs.',
     );
-    // FA-18 and FA-12 are Phase 4B: not rendered.
+    // Phase 4B: nothing waits, so no "Mark next"; "See submissions" opens FA-12.
     await expect(main(page).getByText('Mark next')).toHaveCount(0);
-    await expect(main(page).getByText('See submissions')).toHaveCount(0);
+    await expect(submissions.getByRole('link', { name: 'See submissions' })).toHaveAttribute(
+      'href',
+      `${SUMMARY}/submissions`,
+    );
     await expect(page.getByRole('region', { name: 'Who it reaches' })).toContainText(
       `1 student who has ${SHELL_NAME} from Godavari Institute of Technology.`,
     );
@@ -187,7 +191,11 @@ test.describe('FA-08 Assessment · Summary', () => {
     await expect(submissions.locator('p.xr-body .xr-status--wait')).toHaveText(
       '1 waiting for marking',
     );
-    await expect(main(page).getByText('Mark next')).toHaveCount(0);
+    // Phase 4B: "Mark next" opens FA-19 for the waiting submission (B4-05 f0).
+    await expect(submissions.getByRole('link', { name: 'Mark next' })).toHaveAttribute(
+      'href',
+      `/faculty/marking/${saved.value.id}`,
+    );
     await checkState(page, NAME);
   });
 
@@ -216,8 +224,17 @@ test.describe('FA-08 Assessment · Summary', () => {
     await expect(questionsSection(page).locator('.xr-section-head .xr-meta')).toHaveText(
       '0 questions · 0 marks',
     );
-    await expect(main(page).getByText('Draft with assistance')).toHaveCount(0);
-    await expect(main(page).getByText('Import', { exact: true })).toHaveCount(0);
+    // B4-05 f1's own line; the toolbar's text links to FA-16 and FA-17 (Phase 4B).
+    await expect(empty).toContainText(
+      'Add questions from your bank, write a new one, draft some with assistance, or import a file. Students can’t see the assessment until it has a question.',
+    );
+    await expect(
+      questionsSection(page).getByRole('link', { name: 'Draft with assistance' }),
+    ).toHaveAttribute('href', `/faculty/question-bank/draft?experimentId=${SHELL}`);
+    await expect(questionsSection(page).getByRole('link', { name: 'Import' })).toHaveAttribute(
+      'href',
+      `/faculty/question-bank/import?experimentId=${SHELL}`,
+    );
     await checkState(page, NAME);
 
     // Adding the first question from the empty state's own button makes it Ready.
@@ -250,7 +267,9 @@ test.describe('FA-09 Assessment · Questions', () => {
     await expect(questionsSection(page).locator('.xr-section-head .xr-meta')).toHaveText(
       '4 questions · 16 marks',
     );
-    await expect(main(page).getByText('Draft with assistance')).toHaveCount(0);
+    await expect(
+      questionsSection(page).getByRole('link', { name: 'Draft with assistance' }),
+    ).toBeVisible();
     await expect(page.getByRole('button', { name: 'Move question 1 up' })).toHaveAttribute(
       'aria-disabled',
       'true',

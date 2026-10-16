@@ -19,6 +19,7 @@ import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { QUESTIONS_WORDS, SUMMARY_WORDS } from '@/copy/assessment-record';
+import { ASSESSMENT_QUESTIONS_EMPTY_LINE } from '@/copy/question-tools';
 import { STATE_COPY, type StateCopyEntry, stateWords } from '@/copy/state-copy';
 import type { PlatformRuntime } from '@/platform/runtime';
 import { board } from '@/test-support/boards';
@@ -257,10 +258,18 @@ describe('FA-08 Summary — Ready with a submission (B4-05 f0)', () => {
     expect(submissions.querySelector('.xr-notice--quiet')).toHaveTextContent(
       '1 student has submitted. If you change questions or rules now, that makes a new version — earlier submissions keep theirs.',
     );
-    // FA-18 and FA-12 are Phase 4B: not rendered.
-    expect(within(main()).queryByText('Mark next')).toBeNull();
-    expect(within(main()).queryByText('See submissions')).toBeNull();
-    expect(within(main()).queryByRole('link', { name: /Submissions/ })).toBeNull();
+    // Phase 4B: nothing waits, so no "Mark next" (`FA-08.mark-next`); "See submissions" opens
+    // FA-12, as the record's Submissions tab ("Submissions 1") does.
+    expect(within(submissions).queryByRole('link', { name: 'Mark next' })).toBeNull();
+    expect(within(submissions).getByRole('link', { name: 'See submissions' })).toHaveAttribute(
+      'href',
+      `/faculty/assessments/${ASMT}/submissions`,
+    );
+    expect(
+      within(screen.getByRole('navigation', { name: NAME })).getByRole('link', {
+        name: /^Submissions/,
+      }),
+    ).toHaveTextContent('Submissions 1');
 
     expect(region(SUMMARY_WORDS.reachTitle).querySelector('p.xr-body')).toHaveTextContent(
       `1 student who has ${SHELL_NAME} from ${GODAVARI}. Formats don’t change who it reaches: one assessment covers the experiment, whichever format a student used.`,
@@ -361,7 +370,11 @@ describe('FA-08 Summary — a written answer waiting for marking (B4-05 f0)', ()
     );
     // The header's fact (the frame) reads the same figure.
     expect(document.querySelector('.xa-headfacts')).toHaveTextContent('1 waiting for marking');
-    expect(within(main()).queryByText('Mark next')).toBeNull();
+    // Phase 4B: "Mark next" opens FA-19 for the waiting submission (B4-05 f0).
+    const markNext = within(submissions).getByRole('link', { name: 'Mark next' });
+    await waitFor(() =>
+      expect(markNext).toHaveAttribute('href', `/faculty/marking/${saved.value.id}`),
+    );
   });
 });
 
@@ -474,9 +487,14 @@ describe('FA-09 Questions — the list (B4-05 f6)', () => {
       'href',
       `/faculty/question-bank/new?experimentId=${SHELL}&returnTo=%2Ffaculty%2Fassessments%2F${ASMT}%2Fquestions`,
     );
-    // FA-16 and FA-17 are not built (T-23): not rendered.
-    expect(within(main()).queryByText('Draft with assistance')).toBeNull();
-    expect(within(main()).queryByText('Import')).toBeNull();
+    // Phase 4B: the text links to FA-16 and FA-17, for the assessment's experiment.
+    const draft = within(section).getByRole('link', { name: 'Draft with assistance' });
+    expect(draft).toHaveClass('xr-btn--text');
+    expect(draft).toHaveAttribute('href', `/faculty/question-bank/draft?experimentId=${SHELL}`);
+    expect(within(section).getByRole('link', { name: 'Import' })).toHaveAttribute(
+      'href',
+      `/faculty/question-bank/import?experimentId=${SHELL}`,
+    );
 
     expect(screen.getByRole('button', { name: 'Move question 1 up' })).toHaveAttribute(
       'aria-disabled',
@@ -737,8 +755,8 @@ describe('FA-09 Questions — empty, and back from New question (B4-05 f1)', () 
     expect(
       within(empty).getByRole('heading', { level: 3, name: 'No questions yet' }),
     ).toBeVisible();
-    expect(empty).toHaveTextContent(stateWords('FA-09.empty-line'));
-    expect(empty).not.toHaveTextContent('assistance');
+    // B4-05 f1's own line (Phase 4B: drafting and importing are built).
+    expect(empty).toHaveTextContent(ASSESSMENT_QUESTIONS_EMPTY_LINE);
     expect(within(empty).getByRole('link', { name: 'New question' })).toHaveClass(
       'xr-btn--secondary',
     );

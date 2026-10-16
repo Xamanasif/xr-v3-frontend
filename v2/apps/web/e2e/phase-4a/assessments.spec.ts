@@ -259,8 +259,15 @@ test.describe('FA-07 Create assessment', () => {
     const list = page.getByRole('list', { name: 'Questions' });
     await expect(list.getByRole('checkbox')).toHaveCount(6);
     await expect(page.getByRole('link', { name: 'New question' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Draft with assistance' })).toHaveCount(0);
-    await expect(page.getByRole('link', { name: 'Import' })).toHaveCount(0);
+    // Phase 4B: the drafting and import tools for this experiment (B4-04 f4).
+    await expect(page.getByRole('link', { name: 'Draft with assistance' })).toHaveAttribute(
+      'href',
+      /\/faculty\/question-bank\/draft\?experimentId=/,
+    );
+    await expect(page.getByRole('link', { name: 'Import' })).toHaveAttribute(
+      'href',
+      /\/faculty\/question-bank\/import\?experimentId=/,
+    );
     await page.getByRole('button', { name: 'Continue' }).click();
     await expect(summaryLinks(page)).toHaveText(['Add at least one question, or save as a draft']);
     for (const id of ['Q-0101', 'Q-0104', 'Q-0106'])

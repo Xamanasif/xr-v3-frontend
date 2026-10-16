@@ -29,7 +29,9 @@ import {
   rulesChecklistLine,
 } from '@/copy/assessment-words';
 import { stateWords } from '@/copy/state-copy';
-import { assessmentAddress } from '@/nav/faculty';
+import { SUMMARY_ACTIONS } from '@/copy/submissions';
+import { assessmentAddress, markingQueueAddress, markSubmissionAddress } from '@/nav/faculty';
+import { useMarkingQueue } from '@/queries/faculty-assessment-work';
 import { useSession } from '@/queries/session';
 
 import {
@@ -50,8 +52,9 @@ import {
  *   least one question — none yet" with "Add questions" (the Questions tab).
  * - **Submissions** only once a Student has submitted: "<n> of <reach> submitted" and the
  *   waiting-for-marking chip; the quiet notice that a change makes a new version, or — once one
- *   has — "Version <n> since <date>" with what changed. "Mark next" (FA-18) and "See
- *   submissions" (FA-12) are Phase 4B and are not rendered (DEV-21).
+ *   has — "Version <n> since <date>" with what changed. Since Phase 4B: "Mark next" (FA-19, the
+ *   oldest submission of this assessment waiting, while one waits — `FA-08.mark-next`,
+ *   `FA-12.mark-next-target`) and "See submissions" (the Submissions tab, FA-12).
  * - **Who it reaches**: the reach the service counts from Student access; formats never change it.
  * - **Rules as set for this assessment**: each rule exactly as set, "Not set yet" for none — no
  *   default anywhere (BC6); no time limit (T-22); who created it and since when it is Ready, with
@@ -123,6 +126,14 @@ function SummaryBody({ view }: { readonly view: AssessmentFrameView }) {
   const notSet = stateWords('FA-08.rule-not-set');
   const reachLine = reachWords(reach, experiment, institution);
   const creator = actorWords(assessment.createdBy, viewer) ?? CREATED_BY_YOU;
+  const waiting = row?.waitingForMarking ?? 0;
+  const queue = useMarkingQueue(assessment.id, 'waiting', waiting > 0);
+  // FA-19 for the oldest submission waiting; until the queue is read, the queue of this assessment.
+  const oldest = queue.data?.ok ? (queue.data.value[0]?.attempt.id ?? null) : null;
+  const markNext =
+    oldest === null
+      ? markingQueueAddress({ assessmentId: assessment.id })
+      : markSubmissionAddress(oldest);
 
   return (
     <div className="xw-stack">
@@ -177,6 +188,19 @@ function SummaryBody({ view }: { readonly view: AssessmentFrameView }) {
             ) : (
               <Notice tone="quiet">{submittedNotice(row.submitted)}</Notice>
             )}
+            <div className="xw-actions mt-4">
+              {waiting > 0 ? (
+                <Link className="xr-btn xr-btn--primary" href={markNext}>
+                  {SUMMARY_ACTIONS.markNext}
+                </Link>
+              ) : null}
+              <Link
+                className="xr-btn xr-btn--secondary"
+                href={assessmentAddress(assessment.id, 'submissions')}
+              >
+                {SUMMARY_ACTIONS.seeSubmissions}
+              </Link>
+            </div>
           </SectionBody>
         </Section>
       ) : null}

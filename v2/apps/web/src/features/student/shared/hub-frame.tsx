@@ -240,7 +240,7 @@ export function hubFormatWords(
 
 /**
  * The hub's tab strip (B2-12 f0; B3-01 f0, f8; B3-02 f0), named by the experiment, the page's tab
- * current. "Assessment" is Phase 4 and not rendered (DEV-21).
+ * current; the Assessment tab since Phase 4B (B4-11 f7).
  */
 export function HubTabs({
   experimentId,
@@ -251,7 +251,7 @@ export function HubTabs({
   readonly name: string;
   readonly current: HubTab;
 }) {
-  const tabs: readonly HubTab[] = ['overview', 'resources', 'simulation', 'progress'];
+  const tabs: readonly HubTab[] = ['overview', 'resources', 'simulation', 'assessment', 'progress'];
   return (
     <RecordHubTabs
       label={name}
