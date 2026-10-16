@@ -77,7 +77,8 @@ for (const { person, other } of PAIRS) {
     // "Back to Home": the person's own base — their Help until their home is built; the Super
     // Admin's Overview (SA-01) since Package 1D, the Institute Admin's Overview (IA-01) and the
     // Student's Home (ST-01) since Package 2A, the Faculty member's Overview (FA-01) since Phase
-    // 4A — client-side, the same world.
+    // 4A, the Vendor's, Academic Reviewer's and Content Manager's Overviews (VE-01, RV-01, CM-01)
+    // since Phase 5 — client-side, the same world.
     const mark = await markDocument(page);
     await message.getByRole('link', { name: 'Back to Home' }).click();
     const home: Readonly<Partial<Record<string, string>>> = {
@@ -85,6 +86,9 @@ for (const { person, other } of PAIRS) {
       tenant_admin: 'Overview',
       student: 'Hello, Rahul',
       faculty: 'Overview',
+      vendor: 'Overview',
+      academic_reviewer: 'Overview',
+      content_manager: 'Overview',
     };
     const homeHeading = home[person.role];
     if (homeHeading) {

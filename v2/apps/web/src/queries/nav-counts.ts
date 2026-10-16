@@ -45,18 +45,45 @@ export const writtenAnswersToMark = defineQuery({
   read: (ports: ProductPorts) => ports.marking.listQueue({ state: 'waiting' }),
 });
 
+/**
+ * Phase 5: the Academic Reviewer's Review queue — "{n} waiting for review" (board 06 words; B6-01
+ * f0 sidebar "4") — the very items RV-02 answers unfiltered; and the Content Manager's Ready to
+ * publish — "{n} ready to publish" (B6-05 f0 sidebar "2") — the rows CM-02 answers.
+ */
+export const waitingForReview = defineQuery({
+  family: 'nav-counts',
+  view: 'reviewer-queue',
+  deps: ['SUB', 'EXP', 'UPD', 'CRS', 'AREA', 'ROLE'],
+  read: (ports: ProductPorts) => ports.production.getReviewQueue({}),
+});
+
+export const readyToPublishCount = defineQuery({
+  family: 'nav-counts',
+  view: 'content-manager-ready',
+  deps: ['SUB', 'EXP', 'UPD', 'CRS', 'AREA', 'ROLE'],
+  read: (ports: ProductPorts) => ports.production.listReadyToPublish(),
+});
+
 /** Count figures by destination key (zero or absent: no count is drawn). */
 export function useNavCounts(role: Role): Readonly<Partial<Record<string, number>>> {
   const requests = useXrQuery(requestsUnderReview, null, { enabled: role === 'super_admin' });
   const marking = useXrQuery(writtenAnswersToMark, null, { enabled: role === 'faculty' });
+  const queue = useXrQuery(waitingForReview, null, { enabled: role === 'academic_reviewer' });
+  const ready = useXrQuery(readyToPublishCount, null, { enabled: role === 'content_manager' });
   const underReview =
     role === 'super_admin' && requests.data?.ok ? requests.data.value.length : undefined;
   const toMark = role === 'faculty' && marking.data?.ok ? marking.data.value.length : undefined;
+  const toReview =
+    role === 'academic_reviewer' && queue.data?.ok ? queue.data.value.length : undefined;
+  const toPublish =
+    role === 'content_manager' && ready.data?.ok ? ready.data.value.length : undefined;
   return useMemo(
     () => ({
       ...(underReview === undefined ? {} : { requests: underReview }),
       ...(toMark === undefined ? {} : { marking: toMark }),
+      ...(toReview === undefined ? {} : { 'review-queue': toReview }),
+      ...(toPublish === undefined ? {} : { 'ready-to-publish': toPublish }),
     }),
-    [underReview, toMark],
+    [underReview, toMark, toReview, toPublish],
   );
 }

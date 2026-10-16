@@ -35,6 +35,18 @@ describe('placeWordsOf', () => {
     ['/student', 'Home'],
     ['/student/courses', 'My courses'],
     ['/student/experiments/shell-and-tube-heat-exchanger', 'My courses'],
+    // Phase 5: the Vendor's, the Academic Reviewer's and the Content Manager's pages.
+    ['/vendor', 'Overview'],
+    ['/vendor/experiments', 'My experiments'],
+    ['/vendor/experiments/new?step=formats', 'My experiments'],
+    ['/vendor/experiments/SUB-0077', 'My experiments › SUB-0077'],
+    ['/vendor/experiments/SUB-0077/revise', 'My experiments'],
+    ['/reviewer/queue', 'Review queue'],
+    ['/reviewer/submissions/SUB-0077', 'Review queue › SUB-0077'],
+    ['/reviewer/reviewed', 'Reviewed by me'],
+    ['/content-manager/decisions/SUB-0077', 'Ready to publish › SUB-0077'],
+    ['/content-manager/published/distillation-column', 'Content library'],
+    ['/content-manager/course-codes', 'Course codes'],
   ])('%s → %s', (path, place) => {
     expect(placeWordsOf(path)).toBe(place);
   });
@@ -43,8 +55,8 @@ describe('placeWordsOf', () => {
     [null],
     [''],
     ['/'],
-    // Phase 4B: every workspace destination is built now; an unbuilt Vendor page has no words.
-    ['/vendor/experiments'],
+    // Phase 5: an unbuilt page (the Content Manager's Updates, Phase 6) has no words.
+    ['/content-manager/updates'],
     ['https://evil.example/admin/requests'],
     ['//evil.example/admin/requests'],
     ['/sign-in'],

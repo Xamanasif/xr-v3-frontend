@@ -56,7 +56,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     // two pages, new and edit).
     // + Phase 4B's twelve (ST-11, ST-12, the focused ST-13, ST-14, the hub's Assessment tab,
     // FA-12, FA-16 … FA-21; FA-22 is an action, not a page).
-    expect(pages).toHaveLength(102);
+    // + Phase 5's thirteen (VE-01, RV-01 and CM-01 are their bases' own pages; VE-04 … VE-06 are
+    // steps of the editor, VE-13 the record's tab, RV-06 the review page's decided state).
+    expect(pages).toHaveLength(115);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -183,9 +185,10 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       kind: 'screen',
       screen: 'FA-01',
     });
+    // Phase 5: every workspace home is built; no base is the interim landing any more.
     expect(
       PAGES.filter((page) => page.kind === 'interim-landing').map((page) => page.pattern),
-    ).toEqual(['/vendor', '/reviewer', '/content-manager']);
+    ).toEqual([]);
     // Phase 4A: the Faculty pages (FA-01 is the base's own page; FA-04 a tab of My courses).
     expect(
       all
@@ -252,6 +255,10 @@ describe('the built-screen manifest is generated from the route manifest', () =>
       // Phase 4A: the faculty base's own page.
       'FA-01',
       'IA-01',
+      // Phase 5: the Vendor's, the Academic Reviewer's and the Content Manager's homes.
+      'VE-01',
+      'RV-01',
+      'CM-01',
       'SA-01',
       'SA-02',
       'SA-03',
@@ -321,6 +328,26 @@ describe('the built-screen manifest is generated from the route manifest', () =>
       'FA-19',
       'FA-20',
       'FA-21',
+      // Phase 5: VE-04 … VE-06 are the editor's steps, VE-13 the record's History tab, RV-06 the
+      // review page's decided state.
+      'VE-02',
+      'VE-03',
+      'VE-04',
+      'VE-05',
+      'VE-06',
+      'VE-07',
+      'VE-13',
+      'VE-09',
+      'VE-08',
+      'RV-02',
+      'RV-03',
+      'RV-06',
+      'RV-05',
+      'CM-02',
+      'CM-03',
+      'CM-04',
+      'CM-05',
+      'CM-09',
     ];
     expect([...SCREENS_WITH_PAGES]).toEqual(built);
     expect([...BUILT_SCREENS]).toEqual(built);
@@ -394,12 +421,34 @@ describe('resolveAddress — what an address shows', () => {
     ['/institute', { kind: 'record-screen', workspace: 'institute', screen: 'IA-01' }],
     ['/faculty', { kind: 'record-screen', workspace: 'faculty', screen: 'FA-01' }],
     ['/admin/', { kind: 'record-screen', workspace: 'admin', screen: 'SA-01' }],
-    ['/vendor/', { kind: 'interim-landing', workspace: 'vendor', lands: '/vendor/help' }],
+    ['/vendor/', { kind: 'record-screen', workspace: 'vendor', screen: 'VE-01' }],
     ['/faculty/help', { kind: 'screen', workspace: 'faculty', view: 'reports' }],
     ['/institute/help/report', { kind: 'screen', workspace: 'institute', view: 'report' }],
     ['/vendor/help/reports', { kind: 'redirect', workspace: 'vendor', to: '/vendor/help' }],
     ['/reviewer/help/reports/SUP-0213', { kind: 'screen', workspace: 'reviewer', view: 'detail' }],
-    ['/content-manager/ready', { kind: 'workspace-not-found', workspace: 'content-manager' }],
+    [
+      '/content-manager/ready',
+      { kind: 'record-screen', workspace: 'content-manager', screen: 'CM-02' },
+    ],
+    // Phase 5: the editor's static `new` page outranks `[submissionId]`; Updates is Phase 6.
+    ['/vendor/experiments/new', { kind: 'record-screen', workspace: 'vendor', screen: 'VE-03' }],
+    [
+      '/vendor/experiments/SUB-0077',
+      { kind: 'record-screen', workspace: 'vendor', screen: 'VE-07' },
+    ],
+    [
+      '/vendor/experiments/SUB-0077/edit',
+      { kind: 'record-screen', workspace: 'vendor', screen: 'VE-09' },
+    ],
+    [
+      '/vendor/experiments/SUB-0077/revise',
+      { kind: 'record-screen', workspace: 'vendor', screen: 'VE-08' },
+    ],
+    [
+      '/reviewer/submissions/SUB-0077',
+      { kind: 'record-screen', workspace: 'reviewer', screen: 'RV-03' },
+    ],
+    ['/content-manager/updates', { kind: 'workspace-not-found', workspace: 'content-manager' }],
     ['/student/help/reports/SUP-0213/x', { kind: 'workspace-not-found', workspace: 'student' }],
     // Package 2A.
     ['/student/courses', { kind: 'record-screen', workspace: 'student', screen: 'ST-02' }],

@@ -220,6 +220,23 @@ export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = [
     authorisation:
       'Owner authorisation of Phase 4B (16 Oct 2026, §2 and §5): "Implement all 12 remaining designed Phase-4 screen IDs" — FA-12 / FA-20 Export CSV (FA-22: exportSubmissionsCsv, exportStudentsCsv — the list on screen only, escaped, formula-safe), FA-16 Draft with assistance (requestDrafts, listDrafts, addDraftToBank, discardDraft — a deterministic sample stand-in, no provider; drafts never enter the bank on their own), FA-17 Import questions (previewQuestionImport, commitQuestionImport — the CSV template, all or nothing, T-24 interim). With them every Phase-4 method is implemented.',
   })),
+  ...(
+    [
+      'ProductionService.getVendorOverview',
+      'ProductionService.listMyExperiments',
+      'ProductionService.getEditor',
+      'ProductionService.getReviewerOverview',
+      'ProductionService.getContentManagerOverview',
+      'ProductionService.getLibrary',
+      'PlatformCourseCodeService.list',
+    ] as const
+  ).map((method) => ({
+    method,
+    phase: 'P5' as const,
+    package: 'Phase 5',
+    authorisation:
+      'Owner authorisation of Phase 5 (16 Oct 2026, §2, §3 and §6): "Implement required deferred Phase-5 service methods only" — VE-01 Overview (getVendorOverview: attention as facts, PC-62), VE-02 My experiments (listMyExperiments), VE-03 … VE-06 and VE-09 the editor (getEditor: the Vendor\'s assigned courses, read-only when the course is no longer assigned), RV-01 Overview (getReviewerOverview, PC-63), CM-01 Overview (getContentManagerOverview, PC-64), CM-04 Content library (getLibrary, PC-65), CM-09 Course codes (PlatformCourseCodeService.list). With them every Phase-5 method is implemented; the CorrectionService writes and the Phase-6 reads stay deferred.',
+  })),
 ];
 
 /** The methods `PACKAGE_DELIVERIES` names. */

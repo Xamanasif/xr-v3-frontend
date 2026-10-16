@@ -1,6 +1,6 @@
-import { InterimLanding } from '@/features/shared/workspace-frame/interim-landing';
+import { CmOverview } from '@/features/content-manager/cm-01-overview/overview';
 
-/** `/content-manager`: the interim landing — Help & support until the workspace home is built (ADR-0005 §8). */
+/** CM-01 Overview, the Content Manager workspace home (board B6-05). */
 export default function ContentManagerHome() {
-  return <InterimLanding />;
+  return <CmOverview />;
 }

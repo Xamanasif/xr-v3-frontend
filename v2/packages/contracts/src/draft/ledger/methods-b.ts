@@ -646,7 +646,9 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
     output: vendorOverviewOutput,
     mock: 'P5',
     screens: ['VE-01'],
-    errors: SIGNED_IN_READ,
+    // The Vendor's courses: a scope that is not a course is ROLE-11 (Phase 5, as listMyExperiments).
+    errors: VENDOR,
+    open: VENDOR_OPEN,
     policy: ['read:submission'],
   }),
   listMyExperiments: entry({

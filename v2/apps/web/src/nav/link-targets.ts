@@ -37,6 +37,13 @@ import { P4B_SUBMISSIONS_LINK_TARGETS } from './link-targets-p4b/submissions';
 import { P4B_MARKING_LINK_TARGETS } from './link-targets-p4b/marking';
 import { P4B_FACULTY_STUDENTS_LINK_TARGETS } from './link-targets-p4b/faculty-students';
 import { P4B_QUESTION_TOOLS_LINK_TARGETS } from './link-targets-p4b/question-tools';
+import { P5_VENDOR_HOME_LINK_TARGETS } from './link-targets-p5/vendor-home';
+import { P5_VENDOR_EDITOR_LINK_TARGETS } from './link-targets-p5/vendor-editor';
+import { P5_VENDOR_RECORD_LINK_TARGETS } from './link-targets-p5/vendor-record';
+import { P5_REVIEWER_LISTS_LINK_TARGETS } from './link-targets-p5/reviewer-lists';
+import { P5_REVIEWER_REVIEW_LINK_TARGETS } from './link-targets-p5/reviewer-review';
+import { P5_CM_LISTS_LINK_TARGETS } from './link-targets-p5/cm-lists';
+import { P5_CM_DECISION_LINK_TARGETS } from './link-targets-p5/cm-decision';
 
 /** The screen (or shell part) an action is drawn on. */
 export type LedgerScreen =
@@ -126,7 +133,29 @@ export type LedgerScreen =
   | 'FA-18'
   | 'FA-19'
   | 'FA-20'
-  | 'FA-21';
+  | 'FA-21'
+  // Phase 5.
+  | 'VE-01'
+  | 'VE-02'
+  | 'VE-03'
+  | 'VE-04'
+  | 'VE-05'
+  | 'VE-06'
+  | 'VE-07'
+  | 'VE-08'
+  | 'VE-09'
+  | 'VE-13'
+  | 'RV-01'
+  | 'RV-02'
+  | 'RV-03'
+  | 'RV-05'
+  | 'RV-06'
+  | 'CM-01'
+  | 'CM-02'
+  | 'CM-03'
+  | 'CM-04'
+  | 'CM-05'
+  | 'CM-09';
 
 export type ActionRole =
   /** The page's one primary action (board 08 "One primary action"; `xr-btn--primary`). */
@@ -2639,6 +2668,14 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
   ...P4B_MARKING_LINK_TARGETS,
   ...P4B_FACULTY_STUDENTS_LINK_TARGETS,
   ...P4B_QUESTION_TOOLS_LINK_TARGETS,
+  // ---- Phase 5: one file per screen group (`link-targets-p5/`) ---------------------------------
+  ...P5_VENDOR_HOME_LINK_TARGETS,
+  ...P5_VENDOR_EDITOR_LINK_TARGETS,
+  ...P5_VENDOR_RECORD_LINK_TARGETS,
+  ...P5_REVIEWER_LISTS_LINK_TARGETS,
+  ...P5_REVIEWER_REVIEW_LINK_TARGETS,
+  ...P5_CM_LISTS_LINK_TARGETS,
+  ...P5_CM_DECISION_LINK_TARGETS,
 ];
 
 /**

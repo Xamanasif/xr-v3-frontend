@@ -61,13 +61,23 @@ function shell(
      * last one (Assessments): the sidebar is the board's, and no shell deviation applies.
      */
     package2a?: boolean;
+    /**
+     * Phase 5 builds the Vendor's and the Content Manager's destinations: their sidebars and whole
+     * frames are measured as `-phase-5`, against what still differs (the Phase-0 pins, DEV-10, stay
+     * as the record and are no longer observed).
+     */
+    phase5?: readonly string[];
   } = {},
 ): CompareItem[] {
-  const shellDeviations: readonly string[] = registered.package2a ? [] : ['DEV-10'];
+  const shellDeviations: readonly string[] = registered.phase5
+    ? registered.phase5
+    : registered.package2a
+      ? []
+      : ['DEV-10'];
   // Phase 3 adds the Student's Progress: the Package-2A names become `-phase-3` (their pins stay
   // as the record). Phase 4B adds the Student's Assessments: `-phase-4b` (the Phase-3 pins stay as
-  // the record).
-  const suffix = registered.package2a ? '-phase-4b' : '';
+  // the record). Phase 5: the Vendor's and the Content Manager's `-phase-5`.
+  const suffix = registered.phase5 ? '-phase-5' : registered.package2a ? '-phase-4b' : '';
   return [
     {
       name: `${name}-top-bar`,
@@ -219,7 +229,8 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
     await expect(ours.getByRole('heading', { name: 'No reports yet' })).toBeVisible();
     const frame = frames.nth(5);
     await run(testInfo, [
-      ...shell('07-f5-state-2a-my-reports-empty-vendor', frame, ours),
+      // Phase 5: the Vendor sidebar lists Overview and My experiments, as board 07 draws it.
+      ...shell('07-f5-state-2a-my-reports-empty-vendor', frame, ours, { phase5: [] }),
       {
         name: '07-f5-state-2a-my-reports-empty-vendor-page',
         reference: frame.locator('main .xr-content'),
@@ -238,9 +249,12 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
     const sections = (where: Locator | Page) => where.locator('main section.xr-section');
     await run(testInfo, [
       // "What you reported" is 10 px taller (DEV-11 title, DEV-13 list): so are the sidebar and frame.
+      // Phase 5: the Content Manager sidebar lists her built destinations; Updates (CM-08) is
+      // Phase 6 (DEV-21).
       ...shell('07-f7-state-3a-report-detail-reopened', frame, ours, {
         sidebar: ['DEV-11', 'DEV-13'],
         frame: ['DEV-11', 'DEV-13'],
+        phase5: ['DEV-21'],
       }),
       {
         name: '07-f7-state-3a-back-link',

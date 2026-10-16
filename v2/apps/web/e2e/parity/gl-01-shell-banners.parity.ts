@@ -153,11 +153,16 @@ test('board 05 · the built shell on Help for 7 roles, with the applicable banne
                   deviation: 'DEV-44',
                 }
               : {
-                  name: `${name}-sidebar`,
+                  // Phase 5 builds the Vendor's, the Academic Reviewer's and the Content Manager's
+                  // destinations: measured as `-phase-5`; the Phase-0 pins (DEV-10, Help only)
+                  // stay as the record. The Vendor's and the Academic Reviewer's are board 05's
+                  // (the Review queue count's figure, the world's, stays inside the tolerance); the
+                  // Content Manager's Updates (CM-08) is Phase 6 (DEV-21).
+                  name: `${name}-sidebar-phase-5`,
                   reference: board.locator('aside.xr-side'),
                   product: ours.locator('aside.xr-side'),
                   kind: 'specimen',
-                  deviation: 'DEV-10',
+                  ...(role.label === 'Content Manager' ? { deviation: 'DEV-21' } : {}),
                 },
       {
         name: `${name}-help-header`,

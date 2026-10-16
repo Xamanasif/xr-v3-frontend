@@ -305,7 +305,24 @@ export function academicStructurePort(call: Call): AcademicStructureService {
 
 export function platformCourseCodePort(call: Call): PlatformCourseCodeService {
   return {
-    list: deferred('PlatformCourseCodeService.list'),
+    list: () =>
+      read(call, 'PlatformCourseCodeService.list', (op) => {
+        // CM-09 is the Content Manager's: the one writer of platform codes (M-2). The Super Admin
+        // reads them in Academic structure (SA-14), not here.
+        const person = op.person();
+        if (person.role !== 'content_manager')
+          refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+        const published = values(op.records.experiments);
+        return values(op.records.courses)
+          .map((course) => ({
+            course,
+            areaName: op.records.areas[course.areaId]?.name ?? '',
+            publishedExperiments: published.filter(
+              (experiment) => experiment.courseId === course.id,
+            ).length,
+          }))
+          .filter((row) => row.areaName !== '');
+      }),
 
     save: (input) =>
       command(call, 'PlatformCourseCodeService.save', (op) => {

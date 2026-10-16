@@ -17,6 +17,9 @@ import {
   allContentInput,
   approveSubmissionInput,
   continueStepInput,
+  getEditorInput,
+  libraryInput,
+  listMyExperimentsInput,
   overrideStatusInput,
   type ProductionService,
   publishInput,
@@ -31,6 +34,7 @@ import {
 } from '@xr/contracts/draft';
 import {
   type AcademicReviewDecision,
+  activeScopes,
   approveSubmission,
   type ContentManagerDecision,
   type CorrectionUpdate,
@@ -45,6 +49,7 @@ import {
   inDisplayOrder,
   type InputIssue,
   invalidInput,
+  type IsoInstant,
   isStuck,
   type LearningOutcome,
   type PlatformRoleHolder,
@@ -52,7 +57,10 @@ import {
   publish,
   resubmit,
   returnSubmission,
+  routeResubmission,
   saveDraft,
+  systemActor,
+  type RecordRef,
   saveRevision,
   scopeCovers,
   sendBackToReviewer,
@@ -69,12 +77,12 @@ import {
 } from '@xr/domain';
 
 import { experimentSlug } from '../ids/id-source.js';
-import type { Call } from '../platform/core.js';
+import type { Call, PlatformCore } from '../platform/core.js';
 import type { ResolvedPerson } from '../pipeline/actor.js';
-import { command, type Op, read, refuse } from '../pipeline/runner.js';
+import { command, type Op, read, refuse, settle, systemCommand } from '../pipeline/runner.js';
 import { openUpdateOf } from '../world/queries.js';
 import { values } from '../world/records.js';
-import { deferred } from './deferred.js';
+import { courseCardOf } from './views.js';
 
 function field(input: unknown, name: string): unknown {
   return typeof input === 'object' && input !== null
@@ -327,10 +335,15 @@ function previewPage(op: Op, submission: Submission): PublicExperimentPage {
   const course = op.found(courseOf(op, content.courseId));
   const area = op.found(op.records.areas[course.areaId]);
   const formats = formatsOf(content);
+  // A published submission names its experiment; otherwise the id publishing would give it.
+  const status = submission.status;
   return {
-    experimentId: experimentSlug(content.name, (id) =>
-      Object.hasOwn(op.records.experiments, id),
-    ) as Experiment['id'],
+    experimentId:
+      status.state === 'published'
+        ? status.experimentId
+        : (experimentSlug(content.name, (id) =>
+            Object.hasOwn(op.records.experiments, id),
+          ) as Experiment['id']),
     name: content.name,
     summary: content.summary ?? '',
     courseId: course.id,
@@ -374,14 +387,560 @@ function withVisibleUpdate(op: Op, person: ResolvedPerson, experiment: Experimen
     : { ...experiment, openUpdateId: null };
 }
 
+// ---- Phase 5 reads (VE-01, VE-02, the editor, RV-01, CM-01, CM-04) ----
+
+/** The Vendor's own records — "Every experiment you created" (B5-02); a colleague's is SUB-15. */
+function myExperiments(op: Op, person: ResolvedPerson, holder: PlatformRoleHolder): Submission[] {
+  return values(op.records.submissions)
+    .filter((submission) => submission.vendorHolderId === holder.id)
+    .filter((submission) =>
+      op.canSee(person, {
+        kind: 'submission',
+        submission,
+        sameOrganisation:
+          person.organisation !== null && person.organisation === submission.vendorOrganisation,
+      }),
+    );
+}
+
+type VendorStatus =
+  | 'draft'
+  | 'submitted'
+  | 'with-academic-reviewer'
+  | 'returned'
+  | 'with-content-manager'
+  | 'published';
+
+/**
+ * The status the Vendor reads (B5-02's filter): "Submitted" after a resubmit until the record moves
+ * on (B5-06 f4; M-3), "With Academic Reviewer" for a first review or a re-check.
+ */
+function vendorStatusOf(submission: Submission): VendorStatus {
+  const status = submission.status;
+  switch (status.state) {
+    case 'resubmitted':
+      return 'submitted';
+    case 'with-academic-reviewer':
+      return submission.revision > 1 && status.reason === 'resubmission'
+        ? 'submitted'
+        : 'with-academic-reviewer';
+    default:
+      return status.state;
+  }
+}
+
+/** Newest change first (B5-02 "Status · last change"). */
+function newestFirst(a: { readonly updatedAt: string }, b: { readonly updatedAt: string }) {
+  return a.updatedAt === b.updatedAt ? 0 : a.updatedAt < b.updatedAt ? 1 : -1;
+}
+
+/** The decision that returned a record to the Vendor, as VE-01 names it. */
+function returnFacts(submission: Submission) {
+  const decision = lastReturn(submission);
+  if (!decision) return null;
+  return 'decision' in decision
+    ? { by: 'academic-reviewer' as const, at: decision.decidedAt, reason: decision.reason ?? '' }
+    : decision.kind === 'send-back-to-vendor'
+      ? { by: 'content-manager' as const, at: decision.at, reason: decision.reason }
+      : null;
+}
+
+/** The scope line's words of one active scope (OD-B6-01): a course code, else the name. */
+function scopeLineOf(op: Op, holder: PlatformRoleHolder): { codes: string[]; all: boolean } {
+  const codes: string[] = [];
+  let all = false;
+  for (const scope of activeScopes(holder)) {
+    if (scope.target.kind === 'all') all = true;
+    else if (scope.target.kind === 'course') {
+      const course = op.records.courses[scope.target.courseId];
+      codes.push(course?.platformCode ?? course?.name ?? scope.target.courseId);
+    } else {
+      const experiment = op.records.experiments[scope.target.experimentId];
+      codes.push(experiment?.live.catalogue.name ?? scope.target.experimentId);
+    }
+  }
+  return { codes, all };
+}
+
+/** The approval a record carries now (the last "approve"). */
+function approvalOf(submission: Submission): AcademicReviewDecision | null {
+  return submission.reviewDecisions.findLast((decision) => decision.decision === 'approve') ?? null;
+}
+
+/** Oldest first by an instant. */
+function byInstant<T>(at: (row: T) => string) {
+  return (a: T, b: T) => (at(a) === at(b) ? 0 : at(a) < at(b) ? -1 : 1);
+}
+
+type LibraryTab = 'ready' | 'in-review' | 'with-vendor' | 'published';
+
+/** Where a submission sits in the Content library (B6-06 f1); a draft is the Vendor's only. */
+function libraryTabOf(submission: Submission): LibraryTab | null {
+  switch (submission.status.state) {
+    case 'with-content-manager':
+      return 'ready';
+    case 'with-academic-reviewer':
+    case 'resubmitted':
+      return 'in-review';
+    case 'returned':
+      return 'with-vendor';
+    default:
+      return null;
+  }
+}
+
+/**
+ * The record as a reader other than its Vendor sees it: while it is back with the Vendor, the
+ * content it was last sent with — never the Vendor's saved, not-yet-resubmitted revision (a
+ * revision is the Vendor's until it is resubmitted; independent review, Phase 5). The Vendor, and
+ * every other state, read the record as it is.
+ */
+function asSentFor(op: Op, person: ResolvedPerson, submission: Submission): Submission {
+  if (person.role === 'vendor' || submission.status.state !== 'returned') return submission;
+  const sent = op.world.sentContent[submission.id]?.[submission.revision - 1];
+  return sent ? { ...submission, content: sent } : submission;
+}
+
+/** RV-02's items (and RV-01's): submissions and updates with the reviewer, oldest first. */
+function reviewQueueOf(
+  op: Op,
+  person: ResolvedPerson,
+  accepted: {
+    readonly type?: 'new' | 'update' | 'recheck';
+    readonly courseId?: string;
+    readonly search?: string;
+  },
+) {
+  const search = accepted.search?.trim().toLocaleLowerCase('en') ?? '';
+  const submissions = values(op.records.submissions)
+    .filter((submission) => submission.status.state === 'with-academic-reviewer')
+    .filter((submission) => op.canSee(person, { kind: 'submission', submission }))
+    .map((submission) => {
+      const words = queueWordsOf(submission);
+      const course = courseOf(op, submission.content.courseId);
+      return {
+        ref: { kind: 'SUB' as const, id: submission.id },
+        name: submission.content.name,
+        courseId: submission.content.courseId,
+        courseCode: course?.platformCode ?? null,
+        who: submission.vendorOrganisation,
+        subLine: words.subLine,
+        type: words.type,
+        formats: formatsOf(submission.content),
+        waitingSince:
+          submission.status.state === 'with-academic-reviewer'
+            ? submission.status.since
+            : submission.updatedAt,
+      };
+    });
+  const updates = values(op.records.updates)
+    .filter((update) => update.state === 'in-academic-review')
+    .flatMap((update) => {
+      const experiment = op.records.experiments[update.experimentId];
+      if (!experiment || !op.canSee(person, { kind: 'update', update, experiment })) return [];
+      const course = courseOf(op, experiment.courseId);
+      return [
+        {
+          ref: { kind: 'UPD' as const, id: update.id },
+          name: experiment.live.catalogue.name,
+          courseId: experiment.courseId,
+          courseCode: course?.platformCode ?? null,
+          who: `${personName(update.startedBy)} · Content Manager`,
+          subLine:
+            `Correction to the live version ${update.baseVersionLabel} → ${update.versionLabel ?? ''}`.trim(),
+          type: 'update' as const,
+          formats: inDisplayOrder(experiment.live.formats.map((entry) => entry.format)),
+          waitingSince: update.sentForReviewAt ?? update.updatedAt,
+        },
+      ];
+    });
+  return [...submissions, ...updates]
+    .filter((item) => !accepted.type || item.type === accepted.type)
+    .filter((item) => !accepted.courseId || item.courseId === accepted.courseId)
+    .filter(
+      (item) =>
+        search === '' ||
+        item.name.toLocaleLowerCase('en').includes(search) ||
+        (item.courseCode ?? '').toLocaleLowerCase('en').includes(search),
+    )
+    .sort((a, b) =>
+      a.waitingSince === b.waitingSince ? 0 : a.waitingSince < b.waitingSince ? -1 : 1,
+    )
+    .map(({ courseId: _course, ...item }) => item);
+}
+
+/** Two receipts' record references, each named once. */
+function joinedRefs(
+  first: readonly RecordRef[],
+  second: readonly RecordRef[],
+): readonly RecordRef[] {
+  const seen = new Set(first.map((ref) => JSON.stringify(ref)));
+  return [...first, ...second.filter((ref) => !seen.has(JSON.stringify(ref)))];
+}
+
+/**
+ * The sample platform's `system:workflow-routing` stand-in in a local prototype build (PC-66, owner
+ * answer to M-3): right after a resubmit, the record is routed by the only route the domain's
+ * routing policy can answer — back to the Academic Reviewer as revision n (B5-08 "Routed by the
+ * approved workflow rule"). It never skips the reviewer and names no gate in any copy.
+ */
+export function routeByDrawnDefault(
+  core: PlatformCore,
+  submissionId: string,
+): readonly RecordRef[] {
+  const outcome = systemCommand(core, 'WorkflowRouting.drawnDefault', 'sample-standin', (op) => {
+    const submission = op.found(op.records.submissions[submissionId]);
+    const actor = systemActor('system:workflow-routing');
+    const next = settle(
+      routeResubmission({ submission, routing: core.routing, actor, now: op.now, ids: op.ids }),
+    );
+    op.tx.put('submissions', next.id, next);
+    return { value: next, decision: 'routeResubmission', actor };
+  });
+  return outcome.ok ? outcome.changed : [];
+}
+
 export function productionPort(call: Call): ProductionService {
   return {
-    getVendorOverview: deferred('ProductionService.getVendorOverview'),
-    listMyExperiments: deferred('ProductionService.listMyExperiments'),
-    getEditor: deferred('ProductionService.getEditor'),
-    getReviewerOverview: deferred('ProductionService.getReviewerOverview'),
-    getContentManagerOverview: deferred('ProductionService.getContentManagerOverview'),
-    getLibrary: deferred('ProductionService.getLibrary'),
+    getVendorOverview: () =>
+      read(call, 'ProductionService.getVendorOverview', (op) => {
+        const person = op.person();
+        const vendor = vendorOf(person);
+        const assigned = assignedCourses(vendor);
+        const mine = myExperiments(op, person, vendor);
+        const counts = {
+          draft: 0,
+          'with-academic-reviewer': 0,
+          'with-content-manager': 0,
+          published: 0,
+        };
+        for (const submission of mine) {
+          const status = vendorStatusOf(submission);
+          // A resubmission the Vendor reads as "Submitted" is not counted: the line would name the
+          // next gate (M-3; B5-01's script counts with_rv and recheck only).
+          if (status === 'draft') counts.draft += 1;
+          else if (status === 'with-academic-reviewer') counts['with-academic-reviewer'] += 1;
+          else if (status === 'with-content-manager') counts['with-content-manager'] += 1;
+          else if (status === 'published') counts.published += 1;
+        }
+        const returned = mine
+          .filter((submission) => submission.status.state === 'returned')
+          .flatMap((submission) => {
+            const facts = returnFacts(submission);
+            return facts
+              ? [
+                  {
+                    kind: 'returned' as const,
+                    submissionId: submission.id,
+                    name: submission.content.name,
+                    ...facts,
+                  },
+                ]
+              : [];
+          })
+          .sort(byInstant((row) => row.at));
+        // A draft whose course is no longer assigned opens read-only (OD-B5-01): nothing to finish.
+        const drafts = mine
+          .filter(
+            (submission) =>
+              submission.status.state === 'draft' && !courseNoLongerAssigned(submission, assigned),
+          )
+          .map((submission) => ({
+            kind: 'draft' as const,
+            submissionId: submission.id,
+            name: submission.content.name,
+            savedAt: submission.updatedAt,
+          }))
+          .sort(byInstant((row) => row.savedAt));
+        return {
+          statusCounts: counts,
+          attention: [...returned, ...drafts],
+          hasExperiments: mine.length > 0,
+        };
+      }),
+
+    listMyExperiments: (filter) =>
+      read(call, 'ProductionService.listMyExperiments', (op) => {
+        const person = op.person();
+        const vendor = vendorOf(person);
+        const assigned = assignedCourses(vendor);
+        const accepted = op.parse(listMyExperimentsInput, filter);
+        const search = accepted.search?.trim().toLocaleLowerCase('en') ?? '';
+        return myExperiments(op, person, vendor)
+          .filter(
+            (submission) => !accepted.status || vendorStatusOf(submission) === accepted.status,
+          )
+          .filter((submission) => {
+            if (search === '') return true;
+            const course = courseOf(op, submission.content.courseId);
+            return [
+              submission.content.name,
+              submission.id,
+              course?.platformCode ?? '',
+              course?.name ?? '',
+            ].some((text) => text.toLocaleLowerCase('en').includes(search));
+          })
+          .sort(newestFirst)
+          .map((submission) => ({ submission, guards: guardsOf(op, submission, assigned) }));
+      }),
+
+    getEditor: (input) =>
+      read(call, 'ProductionService.getEditor', (op) => {
+        const person = op.person();
+        const vendor = vendorOf(person);
+        const assigned = assignedCourses(vendor);
+        const existing = editorSubmission(op, person, field(input, 'id'));
+        op.parse(getEditorInput, input);
+        const subject = submissionSubject(op, existing);
+        if (existing === null) op.allow(person, 'submission.start', subject);
+        // Only a draft or a returned record is edited; anything else — and a record whose course
+        // is no longer assigned (OD-B5-01) — opens read-only.
+        const editable =
+          existing === null ||
+          (existing.status.state === 'draft' &&
+            op.canDo(person, 'submission.save-draft', subject)) ||
+          (existing.status.state === 'returned' &&
+            op.canDo(person, 'submission.save-revision', subject));
+        const courses = assigned
+          .map((courseId) => op.records.courses[courseId])
+          .filter((course): course is Course => course !== undefined)
+          .map((course) => courseCardOf(op.records, course));
+        return {
+          submission: existing,
+          assignedCourses: courses,
+          readOnly: !editable || (existing !== null && courseNoLongerAssigned(existing, assigned)),
+        };
+      }),
+
+    getReviewerOverview: () =>
+      read(call, 'ProductionService.getReviewerOverview', (op) => {
+        const person = op.person();
+        if (person.holder?.role !== 'academic_reviewer')
+          refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+        const scope = scopeLineOf(op, person.holder);
+        const waiting = reviewQueueOf(op, person, {}).map((item) => {
+          const submission = item.ref.kind === 'SUB' ? op.records.submissions[item.ref.id] : null;
+          const recheck =
+            submission && item.type === 'recheck'
+              ? submission.contentManagerDecisions.findLast(
+                  (decision) => decision.kind === 'send-back-to-reviewer',
+                )
+              : undefined;
+          return {
+            ...item,
+            reason: recheck && recheck.kind === 'send-back-to-reviewer' ? recheck.reason : null,
+          };
+        });
+        return { scopeLine: scope.codes, scopeAll: scope.all, waiting };
+      }),
+
+    getContentManagerOverview: () =>
+      read(call, 'ProductionService.getContentManagerOverview', (op) => {
+        const person = op.person();
+        if (person.holder?.role !== 'content_manager')
+          refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+        const visible = values(op.records.submissions).filter((submission) =>
+          op.canSee(person, { kind: 'submission', submission }),
+        );
+        const ready = visible
+          .filter((submission) => submission.status.state === 'with-content-manager')
+          .flatMap((submission) => {
+            const approval = approvalOf(submission);
+            return approval
+              ? [
+                  {
+                    kind: 'ready-to-publish' as const,
+                    submissionId: submission.id,
+                    name: submission.content.name,
+                    courseCode: courseOf(op, submission.content.courseId)?.platformCode ?? null,
+                    approvedAt: approval.decidedAt,
+                  },
+                ]
+              : [];
+          })
+          .sort(byInstant((row) => row.approvedAt));
+        const updates = values(op.records.updates).flatMap((update) => {
+          const experiment = op.records.experiments[update.experimentId];
+          return experiment && op.canSee(person, { kind: 'update', update, experiment })
+            ? [{ update, name: experiment.live.catalogue.name }]
+            : [];
+        });
+        const returnedUpdates = updates
+          .filter(({ update }) => update.state === 'returned')
+          .map(({ update, name }) => {
+            const decision = update.reviewDecisions.findLast(
+              (entry) => entry.decision === 'return-to-content-manager',
+            );
+            return {
+              kind: 'update-returned' as const,
+              updateId: update.id,
+              name,
+              versionLabel: update.versionLabel,
+              returnedAt: decision?.at ?? update.updatedAt,
+              reason: decision?.reason ?? '',
+            };
+          })
+          .sort(byInstant((row) => row.returnedAt));
+        const rechecks = visible
+          .filter(
+            (submission) =>
+              submission.status.state === 'with-academic-reviewer' &&
+              submission.status.reason === 'recheck',
+          )
+          .map((submission) => {
+            const sent = submission.contentManagerDecisions.findLast(
+              (decision) => decision.kind === 'send-back-to-reviewer',
+            );
+            return {
+              kind: 'recheck' as const,
+              submissionId: submission.id,
+              name: submission.content.name,
+              sentAt: sent?.at ?? submission.updatedAt,
+              at: sent?.at ?? submission.updatedAt,
+            };
+          });
+        type WithOthersRow = (
+          | { kind: 'recheck'; submissionId: Submission['id']; name: string; sentAt: IsoInstant }
+          | {
+              kind: 'update-in-review';
+              updateId: CorrectionUpdate['id'];
+              name: string;
+              versionLabel: string | null;
+              sentAt: IsoInstant;
+            }
+          | {
+              kind: 'update-awaiting-release';
+              updateId: CorrectionUpdate['id'];
+              name: string;
+              versionLabel: string | null;
+              approvedAt: IsoInstant;
+            }
+          | {
+              kind: 'update-on-hold';
+              updateId: CorrectionUpdate['id'];
+              name: string;
+              versionLabel: string | null;
+              heldAt: IsoInstant;
+              liveLabel: string;
+            }
+        ) & { at: IsoInstant };
+        const elsewhere = updates.flatMap(({ update, name }): WithOthersRow[] => {
+          if (update.state === 'in-academic-review') {
+            const sentAt = update.sentForReviewAt ?? update.updatedAt;
+            return [
+              {
+                kind: 'update-in-review' as const,
+                updateId: update.id,
+                name,
+                versionLabel: update.versionLabel,
+                sentAt,
+                at: sentAt,
+              },
+            ];
+          }
+          if (update.state === 'awaiting-release-decision') {
+            const approvedAt =
+              update.reviewDecisions.findLast((entry) => entry.decision === 'approve')?.at ??
+              update.updatedAt;
+            return [
+              {
+                kind: 'update-awaiting-release' as const,
+                updateId: update.id,
+                name,
+                versionLabel: update.versionLabel,
+                approvedAt,
+                at: approvedAt,
+              },
+            ];
+          }
+          if (update.state === 'on-hold' && update.hold) {
+            return [
+              {
+                kind: 'update-on-hold' as const,
+                updateId: update.id,
+                name,
+                versionLabel: update.versionLabel,
+                heldAt: update.hold.at,
+                liveLabel: update.baseVersionLabel,
+                at: update.hold.at,
+              },
+            ];
+          }
+          return [];
+        });
+        // "With others" newest first (B6-05 f0: 25 Aug, 25 Aug, 20 Aug).
+        const withOthers = [...(rechecks as WithOthersRow[]), ...elsewhere]
+          .sort((a, b) => (a.at === b.at ? 0 : a.at < b.at ? 1 : -1))
+          .map(({ at: _at, ...row }) => row);
+        return { attention: [...ready, ...returnedUpdates], withOthers };
+      }),
+
+    getLibrary: (filter) =>
+      read(call, 'ProductionService.getLibrary', (op) => {
+        const person = op.person();
+        if (person.holder?.role !== 'content_manager')
+          refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+        const accepted = op.parse(libraryInput, filter);
+        const search = accepted.search?.trim().toLocaleLowerCase('en') ?? '';
+        const matches = (texts: readonly (string | null)[]) =>
+          search === '' ||
+          texts.some((text) => (text ?? '').toLocaleLowerCase('en').includes(search));
+        const submissions = values(op.records.submissions)
+          .filter((submission) => op.canSee(person, { kind: 'submission', submission }))
+          .flatMap((submission) => {
+            const tab = libraryTabOf(submission);
+            return tab ? [{ submission, tab }] : [];
+          });
+        const experiments = values(op.records.experiments).filter((experiment) =>
+          op.canSee(person, { kind: 'published-experiment', experiment }),
+        );
+        const counts = {
+          ready: submissions.filter((entry) => entry.tab === 'ready').length,
+          'in-review': submissions.filter((entry) => entry.tab === 'in-review').length,
+          'with-vendor': submissions.filter((entry) => entry.tab === 'with-vendor').length,
+          published: experiments.length,
+        };
+        if (accepted.tab === 'published') {
+          return {
+            counts,
+            rows: experiments
+              .map((experiment) => {
+                const code = courseOf(op, experiment.courseId)?.platformCode ?? null;
+                const updateId = visibleOpenUpdateId(op, person, experiment);
+                const update = updateId ? op.records.updates[updateId] : undefined;
+                return {
+                  kind: 'experiment' as const,
+                  experiment: withVisibleUpdate(op, person, experiment),
+                  courseCode: code,
+                  openUpdate: update ? { id: update.id, state: update.state } : null,
+                };
+              })
+              .filter((row) =>
+                matches([row.experiment.live.catalogue.name, row.courseCode, row.experiment.id]),
+              )
+              .sort(byInstant((row) => row.experiment.publishedAt)),
+          };
+        }
+        return {
+          counts,
+          rows: submissions
+            .filter((entry) => entry.tab === accepted.tab)
+            .map(({ submission: record }) => asSentFor(op, person, record))
+            .map((submission) => ({
+              kind: 'submission' as const,
+              submission,
+              courseCode: courseOf(op, submission.content.courseId)?.platformCode ?? null,
+              approvedAt:
+                submission.status.state === 'with-content-manager'
+                  ? (approvalOf(submission)?.decidedAt ?? null)
+                  : null,
+            }))
+            .filter((row) =>
+              matches([row.submission.content.name, row.courseCode, row.submission.id]),
+            )
+            .sort(byInstant((row) => row.approvedAt ?? row.submission.updatedAt)),
+        };
+      }),
 
     saveDraft: (input) =>
       command(call, 'ProductionService.saveDraft', (op) => {
@@ -505,8 +1064,9 @@ export function productionPort(call: Call): ProductionService {
         return { value: submission, decision: 'saveRevision', actor: person.ref };
       }),
 
-    resubmit: (input) =>
-      command(call, 'ProductionService.resubmit', (op) => {
+    resubmit: async (input) => {
+      let routed: readonly RecordRef[] = [];
+      const answer = await command(call, 'ProductionService.resubmit', (op) => {
         const person = op.person();
         const existing = op.found(op.records.submissions[op.idText(field(input, 'id'))]);
         seeSubmission(op, person, existing);
@@ -524,80 +1084,40 @@ export function productionPort(call: Call): ProductionService {
           input,
           vendorParams(op, accepted.content),
         );
-        // "Submitted" until the approved workflow rule routes it (M-3; PC-24): never routed here.
+        // "Submitted" until the approved workflow rule routes it (M-3; PC-24). In a local
+        // prototype build the `system:workflow-routing` stand-in routes it right after this
+        // command, by the drawn default (PC-66) — a system event of its own; the Vendor's receipt
+        // is the resubmitted record as written here.
         op.tx.put('submissions', submission.id, submission);
         op.keepSent(submission);
-        return { value: submission, decision: 'resubmit', actor: person.ref };
-      }),
+        return {
+          value: submission,
+          decision: 'resubmit',
+          actor: person.ref,
+          after: () => {
+            if (call.core.resubmissionRouting === 'drawn-default-on-resubmit')
+              routed = routeByDrawnDefault(call.core, submission.id);
+          },
+        };
+      });
+      return answer.ok && routed.length > 0
+        ? { ...answer, changed: joinedRefs(answer.changed, routed) }
+        : answer;
+    },
 
     getReviewQueue: (filter) =>
       read(call, 'ProductionService.getReviewQueue', (op) => {
         const person = op.person();
         const accepted = op.parse(reviewQueueInput, filter);
-        const search = accepted.search?.trim().toLocaleLowerCase('en') ?? '';
-        const submissions = values(op.records.submissions)
-          .filter((submission) => submission.status.state === 'with-academic-reviewer')
-          .filter((submission) => op.canSee(person, { kind: 'submission', submission }))
-          .map((submission) => {
-            const words = queueWordsOf(submission);
-            const course = courseOf(op, submission.content.courseId);
-            return {
-              ref: { kind: 'SUB' as const, id: submission.id },
-              name: submission.content.name,
-              courseId: submission.content.courseId,
-              courseCode: course?.platformCode ?? null,
-              who: submission.vendorOrganisation,
-              subLine: words.subLine,
-              type: words.type,
-              formats: formatsOf(submission.content),
-              waitingSince:
-                submission.status.state === 'with-academic-reviewer'
-                  ? submission.status.since
-                  : submission.updatedAt,
-            };
-          });
-        const updates = values(op.records.updates)
-          .filter((update) => update.state === 'in-academic-review')
-          .flatMap((update) => {
-            const experiment = op.records.experiments[update.experimentId];
-            if (!experiment || !op.canSee(person, { kind: 'update', update, experiment }))
-              return [];
-            const course = courseOf(op, experiment.courseId);
-            return [
-              {
-                ref: { kind: 'UPD' as const, id: update.id },
-                name: experiment.live.catalogue.name,
-                courseId: experiment.courseId,
-                courseCode: course?.platformCode ?? null,
-                who: `${personName(update.startedBy)} · Content Manager`,
-                subLine:
-                  `Correction to the live version ${update.baseVersionLabel} → ${update.versionLabel ?? ''}`.trim(),
-                type: 'update' as const,
-                formats: inDisplayOrder(experiment.live.formats.map((entry) => entry.format)),
-                waitingSince: update.sentForReviewAt ?? update.updatedAt,
-              },
-            ];
-          });
-        return [...submissions, ...updates]
-          .filter((item) => !accepted.type || item.type === accepted.type)
-          .filter((item) => !accepted.courseId || item.courseId === accepted.courseId)
-          .filter(
-            (item) =>
-              search === '' ||
-              item.name.toLocaleLowerCase('en').includes(search) ||
-              (item.courseCode ?? '').toLocaleLowerCase('en').includes(search),
-          )
-          .sort((a, b) =>
-            a.waitingSince === b.waitingSince ? 0 : a.waitingSince < b.waitingSince ? -1 : 1,
-          )
-          .map(({ courseId: _course, ...item }) => item);
+        return reviewQueueOf(op, person, accepted);
       }),
 
     getSubmissionForReview: (id) =>
       read(call, 'ProductionService.getSubmissionForReview', (op) => {
         const person = op.person();
-        const submission = op.found(op.records.submissions[op.idText(id)]);
-        seeSubmission(op, person, submission);
+        const record = op.found(op.records.submissions[op.idText(id)]);
+        seeSubmission(op, person, record);
+        const submission = asSentFor(op, person, record);
         const status = submission.status;
         const previousReturn =
           submission.revision > 1
@@ -675,9 +1195,11 @@ export function productionPort(call: Call): ProductionService {
         const person = op.person();
         const mine = (by: { readonly kind: string; readonly personId?: string }) =>
           by.kind === 'person' && by.personId === person.personId;
-        const submissions = values(op.records.submissions).flatMap((submission) => {
-          const decision = submission.reviewDecisions.findLast((entry) => mine(entry.decidedBy));
-          if (!decision || !op.canSee(person, { kind: 'submission', submission })) return [];
+        const submissions = values(op.records.submissions).flatMap((record) => {
+          const decision = record.reviewDecisions.findLast((entry) => mine(entry.decidedBy));
+          if (!decision || !op.canSee(person, { kind: 'submission', submission: record }))
+            return [];
+          const submission = asSentFor(op, person, record);
           return [
             {
               at: decision.decidedAt,
@@ -745,8 +1267,9 @@ export function productionPort(call: Call): ProductionService {
     getPublicationDecision: (id) =>
       read(call, 'ProductionService.getPublicationDecision', (op) => {
         const person = op.person();
-        const submission = op.found(op.records.submissions[op.idText(id)]);
-        seeSubmission(op, person, submission);
+        const record = op.found(op.records.submissions[op.idText(id)]);
+        seeSubmission(op, person, record);
+        const submission = asSentFor(op, person, record);
         return {
           submission,
           check: [...publicationCheck(submission)],
@@ -827,6 +1350,7 @@ export function productionPort(call: Call): ProductionService {
         const submissionRows = values(op.records.submissions)
           // SUB-37: every submission except a draft, which is the Vendor's only (SUB-16).
           .filter((submission) => op.canSee(person, { kind: 'submission', submission }))
+          .map((record) => asSentFor(op, person, record))
           .map((submission) => {
             const course = courseOf(op, submission.content.courseId);
             const status = submission.status;
@@ -886,8 +1410,9 @@ export function productionPort(call: Call): ProductionService {
         const kind = field(ref, 'kind');
         const id = op.idText(field(ref, 'id'));
         if (kind === 'SUB') {
-          const submission = op.found(op.records.submissions[id]);
-          seeSubmission(op, person, submission);
+          const record = op.found(op.records.submissions[id]);
+          seeSubmission(op, person, record);
+          const submission = asSentFor(op, person, record);
           const status = submission.status;
           const experiment =
             status.state === 'published'

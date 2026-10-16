@@ -24,6 +24,14 @@ import { HOME_TITLE, MY_COURSES_TITLE } from './student';
 import { STUDENT_ASSESSMENTS_TITLE } from './student-assessments';
 import { MY_DEVICE_TITLE } from './student-device';
 import { PROGRESS_TITLE } from './student-progress';
+import { MY_EXPERIMENTS_TITLE, VENDOR_OVERVIEW_TITLE } from './vendor';
+import { REVIEWED_BY_ME_TITLE, REVIEW_QUEUE_TITLE, REVIEWER_OVERVIEW_TITLE } from './reviewer';
+import {
+  CM_OVERVIEW_TITLE,
+  CONTENT_LIBRARY_TITLE,
+  COURSE_CODES_TITLE,
+  READY_TO_PUBLISH_TITLE,
+} from './content-manager';
 
 /**
  * The return address in words, for XS-03 "Session expired" (B1-09 f9: "Sign in again to go back
@@ -161,6 +169,30 @@ export function placeWordsOf(returnTo: string | null): string | null {
         return attempt ? `${MARKING_TITLE} › ${attempt}` : MARKING_TITLE;
       }
       if (outcome.screen === 'FA-20' || outcome.screen === 'FA-21') return FACULTY_STUDENTS_TITLE;
+      // Phase 5: each page names its destination and a submission its drawn reference ("My
+      // experiments › SUB-0077", "Review queue › SUB-0077", "Ready to publish › SUB-0077");
+      // published experiments are addressed by ids, so they name the library alone.
+      if (outcome.screen === 'VE-01') return VENDOR_OVERVIEW_TITLE;
+      if (
+        outcome.screen === 'VE-02' ||
+        outcome.screen === 'VE-03' ||
+        outcome.screen === 'VE-07' ||
+        outcome.screen === 'VE-08' ||
+        outcome.screen === 'VE-09'
+      ) {
+        return reference ? `${MY_EXPERIMENTS_TITLE} › ${reference}` : MY_EXPERIMENTS_TITLE;
+      }
+      if (outcome.screen === 'RV-01') return REVIEWER_OVERVIEW_TITLE;
+      if (outcome.screen === 'RV-02' || outcome.screen === 'RV-03') {
+        return reference ? `${REVIEW_QUEUE_TITLE} › ${reference}` : REVIEW_QUEUE_TITLE;
+      }
+      if (outcome.screen === 'RV-05') return REVIEWED_BY_ME_TITLE;
+      if (outcome.screen === 'CM-01') return CM_OVERVIEW_TITLE;
+      if (outcome.screen === 'CM-02' || outcome.screen === 'CM-03') {
+        return reference ? `${READY_TO_PUBLISH_TITLE} › ${reference}` : READY_TO_PUBLISH_TITLE;
+      }
+      if (outcome.screen === 'CM-04' || outcome.screen === 'CM-05') return CONTENT_LIBRARY_TITLE;
+      if (outcome.screen === 'CM-09') return COURSE_CODES_TITLE;
       if (outcome.screen === 'IA-17') {
         return reference ? `${INSTITUTE_REQUESTS_TITLE} › ${reference}` : INSTITUTE_REQUESTS_TITLE;
       }

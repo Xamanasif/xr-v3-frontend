@@ -310,12 +310,16 @@ export function submissionWords(
         case 'with-content-manager':
           return 'Ready to publish'; // B6-07 f0 (CM-02 lists it "Ready", B6-06 f0)
         case 'with-academic-reviewer':
+          // B6-07 script `cmChipWords`: a re-check she sent reads "Back with the Academic Reviewer".
+          return status.reason === 'recheck'
+            ? 'Back with the Academic Reviewer'
+            : 'Still in academic review'; // B6-07 f3; B6-11 f5
         case 'resubmitted':
           return 'Still in academic review'; // B6-07 f3; B6-11 f5
         case 'published':
           return 'Published'; // B6-07 f4
         case 'returned':
-          return undrawn('B6-06 (the library tab "With vendor" only)');
+          return 'With the vendor'; // B6-07 script `cmChipWords` (returned, returned_cm)
         case 'draft':
           return undrawn('SUB-16 (only the Vendor sees a draft)');
       }
@@ -360,8 +364,12 @@ export function reviewedByMeWords(row: {
       return 'Update approved — with the Super Admin';
     return undrawn('B6-02 f1 (no line drawn for this update state)');
   }
+  // B6-02 f1: still returned → "Returned to vendor" (SUB-0081); once it has moved on, the decision
+  // names the revision it returned ("Returned to vendor · revision 1", SUB-0077).
   if (decision.decision === 'return-to-vendor')
-    return `Returned to vendor · revision ${decision.revision ?? 1}`;
+    return nowState.state === 'returned'
+      ? 'Returned to vendor'
+      : `Returned to vendor · revision ${decision.revision ?? 1}`;
   if (nowState.state === 'published') return 'Approved — published';
   if (nowState.state === 'with-content-manager') return 'Approved — with the Content Manager';
   if (nowState.state === 'with-academic-reviewer' && nowState.reason === 'recheck')

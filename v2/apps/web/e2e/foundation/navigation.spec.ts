@@ -72,8 +72,11 @@ test.describe('every rendered link is in the link-target ledger', () => {
   test('Help — My reports (empty)', async ({ page }) => {
     await openAs(page, roleEntry('vendor').person, '/vendor/help');
     await expect(page.getByRole('heading', { name: 'No reports yet' })).toBeVisible();
+    // Phase 5: the Vendor sidebar lists Overview and My experiments.
     expect(await links(page)).toEqual([
       SKIP,
+      ['OverviewOverview', '/vendor'],
+      ['My experimentsMy experiments', '/vendor/experiments'],
       ['HelpHelp', '/vendor/help'],
       ['Report a problem', '/vendor/help/report'],
     ]);
@@ -177,7 +180,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
   });
 });
 
-test('the sidebar offers built destinations only: Help, the Super Admin’s Overview, Requests, Institutions and Operations, the Institute Admin’s and Student’s destinations of Package 2A and Phase 3, and the Faculty destinations of Phase 4A (B8-06)', async ({
+test('the sidebar offers built destinations only: Help, the Super Admin’s Overview, Requests, Institutions and Operations, the Institute Admin’s and Student’s destinations of Package 2A and Phase 3, the Faculty destinations of Phase 4A and the platform roles’ of Phase 5 (B8-06)', async ({
   page,
 }) => {
   test.skip(
@@ -204,17 +207,25 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
         '/admin/operations/device-transfers',
       ]);
       await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute('href', '/admin/help');
-    } else if (
-      entry.role === 'tenant_admin' ||
-      entry.role === 'student' ||
-      entry.role === 'faculty'
-    ) {
+    } else {
       // Package 2A: the Institute Admin's Overview, Content access, Student access and People; the
       // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Phase 4A: the
       // Faculty member's Overview, My courses, Assessments and Question bank. Phase 4B: Marking
-      // and Students, and the Student's Assessments.
+      // and Students, and the Student's Assessments. Phase 5: the Vendor's, Academic Reviewer's
+      // and Content Manager's destinations — not Updates (CM-08, Phase 6).
+      const platform: Readonly<Partial<Record<string, readonly string[]>>> = {
+        vendor: ['/vendor', '/vendor/experiments'],
+        academic_reviewer: ['/reviewer', '/reviewer/queue', '/reviewer/reviewed'],
+        content_manager: [
+          '/content-manager',
+          '/content-manager/ready',
+          '/content-manager/library',
+          '/content-manager/course-codes',
+        ],
+      };
       const built =
-        entry.role === 'tenant_admin'
+        platform[entry.role] ??
+        (entry.role === 'tenant_admin'
           ? [
               '/institute',
               '/institute/content-access',
@@ -232,7 +243,7 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
                 '/faculty/marking',
                 '/faculty/students',
               ]
-            : ['/student', '/student/courses', '/student/assessments', '/student/progress'];
+            : ['/student', '/student/courses', '/student/assessments', '/student/progress']);
       expect(
         await side
           .locator('nav a[href]')
@@ -242,11 +253,6 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
         'href',
         `${entry.base}/help`,
       );
-    } else {
-      await expect(side.locator('a[href]')).toHaveCount(1);
-      await expect(side.locator('a[href]')).toHaveAttribute('href', `${entry.base}/help`);
-      // No empty navigation landmark while nothing else is built (WP-0.8).
-      await expect(side.locator('nav')).toHaveCount(0);
     }
     await tab.close();
   }
@@ -380,8 +386,8 @@ test('choosing a destination in the drawer moves focus to the new page, never to
 
 test('a document load starts on the skip link: no focus is moved on arrival', async ({ page }) => {
   await openAs(page, roleEntry('content_manager').person, '/content-manager');
-  await page.waitForURL('**/content-manager/help');
-  await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
+  // Phase 5: the Content Manager's home is CM-01 Overview.
+  await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
   await expect(page.locator('main.xr-page#main')).not.toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();

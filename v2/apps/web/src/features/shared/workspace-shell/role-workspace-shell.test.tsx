@@ -84,31 +84,18 @@ describe('built so far: Help in every workspace; Overview, Requests, Institution
     );
   });
 
-  // Package 2A builds the Institute Admin's and the Student's first destinations, Phase 4A the
-  // Faculty member's (below).
-  it.each(
-    ROLES.filter(
-      ([, role]) => !['super_admin', 'tenant_admin', 'student', 'faculty'].includes(role),
-    ),
-  )('%s on Help & support', (label, role) => {
-    const { aside, container } = renderShell(role);
-    // No empty "<Role> navigation" landmark while nothing is built; Help in the foot, current.
-    expect(within(aside).queryByRole('navigation')).toBeNull();
-    const links = within(aside).getAllByRole('link');
-    expect(links.map((link) => link.textContent)).toEqual(['HelpHelp']);
-    expect(links[0]).toHaveAttribute('href', WORKSPACE_NAV[role].help.href);
-    expect(links[0]).toHaveAttribute('aria-current', 'page');
-    expect(links[0]!.closest('.xr-side-foot')).not.toBeNull();
-    // The workspace label and the line board 06 draws (none for the platform roles).
+  // Phase 5 builds the last three workspaces' homes: every sidebar now lists its built
+  // destinations (below); the platform roles keep no institution line (board 06).
+  it.each([
+    ['Vendor', 'vendor'],
+    ['Academic Reviewer', 'academic_reviewer'],
+    ['Content Manager', 'content_manager'],
+  ] as const)('%s: the workspace label and no institution line', (label, role) => {
+    const { aside } = renderShell(role);
     expect(aside.querySelector('.xr-ws-label')).toHaveTextContent(label);
     const row = BOARD_ACCOUNT_ROWS.get(label)!;
     if (row.line) expect(aside.querySelector('.xr-ws-inst')).toHaveTextContent(row.line);
     else expect(aside.querySelector('.xr-ws-inst')).toBeNull();
-    // No link anywhere in the shell leads to an unbuilt screen.
-    const hrefs = [...container.querySelectorAll('a[href]')].map((link) =>
-      link.getAttribute('href'),
-    );
-    expect(new Set(hrefs)).toEqual(new Set(['#main', WORKSPACE_NAV[role].help.href]));
   });
 
   it.each([
@@ -123,8 +110,16 @@ describe('built so far: Help in every workspace; Overview, Requests, Institution
       'faculty',
       ['Overview', 'My courses', 'Assessments', 'Question bank', 'Marking', 'Students'],
     ],
+    ['Vendor', 'vendor', ['Overview', 'My experiments']],
+    ['Academic Reviewer', 'academic_reviewer', ['Overview', 'Review queue', 'Reviewed by me']],
+    // Updates (CM-08) is Phase 6: not listed.
+    [
+      'Content Manager',
+      'content_manager',
+      ['Overview', 'Ready to publish', 'Content library', 'Course codes'],
+    ],
   ] as const)(
-    '%s on Help & support (Package 2A, Phases 3, 4A, 4B): the built destinations, then Help (current)',
+    '%s on Help & support (Package 2A, Phases 3, 4A, 4B, 5): the built destinations, then Help (current)',
     (label, role, built) => {
       const { aside, container } = renderShell(role);
       const nav = within(aside).getByRole('navigation', { name: `${label} navigation` });

@@ -68,6 +68,13 @@ export interface SamplePlatformOptions {
    * only from the test seam or fixtures.
    */
   readonly objectiveMarks?: 'answer-key-on-submit' | 'supplied-only';
+  /**
+   * PC-66 (owner answer to P5-01 / M-3, 16 Oct 2026): `drawn-default-on-resubmit` — the web
+   * composition root in a local prototype build — lets the `system:workflow-routing` stand-in route
+   * each resubmission right after it is resubmitted, by the only drawn route (back to the Academic
+   * Reviewer). Default `seam-only`: the M-3 interim, routed only by the test seam.
+   */
+  readonly resubmissionRouting?: 'drawn-default-on-resubmit' | 'seam-only';
 }
 
 export interface SamplePlatform {
@@ -148,6 +155,7 @@ export function assemblePlatform(
     drafts: new Map(),
     questionImports: new Map(),
     objectiveMarks: options.objectiveMarks ?? 'supplied-only',
+    resubmissionRouting: options.resubmissionRouting ?? 'seam-only',
     overlap: options.overlap ?? UNDECIDED_OVERLAP_POLICY,
     routing: DRAWN_WORKFLOW_ROUTING,
     payments: new PaymentStandIn(options.paymentStandIn ?? 'provider-reports'),

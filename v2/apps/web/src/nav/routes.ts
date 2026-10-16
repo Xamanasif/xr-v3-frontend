@@ -111,9 +111,12 @@ export function roleOfWorkspace(workspace: Workspace): Role {
  */
 export const BUILT_HOMES: Readonly<Partial<Record<Workspace, WorkspaceScreenId>>> = {
   admin: 'SA-01',
+  'content-manager': 'CM-01',
   faculty: 'FA-01',
   institute: 'IA-01',
+  reviewer: 'RV-01',
   student: 'ST-01',
+  vendor: 'VE-01',
 };
 
 function workspacePages(workspace: Workspace): PageRoute[] {
@@ -486,6 +489,77 @@ const PHASE_4B_PAGES: readonly PageRoute[] = (
   screen,
 }));
 
+/**
+ * Phase 5 (boards B5-01 … B5-08, B6-01 … B6-03, B6-05 … B6-08, B6-10 … B6-12): the Vendor's
+ * home (VE-01), My experiments (VE-02), the editor — a new experiment (VE-03, with VE-04 … VE-06
+ * as its `?step=`s until its first save gives it an id), a saved draft (VE-09, the same steps) and
+ * a returned one revised and resubmitted (VE-08) — and the Experiment record with its History tab
+ * (VE-07, VE-13 `?tab=history`); the Academic Reviewer's home (RV-01), Review queue (RV-02),
+ * Review a submission (RV-03, with RV-06 its decided read-only state) and Reviewed by me (RV-05);
+ * the Content Manager's home (CM-01), Ready to publish (CM-02), Publication decision (CM-03),
+ * Content library (CM-04), Published experiment (CM-05; its correction entry is Phase 6) and
+ * Course codes (CM-09). The static `new` page outranks `[submissionId]`.
+ */
+const PHASE_5_PAGES: readonly PageRoute[] = (
+  [
+    ['/vendor/experiments', 'vendor/experiments/page.tsx', 'VE-02'],
+    [
+      '/vendor/experiments/new',
+      'vendor/experiments/new/page.tsx',
+      'VE-03',
+      ['VE-04', 'VE-05', 'VE-06'],
+    ],
+    [
+      '/vendor/experiments/[submissionId]',
+      'vendor/experiments/[submissionId]/page.tsx',
+      'VE-07',
+      ['VE-13'],
+    ],
+    [
+      '/vendor/experiments/[submissionId]/edit',
+      'vendor/experiments/[submissionId]/edit/page.tsx',
+      'VE-09',
+    ],
+    [
+      '/vendor/experiments/[submissionId]/revise',
+      'vendor/experiments/[submissionId]/revise/page.tsx',
+      'VE-08',
+    ],
+    ['/reviewer/queue', 'reviewer/queue/page.tsx', 'RV-02'],
+    [
+      '/reviewer/submissions/[submissionId]',
+      'reviewer/submissions/[submissionId]/page.tsx',
+      'RV-03',
+      ['RV-06'],
+    ],
+    ['/reviewer/reviewed', 'reviewer/reviewed/page.tsx', 'RV-05'],
+    ['/content-manager/ready', 'content-manager/ready/page.tsx', 'CM-02'],
+    [
+      '/content-manager/decisions/[submissionId]',
+      'content-manager/decisions/[submissionId]/page.tsx',
+      'CM-03',
+    ],
+    ['/content-manager/library', 'content-manager/library/page.tsx', 'CM-04'],
+    [
+      '/content-manager/published/[experimentId]',
+      'content-manager/published/[experimentId]/page.tsx',
+      'CM-05',
+    ],
+    ['/content-manager/course-codes', 'content-manager/course-codes/page.tsx', 'CM-09'],
+  ] as const
+).map(([pattern, file, screen, also]) => ({
+  pattern,
+  file,
+  workspace: pattern.startsWith('/vendor')
+    ? 'vendor'
+    : pattern.startsWith('/reviewer')
+      ? 'reviewer'
+      : 'content-manager',
+  kind: 'screen',
+  screen,
+  ...(also ? { also } : {}),
+}));
+
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
   ...PACKAGE_1A_PAGES,
@@ -497,6 +571,7 @@ export const PAGES: readonly PageRoute[] = [
   ...PHASE_3_PAGES,
   ...PHASE_4A_PAGES,
   ...PHASE_4B_PAGES,
+  ...PHASE_5_PAGES,
 ];
 
 /** Whether an address is a focused page (no shell): ST-13's attempt. */

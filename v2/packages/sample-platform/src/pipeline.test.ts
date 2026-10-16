@@ -398,7 +398,7 @@ describe('fault injection and later-phase methods', () => {
     expect((await ia.studentAccess.listGrants({ showWithdrawn: false })).ok).toBe(true);
   });
 
-  it('builds the 139 WP-0.11 methods, the 3 Package-1B ones, the Package-1D one, the 4 Package-2A ones, the 5 Package-2B ones, the Phase-3 one, the 6 Phase-4A ones and the 8 Phase-4B ones, and leaves each of the other 16 later ones to its phase', async () => {
+  it('builds the 139 WP-0.11 methods, the 3 Package-1B ones, the Package-1D one, the 4 Package-2A ones, the 5 Package-2B ones, the Phase-3 one, the 6 Phase-4A ones, the 8 Phase-4B ones and the 7 Phase-5 ones, and leaves each of the other 9 later ones to its phase', async () => {
     const platform = await platformAfterB();
     const ports = platform.ports as unknown as Record<
       string,
@@ -440,15 +440,22 @@ describe('fault injection and later-phase methods', () => {
       'TeachingService.listMyCourses',
       'TeachingService.getTeachingExperiment',
       'TeachingService.exportStudentsCsv',
+      'ProductionService.getVendorOverview',
+      'ProductionService.listMyExperiments',
+      'ProductionService.getEditor',
+      'ProductionService.getReviewerOverview',
+      'ProductionService.getContentManagerOverview',
+      'ProductionService.getLibrary',
+      'PlatformCourseCodeService.list',
     ]);
     for (const row of delivered) {
-      // Delivered by Packages 1B, 1D, 2A, 2B, Phases 3, 4A and 4B: answered (a Result), never rejected.
+      // Delivered by Packages 1B, 1D, 2A, 2B, Phases 3, 4A, 4B and 5: answered (a Result), never rejected.
       await expect(ports[row.portKey]![row.method]!(undefined), row.id).resolves.toHaveProperty(
         'ok',
       );
     }
     const deferredRows = later.filter((row) => !delivered.includes(row));
-    expect(deferredRows).toHaveLength(16);
+    expect(deferredRows).toHaveLength(9);
     for (const row of deferredRows) {
       // Port construction refuses to stub a WP-0.11 method, so only later ones can reject here.
       await expect(ports[row.portKey]![row.method]!(undefined), row.id).rejects.toThrow(
@@ -459,9 +466,6 @@ describe('fault injection and later-phase methods', () => {
 
   it('rejects a later-phase method naming its phase instead of inventing a value', async () => {
     const platform = await platformAfterB();
-    await expect(
-      asPerson(platform, 'Kavya Nair').production.getLibrary({ tab: 'ready' }),
-    ).rejects.toThrow(/lands in P5/);
     await expect(
       asPerson(platform, 'Arjun Mehta').corrections.listUpdatesForRelease({ tab: 'on-hold' }),
     ).rejects.toThrow(/lands in P6/);

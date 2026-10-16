@@ -100,12 +100,16 @@ async function switchTo(page: Page, entry: RoleEntry, from: RoleEntry): Promise<
     await message.getByRole('link', { name: 'Back to Home' }).click();
     // Built homes: the Super Admin's since Package 1D (SA-01 Overview), the Institute Admin's and
     // the Student's since Package 2A (IA-01 Overview, ST-01 Home), the Faculty member's since Phase
-    // 4A (FA-01 Overview); Help is then a sidebar step.
+    // 4A (FA-01 Overview), the three platform roles' since Phase 5 (VE-01, RV-01, CM-01 Overview);
+    // Help is then a sidebar step.
     const home: Readonly<Partial<Record<string, string>>> = {
       super_admin: 'Overview',
       tenant_admin: 'Overview',
       student: 'Hello, Rahul',
       faculty: 'Overview',
+      vendor: 'Overview',
+      academic_reviewer: 'Overview',
+      content_manager: 'Overview',
     };
     const heading = home[entry.role];
     if (heading) {

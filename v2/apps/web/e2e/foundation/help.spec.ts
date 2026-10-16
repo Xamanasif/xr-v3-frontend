@@ -305,14 +305,13 @@ test.describe('the same Help template in all seven workspaces', () => {
   }
 });
 
-test('the interim landing: /<base> lands on that workspace’s Help (ADR-0005 §8)', async ({
+test('no interim landing is left: since Phase 5 every /<base> is its built home (ADR-0005 §8)', async ({
   page,
 }) => {
   await openAs(page, roleEntry('vendor').person, '/vendor');
-  await page.waitForURL('**/vendor/help');
-  await expect(page.getByRole('heading', { level: 3, name: 'No reports yet' })).toBeVisible();
-  const report = page.locator('main .xr-empty').getByRole('link', { name: 'Report a problem' });
-  await expect(report).toHaveAttribute('href', '/vendor/help/report');
+  await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
+  await expect(page).toHaveURL(/\/vendor$/);
+  await expect(sidebarHelp(page)).not.toHaveAttribute('aria-current', 'page');
 });
 
 test('/<base>/help/reports redirects to /<base>/help (Appendix A §3.7 row 20)', async ({

@@ -39,6 +39,13 @@ import { STATE_COPY_SUBMISSIONS } from './state-copy-submissions';
 import { STATE_COPY_MARKING } from './state-copy-marking';
 import { STATE_COPY_FACULTY_STUDENTS } from './state-copy-faculty-students';
 import { STATE_COPY_QUESTION_TOOLS } from './state-copy-question-tools';
+import { STATE_COPY_VENDOR_HOME } from './state-copy-vendor-home';
+import { STATE_COPY_VENDOR_EDITOR } from './state-copy-vendor-editor';
+import { STATE_COPY_VENDOR_RECORD } from './state-copy-vendor-record';
+import { STATE_COPY_REVIEWER_LISTS } from './state-copy-reviewer-lists';
+import { STATE_COPY_REVIEWER_REVIEW } from './state-copy-reviewer-review';
+import { STATE_COPY_CM_LISTS } from './state-copy-cm-lists';
+import { STATE_COPY_CM_DECISION } from './state-copy-cm-decision';
 
 /**
  * `drawn` = on a board (cited); `provisional` = written to a board formula or chosen as an interim,
@@ -137,7 +144,29 @@ export interface StateCopyEntry {
     | 'FA-19'
     | 'FA-20'
     | 'FA-21'
-    | 'FA-22';
+    | 'FA-22'
+    // Phase 5.
+    | 'VE-01'
+    | 'VE-02'
+    | 'VE-03'
+    | 'VE-04'
+    | 'VE-05'
+    | 'VE-06'
+    | 'VE-07'
+    | 'VE-08'
+    | 'VE-09'
+    | 'VE-13'
+    | 'RV-01'
+    | 'RV-02'
+    | 'RV-03'
+    | 'RV-05'
+    | 'RV-06'
+    | 'CM-01'
+    | 'CM-02'
+    | 'CM-03'
+    | 'CM-04'
+    | 'CM-05'
+    | 'CM-09';
   /** The state, as the screen reaches it. */
   readonly state: string;
   /** The words shown; `null` where the entry is a rule rather than words. */
@@ -1206,6 +1235,14 @@ export const STATE_COPY = {
   ...STATE_COPY_MARKING,
   ...STATE_COPY_FACULTY_STUDENTS,
   ...STATE_COPY_QUESTION_TOOLS,
+  // Phase 5: one file per screen group.
+  ...STATE_COPY_VENDOR_HOME,
+  ...STATE_COPY_VENDOR_EDITOR,
+  ...STATE_COPY_VENDOR_RECORD,
+  ...STATE_COPY_REVIEWER_LISTS,
+  ...STATE_COPY_REVIEWER_REVIEW,
+  ...STATE_COPY_CM_LISTS,
+  ...STATE_COPY_CM_DECISION,
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;
 
 export type StateCopyId = keyof typeof STATE_COPY;

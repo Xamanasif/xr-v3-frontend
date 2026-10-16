@@ -146,6 +146,12 @@ export interface PlatformCore {
    * Student submits; `supplied-only` keeps the DV-2 interim (fixture-supplied marks only).
    */
   readonly objectiveMarks: 'answer-key-on-submit' | 'supplied-only';
+  /**
+   * PC-66 (owner answer to P5-01 / M-3, 16 Oct 2026): `drawn-default-on-resubmit` — a local
+   * prototype build — routes a resubmission by the drawn default right after the resubmit
+   * (`system:workflow-routing`); `seam-only` keeps the M-3 interim (the test seam routes it).
+   */
+  readonly resubmissionRouting: 'drawn-default-on-resubmit' | 'seam-only';
   /** OD-B2-01 / OD-B2-02 — no default; the Phase-0 interim answers `undecided` (DV-1). */
   readonly overlap: OverlapGrantPolicy;
   /** OD-B5-05 / M-3 — can only return the drawn default (B5-08). */

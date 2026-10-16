@@ -989,4 +989,79 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'Give the report row a `params` record (Appendix C M21) and keep `problem` the rule alone.',
   },
+  {
+    id: 'PC-62',
+    subject:
+      'VE-01 “Needs your action” carries facts, not words: each returned experiment with who returned it, when and the reason, then each draft with its last save; `hasExperiments` tells the first visit (B5-01 f2) from “Nothing needs you” (f1)',
+    status: 'provisional-engineering',
+    source:
+      'B5-01 f0 … f2 (“Returned: Forced Convection” · “Academic Reviewer · 24 Aug 2026 · “…”” · “Revise …”; “Draft to finish: …” · “Last saved … · only you can see it”). Appendix C gave `vendorOverviewOutput.attention` the pre-rendered `attentionRow` (PC-13). Built in Phase 5',
+    decisions: ['OD-B5-12'],
+    trace: [
+      { kind: 'schema-field', schema: 'vendorAttention', path: '(union)' },
+      { kind: 'schema-field', schema: 'vendorOverviewOutput', path: 'hasExperiments' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Put `attentionRow` back (words from the adapter) and drop `hasExperiments`.',
+  },
+  {
+    id: 'PC-63',
+    subject:
+      'RV-01: the scope line is the scope’s course codes (an experiment scope its experiment’s name), `scopeAll` for an everything scope; “Waiting for your decision” is the review queue’s own items, oldest first, each re-check with the Content Manager’s reason',
+    status: 'provisional-engineering',
+    source:
+      'B6-01 f0 (“You review: ME ZG523 · MEL ZG512 · CHE ZG513”; “Re-check: Venturi Meter Calibration” · “Content Manager · 25 Aug 2026 · “…””); OD-B6-01 sample scope. Built in Phase 5',
+    decisions: ['OD-B6-01'],
+    trace: [
+      { kind: 'schema-field', schema: 'reviewerOverviewOutput', path: 'scopeAll' },
+      { kind: 'schema-field', schema: 'reviewerOverviewOutput', path: 'waiting.(array).reason' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Give the overview pre-rendered `attentionRow` rows and words for the scope line again.',
+  },
+  {
+    id: 'PC-64',
+    subject:
+      'CM-01 carries facts, not words: “Needs your decision” — each experiment ready to publish (oldest approval first) and each correction returned to the Content Manager; “With others” — a re-check she sent to the Academic Reviewer, a correction in academic review, awaiting the release decision or on hold',
+    status: 'provisional-engineering',
+    source:
+      'B6-05 f0, f1 (“Ready to publish: Transient Cooling” · “SUB-0074 · ME ZG523 · approved 14 Aug 2026 · oldest of 2”; “Update returned: …”; “With others · For information — nothing to do”). “Awaiting release decision” is not drawn on CM-01 (B6-11 f10 draws the state). Built in Phase 5',
+    decisions: ['OD-B6-14'],
+    trace: [
+      { kind: 'schema-field', schema: 'contentManagerAttention', path: '(union)' },
+      { kind: 'schema-field', schema: 'contentManagerWithOthers', path: '(union)' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Put `attentionRow` back (words from the adapter) for both lists.',
+  },
+  {
+    id: 'PC-65',
+    subject:
+      'CM-04 Content library carries facts, not words: the four tabs’ counts and the chosen tab’s rows — a submission with its record (and the approval a Ready row names) or a published experiment with its course code and its open correction’s state where the reader may see it; the screen words “Where it is”',
+    status: 'provisional-engineering',
+    source:
+      'B6-06 f1, f4 (tabs “Ready 3 · In review 2 · With vendor 1 · Published 12”; “Approved 14 Aug 2026”; “Version 1.0 · live since 2 Jun 2026 · Update returned to you”). Appendix C gave `libraryOutput` pre-rendered `where` and `tag` (PC-13). Built in Phase 5',
+    decisions: ['OD-B6-14'],
+    trace: [
+      { kind: 'schema-field', schema: 'libraryOutput', path: 'counts' },
+      { kind: 'schema-field', schema: 'libraryRow', path: '(union)' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Answer the rows with pre-rendered `where` and `tag` again and read each tab’s count separately.',
+  },
+  {
+    id: 'PC-66',
+    subject:
+      'Resubmission routing in a local prototype build: right after a Vendor resubmits, the `system:workflow-routing` stand-in of the sample platform routes the record by the only drawn route — back to the Academic Reviewer as revision n (`routeResubmission` with the drawn-default routing policy). The Vendor still reads “Submitted” (B5-06 f4) and no copy names the next gate; nothing ever skips the Academic Reviewer. Other builds and the tests keep the M-3 interim (the test-only seam routes it)',
+    status: 'owner-approved-interim',
+    source:
+      'Owner answer, 16 Oct 2026 (Phase 5): “Drawn-default stand-in” for P5-01 / M-3 / OD-B5-05 — B5-08 (“Routed by the approved workflow rule”; on the canvas a control routes it); Appendix C §3.18 (the routing port can only return the drawn default). Built in Phase 5',
+    decisions: ['M-3', 'OD-B5-05'],
+    trace: [{ kind: 'system-actor', value: 'system:workflow-routing' }],
+    irreversible: null,
+    reversal:
+      'Set the composition root’s `resubmissionRouting` to `seam-only`: a resubmission then waits “Submitted” until the test-only seam routes it.',
+  },
 ];

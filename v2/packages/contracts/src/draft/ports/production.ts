@@ -30,6 +30,7 @@ import {
   updateId,
   accessPlanId,
   institutionId,
+  submissionId,
 } from '../kernel/primitives.js';
 import {
   academicReviewDecision,
@@ -62,7 +63,6 @@ import type {
 import { courseCard, publicExperimentPage } from './catalogue.js';
 import type { Answer, In, Out } from './common.js';
 import { key } from './fields.js';
-import { attentionRow } from './shared.js';
 
 // ---- the Vendor editor (VE-03 … VE-06) ----
 
@@ -391,6 +391,29 @@ export const reviewQueueItem = z.object({
   waitingSince: isoInstant,
 });
 
+/**
+ * VE-01 "Needs your action" as facts (PC-62): each returned experiment with the decision that
+ * returned it, then each draft — the screen words them (B5-01 f0 "Returned: Forced Convection" ·
+ * "Academic Reviewer · 24 Aug 2026 · “…”" · "Revise “Forced Convection”"; "Draft to finish: Pin Fin
+ * Efficiency" · "Last saved 25 Aug 2026 · only you can see it" · "Finish draft").
+ */
+export const vendorAttention = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('returned'),
+    submissionId,
+    name: z.string().min(1),
+    by: z.enum(['academic-reviewer', 'content-manager']),
+    at: isoInstant,
+    reason: z.string(),
+  }),
+  z.object({
+    kind: z.literal('draft'),
+    submissionId,
+    name: z.string().min(1),
+    savedAt: isoInstant,
+  }),
+]);
+
 export const vendorOverviewOutput = z.object({
   statusCounts: z.object({
     draft: z.number().int().min(0),
@@ -398,7 +421,10 @@ export const vendorOverviewOutput = z.object({
     'with-content-manager': z.number().int().min(0),
     published: z.number().int().min(0),
   }),
-  attention: z.array(attentionRow),
+  /** Returned first (oldest decision first), then drafts (oldest save first). */
+  attention: z.array(vendorAttention),
+  /** Whether the Vendor has any experiment at all (B5-01 f2 "Create your first experiment"). */
+  hasExperiments: z.boolean(),
 });
 export const listMyExperimentsOutput = z.array(z.object({ submission, guards: submissionGuards }));
 export const editorOutput = z.object({
@@ -412,10 +438,16 @@ export const recordOutput = z.object({
   guards: submissionGuards,
   lastReturn: z.union([academicReviewDecision, contentManagerDecision]).nullable(),
 });
-/** `scopeLine` is pre-rendered words (Appendix C [P]) — PROVISIONAL. */
+/**
+ * RV-01 (PC-63): the reviewer's scope as course codes ("You review: ME ZG523 · MEL ZG512 · CHE
+ * ZG513", OD-B6-01 sample scope) and the queue's own items, oldest first, each re-check with the
+ * Content Manager's reason (B6-01 f0 "Re-check: … · Content Manager · 25 Aug 2026 · “…”").
+ */
 export const reviewerOverviewOutput = z.object({
   scopeLine: z.array(z.string()),
-  waiting: z.array(attentionRow),
+  /** A scope over everything (not drawn for a reviewer; the line then names no course). */
+  scopeAll: z.boolean(),
+  waiting: z.array(reviewQueueItem.extend({ reason: z.string().nullable() })),
 });
 export const reviewQueueOutput = z.array(reviewQueueItem);
 export const submissionForReviewOutput = z.object({
@@ -435,9 +467,62 @@ export const reviewedByMeOutput = z.array(
     nowState: z.union([submissionStatus, updateState]),
   }),
 );
+/**
+ * CM-01 as facts (PC-64): "Needs your decision" — each experiment ready to publish (oldest
+ * approval first), then each correction returned to her; "With others — for information" — what
+ * she sent on: a re-check with the Academic Reviewer, a correction in academic review, awaiting the
+ * Super Admin's release decision, or on hold (B6-05 f0). The screen words them.
+ */
+export const contentManagerAttention = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('ready-to-publish'),
+    submissionId,
+    name: z.string().min(1),
+    courseCode: z.string().nullable(),
+    approvedAt: isoInstant,
+  }),
+  z.object({
+    kind: z.literal('update-returned'),
+    updateId,
+    name: z.string().min(1),
+    versionLabel: z.string().nullable(),
+    returnedAt: isoInstant,
+    reason: z.string(),
+  }),
+]);
+export const contentManagerWithOthers = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('recheck'),
+    submissionId,
+    name: z.string().min(1),
+    sentAt: isoInstant,
+  }),
+  z.object({
+    kind: z.literal('update-in-review'),
+    updateId,
+    name: z.string().min(1),
+    versionLabel: z.string().nullable(),
+    sentAt: isoInstant,
+  }),
+  z.object({
+    kind: z.literal('update-awaiting-release'),
+    updateId,
+    name: z.string().min(1),
+    versionLabel: z.string().nullable(),
+    approvedAt: isoInstant,
+  }),
+  z.object({
+    kind: z.literal('update-on-hold'),
+    updateId,
+    name: z.string().min(1),
+    versionLabel: z.string().nullable(),
+    heldAt: isoInstant,
+    liveLabel: z.string(),
+  }),
+]);
 export const contentManagerOverviewOutput = z.object({
-  attention: z.array(attentionRow),
-  withOthers: z.array(attentionRow),
+  attention: z.array(contentManagerAttention),
+  withOthers: z.array(contentManagerWithOthers),
 });
 export const readyToPublishOutput = z.array(
   z.object({
@@ -454,15 +539,37 @@ export const publicationDecisionOutput = z.object({
 });
 /** Publishing creates the experiment and changes no plan, grant, licence or person (BC9). */
 export const publishOutput = z.object({ submission, experiment });
-/** `where` and `tag` are pre-rendered words (Appendix C [P]) — PROVISIONAL. */
-export const libraryOutput = z.array(
+/**
+ * CM-04 as facts (PC-65): the four tabs' counts and the chosen tab's rows — a submission with its
+ * record (Ready: approved; In review: with the Academic Reviewer, a re-check included; With vendor:
+ * returned) or a published experiment with its live version and its open correction's state, if
+ * she may see it. Drafts are the Vendor's only (B6-06 f1 "Drafts stay with the vendor and are not
+ * listed"). The screen words "Where it is".
+ */
+export const libraryRow = z.discriminatedUnion('kind', [
   z.object({
-    ref: recordRef,
-    name: z.string().min(1),
-    where: z.string(),
-    tag: z.string().nullable(),
+    kind: z.literal('submission'),
+    submission,
+    courseCode: z.string().nullable(),
+    /** The approval a Ready row names ("Approved 14 Aug 2026"). */
+    approvedAt: isoInstant.nullable(),
   }),
-);
+  z.object({
+    kind: z.literal('experiment'),
+    experiment,
+    courseCode: z.string().nullable(),
+    openUpdate: z.object({ id: updateId, state: updateState }).nullable(),
+  }),
+]);
+export const libraryOutput = z.object({
+  counts: z.object({
+    ready: z.number().int().min(0),
+    'in-review': z.number().int().min(0),
+    'with-vendor': z.number().int().min(0),
+    published: z.number().int().min(0),
+  }),
+  rows: z.array(libraryRow),
+});
 /** `whoCanAct` is pre-rendered words (Appendix C [P]) — PROVISIONAL. */
 export const allContentOutput = z.array(
   z.object({
@@ -486,10 +593,7 @@ type VendorErrors = NotSignedIn | NotPermitted | PolicyOpen | Unavailable;
 
 export interface ProductionService {
   // Vendor — policy-open: ROLE-11 (what a non-course scope means for a Vendor), SUB-15 (a colleague's record).
-  getVendorOverview(): Answer<
-    Out<typeof vendorOverviewOutput>,
-    NotSignedIn | NotPermitted | Unavailable
-  >;
+  getVendorOverview(): Answer<Out<typeof vendorOverviewOutput>, VendorErrors>;
   listMyExperiments(
     filter: In<typeof listMyExperimentsInput>,
   ): Answer<Out<typeof listMyExperimentsOutput>, VendorErrors>;

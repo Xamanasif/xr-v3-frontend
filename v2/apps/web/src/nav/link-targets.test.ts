@@ -106,6 +106,27 @@ describe('the link-target ledger', () => {
         'FA-19',
         'FA-20',
         'FA-21',
+        // Phase 5 (VE-13 History is the record's timeline, VE-07's; RV-06 the decided review page).
+        'VE-01',
+        'VE-02',
+        'VE-03',
+        'VE-04',
+        'VE-05',
+        'VE-06',
+        'VE-07',
+        'VE-08',
+        'VE-09',
+        'RV-01',
+        'RV-02',
+        'RV-03',
+        'RV-05',
+        'RV-06',
+        'CM-01',
+        'CM-02',
+        'CM-03',
+        'CM-04',
+        'CM-05',
+        'CM-09',
       ]),
     );
     const keys = LINK_TARGET_LEDGER.map(
@@ -167,15 +188,16 @@ describe('the link-target ledger', () => {
       }
     }
     // Every other not-rendered action names the screen it waits for. Phase 3 built its fifteen
-    // ids, Phase 4A thirteen, Phase 4B twelve: what stays hidden waits for Phase 6 (SA-20, SA-22)
-    // or SACC-14 (ST-15's earlier work).
+    // ids, Phase 4A thirteen, Phase 4B twelve, Phase 5 twenty-one: what stays hidden waits for
+    // Phase 6 (SA-20, SA-22; the corrections RV-04, CM-06, CM-07, CM-08) or SACC-14 (ST-15's
+    // earlier work).
     expect(
       new Set(
         hidden
           .filter((entry) => !factWaits.includes(entry))
-          .map((entry) => /\b((?:IA|ST|SA|FA)-\d\d)\b/.exec(entry.note!)?.[1]),
+          .map((entry) => /\b((?:IA|ST|SA|FA|VE|RV|CM)-\d\d)\b/.exec(entry.note!)?.[1]),
       ),
-    ).toEqual(new Set(['SA-22', 'ST-15', 'SA-20']));
+    ).toEqual(new Set(['SA-22', 'ST-15', 'SA-20', 'RV-04', 'CM-08', 'CM-06', 'CM-07']));
   });
 
   it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to a built home (SA-01, IA-01, ST-01, FA-01)', () => {
@@ -187,13 +209,16 @@ describe('the link-target ledger', () => {
     ]);
     for (const entry of homes) {
       for (const base of BASES) {
-        // Built homes (Package 1D: SA-01; Package 2A: IA-01, ST-01; Phase 4A: FA-01); the other
-        // bases land on Help.
+        // Built homes (Package 1D: SA-01; Package 2A: IA-01, ST-01; Phase 4A: FA-01; Phase 5:
+        // VE-01, RV-01, CM-01) — every base now.
         const home = {
           '/admin': 'SA-01',
           '/institute': 'IA-01',
           '/student': 'ST-01',
           '/faculty': 'FA-01',
+          '/vendor': 'VE-01',
+          '/reviewer': 'RV-01',
+          '/content-manager': 'CM-01',
         }[base];
         expect(resolveAddress(expandTarget(entry.target!, base))).toEqual(
           home
@@ -214,12 +239,12 @@ describe('the link-target ledger', () => {
     expect(resolveAddress('/experiments')).toEqual({ kind: 'public-screen', screen: 'PU-04' });
   });
 
-  it('the one external link is the experiment’s preview, and no seeded experiment has one', () => {
+  it('the external links are the experiment’s preview and, for the Academic Reviewer, a submission’s WEB link (T-30)', () => {
     expect(
       LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'external').map(
         (entry) => `${entry.screen} ${entry.action}`,
       ),
-    ).toEqual(['PU-06 Open preview']);
+    ).toEqual(['PU-06 Open preview', 'RV-03 Open web link', 'RV-06 Open web link']);
   });
 
   it('Sign out reaches the built sign-in card’s “Signed out” notice (XS-03, Package 1A)', () => {
@@ -457,6 +482,37 @@ describe('the link-target ledger', () => {
       'FA-16: Draft questions',
       'FA-17: Check file · Choose the corrected file · Continue · Import N questions',
       'FA-17: Open question bank',
+      // Phase 5: one primary per drawn state — VE-01's top attention item or Create (first visit),
+      // VE-02's Create / the returned row's Revise, the editor's Continue per step and its DL-1
+      // submit (VE-06 create, VE-08 resubmit) and result; the record's Edit draft / Revise; RV-01's
+      // oldest, RV-02's first row (a submission, or an update row not rendered: RV-04, Phase 6),
+      // RV-03's decision; CM-01's next ready item, CM-02's decision, CM-09's Save codes, CM-03's
+      // decision and CM-05's correction entry (not rendered: CM-06, Phase 6).
+      'VE-01: Revise “<name>”',
+      'VE-01: Create experiment',
+      'VE-02: Create experiment',
+      'VE-02: Revise',
+      'VE-02: Create experiment',
+      'VE-03: Continue',
+      'VE-04: Continue',
+      'VE-05: Continue',
+      'VE-06: Submit for academic review · Resubmit',
+      'VE-06: Open the experiment record',
+      'VE-09: Continue',
+      'VE-08: Continue',
+      'VE-08: Submit for academic review · Resubmit',
+      'VE-08: Open the experiment record',
+      'VE-07: Edit draft',
+      'VE-07: Revise & resubmit',
+      'RV-01: Review the oldest — <name>',
+      'RV-02: Review',
+      'RV-02: Review',
+      'RV-03: Approve · Return to vendor',
+      'CM-01: Open the next ready item',
+      'CM-02: Open decision',
+      'CM-09: Save codes',
+      'CM-03: Publish · Send back',
+      'CM-05: Start a correction',
     ]);
   });
 });

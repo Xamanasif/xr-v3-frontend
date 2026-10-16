@@ -25,6 +25,10 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
       // Phase 4A: the faculty base's own page.
       'FA-01',
       'IA-01',
+      // Phase 5: the three platform homes.
+      'VE-01',
+      'RV-01',
+      'CM-01',
       'SA-01',
       'SA-02',
       'SA-03',
@@ -89,30 +93,63 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
       'FA-19',
       'FA-20',
       'FA-21',
+      // Phase 5.
+      'VE-02',
+      'VE-03',
+      'VE-04',
+      'VE-05',
+      'VE-06',
+      'VE-07',
+      'VE-13',
+      'VE-09',
+      'VE-08',
+      'RV-02',
+      'RV-03',
+      'RV-06',
+      'RV-05',
+      'CM-02',
+      'CM-03',
+      'CM-04',
+      'CM-05',
+      'CM-09',
     ]);
   });
 
-  it.each(
-    PLATFORM_ROLES.filter(
-      (role) =>
-        role !== 'super_admin' &&
-        role !== 'tenant_admin' &&
-        role !== 'student' &&
-        role !== 'faculty',
-    ).map((role) => [ROLE_LABEL[role], role] as const),
-  )(
-    '%s: the sidebar shows only Help, current on the Help pages, not current on a message page',
-    (_label, role) => {
+  it('Phase 5: the Vendor, Academic Reviewer and Content Manager sidebars list their built destinations — not Updates (CM-08, Phase 6) — each current on its own screens, nothing current on a message page', () => {
+    const rows = (
+      role: (typeof PLATFORM_ROLES)[number],
+      screen: Parameters<typeof sidebarModel>[1]['screen'],
+    ) =>
+      sidebarModel(role, { screen }).destinations.map((item) => [
+        item.label,
+        item.href,
+        item.current,
+      ]);
+    expect(rows('vendor', 'VE-08')).toEqual([
+      ['Overview', '/vendor', false],
+      ['My experiments', '/vendor/experiments', true],
+    ]);
+    expect(rows('academic_reviewer', 'RV-06')).toEqual([
+      ['Overview', '/reviewer', false],
+      ['Review queue', '/reviewer/queue', true],
+      ['Reviewed by me', '/reviewer/reviewed', false],
+    ]);
+    expect(rows('content_manager', 'CM-05')).toEqual([
+      ['Overview', '/content-manager', false],
+      ['Ready to publish', '/content-manager/ready', false],
+      ['Content library', '/content-manager/library', true],
+      ['Course codes', '/content-manager/course-codes', false],
+    ]);
+    for (const role of ['vendor', 'academic_reviewer', 'content_manager'] as const) {
       const help = sidebarModel(role, { screen: 'XS-07' });
-      expect(help.destinations).toEqual([]);
       expect(help.help).toEqual({ href: `${WORKSPACE_NAV[role].base}/help`, current: true });
       for (const screen of ['XS-06', 'PU-15'] as const) {
         const message = sidebarModel(role, { screen });
-        expect(message.destinations).toEqual([]);
+        expect(message.destinations.some((item) => item.current)).toBe(false);
         expect(message.help.current).toBe(false);
       }
-    },
-  );
+    }
+  });
 
   it('Faculty (Phases 4A, 4B): Overview, My courses, Assessments, Question bank, Marking, Students, then Help — each current on its own screens; the Marking count in words', () => {
     const help = sidebarModel('faculty', { screen: 'XS-07' });

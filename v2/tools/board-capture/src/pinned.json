@@ -169,6 +169,16 @@
     "pixels": 1613,
     "run": "2026-10-14-wp016-repin/web"
   },
+  "05-content-manager-help-built-sidebar-phase-5": {
+    "deviations": ["DEV-21"],
+    "reference": "248×900",
+    "product": "248×900",
+    "iconsSame": false,
+    "productFingerprint": "09a468ca50f125caa44c4b0d995434a4148837903eefdf37748b0d901e2b2cbf",
+    "productContent": "0495ffbb13606072b1ec7e2d1140153b7744358545adbe1826d4d88a24284dd0",
+    "pixels": 569,
+    "run": ".runs/2026-10-16-phase-5-web"
+  },
   "05-faculty-help-built-help-header": {
     "deviations": ["DEV-15", "DEV-11"],
     "reference": "1040×76",
@@ -669,6 +679,16 @@
     "pixels": null,
     "run": "2026-10-14-wp016-repin/web"
   },
+  "07-f7-state-3a-report-detail-reopened-sidebar-phase-5": {
+    "deviations": ["DEV-21", "DEV-11", "DEV-13"],
+    "reference": "248×956",
+    "product": "248×966",
+    "iconsSame": false,
+    "productFingerprint": "69e0c3fb3aeca3d47827bda0da86dc07c95dac66288213fa249bae18e1e90aa7",
+    "productContent": "0495ffbb13606072b1ec7e2d1140153b7744358545adbe1826d4d88a24284dd0",
+    "pixels": null,
+    "run": ".runs/2026-10-16-phase-5-web"
+  },
   "07-f7-state-3a-report-detail-reopened-whole-frame": {
     "deviations": ["DEV-10", "DEV-11", "DEV-13"],
     "reference": "1280×956",
@@ -678,6 +698,16 @@
     "productContent": "318862b97c1ddffd3fc03c85b72045c53862d46658ad053649f8a7af34e590c5",
     "pixels": null,
     "run": "2026-10-14-wp016-repin/web"
+  },
+  "07-f7-state-3a-report-detail-reopened-whole-frame-phase-5": {
+    "deviations": ["DEV-21", "DEV-11", "DEV-13"],
+    "reference": "1280×956",
+    "product": "1280×966",
+    "iconsSame": false,
+    "productFingerprint": "d272e9b4b01d4e3b73a435c662f6e2f0dbac290a4e2a47282af100bb3c4169cd",
+    "productContent": "7dfcdb56fa85723788d18f97bdc7ff64444205cbb2267c06cb93720c40b3ec3e",
+    "pixels": null,
+    "run": ".runs/2026-10-16-phase-5-web"
   },
   "07-f7-state-3a-what-you-reported": {
     "deviations": ["DEV-11", "DEV-13"],

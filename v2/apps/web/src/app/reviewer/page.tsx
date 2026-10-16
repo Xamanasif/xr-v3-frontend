@@ -1,6 +1,6 @@
-import { InterimLanding } from '@/features/shared/workspace-frame/interim-landing';
+import { ReviewerOverview } from '@/features/reviewer/rv-01-overview/overview';
 
-/** `/reviewer`: the interim landing — Help & support until the workspace home is built (ADR-0005 §8). */
+/** RV-01 Overview, the Academic Reviewer workspace home (board B6-01). */
 export default function ReviewerHome() {
-  return <InterimLanding />;
+  return <ReviewerOverview />;
 }

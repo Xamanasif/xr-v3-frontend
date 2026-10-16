@@ -806,7 +806,9 @@ const PROBES: Readonly<Record<string, () => Promise<Probed>>> = {
     ),
   'E2-vendor': async () => w(submissionWords(await vendorSub('E2-return'), 'vendor')),
   'E2-vendor-heading': async () => w(submissionHeadingWords(await vendorSub('E2-return'))!),
-  'E2-reviewed': async () => reviewedLine(await at('E2-return'), 'SUB-0077'),
+  // B6-02 f1 draws SUB-0077 after the resubmit, its last decision still the return (a record still
+  // returned reads "Returned to vendor", as SUB-0081 does).
+  'E2-reviewed': async () => reviewedLine(await at('E2-route'), 'SUB-0077'),
   'E2-resubmitted': async () => w(submissionWords(await vendorSub('E2-route'), 'vendor')),
   'E2-reviewer': async () =>
     w(

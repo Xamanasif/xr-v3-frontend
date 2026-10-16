@@ -104,6 +104,15 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
           (options.appEnvironment ?? 'development') === 'development'
             ? 'answer-key-on-submit'
             : 'supplied-only',
+        // P5-01 / M-3 (owner answer, Phase 5, 16 Oct 2026; PC-66): in a local prototype build the
+        // sample `system:workflow-routing` stand-in routes each resubmission right after the
+        // Vendor resubmits, by the only drawn route — back to the Academic Reviewer as revision n.
+        // The Vendor still reads "Submitted"; nothing skips the reviewer. Any other build keeps the
+        // M-3 interim: a resubmission waits until the test-only seam routes it.
+        resubmissionRouting:
+          (options.appEnvironment ?? 'development') === 'development'
+            ? 'drawn-default-on-resubmit'
+            : 'seam-only',
       });
       return {
         adapter: {

@@ -1,6 +1,6 @@
-import { InterimLanding } from '@/features/shared/workspace-frame/interim-landing';
+import { VendorOverview } from '@/features/vendor/ve-01-overview/overview';
 
-/** `/vendor`: the interim landing — Help & support until the workspace home is built (ADR-0005 §8). */
+/** VE-01 Overview, the Vendor workspace home (board B5-01). */
 export default function VendorHome() {
-  return <InterimLanding />;
+  return <VendorOverview />;
 }

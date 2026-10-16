@@ -45,11 +45,11 @@ test('Arjun signs in, out, then Kavya: own namespaces, cache cleared, one world'
   expect(out.cachedSessionKeys).not.toContain(arjunKey);
 
   await signInAs(page, { email: 'kavya.nair@wilp.example' });
-  // The Content Manager's base is the interim landing: Help until CM-01 is built (P0-35).
-  await page.waitForURL('**/content-manager/help');
-  await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
+  // Phase 5: the Content Manager's base is her home, CM-01 Overview.
+  await page.waitForURL((url) => url.pathname === '/content-manager');
+  await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
   await expect(page.locator('aside.xr-side .xr-ws-label')).toHaveText('Content Manager');
-  await expect(page.locator('aside.xr-side nav')).toHaveCount(0);
+  await expect(page.locator('aside.xr-side nav a')).toHaveCount(4);
   const kavya = await inspectWorld(page);
   const kavyaKey = (kavya.session as { sessionKey: string }).sessionKey;
   expect(kavya.session).toMatchObject({ status: 'signed-in', personId: 'per-kavya-nair' });
