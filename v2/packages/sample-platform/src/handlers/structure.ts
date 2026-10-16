@@ -14,6 +14,7 @@ import {
   addCourseInput,
   assignScopeInput,
   editDescriptionInput,
+  listHoldersInput,
   moveCourseInput,
   type PlatformCourseCodeService,
   type PlatformRoleService,
@@ -36,6 +37,8 @@ import {
   moveCourse,
   type PlatformRoleHolder,
   planTermState,
+  type RoleScope,
+  scopeStatus,
   platformCodeKey,
   registerHolder,
   renameStructure,
@@ -48,9 +51,9 @@ import {
 } from '@xr/domain';
 
 import type { Call } from '../platform/core.js';
+import type { ResolvedPerson } from '../pipeline/actor.js';
 import { command, type Op, read, refuse } from '../pipeline/runner.js';
-import { values } from '../world/records.js';
-import { deferred } from './deferred.js';
+import { courseCodeKey, values } from '../world/records.js';
 import { decideWithIdentity } from './identity-safeguard.js';
 import { filedAgainst, structureSubject } from './subjects.js';
 
@@ -90,6 +93,67 @@ function usageOfCourse(op: Op, course: Course): CourseUsage {
   };
 }
 
+/**
+ * SA-15 "What uses this course", named (PC-69): the institutions whose plans hold one of its
+ * experiments — an ended plan marked ended, with the institution's own code for the course — the
+ * Vendors whose scope covers it, and the Faculty mapped to it, by institution. The same records
+ * `usageOfCourse` counts.
+ */
+function usageDetailOf(op: Op, course: Course) {
+  const experiments = new Set(
+    values(op.records.experiments)
+      .filter((experiment) => experiment.courseId === course.id)
+      .map((experiment) => experiment.id as string),
+  );
+  const ended = new Map<string, boolean>();
+  for (const plan of values(op.records.plans)) {
+    if (!plan.items.some((item) => experiments.has(item.experimentId))) continue;
+    const isEnded = planTermState(plan, op.now) === 'ended';
+    ended.set(plan.institutionId, (ended.get(plan.institutionId) ?? true) && isEnded);
+  }
+  const institutions = [...ended.entries()].flatMap(([institutionId, isEnded]) => {
+    const institution = op.records.institutions[institutionId];
+    if (!institution) return [];
+    const code = op.records.courseCodes[courseCodeKey(institutionId, course.id)]?.code ?? null;
+    return [
+      {
+        institutionId: institution.id,
+        name: institution.name,
+        institutionCode: code,
+        ended: isEnded,
+      },
+    ];
+  });
+  const vendors = values(op.records.holders)
+    .filter((holder) => holder.role === 'vendor' && scopeCovers(holder, { courseId: course.id }))
+    .map((holder) => ({
+      holderId: holder.id,
+      name: holder.name,
+      organisation: holder.organisation,
+    }));
+  const byInstitution = new Map<string, string[]>();
+  for (const mapping of values(op.records.mappings)) {
+    if (mapping.courseId !== course.id || mapping.removedAt !== null) continue;
+    const person = op.records.people[mapping.facultyId];
+    if (!person) continue;
+    const names = byInstitution.get(mapping.institutionId) ?? [];
+    if (!names.includes(person.fullName)) names.push(person.fullName);
+    byInstitution.set(mapping.institutionId, names);
+  }
+  const faculty = [...byInstitution.entries()].flatMap(([institutionId, names]) => {
+    const institution = op.records.institutions[institutionId];
+    return institution
+      ? [{ institutionId: institution.id, institutionName: institution.name, names }]
+      : [];
+  });
+  return { institutions, vendors, faculty };
+}
+
+/** The structure records are the Super Admin's (SA-14, SA-15); CM-09 reads codes through its own list. */
+function superAdminOnly(person: ResolvedPerson): void {
+  if (person.role !== 'super_admin') refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+}
+
 /** The area or course a rename or description edit names. */
 function structureRecord(op: Op, input: unknown): EngineeringArea | Course {
   const id = op.idText(field(input, 'id'));
@@ -110,8 +174,29 @@ function putStructure(op: Op, record: EngineeringArea | Course): void {
 
 export function academicStructurePort(call: Call): AcademicStructureService {
   return {
-    getArea: deferred('AcademicStructureService.getArea'),
-    getCourse: deferred('AcademicStructureService.getCourse'),
+    // SA-15 area record (B7-07 f5): the area and its courses, in the structure's order.
+    getArea: (id) =>
+      read(call, 'AcademicStructureService.getArea', (op) => {
+        superAdminOnly(op.person());
+        const area = op.found(op.records.areas[op.idText(id)]);
+        return {
+          area,
+          courses: values(op.records.courses).filter((course) => course.areaId === area.id),
+        };
+      }),
+
+    // SA-15 course record (B7-07 f1, f3, f4, f8): the course, its area's name, what uses it.
+    getCourse: (id) =>
+      read(call, 'AcademicStructureService.getCourse', (op) => {
+        superAdminOnly(op.person());
+        const course = op.found(op.records.courses[op.idText(id)]);
+        return {
+          course,
+          areaName: op.found(op.records.areas[course.areaId]).name,
+          usage: usageOfCourse(op, course),
+          detail: usageDetailOf(op, course),
+        };
+      }),
 
     getStructure: () =>
       read(call, 'AcademicStructureService.getStructure', (op) => {
@@ -316,7 +401,7 @@ export function platformCourseCodePort(call: Call): PlatformCourseCodeService {
         return values(op.records.courses)
           .map((course) => ({
             course,
-            areaName: op.records.areas[course.areaId]?.name ?? '',
+            areaName: op.found(op.records.areas[course.areaId]).name,
             publishedExperiments: published.filter(
               (experiment) => experiment.courseId === course.id,
             ).length,
@@ -399,10 +484,82 @@ function targetWords(op: Op, target: ScopeTarget): string {
   return 'All experiments';
 }
 
+/** What a scope names (PC-70): the course's code and name, the experiment's live name, or nothing. */
+function scopeViewOf(op: Op, scope: RoleScope) {
+  const target = scope.target;
+  if (target.kind === 'course') {
+    const course = op.records.courses[target.courseId];
+    return {
+      scope,
+      status: scopeStatus(scope),
+      courseCode: course?.platformCode ?? null,
+      name: course?.name ?? null,
+    };
+  }
+  if (target.kind === 'experiment') {
+    const experiment = op.records.experiments[target.experimentId];
+    return {
+      scope,
+      status: scopeStatus(scope),
+      courseCode: null,
+      name: experiment?.live.catalogue.name ?? null,
+    };
+  }
+  return { scope, status: scopeStatus(scope), courseCode: null, name: null };
+}
+
+function holderViewOf(op: Op, holder: PlatformRoleHolder) {
+  // A superseded scope (replaced by a later assignment) is history only, never "can act on".
+  const current = holder.scopes.filter((scope) => scope.supersededAt === null);
+  return { holder, scopes: current.map((scope) => scopeViewOf(op, scope)) };
+}
+
+const HOLDER_TAB_ROLE = {
+  vendors: 'vendor',
+  reviewers: 'academic_reviewer',
+  'content-managers': 'content_manager',
+} as const;
+
 export function platformRolePort(call: Call): PlatformRoleService {
   return {
-    listHolders: deferred('PlatformRoleService.listHolders'),
-    getHolder: deferred('PlatformRoleService.getHolder'),
+    // SA-16 (B7-08 f0, f3, f7): one tab's holders, first registered first, searched by name,
+    // organisation or work e-mail; each with its scopes as facts (PC-70).
+    listHolders: (filter) =>
+      read(call, 'PlatformRoleService.listHolders', (op) => {
+        const person = op.person();
+        if (person.role !== 'super_admin')
+          refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+        const accepted = op.parse(listHoldersInput, filter);
+        const role = HOLDER_TAB_ROLE[accepted.tab];
+        const search = accepted.search?.trim().toLocaleLowerCase('en') ?? '';
+        return values(op.records.holders)
+          .filter((holder) => holder.role === role)
+          .filter((holder) => op.canSee(person, { kind: 'scope-line', holder }))
+          .filter(
+            (holder) =>
+              search === '' ||
+              [holder.name, holder.organisation, holder.workEmail].some((text) =>
+                text.toLocaleLowerCase('en').includes(search),
+              ),
+          )
+          .sort((a, b) =>
+            a.registeredAt === b.registeredAt
+              ? a.name.localeCompare(b.name, 'en')
+              : a.registeredAt < b.registeredAt
+                ? -1
+                : 1,
+          )
+          .map((holder) => holderViewOf(op, holder));
+      }),
+
+    // SA-17 (B7-08 f1, f4, f5, f7, f8): the holder with its scopes as facts.
+    getHolder: (id) =>
+      read(call, 'PlatformRoleService.getHolder', (op) => {
+        const person = op.person();
+        const holder = op.found(op.records.holders[op.idText(id)]);
+        op.see(person, { kind: 'scope-line', holder });
+        return holderViewOf(op, holder);
+      }),
 
     registerHolder: (input) =>
       command(call, 'PlatformRoleService.registerHolder', (op) => {

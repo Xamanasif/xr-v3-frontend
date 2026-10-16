@@ -258,11 +258,13 @@ test.describe('B1-10 · SA-02 Requests on the built screen', () => {
         product: ours.locator('aside.xr-side .xr-side-foot'),
       },
       {
-        // Phase 3 builds Operations (SA-18): the Super Admin's sidebar lists it, so this is measured under its own name and DEV-21; the earlier pin stays as the record.
-        name: 'b1-10-f0-sidebar-phase-3',
+        // Phase 6 builds the Super Admin's last destinations (Content, Academic structure,
+        // Platform roles): measured as `-phase-6`; the Package-1A and Phase-3 pins (DEV-21) stay
+        // as the record. The Requests count is the world's (DEV-22).
+        name: 'b1-10-f0-sidebar-phase-6',
         reference: frame.locator('aside.xr-side'),
         product: ours.locator('aside.xr-side'),
-        deviation: ['DEV-21', 'DEV-22'],
+        deviation: 'DEV-22',
       },
       {
         name: 'b1-10-f0-header',
@@ -306,12 +308,12 @@ test.describe('B1-10 · SA-02 Requests on the built screen', () => {
         deviation: 'DEV-22',
       },
       {
-        name: 'b1-10-f0-whole-frame-phase-3',
+        name: 'b1-10-f0-whole-frame-phase-6',
         reference: frame.locator('.xr-app'),
         product: ours.locator('div.xr-app'),
         kind: 'screen',
         frame: true,
-        deviation: ['DEV-21', 'DEV-22'],
+        deviation: 'DEV-22',
       },
     ]);
     expect(failures).toEqual([]);

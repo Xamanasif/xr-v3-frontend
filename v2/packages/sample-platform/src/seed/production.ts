@@ -265,13 +265,13 @@ function addUpdate(book: SeedBook, seed: UpdateSeed): void {
       at: seed.started,
       actor: KAVYA,
       note: 'start-a-correction',
-      visibleTo: ['content_manager'],
+      visibleTo: chain,
     }),
     book.entry({
       event: 'sent-for-academic-review',
       at: seed.sent,
       actor: KAVYA,
-      visibleTo: ['content_manager', 'academic_reviewer'],
+      visibleTo: chain,
     }),
   ];
   const reviewDecisions: CorrectionUpdate['reviewDecisions'][number][] = [];

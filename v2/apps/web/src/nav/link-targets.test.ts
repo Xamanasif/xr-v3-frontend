@@ -127,6 +127,20 @@ describe('the link-target ledger', () => {
         'CM-04',
         'CM-05',
         'CM-09',
+        // Phase 6 (CM-06 and CM-07 are CM-05's entries into the CM-08 draft; SA-01 is Package 1D's).
+        'CM-08',
+        'RV-04',
+        'SA-10',
+        'SA-11',
+        'SA-12',
+        'SA-13',
+        'SA-14',
+        'SA-15',
+        'SA-16',
+        'SA-17',
+        'SA-20',
+        'SA-21',
+        'SA-22',
       ]),
     );
     const keys = LINK_TARGET_LEDGER.map(
@@ -152,13 +166,13 @@ describe('the link-target ledger', () => {
   it('a drawn action whose page is not built is not rendered, and names that unbuilt page', () => {
     const hidden = LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'not-rendered');
     // Every way into PU-07 renders since Package 1C built it, SA-03's "View institution" since
-    // Package 1D built SA-07, SA-07's Operations row since Phase 3 built SA-18; what stays hidden
-    // on the Super Admin's pages waits for Phase 6 (Support SA-20, Access ending SA-22).
+    // Package 1D built SA-07, SA-07's Operations row since Phase 3 built SA-18, and since Phase 6
+    // (Support SA-20, Access ending SA-22) nothing on the Super Admin's pages is hidden.
     expect(
       hidden
         .filter((entry) => entry.screen.startsWith('SA-'))
         .map((entry) => `${entry.screen} ${entry.action}`),
-    ).toEqual(['SA-07 Operations › Access ending', 'SA-18 Support · Access ending']);
+    ).toEqual([]);
     // Phase 4B: FA-01's "Review drafts" is the one hidden action whose page is built (the bank's
     // Drafts tab, FA-14 / FA-16): it waits on a service fact — the overview read names no drafts
     // (PC-51) — not on a screen.
@@ -187,17 +201,16 @@ describe('the link-target ledger', () => {
         expect(['public-not-found', 'workspace-not-found'], entry.action).toContain(kind);
       }
     }
-    // Every other not-rendered action names the screen it waits for. Phase 3 built its fifteen
-    // ids, Phase 4A thirteen, Phase 4B twelve, Phase 5 twenty-one: what stays hidden waits for
-    // Phase 6 (SA-20, SA-22; the corrections RV-04, CM-06, CM-07, CM-08) or SACC-14 (ST-15's
-    // earlier work).
+    // Every other not-rendered action names what it waits for. Phase 3 built its fifteen ids,
+    // Phase 4A thirteen, Phase 4B twelve, Phase 5 twenty-one and Phase 6 the last fifteen: what
+    // stays hidden waits on SACC-14 (ST-15's earlier work), not on a screen.
     expect(
       new Set(
         hidden
           .filter((entry) => !factWaits.includes(entry))
           .map((entry) => /\b((?:IA|ST|SA|FA|VE|RV|CM)-\d\d)\b/.exec(entry.note!)?.[1]),
       ),
-    ).toEqual(new Set(['SA-22', 'ST-15', 'SA-20', 'RV-04', 'CM-08', 'CM-06', 'CM-07']));
+    ).toEqual(new Set(['ST-15']));
   });
 
   it('"Back to Home" goes to the interim landing, which lands on that workspace’s Help — or to a built home (SA-01, IA-01, ST-01, FA-01)', () => {
@@ -485,9 +498,8 @@ describe('the link-target ledger', () => {
       // Phase 5: one primary per drawn state — VE-01's top attention item or Create (first visit),
       // VE-02's Create / the returned row's Revise, the editor's Continue per step and its DL-1
       // submit (VE-06 create, VE-08 resubmit) and result; the record's Edit draft / Revise; RV-01's
-      // oldest, RV-02's first row (a submission, or an update row not rendered: RV-04, Phase 6),
-      // RV-03's decision; CM-01's next ready item, CM-02's decision, CM-09's Save codes, CM-03's
-      // decision and CM-05's correction entry (not rendered: CM-06, Phase 6).
+      // oldest, RV-02's first row (a submission or an update), RV-03's decision; CM-01's next ready
+      // item, CM-02's decision, CM-09's Save codes, CM-03's decision and CM-05's correction entry.
       'VE-01: Revise “<name>”',
       'VE-01: Create experiment',
       'VE-02: Create experiment',
@@ -513,6 +525,19 @@ describe('the link-target ledger', () => {
       'CM-09: Save codes',
       'CM-03: Publish · Send back',
       'CM-05: Start a correction',
+      // Phase 6: one primary per drawn state — CM-05's "Open update" while an update is open,
+      // CM-08's Send, RV-04's and SA-11's decisions, SA-13's release decision (a published record
+      // with an update waiting), SA-14's Add course, SA-16's Register, SA-17's Assign scope and
+      // SA-21's Resolve. SA-10, SA-12, SA-15, SA-20 and SA-22 draw no primary.
+      'CM-05: Open update',
+      'CM-08: Send for academic review',
+      'RV-04: Approve update · Return to the Content Manager',
+      'SA-11: Release update · Hold',
+      'SA-13: Open the release decision',
+      'SA-14: Add course',
+      'SA-16: Register',
+      'SA-17: Assign scope',
+      'SA-21: Resolve',
     ]);
   });
 });

@@ -83,7 +83,7 @@ test('XS-06 Not your workspace', async ({ page }) => {
 });
 
 test('PU-15 workspace variant', async ({ page }) => {
-  await openAs(page, roleEntry('super_admin').person, '/admin/operations/support');
+  await openAs(page, roleEntry('super_admin').person, '/admin/settings');
   await checkState(page, 'We can’t find that page');
 });
 

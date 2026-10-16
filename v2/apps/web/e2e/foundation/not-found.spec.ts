@@ -59,23 +59,19 @@ test.describe('public variant (product build)', () => {
 test.describe('workspace variant (test-hook build)', () => {
   test.use({ baseURL: TEST_HOOKS_URL });
 
-  // Designed but not built yet (each workspace's first unbuilt destination; the Super Admin's
-  // Requests are built in Package 1A, Overview and Institutions in 1D; the Student's My courses and
-  // the Institute Admin's People in 2A; Progress, Requests, Usage and Operations in Phase 3; the
-  // Student's Assessments and the Faculty's Marking and Students in Phase 4B; the Vendor's,
-  // Academic Reviewer's and Content Manager's destinations in Phase 5 — only the Content Manager's
-  // Updates (CM-08) and the Super Admin's Content are still designed but unbuilt (Phase 6); the
-  // others have none left, so an undesigned address stands in: ST-20's signed-in catalogue, a
-  // reports page, a Vendor's undesigned VE-10 … VE-15 page, the unbuilt RV-04 update review), then
-  // unknown ones.
+  // Every designed destination is built since Phase 6, so an address no designed screen owns stands
+  // in for each workspace (ST-20's signed-in catalogue, a reports page, a Vendor's undesigned
+  // VE-10 … VE-15 page, the update list RV-04 has no page for — `/reviewer/updates` alone —, the
+  // Content Manager's undesigned CM-10, the Super Admin's settings removed by the boards, B7-09),
+  // then unknown ones.
   const UNBUILT: Readonly<Record<string, string>> = {
     student: '/student/catalogue',
     faculty: '/faculty/reports',
     tenant_admin: '/institute/reports',
     vendor: '/vendor/reports',
-    academic_reviewer: '/reviewer/updates/UPD-0005',
-    content_manager: '/content-manager/updates',
-    super_admin: '/admin/content/updates',
+    academic_reviewer: '/reviewer/updates',
+    content_manager: '/content-manager/reports',
+    super_admin: '/admin/settings',
   };
 
   for (const entry of ROLES) {
@@ -111,7 +107,7 @@ test.describe('workspace variant (test-hook build)', () => {
     page,
   }) => {
     const entry = roleEntry('academic_reviewer');
-    await openAs(page, entry.person, '/reviewer/updates/UPD-0005');
+    await openAs(page, entry.person, '/reviewer/updates');
     await expect(
       page.getByRole('heading', { level: 1, name: 'We can’t find that page' }),
     ).toBeVisible();
@@ -123,7 +119,7 @@ test.describe('workspace variant (test-hook build)', () => {
     // An unbuilt workspace address reached client-side keeps the document too (RSC answer 200).
     await page.evaluate(() => {
       (window as unknown as { next: { router: { push(href: string): void } } }).next.router.push(
-        '/reviewer/updates/UPD-0005',
+        '/reviewer/updates',
       );
     });
     await expect(

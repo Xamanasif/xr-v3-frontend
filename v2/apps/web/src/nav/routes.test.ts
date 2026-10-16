@@ -58,7 +58,9 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     // FA-12, FA-16 … FA-21; FA-22 is an action, not a page).
     // + Phase 5's thirteen (VE-01, RV-01 and CM-01 are their bases' own pages; VE-04 … VE-06 are
     // steps of the editor, VE-13 the record's tab, RV-06 the review page's decided state).
-    expect(pages).toHaveLength(115);
+    // + Phase 6's fifteen (CM-06 and CM-07 open the CM-08 update page; SA-15 has an area and a
+    // course page; SA-01 is the admin base's own page, completed in place).
+    expect(pages).toHaveLength(130);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -168,10 +170,34 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       'student/page.tsx',
       'student/progress/page.tsx',
     ]);
-    // Phase 3: the Super Admin's Operations › Device transfers (SA-18) and the decision (SA-19).
+    // Phase 3: the Super Admin's Operations › Device transfers (SA-18) and the decision (SA-19);
+    // Phase 6: Access ending (SA-22), Support (SA-20) and a support report (SA-21).
     expect(all.filter((file) => /^admin\/operations/.test(file)).sort()).toEqual([
+      'admin/operations/access-ending/page.tsx',
       'admin/operations/device-transfers/[transferId]/page.tsx',
       'admin/operations/device-transfers/page.tsx',
+      'admin/operations/support/[reportId]/page.tsx',
+      'admin/operations/support/page.tsx',
+    ]);
+    // Phase 6: Content (SA-10 … SA-13), Academic structure (SA-14, SA-15), Platform roles (SA-16,
+    // SA-17); the Content Manager's Updates (CM-08) and the reviewer's update (RV-04).
+    expect(all.filter((file) => /^admin\/(content|structure|roles)\//.test(file)).sort()).toEqual([
+      'admin/content/all/page.tsx',
+      'admin/content/records/[recordId]/page.tsx',
+      'admin/content/updates/[updateId]/page.tsx',
+      'admin/content/updates/page.tsx',
+      'admin/roles/[holderId]/page.tsx',
+      'admin/roles/page.tsx',
+      'admin/structure/areas/[areaId]/page.tsx',
+      'admin/structure/courses/[courseId]/page.tsx',
+      'admin/structure/page.tsx',
+    ]);
+    expect(
+      all.filter((file) => /^(content-manager|reviewer)\/updates\//.test(file)).sort(),
+    ).toEqual([
+      'content-manager/updates/[updateId]/page.tsx',
+      'content-manager/updates/page.tsx',
+      'reviewer/updates/[updateId]/page.tsx',
     ]);
     expect(PAGES.find((page) => page.file === 'institute/page.tsx')).toMatchObject({
       kind: 'screen',
@@ -232,8 +258,8 @@ describe('static redirects (next.config.ts; Appendix A §3.7)', () => {
   it('row 20 for the seven bases, row 21 (/signed-out) and row 1 (/courses), not permanent; nothing else', async () => {
     const redirects = await nextConfig.redirects!();
     expect(redirects).toEqual(REDIRECTS.map((redirect) => ({ ...redirect, permanent: false })));
-    expect(redirects).toHaveLength(10);
-    expect(redirects.slice(-3)).toEqual([
+    expect(redirects).toHaveLength(11);
+    expect(redirects.slice(-4)).toEqual([
       { source: '/signed-out', destination: '/sign-in?reason=signed-out', permanent: false },
       // Package 1B: the PU-05 breadcrumb's intermediate level.
       { source: '/courses', destination: '/areas', permanent: false },
@@ -243,6 +269,8 @@ describe('static redirects (next.config.ts; Appendix A §3.7)', () => {
         destination: '/admin/operations/device-transfers',
         permanent: false,
       },
+      // Phase 6, row 15 (board-forced): "Content" opens Updates.
+      { source: '/admin/content', destination: '/admin/content/updates', permanent: false },
     ]);
   });
 });
@@ -348,6 +376,22 @@ describe('the built-screen manifest is generated from the route manifest', () =>
       'CM-04',
       'CM-05',
       'CM-09',
+      // Phase 6: CM-06 and CM-07 open the CM-08 update page; SA-15 has two pages.
+      'CM-08',
+      'CM-06',
+      'CM-07',
+      'RV-04',
+      'SA-10',
+      'SA-11',
+      'SA-12',
+      'SA-13',
+      'SA-14',
+      'SA-15',
+      'SA-16',
+      'SA-17',
+      'SA-20',
+      'SA-21',
+      'SA-22',
     ];
     expect([...SCREENS_WITH_PAGES]).toEqual(built);
     expect([...BUILT_SCREENS]).toEqual(built);
@@ -430,7 +474,7 @@ describe('resolveAddress — what an address shows', () => {
       '/content-manager/ready',
       { kind: 'record-screen', workspace: 'content-manager', screen: 'CM-02' },
     ],
-    // Phase 5: the editor's static `new` page outranks `[submissionId]`; Updates is Phase 6.
+    // Phase 5: the editor's static `new` page outranks `[submissionId]`.
     ['/vendor/experiments/new', { kind: 'record-screen', workspace: 'vendor', screen: 'VE-03' }],
     [
       '/vendor/experiments/SUB-0077',
@@ -448,7 +492,20 @@ describe('resolveAddress — what an address shows', () => {
       '/reviewer/submissions/SUB-0077',
       { kind: 'record-screen', workspace: 'reviewer', screen: 'RV-03' },
     ],
-    ['/content-manager/updates', { kind: 'workspace-not-found', workspace: 'content-manager' }],
+    // Phase 6: Updates and an update (CM-08); the reviewer's update (RV-04).
+    [
+      '/content-manager/updates',
+      { kind: 'record-screen', workspace: 'content-manager', screen: 'CM-08' },
+    ],
+    [
+      '/content-manager/updates/UPD-0005',
+      { kind: 'record-screen', workspace: 'content-manager', screen: 'CM-08' },
+    ],
+    [
+      '/reviewer/updates/UPD-0005',
+      { kind: 'record-screen', workspace: 'reviewer', screen: 'RV-04' },
+    ],
+    ['/reviewer/updates', { kind: 'workspace-not-found', workspace: 'reviewer' }],
     ['/student/help/reports/SUP-0213/x', { kind: 'workspace-not-found', workspace: 'student' }],
     // Package 2A.
     ['/student/courses', { kind: 'record-screen', workspace: 'student', screen: 'ST-02' }],
@@ -548,7 +605,40 @@ describe('resolveAddress — what an address shows', () => {
       '/admin/operations/device-transfers/DTR-0018',
       { kind: 'record-screen', workspace: 'admin', screen: 'SA-19' },
     ],
-    ['/admin/operations/support', { kind: 'workspace-not-found', workspace: 'admin' }],
+    // Phase 6: Support, a report and Access ending (SA-20 … SA-22); Content (row 15 redirect,
+    // SA-10 … SA-13), Academic structure (SA-14, SA-15) and Platform roles (SA-16, SA-17).
+    ['/admin/operations/support', { kind: 'record-screen', workspace: 'admin', screen: 'SA-20' }],
+    [
+      '/admin/operations/support/SUP-0213',
+      { kind: 'record-screen', workspace: 'admin', screen: 'SA-21' },
+    ],
+    [
+      '/admin/operations/access-ending',
+      { kind: 'record-screen', workspace: 'admin', screen: 'SA-22' },
+    ],
+    ['/admin/content', { kind: 'redirect', workspace: 'admin', to: '/admin/content/updates' }],
+    ['/admin/content/updates', { kind: 'record-screen', workspace: 'admin', screen: 'SA-10' }],
+    [
+      '/admin/content/updates/UPD-0005',
+      { kind: 'record-screen', workspace: 'admin', screen: 'SA-11' },
+    ],
+    ['/admin/content/all', { kind: 'record-screen', workspace: 'admin', screen: 'SA-12' }],
+    [
+      '/admin/content/records/SUB-0085',
+      { kind: 'record-screen', workspace: 'admin', screen: 'SA-13' },
+    ],
+    ['/admin/content/records', { kind: 'workspace-not-found', workspace: 'admin' }],
+    ['/admin/structure', { kind: 'record-screen', workspace: 'admin', screen: 'SA-14' }],
+    [
+      '/admin/structure/areas/chemical-process',
+      { kind: 'record-screen', workspace: 'admin', screen: 'SA-15' },
+    ],
+    [
+      '/admin/structure/courses/fluid-mechanics',
+      { kind: 'record-screen', workspace: 'admin', screen: 'SA-15' },
+    ],
+    ['/admin/roles', { kind: 'record-screen', workspace: 'admin', screen: 'SA-16' }],
+    ['/admin/roles/role-a-menon', { kind: 'record-screen', workspace: 'admin', screen: 'SA-17' }],
     // Phase 4A: the static `new` pages outrank their dynamic siblings.
     ['/faculty/courses', { kind: 'record-screen', workspace: 'faculty', screen: 'FA-02' }],
     [

@@ -560,6 +560,56 @@ const PHASE_5_PAGES: readonly PageRoute[] = (
   ...(also ? { also } : {}),
 }));
 
+/**
+ * Phase 6 (boards B6-04, B6-08, B6-09, B6-11, B6-13, B7-01, B7-05 … B7-12): the Content Manager's
+ * Updates and an update (CM-08 — the correction draft CM-06 "Edit catalogue details" and CM-07
+ * "Edit delivery link" open, `?focus=summary|web-link`), the Academic Reviewer's Review an update
+ * (RV-04), and the Super Admin's Content › Updates and Release or hold (SA-10, SA-11), Content ›
+ * All content and a Content record (SA-12, SA-13), Academic structure and an area or course
+ * record (SA-14, SA-15), Platform roles and a role holder (SA-16, SA-17), Operations › Support, a
+ * support report and Access ending (SA-20 … SA-22). `/admin/content` redirects to Updates
+ * (Appendix A §3.7 row 15, board-forced).
+ */
+const PHASE_6_PAGES: readonly PageRoute[] = (
+  [
+    ['/content-manager/updates', 'content-manager/updates/page.tsx', 'CM-08'],
+    [
+      '/content-manager/updates/[updateId]',
+      'content-manager/updates/[updateId]/page.tsx',
+      'CM-08',
+      ['CM-06', 'CM-07'],
+    ],
+    ['/reviewer/updates/[updateId]', 'reviewer/updates/[updateId]/page.tsx', 'RV-04'],
+    ['/admin/content/updates', 'admin/content/updates/page.tsx', 'SA-10'],
+    ['/admin/content/updates/[updateId]', 'admin/content/updates/[updateId]/page.tsx', 'SA-11'],
+    ['/admin/content/all', 'admin/content/all/page.tsx', 'SA-12'],
+    ['/admin/content/records/[recordId]', 'admin/content/records/[recordId]/page.tsx', 'SA-13'],
+    ['/admin/structure', 'admin/structure/page.tsx', 'SA-14'],
+    ['/admin/structure/areas/[areaId]', 'admin/structure/areas/[areaId]/page.tsx', 'SA-15'],
+    ['/admin/structure/courses/[courseId]', 'admin/structure/courses/[courseId]/page.tsx', 'SA-15'],
+    ['/admin/roles', 'admin/roles/page.tsx', 'SA-16'],
+    ['/admin/roles/[holderId]', 'admin/roles/[holderId]/page.tsx', 'SA-17'],
+    ['/admin/operations/support', 'admin/operations/support/page.tsx', 'SA-20'],
+    [
+      '/admin/operations/support/[reportId]',
+      'admin/operations/support/[reportId]/page.tsx',
+      'SA-21',
+    ],
+    ['/admin/operations/access-ending', 'admin/operations/access-ending/page.tsx', 'SA-22'],
+  ] as const
+).map(([pattern, file, screen, also]) => ({
+  pattern,
+  file,
+  workspace: pattern.startsWith('/content-manager')
+    ? 'content-manager'
+    : pattern.startsWith('/reviewer')
+      ? 'reviewer'
+      : 'admin',
+  kind: 'screen',
+  screen,
+  ...(also ? { also } : {}),
+}));
+
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
   ...PACKAGE_1A_PAGES,
@@ -572,6 +622,7 @@ export const PAGES: readonly PageRoute[] = [
   ...PHASE_4A_PAGES,
   ...PHASE_4B_PAGES,
   ...PHASE_5_PAGES,
+  ...PHASE_6_PAGES,
 ];
 
 /** Whether an address is a focused page (no shell): ST-13's attempt. */
@@ -615,6 +666,8 @@ export const REDIRECTS: readonly {
   { source: '/courses', destination: '/areas' },
   // Row 17 (Phase 3, board-forced): "Operations" opens Device transfers (B7-09 f0; B3-11).
   { source: '/admin/operations', destination: '/admin/operations/device-transfers' },
+  // Row 15 (Phase 6, board-forced): "Content" and the "Content" crumb open Updates (B7-05).
+  { source: '/admin/content', destination: '/admin/content/updates' },
 ];
 
 /** The workspace screens built as pages (the entry and public pages are not sidebar destinations). */

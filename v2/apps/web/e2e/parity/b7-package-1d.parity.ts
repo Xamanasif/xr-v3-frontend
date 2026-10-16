@@ -25,7 +25,6 @@ import { type CompareItem, expect, test } from './support';
  * B7-03 f0) and B7-04 f1 … f3 (other roles' pages of Phases 2 and 4, reference frames).
  */
 const AFTER_FLOW_C = 'after-flow-c';
-const SPINE_START = 'spine-start';
 const FROZEN = new Date('2026-10-27T10:00:00+05:30');
 
 async function open(
@@ -171,18 +170,42 @@ function shellParts(
       product: ours.locator('header.xr-top'),
     },
     {
-      // Phase 3 builds Operations (SA-18): the Super Admin's sidebar lists it, so this is measured under its own name and DEV-21; the earlier pin stays as the record.
-      name: `${prefix}-sidebar-phase-3`,
+      // Phase 6 builds the Super Admin's last destinations: the sidebar lists every one, measured
+      // as `-phase-6` (the Phase-1 and Phase-3 pins, DEV-21, stay as the record).
+      name: `${prefix}-sidebar-phase-6`,
       reference: frame.locator('aside.xr-side'),
       product: ours.locator('aside.xr-side'),
-      deviation: height.length > 0 ? ['DEV-21', ...height] : 'DEV-21',
+      ...(height.length > 0 ? { deviation: [...height] } : {}),
     },
   ];
 }
 
-// ---- B7-01 · SA-01 Overview, its Phase-1 Requests group -----------------------------------------
+// ---- B7-01 · SA-01 Overview — Phase 6 (the two figures and the eight groups) ---------------------
 
-test.describe('B7-01 · SA-01 Overview (Phase-1 Requests group)', () => {
+const AFTER_FLOW_E = 'after-flow-e';
+const STATE_COVERAGE = 'state-coverage';
+
+/** The B7-01 groups in their drawn order, by the words their heading starts with. */
+const OVERVIEW_GROUPS = [
+  ['requests', 'Requests'],
+  ['corrections', 'Corrections waiting for your release decision'],
+  ['device-transfers', 'Device transfers'],
+  ['support', 'Support reports'],
+  ['access-ending', 'Access ending within 15 days'],
+  ['no-institute-admin', 'Institutions without an Institute Admin'],
+  ['stuck', 'Stuck content'],
+  ['holders', 'Role holders without scope'],
+] as const;
+
+/** A group section of the Overview, by its heading's words (the count follows them). */
+const groupOf = (root: Locator | Page, title: string) => {
+  const page = 'page' in root ? root.page() : root;
+  return root.locator('section.xd-group').filter({
+    has: page.locator('h2.xr-h2', { hasText: new RegExp(`^${title} \\d+$`) }),
+  });
+};
+
+test.describe('B7-01 · SA-01 Overview (Phase 6: the figures and the eight groups)', () => {
   let frames: Locator;
 
   test.beforeEach(async ({ openBoardPage }) => {
@@ -195,58 +218,45 @@ test.describe('B7-01 · SA-01 Overview (Phase-1 Requests group)', () => {
 
   test('f0 · Overview · 1440', async ({ context }, testInfo) => {
     const { run, failures } = collector(testInfo);
-    const ours = await open(context, 1440, '/admin', heading('Overview'));
-    await expect(ours.locator('section.xd-group .xr-row')).toHaveCount(3);
+    // After Flow E the world stands on 23 Oct 2026 as B7-01 draws it: UPD-0005 approved, DTR-0018
+    // forwarded, Dr K. Iyer without scope, SUB-0085 stuck, three requests under review.
+    const ours = await open(context, 1440, '/admin', heading('Overview'), {
+      fixture: AFTER_FLOW_E,
+    });
+    await expect(ours.locator('section.xd-group')).toHaveCount(8);
     await rest(ours);
     const frame = frames.nth(0);
-    const group = (root: Locator | Page) => root.locator('section.xd-group').first();
-    const row = (root: Locator | Page, reference: string) =>
-      group(root).locator('li.xr-row', { hasText: reference });
     await run([
-      ...shellParts('b7-01-f0', frame, ours, ['DEV-34']),
+      ...shellParts('b7-01-f0', frame, ours, ['DEV-45']),
       {
-        // Phase 6: the "15 items waiting across 8 groups · 23 Oct 2026" line.
-        name: 'b7-01-f0-header',
+        // "12 items waiting across 8 groups": the world's counts (DEV-45).
+        name: 'b7-01-f0-header-phase-6',
         reference: frame.locator('main .xr-phead'),
         product: ours.locator('main .xr-phead'),
-        deviation: 'DEV-34',
+        deviation: 'DEV-45',
       },
       {
-        name: 'b7-01-f0-requests-head',
-        reference: group(frame).locator('.xr-section-head'),
-        product: group(ours).locator('.xr-section-head'),
+        name: 'b7-01-f0-figures',
+        reference: frame.locator('section.xd-figs'),
+        product: ours.locator('section.xd-figs'),
       },
+      ...OVERVIEW_GROUPS.map(([key, title]) => ({
+        name: `b7-01-f0-group-${key}`,
+        reference: groupOf(frame, title),
+        product: groupOf(ours, title),
+        // The world's rows and dates differ where B7-01's sample data does (DEV-45); REQ-0058's
+        // line names no licence count (DEV-35).
+        ...(['requests', 'corrections', 'device-transfers', 'support'].includes(key)
+          ? { deviation: key === 'requests' ? ['DEV-35', 'DEV-45'] : 'DEV-45' }
+          : {}),
+      })),
       {
-        name: 'b7-01-f0-req-0040-row',
-        reference: row(frame, 'REQ-0040'),
-        product: row(ours, 'REQ-0040'),
-      },
-      {
-        name: 'b7-01-f0-req-0058-row',
-        reference: row(frame, 'REQ-0058'),
-        product: row(ours, 'REQ-0058'),
-        deviation: 'DEV-35',
-      },
-      {
-        // The line's words (DEV-35) and the day the world received REQ-0038 (DEV-22).
-        name: 'b7-01-f0-req-0038-row',
-        reference: row(frame, 'REQ-0038'),
-        product: row(ours, 'REQ-0038'),
-        deviation: ['DEV-22', 'DEV-35'],
-      },
-      {
-        name: 'b7-01-f0-requests-group',
-        reference: group(frame),
-        product: group(ours),
-        deviation: ['DEV-22', 'DEV-35'],
-      },
-      {
-        name: 'b7-01-f0-whole-frame-phase-3',
+        name: 'b7-01-f0-whole-frame-phase-6',
         reference: frame.locator('.xr-app'),
         product: ours.locator('div.xr-app'),
         kind: 'screen',
         frame: true,
-        deviation: ['DEV-21', 'DEV-22', 'DEV-34', 'DEV-35'],
+        deviation: ['DEV-35', 'DEV-45'],
       },
     ]);
     expect(failures).toEqual([]);
@@ -255,25 +265,59 @@ test.describe('B7-01 · SA-01 Overview (Phase-1 Requests group)', () => {
   test('f1 · Nothing is waiting (1024)', async ({ context }, testInfo) => {
     const { run, failures } = collector(testInfo);
     const ours = await open(context, 1024, '/admin', heading('Overview'), {
-      fixture: SPINE_START,
+      fixture: STATE_COVERAGE,
     });
-    for (const reference of ['REQ-0040', 'REQ-0038']) {
-      const opened = await actAs<{ value: { request: { rev: number } } }>(ours, SUPER_ADMIN, {
-        port: 'accessRequests',
-        method: 'getRequestForDecision',
-        input: reference,
+    // Set-up through the seam only: everything waiting is dealt with by its own service.
+    const portAs = async <T>(port: string, method: string, input: unknown) => {
+      const answer = await actAs<{ ok: boolean; value: T }>(ours, SUPER_ADMIN, {
+        port,
+        method,
+        input,
       });
-      const asked = await actAs<{ ok: boolean }>(ours, SUPER_ADMIN, {
-        port: 'accessRequests',
-        method: 'requestMoreInformation',
-        input: {
-          id: reference,
-          reason: 'Please confirm the student numbers.',
-          expectedRev: opened.value.request.rev,
-        },
+      expect(answer.ok, `${port}.${method}`).toBe(true);
+      return answer.value;
+    };
+    for (const reference of ['REQ-0058', 'REQ-0040', 'REQ-0038']) {
+      const view = await portAs<{ request: { id: string; rev: number } }>(
+        'accessRequests',
+        'getRequestForDecision',
+        reference,
+      );
+      await portAs('accessRequests', 'requestMoreInformation', {
+        id: view.request.id,
+        reason: 'Please confirm the student numbers.',
+        expectedRev: view.request.rev,
       });
-      expect(asked.ok).toBe(true);
     }
+    for (const id of ['SUP-0207', 'SUP-0213']) {
+      const report = await portAs<{ rev: number }>('operations', 'getMyReport', id);
+      await portAs('operations', 'resolveReport', {
+        id,
+        note: 'Fixed in the next build.',
+        expectedRev: report.rev,
+      });
+    }
+    const sahyadri = await portAs<{ institution: { rev: number } }>(
+      'institutions',
+      'getInstitution',
+      'sahyadri',
+    );
+    await portAs('institutions', 'assignInstituteAdmin', {
+      institutionId: 'sahyadri',
+      name: 'Asha Rao',
+      workEmail: 'asha.rao@sahyadri.example',
+      expectedRev: sahyadri.institution.rev,
+    });
+    const holder = await portAs<{ holder: { rev: number } }>(
+      'platformRoles',
+      'getHolder',
+      'role-0001',
+    );
+    await portAs('platformRoles', 'assignScope', {
+      holderId: 'role-0001',
+      target: { kind: 'course', courseId: 'electrical-machines' },
+      expectedRev: holder.holder.rev,
+    });
     await expect(ours.getByRole('heading', { name: 'Nothing is waiting' })).toBeVisible();
     await rest(ours);
     const frame = frames.nth(1);
@@ -295,11 +339,9 @@ test.describe('B7-01 · SA-01 Overview (Phase-1 Requests group)', () => {
         product: calm(ours).locator('.xr-empty h3'),
       },
       {
-        // Phase 1: "Requests appear here when they need you." (state-copy SA-01.calm).
-        name: 'b7-01-f1-calm',
+        name: 'b7-01-f1-calm-phase-6',
         reference: calm(frame),
         product: calm(ours),
-        deviation: 'DEV-35',
       },
     ]);
     expect(failures).toEqual([]);
@@ -307,11 +349,12 @@ test.describe('B7-01 · SA-01 Overview (Phase-1 Requests group)', () => {
 
   test('f3 · Mobile 375', async ({ context }, testInfo) => {
     const { run, failures } = collector(testInfo);
-    const ours = await open(context, 375, '/admin', heading('Overview'));
-    await expect(ours.locator('section.xd-group .xr-row')).toHaveCount(3);
+    const ours = await open(context, 375, '/admin', heading('Overview'), {
+      fixture: AFTER_FLOW_E,
+    });
+    await expect(ours.locator('section.xd-group')).toHaveCount(8);
     await rest(ours);
     const frame = frames.nth(3);
-    const group = (root: Locator | Page) => root.locator('section.xd-group').first();
     await run([
       {
         name: 'b7-01-f3-mobile-top-bar',
@@ -319,14 +362,24 @@ test.describe('B7-01 · SA-01 Overview (Phase-1 Requests group)', () => {
         product: ours.locator('header.xr-top'),
       },
       {
+        name: 'b7-01-f3-mobile-figures',
+        reference: frame.locator('section.xd-figs'),
+        product: ours.locator('section.xd-figs'),
+      },
+      {
         name: 'b7-01-f3-mobile-requests-head',
-        reference: group(frame).locator('.xr-section-head'),
-        product: group(ours).locator('.xr-section-head'),
+        reference: groupOf(frame, 'Requests').locator('.xr-section-head'),
+        product: groupOf(ours, 'Requests').locator('.xr-section-head'),
       },
       {
         name: 'b7-01-f3-mobile-req-0040-row',
-        reference: group(frame).locator('li.xr-row', { hasText: 'REQ-0040' }),
-        product: group(ours).locator('li.xr-row', { hasText: 'REQ-0040' }),
+        reference: groupOf(frame, 'Requests').locator('li.xr-row', { hasText: 'REQ-0040' }),
+        product: groupOf(ours, 'Requests').locator('li.xr-row', { hasText: 'REQ-0040' }),
+      },
+      {
+        name: 'b7-01-f3-mobile-group-stuck',
+        reference: groupOf(frame, 'Stuck content'),
+        product: groupOf(ours, 'Stuck content'),
       },
     ]);
     expect(failures).toEqual([]);
@@ -429,12 +482,12 @@ test.describe('B7-02 · SA-06 Institutions', () => {
         deviation: 'DEV-37',
       },
       {
-        name: 'b7-02-f0-whole-frame-phase-3',
+        name: 'b7-02-f0-whole-frame-phase-6',
         reference: frame.locator('.xr-app'),
         product: ours.locator('div.xr-app'),
         kind: 'screen',
         frame: true,
-        deviation: ['DEV-21', 'DEV-36', 'DEV-37'],
+        deviation: ['DEV-36', 'DEV-37'],
       },
     ]);
     expect(failures).toEqual([]);
@@ -633,12 +686,12 @@ test.describe('B7-03 · SA-07 Institution detail', () => {
         deviation: 'DEV-40',
       },
       {
-        name: 'b7-03-f0-whole-frame-phase-3',
+        name: 'b7-03-f0-whole-frame-phase-6',
         reference: frame.locator('.xr-app'),
         product: ours.locator('div.xr-app'),
         kind: 'screen',
         frame: true,
-        deviation: ['DEV-21', 'DEV-36', 'DEV-38', 'DEV-39', 'DEV-40', 'DEV-41'],
+        deviation: ['DEV-36', 'DEV-38', 'DEV-39', 'DEV-40', 'DEV-41'],
       },
     ]);
     expect(failures).toEqual([]);

@@ -9,6 +9,7 @@ import { DELIVERED_METHODS, ledgerRows, type ProductPorts } from '@xr/contracts/
 import { type CourseId, type QuestionId, unsafeBrand } from '@xr/domain';
 import { describe, expect, it } from 'vitest';
 
+import { deferred } from './handlers/deferred.js';
 import { createSamplePlatform } from './index.js';
 import type { ChangeEvent } from './index.js';
 import {
@@ -398,7 +399,7 @@ describe('fault injection and later-phase methods', () => {
     expect((await ia.studentAccess.listGrants({ showWithdrawn: false })).ok).toBe(true);
   });
 
-  it('builds the 139 WP-0.11 methods, the 3 Package-1B ones, the Package-1D one, the 4 Package-2A ones, the 5 Package-2B ones, the Phase-3 one, the 6 Phase-4A ones, the 8 Phase-4B ones and the 7 Phase-5 ones, and leaves each of the other 9 later ones to its phase', async () => {
+  it('builds the 139 WP-0.11 methods and every later one — the 3 Package-1B ones, the Package-1D one, the 4 Package-2A ones, the 5 Package-2B ones, the Phase-3 one, the 6 Phase-4A ones, the 8 Phase-4B ones, the 7 Phase-5 ones and the 9 Phase-6 ones', async () => {
     const platform = await platformAfterB();
     const ports = platform.ports as unknown as Record<
       string,
@@ -446,28 +447,30 @@ describe('fault injection and later-phase methods', () => {
       'ProductionService.getReviewerOverview',
       'ProductionService.getContentManagerOverview',
       'ProductionService.getLibrary',
+      'CorrectionService.listUpdates',
+      'CorrectionService.listUpdatesForRelease',
+      'AcademicStructureService.getArea',
+      'AcademicStructureService.getCourse',
       'PlatformCourseCodeService.list',
+      'PlatformRoleService.listHolders',
+      'PlatformRoleService.getHolder',
+      'OperationsService.listSupportReports',
+      'OperationsService.listAccessEnding',
+      'OperationsService.getSuperAdminOverview',
     ]);
     for (const row of delivered) {
-      // Delivered by Packages 1B, 1D, 2A, 2B, Phases 3, 4A, 4B and 5: answered (a Result), never rejected.
+      // Delivered by Packages 1B, 1D, 2A, 2B and Phases 3 … 6: answered (a Result), never rejected.
       await expect(ports[row.portKey]![row.method]!(undefined), row.id).resolves.toHaveProperty(
         'ok',
       );
     }
-    const deferredRows = later.filter((row) => !delivered.includes(row));
-    expect(deferredRows).toHaveLength(9);
-    for (const row of deferredRows) {
-      // Port construction refuses to stub a WP-0.11 method, so only later ones can reject here.
-      await expect(ports[row.portKey]![row.method]!(undefined), row.id).rejects.toThrow(
-        `lands in ${row.mock}`,
-      );
-    }
+    // Phase 6 completes the ledger: no method is left to a later phase.
+    expect(later.filter((row) => !delivered.includes(row))).toEqual([]);
   });
 
-  it('rejects a later-phase method naming its phase instead of inventing a value', async () => {
-    const platform = await platformAfterB();
-    await expect(
-      asPerson(platform, 'Arjun Mehta').corrections.listUpdatesForRelease({ tab: 'on-hold' }),
-    ).rejects.toThrow(/lands in P6/);
+  it('never stubs a built method: `deferred` refuses a WP-0.11 or delivered method', () => {
+    expect(() => deferred('CorrectionService.releaseUpdate')).toThrow(/WP-0.11 method/);
+    expect(() => deferred('CorrectionService.listUpdatesForRelease')).toThrow(/was delivered/);
+    expect(() => deferred('OperationsService.getSuperAdminOverview')).toThrow(/was delivered/);
   });
 });

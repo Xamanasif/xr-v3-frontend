@@ -20,6 +20,9 @@ import {
 } from './faculty';
 import { WORKSPACE_NAV } from './nav-config';
 import { OPERATIONS_TITLE } from './operations';
+import { CONTENT_TITLE } from './admin-content';
+import { ROLES_TITLE } from './platform-roles';
+import { STRUCTURE_TITLE } from './structure';
 import { HOME_TITLE, MY_COURSES_TITLE } from './student';
 import { STUDENT_ASSESSMENTS_TITLE } from './student-assessments';
 import { MY_DEVICE_TITLE } from './student-device';
@@ -30,6 +33,7 @@ import {
   CM_OVERVIEW_TITLE,
   CONTENT_LIBRARY_TITLE,
   COURSE_CODES_TITLE,
+  UPDATES_TITLE,
   READY_TO_PUBLISH_TITLE,
 } from './content-manager';
 
@@ -202,6 +206,29 @@ export function placeWordsOf(returnTo: string | null): string | null {
           : INSTITUTE_REQUESTS_TITLE;
       }
       if (outcome.screen === 'SA-18' || outcome.screen === 'SA-19') {
+        return reference ? `${OPERATIONS_TITLE} › ${reference}` : OPERATIONS_TITLE;
+      }
+      // Phase 6: an update names its drawn reference ("Updates › UPD-0005", "Review queue ›
+      // UPD-0005", "Content › UPD-0005"), a submission its own ("Content › SUB-0085"), a support
+      // report its own ("Operations › SUP-0213"); areas, courses, holders and published
+      // experiments are addressed by ids, so they name the destination alone.
+      if (outcome.screen === 'CM-08') {
+        return reference ? `${UPDATES_TITLE} › ${reference}` : UPDATES_TITLE;
+      }
+      if (outcome.screen === 'RV-04') {
+        return reference ? `${REVIEW_QUEUE_TITLE} › ${reference}` : REVIEW_QUEUE_TITLE;
+      }
+      if (
+        outcome.screen === 'SA-10' ||
+        outcome.screen === 'SA-11' ||
+        outcome.screen === 'SA-12' ||
+        outcome.screen === 'SA-13'
+      ) {
+        return reference ? `${CONTENT_TITLE} › ${reference}` : CONTENT_TITLE;
+      }
+      if (outcome.screen === 'SA-14' || outcome.screen === 'SA-15') return STRUCTURE_TITLE;
+      if (outcome.screen === 'SA-16' || outcome.screen === 'SA-17') return ROLES_TITLE;
+      if (outcome.screen === 'SA-20' || outcome.screen === 'SA-21' || outcome.screen === 'SA-22') {
         return reference ? `${OPERATIONS_TITLE} › ${reference}` : OPERATIONS_TITLE;
       }
       // SA-03, the Super Admin's request decision.

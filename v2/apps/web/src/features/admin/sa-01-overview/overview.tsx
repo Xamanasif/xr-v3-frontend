@@ -1,6 +1,5 @@
 'use client';
 
-import type { RequestRow } from '@xr/contracts/draft';
 import { ROLE_LABEL } from '@xr/domain';
 import {
   FailedState,
@@ -16,44 +15,59 @@ import {
 import { useId } from 'react';
 
 import {
-  GROUP_ROWS,
+  activeInstitutionsLine,
   OVERVIEW_PAGE,
-  openRowLabel,
   overviewOverline,
-  requestRowLine,
-  requestRowTitle,
+  overviewSummary,
 } from '@/copy/overview';
 import { stateWords } from '@/copy/state-copy';
 import { overviewPlacement } from '@/nav/institutions';
-import { requestAddress, REQUESTS_ADDRESS } from '@/nav/requests';
-import { useRequestsUnderReview } from '@/queries/nav-counts';
-import { useCurrentSession } from '@/queries/session';
+import { useSuperAdminOverview } from '@/queries/operations-admin';
+import { useCurrentSession, useSession } from '@/queries/session';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import {
+  type OverviewGroupView,
+  overviewGroups,
+  type SuperAdminOverview,
+  waitingTotals,
+} from './overview-view';
 
 /**
- * SA-01 Overview — board B7-01 ("What is waiting on me across the platform?"), at `/admin`, in
- * its Phase-1 scope: the Requests group only (owner decision, Package-1D authorisation §2).
+ * SA-01 Overview — board B7-01 ("What is waiting on me across the platform?"; B7-10 f15, B7-12
+ * f8 … f11), at `/admin`.
  *
- * - **The group is the port's answer.** The requests under review, newest first, read through
- *   `AccessRequestService.listRequests` — the same read and figure as the sidebar's count (B1-10
- *   "Nav count 3 = requests under review"). At most four rows (B7-01 caption), each opening the
- *   request's decision page (SA-03; Appendix A SA-01 "Every row opens the page where it is
- *   handled"); "Open Requests" opens the full list (SA-02).
- * - **Nothing waiting**: a group with nothing in it is left out (B7-01 note), which leaves the calm
- *   state of B7-01 f1 — its sentence limited to the one group Phase 1 builds (state-copy
- *   `SA-01.calm`).
- * - **Phase 6**: the two figures, the other seven groups and the "15 items waiting across 8
- *   groups · <date>" line are not drawn (`getSuperAdminOverview`, state-copy `SA-01.scope`).
+ * - **One read**: `OperationsService.getSuperAdminOverview` (PC-67) — the two figures and the
+ *   eight groups, each its count and first four rows, read from the same records and rules as the
+ *   list it opens. Counts and rows are the service's; the page only words them (`overview-view`).
+ * - **As B7-01 draws it**: the header (overline "Super Admin · <name>", the line "15 items waiting
+ *   across 8 groups · <today on the sample clock>", state-copy `SA-01.summary`), the two figures
+ *   (`section.xd-figs`), then the groups in the drawn order — Requests, Corrections waiting for
+ *   your release decision, Device transfers, Support reports, Access ending within 15 days,
+ *   Institutions without an Institute Admin, Stuck content, Role holders without scope — each
+ *   "<title> <count>" with "Open <list>" and up to four rows, every row opening the page where it
+ *   is handled (routes.json SA-01). A group with nothing in it is left out.
+ * - **Nothing waiting** (f1, B7-10 f15): the calm state; the two figures stay. **Loading** (f2):
+ *   the status in the header and skeleton groups. Undrawn: failed + "Try again" (state-copy
+ *   `SA-01.failed`). Single column at every width; the figures stack on phones (f3).
+ * - Nothing here changes a record, and nothing is sent ("Reminder due" is a status, T-31).
  */
 export function Overview() {
   useShellPage(overviewPlacement());
-  const requests = useRequestsUnderReview();
-  const session = useCurrentSession();
-  const name = session.data?.ok ? (session.data.value?.session.displayName ?? null) : null;
+  const read = useSuperAdminOverview();
+  const session = useSession();
+  const current = useCurrentSession();
+  const name = current.data?.ok ? (current.data.value?.session.displayName ?? null) : null;
   const overline = name ? overviewOverline(ROLE_LABEL.super_admin, name) : ROLE_LABEL.super_admin;
-  const loading = requests.isPending && !requests.data;
-  const rows = requests.data?.ok ? requests.data.value : null;
+  // Today on the sample clock: the session's sign-in instant (the screens have no clock of their
+  // own; state-copy `SA-01.today`).
+  const today = session.status === 'signed-in' ? session.signedInAt : null;
+  const failed = read.isError || (read.data !== undefined && !read.data.ok);
+  const overview = read.data?.ok ? read.data.value : null;
+  const loading = !failed && overview === null;
+  const groups = overview ? overviewGroups(overview) : [];
+  const totals = waitingTotals(groups);
+  const summary = overview ? overviewSummary(totals.items, totals.groups, today) : '';
 
   return (
     <PageContent wrap="read">
@@ -62,82 +76,100 @@ export function Overview() {
         overline={overline}
         title={OVERVIEW_PAGE.title}
         meta={
-          // B7-01 f2: the loading status in the header. The summary line ("15 items waiting
-          // across 8 groups · 23 Oct 2026") is Phase 6 (state-copy SA-01.scope).
           loading ? (
+            // B7-01 f2: the loading status in the header.
             <span className="xl-meta" role="status">
               {OVERVIEW_PAGE.loading}
             </span>
+          ) : summary ? (
+            <span className="xl-meta">{summary}</span>
           ) : null
         }
       />
-      {requests.isError ? (
+      {failed ? (
         <FailedState
           title={stateWords('SA-01.failed')}
           onRetry={() => {
-            void requests.refetch();
+            void read.refetch();
           }}
         >
           {stateWords('SA-01.failed.line')}
         </FailedState>
-      ) : loading || !rows ? (
+      ) : overview === null ? (
         <LoadingGroups />
-      ) : rows.length > 0 ? (
-        <div className="flex flex-col gap-5">
-          <RequestsGroup rows={rows} />
-        </div>
       ) : (
-        <Calm />
+        <>
+          <Figures overview={overview} />
+          {groups.length > 0 ? (
+            <div className="flex flex-col gap-5">
+              {groups.map((group) => (
+                <Group key={group.key} group={group} />
+              ))}
+            </div>
+          ) : (
+            <Calm />
+          )}
+        </>
       )}
     </PageContent>
   );
 }
 
-type UnderReview = readonly RequestRow[];
+/** B7-01 "Two figures only": active institutions and published experiments (`section.xd-figs`). */
+function Figures({ overview }: { readonly overview: SuperAdminOverview }) {
+  const { figures } = overview;
+  return (
+    <section className="xd-figs" aria-label={OVERVIEW_PAGE.figuresLabel}>
+      <div className="xd-fig">
+        <span className="xd-fig-n xr-num">{figures.activeInstitutions}</span>
+        <span className="xd-fig-t">{OVERVIEW_PAGE.activeInstitutions}</span>
+        <span className="xd-fig-s">
+          {activeInstitutionsLine(figures.paused, figures.awaitingPayment)}
+        </span>
+      </div>
+      <div className="xd-fig">
+        <span className="xd-fig-n xr-num">{figures.publishedExperiments}</span>
+        <span className="xd-fig-t">{OVERVIEW_PAGE.publishedExperiments}</span>
+        <span className="xd-fig-s">{OVERVIEW_PAGE.publishedLine}</span>
+      </div>
+    </section>
+  );
+}
 
-/** B7-01 "Requests 3": the group, its count and up to four rows. */
-function RequestsGroup({ rows }: { readonly rows: UnderReview }) {
+/** One B7-01 group: "<title> <count>", "Open <list>" and up to four rows, each with its action. */
+function Group({ group }: { readonly group: OverviewGroupView }) {
   return (
     <Section
       className="xd-group"
       title={
         <>
-          {OVERVIEW_PAGE.requests} <span className="xd-gn">{rows.length}</span>
+          {group.title} <span className="xd-gn">{group.count}</span>
         </>
       }
       headEnd={
-        <Link className="xr-btn xr-btn--text xr-btn--sm" href={REQUESTS_ADDRESS}>
-          {OVERVIEW_PAGE.openRequests}
+        <Link className="xr-btn xr-btn--text xr-btn--sm" href={group.open.href}>
+          {group.open.words}
         </Link>
       }
     >
       <Rows>
-        {rows.slice(0, GROUP_ROWS).map((row) => {
-          const title = requestRowTitle(row.id, row.institutionName);
-          return (
-            <Row
-              key={row.id}
-              icon="requests"
-              tone="wait"
-              title={title}
-              sub={requestRowLine(row.type, row.receivedAt)}
+        {group.rows.map((row) => (
+          <Row key={row.key} icon={row.icon} tone={row.tone} title={row.title} sub={row.sub}>
+            <Link
+              className="xr-btn xr-btn--secondary xr-btn--sm"
+              href={row.action.href}
+              aria-label={row.action.label}
             >
-              <Link
-                className="xr-btn xr-btn--secondary xr-btn--sm"
-                href={requestAddress(row.id)}
-                aria-label={openRowLabel(title)}
-              >
-                {OVERVIEW_PAGE.open}
-              </Link>
-            </Row>
-          );
-        })}
+              {row.action.words}
+            </Link>
+          </Row>
+        ))}
       </Rows>
     </Section>
   );
 }
 
-/** B7-01 f1 "Nothing is waiting": the calm, credible empty state. */
+/** B7-01 f1, B7-10 f15 "Nothing is waiting": the calm, credible empty state. */
 function Calm() {
   const headingId = useId();
   return (
@@ -152,16 +184,24 @@ function Calm() {
           <Icon name="done" />
         </span>
         <h3 className="xr-h3 m-0">{OVERVIEW_PAGE.nothingWaiting}</h3>
-        <p className="xr-body m-0">{stateWords('SA-01.calm')}</p>
+        <p className="xr-body m-0 text-ink-2">{OVERVIEW_PAGE.calmLine}</p>
       </div>
     </section>
   );
 }
 
-/** B7-01 f2 "Loading": skeleton groups (hidden from screen readers; the header announces). */
+/** B7-01 f2 "Loading": skeleton figures and groups (hidden from screen readers; the header announces). */
 function LoadingGroups() {
   return (
     <div aria-hidden="true">
+      <div className="xd-figs">
+        {[0, 1].map((figure) => (
+          <div key={figure} className="xd-fig">
+            <Skeleton className="h-[32px] w-[64px]" />
+            <Skeleton className="w-[160px]" />
+          </div>
+        ))}
+      </div>
       {[0, 1, 2].map((group) => (
         <section key={group} className="xr-section mb-5">
           <div className="xr-section-head">

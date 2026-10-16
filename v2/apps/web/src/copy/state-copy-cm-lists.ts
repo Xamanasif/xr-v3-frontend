@@ -77,11 +77,11 @@ export const STATE_COPY_CM_LISTS = {
   },
   'CM-01.row-actions': {
     screen: 'CM-01',
-    state: 'Which drawn row actions the overview renders in Phase 5',
+    state: 'Where the overview’s drawn row actions go',
     words: null,
-    rule: 'Ready items: “Open the next ready item” (the oldest approval, the one primary) and “Open decision” open the publication decision (CM-03). A re-check row’s “Open” opens the same decision page, read-only while the Academic Reviewer has it (B6-07 f3). Correction rows — “Update returned” (“Open update”) and every “With others” update row (“Open”) — are shown with their words and no action: Updates and its steps (CM-08, CM-06, CM-07) are not built yet (built-screen-only navigation).',
+    rule: 'Ready items: “Open the next ready item” (the oldest approval, the one primary) and “Open decision” open the publication decision (CM-03). A re-check row’s “Open” opens the same decision page, read-only while the Academic Reviewer has it (B6-07 f3). A returned correction’s “Open update” and every “With others” correction’s “Open” (named “Open <experiment>”) open that correction’s page (CM-08, `/content-manager/updates/<UPD id>`, Phase 6).',
     basis:
-      'B6-05 f0 rows and links (`D.links.cdec`, `D.links.cupd`); P0-35 / DEV-21 built-screen-only navigation; nav/content-manager.ts (Updates is Phase 6)',
+      'B6-05 f0 rows and links (`D.links.cdec`, `D.links.cupd`); nav/content-manager.ts `correctionAddress`',
     status: 'provisional',
     decisions: ['VD-12', 'P0-35'],
   },

@@ -21,7 +21,7 @@ import {
 import { historyEntry } from '../kernel/history.js';
 import type { IdSource } from '../kernel/id-source.js';
 import type { AreaId, CourseId, ExperimentId } from '../kernel/ids.js';
-import { newMeta, nextMeta } from '../kernel/record.js';
+import { newMeta, nextMeta, ref } from '../kernel/record.js';
 import type { IsoInstant } from '../kernel/time.js';
 import type { Institution } from '../institution/model.js';
 import type {
@@ -212,6 +212,8 @@ export function moveCourse(input: MoveCourseInput): Decision<Course> {
         at: input.now,
         actor: input.actor,
         visibleTo: ['super_admin'],
+        // B7-07 `doMove` "From <area> to <area>.": the two areas, as facts (the words are the web's).
+        refs: [ref('AREA', input.course.areaId), ref('AREA', input.targetAreaId)],
       }),
     ],
   });

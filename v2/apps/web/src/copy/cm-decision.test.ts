@@ -78,6 +78,16 @@ function strings(value: unknown): string[] {
   return [];
 }
 
+/**
+ * Words shown without the decision id the board writes into them (P1-14 / VD-10: “Strip the
+ * suffix through a copy table and keep the sentence”): checked against the board's own wording.
+ */
+const DRAWN_WITH_ID: Readonly<Record<string, string>> = {
+  'App package (provisional)': 'App package (provisional — T-14)',
+  'App package fields are provisional.': 'App package fields are provisional (T-14).',
+};
+const asDrawn = (phrase: string) => DRAWN_WITH_ID[phrase] ?? phrase;
+
 describe('CM-03 Publication decision (B6-07; B6-11 f4 … f8)', () => {
   it.each(
     strings([
@@ -93,7 +103,7 @@ describe('CM-03 Publication decision (B6-07; B6-11 f4 … f8)', () => {
       WITH_THE_VENDOR,
     ]),
   )('“%s” is on B6-07', (phrase) => {
-    expect(B6_07).toContain(phrase);
+    expect(B6_07).toContain(asDrawn(phrase));
   });
 
   it('the composed words are B6-07’s: its frames’ words, from its script’s own pieces', () => {
@@ -234,7 +244,7 @@ describe('CM-03 Publication decision (B6-07; B6-11 f4 … f8)', () => {
       referenceWords({ step: 'formats-and-delivery', format: 'ar', field: 'install-notes' }, 'AR'),
       referenceWords({ step: 'preview-and-documents', format: null, field: 'preview-link' }, null),
     ]) {
-      expect(B6_07).toContain(phrase);
+      expect(B6_07).toContain(asDrawn(phrase));
     }
   });
 
@@ -251,7 +261,7 @@ describe('CM-03 Publication decision (B6-07; B6-11 f4 … f8)', () => {
 
 describe('CM-05 Published experiment (B6-08; B6-11 f9)', () => {
   it.each(strings(PUBLISHED_PAGE))('“%s” is on B6-08', (phrase) => {
-    expect(B6_08).toContain(phrase);
+    expect(B6_08).toContain(asDrawn(phrase));
   });
 
   it('the composed words are B6-08’s: its frames’ words, from its script’s own pieces', () => {
@@ -264,7 +274,7 @@ describe('CM-05 Published experiment (B6-08; B6-11 f9)', () => {
       updateInProgressLine('in-academic-review', '1.2'),
       updateInProgressLine('awaiting-release-decision', '1.2'),
     ]) {
-      expect(B6_08).toContain(phrase);
+      expect(B6_08).toContain(asDrawn(phrase));
     }
     const composed: readonly (readonly [string, string, string])[] = [
       [

@@ -18,11 +18,22 @@ import { formatName } from './flow-state-words';
 export const OPERATIONS_PAGE = {
   /** `h1.xr-h1` (the destination). */
   title: 'Operations',
-  /** `div.xr-phead-meta` under the title. */
+  /**
+   * `div.xr-phead-meta` under the title on Device transfers (B3-11 f0; B7-09 f0). Support and
+   * Access ending draw "… and access that is ending" (`copy/operations-6.ts` OPERATIONS_6_META).
+   */
   meta: 'Device transfers, support reports and access ending',
-  /** `nav.xr-tabs[aria-label]` and its one built tab (Support and Access ending are Phase 6). */
+  /** `nav.xr-tabs[aria-label]`. */
   tabsLabel: 'Operations',
-  deviceTransfersTab: 'Device transfers',
+  /**
+   * The three tabs, in board order (rule T1 links; B3-11 f0, B7-09 f0 … f7; Phase 6 builds Support
+   * and Access ending). `nav/operations.ts` OPERATIONS_TABS gives each its address.
+   */
+  tabs: {
+    'device-transfers': 'Device transfers',
+    support: 'Support',
+    'access-ending': 'Access ending',
+  },
 } as const;
 
 export const TRANSFERS_LIST = {

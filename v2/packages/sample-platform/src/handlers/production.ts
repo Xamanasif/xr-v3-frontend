@@ -82,6 +82,7 @@ import type { ResolvedPerson } from '../pipeline/actor.js';
 import { command, type Op, read, refuse, settle, systemCommand } from '../pipeline/runner.js';
 import { openUpdateOf } from '../world/queries.js';
 import { values } from '../world/records.js';
+import { asReadBy } from './correction.js';
 import { courseCardOf } from './views.js';
 
 function field(input: unknown, name: string): unknown {
@@ -369,6 +370,64 @@ function previewPage(op: Op, submission: Submission): PublicExperimentPage {
       : null,
     // OD-B7-05 is open (PC-14).
     versionLabel: null,
+  };
+}
+
+/** SA-12 "Published · version 1.2 · live since 3 Jul 2026" (PC-71). */
+function liveOf(experiment: Experiment) {
+  return { label: experiment.live.label, since: experiment.live.liveFrom };
+}
+
+/** The state of the experiment's open correction, if this reader may see it (PC-71). */
+function visibleUpdateState(op: Op, person: ResolvedPerson, experiment: Experiment) {
+  const id = visibleOpenUpdateId(op, person, experiment);
+  return id ? (op.records.updates[id]?.state ?? null) : null;
+}
+
+/**
+ * SA-13's facts beside the record (PC-71): who can act (SA-12's words), the course, the open
+ * correction where the reader may see it, and — for a stuck record — the reviewer scopes over its
+ * course that were withdrawn (B7-06 f1).
+ */
+function recordFacts(
+  op: Op,
+  person: ResolvedPerson,
+  submission: Submission | null,
+  experiment: Experiment | null,
+) {
+  const courseId = submission?.content.courseId ?? experiment?.courseId ?? null;
+  const course = courseOf(op, courseId);
+  const updateId = experiment ? visibleOpenUpdateId(op, person, experiment) : null;
+  const stuck = submission ? isStuck(submission, holdersOf(op)) : false;
+  const withdrawn = stuck
+    ? holdersOf(op)
+        .filter((holder) => holder.role === 'academic_reviewer')
+        .flatMap((holder) =>
+          holder.scopes.flatMap((scope) =>
+            scope.withdrawal &&
+            scope.supersededAt === null &&
+            scope.target.kind === 'course' &&
+            scope.target.courseId === courseId
+              ? [
+                  {
+                    holderName: holder.name,
+                    at: scope.withdrawal.at,
+                    reason: scope.withdrawal.reason,
+                  },
+                ]
+              : [],
+          ),
+        )
+    : [];
+  return {
+    whoCanAct: submission ? whoCanAct(op, submission, course) : null,
+    courseCode: course?.platformCode ?? null,
+    courseName: course?.name ?? null,
+    openUpdate:
+      updateId && op.records.updates[updateId]
+        ? asReadBy(op.records.updates[updateId], person)
+        : null,
+    withdrawnReviewerScopes: withdrawn,
   };
 }
 
@@ -1368,6 +1427,8 @@ export function productionPort(call: Call): ProductionService {
               stuck: isStuck(submission, holdersOf(op)),
               whoCanAct: whoCanAct(op, submission, course),
               openUpdate: experiment ? visibleUpdate(experiment) : null,
+              live: experiment ? liveOf(experiment) : null,
+              openUpdateState: experiment ? visibleUpdateState(op, person, experiment) : null,
             };
           });
         const experimentRows = values(op.records.experiments)
@@ -1386,6 +1447,8 @@ export function productionPort(call: Call): ProductionService {
             stuck: false,
             whoCanAct: null,
             openUpdate: visibleUpdate(experiment),
+            live: liveOf(experiment),
+            openUpdateState: visibleUpdateState(op, person, experiment),
           }));
         return [...experimentRows, ...submissionRows]
           .filter((row) =>
@@ -1422,6 +1485,7 @@ export function productionPort(call: Call): ProductionService {
             submission,
             experiment: experiment ? withVisibleUpdate(op, person, experiment) : null,
             stuck: isStuck(submission, holdersOf(op)),
+            ...recordFacts(op, person, submission, experiment),
           };
         }
         if (kind === 'EXP') {
@@ -1436,6 +1500,7 @@ export function productionPort(call: Call): ProductionService {
             submission,
             experiment: withVisibleUpdate(op, person, experiment),
             stuck: submission ? isStuck(submission, holdersOf(op)) : false,
+            ...recordFacts(op, person, submission, experiment),
           };
         }
         return refuse({ kind: 'not-found' });

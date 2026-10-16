@@ -6,7 +6,7 @@
  */
 import type { InstitutionDetail, ProductPorts, RequestRow } from '@xr/contracts/draft';
 import type { InstitutionStatus } from '@xr/domain';
-import { afterFlow, asPerson, assemblePlatform } from '@xr/sample-platform/testing';
+import { afterFlow, asPerson, assemblePlatform, fixtureWorld } from '@xr/sample-platform/testing';
 import { describe, expect, it } from 'vitest';
 
 import { attentionRows, drawnControls, historyLines, requestsNamed } from './institution-view';
@@ -94,6 +94,44 @@ describe('attentionRows — from the institution’s own record (B7-03 `att`)', 
       malnad: [],
       deccan: ['Access paused since 12 Oct 2026'],
     });
+  });
+
+  it('Phase 6: access ending with a reminder due comes first after a missing admin, opening SA-22 (B7-03 konark)', async () => {
+    const ports = asPerson(
+      assemblePlatform({ world: await fixtureWorld('after-flow-e') }),
+      'Arjun Mehta',
+    );
+    const { details, requests } = await everything(ports);
+    const ending = await ports.operations.listAccessEnding();
+    if (!ending.ok) throw new Error('listAccessEnding');
+    const rows = ending.value.map((view) => view.row);
+    const rowsOf = (id: string) =>
+      attentionRows(
+        details.find((detail) => detail.institution.id === id)!,
+        requests,
+        [],
+        rows,
+      );
+    // Konark: the reminder-due row as B7-03 draws it, then its request.
+    expect(rowsOf('konark').map((row) => row.text)).toEqual([
+      'Access ends 2 Nov 2026 — reminder due (nothing is sent from here)',
+      'REQ-0040 additional licences — under review',
+    ]);
+    expect(rowsOf('konark')[0]!.action).toEqual({
+      kind: 'link',
+      href: '/admin/operations/access-ending',
+      label: 'Operations › Access ending',
+    });
+    // A renewal in progress is its request's row; ended access needs nothing (B7-10 f8).
+    expect(rowsOf('bitshyd').map((row) => row.text)).toEqual(['REQ-0038 renewal — under review']);
+    expect(rowsOf('malnad')).toEqual([]);
+    // No other institution gains a row.
+    for (const detail of details.filter((item) => item.institution.id !== 'konark')) {
+      expect(
+        attentionRows(detail, requests, [], rows).map((row) => row.key),
+        detail.institution.id,
+      ).toEqual(attentionRows(detail, requests).map((row) => row.key));
+    }
   });
 
   it('never lists another institution’s request', async () => {

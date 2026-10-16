@@ -8,7 +8,6 @@ import {
   LoadingState,
   PageContent,
   PageHeader,
-  SectionTabs,
   Skeleton,
   StatusPill,
   VisuallyHidden,
@@ -33,6 +32,7 @@ import { useDeviceTransfers } from '@/queries/devices';
 import { useInstitutionTab } from '@/queries/institutions';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { OperationsTabs } from '../sa-20-support/operations-tabs';
 import {
   forwardedWords,
   inListOrder,
@@ -78,9 +78,10 @@ const EMPTY: Readonly<Record<TransferShow, { readonly title: string; readonly li
  *   its decision (SA-19) from its reference and from "Review"; an approved row from its reference;
  *   a row still with its institution is read-only — "Not BITS’s to decide yet" (f2). Labelled rows
  *   below 760 px of content (the v46 sheet).
- * - **Tabs**: "Device transfers" only; Support and Access ending are Phase 6 and not rendered
- *   (DEV-21; state-copy `SA-18.tabs`). Loading, failed + "Try again" and the empty views are the
- *   board-04 grammar (state-copy `SA-18.*`).
+ * - **Tabs** (B7-09 f0; Phase 6): the three Operations tab links — Device transfers (current) ·
+ *   Support (SA-20) · Access ending (SA-22) — drawn as B7-09 re-uses them, on white
+ *   (`OperationsTabs`; state-copy `SA-18.tabs`). Loading, failed + "Try again" and the empty views
+ *   are the board-04 grammar (state-copy `SA-18.*`).
  */
 export function DeviceTransfers() {
   const navigation = useAppNavigation();
@@ -115,17 +116,7 @@ export function DeviceTransfers() {
   return (
     <PageContent wrap="wide">
       <PageHeader className="mb-4" title={OPERATIONS_PAGE.title} meta={OPERATIONS_PAGE.meta} />
-      <SectionTabs
-        className="mb-5"
-        label={OPERATIONS_PAGE.tabsLabel}
-        tabs={[
-          {
-            href: DEVICE_TRANSFERS_ADDRESS,
-            label: OPERATIONS_PAGE.deviceTransfersTab,
-            current: true,
-          },
-        ]}
-      />
+      <OperationsTabs current="device-transfers" />
       <ShowLinks show={show} />
       {failed ? (
         <FailedState

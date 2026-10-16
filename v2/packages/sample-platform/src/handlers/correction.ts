@@ -10,6 +10,8 @@
 import {
   type CorrectionService,
   holdUpdateInput,
+  listUpdatesForReleaseInput,
+  listUpdatesInput,
   openCorrectionInput,
   returnUpdateInput,
   saveCorrectionInput,
@@ -22,6 +24,7 @@ import {
   type CorrectionUpdate,
   type Experiment,
   holdUpdate,
+  updateForAudience,
   inDisplayOrder,
   liftHold,
   liveFields,
@@ -36,10 +39,9 @@ import {
 
 import type { Call } from '../platform/core.js';
 import type { ResolvedPerson } from '../pipeline/actor.js';
-import { command, type Op, read } from '../pipeline/runner.js';
+import { command, type Op, read, refuse } from '../pipeline/runner.js';
 import { openUpdateOf } from '../world/queries.js';
 import { values } from '../world/records.js';
-import { deferred } from './deferred.js';
 import { usageOf } from './institution.js';
 
 function field(input: unknown, name: string): unknown {
@@ -56,8 +58,24 @@ function updateOf(op: Op, person: ResolvedPerson, rawId: unknown) {
   return { update, experiment, subject: { kind: 'update' as const, update, experiment } };
 }
 
+/**
+ * What an update is compared with: the version live now — or, once it is released, the version
+ * its release replaced (SA-11 f6 "Live before · Released"; CM-08 f7), so a decided update still
+ * shows what it changed.
+ */
+function baseOf(update: CorrectionUpdate, experiment: Experiment): Experiment {
+  if (update.state !== 'released') return experiment;
+  const index = experiment.versions.findIndex(
+    (version) =>
+      version.source.kind === 'correction-release' && version.source.updateId === update.id,
+  );
+  const before = index > 0 ? experiment.versions[index - 1] : undefined;
+  return before ? { ...experiment, live: before } : experiment;
+}
+
 /** "Description · Live now … · Proposed …" — only the fields the update changes (CM-08, RV-04, SA-11). */
-function comparisonOf(update: CorrectionUpdate, experiment: Experiment) {
+function comparisonOf(update: CorrectionUpdate, current: Experiment) {
+  const experiment = baseOf(update, current);
   const live = liveFields(experiment);
   const proposed = update.proposed;
   const rows = changedFields(live, proposed).map((changed) => {
@@ -65,23 +83,127 @@ function comparisonOf(update: CorrectionUpdate, experiment: Experiment) {
       const format = changed.slice('package:'.length) as 'ar' | 'vr' | 'mr';
       return {
         field: 'packageReferences' as const,
+        format,
         liveNow: live.packageReferences[format] ?? null,
         proposed: proposed.packageReferences[format] ?? null,
       };
     }
     const key = changed as 'name' | 'summary' | 'description' | 'webLink';
-    return { field: key, liveNow: live[key], proposed: proposed[key] };
+    return { field: key, format: null, liveNow: live[key], proposed: proposed[key] };
   });
   const label = update.versionLabel?.trim() ?? '';
   return label !== '' && label !== experiment.live.label
-    ? [...rows, { field: 'version' as const, liveNow: experiment.live.label, proposed: label }]
+    ? [
+        ...rows,
+        {
+          field: 'version' as const,
+          format: null,
+          liveNow: experiment.live.label,
+          proposed: label,
+        },
+      ]
     : rows;
 }
 
+/** The update as a reader may see it (`updateForAudience`: UPD-17, UPD-18, UPD-21). */
+export function asReadBy(update: CorrectionUpdate, person: ResolvedPerson): CorrectionUpdate {
+  return updateForAudience(update, person.role);
+}
+
+/** Who has the update now (CM-08 "With"): hers while a draft or returned, then the chain's. */
+function withWhomOf(update: CorrectionUpdate): 'you' | 'academic-reviewer' | 'super-admin' | null {
+  switch (update.state) {
+    case 'draft':
+    case 'returned':
+      return 'you';
+    case 'in-academic-review':
+      return 'academic-reviewer';
+    case 'awaiting-release-decision':
+    case 'on-hold':
+      return 'super-admin';
+    default:
+      return null;
+  }
+}
+
+/** The Academic Reviewer's last approval (SA-10 "Approved by the Academic Reviewer on …"). */
+function approvedAtOf(update: CorrectionUpdate): string {
+  return (
+    update.reviewDecisions.findLast((decision) => decision.decision === 'approve')?.at ??
+    update.updatedAt
+  );
+}
+
+function newestFirst(at: (update: CorrectionUpdate) => string) {
+  return (a: CorrectionUpdate, b: CorrectionUpdate) =>
+    at(a) === at(b) ? 0 : at(a) < at(b) ? 1 : -1;
+}
+
+/** The SA-10 tab an update state belongs to; the Super Admin sees nothing before approval (UPD-18). */
+const RELEASE_TAB_STATE = {
+  'waiting-for-you': 'awaiting-release-decision',
+  'on-hold': 'on-hold',
+  released: 'released',
+} as const;
+
 export function correctionPort(call: Call): CorrectionService {
   return {
-    listUpdates: deferred('CorrectionService.listUpdates'),
-    listUpdatesForRelease: deferred('CorrectionService.listUpdatesForRelease'),
+    // CM-08 (B6-09 f0): every correction the Content Manager may see — in her scope (UPD-11) —
+    // with the experiment's live name and who has it now; the newest change first.
+    listUpdates: (filter) =>
+      read(call, 'CorrectionService.listUpdates', (op) => {
+        const person = op.person();
+        if (person.holder?.role !== 'content_manager')
+          refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+        const accepted = op.parse(listUpdatesInput, filter);
+        return values(op.records.updates)
+          .filter((update) => accepted.state === undefined || update.state === accepted.state)
+          .flatMap((update) => {
+            const experiment = op.records.experiments[update.experimentId];
+            if (!experiment || !op.canSee(person, { kind: 'update', update, experiment }))
+              return [];
+            return [{ update, experiment }];
+          })
+          .sort((a, b) => newestFirst((update) => update.updatedAt)(a.update, b.update))
+          .map(({ update, experiment }) => ({
+            update: asReadBy(update, person),
+            experimentName: experiment.live.catalogue.name,
+            withWhom: withWhomOf(update),
+          }));
+      }),
+
+    // SA-10 (B7-05 f0, f2, f3): approved corrections by tab — waiting for the release decision
+    // (oldest approval first), on hold (newest hold first), released (newest release first). The
+    // Super Admin reads nothing of an update before the Academic Reviewer approves it (UPD-18).
+    listUpdatesForRelease: (filter) =>
+      read(call, 'CorrectionService.listUpdatesForRelease', (op) => {
+        const person = op.person();
+        if (person.role !== 'super_admin')
+          refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+        const accepted = op.parse(listUpdatesForReleaseInput, filter);
+        const state = RELEASE_TAB_STATE[accepted.tab];
+        const rows = values(op.records.updates)
+          .filter((update) => update.state === state)
+          .flatMap((update) => {
+            const experiment = op.records.experiments[update.experimentId];
+            if (!experiment || !op.canSee(person, { kind: 'update', update, experiment }))
+              return [];
+            return [{ update, experiment }];
+          });
+        const order =
+          accepted.tab === 'waiting-for-you'
+            ? (a: CorrectionUpdate, b: CorrectionUpdate) => -newestFirst(approvedAtOf)(a, b)
+            : accepted.tab === 'on-hold'
+              ? newestFirst((update) => update.hold?.at ?? update.updatedAt)
+              : newestFirst((update) => update.release?.at ?? update.updatedAt);
+        return rows
+          .sort((a, b) => order(a.update, b.update))
+          .map(({ update, experiment }) => ({
+            update: asReadBy(update, person),
+            experimentName: experiment.live.catalogue.name,
+            courseCode: op.records.courses[experiment.courseId]?.platformCode ?? null,
+          }));
+      }),
 
     getPublishedExperiment: (id) =>
       read(call, 'CorrectionService.getPublishedExperiment', (op) => {
@@ -91,7 +213,7 @@ export function correctionPort(call: Call): CorrectionService {
         const openUpdate = openUpdateOf(op.records, experiment.id);
         return {
           experiment,
-          openUpdate,
+          openUpdate: openUpdate ? asReadBy(openUpdate, person) : null,
           canJoin: op.canDo(person, 'correction.join', {
             kind: 'experiment',
             experiment,
@@ -134,7 +256,7 @@ export function correctionPort(call: Call): CorrectionService {
           op.tx.put('experiments', outcome.experiment.id, outcome.experiment);
         }
         return {
-          value: { update: outcome.update, joined: outcome.joined },
+          value: { update: asReadBy(outcome.update, person), joined: outcome.joined },
           decision: 'openCorrection',
           actor: person.ref,
         };
@@ -162,7 +284,7 @@ export function correctionPort(call: Call): CorrectionService {
           input,
         );
         op.tx.put('updates', next.id, next);
-        return { value: next, decision: 'saveCorrection', actor: person.ref };
+        return { value: asReadBy(next, person), decision: 'saveCorrection', actor: person.ref };
       }),
 
     sendForAcademicReview: (input) =>
@@ -189,7 +311,11 @@ export function correctionPort(call: Call): CorrectionService {
           () => ({ live: experiment.live.label }),
         );
         op.tx.put('updates', next.id, next);
-        return { value: next, decision: 'sendForAcademicReview', actor: person.ref };
+        return {
+          value: asReadBy(next, person),
+          decision: 'sendForAcademicReview',
+          actor: person.ref,
+        };
       }),
 
     withdrawUpdate: (input) =>
@@ -212,14 +338,18 @@ export function correctionPort(call: Call): CorrectionService {
         );
         op.tx.put('updates', outcome.update.id, outcome.update);
         op.tx.put('experiments', outcome.experiment.id, outcome.experiment);
-        return { value: outcome.update, decision: 'withdrawUpdate', actor: person.ref };
+        return {
+          value: asReadBy(outcome.update, person),
+          decision: 'withdrawUpdate',
+          actor: person.ref,
+        };
       }),
 
     getUpdate: (id) =>
       read(call, 'CorrectionService.getUpdate', (op) => {
         const person = op.person();
         const { update, experiment } = updateOf(op, person, id);
-        return { update, comparison: comparisonOf(update, experiment) };
+        return { update: asReadBy(update, person), comparison: comparisonOf(update, experiment) };
       }),
 
     getUpdateForReview: (id) =>
@@ -227,7 +357,7 @@ export function correctionPort(call: Call): CorrectionService {
         const person = op.person();
         const { update, experiment } = updateOf(op, person, id);
         return {
-          update,
+          update: asReadBy(update, person),
           comparison: comparisonOf(update, experiment),
           live: experiment.live,
           decided: update.state !== 'in-academic-review',
@@ -247,7 +377,7 @@ export function correctionPort(call: Call): CorrectionService {
         );
         // The live version does not change.
         op.tx.put('updates', next.id, next);
-        return { value: next, decision: 'approveUpdate', actor: person.ref };
+        return { value: asReadBy(next, person), decision: 'approveUpdate', actor: person.ref };
       }),
 
     returnUpdate: (input) =>
@@ -268,7 +398,7 @@ export function correctionPort(call: Call): CorrectionService {
           input,
         );
         op.tx.put('updates', next.id, next);
-        return { value: next, decision: 'returnUpdate', actor: person.ref };
+        return { value: asReadBy(next, person), decision: 'returnUpdate', actor: person.ref };
       }),
 
     getUpdateDecision: (id) =>
@@ -296,7 +426,7 @@ export function correctionPort(call: Call): CorrectionService {
             ];
           });
         return {
-          update,
+          update: asReadBy(update, person),
           comparison: comparisonOf(update, experiment),
           liveLine: { label: experiment.live.label, since: experiment.live.liveFrom },
           institutionsUsingIt,
@@ -317,7 +447,11 @@ export function correctionPort(call: Call): CorrectionService {
         // The update and the experiment's live version only — no plan, grant or mapping (BC9).
         op.tx.put('updates', outcome.update.id, outcome.update);
         op.tx.put('experiments', outcome.experiment.id, outcome.experiment);
-        return { value: outcome, decision: 'releaseUpdate', actor: person.ref };
+        return {
+          value: { ...outcome, update: asReadBy(outcome.update, person) },
+          decision: 'releaseUpdate',
+          actor: person.ref,
+        };
       }),
 
     holdUpdate: (input) =>
@@ -338,7 +472,7 @@ export function correctionPort(call: Call): CorrectionService {
           input,
         );
         op.tx.put('updates', next.id, next);
-        return { value: next, decision: 'holdUpdate', actor: person.ref };
+        return { value: asReadBy(next, person), decision: 'holdUpdate', actor: person.ref };
       }),
 
     liftHold: (input) =>
@@ -354,7 +488,7 @@ export function correctionPort(call: Call): CorrectionService {
         );
         // Never releases: back to "Waiting for your decision".
         op.tx.put('updates', next.id, next);
-        return { value: next, decision: 'liftHold', actor: person.ref };
+        return { value: asReadBy(next, person), decision: 'liftHold', actor: person.ref };
       }),
   };
 }

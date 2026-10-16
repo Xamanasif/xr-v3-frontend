@@ -27,8 +27,10 @@ export const CM_OVERVIEW = {
   /** The oldest ready item’s one primary, then every other ready item’s secondary. */
   openNextReady: 'Open the next ready item',
   openDecision: 'Open decision',
-  /** A “With others” row’s text link. */
+  /** A “With others” row’s text link (a re-check, or a correction: CM-08). */
   open: 'Open',
+  /** A returned correction’s `a.xr-btn--secondary.xr-btn--sm` (`act`; CM-08). */
+  openUpdate: 'Open update',
   /** f1 “Nothing waiting”: `div.xr-section > div.xr-empty` with the done icon in the ok tint. */
   nothingTitle: 'Nothing is waiting for your publication decision',
   nothingLine: 'Approved experiments and corrections that need you appear here.',

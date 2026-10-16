@@ -44,6 +44,13 @@ import { P5_REVIEWER_LISTS_LINK_TARGETS } from './link-targets-p5/reviewer-lists
 import { P5_REVIEWER_REVIEW_LINK_TARGETS } from './link-targets-p5/reviewer-review';
 import { P5_CM_LISTS_LINK_TARGETS } from './link-targets-p5/cm-lists';
 import { P5_CM_DECISION_LINK_TARGETS } from './link-targets-p5/cm-decision';
+import { P6_CM_CORRECTION_LINK_TARGETS } from './link-targets-p6/cm-correction';
+import { P6_REVIEW_UPDATE_LINK_TARGETS } from './link-targets-p6/review-update';
+import { P6_RELEASE_LINK_TARGETS } from './link-targets-p6/release';
+import { P6_CONTENT_OVERSIGHT_LINK_TARGETS } from './link-targets-p6/content-oversight';
+import { P6_STRUCTURE_LINK_TARGETS } from './link-targets-p6/structure';
+import { P6_PLATFORM_ROLES_LINK_TARGETS } from './link-targets-p6/platform-roles';
+import { P6_OPERATIONS_6_LINK_TARGETS } from './link-targets-p6/operations-6';
 
 /** The screen (or shell part) an action is drawn on. */
 export type LedgerScreen =
@@ -155,7 +162,23 @@ export type LedgerScreen =
   | 'CM-03'
   | 'CM-04'
   | 'CM-05'
-  | 'CM-09';
+  | 'CM-09'
+  // Phase 6.
+  | 'CM-06'
+  | 'CM-07'
+  | 'CM-08'
+  | 'RV-04'
+  | 'SA-10'
+  | 'SA-11'
+  | 'SA-12'
+  | 'SA-13'
+  | 'SA-14'
+  | 'SA-15'
+  | 'SA-16'
+  | 'SA-17'
+  | 'SA-20'
+  | 'SA-21'
+  | 'SA-22';
 
 export type ActionRole =
   /** The page's one primary action (board 08 "One primary action"; `xr-btn--primary`). */
@@ -244,7 +267,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     target: '/admin',
     outcome: 'built',
     board: '06 (Super Admin raw[]); B7-01 f0 (`aria-current="page"`)',
-    note: 'SA-01, its Phase-1 Requests group (Package 1D).',
+    note: 'SA-01 Overview: built with its Requests group in Package 1D, completed in Phase 6.',
   },
   {
     screen: 'Shell',
@@ -766,7 +789,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     board: 'B1-11 f14 (`xr-notice-actions` → B7-03 Institution detail)',
     note: 'Rendered since Package 1D built Institution detail (SA-07).',
   },
-  // ---- SA-01 Overview (B7-01), its Phase-1 Requests group — Package 1D -----------------------------
+  // ---- SA-01 Overview (B7-01): the Requests group's rows (Package 1D); the other groups are Phase 6's
+  // (`link-targets-p6/content-oversight.ts`) ------------------------------------------------------
   {
     screen: 'SA-01',
     where: 'Requests group head',
@@ -923,17 +947,6 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     outcome: 'built',
     board: 'B7-03 `att` (godavari → B7-09 / B3-11 f0)',
     note: 'Phase 3: rendered with SA-18 Operations › Device transfers, one row per forwarded transfer of the institution (state-copy SA-07.attention-later).',
-  },
-  {
-    screen: 'SA-07',
-    where: '“Needs attention” — access ending',
-    action: 'Operations › Access ending',
-    role: 'secondary',
-    on: '/admin/institutions/{institutionId}',
-    target: '/admin/operations/access-ending',
-    outcome: 'not-rendered',
-    board: 'B7-03 `att` (konark → B7-09)',
-    note: 'SA-22 Operations › Access ending is not built (Phase 6): the row appears with it (state-copy SA-07.attention-later).',
   },
   {
     screen: 'SA-07',
@@ -2676,6 +2689,13 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
   ...P5_REVIEWER_REVIEW_LINK_TARGETS,
   ...P5_CM_LISTS_LINK_TARGETS,
   ...P5_CM_DECISION_LINK_TARGETS,
+  ...P6_CM_CORRECTION_LINK_TARGETS,
+  ...P6_REVIEW_UPDATE_LINK_TARGETS,
+  ...P6_RELEASE_LINK_TARGETS,
+  ...P6_CONTENT_OVERSIGHT_LINK_TARGETS,
+  ...P6_STRUCTURE_LINK_TARGETS,
+  ...P6_PLATFORM_ROLES_LINK_TARGETS,
+  ...P6_OPERATIONS_6_LINK_TARGETS,
 ];
 
 /**

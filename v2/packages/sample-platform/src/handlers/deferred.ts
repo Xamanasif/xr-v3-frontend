@@ -17,7 +17,7 @@ export function deferred(method: MethodId): (...args: unknown[]) => Promise<neve
   if (phase === 'WP-0.11')
     throw new Error(`${method} is a WP-0.11 method and must be implemented.`);
   if (DELIVERED_METHODS.includes(method))
-    throw new Error(`${method} was delivered by a Phase-1 package and must be implemented.`);
+    throw new Error(`${method} was delivered by a later-phase package and must be implemented.`);
   return () =>
     Promise.reject(
       new NotInThisPhase(

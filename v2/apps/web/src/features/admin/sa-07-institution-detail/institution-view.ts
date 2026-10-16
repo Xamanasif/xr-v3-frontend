@@ -9,9 +9,9 @@
  * `AccessRequestService.listRequests` — never from invented counts.
  */
 import type { InstitutionDetail, RequestRow } from '@xr/contracts/draft';
-import type { ActorRef, DeviceTransfer, InstitutionStatus } from '@xr/domain';
+import type { AccessEndingRow, ActorRef, DeviceTransfer, InstitutionStatus } from '@xr/domain';
 
-import { dateTime, dayMonthYear } from '@/copy/dates';
+import { calendarDay, dateTime, dayMonthYear } from '@/copy/dates';
 import {
   ATTENTION_NO_ADMIN,
   ATTENTION_REQUESTS,
@@ -35,7 +35,8 @@ import {
   quoted,
 } from '@/copy/institutions';
 import { ATTENTION_OPERATIONS, attentionTransfer } from '@/copy/operations';
-import { DEVICE_TRANSFERS_ADDRESS } from '@/nav/operations';
+import { ATTENTION_ACCESS_ENDING, attentionReminderDue } from '@/copy/operations-6';
+import { ACCESS_ENDING_ADDRESS, DEVICE_TRANSFERS_ADDRESS } from '@/nav/operations';
 import { REQUESTS_ADDRESS } from '@/nav/requests';
 
 import { requestStatusWords } from '../shared/request-status';
@@ -96,20 +97,34 @@ export function requestsNamed(detail: InstitutionDetail): readonly string[] {
 }
 
 /**
- * "Needs attention" (B7-03 `att`): a missing Institute Admin first, then the institution's open
- * requests (newest first), then its device transfers forwarded to BITS (Phase 3: newest first,
- * each opening Operations › Device transfers), then the pause (the board adds it last).
- * Access-ending reminders arrive with Phase 6 (state-copy `SA-07.attention-later`).
+ * "Needs attention" (B7-03 `att`): a missing Institute Admin first, then (Phase 6) its access
+ * ending with a reminder due — "Access ends 2 Nov 2026 — reminder due (nothing is sent from
+ * here)", opening Operations › Access ending (B7-03 konark: before its requests; state-copy
+ * `SA-07.attention-access-ending`) — then the institution's open requests (newest first), then
+ * its device transfers forwarded to BITS (Phase 3: newest first, each opening Operations ›
+ * Device transfers), then the pause (the board adds it last). A renewal in progress is its
+ * request's row; ended access needs nothing here (B7-10 f8).
  */
 export function attentionRows(
   detail: InstitutionDetail,
   requests: readonly RequestRow[],
   transfers: readonly DeviceTransfer[] = [],
+  ending: readonly AccessEndingRow[] = [],
 ): readonly AttentionView[] {
   const controls = drawnControls(detail);
   const rows: AttentionView[] = [];
   if (controls.assign) {
     rows.push({ key: 'no-admin', text: ATTENTION_NO_ADMIN, action: { kind: 'assign' } });
+  }
+  // B7-03 konark: "Access ends 2 Nov 2026 — reminder due (nothing is sent from here)" → SA-22.
+  for (const row of ending) {
+    if (row.institutionId !== detail.institution.id || row.standing.kind !== 'reminder-due')
+      continue;
+    rows.push({
+      key: `ending-${row.planId}`,
+      text: attentionReminderDue(calendarDay(row.endsOn)),
+      action: { kind: 'link', href: ACCESS_ENDING_ADDRESS, label: ATTENTION_ACCESS_ENDING },
+    });
   }
   const named = new Set(requestsNamed(detail));
   const open = requests

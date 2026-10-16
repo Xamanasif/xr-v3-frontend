@@ -203,6 +203,31 @@ function entry(
   });
 }
 
+/**
+ * An update as one audience may read it: the history entries written for that audience
+ * (`visibleTo`), and the facts those entries carry only where the audience may read the entry —
+ * the hold and its lifts (Content Manager and Super Admin, UPD-21), the withdrawal (the Content
+ * Manager, UPD-17) and a return's reason (Content Manager and Academic Reviewer). The state is
+ * everyone's: a reader still knows an update is on hold or withdrawn.
+ */
+export function updateForAudience(update: CorrectionUpdate, audience: Audience): CorrectionUpdate {
+  const reads = (event: UpdateEvent) =>
+    update.history.some((item) => item.event === event && item.visibleTo.includes(audience));
+  const returns = reads('returned-by-reviewer');
+  return {
+    ...update,
+    history: update.history.filter((item) => item.visibleTo.includes(audience)),
+    hold: update.hold && reads('put-on-hold') ? update.hold : null,
+    holdLifts: reads('hold-lifted') ? update.holdLifts : [],
+    withdrawal: update.withdrawal && reads('withdrawn') ? update.withdrawal : null,
+    reviewDecisions: update.reviewDecisions.map((decision) =>
+      decision.decision === 'return-to-content-manager' && !returns
+        ? { ...decision, reason: null }
+        : decision,
+    ),
+  };
+}
+
 /** The live version's correctable fields — the draft is pre-filled with them (M-1). */
 export function liveFields(experiment: Experiment): CorrectionFields {
   const live = experiment.live;
@@ -291,7 +316,9 @@ export function openCorrection(
     holdLifts: [],
     release: null,
     withdrawal: null,
-    history: [entry(input, 'started', input.entry, ['content_manager'])],
+    // B6-04 and B7-05 draw "Correction started from the published experiment" in the reviewer's and
+    // the Super Admin's history: the entry is the chain's (each sees the update only from its gate).
+    history: [entry(input, 'started', input.entry, CHAIN)],
   };
   return ok({
     update,
@@ -359,7 +386,8 @@ export function sendForAcademicReview(
     sentForReviewAt: input.now,
     history: [
       ...input.update.history,
-      entry(input, 'sent-for-academic-review', null, ['content_manager', 'academic_reviewer']),
+      // B7-05 f1 draws "Sent for academic review" in the Super Admin's history too.
+      entry(input, 'sent-for-academic-review', null, CHAIN),
     ],
   });
 }

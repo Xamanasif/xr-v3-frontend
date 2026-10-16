@@ -54,7 +54,8 @@ export const DECISION_PAGE = {
   columnStatus: 'Status',
   /** `fmtRows.how`. */
   webLink: 'Web link',
-  appPackage: 'App package (provisional — T-14)',
+  /** B6-07 “App package (provisional — T-14)” without its decision id (P1-14 / VD-10). */
+  appPackage: 'App package (provisional)',
   /** `fmtRows.state`. */
   formatPublished: 'Published',
   formatPassed: 'Passed review',
@@ -354,7 +355,8 @@ export const PUBLISHED_PAGE = {
   deliveryTitle: 'Delivery',
   /** `div.xv-deliv-head` titles. */
   webTitle: 'Web link',
-  packageTitle: 'App package (provisional — T-14)',
+  /** B6-08 “App package (provisional — T-14)” without its decision id (P1-14 / VD-10). */
+  packageTitle: 'App package (provisional)',
   webLink: 'Web link',
   browser: 'Browser and computer',
   package: 'Package',

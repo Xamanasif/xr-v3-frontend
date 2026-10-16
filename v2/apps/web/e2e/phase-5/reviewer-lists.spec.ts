@@ -270,9 +270,11 @@ test.describe('RV-01 Overview and RV-02 Review queue', () => {
     await expect(rows.nth(3).locator('.xr-row-sub')).toHaveText(
       /^Resubmitted · revision 2 · Northline Simulation Studio · \d{1,2} [A-Z][a-z]{2} 2026$/,
     );
-    // The update’s “Review update” (RV-04, Phase 6) is not rendered.
-    await expect(rows.nth(2).locator('a, button')).toHaveCount(0);
-    await expect(rows.getByRole('link')).toHaveCount(3);
+    // The update’s “Review update” opens Review an update (RV-04, Phase 6).
+    await expect(
+      rows.nth(2).getByRole('link', { name: 'Review update Distillation Column' }),
+    ).toHaveAttribute('href', '/reviewer/updates/UPD-0005');
+    await expect(rows.getByRole('link')).toHaveCount(4);
     const oldest = main(page).getByRole('link', { name: 'Review the oldest — Flash Distillation' });
     await expect(oldest).toHaveClass(/xr-btn--primary/);
     await checkState(page, 'Overview');
@@ -308,8 +310,11 @@ test.describe('RV-01 Overview and RV-02 Review queue', () => {
     ]);
     await expect(body.nth(1).locator('.xw-tag')).toHaveClass(/xw-tag--warn/);
     await expect(body.nth(1).locator('.xr-fmt')).toHaveText(['WEB', 'AR']);
-    await expect(body.nth(2).locator('a')).toHaveCount(0);
-    await expect(table(page).getByRole('link', { name: /^Review / })).toHaveCount(3);
+    // The update’s “Review” opens Review an update (RV-04, Phase 6).
+    await expect(
+      body.nth(2).getByRole('link', { name: 'Review Distillation Column' }),
+    ).toHaveAttribute('href', '/reviewer/updates/UPD-0005');
+    await expect(table(page).getByRole('link', { name: /^Review / })).toHaveCount(4);
     await expect(page.getByRole('combobox', { name: 'Course' }).locator('option')).toHaveText([
       'All courses',
       'ME ZG523',
@@ -463,8 +468,11 @@ test.describe('RV-05 Reviewed by me', () => {
     await expect(body.nth(0).locator('.xr-status')).toHaveClass(/xr-status--err/);
     await expect(body.nth(2).locator('.xr-status')).toHaveClass(/xr-status--ok/);
     await expect(body.nth(1).locator('td').nth(3)).toHaveText('24 Aug 2026');
-    // An update’s Open (RV-04’s decided view, Phase 6) is not rendered.
-    await expect(body.nth(5).locator('a')).toHaveCount(0);
+    // An update’s Open opens RV-04’s decided view (Phase 6).
+    await expect(body.nth(5).getByRole('link', { name: 'Open Boiler Drum Level' })).toHaveAttribute(
+      'href',
+      '/reviewer/updates/UPD-0004',
+    );
     await expectTableLayout(page);
     await checkState(page, 'Reviewed by me');
     if (width(page) === 1440) await shot(page, 'b6-02-f1-reviewed');

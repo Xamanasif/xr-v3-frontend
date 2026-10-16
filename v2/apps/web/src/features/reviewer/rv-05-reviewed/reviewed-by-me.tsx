@@ -18,6 +18,7 @@ import {
   REVIEWED_BY_ME_TITLE,
   reviewedByMePlacement,
   reviewSubmissionAddress,
+  reviewUpdateAddress,
 } from '@/nav/reviewer';
 import { useReviewedByMe } from '@/queries/production';
 
@@ -59,10 +60,9 @@ const FILTERS: readonly ReviewedFilter[] = ['all', 'new', 'update'];
  *   “Read-only · newest first”; the Show filter (Everything I decided · New submissions ·
  *   Updates), the polite count “<n> of <n> decisions”; the table Item (name, “ID · code”) · Type ·
  *   Your decision (the decision and where it is now, in words: `reviewedByMeWords`, ok or err) ·
- *   Decided on · Open — the decided page (RV-06) for a submission. “Nothing decided yet” when the
- *   filter leaves nothing.
- * - **Phase 6**: an update’s “Open” opens RV-04’s decided view, which is not built — the row is
- *   drawn without it (state-copy `RV-05.update-row`; P0-35, DEV-21).
+ *   Decided on · Open — the decided page (RV-06) for a submission, RV-04’s decided view for an
+ *   update (Phase 6; state-copy `RV-05.update-row`). “Nothing decided yet” when the filter leaves
+ *   nothing.
  * - Undrawn: loading and failed with “Try again” (state-copy `RV-05.loading`, `RV-05.failed`);
  *   an approval whose record is now somewhere the board draws no line for (`RV-05.approved`).
  */
@@ -180,15 +180,17 @@ function DecisionsTable({ rows }: { readonly rows: readonly DecidedRow[] }) {
                   <span className="xw-nowrap">{at ? dayMonthYear(at) : null}</span>
                 </td>
                 <td>
-                  {row.recordRef.kind === 'SUB' ? (
-                    <Link
-                      className="xr-btn xr-btn--secondary xr-btn--sm"
-                      href={reviewSubmissionAddress(row.recordRef.id)}
-                      aria-label={openLabel(row.name)}
-                    >
-                      {REVIEWED_BY_ME.open}
-                    </Link>
-                  ) : null}
+                  <Link
+                    className="xr-btn xr-btn--secondary xr-btn--sm"
+                    href={
+                      row.recordRef.kind === 'UPD'
+                        ? reviewUpdateAddress(row.recordRef.id)
+                        : reviewSubmissionAddress(row.recordRef.id)
+                    }
+                    aria-label={openLabel(row.name)}
+                  >
+                    {REVIEWED_BY_ME.open}
+                  </Link>
                 </td>
               </tr>
             );

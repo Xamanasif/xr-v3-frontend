@@ -15,14 +15,19 @@ import {
   reportProblemInput,
   requestDeviceTransferInput,
   resolveReportInput,
+  supportListInput,
   usageInput,
 } from '@xr/contracts/draft';
 import {
+  accessEndingRows,
+  activeScopes,
   approveDeviceTransfer,
   type DeviceTransfer,
   forwardDeviceTransfer,
   forwardingBlocked,
   type Institution,
+  institutionStatus,
+  isStuck,
   reopenReport,
   reportProblem,
   requestDeviceTransfer,
@@ -33,9 +38,11 @@ import {
 import type { Call } from '../platform/core.js';
 import type { ResolvedPerson } from '../pipeline/actor.js';
 import { command, type Op, read, refuse } from '../pipeline/runner.js';
+import { plansOf } from '../world/queries.js';
 import { deviceKey, values } from '../world/records.js';
-import { deferred } from './deferred.js';
-import { usageOf } from './institution.js';
+import { newestFirst as requestsNewestFirst, requestRow } from './access-request.js';
+import { asReadBy } from './correction.js';
+import { needsInstituteAdmin, usageOf } from './institution.js';
 
 function field(input: unknown, name: string): unknown {
   return typeof input === 'object' && input !== null
@@ -83,11 +90,187 @@ function transferOf(op: Op, person: ResolvedPerson, rawId: unknown): DeviceTrans
   return transfer;
 }
 
+const byInstant =
+  <T>(at: (row: T) => string, direction: 1 | -1 = 1) =>
+  (a: T, b: T): number =>
+    at(a) === at(b) ? 0 : at(a) < at(b) ? -direction : direction;
+
+function superAdminOnly(person: ResolvedPerson): void {
+  if (person.role !== 'super_admin') refuse({ kind: 'not-permitted', why: 'wrong-workspace' });
+}
+
+/**
+ * SA-22 rows (B7-09 f4; PC-68): every plan ending within 15 days or ended, with its institution's
+ * name and kind — soonest end first, ended plans after (the most recently ended first). "Reminder
+ * due" is a status only: nothing is sent (T-31).
+ */
+function accessEndingOf(op: Op) {
+  return accessEndingRows({
+    plans: values(op.records.plans),
+    requests: values(op.records.requests),
+    now: op.now,
+  })
+    .flatMap((row) => {
+      const institution = op.records.institutions[row.institutionId];
+      return institution
+        ? [{ row, institutionName: institution.name, institutionKind: institution.kind }]
+        : [];
+    })
+    .sort((a, b) => {
+      const endedA = a.row.endedDaysAgo !== null;
+      const endedB = b.row.endedDaysAgo !== null;
+      if (endedA !== endedB) return endedA ? 1 : -1;
+      if (a.row.endsOn === b.row.endsOn)
+        return a.institutionName.localeCompare(b.institutionName, 'en');
+      return (a.row.endsOn < b.row.endsOn ? -1 : 1) * (endedA ? -1 : 1);
+    });
+}
+
+/** At most four rows a group shows (B7-01 "each with at most four rows"; BR-138). */
+function group<T>(rows: readonly T[]) {
+  return { count: rows.length, rows: rows.slice(0, 4) };
+}
+
 export function operationsPort(call: Call): OperationsService {
   return {
-    listSupportReports: deferred('OperationsService.listSupportReports'),
-    listAccessEnding: deferred('OperationsService.listAccessEnding'),
-    getSuperAdminOverview: deferred('OperationsService.getSuperAdminOverview'),
+    // SA-20 (B7-09 f7): every report sent from Help, oldest first; the Super Admin reads them all
+    // (SUP-09). Nothing is sent from the product (T-34).
+    listSupportReports: (filter) =>
+      read(call, 'OperationsService.listSupportReports', (op) => {
+        const person = op.person();
+        superAdminOnly(person);
+        const accepted = op.parse(supportListInput, filter);
+        return values(op.records.reports)
+          .filter((report) => op.canSee(person, { kind: 'support-report', report }))
+          .filter((report) => !accepted.state || report.state === accepted.state)
+          .sort(byInstant((report) => report.sentAt));
+      }),
+
+    listAccessEnding: () =>
+      read(call, 'OperationsService.listAccessEnding', (op) => {
+        superAdminOnly(op.person());
+        return accessEndingOf(op);
+      }),
+
+    // SA-01 (B7-01; PC-67): the two figures and the eight groups, each from the same records and
+    // rules as the list it opens — nothing is counted that the list would not show.
+    getSuperAdminOverview: () =>
+      read(call, 'OperationsService.getSuperAdminOverview', (op) => {
+        const person = op.person();
+        superAdminOnly(person);
+        const records = op.records;
+        const institutions = values(records.institutions).filter((institution) =>
+          op.canSee(person, { kind: 'institution', institutionId: institution.id }),
+        );
+        const statuses = institutions.map((institution) => ({
+          institution,
+          status: institutionStatus(institution, plansOf(records, institution.id), op.now),
+        }));
+        const requests = values(records.requests)
+          .filter((request) => op.canSee(person, { kind: 'request', request }))
+          .filter((request) => request.status === 'under-review')
+          .sort(requestsNewestFirst)
+          .map((request) => {
+            const source = request.sourcePlanId ? records.plans[request.sourcePlanId] : undefined;
+            return {
+              request: requestRow(request),
+              accessEndsOn: request.type === 'renewal' && source ? source.endsOn : null,
+            };
+          });
+        const updates = values(records.updates)
+          .filter((update) => update.state === 'awaiting-release-decision')
+          .flatMap((update) => {
+            const experiment = records.experiments[update.experimentId];
+            if (!experiment || !op.canSee(person, { kind: 'update', update, experiment }))
+              return [];
+            return [
+              {
+                update: asReadBy(update, person),
+                experimentName: experiment.live.catalogue.name,
+                liveLabel: experiment.live.label,
+                approvedAt:
+                  update.reviewDecisions.findLast((decision) => decision.decision === 'approve')
+                    ?.at ?? null,
+              },
+            ];
+          })
+          .sort(byInstant((row) => row.approvedAt ?? row.update.updatedAt));
+        const transfers = values(records.transfers)
+          .filter((transfer) => transfer.state === 'forwarded')
+          .filter((transfer) => op.canSee(person, { kind: 'device-transfer', transfer }))
+          .flatMap((transfer) => {
+            const student = records.people[transfer.studentId];
+            const institution = records.institutions[transfer.institutionId];
+            return student && institution
+              ? [{ transfer, studentName: student.fullName, institutionName: institution.name }]
+              : [];
+          })
+          .sort(byInstant((row) => row.transfer.forwarded?.at ?? row.transfer.requestedAt));
+        const support = values(records.reports)
+          .filter((report) => report.state !== 'resolved')
+          .filter((report) => op.canSee(person, { kind: 'support-report', report }))
+          .sort(byInstant((report) => report.sentAt));
+        // Ended access is not waiting on anyone: the group is "within 15 days" (B7-01).
+        const ending = accessEndingOf(op).filter((view) => view.row.endedDaysAgo === null);
+        const withoutAdmin = statuses
+          .filter(({ institution, status }) => needsInstituteAdmin(institution, status))
+          .map(({ institution, status }) => {
+            const first = plansOf(records, institution.id)
+              .map((plan) => plan.activatedAt)
+              .sort()[0];
+            return {
+              institutionId: institution.id,
+              name: institution.name,
+              status,
+              accessSince: first ?? null,
+            };
+          })
+          .sort(byInstant((row) => row.accessSince ?? ''));
+        const holders = values(records.holders);
+        const stuck = values(records.submissions)
+          .filter((submission) => op.canSee(person, { kind: 'submission', submission }))
+          .filter((submission) => isStuck(submission, holders))
+          .flatMap((submission) => {
+            const status = submission.status;
+            if (status.state !== 'with-academic-reviewer') return [];
+            const course = submission.content.courseId
+              ? records.courses[submission.content.courseId]
+              : undefined;
+            return [
+              {
+                submissionId: submission.id,
+                name: submission.content.name,
+                courseCode: course?.platformCode ?? null,
+                since: status.since,
+              },
+            ];
+          })
+          .sort(byInstant((row) => row.since));
+        const noScope = holders
+          .filter((holder) => activeScopes(holder).length === 0)
+          .filter((holder) => op.canSee(person, { kind: 'scope-line', holder }))
+          .sort(byInstant((holder) => holder.registeredAt))
+          .map((holder) => ({ holder }));
+        return {
+          figures: {
+            activeInstitutions: statuses.filter(
+              ({ status }) => status === 'access-active' || status === 'ending-soon',
+            ).length,
+            paused: statuses.filter(({ status }) => status === 'access-paused').length,
+            awaitingPayment: statuses.filter(({ status }) => status === 'approved-payment-required')
+              .length,
+            publishedExperiments: values(records.experiments).length,
+          },
+          requests: group(requests),
+          updates: group(updates),
+          deviceTransfers: group(transfers),
+          support: group(support),
+          accessEnding: group(ending),
+          institutionsWithoutAdmin: group(withoutAdmin),
+          stuckContent: group(stuck),
+          holdersWithoutScope: group(noScope),
+        };
+      }),
 
     getMyDevice: () =>
       read(call, 'OperationsService.getMyDevice', (op) => {

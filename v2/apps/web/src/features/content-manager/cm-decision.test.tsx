@@ -6,7 +6,7 @@
  * only the record’s own failing checks and offers Send back only; Send back checks who and why
  * at once, sends references toward the vendor only and keeps what was typed when the record
  * changed meanwhile; still in review or with the vendor, the page is read-only. CM-05 states the
- * live version and an update in progress, without the Phase-6 correction entry.
+ * live version and an update in progress; its Phase-6 correction entry is `cm-correction.test.tsx`.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -500,7 +500,7 @@ describe('CM-03 read-only (B6-07 f3; B6-11 f5) and not found', () => {
 });
 
 describe('CM-05 Published experiment (B6-08)', () => {
-  it('live and read-only, with no correction entry (Phase 6)', async () => {
+  it('live and read-only; the correction entry is the only action (Phase 6)', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     showPublished(runtime, 'distillation-column');
     await heading('Distillation Column');
@@ -510,7 +510,13 @@ describe('CM-05 Published experiment (B6-08)', () => {
     );
     expect(document.querySelector('.xr-top-title')?.textContent).toBe('Content library');
     expect(main().querySelector('a.xr-back')).toHaveAttribute('href', '/content-manager/library');
-    expect(within(main()).queryAllByRole('button')).toHaveLength(0);
+    // Phase 6: the correction entry (`cm-correction.test.tsx`) — nothing on the page edits it.
+    expect(
+      within(main())
+        .queryAllByRole('button')
+        .map((button) => text(button)),
+    ).toEqual(['Start a correction', 'Edit catalogue details', 'Edit delivery link']);
+    expect(main().querySelectorAll('input, textarea, select')).toHaveLength(0);
     expect(main().querySelector('.xr-notice--warn')).toBeNull();
     const history = screen.getByRole('region', { name: 'History' });
     expect([...history.querySelectorAll('.xr-tl-what')].map((node) => text(node))).toEqual([
@@ -535,7 +541,12 @@ describe('CM-05 Published experiment (B6-08)', () => {
     expect(text(notice)).toBe(
       'An update is in progress — UPD-0005 · Draft Edits to this experiment join that update. Open it to continue.',
     );
-    expect(within(main()).queryAllByRole('button')).toHaveLength(0);
+    // Phase 6: the edit entries join it (`cm-correction.test.tsx`).
+    expect(
+      within(main())
+        .queryAllByRole('button')
+        .map((button) => text(button)),
+    ).toEqual(['Edit catalogue details', 'Edit delivery link']);
     const history = screen.getByRole('region', { name: 'History' });
     expect(text(history.querySelector('.xr-tl'))).toMatch(
       /^UPD-0005 started — draft .* Version not set\. The live version below is unchanged\.$/,
@@ -547,7 +558,7 @@ describe('CM-05 Published experiment (B6-08)', () => {
     showPublished(runtime, 'boiler-drum-level');
     await heading('Boiler Drum Level');
     expect(text(main().querySelector('.xr-notice--warn'))).toBe(
-      'An update is in progress — UPD-0004 · On hold The Super Admin put it on hold. Version 2.0 stays live.',
+      'An update is in progress — UPD-0004 · On hold The Super Admin put it on hold. Version 2.0 stays live. Open update',
     );
     expect(text(main().querySelector('.xr-phead-meta'))).toBe('Published Live since 18 Jun 2026');
     expect(text(screen.getByRole('region', { name: 'Delivery' }))).toContain('Package —');

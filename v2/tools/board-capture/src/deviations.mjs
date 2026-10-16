@@ -454,7 +454,7 @@ export const DEVIATIONS = [
     expected:
       'B1-09 draws the two links on the sign-in page; B1-10 and board 05 draw the Super Admin sidebar with all seven destinations.',
     actual:
-      'The Super Admin sidebar lists the destinations built so far — Overview and Institutions (Package 1D) and Requests (1A, with its count of requests under review read from the world) — and Help. Since Package 2A the Student sidebar lists Home and My courses and the Institute Admin sidebar Overview, Content access, Student access and People; since Phase 3 the Student’s adds Progress (not Assessments, Phase 4), the Institute Admin’s Requests and Usage (every destination; the Requests count is DEV-43) and the Super Admin’s Operations (not Content, Academic structure, Platform roles: Phase 6). Since Phase 4A the Faculty sidebar lists Overview, My courses, Assessments and Question bank, and since Phase 4B Marking and Students too: the Student and Faculty sidebars are then complete — the Student comparisons (`05-student-…-sidebar-phase-4b`, the three board-07 `…-phase-4b`) no longer name this entry, and the Faculty sidebar differs only in its Marking count’s figure (DEV-44). Since Phase 5 the Vendor sidebar lists Overview and My experiments and the Academic Reviewer’s Overview, Review queue and Reviewed by me (both complete: their comparisons no longer name this entry; the Review queue count’s figure, the world’s, stays inside the tolerance), and the Content Manager’s Overview, Ready to publish, Content library and Course codes — not Updates (CM-08, Phase 6): `05-content-manager-help-built-sidebar-phase-5` and the board-07 Content Manager `…-phase-5` comparisons name this entry. The Phase-5 screens draw the rows of correction updates without their actions (RV-04, CM-06 … CM-08: Phase 6). The B4 actions that open Phase-4B screens render since Phase 4B, except FA-01’s "Review drafts" (no drafts fact, PC-51). On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Measured per comparison in DEVIATIONS.md.',
+      'The Super Admin sidebar lists the destinations built so far — Overview and Institutions (Package 1D) and Requests (1A, with its count of requests under review read from the world) — and Help. Since Package 2A the Student sidebar lists Home and My courses and the Institute Admin sidebar Overview, Content access, Student access and People; since Phase 3 the Student’s adds Progress (not Assessments, Phase 4), the Institute Admin’s Requests and Usage (every destination; the Requests count is DEV-43) and the Super Admin’s Operations (not Content, Academic structure, Platform roles: Phase 6). Since Phase 4A the Faculty sidebar lists Overview, My courses, Assessments and Question bank, and since Phase 4B Marking and Students too: the Student and Faculty sidebars are then complete — the Student comparisons (`05-student-…-sidebar-phase-4b`, the three board-07 `…-phase-4b`) no longer name this entry, and the Faculty sidebar differs only in its Marking count’s figure (DEV-44). Since Phase 5 the Vendor sidebar lists Overview and My experiments and the Academic Reviewer’s Overview, Review queue and Reviewed by me (both complete: their comparisons no longer name this entry; the Review queue count’s figure, the world’s, stays inside the tolerance), and the Content Manager’s Overview, Ready to publish, Content library and Course codes — not Updates (CM-08, Phase 6): `05-content-manager-help-built-sidebar-phase-5` and the board-07 Content Manager `…-phase-5` comparisons name this entry. The Phase-5 screens draw the rows of correction updates without their actions (RV-04, CM-06 … CM-08: Phase 6). The B4 actions that open Phase-4B screens render since Phase 4B, except FA-01’s "Review drafts" (no drafts fact, PC-51). On the sign-in card the top row\'s "Back to experiments" renders since Package 1B built the Landing (PU-01; its back icon is DEV-23), and the card foot\'s "Request institutional access" since Package 1C built the Selection (PU-07): the sign-in comparisons no longer name this entry. Since Phase 6 every designed destination of every workspace is built and every drawn action renders (Content, Academic structure, Platform roles and the Operations tabs for the Super Admin, Updates for the Content Manager, the update rows’ actions): the Super Admin and Content Manager comparisons are measured as `-phase-6` without this entry (board 05’s two sidebars now come within tolerance) — the earlier pins stay as the record; only the Institute Admin sidebar comparison still names it, beside its Requests count (DEV-43). Measured per comparison in DEVIATIONS.md.',
     accessibility:
       'None: an unbuilt address would show the public not-found page and, as a document load, restart the tab’s sample world (ADR-0004).',
     decision:
@@ -750,7 +750,7 @@ export const DEVIATIONS = [
     product: 'SA-01 Overview (apps/web features/admin/sa-01-overview)',
     expected: 'B7-01: the full overview — two figures and eight groups.',
     actual:
-      'The page header has its overline and title only; the page holds the Requests group (the requests under review, as the sidebar counts them) or the calm state. Everything else waits for `OperationsService.getSuperAdminOverview` (Phase 6). Measured per comparison in DEVIATIONS.md.',
+      'The page header has its overline and title only; the page holds the Requests group (the requests under review, as the sidebar counts them) or the calm state. Everything else waits for `OperationsService.getSuperAdminOverview` (Phase 6). Phase 6 builds the full Overview (the figures, the summary line and the eight groups): the B7-01 comparisons are measured as `-phase-6` and no longer name this entry; its pins stay as the record of the Phase-1 scope. Measured per comparison in DEVIATIONS.md.',
     accessibility: 'None.',
     decision:
       'Owner decision "SA-01 scope" (Package-1D authorisation, 15 Oct 2026): "Approve only the Phase-1 Requests section of SA-01 … Do not invent overview figures, licence totals, expiry dates or metrics absent from the Phase-1 DTOs. Record the remaining full SA-01 overview as a Phase-6 requirement."',
@@ -835,7 +835,7 @@ export const DEVIATIONS = [
       'SA-07 (features/admin/sa-07-institution-detail/institution-view.ts `attentionRows`; state-copy SA-07.attention-request, SA-07.attention-later)',
     expected: 'B7-03’s hand-written rows, Operations rows included.',
     actual:
-      'Rows written from the records: the requests the institution’s own history names, read for their status (`listRequests`), as "<reference> <type> — <status>" (B7-03’s Konark and Sahyadri rows), the request it was created from while it waits for payment (B7-03 Vizag), no Institute Admin and the pause (B7-03 Sahyadri, Deccan). Device transfers (Phase 3) and access-ending reminders (Phase 6) are not listed: Operations is not built (P0-35).',
+      'Rows written from the records: the requests the institution’s own history names, read for their status (`listRequests`), as "<reference> <type> — <status>" (B7-03’s Konark and Sahyadri rows), the request it was created from while it waits for payment (B7-03 Vizag), no Institute Admin and the pause (B7-03 Sahyadri, Deccan). Device transfers forwarded to BITS are listed since Phase 3 (SA-18) and access-ending reminders since Phase 6 (“Access ends 2 Nov 2026 — reminder due …” → SA-22, B7-03 Konark); what still differs on the compared frames is the world’s own records for the institution.',
     accessibility: 'None.',
     decision: 'For the owner’s review — not approved by the harness.',
     proposal:
@@ -965,6 +965,26 @@ export const DEVIATIONS = [
     decision:
       'Sample data only: the badge shows the world’s own figure (board 06: counts are product data, never the board’s sample numbers). For the owner’s review — not approved by the harness.',
     proposal: 'Close as sample data (as DEV-22 for the Super Admin’s requests).',
+  },
+  {
+    id: 'DEV-45',
+    title:
+      'Phase 6: SA-01 Overview’s counts, rows and dates are the sample world’s on 23 Oct 2026, not B7-01’s sample figures',
+    class: 'fixture-state',
+    status: 'owner-review',
+    blocksParity: false,
+    boards: [
+      'B7-01 f0 “15 items waiting across 8 groups · 23 Oct 2026”, the Requests, Corrections, Device transfers and Support groups’ rows (REQ-0058 “60 more licences”, UPD-0005 “approved … on 27 Aug 2026”, DTR-0016, SUP-0209 / SUP-0211 with their short titles)',
+    ],
+    product:
+      'SA-01 Overview (`OperationsService.getSuperAdminOverview`, provisional register PC-67) on the world after Flow E',
+    expected: 'B7-01’s sample counts and rows.',
+    actual:
+      'The product draws the world’s own facts: 12 items across the eight groups (the walk holds DTR-0018 only, two support reports, UPD-0005 approved on 22 Oct); support titles are the P0-31 excerpt of what happened; the group heights — and so the sidebar’s and the whole frame’s — follow the rows. The figures and the Access ending, Institutions without an Institute Admin, Stuck content and Role holders groups are the board’s.',
+    accessibility: 'None: the same groups, headings, counts and row actions as the board.',
+    decision:
+      'Sample data only (counts are product data, never the board’s sample numbers). For the owner’s review — not approved by the harness.',
+    proposal: 'Close as sample data (as DEV-22 and DEV-44).',
   },
 ];
 

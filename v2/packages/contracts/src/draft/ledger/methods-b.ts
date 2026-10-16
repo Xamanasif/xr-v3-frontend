@@ -117,6 +117,7 @@ import {
   editDescriptionInput,
   getStructureAreaOutput,
   getStructureCourseOutput,
+  holderView,
   listHoldersInput,
   listHoldersOutput,
   moveCourseInput,
@@ -1206,7 +1207,7 @@ export const PLATFORM_ROLE_LEDGER = portLedger<PlatformRoleService>()({
   getHolder: entry({
     kind: 'read',
     input: ids.in.roleHolder,
-    output: platformRoleHolder,
+    output: holderView,
     mock: 'P6',
     screens: ['SA-17'],
     errors: SIGNED_IN_RECORD_READ,

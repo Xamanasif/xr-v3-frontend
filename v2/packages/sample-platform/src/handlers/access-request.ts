@@ -128,7 +128,8 @@ export function requesterView(request: AccessRequest): RequesterRequestView {
   };
 }
 
-function requestRow(request: AccessRequest): RequestRow {
+/** The SA-02 row of a request (SA-01's Requests group reads the same rows). */
+export function requestRow(request: AccessRequest): RequestRow {
   return {
     id: request.id,
     institutionName: request.institutionName,
@@ -142,7 +143,7 @@ function requestRow(request: AccessRequest): RequestRow {
   };
 }
 
-function newestFirst(a: AccessRequest, b: AccessRequest): number {
+export function newestFirst(a: AccessRequest, b: AccessRequest): number {
   return a.receivedAt === b.receivedAt ? 0 : a.receivedAt < b.receivedAt ? 1 : -1;
 }
 

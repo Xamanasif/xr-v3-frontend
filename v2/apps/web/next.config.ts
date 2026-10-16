@@ -81,6 +81,8 @@ const nextConfig: NextConfig = {
         destination: '/admin/operations/device-transfers',
         permanent: false,
       },
+      // Row 15 (Phase 6, board-forced): "Content" and the "Content" crumb open Updates (B7-05).
+      { source: '/admin/content', destination: '/admin/content/updates', permanent: false },
     ]);
   },
 };

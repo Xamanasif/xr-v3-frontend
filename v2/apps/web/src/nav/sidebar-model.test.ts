@@ -112,10 +112,26 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
       'CM-04',
       'CM-05',
       'CM-09',
+      // Phase 6: every designed id is built.
+      'CM-08',
+      'CM-06',
+      'CM-07',
+      'RV-04',
+      'SA-10',
+      'SA-11',
+      'SA-12',
+      'SA-13',
+      'SA-14',
+      'SA-15',
+      'SA-16',
+      'SA-17',
+      'SA-20',
+      'SA-21',
+      'SA-22',
     ]);
   });
 
-  it('Phase 5: the Vendor, Academic Reviewer and Content Manager sidebars list their built destinations — not Updates (CM-08, Phase 6) — each current on its own screens, nothing current on a message page', () => {
+  it('Phases 5 and 6: the Vendor, Academic Reviewer and Content Manager sidebars list every destination — Updates too (CM-08) — each current on its own screens, nothing current on a message page', () => {
     const rows = (
       role: (typeof PLATFORM_ROLES)[number],
       screen: Parameters<typeof sidebarModel>[1]['screen'],
@@ -138,8 +154,22 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
       ['Overview', '/content-manager', false],
       ['Ready to publish', '/content-manager/ready', false],
       ['Content library', '/content-manager/library', true],
+      ['Updates', '/content-manager/updates', false],
       ['Course codes', '/content-manager/course-codes', false],
     ]);
+    // Phase 6: the update page and the drafts CM-06 / CM-07 open are Updates'; RV-04 the queue's.
+    for (const screen of ['CM-06', 'CM-07', 'CM-08'] as const) {
+      expect(
+        rows('content_manager', screen)
+          .filter(([, , current]) => current)
+          .map(([label]) => label),
+      ).toEqual(['Updates']);
+    }
+    expect(
+      rows('academic_reviewer', 'RV-04')
+        .filter(([, , current]) => current)
+        .map(([label]) => label),
+    ).toEqual(['Review queue']);
     for (const role of ['vendor', 'academic_reviewer', 'content_manager'] as const) {
       const help = sidebarModel(role, { screen: 'XS-07' });
       expect(help.help).toEqual({ href: `${WORKSPACE_NAV[role].base}/help`, current: true });
@@ -265,12 +295,15 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
     }
   });
 
-  it('Super Admin: Overview, Requests, Institutions and Operations (Phase 3), then Help — each current on its own screens, the Requests count in words', () => {
+  it('Super Admin: every destination (Phase 6 completes Content, Academic structure, Platform roles and Operations), then Help — each current on its own screens, the Requests count in words', () => {
     const help = sidebarModel('super_admin', { screen: 'XS-07' });
     expect(help.destinations.map((item) => [item.label, item.href, item.current])).toEqual([
       ['Overview', '/admin', false],
       ['Requests', '/admin/requests', false],
       ['Institutions', '/admin/institutions', false],
+      ['Content', '/admin/content/updates', false],
+      ['Academic structure', '/admin/structure', false],
+      ['Platform roles', '/admin/roles', false],
       ['Operations', '/admin/operations/device-transfers', false],
     ]);
     expect(help.help.current).toBe(true);
@@ -281,8 +314,18 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
     expect(current('SA-01')).toEqual(['Overview']);
     expect(current('SA-06')).toEqual(['Institutions']);
     expect(current('SA-07')).toEqual(['Institutions']);
-    expect(current('SA-18')).toEqual(['Operations']);
-    expect(current('SA-19')).toEqual(['Operations']);
+    for (const screen of ['SA-10', 'SA-11', 'SA-12', 'SA-13'] as const) {
+      expect(current(screen)).toEqual(['Content']);
+    }
+    for (const screen of ['SA-14', 'SA-15'] as const) {
+      expect(current(screen)).toEqual(['Academic structure']);
+    }
+    for (const screen of ['SA-16', 'SA-17'] as const) {
+      expect(current(screen)).toEqual(['Platform roles']);
+    }
+    for (const screen of ['SA-18', 'SA-19', 'SA-20', 'SA-21', 'SA-22'] as const) {
+      expect(current(screen)).toEqual(['Operations']);
+    }
     for (const screen of ['SA-02', 'SA-03'] as const) {
       const page = sidebarModel('super_admin', { screen, counts: { requests: 2 } });
       expect(page.destinations.find((item) => item.label === 'Requests')).toEqual({
@@ -297,6 +340,9 @@ describe('the built-screen manifest (Phase 0 + Packages 1A, 1D, 2A, 2B, Phase 3 
     for (const screen of ['XS-06', 'PU-15'] as const) {
       const message = sidebarModel('super_admin', { screen });
       expect(message.destinations.map((item) => item.current)).toEqual([
+        false,
+        false,
+        false,
         false,
         false,
         false,

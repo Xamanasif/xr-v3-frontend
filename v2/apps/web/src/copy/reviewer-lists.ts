@@ -23,7 +23,7 @@ export const REVIEWER_OVERVIEW = {
   openQueue: 'Open the review queue',
   /** `section.xr-section` “Waiting for your decision”. */
   sectionTitle: 'Waiting for your decision',
-  /** A row’s action: “Review”; an update’s “Review update” (RV-04, not rendered: Phase 6). */
+  /** A row’s action: “Review” (RV-03); an update’s “Review update” (RV-04, Phase 6). */
   review: 'Review',
   reviewUpdate: 'Review update',
   /** f1 “Nothing waiting”: `div.xr-section > div.xr-empty` with the done icon in the ok tint. */

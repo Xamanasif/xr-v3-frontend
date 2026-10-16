@@ -12,9 +12,9 @@ import type { Course, EngineeringArea, PlatformRoleHolder } from '@xr/domain';
 import { emailAsDrawn, optionalTrimmed, requiredTrimmed } from '@xr/validation';
 import { z } from 'zod';
 
-import { expectedRev, ids } from '../kernel/primitives.js';
+import { expectedRev, ids, institutionId, roleHolderId } from '../kernel/primitives.js';
 import { course, courseUsage, engineeringArea } from '../records/catalogue.js';
-import { platformRole, platformRoleHolder } from '../records/operations.js';
+import { platformRole, platformRoleHolder, roleScope, scopeStatus } from '../records/operations.js';
 import type {
   InvalidState,
   NotFound,
@@ -97,7 +97,35 @@ export const structureOutput = z.array(
   }),
 );
 export const getStructureAreaOutput = z.object({ area: engineeringArea, courses: z.array(course) });
-export const getStructureCourseOutput = z.object({ course, usage: courseUsage });
+/**
+ * SA-15 "What uses this course" (B7-07 f1, f3, f4) as facts beside the counts of `courseUsage`
+ * (Phase 6; provisional register PC-69): the institutions whose access plans hold one of its
+ * experiments (an ended plan marked ended; with the institution's own code for the course), the
+ * Vendors whose scope covers it, and the Faculty mapped to it by institution. The area's name is
+ * the record's own.
+ */
+export const courseUsageDetail = z.object({
+  institutions: z.array(
+    z.object({
+      institutionId,
+      name: z.string().min(1),
+      institutionCode: z.string().nullable(),
+      ended: z.boolean(),
+    }),
+  ),
+  vendors: z.array(
+    z.object({ holderId: roleHolderId, name: z.string().min(1), organisation: z.string().min(1) }),
+  ),
+  faculty: z.array(
+    z.object({ institutionId, institutionName: z.string().min(1), names: z.array(z.string()) }),
+  ),
+});
+export const getStructureCourseOutput = z.object({
+  course,
+  areaName: z.string().min(1),
+  usage: courseUsage,
+  detail: courseUsageDetail,
+});
 export const previewMoveCourseOutput = z.object({
   blocked: z.boolean(),
   blockers: z.object({ students: z.number().int().min(0), faculty: z.number().int().min(0) }),
@@ -235,10 +263,21 @@ export const restoreScopeInput = z.object({
   expectedRev,
 });
 
-/** `canActOn` is pre-rendered words (Appendix C [P]) — PROVISIONAL. */
-export const listHoldersOutput = z.array(
-  z.object({ holder: platformRoleHolder, canActOn: z.string() }),
-);
+/**
+ * SA-16 / SA-17 "Can act on" as facts, not words (Phase 6; provisional register PC-70): each of the
+ * holder's scopes with its status and what it names — a course's platform code (null while it has
+ * none) and name, an experiment's live name, nothing for all experiments. Appendix C gave the row a
+ * pre-rendered `canActOn` (PC-13).
+ */
+export const scopeView = z.object({
+  scope: roleScope,
+  status: scopeStatus,
+  courseCode: z.string().nullable(),
+  name: z.string().nullable(),
+});
+export const holderView = z.object({ holder: platformRoleHolder, scopes: z.array(scopeView) });
+/** Each tab's holders, first registered first. */
+export const listHoldersOutput = z.array(holderView);
 
 export interface PlatformRoleService {
   listHolders(
@@ -246,7 +285,7 @@ export interface PlatformRoleService {
   ): Answer<Out<typeof listHoldersOutput>, NotSignedIn | NotPermitted | Unavailable>;
   getHolder(
     id: In<typeof ids.in.roleHolder>,
-  ): Answer<PlatformRoleHolder, NotSignedIn | NotPermitted | NotFound | Unavailable>;
+  ): Answer<Out<typeof holderView>, NotSignedIn | NotPermitted | NotFound | Unavailable>;
   /** Only Vendors, Academic Reviewers and Content Managers (ROLE-07); no scope yet. */
   registerHolder(
     input: In<typeof registerHolderInput>,

@@ -220,8 +220,11 @@ test.describe('CM-01 Overview', () => {
     await expect(needs.locator('li.xr-row .xr-row-sub').nth(2)).toHaveText(
       'UPD-0006 · returned by the Academic Reviewer on 26 Aug 2026 · “The proposed description says slip falls as the load rises…”',
     );
-    // “Open update” waits for CM-08 (Phase 6): the row has no action.
-    await expect(needs.getByRole('link', { name: /update/i })).toHaveCount(0);
+    // “Open update” opens the returned correction (CM-08, Phase 6).
+    await expect(needs.getByRole('link', { name: 'Open update' })).toHaveAttribute(
+      'href',
+      '/content-manager/updates/UPD-0006',
+    );
     const others = region(page, 'With others');
     await expect(others.locator('.xr-section-head .xr-meta')).toHaveText(
       'For information — nothing to do',

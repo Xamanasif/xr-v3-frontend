@@ -47,6 +47,18 @@ describe('placeWordsOf', () => {
     ['/content-manager/decisions/SUB-0077', 'Ready to publish › SUB-0077'],
     ['/content-manager/published/distillation-column', 'Content library'],
     ['/content-manager/course-codes', 'Course codes'],
+    // Phase 6.
+    ['/content-manager/updates', 'Updates'],
+    ['/content-manager/updates/UPD-0005?focus=summary', 'Updates › UPD-0005'],
+    ['/reviewer/updates/UPD-0005', 'Review queue › UPD-0005'],
+    ['/admin/content/updates?show=on-hold', 'Content'],
+    ['/admin/content/updates/UPD-0005', 'Content › UPD-0005'],
+    ['/admin/content/records/SUB-0085', 'Content › SUB-0085'],
+    ['/admin/content/records/distillation-column', 'Content'],
+    ['/admin/structure/courses/fluid-mechanics', 'Academic structure'],
+    ['/admin/roles/role-a-menon', 'Platform roles'],
+    ['/admin/operations/support/SUP-0213', 'Operations › SUP-0213'],
+    ['/admin/operations/access-ending', 'Operations'],
   ])('%s → %s', (path, place) => {
     expect(placeWordsOf(path)).toBe(place);
   });
@@ -55,8 +67,8 @@ describe('placeWordsOf', () => {
     [null],
     [''],
     ['/'],
-    // Phase 5: an unbuilt page (the Content Manager's Updates, Phase 6) has no words.
-    ['/content-manager/updates'],
+    // An address that names no page has no words.
+    ['/content-manager/nowhere'],
     ['https://evil.example/admin/requests'],
     ['//evil.example/admin/requests'],
     ['/sign-in'],

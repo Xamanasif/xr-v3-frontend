@@ -46,6 +46,13 @@ import { STATE_COPY_REVIEWER_LISTS } from './state-copy-reviewer-lists';
 import { STATE_COPY_REVIEWER_REVIEW } from './state-copy-reviewer-review';
 import { STATE_COPY_CM_LISTS } from './state-copy-cm-lists';
 import { STATE_COPY_CM_DECISION } from './state-copy-cm-decision';
+import { STATE_COPY_CM_CORRECTION } from './state-copy-cm-correction';
+import { STATE_COPY_REVIEW_UPDATE } from './state-copy-review-update';
+import { STATE_COPY_RELEASE } from './state-copy-release';
+import { STATE_COPY_CONTENT_OVERSIGHT } from './state-copy-content-oversight';
+import { STATE_COPY_STRUCTURE } from './state-copy-structure';
+import { STATE_COPY_PLATFORM_ROLES } from './state-copy-platform-roles';
+import { STATE_COPY_OPERATIONS_6 } from './state-copy-operations-6';
 
 /**
  * `drawn` = on a board (cited); `provisional` = written to a board formula or chosen as an interim,
@@ -166,7 +173,23 @@ export interface StateCopyEntry {
     | 'CM-03'
     | 'CM-04'
     | 'CM-05'
-    | 'CM-09';
+    | 'CM-09'
+    // Phase 6.
+    | 'CM-06'
+    | 'CM-07'
+    | 'CM-08'
+    | 'RV-04'
+    | 'SA-10'
+    | 'SA-11'
+    | 'SA-12'
+    | 'SA-13'
+    | 'SA-14'
+    | 'SA-15'
+    | 'SA-16'
+    | 'SA-17'
+    | 'SA-20'
+    | 'SA-21'
+    | 'SA-22';
   /** The state, as the screen reaches it. */
   readonly state: string;
   /** The words shown; `null` where the entry is a rule rather than words. */
@@ -975,48 +998,10 @@ const PHASE_1_AND_EARLIER = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
-  // ---- Package 1D: SA-01 Overview (B7-01, Requests group only), SA-06, SA-07 (B7-02, B7-03) ----
-  'SA-01.scope': {
-    screen: 'SA-01',
-    state: 'The Overview in Phase 1',
-    words: null,
-    rule: 'Only the Requests group is built: the two figures (“Active institutions”, “Published experiments”), the other seven groups and the “15 items waiting across 8 groups · 23 Oct 2026” line arrive with the full overview in Phase 6 (`OperationsService.getSuperAdminOverview`). Nothing is counted or dated that the Phase-1 reads do not answer.',
-    basis:
-      'Owner decision “SA-01 scope” (Package-1D authorisation §2); B7-01 f0 … f3; B8-06 (Phase 1 “SA-01 requests group”, Phase 6 “full SA-01”)',
-    status: 'owner-approved',
-    decisions: ['SA-01 scope (Package 1D)'],
-  },
-  'SA-01.rows': {
-    screen: 'SA-01',
-    state: 'The Requests group’s count and rows',
-    words: null,
-    rule: 'The requests under review, newest first — the sidebar’s count (`listRequests`, status Under review) — at most four rows; with none, the group is left out.',
-    basis:
-      'B7-01 f0 caption (“at most four rows and one way to open the full list”) and note (“A group with nothing in it is left out”); B1-10 caption “Nav count 3 = requests under review”; owner: “Use existing AccessRequestService.listRequests data and approved request-count behavior”',
-    status: 'owner-approved',
-    decisions: ['SA-01 scope (Package 1D)'],
-  },
-  'SA-01.request-line': {
-    screen: 'SA-01',
-    state: 'The line under a request row',
-    words: null,
-    rule: '“<type> · under review since <the day it was received>” (B7-01 REQ-0040). B7-01 writes REQ-0058 as “60 more licences …” and REQ-0038 with “· access ends 31 Oct 2026”: the Phase-1 request rows carry no licence count and no plan end, so neither is composed.',
-    basis: 'B7-01 f0 rows; `requestRow` (Appendix C §3.4)',
-    status: 'provisional',
-    decisions: ['SA-01 scope (Package 1D)', 'VD-12'],
-  },
-  'SA-01.calm': {
-    screen: 'SA-01',
-    state: 'Nothing is waiting (no request under review)',
-    words: 'Requests appear here when they need you.',
-    basis:
-      'B7-01 f1 “Requests, corrections to release, device transfers, … appear here when they need you.”, limited to the one group Phase 1 builds',
-    status: 'provisional',
-    decisions: ['SA-01 scope (Package 1D)', 'VD-12'],
-  },
+  // ---- Package 1D: SA-01 Overview (B7-01; completed in Phase 6 — its groups are state-copy-content-oversight), SA-06, SA-07 (B7-02, B7-03) ----
   'SA-01.failed': {
     screen: 'SA-01',
-    state: 'The requests under review failed to load (service unavailable; a test fault plan only)',
+    state: 'The overview failed to load (service unavailable; a test fault plan only)',
     words: 'What is waiting didn’t load. Nothing was lost.',
     basis: 'Board 04 "State grammar" Failed + retry formula; B7-01 draws no failed frame',
     status: 'provisional',
@@ -1118,11 +1103,11 @@ const PHASE_1_AND_EARLIER = {
     screen: 'SA-07',
     state: '“Needs attention”: device transfers and access ending',
     words: null,
-    rule: 'Phase 3: each device transfer of the institution forwarded to BITS and not yet approved is a row after the institution’s requests and before the pause, newest first — “<reference> — device transfer forwarded on <date>” (B7-03 “DTR-0018 — device transfer forwarded on 23 Oct 2026”) — and opens Operations › Device transfers (SA-18) under the drawn “Operations”. A transfer still with the institution or approved is not listed. An access-ending reminder (“Access ends 2 Nov 2026 — reminder due …” → Operations › Access ending) arrives with Phase 6: its destination (SA-22) is not built, so the row is not rendered.',
+    rule: 'Phase 3: each device transfer of the institution forwarded to BITS and not yet approved is a row after the institution’s requests and before the pause, newest first — “<reference> — device transfer forwarded on <date>” (B7-03 “DTR-0018 — device transfer forwarded on 23 Oct 2026”) — and opens Operations › Device transfers (SA-18) under the drawn “Operations”. A transfer still with the institution or approved is not listed. Phase 6: the access-ending reminder row (“Access ends 2 Nov 2026 — reminder due …” → Operations › Access ending, SA-22) is state-copy `SA-07.attention-access-ending`.',
     basis:
-      'B7-03 `att` (godavari, konark); OperationsService `listDeviceTransfers({ state: forwarded })`; B8-06 phases 3 and 6; owner P0-35 built-screen navigation',
+      'B7-03 `att` (godavari, konark); OperationsService `listDeviceTransfers({ state: forwarded })`; B8-06 phases 3 and 6',
     status: 'provisional',
-    decisions: ['P0-35', 'DEV-21'],
+    decisions: ['VD-12'],
   },
   'SA-07.history': {
     screen: 'SA-07',
@@ -1243,6 +1228,14 @@ export const STATE_COPY = {
   ...STATE_COPY_REVIEWER_REVIEW,
   ...STATE_COPY_CM_LISTS,
   ...STATE_COPY_CM_DECISION,
+  // Phase 6: one file per screen group.
+  ...STATE_COPY_CM_CORRECTION,
+  ...STATE_COPY_REVIEW_UPDATE,
+  ...STATE_COPY_RELEASE,
+  ...STATE_COPY_CONTENT_OVERSIGHT,
+  ...STATE_COPY_STRUCTURE,
+  ...STATE_COPY_PLATFORM_ROLES,
+  ...STATE_COPY_OPERATIONS_6,
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;
 
 export type StateCopyId = keyof typeof STATE_COPY;

@@ -31,6 +31,7 @@ import {
   REVIEWER_OVERVIEW_TITLE,
   reviewerOverviewPlacement,
   reviewSubmissionAddress,
+  reviewUpdateAddress,
 } from '@/nav/reviewer';
 import { useReviewerOverview } from '@/queries/production';
 import { useCurrentSession } from '@/queries/session';
@@ -52,11 +53,18 @@ const ROW_ICON: Readonly<
 };
 
 /**
- * The item “Review the oldest — <name>” opens (state-copy `RV-01.oldest`): the oldest waiting
- * submission or re-check — the queue is oldest first; an update’s page (RV-04) is not built.
+ * The item “Review the oldest — <name>” opens (state-copy `RV-01.oldest`): the queue’s first — it
+ * is oldest first — a submission, a re-check or an update (B6-01 script `oldest`: `qAll[0]`).
  */
 export function oldestToReview(waiting: readonly WaitingItem[]): WaitingItem | null {
-  return waiting.find((item) => item.ref.kind === 'SUB') ?? null;
+  return waiting[0] ?? null;
+}
+
+/** Where an item is reviewed: RV-03 for a submission or re-check, RV-04 for an update. */
+export function reviewAddressOf(item: WaitingItem): string {
+  return item.ref.kind === 'UPD'
+    ? reviewUpdateAddress(item.ref.id)
+    : reviewSubmissionAddress(item.ref.id);
 }
 
 /**
@@ -70,11 +78,9 @@ export function oldestToReview(waiting: readonly WaitingItem[]): WaitingItem | n
  *   the one primary “Review the oldest — <name>” beside “Open the review queue”; “Waiting for your
  *   decision” · “<n> items · oldest first” with one row per item — “Review: …” (the document on
  *   the info tint), “Re-check: …” (the list on the error tint, the reason first), “Update: …” (the
- *   arrows on the wait tint) — each with its “Review”. f1: nothing waiting keeps the scope line
- *   and offers “Open Reviewed by me”. f2: one column at 375.
- * - **Phase 6**: an update’s “Review update” opens RV-04, which is not built — its row is drawn
- *   without the action and is never the oldest’s target (state-copy `RV-01.update-row`,
- *   `RV-01.oldest`; P0-35, DEV-21).
+ *   arrows on the wait tint) — each with its “Review” (RV-03), an update’s “Review update” (RV-04,
+ *   Phase 6; state-copy `RV-01.update-row`). f1: nothing waiting keeps the scope line and offers
+ *   “Open Reviewed by me”. f2: one column at 375.
  * - Undrawn: loading and failed with “Try again” (state-copy `RV-01.loading`, `RV-01.failed`).
  *   Nothing here changes a record: every action opens the page where the work is done.
  */
@@ -116,10 +122,7 @@ export function ReviewerOverview() {
         <>
           <div className="xw-actions [margin:0_0_20px]">
             {oldest ? (
-              <Link
-                className="xr-btn xr-btn--primary"
-                href={reviewSubmissionAddress(oldest.ref.id)}
-              >
+              <Link className="xr-btn xr-btn--primary" href={reviewAddressOf(oldest)}>
                 {oldestWords(oldest.name)}
               </Link>
             ) : null}
@@ -186,15 +189,13 @@ function WaitingRow({ item }: { readonly item: WaitingItem }) {
         reason: item.reason,
       })}
     >
-      {item.ref.kind === 'SUB' ? (
-        <Link
-          className="xr-btn xr-btn--secondary xr-btn--sm"
-          href={reviewSubmissionAddress(item.ref.id)}
-          aria-label={attentionActionLabel(item.type, item.name)}
-        >
-          {REVIEWER_OVERVIEW.review}
-        </Link>
-      ) : null}
+      <Link
+        className="xr-btn xr-btn--secondary xr-btn--sm"
+        href={reviewAddressOf(item)}
+        aria-label={attentionActionLabel(item.type, item.name)}
+      >
+        {item.type === 'update' ? REVIEWER_OVERVIEW.reviewUpdate : REVIEWER_OVERVIEW.review}
+      </Link>
     </Row>
   );
 }

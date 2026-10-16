@@ -636,13 +636,17 @@ export function transferActionWords(
   return null;
 }
 
-/** CM-05's correction entries (B6-08 f1, f2, f4): one update at a time, joined while it is a draft. */
+/**
+ * CM-05's correction entries (B6-08 f0 … f2, f4): one update at a time, joined while it is a draft
+ * or returned (B6-08 `canJoin` — `editable`), only "Open update" while it is with the Academic
+ * Reviewer or the Super Admin (`lockProg`).
+ */
 export function publishedExperimentActions(page: {
   readonly openUpdate: { readonly state: UpdateState } | null;
 }): readonly string[] {
   if (!page.openUpdate)
     return ['Start a correction', 'Edit catalogue details', 'Edit delivery link'];
-  if (page.openUpdate.state === 'draft')
+  if (page.openUpdate.state === 'draft' || page.openUpdate.state === 'returned')
     return [CORRECTION_ACTIONS.openUpdate, 'Edit catalogue details', 'Edit delivery link'];
   return [CORRECTION_ACTIONS.openUpdate];
 }

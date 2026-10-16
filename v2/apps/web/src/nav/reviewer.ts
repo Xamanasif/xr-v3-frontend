@@ -8,8 +8,8 @@ import type { ScreenKey } from './screens';
  * titles and places in the shell. Sidebar owners are the active-item map's (Overview; Review queue
  * for RV-02, RV-03 and RV-06 — even when opened from Reviewed by me, B6-03 f4; Reviewed by me for
  * RV-05). Top bars: a destination's own page has no crumbs (B6-01 f0 "Overview", B6-02 f0 "Review
- * queue", f1 "Reviewed by me"); a submission "Review queue / SUB-0077" (B6-03 f0). RV-04 Review an
- * update is Phase 6: its address is not built.
+ * queue", f1 "Reviewed by me"); a submission "Review queue / SUB-0077" (B6-03 f0); an update
+ * "Review queue / UPD-0005" (B6-04 f0; Phase 6, RV-04 — the mobile top bar "Review queue").
  */
 type ReviewerDestination = 'RV-01' | 'RV-02' | 'RV-05';
 
@@ -30,6 +30,11 @@ export const REVIEWED_BY_ME_TITLE = destinationOf('RV-05').label;
 /** RV-03 (and RV-06, the decided read-only state): `/reviewer/submissions/[submissionId]`. */
 export function reviewSubmissionAddress(submissionId: string): string {
   return `/reviewer/submissions/${encodeURIComponent(submissionId)}`;
+}
+
+/** RV-04 Review an update (and its decided view): `/reviewer/updates/[updateId]`. */
+export function reviewUpdateAddress(updateId: string): string {
+  return `/reviewer/updates/${encodeURIComponent(updateId)}`;
 }
 
 /** RV-02 with its filters (`?type=new|update|recheck`, `?courseId=`). */
@@ -74,5 +79,16 @@ export function reviewSubmissionPlacement(
     title: submission.name,
     trail: [QUEUE_CRUMB],
     currentCrumb: submission.id,
+  };
+}
+
+/** B6-04 f0 "Review queue / UPD-0005" (mobile: "Review queue"); while it loads, "Review queue". */
+export function reviewUpdatePlacement(updateId: string | null): ReviewerPlacement {
+  if (updateId === null) return { screen: 'RV-04', title: REVIEW_QUEUE_TITLE, trail: [] };
+  return {
+    screen: 'RV-04',
+    title: REVIEW_QUEUE_TITLE,
+    trail: [QUEUE_CRUMB],
+    currentCrumb: updateId,
   };
 }

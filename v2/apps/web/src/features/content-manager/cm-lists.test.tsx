@@ -203,7 +203,7 @@ describe('CM-01 Overview at spine-start (B6-05 f0, f2)', () => {
     expect(rowTexts(needs)).toEqual([
       'Ready to publish: Transient CoolingSUB-0074 · ME ZG523 · approved 14 Aug 2026 · oldest of 2Open the next ready item',
       'Ready to publish: Packed Bed Pressure DropSUB-0070 · CHE ZG513 · approved 21 Aug 2026Open decision',
-      'Update returned: Induction Motor Loading 1.1UPD-0006 · returned by the Academic Reviewer on 26 Aug 2026 · “The proposed description says slip falls as the load rises…”',
+      'Update returned: Induction Motor Loading 1.1UPD-0006 · returned by the Academic Reviewer on 26 Aug 2026 · “The proposed description says slip falls as the load rises…”Open update',
     ]);
     const next = within(needs).getByRole('link', { name: 'Open the next ready item' });
     expect(next).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--sm');
@@ -213,8 +213,10 @@ describe('CM-01 Overview at spine-start (B6-05 f0, f2)', () => {
     });
     expect(other).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
     expect(other).toHaveAttribute('href', '/content-manager/decisions/SUB-0070');
-    // The returned correction keeps its words; “Open update” waits for CM-08 (Phase 6).
-    expect(within(needs).queryByRole('link', { name: /update/i })).toBeNull();
+    // The returned correction’s “Open update” opens it (CM-08, Phase 6).
+    const openUpdate = within(needs).getByRole('link', { name: 'Open update' });
+    expect(openUpdate).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    expect(openUpdate).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
     const icons = [...needs.querySelectorAll('.xr-row-icon')].map((icon) => icon.className);
     expect(icons).toEqual([
       'xr-row-icon xr-row-icon--info',
@@ -228,12 +230,16 @@ describe('CM-01 Overview at spine-start (B6-05 f0, f2)', () => {
     );
     expect(rowTexts(others)).toEqual([
       'Venturi Meter Calibration — with the Academic Reviewer for a re-checkSUB-0071 · you sent it back on 25 Aug 2026Open',
-      'Boiler Drum Level 2.1 — on holdUPD-0004 · the Super Admin put it on hold on 20 Aug 2026 · version 2.0 stays live',
+      'Boiler Drum Level 2.1 — on holdUPD-0004 · the Super Admin put it on hold on 20 Aug 2026 · version 2.0 stays liveOpen',
     ]);
     const open = within(others).getByRole('link', { name: 'Open Venturi Meter Calibration' });
     expect(open).toHaveClass('xr-btn', 'xr-btn--text', 'xr-btn--sm');
     expect(open).toHaveAttribute('href', '/content-manager/decisions/SUB-0071');
-    expect(within(others).getAllByRole('link')).toHaveLength(1);
+    // A correction’s “Open” opens it (CM-08, Phase 6).
+    const held = within(others).getByRole('link', { name: 'Open Boiler Drum Level' });
+    expect(held).toHaveClass('xr-btn', 'xr-btn--text', 'xr-btn--sm');
+    expect(held).toHaveAttribute('href', '/content-manager/updates/UPD-0004');
+    expect(within(others).getAllByRole('link')).toHaveLength(2);
 
     // The shell: Overview current, Ready to publish counted from the same records.
     expect(sidebarCurrent()).toHaveAttribute('href', '/content-manager');
@@ -313,10 +319,17 @@ describe('CM-01 Overview at spine-start (B6-05 f0, f2)', () => {
     show(runtime, <CmOverview />, '/content-manager');
     await screen.findByText('Nothing is waiting for your publication decision');
     expect(rowTexts(section('With others'))).toEqual([
-      'Distillation Column 1.3 — awaiting release decisionUPD-0005 · the Academic Reviewer approved it on 26 Aug 2026',
-      'Transformer Tests 1.1 — in academic reviewUPD-0007 · sent on 25 Aug 2026',
+      'Distillation Column 1.3 — awaiting release decisionUPD-0005 · the Academic Reviewer approved it on 26 Aug 2026Open',
+      'Transformer Tests 1.1 — in academic reviewUPD-0007 · sent on 25 Aug 2026Open',
     ]);
-    expect(within(section('With others')).queryByRole('link')).toBeNull();
+    expect(
+      within(section('With others'))
+        .getAllByRole('link')
+        .map((link) => [link.getAttribute('aria-label'), link.getAttribute('href')]),
+    ).toEqual([
+      ['Open Distillation Column', '/content-manager/updates/UPD-0005'],
+      ['Open Transformer Tests', '/content-manager/updates/UPD-0007'],
+    ]);
   });
 
   it('announces loading; a failed read has Try again, which reads again', async () => {

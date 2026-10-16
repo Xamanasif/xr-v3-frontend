@@ -180,7 +180,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
   });
 });
 
-test('the sidebar offers built destinations only: Help, the Super Admin’s Overview, Requests, Institutions and Operations, the Institute Admin’s and Student’s destinations of Package 2A and Phase 3, the Faculty destinations of Phase 4A and the platform roles’ of Phase 5 (B8-06)', async ({
+test('the sidebar offers built destinations only — since Phase 6 every designed destination of every workspace, then Help (B8-06)', async ({
   page,
 }) => {
   test.skip(
@@ -193,9 +193,9 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
     await waitForShell(tab);
     const side = tab.locator('aside.xr-side');
     if (entry.role === 'super_admin') {
-      // SA-02 is built (Package 1A), SA-01 and SA-06 (Package 1D), SA-18 Operations (Phase 3):
-      // those four, then Help.
-      await expect(side.locator('a[href]')).toHaveCount(5);
+      // SA-02 (Package 1A), SA-01 and SA-06 (Package 1D), SA-18 Operations (Phase 3), Content,
+      // Academic structure and Platform roles (Phase 6): all seven, then Help.
+      await expect(side.locator('a[href]')).toHaveCount(8);
       expect(
         await side
           .locator('nav a[href]')
@@ -204,6 +204,9 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
         '/admin',
         '/admin/requests',
         '/admin/institutions',
+        '/admin/content/updates',
+        '/admin/structure',
+        '/admin/roles',
         '/admin/operations/device-transfers',
       ]);
       await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute('href', '/admin/help');
@@ -212,7 +215,7 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
       // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Phase 4A: the
       // Faculty member's Overview, My courses, Assessments and Question bank. Phase 4B: Marking
       // and Students, and the Student's Assessments. Phase 5: the Vendor's, Academic Reviewer's
-      // and Content Manager's destinations — not Updates (CM-08, Phase 6).
+      // and Content Manager's destinations; Phase 6 the Content Manager's Updates (CM-08).
       const platform: Readonly<Partial<Record<string, readonly string[]>>> = {
         vendor: ['/vendor', '/vendor/experiments'],
         academic_reviewer: ['/reviewer', '/reviewer/queue', '/reviewer/reviewed'],
@@ -220,6 +223,7 @@ test('the sidebar offers built destinations only: Help, the Super Admin’s Over
           '/content-manager',
           '/content-manager/ready',
           '/content-manager/library',
+          '/content-manager/updates',
           '/content-manager/course-codes',
         ],
       };

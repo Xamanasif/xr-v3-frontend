@@ -6,7 +6,7 @@ import type {
   Result,
   ServiceError,
 } from '@xr/contracts/draft';
-import type { AccountStatus, DeviceTransfer, Technology } from '@xr/domain';
+import type { AccessEndingRow, AccountStatus, DeviceTransfer, Technology } from '@xr/domain';
 import {
   BackLink,
   Button,
@@ -67,6 +67,7 @@ import { useAllRequests } from '@/queries/access-requests';
 import { usePublishedCatalogue } from '@/queries/catalogue';
 import { useDeviceTransfers } from '@/queries/devices';
 import { useInstitutionDetail } from '@/queries/institutions';
+import { useAccessEnding } from '@/queries/operations-admin';
 import { useCommand } from '@/queries/use-command';
 
 import { RecordGuard } from '../../shared/record-guard/record-guard';
@@ -93,8 +94,9 @@ interface ExperimentName {
  * - **Read**: `InstitutionService.getInstitution` — the institution, its status, plans, people
  *   (each student with its record's revision) and the per-format report — with the experiments
  *   named from the published catalogue and the requests its record names read through
- *   `AccessRequestService.listRequests`, and (Phase 3) its device transfers forwarded to BITS
- *   through `OperationsService.listDeviceTransfers` for "Needs attention". An address that names
+ *   `AccessRequestService.listRequests`, (Phase 3) its device transfers forwarded to BITS
+ *   through `OperationsService.listDeviceTransfers` and (Phase 6) its access ending with a
+ *   reminder due through `OperationsService.listAccessEnding`, for "Needs attention". An address that names
  *   no institution shows the in-shell not-found page.
  * - **Act**: Assign Institute Admin (name + work e-mail; nothing is sent), Pause access and
  *   Restore access (a reason, kept in the history), and a student's status override inline (a
@@ -115,6 +117,8 @@ export function InstitutionDetail({ institutionId }: { readonly institutionId: s
   const requests = useAllRequests();
   // Phase 3: the device transfers forwarded to BITS, for the institution's "Needs attention".
   const transfers = useDeviceTransfers('forwarded');
+  // Phase 6: the access plans ending or ended (SA-22), for its access-ending row.
+  const ending = useAccessEnding();
   useShellPage(institutionPlacement(read.data?.ok ? read.data.value.institution.name : null));
 
   const names = useMemo(() => {
@@ -128,7 +132,8 @@ export function InstitutionDetail({ institutionId }: { readonly institutionId: s
   }, [catalogue.data]);
   const nameOf = (experimentId: string): ExperimentName =>
     names.get(experimentId) ?? { name: experimentId, platformCode: null };
-  const waiting = catalogue.isPending || requests.isPending || transfers.isPending;
+  const waiting =
+    catalogue.isPending || requests.isPending || transfers.isPending || ending.isPending;
 
   return (
     <PageContent wrap="read">
@@ -136,12 +141,18 @@ export function InstitutionDetail({ institutionId }: { readonly institutionId: s
         read={{
           data: waiting ? undefined : read.data,
           isPending: read.isPending || waiting,
-          isError: read.isError || catalogue.isError || requests.isError || transfers.isError,
+          isError:
+            read.isError ||
+            catalogue.isError ||
+            requests.isError ||
+            transfers.isError ||
+            ending.isError,
           refetch: () => {
             void read.refetch();
             void catalogue.refetch();
             void requests.refetch();
             void transfers.refetch();
+            void ending.refetch();
           },
         }}
         loadingLabel={stateWords('SA-07.loading')}
@@ -152,6 +163,7 @@ export function InstitutionDetail({ institutionId }: { readonly institutionId: s
             detail={detail}
             requests={requests.data?.ok ? requests.data.value : []}
             transfers={transfers.data?.ok ? transfers.data.value : []}
+            ending={ending.data?.ok ? ending.data.value.map((view) => view.row) : []}
             nameOf={nameOf}
             refetch={() => {
               void read.refetch();
@@ -213,12 +225,14 @@ function DetailContent({
   detail,
   requests,
   transfers,
+  ending,
   nameOf,
   refetch,
 }: {
   readonly detail: Detail;
   readonly requests: readonly RequestRow[];
   readonly transfers: readonly DeviceTransfer[];
+  readonly ending: readonly AccessEndingRow[];
   readonly nameOf: (experimentId: string) => ExperimentName;
   readonly refetch: () => void;
 }) {
@@ -393,7 +407,7 @@ function DetailContent({
     );
   };
 
-  const attention = attentionRows(detail, requests, transfers);
+  const attention = attentionRows(detail, requests, transfers, ending);
   const history = historyLines(detail);
   const busy = assign.busy || pause.busy || restore.busy;
 

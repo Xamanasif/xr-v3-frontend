@@ -26,7 +26,12 @@ import {
 import { WorkspaceNotFound } from '../shared/pu-15-not-found/not-found';
 import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
 import { WorkspaceLayout } from '../shared/workspace-frame/workspace-frame';
-import { oldestToReview, ReviewerOverview, type WaitingItem } from './rv-01-overview/overview';
+import {
+  oldestToReview,
+  reviewAddressOf,
+  ReviewerOverview,
+  type WaitingItem,
+} from './rv-01-overview/overview';
 import {
   courseOptions,
   filterQueue,
@@ -314,7 +319,7 @@ describe('RV-01 Overview — four items waiting (B6-01 f0, f2)', () => {
         'xr-row-icon xr-row-icon--info',
       ],
     ]);
-    // Each submission row has its “Review”; the update’s “Review update” (RV-04) is not rendered.
+    // Each submission row has its “Review” (RV-03); the update’s “Review update” opens RV-04.
     const review = within(items[0] as HTMLElement).getByRole('link', {
       name: 'Review Flash Distillation',
     });
@@ -326,8 +331,12 @@ describe('RV-01 Overview — four items waiting (B6-01 f0, f2)', () => {
         name: 'Review Venturi Meter Calibration',
       }),
     ).toHaveAttribute('href', '/reviewer/submissions/SUB-0071');
-    expect(items[2]!.querySelector('a, button')).toBeNull();
-    expect(screen.queryByText('Review update')).toBeNull();
+    const reviewUpdate = within(items[2] as HTMLElement).getByRole('link', {
+      name: 'Review update Distillation Column',
+    });
+    expect(reviewUpdate).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    expect(reviewUpdate).toHaveTextContent('Review update');
+    expect(reviewUpdate).toHaveAttribute('href', '/reviewer/updates/UPD-0005');
     expect(
       within(items[3] as HTMLElement).getByRole('link', { name: `Review ${COMPOSITE}` }),
     ).toHaveAttribute('href', '/reviewer/submissions/SUB-0077');
@@ -360,12 +369,14 @@ describe('RV-01 Overview — four items waiting (B6-01 f0, f2)', () => {
     ).toHaveTextContent('2 items · oldest first');
   });
 
-  it('the oldest is the oldest submission or re-check — never an update (RV-04 not built)', () => {
+  it('the oldest is the queue’s first, whatever its kind; an update opens RV-04 (Phase 6)', () => {
     const item = (kind: 'SUB' | 'UPD', id: string) =>
       ({ ref: { kind, id }, name: id }) as unknown as WaitingItem;
-    expect(oldestToReview([item('UPD', 'UPD-1'), item('SUB', 'SUB-1')])?.ref.id).toBe('SUB-1');
+    expect(oldestToReview([item('UPD', 'UPD-1'), item('SUB', 'SUB-1')])?.ref.id).toBe('UPD-1');
     expect(oldestToReview([item('SUB', 'SUB-1'), item('SUB', 'SUB-2')])?.ref.id).toBe('SUB-1');
-    expect(oldestToReview([item('UPD', 'UPD-1')])).toBeNull();
+    expect(oldestToReview([])).toBeNull();
+    expect(reviewAddressOf(item('UPD', 'UPD-0005'))).toBe('/reviewer/updates/UPD-0005');
+    expect(reviewAddressOf(item('SUB', 'SUB-0086'))).toBe('/reviewer/submissions/SUB-0086');
   });
 });
 
@@ -490,7 +501,7 @@ describe('RV-02 Review queue — four items waiting (B6-02 f0; B6-12 f0)', () =>
         'Update',
         'WEBVR',
         '5 Oct 2026',
-        '',
+        'Review',
       ],
       [
         `${COMPOSITE}SUB-0077 · ME ZG523 · Northline Simulation StudioResubmitted · revision 2`,
@@ -516,8 +527,12 @@ describe('RV-02 Review queue — four items waiting (B6-02 f0; B6-12 f0)', () =>
     });
     expect(review).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--sm');
     expect(review).toHaveAttribute('href', '/reviewer/submissions/SUB-0086');
-    // The update’s Review (RV-04) is not rendered.
-    expect(found.querySelectorAll('tbody tr')[2]!.querySelector('a, button')).toBeNull();
+    // The update’s Review opens RV-04 (Phase 6).
+    const update = within(found.querySelectorAll('tbody tr')[2] as HTMLElement).getByRole('link', {
+      name: 'Review Distillation Column',
+    });
+    expect(update).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--sm');
+    expect(update).toHaveAttribute('href', '/reviewer/updates/UPD-0005');
 
     // The shell: Review queue current with its count, the top bar “Review queue”.
     expect(document.querySelector('.xr-top-title')?.textContent).toBe('Review queue');
@@ -731,14 +746,14 @@ describe('RV-05 Reviewed by me (B6-02 f1)', () => {
         'Update',
         'Update approved — with the Super Admin',
         '14 Aug 2026',
-        '',
+        'Open',
       ],
       [
         'Orifice Plate MeteringUPD-0003 · CHE ZG513',
         'Update',
         'Update approved — released',
         '30 Jul 2026',
-        '',
+        'Open',
       ],
       [
         'Fin-Tube BundleSUB-0052 · ME ZG523',
@@ -752,14 +767,14 @@ describe('RV-05 Reviewed by me (B6-02 f1)', () => {
         'Update',
         'Update approved — released',
         '1 Jul 2026',
-        '',
+        'Open',
       ],
       [
         'Distillation ColumnUPD-0001 · CHE ZG513',
         'Update',
         'Update approved — released',
         '17 Jun 2026',
-        '',
+        'Open',
       ],
     ]);
     const body = found.querySelectorAll('tbody tr');
@@ -770,8 +785,12 @@ describe('RV-05 Reviewed by me (B6-02 f1)', () => {
     });
     expect(open).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
     expect(open).toHaveAttribute('href', '/reviewer/submissions/SUB-0081');
-    // An update’s Open (RV-04’s decided view) is not rendered.
-    expect(body[5]!.querySelector('a, button')).toBeNull();
+    // An update’s Open opens RV-04’s decided view (Phase 6).
+    const openUpdate = within(body[5] as HTMLElement).getByRole('link', {
+      name: 'Open Boiler Drum Level',
+    });
+    expect(openUpdate).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    expect(openUpdate).toHaveAttribute('href', '/reviewer/updates/UPD-0004');
 
     expect(document.querySelector('.xr-top-title')?.textContent).toBe('Reviewed by me');
     expect(sidebarCurrent()).toHaveAttribute('href', '/reviewer/reviewed');

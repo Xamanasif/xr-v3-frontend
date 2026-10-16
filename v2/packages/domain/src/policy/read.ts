@@ -230,7 +230,9 @@ export function canRead(context: PolicyContext, target: ReadTarget): ReadVerdict
       if (role === 'content_manager')
         return holderCovers(target.experiment.courseId, target.experiment.id) ? SEE : outside; // UPD-11
       if (role === 'academic_reviewer') {
-        if (state === 'draft') return gone; // UPD-16: not before it is sent
+        // UPD-16: not before it is sent — nor once withdrawn without ever being sent.
+        if (state === 'draft' || (state === 'withdrawn' && target.update.sentForReviewAt === null))
+          return gone;
         return holderCovers(target.experiment.courseId, target.experiment.id) ? SEE : outside;
       }
       if (role === 'super_admin') {

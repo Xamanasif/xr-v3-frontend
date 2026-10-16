@@ -10,10 +10,11 @@ import {
 } from '../support/workspace';
 
 /**
- * SA-01 Overview (B7-01), its Phase-1 Requests group (owner decision, Package-1D authorisation §2),
- * on the test-hook build at 1440, 1024, 768 and 375: the requests under review — the sidebar's own
- * figure — each opening its decision; "Open Requests" opens the list; nothing waiting is B7-01 f1's
- * calm state; "Back to Home" in the Super Admin's shell now reaches it.
+ * SA-01 Overview (B7-01), its Requests group (Package 1D; the full overview of Phase 6 — figures,
+ * eight groups, the calm state — is `e2e/phase-6/content-oversight.spec.ts`), on the test-hook
+ * build at 1440, 1024, 768 and 375: the requests under review — the sidebar's own figure — each
+ * opening its decision; "Open Requests" opens the list; with no request under review the group is
+ * left out; "Back to Home" in the Super Admin's shell reaches it.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 
@@ -38,7 +39,8 @@ test('SA-01: the requests under review, each opening its decision (B7-01 f0, f3)
   await expect(currentSidebarItem(page)).toHaveAttribute('href', '/admin');
   await expect(group(page).locator('.xd-gn')).toHaveText('3');
   await expect(page.locator('main .xr-overline')).toHaveText('Super Admin · Arjun Mehta');
-  await expect(page.locator('main .xd-figs')).toHaveCount(0);
+  // Phase 6: the two figures are drawn above the groups (B7-01 f0).
+  await expect(page.locator('main .xd-figs')).toHaveCount(1);
   const mark = await markDocument(page);
   await reachAndClick(
     page,
@@ -54,7 +56,7 @@ test('SA-01: the requests under review, each opening its decision (B7-01 f0, f3)
   await expectSameDocument(page, mark);
 });
 
-test('SA-01: nothing waiting is B7-01 f1’s calm state', async ({ page }) => {
+test('SA-01: with no request under review the Requests group is left out', async ({ page }) => {
   await open(page, 'spine-start');
   await expect(group(page).locator('.xr-row')).toHaveCount(2);
   for (const reference of ['REQ-0040', 'REQ-0038']) {
@@ -77,9 +79,10 @@ test('SA-01: nothing waiting is B7-01 f1’s calm state', async ({ page }) => {
     });
     expect(asked.ok).toBe(true);
   }
-  const calm = page.getByRole('region', { name: 'Waiting on you' });
-  await expect(calm.getByRole('heading', { level: 3, name: 'Nothing is waiting' })).toBeVisible();
-  await expect(calm).toContainText('Requests appear here when they need you.');
+  // The other groups stay (spine-start: stuck content and more); B7-01 f1's calm state is
+  // e2e/phase-6/content-oversight.spec.ts.
+  await expect(page.getByRole('region', { name: /^Stuck content/ })).toBeVisible();
+  await expect(group(page)).toHaveCount(0);
   await expect(page.locator('aside.xr-side .xr-count')).toHaveCount(0);
   await checkState(page, 'Overview');
 });

@@ -14,11 +14,11 @@ export const STATE_COPY_OPERATIONS = {
     screen: 'SA-18',
     state: 'The Operations tabs',
     words: null,
-    rule: 'The tab strip shows “Device transfers” only, as the current tab: Support (SA-20) and Access ending (SA-22) are Phase 6 and their links are not rendered (DEV-21). The strip is B3-11’s (`nav.xr-tabs` on the page canvas, then the 20 px gap); B7-09’s re-use adds `xr-tabs--on-white` and a 20 px margin, which is not followed — its caption says the B3-11 design is re-used unchanged. The meta line under the title is kept as drawn.',
+    rule: 'Phase 6: the three Operations tab links — Device transfers (current) · Support (SA-20) · Access ending (SA-22) — as B7-09 f0 draws them on the re-used list: `nav.xr-tabs.xr-tabs--on-white` with its 20 px margin and the 20 px gap after it, the same strip on all three lists, so moving between the tabs never shifts it (B3-11’s strip on the page canvas is no longer followed). The meta line under the title is kept as B7-09 f0 draws it (state-copy `SA-20.page-meta`).',
     basis:
-      'B3-11 f0; B7-09 f0 caption (“re-used: only the sidebar and tab links now lead to the Batch-7 destinations”); B8-06 phase plan',
+      'B7-09 f0 (“re-used: only the sidebar and tab links now lead to the Batch-7 destinations”), f4, f7; B3-11 f0; B8-06 phase plan',
     status: 'provisional',
-    decisions: ['DEV-21', 'VD-12'],
+    decisions: ['VD-12'],
   },
   'SA-18.show-address': {
     screen: 'SA-18',

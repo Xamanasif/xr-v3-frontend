@@ -197,8 +197,8 @@ test('A · support across roles: Student reports on XS-07, the Super Admin resol
   expect(reference).not.toBe('SUP-0213');
   await checkScreen(page);
 
-  // 5. The Super Admin, in this same tab, resolves that report with a note (the approved bridge:
-  //    SA-21 is a Phase-6 screen).
+  // 5. The Super Admin, in this same tab, resolves that report with a note (the approved bridge;
+  //    SA-21's own Resolve, by real clicks, is proven in e2e/phase-6/operations.spec.ts).
   await switchTo(page, ADMIN, STUDENT);
   const report = await actAs<{ ok: boolean; value: { id: string; rev: number; state: string } }>(
     page,
@@ -390,14 +390,16 @@ test('D · identity continuity: a change made as one role is there for the next,
   await myReportsLoaded(page);
   await expect(page.locator('main')).not.toContainText(reference);
 
-  // The new role's actual workspace: its shell, its navigation (its built destinations — the
-  // Super Admin's Requests since Package 1A, Overview and Institutions since 1D, Operations since
-  // Phase 3 — and Help) and its permissions: the Student's addresses are not part of it.
+  // The new role's actual workspace: its shell, its navigation (every Super Admin destination since
+  // Phase 6, and Help) and its permissions: the Student's addresses are not part of it.
   await expectShellOf(page, ADMIN);
   await expect(page.locator('aside.xr-side nav a .xr-nav-text')).toHaveText([
     'Overview',
     'Requests',
     'Institutions',
+    'Content',
+    'Academic structure',
+    'Platform roles',
     'Operations',
   ]);
   await expect(sidebarHelp(page)).toHaveAttribute('href', '/admin/help');

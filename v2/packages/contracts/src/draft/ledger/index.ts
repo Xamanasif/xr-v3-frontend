@@ -237,6 +237,25 @@ export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = [
     authorisation:
       'Owner authorisation of Phase 5 (16 Oct 2026, §2, §3 and §6): "Implement required deferred Phase-5 service methods only" — VE-01 Overview (getVendorOverview: attention as facts, PC-62), VE-02 My experiments (listMyExperiments), VE-03 … VE-06 and VE-09 the editor (getEditor: the Vendor\'s assigned courses, read-only when the course is no longer assigned), RV-01 Overview (getReviewerOverview, PC-63), CM-01 Overview (getContentManagerOverview, PC-64), CM-04 Content library (getLibrary, PC-65), CM-09 Course codes (PlatformCourseCodeService.list). With them every Phase-5 method is implemented; the CorrectionService writes and the Phase-6 reads stay deferred.',
   })),
+  ...(
+    [
+      'CorrectionService.listUpdates',
+      'CorrectionService.listUpdatesForRelease',
+      'AcademicStructureService.getArea',
+      'AcademicStructureService.getCourse',
+      'PlatformRoleService.listHolders',
+      'PlatformRoleService.getHolder',
+      'OperationsService.listSupportReports',
+      'OperationsService.listAccessEnding',
+      'OperationsService.getSuperAdminOverview',
+    ] as const
+  ).map((method) => ({
+    method,
+    phase: 'P6' as const,
+    package: 'Phase 6',
+    authorisation:
+      'Owner authorisation of Phase 6 (16 Oct 2026, §2 … §6): "Implement these 15 designed screen IDs … Also complete the previously implemented SA-01 Overview" — CM-08 Updates (listUpdates), SA-10 Content updates (listUpdatesForRelease), SA-15 Area / course record (getArea, getCourse: what uses the course, PC-69), SA-16 / SA-17 Platform roles and Role holder (listHolders, getHolder: scopes as facts, PC-70), SA-20 Support reports (listSupportReports), SA-22 Access ending (listAccessEnding, PC-68) and SA-01 Overview (getSuperAdminOverview: the eight groups as facts, PC-67). The commands they call were WP-0.11 methods and are used as they are. With them every product method is implemented.',
+  })),
 ];
 
 /** The methods `PACKAGE_DELIVERIES` names. */

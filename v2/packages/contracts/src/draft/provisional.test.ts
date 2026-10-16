@@ -83,9 +83,9 @@ function traceHolds(trace: Trace): boolean {
 }
 
 describe('the provisional register', () => {
-  it('numbers its items PC-01 … PC-66 in order', () => {
+  it('numbers its items PC-01 … PC-72 in order', () => {
     expect(PROVISIONAL_REGISTER.map((item) => item.id)).toEqual(
-      Array.from({ length: 66 }, (_, index) => `PC-${String(index + 1).padStart(2, '0')}`),
+      Array.from({ length: 72 }, (_, index) => `PC-${String(index + 1).padStart(2, '0')}`),
     );
   });
 
@@ -122,10 +122,16 @@ describe('the provisional register', () => {
     const traced = PROVISIONAL_REGISTER.flatMap((item) => item.trace);
     for (const code of PROVISIONAL_REFUSAL_CODES)
       expect(traced).toContainEqual({ kind: 'refusal-code', code });
-    // Six when registered; the SA-06 plan summary became facts when SA-06 was built (PC-36).
+    // Six when registered; the SA-06 plan summary became facts when SA-06 was built (PC-36) and
+    // SA-16's "can act on" when SA-16 was built (PC-70).
     expect(
       PROVISIONAL_REGISTER.find((item) => item.id === 'PC-13')!.trace.length,
-    ).toBeGreaterThanOrEqual(5);
+    ).toBeGreaterThanOrEqual(4);
+    expect(PROVISIONAL_REGISTER.flatMap((item) => item.trace)).not.toContainEqual({
+      kind: 'schema-field',
+      schema: 'listHoldersOutput',
+      path: '(array).canActOn',
+    });
     expect(PROVISIONAL_REGISTER.flatMap((item) => item.trace)).not.toContainEqual({
       kind: 'schema-field',
       schema: 'institutionRow',
@@ -177,6 +183,12 @@ describe('the provisional register', () => {
       'PC-63',
       'PC-64',
       'PC-65',
+      'PC-67',
+      'PC-68',
+      'PC-69',
+      'PC-70',
+      'PC-71',
+      'PC-72',
     ]);
   });
 });

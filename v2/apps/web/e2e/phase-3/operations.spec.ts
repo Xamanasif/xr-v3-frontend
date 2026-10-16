@@ -84,9 +84,12 @@ test.describe('SA-18 Operations › Device transfers', () => {
     expect(row![2]).toMatch(/^\d{1,2} \w{3} 2026, \d\d:\d\d · Meera Iyer$/);
     expect(row!.slice(3)).toEqual(['Forwarded', 'Review']);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', LIST);
-    await expect(page.getByRole('navigation', { name: 'Operations' }).getByRole('link')).toHaveText(
-      ['Device transfers'],
-    );
+    // Phase 6 (B7-09 f0): the three Operations tab links, Device transfers current.
+    const tabs = page.getByRole('navigation', { name: 'Operations' }).getByRole('link');
+    await expect(tabs).toHaveText(['Device transfers', 'Support', 'Access ending']);
+    await expect(tabs.first()).toHaveAttribute('aria-current', 'page');
+    await expect(tabs.nth(1)).toHaveAttribute('href', '/admin/operations/support');
+    await expect(tabs.nth(2)).toHaveAttribute('href', '/admin/operations/access-ending');
     await checkState(page, 'Operations');
     await reachAndClick(page, main(page).getByRole('link', { name: 'Review DTR-0018' }));
     await page.waitForURL(`**${LIST}/DTR-0018`);

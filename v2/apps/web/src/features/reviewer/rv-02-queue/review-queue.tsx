@@ -33,6 +33,7 @@ import {
   reviewQueueAddress,
   reviewQueuePlacement,
   reviewSubmissionAddress,
+  reviewUpdateAddress,
 } from '@/nav/reviewer';
 import { useReviewerOverview, useReviewQueue } from '@/queries/production';
 
@@ -135,8 +136,8 @@ const formatCode = (format: Technology) => format.toUpperCase() as FormatCode;
  * - **States**: f2 loading (skeleton rows, announced), f3 failed with “Try again” (focus returns to
  *   the section heading, B6-02 `qRetry`), f4 nothing waiting with “Open Reviewed by me”, and the
  *   board’s “Nothing in the queue matches” with “Clear filters”.
- * - **Phase 6**: an update’s “Review” opens RV-04, which is not built — the row is drawn without
- *   it (state-copy `RV-02.update-row`; P0-35, DEV-21).
+ * - **Review**: a submission or re-check opens RV-03; an update opens RV-04 (Phase 6; state-copy
+ *   `RV-02.update-row`).
  */
 export function ReviewQueue() {
   useShellPage(reviewQueuePlacement());
@@ -317,15 +318,17 @@ function QueueTable({ items }: { readonly items: readonly QueueItem[] }) {
                 <span className="xw-nowrap">{dayMonthYear(item.waitingSince)}</span>
               </td>
               <td>
-                {item.ref.kind === 'SUB' ? (
-                  <Link
-                    className="xr-btn xr-btn--primary xr-btn--sm"
-                    href={reviewSubmissionAddress(item.ref.id)}
-                    aria-label={reviewLabel(item.name)}
-                  >
-                    {REVIEW_QUEUE.review}
-                  </Link>
-                ) : null}
+                <Link
+                  className="xr-btn xr-btn--primary xr-btn--sm"
+                  href={
+                    item.ref.kind === 'UPD'
+                      ? reviewUpdateAddress(item.ref.id)
+                      : reviewSubmissionAddress(item.ref.id)
+                  }
+                  aria-label={reviewLabel(item.name)}
+                >
+                  {REVIEW_QUEUE.review}
+                </Link>
               </td>
             </tr>
           ))}

@@ -9,7 +9,7 @@ const DECISION = '/content-manager/decisions/SUB-0074';
 const PUBLISHED = '/content-manager/published/distillation-column';
 /** PU-06, the public page of the experiment just published (SUB-0074 → transient-cooling). */
 const PUBLIC_EXPERIMENT = '/experiments/transient-cooling';
-/** CM-06 / CM-07 correction draft and CM-08 Updates (Phase 6): not built. */
+/** CM-08 an update (Phase 6): the draft CM-06 / CM-07 open, by update id — UPD-0005 stands for any. */
 const UPDATE = '/content-manager/updates/UPD-0005';
 
 /**
@@ -17,8 +17,10 @@ const UPDATE = '/content-manager/updates/UPD-0005';
  * B6-11). CM-03’s one primary is the panel’s “Publish” / “Send back” (a command, through DL-1 or
  * DL-2); the result links to the public page (state-copy `CM-03.published.view`), the Content
  * library or Ready to publish. CM-05’s correction entry — “Start a correction” (its primary),
- * “Edit catalogue details”, “Edit delivery link” and “Open update” — opens CM-06, CM-07 and CM-08,
- * which are Phase 6: drawn, not rendered (P0-35 / DEV-21; state-copy `CM-05.correction-entry`).
+ * “Edit catalogue details” (CM-06) and “Edit delivery link” (CM-07) — opens or joins the one
+ * correction draft (a command) and lands on its update page (CM-08, built in Phase 6) with the
+ * named field focused; “Open update” (the primary while an update is in progress) only opens it
+ * (state-copy `CM-05.correction-entry`, `CM-05.entry-opens`).
  */
 export const P5_CM_DECISION_LINK_TARGETS: readonly LedgerEntry[] = [
   // CM-03 Publication decision (B6-07 f0 … f5; B6-11 f4 … f8).
@@ -98,36 +100,32 @@ export const P5_CM_DECISION_LINK_TARGETS: readonly LedgerEntry[] = [
       'Start a correction',
       'primary',
       UPDATE,
-      'not-rendered',
-      'B6-08 f0, f4 `div.xw-actions > button.xr-btn--primary`',
-      'The correction draft (CM-06, CM-08) is not built (Phase 6): the page shows the live version read-only (state-copy `CM-05.correction-entry`)',
+      'built',
+      'B6-08 f0, f4; B6-13 f1 `div.xw-actions > button.xr-btn--primary` (opens the one draft — `openCorrection` — then its update page)',
     ],
     [
       'Correction entry',
       'Edit catalogue details',
       'secondary',
-      UPDATE,
-      'not-rendered',
-      'B6-08 f0, f2, f4 `div.xw-actions > button.xr-btn--secondary`',
-      'The correction draft (CM-07, CM-08) is not built (Phase 6)',
+      `${UPDATE}?focus=summary`,
+      'built',
+      'B6-08 f0, f2, f4 `div.xw-actions > button.xr-btn--secondary` (CM-06: opens or joins the draft, the summary focused)',
     ],
     [
       'Correction entry',
       'Edit delivery link',
       'secondary',
-      UPDATE,
-      'not-rendered',
-      'B6-08 f0, f2, f4 `div.xw-actions > button.xr-btn--secondary`',
-      'The correction draft (CM-07, CM-08) is not built (Phase 6)',
+      `${UPDATE}?focus=web-link`,
+      'built',
+      'B6-08 f0, f2, f4 `div.xw-actions > button.xr-btn--secondary` (CM-07: opens or joins the draft, the web link focused)',
     ],
     [
-      'An update is in progress (notice; draft actions)',
+      'An update is in progress (notice f1; draft actions f2)',
       'Open update',
-      'secondary',
+      'primary',
       UPDATE,
-      'not-rendered',
-      'B6-08 f1 `div.xr-notice-actions > button.xr-btn--primary.xr-btn--sm`, f2 `div.xw-actions`; B6-11 f9',
-      'Updates (CM-08) is not built (Phase 6): the notice names the update and its state without the action',
+      'built',
+      'B6-08 f1 `div.xr-notice-actions > button.xr-btn--primary.xr-btn--sm`, f2 `div.xw-actions > button.xr-btn--primary`; B6-11 f9; B7-11 f4 (a link drawn as the button)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `CM-05.failed`'],
   ]),

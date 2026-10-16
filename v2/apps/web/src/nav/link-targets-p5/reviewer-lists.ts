@@ -8,18 +8,15 @@ const REVIEWED = '/reviewer/reviewed';
 const SUBMISSION = '/reviewer/submissions/SUB-0086';
 /** RV-06, the decided page, from Reviewed by me: the sample’s SUB-0081. */
 const DECIDED = '/reviewer/submissions/SUB-0081';
-/** RV-04 Review an update (`/reviewer/updates/[updateId]`, screens.json): not built, Phase 6. */
+/** RV-04 Review an update (`/reviewer/updates/[updateId]`, Phase 6): the sample’s UPD ids. */
 const UPDATE = '/reviewer/updates/UPD-0005';
 const DECIDED_UPDATE = '/reviewer/updates/UPD-0004';
 
-const RV_04_NOT_BUILT =
-  'RV-04 Review an update is not built (Phase 6): the row is drawn without its action (DEV-21; state-copy';
-
 /**
  * Phase 5 link targets: RV-01 Overview, RV-02 Review queue and RV-05 Reviewed by me (B6-01,
- * B6-02). RV-01’s one primary is “Review the oldest — <name>” (the oldest submission or re-check,
- * state-copy `RV-01.oldest`); RV-02 draws a primary “Review” on every row, one per drawn row kind;
- * RV-05 has none. Every update action opens RV-04, which is Phase 6: not rendered.
+ * B6-02). RV-01’s one primary is “Review the oldest — <name>” (the queue’s first, whatever its
+ * kind, state-copy `RV-01.oldest`); RV-02 draws a primary “Review” on every row, one per drawn row
+ * kind; RV-05 has none. Every update action opens RV-04 (built in Phase 6).
  */
 export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
   // RV-01 Overview (B6-01 f0 … f2).
@@ -30,7 +27,7 @@ export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'primary',
       SUBMISSION,
       'built',
-      'B6-01 f0, f2 `div.xw-actions > a.xr-btn--primary` (the oldest submission or re-check; state-copy `RV-01.oldest`)',
+      'B6-01 f0, f2 `div.xw-actions > a.xr-btn--primary` (the queue’s first: RV-03, or RV-04 for an update; state-copy `RV-01.oldest`)',
     ],
     [
       'Actions',
@@ -53,9 +50,8 @@ export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'Review update',
       'secondary',
       UPDATE,
-      'not-rendered',
-      'B6-01 f0, f2 `li.xr-row > a.xr-btn--secondary.xr-btn--sm` (named “Review update <name>”)',
-      `${RV_04_NOT_BUILT} RV-01.update-row).`,
+      'built',
+      'B6-01 f0, f2 `li.xr-row > a.xr-btn--secondary.xr-btn--sm` (named “Review update <name>”; `D.links.rupd`, state-copy `RV-01.update-row`)',
     ],
     [
       'Nothing waiting',
@@ -98,9 +94,8 @@ export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'Review',
       'primary',
       UPDATE,
-      'not-rendered',
-      'B6-02 f0, f5 `a.xr-btn--primary.xr-btn--sm` on the UPD-0005 row',
-      `${RV_04_NOT_BUILT} RV-02.update-row).`,
+      'built',
+      'B6-02 f0, f5 `a.xr-btn--primary.xr-btn--sm` on the UPD-0005 row (named “Review <name>”; state-copy `RV-02.update-row`)',
     ],
     [
       'No match',
@@ -150,9 +145,8 @@ export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'Open',
       'secondary',
       DECIDED_UPDATE,
-      'not-rendered',
-      'B6-02 f1 `a.xr-btn--secondary.xr-btn--sm` on the UPD rows',
-      `${RV_04_NOT_BUILT} RV-05.update-row).`,
+      'built',
+      'B6-02 f1 `a.xr-btn--secondary.xr-btn--sm` on the UPD rows (named “Open <name>”; RV-04 decided, read-only; state-copy `RV-05.update-row`)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `RV-05.failed`'],
   ]),

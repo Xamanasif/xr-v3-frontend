@@ -570,7 +570,13 @@ export const libraryOutput = z.object({
   }),
   rows: z.array(libraryRow),
 });
-/** `whoCanAct` is pre-rendered words (Appendix C [P]) — PROVISIONAL. */
+/**
+ * `whoCanAct` is pre-rendered words (Appendix C [P]) — PROVISIONAL. Phase 6 adds the facts SA-12
+ * draws beside them (provisional register PC-71): a published row's live version and the day it
+ * went live ("Published · version 1.2 · live since 3 Jul 2026"), and the state of its open
+ * correction where the reader may see it ("Update UPD-0005 · approved — waiting for your release
+ * decision").
+ */
 export const allContentOutput = z.array(
   z.object({
     ref: recordRef,
@@ -581,12 +587,27 @@ export const allContentOutput = z.array(
     stuck: z.boolean(),
     whoCanAct: z.string().nullable(),
     openUpdate: updateId.nullable(),
+    live: z.object({ label: z.string().min(1), since: isoInstant }).nullable(),
+    openUpdateState: updateState.nullable(),
   }),
 );
+/**
+ * SA-13. Phase 6 adds (PC-71): who can act, as SA-12 words it; the open correction itself where the
+ * reader may see it (its versions and state: "Published · update waiting for you"); and, for a
+ * stuck record, why — the course's code and the reviewer scopes over it that were withdrawn
+ * (B7-06 f1 "Prof. A. Menon’s EEE ZC341 scope was withdrawn on 1 Oct 2026").
+ */
 export const contentRecordOutput = z.object({
   submission: submission.nullable(),
   experiment: experiment.nullable(),
   stuck: z.boolean(),
+  whoCanAct: z.string().nullable(),
+  courseCode: z.string().nullable(),
+  courseName: z.string().nullable(),
+  openUpdate: correctionUpdate.nullable(),
+  withdrawnReviewerScopes: z.array(
+    z.object({ holderName: z.string().min(1), at: isoInstant, reason: z.string().min(1) }),
+  ),
 });
 
 type VendorErrors = NotSignedIn | NotPermitted | PolicyOpen | Unavailable;
@@ -803,6 +824,8 @@ export const listUpdatesForReleaseInput = z.object({
 /** "Description · Live now … · Proposed …" (CM-08, RV-04, SA-11) — derived. */
 export const correctionComparisonRow = z.object({
   field: z.enum(['name', 'summary', 'description', 'webLink', 'packageReferences', 'version']),
+  /** The package's format for a `packageReferences` row ("VR · package reference"); else null (PC-72). */
+  format: packageFormat.nullable(),
   liveNow: z.string().nullable(),
   proposed: z.string().nullable(),
 });

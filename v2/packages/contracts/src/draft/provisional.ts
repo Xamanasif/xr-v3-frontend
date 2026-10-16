@@ -231,7 +231,7 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
   {
     id: 'PC-13',
     subject:
-      'Pre-rendered words in later-phase read models (attention rows, queue sub-line, scope line, library tags, who can act, can act on, release line, institution note); the SA-06 plan summary was replaced by facts in Phase-1 Package 1D (PC-36)',
+      'Pre-rendered words in later-phase read models (attention rows, queue sub-line, scope line, library tags, who can act, release line, institution note); the SA-06 plan summary was replaced by facts in Phase-1 Package 1D (PC-36), SA-16’s “can act on” and SA-01’s attention rows in Phase 6 (PC-70, PC-67)',
     status: 'provisional-engineering',
     source: 'Appendix C [P] shapes; they conflict with §1.5 ("never pre-rendered words")',
     decisions: [],
@@ -239,7 +239,6 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
       { kind: 'schema-field', schema: 'attentionRow', path: 'text' },
       { kind: 'schema-field', schema: 'reviewQueueItem', path: 'subLine' },
       { kind: 'schema-field', schema: 'reviewerOverviewOutput', path: 'scopeLine' },
-      { kind: 'schema-field', schema: 'listHoldersOutput', path: '(array).canActOn' },
       { kind: 'schema-field', schema: 'attemptForMarkingOutput', path: 'releaseLine' },
     ],
     irreversible: null,
@@ -1063,5 +1062,101 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     irreversible: null,
     reversal:
       'Set the composition root’s `resubmissionRouting` to `seam-only`: a resubmission then waits “Submitted” until the test-only seam routes it.',
+  },
+  {
+    id: 'PC-67',
+    subject:
+      'SA-01 Overview carries facts, not words: the two figures (active or ending-soon institutions, with the paused and awaiting-payment counts of their line; published experiments) and the eight drawn groups — requests under review, corrections awaiting the release decision, device transfers forwarded to BITS, open and reopened support reports, access ending within 15 days, institutions without an Institute Admin, stuck content, role holders with no active scope — each with its count and first four rows, read from the same records and rules as the list it opens',
+    status: 'provisional-engineering',
+    source:
+      'B7-01 f0 (“15 items waiting across 8 groups”; “4 Active institutions · Access active or ending soon · 1 paused · 1 awaiting payment”; “13 Published experiments”; eight groups, at most four rows each, every row opens where it is handled), f1 (“A group with nothing in it is left out”). Appendix C gave six groups of pre-rendered `attentionRow` rows (PC-13). Built in Phase 6',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'superAdminOverviewOutput', path: 'figures.paused' },
+      { kind: 'schema-field', schema: 'superAdminOverviewOutput', path: 'stuckContent.rows' },
+      {
+        kind: 'schema-field',
+        schema: 'superAdminOverviewOutput',
+        path: 'holdersWithoutScope.rows',
+      },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Answer the groups with pre-rendered `attentionRow` rows again (words from the adapter) and drop the stuck-content and holder groups, or read each list separately on the page.',
+  },
+  {
+    id: 'PC-68',
+    subject:
+      'SA-22 rows carry the institution’s name and kind beside the domain’s access-ending row (“ACC-0098 · Internal”); soonest end first, ended plans after',
+    status: 'provisional-engineering',
+    source:
+      'B7-09 f4 (“BITS Pilani — Hyderabad Campus · ACC-0098 · Internal”; “As of 23 Oct 2026 · soonest first”). Built in Phase 6',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'accessEndingView', path: 'institutionName' },
+      { kind: 'schema-field', schema: 'accessEndingView', path: 'institutionKind' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Answer bare `AccessEndingRow`s; the page then reads the institutions for their names.',
+  },
+  {
+    id: 'PC-69',
+    subject:
+      'SA-15 “What uses this course” names what the counts count: the institutions whose plans hold its experiments (an ended plan marked ended; the institution’s own code for the course), the Vendors whose scope covers it and the Faculty mapped to it by institution; the course read also carries its area’s name',
+    status: 'provisional-engineering',
+    source:
+      'B7-07 f1, f3 (“BITS Pilani — Hyderabad Campus · Malnad College of Engineering (ended)”; “Godavari Institute of Technology (MEC-523)”; “Meridian Virtual Labs”; “4 Faculty members — BITS Pilani — Hyderabad Campus”; “Dr S. Ranganathan — Godavari”). Built in Phase 6',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'courseUsageDetail', path: 'institutions' },
+      { kind: 'schema-field', schema: 'getStructureCourseOutput', path: 'areaName' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Drop `detail` and `areaName`; the page then shows the counts of `courseUsage` only.',
+  },
+  {
+    id: 'PC-70',
+    subject:
+      'SA-16 / SA-17 “Can act on” is facts: each scope with its status and what it names (a course’s platform code and name, an experiment’s live name, nothing for all experiments); `getHolder` answers the holder with the same scope facts',
+    status: 'provisional-engineering',
+    source:
+      'B7-08 f0, f1, f3, f7, f8 (“ME ZG523, MEL ZG512, CHE ZG513 · 1 scope withdrawn”; “Nothing — no scope yet”; “All experiments”). Appendix C gave the list a pre-rendered `canActOn` (PC-13) and `getHolder` the bare holder. Built in Phase 6',
+    decisions: ['ROLE-11'],
+    trace: [
+      { kind: 'schema-field', schema: 'scopeView', path: 'courseCode' },
+      { kind: 'schema-field', schema: 'holderView', path: 'scopes' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Answer `canActOn` words again (and the bare holder from `getHolder`); the page then reads the courses and experiments for the names.',
+  },
+  {
+    id: 'PC-71',
+    subject:
+      'SA-12 rows carry a published record’s live version and live-since day and its visible open correction’s state; SA-13 carries who can act, the course’s code and name, the visible open correction and, for a stuck record, the withdrawn reviewer scopes over its course',
+    status: 'provisional-engineering',
+    source:
+      'B7-06 f0 (“Published · version 1.2 · live since 3 Jul 2026”; “Update UPD-0005 · approved — waiting for your release decision”), f1 (“Prof. A. Menon’s EEE ZC341 scope was withdrawn on 1 Oct 2026”), f2, f6. Built in Phase 6',
+    decisions: [],
+    trace: [
+      { kind: 'schema-field', schema: 'allContentOutput', path: '(array).openUpdateState' },
+      { kind: 'schema-field', schema: 'contentRecordOutput', path: 'withdrawnReviewerScopes' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop the added fields; the pages then read each record’s update and the holders separately.',
+  },
+  {
+    id: 'PC-72',
+    subject:
+      'A correction comparison row names the package format it compares (“VR · package reference”); null for the other fields',
+    status: 'provisional-engineering',
+    source:
+      'B6-09 / B6-04 / B7-05 script `FIELDS` (“WEB · web link”, “VR · package reference”); a correction may change one package reference per format (UPD-07). Appendix C’s row named the field only. Built in Phase 6',
+    decisions: [],
+    trace: [{ kind: 'schema-field', schema: 'correctionComparisonRow', path: 'format' }],
+    irreversible: WHILE_DRAFT,
+    reversal: 'Drop `format`; a page then labels every package row by the field alone.',
   },
 ];

@@ -9,9 +9,10 @@ import { currentSidebarItem, expectSameDocument, markDocument } from '../support
 
 /**
  * CM-03 Publication decision (boards B6-07 f0 … f5, B6-11 f4 … f8, B6-12 f3, f5, f6) and CM-05
- * Published experiment (B6-08 f0 … f2, f4; B6-11 f9) on the test-hook build at 1440, 1024, 768 and
- * 375, as Kavya Nair on the spine-start world. Each drawn state passes `checkState` (axe WCAG A/AA,
- * one h1, visible focus targets, 24 × 24 targets, no developer surface, no sideways scroll).
+ * Published experiment (B6-08 f0 … f2, f4; B6-11 f9; its Phase-6 correction entry is
+ * `e2e/phase-6/cm-correction.spec.ts`) on the test-hook build at 1440, 1024, 768 and 375, as
+ * Kavya Nair on the spine-start world. Each drawn state passes `checkState` (axe WCAG A/AA, one
+ * h1, visible focus targets, 24 × 24 targets, no developer surface, no sideways scroll).
  *
  * Everything the screens do — choosing Publish or Send back, the DL-1 publish, the DL-2 send back
  * with its validation, references and reason, following the result to the public experiment page,
@@ -521,16 +522,13 @@ test.describe('CM-05 Published experiment', () => {
     await expect(main(page)).toContainText(
       'Every change opens a correction draft. The live experiment changes only when the Super Admin releases it.',
     );
-    // The correction entry is Phase 6: none of its actions is offered.
-    for (const name of [
+    // Phase 6: the correction entry is offered (its behaviour is `e2e/phase-6/cm-correction.spec.ts`).
+    await expect(main(page).locator('.xw-actions').getByRole('button')).toHaveText([
       'Start a correction',
       'Edit catalogue details',
       'Edit delivery link',
-      'Open update',
-    ]) {
-      await expect(main(page).getByRole('button', { name })).toHaveCount(0);
-      await expect(main(page).getByRole('link', { name })).toHaveCount(0);
-    }
+    ]);
+    await expect(main(page).getByRole('link', { name: 'Open update' })).toHaveCount(0);
     const catalogue = main(page).getByRole('region', { name: 'Catalogue details' });
     await expect(catalogue.locator('dd')).toHaveText([
       'Distillation Column',
@@ -549,7 +547,7 @@ test.describe('CM-05 Published experiment', () => {
     const delivery = main(page).getByRole('region', { name: 'Delivery' });
     await expect(delivery.locator('.xv-deliv-head')).toHaveText([
       /WEB\s*Web link/,
-      /VR\s*App package \(provisional — T-14\)/,
+      /VR\s*App package \(provisional\)$/,
     ]);
     await expect(delivery).toContainText('MVL-DC-VR-1.2');
     const history = main(page).getByRole('region', { name: 'History' });
@@ -585,7 +583,9 @@ test.describe('CM-05 Published experiment', () => {
     await expect(notice).toContainText(
       'Edits to this experiment join that update. Open it to continue.',
     );
+    // Phase 6: the entries join the draft — “Open update” and the edit entries, outside the notice.
     await expect(notice.getByRole('button')).toHaveCount(0);
+    await expect(main(page).locator('.xw-actions').getByRole('link')).toHaveText(['Open update']);
     await expect(history.locator('.xr-tl-what').first()).toHaveText('UPD-0005 started — draft');
     await checkState(page, 'Distillation Column');
     await shot720(page, 'b608-f2-draft');

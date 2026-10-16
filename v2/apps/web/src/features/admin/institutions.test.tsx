@@ -1,6 +1,7 @@
 /**
  * Package 1D on the real composition root and the sample world: SA-01 Overview (B7-01, its
- * Phase-1 Requests group), SA-06 Institutions (B7-02) and SA-07 Institution detail (B7-03, B7-04).
+ * Requests group; the full overview of Phase 6 is tested in content-oversight.test.tsx), SA-06
+ * Institutions (B7-02) and SA-07 Institution detail (B7-03, B7-04).
  * Every row, count, status and refusal is the ports' answer; the commands go out with the revision
  * the page read and their refusals write nothing. The fixture `after-flow-c` (27 Oct 2026) holds
  * the seven institutions as the B7 boards draw them on 23 Oct.
@@ -63,7 +64,7 @@ async function detailOf(runtime: PlatformRuntime, id: string) {
   return answer.value;
 }
 
-// ---- SA-01 Overview (B7-01), the Phase-1 Requests group ---------------------------------------
+// ---- SA-01 Overview (B7-01), its Requests group ------------------------------------------------
 
 describe('SA-01 — the Requests group is the requests under review (B7-01 f0, f3)', () => {
   it('lists them newest first, each opening its decision, with the sidebar’s figure', async () => {
@@ -102,12 +103,13 @@ describe('SA-01 — the Requests group is the requests under review (B7-01 f0, f
     // The sidebar counts the same read.
     const sidebarCount = document.querySelector('.xr-side .xr-count .xr-sr');
     expect(sidebarCount).toHaveTextContent(`${underReview.value.length} requests under review`);
-    // Phase 1: no figures, no other group, no summary line (SA-01.scope).
-    expect(main().querySelector('.xd-figs')).toBeNull();
-    expect(main().querySelectorAll('section.xr-section')).toHaveLength(1);
+    // Phase 6: the full overview — the two figures and the other groups beside Requests, with
+    // the summary line (the full SA-01 is tested in content-oversight.test.tsx).
+    expect(main().querySelector('.xd-figs')).not.toBeNull();
+    expect(main().querySelectorAll('section.xd-group').length).toBeGreaterThan(1);
     expect(screen.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
     expect(main().querySelector('.xr-overline')).toHaveTextContent('Super Admin · Arjun Mehta');
-    expect(main()).not.toHaveTextContent(/items waiting across/);
+    expect(main()).toHaveTextContent(/items waiting across \d+ groups/);
   });
 
   it('shows at most four rows (B7-01 caption)', async () => {
@@ -125,7 +127,7 @@ describe('SA-01 — the Requests group is the requests under review (B7-01 f0, f
     expect(Number(group.querySelector('.xd-gn')!.textContent)).toBeGreaterThan(4);
   });
 
-  it('“Nothing is waiting” when no request is under review (B7-01 f1, Phase-1 sentence)', async () => {
+  it('no request under review: the Requests group is left out (B7-01 note)', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     for (const id of ['REQ-0040', 'REQ-0038']) {
       const page = await runtime.ports.accessRequests.getRequestForDecision(id as never);
@@ -138,20 +140,18 @@ describe('SA-01 — the Requests group is the requests under review (B7-01 f0, f
       expect(asked.ok).toBe(true);
     }
     inAdmin(runtime, '/admin', <Overview />);
-    const calm = await screen.findByRole('region', { name: 'Waiting on you' });
-    expect(
-      within(calm).getByRole('heading', { level: 3, name: 'Nothing is waiting' }),
-    ).toBeVisible();
-    expect(calm).toHaveTextContent('Requests appear here when they need you.');
-    expect(calm.querySelector('.xr-empty-icon.xr-x-empty-icon--ok')).not.toBeNull();
-    expect(B7_01).toContain('Nothing is waiting');
-    expect(B7_01).toContain('Waiting on you');
+    // The other groups stay (spine-start: access ending, no Institute Admin, stuck content); the
+    // calm state of B7-01 f1 is tested in content-oversight.test.tsx.
+    await screen.findByRole('region', { name: /^Stuck content/ });
+    expect(screen.queryByRole('region', { name: /^Requests/ })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Waiting on you' })).toBeNull();
+    expect(B7_01).toContain('A group with nothing in it is left out.');
   });
 
   it('announces its loading in the header (B7-01 f2); a failure has a way forward', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-c');
-    faults(sample).failNext('AccessRequestService.listRequests');
+    faults(sample).failNext('OperationsService.getSuperAdminOverview');
     renderInTab(<Overview />, { runtime, navigation: testNavigation('/admin') });
     const status = document.querySelector('.xr-phead-meta [role="status"]');
     expect(status).toHaveTextContent('Loading what is waiting…');
@@ -164,7 +164,8 @@ describe('SA-01 — the Requests group is the requests under review (B7-01 f0, f
     );
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByRole('region', { name: /^Requests/ })).toBeVisible();
-    expect(document.querySelector('.xr-phead-meta')).toBeNull();
+    expect(document.querySelector('.xr-phead-meta [role="status"]')).toBeNull();
+    expect(document.querySelector('.xr-phead-meta')).toHaveTextContent(/items waiting across/);
   });
 });
 

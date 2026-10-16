@@ -179,7 +179,7 @@ function planGrants(op: Op, plan: AccessPlan): PlanGrant[] {
  * states in which `assignInstituteAdmin` assigns one (INST-04; it refuses `access-not-active`
  * before activation and after access ended, INST-05, INST-09).
  */
-function needsInstituteAdmin(institution: Institution, status: InstitutionStatus): boolean {
+export function needsInstituteAdmin(institution: Institution, status: InstitutionStatus): boolean {
   return (
     institution.instituteAdmin === null &&
     (status === 'access-active' || status === 'ending-soon' || status === 'access-paused')

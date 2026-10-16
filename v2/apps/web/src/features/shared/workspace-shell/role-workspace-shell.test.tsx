@@ -48,8 +48,8 @@ function renderShell(role: Role, overrides: Partial<RoleWorkspaceShellProps> = {
 
 const ROLES = PLATFORM_ROLES.map((role) => [ROLE_LABEL[role], role] as const);
 
-describe('built so far: Help in every workspace; Overview, Requests, Institutions and Operations for the Super Admin (Packages 1A, 1D; Phase 3)', () => {
-  it('Super Admin on Help & support: Overview, Requests, Institutions, Operations, then Help (current)', () => {
+describe('built so far: Help in every workspace and, since Phase 6, every designed destination', () => {
+  it('Super Admin on Help & support: Overview, Requests, Institutions, Content, Academic structure, Platform roles, Operations, then Help (current)', () => {
     const { aside, container } = renderShell('super_admin');
     const nav = within(aside).getByRole('navigation', { name: 'Super Admin navigation' });
     const links = within(nav).getAllByRole('link');
@@ -57,12 +57,18 @@ describe('built so far: Help in every workspace; Overview, Requests, Institution
       'Overview',
       'Requests',
       'Institutions',
+      'Content',
+      'Academic structure',
+      'Platform roles',
       'Operations',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/admin',
       '/admin/requests',
       '/admin/institutions',
+      '/admin/content/updates',
+      '/admin/structure',
+      '/admin/roles',
       '/admin/operations/device-transfers',
     ]);
     for (const link of links) expect(link).not.toHaveAttribute('aria-current');
@@ -78,6 +84,9 @@ describe('built so far: Help in every workspace; Overview, Requests, Institution
         '/admin',
         '/admin/requests',
         '/admin/institutions',
+        '/admin/content/updates',
+        '/admin/structure',
+        '/admin/roles',
         '/admin/operations/device-transfers',
         '/admin/help',
       ]),
@@ -112,14 +121,14 @@ describe('built so far: Help in every workspace; Overview, Requests, Institution
     ],
     ['Vendor', 'vendor', ['Overview', 'My experiments']],
     ['Academic Reviewer', 'academic_reviewer', ['Overview', 'Review queue', 'Reviewed by me']],
-    // Updates (CM-08) is Phase 6: not listed.
+    // Phase 6 adds Updates (CM-08).
     [
       'Content Manager',
       'content_manager',
-      ['Overview', 'Ready to publish', 'Content library', 'Course codes'],
+      ['Overview', 'Ready to publish', 'Content library', 'Updates', 'Course codes'],
     ],
   ] as const)(
-    '%s on Help & support (Package 2A, Phases 3, 4A, 4B, 5): the built destinations, then Help (current)',
+    '%s on Help & support (Package 2A, Phases 3 … 6): the built destinations, then Help (current)',
     (label, role, built) => {
       const { aside, container } = renderShell(role);
       const nav = within(aside).getByRole('navigation', { name: `${label} navigation` });

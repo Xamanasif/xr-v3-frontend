@@ -106,16 +106,14 @@ test('board 05 · the built shell on Help for 7 roles, with the applicable banne
       },
       role.label === 'Super Admin'
         ? {
-            // Package 1A builds the Super Admin's Requests (SA-02), so this sidebar now lists it
-            // with its count: measured under its own name and DEV-21 (owner review). The Phase-0
-            // pin `05-super-admin-help-built-sidebar` (DEV-10, Help only) is kept unchanged in
-            // pinned.json as the record of the Phase-0 state; it is no longer observed. Phase 3
-            // adds Operations (SA-18): measured as `-phase-3`, the Package-1A pin kept as the record.
-            name: `${name}-sidebar-phase-3`,
+            // Package 1A builds the Super Admin's Requests (SA-02), so this sidebar lists it with
+            // its count; Phase 3 adds Operations (SA-18); Phase 6 builds Content, Academic
+            // structure and Platform roles — every destination: measured as `-phase-6`, the
+            // Phase-0, Package-1A and Phase-3 pins kept as the record (no longer observed).
+            name: `${name}-sidebar-phase-6`,
             reference: board.locator('aside.xr-side'),
             product: ours.locator('aside.xr-side'),
             kind: 'specimen',
-            deviation: 'DEV-21',
           }
         : role.label === 'Institute Admin'
           ? {
@@ -156,13 +154,16 @@ test('board 05 · the built shell on Help for 7 roles, with the applicable banne
                   // Phase 5 builds the Vendor's, the Academic Reviewer's and the Content Manager's
                   // destinations: measured as `-phase-5`; the Phase-0 pins (DEV-10, Help only)
                   // stay as the record. The Vendor's and the Academic Reviewer's are board 05's
-                  // (the Review queue count's figure, the world's, stays inside the tolerance); the
-                  // Content Manager's Updates (CM-08) is Phase 6 (DEV-21).
-                  name: `${name}-sidebar-phase-5`,
+                  // (the Review queue count's figure, the world's, stays inside the tolerance).
+                  // Phase 6 adds the Content Manager's Updates (CM-08): measured as `-phase-6`,
+                  // its Phase-5 pin (DEV-21) kept as the record.
+                  name:
+                    role.label === 'Content Manager'
+                      ? `${name}-sidebar-phase-6`
+                      : `${name}-sidebar-phase-5`,
                   reference: board.locator('aside.xr-side'),
                   product: ours.locator('aside.xr-side'),
                   kind: 'specimen',
-                  ...(role.label === 'Content Manager' ? { deviation: 'DEV-21' } : {}),
                 },
       {
         name: `${name}-help-header`,

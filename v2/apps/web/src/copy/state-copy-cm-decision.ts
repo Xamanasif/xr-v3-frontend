@@ -228,10 +228,10 @@ export const STATE_COPY_CM_DECISION = {
     state:
       'The correction entry: “Start a correction”, “Edit catalogue details”, “Edit delivery link”, “Open update”',
     words: null,
-    rule: 'Not rendered in Phase 5: the correction draft (CM-06, CM-07) and the update page (CM-08) are Phase 6 and not built. The page states the facts — the live version read-only, and whether an update is in progress and its state — with the drawn line “Every change opens a correction draft. The live experiment changes only when the Super Admin releases it.” The notice after leaving a correction draft (“Back from the correction”, B6-08 f3) needs CM-08 and is not shown.',
-    basis: 'B6-08 f0 … f3; P0-35 built-screen-only navigation (DEV-21)',
+    rule: 'Built in Phase 6. With no update in progress: “Start a correction” (the primary), “Edit catalogue details” and “Edit delivery link”, each opening the one correction draft (CM-06, CM-07) on its update page (CM-08). While an update is a draft or returned: “Open update” and the two edit entries, which join it. While it is in academic review, awaiting the release decision or on hold: only “Open update”, in the notice. After leaving an open update by “Back to the published experiment”: “Back from the correction” once (state-copy `CM-05.back-from-correction`). The service opens or joins the draft and refuses a second one.',
+    basis: 'B6-08 f0 … f4; B6-11 f9; B7-11 f4',
     status: 'provisional',
-    decisions: ['VD-12', 'P0-35'],
+    decisions: ['VD-12'],
   },
   'CM-05.update-states': {
     screen: 'CM-05',

@@ -67,17 +67,31 @@ function shell(
      * as the record and are no longer observed).
      */
     phase5?: readonly string[];
+    /**
+     * Phase 6 builds the Content Manager's Updates (CM-08): her sidebar and whole frame are
+     * measured as `-phase-6` (the Phase-5 pins, DEV-21, stay as the record).
+     */
+    phase6?: readonly string[];
   } = {},
 ): CompareItem[] {
-  const shellDeviations: readonly string[] = registered.phase5
-    ? registered.phase5
-    : registered.package2a
-      ? []
-      : ['DEV-10'];
+  const shellDeviations: readonly string[] = registered.phase6
+    ? registered.phase6
+    : registered.phase5
+      ? registered.phase5
+      : registered.package2a
+        ? []
+        : ['DEV-10'];
   // Phase 3 adds the Student's Progress: the Package-2A names become `-phase-3` (their pins stay
   // as the record). Phase 4B adds the Student's Assessments: `-phase-4b` (the Phase-3 pins stay as
-  // the record). Phase 5: the Vendor's and the Content Manager's `-phase-5`.
-  const suffix = registered.phase5 ? '-phase-5' : registered.package2a ? '-phase-4b' : '';
+  // the record). Phase 5: the Vendor's and the Content Manager's `-phase-5`; Phase 6 the Content
+  // Manager's `-phase-6`.
+  const suffix = registered.phase6
+    ? '-phase-6'
+    : registered.phase5
+      ? '-phase-5'
+      : registered.package2a
+        ? '-phase-4b'
+        : '';
   return [
     {
       name: `${name}-top-bar`,
@@ -249,12 +263,12 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
     const sections = (where: Locator | Page) => where.locator('main section.xr-section');
     await run(testInfo, [
       // "What you reported" is 10 px taller (DEV-11 title, DEV-13 list): so are the sidebar and frame.
-      // Phase 5: the Content Manager sidebar lists her built destinations; Updates (CM-08) is
-      // Phase 6 (DEV-21).
+      // Phase 6: the Content Manager sidebar lists every destination, Updates (CM-08) too; its
+      // "Ready to publish" count is the world's, which board 07 draws no badge for (DEV-17).
       ...shell('07-f7-state-3a-report-detail-reopened', frame, ours, {
         sidebar: ['DEV-11', 'DEV-13'],
         frame: ['DEV-11', 'DEV-13'],
-        phase5: ['DEV-21'],
+        phase6: ['DEV-17'],
       }),
       {
         name: '07-f7-state-3a-back-link',

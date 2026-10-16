@@ -135,7 +135,8 @@ test('one tab, the product build: sign-in, requests, a decision, sign-out, anoth
   await expectSameDocument(page, mark);
 
   // 12. Kavya Nair: the Content Manager shell (her own destinations — CM-01 Overview is her home
-  //     since Phase 5 — no Super Admin destination), and the Super Admin's Requests are not hers.
+  //     since Phase 5, Updates since Phase 6 — no Super Admin destination), and the Super Admin's
+  //     Requests are not hers.
   await signIn(page, 'kavya.nair@wilp.example');
   await page.waitForURL((url) => url.pathname === '/content-manager');
   await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
@@ -148,6 +149,7 @@ test('one tab, the product build: sign-in, requests, a decision, sign-out, anoth
     '/content-manager',
     '/content-manager/ready',
     '/content-manager/library',
+    '/content-manager/updates',
     '/content-manager/course-codes',
   ]);
   await expect(page.locator('main')).not.toContainText(/REQ-00|Konark/);

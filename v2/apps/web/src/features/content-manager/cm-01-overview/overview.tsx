@@ -27,6 +27,7 @@ import {
   CM_OVERVIEW_TITLE,
   cmOverviewPlacement,
   CONTENT_LIBRARY_ADDRESS,
+  correctionAddress,
   publicationDecisionAddress,
 } from '@/nav/content-manager';
 import { useContentManagerOverview } from '@/queries/production';
@@ -54,9 +55,9 @@ type WithOthers = Overview['withOthers'][number];
  *   with the one primary “Open the next ready item”, the others with “Open decision” (CM-03), the
  *   returned corrections; “With others — For information — nothing to do”. f1: “Nothing is waiting
  *   for your publication decision” with “Open the Content library”. At 375 the rows stack (f2).
- * - **Phase 5 actions** (state-copy `CM-01.row-actions`): a re-check row’s “Open” opens CM-03
- *   (read-only while the reviewer has it). Correction rows keep their words but have no action:
- *   Updates (CM-08) is not built yet.
+ * - **Row actions** (state-copy `CM-01.row-actions`): a re-check row’s “Open” opens CM-03
+ *   (read-only while the reviewer has it); a returned correction’s “Open update” and every “With
+ *   others” correction’s “Open” open the correction page (CM-08, Phase 6).
  * - Undrawn: loading and failed + Try again (state-copy `CM-01.loading`, `CM-01.failed`).
  *   Nothing here changes a record: every action opens the page where the work is done.
  */
@@ -183,7 +184,7 @@ function NeedsDecision({
               </Row>
             );
           }
-          // “Open update” opens CM-08, not built yet: the row keeps its words only.
+          // “Open update” opens the returned correction (CM-08; B6-05 `D.links.cupd`).
           return (
             <Row
               key={row.updateId}
@@ -195,7 +196,14 @@ function NeedsDecision({
                 returnedAt: row.returnedAt,
                 reason: row.reason,
               })}
-            />
+            >
+              <Link
+                className="xr-btn xr-btn--secondary xr-btn--sm"
+                href={correctionAddress(row.updateId)}
+              >
+                {CM_OVERVIEW.openUpdate}
+              </Link>
+            </Row>
           );
         })}
       </Rows>
@@ -255,7 +263,7 @@ function WithOthersSection({ rows }: { readonly rows: readonly WithOthers[] }) {
                   </Link>
                 </Row>
               );
-            // The correction rows’ “Open” opens CM-08, not built yet: words only.
+            // A correction row’s “Open” opens the correction page (CM-08; `D.links.cupd`).
             case 'update-in-review':
               return (
                 <Row
@@ -264,7 +272,9 @@ function WithOthersSection({ rows }: { readonly rows: readonly WithOthers[] }) {
                   tone="wait"
                   title={updateInReviewTitle(row.name, row.versionLabel)}
                   sub={updateInReviewSub(row.updateId, row.sentAt)}
-                />
+                >
+                  <OpenUpdate id={row.updateId} name={row.name} />
+                </Row>
               );
             case 'update-awaiting-release':
               return (
@@ -274,7 +284,9 @@ function WithOthersSection({ rows }: { readonly rows: readonly WithOthers[] }) {
                   tone="wait"
                   title={updateAwaitingTitle(row.name, row.versionLabel)}
                   sub={updateAwaitingSub(row.updateId, row.approvedAt)}
-                />
+                >
+                  <OpenUpdate id={row.updateId} name={row.name} />
+                </Row>
               );
             case 'update-on-hold':
               return (
@@ -284,11 +296,26 @@ function WithOthersSection({ rows }: { readonly rows: readonly WithOthers[] }) {
                   tone="wait"
                   title={updateOnHoldTitle(row.name, row.versionLabel)}
                   sub={updateOnHoldSub(row.updateId, row.heldAt, row.liveLabel)}
-                />
+                >
+                  <OpenUpdate id={row.updateId} name={row.name} />
+                </Row>
               );
           }
         })}
       </Rows>
     </section>
+  );
+}
+
+/** A “With others” correction’s text link (`a.xr-btn--text.xr-btn--sm`), named “Open <name>”. */
+function OpenUpdate({ id, name }: { readonly id: string; readonly name: string }) {
+  return (
+    <Link
+      className="xr-btn xr-btn--text xr-btn--sm"
+      href={correctionAddress(id)}
+      aria-label={openLabel(name)}
+    >
+      {CM_OVERVIEW.open}
+    </Link>
   );
 }

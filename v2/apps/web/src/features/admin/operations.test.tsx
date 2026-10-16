@@ -95,16 +95,22 @@ describe('SA-18 — Operations › Device transfers (B3-11 f0, f2, f3)', () => {
     );
     expect(topTitle()).toBe('Operations');
     expect(currentNav()).toHaveTextContent('Operations');
-    // The Operations tabs: Device transfers only (Support and Access ending are Phase 6, DEV-21).
+    // The Operations tabs (Phase 6, B7-09 f0): three links on white, Device transfers current.
     const tabs = screen.getByRole('navigation', { name: 'Operations' });
+    expect(tabs).toHaveClass('xr-tabs', 'xr-tabs--on-white');
     expect(
       within(tabs)
         .getAllByRole('link')
-        .map((link) => link.textContent),
-    ).toEqual(['Device transfers']);
-    expect(within(tabs).getByRole('link')).toHaveAttribute('aria-current', 'page');
-    expect(screen.queryByRole('link', { name: 'Support' })).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Access ending' })).toBeNull();
+        .map((link) => [
+          link.textContent,
+          link.getAttribute('href'),
+          link.getAttribute('aria-current'),
+        ]),
+    ).toEqual([
+      ['Device transfers', LIST, 'page'],
+      ['Support', '/admin/operations/support', null],
+      ['Access ending', '/admin/operations/access-ending', null],
+    ]);
     // Show: three links, the forwarded view current.
     const show = screen.getByRole('group', { name: 'Show' });
     expect(show).toHaveClass('xr-seg', 'xl-seg');
@@ -542,19 +548,15 @@ describe('SA-07 — a device transfer forwarded to BITS needs attention (B7-03 f
 // ---- The ledger rows of these screens --------------------------------------------------------
 
 describe('the SA-18 / SA-19 link-target rows', () => {
-  it('built targets reach SA-18 / SA-19 or Help; hidden ones (Phase 6) are not found', () => {
+  it('every target is built: SA-18 / SA-19, Help, and (Phase 6) Support and Access ending', () => {
     for (const entry of P3_OPERATIONS_LINK_TARGETS) {
+      expect(entry.outcome, entry.action).not.toBe('not-rendered');
       if (entry.target === null) continue;
       const target = expandTarget(entry.target, '/admin').split('?')[0]!;
-      const kind = resolveAddress(target).kind;
-      if (entry.outcome === 'not-rendered') {
-        expect(kind, entry.action).toBe('workspace-not-found');
-        expect(entry.note).toMatch(/not built/);
-      } else {
-        expect(['screen', 'record-screen'], entry.action).toContain(kind);
-      }
+      expect(['screen', 'record-screen'], entry.action).toContain(resolveAddress(target).kind);
     }
-    expect(resolveAddress('/admin/operations/access-ending').kind).toBe('workspace-not-found');
+    expect(resolveAddress('/admin/operations/access-ending').kind).toBe('record-screen');
+    expect(resolveAddress('/admin/operations/support').kind).toBe('record-screen');
     expect(
       P3_OPERATIONS_LINK_TARGETS.filter((entry) => entry.role === 'primary').map(
         (entry) => `${entry.screen}: ${entry.action}`,

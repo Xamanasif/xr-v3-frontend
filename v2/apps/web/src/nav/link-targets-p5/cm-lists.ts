@@ -12,15 +12,16 @@ const DECISION_RECHECK = '/content-manager/decisions/SUB-0071';
 const DECISION_RETURNED = '/content-manager/decisions/SUB-0081';
 /** CM-05, by experiment id. */
 const PUBLISHED = '/content-manager/published/distillation-column';
-/** CM-08 Updates (Phase 6): not built — the address its rows would open. */
+/** CM-08, a correction’s page (Phase 6): the sample’s returned UPD-0006 and on-hold UPD-0004. */
 const UPDATE = '/content-manager/updates/UPD-0006';
+const UPDATE_WITH_OTHERS = '/content-manager/updates/UPD-0004';
 
 /**
  * Phase 5 link targets: CM-01 Overview, CM-02 Ready to publish, CM-04 Content library and CM-09
  * Course codes (B6-05, B6-06, B6-10; B6-11 f12; B6-12 f2). CM-01’s one primary is “Open the next
  * ready item” (the oldest approval); CM-02 draws its “Open decision” as each row’s primary; CM-09’s
- * is “Save codes” (a command). The correction rows’ actions open Updates (CM-08), which is Phase 6:
- * drawn, not rendered (P0-35 / DEV-21; state-copy `CM-01.row-actions`).
+ * is “Save codes” (a command). The correction rows’ actions open the correction’s page (CM-08,
+ * built in Phase 6; state-copy `CM-01.row-actions`).
  */
 export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
   // CM-01 Overview (B6-05 f0 … f2).
@@ -54,9 +55,8 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'Open update',
       'secondary',
       UPDATE,
-      'not-rendered',
-      'B6-05 f0, f2 `a.xr-btn--secondary.xr-btn--sm` (`D.links.cupd`)',
-      'Updates (CM-08) is not built (Phase 6): the row shows its words without the action',
+      'built',
+      'B6-05 f0, f2 `a.xr-btn--secondary.xr-btn--sm` (`D.links.cupd`; the returned correction, CM-08)',
     ],
     [
       'With others (a re-check with the Academic Reviewer)',
@@ -70,10 +70,9 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'With others (a correction in academic review, awaiting release or on hold)',
       'Open',
       'secondary',
-      UPDATE,
-      'not-rendered',
-      'B6-05 f0, f2 `a.xr-btn--text.xr-btn--sm` (`D.links.cupd`)',
-      'Updates (CM-08) is not built (Phase 6): the row shows its words without the action',
+      UPDATE_WITH_OTHERS,
+      'built',
+      'B6-05 f0, f2 `a.xr-btn--text.xr-btn--sm` (`D.links.cupd`; named “Open <name>”; the correction, CM-08)',
     ],
     [
       'Nothing waiting',
