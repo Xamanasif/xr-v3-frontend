@@ -2,8 +2,9 @@
  * The sample world (Appendix F §3.7 `world/`; Appendix D §3.2; ADR-0004): one immutable value
  * holding every shared record (BC14), the deterministic id state, the sample runtime events with
  * their provenance, the command log and the receipts of committed commands. A command never edits
- * a world: it builds the next one (`worldVersion + 1`). Nothing here is written to browser
- * storage — the persistence driver is `memory` (option A; TE-6 is not authorised).
+ * a world: it builds the next one (`worldVersion + 1`). A local prototype build keeps it as a
+ * versioned browser snapshot (TE-6, Phase 7; `persistence/snapshot.ts`); every other build keeps it
+ * in memory (ADR-0004 option A).
  */
 import type {
   AccessPlan,
@@ -142,15 +143,33 @@ export interface SeededLicenceWait {
 }
 
 /**
+ * A device an institution's lab authorised before the Student's record exists (P3-03; owner
+ * authorisation of Phase 7, 17 Oct 2026, local prototype only): it is the Student's authorised
+ * device once a Student of `institutionId` holds `institutionEmail`. A seeded fact, not a
+ * registration — no product action records one, and the production device policy (registration,
+ * provisioning, MDM) stays open (D20b).
+ */
+export interface SeededAuthorisedDevice {
+  readonly institutionId: string;
+  readonly institutionEmail: string;
+  readonly format: 'ar' | 'vr' | 'mr';
+  readonly description: string;
+  readonly usedFor: readonly string[];
+  readonly since: IsoInstant;
+}
+
+/**
  * Facts the seed supplies that no rule may produce (Appendix C §3.18): the licence oracle's
- * answers (D7), formats "Not available right now" (D-26, no designed cause), and the landing's
+ * answers (D7), formats "Not available right now" (D-26, no designed cause), the landing's
  * featured experiments (P1-22 interim: "Featured experiments are a seeded list"; curated vs
- * derived is OPEN, B1-01 / B1-14), in their drawn order.
+ * derived is OPEN, B1-01 / B1-14), in their drawn order, and — in a local prototype build's
+ * starting world only — the pre-authorised devices (P3-03).
  */
 export interface SeededFacts {
   readonly licenceWaits: readonly SeededLicenceWait[];
   readonly unavailableRightNow: Readonly<Record<string, readonly Technology[]>>;
   readonly featuredExperiments: readonly string[];
+  readonly authorisedDevices?: readonly SeededAuthorisedDevice[];
 }
 
 /**

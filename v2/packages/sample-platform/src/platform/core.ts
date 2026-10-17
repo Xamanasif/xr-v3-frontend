@@ -5,6 +5,7 @@
  */
 import type { MethodId } from '@xr/contracts/draft';
 import type {
+  ExperimentId,
   IsoInstant,
   OverlapGrantPolicy,
   PersonId,
@@ -25,6 +26,8 @@ import type { WorldStore } from '../store/store.js';
  */
 export interface NonceSource {
   next(kind: 'command' | 'session' | 'launch' | 'browser'): string;
+  /** Continues command ids past `count` (a world adopted from another tab holds later ones). */
+  continueCommandsPast(count: number): void;
 }
 
 const NONCE_PREFIX = { command: 'cmd', session: 'ses', launch: 'lch', browser: 'bs' } as const;
@@ -36,6 +39,9 @@ export function counterNonces(commandsSoFar = 0): NonceSource {
     next(kind) {
       counters[kind] += 1;
       return `${NONCE_PREFIX[kind]}-${String(counters[kind]).padStart(6, '0')}`;
+    },
+    continueCommandsPast(count) {
+      counters.command = Math.max(counters.command, count);
     },
   };
 }
@@ -130,6 +136,25 @@ export interface StagedQuestionImport {
   readonly rows: readonly QuestionImportRow[];
 }
 
+/**
+ * TE-3 (owner authorisation of Phase 7, 17 Oct 2026; a local prototype build only): where the sample
+ * WEB activity lives. With it, "Launch WEB" opens that activity for this launch instead of the
+ * published link; the activity is simulated and its completion is recorded by the system completion
+ * handler only after the activity's own completion conditions are met (`sample-web-runtime.ts`).
+ */
+export interface SampleWebRuntimeOptions {
+  /** The address of the sample WEB activity for one launch (a route of the web app). */
+  readonly activityHref: (launch: string) => string;
+}
+
+/** A WEB launch this tab issued, which the sample activity may report for (adapter state only). */
+export interface SampleWebLaunch {
+  readonly studentId: PersonId;
+  readonly experimentId: ExperimentId;
+  readonly experimentName: string;
+  readonly issuedAt: IsoInstant;
+}
+
 export interface PlatformCore {
   readonly store: WorldStore;
   readonly clock: SampleClockControl;
@@ -163,6 +188,10 @@ export interface PlatformCore {
    * browser session holds are good for this world only.
    */
   readonly instance: string;
+  /** TE-3: the sample WEB activity of a local prototype build; `null` everywhere else. */
+  readonly webRuntime: SampleWebRuntimeOptions | null;
+  /** TE-3: the WEB launches this tab issued (never a world record, never in browser storage). */
+  readonly launches: Map<string, SampleWebLaunch>;
 }
 
 /** A signed-in session: only the person id is kept (ADR-0003 §1). */

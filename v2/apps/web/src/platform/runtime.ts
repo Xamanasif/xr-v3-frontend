@@ -4,10 +4,11 @@
  *
  * They live in this module, not in React state: a re-render, a remount of the providers, React
  * Strict Mode's double effects and client-side navigation all reach the same instances, and the
- * boot runs once however often it is asked for. A reload or a full navigation starts a new page,
- * which rebuilds the world from the seed, signed out (AD-07 option A). On the server nothing is
- * composed: the world exists only in the browser, and each server render gets its own empty
- * QueryClient.
+ * boot runs once however often it is asked for. A reload or a full navigation starts a new page:
+ * signed out, with the world from the seed (AD-07 option A) — or, in a local prototype build, the
+ * world this browser kept (TE-6, owner authorisation of Phase 7, 17 Oct 2026). On the server
+ * nothing is composed: the world exists only in the browser, and each server render gets its own
+ * empty QueryClient.
  */
 import { QueryClient } from '@tanstack/react-query';
 import type { DataSource } from '@xr/config/env';
@@ -23,7 +24,9 @@ import {
   composePlatform,
   type PlatformCapabilities,
   queryDefaultsFor,
+  SAMPLE_WORLD_STORAGE_KEY,
 } from './composition';
+import { relaySampleWebActivity, SAMPLE_WEB_CHANNEL } from './sample-web-relay';
 import { createSessionStore, type SessionStore } from './session-store';
 
 /** What the providers expose to the app (Appendix F §3.2 `platform-provider.tsx`). */
@@ -37,6 +40,12 @@ export interface PlatformRuntime {
   readonly capabilities: PlatformCapabilities;
   /** The one invalidation path: the record refs a command receipt changed (Appendix F §4.6). */
   invalidate(changed: readonly RecordRef[]): Promise<void>;
+  /**
+   * TE-6 "Reset demo data" (a local prototype build with the browser snapshot; else `null`): the
+   * saved world, this tab's selection and request tickets are removed once no command is running;
+   * the caller then loads a page, which starts the clean world, signed out. Other tabs start again.
+   */
+  readonly resetSampleWorld: (() => Promise<void>) | null;
 }
 
 export type BootState =
@@ -66,6 +75,7 @@ export function assembleRuntime(options: {
     ...ports,
     session: session.port(ports.session),
   });
+  const snapshot = composed.sample.snapshot;
   return {
     ports: synced(composed.adapter.ports),
     withCommandId: (commandId) => synced(composed.adapter.withCommandId(commandId)),
@@ -74,6 +84,7 @@ export function assembleRuntime(options: {
     session,
     capabilities: composed.capabilities,
     invalidate: (changed) => invalidateChanged(queryClient, changed),
+    resetSampleWorld: snapshot ? () => snapshot.clear() : null,
   };
 }
 
@@ -106,6 +117,65 @@ export const getBootState = (): BootState => state;
 function publish(next: BootState): void {
   state = next;
   for (const listener of [...listeners]) listener();
+}
+
+/**
+ * TE-6 (a local prototype build): `localStorage` for the world snapshot, if usable. A test-hook
+ * build never keeps one: its tests start from their own fixtures (ADR-0007).
+ */
+function browserLocalStorage(): Storage | null {
+  if (testHooks) return null;
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+/** TE-6: the browser's Web Locks, so the tabs of one browser change the world one at a time. */
+function browserLock(): (<T>(work: () => T) => Promise<T>) | undefined {
+  const locks = typeof navigator === 'undefined' ? undefined : navigator.locks;
+  if (!locks) return undefined;
+  return <T>(work: () => T) => locks.request('xr.sample-world', () => work()) as Promise<T>;
+}
+
+/** TE-3: the sample WEB activity's address for one launch (a page of this app, a new tab). */
+function webActivityHref(launch: string): string {
+  const address = new URL('/prototype/web-activity', window.location.origin);
+  address.searchParams.set('launch', launch);
+  return address.href;
+}
+
+/**
+ * TE-6: the tabs of one browser share the saved world. Another tab's save is adopted (every answer
+ * may have changed: the session and the queries are read again); a reset in another tab, or a
+ * snapshot removed, starts this page again — from the clean world, signed out.
+ */
+function connectSnapshot(composed: ComposedPlatform, runtime: PlatformRuntime): void {
+  const snapshot = composed.sample.snapshot;
+  if (!snapshot) return;
+  snapshot.onAdopted(() => {
+    // A reset landing in between makes this read refuse; the page then loads again anyway.
+    runtime.session.refresh().catch(() => undefined);
+    void runtime.queryClient.invalidateQueries();
+  });
+  snapshot.onForeign(() => window.location.reload());
+  window.addEventListener('storage', (event) => {
+    if (event.key === SAMPLE_WORLD_STORAGE_KEY || event.key === null) snapshot.sync();
+  });
+  // A save another tab made while this page was starting, before it listened: adopted now.
+  snapshot.sync();
+}
+
+/** TE-3: this tab answers the sample WEB activities it launched (`sample-web-relay.ts`). */
+function connectSampleWebActivity(composed: ComposedPlatform, runtime: PlatformRuntime): void {
+  const web = composed.sample.sampleWebRuntime;
+  if (!web || typeof BroadcastChannel === 'undefined') return;
+  relaySampleWebActivity({
+    runtime: web,
+    channel: new BroadcastChannel(SAMPLE_WEB_CHANNEL),
+    invalidate: (changed) => runtime.invalidate(changed),
+  });
 }
 
 /** `sessionStorage` for the selection basket and request tickets only (ADR-0004 §2), if usable. */
@@ -145,12 +215,20 @@ async function start(): Promise<PlatformRuntime> {
     browserStorage: browserSessionStorage(),
     worldInstance: newWorldInstance(),
     ...(prepared ? { world: prepared.world } : {}),
+    worldStorage: browserLocalStorage(),
+    lineage: `lineage-${randomHex(8)}`,
+    ...(browserLock() ? { lock: browserLock()! } : {}),
+    // A test-hook build keeps the published WEB link: its specs report runtime activity through
+    // the CI-only seam, from their own fixtures (ADR-0007).
+    ...(testHooks ? {} : { webActivityHref }),
   });
   const runtime = assembleRuntime({
     composed,
     queryClient: getQueryClient(),
     publicSessionKey: newPublicSessionKey(),
   });
+  connectSnapshot(composed, runtime);
+  connectSampleWebActivity(composed, runtime);
   testHooks?.attach({ composed, runtime, prepared });
   await runtime.session.refresh();
   return runtime;

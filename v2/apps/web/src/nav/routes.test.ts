@@ -60,7 +60,13 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     // steps of the editor, VE-13 the record's tab, RV-06 the review page's decided state).
     // + Phase 6's fifteen (CM-06 and CM-07 open the CM-08 update page; SA-15 has an area and a
     // course page; SA-01 is the admin base's own page, completed in place).
-    expect(pages).toHaveLength(130);
+    // + Phase 7's two prototype support pages (owner authorisation, 17 Oct 2026; no screen id):
+    // TE-6 "Reset demo data" and the TE-3 sample WEB activity.
+    expect(pages).toHaveLength(132);
+    expect(PAGES.filter((page) => page.kind === 'prototype').map((page) => page.pattern)).toEqual([
+      '/prototype/reset',
+      '/prototype/web-activity',
+    ]);
   });
 
   it('every other route file is a §3.3 layout, not-found or the kept /healthz handler', () => {
@@ -70,9 +76,10 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
 
   it('seven static workspace bases and no dynamic root segment (ADR-0005 §1; D-12)', () => {
     const roots = readdirSync(APP).filter((entry) => statSync(join(APP, entry)).isDirectory());
-    // Plus the `(auth)` and `(public)` route groups (ADR-0005 §1), which add no URL segment.
+    // Plus the `(auth)` and `(public)` route groups (ADR-0005 §1), which add no URL segment, and
+    // Phase 7's `/prototype` support pages (a local prototype build's, not a workspace).
     expect(roots.filter((entry) => !entry.startsWith('_')).sort()).toEqual(
-      [...WORKSPACES, 'healthz', '(auth)', '(public)'].sort(),
+      [...WORKSPACES, 'healthz', '(auth)', '(public)', 'prototype'].sort(),
     );
     expect(roots.some((entry) => entry.startsWith('['))).toBe(false);
     // Private folders hold route-level modules only, never a route.

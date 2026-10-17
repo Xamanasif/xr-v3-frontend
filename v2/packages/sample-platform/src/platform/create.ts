@@ -1,9 +1,9 @@
 /**
  * `createSamplePlatform` — the typed mock adapter behind the draft ports (ADR-0002; Appendix F
- * §3.7, §4.2). One platform per browser tab: one world in memory (ADR-0004 option A), the in-tab
- * lock, the change bus and one session context. A page reload builds a new platform from the seed,
- * so the sample world resets — browser persistence (TE-6) is not authorised and must be reviewed
- * before the hosted manager walkthrough.
+ * §3.7, §4.2). One platform per browser tab: one world (in memory, ADR-0004 option A), the in-tab
+ * lock, the change bus and one session context. A page reload builds a new platform: from the seed,
+ * or — in a local prototype build whose composition root asks for it (TE-6, owner authorisation of
+ * Phase 7, 17 Oct 2026) — from the versioned browser snapshot the tabs of the browser share.
  *
  * The product reaches only what this module returns: the ports, the command-id views, the change
  * subscription and the world version. The clock control, the fault plan, the test seams and the
@@ -24,6 +24,12 @@ import {
   type SampleClockControl,
 } from '../clock/clock.js';
 import { memoryPersistence } from '../persistence/memory.js';
+import {
+  openSnapshot,
+  type SnapshotDriver,
+  type SnapshotOptions,
+} from '../persistence/snapshot.js';
+import { withPreAuthorisedDevices } from '../seed/local-demonstration.js';
 import { seed } from '../seed/spine-start.js';
 import { BrowserSession, type SessionStorageLike } from '../session/browser-session.js';
 import type { ChangeListener } from '../store/bus.js';
@@ -34,9 +40,11 @@ import {
   FaultPlan,
   PaymentStandIn,
   type PlatformCore,
+  type SampleWebRuntimeOptions,
   SessionContext,
 } from './core.js';
 import { buildPorts } from './ports.js';
+import { type SampleWebRuntime, sampleWebRuntime } from './sample-web-runtime.js';
 
 export interface SamplePlatformOptions {
   /** The world to start from; the spine-start seed when omitted. */
@@ -75,6 +83,45 @@ export interface SamplePlatformOptions {
    * Reviewer). Default `seam-only`: the M-3 interim, routed only by the test seam.
    */
   readonly resubmissionRouting?: 'drawn-default-on-resubmit' | 'seam-only';
+  /**
+   * P3-03 (owner authorisation of Phase 7, 17 Oct 2026): `local-demonstration-seed` — the web
+   * composition root in a local prototype build — starts the spine-start seed with one
+   * pre-authorised sample device (`seed/local-demonstration.ts`), so the drawn device-transfer
+   * chain can start through the product. Default `none`. A given `world` is never changed.
+   */
+  readonly preAuthorisedDevices?: 'local-demonstration-seed' | 'none';
+  /**
+   * TE-3 / T-12 (owner authorisation of Phase 7, 17 Oct 2026): the web composition root in a local
+   * prototype build names its sample WEB activity; "Launch WEB" then opens it, and the activity's
+   * reports reach the system runtime-report handler through `sampleWebRuntime`. Omitted: the
+   * published link opens and nothing reports (the TE-3 interim).
+   */
+  readonly webRuntime?: SampleWebRuntimeOptions | null;
+  /**
+   * TE-6 (owner authorisation of Phase 7, 17 Oct 2026): the web composition root in a local
+   * prototype build keeps the world as a versioned browser snapshot (`persistence/snapshot.ts`),
+   * shared by the browser's tabs; sessions, receipts and request tickets are never saved. Ignored
+   * with a given `world` (test-hook builds and tests start from their fixtures).
+   */
+  readonly snapshot?: SnapshotOptions | null;
+}
+
+/** TE-6: the browser snapshot of a local prototype build, for the composition root. */
+export interface SampleSnapshotControls {
+  /** How this page load started: from a save, afresh, or afresh after rejecting a save. */
+  readonly opened: 'restored' | 'fresh' | 'rejected';
+  readonly rejectedBecause: string | null;
+  /** Adopts a newer world another tab saved (the browser's storage event); never commits. */
+  sync(): 'current' | 'adopted' | 'foreign';
+  /** Every answer may have changed: a newer world from another tab was adopted. */
+  onAdopted(listener: () => void): () => void;
+  /** The world was reset in another tab: this page load must start again. */
+  onForeign(listener: () => void): () => void;
+  /**
+   * Reset: removes the save once no command is running, and this tab's selection and request
+   * tickets; nothing is saved again by this page load (the composition root then reloads it).
+   */
+  clear(): Promise<void>;
 }
 
 export interface SamplePlatform {
@@ -87,8 +134,12 @@ export interface SamplePlatform {
   /** Change events `{ worldVersion, changed }` after each committed command. */
   subscribe(listener: ChangeListener): () => void;
   worldVersion(): number;
-  /** Always `memory` (ADR-0004 option A): a reload resets the world. */
-  readonly persistence: 'memory';
+  /** `memory` (ADR-0004 option A): a reload resets the world; `browser-snapshot` with TE-6. */
+  readonly persistence: 'memory' | 'browser-snapshot';
+  /** TE-6: the browser snapshot's controls when the composition root asked for one; else `null`. */
+  readonly snapshot: SampleSnapshotControls | null;
+  /** TE-3: the sample WEB activity's reports, when the composition root named one; else `null`. */
+  readonly sampleWebRuntime: SampleWebRuntime | null;
 }
 
 /** What `./testing` reaches behind a platform (never product code). */
@@ -125,11 +176,38 @@ function commandsSoFar(world: World): number {
   return highest;
 }
 
+function snapshotControls(
+  core: PlatformCore,
+  context: SessionContext,
+  driver: SnapshotDriver,
+): SampleSnapshotControls {
+  // A world adopted from another tab holds its later commands: new command ids continue past them.
+  core.store.onAdopted(() => core.nonces.continueCommandsPast(commandsSoFar(core.store.world)));
+  return {
+    opened: driver.opened,
+    rejectedBecause: driver.rejectedBecause,
+    sync: () => core.store.sync(),
+    onAdopted: (listener) => core.store.onAdopted(listener),
+    onForeign: (listener) => core.store.onForeign(listener),
+    clear: () =>
+      driver.exclusive(() => {
+        driver.clear();
+        context.browser.forgetAll();
+      }),
+  };
+}
+
 /** Builds a platform; `overlap` is injectable for tests only (no default exists, OD-B2-01). */
 export function assemblePlatform(
   options: SamplePlatformOptions & { readonly overlap?: OverlapGrantPolicy },
 ): SamplePlatform {
-  const base = options.world ?? seed();
+  const start =
+    options.world ??
+    (options.preAuthorisedDevices === 'local-demonstration-seed'
+      ? withPreAuthorisedDevices(seed())
+      : seed());
+  const opened = options.snapshot && !options.world ? openSnapshot(options.snapshot, start) : null;
+  const base = opened ? opened.world : start;
   const realNow = options.realNow;
   const world: World =
     realNow && base.seededAtReal === null ? { ...base, seededAtReal: realNow() } : base;
@@ -147,7 +225,7 @@ export function assemblePlatform(
   }
   const instance = options.worldInstance ?? 'memory';
   const core: PlatformCore = {
-    store: new WorldStore(world, memoryPersistence()),
+    store: new WorldStore(world, opened ? opened.driver : memoryPersistence()),
     clock,
     nonces,
     faults: new FaultPlan(),
@@ -160,6 +238,8 @@ export function assemblePlatform(
     routing: DRAWN_WORKFLOW_ROUTING,
     payments: new PaymentStandIn(options.paymentStandIn ?? 'provider-reports'),
     instance,
+    webRuntime: options.webRuntime ?? null,
+    launches: new Map(),
   };
   const context = new SessionContext(
     new BrowserSession(nonces.next('browser'), browserStorage, instance),
@@ -171,6 +251,8 @@ export function assemblePlatform(
     subscribe: (listener) => core.store.subscribe(listener),
     worldVersion: () => core.store.world.worldVersion,
     persistence: core.store.persistence,
+    snapshot: opened ? snapshotControls(core, context, opened.driver) : null,
+    sampleWebRuntime: core.webRuntime ? sampleWebRuntime(core) : null,
   };
   INTERNALS.set(platform, { core, context, clock, browserStorage });
   return platform;

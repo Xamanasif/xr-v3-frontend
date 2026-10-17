@@ -38,7 +38,7 @@ import {
 import type { Call } from '../platform/core.js';
 import type { ResolvedPerson } from '../pipeline/actor.js';
 import { command, type Op, read, refuse } from '../pipeline/runner.js';
-import { plansOf } from '../world/queries.js';
+import { authorisedDeviceOf, authorisedDevices, plansOf } from '../world/queries.js';
 import { deviceKey, values } from '../world/records.js';
 import { newestFirst as requestsNewestFirst, requestRow } from './access-request.js';
 import { asReadBy } from './correction.js';
@@ -66,9 +66,7 @@ function deviceSubject(
     kind: 'device-transfer',
     institution,
     transfer,
-    devices: values(op.records.devices).filter(
-      (device) => studentId === null || device.studentId === studentId,
-    ),
+    devices: authorisedDevices(op.records, op.seeded, studentId),
     openTransfers: values(op.records.transfers).filter(
       (candidate) => candidate.institutionId === institution.id && candidate.state !== 'approved',
     ),
@@ -276,9 +274,7 @@ export function operationsPort(call: Call): OperationsService {
       read(call, 'OperationsService.getMyDevice', (op) => {
         const person = op.person();
         const institution = institutionOf(op, person);
-        const devices = values(op.records.devices).filter(
-          (device) => device.studentId === person.personId,
-        );
+        const devices = authorisedDevices(op.records, op.seeded, person.personId);
         const mine = values(op.records.transfers).filter(
           (transfer) => transfer.studentId === person.personId,
         );
@@ -402,7 +398,9 @@ export function operationsPort(call: Call): OperationsService {
         const accepted = op.parse(deviceTransferCommandInput, input);
         op.rev(transfer, accepted.expectedRev);
         const key = deviceKey(transfer.studentId, transfer.format);
-        const device = op.found(op.records.devices[key]);
+        const device = op.found(
+          authorisedDeviceOf(op.records, op.seeded, transfer.studentId, transfer.format),
+        );
         const outcome = op.decide(
           approveDeviceTransfer({ transfer, device, actor: person.ref, now: op.now, ids: op.ids }),
           input,

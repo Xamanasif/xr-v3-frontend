@@ -17,8 +17,8 @@
 //   5. browser      Playwright at the four approved widths: product smoke, browser-helper
 //                   self-tests, test-hook bridge, the Phase-0 foundation screens and guards
 //                   (e2e/foundation, WP-0.13), the cross-role proofs on one tab and one world
-//                   (e2e/foundation/cross-role, WP-0.14), the deferred flow skeletons (e2e/flows,
-//                   fixme), specimen harness (ports 3000, 3100 and 3200 must be free)
+//                   (e2e/foundation/cross-role, WP-0.14), the full-UI flows on the product build
+//                   (e2e/flows, Phase 7), specimen harness (ports 3000, 3100 and 3200 must be free)
 //   6. parity       WP-0.15 visual parity, kept apart from the four-width suites: the frozen v46
 //                   boards rendered offline by tools/board-capture (vendored, SRI-checked inputs;
 //                   network blocked except localhost) against the @xr/ui specimens (3100) and the
@@ -49,12 +49,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
 /** Suites the plan names that later work packages create or that wait for their screen; reported, never claimed. */
-const NOT_YET_PRESENT = [
-  [
-    'full-UI flow tests (apps/web/e2e/flows, 36 deferred test.fixme: reported as skipped)',
-    'Phase 7 (each needs its flow’s screens, B8-06 Phases 1–6)',
-  ],
-];
+// Phase 7 (17 Oct 2026): the 36 full-UI flow tests run on the product build (apps/web/e2e/flows);
+// nothing the plan names is missing any more.
+const NOT_YET_PRESENT = [];
 
 /** What the test-hook build must contain, proving the bundle scan finds the bridge when it is there. */
 const TEST_HOOK_BUILD_MARKERS = [
@@ -186,9 +183,13 @@ function report() {
     );
   }
   if (results.every((result) => result.ok) && results.length === 6) {
-    process.stdout.write('\n  Not run — these suites are deferred or do not exist yet:\n');
-    for (const [suite, owner] of NOT_YET_PRESENT)
-      process.stdout.write(`    - ${suite}: ${owner}\n`);
+    if (NOT_YET_PRESENT.length > 0) {
+      process.stdout.write('\n  Not run — these suites are deferred or do not exist yet:\n');
+      for (const [suite, owner] of NOT_YET_PRESENT)
+        process.stdout.write(`    - ${suite}: ${owner}\n`);
+    } else {
+      process.stdout.write('\n  Every suite the plan names ran.\n');
+    }
     process.stdout.write(
       '  Browsers: Chromium only (P0-28; WebKit/Firefox wait for G-5 or the runner).\n',
     );

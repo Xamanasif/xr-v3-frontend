@@ -37,8 +37,15 @@ out. Next.js performs a document load for a client-side navigation whose server 
 so a link to an address that answers 404 restarts the world too: product links must target built
 screens only (ADR-0005 link-target ledger, `src/nav/link-targets.ts`). Since WP-0.13 every
 workspace address answers 200 (an unknown one renders the in-shell not-found in the browser), and
-since Package 1A `/sign-in` does too, so only the unbuilt public addresses load a new document. Browser persistence (TE-6) is not authorised and must be decided before the
-hosted manager review.
+since Package 1A `/sign-in` does too, so only the unbuilt public addresses load a new document.
+
+Phase 7 (owner authorisation, 17 Oct 2026; a local prototype build only): TE-6 keeps the world as a
+versioned `localStorage` snapshot shared by the browser's tabs (`@xr/sample-platform`
+`persistence/snapshot.ts`; the runtime injects the storage and Web Locks and adopts another tab's
+save on the `storage` event), so a reload or a full navigation keeps the world — signed out, with
+no session, receipt or request ticket saved. `/prototype/reset` ("Reset demo data") starts every tab
+again. TE-3's sample WEB activity (`/prototype/web-activity`) reports to the tab that launched it
+over a `BroadcastChannel` (`sample-web-relay.ts`). A test-hook build keeps neither.
 
 ## Test hooks (CI/Playwright builds only)
 

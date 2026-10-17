@@ -30,7 +30,8 @@ import {
 
 import type { Call } from '../platform/core.js';
 import { command, type Op, read, refuse } from '../pipeline/runner.js';
-import { deviceKey, formatKey, resourceKey, values } from '../world/records.js';
+import { authorisedDeviceOf } from '../world/queries.js';
+import { formatKey, resourceKey, values } from '../world/records.js';
 import {
   assessmentOf,
   factsFor,
@@ -68,6 +69,22 @@ function feedbackOf(op: Op, student: StudentPerson, experiment: Experiment, form
         entry.format === format,
     ) ?? null
   );
+}
+
+/**
+ * TE-3 (owner authorisation of Phase 7, 17 Oct 2026): the launch the sample WEB activity reports
+ * for — held in adapter memory for this tab (never a world record, never browser storage), named
+ * apart per world so a launch of an earlier page load is never honoured.
+ */
+function sampleLaunch(op: Op, student: StudentPerson, experiment: Experiment): string {
+  const launch = `${op.core.nonces.next('launch')}.${op.core.instance}`;
+  op.core.launches.set(launch, {
+    studentId: student.id,
+    experimentId: experiment.id,
+    experimentName: experiment.live.catalogue.name,
+    issuedAt: op.now,
+  });
+  return launch;
 }
 
 export function learningPort(call: Call): LearningService {
@@ -165,7 +182,7 @@ export function learningPort(call: Call): LearningService {
           authorisedDevice:
             accepted.format === 'web'
               ? null
-              : (op.records.devices[deviceKey(student.id, accepted.format)] ?? null),
+              : authorisedDeviceOf(op.records, op.seeded, student.id, accepted.format),
         };
       }),
 
@@ -185,8 +202,13 @@ export function learningPort(call: Call): LearningService {
           }),
           input,
         );
-        // Stores nothing (AD-16): In progress is written by the runtime report afterwards.
-        return { value: { href: outcome.webLink }, decision: 'launchWebFormat', actor: person.ref };
+        // Stores nothing (AD-16): In progress is written by the runtime report afterwards. A local
+        // prototype build opens its sample WEB activity for this launch instead (TE-3, Phase 7).
+        const runtime = op.core.webRuntime;
+        const href = runtime
+          ? runtime.activityHref(sampleLaunch(op, student, experiment))
+          : outcome.webLink;
+        return { value: { href }, decision: 'launchWebFormat', actor: person.ref };
       }),
 
     getMyProgress: () =>

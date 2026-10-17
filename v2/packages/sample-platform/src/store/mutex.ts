@@ -3,7 +3,8 @@
  * order they were called. Every command body runs synchronously once it holds the lock — it reads
  * the latest world, decides and commits without awaiting — so no other write can interleave with
  * it (a synchronous stand-in report can only run between two command bodies, never inside one).
- * Option B (TE-6, not authorised) would replace this with `navigator.locks`.
+ * With the TE-6 browser snapshot (Phase 7) a command also holds the cross-tab lock the composition
+ * root injects (`navigator.locks`), inside this one (`WorldStore.serialize`).
  */
 export class Mutex {
   #tail: Promise<unknown> = Promise.resolve();

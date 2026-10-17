@@ -6,11 +6,23 @@
  * import fences keep out of product code.
  */
 export type { RealNow } from './clock/clock.js';
+export type { SampleWebRuntimeOptions } from './platform/core.js';
 export {
   createSamplePlatform,
   type SamplePlatform,
   type SamplePlatformOptions,
+  type SampleSnapshotControls,
 } from './platform/create.js';
+export {
+  SNAPSHOT_KEY,
+  type SnapshotOptions,
+  type SnapshotStorage,
+} from './persistence/snapshot.js';
+export type {
+  SampleWebAnswer,
+  SampleWebReportKind,
+  SampleWebRuntime,
+} from './platform/sample-web-runtime.js';
 export { seed, SPINE_ANCHOR } from './seed/spine-start.js';
 export type { SessionStorageLike } from './session/browser-session.js';
 export type { ChangeEvent, ChangeListener } from './store/bus.js';

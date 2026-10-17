@@ -131,17 +131,20 @@ describe('apps/web import boundaries', () => {
     expect(seams).toEqual(['src/platform/test-hook-bridge.ts']);
   });
 
-  it('no product file reads or writes browser storage for the world or the session', () => {
+  it('only the runtime hands browser storage to the adapter; the session is never stored', () => {
     const storage = product
       .filter(({ source }) =>
         /localStorage|indexedDB|document\.cookie|sessionStorage/.test(code(source)),
       )
       .map(({ file }) => file);
     // runtime.ts hands `sessionStorage` to the adapter for the two board-drawn browser-session
-    // items only (ADR-0004 §2: the selection basket and the request tickets).
+    // items only (ADR-0004 §2: the selection basket and the request tickets), and — TE-6, owner
+    // authorisation of Phase 7, a local prototype build only — `localStorage` for the world
+    // snapshot, which holds no session, receipt or ticket (`@xr/sample-platform` snapshot tests).
     expect(storage).toEqual(['src/platform/runtime.ts']);
     const runtime = code(product.find(({ file }) => file === 'src/platform/runtime.ts')!.source);
     expect(runtime.match(/sessionStorage/g)).toEqual(['sessionStorage']);
-    expect(runtime).not.toMatch(/localStorage|indexedDB|document\.cookie/);
+    expect(runtime.match(/localStorage/g)).toEqual(['localStorage']);
+    expect(runtime).not.toMatch(/indexedDB|document\.cookie/);
   });
 });

@@ -171,6 +171,13 @@ export class BrowserSession {
     this.#writeTickets();
   }
 
+  /** Reset (TE-6): the selection and every ticket of this browser session are forgotten. */
+  forgetAll(): void {
+    this.selection = EMPTY_SELECTION;
+    this.#tickets = [];
+    this.#writeTickets();
+  }
+
   #writeTickets(): void {
     const stored: StoredTicket[] = this.#tickets.map((ticket) => ({
       world: this.#world,

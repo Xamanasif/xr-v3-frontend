@@ -177,10 +177,13 @@ describe('ST-04 — the experiments given to the Student (B2-11 f2)', () => {
     });
     expect(withdrawn.ok).toBe(true);
     await signIn(sample, runtime, RAHUL);
-    await waitFor(() => expect(rows()).toHaveLength(0));
-    expect(main().textContent).toMatch(
-      /No experiments are given to you right now|Your institution hasn’t given you access yet/,
+    // The empty state itself, not only "no rows" (true while the tab is still loading too).
+    await waitFor(() =>
+      expect(main().textContent).toMatch(
+        /No experiments are given to you right now|Your institution hasn’t given you access yet/,
+      ),
     );
+    expect(rows()).toHaveLength(0);
   });
 });
 

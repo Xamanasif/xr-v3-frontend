@@ -94,10 +94,11 @@ describe('determinism and persistence (no clock, no random source, no browser st
     [/new Date\(\s*\)/, 'new Date() without an instant'],
     [/performance\.now/, 'performance.now'],
     [/crypto\.(randomUUID|getRandomValues)/, 'crypto randomness'],
-    [/\blocalStorage\b/, 'localStorage (TE-6 is not authorised)'],
-    [/\bindexedDB\b/, 'IndexedDB (TE-6 is not authorised)'],
-    [/\bBroadcastChannel\b/, 'cross-tab synchronisation (TE-6 is not authorised)'],
-    [/navigator\.locks/, 'Web Locks (TE-6 is not authorised)'],
+    // TE-6 (owner authorisation of Phase 7): the composition root injects the storage and the lock.
+    [/\blocalStorage\b/, 'localStorage itself (TE-6 storage is injected)'],
+    [/\bindexedDB\b/, 'IndexedDB'],
+    [/\bBroadcastChannel\b/, 'a cross-tab channel itself (the composition root listens)'],
+    [/navigator\.locks/, 'Web Locks itself (TE-6 lock is injected)'],
     [/\bprocess\.|\bwindow\.|\bdocument\.|globalThis\./, 'a runtime global'],
     [/from 'node:|require\(/, 'a Node API'],
     [/\bfetch\(|XMLHttpRequest|WebSocket/, 'a network request'],
@@ -110,10 +111,15 @@ describe('determinism and persistence (no clock, no random source, no browser st
     });
   }
 
-  it('keeps the persistence driver in memory (ADR-0004 option A)', () => {
-    const driver = readFileSync(join(SRC, 'persistence', 'memory.ts'), 'utf8');
-    expect(driver).toMatch(/kind: 'memory'/);
-    expect(files(join(SRC, 'persistence')).map(rel)).toEqual(['persistence/memory.ts']);
+  it('keeps the memory driver (ADR-0004 option A) and the TE-6 browser snapshot, nothing else', () => {
+    const memory = readFileSync(join(SRC, 'persistence', 'memory.ts'), 'utf8');
+    expect(memory).toMatch(/kind: 'memory'/);
+    const snapshot = readFileSync(join(SRC, 'persistence', 'snapshot.ts'), 'utf8');
+    expect(snapshot).toMatch(/kind: 'browser-snapshot'/);
+    expect(files(join(SRC, 'persistence')).map(rel).sort()).toEqual([
+      'persistence/memory.ts',
+      'persistence/snapshot.ts',
+    ]);
   });
 });
 

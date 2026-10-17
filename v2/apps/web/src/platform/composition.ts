@@ -15,8 +15,12 @@ import {
   type RealNow,
   type SamplePlatform,
   type SessionStorageLike,
+  type SnapshotStorage,
   type World,
 } from '@xr/sample-platform';
+
+/** TE-6: the browser storage key of the local prototype build's world snapshot. */
+export { SNAPSHOT_KEY as SAMPLE_WORLD_STORAGE_KEY } from '@xr/sample-platform';
 
 /** What the rest of the app reaches of an adapter: the 22 ports and the command identities. */
 export interface PlatformAdapter {
@@ -30,10 +34,12 @@ export interface PlatformAdapter {
 export interface PlatformCapabilities {
   readonly dataSource: DataSource;
   /**
-   * ADR-0004 option A: one world in this tab's memory, shared by every person signed in here; a
-   * reload starts again from the seed. Browser persistence (TE-6) is not authorised.
+   * `memory-per-tab` (ADR-0004 option A): one world in this tab's memory, shared by every person
+   * signed in here; a reload starts again from the seed. `browser-snapshot` (TE-6, owner
+   * authorisation of Phase 7, 17 Oct 2026, a local prototype build only): the world is kept in this
+   * browser and shared by its tabs; a reload keeps it, signed out; "Reset demo data" starts again.
    */
-  readonly persistence: 'memory-per-tab';
+  readonly persistence: 'memory-per-tab' | 'browser-snapshot';
 }
 
 /** The sample world a platform starts from (test-hook builds and tests pass a fixture). */
@@ -60,6 +66,17 @@ export interface ComposeOptions {
   readonly worldInstance?: string;
   /** The starting world; the spine-start seed when omitted (product builds never pass one). */
   readonly world?: SampleWorld;
+  /**
+   * TE-6: the browser storage for the local prototype build's world snapshot (never with a given
+   * `world`); `null` or omitted keeps the world in this tab's memory (ADR-0004 option A).
+   */
+  readonly worldStorage?: SnapshotStorage | null;
+  /** TE-6: the name of a fresh start (drawn by the runtime); required with `worldStorage`. */
+  readonly lineage?: string;
+  /** TE-6: the browser's Web Locks, so that the tabs of one browser write one at a time. */
+  readonly lock?: <T>(work: () => T) => Promise<T>;
+  /** TE-3: the address of the local prototype build's sample WEB activity for one launch. */
+  readonly webActivityHref?: (launch: string) => string;
 }
 
 export interface ComposedPlatform {
@@ -82,6 +99,7 @@ export class DataSourceUnavailableError extends Error {
 export function composePlatform(options: ComposeOptions): ComposedPlatform {
   switch (options.dataSource) {
     case 'sample': {
+      const local = (options.appEnvironment ?? 'development') === 'development';
       const sample = createSamplePlatform({
         ...(options.world ? { world: options.world } : {}),
         ...(options.realNow ? { realNow: options.realNow } : {}),
@@ -113,6 +131,27 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
           (options.appEnvironment ?? 'development') === 'development'
             ? 'drawn-default-on-resubmit'
             : 'seam-only',
+        // P3-03 (owner authorisation of Phase 7, 17 Oct 2026): a local prototype build starts with
+        // one pre-authorised sample device (GIT-VR-03, Rahul Verma's institution e-mail), so the
+        // drawn device-transfer chain can start through the product. No registration, provisioning
+        // or device-management policy is decided; any other build supplies no device.
+        preAuthorisedDevices: local ? 'local-demonstration-seed' : 'none',
+        // TE-3 / T-12 (owner authorisation of Phase 7): in a local prototype build "Launch WEB"
+        // opens the sample WEB activity — simulated, labelled as such — whose completion, once its
+        // own conditions are met, is recorded by the system completion handler. Any other build
+        // opens the published link and records nothing (the TE-3 interim).
+        webRuntime:
+          local && options.webActivityHref ? { activityHref: options.webActivityHref } : null,
+        // TE-6 (owner authorisation of Phase 7): a local prototype build keeps its world as a
+        // versioned snapshot in this browser — never with a given world (test-hook builds).
+        snapshot:
+          local && options.worldStorage && options.lineage && !options.world
+            ? {
+                storage: options.worldStorage,
+                lineage: options.lineage,
+                ...(options.lock ? { lock: options.lock } : {}),
+              }
+            : null,
       });
       return {
         adapter: {
@@ -120,8 +159,11 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
           withCommandId: (commandId) => sample.withCommandId(commandId),
           newCommandId: () => sample.newCommandId(),
         },
-        // `sample.persistence` is the memory driver (typed `'memory'`): one world per tab.
-        capabilities: { dataSource: 'sample', persistence: 'memory-per-tab' },
+        capabilities: {
+          dataSource: 'sample',
+          persistence:
+            sample.persistence === 'browser-snapshot' ? 'browser-snapshot' : 'memory-per-tab',
+        },
         sample,
       };
     }

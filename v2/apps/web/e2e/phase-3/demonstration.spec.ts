@@ -15,20 +15,22 @@ import { expectSameDocument, markDocument, revealSidebar } from '../support/work
  *  2. Meera adds Rahul Verma (IA-10) and gives him Shell-and-Tube Heat Exchanger (IA-05);
  *  3. Rahul signs in: Home → the experiment hub (ST-05) → Resources (ST-06): the lab brief opens
  *     in a new tab and reads "Opened" → Simulation (ST-07) → WEB (ST-08): "Launch WEB" opens the
- *     published WEB link in a new tab and records nothing (AD-16; TE-3 unsigned, so there is no
- *     sample runtime) → Progress (ST-10, ST-15): every format still "Not started", no feedback is
- *     offered (feedback needs that format's system-recorded completion, T-12 — unreachable in a
- *     product build);
- *  4. My device (ST-18): Rahul holds VR, but no authorised device is ever recorded in a product
- *     build (no device registry: D20b, P3-03), so no transfer can be requested;
+ *     local prototype build's sample WEB activity in a new tab (TE-3, owner authorisation of
+ *     Phase 7) — labelled simulated; the launch itself records nothing (AD-16), the activity
+ *     opening reports activity only, so WEB reads "In progress"; closed unfinished, nothing is
+ *     completed → Progress (ST-10, ST-15): WEB "In progress", no feedback is offered (feedback
+ *     needs that format's system-recorded completion, T-12);
+ *  4. My device (ST-18): Rahul's pre-authorised sample VR headset GIT-VR-03 (P3-03, owner
+ *     authorisation of Phase 7; a seeded fact of the local prototype build, no device registry)
+ *     and "Request a device transfer";
  *  5. Meera asks BITS for 60 more licences (IA-17): the same REQ record reaches the Super Admin's
- *     Requests (SA-02); Usage (IA-20) reads "No activity yet"; Device requests (IA-18) is empty;
- *     the Super Admin's Operations › Device transfers (SA-18) has nothing forwarded.
+ *     Requests (SA-02); Usage (IA-20) counts Rahul's WEB session; Device requests (IA-18) is
+ *     empty; the Super Admin's Operations › Device transfers (SA-18) has nothing forwarded.
  *
- * The completion → feedback and the device chain are demonstrated on the test-hook build in
- * `demonstration-hooks.spec.ts`, where the runtime report and the authorised device are CI-only
- * fixtures. Every address here is reached by a link or a button, except where marked TEST
- * NAVIGATION; one document throughout (ADR-0004).
+ * The finished activity → completion → feedback and the device chain are walked on the product
+ * build in `e2e/flows/walkthrough.spec.ts` (Phase 7), and on the test-hook build in
+ * `demonstration-hooks.spec.ts` from CI-only fixtures. Every address here is reached by a link or
+ * a button, except where marked TEST NAVIGATION; one tab throughout.
  */
 
 const SHELL = 'Shell-and-Tube Heat Exchanger';
@@ -212,25 +214,34 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await page.waitForURL(`**/student/experiments/${SHELL_ID}/simulation/web`);
   const status = main(page).locator('.xl-fmtpanel .xr-status');
   await expect(status).toHaveText('Not started');
-  const launched = await newTab(page, () =>
-    reachAndClick(page, main(page).getByRole('button', { name: 'Launch WEB' })),
-  );
-  expect(launched).toMatch(/\.example\//);
+  // TE-3: the launch opens the sample WEB activity, labelled simulated, in a new tab.
+  const popup = page.waitForEvent('popup');
+  await reachAndClick(page, main(page).getByRole('button', { name: 'Launch WEB' }));
+  const activity = await popup;
+  await activity.waitForURL('**/prototype/web-activity?launch=*');
+  await expect(
+    activity.getByRole('heading', { level: 1, name: 'Sample WEB activity' }),
+  ).toBeVisible();
+  await expect(activity.getByText('Simulated for this prototype')).toBeVisible();
+  await expect(activity.getByText(SHELL, { exact: true })).toBeVisible();
   await expect(
     main(page).getByText(
       'The simulation opened in a new tab. Come back here any time to continue.',
     ),
   ).toBeVisible();
-  // AD-16 / T-12: the launch recorded nothing; no runtime reports in a product build.
-  await expect(status).toHaveText('Not started');
+  // The activity opening is activity (In progress), never completion (AD-16 / T-12).
+  await expect(status).toHaveText('In progress');
+  await activity.close();
+  await expect(status).toHaveText('In progress');
+  await expect(main(page).getByRole('button', { name: 'Continue WEB' })).toBeVisible();
   await expect(main(page).getByRole('link', { name: /Give feedback/ })).toHaveCount(0);
-  await checkState(page, 'Start the WEB simulation');
+  await checkState(page, 'Continue where you left off');
 
   await reachAndClick(page, main(page).getByRole('link', { name: 'Back to Simulation' }));
   await hubTab(page, 'Progress');
   await page.waitForURL(`**/student/experiments/${SHELL_ID}/progress`);
   const rows = page.getByRole('list', { name: 'Progress by format' }).locator(':scope > li');
-  await expect(rows.nth(0)).toContainText('Not started');
+  await expect(rows.nth(0)).toContainText('In progress');
   await expect(rows.nth(1)).toContainText('Not started');
   await expect(main(page).getByRole('link', { name: /Give feedback/ })).toHaveCount(0);
   await sidebar(page, '/student/progress');
@@ -238,14 +249,13 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await expect(main(page).getByRole('link', { name: /Give feedback/ })).toHaveCount(0);
   await checkState(page, 'Progress');
 
-  // 4. My device: Rahul holds VR, but the product build records no authorised device.
+  // 4. My device: Rahul's pre-authorised sample VR headset (P3-03), and the transfer request.
   await page.getByRole('button', { name: RAHUL, exact: true }).click();
   await page.locator('.xr-menu').getByRole('link', { name: 'My device' }).click();
   await page.waitForURL('**/student/device');
-  await expect(main(page)).toContainText('No authorised device is recorded for you yet.');
-  await expect(main(page).getByRole('button', { name: 'Request a device transfer' })).toHaveCount(
-    0,
-  );
+  await expect(main(page)).toContainText('ME lab VR headset, asset tag GIT-VR-03');
+  await expect(main(page)).not.toContainText('No authorised device is recorded for you yet.');
+  await expect(main(page).getByRole('button', { name: 'Request a device transfer' })).toBeVisible();
   await checkState(page, 'My device');
   await signOut(page, RAHUL);
 
@@ -268,7 +278,8 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   const reference = /REQ-\d{4}/.exec((await sent.textContent()) ?? '')![0];
   await checkState(page, `Request ${reference} sent to BITS`);
   await sidebar(page, '/institute/usage');
-  await expect(page.getByRole('heading', { level: 2, name: 'No activity yet' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'No activity yet' })).toHaveCount(0);
+  await expect(main(page)).toContainText(SHELL);
   await checkState(page, 'Usage');
   await sidebar(page, '/institute/requests');
   await reachAndClick(

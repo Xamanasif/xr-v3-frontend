@@ -17,6 +17,19 @@ export interface ScanException {
 
 export const RECORDED_SCAN_EXCEPTIONS: readonly ScanException[] = [
   {
+    // Phase 7. The owner authorised TE-6 browser persistence for the local prototype build with
+    // "an explicit, safe “Reset demo data” action", naming it in those words. The phrase is kept
+    // once, as the action's label on the prototype's own support page (`/prototype/reset`, not a
+    // designed screen); every other line of that page avoids the word.
+    rule: 'demo-wording',
+    file: 'apps/web/src/copy/prototype.ts',
+    found: 'Reset demo data',
+    evidence:
+      'Owner authorisation of Phase 7, 17 Oct 2026 (TE-6): "Provide an explicit, safe “Reset demo data” action."',
+    removal:
+      'TE-6 is decided for production, or the owner renames the action (Phase-7 record, TE-6)',
+  },
+  {
     // Phase-1 Package 1B. The frozen boards draw this sentence verbatim under PU-06 "Learning
     // outcomes", while B8-03 / Appendix F §7.6 count "Learner" as a role-name variant. Here it is
     // the generic noun for whoever uses the experiment, not a role label; which authority wins is

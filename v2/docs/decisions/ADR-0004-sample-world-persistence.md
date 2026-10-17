@@ -43,3 +43,32 @@ The audit compared four options (`v2/docs/v46/audit/Appendix-D-Architecture.md` 
 - `v2/docs/v46/audit/OWNER-REVIEW.md` §6; `v2/docs/v46/audit/Appendix-G-Owner-Decisions.md` P0-02, DV-7, HB-21.
 - Boards B1-06 and B1-07 (browser-session selection and ticket), B8-06 "Mock services".
 - `1b090c9:v2/docs/FUNCTIONAL_PARITY_MATRIX.md` §G.
+
+## Amendment — Phase 7 (owner authorisation, 17 Oct 2026): TE-6 for the local prototype build
+
+The owner authorised TE-6 for the **local prototype build only** ("versioned, local-demo-only browser
+persistence using the existing sample-world architecture"). It is not a production decision: the
+production persistence requirement stays open.
+
+- **Driver** (`@xr/sample-platform` `persistence/snapshot.ts`, behind the same interface as option
+  A): one `localStorage` value `xr.sample-world` — format number, world schema and version, the
+  build's compatibility fingerprint (its starting world), the lineage (one per fresh start), the
+  world version and a checksum. An unreadable, damaged, hand-edited or other-build value is rejected
+  and the clean starting world is saved in its place. The package reads no browser API: the web
+  runtime injects the storage and Web Locks.
+- **Nothing sensitive is kept**: no password, credential or session (sessions stay in each tab's
+  memory, ADR-0003); command receipts are left out; each access request's status token is withheld,
+  and the visitor's request tickets stay in `sessionStorage` bound to the page load (ADR-0009), so a
+  reload never re-opens a status page.
+- **Tabs**: the tabs of one browser share the world, each with its own session. Commands hold the
+  cross-tab lock and adopt a newer save of the same lineage first; the `storage` event adopts it in
+  the other tabs (their queries read again). A save of another lineage (a reset) or a removed save
+  makes the other tabs load again.
+- **Reset**: `/prototype/reset` ("Reset demo data", the owner's words; a recorded `demo-wording`
+  scan exception) asks once, removes the save and this tab's selection and tickets, and loads again.
+- **Clock**: the sample clock still runs from the world's anchor and `seededAtReal`, which a restored
+  world keeps — so a day away moves the sample "today" on by a day; a reset starts it again.
+- **Where**: the composition root turns it on for a local prototype build (`development`
+  environment, sample data) with no given world; test-hook builds and tests keep option A.
+
+Decisions 2 and 4 above are amended accordingly for that build; decisions 1, 3 and 5 stand.

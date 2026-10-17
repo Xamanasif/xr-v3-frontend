@@ -40,7 +40,12 @@ export type PageKind =
    * A focused task inside a workspace (Phase 4B): the session gate and the workspace guard, but no
    * sidebar or top bar of the shell — the page draws its own bar (B4-12 ST-13 attempt).
    */
-  | 'focused';
+  | 'focused'
+  /**
+   * A local prototype build's support page (owner authorisation of Phase 7, 17 Oct 2026), not a
+   * designed screen: TE-6 "Reset demo data" and the TE-3 sample WEB activity, under `/prototype`.
+   */
+  | 'prototype';
 
 /** The focused screens (B4-12): ST-13 Assessment attempt has no sidebar (Appendix A §3.6). */
 export type FocusedScreenId = 'ST-13';
@@ -610,6 +615,28 @@ const PHASE_6_PAGES: readonly PageRoute[] = (
   ...(also ? { also } : {}),
 }));
 
+/**
+ * Phase 7 (owner authorisation, 17 Oct 2026): the local prototype build's two support pages, outside
+ * every workspace and the public surface — `/prototype/reset` (TE-6 "Reset demo data", reached by
+ * its address) and `/prototype/web-activity` (the TE-3 sample WEB activity "Launch WEB" opens).
+ */
+const PHASE_7_PROTOTYPE_PAGES: readonly PageRoute[] = [
+  {
+    pattern: '/prototype/reset',
+    file: 'prototype/reset/page.tsx',
+    workspace: null,
+    kind: 'prototype',
+    screen: null,
+  },
+  {
+    pattern: '/prototype/web-activity',
+    file: 'prototype/web-activity/page.tsx',
+    workspace: null,
+    kind: 'prototype',
+    screen: null,
+  },
+];
+
 export const PAGES: readonly PageRoute[] = [
   ...WORKSPACES.flatMap(workspacePages),
   ...PACKAGE_1A_PAGES,
@@ -623,6 +650,7 @@ export const PAGES: readonly PageRoute[] = [
   ...PHASE_4B_PAGES,
   ...PHASE_5_PAGES,
   ...PHASE_6_PAGES,
+  ...PHASE_7_PROTOTYPE_PAGES,
 ];
 
 /** Whether an address is a focused page (no shell): ST-13's attempt. */
@@ -701,7 +729,9 @@ export type AddressOutcome =
   | { readonly kind: 'workspace-not-found'; readonly workspace: Workspace }
   | { readonly kind: 'sign-in' }
   | { readonly kind: 'public-screen'; readonly screen: PublicPageScreenId }
-  | { readonly kind: 'public-not-found' };
+  | { readonly kind: 'public-not-found' }
+  /** Phase 7: a local prototype build's support page (`/prototype/reset`, `/prototype/web-activity`). */
+  | { readonly kind: 'prototype-page' };
 
 const WORKSPACE_SET: ReadonlySet<string> = new Set(WORKSPACES);
 
@@ -714,6 +744,13 @@ export function resolveAddress(address: string): AddressOutcome {
   if (first === 'sign-in' && tail.length === 0) return { kind: 'sign-in' };
   if (first === 'signed-out' && tail.length === 0) {
     return { kind: 'redirect', workspace: null, to: SIGNED_OUT_ADDRESS };
+  }
+  if (
+    first === 'prototype' &&
+    tail.length === 1 &&
+    PAGES.some((page) => page.kind === 'prototype' && page.pattern === pathname)
+  ) {
+    return { kind: 'prototype-page' };
   }
   if (!first || !WORKSPACE_SET.has(first)) return resolvePublic(first ?? '', tail);
   const workspace = first as Workspace;

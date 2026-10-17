@@ -6,6 +6,7 @@
 import {
   type AccessFacts,
   type AccessPlan,
+  type AuthorisedDevice,
   type CorrectionUpdate,
   type Course,
   type CourseId,
@@ -25,9 +26,10 @@ import {
   type StudentAccessGrant,
   type StudentPerson,
   type Technology,
+  unsafeBrand,
 } from '@xr/domain';
 
-import { values } from './records.js';
+import { deviceKey, values } from './records.js';
 import type { SeededFacts, WorldRecords } from './types.js';
 
 export function institutionById(records: WorldRecords, id: string): Institution | undefined {
@@ -197,4 +199,52 @@ export function experimentsGivenTo(records: WorldRecords, student: StudentPerson
     if (reaches && !ids.includes(grant.experimentId)) ids.push(grant.experimentId);
   }
   return ids;
+}
+
+/**
+ * The authorised devices of the world (`studentId` narrows to one Student): the device records, and
+ * — for a Student with no record for that format — a pre-authorised device the starting world
+ * supplies for the Student's institution e-mail (P3-03, local prototype only). The record wins:
+ * once a transfer is approved, the record is the Student's device.
+ */
+export function authorisedDevices(
+  records: WorldRecords,
+  seeded: SeededFacts,
+  studentId: string | null = null,
+): AuthorisedDevice[] {
+  const held = values(records.devices).filter(
+    (device) => studentId === null || device.studentId === studentId,
+  );
+  const supplied = (seeded.authorisedDevices ?? []).flatMap((fact): AuthorisedDevice[] => {
+    const email = fact.institutionEmail.trim().toLowerCase();
+    const student = studentsOf(records, fact.institutionId).find(
+      (candidate) =>
+        candidate.institutionEmail.trim().toLowerCase() === email &&
+        (studentId === null || candidate.id === studentId),
+    );
+    if (!student || records.devices[deviceKey(student.id, fact.format)]) return [];
+    return [
+      {
+        studentId: student.id,
+        format: fact.format,
+        description: fact.description,
+        usedFor: fact.usedFor.map((id) => unsafeBrand<ExperimentId>(id)),
+        since: fact.since,
+        viaTransferId: null,
+      },
+    ];
+  });
+  return [...held, ...supplied];
+}
+
+/** A Student's authorised device for one format (a record, or a pre-authorised one), if any. */
+export function authorisedDeviceOf(
+  records: WorldRecords,
+  seeded: SeededFacts,
+  studentId: string,
+  format: string,
+): AuthorisedDevice | null {
+  return (
+    authorisedDevices(records, seeded, studentId).find((device) => device.format === format) ?? null
+  );
 }
