@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Requests — Super Admin</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr rb">
+  <svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">
+    <symbol id="rki-search" viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15zM16 16l5 5"></path></symbol>
+    <symbol id="rki-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"></path></symbol>
+    <symbol id="rki-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"></path></symbol>
+    <symbol id="rki-filter" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M16 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4"></path></symbol>
+    <symbol id="rki-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"></path></symbol>
+    <symbol id="rki-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"></path></symbol>
+    <symbol id="rki-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"></path></symbol>
+    <symbol id="rki-lock" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2.5"></path></symbol>
+    <symbol id="rki-alert" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></symbol>
+    <symbol id="rki-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></symbol>
+    <symbol id="rki-clock" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2"></path></symbol>
+    <symbol id="rki-pause" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></symbol>
+    <symbol id="rki-inbox" viewBox="0 0 24 24"><path d="M4 13l2.5-7h11L20 13v6H4zM4 13h5l1.5 2h3L15 13h5"></path></symbol>
+    <symbol id="rki-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-8 6 6 0 0 0-11.4-1.5A4.5 4.5 0 0 0 7 18zM12 11v4M12 17.5h.01"></path></symbol>
+  </svg>
+
+  <aside class="rb-rail" aria-label="Super Admin workspace">
+    <div class="rb-brand">
+      <div class="rb-logo">Official WILP logo</div>
+      <p class="rb-product">XR Learning Platform</p>
+      <p class="rb-ws"><span class="rb-ws-role">Super Admin</span></p>
+    </div>
+    <nav class="rb-nav" aria-label="Super Admin navigation">
+      <a href="SA01.dc.html"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"></path></svg><span>Overview</span></a>
+      <a href="#top" aria-current="page" onClick="{{ toList }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13l2.5-7h11L20 13v6H4zM4 13h5l1.5 2h3L15 13h5"></path></svg><span>Requests</span><sc-if value="{{ hasNavCount }}" hint-placeholder-val="{{ true }}"><span class="rb-count"><span aria-hidden="true">{{ navCount }}</span><span class="xr-sr">, {{ navCountLabel }}</span></span></sc-if></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5 12 4l9 5.5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20.5h18"></path></svg><span>Institutions</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h7.5L20 7.5V17a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM15 3v5h5M4 7v13a1 1 0 0 0 1 1h11"></path></svg><span>Content</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3h4v4h-4zM3.5 17h4v4h-4zM10 17h4v4h-4zM16.5 17h4v4h-4zM12 7v5M5.5 17v-5h13v5M12 12v5"></path></svg><span>Academic structure</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6zM9 12l2 2 4-4"></path></svg><span>Platform roles</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9M17 6h3M15 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4"></path></svg><span>Operations</span></a>
+    </nav>
+    <div class="rb-rail-foot">
+      <nav class="rb-nav" aria-label="Help"><a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span>Help &amp; support</span></a></nav>
+    </div>
+  </aside>
+
+  <div class="rb-main">
+    <div class="rb-top">
+      <button type="button" class="rb-menu" id="rq-menu" aria-expanded="{{ menuExp }}" onClick="{{ openMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
+      <p class="rb-top-date">{{ dateLong }}</p>
+      <button type="button" class="rb-acct" aria-label="Account menu, Arjun Mehta, Super Admin"><span class="xr-avatar" aria-hidden="true">AM</span><span class="rb-acct-text" aria-hidden="true"><span class="rb-acct-name">Arjun Mehta</span><span class="rb-acct-role">Super Admin</span></span><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+    </div>
+
+    <main class="rb-page" id="top">
+      <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ dateLong }}</p>
+          <h1 class="rb-h1" id="rq-title" tabindex="-1">Requests</h1>
+          <p class="rk-sub">Institutional access requests sent from the public site. Open one to decide it.</p>
+        </div>
+      </div>
+
+      <section class="rk-surface" aria-label="Institutional access requests">
+        <sc-if value="{{ L.showTools }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-toolbar">
+          <div class="rk-tools" role="search" aria-label="Filter requests">
+            <div class="rk-field rk-search">
+              <label class="rk-label" for="rq-q">Search</label>
+              <div class="rk-inputwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-search"></use></svg><input id="rq-q" class="rk-input" type="search" placeholder="Institution or contact person" autocomplete="off" value="{{ L.q }}" onChange="{{ L.onQ }}"></div>
+            </div>
+            <div class="rk-field rk-field--st">
+              <label class="rk-label" for="rq-st">Status</label>
+              <div class="rk-selwrap"><select id="rq-st" class="rk-select" value="{{ L.st }}" onChange="{{ L.onSt }}"><option value="all">All statuses</option><option value="review">Under review</option><option value="info">Information requested</option><option value="pay">Approved — payment required</option><option value="pend">Payment not confirmed</option><option value="active">Access active</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-chev"></use></svg></div>
+            </div>
+            <div class="rk-field rk-field--type">
+              <label class="rk-label" for="rq-type">Type</label>
+              <div class="rk-selwrap"><select id="rq-type" class="rk-select" value="{{ L.type }}" onChange="{{ L.onType }}"><option value="all">All types</option><option value="New access">New access</option><option value="Additional licences">Additional licences</option><option value="Renewal">Renewal</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-chev"></use></svg></div>
+            </div>
+            <div class="rk-btnfield">
+              <button type="button" class="rb-btn rk-toggle" aria-expanded="{{ L.moreOpen }}" aria-controls="rq-more" onClick="{{ L.toggleMore }}"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-filter"></use></svg>More filters<sc-if value="{{ L.hasMoreCount }}" hint-placeholder-val="{{ false }}"><b aria-hidden="true">{{ L.moreCount }}</b><span class="xr-sr">, {{ L.moreCount }} applied</span></sc-if></button>
+            </div>
+          </div>
+          <sc-if value="{{ L.more }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-more" id="rq-more">
+            <div class="rk-field rk-more-type">
+              <label class="rk-label" for="rq-type2">Type</label>
+              <div class="rk-selwrap"><select id="rq-type2" class="rk-select" value="{{ L.type }}" onChange="{{ L.onType }}"><option value="all">All types</option><option value="New access">New access</option><option value="Additional licences">Additional licences</option><option value="Renewal">Renewal</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-chev"></use></svg></div>
+            </div>
+            <div class="rk-field">
+              <label class="rk-label" for="rq-route">Internal or external</label>
+              <div class="rk-selwrap"><select id="rq-route" class="rk-select" value="{{ L.route }}" onChange="{{ L.onRoute }}"><option value="all">All</option><option value="Internal">Internal</option><option value="External">External</option><option value="Not set yet">Not set yet</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-chev"></use></svg></div>
+            </div>
+          </div>
+          </sc-if>
+          <sc-if value="{{ L.showLine }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-statusline">
+            <sc-if value="{{ L.showCount }}" hint-placeholder-val="{{ true }}"><p class="rk-count" role="status">{{ L.count }}</p>
+            <div class="rk-sortbar"><button type="button" class="rk-sortbtn" onClick="{{ L.toggleSort }}"><span class="rk-sort-l">Sort: {{ L.sortLabel }}</span><span class="rk-sort-s">Sort: {{ L.sortShort }}</span><sc-if value="{{ L.sortDesc }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-down"></use></svg></sc-if><sc-if value="{{ L.sortAsc }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-up"></use></svg></sc-if></button></div></sc-if>
+            <sc-if value="{{ L.breakOn }}" hint-placeholder-val="{{ false }}"><span class="rk-break" aria-hidden="true"></span></sc-if>
+            <sc-for list="{{ L.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-x"></use></svg></button></span></sc-for>
+            <sc-if value="{{ L.hasChips }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ L.clear }}">Clear filters</button></sc-if>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ L.has }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-tablewrap">
+          <table class="rk-table">
+            <caption>Institutional access requests, {{ L.sortLabel }}</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="rk-c-inst">Institution and contact person</th>
+                <th scope="col" class="rk-c-exp">Experiments</th>
+                <th scope="col" class="rk-c-type">Type</th>
+                <th scope="col" class="rk-c-date" aria-sort="{{ L.ariaSort }}"><button type="button" class="rk-sortbtn" onClick="{{ L.toggleSort }}">Received<sc-if value="{{ L.sortDesc }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-down"></use></svg></sc-if><sc-if value="{{ L.sortAsc }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-up"></use></svg></sc-if><span class="xr-sr">, {{ L.sortLabel }}. Change order</span></button></th>
+                <th scope="col" class="rk-c-st">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ L.rows }}" as="r" hint-placeholder-count="8">
+              <tr class="{{ r.rowCls }}" onClick="{{ r.open }}">
+                <td class="rk-c-inst"><a class="{{ r.linkCls }}" href="#top" onClick="{{ r.openLink }}" aria-label="{{ r.aria }}">{{ r.inst }}</a><span class="rk-small">{{ r.contact }}</span></td>
+                <td class="rk-c-exp"><span class="rk-strong">{{ r.exp }}</span><sc-if value="{{ r.hasFmts }}" hint-placeholder-val="{{ true }}"><span class="rk-fmts" aria-label="{{ r.fmtAria }}"><sc-for list="{{ r.fmts }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f.code }}</span></sc-for></span></sc-if></td>
+                <td class="rk-c-type"><span class="rk-strong">{{ r.type }}</span><span class="rk-small">{{ r.route }}</span></td>
+                <td class="rk-c-date"><span class="rk-inlabel">Received </span>{{ r.date }}</td>
+                <td class="rk-c-st"><span class="{{ r.stCls }}"><i></i>{{ r.stLabel }}</span></td>
+              </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ L.none }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="status">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rki-search"></use></svg></span>
+          <p class="rk-state-t">No requests match these filters</p>
+          <p class="rk-state-d">Try fewer filters or a different spelling of the institution or contact person.</p>
+          <button type="button" class="rb-btn" onClick="{{ L.clear }}">Clear filters</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ L.empty }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rki-inbox"></use></svg></span>
+          <p class="rk-state-t">No requests yet</p>
+          <p class="rk-state-d">Requests that institutions send from the public site appear here.</p>
+        </div>
+        </sc-if>
+        <sc-if value="{{ L.loading }}" hint-placeholder-val="{{ false }}">
+        <div aria-busy="true">
+          <p class="rk-loading-msg" role="status">Loading requests…</p>
+          <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+          <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+          <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ L.failed }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="alert">
+          <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rki-cloud"></use></svg></span>
+          <p class="rk-state-t">We couldn’t load the requests</p>
+          <p class="rk-state-d">Nothing has changed. Try again.</p>
+          <button type="button" class="rb-btn" onClick="{{ L.retry }}">Try again</button>
+        </div>
+        </sc-if>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ isDecision }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#top" onClick="{{ toList }}">Requests</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-right"></use></svg><span aria-current="page">{{ D.inst }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ dateLong }}</p>
+          <p class="rk-eyebrow">Institutional access request</p>
+          <h1 class="rk-title" id="dc-title" tabindex="-1">{{ D.inst }}</h1>
+          <div class="rk-meta"><span class="{{ D.stClsLg }}"><i></i>{{ D.stLabel }}</span><span>{{ D.type }}</span><span class="rk-meta-sep" aria-hidden="true"></span><span>Received {{ D.received }}</span></div>
+        </div>
+        <a class="rb-btn rk-goto" href="#dc-panel">Go to decision</a>
+      </div>
+
+      <div class="rk-detailwrap">
+        <div class="rk-detail">
+          <div class="rk-surface rk-mainsheet">
+            <dl class="rk-factstrip">
+              <sc-for list="{{ D.facts }}" as="f" hint-placeholder-count="4"><div class="rk-fact"><dt>{{ f.k }}</dt><dd class="{{ f.cls }}">{{ f.v }}</dd></div></sc-for>
+            </dl>
+
+            <section class="rk-sec" aria-labelledby="dc-org">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="dc-org">Organisation and contact person</h2></div>
+              <dl class="rk-dl">
+                <dt>Institution</dt><dd>{{ D.inst }}</dd>
+                <dt>Contact person</dt><dd>{{ D.contact }}</dd>
+                <sc-if value="{{ D.hasEmail }}" hint-placeholder-val="{{ true }}"><dt>E-mail</dt><dd>{{ D.email }}</dd></sc-if>
+                <sc-if value="{{ D.hasPhone }}" hint-placeholder-val="{{ true }}"><dt>Phone</dt><dd>{{ D.phone }}</dd></sc-if>
+              </dl>
+            </section>
+
+            <section class="rk-sec" aria-labelledby="dc-ask">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="dc-ask">What they’re asking for</h2>
+                <sc-if value="{{ D.hasPubCompare }}" hint-placeholder-val="{{ true }}"><div class="rk-legend" aria-hidden="true"><span class="rk-legend-i"><span class="rk-swatch rk-swatch--on"><svg viewBox="0 0 24 24"><use href="#rki-check"></use></svg></span>Requested</span><span class="rk-legend-i"><span class="rk-swatch rk-swatch--pub"></span>Published, not requested</span><span class="rk-legend-i"><span class="rk-swatch rk-swatch--none"></span>Not published</span></div></sc-if>
+              </div>
+              <sc-if value="{{ D.hasExps }}" hint-placeholder-val="{{ true }}">
+              <div class="rk-ask">
+                <sc-for list="{{ D.exps }}" as="x" hint-placeholder-count="1">
+                <div class="rk-askrow">
+                  <div>
+                    <p class="rk-askrow-t">{{ x.t }}</p>
+                    <sc-if value="{{ x.hasCourse }}" hint-placeholder-val="{{ true }}"><p class="rk-askrow-c"><span class="rk-code">{{ x.code }}</span><span>{{ x.course }}</span></p></sc-if>
+                  </div>
+                  <sc-if value="{{ x.hasPub }}" hint-placeholder-val="{{ true }}">
+                  <ul class="rk-fstrip" aria-label="{{ x.fmtAria }}">
+                    <sc-for list="{{ x.cells }}" as="f" hint-placeholder-count="4"><li class="{{ f.cls }}"><b>{{ f.code }}<sc-if value="{{ f.on }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-check"></use></svg></sc-if></b><span>{{ f.label }}</span></li></sc-for>
+                  </ul>
+                  </sc-if>
+                  <sc-if value="{{ x.noPub }}" hint-placeholder-val="{{ false }}"><span class="rk-fmts" aria-label="{{ x.fmtAria }}"><sc-for list="{{ x.req }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span></sc-if>
+                </div>
+                </sc-for>
+              </div>
+              </sc-if>
+              <sc-if value="{{ D.countOnly }}" hint-placeholder-val="{{ false }}"><p class="rk-next">{{ D.nExp }} experiments are listed on the request.</p></sc-if>
+            </section>
+
+            <sc-if value="{{ D.hasExisting }}" hint-placeholder-val="{{ true }}">
+            <section class="rk-sec" aria-labelledby="dc-exist">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="dc-exist">Existing access</h2></div>
+              <p class="rk-next">{{ D.existing }}</p>
+            </section>
+            </sc-if>
+
+            <sc-if value="{{ D.hasMsg }}" hint-placeholder-val="{{ true }}">
+            <section class="rk-sec" aria-labelledby="dc-msg">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="dc-msg">Message from the requester</h2></div>
+              <blockquote class="rk-quote"><p>{{ D.msg }}</p><p class="rk-quote-by">{{ D.contact }}, contact person</p></blockquote>
+            </section>
+            </sc-if>
+
+            <section class="rk-sec" aria-labelledby="dc-hist">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="dc-hist">History</h2></div>
+              <ol class="rk-tl">
+                <sc-for list="{{ D.hist }}" as="h" hint-placeholder-count="1"><li class="{{ h.cls }}"><p class="rk-tl-w">{{ h.w }}</p><p class="rk-tl-t">{{ h.t }}</p><sc-if value="{{ h.hasN }}" hint-placeholder-val="{{ false }}"><p class="rk-tl-n">{{ h.n }}</p></sc-if></li></sc-for>
+              </ol>
+            </section>
+
+            <sc-if value="{{ D.showChain }}" hint-placeholder-val="{{ true }}">
+            <section class="rk-sec" aria-labelledby="dc-events">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="dc-events">What happens after you decide</h2><p class="rk-note">Four separate events</p></div>
+              <ol class="rk-events">
+                <li class="rk-event"><span class="rk-event-n" aria-hidden="true">1</span><p class="rk-event-t">Institution record</p><p class="rk-event-d">Created when you approve the first request from a new institution. A record is not access.</p></li>
+                <li class="rk-event"><span class="rk-event-n" aria-hidden="true">2</span><p class="rk-event-t">Request approval</p><p class="rk-event-d">Your decision on this page. External: the request becomes Approved — payment required. Internal: approved with no payment step.</p></li>
+                <li class="rk-event"><span class="rk-event-n" aria-hidden="true">3</span><p class="rk-event-t">Payment confirmation</p><p class="rk-event-d">External only. It happens after the requester pays and is not recorded on this page.</p></li>
+                <li class="rk-event"><span class="rk-event-n" aria-hidden="true">4</span><p class="rk-event-t">Institutional access activation</p><p class="rk-event-d">Internal: when you approve. External: only after the payment is confirmed. Students get access only when the institution administrator gives it.</p></li>
+              </ol>
+              <p class="rk-event-note">Request more information keeps the request open; none of the four events happen until it is approved.</p>
+            </section>
+            </sc-if>
+          </div>
+
+          <aside class="rk-aside" id="dc-panel" aria-labelledby="dc-panel-h">
+            <div class="rk-panel">
+              <div class="rk-panel-head"><h2 id="dc-panel-h">Your decision</h2></div>
+              <div class="rk-panel-body">
+                <sc-if value="{{ D.open }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ D.hasErrs }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-errsum" id="dc-errs" tabindex="-1" role="alert">
+                  <p class="rk-errsum-t">Check your decision</p>
+                  <ul><sc-for list="{{ D.errList }}" as="er" hint-placeholder-count="1"><li><a href="{{ er.href }}" onClick="{{ er.go }}">{{ er.t }}</a></li></sc-for></ul>
+                </div>
+                </sc-if>
+
+                <fieldset class="{{ D.choiceFs }}">
+                  <legend>Decision</legend>
+                  <div class="rk-choices">
+                    <sc-for list="{{ D.choices }}" as="c" hint-placeholder-count="3"><label class="{{ c.cls }}" for="{{ c.id }}"><input type="radio" name="dc-choice" id="{{ c.id }}" checked="{{ c.checked }}" disabled="{{ c.dis }}" onChange="{{ c.onChange }}"><span class="rk-choice-t">{{ c.t }}</span><span class="rk-choice-d">{{ c.d }}</span></label></sc-for>
+                  </div>
+                  <sc-if value="{{ D.he.choice }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="dc-choice-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-alert"></use></svg>{{ D.e.choice }}</p></sc-if>
+                </fieldset>
+
+                <sc-if value="{{ D.needsRoute }}" hint-placeholder-val="{{ false }}">
+                <fieldset class="{{ D.routeFs }}">
+                  <legend>Internal or external<span>Required to approve. You set this; the requester never chooses it.</span></legend>
+                  <div class="rk-choices">
+                    <sc-for list="{{ D.routes }}" as="o" hint-placeholder-count="2"><label class="rk-choice" for="{{ o.id }}"><input type="radio" name="dc-route" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.onChange }}"><span class="rk-choice-t">{{ o.t }}</span><span class="rk-choice-d">{{ o.d }}</span></label></sc-for>
+                  </div>
+                  <sc-if value="{{ D.he.route }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="dc-route-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-alert"></use></svg>{{ D.e.route }}</p></sc-if>
+                </fieldset>
+                </sc-if>
+                <sc-if value="{{ D.routeLocked }}" hint-placeholder-val="{{ false }}"><p class="rk-locked"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-lock"></use></svg><span>Internal or external: <b>{{ D.routeText }}</b>. Set when this institution was first approved.</span></p></sc-if>
+
+                <sc-if value="{{ D.isSmaller }}" hint-placeholder-val="{{ false }}">
+                <fieldset class="rk-fieldset">
+                  <legend>Formats to approve</legend>
+                  <div class="rk-checks"><sc-for list="{{ D.fmOpts }}" as="o" hint-placeholder-count="2"><label class="rk-check" for="{{ o.id }}"><input type="checkbox" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.onChange }}">{{ o.label }} <small>{{ o.name }}</small></label></sc-for></div>
+                  <sc-if value="{{ D.he.fm }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-alert"></use></svg>{{ D.e.fm }}</p></sc-if>
+                </fieldset>
+                <div class="rk-field">
+                  <label class="rk-label" for="dc-lic">{{ D.licLabel }}</label>
+                  <input id="dc-lic" class="rk-input" type="text" inputmode="numeric" value="{{ D.licInput }}" aria-invalid="{{ D.licInvalid }}" aria-describedby="dc-lic-err" onChange="{{ D.onLic }}">
+                  <sc-if value="{{ D.he.lic }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="dc-lic-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-alert"></use></svg>{{ D.e.lic }}</p></sc-if>
+                </div>
+                <sc-if value="{{ D.termEditable }}" hint-placeholder-val="{{ true }}">
+                <div class="rk-field">
+                  <label class="rk-label" for="dc-term">Access term</label>
+                  <div class="rk-selwrap"><select id="dc-term" class="rk-select" value="{{ D.term }}" onChange="{{ D.onTerm }}"><option value="Monthly">Monthly</option><option value="Quarterly">Quarterly</option><option value="Yearly">Yearly</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-chev"></use></svg></div>
+                </div>
+                </sc-if>
+                <sc-if value="{{ D.termFixed }}" hint-placeholder-val="{{ false }}"><p class="rk-hint">Access term: {{ D.term }}. Additional licences follow the current term.</p></sc-if>
+                <sc-if value="{{ D.hasDiff }}" hint-placeholder-val="{{ false }}"><div class="rk-diff" role="status"><b>Different from the request</b><sc-for list="{{ D.diffs }}" as="d" hint-placeholder-count="1"><p>{{ d.t }}</p></sc-for></div></sc-if>
+                <sc-if value="{{ D.he.diff }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="dc-diff-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-alert"></use></svg>{{ D.e.diff }}</p></sc-if>
+                </sc-if>
+
+                <sc-if value="{{ D.hasReason }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-field">
+                  <label class="rk-label" for="dc-reason">{{ D.reasonLabel }}</label>
+                  <p class="rk-hint" id="dc-reason-hint">Shown to the requester on their request status.</p>
+                  <textarea id="dc-reason" class="rk-textarea" value="{{ D.reason }}" aria-invalid="{{ D.reasonInvalid }}" aria-describedby="dc-reason-hint dc-reason-err" onChange="{{ D.onReason }}"></textarea>
+                  <sc-if value="{{ D.he.reason }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="dc-reason-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-alert"></use></svg>{{ D.e.reason }}</p></sc-if>
+                </div>
+                </sc-if>
+
+                <sc-if value="{{ D.hasPending }}" hint-placeholder-val="{{ false }}"><p class="rk-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-clock"></use></svg>{{ D.pending }}</p></sc-if>
+                <button type="button" class="rb-btn rb-btn--primary rk-go" id="dc-go" onClick="{{ D.go }}">{{ D.goLabel }}</button>
+                </sc-if>
+
+                <sc-if value="{{ D.done }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-done" id="dc-done" tabindex="-1">
+                  <p><span class="{{ D.stClsLg }}"><i></i>{{ D.stLabel }}</span></p>
+                  <sc-if value="{{ D.hasDoneMeta }}" hint-placeholder-val="{{ true }}"><p class="rk-done-meta">{{ D.doneMeta }}</p></sc-if>
+                  <dl class="rk-stand"><sc-for list="{{ D.stand }}" as="st" hint-placeholder-count="4"><div><dt>{{ st.k }}</dt><dd>{{ st.v }}</dd></div></sc-for></dl>
+                  <sc-if value="{{ D.hasNext }}" hint-placeholder-val="{{ true }}"><p class="rk-next">{{ D.next }}</p></sc-if>
+                  <a class="rb-btn" href="#top" onClick="{{ toList }}">Back to requests</a>
+                </div>
+                </sc-if>
+
+                <sc-if value="{{ D.blocked }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-notice rk-notice--paused" role="status">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-pause"></use></svg>
+                  <p class="rk-notice-t">This institution is paused</p>
+                  <p class="rk-notice-d">Requests from a paused institution can’t be decided. You can decide this one once the pause ends.</p>
+                  <div class="rk-notice-act"><a class="rb-btn" href="#">View institution</a></div>
+                </div>
+                </sc-if>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{ D.confirm }}" hint-placeholder-val="{{ false }}">
+  <div class="rk-scrim" aria-hidden="true"></div>
+  <div class="rk-dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-t" aria-describedby="dlg-d" onKeyDown="{{ D.dlgKey }}">
+    <div class="rk-dlg-head"><h2 id="dlg-t" tabindex="-1">{{ D.confirmTitle }}</h2><p id="dlg-d">Check what approving does now, and what happens only after later events.</p></div>
+    <div class="rk-dlg-body">
+      <div class="rk-dlg-group rk-dlg-now"><h3>What happens now</h3><ul class="rk-dlg-list"><sc-for list="{{ D.nowList }}" as="n" hint-placeholder-count="2"><li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-check"></use></svg><span>{{ n.t }}</span></li></sc-for></ul></div>
+      <div class="rk-dlg-group rk-dlg-later"><h3>Only after later events</h3><ul class="rk-dlg-list"><sc-for list="{{ D.laterList }}" as="n" hint-placeholder-count="2"><li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-clock"></use></svg><span>{{ n.t }}</span></li></sc-for></ul></div>
+    </div>
+    <div class="rk-dlg-foot"><button type="button" class="rb-btn rb-btn--lg" id="dlg-cancel" onClick="{{ D.cancel }}">Cancel</button><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="dlg-ok" onClick="{{ D.doConfirm }}">{{ D.goLabel }}</button></div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="rb-scrim" aria-label="Close menu" tabindex="-1" onClick="{{ closeMenu }}"></button>
+  <div class="rb-drawer" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown="{{ drawerKey }}">
+    <div class="rb-drawer-head">
+      <p class="rb-product">XR Learning Platform</p>
+      <button type="button" class="rb-close" id="rq-menu-close" aria-label="Close menu" onClick="{{ closeMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+    </div>
+    <div class="rb-brand" style="padding-top: 0"><div class="rb-logo">Official WILP logo</div><p class="rb-ws"><span class="rb-ws-role">Super Admin</span></p></div>
+    <nav class="rb-nav" aria-label="Super Admin navigation">
+      <a href="SA01.dc.html"><span>Overview</span></a>
+      <a href="#top" aria-current="page" onClick="{{ toListClose }}"><span>Requests</span><sc-if value="{{ hasNavCount }}" hint-placeholder-val="{{ true }}"><span class="rb-count"><span aria-hidden="true">{{ navCount }}</span><span class="xr-sr">, {{ navCountLabel }}</span></span></sc-if></a>
+      <a href="#"><span>Institutions</span></a>
+      <a href="#"><span>Content</span></a>
+      <a href="#"><span>Academic structure</span></a>
+      <a href="#"><span>Platform roles</span></a>
+      <a href="#"><span>Operations</span></a>
+    </nav>
+    <div class="rb-rail-foot"><nav class="rb-nav" aria-label="Help"><a href="#"><span>Help &amp; support</span></a></nav></div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["list","decision"],"default":"list","section":"State"},"record":{"editor":"enum","options":["","g58","gdv","kri","kon","bhn","ren","viz","sah"],"default":"","section":"State"},"asOf":{"editor":"enum","options":["oct23","oct08"],"default":"oct23","section":"State"},"preset":{"editor":"enum","options":["","approve-ext","validation","smaller","smaller-invalid","info","confirm-ext","confirm-int","decided-pay","decided-int","decided-info"],"default":"","section":"State"},"listPreset":{"editor":"enum","options":["","more","review","nomatch","loading","failed","empty"],"default":"","section":"State"},"$preview":{"width":1440,"height":1165}}'>
+class Component extends DCLogic {
+  static get FM() { return ['WEB', 'AR', 'VR', 'MR']; }
+  static get FN() { return { WEB: 'Browser', AR: 'Augmented reality', VR: 'Virtual reality', MR: 'Mixed reality' }; }
+  static get LBL() { return { review: 'Under review', info: 'Information requested', pay: 'Approved — payment required', pend: 'Payment not confirmed', active: 'Access active' }; }
+  static get KIND() { return { review: 'info', info: 'err', pay: 'warn', pend: 'warn', active: 'ok' }; }
+  static get SNAP() {
+    return {
+      oct23: { long: 'Friday 23 October 2026', when: '23 Oct 2026', keys: ['g58', 'gdv', 'kri', 'kon', 'bhn', 'ren', 'viz', 'sah'], rec: 'g58' },
+      oct08: { long: 'Thursday 8 October 2026', when: '8 Oct 2026, 11:20', keys: ['gdv', 'kri', 'kon', 'bhn', 'ren', 'viz', 'sah'], rec: 'gdv' }
+    };
+  }
+  // Sample records from v46 B1-10, B1-11 and B7-01. Only documented facts; internal references stay in the data, never on screen.
+  static get RQ() {
+    return {
+      g58: { ref: 'REQ-0058', inst: 'Godavari Institute of Technology', contact: 'Meera Iyer', email: 'meera.iyer@godavari.edu.in', phone: 'Not given', type: 'Additional licences', received: '21 Oct 2026', date: '21 Oct 2026', iso: '2026-10-21', route: 'External', hasPlan: true, renewal: false, paused: false,
+        exps: [{ t: 'Shell-and-Tube Heat Exchanger', code: 'ME ZG523', course: 'Thermodynamics & Heat Transfer', req: ['WEB', 'VR'], pub: ['WEB', 'AR', 'VR'] }], lic: '60 more', licNum: '60', more: true, term: 'Current term', termFixed: true,
+        existing: 'An access plan with Shell-and-Tube Heat Exchanger (WEB, VR) and 120 licences, on a yearly term from 8 Oct 2026 to 7 Oct 2027.', msg: '', st: { oct23: 'review' } },
+      gdv: { ref: 'REQ-0042', inst: 'Godavari Institute of Technology', contact: 'Meera Iyer', email: 'meera.iyer@godavari.edu.in', phone: 'Not given', type: 'New access', received: '2 Oct 2026, 10:14', date: '2 Oct 2026', iso: '2026-10-02', route: null, hasPlan: false, renewal: false, paused: false,
+        exps: [{ t: 'Shell-and-Tube Heat Exchanger', code: 'ME ZG523', course: 'Thermodynamics & Heat Transfer', req: ['WEB', 'VR'], pub: ['WEB', 'AR', 'VR'] }], lic: '120', licNum: '120', term: 'Yearly',
+        existing: 'None. There is no institution record for Godavari Institute of Technology yet. Approving this request creates the record; it does not activate access.',
+        msg: 'We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.',
+        st: { oct08: 'review', oct23: 'active' }, base: { oct23: { decided: 'active', choice: 'approve', route: 'External', when: '8 Oct 2026, 11:20', paid: '8 Oct 2026, 15:05' } } },
+      kri: { ref: 'REQ-0041', inst: 'Krishna College of Engineering', contact: 'S. Pillai', type: 'New access', received: '30 Sep 2026', date: '30 Sep 2026', iso: '2026-09-30', route: null, hasPlan: false, renewal: false, paused: false, expCount: 3,
+        st: { oct08: 'info', oct23: 'info' }, base: { all: { decided: 'info', choice: 'info' } } },
+      kon: { ref: 'REQ-0040', inst: 'Konark Polytechnic', contact: 'R. Bhatt', email: 'r.bhatt@konarkpoly.edu.in', phone: '+91 674 000 0000', type: 'Additional licences', received: '29 Sep 2026, 12:37', date: '29 Sep 2026', iso: '2026-09-29', route: 'External', hasPlan: true, renewal: false, paused: true,
+        exps: [{ t: 'Buck Converter Ripple', code: 'EEE ZG512', course: 'Power Electronics', req: ['WEB', 'AR'], pub: ['WEB', 'AR'] }], lic: '60 more', licNum: '60', more: true, term: 'Current term', termFixed: true,
+        existing: 'An access plan with Buck Converter Ripple (WEB, AR) and 180 licences. The institution is paused.', msg: 'A second section has joined the course.', st: { oct08: 'review', oct23: 'review' } },
+      bhn: { ref: 'REQ-0039', inst: 'BITS Pilani — Hyderabad Campus', contact: 'A. Menon', email: 'a.menon@hyderabad.bits-pilani.ac.in', phone: 'Not given', type: 'New access', received: '26 Sep 2026', date: '26 Sep 2026', iso: '2026-09-26', route: 'Internal', hasPlan: true, renewal: false, paused: false, expCount: 2,
+        existing: 'The campus also holds an access plan with 3 experiments and 860 licences. Its current term ends on 31 Oct 2026, and its renewal is under review.',
+        st: { oct08: 'active', oct23: 'active' }, base: { all: { decided: 'active', choice: 'approve' } } },
+      ren: { ref: 'REQ-0038', inst: 'BITS Pilani — Hyderabad Campus', contact: 'A. Menon', email: 'a.menon@hyderabad.bits-pilani.ac.in', phone: 'Not given', type: 'Renewal', received: '24 Sep 2026, 16:02', date: '24 Sep 2026', iso: '2026-09-24', route: 'Internal', hasPlan: true, renewal: true, paused: false,
+        exps: [
+          { t: 'Composite Wall Conduction', code: 'ME ZG523', course: 'Thermodynamics & Heat Transfer', req: ['WEB', 'AR'], pub: ['WEB', 'AR'] },
+          { t: 'Fin-Tube Bundle', code: 'ME ZG523', course: 'Thermodynamics & Heat Transfer', req: ['WEB', 'VR'], pub: ['WEB', 'VR'] },
+          { t: 'Investment Casting', code: 'MEL ZG512', course: 'Manufacturing Processes', req: ['WEB'], pub: ['WEB'] }],
+        lic: '860', licNum: '860', term: 'Yearly',
+        existing: 'The current access plan holds these 3 experiments and 860 licences. Its current term ends on 31 Oct 2026.', msg: 'Renewal for the next academic year, same experiments.', st: { oct08: 'review', oct23: 'review' } },
+      viz: { ref: 'REQ-0037', inst: 'Vizag Polytechnic', contact: 'K. Rao', type: 'New access', received: '22 Sep 2026', date: '22 Sep 2026', iso: '2026-09-22', route: 'External', hasPlan: false, renewal: false, paused: false,
+        exps: [{ t: 'Distillation Column', req: ['WEB', 'VR'] }], st: { oct08: 'pay', oct23: 'pay' }, base: { all: { decided: 'pay', choice: 'approve' } } },
+      sah: { ref: 'REQ-0036', inst: 'Sahyadri Institute of Engineering', contact: 'N. Joshi', type: 'Additional licences', received: '18 Sep 2026', date: '18 Sep 2026', iso: '2026-09-18', route: 'External', hasPlan: true, renewal: false, paused: false,
+        exps: [{ t: 'CNC Turning Centre', req: ['MR'] }], st: { oct08: 'pend', oct23: 'pend' }, base: { all: { decided: 'pend', choice: 'approve' } } }
+    };
+  }
+
+  state = { view: null, rec: null, q: null, st: null, type: null, route: null, desc: true, more: null, mode: null, menu: false, dec: {} };
+
+  snap() { const k = this.props.asOf === 'oct08' ? 'oct08' : 'oct23'; return Object.assign({ key: k }, Component.SNAP[k]); }
+  rec(k) { return Component.RQ[k] || Component.RQ.gdv; }
+  startRec() { const S = this.snap(), r = this.props.record; return r && S.keys.indexOf(r) >= 0 ? r : S.rec; }
+  presetFor(name) {
+    switch (name) {
+      case 'approve-ext': return { choice: 'approve', route: 'External' };
+      case 'validation': return { choice: 'approve', errs: { route: 'Choose internal or external' } };
+      case 'smaller': return { choice: 'smaller', route: 'External', lic: '100', reason: 'Approved for 100 licences for the first term. You can ask for more once enrolment is confirmed.' };
+      case 'smaller-invalid': return { choice: 'smaller', route: 'External', errs: { diff: 'Change at least one thing, or choose Approve request', reason: 'Enter the reason for the change' } };
+      case 'info': return { choice: 'info', reason: 'Please confirm how many students will use VR in the first term.' };
+      case 'confirm-ext': return { choice: 'approve', route: 'External', confirm: true };
+      case 'confirm-int': return { choice: 'approve', route: 'Internal', confirm: true };
+      case 'decided-pay': return { choice: 'approve', route: 'External', decided: 'pay' };
+      case 'decided-int': return { choice: 'approve', route: 'Internal', decided: 'active' };
+      case 'decided-info': return { choice: 'info', reason: 'Please confirm how many students will use VR in the first term.', decided: 'info', when: '6 Oct 2026, 09:12', fromBase: true };
+      default: return {};
+    }
+  }
+  decState(k) {
+    const P = this.props, S = this.snap(), R = this.rec(k);
+    const base = { choice: null, route: null, fm: null, lic: null, term: null, reason: '', errs: {}, confirm: false, decided: null, when: S.when, fromBase: false, paid: null };
+    const b = R.base ? (R.base[S.key] || R.base.all || null) : null;
+    const fromBase = b ? Object.assign({ when: '' }, b, { fromBase: true }) : {};
+    const initial = (P.view === 'decision' && k === this.startRec()) ? this.presetFor(P.preset || '') : {};
+    return Object.assign(base, fromBase, initial, this.state.dec[k] || {});
+  }
+  decSet(k, patch) { const cur = this.decState(k); this.setState({ dec: Object.assign({}, this.state.dec, { [k]: Object.assign({}, cur, patch) }) }); }
+  statusOf(k) { const d = this.decState(k); return d.decided || this.rec(k).st[this.snap().key]; }
+  routeOf(k) { const R = this.rec(k), d = this.decState(k); return R.route || (d.decided && d.decided !== 'info' ? d.route : null); }
+  stCls(st, lg) { return 'xr-st xr-st--' + Component.KIND[st] + (lg ? ' rk-st-lg' : ''); }
+  focusId(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) { el.focus(); if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); } }, 60); }
+  toTop() { try { window.scrollTo(0, 0); } catch (e) {} }
+  listPreset() {
+    switch (this.props.listPreset) {
+      case 'more': return { more: true, route: 'External' };
+      case 'review': return { st: 'review', kbd: true };
+      case 'nomatch': return { q: 'Narmada' };
+      case 'loading': return { mode: 'loading' };
+      case 'failed': return { mode: 'failed' };
+      case 'empty': return { mode: 'empty' };
+      default: return {};
+    }
+  }
+
+  listView() {
+    const s = this.state, S = this.snap(), LP = this.listPreset();
+    const pick = (k, d) => (s[k] !== null && s[k] !== undefined) ? s[k] : (LP[k] !== undefined ? LP[k] : d);
+    const qRaw = pick('q', ''), q = qRaw.trim().toLowerCase(), st = pick('st', 'all'), type = pick('type', 'all'), route = pick('route', 'all'), more = pick('more', false), mode = pick('mode', 'ok');
+    const keys = S.keys;
+    let list = keys.filter(k => {
+      const R = this.rec(k), rs = this.statusOf(k), rr = this.routeOf(k) || 'Not set yet';
+      return (!q || (R.inst + ' ' + R.contact).toLowerCase().includes(q)) && (st === 'all' || rs === st) && (type === 'all' || R.type === type) && (route === 'all' || rr === route);
+    });
+    list = list.slice().sort((a, b) => s.desc ? this.rec(b).iso.localeCompare(this.rec(a).iso) : this.rec(a).iso.localeCompare(this.rec(b).iso));
+    const chips = [];
+    if (q) chips.push({ label: 'Search: “' + qRaw.trim() + '”', rm: () => this.setState({ q: '' }) });
+    if (st !== 'all') chips.push({ label: 'Status: ' + Component.LBL[st], rm: () => this.setState({ st: 'all' }) });
+    if (type !== 'all') chips.push({ label: 'Type: ' + type, rm: () => this.setState({ type: 'all' }) });
+    if (route !== 'all') chips.push({ label: 'Internal or external: ' + route, rm: () => this.setState({ route: 'all' }) });
+    chips.forEach(c => { c.aria = 'Remove filter ' + c.label; });
+    const rows = list.map((k, i) => {
+      const R = this.rec(k), rs = this.statusOf(k), rr = this.routeOf(k);
+      const one = R.exps && R.exps.length === 1 ? R.exps[0] : null;
+      const n = R.exps ? R.exps.length : R.expCount;
+      const kbd = LP.kbd && i === 0 && s.st === null;
+      const open = () => { this.setState({ view: 'decision', rec: k }); this.toTop(); this.focusId('dc-title'); };
+      return { key: k, inst: R.inst, contact: R.contact, type: R.type, date: R.date,
+        exp: one ? one.t : n + ' experiments', hasFmts: !!one, fmts: one ? one.req.map(f => ({ code: f })) : [], fmtAria: one ? 'Formats requested: ' + one.req.join(', ') : '',
+        route: rr || 'Not set yet', stCls: this.stCls(rs), stLabel: Component.LBL[rs],
+        rowCls: kbd ? 'is-kbd' : '', linkCls: 'rk-rowlink' + (kbd ? ' is-kbd' : ''),
+        aria: R.inst + ', ' + R.type.toLowerCase() + ', received ' + R.date + ', ' + Component.LBL[rs] + '. Open the request',
+        open, openLink: ev => { if (ev) { ev.preventDefault(); ev.stopPropagation(); } open(); } };
+    });
+    const ok = mode === 'ok';
+    const routeOn = route !== 'all' ? 1 : 0;
+    return {
+      q: qRaw, onQ: ev => this.setState({ q: ev.target.value }), st, onSt: ev => this.setState({ st: ev.target.value }),
+      type, onType: ev => this.setState({ type: ev.target.value }), route, onRoute: ev => this.setState({ route: ev.target.value }),
+      chips, hasChips: chips.length > 0, showCount: ok, showLine: ok || chips.length > 0, breakOn: ok && chips.length > 0, clear: () => { this.setState({ q: '', st: 'all', type: 'all', route: 'all' }); this.focusId('rq-q'); },
+      count: chips.length ? list.length + ' of ' + keys.length + ' requests' : keys.length + ' requests',
+      rows, has: ok && list.length > 0, none: ok && list.length === 0, empty: mode === 'empty', loading: mode === 'loading', failed: mode === 'failed', showTools: mode !== 'empty',
+      sortLabel: s.desc ? 'received, newest first' : 'received, oldest first', sortShort: s.desc ? 'newest first' : 'oldest first', ariaSort: s.desc ? 'descending' : 'ascending', sortDesc: s.desc, sortAsc: !s.desc,
+      toggleSort: () => this.setState({ desc: !s.desc }), retry: () => this.setState({ mode: 'ok' }),
+      more, moreOpen: more ? 'true' : 'false', toggleMore: () => this.setState({ more: !more }), hasMoreCount: routeOn > 0, moreCount: String(routeOn)
+    };
+  }
+
+  decView(k) {
+    const s = this.decState(k), R = this.rec(k), S = this.snap(), route = R.route || s.route;
+    const exp0 = R.exps ? R.exps[0] : null;
+    const reqL = exp0 ? exp0.req : [];
+    const fm = s.fm || reqL.reduce((o, f) => Object.assign(o, { [f]: true }), {});
+    const licIn = s.lic === null ? (R.licNum || '') : s.lic, term = s.term || R.term || '';
+    const clrErr = key => { const e = Object.assign({}, s.errs); delete e[key]; return e; };
+    const choices = [
+      { v: 'approve', t: 'Approve request', d: 'Approve what they asked for.', dis: false },
+      { v: 'smaller', t: 'Approve a smaller scope', d: R.renewal ? 'Not available for a renewal. The term continues the current plan.' : 'Fewer formats, fewer licences or a shorter term, with a reason.', dis: !!R.renewal },
+      { v: 'info', t: 'Request more information', d: 'The request stays open. Your question is shown to the requester.', dis: false }
+    ].map((c, i) => Object.assign(c, { id: 'dc-c' + i, checked: s.choice === c.v, cls: 'rk-choice' + (c.dis ? ' is-off' : ''), onChange: () => { if (!c.dis) this.decSet(k, { choice: c.v, errs: {} }); } }));
+    const routes = [
+      { v: 'Internal', t: 'Internal: BITS campus or programme', d: 'No payment step. Institutional access is activated when you approve.' },
+      { v: 'External', t: 'External institution', d: 'Approval, then payment. Institutional access is activated only after the payment is confirmed.' }
+    ].map((o, i) => Object.assign(o, { id: 'dc-r' + i, checked: s.route === o.v, onChange: () => this.decSet(k, { route: o.v, errs: clrErr('route') }) }));
+    const fmOpts = reqL.map(f => ({ id: 'dc-fm-' + f, label: f, name: Component.FN[f], checked: !!fm[f], onChange: () => this.decSet(k, { fm: Object.assign({}, fm, { [f]: !fm[f] }), errs: clrErr('fm') }) }));
+    const approving = s.choice === 'approve' || s.choice === 'smaller';
+    const diffs = [];
+    if (s.choice === 'smaller') {
+      const kept = reqL.filter(f => fm[f]);
+      if (kept.length !== reqL.length) diffs.push('Formats: ' + reqL.join(', ') + ' → ' + (kept.join(', ') || 'none'));
+      if (String(licIn) !== String(R.licNum)) diffs.push('Licences: ' + R.lic + ' → ' + licIn + (R.more ? ' more' : ''));
+      if (!R.termFixed && term !== R.term) diffs.push('Term: ' + R.term + ' → ' + term);
+    }
+    const goLabel = s.choice === 'info' ? 'Send request for information' : s.choice === 'smaller' ? 'Approve smaller scope' : 'Approve request';
+    const validate = () => {
+      const e = {};
+      if (!s.choice) e.choice = 'Choose a decision';
+      if (approving && !route) e.route = 'Choose internal or external';
+      if (s.choice === 'smaller') {
+        if (!reqL.some(f => fm[f])) e.fm = 'Keep at least one format';
+        if (!/^[1-9][0-9]*$/.test(String(licIn))) e.lic = 'Enter a whole number of licences';
+        if (!diffs.length) e.diff = 'Change at least one thing, or choose Approve request';
+      }
+      if ((s.choice === 'smaller' || s.choice === 'info') && !String(s.reason).trim()) e.reason = s.choice === 'info' ? 'Enter what you need from the requester' : 'Enter the reason for the change';
+      return e;
+    };
+    const target = { choice: 'dc-c0', route: 'dc-r0', fm: 'dc-fm-' + (reqL[0] || ''), lic: 'dc-lic', diff: 'dc-lic', reason: 'dc-reason' };
+    const errList = Object.keys(s.errs).map(key => ({ t: s.errs[key], href: '#' + target[key], go: ev => { if (ev) ev.preventDefault(); this.focusId(target[key]); } }));
+    const d = s.decided, isNew = !R.hasPlan, cur = d || R.st[S.key];
+    const rl = r => r === 'Internal' ? 'internal' : 'external';
+    const hist = [];
+    if (d === 'active' && route === 'External' && s.paid) hist.push({ w: 'Institutional access activated', t: s.paid, n: 'Access plan created for the institution.' }, { w: 'Payment confirmed', t: s.paid, n: '' });
+    if (d === 'active' && route === 'Internal' && s.when && !s.fromBase) hist.push({ w: 'Institutional access activated', t: s.when, n: 'No payment step (internal). Access plan created.' });
+    if ((d === 'pay' || d === 'active') && s.when) hist.push({ w: (s.choice === 'smaller' ? 'Request approved with a smaller scope' : 'Request approved') + ' (' + rl(route) + ')', t: s.when + ' by Arjun Mehta',
+      n: (isNew ? 'Institution record created. ' : '') + (route === 'External' ? (isNew ? 'Status: Approved — payment required. Access not active until the payment is confirmed.' : 'Status: Approved — payment required. The additional licences are added only after the payment is confirmed.') : 'No payment step.') + (s.choice === 'smaller' && s.reason ? ' Reason: “' + s.reason + '”' : '') });
+    if (d === 'info' && s.when) hist.push({ w: 'Information requested', t: s.when + ' by Arjun Mehta', n: s.reason ? '“' + s.reason + '”' : '' });
+    hist.push({ w: 'Request submitted', t: R.received + ' by ' + R.contact + ', contact person', n: '' });
+    hist.forEach((h, i) => { h.cls = i === 0 ? 'is-latest' : ''; h.hasN = !!h.n; });
+    const next = d === 'pay' ? (isNew ? 'The requester now sees Continue to payment on their request status. Institutional access is not active until the payment is confirmed.' : 'The requester now sees Continue to payment on their request status. The additional licences are added only after the payment is confirmed.')
+      : d === 'active' ? 'Institutional access is active. The institution administrator can now give students access.'
+      : d === 'info' ? 'The request stays open. Your question is on the requester’s request status.' : '';
+    let stand = [];
+    if (d === 'info') stand = [{ k: 'Institution record', v: isNew ? 'Not created' : 'Exists' }, { k: 'Request', v: 'Information requested' }, { k: 'Payment', v: 'Not started' }, { k: 'Institutional access', v: isNew ? 'Not active' : 'Active, unchanged' }];
+    if (d === 'pay') stand = [{ k: 'Institution record', v: isNew ? (s.when ? 'Created ' + s.when : 'Created') : 'Exists' }, { k: 'Request', v: 'Approved (' + rl(route) + ')' }, { k: 'Payment', v: 'Waiting, not confirmed' }, { k: 'Institutional access', v: isNew ? 'Not active' : 'Active, unchanged' }];
+    if (d === 'active') stand = [{ k: 'Institution record', v: isNew && s.when ? 'Created ' + s.when : 'Exists' }, { k: 'Request', v: 'Approved (' + rl(route) + ')' }, { k: 'Payment', v: route === 'Internal' ? 'Not needed (internal)' : (s.paid ? 'Confirmed ' + s.paid : 'Confirmed') }, { k: 'Institutional access', v: route === 'Internal' ? (s.when && !s.fromBase ? 'Active since ' + s.when : 'Active') : (s.paid ? 'Active since ' + s.paid : 'Active') }];
+    if (d === 'pend') stand = [{ k: 'Institution record', v: 'Exists' }, { k: 'Request', v: 'Approved (' + rl(route) + ')' }, { k: 'Payment', v: 'Not confirmed' }];
+    let existing = R.existing || '';
+    if (isNew && d === 'pay') existing = s.when ? 'Institution record created by this approval on ' + s.when + '. No institutional access yet; it is activated only after the payment is confirmed.' : 'Institution record created at approval. No institutional access yet; it is activated only after the payment is confirmed.';
+    if (isNew && d === 'active') existing = route === 'External' ? 'Institution record created on ' + s.when + '. Institutional access active since ' + s.paid + ', after the payment was confirmed.' : 'Institution record created on ' + s.when + '. Institutional access active since then (internal, no payment step).';
+    if (isNew && !d && !R.existing) existing = 'None. There is no institution record for ' + R.inst + ' yet.';
+    if (isNew && d === 'info' && !R.existing) existing = 'None. There is no institution record for ' + R.inst + ' yet.';
+    const committed = R.route || ((d === 'pay' || d === 'active' || d === 'pend') ? s.route : null);
+    const pending = !s.choice ? '' : (approving && !route) ? 'Choose internal or external before approving.'
+      : (s.choice === 'smaller' && (!diffs.length || !String(s.reason).trim())) ? 'Change at least one thing and give a reason before approving.'
+      : (s.choice === 'info' && !String(s.reason).trim()) ? 'Add your question before sending.' : '';
+    const exps = (R.exps || []).map(x => {
+      const hasPub = !!x.pub;
+      const cells = hasPub ? Component.FM.map(f => {
+        const rq = x.req.indexOf(f) >= 0, pb = x.pub.indexOf(f) >= 0;
+        const kind = rq ? 'on' : pb ? 'pub' : 'none';
+        return { code: f, on: kind === 'on', cls: 'rk-fcell rk-fcell--' + kind, label: kind === 'on' ? 'Requested' : kind === 'pub' ? 'Not requested' : 'Not published' };
+      }) : [];
+      return { t: x.t, code: x.code || '', course: x.course || '', hasCourse: !!x.code, hasPub, noPub: !hasPub, cells, req: x.req,
+        fmtAria: 'Formats requested: ' + x.req.join(', ') + (hasPub ? '. Published: ' + x.pub.join(', ') + '.' : '.') };
+    });
+    const nowList = [], laterList = [];
+    if (isNew) nowList.push({ t: 'Creates the institution record for ' + R.inst + ', classified ' + (route ? rl(route) : 'as you choose') + '.' });
+    if (route === 'External') {
+      nowList.push({ t: 'Approves the request. Its status becomes Approved — payment required.' });
+      laterList.push({ t: isNew ? 'Institutional access is not activated now. It is activated only after the payment is confirmed.' : 'The additional licences are added only after the payment is confirmed. Current access continues unchanged.' });
+    } else {
+      nowList.push({ t: 'Approves the request. There is no payment step.' });
+      nowList.push({ t: 'Institutional access is activated now and the access plan is created.' });
+    }
+    if (s.choice === 'smaller') nowList.push({ t: 'The requester sees what changed and your reason.' });
+    laterList.push({ t: 'Students get access only when the institution administrator gives it.' });
+    const cancel = () => { this.decSet(k, { confirm: false }); this.focusId('dc-go'); };
+    const doConfirm = () => { this.decSet(k, { confirm: false, decided: route === 'Internal' ? 'active' : 'pay', when: S.when, fromBase: false }); this.focusId('dc-done'); };
+    const dlgKey = ev => {
+      if (ev.key === 'Escape') { ev.preventDefault(); cancel(); return; }
+      if (ev.key === 'Tab') {
+        const first = document.getElementById('dlg-cancel'), last = document.getElementById('dlg-ok'), a = document.activeElement;
+        if (ev.shiftKey && (a === first || (a && a.id === 'dlg-t'))) { ev.preventDefault(); if (last) last.focus(); }
+        else if (!ev.shiftKey && a === last) { ev.preventDefault(); if (first) first.focus(); }
+      }
+    };
+    const doneMeta = !d ? '' : !s.when ? '' : d === 'info' ? (s.fromBase ? 'Sent on ' + s.when + ' by Arjun Mehta' : 'Sent by you on ' + s.when) : (s.fromBase ? 'Decided on ' + s.when + ' by Arjun Mehta, ' + rl(route) : 'Decided by you on ' + s.when + ', ' + rl(route));
+    const n = R.exps ? R.exps.length : R.expCount;
+    return {
+      inst: R.inst, contact: R.contact, email: R.email || '', phone: R.phone || '', hasEmail: !!R.email, hasPhone: !!R.phone, type: R.type, received: R.received,
+      nExp: String(n), term, routeText: route || 'Not set yet',
+      facts: [{ k: 'Experiments', v: String(n), cls: '' }].concat(R.lic ? [{ k: 'Licences requested', v: R.lic, cls: '' }] : [], R.term ? [{ k: 'Access term', v: R.term, cls: '' }] : [], [{ k: 'Internal or external', v: committed || 'Not set yet', cls: committed ? '' : 'is-quiet' }]),
+      exps, hasExps: exps.length > 0, countOnly: !exps.length, hasPubCompare: exps.some(x => x.hasPub),
+      existing, hasExisting: !!existing, msg: R.msg || '', hasMsg: !!R.msg, hist,
+      stClsLg: this.stCls(cur, true), stLabel: Component.LBL[cur],
+      open: !d && !R.paused, done: !!d, blocked: !d && !!R.paused, showChain: !d,
+      choices, choiceFs: 'rk-fieldset' + (s.errs.choice ? ' is-invalid' : ''), routes, routeFs: 'rk-fieldset' + (s.errs.route ? ' is-invalid' : ''),
+      needsRoute: approving && !R.route, routeLocked: approving && !!R.route,
+      isSmaller: s.choice === 'smaller', hasReason: s.choice === 'smaller' || s.choice === 'info',
+      fmOpts, licLabel: R.more ? 'Additional licences to approve' : 'Licences to approve', licInput: String(licIn), onLic: ev => this.decSet(k, { lic: ev.target.value, errs: clrErr('lic') }),
+      onTerm: ev => this.decSet(k, { term: ev.target.value }), termEditable: !R.termFixed, termFixed: !!R.termFixed,
+      diffs: diffs.map(t => ({ t })), hasDiff: diffs.length > 0,
+      reason: s.reason, onReason: ev => this.decSet(k, { reason: ev.target.value, errs: clrErr('reason') }),
+      reasonLabel: s.choice === 'info' ? 'What do you need from the requester? (required)' : 'Reason for the change (required)',
+      e: { choice: s.errs.choice || '', route: s.errs.route || '', fm: s.errs.fm || '', lic: s.errs.lic || '', reason: s.errs.reason || '', diff: s.errs.diff || '' },
+      he: { choice: !!s.errs.choice, route: !!s.errs.route, fm: !!s.errs.fm, lic: !!s.errs.lic, reason: !!s.errs.reason, diff: !!s.errs.diff },
+      reasonInvalid: s.errs.reason ? 'true' : 'false', licInvalid: s.errs.lic ? 'true' : 'false',
+      hasErrs: errList.length > 0, errList, pending, hasPending: !!pending, goLabel,
+      go: () => { const e = validate(); if (Object.keys(e).length) { this.decSet(k, { errs: e }); this.focusId('dc-errs'); return; }
+        if (s.choice === 'info') { this.decSet(k, { decided: 'info', errs: {}, when: S.when, fromBase: false }); this.focusId('dc-done'); }
+        else { this.decSet(k, { confirm: true, errs: {} }); this.focusId('dlg-t'); } },
+      confirm: !!s.confirm && !d, cancel, doConfirm, dlgKey,
+      confirmTitle: (s.choice === 'smaller' ? 'Approve a smaller scope for ' : 'Approve the request from ') + R.inst + '?',
+      nowList, laterList, stand, next, hasNext: !!next, doneMeta, hasDoneMeta: !!doneMeta
+    };
+  }
+
+  renderVals() {
+    const s = this.state, P = this.props, S = this.snap();
+    const view = s.view || (P.view === 'decision' ? 'decision' : 'list');
+    const k = s.rec || this.startRec();
+    const L = this.listView(), D = this.decView(k);
+    const review = S.keys.filter(x => this.statusOf(x) === 'review').length;
+    const m = !!s.menu;
+    const toList = ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.setState({ view: 'list', menu: false }); this.toTop(); this.focusId('rq-title'); };
+    return {
+      isList: view === 'list', isDecision: view === 'decision', L, D: Object.assign({}, D, { confirm: view === 'decision' && D.confirm }),
+      dateLong: S.long, toList, toListClose: toList,
+      hasNavCount: review > 0, navCount: String(review), navCountLabel: review + (review === 1 ? ' request' : ' requests') + ' under review',
+      menuOpen: m, menuExp: m ? 'true' : 'false',
+      openMenu: () => { this.setState({ menu: true }); this.focusId('rq-menu-close'); },
+      closeMenu: () => { this.setState({ menu: false }); this.focusId('rq-menu'); },
+      drawerKey: ev => {
+        if (ev.key === 'Escape') { ev.preventDefault(); this.setState({ menu: false }); this.focusId('rq-menu'); return; }
+        if (ev.key !== 'Tab') return;
+        const items = Array.prototype.slice.call(ev.currentTarget.querySelectorAll('a[href], button:not([disabled])'));
+        if (!items.length) return;
+        const first = items[0], last = items[items.length - 1];
+        if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+        else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

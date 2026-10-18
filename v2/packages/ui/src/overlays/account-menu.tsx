@@ -1,6 +1,14 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FocusEvent,
+  type KeyboardEvent,
+  type RefObject,
+} from 'react';
 
 import { Icon } from '../foundation/icon.js';
 import type { IconName } from '../icons/registry.js';
@@ -58,27 +66,31 @@ export interface AccountMenuProps {
  * add the institution or organisation line when there is one, e.g. "Account menu: Rahul Verma,
  * Student, Godavari Institute of Technology" (B3-07). The name lists the lines the menu shows.
  */
-function accountName(name: string, role: string, organisation: string | undefined): string {
+export function accountName(name: string, role: string, organisation: string | undefined): string {
   return `Account menu: ${[name, role, organisation].filter(Boolean).join(', ')}`;
 }
 
+/** The disclosure behaviour of an account menu, shared by the v46 and the V3 account chrome. */
+export interface AccountMenuDisclosure {
+  readonly open: boolean;
+  readonly panelId: string;
+  readonly rootRef: RefObject<HTMLDivElement | null>;
+  readonly buttonRef: RefObject<HTMLButtonElement | null>;
+  readonly toggle: () => void;
+  /** Closes the panel; `true` returns focus to the button. */
+  readonly close: (returnFocus: boolean) => void;
+  /** For the element around the button and the panel. */
+  readonly rootProps: {
+    readonly onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
+    readonly onBlur: (event: FocusEvent<HTMLDivElement>) => void;
+  };
+}
+
 /**
- * The account menu (Appendix E §3.4 AccountMenu, §4.4; boards 03, 05, 06, 11, 12, B3-07) as a
- * disclosure (VD-13, PROVISIONAL): `button.xr-acct-btn` with `aria-expanded` + `aria-controls`
- * and the panel `div.xr-menu` right after it — not `role="menu"` (board 12's keyboard pattern has
- * Tab moving through the items). Enter opens; Tab moves through the items; Esc closes and returns
- * focus to the button; focus leaving the menu or a press outside closes it.
+ * VD-13 (PROVISIONAL) disclosure behaviour: Enter opens; Tab moves through the items; Esc closes
+ * and returns focus to the button; focus leaving the account area or a press outside closes it.
  */
-export function AccountMenu({
-  name,
-  role,
-  organisation,
-  initials,
-  items,
-  menuId,
-  className,
-}: AccountMenuProps) {
-  const Link = useLinkComponent();
+export function useAccountMenu(menuId?: string): AccountMenuDisclosure {
   const generatedId = useId();
   const panelId = menuId ?? `${generatedId}-menu`;
   const [open, setOpen] = useState(false);
@@ -101,7 +113,7 @@ export function AccountMenu({
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [open]);
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape' && open) {
       event.preventDefault();
       event.stopPropagation();
@@ -110,26 +122,113 @@ export function AccountMenu({
   };
 
   // Focus leaving the account area (Tab past the last item, Shift+Tab before the button) closes it.
-  const handleBlur = (event: FocusEvent<HTMLDivElement>) => {
+  const onBlur = (event: FocusEvent<HTMLDivElement>) => {
     const next = event.relatedTarget;
     if (open && next instanceof Node && !event.currentTarget.contains(next)) setOpen(false);
   };
 
+  return {
+    open,
+    panelId,
+    rootRef,
+    buttonRef,
+    toggle: () => setOpen((current) => !current),
+    close,
+    rootProps: { onKeyDown, onBlur },
+  };
+}
+
+/** `div.xr-menu`: the head (name, role, organisation) and the items, as board 06 draws them. */
+export function AccountMenuPanel({
+  menu,
+  name,
+  role,
+  organisation,
+  items,
+}: {
+  readonly menu: AccountMenuDisclosure;
+  readonly name: string;
+  readonly role: string;
+  readonly organisation?: string;
+  readonly items: readonly AccountMenuItem[];
+}) {
+  const Link = useLinkComponent();
+  return (
+    <div className="xr-menu" id={menu.panelId}>
+      <div className="xr-menu-head">
+        <span className="xr-menu-name">{name}</span>
+        <span className="xr-menu-meta">{role}</span>
+        {organisation ? <span className="xr-menu-meta">{organisation}</span> : null}
+      </div>
+      {items.map((item, index) => {
+        const key = `${index}-${item.kind}`;
+        if (item.kind === 'separator') {
+          return <div key={key} className="xr-menu-sep" role="separator" />;
+        }
+        if (item.kind === 'link') {
+          return (
+            <Link
+              key={key}
+              className="xr-menu-item"
+              href={item.href}
+              onClick={() => menu.close(false)}
+            >
+              <Icon name={item.icon} />
+              {item.label}
+            </Link>
+          );
+        }
+        return (
+          <button
+            key={key}
+            type="button"
+            className="xr-menu-item"
+            onClick={() => {
+              menu.close(true);
+              item.onSelect();
+            }}
+          >
+            <Icon name={item.icon} />
+            {item.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * The account menu (Appendix E §3.4 AccountMenu, §4.4; boards 03, 05, 06, 11, 12, B3-07) as a
+ * disclosure (VD-13, PROVISIONAL): `button.xr-acct-btn` with `aria-expanded` + `aria-controls`
+ * and the panel `div.xr-menu` right after it — not `role="menu"` (board 12's keyboard pattern has
+ * Tab moving through the items). Enter opens; Tab moves through the items; Esc closes and returns
+ * focus to the button; focus leaving the menu or a press outside closes it.
+ */
+export function AccountMenu({
+  name,
+  role,
+  organisation,
+  initials,
+  items,
+  menuId,
+  className,
+}: AccountMenuProps) {
+  const menu = useAccountMenu(menuId);
   return (
     <div
-      ref={rootRef}
+      ref={menu.rootRef}
       className={joinClasses('xr-acct', className)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
+      onKeyDown={menu.rootProps.onKeyDown}
+      onBlur={menu.rootProps.onBlur}
     >
       <button
-        ref={buttonRef}
+        ref={menu.buttonRef}
         type="button"
         className="xr-acct-btn"
-        aria-expanded={open}
-        aria-controls={panelId}
+        aria-expanded={menu.open}
+        aria-controls={menu.panelId}
         aria-label={accountName(name, role, organisation)}
-        onClick={() => setOpen((current) => !current)}
+        onClick={menu.toggle}
       >
         <span className="xr-avatar" aria-hidden="true">
           {initials}
@@ -140,47 +239,14 @@ export function AccountMenu({
         </span>
         <Icon name="chevronDown" className="xr-acct-chev" />
       </button>
-      {open ? (
-        <div className="xr-menu" id={panelId}>
-          <div className="xr-menu-head">
-            <span className="xr-menu-name">{name}</span>
-            <span className="xr-menu-meta">{role}</span>
-            {organisation ? <span className="xr-menu-meta">{organisation}</span> : null}
-          </div>
-          {items.map((item, index) => {
-            const key = `${index}-${item.kind}`;
-            if (item.kind === 'separator') {
-              return <div key={key} className="xr-menu-sep" role="separator" />;
-            }
-            if (item.kind === 'link') {
-              return (
-                <Link
-                  key={key}
-                  className="xr-menu-item"
-                  href={item.href}
-                  onClick={() => close(false)}
-                >
-                  <Icon name={item.icon} />
-                  {item.label}
-                </Link>
-              );
-            }
-            return (
-              <button
-                key={key}
-                type="button"
-                className="xr-menu-item"
-                onClick={() => {
-                  close(true);
-                  item.onSelect();
-                }}
-              >
-                <Icon name={item.icon} />
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
+      {menu.open ? (
+        <AccountMenuPanel
+          menu={menu}
+          name={name}
+          role={role}
+          organisation={organisation}
+          items={items}
+        />
       ) : null}
     </div>
   );

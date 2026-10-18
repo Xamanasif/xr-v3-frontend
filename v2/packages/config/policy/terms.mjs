@@ -189,6 +189,21 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
   'xr-x-empty-icon--ok',
 ];
 
+/**
+ * The ONLY product-added class names of the V3 presentation layer (foundation XR-V3-RB-1.0,
+ * ADR-0010; `packages/ui/src/styles/v3/patch.css`, `packages/ui/src/v3/COMPONENT-EXTENSIONS.md`).
+ * Every other class the V3 layer emits is a Refined Direction B class of the frozen sources.
+ * - V3P-02: the narrow-width sort bar follows the table's own breakpoint.
+ * - V3P-06: the shell keeps the product's "Skip to main content".
+ * - V3P-07: the account chrome's wrapper (the menu panel stays the v46 one until XS-05).
+ */
+export const V3_PRODUCT_CLASS_ALLOW_LIST = [
+  'rk-x-sort-shown',
+  'rk-x-sort-hidden',
+  'rk-x-skip',
+  'rk-x-acct',
+];
+
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */
 export const SLICE1_TERMS = [
   {

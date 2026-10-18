@@ -97,11 +97,16 @@ async function hubTab(page: Page, name: string): Promise<void> {
   await reachAndClick(page, tab);
 }
 
-/** The assessment record's tab strip. */
+/**
+ * The assessment record's tab strip. Returns once the chosen tab is the current page: the record
+ * header ("Ready", the ASMT reference) is the same on every tab, so a check of it alone can pass
+ * before the navigation lands — and a navigation landing later closes a menu opened meanwhile.
+ */
 async function recordTab(page: Page, name: RegExp): Promise<void> {
   const tab = page.getByRole('navigation', { name: ASSESSMENT }).getByRole('link', { name });
   await tab.scrollIntoViewIfNeeded();
   await reachAndClick(page, tab);
+  await expect(tab).toHaveAttribute('aria-current', 'page');
 }
 
 /** Signs a person in on a tab that shows the signed-out card. */

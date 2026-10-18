@@ -1,0 +1,177 @@
+{
+  "owner": "XS",
+  "surface": "Entry & shared",
+  "foundation": "XR-V3-RB-1.0",
+  "completeRoleRequired": true,
+  "preexistingV3Seeds": [],
+  "lockedRetained": [],
+  "sharedDependencies": [
+    "SA",
+    "IA",
+    "ST",
+    "FA",
+    "VE",
+    "RV",
+    "CM",
+    "PU"
+  ],
+  "screens": [
+    {
+      "id": "XS-01",
+      "surface": "Entry & shared",
+      "screen": "Sign in",
+      "type": "page",
+      "navigation": "Header: Sign in",
+      "proposedRoute": "/sign-in",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-09",
+          "file": "B1-09-Sign-In.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "— (prototype choosers)"
+    },
+    {
+      "id": "XS-03",
+      "surface": "Entry & shared",
+      "screen": "Signed out / session expired",
+      "type": "page",
+      "navigation": "—",
+      "proposedRoute": "/signed-out",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B1-09",
+          "file": "B1-09-Sign-In.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "—"
+    },
+    {
+      "id": "XS-04",
+      "surface": "Entry & shared",
+      "screen": "First-time activation · Forgot password",
+      "type": "state",
+      "navigation": "Link on Sign in",
+      "proposedRoute": "/sign-in (links only — flows OPEN)",
+      "designed": true,
+      "inventoryDisposition": "OPEN",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B1-09",
+          "file": "B1-09-Sign-In.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "—"
+    },
+    {
+      "id": "XS-05",
+      "surface": "Entry & shared",
+      "screen": "Account menu: name, role, institution, Help, Sign out",
+      "type": "menu",
+      "navigation": "Top bar",
+      "proposedRoute": "(top bar) account menu",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "05",
+          "file": "05-Workspace-Shell.dc.html"
+        },
+        {
+          "code": "06",
+          "file": "06-Sidebar-Variants.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "—"
+    },
+    {
+      "id": "XS-06",
+      "surface": "Entry & shared",
+      "screen": "Not your workspace",
+      "type": "page",
+      "navigation": "—",
+      "proposedRoute": "/[workspace]/not-allowed",
+      "designed": true,
+      "inventoryDisposition": "KEEP (one template)",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "08",
+          "file": "08-System-Messages.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "route refusals"
+    },
+    {
+      "id": "XS-07",
+      "surface": "Entry & shared",
+      "screen": "Help & support: report a problem + my reports",
+      "type": "page",
+      "navigation": "Sidebar Help in all seven workspaces",
+      "proposedRoute": "/[workspace]/help",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "07",
+          "file": "07-Help-Support.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/…/help in every workspace"
+    },
+    {
+      "id": "XS-08",
+      "surface": "Entry & shared",
+      "screen": "Institution paused / account inactive notice",
+      "type": "state",
+      "navigation": "Shell banner",
+      "proposedRoute": "(shell) paused / inactive banner",
+      "designed": true,
+      "inventoryDisposition": "NEW (a state, not a screen)",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "05",
+          "file": "05-Workspace-Shell.dc.html"
+        },
+        {
+          "code": "08",
+          "file": "08-System-Messages.dc.html"
+        },
+        {
+          "code": "B1-09",
+          "file": "B1-09-Sign-In.dc.html"
+        },
+        {
+          "code": "B7-04",
+          "file": "B7-04-Pause-Effects.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "inactiveBanner, accountNotice"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "XS-02",
+      "surface": "Entry & shared",
+      "screen": "Choose workspace (person with several roles)",
+      "type": "—",
+      "navigation": "Flow step",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER",
+      "importance": "OPT",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    }
+  ]
+}

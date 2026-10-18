@@ -1,0 +1,430 @@
+{
+  "owner": "IA",
+  "surface": "Institute Admin",
+  "foundation": "XR-V3-RB-1.0",
+  "completeRoleRequired": true,
+  "preexistingV3Seeds": [
+    "IA-01",
+    "IA-02"
+  ],
+  "lockedRetained": [],
+  "sharedDependencies": [
+    "XS",
+    "SA",
+    "ST",
+    "FA"
+  ],
+  "screens": [
+    {
+      "id": "IA-01",
+      "surface": "Institute Admin",
+      "screen": "Overview",
+      "type": "page",
+      "navigation": "Sidebar Overview",
+      "proposedRoute": "/institute",
+      "designed": true,
+      "inventoryDisposition": "REFINE (heavy)",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-01",
+          "file": "B2-01-IA-Overview.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/tenant/:t/overview"
+    },
+    {
+      "id": "IA-02",
+      "surface": "Institute Admin",
+      "screen": "Content access",
+      "type": "page",
+      "navigation": "Sidebar Content access",
+      "proposedRoute": "/institute/content-access",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-02",
+          "file": "B2-02-Content-Access.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/content-access"
+    },
+    {
+      "id": "IA-03",
+      "surface": "Institute Admin",
+      "screen": "Access plan / course detail",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/institute/content-access/plans/[planId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE (split)",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-03",
+          "file": "B2-03-Access-Plan-and-Course-Codes.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "approval panel \"Show details\""
+    },
+    {
+      "id": "IA-04",
+      "surface": "Institute Admin",
+      "screen": "Student access",
+      "type": "page",
+      "navigation": "Sidebar Student access",
+      "proposedRoute": "/institute/student-access",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-01",
+          "file": "B2-01-IA-Overview.dc.html"
+        },
+        {
+          "code": "B2-04",
+          "file": "B2-04-Student-Access.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/assignments (relabelled \"Student access\")"
+    },
+    {
+      "id": "IA-05",
+      "surface": "Institute Admin",
+      "screen": "Give students access (guided)",
+      "type": "step",
+      "navigation": "Flow (from IA-02/03/04/07/14)",
+      "proposedRoute": "/institute/student-access/give?step=1…",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-05",
+          "file": "B2-05-Give-Students-Access.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/assignments/new"
+    },
+    {
+      "id": "IA-06",
+      "surface": "Institute Admin",
+      "screen": "Students",
+      "type": "tab",
+      "navigation": "Sidebar People › Students",
+      "proposedRoute": "/institute/people?tab=students",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-06",
+          "file": "B2-06-People.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/people (Students tab)"
+    },
+    {
+      "id": "IA-07",
+      "surface": "Institute Admin",
+      "screen": "Student record",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/institute/people/students/[studentId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-01",
+          "file": "B2-01-IA-Overview.dc.html"
+        },
+        {
+          "code": "B2-06",
+          "file": "B2-06-People.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/person/:id"
+    },
+    {
+      "id": "IA-08",
+      "surface": "Institute Admin",
+      "screen": "Faculty",
+      "type": "tab",
+      "navigation": "People › Faculty",
+      "proposedRoute": "/institute/people?tab=faculty",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-06",
+          "file": "B2-06-People.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/people (Faculty tab)"
+    },
+    {
+      "id": "IA-09",
+      "surface": "Institute Admin",
+      "screen": "Faculty record (incl. courses taught)",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/institute/people/faculty/[facultyId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-06",
+          "file": "B2-06-People.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "person (faculty) + faculty mapping"
+    },
+    {
+      "id": "IA-10",
+      "surface": "Institute Admin",
+      "screen": "Add a student / Add a faculty member",
+      "type": "step",
+      "navigation": "Flow",
+      "proposedRoute": "/institute/people/add",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-04",
+          "file": "B2-04-Student-Access.dc.html"
+        },
+        {
+          "code": "B2-07",
+          "file": "B2-07-Add-and-Import.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/people/add-student, /add-faculty"
+    },
+    {
+      "id": "IA-11",
+      "surface": "Institute Admin",
+      "screen": "Import students (CSV)",
+      "type": "step",
+      "navigation": "Flow",
+      "proposedRoute": "/institute/people/import",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-07",
+          "file": "B2-07-Add-and-Import.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/people/import"
+    },
+    {
+      "id": "IA-13",
+      "surface": "Institute Admin",
+      "screen": "Groups",
+      "type": "tab",
+      "navigation": "People › Groups",
+      "proposedRoute": "/institute/people?tab=groups",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-01",
+          "file": "B2-01-IA-Overview.dc.html"
+        },
+        {
+          "code": "B2-02",
+          "file": "B2-02-Content-Access.dc.html"
+        },
+        {
+          "code": "B2-08",
+          "file": "B2-08-Groups.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/groups"
+    },
+    {
+      "id": "IA-14",
+      "surface": "Institute Admin",
+      "screen": "Group (create · members · access)",
+      "type": "page",
+      "navigation": "Detail / flow",
+      "proposedRoute": "/institute/people/groups/[groupId] · /new",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-01",
+          "file": "B2-01-IA-Overview.dc.html"
+        },
+        {
+          "code": "B2-02",
+          "file": "B2-02-Content-Access.dc.html"
+        },
+        {
+          "code": "B2-08",
+          "file": "B2-08-Groups.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/group/:id, /groups/new"
+    },
+    {
+      "id": "IA-15",
+      "surface": "Institute Admin",
+      "screen": "Faculty courses (who teaches what)",
+      "type": "tab",
+      "navigation": "People › Faculty courses",
+      "proposedRoute": "/institute/people?tab=faculty-courses",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-09",
+          "file": "B2-09-Faculty-Courses.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/faculty-mapping (tab under Student access)"
+    },
+    {
+      "id": "IA-16",
+      "surface": "Institute Admin",
+      "screen": "Course codes (institution code + optional semester)",
+      "type": "tab",
+      "navigation": "Content access › Course codes",
+      "proposedRoute": "/institute/content-access?tab=course-codes",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B2-03",
+          "file": "B2-03-Access-Plan-and-Course-Codes.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/mappings (\"Academic mappings\")"
+    },
+    {
+      "id": "IA-17",
+      "surface": "Institute Admin",
+      "screen": "Requests to BITS (renewal · additional licences)",
+      "type": "page",
+      "navigation": "Sidebar Requests › Requests to BITS",
+      "proposedRoute": "/institute/requests",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-08",
+          "file": "B3-08-IA-Requests-to-BITS.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "renewal panel + public status"
+    },
+    {
+      "id": "IA-18",
+      "surface": "Institute Admin",
+      "screen": "Device requests",
+      "type": "tab",
+      "navigation": "Requests › Device requests",
+      "proposedRoute": "/institute/requests?tab=devices",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-09",
+          "file": "B3-09-IA-Device-Requests.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/device-requests"
+    },
+    {
+      "id": "IA-19",
+      "surface": "Institute Admin",
+      "screen": "Device request — review & forward",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/institute/requests/devices/[transferId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-09",
+          "file": "B3-09-IA-Device-Requests.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/device-request/:id"
+    },
+    {
+      "id": "IA-20",
+      "surface": "Institute Admin",
+      "screen": "Usage",
+      "type": "page",
+      "navigation": "Sidebar Usage",
+      "proposedRoute": "/institute/usage",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-10",
+          "file": "B3-10-IA-Usage.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "utilisation card + overview snapshot"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "IA-12",
+      "surface": "Institute Admin",
+      "screen": "Invitations / account activation",
+      "type": "—",
+      "navigation": "People",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "OPEN (R02)",
+      "importance": "SUPP",
+      "boards": [],
+      "oldPrototypeRoute": "— (records only; no accounts)"
+    },
+    {
+      "id": "IA-21",
+      "surface": "Institute Admin",
+      "screen": "Reports page",
+      "type": "—",
+      "navigation": "(B2 rail \"Reports\")",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER (R15)",
+      "importance": "OPT",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    },
+    {
+      "id": "IA-22",
+      "surface": "Institute Admin",
+      "screen": "Institution settings (incl. institution sign-in / SSO)",
+      "type": "—",
+      "navigation": "(B2 rail \"Settings\")",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER (A-01)",
+      "importance": "OPT",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    }
+  ]
+}

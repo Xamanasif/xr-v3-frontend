@@ -340,6 +340,22 @@ describe('import fences are wired into the real ESLint configs (Appendix F §3.8
       [],
     ],
     ['src/foundation/button.test.tsx', 'export const B = () => <button className="flex" />;', []],
+    // ADR-0010: the V3 layer is held to the Refined Direction B classes, not the v46 ones.
+    [
+      'src/v3/actions.tsx',
+      'export const B = () => <button className="rb-btn rb-btn--primary" />;',
+      [],
+    ],
+    [
+      'src/v3/actions.tsx',
+      'export const B = () => <button className="rb-btn xr-btn--primary flex" />;',
+      ['xr/v3-class-names'],
+    ],
+    [
+      'src/foundation/button.tsx',
+      'export const B = () => <button className="rb-btn" />;',
+      ['xr/v46-class-names'],
+    ],
   ])('packages/ui %s', async (file, code, expected) => {
     expect(await xrRules('packages/ui', file, code)).toEqual(expected);
   });

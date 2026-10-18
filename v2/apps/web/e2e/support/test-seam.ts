@@ -13,14 +13,20 @@
  * parameter (owner constraint, 9 Oct 2026). The product-bundle scan of `pnpm verify` fails if
  * either name reaches a hosted bundle.
  */
+import { e2ePorts, localOrigin } from '@xr/testing/playwright';
+
 export const BOOT_DESCRIPTOR_GLOBAL = '__XR_TEST_BOOT__';
 export const TEST_HOOKS_GLOBAL = '__XR_TEST_HOOKS__';
 
 /**
  * The dedicated test-hook build (`pnpm build:test-hooks`, `.next-test-hooks`), served by the
- * Playwright web server on its own port; the product build is served at the config's baseURL.
+ * Playwright web server on its own port (3200, or `XR_E2E_TEST_HOOKS_PORT`); the product build is
+ * served at the config's baseURL, `PRODUCT_URL` (3000, or `XR_E2E_WEB_PORT`).
  */
-export const TEST_HOOKS_URL = 'http://localhost:3200';
+export const TEST_HOOKS_URL = localOrigin(e2ePorts().testHooks);
+
+/** The product build's origin, for a test that must name it in an absolute address. */
+export const PRODUCT_URL = localOrigin(e2ePorts().web);
 
 /**
  * A sample-world person. A session stores only the person's id; role, institution and

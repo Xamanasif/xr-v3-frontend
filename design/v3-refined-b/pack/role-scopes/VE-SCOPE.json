@@ -1,0 +1,266 @@
+{
+  "owner": "VE",
+  "surface": "Vendor",
+  "foundation": "XR-V3-RB-1.0",
+  "completeRoleRequired": true,
+  "preexistingV3Seeds": [],
+  "lockedRetained": [],
+  "sharedDependencies": [
+    "XS",
+    "RV",
+    "CM"
+  ],
+  "screens": [
+    {
+      "id": "VE-01",
+      "surface": "Vendor",
+      "screen": "Overview",
+      "type": "page",
+      "navigation": "Sidebar Overview",
+      "proposedRoute": "/vendor",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B5-01",
+          "file": "B5-01-Vendor-Overview.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/vendor/:a/overview"
+    },
+    {
+      "id": "VE-02",
+      "surface": "Vendor",
+      "screen": "My experiments (all, any status)",
+      "type": "page",
+      "navigation": "Sidebar My experiments",
+      "proposedRoute": "/vendor/experiments",
+      "designed": true,
+      "inventoryDisposition": "MERGE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B5-02",
+          "file": "B5-02-My-Experiments.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/experiments + /submissions"
+    },
+    {
+      "id": "VE-03",
+      "surface": "Vendor",
+      "screen": "Create experiment · Course & description",
+      "type": "step",
+      "navigation": "Create flow, step 1",
+      "proposedRoute": "/vendor/experiments/new?step=course",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B5-03",
+          "file": "B5-03-Create-Course-and-Description.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/experiments/new (\"Catalogue detail\" zone)"
+    },
+    {
+      "id": "VE-04",
+      "surface": "Vendor",
+      "screen": "Create experiment · Formats & delivery",
+      "type": "step",
+      "navigation": "Create flow, step 2",
+      "proposedRoute": "/vendor/experiments/[submissionId]/edit?step=formats",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B5-04",
+          "file": "B5-04-Formats-and-Delivery.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "\"Technical delivery\" zone"
+    },
+    {
+      "id": "VE-05",
+      "surface": "Vendor",
+      "screen": "Create experiment · Preview & documents",
+      "type": "step",
+      "navigation": "Create flow, step 3",
+      "proposedRoute": "/vendor/experiments/[submissionId]/edit?step=preview",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B5-05",
+          "file": "B5-05-Preview-Check-and-Submit.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "\"Supporting material\" + preview link"
+    },
+    {
+      "id": "VE-06",
+      "surface": "Vendor",
+      "screen": "Check & submit",
+      "type": "step",
+      "navigation": "Create flow, step 4",
+      "proposedRoute": "/vendor/experiments/[submissionId]/edit?step=submit",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B5-05",
+          "file": "B5-05-Preview-Check-and-Submit.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "submission checklist + submit confirm"
+    },
+    {
+      "id": "VE-07",
+      "surface": "Vendor",
+      "screen": "Experiment record (status, details, timeline)",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/vendor/experiments/[submissionId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B5-06",
+          "file": "B5-06-Experiment-Record-and-History.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/experiment/:id"
+    },
+    {
+      "id": "VE-08",
+      "surface": "Vendor",
+      "screen": "Revise & resubmit (after a return)",
+      "type": "step",
+      "navigation": "Flow",
+      "proposedRoute": "/vendor/experiments/[submissionId]/revise",
+      "designed": true,
+      "inventoryDisposition": "REFINE (heavy)",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B5-07",
+          "file": "B5-07-Revise-and-Resubmit.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/experiment/:id/edit (\"Correct submission\")"
+    },
+    {
+      "id": "VE-09",
+      "surface": "Vendor",
+      "screen": "Edit draft",
+      "type": "step",
+      "navigation": "Flow",
+      "proposedRoute": "/vendor/experiments/[submissionId]/edit",
+      "designed": true,
+      "inventoryDisposition": "MERGE → VE-03…06 editor",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B5-07",
+          "file": "B5-07-Revise-and-Resubmit.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/edit"
+    },
+    {
+      "id": "VE-13",
+      "surface": "Vendor",
+      "screen": "Submission & version history",
+      "type": "tab",
+      "navigation": "Record tab + filter",
+      "proposedRoute": "/vendor/experiments/[submissionId]?tab=history",
+      "designed": true,
+      "inventoryDisposition": "MERGE → VE-07 timeline (+ \"recently changed\" filter on VE-02)",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B5-02",
+          "file": "B5-02-My-Experiments.dc.html"
+        },
+        {
+          "code": "B5-06",
+          "file": "B5-06-Experiment-Record-and-History.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "record History card"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "VE-10",
+      "surface": "Vendor",
+      "screen": "Propose an update (corrected version)",
+      "type": "—",
+      "navigation": "Flow (from VE-07, published)",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER / OPEN (LD-4; historical evidence only)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "/experiment/:id/version"
+    },
+    {
+      "id": "VE-11",
+      "surface": "Vendor",
+      "screen": "Updates",
+      "type": "—",
+      "navigation": "(no sidebar item)",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER / OPEN (LD-4)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "/versions"
+    },
+    {
+      "id": "VE-12",
+      "surface": "Vendor",
+      "screen": "Update detail",
+      "type": "—",
+      "navigation": "Detail",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER / OPEN (LD-4)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "/version/:id"
+    },
+    {
+      "id": "VE-14",
+      "surface": "Vendor",
+      "screen": "Add a format to a published experiment",
+      "type": "—",
+      "navigation": "Flow",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER / OPEN (post-publication change — LD-4)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "impossible in the prototype (the format set is fixed at publication)"
+    },
+    {
+      "id": "VE-15",
+      "surface": "Vendor",
+      "screen": "Experiment packages · Technical assets · Contributor settings",
+      "type": "—",
+      "navigation": "(B2 rail)",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "REMOVE (no defined function; R13 / R14)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    }
+  ]
+}

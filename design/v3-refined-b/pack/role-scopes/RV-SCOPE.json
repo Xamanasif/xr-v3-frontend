@@ -1,0 +1,167 @@
+{
+  "owner": "RV",
+  "surface": "Academic Reviewer",
+  "foundation": "XR-V3-RB-1.0",
+  "completeRoleRequired": true,
+  "preexistingV3Seeds": [],
+  "lockedRetained": [],
+  "sharedDependencies": [
+    "XS",
+    "VE",
+    "CM",
+    "SA"
+  ],
+  "screens": [
+    {
+      "id": "RV-01",
+      "surface": "Academic Reviewer",
+      "screen": "Overview",
+      "type": "page",
+      "navigation": "Sidebar Overview",
+      "proposedRoute": "/reviewer",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B6-01",
+          "file": "B6-01-Reviewer-Overview.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/review/:a/overview"
+    },
+    {
+      "id": "RV-02",
+      "surface": "Academic Reviewer",
+      "screen": "Review queue",
+      "type": "page",
+      "navigation": "Sidebar Review queue",
+      "proposedRoute": "/reviewer/queue",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B6-02",
+          "file": "B6-02-Review-Queue-and-Reviewed.dc.html"
+        },
+        {
+          "code": "B6-12",
+          "file": "B6-12-Flow-5-Completion.dc.html"
+        },
+        {
+          "code": "B6-13",
+          "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/queue (+ \"Later versions\" table)"
+    },
+    {
+      "id": "RV-03",
+      "surface": "Academic Reviewer",
+      "screen": "Review a submission",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/reviewer/submissions/[submissionId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE (heavy)",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B6-03",
+          "file": "B6-03-Review-a-Submission.dc.html"
+        },
+        {
+          "code": "B6-11",
+          "file": "B6-11-Critical-States.dc.html"
+        },
+        {
+          "code": "B6-12",
+          "file": "B6-12-Flow-5-Completion.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/submission/:id"
+    },
+    {
+      "id": "RV-04",
+      "surface": "Academic Reviewer",
+      "screen": "Review an update",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/reviewer/updates/[updateId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B6-04",
+          "file": "B6-04-Review-an-Update.dc.html"
+        },
+        {
+          "code": "B6-13",
+          "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+        },
+        {
+          "code": "B7-11",
+          "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/version/:id"
+    },
+    {
+      "id": "RV-05",
+      "surface": "Academic Reviewer",
+      "screen": "Reviewed by me",
+      "type": "page",
+      "navigation": "Sidebar Reviewed by me",
+      "proposedRoute": "/reviewer/reviewed",
+      "designed": true,
+      "inventoryDisposition": "KEEP",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B6-02",
+          "file": "B6-02-Review-Queue-and-Reviewed.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "\"recent decisions\" card"
+    },
+    {
+      "id": "RV-06",
+      "surface": "Academic Reviewer",
+      "screen": "Decided item (read-only)",
+      "type": "state",
+      "navigation": "—",
+      "proposedRoute": "/reviewer/submissions/[submissionId] (decided, read-only)",
+      "designed": true,
+      "inventoryDisposition": "MERGE → RV-03 read-only state",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B6-03",
+          "file": "B6-03-Review-a-Submission.dc.html"
+        },
+        {
+          "code": "B6-12",
+          "file": "B6-12-Flow-5-Completion.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "—"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "RV-07",
+      "surface": "Academic Reviewer",
+      "screen": "Courses in scope · Learning outcomes · Reviewer settings",
+      "type": "—",
+      "navigation": "(B2 rail)",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "REMOVE (scope shown as one line on RV-01; outcomes are edited on RV-03)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    }
+  ]
+}

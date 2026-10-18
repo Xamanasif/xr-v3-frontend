@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content access — Institute Admin</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr rb">
+  <svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">
+    <symbol id="rki-search" viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15zM16 16l5 5"></path></symbol>
+    <symbol id="rki-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"></path></symbol>
+    <symbol id="rki-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"></path></symbol>
+    <symbol id="rki-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></symbol>
+    <symbol id="rki-lock" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2.5"></path></symbol>
+    <symbol id="rki-pause" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></symbol>
+    <symbol id="rki-cal" viewBox="0 0 24 24"><path d="M8 3v3M16 3v3M4 9h16M20 11V6a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6M17.5 21a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17.5 16v1.6l1 .9"></path></symbol>
+    <symbol id="rki-ended" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></symbol>
+    <symbol id="rki-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19zM12 10v4.5M12 17.5h.01"></path></symbol>
+    <symbol id="rki-box" viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"></path></symbol>
+    <symbol id="rki-user" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20.5a7.5 7.5 0 0 1 15 0"></path></symbol>
+    <symbol id="rki-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-8 6 6 0 0 0-11.4-1.5A4.5 4.5 0 0 0 7 18zM12 11v4M12 17.5h.01"></path></symbol>
+  </svg>
+
+  <aside class="rb-rail" aria-label="Institute Admin workspace">
+    <div class="rb-brand">
+      <div class="rb-logo">Official WILP logo</div>
+      <p class="rb-product">XR Learning Platform</p>
+      <p class="rb-ws"><span class="rb-ws-role">Institute Admin</span><span class="rb-ws-inst">Godavari Institute of Technology</span></p>
+    </div>
+    <nav class="rb-nav" aria-label="Institute Admin navigation">
+      <a href="{{ overviewHref }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"></path></svg><span>Overview</span></a>
+      <a href="#top" aria-current="page" onClick="{{ toTopLink }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"></path></svg><span>Content access</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3.5 20a6.5 6.5 0 0 1 10-5.5M18 14v6M15 17h6"></path></svg><span>Student access</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.3a3.5 3.5 0 0 1 0 6.4M18.5 14.5A6.5 6.5 0 0 1 21.5 20"></path></svg><span>People</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13.5 6.5 5h11l2.5 8.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 13.5h4.5l1.5 2.5h4l1.5-2.5H20"></path></svg><span>Requests</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"></path></svg><span>Usage</span></a>
+    </nav>
+    <div class="rb-rail-foot">
+      <nav class="rb-nav" aria-label="Help"><a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span>Help &amp; support</span></a></nav>
+    </div>
+  </aside>
+
+  <div class="rb-main">
+    <div class="rb-top">
+      <button type="button" class="rb-menu" id="ca-menu" aria-expanded="{{ menuExp }}" onClick="{{ openMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
+      <p class="rb-top-date">{{ dateLong }}</p>
+      <button type="button" class="rb-acct" aria-label="Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology"><span class="xr-avatar" aria-hidden="true">MI</span><span class="rb-acct-text" aria-hidden="true"><span class="rb-acct-name">Meera Iyer</span><span class="rb-acct-role">Institute Admin</span></span><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+    </div>
+
+    <main class="rb-page" id="top">
+      <sc-if value="{{ isPaused }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-banner" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-pause"></use></svg><p>Your institution’s access is paused — your work is kept.</p><a class="rb-link" href="#">Help</a></div>
+      </sc-if>
+
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ dateLong }}</p>
+          <h1 class="rb-h1" id="ca-title" tabindex="-1">Content access</h1>
+          <p class="rk-sub">What BITS has given your institution to use</p>
+        </div>
+        <sc-if value="{{ canGive }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-head-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#">Give students access</a></div>
+        </sc-if>
+      </div>
+
+      <div class="rk-ca">
+        <nav class="rk-tabs" aria-label="Content access">
+          <a class="rk-tab" href="#top" aria-current="page" onClick="{{ toTopLink }}">Experiments</a>
+          <a class="rk-tab" href="#">Course codes</a>
+        </nav>
+
+        <sc-if value="{{ showPlan }}" hint-placeholder-val="{{ true }}">
+        <section class="rk-plan" aria-labelledby="ca-plan-h">
+          <div class="rk-plan-grid">
+            <div class="rk-plan-id">
+              <p class="rk-plan-k">Access plan</p>
+              <div class="rk-plan-name"><h2 id="ca-plan-h"><span class="xr-sr">Access plan </span>ACC-0107</h2><span class="{{ P.stCls }}"><i></i>{{ P.stLabel }}</span></div>
+              <p class="rk-plan-line">120 licences, as approved by BITS</p>
+              <a class="rb-link rk-plan-link" href="#" aria-label="View access plan ACC-0107">View plan</a>
+            </div>
+            <div class="rb-term rk-plan-term" role="img" aria-label="{{ T.aria }}">
+              <div class="rb-term-top"><span class="rb-term-label">Yearly term</span><span class="{{ T.leftCls }}">{{ T.left }}</span></div>
+              <div class="{{ T.trackCls }}"><span class="rb-term-fill" style="width: {{ T.fill }}"></span><sc-if value="{{ T.hasRest }}" hint-placeholder-val="{{ true }}"><span class="rb-term-rest" style="width: {{ T.rest }}"></span></sc-if><sc-if value="{{ T.hasToday }}" hint-placeholder-val="{{ true }}"><span class="rb-term-today" style="left: {{ T.fill }}"></span></sc-if></div>
+              <div class="rb-term-ends"><span>8 Oct 2026</span><span>7 Oct 2027</span></div>
+            </div>
+          </div>
+          <sc-if value="{{ N.ending }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-plan-note rk-plan-note--warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-cal"></use></svg><div><p class="rk-plan-note-t">Ends on 7 Oct 2027</p><p class="rk-plan-note-d">Renewal reminder due. Ask BITS for a renewal from Requests.</p></div><a class="rb-btn rb-btn--navy" href="#">Request renewal</a></div>
+          </sc-if>
+          <sc-if value="{{ N.ended }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-plan-note rk-plan-note--off"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-ended"></use></svg><div><p class="rk-plan-note-t">This plan has ended</p><p class="rk-plan-note-d">Students can’t open its experiments now. You can still see who had access.</p></div><a class="rb-btn rb-btn--navy" href="#">Request renewal</a></div>
+          </sc-if>
+          <sc-if value="{{ N.paused }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-plan-note rk-plan-note--paused"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-lock"></use></svg><div><p class="rk-plan-note-t">Read-only while your institution’s access is paused</p><p class="rk-plan-note-d">You can’t give or withdraw access until BITS lifts the pause.</p></div></div>
+          </sc-if>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ showList }}" hint-placeholder-val="{{ true }}">
+        <section class="rk-surface rk-listsurface" aria-labelledby="ca-list-h">
+          <h2 class="xr-sr" id="ca-list-h">Experiments in your access plan</h2>
+          <div class="rk-toolbar rk-toolbar--ca">
+            <div class="rk-tools" role="search" aria-label="Filter experiments">
+              <div class="rk-field rk-search">
+                <label class="rk-label" for="ca-q">Search</label>
+                <div class="rk-inputwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-search"></use></svg><input id="ca-q" class="rk-input" type="search" placeholder="Experiment or course" autocomplete="off" value="{{ L.q }}" onChange="{{ L.onQ }}"></div>
+              </div>
+              <div class="rk-field rk-field--st">
+                <label class="rk-label" for="ca-st">Status</label>
+                <div class="rk-selwrap"><select id="ca-st" class="rk-select" value="{{ L.st }}" onChange="{{ L.onSt }}"><option value="all">All statuses</option><option value="active">Active</option><option value="ending">Ending soon</option><option value="ended">Ended</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-chev"></use></svg></div>
+              </div>
+            </div>
+            <div class="rk-statusline">
+              <p class="rk-count" role="status">{{ L.count }}</p>
+              <sc-for list="{{ L.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-x"></use></svg></button></span></sc-for>
+              <sc-if value="{{ L.hasChips }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ L.clear }}">Clear filters</button></sc-if>
+            </div>
+          </div>
+          <div class="rk-legendbar">
+            <ul class="rk-legend" aria-label="Format key">
+              <li class="rk-legend-i"><span class="rk-swatch rk-swatch--on" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rki-check"></use></svg></span>In your plan</li>
+              <li class="rk-legend-i"><span class="rk-swatch rk-swatch--pub" aria-hidden="true"></span>Published, not in your plan</li>
+              <li class="rk-legend-i"><span class="rk-swatch rk-swatch--none" aria-hidden="true"></span>Not published</li>
+            </ul>
+            <p>Students open only the formats you give them on Student access.</p>
+          </div>
+
+          <sc-if value="{{ L.has }}" hint-placeholder-val="{{ true }}">
+          <sc-for list="{{ L.courses }}" as="c" hint-placeholder-count="1">
+          <div class="rk-course" role="group" aria-labelledby="{{ c.hid }}">
+            <div class="rk-course-h">
+              <div class="rk-course-id">
+                <span class="rb-code">{{ c.code }}</span>
+                <h3 class="rk-course-t" id="{{ c.hid }}">{{ c.course }}</h3>
+              </div>
+              <div class="rk-course-codes">
+                <sc-if value="{{ c.hasOwn }}" hint-placeholder-val="{{ true }}"><span class="rk-own-k">Your course code</span><span class="rk-owncode">{{ c.own }}</span></sc-if>
+                <sc-if value="{{ c.noOwn }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-alert"></use></svg>Your course code: not added</span><a class="rb-link" href="#" aria-label="{{ c.addAria }}">Add code</a></sc-if>
+              </div>
+            </div>
+            <sc-for list="{{ c.exps }}" as="e" hint-placeholder-count="1">
+            <article class="rk-exp" aria-labelledby="{{ e.hid }}">
+              <div class="rk-exp-name"><h4 class="rk-exp-t" id="{{ e.hid }}">{{ e.t }}</h4><span class="{{ e.stCls }}"><i></i>{{ e.stLabel }}</span></div>
+              <ul class="rk-fstrip" aria-label="{{ e.fmAria }}">
+                <sc-for list="{{ e.fm }}" as="f" hint-placeholder-count="4"><li class="{{ f.cls }}"><b>{{ f.code }}<sc-if value="{{ f.on }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-check"></use></svg></sc-if></b><span class="rk-fcell-n">{{ f.name }}</span><span class="rk-fcell-s">{{ f.state }}</span></li></sc-for>
+              </ul>
+              <div class="rk-given">
+                <p class="rk-given-k">Students given access</p>
+                <sc-if value="{{ e.hasGiven }}" hint-placeholder-val="{{ true }}"><p class="rk-given-v"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rki-user"></use></svg><a href="#" aria-label="{{ e.givenAria }}">{{ e.givenText }}</a></p></sc-if>
+                <sc-if value="{{ e.noGiven }}" hint-placeholder-val="{{ false }}"><p class="rk-given-v is-none">None yet</p></sc-if>
+              </div>
+              <sc-if value="{{ e.canGive }}" hint-placeholder-val="{{ true }}"><div class="rk-exp-act"><a class="rb-btn" href="#" aria-label="{{ e.giveAria }}">Give access</a></div></sc-if>
+            </article>
+            </sc-for>
+          </div>
+          </sc-for>
+          <p class="rk-ca-foot">Only experiments in your access plan are listed. Other published experiments show as “Not in your access plan” when you give students access.</p>
+          </sc-if>
+
+          <sc-if value="{{ L.none }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state" role="status">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rki-search"></use></svg></span>
+            <p class="rk-state-t">No experiments match these filters</p>
+            <p class="rk-state-d">Try fewer filters or a different spelling of the experiment or course.</p>
+            <button type="button" class="rb-btn" onClick="{{ L.clear }}">Clear filters</button>
+          </div>
+          </sc-if>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ isNone }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface" aria-labelledby="ca-none-t">
+          <div class="rk-state rk-state--roomy">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rki-box"></use></svg></span>
+            <h2 class="rk-state-t" id="ca-none-t">No content yet</h2>
+            <p class="rk-state-d">Experiments appear here when BITS activates your institution’s access. Request REQ-0042 is approved — payment required.</p>
+            <a class="rb-btn" href="#">View request status</a>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface" aria-busy="true" aria-label="Content access">
+          <p class="rk-loading-msg" role="status">Loading content access…</p>
+          <div class="rk-skel-ca" aria-hidden="true">
+            <div class="rk-skel-band"><span class="rk-skel"></span><span class="rk-skel"></span></div>
+            <div class="rk-skel-card"><span class="rk-skel"></span><div class="rk-skel-cells"><span></span><span></span><span></span><span></span></div></div>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ isFailed }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface" aria-labelledby="ca-fail-t">
+          <div class="rk-state" role="alert">
+            <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rki-cloud"></use></svg></span>
+            <h2 class="rk-state-t" id="ca-fail-t">We couldn’t load content access</h2>
+            <p class="rk-state-d">Nothing has changed. Try again.</p>
+            <button type="button" class="rb-btn" onClick="{{ retry }}">Try again</button>
+          </div>
+        </section>
+        </sc-if>
+      </div>
+    </main>
+  </div>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="rb-scrim" aria-label="Close menu" tabindex="-1" onClick="{{ closeMenu }}"></button>
+  <div class="rb-drawer" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown="{{ drawerKey }}">
+    <div class="rb-drawer-head">
+      <p class="rb-product">XR Learning Platform</p>
+      <button type="button" class="rb-close" id="ca-menu-close" aria-label="Close menu" onClick="{{ closeMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+    </div>
+    <div class="rb-brand" style="padding-top: 0"><div class="rb-logo">Official WILP logo</div><p class="rb-ws"><span class="rb-ws-role">Institute Admin</span><span class="rb-ws-inst">Godavari Institute of Technology</span></p></div>
+    <nav class="rb-nav" aria-label="Institute Admin navigation">
+      <a href="{{ overviewHref }}"><span>Overview</span></a>
+      <a href="#top" aria-current="page" onClick="{{ closeMenu }}"><span>Content access</span></a>
+      <a href="#"><span>Student access</span></a>
+      <a href="#"><span>People</span></a>
+      <a href="#"><span>Requests</span></a>
+      <a href="#"><span>Usage</span></a>
+    </nav>
+    <div class="rb-rail-foot"><nav class="rb-nav" aria-label="Help"><a href="#"><span>Help &amp; support</span></a></nav></div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["ending","active","activated","none","paused","ended"],"default":"ending","section":"State"},"listPreset":{"editor":"enum","options":["","nomatch","loading","failed","menu"],"default":"","section":"State"},"$preview":{"width":1440,"height":1170}}'>
+class Component extends DCLogic {
+  // Sample records follow v46 B2-01 / B2-02 and the approved Refined B IA-01 (Godavari, plan ACC-0107, 8 Oct 2026 – 7 Oct 2027).
+  static get SC() {
+    const span = 'Access term from 8 October 2026 to 7 October 2027. ';
+    return {
+      ending: { long: 'Wednesday 22 September 2027', plan: 'ending', given: 1, own: 'MEC-523', overview: 'IA01.dc.html',
+        term: { fill: '95.88%', rest: '4.12%', left: '15 days left', warn: true, today: true, aria: span + '349 of 364 days have passed; 15 days are left.' } },
+      active: { long: 'Monday 15 February 2027', plan: 'active', given: 1, own: 'MEC-523', overview: 'IA01-calm.dc.html',
+        term: { fill: '35.71%', left: '234 days left', today: true, aria: span + '130 of 364 days have passed; 234 days are left.' } },
+      activated: { long: 'Thursday 8 October 2026', plan: 'active', given: 0, own: '', overview: 'IA01.dc.html',
+        term: { fill: '0%', left: '364 days left', today: true, aria: span + 'The term starts today; 364 days are left.' } },
+      none: { long: 'Thursday 8 October 2026', plan: null, overview: 'IA01.dc.html' },
+      paused: { long: 'Tuesday 2 March 2027', plan: 'paused', given: 1, own: 'MEC-523', overview: 'IA01.dc.html',
+        term: { fill: '0%', left: 'Paused by BITS on 2 Mar 2027', paused: true, aria: span + 'Paused by BITS on 2 March 2027.' } },
+      ended: { long: 'Friday 8 October 2027', plan: 'ended', given: 1, own: 'MEC-523', overview: 'IA01.dc.html',
+        term: { fill: '100%', left: 'Ended on 7 Oct 2027', aria: span + 'The term ended on 7 October 2027.' } }
+    };
+  }
+  static get EXPS() {
+    return [{ id: 'ste', t: 'Shell-and-Tube Heat Exchanger', code: 'ME ZG523', course: 'Thermodynamics & Heat Transfer',
+      fm: [['WEB', 'Browser', 'on'], ['AR', 'Augmented reality', 'pub'], ['VR', 'Virtual reality', 'on'], ['MR', 'Mixed reality', 'none']] }];
+  }
+  static get ST() { return { active: ['ok', 'Active'], ending: ['warn', 'Ending soon'], ended: ['ended', 'Ended'], paused: ['paused', 'Paused'] }; }
+  static get FMS() { return { on: 'In your plan', pub: 'Published, not in your plan', none: 'Not published' }; }
+
+  state = { q: null, st: null, mode: null, menu: null };
+
+  sc() { const k = Component.SC[this.props.scenario] ? this.props.scenario : 'ending'; return Object.assign({ key: k }, Component.SC[k]); }
+  preset() {
+    switch (this.props.listPreset) {
+      case 'nomatch': return { q: 'Distillation' };
+      case 'loading': return { mode: 'loading' };
+      case 'failed': return { mode: 'failed' };
+      case 'menu': return { menu: true };
+      default: return {};
+    }
+  }
+  pick(k, d) { const s = this.state, P = this.preset(); return (s[k] !== null && s[k] !== undefined) ? s[k] : (P[k] !== undefined ? P[k] : d); }
+  focusId(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) { el.focus(); if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); } }, 60); }
+  stCls(st) { const k = Component.ST[st][0]; return 'xr-st' + (k === 'ended' ? ' rk-st-ended' : ' xr-st--' + k); }
+
+  listView(S) {
+    if (!S.plan) return { q: '', st: 'all', onQ: () => {}, onSt: () => {}, chips: [], hasChips: false, clear: () => {}, count: '', courses: [], has: false, none: false };
+    const qRaw = this.pick('q', ''), q = qRaw.trim().toLowerCase(), st = this.pick('st', 'all');
+    const all = Component.EXPS, expSt = S.plan;
+    const list = all.filter(x => (!q || (x.t + ' ' + x.code + ' ' + x.course).toLowerCase().includes(q)) && (st === 'all' || expSt === st));
+    const chips = [];
+    if (q) chips.push({ label: 'Search: “' + qRaw.trim() + '”', rm: () => { this.setState({ q: '' }); this.focusId('ca-q'); } });
+    if (st !== 'all') chips.push({ label: 'Status: ' + Component.ST[st][1], rm: () => { this.setState({ st: 'all' }); this.focusId('ca-st'); } });
+    chips.forEach(c => { c.aria = 'Remove filter ' + c.label; });
+    const canGive = S.plan === 'active' || S.plan === 'ending';
+    const courses = [];
+    list.forEach(x => {
+      let c = courses.find(y => y.code === x.code);
+      if (!c) {
+        c = { code: x.code, course: x.course, hid: 'ca-c-' + x.code.replace(/\W+/g, ''), own: S.own, hasOwn: !!S.own, noOwn: !S.own, addAria: 'Add your course code for ' + x.code + ' ' + x.course, exps: [] };
+        courses.push(c);
+      }
+      const n = S.given || 0;
+      c.exps.push({ hid: 'ca-e-' + x.id, t: x.t, stCls: this.stCls(expSt), stLabel: Component.ST[expSt][1],
+        fm: x.fm.map(f => ({ code: f[0], name: f[1], on: f[2] === 'on', cls: 'rk-fcell rk-fcell--' + f[2], state: Component.FMS[f[2]] })),
+        fmAria: 'Formats of ' + x.t,
+        hasGiven: n > 0, noGiven: n === 0, givenText: n === 1 ? '1 student' : n + ' students', givenAria: (n === 1 ? '1 student' : n + ' students') + ' given access to ' + x.t + '. Open Student access',
+        canGive, giveAria: 'Give students access to ' + x.t });
+    });
+    const one = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+    const nCourses = new Set(all.map(x => x.code)).size;
+    return {
+      q: qRaw, onQ: ev => this.setState({ q: ev.target.value }), st, onSt: ev => this.setState({ st: ev.target.value }),
+      chips, hasChips: chips.length > 0, clear: () => { this.setState({ q: '', st: 'all' }); this.focusId('ca-q'); },
+      count: chips.length ? list.length + ' of ' + one(all.length, 'experiment') : one(all.length, 'experiment') + ' in ' + one(nCourses, 'course'),
+      courses, has: list.length > 0, none: list.length === 0
+    };
+  }
+
+  renderVals() {
+    const S = this.sc(), mode = this.pick('mode', 'ok'), menu = !!this.pick('menu', false);
+    const hasPlan = !!S.plan, ok = mode === 'ok';
+    const T = S.term || {};
+    const P = hasPlan ? { stCls: this.stCls(S.plan), stLabel: Component.ST[S.plan][1] } : {};
+    const close = () => { this.setState({ menu: false }); this.focusId('ca-menu'); };
+    return {
+      dateLong: S.long, overviewHref: S.overview,
+      isPaused: S.plan === 'paused' && ok, canGive: hasPlan && ok && (S.plan === 'active' || S.plan === 'ending'),
+      showPlan: hasPlan && ok, showList: hasPlan && ok, isNone: !hasPlan && ok, isLoading: mode === 'loading', isFailed: mode === 'failed',
+      P,
+      T: { aria: T.aria || '', left: T.left || '', fill: T.fill || '0%', rest: T.rest || '0%', hasRest: !!T.rest, hasToday: !!T.today,
+        leftCls: 'rb-term-left' + (T.warn ? '' : ' rb-term-left--calm') + (T.paused ? ' rk-term-paused' : ''),
+        trackCls: 'rb-term-track' + (T.paused ? ' rk-track-paused' : '') + (T.fill === '100%' ? ' rk-track-full' : '') },
+      N: { ending: S.plan === 'ending', ended: S.plan === 'ended', paused: S.plan === 'paused' },
+      L: this.listView(S),
+      retry: () => { this.setState({ mode: 'ok' }); this.focusId('ca-title'); },
+      toTopLink: ev => { if (ev && ev.preventDefault) ev.preventDefault(); try { window.scrollTo(0, 0); } catch (e) {} this.focusId('ca-title'); },
+      menuOpen: menu, menuExp: menu ? 'true' : 'false',
+      openMenu: () => { this.setState({ menu: true }); this.focusId('ca-menu-close'); },
+      closeMenu: close,
+      drawerKey: ev => {
+        if (ev.key === 'Escape') { ev.preventDefault(); close(); return; }
+        if (ev.key !== 'Tab') return;
+        const items = Array.prototype.slice.call(ev.currentTarget.querySelectorAll('a[href], button:not([disabled])'));
+        if (!items.length) return;
+        const first = items[0], last = items[items.length - 1];
+        if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+        else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

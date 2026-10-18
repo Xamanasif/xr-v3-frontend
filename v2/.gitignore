@@ -27,3 +27,6 @@ blob-report/
 
 # visual parity (WP-0.15): machine-specific run artefacts, never committed as baselines
 tools/board-capture/.runs/
+
+# V3 reference comparison (ADR-0010): machine-specific run artefacts, never committed
+tools/v3-reference/.runs/

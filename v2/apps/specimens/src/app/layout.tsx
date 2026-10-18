@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 // The product's own visual system, exactly as apps/web loads it (ADR-0001): the v46 sheets in
-// one xr.v46 layer plus the xr.product layer. The harness frame styles come after it.
+// one xr.v46 layer plus the xr.product layer. Then the V3 Refined Direction B layer (ADR-0010),
+// which applies only inside a V3 root: every v46 specimen and parity page renders as before. The
+// harness frame styles come last.
 import '@xr/ui/styles.css';
+import '@xr/ui/styles-v3.css';
 import './harness.css';
 
 export const metadata: Metadata = {

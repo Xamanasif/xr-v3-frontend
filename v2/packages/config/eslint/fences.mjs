@@ -295,15 +295,33 @@ export function webFences(appDir) {
   return configs;
 }
 
-/** @xr/ui: components emit v46 classes only; no raw hex; no canvas classes. */
+/** The V3 presentation layer of @xr/ui (foundation XR-V3-RB-1.0, ADR-0010). */
+const V3_LAYER = 'src/v3/**';
+
+/**
+ * @xr/ui: components emit v46 classes only — the V3 layer (`src/v3/**`) the Refined Direction B
+ * classes only; no raw hex; no canvas classes.
+ */
 export const uiRules = [
   {
     name: 'xr/ui: v46 classes, no raw hex, no canvas classes',
     files: ['src/**/*.tsx'],
-    ignores: TEST_FILES,
+    ignores: [...TEST_FILES, V3_LAYER],
     plugins: { xr: xrPlugin },
     rules: {
       'xr/v46-class-names': 'error',
+      'xr/no-raw-hex': 'error',
+      'xr/no-canvas-classes': 'error',
+      'xr/product-class-allow-list': 'error',
+    },
+  },
+  {
+    name: 'xr/ui: V3 Refined Direction B classes, no raw hex, no canvas classes',
+    files: [`${V3_LAYER}/*.tsx`],
+    ignores: TEST_FILES,
+    plugins: { xr: xrPlugin },
+    rules: {
+      'xr/v3-class-names': 'error',
       'xr/no-raw-hex': 'error',
       'xr/no-canvas-classes': 'error',
       'xr/product-class-allow-list': 'error',

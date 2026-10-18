@@ -1,0 +1,639 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-18T13:42:22Z"
+  },
+  "title": "XR Learning Platform — Design V3 · Batch 01 · Refined B",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "Batch 01 · Refined Direction B",
+      "expand": "fill"
+    },
+    "SA01.dc.html": {
+      "x": 0,
+      "y": 1320,
+      "w": 1440,
+      "h": 2057,
+      "title": "SA-01 Overview · 1440 · Fri 23 Oct 2026",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA01-1024.dc.html": {
+      "x": 1520,
+      "y": 1320,
+      "w": 1024,
+      "h": 2603,
+      "title": "SA-01 · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA01-768.dc.html": {
+      "x": 2624,
+      "y": 1320,
+      "w": 768,
+      "h": 2650,
+      "title": "SA-01 · 768",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA01-375.dc.html": {
+      "x": 3472,
+      "y": 1320,
+      "w": 375,
+      "h": 3941,
+      "title": "SA-01 · 375",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02.dc.html": {
+      "x": 0,
+      "y": 5681,
+      "w": 1440,
+      "h": 1165,
+      "title": "SA-02 Requests · 1440 · Fri 23 Oct 2026",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-1024.dc.html": {
+      "x": 1520,
+      "y": 5681,
+      "w": 1024,
+      "h": 1328,
+      "title": "SA-02 · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-768.dc.html": {
+      "x": 2624,
+      "y": 5681,
+      "w": 768,
+      "h": 1328,
+      "title": "SA-02 · 768",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-375.dc.html": {
+      "x": 3472,
+      "y": 5681,
+      "w": 375,
+      "h": 2258,
+      "title": "SA-02 · 375",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-filters.dc.html": {
+      "x": 0,
+      "y": 8359,
+      "w": 1440,
+      "h": 1042,
+      "title": "SA-02 · More filters open, External applied · 1440",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-filters-375.dc.html": {
+      "x": 1520,
+      "y": 8359,
+      "w": 375,
+      "h": 1942,
+      "title": "SA-02 · filters · 375",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-focus.dc.html": {
+      "x": 1975,
+      "y": 8359,
+      "w": 1440,
+      "h": 900,
+      "title": "SA-02 · Under review filter, keyboard focus on a row · 1440",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-nomatch.dc.html": {
+      "x": 3495,
+      "y": 8359,
+      "w": 1024,
+      "h": 900,
+      "title": "SA-02 · no match · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-loading.dc.html": {
+      "x": 4599,
+      "y": 8359,
+      "w": 1024,
+      "h": 900,
+      "title": "SA-02 · loading · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-failed.dc.html": {
+      "x": 5703,
+      "y": 8359,
+      "w": 1024,
+      "h": 900,
+      "title": "SA-02 · failed to load · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA02-empty.dc.html": {
+      "x": 6807,
+      "y": 8359,
+      "w": 1024,
+      "h": 900,
+      "title": "SA-02 · no requests yet · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03.dc.html": {
+      "x": 0,
+      "y": 10721,
+      "w": 1440,
+      "h": 1907,
+      "title": "SA-03 Request decision · 1440",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-1024.dc.html": {
+      "x": 1520,
+      "y": 10721,
+      "w": 1024,
+      "h": 2422,
+      "title": "SA-03 · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-768.dc.html": {
+      "x": 2624,
+      "y": 10721,
+      "w": 768,
+      "h": 2422,
+      "title": "SA-03 · 768",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-375.dc.html": {
+      "x": 3472,
+      "y": 10721,
+      "w": 375,
+      "h": 3297,
+      "title": "SA-03 · 375",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-validation.dc.html": {
+      "x": 0,
+      "y": 14438,
+      "w": 1440,
+      "h": 1907,
+      "title": "SA-03 · approve without a route: errors",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-smaller.dc.html": {
+      "x": 1520,
+      "y": 14438,
+      "w": 1440,
+      "h": 1907,
+      "title": "SA-03 · approve a smaller scope, filled in",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-smaller-invalid.dc.html": {
+      "x": 3040,
+      "y": 14438,
+      "w": 1440,
+      "h": 1907,
+      "title": "SA-03 · smaller scope: nothing changed, no reason",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-confirm-ext.dc.html": {
+      "x": 4560,
+      "y": 14438,
+      "w": 1440,
+      "h": 1907,
+      "title": "SA-03 · confirm: external",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-confirm-int.dc.html": {
+      "x": 6080,
+      "y": 14438,
+      "w": 1440,
+      "h": 1907,
+      "title": "SA-03 · confirm: internal (v46 example on the same record)",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-decided.dc.html": {
+      "x": 0,
+      "y": 16765,
+      "w": 1440,
+      "h": 1505,
+      "title": "SA-03 · decided: approved, payment required · 8 Oct 2026",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-info-sent.dc.html": {
+      "x": 1520,
+      "y": 16765,
+      "w": 1440,
+      "h": 1482,
+      "title": "SA-03 · information requested · 8 Oct 2026",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-active.dc.html": {
+      "x": 3040,
+      "y": 16765,
+      "w": 1440,
+      "h": 1656,
+      "title": "SA-03 · same request on 23 Oct 2026: access active",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-renewal.dc.html": {
+      "x": 4560,
+      "y": 16765,
+      "w": 1440,
+      "h": 2219,
+      "title": "SA-03 · renewal · BITS Pilani — Hyderabad Campus · 23 Oct 2026",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-licences.dc.html": {
+      "x": 6080,
+      "y": 16765,
+      "w": 1440,
+      "h": 1697,
+      "title": "SA-03 · additional licences · Godavari · 23 Oct 2026",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "SA03-paused.dc.html": {
+      "x": 7600,
+      "y": 16765,
+      "w": 1440,
+      "h": 1879,
+      "title": "SA-03 · paused institution · Konark · 23 Oct 2026",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA01.dc.html": {
+      "x": 0,
+      "y": 19404,
+      "w": 1440,
+      "h": 1100,
+      "title": "IA-01 Overview · 1440 · Wed 22 Sep 2027 · five items",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA01-calm.dc.html": {
+      "x": 1520,
+      "y": 19404,
+      "w": 1440,
+      "h": 1056,
+      "title": "IA-01 · 1440 · Mon 15 Feb 2027 · nothing needs attention",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA01-1024.dc.html": {
+      "x": 3040,
+      "y": 19404,
+      "w": 1024,
+      "h": 1754,
+      "title": "IA-01 · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA01-768.dc.html": {
+      "x": 4144,
+      "y": 19404,
+      "w": 768,
+      "h": 1754,
+      "title": "IA-01 · 768",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA01-375.dc.html": {
+      "x": 4992,
+      "y": 19404,
+      "w": 375,
+      "h": 2518,
+      "title": "IA-01 · 375",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02.dc.html": {
+      "x": 0,
+      "y": 22342,
+      "w": 1440,
+      "h": 1170,
+      "title": "IA-02 Content access · 1440",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-1024.dc.html": {
+      "x": 1520,
+      "y": 22342,
+      "w": 1024,
+      "h": 1440,
+      "title": "IA-02 · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-768.dc.html": {
+      "x": 2624,
+      "y": 22342,
+      "w": 768,
+      "h": 1440,
+      "title": "IA-02 · 768",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-375.dc.html": {
+      "x": 3472,
+      "y": 22342,
+      "w": 375,
+      "h": 2105,
+      "title": "IA-02 · 375",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-menu-375.dc.html": {
+      "x": 3927,
+      "y": 22342,
+      "w": 375,
+      "h": 812,
+      "title": "IA-02 · 375 · menu open",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-active.dc.html": {
+      "x": 0,
+      "y": 24867,
+      "w": 1440,
+      "h": 1091,
+      "title": "IA-02 · populated, plan active · Mon 15 Feb 2027",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-new.dc.html": {
+      "x": 1520,
+      "y": 24867,
+      "w": 1440,
+      "h": 1091,
+      "title": "IA-02 · new institution, access just activated · Thu 8 Oct 2026",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-new-375.dc.html": {
+      "x": 3040,
+      "y": 24867,
+      "w": 375,
+      "h": 1922,
+      "title": "IA-02 · new institution · 375",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-noplan.dc.html": {
+      "x": 3495,
+      "y": 24867,
+      "w": 1440,
+      "h": 900,
+      "title": "IA-02 · new institution, no access plan yet (payment pending) · 8 Oct 2026",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-paused.dc.html": {
+      "x": 5015,
+      "y": 24867,
+      "w": 1440,
+      "h": 1249,
+      "title": "IA-02 · paused, read-only · Tue 2 Mar 2027",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-ended.dc.html": {
+      "x": 6535,
+      "y": 24867,
+      "w": 1440,
+      "h": 1170,
+      "title": "IA-02 · plan ended · Fri 8 Oct 2027",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-nomatch.dc.html": {
+      "x": 8055,
+      "y": 24867,
+      "w": 1024,
+      "h": 1230,
+      "title": "IA-02 · no match · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-loading.dc.html": {
+      "x": 9159,
+      "y": 24867,
+      "w": 1024,
+      "h": 900,
+      "title": "IA-02 · loading · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "IA02-failed.dc.html": {
+      "x": 10263,
+      "y": 24867,
+      "w": 1024,
+      "h": 900,
+      "title": "IA-02 · failed to load · 1024",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Kit.dc.html": {
+      "x": 0,
+      "y": 27209,
+      "w": 1440,
+      "h": 2563,
+      "title": "Shared components",
+      "expand": "fill"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "SA01.dc.html",
+    "SA01-1024.dc.html",
+    "SA01-768.dc.html",
+    "SA01-375.dc.html",
+    "SA02.dc.html",
+    "SA02-1024.dc.html",
+    "SA02-768.dc.html",
+    "SA02-375.dc.html",
+    "SA02-filters.dc.html",
+    "SA02-filters-375.dc.html",
+    "SA02-focus.dc.html",
+    "SA02-nomatch.dc.html",
+    "SA02-loading.dc.html",
+    "SA02-failed.dc.html",
+    "SA02-empty.dc.html",
+    "SA03.dc.html",
+    "SA03-1024.dc.html",
+    "SA03-768.dc.html",
+    "SA03-375.dc.html",
+    "SA03-validation.dc.html",
+    "SA03-smaller.dc.html",
+    "SA03-smaller-invalid.dc.html",
+    "SA03-confirm-ext.dc.html",
+    "SA03-confirm-int.dc.html",
+    "SA03-decided.dc.html",
+    "SA03-info-sent.dc.html",
+    "SA03-active.dc.html",
+    "SA03-renewal.dc.html",
+    "SA03-licences.dc.html",
+    "SA03-paused.dc.html",
+    "IA01.dc.html",
+    "IA01-calm.dc.html",
+    "IA01-1024.dc.html",
+    "IA01-768.dc.html",
+    "IA01-375.dc.html",
+    "IA02.dc.html",
+    "IA02-1024.dc.html",
+    "IA02-768.dc.html",
+    "IA02-375.dc.html",
+    "IA02-menu-375.dc.html",
+    "IA02-active.dc.html",
+    "IA02-new.dc.html",
+    "IA02-new-375.dc.html",
+    "IA02-noplan.dc.html",
+    "IA02-paused.dc.html",
+    "IA02-ended.dc.html",
+    "IA02-nomatch.dc.html",
+    "IA02-loading.dc.html",
+    "IA02-failed.dc.html",
+    "Kit.dc.html"
+  ],
+  "notes": {
+    "row-sa01": {
+      "x": 0,
+      "y": 1060,
+      "text": "SA-01 · Super Admin overview · approved Refined B · 1440 · 1024 · 768 · 375",
+      "kind": "title1",
+      "maxW": 3847
+    },
+    "row-sa02": {
+      "x": 0,
+      "y": 5421,
+      "text": "SA-02 · Requests · 1440 · 1024 · 768 · 375",
+      "kind": "title1",
+      "maxW": 3847
+    },
+    "row-sa02s": {
+      "x": 0,
+      "y": 8099,
+      "text": "SA-02 · states: filters, keyboard focus, no match, loading, failed, no requests yet",
+      "kind": "title1",
+      "maxW": 7831
+    },
+    "row-sa03": {
+      "x": 0,
+      "y": 10461,
+      "text": "SA-03 · Request decision · new institution (Godavari, received 2 Oct) as of Thu 8 Oct 2026 · 1440 · 1024 · 768 · 375",
+      "kind": "title1",
+      "maxW": 3847
+    },
+    "row-sa03f": {
+      "x": 0,
+      "y": 14178,
+      "text": "SA-03 · validation and confirmation",
+      "kind": "title1",
+      "maxW": 7520
+    },
+    "row-sa03o": {
+      "x": 0,
+      "y": 16505,
+      "text": "SA-03 · outcomes and other records",
+      "kind": "title1",
+      "maxW": 9040
+    },
+    "row-ia01": {
+      "x": 0,
+      "y": 19144,
+      "text": "IA-01 · Institute Admin overview · approved Refined B · 1440 (two states) · 1024 · 768 · 375",
+      "kind": "title1",
+      "maxW": 5367
+    },
+    "row-ia02": {
+      "x": 0,
+      "y": 22082,
+      "text": "IA-02 · Content access · populated, plan ending soon (Wed 22 Sep 2027) · 1440 · 1024 · 768 · 375",
+      "kind": "title1",
+      "maxW": 4302
+    },
+    "row-ia02s": {
+      "x": 0,
+      "y": 24607,
+      "text": "IA-02 · populated and new-institution states",
+      "kind": "title1",
+      "maxW": 11287
+    },
+    "row-kit": {
+      "x": 0,
+      "y": 26949,
+      "text": "Shared components · tokens, status, formats, actions, filters, decision controls, notices",
+      "kind": "title1",
+      "maxW": 2400
+    },
+    "n-play": {
+      "x": 1520,
+      "y": 0,
+      "w": 480,
+      "text": "How to review\nPress Play on any board. SA-02: search, filter, sort, open a request, decide; the list and the Requests badge update on that board. SA-03 boards start in a state and stay fully usable. Each board keeps its own state; links open other boards fresh.",
+      "fill": "blue"
+    },
+    "n-ids": {
+      "x": 2040,
+      "y": 0,
+      "w": 480,
+      "text": "Rules kept from v46\nNo internal record IDs on Super Admin screens (IA screens keep ACC-0107, REQ-0042, SUP-0213). Course codes stay. No Decline and no manual “mark paid”. Internal access starts on approval; external access only after payment. Licence use is not shown (D7 open).",
+      "fill": "teal"
+    },
+    "n-konark": {
+      "x": 2560,
+      "y": 0,
+      "w": 480,
+      "text": "Open record · Konark Polytechnic\nv46 B1-11 says it is paused and its term ends 24 Sep 2027; B7-01 and the approved SA-01 say its access ends 2 Nov 2026. SA-03 shows the pause and leaves the end date out. Please confirm which is right.",
+      "fill": "orange"
+    },
+    "n-g58": {
+      "x": 1520,
+      "y": 470,
+      "w": 480,
+      "text": "Open record · Godavari, 60 more licences (21 Oct)\nThis request appears only on SA-01. Its contact person, experiment and formats are taken from Godavari’s single plan, and its received time is unknown. The confirmation text for extra licences at an existing external institution is derived from v46’s external copy.",
+      "fill": "orange"
+    },
+    "n-code": {
+      "x": 2040,
+      "y": 470,
+      "w": 480,
+      "text": "Open record · IA-02 course code\nv46’s ending-soon, paused and ended boards say “code not added”, but IA-01 and v46’s 9 Oct 2026 state show MEC-523. These boards use MEC-523 from 9 Oct 2026 on.",
+      "fill": "orange"
+    },
+    "n-more": {
+      "x": 2560,
+      "y": 470,
+      "w": 480,
+      "text": "Also noted\nSahyadri’s additional-licences request (18 Sep) predates “access active since 30 Sep” on SA-01. SUP-0213 is used in v46 for two different reports (3 Oct 2026 and 20 Sep 2027). Links to screens outside Batch 01 (Student access, Give students access, Course codes, plan details, request status, IA Requests, Help) are placeholders.",
+      "fill": "yellow"
+    }
+  },
+  "designSystems": []
+}

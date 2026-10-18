@@ -28,15 +28,15 @@ function isRendered(element: Element): boolean {
  * After the drawer closed because the app grew to 1024 px or more: hands focus on to the
  * persistent sidebar when it was on "Close menu", on the page itself (a browser's focus fixup
  * when "Close menu" stopped being displayed) or on another sidebar control no longer rendered.
+ * `side` is the persistent navigation: by default the v46 sidebar the drawer itself becomes.
  */
-function focusPersistentSidebar(closeButton: HTMLButtonElement | null): void {
-  const side = closeButton?.closest('.xr-side');
-  if (!closeButton || !side) return;
+function focusPersistentSidebar(closeButton: HTMLButtonElement | null, side: Element | null): void {
+  if (!side) return;
   const active = document.activeElement;
   const lost =
     active === null ||
     active === document.body ||
-    active === closeButton ||
+    (closeButton !== null && active === closeButton) ||
     (side.contains(active) && !isRendered(active));
   if (!lost) return;
   const target =
@@ -94,6 +94,17 @@ export interface DrawerController {
   readonly backgroundProps: { readonly inert: boolean | undefined };
 }
 
+/** Options of `useDrawer`. */
+export interface DrawerOptions {
+  /**
+   * The persistent navigation that takes focus when the drawer closes because the app grew to
+   * 1024 px or more. By default it is the v46 sidebar the drawer itself becomes (the `.xr-side`
+   * around "Close menu"). A shell whose drawer is a separate element from its rail — the V3
+   * workspace shell (ADR-0010) — names its rail here.
+   */
+  readonly persistentNavigation?: () => Element | null;
+}
+
 /**
  * Drawer behaviour (board 06 "Behaviour"; board 12 "Patterns": "Focus moves to Close · Esc closes
  * · focus returns to Menu"): opening moves focus to "Close menu"; Esc, the scrim or "Close menu"
@@ -102,12 +113,16 @@ export interface DrawerController {
  * (v46 `.xr-shell > .xr-scrim{display:none}`), so the drawer closes, nothing stays inert, and focus
  * left on the now hidden "Close menu" moves to the persistent sidebar (`returnFocus: 'sidebar'`).
  */
-export function useDrawer(): DrawerController {
+export function useDrawer(options?: DrawerOptions): DrawerController {
   const [open, setOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
   const pendingFocus = useRef<'close' | 'menu' | 'sidebar' | null>(null);
+  const persistentNavigation = useRef(options?.persistentNavigation);
+  useEffect(() => {
+    persistentNavigation.current = options?.persistentNavigation;
+  });
 
   const openDrawer = useCallback(() => {
     pendingFocus.current = 'close';
@@ -129,7 +144,14 @@ export function useDrawer(): DrawerController {
     pendingFocus.current = null;
     if (open && target === 'close') closeButtonRef.current?.focus();
     if (!open && target === 'menu') menuButtonRef.current?.focus();
-    if (!open && target === 'sidebar') focusPersistentSidebar(closeButtonRef.current);
+    if (!open && target === 'sidebar') {
+      const closeButton = closeButtonRef.current;
+      const resolve = persistentNavigation.current;
+      focusPersistentSidebar(
+        closeButton,
+        resolve ? resolve() : (closeButton?.closest('.xr-side') ?? null),
+      );
+    }
   }, [open]);
 
   useEffect(() => {

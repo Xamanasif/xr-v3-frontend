@@ -1,0 +1,242 @@
+{
+  "owner": "CM",
+  "surface": "Content Manager",
+  "foundation": "XR-V3-RB-1.0",
+  "completeRoleRequired": true,
+  "preexistingV3Seeds": [],
+  "lockedRetained": [],
+  "sharedDependencies": [
+    "XS",
+    "VE",
+    "RV",
+    "SA",
+    "PU"
+  ],
+  "screens": [
+    {
+      "id": "CM-01",
+      "surface": "Content Manager",
+      "screen": "Overview",
+      "type": "page",
+      "navigation": "Sidebar Overview",
+      "proposedRoute": "/content-manager",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B6-05",
+          "file": "B6-05-CM-Overview.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/content/:a/overview"
+    },
+    {
+      "id": "CM-02",
+      "surface": "Content Manager",
+      "screen": "Ready to publish",
+      "type": "page",
+      "navigation": "Sidebar Ready to publish",
+      "proposedRoute": "/content-manager/ready",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B6-03",
+          "file": "B6-03-Review-a-Submission.dc.html"
+        },
+        {
+          "code": "B6-06",
+          "file": "B6-06-Ready-to-Publish-and-Library.dc.html"
+        },
+        {
+          "code": "B6-12",
+          "file": "B6-12-Flow-5-Completion.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/queue"
+    },
+    {
+      "id": "CM-03",
+      "surface": "Content Manager",
+      "screen": "Publication decision",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/content-manager/decisions/[submissionId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE (heavy)",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B6-07",
+          "file": "B6-07-Publication-Decision.dc.html"
+        },
+        {
+          "code": "B6-11",
+          "file": "B6-11-Critical-States.dc.html"
+        },
+        {
+          "code": "B6-12",
+          "file": "B6-12-Flow-5-Completion.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/item/:id at the gate"
+    },
+    {
+      "id": "CM-04",
+      "surface": "Content Manager",
+      "screen": "Content library (all statuses incl. published)",
+      "type": "page",
+      "navigation": "Sidebar Content library",
+      "proposedRoute": "/content-manager/library",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B6-06",
+          "file": "B6-06-Ready-to-Publish-and-Library.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/library"
+    },
+    {
+      "id": "CM-05",
+      "surface": "Content Manager",
+      "screen": "Published experiment",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/content-manager/published/[experimentId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B6-08",
+          "file": "B6-08-Published-and-Correction-Entry.dc.html"
+        },
+        {
+          "code": "B6-13",
+          "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+        },
+        {
+          "code": "B7-11",
+          "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/item/:id (published)"
+    },
+    {
+      "id": "CM-06",
+      "surface": "Content Manager",
+      "screen": "Edit catalogue details → opens a correction (UPD) draft pre-filled with the live fields (M-1)",
+      "type": "step",
+      "navigation": "Flow (into a correction draft)",
+      "proposedRoute": "→ /content-manager/updates/[updateId] (draft, catalogue fields)",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B6-08",
+          "file": "B6-08-Published-and-Correction-Entry.dc.html"
+        },
+        {
+          "code": "B6-13",
+          "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/item/:id/metadata"
+    },
+    {
+      "id": "CM-07",
+      "surface": "Content Manager",
+      "screen": "Edit a delivery link (with reason) → opens a correction (UPD) draft pre-filled with the live delivery details (M-1)",
+      "type": "step",
+      "navigation": "Flow (into a correction draft)",
+      "proposedRoute": "→ /content-manager/updates/[updateId] (draft, delivery)",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B6-08",
+          "file": "B6-08-Published-and-Correction-Entry.dc.html"
+        },
+        {
+          "code": "B6-13",
+          "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "delivery section on the item"
+    },
+    {
+      "id": "CM-08",
+      "surface": "Content Manager",
+      "screen": "Corrections / updates I raised",
+      "type": "page",
+      "navigation": "Sidebar Updates",
+      "proposedRoute": "/content-manager/updates · /content-manager/updates/[updateId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE (sole origin of post-publication corrections — LD-4; was SUPP in v1)",
+      "boards": [
+        {
+          "code": "B6-09",
+          "file": "B6-09-Updates-Corrections.dc.html"
+        },
+        {
+          "code": "B6-11",
+          "file": "B6-11-Critical-States.dc.html"
+        },
+        {
+          "code": "B6-13",
+          "file": "B6-13-Flow-6-Steps-1-2.dc.html"
+        },
+        {
+          "code": "B7-11",
+          "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "correction-version panels"
+    },
+    {
+      "id": "CM-09",
+      "surface": "Content Manager",
+      "screen": "Platform course codes",
+      "type": "page",
+      "navigation": "Sidebar Course codes",
+      "proposedRoute": "/content-manager/course-codes",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B6-10",
+          "file": "B6-10-Platform-Course-Codes.dc.html"
+        },
+        {
+          "code": "B6-11",
+          "file": "B6-11-Critical-States.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/courses"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "CM-10",
+      "surface": "Content Manager",
+      "screen": "Academic groupings · Governance settings",
+      "type": "—",
+      "navigation": "(B2 rail)",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "REMOVE (the structure belongs to the Super Admin, SA-14; settings undefined)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    }
+  ]
+}

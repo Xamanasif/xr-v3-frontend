@@ -1,0 +1,143 @@
+/*
+ * @xr/ui V3 central patch layer — foundation XR-V3-RB-1.0 (ADR-0010; design/v3-refined-b/).
+ *
+ * Imported into `xr.v3.patch`, after the generated `xr.v3.rb` derivative, so a patch wins over the
+ * Refined B rule it corrects whatever the specificity. Only confirmed accessibility or correctness
+ * defects and the isolation of V3 from the v46 product layer live here — never an aesthetic change.
+ * Each patch has an id (V3P-nn), says what it fixes and why, and is listed with its consumers in
+ * `packages/ui/src/v3/COMPONENT-EXTENSIONS.md`. Product-only V3 classes use `rk-x-*`.
+ *
+ * Every selector is confined the way the derivative is: inside a V3 root (`.xr`) and outside v46
+ * islands (`[data-xr-v46]`), with zero added specificity.
+ */
+
+/*
+ * V3P-01 · The confirmation dialog is a native <dialog> opened with showModal(), so the page
+ * behind is inert and Esc is a cancel request (the boards draw a `div.rk-dialog` over a
+ * `div.rk-scrim[aria-hidden]`, which left the page behind in the tab order and the accessibility
+ * tree). These declarations undo only what the user-agent dialog style adds to the drawn box
+ * (margin, padding, border, the bottom/right insets that would stretch it, the max-width that is
+ * 6 px narrower at 375, CanvasText); the drawn `.rk-dialog` rule keeps its position, size and look.
+ * The drawn scrim colour and fade move to ::backdrop.
+ */
+dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *)) {
+  right: auto;
+  bottom: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  max-width: none;
+  color: inherit;
+}
+
+dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backdrop {
+  background: rgba(12, 18, 71, 0.55);
+  animation: rk-fade 160ms linear;
+}
+
+/*
+ * V3P-02 · The narrow-width sort control follows the table's own breakpoint. The boards show
+ * `.rk-sortbar` from the toolbar's container width and hide the table head from the table's; the
+ * two agree only through the toolbar's padding arithmetic. RecordTable measures whether its head is
+ * displayed and sets exactly one of these classes on the sort bar, so one sort control is always
+ * visible and reachable, never two.
+ */
+:where(.xr) .rk-sortbar.rk-x-sort-shown:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  display: flex;
+}
+
+:where(.xr) .rk-sortbar.rk-x-sort-hidden:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  display: none;
+}
+
+/*
+ * V3P-03 · The drawer and its scrim never outlive the drawer breakpoint. Below 1024 px of app width
+ * the rail becomes the drawer; the boards only render it on demand, so an open drawer stayed over
+ * the rail when the window grew. Hidden from 1024 px, the drawer controller closes it and hands
+ * focus to the rail's current destination.
+ */
+@container rb (min-width: 1024px) {
+  :where(.xr) .rb-drawer:not(:where([data-xr-v46], [data-xr-v46] *)),
+  :where(.xr) .rb-scrim:not(:where([data-xr-v46], [data-xr-v46] *)) {
+    display: none;
+  }
+}
+
+/*
+ * V3P-04 · Isolation from the v46 product layer: PF-19 thickens the underline of every class-less
+ * link on hover (`a:not([class]):hover`). Refined B draws its links with the browser's own
+ * thickness, so inside a V3 root the property returns to its initial value.
+ */
+:where(.xr) a:not([class]):hover:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  text-decoration-thickness: auto;
+}
+
+/*
+ * V3P-05 · A v46 island inside a V3 root (`[data-xr-v46]`, content whose V3 design is still
+ * pending) keeps the v46 rendering. Every V3 rule already excludes it; this gives it what the v46
+ * `div.xr-app` root gives v46 content — the `xr-app` query container, so the v46 container
+ * queries keep working, and the xr-foundation.css text defaults — without that root's canvas
+ * background and viewport min-height (PF-02), and drops the V3 root's text-rendering settings.
+ */
+:where(.xr) [data-xr-v46] {
+  container: xr-app / inline-size;
+  color: #12173f;
+  font-family: var(--xr-font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  text-rendering: auto;
+  font-kerning: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backdrop {
+    animation: none;
+  }
+}
+
+/*
+ * V3P-06 · "Skip to main content", the first Tab stop of every workspace today (WCAG 2.4.1). The
+ * Refined B boards draw none; the shell keeps the product's skip link, out of the rail grid
+ * (absolutely positioned on the V3 root) and shown only while it has focus, in the shell's own
+ * navy and white.
+ */
+:where(.xr) .rk-x-skip:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  position: absolute;
+  left: 16px;
+  top: -80px;
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--navy);
+  color: #ffffff;
+  font: 600 15px/20px var(--sans);
+  text-decoration: none;
+}
+
+:where(.xr) .rk-x-skip:focus:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  top: 12px;
+}
+
+/*
+ * V3P-07 · The account chrome: the drawn trigger (`button.rb-acct`) sits in a wrapper that keeps it
+ * at the end of the top row and anchors the menu panel under it. The panel itself is the existing
+ * account menu, a v46 island until the XS-05 design is delivered.
+ */
+:where(.xr) .rk-x-acct:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  position: relative;
+  margin-left: auto;
+}
+
+/*
+ * V3P-08 · Isolation from the v46 foundation sheet on the class names both systems define. The v46
+ * `.xr-avatar` also sets `letter-spacing: .02em`, which the Refined B `.xr-avatar` does not
+ * declare, so inside a V3 root the initials were spaced as v46 draws them. Every other shared
+ * class (`xr-fmt`, `xr-sr`, `xr-ico`, `xr-ico--16`, `xr-num`) declares the same properties in
+ * both sheets (checked by v3-provenance.test.ts).
+ */
+:where(.xr) .xr-avatar:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  letter-spacing: normal;
+}

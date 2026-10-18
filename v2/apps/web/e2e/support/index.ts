@@ -31,5 +31,6 @@ export {
   HarnessUnavailableError,
   TEST_HOOKS_GLOBAL,
   TEST_HOOKS_URL,
+  PRODUCT_URL,
   type SamplePerson,
 } from './test-seam';

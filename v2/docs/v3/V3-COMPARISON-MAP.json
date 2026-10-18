@@ -1,0 +1,479 @@
+{
+  "foundationId": "XR-V3-RB-1.0",
+  "asOf": "2026-10-19",
+  "purpose": "The scoped V3 visual comparison map (ADR-0010). Migrated product screens and states get V3 comparisons here, each naming the owner-approved V3 reference it is compared with and the v46 comparison(s) it supersedes. Screens not listed keep their v46 checks and pins (tools/board-capture) unchanged; a superseded v46 comparison is retired by name, never counted as newly passed, never masked, never loosened.",
+  "rules": [
+    "An entry is added only when a complete, owner-approved role export is integrated (pack prompt 11) and the screen state is migrated on the normal product build.",
+    "Each entry names: the V3 reference (export file, revision/hash, props or scenario), the product route and state, the widths, the method and tolerance, and the v46 parity comparison names it supersedes (or \"none\").",
+    "v46 pins (tools/board-capture/src/pinned.json), DEVIATIONS.md and BASELINES.md stay as history; superseded comparisons are listed under supersedes with the migration commit, not deleted silently.",
+    "Data may differ from a board fixture: the product binds its own records, so a comparison is made on a state whose content matches, or the difference is listed as content, not style."
+  ],
+  "productScreens": [],
+  "foundationEvidence": {
+    "note": "Not product baselines. The five supplied V3 boards were rendered with the HISTORICAL v46 canvas runtime (design/handoff-v46/runtime/support.js; compatibility with the V3 runtime not established; vendored React 18.3.1 / ReactDOM / Babel 7.29.0 from tools/board-capture/vendor; Public Sans from the Google Fonts link the boards name) next to the React specimens of the built harness (apps/specimens, next build) in the same Chromium, full page, device scale 1, reduced motion. Pixels count as different when a channel differs by more than 24.",
+    "tool": "tools/v3-reference/compare.mjs",
+    "result": "All 44 board states (11 states × 4 widths) render at the board's exact page size. 36 are pixel-identical. The other 8 — the renewal (SA-03 ren) and paused (SA-03 kon) decisions, at every width — differ by 82 and 42 pixels (at most 0.006% of the page): two glyph pairs in one text run (‘contact person’), which the canvas runtime renders as separate interpolated spans. An earlier run of the same method during development (before the committed tool) found 33 identical and 11 with 42–6,903 text-rasterisation pixels (≤ 0.49%); the counts vary between runs as font faces load. No layout, colour or spacing difference remains after V3P-08.",
+    "comparisons": [
+      {
+        "id": "SA-01",
+        "board": "design/v3-refined-b/pack/references/v3/project/SA01.dc.html",
+        "boardProps": null,
+        "specimen": "v3-sa-01",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 2057],
+              "react": [1440, 2057]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 2603],
+              "react": [1024, 2603]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 2650],
+              "react": [768, 2650]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 3941],
+              "react": [375, 3941]
+            },
+            "differentPixels": 0,
+            "share": 0
+          }
+        }
+      },
+      {
+        "id": "SA-02",
+        "board": "design/v3-refined-b/pack/references/v3/project/SA02.dc.html",
+        "boardProps": null,
+        "specimen": "v3-sa-02",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 1165],
+              "react": [1440, 1165]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 1328],
+              "react": [1024, 1328]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 1328],
+              "react": [768, 1328]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 2258],
+              "react": [375, 2258]
+            },
+            "differentPixels": 0,
+            "share": 0
+          }
+        }
+      },
+      {
+        "id": "SA-03",
+        "board": "design/v3-refined-b/pack/references/v3/project/SA02.dc.html",
+        "boardProps": {
+          "view": "decision",
+          "record": "gdv",
+          "asOf": "oct08"
+        },
+        "specimen": "v3-sa-03",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 1907],
+              "react": [1440, 1907]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 2422],
+              "react": [1024, 2422]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 2422],
+              "react": [768, 2422]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 3297],
+              "react": [375, 3297]
+            },
+            "differentPixels": 0,
+            "share": 0
+          }
+        }
+      },
+      {
+        "id": "SA-03",
+        "board": "design/v3-refined-b/pack/references/v3/project/SA02.dc.html",
+        "boardProps": {
+          "view": "decision",
+          "record": "ren"
+        },
+        "specimen": "v3-sa-03-renewal",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 2219],
+              "react": [1440, 2219]
+            },
+            "differentPixels": 82,
+            "share": 2.6e-5
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 2734],
+              "react": [1024, 2734]
+            },
+            "differentPixels": 82,
+            "share": 2.9e-5
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 2734],
+              "react": [768, 2734]
+            },
+            "differentPixels": 82,
+            "share": 3.9e-5
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 3739],
+              "react": [375, 3739]
+            },
+            "differentPixels": 82,
+            "share": 5.8e-5
+          }
+        }
+      },
+      {
+        "id": "SA-03",
+        "board": "design/v3-refined-b/pack/references/v3/project/SA02.dc.html",
+        "boardProps": {
+          "view": "decision",
+          "record": "kon"
+        },
+        "specimen": "v3-sa-03-paused",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 1879],
+              "react": [1440, 1879]
+            },
+            "differentPixels": 42,
+            "share": 1.6e-5
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 2160],
+              "react": [1024, 2160]
+            },
+            "differentPixels": 42,
+            "share": 1.9e-5
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 2160],
+              "react": [768, 2160]
+            },
+            "differentPixels": 42,
+            "share": 2.5e-5
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 2983],
+              "react": [375, 2983]
+            },
+            "differentPixels": 42,
+            "share": 3.8e-5
+          }
+        }
+      },
+      {
+        "id": "SA-03",
+        "board": "design/v3-refined-b/pack/references/v3/project/SA02.dc.html",
+        "boardProps": {
+          "view": "decision",
+          "record": "viz"
+        },
+        "specimen": "v3-sa-03-decided",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 1039],
+              "react": [1440, 1039]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 1558],
+              "react": [1024, 1558]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 1558],
+              "react": [768, 1558]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 1730],
+              "react": [375, 1730]
+            },
+            "differentPixels": 0,
+            "share": 0
+          }
+        }
+      },
+      {
+        "id": "IA-01",
+        "board": "design/v3-refined-b/pack/references/v3/project/IA01.dc.html",
+        "boardProps": null,
+        "specimen": "v3-ia-01",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 1100],
+              "react": [1440, 1100]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 1754],
+              "react": [1024, 1754]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 1754],
+              "react": [768, 1754]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 2518],
+              "react": [375, 2518]
+            },
+            "differentPixels": 0,
+            "share": 0
+          }
+        }
+      },
+      {
+        "id": "IA-02",
+        "board": "design/v3-refined-b/pack/references/v3/project/IA02.dc.html",
+        "boardProps": null,
+        "specimen": "v3-ia-02",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 1170],
+              "react": [1440, 1170]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 1440],
+              "react": [1024, 1440]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 1440],
+              "react": [768, 1440]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 2105],
+              "react": [375, 2105]
+            },
+            "differentPixels": 0,
+            "share": 0
+          }
+        }
+      },
+      {
+        "id": "IA-02",
+        "board": "design/v3-refined-b/pack/references/v3/project/IA02.dc.html",
+        "boardProps": {
+          "scenario": "paused"
+        },
+        "specimen": "v3-ia-02-paused",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 1249],
+              "react": [1440, 1249]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 1467],
+              "react": [1024, 1467]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 1467],
+              "react": [768, 1467]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 2074],
+              "react": [375, 2074]
+            },
+            "differentPixels": 0,
+            "share": 0
+          }
+        }
+      },
+      {
+        "id": "IA-02",
+        "board": "design/v3-refined-b/pack/references/v3/project/IA02.dc.html",
+        "boardProps": {
+          "scenario": "ended"
+        },
+        "specimen": "v3-ia-02-ended",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 1170],
+              "react": [1440, 1170]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 1440],
+              "react": [1024, 1440]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 1440],
+              "react": [768, 1440]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 1959],
+              "react": [375, 1959]
+            },
+            "differentPixels": 0,
+            "share": 0
+          }
+        }
+      },
+      {
+        "id": "IA-02",
+        "board": "design/v3-refined-b/pack/references/v3/project/IA02.dc.html",
+        "boardProps": {
+          "scenario": "none"
+        },
+        "specimen": "v3-ia-02-none",
+        "widths": {
+          "1440": {
+            "pageSize": {
+              "board": [1440, 900],
+              "react": [1440, 900]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "1024": {
+            "pageSize": {
+              "board": [1024, 900],
+              "react": [1024, 900]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "768": {
+            "pageSize": {
+              "board": [768, 900],
+              "react": [768, 900]
+            },
+            "differentPixels": 0,
+            "share": 0
+          },
+          "375": {
+            "pageSize": {
+              "board": [375, 900],
+              "react": [375, 900]
+            },
+            "differentPixels": 0,
+            "share": 0
+          }
+        }
+      }
+    ],
+    "run": "2026-10-18T19-14-27-074Z (UTC), harness built from this tree and served with next start; board page errors: none"
+  }
+}

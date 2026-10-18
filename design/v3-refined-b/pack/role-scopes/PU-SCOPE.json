@@ -1,0 +1,302 @@
+{
+  "owner": "PU",
+  "surface": "Public",
+  "foundation": "XR-V3-RB-1.0",
+  "completeRoleRequired": true,
+  "preexistingV3Seeds": [],
+  "lockedRetained": [
+    "PU-01",
+    "PU-14"
+  ],
+  "sharedDependencies": [
+    "XS",
+    "SA",
+    "CM"
+  ],
+  "screens": [
+    {
+      "id": "PU-01",
+      "surface": "Public",
+      "screen": "Landing",
+      "type": "page",
+      "navigation": "Header: Home",
+      "proposedRoute": "/",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-01",
+          "file": "B1-01-Public-Landing.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/ landing"
+    },
+    {
+      "id": "PU-02",
+      "surface": "Public",
+      "screen": "All engineering areas (\"View all areas\")",
+      "type": "page",
+      "navigation": "Header: Areas",
+      "proposedRoute": "/areas",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B1-03",
+          "file": "B1-03-Areas-and-Course.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "landing \"Browse by Programme / Department\" cards"
+    },
+    {
+      "id": "PU-03",
+      "surface": "Public",
+      "screen": "Engineering area",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/areas/[areaId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B1-03",
+          "file": "B1-03-Areas-and-Course.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/programme/:id"
+    },
+    {
+      "id": "PU-04",
+      "surface": "Public",
+      "screen": "Catalogue",
+      "type": "page",
+      "navigation": "Header: Browse experiments",
+      "proposedRoute": "/experiments",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-04",
+          "file": "B1-04-Catalogue.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/catalogue"
+    },
+    {
+      "id": "PU-05",
+      "surface": "Public",
+      "screen": "Course",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/courses/[courseCode]",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B1-03",
+          "file": "B1-03-Areas-and-Course.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/course/:id"
+    },
+    {
+      "id": "PU-06",
+      "surface": "Public",
+      "screen": "Experiment",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/experiments/[experimentId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-05",
+          "file": "B1-05-Experiment-Detail.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/experiment/:id"
+    },
+    {
+      "id": "PU-07",
+      "surface": "Public",
+      "screen": "Your selection",
+      "type": "page",
+      "navigation": "Header: Selection (n)",
+      "proposedRoute": "/selection",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-06",
+          "file": "B1-06-Selection.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/selection"
+    },
+    {
+      "id": "PU-08",
+      "surface": "Public",
+      "screen": "Request institutional access",
+      "type": "step",
+      "navigation": "Header: Request access / flow step",
+      "proposedRoute": "/request-access",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-07",
+          "file": "B1-07-Request-Access.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/request"
+    },
+    {
+      "id": "PU-09",
+      "surface": "Public",
+      "screen": "Request sent",
+      "type": "step",
+      "navigation": "Flow step",
+      "proposedRoute": "/request-access/sent",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B1-07",
+          "file": "B1-07-Request-Access.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "toast + redirect"
+    },
+    {
+      "id": "PU-10",
+      "surface": "Public",
+      "screen": "Request status",
+      "type": "page",
+      "navigation": "Detail (link from confirmation / e-mail: OPEN)",
+      "proposedRoute": "/requests/[requestId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-08",
+          "file": "B1-08-Request-Status.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/requests, #/request-status/:id"
+    },
+    {
+      "id": "PU-12",
+      "surface": "Public",
+      "screen": "Payment (external route only)",
+      "type": "step",
+      "navigation": "Flow step",
+      "proposedRoute": "/requests/[requestId]/payment",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-08",
+          "file": "B1-08-Request-Status.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/payment/:id (simulated)"
+    },
+    {
+      "id": "PU-13",
+      "surface": "Public",
+      "screen": "Access activated",
+      "type": "state",
+      "navigation": "—",
+      "proposedRoute": "/requests/[requestId] (Access active state)",
+      "designed": true,
+      "inventoryDisposition": "MERGE → PU-10 state",
+      "importance": "—",
+      "boards": [
+        {
+          "code": "B1-08",
+          "file": "B1-08-Request-Status.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "status page ACTIVE state"
+    },
+    {
+      "id": "PU-14",
+      "surface": "Public",
+      "screen": "How institutional access works",
+      "type": "state",
+      "navigation": "Landing section",
+      "proposedRoute": "/ (#for-institutions section)",
+      "designed": true,
+      "inventoryDisposition": "MERGE → PU-01 section + help text on PU-07/08",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B1-01",
+          "file": "B1-01-Public-Landing.dc.html"
+        },
+        {
+          "code": "B1-05",
+          "file": "B1-05-Experiment-Detail.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "landing strip"
+    },
+    {
+      "id": "PU-15",
+      "surface": "Public",
+      "screen": "Not found",
+      "type": "page",
+      "navigation": "—",
+      "proposedRoute": "not-found.tsx",
+      "designed": true,
+      "inventoryDisposition": "KEEP",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "08",
+          "file": "08-System-Messages.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "notFound"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "PU-11",
+      "surface": "Public",
+      "screen": "Reply to an information request",
+      "type": "—",
+      "navigation": "Flow step",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "OPEN",
+      "importance": "CORE if decided",
+      "boards": [],
+      "oldPrototypeRoute": "status-page reply + \"Resubmit request\""
+    },
+    {
+      "id": "PU-16",
+      "surface": "Public",
+      "screen": "About · Contact · Privacy · Terms · Accessibility",
+      "type": "—",
+      "navigation": "Footer",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER (needs a content owner; no fake pages)",
+      "importance": "OPT",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    }
+  ]
+}

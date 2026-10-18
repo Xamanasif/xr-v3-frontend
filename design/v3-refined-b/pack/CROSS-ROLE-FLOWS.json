@@ -1,0 +1,513 @@
+{
+  "source": "v46 handoff/flows.json",
+  "note": "This preserves the source flow description; newer demo capabilities are explained in common/03. It is not a live data store.",
+  "steps": [
+    {
+      "flow": "A",
+      "step": "1",
+      "actor": "Public visitor (institution contact)",
+      "screens": "PU-01 → PU-04 → PU-06 → PU-07",
+      "record": "SEL",
+      "transition": "— → selection (n)",
+      "outcome": "Selection count in the header; availability shown, never an entitlement",
+      "evidenceBoards": "B1-01 · B1-04 · B1-05 · B1-06",
+      "screenIdsReferenced": [
+        "PU-01",
+        "PU-04",
+        "PU-06",
+        "PU-07"
+      ],
+      "owners": [
+        "PU"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "A",
+      "step": "2",
+      "actor": "Public visitor",
+      "screens": "PU-07 → PU-08 → PU-09",
+      "record": "REQ-0042",
+      "transition": "— → Under review",
+      "outcome": "“Request REQ-0042 sent”; the reference is not a key",
+      "evidenceBoards": "B1-07",
+      "screenIdsReferenced": [
+        "PU-07",
+        "PU-08",
+        "PU-09"
+      ],
+      "owners": [
+        "PU"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "A",
+      "step": "3",
+      "actor": "Super Admin",
+      "screens": "SA-02 → SA-03",
+      "record": "REQ-0042",
+      "transition": "Under review → Approved — payment required (external) · Access active (internal)",
+      "outcome": "Decision panel; no Decline (T-02); approval prerequisites enforced",
+      "evidenceBoards": "B1-10 · B1-11 · B1-13",
+      "screenIdsReferenced": [
+        "SA-02",
+        "SA-03"
+      ],
+      "owners": [
+        "SA"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "A",
+      "step": "4",
+      "actor": "Institution contact",
+      "screens": "PU-10 → PU-12",
+      "record": "REQ-0042 · ACC-0107",
+      "transition": "Approved — payment required → Access active",
+      "outcome": "Status page next step; payment provider-neutral (provider OPEN)",
+      "evidenceBoards": "B1-08 · B1-13",
+      "screenIdsReferenced": [
+        "PU-10",
+        "PU-12"
+      ],
+      "owners": [
+        "PU"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "B",
+      "step": "1",
+      "actor": "Super Admin",
+      "screens": "SA-07 (Assign Institute Admin)",
+      "record": "INST · IA",
+      "transition": "No Institute Admin → assigned",
+      "outcome": "Nothing is sent (T-11)",
+      "evidenceBoards": "B7-03",
+      "screenIdsReferenced": [
+        "SA-07"
+      ],
+      "owners": [
+        "SA"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "B",
+      "step": "2",
+      "actor": "Institute Admin",
+      "screens": "IA-01 → IA-02 → IA-03",
+      "record": "ACC-0107",
+      "transition": "Access active (plan read-only)",
+      "outcome": "Content access ≠ Student access",
+      "evidenceBoards": "B2-01 · B2-02 · B2-03",
+      "screenIdsReferenced": [
+        "IA-01",
+        "IA-02",
+        "IA-03"
+      ],
+      "owners": [
+        "IA"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "B",
+      "step": "3",
+      "actor": "Institute Admin",
+      "screens": "IA-06 / IA-11 → IA-05",
+      "record": "SACC-0310",
+      "transition": "No access yet → Active",
+      "outcome": "Give students access (Experiment × format grant, LD-1)",
+      "evidenceBoards": "B2-05 · B2-07 · B2-13",
+      "screenIdsReferenced": [
+        "IA-06",
+        "IA-11",
+        "IA-05"
+      ],
+      "owners": [
+        "IA"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "B",
+      "step": "4",
+      "actor": "Student",
+      "screens": "ST-01 → ST-02 → ST-05",
+      "record": "SACC-0310",
+      "transition": "— → Not started",
+      "outcome": "Rahul sees the experiment and the formats given to him",
+      "evidenceBoards": "B2-10 · B2-11 · B2-12 · B2-13",
+      "screenIdsReferenced": [
+        "ST-01",
+        "ST-02",
+        "ST-05"
+      ],
+      "owners": [
+        "ST"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "C",
+      "step": "1",
+      "actor": "Student",
+      "screens": "ST-05 → ST-06 → ST-07",
+      "record": "EXP · RES",
+      "transition": "—",
+      "outcome": "Resources, then choose a format (only formats given)",
+      "evidenceBoards": "B3-01 · B3-02",
+      "screenIdsReferenced": [
+        "ST-05",
+        "ST-06",
+        "ST-07"
+      ],
+      "owners": [
+        "ST"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "C",
+      "step": "2",
+      "actor": "Student",
+      "screens": "ST-07 → ST-08 / ST-09",
+      "record": "RUN (per format)",
+      "transition": "Not started → In progress → Completed",
+      "outcome": "Progress per format, no overall verdict",
+      "evidenceBoards": "B3-03 · B3-04 · B3-05",
+      "screenIdsReferenced": [
+        "ST-07",
+        "ST-08",
+        "ST-09"
+      ],
+      "owners": [
+        "ST"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "C",
+      "step": "3",
+      "actor": "Student",
+      "screens": "ST-10 / ST-15 → ST-16 → ST-17",
+      "record": "FB (Student × Experiment × format)",
+      "transition": "WEB Completed → “Give feedback on WEB” → Feedback sent (one record per format)",
+      "outcome": "“Give feedback on WEB” appears only after WEB is Completed; VR not started offers nothing",
+      "evidenceBoards": "B3-06 · B3-12",
+      "screenIdsReferenced": [
+        "ST-10",
+        "ST-15",
+        "ST-16",
+        "ST-17"
+      ],
+      "owners": [
+        "ST"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "D",
+      "step": "1",
+      "actor": "Faculty",
+      "screens": "FA-06 → FA-07 → FA-08…FA-12",
+      "record": "ASMT-0009",
+      "transition": "Draft → Ready",
+      "outcome": "Pass mark and rules belong to this assessment only",
+      "evidenceBoards": "B4-04 · B4-05 · B4-06 · B4-14",
+      "screenIdsReferenced": [
+        "FA-06",
+        "FA-07",
+        "FA-08",
+        "FA-12"
+      ],
+      "owners": [
+        "FA"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "D",
+      "step": "2",
+      "actor": "Student",
+      "screens": "ST-11 → ST-12 → ST-13",
+      "record": "ATT-0450",
+      "transition": "To do → Attempt in progress → Submitted · waiting for marking",
+      "outcome": "Submit reachable at every width (Batch-4 fix)",
+      "evidenceBoards": "B4-11 · B4-12 · B4-14",
+      "screenIdsReferenced": [
+        "ST-11",
+        "ST-12",
+        "ST-13"
+      ],
+      "owners": [
+        "ST"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "D",
+      "step": "3",
+      "actor": "Faculty",
+      "screens": "FA-01 → FA-18 → FA-19",
+      "record": "ATT-0450",
+      "transition": "Waiting for marking → Marks confirmed",
+      "outcome": "Marks confirmed; result not released yet",
+      "evidenceBoards": "B4-01 · B4-09 · B4-14",
+      "screenIdsReferenced": [
+        "FA-01",
+        "FA-18",
+        "FA-19"
+      ],
+      "owners": [
+        "FA"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "D",
+      "step": "4",
+      "actor": "Faculty → Student",
+      "screens": "FA-12 (release) → ST-14",
+      "record": "ATT-0450",
+      "transition": "Result not released yet → Result ready",
+      "outcome": "Student sees the released result",
+      "evidenceBoards": "B4-06 · B4-13 · B4-14",
+      "screenIdsReferenced": [
+        "FA-12",
+        "ST-14"
+      ],
+      "owners": [
+        "FA",
+        "ST"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "E",
+      "step": "1",
+      "actor": "Vendor",
+      "screens": "VE-02 → VE-03…VE-06",
+      "record": "SUB-0077",
+      "transition": "Draft → With Academic Reviewer",
+      "outcome": "Submitting does not publish",
+      "evidenceBoards": "B5-03 · B5-04 · B5-05 · B5-08",
+      "screenIdsReferenced": [
+        "VE-02",
+        "VE-03",
+        "VE-06"
+      ],
+      "owners": [
+        "VE"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "E",
+      "step": "2",
+      "actor": "Academic Reviewer → Vendor",
+      "screens": "RV-02 → RV-03 → VE-07 → VE-08",
+      "record": "SUB-0077",
+      "transition": "With Academic Reviewer → Returned (reason) → Submitted → With Academic Reviewer (revision 2)",
+      "outcome": "Reason and references shown above the editor",
+      "evidenceBoards": "B6-03 · B5-07 · B5-08 · B6-12",
+      "screenIdsReferenced": [
+        "RV-02",
+        "RV-03",
+        "VE-07",
+        "VE-08"
+      ],
+      "owners": [
+        "RV",
+        "VE"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "E",
+      "step": "3",
+      "actor": "Academic Reviewer",
+      "screens": "RV-03 (Approve)",
+      "record": "SUB-0077 · LO",
+      "transition": "With Academic Reviewer → With Content Manager",
+      "outcome": "Approve ≠ Publish; outcomes set by the reviewer (LD-3)",
+      "evidenceBoards": "B6-03 · B6-12",
+      "screenIdsReferenced": [
+        "RV-03"
+      ],
+      "owners": [
+        "RV"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "E",
+      "step": "4",
+      "actor": "Content Manager",
+      "screens": "CM-02 → CM-03 (Publish)",
+      "record": "SUB-0077 → EXP",
+      "transition": "With Content Manager → Published",
+      "outcome": "“Publishing gives no one access”",
+      "evidenceBoards": "B6-06 · B6-07 · B6-12",
+      "screenIdsReferenced": [
+        "CM-02",
+        "CM-03"
+      ],
+      "owners": [
+        "CM"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "E",
+      "step": "5",
+      "actor": "Public",
+      "screens": "PU-05 / PU-06",
+      "record": "EXP",
+      "transition": "Listed in the catalogue",
+      "outcome": "Appears only after the publication decision",
+      "evidenceBoards": "B6-12",
+      "screenIdsReferenced": [
+        "PU-05",
+        "PU-06"
+      ],
+      "owners": [
+        "PU"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "F",
+      "step": "1",
+      "actor": "Content Manager",
+      "screens": "CM-05 → CM-06/07 → CM-08",
+      "record": "UPD-0005",
+      "transition": "Draft → In academic review",
+      "outcome": "Live version 1.2 unchanged",
+      "evidenceBoards": "B6-08 · B6-09 · B6-13 · B7-11",
+      "screenIdsReferenced": [
+        "CM-05",
+        "CM-06",
+        "CM-08"
+      ],
+      "owners": [
+        "CM"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "F",
+      "step": "2",
+      "actor": "Academic Reviewer",
+      "screens": "RV-02 → RV-04",
+      "record": "UPD-0005",
+      "transition": "In academic review → Awaiting release decision",
+      "outcome": "Approve update does not change what is live",
+      "evidenceBoards": "B6-04 · B6-13 · B7-11",
+      "screenIdsReferenced": [
+        "RV-02",
+        "RV-04"
+      ],
+      "owners": [
+        "RV"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "F",
+      "step": "3",
+      "actor": "Super Admin",
+      "screens": "SA-10 → SA-11",
+      "record": "UPD-0005",
+      "transition": "Waiting for your decision → Released · On hold · (Lift hold → waiting)",
+      "outcome": "Release: 1.3 live everywhere; Hold: 1.2 stays; never “Publish”",
+      "evidenceBoards": "B7-05 · B7-11",
+      "screenIdsReferenced": [
+        "SA-10",
+        "SA-11"
+      ],
+      "owners": [
+        "SA"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "F",
+      "step": "4",
+      "actor": "Content Manager · public · learner",
+      "screens": "CM-05 / CM-08 · PU-06 · ST-05",
+      "record": "EXP (live version)",
+      "transition": "Live 1.2 → 1.3 (Release) or 1.2 (Hold)",
+      "outcome": "History keeps every version and decision",
+      "evidenceBoards": "B7-11",
+      "screenIdsReferenced": [
+        "CM-05",
+        "CM-08",
+        "PU-06",
+        "ST-05"
+      ],
+      "owners": [
+        "CM",
+        "PU",
+        "ST"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "Device",
+      "step": "1",
+      "actor": "Student",
+      "screens": "ST-18",
+      "record": "DTR-0018",
+      "transition": "— → With your Institute Admin",
+      "outcome": "Authorisation change only — nothing is shipped",
+      "evidenceBoards": "B3-07 · B3-12",
+      "screenIdsReferenced": [
+        "ST-18"
+      ],
+      "owners": [
+        "ST"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "Device",
+      "step": "2",
+      "actor": "Institute Admin",
+      "screens": "IA-18 → IA-19",
+      "record": "DTR-0018",
+      "transition": "Waiting on you → Forwarded to BITS",
+      "outcome": "The Institute Admin forwards; cannot approve",
+      "evidenceBoards": "B3-09 · B3-12",
+      "screenIdsReferenced": [
+        "IA-18",
+        "IA-19"
+      ],
+      "owners": [
+        "IA"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    },
+    {
+      "flow": "Device",
+      "step": "3",
+      "actor": "Super Admin",
+      "screens": "SA-18 → SA-19",
+      "record": "DTR-0018",
+      "transition": "Forwarded → Approved",
+      "outcome": "Approve only — no Decline (T-32); the authorised device changes",
+      "evidenceBoards": "B3-11 · B7-09 · B3-12",
+      "screenIdsReferenced": [
+        "SA-18",
+        "SA-19"
+      ],
+      "owners": [
+        "SA"
+      ],
+      "status": "historical flow reference; apply later owner-approved interims and live contracts"
+    }
+  ]
+}

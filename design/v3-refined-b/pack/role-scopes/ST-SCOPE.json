@@ -1,0 +1,380 @@
+{
+  "owner": "ST",
+  "surface": "Student",
+  "foundation": "XR-V3-RB-1.0",
+  "completeRoleRequired": true,
+  "preexistingV3Seeds": [],
+  "lockedRetained": [],
+  "sharedDependencies": [
+    "XS",
+    "IA",
+    "FA"
+  ],
+  "screens": [
+    {
+      "id": "ST-01",
+      "surface": "Student",
+      "screen": "Home",
+      "type": "page",
+      "navigation": "Sidebar Home",
+      "proposedRoute": "/student",
+      "designed": true,
+      "inventoryDisposition": "REFINE (heavy)",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-10",
+          "file": "B2-10-Student-Home.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/learn/:s/home"
+    },
+    {
+      "id": "ST-02",
+      "surface": "Student",
+      "screen": "My courses",
+      "type": "page",
+      "navigation": "Sidebar My courses",
+      "proposedRoute": "/student/courses",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-11",
+          "file": "B2-11-My-Courses.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "My Learning (grouped by course)"
+    },
+    {
+      "id": "ST-03",
+      "surface": "Student",
+      "screen": "Course (student view)",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/student/courses/[courseId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B2-11",
+          "file": "B2-11-My-Courses.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "—"
+    },
+    {
+      "id": "ST-04",
+      "surface": "Student",
+      "screen": "All my experiments",
+      "type": "tab",
+      "navigation": "Tab of My courses",
+      "proposedRoute": "/student/courses?tab=experiments",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B2-11",
+          "file": "B2-11-My-Courses.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "My Learning list"
+    },
+    {
+      "id": "ST-05",
+      "surface": "Student",
+      "screen": "Experiment (hub: Overview · Resources · Simulation · Assessment · Progress)",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/student/experiments/[experimentId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B2-12",
+          "file": "B2-12-Experiment-Hub.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/learn/:s/experiment/:e"
+    },
+    {
+      "id": "ST-06",
+      "surface": "Student",
+      "screen": "Resources",
+      "type": "tab",
+      "navigation": "Experiment tab",
+      "proposedRoute": "/student/experiments/[experimentId]/resources",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-01",
+          "file": "B3-01-Hub-Resources-and-Progress.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "resources card (inline text)"
+    },
+    {
+      "id": "ST-07",
+      "surface": "Student",
+      "screen": "Simulation — choose a format",
+      "type": "tab",
+      "navigation": "Experiment tab",
+      "proposedRoute": "/student/experiments/[experimentId]/simulation",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B3-02",
+          "file": "B3-02-Simulation-Choose-Format.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "simulation card"
+    },
+    {
+      "id": "ST-08",
+      "surface": "Student",
+      "screen": "WEB simulation (launch / resume)",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/student/experiments/[experimentId]/simulation/web",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B3-03",
+          "file": "B3-03-WEB-Simulation.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "…/simulation/web, …/run"
+    },
+    {
+      "id": "ST-09",
+      "surface": "Student",
+      "screen": "AR / VR / MR format (setup & progress)",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/student/experiments/[experimentId]/simulation/[format]",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B3-04",
+          "file": "B3-04-AR-VR-MR-Format.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "…/simulation/:tech"
+    },
+    {
+      "id": "ST-10",
+      "surface": "Student",
+      "screen": "Progress for this experiment",
+      "type": "tab",
+      "navigation": "Experiment tab",
+      "proposedRoute": "/student/experiments/[experimentId]/progress",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-01",
+          "file": "B3-01-Hub-Resources-and-Progress.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "progress card on the experiment page"
+    },
+    {
+      "id": "ST-11",
+      "surface": "Student",
+      "screen": "Assessments",
+      "type": "page",
+      "navigation": "Sidebar Assessments",
+      "proposedRoute": "/student/assessments",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B4-11",
+          "file": "B4-11-Student-Assessments.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "— (reached via each experiment)"
+    },
+    {
+      "id": "ST-12",
+      "surface": "Student",
+      "screen": "Assessment — before you start",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/student/assessments/[assessmentId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B4-11",
+          "file": "B4-11-Student-Assessments.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "…/assessment"
+    },
+    {
+      "id": "ST-13",
+      "surface": "Student",
+      "screen": "Assessment attempt",
+      "type": "step",
+      "navigation": "Flow step",
+      "proposedRoute": "/student/assessments/[assessmentId]/attempt",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B4-12",
+          "file": "B4-12-Assessment-Attempt.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "…/assessment/attempt"
+    },
+    {
+      "id": "ST-14",
+      "surface": "Student",
+      "screen": "Result",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/student/assessments/[assessmentId]/result",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B4-13",
+          "file": "B4-13-Assessment-Result.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "…/assessment/result"
+    },
+    {
+      "id": "ST-15",
+      "surface": "Student",
+      "screen": "Progress (all experiments)",
+      "type": "page",
+      "navigation": "Sidebar Progress",
+      "proposedRoute": "/student/progress",
+      "designed": true,
+      "inventoryDisposition": "REFINE (rename + expand)",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B3-05",
+          "file": "B3-05-Progress.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/learn/:s/progress"
+    },
+    {
+      "id": "ST-16",
+      "surface": "Student",
+      "screen": "Format feedback",
+      "type": "step",
+      "navigation": "Flow step",
+      "proposedRoute": "/student/experiments/[experimentId]/feedback/[format]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B3-06",
+          "file": "B3-06-Format-Feedback.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "—"
+    },
+    {
+      "id": "ST-17",
+      "surface": "Student",
+      "screen": "Feedback sent (confirmation, read-only)",
+      "type": "state",
+      "navigation": "Flow step",
+      "proposedRoute": "/student/experiments/[experimentId]/feedback/[format] (sent state)",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-06",
+          "file": "B3-06-Format-Feedback.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "—"
+    },
+    {
+      "id": "ST-18",
+      "surface": "Student",
+      "screen": "My device (AR/VR/MR holders only)",
+      "type": "page",
+      "navigation": "Account menu",
+      "proposedRoute": "/student/device",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-07",
+          "file": "B3-07-My-Device.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/learn/:s/device"
+    },
+    {
+      "id": "ST-19",
+      "surface": "Student",
+      "screen": "Experiment not available (refusal page)",
+      "type": "state",
+      "navigation": "—",
+      "proposedRoute": "/student/experiments/[experimentId] (not-available state)",
+      "designed": true,
+      "inventoryDisposition": "KEEP",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B2-11",
+          "file": "B2-11-My-Courses.dc.html"
+        },
+        {
+          "code": "B2-12",
+          "file": "B2-12-Experiment-Hub.dc.html"
+        },
+        {
+          "code": "B2-13",
+          "file": "B2-13-Flow-2-Continuity.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "resolve() refusal pages"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "ST-20",
+      "surface": "Student",
+      "screen": "Signed-in catalogue",
+      "type": "—",
+      "navigation": "(B2 rail \"Catalogue\")",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "REMOVE from Student nav (R18) — public catalogue stays reachable from the footer",
+      "importance": "OPT",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { join } from 'node:path';
 
 import { defineConfig, devices } from '@playwright/test';
+import { e2ePorts, localOrigin } from '@xr/testing/playwright';
 
 import { RUNS_ROOT } from '../../tools/board-capture/src/paths.mjs';
 
@@ -18,6 +19,7 @@ const stamp = new Date().toISOString().replace(/[:.]/g, '-');
 process.env.XR_PARITY_RUN_DIR ??= join(RUNS_ROOT, `${stamp}-specimens`);
 const run = process.env.XR_PARITY_RUN_DIR;
 const ci = Boolean(process.env.CI);
+const { specimens: port } = e2ePorts();
 
 export default defineConfig({
   testDir: './e2e/parity',
@@ -34,7 +36,7 @@ export default defineConfig({
   globalSetup: './e2e/parity/global-setup.ts',
   use: {
     ...devices['Desktop Chrome'],
-    baseURL: 'http://localhost:3100',
+    baseURL: localOrigin(port),
     viewport: { width: 1440, height: 900 },
     deviceScaleFactor: 1,
     reducedMotion: 'reduce',
@@ -46,8 +48,8 @@ export default defineConfig({
   },
   projects: [{ name: 'parity-chromium' }],
   webServer: {
-    command: 'pnpm exec next start -p 3100',
-    url: 'http://127.0.0.1:3100/harness-probe',
+    command: `pnpm exec next start -p ${port}`,
+    url: `http://127.0.0.1:${port}/harness-probe`,
     reuseExistingServer: !ci,
     timeout: 120_000,
   },

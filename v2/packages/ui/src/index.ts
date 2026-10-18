@@ -195,6 +195,7 @@ export {
   DrawerScrim,
   type DrawerController,
   type DrawerCloseOptions,
+  type DrawerOptions,
   type DrawerMenuButtonProps,
   type DrawerCloseButtonProps,
   type DrawerScrimProps,

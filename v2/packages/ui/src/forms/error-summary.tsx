@@ -46,8 +46,11 @@ const CHOSEN_OPTION = 'input[type="radio"]:checked:enabled';
 const FIRST_CONTROL =
   'input:enabled:not([type="hidden"]), select:enabled, textarea:enabled, button:enabled, [tabindex]:not(:disabled)';
 
-/** What a summary link focuses: the field itself, or the control inside it that Tab would reach. */
-function focusField(fieldId: string): void {
+/**
+ * What a summary link focuses: the field itself, or the control inside it that Tab would reach.
+ * Shared with the V3 error summary (`v3/fields.tsx`).
+ */
+export function focusField(fieldId: string): void {
   const field = document.getElementById(fieldId);
   if (!field) return;
   field.focus();

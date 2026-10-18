@@ -23,6 +23,7 @@ Stakeholder-confirmed requirements govern business behaviour. A stakeholder ↔ 
 | [ADR-0007](ADR-0007-test-only-seams-and-sample-clock.md) | Test-only controls: sample clock, build flags, test hooks, seeded system facts (TE-5, TE-7)                 | Accepted                             | G-2 and AD-14, approved 12 Oct 2026                                                                   |
 | [ADR-0008](ADR-0008-service-contract-shape.md)           | Typed service-contract boundaries: one port set, one result/error union, one record-kind union              | Accepted (engineering)               | Acknowledged 13 Oct 2026, limited scope (WP-0.10)                                                     |
 | [ADR-0009](ADR-0009-request-status-access.md)            | Request status access: opaque address; tickets held by the browser session, per world and user session      | Accepted (engineering)               | DV-5 / O-05 approved 14 Oct 2026 (Package 1C); two readings for acknowledgement                       |
+| [ADR-0010](ADR-0010-v3-presentation-layer.md)            | V3 Refined Direction B layer (XR-V3-RB-1.0): scoped derivative in `xr.v3`, `@xr/ui/v3`, v46 kept beside it  | Accepted (engineering)               | Refined B selected by the owner; foundation only, 19 Oct 2026; acknowledgement requested              |
 
 ## Owner decisions of 12 October 2026
 

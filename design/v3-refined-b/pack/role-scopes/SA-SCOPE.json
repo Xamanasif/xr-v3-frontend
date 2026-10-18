@@ -1,0 +1,554 @@
+{
+  "owner": "SA",
+  "surface": "Super Admin",
+  "foundation": "XR-V3-RB-1.0",
+  "completeRoleRequired": true,
+  "preexistingV3Seeds": [
+    "SA-01",
+    "SA-02",
+    "SA-03"
+  ],
+  "lockedRetained": [],
+  "sharedDependencies": [
+    "XS",
+    "PU",
+    "RV",
+    "CM",
+    "IA"
+  ],
+  "screens": [
+    {
+      "id": "SA-01",
+      "surface": "Super Admin",
+      "screen": "Overview",
+      "type": "page",
+      "navigation": "Sidebar Overview",
+      "proposedRoute": "/admin",
+      "designed": true,
+      "inventoryDisposition": "REFINE (heavy)",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B7-01",
+          "file": "B7-01-SA-Overview.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        },
+        {
+          "code": "B7-12",
+          "file": "B7-12-Responsive-Proof.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "#/platform/overview"
+    },
+    {
+      "id": "SA-02",
+      "surface": "Super Admin",
+      "screen": "Requests",
+      "type": "page",
+      "navigation": "Sidebar Requests",
+      "proposedRoute": "/admin/requests",
+      "designed": true,
+      "inventoryDisposition": "KEEP + REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-10",
+          "file": "B1-10-SA-Requests.dc.html"
+        },
+        {
+          "code": "B1-11",
+          "file": "B1-11-SA-Decision.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/requests"
+    },
+    {
+      "id": "SA-03",
+      "surface": "Super Admin",
+      "screen": "Request decision",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/admin/requests/[requestId]",
+      "designed": true,
+      "inventoryDisposition": "KEEP (model pattern) + REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B1-10",
+          "file": "B1-10-SA-Requests.dc.html"
+        },
+        {
+          "code": "B1-11",
+          "file": "B1-11-SA-Decision.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/requests/:id"
+    },
+    {
+      "id": "SA-06",
+      "surface": "Super Admin",
+      "screen": "Institutions",
+      "type": "page",
+      "navigation": "Sidebar Institutions",
+      "proposedRoute": "/admin/institutions",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B7-02",
+          "file": "B7-02-Institutions.dc.html"
+        },
+        {
+          "code": "B7-12",
+          "file": "B7-12-Responsive-Proof.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/institutions"
+    },
+    {
+      "id": "SA-07",
+      "surface": "Super Admin",
+      "screen": "Institution detail",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/admin/institutions/[institutionId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B7-02",
+          "file": "B7-02-Institutions.dc.html"
+        },
+        {
+          "code": "B7-03",
+          "file": "B7-03-Institution-Detail.dc.html"
+        },
+        {
+          "code": "B7-04",
+          "file": "B7-04-Pause-Effects.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        },
+        {
+          "code": "B7-12",
+          "file": "B7-12-Responsive-Proof.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/institutions/:id"
+    },
+    {
+      "id": "SA-10",
+      "surface": "Super Admin",
+      "screen": "Content updates (awaiting release)",
+      "type": "tab",
+      "navigation": "Sidebar Content › Updates",
+      "proposedRoute": "/admin/content/updates",
+      "designed": true,
+      "inventoryDisposition": "KEEP",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B7-05",
+          "file": "B7-05-Content-Updates-Release-Hold.dc.html"
+        },
+        {
+          "code": "B7-11",
+          "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/content (versions awaiting)"
+    },
+    {
+      "id": "SA-11",
+      "surface": "Super Admin",
+      "screen": "Release or hold an update",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/admin/content/updates/[updateId]",
+      "designed": true,
+      "inventoryDisposition": "REFINE",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B7-01",
+          "file": "B7-01-SA-Overview.dc.html"
+        },
+        {
+          "code": "B7-05",
+          "file": "B7-05-Content-Updates-Release-Hold.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        },
+        {
+          "code": "B7-11",
+          "file": "B7-11-Flow-6-Release-and-Hold.dc.html"
+        },
+        {
+          "code": "B7-12",
+          "file": "B7-12-Responsive-Proof.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "Release / Hold panel on /platform/content/:id"
+    },
+    {
+      "id": "SA-12",
+      "surface": "Super Admin",
+      "screen": "All content & stuck items",
+      "type": "tab",
+      "navigation": "Content › All content",
+      "proposedRoute": "/admin/content/all",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B7-06",
+          "file": "B7-06-All-Content.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/content"
+    },
+    {
+      "id": "SA-13",
+      "surface": "Super Admin",
+      "screen": "Content record (read-only for published content; status override for stuck, non-published records — M-1)",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/admin/content/records/[recordId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B7-06",
+          "file": "B7-06-All-Content.dc.html"
+        },
+        {
+          "code": "B7-09",
+          "file": "B7-09-Operations.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        },
+        {
+          "code": "B7-12",
+          "file": "B7-12-Responsive-Proof.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/content/:id"
+    },
+    {
+      "id": "SA-14",
+      "surface": "Super Admin",
+      "screen": "Academic structure (areas → courses)",
+      "type": "page",
+      "navigation": "Sidebar Academic structure",
+      "proposedRoute": "/admin/structure",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B7-07",
+          "file": "B7-07-Academic-Structure.dc.html"
+        },
+        {
+          "code": "B7-12",
+          "file": "B7-12-Responsive-Proof.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/structure"
+    },
+    {
+      "id": "SA-15",
+      "surface": "Super Admin",
+      "screen": "Area / course record",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/admin/structure/areas/[areaId] · /courses/[courseId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B7-07",
+          "file": "B7-07-Academic-Structure.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        },
+        {
+          "code": "B7-12",
+          "file": "B7-12-Responsive-Proof.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/structure/programme/:id, /course/:id"
+    },
+    {
+      "id": "SA-16",
+      "surface": "Super Admin",
+      "screen": "Platform roles (Vendors · Reviewers · Content Managers)",
+      "type": "page",
+      "navigation": "Sidebar Platform roles",
+      "proposedRoute": "/admin/roles?tab=vendors|reviewers|content-managers",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B7-08",
+          "file": "B7-08-Platform-Roles.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/roles"
+    },
+    {
+      "id": "SA-17",
+      "surface": "Super Admin",
+      "screen": "Role holder (assign / withdraw scope)",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/admin/roles/[holderId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "CORE",
+      "boards": [
+        {
+          "code": "B7-08",
+          "file": "B7-08-Platform-Roles.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        },
+        {
+          "code": "B7-12",
+          "file": "B7-12-Responsive-Proof.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/roles/:actorId"
+    },
+    {
+      "id": "SA-18",
+      "surface": "Super Admin",
+      "screen": "Device transfers",
+      "type": "tab",
+      "navigation": "Sidebar Operations › Device transfers",
+      "proposedRoute": "/admin/operations/device-transfers",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-11",
+          "file": "B3-11-SA-Device-Transfers.dc.html"
+        },
+        {
+          "code": "B7-09",
+          "file": "B7-09-Operations.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/operations"
+    },
+    {
+      "id": "SA-19",
+      "surface": "Super Admin",
+      "screen": "Device transfer decision",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/admin/operations/device-transfers/[transferId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B3-11",
+          "file": "B3-11-SA-Device-Transfers.dc.html"
+        },
+        {
+          "code": "B7-09",
+          "file": "B7-09-Operations.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/transfer/:id"
+    },
+    {
+      "id": "SA-20",
+      "surface": "Super Admin",
+      "screen": "Support reports",
+      "type": "tab",
+      "navigation": "Operations › Support",
+      "proposedRoute": "/admin/operations/support",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B7-09",
+          "file": "B7-09-Operations.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/operations"
+    },
+    {
+      "id": "SA-21",
+      "surface": "Super Admin",
+      "screen": "Support report",
+      "type": "page",
+      "navigation": "Detail",
+      "proposedRoute": "/admin/operations/support/[reportId]",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B7-09",
+          "file": "B7-09-Operations.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        },
+        {
+          "code": "B7-12",
+          "file": "B7-12-Responsive-Proof.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/support/:id"
+    },
+    {
+      "id": "SA-22",
+      "surface": "Super Admin",
+      "screen": "Access ending & renewals",
+      "type": "tab",
+      "navigation": "Operations › Access ending",
+      "proposedRoute": "/admin/operations/access-ending",
+      "designed": true,
+      "inventoryDisposition": "NEW",
+      "importance": "SUPP",
+      "boards": [
+        {
+          "code": "B7-09",
+          "file": "B7-09-Operations.dc.html"
+        },
+        {
+          "code": "B7-10",
+          "file": "B7-10-Critical-States.dc.html"
+        }
+      ],
+      "oldPrototypeRoute": "/platform/operations expiry table"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "SA-04",
+      "surface": "Super Admin",
+      "screen": "Decline a request",
+      "type": "—",
+      "navigation": "—",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "OPEN (R21 / D10)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "— (\"There is no reject\")"
+    },
+    {
+      "id": "SA-05",
+      "surface": "Super Admin",
+      "screen": "Record payment / activate manually",
+      "type": "—",
+      "navigation": "—",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "OPEN (R06)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "— (the payer completes payment in the prototype)"
+    },
+    {
+      "id": "SA-08",
+      "surface": "Super Admin",
+      "screen": "Create an institution directly",
+      "type": "—",
+      "navigation": "—",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "OPEN (R07)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "— (institutions are created only by approving a request)"
+    },
+    {
+      "id": "SA-09",
+      "surface": "Super Admin",
+      "screen": "Content allocation page",
+      "type": "—",
+      "navigation": "(B2 rail \"Content allocation\")",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "REMOVE as a page → MERGE into SA-03 (narrow at approval) and SA-07 (view)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "— (allocation = narrowing at approval)"
+    },
+    {
+      "id": "SA-23",
+      "surface": "Super Admin",
+      "screen": "Platform reports",
+      "type": "—",
+      "navigation": "(B2 rail \"Platform reports\")",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER (R15); the institution report lives in SA-07",
+      "importance": "OPT",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    },
+    {
+      "id": "SA-24",
+      "surface": "Super Admin",
+      "screen": "Platform settings",
+      "type": "—",
+      "navigation": "(B2 rail \"Platform settings\")",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "REMOVE (\"a gap is shown as a gap\", 17/10 §8)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    },
+    {
+      "id": "SA-25",
+      "surface": "Super Admin",
+      "screen": "Student feedback views / analytics",
+      "type": "—",
+      "navigation": "—",
+      "proposedRoute": "—",
+      "designed": false,
+      "inventoryDisposition": "DEFER (owner OPEN)",
+      "importance": "—",
+      "boards": [],
+      "oldPrototypeRoute": "—"
+    }
+  ]
+}

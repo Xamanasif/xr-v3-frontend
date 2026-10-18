@@ -1,6 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 
-import { reachAndClick, signInAs } from '../support';
+import { PRODUCT_URL, reachAndClick, signInAs } from '../support';
 import { checkState } from '../support/screen-checks';
 import { expectSameDocument, markDocument } from '../support/workspace';
 
@@ -153,6 +153,6 @@ test('open redirects and other workspaces are refused: the person’s own base i
     // `/admin` is SA-01 Overview since Package 1D (before, the interim landing: Help, P0-35).
     await page.waitForURL('**/admin');
     await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
-    expect(new URL(page.url()).origin).toBe('http://localhost:3000');
+    expect(new URL(page.url()).origin).toBe(PRODUCT_URL);
   }
 });

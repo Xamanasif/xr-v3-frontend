@@ -1,6 +1,6 @@
 import { expect, type Locator, test } from '@playwright/test';
 
-import { TEST_HOOKS_URL } from '../support';
+import { PRODUCT_URL, TEST_HOOKS_URL } from '../support';
 import { openAs, roleEntry } from '../support/workspace';
 
 /**
@@ -160,7 +160,7 @@ test('PF-15 · XS-06 in the shell: left-aligned near the top; full-width primary
 test('PF-15 · the public not-found: B1-03’s placement on a public page (product build)', async ({
   page,
 }) => {
-  await page.goto('http://localhost:3000/anything');
+  await page.goto(`${PRODUCT_URL}/anything`);
   const message = page.locator('main.xp-page .xr-msg.xr-x-msg--public');
   await expect(message).toBeVisible();
   expect(await styleOf(message, ['margin-top', 'margin-bottom', 'margin-left'])).toEqual({

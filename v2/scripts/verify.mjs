@@ -18,7 +18,9 @@
 //                   self-tests, test-hook bridge, the Phase-0 foundation screens and guards
 //                   (e2e/foundation, WP-0.13), the cross-role proofs on one tab and one world
 //                   (e2e/foundation/cross-role, WP-0.14), the full-UI flows on the product build
-//                   (e2e/flows, Phase 7), specimen harness (ports 3000, 3100 and 3200 must be free)
+//                   (e2e/flows, Phase 7), specimen harness (ports 3000, 3100 and 3200 must be free —
+//                   or the ports XR_E2E_WEB_PORT, XR_E2E_SPECIMENS_PORT, XR_E2E_TEST_HOOKS_PORT name,
+//                   which the suites then use: a second checkout beside another's servers)
 //   6. parity       WP-0.15 visual parity, kept apart from the four-width suites: the frozen v46
 //                   boards rendered offline by tools/board-capture (vendored, SRI-checked inputs;
 //                   network blocked except localhost) against the @xr/ui specimens (3100) and the
@@ -138,6 +140,28 @@ function walk(directory) {
     if (entry === 'cache') return [];
     return statSync(path).isDirectory() ? walk(path) : [path];
   });
+}
+
+/**
+ * The ports the browser suites serve on: 3000 / 3100 / 3200, or the values of the
+ * `XR_E2E_*_PORT` variables (the same rule as `e2ePorts` in @xr/testing, which the Playwright
+ * configs use; verify cannot import that package before the build).
+ */
+function e2ePorts() {
+  const read = (name, fallback) => {
+    const raw = process.env[name];
+    if (raw === undefined || raw === '') return fallback;
+    if (!/^\d+$/.test(raw) || Number(raw) < 1024 || Number(raw) > 65535) {
+      process.stderr.write(`verify: ${name} must be a port from 1024 to 65535, not "${raw}"\n`);
+      process.exit(1);
+    }
+    return Number(raw);
+  };
+  return {
+    web: read('XR_E2E_WEB_PORT', 3000),
+    specimens: read('XR_E2E_SPECIMENS_PORT', 3100),
+    testHooks: read('XR_E2E_TEST_HOOKS_PORT', 3200),
+  };
 }
 
 function portInUse(port) {
@@ -282,11 +306,12 @@ await step('bundle', async () => {
 });
 
 await step('browser', async () => {
-  for (const port of [3000, 3100, 3200]) {
+  const ports = e2ePorts();
+  for (const port of [ports.web, ports.specimens, ports.testHooks]) {
     if (await portInUse(port)) {
       return {
         ok: false,
-        detail: `port ${port} is in use; stop that server (e.g. pkill -f next-server) so the suites test this build`,
+        detail: `port ${port} is in use; stop that server, or give this run other ports (XR_E2E_WEB_PORT, XR_E2E_SPECIMENS_PORT, XR_E2E_TEST_HOOKS_PORT), so the suites test this build`,
       };
     }
   }
@@ -304,11 +329,12 @@ await step('browser', async () => {
 });
 
 await step('parity', async () => {
-  for (const port of [3100, 3200]) {
+  const parityPorts = e2ePorts();
+  for (const port of [parityPorts.specimens, parityPorts.testHooks]) {
     if (await portInUse(port)) {
       return {
         ok: false,
-        detail: `port ${port} is in use; stop that server so parity tests this build`,
+        detail: `port ${port} is in use; stop that server, or give this run other ports, so parity tests this build`,
       };
     }
   }

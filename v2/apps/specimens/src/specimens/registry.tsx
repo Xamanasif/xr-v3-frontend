@@ -2,6 +2,7 @@ import { COMPONENT_SPECIMENS } from './components';
 import { HarnessProbe } from './harness-probe';
 import { PARITY_SPECIMENS } from './parity';
 import type { Specimen } from './types';
+import { V3_SPECIMENS } from './v3';
 import { V46FocusedTask } from './v46/assess';
 import { V46Dialog, type DialogAlign } from './v46/dialogs';
 import { V46Foundation } from './v46/foundation';
@@ -21,6 +22,7 @@ export type { Specimen } from './types';
 export const SPECIMENS: Readonly<Record<string, Specimen>> = {
   ...COMPONENT_SPECIMENS,
   ...PARITY_SPECIMENS,
+  ...V3_SPECIMENS,
   'harness-probe': {
     title: 'Harness probe',
     source: 'harness',

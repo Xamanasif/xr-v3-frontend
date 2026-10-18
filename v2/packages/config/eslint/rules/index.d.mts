@@ -8,4 +8,5 @@ export const noProcessEnvRule: Rule.RuleModule;
 export const noRawHexRule: Rule.RuleModule;
 export const productClassAllowListRule: Rule.RuleModule;
 export const resolvedBoundariesRule: Rule.RuleModule;
+export const v3ClassNamesRule: Rule.RuleModule;
 export const v46ClassNamesRule: Rule.RuleModule;

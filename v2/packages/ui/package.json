@@ -9,7 +9,12 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./styles.css": "./src/styles/index.css"
+    "./styles.css": "./src/styles/index.css",
+    "./v3": {
+      "types": "./dist/v3/index.d.ts",
+      "default": "./dist/v3/index.js"
+    },
+    "./styles-v3.css": "./src/styles/v3/index.css"
   },
   "files": [
     "dist",
@@ -22,6 +27,7 @@
     "test": "vitest run",
     "generate:constants": "node scripts/generate-v46-constants.mjs",
     "generate:icons": "node scripts/generate-icon-registry.mjs",
+    "generate:v3-css": "node scripts/generate-v3-scoped-css.mjs",
     "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('dist', { recursive: true, force: true }))\""
   },
   "peerDependencies": {

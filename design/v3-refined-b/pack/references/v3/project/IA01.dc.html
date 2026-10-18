@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview — Institute Admin</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr rb">
+  <svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">
+    <symbol id="rbi-cal" viewBox="0 0 24 24"><path d="M8 3v3M16 3v3M4 9h16M20 11V6a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6M17.5 21a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17.5 16v1.6l1 .9"></path></symbol>
+    <symbol id="rbi-people" viewBox="0 0 24 24"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.3a3.5 3.5 0 0 1 0 6.4M18.5 14.5A6.5 6.5 0 0 1 21.5 20"></path></symbol>
+    <symbol id="rbi-faculty" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4-9 4-9-4zM7 11v4.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V11M21 9v5"></path></symbol>
+    <symbol id="rbi-box" viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"></path></symbol>
+    <symbol id="rbi-inbox" viewBox="0 0 24 24"><path d="M4 13.5 6.5 5h11l2.5 8.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 13.5h4.5l1.5 2.5h4l1.5-2.5H20"></path></symbol>
+    <symbol id="rbi-usage" viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"></path></symbol>
+    <symbol id="rbi-tick" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></symbol>
+  </svg>
+
+  <aside class="rb-rail" aria-label="Institute Admin workspace">
+    <div class="rb-brand">
+      <div class="rb-logo">Official WILP logo</div>
+      <p class="rb-product">XR Learning Platform</p>
+      <p class="rb-ws"><span class="rb-ws-role">Institute Admin</span><span class="rb-ws-inst">Godavari Institute of Technology</span></p>
+    </div>
+    <nav class="rb-nav" aria-label="Institute Admin navigation">
+      <a href="#top" aria-current="page"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"></path></svg><span>Overview</span></a>
+      <a href="IA02.dc.html"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"></path></svg><span>Content access</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3.5 20a6.5 6.5 0 0 1 10-5.5M18 14v6M15 17h6"></path></svg><span>Student access</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.3a3.5 3.5 0 0 1 0 6.4M18.5 14.5A6.5 6.5 0 0 1 21.5 20"></path></svg><span>People</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13.5 6.5 5h11l2.5 8.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 13.5h4.5l1.5 2.5h4l1.5-2.5H20"></path></svg><span>Requests</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"></path></svg><span>Usage</span></a>
+    </nav>
+    <div class="rb-rail-foot">
+      <nav class="rb-nav" aria-label="Help"><a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span>Help &amp; support</span></a></nav>
+    </div>
+  </aside>
+
+  <div class="rb-main">
+    <div class="rb-top">
+      <button type="button" class="rb-menu" id="ia1-menu" aria-expanded="{{ menuExp }}" onClick="{{ openMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
+      <p class="rb-top-date">Overview<span class="rb-top-sep" aria-hidden="true"></span>Wednesday 22 September 2027</p>
+      <button type="button" class="rb-acct" aria-label="Account menu, Meera Iyer, Institute Admin"><span class="xr-avatar" aria-hidden="true">MI</span><span class="rb-acct-text" aria-hidden="true"><span class="rb-acct-name">Meera Iyer</span><span class="rb-acct-role">Institute Admin</span></span><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+    </div>
+
+    <main class="rb-page" id="top">
+      <section class="rb-id" aria-labelledby="rb-id-h">
+        <div class="rb-id-top">
+          <div class="rb-id-text">
+            <p class="rb-eyebrow-date">Wednesday 22 September 2027</p>
+            <h1 class="rb-id-name" id="rb-id-h"><span class="xr-sr">Overview, </span>Godavari Institute of Technology</h1>
+            <p class="rb-id-status"><span class="xr-st xr-st--warn"><i></i>Ending soon</span><span>Access plan ACC-0107 ends on 7 October 2027.</span></p>
+          </div>
+          <div class="rb-id-act">
+            <a class="rb-btn rb-btn--lg" href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add students</a>
+            <a class="rb-btn rb-btn--primary rb-btn--lg" href="#">Give students access</a>
+          </div>
+        </div>
+        <div class="rb-term" role="img" aria-label="Access term from 8 October 2026 to 7 October 2027. 349 of 364 days have passed; 15 days are left.">
+          <div class="rb-term-top"><span class="rb-term-label">Yearly term</span><span class="rb-term-left">15 days left</span></div>
+          <div class="rb-term-track"><span class="rb-term-fill" style="width: 95.88%"></span><span class="rb-term-rest" style="width: 4.12%"></span><span class="rb-term-today" style="left: 95.88%"></span></div>
+          <div class="rb-term-ends"><span>8 Oct 2026</span><span>7 Oct 2027</span></div>
+        </div>
+        <nav class="rb-go" aria-label="Go to">
+          <span class="rb-go-label">Go to</span>
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-people"></use></svg>Students</a>
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-faculty"></use></svg>Faculty</a>
+          <a href="IA02.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-box"></use></svg>Content access</a>
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-inbox"></use></svg>Requests</a>
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-usage"></use></svg>Usage</a>
+        </nav>
+      </section>
+
+      <div class="rb-split">
+        <section class="rb-panel rb-att" aria-labelledby="rb-att-h">
+          <div class="rb-att-head"><h2 class="rb-h2" id="rb-att-h">Needs your attention</h2><p class="rb-note">5 items</p></div>
+          <div class="rb-lead">
+            <span class="rb-lead-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rbi-cal"></use></svg></span>
+            <p class="rb-lead-t">Request a renewal</p>
+            <p class="rb-lead-d">Your plan ends on 7 October. The reminder is due; nothing is sent automatically.</p>
+            <div class="rb-lead-act"><a class="rb-btn rb-btn--navy rb-btn--lg" href="#">Request renewal</a></div>
+          </div>
+          <ul>
+            <li class="rb-ai"><span class="rb-ai-n" aria-hidden="true">2</span><p class="rb-ai-t"><span class="xr-sr">2 </span>students are waiting for a licence</p><p class="rb-ai-d">Shell-and-Tube Heat Exchanger</p><div class="rb-ai-act"><a class="rb-btn" href="#">View students</a></div></li>
+            <li class="rb-ai"><span class="rb-ai-n" aria-hidden="true">1</span><p class="rb-ai-t"><span class="xr-sr">1 </span>device request to forward to BITS</p><p class="rb-ai-d">From Imran Shaikh on 18 September. BITS decides after you forward it.</p><div class="rb-ai-act"><a class="rb-btn" href="#">Open requests</a></div></li>
+            <li class="rb-ai"><span class="rb-ai-n" aria-hidden="true">3</span><p class="rb-ai-t"><span class="xr-sr">3 </span>students have no access yet</p><p class="rb-ai-d">Added on 15 September</p><div class="rb-ai-act"><a class="rb-btn" href="#">Review students</a></div></li>
+            <li class="rb-ai"><span class="rb-ai-n" aria-hidden="true">1</span><p class="rb-ai-t"><span class="xr-sr">1 </span>open problem report from your institution</p><p class="rb-ai-d">SUP-0213, sent on 20 September</p><div class="rb-ai-act"><a class="rb-btn" href="#">View report</a></div></li>
+          </ul>
+        </section>
+
+        <section class="rb-panel rb-plan" aria-labelledby="rb-plan-h">
+          <div class="rb-plan-head">
+            <h2 class="rb-h2" id="rb-plan-h">Your access plan</h2>
+            <a class="rb-link" href="#">View plan ACC-0107</a>
+          </div>
+          <div class="rb-plan-body">
+            <dl class="rb-facts">
+              <div><dt>Licences</dt><dd>120, as approved by BITS</dd></div>
+              <div><dt>Term</dt><dd>Yearly</dd></div>
+            </dl>
+            <div class="rb-plan-exp">
+              <p class="rb-exp-t">Shell-and-Tube Heat Exchanger</p>
+              <p class="rb-exp-c">ME ZG523 Thermodynamics &amp; Heat Transfer</p>
+              <p class="rb-exp-code">Your course code <span class="rb-code">MEC-523</span></p>
+            </div>
+            <ul class="rb-fcells" aria-label="Formats of Shell-and-Tube Heat Exchanger">
+              <li class="rb-fc rb-fc--on"><span class="rb-fc-code">WEB<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-tick"></use></svg></span><span class="rb-fc-name">Browser</span><span class="rb-fc-state">In your plan</span></li>
+              <li class="rb-fc rb-fc--pub"><span class="rb-fc-code">AR</span><span class="rb-fc-name">Augmented reality</span><span class="rb-fc-state">Published, not in your plan</span></li>
+              <li class="rb-fc rb-fc--on"><span class="rb-fc-code">VR<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-tick"></use></svg></span><span class="rb-fc-name">Virtual reality</span><span class="rb-fc-state">In your plan</span></li>
+              <li class="rb-fc rb-fc--none"><span class="rb-fc-code">MR</span><span class="rb-fc-name">Mixed reality</span><span class="rb-fc-state">Not published</span></li>
+            </ul>
+          </div>
+          <div class="rb-plan-foot"><p>Students open only the formats you give them on Student access.</p><a class="rb-link" href="IA02.dc.html">Open Content access</a></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="rb-scrim" aria-label="Close menu" tabindex="-1" onClick="{{ closeMenu }}"></button>
+  <div class="rb-drawer" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown="{{ drawerKey }}">
+    <div class="rb-drawer-head">
+      <p class="rb-product">XR Learning Platform</p>
+      <button type="button" class="rb-close" id="ia1-menu-close" aria-label="Close menu" onClick="{{ closeMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+    </div>
+    <div class="rb-brand" style="padding-top: 0"><div class="rb-logo">Official WILP logo</div><p class="rb-ws"><span class="rb-ws-role">Institute Admin</span><span class="rb-ws-inst">Godavari Institute of Technology</span></p></div>
+    <nav class="rb-nav" aria-label="Institute Admin navigation">
+      <a href="#top" aria-current="page" onClick="{{ closeMenu }}"><span>Overview</span></a>
+      <a href="IA02.dc.html"><span>Content access</span></a>
+      <a href="#"><span>Student access</span></a>
+      <a href="#"><span>People</span></a>
+      <a href="#"><span>Requests</span></a>
+      <a href="#"><span>Usage</span></a>
+    </nav>
+    <div class="rb-rail-foot"><nav class="rb-nav" aria-label="Help"><a href="#"><span>Help &amp; support</span></a></nav></div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  state = { menu: false };
+  focusLater(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) el.focus(); }, 60); }
+  renderVals() {
+    const m = !!this.state.menu;
+    return { menuOpen: m, menuExp: m ? 'true' : 'false', openMenu: () => { this.setState({ menu: true }); this.focusLater('ia1-menu-close'); }, closeMenu: () => { this.setState({ menu: false }); this.focusLater('ia1-menu'); },
+      drawerKey: ev => { if (ev.key === 'Escape') { ev.preventDefault(); this.setState({ menu: false }); this.focusLater('ia1-menu'); return; } if (ev.key !== 'Tab') return; const items = Array.prototype.slice.call(ev.currentTarget.querySelectorAll('a[href], button:not([disabled])')); if (!items.length) return; const first = items[0], last = items[items.length - 1]; if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); } else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); } } };
+  }
+}
+</script>
+</body>
+</html>

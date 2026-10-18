@@ -1,19 +1,11 @@
 'use client';
 
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-  type RefObject,
-  type SyntheticEvent,
-} from 'react';
+import { useId, type ReactNode, type RefObject } from 'react';
 
 import { Button } from '../foundation/button.js';
 import { IconButton } from '../foundation/icon-button.js';
 import { joinClasses } from '../internal/classes.js';
+import { useModalDialog, type ModalInitialFocus } from './modal-dialog.js';
 
 /**
  * Where the dialog sits on wide screens (PF-04; the four `xr-x-dialog--*` classes were accepted by
@@ -131,7 +123,7 @@ export interface EditDialogProps extends DialogCommonProps {
   readonly children: ReactNode;
 }
 
-type InitialFocus = 'confirm' | 'cancel' | 'field';
+type InitialFocus = Exclude<ModalInitialFocus, 'title'>;
 
 interface DialogFrameProps extends DialogCommonProps {
   readonly titleId: string;
@@ -143,71 +135,8 @@ interface DialogFrameProps extends DialogCommonProps {
   readonly body: ReactNode;
 }
 
-const FIELDS =
-  'input:not([type="hidden"]):not([disabled]), textarea:not([disabled]), select:not([disabled])';
-
-const TAB_STOPS = [
-  'a[href]',
-  'button:not([disabled])',
-  'input:not([type="hidden"]):not([disabled])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])',
-].join(', ');
-
-const NOT_TEXT_ENTRY = new Set([
-  'button',
-  'checkbox',
-  'color',
-  'file',
-  'image',
-  'radio',
-  'range',
-  'reset',
-  'submit',
-]);
-
-function rendered(element: HTMLElement): boolean {
-  return typeof element.checkVisibility === 'function' ? element.checkVisibility() : true;
-}
-
-/** The dialog's Tab stops in order (Close, the fields, Cancel, the confirming button). */
-function tabStops(dialog: HTMLElement): HTMLElement[] {
-  return [...dialog.querySelectorAll<HTMLElement>(TAB_STOPS)].filter(
-    (element) => element.tabIndex >= 0 && rendered(element),
-  );
-}
-
-function isTextEntry(target: EventTarget): boolean {
-  return target instanceof HTMLInputElement && !NOT_TEXT_ENTRY.has(target.type);
-}
-
-/**
- * Initial focus by kind (board 10 "Keyboard path"): the first field (DL-2, DL-3; the confirming
- * button when there is none), the confirming button (DL-1), Cancel (destructive DL-1).
- */
-function focusInitial(
-  dialog: HTMLDialogElement,
-  initialFocus: InitialFocus,
-  cancel: HTMLButtonElement | null,
-  confirm: HTMLButtonElement | null,
-): void {
-  const field =
-    initialFocus === 'field'
-      ? dialog.querySelector('.xr-dialog-body')?.querySelector<HTMLElement>(FIELDS)
-      : null;
-  (field ?? (initialFocus === 'cancel' ? cancel : confirm))?.focus();
-}
-
-/** Focus back to the element that opened the dialog or, when it is gone, to the fallback. */
-function returnFocus(
-  target: HTMLElement | null,
-  fallback: RefObject<HTMLElement | null> | undefined,
-): void {
-  target?.focus();
-  if (target && target.ownerDocument.activeElement === target) return;
-  fallback?.current?.focus();
-}
+/** The body every v46 kind draws: the first field is looked up there (DL-2, DL-3). */
+const BODY = '.xr-dialog-body';
 
 /** The title and description ids (`<prefix>-t`, `<prefix>-b`). */
 function useDialogIds(idPrefix: string | undefined): { titleId: string; descriptionId: string } {
@@ -220,7 +149,8 @@ function useDialogIds(idPrefix: string | undefined): { titleId: string; descript
  * The native `dialog.xr-dialog` every kind shares (board 10 "Try it · keyboard and pointer";
  * Appendix E §3.4, §5.3): rendered where it is placed (inside `div.xr-app`, no portal, so the
  * `@container xr-app` rules apply), opened with showModal(), with `-head` (title + Close), the
- * body, and `-foot` (Cancel first, the confirming action last).
+ * body, and `-foot` (Cancel first, the confirming action last). The behaviour is
+ * `useModalDialog` (`modal-dialog.ts`), shared with the V3 confirmation.
  */
 function DialogFrame({
   open,
@@ -241,146 +171,26 @@ function DialogFrame({
   submitOnEnter,
   body,
 }: DialogFrameProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const cancelRef = useRef<HTMLButtonElement>(null);
-  const confirmRef = useRef<HTMLButtonElement>(null);
-  /** The element focused when the dialog opened (the trigger). */
-  const returnTarget = useRef<HTMLElement | null>(null);
-  const fallback = useRef(returnFocusFallback);
-  /** Open as far as this component is concerned (the browser may have closed it already). */
-  const shown = useRef(false);
-  /** Confirm presses, and the last one whose outcome (invalid field or not) was handled. */
-  const [attempt, setAttempt] = useState(0);
-  const handledAttempt = useRef(0);
-  /** Counts closes the browser made on its own, so `open` is applied to the dialog again. */
-  const [browserCloses, setBrowserCloses] = useState(0);
-
-  useEffect(() => {
-    fallback.current = returnFocusFallback;
+  const modal = useModalDialog({
+    open,
+    busy,
+    onConfirm,
+    onCancel,
+    returnFocusFallback,
+    initialFocus,
+    submitOnEnter,
+    bodySelector: BODY,
   });
-
-  // Open and close follow the `open` prop, with initial focus by kind; on close focus returns to
-  // the trigger (board 10 "On close, focus returns to the trigger"), also when the browser had
-  // already closed the dialog itself.
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open) {
-      if (!dialog.open && dialog.isConnected) {
-        if (!shown.current) {
-          const active = dialog.ownerDocument.activeElement;
-          returnTarget.current =
-            active instanceof HTMLElement && active !== dialog.ownerDocument.body ? active : null;
-        }
-        dialog.showModal();
-        focusInitial(dialog, initialFocus, cancelRef.current, confirmRef.current);
-      }
-      shown.current = dialog.open;
-    } else if (shown.current) {
-      shown.current = false;
-      if (dialog.open) dialog.close();
-      returnFocus(returnTarget.current, fallback.current);
-      returnTarget.current = null;
-    }
-  }, [open, initialFocus, browserCloses]);
-
-  // Unmounted while open: focus still returns to the trigger. React has already removed the
-  // dialog from the document; a dialog still connected is a StrictMode re-run, not an unmount.
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    const target = returnTarget;
-    const fallbackRef = fallback;
-    const wasShown = shown;
-    return () => {
-      if (!wasShown.current || dialog?.isConnected) return;
-      wasShown.current = false;
-      returnFocus(target.current, fallbackRef.current);
-      target.current = null;
-    };
-  }, []);
-
-  // A failed confirm: focus goes to the first invalid field, whose message is in its description
-  // (board 10 "On submit with an error: focus goes to the first invalid field"). A confirm that
-  // closed the dialog leaves focus with the trigger.
-  useEffect(() => {
-    if (busy || attempt === handledAttempt.current) return;
-    handledAttempt.current = attempt;
-    const dialog = dialogRef.current;
-    if (!dialog?.open) return;
-    dialog.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
-  }, [attempt, busy]);
-
-  const confirm = () => {
-    if (busy) return;
-    setAttempt((count) => count + 1);
-    onConfirm();
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
-    const dialog = event.currentTarget;
-    if (event.key === 'Escape') {
-      // Esc is Cancel. Preventing the keydown stops the native close request.
-      event.preventDefault();
-      event.stopPropagation();
-      onCancel();
-      return;
-    }
-    if (event.key === 'Tab') {
-      // Focus-cycle guard (R-25): showModal() alone lets Tab leave for the browser chrome.
-      const stops = tabStops(dialog);
-      const first = stops[0];
-      const last = stops[stops.length - 1];
-      const active = dialog.ownerDocument.activeElement;
-      if (!first || !last) {
-        event.preventDefault();
-        return;
-      }
-      const outside = active === dialog || !(active instanceof Node) || !dialog.contains(active);
-      if (event.shiftKey && (active === first || outside)) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && (active === last || outside)) {
-        event.preventDefault();
-        first.focus();
-      }
-      return;
-    }
-    if (
-      event.key === 'Enter' &&
-      submitOnEnter &&
-      isTextEntry(event.target) &&
-      !event.nativeEvent.isComposing
-    ) {
-      // DL-3: Enter in a field saves (board 10 "Enter in the field saves; Esc cancels").
-      event.preventDefault();
-      confirm();
-    }
-  };
-
-  // Other close requests (e.g. the Android back gesture) arrive as `cancel`: also Cancel. One the
-  // browser does not let the page refuse ends in `close`, handled below.
-  const handleCancelEvent = (event: SyntheticEvent<HTMLDialogElement>) => {
-    event.preventDefault();
-    if (event.nativeEvent.cancelable) onCancel();
-  };
-
-  // The browser closed the dialog while it should be open (a close request the page could not
-  // refuse): that is Cancel. If the caller keeps `open`, the dialog opens again.
-  const handleCloseEvent = (event: SyntheticEvent<HTMLDialogElement>) => {
-    if (!open || !shown.current || event.currentTarget.open) return;
-    onCancel();
-    setBrowserCloses((count) => count + 1);
-  };
 
   return (
     <dialog
-      ref={dialogRef}
+      ref={modal.dialogRef}
       className={joinClasses('xr-dialog', ALIGN_CLASS[align], className)}
       aria-labelledby={titleId}
       aria-describedby={describedBy}
-      onKeyDown={handleKeyDown}
-      onCancel={handleCancelEvent}
-      onClose={handleCloseEvent}
+      onKeyDown={modal.onKeyDown}
+      onCancel={modal.onCancel}
+      onClose={modal.onClose}
     >
       <div className="xr-dialog-head">
         <h2 id={titleId} className="xr-dialog-title">
@@ -392,15 +202,15 @@ function DialogFrame({
       <div className="xr-dialog-foot">
         {/* VD-06, decided by the owner on 14 Oct 2026 (WP-0.15 closure, DEV-08): Cancel is
             xr-btn--secondary, as every product board draws it; board 10 draws xr-btn--text. */}
-        <Button ref={cancelRef} variant="secondary" onClick={() => onCancel()}>
+        <Button ref={modal.cancelRef} variant="secondary" onClick={() => onCancel()}>
           {cancelLabel}
         </Button>
         <Button
-          ref={confirmRef}
+          ref={modal.confirmRef}
           variant={danger ? 'danger' : 'primary'}
           busy={busy}
           busyLabel={busyLabel}
-          onClick={confirm}
+          onClick={modal.confirm}
         >
           {confirmLabel}
         </Button>

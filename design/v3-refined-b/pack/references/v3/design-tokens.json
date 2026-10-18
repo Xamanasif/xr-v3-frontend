@@ -1,0 +1,52 @@
+{
+  "$description": "XR Learning Platform · Design V3 · Batch 01 · Refined Direction B. Values copied from project/core.css (.xr), project/rb.css (.rb) and project/rb-kit.css (rk-). The CSS files are the source of truth.",
+  "color": {
+    "navy": { "value": "#141B5E", "use": "Rail, page and section headings, decision panel head, format in plan" },
+    "navy-2": { "value": "#1B2470", "use": "Navy hover" },
+    "indigo": { "value": "#3B49B8", "use": "Selection (rb-sel), links, tab underline, dashed published format" },
+    "indigo-2": { "value": "#2A3390", "use": "Text on selection tint" },
+    "selection-tint": { "value": "#EEF0FB", "use": "Chosen option, chips, BITS code chip, focused row" },
+    "gold": { "value": "#E9A825", "use": "The one primary action per view, nav count, current-page marker" },
+    "gold-hi": { "value": "#F2B636", "use": "Primary hover, current-page marker" },
+    "gold-ink": { "value": "#7A5004", "use": "Text and icons on ivory" },
+    "ivory": { "value": "#FBF5E6", "line": "#ECDDB5", "use": "Urgent notes: renewal due, SA-01 priority band" },
+    "plan-tint": { "value": "#ECEFFB", "line": "#D7DCF2", "use": "Access plan band, IA-01 identity band" },
+    "canvas": { "value": "#F3F4F9", "use": "Page background" },
+    "paper": { "value": "#FFFFFF", "use": "Surfaces" },
+    "line": { "value": "#E3E6F0", "use": "Surface borders and dividers" },
+    "line-2": { "value": "#D5DAEA", "use": "Stronger dividers, outlined chips" },
+    "ink": { "value": "#131938", "use": "Body text" },
+    "ink-2": { "value": "#363D62", "use": "Secondary text" },
+    "ink-3": { "value": "#555C7E", "use": "Labels and quiet text" },
+    "ok": { "value": "#1D6B45", "bg": "#E6F3EB", "use": "Access active, Active" },
+    "warn": { "value": "#8A5A05", "bg": "#FBF1DC", "use": "Approved — payment required, Payment not confirmed, Ending soon, pending hints" },
+    "err": { "value": "#B42318", "bg": "#FCEBE9", "use": "Information requested, validation errors" },
+    "info": { "value": "#1F4FD8", "bg": "#EAF0FD", "use": "Under review" },
+    "focus": { "value": "#1F4FD8", "use": "2px focus outline, 2px offset" },
+    "paused": { "value": "#141B5E", "bg": "#F1F2FA", "line": "#CDD2EC", "use": "Paused pill (outlined), paused banner and notes" }
+  },
+  "font": {
+    "family": "'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif",
+    "page-title": { "size": 40, "line": 46, "weight": 700, "tracking": "-0.025em", "phone": "32/38" },
+    "record-title": { "size": 38, "line": 44, "weight": 700, "tracking": "-0.024em", "phone": "30/36" },
+    "section": { "size": 20, "line": 28, "weight": 700 },
+    "group-title": { "size": 20, "line": 28, "weight": 700 },
+    "card-title": { "size": 18.5, "line": 26, "weight": 700 },
+    "body": { "size": 16, "line": 24, "weight": 400 },
+    "table-cell": { "size": 15.5, "line": 23, "weight": 400 },
+    "label": { "size": 14.5, "line": 20, "weight": 600 },
+    "status-pill": { "size": 14, "line": 20, "weight": 600 }
+  },
+  "radius": { "surface": 18, "plan-band": 20, "card": 16, "cell": 12, "control": 10, "chip": 999, "pill": 999 },
+  "shadow": { "surface": "0 1px 2px rgba(19,25,56,.05), 0 6px 24px -12px rgba(19,25,56,.10)", "dialog": "0 30px 90px rgba(12,18,71,.38)" },
+  "size": { "rail": 248, "control-height": 44, "button": 40, "button-lg": 46, "decision-panel": "340–384", "dialog-max": 580 },
+  "breakpoints": {
+    "rail-to-menu": "app width < 1024",
+    "phone-chrome": "app width < 760",
+    "request-table": "table width ≥ 880 full table · 660–879 two-line rows · < 660 stacked · < 520 status on top",
+    "toolbar": "toolbar width < 900 search on its own line · < 836 sort control shown · < 600 Type moves into More filters",
+    "decision-layout": "detail width < 860 single column, panel after the details, Go to decision shown",
+    "experiment-card": "list width ≥ 880 four format cells · 560–879 two per line as rows · < 560 one per line",
+    "plan-band": "band width < 760 identity above the term"
+  }
+}

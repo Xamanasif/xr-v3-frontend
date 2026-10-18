@@ -17,6 +17,20 @@ export interface ScanException {
 
 export const RECORDED_SCAN_EXCEPTIONS: readonly ScanException[] = [
   {
+    // V3 foundation XR-V3-RB-1.0 (ADR-0010). The Refined Direction B term timeline places its fill,
+    // remainder and today marker by the share of the plan's term that has passed — a value only
+    // the plan's dates decide, which the boards draw as `style="width: 95.88%"` / `left: …`. The
+    // one data-driven inline style of the V3 layer, isolated in this file; the look stays in the
+    // frozen rb.css / rb-kit.css rules.
+    rule: 'inline-style',
+    file: 'packages/ui/src/v3/term-track.tsx',
+    found: 'style={…}',
+    evidence:
+      'design/v3-refined-b/pack/references/v3/project/IA01.dc.html `span.rb-term-fill` style="width: 95.88%", `span.rb-term-today` style="left: 95.88%"; IA02.dc.html `style="width: {{ T.fill }}"`',
+    removal:
+      'typed CSS attr() (or another style-free way to set a data-driven length) is supported by every browser the product supports, or the owner approves another rendering of the term timeline',
+  },
+  {
     // Phase 7. The owner authorised TE-6 browser persistence for the local prototype build with
     // "an explicit, safe “Reset demo data” action", naming it in those words. The phrase is kept
     // once, as the action's label on the prototype's own support page (`/prototype/reset`, not a

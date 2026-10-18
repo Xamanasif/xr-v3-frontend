@@ -7,6 +7,7 @@ import { noProcessEnvRule } from './no-process-env.mjs';
 import { noRawHexRule } from './no-raw-hex.mjs';
 import { productClassAllowListRule } from './product-class-allow-list.mjs';
 import { resolvedBoundariesRule } from './resolved-boundaries.mjs';
+import { v3ClassNamesRule } from './v3-class-names.mjs';
 import { v46ClassNamesRule } from './v46-class-names.mjs';
 
 export const xrPlugin = {
@@ -18,6 +19,7 @@ export const xrPlugin = {
     deterministic: deterministicRule,
     'no-canvas-classes': noCanvasClassesRule,
     'v46-class-names': v46ClassNamesRule,
+    'v3-class-names': v3ClassNamesRule,
     'no-raw-hex': noRawHexRule,
     'product-class-allow-list': productClassAllowListRule,
   },
@@ -31,5 +33,6 @@ export {
   noRawHexRule,
   productClassAllowListRule,
   resolvedBoundariesRule,
+  v3ClassNamesRule,
   v46ClassNamesRule,
 };

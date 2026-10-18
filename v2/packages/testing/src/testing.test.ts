@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createPlaywrightConfig } from './playwright.js';
+import { DEFAULT_E2E_PORTS, createPlaywrightConfig, e2ePorts, localOrigin } from './playwright.js';
 import { createVitestConfig } from './vitest.js';
 
 describe('createVitestConfig', () => {
@@ -63,5 +63,29 @@ describe('createPlaywrightConfig', () => {
       webServer: { command: 'pnpm exec next start -p 3000', url: 'http://127.0.0.1:3000/healthz' },
     });
     expect(withServer.webServer).toMatchObject({ url: 'http://127.0.0.1:3000/healthz' });
+  });
+});
+
+describe('e2ePorts', () => {
+  it('keeps 3000 / 3100 / 3200 by default', () => {
+    expect(e2ePorts({})).toEqual({ web: 3000, specimens: 3100, testHooks: 3200 });
+    expect(DEFAULT_E2E_PORTS).toEqual({ web: 3000, specimens: 3100, testHooks: 3200 });
+  });
+
+  it('moves a port by its variable, so a second checkout can test beside running servers', () => {
+    expect(
+      e2ePorts({
+        XR_E2E_WEB_PORT: '3300',
+        XR_E2E_SPECIMENS_PORT: '3400',
+        XR_E2E_TEST_HOOKS_PORT: '3500',
+      }),
+    ).toEqual({ web: 3300, specimens: 3400, testHooks: 3500 });
+    expect(localOrigin(3300)).toBe('http://localhost:3300');
+  });
+
+  it('refuses a value that is not a usable port, and two suites on one port', () => {
+    expect(() => e2ePorts({ XR_E2E_WEB_PORT: 'abc' })).toThrow('XR_E2E_WEB_PORT');
+    expect(() => e2ePorts({ XR_E2E_WEB_PORT: '80' })).toThrow('1024 to 65535');
+    expect(() => e2ePorts({ XR_E2E_SPECIMENS_PORT: '3000' })).toThrow('must differ');
   });
 });

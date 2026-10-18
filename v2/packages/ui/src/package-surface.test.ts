@@ -138,7 +138,14 @@ describe('@xr/ui package surface', () => {
   });
 
   it('has no placeholder token stylesheet (one token system: xr-foundation.css)', () => {
-    expect(Object.keys(manifest.exports).sort()).toEqual(['.', './styles.css']);
+    // ADR-0010 adds the V3 Refined Direction B layer as its own entry points (`./v3`,
+    // `./styles-v3.css`); its tokens are the frozen Refined B sheets', scoped to V3 roots.
+    expect(Object.keys(manifest.exports).sort()).toEqual([
+      '.',
+      './styles-v3.css',
+      './styles.css',
+      './v3',
+    ]);
     expect(existsSync(join(packageRoot, 'src', 'tokens.css'))).toBe(false);
   });
 });

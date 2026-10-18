@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview — Super Admin</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr rb">
+  <svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">
+    <symbol id="rbi-inbox" viewBox="0 0 24 24"><path d="M4 13l2.5-7h11L20 13v6H4zM4 13h5l1.5 2h3L15 13h5"></path></symbol>
+    <symbol id="rbi-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"></path></symbol>
+    <symbol id="rbi-vr" viewBox="0 0 24 24"><path d="M3 9.5A2.5 2.5 0 0 1 5.5 7h13A2.5 2.5 0 0 1 21 9.5v5a2.5 2.5 0 0 1-2.5 2.5h-3.3a2 2 0 0 1-1.7-1l-.7-1.2a1 1 0 0 0-1.7 0l-.7 1.2a2 2 0 0 1-1.7 1H5.5A2.5 2.5 0 0 1 3 14.5z"></path></symbol>
+    <symbol id="rbi-life" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"></path></symbol>
+    <symbol id="rbi-cal" viewBox="0 0 24 24"><path d="M8 3v3M16 3v3M4 9h16M20 11V6a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6M17.5 21a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17.5 16v1.6l1 .9"></path></symbol>
+    <symbol id="rbi-userminus" viewBox="0 0 24 24"><path d="M15 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 4 17.5V19M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM16.5 11h5"></path></symbol>
+    <symbol id="rbi-hourglass" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3v3a5 5 0 0 0 10 0V3M7 21v-3a5 5 0 0 1 10 0v3"></path></symbol>
+    <symbol id="rbi-userq" viewBox="0 0 24 24"><path d="M15 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 4 17.5V19M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17.5 8.5a2 2 0 1 1 2.6 1.9c-.6.2-.6.7-.6 1.1M20 14.5h.01"></path></symbol>
+  </svg>
+
+  <aside class="rb-rail" aria-label="Super Admin workspace">
+    <div class="rb-brand">
+      <div class="rb-logo">Official WILP logo</div>
+      <p class="rb-product">XR Learning Platform</p>
+      <p class="rb-ws"><span class="rb-ws-role">Super Admin</span></p>
+    </div>
+    <nav class="rb-nav" aria-label="Super Admin navigation">
+      <a href="#top" aria-current="page"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"></path></svg><span>Overview</span></a>
+      <a href="SA02.dc.html"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13l2.5-7h11L20 13v6H4zM4 13h5l1.5 2h3L15 13h5"></path></svg><span>Requests</span><span class="rb-count"><span aria-hidden="true">3</span><span class="xr-sr">, 3 requests under review</span></span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5 12 4l9 5.5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20.5h18"></path></svg><span>Institutions</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h7.5L20 7.5V17a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM15 3v5h5M4 7v13a1 1 0 0 0 1 1h11"></path></svg><span>Content</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3h4v4h-4zM3.5 17h4v4h-4zM10 17h4v4h-4zM16.5 17h4v4h-4zM12 7v5M5.5 17v-5h13v5M12 12v5"></path></svg><span>Academic structure</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6zM9 12l2 2 4-4"></path></svg><span>Platform roles</span></a>
+      <a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9M17 6h3M15 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4"></path></svg><span>Operations</span></a>
+    </nav>
+    <div class="rb-rail-foot">
+      <nav class="rb-nav" aria-label="Help"><a href="#"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span>Help &amp; support</span></a></nav>
+    </div>
+  </aside>
+
+  <div class="rb-main">
+    <div class="rb-top">
+      <button type="button" class="rb-menu" id="sa1-menu" aria-expanded="{{ menuExp }}" onClick="{{ openMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
+      <p class="rb-top-date">Friday 23 October 2026</p>
+      <button type="button" class="rb-acct" aria-label="Account menu, Arjun Mehta, Super Admin"><span class="xr-avatar" aria-hidden="true">AM</span><span class="rb-acct-text" aria-hidden="true"><span class="rb-acct-name">Arjun Mehta</span><span class="rb-acct-role">Super Admin</span></span><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+    </div>
+
+    <main class="rb-page" id="top">
+      <header class="rb-head">
+        <div>
+          <p class="rb-eyebrow-date">Friday 23 October 2026</p>
+          <h1 class="rb-h1">Overview</h1>
+        </div>
+        <dl class="rb-figs" aria-label="Platform at a glance">
+          <div class="rb-fig"><dt class="rb-fig-t">Active institutions</dt><dd class="rb-fig-n">4</dd><dd class="rb-fig-s"><span>Access active or ending soon.</span> <span>1 paused, 1 awaiting payment.</span></dd></div>
+          <div class="rb-fig"><dt class="rb-fig-t">Published experiments</dt><dd class="rb-fig-n">13</dd><dd class="rb-fig-s">Live in the catalogue today</dd></div>
+        </dl>
+      </header>
+
+      <div class="rb-switchbar">
+        <div class="rb-switch" role="group" aria-label="Show what is waiting">
+          <sc-for list="{{ chips }}" as="c" hint-placeholder-count="7"><button type="button" aria-pressed="{{ c.pressed }}" onClick="{{ c.pick }}">{{ c.label }}<b>{{ c.n }}</b></button></sc-for>
+        </div>
+      </div>
+
+      <sc-if value="{{ isAll }}" hint-placeholder-val="{{ true }}">
+      <section class="rb-prio" aria-labelledby="rb-prio-h">
+        <div class="rb-sec-head">
+          <h2 class="rb-h2" id="rb-prio-h">Needs attention first</h2>
+          <p class="rb-note">Soonest deadline first, then the longest wait</p>
+        </div>
+        <ol class="rb-prio-list">
+          <li class="rb-pi">
+            <p class="rb-pi-when"><span class="rb-pi-big">31 Oct</span><span class="rb-pi-rel">In 8 days</span></p>
+            <p class="rb-pi-kind"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-cal"></use></svg>Access ending</p>
+            <h3 class="rb-pi-title">BITS Pilani — Hyderabad Campus</h3>
+            <p class="rb-pi-d">Its renewal request has been under review since 24 September.</p>
+            <div class="rb-pi-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="SA03-renewal.dc.html" aria-label="Open the renewal request from BITS Pilani — Hyderabad Campus">Open renewal request</a></div>
+          </li>
+          <li class="rb-pi">
+            <p class="rb-pi-when"><span class="rb-pi-big">2 Nov</span><span class="rb-pi-rel">In 10 days</span></p>
+            <p class="rb-pi-kind"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-cal"></use></svg>Access ending</p>
+            <h3 class="rb-pi-title">Konark Polytechnic</h3>
+            <p class="rb-pi-d">The reminder is due. Nothing is sent from here.</p>
+            <div class="rb-pi-act"><a class="rb-btn rb-btn--lg" href="#" aria-label="View access ending for Konark Polytechnic">View access ending</a></div>
+          </li>
+          <li class="rb-pi">
+            <p class="rb-pi-when"><span class="rb-pi-big">57 days</span><span class="rb-pi-rel rb-pi-rel--calm">Waiting since 27 Aug</span></p>
+            <p class="rb-pi-kind"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rbi-edit"></use></svg>Correction waiting for release</p>
+            <h3 class="rb-pi-title">Distillation Column correction</h3>
+            <p class="rb-pi-d">Version 1.3 was approved by the Academic Reviewer on 27 August. Version 1.2 is still live.</p>
+            <div class="rb-pi-act"><a class="rb-btn rb-btn--lg" href="#" aria-label="Review the Distillation Column correction">Review correction</a></div>
+          </li>
+        </ol>
+      </section>
+      <div class="rb-sec-head" style="margin-bottom: -12px">
+        <h2 class="rb-h2">Also waiting on you</h2>
+        <p class="rb-note">Oldest first in each group</p>
+      </div>
+      </sc-if>
+      <sc-if value="{{ notAll }}" hint-placeholder-val="{{ false }}"><h2 class="xr-sr">{{ selTitle }}</h2></sc-if>
+
+      <div class="rb-queue" aria-live="polite">
+            <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
+            <section class="rb-g" aria-label="{{ g.name }}">
+              <div class="rb-g-head">
+                <span class="rb-ico-tile" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="{{ g.icon }}"></use></svg></span>
+                <h3 class="rb-g-name">{{ g.name }}</h3>
+                <a class="rb-link" href="{{ g.href }}">{{ g.link }}</a>
+              </div>
+              <ul class="rb-rows">
+                <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="2">
+                <li class="rb-row">
+                  <div class="rb-row-main"><p class="rb-row-t">{{ r.t }}</p><p class="rb-row-d">{{ r.d }}</p></div>
+                  <p class="{{ r.whenCls }}"><b>{{ r.when }}</b><span>{{ r.when2 }}</span></p>
+                  <div class="rb-row-act"><a class="rb-btn rb-btn--ghost" href="{{ r.href }}" aria-label="{{ r.aria }}">{{ r.act }}</a></div>
+                </li>
+                </sc-for>
+              </ul>
+            </section>
+            </sc-for>
+      </div>
+    </main>
+  </div>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="rb-scrim" aria-label="Close menu" tabindex="-1" onClick="{{ closeMenu }}"></button>
+  <div class="rb-drawer" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown="{{ drawerKey }}">
+    <div class="rb-drawer-head">
+      <p class="rb-product">XR Learning Platform</p>
+      <button type="button" class="rb-close" id="sa1-menu-close" aria-label="Close menu" onClick="{{ closeMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+    </div>
+    <div class="rb-brand" style="padding-top: 0"><div class="rb-logo">Official WILP logo</div><p class="rb-ws"><span class="rb-ws-role">Super Admin</span></p></div>
+    <nav class="rb-nav" aria-label="Super Admin navigation">
+      <a href="#top" aria-current="page" onClick="{{ closeMenu }}"><span>Overview</span></a>
+      <a href="SA02.dc.html"><span>Requests</span><span class="rb-count"><span aria-hidden="true">3</span><span class="xr-sr">, 3 requests under review</span></span></a>
+      <a href="#"><span>Institutions</span></a>
+      <a href="#"><span>Content</span></a>
+      <a href="#"><span>Academic structure</span></a>
+      <a href="#"><span>Platform roles</span></a>
+      <a href="#"><span>Operations</span></a>
+    </nav>
+    <div class="rb-rail-foot"><nav class="rb-nav" aria-label="Help"><a href="#"><span>Help &amp; support</span></a></nav></div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2057}}'>
+class Component extends DCLogic {
+  static get G() {
+    return {
+      req: { name: 'Requests', link: 'Open Requests', href: 'SA02.dc.html', icon: '#rbi-inbox', rows: [
+        { t: 'BITS Pilani — Hyderabad Campus asks to renew its access', d: 'Same 3 experiments and 860 licences for the next academic year. Access ends on 31 October.', when: '29 days', when2: 'since 24 Sep', act: 'Open request', aria: 'Open the renewal request from BITS Pilani — Hyderabad Campus', href: 'SA03-renewal.dc.html' },
+        { t: 'Konark Polytechnic asks for 60 more licences', d: 'Additional licences for Buck Converter Ripple.', when: '24 days', when2: 'since 29 Sep', act: 'Open request', aria: 'Open the additional licences request from Konark Polytechnic', href: 'SA03-paused.dc.html' },
+        { t: 'Godavari Institute of Technology asks for 60 more licences', d: 'Its access has been active since 8 October.', when: '2 days', when2: 'since 21 Oct', act: 'Open request', aria: 'Open the additional licences request from Godavari Institute of Technology', href: 'SA03-licences.dc.html' } ] },
+      upd: { name: 'Corrections waiting for your release decision', link: 'Open Updates', icon: '#rbi-edit', rows: [
+        { t: 'Distillation Column correction, version 1.2 to 1.3', d: 'Approved by the Academic Reviewer on 27 August. Version 1.2 is still live.', when: '57 days', when2: 'since 27 Aug', act: 'Review correction', aria: 'Review the Distillation Column correction' } ] },
+      dtr: { name: 'Device transfers', link: 'Open Device transfers', icon: '#rbi-vr', rows: [
+        { t: 'VR device transfer for Neha Kulkarni', d: 'BITS Pilani — Hyderabad Campus. Forwarded by its Institute Admin.', when: '2 days', when2: 'since 21 Oct', act: 'Review transfer', aria: 'Review the VR device transfer for Neha Kulkarni' },
+        { t: 'VR device transfer for Rahul Verma', d: 'Godavari Institute of Technology. Forwarded by its Institute Admin.', when: 'Today', when2: '23 Oct', act: 'Review transfer', aria: 'Review the VR device transfer for Rahul Verma' } ] },
+      sup: { name: 'Support reports', link: 'Open Support', icon: '#rbi-life', rows: [
+        { t: 'Usage page took a long time to load', d: 'Meera Iyer, Institute Admin', when: '23 days', when2: 'sent 30 Sep', act: 'Open report', aria: 'Open the report: Usage page took a long time to load' },
+        { t: 'VR simulation stopped loading at step 2', d: 'Rahul Verma, Student', when: '20 days', when2: 'sent 3 Oct', act: 'Open report', aria: 'Open the report: VR simulation stopped loading at step 2' },
+        { t: 'Delivery link preview showed an empty frame', d: 'Kavya Nair, Content Manager', when: '17 days', when2: 'reopened 6 Oct', act: 'Open report', aria: 'Open the report: Delivery link preview showed an empty frame' },
+        { t: 'Student import stopped part-way', d: 'Meera Iyer, Institute Admin', when: '17 days', when2: 'reopened 6 Oct', act: 'Open report', aria: 'Open the report: Student import stopped part-way' } ] },
+      end: { name: 'Access ending within 15 days', link: 'Open Access ending', icon: '#rbi-cal', rows: [
+        { t: 'BITS Pilani — Hyderabad Campus', d: 'Access ends on 31 October. Renewal in progress.', when: 'In 8 days', when2: '31 Oct', due: true, act: 'Open renewal request', aria: 'Open the renewal request from BITS Pilani — Hyderabad Campus', href: 'SA03-renewal.dc.html' },
+        { t: 'Konark Polytechnic', d: 'Access ends on 2 November. Reminder due; nothing is sent from here.', when: 'In 10 days', when2: '2 Nov', due: true, act: 'View access ending', aria: 'View access ending for Konark Polytechnic' } ] },
+      noia: { name: 'Institutions without an Institute Admin', link: 'Open Institutions', icon: '#rbi-userminus', rows: [
+        { t: 'Sahyadri Institute of Engineering has no Institute Admin', d: 'Access active since 30 September. Nobody there can give students access.', when: '23 days', when2: 'since 30 Sep', act: 'Assign Institute Admin', aria: 'Assign an Institute Admin to Sahyadri Institute of Engineering' } ] },
+      stuck: { name: 'Stuck content', link: 'Open All content', icon: '#rbi-hourglass', rows: [
+        { t: 'DC Motor Speed Control is stuck in review', d: 'EEE ZC341. With the Academic Reviewer since 2 October; no reviewer has this course in scope.', when: '21 days', when2: 'since 2 Oct', act: 'Open in All content', aria: 'Open DC Motor Speed Control in All content' } ] },
+      scope: { name: 'Role holders without scope', link: 'Open Platform roles', icon: '#rbi-userq', rows: [
+        { t: 'Dr K. Iyer has no scope yet', d: 'Academic Reviewer, registered 20 October. Can’t act on anything yet.', when: '3 days', when2: 'since 20 Oct', act: 'Assign scope', aria: 'Assign scope to Dr K. Iyer' } ] }
+    };
+  }
+  static get CATS() {
+    return [
+      { key: 'all', label: 'All' },
+      { key: 'req', label: 'Requests', groups: ['req'] },
+      { key: 'upd', label: 'Corrections', groups: ['upd'] },
+      { key: 'dtr', label: 'Device transfers', groups: ['dtr'] },
+      { key: 'sup', label: 'Support', groups: ['sup'] },
+      { key: 'end', label: 'Access ending', groups: ['end'] },
+      { key: 'setup', label: 'Set-up gaps', groups: ['noia', 'stuck', 'scope'] }
+    ];
+  }
+  state = { sel: 'all', menu: false };
+  focusLater(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) el.focus(); }, 60); }
+  renderVals() {
+    const G = Component.G, CATS = Component.CATS, sel = this.state.sel || 'all', m = !!this.state.menu;
+    const mk = k => {
+      const g = G[k];
+      return { name: g.name, link: g.link, href: g.href || '#', icon: g.icon,
+        rows: g.rows.map(r => Object.assign({}, r, { href: r.href || '#', whenCls: 'rb-row-when' + (r.due ? ' rb-row-when--due' : '') })) };
+    };
+    const size = c => c.key === 'all' ? Object.keys(G).reduce((n, k) => n + G[k].rows.length, 0) : c.groups.reduce((n, k) => n + G[k].rows.length, 0);
+    const cur = CATS.find(c => c.key === sel) || CATS[0];
+    const isAll = cur.key === 'all';
+    const groups = (isAll ? ['req', 'dtr', 'sup', 'noia', 'stuck', 'scope'] : cur.groups).map(mk);
+    const chips = CATS.map(c => ({ label: c.label, n: String(size(c)), pressed: c.key === cur.key ? 'true' : 'false', pick: () => this.setState({ sel: c.key }) }));
+    return {
+      chips, groups, isAll, notAll: !isAll,
+      selTitle: isAll ? '' : cur.label + ', ' + size(cur) + (size(cur) === 1 ? ' item' : ' items'),
+      menuOpen: m, menuExp: m ? 'true' : 'false',
+      openMenu: () => { this.setState({ menu: true }); this.focusLater('sa1-menu-close'); }, closeMenu: () => { this.setState({ menu: false }); this.focusLater('sa1-menu'); },
+      drawerKey: ev => { if (ev.key === 'Escape') { ev.preventDefault(); this.setState({ menu: false }); this.focusLater('sa1-menu'); return; } if (ev.key !== 'Tab') return; const items = Array.prototype.slice.call(ev.currentTarget.querySelectorAll('a[href], button:not([disabled])')); if (!items.length) return; const first = items[0], last = items[items.length - 1]; if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); } else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); } }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2723 @@
+{
+  "foundationId": "XR-V3-RB-1.0",
+  "asOf": "2026-10-19",
+  "branch": "v3/refined-b-ui",
+  "source": "design/v3-refined-b/pack/SCREEN-OWNERSHIP.json (147 ids); phases from packages/contracts/src/draft/ledger/screens.ts; paths from apps/web/src/features",
+  "columns": {
+    "designSupplied": "Whether a V3 design source for the id is in hand",
+    "ownerApproved": "The owner's approval of that V3 design (a selected direction is not an approved role)",
+    "implementationComplete": "Whether the normal product route renders the approved V3 design",
+    "browserChecked": "What was rendered and checked in a browser for V3",
+    "openIssue": "What must be decided or kept when the id is migrated"
+  },
+  "counts": {
+    "registered": 147,
+    "designed": 123,
+    "excluded": 24,
+    "v3SeedSource": 5,
+    "lockedLanding": 2,
+    "pendingDesign": 116,
+    "migrated": 0
+  },
+  "designedByType": {
+    "action": 1,
+    "menu": 1,
+    "page": 73,
+    "state": 7,
+    "step": 19,
+    "tab": 22
+  },
+  "entries": [
+    {
+      "id": "PU-01",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Landing",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/",
+      "landingFidelity": "HOLD — prompt 13 not authorised; V1 fidelity NOT restored",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-01-landing"]
+      },
+      "designSupplied": "locked-original-landing (V1)",
+      "ownerApproved": "locked by the owner (not part of the redesign)",
+      "implementationComplete": "not migrated; current simplified v46 homepage preserved unchanged",
+      "browserChecked": "no V3 check (out of scope); unchanged route",
+      "openIssue": "Locked V1 landing. The current homepage is the simplified v46 one — preserved, NOT the restored V1 experience. Fidelity integration is HOLD ONLY (prompt 13): its own owner go-ahead and the official WILP asset are required."
+    },
+    {
+      "id": "PU-02",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "All engineering areas (\"View all areas\")",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/areas",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-02-areas"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-03",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Engineering area",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/areas/[areaId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-03-area"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-04",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Catalogue",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/experiments",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-04-catalogue"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-05",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Course",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/courses/[courseCode]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-05-course"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-06",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Experiment",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/experiments/[experimentId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-06-experiment"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-07",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Your selection",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/selection",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-07-selection"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-08",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Request institutional access",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/request-access",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-08-request-access"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-09",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Request sent",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/request-access/sent",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-09-request-sent"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-10",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Request status",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/requests/[requestId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-10-request-status"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-11",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Reply to an information request",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-12",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Payment (external route only)",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/requests/[requestId]/payment",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-12-payment"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-13",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Access activated",
+      "type": "state",
+      "designed": true,
+      "v46ProposedRoute": "/requests/[requestId] (Access active state)",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/public/pu-10-request-status/request-status.tsx"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-14",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "How institutional access works",
+      "type": "state",
+      "designed": true,
+      "v46ProposedRoute": "/ (#for-institutions section)",
+      "landingFidelity": "HOLD — prompt 13 not authorised; V1 fidelity NOT restored",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": [
+          "apps/web/src/features/public/pu-01-landing/landing.tsx",
+          "apps/web/src/features/shared/workspace-frame/route-focus.ts"
+        ]
+      },
+      "designSupplied": "locked-original-landing (V1)",
+      "ownerApproved": "locked by the owner (not part of the redesign)",
+      "implementationComplete": "not migrated; current simplified v46 homepage preserved unchanged",
+      "browserChecked": "no V3 check (out of scope); unchanged route",
+      "openIssue": "Section of the locked V1 landing (#for-institutions), not a new page. Same HOLD as PU-01."
+    },
+    {
+      "id": "PU-15",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "Not found",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "not-found.tsx",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P0)",
+        "paths": ["apps/web/src/features/shared/pu-15-not-found"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "PU-16",
+      "workstream": "PU",
+      "surface": "Public",
+      "screen": "About · Contact · Privacy · Terms · Accessibility",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "XS-01",
+      "workstream": "XS",
+      "surface": "Entry & shared",
+      "screen": "Sign in",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/sign-in",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/shared/xs-01-sign-in"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "XS-02",
+      "workstream": "XS",
+      "surface": "Entry & shared",
+      "screen": "Choose workspace (person with several roles)",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "XS-03",
+      "workstream": "XS",
+      "surface": "Entry & shared",
+      "screen": "Signed out / session expired",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/signed-out",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": [
+          "apps/web/src/features/shared/session-gate/session-gate.tsx",
+          "apps/web/src/features/shared/xs-01-sign-in/sign-in.tsx"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "XS-04",
+      "workstream": "XS",
+      "surface": "Entry & shared",
+      "screen": "First-time activation · Forgot password",
+      "type": "state",
+      "designed": true,
+      "v46ProposedRoute": "/sign-in (links only — flows OPEN)",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/shared/xs-01-sign-in/sign-in.tsx"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "XS-05",
+      "workstream": "XS",
+      "surface": "Entry & shared",
+      "screen": "Account menu: name, role, institution, Help, Sign out",
+      "type": "menu",
+      "designed": true,
+      "v46ProposedRoute": "(top bar) account menu",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P0)",
+        "paths": ["apps/web/src/features/shared/xs-05-account-menu"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "XS-06",
+      "workstream": "XS",
+      "surface": "Entry & shared",
+      "screen": "Not your workspace",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/[workspace]/not-allowed",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P0)",
+        "paths": ["apps/web/src/features/shared/xs-06-not-your-workspace"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "XS-07",
+      "workstream": "XS",
+      "surface": "Entry & shared",
+      "screen": "Help & support: report a problem + my reports",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/[workspace]/help",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P0)",
+        "paths": ["apps/web/src/features/shared/xs-07-help"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "XS-08",
+      "workstream": "XS",
+      "surface": "Entry & shared",
+      "screen": "Institution paused / account inactive notice",
+      "type": "state",
+      "designed": true,
+      "v46ProposedRoute": "(shell) paused / inactive banner",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P0)",
+        "paths": [
+          "apps/web/src/features/faculty/fa-01-overview/overview.tsx",
+          "apps/web/src/features/institute/ia-06-people/paused.tsx",
+          "apps/web/src/features/institute/ia-19-device-request/device-request.tsx"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-01",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Home",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/student/st-01-home"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-02",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "My courses",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/courses",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/student/st-02-my-courses"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-03",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Course (student view)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/courses/[courseId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/student/st-03-course"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-04",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "All my experiments",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/student/courses?tab=experiments",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/student/st-04-all-experiments"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-05",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Experiment (hub: Overview · Resources · Simulation · Assessment · Progress)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/experiments/[experimentId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/student/st-05-experiment-hub"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-06",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Resources",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/student/experiments/[experimentId]/resources",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/student/st-06-resources"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-07",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Simulation — choose a format",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/student/experiments/[experimentId]/simulation",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/student/st-07-simulation"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-08",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "WEB simulation (launch / resume)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/experiments/[experimentId]/simulation/web",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/student/st-08-web-simulation"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-09",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "AR / VR / MR format (setup & progress)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/experiments/[experimentId]/simulation/[format]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/student/st-09-format"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-10",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Progress for this experiment",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/student/experiments/[experimentId]/progress",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/student/st-10-experiment-progress"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-11",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Assessments",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/assessments",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/student/st-11-assessments"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-12",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Assessment — before you start",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/assessments/[assessmentId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/student/st-12-assessment-intro"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-13",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Assessment attempt",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/student/assessments/[assessmentId]/attempt",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/student/st-13-attempt"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-14",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Result",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/assessments/[assessmentId]/result",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/student/st-14-result"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-15",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Progress (all experiments)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/progress",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/student/st-15-progress"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-16",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Format feedback",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/student/experiments/[experimentId]/feedback/[format]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/student/st-16-feedback"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-17",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Feedback sent (confirmation, read-only)",
+      "type": "state",
+      "designed": true,
+      "v46ProposedRoute": "/student/experiments/[experimentId]/feedback/[format] (sent state)",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": [
+          "apps/web/src/features/student/st-16-feedback/feedback-sent.tsx",
+          "apps/web/src/features/student/st-16-feedback/format-feedback.tsx"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-18",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "My device (AR/VR/MR holders only)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/student/device",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/student/st-18-my-device"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-19",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Experiment not available (refusal page)",
+      "type": "state",
+      "designed": true,
+      "v46ProposedRoute": "/student/experiments/[experimentId] (not-available state)",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/student/st-19-not-available"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "ST-20",
+      "workstream": "ST",
+      "surface": "Student",
+      "screen": "Signed-in catalogue",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-01",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Overview",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-01-overview"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-02",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "My courses",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/courses",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-02-my-courses"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-03",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Course (teaching view)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/courses/[courseId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-03-course"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-04",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Experiments",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/courses?tab=experiments",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-04-experiments"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-05",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Experiment (teaching view)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/experiments/[experimentId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-05-experiment"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-06",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Assessments",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/assessments",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-06-assessments"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-07",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Create assessment (guided)",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/assessments/new?step=1…4",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-07-create-assessment"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-08",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Assessment · Summary",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/assessments/[assessmentId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-08-assessment-summary"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-09",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Assessment · Questions",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/assessments/[assessmentId]/questions",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-09-assessment-questions"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-10",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Assessment · Settings",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/assessments/[assessmentId]/settings",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-10-assessment-settings"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-11",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Assessment · Preview",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/assessments/[assessmentId]/preview",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-11-assessment-preview"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-12",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Assessment · Submissions",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/assessments/[assessmentId]/submissions",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-12-submissions"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-13",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Make available to students",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-14",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Question bank (tabs: Questions · Drafts to review)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/question-bank",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-14-question-bank"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-15",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Add / edit question",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/question-bank/new · /faculty/question-bank/[questionId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-15-question"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-16",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Draft questions with assistance",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/question-bank/draft",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-16-draft-questions"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-17",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Import questions (CSV / XLSX)",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/question-bank/import",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-17-import-questions"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-18",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Marking queue",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/marking",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-18-marking"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-19",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Mark a submission",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/marking/[attemptId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-19-mark-submission"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-20",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Students (progress + follow-up)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/students",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-20-students"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-21",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Student detail (per experiment)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/faculty/students/[studentId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": ["apps/web/src/features/faculty/fa-21-student"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-22",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Export progress (CSV)",
+      "type": "action",
+      "designed": true,
+      "v46ProposedRoute": "(action) Export CSV on FA-20 / FA-12",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P4)",
+        "paths": [
+          "apps/web/src/features/faculty/fa-12-submissions/submissions.tsx",
+          "apps/web/src/features/faculty/fa-20-students/student-facts.ts",
+          "apps/web/src/features/faculty/fa-20-students/students.tsx"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-23",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Reports page",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "FA-24",
+      "workstream": "FA",
+      "surface": "Faculty",
+      "screen": "Faculty settings",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-01",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Overview",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute",
+      "specimens": ["v3-ia-01"],
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-01-overview"]
+      },
+      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
+      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
+      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
+      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
+      "openIssue": "The calm board (IA01-calm) was not supplied: CalmState is derived from rb.css. The institution's code chip differs between IA01 and the HANDOFF rule (O-3)."
+    },
+    {
+      "id": "IA-02",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Content access",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute/content-access",
+      "specimens": [
+        "v3-ia-02",
+        "v3-ia-02-active",
+        "v3-ia-02-activated",
+        "v3-ia-02-paused",
+        "v3-ia-02-ended",
+        "v3-ia-02-none",
+        "v3-ia-02-nomatch",
+        "v3-ia-02-loading",
+        "v3-ia-02-failed"
+      ],
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-02-content-access"]
+      },
+      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
+      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
+      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
+      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
+      "openIssue": "D7 open: no used/free licence counts. Course-code scenarios conflict across boards (HANDOFF open record 3). Keep listContentAccess multi-plan semantics; IA keeps ACC-/REQ- references as v46 does."
+    },
+    {
+      "id": "IA-03",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Access plan / course detail",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute/content-access/plans/[planId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-03-access-plan"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-04",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Student access",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute/student-access",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-04-student-access"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-05",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Give students access (guided)",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/institute/student-access/give?step=1…",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-05-give-access"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-06",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Students",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/institute/people?tab=students",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-06-people"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-07",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Student record",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute/people/students/[studentId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-07-student-record"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-08",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Faculty",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/institute/people?tab=faculty",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-08-faculty"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-09",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Faculty record (incl. courses taught)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute/people/faculty/[facultyId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-09-faculty-record"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-10",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Add a student / Add a faculty member",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/institute/people/add",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-10-add-person"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-11",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Import students (CSV)",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/institute/people/import",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-11-import-students"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-12",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Invitations / account activation",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-13",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Groups",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/institute/people?tab=groups",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-13-groups"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-14",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Group (create · members · access)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute/people/groups/[groupId] · /new",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-14-group"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-15",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Faculty courses (who teaches what)",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/institute/people?tab=faculty-courses",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-15-faculty-courses"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-16",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Course codes (institution code + optional semester)",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/institute/content-access?tab=course-codes",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P2)",
+        "paths": ["apps/web/src/features/institute/ia-16-course-codes"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-17",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Requests to BITS (renewal · additional licences)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute/requests",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/institute/ia-17-requests"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-18",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Device requests",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/institute/requests?tab=devices",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/institute/ia-18-device-requests"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-19",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Device request — review & forward",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute/requests/devices/[transferId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/institute/ia-19-device-request"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-20",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Usage",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/institute/usage",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/institute/ia-20-usage"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-21",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Reports page",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "IA-22",
+      "workstream": "IA",
+      "surface": "Institute Admin",
+      "screen": "Institution settings (incl. institution sign-in / SSO)",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-01",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Overview",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/vendor",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/vendor/ve-01-overview"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-02",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "My experiments (all, any status)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/vendor/experiments",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/vendor/ve-02-my-experiments"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-03",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Create experiment · Course & description",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/vendor/experiments/new?step=course",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": [
+          "apps/web/src/features/vendor/editor/editor-draft.ts",
+          "apps/web/src/features/vendor/editor/experiment-editor.tsx"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-04",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Create experiment · Formats & delivery",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/vendor/experiments/[submissionId]/edit?step=formats",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": [
+          "apps/web/src/features/vendor/editor/editor-view.ts",
+          "apps/web/src/features/vendor/editor/experiment-editor.tsx"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-05",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Create experiment · Preview & documents",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/vendor/experiments/[submissionId]/edit?step=preview",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/vendor/editor/experiment-editor.tsx"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-06",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Check & submit",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/vendor/experiments/[submissionId]/edit?step=submit",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/vendor/editor/experiment-editor.tsx"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-07",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Experiment record (status, details, timeline)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/vendor/experiments/[submissionId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/vendor/ve-07-record"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-08",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Revise & resubmit (after a return)",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/vendor/experiments/[submissionId]/revise",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": [
+          "apps/web/src/features/vendor/editor/experiment-editor.tsx",
+          "apps/web/src/features/vendor/shared/returned-notice.tsx",
+          "apps/web/src/features/vendor/ve-01-overview/overview-view.ts"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-09",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Edit draft",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "/vendor/experiments/[submissionId]/edit",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": [
+          "apps/web/src/features/vendor/editor/editor-states.tsx",
+          "apps/web/src/features/vendor/editor/experiment-editor.tsx",
+          "apps/web/src/features/vendor/ve-01-overview/overview-view.ts"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-10",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Propose an update (corrected version)",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-11",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Updates",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-12",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Update detail",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-13",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Submission & version history",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/vendor/experiments/[submissionId]?tab=history",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": [
+          "apps/web/src/features/vendor/ve-07-record/experiment-record.tsx",
+          "apps/web/src/features/vendor/ve-07-record/record-view.ts"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-14",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Add a format to a published experiment",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "VE-15",
+      "workstream": "VE",
+      "surface": "Vendor",
+      "screen": "Experiment packages · Technical assets · Contributor settings",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "RV-01",
+      "workstream": "RV",
+      "surface": "Academic Reviewer",
+      "screen": "Overview",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/reviewer",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/reviewer/rv-01-overview"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "RV-02",
+      "workstream": "RV",
+      "surface": "Academic Reviewer",
+      "screen": "Review queue",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/reviewer/queue",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/reviewer/rv-02-queue"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "RV-03",
+      "workstream": "RV",
+      "surface": "Academic Reviewer",
+      "screen": "Review a submission",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/reviewer/submissions/[submissionId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/reviewer/rv-03-review"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "RV-04",
+      "workstream": "RV",
+      "surface": "Academic Reviewer",
+      "screen": "Review an update",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/reviewer/updates/[updateId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/reviewer/rv-04-review-update"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "RV-05",
+      "workstream": "RV",
+      "surface": "Academic Reviewer",
+      "screen": "Reviewed by me",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/reviewer/reviewed",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/reviewer/rv-05-reviewed"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "RV-06",
+      "workstream": "RV",
+      "surface": "Academic Reviewer",
+      "screen": "Decided item (read-only)",
+      "type": "state",
+      "designed": true,
+      "v46ProposedRoute": "/reviewer/submissions/[submissionId] (decided, read-only)",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": [
+          "apps/web/src/features/reviewer/rv-03-review/review-submission.tsx",
+          "apps/web/src/features/reviewer/rv-03-review/review-view.ts",
+          "apps/web/src/features/reviewer/rv-05-reviewed/reviewed-by-me.tsx"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "RV-07",
+      "workstream": "RV",
+      "surface": "Academic Reviewer",
+      "screen": "Courses in scope · Learning outcomes · Reviewer settings",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-01",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Overview",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/content-manager",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/content-manager/cm-01-overview"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-02",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Ready to publish",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/content-manager/ready",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/content-manager/cm-02-ready"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-03",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Publication decision",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/content-manager/decisions/[submissionId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/content-manager/cm-03-decision"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-04",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Content library (all statuses incl. published)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/content-manager/library",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/content-manager/cm-04-library"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-05",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Published experiment",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/content-manager/published/[experimentId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5 + P6)",
+        "paths": ["apps/web/src/features/content-manager/cm-05-published"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-06",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Edit catalogue details → opens a correction (UPD) draft pre-filled with the live fields (M-1)",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "→ /content-manager/updates/[updateId] (draft, catalogue fields)",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": [
+          "apps/web/src/features/content-manager/cm-05-published/published-experiment.tsx",
+          "apps/web/src/features/content-manager/cm-08-updates/correction-view.ts",
+          "apps/web/src/features/content-manager/cm-08-updates/correction.tsx"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-07",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Edit a delivery link (with reason) → opens a correction (UPD) draft pre-filled with the live delivery details (M-1)",
+      "type": "step",
+      "designed": true,
+      "v46ProposedRoute": "→ /content-manager/updates/[updateId] (draft, delivery)",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": [
+          "apps/web/src/features/content-manager/cm-05-published/published-experiment.tsx",
+          "apps/web/src/features/content-manager/cm-08-updates/correction-view.ts",
+          "apps/web/src/features/content-manager/cm-08-updates/correction.tsx"
+        ]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-08",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Corrections / updates I raised",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/content-manager/updates · /content-manager/updates/[updateId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/content-manager/cm-08-updates"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-09",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Platform course codes",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/content-manager/course-codes",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P5)",
+        "paths": ["apps/web/src/features/content-manager/cm-09-course-codes"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "CM-10",
+      "workstream": "CM",
+      "surface": "Content Manager",
+      "screen": "Academic groupings · Governance settings",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-01",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Overview",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin",
+      "specimens": ["v3-sa-01"],
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1 + P6)",
+        "paths": ["apps/web/src/features/admin/sa-01-overview"]
+      },
+      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
+      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
+      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
+      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
+      "openIssue": "Bind getSuperAdminOverview (figures, groups, counts) — never the board values. \"Soonest deadline first, then the longest wait\" is a design proposal (O-4): keep an approved deterministic order and say which. The product shows internal references today; owner decision 6 removes them from SA UI at the SA migration."
+    },
+    {
+      "id": "SA-02",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Requests",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/requests",
+      "specimens": [
+        "v3-sa-02",
+        "v3-sa-02-nomatch",
+        "v3-sa-02-loading",
+        "v3-sa-02-failed",
+        "v3-sa-02-empty"
+      ],
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/admin/sa-02-requests"]
+      },
+      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
+      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
+      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
+      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
+      "openIssue": "Bind listRequests (server-side filters, received order). The product list shows REQ- references today (owner decision 6 applies at the SA migration). Status words follow the current disclosure rules (staff \"Under review\")."
+    },
+    {
+      "id": "SA-03",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Request decision",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/requests/[requestId]",
+      "specimens": ["v3-sa-03", "v3-sa-03-renewal", "v3-sa-03-paused", "v3-sa-03-decided"],
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/admin/sa-03-request-decision"]
+      },
+      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
+      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
+      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
+      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
+      "openIssue": "Bind the existing decision view and commands (revision basis, planEffect policy-open, refusals, moved-on). Never the board's local transitions; \"approve smaller\" validation stays the product's. The product shows REQ- in its title and dialog today (owner decision 6). Konark / Godavari / renewal-copy open records (HANDOFF \"Open records\") stay unresolved."
+    },
+    {
+      "id": "SA-04",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Decline a request",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-05",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Record payment / activate manually",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-06",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Institutions",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/institutions",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/admin/sa-06-institutions"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-07",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Institution detail",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/institutions/[institutionId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P1)",
+        "paths": ["apps/web/src/features/admin/sa-07-institution-detail"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-08",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Create an institution directly",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-09",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Content allocation page",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-10",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Content updates (awaiting release)",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/admin/content/updates",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-10-updates"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-11",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Release or hold an update",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/content/updates/[updateId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-11-update-decision"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-12",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "All content & stuck items",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/admin/content/all",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-12-all-content"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-13",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Content record (read-only for published content; status override for stuck, non-published records — M-1)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/content/records/[recordId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-13-content-record"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-14",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Academic structure (areas → courses)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/structure",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-14-structure"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-15",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Area / course record",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/structure/areas/[areaId] · /courses/[courseId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-15-structure-record"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-16",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Platform roles (Vendors · Reviewers · Content Managers)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/roles?tab=vendors|reviewers|content-managers",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-16-roles"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-17",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Role holder (assign / withdraw scope)",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/roles/[holderId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-17-role-holder"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-18",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Device transfers",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/admin/operations/device-transfers",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/admin/sa-18-device-transfers"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-19",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Device transfer decision",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/operations/device-transfers/[transferId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P3)",
+        "paths": ["apps/web/src/features/admin/sa-19-device-transfer"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-20",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Support reports",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/admin/operations/support",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-20-support"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-21",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Support report",
+      "type": "page",
+      "designed": true,
+      "v46ProposedRoute": "/admin/operations/support/[reportId]",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-21-support-report"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-22",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Access ending & renewals",
+      "type": "tab",
+      "designed": true,
+      "v46ProposedRoute": "/admin/operations/access-ending",
+      "currentImplementation": {
+        "status": "v46 presentation, implemented (P6)",
+        "paths": ["apps/web/src/features/admin/sa-22-access-ending"]
+      },
+      "designSupplied": "pending complete-role export",
+      "ownerApproved": "not yet",
+      "implementationComplete": "not migrated",
+      "browserChecked": "no",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-23",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Platform reports",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-24",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Platform settings",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    },
+    {
+      "id": "SA-25",
+      "workstream": "SA",
+      "surface": "Super Admin",
+      "screen": "Student feedback views / analytics",
+      "type": "—",
+      "designed": false,
+      "v46ProposedRoute": "—",
+      "currentImplementation": {
+        "status": "excluded — never built, linked or routed (Appendix A §2)"
+      },
+      "designSupplied": "excluded",
+      "ownerApproved": "excluded",
+      "implementationComplete": "n/a",
+      "browserChecked": "n/a",
+      "openIssue": ""
+    }
+  ]
+}

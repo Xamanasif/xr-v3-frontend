@@ -42,3 +42,52 @@ export function createPlaywrightConfig(options: PlaywrightConfigOptions): Playwr
     ...(options.webServer ? { webServer: options.webServer } : {}),
   });
 }
+
+/** The local ports the browser suites serve their builds on. */
+export interface E2ePorts {
+  /** The product build (`apps/web` `.next`): 3000. */
+  readonly web: number;
+  /** The specimen harness (`apps/specimens`): 3100. */
+  readonly specimens: number;
+  /** The dedicated test-hook build (`apps/web` `.next-test-hooks`): 3200. */
+  readonly testHooks: number;
+}
+
+export const DEFAULT_E2E_PORTS: E2ePorts = { web: 3000, specimens: 3100, testHooks: 3200 };
+
+/** The environment variables that move a port (one worktree beside another's running servers). */
+export const E2E_PORT_VARIABLES: Readonly<Record<keyof E2ePorts, string>> = {
+  web: 'XR_E2E_WEB_PORT',
+  specimens: 'XR_E2E_SPECIMENS_PORT',
+  testHooks: 'XR_E2E_TEST_HOOKS_PORT',
+};
+
+/**
+ * The ports for this run: the defaults, or the values of `XR_E2E_WEB_PORT`,
+ * `XR_E2E_SPECIMENS_PORT` and `XR_E2E_TEST_HOOKS_PORT`, so a second checkout can run its suites
+ * while another checkout's servers keep their ports. A value that is not a whole number from 1024 to
+ * 65535 is an error, never a silent fallback.
+ */
+export function e2ePorts(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): E2ePorts {
+  const read = (key: keyof E2ePorts): number => {
+    const name = E2E_PORT_VARIABLES[key];
+    const raw = environment[name];
+    if (raw === undefined || raw === '') return DEFAULT_E2E_PORTS[key];
+    if (!/^\d+$/.test(raw) || Number(raw) < 1024 || Number(raw) > 65535) {
+      throw new Error(`${name} must be a port from 1024 to 65535, not "${raw}"`);
+    }
+    return Number(raw);
+  };
+  const ports = { web: read('web'), specimens: read('specimens'), testHooks: read('testHooks') };
+  if (new Set(Object.values(ports)).size !== 3) {
+    throw new Error(`the e2e ports must differ: ${JSON.stringify(ports)}`);
+  }
+  return ports;
+}
+
+/** `http://localhost:<port>`, the origin a suite's pages load from. */
+export function localOrigin(port: number): string {
+  return `http://localhost:${port}`;
+}

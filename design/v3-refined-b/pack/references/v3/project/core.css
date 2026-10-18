@@ -1,0 +1,49 @@
+/* XR Learning Platform · Design V3 · Batch 01 direction study · shared core (xr- prefix)
+   Same identity in both directions: navy ink, indigo for interaction, gold for the one primary action,
+   Batch-0 status grammar (colour + shape) and the three-state format badges.
+   Public Sans is the working UI face; the official WILP logo and font are pending. */
+.xr{
+  --ink:#131938;--ink-2:#363D62;--ink-3:#555C7E;
+  --navy:#141B5E;--navy-2:#1B2470;--navy-deep:#0C1247;
+  --indigo:#3B49B8;--indigo-2:#2A3390;--indigo-tint:#EEF0FB;--indigo-line:#CBD0F0;
+  --gold:#E9A825;--gold-hi:#F2B636;--gold-line:#A8740A;--gold-ink:#7A5004;--gold-tint:#FBF4E2;--gold-tint-line:#EEDCAE;
+  --paper:#FFFFFF;--mist:#F5F6FA;--mist-2:#EEF0F6;
+  --rule:#E1E4EE;--rule-2:#CDD1E1;--rule-ink:#131938;
+  --link:#1F4FD8;--focus:#1F4FD8;
+  --ok:#1D6B45;--ok-bg:#E6F3EB;--warn:#8A5A05;--warn-bg:#FBF1DC;--err:#B42318;--err-bg:#FCEBE9;--info:#1F4FD8;--info-bg:#EAF0FD;
+  --sans:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --serif:'Newsreader','Iowan Old Style','Palatino Linotype',Georgia,serif;
+  position:relative;font-family:var(--sans);color:var(--ink);font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-kerning:normal
+}
+.xr *,.xr *::before,.xr *::after{box-sizing:border-box}
+.xr :where(h1,h2,h3,h4,p,ul,ol,dl,dd,figure,blockquote){margin:0}
+.xr :where(ul,ol){padding:0;list-style:none}
+.xr :where(button){font-family:inherit}
+.xr :where(a,button,input,select,textarea,[tabindex]):focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+.xr-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.xr-ico{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.xr-ico--16{width:16px;height:16px}.xr-ico--18{width:18px;height:18px}
+.xr-num{font-variant-numeric:lining-nums tabular-nums}
+
+/* reserved logo slot — official BITS Pilani / WILP asset pending; never a drawn crest */
+.xr-logo{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:1.5px dashed var(--rule-2);border-radius:10px;background:var(--paper);color:var(--ink-3);font:700 10px/1 var(--sans);letter-spacing:.08em}
+.xr-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;border-radius:50%;background:var(--navy);color:#FFFFFF;font:700 14px/1 var(--sans)}
+
+/* status — colour and shape together; full label always present */
+.xr-st{display:inline-flex;align-items:center;gap:7px;min-height:28px;padding:3px 12px 3px 9px;border-radius:999px;font:600 14px/20px var(--sans);white-space:nowrap;background:var(--mist-2);color:var(--ink-2)}
+.xr-st i{display:inline-block;flex:none;width:8px;height:8px;border-radius:50%;background:currentColor}
+.xr-st--info{background:var(--info-bg);color:var(--info)}.xr-st--info i{background:transparent;border:2px solid currentColor}
+.xr-st--ok{background:var(--ok-bg);color:var(--ok)}.xr-st--ok i{width:9px;height:5px;border-radius:0;background:transparent;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg) translateY(-2px)}
+.xr-st--warn{background:var(--warn-bg);color:var(--warn)}.xr-st--warn i{background:linear-gradient(90deg,currentColor 50%,transparent 50%);border:1.5px solid currentColor}
+.xr-st--err{background:var(--err-bg);color:var(--err)}.xr-st--err i{width:7px;height:7px;border-radius:1px;transform:rotate(45deg)}
+.xr-st--paused{background:var(--paper);color:var(--navy);box-shadow:inset 0 0 0 1.5px var(--navy)}.xr-st--paused i{width:8px;height:8px;border-radius:0;background:transparent;border-left:2px solid currentColor;border-right:2px solid currentColor}
+
+/* technology formats — in plan (solid) · published, not in plan (dashed) · not published (flat) */
+.xr-fmts{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px}
+.xr-fmt{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 9px 0 7px;border-radius:7px;border:1.5px solid var(--navy);background:var(--navy);color:#FFFFFF;font:700 12.5px/1 var(--sans);letter-spacing:.06em;white-space:nowrap}
+.xr-fmt svg{width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.xr-fmt--pub{background:var(--paper);border-style:dashed;border-color:var(--indigo);color:var(--indigo-2)}
+.xr-fmt--none{background:var(--mist-2);border:1px solid var(--rule);color:var(--ink-3);font-weight:600}
+
+@media (prefers-reduced-motion: reduce){ .xr *,.xr *::before,.xr *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important} }

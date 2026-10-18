@@ -1,7 +1,7 @@
 /**
  * Positive and negative cases for the product-code bans of Appendix F §3.8:
- * `xr/no-process-env`, `xr/deterministic`, `xr/no-canvas-classes`, `xr/v46-class-names` and
- * `xr/no-raw-hex`.
+ * `xr/no-process-env`, `xr/deterministic`, `xr/no-canvas-classes`, `xr/v46-class-names`,
+ * `xr/v3-class-names` (ADR-0010) and `xr/no-raw-hex`.
  */
 import {
   deterministicRule,
@@ -9,6 +9,7 @@ import {
   noProcessEnvRule,
   noRawHexRule,
   productClassAllowListRule,
+  v3ClassNamesRule,
   v46ClassNamesRule,
 } from '../../eslint/rules/index.mjs';
 import { fixturePath, ruleTester } from './rule-tester.js';
@@ -16,6 +17,7 @@ import { fixturePath, ruleTester } from './rule-tester.js';
 const tsFile = fixturePath('src/lib/settings.ts');
 const tsxFile = fixturePath('src/features/shared/xs-07-help/view.tsx');
 const uiFile = fixturePath('../../packages/ui/src/foundation/button.tsx');
+const v3File = fixturePath('../../packages/ui/src/v3/actions.tsx');
 
 const invalid = (filename: string, messageId: string) => (code: string) => ({
   code,
@@ -134,18 +136,60 @@ ruleTester().run('xr/v46-class-names', v46ClassNamesRule, {
     ),
 });
 
+ruleTester().run('xr/v3-class-names', v3ClassNamesRule, {
+  valid: [
+    // the V3 root and the Refined B prefixes (core.css xr-, rb.css rb-, rb-kit.css rk-)
+    '<div className="xr rb" />',
+    '<a className="rb-btn rb-btn--primary rb-btn--lg" />',
+    '<span className="xr-st xr-st--info" />',
+    '<li className="rk-fcell rk-fcell--pub" />',
+    '<button className={`rb-btn rb-btn--${variant}`} />',
+    "<tr className={selected ? 'is-kbd' : undefined} />",
+    "<p className={['rb-row-when', due && 'rb-row-when--due'].join(' ')} />",
+    // a v46 island keeps the v46 container class (`xr-` is shared with xr-foundation.css)
+    '<div className="xr-app" />',
+    // the V3 product classes on the allow-list (V3P-02)
+    "<div className={`rk-sortbar ${shown ? 'rk-x-sort-shown' : 'rk-x-sort-hidden'}`} />",
+  ].map((code) => ({ code, filename: v3File })),
+  invalid: [
+    ['<div className="flex p-4" />', 2],
+    ['<span className="rb-btn text-sm" />', 1],
+    ['<div className="xp" />', 1],
+    ['<div className="xw-errsum" />', 1],
+    ['<div className="RB-btn" />', 1],
+    ['<div className="rbx" />', 1],
+    ["<div className={wide ? 'grid' : 'rk-surface'} />", 1],
+  ]
+    .map(([code, count]) => ({
+      code: code as string,
+      filename: v3File,
+      errors: Array.from({ length: count as number }, () => ({ messageId: 'notV3' })),
+    }))
+    .concat(
+      [
+        '<div className="rk-x-sort" />',
+        '<dialog className="rk-dialog xr-x-dialog--start" />',
+        '<div className={`rk-x-panel--${side}`} />',
+      ].map((code) => ({ code, filename: v3File, errors: [{ messageId: 'notAllowed' }] })),
+    ),
+});
+
 ruleTester().run('xr/product-class-allow-list', productClassAllowListRule, {
   valid: [
     "const ALIGN = { start: 'xr-x-dialog--start', marks: 'xr-x-dialog--marks' };",
     'const name = `xr-x-dialog--${align}`;',
     "const sort = 'xr-x-th-sort';",
     "const note = 'no product class here: xr-btn';",
+    "const SORT = { shown: 'rk-x-sort-shown', hidden: 'rk-x-sort-hidden' };",
+    'const v3 = `rk-x-sort-${state}`;',
   ].map((code) => ({ code, filename: uiFile })),
   invalid: [
     "const ALIGN = { centre: 'xr-x-dialog--centre' };",
     "const panel = 'xr-x-panel';",
     'const any = `xr-x-${kind}`;',
     'const other = `xr-x-table--${kind}`;',
+    "const v3 = 'rk-x-panel';",
+    'const v3any = `rk-x-${kind}`;',
   ].map((code) => ({ code, filename: uiFile, errors: [{ messageId: 'notAllowed' }] })),
 });
 

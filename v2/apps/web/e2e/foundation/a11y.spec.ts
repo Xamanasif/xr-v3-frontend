@@ -4,6 +4,7 @@ import {
   actAs,
   expectNoAxeViolations,
   expectNoInvisibleFocusTargets,
+  PRODUCT_URL,
   reachAndClick,
   TEST_HOOKS_URL,
 } from '../support';
@@ -88,7 +89,7 @@ test('PU-15 workspace variant', async ({ page }) => {
 });
 
 test('PU-15 public variant (product build)', async ({ page }) => {
-  await page.goto('http://localhost:3000/no-such-page');
+  await page.goto(`${PRODUCT_URL}/no-such-page`);
   await checkState(page, 'We can’t find that page');
 });
 

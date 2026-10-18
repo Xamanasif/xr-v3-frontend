@@ -252,3 +252,32 @@ Differences that are design decisions, not regressions, are listed in
 product as built — among them the grey busy look (DEV-01), the secondary dialog Cancel (VD-06,
 DEV-08), the `xw-errsum` ErrorSummary (VD-22, DEV-12) and the gold ring on navy (VD-11, DEV-06);
 no component changed. DEV-16 (a `warn` MessagePage tone) is deferred to the ST-19 phase.
+
+## V3 Refined Direction B — `@xr/ui/v3` and `@xr/ui/styles-v3.css` (19 Oct 2026)
+
+Foundation `XR-V3-RB-1.0` (`docs/decisions/ADR-0010-v3-presentation-layer.md`,
+`docs/v3/V3-FOUNDATION-RECORD.md`). A second presentation layer **beside** the v46 one: nothing
+above changes, and no product route loads it until an owner-approved complete role is migrated.
+
+```
+scripts/generate-v3-scoped-css.mjs   writes rb-scoped.css from design/v3-refined-b (lock-checked)
+src/styles/v3/
+  index.css        the V3 entry: layers xr.v3.rb, xr.v3.patch (sublayers of xr, after xr.product)
+  rb-scoped.css    GENERATED: core.css + rb.css + rb-kit.css, selectors confined to .xr (never edit)
+  patch.css        V3P-01 … V3P-08: accessibility fixes and isolation from v46 global rules
+src/v3/            the V3 components (entry `@xr/ui/v3`); register: src/v3/COMPONENT-EXTENSIONS.md
+```
+
+- **Regenerate, never edit, `rb-scoped.css`**: `pnpm --filter @xr/ui generate:v3-css`. Only
+  selector text differs from the sources (`:where(.xr)` prefix, `:not(:where([data-xr-v46], …))`
+  island exclusion, both zero specificity); `v3-provenance.test.ts` fails on any drift.
+- **V3 components emit only Refined B classes** (`xr/v3-class-names`, `expectV3ClassesOnly`) and
+  share behaviour with v46 instead of copying it: `useDrawer` (`persistentNavigation`),
+  `useModalDialog` (extracted from `DialogFrame`), `useAccountMenu` / `AccountMenuPanel`,
+  `focusField`. Product-only V3 classes are `rk-x-*` (`V3_PRODUCT_CLASS_ALLOW_LIST`).
+- **v46 content inside a V3 page** renders in `<V46Island>` (`div[data-xr-v46]`): V3 rules skip it
+  and V3P-05 restores the v46 container and text defaults.
+- **Public Sans 650 and 800**: V3 surfaces add the `wght@400..800` link (the boards' own);
+  weights 400–700 render from the same files as before.
+- **Specimens**: `apps/specimens` `/v3-sa-01` … `/v3-scope` (harness only; `e2e/v3-foundation.spec.ts`);
+  board comparison: `tools/v3-reference`.

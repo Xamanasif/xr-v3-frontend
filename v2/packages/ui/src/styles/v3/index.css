@@ -1,0 +1,20 @@
+/*
+ * @xr/ui V3 stylesheet entry — foundation XR-V3-RB-1.0, Refined Direction B (ADR-0010).
+ * Exported as `@xr/ui/styles-v3.css`. Load it after `@xr/ui/styles.css`, and only where a V3
+ * surface renders: it adds no rule outside a V3 root (`.xr`), so a v46 page and the locked public
+ * landing render exactly as before even when it is present.
+ *
+ * - `rb-scoped.css` is GENERATED from the frozen core.css, rb.css and rb-kit.css in
+ *   design/v3-refined-b/ (scripts/generate-v3-scoped-css.mjs): the sources' own declarations and
+ *   rule order, each selector confined to a V3 root with zero added specificity. Never edit it.
+ * - `patch.css` holds the central, versioned corrections (V3P-nn): accessibility and correctness
+ *   fixes and the isolation from the v46 product layer. No aesthetic change goes there.
+ * - The layer statement repeats the product statement of `@xr/ui/styles.css` and apps/web
+ *   globals.css, which reserve `xr.v3` between `xr.product` and `utilities`, so the order holds
+ *   whichever chunk loads first: v46 < product deltas < V3 < composition utilities.
+ */
+@layer properties, theme, xr.v46, xr.product, xr.v3, utilities;
+@layer xr.v3.rb, xr.v3.patch;
+
+@import './rb-scoped.css' layer(xr.v3.rb);
+@import './patch.css' layer(xr.v3.patch);
