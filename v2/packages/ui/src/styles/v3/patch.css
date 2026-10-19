@@ -226,3 +226,81 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
   padding-left: 0;
   padding-right: 0;
 }
+
+/*
+ * V3P-13 · The Vendor export's inline spacings (design/v3-refined-b/roles/VE-v1,
+ * `project/Main.dc.html`). The export sets these with `style=`; product code takes no inline style,
+ * so each is a product class on the element the export styles, set by its component. Values
+ * exactly as the export writes them:
+ * - `.rk-ferr.rk-x-ferr-above` `margin-top: 10px` — the formats' error under the format tiles
+ *   (`p#f-fmts-e`, VE-04 "Formats it supports"). `VendorEditorFormats` (ve-editor.tsx).
+ * - `.ve-intro.rk-x-intro-below` `margin-bottom: 10px` — "One set for every format." over the
+ *   learning outcomes (the record's Details, VE-07; the check step, VE-06 / VE-08).
+ *   `VendorLearningOutcomes` (ve.tsx).
+ * - `.rk-eyebrow.rk-x-eyebrow-flush` `margin: 0` — the eyebrow of the refusal on a stale editor
+ *   address (VE-08 / VE-09 "This experiment was already submitted" …). `VendorEditorRefusal`.
+ *
+ * And the export's cascade. The export loads its sheets unlayered (core.css, rb.css, rb-kit.css,
+ * then v3-vendor.css), so where a Refined B rule and a `ve-`/`vr-` rule set the same property on
+ * one element, the more specific rule wins — often the Refined B one. The product puts the role
+ * sheet in `xr.v3.ve`, above `xr.v3.rb`, where it wins whatever the specificity. Comparing both
+ * cascades on every element of every Vendor screen state reached through the product (VE-01 …
+ * VE-09, VE-13, at 1440, 1024, 768 and 375, at rest and in the hover / focus states) finds these
+ * elements, and only these, where they differ; each rule restores, on exactly the elements both
+ * rules match, the declarations the export's winning rule gives:
+ * - VE-04 "Formats it supports" (`legend.vr-legend`, rb-kit.css `.rk-fieldset legend` 0,1,1 over
+ *   `.vr-legend` 0,1,0): the legend 10 px above the format tiles; its two lines
+ *   (`.rk-fieldset legend > span:not(.sc-interp)` 0,2,2 over `.vr-sec-t`, `.vr-sec-d` 0,1,0) quiet
+ *   grey 14.5 px, the title not the section heading's bold navy, the line 2 px under it.
+ * - VE-06 / VE-08 Check and submit, "Change" (`button.vr-chg`, rb.css `.rb .rb-btn--ghost` 0,2,0
+ *   over `.vr-chg` 0,1,0): the ghost button's 40 px height.
+ * - VE-02 the experiment's name in a row (`a.rk-rowlink.vr-name`, rb-kit.css `.rb .rk-rowlink`
+ *   0,2,0 and its `:hover` 0,3,0 over `.vr-name` 0,1,0 and its `:hover` 0,2,0): navy 650
+ *   16.5/23 px, inline, navy under the pointer.
+ * - Focus (core.css `.xr :where(a, button, …, [tabindex]):focus-visible` 0,2,0 over `.vr-linkbtn`
+ *   and `.vr-ret` 0,1,0): the keyboard focus ring's 6 px corners on "Attach file" (VE-04) and on
+ *   the returned-reason panel when it takes focus (VE-07, VE-08).
+ */
+:where(.xr) .rk-ferr.rk-x-ferr-above:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 10px;
+}
+
+:where(.xr) .ve-intro.rk-x-intro-below:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 10px;
+}
+
+:where(.xr) .rk-eyebrow.rk-x-eyebrow-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin: 0;
+}
+
+:where(.xr) .rk-fieldset legend.vr-legend:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 10px;
+}
+
+:where(.xr) .rk-fieldset legend > span.vr-sec-t:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  font: 400 14.5px/21px var(--sans);
+  color: var(--ink-3);
+}
+
+:where(.xr) .rk-fieldset legend > span.vr-sec-d:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 2px;
+}
+
+:where(.xr) .rb-btn--ghost.vr-chg:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  min-height: 40px;
+}
+
+:where(.xr) .rk-rowlink.vr-name:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  display: inline;
+  color: var(--navy);
+  font: 650 16.5px/23px var(--sans);
+}
+
+:where(.xr) .rk-rowlink.vr-name:hover:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  color: var(--navy);
+}
+
+:where(.xr) .vr-linkbtn:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)),
+:where(.xr) .vr-ret:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  border-radius: 6px;
+}

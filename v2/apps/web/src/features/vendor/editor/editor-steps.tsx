@@ -2,42 +2,60 @@
 
 import type { CourseCard } from '@xr/contracts/draft';
 import type { LearningOutcome, Technology } from '@xr/domain';
-import { FORMAT_META } from '@xr/domain';
+import { FORMAT_META, inDisplayOrder } from '@xr/domain';
 import {
   Button,
-  Checkbox,
-  Field,
-  FieldError,
-  FormatBadge,
-  Icon,
-  Link,
-  Select,
-  Textarea,
-  TextInput,
-} from '@xr/ui';
-import { Fragment, type ReactNode } from 'react';
+  DefinitionList,
+  Notice,
+  VendorDeliveryList,
+  VendorDeliveryView,
+  VendorEditorCheckLead,
+  VendorEditorDeliveryBlock,
+  VendorEditorEmpty,
+  VendorEditorField,
+  VendorEditorFile,
+  VendorEditorFiles,
+  VendorEditorFormats,
+  VendorEditorGrid,
+  VendorEditorInput,
+  VendorEditorLinkButton,
+  VendorEditorMissing,
+  VendorEditorPackageGuide,
+  VendorEditorReview,
+  VendorEditorSelect,
+  type VendorEditorStatus,
+  VendorEditorSubmitNote,
+  VendorEditorTextarea,
+  VendorLearningOutcomes,
+  VendorSection,
+} from '@xr/ui/v3';
+import type { ReactNode } from 'react';
 
 import {
-  CHECK_STEP,
+  attachFileLabel,
   changeSectionLabel,
+  CHECK_STEP,
   COURSE_STEP,
   courseHint,
   courseWords,
   EDITOR,
-  FORMATS_STEP,
-  formatLabel,
+  formatKind,
+  formatName,
   formatNotesLabel,
-  formatPanelTitle,
+  formatsCompleteWords,
+  FORMATS_STEP,
+  joinedWords,
   missingCountWords,
   PREVIEW_STEP,
+  previewWords,
   removeDocumentLabel,
   removePackageFileLabel,
   withdrawnCourseHint,
 } from '@/copy/vendor-editor';
-import { MY_EXPERIMENTS_ADDRESS } from '@/nav/vendor';
 
 import {
   type ChecklistRow,
+  deliveryRows,
   EDITOR_FORMATS,
   type EditorDraft,
   type EditorField,
@@ -48,99 +66,49 @@ import {
   PACKAGE_FORMATS,
   type PackageDraft,
   type PackageFormat,
-  SUBMIT_ID,
   type WebDraft,
 } from './editor-view';
-
-/** What every step's footer needs: the save action and its words, and Continue (steps 1–3). */
-export interface StepActions {
-  readonly saveLabel: string;
-  readonly onSave: () => void;
-  readonly saving: boolean;
-  readonly onContinue: () => void;
-  readonly continuing: boolean;
-  /** Step 1's Cancel (to My experiments, dropping what was typed) or the other steps' Back. */
-  readonly onCancel: () => void;
-  readonly onBack: () => void;
-}
 
 /** A field's change: its new value; the editor clears its error and the saved line. */
 export type FieldChange = (field: EditorField, change: (draft: EditorDraft) => EditorDraft) => void;
 
-/** The step's footer (`div.xw-flow-foot`): the way back first, the step's actions last. */
-function FlowFoot({
-  start,
-  children,
-}: {
-  readonly start: ReactNode;
-  readonly children: ReactNode;
-}) {
-  return (
-    <div className="xw-flow-foot">
-      {start}
-      <div className="xw-actions">{children}</div>
-    </div>
-  );
-}
-
-function SaveButton({ actions }: { readonly actions: StepActions }) {
-  return (
-    <Button variant="secondary" onClick={actions.onSave} busy={actions.saving}>
-      {actions.saveLabel}
-    </Button>
-  );
-}
-
-function StepFoot({ actions, first }: { readonly actions: StepActions; readonly first: boolean }) {
-  return (
-    <FlowFoot
-      start={
-        first ? (
-          <Link
-            className="xr-btn xr-btn--text"
-            href={MY_EXPERIMENTS_ADDRESS}
-            onClick={actions.onCancel}
-          >
-            {EDITOR.cancel}
-          </Link>
-        ) : (
-          <Button variant="text" onClick={actions.onBack}>
-            {EDITOR.previous}
-          </Button>
-        )
-      }
-    >
-      <SaveButton actions={actions} />
-      <Button variant="primary" onClick={actions.onContinue} busy={actions.continuing}>
-        {EDITOR.continue}
-      </Button>
-    </FlowFoot>
-  );
-}
-
-/** `p.xl-open` (T-14, T-29): an open decision said in the product. */
-function OpenNote({ children }: { readonly children: ReactNode }) {
-  return (
-    <p className="xl-open m-0">
-      <Icon name="info" size={16} />
-      <span>{children}</span>
-    </p>
-  );
-}
-
-// ---- Step 1 · Course and description (B5-03 f0 … f6) --------------------------------------------
-
-export interface CourseStepProps {
+/** What every editing step reads: the draft, a field's error on show and the return's references. */
+interface StepFields {
   readonly draft: EditorDraft;
-  readonly courses: readonly CourseCard[];
-  readonly organisation: string;
-  /** A chosen course that is no longer one of the Vendor's (f5): its code and name. */
-  readonly withdrawn: { readonly code: string | null; readonly name: string } | null;
   readonly errorOf: (field: EditorField) => string | undefined;
   readonly onChange: FieldChange;
-  readonly actions: StepActions;
+  /** The fields the return refers to (revise mode), each tagged. */
+  readonly referred: ReadonlySet<EditorField>;
 }
 
+/** The ids of the sections and blocks the outline moves focus to. */
+export const SECTION_IDS = {
+  courseAndName: `${ID_PREFIX}-s1-a-h`,
+  catalogue: `${ID_PREFIX}-s1-b-h`,
+  delivery: `${ID_PREFIX}-s2-dlv-h`,
+  preview: `${ID_PREFIX}-s3-a-h`,
+  documents: `${ID_PREFIX}-s3-b-h`,
+} as const;
+
+/** A delivery block's heading id (`Ve-WEB-t`, `Ve-VR-t`). */
+export function blockTitleId(format: Technology): string {
+  return `${ID_PREFIX}-${FORMAT_META[format].code}-t`;
+}
+
+function tagFor(referred: ReadonlySet<EditorField>, field: EditorField): ReactNode {
+  return referred.has(field) ? EDITOR.referred : undefined;
+}
+
+// ---- Step 1 · Course and description (VE-03) ----------------------------------------------------
+
+export interface CourseStepProps extends StepFields {
+  readonly courses: readonly CourseCard[];
+  readonly organisation: string;
+  /** A chosen course that is no longer one of the Vendor's: its code and name. */
+  readonly withdrawn: { readonly code: string | null; readonly name: string } | null;
+}
+
+/** Two sections on the field grid: Course and name (course, version, name); Catalogue text. */
 export function CourseStep({
   draft,
   courses,
@@ -148,605 +116,624 @@ export function CourseStep({
   withdrawn,
   errorOf,
   onChange,
-  actions,
+  referred,
 }: CourseStepProps) {
-  const courseId = fieldId('courseId');
-  const courseError = errorOf('courseId');
   const chosen = courses.some((course) => course.id === draft.courseId) ? draft.courseId : '';
   const text = (field: 'name' | 'summary' | 'description' | 'version', value: string) =>
     onChange(field, (current) => ({ ...current, [field]: value }));
   return (
-    <div className="xr-section xv-step">
-      <div className="xr-field">
-        <label className="xr-label" htmlFor={courseId}>
-          {COURSE_STEP.courseLabel}
-        </label>
-        <span className="xr-hint" id={`${courseId}-h`}>
-          {courseHint(organisation)}
-        </span>
-        {withdrawn && !chosen ? (
-          <span className="xr-hint text-warn">
-            {withdrawnCourseHint(withdrawn.code, withdrawn.name)}
-          </span>
-        ) : null}
-        <div className="max-w-[520px]">
-          <Select
-            id={courseId}
-            value={chosen ?? ''}
-            invalid={Boolean(courseError)}
-            aria-describedby={courseError ? `${courseId}-h ${courseId}-e` : `${courseId}-h`}
-            onChange={(event) => {
-              const value = event.target.value;
-              onChange('courseId', (current) => ({ ...current, courseId: value || null }));
-            }}
-            options={[
-              { label: COURSE_STEP.chooseCourse, value: '' },
-              ...courses.map((course) => ({
-                label: courseWords(course.platformCode, course.name),
-                value: course.id,
-              })),
-            ]}
-          />
-        </div>
-        {courseError ? <FieldError id={`${courseId}-e`}>{courseError}</FieldError> : null}
-      </div>
-      <Field
-        id={fieldId('name')}
-        label={COURSE_STEP.nameLabel}
-        hint={COURSE_STEP.nameHint}
-        error={errorOf('name')}
+    <>
+      <VendorSection
+        titleId={SECTION_IDS.courseAndName}
+        title={COURSE_STEP.sections.courseAndName}
+        titleFocusTarget
       >
-        <TextInput
-          className="max-w-[640px]"
-          value={draft.name}
-          onChange={(event) => text('name', event.target.value)}
-        />
-      </Field>
-      <Field
-        id={fieldId('summary')}
-        label={COURSE_STEP.summaryLabel}
-        hint={COURSE_STEP.summaryHint}
-        error={errorOf('summary')}
+        <VendorEditorGrid>
+          <VendorEditorField
+            id={fieldId('courseId')}
+            label={COURSE_STEP.courseLabel}
+            width={4}
+            hint={courseHint(organisation)}
+            staleHint={
+              withdrawn && !chosen ? withdrawnCourseHint(withdrawn.code, withdrawn.name) : undefined
+            }
+            referred={tagFor(referred, 'courseId')}
+            error={errorOf('courseId')}
+          >
+            <VendorEditorSelect
+              value={chosen ?? ''}
+              onChange={(event) => {
+                const value = event.target.value;
+                onChange('courseId', (current) => ({ ...current, courseId: value || null }));
+              }}
+              options={[
+                { label: COURSE_STEP.chooseCourse, value: '' },
+                ...courses.map((course) => ({
+                  label: courseWords(course.platformCode, course.name),
+                  value: course.id,
+                })),
+              ]}
+            />
+          </VendorEditorField>
+          <VendorEditorField
+            id={fieldId('version')}
+            label={COURSE_STEP.versionLabel}
+            width={2}
+            hint={COURSE_STEP.versionHint}
+            referred={tagFor(referred, 'version')}
+            error={errorOf('version')}
+          >
+            <VendorEditorInput
+              value={draft.version}
+              onChange={(event) => text('version', event.target.value)}
+            />
+          </VendorEditorField>
+          <VendorEditorField
+            id={fieldId('name')}
+            label={COURSE_STEP.nameLabel}
+            hint={COURSE_STEP.nameHint}
+            referred={tagFor(referred, 'name')}
+            error={errorOf('name')}
+          >
+            <VendorEditorInput
+              value={draft.name}
+              onChange={(event) => text('name', event.target.value)}
+            />
+          </VendorEditorField>
+        </VendorEditorGrid>
+      </VendorSection>
+      <VendorSection
+        titleId={SECTION_IDS.catalogue}
+        title={COURSE_STEP.sections.catalogue}
+        titleFocusTarget
+        note={COURSE_STEP.note}
       >
-        <Textarea
-          className="min-h-[80px]"
-          value={draft.summary}
-          onChange={(event) => text('summary', event.target.value)}
-        />
-      </Field>
-      <Field
-        id={fieldId('description')}
-        label={COURSE_STEP.descriptionLabel}
-        hint={COURSE_STEP.descriptionHint}
-        error={errorOf('description')}
-      >
-        <Textarea
-          className="min-h-[140px]"
-          value={draft.description}
-          onChange={(event) => text('description', event.target.value)}
-        />
-      </Field>
-      <Field
-        id={fieldId('version')}
-        label={COURSE_STEP.versionLabel}
-        hint={COURSE_STEP.versionHint}
-        error={errorOf('version')}
-      >
-        <TextInput
-          className="max-w-[160px]"
-          value={draft.version}
-          onChange={(event) => text('version', event.target.value)}
-        />
-      </Field>
-      <OpenNote>{COURSE_STEP.note}</OpenNote>
-      <StepFoot actions={actions} first />
-    </div>
+        <VendorEditorGrid>
+          <VendorEditorField
+            id={fieldId('summary')}
+            label={COURSE_STEP.summaryLabel}
+            hint={COURSE_STEP.summaryHint}
+            referred={tagFor(referred, 'summary')}
+            error={errorOf('summary')}
+          >
+            <VendorEditorTextarea
+              rows={2}
+              value={draft.summary}
+              onChange={(event) => text('summary', event.target.value)}
+            />
+          </VendorEditorField>
+          <VendorEditorField
+            id={fieldId('description')}
+            label={COURSE_STEP.descriptionLabel}
+            hint={COURSE_STEP.descriptionHint}
+            referred={tagFor(referred, 'description')}
+            error={errorOf('description')}
+          >
+            <VendorEditorTextarea
+              rows={4}
+              value={draft.description}
+              onChange={(event) => text('description', event.target.value)}
+            />
+          </VendorEditorField>
+        </VendorEditorGrid>
+      </VendorSection>
+    </>
   );
 }
 
-// ---- Step 2 · Formats and delivery (B5-04 f0 … f6) ----------------------------------------------
+// ---- Step 2 · Formats and delivery (VE-04) ------------------------------------------------------
 
-function WebPanel({
+/** The package guidance's description ids: each package field is described by its own. */
+const GUIDE_IDS = {
+  label: `${ID_PREFIX}-pk-g-label`,
+  reference: `${ID_PREFIX}-pk-g-ref`,
+  device: `${ID_PREFIX}-pk-g-device`,
+  install: `${ID_PREFIX}-pk-g-install`,
+} as const;
+
+function WebBlock({
   web,
+  status,
   errorOf,
   onChange,
-}: {
-  readonly web: WebDraft;
-  readonly errorOf: (field: EditorField) => string | undefined;
-  readonly onChange: FieldChange;
-}) {
-  const titleId = `${ID_PREFIX}-WEB-t`;
+  referred,
+}: Omit<StepFields, 'draft'> & { readonly web: WebDraft; readonly status: VendorEditorStatus }) {
   const set = (key: keyof WebDraft, value: string) =>
     onChange(`web.${key}`, (current) => ({ ...current, web: { ...current.web, [key]: value } }));
   return (
-    <section className="xv-fpanel" aria-labelledby={titleId}>
-      <div className="xv-fpanel-head">
-        <FormatBadge format="WEB" compact />
-        <h3 className="xr-h3 m-0" id={titleId}>
-          {formatPanelTitle('web')}
-        </h3>
-      </div>
-      <Field
+    <VendorEditorDeliveryBlock
+      code="WEB"
+      name={formatName('web')}
+      kind={formatKind('web')}
+      titleId={blockTitleId('web')}
+      status={status}
+    >
+      <VendorEditorField
         id={fieldId('web.webLink')}
         label={FORMATS_STEP.webLink}
         hint={FORMATS_STEP.webLinkHint}
+        referred={tagFor(referred, 'web.webLink')}
         error={errorOf('web.webLink')}
       >
-        <TextInput
-          className="max-w-[640px]"
+        <VendorEditorInput
+          type="url"
           value={web.webLink}
           onChange={(event) => set('webLink', event.target.value)}
         />
-      </Field>
-      <Field
+      </VendorEditorField>
+      <VendorEditorField
         id={fieldId('web.browserAndComputer')}
         label={FORMATS_STEP.browser}
         hint={FORMATS_STEP.browserHint}
+        referred={tagFor(referred, 'web.browserAndComputer')}
         error={errorOf('web.browserAndComputer')}
       >
-        <Textarea
-          className="min-h-[112px]"
+        <VendorEditorTextarea
+          rows={2}
           value={web.browserAndComputer}
           onChange={(event) => set('browserAndComputer', event.target.value)}
         />
-      </Field>
-      <Field
+      </VendorEditorField>
+      <VendorEditorField
         id={fieldId('web.notes')}
         label={formatNotesLabel('web')}
-        marker={FORMATS_STEP.optional}
+        optional={EDITOR.optional}
         error={errorOf('web.notes')}
       >
-        <Textarea
-          className="min-h-[112px]"
+        <VendorEditorTextarea
+          rows={1}
           value={web.notes}
           onChange={(event) => set('notes', event.target.value)}
         />
-      </Field>
-    </section>
+      </VendorEditorField>
+    </VendorEditorDeliveryBlock>
   );
 }
 
-function PackagePanel({
+function PackageBlock({
   format,
   value,
+  status,
   errorOf,
   onChange,
   onAttach,
-}: {
+  referred,
+}: Omit<StepFields, 'draft'> & {
   readonly format: PackageFormat;
   readonly value: PackageDraft;
-  readonly errorOf: (field: EditorField) => string | undefined;
-  readonly onChange: FieldChange;
+  readonly status: VendorEditorStatus;
   readonly onAttach: (format: PackageFormat, attach: boolean) => void;
 }) {
-  const code = FORMAT_META[format].code;
-  const titleId = `${ID_PREFIX}-${code}-t`;
-  const fileLabelId = `${ID_PREFIX}-${code}-fl`;
   const set = (key: Exclude<keyof PackageDraft, 'packageFileName'>, typed: string) =>
     onChange(`${format}.${key}`, (current) => ({
       ...current,
       packages: { ...current.packages, [format]: { ...current.packages[format], [key]: typed } },
     }));
+  const field = (key: Exclude<keyof PackageDraft, 'packageFileName'>): EditorField =>
+    `${format}.${key}`;
   return (
-    <section className="xv-fpanel" aria-labelledby={titleId}>
-      <div className="xv-fpanel-head">
-        <FormatBadge format={code} compact />
-        <h3 className="xr-h3 m-0" id={titleId}>
-          {formatPanelTitle(format)}
-        </h3>
-      </div>
-      <OpenNote>{FORMATS_STEP.packageNote}</OpenNote>
-      <Field
-        id={fieldId(`${format}.packageLabel`)}
+    <VendorEditorDeliveryBlock
+      code={FORMAT_META[format].code}
+      name={formatName(format)}
+      kind={formatKind(format)}
+      titleId={blockTitleId(format)}
+      status={status}
+    >
+      <VendorEditorField
+        id={fieldId(field('packageLabel'))}
         label={FORMATS_STEP.packageLabel}
-        hint={FORMATS_STEP.packageLabelHint}
-        error={errorOf(`${format}.packageLabel`)}
+        width={3}
+        describedBy={GUIDE_IDS.label}
+        referred={tagFor(referred, field('packageLabel'))}
+        error={errorOf(field('packageLabel'))}
       >
-        <TextInput
-          className="max-w-[520px]"
+        <VendorEditorInput
           value={value.packageLabel}
           onChange={(event) => set('packageLabel', event.target.value)}
         />
-      </Field>
-      <Field
-        id={fieldId(`${format}.packageReference`)}
+      </VendorEditorField>
+      <VendorEditorField
+        id={fieldId(field('packageReference'))}
         label={FORMATS_STEP.packageReference}
-        hint={FORMATS_STEP.packageReferenceHint}
-        error={errorOf(`${format}.packageReference`)}
+        width={3}
+        describedBy={GUIDE_IDS.reference}
+        labelAction={
+          value.packageFileName === null ? (
+            <VendorEditorLinkButton
+              label={attachFileLabel(format)}
+              onClick={() => onAttach(format, true)}
+            >
+              {FORMATS_STEP.attachFile}
+            </VendorEditorLinkButton>
+          ) : undefined
+        }
+        referred={tagFor(referred, field('packageReference'))}
+        error={errorOf(field('packageReference'))}
+        after={
+          value.packageFileName !== null ? (
+            <VendorEditorFile
+              as="div"
+              name={value.packageFileName}
+              removeLabel={FORMATS_STEP.remove}
+              removeName={removePackageFileLabel(format)}
+              onRemove={() => onAttach(format, false)}
+            />
+          ) : undefined
+        }
       >
-        <TextInput
-          className="max-w-[520px]"
+        <VendorEditorInput
           value={value.packageReference}
           onChange={(event) => set('packageReference', event.target.value)}
         />
-      </Field>
-      <div className="xr-field">
-        <span className="xr-label" id={fileLabelId}>
-          {FORMATS_STEP.packageFile} <span className="xr-opt">{FORMATS_STEP.optional}</span>
-        </span>
-        <span className="xr-hint">{FORMATS_STEP.packageFileHint}</span>
-        {value.packageFileName === null ? (
-          <div>
-            <Button
-              variant="secondary"
-              size="sm"
-              icon="readyToPublish"
-              id={fieldId(`${format}.packageFileName`)}
-              aria-describedby={fileLabelId}
-              onClick={() => onAttach(format, true)}
-            >
-              {FORMATS_STEP.chooseFile}
-            </Button>
-          </div>
-        ) : (
-          <div className="xv-file">
-            <Icon name="fileText" />
-            <span>{value.packageFileName}</span>
-            <Button
-              variant="text"
-              className="min-h-9"
-              aria-label={removePackageFileLabel(format)}
-              onClick={() => onAttach(format, false)}
-            >
-              {FORMATS_STEP.remove}
-            </Button>
-          </div>
-        )}
-      </div>
-      <Field
-        id={fieldId(`${format}.deviceNeeded`)}
+      </VendorEditorField>
+      <VendorEditorField
+        id={fieldId(field('deviceNeeded'))}
         label={FORMATS_STEP.device}
-        hint={FORMATS_STEP.deviceHint}
-        error={errorOf(`${format}.deviceNeeded`)}
+        width={3}
+        describedBy={GUIDE_IDS.device}
+        referred={tagFor(referred, field('deviceNeeded'))}
+        error={errorOf(field('deviceNeeded'))}
       >
-        <Textarea
-          className="min-h-[112px]"
+        <VendorEditorTextarea
+          rows={2}
           value={value.deviceNeeded}
           onChange={(event) => set('deviceNeeded', event.target.value)}
         />
-      </Field>
-      <Field
-        id={fieldId(`${format}.installNotes`)}
+      </VendorEditorField>
+      <VendorEditorField
+        id={fieldId(field('installNotes'))}
         label={FORMATS_STEP.install}
-        hint={FORMATS_STEP.installHint}
-        error={errorOf(`${format}.installNotes`)}
+        width={3}
+        describedBy={GUIDE_IDS.install}
+        referred={tagFor(referred, field('installNotes'))}
+        error={errorOf(field('installNotes'))}
       >
-        <Textarea
-          className="min-h-[112px]"
+        <VendorEditorTextarea
+          rows={2}
           value={value.installNotes}
           onChange={(event) => set('installNotes', event.target.value)}
         />
-      </Field>
-      <Field
-        id={fieldId(`${format}.notes`)}
+      </VendorEditorField>
+      <VendorEditorField
+        id={fieldId(field('notes'))}
         label={formatNotesLabel(format)}
-        marker={FORMATS_STEP.optional}
-        error={errorOf(`${format}.notes`)}
+        optional={EDITOR.optional}
+        error={errorOf(field('notes'))}
       >
-        <Textarea
-          className="min-h-[112px]"
+        <VendorEditorTextarea
+          rows={1}
           value={value.notes}
           onChange={(event) => set('notes', event.target.value)}
         />
-      </Field>
-    </section>
+      </VendorEditorField>
+    </VendorEditorDeliveryBlock>
   );
 }
 
-export interface FormatsStepProps {
-  readonly draft: EditorDraft;
-  readonly errorOf: (field: EditorField) => string | undefined;
-  readonly onChange: FieldChange;
+export interface FormatsStepProps extends StepFields {
   readonly onToggle: (format: Technology) => void;
   readonly onAttach: (format: PackageFormat, attach: boolean) => void;
-  readonly actions: StepActions;
+  /** Each chosen format's live status (Complete / N still needed / N to fix). */
+  readonly blockStatus: (format: Technology) => VendorEditorStatus;
 }
 
+/**
+ * The format selector, then — once a format is chosen — Delivery details: how many formats are
+ * complete, the app-package guidance written once, and one block per chosen format.
+ */
 export function FormatsStep({
   draft,
   errorOf,
   onChange,
   onToggle,
   onAttach,
-  actions,
+  referred,
+  blockStatus,
 }: FormatsStepProps) {
-  const groupId = fieldId('formats');
-  const formatsError = errorOf('formats');
+  const chosen = inDisplayOrder(draft.formats);
+  const packages = PACKAGE_FORMATS.filter((format) => draft.formats.includes(format));
+  const complete = chosen.filter((format) => blockStatus(format).tone === 'ok').length;
   return (
-    <div className="xr-section xv-step">
-      <fieldset
-        className="xr-fieldset m-0 min-w-0 border-0 p-0"
-        id={groupId}
-        tabIndex={-1}
-        aria-describedby={formatsError ? `${groupId}-e` : undefined}
-      >
-        <legend className="xr-label mb-1">{FORMATS_STEP.legend}</legend>
-        <span className="xr-hint mb-1.5 block">{FORMATS_STEP.hint}</span>
-        {formatsError ? <FieldError id={`${groupId}-e`}>{formatsError}</FieldError> : null}
-        <div className="xv-fmtchecks">
-          {EDITOR_FORMATS.map((format) => {
-            const code = FORMAT_META[format].code;
-            return (
-              <Checkbox
+    <>
+      <VendorEditorFormats
+        id={fieldId('formats')}
+        legend={FORMATS_STEP.legend}
+        description={FORMATS_STEP.hint}
+        error={errorOf('formats')}
+        options={EDITOR_FORMATS.map((format) => ({
+          id: `${ID_PREFIX}-f${FORMAT_META[format].code}`,
+          code: FORMAT_META[format].code,
+          name: formatName(format),
+          kind: formatKind(format),
+          checked: draft.formats.includes(format),
+          onToggle: () => onToggle(format),
+        }))}
+      />
+      {chosen.length > 0 ? (
+        <VendorSection
+          titleId={SECTION_IDS.delivery}
+          title={FORMATS_STEP.deliveryTitle}
+          description={FORMATS_STEP.deliveryLine}
+          status={formatsCompleteWords(complete, chosen.length)}
+          statusLive
+        >
+          {packages.length > 0 ? (
+            <VendorEditorPackageGuide
+              title={FORMATS_STEP.guideTitle}
+              note={FORMATS_STEP.packageNote}
+              items={[
+                {
+                  id: GUIDE_IDS.label,
+                  term: FORMATS_STEP.packageLabel,
+                  description: FORMATS_STEP.guide.label,
+                },
+                {
+                  id: GUIDE_IDS.reference,
+                  term: FORMATS_STEP.packageReference,
+                  description: FORMATS_STEP.guide.reference,
+                },
+                {
+                  id: GUIDE_IDS.device,
+                  term: FORMATS_STEP.device,
+                  description: FORMATS_STEP.guide.device,
+                },
+                {
+                  id: GUIDE_IDS.install,
+                  term: FORMATS_STEP.install,
+                  description: FORMATS_STEP.guide.install,
+                },
+              ]}
+            />
+          ) : null}
+          <VendorDeliveryList>
+            {draft.formats.includes('web') ? (
+              <WebBlock
+                web={draft.web}
+                status={blockStatus('web')}
+                errorOf={errorOf}
+                onChange={onChange}
+                referred={referred}
+              />
+            ) : null}
+            {packages.map((format) => (
+              <PackageBlock
                 key={format}
-                id={`${ID_PREFIX}-f${code}`}
-                checked={draft.formats.includes(format)}
-                onChange={() => onToggle(format)}
-              >
-                <span>
-                  <FormatBadge format={code} compact /> <span>{formatLabel(format)}</span>
-                </span>
-              </Checkbox>
-            );
-          })}
-        </div>
-      </fieldset>
-      {draft.formats.includes('web') ? (
-        <WebPanel web={draft.web} errorOf={errorOf} onChange={onChange} />
+                format={format}
+                value={draft.packages[format]}
+                status={blockStatus(format)}
+                errorOf={errorOf}
+                onChange={onChange}
+                onAttach={onAttach}
+                referred={referred}
+              />
+            ))}
+          </VendorDeliveryList>
+        </VendorSection>
       ) : null}
-      {PACKAGE_FORMATS.filter((format) => draft.formats.includes(format)).map((format) => (
-        <PackagePanel
-          key={format}
-          format={format}
-          value={draft.packages[format]}
-          errorOf={errorOf}
-          onChange={onChange}
-          onAttach={onAttach}
-        />
-      ))}
-      <StepFoot actions={actions} first={false} />
-    </div>
+    </>
   );
 }
 
-// ---- Step 3 · Preview and documents (B5-05 f3, f4) ----------------------------------------------
+// ---- Step 3 · Preview and documents (VE-05) -----------------------------------------------------
 
-export interface PreviewStepProps {
-  readonly draft: EditorDraft;
-  readonly errorOf: (field: EditorField) => string | undefined;
-  readonly onChange: FieldChange;
+export interface PreviewStepProps extends StepFields {
   readonly onAddDocument: (() => void) | null;
   readonly onRemoveDocument: (fileName: string) => void;
-  readonly actions: StepActions;
 }
 
+/** Preview (label and link side by side) and Documents (Add document; a dashed line when none). */
 export function PreviewStep({
   draft,
   errorOf,
   onChange,
+  referred,
   onAddDocument,
   onRemoveDocument,
-  actions,
 }: PreviewStepProps) {
   return (
-    <div className="xr-section xv-step">
-      <p className="xr-body m-0 text-ink-2">{PREVIEW_STEP.intro}</p>
-      <fieldset className="xr-fieldset m-0 flex min-w-0 flex-col gap-4 border-0 p-0">
-        <legend className="xr-h3 [margin:0_0_4px]">{PREVIEW_STEP.legend}</legend>
-        <Field
-          id={fieldId('preview.label')}
-          label={PREVIEW_STEP.label}
-          marker={FORMATS_STEP.optional}
-          hint={PREVIEW_STEP.labelHint}
-          error={errorOf('preview.label')}
-        >
-          <TextInput
-            className="max-w-[520px]"
-            value={draft.previewLabel}
-            onChange={(event) => {
-              const value = event.target.value;
-              onChange('preview.label', (current) => ({ ...current, previewLabel: value }));
-            }}
-          />
-        </Field>
-        <Field
-          id={fieldId('preview.link')}
-          label={PREVIEW_STEP.link}
-          marker={FORMATS_STEP.optional}
-          hint={PREVIEW_STEP.linkHint}
-          error={errorOf('preview.link')}
-        >
-          <TextInput
-            className="max-w-[640px]"
-            value={draft.previewLink}
-            onChange={(event) => {
-              const value = event.target.value;
-              onChange('preview.link', (current) => ({ ...current, previewLink: value }));
-            }}
-          />
-        </Field>
-      </fieldset>
-      <div className="flex flex-col gap-2.5">
-        <h3 className="xr-h3 m-0">
-          {PREVIEW_STEP.documents} <span className="xr-opt">{FORMATS_STEP.optional}</span>
-        </h3>
-        <span className="xr-hint">{PREVIEW_STEP.documentsHint}</span>
-        {draft.documents.length > 0 ? (
-          <ul className="xv-files">
-            {draft.documents.map((fileName) => (
-              <li key={fileName} className="xv-file">
-                <Icon name="fileText" />
-                <span>{fileName}</span>
-                <Button
-                  variant="text"
-                  className="min-h-9"
-                  aria-label={removeDocumentLabel(fileName)}
-                  onClick={() => onRemoveDocument(fileName)}
-                >
-                  {FORMATS_STEP.remove}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="xl-meta m-0">{PREVIEW_STEP.noDocuments}</p>
-        )}
-        {onAddDocument ? (
-          <div>
-            <Button variant="secondary" size="sm" icon="readyToPublish" onClick={onAddDocument}>
+    <>
+      <VendorSection
+        titleId={SECTION_IDS.preview}
+        title={PREVIEW_STEP.title}
+        description={PREVIEW_STEP.intro}
+        titleFocusTarget
+      >
+        <VendorEditorGrid>
+          <VendorEditorField
+            id={fieldId('preview.label')}
+            label={PREVIEW_STEP.label}
+            optional={EDITOR.optional}
+            width={3}
+            hint={PREVIEW_STEP.labelHint}
+            referred={tagFor(referred, 'preview.label')}
+            error={errorOf('preview.label')}
+          >
+            <VendorEditorInput
+              value={draft.previewLabel}
+              onChange={(event) => {
+                const value = event.target.value;
+                onChange('preview.label', (current) => ({ ...current, previewLabel: value }));
+              }}
+            />
+          </VendorEditorField>
+          <VendorEditorField
+            id={fieldId('preview.link')}
+            label={PREVIEW_STEP.link}
+            optional={EDITOR.optional}
+            width={3}
+            hint={PREVIEW_STEP.linkHint}
+            referred={tagFor(referred, 'preview.link')}
+            error={errorOf('preview.link')}
+          >
+            <VendorEditorInput
+              type="url"
+              value={draft.previewLink}
+              onChange={(event) => {
+                const value = event.target.value;
+                onChange('preview.link', (current) => ({ ...current, previewLink: value }));
+              }}
+            />
+          </VendorEditorField>
+        </VendorEditorGrid>
+      </VendorSection>
+      <VendorSection
+        titleId={SECTION_IDS.documents}
+        title={PREVIEW_STEP.documents}
+        optional={EDITOR.optional}
+        description={PREVIEW_STEP.documentsHint}
+        titleFocusTarget
+        action={
+          onAddDocument ? (
+            <Button icon="add" iconSize={18} onClick={onAddDocument}>
               {PREVIEW_STEP.addDocument}
             </Button>
-          </div>
-        ) : null}
-      </div>
-      <StepFoot actions={actions} first={false} />
-    </div>
-  );
-}
-
-// ---- Step 4 · Check and submit (B5-05 f0, f2, f5, f6; B5-07 f3) ---------------------------------
-
-/** "Learning outcomes · Added by the Academic Reviewer · read-only" (LD-3: the reviewer's). */
-export function OutcomesSection({ outcomes }: { readonly outcomes: readonly LearningOutcome[] }) {
-  const titleId = `${ID_PREFIX}-c-lo`;
-  return (
-    <section className="xr-section" aria-labelledby={titleId}>
-      <div className="xr-section-head">
-        <h2 id={titleId} className="xr-h2">
-          {CHECK_STEP.outcomesTitle}
-        </h2>
-        <span className="xr-meta">
-          <Icon name="readOnly" size={16} /> {CHECK_STEP.outcomesBy}
-        </span>
-      </div>
-      <div className="xr-section-body">
-        {outcomes.length > 0 ? (
-          <>
-            <p className="xl-meta [margin:0_0_10px]">{CHECK_STEP.outcomesLine}</p>
-            <ul className="xv-los">
-              {outcomes.map((outcome) => (
-                <li key={outcome.id}>{outcome.text}</li>
-              ))}
-            </ul>
-          </>
+          ) : null
+        }
+      >
+        {draft.documents.length > 0 ? (
+          <VendorEditorFiles>
+            {draft.documents.map((fileName) => (
+              <VendorEditorFile
+                key={fileName}
+                name={fileName}
+                removeLabel={FORMATS_STEP.remove}
+                removeName={removeDocumentLabel(fileName)}
+                onRemove={() => onRemoveDocument(fileName)}
+              />
+            ))}
+          </VendorEditorFiles>
         ) : (
-          <p className="xl-meta m-0">{CHECK_STEP.noOutcomes}</p>
+          <VendorEditorEmpty>{PREVIEW_STEP.noDocuments}</VendorEditorEmpty>
         )}
-      </div>
-    </section>
+      </VendorSection>
+    </>
   );
 }
+
+// ---- Step 4 · Check and submit (VE-06; VE-08's step 4) ------------------------------------------
 
 export interface CheckStepProps {
+  readonly draft: EditorDraft;
+  /** The chosen course in words, or `null` when none is chosen. */
+  readonly courseLine: string | null;
   readonly missing: readonly MissingItem[];
   /** Submit was pressed with something missing (the list with its links, `showMissing`). */
   readonly tried: boolean;
   readonly checklist: readonly ChecklistRow[];
-  readonly summary: readonly (readonly [string, string])[];
   readonly outcomes: readonly LearningOutcome[];
-  readonly submitLabel: string;
+  readonly revising: boolean;
   readonly onGoTo: (item: MissingItem) => void;
   readonly onChangeStep: (step: ChecklistRow['step']) => void;
-  readonly onSubmit: () => void;
-  readonly actions: Pick<StepActions, 'saveLabel' | 'onSave' | 'saving' | 'onBack'>;
 }
 
+/**
+ * The lead (missing items, the quiet notice or "Everything required is provided"), one review
+ * section per step with its status and Change, the learning outcomes and the "does not publish"
+ * note. The actions follow in the editor's actions row.
+ */
 export function CheckStep({
+  draft,
+  courseLine,
   missing,
   tried,
   checklist,
-  summary,
   outcomes,
-  submitLabel,
+  revising,
   onGoTo,
   onChangeStep,
-  onSubmit,
-  actions,
 }: CheckStepProps) {
+  const statusOf = (step: ChecklistRow['step']) =>
+    checklist.find((row) => row.step === step)!.status;
+  const review = (step: ChecklistRow['step']) => ({
+    titleId: `${ID_PREFIX}-s4-${step}-h`,
+    title: CHECK_STEP.sections[step],
+    status: statusOf(step),
+    changeLabel: CHECK_STEP.change,
+    changeName: changeSectionLabel(step),
+    onChange: () => onChangeStep(step),
+  });
+  const chosen = inDisplayOrder(draft.formats);
+  const value = (text: string) => text.trim() || CHECK_STEP.empty;
   return (
-    <div className="xr-section xv-step">
-      <div id={MISSING_ID} tabIndex={-1}>
+    <>
+      <VendorEditorCheckLead id={MISSING_ID}>
         {missing.length > 0 && tried ? (
-          <div className="xw-errsum" role="alert">
-            <Icon name="failed" />
-            <div>
-              <strong>{missingCountWords(missing.length)}</strong>
-              <ul className="xv-miss">
-                {missing.map((item) => (
-                  <li key={item.field}>
-                    <span>{item.text}</span>
-                    <Button variant="text" className="min-h-9" onClick={() => onGoTo(item)}>
-                      {item.where}
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          <VendorEditorMissing
+            title={missingCountWords(missing.length)}
+            items={missing.map((item) => ({
+              key: item.field,
+              text: item.text,
+              linkLabel: item.where,
+              href: `#${fieldId(item.field)}`,
+              onSelect: () => onGoTo(item),
+            }))}
+          />
         ) : missing.length > 0 ? (
-          <div className="xr-notice xr-notice--warn" role="status">
-            <Icon name="warning" />
-            <div className="xr-notice-body">
-              <span className="xr-notice-title">{missingCountWords(missing.length)}</span>
-              <span>{CHECK_STEP.quietLine}</span>
-            </div>
-          </div>
+          <Notice tone="warn" icon="clock" role="status" title={missingCountWords(missing.length)}>
+            {CHECK_STEP.quietLine}
+          </Notice>
         ) : (
-          <div className="xr-notice xr-notice--ok" role="status">
-            <Icon name="done" />
-            <div className="xr-notice-body">
-              <span className="xr-notice-title">{CHECK_STEP.readyTitle}</span>
-              <span>{CHECK_STEP.readyLine}</span>
-            </div>
-          </div>
+          <Notice tone="ok" icon="check" role="status" title={CHECK_STEP.readyTitle}>
+            {revising ? CHECK_STEP.readyLineRevise : CHECK_STEP.readyLine}
+          </Notice>
         )}
-      </div>
-      <ul className="xa-check xv-checklist" aria-label={CHECK_STEP.checklistLabel}>
-        {checklist.map((row) => (
-          <li key={row.step} className="xv-check-row">
-            {row.ok ? (
-              <span className="is-ok">
-                <Icon name="done" />
-              </span>
-            ) : (
-              <span className="is-no">
-                <Icon name="clock" />
-              </span>
-            )}
-            <span className="xv-check-t">
-              {row.label}
-              <span className="xr-meta block">{row.state}</span>
-            </span>
-            <Button
-              variant="text"
-              className="min-h-9"
-              aria-label={
-                row.step === 'preview' ? CHECK_STEP.changePreview : changeSectionLabel(row.step)
-              }
-              onClick={() => onChangeStep(row.step)}
-            >
-              {CHECK_STEP.change}
-            </Button>
-          </li>
-        ))}
-      </ul>
-      <dl className="xl-kv xv-kv">
-        {summary.map(([term, value]) => (
-          <Fragment key={term}>
-            <dt>{term}</dt>
-            <dd>{value}</dd>
-          </Fragment>
-        ))}
-      </dl>
-      <OutcomesSection outcomes={outcomes} />
-      <p className="xw-note m-0">
-        <Icon name="info" />
-        <span>{CHECK_STEP.note}</span>
-      </p>
-      <FlowFoot
-        start={
-          <Button variant="text" onClick={actions.onBack}>
-            {EDITOR.previous}
-          </Button>
-        }
-      >
-        <Button variant="secondary" onClick={actions.onSave} busy={actions.saving}>
-          {actions.saveLabel}
-        </Button>
-        <Button variant="primary" id={SUBMIT_ID} onClick={onSubmit}>
-          {submitLabel}
-        </Button>
-      </FlowFoot>
-    </div>
+      </VendorEditorCheckLead>
+      <VendorEditorReview {...review('course')}>
+        <DefinitionList
+          items={[
+            { term: CHECK_STEP.rows.experiment, value: draft.name.trim() || CHECK_STEP.notNamed },
+            { term: CHECK_STEP.rows.course, value: courseLine ?? CHECK_STEP.notChosen },
+            { term: CHECK_STEP.rows.version, value: value(draft.version) },
+            { term: CHECK_STEP.rows.summary, value: value(draft.summary) },
+            { term: CHECK_STEP.rows.description, value: value(draft.description) },
+          ]}
+        />
+      </VendorEditorReview>
+      <VendorEditorReview {...review('formats')}>
+        {chosen.length > 0 ? (
+          <VendorDeliveryList>
+            {chosen.map((format) => (
+              <VendorDeliveryView
+                key={format}
+                code={FORMAT_META[format].code}
+                name={formatName(format)}
+                kind={formatKind(format)}
+                rows={deliveryRows(draft, format)}
+              />
+            ))}
+          </VendorDeliveryList>
+        ) : (
+          <VendorEditorEmpty icon="contentAccess">{CHECK_STEP.noFormats}</VendorEditorEmpty>
+        )}
+      </VendorEditorReview>
+      <VendorEditorReview {...review('preview')} optional={EDITOR.optional}>
+        <DefinitionList
+          items={[
+            {
+              term: CHECK_STEP.rows.preview,
+              value: previewWords(
+                draft.previewLabel.trim() || null,
+                draft.previewLink.trim() || null,
+              ),
+            },
+            {
+              term: CHECK_STEP.rows.documents,
+              value: joinedWords(draft.documents, CHECK_STEP.none),
+            },
+          ]}
+        />
+      </VendorEditorReview>
+      <VendorLearningOutcomes
+        titleId={`${ID_PREFIX}-s4-lo-h`}
+        title={CHECK_STEP.outcomesTitle}
+        by={CHECK_STEP.outcomesBy}
+        line={CHECK_STEP.outcomesLine}
+        empty={CHECK_STEP.noOutcomes}
+        outcomes={outcomes.map((outcome) => ({ key: outcome.id, text: outcome.text }))}
+      />
+      <VendorEditorSubmitNote>
+        {revising ? CHECK_STEP.noteRevise : CHECK_STEP.note}
+      </VendorEditorSubmitNote>
+    </>
   );
 }

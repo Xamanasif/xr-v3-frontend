@@ -23,8 +23,8 @@
 //
 // It also writes the scoped derivative of each owner-approved role export's extension sheet
 // (ROLE_SHEETS; design/v3-refined-b/roles/, pack prompt 11): XS-v6's xs-shared.css →
-// src/styles/v3/xs-scoped.css and SA-v1's sa-role.css → src/styles/v3/sa-scoped.css, with the
-// same selector-only transform. Before anything is written, the export must name this foundation,
+// src/styles/v3/xs-scoped.css, SA-v1's sa-role.css → src/styles/v3/sa-scoped.css and VE-v1's
+// v3-vendor.css → src/styles/v3/ve-scoped.css, with the same selector-only transform. Before anything is written, the export must name this foundation,
 // its three base sheets must be the foundation's own bytes (a different base is a new foundation
 // version: STOP), and the extension sheet must match both the export's FOUNDATION-LOCK.json and
 // its checksums (the export's own SHA256SUMS.txt, or the list recorded at intake beside it).
@@ -366,6 +366,30 @@ export const ROLE_SHEETS = [
       'sa-form, sa-file, sa-list-row--static, sa-out), which the delivered XS export draws, are left out.',
     ],
   },
+  {
+    /** The workstream: VE · Vendor (10 screens). */
+    role: 'VE',
+    directory: join(repositoryRoot, 'design', 'v3-refined-b', 'roles', 'VE-v1'),
+    /** The role stylesheet (every rule selects a `ve-` or `vr-` class). */
+    sheet: 'project/v3-vendor.css',
+    /** No SHA256SUMS.txt in the export: the list recorded at intake, `VE-v1.SHA256SUMS.txt`. */
+    sums: 'beside',
+    output: join(packageRoot, 'src', 'styles', 'v3', 've-scoped.css'),
+    /**
+     * Rules left out when every selector names one of these (the export's COMPONENT-EXTENSIONS.md):
+     * the preview page canvas and reviewer bar (`ve-app`, `ve-preview*`, `ve-pv-*`: "Do not implement
+     * it in the application"), and the borrowed XS surfaces — the skip link (`ve-skip`; the shell
+     * draws the XS `xs-skip`), the account menu (`ve-acct*`), the Help report rows (`ve-reports`,
+     * `ve-report*`) and the preview-only Sign out note (`ve-handoff`): "Replace at assembly with"
+     * the XS deliverables, which the delivered XS export (XS-v6) draws.
+     */
+    omit: /\.ve-(?:app|preview(?:-t)?|pv-[\w-]+|skip|acct(?:-[\w-]+)?|acctmenu|reports?|report-t|handoff)(?![\w-])/,
+    omitNote: [
+      'page canvas and reviewer bar (ve-app, ve-preview*, ve-pv-*) and its borrowed XS surfaces',
+      '(ve-skip, ve-acct*, ve-acctmenu, ve-reports, ve-report*, ve-handoff), which the delivered XS',
+      'export draws, are left out.',
+    ],
+  },
 ];
 
 /** Whether every selector of a rule names something its export says is not product UI. */
@@ -373,15 +397,16 @@ export function previewOnlyRule(role, prelude) {
   return splitTopLevel(prelude, ',').every((selector) => role.omit.test(selector));
 }
 
-/** The export's recorded SHA-256 of one of its base sheets, in either lock layout. */
+/** The export's recorded SHA-256 of one of its base sheets, in any of the three lock layouts. */
 function exportedBaseSheet(exportLock, sheet) {
   return (
     exportLock.baseFiles?.[`project/${sheet}`]?.sha256 ??
-    exportLock.byteIdenticalCopiesInProject?.[sheet]?.sha256
+    exportLock.byteIdenticalCopiesInProject?.[sheet]?.sha256 ??
+    exportLock.sharedFilesShipped?.[`project/${sheet}`]?.sha256
   );
 }
 
-/** The export's recorded SHA-256 of its extension sheet, in either lock layout. */
+/** The export's recorded SHA-256 of its extension sheet, in any of the three lock layouts. */
 function exportedLocalAddition(exportLock, sheet) {
   const entry = exportLock.localAdditions?.[sheet] ?? exportLock.localAdditions?.[basename(sheet)];
   return typeof entry === 'string' ? entry : entry?.sha256;

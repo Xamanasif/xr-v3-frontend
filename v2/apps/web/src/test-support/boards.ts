@@ -65,6 +65,36 @@ export function saLinkMap(): {
   return JSON.parse(readFileSync(join(SA_EXPORT_DIRECTORY, '..', 'LINK-MAP.json'), 'utf8'));
 }
 
+/** The owner-approved Vendor export (VE-v1), read only: its live role root and role sheet. */
+export const VE_EXPORT_DIRECTORY = join(
+  REPO_ROOT,
+  'design',
+  'v3-refined-b',
+  'roles',
+  'VE-v1',
+  'project',
+);
+
+/** A VE export file's source (`Main.dc.html`, `v3-vendor.css`, …), by file name. */
+export function veExport(file: string): string {
+  return readFileSync(join(VE_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The VE export's link map (`LINK-MAP.json`): every named control, where it goes, its class. */
+export function veLinkMap(): {
+  readonly routes: Readonly<Record<string, string>>;
+  readonly links: readonly {
+    readonly id: string;
+    readonly from: string;
+    readonly control: string;
+    readonly to: string;
+    readonly class: string;
+    readonly tested: string;
+  }[];
+} {
+  return JSON.parse(readFileSync(join(VE_EXPORT_DIRECTORY, '..', 'LINK-MAP.json'), 'utf8'));
+}
+
 /** The XS shared contract (`SHARED-CONTRACT.json` of the XS-v6 export). */
 export function xsContract(): {
   readonly components: readonly {

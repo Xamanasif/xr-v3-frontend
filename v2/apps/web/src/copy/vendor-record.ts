@@ -1,12 +1,14 @@
 /**
- * The words of Phase 5’s VE-07 Experiment record and VE-13 History (board B5-06 f0 … f10; the same
- * record on B5-08 f2 and B6-12 f4). Every phrase is the frozen board’s own, found verbatim in its
- * markup or script (`vendor-record.test.ts`); the composed lines take the board’s forms (its script
- * `vxView`: `recMeta`, `cCourse`, `cPreview`, `cDocs`, `delivery`, `hist`) with the record’s
- * values — names, ids and dates are never copied from the board. What B5-06 does not word is a
- * provisional entry of the state-copy register (`state-copy-vendor-record.ts`, VD-12). The status
- * chip’s words are the shared role-relative table’s (`flow-state-words.ts`); the returned block is
- * the editor’s `ReturnedNotice` with its words (`vendor-editor.ts`, B5-06 f3 / B5-07 f0 alike).
+ * The words of VE-07 Experiment record and VE-13 Submission and version history, as the
+ * owner-approved Vendor export draws them (design/v3-refined-b/roles/VE-v1, `project/Main.dc.html`
+ * record view `V.record`, its script `recView` and HANDOFF §2–§3). Every phrase is the export's
+ * own, found verbatim in its markup or script (`vendor-record.test.ts`); the composed lines take
+ * the script's forms (`recView`: `eyebrow`, `meta`, `intro`, `pendingText`, `histPendingNote`,
+ * `stand`, `deliv`) with the record's values — names, ids and dates are never copied from the
+ * export. What the export does not word is a provisional entry of the state-copy register
+ * (`state-copy-vendor-record.ts`, VD-12). The status pill's words are the shared role-relative
+ * table's (`flow-state-words.ts`); the reference chips name a field as the editor does
+ * (`vendor-editor.ts` `referenceWords`).
  */
 import type { Technology } from '@xr/domain';
 
@@ -14,33 +16,57 @@ import { formatName } from './flow-state-words';
 import { stateWords } from './state-copy';
 
 export const RECORD = {
-  /** `div.xr-section-head > h2` of the three sections (f0). */
-  details: 'Details',
-  outcomes: 'Learning outcomes',
-  history: 'Submission and version history',
-  /** `span.xr-meta` beside the history heading. */
-  historyMeta: 'Newest first · not an audit log',
-  /** `span.xr-meta` beside the outcomes heading, after the lock. */
-  outcomesMeta: 'Added by the Academic Reviewer · read-only',
-  outcomesLead: 'One set for every format.',
-  outcomesNone:
-    'None yet. The Academic Reviewer adds them during review — one set for every format.',
-  /** `dl.xl-kv.xv-kv` keys of Details (f0). */
+  /** The tabs (`nav.rk-tabs[aria-label]`, `a.rk-tab`). */
+  tabsLabel: 'Experiment record',
+  tabs: {
+    details: 'Details',
+    history: 'Submission and version history',
+  },
+  /** The head's one action (`div.rk-head-act`; `actLabel`). */
+  editDraft: 'Edit draft',
+  revise: 'Revise and resubmit',
+  continueRevising: 'Continue revising',
+  /** The read-only notice's action (`div.rk-notice-act`). */
+  askForHelp: 'Ask for help',
+  /** The failed read's line and action — the export's failed state (VE-02 `rk-state`). */
+  failedLine: 'Nothing has changed. Try again.',
+  tryAgain: 'Try again',
+  /** The returned-reason panel (`div.vr-ret-refs`, `div.vr-ret-pend`). */
+  refersTo: 'What it refers to',
+  savedTitle: 'Your changes are saved but not resubmitted',
+  /** The Details sheet's sections (`h2.vr-sec-t`). */
+  sections: {
+    course: 'Course and description',
+    delivery: 'Formats and delivery',
+    preview: 'Preview and documents',
+    outcomes: 'Learning outcomes',
+  },
+  /** `dl.rk-dl` keys of the sections. */
   keys: {
     course: 'Course',
     summary: 'Summary',
     description: 'Description',
     version: 'Version',
-    formats: 'Formats',
     preview: 'Preview',
     documents: 'Documents',
   },
-  /** `h3.xr-h3` above the per-format boxes. */
-  delivery: 'Delivery',
-  /** `div.xv-deliv-head` titles (script `d.title`). */
-  webLinkTitle: 'Web link',
-  appPackageTitle: 'App package',
-  /** `div.xv-deliv` rows (script `d.rows`). */
+  /** The published delivery's foot (`p.vr-foot`). */
+  publishedFoot: 'Changes to a published experiment are not made from the Vendor workspace.',
+  /** `p.vr-sec-st` beside the outcomes heading. */
+  outcomesMeta: 'Added by the Academic Reviewer · read-only',
+  outcomesLead: 'One set for every format.',
+  outcomesNone:
+    'None yet. The Academic Reviewer adds them during review — one set for every format.',
+  /** The read-only delivery blocks (script `deliv`): the format's name and kind. */
+  formatNames: {
+    web: 'Browser',
+    ar: 'Augmented reality',
+    vr: 'Virtual reality',
+    mr: 'Mixed reality',
+  },
+  webLinkKind: 'Web link',
+  appPackageKind: 'App package',
+  /** The blocks' rows (script `deliv` `rows`). */
   rows: {
     webLink: 'Web link',
     browserAndComputer: 'Browser and computer',
@@ -51,22 +77,33 @@ export const RECORD = {
     deviceNeeded: 'Device needed',
     installNotes: 'Install notes',
   },
-  /** An empty value (script `cPreview` / `cDocs` “None”, delivery rows “—”). */
+  /** An empty value (script `preview` / `docs` “None”, rows and fields “—”). */
   none: 'None',
   dash: '—',
-  /** Script `cCourse` with no course chosen. */
+  /** Details › Course with no course chosen (the editor review's `cCourse`). */
   notChosen: 'Not chosen yet',
-  /** f9 `span.xr-status--paused`. */
+  /** “Where it stands” (`h2.vr-ws-t`) and its terms (script `stand`). */
+  stand: {
+    title: 'Where it stands',
+    formats: 'Formats',
+    revision: 'Revision',
+    lastSubmitted: 'Last submitted',
+    returned: 'Returned',
+    approved: 'Approved by the Academic Reviewer',
+    published: 'Published',
+    lastChange: 'Last change',
+  },
+  /** The history tab (`section.vr-hist`): its heading and note. */
+  history: 'Submission and version history',
+  historyMeta: 'Newest first · not an audit log',
+  /** The status pill of a draft in a withdrawn course (`STL.readonly`). */
   draftReadOnly: 'Draft · read-only',
-  /** f3 / f6 `span.xr-status--err`; also after an override (state-copy `VE-07.returned-by-override`). */
-  returnedChip: 'Returned',
-  /** The returned block’s action (f3, f6) — the block itself is the editor’s `ReturnedNotice`. */
-  revise: 'Revise & resubmit',
-  /** The banner by state (doc “Banner by state”; f0 … f9). */
-  banner: {
+  /** The pill after a Super Admin override (state-copy `VE-07.returned-by-override`). */
+  returnedPill: 'Returned',
+  /** The notice by state (`N`; HANDOFF §2 “Record notice”). */
+  notice: {
     draftTitle: 'Draft — only you can see it',
     draftLine: 'Finish it and submit it for academic review.',
-    editDraft: 'Edit draft',
     withReviewerTitle: 'With the Academic Reviewer',
     withReviewerLine:
       'Nothing is needed from you now. You can edit it again only if it is returned to you.',
@@ -80,7 +117,7 @@ export const RECORD = {
   },
 } as const;
 
-/** The history entries’ words (script `hist`, f0 … f9; the editor’s `saveDraft` / `doSubmit`). */
+/** The history entries’ words (the export's `hist` entries; HANDOFF §2). */
 export const HISTORY = {
   draftSaved: 'Draft saved',
   draftSavedNote: 'Only you can see a draft.',
@@ -90,38 +127,44 @@ export const HISTORY = {
   approved: 'Approved by the Academic Reviewer',
   approvedNote: 'With the Content Manager.',
   resubmittedNote: 'Your changes have been submitted for review.',
-  routedNote: 'Routed by the approved workflow rule.',
   recheck: 'Back with the Academic Reviewer for a re-check',
   recheckNote: 'Sent back by the Content Manager. Nothing is needed from you.',
   published: 'Published by the Content Manager',
 } as const;
 
-/** Who returned it, as the board names the role (`retBy` “Returned by the …”, `hist` “…: “…””). */
+/** Who returned it, as the export names the role (`ret.by`, the history notes). */
 export const RETURNING_ROLE = {
   'academic-reviewer': 'Academic Reviewer',
   'content-manager': 'Content Manager',
 } as const;
 
-/**
- * The overline (`span.xr-overline`, script `recMeta`): “SUB-0077 · ME ZG523 · revision 2” — the
- * revision only after a resubmit (f0, f4). A course without a platform code is named; no course
- * reads “—” (state-copy `VE-07.course-words`).
- */
-export function recordOverline(id: string, course: string | null, revision: number): string {
-  return `${id} · ${course ?? RECORD.dash}${revision > 1 ? ` · revision ${revision}` : ''}`;
+/** The head's eyebrow (`p.rk-eyebrow`, script `eyebrow`): “Experiment · SUB-0081”. */
+export function recordEyebrow(id: string): string {
+  return `Experiment · ${id}`;
 }
 
-/** Details › Course (script `cCourse`): “ME ZG523 · Thermodynamics & Heat Transfer”. */
+/** The head's “Revision 2” (script `meta`; not for a draft). */
+export function revisionMeta(revision: number): string {
+  return `Revision ${revision}`;
+}
+
+/** The head's “Last change 24 Aug 2026” (script `meta`). */
+export function lastChangeMeta(on: string): string {
+  return `Last change ${on}`;
+}
+
+/** Details › Course (`courseLong`): “ME ZG523 · Thermodynamics & Heat Transfer”. */
 export function courseWords(
   course: { readonly code: string | null; readonly name: string } | null,
-) {
+): string {
   if (!course) return RECORD.notChosen;
   return course.code ? `${course.code} · ${course.name}` : course.name;
 }
 
 /**
- * Details › Preview (script `cPreview`): “Two-minute walkthrough — https://…”; “None” without
- * one. A link without a label shows the link (OD-B5-08; state-copy `VE-07.preview-link-only`).
+ * Details › Preview (script `preview`): “Two-minute walkthrough — https://…”; “None” without
+ * one. A link without a label is allowed and shows (OD-B5-08; state-copy
+ * `VE-07.preview-link-only`).
  */
 export function previewWords(preview: {
   readonly label: string | null;
@@ -133,41 +176,87 @@ export function previewWords(preview: {
   return link || RECORD.none;
 }
 
-/** Details › Documents (script `cDocs`): the file names, “ · ” between; “None” without one. */
+/** Details › Documents (script `docs`): the file names, “ · ” between; “None” without one. */
 export function documentsWords(documents: readonly { readonly fileName: string }[]): string {
   return documents.length > 0
     ? documents.map((document) => document.fileName).join(' · ')
     : RECORD.none;
 }
 
-/** An empty field reads “—” (script `delivery` rows). */
+/** An empty value reads “—” (script `T(x) || '—'`). */
 export function valueOrDash(value: string | null | undefined): string {
   const trimmed = value?.trim() ?? '';
   return trimmed === '' ? RECORD.dash : trimmed;
 }
 
-/** The With Content Manager banner’s line (f5), with the approval day. */
+/** The format chips' name (`fmtAria`): “Formats: WEB, AR”, or “Formats: none chosen”. */
+export function formatsLabel(formats: readonly Technology[]): string {
+  return `Formats: ${formats.map(formatName).join(', ') || 'none chosen'}`;
+}
+
+/** Details › Formats and delivery, published (`p.vr-sec-st`): “Formats published: WEB · VR”. */
+export function formatsPublishedLine(formats: readonly Technology[]): string {
+  return `Formats published: ${formats.map(formatName).join(' · ')}`;
+}
+
+/** “Revise: go to Formats & delivery · AR · Device need” (a reference chip's name, `x.aria`). */
+export function reviseGoToLabel(reference: string): string {
+  return `Revise: go to ${reference}`;
+}
+
+/**
+ * The saved, not resubmitted changes (`pendingText`): “Saved 27 Aug 2026, 10:40. Only you can see
+ * them. Everyone else still sees revision 1 as it was submitted.”
+ */
+export function savedChangesLine(at: string, revision: number): string {
+  return `Saved ${at}. Only you can see them. Everyone else still sees revision ${revision} as it was submitted.`;
+}
+
+/** The history's private-changes note (`histPendingNote`). */
+export function historyPrivateNote(at: string): string {
+  return `Your changes saved on ${at} are not part of this history until you resubmit.`;
+}
+
+/** Which version Details shows (`p.vr-intro`, script `intro`). */
+export const INTRO = {
+  /** “Your draft as last saved on 25 Aug 2026, 17:20. Nothing here has been submitted.” */
+  draft: (at: string) => `Your draft as last saved on ${at}. Nothing here has been submitted.`,
+  /** “Your draft as last saved on 12 Aug 2026, 14:00. It can’t be changed or submitted.” */
+  readOnly: (at: string) => `Your draft as last saved on ${at}. It can’t be changed or submitted.`,
+  /** “The published version, live in the catalogue since 30 Jul 2026.” */
+  published: (on: string) => `The published version, live in the catalogue since ${on}.`,
+  /** “Revision 1 as it was submitted on 18 Aug 2026.” */
+  submitted: (revision: number, on: string | null) =>
+    `Revision ${revision} as it was submitted${on ? ` on ${on}` : ''}.`,
+  /**
+   * Changes saved and not resubmitted: the Vendor's read holds the saved changes, so Details shows
+   * them (state-copy `VE-07.intro.saved-changes`).
+   */
+  savedChanges: (at: string) => stateWords('VE-07.intro.saved-changes').replace('{at}', at),
+} as const;
+
+/** “Where it stands” › Returned (script `stand`): “24 Aug 2026 · Academic Reviewer”. */
+export function returnedStandWords(on: string, by: keyof typeof RETURNING_ROLE): string {
+  return `${on} · ${RETURNING_ROLE[by]}`;
+}
+
+/** The With Content Manager notice's line, with the approval day. */
 export function withContentManagerLine(approvedOn: string): string {
   return `Approved by the Academic Reviewer on ${approvedOn}. The Content Manager decides whether to publish it. Nothing is needed from you now.`;
 }
 
-/** The published banner’s title (f8): “Published · 30 Jul 2026”. */
+/** The published notice's title: “Published · 30 Jul 2026”. */
 export function publishedTitle(on: string): string {
   return `Published · ${on}`;
 }
 
-/** f8 Details lead: “Formats published: WEB · VR. Changes to … are not made from the Vendor workspace.” */
-export function formatsPublishedLine(formats: readonly Technology[]): string {
-  return `Formats published: ${formats.map(formatName).join(' · ')}. Changes to a published experiment are not made from the Vendor workspace.`;
-}
-
-/** f9 banner title: “MEL ZG512 is no longer assigned to you”. */
+/** The read-only notice's title: “MEL ZG512 is no longer assigned to you”. */
 export function courseWithdrawnTitle(course: string): string {
   return `${course} is no longer assigned to you`;
 }
 
 /**
- * f9 banner line without the withdrawal day, which the record’s read does not carry
+ * The read-only notice's line without the withdrawal day, which the record’s read does not carry
  * (state-copy `VE-07.course-withdrawn.line` / `.returned`).
  */
 export function courseWithdrawnLine(organisation: string, state: 'draft' | 'returned'): string {
@@ -177,19 +266,14 @@ export function courseWithdrawnLine(organisation: string, state: 'draft' | 'retu
   return words.replace('{organisation}', organisation);
 }
 
-/** History: “Submitted · revision 2” (f0, f4). */
+/** History: “Submitted · revision 2” (HANDOFF §2: the neutral words after a resubmit). */
 export function resubmittedWhat(revision: string): string {
   return `Submitted · revision ${revision}`;
 }
 
-/** History: “With Academic Reviewer · revision 2” (f0; shown once the record moves on, VE-13.routed). */
-export function routedWhat(revision: string): string {
-  return `With Academic Reviewer · revision ${revision}`;
-}
-
 /**
  * History: the return’s note — the role and the reason’s first sentence, “…” where more follows
- * (f3 “Academic Reviewer: “Please clarify the VR device requirements.””; f6 “Content Manager: “The
+ * (“Academic Reviewer: “Please clarify the VR device requirements.””; “Content Manager: “The
  * summary runs to three sentences…””; state-copy `VE-13.reason-note`).
  */
 export function returnedNote(by: keyof typeof RETURNING_ROLE, reason: string): string {
@@ -200,8 +284,8 @@ export function returnedNote(by: keyof typeof RETURNING_ROLE, reason: string): s
 }
 
 /**
- * History: the publication’s note, f8 “WEB and VR are live in the catalogue.” — one format and
- * three or more are the state-copy register’s (`VE-13.published-note`).
+ * History: the publication’s note, “WEB and VR are live in the catalogue.” — one format and three
+ * or more are the state-copy register’s (`VE-13.published-one`).
  */
 export function publishedNote(formats: readonly Technology[]): string {
   const names = formats.map(formatName);

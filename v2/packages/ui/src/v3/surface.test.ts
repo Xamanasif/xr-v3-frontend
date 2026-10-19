@@ -153,6 +153,49 @@ const RUNTIME_EXPORTS = [
   'V3_LOGO_SLOT_TEXT',
   'V3Region',
   'V46Island',
+  // The Vendor role (VE-v1): the shared patterns (ve.tsx), then one module per screen group.
+  'VendorAttention',
+  'VendorDeliveryList',
+  'VendorDeliveryView',
+  'VendorEditorActions',
+  'VendorEditorCheckLead',
+  'VendorEditorDeliveryBlock',
+  'VendorEditorEmpty',
+  'VendorEditorEntered',
+  'VendorEditorErrors',
+  'VendorEditorField',
+  'VendorEditorFile',
+  'VendorEditorFiles',
+  'VendorEditorFormats',
+  'VendorEditorGrid',
+  'VendorEditorInput',
+  'VendorEditorLayout',
+  'VendorEditorLinkButton',
+  'VendorEditorMissing',
+  'VendorEditorOutcome',
+  'VendorEditorPackageGuide',
+  'VendorEditorRefusal',
+  'VendorEditorReview',
+  'VendorEditorSelect',
+  'VendorEditorStatusPill',
+  'VendorEditorSubmitNote',
+  'VendorEditorTextarea',
+  'VendorExperimentTable',
+  'VendorFormatChips',
+  'VendorLearningOutcomes',
+  'VendorListSurface',
+  'VendorListTools',
+  'VendorOverviewColumn',
+  'VendorRecentActivity',
+  'VendorRecordHistory',
+  'VendorRecordLayout',
+  'VendorRecordSheet',
+  'VendorRecordStand',
+  'VendorReturnedReason',
+  'VendorSection',
+  'VendorStatusTabs',
+  'VendorStudioBand',
+  'VendorWorkSplit',
   'VisuallyHidden',
   'WaitingList',
   'WorkspaceShell',
@@ -171,6 +214,8 @@ describe('@xr/ui/v3 surface', () => {
     for (const name of ['ListSurface', 'FOUNDATION_ID', 'V46Island', 'TermTrack', 'PlanBand']) {
       expect(Object.keys(root)).not.toContain(name);
     }
+    // No Vendor (VE-v1) name is shared with the v46 root entry.
+    expect(Object.keys(v3).filter((name) => name.startsWith('Vendor') && name in root)).toEqual([]);
     const shared = Object.keys(v3).filter((name) => name in root);
     expect(shared.sort()).toEqual(
       [

@@ -240,6 +240,25 @@ export * from './sa-institutions.js';
 export * from './sa-structure.js';
 export * from './sa-roles.js';
 export * from './sa-operations.js';
+// The Vendor role's patterns (VE-v1): what more than one Vendor screen group draws, then what one
+// screen group alone draws, one module per group.
+export {
+  VendorReturnedReason,
+  VendorFormatChips,
+  VendorDeliveryList,
+  VendorDeliveryView,
+  VendorSection,
+  VendorLearningOutcomes,
+  type VendorReference,
+  type VendorReturnedReasonProps,
+  type VendorFormatChipsProps,
+  type VendorDeliveryViewProps,
+  type VendorSectionProps,
+  type VendorLearningOutcomesProps,
+} from './ve.js';
+export * from './ve-workspace.js';
+export * from './ve-editor.js';
+export * from './ve-record.js';
 export {
   PlanBand,
   CourseGroup,

@@ -1,37 +1,58 @@
 'use client';
 
 import type { ServiceError } from '@xr/contracts/draft';
-import type { ReturnReference, SubmissionId, Technology } from '@xr/domain';
+import type { ReturnReference, Submission, SubmissionId, Technology } from '@xr/domain';
+import { inDisplayOrder } from '@xr/domain';
 import {
-  BackLink,
+  Breadcrumbs,
+  Button,
+  ButtonLink,
   ConfirmDialog,
   ErrorSummary,
-  FailedState,
-  Icon,
-  LoadingState,
+  ListState,
+  LoadingRows,
   Notice,
-  PageContent,
-  PageHeader,
-  Skeleton,
-  Stepper,
-} from '@xr/ui';
+  PageHead,
+  StatusPill,
+  Surface,
+  VendorEditorActions,
+  VendorEditorErrors,
+  VendorEditorLayout,
+  type VendorEditorPart,
+  type VendorEditorStep,
+} from '@xr/ui/v3';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { dateTime } from '@/copy/dates';
+import { dateTime, dayMonthYear } from '@/copy/dates';
 import { stateWords } from '@/copy/state-copy';
 import {
   changesSavedWords,
   CHECK_STEP,
+  COURSE_STEP,
   courseWords,
+  DONE,
   draftSavedWords,
   EDITOR,
+  formatPartLabel,
+  goToReferenceLabel,
   idLineWords,
+  lastSavedWords,
+  LEAVE_DIALOG,
   noLongerAssignedLine,
   noLongerAssignedTitle,
+  outlineChangesSaved,
+  outlineKicker,
   overlineWords,
+  partsLabel,
   PREVIEW_STEP,
+  READ_ONLY,
+  RETURNED,
+  reviseVisibility,
+  revisionSentWords,
+  stepButtonLabel,
   SUBMIT_DIALOG,
   submitEffect,
+  todayAt,
 } from '@/copy/vendor-editor';
 import { useAppNavigation } from '@/nav/navigation';
 import {
@@ -39,6 +60,8 @@ import {
   editorPlacement,
   editorStepOf,
   type EditorStepSlug,
+  EDITOR_STEPS,
+  experimentRecordAddress,
   MY_EXPERIMENTS_ADDRESS,
   MY_EXPERIMENTS_TITLE,
   newExperimentAddress,
@@ -46,12 +69,15 @@ import {
 } from '@/nav/vendor';
 import { usePublicCourse } from '@/queries/catalogue';
 import { useExperimentEditor, useVendorRecord } from '@/queries/production';
-import { useSession } from '@/queries/session';
 import { checkDraftSave, checkEditorStep, checkWholeExperiment } from '@/queries/production-editor';
+import { useSession } from '@/queries/session';
 import { useCommand } from '@/queries/use-command';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { ReturnedNotice } from '../shared/returned-notice';
+import { ReturnedReasonPanel, returnFactsOf } from '../shared/returned-reason';
+import { savedChangesAt } from '../shared/saved-changes';
+import { vendorPill } from '../shared/status-pill';
+import { useTodayLine } from '../shared/today-line';
 import {
   clearEditorDraft,
   forgetSavedLine,
@@ -60,19 +86,21 @@ import {
   useEditorDraft,
   useSessionKey,
 } from './editor-draft';
-import { DoneState, NotEditableView, ReadOnlyView } from './editor-states';
+import { DoneState, ReadOnlyView, RefusalView } from './editor-states';
 import {
+  blockTitleId,
   CheckStep,
   CourseStep,
   type FieldChange,
   FormatsStep,
   PreviewStep,
-  type StepActions,
+  SECTION_IDS,
 } from './editor-steps';
 import {
   checklistRows,
   contentOf,
-  DONE_ID,
+  COURSE_PARTS,
+  deliveryFields,
   draftOf,
   editableMode,
   type EditorError,
@@ -81,20 +109,29 @@ import {
   EMPTY_EDITOR_DRAFT,
   ERRORS_ID,
   fieldId,
+  ID_PREFIX,
+  liveErrorFields,
   MISSING_ID,
   type MissingItem,
   missingItems,
   type PackageFormat,
+  partStatus,
   previousStep,
   REASON_ID,
+  REFERENCE_FIELD_PARAM,
+  referencedFields,
+  referenceFieldKey,
   referenceTarget,
+  sameDraft,
   samplePackageFileName,
   SAVED_ID,
   stepNumber,
   stepOfField,
-  summaryRows,
+  stepStates,
+  SUBMIT_ID,
   TITLE_ID,
 } from './editor-view';
+import { useLeaveGuard } from './leave-guard';
 
 type Mode = 'create' | 'edit' | 'revise';
 
@@ -106,44 +143,46 @@ interface StepErrors {
   readonly focusSummary: boolean;
 }
 
-/** What Submit or Resubmit answered (B5-05 f1; B5-07 f4). */
+/** What Submit or Resubmit answered: the outcome card's record. */
 interface Done {
   readonly kind: 'submitted' | 'resubmitted';
-  readonly id: string;
-  readonly name: string;
+  readonly submission: Submission;
 }
 
-/** Where focus goes once the page shows it (the board's `focus(pid + …)`). */
+/** Where focus goes once the page shows it (the export's `focusId`). */
 interface FocusRequest {
   readonly id: string;
   readonly seq: number;
 }
 
-const STEP_ORDER: readonly EditorStepSlug[] = ['course', 'formats', 'preview', 'submit'];
+const OUTLINE_KICKER_ID = `${ID_PREFIX}-prog-k`;
 
 /**
- * The experiment editor — VE-03 Course and description, VE-04 Formats and delivery, VE-05 Preview
- * and documents, VE-06 Check and submit (boards B5-03, B5-04, B5-05) for a new experiment
- * (`/vendor/experiments/new?step=`), VE-09 for a saved draft (`/[id]/edit?step=`, B5-07 f5) and
- * VE-08 for a returned one (`/[id]/revise?step=`, B5-07 f0 … f4, f7, f8; B5-08 f0).
+ * The experiment editor — the one four-step editor of the V3 Vendor design (VE-v1 `Main.dc.html`):
+ * VE-03 Course and description, VE-04 Formats and delivery, VE-05 Preview and documents, VE-06
+ * Check and submit for a new experiment (`/vendor/experiments/new?step=`), VE-09 for a saved draft
+ * (`/[id]/edit?step=`) and VE-08 for a returned one (`/[id]/revise?step=`).
  *
  * - **Read**: `ProductionService.getEditor` — the record (or none yet), only the courses assigned
  *   to the Vendor's organisation and whether it opens read-only (a draft whose course is no longer
- *   assigned, OD-B5-01: B5-07 f6; any record that is not a draft or returned). Revise mode also
- *   reads the record's last return (`getRecord`): the reason box above the stepper, whose “What it
- *   refers to” opens the step and field (OD-B5-10).
+ *   assigned, OD-B5-01; any record that is not a draft or returned: the export's refusal). Revise
+ *   mode also reads the record's last return (`getRecord`): the returned reason above the editor,
+ *   which takes focus first, whose references open the step and field and tag it (OD-B5-10).
  * - **Four steps** in the address (`?step=`; a saved draft opens where it was last saved,
- *   state-copy `VE-09.opens-at`). Continue checks the step with the contract's own rules first
- *   (`editorStepIssues` after `submissionContentInput`), then asks `continueStep` — the service
- *   answers the name already in use (f4) and a course withdrawn meanwhile (f5). Field errors and
- *   the drawn summary “Check this step” (f3), which takes focus. What is typed is kept per signed-in
- *   person and record for the tab's life (state-copy `VE-03.kept`).
+ *   state-copy `VE-09.opens-at`), as titled sections on the field grid; the top stepper (narrow)
+ *   and the aside outline (wide) move between them with the values kept, and show each step's —
+ *   and the current step's parts' — live status. Continue checks the step with the contract's own
+ *   rules first (`editorStepIssues` after `submissionContentInput`), then asks `continueStep` — the
+ *   service answers the name already in use and a course withdrawn meanwhile. Field errors and the
+ *   summary “Check this step”, which takes focus. What is typed is kept per signed-in person and
+ *   record for the tab's life (state-copy `VE-03.kept`); leaving through a link with unsaved
+ *   changes asks first (“Leave without saving?”, `VE-04.leave-guard`).
  * - **Save draft** needs only a name; the first save mints the SUB id and the address becomes the
- *   draft's own (f6, state-copy `VE-03.first-save`). Revise mode's **Save changes** keeps them
- *   without resubmitting. **Submit** lists what is missing with a way to each step (B5-05 f5) or
- *   opens DL-1 (f6; “It does not publish anything”), then shows the drawn result (f1); **Resubmit**
- *   through DL-1 shows “Submitted” (B5-07 f4) — the next gate is never named (M-3). Documents and
- *   package files are file names only; nothing is uploaded (OD-B5-11).
+ *   draft's own (state-copy `VE-03.first-save`); the saved line sits next to Cancel or Back and
+ *   takes focus. Revise mode's **Save changes** keeps them privately without resubmitting.
+ *   **Submit** lists what is missing with a way to each step or opens the confirmation (“It does
+ *   not publish anything”), then shows the outcome card; **Resubmit** reads “Submitted” — the next
+ *   stage is never named (M-3). Documents and package files are file names only (OD-B5-11).
  * - Every command carries the record's `rev`. A stale or moved-on record is read again and what was
  *   typed stays; a failure for now keeps everything and says nothing was saved or sent.
  */
@@ -162,7 +201,10 @@ export function ExperimentEditor({
   const session = useSession();
   const sessionOrganisation =
     session.status === 'signed-in' ? (session.session.organisation ?? '') : '';
+  // Today on the sample clock (the session's sign-in instant): the head's date on phones.
+  const date = useTodayLine();
   const record = submissionId ?? 'new';
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   const editorRead = useExperimentEditor(submissionId);
   const editorAnswer = editorRead.data;
@@ -175,7 +217,7 @@ export function ExperimentEditor({
     () => (editor === null ? null : submission ? draftOf(submission.content) : EMPTY_EDITOR_DRAFT),
     [editor, submission],
   );
-  const [draft, , update] = useEditorDraft(record, base);
+  const [draft, typed, update] = useEditorDraft(record, base);
 
   const [errors, setErrors] = useState<StepErrors | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -184,9 +226,10 @@ export function ExperimentEditor({
   const [notice, setNotice] = useState<string | null>(null);
   const [tried, setTried] = useState(false);
   const [dialog, setDialog] = useState(false);
+  const [leaveTo, setLeaveTo] = useState<string | null>(null);
   const [done, setDone] = useState<Done | null>(null);
   const [missing, setMissing] = useState(false);
-  // The first save's saved line takes focus on the draft's own address (B5-03 f6 `focus(pid + '-saved')`).
+  // The first save's saved line takes focus on the draft's own address.
   const [focus, setFocus] = useState<FocusRequest | null>(() =>
     savedLineFor(sessionKey, record) ? { id: SAVED_ID, seq: 1 } : null,
   );
@@ -233,7 +276,7 @@ export function ExperimentEditor({
     }
   }, [submission, submissionId, done, mode, navigation, step, hasStep]);
 
-  // A new step: its own errors only, no saved line (B5-03 `go`).
+  // A new step: its own errors only, no saved line.
   const [lastStep, setLastStep] = useState(step);
   if (lastStep !== step) {
     setLastStep(step);
@@ -251,10 +294,10 @@ export function ExperimentEditor({
           : editDraftAddress(id, target),
     [mode, submissionId],
   );
-  /** Opens a step; focus goes to its title (B5-03 `go` → `focus(pid + '-h')`) or to `focusId`. */
+  /** Opens a step; focus goes to its title or to `focusId`. */
   const goTo = (target: EditorStepSlug, focusId: string | null = TITLE_ID) => {
     if (focusId !== null) requestFocus(focusId);
-    navigation.navigate(addressOf(target));
+    if (target !== step) navigation.navigate(addressOf(target));
   };
 
   /** Shows the errors on the earliest step they belong to, moving there if needed. */
@@ -262,7 +305,7 @@ export function ExperimentEditor({
     if (items.length === 0) return;
     const at = [...items]
       .map((item) => stepOfField(item.field))
-      .sort((a, b) => STEP_ORDER.indexOf(a) - STEP_ORDER.indexOf(b))[0]!;
+      .sort((a, b) => EDITOR_STEPS.indexOf(a) - EDITOR_STEPS.indexOf(b))[0]!;
     setErrors({
       step: at,
       items: items.filter((item) => stepOfField(item.field) === at),
@@ -283,7 +326,7 @@ export function ExperimentEditor({
       setTried(true);
       requestFocus(MISSING_ID);
     } else if (error.kind === 'refused' && error.code === 'course-not-assigned') {
-      // The draft's course was withdrawn: the read now opens it read-only (B5-07 f6).
+      // The draft's course was withdrawn: the read now opens it read-only.
       void editorRead.refetch();
     } else if (error.kind === 'stale-version') {
       void editorRead.refetch();
@@ -396,7 +439,7 @@ export function ExperimentEditor({
         clearEditorDraft(sessionKey, record);
         setErrors(null);
         if (submissionId === null) {
-          // f6: the first save gives the id; the draft's own address (state-copy `VE-03.first-save`).
+          // The first save gives the id: the draft's own address (state-copy `VE-03.first-save`).
           leaveSavedLine(sessionKey, answer.value.id, words);
           navigation.navigate(editDraftAddress(answer.value.id, step), { replace: true });
         } else {
@@ -437,12 +480,8 @@ export function ExperimentEditor({
         }
         clearEditorDraft(sessionKey, record);
         setErrors(null);
-        setDone({
-          kind: revising ? 'resubmitted' : 'submitted',
-          id: answer.value.id,
-          name: answer.value.content.name,
-        });
-        requestFocus(DONE_ID);
+        setDone({ kind: revising ? 'resubmitted' : 'submitted', submission: answer.value });
+        requestFocus(TITLE_ID);
       },
       () => {
         setDialog(false);
@@ -451,7 +490,7 @@ export function ExperimentEditor({
     );
   };
 
-  /** A missing item's “Go to …”: its step with that step's errors, focus on the field (`m.go`). */
+  /** A missing item's “Go to …”: its step with that step's errors, focus on the field. */
   const onGoTo = (item: MissingItem) => {
     const local = checkEditorStep(item.step, content);
     const items = local ? editorErrors(local) : [];
@@ -459,15 +498,50 @@ export function ExperimentEditor({
     goTo(item.step, fieldId(item.field));
   };
 
-  /** A “What it refers to” link (state-copy `VE-08.reference-jump`). */
+  /** A “What it refers to” chip (state-copy `VE-08.reference-jump`). */
   const onJump = (reference: ReturnReference) => {
     const target = referenceTarget(reference, draft);
     setErrors(null);
-    if (target.step !== step) goTo(target.step, fieldId(target.field));
-    else requestFocus(fieldId(target.field));
+    goTo(target.step, fieldId(target.field));
   };
 
-  const onCancel = () => clearEditorDraft(sessionKey, record);
+  // ---- leaving with unsaved changes (state-copy `VE-04.leave-guard`) ----
+  const revising = mode === 'revise';
+  const formShown =
+    editor !== null && base !== null && done === null && !(submission !== null && editor.readOnly);
+  const unsaved = typed && base !== null && !sameDraft(draft, base);
+  useLeaveGuard({
+    active: formShown && unsaved && leaveTo === null,
+    here: `${navigation.pathname}${navigation.search}`,
+    onLeave: setLeaveTo,
+  });
+  const onLeave = () => {
+    const destination = leaveTo;
+    if (destination === null) return;
+    clearEditorDraft(sessionKey, record);
+    setLeaveTo(null);
+    navigation.navigate(destination);
+  };
+  /** Cancel drops what was typed — unless the guard held the click back to ask first. */
+  const onCancel = (event: { readonly defaultPrevented: boolean }) => {
+    if (!event.defaultPrevented) clearEditorDraft(sessionKey, record);
+  };
+
+  // ---- the returned reason (revise): focused first once it shows — or, when the address names one
+  // of its references (`field=`, the record's chips: state-copy `VE-08.reference-jump`), that field.
+  const facts =
+    revising && submission && recordView ? returnFactsOf(recordView.lastReturn, submission) : null;
+  const askedField = new URLSearchParams(navigation.search).get(REFERENCE_FIELD_PARAM);
+  // Once, when the reason first shows (the step comes with the record's link: `step=`).
+  const [reasonOpened, setReasonOpened] = useState(false);
+  if (formShown && facts !== null && !reasonOpened) {
+    setReasonOpened(true);
+    const asked = askedField
+      ? facts.references.find((reference) => referenceFieldKey(reference) === askedField)
+      : undefined;
+    const target = asked ? referenceTarget(asked, draft) : null;
+    requestFocus(target && target.step === step ? fieldId(target.field) : REASON_ID);
+  }
 
   // ---- the chosen course's words (a course withdrawn meanwhile is named from the catalogue) ----
   const courses = editor?.assignedCourses ?? [];
@@ -500,19 +574,37 @@ export function ExperimentEditor({
     navigation.notFound();
   }
 
-  const back = <BackLink href={MY_EXPERIMENTS_ADDRESS}>{EDITOR.back}</BackLink>;
-  const frame = (children: ReactNode) => (
-    <PageContent wrap="form">
-      <div className="flex flex-col gap-4">{children}</div>
-    </PageContent>
+  const shownMode: Mode = submissionId === null ? 'create' : mode;
+  /** “My experiments › <the saved record> › <where this is>”. */
+  const crumbs = (current: string, named: Submission | null = submission) => (
+    <Breadcrumbs
+      levels={[
+        { label: MY_EXPERIMENTS_TITLE, href: MY_EXPERIMENTS_ADDRESS },
+        ...(named
+          ? [
+              {
+                label: named.content.name || named.id,
+                href: experimentRecordAddress(named.id),
+              },
+            ]
+          : []),
+      ]}
+      current={current}
+    />
+  );
+  const frame = (current: string, children: ReactNode, named: Submission | null = submission) => (
+    <>
+      {crumbs(current, named)}
+      {children}
+    </>
   );
 
   if (done) {
+    const resubmitted = done.kind === 'resubmitted';
     return frame(
-      <>
-        {back}
-        <DoneState kind={done.kind} id={done.id} name={done.name} />
-      </>,
+      resubmitted ? DONE.resubmittedTitle : DONE.submittedTitle,
+      <DoneState kind={done.kind} submission={done.submission} date={date} titleRef={titleRef} />,
+      done.submission,
     );
   }
 
@@ -523,42 +615,33 @@ export function ExperimentEditor({
     !['not-found', 'not-permitted', 'unavailable'].includes(editorAnswer.error.kind)
   ) {
     return frame(
-      <>
-        {back}
-        <Notice tone="info" title={stateWords('VE-03.policy-open')} />
-      </>,
+      EDITOR.modeWords[shownMode],
+      <Notice tone="info" title={stateWords('VE-03.policy-open')} />,
     );
   }
 
   if (readFailed) {
     return frame(
-      <>
-        {back}
-        <FailedState title={stateWords('VE-03.failed')} onRetry={() => void editorRead.refetch()}>
+      EDITOR.modeWords[shownMode],
+      <Surface>
+        <ListState
+          kind="failed"
+          title={stateWords('VE-03.failed')}
+          action={<Button onClick={() => void editorRead.refetch()}>{EDITOR.tryAgain}</Button>}
+        >
           {stateWords('VE-03.failed-line')}
-        </FailedState>
-      </>,
+        </ListState>
+      </Surface>,
     );
   }
 
   const lookupPending = lookupId !== null && lookup.isPending;
   if (editor === null || base === null || (editor.readOnly && lookupPending)) {
     return frame(
-      <>
-        {back}
-        <LoadingState
-          label={stateWords('VE-03.loading')}
-          surface="section"
-          className="flex flex-col gap-4 p-6"
-          skeleton={
-            <>
-              <Skeleton className="w-[40%]" />
-              <Skeleton />
-              <Skeleton className="w-[70%]" />
-            </>
-          }
-        />
-      </>,
+      EDITOR.modeWords[shownMode],
+      <Surface busy>
+        <LoadingRows message={stateWords('VE-03.loading')} rows={3} cells={[2, 1]} />
+      </Surface>,
     );
   }
 
@@ -567,155 +650,307 @@ export function ExperimentEditor({
       submission.status.state === 'draft' &&
       recordCourseId !== null &&
       !courses.some((course) => course.id === recordCourseId);
+    if (!courseNoLongerAssigned) {
+      return frame(
+        EDITOR.modeWords[mode],
+        <RefusalView submission={submission} titleRef={titleRef} />,
+      );
+    }
     const code = lookedUp?.platformCode ?? null;
     const recordCourse = lookedUp
       ? courseWords(lookedUp.platformCode, lookedUp.name)
       : (recordCourseId ?? CHECK_STEP.notChosen);
     return frame(
-      <>
-        {back}
-        {courseNoLongerAssigned ? (
-          <ReadOnlyView
-            submission={submission}
-            code={code}
-            courseLine={recordCourse}
-            noticeTitle={noLongerAssignedTitle(code ?? recordCourse)}
-            noticeLine={noLongerAssignedLine(recordCourse, submission.vendorOrganisation, null)}
-          />
-        ) : (
-          <NotEditableView submission={submission} code={code} courseLine={recordCourse} />
-        )}
-      </>,
+      READ_ONLY.crumb,
+      <ReadOnlyView
+        submission={submission}
+        courseLine={recordCourse}
+        noticeTitle={noLongerAssignedTitle(code ?? recordCourse)}
+        noticeLine={noLongerAssignedLine(recordCourse, submission.vendorOrganisation, null)}
+        date={date}
+        titleRef={titleRef}
+      />,
     );
   }
 
   // ---- the editor ----
   const shownErrors = errors && errors.step === step ? errors.items : [];
   const errorOf = (field: EditorField) => shownErrors.find((item) => item.field === field)?.message;
-  const revising = mode === 'revise';
-  const shownMode: Mode = submissionId === null ? 'create' : mode;
   const organisation = submission?.vendorOrganisation ?? sessionOrganisation;
-  const actions: StepActions = {
-    saveLabel: revising ? EDITOR.saveChanges : EDITOR.saveDraft,
-    onSave,
-    saving: saveDraft.busy || saveRevision.busy,
-    onContinue,
-    continuing: continueStep.busy,
-    onCancel,
-    onBack: () => goTo(previousStep(step)),
-  };
+  const referred = facts ? referencedFields(facts.references, draft) : new Set<EditorField>();
+  const shownFields = new Set(shownErrors.map((item) => item.field));
+  const liveCourse = liveErrorFields('course', content);
+  const liveFormats = liveErrorFields('formats', content);
+  const blockStatus = (format: Technology) =>
+    partStatus(deliveryFields(format), shownFields, liveFormats);
+  const states = stepStates(draft);
 
-  return frame(
+  const partsOf = (slug: EditorStepSlug): readonly VendorEditorPart[] => {
+    if (slug !== step) return [];
+    if (slug === 'course')
+      return [
+        {
+          key: 'course-and-name',
+          label: COURSE_STEP.sections.courseAndName,
+          status: partStatus(COURSE_PARTS.courseAndName, shownFields, liveCourse),
+          onSelect: () => requestFocus(SECTION_IDS.courseAndName),
+        },
+        {
+          key: 'catalogue',
+          label: COURSE_STEP.sections.catalogue,
+          status: partStatus(COURSE_PARTS.catalogue, shownFields, liveCourse),
+          onSelect: () => requestFocus(SECTION_IDS.catalogue),
+        },
+      ];
+    if (slug === 'formats')
+      return inDisplayOrder(draft.formats).map((format) => ({
+        key: format,
+        label: formatPartLabel(format),
+        status: blockStatus(format),
+        onSelect: () => requestFocus(blockTitleId(format)),
+      }));
+    return [];
+  };
+  const steps: VendorEditorStep[] = EDITOR_STEPS.map((slug) => {
+    const number = stepNumber(slug);
+    const title = EDITOR.stepTitles[slug];
+    const state = states[slug];
+    return {
+      key: slug,
+      number,
+      short: EDITOR.steps[slug],
+      title,
+      state: state.words,
+      done: state.complete && slug !== step,
+      current: slug === step,
+      label: stepButtonLabel(number, title, state.words),
+      onSelect: () => {
+        setErrors(null);
+        goTo(slug);
+      },
+      parts: partsOf(slug),
+      partsLabel: partsLabel(title),
+    };
+  });
+
+  const savedOutline = !submission
+    ? EDITOR.notSaved
+    : revising
+      ? revisionSavedWords(submission, session.status === 'signed-in' ? session.signedInAt : null)
+      : lastSavedWords(dateTime(submission.updatedAt));
+  const visibility = !submission
+    ? EDITOR.newVisibility
+    : revising
+      ? reviseVisibility(submission.revision)
+      : EDITOR.draftVisibility;
+  const pill = submission ? vendorPill(submission) : null;
+  const status = pill ? <StatusPill tone={pill.tone}>{pill.words}</StatusPill> : null;
+
+  const saving = saveDraft.busy || saveRevision.busy;
+  const saveButton = (
+    <Button size="lg" onClick={onSave} busy={saving}>
+      {revising ? EDITOR.saveChanges : EDITOR.saveDraft}
+    </Button>
+  );
+
+  return (
     <>
-      <PageHeader
-        className="[margin:8px_0_0]"
-        back={back}
-        overline={overlineWords(shownMode, stepNumber(step))}
+      <PageHead
+        breadcrumbs={crumbs(EDITOR.modeWords[shownMode])}
+        date={date}
+        eyebrow={overlineWords(shownMode, stepNumber(step))}
         title={EDITOR.stepTitles[step]}
         titleId={TITLE_ID}
         titleFocusTarget
+        titleRef={titleRef}
         meta={
-          <span className="xl-meta">
-            {idLineWords(submission?.id ?? null, shownMode, submission?.revision ?? 1)}
-          </span>
+          <>
+            {status}
+            <span>{idLineWords(submission?.id ?? null, shownMode, submission?.revision ?? 1)}</span>
+          </>
         }
       />
-      {revising && submission && recordView ? (
-        <ReturnedNotice
+      {facts ? (
+        <ReturnedReasonPanel
           id={REASON_ID}
-          lastReturn={recordView.lastReturn}
-          submission={submission}
-          onJump={onJump}
+          facts={facts}
+          references={{
+            label: RETURNED.refersTo,
+            nameOf: goToReferenceLabel,
+            onSelect: onJump,
+          }}
         />
       ) : null}
-      <Stepper
-        label={EDITOR.stepsLabel}
-        steps={EDITOR.steps}
-        current={stepNumber(step)}
-        doneWords={false}
-        className="[margin:8px_0_8px]"
-      />
-      {saved ? (
-        <p className="xa-save is-ok m-0" role="status" id={SAVED_ID} tabIndex={-1}>
-          <Icon name="done" />
-          {saved}
-        </p>
-      ) : null}
-      {shownErrors.length > 0 ? (
-        <ErrorSummary
-          key={attempt}
-          id={ERRORS_ID}
-          title={EDITOR.summaryTitle}
-          autoFocus={errors?.focusSummary ?? true}
-          items={shownErrors.map((item) => ({
-            fieldId: fieldId(item.field),
-            summaryText: item.summaryText,
-          }))}
+      <VendorEditorLayout
+        stepsLabel={EDITOR.stepsLabel}
+        steps={steps}
+        formLabelledBy={TITLE_ID}
+        outline={{
+          kicker: submission
+            ? outlineKicker(submission.id, shownMode, submission.revision)
+            : EDITOR.newKicker,
+          kickerId: OUTLINE_KICKER_ID,
+          name: draft.name.trim() || EDITOR.untitled,
+          saved: savedOutline,
+          visibility,
+        }}
+      >
+        {shownErrors.length > 0 || notice ? (
+          <VendorEditorErrors>
+            {shownErrors.length > 0 ? (
+              <ErrorSummary
+                key={attempt}
+                id={ERRORS_ID}
+                title={EDITOR.summaryTitle}
+                autoFocus={errors?.focusSummary ?? true}
+                items={shownErrors.map((item) => ({
+                  fieldId: fieldId(item.field),
+                  summaryText: item.summaryText,
+                }))}
+              />
+            ) : null}
+            {notice ? <Notice tone="warn" icon="alertCircle" role="alert" title={notice} /> : null}
+          </VendorEditorErrors>
+        ) : null}
+        {step === 'course' ? (
+          <CourseStep
+            draft={draft}
+            courses={courses}
+            organisation={organisation}
+            withdrawn={withdrawn}
+            errorOf={errorOf}
+            onChange={onChange}
+            referred={referred}
+          />
+        ) : step === 'formats' ? (
+          <FormatsStep
+            draft={draft}
+            errorOf={errorOf}
+            onChange={onChange}
+            onToggle={onToggle}
+            onAttach={onAttach}
+            referred={referred}
+            blockStatus={blockStatus}
+          />
+        ) : step === 'preview' ? (
+          <PreviewStep
+            draft={draft}
+            errorOf={errorOf}
+            onChange={onChange}
+            referred={referred}
+            onAddDocument={onAddDocument}
+            onRemoveDocument={onRemoveDocument}
+          />
+        ) : (
+          <CheckStep
+            draft={draft}
+            courseLine={courseLine}
+            missing={missingList}
+            tried={tried}
+            checklist={checklistRows(missingList, draft)}
+            outcomes={submission?.learningOutcomes ?? []}
+            revising={revising}
+            onGoTo={onGoTo}
+            onChangeStep={(target) => goTo(target)}
+          />
+        )}
+        <VendorEditorActions
+          savedId={SAVED_ID}
+          saved={saved}
+          start={
+            step === 'course' ? (
+              <ButtonLink variant="ghost" href={MY_EXPERIMENTS_ADDRESS} onClick={onCancel}>
+                {EDITOR.cancel}
+              </ButtonLink>
+            ) : (
+              <Button
+                variant="ghost"
+                icon="back"
+                iconSize={18}
+                onClick={() => goTo(previousStep(step))}
+              >
+                {EDITOR.previous}
+              </Button>
+            )
+          }
+          end={
+            step === 'submit' ? (
+              <>
+                {saveButton}
+                <Button variant="primary" size="lg" id={SUBMIT_ID} onClick={onSubmit}>
+                  {revising ? CHECK_STEP.resubmit : CHECK_STEP.submit}
+                </Button>
+              </>
+            ) : (
+              <>
+                {saveButton}
+                <Button
+                  variant="primary"
+                  size="lg"
+                  icon="chevronRight"
+                  iconSize={18}
+                  iconPosition="end"
+                  onClick={onContinue}
+                  busy={continueStep.busy}
+                >
+                  {EDITOR.continue}
+                </Button>
+              </>
+            )
+          }
         />
-      ) : null}
-      {notice ? <Notice tone="err">{notice}</Notice> : null}
-      {step === 'course' ? (
-        <CourseStep
-          draft={draft}
-          courses={courses}
-          organisation={organisation}
-          withdrawn={withdrawn}
-          errorOf={errorOf}
-          onChange={onChange}
-          actions={actions}
-        />
-      ) : step === 'formats' ? (
-        <FormatsStep
-          draft={draft}
-          errorOf={errorOf}
-          onChange={onChange}
-          onToggle={onToggle}
-          onAttach={onAttach}
-          actions={actions}
-        />
-      ) : step === 'preview' ? (
-        <PreviewStep
-          draft={draft}
-          errorOf={errorOf}
-          onChange={onChange}
-          onAddDocument={onAddDocument}
-          onRemoveDocument={onRemoveDocument}
-          actions={actions}
-        />
-      ) : (
-        <CheckStep
-          missing={missingList}
-          tried={tried}
-          checklist={checklistRows(missingList, draft)}
-          summary={summaryRows(draft, courseLine)}
-          outcomes={submission?.learningOutcomes ?? []}
-          submitLabel={revising ? CHECK_STEP.resubmit : CHECK_STEP.submit}
-          onGoTo={onGoTo}
-          onChangeStep={(target) => goTo(target)}
-          onSubmit={onSubmit}
-          actions={actions}
-        />
-      )}
+      </VendorEditorLayout>
       <ConfirmDialog
         open={dialog}
-        align="end"
-        idPrefix="Ve-s"
+        idPrefix={`${ID_PREFIX}-s`}
         title={revising ? SUBMIT_DIALOG.resubmitTitle : SUBMIT_DIALOG.submitTitle}
-        effect={
-          <strong>
-            {revising ? SUBMIT_DIALOG.resubmitEffect : submitEffect(draft.name.trim())}
-          </strong>
-        }
-        notice={<p className="m-0">{SUBMIT_DIALOG.whileReviewed}</p>}
+        description={revising ? SUBMIT_DIALOG.resubmitEffect : submitEffect(draft.name.trim())}
+        groups={[
+          {
+            kind: 'now',
+            title: SUBMIT_DIALOG.nowTitle,
+            items: revising
+              ? [revisionSentWords((submission?.revision ?? 1) + 1), SUBMIT_DIALOG.whileReviewed]
+              : SUBMIT_DIALOG.submitNow,
+          },
+          { kind: 'later', title: SUBMIT_DIALOG.laterTitle, items: [SUBMIT_DIALOG.later] },
+        ]}
         cancelLabel={revising ? SUBMIT_DIALOG.keepEditing : SUBMIT_DIALOG.cancel}
         confirmLabel={revising ? CHECK_STEP.resubmit : CHECK_STEP.submit}
         busy={submitForReview.busy || resubmit.busy}
         busyLabel={SUBMIT_DIALOG.submitting}
         onConfirm={onConfirm}
         onCancel={() => setDialog(false)}
+        returnFocusFallback={titleRef}
       />
-    </>,
+      <ConfirmDialog
+        open={leaveTo !== null}
+        idPrefix={`${ID_PREFIX}-l`}
+        title={LEAVE_DIALOG.title}
+        description={revising ? LEAVE_DIALOG.reviseLine : LEAVE_DIALOG.draftLine}
+        cancelLabel={LEAVE_DIALOG.keepEditing}
+        confirmLabel={LEAVE_DIALOG.leave}
+        // Navy, as the export draws "Leave without saving" (`rb-btn--navy`); no body.
+        confirmVariant="navy"
+        onConfirm={onLeave}
+        onCancel={() => setLeaveTo(null)}
+        returnFocusFallback={titleRef}
+      />
+    </>
   );
+}
+
+/**
+ * Revise mode's outline line (state-copy `VE-08.private-revision`): changes saved privately once
+ * the returned record changed after its return (`savedChangesAt`, the rule the record and the lists
+ * read too).
+ */
+function revisionSavedWords(submission: Submission, today: string | null): string {
+  const savedAt = savedChangesAt(submission);
+  if (savedAt === null) return EDITOR.noChangesSaved;
+  const at = dateTime(savedAt);
+  const sameDay = today !== null && dayMonthYear(today) === dayMonthYear(savedAt);
+  return outlineChangesSaved(sameDay ? todayAt(at.split(', ')[1] ?? at) : at);
 }
 
 function unavailableWords(action: 'continue' | 'save' | 'submit', mode: Mode): string {

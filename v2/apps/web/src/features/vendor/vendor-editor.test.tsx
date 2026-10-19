@@ -1,18 +1,22 @@
 /**
- * The experiment editor — VE-03 … VE-06 (boards B5-03, B5-04, B5-05), VE-09 Edit draft and VE-08
- * Revise and resubmit (B5-07) — on the real composition root and the sample world (`spine-start`),
- * as Anil Shetty of Northline Simulation Studio. The router is the test's: the editor stays mounted
- * across its own `?step=` and another address unmounts it, as Next.js does. Each drawn state: the
- * validation per step (B5-03 f3, B5-04 f4, f5, B5-05 f4), the name already in use (f4, the
- * service's answer), a course withdrawn while editing (f5), the first save minting SUB-0077 (f6),
- * what was typed kept across in-app navigation, the missing items with their links (B5-05 f5), DL-1
- * and the submitted result (f6, f1), the read-only draft (B5-07 f6), and a revision returned by
- * the Academic Reviewer: the reason box, its references, Save changes and Resubmit → “Submitted”
- * (B5-07 f0, f2, f3, f4; M-3) — and the one world moving: the reviewer's queue holds revision 2.
+ * The experiment editor — VE-03 … VE-06, VE-09 Edit draft and VE-08 Revise and resubmit, the one
+ * four-step editor of the V3 Vendor design (VE-v1 `Main.dc.html`) — on the real composition root
+ * and the sample world (`spine-start`), as Anil Shetty of Northline Simulation Studio. The router is
+ * the test's: the editor stays mounted across its own `?step=` and another address unmounts it, as
+ * Next.js does. Each drawn state: the titled sections and the field grid, the step's validation and
+ * summary, the name already in use (the service's answer), a course withdrawn while editing, the
+ * first save minting SUB-0077 and its saved line next to Cancel, what was typed kept across in-app
+ * navigation, “Leave without saving?” for a link with unsaved changes, the stepper and the outline
+ * with their live status, the format selector and one delivery block per format, Attach file, the
+ * documents and their dashed empty line, the missing items with their links, the review sections
+ * with Change, the confirmation and the outcome card, the read-only draft, the refusals, and a
+ * revision returned by the Academic Reviewer: the returned reason (focused first), its references
+ * jumping to tagged fields, Save changes and Resubmit → “Submitted” (M-3) — and the one world
+ * moving: the reviewer's queue holds revision 2.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { CourseId, SubmissionId } from '@xr/domain';
+import type { CourseId, ReturnReference, SubmissionId } from '@xr/domain';
 import { asPersonId, faults, worldOf } from '@xr/sample-platform/testing';
 import { type ReactNode, type RefObject, useEffect, useMemo, useState } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -31,6 +35,7 @@ import { WorkspaceNotFound } from '../shared/pu-15-not-found/not-found';
 import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
 import { WorkspaceLayout } from '../shared/workspace-frame/workspace-frame';
 import { forgetEditorDrafts } from './editor/editor-draft';
+import { reviseReferenceAddress } from './editor/editor-view';
 import { ExperimentEditor } from './editor/experiment-editor';
 
 afterEach(() => {
@@ -144,35 +149,55 @@ async function anilAt(start: string, fixture: 'spine-start' | 'after-flow-e' = '
 }
 
 const main = () => screen.getByRole('main');
-const text = (element: Element | null) => (element?.textContent ?? '').replace(/\s+/g, ' ').trim();
+/** An element's words, one space between its text pieces (as a reader hears them). */
+function text(element: Element | null): string {
+  if (!element) return '';
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  const pieces: string[] = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode())
+    pieces.push(node.textContent ?? '');
+  return pieces
+    .map((piece) => piece.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .join(' ');
+}
 const title = async (name: string) =>
   screen.findByRole('heading', { level: 1, name }, { timeout: 5000 });
-const overline = () => text(main().querySelector('.xr-phead .xr-overline'));
-const idLine = () => text(main().querySelector('.xr-phead-meta .xl-meta'));
+/** The head's eyebrow (`p.rk-eyebrow`) and the meta line's id words (`div.rk-meta > span`). */
+const eyebrow = () => text(main().querySelector('.rk-head .rk-eyebrow'));
+const idLine = () => text(main().querySelector('.rk-head .rk-meta > span:last-child'));
+const crumbs = () => screen.getByRole('navigation', { name: 'Breadcrumb' });
 const summary = () => document.getElementById('Ve-err');
 const summaryLinks = () =>
   [...(summary()?.querySelectorAll('li a') ?? [])].map((link) => link.textContent);
 const fieldError = (id: string) => text(document.getElementById(`${id}-e`));
-const button = (name: string | RegExp) => screen.getByRole('button', { name });
-const panel = (name: string) => screen.getByRole('region', { name });
+const button = (name: string | RegExp) => within(main()).getByRole('button', { name });
+/** A delivery block, by its heading: “Browser · Web link” (jsdom drops the space before “·”). */
+const block = (name: string) =>
+  screen.getByRole('region', { name: new RegExp(`^${name.replace(' · ', ' ?· ')}$`) });
+const field = (label: string) => screen.getByLabelText(label, { exact: true });
+/** The top stepper (`nav.ve-steps`) and the aside outline (`aside.ve-edaside`). */
+const stepper = () => main().querySelector<HTMLElement>('nav.ve-steps')!;
+const outline = () => screen.getByRole('complementary', { name: /draft|returned|not saved yet/ });
+const actions = () => main().querySelector<HTMLElement>('.vr-actions')!;
 
 async function fillStepOne(user: ReturnType<typeof userEvent.setup>, name: string = FLOW_E.name) {
   await user.selectOptions(screen.getByRole('combobox', { name: 'Course' }), THERMO);
-  const nameField = screen.getByLabelText('Experiment name');
+  const nameField = field('Experiment name');
   await user.clear(nameField);
   await user.type(nameField, name);
-  await user.type(screen.getByLabelText('Summary'), FLOW_E.summary);
-  await user.type(screen.getByLabelText('Description'), FLOW_E.description);
-  await user.type(screen.getByLabelText('Version'), FLOW_E.version);
+  await user.type(field('Summary'), FLOW_E.summary);
+  await user.type(field('Description'), FLOW_E.description);
+  await user.type(field('Version'), FLOW_E.version);
 }
 
 async function fillStepTwo(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('checkbox', { name: /Browser \(WEB\)/ }));
-  await user.click(screen.getByRole('checkbox', { name: /Virtual reality \(VR\)/ }));
-  const web = panel('Browser (WEB) · Web link');
+  await user.click(screen.getByRole('checkbox', { name: /Browser/ }));
+  await user.click(screen.getByRole('checkbox', { name: /Virtual reality/ }));
+  const web = block('Browser · Web link');
   await user.type(within(web).getByLabelText('Web link'), FLOW_E.webLink);
   await user.type(within(web).getByLabelText('Browser and computer needed'), FLOW_E.browser);
-  const vr = panel('Virtual reality (VR) · App package');
+  const vr = block('Virtual reality · App package');
   await user.type(within(vr).getByLabelText('Package label'), FLOW_E.packageLabel);
   await user.type(within(vr).getByLabelText('Package reference'), FLOW_E.packageReference);
   await user.type(within(vr).getByLabelText('Device needed'), FLOW_E.device);
@@ -188,63 +213,95 @@ function submissionsNamed(sample: Sample, name: string) {
 
 // ---- VE-03 Course and description ---------------------------------------------------------------
 
-describe('VE-03 Course and description (B5-03)', () => {
+describe('VE-03 Course and description', () => {
   it(
-    'f0: the header, the stepper, only the assigned courses, the fields and the footer',
+    'the head, the breadcrumbs, the two sections on the grid, only the assigned courses, the stepper, the outline and the actions',
     async () => {
-      const { user } = await anilAt(NEW);
+      await anilAt(NEW);
       await title('Course and description');
       expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-      expect(overline()).toBe('Create experiment · Step 1 of 4');
+      expect(eyebrow()).toBe('Create experiment · Step 1 of 4');
       expect(idLine()).toBe('Not saved yet');
-      expect(main().querySelector('a.xr-back')).toHaveTextContent('My experiments');
-      const steps = screen.getByRole('list', { name: 'Steps' });
-      expect([...steps.querySelectorAll('li')].map((step) => text(step))).toEqual([
-        'Step 1Course',
-        'Step 2Formats',
-        'Step 3Preview',
-        'Step 4Check',
-      ]);
-      expect(steps.querySelector('[aria-current="step"]')).toHaveTextContent('Course');
+      expect(text(crumbs())).toBe('My experiments Create experiment');
+      expect(within(crumbs()).getByRole('link', { name: 'My experiments' })).toHaveAttribute(
+        'href',
+        LIST,
+      );
+      // Two titled sections; the form is named by the step's H1.
+      const form = screen.getByRole('region', { name: 'Course and description' });
+      expect(form).toHaveClass('rk-surface', 've-form', 'vr-form');
+      expect(
+        within(form)
+          .getAllByRole('group')
+          .map((group) => group.getAttribute('aria-labelledby')),
+      ).toEqual(['Ve-s1-a-h', 'Ve-s1-b-h']);
+      expect(screen.getByRole('group', { name: 'Course and name' })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: 'Catalogue text' })).toBeInTheDocument();
+      // The field grid: course 4 columns, version 2, the rest the full width.
+      expect(field('Course').closest('.rk-field')).toHaveClass('vr-w4');
+      expect(field('Version').closest('.rk-field')).toHaveClass('vr-w2');
+      expect(field('Experiment name').closest('.rk-field')!.className).toBe('rk-field');
+      expect(field('Summary')).toHaveClass('rk-textarea', 'vr-ta2');
+      expect(field('Description')).toHaveClass('rk-textarea', 'vr-ta4');
       const course = screen.getByRole('combobox', { name: 'Course' });
       expect([...course.querySelectorAll('option')].map((option) => option.textContent)).toEqual([
         'Choose a course',
         'ME ZG523 · Thermodynamics & Heat Transfer',
       ]);
-      expect(main()).toHaveTextContent(
+      expect(course).toHaveAccessibleDescription(
         'Only the courses assigned to Northline Simulation Studio are listed.',
       );
-      for (const label of ['Experiment name', 'Summary', 'Description', 'Version'])
-        expect(screen.getByLabelText(label)).toBeInTheDocument();
-      expect(main().querySelector('p.xl-open')).toHaveTextContent(
-        'Prototype field set — the catalogue fields, and who maps an experiment to a course, are still open (T-29). Learning outcomes are added by the Academic Reviewer.',
+      expect(main().querySelector('p.vr-foot')).toHaveTextContent(
+        'Prototype field set — the catalogue fields, and who maps an experiment to a course, are still open. Learning outcomes are added by the Academic Reviewer.',
       );
-      const foot = main().querySelector('.xw-flow-foot')!;
-      expect(within(foot as HTMLElement).getByRole('link', { name: 'Cancel' })).toHaveAttribute(
-        'href',
-        LIST,
+      // The top stepper and the outline: four steps, the first current, each with its state.
+      expect(
+        within(stepper())
+          .getAllByRole('button')
+          .map((step) => step.getAttribute('aria-label')),
+      ).toEqual([
+        'Step 1 of 4, Course and description, not started',
+        'Step 2 of 4, Formats and delivery, not started',
+        'Step 3 of 4, Preview and documents, optional',
+        'Step 4 of 4, Check and submit, not ready yet',
+      ]);
+      expect(stepper().querySelector('[aria-current="step"]')).toHaveTextContent('1Course');
+      const aside = outline();
+      expect(text(aside.querySelector('.ve-prog-k'))).toBe('New experiment · not saved yet');
+      expect(text(aside.querySelector('.ve-prog-t'))).toBe('Untitled experiment');
+      expect(
+        within(aside)
+          .getByRole('list', { name: 'Parts of Course and description' })
+          .querySelectorAll('li'),
+      ).toHaveLength(2);
+      expect(text(aside.querySelector('.vr-sub'))).toBe(
+        'Course and name 3 still needed Catalogue text 2 still needed',
       );
-      expect(button('Save draft')).toHaveClass('xr-btn--secondary');
-      expect(button('Continue')).toHaveClass('xr-btn--primary');
-      // The shell: My experiments current; the top bar “My experiments / Experiment”.
-      const sidebar = screen.getByRole('navigation', { name: 'Vendor navigation' });
-      expect(sidebar.querySelector('[aria-current="page"]')).toHaveAttribute('href', LIST);
-      expect(screen.getByRole('list', { name: 'You are here' })).toHaveTextContent(
-        /My experiments\s*\/\s*Experiment/,
+      expect(text(aside.querySelector('.ve-prog-meta'))).toBe(
+        'Not saved yet Save a draft to keep your work. Only you can see a draft.',
       );
-      void user;
+      // The actions: Cancel to My experiments, Save draft, Continue (the one primary).
+      expect(within(actions()).getByRole('link', { name: 'Cancel' })).toHaveAttribute('href', LIST);
+      expect(button('Save draft')).toHaveClass('rb-btn', 'rb-btn--lg');
+      expect(button('Save draft')).not.toHaveClass('rb-btn--primary');
+      expect(button('Continue')).toHaveClass('rb-btn--primary', 'rb-btn--lg');
+      // The shell: My experiments is the current destination.
+      const rail = screen.getByRole('navigation', { name: 'Vendor navigation' });
+      expect(rail.querySelector('[aria-current="page"]')).toHaveAttribute('href', LIST);
     },
     SLOW,
   );
 
   it(
-    'f3: Continue with nothing entered — every field’s error and the summary, which takes focus',
+    'Continue with nothing entered: every field’s error and the summary, which takes focus; the outline counts what to fix',
     async () => {
       const { user, moves } = await anilAt(NEW);
       await title('Course and description');
       await user.click(button('Continue'));
       await waitFor(() => expect(summary()).not.toBeNull());
-      expect(text(summary()!.querySelector('strong'))).toBe('Check this step');
+      expect(summary()).toHaveClass('rk-errsum');
+      expect(summary()!.parentElement).toHaveClass('vr-errwrap');
+      expect(text(summary()!.querySelector('.rk-errsum-t'))).toBe('Check this step');
       expect(summaryLinks()).toEqual([
         'Choose a course',
         'Enter the experiment name',
@@ -255,19 +312,29 @@ describe('VE-03 Course and description (B5-03)', () => {
       expect(summary()).toHaveFocus();
       expect(fieldError('Ve-course')).toBe('Choose a course');
       expect(fieldError('Ve-name')).toBe('Enter the experiment name');
-      expect(screen.getByLabelText('Experiment name')).toHaveAttribute('aria-invalid', 'true');
+      expect(field('Experiment name')).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('combobox', { name: 'Course' })).toHaveAttribute(
+        'aria-invalid',
+        'true',
+      );
+      expect(text(outline().querySelector('.vr-sub'))).toBe(
+        'Course and name 3 to fix Catalogue text 2 to fix',
+      );
       // A summary link moves focus to its field; typing clears that field's error.
       await user.click(screen.getByRole('link', { name: 'Enter a description' }));
-      expect(screen.getByLabelText('Description')).toHaveFocus();
-      await user.type(screen.getByLabelText('Description'), 'x');
+      expect(field('Description')).toHaveFocus();
+      await user.type(field('Description'), 'x');
       expect(document.getElementById('Ve-desc-e')).toBeNull();
+      expect(text(outline().querySelector('.vr-sub'))).toBe(
+        'Course and name 3 to fix Catalogue text 1 to fix',
+      );
       expect(moves).toEqual([]);
     },
     SLOW,
   );
 
   it(
-    'f4: a name already in use is the service’s answer (the published “Composite Wall Conduction”)',
+    'a name already in use is the service’s answer (the published “Composite Wall Conduction”)',
     async () => {
       const { user, moves } = await anilAt(NEW);
       await title('Course and description');
@@ -284,7 +351,7 @@ describe('VE-03 Course and description (B5-03)', () => {
   );
 
   it(
-    'Save draft needs a name; the first save mints SUB-0077 and gives the draft its own address (f6)',
+    'Save draft needs a name; the first save mints SUB-0077, gives the draft its own address and the saved line next to Cancel',
     async () => {
       const { user, moves, sample } = await anilAt(NEW);
       await title('Course and description');
@@ -295,12 +362,24 @@ describe('VE-03 Course and description (B5-03)', () => {
       await fillStepOne(user);
       await user.click(button('Save draft'));
       await waitFor(() => expect(moves).toEqual(['replace /vendor/experiments/SUB-0077/edit']));
-      await waitFor(() => expect(idLine()).toBe('SUB-0077 · draft'));
-      expect(overline()).toBe('Edit draft · Step 1 of 4');
+      await waitFor(() => expect(idLine()).toBe('SUB-0077 · only you can see a draft'));
+      expect(eyebrow()).toBe('Edit draft · Step 1 of 4');
+      expect(text(crumbs())).toBe(`My experiments ${FLOW_E.name} Edit draft`);
+      expect(within(crumbs()).getByRole('link', { name: FLOW_E.name })).toHaveAttribute(
+        'href',
+        '/vendor/experiments/SUB-0077',
+      );
+      expect(main().querySelector('.rk-meta .xr-st')).toHaveTextContent('Draft');
       const saved = document.getElementById('Ve-saved')!;
-      expect(saved).toHaveClass('xa-save', 'is-ok');
+      expect(saved).toHaveClass('ve-saved', 'vr-saved');
+      expect(saved).toHaveAttribute('role', 'status');
+      expect(saved.parentElement).toBe(actions());
       expect(text(saved)).toMatch(/^Draft saved · \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d$/);
       expect(saved).toHaveFocus();
+      expect(text(outline().querySelector('.ve-prog-k'))).toBe('SUB-0077 · draft');
+      expect(text(outline().querySelector('.ve-prog-meta b'))).toMatch(
+        /^Last saved \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d$/,
+      );
       // The saved record carries what was typed; only the Vendor sees a draft.
       const [draft] = submissionsNamed(sample, FLOW_E.name);
       expect(draft).toMatchObject({ id: 'SUB-0077', status: { state: 'draft' } });
@@ -309,36 +388,95 @@ describe('VE-03 Course and description (B5-03)', () => {
         summary: FLOW_E.summary,
         version: '1.0',
       });
-      expect(screen.getByLabelText('Experiment name')).toHaveValue(FLOW_E.name);
-      // A change clears the saved line (B5-03 `saved: ''`).
-      await user.type(screen.getByLabelText('Version'), '1');
+      expect(field('Experiment name')).toHaveValue(FLOW_E.name);
+      // A change clears the saved line.
+      await user.type(field('Version'), '1');
       expect(document.getElementById('Ve-saved')).toBeNull();
     },
     SLOW,
   );
 
   it(
-    'what is typed survives leaving the editor and coming back, for this session only',
+    'what is typed survives leaving the editor and coming back, for this session only; Cancel asks first, then drops it',
     async () => {
-      const { user, go } = await anilAt(NEW);
+      const { user, go, moves } = await anilAt(NEW);
       await title('Course and description');
-      await user.type(screen.getByLabelText('Experiment name'), 'Half-typed name');
+      await user.type(field('Experiment name'), 'Half-typed name');
       go(LIST);
       expect(await screen.findByTestId('elsewhere')).toHaveTextContent(LIST);
       go(NEW);
       await title('Course and description');
-      expect(screen.getByLabelText('Experiment name')).toHaveValue('Half-typed name');
-      // Cancel drops it.
-      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+      expect(field('Experiment name')).toHaveValue('Half-typed name');
+      // Cancel with unsaved changes: “Leave without saving?” — Keep editing keeps the value.
+      await user.click(within(actions()).getByRole('link', { name: 'Cancel' }));
+      let dialog = await screen.findByRole('dialog', { name: 'Leave without saving?' });
+      await user.click(within(dialog).getByRole('button', { name: 'Keep editing' }));
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(field('Experiment name')).toHaveValue('Half-typed name');
+      // Leave without saving drops it and goes to My experiments.
+      await user.click(within(actions()).getByRole('link', { name: 'Cancel' }));
+      dialog = await screen.findByRole('dialog', { name: 'Leave without saving?' });
+      await user.click(within(dialog).getByRole('button', { name: 'Leave without saving' }));
+      expect(await screen.findByTestId('elsewhere')).toHaveTextContent(LIST);
+      expect(moves.at(-1)).toBe(`push ${LIST}`);
       go(NEW);
       await title('Course and description');
-      expect(screen.getByLabelText('Experiment name')).toHaveValue('');
+      expect(field('Experiment name')).toHaveValue('');
     },
     SLOW,
   );
 
   it(
-    'f5: a course withdrawn while editing — the warning hint and the service’s words',
+    'Leave without saving? guards the breadcrumbs and the rail while changes are unsaved, and only then',
+    async () => {
+      const { user, moves } = await anilAt(NEW);
+      await title('Course and description');
+      // Nothing typed: a link is not held back.
+      const list = within(crumbs()).getByRole('link', { name: 'My experiments' });
+      expect(fireEvent.click(list)).toBe(true);
+      expect(screen.queryByRole('dialog')).toBeNull();
+      await user.type(field('Summary'), 'Heat flow');
+      // A breadcrumb: the dialog, focus on its title; Keep editing (or Esc) keeps every value.
+      await user.click(within(crumbs()).getByRole('link', { name: 'My experiments' }));
+      const dialog = await screen.findByRole('dialog', { name: 'Leave without saving?' });
+      expect(dialog).toHaveClass('rk-dialog');
+      expect(dialog).toHaveAccessibleDescription(
+        'Your changes since you last saved will be lost. Save a draft first to keep them.',
+      );
+      expect(within(dialog).getByRole('heading', { name: 'Leave without saving?' })).toHaveFocus();
+      // As the export draws it: no body, Keep editing and the navy “Leave without saving”.
+      expect([...dialog.children].map((part) => part.className)).toEqual([
+        'rk-dlg-head',
+        'rk-dlg-foot',
+      ]);
+      expect(
+        within(dialog)
+          .getAllByRole('button')
+          .map((button) => [button.textContent, button.className]),
+      ).toEqual([
+        ['Keep editing', 'rb-btn rb-btn--lg'],
+        ['Leave without saving', 'rb-btn rb-btn--navy rb-btn--lg'],
+      ]);
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(field('Summary')).toHaveValue('Heat flow');
+      expect(moves).toEqual([]);
+      // The rail: Leave without saving goes where the link pointed.
+      const rail = screen.getByRole('navigation', { name: 'Vendor navigation' });
+      await user.click(within(rail).getByRole('link', { name: /Overview/ }));
+      await user.click(
+        within(await screen.findByRole('dialog')).getByRole('button', {
+          name: 'Leave without saving',
+        }),
+      );
+      expect(await screen.findByTestId('elsewhere')).toHaveTextContent('/vendor');
+      expect(moves).toEqual(['push /vendor']);
+    },
+    SLOW,
+  );
+
+  it(
+    'a course withdrawn while editing: the stale hint inside the course hint and the service’s words',
     async () => {
       const { runtime, sample } = await tabPlatform(ANIL, 'spine-start');
       const admin = asPersonId(sample, ARJUN);
@@ -364,10 +502,10 @@ describe('VE-03 Course and description (B5-03)', () => {
       const course = screen.getByRole('combobox', { name: 'Course' });
       await waitFor(() => expect(course.querySelectorAll('option')).toHaveLength(3));
       await user.selectOptions(course, MANUFACTURING);
-      await user.type(screen.getByLabelText('Experiment name'), FLOW_E.name);
-      await user.type(screen.getByLabelText('Summary'), FLOW_E.summary);
-      await user.type(screen.getByLabelText('Description'), FLOW_E.description);
-      await user.type(screen.getByLabelText('Version'), '1.0');
+      await user.type(field('Experiment name'), FLOW_E.name);
+      await user.type(field('Summary'), FLOW_E.summary);
+      await user.type(field('Description'), FLOW_E.description);
+      await user.type(field('Version'), '1.0');
       // … and withdraws it again while Anil is editing.
       await act(async () => {
         const withdrawn = await admin.platformRoles.withdrawScope({
@@ -381,7 +519,7 @@ describe('VE-03 Course and description (B5-03)', () => {
       await waitFor(() => expect(course.querySelectorAll('option')).toHaveLength(2));
       expect(course).toHaveValue('');
       await waitFor(() =>
-        expect(main()).toHaveTextContent(
+        expect(document.querySelector('#Ve-course-h .ve-hint-stale')).toHaveTextContent(
           'You chose MEL ZG512 · Manufacturing Processes, which was withdrawn from your courses while you were editing.',
         ),
       );
@@ -397,9 +535,9 @@ describe('VE-03 Course and description (B5-03)', () => {
 
 // ---- VE-04 Formats and delivery ----------------------------------------------------------------
 
-describe('VE-04 Formats and delivery (B5-04)', () => {
+describe('VE-04 Formats and delivery', () => {
   it(
-    'f0 → f3: one panel per ticked format; f5 and f4 validation; Choose file adds a sample name only',
+    'the format selector, one block per chosen format with its live status, the guidance once, the drawn validation and Attach file',
     async () => {
       const { user, moves } = await anilAt(NEW);
       await title('Course and description');
@@ -407,40 +545,65 @@ describe('VE-04 Formats and delivery (B5-04)', () => {
       await user.click(button('Continue'));
       await waitFor(() => expect(moves).toEqual(['push /vendor/experiments/new?step=formats']));
       await title('Formats and delivery');
-      expect(overline()).toBe('Create experiment · Step 2 of 4');
+      expect(eyebrow()).toBe('Create experiment · Step 2 of 4');
       expect(screen.getByRole('heading', { level: 1 })).toHaveFocus();
-      const formats = screen.getByRole('group', { name: 'Formats it supports' });
+      // The step before is complete: a tick in the stepper.
+      expect(stepper().querySelector('button.is-done')).toHaveAccessibleName(
+        'Step 1 of 4, Course and description, complete',
+      );
+      const formats = screen.getByRole('group', { name: /^Formats it supports/ });
+      expect(formats).toHaveClass('rk-fieldset', 'vr-fmtsel');
       expect(
-        within(formats)
-          .getAllByRole('checkbox')
-          .map((box) => box.closest('label')?.textContent?.replace(/\s+/g, ' ').trim()),
+        [...formats.querySelectorAll('label.vr-fmtopt')].map((option) =>
+          [...option.querySelectorAll('span')].map((span) => span.textContent),
+        ),
       ).toEqual([
-        'WEB Browser (WEB)',
-        'AR Augmented reality (AR)',
-        'VR Virtual reality (VR)',
-        'MR Mixed reality (MR)',
+        ['WEB', 'Browser', 'Web link'],
+        ['AR', 'Augmented reality', 'App package'],
+        ['VR', 'Virtual reality', 'App package'],
+        ['MR', 'Mixed reality', 'App package'],
       ]);
-      // f5: no format.
+      expect(formats.querySelector('.xr-fmt')).toHaveClass('xr-fmt--none');
+      expect(screen.queryByRole('group', { name: /Delivery details/ })).toBeNull();
+      // No format chosen.
       await user.click(button('Continue'));
       await waitFor(() => expect(summaryLinks()).toEqual(['Choose at least one format']));
       expect(fieldError('Ve-fmts')).toBe('Choose at least one format');
+      expect(formats).toHaveAttribute('aria-describedby', 'Ve-fmts-e');
 
-      // f4: WEB + VR ticked, a link without https:// and the rest empty.
-      await user.click(screen.getByRole('checkbox', { name: /Browser \(WEB\)/ }));
-      await user.click(screen.getByRole('checkbox', { name: /Virtual reality \(VR\)/ }));
+      // WEB + VR chosen, a link without https:// and the rest empty.
+      await user.click(screen.getByRole('checkbox', { name: /Browser/ }));
+      await user.click(screen.getByRole('checkbox', { name: /Virtual reality/ }));
+      expect(formats.querySelector('.xr-fmt')).not.toHaveClass('xr-fmt--none');
+      const delivery = screen.getByRole('group', { name: 'Delivery details' });
       expect(
-        screen.getAllByRole('region').map((region) => region.getAttribute('aria-labelledby')),
+        within(delivery)
+          .getAllByRole('region')
+          .map((region) => region.id || region.getAttribute('aria-labelledby')),
       ).toEqual(['Ve-WEB-t', 'Ve-VR-t']);
-      const web = panel('Browser (WEB) · Web link');
+      expect(text(delivery.querySelector('.vr-sec-st'))).toBe('0 of 2 formats complete');
+      // The app-package guidance is written once, above the blocks; each package field points at it.
+      const guide = delivery.querySelector('.vr-guide')!;
+      expect(text(guide.querySelector('.vr-guide-t'))).toBe('What each app package needs');
+      expect(guide).toHaveTextContent(
+        'Package fields are provisional — how app packages are delivered is still open.',
+      );
+      const web = block('Browser · Web link');
+      expect(text(web.querySelector('.vr-dlv-st'))).toBe('2 still needed');
       await user.type(
         within(web).getByLabelText('Web link'),
         'labs.northline.example/composite-wall',
       );
-      const vr = panel('Virtual reality (VR) · App package');
-      expect(vr).toHaveTextContent(
-        'Package fields are provisional — how app packages are delivered is still open (T-14).',
+      const vr = block('Virtual reality · App package');
+      expect(within(vr).getByLabelText('Device needed')).toHaveAccessibleDescription(
+        'Which devices it runs on, and anything else it needs.',
       );
+      expect(text(vr.querySelector('.vr-dlv-st'))).toBe('4 still needed');
       await user.type(within(vr).getByLabelText('Package label'), 'Composite Wall — VR build 1.0');
+      expect(text(vr.querySelector('.vr-dlv-st'))).toBe('3 still needed');
+      expect(text(outline().querySelector('.vr-sub'))).toBe(
+        'WEB · Browser 2 still needed VR · Virtual reality 3 still needed',
+      );
       await user.click(button('Continue'));
       await waitFor(() =>
         expect(summaryLinks()).toEqual([
@@ -451,29 +614,69 @@ describe('VE-04 Formats and delivery (B5-04)', () => {
           'Add install notes for VR',
         ]),
       );
+      expect(text(web.querySelector('.vr-dlv-st'))).toBe('2 to fix');
+      expect(web.querySelector('.vr-dlv-st')).toHaveClass('xr-st--err', 'vr-st-sm');
       expect(moves).toHaveLength(1);
 
-      // A package file instead of a reference: a sample name, nothing uploaded (f1).
-      await user.click(within(vr).getByRole('button', { name: 'Choose file' }));
-      // The board's “(sample file)” marker is a canvas label: sample labels do not ship (T-36).
-      expect(vr.querySelector('.xv-file')).toHaveTextContent(
-        'conduction-through-a-composite-wall-vr-1.0.zipRemove',
-      );
+      // Attach file: a sample name instead of a reference, nothing uploaded, no sample label.
+      await user.click(within(vr).getByRole('button', { name: 'Attach the VR package file' }));
+      const file = vr.querySelector('.ve-file.vr-file')!;
+      expect(text(file)).toBe('conduction-through-a-composite-wall-vr-1.0.zip Remove');
       expect(document.getElementById('Ve-VR_ref-e')).toBeNull();
+      expect(within(vr).queryByRole('button', { name: 'Attach the VR package file' })).toBeNull();
       await user.click(within(vr).getByRole('button', { name: 'Remove the VR package file' }));
-      expect(within(vr).getByRole('button', { name: 'Choose file' })).toBeInTheDocument();
-
-      // f6: all four formats — AR, VR and MR share the package fields.
-      await user.click(screen.getByRole('checkbox', { name: /Augmented reality \(AR\)/ }));
-      await user.click(screen.getByRole('checkbox', { name: /Mixed reality \(MR\)/ }));
       expect(
-        screen.getAllByRole('region').map((region) => text(region.querySelector('h3'))),
+        within(vr).getByRole('button', { name: 'Attach the VR package file' }),
+      ).toBeInTheDocument();
+
+      // All four formats: AR, VR and MR share the package fields, in WEB/AR/VR/MR order.
+      await user.click(screen.getByRole('checkbox', { name: /Augmented reality/ }));
+      await user.click(screen.getByRole('checkbox', { name: /Mixed reality/ }));
+      expect(
+        within(delivery)
+          .getAllByRole('region')
+          .map((region) => text(region.querySelector('h3'))),
       ).toEqual([
-        'Browser (WEB) · Web link',
-        'Augmented reality (AR) · App package',
-        'Virtual reality (VR) · App package',
-        'Mixed reality (MR) · App package',
+        'Browser · Web link',
+        'Augmented reality · App package',
+        'Virtual reality · App package',
+        'Mixed reality · App package',
       ]);
+      expect(delivery.querySelectorAll('.vr-guide')).toHaveLength(1);
+      // An outline entry moves focus to its block.
+      await user.click(within(outline()).getByRole('button', { name: /MR · Mixed reality/ }));
+      await waitFor(() => expect(document.getElementById('Ve-MR-t')).toHaveFocus());
+    },
+    SLOW,
+  );
+
+  it(
+    'a complete block turns Complete; the stepper moves between steps with the values kept',
+    async () => {
+      const { user } = await anilAt(NEW);
+      await title('Course and description');
+      await fillStepOne(user);
+      await user.click(button('Continue'));
+      await title('Formats and delivery');
+      await fillStepTwo(user);
+      expect(text(block('Browser · Web link').querySelector('.vr-dlv-st'))).toBe('Complete');
+      expect(text(block('Virtual reality · App package').querySelector('.vr-dlv-st'))).toBe(
+        'Complete',
+      );
+      expect(text(main().querySelector('.vr-sec-st[role="status"]'))).toBe(
+        '2 of 2 formats complete',
+      );
+      // The stepper's first step, then the outline's second: what was typed is kept.
+      await user.click(
+        within(stepper()).getByRole('button', { name: /^Step 1 of 4, Course and description/ }),
+      );
+      await title('Course and description');
+      expect(field('Experiment name')).toHaveValue(FLOW_E.name);
+      await user.click(within(outline()).getByRole('button', { name: /Formats and delivery/ }));
+      await title('Formats and delivery');
+      expect(
+        within(block('Virtual reality · App package')).getByLabelText('Device needed'),
+      ).toHaveValue(FLOW_E.device);
     },
     SLOW,
   );
@@ -481,9 +684,9 @@ describe('VE-04 Formats and delivery (B5-04)', () => {
 
 // ---- VE-05, VE-06 and the submit ------------------------------------------------------------------
 
-describe('VE-05 Preview and documents · VE-06 Check and submit (B5-05)', () => {
+describe('VE-05 Preview and documents · VE-06 Check and submit', () => {
   it(
-    'f3, f4: everything optional, a label needs a link, sample documents; f5 missing items; f6 DL-1; f1 submitted',
+    'everything optional, a label needs a link, sample documents; the missing items; the review sections; the confirmation; the outcome card',
     async () => {
       const { user, moves, sample, go } = await anilAt(NEW);
       await title('Course and description');
@@ -493,49 +696,57 @@ describe('VE-05 Preview and documents · VE-06 Check and submit (B5-05)', () => 
       await fillStepTwo(user);
       await user.click(button('Continue'));
       await title('Preview and documents');
-      expect(main()).toHaveTextContent(
+      expect(screen.getByRole('group', { name: 'Preview' })).toHaveTextContent(
         'Everything here is optional. A preview reaches the public only if the experiment is published.',
       );
-      expect(main()).toHaveTextContent('No documents added.');
-      // f4: a label without a link.
+      expect(screen.getByLabelText(/^Preview label/).closest('.rk-field')).toHaveClass('vr-w3');
+      // No documents: the dashed line.
+      const documents = screen.getByRole('group', { name: 'Documents (optional)' });
+      expect(text(documents.querySelector('p.vr-empty'))).toBe('No documents added.');
+      // A label without a link.
       await user.type(screen.getByLabelText(/^Preview label/), 'Two-minute walkthrough');
-      await user.click(button('Add document'));
-      await user.click(button('Add document'));
-      expect([...main().querySelectorAll('ul.xv-files > li')].map((item) => text(item))).toEqual([
-        'Lab handout — Composite Wall.pdfRemove',
-        'Thermocouple positions.pdfRemove',
+      await user.click(within(documents).getByRole('button', { name: 'Add document' }));
+      await user.click(within(documents).getByRole('button', { name: 'Add document' }));
+      expect([...documents.querySelectorAll('ul.ve-files > li.ve-file')].map(text)).toEqual([
+        'Lab handout — Composite Wall.pdf Remove',
+        'Thermocouple positions.pdf Remove',
       ]);
+      expect(documents.querySelector('p.vr-empty')).toBeNull();
       await user.click(button('Continue'));
       const label = 'Add a preview link for “Two-minute walkthrough”, or remove the label';
       await waitFor(() => expect(summaryLinks()).toEqual([label]));
       expect(fieldError('Ve-plink')).toBe(label);
+      expect(stepper().querySelector('[aria-current="step"]')).toHaveAccessibleName(
+        'Step 3 of 4, Preview and documents, check the preview link',
+      );
 
-      // Go on to the check without the link: the quiet warning, then f5 when Submit is pressed.
+      // On to the check without the link: the quiet warning, then the list when Submit is pressed.
       go('/vendor/experiments/new?step=submit');
       await title('Check and submit');
-      expect(main().querySelector('.xr-notice--warn')).toHaveTextContent(
+      expect(main().querySelector('.rk-notice--warn')).toHaveTextContent(
         '1 thing to finish before you can submit',
       );
       await user.click(button('Submit for academic review'));
       const missing = document.getElementById('Ve-miss')!;
       await waitFor(() =>
-        expect(text(missing.querySelector('strong'))).toBe(
+        expect(text(missing.querySelector('.rk-errsum-t'))).toBe(
           '1 thing to finish before you can submit',
         ),
       );
       expect(missing).toHaveFocus();
-      expect([...missing.querySelectorAll('li')].map((item) => text(item))).toEqual([
-        `${label}Go to preview and documents`,
+      expect([...missing.querySelectorAll('li .ve-errline')].map(text)).toEqual([
+        `${label} Go to preview and documents`,
       ]);
-      const rows = [...main().querySelectorAll('ul.xv-checklist > li')].map((row) => text(row));
-      expect(rows).toEqual([
-        'Course and descriptionProvidedChange',
-        'Formats and deliveryProvidedChange',
-        'Preview and documents (optional)Preview link missingChange',
-      ]);
+      const review = (name: RegExp) => screen.getByRole('region', { name });
+      expect(text(review(/^Course and description$/).querySelector('.xr-st'))).toBe('Provided');
+      expect(text(review(/^Formats and delivery$/).querySelector('.xr-st'))).toBe('Provided');
+      expect(review(/^Preview and documents/).querySelector('.xr-st')).toHaveClass('xr-st--warn');
+      expect(text(review(/^Preview and documents/).querySelector('.xr-st'))).toBe(
+        'Preview link missing',
+      );
       expect(screen.queryByRole('dialog')).toBeNull();
       // “Go to preview and documents” opens the step with its error, focus on the field.
-      await user.click(button('Go to preview and documents'));
+      await user.click(screen.getByRole('link', { name: 'Go to preview and documents' }));
       await title('Preview and documents');
       await waitFor(() => expect(screen.getByLabelText(/^Preview link/)).toHaveFocus());
       expect(fieldError('Ve-plink')).toBe(label);
@@ -546,46 +757,86 @@ describe('VE-05 Preview and documents · VE-06 Check and submit (B5-05)', () => 
       await user.click(button('Continue'));
       await title('Check and submit');
 
-      // f0: everything provided, the summary and the outcomes (none yet).
-      expect(main().querySelector('.xr-notice--ok')).toHaveTextContent(
+      // Ready: the notice, one review section per step with Change, the outcomes, the note.
+      expect(main().querySelector('.rk-notice--ok')).toHaveTextContent(
         'Everything required is providedYou can submit it for academic review now.',
       );
-      expect([...main().querySelectorAll('dl.xv-kv > dt')].map((term) => text(term))).toEqual([
+      const course = review(/^Course and description$/);
+      expect([...course.querySelectorAll('dl.rk-dl > dt')].map(text)).toEqual([
         'Experiment',
         'Course',
         'Version',
-        'Formats',
-        'Preview',
-        'Documents',
+        'Summary',
+        'Description',
       ]);
-      expect([...main().querySelectorAll('dl.xv-kv > dd')].map((value) => text(value))).toEqual([
+      expect([...course.querySelectorAll('dl.rk-dl > dd')].map(text)).toEqual([
         FLOW_E.name,
         'ME ZG523 · Thermodynamics & Heat Transfer',
         '1.0',
-        'WEB · VR',
+        FLOW_E.summary,
+        FLOW_E.description,
+      ]);
+      expect(
+        within(course).getByRole('button', { name: 'Change course and description' }),
+      ).toHaveTextContent('Change');
+      const delivery = review(/^Formats and delivery$/);
+      expect([...delivery.querySelectorAll('.vr-dlv-h')].map(text)).toEqual([
+        'WEB Browser · Web link',
+        'VR Virtual reality · App package',
+      ]);
+      expect([...delivery.querySelectorAll('.vr-dlv dd')].map(text)).toEqual([
+        FLOW_E.webLink,
+        FLOW_E.browser,
+        FLOW_E.packageLabel,
+        FLOW_E.packageReference,
+        FLOW_E.device,
+        FLOW_E.install,
+      ]);
+      expect([...review(/^Preview and documents/).querySelectorAll('dd')].map(text)).toEqual([
         'Two-minute walkthrough — https://media.northline.example/composite-wall-walkthrough',
         'Lab handout — Composite Wall.pdf · Thermocouple positions.pdf',
       ]);
       expect(screen.getByRole('region', { name: 'Learning outcomes' })).toHaveTextContent(
         'None yet. The Academic Reviewer adds them during review — one set for every format.',
       );
-      expect(main()).toHaveTextContent(
+      expect(main().querySelector('p.ve-submitnote')).toHaveTextContent(
         'Submitting sends it to the Academic Reviewer. It does not publish anything.',
       );
+      expect(text(outline().querySelector('[aria-current="step"]'))).toBe(
+        '4 Check and submit Ready to submit',
+      );
 
-      // f6: DL-1, then f1 (never saved: Submit works without an id).
+      // The confirmation (never saved: Submit works without an id), then the outcome card.
       await user.click(button('Submit for academic review'));
       const dialog = await screen.findByRole('dialog', { name: 'Submit for academic review?' });
-      expect(dialog).toHaveTextContent(
+      expect(dialog).toHaveAccessibleDescription(
         'This sends “Conduction Through a Composite Wall” to the Academic Reviewer. It does not publish anything.',
       );
-      expect(dialog).toHaveTextContent(
-        'You can’t edit it while it is being reviewed. If it comes back to you, you can revise it.',
-      );
+      expect([...dialog.querySelectorAll('.rk-dlg-group')].map(text)).toEqual([
+        'What happens now It is with the Academic Reviewer. You can’t edit it while it is being reviewed.',
+        'Only after later events If it comes back to you, you can revise it.',
+      ]);
+      expect(
+        within(dialog).getByRole('heading', { name: 'Submit for academic review?' }),
+      ).toHaveFocus();
       await user.click(within(dialog).getByRole('button', { name: 'Submit for academic review' }));
       await title('Submitted for academic review');
-      expect(main()).toHaveTextContent(
-        'SUB-0077 · Conduction Through a Composite Wall is with the Academic Reviewer. Nothing is published. You can’t edit it while it is being reviewed.',
+      const card = document.getElementById('Ve-done')!;
+      expect(card).toHaveClass('rk-surface', 'vr-outcome');
+      expect(text(card.querySelector('.rk-eyebrow'))).toBe(`SUB-0077 · ${FLOW_E.name}`);
+      expect(text(card.querySelector('.vr-outcome-d'))).toBe(
+        'It is with the Academic Reviewer. Nothing is published. You can’t edit it while it is being reviewed.',
+      );
+      expect([...card.querySelectorAll('.vr-facts dt')].map(text)).toEqual([
+        'Status',
+        'Submitted',
+        'Formats',
+      ]);
+      expect(text(card.querySelector('.vr-facts .xr-st'))).toBe('With Academic Reviewer');
+      expect(card.querySelector('.vr-facts .xr-st')).toHaveClass('xr-st--info', 'rk-st-lg');
+      expect(text(card.querySelector('.ve-chips .xr-sr'))).toBe('Formats: WEB, VR');
+      expect(text(card.querySelector('.rk-next'))).toBe(
+        'Nothing is published. If it comes back to you, you can revise it here.',
       );
       expect(screen.getByRole('link', { name: 'Open the experiment record' })).toHaveAttribute(
         'href',
@@ -595,7 +846,8 @@ describe('VE-05 Preview and documents · VE-06 Check and submit (B5-05)', () => 
         'href',
         LIST,
       );
-      await waitFor(() => expect(document.getElementById('Ve-done')).toHaveFocus());
+      expect(text(crumbs())).toBe(`My experiments ${FLOW_E.name} Submitted for academic review`);
+      await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toHaveFocus());
       const [submitted] = submissionsNamed(sample, FLOW_E.name);
       expect(submitted).toMatchObject({
         id: 'SUB-0077',
@@ -618,6 +870,35 @@ describe('VE-05 Preview and documents · VE-06 Check and submit (B5-05)', () => 
   );
 
   it(
+    'Change on a review section opens its step; no format chosen reads “None chosen yet”; Remove empties the documents',
+    async () => {
+      const { user, go } = await anilAt(NEW);
+      await title('Course and description');
+      await fillStepOne(user);
+      go('/vendor/experiments/new?step=submit');
+      await title('Check and submit');
+      const delivery = screen.getByRole('region', { name: 'Formats and delivery' });
+      expect(text(delivery.querySelector('p.vr-empty'))).toBe('None chosen yet');
+      expect(text(delivery.querySelector('.xr-st'))).toBe('1 missing');
+      expect(
+        text(
+          screen.getByRole('region', { name: /^Preview and documents/ }).querySelector('.xr-st'),
+        ),
+      ).toBe('None — optional');
+      await user.click(
+        within(delivery).getByRole('button', { name: 'Change formats and delivery' }),
+      );
+      await title('Formats and delivery');
+      go('/vendor/experiments/new?step=preview');
+      await title('Preview and documents');
+      await user.click(button('Add document'));
+      await user.click(button('Remove Lab handout — Composite Wall.pdf'));
+      expect(text(main().querySelector('p.vr-empty'))).toBe('No documents added.');
+    },
+    SLOW,
+  );
+
+  it(
     'a failure for now keeps everything and says nothing was sent',
     async () => {
       const { user, sample, go } = await anilAt(NEW);
@@ -633,7 +914,7 @@ describe('VE-05 Preview and documents · VE-06 Check and submit (B5-05)', () => 
       const dialog = await screen.findByRole('dialog', { name: 'Submit for academic review?' });
       await user.click(within(dialog).getByRole('button', { name: 'Submit for academic review' }));
       await waitFor(() =>
-        expect(main().querySelector('.xr-notice--err')).toHaveTextContent(
+        expect(main().querySelector('.vr-errwrap .rk-notice[role="alert"]')).toHaveTextContent(
           'We couldn’t submit it. Nothing was sent — try again.',
         ),
       );
@@ -646,9 +927,9 @@ describe('VE-05 Preview and documents · VE-06 Check and submit (B5-05)', () => 
 
 // ---- VE-09 Edit draft and the read-only draft ----------------------------------------------------
 
-describe('VE-09 Edit draft (B5-07 f5, f6)', () => {
+describe('VE-09 Edit draft', () => {
   it(
-    'f5: a saved draft opens where it was last saved',
+    'a saved draft opens where it was last saved',
     async () => {
       const { runtime, sample } = await tabPlatform(ANIL, 'spine-start');
       const vendor = asPersonId(sample, ANIL);
@@ -666,46 +947,52 @@ describe('VE-09 Edit draft (B5-07 f5, f6)', () => {
       const { moves } = show(runtime, '/vendor/experiments/SUB-0079/edit');
       await title('Formats and delivery');
       expect(moves).toEqual(['replace /vendor/experiments/SUB-0079/edit?step=formats']);
-      expect(overline()).toBe('Edit draft · Step 2 of 4');
-      expect(idLine()).toBe('SUB-0079 · draft');
-      expect(screen.getByRole('checkbox', { name: /Browser \(WEB\)/ })).toBeChecked();
-      expect(screen.getByRole('region', { name: 'Browser (WEB) · Web link' })).toBeInTheDocument();
+      expect(eyebrow()).toBe('Edit draft · Step 2 of 4');
+      expect(idLine()).toBe('SUB-0079 · only you can see a draft');
+      expect(text(crumbs())).toBe('My experiments Pin Fin Efficiency Edit draft');
+      expect(screen.getByRole('checkbox', { name: /Browser/ })).toBeChecked();
+      expect(block('Browser · Web link')).toBeInTheDocument();
     },
     SLOW,
   );
 
   it(
-    'f6: a draft whose course is no longer assigned is read-only — “What you entered”',
+    'a draft whose course is no longer assigned is read-only — the notice and “What you entered”',
     async () => {
       await anilAt('/vendor/experiments/SUB-0083/edit');
       await title('Surface Roughness in Turning');
-      expect(overline()).toBe('SUB-0083 · MEL ZG512');
-      const notice = main().querySelector('.xr-notice--warn')!;
-      expect(text(notice.querySelector('.xr-notice-title'))).toBe(
+      expect(eyebrow()).toBe('Experiment · SUB-0083');
+      expect(text(crumbs())).toBe('My experiments Surface Roughness in Turning Read-only');
+      expect(main().querySelector('.rk-meta .xr-st')).toHaveClass('xr-st--paused', 'rk-st-lg');
+      expect(text(main().querySelector('.rk-meta .xr-st'))).toBe('Draft · read-only');
+      expect(idLine()).toMatch(/^Last saved \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d$/);
+      const notice = main().querySelector('.rk-notice--warn')!;
+      expect(text(notice.querySelector('.rk-notice-t'))).toBe(
         'MEL ZG512 is no longer assigned to you',
       );
       expect(notice).toHaveTextContent(
         'MEL ZG512 · Manufacturing Processes was withdrawn from Northline Simulation Studio. This draft is kept, read-only. BITS / WILP decides which courses are yours.',
       );
+      expect(
+        within(notice as HTMLElement).getByRole('link', { name: 'Back to My experiments' }),
+      ).toHaveAttribute('href', LIST);
+      // XS-07's report form, "Where" filled in from this page (LINK-MAP L45), as the record's.
+      expect(
+        within(notice as HTMLElement).getByRole('link', { name: 'Ask for help' }),
+      ).toHaveAttribute('href', '/vendor/help/report');
       const entered = screen.getByRole('region', { name: 'What you entered' });
-      expect([...entered.querySelectorAll(':scope .xr-section-body > dl > dt')].map(text)).toEqual([
+      expect(entered).toHaveClass('rk-surface', 'vr-sheet');
+      expect([...entered.querySelectorAll(':scope .vr-sec > dl.rk-dl > dt')].map(text)).toEqual([
         'Course',
         'Summary',
         'Version',
         'Formats',
       ]);
-      expect(entered.querySelector('.xv-deliv')).toHaveTextContent(
-        'WEBWeb linkWeb linkhttps://labs.northline.example/surface-roughnessBrowser and computerA current browser on a laptop or desktop',
+      expect(entered.querySelector('.vr-dlvs--after .vr-dlv')).toHaveTextContent(
+        'WEBBrowser · Web linkWeb linkhttps://labs.northline.example/surface-roughnessBrowser and computerA current browser on a laptop or desktop',
       );
       expect(screen.queryByRole('button', { name: 'Save draft' })).toBeNull();
-      expect(screen.getByRole('link', { name: 'Back to My experiments' })).toHaveAttribute(
-        'href',
-        LIST,
-      );
-      expect(screen.getByRole('link', { name: 'Ask for help' })).toHaveAttribute(
-        'href',
-        '/vendor/help',
-      );
+      expect(document.querySelector('.vr-form')).toBeNull();
     },
     SLOW,
   );
@@ -713,26 +1000,30 @@ describe('VE-09 Edit draft (B5-07 f5, f6)', () => {
 
 // ---- VE-08 Revise and resubmit ------------------------------------------------------------------
 
-describe('VE-08 Revise and resubmit (B5-07 f0 … f4)', () => {
+describe('VE-08 Revise and resubmit', () => {
   it(
-    'f2: the reason box with two references above the editor; a reference opens its field',
+    'the returned reason above the editor takes focus first; a reference opens its field, tagged',
     async () => {
       const { user, moves } = await anilAt('/vendor/experiments/SUB-0081/revise');
       await title('Course and description');
-      expect(overline()).toBe('Revise and resubmit · Step 1 of 4');
+      expect(eyebrow()).toBe('Revise and resubmit · Step 1 of 4');
       expect(idLine()).toBe('SUB-0081 · revision 1 was returned');
+      expect(main().querySelector('.rk-meta .xr-st')).toHaveClass('xr-st--err');
+      expect(text(crumbs())).toBe('My experiments Forced Convection Revise and resubmit');
       const reason = await screen.findByRole('region', {
         name: 'Returned by the Academic Reviewer',
       });
-      expect(reason).toHaveClass('xv-reason');
-      expect(text(reason.querySelector('.xr-meta'))).toMatch(
+      expect(reason).toHaveClass('vr-ret');
+      await waitFor(() => expect(reason).toHaveFocus());
+      expect(text(reason.querySelector('.vr-ret-m'))).toMatch(
         /^24 Aug 2026, \d\d:\d\d · Prof\. A\. Menon$/,
       );
-      expect(text(reason.querySelector('blockquote.xv-quote'))).toBe(
+      expect(text(reason.querySelector('blockquote.vr-ret-q'))).toBe(
         'The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.',
       );
+      const references = within(reason).getByRole('list', { name: 'What it refers to' });
       expect(
-        within(reason)
+        within(references)
           .getAllByRole('button')
           .map((each) => each.textContent),
       ).toEqual([
@@ -740,9 +1031,15 @@ describe('VE-08 Revise and resubmit (B5-07 f0 … f4)', () => {
         'Formats & delivery · AR · Install notes',
       ]);
       expect(button('Save changes')).toBeInTheDocument();
-      // The reason sits above the stepper (B5-07 “Reason first”).
-      const steps = screen.getByRole('list', { name: 'Steps' });
-      expect(reason.compareDocumentPosition(steps) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(text(outline().querySelector('.ve-prog-k'))).toBe('SUB-0081 · revision 1 returned');
+      expect(text(outline().querySelector('.ve-prog-meta'))).toBe(
+        'No changes saved yet Others see revision 1 as submitted until you resubmit.',
+      );
+      // The reason sits above the editor.
+      expect(
+        reason.compareDocumentPosition(stepper()) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(main().querySelector('.ve-reftag')).toBeNull();
       await user.click(
         within(reason).getByRole('button', {
           name: 'Go to Formats & delivery · AR · Install notes',
@@ -750,21 +1047,25 @@ describe('VE-08 Revise and resubmit (B5-07 f0 … f4)', () => {
       );
       await title('Formats and delivery');
       expect(moves).toEqual(['push /vendor/experiments/SUB-0081/revise?step=formats']);
-      await waitFor(() =>
-        expect(
-          within(panel('Augmented reality (AR) · App package')).getByLabelText('Install notes'),
-        ).toHaveFocus(),
-      );
+      const ar = block('Augmented reality · App package');
+      await waitFor(() => expect(within(ar).getByLabelText('Install notes')).toHaveFocus());
+      // Both referenced fields carry the tag.
+      expect(
+        [...ar.querySelectorAll('.rk-field')]
+          .filter((each) => each.querySelector('.rk-tag-warn.ve-reftag'))
+          .map((each) => text(each.querySelector('label'))),
+      ).toEqual(['Device needed', 'Install notes']);
+      expect(text(ar.querySelector('.ve-reftag'))).toBe('Referred to in the return');
     },
     SLOW,
   );
 
   it(
-    'f0 → f3 → f4: Save changes, then Resubmit through DL-1 reads “Submitted”; the reviewer’s queue holds revision 2',
+    'Save changes keeps them privately; Resubmit through the confirmation reads “Submitted”; the reviewer’s queue holds revision 2; the stale link is refused',
     async () => {
-      const { user, sample } = await anilAt('/vendor/experiments/SUB-0081/revise?step=formats');
+      const { user, sample, go } = await anilAt('/vendor/experiments/SUB-0081/revise?step=formats');
       await title('Formats and delivery');
-      const ar = panel('Augmented reality (AR) · App package');
+      const ar = block('Augmented reality · App package');
       const device = within(ar).getByLabelText('Device needed');
       await user.clear(device);
       await user.type(device, 'Android phones and tablets with ARCore, iOS 16 or later.');
@@ -778,26 +1079,46 @@ describe('VE-08 Revise and resubmit (B5-07 f0 … f4)', () => {
         /^Changes saved · \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d · not resubmitted yet$/,
       );
       expect(worldOf(sample).records.submissions['SUB-0081']!.status.state).toBe('returned');
+      await waitFor(() =>
+        expect(text(outline().querySelector('.ve-prog-meta b'))).toMatch(
+          /^Changes saved · \d\d:\d\d today · not resubmitted$/,
+        ),
+      );
+      // No changed-field list: the read model does not say which fields changed.
+      expect(main().querySelector('.vr-ret-pend')).toBeNull();
 
       await user.click(button('Continue'));
       await title('Preview and documents');
       await user.click(button('Continue'));
       await title('Check and submit');
-      expect(overline()).toBe('Revise and resubmit · Step 4 of 4');
+      expect(eyebrow()).toBe('Revise and resubmit · Step 4 of 4');
+      expect(main().querySelector('.rk-notice--ok')).toHaveTextContent('You can resubmit it now.');
+      expect(main().querySelector('p.ve-submitnote')).toHaveTextContent(
+        'Resubmitting sends your changes for review. It does not publish anything.',
+      );
       await user.click(button('Resubmit'));
       const dialog = await screen.findByRole('dialog', { name: 'Resubmit your changes?' });
-      expect(dialog).toHaveTextContent(
+      expect(dialog).toHaveAccessibleDescription(
         'Your changes are submitted for review. This does not publish anything.',
       );
+      expect(dialog).toHaveTextContent('Your changes are sent as revision 2.');
       expect(within(dialog).getByRole('button', { name: 'Keep editing' })).toBeInTheDocument();
       await user.click(within(dialog).getByRole('button', { name: 'Resubmit' }));
       await title('Submitted');
-      expect(main()).toHaveTextContent('Your changes have been submitted for review.');
-      expect(main()).toHaveTextContent(
-        'SUB-0081 · Forced Convection · nothing is needed from you now.',
+      const card = document.getElementById('Ve-done')!;
+      expect(text(card.querySelector('.vr-outcome-d'))).toBe(
+        'Your changes have been submitted for review.',
       );
-      // M-3: no reviewer, Content Manager or other gate named.
-      expect(text(document.getElementById('Ve-done'))).not.toMatch(/Reviewer|Content Manager/);
+      expect(text(card.querySelector('.rk-eyebrow'))).toBe('SUB-0081 · Forced Convection');
+      expect([...card.querySelectorAll('.vr-facts > div')].map(text).slice(0, 2)).toEqual([
+        'Status Submitted',
+        'Revision 2',
+      ]);
+      expect(text(card.querySelector('.rk-next'))).toBe(
+        'Nothing is needed from you now. If it comes back to you, you can revise it again.',
+      );
+      // M-3: no reviewer, Content Manager or other stage named.
+      expect(text(card)).not.toMatch(/Reviewer|Content Manager/);
       const record = worldOf(sample).records.submissions['SUB-0081']!;
       expect(record.revision).toBe(2);
       // The routing stand-in sent it back to the Academic Reviewer (PC-66).
@@ -809,12 +1130,67 @@ describe('VE-08 Revise and resubmit (B5-07 f0 … f4)', () => {
         state: 'with-academic-reviewer',
         reason: 'resubmission',
       });
+      // The stale revise link now: “This experiment was already submitted”.
+      go('/vendor/experiments/SUB-0074/edit');
+      await title('This experiment was approved by the Academic Reviewer');
+      go('/vendor/experiments/SUB-0081/revise');
+      await title('This experiment was already submitted');
+      expect(main()).toHaveTextContent(
+        /It was submitted on \d{1,2} [A-Z][a-z]{2} 2026\. You can’t edit it after it is submitted\. If it is returned to you, you can revise it here\./,
+      );
     },
     SLOW,
   );
 
   it(
-    'f1: returned by the Content Manager — her reason and its reference to the summary in step 1',
+    'the record’s chip names its reference in the address (`field=`): that field takes focus, tagged',
+    async () => {
+      await anilAt('/vendor/experiments/SUB-0081/revise?step=formats&field=ar.device-need');
+      await title('Formats and delivery');
+      const device = within(block('Augmented reality · App package')).getByLabelText(
+        'Device needed',
+      );
+      await waitFor(() => expect(device).toHaveFocus());
+      expect(device.closest('.rk-field')!.querySelector('.ve-reftag')).toHaveTextContent(
+        'Referred to in the return',
+      );
+    },
+    SLOW,
+  );
+
+  it('reviseReferenceAddress: a reference’s step and field (`field=`), as the record’s chips open it', () => {
+    const reference = (
+      step: ReturnReference['step'],
+      format: ReturnReference['format'],
+      field: ReturnReference['field'],
+    ): ReturnReference => ({ step, format, field });
+    expect(
+      reviseReferenceAddress('SUB-0081', reference('formats-and-delivery', 'ar', 'device-need')),
+    ).toBe('/vendor/experiments/SUB-0081/revise?step=formats&field=ar.device-need');
+    expect(
+      reviseReferenceAddress('SUB-0081', reference('preview-and-documents', null, 'preview-link')),
+    ).toBe('/vendor/experiments/SUB-0081/revise?step=preview&field=preview-link');
+    // The first step is the address's default: a Course and description reference has no `step=`.
+    expect(
+      reviseReferenceAddress('SUB-0074', reference('course-and-description', null, 'summary')),
+    ).toBe('/vendor/experiments/SUB-0074/revise?field=summary');
+  });
+
+  it(
+    'a `field=` that names none of the return’s references leaves the reason to take focus',
+    async () => {
+      await anilAt('/vendor/experiments/SUB-0081/revise?field=summary');
+      await title('Course and description');
+      const reason = await screen.findByRole('region', {
+        name: 'Returned by the Academic Reviewer',
+      });
+      await waitFor(() => expect(reason).toHaveFocus());
+    },
+    SLOW,
+  );
+
+  it(
+    'returned by the Content Manager — her reason and its reference to the summary in step 1',
     async () => {
       const { runtime, sample } = await tabPlatform(ANIL, 'spine-start');
       const transient = worldOf(sample).records.submissions['SUB-0074']!;
@@ -837,13 +1213,16 @@ describe('VE-08 Revise and resubmit (B5-07 f0 … f4)', () => {
       const notice = await screen.findByRole('region', {
         name: 'Returned by the Content Manager',
       });
-      expect(text(notice.querySelector('.xr-meta'))).toMatch(/ · Kavya Nair$/);
+      expect(text(notice.querySelector('.vr-ret-m'))).toMatch(/ · Kavya Nair$/);
       expect(text(notice.querySelector('blockquote'))).toBe(reason);
       await user.click(
         within(notice).getByRole('button', { name: 'Go to Course & description · Summary' }),
       );
       await title('Course and description');
-      await waitFor(() => expect(screen.getByLabelText('Summary')).toHaveFocus());
+      await waitFor(() => expect(field('Summary')).toHaveFocus());
+      expect(field('Summary').closest('.rk-field')!.querySelector('.ve-reftag')).toHaveTextContent(
+        'Referred to in the return',
+      );
     },
     SLOW,
   );
@@ -863,13 +1242,26 @@ describe('VE-08 Revise and resubmit (B5-07 f0 … f4)', () => {
 
 describe('the editor’s other states', () => {
   it(
-    'a record with others opens with its notice and the record’s link (SUB-0074, with the Content Manager)',
+    'a record with others is refused with the export’s words and the two ways on (SUB-0074, with the Content Manager)',
     async () => {
       await anilAt('/vendor/experiments/SUB-0074/edit');
-      await title('Transient Cooling');
-      expect(main().querySelector('.xr-notice')).toHaveTextContent(
-        'You can’t change this experiment hereOnly a draft, or an experiment returned to you, can be changed.Open the experiment record',
+      await title('This experiment was approved by the Academic Reviewer');
+      const refusal = screen.getByRole('region', {
+        name: 'This experiment was approved by the Academic Reviewer',
+      });
+      expect(refusal.querySelector('.rk-state.rk-state--roomy .ve-ico-lock')).not.toBeNull();
+      expect(text(refusal.querySelector('.rk-eyebrow'))).toBe('SUB-0074 · Transient Cooling');
+      expect(text(refusal.querySelector('.rk-state-d'))).toBe(
+        'It is with the Content Manager. Nothing is needed from you now.',
       );
+      expect(
+        within(refusal).getByRole('link', { name: 'Open the experiment record' }),
+      ).toHaveAttribute('href', '/vendor/experiments/SUB-0074');
+      expect(within(refusal).getByRole('link', { name: 'Back to My experiments' })).toHaveAttribute(
+        'href',
+        LIST,
+      );
+      expect(text(crumbs())).toBe('My experiments Transient Cooling Edit draft');
     },
     SLOW,
   );

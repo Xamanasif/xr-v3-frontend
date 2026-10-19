@@ -1,26 +1,35 @@
 /**
- * The experiment editor as data (boards B5-03 … B5-05, B5-07; the script's `vxView`): the typed
- * draft and the contract content it becomes, the board's field ids (`Ve-course` … `Ve-plink`),
- * which step a field belongs to, the drawn field errors from a `validation-failed` answer (the
- * client's own check and the service's alike), what "Check and submit" lists as missing and how
- * its checklist and summary read, and where a returned record's "What it refers to" points. Nothing
- * is decided here: the service answers again when the experiment is saved or sent.
+ * The experiment editor as data (the V3 Vendor export's `edView`; first drawn on B5-03 … B5-05,
+ * B5-07): the typed draft and the contract content it becomes, the field ids (`Ve-course` …
+ * `Ve-plink`), which step a field belongs to, the drawn field errors from a `validation-failed`
+ * answer (the client's own check and the service's alike), the steps' and the blocks' live status,
+ * what "Check and submit" lists as missing and how its review sections read, the delivery as
+ * entered, where a returned record's "What it refers to" points, and which refusal a stale address
+ * shows. Nothing is decided here: the service answers again when the experiment is saved or sent.
  */
 import type { ValidationFailed } from '@xr/contracts/draft';
 import type { ReturnReference, Submission, SubmissionContent, Technology } from '@xr/domain';
 import { FORMAT_META, inDisplayOrder } from '@xr/domain';
 
+import type { VendorEditorStatus } from '@xr/ui/v3';
+
 import {
   CHECK_STEP,
   EDITOR,
   goToStepWords,
-  joinedWords,
-  previewWords,
+  READ_ONLY,
+  type RefusalKind,
   sectionStateWords,
+  stillNeededWords,
+  toFixWords,
 } from '@/copy/vendor-editor';
-import { EDITOR_STEPS, type EditorStepSlug } from '@/nav/vendor';
+import { EDITOR_STEPS, type EditorStepSlug, reviseAddress } from '@/nav/vendor';
 import { type FormFieldError, formFieldErrors } from '@/queries/faculty-forms';
-import type { EditorContentInput } from '@/queries/production-editor';
+import {
+  checkEditorStep,
+  type EditorContentInput,
+  checkWholeExperiment,
+} from '@/queries/production-editor';
 
 export type PackageFormat = 'ar' | 'vr' | 'mr';
 export const PACKAGE_FORMATS: readonly PackageFormat[] = ['ar', 'vr', 'mr'];
@@ -263,65 +272,160 @@ export function missingItems(errors: readonly EditorError[]): MissingItem[] {
   });
 }
 
-/** One checklist row (`li.xv-check-row`). */
+/** One review section's state (the script's `sec` and the preview row). */
 export interface ChecklistRow {
   readonly step: Exclude<EditorStepSlug, 'submit'>;
-  readonly label: string;
-  readonly ok: boolean;
-  readonly state: string;
+  readonly status: VendorEditorStatus;
 }
 
-/** The three rows (the script's `sec` and the preview row). */
+/** The three review sections' states: “Provided”, “2 missing”, “Preview link missing”, “None — optional”. */
 export function checklistRows(missing: readonly MissingItem[], draft: EditorDraft): ChecklistRow[] {
   const count = (step: ChecklistRow['step']) => missing.filter((item) => item.step === step).length;
+  const section = (step: 'course' | 'formats'): ChecklistRow => ({
+    step,
+    status: { tone: count(step) > 0 ? 'warn' : 'ok', words: sectionStateWords(count(step)) },
+  });
   const previewBad = count('preview') > 0;
   return [
-    {
-      step: 'course',
-      label: CHECK_STEP.sections.course,
-      ok: count('course') === 0,
-      state: sectionStateWords(count('course')),
-    },
-    {
-      step: 'formats',
-      label: CHECK_STEP.sections.formats,
-      ok: count('formats') === 0,
-      state: sectionStateWords(count('formats')),
-    },
+    section('course'),
+    section('formats'),
     {
       step: 'preview',
-      label: CHECK_STEP.sections.preview,
-      ok: !previewBad,
-      state: previewBad
-        ? CHECK_STEP.previewMissing
-        : draft.previewLabel.trim() || draft.documents.length > 0
-          ? CHECK_STEP.provided
-          : CHECK_STEP.previewNone,
+      status: previewBad
+        ? { tone: 'warn', words: CHECK_STEP.previewMissing }
+        : hasPreviewOrDocuments(draft)
+          ? { tone: 'ok', words: CHECK_STEP.provided }
+          : { tone: 'neutral', words: CHECK_STEP.previewNone },
     },
   ];
 }
 
-/** The summary under the checklist (`dl.xl-kv.xv-kv`): the board's six rows. */
-export function summaryRows(
+/** Anything on step 3: a label, a link or a document (the script's `any3`). */
+function hasPreviewOrDocuments(draft: EditorDraft): boolean {
+  return Boolean(draft.previewLabel.trim() || draft.previewLink.trim() || draft.documents.length);
+}
+
+// ---- live status: the steps, step 1's parts and the delivery blocks -----------------------------
+
+/** The fields each step-1 part and each delivery block counts (the script's `secSt` keys). */
+export const COURSE_PARTS = {
+  courseAndName: ['courseId', 'name', 'version'],
+  catalogue: ['summary', 'description'],
+} as const satisfies Record<string, readonly EditorField[]>;
+
+export function deliveryFields(format: Technology): readonly EditorField[] {
+  return format === 'web'
+    ? ['web.webLink', 'web.browserAndComputer']
+    : [
+        `${format as PackageFormat}.packageLabel`,
+        `${format as PackageFormat}.packageReference`,
+        `${format as PackageFormat}.deviceNeeded`,
+        `${format as PackageFormat}.installNotes`,
+      ];
+}
+
+/** The fields a step's own check finds missing or wrong now (nothing is shown for it). */
+export function liveErrorFields(
+  step: Exclude<EditorStepSlug, 'submit'>,
+  content: EditorContentInput,
+): ReadonlySet<EditorField> {
+  const failed = checkEditorStep(step, content);
+  return new Set(failed ? editorErrors(failed).map((item) => item.field) : []);
+}
+
+/**
+ * A part's or a block's live status (`secSt`): “N to fix” while the step shows errors for it,
+ * else “N still needed” for what its check still misses, else “Complete”.
+ */
+export function partStatus(
+  fields: readonly EditorField[],
+  shown: ReadonlySet<EditorField>,
+  live: ReadonlySet<EditorField>,
+): VendorEditorStatus {
+  const toFix = fields.filter((field) => shown.has(field)).length;
+  if (toFix > 0) return { tone: 'err', words: toFixWords(toFix) };
+  const needed = fields.filter((field) => live.has(field)).length;
+  if (needed > 0) return { tone: 'neutral', words: stillNeededWords(needed) };
+  return { tone: 'ok', words: EDITOR.stepStates.complete };
+}
+
+/** One step's live state in the stepper and the outline (`stateOf`, `doneOf`). */
+export interface StepState {
+  readonly words: string;
+  /** Complete (a tick once it is not the step on show). */
+  readonly complete: boolean;
+}
+
+export function stepStates(draft: EditorDraft): Readonly<Record<EditorStepSlug, StepState>> {
+  const content = contentOf(draft);
+  const course = checkEditorStep('course', content) === null;
+  const formats = checkEditorStep('formats', content) === null;
+  const preview = checkEditorStep('preview', content) === null;
+  const anyCourse = [
+    draft.courseId ?? '',
+    draft.name,
+    draft.summary,
+    draft.description,
+    draft.version,
+  ].some((value) => value.trim() !== '');
+  const anyPreview = hasPreviewOrDocuments(draft);
+  const words = EDITOR.stepStates;
+  return {
+    course: {
+      words: course ? words.complete : anyCourse ? words.inProgress : words.notStarted,
+      complete: course,
+    },
+    formats: {
+      words: formats
+        ? words.complete
+        : draft.formats.length > 0
+          ? words.inProgress
+          : words.notStarted,
+      complete: formats,
+    },
+    preview: {
+      words: !preview ? words.checkPreview : anyPreview ? words.complete : words.optional,
+      complete: preview && anyPreview,
+    },
+    submit: {
+      words: checkWholeExperiment(content) === null ? words.ready : words.notReady,
+      complete: false,
+    },
+  };
+}
+
+// ---- the delivery as entered (read-only blocks) --------------------------------------------------
+
+/** One chosen format's delivery as entered (`deliv`): its rows, empty values as “—”. */
+export function deliveryRows(
   draft: EditorDraft,
-  courseLine: string | null,
-): readonly (readonly [string, string])[] {
-  const label = draft.previewLabel.trim();
-  const link = draft.previewLink.trim();
+  format: Technology,
+): readonly { readonly term: string; readonly value: string }[] {
+  const value = (text: string) => text.trim() || READ_ONLY.empty;
+  if (format === 'web') {
+    const web = draft.web;
+    return [
+      { term: READ_ONLY.webLink, value: value(web.webLink) },
+      { term: READ_ONLY.browser, value: value(web.browserAndComputer) },
+      ...(web.notes.trim() ? [{ term: READ_ONLY.notes, value: web.notes.trim() }] : []),
+    ];
+  }
+  const pkg = draft.packages[format as PackageFormat];
   return [
-    [CHECK_STEP.rows.experiment, draft.name.trim() || CHECK_STEP.notNamed],
-    [CHECK_STEP.rows.course, courseLine ?? CHECK_STEP.notChosen],
-    [CHECK_STEP.rows.version, draft.version.trim() || CHECK_STEP.noVersion],
-    [
-      CHECK_STEP.rows.formats,
-      joinedWords(
-        inDisplayOrder(draft.formats).map((format) => FORMAT_META[format].code),
-        CHECK_STEP.noFormats,
-      ),
-    ],
-    [CHECK_STEP.rows.preview, previewWords(label || null, link || null)],
-    [CHECK_STEP.rows.documents, joinedWords(draft.documents, CHECK_STEP.none)],
+    { term: READ_ONLY.packageLabel, value: value(pkg.packageLabel) },
+    { term: READ_ONLY.packageReference, value: value(pkg.packageReference) },
+    ...(pkg.packageFileName ? [{ term: READ_ONLY.packageFile, value: pkg.packageFileName }] : []),
+    { term: READ_ONLY.device, value: value(pkg.deviceNeeded) },
+    { term: READ_ONLY.install, value: value(pkg.installNotes) },
+    ...(pkg.notes.trim() ? [{ term: READ_ONLY.notes, value: pkg.notes.trim() }] : []),
   ];
+}
+
+/** Whether two drafts hold the same values (the formats in any order): nothing unsaved. */
+export function sameDraft(left: EditorDraft, right: EditorDraft): boolean {
+  const canonical = (draft: EditorDraft) =>
+    JSON.stringify({ ...draft, formats: inDisplayOrder(draft.formats) });
+  return canonical(left) === canonical(right);
 }
 
 // ---- the returned record's references (B5-07 f0 … f2) -------------------------------------------
@@ -351,6 +455,68 @@ export function referenceTarget(
   return { step: 'formats', field: `${format}.${key}` };
 }
 
+/** The revise address's parameter that names a reference to open: `?step=formats&field=ar.device-need`. */
+export const REFERENCE_FIELD_PARAM = 'field';
+
+/**
+ * A return reference as the revise address's `field=` value — the keys the return's structured
+ * references carry (`ReturnReference`): `<format>.<field>` for a format's field (`ar.device-need`,
+ * `web.web-link`), else the field alone (`summary`, `description`, `preview-link`).
+ */
+export function referenceFieldKey(reference: ReturnReference): string {
+  return reference.format ? `${reference.format}.${reference.field}` : reference.field;
+}
+
+/** The step a return's reference names (the address's `?step=`, whatever the draft holds now). */
+const REFERENCE_STEP: Readonly<Record<ReturnReference['step'], Exclude<EditorStepSlug, 'submit'>>> =
+  {
+    'course-and-description': 'course',
+    'formats-and-delivery': 'formats',
+    'preview-and-documents': 'preview',
+  };
+
+/**
+ * The revise address that opens a reference's field (the record's "What it refers to" chips,
+ * LINK-MAP L53: "VE-08 at that field, focused"): `/vendor/experiments/<id>/revise?step=<step>&
+ * field=<key>` — a reference to Course and description has no `step` (the editor's first step is
+ * the address's default). The editor focuses that field once the returned reason shows.
+ */
+export function reviseReferenceAddress(submissionId: string, reference: ReturnReference): string {
+  const address = reviseAddress(submissionId, REFERENCE_STEP[reference.step]);
+  const field = `${REFERENCE_FIELD_PARAM}=${encodeURIComponent(referenceFieldKey(reference))}`;
+  return `${address}${address.includes('?') ? '&' : '?'}${field}`;
+}
+
+/** The fields the return's references point at (each tagged “Referred to in the return”). */
+export function referencedFields(
+  references: readonly ReturnReference[],
+  draft: EditorDraft,
+): ReadonlySet<EditorField> {
+  return new Set(references.map((reference) => referenceTarget(reference, draft).field));
+}
+
+// ---- refusals: a stale editor address ------------------------------------------------------------
+
+/** Which refusal a record that is not a draft or returned shows, as the Vendor reads it. */
+export function refusalKind(submission: Submission): RefusalKind {
+  const status = submission.status;
+  switch (status.state) {
+    case 'resubmitted':
+      return 'already-submitted';
+    case 'with-academic-reviewer':
+      if (status.reason === 'recheck') return 'recheck';
+      return status.reason === 'resubmission' && submission.revision > 1
+        ? 'already-submitted'
+        : 'being-reviewed';
+    case 'with-content-manager':
+      return 'approved';
+    case 'published':
+      return 'published';
+    default:
+      return 'other';
+  }
+}
+
 // ---- sample file names (OD-B5-11: nothing is uploaded) ------------------------------------------
 
 /** "conduction-through-a-composite-wall-vr-1.0.zip" (state-copy `VE-04.sample-file`). */
@@ -370,6 +536,3 @@ export function editableMode(submission: Submission): 'edit' | 'revise' | null {
   if (submission.status.state === 'returned') return 'revise';
   return null;
 }
-
-/** "Step 1 of 4" words for the page header (the stepper's own steps). */
-export const STEP_LABELS = EDITOR.steps;

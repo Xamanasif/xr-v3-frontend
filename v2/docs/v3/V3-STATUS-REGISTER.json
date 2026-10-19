@@ -17,7 +17,7 @@
     "v3SeedSource": 5,
     "lockedLanding": 2,
     "pendingDesign": 116,
-    "migrated": 25
+    "migrated": 35
   },
   "designedByType": {
     "action": 1,
@@ -1684,14 +1684,17 @@
       "designed": true,
       "v46ProposedRoute": "/vendor",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": ["apps/web/src/features/vendor/ve-01-overview"]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": [
+          "apps/web/src/features/vendor/ve-01-overview",
+          "apps/web/src/features/vendor/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — the V3 Overview (studio band with four counts, the returned lead with its reason and references, drafts to finish, recent activity, calm and first-visit states) bound to getVendorOverview and listMyExperiments",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The four counts and recent activity are computed from the existing list read (no new data). “Changes saved, not resubmitted” is inferred from a returned record changed after its return (no read flag). The attention order follows the export (most recently changed returned item first)."
     },
     {
       "id": "VE-02",
@@ -1702,14 +1705,17 @@
       "designed": true,
       "v46ProposedRoute": "/vendor/experiments",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": ["apps/web/src/features/vendor/ve-02-my-experiments"]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": [
+          "apps/web/src/features/vendor/ve-02-my-experiments",
+          "apps/web/src/features/vendor/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — status tabs with counts, one tool row (search, Changed in the last 7 days in the address, count, Clear filters), visible sort, the table and phone rows, no match / empty / loading / failed; bound to listMyExperiments",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Sort is a page-side toggle over the service’s newest-first order. A draft in a withdrawn course reads “Course withdrawn · read-only” (the read has no withdrawal date)."
     },
     {
       "id": "VE-03",
@@ -1720,17 +1726,14 @@
       "designed": true,
       "v46ProposedRoute": "/vendor/experiments/new?step=course",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": [
-          "apps/web/src/features/vendor/editor/editor-draft.ts",
-          "apps/web/src/features/vendor/editor/experiment-editor.tsx"
-        ]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": ["apps/web/src/features/vendor/editor"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — the four-step V3 editor, step 1: two sections on the field grid, error summary, unique name, withdrawn course, draft saved (ID on first save), the aside outline; bound to getEditor, saveDraft, continueStep",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "—"
     },
     {
       "id": "VE-04",
@@ -1741,17 +1744,14 @@
       "designed": true,
       "v46ProposedRoute": "/vendor/experiments/[submissionId]/edit?step=formats",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": [
-          "apps/web/src/features/vendor/editor/editor-view.ts",
-          "apps/web/src/features/vendor/editor/experiment-editor.tsx"
-        ]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": ["apps/web/src/features/vendor/editor"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — the compact format selector, one delivery block per format with a live status, the package guidance once, validation (v46 messages), the client-side Leave without saving? guard",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Leave without saving? is new in this design (client-side; Back and a typed address are not guarded)."
     },
     {
       "id": "VE-05",
@@ -1762,14 +1762,14 @@
       "designed": true,
       "v46ProposedRoute": "/vendor/experiments/[submissionId]/edit?step=preview",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": ["apps/web/src/features/vendor/editor/experiment-editor.tsx"]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": ["apps/web/src/features/vendor/editor"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — Preview label and link, sample documents with Add / Remove and the empty line, the preview rule",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Documents and package files are sample file names only; nothing is uploaded (OD-B5-11)."
     },
     {
       "id": "VE-06",
@@ -1780,14 +1780,14 @@
       "designed": true,
       "v46ProposedRoute": "/vendor/experiments/[submissionId]/edit?step=submit",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": ["apps/web/src/features/vendor/editor/experiment-editor.tsx"]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": ["apps/web/src/features/vendor/editor"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — one review section per step with Change, missing items with Go to, the does-not-publish note, the confirmation, busy, the outcome card; bound to submitForReview",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "—"
     },
     {
       "id": "VE-07",
@@ -1798,14 +1798,17 @@
       "designed": true,
       "v46ProposedRoute": "/vendor/experiments/[submissionId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": ["apps/web/src/features/vendor/ve-07-record"]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": [
+          "apps/web/src/features/vendor/ve-07-record",
+          "apps/web/src/features/vendor/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — the record: the status once (pill and notice) for every status, the returned-reason panel with reference chips into the editor field, Details sheet, read-only delivery blocks, learning outcomes, Where it stands; bound to getRecord",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Saved, not-resubmitted changes are stated without the changed-field list (the read has no diff). The Details line for saved changes is provisional (VE-07.intro.saved-changes). A withdrawal has no date."
     },
     {
       "id": "VE-08",
@@ -1816,18 +1819,14 @@
       "designed": true,
       "v46ProposedRoute": "/vendor/experiments/[submissionId]/revise",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": [
-          "apps/web/src/features/vendor/editor/experiment-editor.tsx",
-          "apps/web/src/features/vendor/shared/returned-notice.tsx",
-          "apps/web/src/features/vendor/ve-01-overview/overview-view.ts"
-        ]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": ["apps/web/src/features/vendor/editor", "apps/web/src/features/vendor/shared"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — revise mode: the returned-reason panel above the editor (focused), references open their step and field (`field=` in the address), Save changes (private revision), the neutral resubmit dialog and outcome, refusals; bound to saveRevision and resubmit",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "No changed-field list and no “Nothing has changed since revision N” (the Vendor read model holds neither); the outline says whether changes were saved since the return."
     },
     {
       "id": "VE-09",
@@ -1838,18 +1837,14 @@
       "designed": true,
       "v46ProposedRoute": "/vendor/experiments/[submissionId]/edit",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": [
-          "apps/web/src/features/vendor/editor/editor-states.tsx",
-          "apps/web/src/features/vendor/editor/experiment-editor.tsx",
-          "apps/web/src/features/vendor/ve-01-overview/overview-view.ts"
-        ]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": ["apps/web/src/features/vendor/editor"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — the same editor at the saved step; course withdrawn: read-only What you entered with Ask for help; refusals",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "—"
     },
     {
       "id": "VE-10",
@@ -1911,17 +1906,14 @@
       "designed": true,
       "v46ProposedRoute": "/vendor/experiments/[submissionId]?tab=history",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": [
-          "apps/web/src/features/vendor/ve-07-record/experiment-record.tsx",
-          "apps/web/src/features/vendor/ve-07-record/record-view.ts"
-        ]
+        "status": "V3 presentation (Vendor export VE-v1), implemented",
+        "paths": ["apps/web/src/features/vendor/ve-07-record"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export VE-v1 (design/v3-refined-b/roles/VE-v1; archive XR-V3-Vendor-Complete-Role-FINAL-Source.zip, SHA-256 fcdf336f…e04, Design canvas version 14, delivered 19 Oct 2026; refinement R1 applied role-wide)",
+      "ownerApproved": "approved by the owner (“I approve this final version for integration”, 20 Oct 2026); the export’s own files still read “FINAL DESIGN · AWAITING OWNER ACCEPTANCE”",
+      "implementationComplete": "migrated — the record’s history tab: newest first, the date at the right, “Newest first · not an audit log”, the private-changes note, Where it stands beside it; the heading takes focus",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The retired routing entry (“With Academic Reviewer · revision N”) is not shown to the Vendor (neutral wording, OD-B5-05)."
     },
     {
       "id": "VE-14",

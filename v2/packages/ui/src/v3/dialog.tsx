@@ -3,7 +3,7 @@
 import { useId, type ReactNode, type RefObject } from 'react';
 
 import { type ModalInitialFocus, useModalDialog } from '../overlays/modal-dialog.js';
-import { Button } from './actions.js';
+import { Button, type ButtonVariant } from './actions.js';
 import { Glyph } from './icons.js';
 
 export interface ConfirmDialogGroup {
@@ -27,7 +27,9 @@ export interface ConfirmDialogProps {
   /**
    * More of the dialog's body after the groups (rb-kit.css `rk-dlg-body`): the fields a decision
    * asks for (a reason, a name and e-mail), a quoted reason, a refusal notice. The Super Admin
-   * export (SA-v1) draws its form dialogs in the same frame.
+   * export (SA-v1) draws its form dialogs in the same frame, and always draws the body — a body
+   * that is empty for now (`null`, a notice not shown) keeps it. Without groups and without this
+   * prop the dialog has no body at all (the Vendor export's "Leave without saving?", `D.hasBody`).
    */
   readonly children?: ReactNode;
   /**
@@ -39,6 +41,11 @@ export interface ConfirmDialogProps {
   /** Enter in a field confirms (a form dialog). */
   readonly submitOnEnter?: boolean;
   readonly confirmLabel: ReactNode;
+  /**
+   * The confirm button's tone: the gold `primary` (default: every Super Admin dialog, Submit and
+   * Resubmit) or `navy` (the Vendor export's "Leave without saving", `rb-btn--navy`).
+   */
+  readonly confirmVariant?: Extract<ButtonVariant, 'primary' | 'navy'>;
   readonly cancelLabel?: ReactNode;
   /** While the command runs: presses are ignored and `busyLabel` replaces the confirm words. */
   readonly busy?: boolean;
@@ -60,7 +67,8 @@ export interface ConfirmDialogProps {
  * also every dialog of the Super Admin export (SA-v1 `sa-core.js` `dialogHtml`, the `SA.DLG`
  * bodies): its form dialogs — fields under the head, the first field focused, Enter confirming, a
  * refused confirm sending focus to the first invalid field — and its confirmations with a quoted
- * reason or a refusal notice in the body. A native dialog opened with showModal(), so the page
+ * reason or a refusal notice in the body. The Vendor export (VE-v1) adds the navy confirm and a
+ * dialog without a body ("Leave without saving?"). A native dialog opened with showModal(), so the page
  * behind is inert — the board's `div` over an `aria-hidden` scrim left it reachable (V3P-01). The
  * behaviour is the shared `useModalDialog` of the v46 dialogs.
  */
@@ -73,6 +81,7 @@ export function ConfirmDialog({
   initialFocus = 'title',
   submitOnEnter = false,
   confirmLabel,
+  confirmVariant = 'primary',
   cancelLabel = 'Cancel',
   busy = false,
   busyLabel,
@@ -111,32 +120,34 @@ export function ConfirmDialog({
         </h2>
         <p id={descriptionId}>{description}</p>
       </div>
-      <div className="rk-dlg-body">
-        {groups.map((group, index) => (
-          <div
-            key={index}
-            className={`rk-dlg-group ${group.kind === 'now' ? 'rk-dlg-now' : 'rk-dlg-later'}`}
-          >
-            <h3>{group.title}</h3>
-            <ul className="rk-dlg-list">
-              {group.items.map((item, itemIndex) => (
-                <li key={itemIndex}>
-                  <Glyph name={group.kind === 'now' ? 'check' : 'clock'} />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-        {children}
-      </div>
+      {groups.length > 0 || children !== undefined ? (
+        <div className="rk-dlg-body">
+          {groups.map((group, index) => (
+            <div
+              key={index}
+              className={`rk-dlg-group ${group.kind === 'now' ? 'rk-dlg-now' : 'rk-dlg-later'}`}
+            >
+              <h3>{group.title}</h3>
+              <ul className="rk-dlg-list">
+                {group.items.map((item, itemIndex) => (
+                  <li key={itemIndex}>
+                    <Glyph name={group.kind === 'now' ? 'check' : 'clock'} />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          {children}
+        </div>
+      ) : null}
       <div className="rk-dlg-foot">
         <Button ref={modal.cancelRef} size="lg" onClick={() => onCancel()}>
           {cancelLabel}
         </Button>
         <Button
           ref={modal.confirmRef}
-          variant="primary"
+          variant={confirmVariant}
           size="lg"
           busy={busy}
           busyLabel={busyLabel}

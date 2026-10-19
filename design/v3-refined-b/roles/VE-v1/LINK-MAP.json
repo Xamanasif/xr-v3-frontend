@@ -1,0 +1,473 @@
+{
+  "about": "Every named control in the final Vendor role preview (project/Main.dc.html) that moves the user somewhere or changes the page in place. Destinations are screen IDs; routes are the v46 proposals (Claude Code keeps the application’s real routes). No in-role control is an href=\"#\" placeholder: each <a> points at #ve-main and runs its handler.",
+  "packageStatus": "FINAL DESIGN · AWAITING OWNER ACCEPTANCE",
+  "classes": {
+    "in-role": "Vendor screen inside this preview",
+    "shared-borrowed": "XS shared surface drawn here from the v46 contract in V3 tokens; replace with the XS deliverable at assembly",
+    "handoff": "Out-of-role effect shown as a documented handoff, never as live cross-canvas propagation",
+    "in-page": "Anchor or control that stays on the same screen",
+    "reviewer-only": "Preview tooling, not part of the product"
+  },
+  "testedKey": {
+    "EXERCISED": "clicked in a real browser at 1440, 1024, 768 and 375 (tools/journeys_f.py J1–J3, L, S; tools/links_f.py LK-xx); destination verified",
+    "RENDERED": "visible in rendered states at all four widths, not clicked",
+    "SOURCE CHECKED": "handler read in source; same code path as an exercised control"
+  },
+  "routes": {
+    "VE-01": "/vendor",
+    "VE-02": "/vendor/experiments",
+    "VE-03": "/vendor/experiments/new?step=course",
+    "VE-04": "/vendor/experiments/[submissionId]/edit?step=formats",
+    "VE-05": "/vendor/experiments/[submissionId]/edit?step=preview",
+    "VE-06": "/vendor/experiments/[submissionId]/edit?step=submit",
+    "VE-07": "/vendor/experiments/[submissionId]",
+    "VE-08": "/vendor/experiments/[submissionId]/revise",
+    "VE-09": "/vendor/experiments/[submissionId]/edit",
+    "VE-13": "/vendor/experiments/[submissionId]?tab=history",
+    "XS-03": "owned by Shared Surfaces",
+    "XS-06": "owned by Shared Surfaces",
+    "XS-07": "owned by Shared Surfaces"
+  },
+  "links": [
+    {
+      "id": "L01",
+      "from": "Shell (rail, phone menu)",
+      "control": "Overview",
+      "to": "VE-01",
+      "class": "in-role",
+      "tested": "EXERCISED (J2; LK-32 phone menu)"
+    },
+    {
+      "id": "L02",
+      "from": "Shell (rail, phone menu)",
+      "control": "My experiments",
+      "to": "VE-02",
+      "class": "in-role",
+      "tested": "EXERCISED (J1, J2; LK-31 phone menu)"
+    },
+    {
+      "id": "L03",
+      "from": "Shell (rail foot, phone menu)",
+      "control": "Help & support",
+      "to": "XS-07",
+      "class": "shared-borrowed",
+      "tested": "EXERCISED (LK-30)"
+    },
+    {
+      "id": "L04",
+      "from": "Shell (account menu)",
+      "control": "Help & support",
+      "to": "XS-07",
+      "class": "shared-borrowed",
+      "tested": "EXERCISED (S)"
+    },
+    {
+      "id": "L05",
+      "from": "Shell (account menu)",
+      "control": "Sign out",
+      "to": "XS-03 Signed out",
+      "class": "handoff",
+      "tested": "EXERCISED (S)",
+      "note": "Preview shows “Signed out belongs to Shared Surfaces” with Return to the Vendor preview"
+    },
+    {
+      "id": "L06",
+      "from": "Shell",
+      "control": "Skip to main content",
+      "to": "#ve-main (focus moves to the page)",
+      "class": "in-page",
+      "tested": "EXERCISED (skip-link probe on three screens at all four widths, evidence/skiplink-f.json)"
+    },
+    {
+      "id": "L07",
+      "from": "Shell (below 1024px)",
+      "control": "Menu / Close",
+      "to": "phone menu (focus trapped, Escape closes)",
+      "class": "in-page",
+      "tested": "EXERCISED (S at 768 and 375)"
+    },
+    {
+      "id": "L10",
+      "from": "VE-01",
+      "control": "Create experiment",
+      "to": "VE-03",
+      "class": "in-role",
+      "tested": "EXERCISED (J1, LK-01)"
+    },
+    {
+      "id": "L11",
+      "from": "VE-01",
+      "control": "Revise “<experiment>” (returned lead)",
+      "to": "VE-08 (returned reason focused)",
+      "class": "in-role",
+      "tested": "EXERCISED (J2, LK-02)"
+    },
+    {
+      "id": "L12",
+      "from": "VE-01",
+      "control": "Finish draft",
+      "to": "VE-09 at the saved step",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-03)"
+    },
+    {
+      "id": "L13",
+      "from": "VE-01",
+      "control": "Revise “<experiment>” (further returned items)",
+      "to": "VE-08",
+      "class": "in-role",
+      "tested": "SOURCE CHECKED (same handler as L11; the sample has one returned item at a time)"
+    },
+    {
+      "id": "L14",
+      "from": "VE-01",
+      "control": "Recent activity · each row",
+      "to": "VE-07 record of that experiment",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-04)"
+    },
+    {
+      "id": "L15",
+      "from": "VE-01",
+      "control": "See all your experiments",
+      "to": "VE-02 unfiltered",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-07)"
+    },
+    {
+      "id": "L16",
+      "from": "VE-01 (no experiments)",
+      "control": "Create experiment",
+      "to": "VE-03",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-08)"
+    },
+    {
+      "id": "L17",
+      "from": "VE-01",
+      "control": "Changed in the last 7 days",
+      "to": "VE-02 with that filter on (the VE-13 filter)",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-05)"
+    },
+    {
+      "id": "L20",
+      "from": "VE-02",
+      "control": "Create experiment",
+      "to": "VE-03",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-09)"
+    },
+    {
+      "id": "L21",
+      "from": "VE-02 (no experiments)",
+      "control": "Create experiment",
+      "to": "VE-03",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-10)"
+    },
+    {
+      "id": "L22",
+      "from": "VE-02",
+      "control": "Experiment name (row link)",
+      "to": "VE-07",
+      "class": "in-role",
+      "tested": "EXERCISED (J2, LK-11)"
+    },
+    {
+      "id": "L23",
+      "from": "VE-02",
+      "control": "Revise (returned rows)",
+      "to": "VE-08",
+      "class": "in-role",
+      "tested": "EXERCISED (J2, LK-12)"
+    },
+    {
+      "id": "L24",
+      "from": "VE-02",
+      "control": "Edit draft (draft rows)",
+      "to": "VE-09",
+      "class": "in-role",
+      "tested": "EXERCISED (J1, LK-13)"
+    },
+    {
+      "id": "L25",
+      "from": "VE-02",
+      "control": "Status tabs · Search · Changed in the last 7 days · Sort · Clear filters · Try again",
+      "to": "VE-02 in place (Changed in the last 7 days is the VE-13 filter)",
+      "class": "in-page",
+      "tested": "EXERCISED (L, LK-N6, LK-N7)"
+    },
+    {
+      "id": "L30",
+      "from": "Editor (VE-03…VE-06, VE-08, VE-09)",
+      "control": "Breadcrumb · My experiments",
+      "to": "VE-02 (Leave without saving? first if there are unsaved changes)",
+      "class": "in-role",
+      "tested": "EXERCISED (J1, LK-14)"
+    },
+    {
+      "id": "L31",
+      "from": "Editor (saved experiment)",
+      "control": "Breadcrumb · experiment name",
+      "to": "VE-07 (guarded the same way)",
+      "class": "in-role",
+      "tested": "EXERCISED (J2, LK-15)"
+    },
+    {
+      "id": "L32",
+      "from": "Editor",
+      "control": "Step list and outline (aside) · stepper (top)",
+      "to": "VE-03, VE-04, VE-05, VE-06 in the same editor, values kept; an outline entry (a step-1 group or a chosen format) moves focus to that section or block",
+      "class": "in-role",
+      "tested": "EXERCISED (J1, J2; LK-N4 and LK-F4 at 1440, where the aside shows)"
+    },
+    {
+      "id": "L33",
+      "from": "Editor",
+      "control": "Back · Continue",
+      "to": "previous / next step; Continue checks the step first",
+      "class": "in-role",
+      "tested": "EXERCISED (J1, LK-E3)"
+    },
+    {
+      "id": "L34",
+      "from": "Editor",
+      "control": "Save draft · Save changes",
+      "to": "same step; draft ID on first save; private revision when revising",
+      "class": "in-page",
+      "tested": "EXERCISED (J1, J2)"
+    },
+    {
+      "id": "L35",
+      "from": "Editor",
+      "control": "Error summary links",
+      "to": "the field, focused",
+      "class": "in-page",
+      "tested": "EXERCISED (J1)"
+    },
+    {
+      "id": "L36",
+      "from": "VE-06",
+      "control": "Go to … (missing items)",
+      "to": "that step with the field focused",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-E2)"
+    },
+    {
+      "id": "L37",
+      "from": "VE-08",
+      "control": "What it refers to · reference chips",
+      "to": "VE-04 field in revise mode, focused and tagged",
+      "class": "in-role",
+      "tested": "EXERCISED (J2)"
+    },
+    {
+      "id": "L38",
+      "from": "VE-06 / VE-08 step 4",
+      "control": "Submit for academic review · Resubmit",
+      "to": "confirmation dialog → outcome",
+      "class": "in-role",
+      "tested": "EXERCISED (J1, J2)"
+    },
+    {
+      "id": "L39",
+      "from": "Dialogs",
+      "control": "Cancel / Keep editing · Escape",
+      "to": "closes; focus returns to the button that opened it",
+      "class": "in-page",
+      "tested": "EXERCISED (J1)"
+    },
+    {
+      "id": "L40",
+      "from": "Leave without saving? dialog",
+      "control": "Leave without saving",
+      "to": "the destination that was chosen",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-E1)"
+    },
+    {
+      "id": "L41",
+      "from": "Outcome (submitted / resubmitted)",
+      "control": "Open the experiment record",
+      "to": "VE-07",
+      "class": "in-role",
+      "tested": "EXERCISED (J1, J2)"
+    },
+    {
+      "id": "L42",
+      "from": "Outcome (submitted / resubmitted)",
+      "control": "Back to My experiments",
+      "to": "VE-02",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-16)"
+    },
+    {
+      "id": "L43",
+      "from": "Refusal (already submitted, being reviewed, approved, published)",
+      "control": "Open the experiment record · Back to My experiments",
+      "to": "VE-07 · VE-02",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-17, LK-18)"
+    },
+    {
+      "id": "L44",
+      "from": "Read-only draft (course withdrawn)",
+      "control": "Back to My experiments",
+      "to": "VE-02",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-20)"
+    },
+    {
+      "id": "L45",
+      "from": "Read-only draft (course withdrawn)",
+      "control": "Ask for help",
+      "to": "XS-07 report form, Where prefilled",
+      "class": "shared-borrowed",
+      "tested": "EXERCISED (LK-19)"
+    },
+    {
+      "id": "L46",
+      "from": "VE-06",
+      "control": "Change (on each review section: Course and description · Formats and delivery · Preview and documents)",
+      "to": "that step of the same editor, values kept",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-F1 Formats, LK-F2 Preview); the Course and description button uses the same handler (SOURCE CHECKED)"
+    },
+    {
+      "id": "L47",
+      "from": "VE-04",
+      "control": "Attach file · Remove (per app-package block)",
+      "to": "in place: a sample package file name in that block only; nothing uploaded",
+      "class": "in-page",
+      "tested": "EXERCISED (LK-N1, LK-N2); Remove: SOURCE CHECKED (clears that one field)"
+    },
+    {
+      "id": "L48",
+      "from": "VE-05",
+      "control": "Add document · Remove <document>",
+      "to": "in place: sample file names; “No documents added.” when the list is empty; nothing uploaded",
+      "class": "in-page",
+      "tested": "EXERCISED (J1, LK-F3)"
+    },
+    {
+      "id": "L50",
+      "from": "VE-07",
+      "control": "Breadcrumb · My experiments",
+      "to": "VE-02",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-25)"
+    },
+    {
+      "id": "L51",
+      "from": "VE-07 (draft)",
+      "control": "Edit draft",
+      "to": "VE-09",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-21)"
+    },
+    {
+      "id": "L52",
+      "from": "VE-07 (returned)",
+      "control": "Revise and resubmit / Continue revising",
+      "to": "VE-08",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-22, J2)"
+    },
+    {
+      "id": "L53",
+      "from": "VE-07 (returned)",
+      "control": "What it refers to · reference chips in the returned-reason panel",
+      "to": "VE-08 at that field, focused",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-23)"
+    },
+    {
+      "id": "L54",
+      "from": "VE-07 (course withdrawn)",
+      "control": "Ask for help",
+      "to": "XS-07 report form",
+      "class": "shared-borrowed",
+      "tested": "EXERCISED (LK-24)"
+    },
+    {
+      "id": "L55",
+      "from": "VE-07",
+      "control": "Tabs · Details · Submission and version history",
+      "to": "VE-07 · VE-13; “Where it stands” stays beside both; focus moves to the tab’s heading",
+      "class": "in-role",
+      "tested": "EXERCISED (J1, J2, LK-26, LK-F5)"
+    },
+    {
+      "id": "L60",
+      "from": "XS-07",
+      "control": "Report a problem · Cancel · Send report · View my reports · a report row · breadcrumb Help & support",
+      "to": "XS-07 views",
+      "class": "shared-borrowed",
+      "tested": "EXERCISED (S, LK-27)"
+    },
+    {
+      "id": "L61",
+      "from": "XS-07 (report sent)",
+      "control": "Back to Overview",
+      "to": "VE-01",
+      "class": "in-role",
+      "tested": "EXERCISED (LK-28)"
+    },
+    {
+      "id": "L62",
+      "from": "XS-06",
+      "control": "Back to Overview",
+      "to": "VE-01",
+      "class": "in-role",
+      "tested": "EXERCISED (S)"
+    },
+    {
+      "id": "L63",
+      "from": "XS-06",
+      "control": "Help & support",
+      "to": "XS-07",
+      "class": "shared-borrowed",
+      "tested": "EXERCISED (LK-29)"
+    },
+    {
+      "id": "L70",
+      "from": "Resubmitted record or outcome",
+      "control": "(none: no Vendor control)",
+      "to": "Academic Reviewer queue (accepted local route)",
+      "class": "handoff",
+      "tested": "EXERCISED (J2 checks the note is shown and no route control exists)",
+      "note": "Explained in the reviewer-only bar; the Vendor keeps seeing Submitted"
+    },
+    {
+      "id": "L80",
+      "from": "Preview bar",
+      "control": "Screen + Go · Scenario + Load · Fill sample answers · Reset · Hide/Show controls",
+      "to": "any owned screen or scenario",
+      "class": "reviewer-only",
+      "tested": "EXERCISED (J2 Reset; LK-P1 Fill sample answers, LK-P2 Go, LK-P3 Load, LK-P4 Hide/Show)"
+    }
+  ],
+  "notLinked": {
+    "excludedIds": [
+      "VE-10",
+      "VE-11",
+      "VE-12",
+      "VE-14",
+      "VE-15"
+    ],
+    "otherRoles": "No links into Academic Reviewer, Content Manager or Super Admin screens and no role switcher.",
+    "overviewCounts": "The four Overview counts are figures, not links. Filtering by status lives in the My experiments tabs (R1 choice 2)."
+  },
+  "changedFromBaseline": {
+    "L14": "was the status rows (“Where your experiments are”); now the recent-activity rows",
+    "L17": "new: Changed in the last 7 days on the Overview",
+    "L25": "status tabs replace the status dropdown and filter chips",
+    "L32": "outline entries move focus to a section or block",
+    "L46": "new: Change on each review section",
+    "L47": "new: Attach file per package block",
+    "L48": "now includes Remove and the empty line",
+    "L53": "reference chips sit in the returned-reason panel",
+    "L55": "“Where it stands” stays beside both tabs"
+  }
+}

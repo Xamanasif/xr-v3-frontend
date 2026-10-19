@@ -1,6 +1,6 @@
 /**
  * A migrated role's workspace in the V3 Refined B shell (the Super Admin, owner-approved export
- * design/v3-refined-b/roles/SA-v1): the rail as the export's `sa-core.js` draws it — the reserved
+ * design/v3-refined-b/roles/SA-v1, and the Vendor, roles/VE-v1): the rail as the export's `sa-core.js` draws it — the reserved
  * logo slot, the workspace, the seven destinations with the export's glyphs and the Requests count,
  * "Help & support" in the rail foot — the top line with today's date, the XS account menu with the
  * V3 button, the XS-08 banner first in the page, the skip link to `main#main`. Layout (the drawer
@@ -13,7 +13,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { WORKSPACE_NAV } from '@/nav/nav-config';
 import type { ScreenKey } from '@/nav/screens';
-import { boardPerson, saExport } from '@/test-support/boards';
+import { boardPerson, saExport, veExport } from '@/test-support/boards';
 
 import { V3_SHELL_ROLES, V3RoleShell, type V3RoleShellProps } from './v3-role-shell';
 
@@ -42,8 +42,8 @@ function renderShell(overrides: Partial<V3RoleShellProps> = {}) {
 }
 
 describe('the Super Admin workspace in the V3 shell (SA-v1)', () => {
-  it('is the only role moved so far', () => {
-    expect([...V3_SHELL_ROLES]).toEqual(['super_admin']);
+  it('is moved, with the Vendor (VE-v1); every other role keeps its v46 shell', () => {
+    expect([...V3_SHELL_ROLES]).toEqual(['super_admin', 'vendor']);
   });
 
   it('is a V3 root with the rail, no v46 sidebar, and the skip link first', () => {
@@ -129,6 +129,58 @@ describe('the Super Admin workspace in the V3 shell (SA-v1)', () => {
     expect(
       within(main.firstElementChild as HTMLElement).getByRole('link', { name: 'Help' }),
     ).toHaveAttribute('href', '/admin/help');
+  });
+
+  it("the Vendor's rail: Overview and My experiments with the export's glyphs, the studio, Help & support", () => {
+    render(
+      <V3RoleShell
+        role="vendor"
+        person={boardPerson('vendor')}
+        screen="VE-02"
+        built={new Set<ScreenKey>(['XS-07', 'VE-01', 'VE-02'])}
+        today="2026-08-27T10:40:00+05:30"
+        onSignOut={vi.fn()}
+      >
+        <h1 tabIndex={-1}>Page</h1>
+      </V3RoleShell>,
+    );
+    const rail = screen.getByRole('complementary', { name: 'Vendor workspace' });
+    const nav = within(rail).getByRole('navigation', { name: 'Vendor navigation' });
+    const links = within(nav).getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual(['Overview', 'My experiments']);
+    expect(links[1]).toHaveAttribute('aria-current', 'page');
+    // The export's rail glyphs, path for path (`Main.dc.html` rail and its `vei-flask` symbol).
+    const root = veExport('Main.dc.html');
+    for (const link of links) {
+      expect(root, link.textContent!).toContain(link.querySelector('svg path')!.getAttribute('d')!);
+    }
+    expect(within(rail).getByText('Northline Simulation Studio')).toHaveClass('rb-ws-inst');
+    // Not on the Overview: the date alone.
+    expect(document.querySelector('header.rb-top p.rb-top-date')).toHaveTextContent(
+      /^Thursday 27 August 2026$/,
+    );
+    expect(
+      within(within(rail).getByRole('navigation', { name: 'Help' })).getByRole('link'),
+    ).toHaveTextContent('Help & support');
+  });
+
+  it("names the Vendor's Overview before the date on that page, as the export draws it", () => {
+    render(
+      <V3RoleShell
+        role="vendor"
+        person={boardPerson('vendor')}
+        screen="VE-01"
+        built={new Set<ScreenKey>(['XS-07', 'VE-01', 'VE-02'])}
+        today="2026-08-27T10:40:00+05:30"
+        onSignOut={vi.fn()}
+      />,
+    );
+    const line = document.querySelector('header.rb-top p.rb-top-date')!;
+    expect(line).toHaveTextContent('OverviewThursday 27 August 2026');
+    expect(line.querySelector('span.rb-top-sep')).toHaveAttribute('aria-hidden', 'true');
+    expect(veExport('Main.dc.html')).toContain(
+      'Overview<span class="rb-top-sep" aria-hidden="true"></span></sc-if>{{ A.dateLong }}',
+    );
   });
 
   it('has no axe violations', async () => {

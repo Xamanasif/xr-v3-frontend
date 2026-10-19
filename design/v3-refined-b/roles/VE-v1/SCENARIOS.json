@@ -1,0 +1,292 @@
+{
+  "about": "Fixture snapshots used by the Vendor role preview (project/Main.dc.html, static world() and preset()). Design sample data only — separate from application data and not a seed for the app. Provenance says where each fact comes from.",
+  "packageStatus": "FINAL DESIGN · AWAITING OWNER ACCEPTANCE",
+  "provenanceKey": {
+    "v46": "taken unchanged from the frozen v46 Vendor boards (B5-01 … B5-08) and their handoff JSON",
+    "v46-derived": "computed from v46 facts without adding information (for example a revision number of 1 for a first submission)",
+    "illustrative": "invented for this design so a demo can run; not a sample fact, replace freely",
+    "treatment": "a v46 fact shown differently to the Vendor because a later owner interim or this brief requires it"
+  },
+  "asOf": {
+    "date": "2026-08-27",
+    "label": "Thursday 27 August 2026",
+    "provenance": "v46"
+  },
+  "persona": {
+    "name": "Anil Shetty",
+    "role": "Vendor",
+    "organisation": "Northline Simulation Studio",
+    "initials": "AS",
+    "provenance": "v46"
+  },
+  "people": {
+    "academicReviewer": "Prof. A. Menon",
+    "contentManager": "Kavya Nair",
+    "provenance": "v46"
+  },
+  "courses": {
+    "assigned": [
+      {
+        "code": "ME ZG523",
+        "name": "Thermodynamics & Heat Transfer"
+      }
+    ],
+    "withdrawn": [
+      {
+        "code": "MEL ZG512",
+        "name": "Manufacturing Processes",
+        "withdrawnOn": "15 Aug 2026"
+      }
+    ],
+    "provenance": "v46 (VX.assigned, VX.cname, SUB-0083 history)"
+  },
+  "uniqueNameRule": {
+    "catalogue": [
+      "Boiler Drum Level",
+      "Buck Converter Ripple",
+      "CNC Turning Centre",
+      "Composite Wall Conduction",
+      "Distillation Column",
+      "Fin-Tube Bundle",
+      "Induction Motor Loading",
+      "Investment Casting",
+      "Orifice Plate Metering",
+      "Shell-and-Tube Heat Exchanger",
+      "Synchronous Generator",
+      "Transformer Tests"
+    ],
+    "alsoChecked": "the Vendor's own experiment names; case-insensitive (OD-B5-04 safe treatment)",
+    "provenance": "v46 (VX.taken, minus the Vendor's own names, which are checked from the records)"
+  },
+  "compositeWallRecords": {
+    "rule": "“Composite Wall Conduction” (published catalogue experiment, not this Vendor's) and “Conduction Through a Composite Wall” (SUB-0077, this Vendor's) stay two separate records while the duplicate-content decision is open (OD-B5-09). No merge and no duplicate rule.",
+    "whereSeen": "SUB-0077 in the record, list, Overview and history; “Composite Wall Conduction” only as the name-already-used message on VE-03",
+    "provenance": "v46"
+  },
+  "records": [
+    {
+      "id": "SUB-0081",
+      "name": "Forced Convection",
+      "course": "ME ZG523",
+      "formats": [
+        "WEB",
+        "AR"
+      ],
+      "vendorStatus": "Returned",
+      "revision": 1,
+      "lastChange": "24 Aug 2026",
+      "returned": {
+        "by": "Academic Reviewer",
+        "who": "Prof. A. Menon",
+        "when": "24 Aug 2026, 09:30",
+        "reason": "The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.",
+        "refs": [
+          "Formats & delivery · AR · Device need",
+          "Formats & delivery · AR · Install notes"
+        ]
+      },
+      "provenance": "v46 (SUB-0081_returned); revision 1 is v46-derived"
+    },
+    {
+      "id": "SUB-0079",
+      "name": "Pin Fin Efficiency",
+      "course": "ME ZG523",
+      "formats": [
+        "WEB"
+      ],
+      "vendorStatus": "Draft",
+      "savedStep": 2,
+      "lastSaved": "25 Aug 2026, 17:20",
+      "provenance": "v46 (SUB-0079_draft)"
+    },
+    {
+      "id": "SUB-0077",
+      "name": "Conduction Through a Composite Wall",
+      "course": "ME ZG523",
+      "formats": [
+        "WEB",
+        "VR"
+      ],
+      "vendorStatus": "Submitted",
+      "revision": 2,
+      "lastChange": "26 Aug 2026",
+      "history": [
+        "Submitted · revision 2 — 26 Aug 2026, 11:30",
+        "Returned with a reason — 19 Aug 2026, 16:05",
+        "Submitted for academic review — 12 Aug 2026, 10:52",
+        "Draft saved — 11 Aug 2026, 17:40",
+        "Created — 10 Aug 2026, 09:15"
+      ],
+      "provenance": "v46 (SUB-0077_with_rv2)",
+      "treatment": "v46 showed this record to the Vendor as “With Academic Reviewer · revision 2” with an extra history entry “Routed by the approved workflow rule” (26 Aug 2026, 11:31), produced by a test-only board control. Under the accepted local route (resubmissions go straight back to the Academic Reviewer, owner-approved) and the rule that Vendor-facing wording stays neutral, the Vendor sees “Submitted · revision 2” and no routing entry. The record itself is unchanged; only the Vendor-facing label differs."
+    },
+    {
+      "id": "SUB-0074",
+      "name": "Transient Cooling",
+      "course": "ME ZG523",
+      "formats": [
+        "WEB"
+      ],
+      "vendorStatus": "With Content Manager",
+      "approved": "14 Aug 2026",
+      "provenance": "v46 (SUB-0074_with_cm)"
+    },
+    {
+      "id": "SUB-0052",
+      "name": "Fin-Tube Bundle",
+      "course": "ME ZG523",
+      "formats": [
+        "WEB",
+        "VR"
+      ],
+      "vendorStatus": "Published",
+      "published": "30 Jul 2026",
+      "approved": "24 Jul 2026",
+      "provenance": "v46 (SUB-0052_published); approved date v46-derived from its history"
+    },
+    {
+      "id": "SUB-0083",
+      "name": "Surface Roughness in Turning",
+      "course": "MEL ZG512",
+      "formats": [
+        "WEB"
+      ],
+      "vendorStatus": "Draft · read-only",
+      "withdrawn": "15 Aug 2026",
+      "provenance": "v46 (SUB-0083_readonly)"
+    }
+  ],
+  "scenarios": [
+    {
+      "key": "portfolio",
+      "label": "Portfolio · Thu 27 Aug 2026",
+      "default": true,
+      "what": "the six records above",
+      "provenance": "v46"
+    },
+    {
+      "key": "first-visit",
+      "label": "First visit · no experiments",
+      "what": "no records: Overview and My experiments empty states",
+      "provenance": "v46 state"
+    },
+    {
+      "key": "calm",
+      "label": "Nothing needs you",
+      "what": "SUB-0077, SUB-0074 and SUB-0052 only; nothing waiting",
+      "provenance": "v46 records, illustrative selection"
+    },
+    {
+      "key": "cm-return",
+      "label": "SUB-0074 returned by the Content Manager",
+      "what": "SUB-0074 returned by Kavya Nair on 22 Aug 2026, 10:40: “The summary runs to three sentences. Shorten it to one; the catalogue shows only the first line.” Reference: Course & description · Summary",
+      "provenance": "v46 (SUB-0074_returned_cm)"
+    },
+    {
+      "key": "recheck",
+      "label": "SUB-0074 back for a re-check",
+      "what": "SUB-0074 back with the Academic Reviewer for a re-check on 22 Aug 2026, 10:42; nothing needed from the Vendor",
+      "provenance": "v46 (SUB-0074_recheck)"
+    },
+    {
+      "key": "stale",
+      "label": "Stale revise link · SUB-0081 already resubmitted",
+      "what": "SUB-0081 already resubmitted as revision 2 at 27 Aug 2026, 10:38 with the sample fix, so an old Revise link is refused",
+      "provenance": "illustrative (built from v46 SUB-0081 and its sample fix)"
+    }
+  ],
+  "illustrative": {
+    "newDraftId": {
+      "value": "SUB-0087",
+      "why": "the first save of a new experiment gets the next free number (OD-B5-07: ID on first save). SUB-0085 and SUB-0086 already exist in other roles' v46 sample data (SUB-0086 is Meridian Virtual Labs' “Flash Distillation”), so the demo starts at SUB-0087. The application assigns real IDs."
+    },
+    "clock": {
+      "value": "27 Aug 2026, 10:40, then +2 minutes per saved action",
+      "why": "gives each demo action a believable time"
+    },
+    "fillSampleAnswers": {
+      "step1": {
+        "course": "ME ZG523",
+        "name": "Natural Convection from a Vertical Plate",
+        "summary": "Heat a vertical plate in still air and relate its heat transfer coefficient to the plate temperature.",
+        "description": "Learners set the plate temperature, read the air temperature beside the plate at several heights and compare the measured heat transfer coefficient with the free-convection correlation for a vertical plate.",
+        "version": "1.0"
+      },
+      "step2": {
+        "formats": [
+          "WEB"
+        ],
+        "webLink": "https://labs.northline.example/natural-convection-from-a-vertical-plate",
+        "browserAndComputer": "A current browser on a laptop or desktop"
+      },
+      "step3": {
+        "previewLabel": "Two-minute walkthrough",
+        "previewLink": "https://media.northline.example/natural-convection-from-a-vertical-plate-walkthrough",
+        "documents": [
+          "Lab handout — Natural Convection from a Vertical Plate.pdf"
+        ]
+      },
+      "note": "used only by the reviewer-only Fill sample answers button; reviewers can type their own"
+    },
+    "revisionFixes": {
+      "SUB-0081": {
+        "AR_device": "Android phones and tablets that support ARCore, or iPhones and iPads that support ARKit",
+        "AR_install": "Install the build named above on each phone or tablet, open it and allow camera access. Point the camera at a flat, well-lit table to place the heated plate."
+      },
+      "SUB-0074": {
+        "summary": "Cool a heated cylinder in still air and water, and test when the lumped-capacitance model holds."
+      },
+      "note": "Fill sample answers in revise mode; SUB-0074's fix is its v46 one-sentence summary"
+    },
+    "documentPool": {
+      "value": [
+        "Lab handout — <experiment>.pdf",
+        "Safety notes.pdf",
+        "Instrument positions.pdf"
+      ],
+      "compositeWall": [
+        "Lab handout — Composite Wall.pdf",
+        "Thermocouple positions.pdf",
+        "Safety notes.pdf"
+      ],
+      "why": "Add document attaches the next sample file name; nothing is uploaded (OD-B5-11). Composite Wall names are v46."
+    },
+    "packageFileNames": {
+      "value": "<experiment>-<format>-1.0.zip style sample names for “attach the package file” (v46 VX.files pattern)",
+      "why": "stands in for the package reference; no upload or processing service (T-14 provisional)"
+    },
+    "helpReport": {
+      "reference": "SUP-0181",
+      "title": "the text typed in What happened?",
+      "why": "first report reference in this preview; SUP-0181 is not used anywhere else in the pack"
+    },
+    "recentWindow": {
+      "value": "20–27 Aug 2026",
+      "why": "“Changed in the last 7 days” window is a sample choice (OD-B5-13)"
+    },
+    "formatsMixedPreset": {
+      "preset": "ed-fmt-mixed",
+      "value": {
+        "AR_label": "Natural Convection — AR build 1.0",
+        "AR_ref": "NSS-NC-AR-1.0",
+        "WEB": "the step-2 sample answers (complete)"
+      },
+      "why": "a new draft at step 2 with WEB complete and AR partly filled (device and install notes empty, so the AR block shows “2 still needed”); shows a complete and an incomplete delivery block side by side (board VE-04-two-formats)"
+    }
+  },
+  "derivedViews": {
+    "provenance": "v46-derived: computed from the records above; no new facts",
+    "overviewCounts": {
+      "value": "With you 2 (1 returned · 1 draft) · In review 2 · Published 1 · Read-only 1",
+      "rule": "With you = returned + drafts; In review = submitted, with the Academic Reviewer, re-check, with the Content Manager; Read-only shows only when there is one"
+    },
+    "recentActivity": {
+      "value": "the five newest history entries across the records, newest first; “Created” entries are left out",
+      "rule": "each row opens its record; nothing new is logged"
+    },
+    "statusLine": {
+      "value": "one plain line under each status pill, for example “By the Academic Reviewer on 24 Aug” or “Saved at step 2 of 4 · only you can see it”",
+      "rule": "dates and roles come from each record (HANDOFF.md §2)"
+    }
+  }
+}

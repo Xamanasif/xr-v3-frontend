@@ -621,25 +621,29 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await desk
       .getByRole('combobox', { name: 'Course' })
       .selectOption({ label: 'ME ZG523 · Thermodynamics & Heat Transfer' });
-    await type(desk.getByLabel('Experiment name'), COMPOSITE);
-    await type(desk.getByLabel('Summary'), 'Heat flow through a wall of several layers.');
+    // The V3 editor names its sections and steps too ("Course and description"): exact labels.
+    await type(desk.getByLabel('Experiment name', { exact: true }), COMPOSITE);
     await type(
-      desk.getByLabel('Description'),
+      desk.getByLabel('Summary', { exact: true }),
+      'Heat flow through a wall of several layers.',
+    );
+    await type(
+      desk.getByLabel('Description', { exact: true }),
       'Build a wall of three layers and compare the temperature profile with the series-resistance model.',
     );
-    await type(desk.getByLabel('Version'), '1.0');
+    await type(desk.getByLabel('Version', { exact: true }), '1.0');
     await reachAndClick(desk, button(desk, 'Save draft'));
     await desk.waitForURL('**/vendor/experiments/SUB-0077/edit');
     await reachAndClick(desk, button(desk, 'Continue'));
-    await reachAndClick(desk, desk.getByRole('checkbox', { name: /Browser \(WEB\)/ }));
-    await reachAndClick(desk, desk.getByRole('checkbox', { name: /Virtual reality \(VR\)/ }));
-    const web = region(desk, 'Browser (WEB) · Web link');
+    await reachAndClick(desk, desk.getByRole('checkbox', { name: /^WEB Browser/ }));
+    await reachAndClick(desk, desk.getByRole('checkbox', { name: /^VR Virtual reality/ }));
+    const web = region(desk, 'Browser · Web link');
     await type(web.getByLabel('Web link'), 'https://labs.northline.example/composite-wall');
     await type(
       web.getByLabel('Browser and computer needed'),
       'A current browser on a laptop or desktop.',
     );
-    const vr = region(desk, 'Virtual reality (VR) · App package');
+    const vr = region(desk, 'Virtual reality · App package');
     await type(vr.getByLabel('Package label'), 'Composite Wall VR');
     await type(vr.getByLabel('Package reference'), 'NSS-CW-VR-1.0');
     await type(vr.getByLabel('Device needed'), 'A supported VR headset.');
@@ -719,7 +723,7 @@ test('Flows A–F and the device chain on one shared sample world, through the p
       desk,
       returned.getByRole('button', { name: 'Go to Formats & delivery · VR · Device need' }),
     );
-    const device = region(desk, 'Virtual reality (VR) · App package').getByLabel('Device needed');
+    const device = region(desk, 'Virtual reality · App package').getByLabel('Device needed');
     await expect(device).toBeFocused();
     await device.fill('');
     await device.pressSequentially(REVISED_DEVICE);

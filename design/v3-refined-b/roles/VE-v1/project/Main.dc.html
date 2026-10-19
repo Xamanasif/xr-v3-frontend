@@ -1,0 +1,1743 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vendor workspace — XR Learning Platform</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./v3-vendor.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr ve-app" data-screen="{{ A.screen }}" data-scenario="{{ A.sc }}">
+  <svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">
+    <symbol id="vei-search" viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15zM16 16l5 5"></path></symbol>
+    <symbol id="vei-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"></path></symbol>
+    <symbol id="vei-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"></path></symbol>
+    <symbol id="vei-left" viewBox="0 0 24 24"><path d="M14.5 6 8.5 12l6 6"></path></symbol>
+    <symbol id="vei-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"></path></symbol>
+    <symbol id="vei-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></symbol>
+    <symbol id="vei-alert" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></symbol>
+    <symbol id="vei-clock" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2"></path></symbol>
+    <symbol id="vei-lock" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2.5"></path></symbol>
+    <symbol id="vei-info" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5.5M12 7.5h.01"></path></symbol>
+    <symbol id="vei-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"></path></symbol>
+    <symbol id="vei-return" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path></symbol>
+    <symbol id="vei-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"></path></symbol>
+    <symbol id="vei-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"></path></symbol>
+    <symbol id="vei-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></symbol>
+    <symbol id="vei-file" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"></path></symbol>
+    <symbol id="vei-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-8 6 6 0 0 0-11.4-1.5A4.5 4.5 0 0 0 7 18zM12 11v4M12 17.5h.01"></path></symbol>
+    <symbol id="vei-help" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></symbol>
+    <symbol id="vei-out" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"></path></symbol>
+    <symbol id="vei-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"></path></symbol>
+    <symbol id="vei-box" viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"></path></symbol>
+    <symbol id="vei-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6.5L4.8 18.6A1.6 1.6 0 0 0 6.2 21h11.6a1.6 1.6 0 0 0 1.4-2.4L14 9.5V3M7.2 15h9.6"></path></symbol>
+  </svg>
+
+  <sc-if value="{{ A.isSignedOut }}" hint-placeholder-val="{{ false }}">
+  <main class="ve-handoff" aria-labelledby="ve-so-h">
+    <p class="rk-eyebrow">Preview handoff · not a Vendor design</p>
+    <h1 id="ve-so-h" tabindex="-1">Signed out belongs to Shared Surfaces</h1>
+    <p>In the application, Sign out ends this session and opens the shared Signed out page (XS-03). That page is designed once by the Shared Surfaces workstream, so it is not drawn in this Vendor role.</p>
+    <div><button type="button" class="ve-pv-btn" onClick="{{ A.backFromSignOut }}">Return to the Vendor preview</button></div>
+  </main>
+  </sc-if>
+
+  <sc-if value="{{ A.inShell }}" hint-placeholder-val="{{ true }}">
+  <div class="rb">
+    <a class="ve-skip" href="#ve-main" onClick="{{ A.skip }}">Skip to main content</a>
+    <aside class="rb-rail" aria-label="Vendor workspace">
+      <div class="rb-brand">
+        <div class="rb-logo">Official WILP logo</div>
+        <p class="rb-product">XR Learning Platform</p>
+        <p class="rb-ws"><span class="rb-ws-role">Vendor</span><span class="rb-ws-inst">Northline Simulation Studio</span></p>
+      </div>
+      <nav class="rb-nav" aria-label="Vendor navigation">
+        <a href="#ve-main" aria-current="{{ A.curOverview }}" onClick="{{ A.goOverview }}" data-to="VE-01"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"></path></svg><span>Overview</span></a>
+        <a href="#ve-main" aria-current="{{ A.curList }}" onClick="{{ A.goList }}" data-to="VE-02"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-flask"></use></svg><span>My experiments</span></a>
+      </nav>
+      <div class="rb-rail-foot">
+        <nav class="rb-nav" aria-label="Help"><a href="#ve-main" aria-current="{{ A.curHelp }}" onClick="{{ A.goHelp }}" data-to="XS-07"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-help"></use></svg><span>Help &amp; support</span></a></nav>
+      </div>
+    </aside>
+
+    <div class="rb-main">
+      <sc-if value="{{ A.chrome }}" hint-placeholder-val="{{ true }}">
+      <aside class="ve-preview" aria-label="Role preview controls, not part of the product">
+        <p class="ve-preview-t"><b>Vendor role preview</b> · preview controls, not part of the product · {{ P.where }}</p>
+        <sc-if value="{{ P.open }}" hint-placeholder-val="{{ true }}">
+        <div class="ve-pv-tools">
+          <div class="ve-pv-field">
+            <label class="rk-label" for="pv-screen">Screen</label>
+            <div class="rk-selwrap"><select id="pv-screen" class="rk-select" value="{{ P.screenSel }}" onChange="{{ P.onScreen }}"><sc-for list="{{ P.screens }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-chev"></use></svg></div>
+            <button type="button" class="ve-pv-btn" onClick="{{ P.goScreen }}">Go</button>
+          </div>
+          <div class="ve-pv-field">
+            <label class="rk-label" for="pv-sc">Scenario</label>
+            <div class="rk-selwrap"><select id="pv-sc" class="rk-select" value="{{ P.scSel }}" onChange="{{ P.onSc }}"><sc-for list="{{ P.scens }}" as="o" hint-placeholder-count="6"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-chev"></use></svg></div>
+            <button type="button" class="ve-pv-btn" onClick="{{ P.loadSc }}">Load</button>
+          </div>
+          <sc-if value="{{ P.canFill }}" hint-placeholder-val="{{ false }}"><button type="button" class="ve-pv-btn" onClick="{{ P.fill }}">Fill sample answers</button></sc-if>
+          <button type="button" class="ve-pv-btn ve-pv-btn--quiet" onClick="{{ P.reset }}">Reset</button>
+          <button type="button" class="ve-pv-btn ve-pv-btn--quiet" aria-expanded="true" onClick="{{ P.toggle }}">Hide controls</button>
+        </div>
+        <sc-if value="{{ P.hasNote }}" hint-placeholder-val="{{ false }}"><p class="ve-pv-note">{{ P.note }}</p></sc-if>
+        </sc-if>
+        <sc-if value="{{ P.closed }}" hint-placeholder-val="{{ false }}"><button type="button" class="ve-pv-btn ve-pv-btn--quiet" aria-expanded="false" onClick="{{ P.toggle }}">Show controls</button></sc-if>
+      </aside>
+      </sc-if>
+      <div class="rb-top">
+        <button type="button" class="rb-menu" id="ve-menu" aria-expanded="{{ A.menuExp }}" onClick="{{ A.openMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
+        <p class="rb-top-date"><sc-if value="{{ A.isOverview }}" hint-placeholder-val="{{ true }}">Overview<span class="rb-top-sep" aria-hidden="true"></span></sc-if>{{ A.dateLong }}</p>
+        <div class="ve-acct">
+          <button type="button" class="rb-acct" id="ve-acct-btn" aria-expanded="{{ A.acctExp }}" aria-controls="ve-acctmenu" aria-label="Account menu, Anil Shetty, Vendor, Northline Simulation Studio" onClick="{{ A.toggleAcct }}"><span class="xr-avatar" aria-hidden="true">AS</span><span class="rb-acct-text" aria-hidden="true"><span class="rb-acct-name">Anil Shetty</span><span class="rb-acct-role">Vendor</span></span><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+          <sc-if value="{{ A.acct }}" hint-placeholder-val="{{ false }}">
+          <button type="button" class="ve-acct-scrim" tabindex="-1" aria-hidden="true" onClick="{{ A.closeAcct }}"></button>
+          <div class="ve-acctmenu" id="ve-acctmenu" role="group" aria-label="Account" onKeyDown="{{ A.acctKey }}">
+            <div class="ve-acct-id"><span class="ve-acct-name">Anil Shetty</span><span class="ve-acct-role">Vendor</span><span class="ve-acct-org">Northline Simulation Studio</span></div>
+            <a class="ve-acct-item" id="ve-acct-first" href="#ve-main" onClick="{{ A.acctHelp }}" data-to="XS-07"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-help"></use></svg>Help &amp; support</a>
+            <button type="button" class="ve-acct-item" onClick="{{ A.signOut }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-out"></use></svg>Sign out</button>
+          </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <main class="rb-page" id="ve-main" tabindex="-1">
+
+        <!-- ═══ VE-01 Overview (seed patterns rb-id, rb-figs, rb-att, rb-rows) ═══ -->
+        <sc-if value="{{ V.overview }}" hint-placeholder-val="{{ true }}">
+        <div class="vr-ov">
+        <div class="vr-herocard">
+        <section class="rb-id vr-hero" aria-labelledby="ve-h1">
+          <div class="rb-id-top">
+            <div class="rb-id-text">
+              <p class="rb-eyebrow-date">{{ A.dateLong }}</p>
+              <h1 class="rb-id-name" id="ve-h1" tabindex="-1"><span class="xr-sr">Overview, </span>Northline Simulation Studio</h1>
+              <p class="rb-id-status"><span>{{ O.courseLine }}</span></p>
+            </div>
+            <sc-if value="{{ O.headCreate }}" hint-placeholder-val="{{ true }}"><div class="rb-id-act"><a class="rb-btn rb-btn--lg" href="#ve-main" onClick="{{ O.create }}" data-to="VE-03"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round"><use href="#vei-plus"></use></svg>Create experiment</a></div></sc-if>
+          </div>
+        </section>
+        <sc-if value="{{ O.hasAny }}" hint-placeholder-val="{{ true }}">
+        <dl class="rb-figs vr-figs" aria-label="Your experiments at a glance">
+          <sc-for list="{{ O.figs }}" as="g" hint-placeholder-count="4"><div class="rb-fig"><dt class="rb-fig-t">{{ g.t }}</dt><dd class="rb-fig-n">{{ g.n }}</dd><dd class="rb-fig-s">{{ g.s }}</dd></div></sc-for>
+        </dl>
+        </sc-if>
+        </div>
+
+        <sc-if value="{{ O.hasAny }}" hint-placeholder-val="{{ true }}">
+        <div class="rb-split vr-split">
+          <section class="rb-panel rb-att vr-att" aria-labelledby="ve-att-h">
+            <div class="rb-att-head"><h2 class="rb-h2" id="ve-att-h">Needs your action</h2><p class="rb-note">{{ O.attCount }}</p></div>
+            <sc-if value="{{ O.hasLead }}" hint-placeholder-val="{{ true }}">
+            <div class="rb-lead vr-lead">
+              <span class="rb-lead-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-return"></use></svg></span>
+              <div class="vr-lead-main">
+                <p class="vr-kind">{{ O.lead.kind }}</p>
+                <p class="rb-lead-t">{{ O.lead.name }}</p>
+                <p class="vr-lead-meta">{{ O.lead.meta }}</p>
+                <blockquote class="vr-lead-q">{{ O.lead.reason }}</blockquote>
+                <sc-if value="{{ O.lead.hasRefs }}" hint-placeholder-val="{{ true }}"><div class="vr-lead-refs"><span class="vr-lead-refs-k">Refers to</span><ul class="vr-reflist"><sc-for list="{{ O.lead.refs }}" as="x" hint-placeholder-count="2"><li class="vr-ref">{{ x }}</li></sc-for></ul></div></sc-if>
+                <sc-if value="{{ O.lead.pending }}" hint-placeholder-val="{{ false }}"><p class="vr-lead-pend"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-lock"></use></svg>Your changes are saved, not resubmitted. Only you can see them.</p></sc-if>
+              </div>
+              <div class="rb-lead-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#ve-main" onClick="{{ O.lead.go }}" aria-label="{{ O.lead.aria }}" data-to="VE-08">{{ O.lead.act }}</a></div>
+            </div>
+            </sc-if>
+            <sc-if value="{{ O.hasRows }}" hint-placeholder-val="{{ true }}">
+            <ul class="vr-ai-list">
+              <sc-for list="{{ O.rows }}" as="r" hint-placeholder-count="1">
+              <li class="rb-ai vr-ai">
+                <span class="rb-ai-n" aria-hidden="true"><span class="rb-ico-tile"><sc-if value="{{ r.isRet }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#vei-return"></use></svg></sc-if><sc-if value="{{ r.isDraft }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#vei-edit"></use></svg></sc-if></span></span>
+                <p class="rb-ai-t"><span class="vr-kind">{{ r.kind }}</span>{{ r.name }}</p>
+                <p class="rb-ai-d">{{ r.sub }}</p>
+                <div class="rb-ai-act"><a class="{{ r.btnCls }}" href="#ve-main" onClick="{{ r.go }}" aria-label="{{ r.aria }}" data-to="{{ r.to }}">{{ r.act }}</a></div>
+              </li>
+              </sc-for>
+            </ul>
+            </sc-if>
+            <sc-if value="{{ O.calm }}" hint-placeholder-val="{{ false }}">
+            <div class="rb-calm">
+              <span class="rb-calm-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-check"></use></svg></span>
+              <p class="rb-calm-t">Nothing needs you right now</p>
+              <p class="rb-calm-d">Experiments with the Academic Reviewer or the Content Manager need nothing from you. You’ll see them here if they come back.</p>
+            </div>
+            </sc-if>
+          </section>
+
+          <section class="rb-panel vr-act" aria-labelledby="ve-act-h">
+            <div class="vr-act-head"><h2 class="rb-h2" id="ve-act-h">Recent activity</h2><p class="rb-note">Newest first</p></div>
+            <ul class="rb-rows vr-rows">
+              <sc-for list="{{ O.acts }}" as="a" hint-placeholder-count="5">
+              <li class="rb-row">
+                <div class="rb-row-main"><p class="rb-row-t">{{ a.what }}</p><p class="rb-row-d"><a class="vr-rowlink" href="#ve-main" onClick="{{ a.go }}" aria-label="{{ a.aria }}" data-to="VE-07">{{ a.name }}</a></p></div>
+                <p class="rb-row-when"><b>{{ a.day }}</b><span>{{ a.time }}</span></p>
+              </li>
+              </sc-for>
+            </ul>
+            <div class="vr-act-foot"><a class="rb-link" href="#ve-main" onClick="{{ O.toRecent }}" data-to="VE-02">Changed in the last 7 days</a><a class="rb-link" href="#ve-main" onClick="{{ O.toList }}" data-to="VE-02">See all your experiments</a></div>
+          </section>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ O.none }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface" aria-labelledby="ve-first-t">
+          <div class="rk-state rk-state--roomy">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-flask"></use></svg></span>
+            <h2 class="rk-state-t" id="ve-first-t">Create your first experiment</h2>
+            <p class="rk-state-d">Describe it, add its formats and delivery, then submit it for academic review. You can save a draft at every step.</p>
+            <a class="rb-btn rb-btn--primary rb-btn--lg" href="#ve-main" onClick="{{ O.create }}" data-to="VE-03">Create experiment</a>
+          </div>
+        </section>
+        </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- ═══ VE-02 My experiments (+ VE-13 "changed in the last 7 days") ═══ -->
+        <sc-if value="{{ V.list }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-head">
+          <div class="rk-head-text">
+            <p class="rb-eyebrow-date">{{ A.dateLong }}</p>
+            <h1 class="rb-h1" id="ve-h1" tabindex="-1">My experiments</h1>
+            <p class="rk-sub">Every experiment you created, in any status</p>
+          </div>
+          <sc-if value="{{ L.headCreate }}" hint-placeholder-val="{{ true }}"><div class="rk-head-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#ve-main" onClick="{{ L.create }}" data-to="VE-03"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round"><use href="#vei-plus"></use></svg>Create experiment</a></div></sc-if>
+        </div>
+
+        <sc-if value="{{ L.showTabs }}" hint-placeholder-val="{{ true }}">
+        <div class="rb-switchbar vr-switchbar">
+          <div class="rb-switch" role="group" aria-label="Show experiments by status">
+            <sc-for list="{{ L.tabs }}" as="t" hint-placeholder-count="6"><button type="button" id="{{ t.id }}" aria-pressed="{{ t.pressed }}" aria-label="{{ t.aria }}" onClick="{{ t.pick }}">{{ t.label }}<b aria-hidden="true">{{ t.n }}</b></button></sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <section class="rk-surface vr-list" aria-label="Your experiments">
+          <sc-if value="{{ L.showTools }}" hint-placeholder-val="{{ true }}">
+          <div class="vr-tools" role="search" aria-label="Search your experiments">
+            <div class="vr-search"><label class="xr-sr" for="ve-q">Search by name, ID or course</label><div class="rk-inputwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-search"></use></svg><input id="ve-q" class="rk-input" type="search" placeholder="Search by name, ID or course" autocomplete="off" value="{{ L.q }}" onChange="{{ L.onQ }}"></div></div>
+            <label class="vr-toggle" for="ve-recent"><input type="checkbox" id="ve-recent" checked="{{ L.recent }}" onChange="{{ L.togRecent }}"><span>Changed in the last 7 days</span></label>
+            <div class="vr-tools-r">
+              <sc-if value="{{ L.showCount }}" hint-placeholder-val="{{ true }}"><p class="rk-count" role="status">{{ L.count }}</p></sc-if>
+              <sc-if value="{{ L.hasFilters }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ L.clear }}">Clear filters</button></sc-if>
+              <sc-if value="{{ L.showCount }}" hint-placeholder-val="{{ true }}"><div class="rk-sortbar vr-sortnarrow"><button type="button" class="rk-sortbtn" onClick="{{ L.toggleSort }}"><span>Sort: {{ L.sortShort }}</span><sc-if value="{{ L.sortDesc }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-down"></use></svg></sc-if><sc-if value="{{ L.sortAsc }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-up"></use></svg></sc-if></button></div></sc-if>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ L.has }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <table class="vr-table">
+              <caption class="xr-sr">Your experiments, {{ L.sortLabel }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col" class="vr-c-exp">Experiment</th>
+                  <th scope="col" class="vr-c-fmt">Formats</th>
+                  <th scope="col" class="vr-c-st">Status</th>
+                  <th scope="col" class="vr-c-date" aria-sort="{{ L.ariaSort }}"><button type="button" class="rk-sortbtn" onClick="{{ L.toggleSort }}">Last change<sc-if value="{{ L.sortDesc }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-down"></use></svg></sc-if><sc-if value="{{ L.sortAsc }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-up"></use></svg></sc-if><span class="xr-sr">, {{ L.sortLabel }}. Change order</span></button></th>
+                  <th scope="col" class="vr-c-act"><span class="xr-sr">Action</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ L.rows }}" as="r" hint-placeholder-count="6">
+                <tr onClick="{{ r.open }}">
+                  <td class="vr-c-exp"><a class="rk-rowlink vr-name" href="#ve-main" onClick="{{ r.openLink }}" aria-label="{{ r.aria }}" data-to="VE-07">{{ r.name }}</a><span class="vr-meta"><span class="ve-id">{{ r.id }}</span> · {{ r.course }}</span></td>
+                  <td class="vr-c-fmt"><span class="rk-fmts" aria-label="{{ r.fmtAria }}"><sc-for list="{{ r.fmts }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span></td>
+                  <td class="vr-c-st"><span class="{{ r.stCls }}"><i></i>{{ r.stLabel }}</span><span class="vr-stsub">{{ r.stSub }}</span><sc-if value="{{ r.pending }}" hint-placeholder-val="{{ false }}"><span class="vr-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-lock"></use></svg>Changes saved, not resubmitted</span></sc-if></td>
+                  <td class="vr-c-date"><span class="vr-datek">Last change </span><span class="vr-dated">{{ r.when }}</span></td>
+                  <td class="vr-c-act"><sc-if value="{{ r.hasAct }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn vr-rowbtn" onClick="{{ r.act }}" aria-label="{{ r.actAria }}" data-to="{{ r.actTo }}">{{ r.actLabel }}</button></sc-if><sc-if value="{{ r.noAct }}" hint-placeholder-val="{{ true }}"><svg class="vr-chev" viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-right"></use></svg></sc-if></td>
+                </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ L.none }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state" role="status">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-search"></use></svg></span>
+            <p class="rk-state-t">No experiments match</p>
+            <p class="rk-state-d">Try a different name, ID or course, or clear the filters.</p>
+            <button type="button" class="rb-btn" onClick="{{ L.clear }}">Clear filters</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ L.empty }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state rk-state--roomy">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-flask"></use></svg></span>
+            <h2 class="rk-state-t">You haven’t created an experiment yet</h2>
+            <p class="rk-state-d">Create one, describe it, add its formats and delivery, and submit it for academic review.</p>
+            <a class="rb-btn rb-btn--primary rb-btn--lg" href="#ve-main" onClick="{{ L.create }}" data-to="VE-03">Create experiment</a>
+          </div>
+          </sc-if>
+          <sc-if value="{{ L.loading }}" hint-placeholder-val="{{ false }}">
+          <div aria-busy="true">
+            <p class="rk-loading-msg" role="status">Loading your experiments…</p>
+            <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+            <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+            <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+          </div>
+          </sc-if>
+          <sc-if value="{{ L.failed }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state" role="alert">
+            <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-cloud"></use></svg></span>
+            <p class="rk-state-t">We couldn’t load your experiments</p>
+            <p class="rk-state-d">Nothing has changed. Try again.</p>
+            <button type="button" class="rb-btn" onClick="{{ L.retry }}">Try again</button>
+          </div>
+          </sc-if>
+        </section>
+        </sc-if>
+
+        <!-- ═══ Experiment editor: VE-03 · VE-04 · VE-05 · VE-06 (create) · VE-09 (edit draft) · VE-08 (revise) ═══ -->
+        <sc-if value="{{ V.editor }}" hint-placeholder-val="{{ false }}">
+        <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#ve-main" onClick="{{ E.toList }}" data-to="VE-02">My experiments</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-right"></use></svg><sc-if value="{{ E.hasRecCrumb }}" hint-placeholder-val="{{ false }}"><a href="#ve-main" onClick="{{ E.toRecord }}" data-to="VE-07">{{ E.crumbName }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-right"></use></svg></sc-if><span aria-current="page">{{ E.crumbHere }}</span></nav>
+
+        <sc-if value="{{ E.editing }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-head">
+          <div class="rk-head-text">
+            <p class="rb-eyebrow-date">{{ A.dateLong }}</p>
+            <p class="rk-eyebrow">{{ E.over }}</p>
+            <h1 class="rb-h1" id="ve-h1" tabindex="-1">{{ E.title }}</h1>
+            <div class="rk-meta"><sc-if value="{{ E.hasStatus }}" hint-placeholder-val="{{ false }}"><span class="{{ E.stCls }}"><i></i>{{ E.stLabel }}</span></sc-if><span>{{ E.idLine }}</span></div>
+          </div>
+        </div>
+
+        <sc-if value="{{ E.isRevise }}" hint-placeholder-val="{{ false }}">
+        <section class="vr-ret" id="ve-reason" tabindex="-1" aria-labelledby="ve-ret-t">
+          <span class="vr-ret-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-return"></use></svg></span>
+          <div class="vr-ret-main">
+            <h2 class="vr-ret-t" id="ve-ret-t">{{ E.retT }}</h2>
+            <p class="vr-ret-m">{{ E.retM }}</p>
+            <blockquote class="vr-ret-q">{{ E.retReason }}</blockquote>
+            <sc-if value="{{ E.hasRefs }}" hint-placeholder-val="{{ true }}">
+            <div class="vr-ret-refs">
+              <p class="vr-ret-refs-k" id="ve-ret-rk">What it refers to</p>
+              <ul class="vr-ret-reflist" aria-labelledby="ve-ret-rk"><sc-for list="{{ E.refs }}" as="x" hint-placeholder-count="1"><li><button type="button" class="ve-ref" aria-label="{{ x.aria }}" onClick="{{ x.go }}">{{ x.t }}<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-arrow"></use></svg></button></li></sc-for></ul>
+            </div>
+            </sc-if>
+          </div>
+        </section>
+        </sc-if>
+
+        <div class="rk-detailwrap">
+          <nav class="ve-steps ve-steps--top" aria-label="Steps">
+            <ol><sc-for list="{{ E.steps }}" as="x" hint-placeholder-count="4"><li><button type="button" class="{{ x.cls }}" aria-current="{{ x.cur }}" aria-label="{{ x.aria }}" onClick="{{ x.go }}"><span class="ve-step-n"><sc-if value="{{ x.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-check"></use></svg></sc-if><sc-if value="{{ x.notDone }}" hint-placeholder-val="{{ true }}">{{ x.n }}</sc-if></span><span class="ve-step-l">{{ x.short }}</span></button></li></sc-for></ol>
+          </nav>
+          <div class="rk-detail">
+            <div class="rk-mainsheet">
+              <section class="rk-surface ve-form vr-form" aria-labelledby="ve-h1">
+                <sc-if value="{{ E.hasErr }}" hint-placeholder-val="{{ false }}">
+                <div class="vr-errwrap">
+                  <div class="rk-errsum" id="ve-errs" tabindex="-1" role="alert">
+                    <p class="rk-errsum-t">Check this step</p>
+                    <ul><sc-for list="{{ E.errList }}" as="e" hint-placeholder-count="1"><li><a href="{{ e.href }}" onClick="{{ e.go }}">{{ e.t }}</a></li></sc-for></ul>
+                  </div>
+                </div>
+                </sc-if>
+
+                <!-- Step 1 · Course and description (VE-03) -->
+                <sc-if value="{{ E.step1 }}" hint-placeholder-val="{{ true }}">
+                <div class="vr-sec" role="group" aria-labelledby="s1-a-h">
+                  <div class="vr-sec-h"><h2 class="vr-sec-t" id="s1-a-h" tabindex="-1">Course and name</h2></div>
+                  <div class="vr-grid">
+                    <div class="rk-field vr-w4">
+                      <label class="rk-label" for="f-course">Course</label>
+                      <sc-if value="{{ E.f.course.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                      <p class="rk-hint" id="f-course-h">Only the courses assigned to Northline Simulation Studio are listed.<sc-if value="{{ E.isStale }}" hint-placeholder-val="{{ false }}"><span class="ve-hint-stale">{{ E.staleHint }}</span></sc-if></p>
+                      <div class="rk-selwrap"><select id="f-course" class="rk-select" value="{{ E.f.course.v }}" aria-invalid="{{ E.f.course.inv }}" aria-describedby="{{ E.f.course.db }}" onChange="{{ E.f.course.on }}"><option value="">Choose a course</option><sc-for list="{{ E.courseOpts }}" as="c" hint-placeholder-count="1"><option value="{{ c.v }}">{{ c.t }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-chev"></use></svg></div>
+                      <sc-if value="{{ E.f.course.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="f-course-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ E.f.course.err }}</p></sc-if>
+                    </div>
+                    <div class="rk-field vr-w2">
+                      <label class="rk-label" for="f-version">Version</label>
+                      <sc-if value="{{ E.f.version.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                      <p class="rk-hint" id="f-version-h">For example 1.0</p>
+                      <input id="f-version" class="rk-input" type="text" autocomplete="off" value="{{ E.f.version.v }}" aria-invalid="{{ E.f.version.inv }}" aria-describedby="{{ E.f.version.db }}" onChange="{{ E.f.version.on }}">
+                      <sc-if value="{{ E.f.version.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="f-version-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ E.f.version.err }}</p></sc-if>
+                    </div>
+                    <div class="rk-field vr-w6">
+                      <label class="rk-label" for="f-name">Experiment name</label>
+                      <sc-if value="{{ E.f.name.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                      <p class="rk-hint" id="f-name-h">Must be different from every other experiment’s name.</p>
+                      <input id="f-name" class="rk-input" type="text" autocomplete="off" value="{{ E.f.name.v }}" aria-invalid="{{ E.f.name.inv }}" aria-describedby="{{ E.f.name.db }}" onChange="{{ E.f.name.on }}">
+                      <sc-if value="{{ E.f.name.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="f-name-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ E.f.name.err }}</p></sc-if>
+                    </div>
+                  </div>
+                </div>
+                <div class="vr-sec" role="group" aria-labelledby="s1-b-h">
+                  <div class="vr-sec-h"><h2 class="vr-sec-t" id="s1-b-h" tabindex="-1">Catalogue text</h2></div>
+                  <div class="vr-grid">
+                    <div class="rk-field vr-w6">
+                      <label class="rk-label" for="f-summary">Summary</label>
+                      <sc-if value="{{ E.f.summary.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                      <p class="rk-hint" id="f-summary-h">One sentence. It is the first thing people read in the catalogue.</p>
+                      <textarea id="f-summary" class="rk-textarea vr-ta2" rows="2" value="{{ E.f.summary.v }}" aria-invalid="{{ E.f.summary.inv }}" aria-describedby="{{ E.f.summary.db }}" onChange="{{ E.f.summary.on }}"></textarea>
+                      <sc-if value="{{ E.f.summary.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="f-summary-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ E.f.summary.err }}</p></sc-if>
+                    </div>
+                    <div class="rk-field vr-w6">
+                      <label class="rk-label" for="f-desc">Description</label>
+                      <sc-if value="{{ E.f.desc.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                      <p class="rk-hint" id="f-desc-h">What learners do and what they find out.</p>
+                      <textarea id="f-desc" class="rk-textarea vr-ta4" rows="4" value="{{ E.f.desc.v }}" aria-invalid="{{ E.f.desc.inv }}" aria-describedby="{{ E.f.desc.db }}" onChange="{{ E.f.desc.on }}"></textarea>
+                      <sc-if value="{{ E.f.desc.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="f-desc-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ E.f.desc.err }}</p></sc-if>
+                    </div>
+                  </div>
+                  <p class="vr-foot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-info"></use></svg><span>Prototype field set — the catalogue fields, and who maps an experiment to a course, are still open. Learning outcomes are added by the Academic Reviewer.</span></p>
+                </div>
+                </sc-if>
+
+                <!-- Step 2 · Formats and delivery (VE-04) -->
+                <sc-if value="{{ E.step2 }}" hint-placeholder-val="{{ false }}">
+                <div class="vr-sec">
+                  <fieldset class="rk-fieldset vr-fmtsel" id="f-fmts" tabindex="-1" aria-describedby="{{ E.fmtsDb }}">
+                    <legend class="vr-legend"><span class="vr-sec-t">Formats it supports</span><span class="vr-sec-d">Choose every format you are delivering. Each one appears in the catalogue only after it passes review and publication.</span></legend>
+                    <div class="vr-fmtsel-grid">
+                      <sc-for list="{{ E.fmtOpts }}" as="o" hint-placeholder-count="4"><label class="vr-fmtopt" for="{{ o.id }}"><input type="checkbox" id="{{ o.id }}" checked="{{ o.on }}" onChange="{{ o.tog }}"><span class="{{ o.chipCls }}">{{ o.code }}</span><span class="vr-fmtopt-name">{{ o.name }}</span><span class="vr-fmtopt-kind">{{ o.kindShort }}</span></label></sc-for>
+                    </div>
+                    <sc-if value="{{ E.fmtsHas }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="f-fmts-e" style="margin-top: 10px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ E.fmtsErr }}</p></sc-if>
+                  </fieldset>
+                </div>
+                <sc-if value="{{ E.hasPanels }}" hint-placeholder-val="{{ false }}">
+                <div class="vr-sec" role="group" aria-labelledby="s2-dlv-h">
+                  <div class="vr-sec-h vr-sec-h--row">
+                    <div><h2 class="vr-sec-t" id="s2-dlv-h">Delivery details</h2><p class="vr-sec-d">One panel for each format you chose.</p></div>
+                    <p class="vr-sec-st" role="status">{{ E.dlvSummary }}</p>
+                  </div>
+                  <sc-if value="{{ E.hasPk }}" hint-placeholder-val="{{ false }}">
+                  <div class="vr-guide">
+                    <p class="vr-guide-t">What each app package needs</p>
+                    <dl class="vr-guide-dl">
+                      <div><dt>Package label</dt><dd id="pk-g-label">The name people will see for this build.</dd></div>
+                      <div><dt>Package reference</dt><dd id="pk-g-ref">Your build or store reference. You can attach the package file instead of, or as well as, a reference. No source code.</dd></div>
+                      <div><dt>Device needed</dt><dd id="pk-g-device">Which devices it runs on, and anything else it needs.</dd></div>
+                      <div><dt>Install notes</dt><dd id="pk-g-install">What an institution’s lab team needs to install and start it.</dd></div>
+                    </dl>
+                    <p class="vr-guide-note"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-info"></use></svg><span>Package fields are provisional — how app packages are delivered is still open.</span></p>
+                  </div>
+                  </sc-if>
+                  <div class="vr-dlvs">
+                    <sc-if value="{{ E.fWEB }}" hint-placeholder-val="{{ false }}">
+                    <section class="vr-dlv" aria-labelledby="p-WEB-t">
+                      <div class="vr-dlv-h"><span class="xr-fmt">WEB</span><h3 class="vr-dlv-t" id="p-WEB-t" tabindex="-1">Browser<span class="vr-dlv-k"> · Web link</span></h3><span class="{{ E.webSt.cls }} vr-dlv-st"><i></i>{{ E.webSt.state }}</span></div>
+                      <div class="vr-grid vr-dlv-b">
+                        <div class="rk-field vr-w6">
+                          <label class="rk-label" for="f-WEB_link">Web link</label>
+                          <sc-if value="{{ E.f.WEB_link.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                          <p class="rk-hint" id="f-WEB_link-h">Starts with https://</p>
+                          <input id="f-WEB_link" class="rk-input" type="url" autocomplete="off" value="{{ E.f.WEB_link.v }}" aria-invalid="{{ E.f.WEB_link.inv }}" aria-describedby="{{ E.f.WEB_link.db }}" onChange="{{ E.f.WEB_link.on }}">
+                          <sc-if value="{{ E.f.WEB_link.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="f-WEB_link-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ E.f.WEB_link.err }}</p></sc-if>
+                        </div>
+                        <div class="rk-field vr-w6">
+                          <label class="rk-label" for="f-WEB_browser">Browser and computer needed</label>
+                          <sc-if value="{{ E.f.WEB_browser.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                          <p class="rk-hint" id="f-WEB_browser-h">For example: a current browser on a laptop or desktop, with a keyboard and mouse.</p>
+                          <textarea id="f-WEB_browser" class="rk-textarea vr-ta2" rows="2" value="{{ E.f.WEB_browser.v }}" aria-invalid="{{ E.f.WEB_browser.inv }}" aria-describedby="{{ E.f.WEB_browser.db }}" onChange="{{ E.f.WEB_browser.on }}"></textarea>
+                          <sc-if value="{{ E.f.WEB_browser.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="f-WEB_browser-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ E.f.WEB_browser.err }}</p></sc-if>
+                        </div>
+                        <div class="rk-field vr-w6">
+                          <label class="rk-label" for="f-WEB_notes">Notes for WEB <span class="ve-opt">(optional)</span></label>
+                          <textarea id="f-WEB_notes" class="rk-textarea vr-ta1" rows="1" value="{{ E.f.WEB_notes.v }}" onChange="{{ E.f.WEB_notes.on }}"></textarea>
+                        </div>
+                      </div>
+                    </section>
+                    </sc-if>
+                    <sc-for list="{{ E.pk }}" as="p" hint-placeholder-count="1">
+                    <section class="vr-dlv" aria-labelledby="{{ p.tid }}">
+                      <div class="vr-dlv-h"><span class="xr-fmt">{{ p.code }}</span><h3 class="vr-dlv-t" id="{{ p.tid }}" tabindex="-1">{{ p.name }}<span class="vr-dlv-k"> · App package</span></h3><span class="{{ p.st.cls }} vr-dlv-st"><i></i>{{ p.st.state }}</span></div>
+                      <div class="vr-grid vr-dlv-b">
+                        <div class="rk-field vr-w3">
+                          <label class="rk-label" for="{{ p.label.id }}">Package label</label>
+                          <sc-if value="{{ p.label.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                          <input id="{{ p.label.id }}" class="rk-input" type="text" autocomplete="off" value="{{ p.label.v }}" aria-invalid="{{ p.label.inv }}" aria-describedby="{{ p.label.db }}" onChange="{{ p.label.on }}">
+                          <sc-if value="{{ p.label.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="{{ p.label.eid }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ p.label.err }}</p></sc-if>
+                        </div>
+                        <div class="rk-field vr-w3">
+                          <div class="vr-labelrow"><label class="rk-label" for="{{ p.ref.id }}">Package reference</label><sc-if value="{{ p.noFile }}" hint-placeholder-val="{{ true }}"><button type="button" class="vr-linkbtn" aria-label="{{ p.attachAria }}" onClick="{{ p.attach }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-plus"></use></svg>Attach file</button></sc-if></div>
+                          <sc-if value="{{ p.ref.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                          <input id="{{ p.ref.id }}" class="rk-input" type="text" autocomplete="off" value="{{ p.ref.v }}" aria-invalid="{{ p.ref.inv }}" aria-describedby="{{ p.ref.db }}" onChange="{{ p.ref.on }}">
+                          <sc-if value="{{ p.ref.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="{{ p.ref.eid }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ p.ref.err }}</p></sc-if>
+                          <sc-if value="{{ p.hasFile }}" hint-placeholder-val="{{ false }}"><div class="ve-file vr-file"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-file"></use></svg><span class="ve-file-n">{{ p.file }} <small>(sample file)</small></span><button type="button" class="rb-btn rb-btn--ghost" aria-label="{{ p.rmAria }}" onClick="{{ p.unattach }}">Remove</button></div></sc-if>
+                        </div>
+                        <div class="rk-field vr-w3">
+                          <label class="rk-label" for="{{ p.device.id }}">Device needed</label>
+                          <sc-if value="{{ p.device.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                          <textarea id="{{ p.device.id }}" class="rk-textarea vr-ta2" rows="2" value="{{ p.device.v }}" aria-invalid="{{ p.device.inv }}" aria-describedby="{{ p.device.db }}" onChange="{{ p.device.on }}"></textarea>
+                          <sc-if value="{{ p.device.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="{{ p.device.eid }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ p.device.err }}</p></sc-if>
+                        </div>
+                        <div class="rk-field vr-w3">
+                          <label class="rk-label" for="{{ p.install.id }}">Install notes</label>
+                          <sc-if value="{{ p.install.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                          <textarea id="{{ p.install.id }}" class="rk-textarea vr-ta2" rows="2" value="{{ p.install.v }}" aria-invalid="{{ p.install.inv }}" aria-describedby="{{ p.install.db }}" onChange="{{ p.install.on }}"></textarea>
+                          <sc-if value="{{ p.install.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="{{ p.install.eid }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ p.install.err }}</p></sc-if>
+                        </div>
+                        <div class="rk-field vr-w6">
+                          <label class="rk-label" for="{{ p.notes.id }}">{{ p.notesLabel }} <span class="ve-opt">(optional)</span></label>
+                          <textarea id="{{ p.notes.id }}" class="rk-textarea vr-ta1" rows="1" value="{{ p.notes.v }}" onChange="{{ p.notes.on }}"></textarea>
+                        </div>
+                      </div>
+                    </section>
+                    </sc-for>
+                  </div>
+                </div>
+                </sc-if>
+                </sc-if>
+
+                <!-- Step 3 · Preview and documents (VE-05) -->
+                <sc-if value="{{ E.step3 }}" hint-placeholder-val="{{ false }}">
+                <div class="vr-sec" role="group" aria-labelledby="s3-a-h">
+                  <div class="vr-sec-h"><h2 class="vr-sec-t" id="s3-a-h" tabindex="-1">Preview</h2><p class="vr-sec-d">Everything here is optional. A preview reaches the public only if the experiment is published.</p></div>
+                  <div class="vr-grid">
+                    <div class="rk-field vr-w3">
+                      <label class="rk-label" for="f-plabel">Preview label <span class="ve-opt">(optional)</span></label>
+                      <p class="rk-hint" id="f-plabel-h">For example: Two-minute walkthrough</p>
+                      <input id="f-plabel" class="rk-input" type="text" autocomplete="off" value="{{ E.f.plabel.v }}" aria-invalid="{{ E.f.plabel.inv }}" aria-describedby="{{ E.f.plabel.db }}" onChange="{{ E.f.plabel.on }}">
+                    </div>
+                    <div class="rk-field vr-w3">
+                      <label class="rk-label" for="f-plink">Preview link <span class="ve-opt">(optional)</span></label>
+                      <sc-if value="{{ E.f.plink.ref }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn ve-reftag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-return"></use></svg>Referred to in the return</span></sc-if>
+                      <p class="rk-hint" id="f-plink-h">Starts with https://</p>
+                      <input id="f-plink" class="rk-input" type="url" autocomplete="off" value="{{ E.f.plink.v }}" aria-invalid="{{ E.f.plink.inv }}" aria-describedby="{{ E.f.plink.db }}" onChange="{{ E.f.plink.on }}">
+                      <sc-if value="{{ E.f.plink.has }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="f-plink-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>{{ E.f.plink.err }}</p></sc-if>
+                    </div>
+                  </div>
+                </div>
+                <div class="vr-sec" role="group" aria-labelledby="s3-b-h">
+                  <div class="vr-sec-h vr-sec-h--row">
+                    <div><h2 class="vr-sec-t" id="s3-b-h" tabindex="-1">Documents <span class="ve-opt">(optional)</span></h2><p class="vr-sec-d">Handouts or notes for the Academic Reviewer and the catalogue.</p></div>
+                    <sc-if value="{{ E.canAddDoc }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn" onClick="{{ E.addDoc }}"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round"><use href="#vei-plus"></use></svg>Add document</button></sc-if>
+                  </div>
+                  <sc-if value="{{ E.hasDocs }}" hint-placeholder-val="{{ false }}">
+                  <ul class="ve-files"><sc-for list="{{ E.docs }}" as="d" hint-placeholder-count="1"><li class="ve-file"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-file"></use></svg><span class="ve-file-n">{{ d.name }} <small>(sample file)</small></span><button type="button" class="rb-btn rb-btn--ghost" aria-label="{{ d.aria }}" onClick="{{ d.rm }}">Remove</button></li></sc-for></ul>
+                  </sc-if>
+                  <sc-if value="{{ E.noDocs }}" hint-placeholder-val="{{ true }}"><p class="vr-empty"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-file"></use></svg>No documents added.</p></sc-if>
+                </div>
+                </sc-if>
+
+                <!-- Step 4 · Check and submit (VE-06): one review section per step, each with its status and a way back -->
+                <sc-if value="{{ E.step4 }}" hint-placeholder-val="{{ false }}">
+                <div class="vr-sec vr-sec--lead">
+                  <div id="ve-miss" tabindex="-1">
+                    <sc-if value="{{ E.showMissing }}" hint-placeholder-val="{{ false }}">
+                    <div class="rk-errsum" role="alert">
+                      <p class="rk-errsum-t">{{ E.missText }}</p>
+                      <ul><sc-for list="{{ E.missing }}" as="m" hint-placeholder-count="1"><li><span class="ve-errline"><span>{{ m.t }}</span><a href="{{ m.href }}" onClick="{{ m.go }}">{{ m.where }}</a></span></li></sc-for></ul>
+                    </div>
+                    </sc-if>
+                    <sc-if value="{{ E.quietMissing }}" hint-placeholder-val="{{ false }}">
+                    <div class="rk-notice rk-notice--warn" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-clock"></use></svg><p class="rk-notice-t">{{ E.missText }}</p><p class="rk-notice-d">Finish them, or save a draft and come back.</p></div>
+                    </sc-if>
+                    <sc-if value="{{ E.ready }}" hint-placeholder-val="{{ true }}">
+                    <div class="rk-notice rk-notice--ok" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-check"></use></svg><p class="rk-notice-t">Everything required is provided</p><p class="rk-notice-d">{{ E.readyText }}</p></div>
+                    </sc-if>
+                  </div>
+                </div>
+                <section class="vr-sec" aria-labelledby="s4-1-h">
+                  <div class="vr-rev-h"><h2 class="vr-sec-t" id="s4-1-h">Course and description</h2><span class="{{ E.rv1.cls }}"><i></i>{{ E.rv1.state }}</span><button type="button" class="rb-btn rb-btn--ghost vr-chg" aria-label="{{ E.rv1.aria }}" onClick="{{ E.rv1.change }}">Change</button></div>
+                  <dl class="rk-dl"><dt>Experiment</dt><dd>{{ E.cName }}</dd><dt>Course</dt><dd>{{ E.cCourse }}</dd><dt>Version</dt><dd>{{ E.cVersion }}</dd><dt>Summary</dt><dd>{{ E.cSummary }}</dd><dt>Description</dt><dd>{{ E.cDesc }}</dd></dl>
+                </section>
+                <section class="vr-sec" aria-labelledby="s4-2-h">
+                  <div class="vr-rev-h"><h2 class="vr-sec-t" id="s4-2-h">Formats and delivery</h2><span class="{{ E.rv2.cls }}"><i></i>{{ E.rv2.state }}</span><button type="button" class="rb-btn rb-btn--ghost vr-chg" aria-label="{{ E.rv2.aria }}" onClick="{{ E.rv2.change }}">Change</button></div>
+                  <sc-if value="{{ E.hasChosen }}" hint-placeholder-val="{{ true }}">
+                  <div class="vr-dlvs"><sc-for list="{{ E.delivery }}" as="d" hint-placeholder-count="1"><div class="vr-dlv vr-dlv--ro"><div class="vr-dlv-h"><span class="xr-fmt">{{ d.code }}</span><p class="vr-dlv-t">{{ d.name }} <span class="vr-dlv-k">· {{ d.kind }}</span></p></div><dl class="rk-dl vr-dlv-b"><sc-for list="{{ d.rows }}" as="x" hint-placeholder-count="3"><dt>{{ x.k }}</dt><dd>{{ x.v }}</dd></sc-for></dl></div></sc-for></div>
+                  </sc-if>
+                  <sc-if value="{{ E.noChosen }}" hint-placeholder-val="{{ false }}"><p class="vr-empty"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-box"></use></svg>None chosen yet</p></sc-if>
+                </section>
+                <section class="vr-sec" aria-labelledby="s4-3-h">
+                  <div class="vr-rev-h"><h2 class="vr-sec-t" id="s4-3-h">Preview and documents <span class="ve-opt">(optional)</span></h2><span class="{{ E.rv3.cls }}"><i></i>{{ E.rv3.state }}</span><button type="button" class="rb-btn rb-btn--ghost vr-chg" aria-label="{{ E.rv3.aria }}" onClick="{{ E.rv3.change }}">Change</button></div>
+                  <dl class="rk-dl"><dt>Preview</dt><dd>{{ E.cPreview }}</dd><dt>Documents</dt><dd>{{ E.cDocs }}</dd></dl>
+                </section>
+                <section class="vr-sec" aria-labelledby="s4-4-h">
+                  <div class="vr-sec-h vr-sec-h--row"><h2 class="vr-sec-t" id="s4-4-h">Learning outcomes</h2><p class="vr-sec-st">Added by the Academic Reviewer · read-only</p></div>
+                  <sc-if value="{{ E.hasOutcomes }}" hint-placeholder-val="{{ false }}"><p class="ve-intro" style="margin-bottom: 10px">One set for every format.</p><ol class="ve-los"><sc-for list="{{ E.outcomes }}" as="l" hint-placeholder-count="2"><li>{{ l }}</li></sc-for></ol></sc-if>
+                  <sc-if value="{{ E.noOutcomes }}" hint-placeholder-val="{{ true }}"><p class="ve-intro">None yet. The Academic Reviewer adds them during review — one set for every format.</p></sc-if>
+                </section>
+                <div class="vr-sec vr-sec--note"><p class="ve-submitnote"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-info"></use></svg><span>{{ E.submitNote }}</span></p></div>
+                </sc-if>
+
+                <div class="vr-actions">
+                  <div class="vr-actions-l">
+                    <sc-if value="{{ E.isFirst }}" hint-placeholder-val="{{ true }}"><a class="rb-btn rb-btn--ghost" href="#ve-main" onClick="{{ E.cancel }}">Cancel</a></sc-if>
+                    <sc-if value="{{ E.notFirst }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--ghost" onClick="{{ E.back }}"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><use href="#vei-left"></use></svg>Back</button></sc-if>
+                  </div>
+                  <sc-if value="{{ E.hasSaved }}" hint-placeholder-val="{{ false }}"><p class="ve-saved vr-saved" id="ve-saved" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-check"></use></svg>{{ E.saved }}</p></sc-if>
+                  <div class="vr-actions-r">
+                    <button type="button" class="rb-btn rb-btn--lg" onClick="{{ E.save }}">{{ E.saveLabel }}</button>
+                    <sc-if value="{{ E.notLast }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ E.next }}">Continue<svg viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><use href="#vei-right"></use></svg></button></sc-if>
+                    <sc-if value="{{ E.isLast }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="ve-submit" onClick="{{ E.submit }}">{{ E.submitLabel }}</button></sc-if>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <aside class="rk-aside ve-edaside" aria-labelledby="ve-prog-k">
+              <div class="rk-surface ve-prog">
+                <p class="ve-prog-k" id="ve-prog-k">{{ E.progK }}</p>
+                <p class="ve-prog-t">{{ E.progName }}</p>
+                <nav aria-label="Steps"><ol class="ve-stepnav"><sc-for list="{{ E.steps }}" as="x" hint-placeholder-count="4"><li><button type="button" class="{{ x.navCls }}" aria-current="{{ x.cur }}" onClick="{{ x.go }}"><span class="ve-step-n"><sc-if value="{{ x.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-check"></use></svg></sc-if><sc-if value="{{ x.notDone }}" hint-placeholder-val="{{ true }}">{{ x.n }}</sc-if></span><span class="ve-stepnav-l">{{ x.label }}</span><span class="ve-stepnav-s">{{ x.state }}</span></button><sc-if value="{{ x.hasSub }}" hint-placeholder-val="{{ false }}"><ul class="vr-sub" aria-label="{{ x.subAria }}"><sc-for list="{{ x.sub }}" as="u" hint-placeholder-count="2"><li><button type="button" class="vr-sub-b" onClick="{{ u.go }}"><span class="vr-sub-l">{{ u.label }}</span><span class="{{ u.cls }}"><i></i>{{ u.state }}</span></button></li></sc-for></ul></sc-if></li></sc-for></ol></nav>
+                <div class="ve-prog-meta"><span><b>{{ E.progSaved }}</b></span><span>{{ E.progVis }}</span></div>
+              </div>
+            </aside>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- outcome after submit (VE-06) or resubmit (VE-08) -->
+        <sc-if value="{{ E.done }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface vr-outcome" aria-labelledby="ve-h1">
+          <span class="vr-outcome-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-check"></use></svg></span>
+          <div class="vr-outcome-main">
+            <p class="rb-eyebrow-date">{{ A.dateLong }}</p>
+            <p class="rk-eyebrow">{{ E.doneEyebrow }}</p>
+            <h1 class="rb-h1" id="ve-h1" tabindex="-1">{{ E.doneTitle }}</h1>
+            <p class="vr-outcome-d">{{ E.doneText }}</p>
+            <dl class="vr-facts">
+              <div><dt>Status</dt><dd><span class="{{ E.doneStCls }}"><i></i>{{ E.doneStLabel }}</span></dd></div>
+              <sc-for list="{{ E.doneFacts }}" as="x" hint-placeholder-count="1"><div><dt>{{ x.k }}</dt><dd>{{ x.v }}</dd></div></sc-for>
+              <div><dt>Formats</dt><dd><span class="ve-chips" aria-label="{{ E.doneFmtAria }}"><sc-for list="{{ E.doneFmts }}" as="f" hint-placeholder-count="1"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span></dd></div>
+            </dl>
+            <p class="rk-next">{{ E.doneNext }}</p>
+            <div class="ve-done-actions vr-outcome-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#ve-main" onClick="{{ E.openRecord }}" data-to="VE-07">Open the experiment record</a><a class="rb-btn rb-btn--lg" href="#ve-main" onClick="{{ E.toList }}" data-to="VE-02">Back to My experiments</a></div>
+          </div>
+        </section>
+        </sc-if>
+
+        <!-- read-only: course no longer assigned (VE-09 / VE-08 refusal) -->
+        <sc-if value="{{ E.readonly }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-head">
+          <div class="rk-head-text">
+            <p class="rb-eyebrow-date">{{ A.dateLong }}</p>
+            <p class="rk-eyebrow">{{ E.roEyebrow }}</p>
+            <h1 class="rk-title" id="ve-h1" tabindex="-1">{{ E.roName }}</h1>
+            <div class="rk-meta"><span class="xr-st xr-st--paused rk-st-lg"><i></i>Draft · read-only</span><span>{{ E.roMeta }}</span></div>
+          </div>
+        </div>
+        <div class="rk-notice rk-notice--warn" role="status">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-lock"></use></svg>
+          <p class="rk-notice-t">{{ E.roT }}</p>
+          <p class="rk-notice-d">{{ E.roD }}</p>
+          <div class="rk-notice-act"><a class="rb-btn" href="#ve-main" onClick="{{ E.toList }}" data-to="VE-02">Back to My experiments</a><a class="rb-btn rb-btn--ghost" href="#ve-main" onClick="{{ E.askHelp }}" data-to="XS-07">Ask for help</a></div>
+        </div>
+        <section class="rk-surface vr-sheet" aria-labelledby="ve-ro-h">
+          <div class="vr-sec">
+            <div class="vr-sec-h"><h2 class="vr-sec-t" id="ve-ro-h">What you entered</h2></div>
+            <dl class="rk-dl"><dt>Course</dt><dd>{{ E.cCourse }}</dd><dt>Summary</dt><dd>{{ E.roSummary }}</dd><dt>Version</dt><dd>{{ E.cVersion }}</dd><dt>Formats</dt><dd><span class="ve-chips"><sc-for list="{{ E.chosen }}" as="f" hint-placeholder-count="1"><span class="xr-fmt">{{ f }}</span></sc-for></span></dd></dl>
+            <sc-if value="{{ E.hasChosen }}" hint-placeholder-val="{{ true }}">
+            <div class="vr-dlvs vr-dlvs--after"><sc-for list="{{ E.delivery }}" as="d" hint-placeholder-count="1"><div class="vr-dlv vr-dlv--ro"><div class="vr-dlv-h"><span class="xr-fmt">{{ d.code }}</span><p class="vr-dlv-t">{{ d.name }} <span class="vr-dlv-k">· {{ d.kind }}</span></p></div><dl class="rk-dl vr-dlv-b"><sc-for list="{{ d.rows }}" as="x" hint-placeholder-count="2"><dt>{{ x.k }}</dt><dd>{{ x.v }}</dd></sc-for></dl></div></sc-for></div>
+            </sc-if>
+          </div>
+        </section>
+        </sc-if>
+
+        <!-- refusal: already submitted / being reviewed / decided (VE-08 / VE-09 stale link) -->
+        <sc-if value="{{ E.refused }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface" aria-labelledby="ve-h1">
+          <div class="rk-state rk-state--roomy">
+            <span class="rk-state-ico ve-ico-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-lock"></use></svg></span>
+            <p class="rk-eyebrow" style="margin: 0">{{ E.refEyebrow }}</p>
+            <h1 class="rk-state-t" id="ve-h1" tabindex="-1">{{ E.refTitle }}</h1>
+            <p class="rk-state-d">{{ E.refText }}</p>
+            <div class="ve-done-actions"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#ve-main" onClick="{{ E.openRecord }}" data-to="VE-07">Open the experiment record</a><a class="rb-btn rb-btn--lg" href="#ve-main" onClick="{{ E.toList }}" data-to="VE-02">Back to My experiments</a></div>
+          </div>
+        </section>
+        </sc-if>
+        </sc-if>
+
+        <!-- ═══ VE-07 Experiment record · VE-13 Submission and version history ═══ -->
+        <sc-if value="{{ V.record }}" hint-placeholder-val="{{ false }}">
+        <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#ve-main" onClick="{{ R.toList }}" data-to="VE-02">My experiments</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-right"></use></svg><span aria-current="page">{{ R.name }}</span></nav>
+        <div class="rk-head">
+          <div class="rk-head-text">
+            <p class="rb-eyebrow-date">{{ A.dateLong }}</p>
+            <p class="rk-eyebrow">{{ R.eyebrow }}</p>
+            <h1 class="rk-title" id="ve-h1" tabindex="-1">{{ R.name }}</h1>
+            <div class="rk-meta"><span class="{{ R.stClsLg }}"><i></i>{{ R.stLabel }}</span><sc-for list="{{ R.meta }}" as="m" hint-placeholder-count="2"><span class="rk-meta-sep" aria-hidden="true"></span><span>{{ m }}</span></sc-for></div>
+          </div>
+          <sc-if value="{{ R.hasAct }}" hint-placeholder-val="{{ false }}"><div class="rk-head-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#ve-main" onClick="{{ R.act }}" data-to="{{ R.actTo }}">{{ R.actLabel }}</a></div></sc-if>
+        </div>
+
+        <sc-if value="{{ R.hasRet }}" hint-placeholder-val="{{ false }}">
+        <section class="vr-ret" id="ve-reason" tabindex="-1" aria-labelledby="ve-rret-t">
+          <span class="vr-ret-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-return"></use></svg></span>
+          <div class="vr-ret-main">
+            <h2 class="vr-ret-t" id="ve-rret-t">{{ R.retT }}</h2>
+            <p class="vr-ret-m">{{ R.retM }}</p>
+            <blockquote class="vr-ret-q">{{ R.retReason }}</blockquote>
+            <sc-if value="{{ R.hasRefs }}" hint-placeholder-val="{{ true }}">
+            <div class="vr-ret-refs">
+              <p class="vr-ret-refs-k" id="ve-rret-rk">What it refers to</p>
+              <ul class="vr-ret-reflist" aria-labelledby="ve-rret-rk"><sc-for list="{{ R.refs }}" as="x" hint-placeholder-count="1"><li><button type="button" class="ve-ref" aria-label="{{ x.aria }}" onClick="{{ x.go }}" data-to="VE-08">{{ x.t }}<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-arrow"></use></svg></button></li></sc-for></ul>
+            </div>
+            </sc-if>
+            <sc-if value="{{ R.hasPending }}" hint-placeholder-val="{{ false }}">
+            <div class="vr-ret-pend" role="status">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-lock"></use></svg>
+              <div>
+                <p class="vr-ret-pend-t">Your changes are saved but not resubmitted</p>
+                <p class="vr-ret-pend-d">{{ R.pendingText }}</p>
+                <p class="vr-ret-pend-k">Changed since revision {{ R.rev }}</p>
+                <ul class="vr-ret-pend-l"><sc-for list="{{ R.diffs }}" as="d" hint-placeholder-count="1"><li>{{ d }}</li></sc-for></ul>
+              </div>
+            </div>
+            </sc-if>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ R.hasNotice }}" hint-placeholder-val="{{ true }}">
+        <div class="{{ R.noticeCls }}" role="status">
+          <sc-if value="{{ R.icoEdit }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-edit"></use></svg></sc-if><sc-if value="{{ R.icoClock }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-clock"></use></svg></sc-if><sc-if value="{{ R.icoCheck }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-check"></use></svg></sc-if><sc-if value="{{ R.icoLock }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-lock"></use></svg></sc-if>
+          <p class="rk-notice-t">{{ R.noticeT }}</p>
+          <p class="rk-notice-d">{{ R.noticeD }}</p>
+          <sc-if value="{{ R.noticeHelp }}" hint-placeholder-val="{{ false }}"><div class="rk-notice-act"><a class="rb-btn" href="#ve-main" onClick="{{ R.askHelp }}" data-to="XS-07">Ask for help</a></div></sc-if>
+        </div>
+        </sc-if>
+
+        <nav class="rk-tabs" aria-label="Experiment record">
+          <a class="rk-tab" href="#ve-main" aria-current="{{ R.curDetails }}" onClick="{{ R.toDetails }}" data-to="VE-07">Details</a>
+          <a class="rk-tab" href="#ve-main" aria-current="{{ R.curHistory }}" onClick="{{ R.toHistory }}" data-to="VE-13">Submission and version history</a>
+        </nav>
+
+        <div class="rk-detailwrap">
+          <div class="rk-detail">
+            <div class="rk-mainsheet">
+              <sc-if value="{{ R.isDetails }}" hint-placeholder-val="{{ true }}">
+              <div class="rk-surface vr-sheet">
+                <p class="vr-intro"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-info"></use></svg><span>{{ R.intro }}</span></p>
+                <section class="vr-sec" aria-labelledby="r-cd">
+                  <div class="vr-sec-h"><h2 class="vr-sec-t" id="r-cd">Course and description</h2></div>
+                  <dl class="rk-dl"><dt>Course</dt><dd>{{ R.courseLong }}</dd><dt>Summary</dt><dd>{{ R.summary }}</dd><dt>Description</dt><dd>{{ R.desc }}</dd><dt>Version</dt><dd>{{ R.version }}</dd></dl>
+                </section>
+                <section class="vr-sec" aria-labelledby="r-fd">
+                  <div class="vr-sec-h vr-sec-h--row"><h2 class="vr-sec-t" id="r-fd">Formats and delivery</h2><sc-if value="{{ R.isPub }}" hint-placeholder-val="{{ false }}"><p class="vr-sec-st">Formats published: {{ R.fmtText }}</p></sc-if></div>
+                  <div class="vr-dlvs"><sc-for list="{{ R.delivery }}" as="d" hint-placeholder-count="2"><div class="vr-dlv vr-dlv--ro"><div class="vr-dlv-h"><span class="xr-fmt">{{ d.code }}</span><p class="vr-dlv-t">{{ d.name }} <span class="vr-dlv-k">· {{ d.kind }}</span></p></div><dl class="rk-dl vr-dlv-b"><sc-for list="{{ d.rows }}" as="x" hint-placeholder-count="3"><dt>{{ x.k }}</dt><dd>{{ x.v }}</dd></sc-for></dl></div></sc-for></div>
+                  <sc-if value="{{ R.isPub }}" hint-placeholder-val="{{ false }}"><p class="vr-foot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-info"></use></svg><span>Changes to a published experiment are not made from the Vendor workspace.</span></p></sc-if>
+                </section>
+                <section class="vr-sec" aria-labelledby="r-pd">
+                  <div class="vr-sec-h"><h2 class="vr-sec-t" id="r-pd">Preview and documents</h2></div>
+                  <dl class="rk-dl"><dt>Preview</dt><dd>{{ R.preview }}</dd><dt>Documents</dt><dd>{{ R.docs }}</dd></dl>
+                </section>
+                <section class="vr-sec" aria-labelledby="r-lo">
+                  <div class="vr-sec-h vr-sec-h--row"><h2 class="vr-sec-t" id="r-lo">Learning outcomes</h2><p class="vr-sec-st">Added by the Academic Reviewer · read-only</p></div>
+                  <sc-if value="{{ R.hasOutcomes }}" hint-placeholder-val="{{ true }}"><p class="ve-intro" style="margin-bottom: 10px">One set for every format.</p><ol class="ve-los"><sc-for list="{{ R.outcomes }}" as="l" hint-placeholder-count="2"><li>{{ l }}</li></sc-for></ol></sc-if>
+                  <sc-if value="{{ R.noOutcomes }}" hint-placeholder-val="{{ false }}"><p class="ve-intro">None yet. The Academic Reviewer adds them during review — one set for every format.</p></sc-if>
+                </section>
+              </div>
+              </sc-if>
+
+              <sc-if value="{{ R.isHistory }}" hint-placeholder-val="{{ false }}">
+              <section class="rk-surface vr-sheet vr-hist" aria-labelledby="r-hh">
+                <div class="vr-sec">
+                  <div class="vr-sec-h vr-sec-h--row"><h2 class="vr-sec-t" id="r-hh" tabindex="-1">Submission and version history</h2><p class="vr-sec-st">Newest first · not an audit log</p></div>
+                  <sc-if value="{{ R.hasPending }}" hint-placeholder-val="{{ false }}"><p class="vr-intro vr-intro--inline"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-lock"></use></svg><span>{{ R.histPendingNote }}</span></p></sc-if>
+                  <ol class="rk-tl"><sc-for list="{{ R.hist }}" as="h" hint-placeholder-count="3"><li class="{{ h.cls }}"><p class="rk-tl-w">{{ h.what }}</p><p class="rk-tl-t">{{ h.when }}</p><sc-if value="{{ h.hasNote }}" hint-placeholder-val="{{ false }}"><p class="rk-tl-n">{{ h.note }}</p></sc-if></li></sc-for></ol>
+                </div>
+              </section>
+              </sc-if>
+            </div>
+
+            <aside class="rk-aside" aria-labelledby="r-ws">
+              <div class="rk-surface vr-ws">
+                <h2 class="vr-ws-t" id="r-ws">Where it stands</h2>
+                <dl class="rk-stand"><div><dt>Formats</dt><dd><span class="ve-chips" aria-label="{{ R.fmtAria }}"><sc-for list="{{ R.fmts }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span></dd></div><sc-for list="{{ R.standLite }}" as="x" hint-placeholder-count="3"><div><dt>{{ x.k }}</dt><dd>{{ x.v }}</dd></div></sc-for></dl>
+              </div>
+            </aside>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ═══ XS-07 Help & support (borrowed shared contract: v46 behaviour, V3 tokens) ═══ -->
+        <sc-if value="{{ V.help }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ H.isList }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-head">
+          <div class="rk-head-text">
+            <p class="rb-eyebrow-date">{{ A.dateLong }}</p>
+            <h1 class="rb-h1" id="ve-h1" tabindex="-1">Help &amp; support</h1>
+            <p class="rk-sub">Something isn’t working? Report it here and follow what happens.</p>
+          </div>
+          <sc-if value="{{ H.hasReports }}" hint-placeholder-val="{{ false }}"><div class="rk-head-act"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ H.toForm }}">Report a problem</button></div></sc-if>
+        </div>
+        <section class="rk-surface" aria-labelledby="ve-rep-h">
+          <div class="rk-sec" style="padding-bottom: 8px"><div class="rk-sec-h" style="margin-bottom: 0"><h2 class="rb-h2" id="ve-rep-h">My reports</h2><p class="rb-note">{{ H.count }}</p></div></div>
+          <sc-if value="{{ H.hasReports }}" hint-placeholder-val="{{ false }}">
+          <ul class="ve-reports"><sc-for list="{{ H.reports }}" as="r" hint-placeholder-count="1"><li><button type="button" class="ve-report" onClick="{{ r.open }}" aria-label="{{ r.aria }}"><span><span class="ve-report-t">{{ r.title }}</span><span class="rk-small">{{ r.id }} · sent {{ r.sent }}</span></span><span class="xr-st xr-st--info"><i></i>{{ r.status }}</span><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-right"></use></svg></button></li></sc-for></ul>
+          </sc-if>
+          <sc-if value="{{ H.noReports }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-state">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-help"></use></svg></span>
+            <p class="rk-state-t">No reports yet</p>
+            <p class="rk-state-d">If something isn’t working, report it and follow it here.</p>
+            <button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ H.toForm }}">Report a problem</button>
+          </div>
+          </sc-if>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ H.isForm }}" hint-placeholder-val="{{ false }}">
+        <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#ve-main" onClick="{{ H.toList }}" data-to="XS-07">Help &amp; support</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-right"></use></svg><span aria-current="page">Report a problem</span></nav>
+        <div class="rk-head"><div class="rk-head-text"><h1 class="rb-h1" id="ve-h1" tabindex="-1">Report a problem</h1><p class="rk-sub">Describe what went wrong. You can follow your report in My reports.</p></div></div>
+        <sc-if value="{{ H.hasErr }}" hint-placeholder-val="{{ false }}"><div class="rk-errsum" id="ve-errs" tabindex="-1" role="alert" style="max-width: 820px"><p class="rk-errsum-t">One thing needs fixing</p><ul><li><a href="#h-what" onClick="{{ H.goWhat }}">Say what happened</a></li></ul></div></sc-if>
+        <section class="rk-surface ve-form vr-form vr-narrow" aria-labelledby="ve-h1">
+          <div class="vr-sec">
+            <div class="vr-grid">
+              <div class="rk-field">
+                <label class="rk-label" for="h-what">What happened?</label>
+                <p class="rk-hint" id="h-what-h">Say what you were doing and what you saw.</p>
+                <textarea id="h-what" class="rk-textarea vr-ta4" rows="4" value="{{ H.what }}" aria-invalid="{{ H.whatInv }}" aria-describedby="{{ H.whatDb }}" onChange="{{ H.onWhat }}"></textarea>
+                <sc-if value="{{ H.hasErr }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="h-what-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-alert"></use></svg>Say what happened, so it can be looked into</p></sc-if>
+              </div>
+              <div class="rk-field">
+                <label class="rk-label" for="h-where">Where did it happen?</label>
+                <p class="rk-hint" id="h-where-h">Filled in from the page you came from. Change it if needed.</p>
+                <input id="h-where" class="rk-input" type="text" autocomplete="off" value="{{ H.where }}" aria-describedby="h-where-h" onChange="{{ H.onWhere }}">
+              </div>
+              <div class="rk-field">
+                <p class="rk-label" id="h-shot-l">Screenshot <span class="ve-opt">(optional)</span></p>
+                <p class="rk-hint" id="h-shot-h">A picture of the screen can help.</p>
+                <sc-if value="{{ H.noShot }}" hint-placeholder-val="{{ true }}"><div><button type="button" class="rb-btn" aria-describedby="h-shot-l h-shot-h" onClick="{{ H.attachShot }}">Choose file</button></div></sc-if>
+                <sc-if value="{{ H.hasShot }}" hint-placeholder-val="{{ false }}"><div class="ve-file"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-file"></use></svg><span class="ve-file-n">{{ H.shot }} <small>(sample file)</small></span><button type="button" class="rb-btn rb-btn--ghost" aria-label="Remove the screenshot" onClick="{{ H.rmShot }}">Remove</button></div></sc-if>
+              </div>
+            </div>
+          </div>
+          <div class="vr-actions">
+            <div class="vr-actions-l"><a class="rb-btn rb-btn--ghost" href="#ve-main" onClick="{{ H.toList }}">Cancel</a></div>
+            <div class="vr-actions-r">
+              <sc-if value="{{ H.notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ H.send }}">Send report</button></sc-if>
+              <sc-if value="{{ H.busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" aria-disabled="true">Sending…</button></sc-if>
+            </div>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ H.isSent }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface" aria-labelledby="ve-h1">
+          <div class="rk-state rk-state--roomy">
+            <span class="rk-state-ico ve-ico-ok" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-check"></use></svg></span>
+            <h1 class="rk-state-t" id="ve-h1" tabindex="-1">Report sent</h1>
+            <p class="rk-state-d">Your reference is {{ H.lastId }}. You can follow it in My reports.</p>
+            <div class="ve-done-actions"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ H.toList }}">View my reports</button><a class="rb-btn rb-btn--lg" href="#ve-main" onClick="{{ H.toOverview }}" data-to="VE-01">Back to Overview</a></div>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ H.isDetail }}" hint-placeholder-val="{{ false }}">
+        <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#ve-main" onClick="{{ H.toList }}" data-to="XS-07">Help &amp; support</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-right"></use></svg><span aria-current="page">{{ H.d.id }}</span></nav>
+        <div class="rk-head"><div class="rk-head-text"><p class="rk-eyebrow">{{ H.d.id }}</p><h1 class="rk-title" id="ve-h1" tabindex="-1">{{ H.d.title }}</h1><div class="rk-meta"><span class="xr-st xr-st--info rk-st-lg"><i></i>{{ H.d.status }}</span><span>Sent {{ H.d.sent }}</span></div></div></div>
+        <section class="rk-surface" aria-labelledby="ve-repd-h" style="max-width: 880px">
+          <div class="rk-sec"><div class="rk-sec-h"><h2 class="rb-h2" id="ve-repd-h">What you reported</h2></div><dl class="rk-dl"><dt>What happened</dt><dd>{{ H.d.what }}</dd><dt>Where</dt><dd>{{ H.d.where }}</dd><dt>Screenshot</dt><dd>{{ H.d.shot }}</dd></dl></div>
+          <div class="rk-sec"><div class="rk-sec-h"><h2 class="rb-h2">History</h2></div><ol class="rk-tl"><li class="is-latest"><p class="rk-tl-w">Sent</p><p class="rk-tl-t">{{ H.d.sent }}</p></li></ol></div>
+        </section>
+        </sc-if>
+        </sc-if>
+
+        <!-- ═══ XS-06 Not your workspace (borrowed shared contract) ═══ -->
+        <sc-if value="{{ V.notmine }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface" aria-labelledby="ve-h1">
+          <div class="rk-state rk-state--roomy">
+            <span class="rk-state-ico ve-ico-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#vei-lock"></use></svg></span>
+            <h1 class="rk-state-t" id="ve-h1" tabindex="-1">This page isn’t part of your workspace</h1>
+            <p class="rk-state-d">You’re signed in to the Vendor workspace. This address belongs to a different workspace.</p>
+            <div class="ve-done-actions"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#ve-main" onClick="{{ A.goOverview }}" data-to="VE-01">Back to Overview</a><a class="rb-btn rb-btn--ghost rb-btn--lg" href="#ve-main" onClick="{{ A.goHelp }}" data-to="XS-07">Help &amp; support</a></div>
+          </div>
+        </section>
+        </sc-if>
+      </main>
+    </div>
+
+    <sc-if value="{{ D.open }}" hint-placeholder-val="{{ false }}">
+    <div class="rk-scrim" aria-hidden="true"></div>
+    <div class="rk-dialog" role="dialog" aria-modal="true" aria-labelledby="ve-dlg-t" aria-describedby="ve-dlg-d" onKeyDown="{{ D.key }}">
+      <div class="rk-dlg-head"><h2 id="ve-dlg-t" tabindex="-1">{{ D.title }}</h2><p id="ve-dlg-d">{{ D.desc }}</p></div>
+      <sc-if value="{{ D.hasBody }}" hint-placeholder-val="{{ true }}">
+      <div class="rk-dlg-body">
+        <div class="rk-dlg-group rk-dlg-now"><h3>What happens now</h3><ul class="rk-dlg-list"><sc-for list="{{ D.now }}" as="n" hint-placeholder-count="2"><li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-check"></use></svg><span>{{ n }}</span></li></sc-for></ul></div>
+        <div class="rk-dlg-group rk-dlg-later"><h3>Only after later events</h3><ul class="rk-dlg-list"><sc-for list="{{ D.later }}" as="n" hint-placeholder-count="1"><li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-clock"></use></svg><span>{{ n }}</span></li></sc-for></ul></div>
+      </div>
+      </sc-if>
+      <div class="rk-dlg-foot">
+        <button type="button" class="rb-btn rb-btn--lg" id="ve-dlg-cancel" onClick="{{ D.cancel }}">{{ D.cancelLabel }}</button>
+        <sc-if value="{{ D.notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ D.okCls }}" id="ve-dlg-ok" onClick="{{ D.ok }}">{{ D.okLabel }}</button></sc-if>
+        <sc-if value="{{ D.busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="{{ D.okCls }}" id="ve-dlg-ok" aria-disabled="true">Submitting…</button></sc-if>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ A.menu }}" hint-placeholder-val="{{ false }}">
+    <button type="button" class="rb-scrim" aria-label="Close menu" tabindex="-1" onClick="{{ A.closeMenu }}"></button>
+    <div class="rb-drawer" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown="{{ A.drawerKey }}">
+      <div class="rb-drawer-head">
+        <p class="rb-product">XR Learning Platform</p>
+        <button type="button" class="rb-close" id="ve-menu-close" aria-label="Close menu" onClick="{{ A.closeMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+      </div>
+      <div class="rb-brand" style="padding-top: 0"><div class="rb-logo">Official WILP logo</div><p class="rb-ws"><span class="rb-ws-role">Vendor</span><span class="rb-ws-inst">Northline Simulation Studio</span></p></div>
+      <nav class="rb-nav" aria-label="Vendor navigation">
+        <a href="#ve-main" aria-current="{{ A.curOverview }}" onClick="{{ A.goOverview }}" data-to="VE-01"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"></path></svg><span>Overview</span></a>
+        <a href="#ve-main" aria-current="{{ A.curList }}" onClick="{{ A.goList }}" data-to="VE-02"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-flask"></use></svg><span>My experiments</span></a>
+      </nav>
+      <div class="rb-rail-foot"><nav class="rb-nav" aria-label="Help"><a href="#ve-main" aria-current="{{ A.curHelp }}" onClick="{{ A.goHelp }}" data-to="XS-07"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#vei-help"></use></svg><span>Help &amp; support</span></a></nav></div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"start":{"editor":"enum","options":["VE-01","VE-02","VE-03","VE-04","VE-05","VE-06","VE-07","VE-08","VE-09","VE-13","XS-07","XS-06"],"default":"VE-01","section":"State"},"scenario":{"editor":"enum","options":["portfolio","first-visit","calm","cm-return","recheck","stale"],"default":"portfolio","section":"State"},"rec":{"editor":"text","default":"","section":"State"},"step":{"editor":"int","default":0,"min":0,"max":4,"section":"State"},"preset":{"editor":"enum","options":["","ed-validation","ed-name-taken","ed-course-withdrawn","ed-saved","ed-fmt-all","ed-fmt-invalid","ed-fmt-mixed","ed-fmt-none","ed-preview","ed-preview-error","ed-check-ready","ed-check-missing","ed-dialog","ed-submitted","ed-leave","rv-ref","rv-saved","rv-check","rv-dialog","rv-done","rec-private","rec-with-rv","list-filtered","list-nomatch","list-recent","list-loading","list-failed","menu","acct","help-form","help-error","help-sent"],"default":"","section":"State"},"chrome":{"editor":"enum","options":["on","none"],"default":"on","section":"State"},"$preview":{"width":1440,"height":985}}'>
+class Component extends DCLogic {
+  // ── sample facts: v46 Batch-5 sample world (B5-00 … B5-08); provenance in SCENARIOS.json ──
+  static get FM() { return ['WEB', 'AR', 'VR', 'MR']; }
+  static get PK() { return ['AR', 'VR', 'MR']; }
+  static get FLONG() { return { WEB: 'Browser (WEB)', AR: 'Augmented reality (AR)', VR: 'Virtual reality (VR)', MR: 'Mixed reality (MR)' }; }
+  static get FSHORT() { return { WEB: 'Browser', AR: 'Augmented reality', VR: 'Virtual reality', MR: 'Mixed reality' }; }
+  static get COURSES() { return { 'ME ZG523': 'Thermodynamics & Heat Transfer', 'MEL ZG512': 'Manufacturing Processes' }; }
+  static get ASSIGNED() { return ['ME ZG523']; }
+  static get CATALOGUE() { return ['Boiler Drum Level', 'Buck Converter Ripple', 'CNC Turning Centre', 'Composite Wall Conduction', 'Distillation Column', 'Fin-Tube Bundle', 'Induction Motor Loading', 'Investment Casting', 'Orifice Plate Metering', 'Shell-and-Tube Heat Exchanger', 'Synchronous Generator', 'Transformer Tests']; }
+  static get STL() { return { draft: 'Draft', readonly: 'Draft · read-only', with_rv: 'With Academic Reviewer', recheck: 'With Academic Reviewer', submitted: 'Submitted', returned: 'Returned', returned_cm: 'Returned', with_cm: 'With Content Manager', published: 'Published' }; }
+  static get STK() { return { draft: '', readonly: 'paused', with_rv: 'info', recheck: 'info', submitted: 'info', returned: 'err', returned_cm: 'err', with_cm: 'info', published: 'ok' }; }
+  static get WITHW() { return { draft: 'You', readonly: '—', with_rv: 'Academic Reviewer', recheck: 'Academic Reviewer', submitted: '—', returned: 'You', returned_cm: 'You', with_cm: 'Content Manager', published: '—' }; }
+  static get TITLES() { return { 1: 'Course and description', 2: 'Formats and delivery', 3: 'Preview and documents', 4: 'Check and submit' }; }
+  static get SHORT() { return { 1: 'Course', 2: 'Formats', 3: 'Preview', 4: 'Check' }; }
+  static get MON() { return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; }
+  static get ASOF() { return '2026-08-27'; }
+  static get RECENT_FROM() { return '2026-08-20'; }
+  static get SCREENS() {
+    return [['VE-01', 'VE-01 · Overview'], ['VE-02', 'VE-02 · My experiments'], ['VE-03', 'VE-03 · Create · Course and description'], ['VE-04', 'VE-04 · Create · Formats and delivery'], ['VE-05', 'VE-05 · Create · Preview and documents'], ['VE-06', 'VE-06 · Check and submit'], ['VE-07', 'VE-07 · Experiment record'], ['VE-08', 'VE-08 · Revise and resubmit'], ['VE-09', 'VE-09 · Edit draft'], ['VE-13', 'VE-13 · Submission and version history'], ['XS-07', 'XS-07 · Help & support (borrowed)'], ['XS-06', 'XS-06 · Not your workspace (borrowed)']];
+  }
+  static get SCENS() {
+    return [['portfolio', 'Portfolio · Thu 27 Aug 2026'], ['first-visit', 'First visit · no experiments'], ['calm', 'Nothing needs you'], ['cm-return', 'SUB-0074 returned by the Content Manager'], ['recheck', 'SUB-0074 back for a re-check'], ['stale', 'Stale revise link · SUB-0081 already resubmitted']];
+  }
+  // Illustrative fixes used only by the preview helper “Fill sample answers” in revise mode (SCENARIOS.json).
+  static get REVFIX() {
+    return {
+      'SUB-0081': { AR_device: 'Android phones and tablets that support ARCore, or iPhones and iPads that support ARKit', AR_install: 'Install the build named above on each phone or tablet, open it and allow camera access. Point the camera at a flat, well-lit table to place the heated plate.' },
+      'SUB-0074': { summary: 'Cool a heated cylinder in still air and water, and test when the lumped-capacitance model holds.' }
+    };
+  }
+
+  static blank() {
+    const d = { course: '', name: '', summary: '', desc: '', version: '', plabel: '', plink: '', docs: [], WEB_link: '', WEB_browser: '', WEB_notes: '' };
+    Component.FM.forEach(f => { d['f_' + f] = false; });
+    Component.PK.forEach(f => { ['label', 'ref', 'file', 'device', 'install', 'notes'].forEach(k => { d[f + '_' + k] = ''; }); });
+    return d;
+  }
+  static dat(o) { return Object.assign(Component.blank(), o || {}); }
+  static clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  static world(key) {
+    const D = Component.dat;
+    const CWS = 'Measure the temperature profile across a three-layer wall and compare it with the series-resistance model.';
+    const CWD = 'Learners build a wall from three layers — brick, insulation and plaster — set the hot-side and cold-side temperatures, and read the temperature at each interface. They compare the measured profile and heat flux with the series thermal-resistance model and explain where the two differ.';
+    const TCD = 'Learners heat aluminium and steel cylinders, log their cooling in air and in water, and compare the curves with the lumped model using the Biot number.';
+    const recs = {
+      'SUB-0081': { id: 'SUB-0081', st: 'returned', rev: 1, step: 1, last: '2026-08-24', savedAt: '', pending: null, pendingAt: '', approved: '', pub: '',
+        data: D({ course: 'ME ZG523', name: 'Forced Convection', summary: 'Blow air across a heated plate and relate the heat transfer coefficient to the air speed.', desc: 'Learners set the fan speed, read the plate and air temperatures, and fit a Nusselt–Reynolds relationship from their own readings.', version: '1.0', f_WEB: true, f_AR: true, WEB_link: 'https://labs.northline.example/forced-convection', WEB_browser: 'A current browser on a laptop or desktop', AR_label: 'Forced Convection — AR build 1.0', AR_ref: 'NSS-FC-AR-1.0', AR_device: 'Phone or tablet', AR_install: 'Install the app.' }),
+        ret: { by: 'Academic Reviewer', who: 'Prof. A. Menon', when: '24 Aug 2026, 09:30', reason: 'The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.', refs: [{ t: 'Formats & delivery · AR · Device need', step: 2, field: 'AR_device' }, { t: 'Formats & delivery · AR · Install notes', step: 2, field: 'AR_install' }] },
+        outcomes: ['Relate the heat transfer coefficient to air speed.', 'Fit a Nusselt–Reynolds correlation from measured data.'],
+        hist: [{ what: 'Returned with a reason', when: '24 Aug 2026, 09:30', note: 'Academic Reviewer' }, { what: 'Submitted for academic review', when: '18 Aug 2026, 15:00', note: '' }] },
+      'SUB-0079': { id: 'SUB-0079', st: 'draft', rev: 1, step: 2, last: '2026-08-25', savedAt: '25 Aug 2026, 17:20', pending: null, pendingAt: '', approved: '', pub: '', ret: null, outcomes: [],
+        data: D({ course: 'ME ZG523', name: 'Pin Fin Efficiency', summary: 'Measure the temperature along a heated pin fin and find its efficiency.', desc: 'Learners heat the base of brass and aluminium pin fins, read temperatures along each fin and compare them with the fin equation.', version: '1.0', f_WEB: true }),
+        hist: [{ what: 'Draft saved', when: '25 Aug 2026, 17:20', note: 'Only you can see a draft.' }] },
+      'SUB-0077': { id: 'SUB-0077', st: 'submitted', rev: 2, step: 4, last: '2026-08-26', savedAt: '', pending: null, pendingAt: '', approved: '', pub: '', ret: null,
+        data: D({ course: 'ME ZG523', name: 'Conduction Through a Composite Wall', summary: CWS, desc: CWD, version: '1.0', f_WEB: true, f_VR: true, WEB_link: 'https://labs.northline.example/composite-wall', WEB_browser: 'A current Chrome, Edge, Firefox or Safari on a laptop or desktop, with a keyboard and mouse', VR_label: 'Composite Wall — VR build 1.0', VR_ref: 'NSS-CW-VR-1.0', VR_device: 'Standalone VR headset — no PC or cable needed — and about 2 × 2 m of clear floor', VR_install: 'Install the build named above on the headset and open “Composite Wall Lab”. On first launch, set the play-area boundary.', plabel: 'Two-minute walkthrough', plink: 'https://media.northline.example/composite-wall-walkthrough', docs: ['Lab handout — Composite Wall.pdf', 'Thermocouple positions.pdf'] }),
+        outcomes: ['Explain conduction through layers in series using thermal resistance.', 'Predict interface temperatures from layer properties.', 'Compare measured and predicted heat flux and explain the difference.'],
+        hist: [{ what: 'Submitted · revision 2', when: '26 Aug 2026, 11:30', note: 'Your changes have been submitted for review.' }, { what: 'Returned with a reason', when: '19 Aug 2026, 16:05', note: 'Academic Reviewer: “Please clarify the VR device requirements.”' }, { what: 'Submitted for academic review', when: '12 Aug 2026, 10:52', note: 'With the Academic Reviewer. Nothing is published.' }, { what: 'Draft saved', when: '11 Aug 2026, 17:40', note: 'Only you can see a draft.' }, { what: 'Created', when: '10 Aug 2026, 09:15', note: '' }] },
+      'SUB-0074': { id: 'SUB-0074', st: 'with_cm', rev: 1, step: 4, last: '2026-08-14', savedAt: '', pending: null, pendingAt: '', approved: '14 Aug 2026', pub: '', ret: null,
+        data: D({ course: 'ME ZG523', name: 'Transient Cooling', summary: 'Cool a heated cylinder in still air and water, and test when the lumped-capacitance model holds.', desc: TCD, version: '1.0', f_WEB: true, WEB_link: 'https://labs.northline.example/transient-cooling', WEB_browser: 'A current browser on a laptop or desktop' }),
+        outcomes: ['Decide when the lumped-capacitance model applies, using the Biot number.', 'Estimate a heat transfer coefficient from a measured cooling curve.'],
+        hist: [{ what: 'Approved by the Academic Reviewer', when: '14 Aug 2026, 15:10', note: 'With the Content Manager.' }, { what: 'Submitted for academic review', when: '6 Aug 2026, 12:02', note: '' }, { what: 'Created', when: '1 Aug 2026, 10:00', note: '' }] },
+      'SUB-0052': { id: 'SUB-0052', st: 'published', rev: 1, step: 4, last: '2026-07-30', savedAt: '', pending: null, pendingAt: '', approved: '24 Jul 2026', pub: '30 Jul 2026', ret: null,
+        data: D({ course: 'ME ZG523', name: 'Fin-Tube Bundle', summary: 'Introduce progressive fouling on the tube side and measure its effect on the overall heat transfer coefficient.', desc: 'Learners add fouling to the tube side step by step, take readings at each step and separate the fall in U from instrument drift.', version: '1.0', f_WEB: true, f_VR: true, WEB_link: 'https://labs.northline.example/fin-tube-bundle', WEB_browser: 'A current browser on a laptop or desktop', VR_label: 'Fin-Tube Bundle — VR build 1.0', VR_ref: 'NSS-FT-VR-1.0', VR_device: 'Standalone VR headset', VR_install: 'Install the build named above and open “Fin-Tube Lab”.' }),
+        outcomes: ['Quantify the effect of fouling on the overall heat transfer coefficient', 'Distinguish degradation from measurement drift'],
+        hist: [{ what: 'Published by the Content Manager', when: '30 Jul 2026, 12:00', note: 'WEB and VR are live in the catalogue.' }, { what: 'Approved by the Academic Reviewer', when: '24 Jul 2026, 16:30', note: '' }, { what: 'Submitted for academic review', when: '15 Jul 2026, 11:20', note: '' }] },
+      'SUB-0083': { id: 'SUB-0083', st: 'readonly', rev: 1, step: 1, last: '2026-08-15', savedAt: '12 Aug 2026, 14:00', pending: null, pendingAt: '', approved: '', pub: '', ret: null, outcomes: [], withdrawn: '15 Aug 2026',
+        data: D({ course: 'MEL ZG512', name: 'Surface Roughness in Turning', summary: 'Vary feed and nose radius on a lathe and predict the surface roughness you measure.', version: '0.9', f_WEB: true, WEB_link: 'https://labs.northline.example/surface-roughness', WEB_browser: 'A current browser on a laptop or desktop' }),
+        hist: [{ what: 'Course withdrawn from Northline Simulation Studio', when: '15 Aug 2026', note: 'Read-only from now on.' }, { what: 'Draft saved', when: '12 Aug 2026, 14:00', note: '' }] }
+    };
+    if (key === 'first-visit') return {};
+    if (key === 'calm') return { 'SUB-0077': recs['SUB-0077'], 'SUB-0074': recs['SUB-0074'], 'SUB-0052': recs['SUB-0052'] };
+    if (key === 'cm-return') {
+      const r = recs['SUB-0074'];
+      recs['SUB-0074'] = Object.assign({}, r, { st: 'returned_cm', last: '2026-08-22', approved: '14 Aug 2026', data: Object.assign({}, r.data, { summary: 'Cool a heated cylinder in still air and water. Compare two metals. Test when the lumped-capacitance model holds.' }),
+        ret: { by: 'Content Manager', who: 'Kavya Nair', when: '22 Aug 2026, 10:40', reason: 'The summary runs to three sentences. Shorten it to one; the catalogue shows only the first line.', refs: [{ t: 'Course & description · Summary', step: 1, field: 'summary' }] },
+        hist: [{ what: 'Returned with a reason', when: '22 Aug 2026, 10:40', note: 'Content Manager: “The summary runs to three sentences…”' }].concat(r.hist) });
+    }
+    if (key === 'recheck') {
+      const r = recs['SUB-0074'];
+      recs['SUB-0074'] = Object.assign({}, r, { st: 'recheck', last: '2026-08-22', hist: [{ what: 'Back with the Academic Reviewer for a re-check', when: '22 Aug 2026, 10:42', note: 'Sent back by the Content Manager. Nothing is needed from you.' }].concat(r.hist) });
+    }
+    if (key === 'stale') {
+      const r = recs['SUB-0081'];
+      recs['SUB-0081'] = Object.assign({}, r, { st: 'submitted', rev: 2, last: '2026-08-27', ret: null, data: Object.assign({}, r.data, Component.REVFIX['SUB-0081']),
+        hist: [{ what: 'Submitted · revision 2', when: '27 Aug 2026, 10:38', note: 'Your changes have been submitted for review.' }].concat(r.hist) });
+    }
+    return recs;
+  }
+
+  state = { ready: false };
+
+  componentDidUpdate(pp) {
+    const P = this.props;
+    if (this.state.ready && (pp.start !== P.start || pp.scenario !== P.scenario || pp.rec !== P.rec || pp.step !== P.step || pp.preset !== P.preset || pp.chrome !== P.chrome)) this.setState({ ready: false });
+  }
+  S() {
+    if (this.state.ready) return this.state;
+    const P = this.props, k = [P.start, P.scenario, P.rec, P.step, P.preset, P.chrome].join('|');
+    if (this._k !== k || !this._init) { this._k = k; this._init = this.initial(); }
+    return this._init;
+  }
+  put(patch) { const cur = this.S(); this.setState(Object.assign({}, cur, patch, { ready: true })); }
+
+  // ── helpers ──
+  T(x) { return String(x === undefined || x === null ? '' : x).trim(); }
+  url(x) { return /^https:\/\/[^\s/.]+\.[^\s]+$/.test(this.T(x)); }
+  dl(iso) { if (!iso) return ''; const p = iso.split('-'); return Number(p[2]) + ' ' + Component.MON[Number(p[1]) - 1] + ' ' + p[0]; }
+  stamp(n) { const m = 640 + 2 * n; return '27 Aug 2026, ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+  slug(x) { return this.T(x).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'experiment'; }
+  focusId(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) { el.focus(); if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); } }, 60); }
+  toTop() { try { window.scrollTo(0, 0); } catch (e) {} }
+  stop(ev) { if (ev && ev.preventDefault) ev.preventDefault(); }
+  stCls(st, lg) { const k = Component.STK[st]; return 'xr-st' + (k ? ' xr-st--' + k : '') + (lg ? ' rk-st-lg' : ''); }
+  stepOf(k) { return ['course', 'name', 'summary', 'desc', 'version'].indexOf(k) >= 0 ? 1 : (k === 'plabel' || k === 'plink' || k === 'docs') ? 3 : 2; }
+  flabel(k) {
+    const m = { course: 'Course and description · Course', name: 'Course and description · Experiment name', summary: 'Course and description · Summary', desc: 'Course and description · Description', version: 'Course and description · Version', plabel: 'Preview and documents · Preview label', plink: 'Preview and documents · Preview link', docs: 'Preview and documents · Documents', WEB_link: 'Formats and delivery · WEB · Web link', WEB_browser: 'Formats and delivery · WEB · Browser and computer needed', WEB_notes: 'Formats and delivery · WEB · Notes' };
+    if (m[k]) return m[k];
+    if (k.indexOf('f_') === 0) return 'Formats and delivery · Formats';
+    const f = k.split('_')[0], x = k.slice(f.length + 1);
+    const n = { label: 'Package label', ref: 'Package reference', file: 'Package file', device: 'Device needed', install: 'Install notes', notes: 'Notes' }[x] || x;
+    return 'Formats and delivery · ' + f + ' · ' + n;
+  }
+  recList(s) { return Object.keys(s.recs).map(id => s.recs[id]); }
+  byLast(a, b) { return a.last === b.last ? a.id.localeCompare(b.id) : a.last.localeCompare(b.last); }
+  taken(s, exceptId) { const t = Component.CATALOGUE.slice(); Object.keys(s.recs).forEach(id => { if (id !== exceptId) t.push(s.recs[id].data.name); }); return t; }
+  submittedOn(r) { const h = (r.hist || []).find(x => x.what.indexOf('Submitted') === 0); return h ? h.when.split(',')[0] : ''; }
+  dirty(ed) { return !!ed && JSON.stringify(ed.data) !== JSON.stringify(ed.base); }
+
+  // ── validation (v46 copy, exact) ──
+  e1(s, ed) {
+    const d = ed.data, e = {}, T = x => this.T(x);
+    if (!d.course) e.course = ed.stale ? ed.stale + ' is no longer one of your assigned courses. Choose one of your courses.' : 'Choose a course';
+    else if (Component.ASSIGNED.indexOf(d.course) < 0) e.course = d.course + ' is no longer one of your assigned courses. Choose one of your courses.';
+    const n = T(d.name);
+    if (!n) e.name = 'Enter the experiment name';
+    else if (this.taken(s, ed.key).some(x => x.toLowerCase() === n.toLowerCase())) e.name = 'An experiment called “' + n + '” already exists. Choose a different name.';
+    if (!T(d.summary)) e.summary = 'Enter a one-sentence summary';
+    if (!T(d.desc)) e.desc = 'Enter a description';
+    if (!T(d.version)) e.version = 'Enter a version, for example 1.0';
+    return e;
+  }
+  e2(s, ed) {
+    const d = ed.data, e = {}, T = x => this.T(x);
+    if (!Component.FM.some(f => d['f_' + f])) e.fmts = 'Choose at least one format';
+    if (d.f_WEB) {
+      if (!T(d.WEB_link)) e.WEB_link = 'Enter the web link for WEB'; else if (!this.url(d.WEB_link)) e.WEB_link = 'Enter a web link that starts with https://';
+      if (!T(d.WEB_browser)) e.WEB_browser = 'Say which browser and computer WEB needs';
+    }
+    Component.PK.forEach(f => {
+      if (!d['f_' + f]) return;
+      if (!T(d[f + '_label'])) e[f + '_label'] = 'Enter a package label for ' + f;
+      if (!T(d[f + '_ref']) && !T(d[f + '_file'])) e[f + '_ref'] = 'Enter a package reference for ' + f + ', or attach the package file';
+      if (!T(d[f + '_device'])) e[f + '_device'] = 'Say which device ' + f + ' needs';
+      if (!T(d[f + '_install'])) e[f + '_install'] = 'Add install notes for ' + f;
+    });
+    return e;
+  }
+  e3(s, ed) {
+    const d = ed.data, e = {};
+    if (this.T(d.plink) && !this.url(d.plink)) e.plink = 'Enter a preview link that starts with https://';
+    else if (this.T(d.plabel) && !this.T(d.plink)) e.plink = 'Add a preview link for “' + this.T(d.plabel) + '”, or remove the label';
+    return e;
+  }
+  stepErrs(s, ed, n) { return n === 1 ? this.e1(s, ed) : n === 2 ? this.e2(s, ed) : n === 3 ? this.e3(s, ed) : {}; }
+  allErrs(s, ed) { return Object.assign({}, this.e1(s, ed), this.e2(s, ed), this.e3(s, ed)); }
+
+  // ── state construction ──
+  fresh(sc) {
+    return { ready: false, sc, recs: Component.world(sc), clock: 0, nextNo: 87, view: 'overview', recId: '', tab: 'details', ed: null,
+      list: { q: '', st: 'all', recent: false, desc: true, mode: 'ok' }, menu: false, acct: false, dlg: '', leave: null,
+      help: { view: 'list', what: '', where: 'Overview', shot: '', err: false, busy: false, reports: [], cur: '' },
+      pv: { open: true, screen: '', sc: '' }, chrome: true, back: null };
+  }
+  initial() {
+    const P = this.props, keys = Component.SCENS.map(x => x[0]);
+    const sc = keys.indexOf(P.scenario) >= 0 ? P.scenario : 'portfolio';
+    let s = this.fresh(sc);
+    s.chrome = P.chrome !== 'none';
+    s = this.jump(s, P.start || (sc === 'stale' ? 'VE-08' : 'VE-01'), P.rec || '', Number(P.step) || 0);
+    s = this.preset(s, P.preset || '');
+    return s;
+  }
+  edNew() { const d = Component.blank(); return { key: '', mode: 'new', flow: 'create', want: 'new', step: 1, data: d, base: Component.clone(d), errs: {}, tried: false, saved: '', busy: false, done: '', stale: '' }; }
+  edFor(s, id, want, field) {
+    const r = s.recs[id]; if (!r) return null;
+    let mode = want;
+    if (r.st === 'readonly') mode = 'readonly';
+    else if (want === 'revise' && !(r.st === 'returned' || r.st === 'returned_cm')) mode = r.st === 'draft' ? 'draft' : 'refused';
+    else if (want === 'draft' && r.st !== 'draft') mode = (r.st === 'returned' || r.st === 'returned_cm') ? 'revise' : 'refused';
+    const d = Component.clone(r.pending || r.data);
+    const step = field ? this.stepOf(field) : (mode === 'draft' ? (r.step || 1) : 1);
+    return { key: id, mode, flow: mode === 'draft' ? 'draft' : mode, want, step, data: d, base: Component.clone(d), errs: {}, tried: false, saved: '', busy: false, done: '', stale: '' };
+  }
+  navTo(s, t) {
+    const n = Object.assign({}, s, { view: t.view, menu: false, acct: false, dlg: '', leave: null, pv: Object.assign({}, s.pv, { screen: '' }) });
+    if (t.view !== 'editor') n.ed = null;
+    if (t.recId !== undefined) n.recId = t.recId;
+    if (t.tab) n.tab = t.tab;
+    if (t.listPatch) n.list = Object.assign({}, s.list, t.listPatch);
+    if (t.ed) n.ed = t.ed;
+    if (t.help) n.help = Object.assign({}, s.help, t.help);
+    return n;
+  }
+  go(t, focus) {
+    const s = this.S();
+    if (s.view === 'editor' && s.ed && !s.ed.done && this.dirty(s.ed) && !t.force) {
+      this.put({ dlg: 'leave', leave: Object.assign({}, t, { focus: focus || 've-h1' }), menu: false, acct: false });
+      this.focusId('ve-dlg-t'); return;
+    }
+    this.put(this.navTo(s, t)); this.toTop(); this.focusId(focus || 've-h1');
+  }
+  latest(s, pred) { const l = this.recList(s).filter(pred).sort((a, b) => this.byLast(b, a)); return l.length ? l[0].id : ''; }
+  jump(s, id, rec, step) {
+    const has = x => x && s.recs[x];
+    const editable = s.ed && !s.ed.done && (s.ed.mode === 'new' || s.ed.mode === 'draft');
+    if (id === 'VE-01') return this.navTo(s, { view: 'overview' });
+    if (id === 'VE-02') return this.navTo(s, { view: 'list' });
+    if (id === 'VE-03' || id === 'VE-04' || id === 'VE-05' || id === 'VE-06') {
+      const n = { 'VE-03': 1, 'VE-04': 2, 'VE-05': 3, 'VE-06': 4 }[id];
+      // the create flow in progress, else the newest draft started in this preview session, else a new experiment
+      const sessionDraft = this.latest(s, x => x.st === 'draft' && Number(x.id.slice(4)) >= 87);
+      let ed;
+      if (has(rec)) ed = this.edFor(s, rec, 'draft');
+      else if (editable && s.ed.flow === 'create') ed = Object.assign({}, s.ed);
+      else if (sessionDraft && n > 1) ed = this.edFor(s, sessionDraft, 'draft');
+      else ed = this.edNew();
+      if (ed.mode === 'draft' || ed.mode === 'new') { ed.step = step || n; ed.flow = 'create'; }
+      return this.navTo(s, { view: 'editor', recId: ed.key || '', ed });
+    }
+    if (id === 'VE-07' || id === 'VE-13') {
+      const r = has(rec) ? rec : (has(s.recId) ? s.recId : (id === 'VE-13' && has('SUB-0077') ? 'SUB-0077' : (this.latest(s, x => x.st === 'returned' || x.st === 'returned_cm') || this.latest(s, () => true))));
+      if (!r) return this.navTo(s, { view: 'overview' });
+      return this.navTo(s, { view: 'record', recId: r, tab: id === 'VE-13' ? 'history' : 'details' });
+    }
+    if (id === 'VE-08') {
+      const r = has(rec) ? rec : (this.latest(s, x => x.st === 'returned' || x.st === 'returned_cm') || this.latest(s, x => x.st === 'submitted'));
+      if (!r) return this.navTo(s, { view: 'overview' });
+      const ed = this.edFor(s, r, 'revise'); if (step && ed.mode === 'revise') ed.step = step;
+      return this.navTo(s, { view: 'editor', recId: r, ed });
+    }
+    if (id === 'VE-09') {
+      const r = has(rec) ? rec : this.latest(s, x => x.st === 'draft');
+      if (!r) return this.navTo(s, { view: 'overview' });
+      const ed = this.edFor(s, r, 'draft'); if (step && ed.mode === 'draft') ed.step = step;
+      return this.navTo(s, { view: 'editor', recId: r, ed });
+    }
+    if (id === 'XS-07') return this.navTo(s, { view: 'help', help: { view: 'list', where: this.pageLabel(s), err: false, busy: false } });
+    if (id === 'XS-06') return this.navTo(s, { view: 'notmine' });
+    return s;
+  }
+  sampleStep(ed, step) {
+    const name = this.T(ed.data.name) || 'Natural Convection from a Vertical Plate', sl = this.slug(name);
+    if (step === 1) return { course: 'ME ZG523', name: 'Natural Convection from a Vertical Plate', summary: 'Heat a vertical plate in still air and relate its heat transfer coefficient to the plate temperature.', desc: 'Learners set the plate temperature, read the air temperature beside the plate at several heights and compare the measured heat transfer coefficient with the free-convection correlation for a vertical plate.', version: '1.0' };
+    if (step === 2) return { f_WEB: true, WEB_link: 'https://labs.northline.example/' + sl, WEB_browser: 'A current browser on a laptop or desktop' };
+    if (step === 3) return { plabel: 'Two-minute walkthrough', plink: 'https://media.northline.example/' + sl + '-walkthrough', docs: ed.data.docs.length ? ed.data.docs : ['Lab handout — ' + name + '.pdf'] };
+    return {};
+  }
+  preset(s, p) {
+    if (!p) return s;
+    const withEd = (ed, extra) => Object.assign({}, s, { view: 'editor', recId: ed.key || '', ed }, extra || {});
+    const newDraft = () => {
+      const ed = this.edNew(); Object.assign(ed.data, this.sampleStep(ed, 1));
+      const key = 'SUB-0087';
+      const rec = { id: key, st: 'draft', rev: 1, step: 1, last: Component.ASOF, savedAt: this.stamp(0), pending: null, pendingAt: '', approved: '', pub: '', ret: null, outcomes: [], data: Component.clone(ed.data), hist: [{ what: 'Draft saved', when: this.stamp(0), note: 'Only you can see a draft.' }] };
+      s = Object.assign({}, s, { recs: Object.assign({}, s.recs, { [key]: rec }), nextNo: 88, clock: 1 });
+      return Object.assign(ed, { key, mode: 'draft', flow: 'create', base: Component.clone(ed.data) });
+    };
+    const patchData = (ed, o) => { ed.data = Object.assign({}, ed.data, o); return ed; };
+    switch (p) {
+      case 'ed-validation': { const ed = this.edNew(); ed.errs = this.e1(s, ed); return withEd(ed); }
+      case 'ed-name-taken': { const ed = this.edNew(); patchData(ed, { course: 'ME ZG523', name: 'Composite Wall Conduction', summary: 'Measure the temperature profile across a three-layer wall and compare it with the series-resistance model.', desc: 'Learners build a wall from three layers — brick, insulation and plaster — set the hot-side and cold-side temperatures, and read the temperature at each interface. They compare the measured profile and heat flux with the series thermal-resistance model and explain where the two differ.', version: '1.0' }); ed.errs = { name: 'An experiment called “Composite Wall Conduction” already exists. Choose a different name.' }; return withEd(ed); }
+      case 'ed-course-withdrawn': { const ed = this.edNew(); patchData(ed, this.sampleStep(ed, 1)); ed.data.course = ''; ed.stale = 'MEL ZG512'; ed.errs = { course: 'MEL ZG512 is no longer one of your assigned courses. Choose one of your courses.' }; return withEd(ed); }
+      case 'ed-saved': { const ed = newDraft(); ed.saved = 'Draft saved · ' + this.stamp(0); return withEd(ed); }
+      case 'ed-fmt-all': { const ed = newDraft(); ed.step = 2; patchData(ed, { f_WEB: true, f_AR: true, f_VR: true, f_MR: true }); return withEd(ed); }
+      case 'ed-fmt-invalid': { const ed = newDraft(); ed.step = 2; patchData(ed, { f_WEB: true, f_VR: true, WEB_link: 'labs.northline.example/natural-convection-from-a-vertical-plate' }); ed.errs = this.e2(s, ed); return withEd(ed); }
+      case 'ed-fmt-mixed': { const ed = newDraft(); ed.step = 2; patchData(ed, this.sampleStep(ed, 2)); patchData(ed, { f_AR: true, AR_label: 'Natural Convection — AR build 1.0', AR_ref: 'NSS-NC-AR-1.0' }); return withEd(ed); }
+      case 'ed-fmt-none': { const ed = newDraft(); ed.step = 2; ed.errs = { fmts: 'Choose at least one format' }; return withEd(ed); }
+      case 'ed-preview': { const ed = newDraft(); ed.step = 3; patchData(ed, this.sampleStep(ed, 2)); patchData(ed, this.sampleStep(ed, 3)); ed.base = Component.clone(ed.data); return withEd(ed); }
+      case 'ed-preview-error': { const ed = newDraft(); ed.step = 3; patchData(ed, this.sampleStep(ed, 2)); patchData(ed, { plabel: 'Two-minute walkthrough' }); ed.base = Component.clone(ed.data); ed.errs = this.e3(s, ed); return withEd(ed); }
+      case 'ed-check-ready': case 'ed-dialog': case 'ed-submitted': case 'ed-leave': case 'rec-with-rv': {
+        const ed = newDraft(); ed.step = 4; patchData(ed, this.sampleStep(ed, 2)); patchData(ed, this.sampleStep(ed, 3)); ed.base = Component.clone(ed.data);
+        if (p === 'ed-dialog') { ed.tried = true; return withEd(ed, { dlg: 'submit' }); }
+        if (p === 'ed-leave') { ed.step = 2; ed.data = Object.assign({}, ed.data, { WEB_notes: 'Works best in a full-screen window.' }); return withEd(ed, { dlg: 'leave', leave: { view: 'list', focus: 've-h1' } }); }
+        if (p === 'ed-submitted' || p === 'rec-with-rv') {
+          const key = ed.key, t = this.stamp(1), r = s.recs[key];
+          const rec = Object.assign({}, r, { st: 'with_rv', rev: 1, step: 4, data: Component.clone(ed.data), hist: [{ what: 'Submitted for academic review', when: t, note: 'With the Academic Reviewer. Nothing is published.' }].concat(r.hist) });
+          s = Object.assign({}, s, { recs: Object.assign({}, s.recs, { [key]: rec }), clock: 2 });
+          if (p === 'rec-with-rv') return Object.assign({}, s, { view: 'record', recId: key, tab: 'details', ed: null });
+          return withEd(Object.assign(ed, { done: 'submitted' }));
+        }
+        return withEd(ed);
+      }
+      case 'ed-check-missing': { const ed = newDraft(); ed.step = 4; patchData(ed, { f_WEB: true, WEB_link: 'https://labs.northline.example/natural-convection-from-a-vertical-plate', plabel: 'Two-minute walkthrough' }); ed.base = Component.clone(ed.data); ed.tried = true; return withEd(ed); }
+      case 'rv-ref': { const ed = this.edFor(s, 'SUB-0081', 'revise', 'AR_device'); return withEd(ed); }
+      case 'rv-saved': case 'rv-check': case 'rv-dialog': case 'rv-done': case 'rec-private': {
+        const ed = this.edFor(s, 'SUB-0081', 'revise'); patchData(ed, Component.REVFIX['SUB-0081']);
+        if (p === 'rv-saved' || p === 'rec-private') {
+          const r = s.recs['SUB-0081'];
+          s = Object.assign({}, s, { recs: Object.assign({}, s.recs, { 'SUB-0081': Object.assign({}, r, { pending: Component.clone(ed.data), pendingAt: this.stamp(0) }) }), clock: 1 });
+          if (p === 'rec-private') return Object.assign({}, s, { view: 'record', recId: 'SUB-0081', tab: 'details', ed: null });
+          ed.step = 2; ed.base = Component.clone(ed.data); ed.saved = 'Changes saved · ' + this.stamp(0) + ' · not resubmitted yet'; return withEd(ed);
+        }
+        ed.step = 4;
+        if (p === 'rv-dialog') { ed.tried = true; return withEd(ed, { dlg: 'submit' }); }
+        if (p === 'rv-done') {
+          const r = s.recs['SUB-0081'], t = this.stamp(0);
+          s = Object.assign({}, s, { recs: Object.assign({}, s.recs, { 'SUB-0081': Object.assign({}, r, { st: 'submitted', rev: 2, data: Component.clone(ed.data), pending: null, ret: null, last: Component.ASOF, hist: [{ what: 'Submitted · revision 2', when: t, note: 'Your changes have been submitted for review.' }].concat(r.hist) }) }), clock: 1 });
+          ed.base = Component.clone(ed.data); return withEd(Object.assign(ed, { done: 'resubmitted' }));
+        }
+        return withEd(ed);
+      }
+      case 'list-filtered': return Object.assign({}, s, { view: 'list', list: Object.assign({}, s.list, { st: 'returned' }) });
+      case 'list-nomatch': return Object.assign({}, s, { view: 'list', list: Object.assign({}, s.list, { q: 'Radiation' }) });
+      case 'list-recent': return Object.assign({}, s, { view: 'list', list: Object.assign({}, s.list, { recent: true }) });
+      case 'list-loading': return Object.assign({}, s, { view: 'list', list: Object.assign({}, s.list, { mode: 'loading' }) });
+      case 'list-failed': return Object.assign({}, s, { view: 'list', list: Object.assign({}, s.list, { mode: 'failed' }) });
+      case 'menu': return Object.assign({}, s, { menu: true });
+      case 'acct': return Object.assign({}, s, { acct: true });
+      case 'help-form': return Object.assign({}, s, { view: 'help', help: Object.assign({}, s.help, { view: 'form', where: 'My experiments' }) });
+      case 'help-error': return Object.assign({}, s, { view: 'help', help: Object.assign({}, s.help, { view: 'form', where: 'My experiments', err: true }) });
+      case 'help-sent': { const rep = { id: 'SUP-0181', title: 'The record page did not show my saved changes', what: 'The record page did not show my saved changes', where: 'My experiments · Forced Convection', shot: 'No screenshot added', sent: '27 Aug 2026', status: 'Open' }; return Object.assign({}, s, { view: 'help', help: Object.assign({}, s.help, { view: 'sent', reports: [rep], cur: rep.id }) }); }
+      default: return s;
+    }
+  }
+  pageLabel(s) {
+    const r = s.recs[s.recId];
+    if (s.view === 'overview') return 'Overview';
+    if (s.view === 'list') return 'My experiments';
+    if (s.view === 'record' && r) return 'My experiments · ' + r.data.name + (s.tab === 'history' ? ' · Submission and version history' : '');
+    if (s.view === 'editor' && s.ed) { const ed = s.ed; const w = ed.mode === 'revise' ? 'Revise and resubmit' : ed.flow === 'draft' ? 'Edit draft' : 'Create experiment'; return w + ' · ' + (this.T(ed.data.name) || 'New experiment') + ' · ' + Component.TITLES[ed.step]; }
+    if (s.view === 'help') return 'Help & support';
+    return 'Vendor workspace';
+  }
+  screenOf(s) {
+    if (s.view === 'overview') return ['VE-01'];
+    if (s.view === 'list') return ['VE-02'];
+    if (s.view === 'record') return [s.tab === 'history' ? 'VE-13' : 'VE-07'];
+    if (s.view === 'editor') {
+      const ed = s.ed; if (!ed) return ['VE-03'];
+      const byStep = ['VE-03', 'VE-04', 'VE-05', 'VE-06'][ed.step - 1];
+      if (ed.done) return ed.done === 'resubmitted' ? ['VE-08'] : ['VE-06'];
+      if (ed.mode === 'revise') return ['VE-08', byStep];
+      if (ed.mode === 'refused' || ed.mode === 'readonly') return [ed.want === 'revise' ? 'VE-08' : 'VE-09'];
+      if (ed.flow === 'draft') return ['VE-09', byStep];
+      return [byStep];
+    }
+    if (s.view === 'help') return ['XS-07'];
+    if (s.view === 'notmine') return ['XS-06'];
+    if (s.view === 'signedout') return ['XS-03'];
+    return ['VE-01'];
+  }
+
+  // ── editor actions ──
+  edPut(patch, extra) { const s = this.S(); this.put(Object.assign({ ed: Object.assign({}, s.ed, patch) }, extra || {})); }
+  edField(k, v) {
+    const s = this.S(), ed = s.ed; if (!ed) return;
+    const errs = Object.assign({}, ed.errs); delete errs[k];
+    const patch = { data: Object.assign({}, ed.data, { [k]: v }), errs, saved: '' };
+    if (k === 'course') patch.stale = '';
+    this.put({ ed: Object.assign({}, ed, patch) });
+  }
+  edTog(f) { const s = this.S(), ed = s.ed; const errs = Object.assign({}, ed.errs); delete errs.fmts; this.put({ ed: Object.assign({}, ed, { data: Object.assign({}, ed.data, { ['f_' + f]: !ed.data['f_' + f] }), errs, saved: '' }) }); }
+  edAttach(f) { const s = this.S(), ed = s.ed, d = ed.data; const errs = Object.assign({}, ed.errs); delete errs[f + '_ref']; const name = this.slug(d.name) + '-' + f.toLowerCase() + '-' + (this.T(d.version) || '1.0') + '.zip'; this.put({ ed: Object.assign({}, ed, { data: Object.assign({}, d, { [f + '_file']: name }), errs, saved: '' }) }); }
+  docPool(d) { return d.docs.some(x => x.indexOf('Composite Wall') >= 0) ? ['Lab handout — Composite Wall.pdf', 'Thermocouple positions.pdf', 'Safety notes.pdf'] : ['Lab handout — ' + (this.T(d.name) || 'Experiment') + '.pdf', 'Safety notes.pdf', 'Instrument positions.pdf']; }
+  edAddDoc() { const s = this.S(), ed = s.ed, d = ed.data; const left = this.docPool(d).filter(x => d.docs.indexOf(x) < 0); if (!left.length) return; this.put({ ed: Object.assign({}, ed, { data: Object.assign({}, d, { docs: d.docs.concat([left[0]]) }), saved: '' }) }); }
+  edRmDoc(i) { const s = this.S(), ed = s.ed, d = ed.data; this.put({ ed: Object.assign({}, ed, { data: Object.assign({}, d, { docs: d.docs.filter((x, j) => j !== i) }), saved: '' }) }); this.focusId('ve-h1'); }
+  edGoStep(n, field, withErrs) {
+    const s = this.S(), ed = s.ed; if (!ed) return;
+    const errs = withErrs ? this.stepErrs(s, Object.assign({}, ed, { step: n }), n) : {};
+    this.put({ ed: Object.assign({}, ed, { step: n, errs, saved: '' }) });
+    if (!field) this.toTop();
+    this.focusId(field ? (field === 'fmts' ? 'f-fmts' : 'f-' + field) : 've-h1');
+  }
+  edNext() {
+    const s = this.S(), ed = s.ed; const e = this.stepErrs(s, ed, ed.step);
+    if (Object.keys(e).length) { this.put({ ed: Object.assign({}, ed, { errs: e, saved: '' }) }); this.focusId('ve-errs'); return; }
+    this.put({ ed: Object.assign({}, ed, { step: Math.min(4, ed.step + 1), errs: {}, saved: '' }) }); this.toTop(); this.focusId('ve-h1');
+  }
+  edBack() { const s = this.S(), ed = s.ed; this.put({ ed: Object.assign({}, ed, { step: Math.max(1, ed.step - 1), errs: {}, saved: '' }) }); this.toTop(); this.focusId('ve-h1'); }
+  edSave() {
+    const s = this.S(), ed = s.ed, d = ed.data;
+    if (!this.T(d.name)) { this.put({ ed: Object.assign({}, ed, { step: 1, errs: { name: 'Enter a name to save a draft' }, saved: '' }) }); this.focusId('ve-errs'); return; }
+    const t = this.stamp(s.clock); const recs = Object.assign({}, s.recs); let key = ed.key, nextNo = s.nextNo, mode = ed.mode, saved = '';
+    if (mode === 'new') {
+      key = 'SUB-' + String(nextNo).padStart(4, '0'); nextNo += 1;
+      recs[key] = { id: key, st: 'draft', rev: 1, step: ed.step, last: Component.ASOF, savedAt: t, pending: null, pendingAt: '', approved: '', pub: '', ret: null, outcomes: [], data: Component.clone(d), hist: [{ what: 'Draft saved', when: t, note: 'Only you can see a draft.' }] };
+      mode = 'draft'; saved = 'Draft saved · ' + t;
+    } else if (mode === 'draft') {
+      recs[key] = Object.assign({}, recs[key], { data: Component.clone(d), step: ed.step, last: Component.ASOF, savedAt: t }); saved = 'Draft saved · ' + t;
+    } else if (mode === 'revise') {
+      const r = recs[key], same = JSON.stringify(d) === JSON.stringify(r.data);
+      recs[key] = Object.assign({}, r, { pending: same ? null : Component.clone(d), pendingAt: same ? '' : t });
+      saved = same ? 'Nothing has changed since revision ' + r.rev + ' was submitted' : 'Changes saved · ' + t + ' · not resubmitted yet';
+    }
+    this.put({ recs, nextNo, clock: s.clock + 1, recId: key, ed: Object.assign({}, ed, { key, mode, errs: {}, saved, base: Component.clone(d) }) });
+    this.focusId('ve-saved');
+  }
+  edSubmit() {
+    const s = this.S(), ed = s.ed; const A = this.allErrs(s, ed);
+    if (Object.keys(A).length) { this.put({ ed: Object.assign({}, ed, { tried: true, errs: {}, saved: '' }) }); this.focusId('ve-miss'); return; }
+    this.put({ ed: Object.assign({}, ed, { tried: true, errs: {}, saved: '' }), dlg: 'submit' }); this.focusId('ve-dlg-t');
+  }
+  edDoSubmit() {
+    const s0 = this.S(); if (!s0.ed || s0.ed.busy) return;
+    this.put({ ed: Object.assign({}, s0.ed, { busy: true }) });
+    window.setTimeout(() => {
+      const s = this.S(), ed = s.ed; if (!ed || !ed.busy) return;
+      const t = this.stamp(s.clock), recs = Object.assign({}, s.recs); let key = ed.key, nextNo = s.nextNo, done;
+      if (ed.mode === 'revise') {
+        const r = recs[key], rev = (r.rev || 1) + 1;
+        recs[key] = Object.assign({}, r, { st: 'submitted', rev, data: Component.clone(ed.data), pending: null, pendingAt: '', ret: null, last: Component.ASOF, hist: [{ what: 'Submitted · revision ' + rev, when: t, note: 'Your changes have been submitted for review.' }].concat(r.hist) });
+        done = 'resubmitted';
+      } else {
+        let hist;
+        if (!key || !recs[key]) { key = 'SUB-' + String(nextNo).padStart(4, '0'); nextNo += 1; hist = [{ what: 'Submitted for academic review', when: t, note: 'With the Academic Reviewer. Nothing is published.' }, { what: 'Created', when: t, note: '' }]; }
+        else hist = [{ what: 'Submitted for academic review', when: t, note: 'With the Academic Reviewer. Nothing is published.' }].concat(recs[key].hist);
+        recs[key] = Object.assign({ id: key, outcomes: [], approved: '', pub: '', pending: null, pendingAt: '', savedAt: '' }, recs[key] || {}, { st: 'with_rv', rev: 1, step: 4, data: Component.clone(ed.data), ret: null, last: Component.ASOF, hist });
+        done = 'submitted';
+      }
+      this.put({ recs, nextNo, clock: s.clock + 1, dlg: '', recId: key, ed: Object.assign({}, ed, { key, busy: false, done, base: Component.clone(ed.data), saved: '' }) });
+      this.toTop(); this.focusId('ve-h1');
+    }, 800);
+  }
+  startRevise(id, field) { const s = this.S(); const ed = this.edFor(s, id, 'revise', field); this.go({ view: 'editor', recId: id, ed }, field ? (field === 'fmts' ? 'f-fmts' : 'f-' + field) : (ed.mode === 'revise' ? 've-reason' : 've-h1')); }
+  editDraft(id) { const s = this.S(); this.go({ view: 'editor', recId: id, ed: this.edFor(s, id, 'draft') }); }
+  openRecord(id, tab) { this.go({ view: 'record', recId: id, tab: tab || 'details' }); }
+  createNew() { this.go({ view: 'editor', recId: '', ed: this.edNew() }, 'f-course'); }
+  fillSample() {
+    const s = this.S(), ed = s.ed; if (!ed || ed.done || ed.mode === 'readonly' || ed.mode === 'refused') return;
+    const p = ed.mode === 'revise' ? (Component.REVFIX[ed.key] || {}) : this.sampleStep(ed, ed.step);
+    if (ed.mode !== 'revise' && ed.step === 1 && this.taken(s, ed.key).some(x => x.toLowerCase() === p.name.toLowerCase())) p.name = p.name + ' (2)';
+    this.put({ ed: Object.assign({}, ed, { data: Object.assign({}, ed.data, p), errs: {}, saved: '', stale: p.course ? '' : ed.stale }) });
+  }
+  // ── view builders ──
+  // ── refinement R1 helpers (presentation only; no new rules) ──
+  shortDay(when) { const d = String(when || '').split(',')[0]; return d === '27 Aug 2026' ? 'Today' : d.replace(/ \d{4}$/, ''); }
+  onDay(when) { const d = this.shortDay(when); return d === 'Today' ? 'today' : 'on ' + d; }
+  whenKey(w) {
+    const m = /^(\d{1,2}) (\w{3}) (\d{4})(?:, (\d{2}):(\d{2}))?/.exec(String(w || ''));
+    if (!m) return '';
+    const mo = Component.MON.indexOf(m[2]) + 1;
+    return m[3] + '-' + String(mo).padStart(2, '0') + '-' + m[1].padStart(2, '0') + ' ' + (m[4] ? m[4] + ':' + m[5] : '00:00');
+  }
+  activity(s, n) {
+    const ev = [];
+    this.recList(s).forEach(r => (r.hist || []).forEach((h, i) => { if (h.what !== 'Created') ev.push({ r, h, i, key: this.whenKey(h.when) }); }));
+    ev.sort((a, b) => a.key === b.key ? a.i - b.i : (a.key < b.key ? 1 : -1));
+    return ev.slice(0, n).map(e => ({ what: e.h.what, name: e.r.data.name, day: this.shortDay(e.h.when), time: String(e.h.when).split(', ')[1] || '',
+      aria: e.h.what + ', ' + e.r.data.name + ', ' + e.h.when + '. Open the experiment record', go: ev2 => { this.stop(ev2); this.openRecord(e.r.id); } }));
+  }
+  stSub(r) {
+    const d = x => this.shortDay(x);
+    switch (r.st) {
+      case 'returned': case 'returned_cm': return r.ret ? 'By the ' + r.ret.by + ' ' + this.onDay(r.ret.when) : '';
+      case 'draft': return 'Saved at step ' + (r.step || 1) + ' of 4 · only you can see it';
+      case 'readonly': return 'Course withdrawn ' + this.onDay(r.withdrawn || '') + ' · read-only';
+      case 'submitted': return 'Revision ' + r.rev + ' · submitted ' + this.onDay(this.submittedOn(r));
+      case 'with_rv': return 'Submitted ' + this.onDay(this.submittedOn(r));
+      case 'recheck': return 'Back for a re-check';
+      case 'with_cm': return 'Approved ' + this.onDay(r.approved || '');
+      case 'published': return 'Live in the catalogue since ' + d(r.pub || '');
+      default: return '';
+    }
+  }
+  overView(s) {
+    const all = this.recList(s);
+    const ret = all.filter(r => r.st === 'returned' || r.st === 'returned_cm').sort((a, b) => this.byLast(b, a));
+    const drafts = all.filter(r => r.st === 'draft').sort((a, b) => this.byLast(b, a));
+    const refShort = t => { const p = String(t).split(' · '); return p.length > 1 ? p.slice(1).join(' · ') : t; };
+    const retItem = r => ({ isRet: true, isDraft: false, kind: 'Returned to you', name: r.data.name, sub: 'By the ' + r.ret.by + ' ' + this.onDay(r.ret.when) + (r.pending ? ' · your changes are saved, not resubmitted' : ''),
+      meta: r.ret.by + ' · ' + r.ret.who + ' · ' + r.ret.when.split(',')[0], reason: r.ret.reason, refs: r.ret.refs.map(x => refShort(x.t)), hasRefs: r.ret.refs.length > 0, pending: !!r.pending,
+      act: 'Revise “' + r.data.name + '”', aria: 'Revise ' + r.data.name + ', returned by the ' + r.ret.by, to: 'VE-08', go: ev => { this.stop(ev); this.startRevise(r.id); } });
+    const drItem = r => ({ isRet: false, isDraft: true, kind: 'Draft to finish', name: r.data.name, sub: 'Saved at step ' + (r.step || 1) + ' of 4 · ' + this.dl(r.last) + ' · only you can see it',
+      act: 'Finish draft', aria: 'Finish the draft of ' + r.data.name, to: 'VE-09', go: ev => { this.stop(ev); this.editDraft(r.id); } });
+    const lead = ret.length ? retItem(ret[0]) : null;
+    const rows = ret.slice(1).map(retItem).concat(drafts.map(drItem));
+    rows.forEach((x, i) => { x.btnCls = (!lead && i === 0) ? 'rb-btn rb-btn--primary' : 'rb-btn'; });
+    const n = (lead ? 1 : 0) + rows.length;
+    const cnt = f => all.filter(f).length;
+    const nRet = ret.length, nDr = drafts.length, nRo = cnt(r => r.st === 'readonly'), nPub = cnt(r => r.st === 'published');
+    const nRev = cnt(r => r.st === 'submitted' || r.st === 'with_rv' || r.st === 'recheck' || r.st === 'with_cm');
+    const mine = [];
+    if (nRet) mine.push(nRet + ' returned');
+    if (nDr) mine.push(nDr + (nDr === 1 ? ' draft' : ' drafts'));
+    const figs = [{ t: 'With you', n: String(nRet + nDr), s: mine.join(' · ') || 'Nothing waiting' },
+      { t: 'In review', n: String(nRev), s: nRev ? 'Nothing needed from you' : 'None right now' },
+      { t: 'Published', n: String(nPub), s: nPub ? 'Live in the catalogue' : 'None yet' }];
+    if (nRo) figs.push({ t: 'Read-only', n: String(nRo), s: 'Course no longer assigned' });
+    const courses = Component.ASSIGNED.map(c => c + ' · ' + Component.COURSES[c]);
+    return { hasAny: all.length > 0, none: all.length === 0, headCreate: all.length > 0, hasLead: !!lead,
+      lead: lead || { kind: '', name: '', meta: '', reason: '', refs: [], hasRefs: false, pending: false, act: '', aria: '', go: () => {} },
+      rows, hasRows: rows.length > 0, calm: all.length > 0 && n === 0, attCount: n === 0 ? 'Nothing waiting' : n + (n === 1 ? ' item' : ' items'),
+      figs, acts: this.activity(s, 5), courseLine: (courses.length === 1 ? 'Your course: ' : 'Your courses: ') + courses.join(', '),
+      create: ev => { this.stop(ev); this.createNew(); },
+      toList: ev => { this.stop(ev); this.go({ view: 'list', listPatch: { st: 'all', q: '', recent: false, mode: 'ok' } }); },
+      toRecent: ev => { this.stop(ev); this.go({ view: 'list', listPatch: { st: 'all', q: '', recent: true, mode: 'ok' } }); } };
+  }
+  listView(s) {
+    const L = s.list, q = this.T(L.q).toLowerCase(), all = this.recList(s);
+    const inSt = (r, st) => st === 'all' || r.st === st || (st === 'with_rv' && r.st === 'recheck') || (st === 'returned' && r.st === 'returned_cm') || (st === 'draft' && r.st === 'readonly');
+    const pre = r => (!q || (r.data.name + ' ' + r.id + ' ' + r.data.course).toLowerCase().indexOf(q) >= 0) && (!L.recent || r.last >= Component.RECENT_FROM);
+    const list = all.filter(r => pre(r) && inSt(r, L.st)).sort((a, b) => L.desc ? this.byLast(b, a) : this.byLast(a, b));
+    const setL = p => this.put({ list: Object.assign({}, this.S().list, p) });
+    const ok = L.mode === 'ok', one = n => n + (n === 1 ? ' experiment' : ' experiments');
+    const tabName = { all: 'All', returned: 'Returned', draft: 'Draft', submitted: 'Submitted', with_rv: 'With Academic Reviewer', with_cm: 'With Content Manager', published: 'Published' };
+    const tabs = ['all', 'returned', 'draft', 'submitted', 'with_rv', 'with_cm', 'published']
+      .filter(k => k === 'all' || k === L.st || all.some(r => inSt(r, k)))
+      .map(k => { const c = all.filter(r => pre(r) && inSt(r, k)).length; return { id: 've-tab-' + k, label: tabName[k], n: String(c), aria: tabName[k] + ', ' + one(c), pressed: L.st === k ? 'true' : 'false', pick: () => setL({ st: k }) }; });
+    const rows = list.map(r => {
+      const isRet = r.st === 'returned' || r.st === 'returned_cm', isDr = r.st === 'draft';
+      const fm = Component.FM.filter(f => r.data['f_' + f]);
+      const open = () => this.openRecord(r.id);
+      return { id: r.id, name: r.data.name, course: r.data.course, fmts: fm, fmtAria: 'Formats: ' + (fm.join(', ') || 'none chosen'), stCls: this.stCls(r.st), stLabel: Component.STL[r.st], stSub: this.stSub(r), pending: !!r.pending,
+        when: this.dl(r.last), aria: r.data.name + ', ' + r.id + ', ' + Component.STL[r.st] + ', last change ' + this.dl(r.last) + '. Open the experiment record',
+        open, openLink: ev => { if (ev) { ev.preventDefault(); ev.stopPropagation(); } open(); },
+        hasAct: isRet || isDr, noAct: !(isRet || isDr), actLabel: isRet ? 'Revise' : 'Edit draft', actAria: (isRet ? 'Revise ' : 'Edit the draft of ') + r.data.name, actTo: isRet ? 'VE-08' : 'VE-09',
+        act: ev => { if (ev) { ev.preventDefault(); ev.stopPropagation(); } if (isRet) this.startRevise(r.id); else this.editDraft(r.id); } };
+    });
+    const filtered = !!q || L.st !== 'all' || !!L.recent;
+    return { q: L.q, onQ: ev => setL({ q: ev.target.value }), recent: !!L.recent, togRecent: () => setL({ recent: !this.S().list.recent }),
+      tabs, showTabs: ok && all.length > 0, hasFilters: filtered && ok, clear: () => { setL({ q: '', st: 'all', recent: false }); this.focusId('ve-q'); },
+      count: filtered ? list.length + ' of ' + one(all.length) : one(all.length), showCount: ok,
+      rows, has: ok && all.length > 0 && list.length > 0, none: ok && all.length > 0 && list.length === 0, empty: ok && all.length === 0, showTools: all.length > 0 || !ok, headCreate: all.length > 0 || !ok,
+      loading: L.mode === 'loading', failed: L.mode === 'failed', retry: () => { setL({ mode: 'ok' }); this.focusId('ve-h1'); },
+      sortLabel: L.desc ? 'last change, newest first' : 'last change, oldest first', sortShort: L.desc ? 'newest first' : 'oldest first', ariaSort: L.desc ? 'descending' : 'ascending', sortDesc: !!L.desc, sortAsc: !L.desc,
+      toggleSort: () => setL({ desc: !this.S().list.desc }), create: ev => { this.stop(ev); this.createNew(); } };
+  }
+  deliv(d) {
+    const T = x => this.T(x);
+    return Component.FM.filter(f => d['f_' + f]).map(f => ({ code: f, name: Component.FSHORT[f], kind: f === 'WEB' ? 'Web link' : 'App package', title: Component.FLONG[f] + (f === 'WEB' ? ' · Web link' : ' · App package'),
+      rows: f === 'WEB' ? [{ k: 'Web link', v: T(d.WEB_link) || '—' }, { k: 'Browser and computer', v: T(d.WEB_browser) || '—' }].concat(T(d.WEB_notes) ? [{ k: 'Notes', v: T(d.WEB_notes) }] : [])
+        : [{ k: 'Package label', v: T(d[f + '_label']) || '—' }, { k: 'Package reference', v: T(d[f + '_ref']) || '—' }].concat(d[f + '_file'] ? [{ k: 'Package file', v: d[f + '_file'] + ' (sample file)' }] : [])
+          .concat([{ k: 'Device needed', v: T(d[f + '_device']) || '—' }, { k: 'Install notes', v: T(d[f + '_install']) || '—' }]).concat(T(d[f + '_notes']) ? [{ k: 'Notes', v: T(d[f + '_notes']) }] : []) }));
+  }
+  edView(s) {
+    const ed = s.ed;
+    const empty = { editing: false, done: false, readonly: false, refused: false, f: {}, steps: [], pk: [], fmtOpts: [], courseOpts: [], errList: [], refs: [], docs: [], checklist: [], missing: [], chosen: [], delivery: [], outcomes: [], doneStand: [], rv1: {}, rv2: {}, rv3: {}, doneFacts: [], doneFmts: [] };
+    if (!ed) return empty;
+    const r = ed.key ? s.recs[ed.key] : null, d = ed.data, mode = ed.mode, T = x => this.T(x);
+    const isRev = mode === 'revise', editing = !ed.done && (mode === 'new' || mode === 'draft' || isRev);
+    const flowWord = isRev ? 'Revise and resubmit' : ed.flow === 'draft' ? 'Edit draft' : 'Create experiment';
+    const o = Object.assign({}, empty, { editing, isRevise: isRev && editing, done: !!ed.done, readonly: mode === 'readonly' && !ed.done, refused: mode === 'refused' && !ed.done });
+    const backTo = () => (r && mode !== 'new') ? { view: 'record', recId: r.id, tab: 'details' } : { view: 'list' };
+    o.toList = ev => { this.stop(ev); this.go({ view: 'list' }); };
+    o.toRecord = ev => { this.stop(ev); if (r) this.go({ view: 'record', recId: r.id, tab: 'details' }); };
+    o.openRecord = ev => { this.stop(ev); if (r) this.go({ view: 'record', recId: r.id, tab: 'details' }, 've-h1'); };
+    o.askHelp = ev => { this.stop(ev); const s2 = this.S(); this.go({ view: 'help', help: { view: 'form', where: this.pageLabel(s2), err: false, busy: false, what: '' } }); };
+    o.hasRecCrumb = !!r; o.crumbName = r ? (r.data.name || r.id) : '';
+    o.crumbHere = ed.done ? (ed.done === 'resubmitted' ? 'Submitted' : 'Submitted for academic review') : mode === 'readonly' ? 'Read-only' : mode === 'refused' ? (ed.want === 'draft' ? 'Edit draft' : 'Revise and resubmit') : flowWord;
+    // head
+    o.over = flowWord + ' · Step ' + ed.step + ' of 4';
+    o.title = Component.TITLES[ed.step];
+    o.hasStatus = !!r && (r.st === 'draft' || isRev);
+    o.stCls = r ? this.stCls(r.st) : 'xr-st'; o.stLabel = r ? Component.STL[r.st] : '';
+    o.idLine = !r ? 'Not saved yet' : isRev ? r.id + ' · revision ' + r.rev + ' was returned' : r.id + ' · only you can see a draft';
+    // reason above the editor (revise)
+    if (isRev && r && r.ret) {
+      o.retT = 'Returned by the ' + r.ret.by; o.retM = r.ret.when + ' · ' + r.ret.who; o.retReason = r.ret.reason;
+      o.refs = r.ret.refs.map(x => ({ t: x.t, aria: 'Go to ' + x.t, go: () => this.edGoStep(x.step || 2, x.field) })); o.hasRefs = o.refs.length > 0;
+    }
+    o.saved = ed.saved; o.hasSaved = !!ed.saved && editing;
+    const eKeys = Object.keys(ed.errs).filter(k => ed.errs[k]);
+    o.errList = eKeys.map(k => ({ t: ed.errs[k], href: '#' + (k === 'fmts' ? 'f-fmts' : 'f-' + k), go: ev => { this.stop(ev); this.focusId(k === 'fmts' ? 'f-fmts' : 'f-' + k); } }));
+    o.hasErr = eKeys.length > 0 && editing;
+    // fields
+    const hints = { course: 1, name: 1, summary: 1, desc: 1, version: 1, WEB_link: 1, WEB_browser: 1, plabel: 1, plink: 1 };
+    Component.PK.forEach(f => { ['label', 'ref', 'device', 'install'].forEach(k => { hints[f + '_' + k] = 1; }); });
+    const refFields = (isRev && r && r.ret) ? r.ret.refs.map(x => x.field) : [];
+    const fld = k => { const err = ed.errs[k] || ''; const id = 'f-' + k; return { id, hid: id + '-h', eid: id + '-e', v: d[k], err, has: !!err, inv: err ? 'true' : 'false', ref: refFields.indexOf(k) >= 0, db: ((hints[k] ? id + '-h' : '') + (err ? ' ' + id + '-e' : '')).trim() || undefined, on: ev => this.edField(k, ev.target.value) }; };
+    ['course', 'name', 'summary', 'desc', 'version', 'WEB_link', 'WEB_browser', 'WEB_notes', 'plabel', 'plink'].forEach(k => { o.f[k] = fld(k); });
+    o.isStale = !!ed.stale && !d.course; o.staleHint = ed.stale ? 'You chose ' + ed.stale + ' · ' + (Component.COURSES[ed.stale] || '') + ', which was withdrawn from your courses while you were editing.' : '';
+    o.courseOpts = Component.ASSIGNED.map(c => ({ v: c, t: c + ' · ' + Component.COURSES[c] }));
+    o.fmtOpts = Component.FM.map(f => ({ id: 'f-f' + f, code: f, name: Component.FSHORT[f], kind: f === 'WEB' ? 'Delivered as a web link' : 'Delivered as an app package', on: !!d['f_' + f], tog: () => this.edTog(f) }));
+    o.fmtsHas = !!ed.errs.fmts; o.fmtsErr = ed.errs.fmts || ''; o.fmtsDb = ed.errs.fmts ? 'f-fmts-e' : undefined;
+    o.fWEB = !!d.f_WEB;
+    o.pk = Component.PK.filter(f => d['f_' + f]).map(f => ({ code: f, title: Component.FLONG[f] + ' · App package', tid: 'p-' + f + '-t', flid: 'p-' + f + '-fl', fhid: 'p-' + f + '-fh', fdb: 'p-' + f + '-fl p-' + f + '-fh',
+      label: fld(f + '_label'), ref: fld(f + '_ref'), device: fld(f + '_device'), install: fld(f + '_install'), notes: fld(f + '_notes'), notesLabel: 'Notes for ' + f,
+      file: d[f + '_file'], hasFile: !!d[f + '_file'], noFile: !d[f + '_file'], attach: () => this.edAttach(f), unattach: () => this.edField(f + '_file', ''), rmAria: 'Remove the ' + f + ' package file' }));
+    o.hasPanels = Component.FM.some(f => d['f_' + f]);
+    o.docs = d.docs.map((n, i) => ({ name: n, rm: () => this.edRmDoc(i), aria: 'Remove ' + n })); o.hasDocs = d.docs.length > 0; o.noDocs = !d.docs.length;
+    o.canAddDoc = this.docPool(d).some(x => d.docs.indexOf(x) < 0); o.addDoc = () => this.edAddDoc();
+    [1, 2, 3, 4].forEach(i => { o['step' + i] = editing && ed.step === i; });
+    o.isFirst = ed.step === 1; o.notFirst = ed.step > 1; o.notLast = ed.step < 4; o.isLast = ed.step === 4;
+    o.next = () => this.edNext(); o.back = () => this.edBack(); o.save = () => this.edSave(); o.submit = () => this.edSubmit();
+    o.cancel = ev => { this.stop(ev); this.go(backTo()); };
+    o.saveLabel = isRev ? 'Save changes' : 'Save draft'; o.submitLabel = isRev ? 'Resubmit' : 'Submit for academic review';
+    // steps and live state
+    const e1 = this.e1(s, ed), e2 = this.e2(s, ed), e3 = this.e3(s, ed), A = Object.assign({}, e1, e2, e3);
+    const any1 = ['course', 'name', 'summary', 'desc', 'version'].some(k => T(d[k])), any2 = Component.FM.some(f => d['f_' + f]), any3 = T(d.plabel) || T(d.plink) || d.docs.length;
+    const stateOf = i => i === 1 ? (!Object.keys(e1).length ? 'Complete' : any1 ? 'In progress' : 'Not started')
+      : i === 2 ? (!Object.keys(e2).length ? 'Complete' : any2 ? 'In progress' : 'Not started')
+      : i === 3 ? (Object.keys(e3).length ? 'Check the preview link' : any3 ? 'Complete' : 'Optional')
+      : (!Object.keys(A).length ? 'Ready to submit' : 'Not ready yet');
+    const doneOf = i => i === 1 ? !Object.keys(e1).length : i === 2 ? !Object.keys(e2).length : i === 3 ? (!Object.keys(e3).length && !!any3) : false;
+    o.steps = [1, 2, 3, 4].map(i => { const cur = ed.step === i, dn = doneOf(i) && !cur; return { n: String(i), short: Component.SHORT[i], label: Component.TITLES[i], state: stateOf(i), done: dn, notDone: !dn,
+      cls: 've-step' + (dn ? ' is-done' : ''), navCls: dn ? 'is-done' : '', cur: cur ? 'step' : undefined, aria: 'Step ' + i + ' of 4, ' + Component.TITLES[i] + ', ' + stateOf(i).toLowerCase(), go: () => this.edGoStep(i) }; });
+    // check & submit
+    const aKeys = Object.keys(A);
+    o.missing = aKeys.map(k => ({ t: A[k], where: 'Go to ' + Component.TITLES[this.stepOf(k)].toLowerCase(), href: '#' + (k === 'fmts' ? 'f-fmts' : 'f-' + k), go: ev => { this.stop(ev); this.edGoStep(this.stepOf(k), k, true); } }));
+    o.ready = !aKeys.length; o.showMissing = !!ed.tried && aKeys.length > 0; o.quietMissing = !ed.tried && aKeys.length > 0;
+    o.missText = aKeys.length + (aKeys.length === 1 ? ' thing' : ' things') + ' to finish before you can submit';
+    o.readyText = isRev ? 'You can resubmit it now.' : 'You can submit it for academic review now.';
+    const sec = (n, label, bad) => ({ label, stCls: bad ? 'xr-st xr-st--warn' : 'xr-st xr-st--ok', state: bad ? bad + ' missing' : 'Provided', aria: 'Change ' + label.toLowerCase(), change: () => this.edGoStep(n) });
+    o.checklist = [sec(1, 'Course and description', Object.keys(e1).length), sec(2, 'Formats and delivery', Object.keys(e2).length),
+      { label: 'Preview and documents (optional)', stCls: e3.plink ? 'xr-st xr-st--warn' : (any3 ? 'xr-st xr-st--ok' : 'xr-st'), state: e3.plink ? 'Preview link missing' : (any3 ? 'Provided' : 'None — optional'), aria: 'Change preview and documents', change: () => this.edGoStep(3) }];
+    o.cName = T(d.name) || 'Not named yet'; o.cCourse = d.course ? d.course + ' · ' + (Component.COURSES[d.course] || '') : 'Not chosen yet'; o.cVersion = T(d.version) || '—';
+    o.chosen = Component.FM.filter(f => d['f_' + f]); o.hasChosen = o.chosen.length > 0; o.noChosen = !o.chosen.length;
+    o.cPreview = T(d.plabel) ? T(d.plabel) + (T(d.plink) ? ' — ' + T(d.plink) : '') : 'None'; o.cDocs = d.docs.length ? d.docs.join(' · ') : 'None';
+    o.delivery = this.deliv(d);
+    o.outcomes = r ? r.outcomes : []; o.hasOutcomes = o.outcomes.length > 0; o.noOutcomes = !o.outcomes.length;
+    o.submitNote = isRev ? 'Resubmitting sends your changes for review. It does not publish anything.' : 'Submitting sends it to the Academic Reviewer. It does not publish anything.';
+    // aside
+    o.progK = !r ? 'New experiment · not saved yet' : isRev ? r.id + ' · revision ' + r.rev + ' returned' : r.id + ' · draft';
+    o.progName = T(d.name) || 'Untitled experiment';
+    o.progSaved = !r ? 'Not saved yet' : isRev ? (r.pendingAt ? 'Changes saved · ' + r.pendingAt.split(', ')[1] + ' today · not resubmitted' : 'No changes saved yet') : 'Last saved ' + (r.savedAt || this.dl(r.last));
+    o.progVis = !r ? 'Save a draft to keep your work. Only you can see a draft.' : isRev ? 'Others see revision ' + r.rev + ' as submitted until you resubmit.' : 'Only you can see a draft.';
+    // outcome
+    if (ed.done && r) {
+      const sub = ed.done === 'resubmitted';
+      o.doneEyebrow = r.id + ' · ' + r.data.name;
+      o.doneTitle = sub ? 'Submitted' : 'Submitted for academic review';
+      o.doneText = sub ? 'Your changes have been submitted for review.' : 'It is with the Academic Reviewer. Nothing is published. You can’t edit it while it is being reviewed.';
+      o.doneStCls = this.stCls(r.st, true); o.doneStLabel = Component.STL[r.st];
+      o.doneStand = (sub ? [{ k: 'Status', v: Component.STL[r.st] }, { k: 'Revision', v: String(r.rev) }, { k: 'Submitted', v: r.hist[0].when }] : [{ k: 'Status', v: Component.STL[r.st] }, { k: 'With', v: Component.WITHW[r.st] }, { k: 'Submitted', v: r.hist[0].when }])
+        .concat([{ k: 'Formats', v: Component.FM.filter(f => r.data['f_' + f]).join(' · ') }]);
+      o.doneNext = sub ? 'Nothing is needed from you now. If it comes back to you, you can revise it again.' : 'Nothing is published. If it comes back to you, you can revise it here.';
+    }
+    // read-only
+    if (mode === 'readonly' && r) {
+      o.roEyebrow = 'Experiment · ' + r.id; o.roName = r.data.name; o.roMeta = 'Last saved ' + (r.savedAt || this.dl(r.last));
+      o.roT = r.data.course + ' is no longer assigned to you';
+      o.roD = r.data.course + ' · ' + (Component.COURSES[r.data.course] || '') + ' was withdrawn from Northline Simulation Studio on ' + (r.withdrawn || '') + '. This draft is kept, read-only. BITS / WILP decides which courses are yours.';
+      o.roSummary = T(r.data.summary) || '—';
+    }
+    // refusal (stale link: already submitted, being reviewed, decided)
+    if (mode === 'refused' && r) {
+      const on = this.submittedOn(r);
+      o.refEyebrow = r.id + ' · ' + r.data.name;
+      const R = { submitted: ['This experiment was already submitted', 'It was submitted on ' + on + '. You can’t edit it after it is submitted. If it is returned to you, you can revise it here.'],
+        with_rv: ['This experiment is being reviewed', 'You can’t edit it while it is being reviewed. If it is returned to you, you can revise it here.'],
+        recheck: ['This experiment is being reviewed', 'You can’t edit it while it is being reviewed. Nothing is needed from you.'],
+        with_cm: ['This experiment was approved by the Academic Reviewer', 'It is with the Content Manager. Nothing is needed from you now.'],
+        published: ['This experiment is published', 'Changes to a published experiment are not made from the Vendor workspace.'] }[r.st] || ['This experiment can’t be edited now', 'Open its record to see where it stands.'];
+      o.refTitle = R[0]; o.refText = R[1];
+    }
+    // ── refinement R1: live section and format status for the step outline and delivery blocks ──
+    const secSt = (keys, live) => {
+      const shown = keys.filter(k => ed.errs[k]).length, missing = keys.filter(k => live[k]).length;
+      return shown ? { cls: 'xr-st xr-st--err vr-st-sm', state: shown + ' to fix' }
+        : !missing ? { cls: 'xr-st xr-st--ok vr-st-sm', state: 'Complete' }
+        : { cls: 'xr-st vr-st-sm', state: missing + ' still needed' };
+    };
+    const fmtKeys = f => f === 'WEB' ? ['WEB_link', 'WEB_browser'] : [f + '_label', f + '_ref', f + '_device', f + '_install'];
+    const chosenF = Component.FM.filter(f => d['f_' + f]);
+    o.webSt = secSt(fmtKeys('WEB'), e2);
+    const dbj = (g, f) => [g, f.has ? f.eid : ''].join(' ').trim();
+    o.pk.forEach(p => {
+      p.st = secSt(fmtKeys(p.code), e2); p.name = Component.FSHORT[p.code]; p.attachAria = 'Attach the ' + p.code + ' package file';
+      p.label.db = dbj('pk-g-label', p.label); p.ref.db = dbj('pk-g-ref', p.ref); p.device.db = dbj('pk-g-device', p.device); p.install.db = dbj('pk-g-install', p.install);
+    });
+    const doneF = chosenF.filter(f => !fmtKeys(f).some(k => e2[k])).length;
+    o.dlvSummary = chosenF.length ? doneF + ' of ' + chosenF.length + (chosenF.length === 1 ? ' format' : ' formats') + ' complete' : '';
+    o.hasPk = Component.PK.some(f => d['f_' + f]);
+    o.fmtOpts.forEach(x => { x.kindShort = x.code === 'WEB' ? 'Web link' : 'App package'; x.chipCls = x.on ? 'xr-fmt' : 'xr-fmt xr-fmt--none'; });
+    const focusTo = id => () => this.focusId(id);
+    o.steps.forEach((x, i) => {
+      let sub = [];
+      if (editing && ed.step === 1 && i === 0) sub = [Object.assign({ label: 'Course and name', go: focusTo('s1-a-h') }, secSt(['course', 'name', 'version'], e1)), Object.assign({ label: 'Catalogue text', go: focusTo('s1-b-h') }, secSt(['summary', 'desc'], e1))];
+      if (editing && ed.step === 2 && i === 1) sub = chosenF.map(f => Object.assign({ label: f + ' · ' + Component.FSHORT[f], go: focusTo('p-' + f + '-t') }, secSt(fmtKeys(f), e2)));
+      x.sub = sub; x.hasSub = sub.length > 0; x.subAria = 'Parts of ' + Component.TITLES[i + 1];
+    });
+    // ── final pass (presentation only): review sections on step 4 and the outcome facts ──
+    const smallSt = c => Object.assign({}, c, { cls: c.stCls + ' vr-st-sm' });
+    o.rv1 = smallSt(o.checklist[0]); o.rv2 = smallSt(o.checklist[1]); o.rv3 = smallSt(o.checklist[2]);
+    o.cSummary = T(d.summary) || '—'; o.cDesc = T(d.desc) || '—';
+    o.doneFacts = (o.doneStand || []).filter(x => x.k !== 'Status' && x.k !== 'With' && x.k !== 'Formats');
+    o.doneFmts = r ? Component.FM.filter(f => r.data['f_' + f]) : []; o.doneFmtAria = 'Formats: ' + o.doneFmts.join(', ');
+    return o;
+  }
+  recView(s) {
+    const r = s.recs[s.recId];
+    if (!r) return { name: '', meta: [], fmts: [], delivery: [], outcomes: [], stand: [], standLite: [], hist: [], refs: [], diffs: [] };
+    const d = r.data, st = r.st, T = x => this.T(x), isRet = st === 'returned' || st === 'returned_cm';
+    const o = { name: d.name, eyebrow: 'Experiment · ' + r.id, stClsLg: this.stCls(st, true), stLabel: Component.STL[st], rev: String(r.rev) };
+    o.meta = [d.course].concat(st === 'draft' || st === 'readonly' ? [] : ['Revision ' + r.rev]).concat(['Last change ' + this.dl(r.last)]);
+    o.toList = ev => { this.stop(ev); this.go({ view: 'list' }); };
+    o.askHelp = ev => { this.stop(ev); const s2 = this.S(); this.go({ view: 'help', help: { view: 'form', where: this.pageLabel(s2), err: false, busy: false, what: '' } }); };
+    o.hasAct = st === 'draft' || isRet;
+    o.actLabel = st === 'draft' ? 'Edit draft' : (r.pending ? 'Continue revising' : 'Revise and resubmit'); o.actTo = st === 'draft' ? 'VE-09' : 'VE-08';
+    o.act = ev => { this.stop(ev); if (st === 'draft') this.editDraft(r.id); else this.startRevise(r.id); };
+    o.hasRet = isRet && !!r.ret;
+    if (o.hasRet) { o.retT = 'Returned by the ' + r.ret.by; o.retM = r.ret.when + ' · ' + r.ret.who; o.retReason = r.ret.reason; o.refs = r.ret.refs.map(x => ({ t: x.t, aria: 'Revise: go to ' + x.t, go: () => this.startRevise(r.id, x.field) })); o.hasRefs = o.refs.length > 0; } else o.refs = [];
+    o.hasPending = isRet && !!r.pending;
+    o.diffs = o.hasPending ? Object.keys(r.pending).filter(k => JSON.stringify(r.pending[k]) !== JSON.stringify(d[k])).map(k => this.flabel(k)).filter((x, i, a) => a.indexOf(x) === i) : [];
+    o.pendingText = 'Saved ' + r.pendingAt + '. Only you can see them. Everyone else still sees revision ' + r.rev + ' as it was submitted.';
+    o.histPendingNote = r.pending ? 'Your changes saved on ' + r.pendingAt + ' are not part of this history until you resubmit.' : '';
+    const N = {
+      draft: ['rk-notice rk-notice--off', '#vei-edit', 'Draft — only you can see it', 'Finish it and submit it for academic review.'],
+      with_rv: ['rk-notice rk-notice--info', '#vei-clock', 'With the Academic Reviewer', 'Nothing is needed from you now. You can edit it again only if it is returned to you.'],
+      submitted: ['rk-notice rk-notice--info', '#vei-check', 'Submitted', 'Your changes have been submitted for review. Nothing is needed from you now.'],
+      with_cm: ['rk-notice rk-notice--info', '#vei-clock', 'With the Content Manager', 'Approved by the Academic Reviewer on ' + r.approved + '. The Content Manager decides whether to publish it. Nothing is needed from you now.'],
+      recheck: ['rk-notice rk-notice--info', '#vei-clock', 'Back with the Academic Reviewer for a re-check', 'The Content Manager asked the Academic Reviewer to look at it again. Nothing is needed from you.'],
+      published: ['rk-notice rk-notice--ok', '#vei-check', 'Published · ' + r.pub, 'It is live in the catalogue with the formats below. It is read-only here.'],
+      readonly: ['rk-notice rk-notice--warn', '#vei-lock', d.course + ' is no longer assigned to you', 'Withdrawn from Northline Simulation Studio on ' + (r.withdrawn || '') + '. This draft is kept, read-only. BITS / WILP decides which courses are yours.']
+    }[st];
+    o.hasNotice = !!N && !isRet; o.noticeCls = N ? N[0] : ''; o.noticeIco = N ? N[1] : ''; o.icoEdit = o.noticeIco === '#vei-edit'; o.icoClock = o.noticeIco === '#vei-clock'; o.icoCheck = o.noticeIco === '#vei-check'; o.icoLock = o.noticeIco === '#vei-lock'; o.noticeT = N ? N[2] : ''; o.noticeD = N ? N[3] : ''; o.noticeHelp = st === 'readonly';
+    o.isDetails = s.tab !== 'history'; o.isHistory = s.tab === 'history';
+    o.curDetails = s.tab !== 'history' ? 'page' : undefined; o.curHistory = s.tab === 'history' ? 'page' : undefined;
+    o.toDetails = ev => { this.stop(ev); this.put({ tab: 'details' }); this.focusId('ve-h1'); };
+    o.toHistory = ev => { this.stop(ev); this.put({ tab: 'history' }); this.focusId('r-hh'); };
+    o.course = d.course; o.courseLong = d.course + ' · ' + (Component.COURSES[d.course] || ''); o.summary = T(d.summary) || '—'; o.desc = T(d.desc) || '—'; o.version = T(d.version) || '—';
+    o.fmts = Component.FM.filter(f => d['f_' + f]); o.fmtText = o.fmts.join(' · '); o.isPub = st === 'published';
+    const on = this.submittedOn(r);
+    o.fact4k = st === 'published' ? 'Published' : (st === 'draft' || st === 'readonly') ? 'Submitted' : 'Revision';
+    o.fact4v = st === 'published' ? r.pub : (st === 'draft' || st === 'readonly') ? 'Not yet' : String(r.rev);
+    o.fact4cls = (st === 'draft' || st === 'readonly') ? 'is-quiet' : '';
+    o.intro = st === 'draft' ? 'Your draft as last saved' + (r.savedAt ? ' on ' + r.savedAt : '') + '. Nothing here has been submitted.'
+      : st === 'readonly' ? 'Your draft as last saved on ' + (r.savedAt || this.dl(r.last)) + '. It can’t be changed or submitted.'
+      : st === 'published' ? 'The published version, live in the catalogue since ' + r.pub + '.'
+      : 'Revision ' + r.rev + ' as it was submitted' + (on ? ' on ' + on : '') + '.' + (r.pending ? ' Your saved changes are not shown here until you resubmit.' : '');
+    o.delivery = this.deliv(d);
+    o.preview = T(d.plabel) ? T(d.plabel) + (T(d.plink) ? ' — ' + T(d.plink) : '') : 'None';
+    o.docs = d.docs.length ? d.docs.join(' · ') : 'None';
+    o.outcomes = r.outcomes; o.hasOutcomes = r.outcomes.length > 0; o.noOutcomes = !r.outcomes.length;
+    const stand = [{ k: 'Status', v: Component.STL[st] }, { k: 'With', v: Component.WITHW[st] }];
+    if (st !== 'draft' && st !== 'readonly') stand.push({ k: 'Revision', v: String(r.rev) });
+    if (on) stand.push({ k: 'Last submitted', v: on });
+    if (isRet && r.ret) stand.push({ k: 'Returned', v: r.ret.when.split(',')[0] + ' · ' + r.ret.by });
+    if (st === 'with_cm' || st === 'recheck' || st === 'published' || (st === 'returned_cm' && r.approved)) { if (r.approved) stand.push({ k: 'Approved by the Academic Reviewer', v: r.approved }); }
+    if (st === 'published') stand.push({ k: 'Published', v: r.pub });
+    if (st === 'readonly') stand.push({ k: 'Course withdrawn', v: r.withdrawn || '' });
+    stand.push({ k: 'Last change', v: this.dl(r.last) });
+    o.stand = stand;
+    o.hist = r.hist.map((h, i) => ({ what: h.what, when: h.when, note: h.note, hasNote: !!h.note, cls: i === 0 ? 'is-latest' : '' }));
+    // ── final pass (presentation only): the status is stated once (header pill and notice), so the
+    //    "Where it stands" list keeps the dates and revision and shows the formats at a glance ──
+    o.standLite = stand.filter(x => x.k !== 'Status' && x.k !== 'With');
+    o.fmtAria = 'Formats: ' + (o.fmts.join(', ') || 'none chosen');
+    return o;
+  }
+  helpView(s) {
+    const H = s.help, setH = p => this.put({ help: Object.assign({}, this.S().help, p) });
+    const reps = H.reports.map(r => ({ id: r.id, title: r.title, sent: r.sent, status: r.status, aria: r.title + ', ' + r.id + ', ' + r.status + '. Open the report', open: () => { setH({ view: 'detail', cur: r.id }); this.focusId('ve-h1'); } }));
+    const cur = H.reports.find(r => r.id === H.cur) || { id: '', title: '', status: '', sent: '', what: '', where: '', shot: '' };
+    return { isList: H.view === 'list', isForm: H.view === 'form', isSent: H.view === 'sent', isDetail: H.view === 'detail', hasReports: reps.length > 0, noReports: !reps.length, reports: reps,
+      count: reps.length + (reps.length === 1 ? ' report' : ' reports'), d: cur, lastId: H.reports.length ? H.reports[0].id : '',
+      what: H.what, where: H.where, onWhat: ev => setH({ what: ev.target.value, err: false }), onWhere: ev => setH({ where: ev.target.value }),
+      hasErr: !!H.err, whatInv: H.err ? 'true' : 'false', whatDb: H.err ? 'h-what-h h-what-e' : 'h-what-h', goWhat: ev => { this.stop(ev); this.focusId('h-what'); },
+      shot: H.shot, hasShot: !!H.shot, noShot: !H.shot, attachShot: () => setH({ shot: 'screenshot.png' }), rmShot: () => setH({ shot: '' }),
+      busy: !!H.busy, notBusy: !H.busy,
+      toForm: () => { setH({ view: 'form', err: false, what: '', shot: '', busy: false }); this.focusId('ve-h1'); },
+      toList: ev => { this.stop(ev); setH({ view: 'list', err: false, busy: false }); this.focusId('ve-h1'); },
+      toOverview: ev => { this.stop(ev); this.go({ view: 'overview' }); },
+      send: () => {
+        const h = this.S().help; if (h.busy) return;
+        if (!this.T(h.what)) { setH({ err: true }); this.focusId('ve-errs'); return; }
+        setH({ busy: true });
+        window.setTimeout(() => {
+          const s2 = this.S(), h2 = s2.help; const w = this.T(h2.what);
+          const title = w.length > 64 ? w.slice(0, 61).replace(/\s+\S*$/, '') + '…' : w;
+          const rep = { id: 'SUP-' + String(181 + h2.reports.length).padStart(4, '0'), title, what: w, where: this.T(h2.where) || '—', shot: h2.shot ? h2.shot + ' (sample file)' : 'No screenshot added', sent: '27 Aug 2026', status: 'Open' };
+          this.put({ help: Object.assign({}, h2, { busy: false, view: 'sent', reports: [rep].concat(h2.reports), cur: rep.id, what: '', shot: '' }) }); this.focusId('ve-h1');
+        }, 800);
+      } };
+  }
+  dlgView(s) {
+    const ed = s.ed;
+    const trap = (ev, cancel) => {
+      if (ev.key === 'Escape') { ev.preventDefault(); cancel(); return; }
+      if (ev.key === 'Tab') { const first = document.getElementById('ve-dlg-cancel'), last = document.getElementById('ve-dlg-ok'), a = document.activeElement;
+        if (ev.shiftKey && (a === first || (a && a.id === 've-dlg-t'))) { ev.preventDefault(); if (last) last.focus(); }
+        else if (!ev.shiftKey && a === last) { ev.preventDefault(); if (first) first.focus(); } }
+    };
+    if (s.dlg === 'submit' && ed) {
+      const isRev = ed.mode === 'revise', r = ed.key ? s.recs[ed.key] : null, name = this.T(ed.data.name) || 'this experiment';
+      const cancel = () => { this.put({ dlg: '', ed: Object.assign({}, this.S().ed, { busy: false }) }); this.focusId('ve-submit'); };
+      return { open: true, hasBody: true, title: isRev ? 'Resubmit your changes?' : 'Submit for academic review?',
+        desc: isRev ? 'Your changes are submitted for review. This does not publish anything.' : 'This sends “' + name + '” to the Academic Reviewer. It does not publish anything.',
+        now: isRev ? ['Your changes are sent as revision ' + ((r ? r.rev : 1) + 1) + '.', 'You can’t edit it while it is being reviewed.'] : ['It is with the Academic Reviewer.', 'You can’t edit it while it is being reviewed.'],
+        later: ['If it comes back to you, you can revise it.'], cancelLabel: isRev ? 'Keep editing' : 'Cancel', okLabel: isRev ? 'Resubmit' : 'Submit for academic review', okCls: 'rb-btn rb-btn--primary rb-btn--lg',
+        busy: !!ed.busy, notBusy: !ed.busy, cancel, ok: () => this.edDoSubmit(), key: ev => trap(ev, cancel) };
+    }
+    if (s.dlg === 'leave') {
+      const isRev = ed && ed.mode === 'revise';
+      const cancel = () => { this.put({ dlg: '', leave: null }); this.focusId('ve-h1'); };
+      const ok = () => { const s2 = this.S(), t = Object.assign({}, s2.leave || { view: 'list' }, { force: true }); this.put(this.navTo(s2, t)); this.toTop(); this.focusId(t.focus || 've-h1'); };
+      return { open: true, hasBody: false, title: 'Leave without saving?', desc: isRev ? 'Your changes since you last saved will be lost. Save your changes first to keep them.' : 'Your changes since you last saved will be lost. Save a draft first to keep them.',
+        now: [], later: [], cancelLabel: 'Keep editing', okLabel: 'Leave without saving', okCls: 'rb-btn rb-btn--navy rb-btn--lg', busy: false, notBusy: true, cancel, ok, key: ev => trap(ev, cancel) };
+    }
+    return { open: false, hasBody: false, now: [], later: [], notBusy: true, busy: false };
+  }
+  pvView(s) {
+    const scr = this.screenOf(s), cur = scr[0], scLabel = (Component.SCENS.find(x => x[0] === s.sc) || ['', ''])[1];
+    const setPv = p => this.put({ pv: Object.assign({}, this.S().pv, p) });
+    const canFill = s.view === 'editor' && !!s.ed && !s.ed.done && (s.ed.mode === 'new' || s.ed.mode === 'draft' || (s.ed.mode === 'revise' && !!Component.REVFIX[s.ed.key])) && (s.ed.mode === 'revise' || s.ed.step < 4);
+    const resub = (s.view === 'record' && s.recs[s.recId] && s.recs[s.recId].st === 'submitted') || (s.view === 'editor' && !!s.ed && s.ed.done === 'resubmitted');
+    let note = '';
+    if (s.view === 'help' || s.view === 'notmine') note = (s.view === 'help' ? 'XS-07 Help & support' : 'XS-06 Not your workspace') + ' is a borrowed shared surface: v46 behaviour with V3 tokens, pending the Shared Surfaces design.';
+    else if (resub) note = 'Handoff, outside this role: in the application a resubmitted revision goes straight back to the Academic Reviewer (the accepted local route) and appears in their queue. The Vendor is not told the next stage and keeps seeing “Submitted” until a reviewer decides.';
+    else if (canFill) note = '“Fill sample answers” fills this step with the documented sample in SCENARIOS.json, so a review can move quickly. You can also type your own.';
+    return { open: s.pv.open, closed: !s.pv.open, where: scr.join(' + ') + ' · ' + scLabel,
+      screens: Component.SCREENS.map(x => ({ v: x[0], t: x[1] })), screenSel: s.pv.screen || (Component.SCREENS.some(x => x[0] === cur) ? cur : 'VE-01'), onScreen: ev => setPv({ screen: ev.target.value }),
+      goScreen: () => { const s2 = this.S(), id = s2.pv.screen || cur; const n = this.jump(s2, id, '', 0); if (s2.view === 'editor' && s2.ed && !s2.ed.done && this.dirty(s2.ed)) { this.put({ dlg: 'leave', leave: Object.assign({}, n, { force: true, focus: 've-h1', fromJump: true }) }); this.focusId('ve-dlg-t'); return; } this.put(n); this.toTop(); this.focusId('ve-h1'); },
+      scens: Component.SCENS.map(x => ({ v: x[0], t: x[1] })), scSel: s.pv.sc || s.sc, onSc: ev => setPv({ sc: ev.target.value }),
+      loadSc: () => { const s2 = this.S(), k = s2.pv.sc || s2.sc; let n = this.fresh(k); n.chrome = s2.chrome; n.pv = { open: true, screen: '', sc: '' }; n = this.jump(n, k === 'stale' ? 'VE-08' : 'VE-01', '', 0); this.put(n); this.toTop(); this.focusId('ve-h1'); },
+      reset: () => { const s2 = this.S(); let n = this.fresh(s2.sc); n.chrome = s2.chrome; n = this.jump(n, s2.sc === 'stale' ? 'VE-08' : 'VE-01', '', 0); this.put(n); this.toTop(); this.focusId('ve-h1'); },
+      toggle: () => setPv({ open: !this.S().pv.open }), canFill, fill: () => this.fillSample(), hasNote: !!note, note };
+  }
+
+  renderVals() {
+    const s = this.S(), scr = this.screenOf(s);
+    const inEdit = s.view === 'editor' || s.view === 'record' || s.view === 'list';
+    const close = () => { this.put({ menu: false }); this.focusId('ve-menu'); };
+    const closeAcct = () => { this.put({ acct: false }); this.focusId('ve-acct-btn'); };
+    const A = {
+      screen: scr.join(' '), sc: s.sc, chrome: !!s.chrome, isOverview: s.view === 'overview', inShell: s.view !== 'signedout', isSignedOut: s.view === 'signedout', dateLong: 'Thursday 27 August 2026',
+      curOverview: s.view === 'overview' ? 'page' : undefined, curList: inEdit ? 'page' : undefined, curHelp: s.view === 'help' ? 'page' : undefined,
+      goOverview: ev => { this.stop(ev); this.go({ view: 'overview' }); },
+      goList: ev => { this.stop(ev); this.go({ view: 'list' }); },
+      goHelp: ev => { this.stop(ev); const s2 = this.S(); this.go({ view: 'help', help: { view: 'list', where: this.pageLabel(s2), err: false, busy: false } }); },
+      skip: ev => { this.stop(ev); this.focusId('ve-main'); },
+      menu: !!s.menu, menuExp: s.menu ? 'true' : 'false', openMenu: () => { this.put({ menu: true, acct: false }); this.focusId('ve-menu-close'); }, closeMenu: close,
+      drawerKey: ev => {
+        if (ev.key === 'Escape') { ev.preventDefault(); close(); return; }
+        if (ev.key !== 'Tab') return;
+        const items = Array.prototype.slice.call(ev.currentTarget.querySelectorAll('a[href], button:not([disabled])'));
+        if (!items.length) return;
+        const first = items[0], last = items[items.length - 1];
+        if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+        else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+      },
+      acct: !!s.acct, acctExp: s.acct ? 'true' : 'false',
+      toggleAcct: () => { const open = !this.S().acct; this.put({ acct: open, menu: false }); this.focusId(open ? 've-acct-first' : 've-acct-btn'); },
+      closeAcct, acctKey: ev => { if (ev.key === 'Escape') { ev.preventDefault(); closeAcct(); } },
+      acctHelp: ev => { this.stop(ev); const s2 = this.S(); this.go({ view: 'help', help: { view: 'list', where: this.pageLabel(s2), err: false, busy: false } }); },
+      signOut: () => { const s2 = this.S(); this.put({ acct: false, back: { view: s2.view, recId: s2.recId, tab: s2.tab, ed: s2.ed }, view: 'signedout' }); this.focusId('ve-so-h'); },
+      backFromSignOut: () => { const s2 = this.S(), b = s2.back || { view: 'overview' }; this.put({ view: b.view, recId: b.recId || '', tab: b.tab || 'details', ed: b.ed || null, back: null }); this.focusId('ve-h1'); }
+    };
+    return {
+      A, P: this.pvView(s),
+      V: { overview: s.view === 'overview', list: s.view === 'list', editor: s.view === 'editor', record: s.view === 'record', help: s.view === 'help', notmine: s.view === 'notmine' },
+      O: this.overView(s), L: this.listView(s), E: this.edView(s), R: this.recView(s), H: this.helpView(s), D: this.dlgView(s)
+    };
+  }
+}
+</script>
+</body>
+</html>

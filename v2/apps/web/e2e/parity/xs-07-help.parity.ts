@@ -37,7 +37,9 @@ async function open(
   await page.clock.setFixedTime(FROZEN);
   await bootWorld(page, { fixture: FIXTURE, session: person });
   await page.goto(path);
-  await expect(page.locator('main.xr-page#main')).toBeAttached();
+  // The page's main region: the v46 shell's `main.xr-page`, or a V3 role shell's `main.rb-page`
+  // (the Super Admin, the Vendor).
+  await expect(page.locator('main#main')).toBeAttached();
   await page.evaluate(() => document.fonts.ready);
   return page;
 }

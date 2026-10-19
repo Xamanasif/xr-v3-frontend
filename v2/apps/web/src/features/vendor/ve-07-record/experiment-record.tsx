@@ -1,27 +1,32 @@
 'use client';
 
-import type { Technology } from '@xr/domain';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
-  EmptyState,
-  FormatBadge,
-  type FormatCode,
-  Icon,
-  Link,
-  LoadingState,
+  ButtonLink,
+  DefinitionList,
+  LinkTabs,
+  ListState,
+  LoadingRows,
+  MetaSeparator,
   Notice,
-  PageContent,
-  PageHeader,
-  Section,
-  SectionBody,
-  Skeleton,
+  PageHead,
+  type StandItem,
   StatusPill,
-  Timeline,
-} from '@xr/ui';
+  Surface,
+  VendorDeliveryList,
+  VendorDeliveryView,
+  VendorFormatChips,
+  VendorLearningOutcomes,
+  VendorRecordHistory,
+  VendorRecordLayout,
+  VendorRecordSheet,
+  VendorRecordStand,
+  VendorSection,
+} from '@xr/ui/v3';
 import { Fragment, type ReactNode, useEffect, useRef } from 'react';
 
-import { dayMonthYear } from '@/copy/dates';
+import { dateTime, dayMonthYear } from '@/copy/dates';
 import { formatName } from '@/copy/flow-state-words';
 import { stateWords } from '@/copy/state-copy';
 import {
@@ -29,14 +34,24 @@ import {
   courseWithdrawnTitle,
   courseWords,
   documentsWords,
+  formatsLabel,
   formatsPublishedLine,
+  historyPrivateNote,
+  INTRO,
+  lastChangeMeta,
   previewWords,
   publishedTitle,
   RECORD,
-  recordOverline,
+  recordEyebrow,
+  returnedStandWords,
+  reviseGoToLabel,
+  revisionMeta,
+  savedChangesLine,
   valueOrDash,
   withContentManagerLine,
 } from '@/copy/vendor-record';
+import { referenceWords } from '@/copy/vendor-editor';
+import { helpAddresses } from '@/nav/help';
 import { useAppNavigation } from '@/nav/navigation';
 import {
   editDraftAddress,
@@ -51,19 +66,29 @@ import { useVendorRecord } from '@/queries/production';
 import { type RecordCourse, useRecordCourse } from '@/queries/production-vendor-record';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { ReturnedNotice } from '../shared/returned-notice';
+import { reviseReferenceAddress } from '../editor/editor-view';
+import { ReturnedReasonPanel, type ReturnFacts, returnFactsOf } from '../shared/returned-reason';
+import { savedChangesAt } from '../shared/saved-changes';
+import { useTodayLine } from '../shared/today-line';
+import { approvedAt, lastApprovalAt } from '../shared/approval';
 import {
-  approvedAt,
-  chipOf,
+  deliveryBlocks,
   formatsOf,
   historyEvents,
+  lastSubmittedAt,
+  pillOf,
+  publishedAt,
+  type RecordState,
   recordStateOf,
   type VendorRecordView,
 } from './record-view';
 
-/** The board’s id prefix (`Rm-h`, `Rm-dh`, `Rm-lo`, `Rm-hh`, `Rm-reason` …; B5-06 f0). */
+/** The page's ids (the export's `ve-h1`, `ve-reason`, `r-hh`, `r-ws`, `r-cd` …). */
 const PREFIX = 'vr';
+const TITLE_ID = `${PREFIX}-h`;
+const REASON_ID = `${PREFIX}-reason`;
 const HISTORY_ID = `${PREFIX}-hh`;
+const STAND_ID = `${PREFIX}-ws`;
 
 type RecordTab = 'details' | 'history';
 
@@ -77,23 +102,22 @@ function tabOf(search: string): { readonly tab: RecordTab; readonly normalise: b
 }
 
 /**
- * VE-07 Experiment record, with VE-13 History — board B5-06 f0 … f10, at
- * `/vendor/experiments/[submissionId]` (`?tab=history`). “Where is it, who has it, and what came
- * back?”
+ * VE-07 Experiment record, with VE-13 Submission and version history — the owner-approved Vendor
+ * export's record view (design/v3-refined-b/roles/VE-v1, `Main.dc.html` `V.record`; renders
+ * `VE-07_*`, `VE-13_*`), at `/vendor/experiments/[submissionId]` (`?tab=history`).
  *
  * - **Reads**: `ProductionService.getRecord` — the submission, its guards (a course no longer
  *   assigned) and the decision that last returned it; the course’s code and name
  *   (`production-vendor-record.ts`). Every role’s command refreshes it in the same tab (BC14).
- * - **As B5-06 draws it** (AR-3, `xr-wrap--read`): back to My experiments; “SUB-0077 · ME ZG523 ·
- *   revision 2”, the name as the H1 and the status in the Vendor’s words; the banner by state;
- *   Details (course, summary, description, version, formats, preview, documents; Delivery per
- *   format); Learning outcomes — the Academic Reviewer’s, read-only (LD-3); Submission and version
- *   history, newest first (VE-13 merged into the record: the entries the Vendor may see).
- * - **Banner by state**: Draft → “Edit draft” (the editor where the Vendor stopped); With the
- *   Academic Reviewer, Submitted (after a resubmit — no gate named, M-3), back for a re-check, With
- *   the Content Manager → nothing is needed; Returned (by either role) → the reason, what it refers
- *   to and “Revise & resubmit”; Published → read-only, the formats published; a course no longer
- *   assigned → read-only. Nothing else is the Vendor’s to do (state-copy `VE-07.no-other-actions`).
+ * - **As the export draws it**: the breadcrumb, “Experiment · SUB-…”, the name, the status pill
+ *   and the course, revision and last change; at most one action (Edit draft · Revise and
+ *   resubmit · Continue revising). The status is stated once more, and only once: the
+ *   returned-reason panel (who, when, the reason, “What it refers to” chips into the editor, the
+ *   changes saved and not resubmitted) or the notice by state (HANDOFF §2). Then the tabs —
+ *   Details (one sheet: which version is shown, course and description, the delivery of each
+ *   format, preview and documents, the Academic Reviewer’s learning outcomes) and the history
+ *   (newest first, the private-changes note) — with “Where it stands” (formats, revision, dates)
+ *   beside both. Nothing else is the Vendor’s to do (state-copy `VE-07.no-other-actions`).
  * - Not found, another vendor’s record (not permitted) and a colleague’s (policy-open SUB-15) show
  *   calm states; a failed read offers “Try again”.
  */
@@ -113,36 +137,45 @@ export function ExperimentRecord({ submissionId }: { readonly submissionId: stri
   if (read.isError || course.isError) {
     return (
       <BarePage>
-        <LoadFailed
-          onRetry={() => {
-            void read.refetch();
-            if (course.isError) void course.refetch();
-          }}
-        />
+        <ListState
+          kind="failed"
+          titleAs="h2"
+          title={stateWords('VE-07.failed')}
+          action={
+            <Button
+              onClick={() => {
+                void read.refetch();
+                if (course.isError) void course.refetch();
+              }}
+            >
+              {RECORD.tryAgain}
+            </Button>
+          }
+        >
+          {RECORD.failedLine}
+        </ListState>
       </BarePage>
     );
   }
   if (read.data && !read.data.ok) {
+    const kind = read.data.error.kind === 'policy-open' ? 'policy-open' : 'not-found';
     return (
       <BarePage>
-        <CalmState kind={read.data.error.kind === 'policy-open' ? 'policy-open' : 'not-found'} />
+        <ListState
+          kind="none"
+          icon="infoNote"
+          titleAs="h2"
+          title={stateWords(`VE-07.${kind}.title`)}
+        >
+          {stateWords(`VE-07.${kind}.line`)}
+        </ListState>
       </BarePage>
     );
   }
   if (view === null || (courseId !== null && course.data === undefined)) {
     return (
       <BarePage>
-        <LoadingState
-          label={stateWords('VE-07.loading')}
-          surface="section"
-          skeleton={
-            <div aria-hidden="true" className="flex flex-col gap-4 p-6">
-              <Skeleton className="w-[240px]" />
-              <Skeleton />
-              <Skeleton />
-            </div>
-          }
-        />
+        <LoadingRows message={stateWords('VE-07.loading')} />
       </BarePage>
     );
   }
@@ -150,19 +183,30 @@ export function ExperimentRecord({ submissionId }: { readonly submissionId: stri
   return <Record key={view.submission.id} view={view} course={courseFacts} tab={tab} />;
 }
 
-/** The page before the record is read (or when it can’t be shown): back link and heading. */
+/** The page before the record is read (or when it can’t be shown): breadcrumb, heading, a sheet. */
 function BarePage({ children }: { readonly children: ReactNode }) {
+  const today = useTodayLine();
   return (
-    <PageContent wrap="read">
-      <PageHeader
-        className="[margin:8px_0_20px]"
-        back={<BackLink href={MY_EXPERIMENTS_ADDRESS}>{MY_EXPERIMENTS_TITLE}</BackLink>}
+    <>
+      <PageHead
+        variant="record"
         title={RECORD_CRUMB}
+        titleId={TITLE_ID}
+        titleFocusTarget
+        date={today}
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: MY_EXPERIMENTS_TITLE, href: MY_EXPERIMENTS_ADDRESS }]}
+            current={RECORD_CRUMB}
+          />
+        }
       />
-      {children}
-    </PageContent>
+      <Surface>{children}</Surface>
+    </>
   );
 }
+
+const DRAFT_STATES: ReadonlySet<RecordState> = new Set(['draft', 'draft-read-only']);
 
 function Record({
   view,
@@ -173,147 +217,205 @@ function Record({
   readonly course: RecordCourse | null;
   readonly tab: RecordTab;
 }) {
+  const navigation = useAppNavigation();
+  const today = useTodayLine();
   const { submission } = view;
   const state = recordStateOf(view);
-  const chip = chipOf(view);
-  const formats = formatsOf(submission);
+  const pill = pillOf(view);
   const courseName = course ? (course.code ?? course.name) : null;
+  const savedAt = savedChangesAt(submission);
+  const returned = state === 'returned' || state === 'returned-read-only';
+  const facts = returned ? returnFactsOf(view.lastReturn, submission) : null;
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const historyRef = useRef<HTMLHeadingElement>(null);
+  const shownTab = useRef<RecordTab | null>(null);
 
-  // VE-13: arriving on `?tab=history`, focus moves to the history (and it scrolls into view).
+  // Each tab's heading takes focus when it opens (LINK-MAP L55): the history's on `?tab=history`
+  // — arriving there too — and the page heading back on Details. After the timeout, so that a
+  // tab link's own route focus (the page heading) comes first.
   useEffect(() => {
-    if (tab === 'history') historyRef.current?.focus();
+    const before = shownTab.current;
+    shownTab.current = tab;
+    if (tab === 'details' && before !== 'history') return;
+    const timer = window.setTimeout(() => {
+      (tab === 'history' ? historyRef : titleRef).current?.focus();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [tab]);
 
+  const meta = [
+    courseName ?? RECORD.dash,
+    ...(DRAFT_STATES.has(state) ? [] : [revisionMeta(submission.revision)]),
+    lastChangeMeta(dayMonthYear(submission.updatedAt)),
+  ];
+  const action =
+    state === 'draft' ? (
+      <ButtonLink
+        variant="primary"
+        size="lg"
+        href={editDraftAddress(submission.id, submission.lastStepReached)}
+      >
+        {RECORD.editDraft}
+      </ButtonLink>
+    ) : state === 'returned' ? (
+      <ButtonLink variant="primary" size="lg" href={reviseAddress(submission.id)}>
+        {savedAt ? RECORD.continueRevising : RECORD.revise}
+      </ButtonLink>
+    ) : undefined;
+
   return (
-    <PageContent wrap="read">
-      <PageHeader
-        className="[margin:8px_0_20px]"
-        back={<BackLink href={MY_EXPERIMENTS_ADDRESS}>{MY_EXPERIMENTS_TITLE}</BackLink>}
-        overline={recordOverline(submission.id, courseName, submission.revision)}
+    <>
+      <PageHead
+        variant="record"
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: MY_EXPERIMENTS_TITLE, href: MY_EXPERIMENTS_ADDRESS }]}
+            current={submission.content.name}
+          />
+        }
+        date={today}
+        eyebrow={recordEyebrow(submission.id)}
         title={submission.content.name}
-        titleId={`${PREFIX}-h`}
+        titleId={TITLE_ID}
+        titleRef={titleRef}
         titleFocusTarget
-        meta={<StatusPill tone={chip.tone}>{chip.words}</StatusPill>}
-      />
-      <div className="flex flex-col gap-6">
-        <Banner view={view} courseName={courseName} />
-        <Section title={RECORD.details} headingId={`${PREFIX}-dh`}>
-          <SectionBody className="flex flex-col gap-[18px]">
-            {state === 'published' ? (
-              <p className="xl-meta [margin:0_0_10px]">{formatsPublishedLine(formats)}</p>
-            ) : null}
-            <dl className="xl-kv xv-kv">
-              <dt>{RECORD.keys.course}</dt>
-              <dd>
-                {submission.content.courseId === null || course ? courseWords(course) : RECORD.dash}
-              </dd>
-              <dt>{RECORD.keys.summary}</dt>
-              <dd>{submission.content.summary ?? ''}</dd>
-              <dt>{RECORD.keys.description}</dt>
-              <dd>{submission.content.description ?? ''}</dd>
-              <dt>{RECORD.keys.version}</dt>
-              <dd>{valueOrDash(submission.content.version)}</dd>
-              <dt>{RECORD.keys.formats}</dt>
-              <dd>
-                {formats.map((format) => (
-                  <FormatBadge key={format} format={formatName(format) as FormatCode} compact />
-                ))}
-              </dd>
-              <dt>{RECORD.keys.preview}</dt>
-              <dd>{previewWords(submission.content.preview)}</dd>
-              <dt>{RECORD.keys.documents}</dt>
-              <dd>{documentsWords(submission.content.documents)}</dd>
-            </dl>
-            <h3 className="xr-h3 m-0">{RECORD.delivery}</h3>
-            {formats.map((format) => (
-              <DeliveryBox key={format} format={format} submission={submission} />
+        meta={
+          <>
+            <StatusPill tone={pill.tone} size="lg">
+              {pill.words}
+            </StatusPill>
+            {meta.map((item, index) => (
+              <Fragment key={index}>
+                <MetaSeparator />
+                <span>{item}</span>
+              </Fragment>
             ))}
-          </SectionBody>
-        </Section>
-        <Section
-          title={RECORD.outcomes}
-          headingId={`${PREFIX}-lo`}
-          meta={
-            <>
-              <Icon name="readOnly" size={16} /> {RECORD.outcomesMeta}
-            </>
+          </>
+        }
+        actions={action}
+      />
+      {facts ? (
+        <ReturnedReasonPanel
+          id={REASON_ID}
+          facts={facts}
+          // Each chip opens its field in the editor (LINK-MAP L53): `revise?step=…&field=…`.
+          references={
+            state === 'returned'
+              ? {
+                  label: RECORD.refersTo,
+                  nameOf: (reference) => reviseGoToLabel(referenceWords(reference)),
+                  onSelect: (reference) =>
+                    navigation.navigate(reviseReferenceAddress(submission.id, reference)),
+                }
+              : undefined
           }
-        >
-          <SectionBody>
-            {submission.learningOutcomes.length > 0 ? (
-              <>
-                <p className="xl-meta [margin:0_0_10px]">{RECORD.outcomesLead}</p>
-                <ul className="xv-los">
-                  {submission.learningOutcomes.map((outcome) => (
-                    <li key={outcome.id}>{outcome.text}</li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p className="xl-meta m-0">{RECORD.outcomesNone}</p>
-            )}
-          </SectionBody>
-        </Section>
-        <Section
-          title={RECORD.history}
-          headingId={HISTORY_ID}
-          meta={RECORD.historyMeta}
-          headingFocusTarget
-          headingRef={historyRef}
-        >
-          <SectionBody>
-            <Timeline events={historyEvents(view)} markLatest={false} />
-          </SectionBody>
-        </Section>
-      </div>
-    </PageContent>
+          saved={
+            savedAt
+              ? {
+                  title: RECORD.savedTitle,
+                  line: savedChangesLine(dateTime(savedAt), submission.revision),
+                }
+              : undefined
+          }
+        />
+      ) : null}
+      <StateNotice view={view} state={state} courseName={courseName} />
+      <LinkTabs
+        label={RECORD.tabsLabel}
+        tabs={[
+          {
+            label: RECORD.tabs.details,
+            href: experimentRecordAddress(submission.id),
+            current: tab === 'details',
+          },
+          {
+            label: RECORD.tabs.history,
+            href: experimentRecordAddress(submission.id, 'history'),
+            current: tab === 'history',
+          },
+        ]}
+      />
+      <VendorRecordLayout
+        main={
+          tab === 'history' ? (
+            <VendorRecordHistory
+              title={RECORD.history}
+              titleId={HISTORY_ID}
+              titleRef={historyRef}
+              note={RECORD.historyMeta}
+              privateNote={savedAt ? historyPrivateNote(dateTime(savedAt)) : undefined}
+              events={historyEvents(view)}
+            />
+          ) : (
+            <Details view={view} state={state} course={course} savedAt={savedAt} />
+          )
+        }
+        aside={<WhereItStands view={view} state={state} facts={facts} />}
+        asideLabelledBy={STAND_ID}
+      />
+    </>
   );
 }
 
-/** The banner by state (B5-06 doc “Banner by state”; f0 … f9). */
-function Banner({
+/** The notice by state (HANDOFF §2 “Record notice”); a returned record has its panel instead. */
+function StateNotice({
   view,
+  state,
   courseName,
 }: {
   readonly view: VendorRecordView;
+  readonly state: RecordState;
   readonly courseName: string | null;
 }) {
   const { submission } = view;
-  const state = recordStateOf(view);
-  const words = RECORD.banner;
+  const words = RECORD.notice;
+  const askForHelp = (
+    <ButtonLink href={helpAddresses('vendor').report}>{RECORD.askForHelp}</ButtonLink>
+  );
   switch (state) {
     case 'draft':
       return (
-        <Notice
-          title={words.draftTitle}
-          actions={
-            <Link
-              className="xr-btn xr-btn--primary"
-              href={editDraftAddress(submission.id, submission.lastStepReached)}
-            >
-              {words.editDraft}
-            </Link>
-          }
-        >
+        <Notice tone="off" icon="edit" role="status" title={words.draftTitle}>
           {words.draftLine}
         </Notice>
       );
     case 'draft-read-only':
+    case 'returned-read-only':
       return (
-        <Notice tone="warn" title={courseWithdrawnTitle(courseName ?? RECORD.dash)}>
-          {courseWithdrawnLine(submission.vendorOrganisation, 'draft')}
+        <Notice
+          tone="warn"
+          icon="lock"
+          role="status"
+          title={courseWithdrawnTitle(courseName ?? RECORD.dash)}
+          actions={askForHelp}
+        >
+          {courseWithdrawnLine(
+            submission.vendorOrganisation,
+            state === 'draft-read-only' ? 'draft' : 'returned',
+          )}
         </Notice>
       );
     case 'with-reviewer':
-      return <Notice title={words.withReviewerTitle}>{words.withReviewerLine}</Notice>;
+      return (
+        <Notice tone="info" icon="clock" role="status" title={words.withReviewerTitle}>
+          {words.withReviewerLine}
+        </Notice>
+      );
     case 'submitted':
-      return <Notice title={words.submittedTitle}>{words.submittedLine}</Notice>;
+      return (
+        <Notice tone="info" icon="check" role="status" title={words.submittedTitle}>
+          {words.submittedLine}
+        </Notice>
+      );
     case 'recheck':
-      return <Notice title={words.recheckTitle}>{words.recheckLine}</Notice>;
+      return (
+        <Notice tone="info" icon="clock" role="status" title={words.recheckTitle}>
+          {words.recheckLine}
+        </Notice>
+      );
     case 'with-content-manager':
       return (
-        <Notice title={words.withContentManagerTitle}>
+        <Notice tone="info" icon="clock" role="status" title={words.withContentManagerTitle}>
           {withContentManagerLine(dayMonthYear(approvedAt(submission)))}
         </Notice>
       );
@@ -321,122 +423,163 @@ function Banner({
       return (
         <Notice
           tone="ok"
-          title={publishedTitle(
-            dayMonthYear(
-              submission.status.state === 'published' ? submission.status.at : submission.updatedAt,
-            ),
-          )}
+          icon="check"
+          role="status"
+          title={publishedTitle(dayMonthYear(publishedAt(submission) ?? submission.updatedAt))}
         >
           {words.publishedLine}
         </Notice>
       );
     case 'returned':
-    case 'returned-read-only':
-      return (
-        <div className="flex flex-col gap-3">
-          <ReturnedNotice
-            lastReturn={view.lastReturn}
-            submission={submission}
-            id={`${PREFIX}-reason`}
-          />
-          {state === 'returned' ? (
-            <div className="xw-actions">
-              <Link className="xr-btn xr-btn--primary" href={reviseAddress(submission.id)}>
-                {RECORD.revise}
-              </Link>
-            </div>
-          ) : (
-            <Notice tone="warn" title={courseWithdrawnTitle(courseName ?? RECORD.dash)}>
-              {courseWithdrawnLine(submission.vendorOrganisation, 'returned')}
-            </Notice>
-          )}
-        </div>
-      );
+      return null;
   }
 }
 
-/** One format’s delivery (`div.xv-deliv`; script `delivery`): a web link, or an app package. */
-function DeliveryBox({
-  format,
-  submission,
+/** Which version Details shows (`recView` `intro`). */
+function introOf(view: VendorRecordView, state: RecordState, savedAt: string | null): string {
+  const { submission } = view;
+  if (state === 'draft') return INTRO.draft(dateTime(submission.updatedAt));
+  if (state === 'draft-read-only') return INTRO.readOnly(dateTime(submission.updatedAt));
+  const published = publishedAt(submission);
+  if (state === 'published' && published) return INTRO.published(dayMonthYear(published));
+  if (savedAt) return INTRO.savedChanges(dateTime(savedAt));
+  const submitted = lastSubmittedAt(submission);
+  return INTRO.submitted(submission.revision, submitted ? dayMonthYear(submitted) : null);
+}
+
+/** The Details tab: one sheet, read-only (`div.rk-surface.vr-sheet`). */
+function Details({
+  view,
+  state,
+  course,
+  savedAt,
 }: {
-  readonly format: Technology;
-  readonly submission: VendorRecordView['submission'];
+  readonly view: VendorRecordView;
+  readonly state: RecordState;
+  readonly course: RecordCourse | null;
+  readonly savedAt: string | null;
 }) {
-  const delivery = submission.content.delivery[format];
-  const rows: [string, string][] = [];
-  if (format === 'web') {
-    const web = delivery?.format === 'web' ? delivery : null;
-    rows.push(
-      [RECORD.rows.webLink, valueOrDash(web?.webLink)],
-      [RECORD.rows.browserAndComputer, valueOrDash(web?.browserAndComputer)],
-    );
-    if (web?.notes?.trim()) rows.push([RECORD.rows.notes, web.notes.trim()]);
-  } else {
-    const pkg = delivery && delivery.format !== 'web' ? delivery : null;
-    rows.push(
-      [RECORD.rows.packageLabel, valueOrDash(pkg?.packageLabel)],
-      [RECORD.rows.packageReference, valueOrDash(pkg?.packageReference)],
-    );
-    if (pkg?.packageFileName?.trim()) rows.push([RECORD.rows.packageFile, pkg.packageFileName]);
-    rows.push(
-      [RECORD.rows.deviceNeeded, valueOrDash(pkg?.deviceNeeded)],
-      [RECORD.rows.installNotes, valueOrDash(pkg?.installNotes)],
-    );
-    if (pkg?.notes?.trim()) rows.push([RECORD.rows.notes, pkg.notes.trim()]);
-  }
+  const { submission } = view;
+  const { content } = submission;
+  const formats = formatsOf(submission);
+  const published = state === 'published';
   return (
-    <div className="xv-deliv">
-      <div className="xv-deliv-head">
-        <FormatBadge format={formatName(format) as FormatCode} compact />
-        <span className="font-[700]">
-          {format === 'web' ? RECORD.webLinkTitle : RECORD.appPackageTitle}
-        </span>
-      </div>
-      <dl className="xl-kv xv-kv">
-        {rows.map(([key, value]) => (
-          <Fragment key={key}>
-            <dt>{key}</dt>
-            <dd>{value}</dd>
-          </Fragment>
-        ))}
-      </dl>
-    </div>
-  );
-}
-
-/** Not found, not permitted (another vendor’s) or a colleague’s (policy-open SUB-15): calm. */
-function CalmState({ kind }: { readonly kind: 'not-found' | 'policy-open' }) {
-  return (
-    <div className="xr-section">
-      <EmptyState
-        icon="info"
-        title={stateWords(
-          kind === 'policy-open' ? 'VE-07.policy-open.title' : 'VE-07.not-found.title',
-        )}
+    <VendorRecordSheet intro={introOf(view, state, savedAt)}>
+      <VendorSection as="section" title={RECORD.sections.course} titleId={`${PREFIX}-cd`}>
+        <DefinitionList
+          items={[
+            {
+              term: RECORD.keys.course,
+              value: content.courseId === null || course ? courseWords(course) : RECORD.dash,
+            },
+            { term: RECORD.keys.summary, value: valueOrDash(content.summary) },
+            { term: RECORD.keys.description, value: valueOrDash(content.description) },
+            { term: RECORD.keys.version, value: valueOrDash(content.version) },
+          ]}
+        />
+      </VendorSection>
+      <VendorSection
+        as="section"
+        title={RECORD.sections.delivery}
+        titleId={`${PREFIX}-fd`}
+        row
+        status={published ? formatsPublishedLine(formats) : undefined}
+        note={published ? RECORD.publishedFoot : undefined}
       >
-        {stateWords(kind === 'policy-open' ? 'VE-07.policy-open.line' : 'VE-07.not-found.line')}
-      </EmptyState>
-    </div>
+        <VendorDeliveryList>
+          {deliveryBlocks(submission).map((block) => (
+            <VendorDeliveryView
+              key={block.format}
+              code={formatName(block.format)}
+              name={block.name}
+              kind={block.kind}
+              rows={block.rows}
+            />
+          ))}
+        </VendorDeliveryList>
+      </VendorSection>
+      <VendorSection as="section" title={RECORD.sections.preview} titleId={`${PREFIX}-pd`}>
+        <DefinitionList
+          items={[
+            { term: RECORD.keys.preview, value: previewWords(content.preview) },
+            { term: RECORD.keys.documents, value: documentsWords(content.documents) },
+          ]}
+        />
+      </VendorSection>
+      <VendorLearningOutcomes
+        title={RECORD.sections.outcomes}
+        titleId={`${PREFIX}-lo`}
+        by={RECORD.outcomesMeta}
+        line={RECORD.outcomesLead}
+        outcomes={submission.learningOutcomes.map((outcome) => ({
+          key: outcome.id,
+          text: outcome.text,
+        }))}
+        empty={RECORD.outcomesNone}
+      />
+    </VendorRecordSheet>
   );
 }
 
-/** Undrawn: failed + Try again (`VE-07.failed`), B2-11 f10’s formula. */
-function LoadFailed({ onRetry }: { readonly onRetry: () => void }) {
+/**
+ * “Where it stands” beside both tabs (`recView` `standLite`): the formats, the revision and the
+ * dates — never the status again. The day a course was withdrawn is not in the record’s read
+ * (state-copy `VE-07.course-withdrawn.line`).
+ */
+function WhereItStands({
+  view,
+  state,
+  facts,
+}: {
+  readonly view: VendorRecordView;
+  readonly state: RecordState;
+  /** The return a returned record shows (`returnFactsOf`). */
+  readonly facts: ReturnFacts | null;
+}) {
+  const { submission } = view;
+  const formats = formatsOf(submission);
+  const words = RECORD.stand;
+  const items: StandItem[] = [];
+  if (!DRAFT_STATES.has(state)) {
+    items.push({ term: words.revision, value: String(submission.revision) });
+  }
+  const submitted = lastSubmittedAt(submission);
+  if (submitted) items.push({ term: words.lastSubmitted, value: dayMonthYear(submitted) });
+  if (facts && facts.by !== 'super-admin-override') {
+    items.push({
+      term: words.returned,
+      value: returnedStandWords(dayMonthYear(facts.at), facts.by),
+    });
+  }
+  const approval = lastApprovalAt(submission);
+  if (
+    approval &&
+    (state === 'with-content-manager' ||
+      state === 'recheck' ||
+      state === 'published' ||
+      facts?.by === 'content-manager')
+  ) {
+    items.push({ term: words.approved, value: dayMonthYear(approval) });
+  }
+  const published = publishedAt(submission);
+  if (state === 'published' && published) {
+    items.push({ term: words.published, value: dayMonthYear(published) });
+  }
+  items.push({ term: words.lastChange, value: dayMonthYear(submission.updatedAt) });
   return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon bg-err-bg text-err">
-          <Icon name="failed" />
-        </span>
-        <h2 className="xr-h3 m-0">{stateWords('VE-07.failed')}</h2>
-        <p className="xr-body m-0 text-ink-2">{stateWords('VE-07.failed.line')}</p>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="primary" icon="tryAgain" onClick={onRetry}>
-            {stateWords('VE-07.try-again')}
-          </Button>
-        </div>
-      </div>
-    </div>
+    <VendorRecordStand
+      title={words.title}
+      titleId={STAND_ID}
+      formats={{
+        term: words.formats,
+        value: (
+          <VendorFormatChips
+            formats={formats.map((format) => formatName(format))}
+            label={formatsLabel(formats)}
+          />
+        ),
+      }}
+      items={items}
+    />
   );
 }

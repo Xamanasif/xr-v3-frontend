@@ -5,7 +5,8 @@ import { joinClasses } from '../internal/classes.js';
  * The line icons the Refined Direction B boards draw (foundation XR-V3-RB-1.0): the nav icons
  * inline in each rail, and the `rbi-*` / `rki-*` symbols of SA01, SA02, IA01 and IA02, plus the
  * ones the Entry & shared export (XS-v6) draws in its sign-in card, account menu, Help pages and
- * messages, and the Super Admin export (SA-v1) in its sprite. Twenty-six are the very paths of
+ * messages, the Super Admin export (SA-v1) in its sprite and the Vendor export (VE-v1) in its
+ * `vei-*` symbols. Twenty-nine are the very paths of
  * the v46 registry (taken from it, so the two never drift); the others are new to V3.
  * `primitives.test.tsx` checks every path against the board or export that draws it.
  */
@@ -33,6 +34,11 @@ export const V3_ICON_PATHS = {
   clock: ICON_PATHS.clock,
   pauseCircle: ICON_PATHS.paused,
   ended: ICON_PATHS.notAvailable,
+  // Shared with the v46 registry, drawn by the Vendor export (VE-v1): the information mark of its
+  // notes, the arrow of a return's references and My experiments' flask.
+  infoNote: ICON_PATHS.info,
+  next: ICON_PATHS.next,
+  myExperiments: ICON_PATHS.myExperiments,
   // Shared with the v46 registry, drawn by the XS export (XS-v6).
   back: ICON_PATHS.back,
   signOut: ICON_PATHS.signOut,
@@ -72,6 +78,10 @@ export const V3_ICON_PATHS = {
   person: 'M18 20v-1.5a4 4 0 0 0-4-4h-4a4 4 0 0 0-4 4V20M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
   exit: 'M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 16l-4-4 4-4M6 12h10',
   layers: 'M12 3 3 8l9 5 9-5zM3 13l9 5 9-5',
+  // New in the Vendor export (VE-v1, `Main.dc.html` `vei-*` symbols): the return arrow of a
+  // returned item and the document of the sample files.
+  returned: 'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
+  document: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6',
 } as const satisfies Record<string, string>;
 
 export type V3IconName = keyof typeof V3_ICON_PATHS;

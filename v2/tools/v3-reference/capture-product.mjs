@@ -229,6 +229,186 @@ const SA_CASES = [
   },
 ];
 
+const ANIL = 'anil.shetty@northline.example';
+
+/** Anil Shetty (Vendor) at a page of his workspace, reached client-side after sign-in. */
+async function vendor(page, path) {
+  await signIn(page, ANIL);
+  if (path !== '/vendor') await go(page, path);
+  await settledPage(page);
+}
+
+/** One Vendor page in its first state (the fresh sample world). */
+const vePage = (name, id, state, path) => ({
+  name,
+  id,
+  state,
+  tall: true,
+  reach: async (page) => vendor(page, path),
+});
+
+/** The Vendor cases (VE-v1): every screen, its list, editor, record and refusal states. */
+const VE_CASES = [
+  vePage(
+    've01-overview',
+    'VE-01',
+    'Overview: studio band, returned lead, drafts, recent activity',
+    '/vendor',
+  ),
+  vePage('ve02-list', 'VE-02', 'My experiments, All', '/vendor/experiments'),
+  vePage(
+    've02-returned',
+    'VE-02',
+    'My experiments, the Returned tab',
+    '/vendor/experiments?status=returned',
+  ),
+  vePage(
+    've02-recent',
+    'VE-02',
+    'My experiments, Changed in the last 7 days',
+    '/vendor/experiments?changed=last-7-days',
+  ),
+  {
+    name: 've02-no-match',
+    id: 'VE-02',
+    state: 'My experiments, a search with no match',
+    tall: true,
+    reach: async (page) => {
+      await vendor(page, '/vendor/experiments');
+      await page.locator('main').getByRole('searchbox').first().fill('zzqx');
+      await page.locator('main .rk-state').first().waitFor();
+    },
+  },
+  vePage('ve03-new', 'VE-03', 'Create: Course and description, empty', '/vendor/experiments/new'),
+  {
+    name: 've03-validation',
+    id: 'VE-03',
+    state: 'Create: Continue with nothing filled (error summary)',
+    tall: true,
+    reach: async (page) => {
+      await vendor(page, '/vendor/experiments/new');
+      await page.locator('main').getByRole('button', { name: 'Continue', exact: true }).click();
+      await page.locator('main .rk-errsum').waitFor();
+    },
+  },
+  vePage(
+    've04-formats',
+    'VE-04',
+    'Edit draft at the saved step: Formats and delivery (Pin Fin Efficiency)',
+    '/vendor/experiments/SUB-0079/edit?step=formats',
+  ),
+  {
+    name: 've04-leave-guard',
+    id: 'VE-04',
+    state: 'Leave without saving? after a change, from the rail',
+    tall: true,
+    reach: async (page) => {
+      await vendor(page, '/vendor/experiments/SUB-0079/edit');
+      await page.locator('main').getByRole('textbox').first().fill('A change not saved yet');
+      const narrow = (page.viewportSize()?.width ?? 1440) < 1024;
+      if (narrow) {
+        await page.getByRole('button', { name: /^(Open menu|Menu)$/ }).click();
+        await page.locator('.rb-drawer .rb-nav a[href="/vendor/experiments"]').click();
+      } else {
+        await page.locator('aside.rb-rail .rb-nav a[href="/vendor/experiments"]').click();
+      }
+      await page.getByRole('dialog').waitFor();
+    },
+  },
+  vePage(
+    've05-preview',
+    'VE-05',
+    'Preview and documents',
+    '/vendor/experiments/SUB-0079/edit?step=preview',
+  ),
+  vePage(
+    've06-check',
+    'VE-06',
+    'Check and submit (items still missing)',
+    '/vendor/experiments/SUB-0079/edit?step=submit',
+  ),
+  vePage(
+    've07-returned',
+    'VE-07',
+    'Record, returned by the Academic Reviewer (Forced Convection)',
+    '/vendor/experiments/SUB-0081',
+  ),
+  vePage('ve07-draft', 'VE-07', 'Record, draft', '/vendor/experiments/SUB-0079'),
+  vePage(
+    've07-with-cm',
+    'VE-07',
+    'Record, with the Content Manager',
+    '/vendor/experiments/SUB-0074',
+  ),
+  vePage(
+    've07-published',
+    'VE-07',
+    'Record, published (read-only)',
+    '/vendor/experiments/SUB-0052',
+  ),
+  vePage(
+    've07-read-only',
+    'VE-07',
+    'Record, course no longer assigned (read-only)',
+    '/vendor/experiments/SUB-0083',
+  ),
+  vePage(
+    've13-history',
+    'VE-13',
+    'Submission and version history (Forced Convection)',
+    '/vendor/experiments/SUB-0081?tab=history',
+  ),
+  vePage(
+    've13-history-published',
+    'VE-13',
+    'Submission and version history, published',
+    '/vendor/experiments/SUB-0052?tab=history',
+  ),
+  vePage(
+    've08-revise',
+    'VE-08',
+    'Revise and resubmit: the returned-reason panel above step 1',
+    '/vendor/experiments/SUB-0081/revise',
+  ),
+  vePage(
+    've08-ref-jump',
+    'VE-08',
+    'Revise: a reference opens its field (AR · Device need)',
+    '/vendor/experiments/SUB-0081/revise?step=formats&field=ar.device-need',
+  ),
+  vePage(
+    've09-read-only',
+    'VE-09',
+    'Edit draft, course no longer assigned: What you entered',
+    '/vendor/experiments/SUB-0083/edit',
+  ),
+  {
+    name: 've-shell-drawer',
+    id: 'VE-shell',
+    state: 'the Menu drawer open (below 1024 px; the rail above)',
+    tall: true,
+    reach: async (page) => {
+      await vendor(page, '/vendor');
+      const menu = page.getByRole('button', { name: /^(Open menu|Menu)$/ });
+      if (await menu.isVisible()) {
+        await menu.click();
+        await page.locator('.rb-drawer').waitFor();
+      }
+    },
+  },
+  {
+    name: 've-shell-not-found',
+    id: 'VE-shell',
+    state: 'an unknown /vendor address: PU-15 in the V3 shell',
+    tall: true,
+    reach: async (page) => {
+      await signIn(page, ANIL);
+      await go(page, '/vendor/nothing-here');
+      await page.locator('main#main h1').first().waitFor();
+    },
+  },
+];
+
 /** The cases: a name, the XS id and state, and how to reach it from a fresh tab. */
 const CASES = [
   {
@@ -425,7 +605,7 @@ async function measure(page) {
 
 const browser = await chromium.launch();
 const results = [];
-for (const testCase of [...CASES, ...SA_CASES].filter(
+for (const testCase of [...CASES, ...SA_CASES, ...VE_CASES].filter(
   (c) =>
     !values.only ||
     values.only
@@ -453,9 +633,18 @@ for (const testCase of [...CASES, ...SA_CASES].filter(
       const file = `${testCase.name}${suffix ? `-${suffix}` : ''}-${width}.png`;
       // The pointer rests where the last click was (a row's hover tint); move it off the page.
       await page.mouse.move(0, 899);
+      // The Vendor export's renders are taken with the window as tall as the page (its sticky
+      // action bars and the rail then sit where the page ends): the same here.
+      const measured = testCase.tall ? await measure(page) : null;
+      if (testCase.tall) {
+        const height = await page.evaluate(() => document.documentElement.scrollHeight);
+        await page.setViewportSize({ width, height: Math.max(900, height) });
+        await page.waitForTimeout(150);
+      }
       await page.waitForTimeout(150);
       await page.screenshot({ path: join(out, file), fullPage: true });
-      shots.push({ file, ...(await measure(page)) });
+      shots.push({ file, ...(measured ?? (await measure(page))) });
+      if (testCase.tall) await page.setViewportSize({ width, height: 900 });
     };
     try {
       await testCase.reach(page, capture);

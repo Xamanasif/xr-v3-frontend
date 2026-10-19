@@ -13,6 +13,7 @@ import {
   expectV3ClassesOnly,
   saExportText,
   v3BoardText,
+  veExportText,
   xsExportText,
 } from '../testing/index.js';
 import { Button, ButtonLink, TextLink } from './actions.js';
@@ -34,14 +35,21 @@ const XS_FILES = [
 ];
 
 describe('V3 icons', () => {
-  it('every icon is a path a V3 board, the XS export or the SA export draws', () => {
+  it('every icon is a path a V3 board, the XS export, the SA export or the VE export draws', () => {
     const drawn = [...BOARDS.map((file) => v3BoardText(file)), ...XS_FILES.map(xsExportText)].join(
       '\n',
     );
     // The Super Admin export (SA-v1) keeps its glyphs in a sprite table: `['rki-ok', '<path>']`.
     const saSprite = saExportText('sa-core.js');
+    // The Vendor export (VE-v1) keeps its glyphs as `<symbol id="vei-…">` in its live root.
+    const veSprite = veExportText('Main.dc.html');
     for (const [name, path] of Object.entries(V3_ICON_PATHS)) {
-      expect(drawn.includes(`d="${path}"`) || saSprite.includes(`', '${path}']`), name).toBe(true);
+      expect(
+        drawn.includes(`d="${path}"`) ||
+          saSprite.includes(`', '${path}']`) ||
+          veSprite.includes(`<path d="${path}"></path></symbol>`),
+        name,
+      ).toBe(true);
     }
   });
 
@@ -49,7 +57,7 @@ describe('V3 icons', () => {
     const shared = Object.entries(V3_ICON_PATHS).filter(([, path]) =>
       Object.values(ICON_PATHS).includes(path as never),
     );
-    expect(shared.length).toBe(26);
+    expect(shared.length).toBe(29);
   });
 
   it('renders the core.css icon, decorative', () => {

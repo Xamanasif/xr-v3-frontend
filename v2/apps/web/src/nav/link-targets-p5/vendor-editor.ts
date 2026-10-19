@@ -3,21 +3,52 @@ import { type PageRow, pageRows } from '../link-targets-p3/rows';
 
 const LIST = '/vendor/experiments';
 const NEW = '/vendor/experiments/new';
-/** The sample’s records stand for any: SUB-0079 a draft (VE-09), SUB-0081 returned (VE-08). */
+/** The sample's records stand for any: SUB-0079 a draft (VE-09), SUB-0081 returned (VE-08). */
 const EDIT_DRAFT = '/vendor/experiments/SUB-0079/edit';
 const REVISE = '/vendor/experiments/SUB-0081/revise';
-/** The record a first submit or a resubmit opens (Flow E’s SUB-0077). */
+/** The record a first submit or a resubmit opens (Flow E's SUB-0077). */
 const RECORD = '/vendor/experiments/SUB-0077';
-const HELP = '/vendor/help';
+/** Report a problem (XS-07), its “Where” filled from the page the person came from. */
+const REPORT = '/vendor/help/report';
 
-/** The editor’s frame on every step: the back link to My experiments. */
-const TOP: PageRow = [
-  'Top',
+/** The editor's breadcrumbs on every step: My experiments (guarded while changes are unsaved). */
+const CRUMB: PageRow = [
+  'Breadcrumbs',
   'My experiments',
   'secondary',
   LIST,
   'built',
-  'B5-03 … B5-05, B5-07 `a.xr-back`',
+  'VE-v1 LINK-MAP L30 `nav.rk-crumbs` (“Leave without saving?” first while changes are unsaved, state-copy `VE-04.leave-guard`)',
+];
+
+/** A saved experiment's breadcrumb: its record (VE-07). */
+const RECORD_CRUMB = (record: string): PageRow => [
+  'Breadcrumbs (saved experiment)',
+  '<experiment name>',
+  'secondary',
+  record,
+  'built',
+  'VE-v1 LINK-MAP L31 `nav.rk-crumbs` (guarded the same way)',
+];
+
+/** The top stepper (narrow) and the aside outline (wide): the steps and the current step's parts. */
+const STEPS: PageRow[] = [
+  [
+    'Steps (top stepper, aside outline)',
+    'Course · Formats · Preview · Check',
+    'secondary',
+    null,
+    'in-page',
+    'VE-v1 LINK-MAP L32 `nav.ve-steps button.ve-step`, `ol.ve-stepnav button` (the step’s `?step=`, values kept)',
+  ],
+  [
+    'Aside outline (current step)',
+    '<part: a step-1 group or a chosen format>',
+    'secondary',
+    null,
+    'in-page',
+    'VE-v1 LINK-MAP L32 `ul.vr-sub button.vr-sub-b` (focus to that section or block)',
+  ],
 ];
 
 const SUMMARY: PageRow = [
@@ -26,7 +57,7 @@ const SUMMARY: PageRow = [
   'secondary',
   '#Ve-course',
   'in-page',
-  'B5-03 f3, f4, f5; B5-04 f4, f5; B5-05 f4 `div.xw-errsum li a` (moves focus to the field)',
+  'VE-v1 LINK-MAP L35 `div.vr-errwrap div.rk-errsum li a` (moves focus to the field)',
 ];
 
 const FAILED: PageRow = [
@@ -38,166 +69,197 @@ const FAILED: PageRow = [
   'state-copy `VE-03.failed`',
 ];
 
-/** Steps 2–4: Back and the save action (Save draft; Save changes when revising, B5-07). */
-function stepActions(board: string): PageRow[] {
+/** “Leave without saving?” over a link held back while changes are unsaved. */
+const LEAVE: PageRow[] = [
+  [
+    'Leave without saving? (unsaved changes)',
+    'Keep editing',
+    'secondary',
+    null,
+    'in-page',
+    'VE-v1 LINK-MAP L39 `div.rk-dlg-foot` (closes; every value kept; focus back on the link)',
+  ],
+  [
+    'Leave without saving? (unsaved changes)',
+    'Leave without saving',
+    'secondary',
+    LIST,
+    'built',
+    'VE-v1 LINK-MAP L40 (the destination that was chosen — here the breadcrumb’s My experiments; what was typed is dropped)',
+  ],
+];
+
+/** Steps 2–4: Back and the save action (Save draft; Save changes when revising). */
+function stepActions(screen: string): PageRow[] {
   return [
     [
-      'Footer',
+      'Actions',
       'Back',
       'secondary',
       null,
       'in-page',
-      `${board} \`button.xr-btn--text\` (the step before)`,
+      `VE-v1 LINK-MAP L33 ${screen} \`div.vr-actions-l button.rb-btn--ghost\` (the step before)`,
     ],
     [
-      'Footer',
+      'Actions',
       'Save draft · Save changes',
       'secondary',
       null,
       'in-page',
-      `${board} \`button.xr-btn--secondary\` (saveDraft, or saveRevision in revise mode: “Changes saved · … · not resubmitted yet”)`,
+      `VE-v1 LINK-MAP L34 ${screen} \`div.vr-actions-r button.rb-btn\` (saveDraft, or saveRevision in revise mode: “Changes saved · … · not resubmitted yet”)`,
     ],
   ];
 }
 
-const CONTINUE = (board: string): PageRow => [
-  'Footer',
+const CONTINUE = (screen: string): PageRow => [
+  'Actions',
   'Continue',
   'primary',
   null,
   'in-page',
-  `${board} \`button.xr-btn--primary\` (the step’s check, then continueStep; the next \`?step=\`)`,
+  `VE-v1 LINK-MAP L33 ${screen} \`button.rb-btn--primary\` (the step’s check, then continueStep; the next \`?step=\`)`,
 ];
 
-/** VE-06’s rows, also VE-08’s step 4 (B5-07 f3). */
-const CHECK_ROWS: PageRow[] = [
-  ...stepActions('B5-05 f0, f2, f5'),
+/** The outcome card's and the refusal's two ways on. */
+const WAYS_ON = (where: string, primaryNote: string): PageRow[] => [
   [
-    'Footer',
-    'Submit for academic review · Resubmit',
-    'primary',
-    null,
-    'in-page',
-    'B5-05 f0, f2 `button#Vm-sbtn.xr-btn--primary` → DL-1; with something missing, the list (f5). B5-07 f3 “Resubmit”',
-  ],
-  [
-    'Checklist row',
-    'Change',
-    'secondary',
-    null,
-    'in-page',
-    'B5-05 f0, f5 `li.xv-check-row > button.xr-btn--text` (named “Change course and description” …; the step)',
-  ],
-  [
-    'Missing items (f5)',
-    'Go to <step>',
-    'secondary',
-    null,
-    'in-page',
-    'B5-05 f5 `ul.xv-miss button.xr-btn--text` (the step with its errors, focus on the field)',
-  ],
-  [
-    'DL-1 Submit for academic review · Resubmit your changes',
-    'Cancel · Keep editing',
-    'secondary',
-    null,
-    'in-page',
-    'B5-05 f6; B5-07 DL-1 `div.xr-dialog-foot > button.xr-btn--secondary` (nothing is sent)',
-  ],
-  [
-    'Submitted (f1) · Submitted (B5-07 f4)',
+    where,
     'Open the experiment record',
     'primary',
     RECORD,
     'built',
-    'B5-05 f1; B5-07 f4 `div.xr-msg-actions > a.xr-btn--primary`',
-    'VE-07 Experiment record (Phase 5).',
+    `VE-v1 LINK-MAP L41, L43 \`div.ve-done-actions > a.rb-btn--primary\` (${primaryNote})`,
+    'VE-07 Experiment record.',
   ],
   [
-    'Submitted (f1) · Submitted (B5-07 f4)',
+    where,
     'Back to My experiments',
     'secondary',
     LIST,
     'built',
-    'B5-05 f1; B5-07 f4 `div.xr-msg-actions > a.xr-btn--text`',
+    'VE-v1 LINK-MAP L42, L43 `div.ve-done-actions > a.rb-btn`',
   ],
 ];
 
+/** VE-06's rows, also VE-08's step 4. */
+const CHECK_ROWS: PageRow[] = [
+  ...stepActions('VE-06'),
+  [
+    'Actions',
+    'Submit for academic review · Resubmit',
+    'primary',
+    null,
+    'in-page',
+    'VE-v1 LINK-MAP L38 `button#Ve-sbtn.rb-btn--primary` → the confirmation; with something missing, the list',
+  ],
+  [
+    'Review section',
+    'Change',
+    'secondary',
+    null,
+    'in-page',
+    'VE-v1 LINK-MAP L46 `div.vr-rev-h > button.vr-chg` (named “Change course and description” …; that step, values kept)',
+  ],
+  [
+    'Missing items',
+    'Go to <step>',
+    'secondary',
+    '#Ve-plink',
+    'in-page',
+    'VE-v1 LINK-MAP L36 `span.ve-errline > a` (the step with its errors, focus on the field)',
+  ],
+  [
+    'Confirmation: Submit for academic review? · Resubmit your changes?',
+    'Cancel · Keep editing',
+    'secondary',
+    null,
+    'in-page',
+    'VE-v1 LINK-MAP L39 `div.rk-dlg-foot > button.rb-btn` (nothing is sent; focus back on Submit)',
+  ],
+  ...WAYS_ON('Outcome card (submitted · resubmitted)', 'the outcome card'),
+];
+
 /**
- * Phase 5 link targets: the experiment editor — VE-03 … VE-06 for a new experiment (B5-03 … B5-05,
- * `?step=` rule S1), VE-09 a saved draft and VE-08 a returned one (B5-07). Each step has one
- * primary: “Continue” (steps 1–3, a command that opens the next `?step=`), “Submit for academic
- * review” / “Resubmit” (step 4, through DL-1), and the result’s “Open the experiment record”. The
- * read-only draft (B5-07 f6) has none. Documents and package files are file names only: “Choose
- * file” and “Add document” upload nothing (OD-B5-11).
+ * The experiment editor's link targets — VE-03 … VE-06 for a new experiment (`?step=` rule S1),
+ * VE-09 a saved draft and VE-08 a returned one — in the V3 Vendor design (VE-v1 LINK-MAP L30 …
+ * L48). Each editing step has one primary: “Continue” (steps 1–3, a command that opens the next
+ * `?step=`), “Submit for academic review” / “Resubmit” (step 4, through the confirmation), and the
+ * outcome's or the refusal's “Open the experiment record”. The read-only draft has none. Documents
+ * and package files are file names only: “Attach file” and “Add document” upload nothing
+ * (OD-B5-11). Every link out while changes are unsaved asks “Leave without saving?” first.
  */
 export const P5_VENDOR_EDITOR_LINK_TARGETS: readonly LedgerEntry[] = [
-  // VE-03 Course and description (B5-03 f0 … f6).
+  // VE-03 Course and description.
   ...pageRows('VE-03', NEW, [
-    TOP,
+    CRUMB,
+    ...STEPS,
     [
-      'Footer',
+      'Actions',
       'Cancel',
       'secondary',
       LIST,
       'built',
-      'B5-03 f0 … f6 `a.xr-btn--text` (drops what was typed, state-copy `VE-03.kept`)',
+      'VE-v1 `div.vr-actions-l > a.rb-btn--ghost` (drops what was typed, state-copy `VE-03.kept`; asks first while changes are unsaved)',
     ],
     [
-      'Footer',
+      'Actions',
       'Save draft',
       'secondary',
       null,
       'in-page',
-      'B5-03 f0, f6 `button.xr-btn--secondary` (the first save gives the id: `/vendor/experiments/SUB-0077/edit`, state-copy `VE-03.first-save`)',
+      'VE-v1 LINK-MAP L34 `div.vr-actions-r button.rb-btn` (the first save gives the id: `/vendor/experiments/SUB-0077/edit`, state-copy `VE-03.first-save`)',
     ],
-    CONTINUE('B5-03 f0 … f5'),
+    CONTINUE('VE-03'),
     SUMMARY,
+    ...LEAVE,
     FAILED,
   ]),
-  // VE-04 Formats and delivery (B5-04 f0 … f6).
+  // VE-04 Formats and delivery.
   ...pageRows('VE-04', `${NEW}?step=formats`, [
-    TOP,
-    ...stepActions('B5-04 f0 … f6'),
-    CONTINUE('B5-04 f0 … f6'),
+    CRUMB,
+    ...STEPS,
+    ...stepActions('VE-04'),
+    CONTINUE('VE-04'),
     [
       'Formats it supports',
       'WEB · AR · VR · MR',
       'secondary',
       null,
       'in-page',
-      'B5-04 f0 `div.xv-fmtchecks label.xr-check` (one panel per ticked format)',
+      'VE-v1 `fieldset.vr-fmtsel label.vr-fmtopt` (one delivery block per chosen format)',
     ],
     [
-      'Package panel',
-      'Choose file',
+      'App-package block',
+      'Attach file',
       'secondary',
       null,
       'in-page',
-      'B5-04 f3, f4 `button.xr-btn--secondary.xr-btn--sm` (a sample file name only, state-copy `VE-04.sample-file`)',
+      'VE-v1 LINK-MAP L47 `div.vr-labelrow > button.vr-linkbtn` (named “Attach the VR package file”; a sample file name only, state-copy `VE-04.sample-file`)',
     ],
     [
-      'Package panel',
+      'App-package block',
       'Remove',
       'secondary',
       null,
       'in-page',
-      'B5-04 f1 `div.xv-file > button.xr-btn--text` (named “Remove the VR package file”)',
+      'VE-v1 LINK-MAP L47 `div.ve-file.vr-file > button.rb-btn--ghost` (named “Remove the VR package file”)',
     ],
     SUMMARY,
+    ...LEAVE,
   ]),
-  // VE-05 Preview and documents (B5-05 f3, f4).
+  // VE-05 Preview and documents.
   ...pageRows('VE-05', `${NEW}?step=preview`, [
-    TOP,
-    ...stepActions('B5-05 f3, f4'),
-    CONTINUE('B5-05 f3, f4'),
+    CRUMB,
+    ...STEPS,
+    ...stepActions('VE-05'),
+    CONTINUE('VE-05'),
     [
       'Documents',
       'Add document',
       'secondary',
       null,
       'in-page',
-      'B5-05 f3, f4 `button.xr-btn--secondary.xr-btn--sm` (the next sample name, state-copy `VE-05.sample-documents`)',
+      'VE-v1 LINK-MAP L48 `div.vr-sec-h--row > button.rb-btn` (the next sample name, state-copy `VE-05.sample-documents`)',
     ],
     [
       'Documents',
@@ -205,94 +267,109 @@ export const P5_VENDOR_EDITOR_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B5-05 f4 `li.xv-file > button.xr-btn--text` (named “Remove <file name>”)',
+      'VE-v1 LINK-MAP L48 `li.ve-file > button.rb-btn--ghost` (named “Remove <file name>”; the dashed line when none is left)',
     ],
     SUMMARY,
+    ...LEAVE,
   ]),
-  // VE-06 Check and submit (B5-05 f0 … f2, f5, f6).
-  ...pageRows('VE-06', `${NEW}?step=submit`, [TOP, ...CHECK_ROWS]),
-  // VE-09 Edit draft (B5-07 f5; B5-03 f6): the same four steps; read-only when the course is no
-  // longer assigned (B5-07 f6).
+  // VE-06 Check and submit.
+  ...pageRows('VE-06', `${NEW}?step=submit`, [CRUMB, ...STEPS, ...CHECK_ROWS, ...LEAVE]),
+  // VE-09 Edit draft: the same four steps; read-only when the course is no longer assigned; the
+  // refusal when it is no longer a draft.
   ...pageRows('VE-09', EDIT_DRAFT, [
-    TOP,
+    CRUMB,
+    RECORD_CRUMB('/vendor/experiments/SUB-0079'),
+    ...STEPS,
     [
-      'Footer',
+      'Actions',
       'Cancel',
       'secondary',
       LIST,
       'built',
-      'B5-03 f6; B5-07 f5 `a.xr-btn--text` (drops what was typed since the last save)',
+      'VE-v1 `div.vr-actions-l > a.rb-btn--ghost` (drops what was typed since the last save; asks first while changes are unsaved)',
     ],
     [
-      'Footer',
+      'Actions',
       'Save draft',
       'secondary',
       null,
       'in-page',
-      'B5-03 f6; B5-07 f5 `button.xr-btn--secondary` (“Draft saved · <date, time>”)',
+      'VE-v1 LINK-MAP L34 `div.vr-actions-r button.rb-btn` (“Draft saved · <date, time>”)',
     ],
-    CONTINUE('B5-07 f5'),
+    CONTINUE('VE-09'),
     SUMMARY,
+    ...LEAVE,
     [
       'Read-only (course no longer assigned)',
       'Back to My experiments',
       'secondary',
       LIST,
       'built',
-      'B5-07 f6 `div.xw-actions > a.xr-btn--secondary`',
+      'VE-v1 LINK-MAP L44 `div.rk-notice-act > a.rb-btn`',
     ],
     [
       'Read-only (course no longer assigned)',
       'Ask for help',
       'secondary',
-      HELP,
+      REPORT,
       'built',
-      'B5-07 f6 `div.xw-actions > a.xr-btn--text`',
+      'VE-v1 LINK-MAP L45 “Ask for help” → XS-07 report form, Where prefilled (`div.rk-notice-act > a.rb-btn--ghost`; as the record’s, L54)',
     ],
     [
-      'Not editable here (with others)',
+      'Refusal (approved, being reviewed, published, already submitted)',
       'Open the experiment record',
-      'secondary',
+      'primary',
       '/vendor/experiments/SUB-0074',
       'built',
-      'B5-07 script idle notices `div.xr-notice-actions > a.xr-btn--secondary.xr-btn--sm` (state-copy `VE-09.not-editable-title`)',
+      'VE-v1 LINK-MAP L43 `div.ve-done-actions > a.rb-btn--primary` (state-copy `VE-09.refusal-kind`)',
+    ],
+    [
+      'Refusal (approved, being reviewed, published, already submitted)',
+      'Back to My experiments',
+      'secondary',
+      LIST,
+      'built',
+      'VE-v1 LINK-MAP L43 `div.ve-done-actions > a.rb-btn`',
     ],
     FAILED,
   ]),
-  // VE-08 Revise and resubmit (B5-07 f0 … f4, f7, f8; B5-08 f0).
+  // VE-08 Revise and resubmit.
   ...pageRows('VE-08', REVISE, [
-    TOP,
+    CRUMB,
+    RECORD_CRUMB('/vendor/experiments/SUB-0081'),
     [
-      'Returned notice',
+      'Returned reason',
       '<what it refers to>',
       'secondary',
       null,
       'in-page',
-      'B5-07 f0, f1, f2 `div.xv-refs button.xr-btn--text` (named “Go to Formats & delivery · AR · Device need”; the step and the field, state-copy `VE-08.reference-jump`)',
+      'VE-v1 LINK-MAP L37 `ul.vr-ret-reflist button.ve-ref` (named “Go to Formats & delivery · AR · Device need”; the step and the field, tagged, state-copy `VE-08.reference-jump`)',
     ],
+    ...STEPS,
     [
-      'Footer (step 1)',
+      'Actions (step 1)',
       'Cancel',
       'secondary',
       LIST,
       'built',
-      'B5-07 f0 `a.xr-btn--text` (drops what was typed since the last save)',
+      'VE-v1 `div.vr-actions-l > a.rb-btn--ghost` (drops what was typed since the last save; asks first while changes are unsaved)',
     ],
     [
-      'Footer (step 1)',
+      'Actions (step 1)',
       'Save changes',
       'secondary',
       null,
       'in-page',
-      'B5-07 f0 `button.xr-btn--secondary` (saveRevision: “Changes saved · … · not resubmitted yet”)',
+      'VE-v1 LINK-MAP L34 `div.vr-actions-r button.rb-btn` (saveRevision: “Changes saved · … · not resubmitted yet”, state-copy `VE-08.private-revision`)',
     ],
-    CONTINUE('B5-07 f0 … f2'),
+    CONTINUE('VE-08'),
     SUMMARY,
     ...CHECK_ROWS.map(([where, action, role, target, outcome, board, note]): PageRow =>
       note === undefined
         ? [`Step 4 · ${where}`, action, role, target, outcome, board]
         : [`Step 4 · ${where}`, action, role, target, outcome, board, note],
     ),
+    ...LEAVE,
     FAILED,
   ]),
 ];

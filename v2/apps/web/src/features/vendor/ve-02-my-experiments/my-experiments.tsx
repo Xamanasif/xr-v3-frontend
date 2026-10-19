@@ -3,116 +3,121 @@
 import { FORMAT_META, inDisplayOrder } from '@xr/domain';
 import {
   Button,
-  Checkbox,
-  EmptyState,
-  Field,
-  FormatBadge,
-  Icon,
-  Link,
-  LoadingState,
-  NoMatch,
-  PageContent,
-  PageHeader,
-  SectionBody,
-  Select,
-  Skeleton,
-  StatusPill,
-  TextInput,
-} from '@xr/ui';
+  ButtonLink,
+  ListState,
+  LoadingRows,
+  PageHead,
+  VendorExperimentTable,
+  type VendorExperimentRow,
+  VendorListSurface,
+  VendorListTools,
+  type VendorSort,
+  type VendorSortDirection,
+  VendorStatusTabs,
+} from '@xr/ui/v3';
 import { type ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-import { dayMonthYear } from '@/copy/dates';
+import { dayMonthYear, weekdayDate } from '@/copy/dates';
 import { stateWords } from '@/copy/state-copy';
 import {
   CREATE_EXPERIMENT,
   experimentCountWords,
+  experimentRowName,
+  formatsName,
   MY_EXPERIMENTS_WORDS,
-  STATUS_FILTER_OPTIONS,
+  STATUS_TABS,
+  statusTabName,
+  type StatusTabKey,
   VENDOR_FAILED_WORDS,
 } from '@/copy/vendor-home';
 import { useAppNavigation } from '@/nav/navigation';
 import {
   experimentRecordAddress,
   MY_EXPERIMENTS_TITLE,
-  myExperimentsAddress,
   myExperimentsPlacement,
   newExperimentAddress,
 } from '@/nav/vendor';
 import { usePublicStructure } from '@/queries/catalogue';
 import { type MyExperimentsStatus, useMyExperiments } from '@/queries/production';
-import { useCurrentSession, useSession } from '@/queries/session';
+import { useSession } from '@/queries/session';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { hasSavedChanges } from '../shared/saved-changes';
 import { useRetryFocus } from '../ve-01-overview/retry-focus';
 import {
   changedRecently,
+  inTab,
   type MyExperimentRow,
+  myExperimentsFilterAddress,
+  oldestFirst,
+  recentFilterOf,
   rowAction,
   rowStatus,
   statusFilterOf,
-  withWho,
+  statusLine,
 } from './experiment-rows';
 
-const SECTION_HEADING = 'my-experiments-heading';
-const SEARCH_ID = 'my-experiments-search';
-const STATUS_ID = 'my-experiments-status';
-const RECENT_ID = 'my-experiments-recent';
+const TITLE_ID = 've-h1';
+const SEARCH_ID = 've-q';
+const RECENT_ID = 've-recent';
 
 /**
- * VE-02 My experiments — board B5-02 (“Where is each of my experiments?”) f0 … f5, at
- * `/vendor/experiments` (`?status=`).
+ * VE-02 My experiments — the owner-approved Vendor export (V3 Refined B, VE-v1 `Main.dc.html`
+ * list view; HANDOFF §1, §2, §7), at `/vendor/experiments` (`?status=`, `?changed=last-7-days`).
  *
- * - **Reads**: `ProductionService.listMyExperiments` twice — every experiment the Vendor created
- *   (the count's whole and the empty state) and the list for the search and Status filter on show
- *   (the service filters and searches, newest change first) — and the public catalogue's course
- *   cards for each course's platform code (state-copy `VE-02.course-code`). Every role's command in
- *   the tab refreshes the list (B5-08 f3: “Status and “With” follow the same record”).
- * - **As B5-02 draws it**: the overline, “My experiments”, its line and the one primary “Create
- *   experiment”; “All your experiments” with the toolbar — the search (“Name, ID or course”), the
- *   Status filter (All statuses · Draft · Submitted · With Academic Reviewer · Returned · With
- *   Content Manager · Published) and “Changed in the last 7 days” — the count “6 of 6
- *   experiments” (announced) with “Clear filters” while a filter is applied (f1), and the table
- *   Experiment (the name opens the record; the SUB id · course code) · Formats · Status · last
- *   change · With · one action (Revise / Edit draft / Open). Below 760 px of content the rows stack
- *   as labelled blocks (f4, f5). f2: “No experiments match” with “Clear filters”; f3: “You haven’t
- *   created an experiment yet” with “Create experiment”.
- * - The Status filter lives here while the page is on show and the address mirrors it (replaced,
- *   no history entry); an address from outside (Back) is read again. The search and the checkbox
- *   stay on the page (state-copy `VE-02.status-filter`). “Changed in the last 7 days” narrows the
- *   rows against the sample clock (state-copy `VE-02.changed-recently`).
- * - Undrawn: loading and failed with “Try again” (state-copy `VE-02.loading`, `VE-02.failed`).
- *   Nothing here changes a record: every action opens the page where the work is done.
+ * - **Reads**: `ProductionService.listMyExperiments` three times — every experiment the Vendor
+ *   created (the count's whole, which tabs show, the empty state), the search alone (each tab's
+ *   count) and the rows on show (the tab's status and the search: the service filters and
+ *   searches, newest change first) — and the public catalogue's course cards for each course's
+ *   platform code (state-copy `VE-02.course-code`). Every role's command in the tab refreshes them.
+ * - **As the export draws it**: the head (today, “My experiments”, its line, the gold Create
+ *   experiment); the status tabs with counts (All and each status the Vendor has); one tool row —
+ *   the search, “Changed in the last 7 days”, the count, “Clear filters” while a filter is applied
+ *   (focus returns to the search) and, below 760 px, the sort; the table — Experiment (the name
+ *   opens the record; the SUB id · course), Formats, Status (pill, one plain line, “Changes saved,
+ *   not resubmitted” when the product can tell), Last change (sortable), one action (Revise / Edit
+ *   draft / the chevron) — three-line rows below 760 px with a labelled last change. No match;
+ *   no experiments yet; loading; could not load with Try again.
+ * - The tab and the 7-day filter live in the address (replaced, no history entry); an address from
+ *   outside (Back, the Overview's “Changed in the last 7 days”) is read again. The search and the
+ *   sort stay on the page. Nothing here changes a record: every action opens the page where the
+ *   work is done.
  */
 export function MyExperiments() {
   useShellPage(myExperimentsPlacement());
   const navigation = useAppNavigation();
   const session = useSession();
   const now = session.status === 'signed-in' ? session.signedInAt : null;
-  const current = useCurrentSession();
-  const organisation = current.data?.ok ? (current.data.value?.session.organisation ?? null) : null;
 
-  const addressed = statusFilterOf(navigation.search);
-  const [status, setStatus] = useState<MyExperimentsStatus | null>(addressed);
+  const addressedStatus = statusFilterOf(navigation.search);
+  const addressedRecent = recentFilterOf(navigation.search);
+  const [status, setStatus] = useState<MyExperimentsStatus | null>(addressedStatus);
+  const [recent, setRecent] = useState(addressedRecent);
   const [seenSearch, setSeenSearch] = useState(navigation.search);
   if (navigation.search !== seenSearch) {
     setSeenSearch(navigation.search);
-    setStatus(addressed);
+    setStatus(addressedStatus);
+    setRecent(addressedRecent);
   }
   const [search, setSearch] = useState('');
-  const [recent, setRecent] = useState(false);
+  const [direction, setDirection] = useState<VendorSortDirection>('desc');
 
   const everything = useMyExperiments();
+  const searched = useMyExperiments({ status: null, search });
   const list = useMyExperiments({ status, search });
   const structure = usePublicStructure();
 
   const failedRead = (read: typeof list) =>
     read.isError || (read.data !== undefined && !read.data.ok);
-  const failed = failedRead(everything) || failedRead(list);
+  const failed = failedRead(everything) || failedRead(searched) || failedRead(list);
   const all = everything.data?.ok ? everything.data.value : null;
+  const matching = searched.data?.ok ? searched.data.value : null;
   const rows = list.data?.ok ? list.data.value : null;
   const codesSettled = structure.data !== undefined || structure.isError;
-  const loading = !failed && (all === null || rows === null || !codesSettled);
-  const retried = useRetryFocus(!loading && !failed);
+  const loading = !failed && (all === null || matching === null || rows === null || !codesSettled);
+
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const retried = useRetryFocus(!loading && !failed, titleRef);
 
   const codes = useMemo(
     () =>
@@ -126,303 +131,214 @@ export function MyExperiments() {
     [structure.data],
   );
 
-  const shown = (rows ?? []).filter(
-    (row) => !recent || now === null || changedRecently(row.submission.updatedAt, now),
-  );
+  const recentOnly = (row: MyExperimentRow) =>
+    !recent || now === null || changedRecently(row.submission.updatedAt, now);
+  const shownNewestFirst = (rows ?? []).filter(recentOnly);
+  const shown = direction === 'desc' ? shownNewestFirst : oldestFirst(shownNewestFirst);
   const total = all?.length ?? 0;
   const filtered = search.trim() !== '' || status !== null || recent;
 
-  // The count is announced (`role="status"`): while a new search's or filter's rows load, the rows
-  // on show are the previous answer's, so the count keeps its last settled words.
+  // The count is announced (`role="status"`): while a new search's or tab's rows load, the rows on
+  // show are the previous answer's, so the count keeps its last settled words.
   const settled =
-    loading || failed || list.isPlaceholderData ? null : experimentCountWords(shown.length, total);
+    loading || failed || list.isPlaceholderData
+      ? null
+      : experimentCountWords(shown.length, total, filtered);
   const [countWords, setCountWords] = useState('');
   if (settled !== null && settled !== countWords) setCountWords(settled);
 
-  const changeStatus = (next: MyExperimentsStatus | null) => {
-    setStatus(next);
-    navigation.replace(myExperimentsAddress(next ?? undefined));
+  const applyFilters = (next: { status: MyExperimentsStatus | null; recent: boolean }) => {
+    setStatus(next.status);
+    setRecent(next.recent);
+    navigation.replace(myExperimentsFilterAddress(next.status, next.recent));
   };
 
-  // “Clear filters” goes with the filters (the status row's) or with the no-match state: focus
-  // moves to the search box once it has gone, only if it had focus and nothing else took it.
+  // “Clear filters” returns focus to the search box once the filters have gone (the export's
+  // `focusId('ve-q')`), from the tool row and from the no-match state alike.
   const searchRef = useRef<HTMLInputElement>(null);
-  const pressed = useRef<HTMLElement | null>(null);
+  const focusSearch = useRef(false);
   useLayoutEffect(() => {
-    const control = pressed.current;
-    if (control === null || control.isConnected) return;
-    pressed.current = null;
-    const active = document.activeElement;
-    if (active && active !== document.body && active.isConnected) return;
+    if (!focusSearch.current) return;
+    focusSearch.current = false;
     searchRef.current?.focus();
   });
   const clear = () => {
-    const active = document.activeElement;
-    pressed.current = active instanceof HTMLElement ? active : null;
+    focusSearch.current = true;
     setSearch('');
-    setRecent(false);
-    if (status !== null) changeStatus(null);
+    applyFilters({ status: null, recent: false });
   };
 
   const retry = () => {
     retried();
-    if (failedRead(everything)) void everything.refetch();
-    if (failedRead(list)) void list.refetch();
+    for (const read of [everything, searched, list]) {
+      if (failedRead(read)) void read.refetch();
+    }
+    if (structure.isError) void structure.refetch();
   };
 
+  const sort: VendorSort = {
+    direction,
+    words: { desc: MY_EXPERIMENTS_WORDS.newestFirst, asc: MY_EXPERIMENTS_WORDS.oldestFirst },
+    prefix: MY_EXPERIMENTS_WORDS.sortPrefix,
+    changeOrder: MY_EXPERIMENTS_WORDS.changeOrder,
+    onToggle: () => setDirection((current) => (current === 'desc' ? 'asc' : 'desc')),
+  };
+
+  const empty = !loading && !failed && total === 0;
+  const head = (
+    <PageHead
+      title={MY_EXPERIMENTS_TITLE}
+      titleId={TITLE_ID}
+      titleRef={titleRef}
+      titleFocusTarget
+      date={now ? weekdayDate(now) : undefined}
+      lead={MY_EXPERIMENTS_WORDS.lead}
+      actions={
+        empty ? undefined : (
+          <ButtonLink href={newExperimentAddress()} variant="primary" size="lg" icon="add">
+            {CREATE_EXPERIMENT}
+          </ButtonLink>
+        )
+      }
+    />
+  );
+
+  const ready = !loading && !failed;
+  const tabs = STATUS_TABS.filter(
+    ([key]) => key === 'all' || key === status || (all ?? []).some((row) => inTab(row, key)),
+  ).map(([key, label]) => {
+    const count = (matching ?? []).filter((row) => recentOnly(row) && inTab(row, key)).length;
+    return { key, label, count, accessibleName: statusTabName(label, count) };
+  });
+
   let body: ReactNode;
-  if (failed) {
+  if (empty) {
     body = (
-      <ListSection>
-        <Failed onRetry={retry} />
-      </ListSection>
+      <ListState
+        kind="none"
+        roomy
+        titleAs="h2"
+        icon="myExperiments"
+        title={MY_EXPERIMENTS_WORDS.emptyTitle}
+        action={
+          <ButtonLink href={newExperimentAddress()} variant="primary" size="lg">
+            {CREATE_EXPERIMENT}
+          </ButtonLink>
+        }
+      >
+        {MY_EXPERIMENTS_WORDS.emptyLine}
+      </ListState>
+    );
+  } else if (failed) {
+    body = (
+      <ListState
+        kind="failed"
+        title={stateWords('VE-02.failed')}
+        action={<Button onClick={retry}>{VENDOR_FAILED_WORDS.tryAgain}</Button>}
+      >
+        {VENDOR_FAILED_WORDS.line}
+      </ListState>
     );
   } else if (loading) {
+    body = <LoadingRows message={stateWords('VE-02.loading')} cells={[2, 1, 1, 1, 1]} />;
+  } else if (shown.length === 0) {
     body = (
-      <ListSection>
-        <LoadingRows />
-      </ListSection>
-    );
-  } else if (total === 0) {
-    body = (
-      <div className="xr-section">
-        <EmptyState
-          icon="myExperiments"
-          title={MY_EXPERIMENTS_WORDS.emptyTitle}
-          actions={
-            <div className="flex flex-wrap gap-3">
-              <Link className="xr-btn xr-btn--primary" href={newExperimentAddress()}>
-                <Icon name="add" />
-                {CREATE_EXPERIMENT}
-              </Link>
-            </div>
-          }
-        >
-          {MY_EXPERIMENTS_WORDS.emptyLine}
-        </EmptyState>
-      </div>
+      <ListState
+        kind="nomatch"
+        title={MY_EXPERIMENTS_WORDS.noMatchTitle}
+        action={<Button onClick={clear}>{MY_EXPERIMENTS_WORDS.clearFilters}</Button>}
+      >
+        {MY_EXPERIMENTS_WORDS.noMatchLine}
+      </ListState>
     );
   } else {
     body = (
-      <ListSection>
-        <div className="xr-toolbar [padding:0_24px_16px]">
-          <Field
-            id={SEARCH_ID}
-            label={MY_EXPERIMENTS_WORDS.searchLabel}
-            className="xr-toolbar-search"
-          >
-            <TextInput
-              ref={searchRef}
-              type="search"
-              placeholder={MY_EXPERIMENTS_WORDS.searchPlaceholder}
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </Field>
-          <Field id={STATUS_ID} label={MY_EXPERIMENTS_WORDS.statusLabel}>
-            <Select
-              value={status ?? 'all'}
-              onChange={(event) =>
-                changeStatus(
-                  event.target.value === 'all' ? null : (event.target.value as MyExperimentsStatus),
-                )
-              }
-              options={[
-                { value: 'all', label: MY_EXPERIMENTS_WORDS.allStatuses },
-                ...STATUS_FILTER_OPTIONS.map(([value, label]) => ({ value, label })),
-              ]}
-            />
-          </Field>
-          <Checkbox
-            id={RECENT_ID}
-            className="self-end"
-            checked={recent}
-            onChange={(event) => setRecent(event.target.checked)}
-          >
-            {MY_EXPERIMENTS_WORDS.recent}
-          </Checkbox>
-        </div>
-        <div className="xr-toolbar-status [padding:0_24px_12px]">
-          <span className="xr-meta" role="status">
-            {countWords}
-          </span>
-          {filtered ? (
-            <Button variant="text" onClick={clear}>
-              {MY_EXPERIMENTS_WORDS.clearFilters}
-            </Button>
-          ) : null}
-        </div>
-        {shown.length > 0 ? (
-          <ExperimentTable rows={shown} codes={codes} />
-        ) : (
-          <SectionBody>
-            <NoMatch
-              title={MY_EXPERIMENTS_WORDS.noMatchTitle}
-              headingLevel={3}
-              onClearFilters={clear}
-            >
-              {MY_EXPERIMENTS_WORDS.noMatchLine}
-            </NoMatch>
-          </SectionBody>
-        )}
-      </ListSection>
+      <VendorExperimentTable
+        caption={MY_EXPERIMENTS_WORDS.listLabel}
+        headers={MY_EXPERIMENTS_WORDS.columns}
+        sort={sort}
+        lastChangeLabel={MY_EXPERIMENTS_WORDS.lastChange}
+        rows={shown.map((row) => tableRow(row, codes, now))}
+      />
     );
   }
 
   return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-6"
-        overline={organisation}
-        title={MY_EXPERIMENTS_TITLE}
-        meta={<span className="xl-meta">{MY_EXPERIMENTS_WORDS.meta}</span>}
-        actions={
-          <Link className="xr-btn xr-btn--primary" href={newExperimentAddress()}>
-            <Icon name="add" />
-            {CREATE_EXPERIMENT}
-          </Link>
-        }
-      />
-      {body}
-    </PageContent>
+    <>
+      {head}
+      {ready && !empty ? (
+        <VendorStatusTabs<StatusTabKey>
+          label={MY_EXPERIMENTS_WORDS.tabsLabel}
+          tabs={tabs}
+          value={status ?? 'all'}
+          onChange={(key) => applyFilters({ status: key === 'all' ? null : key, recent })}
+        />
+      ) : null}
+      <VendorListSurface label={MY_EXPERIMENTS_WORDS.listLabel}>
+        {empty ? null : (
+          <VendorListTools
+            label={MY_EXPERIMENTS_WORDS.toolsLabel}
+            search={{
+              id: SEARCH_ID,
+              label: MY_EXPERIMENTS_WORDS.searchLabel,
+              placeholder: MY_EXPERIMENTS_WORDS.searchLabel,
+              value: search,
+              onChange: setSearch,
+              ref: searchRef,
+            }}
+            toggle={{
+              id: RECENT_ID,
+              label: MY_EXPERIMENTS_WORDS.recent,
+              checked: recent,
+              onChange: (checked) => applyFilters({ status, recent: checked }),
+            }}
+            count={ready ? countWords : undefined}
+            clear={
+              ready && filtered
+                ? { label: MY_EXPERIMENTS_WORDS.clearFilters, onClick: clear }
+                : undefined
+            }
+            sort={ready ? sort : undefined}
+          />
+        )}
+        {body}
+      </VendorListSurface>
+    </>
   );
 }
 
-/** `section.xr-section` “All your experiments” (f0 … f2, f4, f5). */
-function ListSection({ children }: { readonly children: ReactNode }) {
-  return (
-    <section className="xr-section" aria-labelledby={SECTION_HEADING}>
-      <div className="xr-section-head">
-        <h2 id={SECTION_HEADING} className="xr-h2">
-          {MY_EXPERIMENTS_WORDS.section}
-        </h2>
-      </div>
-      {children}
-    </section>
+/** One row of the table, in the export's words (HANDOFF §2). */
+function tableRow(
+  row: MyExperimentRow,
+  codes: ReadonlyMap<string, string | null>,
+  now: string | null,
+): VendorExperimentRow {
+  const { submission } = row;
+  const name = submission.content.name;
+  const code = submission.content.courseId
+    ? (codes.get(submission.content.courseId) ?? null)
+    : null;
+  const pill = rowStatus(row);
+  const action = rowAction(row);
+  const formats = inDisplayOrder(submission.content.formats).map(
+    (format) => FORMAT_META[format].code,
   );
-}
-
-/**
- * The table (f0, f1): Experiment · Formats · Status · last change · With · (Action), flush with the
- * section (`div.xr-table-wrap` without its own border and radius, as B5-02 draws it); labelled
- * rows below 760 px of content (f4, f5).
- */
-function ExperimentTable({
-  rows,
-  codes,
-}: {
-  readonly rows: readonly MyExperimentRow[];
-  readonly codes: ReadonlyMap<string, string | null>;
-}) {
-  const { columns, labels } = MY_EXPERIMENTS_WORDS;
-  return (
-    <div className="xr-table-wrap rounded-none border-x-0 border-b-0">
-      <table className="xr-table">
-        <thead>
-          <tr>
-            <th scope="col">{columns.experiment}</th>
-            <th scope="col">{columns.formats}</th>
-            <th scope="col">{columns.status}</th>
-            <th scope="col">{columns.with}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.action}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
-            const { submission } = row;
-            const code = submission.content.courseId
-              ? (codes.get(submission.content.courseId) ?? null)
-              : null;
-            const chip = rowStatus(row);
-            const action = rowAction(row);
-            return (
-              <tr key={submission.id}>
-                <td className="is-primary">
-                  <Link href={experimentRecordAddress(submission.id)}>
-                    <strong>{submission.content.name}</strong>
-                  </Link>
-                  <span className="xr-meta block">
-                    <span className="xr-id">{submission.id}</span>
-                    {code ? (
-                      <>
-                        {' · '}
-                        <span className="xw-nowrap">{code}</span>
-                      </>
-                    ) : null}
-                  </span>
-                </td>
-                <td data-label={labels.formats}>
-                  <span className="xv-chips">
-                    {inDisplayOrder(submission.content.formats).map((format) => (
-                      <FormatBadge key={format} format={FORMAT_META[format].code} compact />
-                    ))}
-                  </span>
-                </td>
-                <td data-label={labels.status}>
-                  <StatusPill tone={chip.tone}>{chip.label}</StatusPill>
-                  <span className="xr-meta xw-nowrap block [margin-top:2px]">
-                    {dayMonthYear(submission.updatedAt)}
-                  </span>
-                </td>
-                <td data-label={labels.with}>{withWho(row)}</td>
-                <td>
-                  <Link
-                    className={`xr-btn ${action.primary ? 'xr-btn--primary' : 'xr-btn--secondary'} xr-btn--sm`}
-                    href={action.href}
-                    aria-label={action.name}
-                  >
-                    {action.label}
-                  </Link>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/** Undrawn: loading (`VE-02.loading`), B6-02's skeleton rows in the table's shape. */
-function LoadingRows() {
-  return (
-    <SectionBody>
-      <LoadingState
-        label={stateWords('VE-02.loading')}
-        skeleton={[0, 1, 2].map((row) => (
-          <div
-            key={row}
-            aria-hidden="true"
-            className="grid grid-cols-[1.6fr_.8fr_1fr_.8fr_120px] gap-5 px-4 py-[18px] [border-block-start:1px_solid_var(--xr-line)]"
-          >
-            {[0, 1, 2, 3, 4].map((cell) => (
-              <Skeleton key={cell} />
-            ))}
-          </div>
-        ))}
-      />
-    </SectionBody>
-  );
-}
-
-/** Undrawn: failed + Try again (`VE-02.failed`), B6-02's formula in the section body. */
-function Failed({ onRetry }: { readonly onRetry: () => void }) {
-  return (
-    <SectionBody>
-      <div className="xr-empty">
-        <span className="xr-empty-icon bg-err-bg text-err">
-          <Icon name="failed" />
-        </span>
-        <h3 className="xr-h3 m-0">{stateWords('VE-02.failed')}</h3>
-        <p className="xr-body m-0">{VENDOR_FAILED_WORDS.line}</p>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="primary" icon="tryAgain" onClick={onRetry}>
-            {VENDOR_FAILED_WORDS.tryAgain}
-          </Button>
-        </div>
-      </div>
-    </SectionBody>
-  );
+  const lastChange = dayMonthYear(submission.updatedAt);
+  return {
+    key: submission.id,
+    href: experimentRecordAddress(submission.id),
+    name,
+    accessibleName: experimentRowName(name, submission.id, pill.label, lastChange),
+    id: submission.id,
+    course: code ?? undefined,
+    formats,
+    formatsLabel: formatsName(formats),
+    status: pill,
+    statusLine: statusLine(row, now) ?? undefined,
+    pending: hasSavedChanges(submission) ? MY_EXPERIMENTS_WORDS.savedNotResubmitted : undefined,
+    lastChange,
+    action: action
+      ? { href: action.href, label: action.label, accessibleName: action.name }
+      : undefined,
+  };
 }

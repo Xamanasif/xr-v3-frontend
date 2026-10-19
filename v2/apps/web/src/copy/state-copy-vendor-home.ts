@@ -1,19 +1,22 @@
 import type { StateCopyEntry } from './state-copy';
 
 /**
- * The state-copy entries of Phase 5’s VE-01 Overview and VE-02 My experiments (B5-01, B5-02) — part of the one register (`state-copy.ts`, VD-12):
- * every state string or rule these screens show that their board does not draw word for word,
- * with its basis and the decisions it waits on. Decision ids never appear in visible copy.
+ * The state-copy entries of VE-01 Overview and VE-02 My experiments — part of the one register
+ * (`state-copy.ts`, VD-12): every state string or rule these screens show that the owner-approved
+ * Vendor export (V3 Refined B, design/v3-refined-b/roles/VE-v1 `project/Main.dc.html`) does not
+ * draw word for word, or that binds its drawing to the services' facts, with its basis and the
+ * decisions it waits on. Decision ids never appear in visible copy.
  */
 export const STATE_COPY_VENDOR_HOME = {
   // ---- VE-01 Overview ----
   'VE-01.loading': {
     screen: 'VE-01',
-    state: 'The overview loading (screen readers; skeleton rows below the header)',
-    words: 'Loading your overview',
-    rule: 'The header keeps its overline, “Overview” and “Create experiment”; the status line and the attention section wait for the read.',
+    state:
+      'The overview loading (screen readers; skeleton rows in a surface under the studio band)',
+    words: 'Loading your overview…',
+    rule: 'The studio band keeps the studio’s name (the H1) and today; the counts, “Needs your action” and Recent activity wait for the reads (the overview, the Vendor’s experiments and the assigned courses).',
     basis:
-      'Board 04 “State grammar” Loading formula; B6-02 “Loading the review queue” (the Phase-5 boards’ loading); FA-01 / IA-01 “Loading your overview”. B5-01 draws no loading frame',
+      'VE-v1 `Main.dc.html` list state “loading” (`p.rk-loading-msg` over `div.rk-skel-row`), the formula of VE-02; the export draws no overview loading',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -21,50 +24,80 @@ export const STATE_COPY_VENDOR_HOME = {
     screen: 'VE-01',
     state: 'The overview failed to load (service unavailable; a test fault plan only)',
     words: 'We couldn’t load your overview',
-    rule: 'B6-02’s failed formula: the empty pattern with the failed icon in the error tint, this title, “Nothing has changed. Try again.” and a primary “Try again” that reads again. Focus moves to the main region once the overview is back. “See all your experiments” stays.',
+    rule: 'Under the studio band, in a surface: the failed state of VE-02 (the cloud glyph in the error tint, this title, “Nothing has changed. Try again.” and “Try again”, which reads every failed read again). Focus moves to the H1 once the overview is back.',
     basis:
-      'B6-02 “We couldn’t load the review queue” (the Phase-5 boards’ failed formula); FA-01 / IA-01 “We couldn’t load your overview”. B5-01 draws no failed frame',
+      'VE-v1 `Main.dc.html` VE-02 “could not load” (`div.rk-state[role=alert]`, `L.retry` → `ve-h1`); the export draws no overview failure',
     status: 'provisional',
     decisions: ['VD-12'],
   },
-  'VE-01.status-line': {
+  'VE-01.counts': {
     screen: 'VE-01',
-    state: 'What the status line counts',
+    state: 'What the studio band’s four counts count',
     words: null,
-    rule: 'The service’s four counts, in B5-01’s order and words: Draft (a read-only draft included), With Academic Reviewer, With Content Manager, Published. Returned experiments are not counted there: “Needs your action” carries them. The line is drawn once the Vendor has an experiment (f2 draws none). A resubmission the Vendor reads as “Submitted” is in none of the four counts, as B5-01’s script leaves it out: counting it would name the next gate.',
+    rule: 'Read from the Vendor’s experiments (`listMyExperiments`), classified as VE-02’s tabs classify them: With you = returned (a Content Manager’s return and a Super Admin override included) + drafts the Vendor can still edit; In review = Submitted (a resubmitted revision) + With Academic Reviewer (a re-check included) + With Content Manager; Published; Read-only = drafts whose course is no longer the Vendor’s, shown only when there is one. Drawn once the Vendor has an experiment.',
     basis:
-      'B5-01 script `o.statusLine` (draft + read-only, with_rv + recheck, with_cm, published); contract `vendorOverviewOutput.statusCounts` (PC-62)',
+      'VE-v1 `Main.dc.html` `overView` (`figs`: nRet + nDr, nRev, nPub, nRo); HANDOFF §1 VE-01 “four real counts”; contract `listMyExperimentsOutput`',
     status: 'provisional',
-    decisions: ['VD-12', 'OD-B5-05'],
+    decisions: ['VD-12'],
+  },
+  'VE-01.course-line': {
+    screen: 'VE-01',
+    state: 'The course line under the studio’s name',
+    words: null,
+    rule: '“Your course: <code> · <name>” (“Your courses: …, …” for several), from the courses assigned to the Vendor now (the editor’s read, `getEditor` for a new experiment); a withdrawn course is not named. Left out while that read has no answer.',
+    basis: 'VE-v1 `Main.dc.html` `overView.courseLine`; contract `editorOutput.assignedCourses`',
+    status: 'provisional',
+    decisions: ['VD-12'],
   },
   'VE-01.attention': {
     screen: 'VE-01',
-    state: 'Which rows “Needs your action” lists, in what order, and which action is primary',
+    state: 'What “Needs your action” lists, in what order, and which item leads',
     words: null,
-    rule: 'The service’s facts in its order: each returned experiment (oldest decision first, “Returned: <name>” · “<Academic Reviewer | Content Manager> · <date> · “<reason>”” · “Revise “<name>””), then each draft (oldest save first, “Draft to finish: <name>” · “Last saved <date> · only you can see it” · “Finish draft”). The first row’s action is the primary, the others secondary. A draft whose course is no longer one of the Vendor’s is not listed: it opens read-only, there is nothing to finish. No notification tells the Vendor of a change: this list and the record carry it.',
+    rule: 'The service’s facts (`getVendorOverview.attention`): the returned experiment changed last leads, in ivory, with its kind, name, “<role> · <who returned it> · <date>”, the reason in full, what it refers to and the gold “Revise “<name>””; further returned items, then drafts, each changed last first, follow with their action (“Revise “<name>””, “Finish draft”). With nothing returned the first draft’s action is the gold one. A draft whose course is no longer the Vendor’s is not listed (it opens read-only), nor is a Super Admin override (the service has no decision to word). No notification tells the Vendor of a change: this panel, the counts, Recent activity and the record carry it.',
     basis:
-      'B5-01 script `att` (`a.primary = i === 0`) and f0, f3; B5-08 f1; contract `vendorAttention` (PC-62); OD-B5-01, OD-B5-12',
+      'VE-v1 `Main.dc.html` `overView` (`lead`, `rows`, `btnCls`); contract `vendorAttention` (PC-62); OD-B5-01, OD-B5-12',
     status: 'provisional',
     decisions: ['VD-12', 'OD-B5-01', 'OD-B5-12'],
   },
   'VE-01.finish-draft': {
     screen: 'VE-01',
-    state: 'Where “Finish draft” opens the editor',
+    state: 'Where “Finish draft” opens the editor, and its step',
     words: null,
-    rule: 'At the step the draft last reached (VE-09; the address’s `?step=`), as VE-02’s “Edit draft” does; read from the Vendor’s list of experiments, and the first step while that read has not answered.',
-    basis: 'B5-01 script (`href: D.links.rev`, no step drawn); B5-02 “Edit draft”',
+    rule: 'At the step the draft last reached (VE-09; the address’s `?step=`), as VE-02’s “Edit draft” does, read from the Vendor’s experiments; “Saved at step <n> of 4” counts that step (Course 1, Formats 2, Preview 3, Check 4).',
+    basis:
+      'VE-v1 `Main.dc.html` `overView.drItem` (`r.step`), LINK-MAP L12 “VE-09 at the saved step”',
     status: 'provisional',
     decisions: ['VD-12'],
+  },
+  'VE-01.saved-not-resubmitted': {
+    screen: 'VE-01',
+    state:
+      'When the lead (and a further returned item) says the changes are saved, not resubmitted',
+    words: null,
+    rule: 'Only while the experiment is returned and the record was written after its return (its last change is later than the return: only Save changes writes a returned record). The read model cannot say which fields changed, so no list of them is drawn; a Save changes with nothing changed counts too.',
+    basis:
+      'VE-v1 `Main.dc.html` `overView.retItem` (`pending`), HANDOFF §3; contract `submission.status.since`, `updatedAt`',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'VE-01.recent-activity': {
+    screen: 'VE-01',
+    state: 'Which entries Recent activity lists',
+    words: null,
+    rule: 'The five newest history entries the Vendor may see across the Vendor’s experiments (`visibleTo` the Vendor), newest first, in the record’s history words; no new events. The routing entry after a resubmit is left out (the Vendor is never told the next stage), as is the Super Admin’s override entry. Each row opens its record (VE-07); “Today” for the sample clock’s day.',
+    basis:
+      'VE-v1 `Main.dc.html` `activity(s, 5)`; HANDOFF §4 “recent activity”, §2 “Accepted local route, neutral wording”',
+    status: 'provisional',
+    decisions: ['VD-12', 'OD-B5-05'],
   },
 
   // ---- VE-02 My experiments ----
   'VE-02.loading': {
     screen: 'VE-02',
-    state: 'The list loading (screen readers; skeleton rows in the section)',
-    words: 'Loading your experiments',
-    rule: 'The header keeps its overline, “My experiments”, its line and “Create experiment”; the section “All your experiments” shows skeleton rows in the table’s shape until the list (and the course codes) answer. A new search or filter keeps the rows on show until its answer arrives; the count keeps its last settled words.',
-    basis:
-      'B6-02 “Loading the review queue” (the Phase-5 boards’ loading); B4-02 f4 “Loading your experiments”. B5-02 draws no loading frame',
+    state: 'The list loading (screen readers; skeleton rows under the tool row)',
+    words: 'Loading your experiments…',
+    rule: 'The head and the tool row stay (no count, no tabs); a new search or tab keeps the rows on show until its answer arrives, and the count keeps its last settled words.',
+    basis: 'VE-v1 `Main.dc.html` VE-02 loading (`div[aria-busy=true] > p.rk-loading-msg`)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -72,9 +105,18 @@ export const STATE_COPY_VENDOR_HOME = {
     screen: 'VE-02',
     state: 'The list failed to load (service unavailable; a test fault plan only)',
     words: 'We couldn’t load your experiments',
-    rule: 'In the section body, B6-02’s failed formula: the failed icon in the error tint, this title, “Nothing has changed. Try again.” and a primary “Try again” that reads again; focus moves to the main region once the list is back.',
+    rule: 'Under the tool row: the cloud glyph in the error tint, this title, “Nothing has changed. Try again.” and “Try again”, which reads every failed read again; focus moves to the H1.',
+    basis: 'VE-v1 `Main.dc.html` VE-02 could not load (`div.rk-state[role=alert]`, `L.retry`)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'VE-02.status-tabs': {
+    screen: 'VE-02',
+    state: 'The status tabs, the search and the address',
+    words: null,
+    rule: 'All, then each status one of the Vendor’s experiments has (and the one chosen), in the export’s order, each with how many experiments it holds under the search and the 7-day filter. The service filters (`listMyExperiments` `status`): Draft takes a read-only draft too, With Academic Reviewer a re-check, Returned a Content Manager’s return, Submitted a resubmission until it moves on. The search (the service’s) matches the name, the SUB id and the course (code or name). The address mirrors the tab (`?status=draft | submitted | with-academic-reviewer | returned | with-content-manager | published`) and the 7-day filter (`?changed=last-7-days`) without a history entry; an address from outside (Back, Overview) is read again; the search stays on the page. “Clear filters” (shown while any is applied) empties the search, chooses All and unticks the filter; focus then moves to the search box.',
     basis:
-      'B6-02 “We couldn’t load the review queue”; B4-02 f5 “We couldn’t load your experiments”. B5-02 draws no failed frame',
+      'VE-v1 `Main.dc.html` `listView` (`inSt`, `tabs`, `clear` → `ve-q`); R1 choice 3 “Status tabs replace the status dropdown … with the same filter values”; contract `listMyExperimentsInput`',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -82,49 +124,67 @@ export const STATE_COPY_VENDOR_HOME = {
     screen: 'VE-02',
     state: 'What “Changed in the last 7 days” keeps',
     words: null,
-    rule: 'Sample rule: a row is kept when its last change — the record’s `updatedAt`, the date under its status — is no more than 7 × 24 hours before the sample clock’s “now”. The screens have no clock of their own: “now” is the session’s sign-in instant on the sample clock (a change after it counts). It narrows the service’s answer for the search and the Status filter on the page; the count says how many of all the Vendor’s experiments are shown. Not in the address.',
+    rule: 'Sample rule: a row is kept when its last change — the record’s `updatedAt`, the “Last change” column — is no more than 7 × 24 hours before the sample clock’s “now”. The screens have no clock of their own: “now” is the session’s sign-in instant on the sample clock (a change after it counts). It narrows the service’s answer on the page; the count says how many of all the Vendor’s experiments are shown. The Overview’s “Changed in the last 7 days” opens the list with it ticked.',
     basis:
-      'B5-02 caption “tick “Changed in the last 7 days””, script `recentIds` (SUB-0077, SUB-0081, SUB-0079 against “now” 27 Aug 2026); doc “the merged history filter, VE-13”; OD-B5-13 “Window and what counts as a change are sample choices”',
+      'VE-v1 `Main.dc.html` `listView.pre` (`RECENT_FROM`), LINK-MAP L17; OD-B5-13 “Window and what counts as a change are sample choices”',
     status: 'provisional',
     decisions: ['VD-12', 'OD-B5-13'],
   },
-  'VE-02.status-filter': {
+  'VE-02.sort': {
     screen: 'VE-02',
-    state: 'The Status filter, the search and the address',
+    state: 'The visible sort by last change',
     words: null,
-    rule: 'The service filters and searches: Draft takes a read-only draft too; With Academic Reviewer takes a re-check; Returned takes a Content Manager’s return; Submitted is a resubmission until it moves on. The search matches the name, the SUB id and the course (code or name). The address mirrors the Status filter (`?status=draft | submitted | with-academic-reviewer | returned | with-content-manager | published`) without a history entry, and an address from outside (Back, B5-02 f1) is read again; the search and the checkbox live on the page. “Clear filters” (shown while any is applied) empties the search, sets “All statuses” and unticks the checkbox; focus then moves to the search box if it was lost.',
-    basis:
-      'B5-02 script (`s.fst`, `recheck`, `returned_cm`, `readonly`; `o.hasFilter`, `o.clear`); `nav/vendor.ts` `myExperimentsAddress`; contract `listMyExperimentsInput`',
+    rule: 'Newest change first, as the service answers; the head’s “Last change” (and “Sort: …” below 760 px) turns it to oldest first and back, on the page only.',
+    basis: 'VE-v1 `Main.dc.html` `listView` (`desc`, `toggleSort`, `aria-sort`)',
     status: 'provisional',
     decisions: ['VD-12'],
+  },
+  'VE-02.status-line': {
+    screen: 'VE-02',
+    state: 'The dates of the plain line under each status pill',
+    words: null,
+    rule: 'Submitted on: the submission’s instant (`status.since`); Revision n · submitted on: the last resubmission; By the <role> on: the return; Approved on: the last approval; Live in the catalogue since: the publication; “today” on the sample clock’s day. A Super Admin override shows the pill “Returned” with no line (its Vendor words are not drawn).',
+    basis: 'VE-v1 `Main.dc.html` `stSub`; HANDOFF §2 status wording',
+    status: 'provisional',
+    decisions: ['VD-12', 'OD-B7-09'],
+  },
+  'VE-02.read-only-line': {
+    screen: 'VE-02',
+    state: 'The plain line of a draft whose course is no longer the Vendor’s',
+    words: 'Course withdrawn · read-only',
+    rule: 'The export’s “Course withdrawn on <date> · read-only” without the day: the Vendor’s read does not carry the day the course was withdrawn.',
+    basis:
+      'VE-v1 `Main.dc.html` `stSub` (`readonly`); HANDOFF §2 “Course withdrawn on <date> · read-only”',
+    status: 'provisional',
+    decisions: ['VD-12', 'OD-B5-01'],
   },
   'VE-02.row-action': {
     screen: 'VE-02',
     state: 'Where a row’s name and its action go',
     words: null,
-    rule: 'The name opens the record (VE-07) for every row. The action: “Revise” (the row’s primary) for a returned experiment (VE-08); “Edit draft” for a draft, at the step it last reached (VE-09); “Open” (the record) for everything else — a read-only draft (its course is no longer the Vendor’s) and a returned experiment whose course is no longer the Vendor’s included, which open read-only. Each action is named with the experiment (“Revise Forced Convection”).',
+    rule: 'The name (and a press anywhere on the row) opens the record (VE-07). The one action: “Revise” (VE-08) for a returned experiment, “Edit draft” (VE-09, at the step it last reached) for a draft; every other row — a read-only draft and a returned experiment whose course is no longer the Vendor’s included — shows the chevron only. Each action is named with the experiment (“Revise Forced Convection”, “Edit the draft of Pin Fin Efficiency”).',
     basis:
-      'B5-02 script `r.act`, `r.aria`, `r.href` (records → B5-06, returned and draft → the editor), caption “Returned and draft rows open the editor; the rest open the record”; OD-B5-01',
+      'VE-v1 `Main.dc.html` `listView.rows` (`hasAct`, `actAria`, `vr-chev`); LINK-MAP L22 … L24; OD-B5-01',
     status: 'provisional',
     decisions: ['VD-12', 'OD-B5-01'],
+  },
+  'VE-02.saved-not-resubmitted': {
+    screen: 'VE-02',
+    state: 'When a row carries the tag “Changes saved, not resubmitted”',
+    words: null,
+    rule: 'As the Overview’s lead (`VE-01.saved-not-resubmitted`): a returned experiment written after its return.',
+    basis: 'VE-v1 `Main.dc.html` `listView.rows` (`pending`), HANDOFF §3',
+    status: 'provisional',
+    decisions: ['VD-12'],
   },
   'VE-02.course-code': {
     screen: 'VE-02',
     state: 'The course code beside the SUB id',
     words: null,
-    rule: 'The course’s platform code as the public catalogue’s course card names it (“SUB-0081 · ME ZG523”); a course with no code there is shown by its id alone (the SUB id, then nothing). The list’s rows carry the course id only.',
+    rule: 'The course’s platform code as the public catalogue’s course card names it (“SUB-0081 · ME ZG523”); a course with no code there is shown by the SUB id alone. The list’s rows carry the course id only.',
     basis:
-      'B5-02 f0 “SUB-0077 · ME ZG523”; contracts `listMyExperimentsOutput`, `courseCard.platformCode`',
+      'VE-v1 `Main.dc.html` `span.vr-meta` (“id · course”); contracts `listMyExperimentsOutput`, `courseCard.platformCode`',
     status: 'provisional',
     decisions: ['VD-12'],
-  },
-  'VE-02.override-return': {
-    screen: 'VE-02',
-    state: 'A record the Super Admin returned to the Vendor (status override)',
-    words: null,
-    rule: 'Its status chip reads “Returned” (B5-02’s word for the returned state, in the error tone) and its action “Revise”; no Vendor-side words for the override are drawn, and the overview lists no attention row for it (the service has no return decision to word).',
-    basis: 'B7-06 (the override, Vendor-side words not drawn); B5-02 `stw.returned`',
-    status: 'provisional',
-    decisions: ['VD-12', 'OD-B7-09'],
   },
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;

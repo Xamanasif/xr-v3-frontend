@@ -1,238 +1,207 @@
 'use client';
 
 import {
-  AttentionItem,
   Button,
-  Icon,
-  Link,
-  LoadingState,
-  PageContent,
-  PageHeader,
-  Rows,
-  Skeleton,
-} from '@xr/ui';
-import { useId } from 'react';
+  ButtonLink,
+  ListState,
+  LoadingRows,
+  Surface,
+  VendorAttention,
+  VendorOverviewColumn,
+  VendorRecentActivity,
+  VendorStudioBand,
+  VendorWorkSplit,
+} from '@xr/ui/v3';
+import { useRef } from 'react';
 
+import { weekdayDate } from '@/copy/dates';
 import { stateWords } from '@/copy/state-copy';
 import {
   attentionCountWords,
+  courseLine,
+  courseWords,
   CREATE_EXPERIMENT,
-  STATUS_LINE,
   VENDOR_FAILED_WORDS,
   VENDOR_OVERVIEW_WORDS,
 } from '@/copy/vendor-home';
 import {
-  type EditorStepSlug,
   MY_EXPERIMENTS_ADDRESS,
   newExperimentAddress,
   vendorOverviewPlacement,
   VENDOR_OVERVIEW_TITLE,
 } from '@/nav/vendor';
-import { useMyExperiments, useVendorOverview } from '@/queries/production';
-import { useCurrentSession } from '@/queries/session';
+import { useExperimentEditor, useMyExperiments, useVendorOverview } from '@/queries/production';
+import { useCurrentSession, useSession } from '@/queries/session';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { type AttentionRow, attentionRows, type VendorOverviewAnswer } from './overview-view';
+import { myExperimentsFilterAddress } from '../ve-02-my-experiments/experiment-rows';
+import { attentionOf, figuresOf, recentActivity } from './overview-view';
 import { useRetryFocus } from './retry-focus';
 
+const TITLE_ID = 've-h1';
+const ATTENTION_ID = 've-att-h';
+const ACTIVITY_ID = 've-act-h';
+const FIRST_ID = 've-first-t';
+
 /**
- * VE-01 Overview, the Vendor workspace home (board B5-01: “What needs me now?”), at `/vendor`:
- * the status line, then what needs the Vendor's action — attention only; the list of every
- * experiment is My experiments (VE-02), one link away.
+ * VE-01 Overview, the Vendor workspace home — the owner-approved Vendor export (V3 Refined B,
+ * VE-v1 `Main.dc.html` overview view; HANDOFF §1, §7), at `/vendor`.
  *
- * - **Reads**: `ProductionService.getVendorOverview` — the four status counts, the attention facts
- *   (each returned experiment with the decision that returned it, then each draft) and whether the
- *   Vendor has any experiment — worded here (`@/copy/vendor-home`); `listMyExperiments` (the same
- *   read VE-02 lists) for the step each draft last reached. The overline is the Vendor's
- *   organisation (the session). Every role's command in the tab refreshes it (the reads' deps):
- *   an Academic Reviewer's or Content Manager's return puts “Revise “<name>”” on top (B5-08 f1).
- * - **As B5-01 draws it**: the overline, “Overview” and `p.xv-statusline` (“2 Draft · 1 With
- *   Academic Reviewer · 1 With Content Manager · 1 Published”, a polite status) with the secondary
- *   “Create experiment” (f0, f1, f3); “Needs your action” with its count and one row per fact, the
- *   first row's action primary (f0, f3; B5-08 f1); “Nothing needs you right now” when nothing
- *   waits (f1); “Create your first experiment” with the primary “Create experiment” before the
- *   Vendor has any experiment (f2: no status line). “See all your experiments” under every state.
- * - Undrawn: loading and failed with “Try again” (state-copy `VE-01.loading`, `VE-01.failed`).
+ * - **Reads**: `ProductionService.getVendorOverview` — the attention facts (each returned
+ *   experiment with the decision that returned it, then each draft) and whether the Vendor has any
+ *   experiment; `listMyExperiments` (the read VE-02 lists) for the four counts, who returned an
+ *   item and what it refers to, the step each draft last reached, whether a returned item holds
+ *   saved changes, and Recent activity (the records' own history, no new events); `getEditor` for
+ *   a new experiment, for the assigned courses of the course line. The H1 is the studio (the
+ *   session's organisation). Every role's command in the tab refreshes them.
+ * - **As the export draws it**: the studio band (today, the studio's name, the course line, Create
+ *   experiment, the four counts: With you, In review, Published and Read-only when there is one);
+ *   “Needs your action” — the returned item as the ivory lead (kind, name, who and when, the reason
+ *   in full, what it refers to, “your changes are saved, not resubmitted” when the product can
+ *   tell, the gold Revise), then further returned items and drafts to finish — or the calm block;
+ *   Recent activity (the five newest entries, each opening its record) with “Changed in the last 7
+ *   days” and “See all your experiments”; the first visit's “Create your first experiment”. On
+ *   phones the attention panel comes before the counts (the export's container rules).
+ * - Undrawn: loading and failed with Try again (state-copy `VE-01.loading`, `VE-01.failed`).
  *   Nothing here changes a record: every action opens the page where the work is done.
  */
 export function VendorOverview() {
   useShellPage(vendorOverviewPlacement());
-  const session = useCurrentSession();
-  const organisation = session.data?.ok ? (session.data.value?.session.organisation ?? null) : null;
+  const current = useCurrentSession();
+  const organisation = current.data?.ok ? (current.data.value?.session.organisation ?? null) : null;
+  const session = useSession();
+  const now = session.status === 'signed-in' ? session.signedInAt : null;
+
   const read = useVendorOverview();
   const list = useMyExperiments();
+  const editor = useExperimentEditor(null);
+  const failedRead = (query: typeof read | typeof list) =>
+    query.isError || (query.data !== undefined && !query.data.ok);
+  const failed = failedRead(read) || failedRead(list);
   const answer = read.data?.ok ? read.data.value : null;
-  const failed = read.isError || (read.data !== undefined && !read.data.ok);
-  const retried = useRetryFocus(answer !== null);
+  const rows = list.data?.ok ? list.data.value : null;
+  // The course line waits for the editor's read, or goes without it if that read fails.
+  const coursesSettled = editor.data !== undefined || editor.isError;
+  const loading = !failed && (answer === null || rows === null || !coursesSettled);
 
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const retried = useRetryFocus(!loading && !failed, titleRef);
   const retry = () => {
     retried();
-    void read.refetch();
+    if (failedRead(read)) void read.refetch();
+    if (failedRead(list)) void list.refetch();
   };
 
-  // The step a draft last reached, from the list (the editor's address; the first step until known).
-  const steps = new Map<string, EditorStepSlug>(
-    list.data?.ok
-      ? list.data.value.map((row) => [row.submission.id, row.submission.lastStepReached])
-      : [],
-  );
+  const courses = editor.data?.ok
+    ? editor.data.value.assignedCourses.map((course) =>
+        courseWords(course.platformCode, course.name),
+      )
+    : [];
+  const ready = !loading && !failed && answer !== null && rows !== null;
+  const hasAny = ready && answer.hasExperiments;
 
-  return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-6"
-        overline={organisation}
-        title={VENDOR_OVERVIEW_TITLE}
-        meta={answer?.hasExperiments ? <StatusLine counts={answer.statusCounts} /> : null}
-        actions={
-          <Link className="xr-btn xr-btn--secondary" href={newExperimentAddress()}>
-            <Icon name="add" />
-            {CREATE_EXPERIMENT}
-          </Link>
-        }
-      />
-      {failed ? (
-        <Failed onRetry={retry} />
-      ) : answer === null ? (
-        <Loading />
-      ) : answer.attention.length > 0 ? (
-        <Attention rows={attentionRows(answer.attention, (id) => steps.get(id))} />
-      ) : answer.hasExperiments ? (
-        <NothingNeedsYou />
-      ) : (
-        <FirstExperiment />
-      )}
-      <p className="xl-meta [margin:16px_0_0]">
-        <Link href={MY_EXPERIMENTS_ADDRESS}>{VENDOR_OVERVIEW_WORDS.seeAll}</Link>
-      </p>
-    </PageContent>
-  );
-}
-
-/** `p.xv-statusline[role=status]`: “<n> Draft · <n> With Academic Reviewer · …” (B5-01 f0, f1, f3). */
-function StatusLine({ counts }: { readonly counts: VendorOverviewAnswer['statusCounts'] }) {
-  return (
-    <p className="xv-statusline" role="status">
-      {STATUS_LINE.map(([key, label]) => (
-        <span key={key}>
-          <strong>{counts[key]}</strong> {label}
-        </span>
-      ))}
-    </p>
-  );
-}
-
-/** “Needs your action” with its count and the rows (f0, f3; B5-08 f1). */
-function Attention({ rows }: { readonly rows: readonly AttentionRow[] }) {
-  const headingId = useId();
-  return (
-    <section className="xr-section" aria-labelledby={headingId}>
-      <div className="xr-section-head">
-        <h2 id={headingId} className="xr-h2">
-          {VENDOR_OVERVIEW_WORDS.attention}
-        </h2>
-        <span className="xr-meta">{attentionCountWords(rows.length)}</span>
-      </div>
-      <Rows>
-        {rows.map((row) => (
-          <AttentionItem
-            key={row.key}
-            icon={row.icon}
-            tone={row.tone}
-            title={row.title}
-            sub={row.sub}
-            action={row.action}
-          />
-        ))}
-      </Rows>
-    </section>
-  );
-}
-
-/** f1 “Nothing needs you”: the empty pattern, the done icon in the ok tint, a secondary Create. */
-function NothingNeedsYou() {
-  return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon xr-x-empty-icon--ok">
-          <Icon name="done" />
-        </span>
-        <h2 className="xr-h3 m-0">{VENDOR_OVERVIEW_WORDS.calmTitle}</h2>
-        <p className="xr-body m-0">{VENDOR_OVERVIEW_WORDS.calmLine}</p>
-        <div className="flex flex-wrap gap-3">
-          <Link className="xr-btn xr-btn--secondary" href={newExperimentAddress()}>
-            <Icon name="add" />
-            {CREATE_EXPERIMENT}
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** f2 “First visit — no experiments yet”: the primary “Create experiment” moves in here. */
-function FirstExperiment() {
-  return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon">
-          <Icon name="myExperiments" />
-        </span>
-        <h2 className="xr-h3 m-0">{VENDOR_OVERVIEW_WORDS.firstTitle}</h2>
-        <p className="xr-body m-0">{VENDOR_OVERVIEW_WORDS.firstLine}</p>
-        <div className="flex flex-wrap gap-3">
-          <Link className="xr-btn xr-btn--primary" href={newExperimentAddress()}>
-            <Icon name="add" />
-            {CREATE_EXPERIMENT}
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Undrawn: failed + retry, the Phase-5 boards' formula (B6-02; state-copy `VE-01.failed`). */
-function Failed({ onRetry }: { readonly onRetry: () => void }) {
-  return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon bg-err-bg text-err">
-          <Icon name="failed" />
-        </span>
-        <h2 className="xr-h3 m-0">{stateWords('VE-01.failed')}</h2>
-        <p className="xr-body m-0">{VENDOR_FAILED_WORDS.line}</p>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="primary" icon="tryAgain" onClick={onRetry}>
-            {VENDOR_FAILED_WORDS.tryAgain}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Undrawn: loading, skeleton rows in the attention section's shape (`VE-01.loading`). */
-function Loading() {
-  return (
-    <LoadingState
-      label={stateWords('VE-01.loading')}
-      surface="section"
-      skeleton={
-        <div aria-hidden="true">
-          <div className="xr-section-head">
-            <Skeleton className="w-[220px]" />
-          </div>
-          {[0, 1].map((line) => (
-            <div
-              key={line}
-              className="grid grid-cols-[1fr_160px] gap-5 px-6 py-[18px] [border-block-start:1px_solid_var(--xr-line)]"
-            >
-              <Skeleton />
-              <Skeleton />
-            </div>
-          ))}
-        </div>
+  const band = (
+    <VendorStudioBand
+      title={organisation ?? VENDOR_OVERVIEW_TITLE}
+      titlePrefix={organisation ? VENDOR_OVERVIEW_WORDS.titlePrefix : undefined}
+      titleId={TITLE_ID}
+      titleRef={titleRef}
+      date={now ? weekdayDate(now) : undefined}
+      status={ready && courses.length > 0 ? courseLine(courses) : undefined}
+      action={
+        ready && !answer.hasExperiments
+          ? undefined
+          : { href: newExperimentAddress(), label: CREATE_EXPERIMENT }
       }
+      figures={hasAny ? figuresOf(rows) : []}
+      figuresLabel={VENDOR_OVERVIEW_WORDS.figuresLabel}
     />
+  );
+
+  if (failed) {
+    return (
+      <VendorOverviewColumn>
+        {band}
+        <Surface>
+          <ListState
+            kind="failed"
+            title={stateWords('VE-01.failed')}
+            action={<Button onClick={retry}>{VENDOR_FAILED_WORDS.tryAgain}</Button>}
+          >
+            {VENDOR_FAILED_WORDS.line}
+          </ListState>
+        </Surface>
+      </VendorOverviewColumn>
+    );
+  }
+
+  if (!ready) {
+    return (
+      <VendorOverviewColumn>
+        {band}
+        <Surface>
+          <LoadingRows message={stateWords('VE-01.loading')} cells={[2, 1]} />
+        </Surface>
+      </VendorOverviewColumn>
+    );
+  }
+
+  if (!answer.hasExperiments) {
+    return (
+      <VendorOverviewColumn>
+        {band}
+        <Surface labelledBy={FIRST_ID}>
+          <ListState
+            kind="none"
+            roomy
+            titleAs="h2"
+            titleId={FIRST_ID}
+            icon="myExperiments"
+            title={VENDOR_OVERVIEW_WORDS.firstTitle}
+            action={
+              <ButtonLink href={newExperimentAddress()} variant="primary" size="lg">
+                {CREATE_EXPERIMENT}
+              </ButtonLink>
+            }
+          >
+            {VENDOR_OVERVIEW_WORDS.firstLine}
+          </ListState>
+        </Surface>
+      </VendorOverviewColumn>
+    );
+  }
+
+  const attention = attentionOf(answer.attention, rows, now);
+  return (
+    <VendorOverviewColumn>
+      {band}
+      <VendorWorkSplit>
+        <VendorAttention
+          title={VENDOR_OVERVIEW_WORDS.attention}
+          titleId={ATTENTION_ID}
+          note={attentionCountWords(attention.count)}
+          lead={attention.lead ?? undefined}
+          rows={attention.rows}
+          calm={
+            attention.count === 0
+              ? { title: VENDOR_OVERVIEW_WORDS.calmTitle, line: VENDOR_OVERVIEW_WORDS.calmLine }
+              : undefined
+          }
+        />
+        <VendorRecentActivity
+          title={VENDOR_OVERVIEW_WORDS.activity}
+          titleId={ACTIVITY_ID}
+          note={VENDOR_OVERVIEW_WORDS.newestFirst}
+          rows={recentActivity(rows, now)}
+          links={[
+            {
+              href: myExperimentsFilterAddress(null, true),
+              label: VENDOR_OVERVIEW_WORDS.changedRecently,
+            },
+            { href: MY_EXPERIMENTS_ADDRESS, label: VENDOR_OVERVIEW_WORDS.seeAll },
+          ]}
+        />
+      </VendorWorkSplit>
+    </VendorOverviewColumn>
   );
 }

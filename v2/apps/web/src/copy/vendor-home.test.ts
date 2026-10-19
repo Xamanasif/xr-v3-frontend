@@ -1,47 +1,52 @@
 /**
- * The words of VE-01 Overview (B5-01) and VE-02 My experiments (B5-02) are the frozen boards’: each
- * drawn phrase is found verbatim in its board’s markup or script, the composed ones with the
- * boards’ own sample values or the script’s own pieces; the failed formula is B6-02’s; the undrawn
- * forms and rules are provisional entries of the state-copy register, each with its decision and no
- * decision id in its words.
+ * The words of VE-01 Overview and VE-02 My experiments are the owner-approved Vendor export's
+ * (V3 Refined B, design/v3-refined-b/roles/VE-v1 `project/Main.dc.html`): each drawn phrase is in
+ * its markup or script verbatim, and each composed line takes the script's form with the records'
+ * values. The undrawn forms and rules are provisional entries of the state-copy register, each with
+ * its decision and no decision id in its words.
  */
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { veExport } from '@/test-support/boards';
 
 import { STATE_COPY } from './state-copy';
 import { STATE_COPY_VENDOR_HOME } from './state-copy-vendor-home';
 import {
+  activityName,
   attentionCountWords,
+  courseLine,
+  courseWords,
   CREATE_EXPERIMENT,
-  draftSub,
-  draftTitle,
+  draftRowLine,
+  editDraftRowName,
   experimentCountWords,
+  experimentRowName,
+  experimentsWords,
+  finishDraftName,
+  formatsName,
+  HISTORY_WORDS,
+  leadMeta,
   MY_EXPERIMENTS_WORDS,
+  onDay,
   READ_ONLY_DRAFT,
+  resubmittedWords,
   RETURNED,
   RETURNED_BY_WORDS,
-  returnedSub,
-  returnedTitle,
+  returnedRowLine,
   reviseLabel,
-  rowActionLabel,
-  STATUS_FILTER_OPTIONS,
-  STATUS_LINE,
+  reviseName,
+  reviseRowName,
+  STATUS_LINES,
+  STATUS_TABS,
+  statusTabName,
   VENDOR_FAILED_WORDS,
   VENDOR_OVERVIEW_WORDS,
-  WITH_WORDS,
+  withYouLine,
 } from './vendor-home';
 
-/** A board’s text with tags removed and `&amp;` read, then its raw markup (attributes, script). */
-function words(file: string): string {
-  const raw = board(file);
-  return `${raw.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&')}\n${raw}`;
-}
-
-const B5_01 = words('B5-01-Vendor-Overview.dc.html');
-const B5_02 = words('B5-02-My-Experiments.dc.html');
-const B5_08 = words('B5-08-Flow-5-Continuity.dc.html');
-const B6_02 = words('B6-02-Review-Queue-and-Reviewed.dc.html');
+const MAIN = veExport('Main.dc.html');
+/** The markup with its tags removed and `&amp;` read, then the raw source (attributes, script). */
+const WORDS = `${MAIN.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&')}\n${MAIN}`;
 
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
@@ -50,112 +55,180 @@ function strings(value: unknown): string[] {
   return [];
 }
 
-const REASON =
-  'The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.';
-
-describe('VE-01 Overview (B5-01 f0 … f3; B5-08 f1)', () => {
-  it.each([...strings(VENDOR_OVERVIEW_WORDS), CREATE_EXPERIMENT])('“%s” is on B5-01', (phrase) => {
-    expect(B5_01).toContain(phrase);
+describe('VE-01 Overview words are the export’s', () => {
+  it.each([
+    ...strings(VENDOR_OVERVIEW_WORDS),
+    ...strings(RETURNED_BY_WORDS),
+    ...strings(HISTORY_WORDS),
+    CREATE_EXPERIMENT,
+  ])('“%s”', (phrase) => {
+    expect(WORDS).toContain(phrase);
   });
 
-  it('the status line’s four labels, in B5-01’s order (`o.statusLine`)', () => {
-    expect(STATUS_LINE.map(([, label]) => label)).toEqual([
+  it('the studio band’s lines take the script’s forms', () => {
+    expect(courseLine([courseWords('ME ZG523', 'Thermodynamics & Heat Transfer')])).toBe(
+      'Your course: ME ZG523 · Thermodynamics & Heat Transfer',
+    );
+    expect(courseLine(['ME ZG523 · Thermo', 'Manufacturing Processes'])).toBe(
+      'Your courses: ME ZG523 · Thermo, Manufacturing Processes',
+    );
+    expect(courseWords(null, 'Manufacturing Processes')).toBe('Manufacturing Processes');
+    expect(MAIN).toContain(
+      "courseLine: (courses.length === 1 ? 'Your course: ' : 'Your courses: ') + courses.join(', ')",
+    );
+    expect(MAIN).toContain(
+      "const courses = Component.ASSIGNED.map(c => c + ' · ' + Component.COURSES[c]);",
+    );
+    expect(withYouLine(1, 1)).toBe('1 returned · 1 draft');
+    expect(withYouLine(0, 2)).toBe('2 drafts');
+    expect(withYouLine(0, 0)).toBe('Nothing waiting');
+    expect(MAIN).toContain("if (nRet) mine.push(nRet + ' returned');");
+    expect(MAIN).toContain("if (nDr) mine.push(nDr + (nDr === 1 ? ' draft' : ' drafts'));");
+    expect(MAIN).toContain("s: mine.join(' · ') || 'Nothing waiting'");
+  });
+
+  it('“Needs your action” takes the script’s forms', () => {
+    expect(attentionCountWords(2)).toBe('2 items');
+    expect(attentionCountWords(1)).toBe('1 item');
+    expect(attentionCountWords(0)).toBe('Nothing waiting');
+    expect(MAIN).toContain(
+      "attCount: n === 0 ? 'Nothing waiting' : n + (n === 1 ? ' item' : ' items')",
+    );
+    expect(leadMeta('academic-reviewer', 'Prof. A. Menon', '24 Aug 2026')).toBe(
+      'Academic Reviewer · Prof. A. Menon · 24 Aug 2026',
+    );
+    expect(leadMeta('content-manager', '', '22 Aug 2026')).toBe('Content Manager · 22 Aug 2026');
+    expect(MAIN).toContain("meta: r.ret.by + ' · ' + r.ret.who + ' · ' + r.ret.when.split(',')[0]");
+    expect(reviseLabel('Forced Convection')).toBe('Revise “Forced Convection”');
+    expect(MAIN).toContain("act: 'Revise “' + r.data.name + '”'");
+    expect(reviseName('Forced Convection', 'academic-reviewer')).toBe(
+      'Revise Forced Convection, returned by the Academic Reviewer',
+    );
+    expect(MAIN).toContain("aria: 'Revise ' + r.data.name + ', returned by the ' + r.ret.by");
+    expect(returnedRowLine('academic-reviewer', onDay('24 Aug', false), false)).toBe(
+      'By the Academic Reviewer on 24 Aug',
+    );
+    expect(returnedRowLine('content-manager', onDay('2 Oct', true), true)).toBe(
+      'By the Content Manager today · your changes are saved, not resubmitted',
+    );
+    expect(MAIN).toContain(
+      "sub: 'By the ' + r.ret.by + ' ' + this.onDay(r.ret.when) + (r.pending ? ' · your changes are saved, not resubmitted' : '')",
+    );
+    expect(MAIN).toContain("return d === 'Today' ? 'today' : 'on ' + d;");
+    expect(draftRowLine(2, '25 Aug 2026')).toBe(
+      'Saved at step 2 of 4 · 25 Aug 2026 · only you can see it',
+    );
+    expect(MAIN).toContain(
+      "sub: 'Saved at step ' + (r.step || 1) + ' of 4 · ' + this.dl(r.last) + ' · only you can see it'",
+    );
+    expect(finishDraftName('Pin Fin Efficiency')).toBe('Finish the draft of Pin Fin Efficiency');
+    expect(MAIN).toContain("aria: 'Finish the draft of ' + r.data.name");
+  });
+
+  it('Recent activity takes the script’s forms and the history’s words', () => {
+    expect(activityName('Draft saved', 'Pin Fin Efficiency', '25 Aug 2026, 17:20')).toBe(
+      'Draft saved, Pin Fin Efficiency, 25 Aug 2026, 17:20. Open the experiment record',
+    );
+    expect(MAIN).toContain(
+      "aria: e.h.what + ', ' + e.r.data.name + ', ' + e.h.when + '. Open the experiment record'",
+    );
+    expect(resubmittedWords('2')).toBe('Submitted · revision 2');
+    expect(MAIN).toContain("what: 'Submitted · revision ' + rev");
+    for (const what of Object.values(HISTORY_WORDS)) expect(MAIN).toContain(`what: '${what}'`);
+    // “Created” is never listed (the product has no such event either).
+    expect(MAIN).toContain("if (h.what !== 'Created')");
+  });
+});
+
+describe('VE-02 My experiments words are the export’s', () => {
+  it.each([...strings(MY_EXPERIMENTS_WORDS), CREATE_EXPERIMENT, READ_ONLY_DRAFT, RETURNED])(
+    '“%s”',
+    (phrase) => {
+      expect(WORDS).toContain(phrase);
+    },
+  );
+
+  it('the tabs are the export’s, in its order, with the service’s filter values', () => {
+    expect(STATUS_TABS.map(([, label]) => label)).toEqual([
+      'All',
+      'Returned',
       'Draft',
+      'Submitted',
       'With Academic Reviewer',
       'With Content Manager',
       'Published',
     ]);
-    expect(B5_01).toContain(
-      "[['Draft', cnt('draft') + cnt('readonly')], ['With Academic Reviewer', cnt('with_rv')], ['With Content Manager', cnt('with_cm')], ['Published', cnt('published')]]",
+    expect(MAIN).toContain(
+      "const tabName = { all: 'All', returned: 'Returned', draft: 'Draft', submitted: 'Submitted', with_rv: 'With Academic Reviewer', with_cm: 'With Content Manager', published: 'Published' };",
     );
+    expect(MAIN).toContain(
+      "['all', 'returned', 'draft', 'submitted', 'with_rv', 'with_cm', 'published']",
+    );
+    expect(STATUS_TABS.map(([key]) => key)).toEqual([
+      'all',
+      'returned',
+      'draft',
+      'submitted',
+      'with-academic-reviewer',
+      'with-content-manager',
+      'published',
+    ]);
+    expect(statusTabName('Returned', 1)).toBe('Returned, 1 experiment');
+    expect(MAIN).toContain("aria: tabName[k] + ', ' + one(c)");
   });
 
-  it('the attention rows are B5-01’s script pieces with the records’ values', () => {
-    expect(returnedTitle('Forced Convection')).toBe('Returned: Forced Convection');
-    expect(B5_01).toContain("title: 'Returned: ' + x.name");
-    expect(returnedSub('academic-reviewer', '24 Aug 2026', REASON)).toBe(
-      `Academic Reviewer · 24 Aug 2026 · “${REASON}”`,
+  it('the count, the names and the plain lines take the script’s forms', () => {
+    expect(experimentsWords(6)).toBe('6 experiments');
+    expect(experimentsWords(1)).toBe('1 experiment');
+    expect(experimentCountWords(6, 6, false)).toBe('6 experiments');
+    expect(experimentCountWords(1, 6, true)).toBe('1 of 6 experiments');
+    expect(experimentCountWords(0, 1, true)).toBe('0 of 1 experiment');
+    expect(MAIN).toContain("one = n => n + (n === 1 ? ' experiment' : ' experiments')");
+    expect(MAIN).toContain(
+      "count: filtered ? list.length + ' of ' + one(all.length) : one(all.length)",
     );
-    expect(returnedSub('content-manager', '25 Aug 2026', 'Fix it.')).toBe(
-      'Content Manager · 25 Aug 2026 · “Fix it.”',
+    expect(formatsName(['WEB', 'AR'])).toBe('Formats: WEB, AR');
+    expect(formatsName([])).toBe('Formats: none chosen');
+    expect(MAIN).toContain("fmtAria: 'Formats: ' + (fm.join(', ') || 'none chosen')");
+    expect(experimentRowName('Forced Convection', 'SUB-0081', 'Returned', '24 Aug 2026')).toBe(
+      'Forced Convection, SUB-0081, Returned, last change 24 Aug 2026. Open the experiment record',
     );
-    expect(B5_01).toContain(
-      "(x.by || 'Academic Reviewer') + ' · ' + x.when + ' · “' + x.reason + '”'",
+    expect(MAIN).toContain(
+      "aria: r.data.name + ', ' + r.id + ', ' + Component.STL[r.st] + ', last change ' + this.dl(r.last) + '. Open the experiment record'",
     );
-    for (const by of Object.values(RETURNED_BY_WORDS)) expect(B5_01).toContain(by);
-    expect(reviseLabel('Forced Convection')).toBe('Revise “Forced Convection”');
-    expect(B5_01).toContain("act: 'Revise “' + x.name + '”'");
-    expect(draftTitle('Pin Fin Efficiency')).toBe('Draft to finish: Pin Fin Efficiency');
-    expect(B5_01).toContain("title: 'Draft to finish: ' + x.name");
-    expect(draftSub('25 Aug 2026')).toBe('Last saved 25 Aug 2026 · only you can see it');
-    expect(B5_01).toContain("sub: 'Last saved ' + x.when + ' · only you can see it'");
-    // The drawn frames’ own sample lines (B5-08 f1: the record Flow E creates).
-    expect(B5_08).toContain('Conduction Through a Composite Wall');
+    expect(reviseRowName('Forced Convection')).toBe('Revise Forced Convection');
+    expect(editDraftRowName('Pin Fin Efficiency')).toBe('Edit the draft of Pin Fin Efficiency');
+    expect(MAIN).toContain("actAria: (isRet ? 'Revise ' : 'Edit the draft of ') + r.data.name");
+    expect(STATUS_LINES.draft(2)).toBe('Saved at step 2 of 4 · only you can see it');
+    expect(STATUS_LINES.withReviewer('on 18 Aug')).toBe('Submitted on 18 Aug');
+    expect(STATUS_LINES.submitted(2, 'on 26 Aug')).toBe('Revision 2 · submitted on 26 Aug');
+    expect(STATUS_LINES.withContentManager('on 14 Aug')).toBe('Approved on 14 Aug');
+    expect(STATUS_LINES.published('30 Jul')).toBe('Live in the catalogue since 30 Jul');
+    for (const piece of [
+      "return 'Saved at step ' + (r.step || 1) + ' of 4 · only you can see it';",
+      "return 'Revision ' + r.rev + ' · submitted ' + this.onDay(this.submittedOn(r));",
+      "return 'Submitted ' + this.onDay(this.submittedOn(r));",
+      "return 'Back for a re-check';",
+      "return 'Approved ' + this.onDay(r.approved || '');",
+      "return 'Live in the catalogue since ' + d(r.pub || '');",
+    ]) {
+      expect(MAIN).toContain(piece);
+    }
+    expect(MAIN).toContain(STATUS_LINES.recheck);
   });
 
-  it('the count: “2 items”, “1 item” (`o.attCount`)', () => {
-    expect(attentionCountWords(2)).toBe('2 items');
-    expect(attentionCountWords(3)).toBe('3 items');
-    expect(attentionCountWords(1)).toBe('1 item');
-    expect(B5_01).toContain("o.attCount = att.length + ' item' + (att.length === 1 ? '' : 's')");
-  });
-});
-
-describe('VE-02 My experiments (B5-02 f0 … f5; B5-08 f3)', () => {
-  it.each([
-    ...strings(MY_EXPERIMENTS_WORDS),
-    CREATE_EXPERIMENT,
-    READ_ONLY_DRAFT,
-    RETURNED,
-    ...strings(WITH_WORDS),
-  ])('“%s” is on B5-02', (phrase) => {
-    expect(B5_02).toContain(phrase);
-  });
-
-  it('the Status filter’s options are B5-02’s, in its order', () => {
-    expect(B5_02).toContain(
-      `<option value="all">${MY_EXPERIMENTS_WORDS.allStatuses}</option>${STATUS_FILTER_OPTIONS.map(
-        ([value, label]) =>
-          `<option value="${
-            {
-              draft: 'draft',
-              submitted: 'submitted',
-              'with-academic-reviewer': 'with_rv',
-              returned: 'returned',
-              'with-content-manager': 'with_cm',
-              published: 'published',
-            }[value]
-          }">${label}</option>`,
-      ).join('')}`,
+  it('the sort’s words: “Sort: newest first”, “…, last change, newest first. Change order”', () => {
+    expect(MAIN).toContain(
+      "sortLabel: L.desc ? 'last change, newest first' : 'last change, oldest first', sortShort: L.desc ? 'newest first' : 'oldest first'",
     );
-  });
-
-  it('the count and the row action’s name are B5-02’s script pieces', () => {
-    expect(experimentCountWords(6, 6)).toBe('6 of 6 experiments');
-    expect(experimentCountWords(1, 6)).toBe('1 of 6 experiments');
-    expect(experimentCountWords(0, 1)).toBe('0 of 1 experiment');
-    expect(B5_02).toContain(
-      "o.count = shown.length + ' of ' + rows.length + ' experiment' + (rows.length === 1 ? '' : 's')",
-    );
-    expect(rowActionLabel(MY_EXPERIMENTS_WORDS.revise, 'Forced Convection')).toBe(
-      'Revise Forced Convection',
-    );
-    expect(B5_02).toContain(
-      "aria: ((x.st === 'returned' || x.st === 'returned_cm') ? 'Revise ' : x.st === 'draft' ? 'Edit draft ' : 'Open ') + x.name",
-    );
-  });
-
-  it('the With words follow B5-02’s `withw` map', () => {
-    expect(B5_02).toContain(
-      `"withw": {"draft": "${WITH_WORDS.you}", "with_rv": "${WITH_WORDS.academicReviewer}", "returned": "${WITH_WORDS.you}", "submitted": "${WITH_WORDS.nobody}", "with_cm": "${WITH_WORDS.contentManager}"`,
-    );
-    expect(B5_02).toContain(`"readonly": "${READ_ONLY_DRAFT}"`);
+    expect(MAIN).toContain('<span>Sort: {{ L.sortShort }}</span>');
+    expect(MAIN).toContain('<span class="xr-sr">, {{ L.sortLabel }}. Change order</span>');
   });
 });
 
-describe('the failed formula (B6-02, the Phase-5 boards’)', () => {
-  it.each(strings(VENDOR_FAILED_WORDS))('“%s” is on B6-02', (phrase) => {
-    expect(B6_02).toContain(phrase);
+describe('the failed formula (VE-02’s could not load)', () => {
+  it.each(strings(VENDOR_FAILED_WORDS))('“%s” is drawn', (phrase) => {
+    expect(WORDS).toContain(phrase);
   });
 });
 
@@ -167,15 +240,27 @@ describe('the state-copy entries of the vendor-home group', () => {
       expect(entry.screen).toBe(id.slice(0, 5));
       expect(entry.status).toBe('provisional');
       expect(entry.decisions.length).toBeGreaterThan(0);
+      expect(entry.basis).toMatch(/^VE-v1 /);
       if (entry.words !== null) {
         expect(entry.words).not.toMatch(/\b(?:OD|T|PC|DEV|VD|ATT|M|DV)-?\d/);
-        // Undrawn words are not on the boards as they are (the drawn ones are in `vendor-home.ts`).
-        expect(B5_01).not.toContain(entry.words);
-        expect(B5_02).not.toContain(entry.words);
       } else {
         expect(entry.rule.length).toBeGreaterThan(20);
       }
       expect(STATE_COPY[id as keyof typeof STATE_COPY]).toBe(entry);
     },
   );
+
+  it('the overview’s undrawn states are not the export’s; the list’s are drawn as they are', () => {
+    expect(WORDS).not.toContain(STATE_COPY_VENDOR_HOME['VE-01.loading'].words);
+    expect(WORDS).not.toContain(STATE_COPY_VENDOR_HOME['VE-01.failed'].words);
+    expect(WORDS).toContain(STATE_COPY_VENDOR_HOME['VE-02.loading'].words);
+    expect(WORDS).toContain(STATE_COPY_VENDOR_HOME['VE-02.failed'].words);
+    // The read-only line is the export's without the day the course was withdrawn.
+    expect(MAIN).toContain(
+      "return 'Course withdrawn ' + this.onDay(r.withdrawn || '') + ' · read-only';",
+    );
+    expect(STATE_COPY_VENDOR_HOME['VE-02.read-only-line'].words).toBe(
+      'Course withdrawn · read-only',
+    );
+  });
 });

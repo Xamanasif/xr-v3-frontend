@@ -213,28 +213,30 @@ test('one tab, the product build: Flow E — create → return with a reason →
   await toSignIn(page);
   await signIn(page, 'anil.shetty@northline.example');
   await page.waitForURL((url) => url.pathname === '/vendor');
-  await expect(h1(page)).toHaveText('Overview');
+  // VE-01 (V3, VE-v1): the studio band's heading, "Overview, " for assistive technology.
+  await expect(h1(page)).toHaveText('Overview, Northline Simulation Studio');
   await reachAndClick(page, main(page).getByRole('link', { name: 'Create experiment' }).first());
   await page.waitForURL('**/vendor/experiments/new');
   await expect(h1(page)).toHaveText('Course and description');
   await page
     .getByRole('combobox', { name: 'Course' })
     .selectOption({ label: 'ME ZG523 · Thermodynamics & Heat Transfer' });
-  await type(page.getByLabel('Experiment name'), COMPOSITE);
-  await type(page.getByLabel('Summary'), CONTENT.summary);
-  await type(page.getByLabel('Description'), CONTENT.description);
-  await type(page.getByLabel('Version'), CONTENT.version);
+  // The V3 editor names its sections and steps too ("Course and description"): exact labels.
+  await type(page.getByLabel('Experiment name', { exact: true }), COMPOSITE);
+  await type(page.getByLabel('Summary', { exact: true }), CONTENT.summary);
+  await type(page.getByLabel('Description', { exact: true }), CONTENT.description);
+  await type(page.getByLabel('Version', { exact: true }), CONTENT.version);
   await reachAndClick(page, button(page, 'Save draft'));
   await page.waitForURL('**/vendor/experiments/SUB-0077/edit');
-  await expect(main(page).locator('.xr-phead-meta')).toContainText('SUB-0077 · draft');
+  await expect(main(page).locator('.rk-head .rk-meta')).toContainText('SUB-0077');
   await reachAndClick(page, button(page, 'Continue'));
   await expect(h1(page)).toHaveText('Formats and delivery');
-  await reachAndClick(page, page.getByRole('checkbox', { name: /Browser \(WEB\)/ }));
-  await reachAndClick(page, page.getByRole('checkbox', { name: /Virtual reality \(VR\)/ }));
-  const web = region(page, 'Browser (WEB) · Web link');
+  await reachAndClick(page, page.getByRole('checkbox', { name: /^WEB Browser/ }));
+  await reachAndClick(page, page.getByRole('checkbox', { name: /^VR Virtual reality/ }));
+  const web = region(page, 'Browser · Web link');
   await type(web.getByLabel('Web link'), CONTENT.webLink);
   await type(web.getByLabel('Browser and computer needed'), CONTENT.browser);
-  const vr = region(page, 'Virtual reality (VR) · App package');
+  const vr = region(page, 'Virtual reality · App package');
   await type(vr.getByLabel('Package label'), CONTENT.packageLabel);
   await type(vr.getByLabel('Package reference'), CONTENT.packageReference);
   await type(vr.getByLabel('Device needed'), CONTENT.device);
@@ -243,7 +245,7 @@ test('one tab, the product build: Flow E — create → return with a reason →
   await expect(h1(page)).toHaveText('Preview and documents');
   await reachAndClick(page, button(page, 'Continue'));
   await expect(h1(page)).toHaveText('Check and submit');
-  await expect(main(page).locator('.xr-notice--ok')).toContainText(
+  await expect(main(page).locator('.rk-notice--ok')).toContainText(
     'Everything required is provided',
   );
   await reachAndClick(page, button(page, 'Submit for academic review'));
@@ -280,7 +282,13 @@ test('one tab, the product build: Flow E — create → return with a reason →
   // 5. Anil sees the reason, follows the reference, revises and resubmits (VE-01 → VE-08).
   await signIn(page, 'anil.shetty@northline.example');
   await page.waitForURL((url) => url.pathname === '/vendor');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Revise “${COMPOSITE}”` }));
+  // VE-01's lead names its Revise by the experiment and who returned it (VE-v1).
+  await reachAndClick(
+    page,
+    main(page).getByRole('link', {
+      name: `Revise ${COMPOSITE}, returned by the Academic Reviewer`,
+    }),
+  );
   await page.waitForURL('**/vendor/experiments/SUB-0077/revise');
   const returned = region(page, 'Returned by the Academic Reviewer');
   await expect(returned.locator('blockquote')).toHaveText(REASON);
@@ -290,7 +298,7 @@ test('one tab, the product build: Flow E — create → return with a reason →
     returned.getByRole('button', { name: 'Go to Formats & delivery · VR · Device need' }),
   );
   await expect(h1(page)).toHaveText('Formats and delivery');
-  const device = region(page, 'Virtual reality (VR) · App package').getByLabel('Device needed');
+  const device = region(page, 'Virtual reality · App package').getByLabel('Device needed');
   await expect(device).toBeFocused();
   await device.fill('');
   await device.pressSequentially(REVISED_DEVICE);

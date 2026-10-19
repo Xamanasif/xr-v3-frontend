@@ -89,6 +89,8 @@ const RETURN_REASON = 'Please name the readings the coefficient is found from.';
 const WITHDRAW_REASON = 'Raised by mistake — the vendor is rewriting the summary first.';
 
 const chip = (page: Page) => main(page).locator('.xr-phead-meta .xr-status');
+/** The Vendor's V3 record (VE-07, VE-v1): the status pill in the page head's meta. */
+const vendorChip = (page: Page) => main(page).locator('.rk-head .rk-meta .xr-st');
 const field = (page: Page, label: string) =>
   main(page).getByRole('textbox', { name: label, exact: true });
 const rows = (page: Page) => main(page).locator('table.xr-table tbody tr');
@@ -127,20 +129,21 @@ async function submitComposite(page: Page): Promise<void> {
   await page
     .getByRole('combobox', { name: 'Course' })
     .selectOption({ label: 'ME ZG523 · Thermodynamics & Heat Transfer' });
-  await type(page.getByLabel('Experiment name'), COMPOSITE);
-  await type(page.getByLabel('Summary'), CONTENT.summary);
-  await type(page.getByLabel('Description'), CONTENT.description);
-  await type(page.getByLabel('Version'), CONTENT.version);
+  // The V3 editor names its sections and steps too ("Course and description"): exact labels.
+  await type(page.getByLabel('Experiment name', { exact: true }), COMPOSITE);
+  await type(page.getByLabel('Summary', { exact: true }), CONTENT.summary);
+  await type(page.getByLabel('Description', { exact: true }), CONTENT.description);
+  await type(page.getByLabel('Version', { exact: true }), CONTENT.version);
   await reachAndClick(page, button(page, 'Save draft'));
   await page.waitForURL(`**/vendor/experiments/${SUB}/edit`);
   await reachAndClick(page, button(page, 'Continue'));
   await expect(h1(page)).toHaveText('Formats and delivery');
-  await reachAndClick(page, page.getByRole('checkbox', { name: /Browser \(WEB\)/ }));
-  await reachAndClick(page, page.getByRole('checkbox', { name: /Virtual reality \(VR\)/ }));
-  const web = region(page, 'Browser (WEB) · Web link');
+  await reachAndClick(page, page.getByRole('checkbox', { name: /^WEB Browser/ }));
+  await reachAndClick(page, page.getByRole('checkbox', { name: /^VR Virtual reality/ }));
+  const web = region(page, 'Browser · Web link');
   await type(web.getByLabel('Web link'), CONTENT.webLink);
   await type(web.getByLabel('Browser and computer needed'), CONTENT.browser);
-  const vr = region(page, 'Virtual reality (VR) · App package');
+  const vr = region(page, 'Virtual reality · App package');
   await type(vr.getByLabel('Package label'), CONTENT.packageLabel);
   await type(vr.getByLabel('Package reference'), CONTENT.packageReference);
   await type(vr.getByLabel('Device needed'), CONTENT.device);
@@ -149,7 +152,7 @@ async function submitComposite(page: Page): Promise<void> {
   await expect(h1(page)).toHaveText('Preview and documents');
   await reachAndClick(page, button(page, 'Continue'));
   await expect(h1(page)).toHaveText('Check and submit');
-  await expect(main(page).locator('.xr-notice--ok')).toContainText(
+  await expect(main(page).locator('.rk-notice--ok')).toContainText(
     'Everything required is provided',
   );
   await reachAndClick(page, button(page, 'Submit for academic review'));
@@ -208,7 +211,8 @@ async function openSendBack(page: Page): Promise<Locator> {
 async function vendorRecord(page: Page): Promise<void> {
   await startAs(page, 'anil');
   await sidebar(page, '/vendor/experiments');
-  await reachAndClick(page, main(page).getByRole('link', { name: COMPOSITE, exact: true }));
+  // VE-02 (V3): the row's link is named by the experiment, its ID, status and last change.
+  await reachAndClick(page, main(page).getByRole('link', { name: new RegExp(`^${COMPOSITE}, `) }));
   await page.waitForURL(`**/vendor/experiments/${SUB}`);
   await expect(h1(page)).toHaveText(COMPOSITE);
 }
@@ -300,8 +304,8 @@ test('E-alt1 · the Content Manager sends an approved submission back to the Aca
 
   // VE-07: “With Academic Reviewer” — nothing is needed from Anil; the reason is not his to read.
   await vendorRecord(page);
-  await expect(chip(page)).toHaveText('With Academic Reviewer');
-  await expect(main(page).locator('.xr-notice').first().locator('.xr-notice-title')).toHaveText(
+  await expect(vendorChip(page)).toHaveText('With Academic Reviewer');
+  await expect(main(page).locator('.rk-notice').first().locator('.rk-notice-t')).toHaveText(
     'Back with the Academic Reviewer for a re-check',
   );
   await expect(main(page)).not.toContainText(RECHECK_REASON);
@@ -356,16 +360,19 @@ test('E-alt2 · the Content Manager returns an approved submission to the Vendor
 
   // VE-07: “Returned”, with the Content Manager's reason and reference; VE-08 shows it too.
   await vendorRecord(page);
-  await expect(chip(page)).toHaveText('Returned');
+  await expect(vendorChip(page)).toHaveText('Returned');
   const returned = region(page, 'Returned by the Content Manager');
   await expect(returned.getByRole('heading', { level: 2 })).toHaveText(
     'Returned by the Content Manager',
   );
   await expect(returned).toContainText('Kavya Nair');
   await expect(returned.locator('blockquote')).toHaveText(VENDOR_REASON);
-  await expect(returned.locator('li.xv-ref')).toHaveText(['Course & description · Summary']);
+  await expect(returned.locator('button.ve-ref')).toHaveText(['Course & description · Summary']);
   await checkState(page, COMPOSITE);
-  await reachAndClick(page, main(page).getByRole('link', { name: 'Revise & resubmit' }));
+  await reachAndClick(
+    page,
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Revise and resubmit' }),
+  );
   await page.waitForURL(`**/vendor/experiments/${SUB}/revise`);
   await expect(region(page, 'Returned by the Content Manager').locator('blockquote')).toHaveText(
     VENDOR_REASON,

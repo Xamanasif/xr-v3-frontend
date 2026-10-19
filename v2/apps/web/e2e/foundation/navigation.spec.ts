@@ -73,12 +73,12 @@ test.describe('every rendered link is in the link-target ledger', () => {
   test('Help — My reports (empty)', async ({ page }) => {
     await openAs(page, roleEntry('vendor').person, '/vendor/help');
     await expect(page.getByText('No reports yet')).toBeVisible();
-    // Phase 5: the Vendor sidebar lists Overview and My experiments.
+    // The Vendor's V3 rail (VE-v1): Overview and My experiments, then Help & support in its foot.
     expect(await links(page)).toEqual([
       SKIP,
-      ['OverviewOverview', '/vendor'],
-      ['My experimentsMy experiments', '/vendor/experiments'],
-      ['HelpHelp', '/vendor/help'],
+      ['Overview', '/vendor'],
+      ['My experiments', '/vendor/experiments'],
+      ['Help & support', '/vendor/help'],
       ['Report a problem', '/vendor/help/report'],
     ]);
   });
@@ -189,10 +189,19 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
     const tab = await page.context().newPage();
     await openAs(tab, entry.person, `${entry.base}/help`);
     await waitForShell(tab);
-    // The v46 sidebar, or the Super Admin's V3 rail (SA-v1), whose Help sits in a navigation of
-    // its own in the rail foot.
+    // The v46 sidebar, or a V3 rail (the Super Admin's SA-v1, the Vendor's VE-v1), whose Help
+    // sits in a navigation of its own in the rail foot.
     const side = tab.locator('aside.xr-side, aside.rb-rail');
-    if (entry.role === 'super_admin') {
+    if (entry.role === 'vendor') {
+      // VE-01 Overview and VE-02 My experiments, then Help & support.
+      await expect(side.locator('a[href]')).toHaveCount(3);
+      expect(
+        await side
+          .locator('nav[aria-label="Vendor navigation"] a[href]')
+          .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
+      ).toEqual(['/vendor', '/vendor/experiments']);
+      await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute('href', '/vendor/help');
+    } else if (entry.role === 'super_admin') {
       // SA-02 (Package 1A), SA-01 and SA-06 (Package 1D), SA-18 Operations (Phase 3), Content,
       // Academic structure and Platform roles (Phase 6): all seven, then Help & support.
       await expect(side.locator('a[href]')).toHaveCount(8);
@@ -217,7 +226,6 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
       // and Students, and the Student's Assessments. Phase 5: the Vendor's, Academic Reviewer's
       // and Content Manager's destinations; Phase 6 the Content Manager's Updates (CM-08).
       const platform: Readonly<Partial<Record<string, readonly string[]>>> = {
-        vendor: ['/vendor', '/vendor/experiments'],
         academic_reviewer: ['/reviewer', '/reviewer/queue', '/reviewer/reviewed'],
         content_manager: [
           '/content-manager',

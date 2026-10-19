@@ -18,6 +18,7 @@ import {
   expectNoInternalReferences,
   expectV3ClassesOnly,
   saExportText,
+  veExportText,
 } from '../testing/index.js';
 import { Button } from './actions.js';
 import { Quote } from './detail.js';
@@ -309,9 +310,13 @@ describe('a confirmation (`initialFocus="confirm"`; SA-11, SA-13, SA-17)', () =>
     expectV3ClassesOnly(dialog);
   });
 
-  it('with no groups and no body, the body is empty (SA-11 Lift hold, SA-17 Restore scope)', () => {
+  it('with no groups and an empty body, the body is empty (SA-11 Lift hold, SA-17 Restore scope)', () => {
+    // The export always draws the body (`dialogHtml`: `'<div class="rk-dlg-body">' + (spec.body
+    // || '')`); the screens pass their failure notice, absent until a command fails.
+    expect(CORE).toContain(`'<div class="rk-dlg-body">' + (spec.body || '') + '</div>'`);
     function Restore() {
       const [open, setOpen] = useState(false);
+      const unavailable = false;
       return (
         <>
           <Button onClick={() => setOpen(true)}>Restore</Button>
@@ -324,7 +329,9 @@ describe('a confirmation (`initialFocus="confirm"`; SA-11, SA-13, SA-17)', () =>
             confirmLabel="Restore scope"
             onConfirm={() => setOpen(false)}
             onCancel={() => setOpen(false)}
-          />
+          >
+            {unavailable ? <Notice tone="warn" role="alert" title="It wasn’t restored." /> : null}
+          </ConfirmDialog>
         </>
       );
     }
@@ -336,5 +343,94 @@ describe('a confirmation (`initialFocus="confirm"`; SA-11, SA-13, SA-17)', () =>
     expect(dialog.querySelector('.rk-dlg-body')?.childElementCount).toBe(0);
     expectV3ClassesOnly(dialog);
     expectNoInternalReferences(dialog);
+  });
+});
+
+describe('the Vendor export’s dialogs (VE-v1 `Main.dc.html` `dlgView`)', () => {
+  const MAIN = veExportText('Main.dc.html');
+
+  function Leave() {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>My experiments</Button>
+        <ConfirmDialog
+          open={open}
+          idPrefix="ve-dlg"
+          title="Leave without saving?"
+          description="Your changes since you last saved will be lost. Save a draft first to keep them."
+          cancelLabel="Keep editing"
+          confirmLabel="Leave without saving"
+          confirmVariant="navy"
+          onConfirm={() => setOpen(false)}
+          onCancel={() => setOpen(false)}
+        />
+      </>
+    );
+  }
+
+  it('“Leave without saving?”: no body, Keep editing and the navy confirm, as the export draws it', async () => {
+    for (const piece of [
+      '<sc-if value="{{ D.hasBody }}" hint-placeholder-val="{{ true }}">\n      <div class="rk-dlg-body">',
+      "return { open: true, hasBody: false, title: 'Leave without saving?'",
+      "cancelLabel: 'Keep editing', okLabel: 'Leave without saving', okCls: 'rb-btn rb-btn--navy rb-btn--lg'",
+    ]) {
+      expect(MAIN).toContain(piece);
+    }
+    const { container } = render(<Leave />);
+    const { dialog, trigger } = openWith('My experiments');
+    expect([...dialog.children].map((child) => child.className)).toEqual([
+      'rk-dlg-head',
+      'rk-dlg-foot',
+    ]);
+    expect(dialog.querySelector('.rk-dlg-body')).toBeNull();
+    expect(document.activeElement).toBe(dialog.querySelector('h2#ve-dlg-t'));
+    const buttons = within(dialog).getAllByRole('button', { hidden: true });
+    expect(buttons.map((button) => [button.textContent, button.className])).toEqual([
+      ['Keep editing', 'rb-btn rb-btn--lg'],
+      ['Leave without saving', 'rb-btn rb-btn--navy rb-btn--lg'],
+    ]);
+    expectV3ClassesOnly(container);
+    expectNoInternalReferences(dialog);
+    await assertNoAxeViolations(dialog);
+    act(() => buttons[0]!.click());
+    expect(dialog.open).toBe(false);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('Submit for academic review: the groups in the body and the gold confirm (the default)', () => {
+    expect(MAIN).toContain(
+      "cancelLabel: isRev ? 'Keep editing' : 'Cancel', okLabel: isRev ? 'Resubmit' : 'Submit for academic review', okCls: 'rb-btn rb-btn--primary rb-btn--lg'",
+    );
+    function Submit() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <Button onClick={() => setOpen(true)}>Submit</Button>
+          <ConfirmDialog
+            open={open}
+            title="Submit for academic review?"
+            description="It does not publish anything."
+            groups={[
+              { kind: 'now', title: 'What happens now', items: ['It goes to the reviewer.'] },
+              { kind: 'later', title: 'Only after later events', items: ['You can revise it.'] },
+            ]}
+            confirmLabel="Submit for academic review"
+            onConfirm={() => setOpen(false)}
+            onCancel={() => setOpen(false)}
+          />
+        </>
+      );
+    }
+    render(<Submit />);
+    const { dialog } = openWith('Submit');
+    expect([...dialog.children].map((child) => child.className)).toEqual([
+      'rk-dlg-head',
+      'rk-dlg-body',
+      'rk-dlg-foot',
+    ]);
+    expect(
+      within(dialog).getByRole('button', { name: 'Submit for academic review', hidden: true }),
+    ).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
   });
 });

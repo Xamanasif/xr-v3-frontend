@@ -182,6 +182,12 @@ export const CANVAS_CLASS_PATTERNS = [
   // The Super Admin export's design-only preview controls (design/v3-refined-b/roles/SA-v1/
   // COMPONENT-EXTENSIONS.md: "`sa-pv-*` … Never part of the product").
   /^sa-pv(?:-[\w-]*)?$/,
+  // The Vendor export's reviewer bar and page canvas (design/v3-refined-b/roles/VE-v1/
+  // COMPONENT-EXTENSIONS.md "Preview-only tooling (not product)": "Do not implement it in the
+  // application").
+  /^ve-pv(?:-[\w-]*)?$/,
+  /^ve-preview(?:-t)?$/,
+  /^ve-app$/,
 ];
 
 /**
@@ -225,6 +231,8 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
  * - V3P-11: the XS "Report sent" breadcrumb, 12 px above its card.
  * - V3P-12: the Super Admin export's inline spacings (a quiet line alone in a cell, the notes
  *   under a table or a definition list, SA-07's lines and list, SA-01's head and loading queue).
+ * - V3P-13: the Vendor export's inline spacings (the formats' error, the learning outcomes' line,
+ *   the refusal's eyebrow).
  * (V3P-06 `rk-x-skip` and V3P-07 `rk-x-acct` were retired with the XS export: the shell now draws
  * its skip link and account wrapper with the XS classes `xs-skip`, `xs-acct-slot`, `xs-acct`.)
  */
@@ -244,6 +252,10 @@ export const V3_PRODUCT_CLASS_ALLOW_LIST = [
   'rk-x-ask-above',
   'rk-x-sec-head-tight',
   'rk-x-queue-flush',
+  // V3P-13: the Vendor export's (VE-v1) inline spacings, each on the element it styles.
+  'rk-x-ferr-above',
+  'rk-x-intro-below',
+  'rk-x-eyebrow-flush',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

@@ -5,6 +5,7 @@ import type { ShellBannerKind } from '@xr/ui';
 import {
   Banner,
   TextLink,
+  TopLineSeparator,
   WorkspaceShell,
   type ShellDestination,
   type V3IconName,
@@ -25,12 +26,22 @@ import {
 
 /**
  * The roles whose workspace has moved to the V3 Refined B shell with their owner-approved complete
- * role export (pack prompt 11): the Super Admin (design/v3-refined-b/roles/SA-v1). Every other
- * role keeps its v46 shell until its own export is integrated.
+ * role export (pack prompt 11): the Super Admin (design/v3-refined-b/roles/SA-v1) and the Vendor
+ * (roles/VE-v1). Every other role keeps its v46 shell until its own export is integrated.
  */
-export const V3_SHELL_ROLES: ReadonlySet<Role> = new Set<Role>(['super_admin']);
+export const V3_SHELL_ROLES: ReadonlySet<Role> = new Set<Role>(['super_admin', 'vendor']);
 
-/** The rail glyph of each destination, as the role exports draw it (SA-v1 `sa-core.js` nav). */
+/**
+ * The roles whose export names the home page before the date in the top line on that page ("Overview
+ * · Thursday 27 August 2026": VE-v1 `Main.dc.html` `rb-top-date`, as IA-01 draws it); the Super Admin
+ * export draws the date alone.
+ */
+const HOME_IN_TOP_LINE: ReadonlySet<Role> = new Set<Role>(['vendor']);
+
+/**
+ * The rail glyph of each destination, as the role exports draw it (SA-v1 `sa-core.js` nav; VE-v1
+ * `Main.dc.html` rail: the Overview grid and My experiments' flask).
+ */
 const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   overview: 'overview',
   requests: 'inbox',
@@ -39,6 +50,7 @@ const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   structure: 'academicStructure',
   roles: 'platformRoles',
   ops: 'operations',
+  exps: 'myExperiments',
 };
 
 export interface V3RoleShellProps {
@@ -54,6 +66,19 @@ export interface V3RoleShellProps {
   readonly today: string | null;
   readonly onSignOut: () => void;
   readonly children?: ReactNode;
+}
+
+/** The top line: the date, after the home page's name on that page where the export draws it. */
+function topLine(role: Role, screen: ScreenKey, date: string): ReactNode {
+  const home = WORKSPACE_NAV[role].destinations[0];
+  if (!HOME_IN_TOP_LINE.has(role) || home?.screen !== screen) return date;
+  return (
+    <>
+      {home.label}
+      <TopLineSeparator />
+      {date}
+    </>
+  );
 }
 
 /**
@@ -95,7 +120,7 @@ export function V3RoleShell({
       institution={organisationLine(role, person)}
       destinations={destinations}
       help={{ href: model.help.href, current: model.help.current, label: SHELL_HELP }}
-      topLine={today ? weekdayDate(today) : undefined}
+      topLine={today ? topLine(role, screen, weekdayDate(today)) : undefined}
       account={
         <WorkspaceAccountMenu role={role} person={person} shell="v3" onSignOut={onSignOut} />
       }

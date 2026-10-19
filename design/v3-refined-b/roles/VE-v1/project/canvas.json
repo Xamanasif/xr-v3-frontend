@@ -1,0 +1,866 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-18T16:35:36Z"
+ },
+ "title": "XR Learning Platform — Design V3 · Vendor · complete role · Refined B",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 985,
+   "title": "Vendor workspace · live connected role · start here",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-01-1440.dc.html": {
+   "x": 0,
+   "y": 1405,
+   "w": 1440,
+   "h": 900,
+   "title": "VE-01 Overview · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-01-1024.dc.html": {
+   "x": 1520,
+   "y": 1405,
+   "w": 1024,
+   "h": 1480,
+   "title": "VE-01 Overview · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-01-768.dc.html": {
+   "x": 2624,
+   "y": 1405,
+   "w": 768,
+   "h": 1480,
+   "title": "VE-01 Overview · 768",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-01-375.dc.html": {
+   "x": 3472,
+   "y": 1405,
+   "w": 375,
+   "h": 1895,
+   "title": "VE-01 Overview · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-01-calm.dc.html": {
+   "x": 3927,
+   "y": 1405,
+   "w": 1440,
+   "h": 900,
+   "title": "VE-01 Overview · nothing needs attention · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-01-first-visit.dc.html": {
+   "x": 5447,
+   "y": 1405,
+   "w": 1440,
+   "h": 900,
+   "title": "VE-01 Overview · no experiments yet · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-02-1440.dc.html": {
+   "x": 0,
+   "y": 3720,
+   "w": 1440,
+   "h": 936,
+   "title": "VE-02 My experiments · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-02-1024.dc.html": {
+   "x": 1520,
+   "y": 3720,
+   "w": 1024,
+   "h": 1515,
+   "title": "VE-02 My experiments · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-02-768.dc.html": {
+   "x": 2624,
+   "y": 3720,
+   "w": 768,
+   "h": 1515,
+   "title": "VE-02 My experiments · 768",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-02-375.dc.html": {
+   "x": 3472,
+   "y": 3720,
+   "w": 375,
+   "h": 1593,
+   "title": "VE-02 My experiments · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-02-returned.dc.html": {
+   "x": 3927,
+   "y": 3720,
+   "w": 1440,
+   "h": 900,
+   "title": "VE-02 My experiments · Returned tab · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-02-empty.dc.html": {
+   "x": 5447,
+   "y": 3720,
+   "w": 1024,
+   "h": 900,
+   "title": "VE-02 My experiments · no experiments yet · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-02-nomatch.dc.html": {
+   "x": 6551,
+   "y": 3720,
+   "w": 1024,
+   "h": 900,
+   "title": "VE-02 My experiments · no match · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-02-loading.dc.html": {
+   "x": 7655,
+   "y": 3720,
+   "w": 1024,
+   "h": 900,
+   "title": "VE-02 My experiments · loading · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-02-failed.dc.html": {
+   "x": 8759,
+   "y": 3720,
+   "w": 1024,
+   "h": 900,
+   "title": "VE-02 My experiments · could not load · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-03-1440.dc.html": {
+   "x": 0,
+   "y": 5733,
+   "w": 1440,
+   "h": 1182,
+   "title": "VE-03 Create · Course and description · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-03-375.dc.html": {
+   "x": 1520,
+   "y": 5733,
+   "w": 375,
+   "h": 1441,
+   "title": "VE-03 Create · Course and description · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-03-validation.dc.html": {
+   "x": 1975,
+   "y": 5733,
+   "w": 1440,
+   "h": 1479,
+   "title": "VE-03 · required fields missing · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-03-name-taken.dc.html": {
+   "x": 3495,
+   "y": 5733,
+   "w": 1440,
+   "h": 1355,
+   "title": "VE-03 · name already used (Composite Wall Conduction) · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-03-course-withdrawn.dc.html": {
+   "x": 5015,
+   "y": 5733,
+   "w": 1440,
+   "h": 1377,
+   "title": "VE-03 · course no longer assigned (MEL ZG512) · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-03-draft-saved.dc.html": {
+   "x": 6535,
+   "y": 5733,
+   "w": 1440,
+   "h": 1188,
+   "title": "VE-03 · draft saved as SUB-0087 · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-04-1440.dc.html": {
+   "x": 0,
+   "y": 7632,
+   "w": 1440,
+   "h": 2561,
+   "title": "VE-04 Create · Formats and delivery · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-04-375.dc.html": {
+   "x": 1520,
+   "y": 7632,
+   "w": 375,
+   "h": 3774,
+   "title": "VE-04 Create · Formats and delivery · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-04-two-formats.dc.html": {
+   "x": 1975,
+   "y": 7632,
+   "w": 1440,
+   "h": 1825,
+   "title": "VE-04 · WEB complete, AR partly filled · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-04-validation.dc.html": {
+   "x": 3495,
+   "y": 7632,
+   "w": 1440,
+   "h": 2164,
+   "title": "VE-04 · delivery fields to fix · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-04-1024.dc.html": {
+   "x": 5015,
+   "y": 7632,
+   "w": 1024,
+   "h": 2209,
+   "title": "VE-04 Formats and delivery · fields to fix · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-04-768.dc.html": {
+   "x": 6119,
+   "y": 7632,
+   "w": 768,
+   "h": 2209,
+   "title": "VE-04 Formats and delivery · fields to fix · 768",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-04-leave-guard.dc.html": {
+   "x": 6967,
+   "y": 7632,
+   "w": 1440,
+   "h": 1194,
+   "title": "VE-04 · leave without saving? · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-05-1440.dc.html": {
+   "x": 0,
+   "y": 11826,
+   "w": 1440,
+   "h": 900,
+   "title": "VE-05 Create · Preview and documents · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-05-375.dc.html": {
+   "x": 1520,
+   "y": 11826,
+   "w": 375,
+   "h": 1246,
+   "title": "VE-05 Create · Preview and documents · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-05-preview-error.dc.html": {
+   "x": 1975,
+   "y": 11826,
+   "w": 1440,
+   "h": 947,
+   "title": "VE-05 · preview label without a link · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-06-1440.dc.html": {
+   "x": 0,
+   "y": 13492,
+   "w": 1440,
+   "h": 1576,
+   "title": "VE-06 Check and submit · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-06-375.dc.html": {
+   "x": 1520,
+   "y": 13492,
+   "w": 375,
+   "h": 2367,
+   "title": "VE-06 Check and submit · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-06-missing.dc.html": {
+   "x": 1975,
+   "y": 13492,
+   "w": 1440,
+   "h": 1572,
+   "title": "VE-06 · steps still to complete · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-06-confirm.dc.html": {
+   "x": 3495,
+   "y": 13492,
+   "w": 1440,
+   "h": 1576,
+   "title": "VE-06 · confirm submission · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-06-submitted.dc.html": {
+   "x": 5015,
+   "y": 13492,
+   "w": 1440,
+   "h": 900,
+   "title": "VE-06 · submitted for academic review · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-1440.dc.html": {
+   "x": 0,
+   "y": 16279,
+   "w": 1440,
+   "h": 1768,
+   "title": "VE-07 Experiment record · returned · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-1024.dc.html": {
+   "x": 1520,
+   "y": 16279,
+   "w": 1024,
+   "h": 2204,
+   "title": "VE-07 Experiment record · returned · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-768.dc.html": {
+   "x": 2624,
+   "y": 16279,
+   "w": 768,
+   "h": 2204,
+   "title": "VE-07 Experiment record · returned · 768",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-375.dc.html": {
+   "x": 3472,
+   "y": 16279,
+   "w": 375,
+   "h": 2913,
+   "title": "VE-07 Experiment record · returned · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-draft.dc.html": {
+   "x": 0,
+   "y": 19612,
+   "w": 1440,
+   "h": 1370,
+   "title": "VE-07 · draft · Pin Fin Efficiency · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-with-reviewer.dc.html": {
+   "x": 1520,
+   "y": 19612,
+   "w": 1440,
+   "h": 1462,
+   "title": "VE-07 · with Academic Reviewer · first submission · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-with-content-manager.dc.html": {
+   "x": 3040,
+   "y": 19612,
+   "w": 1440,
+   "h": 1436,
+   "title": "VE-07 · approved, with Content Manager · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-published.dc.html": {
+   "x": 4560,
+   "y": 19612,
+   "w": 1440,
+   "h": 1695,
+   "title": "VE-07 · published · read-only · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-read-only.dc.html": {
+   "x": 6080,
+   "y": 19612,
+   "w": 1440,
+   "h": 1376,
+   "title": "VE-07 · course no longer assigned · read-only · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-returned-by-cm.dc.html": {
+   "x": 0,
+   "y": 21727,
+   "w": 1440,
+   "h": 1547,
+   "title": "VE-07 · returned by Content Manager · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-recheck.dc.html": {
+   "x": 1520,
+   "y": 21727,
+   "w": 1440,
+   "h": 1436,
+   "title": "VE-07 · back with Academic Reviewer for a recheck · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-private-revision.dc.html": {
+   "x": 3040,
+   "y": 21727,
+   "w": 1440,
+   "h": 1929,
+   "title": "VE-07 · saved changes not resubmitted · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-07-submitted.dc.html": {
+   "x": 4560,
+   "y": 21727,
+   "w": 1440,
+   "h": 1873,
+   "title": "VE-07 · resubmitted, stays “Submitted” · revision 2 · Composite Wall · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-08-1440.dc.html": {
+   "x": 0,
+   "y": 24076,
+   "w": 1440,
+   "h": 2081,
+   "title": "VE-08 Revise and resubmit · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-08-375.dc.html": {
+   "x": 1520,
+   "y": 24076,
+   "w": 375,
+   "h": 3015,
+   "title": "VE-08 Revise and resubmit · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-08-reason-first.dc.html": {
+   "x": 1975,
+   "y": 24076,
+   "w": 1440,
+   "h": 1411,
+   "title": "VE-08 · reason first, step 1 · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-08-changes-saved.dc.html": {
+   "x": 3495,
+   "y": 24076,
+   "w": 1440,
+   "h": 2197,
+   "title": "VE-08 · changes saved, not resubmitted · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-08-confirm.dc.html": {
+   "x": 5015,
+   "y": 24076,
+   "w": 1440,
+   "h": 2063,
+   "title": "VE-08 · confirm resubmission · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-08-submitted.dc.html": {
+   "x": 6535,
+   "y": 24076,
+   "w": 1440,
+   "h": 900,
+   "title": "VE-08 · changes submitted · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-08-already-submitted.dc.html": {
+   "x": 8055,
+   "y": 24076,
+   "w": 1440,
+   "h": 900,
+   "title": "VE-08 · already submitted elsewhere · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-08-already-decided.dc.html": {
+   "x": 9575,
+   "y": 24076,
+   "w": 1440,
+   "h": 900,
+   "title": "VE-08 · already approved · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-09-1440.dc.html": {
+   "x": 0,
+   "y": 27511,
+   "w": 1440,
+   "h": 1194,
+   "title": "VE-09 Edit draft · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-09-375.dc.html": {
+   "x": 1520,
+   "y": 27511,
+   "w": 375,
+   "h": 1523,
+   "title": "VE-09 Edit draft · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-09-read-only.dc.html": {
+   "x": 1975,
+   "y": 27511,
+   "w": 1440,
+   "h": 907,
+   "title": "VE-09 · course no longer assigned · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-13-1440.dc.html": {
+   "x": 0,
+   "y": 29454,
+   "w": 1440,
+   "h": 973,
+   "title": "VE-13 Submission and version history · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-13-375.dc.html": {
+   "x": 1520,
+   "y": 29454,
+   "w": 375,
+   "h": 1566,
+   "title": "VE-13 Submission and version history · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "VE-13-published.dc.html": {
+   "x": 1975,
+   "y": 29454,
+   "w": 1440,
+   "h": 910,
+   "title": "VE-13 · history of a published experiment · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-07-help.dc.html": {
+   "x": 0,
+   "y": 31440,
+   "w": 1440,
+   "h": 900,
+   "title": "Help and support · My reports · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-07-report-error.dc.html": {
+   "x": 1520,
+   "y": 31440,
+   "w": 1440,
+   "h": 951,
+   "title": "Help and support · report needs a description · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-07-report-sent.dc.html": {
+   "x": 3040,
+   "y": 31440,
+   "w": 1440,
+   "h": 900,
+   "title": "Help and support · report sent · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-05-account-menu.dc.html": {
+   "x": 4560,
+   "y": 31440,
+   "w": 1440,
+   "h": 900,
+   "title": "Account menu · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-06-not-your-workspace.dc.html": {
+   "x": 6080,
+   "y": 31440,
+   "w": 1440,
+   "h": 900,
+   "title": "Not part of your workspace · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "menu-375.dc.html": {
+   "x": 7600,
+   "y": 31440,
+   "w": 375,
+   "h": 1895,
+   "title": "Menu open · 375",
+   "expand": "fill",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "VE-01-1440.dc.html",
+  "VE-01-1024.dc.html",
+  "VE-01-768.dc.html",
+  "VE-01-375.dc.html",
+  "VE-01-calm.dc.html",
+  "VE-01-first-visit.dc.html",
+  "VE-02-1440.dc.html",
+  "VE-02-1024.dc.html",
+  "VE-02-768.dc.html",
+  "VE-02-375.dc.html",
+  "VE-02-returned.dc.html",
+  "VE-02-empty.dc.html",
+  "VE-02-nomatch.dc.html",
+  "VE-02-loading.dc.html",
+  "VE-02-failed.dc.html",
+  "VE-03-1440.dc.html",
+  "VE-03-375.dc.html",
+  "VE-03-validation.dc.html",
+  "VE-03-name-taken.dc.html",
+  "VE-03-course-withdrawn.dc.html",
+  "VE-03-draft-saved.dc.html",
+  "VE-04-1440.dc.html",
+  "VE-04-375.dc.html",
+  "VE-04-two-formats.dc.html",
+  "VE-04-validation.dc.html",
+  "VE-04-1024.dc.html",
+  "VE-04-768.dc.html",
+  "VE-04-leave-guard.dc.html",
+  "VE-05-1440.dc.html",
+  "VE-05-375.dc.html",
+  "VE-05-preview-error.dc.html",
+  "VE-06-1440.dc.html",
+  "VE-06-375.dc.html",
+  "VE-06-missing.dc.html",
+  "VE-06-confirm.dc.html",
+  "VE-06-submitted.dc.html",
+  "VE-07-1440.dc.html",
+  "VE-07-1024.dc.html",
+  "VE-07-768.dc.html",
+  "VE-07-375.dc.html",
+  "VE-07-draft.dc.html",
+  "VE-07-with-reviewer.dc.html",
+  "VE-07-with-content-manager.dc.html",
+  "VE-07-published.dc.html",
+  "VE-07-read-only.dc.html",
+  "VE-07-returned-by-cm.dc.html",
+  "VE-07-recheck.dc.html",
+  "VE-07-private-revision.dc.html",
+  "VE-07-submitted.dc.html",
+  "VE-08-1440.dc.html",
+  "VE-08-375.dc.html",
+  "VE-08-reason-first.dc.html",
+  "VE-08-changes-saved.dc.html",
+  "VE-08-confirm.dc.html",
+  "VE-08-submitted.dc.html",
+  "VE-08-already-submitted.dc.html",
+  "VE-08-already-decided.dc.html",
+  "VE-09-1440.dc.html",
+  "VE-09-375.dc.html",
+  "VE-09-read-only.dc.html",
+  "VE-13-1440.dc.html",
+  "VE-13-375.dc.html",
+  "VE-13-published.dc.html",
+  "XS-07-help.dc.html",
+  "XS-07-report-error.dc.html",
+  "XS-07-report-sent.dc.html",
+  "XS-05-account-menu.dc.html",
+  "XS-06-not-your-workspace.dc.html",
+  "menu-375.dc.html"
+ ],
+ "notes": {
+  "n-status": {
+   "x": 1520,
+   "y": 0,
+   "w": 480,
+   "text": "Final Vendor design · awaiting your acceptance\nAll ten owned screens (VE-01 to VE-09 and VE-13) carry the accepted refinement R1 and its five presentation choices. Overview, My experiments and editor steps 1–2 are the R1 screens you approved; Preview and documents, Check and submit, the record and its history, Revise, Edit draft, read-only and refusal states now use the same patterns. Claude Code integration has not started.",
+   "fill": "orange"
+  },
+  "n-play": {
+   "x": 2040,
+   "y": 0,
+   "w": 480,
+   "text": "How to review\nThe first board is the working Vendor workspace: press Play and use it as Anil Shetty would — sidebar, lists, records, the four-step form, dialogs, Help. The dashed bar above the page is reviewer-only: jump to a screen, load a scenario, fill sample answers, reset; it also explains handoffs to other roles. Every other board opens one screen or state and stays usable; each keeps its own state.",
+   "fill": "blue"
+  },
+  "n-journeys": {
+   "x": 2560,
+   "y": 0,
+   "w": 480,
+   "text": "Two demo journeys on the first board\n1 · Create experiment → Save draft with nothing filled → fill → Save draft (SUB-0087) → leave → My experiments → Edit draft → steps 2–4 → Submit → confirm → record → history.\n2 · Overview → Revise “Forced Convection” → read the reason → fix the AR fields → Resubmit → confirm → Submitted · revision 2 in the record, history, list and Overview.",
+   "fill": "blue"
+  },
+  "n-patterns": {
+   "x": 3080,
+   "y": 0,
+   "w": 480,
+   "text": "One pattern language across the role\nSections with a title and a six-column field grid · one block per chosen format with a live status · app-package guidance written once · a status pill with one plain line · each page states its status once · sticky actions on long forms · an outline that follows the step · the returned reason with chips that jump to the field · outcome cards with the facts and the next step.",
+   "fill": "teal"
+  },
+  "n-rules": {
+   "x": 1520,
+   "y": 480,
+   "w": 480,
+   "text": "Rules kept from v46\nVendor record IDs (SUB-…) and course codes stay visible; the Super Admin no-IDs rule is not extended. Publishing is never the Vendor’s action. Saved changes to a returned experiment stay private until resubmitted. Only assigned courses can be chosen; MEL ZG512 records are read-only. Delivery shows current stand-ins only: web links, package labels and references, documents by name.",
+   "fill": "teal"
+  },
+  "n-open": {
+   "x": 2040,
+   "y": 480,
+   "w": 480,
+   "text": "Resubmitted revisions stay “Submitted”\nIn the app a resubmitted revision goes straight back to the Academic Reviewer (the accepted local route). The Vendor is not told the next stage: record, list, Overview and history say “Submitted · revision 2” until a reviewer decides, Composite Wall included. Showing the stage stays open policy (M-3).",
+   "fill": "orange"
+  },
+  "n-shared": {
+   "x": 2560,
+   "y": 480,
+   "w": 480,
+   "text": "Borrowed shared surfaces\nAccount menu, Help and support and “This page isn’t part of your workspace” follow the shared XS contract behaviour in V3 tokens, drawn here only so the Vendor role is complete. Sign out ends at a handoff note because the Signed out page belongs to Shared Surfaces. Replace these with the shared versions at assembly.",
+   "fill": "orange"
+  },
+  "n-scope": {
+   "x": 3080,
+   "y": 480,
+   "w": 480,
+   "text": "Out of scope by decision\nVE-10, VE-11, VE-12, VE-14 and VE-15 are not designed and nothing links to them. No uploads or package processing, no Module level, no correction pipeline, no format additions to published material. Added for safety: “Leave without saving?” when unsaved changes would be lost. Illustrative only: SUB-0087, the 10:40 clock, SUP-0181.",
+   "fill": "teal"
+  },
+  "row-ve01": {
+   "x": 0,
+   "y": 1145,
+   "text": "VE-01 · Overview · Thu 27 Aug 2026 · 1440 · 1024 · 768 · 375 · nothing needs attention · no experiments yet",
+   "kind": "title1",
+   "maxW": 6887
+  },
+  "row-ve02": {
+   "x": 0,
+   "y": 3460,
+   "text": "VE-02 · My experiments · 1440 · 1024 · 768 · 375 · Returned tab · no experiments yet · no match · loading · could not load",
+   "kind": "title1",
+   "maxW": 9783
+  },
+  "row-ve03": {
+   "x": 0,
+   "y": 5473,
+   "text": "VE-03 · Create · Course and description · 1440 · 375 · required fields · name already used · course no longer assigned · draft saved",
+   "kind": "title1",
+   "maxW": 7975
+  },
+  "row-ve04": {
+   "x": 0,
+   "y": 7372,
+   "text": "VE-04 · Formats and delivery · all four formats at 1440 and 375 · WEB complete, AR partly filled · fields to fix at 1440, 1024 and 768 · leave without saving",
+   "kind": "title1",
+   "maxW": 8407
+  },
+  "row-ve05": {
+   "x": 0,
+   "y": 11566,
+   "text": "VE-05 · Preview and documents · 1440 · 375 · preview label without a link",
+   "kind": "title1",
+   "maxW": 3415
+  },
+  "row-ve06": {
+   "x": 0,
+   "y": 13232,
+   "text": "VE-06 · Check and submit · 1440 · 375 · steps still to complete · confirm · submitted for academic review",
+   "kind": "title1",
+   "maxW": 6455
+  },
+  "row-ve07": {
+   "x": 0,
+   "y": 16019,
+   "text": "VE-07 · Experiment record · returned by the Academic Reviewer (Forced Convection) · 1440 · 1024 · 768 · 375",
+   "kind": "title1",
+   "maxW": 3847
+  },
+  "row-ve07s": {
+   "x": 0,
+   "y": 19352,
+   "text": "VE-07 · other states the Vendor can see · draft · with Academic Reviewer after a first submission · with Content Manager · published · course no longer assigned",
+   "kind": "title1",
+   "maxW": 7520
+  },
+  "row-ve07r": {
+   "x": 0,
+   "y": 21467,
+   "text": "VE-07 · returns, rechecks and revisions · returned by Content Manager · recheck · saved changes not resubmitted · resubmitted revision stays “Submitted”",
+   "kind": "title1",
+   "maxW": 6000
+  },
+  "row-ve08": {
+   "x": 0,
+   "y": 23816,
+   "text": "VE-08 · Revise and resubmit · Forced Convection · 1440 · 375 · reason first · changes saved · confirm · submitted · already submitted · already approved",
+   "kind": "title1",
+   "maxW": 11015
+  },
+  "row-ve09": {
+   "x": 0,
+   "y": 27251,
+   "text": "VE-09 · Edit draft · Pin Fin Efficiency · 1440 · 375 · course no longer assigned",
+   "kind": "title1",
+   "maxW": 3415
+  },
+  "row-ve13": {
+   "x": 0,
+   "y": 29194,
+   "text": "VE-13 · Submission and version history · Conduction Through a Composite Wall, revision 2 · 1440 · 375 · published experiment",
+   "kind": "title1",
+   "maxW": 3415
+  },
+  "row-xs": {
+   "x": 0,
+   "y": 31180,
+   "text": "Shared surfaces the Vendor uses · borrowed from the shared contract, pending assembly · Help and support · account menu · other workspace · phone menu",
+   "kind": "title1",
+   "maxW": 7975
+  }
+ },
+ "designSystems": []
+}

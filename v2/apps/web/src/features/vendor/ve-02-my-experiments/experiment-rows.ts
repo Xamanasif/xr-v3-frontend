@@ -1,23 +1,31 @@
 /**
- * Pure view helpers of VE-02 My experiments (board B5-02): the status the Vendor reads, its chip
- * tone, who has the record now, the row's one action, the “Changed in the last 7 days” rule and the
- * address's `?status=`. Nothing here decides a state: the record's status and guards are the
- * service's (`ProductionService.listMyExperiments`); this only words and places them as B5-02's
- * script does (`stw`, `stk`, `withw`, `r.act`, `recentIds`).
+ * Pure view helpers of VE-02 My experiments (the owner-approved Vendor export, VE-v1
+ * `Main.dc.html` `listView`, `stSub`), shared with VE-01: the status the Vendor reads, its pill
+ * and plain line, the row's one action, the “Changed in the last 7 days” rule and the address's
+ * `?status=` and `?changed=`. Whether a returned record holds saved changes is
+ * `shared/saved-changes.ts`, the one rule every Vendor screen reads. Nothing here
+ * decides a state: the record's status and guards are the service's
+ * (`ProductionService.listMyExperiments`); this only words and places them.
  */
 import type { listMyExperimentsOutput, Out } from '@xr/contracts/draft';
-import type { StatusTone } from '@xr/ui';
+import type { StatusTone } from '@xr/ui/v3';
 
-import { wordsOf, submissionWords } from '@/copy/flow-state-words';
+import { dayMonth, dayMonthYear } from '@/copy/dates';
+import { stateWords } from '@/copy/state-copy';
 import {
+  editDraftRowName,
   MY_EXPERIMENTS_WORDS,
-  READ_ONLY_DRAFT,
-  RETURNED,
-  rowActionLabel,
-  WITH_WORDS,
+  onDay,
+  returnedByLine,
+  reviseRowName,
+  STATUS_LINES,
+  type StatusTabKey,
 } from '@/copy/vendor-home';
-import { editDraftAddress, experimentRecordAddress, reviseAddress } from '@/nav/vendor';
+import { EDITOR_STEPS, editDraftAddress, myExperimentsAddress, reviseAddress } from '@/nav/vendor';
 import type { MyExperimentsStatus } from '@/queries/production';
+
+import { approvedAt } from '../shared/approval';
+import { vendorPill } from '../shared/status-pill';
 
 export type MyExperimentRow = Out<typeof listMyExperimentsOutput>[number];
 type Submission = MyExperimentRow['submission'];
@@ -31,7 +39,7 @@ const STATUSES: readonly MyExperimentsStatus[] = [
   'published',
 ];
 
-/** `?status=` of the address (B5-02 f1 “Filtered: Returned”); anything else is “All statuses”. */
+/** `?status=` of the address (a tab); anything else is All. */
 export function statusFilterOf(search: string): MyExperimentsStatus | null {
   const status = new URLSearchParams(search).get('status');
   return (STATUSES as readonly string[]).includes(status ?? '')
@@ -39,10 +47,30 @@ export function statusFilterOf(search: string): MyExperimentsStatus | null {
     : null;
 }
 
+/** The address's value of “Changed in the last 7 days” (`?changed=last-7-days`). */
+export const RECENT_PARAMETER = { name: 'changed', value: 'last-7-days' } as const;
+
+/** Whether the address ticks “Changed in the last 7 days”. */
+export function recentFilterOf(search: string): boolean {
+  return new URLSearchParams(search).get(RECENT_PARAMETER.name) === RECENT_PARAMETER.value;
+}
+
 /**
- * The status the Vendor reads, as the Status filter's values name it: “Submitted” after a
- * resubmit until the record moves on (B5-06 f4; M-3), “With Academic Reviewer” for a first review
- * or a re-check (B5-02 `fst === 'with_rv'` takes `recheck` too).
+ * VE-02 with its tab and 7-day filter in the address (`?status=…&changed=last-7-days`); the
+ * Overview's “Changed in the last 7 days” opens it with the filter on (LINK-MAP L17).
+ */
+export function myExperimentsFilterAddress(
+  status: MyExperimentsStatus | null,
+  recent: boolean,
+): string {
+  const base = myExperimentsAddress(status ?? undefined);
+  if (!recent) return base;
+  return `${base}${base.includes('?') ? '&' : '?'}${RECENT_PARAMETER.name}=${RECENT_PARAMETER.value}`;
+}
+
+/**
+ * The status the Vendor reads, as the tabs name it: “Submitted” after a resubmit until the record
+ * moves on (M-3), “With Academic Reviewer” for a first review or a re-check.
  */
 export function vendorStatusOf(submission: Submission): MyExperimentsStatus {
   const { status } = submission;
@@ -58,99 +86,107 @@ export function vendorStatusOf(submission: Submission): MyExperimentsStatus {
   }
 }
 
-/** A draft whose course is no longer one of the Vendor's opens read-only (OD-B5-01; SUB-0083). */
+/** Whether a row is in a tab: All holds every row; the others the service's status filter's. */
+export function inTab(row: MyExperimentRow, tab: StatusTabKey): boolean {
+  return tab === 'all' || vendorStatusOf(row.submission) === tab;
+}
+
+/** A draft whose course is no longer one of the Vendor's opens read-only (OD-B5-01). */
 export function isReadOnlyDraft(row: MyExperimentRow): boolean {
   return row.submission.status.state === 'draft' && row.guards.courseNoLongerAssigned;
 }
 
-/** B5-02 `stk`: draft off, with a role wait, returned err, submitted info, published ok, read-only paused. */
-const TONE: Readonly<Record<MyExperimentsStatus, StatusTone>> = {
-  draft: 'off',
-  submitted: 'info',
-  'with-academic-reviewer': 'wait',
-  returned: 'err',
-  'with-content-manager': 'wait',
-  published: 'ok',
-};
-
-/** The status chip: its words (`submissionWords(…, 'vendor')`, or B5-02 `stw.readonly`) and tone. */
+/**
+ * The status pill: its words and shape (`vendorPill`, HANDOFF §2; the one rule every Vendor screen
+ * draws) — “Draft · read-only” for a draft whose course is no longer assigned.
+ */
 export function rowStatus(row: MyExperimentRow): {
   readonly label: string;
   readonly tone: StatusTone;
 } {
-  if (isReadOnlyDraft(row)) return { label: READ_ONLY_DRAFT, tone: 'paused' };
-  const status = vendorStatusOf(row.submission);
-  // A Super Admin's override return has no Vendor-side words (B7-06): the drawn “Returned”
-  // (state-copy `VE-02.override-return`).
-  const label = wordsOf(submissionWords(row.submission, 'vendor')) ?? RETURNED;
-  return { label, tone: TONE[status] };
+  const pill = vendorPill(row.submission, row.guards.courseNoLongerAssigned);
+  return { label: pill.words, tone: pill.tone };
+}
+
+/** The step a draft last reached, counted as the editor's four steps (Course 1 … Check 4). */
+export function stepNumber(step: Submission['lastStepReached']): number {
+  return EDITOR_STEPS.indexOf(step) + 1;
+}
+
+/** The same calendar day as the sample clock's “now” (Indian time, as every date is written). */
+export function isToday(instant: string, now: string | null): boolean {
+  return now !== null && dayMonthYear(instant) === dayMonthYear(now);
+}
+
+/** “on 24 Aug”, or “today”. */
+export function onDayOf(instant: string, now: string | null): string {
+  return onDay(dayMonth(instant), isToday(instant, now));
 }
 
 /**
- * Who has it now (B5-02 `withw`): the Vendor while it is a draft or returned; the Academic
- * Reviewer or the Content Manager while it is with them; “—” once published, while it reads
- * “Submitted” (the next gate is never named, M-3) and for a read-only draft.
+ * The one plain line under the pill (HANDOFF §2; state-copy `VE-02.status-line`); none for a
+ * Super Admin override, whose Vendor words are not drawn.
  */
-export function withWho(row: MyExperimentRow): string {
-  if (isReadOnlyDraft(row)) return WITH_WORDS.nobody;
-  switch (vendorStatusOf(row.submission)) {
+export function statusLine(row: MyExperimentRow, now: string | null): string | null {
+  const { submission } = row;
+  const { status } = submission;
+  if (isReadOnlyDraft(row)) return stateWords('VE-02.read-only-line');
+  switch (status.state) {
     case 'draft':
-    case 'returned':
-      return WITH_WORDS.you;
+      return STATUS_LINES.draft(stepNumber(submission.lastStepReached));
     case 'with-academic-reviewer':
-      return WITH_WORDS.academicReviewer;
+      if (status.reason === 'recheck') return STATUS_LINES.recheck;
+      return vendorStatusOf(submission) === 'submitted'
+        ? STATUS_LINES.submitted(
+            submission.revision,
+            onDayOf(submission.lastResubmittedAt ?? status.since, now),
+          )
+        : STATUS_LINES.withReviewer(onDayOf(status.since, now));
+    case 'resubmitted':
+      return STATUS_LINES.submitted(submission.revision, onDayOf(status.since, now));
+    case 'returned':
+      return status.by === 'super-admin-override'
+        ? null
+        : returnedByLine(status.by, onDayOf(status.since, now));
     case 'with-content-manager':
-      return WITH_WORDS.contentManager;
-    case 'submitted':
+      return STATUS_LINES.withContentManager(onDayOf(approvedAt(submission), now));
     case 'published':
-      return WITH_WORDS.nobody;
+      return STATUS_LINES.published(dayMonth(status.at));
   }
 }
 
 export interface RowAction {
   readonly label: string;
-  /** The action's accessible name: “Revise Forced Convection” (B5-02 `r.aria`). */
+  /** “Revise Forced Convection”, “Edit the draft of Pin Fin Efficiency”. */
   readonly name: string;
   readonly href: string;
-  /** Revise is the row's primary (B5-02 f1 “Revise is the primary action”); the rest secondary. */
-  readonly primary: boolean;
 }
 
 /**
- * The row's one action (B5-02 `r.act`, state-copy `VE-02.row-action`): a returned record →
- * “Revise” (VE-08); a draft → “Edit draft” at the step it last reached (VE-09); anything else —
- * a read-only draft and a returned record whose course is no longer assigned among them — “Open”
- * (the record, VE-07).
+ * The row's one action (state-copy `VE-02.row-action`): a returned record → “Revise” (VE-08); a
+ * draft → “Edit draft” at the step it last reached (VE-09); none for anything else — a read-only
+ * draft and a returned record whose course is no longer assigned among them (the chevron; the
+ * name opens the record).
  */
-export function rowAction(row: MyExperimentRow): RowAction {
+export function rowAction(row: MyExperimentRow): RowAction | null {
   const { submission, guards } = row;
   const name = submission.content.name;
-  const state = submission.status.state;
-  if (state === 'returned' && !guards.courseNoLongerAssigned) {
-    const label = MY_EXPERIMENTS_WORDS.revise;
+  if (guards.courseNoLongerAssigned) return null;
+  if (submission.status.state === 'returned') {
     return {
-      label,
-      name: rowActionLabel(label, name),
+      label: MY_EXPERIMENTS_WORDS.revise,
+      name: reviseRowName(name),
       href: reviseAddress(submission.id),
-      primary: true,
     };
   }
-  if (state === 'draft' && !guards.courseNoLongerAssigned) {
-    const label = MY_EXPERIMENTS_WORDS.editDraft;
+  if (submission.status.state === 'draft') {
     return {
-      label,
-      name: rowActionLabel(label, name),
+      label: MY_EXPERIMENTS_WORDS.editDraft,
+      name: editDraftRowName(name),
       href: editDraftAddress(submission.id, submission.lastStepReached),
-      primary: false,
     };
   }
-  const label = MY_EXPERIMENTS_WORDS.open;
-  return {
-    label,
-    name: rowActionLabel(label, name),
-    href: experimentRecordAddress(submission.id),
-    primary: false,
-  };
+  return null;
 }
 
 /** The window of “Changed in the last 7 days” (state-copy `VE-02.changed-recently`, OD-B5-13). */
@@ -158,10 +194,19 @@ export const RECENT_DAYS = 7;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
- * Whether the record's last change (`updatedAt`, the date under its status) falls within the last
- * seven days of the sample clock (`now`, the session's sign-in instant on the sample clock — the
- * screens have no clock of their own). A change after `now` counts.
+ * Whether the record's last change (`updatedAt`) falls within the last seven days of the sample
+ * clock (`now`, the session's sign-in instant on the sample clock — the screens have no clock of
+ * their own). A change after `now` counts.
  */
 export function changedRecently(updatedAt: string, now: string): boolean {
   return Date.parse(updatedAt) >= Date.parse(now) - RECENT_DAYS * DAY_MS;
+}
+
+/** Oldest change first (ties keep the service's order); the service answers newest first. */
+export function oldestFirst(rows: readonly MyExperimentRow[]): MyExperimentRow[] {
+  return [...rows].sort((a, b) => {
+    const left = a.submission.updatedAt;
+    const right = b.submission.updatedAt;
+    return left === right ? 0 : left < right ? -1 : 1;
+  });
 }

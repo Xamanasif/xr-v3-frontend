@@ -72,11 +72,26 @@ export const SA_EXPORT_DIRECTORY = join(
   'project',
 );
 
-/** Every class a selector of the V3, XS and SA derivatives or the V3 patches names. */
+/**
+ * The owner-approved Vendor export (VE-v1): its live role root (`Main.dc.html`), read as the
+ * reference for the Vendor pages' markup, words and icons.
+ */
+export const VE_EXPORT_DIRECTORY = join(
+  V3_BOARDS_DIRECTORY,
+  '..',
+  '..',
+  '..',
+  '..',
+  'roles',
+  'VE-v1',
+  'project',
+);
+
+/** Every class a selector of the V3, XS, SA and VE derivatives or the V3 patches names. */
 export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
-  ['rb-scoped.css', 'xs-scoped.css', 'sa-scoped.css', 'patch.css'].flatMap((sheet) => [
-    ...classNamesIn(readFileSync(join(V3_STYLES, sheet), 'utf8')),
-  ]),
+  ['rb-scoped.css', 'xs-scoped.css', 'sa-scoped.css', 've-scoped.css', 'patch.css'].flatMap(
+    (sheet) => [...classNamesIn(readFileSync(join(V3_STYLES, sheet), 'utf8'))],
+  ),
 );
 
 /** The raw text of an XS export file (`XsSignIn.dc.html`, …), for markup and icon checks. */
@@ -87,6 +102,11 @@ export function xsExportText(file: string): string {
 /** The raw text of an SA export file (`sa-views-a.js`, …), for markup, words and icon checks. */
 export function saExportText(file: string): string {
   return readFileSync(join(SA_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The raw text of a VE export file (`Main.dc.html`, …), for markup, words and icon checks. */
+export function veExportText(file: string): string {
+  return readFileSync(join(VE_EXPORT_DIRECTORY, file), 'utf8');
 }
 
 /**
